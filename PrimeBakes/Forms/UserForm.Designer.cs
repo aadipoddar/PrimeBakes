@@ -28,58 +28,37 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			statusLabel = new Label();
-			statusComboBox = new ComboBox();
-			employeeComboBox = new ComboBox();
+			userComboBox = new ComboBox();
 			saveButton = new Button();
 			passwordLabel = new Label();
 			passwordTextBox = new TextBox();
 			nameLabel = new Label();
-			employeeNameTextBox = new TextBox();
+			nameTextBox = new TextBox();
+			statusCheckBox = new CheckBox();
 			SuspendLayout();
 			// 
-			// statusLabel
+			// userComboBox
 			// 
-			statusLabel.AutoSize = true;
-			statusLabel.Font = new Font("Segoe UI", 15F);
-			statusLabel.Location = new Point(19, 152);
-			statusLabel.Name = "statusLabel";
-			statusLabel.Size = new Size(65, 28);
-			statusLabel.TabIndex = 35;
-			statusLabel.Text = "Status";
-			// 
-			// statusComboBox
-			// 
-			statusComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
-			statusComboBox.FlatStyle = FlatStyle.System;
-			statusComboBox.Font = new Font("Segoe UI", 15F);
-			statusComboBox.FormattingEnabled = true;
-			statusComboBox.Items.AddRange(new object[] { "Active", "Inactive" });
-			statusComboBox.Location = new Point(188, 149);
-			statusComboBox.Name = "statusComboBox";
-			statusComboBox.Size = new Size(271, 36);
-			statusComboBox.TabIndex = 30;
-			// 
-			// employeeComboBox
-			// 
-			employeeComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
-			employeeComboBox.FlatStyle = FlatStyle.System;
-			employeeComboBox.Font = new Font("Segoe UI", 15F);
-			employeeComboBox.FormattingEnabled = true;
-			employeeComboBox.Location = new Point(96, 12);
-			employeeComboBox.Name = "employeeComboBox";
-			employeeComboBox.Size = new Size(271, 36);
-			employeeComboBox.TabIndex = 33;
+			userComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+			userComboBox.FlatStyle = FlatStyle.System;
+			userComboBox.Font = new Font("Segoe UI", 15F);
+			userComboBox.FormattingEnabled = true;
+			userComboBox.Location = new Point(96, 12);
+			userComboBox.Name = "userComboBox";
+			userComboBox.Size = new Size(271, 36);
+			userComboBox.TabIndex = 5;
+			userComboBox.SelectedIndexChanged += userComboBox_SelectedIndexChanged;
 			// 
 			// saveButton
 			// 
 			saveButton.Font = new Font("Segoe UI", 15F);
-			saveButton.Location = new Point(179, 210);
+			saveButton.Location = new Point(164, 212);
 			saveButton.Name = "saveButton";
 			saveButton.Size = new Size(118, 38);
-			saveButton.TabIndex = 31;
+			saveButton.TabIndex = 4;
 			saveButton.Text = "SAVE";
 			saveButton.UseVisualStyleBackColor = true;
+			saveButton.Click += saveButton_Click;
 			// 
 			// passwordLabel
 			// 
@@ -99,7 +78,7 @@
 			passwordTextBox.PasswordChar = '*';
 			passwordTextBox.PlaceholderText = "Password";
 			passwordTextBox.Size = new Size(271, 34);
-			passwordTextBox.TabIndex = 29;
+			passwordTextBox.TabIndex = 2;
 			// 
 			// nameLabel
 			// 
@@ -111,44 +90,54 @@
 			nameLabel.TabIndex = 32;
 			nameLabel.Text = "Name";
 			// 
-			// employeeNameTextBox
+			// nameTextBox
 			// 
-			employeeNameTextBox.Font = new Font("Segoe UI", 15F);
-			employeeNameTextBox.Location = new Point(188, 69);
-			employeeNameTextBox.Name = "employeeNameTextBox";
-			employeeNameTextBox.PlaceholderText = "Employee Name";
-			employeeNameTextBox.Size = new Size(271, 34);
-			employeeNameTextBox.TabIndex = 28;
+			nameTextBox.Font = new Font("Segoe UI", 15F);
+			nameTextBox.Location = new Point(188, 69);
+			nameTextBox.Name = "nameTextBox";
+			nameTextBox.PlaceholderText = "Name";
+			nameTextBox.Size = new Size(271, 34);
+			nameTextBox.TabIndex = 1;
+			// 
+			// statusCheckBox
+			// 
+			statusCheckBox.AutoSize = true;
+			statusCheckBox.Font = new Font("Segoe UI", 15F);
+			statusCheckBox.Location = new Point(188, 163);
+			statusCheckBox.Name = "statusCheckBox";
+			statusCheckBox.Size = new Size(84, 32);
+			statusCheckBox.TabIndex = 3;
+			statusCheckBox.Text = "Status";
+			statusCheckBox.UseVisualStyleBackColor = true;
 			// 
 			// UserForm
 			// 
+			AcceptButton = saveButton;
 			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
 			ClientSize = new Size(504, 284);
-			Controls.Add(statusLabel);
-			Controls.Add(statusComboBox);
-			Controls.Add(employeeComboBox);
+			Controls.Add(statusCheckBox);
+			Controls.Add(userComboBox);
 			Controls.Add(saveButton);
 			Controls.Add(passwordLabel);
 			Controls.Add(passwordTextBox);
 			Controls.Add(nameLabel);
-			Controls.Add(employeeNameTextBox);
+			Controls.Add(nameTextBox);
 			Name = "UserForm";
 			StartPosition = FormStartPosition.CenterScreen;
 			Text = "UserForm";
+			Load += UserForm_Load;
 			ResumeLayout(false);
 			PerformLayout();
 		}
 
 		#endregion
-
-		private Label statusLabel;
-		private ComboBox statusComboBox;
-		private ComboBox employeeComboBox;
+		private ComboBox userComboBox;
 		private Button saveButton;
 		private Label passwordLabel;
 		private TextBox passwordTextBox;
 		private Label nameLabel;
-		private TextBox employeeNameTextBox;
+		private TextBox nameTextBox;
+		private CheckBox statusCheckBox;
 	}
 }

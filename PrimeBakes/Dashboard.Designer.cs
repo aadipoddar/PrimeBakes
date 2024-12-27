@@ -90,6 +90,7 @@ partial class Dashboard
 		Name = "Dashboard";
 		StartPosition = FormStartPosition.CenterScreen;
 		Text = "Dashboard";
+		Load += Dashboard_Load;
 		ResumeLayout(false);
 	}
 

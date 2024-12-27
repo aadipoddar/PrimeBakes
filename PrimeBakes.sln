@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35527.113 d17.12
+VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrimeBakes", "PrimeBakes\PrimeBakes.csproj", "{2E1FC192-8F33-4D5B-8431-A7F160BB7FBD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrimeBakesLibrary", "PrimeBakesLibrary\PrimeBakesLibrary.csproj", "{8FD74E40-87E3-4CA8-9DF1-9CA95B3B5A59}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SetupProject", "SetupProject\SetupProject.vdproj", "{07E5EA80-E174-4E38-8565-4821FA195E43}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{2E1FC192-8F33-4D5B-8431-A7F160BB7FBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E1FC192-8F33-4D5B-8431-A7F160BB7FBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2E1FC192-8F33-4D5B-8431-A7F160BB7FBD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8FD74E40-87E3-4CA8-9DF1-9CA95B3B5A59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8FD74E40-87E3-4CA8-9DF1-9CA95B3B5A59}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8FD74E40-87E3-4CA8-9DF1-9CA95B3B5A59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8FD74E40-87E3-4CA8-9DF1-9CA95B3B5A59}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07E5EA80-E174-4E38-8565-4821FA195E43}.Debug|Any CPU.ActiveCfg = Release
+		{07E5EA80-E174-4E38-8565-4821FA195E43}.Debug|Any CPU.Build.0 = Release
+		{07E5EA80-E174-4E38-8565-4821FA195E43}.Release|Any CPU.ActiveCfg = Release
+		{07E5EA80-E174-4E38-8565-4821FA195E43}.Release|Any CPU.Build.0 = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

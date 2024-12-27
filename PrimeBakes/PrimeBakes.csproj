@@ -2,10 +2,11 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
+    <TargetFramework>net8.0-windows8.0</TargetFramework>
+    <Nullable>disable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
+    <StartupObject>PrimeBakes.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +15,14 @@
 
   <ItemGroup>
     <None Include="C:\dev\PrimeBakes\PrimeBakes\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AadiSoft.Updater" Version="1.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PrimeBakesLibrary\PrimeBakesLibrary.csproj" />
   </ItemGroup>
 
 </Project>
