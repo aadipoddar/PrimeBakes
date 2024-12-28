@@ -1,7 +1,4 @@
-﻿using PrimeBakesLibrary.Data;
-using PrimeBakesLibrary.Models;
-
-namespace PrimeBakes.Forms;
+﻿namespace PrimeBakes.Forms;
 
 public partial class UserForm : Form
 {

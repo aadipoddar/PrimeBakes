@@ -1,6 +1,4 @@
-﻿using PrimeBakesLibrary.DataAccess;
-
-namespace PrimeBakesLibrary.Data;
+﻿namespace PrimeBakesLibrary.Data;
 
 public static class CommonData
 {

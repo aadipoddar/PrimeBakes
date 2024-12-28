@@ -1,7 +1,4 @@
-﻿using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Models;
-
-namespace PrimeBakesLibrary.Data;
+﻿namespace PrimeBakesLibrary.Data;
 
 public static class UserData
 {

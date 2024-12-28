@@ -28,37 +28,14 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			statusLabel = new Label();
-			statusComboBox = new ComboBox();
 			customerComboBox = new ComboBox();
 			saveButton = new Button();
 			codeLabel = new Label();
 			codeTextBox = new TextBox();
+			statusCheckBox = new CheckBox();
 			nameLabel = new Label();
-			customerNameTextBox = new TextBox();
+			nameTextBox = new TextBox();
 			SuspendLayout();
-			// 
-			// statusLabel
-			// 
-			statusLabel.AutoSize = true;
-			statusLabel.Font = new Font("Segoe UI", 15F);
-			statusLabel.Location = new Point(12, 152);
-			statusLabel.Name = "statusLabel";
-			statusLabel.Size = new Size(65, 28);
-			statusLabel.TabIndex = 35;
-			statusLabel.Text = "Status";
-			// 
-			// statusComboBox
-			// 
-			statusComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
-			statusComboBox.FlatStyle = FlatStyle.System;
-			statusComboBox.Font = new Font("Segoe UI", 15F);
-			statusComboBox.FormattingEnabled = true;
-			statusComboBox.Items.AddRange(new object[] { "Active", "Inactive" });
-			statusComboBox.Location = new Point(181, 149);
-			statusComboBox.Name = "statusComboBox";
-			statusComboBox.Size = new Size(271, 36);
-			statusComboBox.TabIndex = 30;
 			// 
 			// customerComboBox
 			// 
@@ -69,7 +46,8 @@
 			customerComboBox.Location = new Point(89, 12);
 			customerComboBox.Name = "customerComboBox";
 			customerComboBox.Size = new Size(271, 36);
-			customerComboBox.TabIndex = 33;
+			customerComboBox.TabIndex = 5;
+			customerComboBox.SelectedIndexChanged += customerComboBox_SelectedIndexChanged;
 			// 
 			// saveButton
 			// 
@@ -77,15 +55,16 @@
 			saveButton.Location = new Point(172, 210);
 			saveButton.Name = "saveButton";
 			saveButton.Size = new Size(118, 38);
-			saveButton.TabIndex = 31;
+			saveButton.TabIndex = 4;
 			saveButton.Text = "SAVE";
 			saveButton.UseVisualStyleBackColor = true;
+			saveButton.Click += saveButton_Click;
 			// 
 			// codeLabel
 			// 
 			codeLabel.AutoSize = true;
 			codeLabel.Font = new Font("Segoe UI", 15F);
-			codeLabel.Location = new Point(12, 112);
+			codeLabel.Location = new Point(12, 71);
 			codeLabel.Name = "codeLabel";
 			codeLabel.Size = new Size(58, 28);
 			codeLabel.TabIndex = 34;
@@ -94,61 +73,70 @@
 			// codeTextBox
 			// 
 			codeTextBox.Font = new Font("Segoe UI", 15F);
-			codeTextBox.Location = new Point(181, 109);
+			codeTextBox.Location = new Point(181, 68);
 			codeTextBox.Name = "codeTextBox";
-			codeTextBox.PasswordChar = '*';
 			codeTextBox.PlaceholderText = "Code";
 			codeTextBox.Size = new Size(271, 34);
-			codeTextBox.TabIndex = 29;
+			codeTextBox.TabIndex = 1;
+			// 
+			// statusCheckBox
+			// 
+			statusCheckBox.AutoSize = true;
+			statusCheckBox.Font = new Font("Segoe UI", 15F);
+			statusCheckBox.Location = new Point(186, 161);
+			statusCheckBox.Name = "statusCheckBox";
+			statusCheckBox.Size = new Size(84, 32);
+			statusCheckBox.TabIndex = 3;
+			statusCheckBox.Text = "Status";
+			statusCheckBox.UseVisualStyleBackColor = true;
 			// 
 			// nameLabel
 			// 
 			nameLabel.AutoSize = true;
 			nameLabel.Font = new Font("Segoe UI", 15F);
-			nameLabel.Location = new Point(12, 72);
+			nameLabel.Location = new Point(12, 111);
 			nameLabel.Name = "nameLabel";
 			nameLabel.Size = new Size(64, 28);
-			nameLabel.TabIndex = 32;
+			nameLabel.TabIndex = 36;
 			nameLabel.Text = "Name";
 			// 
-			// customerNameTextBox
+			// nameTextBox
 			// 
-			customerNameTextBox.Font = new Font("Segoe UI", 15F);
-			customerNameTextBox.Location = new Point(181, 69);
-			customerNameTextBox.Name = "customerNameTextBox";
-			customerNameTextBox.PlaceholderText = "Customer Name";
-			customerNameTextBox.Size = new Size(271, 34);
-			customerNameTextBox.TabIndex = 28;
+			nameTextBox.Font = new Font("Segoe UI", 15F);
+			nameTextBox.Location = new Point(181, 108);
+			nameTextBox.Name = "nameTextBox";
+			nameTextBox.PlaceholderText = "Name";
+			nameTextBox.Size = new Size(271, 34);
+			nameTextBox.TabIndex = 2;
 			// 
 			// CustomerForm
 			// 
+			AcceptButton = saveButton;
 			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
 			ClientSize = new Size(482, 276);
-			Controls.Add(statusLabel);
-			Controls.Add(statusComboBox);
+			Controls.Add(nameLabel);
+			Controls.Add(nameTextBox);
+			Controls.Add(statusCheckBox);
 			Controls.Add(customerComboBox);
 			Controls.Add(saveButton);
 			Controls.Add(codeLabel);
 			Controls.Add(codeTextBox);
-			Controls.Add(nameLabel);
-			Controls.Add(customerNameTextBox);
 			Name = "CustomerForm";
 			StartPosition = FormStartPosition.CenterScreen;
 			Text = "CustomerForm";
+			Load += CustomerForm_Load;
 			ResumeLayout(false);
 			PerformLayout();
 		}
 
 		#endregion
-
-		private Label statusLabel;
-		private ComboBox statusComboBox;
 		private ComboBox customerComboBox;
 		private Button saveButton;
 		private Label codeLabel;
 		private TextBox codeTextBox;
+		private CheckBox statusCheckBox;
 		private Label nameLabel;
-		private TextBox customerNameTextBox;
+		private TextBox nameTextBox;
 	}
 }

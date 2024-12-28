@@ -52,7 +52,7 @@
 			// saveButton
 			// 
 			saveButton.Font = new Font("Segoe UI", 15F);
-			saveButton.Location = new Point(164, 212);
+			saveButton.Location = new Point(169, 212);
 			saveButton.Name = "saveButton";
 			saveButton.Size = new Size(118, 38);
 			saveButton.TabIndex = 4;

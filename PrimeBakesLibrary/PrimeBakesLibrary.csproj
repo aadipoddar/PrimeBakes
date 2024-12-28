@@ -11,4 +11,9 @@
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Using Include="PrimeBakesLibrary.DataAccess" />
+    <Using Include="PrimeBakesLibrary.Models" />
+  </ItemGroup>
+
 </Project>
