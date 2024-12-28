@@ -39,6 +39,8 @@ partial class ItemForm
 		// 
 		// itemComboBox
 		// 
+		itemComboBox.AutoCompleteMode = AutoCompleteMode.Suggest;
+		itemComboBox.AutoCompleteSource = AutoCompleteSource.ListItems;
 		itemComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
 		itemComboBox.FlatStyle = FlatStyle.System;
 		itemComboBox.Font = new Font("Segoe UI", 15F);
@@ -72,6 +74,7 @@ partial class ItemForm
 		// 
 		// codeTextBox
 		// 
+		codeTextBox.CharacterCasing = CharacterCasing.Upper;
 		codeTextBox.Font = new Font("Segoe UI", 15F);
 		codeTextBox.Location = new Point(185, 67);
 		codeTextBox.Name = "codeTextBox";

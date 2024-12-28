@@ -39,6 +39,8 @@
 			// 
 			// userComboBox
 			// 
+			userComboBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+			userComboBox.AutoCompleteSource = AutoCompleteSource.ListItems;
 			userComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
 			userComboBox.FlatStyle = FlatStyle.System;
 			userComboBox.Font = new Font("Segoe UI", 15F);

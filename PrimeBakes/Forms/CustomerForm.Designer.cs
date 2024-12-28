@@ -39,6 +39,8 @@
 			// 
 			// customerComboBox
 			// 
+			customerComboBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+			customerComboBox.AutoCompleteSource = AutoCompleteSource.ListItems;
 			customerComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
 			customerComboBox.FlatStyle = FlatStyle.System;
 			customerComboBox.Font = new Font("Segoe UI", 15F);
@@ -72,6 +74,7 @@
 			// 
 			// codeTextBox
 			// 
+			codeTextBox.CharacterCasing = CharacterCasing.Upper;
 			codeTextBox.Font = new Font("Segoe UI", 15F);
 			codeTextBox.Location = new Point(181, 68);
 			codeTextBox.Name = "codeTextBox";

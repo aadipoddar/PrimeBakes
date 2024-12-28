@@ -32,9 +32,7 @@ partial class OrderForm
 		itemNameLabel = new Label();
 		customerNameLabel = new Label();
 		customerComboBox = new ComboBox();
-		customerCodeTextBox = new TextBox();
-		itemCodeTextBox = new TextBox();
-		dataGridView1 = new DataGridView();
+		itemsDataGridView = new DataGridView();
 		Item = new DataGridViewTextBoxColumn();
 		Code = new DataGridViewTextBoxColumn();
 		Quantity = new DataGridViewTextBoxColumn();
@@ -42,16 +40,18 @@ partial class OrderForm
 		quantityLabel = new Label();
 		saveButton = new Button();
 		addButton = new Button();
-		((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
+		((System.ComponentModel.ISupportInitialize)itemsDataGridView).BeginInit();
 		SuspendLayout();
 		// 
 		// itemComboBox
 		// 
+		itemComboBox.AutoCompleteMode = AutoCompleteMode.Suggest;
+		itemComboBox.AutoCompleteSource = AutoCompleteSource.ListItems;
 		itemComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
 		itemComboBox.FlatStyle = FlatStyle.System;
 		itemComboBox.Font = new Font("Segoe UI", 15F);
 		itemComboBox.FormattingEnabled = true;
-		itemComboBox.Location = new Point(28, 139);
+		itemComboBox.Location = new Point(28, 151);
 		itemComboBox.Name = "itemComboBox";
 		itemComboBox.Size = new Size(271, 36);
 		itemComboBox.TabIndex = 42;
@@ -60,7 +60,7 @@ partial class OrderForm
 		// 
 		itemNameLabel.AutoSize = true;
 		itemNameLabel.Font = new Font("Segoe UI", 15F);
-		itemNameLabel.Location = new Point(107, 97);
+		itemNameLabel.Location = new Point(107, 109);
 		itemNameLabel.Name = "itemNameLabel";
 		itemNameLabel.Size = new Size(108, 28);
 		itemNameLabel.TabIndex = 43;
@@ -78,46 +78,27 @@ partial class OrderForm
 		// 
 		// customerComboBox
 		// 
+		customerComboBox.AutoCompleteMode = AutoCompleteMode.Suggest;
+		customerComboBox.AutoCompleteSource = AutoCompleteSource.ListItems;
 		customerComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
 		customerComboBox.FlatStyle = FlatStyle.System;
 		customerComboBox.Font = new Font("Segoe UI", 15F);
 		customerComboBox.FormattingEnabled = true;
-		customerComboBox.Location = new Point(57, 40);
+		customerComboBox.Location = new Point(235, 40);
 		customerComboBox.Name = "customerComboBox";
 		customerComboBox.Size = new Size(271, 36);
 		customerComboBox.TabIndex = 44;
 		// 
-		// customerCodeTextBox
+		// itemsDataGridView
 		// 
-		customerCodeTextBox.Font = new Font("Segoe UI", 15F);
-		customerCodeTextBox.Location = new Point(442, 42);
-		customerCodeTextBox.Name = "customerCodeTextBox";
-		customerCodeTextBox.PasswordChar = '*';
-		customerCodeTextBox.PlaceholderText = "Code";
-		customerCodeTextBox.Size = new Size(271, 34);
-		customerCodeTextBox.TabIndex = 46;
-		// 
-		// itemCodeTextBox
-		// 
-		itemCodeTextBox.Font = new Font("Segoe UI", 15F);
-		itemCodeTextBox.Location = new Point(28, 190);
-		itemCodeTextBox.Name = "itemCodeTextBox";
-		itemCodeTextBox.PasswordChar = '*';
-		itemCodeTextBox.PlaceholderText = "Code";
-		itemCodeTextBox.Size = new Size(271, 34);
-		itemCodeTextBox.TabIndex = 47;
-		// 
-		// dataGridView1
-		// 
-		dataGridView1.AllowUserToAddRows = false;
-		dataGridView1.AllowUserToDeleteRows = false;
-		dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-		dataGridView1.Columns.AddRange(new DataGridViewColumn[] { Item, Code, Quantity });
-		dataGridView1.Location = new Point(367, 131);
-		dataGridView1.Name = "dataGridView1";
-		dataGridView1.ReadOnly = true;
-		dataGridView1.Size = new Size(421, 307);
-		dataGridView1.TabIndex = 48;
+		itemsDataGridView.AllowUserToAddRows = false;
+		itemsDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+		itemsDataGridView.Columns.AddRange(new DataGridViewColumn[] { Item, Code, Quantity });
+		itemsDataGridView.Location = new Point(367, 109);
+		itemsDataGridView.Name = "itemsDataGridView";
+		itemsDataGridView.ReadOnly = true;
+		itemsDataGridView.Size = new Size(421, 329);
+		itemsDataGridView.TabIndex = 48;
 		// 
 		// Item
 		// 
@@ -140,19 +121,20 @@ partial class OrderForm
 		// quantityTextBox
 		// 
 		quantityTextBox.Font = new Font("Segoe UI", 15F);
-		quantityTextBox.Location = new Point(136, 249);
+		quantityTextBox.Location = new Point(187, 246);
 		quantityTextBox.Name = "quantityTextBox";
-		quantityTextBox.PasswordChar = '*';
 		quantityTextBox.PlaceholderText = "Quantity";
-		quantityTextBox.RightToLeft = RightToLeft.Yes;
-		quantityTextBox.Size = new Size(163, 34);
+		quantityTextBox.Size = new Size(83, 34);
 		quantityTextBox.TabIndex = 49;
+		quantityTextBox.Text = "1";
+		quantityTextBox.TextAlign = HorizontalAlignment.Right;
+		quantityTextBox.KeyPress += quantityTextBox_KeyPress;
 		// 
 		// quantityLabel
 		// 
 		quantityLabel.AutoSize = true;
 		quantityLabel.Font = new Font("Segoe UI", 15F);
-		quantityLabel.Location = new Point(28, 252);
+		quantityLabel.Location = new Point(55, 249);
 		quantityLabel.Name = "quantityLabel";
 		quantityLabel.Size = new Size(88, 28);
 		quantityLabel.TabIndex = 50;
@@ -167,6 +149,7 @@ partial class OrderForm
 		saveButton.TabIndex = 51;
 		saveButton.Text = "SAVE";
 		saveButton.UseVisualStyleBackColor = true;
+		saveButton.Click += saveButton_Click;
 		// 
 		// addButton
 		// 
@@ -177,6 +160,7 @@ partial class OrderForm
 		addButton.TabIndex = 52;
 		addButton.Text = "ADD";
 		addButton.UseVisualStyleBackColor = true;
+		addButton.Click += addButton_Click;
 		// 
 		// OrderForm
 		// 
@@ -187,9 +171,7 @@ partial class OrderForm
 		Controls.Add(saveButton);
 		Controls.Add(quantityLabel);
 		Controls.Add(quantityTextBox);
-		Controls.Add(dataGridView1);
-		Controls.Add(itemCodeTextBox);
-		Controls.Add(customerCodeTextBox);
+		Controls.Add(itemsDataGridView);
 		Controls.Add(customerNameLabel);
 		Controls.Add(customerComboBox);
 		Controls.Add(itemNameLabel);
@@ -197,7 +179,8 @@ partial class OrderForm
 		Name = "OrderForm";
 		StartPosition = FormStartPosition.CenterScreen;
 		Text = "OrderForm";
-		((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
+		Load += OrderForm_Load;
+		((System.ComponentModel.ISupportInitialize)itemsDataGridView).EndInit();
 		ResumeLayout(false);
 		PerformLayout();
 	}
@@ -208,9 +191,7 @@ partial class OrderForm
 	private Label itemNameLabel;
 	private Label customerNameLabel;
 	private ComboBox customerComboBox;
-	private TextBox customerCodeTextBox;
-	private TextBox itemCodeTextBox;
-	private DataGridView dataGridView1;
+	private DataGridView itemsDataGridView;
 	private DataGridViewTextBoxColumn Item;
 	private DataGridViewTextBoxColumn Code;
 	private DataGridViewTextBoxColumn Quantity;
