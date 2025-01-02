@@ -47,7 +47,13 @@ public partial class Dashboard : Form
 
 	private void orderButton_Click(object sender, EventArgs e)
 	{
-		ValidateUser validateUser = new();
+		ValidateUserForm validateUser = new();
 		validateUser.ShowDialog();
+	}
+
+	private void pastOrdersButton_Click(object sender, EventArgs e)
+	{
+		PastOrdersForm pastOrdersForm = new();
+		pastOrdersForm.ShowDialog();
 	}
 }

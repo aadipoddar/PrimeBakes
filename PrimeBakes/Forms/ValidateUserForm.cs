@@ -1,8 +1,8 @@
 ﻿namespace PrimeBakes.Forms;
 
-public partial class ValidateUser : Form
+public partial class ValidateUserForm : Form
 {
-	public ValidateUser()
+	public ValidateUserForm()
 	{
 		InitializeComponent();
 	}

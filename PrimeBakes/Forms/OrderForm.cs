@@ -1,14 +1,32 @@
-﻿namespace PrimeBakes.Forms;
+﻿using System.ComponentModel;
+
+namespace PrimeBakes.Forms;
 
 public partial class OrderForm : Form
 {
 	private readonly int _userId;
+	private readonly OrderModel _orderModel;
+	private BindingList<ViewOrderDetailModel> _orderDetails;
 
 	public OrderForm(int userId)
 	{
 		InitializeComponent();
 
 		_userId = userId;
+		_orderDetails = new();
+		itemsDataGridView.DataSource = _orderDetails;
+		HideFirstColumn();
+	}
+
+	public OrderForm(OrderModel orderModel)
+	{
+		InitializeComponent();
+
+		_orderModel = orderModel;
+		_userId = orderModel.UserId;
+		_orderDetails = new();
+		itemsDataGridView.DataSource = _orderDetails;
+		HideFirstColumn();
 	}
 
 	private void OrderForm_Load(object sender, EventArgs e) => LoadComboBox();
@@ -22,7 +40,17 @@ public partial class OrderForm : Form
 		itemComboBox.DataSource = (await CommonData.LoadTableData<ItemModel>("ItemTable")).ToList();
 		itemComboBox.DisplayMember = nameof(ItemModel.DisplayName);
 		itemComboBox.ValueMember = nameof(ItemModel.Id);
+
+		if (_orderModel != null)
+		{
+			customerComboBox.SelectedValue = _orderModel.CustomerId;
+			_orderDetails = new BindingList<ViewOrderDetailModel>((await OrderData.LoadOrderDetailsByOrderId(_orderModel.Id)).ToList());
+			itemsDataGridView.DataSource = _orderDetails;
+			HideFirstColumn();
+		}
 	}
+
+	private void HideFirstColumn() => itemsDataGridView.Columns[0].Visible = false;
 
 	private void quantityTextBox_KeyPress(object sender, KeyPressEventArgs e)
 	{
@@ -37,71 +65,73 @@ public partial class OrderForm : Form
 		if (int.Parse(quantityTextBox.Text) == 0)
 			quantityTextBox.Text = "1";
 
-		if (customerComboBox.SelectedItem is CustomerModel selectedCustomer && itemComboBox.SelectedItem is ItemModel selectedItem)
+		if (itemComboBox.SelectedItem is ItemModel selectedItem)
 		{
 			int quantity = int.TryParse(quantityTextBox.Text, out int result) ? result : 1;
 
-			itemsDataGridView.Rows.Add(selectedCustomer.Name, selectedItem.Code, quantity);
+			_orderDetails.Add(new ViewOrderDetailModel
+			{
+				ItemId = selectedItem.Id,
+				ItemName = selectedItem.Name,
+				ItemCode = selectedItem.Code,
+				Quantity = quantity
+			});
 		}
 		else
-			MessageBox.Show("Please select a customer and an item.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-	}
-
-	private void ClearForm()
-	{
-		customerComboBox.SelectedIndex = -1;
-		itemComboBox.SelectedIndex = -1;
-		quantityTextBox.Text = "1";
-		itemsDataGridView.Rows.Clear();
+			MessageBox.Show("Please select a customer and an item", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 	}
 
 	private async void saveButton_Click(object sender, EventArgs e)
 	{
-		if (itemsDataGridView.Rows.Count == 0)
+		if (_orderDetails.Count == 0)
 		{
-			MessageBox.Show("Please add at least one item to the order.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			MessageBox.Show("Please add at least one item to the order", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			return;
 		}
 
-		await InsertIntoOrderDetailTable(await InsertIntoOrderTable());
+		if (_orderModel is null)
+		{
+			await InsertIntoOrderDetailTable(await InsertIntoOrderTable());
+			return;
+		}
+
+		else
+		{
+			int orderId = await InsertIntoOrderTable();
+			await OrderData.OrderUpdate(_orderModel.Id, orderId);
+			await InsertIntoOrderDetailTable(orderId);
+			DialogResult = DialogResult.OK;
+		}
 	}
 
-	private async Task<int> InsertIntoOrderTable()
-	{
-		OrderModel orderModel = new()
+	private async Task<int> InsertIntoOrderTable() =>
+		await OrderData.OrderInsert(new OrderModel
 		{
 			Id = 0,
 			UserId = _userId,
 			CustomerId = (customerComboBox.SelectedItem as CustomerModel).Id,
 			DateTime = DateTime.Now
-		};
-
-		return await OrderData.OrderInsert(orderModel);
-	}
+		});
 
 	private async Task InsertIntoOrderDetailTable(int orderId)
 	{
-		foreach (DataGridViewRow row in itemsDataGridView.Rows)
+		foreach (var detail in _orderDetails)
 		{
-			if (row.IsNewRow) continue;
-
-			var itemCode = row.Cells[1].Value.ToString();
-			var item = (await CommonData.LoadTableData<ItemModel>("ItemTable")).FirstOrDefault(i => i.Code == itemCode);
-
-			if (item != null)
+			await OrderData.OrderDetailInsert(new OrderDetailModel
 			{
-				OrderDetailModel detailModel = new()
-				{
-					Id = 0,
-					OrderId = orderId,
-					ItemId = item.Id,
-					Quantity = int.Parse(row.Cells[2].Value.ToString())
-				};
-
-				await OrderData.OrderDetailInsert(detailModel);
-			}
+				Id = 0,
+				OrderId = orderId,
+				ItemId = detail.ItemId,
+				Quantity = detail.Quantity
+			});
 		}
 
 		ClearForm();
+	}
+
+	private void ClearForm()
+	{
+		quantityTextBox.Text = "1";
+		_orderDetails.Clear();
 	}
 }

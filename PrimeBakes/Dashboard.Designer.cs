@@ -32,6 +32,7 @@ partial class Dashboard
 		customerButton = new Button();
 		itemButton = new Button();
 		orderButton = new Button();
+		pastOrdersButton = new Button();
 		SuspendLayout();
 		// 
 		// userButton
@@ -78,11 +79,23 @@ partial class Dashboard
 		orderButton.UseVisualStyleBackColor = true;
 		orderButton.Click += orderButton_Click;
 		// 
+		// pastOrdersButton
+		// 
+		pastOrdersButton.Font = new Font("Segoe UI", 15F);
+		pastOrdersButton.Location = new Point(12, 284);
+		pastOrdersButton.Name = "pastOrdersButton";
+		pastOrdersButton.Size = new Size(253, 62);
+		pastOrdersButton.TabIndex = 4;
+		pastOrdersButton.Text = "Past Orders";
+		pastOrdersButton.UseVisualStyleBackColor = true;
+		pastOrdersButton.Click += pastOrdersButton_Click;
+		// 
 		// Dashboard
 		// 
 		AutoScaleDimensions = new SizeF(7F, 15F);
 		AutoScaleMode = AutoScaleMode.Font;
 		ClientSize = new Size(277, 450);
+		Controls.Add(pastOrdersButton);
 		Controls.Add(orderButton);
 		Controls.Add(itemButton);
 		Controls.Add(customerButton);
@@ -100,4 +113,5 @@ partial class Dashboard
 	private Button customerButton;
 	private Button itemButton;
 	private Button orderButton;
+	private Button pastOrdersButton;
 }

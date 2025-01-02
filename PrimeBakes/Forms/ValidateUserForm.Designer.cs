@@ -1,6 +1,6 @@
 ﻿namespace PrimeBakes.Forms;
 
-partial class ValidateUser
+partial class ValidateUserForm
 {
 	/// <summary>
 	/// Required designer variable.
