@@ -31,6 +31,8 @@ partial class PastOrdersForm
 		fromDateTimePicker = new DateTimePicker();
 		toDateTimePicker = new DateTimePicker();
 		orderDataGridView = new DataGridView();
+		refreshButton = new Button();
+		printButton = new Button();
 		((System.ComponentModel.ISupportInitialize)orderDataGridView).BeginInit();
 		SuspendLayout();
 		// 
@@ -38,7 +40,7 @@ partial class PastOrdersForm
 		// 
 		fromDateTimePicker.Font = new Font("Segoe UI", 15F);
 		fromDateTimePicker.Format = DateTimePickerFormat.Short;
-		fromDateTimePicker.Location = new Point(133, 12);
+		fromDateTimePicker.Location = new Point(51, 12);
 		fromDateTimePicker.Name = "fromDateTimePicker";
 		fromDateTimePicker.Size = new Size(143, 34);
 		fromDateTimePicker.TabIndex = 0;
@@ -48,7 +50,7 @@ partial class PastOrdersForm
 		// 
 		toDateTimePicker.Font = new Font("Segoe UI", 15F);
 		toDateTimePicker.Format = DateTimePickerFormat.Short;
-		toDateTimePicker.Location = new Point(508, 12);
+		toDateTimePicker.Location = new Point(238, 12);
 		toDateTimePicker.Name = "toDateTimePicker";
 		toDateTimePicker.Size = new Size(143, 34);
 		toDateTimePicker.TabIndex = 1;
@@ -56,18 +58,43 @@ partial class PastOrdersForm
 		// 
 		// orderDataGridView
 		// 
+		orderDataGridView.AllowUserToAddRows = false;
+		orderDataGridView.AllowUserToDeleteRows = false;
 		orderDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-		orderDataGridView.Location = new Point(12, 110);
+		orderDataGridView.Location = new Point(12, 71);
 		orderDataGridView.Name = "orderDataGridView";
-		orderDataGridView.Size = new Size(776, 328);
+		orderDataGridView.ReadOnly = true;
+		orderDataGridView.Size = new Size(776, 367);
 		orderDataGridView.TabIndex = 2;
 		orderDataGridView.CellDoubleClick += orderDataGridView_CellDoubleClick;
+		// 
+		// refreshButton
+		// 
+		refreshButton.Location = new Point(464, 12);
+		refreshButton.Name = "refreshButton";
+		refreshButton.Size = new Size(115, 34);
+		refreshButton.TabIndex = 3;
+		refreshButton.Text = "Refresh";
+		refreshButton.UseVisualStyleBackColor = true;
+		refreshButton.Click += refreshButton_Click;
+		// 
+		// printButton
+		// 
+		printButton.Location = new Point(616, 12);
+		printButton.Name = "printButton";
+		printButton.Size = new Size(115, 34);
+		printButton.TabIndex = 4;
+		printButton.Text = "Print";
+		printButton.UseVisualStyleBackColor = true;
+		printButton.Click += printButton_Click;
 		// 
 		// PastOrdersForm
 		// 
 		AutoScaleDimensions = new SizeF(7F, 15F);
 		AutoScaleMode = AutoScaleMode.Font;
 		ClientSize = new Size(800, 450);
+		Controls.Add(printButton);
+		Controls.Add(refreshButton);
 		Controls.Add(orderDataGridView);
 		Controls.Add(toDateTimePicker);
 		Controls.Add(fromDateTimePicker);
@@ -84,4 +111,6 @@ partial class PastOrdersForm
 	private DateTimePicker fromDateTimePicker;
 	private DateTimePicker toDateTimePicker;
 	private DataGridView orderDataGridView;
+	private Button refreshButton;
+	private Button printButton;
 }

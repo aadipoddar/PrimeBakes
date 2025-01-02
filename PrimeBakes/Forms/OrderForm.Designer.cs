@@ -37,6 +37,10 @@ partial class OrderForm
 		quantityLabel = new Label();
 		saveButton = new Button();
 		addButton = new Button();
+		printPDFButton = new Button();
+		printThermalButton = new Button();
+		printDocument = new System.Drawing.Printing.PrintDocument();
+		statusCheckBox = new CheckBox();
 		((System.ComponentModel.ISupportInitialize)itemsDataGridView).BeginInit();
 		SuspendLayout();
 		// 
@@ -48,16 +52,16 @@ partial class OrderForm
 		itemComboBox.FlatStyle = FlatStyle.System;
 		itemComboBox.Font = new Font("Segoe UI", 15F);
 		itemComboBox.FormattingEnabled = true;
-		itemComboBox.Location = new Point(28, 174);
+		itemComboBox.Location = new Point(28, 151);
 		itemComboBox.Name = "itemComboBox";
 		itemComboBox.Size = new Size(271, 36);
-		itemComboBox.TabIndex = 42;
+		itemComboBox.TabIndex = 2;
 		// 
 		// itemNameLabel
 		// 
 		itemNameLabel.AutoSize = true;
 		itemNameLabel.Font = new Font("Segoe UI", 15F);
-		itemNameLabel.Location = new Point(107, 132);
+		itemNameLabel.Location = new Point(107, 109);
 		itemNameLabel.Name = "itemNameLabel";
 		itemNameLabel.Size = new Size(108, 28);
 		itemNameLabel.TabIndex = 43;
@@ -67,7 +71,7 @@ partial class OrderForm
 		// 
 		customerNameLabel.AutoSize = true;
 		customerNameLabel.Font = new Font("Segoe UI", 15F);
-		customerNameLabel.Location = new Point(324, 9);
+		customerNameLabel.Location = new Point(119, 9);
 		customerNameLabel.Name = "customerNameLabel";
 		customerNameLabel.Size = new Size(96, 28);
 		customerNameLabel.TabIndex = 45;
@@ -81,29 +85,30 @@ partial class OrderForm
 		customerComboBox.FlatStyle = FlatStyle.System;
 		customerComboBox.Font = new Font("Segoe UI", 15F);
 		customerComboBox.FormattingEnabled = true;
-		customerComboBox.Location = new Point(235, 40);
+		customerComboBox.Location = new Point(30, 40);
 		customerComboBox.Name = "customerComboBox";
 		customerComboBox.Size = new Size(271, 36);
-		customerComboBox.TabIndex = 44;
+		customerComboBox.TabIndex = 1;
 		// 
 		// itemsDataGridView
 		// 
 		itemsDataGridView.AllowUserToAddRows = false;
 		itemsDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-		itemsDataGridView.Location = new Point(367, 109);
+		itemsDataGridView.Location = new Point(367, 73);
 		itemsDataGridView.Name = "itemsDataGridView";
 		itemsDataGridView.ReadOnly = true;
-		itemsDataGridView.Size = new Size(421, 329);
+		itemsDataGridView.Size = new Size(421, 365);
 		itemsDataGridView.TabIndex = 48;
+		itemsDataGridView.CellDoubleClick += itemsDataGridView_CellDoubleClick;
 		// 
 		// quantityTextBox
 		// 
 		quantityTextBox.Font = new Font("Segoe UI", 15F);
-		quantityTextBox.Location = new Point(187, 216);
+		quantityTextBox.Location = new Point(187, 193);
 		quantityTextBox.Name = "quantityTextBox";
 		quantityTextBox.PlaceholderText = "Quantity";
 		quantityTextBox.Size = new Size(83, 34);
-		quantityTextBox.TabIndex = 49;
+		quantityTextBox.TabIndex = 3;
 		quantityTextBox.Text = "1";
 		quantityTextBox.TextAlign = HorizontalAlignment.Right;
 		quantityTextBox.KeyPress += quantityTextBox_KeyPress;
@@ -112,7 +117,7 @@ partial class OrderForm
 		// 
 		quantityLabel.AutoSize = true;
 		quantityLabel.Font = new Font("Segoe UI", 15F);
-		quantityLabel.Location = new Point(55, 219);
+		quantityLabel.Location = new Point(55, 196);
 		quantityLabel.Name = "quantityLabel";
 		quantityLabel.Size = new Size(88, 28);
 		quantityLabel.TabIndex = 50;
@@ -132,19 +137,60 @@ partial class OrderForm
 		// addButton
 		// 
 		addButton.Font = new Font("Segoe UI", 15F);
-		addButton.Location = new Point(97, 329);
+		addButton.Location = new Point(97, 248);
 		addButton.Name = "addButton";
 		addButton.Size = new Size(118, 38);
-		addButton.TabIndex = 52;
+		addButton.TabIndex = 4;
 		addButton.Text = "ADD";
 		addButton.UseVisualStyleBackColor = true;
 		addButton.Click += addButton_Click;
 		// 
+		// printPDFButton
+		// 
+		printPDFButton.Font = new Font("Segoe UI", 15F);
+		printPDFButton.Location = new Point(435, 12);
+		printPDFButton.Name = "printPDFButton";
+		printPDFButton.Size = new Size(118, 38);
+		printPDFButton.TabIndex = 53;
+		printPDFButton.Text = "Print PDF";
+		printPDFButton.UseVisualStyleBackColor = true;
+		printPDFButton.Click += printPDFButton_Click;
+		// 
+		// printThermalButton
+		// 
+		printThermalButton.Font = new Font("Segoe UI", 15F);
+		printThermalButton.Location = new Point(593, 12);
+		printThermalButton.Name = "printThermalButton";
+		printThermalButton.Size = new Size(162, 38);
+		printThermalButton.TabIndex = 54;
+		printThermalButton.Text = "Print Thermal";
+		printThermalButton.UseVisualStyleBackColor = true;
+		printThermalButton.Click += printThermalButton_Click;
+		// 
+		// printDocument
+		// 
+		printDocument.PrintPage += printDocument_PrintPage;
+		// 
+		// statusCheckBox
+		// 
+		statusCheckBox.AutoSize = true;
+		statusCheckBox.Font = new Font("Segoe UI", 15F);
+		statusCheckBox.Location = new Point(115, 345);
+		statusCheckBox.Name = "statusCheckBox";
+		statusCheckBox.Size = new Size(84, 32);
+		statusCheckBox.TabIndex = 55;
+		statusCheckBox.Text = "Status";
+		statusCheckBox.UseVisualStyleBackColor = true;
+		// 
 		// OrderForm
 		// 
+		AcceptButton = addButton;
 		AutoScaleDimensions = new SizeF(7F, 15F);
 		AutoScaleMode = AutoScaleMode.Font;
 		ClientSize = new Size(800, 450);
+		Controls.Add(statusCheckBox);
+		Controls.Add(printThermalButton);
+		Controls.Add(printPDFButton);
 		Controls.Add(addButton);
 		Controls.Add(saveButton);
 		Controls.Add(quantityLabel);
@@ -174,4 +220,8 @@ partial class OrderForm
 	private Label quantityLabel;
 	private Button saveButton;
 	private Button addButton;
+	private Button printPDFButton;
+	private Button printThermalButton;
+	private System.Drawing.Printing.PrintDocument printDocument;
+	private CheckBox statusCheckBox;
 }

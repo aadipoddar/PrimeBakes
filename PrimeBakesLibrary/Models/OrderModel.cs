@@ -6,7 +6,7 @@ public class OrderModel
 	public int UserId { get; set; }
 	public int CustomerId { get; set; }
 	public DateTime DateTime { get; set; }
-	public int UpdatedTo { get; set; }
+	public bool Status { get; set; }
 }
 
 public class OrderDetailModel
@@ -31,4 +31,11 @@ public class ViewOrderModel
 	public string UserName { get; set; }
 	public string CustomerName { get; set; }
 	public DateTime OrderDateTime { get; set; }
+}
+
+public class PrintOrderDetailModel
+{
+	public string ItemName { get; set; }
+	public string ItemCode { get; set; }
+	public int Quantity { get; set; }
 }

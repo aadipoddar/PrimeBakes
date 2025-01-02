@@ -56,4 +56,10 @@ public partial class Dashboard : Form
 		PastOrdersForm pastOrdersForm = new();
 		pastOrdersForm.ShowDialog();
 	}
+
+	private void viewUpdateOrderButton_Click(object sender, EventArgs e)
+	{
+		OrderIdForm orderIdForm = new();
+		orderIdForm.ShowDialog();
+	}
 }
