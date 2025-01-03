@@ -27,5 +27,7 @@ public partial class MainPage : ContentPage
 			if (passwordEntry.Text == user.Password) Navigation.PushAsync(new OrderPage(user.Id));
 			else DisplayAlert("Error", "Incorrect Password", "OK");
 		else DisplayAlert("Error", "Please select a user", "OK");
+
+		passwordEntry.Text = string.Empty;
 	}
 }

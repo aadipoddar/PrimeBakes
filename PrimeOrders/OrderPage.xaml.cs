@@ -68,6 +68,9 @@ public partial class OrderPage : ContentPage
 			ItemCode = item.Code,
 			Quantity = (int)quantityNumericEntry.Value
 		});
+
+		quantityNumericEntry.Value = 1;
+		itemComboBox.SelectedIndex = -1;
 	}
 
 	private void ordersDataGridView_CellDoubleTapped(object sender, Syncfusion.Maui.DataGrid.DataGridCellDoubleTappedEventArgs e) => _orders.RemoveAt(e.RowColumnIndex.RowIndex - 1);
@@ -111,6 +114,10 @@ public partial class OrderPage : ContentPage
 
 		if (await DisplayAlert("Print Order", "Do you want to print the order?", "Yes", "No"))
 			await PrintPDF(order.Id);
+
+		quantityNumericEntry.Value = 1;
+		customerComboBox.SelectedIndex = -1;
+		itemComboBox.SelectedIndex = -1;
 	}
 
 	private async Task PrintPDF(int orderId)
