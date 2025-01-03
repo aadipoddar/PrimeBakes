@@ -2,15 +2,9 @@
 
 public partial class CustomerForm : Form
 {
-	public CustomerForm()
-	{
-		InitializeComponent();
-	}
+	public CustomerForm() => InitializeComponent();
 
-	private void CustomerForm_Load(object sender, EventArgs e)
-	{
-		LoadComboBox();
-	}
+	private void CustomerForm_Load(object sender, EventArgs e) => LoadComboBox();
 
 	private async void LoadComboBox()
 	{

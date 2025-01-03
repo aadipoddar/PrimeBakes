@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PrimeOrders.MainPage"
+			 xmlns:control="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs">
+
+	<ScrollView>
+		<VerticalStackLayout
+            Padding="30,0"
+            Spacing="25"
+			VerticalOptions="Center">
+
+			<Label Text="Login"
+                   FontSize="24"
+                   HorizontalOptions="Center" />
+
+			<control:SfComboBox x:Name="userComboBox"
+								HeightRequest="60" WidthRequest="250"
+								MaxDropDownHeight="300" TextSearchMode="Contains"
+								Placeholder="Select a User" IsEditable="True">
+			</control:SfComboBox>
+
+			<Entry x:Name="passwordEntry"
+					IsPassword="True"
+				   Placeholder="Password"
+				   MaximumWidthRequest="200"/>
+
+			<Button Text="Login"
+                    Clicked="OnLoginButtonClicked"
+                    MaximumWidthRequest="200" />
+
+		</VerticalStackLayout>
+	</ScrollView>
+
+</ContentPage>

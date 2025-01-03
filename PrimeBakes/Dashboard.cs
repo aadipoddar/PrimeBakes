@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 
 using PrimeBakes.Forms;
+using PrimeBakes.Forms.Orders;
 
 using PrimeBakesLibrary.DataAccess;
 
@@ -8,15 +9,9 @@ namespace PrimeBakes;
 
 public partial class Dashboard : Form
 {
-	public Dashboard()
-	{
-		InitializeComponent();
-	}
+	public Dashboard() => InitializeComponent();
 
-	private async void Dashboard_Load(object sender, EventArgs e)
-	{
-		await UpdateCheck();
-	}
+	private async void Dashboard_Load(object sender, EventArgs e) => await UpdateCheck();
 
 	private async Task UpdateCheck()
 	{

@@ -1,15 +1,9 @@
 ﻿namespace PrimeBakes.Forms;
 public partial class ItemForm : Form
 {
-	public ItemForm()
-	{
-		InitializeComponent();
-	}
+	public ItemForm() => InitializeComponent();
 
-	private void ItemForm_Load(object sender, EventArgs e)
-	{
-		LoadComboBox();
-	}
+	private void ItemForm_Load(object sender, EventArgs e) => LoadComboBox();
 
 	private async void LoadComboBox()
 	{

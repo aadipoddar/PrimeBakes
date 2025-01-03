@@ -2,15 +2,9 @@
 
 public partial class UserForm : Form
 {
-	public UserForm()
-	{
-		InitializeComponent();
-	}
+	public UserForm() => InitializeComponent();
 
-	private void UserForm_Load(object sender, EventArgs e)
-	{
-		LoadComboBox();
-	}
+	private void UserForm_Load(object sender, EventArgs e) => LoadComboBox();
 
 	private async void LoadComboBox()
 	{

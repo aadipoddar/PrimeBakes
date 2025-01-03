@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PrimeOrders.OrderPage"
+             Title="OrderPage"
+    xmlns:control="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
+    xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid">
+
+	<ScrollView>
+
+		<VerticalStackLayout Padding="30,0" Spacing="25">
+
+			<control:SfComboBox x:Name="customerComboBox"
+							HeightRequest="60" WidthRequest="250"
+							MaxDropDownHeight="300" TextSearchMode="Contains"
+							Placeholder="Select a Customer" IsEditable="True">
+			</control:SfComboBox>
+
+			<control:SfComboBox x:Name="itemComboBox"
+							HeightRequest="60" WidthRequest="250"
+							MaxDropDownHeight="300" TextSearchMode="Contains"
+							Placeholder="Select a Item" IsEditable="True">
+			</control:SfComboBox>
+
+			<control:SfNumericEntry x:Name="quantityNumericEntry" WidthRequest="200"
+								Value="1" CustomFormat="0" AllowNull="False"
+								Minimum="1" UpDownPlacementMode="Inline">
+			</control:SfNumericEntry>
+
+			<Button Text="Add"
+				Clicked="OnAddButtonClicked"
+				MaximumWidthRequest="200" />
+
+			<syncfusion:SfDataGrid	x:Name="ordersDataGridView"
+								GridLinesVisibility="None"
+								HeaderGridLinesVisibility="None"
+								SortingMode="Single"
+								SelectionMode="Single"
+								HeightRequest="300"
+								CellDoubleTapped="ordersDataGridView_CellDoubleTapped"
+								AllowResizingColumns="True">
+
+				<syncfusion:SfDataGrid.Columns>
+					<syncfusion:DataGridNumericColumn MappingName="ItemId" HeaderText="Item ID" Visible="False"/>
+					<syncfusion:DataGridTextColumn MappingName="ItemName" HeaderText="Name" ColumnWidthMode="Fill"/>
+					<syncfusion:DataGridTextColumn MappingName="ItemCode" HeaderText="Code"/>
+					<syncfusion:DataGridNumericColumn MappingName="Quantity" HeaderText="Quantity" Format="0"/>
+				</syncfusion:SfDataGrid.Columns>
+			</syncfusion:SfDataGrid>
+
+			<Button Text="Save"
+				Clicked="OnSaveButtonClicked"
+				MaximumWidthRequest="200" />
+
+		</VerticalStackLayout>
+		
+	</ScrollView>
+
+</ContentPage>

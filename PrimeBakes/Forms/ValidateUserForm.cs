@@ -1,16 +1,12 @@
-﻿namespace PrimeBakes.Forms;
+﻿using PrimeBakes.Forms.Orders;
+
+namespace PrimeBakes.Forms;
 
 public partial class ValidateUserForm : Form
 {
-	public ValidateUserForm()
-	{
-		InitializeComponent();
-	}
+	public ValidateUserForm() => InitializeComponent();
 
-	private void ValidateUser_Load(object sender, EventArgs e)
-	{
-		LoadComboBox();
-	}
+	private void ValidateUser_Load(object sender, EventArgs e) => LoadComboBox();
 
 	private async void LoadComboBox()
 	{

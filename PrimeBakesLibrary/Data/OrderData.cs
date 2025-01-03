@@ -14,8 +14,8 @@ public static class OrderData
 	public static async Task OrderDetailsDelete(int orderId) =>
 		await SqlDataAccess.SaveData("OrderDetailsDelete", new { OrderId = orderId });
 
-	public static async Task<List<ViewOrderModel>> LoadOrdersByDate(DateTime fromDate, DateTime toDate) =>
-			await SqlDataAccess.LoadData<ViewOrderModel, dynamic>("LoadOrdersByDate", new { fromDate, toDate });
+	public static async Task<List<ViewOrderModel>> LoadOrdersByDate(DateTime fromDate, DateTime toDate, bool status) =>
+			await SqlDataAccess.LoadData<ViewOrderModel, dynamic>("LoadOrdersByDate", new { fromDate, toDate, status });
 
 	public static async Task<List<ViewOrderDetailModel>> LoadViewOrderDetailsByOrderId(int orderId) =>
 			await SqlDataAccess.LoadData<ViewOrderDetailModel, dynamic>("LoadViewOrderDetailsByOrderId", new { OrderId = orderId });
