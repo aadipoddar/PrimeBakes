@@ -45,7 +45,7 @@
 			customerComboBox.FlatStyle = FlatStyle.System;
 			customerComboBox.Font = new Font("Segoe UI", 15F);
 			customerComboBox.FormattingEnabled = true;
-			customerComboBox.Location = new Point(89, 12);
+			customerComboBox.Location = new Point(42, 12);
 			customerComboBox.Name = "customerComboBox";
 			customerComboBox.Size = new Size(271, 36);
 			customerComboBox.TabIndex = 5;
@@ -54,7 +54,7 @@
 			// saveButton
 			// 
 			saveButton.Font = new Font("Segoe UI", 15F);
-			saveButton.Location = new Point(172, 210);
+			saveButton.Location = new Point(131, 157);
 			saveButton.Name = "saveButton";
 			saveButton.Size = new Size(118, 38);
 			saveButton.TabIndex = 4;
@@ -76,7 +76,7 @@
 			// 
 			codeTextBox.CharacterCasing = CharacterCasing.Upper;
 			codeTextBox.Font = new Font("Segoe UI", 15F);
-			codeTextBox.Location = new Point(181, 68);
+			codeTextBox.Location = new Point(86, 68);
 			codeTextBox.Name = "codeTextBox";
 			codeTextBox.PlaceholderText = "Code";
 			codeTextBox.Size = new Size(271, 34);
@@ -86,7 +86,7 @@
 			// 
 			statusCheckBox.AutoSize = true;
 			statusCheckBox.Font = new Font("Segoe UI", 15F);
-			statusCheckBox.Location = new Point(186, 161);
+			statusCheckBox.Location = new Point(12, 161);
 			statusCheckBox.Name = "statusCheckBox";
 			statusCheckBox.Size = new Size(84, 32);
 			statusCheckBox.TabIndex = 3;
@@ -106,7 +106,7 @@
 			// nameTextBox
 			// 
 			nameTextBox.Font = new Font("Segoe UI", 15F);
-			nameTextBox.Location = new Point(181, 108);
+			nameTextBox.Location = new Point(86, 108);
 			nameTextBox.Name = "nameTextBox";
 			nameTextBox.PlaceholderText = "Name";
 			nameTextBox.Size = new Size(271, 34);
@@ -117,7 +117,7 @@
 			AcceptButton = saveButton;
 			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
-			ClientSize = new Size(482, 276);
+			ClientSize = new Size(376, 209);
 			Controls.Add(nameLabel);
 			Controls.Add(nameTextBox);
 			Controls.Add(statusCheckBox);
@@ -127,7 +127,7 @@
 			Controls.Add(codeTextBox);
 			Name = "CustomerForm";
 			StartPosition = FormStartPosition.CenterScreen;
-			Text = "CustomerForm";
+			Text = "Customer";
 			Load += CustomerForm_Load;
 			ResumeLayout(false);
 			PerformLayout();

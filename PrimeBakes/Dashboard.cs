@@ -57,4 +57,10 @@ public partial class Dashboard : Form
 		OrderIdForm orderIdForm = new();
 		orderIdForm.ShowDialog();
 	}
+
+	private void categoryButton_Click(object sender, EventArgs e)
+	{
+		CategoryForm categoryForm = new();
+		categoryForm.ShowDialog();
+	}
 }

@@ -2,9 +2,9 @@
 
 public static class UserData
 {
-	public static async Task UserInsert(UserModel userModel) =>
-			await SqlDataAccess.SaveData("UserInsert", userModel);
+	public static async Task InsertUser(UserModel userModel) =>
+			await SqlDataAccess.SaveData("Insert_User", userModel);
 
-	public static async Task UserUpdate(UserModel userModel) =>
-			await SqlDataAccess.SaveData("UserUpdate", userModel);
+	public static async Task UpdateUser(UserModel userModel) =>
+			await SqlDataAccess.SaveData("Update_User", userModel);
 }

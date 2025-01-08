@@ -34,6 +34,7 @@ partial class Dashboard
 		orderButton = new Button();
 		pastOrdersButton = new Button();
 		viewUpdateOrderButton = new Button();
+		categoryButton = new Button();
 		SuspendLayout();
 		// 
 		// userButton
@@ -102,12 +103,24 @@ partial class Dashboard
 		viewUpdateOrderButton.UseVisualStyleBackColor = true;
 		viewUpdateOrderButton.Click += viewUpdateOrderButton_Click;
 		// 
+		// categoryButton
+		// 
+		categoryButton.Font = new Font("Segoe UI", 15F);
+		categoryButton.Location = new Point(12, 420);
+		categoryButton.Name = "categoryButton";
+		categoryButton.Size = new Size(253, 62);
+		categoryButton.TabIndex = 7;
+		categoryButton.Text = "Category";
+		categoryButton.UseVisualStyleBackColor = true;
+		categoryButton.Click += categoryButton_Click;
+		// 
 		// Dashboard
 		// 
 		AcceptButton = orderButton;
 		AutoScaleDimensions = new SizeF(7F, 15F);
 		AutoScaleMode = AutoScaleMode.Font;
-		ClientSize = new Size(277, 433);
+		ClientSize = new Size(277, 507);
+		Controls.Add(categoryButton);
 		Controls.Add(viewUpdateOrderButton);
 		Controls.Add(pastOrdersButton);
 		Controls.Add(orderButton);
@@ -129,4 +142,5 @@ partial class Dashboard
 	private Button orderButton;
 	private Button pastOrdersButton;
 	private Button viewUpdateOrderButton;
+	private Button categoryButton;
 }

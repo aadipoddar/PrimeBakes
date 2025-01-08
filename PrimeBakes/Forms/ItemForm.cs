@@ -3,13 +3,17 @@ public partial class ItemForm : Form
 {
 	public ItemForm() => InitializeComponent();
 
-	private void ItemForm_Load(object sender, EventArgs e) => LoadComboBox();
+	private async void ItemForm_Load(object sender, EventArgs e) => await LoadData();
 
-	private async void LoadComboBox()
+	private async Task LoadData()
 	{
-		itemComboBox.DataSource = (await CommonData.LoadTableData<ItemModel>("ItemTable")).ToList();
+		itemComboBox.DataSource = (await CommonData.LoadTableData<ItemModel>("Item")).ToList();
 		itemComboBox.DisplayMember = nameof(ItemModel.DisplayName);
 		itemComboBox.ValueMember = nameof(ItemModel.Id);
+
+		categoryComboBox.DataSource = (await CommonData.LoadTableData<CategoryModel>("Category")).ToList();
+		categoryComboBox.DisplayMember = nameof(CategoryModel.DisplayName);
+		categoryComboBox.ValueMember = nameof(CategoryModel.Id);
 
 		itemComboBox.SelectedIndex = -1;
 	}
@@ -18,6 +22,7 @@ public partial class ItemForm : Form
 	{
 		if (itemComboBox?.SelectedItem is ItemModel selectedItem)
 		{
+			categoryComboBox.SelectedValue = selectedItem.CategoryId;
 			codeTextBox.Text = selectedItem.Code;
 			nameTextBox.Text = selectedItem.Name;
 			statusCheckBox.Checked = selectedItem.Status;
@@ -47,18 +52,19 @@ public partial class ItemForm : Form
 
 		ItemModel item = new()
 		{
+			CategoryId = (categoryComboBox.SelectedItem as CategoryModel).Id,
 			Code = codeTextBox.Text,
 			Name = nameTextBox.Text,
 			Status = statusCheckBox.Checked
 		};
 
-		if (itemComboBox.SelectedIndex == -1) await ItemData.ItemInsert(item);
+		if (itemComboBox.SelectedIndex == -1) await ItemData.InsertItem(item);
 		else
 		{
 			item.Id = (itemComboBox.SelectedItem as ItemModel).Id;
-			await ItemData.ItemUpdate(item);
+			await ItemData.UpdateItem(item);
 		}
 
-		LoadComboBox();
+		await LoadData();
 	}
 }

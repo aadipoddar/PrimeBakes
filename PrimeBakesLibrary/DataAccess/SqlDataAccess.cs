@@ -8,7 +8,7 @@ namespace PrimeBakesLibrary.DataAccess;
 
 static class SqlDataAccess
 {
-	static string ConnectionString = $"Server=tcp:salasarfoods.database.windows.net,1433;Initial Catalog={Secrets.DatabaseName};Persist Security Info=False;User ID=aadisql;Password={Secrets.DatabasePassword};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Connection Timeout=30;";
+	private static string ConnectionString = $"Server=tcp:salasarfoods.database.windows.net,1433;Initial Catalog={Secrets.DatabaseName};Persist Security Info=False;User ID=aadisql;Password={Secrets.DatabasePassword};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Connection Timeout=30;";
 
 	public static async Task<List<T>> LoadData<T, U>(string storedProcedure, U parameters)
 	{

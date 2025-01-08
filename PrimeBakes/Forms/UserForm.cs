@@ -8,7 +8,7 @@ public partial class UserForm : Form
 
 	private async void LoadComboBox()
 	{
-		userComboBox.DataSource = (await CommonData.LoadTableData<UserModel>("UserTable")).ToList();
+		userComboBox.DataSource = (await CommonData.LoadTableData<UserModel>("User")).ToList();
 		userComboBox.DisplayMember = "Name";
 		userComboBox.ValueMember = "Id";
 
@@ -53,11 +53,11 @@ public partial class UserForm : Form
 			Status = statusCheckBox.Checked
 		};
 
-		if (userComboBox.SelectedIndex == -1) await UserData.UserInsert(user);
+		if (userComboBox.SelectedIndex == -1) await UserData.InsertUser(user);
 		else
 		{
 			user.Id = (userComboBox.SelectedItem as UserModel).Id;
-			await UserData.UserUpdate(user);
+			await UserData.UpdateUser(user);
 		}
 
 		LoadComboBox();

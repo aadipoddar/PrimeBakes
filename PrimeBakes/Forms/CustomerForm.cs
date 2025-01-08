@@ -8,7 +8,7 @@ public partial class CustomerForm : Form
 
 	private async void LoadComboBox()
 	{
-		customerComboBox.DataSource = (await CommonData.LoadTableData<CustomerModel>("CustomerTable")).ToList();
+		customerComboBox.DataSource = (await CommonData.LoadTableData<CustomerModel>("Customer")).ToList();
 		customerComboBox.DisplayMember = nameof(CustomerModel.DisplayName);
 		customerComboBox.ValueMember = nameof(CustomerModel.Id);
 
@@ -53,11 +53,11 @@ public partial class CustomerForm : Form
 			Status = statusCheckBox.Checked
 		};
 
-		if (customerComboBox.SelectedIndex == -1) await CustomerData.CustomerInsert(customer);
+		if (customerComboBox.SelectedIndex == -1) await CustomerData.InsertCustomer(customer);
 		else
 		{
 			customer.Id = (customerComboBox.SelectedItem as CustomerModel).Id;
-			await CustomerData.CustomerUpdate(customer);
+			await CustomerData.UpdateCustomer(customer);
 		}
 
 		LoadComboBox();

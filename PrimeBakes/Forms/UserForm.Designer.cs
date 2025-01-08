@@ -54,7 +54,7 @@
 			// saveButton
 			// 
 			saveButton.Font = new Font("Segoe UI", 15F);
-			saveButton.Location = new Point(169, 212);
+			saveButton.Location = new Point(141, 159);
 			saveButton.Name = "saveButton";
 			saveButton.Size = new Size(118, 38);
 			saveButton.TabIndex = 4;
@@ -75,7 +75,7 @@
 			// passwordTextBox
 			// 
 			passwordTextBox.Font = new Font("Segoe UI", 15F);
-			passwordTextBox.Location = new Point(188, 109);
+			passwordTextBox.Location = new Point(127, 109);
 			passwordTextBox.Name = "passwordTextBox";
 			passwordTextBox.PasswordChar = '*';
 			passwordTextBox.PlaceholderText = "Password";
@@ -95,7 +95,7 @@
 			// nameTextBox
 			// 
 			nameTextBox.Font = new Font("Segoe UI", 15F);
-			nameTextBox.Location = new Point(188, 69);
+			nameTextBox.Location = new Point(127, 69);
 			nameTextBox.Name = "nameTextBox";
 			nameTextBox.PlaceholderText = "Name";
 			nameTextBox.Size = new Size(271, 34);
@@ -105,7 +105,7 @@
 			// 
 			statusCheckBox.AutoSize = true;
 			statusCheckBox.Font = new Font("Segoe UI", 15F);
-			statusCheckBox.Location = new Point(188, 163);
+			statusCheckBox.Location = new Point(28, 163);
 			statusCheckBox.Name = "statusCheckBox";
 			statusCheckBox.Size = new Size(84, 32);
 			statusCheckBox.TabIndex = 3;
@@ -117,7 +117,7 @@
 			AcceptButton = saveButton;
 			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
-			ClientSize = new Size(504, 284);
+			ClientSize = new Size(416, 225);
 			Controls.Add(statusCheckBox);
 			Controls.Add(userComboBox);
 			Controls.Add(saveButton);
@@ -127,7 +127,7 @@
 			Controls.Add(nameTextBox);
 			Name = "UserForm";
 			StartPosition = FormStartPosition.CenterScreen;
-			Text = "UserForm";
+			Text = "User";
 			Load += UserForm_Load;
 			ResumeLayout(false);
 			PerformLayout();
