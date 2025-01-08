@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Name>DBPrimeBakes</Name>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>4.1</ProjectVersion>
+    <ProjectGuid>{3a881ae2-4ceb-48e7-bfd8-26934a497b1b}</ProjectGuid>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider</DSP>
+    <OutputType>Database</OutputType>
+    <RootPath />
+    <RootNamespace>DBPrimeBakes</RootNamespace>
+    <AssemblyName>DBPrimeBakes</AssemblyName>
+    <ModelCollation>1033,CI</ModelCollation>
+    <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
+    <DeployToDatabase>True</DeployToDatabase>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetLanguage>CS</TargetLanguage>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <SqlServerVerification>False</SqlServerVerification>
+    <IncludeCompositeObjects>True</IncludeCompositeObjects>
+    <TargetDatabaseSet>True</TargetDatabaseSet>
+    <DefaultCollation>SQL_Latin1_General_CP1_CI_AS</DefaultCollation>
+    <DefaultFilegroup>PRIMARY</DefaultFilegroup>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+    <SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
+    <VisualStudioVersion Condition="'$(SSDTExists)' == ''">11.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Condition="'$(SQLDBExtensionsRefPath)' != ''" Project="$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <ItemGroup>
+    <Folder Include="Properties" />
+    <Folder Include="Stored Procedures" />
+    <Folder Include="Tables" />
+    <Folder Include="PublishLocations" />
+    <Folder Include="Compares" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="Stored Procedures\Delete_OrderDetails.sql" />
+    <Build Include="Stored Procedures\Insert_Category.sql" />
+    <Build Include="Stored Procedures\Insert_Customer.sql" />
+    <Build Include="Stored Procedures\Insert_Item.sql" />
+    <Build Include="Stored Procedures\Insert_Order.sql" />
+    <Build Include="Stored Procedures\Insert_OrderDetail.sql" />
+    <Build Include="Stored Procedures\Insert_User.sql" />
+    <Build Include="Stored Procedures\Load_OrderDetails_By_OrderId.sql" />
+    <Build Include="Stored Procedures\Load_Orders_By_Date.sql" />
+    <Build Include="Stored Procedures\Load_TableData.sql" />
+    <Build Include="Stored Procedures\Load_TableData_By_Id.sql" />
+    <Build Include="Stored Procedures\Load_TableData_By_Status.sql" />
+    <Build Include="Stored Procedures\Update_Category.sql" />
+    <Build Include="Stored Procedures\Update_Customer.sql" />
+    <Build Include="Stored Procedures\Update_Item.sql" />
+    <Build Include="Stored Procedures\Update_Order.sql" />
+    <Build Include="Stored Procedures\Update_User.sql" />
+    <Build Include="Tables\Category.sql" />
+    <Build Include="Tables\Customer.sql" />
+    <Build Include="Tables\Item.sql" />
+    <Build Include="Tables\Order.sql" />
+    <Build Include="Tables\OrderDetail.sql" />
+    <Build Include="Tables\User.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="PublishLocations\AzurePrimeBakes.publish.xml" />
+    <None Include="Compares\AzureCompare.scmp" />
+  </ItemGroup>
+</Project>

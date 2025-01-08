@@ -11,6 +11,8 @@ Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SetupProject", "SetupProjec
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrimeOrders", "PrimeOrders\PrimeOrders.csproj", "{8BC6137E-3E03-410D-AAE7-CBE54EC180FD}"
 EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "DBPrimeBakes", "DBPrimeBakes\DBPrimeBakes.sqlproj", "{3A881AE2-4CEB-48E7-BFD8-26934A497B1B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,12 @@ Global
 		{8BC6137E-3E03-410D-AAE7-CBE54EC180FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8BC6137E-3E03-410D-AAE7-CBE54EC180FD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8BC6137E-3E03-410D-AAE7-CBE54EC180FD}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{3A881AE2-4CEB-48E7-BFD8-26934A497B1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A881AE2-4CEB-48E7-BFD8-26934A497B1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A881AE2-4CEB-48E7-BFD8-26934A497B1B}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{3A881AE2-4CEB-48E7-BFD8-26934A497B1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A881AE2-4CEB-48E7-BFD8-26934A497B1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A881AE2-4CEB-48E7-BFD8-26934A497B1B}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
