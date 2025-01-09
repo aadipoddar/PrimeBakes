@@ -96,7 +96,6 @@
     <None Include="Compares\AzureToLocalDBDataCompare.dcmp" />
     <None Include="Compares\LocalDBToAzureDataCompare.dcmp" />
     <None Include="PublishLocations\LocalPrimeBakes.publish.xml" />
-    <None Include="PublishLocations\DBPrimeBakes.publish.xml" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="DBPrimeBakes.refactorlog" />

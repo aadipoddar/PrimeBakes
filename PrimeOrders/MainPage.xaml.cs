@@ -16,7 +16,7 @@ public partial class MainPage : ContentPage
 
 	private async void LoadComboBox()
 	{
-		userComboBox.ItemsSource = await CommonData.LoadTableData<UserModel>("UserTable");
+		userComboBox.ItemsSource = await CommonData.LoadTableData<UserModel>("User");
 		userComboBox.DisplayMemberPath = nameof(UserModel.Name);
 		userComboBox.SelectedValuePath = nameof(UserModel.Id);
 	}

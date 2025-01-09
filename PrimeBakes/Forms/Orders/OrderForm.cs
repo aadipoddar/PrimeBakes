@@ -69,7 +69,7 @@ public partial class OrderForm : Form
 			int quantity = int.TryParse(quantityTextBox.Text, out int result) ? result : 1;
 
 			var existingItem = _orderDetails.FirstOrDefault(item => item.ItemId == selectedItem.Id);
-			if (existingItem != null)
+			if (existingItem is not null)
 			{
 				existingItem.Quantity += quantity;
 				itemsDataGridView.Refresh();

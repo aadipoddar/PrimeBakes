@@ -11,69 +11,96 @@ namespace PrimeOrders;
 public partial class OrderPage : ContentPage
 {
 	private readonly int _userId;
-	private ObservableCollection<ViewOrderDetailModel> _orders;
+	private ObservableCollection<ViewOrderDetailModel> _orderDetails = [];
 
 	public OrderPage(int userId)
 	{
 		InitializeComponent();
 
 		_userId = userId;
-		_orders = [];
-		ordersDataGridView.ItemsSource = _orders;
+		itemsDataGridView.ItemsSource = _orderDetails;
 	}
+
+	#region LoadData
 
 	protected override void OnAppearing()
 	{
 		base.OnAppearing();
-		LoadComboBox();
+		LoadData();
 	}
 
-	private async void LoadComboBox()
+	private async void LoadData()
 	{
-		customerComboBox.ItemsSource = await CommonData.LoadTableData<CustomerModel>("CustomerTable");
+		customerComboBox.ItemsSource = await CommonData.LoadTableData<CustomerModel>("Customer");
 		customerComboBox.DisplayMemberPath = nameof(CustomerModel.Name);
 		customerComboBox.SelectedValuePath = nameof(CustomerModel.Id);
 
-		itemComboBox.ItemsSource = await CommonData.LoadTableData<ItemModel>("ItemTable");
-		itemComboBox.DisplayMemberPath = nameof(ItemModel.Name);
-		itemComboBox.SelectedValuePath = nameof(ItemModel.Id);
+		categoryComboBox.ItemsSource = await CommonData.LoadTableData<CategoryModel>("Category");
+		categoryComboBox.DisplayMemberPath = nameof(CategoryModel.Name);
+		categoryComboBox.SelectedValuePath = nameof(CategoryModel.Id);
+
+		await LoadItemsData();
 	}
+
+	private async Task LoadItemsData()
+	{
+		if (categoryComboBox.SelectedItem is CategoryModel selectedCategory)
+		{
+			itemComboBox.ItemsSource = (await ItemData.LoadItemByCategory(selectedCategory.Id)).ToList();
+			itemComboBox.DisplayMemberPath = nameof(ItemModel.Name);
+			itemComboBox.SelectedValuePath = nameof(ItemModel.Id);
+		}
+	}
+
+	private async void categoryComboBox_SelectionChanged(object sender, Syncfusion.Maui.Inputs.SelectionChangedEventArgs e) => await LoadItemsData();
+
+	#endregion
+
+	#region DataGrid
 
 	private void OnAddButtonClicked(object sender, EventArgs e)
 	{
-		if (itemComboBox.SelectedItem is not ItemModel item)
+		if (itemComboBox.SelectedItem is ItemModel selectedItem && categoryComboBox.SelectedItem is CategoryModel selectedCategory)
 		{
-			DisplayAlert("Error", "Please select an item", "OK");
-			return;
-		}
-
-		var existingOrder = _orders.FirstOrDefault(o => o.ItemId == item.Id);
-
-		if (existingOrder != null)
-		{
-			_orders.Remove(existingOrder);
-			_orders.Add(new ViewOrderDetailModel
+			var existingItem = _orderDetails.FirstOrDefault(item => item.ItemId == selectedItem.Id);
+			if (existingItem is not null)
 			{
-				ItemId = item.Id,
-				ItemName = item.Name,
-				ItemCode = item.Code,
-				Quantity = existingOrder.Quantity + (int)quantityNumericEntry.Value
+				_orderDetails.Remove(existingItem);
+				_orderDetails.Add(new ViewOrderDetailModel
+				{
+					ItemId = selectedItem.Id,
+					ItemName = selectedItem.Name,
+					ItemCode = selectedItem.Code,
+					CategoryId = selectedCategory.Id,
+					CategoryName = selectedCategory.Name,
+					CategoryCode = selectedCategory.Code,
+					Quantity = existingItem.Quantity + (int)quantityNumericEntry.Value
+				});
+			}
+
+			else _orderDetails.Add(new ViewOrderDetailModel
+			{
+				Id = 0,
+				ItemId = selectedItem.Id,
+				ItemName = selectedItem.Name,
+				ItemCode = selectedItem.Code,
+				CategoryId = selectedCategory.Id,
+				CategoryName = selectedCategory.Name,
+				CategoryCode = selectedCategory.Code,
+				Quantity = (int)quantityNumericEntry.Value
 			});
 		}
 
-		else _orders.Add(new ViewOrderDetailModel
-		{
-			ItemId = item.Id,
-			ItemName = item.Name,
-			ItemCode = item.Code,
-			Quantity = (int)quantityNumericEntry.Value
-		});
+		else DisplayAlert("Error", "Please select an item", "OK");
 
 		quantityNumericEntry.Value = 1;
-		itemComboBox.SelectedIndex = -1;
 	}
 
-	private void ordersDataGridView_CellDoubleTapped(object sender, Syncfusion.Maui.DataGrid.DataGridCellDoubleTappedEventArgs e) => _orders.RemoveAt(e.RowColumnIndex.RowIndex - 1);
+	private void itemsDataGridView_CellDoubleTapped(object sender, Syncfusion.Maui.DataGrid.DataGridCellDoubleTappedEventArgs e) => _orderDetails.RemoveAt(e.RowColumnIndex.RowIndex - 1);
+
+	#endregion
+
+	#region Saving
 
 	private async void OnSaveButtonClicked(object sender, EventArgs e)
 	{
@@ -83,7 +110,7 @@ public partial class OrderPage : ContentPage
 			return;
 		}
 
-		if (_orders.Count == 0)
+		if (_orderDetails.Count == 0)
 		{
 			await DisplayAlert("Error", "Please add items to the order", "OK");
 			return;
@@ -99,7 +126,7 @@ public partial class OrderPage : ContentPage
 
 		order.Id = await OrderData.InsertOrder(order);
 
-		var orderDetails = _orders.Select(o => new OrderDetailModel
+		var orderDetails = _orderDetails.Select(o => new OrderDetailModel
 		{
 			OrderId = order.Id,
 			ItemId = o.ItemId,
@@ -110,7 +137,7 @@ public partial class OrderPage : ContentPage
 			await OrderData.InsertOrderDetail(orderDetail);
 
 		await DisplayAlert("Success", "Order saved successfully", "OK");
-		_orders.Clear();
+		_orderDetails.Clear();
 
 		if (await DisplayAlert("Print Order", "Do you want to print the order?", "Yes", "No"))
 			await PrintPDF(order.Id);
@@ -126,4 +153,6 @@ public partial class OrderPage : ContentPage
 		SaveService saveService = new();
 		saveService.SaveAndView("OrderReport.pdf", "application/pdf", ms);
 	}
+
+	#endregion
 }

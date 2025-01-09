@@ -16,6 +16,13 @@
 							Placeholder="Select a Customer" IsEditable="True">
 			</control:SfComboBox>
 
+			<control:SfComboBox x:Name="categoryComboBox"
+				HeightRequest="60" WidthRequest="250"
+				MaxDropDownHeight="300" TextSearchMode="Contains"
+				Placeholder="Select a Category" IsEditable="True"
+				SelectionChanged="categoryComboBox_SelectionChanged">
+			</control:SfComboBox>
+
 			<control:SfComboBox x:Name="itemComboBox"
 							HeightRequest="60" WidthRequest="250"
 							MaxDropDownHeight="300" TextSearchMode="Contains"
@@ -31,14 +38,15 @@
 				Clicked="OnAddButtonClicked"
 				MaximumWidthRequest="200" />
 
-			<syncfusion:SfDataGrid	x:Name="ordersDataGridView"
+			<syncfusion:SfDataGrid	x:Name="itemsDataGridView"
 								GridLinesVisibility="None"
 								HeaderGridLinesVisibility="None"
 								SortingMode="Single"
 								SelectionMode="Single"
 								HeightRequest="300"
-								CellDoubleTapped="ordersDataGridView_CellDoubleTapped"
-								AllowResizingColumns="True">
+								CellDoubleTapped="itemsDataGridView_CellDoubleTapped"
+								AllowResizingColumns="True"
+								AutoGenerateColumnsMode="None">
 
 				<syncfusion:SfDataGrid.Columns>
 					<syncfusion:DataGridNumericColumn MappingName="ItemId" HeaderText="Item ID" Visible="False"/>
@@ -53,7 +61,7 @@
 				MaximumWidthRequest="200" />
 
 		</VerticalStackLayout>
-		
+
 	</ScrollView>
 
 </ContentPage>
