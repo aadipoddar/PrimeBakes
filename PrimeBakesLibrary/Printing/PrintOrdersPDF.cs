@@ -105,7 +105,7 @@ public static class PrintOrdersPDF
 			textElement = new PdfTextElement($"Order Taken By: {order.UserName}", font);
 			result = textElement.Draw(result.Page, new PointF(0, result.Bounds.Bottom + 10), layoutFormat);
 
-			var detailedPrintModel = (await OrderData.LoadPrintOrderDetailsByOrderId(order.OrderId)).ToList();
+			var detailedPrintModel = (await CommonData.LoadTableDataById<ViewOrderDetailModel>("View_OrderDetails", order.OrderId)).ToList();
 			PdfGrid pdfGrid = new() { DataSource = detailedPrintModel };
 
 			foreach (PdfGridRow row in pdfGrid.Rows)

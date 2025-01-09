@@ -18,7 +18,7 @@ public partial class OrderPage : ContentPage
 		InitializeComponent();
 
 		_userId = userId;
-		_orders = new ObservableCollection<ViewOrderDetailModel>();
+		_orders = [];
 		ordersDataGridView.ItemsSource = _orders;
 	}
 
@@ -97,7 +97,7 @@ public partial class OrderPage : ContentPage
 			Status = true
 		};
 
-		order.Id = await OrderData.OrderInsert(order);
+		order.Id = await OrderData.InsertOrder(order);
 
 		var orderDetails = _orders.Select(o => new OrderDetailModel
 		{
@@ -107,7 +107,7 @@ public partial class OrderPage : ContentPage
 		});
 
 		foreach (var orderDetail in orderDetails)
-			await OrderData.OrderDetailInsert(orderDetail);
+			await OrderData.InsertOrderDetail(orderDetail);
 
 		await DisplayAlert("Success", "Order saved successfully", "OK");
 		_orders.Clear();

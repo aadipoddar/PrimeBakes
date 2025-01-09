@@ -20,13 +20,13 @@ public partial class PastOrdersForm : Form
 
 	private void refreshButton_Click(object sender, EventArgs e) => LoadOrders();
 
-	private async void LoadOrders() => orderDataGridView.DataSource = await OrderData.LoadOrdersByDate(fromDateTimePicker.Value.Date, toDateTimePicker.Value.Date, !showClearedCheckBox.Checked);
+	private async void LoadOrders() => orderDataGridView.DataSource = await OrderData.LoadOrdersByDateStatus(fromDateTimePicker.Value.Date, toDateTimePicker.Value.Date, !showClearedCheckBox.Checked);
 
 	private async void orderDataGridView_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
 	{
 		ViewOrderModel detailedOrderModel = (ViewOrderModel)orderDataGridView.Rows[e.RowIndex].DataBoundItem;
 
-		var orderModel = (await CommonData.LoadTableDataById<OrderModel>("OrderTable", detailedOrderModel.OrderId)).FirstOrDefault();
+		var orderModel = (await CommonData.LoadTableDataById<OrderModel>("Order", detailedOrderModel.OrderId)).FirstOrDefault();
 
 		UpdateOrderForm updateOrderForm = new(orderModel);
 		if (updateOrderForm.ShowDialog() == DialogResult.OK) LoadOrders();

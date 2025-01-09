@@ -74,7 +74,7 @@ partial class OrderIdForm
 		Controls.Add(orderIdLabel);
 		Name = "OrderIdForm";
 		StartPosition = FormStartPosition.CenterScreen;
-		Text = "OrderIdForm";
+		Text = "Order Id";
 		ResumeLayout(false);
 		PerformLayout();
 	}

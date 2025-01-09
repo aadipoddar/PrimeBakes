@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DataComparison>
+  <Version>10</Version>
+  <ConnectionProperties1>
+    <ConnectionString>Data Source=tcp:salasarfoods.database.windows.net,1433;Initial Catalog=PrimeBakes;Persist Security Info=True;User ID=aadisql;Pooling=False;Multiple Active Result Sets=False;Connect Timeout=60;Encrypt=True;Trust Server Certificate=True;Command Timeout=0</ConnectionString>
+    <FullDisplayName>tcp:salasarfoods.database.windows.net,1433.PrimeBakes (aadisql)</FullDisplayName>
+  </ConnectionProperties1>
+  <ConnectionProperties2>
+    <ConnectionString>Data Source=AADILAPI;Initial Catalog=PrimeBakes;Integrated Security=True;Pooling=False;Multiple Active Result Sets=False;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True</ConnectionString>
+    <FullDisplayName>AADILAPI.PrimeBakes (AADILAPI\aadip)</FullDisplayName>
+  </ConnectionProperties2>
+  <SessionSettings>Default</SessionSettings>
+  <DeselectedTable>[dbo].[Order]</DeselectedTable>
+</DataComparison>

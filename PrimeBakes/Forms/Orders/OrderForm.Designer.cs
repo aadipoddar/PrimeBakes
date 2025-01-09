@@ -37,7 +37,8 @@ partial class OrderForm
 		quantityLabel = new Label();
 		saveButton = new Button();
 		addButton = new Button();
-		printDocument = new System.Drawing.Printing.PrintDocument();
+		categoryLabel = new Label();
+		categoryComboBox = new ComboBox();
 		((System.ComponentModel.ISupportInitialize)itemsDataGridView).BeginInit();
 		SuspendLayout();
 		// 
@@ -49,16 +50,16 @@ partial class OrderForm
 		itemComboBox.FlatStyle = FlatStyle.System;
 		itemComboBox.Font = new Font("Segoe UI", 15F);
 		itemComboBox.FormattingEnabled = true;
-		itemComboBox.Location = new Point(28, 190);
+		itemComboBox.Location = new Point(28, 226);
 		itemComboBox.Name = "itemComboBox";
 		itemComboBox.Size = new Size(271, 36);
-		itemComboBox.TabIndex = 2;
+		itemComboBox.TabIndex = 3;
 		// 
 		// itemNameLabel
 		// 
 		itemNameLabel.AutoSize = true;
 		itemNameLabel.Font = new Font("Segoe UI", 15F);
-		itemNameLabel.Location = new Point(107, 148);
+		itemNameLabel.Location = new Point(107, 195);
 		itemNameLabel.Name = "itemNameLabel";
 		itemNameLabel.Size = new Size(108, 28);
 		itemNameLabel.TabIndex = 43;
@@ -91,21 +92,21 @@ partial class OrderForm
 		// 
 		itemsDataGridView.AllowUserToAddRows = false;
 		itemsDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-		itemsDataGridView.Location = new Point(367, 40);
+		itemsDataGridView.Location = new Point(367, 12);
 		itemsDataGridView.Name = "itemsDataGridView";
 		itemsDataGridView.ReadOnly = true;
-		itemsDataGridView.Size = new Size(421, 398);
+		itemsDataGridView.Size = new Size(750, 426);
 		itemsDataGridView.TabIndex = 48;
 		itemsDataGridView.CellDoubleClick += itemsDataGridView_CellDoubleClick;
 		// 
 		// quantityTextBox
 		// 
 		quantityTextBox.Font = new Font("Segoe UI", 15F);
-		quantityTextBox.Location = new Point(187, 232);
+		quantityTextBox.Location = new Point(187, 268);
 		quantityTextBox.Name = "quantityTextBox";
 		quantityTextBox.PlaceholderText = "Quantity";
 		quantityTextBox.Size = new Size(83, 34);
-		quantityTextBox.TabIndex = 3;
+		quantityTextBox.TabIndex = 4;
 		quantityTextBox.Text = "1";
 		quantityTextBox.TextAlign = HorizontalAlignment.Right;
 		quantityTextBox.KeyPress += quantityTextBox_KeyPress;
@@ -114,7 +115,7 @@ partial class OrderForm
 		// 
 		quantityLabel.AutoSize = true;
 		quantityLabel.Font = new Font("Segoe UI", 15F);
-		quantityLabel.Location = new Point(55, 235);
+		quantityLabel.Location = new Point(55, 271);
 		quantityLabel.Name = "quantityLabel";
 		quantityLabel.Size = new Size(88, 28);
 		quantityLabel.TabIndex = 50;
@@ -126,7 +127,7 @@ partial class OrderForm
 		saveButton.Location = new Point(97, 400);
 		saveButton.Name = "saveButton";
 		saveButton.Size = new Size(118, 38);
-		saveButton.TabIndex = 51;
+		saveButton.TabIndex = 6;
 		saveButton.Text = "SAVE";
 		saveButton.UseVisualStyleBackColor = true;
 		saveButton.Click += saveButton_Click;
@@ -134,24 +135,46 @@ partial class OrderForm
 		// addButton
 		// 
 		addButton.Font = new Font("Segoe UI", 15F);
-		addButton.Location = new Point(97, 287);
+		addButton.Location = new Point(97, 323);
 		addButton.Name = "addButton";
 		addButton.Size = new Size(118, 38);
-		addButton.TabIndex = 4;
+		addButton.TabIndex = 5;
 		addButton.Text = "ADD";
 		addButton.UseVisualStyleBackColor = true;
 		addButton.Click += addButton_Click;
 		// 
-		// printDocument
+		// categoryLabel
 		// 
-		printDocument.PrintPage += printDocument_PrintPage;
+		categoryLabel.AutoSize = true;
+		categoryLabel.Font = new Font("Segoe UI", 15F);
+		categoryLabel.Location = new Point(107, 114);
+		categoryLabel.Name = "categoryLabel";
+		categoryLabel.Size = new Size(92, 28);
+		categoryLabel.TabIndex = 53;
+		categoryLabel.Text = "Category";
+		// 
+		// categoryComboBox
+		// 
+		categoryComboBox.AutoCompleteMode = AutoCompleteMode.Suggest;
+		categoryComboBox.AutoCompleteSource = AutoCompleteSource.ListItems;
+		categoryComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+		categoryComboBox.FlatStyle = FlatStyle.System;
+		categoryComboBox.Font = new Font("Segoe UI", 15F);
+		categoryComboBox.FormattingEnabled = true;
+		categoryComboBox.Location = new Point(30, 145);
+		categoryComboBox.Name = "categoryComboBox";
+		categoryComboBox.Size = new Size(271, 36);
+		categoryComboBox.TabIndex = 2;
+		categoryComboBox.SelectedIndexChanged += categoryComboBox_SelectedIndexChanged;
 		// 
 		// OrderForm
 		// 
 		AcceptButton = addButton;
 		AutoScaleDimensions = new SizeF(7F, 15F);
 		AutoScaleMode = AutoScaleMode.Font;
-		ClientSize = new Size(800, 450);
+		ClientSize = new Size(1129, 450);
+		Controls.Add(categoryLabel);
+		Controls.Add(categoryComboBox);
 		Controls.Add(addButton);
 		Controls.Add(saveButton);
 		Controls.Add(quantityLabel);
@@ -163,7 +186,7 @@ partial class OrderForm
 		Controls.Add(itemComboBox);
 		Name = "OrderForm";
 		StartPosition = FormStartPosition.CenterScreen;
-		Text = "OrderForm";
+		Text = "Order";
 		Load += OrderForm_Load;
 		((System.ComponentModel.ISupportInitialize)itemsDataGridView).EndInit();
 		ResumeLayout(false);
@@ -181,5 +204,6 @@ partial class OrderForm
 	private Label quantityLabel;
 	private Button saveButton;
 	private Button addButton;
-	private System.Drawing.Printing.PrintDocument printDocument;
+	private Label categoryLabel;
+	private ComboBox categoryComboBox;
 }

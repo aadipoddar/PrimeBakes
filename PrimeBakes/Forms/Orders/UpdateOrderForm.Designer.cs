@@ -38,9 +38,9 @@ partial class UpdateOrderForm
 		saveButton = new Button();
 		addButton = new Button();
 		printPDFButton = new Button();
-		printThermalButton = new Button();
-		printDocument = new System.Drawing.Printing.PrintDocument();
 		statusCheckBox = new CheckBox();
+		categoryLabel = new Label();
+		categoryComboBox = new ComboBox();
 		((System.ComponentModel.ISupportInitialize)itemsDataGridView).BeginInit();
 		SuspendLayout();
 		// 
@@ -52,7 +52,7 @@ partial class UpdateOrderForm
 		itemComboBox.FlatStyle = FlatStyle.System;
 		itemComboBox.Font = new Font("Segoe UI", 15F);
 		itemComboBox.FormattingEnabled = true;
-		itemComboBox.Location = new Point(28, 151);
+		itemComboBox.Location = new Point(28, 204);
 		itemComboBox.Name = "itemComboBox";
 		itemComboBox.Size = new Size(271, 36);
 		itemComboBox.TabIndex = 2;
@@ -61,7 +61,7 @@ partial class UpdateOrderForm
 		// 
 		itemNameLabel.AutoSize = true;
 		itemNameLabel.Font = new Font("Segoe UI", 15F);
-		itemNameLabel.Location = new Point(107, 109);
+		itemNameLabel.Location = new Point(107, 173);
 		itemNameLabel.Name = "itemNameLabel";
 		itemNameLabel.Size = new Size(108, 28);
 		itemNameLabel.TabIndex = 43;
@@ -71,7 +71,7 @@ partial class UpdateOrderForm
 		// 
 		customerNameLabel.AutoSize = true;
 		customerNameLabel.Font = new Font("Segoe UI", 15F);
-		customerNameLabel.Location = new Point(119, 9);
+		customerNameLabel.Location = new Point(107, 9);
 		customerNameLabel.Name = "customerNameLabel";
 		customerNameLabel.Size = new Size(96, 28);
 		customerNameLabel.TabIndex = 45;
@@ -94,17 +94,17 @@ partial class UpdateOrderForm
 		// 
 		itemsDataGridView.AllowUserToAddRows = false;
 		itemsDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-		itemsDataGridView.Location = new Point(367, 73);
+		itemsDataGridView.Location = new Point(367, 56);
 		itemsDataGridView.Name = "itemsDataGridView";
 		itemsDataGridView.ReadOnly = true;
-		itemsDataGridView.Size = new Size(421, 365);
+		itemsDataGridView.Size = new Size(730, 382);
 		itemsDataGridView.TabIndex = 48;
 		itemsDataGridView.CellDoubleClick += itemsDataGridView_CellDoubleClick;
 		// 
 		// quantityTextBox
 		// 
 		quantityTextBox.Font = new Font("Segoe UI", 15F);
-		quantityTextBox.Location = new Point(187, 193);
+		quantityTextBox.Location = new Point(187, 246);
 		quantityTextBox.Name = "quantityTextBox";
 		quantityTextBox.PlaceholderText = "Quantity";
 		quantityTextBox.Size = new Size(83, 34);
@@ -117,7 +117,7 @@ partial class UpdateOrderForm
 		// 
 		quantityLabel.AutoSize = true;
 		quantityLabel.Font = new Font("Segoe UI", 15F);
-		quantityLabel.Location = new Point(55, 196);
+		quantityLabel.Location = new Point(55, 249);
 		quantityLabel.Name = "quantityLabel";
 		quantityLabel.Size = new Size(88, 28);
 		quantityLabel.TabIndex = 50;
@@ -137,7 +137,7 @@ partial class UpdateOrderForm
 		// addButton
 		// 
 		addButton.Font = new Font("Segoe UI", 15F);
-		addButton.Location = new Point(97, 248);
+		addButton.Location = new Point(97, 301);
 		addButton.Name = "addButton";
 		addButton.Size = new Size(118, 38);
 		addButton.TabIndex = 4;
@@ -148,28 +148,13 @@ partial class UpdateOrderForm
 		// printPDFButton
 		// 
 		printPDFButton.Font = new Font("Segoe UI", 15F);
-		printPDFButton.Location = new Point(435, 12);
+		printPDFButton.Location = new Point(677, 12);
 		printPDFButton.Name = "printPDFButton";
 		printPDFButton.Size = new Size(118, 38);
 		printPDFButton.TabIndex = 53;
 		printPDFButton.Text = "Print PDF";
 		printPDFButton.UseVisualStyleBackColor = true;
 		printPDFButton.Click += printPDFButton_Click;
-		// 
-		// printThermalButton
-		// 
-		printThermalButton.Font = new Font("Segoe UI", 15F);
-		printThermalButton.Location = new Point(593, 12);
-		printThermalButton.Name = "printThermalButton";
-		printThermalButton.Size = new Size(162, 38);
-		printThermalButton.TabIndex = 54;
-		printThermalButton.Text = "Print Thermal";
-		printThermalButton.UseVisualStyleBackColor = true;
-		printThermalButton.Click += printThermalButton_Click;
-		// 
-		// printDocument
-		// 
-		printDocument.PrintPage += printDocument_PrintPage;
 		// 
 		// statusCheckBox
 		// 
@@ -182,14 +167,39 @@ partial class UpdateOrderForm
 		statusCheckBox.Text = "Status";
 		statusCheckBox.UseVisualStyleBackColor = true;
 		// 
-		// OrderForm
+		// categoryLabel
+		// 
+		categoryLabel.AutoSize = true;
+		categoryLabel.Font = new Font("Segoe UI", 15F);
+		categoryLabel.Location = new Point(107, 92);
+		categoryLabel.Name = "categoryLabel";
+		categoryLabel.Size = new Size(92, 28);
+		categoryLabel.TabIndex = 57;
+		categoryLabel.Text = "Category";
+		// 
+		// categoryComboBox
+		// 
+		categoryComboBox.AutoCompleteMode = AutoCompleteMode.Suggest;
+		categoryComboBox.AutoCompleteSource = AutoCompleteSource.ListItems;
+		categoryComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+		categoryComboBox.FlatStyle = FlatStyle.System;
+		categoryComboBox.Font = new Font("Segoe UI", 15F);
+		categoryComboBox.FormattingEnabled = true;
+		categoryComboBox.Location = new Point(30, 123);
+		categoryComboBox.Name = "categoryComboBox";
+		categoryComboBox.Size = new Size(271, 36);
+		categoryComboBox.TabIndex = 56;
+		categoryComboBox.SelectedIndexChanged += categoryComboBox_SelectedIndexChanged;
+		// 
+		// UpdateOrderForm
 		// 
 		AcceptButton = addButton;
 		AutoScaleDimensions = new SizeF(7F, 15F);
 		AutoScaleMode = AutoScaleMode.Font;
-		ClientSize = new Size(800, 450);
+		ClientSize = new Size(1109, 450);
+		Controls.Add(categoryLabel);
+		Controls.Add(categoryComboBox);
 		Controls.Add(statusCheckBox);
-		Controls.Add(printThermalButton);
 		Controls.Add(printPDFButton);
 		Controls.Add(addButton);
 		Controls.Add(saveButton);
@@ -200,9 +210,9 @@ partial class UpdateOrderForm
 		Controls.Add(customerComboBox);
 		Controls.Add(itemNameLabel);
 		Controls.Add(itemComboBox);
-		Name = "OrderForm";
+		Name = "UpdateOrderForm";
 		StartPosition = FormStartPosition.CenterScreen;
-		Text = "OrderForm";
+		Text = "Update Order";
 		Load += OrderForm_Load;
 		((System.ComponentModel.ISupportInitialize)itemsDataGridView).EndInit();
 		ResumeLayout(false);
@@ -221,7 +231,7 @@ partial class UpdateOrderForm
 	private Button saveButton;
 	private Button addButton;
 	private Button printPDFButton;
-	private Button printThermalButton;
-	private System.Drawing.Printing.PrintDocument printDocument;
 	private CheckBox statusCheckBox;
+	private Label categoryLabel;
+	private ComboBox categoryComboBox;
 }

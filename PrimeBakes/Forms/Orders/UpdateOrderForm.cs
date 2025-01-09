@@ -1,8 +1,5 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
-using System.Drawing.Printing;
-
-using PrimeBakes.Printing;
 
 using PrimeBakesLibrary.Printing;
 
@@ -12,7 +9,7 @@ public partial class UpdateOrderForm : Form
 {
 	private readonly int _userId;
 	private readonly OrderModel _orderModel;
-	private BindingList<ViewOrderDetailModel> _orderDetails;
+	private BindingList<ViewOrderDetailModel> _orderDetails = [];
 
 	public UpdateOrderForm(OrderModel orderModel)
 	{
@@ -20,33 +17,44 @@ public partial class UpdateOrderForm : Form
 
 		_orderModel = orderModel;
 		_userId = orderModel.UserId;
-		_orderDetails = new();
 		itemsDataGridView.DataSource = _orderDetails;
-		printPDFButton.Visible = true;
-		printThermalButton.Visible = true;
-		statusCheckBox.Visible = true;
-		HideFirstColumn();
 	}
 
-	private void OrderForm_Load(object sender, EventArgs e) => LoadComboBox();
+	#region LoadData
 
-	private async void LoadComboBox()
+	private void OrderForm_Load(object sender, EventArgs e) => LoadData();
+
+	private async void LoadData()
 	{
-		customerComboBox.DataSource = (await CommonData.LoadTableData<CustomerModel>("CustomerTable")).ToList();
+		customerComboBox.DataSource = (await CommonData.LoadTableData<CustomerModel>("Customer")).ToList();
 		customerComboBox.DisplayMember = nameof(CustomerModel.DisplayName);
 		customerComboBox.ValueMember = nameof(CustomerModel.Id);
 
-		itemComboBox.DataSource = (await CommonData.LoadTableData<ItemModel>("ItemTable")).ToList();
-		itemComboBox.DisplayMember = nameof(ItemModel.DisplayName);
-		itemComboBox.ValueMember = nameof(ItemModel.Id);
+		categoryComboBox.DataSource = (await CommonData.LoadTableData<CategoryModel>("Category")).ToList();
+		categoryComboBox.DisplayMember = nameof(CategoryModel.DisplayName);
+		categoryComboBox.ValueMember = nameof(CategoryModel.Id);
+
+		await LoadItemsData();
 
 		customerComboBox.SelectedValue = _orderModel.CustomerId;
-		_orderDetails = new BindingList<ViewOrderDetailModel>((await OrderData.LoadViewOrderDetailsByOrderId(_orderModel.Id)).ToList());
+		_orderDetails = new BindingList<ViewOrderDetailModel>((await CommonData.LoadTableDataById<ViewOrderDetailModel>("View_OrderDetails", _orderModel.Id)).ToList());
 		itemsDataGridView.DataSource = _orderDetails;
 		statusCheckBox.Checked = _orderModel.Status;
 		HideFirstColumn();
 	}
 
+	private async Task LoadItemsData()
+	{
+		itemComboBox.DataSource = (await ItemData.LoadItemByCategory((categoryComboBox.SelectedItem as CategoryModel).Id)).ToList();
+		itemComboBox.DisplayMember = nameof(ItemModel.DisplayName);
+		itemComboBox.ValueMember = nameof(ItemModel.Id);
+	}
+
+	private async void categoryComboBox_SelectedIndexChanged(object sender, EventArgs e) => await LoadItemsData();
+
+	#endregion
+
+	#region DataGrid
 	private void HideFirstColumn() => itemsDataGridView.Columns[0].Visible = false;
 
 	private void quantityTextBox_KeyPress(object sender, KeyPressEventArgs e)
@@ -59,10 +67,9 @@ public partial class UpdateOrderForm : Form
 
 	private void AddItemToDataGridView()
 	{
-		if (int.Parse(quantityTextBox.Text) == 0)
-			quantityTextBox.Text = "1";
+		if (int.Parse(quantityTextBox.Text) == 0) quantityTextBox.Text = "1";
 
-		if (itemComboBox.SelectedItem is ItemModel selectedItem)
+		if (itemComboBox.SelectedItem is ItemModel selectedItem && categoryComboBox.SelectedItem is CategoryModel selectedCategory)
 		{
 			int quantity = int.TryParse(quantityTextBox.Text, out int result) ? result : 1;
 
@@ -77,23 +84,35 @@ public partial class UpdateOrderForm : Form
 				ItemId = selectedItem.Id,
 				ItemName = selectedItem.Name,
 				ItemCode = selectedItem.Code,
+				CategoryId = selectedCategory.Id,
+				CategoryName = selectedCategory.Name,
+				CategoryCode = selectedCategory.Code,
 				Quantity = quantity
 			});
 		}
 
 		else MessageBox.Show("Please select a customer and an item", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+		quantityTextBox.Text = "1";
+		categoryComboBox.Focus();
 	}
 
-	private void itemsDataGridView_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+	private async void itemsDataGridView_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
 	{
 		if (e.RowIndex >= 0)
 		{
+			categoryComboBox.SelectedValue = _orderDetails[e.RowIndex].CategoryId;
+			await LoadItemsData();
 			itemComboBox.SelectedValue = _orderDetails[e.RowIndex].ItemId;
 			quantityTextBox.Text = _orderDetails[e.RowIndex].Quantity.ToString();
 			_orderDetails.RemoveAt(e.RowIndex);
 			quantityTextBox.Focus();
 		}
 	}
+
+	#endregion
+
+	#region Saving
 
 	private async void saveButton_Click(object sender, EventArgs e)
 	{
@@ -109,18 +128,14 @@ public partial class UpdateOrderForm : Form
 		DialogResult = DialogResult.OK;
 
 		if (MessageBox.Show("Do you want to print the order?", "Print Order", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-		{
-			var printMethod = MessageBox.Show("Choose print method: Yes for PDF, No for Thermal", "Print Method", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-			if (printMethod == DialogResult.Yes) printPDFButton_Click(sender, e);
-			else if (printMethod == DialogResult.No) printThermalButton_Click(sender, e);
-		}
+			printPDFButton_Click(sender, e);
 	}
 
 	private async Task DeleteOrderDetailTable() =>
-		await OrderData.OrderDetailsDelete(_orderModel.Id);
+		await OrderData.DeleteOrderDetails(_orderModel.Id);
 
 	private async Task UpdateOrderTable() =>
-		await OrderData.OrderUpdate(new OrderModel
+		await OrderData.UpdateOrder(new OrderModel
 		{
 			Id = _orderModel.Id,
 			UserId = _userId,
@@ -133,7 +148,7 @@ public partial class UpdateOrderForm : Form
 	{
 		foreach (var detail in _orderDetails)
 		{
-			await OrderData.OrderDetailInsert(new OrderDetailModel
+			await OrderData.InsertOrderDetail(new OrderDetailModel
 			{
 				Id = 0,
 				OrderId = orderId,
@@ -149,6 +164,7 @@ public partial class UpdateOrderForm : Form
 	{
 		quantityTextBox.Text = "1";
 		_orderDetails.Clear();
+		customerComboBox.Focus();
 	}
 
 	private async void printPDFButton_Click(object sender, EventArgs e)
@@ -159,12 +175,5 @@ public partial class UpdateOrderForm : Form
 		Process.Start(new ProcessStartInfo($"{Path.GetTempPath()}\\OrderReport.pdf") { UseShellExecute = true });
 	}
 
-	private void printThermalButton_Click(object sender, EventArgs e)
-	{
-		PrintDialog printDialog = new();
-		printDialog.Document = printDocument;
-		printDocument.Print();
-	}
-
-	private void printDocument_PrintPage(object sender, PrintPageEventArgs e) => PrintOrderThermal.DrawGraphics(e, _orderModel.Id);
+	#endregion
 }

@@ -76,13 +76,13 @@ public static class PrintSingleOrderPDF
 
 	public static async Task<MemoryStream> PrintOrder(int orderId)
 	{
-		OrderModel orderModel = (await CommonData.LoadTableDataById<OrderModel>("OrderTable", orderId)).FirstOrDefault();
+		OrderModel orderModel = (await CommonData.LoadTableDataById<OrderModel>("Order", orderId)).FirstOrDefault();
 
 		ViewOrderModel order = new()
 		{
 			OrderId = orderModel.Id,
-			UserName = (await CommonData.LoadTableDataById<UserModel>("UserTable", orderModel.UserId)).FirstOrDefault().Name,
-			CustomerName = (await CommonData.LoadTableDataById<UserModel>("CustomerTable", orderModel.CustomerId)).FirstOrDefault().Name,
+			UserName = (await CommonData.LoadTableDataById<UserModel>("User", orderModel.UserId)).FirstOrDefault().Name,
+			CustomerName = (await CommonData.LoadTableDataById<UserModel>("Customer", orderModel.CustomerId)).FirstOrDefault().Name,
 			OrderDateTime = orderModel.DateTime
 		};
 
@@ -116,8 +116,8 @@ public static class PrintSingleOrderPDF
 		textElement = new PdfTextElement($"Order Taken By: {order.UserName}", font);
 		result = textElement.Draw(result.Page, new PointF(0, result.Bounds.Bottom + 10), layoutFormat);
 
-		var detailedPrintModel = (await OrderData.LoadPrintOrderDetailsByOrderId(order.OrderId)).ToList();
-		PdfGrid pdfGrid = new() { DataSource = detailedPrintModel };
+		var detailedPrintModel = (await CommonData.LoadTableDataById<ViewOrderDetailModel>("View_OrderDetails", order.OrderId)).ToList();
+		PdfGrid pdfGrid = new() { DataSource = detailedPrintModel.OrderBy(x => x.CategoryId) };
 
 		foreach (PdfGridRow row in pdfGrid.Rows)
 		{

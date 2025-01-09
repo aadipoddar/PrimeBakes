@@ -10,7 +10,7 @@ public partial class ValidateUserForm : Form
 
 	private async void LoadComboBox()
 	{
-		userComboBox.DataSource = (await CommonData.LoadTableData<UserModel>("UserTable")).ToList();
+		userComboBox.DataSource = (await CommonData.LoadTableData<UserModel>("User")).ToList();
 		userComboBox.DisplayMember = "Name";
 		userComboBox.ValueMember = "Id";
 	}
@@ -26,10 +26,6 @@ public partial class ValidateUserForm : Form
 		else MessageBox.Show("Invalid Password", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 	}
 
-	private bool ValidateUserPassword()
-	{
-		if (passwordTextBox.Text == (userComboBox.SelectedItem as UserModel).Password) return true;
-
-		return false;
-	}
+	private bool ValidateUserPassword() =>
+		passwordTextBox.Text == (userComboBox.SelectedItem as UserModel).Password;
 }

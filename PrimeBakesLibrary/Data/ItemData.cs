@@ -21,4 +21,7 @@ public static class ItemData
 			item.Name,
 			item.Status
 		});
+
+	public static async Task<List<ItemModel>> LoadItemByCategory(int categoryId) =>
+		await SqlDataAccess.LoadData<ItemModel, dynamic>("Load_Items_By_Category", new { CategoryId = categoryId });
 }

@@ -17,14 +17,6 @@ public class OrderDetailModel
 	public int Quantity { get; set; }
 }
 
-public class ViewOrderDetailModel
-{
-	public int ItemId { get; set; }
-	public string ItemName { get; set; }
-	public string ItemCode { get; set; }
-	public int Quantity { get; set; }
-}
-
 public class ViewOrderModel
 {
 	public int OrderId { get; set; }
@@ -33,9 +25,14 @@ public class ViewOrderModel
 	public DateTime OrderDateTime { get; set; }
 }
 
-public class PrintOrderDetailModel
+public class ViewOrderDetailModel
 {
+	public int Id { get; set; }
+	public int ItemId { get; set; }
 	public string ItemName { get; set; }
 	public string ItemCode { get; set; }
+	public int CategoryId { get; set; }
+	public string CategoryName { get; set; }
+	public string CategoryCode { get; set; }
 	public int Quantity { get; set; }
 }
