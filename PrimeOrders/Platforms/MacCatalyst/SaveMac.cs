@@ -28,7 +28,7 @@ namespace PrimeOrders.Services
 					QLPreviewController qlPreview = [];
 					QLPreviewItem item = new QLPreviewItemBundle(filename, filePath);
 					qlPreview.DataSource = new PreviewControllerDS(item);
-					uiViewController.PresentViewController((UIViewController)qlPreview, true, null);
+					uiViewController.PresentViewController(qlPreview, true, null);
 				}
 			}
 
@@ -119,7 +119,7 @@ public class PreviewControllerDS : QLPreviewControllerDataSource
 
 	public override nint PreviewItemCount(QLPreviewController controller)
 	{
-		return (nint)1;
+		return 1;
 	}
 
 	public override IQLPreviewItem GetPreviewItem(QLPreviewController controller, nint index)

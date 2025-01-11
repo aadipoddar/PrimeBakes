@@ -3,65 +3,66 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="PrimeOrders.OrderPage"
              Title="OrderPage"
-    xmlns:control="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
-    xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid">
+             xmlns:control="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
+             xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid">
 
-	<ScrollView>
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
 
-		<VerticalStackLayout Padding="30,0" Spacing="25">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="*" />
+			<ColumnDefinition Width="Auto" />
+		</Grid.ColumnDefinitions>
 
-			<control:SfComboBox x:Name="customerComboBox"
-							HeightRequest="60" WidthRequest="250"
-							MaxDropDownHeight="300" TextSearchMode="Contains"
-							Placeholder="Select a Customer" IsEditable="True">
-			</control:SfComboBox>
+		<ScrollView Grid.Row="0">
+			<VerticalStackLayout Padding="30,0" Spacing="25">
 
-			<control:SfComboBox x:Name="categoryComboBox"
-				HeightRequest="60" WidthRequest="250"
-				MaxDropDownHeight="300" TextSearchMode="Contains"
-				Placeholder="Select a Category" IsEditable="True"
-				SelectionChanged="categoryComboBox_SelectionChanged">
-			</control:SfComboBox>
+				<control:SfComboBox x:Name="customerComboBox"
+                                    HeightRequest="60" WidthRequest="250"
+                                    MaxDropDownHeight="300" TextSearchMode="Contains"
+                                    Placeholder="Select a Customer" IsEditable="True">
+				</control:SfComboBox>
 
-			<control:SfComboBox x:Name="itemComboBox"
-							HeightRequest="60" WidthRequest="250"
-							MaxDropDownHeight="300" TextSearchMode="Contains"
-							Placeholder="Select a Item" IsEditable="True">
-			</control:SfComboBox>
+				<control:SfComboBox x:Name="categoryComboBox"
+                                    HeightRequest="60" WidthRequest="250"
+                                    MaxDropDownHeight="300" TextSearchMode="Contains"
+                                    Placeholder="Select a Category" IsEditable="True"
+                                    SelectionChanged="categoryComboBox_SelectionChanged">
+				</control:SfComboBox>
 
-			<control:SfNumericEntry x:Name="quantityNumericEntry" WidthRequest="200"
-								Value="1" CustomFormat="0" AllowNull="False"
-								Minimum="1" UpDownPlacementMode="Inline">
-			</control:SfNumericEntry>
+				<CollectionView x:Name="itemsCollectionView">
+					<CollectionView.ItemTemplate>
+						<DataTemplate>
+							<Frame Margin="10" BackgroundColor="Transparent">
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="*" />
+										<ColumnDefinition Width="*" />
+									</Grid.ColumnDefinitions>
 
-			<Button Text="Add"
-				Clicked="OnAddButtonClicked"
-				MaximumWidthRequest="200" />
+									<Label Text="{Binding ItemName}" Grid.Column="0" Margin="10"/>
 
-			<syncfusion:SfDataGrid	x:Name="itemsDataGridView"
-								GridLinesVisibility="None"
-								HeaderGridLinesVisibility="None"
-								SortingMode="Single"
-								SelectionMode="Single"
-								HeightRequest="300"
-								CellDoubleTapped="itemsDataGridView_CellDoubleTapped"
-								AllowResizingColumns="True"
-								AutoGenerateColumnsMode="None">
+									<control:SfNumericEntry Grid.Column="1" x:Name="quantityNumericEntry"
+                                                             Value="{Binding Quantity}"
+                                                             CustomFormat="0" AllowNull="False"
+                                                             Minimum="0" UpDownPlacementMode="Inline"
+                                                             ValueChanged="quantityNumericEntry_ValueChanged">
+									</control:SfNumericEntry>
+								</Grid>
+							</Frame>
+						</DataTemplate>
+					</CollectionView.ItemTemplate>
+				</CollectionView>
 
-				<syncfusion:SfDataGrid.Columns>
-					<syncfusion:DataGridNumericColumn MappingName="ItemId" HeaderText="Item ID" Visible="False"/>
-					<syncfusion:DataGridTextColumn MappingName="ItemName" HeaderText="Name" ColumnWidthMode="Fill"/>
-					<syncfusion:DataGridTextColumn MappingName="ItemCode" HeaderText="Code"/>
-					<syncfusion:DataGridNumericColumn MappingName="Quantity" HeaderText="Quantity" Format="0"/>
-				</syncfusion:SfDataGrid.Columns>
-			</syncfusion:SfDataGrid>
+				<Button Text="Cart"
+                        Clicked="OnCartButtonClicked"
+                        MaximumWidthRequest="200" />
 
-			<Button Text="Save"
-				Clicked="OnSaveButtonClicked"
-				MaximumWidthRequest="200" />
-
-		</VerticalStackLayout>
-
-	</ScrollView>
+			</VerticalStackLayout>
+		</ScrollView>
+	</Grid>
 
 </ContentPage>

@@ -34,7 +34,7 @@ public partial class SaveService
 					QLPreviewController qlPreview = [];
 					QLPreviewItem item = new QLPreviewItemBundle(filename, filePath);
 					qlPreview.DataSource = new PreviewControllerDS(item);
-					uiViewController.PresentViewController((UIViewController)qlPreview, true, null);
+					uiViewController.PresentViewController(qlPreview, true, null);
 				}
 			}
 		}
