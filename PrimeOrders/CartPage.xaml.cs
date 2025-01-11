@@ -14,7 +14,7 @@ public partial class CartPage : ContentPage
 {
 	private readonly int _userId, _customerId;
 	private readonly OrderPage _orderPage;
-	private ObservableCollection<ViewOrderDetailModel> _cart = [];
+	private ObservableCollection<ViewOrderDetailModel> _cart;
 
 	public CartPage(int userId, int customerId, ObservableCollection<ViewOrderDetailModel> cart, OrderPage orderPage)
 	{
@@ -25,12 +25,59 @@ public partial class CartPage : ContentPage
 		_cart = cart;
 		_orderPage = orderPage;
 
-		cartDataGridView.ItemsSource = _cart;
+		CreateCategoryCollectionViews();
 	}
 
-	protected override void OnAppearing()
+	private void CreateCategoryCollectionViews()
 	{
-		_cart.OrderBy(x => x.CategoryId).ToList();
+		var groupedItems = _cart.GroupBy(item => item.CategoryId);
+
+		foreach (var group in groupedItems)
+		{
+			var categoryLabel = new Label
+			{
+				Text = $"Category: {group.FirstOrDefault().ItemName}",
+				FontAttributes = FontAttributes.Bold,
+				FontSize = 16
+			};
+
+			var collectionView = new CollectionView
+			{
+				ItemsSource = group.ToList(),
+				Margin = new Thickness(0, 0, 0, 5),
+				ItemTemplate = new DataTemplate(() =>
+				{
+					var grid = new Grid
+					{
+						Padding = new Thickness(10),
+						ColumnSpacing = 10,
+						ColumnDefinitions = {
+							new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
+							new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) },
+							new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) }
+						}
+					};
+
+					var itemNameLabel = new Label();
+					itemNameLabel.SetBinding(Label.TextProperty, nameof(ViewOrderDetailModel.ItemName));
+
+					var itemCodeLabel = new Label();
+					itemCodeLabel.SetBinding(Label.TextProperty, nameof(ViewOrderDetailModel.ItemCode));
+
+					var quantityLabel = new Label();
+					quantityLabel.SetBinding(Label.TextProperty, nameof(ViewOrderDetailModel.Quantity));
+
+					grid.Add(itemNameLabel, 0, 0);
+					grid.Add(itemCodeLabel, 1, 0);
+					grid.Add(quantityLabel, 2, 0);
+
+					return grid;
+				})
+			};
+
+			cartStackLayout.Children.Add(categoryLabel);
+			cartStackLayout.Children.Add(collectionView);
+		}
 	}
 
 	private async void OnSaveButtonClicked(object sender, EventArgs e)
