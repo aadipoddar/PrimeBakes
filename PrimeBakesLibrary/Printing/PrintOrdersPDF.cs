@@ -1,8 +1,5 @@
-﻿using PrimeBakesLibrary.Data;
-
-using Syncfusion.Pdf;
+﻿using Syncfusion.Pdf;
 using Syncfusion.Pdf.Graphics;
-using Syncfusion.Pdf.Grid;
 
 using Color = Syncfusion.Drawing.Color;
 using PointF = Syncfusion.Drawing.PointF;
@@ -86,47 +83,9 @@ public static class PrintOrdersPDF
 		layoutFormat.Layout = PdfLayoutType.Paginate;
 		layoutFormat.Break = PdfLayoutBreakType.FitPage;
 
-		PdfStandardFont font = new(PdfFontFamily.Helvetica, 25, PdfFontStyle.Bold);
-
 		PdfLayoutResult result = null;
-		PdfTextElement textElement;
 
-		foreach (var order in orders)
-		{
-			font = new PdfStandardFont(PdfFontFamily.Helvetica, 15, PdfFontStyle.Bold);
-
-			textElement = new PdfTextElement($"Order Id: {order.OrderId}", font);
-			if (result == null) result = textElement.Draw(pdfPage, new PointF(0, 20), layoutFormat);
-			else result = textElement.Draw(result.Page, new PointF(0, result.Bounds.Bottom + 20), layoutFormat);
-
-			textElement = new PdfTextElement($"Customer Name: {order.CustomerName}", font);
-			result = textElement.Draw(result.Page, new PointF(0, result.Bounds.Bottom + 10), layoutFormat);
-
-			textElement = new PdfTextElement($"Order Taken By: {order.UserName}", font);
-			result = textElement.Draw(result.Page, new PointF(0, result.Bounds.Bottom + 10), layoutFormat);
-
-			var detailedPrintModel = (await CommonData.LoadTableDataById<ViewOrderDetailModel>("View_OrderDetails", order.OrderId)).ToList();
-			PdfGrid pdfGrid = new() { DataSource = detailedPrintModel };
-
-			foreach (PdfGridRow row in pdfGrid.Rows)
-			{
-				foreach (PdfGridCell cell in row.Cells)
-				{
-					PdfGridCellStyle cellStyle = new()
-					{
-						CellPadding = new PdfPaddings(5, 5, 5, 5),
-						Font = new PdfStandardFont(PdfFontFamily.Helvetica, 12)
-					};
-					cell.Style = cellStyle;
-				}
-			}
-
-			pdfGrid.ApplyBuiltinStyle(PdfGridBuiltinStyle.GridTable4Accent1);
-
-			foreach (PdfGridColumn column in pdfGrid.Columns)
-				column.Format = new PdfStringFormat(PdfTextAlignment.Center, PdfVerticalAlignment.Middle);
-			result = pdfGrid.Draw(result.Page, new PointF(10, result.Bounds.Bottom + 20), layoutFormat);
-		}
+		foreach (var order in orders) result = await PrintSingleOrderPDF.PDFBody(pdfPage, layoutFormat, order, result);
 
 		MemoryStream ms = new();
 		pdfDocument.Save(ms);

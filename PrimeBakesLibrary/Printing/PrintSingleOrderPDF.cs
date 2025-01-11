@@ -96,15 +96,25 @@ public static class PrintSingleOrderPDF
 		layoutFormat.Layout = PdfLayoutType.Paginate;
 		layoutFormat.Break = PdfLayoutBreakType.FitPage;
 
-		PdfStandardFont font = new(PdfFontFamily.Helvetica, 25, PdfFontStyle.Bold);
-
 		PdfLayoutResult result = null;
+		result = await PDFBody(pdfPage, layoutFormat, order, result);
+
+		MemoryStream ms = new();
+		pdfDocument.Save(ms);
+		pdfDocument.Close(true);
+		ms.Position = 0;
+
+		return ms;
+	}
+
+	public static async Task<PdfLayoutResult> PDFBody(PdfPage pdfPage, PdfLayoutFormat layoutFormat, ViewOrderModel order, PdfLayoutResult result)
+	{
 		PdfTextElement textElement;
 
-		font = new PdfStandardFont(PdfFontFamily.Helvetica, 15, PdfFontStyle.Bold);
+		PdfStandardFont font = new PdfStandardFont(PdfFontFamily.Helvetica, 15, PdfFontStyle.Bold);
 
 		textElement = new PdfTextElement($"Order Id: {order.OrderId}", font);
-		if (result == null) result = textElement.Draw(pdfPage, new PointF(0, 20), layoutFormat);
+		if (result is null) result = textElement.Draw(pdfPage, new PointF(0, 20), layoutFormat);
 		else result = textElement.Draw(result.Page, new PointF(0, result.Bounds.Bottom + 20), layoutFormat);
 
 		textElement = new PdfTextElement($"Order Date: {order.OrderDateTime}", font);
@@ -116,33 +126,45 @@ public static class PrintSingleOrderPDF
 		textElement = new PdfTextElement($"Order Taken By: {order.UserName}", font);
 		result = textElement.Draw(result.Page, new PointF(0, result.Bounds.Bottom + 10), layoutFormat);
 
-		var detailedPrintModel = (await CommonData.LoadTableDataById<ViewOrderDetailModel>("View_OrderDetails", order.OrderId)).ToList();
-		PdfGrid pdfGrid = new() { DataSource = detailedPrintModel.OrderBy(x => x.CategoryId) };
+		var groupedItems = (await CommonData.LoadTableDataById<ViewOrderDetailModel>("View_OrderDetails", order.OrderId)).ToList().GroupBy(item => item.CategoryId);
 
-		foreach (PdfGridRow row in pdfGrid.Rows)
+		foreach (var item in groupedItems)
 		{
-			foreach (PdfGridCell cell in row.Cells)
-			{
-				PdfGridCellStyle cellStyle = new()
+			font = new PdfStandardFont(PdfFontFamily.Helvetica, 13, PdfFontStyle.Regular);
+
+			textElement = new PdfTextElement($"Category: {item.FirstOrDefault().CategoryName}", font);
+			result = textElement.Draw(result.Page, new PointF(0, result.Bounds.Bottom + 20), layoutFormat);
+
+			var detailedPrintModels = item
+				.Select(v => new
 				{
-					CellPadding = new PdfPaddings(5, 5, 5, 5),
-					Font = new PdfStandardFont(PdfFontFamily.Helvetica, 12)
-				};
-				cell.Style = cellStyle;
+					v.ItemName,
+					v.ItemCode,
+					v.Quantity
+				}).ToList();
+
+			PdfGrid pdfGrid = new() { DataSource = detailedPrintModels };
+
+			foreach (PdfGridRow row in pdfGrid.Rows)
+			{
+				foreach (PdfGridCell cell in row.Cells)
+				{
+					PdfGridCellStyle cellStyle = new()
+					{
+						CellPadding = new PdfPaddings(5, 5, 5, 5),
+						Font = new PdfStandardFont(PdfFontFamily.Helvetica, 12)
+					};
+					cell.Style = cellStyle;
+				}
 			}
+
+			pdfGrid.ApplyBuiltinStyle(PdfGridBuiltinStyle.GridTable4Accent1);
+
+			foreach (PdfGridColumn column in pdfGrid.Columns)
+				column.Format = new PdfStringFormat(PdfTextAlignment.Center, PdfVerticalAlignment.Middle);
+			result = pdfGrid.Draw(result.Page, new PointF(10, result.Bounds.Bottom + 10), layoutFormat);
 		}
 
-		pdfGrid.ApplyBuiltinStyle(PdfGridBuiltinStyle.GridTable4Accent1);
-
-		foreach (PdfGridColumn column in pdfGrid.Columns)
-			column.Format = new PdfStringFormat(PdfTextAlignment.Center, PdfVerticalAlignment.Middle);
-		result = pdfGrid.Draw(result.Page, new PointF(10, result.Bounds.Bottom + 20), layoutFormat);
-
-		MemoryStream ms = new();
-		pdfDocument.Save(ms);
-		pdfDocument.Close(true);
-		ms.Position = 0;
-
-		return ms;
+		return result;
 	}
 }
