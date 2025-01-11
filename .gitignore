@@ -398,4 +398,7 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Others
 /PrimeBakesLibrary/DataAccess/Secrets.cs
+/SetupProject/Mobile/com.aadisoft.primeorders.apk

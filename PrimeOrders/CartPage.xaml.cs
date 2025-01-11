@@ -12,18 +12,15 @@ namespace PrimeOrders;
 
 public partial class CartPage : ContentPage
 {
-	private readonly int _userId, _customerId;
 	private readonly OrderPage _orderPage;
-	private ObservableCollection<ViewOrderDetailModel> _cart;
+	private ObservableCollection<ViewOrderDetailModel> _cart = [];
 
-	public CartPage(int userId, int customerId, ObservableCollection<ViewOrderDetailModel> cart, OrderPage orderPage)
+	public CartPage(OrderPage orderPage)
 	{
 		InitializeComponent();
 
-		_userId = userId;
-		_customerId = customerId;
-		_cart = cart;
 		_orderPage = orderPage;
+		_cart = orderPage.cart;
 
 		CreateCategoryCollectionViews();
 	}
@@ -90,8 +87,8 @@ public partial class CartPage : ContentPage
 
 		var order = new OrderModel
 		{
-			UserId = _userId,
-			CustomerId = _customerId,
+			UserId = _orderPage._userId,
+			CustomerId = _orderPage.customerId,
 			DateTime = DateTime.Now,
 			Status = true
 		};

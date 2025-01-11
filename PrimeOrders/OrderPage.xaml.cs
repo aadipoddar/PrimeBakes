@@ -9,7 +9,8 @@ namespace PrimeOrders;
 
 public partial class OrderPage : ContentPage
 {
-	private readonly int _userId;
+	public readonly int _userId;
+	public int customerId = 0;
 	private ObservableCollection<ViewOrderDetailModel> _items = [];
 	public ObservableCollection<ViewOrderDetailModel> cart = [];
 
@@ -34,6 +35,9 @@ public partial class OrderPage : ContentPage
 		customerComboBox.ItemsSource = await CommonData.LoadTableData<CustomerModel>("Customer");
 		customerComboBox.DisplayMemberPath = nameof(CustomerModel.Name);
 		customerComboBox.SelectedValuePath = nameof(CustomerModel.Id);
+
+		if (customerId is not 0)
+			customerComboBox.SelectedValue = customerId;
 
 		categoryComboBox.ItemsSource = await CommonData.LoadTableData<CategoryModel>("Category");
 		categoryComboBox.DisplayMemberPath = nameof(CategoryModel.Name);
@@ -102,7 +106,10 @@ public partial class OrderPage : ContentPage
 			DisplayAlert("Error", "Please Add Items to Cart", "OK");
 
 		else if (customerComboBox.SelectedItem is CustomerModel selectedCustomer)
-			Navigation.PushAsync(new CartPage(_userId, selectedCustomer.Id, cart, this));
+		{
+			customerId = selectedCustomer.Id;
+			Navigation.PushAsync(new CartPage(this));
+		}
 
 		else DisplayAlert("Error", "Please Select a Customer", "OK");
 	}

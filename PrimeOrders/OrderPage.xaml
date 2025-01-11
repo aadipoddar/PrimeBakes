@@ -20,7 +20,7 @@
 		<ScrollView Grid.Row="0">
 			<VerticalStackLayout Padding="30,0" Spacing="25">
 
-				<control:SfComboBox x:Name="customerComboBox"
+				<control:SfComboBox x:Name="customerComboBox" 
                                     HeightRequest="60" WidthRequest="250"
                                     MaxDropDownHeight="300" TextSearchMode="Contains"
                                     Placeholder="Select a Customer" IsEditable="True">
