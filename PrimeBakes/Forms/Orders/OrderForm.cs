@@ -109,20 +109,7 @@ public partial class OrderForm : Form
 
 	#region Saving
 
-	private async void saveButton_Click(object sender, EventArgs e)
-	{
-		if (_orderDetails.Count == 0)
-		{
-			MessageBox.Show("Please add at least one item to the order", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-			return;
-		}
-
-		_orderId = await InsertIntoOrderTable();
-		await InsertIntoOrderDetailTable(_orderId);
-
-		if (MessageBox.Show("Do you want to print the order?", "Print Order", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-			printPDFButton_Click(sender, e);
-	}
+	private async void printPDFButton_Click(object sender, EventArgs e) => await GeneratePDF();
 
 	private async Task<int> InsertIntoOrderTable() =>
 		await OrderData.InsertOrder(new OrderModel
@@ -136,7 +123,6 @@ public partial class OrderForm : Form
 	private async Task InsertIntoOrderDetailTable(int orderId)
 	{
 		foreach (var detail in _orderDetails)
-		{
 			await OrderData.InsertOrderDetail(new OrderDetailModel
 			{
 				Id = 0,
@@ -144,9 +130,6 @@ public partial class OrderForm : Form
 				ItemId = detail.ItemId,
 				Quantity = detail.Quantity
 			});
-		}
-
-		ClearForm();
 	}
 
 	private void ClearForm()
@@ -156,11 +139,30 @@ public partial class OrderForm : Form
 		customerComboBox.Focus();
 	}
 
-	private async void printPDFButton_Click(object sender, EventArgs e)
+	private async void saveButton_Click(object sender, EventArgs e)
+	{
+		if (_orderDetails.Count == 0)
+		{
+			MessageBox.Show("Please add at least one item to the order", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			return;
+		}
+
+		_orderId = await InsertIntoOrderTable();
+		await InsertIntoOrderDetailTable(_orderId);
+
+		await GeneratePDF();
+
+		Mailing.MailPDF((customerComboBox.SelectedItem as CustomerModel).Email, Path.Combine(Path.GetTempPath(), "OrderReport.pdf"));
+
+		ClearForm();
+	}
+
+	private async Task GeneratePDF()
 	{
 		MemoryStream ms = await PrintSingleOrderPDF.PrintOrder(_orderId);
-		using (FileStream stream = new(Path.Combine(Path.GetTempPath(), "OrderReport.pdf"), FileMode.Create, FileAccess.Write))
-			ms.WriteTo(stream);
+		using FileStream stream = new(Path.Combine(Path.GetTempPath(), "OrderReport.pdf"), FileMode.Create, FileAccess.Write);
+		await ms.CopyToAsync(stream);
+		ms.Close();
 		Process.Start(new ProcessStartInfo($"{Path.GetTempPath()}\\OrderReport.pdf") { UseShellExecute = true });
 	}
 

@@ -2,6 +2,7 @@
 	@Id INT,
     @Code VARCHAR(100),
 	@Name VARCHAR(100),
+	@Email VARCHAR(50),
     @Status BIT
 AS
 BEGIN
@@ -9,6 +10,7 @@ BEGIN
 	VALUES (
 		@Code,
         @Name,
+        @Email,
 		@Status
     );
 

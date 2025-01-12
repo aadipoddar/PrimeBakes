@@ -36,8 +36,7 @@ public partial class OrderPage : ContentPage
 		customerComboBox.DisplayMemberPath = nameof(CustomerModel.Name);
 		customerComboBox.SelectedValuePath = nameof(CustomerModel.Id);
 
-		if (customerId is not 0)
-			customerComboBox.SelectedValue = customerId;
+		if (customerId is not 0) customerComboBox.SelectedValue = customerId;
 
 		categoryComboBox.ItemsSource = await CommonData.LoadTableData<CategoryModel>("Category");
 		categoryComboBox.DisplayMemberPath = nameof(CategoryModel.Name);

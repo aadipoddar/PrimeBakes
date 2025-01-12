@@ -77,6 +77,28 @@ public partial class CartPage : ContentPage
 		}
 	}
 
+	private async Task<int> InsertIntoOrderTable() =>
+		await OrderData.InsertOrder(new OrderModel
+		{
+			UserId = _orderPage._userId,
+			CustomerId = _orderPage.customerId,
+			DateTime = DateTime.Now,
+			Status = true
+		});
+
+	private async Task InsertIntoOrderDetailTable(int orderId)
+	{
+		var orderDetails = _cart.Select(o => new OrderDetailModel
+		{
+			OrderId = orderId,
+			ItemId = o.ItemId,
+			Quantity = o.Quantity
+		});
+
+		foreach (var orderDetail in orderDetails)
+			await OrderData.InsertOrderDetail(orderDetail);
+	}
+
 	private async void OnSaveButtonClicked(object sender, EventArgs e)
 	{
 		if (_cart.IsNullOrEmpty())
@@ -85,40 +107,22 @@ public partial class CartPage : ContentPage
 			return;
 		}
 
-		var order = new OrderModel
-		{
-			UserId = _orderPage._userId,
-			CustomerId = _orderPage.customerId,
-			DateTime = DateTime.Now,
-			Status = true
-		};
+		int orderId = await InsertIntoOrderTable();
+		await InsertIntoOrderDetailTable(orderId);
 
-		order.Id = await OrderData.InsertOrder(order);
+		string filePath = await PrintPDF(orderId);
+		string customerEmail = (await CommonData.LoadTableDataById<CustomerModel>("Customer", _orderPage.customerId)).FirstOrDefault().Email;
+		Mailing.MailPDF(customerEmail, filePath);
 
-		var orderDetails = _cart.Select(o => new OrderDetailModel
-		{
-			OrderId = order.Id,
-			ItemId = o.ItemId,
-			Quantity = o.Quantity
-		});
-
-		foreach (var orderDetail in orderDetails)
-			await OrderData.InsertOrderDetail(orderDetail);
-
-		await DisplayAlert("Success", "Order saved successfully", "OK");
 		_cart.Clear();
-
-		if (await DisplayAlert("Print Order", "Do you want to print the order?", "Yes", "No"))
-			await PrintPDF(order.Id);
-
 		_orderPage.cart.Clear();
 		await Navigation.PopAsync();
 	}
 
-	private async Task PrintPDF(int orderId)
+	private async Task<string> PrintPDF(int orderId)
 	{
 		MemoryStream ms = await PrintSingleOrderPDF.PrintOrder(orderId);
 		SaveService saveService = new();
-		saveService.SaveAndView("OrderReport.pdf", "application/pdf", ms);
+		return saveService.SaveAndView("OrderReport.pdf", "application/pdf", ms);
 	}
 }

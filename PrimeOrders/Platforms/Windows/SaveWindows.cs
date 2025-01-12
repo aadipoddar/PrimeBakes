@@ -7,7 +7,7 @@ namespace PrimeOrders.Services;
 
 public partial class SaveService
 {
-	public async partial void SaveAndView(string filename, string contentType, MemoryStream stream)
+	public partial string SaveAndView(string filename, string contentType, MemoryStream stream)
 	{
 		StorageFile stFile;
 		string extension = Path.GetExtension(filename);
@@ -68,16 +68,16 @@ public partial class SaveService
 			}
 
 			WinRT.Interop.InitializeWithWindow.Initialize(savePicker, windowHandle);
-			stFile = await savePicker.PickSaveFileAsync();
+			stFile = savePicker.PickSaveFileAsync().GetAwaiter().GetResult();
 		}
 		else
 		{
 			StorageFolder local = ApplicationData.Current.LocalFolder;
-			stFile = await local.CreateFileAsync(filename, CreationCollisionOption.ReplaceExisting);
+			stFile = local.CreateFileAsync(filename, CreationCollisionOption.ReplaceExisting).GetAwaiter().GetResult();
 		}
 		if (stFile != null)
 		{
-			using (IRandomAccessStream zipStream = await stFile.OpenAsync(FileAccessMode.ReadWrite))
+			using (IRandomAccessStream zipStream = stFile.OpenAsync(FileAccessMode.ReadWrite).GetAwaiter().GetResult())
 			{
 				//Writes compressed data from memory to file.
 				using Stream outstream = zipStream.AsStreamForWrite();
@@ -97,12 +97,16 @@ public partial class SaveService
 			WinRT.Interop.InitializeWithWindow.Initialize(msgDialog, windowHandle);
 
 			//Showing a dialog box. 
-			IUICommand cmd = await msgDialog.ShowAsync();
+			IUICommand cmd = msgDialog.ShowAsync().GetAwaiter().GetResult();
 			if (cmd.Label == yesCmd.Label)
 			{
 				//Launch the saved file. 
-				await Windows.System.Launcher.LaunchFileAsync(stFile);
+				Windows.System.Launcher.LaunchFileAsync(stFile).GetAwaiter().GetResult();
 			}
+
+			return stFile.Path;
 		}
+
+		return null;
 	}
 }

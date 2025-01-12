@@ -35,6 +35,8 @@
 			statusCheckBox = new CheckBox();
 			nameLabel = new Label();
 			nameTextBox = new TextBox();
+			emailLabel = new Label();
+			emailTextBox = new TextBox();
 			SuspendLayout();
 			// 
 			// customerComboBox
@@ -48,16 +50,16 @@
 			customerComboBox.Location = new Point(42, 12);
 			customerComboBox.Name = "customerComboBox";
 			customerComboBox.Size = new Size(271, 36);
-			customerComboBox.TabIndex = 5;
+			customerComboBox.TabIndex = 6;
 			customerComboBox.SelectedIndexChanged += customerComboBox_SelectedIndexChanged;
 			// 
 			// saveButton
 			// 
 			saveButton.Font = new Font("Segoe UI", 15F);
-			saveButton.Location = new Point(131, 157);
+			saveButton.Location = new Point(131, 191);
 			saveButton.Name = "saveButton";
 			saveButton.Size = new Size(118, 38);
-			saveButton.TabIndex = 4;
+			saveButton.TabIndex = 5;
 			saveButton.Text = "SAVE";
 			saveButton.UseVisualStyleBackColor = true;
 			saveButton.Click += saveButton_Click;
@@ -86,10 +88,10 @@
 			// 
 			statusCheckBox.AutoSize = true;
 			statusCheckBox.Font = new Font("Segoe UI", 15F);
-			statusCheckBox.Location = new Point(12, 161);
+			statusCheckBox.Location = new Point(12, 195);
 			statusCheckBox.Name = "statusCheckBox";
 			statusCheckBox.Size = new Size(84, 32);
-			statusCheckBox.TabIndex = 3;
+			statusCheckBox.TabIndex = 4;
 			statusCheckBox.Text = "Status";
 			statusCheckBox.UseVisualStyleBackColor = true;
 			// 
@@ -112,12 +114,33 @@
 			nameTextBox.Size = new Size(271, 34);
 			nameTextBox.TabIndex = 2;
 			// 
+			// emailLabel
+			// 
+			emailLabel.AutoSize = true;
+			emailLabel.Font = new Font("Segoe UI", 15F);
+			emailLabel.Location = new Point(12, 151);
+			emailLabel.Name = "emailLabel";
+			emailLabel.Size = new Size(59, 28);
+			emailLabel.TabIndex = 38;
+			emailLabel.Text = "Email";
+			// 
+			// emailTextBox
+			// 
+			emailTextBox.Font = new Font("Segoe UI", 15F);
+			emailTextBox.Location = new Point(86, 148);
+			emailTextBox.Name = "emailTextBox";
+			emailTextBox.PlaceholderText = "Email";
+			emailTextBox.Size = new Size(271, 34);
+			emailTextBox.TabIndex = 3;
+			// 
 			// CustomerForm
 			// 
 			AcceptButton = saveButton;
 			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
-			ClientSize = new Size(376, 209);
+			ClientSize = new Size(376, 251);
+			Controls.Add(emailLabel);
+			Controls.Add(emailTextBox);
 			Controls.Add(nameLabel);
 			Controls.Add(nameTextBox);
 			Controls.Add(statusCheckBox);
@@ -141,5 +164,7 @@
 		private CheckBox statusCheckBox;
 		private Label nameLabel;
 		private TextBox nameTextBox;
+		private Label emailLabel;
+		private TextBox emailTextBox;
 	}
 }

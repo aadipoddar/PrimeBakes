@@ -6,7 +6,7 @@ namespace PrimeOrders.Services;
 
 public partial class SaveService
 {
-	public partial void SaveAndView(string filename, string contentType, MemoryStream stream)
+	public partial string SaveAndView(string filename, string contentType, MemoryStream stream)
 	{
 		string exception = string.Empty;
 		string path = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
@@ -38,6 +38,8 @@ public partial class SaveService
 				}
 			}
 		}
+
+		return null;
 	}
 	public UIWindow GetKeyWindow()
 	{

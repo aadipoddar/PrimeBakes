@@ -8,6 +8,7 @@ public static class CustomerData
 			customer.Id,
 			customer.Code,
 			customer.Name,
+			customer.Email,
 			customer.Status
 		});
 
@@ -17,6 +18,7 @@ public static class CustomerData
 			customer.Id,
 			customer.Code,
 			customer.Name,
+			customer.Email,
 			customer.Status
 		});
 }

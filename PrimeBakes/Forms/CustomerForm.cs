@@ -21,12 +21,14 @@ public partial class CustomerForm : Form
 		{
 			codeTextBox.Text = selectedCustomer.Code;
 			nameTextBox.Text = selectedCustomer.Name;
+			emailTextBox.Text = selectedCustomer.Email;
 			statusCheckBox.Checked = selectedCustomer.Status;
 		}
 		else
 		{
 			codeTextBox.Clear();
 			nameTextBox.Clear();
+			emailTextBox.Clear();
 			statusCheckBox.Checked = true;
 		}
 	}
@@ -35,6 +37,7 @@ public partial class CustomerForm : Form
 	{
 		if (codeTextBox.Text == string.Empty) return false;
 		if (nameTextBox.Text == string.Empty) return false;
+		if (emailTextBox.Text == string.Empty) return false;
 		return true;
 	}
 
@@ -50,6 +53,7 @@ public partial class CustomerForm : Form
 		{
 			Code = codeTextBox.Text,
 			Name = nameTextBox.Text,
+			Email = emailTextBox.Text,
 			Status = statusCheckBox.Checked
 		};
 

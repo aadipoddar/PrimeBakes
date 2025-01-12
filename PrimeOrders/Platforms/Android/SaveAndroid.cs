@@ -7,7 +7,7 @@ namespace PrimeOrders.Services;
 
 public partial class SaveService
 {
-	public partial void SaveAndView(string filename, string contentType, MemoryStream stream)
+	public partial string SaveAndView(string filename, string contentType, MemoryStream stream)
 	{
 		string exception = string.Empty;
 		string root = null;
@@ -62,6 +62,9 @@ public partial class SaveService
 				Android.App.Application.Context.StartActivity(intent);
 			}
 
+			return file.AbsolutePath;
 		}
+
+		return null;
 	}
 }
