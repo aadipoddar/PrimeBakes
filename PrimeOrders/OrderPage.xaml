@@ -3,8 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="PrimeOrders.OrderPage"
              Title="OrderPage"
-             xmlns:control="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
-             xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid">
+             xmlns:control="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs">
 
 	<Grid>
 		<Grid.RowDefinitions>
@@ -33,14 +32,14 @@
                                     SelectionChanged="categoryComboBox_SelectionChanged">
 				</control:SfComboBox>
 
-				<CollectionView x:Name="itemsCollectionView">
+				<CollectionView x:Name="itemsCollectionView" MaximumHeightRequest="400">
 					<CollectionView.ItemTemplate>
 						<DataTemplate>
 							<Frame Margin="10" BackgroundColor="Transparent">
 								<Grid>
 									<Grid.ColumnDefinitions>
 										<ColumnDefinition Width="*" />
-										<ColumnDefinition Width="*" />
+										<ColumnDefinition Width="Auto" />
 									</Grid.ColumnDefinitions>
 
 									<Label Text="{Binding ItemName}" Grid.Column="0" Margin="10"/>
@@ -49,6 +48,7 @@
                                                              Value="{Binding Quantity}"
                                                              CustomFormat="0" AllowNull="False"
                                                              Minimum="0" UpDownPlacementMode="Inline"
+															 MaximumWidthRequest="100"
                                                              ValueChanged="quantityNumericEntry_ValueChanged">
 									</control:SfNumericEntry>
 								</Grid>
