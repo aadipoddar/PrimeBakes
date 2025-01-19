@@ -8,9 +8,13 @@ public partial class UserForm : Form
 
 	private async void LoadComboBox()
 	{
+		customerComboBox.DataSource = (await CommonData.LoadTableData<CustomerModel>("Customer")).ToList();
+		customerComboBox.DisplayMember = nameof(CustomerModel.DisplayName);
+		customerComboBox.ValueMember = nameof(CustomerModel.Id);
+
 		userComboBox.DataSource = (await CommonData.LoadTableData<UserModel>("User")).ToList();
-		userComboBox.DisplayMember = "Name";
-		userComboBox.ValueMember = "Id";
+		userComboBox.DisplayMember = nameof(UserModel.Name);
+		userComboBox.ValueMember = nameof(UserModel.Id);
 
 		userComboBox.SelectedIndex = -1;
 	}
@@ -21,12 +25,14 @@ public partial class UserForm : Form
 		{
 			nameTextBox.Text = selectedUser.Name;
 			passwordTextBox.Text = selectedUser.Password;
+			customerComboBox.SelectedValue = selectedUser.CustomerId;
 			statusCheckBox.Checked = selectedUser.Status;
 		}
 		else
 		{
 			nameTextBox.Clear();
 			passwordTextBox.Clear();
+			customerComboBox.SelectedIndex = 0;
 			statusCheckBox.Checked = true;
 		}
 	}
@@ -50,6 +56,7 @@ public partial class UserForm : Form
 		{
 			Name = nameTextBox.Text,
 			Password = passwordTextBox.Text,
+			CustomerId = (customerComboBox.SelectedItem as CustomerModel).Id,
 			Status = statusCheckBox.Checked
 		};
 

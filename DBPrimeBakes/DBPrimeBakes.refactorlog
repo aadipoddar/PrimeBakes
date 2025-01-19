@@ -7,4 +7,11 @@
     <Property Name="ParentElementType" Value="SqlSchema" />
     <Property Name="NewName" Value="Load_Orders_By_Date_Status" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="89fc0709-c4e4-4e53-9434-81a710a28fa7" ChangeDateTime="01/19/2025 04:40:59">
+    <Property Name="ElementName" Value="[dbo].[FK_User_To]" />
+    <Property Name="ElementType" Value="SqlForeignKeyConstraint" />
+    <Property Name="ParentElementName" Value="[dbo].[User]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[FK_User_ToCustomer]" />
+  </Operation>
 </Operations>

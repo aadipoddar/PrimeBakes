@@ -19,11 +19,7 @@
 		<ScrollView Grid.Row="0">
 			<VerticalStackLayout Padding="30,0" Spacing="25">
 
-				<control:SfComboBox x:Name="customerComboBox" 
-                                    HeightRequest="60" WidthRequest="250"
-                                    MaxDropDownHeight="300" TextSearchMode="Contains"
-                                    Placeholder="Select a Customer" IsEditable="True">
-				</control:SfComboBox>
+				<Label x:Name="customerNameLabel" />
 
 				<control:SfComboBox x:Name="categoryComboBox"
                                     HeightRequest="60" WidthRequest="250"
@@ -42,13 +38,13 @@
 										<ColumnDefinition Width="Auto" />
 									</Grid.ColumnDefinitions>
 
-									<Label Text="{Binding ItemName}" Grid.Column="0" Margin="10"/>
+									<Label x:Name="itemNameLabel" Text="{Binding ItemName}" Grid.Column="0" Margin="10"/>
 
 									<control:SfNumericEntry Grid.Column="1" x:Name="quantityNumericEntry"
                                                              Value="{Binding Quantity}"
                                                              CustomFormat="0" AllowNull="False"
                                                              Minimum="0" UpDownPlacementMode="Inline"
-															 MaximumWidthRequest="100"
+															 MaximumWidthRequest="120"
                                                              ValueChanged="quantityNumericEntry_ValueChanged">
 									</control:SfNumericEntry>
 								</Grid>

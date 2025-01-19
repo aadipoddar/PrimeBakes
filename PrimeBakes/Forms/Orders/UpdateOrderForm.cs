@@ -7,6 +7,7 @@ namespace PrimeBakes.Forms.Orders;
 
 public partial class UpdateOrderForm : Form
 {
+	private int _customerId;
 	private readonly int _userId;
 	private readonly OrderModel _orderModel;
 	private BindingList<ViewOrderDetailModel> _orderDetails = [];
@@ -26,9 +27,10 @@ public partial class UpdateOrderForm : Form
 
 	private async void LoadData()
 	{
-		customerComboBox.DataSource = (await CommonData.LoadTableData<CustomerModel>("Customer")).ToList();
-		customerComboBox.DisplayMember = nameof(CustomerModel.DisplayName);
-		customerComboBox.ValueMember = nameof(CustomerModel.Id);
+		var user = (await CommonData.LoadTableDataById<UserModel>("User", _userId)).FirstOrDefault();
+		var customer = (await CommonData.LoadTableDataById<CustomerModel>("Customer", user.CustomerId)).FirstOrDefault();
+		Text = $"Update Order - {customer.DisplayName}";
+		_customerId = customer.Id;
 
 		categoryComboBox.DataSource = (await CommonData.LoadTableData<CategoryModel>("Category")).ToList();
 		categoryComboBox.DisplayMember = nameof(CategoryModel.DisplayName);
@@ -36,7 +38,6 @@ public partial class UpdateOrderForm : Form
 
 		await LoadItemsData();
 
-		customerComboBox.SelectedValue = _orderModel.CustomerId;
 		_orderDetails = new BindingList<ViewOrderDetailModel>((await CommonData.LoadTableDataById<ViewOrderDetailModel>("View_OrderDetails", _orderModel.Id)).ToList());
 		itemsDataGridView.DataSource = _orderDetails;
 		statusCheckBox.Checked = _orderModel.Status;
@@ -139,7 +140,7 @@ public partial class UpdateOrderForm : Form
 		{
 			Id = _orderModel.Id,
 			UserId = _userId,
-			CustomerId = (customerComboBox.SelectedItem as CustomerModel).Id,
+			CustomerId = _customerId,
 			DateTime = DateTime.Now,
 			Status = statusCheckBox.Checked
 		});
@@ -164,7 +165,6 @@ public partial class UpdateOrderForm : Form
 	{
 		quantityTextBox.Text = "1";
 		_orderDetails.Clear();
-		customerComboBox.Focus();
 	}
 
 	private async void printPDFButton_Click(object sender, EventArgs e)

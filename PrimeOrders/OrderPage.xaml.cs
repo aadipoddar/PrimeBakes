@@ -10,8 +10,8 @@ namespace PrimeOrders;
 public partial class OrderPage : ContentPage
 {
 	public readonly int _userId;
-	public int customerId = 0;
-	private ObservableCollection<ViewOrderDetailModel> _items = [];
+	public int _customerId;
+	private readonly ObservableCollection<ViewOrderDetailModel> _items = [];
 	public ObservableCollection<ViewOrderDetailModel> cart = [];
 
 	public OrderPage(int userId)
@@ -32,11 +32,10 @@ public partial class OrderPage : ContentPage
 
 	private async void LoadData()
 	{
-		customerComboBox.ItemsSource = await CommonData.LoadTableData<CustomerModel>("Customer");
-		customerComboBox.DisplayMemberPath = nameof(CustomerModel.Name);
-		customerComboBox.SelectedValuePath = nameof(CustomerModel.Id);
-
-		if (customerId is not 0) customerComboBox.SelectedValue = customerId;
+		var user = (await CommonData.LoadTableDataById<UserModel>("User", _userId)).FirstOrDefault();
+		var customer = (await CommonData.LoadTableDataById<CustomerModel>("Customer", user.CustomerId)).FirstOrDefault();
+		customerNameLabel.Text = customer.Name;
+		_customerId = customer.Id;
 
 		categoryComboBox.ItemsSource = await CommonData.LoadTableData<CategoryModel>("Category");
 		categoryComboBox.DisplayMemberPath = nameof(CategoryModel.Name);
@@ -104,16 +103,6 @@ public partial class OrderPage : ContentPage
 		if (cart.IsNullOrEmpty())
 			DisplayAlert("Error", "Please Add Items to Cart", "OK");
 
-		else if (customerComboBox.SelectedItem is CustomerModel selectedCustomer)
-		{
-			customerId = selectedCustomer.Id;
-			Navigation.PushAsync(new CartPage(this));
-		}
-
-		else DisplayAlert("Error", "Please Select a Customer", "OK");
-	}
-
-	private void OnLogoutButtonClicked(object sender, EventArgs e)
-	{
+		Navigation.PushAsync(new CartPage(this));
 	}
 }

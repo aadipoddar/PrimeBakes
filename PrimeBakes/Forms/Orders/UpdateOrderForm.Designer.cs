@@ -30,8 +30,6 @@ partial class UpdateOrderForm
 	{
 		itemComboBox = new ComboBox();
 		itemNameLabel = new Label();
-		customerNameLabel = new Label();
-		customerComboBox = new ComboBox();
 		itemsDataGridView = new DataGridView();
 		quantityTextBox = new TextBox();
 		quantityLabel = new Label();
@@ -52,7 +50,7 @@ partial class UpdateOrderForm
 		itemComboBox.FlatStyle = FlatStyle.System;
 		itemComboBox.Font = new Font("Segoe UI", 15F);
 		itemComboBox.FormattingEnabled = true;
-		itemComboBox.Location = new Point(28, 204);
+		itemComboBox.Location = new Point(28, 156);
 		itemComboBox.Name = "itemComboBox";
 		itemComboBox.Size = new Size(271, 36);
 		itemComboBox.TabIndex = 2;
@@ -61,34 +59,11 @@ partial class UpdateOrderForm
 		// 
 		itemNameLabel.AutoSize = true;
 		itemNameLabel.Font = new Font("Segoe UI", 15F);
-		itemNameLabel.Location = new Point(107, 173);
+		itemNameLabel.Location = new Point(107, 125);
 		itemNameLabel.Name = "itemNameLabel";
 		itemNameLabel.Size = new Size(108, 28);
 		itemNameLabel.TabIndex = 43;
 		itemNameLabel.Text = "Item Name";
-		// 
-		// customerNameLabel
-		// 
-		customerNameLabel.AutoSize = true;
-		customerNameLabel.Font = new Font("Segoe UI", 15F);
-		customerNameLabel.Location = new Point(107, 9);
-		customerNameLabel.Name = "customerNameLabel";
-		customerNameLabel.Size = new Size(96, 28);
-		customerNameLabel.TabIndex = 45;
-		customerNameLabel.Text = "Customer";
-		// 
-		// customerComboBox
-		// 
-		customerComboBox.AutoCompleteMode = AutoCompleteMode.Suggest;
-		customerComboBox.AutoCompleteSource = AutoCompleteSource.ListItems;
-		customerComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
-		customerComboBox.FlatStyle = FlatStyle.System;
-		customerComboBox.Font = new Font("Segoe UI", 15F);
-		customerComboBox.FormattingEnabled = true;
-		customerComboBox.Location = new Point(30, 40);
-		customerComboBox.Name = "customerComboBox";
-		customerComboBox.Size = new Size(271, 36);
-		customerComboBox.TabIndex = 1;
 		// 
 		// itemsDataGridView
 		// 
@@ -104,7 +79,7 @@ partial class UpdateOrderForm
 		// quantityTextBox
 		// 
 		quantityTextBox.Font = new Font("Segoe UI", 15F);
-		quantityTextBox.Location = new Point(187, 246);
+		quantityTextBox.Location = new Point(187, 198);
 		quantityTextBox.Name = "quantityTextBox";
 		quantityTextBox.PlaceholderText = "Quantity";
 		quantityTextBox.Size = new Size(83, 34);
@@ -117,7 +92,7 @@ partial class UpdateOrderForm
 		// 
 		quantityLabel.AutoSize = true;
 		quantityLabel.Font = new Font("Segoe UI", 15F);
-		quantityLabel.Location = new Point(55, 249);
+		quantityLabel.Location = new Point(55, 201);
 		quantityLabel.Name = "quantityLabel";
 		quantityLabel.Size = new Size(88, 28);
 		quantityLabel.TabIndex = 50;
@@ -137,7 +112,7 @@ partial class UpdateOrderForm
 		// addButton
 		// 
 		addButton.Font = new Font("Segoe UI", 15F);
-		addButton.Location = new Point(97, 301);
+		addButton.Location = new Point(97, 253);
 		addButton.Name = "addButton";
 		addButton.Size = new Size(118, 38);
 		addButton.TabIndex = 4;
@@ -171,7 +146,7 @@ partial class UpdateOrderForm
 		// 
 		categoryLabel.AutoSize = true;
 		categoryLabel.Font = new Font("Segoe UI", 15F);
-		categoryLabel.Location = new Point(107, 92);
+		categoryLabel.Location = new Point(107, 12);
 		categoryLabel.Name = "categoryLabel";
 		categoryLabel.Size = new Size(92, 28);
 		categoryLabel.TabIndex = 57;
@@ -185,7 +160,7 @@ partial class UpdateOrderForm
 		categoryComboBox.FlatStyle = FlatStyle.System;
 		categoryComboBox.Font = new Font("Segoe UI", 15F);
 		categoryComboBox.FormattingEnabled = true;
-		categoryComboBox.Location = new Point(30, 123);
+		categoryComboBox.Location = new Point(30, 43);
 		categoryComboBox.Name = "categoryComboBox";
 		categoryComboBox.Size = new Size(271, 36);
 		categoryComboBox.TabIndex = 56;
@@ -206,8 +181,6 @@ partial class UpdateOrderForm
 		Controls.Add(quantityLabel);
 		Controls.Add(quantityTextBox);
 		Controls.Add(itemsDataGridView);
-		Controls.Add(customerNameLabel);
-		Controls.Add(customerComboBox);
 		Controls.Add(itemNameLabel);
 		Controls.Add(itemComboBox);
 		Name = "UpdateOrderForm";
@@ -223,8 +196,6 @@ partial class UpdateOrderForm
 
 	private ComboBox itemComboBox;
 	private Label itemNameLabel;
-	private Label customerNameLabel;
-	private ComboBox customerComboBox;
 	private DataGridView itemsDataGridView;
 	private TextBox quantityTextBox;
 	private Label quantityLabel;

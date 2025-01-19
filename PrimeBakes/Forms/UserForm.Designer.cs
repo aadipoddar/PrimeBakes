@@ -35,6 +35,8 @@
 			nameLabel = new Label();
 			nameTextBox = new TextBox();
 			statusCheckBox = new CheckBox();
+			customerLabel = new Label();
+			customerComboBox = new ComboBox();
 			SuspendLayout();
 			// 
 			// userComboBox
@@ -48,16 +50,16 @@
 			userComboBox.Location = new Point(96, 12);
 			userComboBox.Name = "userComboBox";
 			userComboBox.Size = new Size(271, 36);
-			userComboBox.TabIndex = 5;
+			userComboBox.TabIndex = 6;
 			userComboBox.SelectedIndexChanged += userComboBox_SelectedIndexChanged;
 			// 
 			// saveButton
 			// 
 			saveButton.Font = new Font("Segoe UI", 15F);
-			saveButton.Location = new Point(141, 159);
+			saveButton.Location = new Point(142, 212);
 			saveButton.Name = "saveButton";
 			saveButton.Size = new Size(118, 38);
-			saveButton.TabIndex = 4;
+			saveButton.TabIndex = 5;
 			saveButton.Text = "SAVE";
 			saveButton.UseVisualStyleBackColor = true;
 			saveButton.Click += saveButton_Click;
@@ -105,19 +107,44 @@
 			// 
 			statusCheckBox.AutoSize = true;
 			statusCheckBox.Font = new Font("Segoe UI", 15F);
-			statusCheckBox.Location = new Point(28, 163);
+			statusCheckBox.Location = new Point(29, 216);
 			statusCheckBox.Name = "statusCheckBox";
 			statusCheckBox.Size = new Size(84, 32);
-			statusCheckBox.TabIndex = 3;
+			statusCheckBox.TabIndex = 4;
 			statusCheckBox.Text = "Status";
 			statusCheckBox.UseVisualStyleBackColor = true;
+			// 
+			// customerLabel
+			// 
+			customerLabel.AutoSize = true;
+			customerLabel.Font = new Font("Segoe UI", 15F);
+			customerLabel.Location = new Point(19, 152);
+			customerLabel.Name = "customerLabel";
+			customerLabel.Size = new Size(96, 28);
+			customerLabel.TabIndex = 36;
+			customerLabel.Text = "Customer";
+			// 
+			// customerComboBox
+			// 
+			customerComboBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+			customerComboBox.AutoCompleteSource = AutoCompleteSource.ListItems;
+			customerComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+			customerComboBox.FlatStyle = FlatStyle.System;
+			customerComboBox.Font = new Font("Segoe UI", 15F);
+			customerComboBox.FormattingEnabled = true;
+			customerComboBox.Location = new Point(127, 149);
+			customerComboBox.Name = "customerComboBox";
+			customerComboBox.Size = new Size(271, 36);
+			customerComboBox.TabIndex = 3;
 			// 
 			// UserForm
 			// 
 			AcceptButton = saveButton;
 			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
-			ClientSize = new Size(416, 225);
+			ClientSize = new Size(416, 262);
+			Controls.Add(customerComboBox);
+			Controls.Add(customerLabel);
 			Controls.Add(statusCheckBox);
 			Controls.Add(userComboBox);
 			Controls.Add(saveButton);
@@ -141,5 +168,7 @@
 		private Label nameLabel;
 		private TextBox nameTextBox;
 		private CheckBox statusCheckBox;
+		private Label customerLabel;
+		private ComboBox customerComboBox;
 	}
 }

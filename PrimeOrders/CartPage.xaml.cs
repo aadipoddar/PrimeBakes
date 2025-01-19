@@ -13,7 +13,7 @@ namespace PrimeOrders;
 public partial class CartPage : ContentPage
 {
 	private readonly OrderPage _orderPage;
-	private ObservableCollection<ViewOrderDetailModel> _cart = [];
+	private readonly ObservableCollection<ViewOrderDetailModel> _cart = [];
 
 	public CartPage(OrderPage orderPage)
 	{
@@ -33,7 +33,7 @@ public partial class CartPage : ContentPage
 		{
 			var categoryLabel = new Label
 			{
-				Text = $"Category: {group.FirstOrDefault().ItemName}",
+				Text = $"Category: {group.FirstOrDefault().CategoryName}",
 				FontAttributes = FontAttributes.Bold,
 				FontSize = 16
 			};
@@ -81,7 +81,7 @@ public partial class CartPage : ContentPage
 		await OrderData.InsertOrder(new OrderModel
 		{
 			UserId = _orderPage._userId,
-			CustomerId = _orderPage.customerId,
+			CustomerId = _orderPage._customerId,
 			DateTime = DateTime.Now,
 			Status = true
 		});
@@ -111,7 +111,7 @@ public partial class CartPage : ContentPage
 		await InsertIntoOrderDetailTable(orderId);
 
 		string filePath = await PrintPDF(orderId);
-		string customerEmail = (await CommonData.LoadTableDataById<CustomerModel>("Customer", _orderPage.customerId)).FirstOrDefault().Email;
+		string customerEmail = (await CommonData.LoadTableDataById<CustomerModel>("Customer", _orderPage._customerId)).FirstOrDefault().Email;
 		Mailing.MailPDF(customerEmail, filePath);
 
 		_cart.Clear();

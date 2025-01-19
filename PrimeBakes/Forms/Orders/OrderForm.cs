@@ -7,9 +7,9 @@ namespace PrimeBakes.Forms.Orders;
 
 public partial class OrderForm : Form
 {
-	private int _orderId;
+	private int _orderId, _customerId;
 	private readonly int _userId;
-	private BindingList<ViewOrderDetailModel> _orderDetails = [];
+	private readonly BindingList<ViewOrderDetailModel> _orderDetails = [];
 
 	public OrderForm(int userId)
 	{
@@ -25,13 +25,14 @@ public partial class OrderForm : Form
 
 	private async void LoadData()
 	{
-		customerComboBox.DataSource = (await CommonData.LoadTableData<CustomerModel>("Customer")).ToList();
-		customerComboBox.DisplayMember = nameof(CustomerModel.DisplayName);
-		customerComboBox.ValueMember = nameof(CustomerModel.Id);
-
 		categoryComboBox.DataSource = (await CommonData.LoadTableData<CategoryModel>("Category")).ToList();
 		categoryComboBox.DisplayMember = nameof(CategoryModel.DisplayName);
 		categoryComboBox.ValueMember = nameof(CategoryModel.Id);
+
+		var user = (await CommonData.LoadTableDataById<UserModel>("User", _userId)).FirstOrDefault();
+		var customer = (await CommonData.LoadTableDataById<CustomerModel>("Customer", user.CustomerId)).FirstOrDefault();
+		Text = customer.DisplayName;
+		_customerId = customer.Id;
 
 		await LoadItemsData();
 		HideFirstColumn();
@@ -116,7 +117,7 @@ public partial class OrderForm : Form
 		{
 			Id = 0,
 			UserId = _userId,
-			CustomerId = (customerComboBox.SelectedItem as CustomerModel).Id,
+			CustomerId = _customerId,
 			DateTime = DateTime.Now
 		});
 
@@ -136,7 +137,6 @@ public partial class OrderForm : Form
 	{
 		quantityTextBox.Text = "1";
 		_orderDetails.Clear();
-		customerComboBox.Focus();
 	}
 
 	private async void saveButton_Click(object sender, EventArgs e)
@@ -152,7 +152,8 @@ public partial class OrderForm : Form
 
 		await GeneratePDF();
 
-		Mailing.MailPDF((customerComboBox.SelectedItem as CustomerModel).Email, Path.Combine(Path.GetTempPath(), "OrderReport.pdf"));
+		var customer = (await CommonData.LoadTableDataById<CustomerModel>("Customer", _customerId)).FirstOrDefault();
+		Mailing.MailPDF(customer.Email, Path.Combine(Path.GetTempPath(), "OrderReport.pdf"));
 
 		ClearForm();
 	}
