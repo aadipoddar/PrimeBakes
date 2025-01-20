@@ -87,7 +87,9 @@
     <Build Include="Tables\User.sql" />
     <Build Include="Views\View_OrderDetails.sql" />
     <Build Include="Views\View_Orders.sql" />
-    <Build Include="Stored Procedures\Load_Items_By_Category.sql" />
+    <Build Include="Stored Procedures\Load_ActiveItems_By_Category.sql" />
+    <Build Include="Stored Procedures\Load_TableData_By_Id_Active.sql" />
+    <Build Include="Stored Procedures\Load_OrderDetails_By_OrderId.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="PublishLocations\AzurePrimeBakes.publish.xml" />

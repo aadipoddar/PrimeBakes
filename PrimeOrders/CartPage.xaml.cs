@@ -2,8 +2,6 @@ using System.Collections.ObjectModel;
 
 using Microsoft.IdentityModel.Tokens;
 
-using PrimeBakesLibrary.Data;
-using PrimeBakesLibrary.Models;
 using PrimeBakesLibrary.Printing;
 
 using PrimeOrders.Services;
@@ -42,7 +40,7 @@ public partial class CartPage : ContentPage
 			{
 				ItemsSource = group.ToList(),
 				Margin = new Thickness(0, 0, 0, 5),
-				ItemTemplate = new DataTemplate(() =>
+				ItemTemplate = new DataTemplate(static () =>
 				{
 					var grid = new Grid
 					{
@@ -110,8 +108,8 @@ public partial class CartPage : ContentPage
 		int orderId = await InsertIntoOrderTable();
 		await InsertIntoOrderDetailTable(orderId);
 
-		string filePath = await PrintPDF(orderId);
-		string customerEmail = (await CommonData.LoadTableDataById<CustomerModel>("Customer", _orderPage._customerId)).FirstOrDefault().Email;
+		string filePath = await CartPage.PrintPDF(orderId);
+		string customerEmail = (await CommonData.LoadTableDataById<CustomerModel>(Table.Customer, _orderPage._customerId)).Email;
 		Mailing.MailPDF(customerEmail, filePath);
 
 		_cart.Clear();
@@ -119,7 +117,7 @@ public partial class CartPage : ContentPage
 		await Navigation.PopAsync();
 	}
 
-	private async Task<string> PrintPDF(int orderId)
+	private static async Task<string> PrintPDF(int orderId)
 	{
 		MemoryStream ms = await PrintSingleOrderPDF.PrintOrder(orderId);
 		SaveService saveService = new();

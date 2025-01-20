@@ -8,7 +8,7 @@ public partial class CategoryForm : Form
 
 	private async Task LoadData()
 	{
-		categoryComboBox.DataSource = (await CommonData.LoadTableData<CategoryModel>("Category")).ToList();
+		categoryComboBox.DataSource = await CommonData.LoadTableData<CategoryModel>(Table.Category);
 		categoryComboBox.DisplayMember = nameof(CategoryModel.DisplayName);
 		categoryComboBox.ValueMember = nameof(CategoryModel.Id);
 
@@ -31,12 +31,9 @@ public partial class CategoryForm : Form
 		}
 	}
 
-	private bool ValidateForm()
-	{
-		if (codeTextBox.Text == string.Empty) return false;
-		if (nameTextBox.Text == string.Empty) return false;
-		return true;
-	}
+	private bool ValidateForm() =>
+		!string.IsNullOrEmpty(codeTextBox.Text) &&
+		!string.IsNullOrEmpty(nameTextBox.Text);
 
 	private async void saveButton_Click(object sender, EventArgs e)
 	{

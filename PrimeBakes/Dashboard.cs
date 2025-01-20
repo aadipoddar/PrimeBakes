@@ -3,8 +3,6 @@
 using PrimeBakes.Forms;
 using PrimeBakes.Forms.Orders;
 
-using PrimeBakesLibrary.DataAccess;
-
 namespace PrimeBakes;
 
 public partial class Dashboard : Form
@@ -13,7 +11,7 @@ public partial class Dashboard : Form
 
 	private async void Dashboard_Load(object sender, EventArgs e) => await UpdateCheck();
 
-	private async Task UpdateCheck()
+	private static async Task UpdateCheck()
 	{
 		bool isUpdateAvailable = await AadiSoftUpdater.AadiSoftUpdater.CheckForUpdates("aadipoddar", $"{Secrets.DatabaseName}", Assembly.GetExecutingAssembly().GetName().Version.ToString());
 

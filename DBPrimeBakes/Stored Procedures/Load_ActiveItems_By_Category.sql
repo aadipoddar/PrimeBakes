@@ -1,4 +1,4 @@
-﻿CREATE PROCEDURE [dbo].[Load_Items_By_Category]
+﻿CREATE PROCEDURE [dbo].[Load_ActiveItems_By_Category]
 	@CategoryId INT
 AS
 BEGIN
@@ -7,5 +7,6 @@ BEGIN
 		*
 	FROM Item
 	WHERE Item.CategoryId = @CategoryId
+		AND Status = 1;
 
 END;

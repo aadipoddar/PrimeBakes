@@ -35,7 +35,7 @@ namespace PrimeOrders.Services
 			return null;
 
 		}
-		public UIWindow GetKeyWindow()
+		public static UIWindow GetKeyWindow()
 		{
 			foreach (var scene in UIApplication.SharedApplication.ConnectedScenes)
 			{

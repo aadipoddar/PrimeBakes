@@ -30,7 +30,7 @@ partial class ValidateUserForm
 	{
 		passwordTextBox = new TextBox();
 		goButton = new Button();
-		userComboBox = new ComboBox();
+		userIdTextBox = new TextBox();
 		SuspendLayout();
 		// 
 		// passwordTextBox
@@ -40,13 +40,13 @@ partial class ValidateUserForm
 		passwordTextBox.Name = "passwordTextBox";
 		passwordTextBox.PasswordChar = '*';
 		passwordTextBox.PlaceholderText = "Password";
-		passwordTextBox.Size = new Size(271, 34);
+		passwordTextBox.Size = new Size(157, 34);
 		passwordTextBox.TabIndex = 2;
 		// 
 		// goButton
 		// 
 		goButton.Font = new Font("Segoe UI", 15F);
-		goButton.Location = new Point(120, 161);
+		goButton.Location = new Point(70, 145);
 		goButton.Name = "goButton";
 		goButton.Size = new Size(118, 38);
 		goButton.TabIndex = 3;
@@ -54,32 +54,28 @@ partial class ValidateUserForm
 		goButton.UseVisualStyleBackColor = true;
 		goButton.Click += goButton_Click;
 		// 
-		// userComboBox
+		// userIdTextBox
 		// 
-		userComboBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-		userComboBox.AutoCompleteSource = AutoCompleteSource.ListItems;
-		userComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
-		userComboBox.FlatStyle = FlatStyle.System;
-		userComboBox.Font = new Font("Segoe UI", 15F);
-		userComboBox.FormattingEnabled = true;
-		userComboBox.Location = new Point(53, 28);
-		userComboBox.Name = "userComboBox";
-		userComboBox.Size = new Size(271, 36);
-		userComboBox.TabIndex = 1;
+		userIdTextBox.Font = new Font("Segoe UI", 15F);
+		userIdTextBox.Location = new Point(53, 32);
+		userIdTextBox.Name = "userIdTextBox";
+		userIdTextBox.PlaceholderText = "User Id";
+		userIdTextBox.Size = new Size(157, 34);
+		userIdTextBox.TabIndex = 1;
+		userIdTextBox.KeyPress += userIdTextBox_KeyPress;
 		// 
-		// ValidateUser
+		// ValidateUserForm
 		// 
 		AcceptButton = goButton;
 		AutoScaleDimensions = new SizeF(7F, 15F);
 		AutoScaleMode = AutoScaleMode.Font;
-		ClientSize = new Size(397, 242);
-		Controls.Add(userComboBox);
+		ClientSize = new Size(272, 227);
+		Controls.Add(userIdTextBox);
 		Controls.Add(goButton);
 		Controls.Add(passwordTextBox);
-		Name = "ValidateUser";
+		Name = "ValidateUserForm";
 		StartPosition = FormStartPosition.CenterScreen;
 		Text = "ValidateUser";
-		Load += ValidateUser_Load;
 		ResumeLayout(false);
 		PerformLayout();
 	}
@@ -88,5 +84,5 @@ partial class ValidateUserForm
 
 	private TextBox passwordTextBox;
 	private Button goButton;
-	private ComboBox userComboBox;
+	private TextBox userIdTextBox;
 }

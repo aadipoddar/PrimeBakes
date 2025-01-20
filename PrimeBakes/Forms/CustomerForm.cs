@@ -8,7 +8,7 @@ public partial class CustomerForm : Form
 
 	private async void LoadComboBox()
 	{
-		customerComboBox.DataSource = (await CommonData.LoadTableData<CustomerModel>("Customer")).ToList();
+		customerComboBox.DataSource = await CommonData.LoadTableData<CustomerModel>(Table.Customer);
 		customerComboBox.DisplayMember = nameof(CustomerModel.DisplayName);
 		customerComboBox.ValueMember = nameof(CustomerModel.Id);
 
@@ -33,13 +33,10 @@ public partial class CustomerForm : Form
 		}
 	}
 
-	private bool ValidateForm()
-	{
-		if (codeTextBox.Text == string.Empty) return false;
-		if (nameTextBox.Text == string.Empty) return false;
-		if (emailTextBox.Text == string.Empty) return false;
-		return true;
-	}
+	private bool ValidateForm() =>
+		!string.IsNullOrEmpty(codeTextBox.Text) &&
+		!string.IsNullOrEmpty(nameTextBox.Text) &&
+		!string.IsNullOrEmpty(emailTextBox.Text);
 
 	private async void saveButton_Click(object sender, EventArgs e)
 	{

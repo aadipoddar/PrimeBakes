@@ -1,5 +1,3 @@
-using PrimeBakesLibrary.DataAccess;
-
 namespace PrimeBakes;
 
 internal static class Program

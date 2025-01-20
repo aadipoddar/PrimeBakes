@@ -4,7 +4,6 @@
 using Microsoft.Extensions.Logging;
 #endif
 
-using PrimeBakesLibrary.DataAccess;
 
 #if ANDROID
 using PrimeOrders.Platforms.Android;

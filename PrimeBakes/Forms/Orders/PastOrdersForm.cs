@@ -26,7 +26,7 @@ public partial class PastOrdersForm : Form
 	{
 		ViewOrderModel detailedOrderModel = (ViewOrderModel)orderDataGridView.Rows[e.RowIndex].DataBoundItem;
 
-		var orderModel = (await CommonData.LoadTableDataById<OrderModel>("Order", detailedOrderModel.OrderId)).FirstOrDefault();
+		var orderModel = await CommonData.LoadTableDataById<OrderModel>(Table.Order, detailedOrderModel.OrderId);
 
 		UpdateOrderForm updateOrderForm = new(orderModel);
 		if (updateOrderForm.ShowDialog() == DialogResult.OK) LoadOrders();
@@ -35,9 +35,9 @@ public partial class PastOrdersForm : Form
 	private async void printButton_Click(object sender, EventArgs e)
 	{
 		MemoryStream ms = await PrintOrdersPDF.PrintOrders((List<ViewOrderModel>)orderDataGridView.DataSource, GetDateString());
-
-		using (FileStream stream = new FileStream(Path.Combine(Path.GetTempPath(), "OrderReport.pdf"), FileMode.Create, FileAccess.Write)) ms.WriteTo(stream);
-
+		using FileStream stream = new(Path.Combine(Path.GetTempPath(), "OrderReport.pdf"), FileMode.Create, FileAccess.Write);
+		await ms.CopyToAsync(stream);
+		ms.Close();
 		Process.Start(new ProcessStartInfo($"{Path.GetTempPath()}\\OrderReport.pdf") { UseShellExecute = true });
 	}
 

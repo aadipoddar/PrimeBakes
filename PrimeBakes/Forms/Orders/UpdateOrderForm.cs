@@ -27,18 +27,18 @@ public partial class UpdateOrderForm : Form
 
 	private async void LoadData()
 	{
-		var user = (await CommonData.LoadTableDataById<UserModel>("User", _userId)).FirstOrDefault();
-		var customer = (await CommonData.LoadTableDataById<CustomerModel>("Customer", user.CustomerId)).FirstOrDefault();
+		var user = await CommonData.LoadTableDataById<UserModel>(Table.User, _userId);
+		var customer = await CommonData.LoadTableDataById<CustomerModel>(Table.Customer, user.CustomerId);
 		Text = $"Update Order - {customer.DisplayName}";
 		_customerId = customer.Id;
 
-		categoryComboBox.DataSource = (await CommonData.LoadTableData<CategoryModel>("Category")).ToList();
+		categoryComboBox.DataSource = await CommonData.LoadTableData<CategoryModel>(Table.Category);
 		categoryComboBox.DisplayMember = nameof(CategoryModel.DisplayName);
 		categoryComboBox.ValueMember = nameof(CategoryModel.Id);
 
 		await LoadItemsData();
 
-		_orderDetails = new BindingList<ViewOrderDetailModel>((await CommonData.LoadTableDataById<ViewOrderDetailModel>("View_OrderDetails", _orderModel.Id)).ToList());
+		_orderDetails = new BindingList<ViewOrderDetailModel>(await OrderData.LoadOrderDetailsByOrderId(_orderModel.Id));
 		itemsDataGridView.DataSource = _orderDetails;
 		statusCheckBox.Checked = _orderModel.Status;
 		HideFirstColumn();
@@ -46,7 +46,7 @@ public partial class UpdateOrderForm : Form
 
 	private async Task LoadItemsData()
 	{
-		itemComboBox.DataSource = (await ItemData.LoadItemByCategory((categoryComboBox.SelectedItem as CategoryModel).Id)).ToList();
+		itemComboBox.DataSource = await ItemData.LoadItemByCategory((categoryComboBox.SelectedItem as CategoryModel).Id);
 		itemComboBox.DisplayMember = nameof(ItemModel.DisplayName);
 		itemComboBox.ValueMember = nameof(ItemModel.Id);
 	}
@@ -170,8 +170,9 @@ public partial class UpdateOrderForm : Form
 	private async void printPDFButton_Click(object sender, EventArgs e)
 	{
 		MemoryStream ms = await PrintSingleOrderPDF.PrintOrder(_orderModel.Id);
-		using (FileStream stream = new(Path.Combine(Path.GetTempPath(), "OrderReport.pdf"), FileMode.Create, FileAccess.Write))
-			ms.WriteTo(stream);
+		using FileStream stream = new(Path.Combine(Path.GetTempPath(), "OrderReport.pdf"), FileMode.Create, FileAccess.Write);
+		await ms.CopyToAsync(stream);
+		ms.Close();
 		Process.Start(new ProcessStartInfo($"{Path.GetTempPath()}\\OrderReport.pdf") { UseShellExecute = true });
 	}
 

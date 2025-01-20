@@ -1,7 +1,7 @@
 ﻿CREATE VIEW [dbo].[View_OrderDetails]
 	AS
 	SELECT
-		odt.OrderId Id,
+		odt.OrderId,
 		it.Id ItemId,
 		it.Name ItemName,
 		it.Code ItemCode,

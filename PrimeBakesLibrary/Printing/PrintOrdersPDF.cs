@@ -25,17 +25,21 @@ public static class PrintOrdersPDF
 		PdfPen pen = new(Color.DarkBlue, 3f);
 		font = new PdfStandardFont(PdfFontFamily.Helvetica, 16, PdfFontStyle.Bold);
 
-		PdfStringFormat format = new();
-		format.Alignment = PdfTextAlignment.Center;
-		format.LineAlignment = PdfVerticalAlignment.Middle;
+		PdfStringFormat format = new()
+		{
+			Alignment = PdfTextAlignment.Center,
+			LineAlignment = PdfVerticalAlignment.Middle
+		};
 
 		header.Graphics.DrawString(title, font, brush, new RectangleF(0, 0, header.Width, header.Height), format);
 		brush = new PdfSolidBrush(Color.Gray);
 		font = new PdfStandardFont(PdfFontFamily.Helvetica, 6, PdfFontStyle.Bold);
 
-		format = new PdfStringFormat();
-		format.Alignment = PdfTextAlignment.Left;
-		format.LineAlignment = PdfVerticalAlignment.Bottom;
+		format = new PdfStringFormat
+		{
+			Alignment = PdfTextAlignment.Left,
+			LineAlignment = PdfVerticalAlignment.Bottom
+		};
 
 		header.Graphics.DrawString(description, font, brush, new RectangleF(0, 0, header.Width, header.Height - 8), format);
 
@@ -63,8 +67,10 @@ public static class PrintOrdersPDF
 
 		PdfPageCountField count = new(font, brush);
 
-		PdfCompositeField compositeField = new(font, brush, "Page {0} of {1}", pageNumber, count);
-		compositeField.Bounds = footer.Bounds;
+		PdfCompositeField compositeField = new(font, brush, "Page {0} of {1}", pageNumber, count)
+		{
+			Bounds = footer.Bounds
+		};
 
 		compositeField.Draw(footer.Graphics, new PointF(470, 40));
 
@@ -79,9 +85,11 @@ public static class PrintOrdersPDF
 		pdfDocument.Template.Top = AddHeader(pdfDocument, dateHeader, "Order Report");
 		pdfDocument.Template.Bottom = AddFooter(pdfDocument);
 
-		PdfLayoutFormat layoutFormat = new();
-		layoutFormat.Layout = PdfLayoutType.Paginate;
-		layoutFormat.Break = PdfLayoutBreakType.FitPage;
+		PdfLayoutFormat layoutFormat = new()
+		{
+			Layout = PdfLayoutType.Paginate,
+			Break = PdfLayoutBreakType.FitPage
+		};
 
 		PdfLayoutResult result = null;
 

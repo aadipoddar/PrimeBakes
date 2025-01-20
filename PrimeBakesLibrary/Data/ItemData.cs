@@ -3,7 +3,7 @@
 public static class ItemData
 {
 	public static async Task InsertItem(ItemModel item) =>
-		await SqlDataAccess.SaveData("Insert_Item", new
+		await SqlDataAccess.SaveData(StoredProcedure.InsertItem, new
 		{
 			item.Id,
 			item.CategoryId,
@@ -13,7 +13,7 @@ public static class ItemData
 		});
 
 	public static async Task UpdateItem(ItemModel item) =>
-		await SqlDataAccess.SaveData("Update_Item", new
+		await SqlDataAccess.SaveData(StoredProcedure.UpdateItem, new
 		{
 			item.Id,
 			item.CategoryId,
@@ -22,6 +22,6 @@ public static class ItemData
 			item.Status
 		});
 
-	public static async Task<List<ItemModel>> LoadItemByCategory(int categoryId) =>
-		await SqlDataAccess.LoadData<ItemModel, dynamic>("Load_Items_By_Category", new { CategoryId = categoryId });
+	public static async Task<List<ItemModel>> LoadItemByCategory(int CategoryId) =>
+		await SqlDataAccess.LoadData<ItemModel, dynamic>(StoredProcedure.LoadActiveItemsByCategory, new { CategoryId });
 }

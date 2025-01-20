@@ -12,7 +12,7 @@ public partial class OrderIdForm : Form
 			return;
 		}
 
-		var order = (await CommonData.LoadTableDataById<OrderModel>("Order", int.Parse(orderIdTextBox.Text))).FirstOrDefault();
+		var order = await CommonData.LoadTableDataById<OrderModel>(Table.Order, int.Parse(orderIdTextBox.Text));
 		if (order is null)
 		{
 			MessageBox.Show("Order not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);

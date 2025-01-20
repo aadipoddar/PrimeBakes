@@ -2,9 +2,6 @@ using System.Collections.ObjectModel;
 
 using Microsoft.IdentityModel.Tokens;
 
-using PrimeBakesLibrary.Data;
-using PrimeBakesLibrary.Models;
-
 namespace PrimeOrders;
 
 public partial class OrderPage : ContentPage
@@ -32,12 +29,12 @@ public partial class OrderPage : ContentPage
 
 	private async void LoadData()
 	{
-		var user = (await CommonData.LoadTableDataById<UserModel>("User", _userId)).FirstOrDefault();
-		var customer = (await CommonData.LoadTableDataById<CustomerModel>("Customer", user.CustomerId)).FirstOrDefault();
+		var user = await CommonData.LoadTableDataById<UserModel>(Table.User, _userId);
+		var customer = await CommonData.LoadTableDataById<CustomerModel>(Table.Customer, user.CustomerId);
 		customerNameLabel.Text = customer.Name;
 		_customerId = customer.Id;
 
-		categoryComboBox.ItemsSource = await CommonData.LoadTableData<CategoryModel>("Category");
+		categoryComboBox.ItemsSource = await CommonData.LoadTableData<CategoryModel>(Table.Category);
 		categoryComboBox.DisplayMemberPath = nameof(CategoryModel.Name);
 		categoryComboBox.SelectedValuePath = nameof(CategoryModel.Id);
 
@@ -50,7 +47,7 @@ public partial class OrderPage : ContentPage
 		{
 			_items.Clear();
 
-			var items = (await ItemData.LoadItemByCategory(selectedCategory.Id)).ToList();
+			var items = await ItemData.LoadItemByCategory(selectedCategory.Id);
 
 			foreach (var item in items)
 			{
@@ -77,8 +74,7 @@ public partial class OrderPage : ContentPage
 
 	private void quantityNumericEntry_ValueChanged(object sender, Syncfusion.Maui.Inputs.NumericEntryValueChangedEventArgs e)
 	{
-		var item = (sender as Syncfusion.Maui.Inputs.SfNumericEntry).Parent.BindingContext as ViewOrderDetailModel;
-		if (item is null) return;
+		if ((sender as Syncfusion.Maui.Inputs.SfNumericEntry).Parent.BindingContext is not ViewOrderDetailModel item) return;
 
 		var quantity = Convert.ToInt32(e.NewValue);
 

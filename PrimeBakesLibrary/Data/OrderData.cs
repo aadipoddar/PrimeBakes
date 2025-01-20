@@ -3,17 +3,20 @@
 public static class OrderData
 {
 	public static async Task<int> InsertOrder(OrderModel orderModel) =>
-			(await SqlDataAccess.LoadData<int, dynamic>("Insert_Order", orderModel)).FirstOrDefault();
+			(await SqlDataAccess.LoadData<int, dynamic>(StoredProcedure.InsertOrder, orderModel)).FirstOrDefault();
 
 	public static async Task<int> InsertOrderDetail(OrderDetailModel orderDetailModel) =>
-			(await SqlDataAccess.LoadData<int, dynamic>("Insert_OrderDetail", orderDetailModel)).FirstOrDefault();
+			(await SqlDataAccess.LoadData<int, dynamic>(StoredProcedure.InsertOrderDetail, orderDetailModel)).FirstOrDefault();
 
 	public static async Task UpdateOrder(OrderModel orderModel) =>
-			await SqlDataAccess.SaveData("Update_Order", orderModel);
+			await SqlDataAccess.SaveData(StoredProcedure.UpdateOrder, orderModel);
 
-	public static async Task DeleteOrderDetails(int orderId) =>
-		await SqlDataAccess.SaveData("Delete_OrderDetails", new { OrderId = orderId });
+	public static async Task DeleteOrderDetails(int OrderId) =>
+		await SqlDataAccess.SaveData(StoredProcedure.DeleteOrderDetails, new { OrderId });
 
-	public static async Task<List<ViewOrderModel>> LoadOrdersByDateStatus(DateTime fromDate, DateTime toDate, bool status) =>
-			await SqlDataAccess.LoadData<ViewOrderModel, dynamic>("Load_Orders_By_Date_Status", new { fromDate, toDate, status });
+	public static async Task<List<ViewOrderModel>> LoadOrdersByDateStatus(DateTime FromDate, DateTime ToDate, bool Status) =>
+			await SqlDataAccess.LoadData<ViewOrderModel, dynamic>(StoredProcedure.LoadOrdersByDateStatus, new { FromDate, ToDate, Status });
+
+	public static async Task<List<ViewOrderDetailModel>> LoadOrderDetailsByOrderId(int OrderId) =>
+			await SqlDataAccess.LoadData<ViewOrderDetailModel, dynamic>(StoredProcedure.LoadOrderDetailsByOrderId, new { OrderId });
 }

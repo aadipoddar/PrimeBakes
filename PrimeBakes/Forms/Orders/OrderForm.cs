@@ -25,12 +25,12 @@ public partial class OrderForm : Form
 
 	private async void LoadData()
 	{
-		categoryComboBox.DataSource = (await CommonData.LoadTableData<CategoryModel>("Category")).ToList();
+		categoryComboBox.DataSource = await CommonData.LoadTableData<CategoryModel>(Table.Category);
 		categoryComboBox.DisplayMember = nameof(CategoryModel.DisplayName);
 		categoryComboBox.ValueMember = nameof(CategoryModel.Id);
 
-		var user = (await CommonData.LoadTableDataById<UserModel>("User", _userId)).FirstOrDefault();
-		var customer = (await CommonData.LoadTableDataById<CustomerModel>("Customer", user.CustomerId)).FirstOrDefault();
+		var user = await CommonData.LoadTableDataById<UserModel>(Table.User, _userId);
+		var customer = await CommonData.LoadTableDataById<CustomerModel>(Table.Customer, user.CustomerId);
 		Text = customer.DisplayName;
 		_customerId = customer.Id;
 
@@ -40,7 +40,7 @@ public partial class OrderForm : Form
 
 	private async Task LoadItemsData()
 	{
-		itemComboBox.DataSource = (await ItemData.LoadItemByCategory((categoryComboBox.SelectedItem as CategoryModel).Id)).ToList();
+		itemComboBox.DataSource = await ItemData.LoadItemByCategory((categoryComboBox.SelectedItem as CategoryModel).Id);
 		itemComboBox.DisplayMember = nameof(ItemModel.DisplayName);
 		itemComboBox.ValueMember = nameof(ItemModel.Id);
 	}
@@ -152,7 +152,7 @@ public partial class OrderForm : Form
 
 		await GeneratePDF();
 
-		var customer = (await CommonData.LoadTableDataById<CustomerModel>("Customer", _customerId)).FirstOrDefault();
+		var customer = await CommonData.LoadTableDataById<CustomerModel>(Table.Customer, _customerId);
 		Mailing.MailPDF(customer.Email, Path.Combine(Path.GetTempPath(), "OrderReport.pdf"));
 
 		ClearForm();

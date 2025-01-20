@@ -20,8 +20,8 @@ public static class AadiSoftUpdater
 	private static async Task<string> GetLatestVersionFromGithub(string githubRepoOwner, string githubRepoName)
 	{
 		string fileUrl = $"https://raw.githubusercontent.com/{githubRepoOwner}/{githubRepoName}/refs/heads/main/README.md";
-		using (HttpClient client = new HttpClient())
-			return await client.GetStringAsync(fileUrl);
+		using HttpClient client = new();
+		return await client.GetStringAsync(fileUrl);
 	}
 
 	public static async Task UpdateApp(string githubRepoOwner, string githubRepoName, string setupAPKName)
@@ -29,7 +29,7 @@ public static class AadiSoftUpdater
 		var url = $"https://github.com/{githubRepoOwner}/{githubRepoName}/releases/latest/download/{setupAPKName}.apk";
 		var filePath = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, $"{setupAPKName}.apk");
 
-		using (HttpClient client = new HttpClient())
+		using (HttpClient client = new())
 		using (var response = await client.GetAsync(url))
 		using (var stream = await response.Content.ReadAsStreamAsync())
 		using (var fileStream = new FileStream(filePath, FileMode.Create))

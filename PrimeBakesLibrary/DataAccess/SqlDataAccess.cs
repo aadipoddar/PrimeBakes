@@ -8,12 +8,9 @@ namespace PrimeBakesLibrary.DataAccess;
 
 static class SqlDataAccess
 {
-	private static readonly string ConnectionString = $"Server=tcp:salasarfoods.database.windows.net,1433;Initial Catalog={Secrets.DatabaseName};Persist Security Info=False;User ID=aadisql;Password={Secrets.DatabasePassword};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Connection Timeout=30;";
-	//private static readonly string ConnectionString = $"Data Source=AADILAPI;Initial Catalog=PrimeBakes;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False";
-
 	public static async Task<List<T>> LoadData<T, U>(string storedProcedure, U parameters)
 	{
-		using IDbConnection connection = new SqlConnection(ConnectionString);
+		using IDbConnection connection = new SqlConnection(ConnectionStrings.Azure);
 
 		List<T> rows = (await connection.QueryAsync<T>(storedProcedure, parameters,
 			commandType: CommandType.StoredProcedure)).ToList();
@@ -23,7 +20,7 @@ static class SqlDataAccess
 
 	public static async Task SaveData<T>(string storedProcedure, T parameters)
 	{
-		using IDbConnection connection = new SqlConnection(ConnectionString);
+		using IDbConnection connection = new SqlConnection(ConnectionStrings.Azure);
 
 		await connection.ExecuteAsync(storedProcedure, parameters, commandType: CommandType.StoredProcedure);
 	}

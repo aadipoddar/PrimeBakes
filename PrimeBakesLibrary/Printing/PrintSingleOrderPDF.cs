@@ -28,17 +28,21 @@ public static class PrintSingleOrderPDF
 		PdfPen pen = new(Color.DarkBlue, 3f);
 		font = new PdfStandardFont(PdfFontFamily.Helvetica, 16, PdfFontStyle.Bold);
 
-		PdfStringFormat format = new();
-		format.Alignment = PdfTextAlignment.Center;
-		format.LineAlignment = PdfVerticalAlignment.Middle;
+		PdfStringFormat format = new()
+		{
+			Alignment = PdfTextAlignment.Center,
+			LineAlignment = PdfVerticalAlignment.Middle
+		};
 
 		header.Graphics.DrawString(title, font, brush, new RectangleF(0, 0, header.Width, header.Height), format);
 		brush = new PdfSolidBrush(Color.Gray);
 		font = new PdfStandardFont(PdfFontFamily.Helvetica, 6, PdfFontStyle.Bold);
 
-		format = new PdfStringFormat();
-		format.Alignment = PdfTextAlignment.Left;
-		format.LineAlignment = PdfVerticalAlignment.Bottom;
+		format = new PdfStringFormat
+		{
+			Alignment = PdfTextAlignment.Left,
+			LineAlignment = PdfVerticalAlignment.Bottom
+		};
 
 		header.Graphics.DrawString(description, font, brush, new RectangleF(0, 0, header.Width, header.Height - 8), format);
 
@@ -66,8 +70,10 @@ public static class PrintSingleOrderPDF
 
 		PdfPageCountField count = new(font, brush);
 
-		PdfCompositeField compositeField = new(font, brush, "Page {0} of {1}", pageNumber, count);
-		compositeField.Bounds = footer.Bounds;
+		PdfCompositeField compositeField = new(font, brush, "Page {0} of {1}", pageNumber, count)
+		{
+			Bounds = footer.Bounds
+		};
 
 		compositeField.Draw(footer.Graphics, new PointF(470, 40));
 
@@ -76,13 +82,13 @@ public static class PrintSingleOrderPDF
 
 	public static async Task<MemoryStream> PrintOrder(int orderId)
 	{
-		OrderModel orderModel = (await CommonData.LoadTableDataById<OrderModel>("Order", orderId)).FirstOrDefault();
+		OrderModel orderModel = await CommonData.LoadTableDataById<OrderModel>("Order", orderId);
 
 		ViewOrderModel order = new()
 		{
 			OrderId = orderModel.Id,
-			UserName = (await CommonData.LoadTableDataById<UserModel>("User", orderModel.UserId)).FirstOrDefault().Name,
-			CustomerName = (await CommonData.LoadTableDataById<UserModel>("Customer", orderModel.CustomerId)).FirstOrDefault().Name,
+			UserName = (await CommonData.LoadTableDataById<UserModel>("User", orderModel.UserId)).Name,
+			CustomerName = (await CommonData.LoadTableDataById<UserModel>("Customer", orderModel.CustomerId)).Name,
 			OrderDateTime = orderModel.DateTime
 		};
 
@@ -92,9 +98,11 @@ public static class PrintSingleOrderPDF
 		pdfDocument.Template.Top = AddHeader(pdfDocument, $"{order.CustomerName}", "Order Report");
 		pdfDocument.Template.Bottom = AddFooter(pdfDocument);
 
-		PdfLayoutFormat layoutFormat = new();
-		layoutFormat.Layout = PdfLayoutType.Paginate;
-		layoutFormat.Break = PdfLayoutBreakType.FitPage;
+		PdfLayoutFormat layoutFormat = new()
+		{
+			Layout = PdfLayoutType.Paginate,
+			Break = PdfLayoutBreakType.FitPage
+		};
 
 		PdfLayoutResult result = null;
 		result = await PDFBody(pdfPage, layoutFormat, order, result);
@@ -111,7 +119,7 @@ public static class PrintSingleOrderPDF
 	{
 		PdfTextElement textElement;
 
-		PdfStandardFont font = new PdfStandardFont(PdfFontFamily.Helvetica, 15, PdfFontStyle.Bold);
+		PdfStandardFont font = new(PdfFontFamily.Helvetica, 15, PdfFontStyle.Bold);
 
 		textElement = new PdfTextElement($"Order Id: {order.OrderId}", font);
 		if (result is null) result = textElement.Draw(pdfPage, new PointF(0, 20), layoutFormat);
@@ -126,7 +134,7 @@ public static class PrintSingleOrderPDF
 		textElement = new PdfTextElement($"Order Taken By: {order.UserName}", font);
 		result = textElement.Draw(result.Page, new PointF(0, result.Bounds.Bottom + 10), layoutFormat);
 
-		var groupedItems = (await CommonData.LoadTableDataById<ViewOrderDetailModel>("View_OrderDetails", order.OrderId)).ToList().GroupBy(item => item.CategoryId);
+		var groupedItems = (await OrderData.LoadOrderDetailsByOrderId(order.OrderId)).GroupBy(item => item.CategoryId);
 
 		foreach (var item in groupedItems)
 		{

@@ -1,11 +1,9 @@
-﻿using PrimeBakesLibrary.Data;
-using PrimeBakesLibrary.Models;
-
-namespace PrimeOrders;
+﻿namespace PrimeOrders;
 
 public partial class MainPage : ContentPage
 {
 	private const string CURRENT_USER_ID_KEY = "user_id";
+	private int _userId;
 
 	public MainPage()
 	{
@@ -18,35 +16,36 @@ public partial class MainPage : ContentPage
 	protected override void OnAppearing()
 	{
 		base.OnAppearing();
-
-		LoadData();
+		SecureStorage.Remove(CURRENT_USER_ID_KEY);
 	}
 
-	private async void LoadData()
+	private async Task<bool> ValidateForm()
 	{
-		SecureStorage.Remove(CURRENT_USER_ID_KEY);
+		if (userIdNumericEntry.Value is null) return false;
+		if (string.IsNullOrEmpty(passwordEntry.Text)) return false;
 
-		userComboBox.ItemsSource = await CommonData.LoadTableData<UserModel>("User");
-		userComboBox.DisplayMemberPath = nameof(UserModel.Name);
-		userComboBox.SelectedValuePath = nameof(UserModel.Id);
+		var user = await CommonData.LoadTableDataById<UserModel>(Table.User, (int)userIdNumericEntry.Value);
+		if (user is null) return false;
+		if (passwordEntry.Text != user.Password) return false;
+
+		_userId = user.Id;
+		return true;
 	}
 
 	private async void OnLoginButtonClicked(object sender, EventArgs e)
 	{
-		if (userComboBox.SelectedItem is UserModel user)
+		if (!await ValidateForm())
 		{
-			if (passwordEntry.Text == user.Password)
-			{
-				await SecureStorage.Default.SetAsync(CURRENT_USER_ID_KEY, user.Id.ToString());
-
-				await Navigation.PushAsync(new OrderPage(user.Id));
-			}
-
-			else await DisplayAlert("Error", "Incorrect Password", "OK");
+			await DisplayAlert("Error", "Please Enter Correct User Id and Password", "OK");
+			passwordEntry.Text = string.Empty;
+			return;
 		}
 
-		else await DisplayAlert("Error", "Please select a user", "OK");
+		await SecureStorage.Default.SetAsync(CURRENT_USER_ID_KEY, _userId.ToString());
+
+		await Navigation.PushAsync(new OrderPage(_userId));
 
 		passwordEntry.Text = string.Empty;
+		userIdNumericEntry.Value = null;
 	}
 }

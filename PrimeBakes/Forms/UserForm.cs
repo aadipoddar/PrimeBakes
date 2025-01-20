@@ -8,11 +8,11 @@ public partial class UserForm : Form
 
 	private async void LoadComboBox()
 	{
-		customerComboBox.DataSource = (await CommonData.LoadTableData<CustomerModel>("Customer")).ToList();
+		customerComboBox.DataSource = await CommonData.LoadTableData<CustomerModel>(Table.Customer);
 		customerComboBox.DisplayMember = nameof(CustomerModel.DisplayName);
 		customerComboBox.ValueMember = nameof(CustomerModel.Id);
 
-		userComboBox.DataSource = (await CommonData.LoadTableData<UserModel>("User")).ToList();
+		userComboBox.DataSource = await CommonData.LoadTableData<UserModel>(Table.User);
 		userComboBox.DisplayMember = nameof(UserModel.Name);
 		userComboBox.ValueMember = nameof(UserModel.Id);
 
@@ -37,12 +37,9 @@ public partial class UserForm : Form
 		}
 	}
 
-	private bool ValidateForm()
-	{
-		if (nameTextBox.Text == string.Empty) return false;
-		if (passwordTextBox.Text == string.Empty) return false;
-		return true;
-	}
+	private bool ValidateForm() =>
+		!string.IsNullOrEmpty(nameTextBox.Text) &&
+		!string.IsNullOrEmpty(passwordTextBox.Text);
 
 	private async void saveButton_Click(object sender, EventArgs e)
 	{
