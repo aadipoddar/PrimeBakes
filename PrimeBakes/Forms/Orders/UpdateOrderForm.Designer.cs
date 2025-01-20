@@ -39,6 +39,8 @@ partial class UpdateOrderForm
 		statusCheckBox = new CheckBox();
 		categoryLabel = new Label();
 		categoryComboBox = new ComboBox();
+		brandingLabel = new Label();
+		richTextBoxFooter = new RichTextBox();
 		((System.ComponentModel.ISupportInitialize)itemsDataGridView).BeginInit();
 		SuspendLayout();
 		// 
@@ -69,10 +71,10 @@ partial class UpdateOrderForm
 		// 
 		itemsDataGridView.AllowUserToAddRows = false;
 		itemsDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-		itemsDataGridView.Location = new Point(367, 56);
+		itemsDataGridView.Location = new Point(350, 56);
 		itemsDataGridView.Name = "itemsDataGridView";
 		itemsDataGridView.ReadOnly = true;
-		itemsDataGridView.Size = new Size(730, 382);
+		itemsDataGridView.Size = new Size(747, 382);
 		itemsDataGridView.TabIndex = 48;
 		itemsDataGridView.CellDoubleClick += itemsDataGridView_CellDoubleClick;
 		// 
@@ -166,12 +168,35 @@ partial class UpdateOrderForm
 		categoryComboBox.TabIndex = 56;
 		categoryComboBox.SelectedIndexChanged += categoryComboBox_SelectedIndexChanged;
 		// 
+		// brandingLabel
+		// 
+		brandingLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+		brandingLabel.AutoSize = true;
+		brandingLabel.BackColor = Color.White;
+		brandingLabel.Location = new Point(1033, 461);
+		brandingLabel.Name = "brandingLabel";
+		brandingLabel.Size = new Size(76, 15);
+		brandingLabel.TabIndex = 59;
+		brandingLabel.Text = "© AADISOFT";
+		// 
+		// richTextBoxFooter
+		// 
+		richTextBoxFooter.Dock = DockStyle.Bottom;
+		richTextBoxFooter.Location = new Point(0, 454);
+		richTextBoxFooter.Name = "richTextBoxFooter";
+		richTextBoxFooter.ScrollBars = RichTextBoxScrollBars.Horizontal;
+		richTextBoxFooter.Size = new Size(1109, 26);
+		richTextBoxFooter.TabIndex = 58;
+		richTextBoxFooter.Text = "Version 0.0.0.0";
+		// 
 		// UpdateOrderForm
 		// 
 		AcceptButton = addButton;
 		AutoScaleDimensions = new SizeF(7F, 15F);
 		AutoScaleMode = AutoScaleMode.Font;
-		ClientSize = new Size(1109, 450);
+		ClientSize = new Size(1109, 480);
+		Controls.Add(brandingLabel);
+		Controls.Add(richTextBoxFooter);
 		Controls.Add(categoryLabel);
 		Controls.Add(categoryComboBox);
 		Controls.Add(statusCheckBox);
@@ -205,4 +230,6 @@ partial class UpdateOrderForm
 	private CheckBox statusCheckBox;
 	private Label categoryLabel;
 	private ComboBox categoryComboBox;
+	private Label brandingLabel;
+	private RichTextBox richTextBoxFooter;
 }

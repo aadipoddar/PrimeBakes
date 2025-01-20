@@ -9,7 +9,12 @@ public partial class Dashboard : Form
 {
 	public Dashboard() => InitializeComponent();
 
-	private async void Dashboard_Load(object sender, EventArgs e) => await UpdateCheck();
+	private async void Dashboard_Load(object sender, EventArgs e)
+	{
+		await UpdateCheck();
+
+		richTextBoxFooter.Text = $"Version: {Assembly.GetExecutingAssembly().GetName().Version}";
+	}
 
 	private static async Task UpdateCheck()
 	{

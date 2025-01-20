@@ -90,6 +90,8 @@
     <Build Include="Stored Procedures\Load_ActiveItems_By_Category.sql" />
     <Build Include="Stored Procedures\Load_TableData_By_Id_Active.sql" />
     <Build Include="Stored Procedures\Load_OrderDetails_By_OrderId.sql" />
+    <Build Include="Stored Procedures\Load_TableData_By_Code_Active.sql" />
+    <Build Include="Stored Procedures\Load_TableData_By_Code.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="PublishLocations\AzurePrimeBakes.publish.xml" />

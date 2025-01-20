@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
+using System.Reflection;
 
 using PrimeBakesLibrary.Printing;
 
@@ -41,7 +42,9 @@ public partial class UpdateOrderForm : Form
 		_orderDetails = new BindingList<ViewOrderDetailModel>(await OrderData.LoadOrderDetailsByOrderId(_orderModel.Id));
 		itemsDataGridView.DataSource = _orderDetails;
 		statusCheckBox.Checked = _orderModel.Status;
-		HideFirstColumn();
+		HideColumns();
+
+		richTextBoxFooter.Text = $"Version: {Assembly.GetExecutingAssembly().GetName().Version}";
 	}
 
 	private async Task LoadItemsData()
@@ -56,7 +59,12 @@ public partial class UpdateOrderForm : Form
 	#endregion
 
 	#region DataGrid
-	private void HideFirstColumn() => itemsDataGridView.Columns[0].Visible = false;
+
+	private void HideColumns()
+	{
+		itemsDataGridView.Columns[0].Visible = false;
+		itemsDataGridView.Columns[8].Visible = false;
+	}
 
 	private void quantityTextBox_KeyPress(object sender, KeyPressEventArgs e)
 	{

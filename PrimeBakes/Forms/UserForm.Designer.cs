@@ -37,6 +37,10 @@
 			statusCheckBox = new CheckBox();
 			customerLabel = new Label();
 			customerComboBox = new ComboBox();
+			codeLabel = new Label();
+			codeTextBox = new TextBox();
+			brandingLabel = new Label();
+			richTextBoxFooter = new RichTextBox();
 			SuspendLayout();
 			// 
 			// userComboBox
@@ -50,16 +54,16 @@
 			userComboBox.Location = new Point(96, 12);
 			userComboBox.Name = "userComboBox";
 			userComboBox.Size = new Size(271, 36);
-			userComboBox.TabIndex = 6;
+			userComboBox.TabIndex = 7;
 			userComboBox.SelectedIndexChanged += userComboBox_SelectedIndexChanged;
 			// 
 			// saveButton
 			// 
 			saveButton.Font = new Font("Segoe UI", 15F);
-			saveButton.Location = new Point(142, 212);
+			saveButton.Location = new Point(142, 252);
 			saveButton.Name = "saveButton";
 			saveButton.Size = new Size(118, 38);
-			saveButton.TabIndex = 5;
+			saveButton.TabIndex = 6;
 			saveButton.Text = "SAVE";
 			saveButton.UseVisualStyleBackColor = true;
 			saveButton.Click += saveButton_Click;
@@ -68,7 +72,7 @@
 			// 
 			passwordLabel.AutoSize = true;
 			passwordLabel.Font = new Font("Segoe UI", 15F);
-			passwordLabel.Location = new Point(19, 112);
+			passwordLabel.Location = new Point(19, 152);
 			passwordLabel.Name = "passwordLabel";
 			passwordLabel.Size = new Size(93, 28);
 			passwordLabel.TabIndex = 34;
@@ -77,12 +81,13 @@
 			// passwordTextBox
 			// 
 			passwordTextBox.Font = new Font("Segoe UI", 15F);
-			passwordTextBox.Location = new Point(127, 109);
+			passwordTextBox.Location = new Point(127, 149);
+			passwordTextBox.MaxLength = 100;
 			passwordTextBox.Name = "passwordTextBox";
 			passwordTextBox.PasswordChar = '*';
 			passwordTextBox.PlaceholderText = "Password";
 			passwordTextBox.Size = new Size(271, 34);
-			passwordTextBox.TabIndex = 2;
+			passwordTextBox.TabIndex = 3;
 			// 
 			// nameLabel
 			// 
@@ -98,6 +103,7 @@
 			// 
 			nameTextBox.Font = new Font("Segoe UI", 15F);
 			nameTextBox.Location = new Point(127, 69);
+			nameTextBox.MaxLength = 100;
 			nameTextBox.Name = "nameTextBox";
 			nameTextBox.PlaceholderText = "Name";
 			nameTextBox.Size = new Size(271, 34);
@@ -107,10 +113,10 @@
 			// 
 			statusCheckBox.AutoSize = true;
 			statusCheckBox.Font = new Font("Segoe UI", 15F);
-			statusCheckBox.Location = new Point(29, 216);
+			statusCheckBox.Location = new Point(29, 256);
 			statusCheckBox.Name = "statusCheckBox";
 			statusCheckBox.Size = new Size(84, 32);
-			statusCheckBox.TabIndex = 4;
+			statusCheckBox.TabIndex = 5;
 			statusCheckBox.Text = "Status";
 			statusCheckBox.UseVisualStyleBackColor = true;
 			// 
@@ -118,7 +124,7 @@
 			// 
 			customerLabel.AutoSize = true;
 			customerLabel.Font = new Font("Segoe UI", 15F);
-			customerLabel.Location = new Point(19, 152);
+			customerLabel.Location = new Point(19, 192);
 			customerLabel.Name = "customerLabel";
 			customerLabel.Size = new Size(96, 28);
 			customerLabel.TabIndex = 36;
@@ -132,17 +138,63 @@
 			customerComboBox.FlatStyle = FlatStyle.System;
 			customerComboBox.Font = new Font("Segoe UI", 15F);
 			customerComboBox.FormattingEnabled = true;
-			customerComboBox.Location = new Point(127, 149);
+			customerComboBox.Location = new Point(127, 189);
 			customerComboBox.Name = "customerComboBox";
 			customerComboBox.Size = new Size(271, 36);
-			customerComboBox.TabIndex = 3;
+			customerComboBox.TabIndex = 4;
+			// 
+			// codeLabel
+			// 
+			codeLabel.AutoSize = true;
+			codeLabel.Font = new Font("Segoe UI", 15F);
+			codeLabel.Location = new Point(19, 112);
+			codeLabel.Name = "codeLabel";
+			codeLabel.Size = new Size(58, 28);
+			codeLabel.TabIndex = 38;
+			codeLabel.Text = "Code";
+			// 
+			// codeTextBox
+			// 
+			codeTextBox.CharacterCasing = CharacterCasing.Upper;
+			codeTextBox.Font = new Font("Segoe UI", 15F);
+			codeTextBox.Location = new Point(127, 109);
+			codeTextBox.MaxLength = 100;
+			codeTextBox.Name = "codeTextBox";
+			codeTextBox.PlaceholderText = "Code";
+			codeTextBox.Size = new Size(271, 34);
+			codeTextBox.TabIndex = 2;
+			// 
+			// brandingLabel
+			// 
+			brandingLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+			brandingLabel.AutoSize = true;
+			brandingLabel.BackColor = Color.White;
+			brandingLabel.Location = new Point(336, 329);
+			brandingLabel.Name = "brandingLabel";
+			brandingLabel.Size = new Size(76, 15);
+			brandingLabel.TabIndex = 40;
+			brandingLabel.Text = "© AADISOFT";
+			// 
+			// richTextBoxFooter
+			// 
+			richTextBoxFooter.Dock = DockStyle.Bottom;
+			richTextBoxFooter.Location = new Point(0, 323);
+			richTextBoxFooter.Name = "richTextBoxFooter";
+			richTextBoxFooter.ScrollBars = RichTextBoxScrollBars.Horizontal;
+			richTextBoxFooter.Size = new Size(416, 26);
+			richTextBoxFooter.TabIndex = 39;
+			richTextBoxFooter.Text = "Version 0.0.0.0";
 			// 
 			// UserForm
 			// 
 			AcceptButton = saveButton;
 			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
-			ClientSize = new Size(416, 262);
+			ClientSize = new Size(416, 349);
+			Controls.Add(brandingLabel);
+			Controls.Add(richTextBoxFooter);
+			Controls.Add(codeLabel);
+			Controls.Add(codeTextBox);
 			Controls.Add(customerComboBox);
 			Controls.Add(customerLabel);
 			Controls.Add(statusCheckBox);
@@ -170,5 +222,9 @@
 		private CheckBox statusCheckBox;
 		private Label customerLabel;
 		private ComboBox customerComboBox;
+		private Label codeLabel;
+		private TextBox codeTextBox;
+		private Label brandingLabel;
+		private RichTextBox richTextBoxFooter;
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Reflection;
 
 using PrimeBakesLibrary.Printing;
 
@@ -12,6 +13,7 @@ public partial class PastOrdersForm : Form
 	{
 		toDateTimePicker.Value = DateTime.Now.AddDays(1);
 		LoadOrders();
+		richTextBoxFooter.Text = $"Version: {Assembly.GetExecutingAssembly().GetName().Version}";
 	}
 
 	private void dateTimePicker_ValueChanged(object sender, EventArgs e) => LoadOrders();

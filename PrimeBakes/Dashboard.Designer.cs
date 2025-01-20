@@ -35,6 +35,8 @@ partial class Dashboard
 		pastOrdersButton = new Button();
 		viewUpdateOrderButton = new Button();
 		categoryButton = new Button();
+		richTextBoxFooter = new RichTextBox();
+		brandingLabel = new Label();
 		SuspendLayout();
 		// 
 		// userButton
@@ -114,12 +116,35 @@ partial class Dashboard
 		categoryButton.UseVisualStyleBackColor = true;
 		categoryButton.Click += categoryButton_Click;
 		// 
+		// richTextBoxFooter
+		// 
+		richTextBoxFooter.Dock = DockStyle.Bottom;
+		richTextBoxFooter.Location = new Point(0, 500);
+		richTextBoxFooter.Name = "richTextBoxFooter";
+		richTextBoxFooter.ScrollBars = RichTextBoxScrollBars.Horizontal;
+		richTextBoxFooter.Size = new Size(277, 26);
+		richTextBoxFooter.TabIndex = 29;
+		richTextBoxFooter.Text = "Version 0.0.0.0";
+		// 
+		// brandingLabel
+		// 
+		brandingLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+		brandingLabel.AutoSize = true;
+		brandingLabel.BackColor = Color.White;
+		brandingLabel.Location = new Point(197, 506);
+		brandingLabel.Name = "brandingLabel";
+		brandingLabel.Size = new Size(76, 15);
+		brandingLabel.TabIndex = 30;
+		brandingLabel.Text = "© AADISOFT";
+		// 
 		// Dashboard
 		// 
 		AcceptButton = orderButton;
 		AutoScaleDimensions = new SizeF(7F, 15F);
 		AutoScaleMode = AutoScaleMode.Font;
-		ClientSize = new Size(277, 507);
+		ClientSize = new Size(277, 526);
+		Controls.Add(brandingLabel);
+		Controls.Add(richTextBoxFooter);
 		Controls.Add(categoryButton);
 		Controls.Add(viewUpdateOrderButton);
 		Controls.Add(pastOrdersButton);
@@ -132,6 +157,7 @@ partial class Dashboard
 		Text = "Dashboard";
 		Load += Dashboard_Load;
 		ResumeLayout(false);
+		PerformLayout();
 	}
 
 	#endregion
@@ -143,4 +169,6 @@ partial class Dashboard
 	private Button pastOrdersButton;
 	private Button viewUpdateOrderButton;
 	private Button categoryButton;
+	private RichTextBox richTextBoxFooter;
+	private Label brandingLabel;
 }

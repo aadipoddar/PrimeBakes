@@ -35,6 +35,8 @@ partial class CategoryForm
 		codeTextBox = new TextBox();
 		nameLabel = new Label();
 		nameTextBox = new TextBox();
+		brandingLabel = new Label();
+		richTextBoxFooter = new RichTextBox();
 		SuspendLayout();
 		// 
 		// statusCheckBox
@@ -88,6 +90,7 @@ partial class CategoryForm
 		codeTextBox.CharacterCasing = CharacterCasing.Upper;
 		codeTextBox.Font = new Font("Segoe UI", 15F);
 		codeTextBox.Location = new Point(120, 67);
+		codeTextBox.MaxLength = 100;
 		codeTextBox.Name = "codeTextBox";
 		codeTextBox.PlaceholderText = "Code";
 		codeTextBox.Size = new Size(271, 34);
@@ -107,17 +110,41 @@ partial class CategoryForm
 		// 
 		nameTextBox.Font = new Font("Segoe UI", 15F);
 		nameTextBox.Location = new Point(120, 107);
+		nameTextBox.MaxLength = 100;
 		nameTextBox.Name = "nameTextBox";
 		nameTextBox.PlaceholderText = "Name";
 		nameTextBox.Size = new Size(271, 34);
 		nameTextBox.TabIndex = 46;
+		// 
+		// brandingLabel
+		// 
+		brandingLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+		brandingLabel.AutoSize = true;
+		brandingLabel.BackColor = Color.White;
+		brandingLabel.Location = new Point(329, 223);
+		brandingLabel.Name = "brandingLabel";
+		brandingLabel.Size = new Size(76, 15);
+		brandingLabel.TabIndex = 53;
+		brandingLabel.Text = "© AADISOFT";
+		// 
+		// richTextBoxFooter
+		// 
+		richTextBoxFooter.Dock = DockStyle.Bottom;
+		richTextBoxFooter.Location = new Point(0, 217);
+		richTextBoxFooter.Name = "richTextBoxFooter";
+		richTextBoxFooter.ScrollBars = RichTextBoxScrollBars.Horizontal;
+		richTextBoxFooter.Size = new Size(410, 26);
+		richTextBoxFooter.TabIndex = 52;
+		richTextBoxFooter.Text = "Version 0.0.0.0";
 		// 
 		// CategoryForm
 		// 
 		AcceptButton = saveButton;
 		AutoScaleDimensions = new SizeF(7F, 15F);
 		AutoScaleMode = AutoScaleMode.Font;
-		ClientSize = new Size(410, 221);
+		ClientSize = new Size(410, 243);
+		Controls.Add(brandingLabel);
+		Controls.Add(richTextBoxFooter);
 		Controls.Add(statusCheckBox);
 		Controls.Add(categoryComboBox);
 		Controls.Add(saveButton);
@@ -141,4 +168,6 @@ partial class CategoryForm
 	private TextBox codeTextBox;
 	private Label nameLabel;
 	private TextBox nameTextBox;
+	private Label brandingLabel;
+	private RichTextBox richTextBoxFooter;
 }

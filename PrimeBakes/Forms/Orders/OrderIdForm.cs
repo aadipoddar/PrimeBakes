@@ -1,8 +1,13 @@
-﻿namespace PrimeBakes.Forms.Orders;
+﻿using System.Reflection;
+
+namespace PrimeBakes.Forms.Orders;
 
 public partial class OrderIdForm : Form
 {
 	public OrderIdForm() => InitializeComponent();
+
+	private void OrderIdForm_Load(object sender, EventArgs e) =>
+		richTextBoxFooter.Text = $"Version: {Assembly.GetExecutingAssembly().GetName().Version}";
 
 	private async void goButton_Click(object sender, EventArgs e)
 	{

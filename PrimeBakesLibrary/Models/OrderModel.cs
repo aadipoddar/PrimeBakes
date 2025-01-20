@@ -35,4 +35,6 @@ public class ViewOrderDetailModel
 	public string CategoryName { get; set; }
 	public string CategoryCode { get; set; }
 	public int Quantity { get; set; }
+
+	public string DisplayName => $"{ItemName} ({ItemCode})";
 }

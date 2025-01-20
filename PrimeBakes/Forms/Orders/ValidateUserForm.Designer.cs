@@ -30,13 +30,16 @@ partial class ValidateUserForm
 	{
 		passwordTextBox = new TextBox();
 		goButton = new Button();
-		userIdTextBox = new TextBox();
+		userCodeTextBox = new TextBox();
+		brandingLabel = new Label();
+		richTextBoxFooter = new RichTextBox();
 		SuspendLayout();
 		// 
 		// passwordTextBox
 		// 
 		passwordTextBox.Font = new Font("Segoe UI", 15F);
 		passwordTextBox.Location = new Point(53, 85);
+		passwordTextBox.MaxLength = 100;
 		passwordTextBox.Name = "passwordTextBox";
 		passwordTextBox.PasswordChar = '*';
 		passwordTextBox.PlaceholderText = "Password";
@@ -54,28 +57,53 @@ partial class ValidateUserForm
 		goButton.UseVisualStyleBackColor = true;
 		goButton.Click += goButton_Click;
 		// 
-		// userIdTextBox
+		// userCodeTextBox
 		// 
-		userIdTextBox.Font = new Font("Segoe UI", 15F);
-		userIdTextBox.Location = new Point(53, 32);
-		userIdTextBox.Name = "userIdTextBox";
-		userIdTextBox.PlaceholderText = "User Id";
-		userIdTextBox.Size = new Size(157, 34);
-		userIdTextBox.TabIndex = 1;
-		userIdTextBox.KeyPress += userIdTextBox_KeyPress;
+		userCodeTextBox.CharacterCasing = CharacterCasing.Upper;
+		userCodeTextBox.Font = new Font("Segoe UI", 15F);
+		userCodeTextBox.Location = new Point(53, 32);
+		userCodeTextBox.MaxLength = 100;
+		userCodeTextBox.Name = "userCodeTextBox";
+		userCodeTextBox.PlaceholderText = "User Code";
+		userCodeTextBox.Size = new Size(157, 34);
+		userCodeTextBox.TabIndex = 1;
+		// 
+		// brandingLabel
+		// 
+		brandingLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+		brandingLabel.AutoSize = true;
+		brandingLabel.BackColor = Color.White;
+		brandingLabel.Location = new Point(192, 204);
+		brandingLabel.Name = "brandingLabel";
+		brandingLabel.Size = new Size(76, 15);
+		brandingLabel.TabIndex = 32;
+		brandingLabel.Text = "© AADISOFT";
+		// 
+		// richTextBoxFooter
+		// 
+		richTextBoxFooter.Dock = DockStyle.Bottom;
+		richTextBoxFooter.Location = new Point(0, 197);
+		richTextBoxFooter.Name = "richTextBoxFooter";
+		richTextBoxFooter.ScrollBars = RichTextBoxScrollBars.Horizontal;
+		richTextBoxFooter.Size = new Size(272, 26);
+		richTextBoxFooter.TabIndex = 31;
+		richTextBoxFooter.Text = "Version 0.0.0.0";
 		// 
 		// ValidateUserForm
 		// 
 		AcceptButton = goButton;
 		AutoScaleDimensions = new SizeF(7F, 15F);
 		AutoScaleMode = AutoScaleMode.Font;
-		ClientSize = new Size(272, 227);
-		Controls.Add(userIdTextBox);
+		ClientSize = new Size(272, 223);
+		Controls.Add(brandingLabel);
+		Controls.Add(richTextBoxFooter);
+		Controls.Add(userCodeTextBox);
 		Controls.Add(goButton);
 		Controls.Add(passwordTextBox);
 		Name = "ValidateUserForm";
 		StartPosition = FormStartPosition.CenterScreen;
 		Text = "ValidateUser";
+		Load += ValidateUserForm_Load;
 		ResumeLayout(false);
 		PerformLayout();
 	}
@@ -84,5 +112,7 @@ partial class ValidateUserForm
 
 	private TextBox passwordTextBox;
 	private Button goButton;
-	private TextBox userIdTextBox;
+	private TextBox userCodeTextBox;
+	private Label brandingLabel;
+	private RichTextBox richTextBoxFooter;
 }

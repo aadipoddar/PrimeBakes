@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
+using System.Reflection;
 
 using PrimeBakesLibrary.Printing;
 
@@ -35,7 +36,9 @@ public partial class OrderForm : Form
 		_customerId = customer.Id;
 
 		await LoadItemsData();
-		HideFirstColumn();
+		HideColumns();
+
+		richTextBoxFooter.Text = $"Version: {Assembly.GetExecutingAssembly().GetName().Version}";
 	}
 
 	private async Task LoadItemsData()
@@ -51,7 +54,11 @@ public partial class OrderForm : Form
 
 	#region DataGrid
 
-	private void HideFirstColumn() => itemsDataGridView.Columns[0].Visible = false;
+	private void HideColumns()
+	{
+		itemsDataGridView.Columns[0].Visible = false;
+		itemsDataGridView.Columns[8].Visible = false;
+	}
 
 	private void quantityTextBox_KeyPress(object sender, KeyPressEventArgs e)
 	{

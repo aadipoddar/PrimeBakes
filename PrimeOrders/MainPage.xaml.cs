@@ -21,10 +21,10 @@ public partial class MainPage : ContentPage
 
 	private async Task<bool> ValidateForm()
 	{
-		if (userIdNumericEntry.Value is null) return false;
+		if (userCodeEntry.Text is null) return false;
 		if (string.IsNullOrEmpty(passwordEntry.Text)) return false;
 
-		var user = await CommonData.LoadTableDataById<UserModel>(Table.User, (int)userIdNumericEntry.Value);
+		var user = await CommonData.LoadTableDataByCodeActive<UserModel>(Table.User, userCodeEntry.Text);
 		if (user is null) return false;
 		if (passwordEntry.Text != user.Password) return false;
 
@@ -45,7 +45,7 @@ public partial class MainPage : ContentPage
 
 		await Navigation.PushAsync(new OrderPage(_userId));
 
+		userCodeEntry.Text = string.Empty;
 		passwordEntry.Text = string.Empty;
-		userIdNumericEntry.Value = null;
 	}
 }

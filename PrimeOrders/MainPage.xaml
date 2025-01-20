@@ -14,12 +14,9 @@
                    FontSize="24"
                    HorizontalOptions="Center" />
 
-			<control:SfNumericEntry x:Name="userIdNumericEntry"
-									Placeholder="User Id"
-									CustomFormat="0" AllowNull="True"
-									Minimum="0" UpDownPlacementMode="Hidden"
-									MaximumWidthRequest="200" MaximumHeightRequest="50">
-			</control:SfNumericEntry>
+			<Entry x:Name="userCodeEntry"
+					Placeholder="User Code"
+					MaximumWidthRequest="200"/>
 
 			<Entry x:Name="passwordEntry"
 					IsPassword="True"

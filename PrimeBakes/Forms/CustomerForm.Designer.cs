@@ -37,6 +37,8 @@
 			nameTextBox = new TextBox();
 			emailLabel = new Label();
 			emailTextBox = new TextBox();
+			brandingLabel = new Label();
+			richTextBoxFooter = new RichTextBox();
 			SuspendLayout();
 			// 
 			// customerComboBox
@@ -79,6 +81,7 @@
 			codeTextBox.CharacterCasing = CharacterCasing.Upper;
 			codeTextBox.Font = new Font("Segoe UI", 15F);
 			codeTextBox.Location = new Point(86, 68);
+			codeTextBox.MaxLength = 100;
 			codeTextBox.Name = "codeTextBox";
 			codeTextBox.PlaceholderText = "Code";
 			codeTextBox.Size = new Size(271, 34);
@@ -109,6 +112,7 @@
 			// 
 			nameTextBox.Font = new Font("Segoe UI", 15F);
 			nameTextBox.Location = new Point(86, 108);
+			nameTextBox.MaxLength = 100;
 			nameTextBox.Name = "nameTextBox";
 			nameTextBox.PlaceholderText = "Name";
 			nameTextBox.Size = new Size(271, 34);
@@ -128,17 +132,41 @@
 			// 
 			emailTextBox.Font = new Font("Segoe UI", 15F);
 			emailTextBox.Location = new Point(86, 148);
+			emailTextBox.MaxLength = 100;
 			emailTextBox.Name = "emailTextBox";
 			emailTextBox.PlaceholderText = "Email";
 			emailTextBox.Size = new Size(271, 34);
 			emailTextBox.TabIndex = 3;
+			// 
+			// brandingLabel
+			// 
+			brandingLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+			brandingLabel.AutoSize = true;
+			brandingLabel.BackColor = Color.White;
+			brandingLabel.Location = new Point(300, 243);
+			brandingLabel.Name = "brandingLabel";
+			brandingLabel.Size = new Size(76, 15);
+			brandingLabel.TabIndex = 40;
+			brandingLabel.Text = "© AADISOFT";
+			// 
+			// richTextBoxFooter
+			// 
+			richTextBoxFooter.Dock = DockStyle.Bottom;
+			richTextBoxFooter.Location = new Point(0, 237);
+			richTextBoxFooter.Name = "richTextBoxFooter";
+			richTextBoxFooter.ScrollBars = RichTextBoxScrollBars.Horizontal;
+			richTextBoxFooter.Size = new Size(376, 26);
+			richTextBoxFooter.TabIndex = 39;
+			richTextBoxFooter.Text = "Version 0.0.0.0";
 			// 
 			// CustomerForm
 			// 
 			AcceptButton = saveButton;
 			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
-			ClientSize = new Size(376, 251);
+			ClientSize = new Size(376, 263);
+			Controls.Add(brandingLabel);
+			Controls.Add(richTextBoxFooter);
 			Controls.Add(emailLabel);
 			Controls.Add(emailTextBox);
 			Controls.Add(nameLabel);
@@ -166,5 +194,7 @@
 		private TextBox nameTextBox;
 		private Label emailLabel;
 		private TextBox emailTextBox;
+		private Label brandingLabel;
+		private RichTextBox richTextBoxFooter;
 	}
 }

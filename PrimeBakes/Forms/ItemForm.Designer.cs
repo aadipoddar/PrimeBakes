@@ -37,6 +37,8 @@ partial class ItemForm
 		statusCheckBox = new CheckBox();
 		categoryComboBox = new ComboBox();
 		label1 = new Label();
+		brandingLabel = new Label();
+		richTextBoxFooter = new RichTextBox();
 		SuspendLayout();
 		// 
 		// itemComboBox
@@ -79,6 +81,7 @@ partial class ItemForm
 		codeTextBox.CharacterCasing = CharacterCasing.Upper;
 		codeTextBox.Font = new Font("Segoe UI", 15F);
 		codeTextBox.Location = new Point(120, 108);
+		codeTextBox.MaxLength = 100;
 		codeTextBox.Name = "codeTextBox";
 		codeTextBox.PlaceholderText = "Code";
 		codeTextBox.Size = new Size(271, 34);
@@ -98,6 +101,7 @@ partial class ItemForm
 		// 
 		nameTextBox.Font = new Font("Segoe UI", 15F);
 		nameTextBox.Location = new Point(120, 148);
+		nameTextBox.MaxLength = 100;
 		nameTextBox.Name = "nameTextBox";
 		nameTextBox.PlaceholderText = "Name";
 		nameTextBox.Size = new Size(271, 34);
@@ -137,12 +141,35 @@ partial class ItemForm
 		label1.TabIndex = 44;
 		label1.Text = "Category";
 		// 
+		// brandingLabel
+		// 
+		brandingLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+		brandingLabel.AutoSize = true;
+		brandingLabel.BackColor = Color.White;
+		brandingLabel.Location = new Point(347, 266);
+		brandingLabel.Name = "brandingLabel";
+		brandingLabel.Size = new Size(76, 15);
+		brandingLabel.TabIndex = 46;
+		brandingLabel.Text = "© AADISOFT";
+		// 
+		// richTextBoxFooter
+		// 
+		richTextBoxFooter.Dock = DockStyle.Bottom;
+		richTextBoxFooter.Location = new Point(0, 261);
+		richTextBoxFooter.Name = "richTextBoxFooter";
+		richTextBoxFooter.ScrollBars = RichTextBoxScrollBars.Horizontal;
+		richTextBoxFooter.Size = new Size(426, 26);
+		richTextBoxFooter.TabIndex = 45;
+		richTextBoxFooter.Text = "Version 0.0.0.0";
+		// 
 		// ItemForm
 		// 
 		AcceptButton = saveButton;
 		AutoScaleDimensions = new SizeF(7F, 15F);
 		AutoScaleMode = AutoScaleMode.Font;
-		ClientSize = new Size(426, 268);
+		ClientSize = new Size(426, 287);
+		Controls.Add(brandingLabel);
+		Controls.Add(richTextBoxFooter);
 		Controls.Add(label1);
 		Controls.Add(categoryComboBox);
 		Controls.Add(statusCheckBox);
@@ -170,4 +197,6 @@ partial class ItemForm
 	private CheckBox statusCheckBox;
 	private ComboBox categoryComboBox;
 	private Label label1;
+	private Label brandingLabel;
+	private RichTextBox richTextBoxFooter;
 }

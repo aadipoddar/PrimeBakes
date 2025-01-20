@@ -38,7 +38,7 @@
 										<ColumnDefinition Width="Auto" />
 									</Grid.ColumnDefinitions>
 
-									<Label x:Name="itemNameLabel" Text="{Binding ItemName}" Grid.Column="0" Margin="10"/>
+									<Label x:Name="itemNameLabel" Text="{Binding DisplayName}" Grid.Column="0" Margin="10"/>
 
 									<control:SfNumericEntry Grid.Column="1" x:Name="quantityNumericEntry"
                                                              Value="{Binding Quantity}"

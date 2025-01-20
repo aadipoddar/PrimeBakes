@@ -31,6 +31,8 @@ partial class OrderIdForm
 		orderIdLabel = new Label();
 		orderIdTextBox = new TextBox();
 		goButton = new Button();
+		brandingLabel = new Label();
+		richTextBoxFooter = new RichTextBox();
 		SuspendLayout();
 		// 
 		// orderIdLabel
@@ -63,18 +65,42 @@ partial class OrderIdForm
 		goButton.UseVisualStyleBackColor = true;
 		goButton.Click += goButton_Click;
 		// 
+		// brandingLabel
+		// 
+		brandingLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+		brandingLabel.AutoSize = true;
+		brandingLabel.BackColor = Color.White;
+		brandingLabel.Location = new Point(242, 173);
+		brandingLabel.Name = "brandingLabel";
+		brandingLabel.Size = new Size(76, 15);
+		brandingLabel.TabIndex = 32;
+		brandingLabel.Text = "© AADISOFT";
+		// 
+		// richTextBoxFooter
+		// 
+		richTextBoxFooter.Dock = DockStyle.Bottom;
+		richTextBoxFooter.Location = new Point(0, 166);
+		richTextBoxFooter.Name = "richTextBoxFooter";
+		richTextBoxFooter.ScrollBars = RichTextBoxScrollBars.Horizontal;
+		richTextBoxFooter.Size = new Size(318, 26);
+		richTextBoxFooter.TabIndex = 31;
+		richTextBoxFooter.Text = "Version 0.0.0.0";
+		// 
 		// OrderIdForm
 		// 
 		AcceptButton = goButton;
 		AutoScaleDimensions = new SizeF(7F, 15F);
 		AutoScaleMode = AutoScaleMode.Font;
-		ClientSize = new Size(318, 182);
+		ClientSize = new Size(318, 192);
+		Controls.Add(brandingLabel);
+		Controls.Add(richTextBoxFooter);
 		Controls.Add(goButton);
 		Controls.Add(orderIdTextBox);
 		Controls.Add(orderIdLabel);
 		Name = "OrderIdForm";
 		StartPosition = FormStartPosition.CenterScreen;
 		Text = "Order Id";
+		Load += OrderIdForm_Load;
 		ResumeLayout(false);
 		PerformLayout();
 	}
@@ -84,4 +110,6 @@ partial class OrderIdForm
 	private Label orderIdLabel;
 	private TextBox orderIdTextBox;
 	private Button goButton;
+	private Label brandingLabel;
+	private RichTextBox richTextBoxFooter;
 }

@@ -34,6 +34,8 @@ partial class PastOrdersForm
 		refreshButton = new Button();
 		printButton = new Button();
 		showClearedCheckBox = new CheckBox();
+		brandingLabel = new Label();
+		richTextBoxFooter = new RichTextBox();
 		((System.ComponentModel.ISupportInitialize)orderDataGridView).BeginInit();
 		SuspendLayout();
 		// 
@@ -101,11 +103,34 @@ partial class PastOrdersForm
 		showClearedCheckBox.UseVisualStyleBackColor = true;
 		showClearedCheckBox.CheckedChanged += showClearedCheckBox_CheckedChanged;
 		// 
+		// brandingLabel
+		// 
+		brandingLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+		brandingLabel.AutoSize = true;
+		brandingLabel.BackColor = Color.White;
+		brandingLabel.Location = new Point(724, 463);
+		brandingLabel.Name = "brandingLabel";
+		brandingLabel.Size = new Size(76, 15);
+		brandingLabel.TabIndex = 58;
+		brandingLabel.Text = "© AADISOFT";
+		// 
+		// richTextBoxFooter
+		// 
+		richTextBoxFooter.Dock = DockStyle.Bottom;
+		richTextBoxFooter.Location = new Point(0, 456);
+		richTextBoxFooter.Name = "richTextBoxFooter";
+		richTextBoxFooter.ScrollBars = RichTextBoxScrollBars.Horizontal;
+		richTextBoxFooter.Size = new Size(800, 26);
+		richTextBoxFooter.TabIndex = 57;
+		richTextBoxFooter.Text = "Version 0.0.0.0";
+		// 
 		// PastOrdersForm
 		// 
 		AutoScaleDimensions = new SizeF(7F, 15F);
 		AutoScaleMode = AutoScaleMode.Font;
-		ClientSize = new Size(800, 450);
+		ClientSize = new Size(800, 482);
+		Controls.Add(brandingLabel);
+		Controls.Add(richTextBoxFooter);
 		Controls.Add(showClearedCheckBox);
 		Controls.Add(printButton);
 		Controls.Add(refreshButton);
@@ -129,4 +154,6 @@ partial class PastOrdersForm
 	private Button refreshButton;
 	private Button printButton;
 	private CheckBox showClearedCheckBox;
+	private Label brandingLabel;
+	private RichTextBox richTextBoxFooter;
 }

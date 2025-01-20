@@ -1,4 +1,6 @@
-﻿namespace PrimeBakes.Forms;
+﻿using System.Reflection;
+
+namespace PrimeBakes.Forms;
 
 public partial class CategoryForm : Form
 {
@@ -13,6 +15,8 @@ public partial class CategoryForm : Form
 		categoryComboBox.ValueMember = nameof(CategoryModel.Id);
 
 		categoryComboBox.SelectedIndex = -1;
+
+		richTextBoxFooter.Text = $"Version: {Assembly.GetExecutingAssembly().GetName().Version}";
 	}
 
 	private void categoryComboBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -31,17 +35,26 @@ public partial class CategoryForm : Form
 		}
 	}
 
-	private bool ValidateForm() =>
-		!string.IsNullOrEmpty(codeTextBox.Text) &&
-		!string.IsNullOrEmpty(nameTextBox.Text);
+	private async Task<bool> ValidateForm()
+	{
+		if (string.IsNullOrEmpty(codeTextBox.Text) || string.IsNullOrEmpty(nameTextBox.Text))
+		{
+			MessageBox.Show("Please fill in all fields.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			return false;
+		}
+
+		if ((await CommonData.LoadTableDataByCode<CategoryModel>(Table.Category, codeTextBox.Text)) is not null)
+		{
+			MessageBox.Show("Code already Present.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			return false;
+		}
+
+		return true;
+	}
 
 	private async void saveButton_Click(object sender, EventArgs e)
 	{
-		if (!ValidateForm())
-		{
-			MessageBox.Show("Please fill in all fields.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-			return;
-		}
+		if (!await ValidateForm()) return;
 
 		CategoryModel category = new()
 		{

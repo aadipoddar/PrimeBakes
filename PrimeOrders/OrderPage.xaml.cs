@@ -35,7 +35,7 @@ public partial class OrderPage : ContentPage
 		_customerId = customer.Id;
 
 		categoryComboBox.ItemsSource = await CommonData.LoadTableData<CategoryModel>(Table.Category);
-		categoryComboBox.DisplayMemberPath = nameof(CategoryModel.Name);
+		categoryComboBox.DisplayMemberPath = nameof(CategoryModel.DisplayName);
 		categoryComboBox.SelectedValuePath = nameof(CategoryModel.Id);
 
 		_items.Clear();

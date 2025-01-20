@@ -31,6 +31,8 @@ public static class StoredProcedure
 	public static string LoadTableData => "Load_TableData";
 	public static string LoadTableDataById => "Load_TableData_By_Id";
 	public static string LoadTableDataByIdActive => "Load_TableData_By_Id_Active";
+	public static string LoadTableDataByCode => "Load_TableData_By_Code";
+	public static string LoadTableDataByCodeActive => "Load_TableData_By_Code_Active";
 	public static string LoadTableDataByStatus => "Load_TableData_By_Status";
 	public static string UpdateCategory => "Update_Category";
 	public static string UpdateCustomer => "Update_Customer";

@@ -37,6 +37,8 @@ partial class OrderForm
 		addButton = new Button();
 		categoryLabel = new Label();
 		categoryComboBox = new ComboBox();
+		brandingLabel = new Label();
+		richTextBoxFooter = new RichTextBox();
 		((System.ComponentModel.ISupportInitialize)itemsDataGridView).BeginInit();
 		SuspendLayout();
 		// 
@@ -142,12 +144,35 @@ partial class OrderForm
 		categoryComboBox.TabIndex = 2;
 		categoryComboBox.SelectedIndexChanged += categoryComboBox_SelectedIndexChanged;
 		// 
+		// brandingLabel
+		// 
+		brandingLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+		brandingLabel.AutoSize = true;
+		brandingLabel.BackColor = Color.White;
+		brandingLabel.Location = new Point(1053, 467);
+		brandingLabel.Name = "brandingLabel";
+		brandingLabel.Size = new Size(76, 15);
+		brandingLabel.TabIndex = 55;
+		brandingLabel.Text = "© AADISOFT";
+		// 
+		// richTextBoxFooter
+		// 
+		richTextBoxFooter.Dock = DockStyle.Bottom;
+		richTextBoxFooter.Location = new Point(0, 460);
+		richTextBoxFooter.Name = "richTextBoxFooter";
+		richTextBoxFooter.ScrollBars = RichTextBoxScrollBars.Horizontal;
+		richTextBoxFooter.Size = new Size(1129, 26);
+		richTextBoxFooter.TabIndex = 54;
+		richTextBoxFooter.Text = "Version 0.0.0.0";
+		// 
 		// OrderForm
 		// 
 		AcceptButton = addButton;
 		AutoScaleDimensions = new SizeF(7F, 15F);
 		AutoScaleMode = AutoScaleMode.Font;
-		ClientSize = new Size(1129, 450);
+		ClientSize = new Size(1129, 486);
+		Controls.Add(brandingLabel);
+		Controls.Add(richTextBoxFooter);
 		Controls.Add(categoryLabel);
 		Controls.Add(categoryComboBox);
 		Controls.Add(addButton);
@@ -177,4 +202,6 @@ partial class OrderForm
 	private Button addButton;
 	private Label categoryLabel;
 	private ComboBox categoryComboBox;
+	private Label brandingLabel;
+	private RichTextBox richTextBoxFooter;
 }
