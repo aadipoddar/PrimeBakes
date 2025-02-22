@@ -14,6 +14,10 @@ public partial class UserForm : Form
 		customerComboBox.DisplayMember = nameof(CustomerModel.DisplayName);
 		customerComboBox.ValueMember = nameof(CustomerModel.Id);
 
+		categoryComboBox.DataSource = await CommonData.LoadTableData<UserCategoryModel>(Table.UserCategory);
+		categoryComboBox.DisplayMember = nameof(UserCategoryModel.Name);
+		categoryComboBox.ValueMember = nameof(UserCategoryModel.Id);
+
 		userComboBox.DataSource = await CommonData.LoadTableData<UserModel>(Table.User);
 		userComboBox.DisplayMember = nameof(UserModel.DisplayName);
 		userComboBox.ValueMember = nameof(UserModel.Id);
@@ -31,6 +35,7 @@ public partial class UserForm : Form
 			codeTextBox.Text = selectedUser.Code;
 			passwordTextBox.Text = selectedUser.Password;
 			customerComboBox.SelectedValue = selectedUser.CustomerId;
+			categoryComboBox.SelectedValue = selectedUser.UserCategoryId;
 			statusCheckBox.Checked = selectedUser.Status;
 		}
 		else
@@ -39,6 +44,7 @@ public partial class UserForm : Form
 			codeTextBox.Clear();
 			passwordTextBox.Clear();
 			customerComboBox.SelectedIndex = 0;
+			categoryComboBox.SelectedIndex = 0;
 			statusCheckBox.Checked = true;
 		}
 	}
@@ -53,7 +59,7 @@ public partial class UserForm : Form
 			return false;
 		}
 
-		if ((await CommonData.LoadTableDataByCode<UserModel>(Table.User, codeTextBox.Text)) is not null)
+		if (userComboBox.SelectedIndex == -1 && (await CommonData.LoadTableDataByCode<UserModel>(Table.User, codeTextBox.Text)) is not null)
 		{
 			MessageBox.Show("Code already Present.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			return false;
@@ -72,6 +78,7 @@ public partial class UserForm : Form
 			Code = codeTextBox.Text,
 			Password = passwordTextBox.Text,
 			CustomerId = (customerComboBox.SelectedItem as CustomerModel).Id,
+			UserCategoryId = (categoryComboBox.SelectedItem as UserCategoryModel).Id,
 			Status = statusCheckBox.Checked
 		};
 

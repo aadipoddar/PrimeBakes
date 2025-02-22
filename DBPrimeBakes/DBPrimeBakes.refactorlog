@@ -14,4 +14,46 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="[FK_User_ToCustomer]" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="96a63fc3-3c4e-45eb-9235-06b4d74540d9" ChangeDateTime="02/22/2025 06:50:17">
+    <Property Name="ElementName" Value="[dbo].[Category]" />
+    <Property Name="ElementType" Value="SqlTable" />
+    <Property Name="ParentElementName" Value="[dbo]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="[ItemCategory]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="5a8187d3-4da8-470a-acab-d8ea80c544fe" ChangeDateTime="02/22/2025 06:51:54">
+    <Property Name="ElementName" Value="[dbo].[User].[User]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[User]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="UserCategoryId" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="a88f4eda-d48f-4cc7-bf44-897734f83be7" ChangeDateTime="02/22/2025 06:53:19">
+    <Property Name="ElementName" Value="[dbo].[FK_User_To]" />
+    <Property Name="ElementType" Value="SqlForeignKeyConstraint" />
+    <Property Name="ParentElementName" Value="[dbo].[User]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[FK_User_ToUserCategory]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="f81f089b-0f74-4bda-88ce-d9e079fc6bba" ChangeDateTime="02/22/2025 06:56:06">
+    <Property Name="ElementName" Value="[dbo].[Item].[CategoryId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Item]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[ItemCategoryId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="df67f204-5801-4b2f-8915-f06130413831" ChangeDateTime="02/22/2025 07:01:40">
+    <Property Name="ElementName" Value="[dbo].[Insert_Category]" />
+    <Property Name="ElementType" Value="SqlProcedure" />
+    <Property Name="ParentElementName" Value="[dbo]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="Insert_ItemCategory" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="ae647c4a-a860-4465-9056-773ad3bf41bf" ChangeDateTime="02/22/2025 07:02:05">
+    <Property Name="ElementName" Value="[dbo].[Update_Category]" />
+    <Property Name="ElementType" Value="SqlProcedure" />
+    <Property Name="ParentElementName" Value="[dbo]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="Update_ItemCategory" />
+  </Operation>
 </Operations>

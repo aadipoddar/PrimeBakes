@@ -41,6 +41,8 @@
 			codeTextBox = new TextBox();
 			brandingLabel = new Label();
 			richTextBoxFooter = new RichTextBox();
+			categoryComboBox = new ComboBox();
+			categoryLabel = new Label();
 			SuspendLayout();
 			// 
 			// userComboBox
@@ -60,7 +62,7 @@
 			// saveButton
 			// 
 			saveButton.Font = new Font("Segoe UI", 15F);
-			saveButton.Location = new Point(142, 252);
+			saveButton.Location = new Point(140, 283);
 			saveButton.Name = "saveButton";
 			saveButton.Size = new Size(118, 38);
 			saveButton.TabIndex = 6;
@@ -113,7 +115,7 @@
 			// 
 			statusCheckBox.AutoSize = true;
 			statusCheckBox.Font = new Font("Segoe UI", 15F);
-			statusCheckBox.Location = new Point(29, 256);
+			statusCheckBox.Location = new Point(27, 287);
 			statusCheckBox.Name = "statusCheckBox";
 			statusCheckBox.Size = new Size(84, 32);
 			statusCheckBox.TabIndex = 5;
@@ -169,7 +171,7 @@
 			brandingLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
 			brandingLabel.AutoSize = true;
 			brandingLabel.BackColor = Color.White;
-			brandingLabel.Location = new Point(336, 329);
+			brandingLabel.Location = new Point(336, 358);
 			brandingLabel.Name = "brandingLabel";
 			brandingLabel.Size = new Size(76, 15);
 			brandingLabel.TabIndex = 40;
@@ -178,19 +180,44 @@
 			// richTextBoxFooter
 			// 
 			richTextBoxFooter.Dock = DockStyle.Bottom;
-			richTextBoxFooter.Location = new Point(0, 323);
+			richTextBoxFooter.Location = new Point(0, 352);
 			richTextBoxFooter.Name = "richTextBoxFooter";
 			richTextBoxFooter.ScrollBars = RichTextBoxScrollBars.Horizontal;
 			richTextBoxFooter.Size = new Size(416, 26);
 			richTextBoxFooter.TabIndex = 39;
-			richTextBoxFooter.Text = "Version 0.0.0.0";
+			richTextBoxFooter.Text = "";
+			// 
+			// categoryComboBox
+			// 
+			categoryComboBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+			categoryComboBox.AutoCompleteSource = AutoCompleteSource.ListItems;
+			categoryComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+			categoryComboBox.FlatStyle = FlatStyle.System;
+			categoryComboBox.Font = new Font("Segoe UI", 15F);
+			categoryComboBox.FormattingEnabled = true;
+			categoryComboBox.Location = new Point(127, 231);
+			categoryComboBox.Name = "categoryComboBox";
+			categoryComboBox.Size = new Size(271, 36);
+			categoryComboBox.TabIndex = 41;
+			// 
+			// categoryLabel
+			// 
+			categoryLabel.AutoSize = true;
+			categoryLabel.Font = new Font("Segoe UI", 15F);
+			categoryLabel.Location = new Point(19, 234);
+			categoryLabel.Name = "categoryLabel";
+			categoryLabel.Size = new Size(92, 28);
+			categoryLabel.TabIndex = 42;
+			categoryLabel.Text = "Category";
 			// 
 			// UserForm
 			// 
 			AcceptButton = saveButton;
 			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
-			ClientSize = new Size(416, 349);
+			ClientSize = new Size(416, 378);
+			Controls.Add(categoryComboBox);
+			Controls.Add(categoryLabel);
 			Controls.Add(brandingLabel);
 			Controls.Add(richTextBoxFooter);
 			Controls.Add(codeLabel);
@@ -226,5 +253,7 @@
 		private TextBox codeTextBox;
 		private Label brandingLabel;
 		private RichTextBox richTextBoxFooter;
+		private ComboBox categoryComboBox;
+		private Label categoryLabel;
 	}
 }

@@ -1,6 +1,6 @@
 ﻿namespace PrimeBakes.Forms;
 
-partial class CategoryForm
+partial class ItemCategoryForm
 {
 	/// <summary>
 	/// Required designer variable.
@@ -135,9 +135,9 @@ partial class CategoryForm
 		richTextBoxFooter.ScrollBars = RichTextBoxScrollBars.Horizontal;
 		richTextBoxFooter.Size = new Size(410, 26);
 		richTextBoxFooter.TabIndex = 52;
-		richTextBoxFooter.Text = "Version 0.0.0.0";
+		richTextBoxFooter.Text = "";
 		// 
-		// CategoryForm
+		// ItemCategoryForm
 		// 
 		AcceptButton = saveButton;
 		AutoScaleDimensions = new SizeF(7F, 15F);
@@ -152,10 +152,10 @@ partial class CategoryForm
 		Controls.Add(codeTextBox);
 		Controls.Add(nameLabel);
 		Controls.Add(nameTextBox);
-		Name = "CategoryForm";
+		Name = "ItemCategoryForm";
 		StartPosition = FormStartPosition.CenterScreen;
-		Text = "Catgeory";
-		Load += CatgeoryForm_Load;
+		Text = "Item Catgeory";
+		Load += ItemCatgeoryForm_Load;
 		ResumeLayout(false);
 		PerformLayout();
 	}

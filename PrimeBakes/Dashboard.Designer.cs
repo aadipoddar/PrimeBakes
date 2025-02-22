@@ -34,9 +34,10 @@ partial class Dashboard
 		orderButton = new Button();
 		pastOrdersButton = new Button();
 		viewUpdateOrderButton = new Button();
-		categoryButton = new Button();
+		itemCategoryButton = new Button();
 		richTextBoxFooter = new RichTextBox();
 		brandingLabel = new Label();
+		userCategoryButton = new Button();
 		SuspendLayout();
 		// 
 		// userButton
@@ -105,47 +106,59 @@ partial class Dashboard
 		viewUpdateOrderButton.UseVisualStyleBackColor = true;
 		viewUpdateOrderButton.Click += viewUpdateOrderButton_Click;
 		// 
-		// categoryButton
+		// itemCategoryButton
 		// 
-		categoryButton.Font = new Font("Segoe UI", 15F);
-		categoryButton.Location = new Point(12, 420);
-		categoryButton.Name = "categoryButton";
-		categoryButton.Size = new Size(253, 62);
-		categoryButton.TabIndex = 7;
-		categoryButton.Text = "Category";
-		categoryButton.UseVisualStyleBackColor = true;
-		categoryButton.Click += categoryButton_Click;
+		itemCategoryButton.Font = new Font("Segoe UI", 15F);
+		itemCategoryButton.Location = new Point(12, 420);
+		itemCategoryButton.Name = "itemCategoryButton";
+		itemCategoryButton.Size = new Size(253, 62);
+		itemCategoryButton.TabIndex = 7;
+		itemCategoryButton.Text = "Item Category";
+		itemCategoryButton.UseVisualStyleBackColor = true;
+		itemCategoryButton.Click += itemCategoryButton_Click;
 		// 
 		// richTextBoxFooter
 		// 
 		richTextBoxFooter.Dock = DockStyle.Bottom;
-		richTextBoxFooter.Location = new Point(0, 500);
+		richTextBoxFooter.Location = new Point(0, 570);
 		richTextBoxFooter.Name = "richTextBoxFooter";
 		richTextBoxFooter.ScrollBars = RichTextBoxScrollBars.Horizontal;
 		richTextBoxFooter.Size = new Size(277, 26);
 		richTextBoxFooter.TabIndex = 29;
-		richTextBoxFooter.Text = "Version 0.0.0.0";
+		richTextBoxFooter.Text = "";
 		// 
 		// brandingLabel
 		// 
 		brandingLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
 		brandingLabel.AutoSize = true;
 		brandingLabel.BackColor = Color.White;
-		brandingLabel.Location = new Point(197, 506);
+		brandingLabel.Location = new Point(197, 576);
 		brandingLabel.Name = "brandingLabel";
 		brandingLabel.Size = new Size(76, 15);
 		brandingLabel.TabIndex = 30;
 		brandingLabel.Text = "© AADISOFT";
+		// 
+		// userCategoryButton
+		// 
+		userCategoryButton.Font = new Font("Segoe UI", 15F);
+		userCategoryButton.Location = new Point(12, 488);
+		userCategoryButton.Name = "userCategoryButton";
+		userCategoryButton.Size = new Size(253, 62);
+		userCategoryButton.TabIndex = 31;
+		userCategoryButton.Text = "User Category";
+		userCategoryButton.UseVisualStyleBackColor = true;
+		userCategoryButton.Click += userCategoryButton_Click;
 		// 
 		// Dashboard
 		// 
 		AcceptButton = orderButton;
 		AutoScaleDimensions = new SizeF(7F, 15F);
 		AutoScaleMode = AutoScaleMode.Font;
-		ClientSize = new Size(277, 526);
+		ClientSize = new Size(277, 596);
+		Controls.Add(userCategoryButton);
 		Controls.Add(brandingLabel);
 		Controls.Add(richTextBoxFooter);
-		Controls.Add(categoryButton);
+		Controls.Add(itemCategoryButton);
 		Controls.Add(viewUpdateOrderButton);
 		Controls.Add(pastOrdersButton);
 		Controls.Add(orderButton);
@@ -168,7 +181,8 @@ partial class Dashboard
 	private Button orderButton;
 	private Button pastOrdersButton;
 	private Button viewUpdateOrderButton;
-	private Button categoryButton;
+	private Button itemCategoryButton;
 	private RichTextBox richTextBoxFooter;
 	private Label brandingLabel;
+	private Button userCategoryButton;
 }

@@ -10,6 +10,7 @@ public static class UserData
 				user.Code,
 				user.Password,
 				user.CustomerId,
+				user.UserCategoryId,
 				user.Status
 			});
 
@@ -21,6 +22,7 @@ public static class UserData
 				user.Code,
 				user.Password,
 				user.CustomerId,
+				user.UserCategoryId,
 				user.Status
 			});
 }

@@ -34,20 +34,21 @@ public partial class OrderPage : ContentPage
 		customerNameLabel.Text = customer.Name;
 		_customerId = customer.Id;
 
-		categoryComboBox.ItemsSource = await CommonData.LoadTableData<CategoryModel>(Table.Category);
-		categoryComboBox.DisplayMemberPath = nameof(CategoryModel.DisplayName);
-		categoryComboBox.SelectedValuePath = nameof(CategoryModel.Id);
+		categoryComboBox.ItemsSource = await CommonData.LoadTableData<ItemCategoryModel>(Table.ItemCategory);
+		categoryComboBox.DisplayMemberPath = nameof(ItemCategoryModel.DisplayName);
+		categoryComboBox.SelectedValuePath = nameof(ItemCategoryModel.Id);
 
 		_items.Clear();
 	}
 
 	private async Task LoadItemsData()
 	{
-		if (categoryComboBox.SelectedItem is CategoryModel selectedCategory)
+		if (categoryComboBox.SelectedItem is ItemCategoryModel selectedCategory)
 		{
 			_items.Clear();
 
-			var items = await ItemData.LoadItemByCategory(selectedCategory.Id);
+			var user = await CommonData.LoadTableDataById<UserModel>(Table.User, _userId);
+			var items = await ItemData.LoadItemByCategory(selectedCategory.Id, user.UserCategoryId);
 
 			foreach (var item in items)
 			{

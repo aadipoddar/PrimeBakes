@@ -2,17 +2,17 @@
 
 namespace PrimeBakes.Forms;
 
-public partial class CategoryForm : Form
+public partial class ItemCategoryForm : Form
 {
-	public CategoryForm() => InitializeComponent();
+	public ItemCategoryForm() => InitializeComponent();
 
-	private async void CatgeoryForm_Load(object sender, EventArgs e) => await LoadData();
+	private async void ItemCatgeoryForm_Load(object sender, EventArgs e) => await LoadData();
 
 	private async Task LoadData()
 	{
-		categoryComboBox.DataSource = await CommonData.LoadTableData<CategoryModel>(Table.Category);
-		categoryComboBox.DisplayMember = nameof(CategoryModel.DisplayName);
-		categoryComboBox.ValueMember = nameof(CategoryModel.Id);
+		categoryComboBox.DataSource = await CommonData.LoadTableData<ItemCategoryModel>(Table.ItemCategory);
+		categoryComboBox.DisplayMember = nameof(ItemCategoryModel.DisplayName);
+		categoryComboBox.ValueMember = nameof(ItemCategoryModel.Id);
 
 		categoryComboBox.SelectedIndex = -1;
 
@@ -21,7 +21,7 @@ public partial class CategoryForm : Form
 
 	private void categoryComboBox_SelectedIndexChanged(object sender, EventArgs e)
 	{
-		if (categoryComboBox?.SelectedItem is CategoryModel selectedCategory)
+		if (categoryComboBox?.SelectedItem is ItemCategoryModel selectedCategory)
 		{
 			codeTextBox.Text = selectedCategory.Code;
 			nameTextBox.Text = selectedCategory.Name;
@@ -43,7 +43,7 @@ public partial class CategoryForm : Form
 			return false;
 		}
 
-		if ((await CommonData.LoadTableDataByCode<CategoryModel>(Table.Category, codeTextBox.Text)) is not null)
+		if (categoryComboBox.SelectedIndex == -1 && (await CommonData.LoadTableDataByCode<ItemCategoryModel>(Table.ItemCategory, codeTextBox.Text)) is not null)
 		{
 			MessageBox.Show("Code already Present.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			return false;
@@ -56,18 +56,18 @@ public partial class CategoryForm : Form
 	{
 		if (!await ValidateForm()) return;
 
-		CategoryModel category = new()
+		ItemCategoryModel category = new()
 		{
 			Code = codeTextBox.Text,
 			Name = nameTextBox.Text,
 			Status = statusCheckBox.Checked
 		};
 
-		if (categoryComboBox.SelectedIndex == -1) await CategoryData.InsertCategory(category);
+		if (categoryComboBox.SelectedIndex == -1) await ItemCategoryData.InsertItemCategory(category);
 		else
 		{
-			category.Id = (categoryComboBox.SelectedItem as CategoryModel).Id;
-			await CategoryData.UpdateCategory(category);
+			category.Id = (categoryComboBox.SelectedItem as ItemCategoryModel).Id;
+			await ItemCategoryData.UpdateItemCategory(category);
 		}
 
 		await LoadData();

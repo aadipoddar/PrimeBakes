@@ -47,7 +47,7 @@ public partial class CustomerForm : Form
 			return false;
 		}
 
-		if ((await CommonData.LoadTableDataByCode<CustomerModel>(Table.Customer, codeTextBox.Text)) is not null)
+		if (customerComboBox.SelectedIndex == -1 && (await CommonData.LoadTableDataByCode<CustomerModel>(Table.Customer, codeTextBox.Text)) is not null)
 		{
 			MessageBox.Show("Code already Present.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			return false;

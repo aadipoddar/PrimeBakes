@@ -32,13 +32,15 @@ public partial class ValidateUserForm : Form
 		{
 			MessageBox.Show("Enter Correct User Id and Password", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-			userCodeTextBox.Text = string.Empty;
-			passwordTextBox.Text = string.Empty;
+			userCodeTextBox.Clear();
+			passwordTextBox.Clear();
+			userCodeTextBox.Focus();
+
 			return;
 		}
 
-		userCodeTextBox.Text = string.Empty;
-		passwordTextBox.Text = string.Empty;
+		userCodeTextBox.Clear();
+		passwordTextBox.Clear();
 
 		OrderForm orderForm = new(_userId);
 		orderForm.ShowDialog();

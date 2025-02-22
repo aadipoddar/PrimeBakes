@@ -4,6 +4,7 @@
 	@Code VARCHAR(100),
     @Password VARCHAR(100),
 	@CustomerId INT,
+	@UserCategoryId INT,
     @Status BIT
 AS
 BEGIN
@@ -13,6 +14,7 @@ BEGIN
 		@Code,
         @Password,
 		@CustomerId,
+		@UserCategoryId,
 		@Status
     );
 

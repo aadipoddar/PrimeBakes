@@ -1,15 +1,13 @@
-﻿CREATE PROCEDURE Update_Item
+﻿CREATE PROCEDURE Update_ItemCategory
 	@Id INT,
-	@CategoryId INT,
     @Code VARCHAR(100),
 	@Name VARCHAR(100),
     @Status BIT
 AS
 BEGIN
 
-    UPDATE Item
+    UPDATE [ItemCategory]
     SET
-		CategoryId = @CategoryId,
         Code = @Code,
         Name = @Name,
 		Status = @Status

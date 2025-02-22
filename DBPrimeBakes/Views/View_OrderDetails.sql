@@ -11,4 +11,4 @@
 		odt.Quantity
 	FROM OrderDetail odt
 	JOIN Item it ON odt.ItemId = it.Id
-	JOIN Category ct ON it.CategoryId = ct.Id
+	JOIN [ItemCategory] ct ON it.[ItemCategoryId] = ct.Id

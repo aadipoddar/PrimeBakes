@@ -33,9 +33,9 @@ public partial class UpdateOrderForm : Form
 		Text = $"Update Order - {customer.DisplayName}";
 		_customerId = customer.Id;
 
-		categoryComboBox.DataSource = await CommonData.LoadTableData<CategoryModel>(Table.Category);
-		categoryComboBox.DisplayMember = nameof(CategoryModel.DisplayName);
-		categoryComboBox.ValueMember = nameof(CategoryModel.Id);
+		categoryComboBox.DataSource = await CommonData.LoadTableData<ItemCategoryModel>(Table.ItemCategory);
+		categoryComboBox.DisplayMember = nameof(ItemCategoryModel.DisplayName);
+		categoryComboBox.ValueMember = nameof(ItemCategoryModel.Id);
 
 		await LoadItemsData();
 
@@ -49,7 +49,8 @@ public partial class UpdateOrderForm : Form
 
 	private async Task LoadItemsData()
 	{
-		itemComboBox.DataSource = await ItemData.LoadItemByCategory((categoryComboBox.SelectedItem as CategoryModel).Id);
+		var user = await CommonData.LoadTableDataById<UserModel>(Table.User, _userId);
+		itemComboBox.DataSource = await ItemData.LoadItemByCategory((categoryComboBox.SelectedItem as ItemCategoryModel).Id, user.UserCategoryId);
 		itemComboBox.DisplayMember = nameof(ItemModel.DisplayName);
 		itemComboBox.ValueMember = nameof(ItemModel.Id);
 	}
@@ -78,7 +79,7 @@ public partial class UpdateOrderForm : Form
 	{
 		if (int.Parse(quantityTextBox.Text) == 0) quantityTextBox.Text = "1";
 
-		if (itemComboBox.SelectedItem is ItemModel selectedItem && categoryComboBox.SelectedItem is CategoryModel selectedCategory)
+		if (itemComboBox.SelectedItem is ItemModel selectedItem && categoryComboBox.SelectedItem is ItemCategoryModel selectedCategory)
 		{
 			int quantity = int.TryParse(quantityTextBox.Text, out int result) ? result : 1;
 

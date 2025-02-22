@@ -7,6 +7,7 @@ public class UserModel
 	public string Code { get; set; }
 	public string Password { get; set; }
 	public int CustomerId { get; set; }
+	public int UserCategoryId { get; set; }
 	public bool Status { get; set; }
 
 	public string DisplayName => $"{Name} ({Code})";

@@ -4,8 +4,10 @@
     [Code] VARCHAR(100) NOT NULL, 
     [Password] VARCHAR (100) NOT NULL,
     [CustomerId] INT NOT NULL, 
+    [UserCategoryId] INT NOT NULL, 
     [Status]   BIT           DEFAULT ((1)) NOT NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC), 
-    CONSTRAINT [FK_User_ToCustomer] FOREIGN KEY (CustomerId) REFERENCES [Customer]([Id])
+    CONSTRAINT [FK_User_ToCustomer] FOREIGN KEY (CustomerId) REFERENCES [Customer]([Id]), 
+    CONSTRAINT [FK_User_ToUserCategory] FOREIGN KEY (UserCategoryId) REFERENCES UserCategory(Id)
 );
 

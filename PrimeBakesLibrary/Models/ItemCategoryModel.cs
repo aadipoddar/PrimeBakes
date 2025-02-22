@@ -1,6 +1,6 @@
 ﻿namespace PrimeBakesLibrary.Models;
 
-public class CategoryModel
+public class ItemCategoryModel
 {
 	public int Id { get; set; }
 	public string Code { get; set; }

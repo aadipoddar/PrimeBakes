@@ -61,25 +61,13 @@
     <Folder Include="PublishLocations" />
     <Folder Include="Compares" />
     <Folder Include="Views" />
+    <Folder Include="Stored Procedures\Orders" />
+    <Folder Include="Stored Procedures\LoadData" />
+    <Folder Include="Stored Procedures\Insert" />
+    <Folder Include="Stored Procedures\Update" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="Stored Procedures\Delete_OrderDetails.sql" />
-    <Build Include="Stored Procedures\Insert_Category.sql" />
-    <Build Include="Stored Procedures\Insert_Customer.sql" />
-    <Build Include="Stored Procedures\Insert_Item.sql" />
-    <Build Include="Stored Procedures\Insert_Order.sql" />
-    <Build Include="Stored Procedures\Insert_OrderDetail.sql" />
-    <Build Include="Stored Procedures\Insert_User.sql" />
-    <Build Include="Stored Procedures\Load_Orders_By_Date_Status.sql" />
-    <Build Include="Stored Procedures\Load_TableData.sql" />
-    <Build Include="Stored Procedures\Load_TableData_By_Id.sql" />
-    <Build Include="Stored Procedures\Load_TableData_By_Status.sql" />
-    <Build Include="Stored Procedures\Update_Category.sql" />
-    <Build Include="Stored Procedures\Update_Customer.sql" />
-    <Build Include="Stored Procedures\Update_Item.sql" />
-    <Build Include="Stored Procedures\Update_Order.sql" />
-    <Build Include="Stored Procedures\Update_User.sql" />
-    <Build Include="Tables\Category.sql" />
+    <Build Include="Tables\ItemCategory.sql" />
     <Build Include="Tables\Customer.sql" />
     <Build Include="Tables\Item.sql" />
     <Build Include="Tables\Order.sql" />
@@ -87,21 +75,40 @@
     <Build Include="Tables\User.sql" />
     <Build Include="Views\View_OrderDetails.sql" />
     <Build Include="Views\View_Orders.sql" />
-    <Build Include="Stored Procedures\Load_ActiveItems_By_Category.sql" />
-    <Build Include="Stored Procedures\Load_TableData_By_Id_Active.sql" />
-    <Build Include="Stored Procedures\Load_OrderDetails_By_OrderId.sql" />
-    <Build Include="Stored Procedures\Load_TableData_By_Code_Active.sql" />
-    <Build Include="Stored Procedures\Load_TableData_By_Code.sql" />
+    <Build Include="Tables\UserCategory.sql" />
+    <Build Include="Stored Procedures\Orders\Delete_OrderDetails.sql" />
+    <Build Include="Stored Procedures\Orders\Insert_Order.sql" />
+    <Build Include="Stored Procedures\Orders\Insert_OrderDetail.sql" />
+    <Build Include="Stored Procedures\Orders\Load_OrderDetails_By_OrderId.sql" />
+    <Build Include="Stored Procedures\Orders\Load_Orders_By_Date_Status.sql" />
+    <Build Include="Stored Procedures\Orders\Update_Order.sql" />
+    <Build Include="Stored Procedures\LoadData\Load_TableData.sql" />
+    <Build Include="Stored Procedures\LoadData\Load_TableData_By_Code.sql" />
+    <Build Include="Stored Procedures\LoadData\Load_TableData_By_Code_Active.sql" />
+    <Build Include="Stored Procedures\LoadData\Load_TableData_By_Id.sql" />
+    <Build Include="Stored Procedures\LoadData\Load_TableData_By_Id_Active.sql" />
+    <Build Include="Stored Procedures\LoadData\Load_TableData_By_Status.sql" />
+    <Build Include="Stored Procedures\LoadData\Load_ActiveItems_By_Category.sql" />
+    <Build Include="Stored Procedures\Insert\Insert_Customer.sql" />
+    <Build Include="Stored Procedures\Insert\Insert_Item.sql" />
+    <Build Include="Stored Procedures\Insert\Insert_ItemCategory.sql" />
+    <Build Include="Stored Procedures\Update\Update_Customer.sql" />
+    <Build Include="Stored Procedures\Update\Update_Item.sql" />
+    <Build Include="Stored Procedures\Update\Update_ItemCategory.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="PublishLocations\AzurePrimeBakes.publish.xml" />
-    <None Include="Compares\AzureCompare.scmp" />
     <None Include="Compares\AzureToLocalDBCompare.scmp" />
     <None Include="Compares\AzureToLocalDBDataCompare.dcmp" />
-    <None Include="Compares\LocalDBToAzureDataCompare.dcmp" />
     <None Include="PublishLocations\LocalPrimeBakes.publish.xml" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="DBPrimeBakes.refactorlog" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="Stored Procedures\Insert\Insert_User.sql" />
+    <Build Include="Stored Procedures\Insert\Insert_UserCategory.sql" />
+    <Build Include="Stored Procedures\Update\Update_User.sql" />
+    <Build Include="Stored Procedures\Update\Update_UserCategory.sql" />
   </ItemGroup>
 </Project>

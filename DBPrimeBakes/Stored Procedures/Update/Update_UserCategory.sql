@@ -1,4 +1,4 @@
-﻿CREATE PROCEDURE Update_Category
+﻿CREATE PROCEDURE Update_UserCategory
 	@Id INT,
     @Code VARCHAR(100),
 	@Name VARCHAR(100),
@@ -6,7 +6,7 @@
 AS
 BEGIN
 
-    UPDATE Category
+    UPDATE [UserCategory]
     SET
         Code = @Code,
         Name = @Name,

@@ -1,4 +1,4 @@
-﻿CREATE PROCEDURE Insert_Category
+﻿CREATE PROCEDURE Insert_UserCategory
 	@Id INT,
     @Code VARCHAR(100),
 	@Name VARCHAR(100),
@@ -6,7 +6,7 @@
 AS
 BEGIN
 
-	INSERT INTO Category
+	INSERT INTO UserCategory
 	VALUES (
 		@Code,
         @Name,

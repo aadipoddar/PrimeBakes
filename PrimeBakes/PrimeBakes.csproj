@@ -7,7 +7,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <StartupObject>PrimeBakes.Program</StartupObject>
-    <AssemblyVersion>1.0.1.5</AssemblyVersion>
+    <AssemblyVersion>1.0.1.6</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -34,6 +34,9 @@
 
   <ItemGroup>
     <Compile Update="Forms\Orders\UpdateOrderForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\UserCategoryForm.cs">
       <SubType>Form</SubType>
     </Compile>
   </ItemGroup>
