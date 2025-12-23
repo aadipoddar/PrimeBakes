@@ -8,168 +8,171 @@
 
 @if (_isLoading)
 {
-	<SfSpinner @bind-Visible="_isLoading" Label="Page is Loading, Please Wait" />
+    <SfSpinner @bind-Visible="_isLoading" Label="Page is Loading, Please Wait" />
 }
 else
 {
-	<Header Title="Location Management" Subtitle="Manage outlet locations and their configurations"
-		ShowHome="true" ShowBack="true"
-		OnHomeClick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))"
-		OnBackClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard))">
-		<RightContent>
-			<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
-			<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
-			<IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Location (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveLocation" />
-			<IconButton Icon="IconType.New" Title="New Location (Ctrl + N)" Disabled="_isProcessing" OnClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminLocation, true))" />
-		</RightContent>
-	</Header>
+    <div style="display: flex; flex-direction: column; min-height: 100vh;">
+        <Header Title="Location Management" Subtitle="Manage outlet locations and their configurations"
+                ShowHome="true" ShowBack="true"
+                OnHomeClick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))"
+                OnBackClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard))">
+            <RightContent>
+                <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
+                <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
+                <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Location (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveLocation" />
+                <IconButton Icon="IconType.New" Title="New Location (Ctrl + N)" Disabled="_isProcessing" OnClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminLocation, true))" />
+            </RightContent>
+        </Header>
 
-	<!-- Main Content Container -->
-	<div class="purchase-container">
+        <!-- Main Content Container -->
+        <div class="purchase-container">
 
-		<!-- Location Entry Section -->
-		<div class="section-card">
-			<div class="section-header">
-				<div class="section-title-wrapper">
-					<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-						fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-						<circle cx="12" cy="10" r="3" />
-					</svg>
-					<h2 class="section-title">Location Details</h2>
-				</div>
-			</div>
-			<div class="section-body">
-				<div class="form-grid-triple">
-					<!-- Location Name -->
-					<div class="form-field">
-						<label class="field-label">
-							Location Name <span class="required">*</span>
-						</label>
-						<SfTextBox @bind-Value="_location.Name" Placeholder="Enter location name"
-							FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-					</div>
+            <!-- Location Entry Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                            <circle cx="12" cy="10" r="3" />
+                        </svg>
+                        <h2 class="section-title">Location Details</h2>
+                    </div>
+                </div>
+                <div class="section-body">
+                    <div class="form-grid-triple">
+                        <!-- Location Name -->
+                        <div class="form-field">
+                            <label class="field-label">
+                                Location Name <span class="required">*</span>
+                            </label>
+                            <SfTextBox @bind-Value="_location.Name" Placeholder="Enter location name"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
 
-					<!-- Prefix Code -->
-					<div class="form-field">
-						<label class="field-label">
-							Prefix Code <span class="required">*</span>
-						</label>
-						<SfTextBox @bind-Value="_location.PrefixCode" Placeholder="Enter prefix code"
-							FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-					</div>
+                        <!-- Prefix Code -->
+                        <div class="form-field">
+                            <label class="field-label">
+                                Prefix Code <span class="required">*</span>
+                            </label>
+                            <SfTextBox @bind-Value="_location.PrefixCode" Placeholder="Enter prefix code"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
 
-					<!-- Discount -->
-					<div class="form-field">
-						<label class="field-label">
-							Discount (%)
-						</label>
-						<SfNumericTextBox TValue="decimal" @bind-Value="_location.Discount"
-							Placeholder="Enter discount percentage" FloatLabelType="FloatLabelType.Never"
-							CssClass="custom-textbox" Format="N2" Min="0" Max="100" Step="0.01m" />
-					</div>
+                        <!-- Discount -->
+                        <div class="form-field">
+                            <label class="field-label">
+                                Discount (%)
+                            </label>
+                            <SfNumericTextBox TValue="decimal" @bind-Value="_location.Discount"
+                                              Placeholder="Enter discount percentage" FloatLabelType="FloatLabelType.Never"
+                                              CssClass="custom-textbox" Format="N2" Min="0" Max="100" Step="0.01m" />
+                        </div>
 
-					<!-- Copy Products From Location -->
-					<div class="form-field">
-						<label class="field-label">
-							Copy Products From Location
-						</label>
-						<SfAutoComplete @bind-Value="_copyLocation" TValue="LocationModel" TItem="LocationModel"
-							DataSource="@_locations" Placeholder="Select location to copy products (optional)"
-							FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
-							FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
-							<AutoCompleteFieldSettings Value="Name" />
-						</SfAutoComplete>
-					</div>
+                        <!-- Copy Products From Location -->
+                        <div class="form-field">
+                            <label class="field-label">
+                                Copy Products From Location
+                            </label>
+                            <SfAutoComplete @bind-Value="_copyLocation" TValue="LocationModel" TItem="LocationModel"
+                                            DataSource="@_locations" Placeholder="Select location to copy products (optional)"
+                                            FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
+                                            FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
+                                <AutoCompleteFieldSettings Value="Name" />
+                            </SfAutoComplete>
+                        </div>
 
-					<!-- Remarks (Spanning 2 columns) -->
-					<div class="form-field form-field-span-2">
-						<label class="field-label">
-							Remarks
-						</label>
-						<SfTextBox @bind-Value="_location.Remarks" Placeholder="Enter remarks (optional)"
-							FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" Multiline="true" />
-					</div>
-				</div>
-			</div>
-		</div>
+                        <!-- Remarks (Spanning 2 columns) -->
+                        <div class="form-field form-field-span-2">
+                            <label class="field-label">
+                                Remarks
+                            </label>
+                            <SfTextBox @bind-Value="_location.Remarks" Placeholder="Enter remarks (optional)"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" Multiline="true" />
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-		<!-- Locations Data Grid Section -->
-		<div class="section-card">
-			<div class="section-header">
-				<div class="section-title-wrapper">
-					<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-						fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-						<polyline points="9 22 9 12 15 12 15 22" />
-					</svg>
-					<h2 class="section-title">Locations List</h2>
-				</div>
-				<div class="header-actions">
-					<ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted" OnToggle="ToggleDeleted" />
-				</div>
-			</div>
-			<div class="section-body grid-body">
-				<SfGrid @ref="_sfGrid" DataSource="@_locations" AllowPaging="true" AllowSorting="true" AllowFiltering="true"
-					AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
-					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
-					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
-					<GridColumns>
-						<GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center" AllowFiltering="false">
-							<Template>
-								@{
-									var location = (context as LocationModel);
+            <!-- Locations Data Grid Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                            <polyline points="9 22 9 12 15 12 15 22" />
+                        </svg>
+                        <h2 class="section-title">Locations List</h2>
+                    </div>
+                    <div class="header-actions">
+                        <ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted" OnToggle="ToggleDeleted" />
+                    </div>
+                </div>
+                <div class="section-body grid-body">
+                    <SfGrid @ref="_sfGrid" DataSource="@_locations" AllowPaging="true" AllowSorting="true" AllowFiltering="true"
+                            AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
+                        <GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+                        <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+                        <GridColumns>
+                            <GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center" AllowFiltering="false">
+                                <Template>
+                                    @{
+                                        var location = (context as LocationModel);
 
-									<div class="grid-actions">
-										@if (location.Status)
-										{
-											<IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid" Title="Edit (Insert)" OnClick="@(() => OnEditLocation(location))" />
-											<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete (Delete)" OnClick="@(() => ShowDeleteConfirmation(location.Id, location.Name))" />
-										}
-										else
-										{
-											<IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover" Size="ButtonSize.Grid" Title="Recover (Delete)" OnClick="@(() => ShowRecoverConfirmation(location.Id, location.Name))" />
-										}
-									</div>
-								}
-							</Template>
-						</GridColumn>
-						<GridColumn Field="@nameof(LocationModel.Id)" HeaderText="ID" Width="80"
-							TextAlign="TextAlign.Center" />
-						<GridColumn Field="@nameof(LocationModel.Name)" HeaderText="Location Name" Width="200" />
-						<GridColumn Field="@nameof(LocationModel.PrefixCode)" HeaderText="Prefix Code" Width="150"
-							TextAlign="TextAlign.Center" />
-						<GridColumn Field="@nameof(LocationModel.Discount)" HeaderText="Discount (%)" Width="120"
-							Format="N2" TextAlign="TextAlign.Right" />
-						<GridColumn Field="@nameof(LocationModel.Remarks)" HeaderText="Remarks" Width="250" />
-						<GridColumn Field="@nameof(LocationModel.Status)" HeaderText="Status" Width="100"
-							TextAlign="TextAlign.Center">
-							<Template>
-								@{
-									var location = (context as LocationModel);
-									<div class="grid-checkbox"
-										style="@(location.Status ? "color: #10b981; background: #d1fae5;" : "color: #dc2626; background: #fee2e2;")">
-										@(location.Status ? "✓" : "✗")
-									</div>
-								}
-							</Template>
-						</GridColumn>
-					</GridColumns>
-				</SfGrid>
-			</div>
-		</div>
+                                        <div class="grid-actions">
+                                            @if (location.Status)
+                                            {
+                                                <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid" Title="Edit (Insert)" OnClick="@(() => OnEditLocation(location))" />
+                                                <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete (Delete)" OnClick="@(() => ShowDeleteConfirmation(location.Id, location.Name))" />
+                                            }
+                                            else
+                                            {
+                                                <IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover" Size="ButtonSize.Grid" Title="Recover (Delete)" OnClick="@(() => ShowRecoverConfirmation(location.Id, location.Name))" />
+                                            }
+                                        </div>
+                                    }
+                                </Template>
+                            </GridColumn>
+                            <GridColumn Field="@nameof(LocationModel.Id)" HeaderText="ID" Width="80"
+                                        TextAlign="TextAlign.Center" />
+                            <GridColumn Field="@nameof(LocationModel.Name)" HeaderText="Location Name" Width="200" />
+                            <GridColumn Field="@nameof(LocationModel.PrefixCode)" HeaderText="Prefix Code" Width="150"
+                                        TextAlign="TextAlign.Center" />
+                            <GridColumn Field="@nameof(LocationModel.Discount)" HeaderText="Discount (%)" Width="120"
+                                        Format="N2" TextAlign="TextAlign.Right" />
+                            <GridColumn Field="@nameof(LocationModel.Remarks)" HeaderText="Remarks" Width="250" />
+                            <GridColumn Field="@nameof(LocationModel.Status)" HeaderText="Status" Width="100"
+                                        TextAlign="TextAlign.Center">
+                                <Template>
+                                    @{
+                                        var location = (context as LocationModel);
+                                        <div class="grid-checkbox"
+                                             style="@(location.Status ? "color: #10b981; background: #d1fae5;" : "color: #dc2626; background: #fee2e2;")">
+                                            @(location.Status ? "✓" : "✗")
+                                        </div>
+                                    }
+                                </Template>
+                            </GridColumn>
+                        </GridColumns>
+                    </SfGrid>
+                </div>
+            </div>
+        </div>
 
-	</div>
+        <Footer />
+    </div>
 }
 
 <DeleteConfirmationDialog @ref="_deleteConfirmationDialog"
-                         EntityName="Location"
-                         IdentifierLabel="Location Name"
-                         IdentifierValue="@_deleteLocationName"
-                         IsPermanentDelete="false"
-                         Disabled="@_isProcessing"
-                         OnConfirm="ConfirmDelete"
-                         OnCancel="CancelDelete" />
+                          EntityName="Location"
+                          IdentifierLabel="Location Name"
+                          IdentifierValue="@_deleteLocationName"
+                          IsPermanentDelete="false"
+                          Disabled="@_isProcessing"
+                          OnConfirm="ConfirmDelete"
+                          OnCancel="CancelDelete" />
 
 <RecoverConfirmationDialog @ref="_recoverConfirmationDialog"
                            EntityName="Location"
@@ -183,353 +186,353 @@ else
 <ToastNotification @ref="_toastNotification" />
 
 <style>
-	* {
-		box-sizing: border-box;
-	}
+    * {
+        box-sizing: border-box;
+    }
 
-	/* Main Container */
-	.purchase-container {
-		padding: 24px 32px;
-		max-width: 1920px;
-		margin: 0 auto;
-		background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
-		min-height: calc(100vh - 72px);
-	}
+    /* Main Container */
+    .purchase-container {
+        padding: 24px 32px;
+        max-width: 1920px;
+        margin: 0 auto;
+        background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
+        min-height: calc(100vh - 72px);
+    }
 
-	/* Section Card */
-	.section-card {
-		background: #ffffff;
-		border-radius: 12px;
-		border: 1px solid #e2e8f0;
-		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-		margin-bottom: 24px;
-		overflow: hidden;
-	}
+    /* Section Card */
+    .section-card {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        margin-bottom: 24px;
+        overflow: hidden;
+    }
 
-	.section-header {
-		padding: 20px 24px;
-		border-bottom: 2px solid #e2e8f0;
-		background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-	}
+    .section-header {
+        padding: 20px 24px;
+        border-bottom: 2px solid #e2e8f0;
+        background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 
-	.section-title-wrapper {
-		display: flex;
-		align-items: center;
-		gap: 12px;
-	}
+    .section-title-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
 
-	.header-actions {
-		display: flex;
-		gap: 12px;
-		align-items: center;
-	}
+    .header-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
 
-	.section-icon {
-		color: #3b82f6;
-		flex-shrink: 0;
-	}
+    .section-icon {
+        color: #3b82f6;
+        flex-shrink: 0;
+    }
 
-	.section-title {
-		font-size: 18px;
-		font-weight: 600;
-		color: #0f172a;
-		margin: 0;
-		letter-spacing: -0.3px;
-	}
+    .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #0f172a;
+        margin: 0;
+        letter-spacing: -0.3px;
+    }
 
-	.section-body {
-		padding: 24px;
-	}
+    .section-body {
+        padding: 24px;
+    }
 
-	/* Form Grid */
-	.form-grid-triple {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: 16px;
-		align-items: start;
-	}
+    /* Form Grid */
+    .form-grid-triple {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        align-items: start;
+    }
 
-	.form-field {
-		display: flex;
-		flex-direction: column;
-		gap: 8px;
-	}
+    .form-field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
 
-	.form-field-span-2 {
-		grid-column: span 2;
-	}
+    .form-field-span-2 {
+        grid-column: span 2;
+    }
 
-	.field-label {
-		font-size: 12px;
-		font-weight: 600;
-		color: #475569;
-		text-transform: uppercase;
-		letter-spacing: 0.3px;
-		margin-bottom: 2px;
-	}
+    .field-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #475569;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        margin-bottom: 2px;
+    }
 
-	.required {
-		color: #dc2626;
-		margin-left: 2px;
-	}
+    .required {
+        color: #dc2626;
+        margin-left: 2px;
+    }
 
-	/* Custom TextBox Styling */
-	::deep .custom-textbox .e-input-group,
-	::deep .custom-autocomplete .e-input-group {
-		height: 38px;
-		background: #ffffff;
-		border: 1px solid #cbd5e1;
-		border-radius: 6px;
-		transition: all 0.2s ease;
-	}
+    /* Custom TextBox Styling */
+    ::deep .custom-textbox .e-input-group,
+    ::deep .custom-autocomplete .e-input-group {
+        height: 38px;
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
 
-	::deep .custom-textbox .e-input-group:focus-within,
-	::deep .custom-autocomplete .e-input-group:focus-within {
-		border-color: #3b82f6;
-		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-	}
+        ::deep .custom-textbox .e-input-group:focus-within,
+        ::deep .custom-autocomplete .e-input-group:focus-within {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
 
-	::deep .custom-textbox .e-input-group input,
-	::deep .custom-autocomplete .e-input-group input {
-		font-size: 13px;
-		color: #1e293b;
-		font-weight: 500;
-		padding: 8px 12px;
-	}
+        ::deep .custom-textbox .e-input-group input,
+        ::deep .custom-autocomplete .e-input-group input {
+            font-size: 13px;
+            color: #1e293b;
+            font-weight: 500;
+            padding: 8px 12px;
+        }
 
-	::deep .custom-textbox .e-input-group input::placeholder,
-	::deep .custom-autocomplete .e-input-group input::placeholder {
-		color: #94a3b8;
-		font-style: italic;
-	}
+            ::deep .custom-textbox .e-input-group input::placeholder,
+            ::deep .custom-autocomplete .e-input-group input::placeholder {
+                color: #94a3b8;
+                font-style: italic;
+            }
 
-	/* Multiline TextBox */
-	::deep .custom-textbox .e-input-group textarea {
-		min-height: 80px;
-		font-size: 13px;
-		color: #1e293b;
-		font-weight: 500;
-		padding: 8px 12px;
-		resize: vertical;
-	}
+        /* Multiline TextBox */
+        ::deep .custom-textbox .e-input-group textarea {
+            min-height: 80px;
+            font-size: 13px;
+            color: #1e293b;
+            font-weight: 500;
+            padding: 8px 12px;
+            resize: vertical;
+        }
 
-	/* Grid Styles */
-	.grid-body {
-		padding: 0 !important;
-	}
+    /* Grid Styles */
+    .grid-body {
+        padding: 0 !important;
+    }
 
-	::deep .professional-grid {
-		border: none;
-	}
+    ::deep .professional-grid {
+        border: none;
+    }
 
-	::deep .professional-grid .e-gridheader {
-		background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
-		border-bottom: 2px solid #e2e8f0;
-	}
+        ::deep .professional-grid .e-gridheader {
+            background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
+            border-bottom: 2px solid #e2e8f0;
+        }
 
-	::deep .professional-grid .e-headercell {
-		background: transparent;
-		color: #475569;
-		font-weight: 600;
-		font-size: 12px;
-		text-transform: uppercase;
-		letter-spacing: 0.3px;
-		border-right: 1px solid #e2e8f0;
-		padding: 12px 8px;
-	}
+        ::deep .professional-grid .e-headercell {
+            background: transparent;
+            color: #475569;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            border-right: 1px solid #e2e8f0;
+            padding: 12px 8px;
+        }
 
-	::deep .professional-grid .e-headercell:last-child {
-		border-right: none;
-	}
+            ::deep .professional-grid .e-headercell:last-child {
+                border-right: none;
+            }
 
-	::deep .professional-grid .e-gridcontent {
-		background: #ffffff;
-	}
+        ::deep .professional-grid .e-gridcontent {
+            background: #ffffff;
+        }
 
-	::deep .professional-grid .e-row {
-		transition: background-color 0.2s ease;
-	}
+        ::deep .professional-grid .e-row {
+            transition: background-color 0.2s ease;
+        }
 
-	::deep .professional-grid .e-row:hover {
-		background-color: #f8fafc;
-	}
+            ::deep .professional-grid .e-row:hover {
+                background-color: #f8fafc;
+            }
 
-	::deep .professional-grid .e-row.e-altrow {
-		background-color: #fafbfc;
-	}
+            ::deep .professional-grid .e-row.e-altrow {
+                background-color: #fafbfc;
+            }
 
-	::deep .professional-grid .e-row.e-altrow:hover {
-		background-color: #f8fafc;
-	}
+                ::deep .professional-grid .e-row.e-altrow:hover {
+                    background-color: #f8fafc;
+                }
 
-	::deep .professional-grid .e-rowcell {
-		border-right: 1px solid #f1f5f9;
-		border-bottom: 1px solid #f1f5f9;
-		padding: 10px 8px;
-		font-size: 13px;
-		color: #1e293b;
-	}
+        ::deep .professional-grid .e-rowcell {
+            border-right: 1px solid #f1f5f9;
+            border-bottom: 1px solid #f1f5f9;
+            padding: 10px 8px;
+            font-size: 13px;
+            color: #1e293b;
+        }
 
-	::deep .professional-grid .e-rowcell:last-child {
-		border-right: none;
-	}
+            ::deep .professional-grid .e-rowcell:last-child {
+                border-right: none;
+            }
 
-	.grid-checkbox {
-		display: inline-block;
-		width: 28px;
-		height: 28px;
-		line-height: 28px;
-		text-align: center;
-		border-radius: 6px;
-		font-weight: 700;
-		font-size: 14px;
-	}
+    .grid-checkbox {
+        display: inline-block;
+        width: 28px;
+        height: 28px;
+        line-height: 28px;
+        text-align: center;
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 14px;
+    }
 
-	/* Dialog Button Styles */
-	.dialog-btn {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 8px;
-		padding: 12px 20px;
-		border: none;
-		border-radius: 8px;
-		font-size: 14px;
-		font-weight: 600;
-		cursor: pointer;
-		transition: all 0.2s ease;
-		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-	}
+    /* Dialog Button Styles */
+    .dialog-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    }
 
-	.dialog-btn:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
-	}
+        .dialog-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+        }
 
-	.dialog-btn:active {
-		transform: translateY(0);
-		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-	}
+        .dialog-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        }
 
-	.dialog-btn svg {
-		flex-shrink: 0;
-	}
+        .dialog-btn svg {
+            flex-shrink: 0;
+        }
 
-	.dialog-btn-cancel {
-		background: #ffffff;
-		color: #64748b;
-		border: 2px solid #e2e8f0;
-	}
+    .dialog-btn-cancel {
+        background: #ffffff;
+        color: #64748b;
+        border: 2px solid #e2e8f0;
+    }
 
-	.dialog-btn-cancel:hover {
-		background: #f8fafc;
-		border-color: #cbd5e1;
-		color: #475569;
-	}
+        .dialog-btn-cancel:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            color: #475569;
+        }
 
-	.dialog-btn-delete {
-		background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-		color: white;
-	}
+    .dialog-btn-delete {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+    }
 
-	.dialog-btn-delete:hover {
-		background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-	}
+        .dialog-btn-delete:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        }
 
-	.dialog-btn-recover {
-		background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-		color: white;
-	}
+    .dialog-btn-recover {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+    }
 
-	.dialog-btn-recover:hover {
-		background: linear-gradient(135deg, #059669 0%, #047857 100%);
-	}
+        .dialog-btn-recover:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
 
-	/* Empty Grid State */
-	::deep .professional-grid .e-emptyrow {
-		text-align: center;
-		padding: 48px 24px;
-		color: #94a3b8;
-		font-size: 14px;
-	}
+    /* Empty Grid State */
+    ::deep .professional-grid .e-emptyrow {
+        text-align: center;
+        padding: 48px 24px;
+        color: #94a3b8;
+        font-size: 14px;
+    }
 
-	/* Dialog Button Styles */
-	.dialog-btn {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 8px;
-		padding: 12px 20px;
-		border: none;
-		border-radius: 8px;
-		font-size: 14px;
-		font-weight: 600;
-		cursor: pointer;
-		transition: all 0.2s ease;
-		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-	}
+    /* Dialog Button Styles */
+    .dialog-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    }
 
-	.dialog-btn:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
-	}
+        .dialog-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+        }
 
-	.dialog-btn:active {
-		transform: translateY(0);
-		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-	}
+        .dialog-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        }
 
-	.dialog-btn svg {
-		flex-shrink: 0;
-	}
+        .dialog-btn svg {
+            flex-shrink: 0;
+        }
 
-	.dialog-btn-cancel {
-		background: #ffffff;
-		color: #64748b;
-		border: 2px solid #e2e8f0;
-	}
+    .dialog-btn-cancel {
+        background: #ffffff;
+        color: #64748b;
+        border: 2px solid #e2e8f0;
+    }
 
-	.dialog-btn-cancel:hover {
-		background: #f8fafc;
-		border-color: #cbd5e1;
-		color: #475569;
-	}
+        .dialog-btn-cancel:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            color: #475569;
+        }
 
-	.dialog-btn-delete {
-		background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-		color: white;
-	}
+    .dialog-btn-delete {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+    }
 
-	.dialog-btn-delete:hover {
-		background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-	}
+        .dialog-btn-delete:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        }
 
-	.dialog-btn-recover {
-		background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-		color: white;
-	}
+    .dialog-btn-recover {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+    }
 
-	.dialog-btn-recover:hover {
-		background: linear-gradient(135deg, #059669 0%, #047857 100%);
-	}
+        .dialog-btn-recover:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
 
-	/* Responsive Design */
-	@@media (max-width: 1024px) {
-		.form-grid-triple {
-			grid-template-columns: repeat(2, 1fr);
-		}
-	}
+    /* Responsive Design */
+    @@media (max-width: 1024px) {
+        .form-grid-triple {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
 
-	@@media (max-width: 768px) {
-		.form-grid-triple {
-			grid-template-columns: 1fr;
-		}
+    @@media (max-width: 768px) {
+        .form-grid-triple {
+            grid-template-columns: 1fr;
+        }
 
-		.form-field-span-2 {
-			grid-column: span 1;
-		}
-	}
+        .form-field-span-2 {
+            grid-column: span 1;
+        }
+    }
 </style>

@@ -13,64 +13,68 @@
 }
 else
 {
-    <div class="cart-container safe-area">
-        <!-- Header with Back Button and Confirm Button -->
-        <div class="page-header">
-            <button @onclick='() => NavigationManager.NavigateTo(PageRouteNames.OrderMobile)' class="back-button"
-                    title="Back">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M19 12H5M12 19l-7-7 7-7" />
-                </svg>
-            </button>
-            <h1 class="page-title">Cart</h1>
-            @if (_cart.Any())
-            {
-                <button @onclick="OpenConfirmDialog" class="confirm-button-header" title="Confirm Order"
-                        disabled="@_isProcessing">
-                    @if (_isProcessing)
-                    {
-                        <span class="spinner-small"></span>
-                    }
-                    else
-                    {
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="9 11 12 14 22 4"></polyline>
-                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
-                        </svg>
-                    }
+    <div style="display: flex; flex-direction: column; min-height: 100vh;">
+        <div class="cart-container safe-area" style="flex: 1;">
+            <!-- Header with Back Button and Confirm Button -->
+            <div class="page-header">
+                <button @onclick='() => NavigationManager.NavigateTo(PageRouteNames.OrderMobile)' class="back-button"
+                        title="Back">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 12H5M12 19l-7-7 7-7" />
+                    </svg>
                 </button>
-            }
+                <h1 class="page-title">Cart</h1>
+                @if (_cart.Any())
+                {
+                    <button @onclick="OpenConfirmDialog" class="confirm-button-header" title="Confirm Order"
+                            disabled="@_isProcessing">
+                        @if (_isProcessing)
+                        {
+                            <span class="spinner-small"></span>
+                        }
+                        else
+                        {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="9 11 12 14 22 4"></polyline>
+                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                            </svg>
+                        }
+                    </button>
+                }
+            </div>
+
+            <!-- Cart Items Grid -->
+            <div class="grid-container">
+                <SfGrid @ref="_sfCartGrid" DataSource="_cart" AllowPaging="true" EnableAdaptiveUI="true" AllowTextWrap="true"
+                        Toolbar="@(new List<string>() { "Search" })">
+
+                    <GridPageSettings PageSize="10" />
+
+                    <GridColumns>
+                        <GridColumn Field="@nameof(OrderItemCartModel.ItemName)" HeaderText="Product Name" Width="50%" />
+                        <GridColumn HeaderText="Quantity" Width="50%" TextAlign="TextAlign.Center">
+                            <Template>
+                                @{
+                                    var item = (context as OrderItemCartModel);
+                                }
+                                @if (item is not null)
+                                {
+                                    <div class="quantity-section">
+                                        <SfNumericTextBox TValue="decimal" Value="@item.Quantity"
+                                                          ValueChanged="@((decimal value) => UpdateQuantity(item, value))" Min="0" Step="1" type="tel"
+                                                          Format="N0" CssClass="quantity-input" />
+                                    </div>
+                                }
+                            </Template>
+                        </GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </div>
         </div>
 
-        <!-- Cart Items Grid -->
-        <div class="grid-container">
-            <SfGrid @ref="_sfCartGrid" DataSource="_cart" AllowPaging="true" EnableAdaptiveUI="true" AllowTextWrap="true"
-                    Toolbar="@(new List<string>() { "Search" })">
-
-                <GridPageSettings PageSize="10" />
-
-                <GridColumns>
-                    <GridColumn Field="@nameof(OrderItemCartModel.ItemName)" HeaderText="Product Name" Width="50%" />
-                    <GridColumn HeaderText="Quantity" Width="50%" TextAlign="TextAlign.Center">
-                        <Template>
-                            @{
-                                var item = (context as OrderItemCartModel);
-                            }
-                            @if (item is not null)
-                            {
-                                <div class="quantity-section">
-                                    <SfNumericTextBox TValue="decimal" Value="@item.Quantity"
-                                                      ValueChanged="@((decimal value) => UpdateQuantity(item, value))" Min="0" Step="1" type="tel"
-                                                      Format="N0" CssClass="quantity-input" />
-                                </div>
-                            }
-                        </Template>
-                    </GridColumn>
-                </GridColumns>
-            </SfGrid>
-        </div>
+        <Footer />
     </div>
 }
 

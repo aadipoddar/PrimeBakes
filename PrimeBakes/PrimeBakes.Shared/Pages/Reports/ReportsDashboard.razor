@@ -12,429 +12,433 @@
 }
 else
 {
-	<Header Title="Reports Dashboard"
+	<div style="display: flex; flex-direction: column; min-height: 100vh;">
+		<Header Title="Reports Dashboard"
 				Subtitle="Access all business reports and analytics"
 				ShowLogout="true"
 				ShowHome="true"
 				OnLogoutClick="Logout"
 				OnHomeClick="NavigateToDashboard" />
 
-	<!-- Main Content Container -->
-	<div class="dashboard-container">
+		<!-- Main Content Container -->
+		<div class="dashboard-container">
 
-		<!-- Sales & Orders Reports Section -->
-		<div class="section-card">
-			<div class="section-header">
-				<div class="section-title-wrapper">
-					<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
-						 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-						<polyline points="14 2 14 8 20 8" />
-						<line x1="16" y1="13" x2="8" y2="13" />
-						<line x1="16" y1="17" x2="8" y2="17" />
-						<line x1="12" y1="18" x2="12" y2="12" />
-					</svg>
-					<h2 class="section-title">Sales Reports</h2>
-				</div>
-				<p class="section-subtitle">View and analyze sales transaction reports</p>
-			</div>
-			<div class="section-body">
-				<div class="dashboard-grid">
-
-					@if (_user is not null && _user.Order)
-					{
-						<!-- Order Report -->
-						<ButtonCard Title="Order Report"
-									   Description="View order transaction history"
-									   Color="cyan"
-									   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportOrder)">
-							<IconContent>
-								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-									 stroke-linejoin="round">
-									<polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-								</svg>
-							</IconContent>
-						</ButtonCard>
-
-						<!-- Order Item Report -->
-						<ButtonCard Title="Order Item Report"
-									   Description="View detailed order items"
-									   Color="sky"
-									   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportOrderItem)">
-							<IconContent>
-								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-									 stroke-linejoin="round">
-									<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-									<polyline points="14 2 14 8 20 8" />
-									<line x1="16" y1="13" x2="8" y2="13" />
-									<line x1="16" y1="17" x2="8" y2="17" />
-									<line x1="10" y1="9" x2="8" y2="9" />
-								</svg>
-							</IconContent>
-						</ButtonCard>
-					}
-
-					@if (_user is not null && _user.Sales)
-					{
-						<!-- Sale Report -->
-						<ButtonCard Title="Sale Report"
-									   Description="View sales transaction history"
-									   Color="emerald"
-									   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportSale)">
-							<IconContent>
-								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-									 stroke-linejoin="round">
-									<line x1="22" y1="2" x2="11" y2="13" />
-									<polygon points="22 2 15 22 11 13 2 9 22 2" />
-								</svg>
-							</IconContent>
-						</ButtonCard>
-
-						<!-- Sale Item Report -->
-						<ButtonCard Title="Sale Item Report"
-									   Description="View detailed sale items"
-									   Color="teal"
-									   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportSaleItem)">
-							<IconContent>
-								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-									 stroke-linejoin="round">
-									<line x1="8" y1="6" x2="21" y2="6" />
-									<line x1="8" y1="12" x2="21" y2="12" />
-									<line x1="8" y1="18" x2="21" y2="18" />
-									<line x1="3" y1="6" x2="3.01" y2="6" />
-									<line x1="3" y1="12" x2="3.01" y2="12" />
-									<line x1="3" y1="18" x2="3.01" y2="18" />
-								</svg>
-							</IconContent>
-						</ButtonCard>
-
-						<!-- Sale Return Report -->
-						<ButtonCard Title="Sale Return Report"
-									   Description="View sales return records"
-									   Color="rose"
-									   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportSaleReturn)">
-							<IconContent>
-								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-									 stroke-linejoin="round">
-									<polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
-									<polyline points="17 18 23 18 23 12" />
-								</svg>
-							</IconContent>
-						</ButtonCard>
-
-						<!-- Sale Return Item Report -->
-						<ButtonCard Title="Sale Return Item Report"
-									   Description="View detailed sale return items"
-									   Color="amber"
-									   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportSaleReturnItem)">
-							<IconContent>
-								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-									 stroke-linejoin="round">
-									<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-									<polyline points="14 2 14 8 20 8" />
-									<line x1="12" y1="18" x2="12" y2="12" />
-									<line x1="12" y1="9" x2="12.01" y2="9" />
-								</svg>
-							</IconContent>
-						</ButtonCard>
-
-						<!-- Stock Transfer Report -->
-						<ButtonCard Title="Stock Transfer Report"
-									   Description="View stock transfer records"
-									   Color="orange"
-									   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportStockTransfer)">
-							<IconContent>
-								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-									 stroke-linejoin="round">
-									<polyline points="17 1 21 5 17 9" />
-									<path d="M3 11V9a4 4 0 0 1 4-4h14" />
-									<polyline points="7 23 3 19 7 15" />
-									<path d="M21 13v2a4 4 0 0 1-4 4H3" />
-								</svg>
-							</IconContent>
-						</ButtonCard>
-
-						<!-- Stock Transfer Item Report -->
-						<ButtonCard Title="Stock Transfer Item Report"
-									   Description="View detailed transfer items"
-									   Color="violet"
-									   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportStockTransferItem)">
-							<IconContent>
-								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-									 stroke-linejoin="round">
-									<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-									<polyline points="14 2 14 8 20 8" />
-									<polyline points="9 17 14 12 19 17" />
-									<line x1="14" y1="12" x2="14" y2="21" />
-								</svg>
-							</IconContent>
-						</ButtonCard>
-					}
-				</div>
-			</div>
-		</div>
-
-		<!-- Inventory & Production Reports Section -->
-		<div class="section-card">
-			<div class="section-header">
-				<div class="section-title-wrapper">
-					<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
-						 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-						<polyline points="14 2 14 8 20 8" />
-						<line x1="16" y1="13" x2="8" y2="13" />
-						<line x1="16" y1="17" x2="8" y2="17" />
-						<line x1="12" y1="18" x2="12" y2="12" />
-					</svg>
-					<h2 class="section-title">Inventory Reports</h2>
-				</div>
-				<p class="section-subtitle">View and analyze inventory transaction reports</p>
-			</div>
-			<div class="section-body">
-				<div class="dashboard-grid">
-					@if (_user is not null && _user.Inventory && _user.LocationId == 1)
-					{
-						<!-- Purchase Report -->
-						<ButtonCard Title="Purchase Report"
-									   Description="View purchase transaction history"
-									   Color="cyan"
-									   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportPurchase)">
-							<IconContent>
-								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-									 stroke-linejoin="round">
-									<polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-								</svg>
-							</IconContent>
-						</ButtonCard>
-
-						<!-- Purchase Item Report -->
-						<ButtonCard Title="Purchase Item Report"
-									   Description="View detailed purchase items"
-									   Color="sky"
-									   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportPurchaseItem)">
-							<IconContent>
-								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-									 stroke-linejoin="round">
-									<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-									<polyline points="14 2 14 8 20 8" />
-									<line x1="16" y1="13" x2="8" y2="13" />
-									<line x1="16" y1="17" x2="8" y2="17" />
-									<line x1="10" y1="9" x2="8" y2="9" />
-								</svg>
-							</IconContent>
-						</ButtonCard>
-
-						<!-- Purchase Return Report -->
-						<ButtonCard Title="Purchase Return Report"
-									   Description="View purchase return records"
-									   Color="rose"
-									   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportPurchaseReturn)">
-							<IconContent>
-								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-									 stroke-linejoin="round">
-									<polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
-									<polyline points="17 18 23 18 23 12" />
-								</svg>
-							</IconContent>
-						</ButtonCard>
-
-						<!-- Purchase Return Item Report -->
-						<ButtonCard Title="Purchase Return Item Report"
-									   Description="View detailed purchase return items"
-									   Color="amber"
-									   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportPurchaseReturnItem)">
-							<IconContent>
-								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-									 stroke-linejoin="round">
-									<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-									<polyline points="14 2 14 8 20 8" />
-									<line x1="12" y1="18" x2="12" y2="12" />
-									<line x1="12" y1="9" x2="12.01" y2="9" />
-								</svg>
-							</IconContent>
-						</ButtonCard>
-
-						<!-- Kitchen Issue Report -->
-						<ButtonCard Title="Kitchen Issue Report"
-									   Description="View material issue history"
-									   Color="emerald"
-									   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportKitchenIssue)">
-							<IconContent>
-								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-									 stroke-linejoin="round">
-									<line x1="22" y1="2" x2="11" y2="13" />
-									<polygon points="22 2 15 22 11 13 2 9 22 2" />
-								</svg>
-							</IconContent>
-						</ButtonCard>
-
-						<!-- Kitchen Issue Item Report -->
-						<ButtonCard Title="Kitchen Issue Item Report"
-									   Description="View detailed kitchen issue items"
-									   Color="teal"
-									   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportKitchenIssueItem)">
-							<IconContent>
-								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-									 stroke-linejoin="round">
-									<line x1="8" y1="6" x2="21" y2="6" />
-									<line x1="8" y1="12" x2="21" y2="12" />
-									<line x1="8" y1="18" x2="21" y2="18" />
-									<line x1="3" y1="6" x2="3.01" y2="6" />
-									<line x1="3" y1="12" x2="3.01" y2="12" />
-									<line x1="3" y1="18" x2="3.01" y2="18" />
-								</svg>
-							</IconContent>
-						</ButtonCard>
-
-						<!-- Kitchen Production Report -->
-						<ButtonCard Title="Kitchen Production Report"
-									   Description="View kitchen production records"
-									   Color="violet"
-									   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportKitchenProduction)">
-							<IconContent>
-								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-									 stroke-linejoin="round">
-									<circle cx="12" cy="8" r="7" />
-									<polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
-								</svg>
-							</IconContent>
-						</ButtonCard>
-
-						<!-- Kitchen Production Item Report -->
-						<ButtonCard Title="Kitchen Production Item Report"
-									   Description="View detailed production items"
-									   Color="green"
-									   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportKitchenProductionItem)">
-							<IconContent>
-								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-									 stroke-linejoin="round">
-									<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-									<polyline points="22 4 12 14.01 9 11.01" />
-								</svg>
-							</IconContent>
-						</ButtonCard>
-
-						<!-- Raw Material Stock Report -->
-						<ButtonCard Title="Raw Material Stock"
-									   Description="View current raw material stock levels"
-									   Color="blue"
-									   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportRawMaterialStock)">
-							<IconContent>
-								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-									 stroke-linejoin="round">
-									<ellipse cx="12" cy="5" rx="9" ry="3" />
-									<path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
-									<path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
-								</svg>
-							</IconContent>
-						</ButtonCard>
-					}
-
-					@if (_user is not null && _user.Inventory)
-					{
-						<!-- Product Stock Report -->
-						<ButtonCard Title="Finished Product Stock"
-									   Description="View current product stock levels"
-									   Color="indigo"
-									   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportProductStock)">
-							<IconContent>
-								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-									 stroke-linejoin="round">
-									<polyline points="21 8 21 21 3 21 3 8" />
-									<rect x="1" y="3" width="22" height="5" />
-									<line x1="10" y1="12" x2="14" y2="12" />
-								</svg>
-							</IconContent>
-						</ButtonCard>
-					}
-				</div>
-			</div>
-		</div>
-
-		@if (_user is not null && _user.Accounts && _user.LocationId == 1)
-		{
-			<!-- Accounting Reports Section -->
+			<!-- Sales & Orders Reports Section -->
 			<div class="section-card">
 				<div class="section-header">
 					<div class="section-title-wrapper">
 						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
 							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-							<line x1="12" y1="1" x2="12" y2="23" />
-							<path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+							<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+							<polyline points="14 2 14 8 20 8" />
+							<line x1="16" y1="13" x2="8" y2="13" />
+							<line x1="16" y1="17" x2="8" y2="17" />
+							<line x1="12" y1="18" x2="12" y2="12" />
 						</svg>
-						<h2 class="section-title">Accounting & Financial Reports</h2>
+						<h2 class="section-title">Sales Reports</h2>
 					</div>
-					<p class="section-subtitle">View financial transactions, ledgers, and trial balance</p>
+					<p class="section-subtitle">View and analyze sales transaction reports</p>
 				</div>
 				<div class="section-body">
 					<div class="dashboard-grid">
-						<!-- Financial Accounting Report -->
-						<ButtonCard Title="Financial Accounting Report"
-									   Description="View accounting transaction history"
-									   Color="blue"
-									   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportFinancialAccounting)">
-							<IconContent>
-								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-									 stroke-linejoin="round">
-									<polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-								</svg>
-							</IconContent>
-						</ButtonCard>
 
-						<!-- Ledger Report -->
-						<ButtonCard Title="Ledger Report"
-									   Description="View detailed ledger transactions"
-									   Color="emerald"
-									   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportAccountingLedger)">
-							<IconContent>
-								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-									 stroke-linejoin="round">
-									<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-									<path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-								</svg>
-							</IconContent>
-						</ButtonCard>
+						@if (_user is not null && _user.Order)
+						{
+							<!-- Order Report -->
+							<ButtonCard Title="Order Report"
+										Description="View order transaction history"
+										Color="cyan"
+										OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportOrder)">
+								<IconContent>
+									<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+										 stroke-linejoin="round">
+										<polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+									</svg>
+								</IconContent>
+							</ButtonCard>
 
-						<!-- Trial Balance Report -->
-						<ButtonCard Title="Trial Balance"
-									   Description="View trial balance summary"
-									   Color="sky"
-									   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportTrialBalance)">
-							<IconContent>
-								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-									 stroke-linejoin="round">
-									<rect x="3" y="3" width="7" height="7" />
-									<rect x="14" y="3" width="7" height="7" />
-									<rect x="14" y="14" width="7" height="7" />
-									<rect x="3" y="14" width="7" height="7" />
-								</svg>
-							</IconContent>
-						</ButtonCard>
+							<!-- Order Item Report -->
+							<ButtonCard Title="Order Item Report"
+										Description="View detailed order items"
+										Color="sky"
+										OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportOrderItem)">
+								<IconContent>
+									<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+										 stroke-linejoin="round">
+										<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+										<polyline points="14 2 14 8 20 8" />
+										<line x1="16" y1="13" x2="8" y2="13" />
+										<line x1="16" y1="17" x2="8" y2="17" />
+										<line x1="10" y1="9" x2="8" y2="9" />
+									</svg>
+								</IconContent>
+							</ButtonCard>
+						}
+
+						@if (_user is not null && _user.Sales)
+						{
+							<!-- Sale Report -->
+							<ButtonCard Title="Sale Report"
+										Description="View sales transaction history"
+										Color="emerald"
+										OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportSale)">
+								<IconContent>
+									<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+										 stroke-linejoin="round">
+										<line x1="22" y1="2" x2="11" y2="13" />
+										<polygon points="22 2 15 22 11 13 2 9 22 2" />
+									</svg>
+								</IconContent>
+							</ButtonCard>
+
+							<!-- Sale Item Report -->
+							<ButtonCard Title="Sale Item Report"
+										Description="View detailed sale items"
+										Color="teal"
+										OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportSaleItem)">
+								<IconContent>
+									<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+										 stroke-linejoin="round">
+										<line x1="8" y1="6" x2="21" y2="6" />
+										<line x1="8" y1="12" x2="21" y2="12" />
+										<line x1="8" y1="18" x2="21" y2="18" />
+										<line x1="3" y1="6" x2="3.01" y2="6" />
+										<line x1="3" y1="12" x2="3.01" y2="12" />
+										<line x1="3" y1="18" x2="3.01" y2="18" />
+									</svg>
+								</IconContent>
+							</ButtonCard>
+
+							<!-- Sale Return Report -->
+							<ButtonCard Title="Sale Return Report"
+										Description="View sales return records"
+										Color="rose"
+										OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportSaleReturn)">
+								<IconContent>
+									<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+										 stroke-linejoin="round">
+										<polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
+										<polyline points="17 18 23 18 23 12" />
+									</svg>
+								</IconContent>
+							</ButtonCard>
+
+							<!-- Sale Return Item Report -->
+							<ButtonCard Title="Sale Return Item Report"
+										Description="View detailed sale return items"
+										Color="amber"
+										OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportSaleReturnItem)">
+								<IconContent>
+									<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+										 stroke-linejoin="round">
+										<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+										<polyline points="14 2 14 8 20 8" />
+										<line x1="12" y1="18" x2="12" y2="12" />
+										<line x1="12" y1="9" x2="12.01" y2="9" />
+									</svg>
+								</IconContent>
+							</ButtonCard>
+
+							<!-- Stock Transfer Report -->
+							<ButtonCard Title="Stock Transfer Report"
+										Description="View stock transfer records"
+										Color="orange"
+										OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportStockTransfer)">
+								<IconContent>
+									<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+										 stroke-linejoin="round">
+										<polyline points="17 1 21 5 17 9" />
+										<path d="M3 11V9a4 4 0 0 1 4-4h14" />
+										<polyline points="7 23 3 19 7 15" />
+										<path d="M21 13v2a4 4 0 0 1-4 4H3" />
+									</svg>
+								</IconContent>
+							</ButtonCard>
+
+							<!-- Stock Transfer Item Report -->
+							<ButtonCard Title="Stock Transfer Item Report"
+										Description="View detailed transfer items"
+										Color="violet"
+										OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportStockTransferItem)">
+								<IconContent>
+									<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+										 stroke-linejoin="round">
+										<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+										<polyline points="14 2 14 8 20 8" />
+										<polyline points="9 17 14 12 19 17" />
+										<line x1="14" y1="12" x2="14" y2="21" />
+									</svg>
+								</IconContent>
+							</ButtonCard>
+						}
 					</div>
 				</div>
 			</div>
-		}
+
+			<!-- Inventory & Production Reports Section -->
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+							<polyline points="14 2 14 8 20 8" />
+							<line x1="16" y1="13" x2="8" y2="13" />
+							<line x1="16" y1="17" x2="8" y2="17" />
+							<line x1="12" y1="18" x2="12" y2="12" />
+						</svg>
+						<h2 class="section-title">Inventory Reports</h2>
+					</div>
+					<p class="section-subtitle">View and analyze inventory transaction reports</p>
+				</div>
+				<div class="section-body">
+					<div class="dashboard-grid">
+						@if (_user is not null && _user.Inventory && _user.LocationId == 1)
+						{
+							<!-- Purchase Report -->
+							<ButtonCard Title="Purchase Report"
+										Description="View purchase transaction history"
+										Color="cyan"
+										OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportPurchase)">
+								<IconContent>
+									<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+										 stroke-linejoin="round">
+										<polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+									</svg>
+								</IconContent>
+							</ButtonCard>
+
+							<!-- Purchase Item Report -->
+							<ButtonCard Title="Purchase Item Report"
+										Description="View detailed purchase items"
+										Color="sky"
+										OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportPurchaseItem)">
+								<IconContent>
+									<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+										 stroke-linejoin="round">
+										<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+										<polyline points="14 2 14 8 20 8" />
+										<line x1="16" y1="13" x2="8" y2="13" />
+										<line x1="16" y1="17" x2="8" y2="17" />
+										<line x1="10" y1="9" x2="8" y2="9" />
+									</svg>
+								</IconContent>
+							</ButtonCard>
+
+							<!-- Purchase Return Report -->
+							<ButtonCard Title="Purchase Return Report"
+										Description="View purchase return records"
+										Color="rose"
+										OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportPurchaseReturn)">
+								<IconContent>
+									<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+										 stroke-linejoin="round">
+										<polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
+										<polyline points="17 18 23 18 23 12" />
+									</svg>
+								</IconContent>
+							</ButtonCard>
+
+							<!-- Purchase Return Item Report -->
+							<ButtonCard Title="Purchase Return Item Report"
+										Description="View detailed purchase return items"
+										Color="amber"
+										OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportPurchaseReturnItem)">
+								<IconContent>
+									<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+										 stroke-linejoin="round">
+										<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+										<polyline points="14 2 14 8 20 8" />
+										<line x1="12" y1="18" x2="12" y2="12" />
+										<line x1="12" y1="9" x2="12.01" y2="9" />
+									</svg>
+								</IconContent>
+							</ButtonCard>
+
+							<!-- Kitchen Issue Report -->
+							<ButtonCard Title="Kitchen Issue Report"
+										Description="View material issue history"
+										Color="emerald"
+										OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportKitchenIssue)">
+								<IconContent>
+									<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+										 stroke-linejoin="round">
+										<line x1="22" y1="2" x2="11" y2="13" />
+										<polygon points="22 2 15 22 11 13 2 9 22 2" />
+									</svg>
+								</IconContent>
+							</ButtonCard>
+
+							<!-- Kitchen Issue Item Report -->
+							<ButtonCard Title="Kitchen Issue Item Report"
+										Description="View detailed kitchen issue items"
+										Color="teal"
+										OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportKitchenIssueItem)">
+								<IconContent>
+									<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+										 stroke-linejoin="round">
+										<line x1="8" y1="6" x2="21" y2="6" />
+										<line x1="8" y1="12" x2="21" y2="12" />
+										<line x1="8" y1="18" x2="21" y2="18" />
+										<line x1="3" y1="6" x2="3.01" y2="6" />
+										<line x1="3" y1="12" x2="3.01" y2="12" />
+										<line x1="3" y1="18" x2="3.01" y2="18" />
+									</svg>
+								</IconContent>
+							</ButtonCard>
+
+							<!-- Kitchen Production Report -->
+							<ButtonCard Title="Kitchen Production Report"
+										Description="View kitchen production records"
+										Color="violet"
+										OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportKitchenProduction)">
+								<IconContent>
+									<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+										 stroke-linejoin="round">
+										<circle cx="12" cy="8" r="7" />
+										<polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
+									</svg>
+								</IconContent>
+							</ButtonCard>
+
+							<!-- Kitchen Production Item Report -->
+							<ButtonCard Title="Kitchen Production Item Report"
+										Description="View detailed production items"
+										Color="green"
+										OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportKitchenProductionItem)">
+								<IconContent>
+									<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+										 stroke-linejoin="round">
+										<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+										<polyline points="22 4 12 14.01 9 11.01" />
+									</svg>
+								</IconContent>
+							</ButtonCard>
+
+							<!-- Raw Material Stock Report -->
+							<ButtonCard Title="Raw Material Stock"
+										Description="View current raw material stock levels"
+										Color="blue"
+										OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportRawMaterialStock)">
+								<IconContent>
+									<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+										 stroke-linejoin="round">
+										<ellipse cx="12" cy="5" rx="9" ry="3" />
+										<path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+										<path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+									</svg>
+								</IconContent>
+							</ButtonCard>
+						}
+
+						@if (_user is not null && _user.Inventory)
+						{
+							<!-- Product Stock Report -->
+							<ButtonCard Title="Finished Product Stock"
+										Description="View current product stock levels"
+										Color="indigo"
+										OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportProductStock)">
+								<IconContent>
+									<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+										 stroke-linejoin="round">
+										<polyline points="21 8 21 21 3 21 3 8" />
+										<rect x="1" y="3" width="22" height="5" />
+										<line x1="10" y1="12" x2="14" y2="12" />
+									</svg>
+								</IconContent>
+							</ButtonCard>
+						}
+					</div>
+				</div>
+			</div>
+
+			@if (_user is not null && _user.Accounts && _user.LocationId == 1)
+			{
+				<!-- Accounting Reports Section -->
+				<div class="section-card">
+					<div class="section-header">
+						<div class="section-title-wrapper">
+							<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+								 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<line x1="12" y1="1" x2="12" y2="23" />
+								<path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+							</svg>
+							<h2 class="section-title">Accounting & Financial Reports</h2>
+						</div>
+						<p class="section-subtitle">View financial transactions, ledgers, and trial balance</p>
+					</div>
+					<div class="section-body">
+						<div class="dashboard-grid">
+							<!-- Financial Accounting Report -->
+							<ButtonCard Title="Financial Accounting Report"
+										Description="View accounting transaction history"
+										Color="blue"
+										OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportFinancialAccounting)">
+								<IconContent>
+									<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+										 stroke-linejoin="round">
+										<polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+									</svg>
+								</IconContent>
+							</ButtonCard>
+
+							<!-- Ledger Report -->
+							<ButtonCard Title="Ledger Report"
+										Description="View detailed ledger transactions"
+										Color="emerald"
+										OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportAccountingLedger)">
+								<IconContent>
+									<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+										 stroke-linejoin="round">
+										<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+										<path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+									</svg>
+								</IconContent>
+							</ButtonCard>
+
+							<!-- Trial Balance Report -->
+							<ButtonCard Title="Trial Balance"
+										Description="View trial balance summary"
+										Color="sky"
+										OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportTrialBalance)">
+								<IconContent>
+									<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+										 stroke-linejoin="round">
+										<rect x="3" y="3" width="7" height="7" />
+										<rect x="14" y="3" width="7" height="7" />
+										<rect x="14" y="14" width="7" height="7" />
+										<rect x="3" y="14" width="7" height="7" />
+									</svg>
+								</IconContent>
+							</ButtonCard>
+						</div>
+					</div>
+				</div>
+			}
+		</div>
+
+		<Footer />
 	</div>
 }
 

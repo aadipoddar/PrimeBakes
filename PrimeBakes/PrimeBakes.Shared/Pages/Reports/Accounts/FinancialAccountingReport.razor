@@ -14,340 +14,344 @@
 }
 else
 {
-    <Header Title="Financial Accounting Report" Subtitle="View and analyze accounting transactions" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack">
-        <RightContent>
-            <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
-            <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
-            <IconButton Icon="IconType.Refresh" Title="Refresh Data (Ctrl + R)" Disabled="_isProcessing" OnClick="LoadTransactionOverviews" />
-            <IconButton Icon="IconType.Report" Title="Item Report (Ctrl + I)" Disabled="_isProcessing" OnClick="NavigateToItemReport" />
-            <IconButton Icon="IconType.TrialBalance" Title="Trial Balance (Ctrl + T)" Disabled="_isProcessing" OnClick="NavigateToTrialBalance" />
-            <IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing" OnClick="NavigateToTransactionPage" />
-        </RightContent>
-    </Header>
+    <div style="display: flex; flex-direction: column; min-height: 100vh;">
+        <Header Title="Financial Accounting Report" Subtitle="View and analyze accounting transactions" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack">
+            <RightContent>
+                <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
+                <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
+                <IconButton Icon="IconType.Refresh" Title="Refresh Data (Ctrl + R)" Disabled="_isProcessing" OnClick="LoadTransactionOverviews" />
+                <IconButton Icon="IconType.Report" Title="Item Report (Ctrl + I)" Disabled="_isProcessing" OnClick="NavigateToItemReport" />
+                <IconButton Icon="IconType.TrialBalance" Title="Trial Balance (Ctrl + T)" Disabled="_isProcessing" OnClick="NavigateToTrialBalance" />
+                <IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing" OnClick="NavigateToTransactionPage" />
+            </RightContent>
+        </Header>
 
-    <!-- Main Content Container -->
-    <div class="report-container">
+        <!-- Main Content Container -->
+        <div class="report-container">
 
-        <!-- Filters Section -->
-        <div class="section-card">
-            <div class="section-header">
-                <div class="section-title-wrapper">
-                    <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-                    </svg>
-                    <h2 class="section-title">Filters</h2>
-                </div>
-            </div>
-            <div class="section-body">
-                <div class="filters-container">
-                    <div class="filters-grid">
-                        <!-- Date Range -->
-                        <div class="form-field">
-                            <label class="field-label">Date Range</label>
-                            <SfDateRangePicker CssClass="custom-daterange" StartDate="_fromDate" EndDate="_toDate"
-                                               TValue="DateTime" Format="dd/MM/yyyy" AllowEdit="true" Placeholder="Select date range">
-                                <DateRangePickerEvents TValue="DateTime" ValueChange="OnDateRangeChanged" />
-                            </SfDateRangePicker>
-                        </div>
-
-                        <!-- Company -->
-                        <div class="form-field">
-                            <label class="field-label">Company</label>
-                            <SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedCompany" TValue="CompanyModel"
-                                            TItem="CompanyModel" DataSource="@_companies" Placeholder="All Companies"
-                                            AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
-                                <AutoCompleteEvents TItem="CompanyModel" TValue="CompanyModel"
-                                                    ValueChange="OnCompanyChanged" />
-                                <AutoCompleteFieldSettings Value="Name" />
-                            </SfAutoComplete>
-                        </div>
-
-                        <!-- Voucher -->
-                        <div class="form-field">
-                            <label class="field-label">Voucher Type</label>
-                            <SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedVoucher" TValue="VoucherModel"
-                                            TItem="VoucherModel" DataSource="@_vouchers" Placeholder="All Vouchers"
-                                            AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
-                                <AutoCompleteEvents TItem="VoucherModel" TValue="VoucherModel"
-                                                    ValueChange="OnPartyChanged" />
-                                <AutoCompleteFieldSettings Value="Name" />
-                            </SfAutoComplete>
-                        </div>
+            <!-- Filters Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+                        </svg>
+                        <h2 class="section-title">Filters</h2>
                     </div>
+                </div>
+                <div class="section-body">
+                    <div class="filters-container">
+                        <div class="filters-grid">
+                            <!-- Date Range -->
+                            <div class="form-field">
+                                <label class="field-label">Date Range</label>
+                                <SfDateRangePicker CssClass="custom-daterange" StartDate="_fromDate" EndDate="_toDate"
+                                                   TValue="DateTime" Format="dd/MM/yyyy" AllowEdit="true" Placeholder="Select date range">
+                                    <DateRangePickerEvents TValue="DateTime" ValueChange="OnDateRangeChanged" />
+                                </SfDateRangePicker>
+                            </div>
 
-                    <!-- Date Utility Buttons -->
-                    <DateRangeButtons Disabled="_isProcessing" FromDate="_fromDate" ToDate="_toDate" 
-                        OnDatesChanged="HandleDatesChanged" ToastNotification="_toastNotification" />
+                            <!-- Company -->
+                            <div class="form-field">
+                                <label class="field-label">Company</label>
+                                <SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedCompany" TValue="CompanyModel"
+                                                TItem="CompanyModel" DataSource="@_companies" Placeholder="All Companies"
+                                                AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
+                                    <AutoCompleteEvents TItem="CompanyModel" TValue="CompanyModel"
+                                                        ValueChange="OnCompanyChanged" />
+                                    <AutoCompleteFieldSettings Value="Name" />
+                                </SfAutoComplete>
+                            </div>
+
+                            <!-- Voucher -->
+                            <div class="form-field">
+                                <label class="field-label">Voucher Type</label>
+                                <SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedVoucher" TValue="VoucherModel"
+                                                TItem="VoucherModel" DataSource="@_vouchers" Placeholder="All Vouchers"
+                                                AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
+                                    <AutoCompleteEvents TItem="VoucherModel" TValue="VoucherModel"
+                                                        ValueChange="OnPartyChanged" />
+                                    <AutoCompleteFieldSettings Value="Name" />
+                                </SfAutoComplete>
+                            </div>
+                        </div>
+
+                        <!-- Date Utility Buttons -->
+                        <DateRangeButtons Disabled="_isProcessing" FromDate="_fromDate" ToDate="_toDate"
+                                          OnDatesChanged="HandleDatesChanged" ToastNotification="_toastNotification" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Grid Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="8" y1="6" x2="21" y2="6" />
+                            <line x1="8" y1="12" x2="21" y2="12" />
+                            <line x1="8" y1="18" x2="21" y2="18" />
+                            <line x1="3" y1="6" x2="3.01" y2="6" />
+                            <line x1="3" y1="12" x2="3.01" y2="12" />
+                            <line x1="3" y1="18" x2="3.01" y2="18" />
+                        </svg>
+                        <h2 class="section-title">Accounting Transactions</h2>
+                    </div>
+                    <div class="header-actions">
+                        <ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted" OnToggle="ToggleDeleted" />
+                        <ToggleDetailsButton Disabled="@_isProcessing" ShowAllColumns="@_showAllColumns" OnToggle="ToggleDetailsView" />
+                    </div>
+                </div>
+                <div class="section-body grid-body">
+                    <SfGrid @ref="_sfGrid" TValue="AccountingOverviewModel" DataSource="_transactionOverviews"
+                            AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true" AllowFiltering="true"
+                            AllowExcelExport="true" AllowPdfExport="true" GridLines="GridLine.Horizontal" AllowGrouping="true"
+                            CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
+
+                        <GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
+                        <GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
+                        <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+                        <GridAggregates>
+                            <GridAggregate>
+                                <GridAggregateColumns>
+                                    <GridAggregateColumn Field="@nameof(AccountingOverviewModel.TransactionNo)"
+                                                         Type="AggregateType.Count">
+                                        <FooterTemplate>
+                                            @{
+                                                var aggregate = (context as AggregateTemplateContext);
+                                            }
+                                            <div class="aggregate-label">
+                                                <strong>Total Transactions: @aggregate.Count</strong>
+                                            </div>
+                                        </FooterTemplate>
+                                        <GroupFooterTemplate>
+                                            @{
+                                                var aggregate = (context as AggregateTemplateContext);
+                                            }
+                                            <div class="aggregate-label">
+                                                <strong>Total Transactions: @aggregate.Count</strong>
+                                            </div>
+                                        </GroupFooterTemplate>
+                                        <GroupCaptionTemplate>
+                                            @{
+                                                var aggregate = (context as AggregateTemplateContext);
+                                            }
+                                            <div class="aggregate-label">
+                                                <strong>Total Transactions: @aggregate.Count</strong>
+                                            </div>
+                                        </GroupCaptionTemplate>
+                                    </GridAggregateColumn>
+                                    <GridAggregateColumn Field="@nameof(AccountingOverviewModel.TotalLedgers)"
+                                                         Type="AggregateType.Sum" Format="N0">
+                                        <FooterTemplate>
+                                            @{
+                                                var aggregate = (context as AggregateTemplateContext);
+                                                <div><strong>@aggregate.Sum</strong></div>
+                                            }
+                                        </FooterTemplate>
+                                        <GroupFooterTemplate>
+                                            @{
+                                                var aggregate = (context as AggregateTemplateContext);
+                                                <div><strong>@aggregate.Sum</strong></div>
+                                            }
+                                        </GroupFooterTemplate>
+                                        <GroupCaptionTemplate>
+                                            @{
+                                                var aggregate = (context as AggregateTemplateContext);
+                                                <div><strong>@aggregate.Sum</strong></div>
+                                            }
+                                        </GroupCaptionTemplate>
+                                    </GridAggregateColumn>
+                                    <GridAggregateColumn Field="@nameof(AccountingOverviewModel.TotalDebitLedgers)"
+                                                         Type="AggregateType.Sum" Format="N0">
+                                        <FooterTemplate>
+                                            @{
+                                                var aggregate = (context as AggregateTemplateContext);
+                                                <div><strong>@aggregate.Sum</strong></div>
+                                            }
+                                        </FooterTemplate>
+                                        <GroupFooterTemplate>
+                                            @{
+                                                var aggregate = (context as AggregateTemplateContext);
+                                                <div><strong>@aggregate.Sum</strong></div>
+                                            }
+                                        </GroupFooterTemplate>
+                                        <GroupCaptionTemplate>
+                                            @{
+                                                var aggregate = (context as AggregateTemplateContext);
+                                                <div><strong>@aggregate.Sum</strong></div>
+                                            }
+                                        </GroupCaptionTemplate>
+                                    </GridAggregateColumn>
+                                    <GridAggregateColumn Field="@nameof(AccountingOverviewModel.TotalCreditLedgers)"
+                                                         Type="AggregateType.Sum" Format="N0">
+                                        <FooterTemplate>
+                                            @{
+                                                var aggregate = (context as AggregateTemplateContext);
+                                                <div><strong>@aggregate.Sum</strong></div>
+                                            }
+                                        </FooterTemplate>
+                                        <GroupFooterTemplate>
+                                            @{
+                                                var aggregate = (context as AggregateTemplateContext);
+                                                <div><strong>@aggregate.Sum</strong></div>
+                                            }
+                                        </GroupFooterTemplate>
+                                        <GroupCaptionTemplate>
+                                            @{
+                                                var aggregate = (context as AggregateTemplateContext);
+                                                <div><strong>@aggregate.Sum</strong></div>
+                                            }
+                                        </GroupCaptionTemplate>
+                                    </GridAggregateColumn>
+                                    <GridAggregateColumn Field="@nameof(AccountingOverviewModel.TotalDebitAmount)"
+                                                         Type="AggregateType.Sum" Format="N2">
+                                        <FooterTemplate>
+                                            @{
+                                                var aggregate = (context as AggregateTemplateContext);
+                                                <div class="aggregate-value aggregate-debit"><strong>@aggregate.Sum</strong></div>
+                                            }
+                                        </FooterTemplate>
+                                        <GroupFooterTemplate>
+                                            @{
+                                                var aggregate = (context as AggregateTemplateContext);
+                                                <div class="aggregate-value aggregate-debit"><strong>@aggregate.Sum</strong></div>
+                                            }
+                                        </GroupFooterTemplate>
+                                        <GroupCaptionTemplate>
+                                            @{
+                                                var aggregate = (context as AggregateTemplateContext);
+                                                <div class="aggregate-value aggregate-debit"><strong>@aggregate.Sum</strong></div>
+                                            }
+                                        </GroupCaptionTemplate>
+                                    </GridAggregateColumn>
+                                    <GridAggregateColumn Field="@nameof(AccountingOverviewModel.TotalCreditAmount)"
+                                                         Type="AggregateType.Sum" Format="N2">
+                                        <FooterTemplate>
+                                            @{
+                                                var aggregate = (context as AggregateTemplateContext);
+                                                <div class="aggregate-value aggregate-credit"><strong>@aggregate.Sum</strong></div>
+                                            }
+                                        </FooterTemplate>
+                                        <GroupFooterTemplate>
+                                            @{
+                                                var aggregate = (context as AggregateTemplateContext);
+                                                <div class="aggregate-value aggregate-credit"><strong>@aggregate.Sum</strong></div>
+                                            }
+                                        </GroupFooterTemplate>
+                                        <GroupCaptionTemplate>
+                                            @{
+                                                var aggregate = (context as AggregateTemplateContext);
+                                                <div class="aggregate-value aggregate-credit"><strong>@aggregate.Sum</strong></div>
+                                            }
+                                        </GroupCaptionTemplate>
+                                    </GridAggregateColumn>
+                                    <GridAggregateColumn Field="@nameof(AccountingOverviewModel.TotalAmount)"
+                                                         Type="AggregateType.Sum" Format="N2">
+                                        <FooterTemplate>
+                                            @{
+                                                var aggregate = (context as AggregateTemplateContext);
+                                                <div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
+                                            }
+                                        </FooterTemplate>
+                                        <GroupFooterTemplate>
+                                            @{
+                                                var aggregate = (context as AggregateTemplateContext);
+                                                <div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
+                                            }
+                                        </GroupFooterTemplate>
+                                        <GroupCaptionTemplate>
+                                            @{
+                                                var aggregate = (context as AggregateTemplateContext);
+                                                <div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
+                                            }
+                                        </GroupCaptionTemplate>
+                                    </GridAggregateColumn>
+                                </GridAggregateColumns>
+                            </GridAggregate>
+                        </GridAggregates>
+
+                        <GridColumns>
+                            <GridColumn HeaderText="Actions" Width="200" TextAlign="TextAlign.Center">
+                                <Template>
+                                    @{
+                                        var item = (context as AccountingOverviewModel);
+                                    }
+                                    <div class="grid-actions">
+                                        @if (!item.Status)
+                                        {
+                                            <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Size="ButtonSize.Grid" Title="Download Excel Invoice (Alt + E)" Disabled="_isProcessing" OnClick="@(() => DownloadExcelInvoice(item.Id))" />
+                                            <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Grid" Title="Download PDF Invoice (Alt + P)" Disabled="_isProcessing" OnClick="@(() => DownloadPdfInvoice(item.Id))" />
+
+                                            @if (_user.Admin)
+                                            {
+                                                <IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover" Size="ButtonSize.Grid" Title="Recover Transaction (Delete)" Disabled="_isProcessing" OnClick="@(() => ShowRecoverConfirmation(item.Id, item.TransactionNo))" />
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <IconButton Icon="IconType.View" Variant="ButtonVariant.View" Size="ButtonSize.Grid" Title="View Transaction (Ctrl + O)" Disabled="_isProcessing" OnClick="@(() => ViewTransaction(item.Id))" />
+                                            <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Size="ButtonSize.Grid" Title="Download Excel Invoice (Alt + E)" Disabled="_isProcessing" OnClick="@(() => DownloadExcelInvoice(item.Id))" />
+                                            <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Grid" Title="Download PDF Invoice (Alt + P)" Disabled="_isProcessing" OnClick="@(() => DownloadPdfInvoice(item.Id))" />
+
+                                            @if (_user.Admin)
+                                            {
+                                                <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete Transaction (Delete)" Disabled="_isProcessing" OnClick="@(() => ShowDeleteConfirmation(item.Id, item.TransactionNo))" />
+                                            }
+                                        }
+                                    </div>
+                                </Template>
+                            </GridColumn>
+                            <GridColumn Field="@nameof(AccountingOverviewModel.TransactionNo)" HeaderText="Trans No" Width="170" />
+                            <GridColumn Field="@nameof(AccountingOverviewModel.TransactionDateTime)" HeaderText="Date" Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+                            <GridColumn Field="@nameof(AccountingOverviewModel.CompanyName)" HeaderText="Company" Width="180" />
+                            <GridColumn Field="@nameof(AccountingOverviewModel.VoucherName)" HeaderText="Voucher Type" Width="150" />
+                            <GridColumn Field="@nameof(AccountingOverviewModel.ReferenceNo)" HeaderText="Ref No" Width="150" Visible="_showAllColumns" />
+                            <GridColumn Field="@nameof(AccountingOverviewModel.FinancialYear)" HeaderText="Financial Year" Width="130" Visible="_showAllColumns" />
+                            <GridColumn Field="@nameof(AccountingOverviewModel.TotalLedgers)" HeaderText="Ledgers" Width="100" TextAlign="TextAlign.Right" />
+                            <GridColumn Field="@nameof(AccountingOverviewModel.TotalDebitLedgers)" HeaderText="Debit Ledgers" Width="130" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+                            <GridColumn Field="@nameof(AccountingOverviewModel.TotalCreditLedgers)" HeaderText="Credit Ledgers" Width="130" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+                            <GridColumn Field="@nameof(AccountingOverviewModel.TotalDebitAmount)" HeaderText="Total Debit" Width="150" TextAlign="TextAlign.Right">
+                                <Template>
+                                    @{
+                                        var item = (context as AccountingOverviewModel);
+                                        <span class="grid-debit">@item.TotalDebitAmount.ToString("N2")</span>
+                                    }
+                                </Template>
+                            </GridColumn>
+                            <GridColumn Field="@nameof(AccountingOverviewModel.TotalCreditAmount)" HeaderText="Total Credit" Width="150" TextAlign="TextAlign.Right">
+                                <Template>
+                                    @{
+                                        var item = (context as AccountingOverviewModel);
+                                        <span class="grid-credit">@item.TotalCreditAmount.ToString("N2")</span>
+                                    }
+                                </Template>
+                            </GridColumn>
+                            <GridColumn Field="@nameof(AccountingOverviewModel.TotalAmount)" HeaderText="Amount" Width="150" TextAlign="TextAlign.Right">
+                                <Template>
+                                    @{
+                                        var item = (context as AccountingOverviewModel);
+                                        <span class="grid-total">@item.TotalAmount.ToString("N2")</span>
+                                    }
+                                </Template>
+                            </GridColumn>
+                            <GridColumn Field="@nameof(AccountingOverviewModel.Remarks)" HeaderText="Remarks" Width="200" Visible="_showAllColumns" />
+                            <GridColumn Field="@nameof(AccountingOverviewModel.CreatedByName)" HeaderText="Created By" Width="150" Visible="_showAllColumns" />
+                            <GridColumn Field="@nameof(AccountingOverviewModel.CreatedAt)" HeaderText="Created At" Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="_showAllColumns" />
+                            <GridColumn Field="@nameof(AccountingOverviewModel.CreatedFromPlatform)" HeaderText="Created Platform" Width="200" Visible="_showAllColumns" />
+                            <GridColumn Field="@nameof(AccountingOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Width="150" Visible="_showAllColumns" />
+                            <GridColumn Field="@nameof(AccountingOverviewModel.LastModifiedAt)" HeaderText="Modified At" Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="_showAllColumns" />
+                            <GridColumn Field="@nameof(AccountingOverviewModel.LastModifiedFromPlatform)" HeaderText="Modified Platform" Width="200" Visible="_showAllColumns" />
+                        </GridColumns>
+                    </SfGrid>
                 </div>
             </div>
         </div>
 
-        <!-- Report Grid Section -->
-        <div class="section-card">
-            <div class="section-header">
-                <div class="section-title-wrapper">
-                    <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="8" y1="6" x2="21" y2="6" />
-                        <line x1="8" y1="12" x2="21" y2="12" />
-                        <line x1="8" y1="18" x2="21" y2="18" />
-                        <line x1="3" y1="6" x2="3.01" y2="6" />
-                        <line x1="3" y1="12" x2="3.01" y2="12" />
-                        <line x1="3" y1="18" x2="3.01" y2="18" />
-                    </svg>
-                    <h2 class="section-title">Accounting Transactions</h2>
-                </div>
-                <div class="header-actions">
-                    <ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted" OnToggle="ToggleDeleted" />
-                    <ToggleDetailsButton Disabled="@_isProcessing" ShowAllColumns="@_showAllColumns" OnToggle="ToggleDetailsView" />
-                </div>
-            </div>
-            <div class="section-body grid-body">
-                <SfGrid @ref="_sfGrid" TValue="AccountingOverviewModel" DataSource="_transactionOverviews"
-                        AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true" AllowFiltering="true"
-                        AllowExcelExport="true" AllowPdfExport="true" GridLines="GridLine.Horizontal" AllowGrouping="true"
-                        CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
-
-                    <GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
-                    <GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
-                    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
-
-                    <GridAggregates>
-                        <GridAggregate>
-                            <GridAggregateColumns>
-                                <GridAggregateColumn Field="@nameof(AccountingOverviewModel.TransactionNo)"
-                                                     Type="AggregateType.Count">
-                                    <FooterTemplate>
-                                        @{
-                                            var aggregate = (context as AggregateTemplateContext);
-                                        }
-                                        <div class="aggregate-label">
-                                            <strong>Total Transactions: @aggregate.Count</strong>
-                                        </div>
-                                    </FooterTemplate>
-                                    <GroupFooterTemplate>
-                                        @{
-                                            var aggregate = (context as AggregateTemplateContext);
-                                        }
-                                        <div class="aggregate-label">
-                                            <strong>Total Transactions: @aggregate.Count</strong>
-                                        </div>
-                                    </GroupFooterTemplate>
-                                    <GroupCaptionTemplate>
-                                        @{
-                                            var aggregate = (context as AggregateTemplateContext);
-                                        }
-                                        <div class="aggregate-label">
-                                            <strong>Total Transactions: @aggregate.Count</strong>
-                                        </div>
-                                    </GroupCaptionTemplate>
-                                </GridAggregateColumn>
-                                <GridAggregateColumn Field="@nameof(AccountingOverviewModel.TotalLedgers)"
-                                                     Type="AggregateType.Sum" Format="N0">
-                                    <FooterTemplate>
-                                        @{
-                                            var aggregate = (context as AggregateTemplateContext);
-                                            <div><strong>@aggregate.Sum</strong></div>
-                                        }
-                                    </FooterTemplate>
-                                    <GroupFooterTemplate>
-                                        @{
-                                            var aggregate = (context as AggregateTemplateContext);
-                                            <div><strong>@aggregate.Sum</strong></div>
-                                        }
-                                    </GroupFooterTemplate>
-                                    <GroupCaptionTemplate>
-                                        @{
-                                            var aggregate = (context as AggregateTemplateContext);
-                                            <div><strong>@aggregate.Sum</strong></div>
-                                        }
-                                    </GroupCaptionTemplate>
-                                </GridAggregateColumn>
-                                <GridAggregateColumn Field="@nameof(AccountingOverviewModel.TotalDebitLedgers)"
-                                                     Type="AggregateType.Sum" Format="N0">
-                                    <FooterTemplate>
-                                        @{
-                                            var aggregate = (context as AggregateTemplateContext);
-                                            <div><strong>@aggregate.Sum</strong></div>
-                                        }
-                                    </FooterTemplate>
-                                    <GroupFooterTemplate>
-                                        @{
-                                            var aggregate = (context as AggregateTemplateContext);
-                                            <div><strong>@aggregate.Sum</strong></div>
-                                        }
-                                    </GroupFooterTemplate>
-                                    <GroupCaptionTemplate>
-                                        @{
-                                            var aggregate = (context as AggregateTemplateContext);
-                                            <div><strong>@aggregate.Sum</strong></div>
-                                        }
-                                    </GroupCaptionTemplate>
-                                </GridAggregateColumn>
-                                <GridAggregateColumn Field="@nameof(AccountingOverviewModel.TotalCreditLedgers)"
-                                                     Type="AggregateType.Sum" Format="N0">
-                                    <FooterTemplate>
-                                        @{
-                                            var aggregate = (context as AggregateTemplateContext);
-                                            <div><strong>@aggregate.Sum</strong></div>
-                                        }
-                                    </FooterTemplate>
-                                    <GroupFooterTemplate>
-                                        @{
-                                            var aggregate = (context as AggregateTemplateContext);
-                                            <div><strong>@aggregate.Sum</strong></div>
-                                        }
-                                    </GroupFooterTemplate>
-                                    <GroupCaptionTemplate>
-                                        @{
-                                            var aggregate = (context as AggregateTemplateContext);
-                                            <div><strong>@aggregate.Sum</strong></div>
-                                        }
-                                    </GroupCaptionTemplate>
-                                </GridAggregateColumn>
-                                <GridAggregateColumn Field="@nameof(AccountingOverviewModel.TotalDebitAmount)"
-                                                     Type="AggregateType.Sum" Format="N2">
-                                    <FooterTemplate>
-                                        @{
-                                            var aggregate = (context as AggregateTemplateContext);
-                                            <div class="aggregate-value aggregate-debit"><strong>@aggregate.Sum</strong></div>
-                                        }
-                                    </FooterTemplate>
-                                    <GroupFooterTemplate>
-                                        @{
-                                            var aggregate = (context as AggregateTemplateContext);
-                                            <div class="aggregate-value aggregate-debit"><strong>@aggregate.Sum</strong></div>
-                                        }
-                                    </GroupFooterTemplate>
-                                    <GroupCaptionTemplate>
-                                        @{
-                                            var aggregate = (context as AggregateTemplateContext);
-                                            <div class="aggregate-value aggregate-debit"><strong>@aggregate.Sum</strong></div>
-                                        }
-                                    </GroupCaptionTemplate>
-                                </GridAggregateColumn>
-                                <GridAggregateColumn Field="@nameof(AccountingOverviewModel.TotalCreditAmount)"
-                                                     Type="AggregateType.Sum" Format="N2">
-                                    <FooterTemplate>
-                                        @{
-                                            var aggregate = (context as AggregateTemplateContext);
-                                            <div class="aggregate-value aggregate-credit"><strong>@aggregate.Sum</strong></div>
-                                        }
-                                    </FooterTemplate>
-                                    <GroupFooterTemplate>
-                                        @{
-                                            var aggregate = (context as AggregateTemplateContext);
-                                            <div class="aggregate-value aggregate-credit"><strong>@aggregate.Sum</strong></div>
-                                        }
-                                    </GroupFooterTemplate>
-                                    <GroupCaptionTemplate>
-                                        @{
-                                            var aggregate = (context as AggregateTemplateContext);
-                                            <div class="aggregate-value aggregate-credit"><strong>@aggregate.Sum</strong></div>
-                                        }
-                                    </GroupCaptionTemplate>
-                                </GridAggregateColumn>
-                                <GridAggregateColumn Field="@nameof(AccountingOverviewModel.TotalAmount)"
-                                                     Type="AggregateType.Sum" Format="N2">
-                                    <FooterTemplate>
-                                        @{
-                                            var aggregate = (context as AggregateTemplateContext);
-                                            <div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
-                                        }
-                                    </FooterTemplate>
-                                    <GroupFooterTemplate>
-                                        @{
-                                            var aggregate = (context as AggregateTemplateContext);
-                                            <div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
-                                        }
-                                    </GroupFooterTemplate>
-                                    <GroupCaptionTemplate>
-                                        @{
-                                            var aggregate = (context as AggregateTemplateContext);
-                                            <div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
-                                        }
-                                    </GroupCaptionTemplate>
-                                </GridAggregateColumn>
-                            </GridAggregateColumns>
-                        </GridAggregate>
-                    </GridAggregates>
-
-                    <GridColumns>
-                        <GridColumn HeaderText="Actions" Width="200" TextAlign="TextAlign.Center">
-                            <Template>
-                                @{
-                                    var item = (context as AccountingOverviewModel);
-                                }
-                                <div class="grid-actions">
-                                    @if (!item.Status)
-                                    {
-                                        <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Size="ButtonSize.Grid" Title="Download Excel Invoice (Alt + E)" Disabled="_isProcessing" OnClick="@(() => DownloadExcelInvoice(item.Id))" />
-                                        <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Grid" Title="Download PDF Invoice (Alt + P)" Disabled="_isProcessing" OnClick="@(() => DownloadPdfInvoice(item.Id))" />
-
-                                        @if (_user.Admin)
-                                        {
-                                            <IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover" Size="ButtonSize.Grid" Title="Recover Transaction (Delete)" Disabled="_isProcessing" OnClick="@(() => ShowRecoverConfirmation(item.Id, item.TransactionNo))" />
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <IconButton Icon="IconType.View" Variant="ButtonVariant.View" Size="ButtonSize.Grid" Title="View Transaction (Ctrl + O)" Disabled="_isProcessing" OnClick="@(() => ViewTransaction(item.Id))" />
-                                        <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Size="ButtonSize.Grid" Title="Download Excel Invoice (Alt + E)" Disabled="_isProcessing" OnClick="@(() => DownloadExcelInvoice(item.Id))" />
-                                        <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Grid" Title="Download PDF Invoice (Alt + P)" Disabled="_isProcessing" OnClick="@(() => DownloadPdfInvoice(item.Id))" />
-
-                                        @if (_user.Admin)
-                                        {
-                                            <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete Transaction (Delete)" Disabled="_isProcessing" OnClick="@(() => ShowDeleteConfirmation(item.Id, item.TransactionNo))" />
-                                        }
-                                    }
-                                </div>
-                            </Template>
-                        </GridColumn>
-                        <GridColumn Field="@nameof(AccountingOverviewModel.TransactionNo)" HeaderText="Trans No" Width="170" />
-                        <GridColumn Field="@nameof(AccountingOverviewModel.TransactionDateTime)" HeaderText="Date" Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
-                        <GridColumn Field="@nameof(AccountingOverviewModel.CompanyName)" HeaderText="Company" Width="180" />
-                        <GridColumn Field="@nameof(AccountingOverviewModel.VoucherName)" HeaderText="Voucher Type" Width="150" />
-                        <GridColumn Field="@nameof(AccountingOverviewModel.ReferenceNo)" HeaderText="Ref No" Width="150" Visible="_showAllColumns" />
-                        <GridColumn Field="@nameof(AccountingOverviewModel.FinancialYear)" HeaderText="Financial Year" Width="130" Visible="_showAllColumns" />
-                        <GridColumn Field="@nameof(AccountingOverviewModel.TotalLedgers)" HeaderText="Ledgers" Width="100" TextAlign="TextAlign.Right" />
-                        <GridColumn Field="@nameof(AccountingOverviewModel.TotalDebitLedgers)" HeaderText="Debit Ledgers" Width="130" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-                        <GridColumn Field="@nameof(AccountingOverviewModel.TotalCreditLedgers)" HeaderText="Credit Ledgers" Width="130" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-                        <GridColumn Field="@nameof(AccountingOverviewModel.TotalDebitAmount)" HeaderText="Total Debit" Width="150" TextAlign="TextAlign.Right">
-                            <Template>
-                                @{
-                                    var item = (context as AccountingOverviewModel);
-                                    <span class="grid-debit">@item.TotalDebitAmount.ToString("N2")</span>
-                                }
-                            </Template>
-                        </GridColumn>
-                        <GridColumn Field="@nameof(AccountingOverviewModel.TotalCreditAmount)" HeaderText="Total Credit" Width="150" TextAlign="TextAlign.Right">
-                            <Template>
-                                @{
-                                    var item = (context as AccountingOverviewModel);
-                                    <span class="grid-credit">@item.TotalCreditAmount.ToString("N2")</span>
-                                }
-                            </Template>
-                        </GridColumn>
-                        <GridColumn Field="@nameof(AccountingOverviewModel.TotalAmount)" HeaderText="Amount" Width="150" TextAlign="TextAlign.Right">
-                            <Template>
-                                @{
-                                    var item = (context as AccountingOverviewModel);
-                                    <span class="grid-total">@item.TotalAmount.ToString("N2")</span>
-                                }
-                            </Template>
-                        </GridColumn>
-                        <GridColumn Field="@nameof(AccountingOverviewModel.Remarks)" HeaderText="Remarks" Width="200" Visible="_showAllColumns" />
-                        <GridColumn Field="@nameof(AccountingOverviewModel.CreatedByName)" HeaderText="Created By" Width="150" Visible="_showAllColumns" />
-                        <GridColumn Field="@nameof(AccountingOverviewModel.CreatedAt)" HeaderText="Created At" Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="_showAllColumns" />
-                        <GridColumn Field="@nameof(AccountingOverviewModel.CreatedFromPlatform)" HeaderText="Created Platform" Width="200" Visible="_showAllColumns" />
-                        <GridColumn Field="@nameof(AccountingOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Width="150" Visible="_showAllColumns" />
-                        <GridColumn Field="@nameof(AccountingOverviewModel.LastModifiedAt)" HeaderText="Modified At" Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="_showAllColumns" />
-                        <GridColumn Field="@nameof(AccountingOverviewModel.LastModifiedFromPlatform)" HeaderText="Modified Platform" Width="200" Visible="_showAllColumns" />
-                    </GridColumns>
-                </SfGrid>
-            </div>
-        </div>
+        <Footer />
     </div>
 }
 

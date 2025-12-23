@@ -12,357 +12,356 @@
 }
 else
 {
-	<Header Title="Inventory Dashboard"
+	<div style="display: flex; flex-direction: column; min-height: 100vh;">
+		<Header Title="Inventory Dashboard"
 				Subtitle="Access all inventory modules and reports"
 				ShowLogout="true"
 				ShowHome="true"
 				OnLogoutClick="Logout"
 				OnHomeClick="NavigateToDashboard" />
 
-	<!-- Main Content Container -->
-	<div class="dashboard-container">
+		<!-- Main Content Container -->
+		<div class="dashboard-container">
 
-		<!-- Inventory Modules Section -->
-		<div class="section-card">
-			<div class="section-header">
-				<div class="section-title-wrapper">
-					<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
-						fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<path
-							d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-						<polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-						<line x1="12" y1="22.08" x2="12" y2="12" />
-					</svg>
-					<h2 class="section-title">Inventory Operations</h2>
+			<!-- Inventory Modules Section -->
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+							<polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+							<line x1="12" y1="22.08" x2="12" y2="12" />
+						</svg>
+						<h2 class="section-title">Inventory Operations</h2>
+					</div>
+					<p class="section-subtitle">Manage purchases, production, and stock adjustments</p>
 				</div>
-				<p class="section-subtitle">Manage purchases, production, and stock adjustments</p>
-			</div>
-			<div class="section-body">
-				<div class="dashboard-grid">
-					<!-- Purchase -->
-					<ButtonCard Title="Purchase" Description="Manage purchase transactions" Color="blue"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.Purchase)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
-								<line x1="3" y1="6" x2="21" y2="6" />
-								<path d="M16 10a4 4 0 0 1-8 0" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
+				<div class="section-body">
+					<div class="dashboard-grid">
+						<!-- Purchase -->
+						<ButtonCard Title="Purchase" Description="Manage purchase transactions" Color="blue"
+									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.Purchase)">
+							<IconContent>
+								<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+									<line x1="3" y1="6" x2="21" y2="6" />
+									<path d="M16 10a4 4 0 0 1-8 0" />
+								</svg>
+							</IconContent>
+						</ButtonCard>
 
-					<!-- Purchase Return -->
-					<ButtonCard Title="Purchase Return" Description="Process purchase returns" Color="rose"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.PurchaseReturn)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<polyline points="9 14 4 9 9 4" />
-								<path d="M20 20v-7a4 4 0 0 0-4-4H4" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
+						<!-- Purchase Return -->
+						<ButtonCard Title="Purchase Return" Description="Process purchase returns" Color="rose"
+									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.PurchaseReturn)">
+							<IconContent>
+								<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<polyline points="9 14 4 9 9 4" />
+									<path d="M20 20v-7a4 4 0 0 0-4-4H4" />
+								</svg>
+							</IconContent>
+						</ButtonCard>
 
-					<!-- Kitchen Issue -->
-					<ButtonCard Title="Kitchen Issue" Description="Issue raw materials to kitchen" Color="orange"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.KitchenIssue)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<line x1="12" y1="19" x2="12" y2="5" />
-								<polyline points="5 12 12 5 19 12" />
-								<rect x="3" y="19" width="18" height="4" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
+						<!-- Kitchen Issue -->
+						<ButtonCard Title="Kitchen Issue" Description="Issue raw materials to kitchen" Color="orange"
+									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.KitchenIssue)">
+							<IconContent>
+								<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<line x1="12" y1="19" x2="12" y2="5" />
+									<polyline points="5 12 12 5 19 12" />
+									<rect x="3" y="19" width="18" height="4" />
+								</svg>
+							</IconContent>
+						</ButtonCard>
 
-					<!-- Kitchen Production -->
-					<ButtonCard Title="Kitchen Production" Description="Record production and finished goods" Color="green"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.KitchenProduction)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<path d="M3 10h4l3 7 3-14 3 7h4" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
+						<!-- Kitchen Production -->
+						<ButtonCard Title="Kitchen Production" Description="Record production and finished goods" Color="green"
+									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.KitchenProduction)">
+							<IconContent>
+								<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<path d="M3 10h4l3 7 3-14 3 7h4" />
+								</svg>
+							</IconContent>
+						</ButtonCard>
 
-					<!-- Raw Material Stock Adjustment -->
-					<ButtonCard Title="Raw Material Adjustment" Description="Adjust raw material stock levels" Color="purple"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.RawMaterialStockAdjustment)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<line x1="16.5" y1="9.4" x2="7.5" y2="4.21" />
-								<path
-									d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-								<polyline points="7.5 4.21 12 6.81 16.5 4.21" />
-								<line x1="12" y1="22" x2="12" y2="12" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
+						<!-- Raw Material Stock Adjustment -->
+						<ButtonCard Title="Raw Material Adjustment" Description="Adjust raw material stock levels" Color="purple"
+									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.RawMaterialStockAdjustment)">
+							<IconContent>
+								<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<line x1="16.5" y1="9.4" x2="7.5" y2="4.21" />
+									<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+									<polyline points="7.5 4.21 12 6.81 16.5 4.21" />
+									<line x1="12" y1="22" x2="12" y2="12" />
+								</svg>
+							</IconContent>
+						</ButtonCard>
 
-					<!-- Product Stock Adjustment -->
-					<ButtonCard Title="Finished Product Adjustment" Description="Adjust finished product stock levels" Color="indigo"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ProductStockAdjustment)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<polygon points="12 2 2 7 12 12 22 7 12 2" />
-								<polyline points="2 17 12 22 22 17" />
-								<polyline points="2 12 12 17 22 12" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
+						<!-- Product Stock Adjustment -->
+						<ButtonCard Title="Finished Product Adjustment" Description="Adjust finished product stock levels" Color="indigo"
+									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ProductStockAdjustment)">
+							<IconContent>
+								<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<polygon points="12 2 2 7 12 12 22 7 12 2" />
+									<polyline points="2 17 12 22 22 17" />
+									<polyline points="2 12 12 17 22 12" />
+								</svg>
+							</IconContent>
+						</ButtonCard>
 
-					<!-- Recipe -->
-					<ButtonCard Title="Recipe" Description="Manage Finished product recipes" Color="rose"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.Recipe)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-								<path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
-				</div>
-			</div>
-		</div>
-
-		<!-- Inventory Reports Section -->
-		<div class="section-card">
-			<div class="section-header">
-				<div class="section-title-wrapper">
-					<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
-						fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-						<polyline points="14 2 14 8 20 8" />
-						<line x1="16" y1="13" x2="8" y2="13" />
-						<line x1="16" y1="17" x2="8" y2="17" />
-						<line x1="12" y1="18" x2="12" y2="12" />
-					</svg>
-					<h2 class="section-title">Inventory Reports</h2>
-				</div>
-				<p class="section-subtitle">View and analyze inventory transaction reports</p>
-			</div>
-			<div class="section-body">
-				<div class="dashboard-grid">
-					<!-- Purchase Report -->
-					<ButtonCard Title="Purchase Report" Description="View purchase transaction history" Color="cyan"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportPurchase)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
-
-					<!-- Purchase Item Report -->
-					<ButtonCard Title="Purchase Item Report" Description="View detailed purchase items" Color="sky"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportPurchaseItem)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-								<polyline points="14 2 14 8 20 8" />
-								<line x1="16" y1="13" x2="8" y2="13" />
-								<line x1="16" y1="17" x2="8" y2="17" />
-								<line x1="10" y1="9" x2="8" y2="9" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
-
-					<!-- Purchase Return Report -->
-					<ButtonCard Title="Purchase Return Report" Description="View purchase return records" Color="rose"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportPurchaseReturn)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
-								<polyline points="17 18 23 18 23 12" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
-
-					<!-- Purchase Return Item Report -->
-					<ButtonCard Title="Purchase Return Item Report" Description="View detailed purchase return items" Color="amber"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportPurchaseReturnItem)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-								<polyline points="14 2 14 8 20 8" />
-								<line x1="12" y1="18" x2="12" y2="12" />
-								<line x1="12" y1="9" x2="12.01" y2="9" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
-
-					<!-- Kitchen Issue Report -->
-					<ButtonCard Title="Kitchen Issue Report" Description="View material issue history" Color="emerald"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportKitchenIssue)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<line x1="22" y1="2" x2="11" y2="13" />
-								<polygon points="22 2 15 22 11 13 2 9 22 2" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
-
-					<!-- Kitchen Issue Item Report -->
-					<ButtonCard Title="Kitchen Issue Item Report" Description="View detailed kitchen issue items" Color="teal"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportKitchenIssueItem)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<line x1="8" y1="6" x2="21" y2="6" />
-								<line x1="8" y1="12" x2="21" y2="12" />
-								<line x1="8" y1="18" x2="21" y2="18" />
-								<line x1="3" y1="6" x2="3.01" y2="6" />
-								<line x1="3" y1="12" x2="3.01" y2="12" />
-								<line x1="3" y1="18" x2="3.01" y2="18" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
-
-					<!-- Kitchen Production Report -->
-					<ButtonCard Title="Kitchen Production Report" Description="View kitchen production records" Color="violet"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportKitchenProduction)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<circle cx="12" cy="8" r="7" />
-								<polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
-
-					<!-- Kitchen Production Item Report -->
-					<ButtonCard Title="Kitchen Production Item Report" Description="View detailed production items" Color="green"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportKitchenProductionItem)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-								<polyline points="22 4 12 14.01 9 11.01" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
-
-					<!-- Raw Material Stock Report -->
-					<ButtonCard Title="Raw Material Stock" Description="View current raw material stock levels" Color="blue"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportRawMaterialStock)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<ellipse cx="12" cy="5" rx="9" ry="3" />
-								<path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
-								<path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
-
-					<!-- Product Stock Report -->
-					<ButtonCard Title="Finished Product Stock" Description="View current product stock levels" Color="indigo"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportProductStock)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<polyline points="21 8 21 21 3 21 3 8" />
-								<rect x="1" y="3" width="22" height="5" />
-								<line x1="10" y1="12" x2="14" y2="12" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
+						<!-- Recipe -->
+						<ButtonCard Title="Recipe" Description="Manage Finished product recipes" Color="rose"
+									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.Recipe)">
+							<IconContent>
+								<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+									<path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+								</svg>
+							</IconContent>
+						</ButtonCard>
+					</div>
 				</div>
 			</div>
-		</div>
 
-		<!-- Master Data Section -->
-		<div class="section-card">
-			<div class="section-header">
-				<div class="section-title-wrapper">
-					<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
-						fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<path
-							d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-						<polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-						<line x1="12" y1="22.08" x2="12" y2="12" />
-					</svg>
-					<h2 class="section-title">Master Data</h2>
+			<!-- Inventory Reports Section -->
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+							<polyline points="14 2 14 8 20 8" />
+							<line x1="16" y1="13" x2="8" y2="13" />
+							<line x1="16" y1="17" x2="8" y2="17" />
+							<line x1="12" y1="18" x2="12" y2="12" />
+						</svg>
+						<h2 class="section-title">Inventory Reports</h2>
+					</div>
+					<p class="section-subtitle">View and analyze inventory transaction reports</p>
 				</div>
-				<p class="section-subtitle">Manage raw materials, categories, and kitchen</p>
+				<div class="section-body">
+					<div class="dashboard-grid">
+						<!-- Purchase Report -->
+						<ButtonCard Title="Purchase Report" Description="View purchase transaction history" Color="cyan"
+									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportPurchase)">
+							<IconContent>
+								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+								</svg>
+							</IconContent>
+						</ButtonCard>
+
+						<!-- Purchase Item Report -->
+						<ButtonCard Title="Purchase Item Report" Description="View detailed purchase items" Color="sky"
+									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportPurchaseItem)">
+							<IconContent>
+								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+									<polyline points="14 2 14 8 20 8" />
+									<line x1="16" y1="13" x2="8" y2="13" />
+									<line x1="16" y1="17" x2="8" y2="17" />
+									<line x1="10" y1="9" x2="8" y2="9" />
+								</svg>
+							</IconContent>
+						</ButtonCard>
+
+						<!-- Purchase Return Report -->
+						<ButtonCard Title="Purchase Return Report" Description="View purchase return records" Color="rose"
+									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportPurchaseReturn)">
+							<IconContent>
+								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
+									<polyline points="17 18 23 18 23 12" />
+								</svg>
+							</IconContent>
+						</ButtonCard>
+
+						<!-- Purchase Return Item Report -->
+						<ButtonCard Title="Purchase Return Item Report" Description="View detailed purchase return items" Color="amber"
+									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportPurchaseReturnItem)">
+							<IconContent>
+								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+									<polyline points="14 2 14 8 20 8" />
+									<line x1="12" y1="18" x2="12" y2="12" />
+									<line x1="12" y1="9" x2="12.01" y2="9" />
+								</svg>
+							</IconContent>
+						</ButtonCard>
+
+						<!-- Kitchen Issue Report -->
+						<ButtonCard Title="Kitchen Issue Report" Description="View material issue history" Color="emerald"
+									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportKitchenIssue)">
+							<IconContent>
+								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<line x1="22" y1="2" x2="11" y2="13" />
+									<polygon points="22 2 15 22 11 13 2 9 22 2" />
+								</svg>
+							</IconContent>
+						</ButtonCard>
+
+						<!-- Kitchen Issue Item Report -->
+						<ButtonCard Title="Kitchen Issue Item Report" Description="View detailed kitchen issue items" Color="teal"
+									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportKitchenIssueItem)">
+							<IconContent>
+								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<line x1="8" y1="6" x2="21" y2="6" />
+									<line x1="8" y1="12" x2="21" y2="12" />
+									<line x1="8" y1="18" x2="21" y2="18" />
+									<line x1="3" y1="6" x2="3.01" y2="6" />
+									<line x1="3" y1="12" x2="3.01" y2="12" />
+									<line x1="3" y1="18" x2="3.01" y2="18" />
+								</svg>
+							</IconContent>
+						</ButtonCard>
+
+						<!-- Kitchen Production Report -->
+						<ButtonCard Title="Kitchen Production Report" Description="View kitchen production records" Color="violet"
+									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportKitchenProduction)">
+							<IconContent>
+								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<circle cx="12" cy="8" r="7" />
+									<polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
+								</svg>
+							</IconContent>
+						</ButtonCard>
+
+						<!-- Kitchen Production Item Report -->
+						<ButtonCard Title="Kitchen Production Item Report" Description="View detailed production items" Color="green"
+									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportKitchenProductionItem)">
+							<IconContent>
+								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+									<polyline points="22 4 12 14.01 9 11.01" />
+								</svg>
+							</IconContent>
+						</ButtonCard>
+
+						<!-- Raw Material Stock Report -->
+						<ButtonCard Title="Raw Material Stock" Description="View current raw material stock levels" Color="blue"
+									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportRawMaterialStock)">
+							<IconContent>
+								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<ellipse cx="12" cy="5" rx="9" ry="3" />
+									<path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+									<path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+								</svg>
+							</IconContent>
+						</ButtonCard>
+
+						<!-- Product Stock Report -->
+						<ButtonCard Title="Finished Product Stock" Description="View current product stock levels" Color="indigo"
+									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportProductStock)">
+							<IconContent>
+								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<polyline points="21 8 21 21 3 21 3 8" />
+									<rect x="1" y="3" width="22" height="5" />
+									<line x1="10" y1="12" x2="14" y2="12" />
+								</svg>
+							</IconContent>
+						</ButtonCard>
+					</div>
+				</div>
 			</div>
-			<div class="section-body">
-				<div class="dashboard-grid">
-					<!-- Raw Material -->
-					<ButtonCard Title="Raw Material" Description="Manage raw materials inventory" Color="blue"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminRawMaterial)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<path
-									d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-								<polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-								<line x1="12" y1="22.08" x2="12" y2="12" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
 
-					<!-- Raw Material Category -->
-					<ButtonCard Title="Raw Material Category" Description="Manage raw material categories" Color="cyan"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminRawMaterialCategory)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<rect x="3" y="3" width="7" height="7" />
-								<rect x="14" y="3" width="7" height="7" />
-								<rect x="14" y="14" width="7" height="7" />
-								<rect x="3" y="14" width="7" height="7" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
+			<!-- Master Data Section -->
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+							<polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+							<line x1="12" y1="22.08" x2="12" y2="12" />
+						</svg>
+						<h2 class="section-title">Master Data</h2>
+					</div>
+					<p class="section-subtitle">Manage raw materials, categories, and kitchen</p>
+				</div>
+				<div class="section-body">
+					<div class="dashboard-grid">
+						<!-- Raw Material -->
+						<ButtonCard Title="Raw Material" Description="Manage raw materials inventory" Color="blue"
+									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminRawMaterial)">
+							<IconContent>
+								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+									<polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+									<line x1="12" y1="22.08" x2="12" y2="12" />
+								</svg>
+							</IconContent>
+						</ButtonCard>
 
-					<!-- Kitchen -->
-					<ButtonCard Title="Kitchen" Description="Manage kitchen locations" Color="orange"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminKitchen)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
-								<path d="M7 2v20" />
-								<path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
+						<!-- Raw Material Category -->
+						<ButtonCard Title="Raw Material Category" Description="Manage raw material categories" Color="cyan"
+									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminRawMaterialCategory)">
+							<IconContent>
+								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<rect x="3" y="3" width="7" height="7" />
+									<rect x="14" y="3" width="7" height="7" />
+									<rect x="14" y="14" width="7" height="7" />
+									<rect x="3" y="14" width="7" height="7" />
+								</svg>
+							</IconContent>
+						</ButtonCard>
+
+						<!-- Kitchen -->
+						<ButtonCard Title="Kitchen" Description="Manage kitchen locations" Color="orange"
+									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminKitchen)">
+							<IconContent>
+								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
+									<path d="M7 2v20" />
+									<path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
+								</svg>
+							</IconContent>
+						</ButtonCard>
+					</div>
 				</div>
 			</div>
 		</div>
 
+		<Footer />
 	</div>
 }
 
@@ -391,9 +390,9 @@ else
 		transition: all 0.3s ease;
 	}
 
-	.section-card:hover {
-		box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
-	}
+		.section-card:hover {
+			box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+		}
 
 	.section-header {
 		padding: 20px 24px;

@@ -14,7 +14,8 @@
 }
 else
 {
-    <Header Title="Stock Transfer Item Report" Subtitle="View and analyze stock transfer item transactions" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack">
+    <div style="display: flex; flex-direction: column; min-height: 100vh;">
+        <Header Title="Stock Transfer Item Report" Subtitle="View and analyze stock transfer item transactions" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack">
         <RightContent>
             <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
             <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
@@ -436,6 +437,9 @@ else
             </div>
         </div>
     </div>
+
+        <Footer />
+    </div>
 }
 
 <ToastNotification @ref="_toastNotification" />
@@ -733,4 +737,3 @@ else
         }
     }
 </style>
-

@@ -15,7 +15,8 @@
 }
 else
 {
-    <Header Title="Sale Return Report" Subtitle="View and analyze sale return transactions" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack">
+    <div style="display: flex; flex-direction: column; min-height: 100vh;">
+        <Header Title="Sale Return Report" Subtitle="View and analyze sale return transactions" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack">
         <RightContent>
             <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
             <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
@@ -627,6 +628,9 @@ else
                 </SfGrid>
             </div>
         </div>
+    </div>
+
+        <Footer />
     </div>
 }
 

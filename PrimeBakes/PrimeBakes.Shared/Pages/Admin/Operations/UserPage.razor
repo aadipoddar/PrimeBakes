@@ -12,197 +12,200 @@
 }
 else
 {
-    <Header Title="User Management" Subtitle="Manage user accounts and permissions"
-        ShowHome="true" ShowBack="true"
-        OnHomeClick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))"
-        OnBackClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard))">
-        <RightContent>
-            <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
-            <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
-            <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save User (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveUser" />
-            <IconButton Icon="IconType.New" Title="New User (Ctrl + N)" Disabled="_isProcessing" OnClick="ResetPage" />
-        </RightContent>
-    </Header>
+    <div style="display: flex; flex-direction: column; min-height: 100vh;">
+        <Header Title="User Management" Subtitle="Manage user accounts and permissions"
+                ShowHome="true" ShowBack="true"
+                OnHomeClick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))"
+                OnBackClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard))">
+            <RightContent>
+                <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
+                <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
+                <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save User (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveUser" />
+                <IconButton Icon="IconType.New" Title="New User (Ctrl + N)" Disabled="_isProcessing" OnClick="ResetPage" />
+            </RightContent>
+        </Header>
 
-    <!-- Main Content Container -->
-    <div class="purchase-container">
+        <!-- Main Content Container -->
+        <div class="purchase-container">
 
-        <!-- User Entry Section -->
-        <div class="section-card">
-            <div class="section-header">
-                <div class="section-title-wrapper">
-                    <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                        <circle cx="12" cy="7" r="4" />
-                    </svg>
-                    <h2 class="section-title">User Details</h2>
+            <!-- User Entry Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
+                        </svg>
+                        <h2 class="section-title">User Details</h2>
+                    </div>
                 </div>
-            </div>
-            <div class="section-body">
-                <div class="form-grid-triple">
-                    <!-- User Name -->
-                    <div class="form-field">
-                        <label class="field-label">
-                            User Name <span class="required">*</span>
-                        </label>
-                        <SfTextBox @bind-Value="_user.Name" Placeholder="Enter user name"
-                                   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                    </div>
+                <div class="section-body">
+                    <div class="form-grid-triple">
+                        <!-- User Name -->
+                        <div class="form-field">
+                            <label class="field-label">
+                                User Name <span class="required">*</span>
+                            </label>
+                            <SfTextBox @bind-Value="_user.Name" Placeholder="Enter user name"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
 
-                    <!-- Passcode -->
-                    <div class="form-field">
-                        <label class="field-label">
-                            Passcode <span class="required">*</span>
-                        </label>
-                        <SfNumericTextBox @bind-Value="_user.Passcode" TValue="int" Format="0000" Min="0" Max="9999"
-                                          Placeholder="Enter 4-digit passcode" FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                    </div>
+                        <!-- Passcode -->
+                        <div class="form-field">
+                            <label class="field-label">
+                                Passcode <span class="required">*</span>
+                            </label>
+                            <SfNumericTextBox @bind-Value="_user.Passcode" TValue="int" Format="0000" Min="0" Max="9999"
+                                              Placeholder="Enter 4-digit passcode" FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
 
-                    <!-- Location -->
-                    <div class="form-field">
-                        <label class="field-label">
-                            Location <span class="required">*</span>
-                        </label>
-                        <SfAutoComplete @bind-Value="_location" TValue="LocationModel" TItem="LocationModel"
-                                        DataSource="@_locations" Placeholder="Select location"
-                                        FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
-                                        FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-dropdown">
-                            <AutoCompleteFieldSettings Value="Name" />
-                        </SfAutoComplete>
-                    </div>
+                        <!-- Location -->
+                        <div class="form-field">
+                            <label class="field-label">
+                                Location <span class="required">*</span>
+                            </label>
+                            <SfAutoComplete @bind-Value="_location" TValue="LocationModel" TItem="LocationModel"
+                                            DataSource="@_locations" Placeholder="Select location"
+                                            FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
+                                            FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-dropdown">
+                                <AutoCompleteFieldSettings Value="Name" />
+                            </SfAutoComplete>
+                        </div>
 
-                    <!-- Permissions Section -->
-                    <div class="form-field form-field-span-3">
-                        <label class="field-label">Permissions</label>
-                        <div class="permissions-grid">
-                            <div class="permission-item">
-                                <SfCheckBox @bind-Checked="_user.Sales" Label="Sales" CssClass="custom-checkbox" />
-                            </div>
-                            <div class="permission-item">
-                                <SfCheckBox @bind-Checked="_user.Order" Label="Order" CssClass="custom-checkbox" />
-                            </div>
-                            <div class="permission-item">
-                                <SfCheckBox @bind-Checked="_user.Inventory" Label="Inventory" CssClass="custom-checkbox" />
-                            </div>
-                            <div class="permission-item">
-                                <SfCheckBox @bind-Checked="_user.Accounts" Label="Accounts" CssClass="custom-checkbox" />
-                            </div>
-                            <div class="permission-item">
-                                <SfCheckBox @bind-Checked="_user.Admin" Label="Admin" CssClass="custom-checkbox" />
+                        <!-- Permissions Section -->
+                        <div class="form-field form-field-span-3">
+                            <label class="field-label">Permissions</label>
+                            <div class="permissions-grid">
+                                <div class="permission-item">
+                                    <SfCheckBox @bind-Checked="_user.Sales" Label="Sales" CssClass="custom-checkbox" />
+                                </div>
+                                <div class="permission-item">
+                                    <SfCheckBox @bind-Checked="_user.Order" Label="Order" CssClass="custom-checkbox" />
+                                </div>
+                                <div class="permission-item">
+                                    <SfCheckBox @bind-Checked="_user.Inventory" Label="Inventory" CssClass="custom-checkbox" />
+                                </div>
+                                <div class="permission-item">
+                                    <SfCheckBox @bind-Checked="_user.Accounts" Label="Accounts" CssClass="custom-checkbox" />
+                                </div>
+                                <div class="permission-item">
+                                    <SfCheckBox @bind-Checked="_user.Admin" Label="Admin" CssClass="custom-checkbox" />
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Remarks -->
-                    <div class="form-field form-field-span-3">
-                        <label class="field-label">Remarks</label>
-                        <SfTextBox @bind-Value="_user.Remarks" Placeholder="Enter remarks (optional)" Multiline="true"
-                                   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        <!-- Remarks -->
+                        <div class="form-field form-field-span-3">
+                            <label class="field-label">Remarks</label>
+                            <SfTextBox @bind-Value="_user.Remarks" Placeholder="Enter remarks (optional)" Multiline="true"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Users List Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                        </svg>
+                        <h2 class="section-title">Users List</h2>
+                    </div>
+                    <div class="header-actions">
+                        <ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted" OnToggle="ToggleDeleted" />
+                    </div>
+                </div>
+                <div class="section-body grid-body">
+                    <SfGrid @ref="_sfGrid" DataSource="@_users" AllowPaging="true" AllowSorting="true" AllowFiltering="true"
+                            AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
+                        <GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+                        <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+                        <GridColumns>
+                            <GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center" AllowFiltering="false">
+                                <Template>
+                                    @{
+                                        var user = (context as UserModel);
+
+                                        <div class="grid-actions">
+                                            @if (user.Status)
+                                            {
+                                                <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid" Title="Edit (Insert)" OnClick="@(() => OnEditUser(user))" />
+                                                <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete (Delete)" OnClick="@(() => ShowDeleteConfirmation(user.Id, user.Name))" />
+                                            }
+                                            else
+                                            {
+                                                <IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover" Size="ButtonSize.Grid" Title="Recover (Delete)" OnClick="@(() => ShowRecoverConfirmation(user.Id, user.Name))" />
+                                            }
+                                        </div>
+                                    }
+                                </Template>
+                            </GridColumn>
+                            <GridColumn Field="@nameof(UserModel.Id)" HeaderText="ID" Width="80"
+                                        TextAlign="TextAlign.Center" />
+                            <GridColumn Field="@nameof(UserModel.Name)" HeaderText="User Name" Width="200" />
+                            <GridColumn Field="@nameof(UserModel.Passcode)" HeaderText="Passcode" Width="120" Format="0000"
+                                        TextAlign="TextAlign.Center" />
+                            <GridColumn Field="@nameof(UserModel.LocationId)" HeaderText="Location" Width="150">
+                                <Template>
+                                    @{
+                                        var user = (context as UserModel);
+                                        var location = _locations.FirstOrDefault(l => l.Id == user.LocationId);
+                                        <span>@(location?.Name ?? "N/A")</span>
+                                    }
+                                </Template>
+                            </GridColumn>
+                            <GridColumn HeaderText="Permissions" Width="250" AllowFiltering="false">
+                                <Template>
+                                    @{
+                                        var user = (context as UserModel);
+                                        var permissions = new List<string>();
+                                        if (user.Sales) permissions.Add("Sales");
+                                        if (user.Order) permissions.Add("Order");
+                                        if (user.Inventory) permissions.Add("Inventory");
+                                        if (user.Accounts) permissions.Add("Accounts");
+                                        if (user.Admin) permissions.Add("Admin");
+                                        <span>@string.Join(", ", permissions)</span>
+                                    }
+                                </Template>
+                            </GridColumn>
+                            <GridColumn Field="@nameof(UserModel.Remarks)" HeaderText="Remarks" Width="250" />
+                            <GridColumn Field="@nameof(UserModel.Status)" HeaderText="Status" Width="100"
+                                        TextAlign="TextAlign.Center">
+                                <Template>
+                                    @{
+                                        var user = (context as UserModel);
+                                        <div class="grid-checkbox"
+                                             style="@(user.Status ? "color: #10b981; background: #d1fae5;" : "color: #dc2626; background: #fee2e2;")">
+                                            @(user.Status ? "✓" : "✗")
+                                        </div>
+                                    }
+                                </Template>
+                            </GridColumn>
+                        </GridColumns>
+                    </SfGrid>
                 </div>
             </div>
         </div>
 
-        <!-- Users List Section -->
-        <div class="section-card">
-            <div class="section-header">
-                <div class="section-title-wrapper">
-                    <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                        <circle cx="9" cy="7" r="4" />
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                    </svg>
-                    <h2 class="section-title">Users List</h2>
-                </div>
-                <div class="header-actions">
-                    <ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted" OnToggle="ToggleDeleted" />
-                </div>
-            </div>
-            <div class="section-body grid-body">
-                <SfGrid @ref="_sfGrid" DataSource="@_users" AllowPaging="true" AllowSorting="true" AllowFiltering="true"
-                        AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
-                    <GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
-                    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
-                    <GridColumns>
-                        <GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center" AllowFiltering="false">
-                            <Template>
-                                @{
-                                    var user = (context as UserModel);
-
-                                    <div class="grid-actions">
-                                        @if (user.Status)
-                                        {
-                                            <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid" Title="Edit (Insert)" OnClick="@(() => OnEditUser(user))" />
-                                            <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete (Delete)" OnClick="@(() => ShowDeleteConfirmation(user.Id, user.Name))" />
-                                        }
-                                        else
-                                        {
-                                            <IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover" Size="ButtonSize.Grid" Title="Recover (Delete)" OnClick="@(() => ShowRecoverConfirmation(user.Id, user.Name))" />
-                                        }
-                                    </div>
-                                }
-                            </Template>
-                        </GridColumn>
-                        <GridColumn Field="@nameof(UserModel.Id)" HeaderText="ID" Width="80"
-                                    TextAlign="TextAlign.Center" />
-                        <GridColumn Field="@nameof(UserModel.Name)" HeaderText="User Name" Width="200" />
-                        <GridColumn Field="@nameof(UserModel.Passcode)" HeaderText="Passcode" Width="120" Format="0000"
-                                    TextAlign="TextAlign.Center" />
-                        <GridColumn Field="@nameof(UserModel.LocationId)" HeaderText="Location" Width="150">
-                            <Template>
-                                @{
-                                    var user = (context as UserModel);
-                                    var location = _locations.FirstOrDefault(l => l.Id == user.LocationId);
-                                    <span>@(location?.Name ?? "N/A")</span>
-                                }
-                            </Template>
-                        </GridColumn>
-                        <GridColumn HeaderText="Permissions" Width="250" AllowFiltering="false">
-                            <Template>
-                                @{
-                                    var user = (context as UserModel);
-                                    var permissions = new List<string>();
-                                    if (user.Sales) permissions.Add("Sales");
-                                    if (user.Order) permissions.Add("Order");
-                                    if (user.Inventory) permissions.Add("Inventory");
-                                    if (user.Accounts) permissions.Add("Accounts");
-                                    if (user.Admin) permissions.Add("Admin");
-                                    <span>@string.Join(", ", permissions)</span>
-                                }
-                            </Template>
-                        </GridColumn>
-                        <GridColumn Field="@nameof(UserModel.Remarks)" HeaderText="Remarks" Width="250" />
-                        <GridColumn Field="@nameof(UserModel.Status)" HeaderText="Status" Width="100"
-                                    TextAlign="TextAlign.Center">
-                            <Template>
-                                @{
-                                    var user = (context as UserModel);
-                                    <div class="grid-checkbox"
-                                         style="@(user.Status ? "color: #10b981; background: #d1fae5;" : "color: #dc2626; background: #fee2e2;")">
-                                        @(user.Status ? "✓" : "✗")
-                                    </div>
-                                }
-                            </Template>
-                        </GridColumn>
-                    </GridColumns>
-                </SfGrid>
-            </div>
-        </div>
-
+        <Footer />
     </div>
 }
 
 <DeleteConfirmationDialog @ref="_deleteConfirmationDialog"
-                         EntityName="User"
-                         IdentifierLabel="User Name"
-                         IdentifierValue="@_deleteUserName"
-                         IsPermanentDelete="false"
-                         Disabled="@_isProcessing"
-                         OnConfirm="ConfirmDelete"
-                         OnCancel="CancelDelete" />
+                          EntityName="User"
+                          IdentifierLabel="User Name"
+                          IdentifierValue="@_deleteUserName"
+                          IsPermanentDelete="false"
+                          Disabled="@_isProcessing"
+                          OnConfirm="ConfirmDelete"
+                          OnCancel="CancelDelete" />
 
 <RecoverConfirmationDialog @ref="_recoverConfirmationDialog"
                            EntityName="User"

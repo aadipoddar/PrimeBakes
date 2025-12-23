@@ -13,160 +13,163 @@
 }
 else
 {
-    <Header Title="Product Location Management" Subtitle="Manage product rates by location"
-        ShowHome="true" ShowBack="true"
-        OnHomeClick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))"
-        OnBackClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard))">
-        <RightContent>
-            <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
-            <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
-            <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Product Location (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveProductLocation" />
-            <IconButton Icon="IconType.New" Title="New Product Location (Ctrl + N)" Disabled="_isProcessing" OnClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminProductLocation, true))" />
-        </RightContent>
-    </Header>
+    <div style="display: flex; flex-direction: column; min-height: 100vh;">
+        <Header Title="Product Location Management" Subtitle="Manage product rates by location"
+                ShowHome="true" ShowBack="true"
+                OnHomeClick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))"
+                OnBackClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard))">
+            <RightContent>
+                <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
+                <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
+                <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Product Location (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveProductLocation" />
+                <IconButton Icon="IconType.New" Title="New Product Location (Ctrl + N)" Disabled="_isProcessing" OnClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminProductLocation, true))" />
+            </RightContent>
+        </Header>
 
-    <!-- Main Content Container -->
-    <div class="purchase-container">
+        <!-- Main Content Container -->
+        <div class="purchase-container">
 
-        <!-- Product Location Entry Section -->
-        <div class="section-card">
-            <div class="section-header">
-                <div class="section-title-wrapper">
-                    <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
-                    </svg>
-                    <h2 class="section-title">Product Location Details</h2>
+            <!-- Product Location Entry Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
+                        </svg>
+                        <h2 class="section-title">Product Location Details</h2>
+                    </div>
+                </div>
+                <div class="section-body">
+                    <div class="form-grid-three">
+                        <!-- Location -->
+                        <div class="form-field">
+                            <label class="field-label">Location <span class="required">*</span></label>
+                            <SfAutoComplete @bind-Value="_selectedLocationName" TValue="string" TItem="LocationModel"
+                                            Placeholder="Select location" DataSource="@_locations" PopupHeight="300px"
+                                            CssClass="custom-autocomplete" AllowFiltering="true"
+                                            FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
+                                <AutoCompleteFieldSettings Value="Name"></AutoCompleteFieldSettings>
+                                <AutoCompleteEvents TValue="string" TItem="LocationModel" ValueChange="OnLocationChange">
+                                </AutoCompleteEvents>
+                            </SfAutoComplete>
+                        </div>
+
+                        <!-- Product -->
+                        <div class="form-field">
+                            <label class="field-label">Product <span class="required">*</span></label>
+                            <SfAutoComplete @bind-Value="_selectedProductName" TValue="string" TItem="ProductModel"
+                                            Placeholder="Select product" DataSource="@_products" PopupHeight="300px"
+                                            CssClass="custom-autocomplete" AllowFiltering="true"
+                                            FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
+                                <AutoCompleteFieldSettings Value="Name"></AutoCompleteFieldSettings>
+                                <AutoCompleteEvents TValue="string" TItem="ProductModel" ValueChange="OnProductChange">
+                                </AutoCompleteEvents>
+                            </SfAutoComplete>
+                        </div>
+
+                        <!-- Rate -->
+                        <div class="form-field">
+                            <label class="field-label">Rate <span class="required">*</span></label>
+                            <SfNumericTextBox @bind-Value="_productLocation.Rate" TValue="decimal" Placeholder="0.00"
+                                              CssClass="custom-textbox" Format="N2" Decimals="2" Min="0" ShowSpinButton="false">
+                            </SfNumericTextBox>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="section-body">
-                <div class="form-grid-three">
-                    <!-- Location -->
-                    <div class="form-field">
-                        <label class="field-label">Location <span class="required">*</span></label>
-                        <SfAutoComplete @bind-Value="_selectedLocationName" TValue="string" TItem="LocationModel"
-                                        Placeholder="Select location" DataSource="@_locations" PopupHeight="300px"
-                                        CssClass="custom-autocomplete" AllowFiltering="true"
-                                        FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
-                            <AutoCompleteFieldSettings Value="Name"></AutoCompleteFieldSettings>
-                            <AutoCompleteEvents TValue="string" TItem="LocationModel" ValueChange="OnLocationChange">
-                            </AutoCompleteEvents>
-                        </SfAutoComplete>
-                    </div>
 
-                    <!-- Product -->
-                    <div class="form-field">
-                        <label class="field-label">Product <span class="required">*</span></label>
-                        <SfAutoComplete @bind-Value="_selectedProductName" TValue="string" TItem="ProductModel"
-                                        Placeholder="Select product" DataSource="@_products" PopupHeight="300px"
-                                        CssClass="custom-autocomplete" AllowFiltering="true"
-                                        FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
-                            <AutoCompleteFieldSettings Value="Name"></AutoCompleteFieldSettings>
-                            <AutoCompleteEvents TValue="string" TItem="ProductModel" ValueChange="OnProductChange">
-                            </AutoCompleteEvents>
-                        </SfAutoComplete>
+            <!-- Product Location List Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 11l3 3L22 4" />
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                        </svg>
+                        <h2 class="section-title">Product Location List</h2>
                     </div>
+                    <div class="header-actions">
+                        <!-- Deleted toggle removed: page shows only active product locations -->
+                    </div>
+                </div>
+                <div class="section-body grid-body">
+                    <SfGrid @ref="_sfGrid" DataSource="@_productLocationOverviews" AllowPaging="true" AllowSorting="true"
+                            AllowFiltering="true" AllowResizing="true" CssClass="professional-grid"
+                            Toolbar="@(new List<string>() { "Search" })">
+                        <GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+                        <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+                        <GridColumns>
+                            <GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center" AllowFiltering="false">
+                                <Template>
+                                    @{
+                                        var productLocation = (context as ProductLocationOverviewModel);
+                                        var actualProductLocation = _productLocations.FirstOrDefault(pl => pl.Id ==
+                                        productLocation.Id);
 
-                    <!-- Rate -->
-                    <div class="form-field">
-                        <label class="field-label">Rate <span class="required">*</span></label>
-                        <SfNumericTextBox @bind-Value="_productLocation.Rate" TValue="decimal" Placeholder="0.00"
-                                          CssClass="custom-textbox" Format="N2" Decimals="2" Min="0" ShowSpinButton="false">
-                        </SfNumericTextBox>
-                    </div>
+                                        <div class="grid-actions">
+                                            @if (actualProductLocation is { Status: true })
+                                            {
+                                                <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid" Title="Edit (Insert)" OnClick="@(() => OnEditProductLocation(actualProductLocation))" />
+                                                <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete (Delete)" OnClick="@(() => ShowDeleteConfirmation(actualProductLocation.Id, GetDisplayName(productLocation)))" />
+                                            }
+                                        </div>
+                                    }
+                                </Template>
+                            </GridColumn>
+                            <GridColumn Field="@nameof(ProductLocationOverviewModel.Id)" HeaderText="ID" Width="80"
+                                        TextAlign="TextAlign.Center" />
+                            <GridColumn HeaderText="Location" Width="150">
+                                <Template>
+                                    @{
+                                        var productLocation = (context as ProductLocationOverviewModel);
+                                        var location = _locations.FirstOrDefault(l => l.Id == productLocation.LocationId);
+                                        <span>@(location?.Name ?? "N/A")</span>
+                                    }
+                                </Template>
+                            </GridColumn>
+                            <GridColumn Field="@nameof(ProductLocationOverviewModel.Code)" HeaderText="Product Code"
+                                        Width="150" />
+                            <GridColumn Field="@nameof(ProductLocationOverviewModel.Name)" HeaderText="Product Name"
+                                        Width="200" />
+                            <GridColumn Field="@nameof(ProductLocationOverviewModel.Rate)" HeaderText="Rate" Width="120"
+                                        TextAlign="TextAlign.Right" Format="N2" />
+                            <GridColumn HeaderText="Status" Width="100" TextAlign="TextAlign.Center">
+                                <Template>
+                                    @{
+                                        var productLocation = (context as ProductLocationOverviewModel);
+                                        var actualProductLocation = _productLocations.FirstOrDefault(pl => pl.Id ==
+                                        productLocation.Id);
+                                        <div class="grid-checkbox"
+                                             style="@(actualProductLocation?.Status == true ? "color: #10b981; background: #d1fae5;" : "color: #dc2626; background: #fee2e2;")">
+                                            @(actualProductLocation?.Status == true ? "✓" : "✗")
+                                        </div>
+                                    }
+                                </Template>
+                            </GridColumn>
+                        </GridColumns>
+                    </SfGrid>
                 </div>
             </div>
         </div>
 
-        <!-- Product Location List Section -->
-        <div class="section-card">
-            <div class="section-header">
-                <div class="section-title-wrapper">
-                    <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 11l3 3L22 4" />
-                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-                    </svg>
-                    <h2 class="section-title">Product Location List</h2>
-                </div>
-                <div class="header-actions">
-                    <!-- Deleted toggle removed: page shows only active product locations -->
-                </div>
-            </div>
-            <div class="section-body grid-body">
-                <SfGrid @ref="_sfGrid" DataSource="@_productLocationOverviews" AllowPaging="true" AllowSorting="true"
-                        AllowFiltering="true" AllowResizing="true" CssClass="professional-grid"
-                        Toolbar="@(new List<string>() { "Search" })">
-                    <GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
-                    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
-                    <GridColumns>
-                        <GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center" AllowFiltering="false">
-                            <Template>
-                                @{
-                                    var productLocation = (context as ProductLocationOverviewModel);
-                                    var actualProductLocation = _productLocations.FirstOrDefault(pl => pl.Id ==
-                                    productLocation.Id);
-
-                                    <div class="grid-actions">
-                                        @if (actualProductLocation is { Status: true })
-                                        {
-                                            <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid" Title="Edit (Insert)" OnClick="@(() => OnEditProductLocation(actualProductLocation))" />
-                                            <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete (Delete)" OnClick="@(() => ShowDeleteConfirmation(actualProductLocation.Id, GetDisplayName(productLocation)))" />
-                                        }
-                                    </div>
-                                }
-                            </Template>
-                        </GridColumn>
-                        <GridColumn Field="@nameof(ProductLocationOverviewModel.Id)" HeaderText="ID" Width="80"
-                                    TextAlign="TextAlign.Center" />
-                        <GridColumn HeaderText="Location" Width="150">
-                            <Template>
-                                @{
-                                    var productLocation = (context as ProductLocationOverviewModel);
-                                    var location = _locations.FirstOrDefault(l => l.Id == productLocation.LocationId);
-                                    <span>@(location?.Name ?? "N/A")</span>
-                                }
-                            </Template>
-                        </GridColumn>
-                        <GridColumn Field="@nameof(ProductLocationOverviewModel.Code)" HeaderText="Product Code"
-                                    Width="150" />
-                        <GridColumn Field="@nameof(ProductLocationOverviewModel.Name)" HeaderText="Product Name"
-                                    Width="200" />
-                        <GridColumn Field="@nameof(ProductLocationOverviewModel.Rate)" HeaderText="Rate" Width="120"
-                                    TextAlign="TextAlign.Right" Format="N2" />
-                        <GridColumn HeaderText="Status" Width="100" TextAlign="TextAlign.Center">
-                            <Template>
-                                @{
-                                    var productLocation = (context as ProductLocationOverviewModel);
-                                    var actualProductLocation = _productLocations.FirstOrDefault(pl => pl.Id ==
-                                    productLocation.Id);
-                                    <div class="grid-checkbox"
-                                         style="@(actualProductLocation?.Status == true ? "color: #10b981; background: #d1fae5;" : "color: #dc2626; background: #fee2e2;")">
-                                        @(actualProductLocation?.Status == true ? "✓" : "✗")
-                                    </div>
-                                }
-                            </Template>
-                        </GridColumn>
-                    </GridColumns>
-                </SfGrid>
-            </div>
-        </div>
-
+        <Footer />
     </div>
-
-    <!-- Delete Confirmation Dialog -->
-    <DeleteConfirmationDialog @ref="_deleteConfirmationDialog"
-                              EntityName="Product Location"
-                              IdentifierLabel="Name"
-                              IdentifierValue="@_deleteProductLocationName"
-                              IsPermanentDelete="false"
-                              Disabled="@_isProcessing"
-                              OnConfirm="ConfirmDelete"
-                              OnCancel="CancelDelete" />
-
-    <!-- Toast Notification -->
-    <ToastNotification @ref="_toastNotification" />
 }
+
+<!-- Delete Confirmation Dialog -->
+<DeleteConfirmationDialog @ref="_deleteConfirmationDialog"
+                          EntityName="Product Location"
+                          IdentifierLabel="Name"
+                          IdentifierValue="@_deleteProductLocationName"
+                          IsPermanentDelete="false"
+                          Disabled="@_isProcessing"
+                          OnConfirm="ConfirmDelete"
+                          OnCancel="CancelDelete" />
+
+<!-- Toast Notification -->
+<ToastNotification @ref="_toastNotification" />
 
 <style>
     @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');

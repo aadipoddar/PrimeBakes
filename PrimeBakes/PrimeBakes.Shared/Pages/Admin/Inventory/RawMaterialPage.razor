@@ -13,197 +13,200 @@
 }
 else
 {
-    <Header Title="Raw Material Management" Subtitle="Manage raw materials and inventory"
+    <div style="display: flex; flex-direction: column; min-height: 100vh;">
+        <Header Title="Raw Material Management" Subtitle="Manage raw materials and inventory"
                 ShowHome="true" ShowBack="true"
                 OnHomeClick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))"
                 OnBackClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard))">
-        <RightContent>
-            <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
-            <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
-            <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Raw Material (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveRawMaterial" />
-            <IconButton Icon="IconType.New" Title="New Raw Material (Ctrl + N)" Disabled="_isProcessing" OnClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminRawMaterial, true))" />
-        </RightContent>
-    </Header>
+            <RightContent>
+                <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
+                <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
+                <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Raw Material (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveRawMaterial" />
+                <IconButton Icon="IconType.New" Title="New Raw Material (Ctrl + N)" Disabled="_isProcessing" OnClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminRawMaterial, true))" />
+            </RightContent>
+        </Header>
 
-    <!-- Main Content Container -->
-    <div class="purchase-container">
+        <!-- Main Content Container -->
+        <div class="purchase-container">
 
-        <!-- Raw Material Entry Section -->
-        <div class="section-card">
-            <div class="section-header">
-                <div class="section-title-wrapper">
-                    <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
-                    </svg>
-                    <h2 class="section-title">Raw Material Details</h2>
+            <!-- Raw Material Entry Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
+                        </svg>
+                        <h2 class="section-title">Raw Material Details</h2>
+                    </div>
+                </div>
+                <div class="section-body">
+                    <div class="form-grid-six">
+                        <!-- Raw Material Name -->
+                        <div class="form-field">
+                            <label class="field-label">Name <span class="required">*</span></label>
+                            <SfTextBox @bind-Value="_rawMaterial.Name" Placeholder="Enter raw material name"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
+
+                        <!-- Raw Material Code -->
+                        <div class="form-field">
+                            <label class="field-label">Code <span class="required">*</span></label>
+                            <SfTextBox @bind-Value="_rawMaterial.Code" Placeholder="Auto-generated"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" Readonly="true" />
+                        </div>
+
+                        <!-- Category Autocomplete -->
+                        <div class="form-field">
+                            <label class="field-label">Category <span class="required">*</span></label>
+                            <SfAutoComplete TValue="string" TItem="RawMaterialCategoryModel"
+                                            @bind-Value="_selectedCategoryName"
+                                            DataSource="@_categories"
+                                            Placeholder="Select category"
+                                            FloatLabelType="FloatLabelType.Never"
+                                            CssClass="custom-textbox">
+                                <AutoCompleteFieldSettings Value="Name" />
+                                <AutoCompleteEvents TValue="string" TItem="RawMaterialCategoryModel"
+                                                    ValueChange="OnCategoryChange" />
+                            </SfAutoComplete>
+                        </div>
+
+                        <!-- Rate -->
+                        <div class="form-field">
+                            <label class="field-label">Rate <span class="required">*</span></label>
+                            <SfNumericTextBox @bind-Value="_rawMaterial.Rate" Placeholder="Enter rate"
+                                              FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" Format="N2" Decimals="2" Min="0" />
+                        </div>
+
+                        <!-- Unit of Measurement -->
+                        <div class="form-field">
+                            <label class="field-label">Unit <span class="required">*</span></label>
+                            <SfTextBox @bind-Value="_rawMaterial.UnitOfMeasurement" Placeholder="Enter unit (kg, ltr, etc.)"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
+
+                        <!-- Tax Autocomplete -->
+                        <div class="form-field">
+                            <label class="field-label">Tax <span class="required">*</span></label>
+                            <SfAutoComplete TValue="string" TItem="TaxModel"
+                                            @bind-Value="_selectedTaxCode"
+                                            DataSource="@_taxes"
+                                            Placeholder="Select tax"
+                                            FloatLabelType="FloatLabelType.Never"
+                                            CssClass="custom-textbox">
+                                <AutoCompleteFieldSettings Value="Code" />
+                                <AutoCompleteEvents TValue="string" TItem="TaxModel"
+                                                    ValueChange="OnTaxChange" />
+                            </SfAutoComplete>
+                        </div>
+                    </div>
+                    <div class="form-grid-single">
+                        <!-- Remarks -->
+                        <div class="form-field">
+                            <label class="field-label">Remarks</label>
+                            <SfTextBox @bind-Value="_rawMaterial.Remarks" Placeholder="Enter remarks (optional)" Multiline="true"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="section-body">
-                <div class="form-grid-six">
-                    <!-- Raw Material Name -->
-                    <div class="form-field">
-                        <label class="field-label">Name <span class="required">*</span></label>
-                        <SfTextBox @bind-Value="_rawMaterial.Name" Placeholder="Enter raw material name"
-                            FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                    </div>
 
-                    <!-- Raw Material Code -->
-                    <div class="form-field">
-                        <label class="field-label">Code <span class="required">*</span></label>
-                        <SfTextBox @bind-Value="_rawMaterial.Code" Placeholder="Auto-generated"
-                            FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" Readonly="true" />
+            <!-- Raw Material List Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 11l3 3L22 4" />
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                        </svg>
+                        <h2 class="section-title">Raw Material List</h2>
                     </div>
-
-                    <!-- Category Autocomplete -->
-                    <div class="form-field">
-                        <label class="field-label">Category <span class="required">*</span></label>
-                        <SfAutoComplete TValue="string" TItem="RawMaterialCategoryModel"
-                            @bind-Value="_selectedCategoryName"
-                            DataSource="@_categories"
-                            Placeholder="Select category"
-                            FloatLabelType="FloatLabelType.Never"
-                            CssClass="custom-textbox">
-                            <AutoCompleteFieldSettings Value="Name" />
-                            <AutoCompleteEvents TValue="string" TItem="RawMaterialCategoryModel"
-                                ValueChange="OnCategoryChange" />
-                        </SfAutoComplete>
-                    </div>
-
-                    <!-- Rate -->
-                    <div class="form-field">
-                        <label class="field-label">Rate <span class="required">*</span></label>
-                        <SfNumericTextBox @bind-Value="_rawMaterial.Rate" Placeholder="Enter rate"
-                            FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" Format="N2" Decimals="2" Min="0" />
-                    </div>
-
-                    <!-- Unit of Measurement -->
-                    <div class="form-field">
-                        <label class="field-label">Unit <span class="required">*</span></label>
-                        <SfTextBox @bind-Value="_rawMaterial.UnitOfMeasurement" Placeholder="Enter unit (kg, ltr, etc.)"
-                            FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                    </div>
-
-                    <!-- Tax Autocomplete -->
-                    <div class="form-field">
-                        <label class="field-label">Tax <span class="required">*</span></label>
-                        <SfAutoComplete TValue="string" TItem="TaxModel"
-                            @bind-Value="_selectedTaxCode"
-                            DataSource="@_taxes"
-                            Placeholder="Select tax"
-                            FloatLabelType="FloatLabelType.Never"
-                            CssClass="custom-textbox">
-                            <AutoCompleteFieldSettings Value="Code" />
-                            <AutoCompleteEvents TValue="string" TItem="TaxModel"
-                                ValueChange="OnTaxChange" />
-                        </SfAutoComplete>
+                    <div class="header-actions">
+                        <ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted" OnToggle="ToggleDeleted" />
                     </div>
                 </div>
-                <div class="form-grid-single">
-                    <!-- Remarks -->
-                    <div class="form-field">
-                        <label class="field-label">Remarks</label>
-                        <SfTextBox @bind-Value="_rawMaterial.Remarks" Placeholder="Enter remarks (optional)" Multiline="true"
-                            FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                    </div>
+                <div class="section-body grid-body">
+                    <SfGrid @ref="_sfGrid" DataSource="@_rawMaterials" AllowPaging="true" AllowSorting="true" AllowFiltering="true"
+                            AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
+                        <GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+                        <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+                        <GridColumns>
+                            <GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center" AllowFiltering="false">
+                                <Template>
+                                    @{
+                                        var rawMaterial = (context as RawMaterialModel);
+
+                                        <div class="grid-actions">
+                                            @if (rawMaterial.Status)
+                                            {
+                                                <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid" Title="Edit (Insert)" OnClick="@(() => OnEditRawMaterial(rawMaterial))" />
+                                                <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete (Delete)" OnClick="@(() => ShowDeleteConfirmation(rawMaterial.Id, rawMaterial.Name))" />
+                                            }
+                                            else
+                                            {
+                                                <IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover" Size="ButtonSize.Grid" Title="Recover (Delete)" OnClick="@(() => ShowRecoverConfirmation(rawMaterial.Id, rawMaterial.Name))" />
+                                            }
+                                        </div>
+                                    }
+                                </Template>
+                            </GridColumn>
+                            <GridColumn Field="@nameof(RawMaterialModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" />
+                            <GridColumn Field="@nameof(RawMaterialModel.Name)" HeaderText="Name" Width="200" />
+                            <GridColumn Field="@nameof(RawMaterialModel.Code)" HeaderText="Code" Width="120" />
+                            <GridColumn HeaderText="Category" Width="150">
+                                <Template>
+                                    @{
+                                        var rawMaterial = (context as RawMaterialModel);
+                                        var category = _categories.FirstOrDefault(c => c.Id == rawMaterial.RawMaterialCategoryId);
+                                        <span>@(category?.Name ?? "N/A")</span>
+                                    }
+                                </Template>
+                            </GridColumn>
+                            <GridColumn Field="@nameof(RawMaterialModel.Rate)" HeaderText="Rate" Width="120"
+                                        TextAlign="TextAlign.Right" Format="N2" />
+                            <GridColumn Field="@nameof(RawMaterialModel.UnitOfMeasurement)" HeaderText="Unit" Width="100"
+                                        TextAlign="TextAlign.Center" />
+                            <GridColumn HeaderText="Tax" Width="120">
+                                <Template>
+                                    @{
+                                        var rawMaterial = (context as RawMaterialModel);
+                                        var tax = _taxes.FirstOrDefault(t => t.Id == rawMaterial.TaxId);
+                                        <span>@(tax?.Code ?? "N/A")</span>
+                                    }
+                                </Template>
+                            </GridColumn>
+                            <GridColumn Field="@nameof(RawMaterialModel.Remarks)" HeaderText="Remarks" Width="250" />
+                            <GridColumn Field="@nameof(RawMaterialModel.Status)" HeaderText="Status" Width="100"
+                                        TextAlign="TextAlign.Center">
+                                <Template>
+                                    @{
+                                        var rawMaterial = (context as RawMaterialModel);
+                                        <div class="grid-checkbox"
+                                             style="@(rawMaterial.Status ? "color: #10b981; background: #d1fae5;" : "color: #dc2626; background: #fee2e2;")">
+                                            @(rawMaterial.Status ? "✓" : "✗")
+                                        </div>
+                                    }
+                                </Template>
+                            </GridColumn>
+                        </GridColumns>
+                    </SfGrid>
                 </div>
             </div>
         </div>
 
-        <!-- Raw Material List Section -->
-        <div class="section-card">
-            <div class="section-header">
-                <div class="section-title-wrapper">
-                    <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 11l3 3L22 4" />
-                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-                    </svg>
-                    <h2 class="section-title">Raw Material List</h2>
-                </div>
-                <div class="header-actions">
-                    <ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted" OnToggle="ToggleDeleted" />
-                </div>
-            </div>
-            <div class="section-body grid-body">
-                <SfGrid @ref="_sfGrid" DataSource="@_rawMaterials" AllowPaging="true" AllowSorting="true" AllowFiltering="true"
-                    AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
-                    <GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
-                    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
-                    <GridColumns>
-                        <GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center" AllowFiltering="false">
-                            <Template>
-                                @{
-                                    var rawMaterial = (context as RawMaterialModel);
-
-                                    <div class="grid-actions">
-                                        @if (rawMaterial.Status)
-                                        {
-                                            <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid" Title="Edit (Insert)" OnClick="@(() => OnEditRawMaterial(rawMaterial))" />
-                                            <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete (Delete)" OnClick="@(() => ShowDeleteConfirmation(rawMaterial.Id, rawMaterial.Name))" />
-                                        }
-                                        else
-                                        {
-                                            <IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover" Size="ButtonSize.Grid" Title="Recover (Delete)" OnClick="@(() => ShowRecoverConfirmation(rawMaterial.Id, rawMaterial.Name))" />
-                                        }
-                                    </div>
-                                }
-                            </Template>
-                        </GridColumn>
-                        <GridColumn Field="@nameof(RawMaterialModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" />
-                        <GridColumn Field="@nameof(RawMaterialModel.Name)" HeaderText="Name" Width="200" />
-                        <GridColumn Field="@nameof(RawMaterialModel.Code)" HeaderText="Code" Width="120" />
-                        <GridColumn HeaderText="Category" Width="150">
-                            <Template>
-                                @{
-                                    var rawMaterial = (context as RawMaterialModel);
-                                    var category = _categories.FirstOrDefault(c => c.Id == rawMaterial.RawMaterialCategoryId);
-                                    <span>@(category?.Name ?? "N/A")</span>
-                                }
-                            </Template>
-                        </GridColumn>
-                        <GridColumn Field="@nameof(RawMaterialModel.Rate)" HeaderText="Rate" Width="120"
-                            TextAlign="TextAlign.Right" Format="N2" />
-                        <GridColumn Field="@nameof(RawMaterialModel.UnitOfMeasurement)" HeaderText="Unit" Width="100"
-                            TextAlign="TextAlign.Center" />
-                        <GridColumn HeaderText="Tax" Width="120">
-                            <Template>
-                                @{
-                                    var rawMaterial = (context as RawMaterialModel);
-                                    var tax = _taxes.FirstOrDefault(t => t.Id == rawMaterial.TaxId);
-                                    <span>@(tax?.Code ?? "N/A")</span>
-                                }
-                            </Template>
-                        </GridColumn>
-                        <GridColumn Field="@nameof(RawMaterialModel.Remarks)" HeaderText="Remarks" Width="250" />
-                        <GridColumn Field="@nameof(RawMaterialModel.Status)" HeaderText="Status" Width="100"
-                            TextAlign="TextAlign.Center">
-                            <Template>
-                                @{
-                                    var rawMaterial = (context as RawMaterialModel);
-                                    <div class="grid-checkbox"
-                                        style="@(rawMaterial.Status ? "color: #10b981; background: #d1fae5;" : "color: #dc2626; background: #fee2e2;")">
-                                        @(rawMaterial.Status ? "✓" : "✗")
-                                    </div>
-                                }
-                            </Template>
-                        </GridColumn>
-                    </GridColumns>
-                </SfGrid>
-            </div>
-        </div>
-
+        <Footer />
     </div>
 }
 
 <DeleteConfirmationDialog @ref="_deleteConfirmationDialog"
-                         EntityName="Raw Material"
-                         IdentifierLabel="Name"
-                         IdentifierValue="@_deleteRawMaterialName"
-                         IsPermanentDelete="false"
-                         Disabled="@_isProcessing"
-                         OnConfirm="ConfirmDelete"
-                         OnCancel="CancelDelete" />
+                          EntityName="Raw Material"
+                          IdentifierLabel="Name"
+                          IdentifierValue="@_deleteRawMaterialName"
+                          IsPermanentDelete="false"
+                          Disabled="@_isProcessing"
+                          OnConfirm="ConfirmDelete"
+                          OnCancel="CancelDelete" />
 
 <RecoverConfirmationDialog @ref="_recoverConfirmationDialog"
                            EntityName="Raw Material"

@@ -15,374 +15,106 @@
 }
 else
 {
-	<Header Title="Raw Material Stock Report" Subtitle="View and analyze raw material stock" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack">
-		<RightContent>
-			<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
-			<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
-			<IconButton Icon="IconType.Refresh" Title="Refresh Data (Ctrl + R)" Disabled="_isProcessing" OnClick="LoadStockData" />
-			<IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing" OnClick="NavigateToTransactionPage" />
-		</RightContent>
-	</Header>
+	<div style="display: flex; flex-direction: column; min-height: 100vh;">
+		<Header Title="Raw Material Stock Report" Subtitle="View and analyze raw material stock" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack">
+			<RightContent>
+				<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
+				<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
+				<IconButton Icon="IconType.Refresh" Title="Refresh Data (Ctrl + R)" Disabled="_isProcessing" OnClick="LoadStockData" />
+				<IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing" OnClick="NavigateToTransactionPage" />
+			</RightContent>
+		</Header>
 
-	<!-- Main Content Container -->
-	<div class="report-container">
+		<!-- Main Content Container -->
+		<div class="report-container">
 
-		<!-- Filters Section -->
-		<div class="section-card">
-			<div class="section-header">
-				<div class="section-title-wrapper">
-					<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-						fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-					</svg>
-					<h2 class="section-title">Filters</h2>
-				</div>
-			</div>
-			<div class="section-body">
-				<div class="filters-container">
-					<div class="filters-grid">
-						<!-- Date Range -->
-						<div class="form-field">
-							<label class="field-label">Date Range</label>
-							<SfDateRangePicker CssClass="custom-daterange" StartDate="_fromDate" EndDate="_toDate"
-								TValue="DateTime" Format="dd/MM/yyyy" AllowEdit="true" Placeholder="Select date range">
-								<DateRangePickerEvents TValue="DateTime" ValueChange="OnDateRangeChanged" />
-							</SfDateRangePicker>
-						</div>
-					</div>
-
-					<!-- Date Utility Buttons -->
-					<DateRangeButtons Disabled="_isProcessing" FromDate="_fromDate" ToDate="_toDate" 
-						OnDatesChanged="HandleDatesChanged" ToastNotification="_toastNotification" />
-				</div>
-			</div>
-		</div>
-
-		<!-- Report Grid Section -->
-		<div class="section-card">
-			<div class="section-header">
-				<div class="section-title-wrapper">
-					<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-						fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<line x1="8" y1="6" x2="21" y2="6" />
-						<line x1="8" y1="12" x2="21" y2="12" />
-						<line x1="8" y1="18" x2="21" y2="18" />
-						<line x1="3" y1="6" x2="3.01" y2="6" />
-						<line x1="3" y1="12" x2="3.01" y2="12" />
-						<line x1="3" y1="18" x2="3.01" y2="18" />
-					</svg>
-					<h2 class="section-title">Raw Material Stock Summary</h2>
-				</div>
-				<div class="header-actions">
-					<button class="btn-toggle-details" @onclick="ToggleColumnsView"
-						title="@(_showAllColumns ? "Show Less" : "Show All Columns")" disabled="@_isProcessing">
-						<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-							stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-							@if (_showAllColumns)
-							{
-								<circle cx="12" cy="12" r="1" />
-								<circle cx="19" cy="12" r="1" />
-								<circle cx="5" cy="12" r="1" />
-							}
-							else
-							{
-								<rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-								<line x1="9" y1="9" x2="15" y2="9" />
-								<line x1="9" y1="15" x2="15" y2="15" />
-							}
-						</svg>
-						@(_showAllColumns ? "Show Less" : "All Columns")
-					</button>
-					<button class="btn-toggle-details" @onclick="ToggleDetailsView"
-						title="@(_showDetails ? "Hide Transaction Details" : "Show Transaction Details")"
-						disabled="@_isProcessing">
-						<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-							stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-							<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-							<polyline points="14 2 14 8 20 8"></polyline>
-							<line x1="16" y1="13" x2="8" y2="13"></line>
-							<line x1="16" y1="17" x2="8" y2="17"></line>
-							<polyline points="10 9 9 9 8 9"></polyline>
-						</svg>
-						@(_showDetails ? "Hide Details" : "Transaction Details")
-					</button>
-				</div>
-			</div>
-			<div class="section-body grid-body">
-				<SfGrid ID="_sfStockGrid" @ref="_sfStockGrid" TValue="RawMaterialStockSummaryModel"
-					DataSource="_stockSummary" AllowTextWrap="true" AllowPaging="true" AllowSorting="true"
-					AllowResizing="true" AllowFiltering="true" AllowExcelExport="true" AllowPdfExport="true"
-					GridLines="GridLine.Horizontal" CssClass="professional-grid" AllowGrouping="true"
-					Toolbar="@(new List<string>() { "Search" })">
-
-					<GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
-					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
-					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
-
-					<GridAggregates>
-						<GridAggregate>
-							<GridAggregateColumns>
-								<GridAggregateColumn Field="@nameof(RawMaterialStockSummaryModel.RawMaterialName)"
-									Type="AggregateType.Count">
-									<FooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-										}
-										<div class="aggregate-label">
-											<strong>Total Items: @aggregate.Count</strong>
-										</div>
-									</FooterTemplate>
-									<GroupFooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-										}
-										<div class="aggregate-label">
-											<strong>Total Items: @aggregate.Count</strong>
-										</div>
-									</GroupFooterTemplate>
-									<GroupCaptionTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-										}
-										<div class="aggregate-label">
-											<strong>Total Items: @aggregate.Count</strong>
-										</div>
-									</GroupCaptionTemplate>
-								</GridAggregateColumn>
-								<GridAggregateColumn Field="@nameof(RawMaterialStockSummaryModel.OpeningStock)"
-									Type="AggregateType.Sum" Format="N2">
-									<FooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</FooterTemplate>
-									<GroupFooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupFooterTemplate>
-									<GroupCaptionTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupCaptionTemplate>
-								</GridAggregateColumn>
-								<GridAggregateColumn Field="@nameof(RawMaterialStockSummaryModel.PurchaseStock)"
-									Type="AggregateType.Sum" Format="N2">
-									<FooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</FooterTemplate>
-									<GroupFooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupFooterTemplate>
-									<GroupCaptionTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupCaptionTemplate>
-								</GridAggregateColumn>
-								<GridAggregateColumn Field="@nameof(RawMaterialStockSummaryModel.SaleStock)"
-									Type="AggregateType.Sum" Format="N2">
-									<FooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</FooterTemplate>
-									<GroupFooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupFooterTemplate>
-									<GroupCaptionTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupCaptionTemplate>
-								</GridAggregateColumn>
-								<GridAggregateColumn Field="@nameof(RawMaterialStockSummaryModel.MonthlyStock)"
-									Type="AggregateType.Sum" Format="N2">
-									<FooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</FooterTemplate>
-									<GroupFooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupFooterTemplate>
-									<GroupCaptionTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupCaptionTemplate>
-								</GridAggregateColumn>
-								<GridAggregateColumn Field="@nameof(RawMaterialStockSummaryModel.ClosingStock)"
-									Type="AggregateType.Sum" Format="N2">
-									<FooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</FooterTemplate>
-									<GroupFooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupFooterTemplate>
-									<GroupCaptionTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupCaptionTemplate>
-								</GridAggregateColumn>
-								<GridAggregateColumn Field="@nameof(RawMaterialStockSummaryModel.ClosingValue)"
-									Type="AggregateType.Sum" Format="N2">
-									<FooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
-										}
-									</FooterTemplate>
-									<GroupFooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupFooterTemplate>
-									<GroupCaptionTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupCaptionTemplate>
-								</GridAggregateColumn>
-								<GridAggregateColumn Field="@nameof(RawMaterialStockSummaryModel.WeightedAverageValue)"
-									Type="AggregateType.Sum" Format="N2">
-									<FooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</FooterTemplate>
-									<GroupFooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupFooterTemplate>
-									<GroupCaptionTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupCaptionTemplate>
-								</GridAggregateColumn>
-								<GridAggregateColumn Field="@nameof(RawMaterialStockSummaryModel.LastPurchaseValue)"
-									Type="AggregateType.Sum" Format="N2">
-									<FooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</FooterTemplate>
-									<GroupFooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupFooterTemplate>
-									<GroupCaptionTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupCaptionTemplate>
-								</GridAggregateColumn>
-							</GridAggregateColumns>
-						</GridAggregate>
-					</GridAggregates>
-
-					<GridColumns>
-						<GridColumn Field="@nameof(RawMaterialStockSummaryModel.RawMaterialCode)" HeaderText="Code" Width="120" Visible="_showAllColumns" />
-						<GridColumn Field="@nameof(RawMaterialStockSummaryModel.RawMaterialName)" HeaderText="Raw Material" Width="250" />
-						<GridColumn Field="@nameof(RawMaterialStockSummaryModel.RawMaterialCategoryName)" HeaderText="Category" Width="180" Visible="_showAllColumns" />
-						<GridColumn Field="@nameof(RawMaterialStockSummaryModel.UnitOfMeasurement)" HeaderText="UOM" Width="100" TextAlign="TextAlign.Center" />
-						<GridColumn Field="@nameof(RawMaterialStockSummaryModel.OpeningStock)" HeaderText="Opening Stock" Width="150" Format="N2" TextAlign="TextAlign.Right" />
-						<GridColumn Field="@nameof(RawMaterialStockSummaryModel.PurchaseStock)" HeaderText="Purchase" Width="130" Format="N2" TextAlign="TextAlign.Right" />
-						<GridColumn Field="@nameof(RawMaterialStockSummaryModel.SaleStock)" HeaderText="Sale" Width="130" Format="N2" TextAlign="TextAlign.Right" />
-						<GridColumn Field="@nameof(RawMaterialStockSummaryModel.MonthlyStock)" HeaderText="Monthly Stock" Width="150" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-						<GridColumn Field="@nameof(RawMaterialStockSummaryModel.ClosingStock)" HeaderText="Closing Stock" Width="150" Format="N2" TextAlign="TextAlign.Right">
-							<Template>
-								@{
-									var item = (context as RawMaterialStockSummaryModel);
-									<span
-										class="@(item.ClosingStock < 0 ? "stock-negative" : "")">@item.ClosingStock.ToString("N2")</span>
-								}
-							</Template>
-						</GridColumn>
-						<GridColumn Field="@nameof(RawMaterialStockSummaryModel.Rate)" HeaderText="Rate" Width="120"
-							Format="N2" TextAlign="TextAlign.Right" />
-						<GridColumn Field="@nameof(RawMaterialStockSummaryModel.ClosingValue)" HeaderText="Closing Value"
-							Width="150" Format="N2" TextAlign="TextAlign.Right">
-							<Template>
-								@{
-									var item = (context as RawMaterialStockSummaryModel);
-									<span class="grid-total">@item.ClosingValue.ToString("N2")</span>
-								}
-							</Template>
-						</GridColumn>
-
-						<GridColumn Field="@nameof(RawMaterialStockSummaryModel.AveragePrice)" HeaderText="Avg Price" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-						<GridColumn Field="@nameof(RawMaterialStockSummaryModel.WeightedAverageValue)" HeaderText="Weighted Avg Value" Width="180" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-						<GridColumn Field="@nameof(RawMaterialStockSummaryModel.LastPurchasePrice)" HeaderText="Last Purchase Price" Width="170" Format="N2" TextAlign="TextAlign.Right"Visible="_showAllColumns" />
-						<GridColumn Field="@nameof(RawMaterialStockSummaryModel.LastPurchaseValue)" HeaderText="Last Purchase Value" Width="180" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-					</GridColumns>
-				</SfGrid>
-			</div>
-		</div>
-
-		<!-- Stock Details Grid Section (Visible when _showDetails is true) -->
-		@if (_showDetails)
-		{
+			<!-- Filters Section -->
 			<div class="section-card">
 				<div class="section-header">
 					<div class="section-title-wrapper">
 						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-							fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-							<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-							<polyline points="14 2 14 8 20 8"></polyline>
-							<line x1="16" y1="13" x2="8" y2="13"></line>
-							<line x1="16" y1="17" x2="8" y2="17"></line>
-							<polyline points="10 9 9 9 8 9"></polyline>
+							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
 						</svg>
-						<h2 class="section-title">Stock Details (Transaction Level)</h2>
+						<h2 class="section-title">Filters</h2>
+					</div>
+				</div>
+				<div class="section-body">
+					<div class="filters-container">
+						<div class="filters-grid">
+							<!-- Date Range -->
+							<div class="form-field">
+								<label class="field-label">Date Range</label>
+								<SfDateRangePicker CssClass="custom-daterange" StartDate="_fromDate" EndDate="_toDate"
+												   TValue="DateTime" Format="dd/MM/yyyy" AllowEdit="true" Placeholder="Select date range">
+									<DateRangePickerEvents TValue="DateTime" ValueChange="OnDateRangeChanged" />
+								</SfDateRangePicker>
+							</div>
+						</div>
+
+						<!-- Date Utility Buttons -->
+						<DateRangeButtons Disabled="_isProcessing" FromDate="_fromDate" ToDate="_toDate"
+										  OnDatesChanged="HandleDatesChanged" ToastNotification="_toastNotification" />
+					</div>
+				</div>
+			</div>
+
+			<!-- Report Grid Section -->
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<line x1="8" y1="6" x2="21" y2="6" />
+							<line x1="8" y1="12" x2="21" y2="12" />
+							<line x1="8" y1="18" x2="21" y2="18" />
+							<line x1="3" y1="6" x2="3.01" y2="6" />
+							<line x1="3" y1="12" x2="3.01" y2="12" />
+							<line x1="3" y1="18" x2="3.01" y2="18" />
+						</svg>
+						<h2 class="section-title">Raw Material Stock Summary</h2>
+					</div>
+					<div class="header-actions">
+						<button class="btn-toggle-details" @onclick="ToggleColumnsView"
+								title="@(_showAllColumns ? "Show Less" : "Show All Columns")" disabled="@_isProcessing">
+							<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+								 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								@if (_showAllColumns)
+								{
+									<circle cx="12" cy="12" r="1" />
+									<circle cx="19" cy="12" r="1" />
+									<circle cx="5" cy="12" r="1" />
+								}
+								else
+								{
+									<rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+									<line x1="9" y1="9" x2="15" y2="9" />
+									<line x1="9" y1="15" x2="15" y2="15" />
+								}
+							</svg>
+							@(_showAllColumns ? "Show Less" : "All Columns")
+						</button>
+						<button class="btn-toggle-details" @onclick="ToggleDetailsView"
+								title="@(_showDetails ? "Hide Transaction Details" : "Show Transaction Details")"
+								disabled="@_isProcessing">
+							<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+								 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+								<polyline points="14 2 14 8 20 8"></polyline>
+								<line x1="16" y1="13" x2="8" y2="13"></line>
+								<line x1="16" y1="17" x2="8" y2="17"></line>
+								<polyline points="10 9 9 9 8 9"></polyline>
+							</svg>
+							@(_showDetails ? "Hide Details" : "Transaction Details")
+						</button>
 					</div>
 				</div>
 				<div class="section-body grid-body">
-					<SfGrid ID="_sfStockDetailsGrid" @ref="_sfStockDetailsGrid" TValue="RawMaterialStockDetailsModel"
-						DataSource="_stockDetails" AllowTextWrap="true" AllowPaging="true" AllowSorting="true"
-						AllowResizing="true" AllowFiltering="true" AllowExcelExport="true" AllowPdfExport="true"
-						GridLines="GridLine.Horizontal" CssClass="professional-grid" AllowGrouping="true"
-						Toolbar="@(new List<string>() { "Search" })">
+					<SfGrid ID="_sfStockGrid" @ref="_sfStockGrid" TValue="RawMaterialStockSummaryModel"
+							DataSource="_stockSummary" AllowTextWrap="true" AllowPaging="true" AllowSorting="true"
+							AllowResizing="true" AllowFiltering="true" AllowExcelExport="true" AllowPdfExport="true"
+							GridLines="GridLine.Horizontal" CssClass="professional-grid" AllowGrouping="true"
+							Toolbar="@(new List<string>() { "Search" })">
 
 						<GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
 						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
@@ -391,14 +123,14 @@ else
 						<GridAggregates>
 							<GridAggregate>
 								<GridAggregateColumns>
-									<GridAggregateColumn Field="@nameof(RawMaterialStockDetailsModel.RawMaterialName)"
-										Type="AggregateType.Count">
+									<GridAggregateColumn Field="@nameof(RawMaterialStockSummaryModel.RawMaterialName)"
+														 Type="AggregateType.Count">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
 											}
 											<div class="aggregate-label">
-												<strong>Total Transactions: @aggregate.Count</strong>
+												<strong>Total Items: @aggregate.Count</strong>
 											</div>
 										</FooterTemplate>
 										<GroupFooterTemplate>
@@ -406,7 +138,7 @@ else
 												var aggregate = (context as AggregateTemplateContext);
 											}
 											<div class="aggregate-label">
-												<strong>Total Transactions: @aggregate.Count</strong>
+												<strong>Total Items: @aggregate.Count</strong>
 											</div>
 										</GroupFooterTemplate>
 										<GroupCaptionTemplate>
@@ -414,12 +146,159 @@ else
 												var aggregate = (context as AggregateTemplateContext);
 											}
 											<div class="aggregate-label">
-												<strong>Total Transactions: @aggregate.Count</strong>
+												<strong>Total Items: @aggregate.Count</strong>
 											</div>
 										</GroupCaptionTemplate>
 									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(RawMaterialStockDetailsModel.Quantity)"
-										Type="AggregateType.Sum" Format="N2">
+									<GridAggregateColumn Field="@nameof(RawMaterialStockSummaryModel.OpeningStock)"
+														 Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(RawMaterialStockSummaryModel.PurchaseStock)"
+														 Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(RawMaterialStockSummaryModel.SaleStock)"
+														 Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(RawMaterialStockSummaryModel.MonthlyStock)"
+														 Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(RawMaterialStockSummaryModel.ClosingStock)"
+														 Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(RawMaterialStockSummaryModel.ClosingValue)"
+														 Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(RawMaterialStockSummaryModel.WeightedAverageValue)"
+														 Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(RawMaterialStockSummaryModel.LastPurchaseValue)"
+														 Type="AggregateType.Sum" Format="N2">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
@@ -444,55 +323,180 @@ else
 						</GridAggregates>
 
 						<GridColumns>
-							<GridColumn HeaderText="Actions" Width="150" TextAlign="TextAlign.Center">
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.RawMaterialCode)" HeaderText="Code" Width="120" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.RawMaterialName)" HeaderText="Raw Material" Width="250" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.RawMaterialCategoryName)" HeaderText="Category" Width="180" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.UnitOfMeasurement)" HeaderText="UOM" Width="100" TextAlign="TextAlign.Center" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.OpeningStock)" HeaderText="Opening Stock" Width="150" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.PurchaseStock)" HeaderText="Purchase" Width="130" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.SaleStock)" HeaderText="Sale" Width="130" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.MonthlyStock)" HeaderText="Monthly Stock" Width="150" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.ClosingStock)" HeaderText="Closing Stock" Width="150" Format="N2" TextAlign="TextAlign.Right">
 								<Template>
 									@{
-										var item = (context as RawMaterialStockDetailsModel);
-									}
-									<div class="grid-actions">
-										@if (item.TransactionId is null && item.Type?.ToLower() == "adjustment")
-										{
-											<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete Transaction (Delete)" Disabled="_isProcessing" OnClick="@(() => ShowDeleteConfirmation(item.Id, item.TransactionNo))" />
-										}
-										@if (item.TransactionId is not null && item.Type?.ToLower() != "adjustment")
-										{
-											<IconButton Icon="IconType.View" Variant="ButtonVariant.View" Size="ButtonSize.Grid" Title="View Transaction (Ctrl + O)" Disabled="_isProcessing" OnClick="@(() => ViewTransaction(item.Type, item.TransactionId.Value))" />
-											<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Size="ButtonSize.Grid" Title="Download Excel Invoice (Alt+E)" Disabled="_isProcessing" OnClick="@(() => DownloadExcelInvoice(item.Type, item.TransactionId.Value))" />
-											<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Grid" Title="Download PDF Invoice (Alt+P)" Disabled="_isProcessing" OnClick="@(() => DownloadPdfInvoice(item.Type, item.TransactionId.Value))" />
-										}
-									</div>
-								</Template>
-							</GridColumn>
-							<GridColumn Field="@nameof(RawMaterialStockDetailsModel.TransactionDateTime)" HeaderText="Date" Width="130" Format="dd/MM/yyyy" Type="ColumnType.Date" />
-							<GridColumn Field="@nameof(RawMaterialStockDetailsModel.TransactionNo)" HeaderText="Transaction No" Width="180" />
-							<GridColumn Field="@nameof(RawMaterialStockDetailsModel.Type)" HeaderText="Type" Width="150">
-								<Template>
-									@{
-										var item = (context as RawMaterialStockDetailsModel);
-										<span class="transaction-type transaction-type-@item.Type.ToLower().Replace(" ", "-")">
-											@item.Type
-										</span>
+										var item = (context as RawMaterialStockSummaryModel);
+										<span class="@(item.ClosingStock < 0 ? "stock-negative" : "")">@item.ClosingStock.ToString("N2")</span>
 									}
 								</Template>
 							</GridColumn>
-							<GridColumn Field="@nameof(RawMaterialStockDetailsModel.RawMaterialCode)" HeaderText="Code" Width="120" />
-							<GridColumn Field="@nameof(RawMaterialStockDetailsModel.RawMaterialName)" HeaderText="Raw Material" Width="250" />
-							<GridColumn Field="@nameof(RawMaterialStockDetailsModel.Quantity)" HeaderText="Qty" Width="130" Format="N2" TextAlign="TextAlign.Right">
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.Rate)" HeaderText="Rate" Width="120"
+										Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.ClosingValue)" HeaderText="Closing Value"
+										Width="150" Format="N2" TextAlign="TextAlign.Right">
 								<Template>
 									@{
-										var item = (context as RawMaterialStockDetailsModel);
-										<span class="@(item.Quantity < 0 ? "stock-negative" : "stock-positive")">
-											@item.Quantity.ToString("N2")
-										</span>
+										var item = (context as RawMaterialStockSummaryModel);
+										<span class="grid-total">@item.ClosingValue.ToString("N2")</span>
 									}
 								</Template>
 							</GridColumn>
-							<GridColumn Field="@nameof(RawMaterialStockDetailsModel.NetRate)" HeaderText="Rate" Width="120" Format="N2" TextAlign="TextAlign.Right" />
+
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.AveragePrice)" HeaderText="Avg Price" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.WeightedAverageValue)" HeaderText="Weighted Avg Value" Width="180" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.LastPurchasePrice)" HeaderText="Last Purchase Price" Width="170" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.LastPurchaseValue)" HeaderText="Last Purchase Value" Width="180" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
 						</GridColumns>
 					</SfGrid>
 				</div>
 			</div>
-		}
+
+			<!-- Stock Details Grid Section (Visible when _showDetails is true) -->
+			@if (_showDetails)
+			{
+				<div class="section-card">
+					<div class="section-header">
+						<div class="section-title-wrapper">
+							<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+								 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+								<polyline points="14 2 14 8 20 8"></polyline>
+								<line x1="16" y1="13" x2="8" y2="13"></line>
+								<line x1="16" y1="17" x2="8" y2="17"></line>
+								<polyline points="10 9 9 9 8 9"></polyline>
+							</svg>
+							<h2 class="section-title">Stock Details (Transaction Level)</h2>
+						</div>
+					</div>
+					<div class="section-body grid-body">
+						<SfGrid ID="_sfStockDetailsGrid" @ref="_sfStockDetailsGrid" TValue="RawMaterialStockDetailsModel"
+								DataSource="_stockDetails" AllowTextWrap="true" AllowPaging="true" AllowSorting="true"
+								AllowResizing="true" AllowFiltering="true" AllowExcelExport="true" AllowPdfExport="true"
+								GridLines="GridLine.Horizontal" CssClass="professional-grid" AllowGrouping="true"
+								Toolbar="@(new List<string>() { "Search" })">
+
+							<GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridAggregateColumn Field="@nameof(RawMaterialStockDetailsModel.RawMaterialName)"
+															 Type="AggregateType.Count">
+											<FooterTemplate>
+												@{
+													var aggregate = (context as AggregateTemplateContext);
+												}
+												<div class="aggregate-label">
+													<strong>Total Transactions: @aggregate.Count</strong>
+												</div>
+											</FooterTemplate>
+											<GroupFooterTemplate>
+												@{
+													var aggregate = (context as AggregateTemplateContext);
+												}
+												<div class="aggregate-label">
+													<strong>Total Transactions: @aggregate.Count</strong>
+												</div>
+											</GroupFooterTemplate>
+											<GroupCaptionTemplate>
+												@{
+													var aggregate = (context as AggregateTemplateContext);
+												}
+												<div class="aggregate-label">
+													<strong>Total Transactions: @aggregate.Count</strong>
+												</div>
+											</GroupCaptionTemplate>
+										</GridAggregateColumn>
+										<GridAggregateColumn Field="@nameof(RawMaterialStockDetailsModel.Quantity)"
+															 Type="AggregateType.Sum" Format="N2">
+											<FooterTemplate>
+												@{
+													var aggregate = (context as AggregateTemplateContext);
+													<div><strong>@aggregate.Sum</strong></div>
+												}
+											</FooterTemplate>
+											<GroupFooterTemplate>
+												@{
+													var aggregate = (context as AggregateTemplateContext);
+													<div><strong>@aggregate.Sum</strong></div>
+												}
+											</GroupFooterTemplate>
+											<GroupCaptionTemplate>
+												@{
+													var aggregate = (context as AggregateTemplateContext);
+													<div><strong>@aggregate.Sum</strong></div>
+												}
+											</GroupCaptionTemplate>
+										</GridAggregateColumn>
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<GridColumn HeaderText="Actions" Width="150" TextAlign="TextAlign.Center">
+									<Template>
+										@{
+											var item = (context as RawMaterialStockDetailsModel);
+										}
+										<div class="grid-actions">
+											@if (item.TransactionId is null && item.Type?.ToLower() == "adjustment")
+											{
+												<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete Transaction (Delete)" Disabled="_isProcessing" OnClick="@(() => ShowDeleteConfirmation(item.Id, item.TransactionNo))" />
+											}
+											@if (item.TransactionId is not null && item.Type?.ToLower() != "adjustment")
+											{
+												<IconButton Icon="IconType.View" Variant="ButtonVariant.View" Size="ButtonSize.Grid" Title="View Transaction (Ctrl + O)" Disabled="_isProcessing" OnClick="@(() => ViewTransaction(item.Type, item.TransactionId.Value))" />
+												<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Size="ButtonSize.Grid" Title="Download Excel Invoice (Alt+E)" Disabled="_isProcessing" OnClick="@(() => DownloadExcelInvoice(item.Type, item.TransactionId.Value))" />
+												<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Grid" Title="Download PDF Invoice (Alt+P)" Disabled="_isProcessing" OnClick="@(() => DownloadPdfInvoice(item.Type, item.TransactionId.Value))" />
+											}
+										</div>
+									</Template>
+								</GridColumn>
+								<GridColumn Field="@nameof(RawMaterialStockDetailsModel.TransactionDateTime)" HeaderText="Date" Width="130" Format="dd/MM/yyyy" Type="ColumnType.Date" />
+								<GridColumn Field="@nameof(RawMaterialStockDetailsModel.TransactionNo)" HeaderText="Transaction No" Width="180" />
+								<GridColumn Field="@nameof(RawMaterialStockDetailsModel.Type)" HeaderText="Type" Width="150">
+									<Template>
+										@{
+											var item = (context as RawMaterialStockDetailsModel);
+											<span class="transaction-type transaction-type-@item.Type.ToLower().Replace(" ", "-")">
+												@item.Type
+											</span>
+										}
+									</Template>
+								</GridColumn>
+								<GridColumn Field="@nameof(RawMaterialStockDetailsModel.RawMaterialCode)" HeaderText="Code" Width="120" />
+								<GridColumn Field="@nameof(RawMaterialStockDetailsModel.RawMaterialName)" HeaderText="Raw Material" Width="250" />
+								<GridColumn Field="@nameof(RawMaterialStockDetailsModel.Quantity)" HeaderText="Qty" Width="130" Format="N2" TextAlign="TextAlign.Right">
+									<Template>
+										@{
+											var item = (context as RawMaterialStockDetailsModel);
+											<span class="@(item.Quantity < 0 ? "stock-negative" : "stock-positive")">
+												@item.Quantity.ToString("N2")
+											</span>
+										}
+									</Template>
+								</GridColumn>
+								<GridColumn Field="@nameof(RawMaterialStockDetailsModel.NetRate)" HeaderText="Rate" Width="120" Format="N2" TextAlign="TextAlign.Right" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</div>
+			}
+
+		</div>
+
+		<Footer />
 	</div>
 }
 
@@ -585,21 +589,21 @@ else
 		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 	}
 
-	.btn-toggle-details:hover {
-		background: #eff6ff;
-		border-color: #3b82f6;
-		box-shadow: 0 2px 6px rgba(59, 130, 246, 0.2);
-		transform: translateY(-1px);
-	}
+		.btn-toggle-details:hover {
+			background: #eff6ff;
+			border-color: #3b82f6;
+			box-shadow: 0 2px 6px rgba(59, 130, 246, 0.2);
+			transform: translateY(-1px);
+		}
 
-	.btn-toggle-details:active {
-		transform: translateY(0);
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-	}
+		.btn-toggle-details:active {
+			transform: translateY(0);
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+		}
 
-	.btn-toggle-details svg {
-		flex-shrink: 0;
-	}
+		.btn-toggle-details svg {
+			flex-shrink: 0;
+		}
 
 	.section-body {
 		padding: 24px;
@@ -647,111 +651,111 @@ else
 		border: none;
 	}
 
-	::deep .professional-grid .e-gridheader {
-		background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
-		border-bottom: 2px solid #e2e8f0;
-	}
+		::deep .professional-grid .e-gridheader {
+			background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
+			border-bottom: 2px solid #e2e8f0;
+		}
 
-	::deep .professional-grid .e-headercell {
-		background: transparent;
-		color: #475569;
-		font-weight: 600;
-		font-size: 12px;
-		text-transform: uppercase;
-		letter-spacing: 0.3px;
-		border-right: 1px solid #e2e8f0;
-		padding: 12px 8px;
-	}
+		::deep .professional-grid .e-headercell {
+			background: transparent;
+			color: #475569;
+			font-weight: 600;
+			font-size: 12px;
+			text-transform: uppercase;
+			letter-spacing: 0.3px;
+			border-right: 1px solid #e2e8f0;
+			padding: 12px 8px;
+		}
 
-	::deep .professional-grid .e-headercell:last-child {
-		border-right: none;
-	}
+			::deep .professional-grid .e-headercell:last-child {
+				border-right: none;
+			}
 
-	::deep .professional-grid .e-gridcontent {
-		background: #ffffff;
-	}
+		::deep .professional-grid .e-gridcontent {
+			background: #ffffff;
+		}
 
-	::deep .professional-grid .e-row {
-		transition: background-color 0.2s ease;
-	}
+		::deep .professional-grid .e-row {
+			transition: background-color 0.2s ease;
+		}
 
-	::deep .professional-grid .e-row:hover {
-		background-color: #f8fafc;
-	}
+			::deep .professional-grid .e-row:hover {
+				background-color: #f8fafc;
+			}
 
-	::deep .professional-grid .e-row.e-altrow {
-		background-color: #fafbfc;
-	}
+			::deep .professional-grid .e-row.e-altrow {
+				background-color: #fafbfc;
+			}
 
-	::deep .professional-grid .e-row.e-altrow:hover {
-		background-color: #f8fafc;
-	}
+				::deep .professional-grid .e-row.e-altrow:hover {
+					background-color: #f8fafc;
+				}
 
-	::deep .professional-grid .e-rowcell {
-		border-right: 1px solid #f1f5f9;
-		border-bottom: 1px solid #f1f5f9;
-		padding: 10px 8px;
-		font-size: 13px;
-		color: #1e293b;
-	}
+		::deep .professional-grid .e-rowcell {
+			border-right: 1px solid #f1f5f9;
+			border-bottom: 1px solid #f1f5f9;
+			padding: 10px 8px;
+			font-size: 13px;
+			color: #1e293b;
+		}
 
-	::deep .professional-grid .e-rowcell:last-child {
-		border-right: none;
-	}
+			::deep .professional-grid .e-rowcell:last-child {
+				border-right: none;
+			}
 
-	/* Grid Pager Styling */
-	::deep .professional-grid .e-gridpager {
-		background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
-		border-top: 2px solid #e2e8f0;
-		padding: 12px 16px;
-	}
+		/* Grid Pager Styling */
+		::deep .professional-grid .e-gridpager {
+			background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
+			border-top: 2px solid #e2e8f0;
+			padding: 12px 16px;
+		}
 
-	::deep .professional-grid .e-gridpager .e-pagercontainer {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-	}
+			::deep .professional-grid .e-gridpager .e-pagercontainer {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+			}
 
-	::deep .professional-grid .e-gridpager .e-numericitem,
-	::deep .professional-grid .e-gridpager .e-currentitem {
-		min-width: 32px;
-		height: 32px;
-		border-radius: 6px;
-		margin: 0 4px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-size: 13px;
-		font-weight: 500;
-		transition: all 0.2s ease;
-	}
+			::deep .professional-grid .e-gridpager .e-numericitem,
+			::deep .professional-grid .e-gridpager .e-currentitem {
+				min-width: 32px;
+				height: 32px;
+				border-radius: 6px;
+				margin: 0 4px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 13px;
+				font-weight: 500;
+				transition: all 0.2s ease;
+			}
 
-	::deep .professional-grid .e-gridpager .e-numericitem {
-		background: #ffffff;
-		color: #64748b;
-		border: 1px solid #e2e8f0;
-	}
+			::deep .professional-grid .e-gridpager .e-numericitem {
+				background: #ffffff;
+				color: #64748b;
+				border: 1px solid #e2e8f0;
+			}
 
-	::deep .professional-grid .e-gridpager .e-numericitem:hover {
-		background: #f8fafc;
-		color: #3b82f6;
-		border-color: #3b82f6;
-	}
+				::deep .professional-grid .e-gridpager .e-numericitem:hover {
+					background: #f8fafc;
+					color: #3b82f6;
+					border-color: #3b82f6;
+				}
 
-	::deep .professional-grid .e-gridpager .e-currentitem {
-		background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
-		color: #ffffff;
-		border: none;
-		box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
-	}
+			::deep .professional-grid .e-gridpager .e-currentitem {
+				background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+				color: #ffffff;
+				border: none;
+				box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+			}
 
-	/* Empty Grid State */
-	::deep .professional-grid .e-emptyrow {
-		text-align: center;
-		padding: 48px 24px;
-		color: #94a3b8;
-		font-size: 14px;
-	}
+		/* Empty Grid State */
+		::deep .professional-grid .e-emptyrow {
+			text-align: center;
+			padding: 48px 24px;
+			color: #94a3b8;
+			font-size: 14px;
+		}
 
 	/* Grid Cell Text Coloring (matching Purchase screen) */
 	.grid-discount {
@@ -778,9 +782,9 @@ else
 		border-right: 1px solid #cbd5e1;
 	}
 
-	::deep .professional-grid .e-summarycell:last-child {
-		border-right: none;
-	}
+		::deep .professional-grid .e-summarycell:last-child {
+			border-right: none;
+		}
 
 	.aggregate-value.aggregate-discount {
 		color: #dc2626;
@@ -791,9 +795,9 @@ else
 		font-size: 14px;
 	}
 
-	.aggregate-value.aggregate-total strong {
-		font-size: 15px;
-	}
+		.aggregate-value.aggregate-total strong {
+			font-size: 15px;
+		}
 
 	/* Total Aggregate Footer Styling */
 	.total-aggregate {
@@ -879,19 +883,19 @@ else
 		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 	}
 
-	.dialog-btn:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
-	}
+		.dialog-btn:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+		}
 
-	.dialog-btn:active {
-		transform: translateY(0);
-		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-	}
+		.dialog-btn:active {
+			transform: translateY(0);
+			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+		}
 
-	.dialog-btn svg {
-		flex-shrink: 0;
-	}
+		.dialog-btn svg {
+			flex-shrink: 0;
+		}
 
 	.dialog-btn-cancel {
 		background: #ffffff;
@@ -899,29 +903,29 @@ else
 		border: 2px solid #e2e8f0;
 	}
 
-	.dialog-btn-cancel:hover {
-		background: #f8fafc;
-		border-color: #cbd5e1;
-		color: #475569;
-	}
+		.dialog-btn-cancel:hover {
+			background: #f8fafc;
+			border-color: #cbd5e1;
+			color: #475569;
+		}
 
 	.dialog-btn-delete {
 		background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
 		color: white;
 	}
 
-	.dialog-btn-delete:hover {
-		background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-	}
+		.dialog-btn-delete:hover {
+			background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+		}
 
 	.dialog-btn-recover {
 		background: linear-gradient(135deg, #10b981 0%, #059669 100%);
 		color: white;
 	}
 
-	.dialog-btn-recover:hover {
-		background: linear-gradient(135deg, #059669 0%, #047857 100%);
-	}
+		.dialog-btn-recover:hover {
+			background: linear-gradient(135deg, #059669 0%, #047857 100%);
+		}
 
 	/* Responsive Design */
 	@@media (max-width: 1400px) {

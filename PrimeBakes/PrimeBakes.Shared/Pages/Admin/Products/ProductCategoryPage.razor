@@ -12,135 +12,138 @@
 }
 else
 {
-    <Header Title="Product Category Management" Subtitle="Manage product categories and details"
-        ShowHome="true" ShowBack="true"
-        OnHomeClick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))"
-        OnBackClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard))">
-        <RightContent>
-            <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
-            <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
-            <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Product Category (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveProductCategory" />
-            <IconButton Icon="IconType.New" Title="New Product Category (Ctrl + N)" Disabled="_isProcessing" OnClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminProductCategory, true))" />
-        </RightContent>
-    </Header>
+    <div style="display: flex; flex-direction: column; min-height: 100vh;">
+        <Header Title="Product Category Management" Subtitle="Manage product categories and details"
+                ShowHome="true" ShowBack="true"
+                OnHomeClick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))"
+                OnBackClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard))">
+            <RightContent>
+                <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
+                <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
+                <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Product Category (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveProductCategory" />
+                <IconButton Icon="IconType.New" Title="New Product Category (Ctrl + N)" Disabled="_isProcessing" OnClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminProductCategory, true))" />
+            </RightContent>
+        </Header>
 
-    <!-- Main Content Container -->
-    <div class="purchase-container">
+        <!-- Main Content Container -->
+        <div class="purchase-container">
 
-        <!-- Product Category Entry Section -->
-        <div class="section-card">
-            <div class="section-header">
-                <div class="section-title-wrapper">
-                    <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
-                    </svg>
-                    <h2 class="section-title">Product Category Details</h2>
+            <!-- Product Category Entry Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
+                        </svg>
+                        <h2 class="section-title">Product Category Details</h2>
+                    </div>
+                </div>
+                <div class="section-body">
+                    <div class="form-grid-triple">
+                        <!-- Product Category Name -->
+                        <div class="form-field">
+                            <label class="field-label">
+                                Product Category Name <span class="required">*</span>
+                            </label>
+                            <SfTextBox @bind-Value="_productCategory.Name" Placeholder="Enter product category name"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
+
+                        <!-- Remarks -->
+                        <div class="form-field form-field-span-2">
+                            <label class="field-label">Remarks</label>
+                            <SfTextBox @bind-Value="_productCategory.Remarks" Placeholder="Enter remarks (optional)" Multiline="true"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="section-body">
-                <div class="form-grid-triple">
-                    <!-- Product Category Name -->
-                    <div class="form-field">
-                        <label class="field-label">
-                            Product Category Name <span class="required">*</span>
-                        </label>
-                        <SfTextBox @bind-Value="_productCategory.Name" Placeholder="Enter product category name"
-                                   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                    </div>
 
-                    <!-- Remarks -->
-                    <div class="form-field form-field-span-2">
-                        <label class="field-label">Remarks</label>
-                        <SfTextBox @bind-Value="_productCategory.Remarks" Placeholder="Enter remarks (optional)" Multiline="true"
-                                   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+            <!-- Product Categories List Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 11l3 3L22 4" />
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                        </svg>
+                        <h2 class="section-title">Product Categories List</h2>
                     </div>
+                    <div class="header-actions">
+                        <ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted" OnToggle="ToggleDeleted" />
+                    </div>
+                </div>
+                <div class="section-body grid-body">
+                    <SfGrid @ref="_sfGrid" DataSource="@_productCategories" AllowPaging="true" AllowSorting="true" AllowFiltering="true"
+                            AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
+                        <GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+                        <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+                        <GridColumns>
+                            <GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center" AllowFiltering="false">
+                                <Template>
+                                    @{
+                                        var productCategory = (context as ProductCategoryModel);
+
+                                        <div class="grid-actions">
+                                            @if (productCategory.Status)
+                                            {
+                                                <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid" Title="Edit (Insert)" OnClick="@(() => OnEditProductCategory(productCategory))" />
+                                                <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete (Delete)" OnClick="@(() => ShowDeleteConfirmation(productCategory.Id, productCategory.Name))" />
+                                            }
+                                            else
+                                            {
+                                                <IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover" Size="ButtonSize.Grid" Title="Recover (Delete)" OnClick="@(() => ShowRecoverConfirmation(productCategory.Id, productCategory.Name))" />
+                                            }
+                                        </div>
+                                    }
+                                </Template>
+                            </GridColumn>
+                            <GridColumn Field="@nameof(ProductCategoryModel.Id)" HeaderText="ID" Width="80"
+                                        TextAlign="TextAlign.Center" />
+                            <GridColumn Field="@nameof(ProductCategoryModel.Name)" HeaderText="Category Name" Width="300" />
+                            <GridColumn Field="@nameof(ProductCategoryModel.Remarks)" HeaderText="Remarks" Width="400" />
+                            <GridColumn Field="@nameof(ProductCategoryModel.Status)" HeaderText="Status" Width="100"
+                                        TextAlign="TextAlign.Center">
+                                <Template>
+                                    @{
+                                        var productCategory = (context as ProductCategoryModel);
+                                        <div class="grid-checkbox"
+                                             style="@(productCategory.Status ? "color: #10b981; background: #d1fae5;" : "color: #dc2626; background: #fee2e2;")">
+                                            @(productCategory.Status ? "✓" : "✗")
+                                        </div>
+                                    }
+                                </Template>
+                            </GridColumn>
+                        </GridColumns>
+                    </SfGrid>
                 </div>
             </div>
         </div>
 
-        <!-- Product Categories List Section -->
-        <div class="section-card">
-            <div class="section-header">
-                <div class="section-title-wrapper">
-                    <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 11l3 3L22 4" />
-                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-                    </svg>
-                    <h2 class="section-title">Product Categories List</h2>
-                </div>
-                <div class="header-actions">
-                    <ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted" OnToggle="ToggleDeleted" />
-                </div>
-            </div>
-            <div class="section-body grid-body">
-                <SfGrid @ref="_sfGrid" DataSource="@_productCategories" AllowPaging="true" AllowSorting="true" AllowFiltering="true"
-                        AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
-                    <GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
-                    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
-                    <GridColumns>
-                        <GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center" AllowFiltering="false">
-                            <Template>
-                                @{
-                                    var productCategory = (context as ProductCategoryModel);
-
-                                    <div class="grid-actions">
-                                        @if (productCategory.Status)
-                                        {
-                                            <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid" Title="Edit (Insert)" OnClick="@(() => OnEditProductCategory(productCategory))" />
-                                            <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete (Delete)" OnClick="@(() => ShowDeleteConfirmation(productCategory.Id, productCategory.Name))" />
-                                        }
-                                        else
-                                        {
-                                            <IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover" Size="ButtonSize.Grid" Title="Recover (Delete)" OnClick="@(() => ShowRecoverConfirmation(productCategory.Id, productCategory.Name))" />
-                                        }
-                                    </div>
-                                }
-                            </Template>
-                        </GridColumn>
-                        <GridColumn Field="@nameof(ProductCategoryModel.Id)" HeaderText="ID" Width="80"
-                                    TextAlign="TextAlign.Center" />
-                        <GridColumn Field="@nameof(ProductCategoryModel.Name)" HeaderText="Category Name" Width="300" />
-                        <GridColumn Field="@nameof(ProductCategoryModel.Remarks)" HeaderText="Remarks" Width="400" />
-                        <GridColumn Field="@nameof(ProductCategoryModel.Status)" HeaderText="Status" Width="100"
-                                    TextAlign="TextAlign.Center">
-                            <Template>
-                                @{
-                                    var productCategory = (context as ProductCategoryModel);
-                                    <div class="grid-checkbox"
-                                         style="@(productCategory.Status ? "color: #10b981; background: #d1fae5;" : "color: #dc2626; background: #fee2e2;")">
-                                        @(productCategory.Status ? "✓" : "✗")
-                                    </div>
-                                }
-                            </Template>
-                        </GridColumn>
-                    </GridColumns>
-                </SfGrid>
-            </div>
-        </div>
-
+        <Footer />
     </div>
 }
 
 <!-- Delete Confirmation Dialog -->
 <DeleteConfirmationDialog @ref="_deleteConfirmationDialog"
-						  EntityName="Product Category"
-						  IdentifierLabel="Name"
-						  IdentifierValue="@_deleteProductCategoryName"
-						  IsPermanentDelete="false"
-						  Disabled="@_isProcessing"
-						  OnConfirm="ConfirmDelete"
-						  OnCancel="CancelDelete" />
+                          EntityName="Product Category"
+                          IdentifierLabel="Name"
+                          IdentifierValue="@_deleteProductCategoryName"
+                          IsPermanentDelete="false"
+                          Disabled="@_isProcessing"
+                          OnConfirm="ConfirmDelete"
+                          OnCancel="CancelDelete" />
 
 <!-- Recover Confirmation Dialog -->
 <RecoverConfirmationDialog @ref="_recoverConfirmationDialog"
-						   EntityName="Product Category"
-						   IdentifierLabel="Name"
-						   IdentifierValue="@_recoverProductCategoryName"
-						   Disabled="@_isProcessing"
-						   OnConfirm="ConfirmRecover"
-						   OnCancel="CancelRecover" />
+                           EntityName="Product Category"
+                           IdentifierLabel="Name"
+                           IdentifierValue="@_recoverProductCategoryName"
+                           Disabled="@_isProcessing"
+                           OnConfirm="ConfirmRecover"
+                           OnCancel="CancelRecover" />
 
 <!-- Toast Notification -->
 <ToastNotification @ref="_toastNotification" />

@@ -12,163 +12,166 @@
 }
 else
 {
-    <Header Title="Financial Year Management" Subtitle="Manage financial years and periods"
+    <div style="display: flex; flex-direction: column; min-height: 100vh;">
+        <Header Title="Financial Year Management" Subtitle="Manage financial years and periods"
                 ShowHome="true" ShowBack="true"
                 OnHomeClick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))"
                 OnBackClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard))">
-        <RightContent>
-            <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
-            <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
-            <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Financial Year (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveFinancialYear" />
-            <IconButton Icon="IconType.Generate" Title="Auto Generate Next Year" Disabled="_isProcessing" OnClick="AutoGenerateNextYear" />
-            <IconButton Icon="IconType.New" Title="New Financial Year (Ctrl + N)" Disabled="_isProcessing" OnClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminFinancialYear, true))" />
-        </RightContent>
-    </Header>
+            <RightContent>
+                <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
+                <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
+                <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Financial Year (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveFinancialYear" />
+                <IconButton Icon="IconType.Generate" Title="Auto Generate Next Year" Disabled="_isProcessing" OnClick="AutoGenerateNextYear" />
+                <IconButton Icon="IconType.New" Title="New Financial Year (Ctrl + N)" Disabled="_isProcessing" OnClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminFinancialYear, true))" />
+            </RightContent>
+        </Header>
 
-    <!-- Main Content Container -->
-    <div class="purchase-container">
+        <!-- Main Content Container -->
+        <div class="purchase-container">
 
-        <!-- Financial Year Entry Section -->
-        <div class="section-card">
-            <div class="section-header">
-                <div class="section-title-wrapper">
-                    <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
-                    </svg>
-                    <h2 class="section-title">Financial Year Details</h2>
+            <!-- Financial Year Entry Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
+                        </svg>
+                        <h2 class="section-title">Financial Year Details</h2>
+                    </div>
+                </div>
+                <div class="section-body">
+                    <div class="form-grid-five">
+                        <!-- Start Date -->
+                        <div class="form-field">
+                            <label class="field-label">Start Date <span class="required">*</span></label>
+                            <SfDatePicker @bind-Value="_financialYear.StartDate" Placeholder="Select start date"
+                                          FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" Format="dd-MMM-yyyy" />
+                        </div>
+
+                        <!-- End Date -->
+                        <div class="form-field">
+                            <label class="field-label">End Date <span class="required">*</span></label>
+                            <SfDatePicker @bind-Value="_financialYear.EndDate" Placeholder="Select end date"
+                                          FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" Format="dd-MMM-yyyy" />
+                        </div>
+
+                        <!-- Year No -->
+                        <div class="form-field">
+                            <label class="field-label">Year No <span class="required">*</span></label>
+                            <SfNumericTextBox @bind-Value="_financialYear.YearNo" Placeholder="Enter year number"
+                                              FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" Format="N0" Decimals="0"
+                                              Min="1" />
+                        </div>
+
+                        <!-- Locked Checkbox -->
+                        <div class="form-field">
+                            <label class="field-label">Locked</label>
+                            <SfCheckBox @bind-Checked="_financialYear.Locked" Label="Is Locked" CssClass="custom-checkbox" />
+                        </div>
+
+                        <!-- Remarks -->
+                        <div class="form-field">
+                            <label class="field-label">Remarks</label>
+                            <SfTextBox @bind-Value="_financialYear.Remarks" Placeholder="Enter remarks (optional)"
+                                       Multiline="true" FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="section-body">
-                <div class="form-grid-five">
-                    <!-- Start Date -->
-                    <div class="form-field">
-                        <label class="field-label">Start Date <span class="required">*</span></label>
-                        <SfDatePicker @bind-Value="_financialYear.StartDate" Placeholder="Select start date"
-                            FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" Format="dd-MMM-yyyy" />
-                    </div>
 
-                    <!-- End Date -->
-                    <div class="form-field">
-                        <label class="field-label">End Date <span class="required">*</span></label>
-                        <SfDatePicker @bind-Value="_financialYear.EndDate" Placeholder="Select end date"
-                            FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" Format="dd-MMM-yyyy" />
+            <!-- Financial Years List Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 11l3 3L22 4" />
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                        </svg>
+                        <h2 class="section-title">Financial Years List</h2>
                     </div>
+                    <div class="header-actions">
+                        <ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted" OnToggle="ToggleDeleted" />
+                    </div>
+                </div>
+                <div class="section-body grid-body">
+                    <SfGrid @ref="_sfGrid" DataSource="@_financialYears" AllowPaging="true" AllowSorting="true"
+                            AllowFiltering="true" AllowResizing="true" CssClass="professional-grid"
+                            Toolbar="@(new List<string>() { "Search" })">
+                        <GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+                        <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+                        <GridColumns>
+                            <GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center" AllowFiltering="false">
+                                <Template>
+                                    @{
+                                        var financialYear = (context as FinancialYearModel);
 
-                    <!-- Year No -->
-                    <div class="form-field">
-                        <label class="field-label">Year No <span class="required">*</span></label>
-                        <SfNumericTextBox @bind-Value="_financialYear.YearNo" Placeholder="Enter year number"
-                            FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" Format="N0" Decimals="0"
-                            Min="1" />
-                    </div>
-
-                    <!-- Locked Checkbox -->
-                    <div class="form-field">
-                        <label class="field-label">Locked</label>
-                        <SfCheckBox @bind-Checked="_financialYear.Locked" Label="Is Locked" CssClass="custom-checkbox" />
-                    </div>
-
-                    <!-- Remarks -->
-                    <div class="form-field">
-                        <label class="field-label">Remarks</label>
-                        <SfTextBox @bind-Value="_financialYear.Remarks" Placeholder="Enter remarks (optional)"
-                            Multiline="true" FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                    </div>
+                                        <div class="grid-actions">
+                                            @if (financialYear.Status)
+                                            {
+                                                <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid" Title="Edit (Insert)" OnClick="@(() => OnEditFinancialYear(financialYear))" />
+                                                <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete (Delete)" OnClick="@(() => ShowDeleteConfirmation(financialYear.Id, GetFinancialYearName(financialYear)))" />
+                                            }
+                                            else
+                                            {
+                                                <IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover" Size="ButtonSize.Grid" Title="Recover (Delete)" OnClick="@(() => ShowRecoverConfirmation(financialYear.Id, GetFinancialYearName(financialYear)))" />
+                                            }
+                                        </div>
+                                    }
+                                </Template>
+                            </GridColumn>
+                            <GridColumn Field="@nameof(FinancialYearModel.Id)" HeaderText="ID" Width="80"
+                                        TextAlign="TextAlign.Center" />
+                            <GridColumn Field="@nameof(FinancialYearModel.StartDate)" HeaderText="Start Date" Width="150"
+                                        TextAlign="TextAlign.Center" Format="dd-MMM-yyyy" />
+                            <GridColumn Field="@nameof(FinancialYearModel.EndDate)" HeaderText="End Date" Width="150"
+                                        TextAlign="TextAlign.Center" Format="dd-MMM-yyyy" />
+                            <GridColumn Field="@nameof(FinancialYearModel.YearNo)" HeaderText="Year No" Width="100"
+                                        TextAlign="TextAlign.Center" />
+                            <GridColumn Field="@nameof(FinancialYearModel.Remarks)" HeaderText="Remarks" Width="250" />
+                            <GridColumn Field="@nameof(FinancialYearModel.Locked)" HeaderText="Locked" Width="100"
+                                        TextAlign="TextAlign.Center">
+                                <Template>
+                                    @{
+                                        var financialYear = (context as FinancialYearModel);
+                                        <div class="grid-checkbox"
+                                             style="@(financialYear.Locked ? "color: #f59e0b; background: #fef3c7;" : "color: #64748b; background: #f1f5f9;")">
+                                            @(financialYear.Locked ? "🔒" : "🔓")
+                                        </div>
+                                    }
+                                </Template>
+                            </GridColumn>
+                            <GridColumn Field="@nameof(FinancialYearModel.Status)" HeaderText="Status" Width="100"
+                                        TextAlign="TextAlign.Center">
+                                <Template>
+                                    @{
+                                        var financialYear = (context as FinancialYearModel);
+                                        <div class="grid-checkbox"
+                                             style="@(financialYear.Status ? "color: #10b981; background: #d1fae5;" : "color: #dc2626; background: #fee2e2;")">
+                                            @(financialYear.Status ? "✓" : "✗")
+                                        </div>
+                                    }
+                                </Template>
+                            </GridColumn>
+                        </GridColumns>
+                    </SfGrid>
                 </div>
             </div>
         </div>
 
-        <!-- Financial Years List Section -->
-        <div class="section-card">
-            <div class="section-header">
-                <div class="section-title-wrapper">
-                    <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 11l3 3L22 4" />
-                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-                    </svg>
-                    <h2 class="section-title">Financial Years List</h2>
-                </div>
-                <div class="header-actions">
-                    <ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted" OnToggle="ToggleDeleted" />
-                </div>
-            </div>
-            <div class="section-body grid-body">
-                <SfGrid @ref="_sfGrid" DataSource="@_financialYears" AllowPaging="true" AllowSorting="true"
-                    AllowFiltering="true" AllowResizing="true" CssClass="professional-grid"
-                    Toolbar="@(new List<string>() { "Search" })">
-                    <GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
-                    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
-                    <GridColumns>
-                        <GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center" AllowFiltering="false">
-                            <Template>
-                                @{
-                                    var financialYear = (context as FinancialYearModel);
-
-                                    <div class="grid-actions">
-                                        @if (financialYear.Status)
-                                        {
-                                            <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid" Title="Edit (Insert)" OnClick="@(() => OnEditFinancialYear(financialYear))" />
-                                            <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete (Delete)" OnClick="@(() => ShowDeleteConfirmation(financialYear.Id, GetFinancialYearName(financialYear)))" />
-                                        }
-                                        else
-                                        {
-                                            <IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover" Size="ButtonSize.Grid" Title="Recover (Delete)" OnClick="@(() => ShowRecoverConfirmation(financialYear.Id, GetFinancialYearName(financialYear)))" />
-                                        }
-                                    </div>
-                                }
-                            </Template>
-                        </GridColumn>
-                        <GridColumn Field="@nameof(FinancialYearModel.Id)" HeaderText="ID" Width="80"
-                            TextAlign="TextAlign.Center" />
-                        <GridColumn Field="@nameof(FinancialYearModel.StartDate)" HeaderText="Start Date" Width="150"
-                            TextAlign="TextAlign.Center" Format="dd-MMM-yyyy" />
-                        <GridColumn Field="@nameof(FinancialYearModel.EndDate)" HeaderText="End Date" Width="150"
-                            TextAlign="TextAlign.Center" Format="dd-MMM-yyyy" />
-                        <GridColumn Field="@nameof(FinancialYearModel.YearNo)" HeaderText="Year No" Width="100"
-                            TextAlign="TextAlign.Center" />
-                        <GridColumn Field="@nameof(FinancialYearModel.Remarks)" HeaderText="Remarks" Width="250" />
-                        <GridColumn Field="@nameof(FinancialYearModel.Locked)" HeaderText="Locked" Width="100"
-                            TextAlign="TextAlign.Center">
-                            <Template>
-                                @{
-                                    var financialYear = (context as FinancialYearModel);
-                                    <div class="grid-checkbox"
-                                        style="@(financialYear.Locked ? "color: #f59e0b; background: #fef3c7;" : "color: #64748b; background: #f1f5f9;")">
-                                        @(financialYear.Locked ? "🔒" : "🔓")
-                                    </div>
-                                }
-                            </Template>
-                        </GridColumn>
-                        <GridColumn Field="@nameof(FinancialYearModel.Status)" HeaderText="Status" Width="100"
-                            TextAlign="TextAlign.Center">
-                            <Template>
-                                @{
-                                    var financialYear = (context as FinancialYearModel);
-                                    <div class="grid-checkbox"
-                                        style="@(financialYear.Status ? "color: #10b981; background: #d1fae5;" : "color: #dc2626; background: #fee2e2;")">
-                                        @(financialYear.Status ? "✓" : "✗")
-                                    </div>
-                                }
-                            </Template>
-                        </GridColumn>
-                    </GridColumns>
-                </SfGrid>
-            </div>
-        </div>
-
+        <Footer />
     </div>
 }
 
 <DeleteConfirmationDialog @ref="_deleteConfirmationDialog"
-                         EntityName="Financial Year"
-                         IdentifierLabel="Period"
-                         IdentifierValue="@_deleteFinancialYearName"
-                         IsPermanentDelete="false"
-                         Disabled="@_isProcessing"
-                         OnConfirm="ConfirmDelete"
-                         OnCancel="CancelDelete" />
+                          EntityName="Financial Year"
+                          IdentifierLabel="Period"
+                          IdentifierValue="@_deleteFinancialYearName"
+                          IsPermanentDelete="false"
+                          Disabled="@_isProcessing"
+                          OnConfirm="ConfirmDelete"
+                          OnCancel="CancelDelete" />
 
 <RecoverConfirmationDialog @ref="_recoverConfirmationDialog"
                            EntityName="Financial Year"
@@ -322,19 +325,19 @@ else
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
     }
 
-    .dialog-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
-    }
+        .dialog-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+        }
 
-    .dialog-btn:active {
-        transform: translateY(0);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-    }
+        .dialog-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        }
 
-    .dialog-btn svg {
-        flex-shrink: 0;
-    }
+        .dialog-btn svg {
+            flex-shrink: 0;
+        }
 
     .dialog-btn-cancel {
         background: #ffffff;
@@ -342,29 +345,29 @@ else
         border: 2px solid #e2e8f0;
     }
 
-    .dialog-btn-cancel:hover {
-        background: #f8fafc;
-        border-color: #cbd5e1;
-        color: #475569;
-    }
+        .dialog-btn-cancel:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            color: #475569;
+        }
 
     .dialog-btn-delete {
         background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         color: white;
     }
 
-    .dialog-btn-delete:hover {
-        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-    }
+        .dialog-btn-delete:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        }
 
     .dialog-btn-recover {
         background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         color: white;
     }
 
-    .dialog-btn-recover:hover {
-        background: linear-gradient(135deg, #059669 0%, #047857 100%);
-    }
+        .dialog-btn-recover:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
 
     /* Responsive Design */
     @@media (max-width: 1400px) {

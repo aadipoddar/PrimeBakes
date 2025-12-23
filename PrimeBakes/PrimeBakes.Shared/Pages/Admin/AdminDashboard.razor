@@ -8,417 +8,416 @@
 
 @if (_isLoading)
 {
-	<SfSpinner @bind-Visible="_isLoading" Label="Page is Loading, Please Wait" />
+    <SfSpinner @bind-Visible="_isLoading" Label="Page is Loading, Please Wait" />
 }
 else
 {
-	<Header Title="Admin Dashboard"
-				Subtitle="Manage master data and system configuration"
-				ShowLogout="true"
-				ShowHome="true"
-				OnLogoutClick="Logout"
-				OnHomeClick="NavigateToDashboard" />
+    <div style="display: flex; flex-direction: column; min-height: 100vh;">
+        <Header Title="Admin Dashboard"
+                Subtitle="Manage master data and system configuration"
+                ShowLogout="true"
+                ShowHome="true"
+                OnLogoutClick="Logout"
+                OnHomeClick="NavigateToDashboard" />
 
-	<!-- Main Content Container -->
-	<div class="dashboard-container">
+        <!-- Main Content Container -->
+        <div class="dashboard-container">
 
-		<!-- Operations Section -->
-		<div class="section-card">
-			<div class="section-header">
-				<div class="section-title-wrapper">
-					<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
-						fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-						<polyline points="9 22 9 12 15 12 15 22" />
-					</svg>
-					<h2 class="section-title">Operations Management</h2>
-				</div>
-				<p class="section-subtitle">Manage locations and users</p>
-			</div>
-			<div class="section-body">
-				<div class="dashboard-grid">
-					<!-- Outlet / Location -->
-					<ButtonCard Title="Outlet / Location" Description="Manage outlet locations" Color="sky"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminLocation)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-								<circle cx="12" cy="10" r="3" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
+            <!-- Operations Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                            <polyline points="9 22 9 12 15 12 15 22" />
+                        </svg>
+                        <h2 class="section-title">Operations Management</h2>
+                    </div>
+                    <p class="section-subtitle">Manage locations and users</p>
+                </div>
+                <div class="section-body">
+                    <div class="dashboard-grid">
+                        <!-- Outlet / Location -->
+                        <ButtonCard Title="Outlet / Location" Description="Manage outlet locations" Color="sky"
+                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminLocation)">
+                            <IconContent>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                    <circle cx="12" cy="10" r="3" />
+                                </svg>
+                            </IconContent>
+                        </ButtonCard>
 
-					<!-- User Management -->
-					<ButtonCard Title="User" Description="Manage user accounts" Color="purple"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminUser)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-								<circle cx="9" cy="7" r="4" />
-								<path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-								<path d="M16 3.13a4 4 0 0 1 0 7.75" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
+                        <!-- User Management -->
+                        <ButtonCard Title="User" Description="Manage user accounts" Color="purple"
+                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminUser)">
+                            <IconContent>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                    <circle cx="9" cy="7" r="4" />
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                </svg>
+                            </IconContent>
+                        </ButtonCard>
 
-					<!-- Settings -->
-					<ButtonCard Title="Settings" Description="Manage system settings" Color="blue"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminSettings)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-								<circle cx="12" cy="12" r="3" />
-								<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
-				</div>
-			</div>
-		</div>
+                        <!-- Settings -->
+                        <ButtonCard Title="Settings" Description="Manage system settings" Color="blue"
+                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminSettings)">
+                            <IconContent>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="3" />
+                                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                                </svg>
+                            </IconContent>
+                        </ButtonCard>
+                    </div>
+                </div>
+            </div>
 
-		<!-- Products Section -->
-		<div class="section-card">
-			<div class="section-header">
-				<div class="section-title-wrapper">
-					<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
-						fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<polyline points="21 8 21 21 3 21 3 8" />
-						<rect x="1" y="3" width="22" height="5" />
-						<line x1="10" y1="12" x2="14" y2="12" />
-					</svg>
-					<h2 class="section-title">Products Management</h2>
-				</div>
-				<p class="section-subtitle">Manage finished products, categories, and tax</p>
-			</div>
-			<div class="section-body">
-				<div class="dashboard-grid">
-					<!-- Finished Product -->
-					<ButtonCard Title="Finished Product" Description="Manage finished products" Color="emerald"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminProduct)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<polyline points="21 8 21 21 3 21 3 8" />
-								<rect x="1" y="3" width="22" height="5" />
-								<line x1="10" y1="12" x2="14" y2="12" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
+            <!-- Products Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="21 8 21 21 3 21 3 8" />
+                            <rect x="1" y="3" width="22" height="5" />
+                            <line x1="10" y1="12" x2="14" y2="12" />
+                        </svg>
+                        <h2 class="section-title">Products Management</h2>
+                    </div>
+                    <p class="section-subtitle">Manage finished products, categories, and tax</p>
+                </div>
+                <div class="section-body">
+                    <div class="dashboard-grid">
+                        <!-- Finished Product -->
+                        <ButtonCard Title="Finished Product" Description="Manage finished products" Color="emerald"
+                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminProduct)">
+                            <IconContent>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <polyline points="21 8 21 21 3 21 3 8" />
+                                    <rect x="1" y="3" width="22" height="5" />
+                                    <line x1="10" y1="12" x2="14" y2="12" />
+                                </svg>
+                            </IconContent>
+                        </ButtonCard>
 
-					<!-- Product Location -->
-					<ButtonCard Title="Product Location" Description="Manage product locations" Color="sky"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminProductLocation)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<path
-									d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
-								<path d="m3.3 7 8.7 5 8.7-5" />
-								<path d="M12 22V12" />
-								<circle cx="12" cy="12" r="2" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
+                        <!-- Product Location -->
+                        <ButtonCard Title="Product Location" Description="Manage product locations" Color="sky"
+                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminProductLocation)">
+                            <IconContent>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+                                    <path d="m3.3 7 8.7 5 8.7-5" />
+                                    <path d="M12 22V12" />
+                                    <circle cx="12" cy="12" r="2" />
+                                </svg>
+                            </IconContent>
+                        </ButtonCard>
 
-					<!-- Finished Product Category -->
-					<ButtonCard Title="Finished Product Category" Description="Manage product categories" Color="teal"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminProductCategory)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<line x1="8" y1="6" x2="21" y2="6" />
-								<line x1="8" y1="12" x2="21" y2="12" />
-								<line x1="8" y1="18" x2="21" y2="18" />
-								<line x1="3" y1="6" x2="3.01" y2="6" />
-								<line x1="3" y1="12" x2="3.01" y2="12" />
-								<line x1="3" y1="18" x2="3.01" y2="18" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
+                        <!-- Finished Product Category -->
+                        <ButtonCard Title="Finished Product Category" Description="Manage product categories" Color="teal"
+                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminProductCategory)">
+                            <IconContent>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <line x1="8" y1="6" x2="21" y2="6" />
+                                    <line x1="8" y1="12" x2="21" y2="12" />
+                                    <line x1="8" y1="18" x2="21" y2="18" />
+                                    <line x1="3" y1="6" x2="3.01" y2="6" />
+                                    <line x1="3" y1="12" x2="3.01" y2="12" />
+                                    <line x1="3" y1="18" x2="3.01" y2="18" />
+                                </svg>
+                            </IconContent>
+                        </ButtonCard>
 
-					<!-- Tax -->
-					<ButtonCard Title="Tax" Description="Manage tax rates and types" Color="amber"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminTax)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<line x1="12" y1="1" x2="12" y2="23" />
-								<path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
-				</div>
-			</div>
-		</div>
+                        <!-- Tax -->
+                        <ButtonCard Title="Tax" Description="Manage tax rates and types" Color="amber"
+                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminTax)">
+                            <IconContent>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <line x1="12" y1="1" x2="12" y2="23" />
+                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                                </svg>
+                            </IconContent>
+                        </ButtonCard>
+                    </div>
+                </div>
+            </div>
 
-		<!-- Raw Materials Section -->
-		<div class="section-card">
-			<div class="section-header">
-				<div class="section-title-wrapper">
-					<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
-						fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<path
-							d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-						<polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-						<line x1="12" y1="22.08" x2="12" y2="12" />
-					</svg>
-					<h2 class="section-title">Raw Materials Management</h2>
-				</div>
-				<p class="section-subtitle">Manage raw materials, categories, and kitchen operations</p>
-			</div>
-			<div class="section-body">
-				<div class="dashboard-grid">
-					<!-- Raw Material -->
-					<ButtonCard Title="Raw Material" Description="Manage raw materials inventory" Color="blue"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminRawMaterial)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<path
-									d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-								<polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-								<line x1="12" y1="22.08" x2="12" y2="12" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
+            <!-- Raw Materials Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                            <line x1="12" y1="22.08" x2="12" y2="12" />
+                        </svg>
+                        <h2 class="section-title">Raw Materials Management</h2>
+                    </div>
+                    <p class="section-subtitle">Manage raw materials, categories, and kitchen operations</p>
+                </div>
+                <div class="section-body">
+                    <div class="dashboard-grid">
+                        <!-- Raw Material -->
+                        <ButtonCard Title="Raw Material" Description="Manage raw materials inventory" Color="blue"
+                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminRawMaterial)">
+                            <IconContent>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                                    <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                                    <line x1="12" y1="22.08" x2="12" y2="12" />
+                                </svg>
+                            </IconContent>
+                        </ButtonCard>
 
-					<!-- Raw Material Category -->
-					<ButtonCard Title="Raw Material Category" Description="Manage raw material categories" Color="cyan"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminRawMaterialCategory)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<rect x="3" y="3" width="7" height="7" />
-								<rect x="14" y="3" width="7" height="7" />
-								<rect x="14" y="14" width="7" height="7" />
-								<rect x="3" y="14" width="7" height="7" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
+                        <!-- Raw Material Category -->
+                        <ButtonCard Title="Raw Material Category" Description="Manage raw material categories" Color="cyan"
+                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminRawMaterialCategory)">
+                            <IconContent>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <rect x="3" y="3" width="7" height="7" />
+                                    <rect x="14" y="3" width="7" height="7" />
+                                    <rect x="14" y="14" width="7" height="7" />
+                                    <rect x="3" y="14" width="7" height="7" />
+                                </svg>
+                            </IconContent>
+                        </ButtonCard>
 
-					<!-- Kitchen -->
-					<ButtonCard Title="Kitchen" Description="Manage kitchen operations" Color="orange"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminKitchen)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
-								<path d="M7 2v20" />
-								<path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3z" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
-				</div>
-			</div>
-		</div>
+                        <!-- Kitchen -->
+                        <ButtonCard Title="Kitchen" Description="Manage kitchen operations" Color="orange"
+                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminKitchen)">
+                            <IconContent>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
+                                    <path d="M7 2v20" />
+                                    <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3z" />
+                                </svg>
+                            </IconContent>
+                        </ButtonCard>
+                    </div>
+                </div>
+            </div>
 
-		<!-- Accounting Master Data Section -->
-		<div class="section-card">
-			<div class="section-header">
-				<div class="section-title-wrapper">
-					<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
-						fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<line x1="12" y1="1" x2="12" y2="23" />
-						<path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-					</svg>
-					<h2 class="section-title">Accounting Master Data</h2>
-				</div>
-				<p class="section-subtitle">Manage accounting configuration and master data</p>
-			</div>
-			<div class="section-body">
-				<div class="dashboard-grid">
-					<!-- Group -->
-					<ButtonCard Title="Group" Description="Manage account groups" Color="rose"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminGroup)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-								<circle cx="9" cy="7" r="4" />
-								<path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-								<path d="M16 3.13a4 4 0 0 1 0 7.75" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
+            <!-- Accounting Master Data Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="1" x2="12" y2="23" />
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                        </svg>
+                        <h2 class="section-title">Accounting Master Data</h2>
+                    </div>
+                    <p class="section-subtitle">Manage accounting configuration and master data</p>
+                </div>
+                <div class="section-body">
+                    <div class="dashboard-grid">
+                        <!-- Group -->
+                        <ButtonCard Title="Group" Description="Manage account groups" Color="rose"
+                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminGroup)">
+                            <IconContent>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                    <circle cx="9" cy="7" r="4" />
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                </svg>
+                            </IconContent>
+                        </ButtonCard>
 
-					<!-- Account Type -->
-					<ButtonCard Title="Account Type" Description="Manage account types" Color="indigo"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminAccountType)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-								<path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
+                        <!-- Account Type -->
+                        <ButtonCard Title="Account Type" Description="Manage account types" Color="indigo"
+                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminAccountType)">
+                            <IconContent>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                                </svg>
+                            </IconContent>
+                        </ButtonCard>
 
-					<!-- Ledgers -->
-					<ButtonCard Title="Ledgers" Description="Manage ledger accounts" Color="violet"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminLedger)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-								<polyline points="14 2 14 8 20 8" />
-								<line x1="16" y1="13" x2="8" y2="13" />
-								<line x1="16" y1="17" x2="8" y2="17" />
-								<line x1="10" y1="9" x2="8" y2="9" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
+                        <!-- Ledgers -->
+                        <ButtonCard Title="Ledgers" Description="Manage ledger accounts" Color="violet"
+                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminLedger)">
+                            <IconContent>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                    <polyline points="14 2 14 8 20 8" />
+                                    <line x1="16" y1="13" x2="8" y2="13" />
+                                    <line x1="16" y1="17" x2="8" y2="17" />
+                                    <line x1="10" y1="9" x2="8" y2="9" />
+                                </svg>
+                            </IconContent>
+                        </ButtonCard>
 
-					<!-- Voucher -->
-					<ButtonCard Title="Voucher" Description="Manage voucher types" Color="emerald"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminVoucher)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-								<polyline points="14 2 14 8 20 8" />
-								<line x1="12" y1="18" x2="12" y2="12" />
-								<line x1="9" y1="15" x2="15" y2="15" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
+                        <!-- Voucher -->
+                        <ButtonCard Title="Voucher" Description="Manage voucher types" Color="emerald"
+                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminVoucher)">
+                            <IconContent>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                    <polyline points="14 2 14 8 20 8" />
+                                    <line x1="12" y1="18" x2="12" y2="12" />
+                                    <line x1="9" y1="15" x2="15" y2="15" />
+                                </svg>
+                            </IconContent>
+                        </ButtonCard>
 
-					<!-- Financial Years -->
-					<ButtonCard Title="Financial Years" Description="Manage financial year periods" Color="green"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminFinancialYear)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-								<line x1="16" y1="2" x2="16" y2="6" />
-								<line x1="8" y1="2" x2="8" y2="6" />
-								<line x1="3" y1="10" x2="21" y2="10" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
+                        <!-- Financial Years -->
+                        <ButtonCard Title="Financial Years" Description="Manage financial year periods" Color="green"
+                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminFinancialYear)">
+                            <IconContent>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                    <line x1="16" y1="2" x2="16" y2="6" />
+                                    <line x1="8" y1="2" x2="8" y2="6" />
+                                    <line x1="3" y1="10" x2="21" y2="10" />
+                                </svg>
+                            </IconContent>
+                        </ButtonCard>
 
-					<!-- States -->
-					<ButtonCard Title="States" Description="Manage state/UT information" Color="purple"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminStateUT)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<circle cx="12" cy="12" r="10" />
-								<line x1="2" y1="12" x2="22" y2="12" />
-								<path
-									d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
+                        <!-- States -->
+                        <ButtonCard Title="States" Description="Manage state/UT information" Color="purple"
+                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminStateUT)">
+                            <IconContent>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="2" y1="12" x2="22" y2="12" />
+                                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                                </svg>
+                            </IconContent>
+                        </ButtonCard>
 
-					<!-- Company -->
-					<ButtonCard Title="Company" Description="Manage company settings" Color="amber"
-								   OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminCompany)">
-						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								stroke-linejoin="round">
-								<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-								<polyline points="9 22 9 12 15 12 15 22" />
-							</svg>
-						</IconContent>
-					</ButtonCard>
-				</div>
-			</div>
-		</div>
+                        <!-- Company -->
+                        <ButtonCard Title="Company" Description="Manage company settings" Color="amber"
+                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminCompany)">
+                            <IconContent>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                                    <polyline points="9 22 9 12 15 12 15 22" />
+                                </svg>
+                            </IconContent>
+                        </ButtonCard>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-	</div>
+        <Footer />
+    </div>
 }
 
 <style>
-	* {
-		box-sizing: border-box;
-	}
+    * {
+        box-sizing: border-box;
+    }
 
-	/* Dashboard Container */
-	.dashboard-container {
-		padding: 24px 32px;
-		max-width: 1920px;
-		margin: 0 auto;
-		background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
-		min-height: calc(100vh - 72px);
-	}
+    /* Dashboard Container */
+    .dashboard-container {
+        padding: 24px 32px;
+        max-width: 1920px;
+        margin: 0 auto;
+        background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
+        min-height: calc(100vh - 72px);
+    }
 
-	/* Section Card */
-	.section-card {
-		background: #ffffff;
-		border-radius: 12px;
-		border: 1px solid #e2e8f0;
-		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-		margin-bottom: 24px;
-		overflow: hidden;
-		transition: all 0.3s ease;
-	}
+    /* Section Card */
+    .section-card {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        margin-bottom: 24px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
 
-	.section-card:hover {
-		box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
-	}
+        .section-card:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+        }
 
-	.section-header {
-		padding: 20px 24px;
-		border-bottom: 2px solid #e2e8f0;
-		background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
-	}
+    .section-header {
+        padding: 20px 24px;
+        border-bottom: 2px solid #e2e8f0;
+        background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
+    }
 
-	.section-title-wrapper {
-		display: flex;
-		align-items: center;
-		gap: 12px;
-		margin-bottom: 8px;
-	}
+    .section-title-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 8px;
+    }
 
-	.section-icon {
-		color: #3b82f6;
-		flex-shrink: 0;
-	}
+    .section-icon {
+        color: #3b82f6;
+        flex-shrink: 0;
+    }
 
-	.section-title {
-		font-size: 18px;
-		font-weight: 600;
-		color: #0f172a;
-		margin: 0;
-		letter-spacing: -0.3px;
-	}
+    .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #0f172a;
+        margin: 0;
+        letter-spacing: -0.3px;
+    }
 
-	.section-subtitle {
-		font-size: 13px;
-		color: #64748b;
-		margin: 0;
-		padding-left: 34px;
-		font-weight: 400;
-	}
+    .section-subtitle {
+        font-size: 13px;
+        color: #64748b;
+        margin: 0;
+        padding-left: 34px;
+        font-weight: 400;
+    }
 
-	.section-body {
-		padding: 24px;
-	}
+    .section-body {
+        padding: 24px;
+    }
 
-	/* Dashboard Grid - Flexbox for consistent card sizing */
-	.dashboard-grid {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 24px;
-		width: 100%;
-		margin-bottom: 32px;
-	}
+    /* Dashboard Grid - Flexbox for consistent card sizing */
+    .dashboard-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+        width: 100%;
+        margin-bottom: 32px;
+    }
 </style>

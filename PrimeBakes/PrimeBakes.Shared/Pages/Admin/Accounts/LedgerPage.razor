@@ -13,241 +13,244 @@
 }
 else
 {
-    <Header Title="Ledger Management" Subtitle="Manage ledger accounts"
+    <div style="display: flex; flex-direction: column; min-height: 100vh;">
+        <Header Title="Ledger Management" Subtitle="Manage ledger accounts"
                 ShowHome="true" ShowBack="true"
                 OnHomeClick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))"
                 OnBackClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard))">
-        <RightContent>
-            <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
-            <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
-            <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Ledger (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveLedger" />
-            <IconButton Icon="IconType.New" Title="New Ledger (Ctrl + N)" Disabled="_isProcessing" OnClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminLedger, true))" />
-        </RightContent>
-    </Header>
+            <RightContent>
+                <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
+                <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
+                <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Ledger (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveLedger" />
+                <IconButton Icon="IconType.New" Title="New Ledger (Ctrl + N)" Disabled="_isProcessing" OnClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminLedger, true))" />
+            </RightContent>
+        </Header>
 
-    <!-- Main Content Container -->
-    <div class="purchase-container">
+        <!-- Main Content Container -->
+        <div class="purchase-container">
 
-        <!-- Ledger Entry Section -->
-        <div class="section-card">
-            <div class="section-header">
-                <div class="section-title-wrapper">
-                    <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
-                    </svg>
-                    <h2 class="section-title">Ledger Details</h2>
+            <!-- Ledger Entry Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
+                        </svg>
+                        <h2 class="section-title">Ledger Details</h2>
+                    </div>
+                </div>
+                <div class="section-body">
+                    <div class="form-grid-quad">
+                        <!-- Ledger Name -->
+                        <div class="form-field">
+                            <label class="field-label">
+                                Ledger Name <span class="required">*</span>
+                            </label>
+                            <SfTextBox @bind-Value="_ledger.Name" Placeholder="Enter ledger name"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
+
+                        <!-- Code (Auto-generated) -->
+                        <div class="form-field">
+                            <label class="field-label">
+                                Code <span class="required">*</span>
+                            </label>
+                            <SfTextBox @bind-Value="_ledger.Code" Placeholder="Auto-generated"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" Readonly="true" />
+                        </div>
+
+                        <!-- Group -->
+                        <div class="form-field">
+                            <label class="field-label">
+                                Group <span class="required">*</span>
+                            </label>
+                            <SfDropDownList TValue="int" TItem="GroupModel" Placeholder="Select Group"
+                                            DataSource="@_groups" @bind-Value="_ledger.GroupId"
+                                            FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox">
+                                <DropDownListFieldSettings Text="Name" Value="Id" />
+                            </SfDropDownList>
+                        </div>
+
+                        <!-- Account Type -->
+                        <div class="form-field">
+                            <label class="field-label">
+                                Account Type <span class="required">*</span>
+                            </label>
+                            <SfDropDownList TValue="int" TItem="AccountTypeModel" Placeholder="Select Account Type"
+                                            DataSource="@_accountTypes" @bind-Value="_ledger.AccountTypeId"
+                                            FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox">
+                                <DropDownListFieldSettings Text="Name" Value="Id" />
+                            </SfDropDownList>
+                        </div>
+
+                        <!-- State/UT -->
+                        <div class="form-field">
+                            <label class="field-label">
+                                State/UT <span class="required">*</span>
+                            </label>
+                            <SfDropDownList TValue="int" TItem="StateUTModel" Placeholder="Select State/UT"
+                                            DataSource="@_stateUTs" @bind-Value="_ledger.StateUTId"
+                                            FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox">
+                                <DropDownListFieldSettings Text="Name" Value="Id" />
+                            </SfDropDownList>
+                        </div>
+
+                        <!-- Location (Autocomplete) -->
+                        <div class="form-field">
+                            <label class="field-label">Location</label>
+                            <SfDropDownList TValue="int?" TItem="LocationModel" Placeholder="Search location (optional)"
+                                            DataSource="@_locations" @bind-Value="_ledger.LocationId"
+                                            FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox">
+                                <DropDownListFieldSettings Value="Id" Text="Name" />
+                            </SfDropDownList>
+                        </div>
+
+                        <!-- GST No -->
+                        <div class="form-field">
+                            <label class="field-label">GST No</label>
+                            <SfTextBox @bind-Value="_ledger.GSTNo" Placeholder="Enter GST No"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
+
+                        <!-- PAN No -->
+                        <div class="form-field">
+                            <label class="field-label">PAN No</label>
+                            <SfTextBox @bind-Value="_ledger.PANNo" Placeholder="Enter PAN No"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
+
+                        <!-- CIN No -->
+                        <div class="form-field">
+                            <label class="field-label">CIN No</label>
+                            <SfTextBox @bind-Value="_ledger.CINNo" Placeholder="Enter CIN No"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
+
+                        <!-- Alias -->
+                        <div class="form-field">
+                            <label class="field-label">Alias</label>
+                            <SfTextBox @bind-Value="_ledger.Alias" Placeholder="Enter Alias"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="form-field">
+                            <label class="field-label">Phone</label>
+                            <SfTextBox @bind-Value="_ledger.Phone" Placeholder="Enter Phone"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
+
+                        <!-- Email -->
+                        <div class="form-field">
+                            <label class="field-label">Email</label>
+                            <SfTextBox @bind-Value="_ledger.Email" Placeholder="Enter Email"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
+
+                        <!-- Address -->
+                        <div class="form-field form-field-span-4">
+                            <label class="field-label">Address</label>
+                            <SfTextBox @bind-Value="_ledger.Address" Placeholder="Enter Address" Multiline="true"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
+
+                        <!-- Remarks -->
+                        <div class="form-field form-field-span-4">
+                            <label class="field-label">Remarks</label>
+                            <SfTextBox @bind-Value="_ledger.Remarks" Placeholder="Enter remarks (optional)" Multiline="true"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="section-body">
-                <div class="form-grid-quad">
-                    <!-- Ledger Name -->
-                    <div class="form-field">
-                        <label class="field-label">
-                            Ledger Name <span class="required">*</span>
-                        </label>
-                        <SfTextBox @bind-Value="_ledger.Name" Placeholder="Enter ledger name"
-                                   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                    </div>
 
-                    <!-- Code (Auto-generated) -->
-                    <div class="form-field">
-                        <label class="field-label">
-                            Code <span class="required">*</span>
-                        </label>
-                        <SfTextBox @bind-Value="_ledger.Code" Placeholder="Auto-generated"
-                                   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" Readonly="true" />
+            <!-- Ledgers List Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 11l3 3L22 4" />
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                        </svg>
+                        <h2 class="section-title">Ledgers List</h2>
                     </div>
+                    <div class="header-actions">
+                        <ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted" OnToggle="ToggleDeleted" />
+                    </div>
+                </div>
+                <div class="section-body grid-body">
+                    <SfGrid @ref="_sfGrid" DataSource="@_ledgers" AllowPaging="true" AllowSorting="true" AllowFiltering="true"
+                            AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
+                        <GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+                        <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+                        <GridColumns>
+                            <GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center" AllowFiltering="false">
+                                <Template>
+                                    @{
+                                        var ledger = (context as LedgerModel);
 
-                    <!-- Group -->
-                    <div class="form-field">
-                        <label class="field-label">
-                            Group <span class="required">*</span>
-                        </label>
-                        <SfDropDownList TValue="int" TItem="GroupModel" Placeholder="Select Group"
-                                        DataSource="@_groups" @bind-Value="_ledger.GroupId"
-                                        FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox">
-                            <DropDownListFieldSettings Text="Name" Value="Id" />
-                        </SfDropDownList>
-                    </div>
-
-                    <!-- Account Type -->
-                    <div class="form-field">
-                        <label class="field-label">
-                            Account Type <span class="required">*</span>
-                        </label>
-                        <SfDropDownList TValue="int" TItem="AccountTypeModel" Placeholder="Select Account Type"
-                                        DataSource="@_accountTypes" @bind-Value="_ledger.AccountTypeId"
-                                        FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox">
-                            <DropDownListFieldSettings Text="Name" Value="Id" />
-                        </SfDropDownList>
-                    </div>
-
-                     <!-- State/UT -->
-                    <div class="form-field">
-                        <label class="field-label">
-                            State/UT <span class="required">*</span>
-                        </label>
-                        <SfDropDownList TValue="int" TItem="StateUTModel" Placeholder="Select State/UT"
-                                        DataSource="@_stateUTs" @bind-Value="_ledger.StateUTId"
-                                        FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox">
-                            <DropDownListFieldSettings Text="Name" Value="Id" />
-                        </SfDropDownList>
-                    </div>
-
-                    <!-- Location (Autocomplete) -->
-                    <div class="form-field">
-                        <label class="field-label">Location</label>
-                        <SfDropDownList TValue="int?" TItem="LocationModel" Placeholder="Search location (optional)"
-                                        DataSource="@_locations" @bind-Value="_ledger.LocationId"
-                                        FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox">
-                            <DropDownListFieldSettings Value="Id" Text="Name" />
-                        </SfDropDownList>
-                    </div>
-
-                    <!-- GST No -->
-                    <div class="form-field">
-                        <label class="field-label">GST No</label>
-                        <SfTextBox @bind-Value="_ledger.GSTNo" Placeholder="Enter GST No"
-                                   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                    </div>
-
-                    <!-- PAN No -->
-                    <div class="form-field">
-                        <label class="field-label">PAN No</label>
-                        <SfTextBox @bind-Value="_ledger.PANNo" Placeholder="Enter PAN No"
-                                   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                    </div>
-
-                    <!-- CIN No -->
-                    <div class="form-field">
-                        <label class="field-label">CIN No</label>
-                        <SfTextBox @bind-Value="_ledger.CINNo" Placeholder="Enter CIN No"
-                                   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                    </div>
-
-                    <!-- Alias -->
-                    <div class="form-field">
-                        <label class="field-label">Alias</label>
-                        <SfTextBox @bind-Value="_ledger.Alias" Placeholder="Enter Alias"
-                                   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                    </div>
-
-                    <!-- Phone -->
-                    <div class="form-field">
-                        <label class="field-label">Phone</label>
-                        <SfTextBox @bind-Value="_ledger.Phone" Placeholder="Enter Phone"
-                                   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                    </div>
-
-                    <!-- Email -->
-                    <div class="form-field">
-                        <label class="field-label">Email</label>
-                        <SfTextBox @bind-Value="_ledger.Email" Placeholder="Enter Email"
-                                   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                    </div>
-
-                    <!-- Address -->
-                    <div class="form-field form-field-span-4">
-                        <label class="field-label">Address</label>
-                        <SfTextBox @bind-Value="_ledger.Address" Placeholder="Enter Address" Multiline="true"
-                                   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                    </div>
-
-                    <!-- Remarks -->
-                    <div class="form-field form-field-span-4">
-                        <label class="field-label">Remarks</label>
-                        <SfTextBox @bind-Value="_ledger.Remarks" Placeholder="Enter remarks (optional)" Multiline="true"
-                                   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                    </div>
+                                        <div class="grid-actions">
+                                            @if (ledger.Status)
+                                            {
+                                                <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid" Title="Edit (Insert)" OnClick="@(() => OnEditLedger(ledger))" />
+                                                <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete (Delete)" OnClick="@(() => ShowDeleteConfirmation(ledger.Id, ledger.Name))" />
+                                            }
+                                            else
+                                            {
+                                                <IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover" Size="ButtonSize.Grid" Title="Recover (Delete)" OnClick="@(() => ShowRecoverConfirmation(ledger.Id, ledger.Name))" />
+                                            }
+                                        </div>
+                                    }
+                                </Template>
+                            </GridColumn>
+                            <GridColumn Field="@nameof(LedgerModel.Id)" HeaderText="ID" Width="80"
+                                        TextAlign="TextAlign.Center" />
+                            <GridColumn Field="@nameof(LedgerModel.Name)" HeaderText="Ledger Name" Width="250" />
+                            <GridColumn Field="@nameof(LedgerModel.Code)" HeaderText="Code" Width="120" />
+                            <GridColumn Field="@nameof(LedgerModel.GSTNo)" HeaderText="GST No" Width="150" />
+                            <GridColumn Field="@nameof(LedgerModel.Phone)" HeaderText="Phone" Width="150" />
+                            <GridColumn Field="@nameof(LedgerModel.Status)" HeaderText="Status" Width="100"
+                                        TextAlign="TextAlign.Center">
+                                <Template>
+                                    @{
+                                        var ledger = (context as LedgerModel);
+                                        <div class="grid-checkbox"
+                                             style="@(ledger.Status ? "color: #10b981; background: #d1fae5;" : "color: #dc2626; background: #fee2e2;")">
+                                            @(ledger.Status ? "✓" : "✗")
+                                        </div>
+                                    }
+                                </Template>
+                            </GridColumn>
+                        </GridColumns>
+                    </SfGrid>
                 </div>
             </div>
         </div>
 
-        <!-- Ledgers List Section -->
-        <div class="section-card">
-            <div class="section-header">
-                <div class="section-title-wrapper">
-                    <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 11l3 3L22 4" />
-                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-                    </svg>
-                    <h2 class="section-title">Ledgers List</h2>
-                </div>
-                <div class="header-actions">
-                    <ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted" OnToggle="ToggleDeleted" />
-                </div>
-            </div>
-            <div class="section-body grid-body">
-                <SfGrid @ref="_sfGrid" DataSource="@_ledgers" AllowPaging="true" AllowSorting="true" AllowFiltering="true"
-                        AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
-                    <GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
-                    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
-                    <GridColumns>
-                        <GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center" AllowFiltering="false">
-                            <Template>
-                                @{
-                                    var ledger = (context as LedgerModel);
-
-                                    <div class="grid-actions">
-                                        @if (ledger.Status)
-                                        {
-                                            <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid" Title="Edit (Insert)" OnClick="@(() => OnEditLedger(ledger))" />
-                                            <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete (Delete)" OnClick="@(() => ShowDeleteConfirmation(ledger.Id, ledger.Name))" />
-                                        }
-                                        else
-                                        {
-                                            <IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover" Size="ButtonSize.Grid" Title="Recover (Delete)" OnClick="@(() => ShowRecoverConfirmation(ledger.Id, ledger.Name))" />
-                                        }
-                                    </div>
-                                }
-                            </Template>
-                        </GridColumn>
-                        <GridColumn Field="@nameof(LedgerModel.Id)" HeaderText="ID" Width="80"
-                                    TextAlign="TextAlign.Center" />
-                        <GridColumn Field="@nameof(LedgerModel.Name)" HeaderText="Ledger Name" Width="250" />
-                        <GridColumn Field="@nameof(LedgerModel.Code)" HeaderText="Code" Width="120" />
-                        <GridColumn Field="@nameof(LedgerModel.GSTNo)" HeaderText="GST No" Width="150" />
-                        <GridColumn Field="@nameof(LedgerModel.Phone)" HeaderText="Phone" Width="150" />
-                        <GridColumn Field="@nameof(LedgerModel.Status)" HeaderText="Status" Width="100"
-                                    TextAlign="TextAlign.Center">
-                            <Template>
-                                @{
-                                    var ledger = (context as LedgerModel);
-                                    <div class="grid-checkbox"
-                                         style="@(ledger.Status ? "color: #10b981; background: #d1fae5;" : "color: #dc2626; background: #fee2e2;")">
-                                        @(ledger.Status ? "✓" : "✗")
-                                    </div>
-                                }
-                            </Template>
-                        </GridColumn>
-                    </GridColumns>
-                </SfGrid>
-            </div>
-        </div>
-
+        <Footer />
     </div>
 }
 
 <!-- Delete Confirmation Dialog -->
 <DeleteConfirmationDialog @ref="_deleteConfirmationDialog"
-						  EntityName="Ledger"
-						  IdentifierLabel="Name"
-						  IdentifierValue="@_deleteLedgerName"
-						  IsPermanentDelete="false"
-						  Disabled="@_isProcessing"
-						  OnConfirm="ConfirmDelete"
-						  OnCancel="CancelDelete" />
+                          EntityName="Ledger"
+                          IdentifierLabel="Name"
+                          IdentifierValue="@_deleteLedgerName"
+                          IsPermanentDelete="false"
+                          Disabled="@_isProcessing"
+                          OnConfirm="ConfirmDelete"
+                          OnCancel="CancelDelete" />
 
 <!-- Recover Confirmation Dialog -->
 <RecoverConfirmationDialog @ref="_recoverConfirmationDialog"
-						   EntityName="Ledger"
-						   IdentifierLabel="Name"
-						   IdentifierValue="@_recoverLedgerName"
-						   Disabled="@_isProcessing"
-						   OnConfirm="ConfirmRecover"
-						   OnCancel="CancelRecover" />
+                           EntityName="Ledger"
+                           IdentifierLabel="Name"
+                           IdentifierValue="@_recoverLedgerName"
+                           Disabled="@_isProcessing"
+                           OnConfirm="ConfirmRecover"
+                           OnCancel="CancelRecover" />
 
 <ToastNotification @ref="_toastNotification" />
 

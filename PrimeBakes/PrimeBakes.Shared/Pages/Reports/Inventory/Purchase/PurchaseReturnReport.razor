@@ -15,496 +15,503 @@
 }
 else
 {
-	<Header Title="Purchase Return Report" Subtitle="View and analyze purchase return transactions" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack">
-		<RightContent>
-			<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
-			<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
-			<IconButton Icon="IconType.Refresh" Title="Refresh Data (Ctrl + R)" Disabled="_isProcessing" OnClick="LoadTransactionOverviews" />
-			<IconButton Icon="IconType.Report" Title="Item Report (Ctrl + I)" Disabled="_isProcessing" OnClick="NavigateToItemReport" />
-			<IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing" OnClick="NavigateToTransactionPage" />
-		</RightContent>
-	</Header>
+	<div style="display: flex; flex-direction: column; min-height: 100vh;">
+		<Header Title="Purchase Return Report" Subtitle="View and analyze purchase return transactions" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack">
+			<RightContent>
+				<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
+				<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
+				<IconButton Icon="IconType.Refresh" Title="Refresh Data (Ctrl + R)" Disabled="_isProcessing" OnClick="LoadTransactionOverviews" />
+				<IconButton Icon="IconType.Report" Title="Item Report (Ctrl + I)" Disabled="_isProcessing" OnClick="NavigateToItemReport" />
+				<IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing" OnClick="NavigateToTransactionPage" />
+			</RightContent>
+		</Header>
 
-	<!-- Main Content Container -->
-	<div class="report-container">
+		<!-- Main Content Container -->
+		<div class="report-container">
 
-		<!-- Filters Section -->
-		<div class="section-card">
-			<div class="section-header">
-				<div class="section-title-wrapper">
-					<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-						fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-					</svg>
-					<h2 class="section-title">Filters</h2>
-				</div>
-			</div>
-			<div class="section-body">
-				<div class="filters-container">
-					<div class="filters-grid">
-						<!-- Date Range -->
-						<div class="form-field">
-							<label class="field-label">Date Range</label>
-							<SfDateRangePicker CssClass="custom-daterange" StartDate="_fromDate" EndDate="_toDate"
-								TValue="DateTime" Format="dd/MM/yyyy" AllowEdit="true" Placeholder="Select date range">
-								<DateRangePickerEvents TValue="DateTime" ValueChange="OnDateRangeChanged" />
-							</SfDateRangePicker>
-						</div>
-
-						<!-- Company -->
-						<div class="form-field">
-							<label class="field-label">Company</label>
-							<SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedCompany" TValue="CompanyModel"
-								TItem="CompanyModel" DataSource="@_companies" Placeholder="All Companies"
-								AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
-								<AutoCompleteEvents TItem="CompanyModel" TValue="CompanyModel"
-									ValueChange="OnCompanyChanged" />
-								<AutoCompleteFieldSettings Value="Name" />
-							</SfAutoComplete>
-						</div>
-
-						<!-- Party -->
-						<div class="form-field">
-							<label class="field-label">Party</label>
-							<SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedParty" TValue="LedgerModel"
-								TItem="LedgerModel" DataSource="@_parties" Placeholder="All Parties" AllowFiltering="true"
-								FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
-								<AutoCompleteEvents TItem="LedgerModel" TValue="LedgerModel" ValueChange="OnPartyChanged" />
-								<AutoCompleteFieldSettings Value="Name" />
-							</SfAutoComplete>
-						</div>
+			<!-- Filters Section -->
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+						</svg>
+						<h2 class="section-title">Filters</h2>
 					</div>
+				</div>
+				<div class="section-body">
+					<div class="filters-container">
+						<div class="filters-grid">
+							<!-- Date Range -->
+							<div class="form-field">
+								<label class="field-label">Date Range</label>
+								<SfDateRangePicker CssClass="custom-daterange" StartDate="_fromDate" EndDate="_toDate"
+												   TValue="DateTime" Format="dd/MM/yyyy" AllowEdit="true" Placeholder="Select date range">
+									<DateRangePickerEvents TValue="DateTime" ValueChange="OnDateRangeChanged" />
+								</SfDateRangePicker>
+							</div>
 
-					<!-- Date Utility Buttons -->
-					<DateRangeButtons Disabled="_isProcessing" FromDate="_fromDate" ToDate="_toDate" 
-						OnDatesChanged="HandleDatesChanged" ToastNotification="_toastNotification" />
+							<!-- Company -->
+							<div class="form-field">
+								<label class="field-label">Company</label>
+								<SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedCompany" TValue="CompanyModel"
+												TItem="CompanyModel" DataSource="@_companies" Placeholder="All Companies"
+												AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
+									<AutoCompleteEvents TItem="CompanyModel" TValue="CompanyModel"
+														ValueChange="OnCompanyChanged" />
+									<AutoCompleteFieldSettings Value="Name" />
+								</SfAutoComplete>
+							</div>
+
+							<!-- Party -->
+							<div class="form-field">
+								<label class="field-label">Party</label>
+								<SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedParty" TValue="LedgerModel"
+												TItem="LedgerModel" DataSource="@_parties" Placeholder="All Parties" AllowFiltering="true"
+												FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
+									<AutoCompleteEvents TItem="LedgerModel" TValue="LedgerModel" ValueChange="OnPartyChanged" />
+									<AutoCompleteFieldSettings Value="Name" />
+								</SfAutoComplete>
+							</div>
+						</div>
+
+						<!-- Date Utility Buttons -->
+						<DateRangeButtons Disabled="_isProcessing" FromDate="_fromDate" ToDate="_toDate"
+										  OnDatesChanged="HandleDatesChanged" ToastNotification="_toastNotification" />
+					</div>
+				</div>
+			</div>
+
+			<!-- Report Grid Section -->
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<line x1="8" y1="6" x2="21" y2="6" />
+							<line x1="8" y1="12" x2="21" y2="12" />
+							<line x1="8" y1="18" x2="21" y2="18" />
+							<line x1="3" y1="6" x2="3.01" y2="6" />
+							<line x1="3" y1="12" x2="3.01" y2="12" />
+							<line x1="3" y1="18" x2="3.01" y2="18" />
+						</svg>
+						<h2 class="section-title">Purchase Return Transactions</h2>
+					</div>
+					<div class="header-actions">
+						<ToggleSummaryButton Disabled="@_isProcessing" ShowSummary="@_showSummary" OnToggle="ToggleSummary" />
+						<ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted" OnToggle="ToggleDeleted" />
+						<ToggleDetailsButton Disabled="@_isProcessing" ShowAllColumns="@_showAllColumns" OnToggle="ToggleDetailsView" />
+					</div>
+				</div>
+				<div class="section-body grid-body">
+					<SfGrid ID="_sfGrid" @ref="_sfGrid" TValue="PurchaseReturnOverviewModel"
+							DataSource="_transactionOverviews" AllowTextWrap="true" AllowPaging="true" AllowSorting="true"
+							AllowResizing="true" AllowFiltering="true" AllowExcelExport="true" AllowPdfExport="true"
+							GridLines="GridLine.Horizontal" CssClass="professional-grid" AllowGrouping="true"
+							Toolbar="@(new List<string>() { "Search" })">
+
+						<GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
+						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
+						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+						<GridAggregates>
+							<GridAggregate>
+								<GridAggregateColumns>
+									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TransactionNo)"
+														 Type="AggregateType.Count">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+											}
+											<div class="aggregate-label">
+												<strong>Total Items: @aggregate.Count</strong>
+											</div>
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+											}
+											<div class="aggregate-label">
+												<strong>Total Items: @aggregate.Count</strong>
+											</div>
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+											}
+											<div class="aggregate-label">
+												<strong>Total Items: @aggregate.Count</strong>
+											</div>
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalItems)"
+														 Type="AggregateType.Sum" Format="N0">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalQuantity)"
+														 Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.BaseTotal)"
+														 Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.ItemDiscountAmount)"
+														 Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-discount">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-discount">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-discount">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAfterItemDiscount)"
+														 Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalInclusiveTaxAmount)"
+														 Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalExtraTaxAmount)"
+														 Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAfterTax)"
+														 Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.OtherChargesAmount)"
+														 Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.CashDiscountAmount)"
+														 Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-discount">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-discount">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-discount">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.RoundOffAmount)"
+														 Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAmount)"
+														 Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+								</GridAggregateColumns>
+							</GridAggregate>
+						</GridAggregates>
+
+						<GridColumns>
+							<GridColumn HeaderText="Actions" Width="200" TextAlign="TextAlign.Center" Visible="@(!_showSummary)">
+								<Template>
+									@{
+										var item = (context as PurchaseReturnOverviewModel);
+									}
+									<div class="grid-actions">
+										@if (!item.Status)
+										{
+											<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Size="ButtonSize.Grid" Title="Download Excel Invoice (Alt + E)" Disabled="_isProcessing" OnClick="@(() => DownloadExcelInvoice(item.Id))" />
+											<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Grid" Title="Download PDF Invoice (Alt + P)" Disabled="_isProcessing" OnClick="@(() => DownloadPdfInvoice(item.Id))" />
+											<IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover" Size="ButtonSize.Grid" Title="Recover Transaction (Delete)" Disabled="_isProcessing" OnClick="@(() => ShowRecoverConfirmation(item.Id, item.TransactionNo))" />
+										}
+										else
+										{
+											<IconButton Icon="IconType.View" Variant="ButtonVariant.View" Size="ButtonSize.Grid" Title="View Transaction (Ctrl + O)" Disabled="_isProcessing" OnClick="@(() => ViewTransaction(item.Id))" />
+											<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Size="ButtonSize.Grid" Title="Download Excel Invoice (Alt + E)" Disabled="_isProcessing" OnClick="@(() => DownloadExcelInvoice(item.Id))" />
+											<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Grid" Title="Download PDF Invoice (Alt + P)" Disabled="_isProcessing" OnClick="@(() => DownloadPdfInvoice(item.Id))" />
+											<IconButton Icon="IconType.Download" Variant="ButtonVariant.Default" Size="ButtonSize.Grid" Title="Download Original" Disabled="@(string.IsNullOrEmpty(item.DocumentUrl) || _isProcessing)" OnClick="@(() => DownloadOriginalInvoice(item.DocumentUrl))" />
+											<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete Transaction (Delete)" Disabled="_isProcessing" OnClick="@(() => ShowDeleteConfirmation(item.Id, item.TransactionNo))" />
+										}
+									</div>
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TransactionNo)" HeaderText="Trans No" Width="170" Visible="@(!_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TransactionDateTime)" HeaderText="Date" Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(!_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CompanyName)" HeaderText="Company" Width="180" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.PartyName)" HeaderText="Party" Width="200" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.FinancialYear)" HeaderText="Financial Year" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalItems)" HeaderText="Items" Width="100" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalQuantity)" HeaderText="Quantity" Width="120" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.BaseTotal)" HeaderText="Base Total" Width="130" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.ItemDiscountAmount)" HeaderText="Disc" Width="130" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+								<Template>
+									@{
+										var item = (context as PurchaseReturnOverviewModel);
+										<span class="grid-discount">@item.ItemDiscountAmount.ToString("N2")</span>
+									}
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAfterItemDiscount)" HeaderText="After Disc" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalInclusiveTaxAmount)" HeaderText="Incl. Tax" Width="120" Format="N2" TextAlign="TextAlign.Center" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalExtraTaxAmount)" HeaderText="Extra Tax" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAfterTax)" HeaderText="Sub Total" Width="150" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.OtherChargesPercent)" HeaderText="Other Charges %" Width="150" Format="N2" TextAlign="TextAlign.Center" Visible="@(!_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.OtherChargesAmount)" HeaderText="Other Charges" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CashDiscountPercent)" HeaderText="Cash Disc %" Width="150" Format="N2" TextAlign="TextAlign.Center" Visible="@(!_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CashDiscountAmount)" HeaderText="Cash Disc" Width="140" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+								<Template>
+									@{
+										var item = (context as PurchaseReturnOverviewModel);
+										<span class="grid-discount">@item.CashDiscountAmount.ToString("N2")</span>
+									}
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.RoundOffAmount)" HeaderText="Round Off" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAmount)" HeaderText="Total" Width="150" TextAlign="TextAlign.Right">
+								<Template>
+									@{
+										var item = (context as PurchaseReturnOverviewModel);
+										<span class="grid-total">@item.TotalAmount.ToString("N2")</span>
+									}
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.Remarks)" HeaderText="Remarks" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CreatedByName)" HeaderText="Created By" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CreatedAt)" HeaderText="Created At" Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CreatedFromPlatform)" HeaderText="Created Platform" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.LastModifiedAt)" HeaderText="Modified At" Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.LastModifiedFromPlatform)" HeaderText="Modified Platform" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
+						</GridColumns>
+					</SfGrid>
 				</div>
 			</div>
 		</div>
 
-		<!-- Report Grid Section -->
-		<div class="section-card">
-			<div class="section-header">
-				<div class="section-title-wrapper">
-					<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-						fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<line x1="8" y1="6" x2="21" y2="6" />
-						<line x1="8" y1="12" x2="21" y2="12" />
-						<line x1="8" y1="18" x2="21" y2="18" />
-						<line x1="3" y1="6" x2="3.01" y2="6" />
-						<line x1="3" y1="12" x2="3.01" y2="12" />
-						<line x1="3" y1="18" x2="3.01" y2="18" />
-					</svg>
-					<h2 class="section-title">Purchase Return Transactions</h2>
-				</div>
-				<div class="header-actions">
-					<ToggleSummaryButton Disabled="@_isProcessing" ShowSummary="@_showSummary" OnToggle="ToggleSummary" />
-					<ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted" OnToggle="ToggleDeleted" />
-					<ToggleDetailsButton Disabled="@_isProcessing" ShowAllColumns="@_showAllColumns" OnToggle="ToggleDetailsView" />
-				</div>
-			</div>
-			<div class="section-body grid-body">
-				<SfGrid ID="_sfGrid" @ref="_sfGrid" TValue="PurchaseReturnOverviewModel"
-					DataSource="_transactionOverviews" AllowTextWrap="true" AllowPaging="true" AllowSorting="true"
-					AllowResizing="true" AllowFiltering="true" AllowExcelExport="true" AllowPdfExport="true"
-					GridLines="GridLine.Horizontal" CssClass="professional-grid" AllowGrouping="true"
-					Toolbar="@(new List<string>() { "Search" })">
-
-					<GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
-					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
-					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
-
-					<GridAggregates>
-						<GridAggregate>
-							<GridAggregateColumns>
-								<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TransactionNo)"
-									Type="AggregateType.Count">
-									<FooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-										}
-										<div class="aggregate-label">
-											<strong>Total Items: @aggregate.Count</strong>
-										</div>
-									</FooterTemplate>
-									<GroupFooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-										}
-										<div class="aggregate-label">
-											<strong>Total Items: @aggregate.Count</strong>
-										</div>
-									</GroupFooterTemplate>
-									<GroupCaptionTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-										}
-										<div class="aggregate-label">
-											<strong>Total Items: @aggregate.Count</strong>
-										</div>
-									</GroupCaptionTemplate>
-								</GridAggregateColumn>
-								<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalItems)"
-									Type="AggregateType.Sum" Format="N0">
-									<FooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</FooterTemplate>
-									<GroupFooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupFooterTemplate>
-									<GroupCaptionTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupCaptionTemplate>
-								</GridAggregateColumn>
-								<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalQuantity)"
-									Type="AggregateType.Sum" Format="N2">
-									<FooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</FooterTemplate>
-									<GroupFooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupFooterTemplate>
-									<GroupCaptionTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupCaptionTemplate>
-								</GridAggregateColumn>
-								<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.BaseTotal)"
-									Type="AggregateType.Sum" Format="N2">
-									<FooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</FooterTemplate>
-									<GroupFooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupFooterTemplate>
-									<GroupCaptionTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupCaptionTemplate>
-								</GridAggregateColumn>
-<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.ItemDiscountAmount)"
-												 Type="AggregateType.Sum" Format="N2">
-									<FooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div class="aggregate-value aggregate-discount">
-												<strong>@aggregate.Sum</strong>
-											</div>
-										}
-									</FooterTemplate>
-									<GroupFooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div class="aggregate-value aggregate-discount">
-												<strong>@aggregate.Sum</strong>
-											</div>
-										}
-									</GroupFooterTemplate>
-									<GroupCaptionTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div class="aggregate-value aggregate-discount">
-												<strong>@aggregate.Sum</strong>
-											</div>
-										}
-									</GroupCaptionTemplate>
-								</GridAggregateColumn>
-<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAfterItemDiscount)"
-												 Type="AggregateType.Sum" Format="N2">
-									<FooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</FooterTemplate>
-									<GroupFooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupFooterTemplate>
-									<GroupCaptionTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupCaptionTemplate>
-								</GridAggregateColumn>
-<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalInclusiveTaxAmount)"
-												 Type="AggregateType.Sum" Format="N2">
-									<FooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</FooterTemplate>
-									<GroupFooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupFooterTemplate>
-									<GroupCaptionTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupCaptionTemplate>
-								</GridAggregateColumn>
-<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalExtraTaxAmount)"
-												 Type="AggregateType.Sum" Format="N2">
-									<FooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</FooterTemplate>
-									<GroupFooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupFooterTemplate>
-									<GroupCaptionTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupCaptionTemplate>
-								</GridAggregateColumn>
-<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAfterTax)"
-												 Type="AggregateType.Sum" Format="N2">
-									<FooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</FooterTemplate>
-									<GroupFooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupFooterTemplate>
-									<GroupCaptionTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupCaptionTemplate>
-								</GridAggregateColumn>
-								<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.OtherChargesAmount)"
-									Type="AggregateType.Sum" Format="N2">
-									<FooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</FooterTemplate>
-									<GroupFooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupFooterTemplate>
-									<GroupCaptionTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupCaptionTemplate>
-								</GridAggregateColumn>
-								<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.CashDiscountAmount)"
-									Type="AggregateType.Sum" Format="N2">
-									<FooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div class="aggregate-value aggregate-discount"><strong>@aggregate.Sum</strong>
-											</div>
-										}
-									</FooterTemplate>
-									<GroupFooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div class="aggregate-value aggregate-discount"><strong>@aggregate.Sum</strong>
-											</div>
-										}
-									</GroupFooterTemplate>
-									<GroupCaptionTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div class="aggregate-value aggregate-discount"><strong>@aggregate.Sum</strong>
-											</div>
-										}
-									</GroupCaptionTemplate>
-								</GridAggregateColumn>
-								<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.RoundOffAmount)"
-									Type="AggregateType.Sum" Format="N2">
-									<FooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</FooterTemplate>
-									<GroupFooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupFooterTemplate>
-									<GroupCaptionTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupCaptionTemplate>
-								</GridAggregateColumn>
-								<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAmount)"
-									Type="AggregateType.Sum" Format="N2">
-									<FooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
-										}
-									</FooterTemplate>
-									<GroupFooterTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupFooterTemplate>
-									<GroupCaptionTemplate>
-										@{
-											var aggregate = (context as AggregateTemplateContext);
-											<div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
-										}
-									</GroupCaptionTemplate>
-								</GridAggregateColumn>
-							</GridAggregateColumns>
-						</GridAggregate>
-					</GridAggregates>
-
-					<GridColumns>
-						<GridColumn HeaderText="Actions" Width="200" TextAlign="TextAlign.Center" Visible="@(!_showSummary)">
-							<Template>
-								@{
-									var item = (context as PurchaseReturnOverviewModel);
-								}
-								<div class="grid-actions">
-									@if (!item.Status)
-									{
-										<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Size="ButtonSize.Grid" Title="Download Excel Invoice (Alt + E)" Disabled="_isProcessing" OnClick="@(() => DownloadExcelInvoice(item.Id))" />
-										<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Grid" Title="Download PDF Invoice (Alt + P)" Disabled="_isProcessing" OnClick="@(() => DownloadPdfInvoice(item.Id))" />
-										<IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover" Size="ButtonSize.Grid" Title="Recover Transaction (Delete)" Disabled="_isProcessing" OnClick="@(() => ShowRecoverConfirmation(item.Id, item.TransactionNo))" />
-									}
-									else
-									{
-										<IconButton Icon="IconType.View" Variant="ButtonVariant.View" Size="ButtonSize.Grid" Title="View Transaction (Ctrl + O)" Disabled="_isProcessing" OnClick="@(() => ViewTransaction(item.Id))" />
-										<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Size="ButtonSize.Grid" Title="Download Excel Invoice (Alt + E)" Disabled="_isProcessing" OnClick="@(() => DownloadExcelInvoice(item.Id))" />
-										<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Grid" Title="Download PDF Invoice (Alt + P)" Disabled="_isProcessing" OnClick="@(() => DownloadPdfInvoice(item.Id))" />
-										<IconButton Icon="IconType.Download" Variant="ButtonVariant.Default" Size="ButtonSize.Grid" Title="Download Original" Disabled="@(string.IsNullOrEmpty(item.DocumentUrl) || _isProcessing)" OnClick="@(() => DownloadOriginalInvoice(item.DocumentUrl))" />
-										<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete Transaction (Delete)" Disabled="_isProcessing" OnClick="@(() => ShowDeleteConfirmation(item.Id, item.TransactionNo))" />
-									}
-								</div>
-							</Template>
-						</GridColumn>
-						<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TransactionNo)" HeaderText="Trans No" Width="170" Visible="@(!_showSummary)" />
-						<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TransactionDateTime)" HeaderText="Date" Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(!_showSummary)" />
-						<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CompanyName)" HeaderText="Company" Width="180" Visible="@(_showAllColumns && !_showSummary)" />
-						<GridColumn Field="@nameof(PurchaseReturnOverviewModel.PartyName)" HeaderText="Party" Width="200" />
-						<GridColumn Field="@nameof(PurchaseReturnOverviewModel.FinancialYear)" HeaderText="Financial Year" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
-						<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalItems)" HeaderText="Items" Width="100" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-						<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalQuantity)" HeaderText="Quantity" Width="120" Format="N2" TextAlign="TextAlign.Right" />
-						<GridColumn Field="@nameof(PurchaseReturnOverviewModel.BaseTotal)" HeaderText="Base Total" Width="130" Format="N2" TextAlign="TextAlign.Right" />
-						<GridColumn Field="@nameof(PurchaseReturnOverviewModel.ItemDiscountAmount)" HeaderText="Disc" Width="130" TextAlign="TextAlign.Right" Visible="_showAllColumns">
-							<Template>
-								@{
-									var item = (context as PurchaseReturnOverviewModel);
-									<span class="grid-discount">@item.ItemDiscountAmount.ToString("N2")</span>
-								}
-							</Template>
-						</GridColumn>
-						<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAfterItemDiscount)" HeaderText="After Disc" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-						<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalInclusiveTaxAmount)" HeaderText="Incl. Tax" Width="120" Format="N2" TextAlign="TextAlign.Center" Visible="_showAllColumns" />
-						<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalExtraTaxAmount)" HeaderText="Extra Tax" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-						<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAfterTax)" HeaderText="Sub Total" Width="150" Format="N2" TextAlign="TextAlign.Right" />
-						<GridColumn Field="@nameof(PurchaseReturnOverviewModel.OtherChargesPercent)" HeaderText="Other Charges %" Width="150" Format="N2" TextAlign="TextAlign.Center" Visible="@(!_showSummary)" />
-						<GridColumn Field="@nameof(PurchaseReturnOverviewModel.OtherChargesAmount)" HeaderText="Other Charges" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-						<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CashDiscountPercent)" HeaderText="Cash Disc %" Width="150" Format="N2" TextAlign="TextAlign.Center" Visible="@(!_showSummary)" />
-						<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CashDiscountAmount)" HeaderText="Cash Disc" Width="140" TextAlign="TextAlign.Right" Visible="_showAllColumns">
-							<Template>
-								@{
-									var item = (context as PurchaseReturnOverviewModel);
-									<span class="grid-discount">@item.CashDiscountAmount.ToString("N2")</span>
-								}
-							</Template>
-						</GridColumn>
-						<GridColumn Field="@nameof(PurchaseReturnOverviewModel.RoundOffAmount)" HeaderText="Round Off" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-						<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAmount)" HeaderText="Total" Width="150" TextAlign="TextAlign.Right">
-							<Template>
-								@{
-									var item = (context as PurchaseReturnOverviewModel);
-									<span class="grid-total">@item.TotalAmount.ToString("N2")</span>
-								}
-							</Template>
-						</GridColumn>
-						<GridColumn Field="@nameof(PurchaseReturnOverviewModel.Remarks)" HeaderText="Remarks" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
-						<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CreatedByName)" HeaderText="Created By" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
-						<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CreatedAt)" HeaderText="Created At" Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
-						<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CreatedFromPlatform)" HeaderText="Created Platform" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
-						<GridColumn Field="@nameof(PurchaseReturnOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
-						<GridColumn Field="@nameof(PurchaseReturnOverviewModel.LastModifiedAt)" HeaderText="Modified At" Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
-						<GridColumn Field="@nameof(PurchaseReturnOverviewModel.LastModifiedFromPlatform)" HeaderText="Modified Platform" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
-					</GridColumns>
-				</SfGrid>
-			</div>
-		</div>
+		<Footer />
 	</div>
 }
 
 <ToastNotification @ref="_toastNotification" />
 
 <DeleteConfirmationDialog @ref="_deleteConfirmationDialog"
-                          EntityName="Purchase Return Transaction"
-                          IdentifierLabel="Transaction No"
-                          IdentifierValue="@_deleteTransactionNo"
-                          IsPermanentDelete="true"
-                          Disabled="@_isProcessing"
-                          OnConfirm="ConfirmDelete"
-                          OnCancel="CancelDelete" />
+						  EntityName="Purchase Return Transaction"
+						  IdentifierLabel="Transaction No"
+						  IdentifierValue="@_deleteTransactionNo"
+						  IsPermanentDelete="true"
+						  Disabled="@_isProcessing"
+						  OnConfirm="ConfirmDelete"
+						  OnCancel="CancelDelete" />
 
 <RecoverConfirmationDialog @ref="_recoverConfirmationDialog"
-                           EntityName="Purchase Return Transaction"
-                           IdentifierLabel="Transaction No"
-                           IdentifierValue="@_recoverTransactionNo"
-                           Disabled="@_isProcessing"
-                           OnConfirm="ConfirmRecover"
-                           OnCancel="CancelRecover" />
+						   EntityName="Purchase Return Transaction"
+						   IdentifierLabel="Transaction No"
+						   IdentifierValue="@_recoverTransactionNo"
+						   Disabled="@_isProcessing"
+						   OnConfirm="ConfirmRecover"
+						   OnCancel="CancelRecover" />
 
 <style>
 	* {
@@ -609,111 +616,111 @@ else
 		border: none;
 	}
 
-	::deep .professional-grid .e-gridheader {
-		background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
-		border-bottom: 2px solid #e2e8f0;
-	}
+		::deep .professional-grid .e-gridheader {
+			background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
+			border-bottom: 2px solid #e2e8f0;
+		}
 
-	::deep .professional-grid .e-headercell {
-		background: transparent;
-		color: #475569;
-		font-weight: 600;
-		font-size: 12px;
-		text-transform: uppercase;
-		letter-spacing: 0.3px;
-		border-right: 1px solid #e2e8f0;
-		padding: 12px 8px;
-	}
+		::deep .professional-grid .e-headercell {
+			background: transparent;
+			color: #475569;
+			font-weight: 600;
+			font-size: 12px;
+			text-transform: uppercase;
+			letter-spacing: 0.3px;
+			border-right: 1px solid #e2e8f0;
+			padding: 12px 8px;
+		}
 
-	::deep .professional-grid .e-headercell:last-child {
-		border-right: none;
-	}
+			::deep .professional-grid .e-headercell:last-child {
+				border-right: none;
+			}
 
-	::deep .professional-grid .e-gridcontent {
-		background: #ffffff;
-	}
+		::deep .professional-grid .e-gridcontent {
+			background: #ffffff;
+		}
 
-	::deep .professional-grid .e-row {
-		transition: background-color 0.2s ease;
-	}
+		::deep .professional-grid .e-row {
+			transition: background-color 0.2s ease;
+		}
 
-	::deep .professional-grid .e-row:hover {
-		background-color: #f8fafc;
-	}
+			::deep .professional-grid .e-row:hover {
+				background-color: #f8fafc;
+			}
 
-	::deep .professional-grid .e-row.e-altrow {
-		background-color: #fafbfc;
-	}
+			::deep .professional-grid .e-row.e-altrow {
+				background-color: #fafbfc;
+			}
 
-	::deep .professional-grid .e-row.e-altrow:hover {
-		background-color: #f8fafc;
-	}
+				::deep .professional-grid .e-row.e-altrow:hover {
+					background-color: #f8fafc;
+				}
 
-	::deep .professional-grid .e-rowcell {
-		border-right: 1px solid #f1f5f9;
-		border-bottom: 1px solid #f1f5f9;
-		padding: 10px 8px;
-		font-size: 13px;
-		color: #1e293b;
-	}
+		::deep .professional-grid .e-rowcell {
+			border-right: 1px solid #f1f5f9;
+			border-bottom: 1px solid #f1f5f9;
+			padding: 10px 8px;
+			font-size: 13px;
+			color: #1e293b;
+		}
 
-	::deep .professional-grid .e-rowcell:last-child {
-		border-right: none;
-	}
+			::deep .professional-grid .e-rowcell:last-child {
+				border-right: none;
+			}
 
-	/* Grid Pager Styling */
-	::deep .professional-grid .e-gridpager {
-		background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
-		border-top: 2px solid #e2e8f0;
-		padding: 12px 16px;
-	}
+		/* Grid Pager Styling */
+		::deep .professional-grid .e-gridpager {
+			background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
+			border-top: 2px solid #e2e8f0;
+			padding: 12px 16px;
+		}
 
-	::deep .professional-grid .e-gridpager .e-pagercontainer {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-	}
+			::deep .professional-grid .e-gridpager .e-pagercontainer {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+			}
 
-	::deep .professional-grid .e-gridpager .e-numericitem,
-	::deep .professional-grid .e-gridpager .e-currentitem {
-		min-width: 32px;
-		height: 32px;
-		border-radius: 6px;
-		margin: 0 4px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-size: 13px;
-		font-weight: 500;
-		transition: all 0.2s ease;
-	}
+			::deep .professional-grid .e-gridpager .e-numericitem,
+			::deep .professional-grid .e-gridpager .e-currentitem {
+				min-width: 32px;
+				height: 32px;
+				border-radius: 6px;
+				margin: 0 4px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 13px;
+				font-weight: 500;
+				transition: all 0.2s ease;
+			}
 
-	::deep .professional-grid .e-gridpager .e-numericitem {
-		background: #ffffff;
-		color: #64748b;
-		border: 1px solid #e2e8f0;
-	}
+			::deep .professional-grid .e-gridpager .e-numericitem {
+				background: #ffffff;
+				color: #64748b;
+				border: 1px solid #e2e8f0;
+			}
 
-	::deep .professional-grid .e-gridpager .e-numericitem:hover {
-		background: #f8fafc;
-		color: #3b82f6;
-		border-color: #3b82f6;
-	}
+				::deep .professional-grid .e-gridpager .e-numericitem:hover {
+					background: #f8fafc;
+					color: #3b82f6;
+					border-color: #3b82f6;
+				}
 
-	::deep .professional-grid .e-gridpager .e-currentitem {
-		background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
-		color: #ffffff;
-		border: none;
-		box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
-	}
+			::deep .professional-grid .e-gridpager .e-currentitem {
+				background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+				color: #ffffff;
+				border: none;
+				box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+			}
 
-	/* Empty Grid State */
-	::deep .professional-grid .e-emptyrow {
-		text-align: center;
-		padding: 48px 24px;
-		color: #94a3b8;
-		font-size: 14px;
-	}
+		/* Empty Grid State */
+		::deep .professional-grid .e-emptyrow {
+			text-align: center;
+			padding: 48px 24px;
+			color: #94a3b8;
+			font-size: 14px;
+		}
 
 	/* Grid Cell Text Coloring (matching Purchase screen) */
 	.grid-discount {
@@ -740,9 +747,9 @@ else
 		border-right: 1px solid #cbd5e1;
 	}
 
-	::deep .professional-grid .e-summarycell:last-child {
-		border-right: none;
-	}
+		::deep .professional-grid .e-summarycell:last-child {
+			border-right: none;
+		}
 
 	.aggregate-value.aggregate-discount {
 		color: #dc2626;
@@ -753,9 +760,9 @@ else
 		font-size: 14px;
 	}
 
-	.aggregate-value.aggregate-total strong {
-		font-size: 15px;
-	}
+		.aggregate-value.aggregate-total strong {
+			font-size: 15px;
+		}
 
 	/* Total Aggregate Footer Styling */
 	.total-aggregate {
@@ -813,14 +820,14 @@ else
 		transition: all 0.2s ease;
 	}
 
-	.dialog-btn:hover {
-		transform: translateY(-1px);
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-	}
+		.dialog-btn:hover {
+			transform: translateY(-1px);
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+		}
 
-	.dialog-btn:active {
-		transform: translateY(0);
-	}
+		.dialog-btn:active {
+			transform: translateY(0);
+		}
 
 	.dialog-btn-cancel {
 		background: #ffffff;
@@ -828,11 +835,11 @@ else
 		border: 2px solid #e2e8f0;
 	}
 
-	.dialog-btn-cancel:hover {
-		background: #f8fafc;
-		border-color: #cbd5e1;
-		color: #475569;
-	}
+		.dialog-btn-cancel:hover {
+			background: #f8fafc;
+			border-color: #cbd5e1;
+			color: #475569;
+		}
 
 	.dialog-btn-delete {
 		background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
@@ -840,18 +847,18 @@ else
 		border: 1px solid #dc2626;
 	}
 
-	.dialog-btn-delete:hover {
-		background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-		border-color: #b91c1c;
-		box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
-	}
+		.dialog-btn-delete:hover {
+			background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+			border-color: #b91c1c;
+			box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+		}
 
 	.dialog-btn-recover {
 		background: linear-gradient(135deg, #10b981 0%, #059669 100%);
 		color: white;
 	}
 
-	.dialog-btn-recover:hover {
-		background: linear-gradient(135deg, #059669 0%, #047857 100%);
-	}
+		.dialog-btn-recover:hover {
+			background: linear-gradient(135deg, #059669 0%, #047857 100%);
+		}
 </style>

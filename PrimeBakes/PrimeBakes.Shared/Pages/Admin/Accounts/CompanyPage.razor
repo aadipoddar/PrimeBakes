@@ -12,197 +12,200 @@
 }
 else
 {
-    <Header Title="Company Management" Subtitle="Manage company details"
+    <div style="display: flex; flex-direction: column; min-height: 100vh;">
+        <Header Title="Company Management" Subtitle="Manage company details"
                 ShowHome="true" ShowBack="true"
                 OnHomeClick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))"
                 OnBackClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard))">
-        <RightContent>
-            <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
-            <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
-            <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Company (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveCompany" />
-            <IconButton Icon="IconType.New" Title="New Company (Ctrl + N)" Disabled="_isProcessing" OnClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminCompany, true))" />
-        </RightContent>
-    </Header>
+            <RightContent>
+                <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
+                <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
+                <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Company (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveCompany" />
+                <IconButton Icon="IconType.New" Title="New Company (Ctrl + N)" Disabled="_isProcessing" OnClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminCompany, true))" />
+            </RightContent>
+        </Header>
 
-    <!-- Main Content Container -->
-    <div class="purchase-container">
+        <!-- Main Content Container -->
+        <div class="purchase-container">
 
-        <!-- Company Entry Section -->
-        <div class="section-card">
-            <div class="section-header">
-                <div class="section-title-wrapper">
-                    <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
-                    </svg>
-                    <h2 class="section-title">Company Details</h2>
+            <!-- Company Entry Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
+                        </svg>
+                        <h2 class="section-title">Company Details</h2>
+                    </div>
+                </div>
+                <div class="section-body">
+                    <div class="form-grid-quad">
+                        <!-- Company Name -->
+                        <div class="form-field">
+                            <label class="field-label">
+                                Company Name <span class="required">*</span>
+                            </label>
+                            <SfTextBox @bind-Value="_company.Name" Placeholder="Enter company name"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
+
+                        <!-- Code -->
+                        <div class="form-field">
+                            <label class="field-label">
+                                Code <span class="required">*</span>
+                            </label>
+                            <SfTextBox @bind-Value="_company.Code" Placeholder="Enter code"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
+
+                        <!-- State/UT -->
+                        <div class="form-field">
+                            <label class="field-label">
+                                State/UT <span class="required">*</span>
+                            </label>
+                            <SfDropDownList TValue="int" TItem="StateUTModel" Placeholder="Select State/UT"
+                                            DataSource="@_stateUTs" @bind-Value="_company.StateUTId"
+                                            FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox">
+                                <DropDownListFieldSettings Text="Name" Value="Id" />
+                            </SfDropDownList>
+                        </div>
+
+                        <!-- GST No -->
+                        <div class="form-field">
+                            <label class="field-label">GST No</label>
+                            <SfTextBox @bind-Value="_company.GSTNo" Placeholder="Enter GST No"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
+
+                        <!-- PAN No -->
+                        <div class="form-field">
+                            <label class="field-label">PAN No</label>
+                            <SfTextBox @bind-Value="_company.PANNo" Placeholder="Enter PAN No"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
+
+                        <!-- CIN No -->
+                        <div class="form-field">
+                            <label class="field-label">CIN No</label>
+                            <SfTextBox @bind-Value="_company.CINNo" Placeholder="Enter CIN No"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
+
+                        <!-- Alias -->
+                        <div class="form-field">
+                            <label class="field-label">Alias</label>
+                            <SfTextBox @bind-Value="_company.Alias" Placeholder="Enter Alias"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="form-field">
+                            <label class="field-label">Phone</label>
+                            <SfTextBox @bind-Value="_company.Phone" Placeholder="Enter Phone"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
+
+                        <!-- Email -->
+                        <div class="form-field">
+                            <label class="field-label">Email</label>
+                            <SfTextBox @bind-Value="_company.Email" Placeholder="Enter Email"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
+
+                        <!-- Address -->
+                        <div class="form-field form-field-span-4">
+                            <label class="field-label">Address</label>
+                            <SfTextBox @bind-Value="_company.Address" Placeholder="Enter Address" Multiline="true"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
+
+                        <!-- Remarks -->
+                        <div class="form-field form-field-span-4">
+                            <label class="field-label">Remarks</label>
+                            <SfTextBox @bind-Value="_company.Remarks" Placeholder="Enter remarks (optional)" Multiline="true"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="section-body">
-                <div class="form-grid-quad">
-                    <!-- Company Name -->
-                    <div class="form-field">
-                        <label class="field-label">
-                            Company Name <span class="required">*</span>
-                        </label>
-                        <SfTextBox @bind-Value="_company.Name" Placeholder="Enter company name"
-                                   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                    </div>
 
-                    <!-- Code -->
-                    <div class="form-field">
-                        <label class="field-label">
-                            Code <span class="required">*</span>
-                        </label>
-                        <SfTextBox @bind-Value="_company.Code" Placeholder="Enter code"
-                                   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+            <!-- Companies List Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 11l3 3L22 4" />
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                        </svg>
+                        <h2 class="section-title">Companies List</h2>
                     </div>
+                    <div class="header-actions">
+                        <ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted" OnToggle="ToggleDeleted" />
+                    </div>
+                </div>
+                <div class="section-body grid-body">
+                    <SfGrid @ref="_sfGrid" DataSource="@_companies" AllowPaging="true" AllowSorting="true" AllowFiltering="true"
+                            AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
+                        <GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+                        <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+                        <GridColumns>
+                            <GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center" AllowFiltering="false">
+                                <Template>
+                                    @{
+                                        var company = (context as CompanyModel);
 
-                     <!-- State/UT -->
-                    <div class="form-field">
-                        <label class="field-label">
-                            State/UT <span class="required">*</span>
-                        </label>
-                        <SfDropDownList TValue="int" TItem="StateUTModel" Placeholder="Select State/UT"
-                                        DataSource="@_stateUTs" @bind-Value="_company.StateUTId"
-                                        FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox">
-                            <DropDownListFieldSettings Text="Name" Value="Id" />
-                        </SfDropDownList>
-                    </div>
-
-                    <!-- GST No -->
-                    <div class="form-field">
-                        <label class="field-label">GST No</label>
-                        <SfTextBox @bind-Value="_company.GSTNo" Placeholder="Enter GST No"
-                                   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                    </div>
-
-                    <!-- PAN No -->
-                    <div class="form-field">
-                        <label class="field-label">PAN No</label>
-                        <SfTextBox @bind-Value="_company.PANNo" Placeholder="Enter PAN No"
-                                   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                    </div>
-
-                    <!-- CIN No -->
-                    <div class="form-field">
-                        <label class="field-label">CIN No</label>
-                        <SfTextBox @bind-Value="_company.CINNo" Placeholder="Enter CIN No"
-                                   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                    </div>
-
-                    <!-- Alias -->
-                    <div class="form-field">
-                        <label class="field-label">Alias</label>
-                        <SfTextBox @bind-Value="_company.Alias" Placeholder="Enter Alias"
-                                   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                    </div>
-
-                    <!-- Phone -->
-                    <div class="form-field">
-                        <label class="field-label">Phone</label>
-                        <SfTextBox @bind-Value="_company.Phone" Placeholder="Enter Phone"
-                                   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                    </div>
-
-                    <!-- Email -->
-                    <div class="form-field">
-                        <label class="field-label">Email</label>
-                        <SfTextBox @bind-Value="_company.Email" Placeholder="Enter Email"
-                                   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                    </div>
-
-                    <!-- Address -->
-                    <div class="form-field form-field-span-4">
-                        <label class="field-label">Address</label>
-                        <SfTextBox @bind-Value="_company.Address" Placeholder="Enter Address" Multiline="true"
-                                   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                    </div>
-
-                    <!-- Remarks -->
-                    <div class="form-field form-field-span-4">
-                        <label class="field-label">Remarks</label>
-                        <SfTextBox @bind-Value="_company.Remarks" Placeholder="Enter remarks (optional)" Multiline="true"
-                                   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                    </div>
+                                        <div class="grid-actions">
+                                            @if (company.Status)
+                                            {
+                                                <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid" Title="Edit (Insert)" OnClick="@(() => OnEditCompany(company))" />
+                                                <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete (Delete)" OnClick="@(() => ShowDeleteConfirmation(company.Id, company.Name))" />
+                                            }
+                                            else
+                                            {
+                                                <IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover" Size="ButtonSize.Grid" Title="Recover (Delete)" OnClick="@(() => ShowRecoverConfirmation(company.Id, company.Name))" />
+                                            }
+                                        </div>
+                                    }
+                                </Template>
+                            </GridColumn>
+                            <GridColumn Field="@nameof(CompanyModel.Id)" HeaderText="ID" Width="80"
+                                        TextAlign="TextAlign.Center" />
+                            <GridColumn Field="@nameof(CompanyModel.Name)" HeaderText="Company Name" Width="250" />
+                            <GridColumn Field="@nameof(CompanyModel.Code)" HeaderText="Code" Width="120" />
+                            <GridColumn Field="@nameof(CompanyModel.GSTNo)" HeaderText="GST No" Width="150" />
+                            <GridColumn Field="@nameof(CompanyModel.Phone)" HeaderText="Phone" Width="150" />
+                            <GridColumn Field="@nameof(CompanyModel.Status)" HeaderText="Status" Width="100"
+                                        TextAlign="TextAlign.Center">
+                                <Template>
+                                    @{
+                                        var company = (context as CompanyModel);
+                                        <div class="grid-checkbox"
+                                             style="@(company.Status ? "color: #10b981; background: #d1fae5;" : "color: #dc2626; background: #fee2e2;")">
+                                            @(company.Status ? "✓" : "✗")
+                                        </div>
+                                    }
+                                </Template>
+                            </GridColumn>
+                        </GridColumns>
+                    </SfGrid>
                 </div>
             </div>
         </div>
 
-        <!-- Companies List Section -->
-        <div class="section-card">
-            <div class="section-header">
-                <div class="section-title-wrapper">
-                    <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 11l3 3L22 4" />
-                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-                    </svg>
-                    <h2 class="section-title">Companies List</h2>
-                </div>
-                <div class="header-actions">
-                    <ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted" OnToggle="ToggleDeleted" />
-                </div>
-            </div>
-            <div class="section-body grid-body">
-                <SfGrid @ref="_sfGrid" DataSource="@_companies" AllowPaging="true" AllowSorting="true" AllowFiltering="true"
-                        AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
-                    <GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
-                    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
-                    <GridColumns>
-                        <GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center" AllowFiltering="false">
-                            <Template>
-                                @{
-                                    var company = (context as CompanyModel);
-
-                                    <div class="grid-actions">
-                                        @if (company.Status)
-                                        {
-                                            <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid" Title="Edit (Insert)" OnClick="@(() => OnEditCompany(company))" />
-                                            <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete (Delete)" OnClick="@(() => ShowDeleteConfirmation(company.Id, company.Name))" />
-                                        }
-                                        else
-                                        {
-                                            <IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover" Size="ButtonSize.Grid" Title="Recover (Delete)" OnClick="@(() => ShowRecoverConfirmation(company.Id, company.Name))" />
-                                        }
-                                    </div>
-                                }
-                            </Template>
-                        </GridColumn>
-                        <GridColumn Field="@nameof(CompanyModel.Id)" HeaderText="ID" Width="80"
-                                    TextAlign="TextAlign.Center" />
-                        <GridColumn Field="@nameof(CompanyModel.Name)" HeaderText="Company Name" Width="250" />
-                        <GridColumn Field="@nameof(CompanyModel.Code)" HeaderText="Code" Width="120" />
-                        <GridColumn Field="@nameof(CompanyModel.GSTNo)" HeaderText="GST No" Width="150" />
-                        <GridColumn Field="@nameof(CompanyModel.Phone)" HeaderText="Phone" Width="150" />
-                        <GridColumn Field="@nameof(CompanyModel.Status)" HeaderText="Status" Width="100"
-                                    TextAlign="TextAlign.Center">
-                            <Template>
-                                @{
-                                    var company = (context as CompanyModel);
-                                    <div class="grid-checkbox"
-                                         style="@(company.Status ? "color: #10b981; background: #d1fae5;" : "color: #dc2626; background: #fee2e2;")">
-                                        @(company.Status ? "✓" : "✗")
-                                    </div>
-                                }
-                            </Template>
-                        </GridColumn>
-                    </GridColumns>
-                </SfGrid>
-            </div>
-        </div>
-
+        <Footer />
     </div>
 }
 
 <DeleteConfirmationDialog @ref="_deleteConfirmationDialog"
-                         EntityName="Company"
-                         IdentifierLabel="Company Name"
-                         IdentifierValue="@_deleteCompanyName"
-                         IsPermanentDelete="false"
-                         Disabled="@_isProcessing"
-                         OnConfirm="ConfirmDelete"
-                         OnCancel="CancelDelete" />
+                          EntityName="Company"
+                          IdentifierLabel="Company Name"
+                          IdentifierValue="@_deleteCompanyName"
+                          IsPermanentDelete="false"
+                          Disabled="@_isProcessing"
+                          OnConfirm="ConfirmDelete"
+                          OnCancel="CancelDelete" />
 
 <RecoverConfirmationDialog @ref="_recoverConfirmationDialog"
                            EntityName="Company"
