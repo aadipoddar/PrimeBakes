@@ -6,8 +6,8 @@ namespace PrimeBakes.Shared.Pages;
 
 public partial class Dashboard : IDisposable
 {
-	private HotKeysContext _hotKeysContext;
-	private UserModel _user;
+    private HotKeysContext _hotKeysContext;
+    private UserModel _user;
     private bool _isLoading = true;
     private bool _isUpdating = false;
     private int _updateProgress = 0;
@@ -29,8 +29,8 @@ public partial class Dashboard : IDisposable
     #region Updating
     private async Task StartUpdateProcess()
     {
-		_isLoading = false;
-		_isUpdating = true;
+        _isLoading = false;
+        _isUpdating = true;
         _updateProgress = 0;
         _timeRemaining = 0;
         _updateStartTime = DateTime.Now;
@@ -67,10 +67,6 @@ public partial class Dashboard : IDisposable
         _isUpdating = false;
         StateHasChanged();
     }
-
-    public void Dispose()
-    {
-    }
     #endregion
 
     #region Load Data
@@ -83,7 +79,7 @@ public partial class Dashboard : IDisposable
         {
             // Check for updates on Android Phone or Windows Desktop
             var shouldCheckUpdate = (Factor == "Phone" && Platform.Contains("Android")) || Factor.Contains("Desktop");
-            
+
             if (shouldCheckUpdate)
             {
                 var hasUpdate = await UpdateService.CheckForUpdatesAsync("aadipoddar", "PrimeBakes", AppVersion);
@@ -111,17 +107,22 @@ public partial class Dashboard : IDisposable
         _hotKeysContext = HotKeys.CreateContext()
             .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None);
 
-		if (Factor == "Phone" && Platform.Contains("Android"))
+        if (Factor == "Phone" && Platform.Contains("Android"))
             await NotificationService.RegisterDevicePushNotification(_user.Id.ToString());
     }
 
-	private async Task Logout() =>
-		await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
+    private async Task Logout() =>
+        await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 
-	public async ValueTask DisposeAsync()
-	{
-		if (_hotKeysContext is not null)
-			await _hotKeysContext.DisposeAsync();
-	}
-	#endregion
+    public async ValueTask DisposeAsync()
+    {
+        if (_hotKeysContext is not null)
+            await _hotKeysContext.DisposeAsync();
+    }
+
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
+    }
+    #endregion
 }

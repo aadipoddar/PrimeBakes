@@ -1,0 +1,110 @@
+<div class="footer-section">
+    <div class="footer-content">
+        <div class="device-info">
+            <span class="info-item version-info">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="16" x2="12" y2="12" />
+                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                </svg>
+                Version @AppVersion
+            </span>
+            <span class="info-item platform-info">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                    <line x1="8" y1="21" x2="16" y2="21" />
+                    <line x1="12" y1="17" x2="12" y2="21" />
+                </svg>
+                @Platform
+            </span>
+            <span class="info-item factor-info">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+                    <line x1="12" y1="18" x2="12.01" y2="18" />
+                </svg>
+                @Factor
+            </span>
+        </div>
+        <p class="copyright">
+            &copy; @DateTime.Now.Year A Product By <a href="@CopyrightUrl" target="_blank" class="footer-link">AadiSoft</a>. All rights reserved.
+        </p>
+    </div>
+</div>
+
+<style>
+    /* Footer Section */
+    .footer-section {
+        background: #ffffff;
+        border-top: 1px solid #e2e8f0;
+        padding: 12px 32px;
+        margin-top: auto;
+        box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.02);
+    }
+
+    .footer-content {
+        display: flex;
+        flex-direction: row;
+        gap: 16px;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .device-info {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        justify-content: flex-start;
+    }
+
+    .info-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        color: #475569;
+        padding: 4px 8px;
+        background: #f8fafc;
+        border-radius: 4px;
+        border: 1px solid #e2e8f0;
+        font-weight: 500;
+    }
+
+        .info-item svg {
+            color: #64748b;
+            flex-shrink: 0;
+        }
+
+    .version-info {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        color: #1e40af;
+        border-color: #93c5fd;
+    }
+
+        .version-info svg {
+            color: #2563eb;
+        }
+
+    .copyright {
+        margin: 0;
+        font-size: 13px;
+        color: #64748b;
+        font-weight: 400;
+        white-space: nowrap;
+    }
+
+    .footer-link {
+        color: #3b82f6;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+        .footer-link:hover {
+            color: #2563eb;
+            text-decoration: underline;
+        }
+</style>

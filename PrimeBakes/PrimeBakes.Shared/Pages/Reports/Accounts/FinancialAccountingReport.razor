@@ -1,12 +1,10 @@
 @page "/report/financial-accounting"
 
-@using PrimeBakes.Shared.Components.Button
+
 @using PrimeBakesLibrary.Models.Accounts.FinancialAccounting
 @using PrimeBakesLibrary.Models.Accounts.Masters
 @using PrimeBakesLibrary.Models.Common
-@using static PrimeBakes.Shared.Components.Button.ButtonSize
-@using static PrimeBakes.Shared.Components.Button.ButtonVariant
-@using static PrimeBakes.Shared.Components.Button.IconType
+
 
 <PageTitle>Financial Accounting Report - Prime Bakes</PageTitle>
 
@@ -16,7 +14,7 @@
 }
 else
 {
-    <PageHeader Title="Financial Accounting Report" Subtitle="View and analyze accounting transactions" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack">
+    <Header Title="Financial Accounting Report" Subtitle="View and analyze accounting transactions" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack">
         <RightContent>
             <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
             <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
@@ -25,7 +23,7 @@ else
             <IconButton Icon="IconType.TrialBalance" Title="Trial Balance (Ctrl + T)" Disabled="_isProcessing" OnClick="NavigateToTrialBalance" />
             <IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing" OnClick="NavigateToTransactionPage" />
         </RightContent>
-    </PageHeader>
+    </Header>
 
     <!-- Main Content Container -->
     <div class="report-container">

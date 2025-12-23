@@ -4,41 +4,41 @@ namespace PrimeBakes.Shared.Components.Button;
 
 public partial class IconButton
 {
-	[Parameter]
-	public IconType Icon { get; set; }
+    [Parameter]
+    public IconType Icon { get; set; }
 
-	[Parameter]
-	public string Title { get; set; } = string.Empty;
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
 
-	[Parameter]
-	public bool Disabled { get; set; } = false;
+    [Parameter]
+    public bool Disabled { get; set; } = false;
 
-	[Parameter]
-	public EventCallback OnClick { get; set; }
+    [Parameter]
+    public EventCallback OnClick { get; set; }
 
-	[Parameter]
-	public ButtonVariant Variant { get; set; } = ButtonVariant.Default;
+    [Parameter]
+    public ButtonVariant Variant { get; set; } = ButtonVariant.Default;
 
-	[Parameter]
-	public ButtonSize Size { get; set; } = ButtonSize.Medium;
+    [Parameter]
+    public ButtonSize Size { get; set; } = ButtonSize.Medium;
 
-	[Parameter]
-	public string CssClass { get; set; } = string.Empty;
+    [Parameter]
+    public string CssClass { get; set; } = string.Empty;
 
-	[Parameter]
-	public string Text { get; set; } = string.Empty;
+    [Parameter]
+    public string Text { get; set; } = string.Empty;
 
-	private int IconSize => Size switch
-	{
-		ButtonSize.Small => 16,
-		ButtonSize.Medium => 20,
-		ButtonSize.Large => 24,
-		_ => 20
-	};
+    private int IconSize => Size switch
+    {
+        ButtonSize.Small => 16,
+        ButtonSize.Medium => 20,
+        ButtonSize.Large => 24,
+        _ => 20
+    };
 
-	private string GetCssClass()
-	{
-		var classes = new List<string>
+    private string GetCssClass()
+    {
+        var classes = new List<string>
         {
             "icon-btn",
             // Add variant class
@@ -52,6 +52,7 @@ public partial class IconButton
                 ButtonVariant.Delete => "icon-btn-delete",
                 ButtonVariant.Add => "icon-btn-add",
                 ButtonVariant.Recover => "icon-btn-recover",
+                ButtonVariant.Logout => "icon-btn-logout",
                 _ => string.Empty
             },
 
@@ -64,65 +65,65 @@ public partial class IconButton
             }
         };
 
-		// Add text class if text is provided
-		if (!string.IsNullOrEmpty(Text))
-			classes.Add("icon-btn-with-text");
+        // Add text class if text is provided
+        if (!string.IsNullOrEmpty(Text))
+            classes.Add("icon-btn-with-text");
 
-		// Add custom CSS class
-		if (!string.IsNullOrEmpty(CssClass))
-			classes.Add(CssClass);
+        // Add custom CSS class
+        if (!string.IsNullOrEmpty(CssClass))
+            classes.Add(CssClass);
 
-		return string.Join(" ", classes.Where(c => !string.IsNullOrEmpty(c)));
-	}
+        return string.Join(" ", classes.Where(c => !string.IsNullOrEmpty(c)));
+    }
 }
 
 public enum IconType
 {
-	Save,
-	Excel,
-	Pdf,
-	View,
-	History,
-	Report,
-	New,
-	Refresh,
-	Edit,
-	Delete,
-	Home,
-	Back,
-	Logout,
-	Print,
-	Settings,
-	Search,
-	Filter,
-	Download,
-	Add,
-	Cart,
-	Upload,
-	TrialBalance,
-	Generate,
-	Reset,
-	Recover
+    Save,
+    Excel,
+    Pdf,
+    View,
+    History,
+    Report,
+    New,
+    Refresh,
+    Edit,
+    Delete,
+    Home,
+    Back,
+    Logout,
+    Print,
+    Settings,
+    Search,
+    Filter,
+    Download,
+    Add,
+    Cart,
+    Upload,
+    TrialBalance,
+    Generate,
+    Reset,
+    Recover
 }
 
 public enum ButtonVariant
 {
-	Default,
-	Save,
-	Excel,
-	Pdf,
-	View,
-	Edit,
-	Delete,
-	Add,
-	Recover,
-	Logout
+    Default,
+    Save,
+    Excel,
+    Pdf,
+    View,
+    Edit,
+    Delete,
+    Add,
+    Recover,
+    Logout
 }
 
 public enum ButtonSize
 {
-	Small,
-	Medium,
-	Large,
-	Grid
+    Small,
+    Medium,
+    Large,
+    Grid
 }

@@ -1,10 +1,8 @@
 ﻿@page "/admin/state-ut"
 
-@using PrimeBakes.Shared.Components.Button
+
 @using PrimeBakesLibrary.Models.Accounts.Masters
-@using static PrimeBakes.Shared.Components.Button.ButtonSize
-@using static PrimeBakes.Shared.Components.Button.ButtonVariant
-@using static PrimeBakes.Shared.Components.Button.IconType
+
 
 <PageTitle>State/UT Management - Prime Bakes</PageTitle>
 
@@ -14,7 +12,7 @@
 }
 else
 {
-    <PageHeader Title="State/UT Management" Subtitle="Manage states and union territories"
+    <Header Title="State/UT Management" Subtitle="Manage states and union territories"
                 ShowHome="true" ShowBack="true"
                 OnHomeClick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))"
                 OnBackClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard))">
@@ -24,7 +22,7 @@ else
             <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save State/UT (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveStateUT" />
             <IconButton Icon="IconType.New" Title="New State/UT (Ctrl + N)" Disabled="_isProcessing" OnClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminStateUT, true))" />
         </RightContent>
-    </PageHeader>
+    </Header>
 
     <!-- Main Content Container -->
     <div class="purchase-container">

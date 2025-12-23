@@ -1,10 +1,8 @@
 ﻿@page "/admin/location"
 
-@using PrimeBakes.Shared.Components.Button
+
 @using PrimeBakesLibrary.Models.Common
-@using static PrimeBakes.Shared.Components.Button.ButtonSize
-@using static PrimeBakes.Shared.Components.Button.ButtonVariant
-@using static PrimeBakes.Shared.Components.Button.IconType
+
 
 <PageTitle>Location Management - PrimeBakes</PageTitle>
 
@@ -14,7 +12,7 @@
 }
 else
 {
-	<PageHeader Title="Location Management" Subtitle="Manage outlet locations and their configurations"
+	<Header Title="Location Management" Subtitle="Manage outlet locations and their configurations"
 		ShowHome="true" ShowBack="true"
 		OnHomeClick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))"
 		OnBackClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard))">
@@ -24,7 +22,7 @@ else
 			<IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Location (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveLocation" />
 			<IconButton Icon="IconType.New" Title="New Location (Ctrl + N)" Disabled="_isProcessing" OnClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminLocation, true))" />
 		</RightContent>
-	</PageHeader>
+	</Header>
 
 	<!-- Main Content Container -->
 	<div class="purchase-container">

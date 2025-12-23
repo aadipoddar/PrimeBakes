@@ -1,12 +1,10 @@
 @page "/report/sale"
 
-@using PrimeBakes.Shared.Components.Button
+
 @using PrimeBakesLibrary.Models.Accounts.Masters
 @using PrimeBakesLibrary.Models.Common
 @using PrimeBakesLibrary.Models.Sales.Sale
-@using static PrimeBakes.Shared.Components.Button.ButtonSize
-@using static PrimeBakes.Shared.Components.Button.ButtonVariant
-@using static PrimeBakes.Shared.Components.Button.IconType
+
 
 <PageTitle>Sale Report - Prime Bakes</PageTitle>
 
@@ -16,7 +14,7 @@
 }
 else
 {
-    <PageHeader Title="Sale Report" Subtitle="View and analyze sale transactions" ShowHome="true" ShowBack="true"
+    <Header Title="Sale Report" Subtitle="View and analyze sale transactions" ShowHome="true" ShowBack="true"
         OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack">
         <RightContent>
             <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)"
@@ -30,7 +28,7 @@ else
             <IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing"
                 OnClick="NavigateToTransactionPage" />
         </RightContent>
-    </PageHeader>
+    </Header>
 
     <!-- Main Content Container -->
     <div class="report-container">

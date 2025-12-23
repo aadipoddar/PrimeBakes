@@ -1,13 +1,11 @@
 @page "/inventory/purchase"
 @page "/inventory/purchase/{Id:int}"
 
-@using PrimeBakes.Shared.Components.Button
+
 @using PrimeBakesLibrary.Models.Accounts.Masters
 @using PrimeBakesLibrary.Models.Common
 @using PrimeBakesLibrary.Models.Inventory
-@using static PrimeBakes.Shared.Components.Button.ButtonSize
-@using static PrimeBakes.Shared.Components.Button.ButtonVariant
-@using static PrimeBakes.Shared.Components.Button.IconType
+
 
 <PageTitle>Purchase - Prime Bakes</PageTitle>
 
@@ -17,7 +15,7 @@
 }
 else
 {
-    <PageHeader Title="Create Purchase" Subtitle="Create and manage purchase transactions" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack">
+    <Header Title="Create Purchase" Subtitle="Create and manage purchase transactions" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack">
         <RightContent>
             <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Transaction (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveTransaction" />
             @if (Id is > 0)
@@ -30,7 +28,7 @@ else
             <IconButton Icon="IconType.Report" Title="Item Report (Ctrl + I)" Disabled="_isProcessing" OnClick="NavigateToItemReport" />
             <IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing" OnClick="ResetPage" />
         </RightContent>
-    </PageHeader>
+    </Header>
 
     <!-- Main Content Container -->
     <div class="purchase-container">

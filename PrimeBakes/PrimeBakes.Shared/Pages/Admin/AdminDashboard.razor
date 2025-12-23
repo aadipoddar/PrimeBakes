@@ -1,10 +1,8 @@
 ﻿@page "/admin"
 
-@using PrimeBakes.Shared.Components.Button
+
 @using PrimeBakesLibrary.Models.Common
-@using static PrimeBakes.Shared.Components.Button.ButtonSize
-@using static PrimeBakes.Shared.Components.Button.ButtonVariant
-@using static PrimeBakes.Shared.Components.Button.IconType
+
 
 <PageTitle>Admin - Prime Bakes</PageTitle>
 
@@ -14,7 +12,7 @@
 }
 else
 {
-	<PageHeader Title="Admin Dashboard"
+	<Header Title="Admin Dashboard"
 				Subtitle="Manage master data and system configuration"
 				ShowLogout="true"
 				ShowHome="true"

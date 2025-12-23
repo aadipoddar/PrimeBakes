@@ -1,11 +1,9 @@
 ﻿@page "/admin/product"
 
-@using PrimeBakes.Shared.Components.Button
+
 @using PrimeBakesLibrary.Models.Common
 @using PrimeBakesLibrary.Models.Sales.Product
-@using static PrimeBakes.Shared.Components.Button.ButtonSize
-@using static PrimeBakes.Shared.Components.Button.ButtonVariant
-@using static PrimeBakes.Shared.Components.Button.IconType
+
 
 <PageTitle>Product Management - Prime Bakes</PageTitle>
 
@@ -15,7 +13,7 @@
 }
 else
 {
-    <PageHeader Title="Product Management" Subtitle="Manage products and inventory"
+    <Header Title="Product Management" Subtitle="Manage products and inventory"
         ShowHome="true" ShowBack="true"
         OnHomeClick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))"
         OnBackClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard))">
@@ -25,7 +23,7 @@ else
             <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Product (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveProduct" />
             <IconButton Icon="IconType.New" Title="New Product (Ctrl + N)" Disabled="_isProcessing" OnClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminProduct, true))" />
         </RightContent>
-    </PageHeader>
+    </Header>
 
     <!-- Main Content Container -->
     <div class="purchase-container">

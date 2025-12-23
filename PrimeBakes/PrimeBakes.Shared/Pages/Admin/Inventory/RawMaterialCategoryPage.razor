@@ -1,10 +1,8 @@
 ﻿@page "/admin/raw-material-category"
 
-@using PrimeBakes.Shared.Components.Button
+
 @using PrimeBakesLibrary.Models.Inventory
-@using static PrimeBakes.Shared.Components.Button.ButtonSize
-@using static PrimeBakes.Shared.Components.Button.ButtonVariant
-@using static PrimeBakes.Shared.Components.Button.IconType
+
 
 <PageTitle>Raw Material Management - Prime Bakes</PageTitle>
 
@@ -14,7 +12,7 @@
 }
 else
 {
-    <PageHeader Title="Raw Material Category Management" Subtitle="Manage raw material categories and details"
+    <Header Title="Raw Material Category Management" Subtitle="Manage raw material categories and details"
                 ShowHome="true" ShowBack="true"
                 OnHomeClick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))"
                 OnBackClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard))">
@@ -24,7 +22,7 @@ else
             <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Raw Material Category (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveRawMaterialCategory" />
             <IconButton Icon="IconType.New" Title="New Raw Material Category (Ctrl + N)" Disabled="_isProcessing" OnClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminRawMaterialCategory, true))" />
         </RightContent>
-    </PageHeader>
+    </Header>
 
     <!-- Main Content Container -->
     <div class="purchase-container">

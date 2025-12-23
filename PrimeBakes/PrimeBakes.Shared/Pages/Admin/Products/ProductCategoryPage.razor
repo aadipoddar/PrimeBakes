@@ -1,10 +1,8 @@
 ﻿@page "/admin/product-category"
 
-@using PrimeBakes.Shared.Components.Button
+
 @using PrimeBakesLibrary.Models.Sales.Product
-@using static PrimeBakes.Shared.Components.Button.ButtonSize
-@using static PrimeBakes.Shared.Components.Button.ButtonVariant
-@using static PrimeBakes.Shared.Components.Button.IconType
+
 
 <PageTitle>Product Category Management - Prime Bakes</PageTitle>
 
@@ -14,7 +12,7 @@
 }
 else
 {
-    <PageHeader Title="Product Category Management" Subtitle="Manage product categories and details"
+    <Header Title="Product Category Management" Subtitle="Manage product categories and details"
         ShowHome="true" ShowBack="true"
         OnHomeClick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))"
         OnBackClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard))">
@@ -24,7 +22,7 @@ else
             <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Product Category (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveProductCategory" />
             <IconButton Icon="IconType.New" Title="New Product Category (Ctrl + N)" Disabled="_isProcessing" OnClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminProductCategory, true))" />
         </RightContent>
-    </PageHeader>
+    </Header>
 
     <!-- Main Content Container -->
     <div class="purchase-container">

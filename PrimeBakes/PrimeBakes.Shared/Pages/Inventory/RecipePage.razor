@@ -1,12 +1,10 @@
 ﻿@page "/inventory/recipe"
 
-@using PrimeBakes.Shared.Components.Button
+
 @using PrimeBakesLibrary.Models.Common;
 @using PrimeBakesLibrary.Models.Inventory;
 @using PrimeBakesLibrary.Models.Sales.Product
-@using static PrimeBakes.Shared.Components.Button.ButtonSize
-@using static PrimeBakes.Shared.Components.Button.ButtonVariant
-@using static PrimeBakes.Shared.Components.Button.IconType
+
 
 <PageTitle>Recipe - Prime Bakes</PageTitle>
 
@@ -16,7 +14,7 @@
 }
 else
 {
-	<PageHeader Title="Product Recipe Management" Subtitle="Create and manage product recipes with raw material quantities" ShowHome="true" ShowBack="true" OnHomeClick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))" OnBackClick="@(() => NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard))">
+	<Header Title="Product Recipe Management" Subtitle="Create and manage product recipes with raw material quantities" ShowHome="true" ShowBack="true" OnHomeClick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))" OnBackClick="@(() => NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard))">
 		<RightContent>
 			<IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Recipe" Disabled="_isProcessing" OnClick="OnSaveButtonClick" />
 			@if (_recipe is not null && _recipe.Id > 0)
@@ -25,7 +23,7 @@ else
 			}
 			<IconButton Icon="IconType.New" Title="New Recipe" Disabled="_isProcessing" OnClick="ResetPage" />
 		</RightContent>
-	</PageHeader>
+	</Header>
 
 	<!-- Main Content Container -->
 	<div class="purchase-container">

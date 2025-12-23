@@ -1,10 +1,8 @@
 ﻿@page "/admin/voucher"
 
-@using PrimeBakes.Shared.Components.Button
+
 @using PrimeBakesLibrary.Models.Accounts.Masters
-@using static PrimeBakes.Shared.Components.Button.ButtonSize
-@using static PrimeBakes.Shared.Components.Button.ButtonVariant
-@using static PrimeBakes.Shared.Components.Button.IconType
+
 
 <PageTitle>Voucher Management - Prime Bakes</PageTitle>
 
@@ -14,7 +12,7 @@
 }
 else
 {
-    <PageHeader Title="Voucher Management" Subtitle="Manage vouchers and details"
+    <Header Title="Voucher Management" Subtitle="Manage vouchers and details"
                 ShowHome="true" ShowBack="true"
                 OnHomeClick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))"
                 OnBackClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard))">
@@ -24,7 +22,7 @@ else
             <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Voucher (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveVoucher" />
             <IconButton Icon="IconType.New" Title="New Voucher (Ctrl + N)" Disabled="_isProcessing" OnClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminVoucher, true))" />
         </RightContent>
-    </PageHeader>
+    </Header>
 
     <!-- Main Content Container -->
     <div class="purchase-container">

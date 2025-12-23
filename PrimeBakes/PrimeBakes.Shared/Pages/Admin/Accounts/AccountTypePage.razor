@@ -1,10 +1,8 @@
 ﻿@page "/admin/account-type"
 
-@using PrimeBakes.Shared.Components.Button
+
 @using PrimeBakesLibrary.Models.Accounts.Masters
-@using static PrimeBakes.Shared.Components.Button.ButtonSize
-@using static PrimeBakes.Shared.Components.Button.ButtonVariant
-@using static PrimeBakes.Shared.Components.Button.IconType
+
 
 <PageTitle>Account Type Management - Prime Bakes</PageTitle>
 
@@ -14,7 +12,7 @@
 }
 else
 {
-    <PageHeader Title="Account Type Management" Subtitle="Manage account types and details"
+    <Header Title="Account Type Management" Subtitle="Manage account types and details"
                 ShowHome="true" ShowBack="true"
                 OnHomeClick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))"
                 OnBackClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard))">
@@ -24,7 +22,7 @@ else
             <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Account Type (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveAccountType" />
             <IconButton Icon="IconType.New" Title="New Account Type (Ctrl + N)" Disabled="_isProcessing" OnClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminAccountType, true))" />
         </RightContent>
-    </PageHeader>
+    </Header>
 
     <!-- Main Content Container -->
     <div class="purchase-container">
