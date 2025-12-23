@@ -74,10 +74,10 @@ public partial class KitchenProductionPage : IAsyncDisposable
             .Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
             .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
             .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-			.Add(Code.Delete, RemoveSelectedCartItem, "Delete selected cart item", Exclude.None)
-			.Add(Code.Insert, EditSelectedCartItem, "Edit selected cart item", Exclude.None);
+            .Add(Code.Delete, RemoveSelectedCartItem, "Delete selected cart item", Exclude.None)
+            .Add(Code.Insert, EditSelectedCartItem, "Edit selected cart item", Exclude.None);
 
-		await LoadCompanies();
+        await LoadCompanies();
         await LoadKitchens();
         await LoadExistingTransaction();
         await LoadItems();
@@ -412,16 +412,16 @@ public partial class KitchenProductionPage : IAsyncDisposable
         await SaveTransactionFile();
     }
 
-	private async Task EditSelectedCartItem()
-	{
-		if (_sfCartGrid is null || _sfCartGrid.SelectedRecords is null || _sfCartGrid.SelectedRecords.Count == 0)
-			return;
+    private async Task EditSelectedCartItem()
+    {
+        if (_sfCartGrid is null || _sfCartGrid.SelectedRecords is null || _sfCartGrid.SelectedRecords.Count == 0)
+            return;
 
-		var selectedCartItem = _sfCartGrid.SelectedRecords.First();
-		await EditCartItem(selectedCartItem);
-	}
+        var selectedCartItem = _sfCartGrid.SelectedRecords.First();
+        await EditCartItem(selectedCartItem);
+    }
 
-	private async Task EditCartItem(KitchenProductionProductCartModel cartItem)
+    private async Task EditCartItem(KitchenProductionProductCartModel cartItem)
     {
         _selectedProduct = _products.FirstOrDefault(s => s.Id == cartItem.ProductId);
 
@@ -442,16 +442,16 @@ public partial class KitchenProductionPage : IAsyncDisposable
         await RemoveItemFromCart(cartItem);
     }
 
-	private async Task RemoveSelectedCartItem()
-	{
-		if (_sfCartGrid is null || _sfCartGrid.SelectedRecords is null || _sfCartGrid.SelectedRecords.Count == 0)
-			return;
+    private async Task RemoveSelectedCartItem()
+    {
+        if (_sfCartGrid is null || _sfCartGrid.SelectedRecords is null || _sfCartGrid.SelectedRecords.Count == 0)
+            return;
 
-		var selectedCartItem = _sfCartGrid.SelectedRecords.First();
-		await RemoveItemFromCart(selectedCartItem);
-	}
+        var selectedCartItem = _sfCartGrid.SelectedRecords.First();
+        await RemoveItemFromCart(selectedCartItem);
+    }
 
-	private async Task RemoveItemFromCart(KitchenProductionProductCartModel cartItem)
+    private async Task RemoveItemFromCart(KitchenProductionProductCartModel cartItem)
     {
         _cart.Remove(cartItem);
         await SaveTransactionFile();
@@ -765,6 +765,7 @@ public partial class KitchenProductionPage : IAsyncDisposable
     {
         if (_hotKeysContext is not null)
             await _hotKeysContext.DisposeAsync();
+        GC.SuppressFinalize(this);
     }
     #endregion
 }

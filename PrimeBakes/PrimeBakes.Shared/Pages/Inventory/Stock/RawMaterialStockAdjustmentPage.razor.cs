@@ -21,9 +21,9 @@ namespace PrimeBakes.Shared.Pages.Inventory.Stock;
 
 public partial class RawMaterialStockAdjustmentPage : IAsyncDisposable
 {
-	private HotKeysContext _hotKeysContext;
+    private HotKeysContext _hotKeysContext;
 
-	private bool _isLoading = true;
+    private bool _isLoading = true;
     private bool _isProcessing = false;
 
     private DateTime _transactionDateTime = DateTime.Now;
@@ -56,20 +56,20 @@ public partial class RawMaterialStockAdjustmentPage : IAsyncDisposable
 
     private async Task LoadData()
     {
-		_hotKeysContext = HotKeys.CreateContext()
-			.Add(ModCode.Ctrl, Code.Enter, AddItemToCart, "Add item to cart", Exclude.None)
-			.Add(ModCode.Ctrl, Code.E, () => _sfItemAutoComplete.FocusAsync(), "Focus on item input", Exclude.None)
-			.Add(ModCode.Ctrl, Code.S, SaveTransaction, "Save the transaction", Exclude.None)
-			.Add(ModCode.Ctrl, Code.H, NavigateToTransactionHistoryPage, "Open transaction history", Exclude.None)
-			.Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
-			.Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
-			.Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-			.Add(Code.Delete, RemoveSelectedCartItem, "Delete selected cart item", Exclude.None)
-			.Add(Code.Insert, EditSelectedCartItem, "Edit selected cart item", Exclude.None);
+        _hotKeysContext = HotKeys.CreateContext()
+            .Add(ModCode.Ctrl, Code.Enter, AddItemToCart, "Add item to cart", Exclude.None)
+            .Add(ModCode.Ctrl, Code.E, () => _sfItemAutoComplete.FocusAsync(), "Focus on item input", Exclude.None)
+            .Add(ModCode.Ctrl, Code.S, SaveTransaction, "Save the transaction", Exclude.None)
+            .Add(ModCode.Ctrl, Code.H, NavigateToTransactionHistoryPage, "Open transaction history", Exclude.None)
+            .Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
+            .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
+            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
+            .Add(Code.Delete, RemoveSelectedCartItem, "Delete selected cart item", Exclude.None)
+            .Add(Code.Insert, EditSelectedCartItem, "Edit selected cart item", Exclude.None);
 
-		_transactionDateTime = await CommonData.LoadCurrentDateTime();
-		_transactionNo = await GenerateCodes.GenerateRawMaterialStockAdjustmentTransactionNo(_transactionDateTime);
-		await LoadStock();
+        _transactionDateTime = await CommonData.LoadCurrentDateTime();
+        _transactionNo = await GenerateCodes.GenerateRawMaterialStockAdjustmentTransactionNo(_transactionDateTime);
+        await LoadStock();
         await LoadItems();
         await LoadExistingCart();
     }
@@ -231,16 +231,16 @@ public partial class RawMaterialStockAdjustmentPage : IAsyncDisposable
         await SaveTransactionFile();
     }
 
-	private async Task EditSelectedCartItem()
-	{
-		if (_sfCartGrid is null || _sfCartGrid.SelectedRecords is null || _sfCartGrid.SelectedRecords.Count == 0)
-			return;
+    private async Task EditSelectedCartItem()
+    {
+        if (_sfCartGrid is null || _sfCartGrid.SelectedRecords is null || _sfCartGrid.SelectedRecords.Count == 0)
+            return;
 
-		var selectedCartItem = _sfCartGrid.SelectedRecords.First();
-		await EditCartItem(selectedCartItem);
-	}
+        var selectedCartItem = _sfCartGrid.SelectedRecords.First();
+        await EditCartItem(selectedCartItem);
+    }
 
-	private async Task EditCartItem(RawMaterialStockAdjustmentCartModel cartItem)
+    private async Task EditCartItem(RawMaterialStockAdjustmentCartModel cartItem)
     {
         _selectedRawMaterial = _rawMaterials.FirstOrDefault(s => s.Id == cartItem.RawMaterialId);
 
@@ -262,16 +262,16 @@ public partial class RawMaterialStockAdjustmentPage : IAsyncDisposable
         await RemoveItemFromCart(cartItem);
     }
 
-	private async Task RemoveSelectedCartItem()
-	{
-		if (_sfCartGrid is null || _sfCartGrid.SelectedRecords is null || _sfCartGrid.SelectedRecords.Count == 0)
-			return;
+    private async Task RemoveSelectedCartItem()
+    {
+        if (_sfCartGrid is null || _sfCartGrid.SelectedRecords is null || _sfCartGrid.SelectedRecords.Count == 0)
+            return;
 
-		var selectedCartItem = _sfCartGrid.SelectedRecords.First();
-		await RemoveItemFromCart(selectedCartItem);
-	}
+        var selectedCartItem = _sfCartGrid.SelectedRecords.First();
+        await RemoveItemFromCart(selectedCartItem);
+    }
 
-	private async Task RemoveItemFromCart(RawMaterialStockAdjustmentCartModel cartItem)
+    private async Task RemoveItemFromCart(RawMaterialStockAdjustmentCartModel cartItem)
     {
         _cart.Remove(cartItem);
         await SaveTransactionFile();
@@ -380,7 +380,7 @@ public partial class RawMaterialStockAdjustmentPage : IAsyncDisposable
             _isProcessing = true;
             StateHasChanged();
 
-			await SaveTransactionFile();
+            await SaveTransactionFile();
 
             if (!await ValidateForm())
             {
@@ -388,7 +388,7 @@ public partial class RawMaterialStockAdjustmentPage : IAsyncDisposable
                 return;
             }
 
-			await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
+            await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
 
             await RawMaterialStockData.SaveRawMaterialStockAdjustment(_transactionDateTime, _cart);
             await DeleteLocalFiles();
@@ -425,16 +425,17 @@ public partial class RawMaterialStockAdjustmentPage : IAsyncDisposable
             NavigationManager.NavigateTo(PageRouteNames.ReportRawMaterialStock);
     }
 
-	private async Task NavigateToDashboard() =>
-		NavigationManager.NavigateTo(PageRouteNames.Dashboard);
+    private async Task NavigateToDashboard() =>
+        NavigationManager.NavigateTo(PageRouteNames.Dashboard);
 
-	private async Task NavigateBack() =>
-		NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);
+    private async Task NavigateBack() =>
+        NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);
 
-	public async ValueTask DisposeAsync()
-	{
-		if (_hotKeysContext is not null)
-			await _hotKeysContext.DisposeAsync();
-	}
-	#endregion
+    public async ValueTask DisposeAsync()
+    {
+        if (_hotKeysContext is not null)
+            await _hotKeysContext.DisposeAsync();
+        GC.SuppressFinalize(this);
+    }
+    #endregion
 }

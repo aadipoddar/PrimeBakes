@@ -120,9 +120,7 @@ public partial class Dashboard : IDisposable
             await _hotKeysContext.DisposeAsync();
     }
 
-    public void Dispose()
-    {
+    public void Dispose() =>
         GC.SuppressFinalize(this);
-    }
     #endregion
 }

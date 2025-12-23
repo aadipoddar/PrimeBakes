@@ -18,11 +18,11 @@ namespace PrimeBakes.Shared.Pages.Reports.Inventory.Kitchen;
 
 public partial class KitchenProductionReport : IAsyncDisposable
 {
-	private HotKeysContext _hotKeysContext;
-	private PeriodicTimer _autoRefreshTimer;
-	private CancellationTokenSource _autoRefreshCts;
+    private HotKeysContext _hotKeysContext;
+    private PeriodicTimer _autoRefreshTimer;
+    private CancellationTokenSource _autoRefreshCts;
 
-	private UserModel _user;
+    private UserModel _user;
 
     private bool _isLoading = true;
     private bool _isProcessing = false;
@@ -57,7 +57,7 @@ public partial class KitchenProductionReport : IAsyncDisposable
         if (!firstRender)
             return;
 
-		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, UserRoles.Inventory, true);
+        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, UserRoles.Inventory, true);
         await LoadData();
         _isLoading = false;
         StateHasChanged();
@@ -65,25 +65,25 @@ public partial class KitchenProductionReport : IAsyncDisposable
 
     private async Task LoadData()
     {
-		_hotKeysContext = HotKeys.CreateContext()
-			.Add(ModCode.Ctrl, Code.R, LoadTransactionOverviews, "Refresh Data", Exclude.None)
-			.Add(Code.F5, LoadTransactionOverviews, "Refresh Data", Exclude.None)
-			.Add(ModCode.Ctrl, Code.E, ExportExcel, "Export to Excel", Exclude.None)
-			.Add(ModCode.Ctrl, Code.P, ExportPdf, "Export to PDF", Exclude.None)
-			.Add(ModCode.Ctrl, Code.I, NavigateToItemReport, "Open item report", Exclude.None)
-			.Add(ModCode.Ctrl, Code.N, NavigateToTransactionPage, "New Transaction", Exclude.None)
-			.Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
-			.Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-			.Add(ModCode.Ctrl, Code.O, ViewSelectedCartItem, "Open Selected Transaction", Exclude.None)
-			.Add(ModCode.Alt, Code.P, DownloadSelectedCartItemPdfInvoice, "Download Selected Transaction PDF Invoice", Exclude.None)
-			.Add(ModCode.Alt, Code.E, DownloadSelectedCartItemExcelInvoice, "Download Selected Transaction Excel Invoice", Exclude.None)
-			.Add(Code.Delete, DeleteSelectedCartItem, "Delete Selected Transaction", Exclude.None);
+        _hotKeysContext = HotKeys.CreateContext()
+            .Add(ModCode.Ctrl, Code.R, LoadTransactionOverviews, "Refresh Data", Exclude.None)
+            .Add(Code.F5, LoadTransactionOverviews, "Refresh Data", Exclude.None)
+            .Add(ModCode.Ctrl, Code.E, ExportExcel, "Export to Excel", Exclude.None)
+            .Add(ModCode.Ctrl, Code.P, ExportPdf, "Export to PDF", Exclude.None)
+            .Add(ModCode.Ctrl, Code.I, NavigateToItemReport, "Open item report", Exclude.None)
+            .Add(ModCode.Ctrl, Code.N, NavigateToTransactionPage, "New Transaction", Exclude.None)
+            .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
+            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
+            .Add(ModCode.Ctrl, Code.O, ViewSelectedCartItem, "Open Selected Transaction", Exclude.None)
+            .Add(ModCode.Alt, Code.P, DownloadSelectedCartItemPdfInvoice, "Download Selected Transaction PDF Invoice", Exclude.None)
+            .Add(ModCode.Alt, Code.E, DownloadSelectedCartItemExcelInvoice, "Download Selected Transaction Excel Invoice", Exclude.None)
+            .Add(Code.Delete, DeleteSelectedCartItem, "Delete Selected Transaction", Exclude.None);
 
-		await LoadDates();
+        await LoadDates();
         await LoadCompanies();
         await LoadKitchens();
         await LoadTransactionOverviews();
-		await StartAutoRefresh();
+        await StartAutoRefresh();
     }
 
     private async Task LoadDates()
@@ -127,7 +127,7 @@ public partial class KitchenProductionReport : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
-            _transactionOverviews = await CommonData.LoadTableDataByDate <KitchenProductionOverviewModel>(
+            _transactionOverviews = await CommonData.LoadTableDataByDate<KitchenProductionOverviewModel>(
                 ViewNames.KitchenProductionOverview,
                 DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
                 DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));
@@ -145,7 +145,7 @@ public partial class KitchenProductionReport : IAsyncDisposable
 
             if (_showSummary)
                 _transactionOverviews = [.. _transactionOverviews
-					.GroupBy(t => t.KitchenName)
+                    .GroupBy(t => t.KitchenName)
                     .Select(g => new KitchenProductionOverviewModel
                     {
                         KitchenName = g.Key,
@@ -282,19 +282,19 @@ public partial class KitchenProductionReport : IAsyncDisposable
             StateHasChanged();
         }
     }
-	#endregion
+    #endregion
 
-	#region Actions
-	private async Task ViewSelectedCartItem()
-	{
-		if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-			return;
+    #region Actions
+    private async Task ViewSelectedCartItem()
+    {
+        if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+            return;
 
-		var selectedCartItem = _sfGrid.SelectedRecords.First();
-		await ViewTransaction(selectedCartItem.Id);
-	}
+        var selectedCartItem = _sfGrid.SelectedRecords.First();
+        await ViewTransaction(selectedCartItem.Id);
+    }
 
-	private async Task ViewTransaction(int transactionId)
+    private async Task ViewTransaction(int transactionId)
     {
         try
         {
@@ -309,25 +309,25 @@ public partial class KitchenProductionReport : IAsyncDisposable
         }
     }
 
-	private async Task DownloadSelectedCartItemPdfInvoice()
-	{
-		if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-			return;
+    private async Task DownloadSelectedCartItemPdfInvoice()
+    {
+        if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+            return;
 
-		var selectedCartItem = _sfGrid.SelectedRecords.First();
-		await DownloadPdfInvoice(selectedCartItem.Id);
-	}
+        var selectedCartItem = _sfGrid.SelectedRecords.First();
+        await DownloadPdfInvoice(selectedCartItem.Id);
+    }
 
-	private async Task DownloadSelectedCartItemExcelInvoice()
-	{
-		if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-			return;
+    private async Task DownloadSelectedCartItemExcelInvoice()
+    {
+        if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+            return;
 
-		var selectedCartItem = _sfGrid.SelectedRecords.First();
-		await DownloadExcelInvoice(selectedCartItem.Id);
-	}
+        var selectedCartItem = _sfGrid.SelectedRecords.First();
+        await DownloadExcelInvoice(selectedCartItem.Id);
+    }
 
-	private async Task DownloadPdfInvoice(int transactionId)
+    private async Task DownloadPdfInvoice(int transactionId)
     {
         if (_isProcessing)
             return;
@@ -340,8 +340,8 @@ public partial class KitchenProductionReport : IAsyncDisposable
 
             var (pdfStream, fileName) = await KitchenProductionData.GenerateAndDownloadInvoice(transactionId);
             await SaveAndViewService.SaveAndView(fileName, pdfStream);
-			await _toastNotification.ShowAsync("Success", "PDF invoice downloaded successfully.", ToastType.Success);
-		}
+            await _toastNotification.ShowAsync("Success", "PDF invoice downloaded successfully.", ToastType.Success);
+        }
         catch (Exception ex)
         {
             await _toastNotification.ShowAsync("Error", $"An error occurred while generating PDF invoice: {ex.Message}", ToastType.Error);
@@ -353,46 +353,46 @@ public partial class KitchenProductionReport : IAsyncDisposable
         }
     }
 
-	private async Task DownloadExcelInvoice(int transactionId)
-	{
-		if (_isProcessing)
-			return;
+    private async Task DownloadExcelInvoice(int transactionId)
+    {
+        if (_isProcessing)
+            return;
 
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
+        try
+        {
+            _isProcessing = true;
+            StateHasChanged();
+            await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
 
-			var (excelStream, fileName) = await KitchenProductionData.GenerateAndDownloadExcelInvoice(transactionId);
-			await SaveAndViewService.SaveAndView(fileName, excelStream);
-			await _toastNotification.ShowAsync("Success", "Excel invoice downloaded successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"An error occurred while generating Excel invoice: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			StateHasChanged();
-		}
-	}
+            var (excelStream, fileName) = await KitchenProductionData.GenerateAndDownloadExcelInvoice(transactionId);
+            await SaveAndViewService.SaveAndView(fileName, excelStream);
+            await _toastNotification.ShowAsync("Success", "Excel invoice downloaded successfully.", ToastType.Success);
+        }
+        catch (Exception ex)
+        {
+            await _toastNotification.ShowAsync("Error", $"An error occurred while generating Excel invoice: {ex.Message}", ToastType.Error);
+        }
+        finally
+        {
+            _isProcessing = false;
+            StateHasChanged();
+        }
+    }
 
-	private async Task DeleteSelectedCartItem()
-	{
-		if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-			return;
+    private async Task DeleteSelectedCartItem()
+    {
+        if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+            return;
 
-		var selectedCartItem = _sfGrid.SelectedRecords.First();
+        var selectedCartItem = _sfGrid.SelectedRecords.First();
 
-		if (!selectedCartItem.Status)
-			ShowRecoverConfirmation(selectedCartItem.Id, selectedCartItem.TransactionNo);
-		else
-			ShowDeleteConfirmation(selectedCartItem.Id, selectedCartItem.TransactionNo);
-	}
+        if (!selectedCartItem.Status)
+            ShowRecoverConfirmation(selectedCartItem.Id, selectedCartItem.TransactionNo);
+        else
+            ShowDeleteConfirmation(selectedCartItem.Id, selectedCartItem.TransactionNo);
+    }
 
-	private async Task ConfirmDelete()
+    private async Task ConfirmDelete()
     {
         if (_isProcessing)
             return;
@@ -526,11 +526,11 @@ public partial class KitchenProductionReport : IAsyncDisposable
             NavigationManager.NavigateTo(PageRouteNames.ReportKitchenProductionItem);
     }
 
-	private async Task NavigateToDashboard() =>
-		NavigationManager.NavigateTo(PageRouteNames.Dashboard);
+    private async Task NavigateToDashboard() =>
+        NavigationManager.NavigateTo(PageRouteNames.Dashboard);
 
-	private async Task NavigateBack() =>
-		NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);
+    private async Task NavigateBack() =>
+        NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);
 
     private async Task ShowDeleteConfirmation(int id, string transactionNo)
     {
@@ -562,44 +562,43 @@ public partial class KitchenProductionReport : IAsyncDisposable
         await _recoverConfirmationDialog.HideAsync();
     }
 
-	private async Task StartAutoRefresh()
-	{
-		var timerSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.AutoRefreshReportTimer);
-		var refreshMinutes = int.TryParse(timerSetting?.Value, out var minutes) ? minutes : 5;
+    private async Task StartAutoRefresh()
+    {
+        var timerSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.AutoRefreshReportTimer);
+        var refreshMinutes = int.TryParse(timerSetting?.Value, out var minutes) ? minutes : 5;
 
-		_autoRefreshCts = new CancellationTokenSource();
-		_autoRefreshTimer = new PeriodicTimer(TimeSpan.FromMinutes(refreshMinutes));
-		_ = AutoRefreshLoop(_autoRefreshCts.Token);
-	}
+        _autoRefreshCts = new CancellationTokenSource();
+        _autoRefreshTimer = new PeriodicTimer(TimeSpan.FromMinutes(refreshMinutes));
+        _ = AutoRefreshLoop(_autoRefreshCts.Token);
+    }
 
-	private async Task AutoRefreshLoop(CancellationToken cancellationToken)
-	{
-		try
-		{
-			while (await _autoRefreshTimer.WaitForNextTickAsync(cancellationToken))
-				await InvokeAsync(async () =>
-				{
-					await LoadTransactionOverviews();
-				});
-		}
-		catch (OperationCanceledException)
-		{
-			// Timer was cancelled, expected on dispose
-		}
-	}
+    private async Task AutoRefreshLoop(CancellationToken cancellationToken)
+    {
+        try
+        {
+            while (await _autoRefreshTimer.WaitForNextTickAsync(cancellationToken))
+                await LoadTransactionOverviews();
+        }
+        catch (OperationCanceledException)
+        {
+            // Timer was cancelled, expected on dispose
+        }
+    }
 
-	public async ValueTask DisposeAsync()
-	{
-		if (_autoRefreshCts is not null)
-		{
-			await _autoRefreshCts.CancelAsync();
-			_autoRefreshCts.Dispose();
-		}
+    public async ValueTask DisposeAsync()
+    {
+        if (_autoRefreshCts is not null)
+        {
+            await _autoRefreshCts.CancelAsync();
+            _autoRefreshCts.Dispose();
+        }
 
-		_autoRefreshTimer?.Dispose();
+        _autoRefreshTimer?.Dispose();
 
-		if (_hotKeysContext is not null)
-			await _hotKeysContext.DisposeAsync();
-	}
+        if (_hotKeysContext is not null)
+            await _hotKeysContext.DisposeAsync();
+
+        GC.SuppressFinalize(this);
+    }
     #endregion
 }

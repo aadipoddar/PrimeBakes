@@ -321,9 +321,9 @@ public partial class ProductPage : IAsyncDisposable
 
             var isNewProduct = _product.Id == 0;
 
-			_product.Id =  await ProductData.InsertProduct(_product);
+            _product.Id = await ProductData.InsertProduct(_product);
             if (isNewProduct)
-				await InsertProductLocations();
+                await InsertProductLocations();
 
             await _toastNotification.ShowAsync("Saved", $"Product '{_product.Name}' saved successfully.", ToastType.Success);
             NavigationManager.NavigateTo(PageRouteNames.AdminProduct, true);
@@ -342,15 +342,15 @@ public partial class ProductPage : IAsyncDisposable
     {
         var locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
         foreach (var location in locations)
-            await ProductData.InsertProductLocation(new ()
-			{
+            await ProductData.InsertProductLocation(new()
+            {
                 Id = 0,
                 Rate = _product.Rate,
-				ProductId = _product.Id,
-				LocationId = location.Id,
+                ProductId = _product.Id,
+                LocationId = location.Id,
                 Status = true,
-			});
-	}
+            });
+    }
     #endregion
 
     #region Exporting
@@ -460,11 +460,16 @@ public partial class ProductPage : IAsyncDisposable
         if (selectedRecords.Count > 0)
         {
             if (selectedRecords[0].Status)
-                ShowDeleteConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
+                await ShowDeleteConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
             else
-                ShowRecoverConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
+                await ShowRecoverConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
         }
     }
 
-    public async ValueTask DisposeAsync() => await _hotKeysContext.DisposeAsync();
+    public async ValueTask DisposeAsync()
+    {
+        if (_hotKeysContext is not null)
+            await _hotKeysContext.DisposeAsync();
+        GC.SuppressFinalize(this);
+    }
 }

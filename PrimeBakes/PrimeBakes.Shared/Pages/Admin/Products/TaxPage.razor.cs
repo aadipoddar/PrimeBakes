@@ -367,11 +367,16 @@ public partial class TaxPage : IAsyncDisposable
         if (selectedRecords.Count > 0)
         {
             if (selectedRecords[0].Status)
-                ShowDeleteConfirmation(selectedRecords[0].Id, selectedRecords[0].Code);
+                await ShowDeleteConfirmation(selectedRecords[0].Id, selectedRecords[0].Code);
             else
-                ShowRecoverConfirmation(selectedRecords[0].Id, selectedRecords[0].Code);
+                await ShowRecoverConfirmation(selectedRecords[0].Id, selectedRecords[0].Code);
         }
     }
 
-    public async ValueTask DisposeAsync() => await _hotKeysContext.DisposeAsync();
+    public async ValueTask DisposeAsync()
+    {
+        if (_hotKeysContext is not null)
+            await _hotKeysContext.DisposeAsync();
+        GC.SuppressFinalize(this);
+    }
 }

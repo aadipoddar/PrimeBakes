@@ -434,5 +434,10 @@ public partial class LedgerPage : IAsyncDisposable
         }
     }
 
-    public async ValueTask DisposeAsync() => await _hotKeysContext.DisposeAsync();
+    public async ValueTask DisposeAsync()
+    {
+        if (_hotKeysContext is not null)
+            await _hotKeysContext.DisposeAsync();
+        GC.SuppressFinalize(this);
+    }
 }

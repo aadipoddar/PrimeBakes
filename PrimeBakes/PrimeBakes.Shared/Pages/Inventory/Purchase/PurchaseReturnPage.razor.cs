@@ -820,7 +820,7 @@ public partial class PurchaseReturnPage : IAsyncDisposable
         {
             _isProcessing = true;
 
-			await SaveTransactionFile(true);
+            await SaveTransactionFile(true);
 
             if (!await ValidateForm())
             {
@@ -828,7 +828,7 @@ public partial class PurchaseReturnPage : IAsyncDisposable
                 return;
             }
 
-			await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
+            await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
 
             _purchaseReturn.Status = true;
             var currentDateTime = await CommonData.LoadCurrentDateTime();
@@ -1047,6 +1047,7 @@ public partial class PurchaseReturnPage : IAsyncDisposable
     {
         if (_hotKeysContext is not null)
             await _hotKeysContext.DisposeAsync();
+        GC.SuppressFinalize(this);
     }
     #endregion
 }

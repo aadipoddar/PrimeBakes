@@ -18,11 +18,11 @@ namespace PrimeBakes.Shared.Pages.Reports.Sales.Order;
 
 public partial class OrderItemReport : IAsyncDisposable
 {
-	private HotKeysContext _hotKeysContext;
-	private PeriodicTimer _autoRefreshTimer;
-	private CancellationTokenSource _autoRefreshCts;
+    private HotKeysContext _hotKeysContext;
+    private PeriodicTimer _autoRefreshTimer;
+    private CancellationTokenSource _autoRefreshCts;
 
-	private UserModel _user;
+    private UserModel _user;
 
     private bool _isLoading = true;
     private bool _isProcessing = false;
@@ -50,7 +50,7 @@ public partial class OrderItemReport : IAsyncDisposable
         if (!firstRender)
             return;
 
-		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, UserRoles.Order);
+        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, UserRoles.Order);
         await LoadData();
         _isLoading = false;
         StateHasChanged();
@@ -58,20 +58,20 @@ public partial class OrderItemReport : IAsyncDisposable
 
     private async Task LoadData()
     {
-		_hotKeysContext = HotKeys.CreateContext()
-			.Add(ModCode.Ctrl, Code.R, LoadTransactionOverviews, "Refresh Data", Exclude.None)
-			.Add(Code.F5, LoadTransactionOverviews, "Refresh Data", Exclude.None)
-			.Add(ModCode.Ctrl, Code.E, ExportExcel, "Export to Excel", Exclude.None)
-			.Add(ModCode.Ctrl, Code.P, ExportPdf, "Export to PDF", Exclude.None)
-			.Add(ModCode.Ctrl, Code.H, NavigateToTransactionHistory, "Open transaction history", Exclude.None)
-			.Add(ModCode.Ctrl, Code.N, NavigateToTransactionPage, "New Transaction", Exclude.None)
-			.Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
-			.Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-			.Add(ModCode.Ctrl, Code.O, ViewSelectedCartItem, "Open Selected Transaction", Exclude.None)
-			.Add(ModCode.Alt, Code.P, DownloadSelectedCartItemPdfInvoice, "Download Selected Transaction PDF Invoice", Exclude.None)
-			.Add(ModCode.Alt, Code.E, DownloadSelectedCartItemExcelInvoice, "Download Selected Transaction Excel Invoice", Exclude.None);
+        _hotKeysContext = HotKeys.CreateContext()
+            .Add(ModCode.Ctrl, Code.R, LoadTransactionOverviews, "Refresh Data", Exclude.None)
+            .Add(Code.F5, LoadTransactionOverviews, "Refresh Data", Exclude.None)
+            .Add(ModCode.Ctrl, Code.E, ExportExcel, "Export to Excel", Exclude.None)
+            .Add(ModCode.Ctrl, Code.P, ExportPdf, "Export to PDF", Exclude.None)
+            .Add(ModCode.Ctrl, Code.H, NavigateToTransactionHistory, "Open transaction history", Exclude.None)
+            .Add(ModCode.Ctrl, Code.N, NavigateToTransactionPage, "New Transaction", Exclude.None)
+            .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
+            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
+            .Add(ModCode.Ctrl, Code.O, ViewSelectedCartItem, "Open Selected Transaction", Exclude.None)
+            .Add(ModCode.Alt, Code.P, DownloadSelectedCartItemPdfInvoice, "Download Selected Transaction PDF Invoice", Exclude.None)
+            .Add(ModCode.Alt, Code.E, DownloadSelectedCartItemExcelInvoice, "Download Selected Transaction Excel Invoice", Exclude.None);
 
-		await LoadDates();
+        await LoadDates();
         await LoadLocations();
         await LoadCompanies();
         await LoadTransactionOverviews();
@@ -119,10 +119,10 @@ public partial class OrderItemReport : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
-			_transactionOverviews = await CommonData.LoadTableDataByDate<OrderItemOverviewModel>(
-				ViewNames.OrderItemOverview,
-				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));
+            _transactionOverviews = await CommonData.LoadTableDataByDate<OrderItemOverviewModel>(
+                ViewNames.OrderItemOverview,
+                DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
+                DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));
 
             if (_selectedLocation?.Id > 0)
                 _transactionOverviews = [.. _transactionOverviews.Where(_ => _.LocationId == _selectedLocation.Id)];
@@ -152,7 +152,7 @@ public partial class OrderItemReport : IAsyncDisposable
         }
         catch (Exception ex)
         {
-			await _toastNotification.ShowAsync("Error", $"Failed to load orders: {ex.Message}", ToastType.Error);
+            await _toastNotification.ShowAsync("Error", $"Failed to load orders: {ex.Message}", ToastType.Error);
         }
         finally
         {
@@ -214,7 +214,7 @@ public partial class OrderItemReport : IAsyncDisposable
         {
             _isProcessing = true;
             StateHasChanged();
-			await _toastNotification.ShowAsync("Exporting", "Generating Excel file...", ToastType.Info);
+            await _toastNotification.ShowAsync("Exporting", "Generating Excel file...", ToastType.Info);
 
             DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
             DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
@@ -235,7 +235,7 @@ public partial class OrderItemReport : IAsyncDisposable
             fileName += ".xlsx";
 
             await SaveAndViewService.SaveAndView(fileName, stream);
-			await _toastNotification.ShowAsync("Exported", "Excel file downloaded successfully.", ToastType.Success);
+            await _toastNotification.ShowAsync("Exported", "Excel file downloaded successfully.", ToastType.Success);
         }
         catch (Exception ex)
         {
@@ -257,7 +257,7 @@ public partial class OrderItemReport : IAsyncDisposable
         {
             _isProcessing = true;
             StateHasChanged();
-			await _toastNotification.ShowAsync("Exporting", "Generating PDF file...", ToastType.Info);
+            await _toastNotification.ShowAsync("Exporting", "Generating PDF file...", ToastType.Info);
 
             DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
             DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
@@ -278,7 +278,7 @@ public partial class OrderItemReport : IAsyncDisposable
             fileName += ".pdf";
 
             await SaveAndViewService.SaveAndView(fileName, stream);
-			await _toastNotification.ShowAsync("Exported", "PDF file downloaded successfully.", ToastType.Success);
+            await _toastNotification.ShowAsync("Exported", "PDF file downloaded successfully.", ToastType.Success);
         }
         catch (Exception ex)
         {
@@ -290,19 +290,19 @@ public partial class OrderItemReport : IAsyncDisposable
             StateHasChanged();
         }
     }
-	#endregion
+    #endregion
 
-	#region Actions
-	private async Task ViewSelectedCartItem()
-	{
-		if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-			return;
+    #region Actions
+    private async Task ViewSelectedCartItem()
+    {
+        if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+            return;
 
-		var selectedCartItem = _sfGrid.SelectedRecords.First();
-		await ViewTransaction(selectedCartItem.MasterId);
-	}
+        var selectedCartItem = _sfGrid.SelectedRecords.First();
+        await ViewTransaction(selectedCartItem.MasterId);
+    }
 
-	private async Task ViewTransaction(int transactionId)
+    private async Task ViewTransaction(int transactionId)
     {
         try
         {
@@ -313,29 +313,29 @@ public partial class OrderItemReport : IAsyncDisposable
         }
         catch (Exception ex)
         {
-			await _toastNotification.ShowAsync("Error", $"An error occurred while opening transaction: {ex.Message}", ToastType.Error);
+            await _toastNotification.ShowAsync("Error", $"An error occurred while opening transaction: {ex.Message}", ToastType.Error);
         }
     }
 
-	private async Task DownloadSelectedCartItemPdfInvoice()
-	{
-		if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-			return;
+    private async Task DownloadSelectedCartItemPdfInvoice()
+    {
+        if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+            return;
 
-		var selectedCartItem = _sfGrid.SelectedRecords.First();
-		await DownloadPdfInvoice(selectedCartItem.MasterId);
-	}
+        var selectedCartItem = _sfGrid.SelectedRecords.First();
+        await DownloadPdfInvoice(selectedCartItem.MasterId);
+    }
 
-	private async Task DownloadSelectedCartItemExcelInvoice()
-	{
-		if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-			return;
+    private async Task DownloadSelectedCartItemExcelInvoice()
+    {
+        if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+            return;
 
-		var selectedCartItem = _sfGrid.SelectedRecords.First();
-		await DownloadExcelInvoice(selectedCartItem.MasterId);
-	}
+        var selectedCartItem = _sfGrid.SelectedRecords.First();
+        await DownloadExcelInvoice(selectedCartItem.MasterId);
+    }
 
-	private async Task DownloadPdfInvoice(int transactionId)
+    private async Task DownloadPdfInvoice(int transactionId)
     {
         if (_isProcessing)
             return;
@@ -344,12 +344,12 @@ public partial class OrderItemReport : IAsyncDisposable
         {
             _isProcessing = true;
             StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
+            await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
 
             var (pdfStream, fileName) = await OrderData.GenerateAndDownloadInvoice(transactionId);
             await SaveAndViewService.SaveAndView(fileName, pdfStream);
-			await _toastNotification.ShowAsync("Success", "PDF invoice downloaded successfully.", ToastType.Success);
-		}
+            await _toastNotification.ShowAsync("Success", "PDF invoice downloaded successfully.", ToastType.Success);
+        }
         catch (Exception ex)
         {
             await _toastNotification.ShowAsync("Error", $"An error occurred while generating PDF invoice: {ex.Message}", ToastType.Error);
@@ -361,31 +361,31 @@ public partial class OrderItemReport : IAsyncDisposable
         }
     }
 
-	private async Task DownloadExcelInvoice(int transactionId)
-	{
-		if (_isProcessing)
-			return;
+    private async Task DownloadExcelInvoice(int transactionId)
+    {
+        if (_isProcessing)
+            return;
 
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
+        try
+        {
+            _isProcessing = true;
+            StateHasChanged();
+            await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
 
-			var (excelStream, fileName) = await OrderData.GenerateAndDownloadExcelInvoice(transactionId);
-			await SaveAndViewService.SaveAndView(fileName, excelStream);
-			await _toastNotification.ShowAsync("Success", "Excel invoice downloaded successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"An error occurred while generating Excel invoice: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			StateHasChanged();
-		}
-	}
+            var (excelStream, fileName) = await OrderData.GenerateAndDownloadExcelInvoice(transactionId);
+            await SaveAndViewService.SaveAndView(fileName, excelStream);
+            await _toastNotification.ShowAsync("Success", "Excel invoice downloaded successfully.", ToastType.Success);
+        }
+        catch (Exception ex)
+        {
+            await _toastNotification.ShowAsync("Error", $"An error occurred while generating Excel invoice: {ex.Message}", ToastType.Error);
+        }
+        finally
+        {
+            _isProcessing = false;
+            StateHasChanged();
+        }
+    }
 
     private async Task ToggleDetailsView()
     {
@@ -420,50 +420,49 @@ public partial class OrderItemReport : IAsyncDisposable
             NavigationManager.NavigateTo(PageRouteNames.ReportOrder);
     }
 
-	private async Task NavigateToDashboard() =>
-		NavigationManager.NavigateTo(PageRouteNames.Dashboard);
+    private async Task NavigateToDashboard() =>
+        NavigationManager.NavigateTo(PageRouteNames.Dashboard);
 
-	private async Task NavigateBack() =>
-		NavigationManager.NavigateTo(PageRouteNames.SalesDashboard);
+    private async Task NavigateBack() =>
+        NavigationManager.NavigateTo(PageRouteNames.SalesDashboard);
 
-	private async Task StartAutoRefresh()
-	{
-		var timerSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.AutoRefreshReportTimer);
-		var refreshMinutes = int.TryParse(timerSetting?.Value, out var minutes) ? minutes : 5;
+    private async Task StartAutoRefresh()
+    {
+        var timerSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.AutoRefreshReportTimer);
+        var refreshMinutes = int.TryParse(timerSetting?.Value, out var minutes) ? minutes : 5;
 
-		_autoRefreshCts = new CancellationTokenSource();
-		_autoRefreshTimer = new PeriodicTimer(TimeSpan.FromMinutes(refreshMinutes));
-		_ = AutoRefreshLoop(_autoRefreshCts.Token);
-	}
+        _autoRefreshCts = new CancellationTokenSource();
+        _autoRefreshTimer = new PeriodicTimer(TimeSpan.FromMinutes(refreshMinutes));
+        _ = AutoRefreshLoop(_autoRefreshCts.Token);
+    }
 
-	private async Task AutoRefreshLoop(CancellationToken cancellationToken)
-	{
-		try
-		{
-			while (await _autoRefreshTimer.WaitForNextTickAsync(cancellationToken))
-				await InvokeAsync(async () =>
-				{
-					await LoadTransactionOverviews();
-				});
-		}
-		catch (OperationCanceledException)
-		{
-			// Timer was cancelled, expected on dispose
-		}
-	}
+    private async Task AutoRefreshLoop(CancellationToken cancellationToken)
+    {
+        try
+        {
+            while (await _autoRefreshTimer.WaitForNextTickAsync(cancellationToken))
+                await LoadTransactionOverviews();
+        }
+        catch (OperationCanceledException)
+        {
+            // Timer was cancelled, expected on dispose
+        }
+    }
 
-	public async ValueTask DisposeAsync()
-	{
-		if (_autoRefreshCts is not null)
-		{
-			await _autoRefreshCts.CancelAsync();
-			_autoRefreshCts.Dispose();
-		}
+    public async ValueTask DisposeAsync()
+    {
+        if (_autoRefreshCts is not null)
+        {
+            await _autoRefreshCts.CancelAsync();
+            _autoRefreshCts.Dispose();
+        }
 
-		_autoRefreshTimer?.Dispose();
+        _autoRefreshTimer?.Dispose();
 
-		if (_hotKeysContext is not null)
-			await _hotKeysContext.DisposeAsync();
-	}
-	#endregion
+        if (_hotKeysContext is not null)
+            await _hotKeysContext.DisposeAsync();
+
+        GC.SuppressFinalize(this);
+    }
+    #endregion
 }

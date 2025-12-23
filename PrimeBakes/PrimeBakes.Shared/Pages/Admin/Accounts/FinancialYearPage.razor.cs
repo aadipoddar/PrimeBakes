@@ -393,11 +393,16 @@ public partial class FinancialYearPage : IAsyncDisposable
         if (selectedRecords.Count > 0)
         {
             if (selectedRecords[0].Status)
-                ShowDeleteConfirmation(selectedRecords[0].Id, GetFinancialYearName(selectedRecords[0]));
+                await ShowDeleteConfirmation(selectedRecords[0].Id, GetFinancialYearName(selectedRecords[0]));
             else
-                ShowRecoverConfirmation(selectedRecords[0].Id, GetFinancialYearName(selectedRecords[0]));
+                await ShowRecoverConfirmation(selectedRecords[0].Id, GetFinancialYearName(selectedRecords[0]));
         }
     }
 
-    public async ValueTask DisposeAsync() => await _hotKeysContext.DisposeAsync();
+    public async ValueTask DisposeAsync()
+    {
+        if (_hotKeysContext is not null)
+            await _hotKeysContext.DisposeAsync();
+        GC.SuppressFinalize(this);
+    }
 }

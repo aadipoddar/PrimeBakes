@@ -454,11 +454,16 @@ public partial class RawMaterialPage : IAsyncDisposable
         if (selectedRecords.Count > 0)
         {
             if (selectedRecords[0].Status)
-                ShowDeleteConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
+                await ShowDeleteConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
             else
-                ShowRecoverConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
+                await ShowRecoverConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
         }
     }
 
-    public async ValueTask DisposeAsync() => await _hotKeysContext.DisposeAsync();
+    public async ValueTask DisposeAsync()
+    {
+        if (_hotKeysContext is not null)
+            await _hotKeysContext.DisposeAsync();
+        GC.SuppressFinalize(this);
+    }
 }

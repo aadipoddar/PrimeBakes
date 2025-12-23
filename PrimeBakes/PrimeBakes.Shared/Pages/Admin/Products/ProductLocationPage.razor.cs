@@ -76,7 +76,7 @@ public partial class ProductLocationPage : IAsyncDisposable
             else
                 _productLocationOverviews = await CommonData.LoadTableData<ProductLocationOverviewModel>(ViewNames.ProductLocationOverview);
 
-			if (_sfGrid is not null)
+            if (_sfGrid is not null)
                 await _sfGrid.Refresh();
         }
         catch (Exception ex)
@@ -373,9 +373,14 @@ public partial class ProductLocationPage : IAsyncDisposable
         {
             var productLocation = _productLocations.FirstOrDefault(pl => pl.Id == selectedRecords[0].Id);
             if (productLocation is { Status: true })
-                ShowDeleteConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
+                await ShowDeleteConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
         }
     }
 
-    public async ValueTask DisposeAsync() => await _hotKeysContext.DisposeAsync();
+    public async ValueTask DisposeAsync()
+    {
+        if (_hotKeysContext is not null)
+            await _hotKeysContext.DisposeAsync();
+        GC.SuppressFinalize(this);
+    }
 }

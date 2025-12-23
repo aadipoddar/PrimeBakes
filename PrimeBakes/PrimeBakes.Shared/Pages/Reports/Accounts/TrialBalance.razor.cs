@@ -18,11 +18,11 @@ namespace PrimeBakes.Shared.Pages.Reports.Accounts;
 
 public partial class TrialBalance : IAsyncDisposable
 {
-	private HotKeysContext _hotKeysContext;
-	private PeriodicTimer _autoRefreshTimer;
-	private CancellationTokenSource _autoRefreshCts;
+    private HotKeysContext _hotKeysContext;
+    private PeriodicTimer _autoRefreshTimer;
+    private CancellationTokenSource _autoRefreshCts;
 
-	private UserModel _user;
+    private UserModel _user;
 
     private bool _isLoading = true;
     private bool _isProcessing = false;
@@ -47,7 +47,7 @@ public partial class TrialBalance : IAsyncDisposable
         if (!firstRender)
             return;
 
-		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, UserRoles.Accounts, true);
+        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, UserRoles.Accounts, true);
         await LoadData();
         _isLoading = false;
         StateHasChanged();
@@ -63,9 +63,9 @@ public partial class TrialBalance : IAsyncDisposable
             .Add(ModCode.Ctrl, Code.N, NavigateToTransactionPage, "New Transaction", Exclude.None)
             .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
             .Add(ModCode.Ctrl, Code.I, NavigateToLedgerReport, "Ledger Report", Exclude.None)
-			.Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None);
+            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None);
 
-		await LoadDates();
+        await LoadDates();
         await LoadGroups();
         await LoadAccountTypes();
         await LoadTrialBalance();
@@ -198,7 +198,7 @@ public partial class TrialBalance : IAsyncDisposable
             fileName += ".xlsx";
 
             await SaveAndViewService.SaveAndView(fileName, stream);
-			await _toastNotification.ShowAsync("Exported", "Excel file downloaded successfully.", ToastType.Success);
+            await _toastNotification.ShowAsync("Exported", "Excel file downloaded successfully.", ToastType.Success);
         }
         catch (Exception ex)
         {
@@ -240,7 +240,7 @@ public partial class TrialBalance : IAsyncDisposable
             fileName += ".pdf";
 
             await SaveAndViewService.SaveAndView(fileName, stream);
-			await _toastNotification.ShowAsync("Exported", "PDF file downloaded successfully.", ToastType.Success);
+            await _toastNotification.ShowAsync("Exported", "PDF file downloaded successfully.", ToastType.Success);
         }
         catch (Exception ex)
         {
@@ -280,50 +280,49 @@ public partial class TrialBalance : IAsyncDisposable
             NavigationManager.NavigateTo(PageRouteNames.ReportAccountingLedger);
     }
 
-	private async Task NavigateToDashboard() =>
-		NavigationManager.NavigateTo(PageRouteNames.Dashboard);
+    private async Task NavigateToDashboard() =>
+        NavigationManager.NavigateTo(PageRouteNames.Dashboard);
 
-	private async Task NavigateBack() =>
-		NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
+    private async Task NavigateBack() =>
+        NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
 
-	private async Task StartAutoRefresh()
-	{
-		var timerSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.AutoRefreshReportTimer);
-		var refreshMinutes = int.TryParse(timerSetting?.Value, out var minutes) ? minutes : 5;
+    private async Task StartAutoRefresh()
+    {
+        var timerSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.AutoRefreshReportTimer);
+        var refreshMinutes = int.TryParse(timerSetting?.Value, out var minutes) ? minutes : 5;
 
-		_autoRefreshCts = new CancellationTokenSource();
-		_autoRefreshTimer = new PeriodicTimer(TimeSpan.FromMinutes(refreshMinutes));
-		_ = AutoRefreshLoop(_autoRefreshCts.Token);
-	}
+        _autoRefreshCts = new CancellationTokenSource();
+        _autoRefreshTimer = new PeriodicTimer(TimeSpan.FromMinutes(refreshMinutes));
+        _ = AutoRefreshLoop(_autoRefreshCts.Token);
+    }
 
-	private async Task AutoRefreshLoop(CancellationToken cancellationToken)
-	{
-		try
-		{
-			while (await _autoRefreshTimer.WaitForNextTickAsync(cancellationToken))
-				await InvokeAsync(async () =>
-				{
-					await LoadTrialBalance();
-				});
-		}
-		catch (OperationCanceledException)
-		{
-			// Timer was cancelled, expected on dispose
-		}
-	}
+    private async Task AutoRefreshLoop(CancellationToken cancellationToken)
+    {
+        try
+        {
+            while (await _autoRefreshTimer.WaitForNextTickAsync(cancellationToken))
+                await LoadTrialBalance();
+        }
+        catch (OperationCanceledException)
+        {
+            // Timer was cancelled, expected on dispose
+        }
+    }
 
-	public async ValueTask DisposeAsync()
-	{
-		if (_autoRefreshCts is not null)
-		{
-			await _autoRefreshCts.CancelAsync();
-			_autoRefreshCts.Dispose();
-		}
+    public async ValueTask DisposeAsync()
+    {
+        if (_autoRefreshCts is not null)
+        {
+            await _autoRefreshCts.CancelAsync();
+            _autoRefreshCts.Dispose();
+        }
 
-		_autoRefreshTimer?.Dispose();
+        _autoRefreshTimer?.Dispose();
 
-		if (_hotKeysContext is not null)
-			await _hotKeysContext.DisposeAsync();
-	}
-	#endregion
+        if (_hotKeysContext is not null)
+            await _hotKeysContext.DisposeAsync();
+
+        GC.SuppressFinalize(this);
+    }
+    #endregion
 }
