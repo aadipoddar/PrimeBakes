@@ -85,10 +85,7 @@ public partial class FinancialYearPage : IAsyncDisposable
         StateHasChanged();
     }
 
-    private string GetFinancialYearName(FinancialYearModel fy)
-    {
-        return $"{fy.StartDate:dd-MMM-yyyy} to {fy.EndDate:dd-MMM-yyyy}";
-    }
+    private string GetFinancialYearName(FinancialYearModel fy) => $"{fy.StartDate:dd-MMM-yyyy} to {fy.EndDate:dd-MMM-yyyy}";
 
     private void AutoGenerateNextYear()
     {
@@ -402,8 +399,5 @@ public partial class FinancialYearPage : IAsyncDisposable
         }
     }
 
-    public async ValueTask DisposeAsync()
-    {
-        await _hotKeysContext.DisposeAsync();
-    }
+    public async ValueTask DisposeAsync() => await _hotKeysContext.DisposeAsync();
 }

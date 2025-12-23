@@ -1,0 +1,14 @@
+<Solution>
+  <Project Path="DBPrimeBakes/DBPrimeBakes.sqlproj" Id="4d32fffa-477f-468f-9585-68d093b452b9">
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="ExcelImportProduct/ExcelImportProduct.csproj" />
+  <Project Path="PrimeBakes/PrimeBakes.Shared/PrimeBakes.Shared.csproj" />
+  <Project Path="PrimeBakes/PrimeBakes.Web/PrimeBakes.Web.csproj" />
+  <Project Path="PrimeBakes/PrimeBakes/PrimeBakes.csproj">
+    <Deploy Solution="Debug|*" />
+  </Project>
+  <Project Path="PrimeBakesLibrary/PrimeBakesLibrary.csproj" />
+  <Project Path="PushNotificationsAPI/PushNotificationsAPI.csproj" />
+</Solution>

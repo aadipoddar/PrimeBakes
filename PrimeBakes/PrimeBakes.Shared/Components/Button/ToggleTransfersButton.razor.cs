@@ -13,8 +13,5 @@ public partial class ToggleTransfersButton
 	[Parameter]
 	public EventCallback OnToggle { get; set; }
 
-	private async Task HandleClick()
-	{
-		await OnToggle.InvokeAsync();
-	}
+    private async Task HandleClick() => await OnToggle.InvokeAsync();
 }

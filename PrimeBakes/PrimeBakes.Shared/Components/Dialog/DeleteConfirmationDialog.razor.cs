@@ -44,10 +44,7 @@ public partial class DeleteConfirmationDialog
         await Task.CompletedTask;
     }
 
-    private async Task HandleConfirm()
-    {
-        await OnConfirm.InvokeAsync();
-    }
+    private async Task HandleConfirm() => await OnConfirm.InvokeAsync();
 
     private async Task HandleCancel()
     {

@@ -41,10 +41,7 @@ public partial class RecoverConfirmationDialog
         await Task.CompletedTask;
     }
 
-    private async Task HandleConfirm()
-    {
-        await OnConfirm.InvokeAsync();
-    }
+    private async Task HandleConfirm() => await OnConfirm.InvokeAsync();
 
     private async Task HandleCancel()
     {

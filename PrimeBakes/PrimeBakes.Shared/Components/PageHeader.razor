@@ -21,7 +21,7 @@
         }
         @if (ShowLogout)
         {
-            <IconButton Icon="IconType.Logout" Title="Logout (Ctrl + L)" OnClick="OnLogoutClick" />
+            <IconButton Icon="IconType.Logout" Variant="ButtonVariant.Logout" Title="Logout (Ctrl + L)" OnClick="OnLogoutClick" />
         }
         @if (ShowHome)
         {
@@ -118,6 +118,17 @@
         background: #f8fafc;
         border-radius: 8px;
         border: 1px solid #e2e8f0;
+    }
+
+    /* Hide title and subtitle on smaller displays (phones) */
+    @@media (max-width: 768px) {
+        .page-header {
+            grid-template-columns: auto 1fr;
+        }
+        
+        .header-center {
+            display: none;
+        }
     }
 
 </style>

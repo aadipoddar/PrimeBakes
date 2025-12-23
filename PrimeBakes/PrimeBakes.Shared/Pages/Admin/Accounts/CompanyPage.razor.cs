@@ -404,8 +404,5 @@ public partial class CompanyPage : IAsyncDisposable
 		}
 	}
 
-	public async ValueTask DisposeAsync()
-	{
-		await _hotKeysContext.DisposeAsync();
-	}
+    public async ValueTask DisposeAsync() => await _hotKeysContext.DisposeAsync();
 }

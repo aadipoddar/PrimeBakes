@@ -23,10 +23,7 @@ public class MainActivity : MauiAppCompatActivity, Android.Gms.Tasks.IOnSuccessL
 
     IDeviceInstallationService DeviceInstallationService => _deviceInstallationService ??= IPlatformApplication.Current.Services.GetService<IDeviceInstallationService>();
 
-    public void OnSuccess(Java.Lang.Object result)
-    {
-        DeviceInstallationService.Token = result.ToString();
-    }
+    public void OnSuccess(Java.Lang.Object result) => DeviceInstallationService.Token = result.ToString();
 
     void ProcessNotificationsAction(Intent intent)
     {

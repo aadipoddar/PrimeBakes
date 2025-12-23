@@ -378,16 +378,13 @@ public partial class UserPage : IAsyncDisposable
 			StateHasChanged();
 		}
 	}
-	#endregion
+    #endregion
 
-	#region Utilities
-	private void ResetPage()
-	{
-		NavigationManager.NavigateTo(PageRouteNames.AdminUser, true);
-	}
-	#endregion
+    #region Utilities
+    private void ResetPage() => NavigationManager.NavigateTo(PageRouteNames.AdminUser, true);
+    #endregion
 
-	private async Task EditSelectedItem()
+    private async Task EditSelectedItem()
 	{
 		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
 		if (selectedRecords.Count > 0)
@@ -406,8 +403,5 @@ public partial class UserPage : IAsyncDisposable
 		}
 	}
 
-	public async ValueTask DisposeAsync()
-	{
-		await _hotKeysContext.DisposeAsync();
-	}
+    public async ValueTask DisposeAsync() => await _hotKeysContext.DisposeAsync();
 }

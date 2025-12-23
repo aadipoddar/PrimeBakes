@@ -111,13 +111,7 @@ public class PreviewControllerDS(QLPreviewItem item) : QLPreviewControllerDataSo
 {
     private readonly QLPreviewItem _item = item;
 
-    public override nint PreviewItemCount(QLPreviewController controller)
-    {
-        return 1;
-    }
+    public override nint PreviewItemCount(QLPreviewController controller) => 1;
 
-    public override IQLPreviewItem GetPreviewItem(QLPreviewController controller, nint index)
-    {
-        return _item;
-    }
+    public override IQLPreviewItem GetPreviewItem(QLPreviewController controller, nint index) => _item;
 }

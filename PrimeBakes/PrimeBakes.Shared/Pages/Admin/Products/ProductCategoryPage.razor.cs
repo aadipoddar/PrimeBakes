@@ -343,8 +343,5 @@ public partial class ProductCategoryPage : IAsyncDisposable
 		}
 	}
 
-	public async ValueTask DisposeAsync()
-	{
-		await _hotKeysContext.DisposeAsync();
-	}
+    public async ValueTask DisposeAsync() => await _hotKeysContext.DisposeAsync();
 }

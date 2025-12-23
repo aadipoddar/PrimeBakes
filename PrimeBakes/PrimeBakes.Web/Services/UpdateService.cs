@@ -10,8 +10,5 @@ public class UpdateService : IUpdateService
         return false;
     }
 
-    public async Task UpdateAppAsync(string githubRepoOwner, string githubRepoName, string setupAPKName, IProgress<int> progress = null)
-    {
-        await Task.CompletedTask;
-    }
+    public async Task UpdateAppAsync(string githubRepoOwner, string githubRepoName, string setupAPKName, IProgress<int> progress = null) => await Task.CompletedTask;
 }

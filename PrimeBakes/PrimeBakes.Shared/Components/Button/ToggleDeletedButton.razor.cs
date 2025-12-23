@@ -13,8 +13,5 @@ public partial class ToggleDeletedButton
 	[Parameter]
 	public EventCallback OnToggle { get; set; }
 
-	private async Task HandleClick()
-	{
-		await OnToggle.InvokeAsync();
-	}
+    private async Task HandleClick() => await OnToggle.InvokeAsync();
 }

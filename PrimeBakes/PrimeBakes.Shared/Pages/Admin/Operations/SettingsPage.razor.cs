@@ -500,21 +500,15 @@ public partial class SettingsPage : IAsyncDisposable
 		await SettingsData.UpdateSettings(setting);
 	}
 
-	#endregion
+    #endregion
 
-	#region Reset Settings
+    #region Reset Settings
 
-	private void ShowResetConfirmation()
-	{
-		_isResetDialogVisible = true;
-	}
+    private void ShowResetConfirmation() => _isResetDialogVisible = true;
 
-	private void CancelReset()
-	{
-		_isResetDialogVisible = false;
-	}
+    private void CancelReset() => _isResetDialogVisible = false;
 
-	private async Task ConfirmReset()
+    private async Task ConfirmReset()
 	{
 		try
 		{
@@ -541,10 +535,7 @@ public partial class SettingsPage : IAsyncDisposable
 		}
 	}
 
-	#endregion
+    #endregion
 
-	public async ValueTask DisposeAsync()
-	{
-		await _hotKeysContext.DisposeAsync();
-	}
+    public async ValueTask DisposeAsync() => await _hotKeysContext.DisposeAsync();
 }

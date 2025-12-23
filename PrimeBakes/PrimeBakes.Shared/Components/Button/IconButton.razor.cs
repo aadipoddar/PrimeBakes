@@ -115,7 +115,8 @@ public enum ButtonVariant
 	Edit,
 	Delete,
 	Add,
-	Recover
+	Recover,
+	Logout
 }
 
 public enum ButtonSize

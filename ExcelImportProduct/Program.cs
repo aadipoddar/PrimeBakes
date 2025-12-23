@@ -1,25 +1,4 @@
-﻿
-using OfficeOpenXml;
-
-using PrimeBakesLibrary.Data;
-using PrimeBakesLibrary.Data.Accounts.FinancialAccounting;
-using PrimeBakesLibrary.Data.Accounts.Masters;
-using PrimeBakesLibrary.Data.Common;
-using PrimeBakesLibrary.Data.Inventory.Kitchen;
-using PrimeBakesLibrary.Data.Inventory.Purchase;
-using PrimeBakesLibrary.Data.Sales.Order;
-using PrimeBakesLibrary.Data.Sales.Sale;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Models.Accounts.FinancialAccounting;
-using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Inventory.Kitchen;
-using PrimeBakesLibrary.Models.Inventory.Purchase;
-using PrimeBakesLibrary.Models.Sales.Order;
-using PrimeBakesLibrary.Models.Sales.Sale;
-
-using Syncfusion.XlsIO;
-
-//FileInfo fileInfo = new(@"C:\Others\order.xlsx");
+﻿//FileInfo fileInfo = new(@"C:\Others\order.xlsx");
 
 //ExcelPackage.License.SetNonCommercialPersonal("AadiSoft");
 
@@ -30,6 +9,18 @@ using Syncfusion.XlsIO;
 //var worksheet1 = package.Workbook.Worksheets[0];
 //var worksheet2 = package.Workbook.Worksheets[1];
 
+
+using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Data.Sales.Product;
+using PrimeBakesLibrary.DataAccess;
+using PrimeBakesLibrary.Models.Sales.Product;
+
+await UpdatePrices();
+
+Console.WriteLine("Finished importing Items.");
+Console.ReadLine();
+
+#region UnusedMethods
 // await InsertProducts(worksheet);
 
 // await UpdateProducts();
@@ -56,7 +47,7 @@ using Syncfusion.XlsIO;
 
 // await UpdateRMStockPurchaseIssue();
 
-//await UpdateProductStockSaleAndReturn();
+// await UpdateProductStockSaleAndReturn();
 
 // await InsertIssues(worksheet1, worksheet2);
 
@@ -76,10 +67,7 @@ using Syncfusion.XlsIO;
 
 // await InsertSaleAccounting();
 
-Console.WriteLine("Finished importing Items.");
-Console.ReadLine();
-
-#region UnusedMethods
+// await DeleteRawMaterial(worksheet1);
 
 //static async Task UpdateProducts()
 //{
@@ -1521,6 +1509,42 @@ Console.ReadLine();
 //	}
 //}
 
+//static async Task InsertSaleAccounting()
+//{
+//	Dapper.SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
+//	var sales = await CommonData.LoadTableDataByStatus<SaleOverviewModel>(ViewNames.SaleOverview);
+//	sales = [.. sales.Where(s => s.LocationId != 1)];
+
+//	foreach (var sale in sales)
+//	{
+//		Console.WriteLine("Inserting Accounting for Sale Id: " + sale.Id);
+
+//		var s = await CommonData.LoadTableDataById<SaleModel>(TableNames.Sale, sale.Id);
+//		await SaleData.SaveAccounting(s, false);
+//	}
+//}
+
+//static async Task DeleteRawMaterial(ExcelWorksheet worksheet1)
+//{
+//    Dapper.SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
+//    var row = 2;
+//    List<int> rawMaterialIds = [];
+//    while (worksheet1.Cells[row, 1].Value != null)
+//    {
+//        var id = worksheet1.Cells[row, 1].Value.ToString();
+//        rawMaterialIds.Add(int.Parse(id));
+//        row++;
+//    }
+//    Console.WriteLine("Loaded " + rawMaterialIds.Count + " raw material ids to delete.");
+//    foreach (var rawMaterialId in rawMaterialIds)
+//    {
+//        Console.WriteLine("Deleting Raw Material Id: " + rawMaterialId);
+//        var rawMaterial = await CommonData.LoadTableDataById<RawMaterialModel>(TableNames.RawMaterial, rawMaterialId);
+//        rawMaterial.Status = false;
+//        await RawMaterialData.InsertRawMaterial(rawMaterial);
+//    }
+//}
+
 //class PurchaseModelOld
 //{
 //	public int Id { get; set; }
@@ -1693,17 +1717,15 @@ Console.ReadLine();
 //}
 #endregion
 
-//static async Task InsertSaleAccounting()
-//{
-//	Dapper.SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
-//	var sales = await CommonData.LoadTableDataByStatus<SaleOverviewModel>(ViewNames.SaleOverview);
-//	sales = [.. sales.Where(s => s.LocationId != 1)];
+static async Task UpdatePrices()
+{
+    var productLocations = await CommonData.LoadTableDataByStatus<ProductLocationModel>(TableNames.ProductLocation);
+    productLocations = [.. productLocations.Where(pl => pl.LocationId == 34)];
 
-//	foreach (var sale in sales)
-//	{
-//		Console.WriteLine("Inserting Accounting for Sale Id: " + sale.Id);
-
-//		var s = await CommonData.LoadTableDataById<SaleModel>(TableNames.Sale, sale.Id);
-//		await SaleData.SaveAccounting(s, false);
-//	}
-//}
+    foreach (var pl in productLocations)
+    {
+        var product = await CommonData.LoadTableDataById<ProductModel>(TableNames.Product, pl.ProductId);
+        pl.Rate = product.Rate;
+        await ProductData.InsertProductLocation(pl);
+    }
+}
