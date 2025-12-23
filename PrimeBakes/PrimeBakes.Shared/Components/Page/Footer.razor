@@ -107,4 +107,27 @@
             color: #2563eb;
             text-decoration: underline;
         }
+
+    /* Mobile/Tablet - Hide platform and factor info on smaller displays */
+    @@media (max-width: 768px) {
+        .platform-info,
+        .factor-info {
+            display: none;
+        }
+
+        .footer-content {
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .device-info {
+            justify-content: center;
+        }
+
+        .copyright {
+            text-align: center;
+            white-space: normal;
+        }
+    }
 </style>

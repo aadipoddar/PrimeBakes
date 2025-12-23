@@ -4,7 +4,9 @@
              xmlns:local="clr-namespace:PrimeBakes"
              xmlns:shared="clr-namespace:PrimeBakes.Shared;assembly=PrimeBakes.Shared"
              x:Class="PrimeBakes.MainPage"
-             BackgroundColor="{DynamicResource PageBackgroundColor}">
+             BackgroundColor="{DynamicResource PageBackgroundColor}"
+             Padding="0"
+             SafeAreaEdges="All">
 
     <BlazorWebView x:Name="blazorWebView" HostPage="wwwroot/index.html">
         <BlazorWebView.RootComponents>
