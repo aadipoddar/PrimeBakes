@@ -173,20 +173,20 @@ else
                             </SfNumericTextBox>
                         </div>
 
-                        <div class="cart-field cart-field-remarks">
+                        <div class="cart-field">
                             <label class="cart-label">Remarks</label>
                             <SfTextBox @bind-Value="_selectedCart.Remarks" Placeholder="Product Narration..."
                                        FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox identification-input" />
                         </div>
 
-                        <div class="cart-field cart-field-total">
+                        <div class="cart-field">
                             <label class="cart-label">Total</label>
                             <div class="total-display-inline">
                                 <span class="amount-value">@_selectedCart.Total.ToString("N2")</span>
                             </div>
                         </div>
 
-                        <div class="cart-field cart-field-button">
+                        <div class="cart-field">
                             <label class="cart-label" style="visibility: hidden;">Action</label>
                             <IconButton Icon="IconType.Add" Variant="ButtonVariant.Add" Text="Add" Title="Add to Cart" OnClick="AddItemToCart" />
                         </div>
@@ -647,18 +647,6 @@ else
 
     .cart-field-small {
         /* Qty, Rate - 1fr each */
-    }
-
-    .cart-field-remarks {
-        /* Remarks - 2fr */
-    }
-
-    .cart-field-total {
-        /* Total - 1.2fr */
-    }
-
-    .cart-field-button {
-        /* Add button - 120px */
     }
 
     .cart-label {

@@ -398,7 +398,7 @@ else
                             </SfNumericTextBox>
                         </div>
 
-                        <div class="cart-field cart-field-button">
+                        <div class="cart-field">
                             <div class="checkbox-wrapper">
                                 <SfCheckBox @bind-Checked="_selectedCart.InclusiveTax" Label="Tax Incl." TChecked="bool"
                                             ValueChange="OnItemInclusiveTaxChanged" CssClass="custom-checkbox" />
@@ -960,11 +960,6 @@ else
 
     .cart-field-medium {
         grid-column: span 1;
-    }
-
-    .cart-field-button {
-        display: flex;
-        align-items: flex-end;
     }
 
     .cart-label {

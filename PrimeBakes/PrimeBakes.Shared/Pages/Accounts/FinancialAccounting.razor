@@ -225,7 +225,7 @@ else
                 <div class="section-body">
                     <!-- Single Row: All Components -->
                     <div class="cart-row">
-                        <div class="cart-field cart-field-ledger">
+                        <div class="cart-field">
                             <label class="cart-label">Ledger <span class="required">*</span></label>
                             <SfAutoComplete @ref="_sfLedgerAutoComplete" Value="@_selectedLedger" TValue="LedgerModel ?"
                                             TItem="LedgerModel" DataSource="@_ledgers" Placeholder="Select Ledger (Ctrl + E)"
@@ -236,21 +236,21 @@ else
                             </SfAutoComplete>
                         </div>
 
-                        <div class="cart-field cart-field-amount">
+                        <div class="cart-field">
                             <label class="cart-label">Debit</label>
                             <SfNumericTextBox @bind-Value="_selectedCart.Debit" TValue="decimal?" Min="0" ShowSpinButton="false"
                                               Placeholder="0.00" FloatLabelType="FloatLabelType.Never" Format="N2"
                                               CssClass="custom-numeric editable-field" />
                         </div>
 
-                        <div class="cart-field cart-field-amount">
+                        <div class="cart-field">
                             <label class="cart-label">Credit</label>
                             <SfNumericTextBox @bind-Value="_selectedCart.Credit" TValue="decimal?" Min="0"
                                               ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never" Format="N2"
                                               CssClass="custom-numeric editable-field" />
                         </div>
 
-                        <div class="cart-field cart-field-button">
+                        <div class="cart-field">
                             <label class="cart-label" style="visibility: hidden;">Action</label>
                             <button class="btn-get-references" @onclick="GetReferences">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
@@ -263,7 +263,7 @@ else
                             </button>
                         </div>
 
-                        <div class="cart-field cart-field-reference">
+                        <div class="cart-field">
                             <label class="cart-label">Ref No</label>
                             <SfAutoComplete Value="@_selectedAccountingLedger" TValue="AccountingLedgerOverviewModel"
                                             TItem="AccountingLedgerOverviewModel" DataSource="@_accountingLedgers"
@@ -275,7 +275,7 @@ else
                             </SfAutoComplete>
                         </div>
 
-                        <div class="cart-field cart-field-actions">
+                        <div class="cart-field">
                             <label class="cart-label" style="visibility: hidden;">Actions</label>
                             <div class="cart-action-buttons">
                                 <button class="btn-cart-action" title="View Invoice" @onclick="ViewCartReferenceInvoice">
@@ -299,12 +299,12 @@ else
                             </div>
                         </div>
 
-                        <div class="cart-field cart-field-remarks">
+                        <div class="cart-field">
                             <label class="cart-label">Remarks</label>
                             <SfTextBox @bind-Value="_selectedCart.Remarks" Placeholder="Entry narration..." FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox identification-input" />
                         </div>
 
-                        <div class="cart-field cart-field-button">
+                        <div class="cart-field">
                             <IconButton Icon="IconType.Add" Variant="ButtonVariant.Add" Text="Add" Title="Add to Cart" OnClick="AddItemToCart" />
                         </div>
                     </div>
@@ -673,30 +673,6 @@ else
         display: flex;
         flex-direction: column;
         gap: 4px;
-    }
-
-    .cart-field-ledger {
-        /* Ledger field - 2fr */
-    }
-
-    .cart-field-amount {
-        /* Debit/Credit - 1fr each */
-    }
-
-    .cart-field-reference {
-        /* Reference fields - 1fr each */
-    }
-
-    .cart-field-remarks {
-        /* Remarks - 2fr */
-    }
-
-    .cart-field-button {
-        /* Add button - 120px */
-    }
-
-    .cart-field-actions {
-        /* Action buttons container */
     }
 
     .cart-action-buttons {

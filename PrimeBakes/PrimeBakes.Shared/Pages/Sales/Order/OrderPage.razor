@@ -227,14 +227,14 @@ else
                         </div>
 
                         <!-- Item Remarks -->
-                        <div class="cart-field cart-field-remarks">
+                        <div class="cart-field">
                             <label class="cart-label">Remarks</label>
                             <SfTextBox @bind-Value="_selectedCart.Remarks" Placeholder="Item Narration..."
                                        FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
                         </div>
 
                         <!-- Add Button -->
-                        <div class="cart-field cart-field-button">
+                        <div class="cart-field">
                             <IconButton Icon="IconType.Add" Variant="ButtonVariant.Add" Text="Add" Title="Add to Cart" OnClick="AddItemToCart" />
                         </div>
                     </div>
@@ -548,15 +548,6 @@ else
 
     .cart-field-small {
         /* Standard column */
-    }
-
-    .cart-field-remarks {
-        /* Standard column */
-    }
-
-    .cart-field-button {
-        display: flex;
-        align-items: flex-end;
     }
 
     .cart-label {
