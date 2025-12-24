@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Components;
 
-using PrimeBakes.Shared.Components.Dialog;
-
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Sales.Product;
 using PrimeBakesLibrary.DataAccess;
@@ -26,8 +24,6 @@ public partial class OrderMobilePage
     private List<OrderItemCartModel> _cart = [];
 
     private SfGrid<OrderItemCartModel> _sfCartGrid;
-
-    private ToastNotification _toastNotification;
 
     #region Load Data
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -78,9 +74,9 @@ public partial class OrderMobilePage
                 });
             _cart = [.. _cart.OrderBy(s => s.ItemName)];
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            await _toastNotification.ShowAsync("An Error Occurred While Loading Items", ex.Message, ToastType.Error);
+            NavigationManager.NavigateTo(PageRouteNames.Dashboard);
         }
     }
 
@@ -95,10 +91,10 @@ public partial class OrderMobilePage
                     _cart.Where(p => p.ItemId == item.ItemId).FirstOrDefault().Quantity = item.Quantity;
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            await _toastNotification.ShowAsync("An Error Occurred While Loading Existing Cart", ex.Message, ToastType.Error);
-            await DeleteLocalFiles();
+            NavigationManager.NavigateTo(PageRouteNames.OrderMobile, true);
+            await DataStorageService.LocalRemove(StorageFileNames.OrderMobileCartDataFileName);
         }
         finally
         {
@@ -144,7 +140,7 @@ public partial class OrderMobilePage
         }
         catch (Exception ex)
         {
-            await _toastNotification.ShowAsync("An Error Occurred While Saving Cart Data", ex.Message, ToastType.Error);
+            NavigationManager.NavigateTo(PageRouteNames.Dashboard);
         }
         finally
         {
@@ -167,14 +163,6 @@ public partial class OrderMobilePage
         _cart.Clear();
 
         NavigationManager.NavigateTo(PageRouteNames.OrderMobileCart);
-    }
-    #endregion
-
-    #region Utilities
-    private async Task DeleteLocalFiles()
-    {
-        await DataStorageService.LocalRemove(StorageFileNames.OrderMobileCartDataFileName);
-        await DataStorageService.LocalRemove(StorageFileNames.OrderMobileDataFileName);
     }
     #endregion
 }

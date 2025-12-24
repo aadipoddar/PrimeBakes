@@ -22,7 +22,6 @@ public class DataStorageService : IDataStorageService
         await LocalRemove(StorageFileNames.UserDataFileName);
         await LocalRemove(StorageFileNames.OrderDataFileName);
         await LocalRemove(StorageFileNames.OrderCartDataFileName);
-        await LocalRemove(StorageFileNames.OrderMobileDataFileName);
         await LocalRemove(StorageFileNames.OrderMobileCartDataFileName);
         await LocalRemove(StorageFileNames.SaleDataFileName);
         await LocalRemove(StorageFileNames.SaleCartDataFileName);
@@ -42,7 +41,7 @@ public class DataStorageService : IDataStorageService
         await LocalRemove(StorageFileNames.SaleReturnCartDataFileName);
         await LocalRemove(StorageFileNames.StockTransferDataFileName);
         await LocalRemove(StorageFileNames.StockTransferCartDataFileName);
-	}
+    }
 
 
     public async Task<bool> LocalExists(string key) =>

@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Components;
 
-using PrimeBakes.Shared.Components.Dialog;
-
 using PrimeBakesLibrary.Data;
 using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
@@ -11,6 +9,7 @@ using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Sales.Order;
 
 using Syncfusion.Blazor.Grids;
+using Syncfusion.Blazor.Popups;
 
 namespace PrimeBakes.Shared.Pages.Sales.Order;
 
@@ -26,23 +25,23 @@ public partial class OrderMobileCartPage
     private string _orderRemarks = string.Empty;
 
     private List<OrderItemCartModel> _cart = [];
-    private List<(string Field, string Message)> _validationErrors = [];
+    private readonly List<(string Field, string Message)> _validationErrors = [];
 
+    private SfDialog _sfValidationErrorDialog;
+    private SfDialog _sfOrderConfirmationDialog;
     private SfGrid<OrderItemCartModel> _sfCartGrid;
 
-    private ToastNotification _toastNotification;
+    #region Load Data
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
 
-	#region Load Data
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		if (!firstRender)
-			return;
-
-		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, UserRoles.Order);
+        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, UserRoles.Order);
         await LoadData();
         _isLoading = false;
         StateHasChanged();
-	}
+    }
 
     private async Task LoadData()
     {
@@ -98,7 +97,7 @@ public partial class OrderMobileCartPage
         }
         catch (Exception ex)
         {
-            await _toastNotification.ShowAsync("An Error Occurred While Saving Cart Data", ex.Message, ToastType.Error);
+            ShowError("An Error Occurred While Saving Cart Data", ex.Message);
         }
         finally
         {
@@ -115,18 +114,20 @@ public partial class OrderMobileCartPage
         _validationErrors.Clear();
 
         if (_cart.Count == 0)
-            _validationErrors.Add(("Cart", "The Cart is Empty. Please Add Items to the Cart Before Saving the Order."));
+        {
+            ShowError("Cart", "The cart is empty. Please add items to the cart before saving the order.");
+            return false;
+        }
 
         if (_cart.Any(item => item.Quantity <= 0))
-            _validationErrors.Add(("Quantity", "All items in the cart must have a quantity greater than zero."));
+        {
+            ShowError("Quantity", "All items in the cart must have a quantity greater than zero.");
+            return false;
+        }
 
         if (_user.LocationId <= 1)
-            _validationErrors.Add(("Location", "Please select a valid location for the order."));
-
-        if (_validationErrors.Count != 0)
         {
-            _showValidationDialog = true;
-            StateHasChanged();
+            ShowError("Location", "Please select a valid location for the order.");
             return false;
         }
 
@@ -142,7 +143,6 @@ public partial class OrderMobileCartPage
         {
             _isProcessing = true;
             StateHasChanged();
-            await _toastNotification.ShowAsync("Processing", "Saving transaction...", ToastType.Info);
 
             await SaveOrderFile();
 
@@ -163,24 +163,25 @@ public partial class OrderMobileCartPage
                 CreatedBy = _user.Id,
                 TotalItems = _cart.Count,
                 TotalQuantity = _cart.Sum(x => x.Quantity),
-				CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform(),
+                CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform(),
                 Remarks = string.IsNullOrWhiteSpace(_orderRemarks.Trim()) ? null : _orderRemarks,
                 SaleId = null,
                 Status = true,
             };
 
             order.TransactionNo = await GenerateCodes.GenerateOrderTransactionNo(order);
-
             order.Id = await OrderData.SaveOrderTransaction(order, _cart);
-            await DeleteLocalFiles();
+
+            await DataStorageService.LocalRemove(StorageFileNames.OrderMobileCartDataFileName);
+
             var (pdfStream, fileName) = await OrderData.GenerateAndDownloadInvoice(order.Id);
             await SaveAndViewService.SaveAndView(fileName, pdfStream);
-            await DeleteLocalFiles();
+
             NavigationManager.NavigateTo(PageRouteNames.OrderMobileConfirmation, true);
         }
         catch (Exception ex)
         {
-            await _toastNotification.ShowAsync("An Error Occurred While Saving Order", ex.Message, ToastType.Error);
+            ShowError("An Error Occurred While Saving Order", ex.Message);
         }
         finally
         {
@@ -190,37 +191,11 @@ public partial class OrderMobileCartPage
     #endregion
 
     #region Utilities
-    private async Task DeleteLocalFiles()
+    private void ShowError(string title, string message)
     {
-        await DataStorageService.LocalRemove(StorageFileNames.OrderMobileCartDataFileName);
-        await DataStorageService.LocalRemove(StorageFileNames.OrderMobileDataFileName);
-    }
-
-    private void OpenConfirmDialog()
-    {
-        if (!ValidateForm())
-            return;
-
-        _showConfirmDialog = true;
+        _validationErrors.Add((title, message));
+        _showValidationDialog = true;
         StateHasChanged();
-    }
-
-    private void CloseConfirmDialog()
-    {
-        _showConfirmDialog = false;
-        StateHasChanged();
-    }
-
-    private void CloseValidationDialog()
-    {
-        _showValidationDialog = false;
-        StateHasChanged();
-    }
-
-    private async Task ConfirmOrder()
-    {
-        _showConfirmDialog = false;
-        await SaveOrder();
     }
     #endregion
 }
