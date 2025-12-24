@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components;
 using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Sales.Order;
+using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Sales.Order;
@@ -172,6 +173,7 @@ public partial class OrderMobileCartPage
             order.Id = await OrderData.SaveOrderTransaction(order, _cart);
 
             await DataStorageService.LocalRemove(StorageFileNames.OrderMobileCartDataFileName);
+            await SendLocalNotification(order.Id);
 
             var (pdfStream, fileName) = await OrderData.GenerateAndDownloadInvoice(order.Id);
             await SaveAndViewService.SaveAndView(fileName, pdfStream);
@@ -190,6 +192,16 @@ public partial class OrderMobileCartPage
     #endregion
 
     #region Utilities
+    private async Task SendLocalNotification(int orderId)
+    {
+        var order = await CommonData.LoadTableDataById<OrderOverviewModel>(ViewNames.OrderOverview, orderId);
+        await NotificationService.ShowLocalNotification(
+            order.Id,
+            "Order Placed",
+            $"{order.TransactionNo}",
+            $"Your order #{order.TransactionNo} has been successfully placed | Total Items: {order.TotalItems} | Total Qty: {order.TotalQuantity} | Date: {order.TransactionDateTime:dd/MM/yy hh:mm tt} | Remarks: {order.Remarks}");
+    }
+
     private void ShowError(string title, string message)
     {
         _validationErrors.Add((title, message));
