@@ -13,8 +13,10 @@ using Syncfusion.Blazor.Grids;
 
 namespace PrimeBakes.Shared.Pages.Inventory;
 
-public partial class RecipePage
+public partial class RecipePage : IAsyncDisposable
 {
+    private HotKeysContext _hotKeysContext;
+
     private bool _isLoading = true;
     private bool _isProcessing = false;
 
@@ -47,6 +49,16 @@ public partial class RecipePage
 
     private async Task LoadData()
     {
+        _hotKeysContext = HotKeys.CreateContext()
+            .Add(ModCode.Ctrl, Code.Enter, AddItemToCart, "Add item to cart", Exclude.None)
+            .Add(ModCode.Ctrl, Code.E, () => _sfItemAutoComplete.FocusAsync(), "Focus on item input", Exclude.None)
+            .Add(ModCode.Ctrl, Code.S, OnSaveButtonClick, "Save recipe", Exclude.None)
+            .Add(ModCode.Ctrl, Code.N, ResetPage, "New recipe", Exclude.None)
+            .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
+            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back to inventory dashboard", Exclude.None)
+            .Add(Code.Delete, RemoveSelectedCartItem, "Delete selected cart item", Exclude.None)
+            .Add(Code.Insert, EditSelectedCartItem, "Edit selected cart item", Exclude.None);
+
         try
         {
             _products = await ProductData.LoadProductByLocation(1);
@@ -157,6 +169,15 @@ public partial class RecipePage
         StateHasChanged();
     }
 
+    private async Task EditSelectedCartItem()
+    {
+        if (_sfCartGrid is null || _sfCartGrid.SelectedRecords is null || _sfCartGrid.SelectedRecords.Count == 0)
+            return;
+
+        var selectedCartItem = _sfCartGrid.SelectedRecords.First();
+        await EditCartItem(selectedCartItem);
+    }
+
     private async Task EditCartItem(RecipeItemCartModel cartItem)
     {
         _selectedRawMaterial = _rawMaterials.FirstOrDefault(r => r.Id == cartItem.ItemId);
@@ -169,6 +190,15 @@ public partial class RecipePage
             await _sfCartGrid?.Refresh();
 
         StateHasChanged();
+    }
+
+    private async Task RemoveSelectedCartItem()
+    {
+        if (_sfCartGrid is null || _sfCartGrid.SelectedRecords is null || _sfCartGrid.SelectedRecords.Count == 0)
+            return;
+
+        var selectedCartItem = _sfCartGrid.SelectedRecords.First();
+        await RemoveItemFromCart(selectedCartItem);
     }
 
     private async Task RemoveItemFromCart(RecipeItemCartModel cartItem)
@@ -260,5 +290,19 @@ public partial class RecipePage
     #region Utilities
     private async Task ResetPage() =>
         NavigationManager.NavigateTo(PageRouteNames.Recipe, true);
+
+    private async Task NavigateToDashboard() =>
+        NavigationManager.NavigateTo(PageRouteNames.Dashboard);
+
+    private async Task NavigateBack() =>
+        NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_hotKeysContext is not null)
+            await _hotKeysContext.DisposeAsync();
+
+        GC.SuppressFinalize(this);
+    }
     #endregion
 }

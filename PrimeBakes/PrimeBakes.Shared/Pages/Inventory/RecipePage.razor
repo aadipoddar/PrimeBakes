@@ -15,14 +15,14 @@
 else
 {
 	<div style="display: flex; flex-direction: column; min-height: 100vh;">
-		<Header Title="Product Recipe Management" Subtitle="Create and manage product recipes with raw material quantities" ShowHome="true" ShowBack="true" OnHomeClick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))" OnBackClick="@(() => NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard))">
+		<Header Title="Product Recipe Management" Subtitle="Create and manage product recipes with raw material quantities" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack">
 			<RightContent>
-				<IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Recipe" Disabled="_isProcessing" OnClick="OnSaveButtonClick" />
+				<IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Recipe (Ctrl + S)" Disabled="_isProcessing" OnClick="OnSaveButtonClick" />
 				@if (_recipe is not null && _recipe.Id > 0)
 				{
 					<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Title="Delete Recipe" Disabled="_isProcessing" OnClick="DeleteRecipe" />
 				}
-				<IconButton Icon="IconType.New" Title="New Recipe" Disabled="_isProcessing" OnClick="ResetPage" />
+				<IconButton Icon="IconType.New" Title="New Recipe (Ctrl + N)" Disabled="_isProcessing" OnClick="ResetPage" />
 			</RightContent>
 		</Header>
 
@@ -189,9 +189,9 @@ else
 		padding: 16px 32px;
 		width: 100%;
 		margin: 0 auto;
-		background: #f8fafc;
-		
-	}
+        background: linear-gradient(135deg, #ffeef5 0%, #fff5f9 100%);
+        flex: 1;
+    }
 
 	/* Section Card Styles */
 	.section-card {
