@@ -88,7 +88,7 @@ public partial class OrderMobilePage
             {
                 var existingCart = System.Text.Json.JsonSerializer.Deserialize<List<OrderItemCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.OrderMobileCartDataFileName));
                 foreach (var item in existingCart)
-                    _cart.Where(p => p.ItemId == item.ItemId).FirstOrDefault().Quantity = item.Quantity;
+                    _cart.FirstOrDefault(p => p.ItemId == item.ItemId).Quantity = item.Quantity;
             }
         }
         catch (Exception)
@@ -138,9 +138,9 @@ public partial class OrderMobilePage
 
             VibrationService.VibrateHapticClick();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            NavigationManager.NavigateTo(PageRouteNames.Dashboard);
+            NavigationManager.NavigateTo(PageRouteNames.OrderMobile, true);
         }
         finally
         {

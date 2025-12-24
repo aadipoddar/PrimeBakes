@@ -1,15 +1,20 @@
 <div class="footer-section">
     <div class="footer-content">
         <div class="device-info">
-            <span class="info-item version-info">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="12" y1="16" x2="12" y2="12" />
-                    <line x1="12" y1="8" x2="12.01" y2="8" />
-                </svg>
-                Version @AppVersion
-            </span>
+
+            @if (ShowVersion)
+            {
+                <span class="info-item version-info">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                    </svg>
+                    Version @AppVersion
+                </span>
+            }
+
             <span class="info-item platform-info">
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -19,6 +24,7 @@
                 </svg>
                 @Platform
             </span>
+
             <span class="info-item factor-info">
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -27,6 +33,7 @@
                 </svg>
                 @Factor
             </span>
+
         </div>
         <p class="copyright">
             &copy; @DateTime.Now.Year A Product By <a href="@CopyrightUrl" target="_blank" class="footer-link">AadiSoft</a>. All rights reserved.

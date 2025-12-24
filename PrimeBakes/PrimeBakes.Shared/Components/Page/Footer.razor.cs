@@ -1,13 +1,13 @@
-using Microsoft.AspNetCore.Components;
 using System.Reflection;
-using PrimeBakesLibrary.Models.Common;
+
+using Microsoft.AspNetCore.Components;
 
 namespace PrimeBakes.Shared.Components.Page;
 
 public partial class Footer
 {
     [Parameter]
-    public string CopyrightUrl { get; set; } = "https://aadisoft.vercel.app";
+    public bool ShowVersion { get; set; } = true;
 
     private string Factor =>
         FormFactor.GetFormFactor();
@@ -17,4 +17,7 @@ public partial class Footer
 
     private static string AppVersion =>
         Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "1.0.0.0";
+
+    private static string CopyrightUrl =>
+        "https://aadisoft.vercel.app";
 }

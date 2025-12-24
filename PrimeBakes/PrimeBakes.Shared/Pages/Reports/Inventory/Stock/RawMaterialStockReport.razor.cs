@@ -454,7 +454,7 @@ public partial class RawMaterialStockReport : IAsyncDisposable
         var selectedCartItem = _sfStockDetailsGrid.SelectedRecords.First();
 
         if (selectedCartItem.Type.Equals("adjustment", StringComparison.CurrentCultureIgnoreCase))
-            ShowDeleteConfirmation(selectedCartItem.Id, selectedCartItem.TransactionNo);
+            await ShowDeleteConfirmation(selectedCartItem.Id, selectedCartItem.TransactionNo);
     }
 
     private async Task ConfirmDelete()
@@ -477,7 +477,7 @@ public partial class RawMaterialStockReport : IAsyncDisposable
             if (adjustment is null && !adjustment.Type.Equals("adjustment", StringComparison.CurrentCultureIgnoreCase))
                 return;
 
-            await RawMaterialStockData.DeleteRawMaterialStockById(_deleteAdjustmentId);
+            await RawMaterialStockData.DeleteRawMaterialStockById(_deleteAdjustmentId, _user.Id);
             await _toastNotification.ShowAsync("Success", $"Transaction {_deleteTransactionNo} has been deleted successfully.", ToastType.Success);
         }
         catch (Exception ex)

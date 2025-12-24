@@ -22,15 +22,13 @@ else
             
             <!-- Enhanced Category Filter Section -->
             <div class="filter-section">
-                <div class="filter-content">
-                    <div class="category-filter-wrapper">
-                        <SfDropDownList TValue="int" TItem="ProductCategoryModel" Placeholder="Select Category"
-                                        DataSource="_productCategories" Value="_selectedCategory?.Id ?? 0" CssClass="category-dropdown">
-                            <DropDownListEvents TValue="int" TItem="ProductCategoryModel"
-                                                ValueChange="@((args) => { _selectedCategory = args.ItemData; StateHasChanged(); })" />
-                            <DropDownListFieldSettings Value="Id" Text="Name" />
-                        </SfDropDownList>
-                    </div>
+                <div class="category-chips-container">
+                    @foreach (var category in _productCategories)
+                    {
+                        <button class="category-chip @(category.Id == _selectedCategory?.Id ? "active" : "")" @onclick="() => _selectedCategory = category">
+                            @category.Name
+                        </button>
+                    }
                 </div>
             </div>
 
@@ -71,6 +69,7 @@ else
                                                                       ValueChanged="@((decimal value) => UpdateQuantity(item, value))"
                                                                       Min="0"
                                                                       Step="1"
+                                                                      type="tel"
                                                                       Format="N0"
                                                                       Width="100%"
                                                                       CssClass="quantity-input" />
@@ -98,7 +97,7 @@ else
             </div>
         }
 
-        <Footer />
+        <Footer ShowVersion="false" />
     </div>
 }
 
@@ -128,100 +127,74 @@ else
     /* Enhanced Filter Section */
     .filter-section {
         background: white;
-        margin: 15px;
-        padding: 20px;
-        border-radius: 16px;
-        box-shadow: var(--shadow-light);
-        border: 1px solid var(--border-color);
-        transition: all 0.3s ease;
+        margin: 0;
+        padding: 15px 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        position: sticky;
+        top: 0;
+        z-index: 50;
     }
 
-        .filter-section:hover {
-            box-shadow: var(--shadow-medium);
+    /* Category Chips Container - Horizontal Scroll */
+    .category-chips-container {
+        display: flex;
+        gap: 10px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 0 15px 5px 15px;
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE/Edge */
+    }
+
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .category-chips-container::-webkit-scrollbar {
+            display: none;
         }
 
-    .filter-content {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    .category-filter-wrapper {
+    /* Category Chip Button */
+    .category-chip {
+        background: var(--bg-light);
+        color: var(--text-dark);
+        border: 2px solid var(--border-color);
+        border-radius: 25px;
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        flex-shrink: 0;
+        outline: none;
+        min-height: 44px;
         display: flex;
         align-items: center;
-        gap: 10px;
-        position: relative;
+        justify-content: center;
     }
 
-    .category-filter {
-        flex: 1;
-    }
-
-    /* Syncfusion ComboBox Styling */
-    ::deep .category-filter .e-input-group {
-        border: 2px solid var(--border-color);
-        border-radius: 12px;
-        transition: all 0.2s ease;
-        background: white;
-        height: auto;
-    }
-
-        ::deep .category-filter .e-input-group:hover {
+        .category-chip:hover {
             border-color: var(--primary-light);
+            background: var(--primary-light);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-light);
         }
 
-        ::deep .category-filter .e-input-group.e-input-focus {
+        .category-chip:active {
+            transform: translateY(0);
+        }
+
+        .category-chip.active {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 4px rgba(226, 19, 123, 0.1);
+            box-shadow: 0 4px 12px rgba(226, 19, 123, 0.3);
+            font-weight: 600;
         }
 
-        ::deep .category-filter .e-input-group input {
-            padding: 10px 12px;
-            font-size: 14px;
-            color: var(--text-dark);
-            font-weight: 500;
-            border: none;
-            background: transparent;
-            height: 36px;
-        }
-
-            ::deep .category-filter .e-input-group input::placeholder {
-                color: var(--text-light);
-                font-weight: 400;
-            }
-
-        ::deep .category-filter .e-input-group .e-ddl-icon {
-            color: var(--primary-color);
-            font-size: 16px;
-            margin-right: 8px;
-        }
-
-    /* Popup Styling */
-    ::deep .e-popup.e-combobox {
-        border: 2px solid var(--primary-color);
-        border-radius: 12px;
-        box-shadow: var(--shadow-medium);
-        overflow: hidden;
-    }
-
-        ::deep .e-popup.e-combobox .e-list-item {
-            padding: 12px 16px;
-            transition: all 0.2s ease;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-            ::deep .e-popup.e-combobox .e-list-item:hover {
-                background: var(--primary-light);
-                color: var(--text-dark);
-            }
-
-            ::deep .e-popup.e-combobox .e-list-item.e-active {
-                background: var(--primary-color);
-                color: white;
-            }
-
-            ::deep .e-popup.e-combobox .e-list-item:last-child {
-                border-bottom: none;
+            .category-chip.active:hover {
+                background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+                transform: translateY(-1px);
             }
 
     /* Grid Container */

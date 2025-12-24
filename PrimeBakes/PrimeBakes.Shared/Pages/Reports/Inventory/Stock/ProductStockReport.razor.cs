@@ -517,7 +517,7 @@ public partial class ProductStockReport : IAsyncDisposable
             if (adjustment is null && !adjustment.Type.Equals("adjustment", StringComparison.CurrentCultureIgnoreCase))
                 return;
 
-            await ProductStockData.DeleteProductStockById(_deleteAdjustmentId);
+            await ProductStockData.DeleteProductStockById(_deleteAdjustmentId, _user.Id);
             await _toastNotification.ShowAsync("Success", $"Transaction {_deleteTransactionNo} has been deleted successfully.", ToastType.Success);
         }
         catch (Exception ex)

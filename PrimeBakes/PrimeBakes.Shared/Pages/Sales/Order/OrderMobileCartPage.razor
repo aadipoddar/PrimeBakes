@@ -52,6 +52,7 @@ else
                                                                       ValueChanged="@((decimal value) => UpdateQuantity(item, value))"
                                                                       Min="0"
                                                                       Step="1"
+                                                                      type="tel"
                                                                       Format="N0"
                                                                       Width="100%"
                                                                       CssClass="quantity-input"
@@ -91,7 +92,7 @@ else
             </div>
         }
 
-        <Footer />
+        <Footer ShowVersion="false" />
     </div>
 }
 
@@ -533,13 +534,6 @@ else
 
         .empty-icon {
             font-size: 3rem;
-        }
-    }
-
-    @@media (max-width: 400px) {
-        .quantity-input-wrapper {
-            min-width: 70px;
-            max-width: 100px;
         }
     }
 

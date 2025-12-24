@@ -15,7 +15,7 @@ public static class RawMaterialStockData
     public static async Task DeleteRawMaterialStockByTypeTransactionId(string Type, int TransactionId) =>
         await SqlDataAccess.SaveData(StoredProcedureNames.DeleteRawMaterialStockByTypeTransactionId, new { Type, TransactionId });
 
-    public static async Task DeleteRawMaterialStockById(int Id)
+    public static async Task DeleteRawMaterialStockById(int Id, int userId)
     {
         var stock = await CommonData.LoadTableDataById<RawMaterialStockModel>(TableNames.RawMaterialStock, Id);
         if (stock is null)
@@ -26,9 +26,10 @@ public static class RawMaterialStockData
             throw new Exception("Cannot delete stock entry as the financial year is locked.");
 
         await SqlDataAccess.SaveData(StoredProcedureNames.DeleteRawMaterialStockById, new { Id });
+        await SendNotification.RawMaterialStockAdjustmentNotification(1, stock.Quantity, userId, NotificationType.Delete);
     }
 
-    public static async Task SaveRawMaterialStockAdjustment(DateTime transactionDateTime, List<RawMaterialStockAdjustmentCartModel> cart)
+    public static async Task SaveRawMaterialStockAdjustment(DateTime transactionDateTime, List<RawMaterialStockAdjustmentCartModel> cart, int userId)
     {
         var transactionNo = await GenerateCodes.GenerateRawMaterialStockAdjustmentTransactionNo(transactionDateTime);
         var stockSummary = await LoadRawMaterialStockSummaryByDate(transactionDateTime, transactionDateTime);
@@ -60,5 +61,7 @@ public static class RawMaterialStockData
                     TransactionDate = DateOnly.FromDateTime(transactionDateTime)
                 });
         }
+
+        await SendNotification.RawMaterialStockAdjustmentNotification(cart.Count, cart.Sum(c => c.Quantity), userId, NotificationType.Save);
     }
 }

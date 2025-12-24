@@ -25,12 +25,12 @@ public static class AccountingData
         {
             // Load saved accounting details
             var transaction = await CommonData.LoadTableDataById<AccountingModel>(TableNames.Accounting, accountingId) ??
-				throw new InvalidOperationException("Transaction not found.");
+                throw new InvalidOperationException("Transaction not found.");
 
             // Load accounting details from database
             var transactionDetails = await CommonData.LoadTableDataByMasterId<AccountingDetailModel>(TableNames.AccountingDetail, accountingId);
             if (transactionDetails is null || transactionDetails.Count == 0)
-				throw new InvalidOperationException("No transaction details found for the transaction.");
+                throw new InvalidOperationException("No transaction details found for the transaction.");
 
             // Load company and voucher
             var company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, transaction.CompanyId);
@@ -112,10 +112,11 @@ public static class AccountingData
         var accounting = await CommonData.LoadTableDataById<AccountingModel>(TableNames.Accounting, accountingId);
         var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, accounting.FinancialYearId);
         if (financialYear is null || financialYear.Locked || !financialYear.Status)
-			throw new InvalidOperationException("Cannot delete transaction as the financial year is locked.");
+            throw new InvalidOperationException("Cannot delete transaction as the financial year is locked.");
 
         accounting.Status = false;
         await InsertAccounting(accounting);
+        await SendNotification.FinancialAccountingNotification(accountingId, NotificationType.Delete);
     }
 
     public static async Task RecoverAccountingTransaction(AccountingModel accounting)
@@ -136,10 +137,11 @@ public static class AccountingData
                 Remarks = item.Remarks
             });
 
-        await SaveAccountingTransaction(accounting, accountingItemCarts);
+        await SaveAccountingTransaction(accounting, accountingItemCarts, false);
+        await SendNotification.FinancialAccountingNotification(accounting.Id, NotificationType.Recover);
     }
 
-    public static async Task<int> SaveAccountingTransaction(AccountingModel accounting, List<AccountingItemCartModel> accountingDetails)
+    public static async Task<int> SaveAccountingTransaction(AccountingModel accounting, List<AccountingItemCartModel> accountingDetails, bool showNotification = true)
     {
         bool update = accounting.Id > 0;
 
@@ -161,6 +163,8 @@ public static class AccountingData
 
         accounting.Id = await InsertAccounting(accounting);
         await SaveAccountingDetail(accounting, accountingDetails, update);
+
+        await SendNotification.FinancialAccountingNotification(accounting.Id, update ? NotificationType.Update : NotificationType.Save);
 
         return accounting.Id;
     }

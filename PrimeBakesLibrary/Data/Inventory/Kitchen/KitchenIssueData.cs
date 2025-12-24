@@ -21,8 +21,8 @@ public static class KitchenIssueData
     {
         try
         {
-			// Load saved transaction details
-			var transaction = await CommonData.LoadTableDataById<KitchenIssueModel>(TableNames.KitchenIssue, kitchenIssueId) ??
+            // Load saved transaction details
+            var transaction = await CommonData.LoadTableDataById<KitchenIssueModel>(TableNames.KitchenIssue, kitchenIssueId) ??
                 throw new InvalidOperationException("Transaction not found.");
 
             // Load transaction details from database
@@ -146,6 +146,8 @@ public static class KitchenIssueData
             await InsertKitchenIssue(kitchenIssue);
             await RawMaterialStockData.DeleteRawMaterialStockByTypeTransactionId(nameof(StockType.KitchenIssue), kitchenIssue.Id);
         }
+
+        await SendNotification.KitchenIssueNotification(kitchenIssueId, NotificationType.Delete);
     }
 
     public static async Task RecoverKitchenIssueTransaction(KitchenIssueModel kitchenIssue)
@@ -165,10 +167,11 @@ public static class KitchenIssueData
                 Remarks = item.Remarks
             });
 
-        await SaveKitchenIssueTransaction(kitchenIssue, kitchenIssueItemCarts);
+        await SaveKitchenIssueTransaction(kitchenIssue, kitchenIssueItemCarts, false);
+        await SendNotification.KitchenIssueNotification(kitchenIssue.Id, NotificationType.Recover);
     }
 
-    public static async Task<int> SaveKitchenIssueTransaction(KitchenIssueModel kitchenIssue, List<KitchenIssueItemCartModel> kitchenIssueDetails)
+    public static async Task<int> SaveKitchenIssueTransaction(KitchenIssueModel kitchenIssue, List<KitchenIssueItemCartModel> kitchenIssueDetails, bool showNotification = true)
     {
         bool update = kitchenIssue.Id > 0;
 
@@ -191,6 +194,9 @@ public static class KitchenIssueData
         kitchenIssue.Id = await InsertKitchenIssue(kitchenIssue);
         await SaveKitchenIssueDetail(kitchenIssue, kitchenIssueDetails, update);
         await SaveRawMaterialStock(kitchenIssue, kitchenIssueDetails, update);
+
+        if (showNotification)
+            await SendNotification.KitchenIssueNotification(kitchenIssue.Id, update ? NotificationType.Update : NotificationType.Save);
 
         return kitchenIssue.Id;
     }

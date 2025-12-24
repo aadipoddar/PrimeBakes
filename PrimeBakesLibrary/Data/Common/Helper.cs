@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace PrimeBakesLibrary.Data;
+namespace PrimeBakesLibrary.Data.Common;
 
 public static class Helper
 {

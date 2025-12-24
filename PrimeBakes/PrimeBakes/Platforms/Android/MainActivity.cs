@@ -5,6 +5,7 @@ using Android.OS;
 
 using Firebase.Messaging;
 
+using PrimeBakes.Platforms.Android;
 using PrimeBakes.Services;
 
 namespace PrimeBakes;
@@ -52,6 +53,9 @@ public class MainActivity : MauiAppCompatActivity, Android.Gms.Tasks.IOnSuccessL
     protected override void OnCreate(Bundle? savedInstanceState)
     {
         base.OnCreate(savedInstanceState);
+
+        // Initialize keyboard soft input patch for BlazorWebView
+        WebViewSoftInputPatch.Initialize();
 
         if (DeviceInstallationService.NotificationsSupported)
             FirebaseMessaging.Instance.GetToken().AddOnSuccessListener(this);

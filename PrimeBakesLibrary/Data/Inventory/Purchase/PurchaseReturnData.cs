@@ -119,6 +119,8 @@ public static class PurchaseReturnData
                 await AccountingData.InsertAccounting(existingAccounting);
             }
         }
+
+        await SendNotification.PurchaseReturnNotification(purchaseReturnId, NotificationType.Delete);
     }
 
     public static async Task RecoverPurchaseReturnTransaction(PurchaseReturnModel purchaseReturn)
@@ -151,10 +153,11 @@ public static class PurchaseReturnData
                 Remarks = item.Remarks
             });
 
-        await SavePurchaseReturnTransaction(purchaseReturn, purchaseItemCarts);
+        await SavePurchaseReturnTransaction(purchaseReturn, purchaseItemCarts, false);
+        await SendNotification.PurchaseReturnNotification(purchaseReturn.Id, NotificationType.Recover);
     }
 
-    public static async Task<int> SavePurchaseReturnTransaction(PurchaseReturnModel purchaseReturn, List<PurchaseReturnItemCartModel> purchaseReturnDetails)
+    public static async Task<int> SavePurchaseReturnTransaction(PurchaseReturnModel purchaseReturn, List<PurchaseReturnItemCartModel> purchaseReturnDetails, bool showNotification = true)
     {
         bool update = purchaseReturn.Id > 0;
 
@@ -174,6 +177,9 @@ public static class PurchaseReturnData
         await SavePurchaseReturnDetail(purchaseReturn, purchaseReturnDetails, update);
         await SaveRawMaterialStock(purchaseReturn, purchaseReturnDetails, update);
         await SaveAccounting(purchaseReturn, update);
+
+        if (showNotification)
+            await SendNotification.PurchaseReturnNotification(purchaseReturn.Id, update ? NotificationType.Update : NotificationType.Save);
 
         return purchaseReturn.Id;
     }
@@ -301,28 +307,28 @@ public static class PurchaseReturnData
             });
         }
 
-		var voucher = await SettingsData.LoadSettingsByKey(SettingsKeys.PurchaseReturnVoucherId);
-		var accounting = new AccountingModel
-		{
-			Id = 0,
-			TransactionNo = "",
-			CompanyId = purchaseReturnOverview.CompanyId,
-			VoucherId = int.Parse(voucher.Value),
-			ReferenceId = purchaseReturnOverview.Id,
-			ReferenceNo = purchaseReturnOverview.TransactionNo,
-			TransactionDateTime = purchaseReturnOverview.TransactionDateTime,
-			FinancialYearId = purchaseReturnOverview.FinancialYearId,
-			TotalDebitLedgers = accountingCart.Count(a => a.Debit.HasValue),
-			TotalCreditLedgers = accountingCart.Count(a => a.Credit.HasValue),
-			TotalDebitAmount = accountingCart.Sum(a => a.Debit ?? 0),
-			TotalCreditAmount = accountingCart.Sum(a => a.Credit ?? 0),
-			Remarks = purchaseReturnOverview.Remarks,
-			CreatedBy = purchaseReturnOverview.CreatedBy,
-			CreatedAt = purchaseReturnOverview.CreatedAt,
-			CreatedFromPlatform = purchaseReturnOverview.CreatedFromPlatform,
-			Status = true
-		};
+        var voucher = await SettingsData.LoadSettingsByKey(SettingsKeys.PurchaseReturnVoucherId);
+        var accounting = new AccountingModel
+        {
+            Id = 0,
+            TransactionNo = "",
+            CompanyId = purchaseReturnOverview.CompanyId,
+            VoucherId = int.Parse(voucher.Value),
+            ReferenceId = purchaseReturnOverview.Id,
+            ReferenceNo = purchaseReturnOverview.TransactionNo,
+            TransactionDateTime = purchaseReturnOverview.TransactionDateTime,
+            FinancialYearId = purchaseReturnOverview.FinancialYearId,
+            TotalDebitLedgers = accountingCart.Count(a => a.Debit.HasValue),
+            TotalCreditLedgers = accountingCart.Count(a => a.Credit.HasValue),
+            TotalDebitAmount = accountingCart.Sum(a => a.Debit ?? 0),
+            TotalCreditAmount = accountingCart.Sum(a => a.Credit ?? 0),
+            Remarks = purchaseReturnOverview.Remarks,
+            CreatedBy = purchaseReturnOverview.CreatedBy,
+            CreatedAt = purchaseReturnOverview.CreatedAt,
+            CreatedFromPlatform = purchaseReturnOverview.CreatedFromPlatform,
+            Status = true
+        };
 
-		await AccountingData.SaveAccountingTransaction(accounting, accountingCart);
+        await AccountingData.SaveAccountingTransaction(accounting, accountingCart);
     }
 }

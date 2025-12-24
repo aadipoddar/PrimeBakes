@@ -3,7 +3,6 @@ using Microsoft.JSInterop;
 
 using PrimeBakes.Shared.Components.Dialog;
 
-using PrimeBakesLibrary.Data;
 using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Inventory.Purchase;
@@ -22,6 +21,8 @@ namespace PrimeBakes.Shared.Pages.Inventory.Stock;
 public partial class RawMaterialStockAdjustmentPage : IAsyncDisposable
 {
     private HotKeysContext _hotKeysContext;
+
+    private UserModel _user;
 
     private bool _isLoading = true;
     private bool _isProcessing = false;
@@ -48,7 +49,7 @@ public partial class RawMaterialStockAdjustmentPage : IAsyncDisposable
         if (!firstRender)
             return;
 
-        await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, UserRoles.Inventory, true);
+        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, UserRoles.Inventory, true);
         await LoadData();
         _isLoading = false;
         StateHasChanged();
@@ -390,7 +391,7 @@ public partial class RawMaterialStockAdjustmentPage : IAsyncDisposable
 
             await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
 
-            await RawMaterialStockData.SaveRawMaterialStockAdjustment(_transactionDateTime, _cart);
+            await RawMaterialStockData.SaveRawMaterialStockAdjustment(_transactionDateTime, _cart, _user.Id);
             await DeleteLocalFiles();
             NavigationManager.NavigateTo(PageRouteNames.RawMaterialStockAdjustment, true);
 
