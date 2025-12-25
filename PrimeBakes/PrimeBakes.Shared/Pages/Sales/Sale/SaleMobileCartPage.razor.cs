@@ -40,13 +40,6 @@ public partial class SaleMobileCartPage
     private SfDialog _sfPaymentDialog;
     private SfGrid<SaleItemCartModel> _sfCartGrid;
 
-    private class PaymentItem
-    {
-        public int Id { get; set; }
-        public string Method { get; set; }
-        public decimal Amount { get; set; }
-    }
-
     #region Load Data
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -83,6 +76,9 @@ public partial class SaleMobileCartPage
     #region Changed Events
     private async Task OnCustomerNumberChanged(string args)
     {
+        if (args.Any(c => !char.IsDigit(c)))
+            args = new string([.. args.Where(char.IsDigit)]);
+
         if (string.IsNullOrWhiteSpace(args))
         {
             _selectedCustomer = new();

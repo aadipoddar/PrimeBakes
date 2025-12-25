@@ -454,6 +454,9 @@ public partial class SaleReturnPage : IAsyncDisposable
 
     private async Task OnCustomerNumberChanged(string args)
     {
+        if (args.Any(c => !char.IsDigit(c)))
+            args = new string([.. args.Where(char.IsDigit)]);
+
         if (string.IsNullOrWhiteSpace(args))
         {
             _selectedCustomer = new();

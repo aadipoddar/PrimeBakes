@@ -2,13 +2,14 @@
 
 @using PrimeBakesLibrary.Models.Accounts.Masters
 @using PrimeBakesLibrary.Models.Common
+@using PrimeBakesLibrary.Data.Common
 @using PrimeBakesLibrary.Models.Sales.Sale
 
 <PageTitle>Sale Cart - PrimeBakes</PageTitle>
 
 @if (_isLoading)
 {
-    <SfSpinner @bind-Visible="_isLoading" Label="Loading Cart, Please Wait" />
+    <SfSpinner @bind-Visible="_isLoading" Label="Page is Loading, Please Wait" />
 }
 else
 {
@@ -201,16 +202,17 @@ else
                 <div class="form-section">
                     <div class="form-row">
                         <div class="form-field form-field-half">
-                            <label class="field-label">Customer Number</label>
+                            <label class="field-label">Cust No.</label>
                             <SfTextBox Value="@_selectedCustomer?.Number"
                                        ValueChanged="OnCustomerNumberChanged"
+                                       Type="InputType.Tel"
                                        Placeholder="Enter number..."
                                        CssClass="dialog-input"
                                        Enabled="@(!_isProcessing)" />
                         </div>
 
                         <div class="form-field form-field-half">
-                            <label class="field-label">Customer Name</label>
+                            <label class="field-label">Cust Name</label>
                             <SfTextBox @bind-Value="_selectedCustomer.Name"
                                        Placeholder="Enter name..."
                                        CssClass="dialog-input"
@@ -220,12 +222,13 @@ else
 
                     <div class="form-row">
                         <div class="form-field form-field-half">
-                            <label class="field-label">Discount %</label>
+                            <label class="field-label">Disc %</label>
                             <SfNumericTextBox TValue="decimal"
                                               Value="@_sale.DiscountPercent"
                                               Min="0"
                                               Max="100"
                                               Step="1"
+                                              type="tel"
                                               Format="N2"
                                               Placeholder="0.00"
                                               CssClass="dialog-input"
@@ -235,11 +238,12 @@ else
                         </div>
 
                         <div class="form-field form-field-half">
-                            <label class="field-label">Round Off Amount</label>
+                            <label class="field-label">Round Off</label>
                             <SfNumericTextBox TValue="decimal"
                                               Value="@_sale.RoundOffAmount"
                                               Step="1"
                                               Format="N2"
+                                              type="tel"
                                               Placeholder="0.00"
                                               CssClass="dialog-input"
                                               Enabled="@(!_isProcessing)">
@@ -251,16 +255,16 @@ else
 
                 <div class="sale-summary">
                     <div class="summary-item">
-                        <span class="summary-label">Total Items:</span>
-                        <span class="summary-value">@_sale.TotalItems</span>
+                        <span class="summary-label">Base:</span>
+                        <span class="summary-value">@_sale.TotalAfterTax.FormatIndianCurrency()</span>
                     </div>
                     <div class="summary-item">
-                        <span class="summary-label">Discount Amount:</span>
-                        <span class="summary-value">₹@_sale.DiscountAmount.ToString("N2")</span>
+                        <span class="summary-label">Disc:</span>
+                        <span class="summary-value">@_sale.DiscountAmount.FormatIndianCurrency()</span>
                     </div>
                     <div class="summary-item">
-                        <span class="summary-label">Grand Total:</span>
-                        <span class="summary-value">₹@_sale.TotalAmount.ToString("N2")</span>
+                        <span class="summary-label">Total:</span>
+                        <span class="summary-value">@_sale.TotalAmount.FormatIndianCurrency()</span>
                     </div>
                 </div>
 
@@ -304,20 +308,21 @@ else
             <div class="dialog-content payment-content">
                 <div class="payment-info">
                     <div class="info-row total-row">
-                        <span class="info-label">Total Amount:</span>
-                        <span class="info-value">₹@_sale.TotalAmount.ToString("N2")</span>
+                        <span class="info-label">Total:</span>
+                        <span class="info-value">@_sale.TotalAmount.FormatIndianCurrency()</span>
                     </div>
                 </div>
 
                 <div class="payment-form">
                     <div class="form-row">
                         <div class="form-field form-field-half">
-                            <label class="field-label">Payment Amount</label>
+                            <label class="field-label">Pay Amt</label>
                             <SfNumericTextBox TValue="decimal"
                                               @bind-Value="_paymentAmount"
                                               Min="0"
                                               Max="@_remainingAmount"
                                               Step="1"
+                                              type="tel"
                                               Format="N2"
                                               Placeholder="0.00"
                                               CssClass="dialog-input"
@@ -325,7 +330,7 @@ else
                         </div>
 
                         <div class="form-field form-field-half">
-                            <label class="field-label">Payment Method</label>
+                            <label class="field-label">Method</label>
                             <SfDropDownList TValue="PaymentModeModel"
                                             TItem="PaymentModeModel"
                                             @bind-Value="@_selectedPaymentMethod"
