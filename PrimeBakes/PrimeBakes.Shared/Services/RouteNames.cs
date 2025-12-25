@@ -5,7 +5,7 @@ internal static class PageRouteNames
     public static string Dashboard => "/";
     public static string Login => "/login";
 
-	public static string InventoryDashboard => "/inventory";
+    public static string InventoryDashboard => "/inventory";
     public static string Purchase => "/inventory/purchase";
     public static string PurchaseReturn => "/inventory/purchase-return";
     public static string KitchenIssue => "/inventory/kitchen-issue";
@@ -16,9 +16,12 @@ internal static class PageRouteNames
 
     public static string SalesDashboard => "/sales";
     public static string Sale => "/sales/sale";
+    public static string SaleMobile => "/sales/sale/mobile";
+    public static string SaleMobileCart => "/sales/sale-cart/mobile";
+    public static string SaleMobileConfirmation => "/sales/sale-confirmation/mobile";
     public static string SaleReturn => "/sales/sale-return";
-	public static string StockTransfer => "/sales/stock-transfer";
-	public static string Order => "/sales/order";
+    public static string StockTransfer => "/sales/stock-transfer";
+    public static string Order => "/sales/order";
     public static string OrderMobile => "/sales/order/mobile";
     public static string OrderMobileCart => "/sales/order-cart/mobile";
     public static string OrderMobileConfirmation => "/sales/order-confirmation/mobile";
@@ -40,9 +43,9 @@ internal static class PageRouteNames
 
     public static string ReportSale => "/report/sale";
     public static string ReportSaleItem => "/report/sale-item";
-	public static string ReportSaleReturn => "/report/sale-return";
-	public static string ReportSaleReturnItem => "/report/sale-return-item";
-	public static string ReportStockTransfer => "/report/stock-transfer";
+    public static string ReportSaleReturn => "/report/sale-return";
+    public static string ReportSaleReturnItem => "/report/sale-return-item";
+    public static string ReportStockTransfer => "/report/stock-transfer";
     public static string ReportStockTransferItem => "/report/stock-transfer-item";
     public static string ReportOrder => "/report/order";
     public static string ReportOrderItem => "/report/order-item";
