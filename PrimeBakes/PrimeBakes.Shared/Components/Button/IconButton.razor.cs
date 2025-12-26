@@ -53,6 +53,7 @@ public partial class IconButton
                 ButtonVariant.Add => "icon-btn-add",
                 ButtonVariant.Recover => "icon-btn-recover",
                 ButtonVariant.Logout => "icon-btn-logout",
+                ButtonVariant.ThermalPrinter => "icon-btn-thermal-printer",
                 _ => string.Empty
             },
 
@@ -103,7 +104,8 @@ public enum IconType
     TrialBalance,
     Generate,
     Reset,
-    Recover
+    Recover,
+    ThermalPrinter
 }
 
 public enum ButtonVariant
@@ -117,7 +119,8 @@ public enum ButtonVariant
     Delete,
     Add,
     Recover,
-    Logout
+    Logout,
+    ThermalPrinter
 }
 
 public enum ButtonSize

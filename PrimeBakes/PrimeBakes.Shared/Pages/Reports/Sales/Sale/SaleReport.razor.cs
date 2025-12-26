@@ -83,6 +83,7 @@ public partial class SaleReport : IAsyncDisposable
             .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
             .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
             .Add(ModCode.Ctrl, Code.O, ViewSelectedCartItem, "Open Selected Transaction", Exclude.None)
+            .Add(ModCode.Alt, Code.T, DownloadSelectedCartItemThermalInvoice, "Download Selected Transaction Thermal Invoice", Exclude.None)
             .Add(ModCode.Alt, Code.P, DownloadSelectedCartItemPdfInvoice, "Download Selected Transaction PDF Invoice", Exclude.None)
             .Add(ModCode.Alt, Code.E, DownloadSelectedCartItemExcelInvoice, "Download Selected Transaction Excel Invoice", Exclude.None)
             .Add(Code.Delete, DeleteSelectedCartItem, "Delete Selected Transaction", Exclude.None);
@@ -541,6 +542,15 @@ public partial class SaleReport : IAsyncDisposable
         }
     }
 
+    private async Task DownloadSelectedCartItemThermalInvoice()
+    {
+        if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+            return;
+
+        var selectedCartItem = _sfGrid.SelectedRecords.First();
+        await DownloadThermalInvoice(selectedCartItem.Id, selectedCartItem.TransactionNo);
+    }
+
     private async Task DownloadSelectedCartItemPdfInvoice()
     {
         if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
@@ -557,6 +567,44 @@ public partial class SaleReport : IAsyncDisposable
 
         var selectedCartItem = _sfGrid.SelectedRecords.First();
         await DownloadExcelInvoice(selectedCartItem.Id, selectedCartItem.TransactionNo);
+    }
+
+    private async Task DownloadThermalInvoice(int transactionId, string transactionNo)
+    {
+        if (_isProcessing)
+            return;
+
+        try
+        {
+            _isProcessing = true;
+            StateHasChanged();
+            await _toastNotification.ShowAsync("Processing", "Generating thermal invoice...", ToastType.Info);
+
+            if (transactionId == 0 && !string.IsNullOrWhiteSpace(transactionNo))
+            {
+                await _toastNotification.ShowAsync("Error", "Thermal invoices are not available for stock transfers.", ToastType.Error);
+            }
+            else if (transactionId < 0)
+            {
+                await _toastNotification.ShowAsync("Error", "Thermal invoices are not available for sale returns.", ToastType.Error);
+            }
+            else
+            {
+                var printStream = await SaleThermalPrint.GenerateThermalBill(transactionId);
+                await JSRuntime.InvokeVoidAsync("printToPrinter", printStream.ToString());
+            }
+
+            await _toastNotification.ShowAsync("Success", "PDF invoice generated successfully.", ToastType.Success);
+        }
+        catch (Exception ex)
+        {
+            await _toastNotification.ShowAsync("Error", $"Thermal invoice generation failed: {ex.Message}", ToastType.Error);
+        }
+        finally
+        {
+            _isProcessing = false;
+            StateHasChanged();
+        }
     }
 
     private async Task DownloadPdfInvoice(int transactionId, string transactionNo)

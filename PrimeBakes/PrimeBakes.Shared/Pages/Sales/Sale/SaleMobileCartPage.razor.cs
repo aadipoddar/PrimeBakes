@@ -1,7 +1,10 @@
+using Microsoft.JSInterop;
+
 using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Sales.Sale;
 using PrimeBakesLibrary.DataAccess;
+using PrimeBakesLibrary.Exporting.Sales.Sale;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Sales.Product;
@@ -76,18 +79,18 @@ public partial class SaleMobileCartPage
     #region Changed Events
     private async Task OnCustomerNumberChanged(string args)
     {
-        if (args.Any(c => !char.IsDigit(c)))
-            args = new string([.. args.Where(char.IsDigit)]);
-
         if (string.IsNullOrWhiteSpace(args))
         {
             _selectedCustomer = new();
             _sale.CustomerId = null;
-            await SaveTransaction();
+            await SaveTransactionFile();
             return;
         }
 
         args = args.Trim();
+        if (args.Any(c => !char.IsDigit(c)))
+            args = new string([.. args.Where(char.IsDigit)]);
+
         _selectedCustomer = await CustomerData.LoadCustomerByNumber(args);
         _selectedCustomer ??= new()
         {
@@ -172,14 +175,14 @@ public partial class SaleMobileCartPage
         StateHasChanged();
     }
 
-    private async Task ConfirmPayment()
+    private async Task ConfirmPayment(bool thermal = false)
     {
         _sale.Cash = _payments.FirstOrDefault(p => p.Id == PaymentModeData.GetPaymentModes().FirstOrDefault(pm => pm.Name == "Cash")?.Id)?.Amount ?? 0;
         _sale.Card = _payments.FirstOrDefault(p => p.Id == PaymentModeData.GetPaymentModes().FirstOrDefault(pm => pm.Name == "Card")?.Id)?.Amount ?? 0;
         _sale.UPI = _payments.FirstOrDefault(p => p.Id == PaymentModeData.GetPaymentModes().FirstOrDefault(pm => pm.Name == "UPI")?.Id)?.Amount ?? 0;
         _sale.Credit = _payments.FirstOrDefault(p => p.Id == PaymentModeData.GetPaymentModes().FirstOrDefault(pm => pm.Name == "Credit")?.Id)?.Amount ?? 0;
 
-        await SaveTransaction();
+        await SaveTransaction(thermal);
     }
     #endregion
 
@@ -374,7 +377,7 @@ public partial class SaleMobileCartPage
         return true;
     }
 
-    private async Task SaveTransaction()
+    private async Task SaveTransaction(bool thermal = false)
     {
         if (_isProcessing || _isLoading)
             return;
@@ -397,8 +400,17 @@ public partial class SaleMobileCartPage
             await DataStorageService.LocalRemove(StorageFileNames.SaleMobileCartDataFileName);
             await SendLocalNotification(_sale.Id);
 
-            var (pdfStream, fileName) = await SaleData.GenerateAndDownloadInvoice(_sale.Id);
-            await SaveAndViewService.SaveAndView(fileName, pdfStream);
+            if (thermal)
+            {
+                var content = await SaleThermalPrint.GenerateThermalBill(_sale.Id);
+                await JSRuntime.InvokeVoidAsync("printToPrinter", content.ToString());
+            }
+
+            else
+            {
+                var (pdfStream, fileName) = await SaleData.GenerateAndDownloadInvoice(_sale.Id);
+                await SaveAndViewService.SaveAndView(fileName, pdfStream);
+            }
 
             NavigationManager.NavigateTo(PageRouteNames.SaleMobileConfirmation, true);
         }

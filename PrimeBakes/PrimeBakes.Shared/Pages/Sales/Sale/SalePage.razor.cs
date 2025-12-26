@@ -9,6 +9,7 @@ using PrimeBakesLibrary.Data.Sales.Order;
 using PrimeBakesLibrary.Data.Sales.Product;
 using PrimeBakesLibrary.Data.Sales.Sale;
 using PrimeBakesLibrary.DataAccess;
+using PrimeBakesLibrary.Exporting.Sales.Sale;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Sales.Order;
@@ -73,6 +74,7 @@ public partial class SalePage : IAsyncDisposable
             .Add(ModCode.Ctrl, Code.Enter, AddItemToCart, "Add item to cart", Exclude.None)
             .Add(ModCode.Ctrl, Code.E, () => _sfItemAutoComplete.FocusAsync(), "Focus on item input", Exclude.None)
             .Add(ModCode.Ctrl, Code.S, SaveTransaction, "Save the transaction", Exclude.None)
+            .Add(ModCode.Alt, Code.T, DownloadThermalInvoice, "Download Thermal invoice", Exclude.None)
             .Add(ModCode.Alt, Code.P, DownloadPdfInvoice, "Download PDF invoice", Exclude.None)
             .Add(ModCode.Alt, Code.E, DownloadExcelInvoice, "Download Excel invoice", Exclude.None)
             .Add(ModCode.Ctrl, Code.H, NavigateToTransactionHistoryPage, "Open transaction history", Exclude.None)
@@ -1178,6 +1180,37 @@ public partial class SalePage : IAsyncDisposable
     #endregion
 
     #region Utilities
+    private async Task DownloadThermalInvoice()
+    {
+        if (!Id.HasValue || Id.Value <= 0)
+        {
+            await _toastNotification.ShowAsync("No Transaction Selected", "Please save the transaction first before downloading the invoice.", ToastType.Error);
+            return;
+        }
+
+        if (_isProcessing)
+            return;
+
+        try
+        {
+            _isProcessing = true;
+            StateHasChanged();
+            await _toastNotification.ShowAsync("Processing", "Generating Thermal invoice...", ToastType.Info);
+            var printStream = await SaleThermalPrint.GenerateThermalBill(Id.Value);
+            await JSRuntime.InvokeVoidAsync("printToPrinter", printStream.ToString());
+            await _toastNotification.ShowAsync("Invoice Downloaded", "The PDF invoice has been downloaded successfully.", ToastType.Success);
+        }
+        catch (Exception ex)
+        {
+            await _toastNotification.ShowAsync("An Error Occurred While Downloading Invoice", ex.Message, ToastType.Error);
+        }
+        finally
+        {
+            _isProcessing = false;
+        }
+    }
+
+
     private async Task DownloadPdfInvoice()
     {
         if (!Id.HasValue || Id.Value <= 0)

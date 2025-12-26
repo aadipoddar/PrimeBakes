@@ -18,16 +18,11 @@ else
         <Header Title="Sale Report" Subtitle="View and analyze sale transactions" ShowHome="true" ShowBack="true"
                 OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack">
             <RightContent>
-                <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)"
-                            Disabled="_isProcessing" OnClick="ExportExcel" />
-                <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)"
-                            Disabled="_isProcessing" OnClick="ExportPdf" />
-                <IconButton Icon="IconType.Refresh" Title="Refresh Data (Ctrl + R)" Disabled="_isProcessing"
-                            OnClick="LoadTransactionOverviews" />
-                <IconButton Icon="IconType.Report" Title="Item Report (Ctrl + I)" Disabled="_isProcessing"
-                            OnClick="NavigateToItemReport" />
-                <IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing"
-                            OnClick="NavigateToTransactionPage" />
+                <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
+                <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
+                <IconButton Icon="IconType.Refresh" Title="Refresh Data (Ctrl + R)" Disabled="_isProcessing" OnClick="LoadTransactionOverviews" />
+                <IconButton Icon="IconType.Report" Title="Item Report (Ctrl + I)" Disabled="_isProcessing" OnClick="NavigateToItemReport" />
+                <IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing" OnClick="NavigateToTransactionPage" />
             </RightContent>
         </Header>
 
@@ -519,6 +514,9 @@ else
                                     <div class="grid-actions">
                                         @if (!item.Status)
                                         {
+                                            <IconButton Icon="IconType.ThermalPrinter" Variant="ButtonVariant.ThermalPrinter" Size="ButtonSize.Grid"
+                                                        Title="Download Thermal Invoice (Alt + T)" Disabled="_isProcessing"
+                                                        OnClick="@(() => DownloadThermalInvoice(item.Id, item.TransactionNo))" />
                                             <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Size="ButtonSize.Grid"
                                                         Title="Download Excel Invoice (Alt + E)" Disabled="_isProcessing"
                                                         OnClick="@(() => DownloadExcelInvoice(item.Id, item.TransactionNo))" />
@@ -538,6 +536,9 @@ else
                                             <IconButton Icon="IconType.View" Variant="ButtonVariant.View" Size="ButtonSize.Grid"
                                                         Title="View Transaction (Ctrl + O)" Disabled="_isProcessing"
                                                         OnClick="@(() => ViewTransaction(item.Id, item.TransactionNo))" />
+                                            <IconButton Icon="IconType.ThermalPrinter" Variant="ButtonVariant.ThermalPrinter" Size="ButtonSize.Grid"
+                                                        Title="Download Thermal Invoice (Alt + T)" Disabled="_isProcessing"
+                                                        OnClick="@(() => DownloadThermalInvoice(item.Id, item.TransactionNo))" />
                                             <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Size="ButtonSize.Grid"
                                                         Title="Download Excel Invoice (Alt + E)" Disabled="_isProcessing"
                                                         OnClick="@(() => DownloadExcelInvoice(item.Id, item.TransactionNo))" />

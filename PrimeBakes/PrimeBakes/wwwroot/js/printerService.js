@@ -22,7 +22,7 @@ window.printToPrinter = function (content) {
                             padding: 8mm;
                             width: 64mm;
                             color: #000000;
-                            line-height: 1.5;
+                            line-height: 1.1;
                             -webkit-print-color-adjust: exact;
                             print-color-adjust: exact;
                         }
@@ -30,26 +30,28 @@ window.printToPrinter = function (content) {
                         /* Header */
                         .header {
                             text-align: center;
-                            margin-bottom: 12px;
+                            margin-bottom: 6px;
                         }
                         .company-name {
                             font-family: Arial, sans-serif;
                             font-size: 25px;
                             font-weight: bold;
                             margin-bottom: 0px;
+                            line-height: 1.1;
                         }
                         .header-line {
                             font-family: Arial, sans-serif;
                             font-size: 15px;
                             font-weight: bold;
-                            margin-top: 5px;
+                            margin-top: 2px;
+                            line-height: 1.1;
                         }
                         
                         /* Outlet Details */
                         .outlet-details {
                             text-align: center;
-                            margin-bottom: 10px;
-                            padding: 4px;
+                            margin-bottom: 5px;
+                            padding: 2px;
                             background-color: #f5f5f5;
                             border: 1px solid #000000;
                             -webkit-print-color-adjust: exact;
@@ -59,23 +61,25 @@ window.printToPrinter = function (content) {
                             font-family: Arial, sans-serif;
                             font-size: 16px;
                             font-weight: bold;
-                            margin-bottom: 6px;
+                            margin-bottom: 3px;
                             text-decoration: underline;
                             letter-spacing: 1px;
+                            line-height: 1.1;
                         }
                         .outlet-line {
                             font-family: 'Courier New', monospace;
                             font-size: 13px;
                             font-weight: bold;
-                            margin: 2px 0;
+                            margin: 1px 0;
                             text-align: left;
-                            padding: 1px 0;
+                            padding: 0;
+                            line-height: 1.1;
                         }
                         
                         /* Separator */
                         .bold-separator {
                             border-bottom: 2px dashed #000000;
-                            margin: 8px 0;
+                            margin: 4px 0;
                             height: 1px;
                         }
                         
@@ -84,11 +88,12 @@ window.printToPrinter = function (content) {
                             font-family: 'Courier New', monospace;
                             font-size: 15px;
                             font-weight: bold;
-                            padding: 2px;
-                            margin-bottom: 8px;
+                            padding: 1px;
+                            margin-bottom: 4px;
                         }
                         .detail-row {
-                            margin: 3px 0;
+                            margin: 1px 0;
+                            line-height: 1.1;
                         }
                         .detail-label {
                             font-weight: bold;
@@ -101,20 +106,22 @@ window.printToPrinter = function (content) {
                         .items-table {
                             width: 100%;
                             border-collapse: collapse;
-                            margin: 2px 0;
+                            margin: 1px 0;
                         }
                         .table-header th {
                             font-family: Arial, sans-serif;
                             font-size: 14px;
                             font-weight: bold;
-                            padding: 5px 2px;
+                            padding: 3px 2px;
                             border-bottom: 1px solid #000000;
+                            line-height: 1.1;
                         }
                         .table-row td {
                             font-family: 'Courier New', monospace;
                             font-size: 12px;
                             font-weight: bold;
-                            padding: 5px 2px;
+                            padding: 3px 2px;
+                            line-height: 1.1;
                         }
                         
                         /* Summary Table */
@@ -123,10 +130,11 @@ window.printToPrinter = function (content) {
                             font-size: 15px;
                             font-weight: bold;
                             width: 100%;
-                            padding: 2px;
+                            padding: 1px;
                         }
                         .summary-table td {
-                            padding: 3px 2px;
+                            padding: 1px 2px;
+                            line-height: 1.1;
                         }
                         .summary-label {
                             font-weight: bold;
@@ -141,11 +149,12 @@ window.printToPrinter = function (content) {
                             font-family: 'Arial Black', 'Arial', sans-serif;
                             font-size: 16px;
                             font-weight: bold;
-                            padding: 2px;
-                            margin: 5px 0;
+                            padding: 1px;
+                            margin: 2px 0;
                         }
                         .grand-total td {
-                            padding: 3px 2px;
+                            padding: 2px 2px;
+                            line-height: 1.1;
                         }
                         .grand-total-label {
                             font-weight: bold;
@@ -160,8 +169,9 @@ window.printToPrinter = function (content) {
                             font-size: 13px;
                             font-weight: bold;
                             text-align: center;
-                            padding: 8px 0;
+                            padding: 4px 0;
                             font-style: italic;
+                            line-height: 1.1;
                         }
                         
                         /* Footer */
@@ -170,15 +180,17 @@ window.printToPrinter = function (content) {
                             font-size: 12px;
                             font-weight: bold;
                             text-align: center;
-                            margin: 2px 0;
-                            padding: 2px;
+                            margin: 1px 0;
+                            padding: 1px;
+                            line-height: 1.1;
                         }
                         .footer-text {
                             font-family: 'Courier New', monospace;
                             font-size: 13px;
                             font-weight: bold;
                             text-align: center;
-                            padding: 2px;
+                            padding: 1px;
+                            line-height: 1.1;
                         }
 
                         /* Print-specific adjustments */

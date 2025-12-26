@@ -26,8 +26,9 @@ else
                 <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Transaction (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveTransaction" />
                 @if (Id is > 0)
                 {
-                    <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Download Excel Invoice (Alt+E)" Disabled="_isProcessing" OnClick="DownloadExcelInvoice" />
-                    <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Download PDF Invoice (Alt+P)" Disabled="_isProcessing" OnClick="DownloadPdfInvoice" />
+                    <IconButton Icon="IconType.ThermalPrinter" Variant="ButtonVariant.ThermalPrinter" Title="Download Thermal Invoice (Alt + T)" Disabled="_isProcessing" OnClick="DownloadThermalInvoice" />
+                    <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Download Excel Invoice (Alt + E)" Disabled="_isProcessing" OnClick="DownloadExcelInvoice" />
+                    <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Download PDF Invoice (Alt + P)" Disabled="_isProcessing" OnClick="DownloadPdfInvoice" />
                 }
                 <IconButton Icon="IconType.History" Title="Transaction History (Ctrl + H)" Disabled="_isProcessing" OnClick="NavigateToTransactionHistoryPage" />
                 <IconButton Icon="IconType.Report" Title="Item Report (Ctrl + I)" Disabled="_isProcessing" OnClick="NavigateToItemReport" />
