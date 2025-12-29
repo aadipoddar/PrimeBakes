@@ -147,7 +147,8 @@ public partial class AccountingLedgerReport : IAsyncDisposable
 
                 _transactionOverviews = filteredOverviews;
 
-                var trialBalances = await AccountingData.LoadTrialBalanceByDate(
+                var trialBalances = await AccountingData.LoadTrialBalanceByCompanyDate(
+                    _selectedCompany?.Id ?? 0,
                     DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
                     DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));
 

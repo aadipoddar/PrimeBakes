@@ -16,8 +16,8 @@ public static class AccountingData
     public static async Task<AccountingModel> LoadAccountingByVoucherReference(int VoucherId, int ReferenceId, string ReferenceNo) =>
         (await SqlDataAccess.LoadData<AccountingModel, dynamic>(StoredProcedureNames.LoadAccountingByVoucherReference, new { VoucherId, ReferenceId, ReferenceNo })).FirstOrDefault();
 
-    public static async Task<List<TrialBalanceModel>> LoadTrialBalanceByDate(DateTime StartDate, DateTime EndDate) =>
-        await SqlDataAccess.LoadData<TrialBalanceModel, dynamic>(StoredProcedureNames.LoadTrialBalanceByDate, new { StartDate, EndDate });
+    public static async Task<List<TrialBalanceModel>> LoadTrialBalanceByCompanyDate(int CompanyId, DateTime StartDate, DateTime EndDate) =>
+        await SqlDataAccess.LoadData<TrialBalanceModel, dynamic>(StoredProcedureNames.LoadTrialBalanceByCompanyDate, new { CompanyId, StartDate, EndDate });
 
     public static async Task<(MemoryStream pdfStream, string fileName)> GenerateAndDownloadInvoice(int accountingId)
     {
@@ -164,7 +164,8 @@ public static class AccountingData
         accounting.Id = await InsertAccounting(accounting);
         await SaveAccountingDetail(accounting, accountingDetails, update);
 
-        await SendNotification.FinancialAccountingNotification(accounting.Id, update ? NotificationType.Update : NotificationType.Save);
+        if (showNotification && update)
+            await SendNotification.FinancialAccountingNotification(accounting.Id, update ? NotificationType.Update : NotificationType.Save);
 
         return accounting.Id;
     }

@@ -50,8 +50,20 @@ else
                                        FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
                         </div>
 
+                        <!-- Nature -->
+                        <div class="form-field">
+                            <label class="field-label">
+                                Nature <span class="required">*</span>
+                            </label>
+                            <SfDropDownList TValue="int" TItem="NatureModel" Placeholder="Select Nature"
+                                            DataSource="@_natures" @bind-Value="_group.NatureId"
+                                            FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox">
+                                <DropDownListFieldSettings Text="Name" Value="Id" />
+                            </SfDropDownList>
+                        </div>
+
                         <!-- Remarks -->
-                        <div class="form-field form-field-span-2">
+                        <div class="form-field">
                             <label class="field-label">Remarks</label>
                             <SfTextBox @bind-Value="_group.Remarks" Placeholder="Enter remarks (optional)" Multiline="true"
                                        FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
@@ -102,8 +114,17 @@ else
                             </GridColumn>
                             <GridColumn Field="@nameof(GroupModel.Id)" HeaderText="ID" Width="80"
                                         TextAlign="TextAlign.Center" />
-                            <GridColumn Field="@nameof(GroupModel.Name)" HeaderText="Group Name" Width="300" />
-                            <GridColumn Field="@nameof(GroupModel.Remarks)" HeaderText="Remarks" Width="400" />
+                            <GridColumn Field="@nameof(GroupModel.Name)" HeaderText="Group Name" Width="250" />
+                            <GridColumn HeaderText="Nature" Width="200">
+                                <Template>
+                                    @{
+                                        var group = (context as GroupModel);
+                                        var nature = _natures.FirstOrDefault(n => n.Id == group.NatureId);
+                                        <span>@(nature?.Name ?? "N/A")</span>
+                                    }
+                                </Template>
+                            </GridColumn>
+                            <GridColumn Field="@nameof(GroupModel.Remarks)" HeaderText="Remarks" Width="350" />
                             <GridColumn Field="@nameof(GroupModel.Status)" HeaderText="Status" Width="100"
                                         TextAlign="TextAlign.Center">
                                 <Template>

@@ -21,6 +21,7 @@ public partial class GroupPage : IAsyncDisposable
     private GroupModel _group = new();
 
     private List<GroupModel> _groups = [];
+    private List<NatureModel> _natures = [];
 
     private SfGrid<GroupModel> _sfGrid;
     private DeleteConfirmationDialog _deleteConfirmationDialog;
@@ -58,6 +59,7 @@ public partial class GroupPage : IAsyncDisposable
             .Add(Code.Insert, EditSelectedItem, "Edit selected", Exclude.None)
             .Add(Code.Delete, DeleteSelectedItem, "Delete selected", Exclude.None);
 
+        _natures = await CommonData.LoadTableDataByStatus<NatureModel>(TableNames.Nature);
         _groups = await CommonData.LoadTableData<GroupModel>(TableNames.Group);
 
         if (!_showDeleted)
@@ -75,6 +77,7 @@ public partial class GroupPage : IAsyncDisposable
         {
             Id = group.Id,
             Name = group.Name,
+            NatureId = group.NatureId,
             Remarks = group.Remarks,
             Status = group.Status
         };
@@ -194,6 +197,12 @@ public partial class GroupPage : IAsyncDisposable
         if (string.IsNullOrWhiteSpace(_group.Name))
         {
             await _toastNotification.ShowAsync("Error", "Group name is required. Please enter a valid group name.", ToastType.Error);
+            return false;
+        }
+
+        if (_group.NatureId <= 0)
+        {
+            await _toastNotification.ShowAsync("Error", "Nature is required. Please select a nature.", ToastType.Error);
             return false;
         }
 

@@ -22,8 +22,6 @@ public partial class TrialBalance : IAsyncDisposable
     private PeriodicTimer _autoRefreshTimer;
     private CancellationTokenSource _autoRefreshCts;
 
-    private UserModel _user;
-
     private bool _isLoading = true;
     private bool _isProcessing = false;
     private bool _showAllColumns = false;
@@ -31,9 +29,11 @@ public partial class TrialBalance : IAsyncDisposable
     private DateTime _fromDate = DateTime.Now.Date;
     private DateTime _toDate = DateTime.Now.Date;
 
+    private CompanyModel _selectedCompany = new();
     private GroupModel _selectedGroup = new();
     private AccountTypeModel _selectedAccountType = new();
 
+    private List<CompanyModel> _companies = [];
     private List<GroupModel> _groups = [];
     private List<AccountTypeModel> _accountTypes = [];
     private List<TrialBalanceModel> _trialBalance = [];
@@ -47,7 +47,7 @@ public partial class TrialBalance : IAsyncDisposable
         if (!firstRender)
             return;
 
-        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, UserRoles.Accounts, true);
+        await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, UserRoles.Accounts, true);
         await LoadData();
         _isLoading = false;
         StateHasChanged();
@@ -66,6 +66,7 @@ public partial class TrialBalance : IAsyncDisposable
             .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None);
 
         await LoadDates();
+        await LoadCompanies();
         await LoadGroups();
         await LoadAccountTypes();
         await LoadTrialBalance();
@@ -76,6 +77,19 @@ public partial class TrialBalance : IAsyncDisposable
     {
         _fromDate = await CommonData.LoadCurrentDateTime();
         _toDate = _fromDate;
+    }
+
+    private async Task LoadCompanies()
+    {
+        _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
+        _companies.Add(new()
+        {
+            Id = 0,
+            Name = "All Companies"
+        });
+
+        _companies = [.. _companies.OrderBy(s => s.Name)];
+        _selectedCompany = _companies.FirstOrDefault(_ => _.Id == 0);
     }
 
     private async Task LoadGroups()
@@ -114,7 +128,8 @@ public partial class TrialBalance : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Loading", "Fetching trial balance...", ToastType.Info);
 
-            _trialBalance = await AccountingData.LoadTrialBalanceByDate(
+            _trialBalance = await AccountingData.LoadTrialBalanceByCompanyDate(
+                _selectedCompany?.Id ?? 0,
                 DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
                 DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));
 
@@ -145,6 +160,12 @@ public partial class TrialBalance : IAsyncDisposable
     {
         _fromDate = args.StartDate;
         _toDate = args.EndDate;
+        await LoadTrialBalance();
+    }
+
+    private async Task OnCompanyChanged(Syncfusion.Blazor.DropDowns.ChangeEventArgs<CompanyModel, CompanyModel> args)
+    {
+        _selectedCompany = args.Value;
         await LoadTrialBalance();
     }
 
