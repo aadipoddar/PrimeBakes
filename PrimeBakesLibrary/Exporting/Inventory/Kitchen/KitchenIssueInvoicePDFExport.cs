@@ -7,43 +7,31 @@ using PrimeBakesLibrary.Models.Inventory.Kitchen;
 
 namespace PrimeBakesLibrary.Exporting.Inventory.Kitchen;
 
-/// <summary>
-/// Convert Kitchen Issue data to Invoice PDF format using generic PDFInvoiceExportUtil
-/// </summary>
 public static class KitchenIssueInvoicePDFExport
 {
-    /// <summary>
-    /// Export Kitchen Issue as a professional invoice PDF (automatically loads item names)
-    /// Uses generic invoice utility for consistency with purchase invoices
-    /// </summary>
-    /// <param name="kitchenIssueHeader">Kitchen Issue header data</param>
-    /// <param name="kitchenIssueDetails">Kitchen Issue detail line items</param>
-    /// <param name="company">Company information</param>
-    /// <param name="kitchen">Kitchen/Location information</param>
-    /// <param name="logoPath">Optional: Path to company logo</param>
-    /// <param name="invoiceType">Type of document (KITCHEN ISSUE, MATERIAL ISSUE, etc.)</param>
-    /// <returns>MemoryStream containing the PDF file</returns>
-    public static async Task<MemoryStream> ExportKitchenIssueInvoice(
-        KitchenIssueModel kitchenIssueHeader,
-        List<KitchenIssueDetailModel> kitchenIssueDetails,
-        CompanyModel company,
-        LocationModel kitchen,
-        string logoPath = null,
-        string invoiceType = "KITCHEN ISSUE INVOICE")
+    public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId)
     {
-        // Load all raw materials to get names
+        var transaction = await CommonData.LoadTableDataById<KitchenIssueModel>(TableNames.KitchenIssue, transactionId) ??
+            throw new InvalidOperationException("Transaction not found.");
+
+        var transactionDetails = await CommonData.LoadTableDataByMasterId<KitchenIssueDetailModel>(TableNames.KitchenIssueDetail, transaction.Id);
+        if (transactionDetails is null || transactionDetails.Count == 0)
+            throw new InvalidOperationException("No transaction details found for the transaction.");
+
+        var company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, transaction.CompanyId);
+        var kitchen = await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, transaction.KitchenId);
+        if (company is null || kitchen is null)
+            throw new InvalidOperationException("Company or kitchen information is missing.");
+
         var allItems = await CommonData.LoadTableData<RawMaterialModel>(TableNames.RawMaterial);
 
-        // Map line items with actual item names
-        var cartItems = kitchenIssueDetails.Select(detail =>
+        var lineItems = transactionDetails.Select(detail =>
         {
             var item = allItems.FirstOrDefault(i => i.Id == detail.RawMaterialId);
-            string itemName = item?.Name ?? $"Item #{detail.RawMaterialId}";
-
             return new KitchenIssueItemCartModel
             {
                 ItemId = detail.RawMaterialId,
-                ItemName = itemName,
+                ItemName = item?.Name ?? $"Item #{detail.RawMaterialId}",
                 Quantity = detail.Quantity,
                 UnitOfMeasurement = detail.UnitOfMeasurement,
                 Rate = detail.Rate,
@@ -52,80 +40,50 @@ public static class KitchenIssueInvoicePDFExport
             };
         }).ToList();
 
-        // Use the simplified export method
-        return await ExportKitchenIssueInvoiceWithItems(
-            kitchenIssueHeader,
-            cartItems,
-            company,
-            kitchen,
-            logoPath,
-            invoiceType
-        );
-    }
-
-    /// <summary>
-    /// Export Kitchen Issue with item names already loaded (requires additional data)
-    /// Uses generic invoice utility with zero discount/tax for simplified format
-    /// </summary>
-    public static async Task<MemoryStream> ExportKitchenIssueInvoiceWithItems(
-        KitchenIssueModel kitchenIssueHeader,
-        List<KitchenIssueItemCartModel> kitchenIssueItems,
-        CompanyModel company,
-        LocationModel kitchen,
-        string logoPath = null,
-        string invoiceType = "KITCHEN ISSUE INVOICE")
-    {
-        // Convert LocationModel to LedgerModel format for generic utility
+        // Convert LocationModel to LedgerModel for display
         var kitchenAsLedger = new LedgerModel
         {
             Name = kitchen.Name,
-            Address = "", // LocationModel doesn't have Address
-            Phone = "", // LocationModel doesn't have Phone
-            Email = "", // LocationModel doesn't have Email
-            GSTNo = "" // LocationModel doesn't have GSTNo
         };
 
-        // Map line items to generic invoice format (no discount/tax for kitchen issues)
-        var lineItems = kitchenIssueItems.Select(item => new PDFInvoiceExportUtil.InvoiceLineItem
-        {
-            ItemId = item.ItemId,
-            ItemName = item.ItemName,
-            Quantity = item.Quantity,
-            UnitOfMeasurement = item.UnitOfMeasurement,
-            Rate = item.Rate,
-            DiscountPercent = 0, // No discount for kitchen issues
-            AfterDiscount = item.Quantity * item.Rate, // Same as subtotal
-            CGSTPercent = 0, // No tax for kitchen issues
-            SGSTPercent = 0,
-            IGSTPercent = 0,
-            TotalTaxAmount = 0,
-            Total = item.Total
-        }).ToList();
-
-        // Map invoice header data
         var invoiceData = new PDFInvoiceExportUtil.InvoiceData
         {
-            TransactionNo = kitchenIssueHeader.TransactionNo,
-            TransactionDateTime = kitchenIssueHeader.TransactionDateTime,
-            ItemsTotalAmount = kitchenIssueHeader.TotalAmount,
-            OtherChargesAmount = 0, // Kitchen issues don't have other charges
-            OtherChargesPercent = 0,
-            CashDiscountAmount = 0, // Kitchen issues don't have cash discount
-            CashDiscountPercent = 0,
-            RoundOffAmount = 0, // Kitchen issues don't have round off
-            TotalAmount = kitchenIssueHeader.TotalAmount,
-            Remarks = kitchenIssueHeader.Remarks,
-            Status = kitchenIssueHeader.Status
+            Company = company,
+            BillTo = kitchenAsLedger,
+            InvoiceType = "KITCHEN ISSUE INVOICE",
+            TransactionNo = transaction.TransactionNo,
+            TransactionDateTime = transaction.TransactionDateTime,
+            TotalAmount = transaction.TotalAmount,
+            Remarks = transaction.Remarks,
+            Status = transaction.Status,
+            PaymentModes = null
         };
 
-        // Generate invoice PDF using generic utility
-        return await PDFInvoiceExportUtil.ExportInvoiceToPdf(
+        var summaryFields = new Dictionary<string, string>
+        {
+            ["Grand Total"] = transaction.TotalAmount.FormatIndianCurrency()
+        };
+
+        var columnSettings = new List<PDFInvoiceExportUtil.InvoiceColumnSetting>
+        {
+            new("#", "#", 25, Syncfusion.Pdf.Graphics.PdfTextAlignment.Center),
+            new(nameof(KitchenIssueItemCartModel.ItemName), "Item", 0, Syncfusion.Pdf.Graphics.PdfTextAlignment.Left),
+            new(nameof(KitchenIssueItemCartModel.UnitOfMeasurement), "UOM", 50, Syncfusion.Pdf.Graphics.PdfTextAlignment.Center),
+            new(nameof(KitchenIssueItemCartModel.Quantity), "Qty", 50, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00"),
+            new(nameof(KitchenIssueItemCartModel.Rate), "Rate", 60, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00"),
+            new(nameof(KitchenIssueItemCartModel.Total), "Total", 60, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00")
+        };
+
+        var stream = await PDFInvoiceExportUtil.ExportInvoiceToPdf(
             invoiceData,
             lineItems,
-            company,
-            kitchenAsLedger,
-            logoPath,
-            invoiceType
+            columnSettings,
+            null,
+            summaryFields
         );
+
+        var currentDateTime = await CommonData.LoadCurrentDateTime();
+        string fileName = $"KITCHEN_ISSUE_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
+        return (stream, fileName);
     }
 }

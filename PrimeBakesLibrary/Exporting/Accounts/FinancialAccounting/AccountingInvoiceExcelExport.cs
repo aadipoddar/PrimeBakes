@@ -5,142 +5,81 @@ using PrimeBakesLibrary.Models.Accounts.Masters;
 
 namespace PrimeBakesLibrary.Exporting.Accounts.FinancialAccounting;
 
-/// <summary>
-/// Convert Accounting voucher data to Invoice Excel format
-/// </summary>
 public static class AccountingInvoiceExcelExport
 {
-	/// <summary>
-	/// Export Accounting voucher as a professional accounting voucher Excel (automatically loads ledger names)
-	/// </summary>
-	/// <param name="accountingHeader">Accounting header data</param>
-	/// <param name="accountingDetails">Accounting detail line items (ledger entries)</param>
-	/// <param name="company">Company information</param>
-	/// <param name="voucher">Voucher type information</param>
-	/// <param name="logoPath">Optional: Path to company logo</param>
-	/// <param name="invoiceType">Type of document (JOURNAL VOUCHER, PAYMENT VOUCHER, etc.)</param>
-	/// <returns>MemoryStream containing the Excel file</returns>
-	public static async Task<MemoryStream> ExportAccountingInvoice(
-		AccountingModel accountingHeader,
-		List<AccountingDetailModel> accountingDetails,
-		CompanyModel company,
-		VoucherModel voucher,
-		string logoPath = null,
-		string invoiceType = "ACCOUNTING VOUCHER")
-	{
-		// Load all ledgers to get names
-		var allLedgers = await CommonData.LoadTableData<LedgerModel>(TableNames.Ledger);
+    public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId)
+    {
+        var transaction = await CommonData.LoadTableDataById<AccountingModel>(TableNames.Accounting, transactionId) ??
+            throw new InvalidOperationException("Transaction not found.");
 
-		// Map to accounting line items with proper Debit/Credit columns
-		var accountingLineItems = accountingDetails.Select(detail =>
-		{
-			var ledger = allLedgers.FirstOrDefault(l => l.Id == detail.LedgerId);
-			string ledgerName = ledger?.Name ?? $"Ledger #{detail.LedgerId}";
+        var transactionDetails = await CommonData.LoadTableDataByMasterId<AccountingDetailModel>(TableNames.AccountingDetail, transaction.Id);
+        if (transactionDetails is null || transactionDetails.Count == 0)
+            throw new InvalidOperationException("No transaction details found for the transaction.");
 
-			return new ExcelInvoiceExportUtil.AccountingLineItem
-			{
-				LedgerId = detail.LedgerId,
-				LedgerName = ledgerName,
-				ReferenceNo = detail.ReferenceNo,
-				ReferenceType = detail.ReferenceType,
-				Debit = detail.Debit,
-				Credit = detail.Credit,
-				Remarks = detail.Remarks
-			};
-		}).ToList();
+        var company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, transaction.CompanyId) ?? throw new InvalidOperationException("Company information is missing.");
+        var voucher = await CommonData.LoadTableDataById<VoucherModel>(TableNames.Voucher, transaction.VoucherId);
+        var allLedgers = await CommonData.LoadTableData<LedgerModel>(TableNames.Ledger);
 
-		// Map invoice header data
-		var invoiceData = new ExcelInvoiceExportUtil.InvoiceData
-		{
-			TransactionNo = accountingHeader.TransactionNo,
-			TransactionDateTime = accountingHeader.TransactionDateTime,
-			OrderTransactionNo = accountingHeader.ReferenceNo,
-			ItemsTotalAmount = Math.Max(accountingHeader.TotalDebitAmount, accountingHeader.TotalCreditAmount),
-			OtherChargesAmount = 0,
-			OtherChargesPercent = 0,
-			CashDiscountAmount = 0,
-			CashDiscountPercent = 0,
-			RoundOffAmount = 0,
-			TotalAmount = Math.Max(accountingHeader.TotalDebitAmount, accountingHeader.TotalCreditAmount),
-			Cash = 0,
-			Card = 0,
-			UPI = 0,
-			Credit = 0,
-			Remarks = accountingHeader.Remarks,
-			Status = accountingHeader.Status
-		};
+        var cartItems = transactionDetails.Select(detail =>
+        {
+            var ledger = allLedgers.FirstOrDefault(l => l.Id == detail.LedgerId);
+            return new AccountingItemCartModel
+            {
+                LedgerId = detail.LedgerId,
+                LedgerName = ledger?.Name ?? $"Ledger #{detail.LedgerId}",
+                ReferenceNo = detail.ReferenceNo,
+                ReferenceType = detail.ReferenceType,
+                Debit = detail.Debit,
+                Credit = detail.Credit,
+                Remarks = detail.Remarks
+            };
+        }).ToList();
 
-		// Use voucher name as invoice type
-		string voucherInvoiceType = !string.IsNullOrWhiteSpace(voucher?.Name)
-			? $"{voucher.Name.ToUpper()}"
-			: invoiceType;
+        decimal totalDebit = cartItems.Sum(i => i.Debit ?? 0);
+        decimal totalCredit = cartItems.Sum(i => i.Credit ?? 0);
+        decimal difference = totalDebit - totalCredit;
 
-		// Generate specialized accounting voucher Excel
-		return await ExcelInvoiceExportUtil.ExportAccountingVoucherToExcel(
-			invoiceData,
-			accountingLineItems,
-			company,
-			logoPath,
-			voucherInvoiceType
-		);
-	}
+        var invoiceData = new ExcelInvoiceExportUtil.InvoiceData
+        {
+            TransactionNo = transaction.TransactionNo,
+            Company = company,
+            BillTo = null,
+            InvoiceType = voucher.Name.ToUpper(),
+            TransactionDateTime = transaction.TransactionDateTime,
+            ReferenceTransactionNo = transaction.ReferenceNo,
+            TotalAmount = Math.Max(transaction.TotalDebitAmount, transaction.TotalCreditAmount),
+            Remarks = transaction.Remarks,
+            Status = transaction.Status,
+            PaymentModes = null
+        };
 
-	/// <summary>
-	/// Export Accounting with ledger names (requires additional data)
-	/// </summary>
-	public static async Task<MemoryStream> ExportAccountingInvoiceWithItems(
-		AccountingModel accountingHeader,
-		List<AccountingItemCartModel> accountingItems,
-		CompanyModel company,
-		VoucherModel voucher,
-		string logoPath = null,
-		string invoiceType = "ACCOUNTING VOUCHER")
-	{
-		// Map to accounting line items with proper Debit/Credit columns
-		var accountingLineItems = accountingItems.Select(item => new ExcelInvoiceExportUtil.AccountingLineItem
-		{
-			LedgerId = item.LedgerId,
-			LedgerName = item.LedgerName,
-			ReferenceNo = item.ReferenceNo,
-			ReferenceType = item.ReferenceType,
-			Debit = item.Debit,
-			Credit = item.Credit,
-			Remarks = item.Remarks
-		}).ToList();
+        var columnSettings = new List<ExcelInvoiceExportUtil.InvoiceColumnSetting>
+        {
+            new("#", "#", 5, Syncfusion.XlsIO.ExcelHAlign.HAlignCenter),
+            new(nameof(AccountingItemCartModel.LedgerName), "Ledger", 35, Syncfusion.XlsIO.ExcelHAlign.HAlignLeft),
+            new(nameof(AccountingItemCartModel.ReferenceNo), "Ref No", 15, Syncfusion.XlsIO.ExcelHAlign.HAlignLeft),
+            new(nameof(AccountingItemCartModel.Debit), "Dr", 15, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00"),
+            new(nameof(AccountingItemCartModel.Credit), "Cr", 15, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00"),
+            new(nameof(AccountingItemCartModel.Remarks), "Remarks", 25, Syncfusion.XlsIO.ExcelHAlign.HAlignLeft)
+        };
 
-		// Map invoice header data
-		var invoiceData = new ExcelInvoiceExportUtil.InvoiceData
-		{
-			TransactionNo = accountingHeader.TransactionNo,
-			TransactionDateTime = accountingHeader.TransactionDateTime,
-			OrderTransactionNo = accountingHeader.ReferenceNo,
-			ItemsTotalAmount = Math.Max(accountingHeader.TotalDebitAmount, accountingHeader.TotalCreditAmount),
-			OtherChargesAmount = 0,
-			OtherChargesPercent = 0,
-			CashDiscountAmount = 0,
-			CashDiscountPercent = 0,
-			RoundOffAmount = 0,
-			TotalAmount = Math.Max(accountingHeader.TotalDebitAmount, accountingHeader.TotalCreditAmount),
-			Cash = 0,
-			Card = 0,
-			UPI = 0,
-			Credit = 0,
-			Remarks = accountingHeader.Remarks,
-			Status = accountingHeader.Status
-		};
+        var summaryFields = new Dictionary<string, string>
+        {
+            { "Total Debit:", totalDebit.ToString() },
+            { "Total Credit:", totalCredit.ToString() },
+            { "Difference:", difference.ToString() }
+        };
 
-		// Use voucher name as invoice type
-		string voucherInvoiceType = !string.IsNullOrWhiteSpace(voucher?.Name)
-			? $"{voucher.Name.ToUpper()}"
-			: invoiceType;
+        var stream = await ExcelInvoiceExportUtil.ExportInvoiceToExcel(
+            invoiceData,
+            cartItems,
+            columnSettings,
+            null,
+            summaryFields
+        );
 
-		// Generate specialized accounting voucher Excel
-		return await ExcelInvoiceExportUtil.ExportAccountingVoucherToExcel(
-			invoiceData,
-			accountingLineItems,
-			company,
-			logoPath,
-			voucherInvoiceType
-		);
-	}
+        var currentDateTime = await CommonData.LoadCurrentDateTime();
+        string fileName = $"ACCOUNTING_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.xlsx";
+        return (stream, fileName);
+    }
 }

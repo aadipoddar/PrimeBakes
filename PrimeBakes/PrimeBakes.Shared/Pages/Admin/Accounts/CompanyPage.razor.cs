@@ -51,11 +51,12 @@ public partial class CompanyPage : IAsyncDisposable
     {
         _hotKeysContext = HotKeys.CreateContext()
             .Add(ModCode.Ctrl, Code.S, SaveCompany, "Save", Exclude.None)
-            .Add(ModCode.Ctrl, Code.N, () => NavigationManager.NavigateTo(PageRouteNames.AdminCompany, true), "New", Exclude.None)
             .Add(ModCode.Ctrl, Code.E, ExportExcel, "Export Excel", Exclude.None)
             .Add(ModCode.Ctrl, Code.P, ExportPdf, "Export PDF", Exclude.None)
-            .Add(ModCode.Ctrl, Code.D, () => NavigationManager.NavigateTo(PageRouteNames.Dashboard), "Dashboard", Exclude.None)
-            .Add(ModCode.Ctrl, Code.B, () => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard), "Back", Exclude.None)
+            .Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
+            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
+            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
+            .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Dashboard", Exclude.None)
             .Add(Code.Insert, EditSelectedItem, "Edit selected", Exclude.None)
             .Add(Code.Delete, DeleteSelectedItem, "Delete selected", Exclude.None);
 
@@ -248,6 +249,18 @@ public partial class CompanyPage : IAsyncDisposable
         if (string.IsNullOrWhiteSpace(_company.Address)) _company.Address = null;
         if (string.IsNullOrWhiteSpace(_company.Remarks)) _company.Remarks = null;
 
+        if (!string.IsNullOrWhiteSpace(_company.Phone) && !Helper.ValidatePhoneNumber(_company.Phone))
+        {
+            await _toastNotification.ShowAsync("Error", "Invalid phone number format. Please enter a valid phone number.", ToastType.Error);
+            return false;
+        }
+
+        if (!string.IsNullOrWhiteSpace(_company.Email) && !Helper.ValidateEmail(_company.Email))
+        {
+            await _toastNotification.ShowAsync("Error", "Invalid email format. Please enter a valid email address.", ToastType.Error);
+            return false;
+        }
+
         if (_company.Id > 0)
         {
             var existingCompany = _companies.FirstOrDefault(_ => _.Id != _company.Id && _.Name.Equals(_company.Name, StringComparison.OrdinalIgnoreCase));
@@ -262,6 +275,26 @@ public partial class CompanyPage : IAsyncDisposable
             {
                 await _toastNotification.ShowAsync("Error", $"Company code '{_company.Code}' already exists. Please choose a different code.", ToastType.Error);
                 return false;
+            }
+
+            if (!string.IsNullOrWhiteSpace(_company.Phone))
+            {
+                var duplicatePhoneCompany = _companies.FirstOrDefault(_ => _.Id != _company.Id && _.Phone.Equals(_company.Phone, StringComparison.OrdinalIgnoreCase));
+                if (duplicatePhoneCompany is not null)
+                {
+                    await _toastNotification.ShowAsync("Error", $"Phone number '{_company.Phone}' is already associated with another company. Please use a different phone number.", ToastType.Error);
+                    return false;
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(_company.Email))
+            {
+                var duplicateEmailCompany = _companies.FirstOrDefault(_ => _.Id != _company.Id && _.Email.Equals(_company.Email, StringComparison.OrdinalIgnoreCase));
+                if (duplicateEmailCompany is not null)
+                {
+                    await _toastNotification.ShowAsync("Error", $"Email '{_company.Email}' is already associated with another company. Please use a different email address.", ToastType.Error);
+                    return false;
+                }
             }
         }
         else
@@ -278,6 +311,26 @@ public partial class CompanyPage : IAsyncDisposable
             {
                 await _toastNotification.ShowAsync("Error", $"Company code '{_company.Code}' already exists. Please choose a different code.", ToastType.Error);
                 return false;
+            }
+
+            if (!string.IsNullOrWhiteSpace(_company.Phone))
+            {
+                var duplicatePhoneCompany = _companies.FirstOrDefault(_ => _.Phone.Equals(_company.Phone, StringComparison.OrdinalIgnoreCase));
+                if (duplicatePhoneCompany is not null)
+                {
+                    await _toastNotification.ShowAsync("Error", $"Phone number '{_company.Phone}' is already associated with another company. Please use a different phone number.", ToastType.Error);
+                    return false;
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(_company.Email))
+            {
+                var duplicateEmailCompany = _companies.FirstOrDefault(_ => _.Email.Equals(_company.Email, StringComparison.OrdinalIgnoreCase));
+                if (duplicateEmailCompany is not null)
+                {
+                    await _toastNotification.ShowAsync("Error", $"Email '{_company.Email}' is already associated with another company. Please use a different email address.", ToastType.Error);
+                    return false;
+                }
             }
         }
 
@@ -330,15 +383,8 @@ public partial class CompanyPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Exporting to Excel...", ToastType.Info);
 
-            // Call the Excel export utility
-            var stream = await CompanyExcelExport.ExportCompany(_companies);
-
-            // Generate file name
-            string fileName = "COMPANY_MASTER.xlsx";
-
-            // Save and view the Excel file
+            var (stream, fileName) = await CompanyExcelExport.ExportMaster(_companies);
             await SaveAndViewService.SaveAndView(fileName, stream);
-
             await _toastNotification.ShowAsync("Success", "Company data exported to Excel successfully.", ToastType.Success);
         }
         catch (Exception ex)
@@ -363,15 +409,8 @@ public partial class CompanyPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Exporting to PDF...", ToastType.Info);
 
-            // Call the PDF export utility
-            var stream = await CompanyPDFExport.ExportCompany(_companies);
-
-            // Generate file name
-            string fileName = "COMPANY_MASTER.pdf";
-
-            // Save and view the PDF file
+            var (stream, fileName) = await CompanyPDFExport.ExportMaster(_companies);
             await SaveAndViewService.SaveAndView(fileName, stream);
-
             await _toastNotification.ShowAsync("Success", "Company data exported to PDF successfully.", ToastType.Success);
         }
         catch (Exception ex)
@@ -386,6 +425,7 @@ public partial class CompanyPage : IAsyncDisposable
     }
     #endregion
 
+    #region Utilities
     private async Task EditSelectedItem()
     {
         var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
@@ -405,10 +445,24 @@ public partial class CompanyPage : IAsyncDisposable
         }
     }
 
+    private void ResetPage() =>
+        NavigationManager.NavigateTo(PageRouteNames.AdminCompany, true);
+
+    private void NavigateBack() =>
+        NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
+
+    private void NavigateToDashboard() =>
+        NavigationManager.NavigateTo(PageRouteNames.Dashboard);
+
+    private async Task Logout() =>
+        await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
+
     public async ValueTask DisposeAsync()
     {
         if (_hotKeysContext is not null)
             await _hotKeysContext.DisposeAsync();
+
         GC.SuppressFinalize(this);
     }
+    #endregion
 }

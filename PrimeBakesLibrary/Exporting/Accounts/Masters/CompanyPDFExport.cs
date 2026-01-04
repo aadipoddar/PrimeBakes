@@ -1,4 +1,5 @@
 ﻿using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 
 namespace PrimeBakesLibrary.Exporting.Accounts.Masters;
@@ -13,7 +14,7 @@ public static class CompanyPDFExport
 	/// </summary>
 	/// <param name="companyData">Collection of company records</param>
 	/// <returns>MemoryStream containing the PDF file</returns>
-	public static async Task<MemoryStream> ExportCompany(IEnumerable<CompanyModel> companyData)
+	public static async Task<(MemoryStream stream, string fileName)> ExportMaster(IEnumerable<CompanyModel> companyData)
 	{
 		var stateUTs = await CommonData.LoadTableData<StateUTModel>(TableNames.StateUT);
 
@@ -92,7 +93,7 @@ public static class CompanyPDFExport
 		];
 
 		// Call the generic PDF export utility
-		return await PDFReportExportUtil.ExportToPdf(
+		var stream = await PDFReportExportUtil.ExportToPdf(
 			enrichedData,
 			"COMPANY MASTER",
 			null,
@@ -101,5 +102,9 @@ public static class CompanyPDFExport
 			columnOrder,
 			useLandscape: true
 		);
+
+		var currentDateTime = await CommonData.LoadCurrentDateTime();
+		var fileName = $"Company_Master_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
+		return (stream, fileName);
 	}
 }

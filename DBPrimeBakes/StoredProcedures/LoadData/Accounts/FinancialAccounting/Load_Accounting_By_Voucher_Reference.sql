@@ -8,5 +8,6 @@ BEGIN
 	FROM [Accounting]
 	WHERE VoucherId = @VoucherId
 	AND ReferenceId = @ReferenceId
-	AND ReferenceNo = @ReferenceNo;
+	AND ReferenceNo = @ReferenceNo
+	AND Status = 1;
 END

@@ -1,33 +1,24 @@
 ﻿using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 
 namespace PrimeBakesLibrary.Exporting.Accounts.Masters;
 
-/// <summary>
-/// PDF export functionality for Group
-/// </summary>
 public static class GroupPDFExport
 {
-    /// <summary>
-    /// Export group data to PDF with custom column order and formatting
-    /// </summary>
-    /// <param name="groupData">Collection of group records</param>
-    /// <returns>MemoryStream containing the PDF file</returns>
-    public static async Task<MemoryStream> ExportGroup(IEnumerable<GroupModel> groupData)
+    public static async Task<(MemoryStream stream, string fileName)> ExportMaster(IEnumerable<GroupModel> groupData)
     {
-        var natures = await CommonData.LoadTableDataByStatus<NatureModel>(TableNames.Nature);
+        var natures = await CommonData.LoadTableData<NatureModel>(TableNames.Nature);
 
-        // Create enriched data with status formatting
         var enrichedData = groupData.Select(group => new
         {
             group.Id,
             group.Name,
-            Nature = natures.FirstOrDefault(n => n.Id == group.NatureId)?.Name ?? "N/A",
+            Nature = natures.FirstOrDefault(n => n.Id == group.NatureId)?.Name,
             group.Remarks,
             Status = group.Status ? "Active" : "Deleted"
         });
 
-        // Define custom column settings
         var columnSettings = new Dictionary<string, PDFReportExportUtil.ColumnSetting>
         {
             [nameof(GroupModel.Id)] = new()
@@ -57,7 +48,6 @@ public static class GroupPDFExport
             }
         };
 
-        // Define column order
         List<string> columnOrder =
         [
             nameof(GroupModel.Id),
@@ -67,8 +57,7 @@ public static class GroupPDFExport
             nameof(GroupModel.Status)
         ];
 
-        // Call the generic PDF export utility
-        return await PDFReportExportUtil.ExportToPdf(
+        var stream = await PDFReportExportUtil.ExportToPdf(
             enrichedData,
             "GROUP MASTER",
             null,
@@ -77,5 +66,9 @@ public static class GroupPDFExport
             columnOrder,
             useLandscape: false
         );
+
+        var currentDateTime = await CommonData.LoadCurrentDateTime();
+        var fileName = $"Group_Master_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
+        return (stream, fileName);
     }
 }

@@ -1,58 +1,34 @@
 ﻿using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Sales.StockTransfer;
 
 namespace PrimeBakesLibrary.Exporting.Sales.StockTransfer;
 
-/// <summary>
-/// Excel export functionality for Stock Transfer Item Report
-/// </summary>
 public static class StockTransferItemReportExcelExport
 {
-	/// <summary>
-	/// Export Stock Transfer Item Report to Excel with custom column order and formatting
-	/// </summary>
-	/// <param name="stockTransferItemData">Collection of stock transfer item overview records</param>
-	/// <param name="dateRangeStart">Start date of the report</param>
-	/// <param name="dateRangeEnd">End date of the report</param>
-	/// <param name="showAllColumns">Whether to include all columns or just summary columns</param>
-	/// <param name="showSummary">Whether to show summary grouped by item</param>
-	/// <param name="showLocation">Whether to include location column (for location ID 1 users)</param>
-	/// <param name="locationName">Name of the location for report header</param>
-	/// <param name="toLocationName">Name of the to-location for report header</param>
-	/// <returns>MemoryStream containing the Excel file</returns>
-	public static async Task<MemoryStream> ExportStockTransferItemReport(
+	public static async Task<(MemoryStream stream, string fileName)> ExportReport(
 		IEnumerable<StockTransferItemOverviewModel> stockTransferItemData,
 		DateOnly? dateRangeStart = null,
 		DateOnly? dateRangeEnd = null,
 		bool showAllColumns = true,
 		bool showSummary = false,
-		bool showLocation = false,
-		string locationName = null,
-        bool showToLocation = false,
-		string toLocationName = null)
+		CompanyModel company = null,
+		LocationModel fromLocation = null,
+		LocationModel toLocation = null)
 	{
-		// Define custom column settings
 		var columnSettings = new Dictionary<string, ExcelReportExportUtil.ColumnSetting>
 		{
-			// IDs - Center aligned, no totals
-			[nameof(StockTransferItemOverviewModel.Id)] = new() { DisplayName = "ID", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
-			[nameof(StockTransferItemOverviewModel.MasterId)] = new() { DisplayName = "Master ID", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
-			[nameof(StockTransferItemOverviewModel.ItemCategoryId)] = new() { DisplayName = "Category ID", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
-			[nameof(StockTransferItemOverviewModel.CompanyId)] = new() { DisplayName = "Company ID", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
-			
-			// Text fields
-			[nameof(StockTransferItemOverviewModel.ItemName)] = new() { DisplayName = "Item", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-			[nameof(StockTransferItemOverviewModel.ItemCode)] = new() { DisplayName = "Code", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-			[nameof(StockTransferItemOverviewModel.ItemCategoryName)] = new() { DisplayName = "Category", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-			[nameof(StockTransferItemOverviewModel.TransactionNo)] = new() { DisplayName = "Trans No", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-			[nameof(StockTransferItemOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-			[nameof(StockTransferItemOverviewModel.LocationName)] = new() { DisplayName = "From Location", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-			[nameof(StockTransferItemOverviewModel.ToLocationName)] = new() { DisplayName = "To Location", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-			[nameof(StockTransferItemOverviewModel.StockTransferRemarks)] = new() { DisplayName = "Stock Transfer Remarks", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-			[nameof(StockTransferItemOverviewModel.Remarks)] = new() { DisplayName = "Item Remarks", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-
-			// Date fields
-			[nameof(StockTransferItemOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter },
+			[nameof(StockTransferItemOverviewModel.ItemName)] = new() { DisplayName = "Item", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
+			[nameof(StockTransferItemOverviewModel.ItemCode)] = new() { DisplayName = "Code", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
+			[nameof(StockTransferItemOverviewModel.ItemCategoryName)] = new() { DisplayName = "Category", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
+			[nameof(StockTransferItemOverviewModel.TransactionNo)] = new() { DisplayName = "Trans No", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
+			[nameof(StockTransferItemOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
+			[nameof(StockTransferItemOverviewModel.LocationName)] = new() { DisplayName = "From Location", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
+			[nameof(StockTransferItemOverviewModel.ToLocationName)] = new() { DisplayName = "To Location", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
+			[nameof(StockTransferItemOverviewModel.StockTransferRemarks)] = new() { DisplayName = "Stock Transfer Remarks", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
+			[nameof(StockTransferItemOverviewModel.Remarks)] = new() { DisplayName = "Item Remarks", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
+			[nameof(StockTransferItemOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
 
 			// Numeric fields - Quantity
 			[nameof(StockTransferItemOverviewModel.Quantity)] = new() { DisplayName = "Qty", Format = "#,##0.00", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignRight, IncludeInTotal = true },
@@ -80,10 +56,8 @@ public static class StockTransferItemReportExcelExport
 			[nameof(StockTransferItemOverviewModel.InclusiveTax)] = new() { DisplayName = "Incl Tax", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false }
 		};
 
-		// Define column order based on showAllColumns and showSummary flags
 		List<string> columnOrder;
 
-		// Summary mode - grouped by item with aggregated values
 		if (showSummary)
 			columnOrder =
 			[
@@ -101,26 +75,18 @@ public static class StockTransferItemReportExcelExport
 				nameof(StockTransferItemOverviewModel.Total),
 				nameof(StockTransferItemOverviewModel.NetTotal)
 			];
-
-		// All columns in logical order
 		else if (showAllColumns)
 		{
-			List<string> columns =
+			columnOrder =
 			[
 				nameof(StockTransferItemOverviewModel.ItemName),
 				nameof(StockTransferItemOverviewModel.ItemCode),
 				nameof(StockTransferItemOverviewModel.ItemCategoryName),
 				nameof(StockTransferItemOverviewModel.TransactionNo),
 				nameof(StockTransferItemOverviewModel.TransactionDateTime),
-				nameof(StockTransferItemOverviewModel.CompanyName)
-			];
-
-			if (showLocation)
-				columns.Add(nameof(StockTransferItemOverviewModel.LocationName));
-			if (showToLocation)
-				columns.Add(nameof(StockTransferItemOverviewModel.ToLocationName));
-
-			columns.AddRange([
+				nameof(StockTransferItemOverviewModel.CompanyName),
+				nameof(StockTransferItemOverviewModel.LocationName),
+				nameof(StockTransferItemOverviewModel.ToLocationName),
 				nameof(StockTransferItemOverviewModel.Quantity),
 				nameof(StockTransferItemOverviewModel.Rate),
 				nameof(StockTransferItemOverviewModel.BaseTotal),
@@ -140,11 +106,8 @@ public static class StockTransferItemReportExcelExport
 				nameof(StockTransferItemOverviewModel.NetTotal),
 				nameof(StockTransferItemOverviewModel.StockTransferRemarks),
 				nameof(StockTransferItemOverviewModel.Remarks)
-			]);
-
-			columnOrder = columns;
+			];
 		}
-		// Summary columns only
 		else
 		{
 			columnOrder =
@@ -153,19 +116,24 @@ public static class StockTransferItemReportExcelExport
 				nameof(StockTransferItemOverviewModel.ItemCode),
 				nameof(StockTransferItemOverviewModel.TransactionNo),
 				nameof(StockTransferItemOverviewModel.TransactionDateTime),
+				nameof(StockTransferItemOverviewModel.LocationName),
+				nameof(StockTransferItemOverviewModel.ToLocationName),
 				nameof(StockTransferItemOverviewModel.Quantity),
 				nameof(StockTransferItemOverviewModel.NetRate),
 				nameof(StockTransferItemOverviewModel.NetTotal)
 			];
-
-			if (!showLocation)
-				columnOrder.Insert(4, nameof(StockTransferItemOverviewModel.LocationName));
-			if (!showToLocation)
-				columnOrder.Insert(5, nameof(StockTransferItemOverviewModel.ToLocationName));
 		}
 
-		// Export using the generic utility
-		return await ExcelReportExportUtil.ExportToExcel(
+		if (company is not null)
+			columnOrder.Remove(nameof(StockTransferItemOverviewModel.CompanyName));
+
+		if (fromLocation is not null)
+			columnOrder.Remove(nameof(StockTransferItemOverviewModel.LocationName));
+
+		if (toLocation is not null)
+			columnOrder.Remove(nameof(StockTransferItemOverviewModel.ToLocationName));
+
+		var stream = await ExcelReportExportUtil.ExportToExcel(
 			stockTransferItemData,
 			"STOCK TRANSFER ITEM REPORT",
 			"Stock Transfer Item Transactions",
@@ -173,8 +141,14 @@ public static class StockTransferItemReportExcelExport
 			dateRangeEnd,
 			columnSettings,
 			columnOrder,
-			locationName,
-			showToLocation ? toLocationName : null
+			new() { ["Company"] = company?.Name ?? null, ["From Location"] = fromLocation?.Name ?? null, ["To Location"] = toLocation?.Name ?? null }
 		);
+
+		string fileName = "STOCK_TRANSFER_ITEM_REPORT";
+		if (dateRangeStart.HasValue || dateRangeEnd.HasValue)
+			fileName += $"_{dateRangeStart?.ToString("yyyyMMdd") ?? "START"}_to_{dateRangeEnd?.ToString("yyyyMMdd") ?? "END"}";
+		fileName += ".xlsx";
+
+		return (stream, fileName);
 	}
 }

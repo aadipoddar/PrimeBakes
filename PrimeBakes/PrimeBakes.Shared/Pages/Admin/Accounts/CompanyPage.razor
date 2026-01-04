@@ -1,8 +1,6 @@
 ﻿@page "/admin/company"
 
-
 @using PrimeBakesLibrary.Models.Accounts.Masters
-
 
 <PageTitle>Company Management - Prime Bakes</PageTitle>
 
@@ -13,15 +11,12 @@
 else
 {
     <div style="display: flex; flex-direction: column; min-height: 100vh;">
-        <Header Title="Company Management" Subtitle="Manage company details"
-                ShowHome="true" ShowBack="true"
-                OnHomeClick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))"
-                OnBackClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard))">
+        <Header Title="Company Management" Subtitle="Manage company details" ShowLogout="true" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
             <RightContent>
                 <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
                 <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
                 <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Company (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveCompany" />
-                <IconButton Icon="IconType.New" Title="New Company (Ctrl + N)" Disabled="_isProcessing" OnClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminCompany, true))" />
+                <IconButton Icon="IconType.New" Title="New Company (Ctrl + N)" Disabled="_isProcessing" OnClick="ResetPage" />
             </RightContent>
         </Header>
 
@@ -170,14 +165,18 @@ else
                                     }
                                 </Template>
                             </GridColumn>
-                            <GridColumn Field="@nameof(CompanyModel.Id)" HeaderText="ID" Width="80"
-                                        TextAlign="TextAlign.Center" />
+                            <GridColumn Field="@nameof(CompanyModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" />
                             <GridColumn Field="@nameof(CompanyModel.Name)" HeaderText="Company Name" Width="250" />
+                            <GridColumn Field="@nameof(CompanyModel.Alias)" HeaderText="Alias" Width="150" />
                             <GridColumn Field="@nameof(CompanyModel.Code)" HeaderText="Code" Width="120" />
-                            <GridColumn Field="@nameof(CompanyModel.GSTNo)" HeaderText="GST No" Width="150" />
                             <GridColumn Field="@nameof(CompanyModel.Phone)" HeaderText="Phone" Width="150" />
-                            <GridColumn Field="@nameof(CompanyModel.Status)" HeaderText="Status" Width="100"
-                                        TextAlign="TextAlign.Center">
+                            <GridColumn Field="@nameof(CompanyModel.Email)" HeaderText="Email" Width="150" />
+                            <GridColumn Field="@nameof(CompanyModel.GSTNo)" HeaderText="GST No" Width="150" />
+                            <GridColumn Field="@nameof(CompanyModel.CINNo)" HeaderText="CIN No" Width="150" />
+                            <GridColumn Field="@nameof(CompanyModel.PANNo)" HeaderText="PAN No" Width="150" />
+                            <GridColumn Field="@nameof(CompanyModel.Address)" HeaderText="Address" Width="200" />
+                            <GridColumn Field="@nameof(CompanyModel.Remarks)" HeaderText="Remarks" Width="200" />
+                            <GridColumn Field="@nameof(CompanyModel.Status)" HeaderText="Status" Width="100" TextAlign="TextAlign.Center">
                                 <Template>
                                     @{
                                         var company = (context as CompanyModel);

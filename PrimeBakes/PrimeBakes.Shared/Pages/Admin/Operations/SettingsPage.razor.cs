@@ -104,8 +104,9 @@ public partial class SettingsPage : IAsyncDisposable
     {
         _hotKeysContext = HotKeys.CreateContext()
             .Add(ModCode.Ctrl, Code.S, SaveSettings, "Save", Exclude.None)
-            .Add(ModCode.Ctrl, Code.D, () => NavigationManager.NavigateTo(PageRouteNames.Dashboard), "Dashboard", Exclude.None)
-            .Add(ModCode.Ctrl, Code.B, () => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard), "Back", Exclude.None);
+            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
+            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
+            .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Dashboard", Exclude.None);
 
         try
         {
@@ -321,7 +322,7 @@ public partial class SettingsPage : IAsyncDisposable
 
     #endregion
 
-    #region Autocomplete Change Handlers
+    #region Change Handlers
 
     private void OnCompanyChange(ChangeEventArgs<string, CompanyModel> args)
     {
@@ -537,10 +538,23 @@ public partial class SettingsPage : IAsyncDisposable
 
     #endregion
 
+    #region Utilities
+
+    private void NavigateBack() =>
+        NavigationManager.NavigateTo(PageRouteNames.AdminDashboard);
+
+    private void NavigateToDashboard() =>
+        NavigationManager.NavigateTo(PageRouteNames.Dashboard);
+
+    private async Task Logout() =>
+        await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
+
     public async ValueTask DisposeAsync()
     {
         if (_hotKeysContext is not null)
             await _hotKeysContext.DisposeAsync();
         GC.SuppressFinalize(this);
     }
+
+    #endregion
 }

@@ -1,8 +1,6 @@
 ﻿@page "/admin/account-type"
 
-
 @using PrimeBakesLibrary.Models.Accounts.Masters
-
 
 <PageTitle>Account Type Management - Prime Bakes</PageTitle>
 
@@ -13,15 +11,12 @@
 else
 {
     <div style="display: flex; flex-direction: column; min-height: 100vh;">
-        <Header Title="Account Type Management" Subtitle="Manage account types and details"
-                ShowHome="true" ShowBack="true"
-                OnHomeClick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))"
-                OnBackClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard))">
+        <Header Title="Account Type Management" Subtitle="Manage account types and details" ShowLogout="true" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
             <RightContent>
                 <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
                 <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
                 <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Account Type (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveAccountType" />
-                <IconButton Icon="IconType.New" Title="New Account Type (Ctrl + N)" Disabled="_isProcessing" OnClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminAccountType, true))" />
+                <IconButton Icon="IconType.New" Title="New Account Type (Ctrl + N)" Disabled="_isProcessing" OnClick="ResetPage" />
             </RightContent>
         </Header>
 

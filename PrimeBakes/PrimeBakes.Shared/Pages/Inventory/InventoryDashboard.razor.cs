@@ -23,7 +23,7 @@ public partial class InventoryDashboard : IAsyncDisposable
         StateHasChanged();
     }
 
-    private async Task NavigateToDashboard() =>
+    private void NavigateToDashboard() =>
         NavigationManager.NavigateTo(PageRouteNames.Dashboard);
 
     private async Task Logout() =>
@@ -33,6 +33,7 @@ public partial class InventoryDashboard : IAsyncDisposable
     {
         if (_hotKeysContext is not null)
             await _hotKeysContext.DisposeAsync();
+
         GC.SuppressFinalize(this);
     }
 }

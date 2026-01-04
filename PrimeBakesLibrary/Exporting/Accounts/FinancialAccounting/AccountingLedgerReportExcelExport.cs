@@ -1,23 +1,22 @@
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.FinancialAccounting;
+using PrimeBakesLibrary.Models.Accounts.Masters;
 
 namespace PrimeBakesLibrary.Exporting.Accounts.FinancialAccounting;
 
 public static class AccountingLedgerReportExcelExport
 {
-    public static async Task<MemoryStream> ExportAccountingLedgerReport(
+    public static async Task<(MemoryStream stream, string fileName)> ExportReport(
         IEnumerable<AccountingLedgerOverviewModel> ledgerData,
         DateOnly? dateRangeStart = null,
         DateOnly? dateRangeEnd = null,
         bool showAllColumns = true,
-        string companyName = null,
-        string ledgerName = null,
+        CompanyModel company = null,
+        LedgerModel ledger = null,
         TrialBalanceModel trialBalance = null)
     {
-        // Define column settings with proper formatting
         var columnSettings = new Dictionary<string, ExcelReportExportUtil.ColumnSetting>
         {
-            // ID fields - Center aligned
             [nameof(AccountingLedgerOverviewModel.Id)] = new() { DisplayName = "Ledger ID", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
             [nameof(AccountingLedgerOverviewModel.MasterId)] = new() { DisplayName = "Accounting ID", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
             [nameof(AccountingLedgerOverviewModel.AccountTypeId)] = new() { DisplayName = "Account Type ID", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
@@ -25,7 +24,6 @@ public static class AccountingLedgerReportExcelExport
             [nameof(AccountingLedgerOverviewModel.CompanyId)] = new() { DisplayName = "Company ID", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
             [nameof(AccountingLedgerOverviewModel.ReferenceId)] = new() { DisplayName = "Reference ID", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
 
-            // Text fields - Left aligned
             [nameof(AccountingLedgerOverviewModel.LedgerName)] = new() { DisplayName = "Ledger", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
             [nameof(AccountingLedgerOverviewModel.LedgerCode)] = new() { DisplayName = "Code", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
             [nameof(AccountingLedgerOverviewModel.AccountTypeName)] = new() { DisplayName = "Account Type", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
@@ -37,30 +35,26 @@ public static class AccountingLedgerReportExcelExport
             [nameof(AccountingLedgerOverviewModel.AccountingRemarks)] = new() { DisplayName = "Accounting Remarks", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
             [nameof(AccountingLedgerOverviewModel.Remarks)] = new() { DisplayName = "Ledger Remarks", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
 
-            // Date fields - Center aligned
             [nameof(AccountingLedgerOverviewModel.TransactionDateTime)] = new() { DisplayName = "Transaction Date", Format = "dd/MM/yyyy", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
             [nameof(AccountingLedgerOverviewModel.ReferenceDateTime)] = new() { DisplayName = "Reference Date", Format = "dd/MM/yyyy hh:mm tt", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
 
-            // Numeric fields - Right aligned with totals
             [nameof(AccountingLedgerOverviewModel.Debit)] = new() { DisplayName = "Debit", Format = "#,##0.00", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignRight, IncludeInTotal = true },
             [nameof(AccountingLedgerOverviewModel.Credit)] = new() { DisplayName = "Credit", Format = "#,##0.00", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignRight, IncludeInTotal = true },
             [nameof(AccountingLedgerOverviewModel.ReferenceAmount)] = new() { DisplayName = "Ref Amt", Format = "#,##0.00", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignRight, IncludeInTotal = true }
         };
 
-        // Define column order based on view type
         List<string> columnOrder;
 
-        // Detailed view - all columns
         if (showAllColumns)
+        {
             columnOrder =
             [
                 nameof(AccountingLedgerOverviewModel.LedgerName),
-                nameof(AccountingLedgerOverviewModel.LedgerCode),
                 nameof(AccountingLedgerOverviewModel.AccountTypeName),
                 nameof(AccountingLedgerOverviewModel.GroupName),
+                nameof(AccountingLedgerOverviewModel.CompanyName),
                 nameof(AccountingLedgerOverviewModel.TransactionNo),
                 nameof(AccountingLedgerOverviewModel.TransactionDateTime),
-                nameof(AccountingLedgerOverviewModel.CompanyName),
                 nameof(AccountingLedgerOverviewModel.ReferenceType),
                 nameof(AccountingLedgerOverviewModel.ReferenceNo),
                 nameof(AccountingLedgerOverviewModel.ReferenceDateTime),
@@ -70,8 +64,16 @@ public static class AccountingLedgerReportExcelExport
                 nameof(AccountingLedgerOverviewModel.AccountingRemarks),
                 nameof(AccountingLedgerOverviewModel.Remarks)
             ];
-        // Summary view - essential columns only
+
+            if (ledger is not null)
+                columnOrder.Remove(nameof(AccountingLedgerOverviewModel.LedgerName));
+
+            if (company is not null)
+                columnOrder.Remove(nameof(AccountingLedgerOverviewModel.CompanyName));
+        }
+
         else
+        {
             columnOrder =
             [
                 nameof(AccountingLedgerOverviewModel.LedgerName),
@@ -82,19 +84,19 @@ public static class AccountingLedgerReportExcelExport
                 nameof(AccountingLedgerOverviewModel.Credit)
             ];
 
-        // Prepare custom summary fields if trial balance is provided
+            if (ledger is not null)
+                columnOrder.Remove(nameof(AccountingLedgerOverviewModel.LedgerName));
+        }
+
         Dictionary<string, string> customSummaryFields = null;
-        if (trialBalance != null)
-        {
+        if (trialBalance is not null)
             customSummaryFields = new Dictionary<string, string>
             {
                 ["Opening Balance"] = $"₹ {trialBalance.OpeningBalance:N2}",
                 ["Closing Balance"] = $"₹ {trialBalance.ClosingBalance:N2}"
             };
-        }
 
-        // Call the generic Excel export utility
-        return await ExcelReportExportUtil.ExportToExcel(
+        var stream = await ExcelReportExportUtil.ExportToExcel(
             ledgerData,
             "FINANCIAL LEDGER REPORT",
             "Ledger Report",
@@ -102,9 +104,15 @@ public static class AccountingLedgerReportExcelExport
             dateRangeEnd,
             columnSettings,
             columnOrder,
-            null,
-            ledgerName,
+            new() { ["Company"] = company?.Name ?? null, ["Ledger"] = ledger?.Name ?? null },
             customSummaryFields
         );
+
+        string fileName = $"LEDGER_REPORT";
+        if (dateRangeStart.HasValue || dateRangeEnd.HasValue)
+            fileName += $"_{dateRangeStart?.ToString("yyyyMMdd") ?? "START"}_to_{dateRangeEnd?.ToString("yyyyMMdd") ?? "END"}";
+        fileName += ".xlsx";
+
+        return (stream, fileName);
     }
 }

@@ -1,66 +1,38 @@
 ﻿using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Sales.Order;
 
 namespace PrimeBakesLibrary.Exporting.Sales.Order;
 
-/// <summary>
-/// Excel export functionality for Order Item Report
-/// </summary>
 public static class OrderItemReportExcelExport
 {
-    /// <summary>
-    /// Export Order Item Report to Excel with custom column order and formatting
-    /// </summary>
-    /// <param name="orderItemData">Collection of order item overview records</param>
-    /// <param name="dateRangeStart">Start date of the report</param>
-    /// <param name="dateRangeEnd">End date of the report</param>
-    /// <param name="showAllColumns">Whether to include all columns or just summary columns</param>
-    /// <param name="showSummary">Whether to show summary grouped by item</param>
-    /// <param name="showLocation">Whether to include location column (for location ID 1 users)</param>
-    /// <param name="locationName">Name of the location for report header</param>
-    /// <returns>MemoryStream containing the Excel file</returns>
-    public static async Task<MemoryStream> ExportOrderItemReport(
+    public static async Task<(MemoryStream stream, string fileName)> ExportReport(
         IEnumerable<OrderItemOverviewModel> orderItemData,
         DateOnly? dateRangeStart = null,
         DateOnly? dateRangeEnd = null,
         bool showAllColumns = true,
         bool showSummary = false,
-        bool showLocation = false,
-        string locationName = null)
+        CompanyModel company = null,
+        LocationModel location = null)
     {
-        // Define custom column settings
         var columnSettings = new Dictionary<string, ExcelReportExportUtil.ColumnSetting>
         {
-            // IDs - Center aligned, no totals
-            [nameof(OrderItemOverviewModel.Id)] = new() { DisplayName = "ID", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
-            [nameof(OrderItemOverviewModel.MasterId)] = new() { DisplayName = "Master ID", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
-            [nameof(OrderItemOverviewModel.SaleId)] = new() { DisplayName = "Sale ID", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
-            [nameof(OrderItemOverviewModel.ItemCategoryId)] = new() { DisplayName = "Category ID", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
-            [nameof(OrderItemOverviewModel.CompanyId)] = new() { DisplayName = "Company ID", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
-            [nameof(OrderItemOverviewModel.LocationId)] = new() { DisplayName = "Location ID", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
-
-            // Text fields
-            [nameof(OrderItemOverviewModel.ItemName)] = new() { DisplayName = "Item", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-            [nameof(OrderItemOverviewModel.ItemCode)] = new() { DisplayName = "Code", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-            [nameof(OrderItemOverviewModel.ItemCategoryName)] = new() { DisplayName = "Category", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-            [nameof(OrderItemOverviewModel.TransactionNo)] = new() { DisplayName = "Trans No", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-            [nameof(OrderItemOverviewModel.SaleTransactionNo)] = new() { DisplayName = "Sale Trans No", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-            [nameof(OrderItemOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-            [nameof(OrderItemOverviewModel.LocationName)] = new() { DisplayName = "Location", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-            [nameof(OrderItemOverviewModel.OrderRemarks)] = new() { DisplayName = "Order Remarks", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-            [nameof(OrderItemOverviewModel.Remarks)] = new() { DisplayName = "Item Remarks", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-
-            // Date fields
-            [nameof(OrderItemOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter },
-
-            // Numeric fields - Quantity
+            [nameof(OrderItemOverviewModel.ItemName)] = new() { DisplayName = "Item", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
+            [nameof(OrderItemOverviewModel.ItemCode)] = new() { DisplayName = "Code", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
+            [nameof(OrderItemOverviewModel.ItemCategoryName)] = new() { DisplayName = "Category", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
+            [nameof(OrderItemOverviewModel.TransactionNo)] = new() { DisplayName = "Trans No", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
+            [nameof(OrderItemOverviewModel.SaleTransactionNo)] = new() { DisplayName = "Sale Trans No", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
+            [nameof(OrderItemOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
+            [nameof(OrderItemOverviewModel.LocationName)] = new() { DisplayName = "Location", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
+            [nameof(OrderItemOverviewModel.OrderRemarks)] = new() { DisplayName = "Order Remarks", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
+            [nameof(OrderItemOverviewModel.Remarks)] = new() { DisplayName = "Item Remarks", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
+            [nameof(OrderItemOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
             [nameof(OrderItemOverviewModel.Quantity)] = new() { DisplayName = "Qty", Format = "#,##0.00", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignRight, IncludeInTotal = true }
         };
 
-        // Define column order based on showAllColumns and showSummary flags
         List<string> columnOrder;
 
-        // Summary mode - grouped by item with aggregated values
         if (showSummary)
         {
             columnOrder =
@@ -71,33 +43,25 @@ public static class OrderItemReportExcelExport
                 nameof(OrderItemOverviewModel.Quantity)
             ];
         }
-        // All columns in logical order
         else if (showAllColumns)
         {
-            List<string> columns =
+            columnOrder =
             [
                 nameof(OrderItemOverviewModel.ItemName),
                 nameof(OrderItemOverviewModel.ItemCode),
                 nameof(OrderItemOverviewModel.ItemCategoryName),
                 nameof(OrderItemOverviewModel.TransactionNo),
                 nameof(OrderItemOverviewModel.TransactionDateTime),
-                nameof(OrderItemOverviewModel.CompanyName)
-            ];
-
-            if (showLocation)
-                columns.Add(nameof(OrderItemOverviewModel.LocationName));
-
-            columns.AddRange([
+                nameof(OrderItemOverviewModel.CompanyName),
+                nameof(OrderItemOverviewModel.LocationName),
                 nameof(OrderItemOverviewModel.SaleTransactionNo),
                 nameof(OrderItemOverviewModel.Quantity),
                 nameof(OrderItemOverviewModel.OrderRemarks),
                 nameof(OrderItemOverviewModel.Remarks)
-            ]);
-
-            columnOrder = columns;
+            ];
         }
-        // Summary columns only
         else
+        {
             columnOrder =
             [
                 nameof(OrderItemOverviewModel.ItemName),
@@ -108,9 +72,15 @@ public static class OrderItemReportExcelExport
                 nameof(OrderItemOverviewModel.SaleTransactionNo),
                 nameof(OrderItemOverviewModel.Quantity)
             ];
+        }
 
-        // Export using the generic utility
-        return await ExcelReportExportUtil.ExportToExcel(
+        if (company is not null)
+            columnOrder.Remove(nameof(OrderItemOverviewModel.CompanyName));
+
+        if (location is not null)
+            columnOrder.Remove(nameof(OrderItemOverviewModel.LocationName));
+
+        var stream = await ExcelReportExportUtil.ExportToExcel(
             orderItemData,
             "ORDER ITEM REPORT",
             "Order Item Transactions",
@@ -118,7 +88,14 @@ public static class OrderItemReportExcelExport
             dateRangeEnd,
             columnSettings,
             columnOrder,
-            locationName
+            new() { ["Company"] = company?.Name ?? null, ["Location"] = location?.Name ?? null }
         );
+
+        string fileName = "ORDER_ITEM_REPORT";
+        if (dateRangeStart.HasValue || dateRangeEnd.HasValue)
+            fileName += $"_{dateRangeStart?.ToString("yyyyMMdd") ?? "START"}_to_{dateRangeEnd?.ToString("yyyyMMdd") ?? "END"}";
+        fileName += ".xlsx";
+
+        return (stream, fileName);
     }
 }

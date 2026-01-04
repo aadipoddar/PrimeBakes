@@ -1,11 +1,9 @@
 @page "/report/purchase"
 
-
 @using PrimeBakesLibrary.Models.Accounts.Masters
 @using PrimeBakesLibrary.Models.Common
 @using PrimeBakesLibrary.Models.Inventory
 @using PrimeBakesLibrary.Models.Inventory.Purchase
-
 
 <PageTitle>Purchase Report - Prime Bakes</PageTitle>
 
@@ -16,7 +14,7 @@
 else
 {
 	<div style="display: flex; flex-direction: column; min-height: 100vh;">
-		<Header Title="Purchase Report" Subtitle="View and analyze purchase transactions" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack">
+		<Header Title="Purchase Report" Subtitle="View and analyze purchase transactions" ShowHome="true" ShowBack="true" ShowLogout="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
 			<RightContent>
 				<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
 				<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
@@ -33,8 +31,9 @@ else
 			<div class="section-card">
 				<div class="section-header">
 					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+							 stroke-linejoin="round">
 							<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
 						</svg>
 						<h2 class="section-title">Filters</h2>
@@ -55,9 +54,10 @@ else
 							<!-- Company -->
 							<div class="form-field">
 								<label class="field-label">Company</label>
-								<SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedCompany" TValue="CompanyModel"
-												TItem="CompanyModel" DataSource="@_companies" Placeholder="All Companies"
-												AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
+								<SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedCompany"
+												TValue="CompanyModel" TItem="CompanyModel" DataSource="@_companies"
+												Placeholder="All Companies" AllowFiltering="true"
+												FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
 									<AutoCompleteEvents TItem="CompanyModel" TValue="CompanyModel"
 														ValueChange="OnCompanyChanged" />
 									<AutoCompleteFieldSettings Value="Name" />
@@ -68,9 +68,10 @@ else
 							<div class="form-field">
 								<label class="field-label">Party</label>
 								<SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedParty" TValue="LedgerModel"
-												TItem="LedgerModel" DataSource="@_parties" Placeholder="All Parties" AllowFiltering="true"
-												FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
-									<AutoCompleteEvents TItem="LedgerModel" TValue="LedgerModel" ValueChange="OnPartyChanged" />
+												TItem="LedgerModel" DataSource="@_parties" Placeholder="All Parties"
+												AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
+									<AutoCompleteEvents TItem="LedgerModel" TValue="LedgerModel"
+														ValueChange="OnPartyChanged" />
 									<AutoCompleteFieldSettings Value="Name" />
 								</SfAutoComplete>
 							</div>
@@ -87,8 +88,9 @@ else
 			<div class="section-card">
 				<div class="section-header">
 					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+							 stroke-linejoin="round">
 							<line x1="8" y1="6" x2="21" y2="6" />
 							<line x1="8" y1="12" x2="21" y2="12" />
 							<line x1="8" y1="18" x2="21" y2="18" />
@@ -99,18 +101,21 @@ else
 						<h2 class="section-title">Purchase Transactions</h2>
 					</div>
 					<div class="header-actions">
-						<ToggleSummaryButton Disabled="@_isProcessing" ShowSummary="@_showSummary" OnToggle="ToggleSummary" />
-						<ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted" OnToggle="ToggleDeleted" />
-						<ToggleReturnsButton Disabled="@_isProcessing" ShowReturns="@_showTransactionReturns" OnToggle="ToggleTransactionReturns" />
-						<ToggleDetailsButton Disabled="@_isProcessing" ShowAllColumns="@_showAllColumns" OnToggle="ToggleDetailsView" />
+						<ToggleSummaryButton Disabled="@_isProcessing" ShowSummary="@_showSummary"
+											 OnToggle="ToggleSummary" />
+						<ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted"
+											 OnToggle="ToggleDeleted" />
+						<ToggleReturnsButton Disabled="@_isProcessing" ShowReturns="@_showTransactionReturns"
+											 OnToggle="ToggleTransactionReturns" />
+						<ToggleDetailsButton Disabled="@_isProcessing" ShowAllColumns="@_showAllColumns"
+											 OnToggle="ToggleDetailsView" />
 					</div>
 				</div>
 				<div class="section-body grid-body">
-					<SfGrid ID="_sfGrid" @ref="_sfGrid" TValue="PurchaseOverviewModel"
-							DataSource="_transactionOverviews" AllowTextWrap="true" AllowPaging="true" AllowSorting="true"
-							AllowResizing="true" AllowFiltering="true" AllowExcelExport="true" AllowPdfExport="true"
-							GridLines="GridLine.Horizontal" CssClass="professional-grid" AllowGrouping="true"
-							Toolbar="@(new List<string>() { "Search" })">
+					<SfGrid ID="_sfGrid" @ref="_sfGrid" TValue="PurchaseOverviewModel" DataSource="_transactionOverviews"
+							AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+							AllowFiltering="true" AllowExcelExport="true" AllowPdfExport="true" GridLines="GridLine.Horizontal"
+							CssClass="professional-grid" AllowGrouping="true" Toolbar="@(new List<string>() { "Search" })">
 
 						<GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
 						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
@@ -415,19 +420,25 @@ else
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
+												</div>
 											}
 										</FooterTemplate>
 										<GroupFooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
+												</div>
 											}
 										</GroupFooterTemplate>
 										<GroupCaptionTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
+												</div>
 											}
 										</GroupCaptionTemplate>
 									</GridAggregateColumn>
@@ -436,7 +447,8 @@ else
 						</GridAggregates>
 
 						<GridColumns>
-							<GridColumn HeaderText="Actions" Width="220" TextAlign="TextAlign.Center" Visible="@(!_showSummary)">
+							<GridColumn HeaderText="Actions" Width="220" TextAlign="TextAlign.Center"
+										Visible="@(!_showSummary)">
 								<Template>
 									@{
 										var item = (context as PurchaseOverviewModel);
@@ -444,30 +456,58 @@ else
 									<div class="grid-actions">
 										@if (!item.Status)
 										{
-											<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Size="ButtonSize.Grid" Title="Download Excel Invoice (Alt + E)" Disabled="_isProcessing" OnClick="@(() => DownloadExcelInvoice(item.Id))" />
-											<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Grid" Title="Download PDF Invoice (Alt + P)" Disabled="_isProcessing" OnClick="@(() => DownloadPdfInvoice(item.Id))" />
-											<IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover" Size="ButtonSize.Grid" Title="Recover Transaction (Delete)" Disabled="_isProcessing" OnClick="@(() => ShowRecoverConfirmation(item.Id, item.TransactionNo))" />
+											<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel"
+														Size="ButtonSize.Grid" Title="Download Excel Invoice (Alt + E)"
+														Disabled="_isProcessing" OnClick="@(() => DownloadExcelInvoice(item.Id))" />
+											<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Grid"
+														Title="Download PDF Invoice (Alt + P)" Disabled="_isProcessing"
+														OnClick="@(() => DownloadPdfInvoice(item.Id))" />
+											<IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover"
+														Size="ButtonSize.Grid" Title="Recover Transaction (Delete)"
+														Disabled="_isProcessing"
+														OnClick="@(() => ShowRecoverConfirmation(item.Id, item.TransactionNo))" />
 										}
 										else
 										{
-											<IconButton Icon="IconType.View" Variant="ButtonVariant.View" Size="ButtonSize.Grid" Title="View Transaction (Ctrl + O)" Disabled="_isProcessing" OnClick="@(() => ViewTransaction(item.Id))" />
-											<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Size="ButtonSize.Grid" Title="Download Excel Invoice (Alt + E)" Disabled="_isProcessing" OnClick="@(() => DownloadExcelInvoice(item.Id))" />
-											<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Grid" Title="Download PDF Invoice (Alt + P)" Disabled="_isProcessing" OnClick="@(() => DownloadPdfInvoice(item.Id))" />
-											<IconButton Icon="IconType.Download" Variant="ButtonVariant.Default" Size="ButtonSize.Grid" Title="Download Original" Disabled="@(string.IsNullOrEmpty(item.DocumentUrl) || _isProcessing)" OnClick="@(() => DownloadOriginalInvoice(item.DocumentUrl))" />
-											<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete Transaction (Delete)" Disabled="_isProcessing" OnClick="@(() => ShowDeleteConfirmation(item.Id, item.TransactionNo))" />
+											<IconButton Icon="IconType.View" Variant="ButtonVariant.View" Size="ButtonSize.Grid"
+														Title="View Transaction (Ctrl + O)" Disabled="_isProcessing"
+														OnClick="@(() => ViewTransaction(item.Id))" />
+											<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel"
+														Size="ButtonSize.Grid" Title="Download Excel Invoice (Alt + E)"
+														Disabled="_isProcessing" OnClick="@(() => DownloadExcelInvoice(item.Id))" />
+											<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Grid"
+														Title="Download PDF Invoice (Alt + P)" Disabled="_isProcessing"
+														OnClick="@(() => DownloadPdfInvoice(item.Id))" />
+											<IconButton Icon="IconType.Download" Variant="ButtonVariant.Default"
+														Size="ButtonSize.Grid" Title="Download Original"
+														Disabled="@(string.IsNullOrEmpty(item.DocumentUrl) || _isProcessing)"
+														OnClick="@(() => DownloadOriginalInvoice(item.DocumentUrl))" />
+											<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete"
+														Size="ButtonSize.Grid" Title="Delete Transaction (Delete)"
+														Disabled="_isProcessing"
+														OnClick="@(() => ShowDeleteConfirmation(item.Id, item.TransactionNo))" />
 										}
 									</div>
 								</Template>
 							</GridColumn>
-							<GridColumn Field="@nameof(PurchaseOverviewModel.TransactionNo)" HeaderText="Trans No" Width="170" Visible="@(!_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseOverviewModel.TransactionDateTime)" HeaderText="Date" Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(!_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseOverviewModel.CompanyName)" HeaderText="Company" Width="180" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseOverviewModel.TransactionNo)" HeaderText="Trans No"
+										Width="170" Visible="@(!_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseOverviewModel.TransactionDateTime)" HeaderText="Date"
+										Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime"
+										Visible="@(!_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseOverviewModel.CompanyName)" HeaderText="Company" Width="180"
+										Visible="@(_showAllColumns && !_showSummary)" />
 							<GridColumn Field="@nameof(PurchaseOverviewModel.PartyName)" HeaderText="Party" Width="200" />
-							<GridColumn Field="@nameof(PurchaseOverviewModel.FinancialYear)" HeaderText="Financial Year" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseOverviewModel.TotalItems)" HeaderText="Items" Width="100" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(PurchaseOverviewModel.TotalQuantity)" HeaderText="Quantity" Width="120" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(PurchaseOverviewModel.BaseTotal)" HeaderText="Base Total" Width="130" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(PurchaseOverviewModel.ItemDiscountAmount)" HeaderText="Disc" Width="130" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+							<GridColumn Field="@nameof(PurchaseOverviewModel.FinancialYear)" HeaderText="Financial Year"
+										Width="150" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseOverviewModel.TotalItems)" HeaderText="Items" Width="100"
+										TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(PurchaseOverviewModel.TotalQuantity)" HeaderText="Quantity"
+										Width="120" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(PurchaseOverviewModel.BaseTotal)" HeaderText="Base Total" Width="130"
+										Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(PurchaseOverviewModel.ItemDiscountAmount)" HeaderText="Disc"
+										Width="130" TextAlign="TextAlign.Right" Visible="_showAllColumns">
 								<Template>
 									@{
 										var item = (context as PurchaseOverviewModel);
@@ -475,14 +515,25 @@ else
 									}
 								</Template>
 							</GridColumn>
-							<GridColumn Field="@nameof(PurchaseOverviewModel.TotalAfterItemDiscount)" HeaderText="After Disc" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(PurchaseOverviewModel.TotalInclusiveTaxAmount)" HeaderText="Incl. Tax" Width="120" Format="N2" TextAlign="TextAlign.Center" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(PurchaseOverviewModel.TotalExtraTaxAmount)" HeaderText="Extra Tax" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(PurchaseOverviewModel.TotalAfterTax)" HeaderText="Sub Total" Width="150" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(PurchaseOverviewModel.OtherChargesPercent)" HeaderText="Other Charges %" Width="150" Format="N2" TextAlign="TextAlign.Center" Visible="@(!_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseOverviewModel.OtherChargesAmount)" HeaderText="Other Charges" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(PurchaseOverviewModel.CashDiscountPercent)" HeaderText="Cash Disc %" Width="150" Format="N2" TextAlign="TextAlign.Center" Visible="@(!_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseOverviewModel.CashDiscountAmount)" HeaderText="Cash Disc" Width="140" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+							<GridColumn Field="@nameof(PurchaseOverviewModel.TotalAfterItemDiscount)"
+										HeaderText="After Disc" Width="140" Format="N2" TextAlign="TextAlign.Right"
+										Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(PurchaseOverviewModel.TotalInclusiveTaxAmount)"
+										HeaderText="Incl. Tax" Width="120" Format="N2" TextAlign="TextAlign.Center"
+										Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(PurchaseOverviewModel.TotalExtraTaxAmount)" HeaderText="Extra Tax"
+										Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(PurchaseOverviewModel.TotalAfterTax)" HeaderText="Sub Total"
+										Width="150" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(PurchaseOverviewModel.OtherChargesPercent)"
+										HeaderText="Other Charges %" Width="150" Format="N2" TextAlign="TextAlign.Center"
+										Visible="@(!_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseOverviewModel.OtherChargesAmount)" HeaderText="Other Charges"
+										Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(PurchaseOverviewModel.CashDiscountPercent)" HeaderText="Cash Disc %"
+										Width="150" Format="N2" TextAlign="TextAlign.Center" Visible="@(!_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseOverviewModel.CashDiscountAmount)" HeaderText="Cash Disc"
+										Width="140" TextAlign="TextAlign.Right" Visible="_showAllColumns">
 								<Template>
 									@{
 										var item = (context as PurchaseOverviewModel);
@@ -490,8 +541,10 @@ else
 									}
 								</Template>
 							</GridColumn>
-							<GridColumn Field="@nameof(PurchaseOverviewModel.RoundOffAmount)" HeaderText="Round Off" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(PurchaseOverviewModel.TotalAmount)" HeaderText="Total" Width="150" TextAlign="TextAlign.Right">
+							<GridColumn Field="@nameof(PurchaseOverviewModel.RoundOffAmount)" HeaderText="Round Off"
+										Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(PurchaseOverviewModel.TotalAmount)" HeaderText="Total" Width="150"
+										TextAlign="TextAlign.Right">
 								<Template>
 									@{
 										var item = (context as PurchaseOverviewModel);
@@ -499,13 +552,22 @@ else
 									}
 								</Template>
 							</GridColumn>
-							<GridColumn Field="@nameof(PurchaseOverviewModel.Remarks)" HeaderText="Remarks" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseOverviewModel.CreatedByName)" HeaderText="Created By" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseOverviewModel.CreatedAt)" HeaderText="Created At" Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseOverviewModel.CreatedFromPlatform)" HeaderText="Created Platform" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseOverviewModel.LastModifiedAt)" HeaderText="Modified At" Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseOverviewModel.LastModifiedFromPlatform)" HeaderText="Modified Platform" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseOverviewModel.Remarks)" HeaderText="Remarks" Width="200"
+										Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseOverviewModel.CreatedByName)" HeaderText="Created By"
+										Width="150" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseOverviewModel.CreatedAt)" HeaderText="Created At" Width="160"
+										Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime"
+										Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseOverviewModel.CreatedFromPlatform)"
+										HeaderText="Created Platform" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseOverviewModel.LastModifiedByUserName)"
+										HeaderText="Modified By" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseOverviewModel.LastModifiedAt)" HeaderText="Modified At"
+										Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime"
+										Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseOverviewModel.LastModifiedFromPlatform)"
+										HeaderText="Modified Platform" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
 						</GridColumns>
 					</SfGrid>
 				</div>
@@ -518,22 +580,13 @@ else
 
 <ToastNotification @ref="_toastNotification" />
 
-<DeleteConfirmationDialog @ref="_deleteConfirmationDialog"
-						  EntityName="Purchase Transaction"
-						  IdentifierLabel="Transaction No"
-						  IdentifierValue="@_deleteTransactionNo"
-						  IsPermanentDelete="true"
-						  Disabled="@_isProcessing"
-						  OnConfirm="ConfirmDelete"
-						  OnCancel="CancelDelete" />
+<DeleteConfirmationDialog @ref="_deleteConfirmationDialog" EntityName="Purchase Transaction"
+						  IdentifierLabel="Transaction No" IdentifierValue="@_deleteTransactionNo" IsPermanentDelete="true"
+						  Disabled="@_isProcessing" OnConfirm="ConfirmDelete" OnCancel="CancelDelete" />
 
-<RecoverConfirmationDialog @ref="_recoverConfirmationDialog"
-						   EntityName="Purchase Transaction"
-						   IdentifierLabel="Transaction No"
-						   IdentifierValue="@_recoverTransactionNo"
-						   Disabled="@_isProcessing"
-						   OnConfirm="ConfirmRecover"
-						   OnCancel="CancelRecover" />
+<RecoverConfirmationDialog @ref="_recoverConfirmationDialog" EntityName="Purchase Transaction"
+						   IdentifierLabel="Transaction No" IdentifierValue="@_recoverTransactionNo" Disabled="@_isProcessing"
+						   OnConfirm="ConfirmRecover" OnCancel="CancelRecover" />
 
 <style>
 	* {
@@ -545,9 +598,9 @@ else
 		padding: 24px 32px;
 		width: 100%;
 		margin: 0 auto;
-        background: linear-gradient(135deg, #ffeef5 0%, #fff5f9 100%);
-        flex: 1;
-    }
+		background: linear-gradient(135deg, #ffeef5 0%, #fff5f9 100%);
+		flex: 1;
+	}
 
 	/* Section Card Styles */
 	.section-card {

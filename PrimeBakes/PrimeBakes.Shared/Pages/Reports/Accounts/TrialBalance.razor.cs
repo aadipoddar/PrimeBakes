@@ -63,7 +63,8 @@ public partial class TrialBalance : IAsyncDisposable
             .Add(ModCode.Ctrl, Code.N, NavigateToTransactionPage, "New Transaction", Exclude.None)
             .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
             .Add(ModCode.Ctrl, Code.I, NavigateToLedgerReport, "Ledger Report", Exclude.None)
-            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None);
+            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
+            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None);
 
         await LoadDates();
         await LoadCompanies();
@@ -199,27 +200,23 @@ public partial class TrialBalance : IAsyncDisposable
         {
             _isProcessing = true;
             StateHasChanged();
-            await _toastNotification.ShowAsync("Exporting", "Generating Excel file...", ToastType.Info);
+            await _toastNotification.ShowAsync("Processing", "Generating Excel file...", ToastType.Info);
 
             DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
             DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
 
-            var stream = await TrialBalanceExcelExport.ExportTrialBalance(
+            var (stream, fileName) = await TrialBalanceExcelExport.ExportReport(
                     _trialBalance,
                     dateRangeStart,
                     dateRangeEnd,
                     _showAllColumns,
-                    _selectedGroup?.Id > 0 ? _selectedGroup?.Name : null,
-                    _selectedAccountType?.Id > 0 ? _selectedAccountType?.Name : null
+                    _selectedCompany?.Id > 0 ? _selectedCompany : null,
+                    _selectedGroup?.Id > 0 ? _selectedGroup : null,
+                    _selectedAccountType?.Id > 0 ? _selectedAccountType : null
                 );
 
-            string fileName = $"TRIAL_BALANCE";
-            if (dateRangeStart.HasValue || dateRangeEnd.HasValue)
-                fileName += $"_{dateRangeStart?.ToString("yyyyMMdd") ?? "START"}_to_{dateRangeEnd?.ToString("yyyyMMdd") ?? "END"}";
-            fileName += ".xlsx";
-
             await SaveAndViewService.SaveAndView(fileName, stream);
-            await _toastNotification.ShowAsync("Exported", "Excel file downloaded successfully.", ToastType.Success);
+            await _toastNotification.ShowAsync("Success", "Excel file downloaded successfully.", ToastType.Success);
         }
         catch (Exception ex)
         {
@@ -241,27 +238,23 @@ public partial class TrialBalance : IAsyncDisposable
         {
             _isProcessing = true;
             StateHasChanged();
-            await _toastNotification.ShowAsync("Exporting", "Generating PDF file...", ToastType.Info);
+            await _toastNotification.ShowAsync("Processing", "Generating PDF file...", ToastType.Info);
 
             DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
             DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
 
-            var stream = await TrialBalancePdfExport.ExportTrialBalance(
+            var (stream, fileName) = await TrialBalancePdfExport.ExportReport(
                     _trialBalance,
                     dateRangeStart,
                     dateRangeEnd,
                     _showAllColumns,
-                    _selectedGroup?.Id > 0 ? _selectedGroup?.Name : null,
-                    _selectedAccountType?.Id > 0 ? _selectedAccountType?.Name : null
+                    _selectedCompany?.Id > 0 ? _selectedCompany : null,
+                    _selectedGroup?.Id > 0 ? _selectedGroup : null,
+                    _selectedAccountType?.Id > 0 ? _selectedAccountType : null
                 );
 
-            string fileName = $"TRIAL_BALANCE";
-            if (dateRangeStart.HasValue || dateRangeEnd.HasValue)
-                fileName += $"_{dateRangeStart?.ToString("yyyyMMdd") ?? "START"}_to_{dateRangeEnd?.ToString("yyyyMMdd") ?? "END"}";
-            fileName += ".pdf";
-
             await SaveAndViewService.SaveAndView(fileName, stream);
-            await _toastNotification.ShowAsync("Exported", "PDF file downloaded successfully.", ToastType.Success);
+            await _toastNotification.ShowAsync("Success", "PDF file downloaded successfully.", ToastType.Success);
         }
         catch (Exception ex)
         {
@@ -301,11 +294,14 @@ public partial class TrialBalance : IAsyncDisposable
             NavigationManager.NavigateTo(PageRouteNames.ReportAccountingLedger);
     }
 
-    private async Task NavigateToDashboard() =>
+    private void NavigateToDashboard() =>
         NavigationManager.NavigateTo(PageRouteNames.Dashboard);
 
-    private async Task NavigateBack() =>
+    private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
+
+    private async Task Logout() =>
+        await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 
     private async Task StartAutoRefresh()
     {

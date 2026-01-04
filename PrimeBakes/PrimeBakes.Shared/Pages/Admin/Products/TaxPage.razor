@@ -1,8 +1,6 @@
 @page "/admin/tax"
 
-
 @using PrimeBakesLibrary.Models.Sales.Product
-
 
 <PageTitle>Tax Management - Prime Bakes</PageTitle>
 
@@ -13,15 +11,16 @@
 else
 {
     <div style="display: flex; flex-direction: column; min-height: 100vh;">
-        <Header Title="Tax Management" Subtitle="Manage tax rates and configurations"
-                ShowHome="true" ShowBack="true"
-                OnHomeClick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))"
-                OnBackClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard))">
+        <Header Title="Tax Management" Subtitle="Manage tax rates and configurations" ShowLogout="true" ShowHome="true"
+            ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
             <RightContent>
-                <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
-                <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
-                <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Tax (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveTax" />
-                <IconButton Icon="IconType.New" Title="New Tax (Ctrl + N)" Disabled="_isProcessing" OnClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminTax, true))" />
+                <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)"
+                    Disabled="_isProcessing" OnClick="ExportExcel" />
+                <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)"
+                    Disabled="_isProcessing" OnClick="ExportPdf" />
+                <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Tax (Ctrl + S)"
+                    Disabled="_isProcessing" OnClick="SaveTax" />
+                <IconButton Icon="IconType.New" Title="New Tax (Ctrl + N)" Disabled="_isProcessing" OnClick="ResetPage" />
             </RightContent>
         </Header>
 
@@ -32,8 +31,9 @@ else
             <div class="section-card">
                 <div class="section-header">
                     <div class="section-title-wrapper">
-                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
                             <path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
                         </svg>
                         <h2 class="section-title">Tax Details</h2>
@@ -45,31 +45,31 @@ else
                         <div class="form-field">
                             <label class="field-label">Tax Code <span class="required">*</span></label>
                             <SfTextBox @bind-Value="_tax.Code" Placeholder="Enter tax code"
-                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                                FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
                         </div>
 
                         <!-- CGST -->
                         <div class="form-field">
                             <label class="field-label">CGST % <span class="required">*</span></label>
                             <SfNumericTextBox @bind-Value="_tax.CGST" Placeholder="Enter CGST %"
-                                              FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" Format="N2" Decimals="2" Min="0"
-                                              Max="100" />
+                                FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" Format="N2" Decimals="2"
+                                Min="0" Max="100" />
                         </div>
 
                         <!-- SGST -->
                         <div class="form-field">
                             <label class="field-label">SGST % <span class="required">*</span></label>
                             <SfNumericTextBox @bind-Value="_tax.SGST" Placeholder="Enter SGST %"
-                                              FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" Format="N2" Decimals="2" Min="0"
-                                              Max="100" />
+                                FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" Format="N2" Decimals="2"
+                                Min="0" Max="100" />
                         </div>
 
                         <!-- IGST -->
                         <div class="form-field">
                             <label class="field-label">IGST % <span class="required">*</span></label>
                             <SfNumericTextBox @bind-Value="_tax.IGST" Placeholder="Enter IGST %"
-                                              FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" Format="N2" Decimals="2" Min="0"
-                                              Max="100" />
+                                FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" Format="N2" Decimals="2"
+                                Min="0" Max="100" />
                         </div>
 
                         <!-- Inclusive Checkbox -->
@@ -89,7 +89,7 @@ else
                         <div class="form-field">
                             <label class="field-label">Remarks</label>
                             <SfTextBox @bind-Value="_tax.Remarks" Placeholder="Enter remarks (optional)" Multiline="true"
-                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                                FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
                         </div>
                     </div>
                 </div>
@@ -99,24 +99,27 @@ else
             <div class="section-card">
                 <div class="section-header">
                     <div class="section-title-wrapper">
-                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
                             <path d="M9 11l3 3L22 4" />
                             <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
                         </svg>
                         <h2 class="section-title">Tax List</h2>
                     </div>
                     <div class="header-actions">
-                        <ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted" OnToggle="ToggleDeleted" />
+                        <ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted"
+                            OnToggle="ToggleDeleted" />
                     </div>
                 </div>
                 <div class="section-body grid-body">
                     <SfGrid @ref="_sfGrid" DataSource="@_taxes" AllowPaging="true" AllowSorting="true" AllowFiltering="true"
-                            AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
+                        AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
                         <GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
                         <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
                         <GridColumns>
-                            <GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center" AllowFiltering="false">
+                            <GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center"
+                                AllowFiltering="false">
                                 <Template>
                                     @{
                                         var tax = (context as TaxModel);
@@ -124,44 +127,50 @@ else
                                         <div class="grid-actions">
                                             @if (tax.Status)
                                             {
-                                                <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid" Title="Edit (Insert)" OnClick="@(() => OnEditTax(tax))" />
-                                                <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete (Delete)" OnClick="@(() => ShowDeleteConfirmation(tax.Id, tax.Code))" />
+                                                <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid"
+                                                    Title="Edit (Insert)" OnClick="@(() => OnEditTax(tax))" />
+                                                <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete"
+                                                    Size="ButtonSize.Grid" Title="Delete (Delete)"
+                                                    OnClick="@(() => ShowDeleteConfirmation(tax.Id, tax.Code))" />
                                             }
                                             else
                                             {
-                                                <IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover" Size="ButtonSize.Grid" Title="Recover (Delete)" OnClick="@(() => ShowRecoverConfirmation(tax.Id, tax.Code))" />
+                                                <IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover"
+                                                    Size="ButtonSize.Grid" Title="Recover (Delete)"
+                                                    OnClick="@(() => ShowRecoverConfirmation(tax.Id, tax.Code))" />
                                             }
                                         </div>
                                     }
                                 </Template>
                             </GridColumn>
-                            <GridColumn Field="@nameof(TaxModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" />
+                            <GridColumn Field="@nameof(TaxModel.Id)" HeaderText="ID" Width="80"
+                                TextAlign="TextAlign.Center" />
                             <GridColumn Field="@nameof(TaxModel.Code)" HeaderText="Tax Code" Width="150" />
                             <GridColumn Field="@nameof(TaxModel.CGST)" HeaderText="CGST %" Width="100"
-                                        TextAlign="TextAlign.Right" Format="N2" />
+                                TextAlign="TextAlign.Right" Format="N2" />
                             <GridColumn Field="@nameof(TaxModel.SGST)" HeaderText="SGST %" Width="100"
-                                        TextAlign="TextAlign.Right" Format="N2" />
+                                TextAlign="TextAlign.Right" Format="N2" />
                             <GridColumn Field="@nameof(TaxModel.IGST)" HeaderText="IGST %" Width="100"
-                                        TextAlign="TextAlign.Right" Format="N2" />
+                                TextAlign="TextAlign.Right" Format="N2" />
                             <GridColumn Field="@nameof(TaxModel.Inclusive)" HeaderText="Inclusive" Width="120"
-                                        TextAlign="TextAlign.Center">
+                                TextAlign="TextAlign.Center">
                                 <Template>
                                     @{
                                         var tax = (context as TaxModel);
                                         <div class="grid-checkbox"
-                                             style="@(tax.Inclusive ? "color: #10b981; background: #d1fae5;" : "color: #64748b; background: #f1f5f9;")">
+                                            style="@(tax.Inclusive ? "color: #10b981; background: #d1fae5;" : "color: #64748b; background: #f1f5f9;")">
                                             @(tax.Inclusive ? "✓" : "✗")
                                         </div>
                                     }
                                 </Template>
                             </GridColumn>
                             <GridColumn Field="@nameof(TaxModel.Extra)" HeaderText="Extra" Width="100"
-                                        TextAlign="TextAlign.Center">
+                                TextAlign="TextAlign.Center">
                                 <Template>
                                     @{
                                         var tax = (context as TaxModel);
                                         <div class="grid-checkbox"
-                                             style="@(tax.Extra ? "color: #10b981; background: #d1fae5;" : "color: #64748b; background: #f1f5f9;")">
+                                            style="@(tax.Extra ? "color: #10b981; background: #d1fae5;" : "color: #64748b; background: #f1f5f9;")">
                                             @(tax.Extra ? "✓" : "✗")
                                         </div>
                                     }
@@ -169,12 +178,12 @@ else
                             </GridColumn>
                             <GridColumn Field="@nameof(TaxModel.Remarks)" HeaderText="Remarks" Width="250" />
                             <GridColumn Field="@nameof(TaxModel.Status)" HeaderText="Status" Width="100"
-                                        TextAlign="TextAlign.Center">
+                                TextAlign="TextAlign.Center">
                                 <Template>
                                     @{
                                         var tax = (context as TaxModel);
                                         <div class="grid-checkbox"
-                                             style="@(tax.Status ? "color: #10b981; background: #d1fae5;" : "color: #dc2626; background: #fee2e2;")">
+                                            style="@(tax.Status ? "color: #10b981; background: #d1fae5;" : "color: #dc2626; background: #fee2e2;")">
                                             @(tax.Status ? "✓" : "✗")
                                         </div>
                                     }
@@ -191,23 +200,13 @@ else
 }
 
 <!-- Delete Confirmation Dialog -->
-<DeleteConfirmationDialog @ref="_deleteConfirmationDialog"
-                          EntityName="Tax"
-                          IdentifierLabel="Tax Code"
-                          IdentifierValue="@_deleteTaxCode"
-                          IsPermanentDelete="false"
-                          Disabled="@_isProcessing"
-                          OnConfirm="ConfirmDelete"
-                          OnCancel="CancelDelete" />
+<DeleteConfirmationDialog @ref="_deleteConfirmationDialog" EntityName="Tax" IdentifierLabel="Tax Code"
+    IdentifierValue="@_deleteTaxCode" IsPermanentDelete="false" Disabled="@_isProcessing" OnConfirm="ConfirmDelete"
+    OnCancel="CancelDelete" />
 
 <!-- Recover Confirmation Dialog -->
-<RecoverConfirmationDialog @ref="_recoverConfirmationDialog"
-                           EntityName="Tax"
-                           IdentifierLabel="Tax Code"
-                           IdentifierValue="@_recoverTaxCode"
-                           Disabled="@_isProcessing"
-                           OnConfirm="ConfirmRecover"
-                           OnCancel="CancelRecover" />
+<RecoverConfirmationDialog @ref="_recoverConfirmationDialog" EntityName="Tax" IdentifierLabel="Tax Code"
+    IdentifierValue="@_recoverTaxCode" Disabled="@_isProcessing" OnConfirm="ConfirmRecover" OnCancel="CancelRecover" />
 
 <!-- Toast Notification -->
 <ToastNotification @ref="_toastNotification" />
@@ -347,19 +346,19 @@ else
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
     }
 
-        .dialog-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
-        }
+    .dialog-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+    }
 
-        .dialog-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-        }
+    .dialog-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    }
 
-        .dialog-btn svg {
-            flex-shrink: 0;
-        }
+    .dialog-btn svg {
+        flex-shrink: 0;
+    }
 
     .dialog-btn-cancel {
         background: #ffffff;
@@ -367,29 +366,29 @@ else
         border: 2px solid #e2e8f0;
     }
 
-        .dialog-btn-cancel:hover {
-            background: #f8fafc;
-            border-color: #cbd5e1;
-            color: #475569;
-        }
+    .dialog-btn-cancel:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+        color: #475569;
+    }
 
     .dialog-btn-delete {
         background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         color: white;
     }
 
-        .dialog-btn-delete:hover {
-            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-        }
+    .dialog-btn-delete:hover {
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    }
 
     .dialog-btn-recover {
         background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         color: white;
     }
 
-        .dialog-btn-recover:hover {
-            background: linear-gradient(135deg, #059669 0%, #047857 100%);
-        }
+    .dialog-btn-recover:hover {
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    }
 
     /* Responsive Design */
     @@media (max-width: 1400px) {

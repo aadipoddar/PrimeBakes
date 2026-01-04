@@ -2,163 +2,131 @@
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Common;
+using PrimeBakesLibrary.Models.Sales.Order;
 using PrimeBakesLibrary.Models.Sales.Product;
 using PrimeBakesLibrary.Models.Sales.Sale;
 
 namespace PrimeBakesLibrary.Exporting.Sales.Sale;
 
-/// <summary>
-/// Convert Sale data to Invoice PDF format
-/// </summary>
 public static class SaleInvoicePDFExport
 {
-    /// <summary>
-    /// Export Sale as a professional invoice PDF (automatically loads item names)
-    /// </summary>
-    /// <param name="saleHeader">Sale header data</param>
-    /// <param name="saleDetails">Sale detail line items</param>
-    /// <param name="company">Company information</param>
-    /// <param name="party">Party/Ledger information (can be null)</param>
-    /// <param name="customer">Customer information with name and phone (can be null)</param>
-    /// <param name="logoPath">Optional: Path to company logo</param>
-    /// <param name="invoiceType">Type of document (SALE INVOICE, TAX INVOICE, etc.)</param>
-    /// <param name="outlet">Optional: Outlet/Location name</param>
-    /// <returns>MemoryStream containing the PDF file</returns>
-    public static async Task<MemoryStream> ExportSaleInvoice(
-        SaleModel saleHeader,
-        List<SaleDetailModel> saleDetails,
-        CompanyModel company,
-        LedgerModel party,
-        CustomerModel customer,
-        string orderTransactionNo = null,
-        DateTime? orderDateTime = null,
-        string logoPath = null,
-        string invoiceType = "SALE INVOICE",
-        string outlet = null)
+    public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId)
     {
-        // Load all items to get names
-        var allItems = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
+        var transaction = await CommonData.LoadTableDataById<SaleModel>(TableNames.Sale, transactionId) ??
+            throw new InvalidOperationException("Transaction not found.");
 
-        // Map line items with actual item names
-        var lineItems = saleDetails.Select(detail =>
+        var transactionDetails = await CommonData.LoadTableDataByMasterId<SaleDetailModel>(TableNames.SaleDetail, transaction.Id);
+        if (transactionDetails is null || transactionDetails.Count == 0)
+            throw new InvalidOperationException("No transaction details found for the transaction.");
+
+        var company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, transaction.CompanyId) ??
+            throw new InvalidOperationException("Company information is missing.");
+
+        var location = await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, transaction.LocationId);
+
+        LedgerModel party = null;
+
+        if (transaction.PartyId.HasValue)
+            party = await CommonData.LoadTableDataById<LedgerModel>(TableNames.Ledger, transaction.PartyId.Value);
+        else if (transaction.CustomerId.HasValue)
         {
-            var item = allItems.FirstOrDefault(i => i.Id == detail.ProductId);
-            string itemName = item?.Name ?? $"Item #{detail.ProductId}";
+            // If no party, convert customer to ledger
+            var customer = await CommonData.LoadTableDataById<CustomerModel>(TableNames.Customer, transaction.CustomerId.Value);
+            if (customer is not null)
+                party = new LedgerModel
+                {
+                    Name = customer.Name,
+                    Phone = customer.Number,
+                };
+        }
 
-            return new PDFInvoiceExportUtil.InvoiceLineItem
+        OrderModel? order = null;
+        if (transaction.OrderId.HasValue)
+            order = await CommonData.LoadTableDataById<OrderModel>(TableNames.Order, transaction.OrderId.Value);
+
+        var allProducts = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
+
+        var lineItems = transactionDetails.Select(detail =>
+        {
+            var product = allProducts.FirstOrDefault(p => p.Id == detail.ProductId);
+            return new SaleItemCartModel
             {
+                ItemCategoryId = 0,
                 ItemId = detail.ProductId,
-                ItemName = itemName,
+                ItemName = product?.Name ?? $"Product #{detail.ProductId}",
                 Quantity = detail.Quantity,
                 Rate = detail.Rate,
+                BaseTotal = detail.BaseTotal,
                 DiscountPercent = detail.DiscountPercent,
+                DiscountAmount = detail.DiscountAmount,
                 AfterDiscount = detail.AfterDiscount,
                 CGSTPercent = detail.InclusiveTax ? 0 : detail.CGSTPercent,
+                CGSTAmount = detail.InclusiveTax ? 0 : detail.CGSTAmount,
                 SGSTPercent = detail.InclusiveTax ? 0 : detail.SGSTPercent,
+                SGSTAmount = detail.InclusiveTax ? 0 : detail.SGSTAmount,
                 IGSTPercent = detail.InclusiveTax ? 0 : detail.IGSTPercent,
+                IGSTAmount = detail.InclusiveTax ? 0 : detail.IGSTAmount,
                 TotalTaxAmount = detail.InclusiveTax ? 0 : detail.TotalTaxAmount,
-                Total = detail.Total
+                InclusiveTax = detail.InclusiveTax,
+                Total = detail.Total,
+                NetRate = detail.NetRate,
+                Remarks = detail.Remarks
             };
         }).ToList();
 
-        // Map invoice header data
+        var paymentModes = new Dictionary<string, decimal>();
+        if (transaction.Cash > 0) paymentModes.Add("Cash", transaction.Cash);
+        if (transaction.Card > 0) paymentModes.Add("Card", transaction.Card);
+        if (transaction.UPI > 0) paymentModes.Add("UPI", transaction.UPI);
+        if (transaction.Credit > 0) paymentModes.Add("Credit", transaction.Credit);
+
         var invoiceData = new PDFInvoiceExportUtil.InvoiceData
         {
-            TransactionNo = saleHeader.TransactionNo,
-            TransactionDateTime = saleHeader.TransactionDateTime,
-            OrderTransactionNo = orderTransactionNo,
-            OrderDateTime = orderDateTime,
-            ItemsTotalAmount = saleHeader.TotalAfterTax,
-            OtherChargesAmount = saleHeader.OtherChargesAmount,
-            OtherChargesPercent = saleHeader.OtherChargesPercent,
-            CashDiscountAmount = saleHeader.DiscountAmount,
-            CashDiscountPercent = saleHeader.DiscountPercent,
-            RoundOffAmount = saleHeader.RoundOffAmount,
-            TotalAmount = saleHeader.TotalAmount,
-            Cash = saleHeader.Cash,
-            Card = saleHeader.Card,
-            UPI = saleHeader.UPI,
-            Credit = saleHeader.Credit,
-            Remarks = saleHeader.Remarks,
-            Status = saleHeader.Status
+            Company = company,
+            BillTo = party,
+            InvoiceType = "SALE INVOICE",
+            Outlet = location?.Name,
+            TransactionNo = transaction.TransactionNo,
+            TransactionDateTime = transaction.TransactionDateTime,
+            ReferenceTransactionNo = order?.TransactionNo ?? string.Empty,
+            ReferenceDateTime = order?.TransactionDateTime,
+            TotalAmount = transaction.TotalAmount,
+            Remarks = transaction.Remarks,
+            Status = transaction.Status,
+            PaymentModes = paymentModes
         };
 
-        // Generate invoice PDF with generic models
-        return await PDFInvoiceExportUtil.ExportInvoiceToPdf(
-            invoiceData,
-            lineItems,
-            company,
-            party,
-            logoPath,
-            invoiceType,
-            outlet,
-            customer
-        );
-    }
-
-    /// <summary>
-    /// Export Sale with item names (requires additional data)
-    /// </summary>
-    public static async Task<MemoryStream> ExportSaleInvoiceWithItems(
-        SaleModel saleHeader,
-        List<SaleItemCartModel> saleItems,
-        CompanyModel company,
-        LedgerModel party,
-        CustomerModel customer,
-        string orderTransactionNo = null,
-        DateTime? orderDateTime = null,
-        string logoPath = null,
-        string invoiceType = "SALE INVOICE",
-        string outlet = null)
-    {
-        // Map line items to generic model
-        var lineItems = saleItems.Select(item => new PDFInvoiceExportUtil.InvoiceLineItem
+        var summaryFields = new Dictionary<string, string>
         {
-            ItemId = item.ItemId,
-            ItemName = item.ItemName,
-            Quantity = item.Quantity,
-            Rate = item.Rate,
-            DiscountPercent = item.DiscountPercent,
-            AfterDiscount = item.AfterDiscount,
-            CGSTPercent = item.InclusiveTax ? 0 : item.CGSTPercent,
-            SGSTPercent = item.InclusiveTax ? 0 : item.SGSTPercent,
-            IGSTPercent = item.InclusiveTax ? 0 : item.IGSTPercent,
-            TotalTaxAmount = item.InclusiveTax ? 0 : item.TotalTaxAmount,
-            Total = item.Total
-        }).ToList();
-
-        // Map invoice header data
-        var invoiceData = new PDFInvoiceExportUtil.InvoiceData
-        {
-            TransactionNo = saleHeader.TransactionNo,
-            TransactionDateTime = saleHeader.TransactionDateTime,
-            OrderTransactionNo = orderTransactionNo,
-            OrderDateTime = orderDateTime,
-            ItemsTotalAmount = saleHeader.TotalAfterTax,
-            OtherChargesAmount = saleHeader.OtherChargesAmount,
-            OtherChargesPercent = saleHeader.OtherChargesPercent,
-            CashDiscountAmount = saleHeader.DiscountAmount,
-            CashDiscountPercent = saleHeader.DiscountPercent,
-            RoundOffAmount = saleHeader.RoundOffAmount,
-            TotalAmount = saleHeader.TotalAmount,
-            Cash = saleHeader.Cash,
-            Card = saleHeader.Card,
-            UPI = saleHeader.UPI,
-            Credit = saleHeader.Credit,
-            Remarks = saleHeader.Remarks,
-            Status = saleHeader.Status
+            ["Sub Total"] = transaction.TotalAfterTax.FormatIndianCurrency(),
+            [$"Other Charges ({transaction.OtherChargesPercent:0.00}%)"] = transaction.OtherChargesAmount.FormatIndianCurrency(),
+            [$"Discount ({transaction.DiscountPercent:0.00}%)"] = transaction.DiscountAmount.FormatIndianCurrency(),
+            ["Round Off"] = transaction.RoundOffAmount.FormatIndianCurrency(),
+            ["Grand Total"] = transaction.TotalAmount.FormatIndianCurrency()
         };
 
-        // Generate invoice PDF with generic models
-        return await PDFInvoiceExportUtil.ExportInvoiceToPdf(
+        var columnSettings = new List<PDFInvoiceExportUtil.InvoiceColumnSetting>
+        {
+            new("#", "#", 25, Syncfusion.Pdf.Graphics.PdfTextAlignment.Center),
+            new(nameof(SaleItemCartModel.ItemName), "Item", 0, Syncfusion.Pdf.Graphics.PdfTextAlignment.Left),
+            new(nameof(SaleItemCartModel.Quantity), "Qty", 40, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00"),
+            new(nameof(SaleItemCartModel.Rate), "Rate", 50, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00"),
+            new(nameof(SaleItemCartModel.DiscountPercent), "Disc %", 45, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00"),
+            new(nameof(SaleItemCartModel.AfterDiscount), "Taxable", 55, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00"),
+            new(nameof(SaleItemCartModel.TotalTaxAmount), "Tax", 50, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00"),
+            new(nameof(SaleItemCartModel.Total), "Total", 55, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00")
+        };
+
+        var stream = await PDFInvoiceExportUtil.ExportInvoiceToPdf(
             invoiceData,
             lineItems,
-            company,
-            party,
-            logoPath,
-            invoiceType,
-            outlet,
-            customer
+            columnSettings,
+            null,
+            summaryFields
         );
+
+        var currentDateTime = await CommonData.LoadCurrentDateTime();
+        string fileName = $"SALE_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
+        return (stream, fileName);
     }
 }

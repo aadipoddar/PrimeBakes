@@ -7,150 +7,120 @@ using PrimeBakesLibrary.Models.Sales.Sale;
 
 namespace PrimeBakesLibrary.Exporting.Sales.Sale;
 
-/// <summary>
-/// Convert Sale Return data to Invoice Excel format
-/// </summary>
 public static class SaleReturnInvoiceExcelExport
 {
-	/// <summary>
-	/// Export Sale Return as a professional invoice Excel (automatically loads item names)
-	/// </summary>
-	/// <param name="saleReturnHeader">Sale return header data</param>
-	/// <param name="saleReturnDetails">Sale return detail line items</param>
-	/// <param name="company">Company information</param>
-	/// <param name="party">Party/Ledger information (can be null)</param>
-	/// <param name="customer">Customer information with name and phone (can be null)</param>
-	/// <param name="logoPath">Optional: Path to company logo</param>
-	/// <param name="invoiceType">Type of document (SALE RETURN, CREDIT NOTE, etc.)</param>
-	/// <param name="outlet">Optional: Outlet/Location name</param>
-	/// <returns>MemoryStream containing the Excel file</returns>
-	public static async Task<MemoryStream> ExportSaleReturnInvoice(
-		SaleReturnModel saleReturnHeader,
-		List<SaleReturnDetailModel> saleReturnDetails,
-		CompanyModel company,
-		LedgerModel party,
-		CustomerModel customer,
-		string logoPath = null,
-		string invoiceType = "SALE RETURN INVOICE",
-		string outlet = null)
-	{
-		// Load all items to get names
-		var allItems = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
+    public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId)
+    {
+        var transaction = await CommonData.LoadTableDataById<SaleReturnModel>(TableNames.SaleReturn, transactionId) ??
+            throw new InvalidOperationException("Transaction not found.");
 
-		// Map line items with actual item names
-		var lineItems = saleReturnDetails.Select(detail =>
-		{
-			var item = allItems.FirstOrDefault(i => i.Id == detail.ProductId);
-			string itemName = item?.Name ?? $"Item #{detail.ProductId}";
+        var transactionDetails = await CommonData.LoadTableDataByMasterId<SaleReturnDetailModel>(TableNames.SaleReturnDetail, transaction.Id);
+        if (transactionDetails is null || transactionDetails.Count == 0)
+            throw new InvalidOperationException("No transaction details found for the transaction.");
 
-			return new ExcelInvoiceExportUtil.InvoiceLineItem
-			{
-				ItemId = detail.ProductId,
-				ItemName = itemName,
-				Quantity = detail.Quantity,
-				Rate = detail.Rate,
-				DiscountPercent = detail.DiscountPercent,
-				AfterDiscount = detail.AfterDiscount,
-				CGSTPercent = detail.InclusiveTax ? 0 : detail.CGSTPercent,
-				SGSTPercent = detail.InclusiveTax ? 0 : detail.SGSTPercent,
-				IGSTPercent = detail.InclusiveTax ? 0 : detail.IGSTPercent,
-				TotalTaxAmount = detail.InclusiveTax ? 0 : detail.TotalTaxAmount,
-				Total = detail.Total
-			};
-		}).ToList();
+        var company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, transaction.CompanyId) ??
+            throw new InvalidOperationException("Company information is missing.");
 
-		// Map invoice header data
-		var invoiceData = new ExcelInvoiceExportUtil.InvoiceData
-		{
-			TransactionNo = saleReturnHeader.TransactionNo,
-			TransactionDateTime = saleReturnHeader.TransactionDateTime,
-			ItemsTotalAmount = saleReturnHeader.TotalAfterTax,
-			OtherChargesAmount = saleReturnHeader.OtherChargesAmount,
-			OtherChargesPercent = saleReturnHeader.OtherChargesPercent,
-			CashDiscountAmount = saleReturnHeader.DiscountAmount,
-			CashDiscountPercent = saleReturnHeader.DiscountPercent,
-			RoundOffAmount = saleReturnHeader.RoundOffAmount,
-			TotalAmount = saleReturnHeader.TotalAmount,
-			Cash = saleReturnHeader.Cash,
-			Card = saleReturnHeader.Card,
-			UPI = saleReturnHeader.UPI,
-			Credit = saleReturnHeader.Credit,
-			Remarks = saleReturnHeader.Remarks,
-			Status = saleReturnHeader.Status
-		};
+        var location = await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, transaction.LocationId);
 
-		// Generate invoice Excel with generic models
-		return await ExcelInvoiceExportUtil.ExportInvoiceToExcel(
-			invoiceData,
-			lineItems,
-			company,
-			party,
-			logoPath,
-			invoiceType,
-			outlet,
-			customer
-		);
-	}
+        LedgerModel party = null;
 
-	/// <summary>
-	/// Export Sale Return with item names already provided
-	/// </summary>
-	public static async Task<MemoryStream> ExportSaleReturnInvoiceWithItems(
-		SaleReturnModel saleReturnHeader,
-		List<SaleReturnItemCartModel> saleReturnItems,
-		CompanyModel company,
-		LedgerModel party,
-		CustomerModel customer,
-		string logoPath = null,
-		string invoiceType = "SALE RETURN INVOICE",
-		string outlet = null)
-	{
-		// Map line items to generic model
-		var lineItems = saleReturnItems.Select(item => new ExcelInvoiceExportUtil.InvoiceLineItem
-		{
-			ItemId = item.ItemId,
-			ItemName = item.ItemName,
-			Quantity = item.Quantity,
-			Rate = item.Rate,
-			DiscountPercent = item.DiscountPercent,
-			AfterDiscount = item.AfterDiscount,
-			CGSTPercent = item.InclusiveTax ? 0 : item.CGSTPercent,
-			SGSTPercent = item.InclusiveTax ? 0 : item.SGSTPercent,
-			IGSTPercent = item.InclusiveTax ? 0 : item.IGSTPercent,
-			TotalTaxAmount = item.InclusiveTax ? 0 : item.TotalTaxAmount,
-			Total = item.Total
-		}).ToList();
+        if (transaction.PartyId.HasValue)
+            party = await CommonData.LoadTableDataById<LedgerModel>(TableNames.Ledger, transaction.PartyId.Value);
+        else if (transaction.CustomerId.HasValue)
+        {
+            // If no party, convert customer to ledger
+            var customer = await CommonData.LoadTableDataById<CustomerModel>(TableNames.Customer, transaction.CustomerId.Value);
+            if (customer is not null)
+                party = new LedgerModel
+                {
+                    Name = customer.Name,
+                    Phone = customer.Number,
+                };
+        }
 
-		// Map invoice header data
-		var invoiceData = new ExcelInvoiceExportUtil.InvoiceData
-		{
-			TransactionNo = saleReturnHeader.TransactionNo,
-			TransactionDateTime = saleReturnHeader.TransactionDateTime,
-			ItemsTotalAmount = saleReturnHeader.TotalAfterTax,
-			OtherChargesAmount = saleReturnHeader.OtherChargesAmount,
-			OtherChargesPercent = saleReturnHeader.OtherChargesPercent,
-			CashDiscountAmount = saleReturnHeader.DiscountAmount,
-			CashDiscountPercent = saleReturnHeader.DiscountPercent,
-			RoundOffAmount = saleReturnHeader.RoundOffAmount,
-			TotalAmount = saleReturnHeader.TotalAmount,
-			Cash = saleReturnHeader.Cash,
-			Card = saleReturnHeader.Card,
-			UPI = saleReturnHeader.UPI,
-			Credit = saleReturnHeader.Credit,
-			Remarks = saleReturnHeader.Remarks,
-			Status = saleReturnHeader.Status
-		};
+        var allProducts = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
 
-		// Generate invoice Excel with generic models
-		return await ExcelInvoiceExportUtil.ExportInvoiceToExcel(
-			invoiceData,
-			lineItems,
-			company,
-			party,
-			logoPath,
-			invoiceType,
-			outlet,
-			customer
-		);
-	}
+        var cartItems = transactionDetails.Select(detail =>
+        {
+            var product = allProducts.FirstOrDefault(p => p.Id == detail.ProductId);
+            return new SaleReturnItemCartModel
+            {
+                ItemId = detail.ProductId,
+                ItemName = product?.Name ?? $"Product #{detail.ProductId}",
+                Quantity = detail.Quantity,
+                Rate = detail.Rate,
+                BaseTotal = detail.BaseTotal,
+                DiscountPercent = detail.DiscountPercent,
+                DiscountAmount = detail.DiscountAmount,
+                AfterDiscount = detail.AfterDiscount,
+                CGSTPercent = detail.InclusiveTax ? 0 : detail.CGSTPercent,
+                CGSTAmount = detail.InclusiveTax ? 0 : detail.CGSTAmount,
+                SGSTPercent = detail.InclusiveTax ? 0 : detail.SGSTPercent,
+                SGSTAmount = detail.InclusiveTax ? 0 : detail.SGSTAmount,
+                IGSTPercent = detail.InclusiveTax ? 0 : detail.IGSTPercent,
+                IGSTAmount = detail.InclusiveTax ? 0 : detail.IGSTAmount,
+                TotalTaxAmount = detail.InclusiveTax ? 0 : detail.TotalTaxAmount,
+                InclusiveTax = detail.InclusiveTax,
+                Total = detail.Total,
+                NetRate = detail.NetRate,
+                Remarks = detail.Remarks
+            };
+        }).ToList();
+
+        var paymentModes = new Dictionary<string, decimal>();
+        if (transaction.Cash > 0) paymentModes.Add("Cash", transaction.Cash);
+        if (transaction.Card > 0) paymentModes.Add("Card", transaction.Card);
+        if (transaction.UPI > 0) paymentModes.Add("UPI", transaction.UPI);
+        if (transaction.Credit > 0) paymentModes.Add("Credit", transaction.Credit);
+
+        var invoiceData = new ExcelInvoiceExportUtil.InvoiceData
+        {
+            Company = company,
+            BillTo = party,
+            InvoiceType = "SALE RETURN INVOICE",
+            Outlet = location?.Name,
+            TransactionNo = transaction.TransactionNo,
+            TransactionDateTime = transaction.TransactionDateTime,
+            ReferenceTransactionNo = null,
+            ReferenceDateTime = null,
+            TotalAmount = transaction.TotalAmount,
+            Remarks = transaction.Remarks,
+            Status = transaction.Status,
+            PaymentModes = paymentModes
+        };
+
+        var summaryFields = new Dictionary<string, string>
+        {
+            ["Items Total"] = transaction.TotalAfterTax.FormatIndianCurrency(),
+            [$"Other Charges ({transaction.OtherChargesPercent:0.00}%)"] = transaction.OtherChargesAmount.FormatIndianCurrency(),
+            [$"Discount ({transaction.DiscountPercent:0.00}%)"] = transaction.DiscountAmount.FormatIndianCurrency(),
+            ["Round Off"] = transaction.RoundOffAmount.FormatIndianCurrency(),
+            ["Grand Total"] = transaction.TotalAmount.FormatIndianCurrency()
+        };
+
+        var columnSettings = new List<ExcelInvoiceExportUtil.InvoiceColumnSetting>
+        {
+            new("#", "#", 5, Syncfusion.XlsIO.ExcelHAlign.HAlignCenter),
+            new(nameof(SaleReturnItemCartModel.ItemName), "Product", 30, Syncfusion.XlsIO.ExcelHAlign.HAlignLeft),
+            new(nameof(SaleReturnItemCartModel.Quantity), "Qty", 10, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00"),
+            new(nameof(SaleReturnItemCartModel.Rate), "Rate", 12, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00"),
+            new(nameof(SaleReturnItemCartModel.DiscountPercent), "Disc %", 8, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00"),
+            new(nameof(SaleReturnItemCartModel.AfterDiscount), "Taxable", 12, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00"),
+            new(nameof(SaleReturnItemCartModel.TotalTaxAmount), "Tax Amt", 12, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00"),
+            new(nameof(SaleReturnItemCartModel.Total), "Total", 15, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00")
+        };
+
+        var stream = await ExcelInvoiceExportUtil.ExportInvoiceToExcel(
+            invoiceData,
+            cartItems,
+            columnSettings,
+            null,
+            summaryFields
+        );
+
+        var currentDateTime = await CommonData.LoadCurrentDateTime();
+        string fileName = $"SALE_RETURN_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.xlsx";
+        return (stream, fileName);
+    }
 }

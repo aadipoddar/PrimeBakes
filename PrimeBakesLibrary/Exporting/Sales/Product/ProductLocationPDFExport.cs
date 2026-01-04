@@ -1,4 +1,6 @@
-﻿using PrimeBakesLibrary.Models.Sales.Product;
+﻿using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Sales.Product;
 
 using Syncfusion.Pdf.Graphics;
 
@@ -6,7 +8,7 @@ namespace PrimeBakesLibrary.Exporting.Sales.Product;
 
 public static class ProductLocationPDFExport
 {
-    public static async Task<MemoryStream> ExportProductLocation<T>(IEnumerable<T> productLocationData)
+    public static async Task<(MemoryStream stream, string fileName)> ExportMaster<T>(IEnumerable<T> productLocationData)
     {
         var props = typeof(T).GetProperties();
 
@@ -32,7 +34,6 @@ public static class ProductLocationPDFExport
 
         var columnSettings = new Dictionary<string, PDFReportExportUtil.ColumnSetting>
         {
-            [nameof(ProductLocationModel.Id)] = new() { DisplayName = "ID", StringFormat = new PdfStringFormat(PdfTextAlignment.Center), IncludeInTotal = false },
             ["Location"] = new() { DisplayName = "Location", StringFormat = new PdfStringFormat(PdfTextAlignment.Left), IncludeInTotal = false },
             ["ProductCode"] = new() { DisplayName = "Product Code", StringFormat = new PdfStringFormat(PdfTextAlignment.Left), IncludeInTotal = false },
             ["ProductName"] = new() { DisplayName = "Product Name", StringFormat = new PdfStringFormat(PdfTextAlignment.Left), IsRequired = true },
@@ -40,17 +41,16 @@ public static class ProductLocationPDFExport
             [nameof(ProductLocationModel.Status)] = new() { DisplayName = "Status", StringFormat = new PdfStringFormat(PdfTextAlignment.Center), IncludeInTotal = false }
         };
 
-		List<string> columnOrder =
-		[
-			nameof(ProductLocationModel.Id),
-			"Location",
-			"ProductCode",
-			"ProductName",
-			nameof(ProductLocationModel.Rate),
-			nameof(ProductLocationModel.Status)
-		];
+        List<string> columnOrder =
+        [
+            "Location",
+            "ProductCode",
+            "ProductName",
+            nameof(ProductLocationModel.Rate),
+            nameof(ProductLocationModel.Status)
+        ];
 
-        return await PDFReportExportUtil.ExportToPdf(
+        var stream = await PDFReportExportUtil.ExportToPdf(
             enrichedData,
             "PRODUCT LOCATION MASTER",
             null,
@@ -59,8 +59,11 @@ public static class ProductLocationPDFExport
             columnOrder,
             false,
             true,
-            null,
-            true
+            null
         );
+
+        var currentDateTime = await CommonData.LoadCurrentDateTime();
+        var fileName = $"ProductLocation_Master_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
+        return (stream, fileName);
     }
 }

@@ -1,10 +1,8 @@
 @page "/report/kitchen-production-item"
 
-
 @using PrimeBakesLibrary.Models.Accounts.Masters
 @using PrimeBakesLibrary.Models.Common
 @using PrimeBakesLibrary.Models.Inventory.Kitchen
-
 
 <PageTitle>Kitchen Production Item Report - Prime Bakes</PageTitle>
 
@@ -15,7 +13,7 @@
 else
 {
     <div style="display: flex; flex-direction: column; min-height: 100vh;">
-        <Header Title="Kitchen Production Item Report" Subtitle="View and analyze kitchen production item transactions" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack">
+        <Header Title="Kitchen Production Item Report" Subtitle="View and analyze kitchen production item transactions" ShowHome="true" ShowBack="true" ShowLogout="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
             <RightContent>
                 <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
                 <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
@@ -32,8 +30,9 @@ else
             <div class="section-card">
                 <div class="section-header">
                     <div class="section-title-wrapper">
-                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round">
                             <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
                         </svg>
                         <h2 class="section-title">Filters</h2>
@@ -54,9 +53,10 @@ else
                             <!-- Company -->
                             <div class="form-field">
                                 <label class="field-label">Company</label>
-                                <SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedCompany" TValue="CompanyModel"
-                                                TItem="CompanyModel" DataSource="@_companies" Placeholder="All Companies"
-                                                AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
+                                <SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedCompany"
+                                                TValue="CompanyModel" TItem="CompanyModel" DataSource="@_companies"
+                                                Placeholder="All Companies" AllowFiltering="true"
+                                                FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
                                     <AutoCompleteEvents TItem="CompanyModel" TValue="CompanyModel"
                                                         ValueChange="OnCompanyChanged" />
                                     <AutoCompleteFieldSettings Value="Name" />
@@ -66,9 +66,10 @@ else
                             <!-- Kitchen -->
                             <div class="form-field">
                                 <label class="field-label">Kitchen</label>
-                                <SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedKitchen" TValue="LocationModel"
-                                                TItem="LocationModel" DataSource="@_kitchens" Placeholder="All Kitchens"
-                                                AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
+                                <SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedKitchen"
+                                                TValue="LocationModel" TItem="LocationModel" DataSource="@_kitchens"
+                                                Placeholder="All Kitchens" AllowFiltering="true"
+                                                FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
                                     <AutoCompleteEvents TItem="LocationModel" TValue="LocationModel"
                                                         ValueChange="OnKitchenChanged" />
                                     <AutoCompleteFieldSettings Value="Name" />
@@ -87,8 +88,9 @@ else
             <div class="section-card">
                 <div class="section-header">
                     <div class="section-title-wrapper">
-                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round">
                             <line x1="8" y1="6" x2="21" y2="6" />
                             <line x1="8" y1="12" x2="21" y2="12" />
                             <line x1="8" y1="18" x2="21" y2="18" />
@@ -99,15 +101,18 @@ else
                         <h2 class="section-title">kitchen production item transactions</h2>
                     </div>
                     <div class="header-actions">
-                        <ToggleSummaryButton Disabled="@_isProcessing" ShowSummary="@_showSummary" OnToggle="ToggleSummary" />
-                        <ToggleDetailsButton Disabled="@_isProcessing" ShowAllColumns="@_showAllColumns" OnToggle="ToggleDetailsView" />
+                        <ToggleSummaryButton Disabled="@_isProcessing" ShowSummary="@_showSummary"
+                                             OnToggle="ToggleSummary" />
+                        <ToggleDetailsButton Disabled="@_isProcessing" ShowAllColumns="@_showAllColumns"
+                                             OnToggle="ToggleDetailsView" />
                     </div>
                 </div>
                 <div class="section-body grid-body">
                     <SfGrid ID="_sfGrid" @ref="_sfGrid" TValue="KitchenProductionItemOverviewModel"
-                            DataSource="_transactionOverviews" AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true" AllowFiltering="true"
-                            AllowExcelExport="true" AllowPdfExport="true" GridLines="GridLine.Horizontal" AllowGrouping="true"
-                            CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
+                            DataSource="_transactionOverviews" AllowTextWrap="true" AllowPaging="true" AllowSorting="true"
+                            AllowResizing="true" AllowFiltering="true" AllowExcelExport="true" AllowPdfExport="true"
+                            GridLines="GridLine.Horizontal" AllowGrouping="true" CssClass="professional-grid"
+                            Toolbar="@(new List<string>() { "Search" })">
 
                         <GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
                         <GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
@@ -169,19 +174,25 @@ else
                                         <FooterTemplate>
                                             @{
                                                 var aggregate = (context as AggregateTemplateContext);
-                                                <div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
+                                                <div class="aggregate-value aggregate-total">
+                                                    <strong>@aggregate.Sum</strong>
+                                                </div>
                                             }
                                         </FooterTemplate>
                                         <GroupFooterTemplate>
                                             @{
                                                 var aggregate = (context as AggregateTemplateContext);
-                                                <div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
+                                                <div class="aggregate-value aggregate-total">
+                                                    <strong>@aggregate.Sum</strong>
+                                                </div>
                                             }
                                         </GroupFooterTemplate>
                                         <GroupCaptionTemplate>
                                             @{
                                                 var aggregate = (context as AggregateTemplateContext);
-                                                <div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
+                                                <div class="aggregate-value aggregate-total">
+                                                    <strong>@aggregate.Sum</strong>
+                                                </div>
                                             }
                                         </GroupCaptionTemplate>
                                     </GridAggregateColumn>
@@ -190,28 +201,47 @@ else
                         </GridAggregates>
 
                         <GridColumns>
-                            <GridColumn HeaderText="Actions" Width="150" TextAlign="TextAlign.Center" Visible="@(!_showSummary)">
+                            <GridColumn HeaderText="Actions" Width="150" TextAlign="TextAlign.Center"
+                                        Visible="@(!_showSummary)">
                                 <Template>
                                     @{
                                         var item = (context as KitchenProductionItemOverviewModel);
                                     }
                                     <div class="grid-actions">
-                                        <IconButton Icon="IconType.View" Variant="ButtonVariant.View" Size="ButtonSize.Grid" Title="View Transaction (Ctrl + O)" Disabled="_isProcessing" OnClick="@(() => ViewTransaction(item.MasterId))" />
-                                        <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Size="ButtonSize.Grid" Title="Download Excel Invoice (Alt+E)" Disabled="_isProcessing" OnClick="@(() => DownloadExcelInvoice(item.MasterId))" />
-                                        <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Grid" Title="Download PDF Invoice (Alt+P)" Disabled="_isProcessing" OnClick="@(() => DownloadPdfInvoice(item.MasterId))" />
+                                        <IconButton Icon="IconType.View" Variant="ButtonVariant.View" Size="ButtonSize.Grid"
+                                                    Title="View Transaction (Ctrl + O)" Disabled="_isProcessing"
+                                                    OnClick="@(() => ViewTransaction(item.MasterId))" />
+                                        <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel"
+                                                    Size="ButtonSize.Grid" Title="Download Excel Invoice (Alt+E)"
+                                                    Disabled="_isProcessing"
+                                                    OnClick="@(() => DownloadExcelInvoice(item.MasterId))" />
+                                        <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Grid"
+                                                    Title="Download PDF Invoice (Alt+P)" Disabled="_isProcessing"
+                                                    OnClick="@(() => DownloadPdfInvoice(item.MasterId))" />
                                     </div>
                                 </Template>
                             </GridColumn>
-                            <GridColumn Field="@nameof(KitchenProductionItemOverviewModel.ItemName)" HeaderText="Item" Width="200" />
-                            <GridColumn Field="@nameof(KitchenProductionItemOverviewModel.ItemCode)" HeaderText="Code" Width="130" Visible="@_showAllColumns" />
-                            <GridColumn Field="@nameof(KitchenProductionItemOverviewModel.ItemCategoryName)" HeaderText="Category" Width="150" Visible="@_showAllColumns" />
-                            <GridColumn Field="@nameof(KitchenProductionItemOverviewModel.TransactionNo)" HeaderText="Transaction No" Width="170" Visible="@(!_showSummary)" />
-                            <GridColumn Field="@nameof(KitchenProductionItemOverviewModel.TransactionDateTime)" HeaderText="Date" Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(!_showSummary)" />
-                            <GridColumn Field="@nameof(KitchenProductionItemOverviewModel.CompanyName)" HeaderText="Company" Width="180" Visible="@(_showAllColumns && !_showSummary)" />
-                            <GridColumn Field="@nameof(KitchenProductionItemOverviewModel.KitchenName)" HeaderText="Kitchen" Width="200" Visible="@(!_showSummary)" />
-                            <GridColumn Field="@nameof(KitchenProductionItemOverviewModel.Quantity)" HeaderText="Qty" Width="120" Format="N2" TextAlign="TextAlign.Right" />
-                            <GridColumn Field="@nameof(KitchenProductionItemOverviewModel.Rate)" HeaderText="Rate" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="@(!_showSummary)" />
-                            <GridColumn Field="@nameof(KitchenProductionItemOverviewModel.Total)" HeaderText="Total" Width="150" TextAlign="TextAlign.Right">
+                            <GridColumn Field="@nameof(KitchenProductionItemOverviewModel.ItemName)" HeaderText="Item"
+                                        Width="200" />
+                            <GridColumn Field="@nameof(KitchenProductionItemOverviewModel.ItemCode)" HeaderText="Code"
+                                        Width="130" Visible="@_showAllColumns" />
+                            <GridColumn Field="@nameof(KitchenProductionItemOverviewModel.ItemCategoryName)"
+                                        HeaderText="Category" Width="150" Visible="@_showAllColumns" />
+                            <GridColumn Field="@nameof(KitchenProductionItemOverviewModel.TransactionNo)"
+                                        HeaderText="Transaction No" Width="170" Visible="@(!_showSummary)" />
+                            <GridColumn Field="@nameof(KitchenProductionItemOverviewModel.TransactionDateTime)"
+                                        HeaderText="Date" Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime"
+                                        Visible="@(!_showSummary)" />
+                            <GridColumn Field="@nameof(KitchenProductionItemOverviewModel.CompanyName)" HeaderText="Company"
+                                        Width="180" Visible="@(_showAllColumns && !_showSummary)" />
+                            <GridColumn Field="@nameof(KitchenProductionItemOverviewModel.KitchenName)" HeaderText="Kitchen"
+                                        Width="200" Visible="@(!_showSummary)" />
+                            <GridColumn Field="@nameof(KitchenProductionItemOverviewModel.Quantity)" HeaderText="Qty"
+                                        Width="120" Format="N2" TextAlign="TextAlign.Right" />
+                            <GridColumn Field="@nameof(KitchenProductionItemOverviewModel.Rate)" HeaderText="Rate"
+                                        Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="@(!_showSummary)" />
+                            <GridColumn Field="@nameof(KitchenProductionItemOverviewModel.Total)" HeaderText="Total"
+                                        Width="150" TextAlign="TextAlign.Right">
                                 <Template>
                                     @{
                                         var detailItem = (context as KitchenProductionItemOverviewModel);
@@ -219,8 +249,10 @@ else
                                     }
                                 </Template>
                             </GridColumn>
-                            <GridColumn Field="@nameof(KitchenProductionItemOverviewModel.KitchenProductionRemarks)" HeaderText="Issue Remarks" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
-                            <GridColumn Field="@nameof(KitchenProductionItemOverviewModel.Remarks)" HeaderText="Item Remarks" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
+                            <GridColumn Field="@nameof(KitchenProductionItemOverviewModel.KitchenProductionRemarks)"
+                                        HeaderText="Issue Remarks" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
+                            <GridColumn Field="@nameof(KitchenProductionItemOverviewModel.Remarks)"
+                                        HeaderText="Item Remarks" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
                         </GridColumns>
                     </SfGrid>
                 </div>

@@ -1,10 +1,8 @@
 @page "/report/kitchen-production"
 
-
 @using PrimeBakesLibrary.Models.Accounts.Masters
 @using PrimeBakesLibrary.Models.Common
 @using PrimeBakesLibrary.Models.Inventory.Kitchen
-
 
 <PageTitle>Kitchen Production Report - Prime Bakes</PageTitle>
 
@@ -15,13 +13,20 @@
 else
 {
 	<div style="display: flex; flex-direction: column; min-height: 100vh;">
-		<Header Title="Kitchen Production Report" Subtitle="View and analyze kitchen production transactions" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack">
+		<Header Title="Kitchen Production Report" Subtitle="View and analyze kitchen production transactions"
+			ShowHome="true" ShowBack="true" ShowLogout="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack"
+			OnLogoutClick="Logout">
 			<RightContent>
-				<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
-				<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
-				<IconButton Icon="IconType.Refresh" Title="Refresh Data (Ctrl + R)" Disabled="_isProcessing" OnClick="LoadTransactionOverviews" />
-				<IconButton Icon="IconType.Report" Title="Item Report (Ctrl + I)" Disabled="_isProcessing" OnClick="NavigateToItemReport" />
-				<IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing" OnClick="NavigateToTransactionPage" />
+				<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)"
+					Disabled="_isProcessing" OnClick="ExportExcel" />
+				<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)"
+					Disabled="_isProcessing" OnClick="ExportPdf" />
+				<IconButton Icon="IconType.Refresh" Title="Refresh Data (Ctrl + R)" Disabled="_isProcessing"
+					OnClick="LoadTransactionOverviews" />
+				<IconButton Icon="IconType.Report" Title="Item Report (Ctrl + I)" Disabled="_isProcessing"
+					OnClick="NavigateToItemReport" />
+				<IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing"
+					OnClick="NavigateToTransactionPage" />
 			</RightContent>
 		</Header>
 
@@ -32,8 +37,9 @@ else
 			<div class="section-card">
 				<div class="section-header">
 					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+							viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+							stroke-linejoin="round">
 							<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
 						</svg>
 						<h2 class="section-title">Filters</h2>
@@ -46,7 +52,7 @@ else
 							<div class="form-field">
 								<label class="field-label">Date Range</label>
 								<SfDateRangePicker CssClass="custom-daterange" StartDate="_fromDate" EndDate="_toDate"
-												   TValue="DateTime" Format="dd/MM/yyyy" AllowEdit="true" Placeholder="Select date range">
+									TValue="DateTime" Format="dd/MM/yyyy" AllowEdit="true" Placeholder="Select date range">
 									<DateRangePickerEvents TValue="DateTime" ValueChange="OnDateRangeChanged" />
 								</SfDateRangePicker>
 							</div>
@@ -54,11 +60,12 @@ else
 							<!-- Company -->
 							<div class="form-field">
 								<label class="field-label">Company</label>
-								<SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedCompany" TValue="CompanyModel"
-												TItem="CompanyModel" DataSource="@_companies" Placeholder="All Companies"
-												AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
+								<SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedCompany"
+									TValue="CompanyModel" TItem="CompanyModel" DataSource="@_companies"
+									Placeholder="All Companies" AllowFiltering="true"
+									FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
 									<AutoCompleteEvents TItem="CompanyModel" TValue="CompanyModel"
-														ValueChange="OnCompanyChanged" />
+										ValueChange="OnCompanyChanged" />
 									<AutoCompleteFieldSettings Value="Name" />
 								</SfAutoComplete>
 							</div>
@@ -66,11 +73,12 @@ else
 							<!-- Kitchen -->
 							<div class="form-field">
 								<label class="field-label">Kitchen</label>
-								<SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedKitchen" TValue="LocationModel"
-												TItem="LocationModel" DataSource="@_kitchens" Placeholder="All Kitchens"
-												AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
+								<SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedKitchen"
+									TValue="LocationModel" TItem="LocationModel" DataSource="@_kitchens"
+									Placeholder="All Kitchens" AllowFiltering="true"
+									FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
 									<AutoCompleteEvents TItem="LocationModel" TValue="LocationModel"
-														ValueChange="OnKitchenChanged" />
+										ValueChange="OnKitchenChanged" />
 									<AutoCompleteFieldSettings Value="Name" />
 								</SfAutoComplete>
 							</div>
@@ -78,7 +86,7 @@ else
 
 						<!-- Date Utility Buttons -->
 						<DateRangeButtons Disabled="_isProcessing" FromDate="_fromDate" ToDate="_toDate"
-										  OnDatesChanged="HandleDatesChanged" ToastNotification="_toastNotification" />
+							OnDatesChanged="HandleDatesChanged" ToastNotification="_toastNotification" />
 					</div>
 				</div>
 			</div>
@@ -87,8 +95,9 @@ else
 			<div class="section-card">
 				<div class="section-header">
 					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+							viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+							stroke-linejoin="round">
 							<line x1="8" y1="6" x2="21" y2="6" />
 							<line x1="8" y1="12" x2="21" y2="12" />
 							<line x1="8" y1="18" x2="21" y2="18" />
@@ -99,17 +108,20 @@ else
 						<h2 class="section-title">kitchen production transactions</h2>
 					</div>
 					<div class="header-actions">
-						<ToggleSummaryButton Disabled="@_isProcessing" ShowSummary="@_showSummary" OnToggle="ToggleSummary" />
-						<ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted" OnToggle="ToggleDeleted" />
-						<ToggleDetailsButton Disabled="@_isProcessing" ShowAllColumns="@_showAllColumns" OnToggle="ToggleDetailsView" />
+						<ToggleSummaryButton Disabled="@_isProcessing" ShowSummary="@_showSummary"
+							OnToggle="ToggleSummary" />
+						<ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted"
+							OnToggle="ToggleDeleted" />
+						<ToggleDetailsButton Disabled="@_isProcessing" ShowAllColumns="@_showAllColumns"
+							OnToggle="ToggleDetailsView" />
 					</div>
 				</div>
 				<div class="section-body grid-body">
-					<SfGrid ID="_sfGrid" @ref="_sfGrid"
-							TValue="KitchenProductionOverviewModel" DataSource="_transactionOverviews" AllowTextWrap="true"
-							AllowPaging="true" AllowSorting="true" AllowResizing="true" AllowFiltering="true"
-							AllowExcelExport="true" AllowPdfExport="true" GridLines="GridLine.Horizontal"
-							AllowGrouping="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
+					<SfGrid ID="_sfGrid" @ref="_sfGrid" TValue="KitchenProductionOverviewModel"
+						DataSource="_transactionOverviews" AllowTextWrap="true" AllowPaging="true" AllowSorting="true"
+						AllowResizing="true" AllowFiltering="true" AllowExcelExport="true" AllowPdfExport="true"
+						GridLines="GridLine.Horizontal" AllowGrouping="true" CssClass="professional-grid"
+						Toolbar="@(new List<string>() { "Search" })">
 
 						<GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
 						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
@@ -119,7 +131,7 @@ else
 							<GridAggregate>
 								<GridAggregateColumns>
 									<GridAggregateColumn Field="@nameof(KitchenProductionOverviewModel.TransactionNo)"
-														 Type="AggregateType.Count">
+										Type="AggregateType.Count">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
@@ -146,7 +158,7 @@ else
 										</GroupCaptionTemplate>
 									</GridAggregateColumn>
 									<GridAggregateColumn Field="@nameof(KitchenProductionOverviewModel.TotalItems)"
-														 Type="AggregateType.Sum" Format="N0">
+										Type="AggregateType.Sum" Format="N0">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
@@ -167,7 +179,7 @@ else
 										</GroupCaptionTemplate>
 									</GridAggregateColumn>
 									<GridAggregateColumn Field="@nameof(KitchenProductionOverviewModel.TotalQuantity)"
-														 Type="AggregateType.Sum" Format="N2">
+										Type="AggregateType.Sum" Format="N2">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
@@ -188,23 +200,26 @@ else
 										</GroupCaptionTemplate>
 									</GridAggregateColumn>
 									<GridAggregateColumn Field="@nameof(KitchenProductionOverviewModel.TotalAmount)"
-														 Type="AggregateType.Sum" Format="N2">
+										Type="AggregateType.Sum" Format="N2">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
+												<div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong>
+												</div>
 											}
 										</FooterTemplate>
 										<GroupFooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
+												<div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong>
+												</div>
 											}
 										</GroupFooterTemplate>
 										<GroupCaptionTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
+												<div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong>
+												</div>
 											}
 										</GroupCaptionTemplate>
 									</GridAggregateColumn>
@@ -213,7 +228,8 @@ else
 						</GridAggregates>
 
 						<GridColumns>
-							<GridColumn HeaderText="Actions" Width="160" TextAlign="TextAlign.Center" Visible="@(!_showSummary)">
+							<GridColumn HeaderText="Actions" Width="160" TextAlign="TextAlign.Center"
+								Visible="@(!_showSummary)">
 								<Template>
 									@{
 										var item = (context as KitchenProductionOverviewModel);
@@ -221,28 +237,53 @@ else
 									<div class="grid-actions">
 										@if (!item.Status)
 										{
-											<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Size="ButtonSize.Grid" Title="Download Excel Invoice (Alt + E)" Disabled="_isProcessing" OnClick="@(() => DownloadExcelInvoice(item.Id))" />
-											<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Grid" Title="Download PDF Invoice (Alt + P)" Disabled="_isProcessing" OnClick="@(() => DownloadPdfInvoice(item.Id))" />
-											<IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover" Size="ButtonSize.Grid" Title="Recover Transaction (Delete)" Disabled="_isProcessing" OnClick="@(() => ShowRecoverConfirmation(item.Id, item.TransactionNo))" />
+											<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel"
+												Size="ButtonSize.Grid" Title="Download Excel Invoice (Alt + E)"
+												Disabled="_isProcessing" OnClick="@(() => DownloadExcelInvoice(item.Id))" />
+											<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Grid"
+												Title="Download PDF Invoice (Alt + P)" Disabled="_isProcessing"
+												OnClick="@(() => DownloadPdfInvoice(item.Id))" />
+											<IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover"
+												Size="ButtonSize.Grid" Title="Recover Transaction (Delete)"
+												Disabled="_isProcessing"
+												OnClick="@(() => ShowRecoverConfirmation(item.Id, item.TransactionNo))" />
 										}
 										else
 										{
-											<IconButton Icon="IconType.View" Variant="ButtonVariant.View" Size="ButtonSize.Grid" Title="View Transaction (Ctrl + O)" Disabled="_isProcessing" OnClick="@(() => ViewTransaction(item.Id))" />
-											<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Size="ButtonSize.Grid" Title="Download Excel Invoice (Alt + E)" Disabled="_isProcessing" OnClick="@(() => DownloadExcelInvoice(item.Id))" />
-											<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Grid" Title="Download PDF Invoice (Alt + P)" Disabled="_isProcessing" OnClick="@(() => DownloadPdfInvoice(item.Id))" />
-											<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete Transaction (Delete)" Disabled="_isProcessing" OnClick="@(() => ShowDeleteConfirmation(item.Id, item.TransactionNo))" />
+											<IconButton Icon="IconType.View" Variant="ButtonVariant.View" Size="ButtonSize.Grid"
+												Title="View Transaction (Ctrl + O)" Disabled="_isProcessing"
+												OnClick="@(() => ViewTransaction(item.Id))" />
+											<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel"
+												Size="ButtonSize.Grid" Title="Download Excel Invoice (Alt + E)"
+												Disabled="_isProcessing" OnClick="@(() => DownloadExcelInvoice(item.Id))" />
+											<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Grid"
+												Title="Download PDF Invoice (Alt + P)" Disabled="_isProcessing"
+												OnClick="@(() => DownloadPdfInvoice(item.Id))" />
+											<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete"
+												Size="ButtonSize.Grid" Title="Delete Transaction (Delete)"
+												Disabled="_isProcessing"
+												OnClick="@(() => ShowDeleteConfirmation(item.Id, item.TransactionNo))" />
 										}
 									</div>
 								</Template>
 							</GridColumn>
-							<GridColumn Field="@nameof(KitchenProductionOverviewModel.TransactionNo)" HeaderText="Trans No" Width="170" Visible="@(!_showSummary)" />
-							<GridColumn Field="@nameof(KitchenProductionOverviewModel.TransactionDateTime)" HeaderText="Date" Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(!_showSummary)" />
-							<GridColumn Field="@nameof(KitchenProductionOverviewModel.CompanyName)" HeaderText="Company" Width="180" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(KitchenProductionOverviewModel.KitchenName)" HeaderText="Kitchen" Width="200" />
-							<GridColumn Field="@nameof(KitchenProductionOverviewModel.FinancialYear)" HeaderText="Financial Year" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(KitchenProductionOverviewModel.TotalItems)" HeaderText="Items" Width="100" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(KitchenProductionOverviewModel.TotalQuantity)" HeaderText="Qty" Width="120" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(KitchenProductionOverviewModel.TotalAmount)" HeaderText="Total" Width="150" TextAlign="TextAlign.Right">
+							<GridColumn Field="@nameof(KitchenProductionOverviewModel.TransactionNo)" HeaderText="Trans No"
+								Width="170" Visible="@(!_showSummary)" />
+							<GridColumn Field="@nameof(KitchenProductionOverviewModel.TransactionDateTime)"
+								HeaderText="Date" Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime"
+								Visible="@(!_showSummary)" />
+							<GridColumn Field="@nameof(KitchenProductionOverviewModel.CompanyName)" HeaderText="Company"
+								Width="180" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(KitchenProductionOverviewModel.KitchenName)" HeaderText="Kitchen"
+								Width="200" />
+							<GridColumn Field="@nameof(KitchenProductionOverviewModel.FinancialYear)"
+								HeaderText="Financial Year" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(KitchenProductionOverviewModel.TotalItems)" HeaderText="Items"
+								Width="100" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(KitchenProductionOverviewModel.TotalQuantity)" HeaderText="Qty"
+								Width="120" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(KitchenProductionOverviewModel.TotalAmount)" HeaderText="Total"
+								Width="150" TextAlign="TextAlign.Right">
 								<Template>
 									@{
 										var item = (context as KitchenProductionOverviewModel);
@@ -250,13 +291,22 @@ else
 									}
 								</Template>
 							</GridColumn>
-							<GridColumn Field="@nameof(KitchenProductionOverviewModel.Remarks)" HeaderText="Remarks" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(KitchenProductionOverviewModel.CreatedByName)" HeaderText="Created By" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(KitchenProductionOverviewModel.CreatedAt)" HeaderText="Created At" Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(KitchenProductionOverviewModel.CreatedFromPlatform)" HeaderText="Created Platform" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(KitchenProductionOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(KitchenProductionOverviewModel.LastModifiedAt)" HeaderText="Modified At" Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(KitchenProductionOverviewModel.LastModifiedFromPlatform)" HeaderText="Modified Platform" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(KitchenProductionOverviewModel.Remarks)" HeaderText="Remarks"
+								Width="200" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(KitchenProductionOverviewModel.CreatedByName)"
+								HeaderText="Created By" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(KitchenProductionOverviewModel.CreatedAt)" HeaderText="Created At"
+								Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime"
+								Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(KitchenProductionOverviewModel.CreatedFromPlatform)"
+								HeaderText="Created Platform" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(KitchenProductionOverviewModel.LastModifiedByUserName)"
+								HeaderText="Modified By" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(KitchenProductionOverviewModel.LastModifiedAt)"
+								HeaderText="Modified At" Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime"
+								Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(KitchenProductionOverviewModel.LastModifiedFromPlatform)"
+								HeaderText="Modified Platform" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
 						</GridColumns>
 					</SfGrid>
 				</div>
@@ -269,22 +319,13 @@ else
 
 <ToastNotification @ref="_toastNotification" />
 
-<DeleteConfirmationDialog @ref="_deleteConfirmationDialog"
-						  EntityName="Kitchen Production Transaction"
-						  IdentifierLabel="Transaction No"
-						  IdentifierValue="@_deleteTransactionNo"
-						  IsPermanentDelete="true"
-						  Disabled="@_isProcessing"
-						  OnConfirm="ConfirmDelete"
-						  OnCancel="CancelDelete" />
+<DeleteConfirmationDialog @ref="_deleteConfirmationDialog" EntityName="Kitchen Production Transaction"
+	IdentifierLabel="Transaction No" IdentifierValue="@_deleteTransactionNo" IsPermanentDelete="true"
+	Disabled="@_isProcessing" OnConfirm="ConfirmDelete" OnCancel="CancelDelete" />
 
-<RecoverConfirmationDialog @ref="_recoverConfirmationDialog"
-						   EntityName="Kitchen Production Transaction"
-						   IdentifierLabel="Transaction No"
-						   IdentifierValue="@_recoverTransactionNo"
-						   Disabled="@_isProcessing"
-						   OnConfirm="ConfirmRecover"
-						   OnCancel="CancelRecover" />
+<RecoverConfirmationDialog @ref="_recoverConfirmationDialog" EntityName="Kitchen Production Transaction"
+	IdentifierLabel="Transaction No" IdentifierValue="@_recoverTransactionNo" Disabled="@_isProcessing"
+	OnConfirm="ConfirmRecover" OnCancel="CancelRecover" />
 
 <style>
 	* {
@@ -296,9 +337,9 @@ else
 		padding: 24px 32px;
 		width: 100%;
 		margin: 0 auto;
-        background: linear-gradient(135deg, #ffeef5 0%, #fff5f9 100%);
-        flex: 1;
-    }
+		background: linear-gradient(135deg, #ffeef5 0%, #fff5f9 100%);
+		flex: 1;
+	}
 
 	/* Section Card Styles */
 	.section-card {
@@ -390,111 +431,111 @@ else
 		border: none;
 	}
 
-		::deep .professional-grid .e-gridheader {
-			background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
-			border-bottom: 2px solid #e2e8f0;
-		}
+	::deep .professional-grid .e-gridheader {
+		background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
+		border-bottom: 2px solid #e2e8f0;
+	}
 
-		::deep .professional-grid .e-headercell {
-			background: transparent;
-			color: #475569;
-			font-weight: 600;
-			font-size: 12px;
-			text-transform: uppercase;
-			letter-spacing: 0.3px;
-			border-right: 1px solid #e2e8f0;
-			padding: 12px 8px;
-		}
+	::deep .professional-grid .e-headercell {
+		background: transparent;
+		color: #475569;
+		font-weight: 600;
+		font-size: 12px;
+		text-transform: uppercase;
+		letter-spacing: 0.3px;
+		border-right: 1px solid #e2e8f0;
+		padding: 12px 8px;
+	}
 
-			::deep .professional-grid .e-headercell:last-child {
-				border-right: none;
-			}
+	::deep .professional-grid .e-headercell:last-child {
+		border-right: none;
+	}
 
-		::deep .professional-grid .e-gridcontent {
-			background: #ffffff;
-		}
+	::deep .professional-grid .e-gridcontent {
+		background: #ffffff;
+	}
 
-		::deep .professional-grid .e-row {
-			transition: background-color 0.2s ease;
-		}
+	::deep .professional-grid .e-row {
+		transition: background-color 0.2s ease;
+	}
 
-			::deep .professional-grid .e-row:hover {
-				background-color: #f8fafc;
-			}
+	::deep .professional-grid .e-row:hover {
+		background-color: #f8fafc;
+	}
 
-			::deep .professional-grid .e-row.e-altrow {
-				background-color: #fafbfc;
-			}
+	::deep .professional-grid .e-row.e-altrow {
+		background-color: #fafbfc;
+	}
 
-				::deep .professional-grid .e-row.e-altrow:hover {
-					background-color: #f8fafc;
-				}
+	::deep .professional-grid .e-row.e-altrow:hover {
+		background-color: #f8fafc;
+	}
 
-		::deep .professional-grid .e-rowcell {
-			border-right: 1px solid #f1f5f9;
-			border-bottom: 1px solid #f1f5f9;
-			padding: 10px 8px;
-			font-size: 13px;
-			color: #1e293b;
-		}
+	::deep .professional-grid .e-rowcell {
+		border-right: 1px solid #f1f5f9;
+		border-bottom: 1px solid #f1f5f9;
+		padding: 10px 8px;
+		font-size: 13px;
+		color: #1e293b;
+	}
 
-			::deep .professional-grid .e-rowcell:last-child {
-				border-right: none;
-			}
+	::deep .professional-grid .e-rowcell:last-child {
+		border-right: none;
+	}
 
-		/* Grid Pager Styling */
-		::deep .professional-grid .e-gridpager {
-			background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
-			border-top: 2px solid #e2e8f0;
-			padding: 12px 16px;
-		}
+	/* Grid Pager Styling */
+	::deep .professional-grid .e-gridpager {
+		background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
+		border-top: 2px solid #e2e8f0;
+		padding: 12px 16px;
+	}
 
-			::deep .professional-grid .e-gridpager .e-pagercontainer {
-				display: flex;
-				align-items: center;
-				justify-content: space-between;
-			}
+	::deep .professional-grid .e-gridpager .e-pagercontainer {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
 
-			::deep .professional-grid .e-gridpager .e-numericitem,
-			::deep .professional-grid .e-gridpager .e-currentitem {
-				min-width: 32px;
-				height: 32px;
-				border-radius: 6px;
-				margin: 0 4px;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				font-size: 13px;
-				font-weight: 500;
-				transition: all 0.2s ease;
-			}
+	::deep .professional-grid .e-gridpager .e-numericitem,
+	::deep .professional-grid .e-gridpager .e-currentitem {
+		min-width: 32px;
+		height: 32px;
+		border-radius: 6px;
+		margin: 0 4px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 13px;
+		font-weight: 500;
+		transition: all 0.2s ease;
+	}
 
-			::deep .professional-grid .e-gridpager .e-numericitem {
-				background: #ffffff;
-				color: #64748b;
-				border: 1px solid #e2e8f0;
-			}
+	::deep .professional-grid .e-gridpager .e-numericitem {
+		background: #ffffff;
+		color: #64748b;
+		border: 1px solid #e2e8f0;
+	}
 
-				::deep .professional-grid .e-gridpager .e-numericitem:hover {
-					background: #f8fafc;
-					color: #3b82f6;
-					border-color: #3b82f6;
-				}
+	::deep .professional-grid .e-gridpager .e-numericitem:hover {
+		background: #f8fafc;
+		color: #3b82f6;
+		border-color: #3b82f6;
+	}
 
-			::deep .professional-grid .e-gridpager .e-currentitem {
-				background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
-				color: #ffffff;
-				border: none;
-				box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
-			}
+	::deep .professional-grid .e-gridpager .e-currentitem {
+		background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+		color: #ffffff;
+		border: none;
+		box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+	}
 
-		/* Empty Grid State */
-		::deep .professional-grid .e-emptyrow {
-			text-align: center;
-			padding: 48px 24px;
-			color: #94a3b8;
-			font-size: 14px;
-		}
+	/* Empty Grid State */
+	::deep .professional-grid .e-emptyrow {
+		text-align: center;
+		padding: 48px 24px;
+		color: #94a3b8;
+		font-size: 14px;
+	}
 
 	/* Grid Cell Text Coloring */
 	.grid-total {
@@ -516,18 +557,18 @@ else
 		border-right: 1px solid #cbd5e1;
 	}
 
-		::deep .professional-grid .e-summarycell:last-child {
-			border-right: none;
-		}
+	::deep .professional-grid .e-summarycell:last-child {
+		border-right: none;
+	}
 
 	.aggregate-value.aggregate-total {
 		color: #1e40af;
 		font-size: 14px;
 	}
 
-		.aggregate-value.aggregate-total strong {
-			font-size: 15px;
-		}
+	.aggregate-value.aggregate-total strong {
+		font-size: 15px;
+	}
 
 	/* Dialog Button Styles */
 	.dialog-btn {
@@ -545,19 +586,19 @@ else
 		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 	}
 
-		.dialog-btn:hover {
-			transform: translateY(-2px);
-			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
-		}
+	.dialog-btn:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+	}
 
-		.dialog-btn:active {
-			transform: translateY(0);
-			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-		}
+	.dialog-btn:active {
+		transform: translateY(0);
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+	}
 
-		.dialog-btn svg {
-			flex-shrink: 0;
-		}
+	.dialog-btn svg {
+		flex-shrink: 0;
+	}
 
 	.dialog-btn-cancel {
 		background: #ffffff;
@@ -565,29 +606,29 @@ else
 		border: 2px solid #e2e8f0;
 	}
 
-		.dialog-btn-cancel:hover {
-			background: #f8fafc;
-			border-color: #cbd5e1;
-			color: #475569;
-		}
+	.dialog-btn-cancel:hover {
+		background: #f8fafc;
+		border-color: #cbd5e1;
+		color: #475569;
+	}
 
 	.dialog-btn-delete {
 		background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
 		color: white;
 	}
 
-		.dialog-btn-delete:hover {
-			background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-		}
+	.dialog-btn-delete:hover {
+		background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+	}
 
 	.dialog-btn-recover {
 		background: linear-gradient(135deg, #10b981 0%, #059669 100%);
 		color: white;
 	}
 
-		.dialog-btn-recover:hover {
-			background: linear-gradient(135deg, #059669 0%, #047857 100%);
-		}
+	.dialog-btn-recover:hover {
+		background: linear-gradient(135deg, #059669 0%, #047857 100%);
+	}
 
 	/* Responsive Design */
 	@@media (max-width: 1400px) {

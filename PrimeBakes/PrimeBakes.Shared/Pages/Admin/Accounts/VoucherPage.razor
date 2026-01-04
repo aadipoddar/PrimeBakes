@@ -1,8 +1,6 @@
 ﻿@page "/admin/voucher"
 
-
 @using PrimeBakesLibrary.Models.Accounts.Masters
-
 
 <PageTitle>Voucher Management - Prime Bakes</PageTitle>
 
@@ -13,15 +11,12 @@
 else
 {
     <div style="display: flex; flex-direction: column; min-height: 100vh;">
-        <Header Title="Voucher Management" Subtitle="Manage vouchers and details"
-                ShowHome="true" ShowBack="true"
-                OnHomeClick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))"
-                OnBackClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard))">
+        <Header Title="Voucher Management" Subtitle="Manage vouchers and details" ShowLogout="true" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
             <RightContent>
                 <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
                 <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
                 <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Voucher (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveVoucher" />
-                <IconButton Icon="IconType.New" Title="New Voucher (Ctrl + N)" Disabled="_isProcessing" OnClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminVoucher, true))" />
+                <IconButton Icon="IconType.New" Title="New Voucher (Ctrl + N)" Disabled="_isProcessing" OnClick="ResetPage" />
             </RightContent>
         </Header>
 
@@ -55,7 +50,7 @@ else
                             <label class="field-label">
                                 Prefix Code <span class="required">*</span>
                             </label>
-                            <SfTextBox @bind-Value="_voucher.PrefixCode" Placeholder="Enter prefix code"
+                            <SfTextBox @bind-Value="_voucher.Code" Placeholder="Enter prefix code"
                                        FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
                         </div>
 
@@ -112,7 +107,7 @@ else
                             <GridColumn Field="@nameof(VoucherModel.Id)" HeaderText="ID" Width="80"
                                         TextAlign="TextAlign.Center" />
                             <GridColumn Field="@nameof(VoucherModel.Name)" HeaderText="Voucher Name" Width="300" />
-                            <GridColumn Field="@nameof(VoucherModel.PrefixCode)" HeaderText="Prefix Code" Width="150" />
+                            <GridColumn Field="@nameof(VoucherModel.Code)" HeaderText="Prefix Code" Width="150" />
                             <GridColumn Field="@nameof(VoucherModel.Remarks)" HeaderText="Remarks" Width="400" />
                             <GridColumn Field="@nameof(VoucherModel.Status)" HeaderText="Status" Width="100"
                                         TextAlign="TextAlign.Center">

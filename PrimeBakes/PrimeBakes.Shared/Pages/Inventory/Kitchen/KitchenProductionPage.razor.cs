@@ -7,6 +7,7 @@ using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Inventory.Kitchen;
 using PrimeBakesLibrary.DataAccess;
+using PrimeBakesLibrary.Exporting.Inventory.Kitchen;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Inventory.Kitchen;
@@ -73,6 +74,7 @@ public partial class KitchenProductionPage : IAsyncDisposable
             .Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
             .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
             .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
+            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
             .Add(Code.Delete, RemoveSelectedCartItem, "Delete selected cart item", Exclude.None)
             .Add(Code.Insert, EditSelectedCartItem, "Edit selected cart item", Exclude.None);
 
@@ -646,12 +648,12 @@ public partial class KitchenProductionPage : IAsyncDisposable
             _kitchenProduction.CreatedBy = _user.Id;
             _kitchenProduction.LastModifiedBy = _user.Id;
 
-            _kitchenProduction.Id = await KitchenProductionData.SaveKitchenProductionTransaction(_kitchenProduction, _cart);
-            var (pdfStream, fileName) = await KitchenProductionData.GenerateAndDownloadInvoice(_kitchenProduction.Id);
-            await SaveAndViewService.SaveAndView(fileName, pdfStream);
-            await DeleteLocalFiles();
-            NavigationManager.NavigateTo(PageRouteNames.KitchenProduction, true);
+            _kitchenProduction.Id = await KitchenProductionData.SaveTransaction(_kitchenProduction, _cart);
 
+            var (pdfStream, fileName) = await KitchenProductionInvoicePDFExport.ExportInvoice(_kitchenProduction.Id);
+            await SaveAndViewService.SaveAndView(fileName, pdfStream);
+
+            await ResetPage();
             await _toastNotification.ShowAsync("Save Transaction", "Transaction saved successfully! Invoice has been generated.", ToastType.Success);
         }
         catch (Exception ex)
@@ -710,8 +712,10 @@ public partial class KitchenProductionPage : IAsyncDisposable
             _isProcessing = true;
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
-            var (pdfStream, fileName) = await KitchenProductionData.GenerateAndDownloadInvoice(Id.Value);
+
+            var (pdfStream, fileName) = await KitchenProductionInvoicePDFExport.ExportInvoice(Id.Value);
             await SaveAndViewService.SaveAndView(fileName, pdfStream);
+
             await _toastNotification.ShowAsync("Invoice Downloaded", "The PDF invoice has been downloaded successfully.", ToastType.Success);
         }
         catch (Exception ex)
@@ -740,8 +744,10 @@ public partial class KitchenProductionPage : IAsyncDisposable
             _isProcessing = true;
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
-            var (excelStream, fileName) = await KitchenProductionData.GenerateAndDownloadExcelInvoice(Id.Value);
+
+            var (excelStream, fileName) = await KitchenProductionInvoiceExcelExport.ExportInvoice(Id.Value);
             await SaveAndViewService.SaveAndView(fileName, excelStream);
+
             await _toastNotification.ShowAsync("Invoice Downloaded", "The Excel invoice has been downloaded successfully.", ToastType.Success);
         }
         catch (Exception ex)
@@ -754,16 +760,20 @@ public partial class KitchenProductionPage : IAsyncDisposable
         }
     }
 
-    private async Task NavigateToDashboard() =>
+    private void NavigateToDashboard() =>
         NavigationManager.NavigateTo(PageRouteNames.Dashboard);
 
-    private async Task NavigateBack() =>
+    private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);
+
+    private async Task Logout() =>
+        await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 
     public async ValueTask DisposeAsync()
     {
         if (_hotKeysContext is not null)
             await _hotKeysContext.DisposeAsync();
+
         GC.SuppressFinalize(this);
     }
     #endregion

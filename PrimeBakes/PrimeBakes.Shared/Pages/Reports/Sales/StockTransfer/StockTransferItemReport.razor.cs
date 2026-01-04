@@ -5,7 +5,6 @@ using PrimeBakes.Shared.Components.Dialog;
 
 using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
-using PrimeBakesLibrary.Data.Sales.StockTransfer;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Sales.StockTransfer;
 using PrimeBakesLibrary.Models.Accounts.Masters;
@@ -67,6 +66,7 @@ public partial class StockTransferItemReport : IAsyncDisposable
             .Add(ModCode.Ctrl, Code.N, NavigateToTransactionPage, "New Transaction", Exclude.None)
             .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
             .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
+            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
             .Add(ModCode.Ctrl, Code.O, ViewSelectedCartItem, "Open Selected Transaction", Exclude.None)
             .Add(ModCode.Alt, Code.P, DownloadSelectedCartItemPdfInvoice, "Download Selected Transaction PDF Invoice", Exclude.None)
             .Add(ModCode.Alt, Code.E, DownloadSelectedCartItemExcelInvoice, "Download Selected Transaction Excel Invoice", Exclude.None);
@@ -215,30 +215,24 @@ public partial class StockTransferItemReport : IAsyncDisposable
         {
             _isProcessing = true;
             StateHasChanged();
-            await _toastNotification.ShowAsync("Exporting", "Generating Excel file...", ToastType.Info);
+            await _toastNotification.ShowAsync("Processing", "Generating Excel file...", ToastType.Info);
 
             DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
             DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
 
-            var stream = await StockTransferItemReportExcelExport.ExportStockTransferItemReport(
+            var (stream, fileName) = await StockTransferItemReportExcelExport.ExportReport(
                     _transactionOverviews,
                     dateRangeStart,
                     dateRangeEnd,
                     _showAllColumns,
                     _showSummary,
-                    _selectedLocation?.Id > 0,
-                    _selectedLocation?.Name,
-                    _selectedToLocation?.Id > 0,
-                    _selectedToLocation?.Name
+                    _selectedCompany?.Id > 0 ? _selectedCompany : null,
+                    _selectedLocation?.Id > 0 ? _selectedLocation : null,
+                    _selectedToLocation?.Id > 0 ? _selectedToLocation : null
                 );
 
-            string fileName = $"STOCK_TRANSFER_ITEM_REPORT";
-            if (dateRangeStart.HasValue || dateRangeEnd.HasValue)
-                fileName += $"_{dateRangeStart?.ToString("yyyyMMdd") ?? "START"}_to_{dateRangeEnd?.ToString("yyyyMMdd") ?? "END"}";
-            fileName += ".xlsx";
-
             await SaveAndViewService.SaveAndView(fileName, stream);
-            await _toastNotification.ShowAsync("Exported", "Excel file downloaded successfully.", ToastType.Success);
+            await _toastNotification.ShowAsync("Success", "Excel file downloaded successfully.", ToastType.Success);
         }
         catch (Exception ex)
         {
@@ -260,30 +254,24 @@ public partial class StockTransferItemReport : IAsyncDisposable
         {
             _isProcessing = true;
             StateHasChanged();
-            await _toastNotification.ShowAsync("Exporting", "Generating PDF file...", ToastType.Info);
+            await _toastNotification.ShowAsync("Processing", "Generating PDF file...", ToastType.Info);
 
             DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
             DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
 
-            var stream = await StockTransferItemReportPdfExport.ExportStockTransferItemReport(
+            var (stream, fileName) = await StockTransferItemReportPdfExport.ExportReport(
                     _transactionOverviews,
                     dateRangeStart,
                     dateRangeEnd,
                     _showAllColumns,
                     _showSummary,
-                    _selectedLocation?.Id > 0,
-                    _selectedLocation?.Name,
-                    _selectedToLocation?.Id > 0,
-                    _selectedToLocation?.Name
+                    _selectedCompany?.Id > 0 ? _selectedCompany : null,
+                    _selectedLocation?.Id > 0 ? _selectedLocation : null,
+                    _selectedToLocation?.Id > 0 ? _selectedToLocation : null
                 );
 
-            string fileName = $"STOCK_TRANSFER_ITEM_REPORT";
-            if (dateRangeStart.HasValue || dateRangeEnd.HasValue)
-                fileName += $"_{dateRangeStart?.ToString("yyyyMMdd") ?? "START"}_to_{dateRangeEnd?.ToString("yyyyMMdd") ?? "END"}";
-            fileName += ".pdf";
-
             await SaveAndViewService.SaveAndView(fileName, stream);
-            await _toastNotification.ShowAsync("Exported", "PDF file downloaded successfully.", ToastType.Success);
+            await _toastNotification.ShowAsync("Success", "PDF file downloaded successfully.", ToastType.Success);
         }
         catch (Exception ex)
         {
@@ -351,8 +339,9 @@ public partial class StockTransferItemReport : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
 
-            var (pdfStream, fileName) = await StockTransferData.GenerateAndDownloadInvoice(transactionId);
+            var (pdfStream, fileName) = await StockTransferInvoicePDFExport.ExportInvoice(transactionId);
             await SaveAndViewService.SaveAndView(fileName, pdfStream);
+
             await _toastNotification.ShowAsync("Success", "PDF invoice downloaded successfully.", ToastType.Success);
         }
         catch (Exception ex)
@@ -377,8 +366,9 @@ public partial class StockTransferItemReport : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
 
-            var (excelStream, fileName) = await StockTransferData.GenerateAndDownloadExcelInvoice(transactionId);
+            var (excelStream, fileName) = await StockTransferInvoiceExcelExport.ExportInvoice(transactionId);
             await SaveAndViewService.SaveAndView(fileName, excelStream);
+
             await _toastNotification.ShowAsync("Success", "Excel invoice downloaded successfully.", ToastType.Success);
         }
         catch (Exception ex)
@@ -391,7 +381,9 @@ public partial class StockTransferItemReport : IAsyncDisposable
             StateHasChanged();
         }
     }
+    #endregion
 
+    #region Utilities
     private async Task ToggleDetailsView()
     {
         _showAllColumns = !_showAllColumns;
@@ -406,9 +398,7 @@ public partial class StockTransferItemReport : IAsyncDisposable
         _showSummary = !_showSummary;
         await LoadTransactionOverviews();
     }
-    #endregion
 
-    #region Utilities
     private async Task NavigateToTransactionPage()
     {
         if (FormFactor.GetFormFactor() == "Web")
@@ -425,11 +415,14 @@ public partial class StockTransferItemReport : IAsyncDisposable
             NavigationManager.NavigateTo(PageRouteNames.ReportStockTransfer);
     }
 
-    private async Task NavigateToDashboard() =>
+    private void NavigateToDashboard() =>
         NavigationManager.NavigateTo(PageRouteNames.Dashboard);
 
-    private async Task NavigateBack() =>
+    private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.SalesDashboard);
+
+    private async Task Logout() =>
+        await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 
     private async Task StartAutoRefresh()
     {

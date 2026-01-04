@@ -1,7 +1,7 @@
 ﻿CREATE PROCEDURE [dbo].[Insert_Voucher]
 	@Id INT OUTPUT,
 	@Name VARCHAR(500),
-	@PrefixCode VARCHAR(10),
+	@Code VARCHAR(10),
 	@Remarks VARCHAR(MAX),
 	@Status BIT
 AS
@@ -11,14 +11,14 @@ BEGIN
 		INSERT INTO [dbo].[Voucher]
 		(
 			[Name],
-			[PrefixCode],
+			[Code],
 			[Remarks],
 			[Status]
 		)
 		VALUES
 		(
 			@Name,
-			@PrefixCode,
+			@Code,
 			@Remarks,
 			@Status
 		);
@@ -30,7 +30,7 @@ BEGIN
 		UPDATE [dbo].[Voucher]
 		SET
 			[Name] = @Name,
-			[PrefixCode] = @PrefixCode,
+			[Code] = @Code,
 			[Remarks] = @Remarks,
 			[Status] = @Status
 		WHERE [Id] = @Id;

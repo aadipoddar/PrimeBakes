@@ -1,13 +1,11 @@
 @page "/inventory/kitchen-production"
 @page "/inventory/kitchen-production/{Id:int}"
 
-
 @using PrimeBakesLibrary.Models.Accounts.Masters
 @using PrimeBakesLibrary.Models.Common
 @using PrimeBakesLibrary.Models.Inventory
 @using PrimeBakesLibrary.Models.Inventory.Kitchen
 @using PrimeBakesLibrary.Models.Sales.Product
-
 
 <PageTitle>Kitchen Production - Prime Bakes</PageTitle>
 
@@ -18,17 +16,25 @@
 else
 {
     <div style="display: flex; flex-direction: column; min-height: 100vh;">
-        <Header Title="Create Kitchen Production" Subtitle="Create and manage kitchen production transactions" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack">
+        <Header Title="Create Kitchen Production" Subtitle="Create and manage kitchen production transactions"
+            ShowLogout="true" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack"
+            OnLogoutClick="Logout">
             <RightContent>
-                <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Transaction (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveTransaction" />
+                <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Transaction (Ctrl + S)"
+                    Disabled="_isProcessing" OnClick="SaveTransaction" />
                 @if (Id is > 0)
                 {
-                    <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Download Excel Invoice (Alt+E)" Disabled="_isProcessing" OnClick="DownloadExcelInvoice" />
-                    <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Download PDF Invoice (Alt+P)" Disabled="_isProcessing" OnClick="DownloadPdfInvoice" />
+                    <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Download Excel Invoice (Alt+E)"
+                        Disabled="_isProcessing" OnClick="DownloadExcelInvoice" />
+                    <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Download PDF Invoice (Alt+P)"
+                        Disabled="_isProcessing" OnClick="DownloadPdfInvoice" />
                 }
-                <IconButton Icon="IconType.History" Title="Transaction History (Ctrl + H)" Disabled="_isProcessing" OnClick="NavigateToTransactionHistoryPage" />
-                <IconButton Icon="IconType.Report" Title="Item Report (Ctrl + I)" Disabled="_isProcessing" OnClick="NavigateToItemReport" />
-                <IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing" OnClick="ResetPage" />
+                <IconButton Icon="IconType.History" Title="Transaction History (Ctrl + H)" Disabled="_isProcessing"
+                    OnClick="NavigateToTransactionHistoryPage" />
+                <IconButton Icon="IconType.Report" Title="Item Report (Ctrl + I)" Disabled="_isProcessing"
+                    OnClick="NavigateToItemReport" />
+                <IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing"
+                    OnClick="ResetPage" />
             </RightContent>
         </Header>
 
@@ -42,8 +48,8 @@ else
                     <div class="section-header">
                         <div class="section-title-wrapper">
                             <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                 stroke-linejoin="round">
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                                 <polyline points="14 2 14 8 20 8" />
                                 <line x1="16" y1="13" x2="8" y2="13" />
@@ -61,11 +67,12 @@ else
                                     Company <span class="required">*</span>
                                 </label>
                                 <SfAutoComplete Value="@_selectedCompany" TValue="CompanyModel" TItem="CompanyModel"
-                                                DataSource="@_companies" Placeholder="Select a Company"
-                                                FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
-                                                FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
+                                    DataSource="@_companies" Placeholder="Select a Company"
+                                    FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
+                                    FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
+                                    CssClass="custom-autocomplete">
                                     <AutoCompleteEvents TItem="CompanyModel" TValue="CompanyModel"
-                                                        ValueChange="OnCompanyChanged" />
+                                        ValueChange="OnCompanyChanged" />
                                     <AutoCompleteFieldSettings Value="Name" />
                                 </SfAutoComplete>
                             </div>
@@ -76,11 +83,12 @@ else
                                     Kitchen <span class="required">*</span>
                                 </label>
                                 <SfAutoComplete Value="@_selectedKitchen" TValue="KitchenModel" TItem="KitchenModel"
-                                                DataSource="@_kitchens" Placeholder="Select a Kitchen" FloatLabelType="FloatLabelType.Never"
-                                                AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
-                                                CssClass="custom-autocomplete">
+                                    DataSource="@_kitchens" Placeholder="Select a Kitchen"
+                                    FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
+                                    FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
+                                    CssClass="custom-autocomplete">
                                     <AutoCompleteEvents TItem="KitchenModel" TValue="KitchenModel"
-                                                        ValueChange="OnKitchenChanged" />
+                                        ValueChange="OnKitchenChanged" />
                                     <AutoCompleteFieldSettings Value="Name" />
                                 </SfAutoComplete>
                             </div>
@@ -92,13 +100,14 @@ else
                                 </label>
                                 <div class="date-year-wrapper">
                                     <SfDatePicker Value="@_kitchenProduction.TransactionDateTime" TValue="DateTime"
-                                                  Format="dd/MM/yy" Placeholder="Select Date" FloatLabelType="FloatLabelType.Never"
-                                                  CssClass="custom-datepicker">
+                                        Format="dd/MM/yy" Placeholder="Select Date" FloatLabelType="FloatLabelType.Never"
+                                        CssClass="custom-datepicker">
                                         <DatePickerEvents TValue="DateTime" ValueChange="OnTransactionDateChanged" />
                                     </SfDatePicker>
-                                    <SfTextBox Value="@($"{_selectedFinancialYear?.StartDate:yyyy} to {_selectedFinancialYear?.EndDate:yyyy}")"
-                                               Readonly="true" Placeholder="Financial Year" FloatLabelType="FloatLabelType.Never"
-                                               CssClass="custom-textbox readonly-field" />
+                                    <SfTextBox
+                                        Value="@($"{_selectedFinancialYear?.StartDate:yyyy} to {_selectedFinancialYear?.EndDate:yyyy}")"
+                                        Readonly="true" Placeholder="Financial Year" FloatLabelType="FloatLabelType.Never"
+                                        CssClass="custom-textbox readonly-field" />
                                 </div>
                             </div>
 
@@ -108,9 +117,9 @@ else
                                     Transaction No
                                 </label>
                                 <div class="transaction-no-wrapper">
-                                    <SfTextBox @bind-Value="_kitchenProduction.TransactionNo" Placeholder="Enter Transaction No"
-                                               FloatLabelType="FloatLabelType.Never" Readonly="true"
-                                               CssClass="custom-textbox readonly-field" />
+                                    <SfTextBox @bind-Value="_kitchenProduction.TransactionNo"
+                                        Placeholder="Enter Transaction No" FloatLabelType="FloatLabelType.Never"
+                                        Readonly="true" CssClass="custom-textbox readonly-field" />
                                 </div>
                             </div>
 
@@ -120,8 +129,8 @@ else
                                     Remarks / Narration
                                 </label>
                                 <SfTextBox @bind-Value="_kitchenProduction.Remarks" Multiline="true"
-                                           Placeholder="Enter remarks..." FloatLabelType="FloatLabelType.Never"
-                                           CssClass="custom-textbox textarea-field-small" />
+                                    Placeholder="Enter remarks..." FloatLabelType="FloatLabelType.Never"
+                                    CssClass="custom-textbox textarea-field-small" />
                             </div>
                         </div>
                     </div>
@@ -132,8 +141,9 @@ else
             <div class="section-card">
                 <div class="section-header">
                     <div class="section-title-wrapper">
-                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
                             <circle cx="9" cy="21" r="1" />
                             <circle cx="20" cy="21" r="1" />
                             <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
@@ -147,19 +157,20 @@ else
                         <div class="cart-field cart-field-product">
                             <label class="cart-label">Product <span class="required">*</span></label>
                             <SfAutoComplete @ref="_sfItemAutoComplete" Value="@_selectedProduct" TValue="ProductModel ?"
-                                            TItem="ProductModel" DataSource="@_products" Placeholder="Select Item (Ctrl + E)"
-                                            FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
-                                            FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
-                                <AutoCompleteEvents TItem="ProductModel" TValue="ProductModel ?" ValueChange="OnItemChanged" />
+                                TItem="ProductModel" DataSource="@_products" Placeholder="Select Item (Ctrl + E)"
+                                FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
+                                FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
+                                <AutoCompleteEvents TItem="ProductModel" TValue="ProductModel?"
+                                    ValueChange="OnItemChanged" />
                                 <AutoCompleteFieldSettings Value="Name" />
                             </SfAutoComplete>
                         </div>
 
                         <div class="cart-field cart-field-small">
                             <label class="cart-label">Qty</label>
-                            <SfNumericTextBox Value="@_selectedCart.Quantity" TValue="decimal" Min="0" ShowSpinButton="false"
-                                              Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
-                                              CssClass="custom-numeric editable-field">
+                            <SfNumericTextBox Value="@_selectedCart.Quantity" TValue="decimal" Min="0"
+                                ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+                                CssClass="custom-numeric editable-field">
                                 <NumericTextBoxEvents TValue="decimal" ValueChange="OnItemQuantityChanged" />
                             </SfNumericTextBox>
                         </div>
@@ -167,8 +178,8 @@ else
                         <div class="cart-field cart-field-small">
                             <label class="cart-label">Rate</label>
                             <SfNumericTextBox Value="@_selectedCart.Rate" TValue="decimal" Min="0" ShowSpinButton="false"
-                                              Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
-                                              CssClass="custom-numeric editable-field">
+                                Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+                                CssClass="custom-numeric editable-field">
                                 <NumericTextBoxEvents TValue="decimal" ValueChange="OnItemRateChanged" />
                             </SfNumericTextBox>
                         </div>
@@ -176,7 +187,7 @@ else
                         <div class="cart-field">
                             <label class="cart-label">Remarks</label>
                             <SfTextBox @bind-Value="_selectedCart.Remarks" Placeholder="Product Narration..."
-                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox identification-input" />
+                                FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox identification-input" />
                         </div>
 
                         <div class="cart-field">
@@ -188,7 +199,8 @@ else
 
                         <div class="cart-field">
                             <label class="cart-label" style="visibility: hidden;">Action</label>
-                            <IconButton Icon="IconType.Add" Variant="ButtonVariant.Add" Text="Add" Title="Add to Cart" OnClick="AddItemToCart" />
+                            <IconButton Icon="IconType.Add" Variant="ButtonVariant.Add" Text="Add" Title="Add to Cart"
+                                OnClick="AddItemToCart" />
                         </div>
                     </div>
                 </div>
@@ -198,8 +210,9 @@ else
             <div class="section-card">
                 <div class="section-header">
                     <div class="section-title-wrapper">
-                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
                             <path d="M3 3h7a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3H3V3z" />
                             <path d="M14 3h7v17h-7V3z" />
                         </svg>
@@ -208,8 +221,8 @@ else
                 </div>
                 <div class="section-body grid-body">
                     <SfGrid ID="_sfCartGrid" @ref="_sfCartGrid" DataSource="_cart" AllowTextWrap="true" AllowPaging="false"
-                            AllowSorting="true" AllowResizing="true" AllowFiltering="true" GridLines="GridLine.Horizontal"
-                            CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
+                        AllowSorting="true" AllowResizing="true" AllowFiltering="true" GridLines="GridLine.Horizontal"
+                        CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
 
                         <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
@@ -258,16 +271,22 @@ else
                                     @{
                                         var item = (context as dynamic);
                                         <div class="grid-actions">
-                                            <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid" Title="Edit Product (Insert)" OnClick="@(() => EditCartItem(item))" />
-                                            <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Remove Product (Del)" OnClick="@(() => RemoveItemFromCart(item))" />
+                                            <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid"
+                                                Title="Edit Product (Insert)" OnClick="@(() => EditCartItem(item))" />
+                                            <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete"
+                                                Size="ButtonSize.Grid" Title="Remove Product (Del)"
+                                                OnClick="@(() => RemoveItemFromCart(item))" />
                                         </div>
                                     }
                                 </Template>
                             </GridColumn>
                             <GridColumn Field="ProductName" HeaderText="Product Name" Width="200" />
-                            <GridColumn Field="Quantity" HeaderText="Qty" Width="100" TextAlign="TextAlign.Right" Format="N2" />
-                            <GridColumn Field="Rate" HeaderText="Rate" Width="110" TextAlign="TextAlign.Right" Format="N2" />
-                            <GridColumn Field="Total" HeaderText="Total" Width="130" TextAlign="TextAlign.Right" Format="N2">
+                            <GridColumn Field="Quantity" HeaderText="Qty" Width="100" TextAlign="TextAlign.Right"
+                                Format="N2" />
+                            <GridColumn Field="Rate" HeaderText="Rate" Width="110" TextAlign="TextAlign.Right"
+                                Format="N2" />
+                            <GridColumn Field="Total" HeaderText="Total" Width="130" TextAlign="TextAlign.Right"
+                                Format="N2">
                                 <Template>
                                     @{
                                         var item = (context as dynamic);
@@ -310,13 +329,13 @@ else
         margin-bottom: 16px;
     }
 
-        .two-column-layout > :first-child {
-            flex: 1;
-        }
+    .two-column-layout> :first-child {
+        flex: 1;
+    }
 
-        .two-column-layout > :last-child {
-            flex: 1;
-        }
+    .two-column-layout> :last-child {
+        flex: 1;
+    }
 
     /* Section Card Styles */
     .section-card {
@@ -412,13 +431,13 @@ else
         align-items: stretch;
     }
 
-        .date-year-wrapper > :first-child {
-            flex: 1;
-        }
+    .date-year-wrapper> :first-child {
+        flex: 1;
+    }
 
-        .date-year-wrapper > :last-child {
-            flex: 1;
-        }
+    .date-year-wrapper> :last-child {
+        flex: 1;
+    }
 
     /* Transaction Number with Auto-generate Checkbox */
     .transaction-no-wrapper {
@@ -427,9 +446,9 @@ else
         align-items: stretch;
     }
 
-        .transaction-no-wrapper > :first-child {
-            flex: 1;
-        }
+    .transaction-no-wrapper> :first-child {
+        flex: 1;
+    }
 
     .auto-generate-checkbox {
         display: flex;
@@ -443,10 +462,10 @@ else
         justify-content: center;
     }
 
-        .auto-generate-checkbox ::deep .custom-checkbox {
-            font-size: 13px;
-            font-weight: 500;
-        }
+    .auto-generate-checkbox ::deep .custom-checkbox {
+        font-size: 13px;
+        font-weight: 500;
+    }
 
     /* Action Buttons */
     .action-buttons {
@@ -472,10 +491,10 @@ else
         flex: 1;
     }
 
-        .btn-primary svg,
-        .btn-secondary svg {
-            flex-shrink: 0;
-        }
+    .btn-primary svg,
+    .btn-secondary svg {
+        flex-shrink: 0;
+    }
 
     .btn-primary {
         background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
@@ -483,16 +502,16 @@ else
         box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
     }
 
-        .btn-primary:hover {
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-            transform: translateY(-1px);
-            background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
-        }
+    .btn-primary:hover {
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        transform: translateY(-1px);
+        background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+    }
 
-        .btn-primary:active {
-            transform: translateY(0);
-            box-shadow: 0 1px 4px rgba(59, 130, 246, 0.3);
-        }
+    .btn-primary:active {
+        transform: translateY(0);
+        box-shadow: 0 1px 4px rgba(59, 130, 246, 0.3);
+    }
 
     .btn-secondary {
         background: #ffffff;
@@ -501,18 +520,18 @@ else
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     }
 
-        .btn-secondary:hover {
-            background: #f8fafc;
-            border-color: #cbd5e1;
-            color: #475569;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-            transform: translateY(-1px);
-        }
+    .btn-secondary:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+        color: #475569;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        transform: translateY(-1px);
+    }
 
-        .btn-secondary:active {
-            transform: translateY(0);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        }
+    .btn-secondary:active {
+        transform: translateY(0);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
 
     /* Financial Grid Layout */
     .financial-grid {
@@ -575,19 +594,19 @@ else
         background: #eff6ff;
     }
 
-        ::deep .editable-field .e-input-group input {
-            font-weight: 600;
-            color: #1e40af;
-        }
+    ::deep .editable-field .e-input-group input {
+        font-weight: 600;
+        color: #1e40af;
+    }
 
     ::deep .small-input .e-input-group {
         width: 100%;
     }
 
-        ::deep .small-input .e-input-group input {
-            text-align: center;
-            padding: 8px;
-        }
+    ::deep .small-input .e-input-group input {
+        text-align: center;
+        padding: 8px;
+    }
 
     ::deep .discount-field .e-input-group input {
         color: #dc2626;
@@ -600,31 +619,31 @@ else
         height: 48px;
     }
 
-        ::deep .total-field .e-input-group input {
-            font-size: 18px;
-            font-weight: 700;
-            color: #1e40af;
-        }
+    ::deep .total-field .e-input-group input {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1e40af;
+    }
 
     ::deep .textarea-field .e-input-group {
         height: auto;
         min-height: 80px;
     }
 
-        ::deep .textarea-field .e-input-group textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
+    ::deep .textarea-field .e-input-group textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
 
     ::deep .textarea-field-small .e-input-group {
         height: auto;
         min-height: 60px;
     }
 
-        ::deep .textarea-field-small .e-input-group textarea {
-            resize: vertical;
-            min-height: 60px;
-        }
+    ::deep .textarea-field-small .e-input-group textarea {
+        resize: vertical;
+        min-height: 60px;
+    }
 
     /* Add to Cart Section Styles - Updated for NO UOM */
     .cart-row {
@@ -657,10 +676,10 @@ else
         letter-spacing: 0.3px;
     }
 
-        .cart-label .required {
-            color: #dc2626;
-            margin-left: 2px;
-        }
+    .cart-label .required {
+        color: #dc2626;
+        margin-left: 2px;
+    }
 
     ::deep .cart-field .e-input-group,
     ::deep .cart-field .custom-numeric .e-input-group,
@@ -671,15 +690,15 @@ else
         border: 1px solid #3b82f6;
     }
 
-        ::deep .cart-field .e-input-group input,
-        ::deep .cart-field .custom-numeric .e-input-group input,
-        ::deep .cart-field .custom-autocomplete .e-input-group input,
-        ::deep .cart-field .custom-textbox .e-input-group input {
-            font-size: 14px;
-            font-weight: 500;
-            color: #1e293b;
-            padding: 8px 12px;
-        }
+    ::deep .cart-field .e-input-group input,
+    ::deep .cart-field .custom-numeric .e-input-group input,
+    ::deep .cart-field .custom-autocomplete .e-input-group input,
+    ::deep .cart-field .custom-textbox .e-input-group input {
+        font-size: 14px;
+        font-weight: 500;
+        color: #1e293b;
+        padding: 8px 12px;
+    }
 
     .total-display-inline {
         height: 38px;
@@ -692,11 +711,11 @@ else
         border-radius: 6px;
     }
 
-        .total-display-inline .amount-value {
-            font-size: 16px;
-            font-weight: 700;
-            color: #1e40af;
-        }
+    .total-display-inline .amount-value {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1e40af;
+    }
 
     /* Checkbox Wrapper in Cart Row */
     .checkbox-wrapper {
@@ -727,17 +746,17 @@ else
         border: 1px solid #cbd5e1;
     }
 
-        ::deep .identification-field .identification-input .e-input-group input {
-            font-size: 13px;
-            color: #64748b;
-            font-weight: 500;
-            padding: 8px 12px;
-        }
+    ::deep .identification-field .identification-input .e-input-group input {
+        font-size: 13px;
+        color: #64748b;
+        font-weight: 500;
+        padding: 8px 12px;
+    }
 
-            ::deep .identification-field .identification-input .e-input-group input::placeholder {
-                color: #94a3b8;
-                font-style: italic;
-            }
+    ::deep .identification-field .identification-input .e-input-group input::placeholder {
+        color: #94a3b8;
+        font-style: italic;
+    }
 
     .amount-label {
         font-size: 10px;
@@ -756,9 +775,9 @@ else
         display: block;
     }
 
-        .amount-value.discount-amt {
-            color: #dc2626;
-        }
+    .amount-value.discount-amt {
+        color: #dc2626;
+    }
 
     .checkbox-display {
         display: flex;
@@ -776,9 +795,9 @@ else
         font-weight: 500;
     }
 
-        ::deep .custom-checkbox label {
-            white-space: nowrap;
-        }
+    ::deep .custom-checkbox label {
+        white-space: nowrap;
+    }
 
     /* Professional Grid Styles */
     .e-grid .e-summaryrow .e-summarycell {
@@ -793,57 +812,57 @@ else
         border: none;
     }
 
-        ::deep .professional-grid .e-gridheader {
-            background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
-            border-bottom: 2px solid #e2e8f0;
-        }
+    ::deep .professional-grid .e-gridheader {
+        background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
+        border-bottom: 2px solid #e2e8f0;
+    }
 
-        ::deep .professional-grid .e-headercell {
-            background: transparent;
-            color: #475569;
-            font-weight: 600;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            border-right: 1px solid #e2e8f0;
-            padding: 12px 8px;
-        }
+    ::deep .professional-grid .e-headercell {
+        background: transparent;
+        color: #475569;
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        border-right: 1px solid #e2e8f0;
+        padding: 12px 8px;
+    }
 
-            ::deep .professional-grid .e-headercell:last-child {
-                border-right: none;
-            }
+    ::deep .professional-grid .e-headercell:last-child {
+        border-right: none;
+    }
 
-        ::deep .professional-grid .e-gridcontent {
-            background: #ffffff;
-        }
+    ::deep .professional-grid .e-gridcontent {
+        background: #ffffff;
+    }
 
-        ::deep .professional-grid .e-row {
-            transition: background-color 0.2s ease;
-        }
+    ::deep .professional-grid .e-row {
+        transition: background-color 0.2s ease;
+    }
 
-            ::deep .professional-grid .e-row:hover {
-                background-color: #f8fafc;
-            }
+    ::deep .professional-grid .e-row:hover {
+        background-color: #f8fafc;
+    }
 
-            ::deep .professional-grid .e-row.e-altrow {
-                background-color: #fafbfc;
-            }
+    ::deep .professional-grid .e-row.e-altrow {
+        background-color: #fafbfc;
+    }
 
-                ::deep .professional-grid .e-row.e-altrow:hover {
-                    background-color: #f8fafc;
-                }
+    ::deep .professional-grid .e-row.e-altrow:hover {
+        background-color: #f8fafc;
+    }
 
-        ::deep .professional-grid .e-rowcell {
-            border-right: 1px solid #f1f5f9;
-            border-bottom: 1px solid #f1f5f9;
-            padding: 10px 8px;
-            font-size: 13px;
-            color: #1e293b;
-        }
+    ::deep .professional-grid .e-rowcell {
+        border-right: 1px solid #f1f5f9;
+        border-bottom: 1px solid #f1f5f9;
+        padding: 10px 8px;
+        font-size: 13px;
+        color: #1e293b;
+    }
 
-            ::deep .professional-grid .e-rowcell:last-child {
-                border-right: none;
-            }
+    ::deep .professional-grid .e-rowcell:last-child {
+        border-right: none;
+    }
 
     .grid-discount {
         color: #dc2626;
@@ -880,9 +899,9 @@ else
         border-right: 1px solid #cbd5e1;
     }
 
-        ::deep .professional-grid .e-summarycell:last-child {
-            border-right: none;
-        }
+    ::deep .professional-grid .e-summarycell:last-child {
+        border-right: none;
+    }
 
     .aggregate-label {
         text-align: left;
@@ -896,23 +915,23 @@ else
         color: #1e293b;
     }
 
-        .aggregate-value.aggregate-discount {
-            color: #dc2626;
-        }
+    .aggregate-value.aggregate-discount {
+        color: #dc2626;
+    }
 
-        .aggregate-value.aggregate-total {
-            color: #1e40af;
-            font-size: 14px;
-        }
+    .aggregate-value.aggregate-total {
+        color: #1e40af;
+        font-size: 14px;
+    }
 
-            .aggregate-value.aggregate-total strong {
-                font-size: 15px;
-            }
+    .aggregate-value.aggregate-total strong {
+        font-size: 15px;
+    }
 
-        .aggregate-label strong,
-        .aggregate-value strong {
-            font-weight: 700;
-        }
+    .aggregate-label strong,
+    .aggregate-value strong {
+        font-weight: 700;
+    }
 
     /* Dialog Button Styles */
     .dialog-btn {
@@ -930,46 +949,46 @@ else
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
     }
 
-        .dialog-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
-        }
+    .dialog-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+    }
 
-        .dialog-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-        }
+    .dialog-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    }
 
-        .dialog-btn svg {
-            flex-shrink: 0;
-        }
+    .dialog-btn svg {
+        flex-shrink: 0;
+    }
 
     .dialog-btn-primary {
         background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
         color: white;
     }
 
-        .dialog-btn-primary:hover {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-        }
+    .dialog-btn-primary:hover {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    }
 
     .dialog-btn-info {
         background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
         color: white;
     }
 
-        .dialog-btn-info:hover {
-            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
-        }
+    .dialog-btn-info:hover {
+        background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+    }
 
     .dialog-btn-danger {
         background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
         color: white;
     }
 
-        .dialog-btn-danger:hover {
-            background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
-        }
+    .dialog-btn-danger:hover {
+        background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+    }
 
     /* Custom Uploader Styles */
     ::deep .custom-uploader .e-upload {
@@ -993,11 +1012,11 @@ else
         transition: all 0.2s ease;
     }
 
-        ::deep .custom-uploader .e-file-select:hover {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);
-        }
+    ::deep .custom-uploader .e-file-select:hover {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);
+    }
 
     ::deep .custom-uploader .e-file-drop {
         border: none;
@@ -1044,11 +1063,11 @@ else
         transition: all 0.2s ease;
     }
 
-        ::deep .custom-uploader .e-icons.e-file-delete-btn:hover,
-        ::deep .custom-uploader .e-icons.e-file-remove-btn:hover {
-            color: #991b1b;
-            transform: scale(1.1);
-        }
+    ::deep .custom-uploader .e-icons.e-file-delete-btn:hover,
+    ::deep .custom-uploader .e-icons.e-file-remove-btn:hover {
+        color: #991b1b;
+        transform: scale(1.1);
+    }
 
     ::deep .custom-uploader .e-upload-progress-wrap {
         height: 4px;
@@ -1069,5 +1088,4 @@ else
         color: #94a3b8;
         font-size: 14px;
     }
-
 </style>

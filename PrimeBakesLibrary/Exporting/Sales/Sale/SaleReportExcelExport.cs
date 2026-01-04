@@ -1,65 +1,40 @@
 ﻿using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Sales.Sale;
 
 namespace PrimeBakesLibrary.Exporting.Sales.Sale;
 
-/// <summary>
-/// Excel export functionality for Sale Report
-/// </summary>
 public static class SaleReportExcelExport
 {
-    /// <summary>
-    /// Export Sale Report to Excel with custom column order and formatting
-    /// </summary>
-    /// <param name="saleData">Collection of sale overview records</param>
-    /// <param name="dateRangeStart">Start date of the report</param>
-    /// <param name="dateRangeEnd">End date of the report</param>
-    /// <param name="showAllColumns">Whether to include all columns or just summary columns</param>
-    /// <param name="locationName">Name of the location for report header</param>
-    /// <param name="partyName">Name of the party for report header</param>
-    /// <param name="showSummary">Whether to show summary view with grouped data</param>
-    /// <returns>MemoryStream containing the Excel file</returns>
-    public static async Task<MemoryStream> ExportSaleReport(
+    public static async Task<(MemoryStream stream, string fileName)> ExportReport(
         IEnumerable<SaleOverviewModel> saleData,
         DateOnly? dateRangeStart = null,
         DateOnly? dateRangeEnd = null,
         bool showAllColumns = true,
-        string locationName = null,
-        string partyName = null,
-        bool showSummary = false)
+        bool showSummary = false,
+        LedgerModel party = null,
+        CompanyModel company = null,
+        LocationModel location = null)
     {
-        // Define custom column settings
         var columnSettings = new Dictionary<string, ExcelReportExportUtil.ColumnSetting>
         {
-            // IDs - Center aligned, no totals
-            [nameof(SaleOverviewModel.Id)] = new() { DisplayName = "ID", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
-            [nameof(SaleOverviewModel.CompanyId)] = new() { DisplayName = "Company ID", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
-            [nameof(SaleOverviewModel.LocationId)] = new() { DisplayName = "Location ID", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
-            [nameof(SaleOverviewModel.PartyId)] = new() { DisplayName = "Party ID", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
-            [nameof(SaleOverviewModel.CustomerId)] = new() { DisplayName = "Customer ID", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
-            [nameof(SaleOverviewModel.OrderId)] = new() { DisplayName = "Order ID", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
-            [nameof(SaleOverviewModel.FinancialYearId)] = new() { DisplayName = "Financial Year ID", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
-            [nameof(SaleOverviewModel.CreatedBy)] = new() { DisplayName = "Created By ID", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
-            [nameof(SaleOverviewModel.LastModifiedBy)] = new() { DisplayName = "Modified By ID", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
-
-            // Text fields - Left aligned
-            [nameof(SaleOverviewModel.TransactionNo)] = new() { DisplayName = "Trans No", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-            [nameof(SaleOverviewModel.OrderTransactionNo)] = new() { DisplayName = "Order Trans No", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-            [nameof(SaleOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-            [nameof(SaleOverviewModel.LocationName)] = new() { DisplayName = "Location", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-            [nameof(SaleOverviewModel.PartyName)] = new() { DisplayName = "Party", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-            [nameof(SaleOverviewModel.CustomerName)] = new() { DisplayName = "Customer", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-            [nameof(SaleOverviewModel.FinancialYear)] = new() { DisplayName = "Financial Year", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-            [nameof(SaleOverviewModel.Remarks)] = new() { DisplayName = "Remarks", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-            [nameof(SaleOverviewModel.CreatedByName)] = new() { DisplayName = "Created By", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-            [nameof(SaleOverviewModel.CreatedFromPlatform)] = new() { DisplayName = "Created Platform", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-            [nameof(SaleOverviewModel.LastModifiedByUserName)] = new() { DisplayName = "Modified By", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-            [nameof(SaleOverviewModel.LastModifiedFromPlatform)] = new() { DisplayName = "Modified Platform", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-
-            // Dates - Center aligned with custom format
-            [nameof(SaleOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter },
-            [nameof(SaleOverviewModel.CreatedAt)] = new() { DisplayName = "Created At", Format = "dd-MMM-yyyy hh:mm", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter },
-            [nameof(SaleOverviewModel.LastModifiedAt)] = new() { DisplayName = "Modified At", Format = "dd-MMM-yyyy hh:mm", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter },
+            [nameof(SaleOverviewModel.TransactionNo)] = new() { DisplayName = "Trans No", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
+            [nameof(SaleOverviewModel.OrderTransactionNo)] = new() { DisplayName = "Order Trans No", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
+            [nameof(SaleOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
+            [nameof(SaleOverviewModel.LocationName)] = new() { DisplayName = "Location", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
+            [nameof(SaleOverviewModel.PartyName)] = new() { DisplayName = "Party", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
+            [nameof(SaleOverviewModel.CustomerName)] = new() { DisplayName = "Customer", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
+            [nameof(SaleOverviewModel.FinancialYear)] = new() { DisplayName = "Financial Year", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
+            [nameof(SaleOverviewModel.Remarks)] = new() { DisplayName = "Remarks", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
+            [nameof(SaleOverviewModel.CreatedByName)] = new() { DisplayName = "Created By", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
+            [nameof(SaleOverviewModel.CreatedFromPlatform)] = new() { DisplayName = "Created Platform", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
+            [nameof(SaleOverviewModel.LastModifiedByUserName)] = new() { DisplayName = "Modified By", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
+            [nameof(SaleOverviewModel.LastModifiedFromPlatform)] = new() { DisplayName = "Modified Platform", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
+            [nameof(SaleOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
+            [nameof(SaleOverviewModel.OrderDateTime)] = new() { DisplayName = "Order Date", Format = "dd-MMM-yyyy hh:mm", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
+            [nameof(SaleOverviewModel.CreatedAt)] = new() { DisplayName = "Created At", Format = "dd-MMM-yyyy hh:mm", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
+            [nameof(SaleOverviewModel.LastModifiedAt)] = new() { DisplayName = "Modified At", Format = "dd-MMM-yyyy hh:mm", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
 
             // Numeric fields - Right aligned with totals
             [nameof(SaleOverviewModel.TotalItems)] = new() { DisplayName = "Items", Format = "#,##0", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignRight, IncludeInTotal = true },
@@ -90,7 +65,6 @@ public static class SaleReportExcelExport
         // Define column order based on visibility setting
         List<string> columnOrder;
 
-        // Summary view - grouped by location with totals
         if (showSummary)
             columnOrder =
             [
@@ -112,29 +86,18 @@ public static class SaleReportExcelExport
                 nameof(SaleOverviewModel.UPI),
                 nameof(SaleOverviewModel.Credit)
             ];
-
         else if (showAllColumns)
         {
-            // All columns - detailed view
             columnOrder =
             [
                 nameof(SaleOverviewModel.TransactionNo),
                 nameof(SaleOverviewModel.OrderTransactionNo),
-                nameof(SaleOverviewModel.CompanyName)
-            ];
-
-			// Add location columns if showLocation is true
-			if (string.IsNullOrEmpty(locationName))
-				columnOrder.Add(nameof(SaleOverviewModel.LocationName));
-
-            if (string.IsNullOrEmpty(partyName))
-                columnOrder.Add(nameof(SaleOverviewModel.PartyName));
-
-			// Continue with remaining columns
-			columnOrder.AddRange(
-            [
+                nameof(SaleOverviewModel.CompanyName),
+                nameof(SaleOverviewModel.LocationName),
+                nameof(SaleOverviewModel.PartyName),
                 nameof(SaleOverviewModel.CustomerName),
                 nameof(SaleOverviewModel.TransactionDateTime),
+                nameof(SaleOverviewModel.OrderDateTime),
                 nameof(SaleOverviewModel.FinancialYear),
                 nameof(SaleOverviewModel.TotalItems),
                 nameof(SaleOverviewModel.TotalQuantity),
@@ -162,15 +125,16 @@ public static class SaleReportExcelExport
                 nameof(SaleOverviewModel.LastModifiedByUserName),
                 nameof(SaleOverviewModel.LastModifiedAt),
                 nameof(SaleOverviewModel.LastModifiedFromPlatform)
-            ]);
+            ];
         }
         else
         {
-            // Summary columns - key fields only
             columnOrder =
             [
                 nameof(SaleOverviewModel.TransactionNo),
                 nameof(SaleOverviewModel.OrderTransactionNo),
+                nameof(SaleOverviewModel.LocationName),
+                nameof(SaleOverviewModel.PartyName),
                 nameof(SaleOverviewModel.TransactionDateTime),
                 nameof(SaleOverviewModel.TotalQuantity),
                 nameof(SaleOverviewModel.TotalAfterTax),
@@ -179,21 +143,18 @@ public static class SaleReportExcelExport
                 nameof(SaleOverviewModel.TotalAmount),
                 nameof(SaleOverviewModel.PaymentModes)
             ];
-
-            // Add location column only if not showing location in header
-            if (string.IsNullOrEmpty(locationName))
-                columnOrder.Insert(3, nameof(SaleOverviewModel.LocationName));
-
-            // Add party column only if not showing party in header
-            if (string.IsNullOrEmpty(partyName))
-            {
-                int insertIndex = string.IsNullOrEmpty(locationName) ? 3 : 4;
-                columnOrder.Insert(insertIndex, nameof(SaleOverviewModel.PartyName));
-            }
         }
 
-        // Call the generic Excel export utility
-        return await ExcelReportExportUtil.ExportToExcel(
+        if (company is not null)
+            columnOrder.Remove(nameof(SaleOverviewModel.CompanyName));
+
+        if (location is not null)
+            columnOrder.Remove(nameof(SaleOverviewModel.LocationName));
+
+        if (party is not null)
+            columnOrder.Remove(nameof(SaleOverviewModel.PartyName));
+
+        var stream = await ExcelReportExportUtil.ExportToExcel(
             saleData,
             "SALE REPORT",
             "Sale Transactions",
@@ -201,8 +162,14 @@ public static class SaleReportExcelExport
             dateRangeEnd,
             columnSettings,
             columnOrder,
-            locationName: locationName,
-            partyName: partyName
+            new() { ["Company"] = company?.Name ?? null, ["Location"] = location?.Name ?? null, ["Party"] = party?.Name ?? null }
         );
+
+        string fileName = "SALE_REPORT";
+        if (dateRangeStart.HasValue || dateRangeEnd.HasValue)
+            fileName += $"_{dateRangeStart?.ToString("yyyyMMdd") ?? "START"}_to_{dateRangeEnd?.ToString("yyyyMMdd") ?? "END"}";
+        fileName += ".xlsx";
+
+        return (stream, fileName);
     }
 }

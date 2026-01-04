@@ -52,11 +52,12 @@ public partial class ProductLocationPage : IAsyncDisposable
     {
         _hotKeysContext = HotKeys.CreateContext()
             .Add(ModCode.Ctrl, Code.S, SaveProductLocation, "Save", Exclude.None)
-            .Add(ModCode.Ctrl, Code.N, () => NavigationManager.NavigateTo(PageRouteNames.AdminProductLocation, true), "New", Exclude.None)
             .Add(ModCode.Ctrl, Code.E, ExportExcel, "Export Excel", Exclude.None)
             .Add(ModCode.Ctrl, Code.P, ExportPdf, "Export PDF", Exclude.None)
-            .Add(ModCode.Ctrl, Code.D, () => NavigationManager.NavigateTo(PageRouteNames.Dashboard), "Dashboard", Exclude.None)
-            .Add(ModCode.Ctrl, Code.B, () => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard), "Back", Exclude.None)
+            .Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
+            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
+            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
+            .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Dashboard", Exclude.None)
             .Add(Code.Insert, EditSelectedItem, "Edit selected", Exclude.None)
             .Add(Code.Delete, DeleteSelectedItem, "Delete selected", Exclude.None);
 
@@ -86,7 +87,7 @@ public partial class ProductLocationPage : IAsyncDisposable
     }
     #endregion
 
-    #region Autocomplete Events
+    #region Change Events
     private async Task OnLocationChange(ChangeEventArgs<string, LocationModel> args)
     {
         if (args.ItemData != null)
@@ -272,14 +273,17 @@ public partial class ProductLocationPage : IAsyncDisposable
     #endregion
 
     #region Export
-    private async void ExportExcel()
+    private async Task ExportExcel()
     {
-        _isProcessing = true;
-        StateHasChanged();
-        await _toastNotification.ShowAsync("Exporting", "Exporting to Excel...", ToastType.Info);
+        if (_isProcessing)
+            return;
 
         try
         {
+            _isProcessing = true;
+            StateHasChanged();
+            await _toastNotification.ShowAsync("Processing", "Generating Excel file...", ToastType.Info);
+
             // Enrich data with location and product names
             var exportData = _productLocationOverviews.Select(pl => new
             {
@@ -291,10 +295,10 @@ public partial class ProductLocationPage : IAsyncDisposable
                 Status = _productLocations.FirstOrDefault(p => p.Id == pl.Id)?.Status ?? false
             }).ToList();
 
-            var stream = await ProductLocationExcelExport.ExportProductLocation(exportData);
+            var (stream, fileName) = await ProductLocationExcelExport.ExportMaster(exportData);
 
-            await SaveAndViewService.SaveAndView("Product_Location.xlsx", stream);
-            await _toastNotification.ShowAsync("Exported", "Excel export completed successfully", ToastType.Success);
+            await SaveAndViewService.SaveAndView(fileName, stream);
+            await _toastNotification.ShowAsync("Success", "Excel file downloaded successfully.", ToastType.Success);
         }
         catch (Exception ex)
         {
@@ -307,14 +311,17 @@ public partial class ProductLocationPage : IAsyncDisposable
         }
     }
 
-    private async void ExportPdf()
+    private async Task ExportPdf()
     {
-        _isProcessing = true;
-        StateHasChanged();
-        await _toastNotification.ShowAsync("Exporting", "Exporting to PDF...", ToastType.Info);
+        if (_isProcessing)
+            return;
 
         try
         {
+            _isProcessing = true;
+            StateHasChanged();
+            await _toastNotification.ShowAsync("Processing", "Generating PDF file...", ToastType.Info);
+
             // Enrich data with location and product names
             var exportData = _productLocationOverviews.Select(pl => new
             {
@@ -326,11 +333,10 @@ public partial class ProductLocationPage : IAsyncDisposable
                 Status = _productLocations.FirstOrDefault(p => p.Id == pl.Id)?.Status ?? false
             }).ToList();
 
-            var stream = await ProductLocationPDFExport.ExportProductLocation(exportData);
+            var (stream, fileName) = await ProductLocationPDFExport.ExportMaster(exportData);
 
-            await SaveAndViewService.SaveAndView("Product_Location.pdf", stream);
-
-            await _toastNotification.ShowAsync("Exported", "PDF export completed successfully", ToastType.Success);
+            await SaveAndViewService.SaveAndView(fileName, stream);
+            await _toastNotification.ShowAsync("Success", "PDF file downloaded successfully.", ToastType.Success);
         }
         catch (Exception ex)
         {
@@ -344,17 +350,7 @@ public partial class ProductLocationPage : IAsyncDisposable
     }
     #endregion
 
-    #region Helper Methods
-    /// <summary>
-    /// Gets the display name for a product location combining location and product name
-    /// </summary>
-    private string GetDisplayName(ProductLocationOverviewModel productLocation)
-    {
-        var locationName = _locations.FirstOrDefault(l => l.Id == productLocation.LocationId)?.Name ?? "Unknown";
-        return $"{locationName} - {productLocation.Name}";
-    }
-    #endregion
-
+    #region Utilities
     private async Task EditSelectedItem()
     {
         var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
@@ -377,10 +373,30 @@ public partial class ProductLocationPage : IAsyncDisposable
         }
     }
 
+    private string GetDisplayName(ProductLocationOverviewModel productLocation)
+    {
+        var locationName = _locations.FirstOrDefault(l => l.Id == productLocation.LocationId)?.Name ?? "Unknown";
+        return $"{locationName} - {productLocation.Name}";
+    }
+
+    private void ResetPage() =>
+         NavigationManager.NavigateTo(PageRouteNames.AdminProductLocation, true);
+
+    private void NavigateBack() =>
+        NavigationManager.NavigateTo(PageRouteNames.SalesDashboard);
+
+    private void NavigateToDashboard() =>
+        NavigationManager.NavigateTo(PageRouteNames.Dashboard);
+
+    private async Task Logout() =>
+        await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
+
     public async ValueTask DisposeAsync()
     {
         if (_hotKeysContext is not null)
             await _hotKeysContext.DisposeAsync();
+
         GC.SuppressFinalize(this);
     }
+    #endregion
 }

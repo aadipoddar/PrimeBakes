@@ -5,13 +5,13 @@ using PrimeBakes.Shared.Components.Dialog;
 
 using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
-using PrimeBakesLibrary.Data.Inventory.Kitchen;
-using PrimeBakesLibrary.Data.Inventory.Purchase;
 using PrimeBakesLibrary.Data.Inventory.Stock;
-using PrimeBakesLibrary.Data.Sales.Sale;
-using PrimeBakesLibrary.Data.Sales.StockTransfer;
 using PrimeBakesLibrary.DataAccess;
+using PrimeBakesLibrary.Exporting.Inventory.Kitchen;
+using PrimeBakesLibrary.Exporting.Inventory.Purchase;
 using PrimeBakesLibrary.Exporting.Inventory.Stock;
+using PrimeBakesLibrary.Exporting.Sales.Sale;
+using PrimeBakesLibrary.Exporting.Sales.StockTransfer;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Inventory.Stock;
@@ -70,6 +70,7 @@ public partial class RawMaterialStockReport : IAsyncDisposable
             .Add(ModCode.Ctrl, Code.N, NavigateToTransactionPage, "New Transaction", Exclude.None)
             .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
             .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
+            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
             .Add(ModCode.Ctrl, Code.O, ViewSelectedCartItem, "Open Selected Transaction", Exclude.None)
             .Add(ModCode.Alt, Code.P, DownloadSelectedCartItemPdfInvoice, "Download Selected Transaction PDF Invoice", Exclude.None)
             .Add(ModCode.Alt, Code.E, DownloadSelectedCartItemExcelInvoice, "Download Selected Transaction Excel Invoice", Exclude.None)
@@ -163,12 +164,12 @@ public partial class RawMaterialStockReport : IAsyncDisposable
         {
             _isProcessing = true;
             StateHasChanged();
-            await _toastNotification.ShowAsync("Exporting", "Generating Excel file...", ToastType.Info);
+            await _toastNotification.ShowAsync("Processing", "Generating Excel file...", ToastType.Info);
 
             DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
             DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
 
-            var stream = await RawMaterialStockReportExcelExport.ExportRawMaterialStockReport(
+            var (stream, fileName) = await RawMaterialStockReportExcelExport.ExportReport(
                     _stockSummary,
                     dateRangeStart,
                     dateRangeEnd,
@@ -176,12 +177,8 @@ public partial class RawMaterialStockReport : IAsyncDisposable
                     _showDetails ? _stockDetails : null
                 );
 
-            string fileName = $"RAW_MATERIAL_STOCK_REPORT";
-            if (dateRangeStart.HasValue || dateRangeEnd.HasValue)
-                fileName += $"_{dateRangeStart?.ToString("yyyyMMdd") ?? "START"}_to_{dateRangeEnd?.ToString("yyyyMMdd") ?? "END"}";
-            fileName += ".xlsx";
             await SaveAndViewService.SaveAndView(fileName, stream);
-            await _toastNotification.ShowAsync("Exported", "Excel file downloaded successfully.", ToastType.Success);
+            await _toastNotification.ShowAsync("Success", "Excel file downloaded successfully.", ToastType.Success);
         }
         catch (Exception ex)
         {
@@ -203,40 +200,32 @@ public partial class RawMaterialStockReport : IAsyncDisposable
         {
             _isProcessing = true;
             StateHasChanged();
-            await _toastNotification.ShowAsync("Exporting", "Generating PDF file...", ToastType.Info);
+            await _toastNotification.ShowAsync("Processing", "Generating PDF file...", ToastType.Info);
 
             DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
             DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
 
-            var summaryStream = await RawMaterialStockSummaryReportPDFExport.ExportRawMaterialStockReport(
+            var (summaryStream, summaryFileName) = await RawMaterialStockSummaryReportPDFExport.ExportReport(
                     _stockSummary,
                     dateRangeStart,
                     dateRangeEnd,
                     _showAllColumns
                 );
 
-            string summaryFileName = $"RAW_MATERIAL_STOCK_SUMMARY";
-            if (dateRangeStart.HasValue || dateRangeEnd.HasValue)
-                summaryFileName += $"_{dateRangeStart?.ToString("yyyyMMdd") ?? "START"}_to_{dateRangeEnd?.ToString("yyyyMMdd") ?? "END"}";
-            summaryFileName += ".pdf";
             await SaveAndViewService.SaveAndView(summaryFileName, summaryStream);
 
             if (_showDetails && _stockDetails is not null && _stockDetails.Count > 0)
             {
-                var detailsStream = await RawMaterialStockDetailsReportPDFExport.ExportRawMaterialStockDetailsReport(
+                var (detailsStream, detailsFileName) = await RawMaterialStockDetailsReportPDFExport.ExportReport(
                         _stockDetails,
                         dateRangeStart,
                         dateRangeEnd
                     );
 
-                string detailsFileName = $"RAW_MATERIAL_STOCK_DETAILS";
-                if (dateRangeStart.HasValue || dateRangeEnd.HasValue)
-                    detailsFileName += $"_{dateRangeStart?.ToString("yyyyMMdd") ?? "START"}_to_{dateRangeEnd?.ToString("yyyyMMdd") ?? "END"}";
-                detailsFileName += ".pdf";
                 await SaveAndViewService.SaveAndView(detailsFileName, detailsStream);
             }
 
-            await _toastNotification.ShowAsync("Exported", "PDF file downloaded successfully.", ToastType.Success);
+            await _toastNotification.ShowAsync("Success", "PDF file downloaded successfully.", ToastType.Success);
         }
         catch (Exception ex)
         {
@@ -251,18 +240,6 @@ public partial class RawMaterialStockReport : IAsyncDisposable
     #endregion
 
     #region Actions
-    private async Task ToggleDetailsView()
-    {
-        _showDetails = !_showDetails;
-        await LoadStockData();
-    }
-
-    private void ToggleColumnsView()
-    {
-        _showAllColumns = !_showAllColumns;
-        StateHasChanged();
-    }
-
     private async Task ViewSelectedCartItem()
     {
         if (_sfStockDetailsGrid is null || _sfStockDetailsGrid.SelectedRecords is null || _sfStockDetailsGrid.SelectedRecords.Count == 0)
@@ -339,37 +316,37 @@ public partial class RawMaterialStockReport : IAsyncDisposable
 
             if (type.Equals("purchase", StringComparison.CurrentCultureIgnoreCase))
             {
-                var (pdfStream, fileName) = await PurchaseData.GenerateAndDownloadInvoice(transactionId);
+                var (pdfStream, fileName) = await PurchaseInvoicePDFExport.ExportInvoice(transactionId);
                 await SaveAndViewService.SaveAndView(fileName, pdfStream);
             }
             else if (type.Equals("purchasereturn", StringComparison.CurrentCultureIgnoreCase))
             {
-                var (pdfStream, fileName) = await PurchaseReturnData.GenerateAndDownloadInvoice(transactionId);
+                var (pdfStream, fileName) = await PurchaseReturnInvoicePDFExport.ExportInvoice(transactionId);
                 await SaveAndViewService.SaveAndView(fileName, pdfStream);
             }
             else if (type.Equals("sale", StringComparison.CurrentCultureIgnoreCase))
             {
-                var (pdfStream, fileName) = await SaleData.GenerateAndDownloadInvoice(transactionId);
+                var (pdfStream, fileName) = await SaleInvoicePDFExport.ExportInvoice(transactionId);
                 await SaveAndViewService.SaveAndView(fileName, pdfStream);
             }
             else if (type.Equals("salereturn", StringComparison.CurrentCultureIgnoreCase))
             {
-                var (pdfStream, fileName) = await SaleReturnData.GenerateAndDownloadInvoice(transactionId);
+                var (pdfStream, fileName) = await SaleReturnInvoicePDFExport.ExportInvoice(transactionId);
                 await SaveAndViewService.SaveAndView(fileName, pdfStream);
             }
             else if (type.Equals("kitchenissue", StringComparison.CurrentCultureIgnoreCase))
             {
-                var (pdfStream, fileName) = await KitchenIssueData.GenerateAndDownloadInvoice(transactionId);
+                var (pdfStream, fileName) = await KitchenIssueInvoicePDFExport.ExportInvoice(transactionId);
                 await SaveAndViewService.SaveAndView(fileName, pdfStream);
             }
             else if (type.Equals("kitchenproduction", StringComparison.CurrentCultureIgnoreCase))
             {
-                var (pdfStream, fileName) = await KitchenProductionData.GenerateAndDownloadInvoice(transactionId);
+                var (pdfStream, fileName) = await KitchenProductionInvoicePDFExport.ExportInvoice(transactionId);
                 await SaveAndViewService.SaveAndView(fileName, pdfStream);
             }
             else if (type.Equals("stocktransfer", StringComparison.CurrentCultureIgnoreCase))
             {
-                var (pdfStream, fileName) = await StockTransferData.GenerateAndDownloadInvoice(transactionId);
+                var (pdfStream, fileName) = await StockTransferInvoicePDFExport.ExportInvoice(transactionId);
                 await SaveAndViewService.SaveAndView(fileName, pdfStream);
             }
 
@@ -399,37 +376,37 @@ public partial class RawMaterialStockReport : IAsyncDisposable
 
             if (type.Equals("purchase", StringComparison.CurrentCultureIgnoreCase))
             {
-                var (excelStream, fileName) = await PurchaseData.GenerateAndDownloadExcelInvoice(transactionId);
+                var (excelStream, fileName) = await PurchaseInvoiceExcelExport.ExportInvoice(transactionId);
                 await SaveAndViewService.SaveAndView(fileName, excelStream);
             }
             else if (type.Equals("purchasereturn", StringComparison.CurrentCultureIgnoreCase))
             {
-                var (excelStream, fileName) = await PurchaseReturnData.GenerateAndDownloadExcelInvoice(transactionId);
+                var (excelStream, fileName) = await PurchaseReturnInvoiceExcelExport.ExportInvoice(transactionId);
                 await SaveAndViewService.SaveAndView(fileName, excelStream);
             }
             else if (type.Equals("sale", StringComparison.CurrentCultureIgnoreCase))
             {
-                var (excelStream, fileName) = await SaleData.GenerateAndDownloadExcelInvoice(transactionId);
+                var (excelStream, fileName) = await SaleInvoiceExcelExport.ExportInvoice(transactionId);
                 await SaveAndViewService.SaveAndView(fileName, excelStream);
             }
             else if (type.Equals("salereturn", StringComparison.CurrentCultureIgnoreCase))
             {
-                var (excelStream, fileName) = await SaleReturnData.GenerateAndDownloadExcelInvoice(transactionId);
+                var (excelStream, fileName) = await SaleReturnInvoiceExcelExport.ExportInvoice(transactionId);
                 await SaveAndViewService.SaveAndView(fileName, excelStream);
             }
             else if (type.Equals("kitchenissue", StringComparison.CurrentCultureIgnoreCase))
             {
-                var (excelStream, fileName) = await KitchenIssueData.GenerateAndDownloadExcelInvoice(transactionId);
+                var (excelStream, fileName) = await KitchenIssueInvoiceExcelExport.ExportInvoice(transactionId);
                 await SaveAndViewService.SaveAndView(fileName, excelStream);
             }
             else if (type.Equals("kitchenproduction", StringComparison.CurrentCultureIgnoreCase))
             {
-                var (excelStream, fileName) = await KitchenProductionData.GenerateAndDownloadExcelInvoice(transactionId);
+                var (excelStream, fileName) = await KitchenProductionInvoiceExcelExport.ExportInvoice(transactionId);
                 await SaveAndViewService.SaveAndView(fileName, excelStream);
             }
             else if (type.Equals("stocktransfer", StringComparison.CurrentCultureIgnoreCase))
             {
-                var (excelStream, fileName) = await StockTransferData.GenerateAndDownloadExcelInvoice(transactionId);
+                var (excelStream, fileName) = await StockTransferInvoiceExcelExport.ExportInvoice(transactionId);
                 await SaveAndViewService.SaveAndView(fileName, excelStream);
             }
 
@@ -468,17 +445,19 @@ public partial class RawMaterialStockReport : IAsyncDisposable
             await _deleteConfirmationDialog.HideAsync();
             StateHasChanged();
 
+            if (_deleteAdjustmentId == 0)
+            {
+                await _toastNotification.ShowAsync("Error", "No transaction selected to delete.", ToastType.Error);
+                return;
+            }
+
             if (!_user.Admin)
                 throw new UnauthorizedAccessException("You do not have permission to delete this transaction.");
 
-            await _toastNotification.ShowAsync("Processing", "Deleting transaction...", ToastType.Info);
+            await DeleteAdjustment();
 
-            var adjustment = _stockDetails.FirstOrDefault(x => x.Id == _deleteAdjustmentId);
-            if (adjustment is null && !adjustment.Type.Equals("adjustment", StringComparison.CurrentCultureIgnoreCase))
-                return;
-
-            await RawMaterialStockData.DeleteRawMaterialStockById(_deleteAdjustmentId, _user.Id);
-            await _toastNotification.ShowAsync("Success", $"Transaction {_deleteTransactionNo} has been deleted successfully.", ToastType.Success);
+            _deleteAdjustmentId = 0;
+            _deleteTransactionNo = string.Empty;
         }
         catch (Exception ex)
         {
@@ -486,16 +465,41 @@ public partial class RawMaterialStockReport : IAsyncDisposable
         }
         finally
         {
-            _deleteAdjustmentId = 0;
-            _deleteTransactionNo = string.Empty;
             _isProcessing = false;
             StateHasChanged();
             await LoadStockData();
         }
     }
+
+    private async Task DeleteAdjustment()
+    {
+        await _toastNotification.ShowAsync("Processing", "Deleting transaction...", ToastType.Info);
+
+        var adjustment = _stockDetails.FirstOrDefault(x => x.Id == _deleteAdjustmentId);
+        if (adjustment is null || !adjustment.Type.Equals("adjustment", StringComparison.CurrentCultureIgnoreCase))
+        {
+            await _toastNotification.ShowAsync("Error", "Transaction not found or is not an adjustment.", ToastType.Error);
+            return;
+        }
+
+        await RawMaterialStockData.DeleteRawMaterialStockById(_deleteAdjustmentId, _user.Id);
+        await _toastNotification.ShowAsync("Success", $"Transaction {_deleteTransactionNo} has been deleted successfully.", ToastType.Success);
+    }
     #endregion
 
     #region Utilities
+    private async Task ToggleDetailsView()
+    {
+        _showDetails = !_showDetails;
+        await LoadStockData();
+    }
+
+    private void ToggleColumnsView()
+    {
+        _showAllColumns = !_showAllColumns;
+        StateHasChanged();
+    }
+
     private async Task NavigateToTransactionPage()
     {
         if (FormFactor.GetFormFactor() == "Web")
@@ -504,10 +508,10 @@ public partial class RawMaterialStockReport : IAsyncDisposable
             NavigationManager.NavigateTo(PageRouteNames.RawMaterialStockAdjustment);
     }
 
-    private async Task NavigateToDashboard() =>
+    private void NavigateToDashboard() =>
         NavigationManager.NavigateTo(PageRouteNames.Dashboard);
 
-    private async Task NavigateBack() =>
+    private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);
 
     private async Task ShowDeleteConfirmation(int id, string transactionNo)
@@ -523,6 +527,8 @@ public partial class RawMaterialStockReport : IAsyncDisposable
         _deleteTransactionNo = string.Empty;
         await _deleteConfirmationDialog.HideAsync();
     }
+
+    private async Task Logout() => await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 
     private async Task StartAutoRefresh()
     {

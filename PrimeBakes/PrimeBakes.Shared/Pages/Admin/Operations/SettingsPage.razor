@@ -1,8 +1,6 @@
 ﻿@page "/admin/settings"
 
-
 @using PrimeBakesLibrary.Models.Accounts.Masters
-
 
 <PageTitle>Settings - PrimeBakes</PageTitle>
 
@@ -13,13 +11,14 @@
 else
 {
     <div style="display: flex; flex-direction: column; min-height: 100vh;">
-        <Header Title="System Settings" Subtitle="Configure system-wide parameters and defaults"
-                ShowHome="true" ShowBack="true"
-                OnHomeClick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))"
-                OnBackClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard))">
+        <Header Title="System Settings" Subtitle="Configure system-wide parameters and defaults" ShowHome="true"
+            ShowBack="true" ShowLogout="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack"
+            OnLogoutClick="Logout">
             <RightContent>
-                <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Settings (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveSettings" />
-                <IconButton Icon="IconType.Reset" Title="Reset to Defaults" Disabled="_isProcessing" OnClick="ShowResetConfirmation" />
+                <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Settings (Ctrl + S)"
+                    Disabled="_isProcessing" OnClick="SaveSettings" />
+                <IconButton Icon="IconType.Reset" Title="Reset to Defaults" Disabled="_isProcessing"
+                    OnClick="ShowResetConfirmation" />
             </RightContent>
         </Header>
 
@@ -30,10 +29,12 @@ else
             <div class="section-card">
                 <div class="section-header">
                     <div class="section-title-wrapper">
-                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
                             <circle cx="12" cy="12" r="3" />
-                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                            <path
+                                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
                         </svg>
                         <h2 class="section-title">Primary Configuration</h2>
                     </div>
@@ -46,9 +47,9 @@ else
                                 Primary Company <span class="required">*</span>
                             </label>
                             <SfAutoComplete @bind-Value="_selectedCompanyName" TValue="string" TItem="CompanyModel"
-                                            DataSource="@_companies" Placeholder="Select primary company"
-                                            FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
-                                            FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
+                                DataSource="@_companies" Placeholder="Select primary company"
+                                FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
+                                FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
                                 <AutoCompleteFieldSettings Value="Name" />
                                 <AutoCompleteEvents TValue="string" TItem="CompanyModel" ValueChange="OnCompanyChange" />
                             </SfAutoComplete>
@@ -61,8 +62,9 @@ else
             <div class="section-card">
                 <div class="section-header">
                     <div class="section-title-wrapper">
-                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
                             <polyline points="16 18 22 12 16 6" />
                             <polyline points="8 6 2 12 8 18" />
                         </svg>
@@ -77,7 +79,7 @@ else
                                 Raw Material Code Prefix
                             </label>
                             <SfTextBox @bind-Value="_rawMaterialCodePrefix" Placeholder="e.g., RM"
-                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                                FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
                         </div>
 
                         <!-- Finished Product Code Prefix -->
@@ -86,7 +88,7 @@ else
                                 Finished Product Code Prefix
                             </label>
                             <SfTextBox @bind-Value="_finishedProductCodePrefix" Placeholder="e.g., FP"
-                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                                FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
                         </div>
 
                         <!-- Ledger Code Prefix -->
@@ -95,7 +97,7 @@ else
                                 Ledger Code Prefix
                             </label>
                             <SfTextBox @bind-Value="_ledgerCodePrefix" Placeholder="e.g., LD"
-                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                                FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
                         </div>
                     </div>
                 </div>
@@ -105,8 +107,9 @@ else
             <div class="section-card">
                 <div class="section-header">
                     <div class="section-title-wrapper">
-                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
                             <line x1="12" y1="1" x2="12" y2="23" />
                             <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                         </svg>
@@ -121,7 +124,7 @@ else
                                 Purchase Transaction Prefix
                             </label>
                             <SfTextBox @bind-Value="_purchaseTransactionPrefix" Placeholder="e.g., PUR"
-                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                                FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
                         </div>
 
                         <!-- Purchase Return Transaction Prefix -->
@@ -130,7 +133,7 @@ else
                                 Purchase Return Transaction Prefix
                             </label>
                             <SfTextBox @bind-Value="_purchaseReturnTransactionPrefix" Placeholder="e.g., PURR"
-                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                                FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
                         </div>
 
                         <!-- Kitchen Issue Transaction Prefix -->
@@ -139,7 +142,7 @@ else
                                 Kitchen Issue Transaction Prefix
                             </label>
                             <SfTextBox @bind-Value="_kitchenIssueTransactionPrefix" Placeholder="e.g., KI"
-                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                                FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
                         </div>
 
                         <!-- Kitchen Production Transaction Prefix -->
@@ -148,7 +151,7 @@ else
                                 Kitchen Production Transaction Prefix
                             </label>
                             <SfTextBox @bind-Value="_kitchenProductionTransactionPrefix" Placeholder="e.g., KP"
-                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                                FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
                         </div>
 
                         <!-- Raw Material Stock Adjustment Prefix -->
@@ -157,7 +160,7 @@ else
                                 Raw Material Stock Adjustment Prefix
                             </label>
                             <SfTextBox @bind-Value="_rawMaterialStockAdjustmentTransactionPrefix" Placeholder="e.g., RMSA"
-                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                                FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
                         </div>
 
                         <!-- Product Stock Adjustment Prefix -->
@@ -166,7 +169,7 @@ else
                                 Product Stock Adjustment Prefix
                             </label>
                             <SfTextBox @bind-Value="_productStockAdjustmentTransactionPrefix" Placeholder="e.g., PSA"
-                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                                FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
                         </div>
 
                         <!-- Sale Transaction Prefix -->
@@ -175,7 +178,7 @@ else
                                 Sale Transaction Prefix
                             </label>
                             <SfTextBox @bind-Value="_saleTransactionPrefix" Placeholder="e.g., SAL"
-                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                                FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
                         </div>
 
                         <!-- Sale Return Transaction Prefix -->
@@ -184,7 +187,7 @@ else
                                 Sale Return Transaction Prefix
                             </label>
                             <SfTextBox @bind-Value="_saleReturnTransactionPrefix" Placeholder="e.g., SALR"
-                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                                FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
                         </div>
 
                         <!-- Stock Transfer Transaction Prefix -->
@@ -193,7 +196,7 @@ else
                                 Stock Transfer Transaction Prefix
                             </label>
                             <SfTextBox @bind-Value="_stockTransferTransactionPrefix" Placeholder="e.g., STK"
-                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                                FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
                         </div>
 
                         <!-- Order Transaction Prefix -->
@@ -202,7 +205,7 @@ else
                                 Order Transaction Prefix
                             </label>
                             <SfTextBox @bind-Value="_orderTransactionPrefix" Placeholder="e.g., ORD"
-                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                                FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
                         </div>
 
                         <!-- Accounting Transaction Prefix -->
@@ -211,7 +214,7 @@ else
                                 Accounting Transaction Prefix
                             </label>
                             <SfTextBox @bind-Value="_accountingTransactionPrefix" Placeholder="e.g., ACC"
-                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                                FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
                         </div>
                     </div>
                 </div>
@@ -221,8 +224,9 @@ else
             <div class="section-card">
                 <div class="section-header">
                     <div class="section-title-wrapper">
-                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                             <polyline points="14 2 14 8 20 8" />
                             <line x1="12" y1="18" x2="12" y2="12" />
@@ -239,11 +243,12 @@ else
                                 Sale Voucher
                             </label>
                             <SfAutoComplete @bind-Value="_selectedSaleVoucherName" TValue="string" TItem="VoucherModel"
-                                            DataSource="@_vouchers" Placeholder="Select sale voucher" FloatLabelType="FloatLabelType.Never"
-                                            AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
-                                            CssClass="custom-autocomplete">
+                                DataSource="@_vouchers" Placeholder="Select sale voucher"
+                                FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
+                                FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
                                 <AutoCompleteFieldSettings Value="Name" />
-                                <AutoCompleteEvents TValue="string" TItem="VoucherModel" ValueChange="OnSaleVoucherChange" />
+                                <AutoCompleteEvents TValue="string" TItem="VoucherModel"
+                                    ValueChange="OnSaleVoucherChange" />
                             </SfAutoComplete>
                         </div>
 
@@ -252,13 +257,13 @@ else
                             <label class="field-label">
                                 Sale Return Voucher
                             </label>
-                            <SfAutoComplete @bind-Value="_selectedSaleReturnVoucherName" TValue="string" TItem="VoucherModel"
-                                            DataSource="@_vouchers" Placeholder="Select sale return voucher"
-                                            FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
-                                            FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
+                            <SfAutoComplete @bind-Value="_selectedSaleReturnVoucherName" TValue="string"
+                                TItem="VoucherModel" DataSource="@_vouchers" Placeholder="Select sale return voucher"
+                                FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
+                                FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
                                 <AutoCompleteFieldSettings Value="Name" />
                                 <AutoCompleteEvents TValue="string" TItem="VoucherModel"
-                                                    ValueChange="OnSaleReturnVoucherChange" />
+                                    ValueChange="OnSaleReturnVoucherChange" />
                             </SfAutoComplete>
                         </div>
 
@@ -267,13 +272,13 @@ else
                             <label class="field-label">
                                 Stock Transfer Voucher
                             </label>
-                            <SfAutoComplete @bind-Value="_selectedStockTransferVoucherName" TValue="string" TItem="VoucherModel"
-                                            DataSource="@_vouchers" Placeholder="Select stock transfer voucher"
-                                            FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
-                                            FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
+                            <SfAutoComplete @bind-Value="_selectedStockTransferVoucherName" TValue="string"
+                                TItem="VoucherModel" DataSource="@_vouchers" Placeholder="Select stock transfer voucher"
+                                FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
+                                FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
                                 <AutoCompleteFieldSettings Value="Name" />
                                 <AutoCompleteEvents TValue="string" TItem="VoucherModel"
-                                                    ValueChange="OnStockTransferVoucherChange" />
+                                    ValueChange="OnStockTransferVoucherChange" />
                             </SfAutoComplete>
                         </div>
 
@@ -283,12 +288,12 @@ else
                                 Purchase Voucher
                             </label>
                             <SfAutoComplete @bind-Value="_selectedPurchaseVoucherName" TValue="string" TItem="VoucherModel"
-                                            DataSource="@_vouchers" Placeholder="Select purchase voucher"
-                                            FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
-                                            FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
+                                DataSource="@_vouchers" Placeholder="Select purchase voucher"
+                                FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
+                                FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
                                 <AutoCompleteFieldSettings Value="Name" />
                                 <AutoCompleteEvents TValue="string" TItem="VoucherModel"
-                                                    ValueChange="OnPurchaseVoucherChange" />
+                                    ValueChange="OnPurchaseVoucherChange" />
                             </SfAutoComplete>
                         </div>
 
@@ -298,12 +303,12 @@ else
                                 Purchase Return Voucher
                             </label>
                             <SfAutoComplete @bind-Value="_selectedPurchaseReturnVoucherName" TValue="string"
-                                            TItem="VoucherModel" DataSource="@_vouchers" Placeholder="Select purchase return voucher"
-                                            FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
-                                            FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
+                                TItem="VoucherModel" DataSource="@_vouchers" Placeholder="Select purchase return voucher"
+                                FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
+                                FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
                                 <AutoCompleteFieldSettings Value="Name" />
                                 <AutoCompleteEvents TValue="string" TItem="VoucherModel"
-                                                    ValueChange="OnPurchaseReturnVoucherChange" />
+                                    ValueChange="OnPurchaseReturnVoucherChange" />
                             </SfAutoComplete>
                         </div>
                     </div>
@@ -314,8 +319,9 @@ else
             <div class="section-card">
                 <div class="section-header">
                     <div class="section-title-wrapper">
-                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                             <polyline points="14 2 14 8 20 8" />
                             <line x1="16" y1="13" x2="8" y2="13" />
@@ -333,9 +339,9 @@ else
                                 Sale Ledger
                             </label>
                             <SfAutoComplete @bind-Value="_selectedSaleLedgerName" TValue="string" TItem="LedgerModel"
-                                            DataSource="@_ledgers" Placeholder="Select sale ledger" FloatLabelType="FloatLabelType.Never"
-                                            AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
-                                            CssClass="custom-autocomplete">
+                                DataSource="@_ledgers" Placeholder="Select sale ledger"
+                                FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
+                                FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
                                 <AutoCompleteFieldSettings Value="Name" />
                                 <AutoCompleteEvents TValue="string" TItem="LedgerModel" ValueChange="OnSaleLedgerChange" />
                             </SfAutoComplete>
@@ -346,12 +352,13 @@ else
                             <label class="field-label">
                                 Stock Transfer Ledger
                             </label>
-                            <SfAutoComplete @bind-Value="_selectedStockTransferLedgerName" TValue="string" TItem="LedgerModel"
-                                            DataSource="@_ledgers" Placeholder="Select stock transfer ledger" FloatLabelType="FloatLabelType.Never"
-                                            AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
-                                            CssClass="custom-autocomplete">
+                            <SfAutoComplete @bind-Value="_selectedStockTransferLedgerName" TValue="string"
+                                TItem="LedgerModel" DataSource="@_ledgers" Placeholder="Select stock transfer ledger"
+                                FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
+                                FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
                                 <AutoCompleteFieldSettings Value="Name" />
-                                <AutoCompleteEvents TValue="string" TItem="LedgerModel" ValueChange="OnStockTransferLedgerChange" />
+                                <AutoCompleteEvents TValue="string" TItem="LedgerModel"
+                                    ValueChange="OnStockTransferLedgerChange" />
                             </SfAutoComplete>
                         </div>
 
@@ -361,11 +368,12 @@ else
                                 Purchase Ledger
                             </label>
                             <SfAutoComplete @bind-Value="_selectedPurchaseLedgerName" TValue="string" TItem="LedgerModel"
-                                            DataSource="@_ledgers" Placeholder="Select purchase ledger"
-                                            FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
-                                            FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
+                                DataSource="@_ledgers" Placeholder="Select purchase ledger"
+                                FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
+                                FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
                                 <AutoCompleteFieldSettings Value="Name" />
-                                <AutoCompleteEvents TValue="string" TItem="LedgerModel" ValueChange="OnPurchaseLedgerChange" />
+                                <AutoCompleteEvents TValue="string" TItem="LedgerModel"
+                                    ValueChange="OnPurchaseLedgerChange" />
                             </SfAutoComplete>
                         </div>
 
@@ -375,9 +383,9 @@ else
                                 Cash Ledger
                             </label>
                             <SfAutoComplete @bind-Value="_selectedCashLedgerName" TValue="string" TItem="LedgerModel"
-                                            DataSource="@_ledgers" Placeholder="Select cash ledger" FloatLabelType="FloatLabelType.Never"
-                                            AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
-                                            CssClass="custom-autocomplete">
+                                DataSource="@_ledgers" Placeholder="Select cash ledger"
+                                FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
+                                FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
                                 <AutoCompleteFieldSettings Value="Name" />
                                 <AutoCompleteEvents TValue="string" TItem="LedgerModel" ValueChange="OnCashLedgerChange" />
                             </SfAutoComplete>
@@ -389,11 +397,12 @@ else
                                 Cash Sales Ledger
                             </label>
                             <SfAutoComplete @bind-Value="_selectedCashSalesLedgerName" TValue="string" TItem="LedgerModel"
-                                            DataSource="@_ledgers" Placeholder="Select cash sales ledger"
-                                            FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
-                                            FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
+                                DataSource="@_ledgers" Placeholder="Select cash sales ledger"
+                                FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
+                                FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
                                 <AutoCompleteFieldSettings Value="Name" />
-                                <AutoCompleteEvents TValue="string" TItem="LedgerModel" ValueChange="OnCashSalesLedgerChange" />
+                                <AutoCompleteEvents TValue="string" TItem="LedgerModel"
+                                    ValueChange="OnCashSalesLedgerChange" />
                             </SfAutoComplete>
                         </div>
 
@@ -403,9 +412,9 @@ else
                                 GST Ledger
                             </label>
                             <SfAutoComplete @bind-Value="_selectedGSTLedgerName" TValue="string" TItem="LedgerModel"
-                                            DataSource="@_ledgers" Placeholder="Select GST ledger" FloatLabelType="FloatLabelType.Never"
-                                            AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
-                                            CssClass="custom-autocomplete">
+                                DataSource="@_ledgers" Placeholder="Select GST ledger" FloatLabelType="FloatLabelType.Never"
+                                AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
+                                CssClass="custom-autocomplete">
                                 <AutoCompleteFieldSettings Value="Name" />
                                 <AutoCompleteEvents TValue="string" TItem="LedgerModel" ValueChange="OnGSTLedgerChange" />
                             </SfAutoComplete>
@@ -418,8 +427,9 @@ else
             <div class="section-card">
                 <div class="section-header">
                     <div class="section-title-wrapper">
-                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
                             <circle cx="9" cy="21" r="1" />
                             <circle cx="20" cy="21" r="1" />
                             <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
@@ -444,7 +454,8 @@ else
                                 <SfCheckBox @bind-Checked="_updateItemMasterUOMOnPurchase" CssClass="custom-checkbox" />
                                 Update Raw Material UOM on Purchase
                             </label>
-                            <p class="field-description">Automatically update raw material unit of measure when purchasing</p>
+                            <p class="field-description">Automatically update raw material unit of measure when purchasing
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -454,8 +465,9 @@ else
             <div class="section-card">
                 <div class="section-header">
                     <div class="section-title-wrapper">
-                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
                             <circle cx="12" cy="12" r="10" />
                             <polyline points="12 6 12 12 16 14" />
                         </svg>
@@ -470,7 +482,7 @@ else
                                 Auto Refresh Timer (Minutes)
                             </label>
                             <SfNumericTextBox @bind-Value="_autoRefreshReportTimer" TValue="int" Min="1" Max="60"
-                                              Placeholder="e.g., 5" FloatLabelType="FloatLabelType.Never" CssClass="custom-numeric" />
+                                Placeholder="e.g., 5" FloatLabelType="FloatLabelType.Never" CssClass="custom-numeric" />
                             <p class="field-description">Interval in minutes for automatic report data refresh</p>
                         </div>
                     </div>
@@ -481,13 +493,13 @@ else
 
         <!-- Reset Confirmation Dialog -->
         <SfDialog @ref="_resetConfirmationDialog" Width="500px" IsModal="true" ShowCloseIcon="true"
-                  @bind-Visible="_isResetDialogVisible">
+            @bind-Visible="_isResetDialogVisible">
             <DialogTemplates>
                 <Header>
                     <div style="display: flex; align-items: center; gap: 12px; padding: 4px 0;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                             style="color: #f97316;">
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            style="color: #f97316;">
                             <circle cx="12" cy="12" r="10" />
                             <line x1="12" y1="8" x2="12" y2="12" />
                             <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -500,7 +512,8 @@ else
                         <p style="margin: 0 0 16px 0; font-size: 15px; color: #334155; line-height: 1.6;">
                             Are you sure you want to reset all settings to their default values?
                         </p>
-                        <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+                        <div
+                            style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
                             <p style="margin: 0 0 8px 0; font-size: 14px; color: #991b1b; font-weight: 600;">
                                 Warning:
                             </p>
@@ -510,24 +523,28 @@ else
                                 transaction prefixes, voucher and ledger associations, and purchase behavior settings.
                             </p>
                         </div>
-                        <div style="background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 6px; padding: 12px; margin-bottom: 20px;">
+                        <div
+                            style="background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 6px; padding: 12px; margin-bottom: 20px;">
                             <p style="margin: 0; font-size: 13px; color: #92400e; line-height: 1.6;">
-                                <strong>Note:</strong> This action cannot be undone. You will need to reconfigure all settings
+                                <strong>Note:</strong> This action cannot be undone. You will need to reconfigure all
+                                settings
                                 manually.
                             </p>
                         </div>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                             <button class="dialog-btn dialog-btn-cancel" @onclick="CancelReset" disabled="@_isProcessing">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
                                     <line x1="18" y1="6" x2="6" y2="18" />
                                     <line x1="6" y1="6" x2="18" y2="18" />
                                 </svg>
                                 <span>Cancel</span>
                             </button>
                             <button class="dialog-btn dialog-btn-reset" @onclick="ConfirmReset" disabled="@_isProcessing">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
                                     <polyline points="1 4 1 10 7 10" />
                                     <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
                                 </svg>
@@ -571,9 +588,9 @@ else
         transition: all 0.2s ease;
     }
 
-        .section-card:hover {
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
-        }
+    .section-card:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+    }
 
     .section-header {
         padding: 20px 24px;
@@ -666,60 +683,60 @@ else
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
 
-        ::deep .custom-textbox .e-input-group:hover,
-        ::deep .custom-autocomplete .e-input-group:hover {
-            border-color: #94a3b8;
-        }
+    ::deep .custom-textbox .e-input-group:hover,
+    ::deep .custom-autocomplete .e-input-group:hover {
+        border-color: #94a3b8;
+    }
 
-        ::deep .custom-textbox .e-input-group:focus-within,
-        ::deep .custom-autocomplete .e-input-group:focus-within {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
+    ::deep .custom-textbox .e-input-group:focus-within,
+    ::deep .custom-autocomplete .e-input-group:focus-within {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
 
-        ::deep .custom-textbox .e-input-group input,
-        ::deep .custom-autocomplete .e-input-group input {
-            font-size: 13px;
-            color: #1e293b;
-            font-weight: 500;
-            padding: 8px 12px;
-        }
+    ::deep .custom-textbox .e-input-group input,
+    ::deep .custom-autocomplete .e-input-group input {
+        font-size: 13px;
+        color: #1e293b;
+        font-weight: 500;
+        padding: 8px 12px;
+    }
 
-            ::deep .custom-textbox .e-input-group input::placeholder,
-            ::deep .custom-autocomplete .e-input-group input::placeholder {
-                color: #94a3b8;
-                font-style: italic;
-                font-weight: 400;
-            }
+    ::deep .custom-textbox .e-input-group input::placeholder,
+    ::deep .custom-autocomplete .e-input-group input::placeholder {
+        color: #94a3b8;
+        font-style: italic;
+        font-weight: 400;
+    }
 
     /* Custom Checkbox Styling */
     ::deep .custom-checkbox {
         margin-right: 8px;
     }
 
-        ::deep .custom-checkbox .e-frame {
-            border: 2px solid #cbd5e1;
-            border-radius: 4px;
-            width: 20px;
-            height: 20px;
-            background: #ffffff;
-            transition: all 0.2s ease;
-        }
+    ::deep .custom-checkbox .e-frame {
+        border: 2px solid #cbd5e1;
+        border-radius: 4px;
+        width: 20px;
+        height: 20px;
+        background: #ffffff;
+        transition: all 0.2s ease;
+    }
 
-        ::deep .custom-checkbox:hover .e-frame {
-            border-color: #3b82f6;
-            background: #eff6ff;
-        }
+    ::deep .custom-checkbox:hover .e-frame {
+        border-color: #3b82f6;
+        background: #eff6ff;
+    }
 
-        ::deep .custom-checkbox .e-check {
-            color: #ffffff;
-            font-size: 12px;
-        }
+    ::deep .custom-checkbox .e-check {
+        color: #ffffff;
+        font-size: 12px;
+    }
 
-        ::deep .custom-checkbox.e-checkbox-wrapper .e-frame.e-check {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            border-color: #2563eb;
-        }
+    ::deep .custom-checkbox.e-checkbox-wrapper .e-frame.e-check {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        border-color: #2563eb;
+    }
 
     /* Dialog Styles */
     .dialog-btn {
@@ -738,19 +755,19 @@ else
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
     }
 
-        .dialog-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
-        }
+    .dialog-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+    }
 
-        .dialog-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-        }
+    .dialog-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    }
 
-        .dialog-btn svg {
-            flex-shrink: 0;
-        }
+    .dialog-btn svg {
+        flex-shrink: 0;
+    }
 
     .dialog-btn-cancel {
         background: #ffffff;
@@ -758,20 +775,20 @@ else
         border: 2px solid #e2e8f0;
     }
 
-        .dialog-btn-cancel:hover {
-            background: #f8fafc;
-            border-color: #cbd5e1;
-            color: #475569;
-        }
+    .dialog-btn-cancel:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+        color: #475569;
+    }
 
     .dialog-btn-reset {
         background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
         color: white;
     }
 
-        .dialog-btn-reset:hover {
-            background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
-        }
+    .dialog-btn-reset:hover {
+        background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+    }
 
     /* Responsive Design */
     @@media (max-width: 1400px) {

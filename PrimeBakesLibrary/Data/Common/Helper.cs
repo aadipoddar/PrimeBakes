@@ -39,4 +39,28 @@ public static class Helper
             // Has decimal part, show 2 decimal places
             return rounded.ToString("0.##", CultureInfo.InvariantCulture);
     }
+
+    public static bool ValidatePhoneNumber(this string phoneNumber)
+    {
+        if (string.IsNullOrWhiteSpace(phoneNumber))
+            return false;
+        if (phoneNumber.Length != 10)
+            return false;
+        return long.TryParse(phoneNumber, out _);
+    }
+
+    public static bool ValidateEmail(this string email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+            return false;
+        try
+        {
+            var addr = new System.Net.Mail.MailAddress(email);
+            return addr.Address == email;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }

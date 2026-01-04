@@ -1,9 +1,7 @@
 ﻿@page "/admin/product-location"
 
-
 @using PrimeBakesLibrary.Models.Common
 @using PrimeBakesLibrary.Models.Sales.Product
-
 
 <PageTitle>Product Location Management - Prime Bakes</PageTitle>
 
@@ -14,15 +12,12 @@
 else
 {
     <div style="display: flex; flex-direction: column; min-height: 100vh;">
-        <Header Title="Product Location Management" Subtitle="Manage product rates by location"
-                ShowHome="true" ShowBack="true"
-                OnHomeClick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))"
-                OnBackClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard))">
+        <Header Title="Product Location Management" Subtitle="Manage product rates by location" ShowLogout="true" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
             <RightContent>
                 <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
                 <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
                 <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Product Location (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveProductLocation" />
-                <IconButton Icon="IconType.New" Title="New Product Location (Ctrl + N)" Disabled="_isProcessing" OnClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminProductLocation, true))" />
+                <IconButton Icon="IconType.New" Title="New Product Location (Ctrl + N)" Disabled="_isProcessing" OnClick="ResetPage" />
             </RightContent>
         </Header>
 

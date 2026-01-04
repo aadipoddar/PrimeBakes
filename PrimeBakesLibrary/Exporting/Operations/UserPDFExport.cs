@@ -1,24 +1,15 @@
-﻿using PrimeBakesLibrary.Models.Common;
-using PrimeBakesLibrary.Data.Common;
+﻿using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Common;
 
 namespace PrimeBakesLibrary.Exporting.Operations;
 
-/// <summary>
-/// PDF export functionality for User
-/// </summary>
 public static class UserPDFExport
 {
-    /// <summary>
-    /// Export User data to PDF with custom column order and formatting
-    /// </summary>
-    /// <param name="userData">Collection of user records</param>
-    /// <returns>MemoryStream containing the PDF file</returns>
-    public static async Task<MemoryStream> ExportUser(IEnumerable<UserModel> userData)
+    public static async Task<(MemoryStream stream, string fileName)> ExportMaster(IEnumerable<UserModel> userData)
     {
-        // Load locations to display location names instead of IDs
-        var locations = CommonData.LoadTableData<LocationModel>(TableNames.Location).Result;
+        var locations = await CommonData.LoadTableData<LocationModel>(TableNames.Location);
 
-        // Create enriched data with location names
         var enrichedData = userData.Select(user => new
         {
             user.Id,
@@ -34,7 +25,6 @@ public static class UserPDFExport
             Status = user.Status ? "Active" : "Deleted"
         });
 
-        // Define custom column settings
         var columnSettings = new Dictionary<string, PDFReportExportUtil.ColumnSetting>
         {
             [nameof(UserModel.Id)] = new()
@@ -130,24 +120,22 @@ public static class UserPDFExport
             }
         };
 
-        // Define column order
         List<string> columnOrder =
         [
-			nameof(UserModel.Id),
-			nameof(UserModel.Name),
-			nameof(UserModel.Passcode),
-			"Location",
-			nameof(UserModel.Sales),
-			nameof(UserModel.Order),
-			nameof(UserModel.Inventory),
-			nameof(UserModel.Accounts),
-			nameof(UserModel.Admin),
-			nameof(UserModel.Remarks),
-			nameof(UserModel.Status)
-		];
+            nameof(UserModel.Id),
+            nameof(UserModel.Name),
+            nameof(UserModel.Passcode),
+            "Location",
+            nameof(UserModel.Sales),
+            nameof(UserModel.Order),
+            nameof(UserModel.Inventory),
+            nameof(UserModel.Accounts),
+            nameof(UserModel.Admin),
+            nameof(UserModel.Remarks),
+            nameof(UserModel.Status)
+        ];
 
-        // Call the generic PDF export utility
-        return await PDFReportExportUtil.ExportToPdf(
+        var stream = await PDFReportExportUtil.ExportToPdf(
             enrichedData,
             "USER MASTER",
             null,
@@ -156,5 +144,9 @@ public static class UserPDFExport
             columnOrder,
             useLandscape: true
         );
+
+        var currentDateTime = await CommonData.LoadCurrentDateTime();
+        var fileName = $"User_Master_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
+        return (stream, fileName);
     }
 }

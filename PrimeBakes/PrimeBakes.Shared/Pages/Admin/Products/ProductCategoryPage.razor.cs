@@ -50,11 +50,12 @@ public partial class ProductCategoryPage : IAsyncDisposable
     {
         _hotKeysContext = HotKeys.CreateContext()
             .Add(ModCode.Ctrl, Code.S, SaveProductCategory, "Save", Exclude.None)
-            .Add(ModCode.Ctrl, Code.N, () => NavigationManager.NavigateTo(PageRouteNames.AdminProductCategory, true), "New", Exclude.None)
             .Add(ModCode.Ctrl, Code.E, ExportExcel, "Export Excel", Exclude.None)
             .Add(ModCode.Ctrl, Code.P, ExportPdf, "Export PDF", Exclude.None)
-            .Add(ModCode.Ctrl, Code.D, () => NavigationManager.NavigateTo(PageRouteNames.Dashboard), "Dashboard", Exclude.None)
-            .Add(ModCode.Ctrl, Code.B, () => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard), "Back", Exclude.None)
+            .Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
+            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
+            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
+            .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Dashboard", Exclude.None)
             .Add(Code.Insert, EditSelectedItem, "Edit selected", Exclude.None)
             .Add(Code.Delete, DeleteSelectedItem, "Delete selected", Exclude.None);
 
@@ -266,18 +267,12 @@ public partial class ProductCategoryPage : IAsyncDisposable
         {
             _isProcessing = true;
             StateHasChanged();
-            await _toastNotification.ShowAsync("Exporting", "Generating Excel file...", ToastType.Info);
+            await _toastNotification.ShowAsync("Processing", "Exporting to Excel...", ToastType.Info);
 
-            // Call the Excel export utility
-            var stream = await ProductCategoryExcelExport.ExportProductCategory(_productCategories);
-
-            // Generate file name
-            string fileName = "PRODUCT_CATEGORY_MASTER.xlsx";
-
-            // Save and view the Excel file
+            var (stream, fileName) = await ProductCategoryExcelExport.ExportMaster(_productCategories);
             await SaveAndViewService.SaveAndView(fileName, stream);
 
-            await _toastNotification.ShowAsync("Exported", "Excel file downloaded successfully.", ToastType.Success);
+            await _toastNotification.ShowAsync("Success", "Product category data exported to Excel successfully.", ToastType.Success);
         }
         catch (Exception ex)
         {
@@ -299,18 +294,12 @@ public partial class ProductCategoryPage : IAsyncDisposable
         {
             _isProcessing = true;
             StateHasChanged();
-            await _toastNotification.ShowAsync("Exporting", "Generating PDF file...", ToastType.Info);
+            await _toastNotification.ShowAsync("Processing", "Exporting to PDF...", ToastType.Info);
 
-            // Call the PDF export utility
-            var stream = await ProductCategoryPDFExport.ExportProductCategory(_productCategories);
-
-            // Generate file name
-            string fileName = "PRODUCT_CATEGORY_MASTER.pdf";
-
-            // Save and view the PDF file
+            var (stream, fileName) = await ProductCategoryPDFExport.ExportMaster(_productCategories);
             await SaveAndViewService.SaveAndView(fileName, stream);
 
-            await _toastNotification.ShowAsync("Exported", "PDF file downloaded successfully.", ToastType.Success);
+            await _toastNotification.ShowAsync("Success", "Product category data exported to PDF successfully.", ToastType.Success);
         }
         catch (Exception ex)
         {
@@ -324,6 +313,7 @@ public partial class ProductCategoryPage : IAsyncDisposable
     }
     #endregion
 
+    #region Utilities
     private async Task EditSelectedItem()
     {
         var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
@@ -343,10 +333,23 @@ public partial class ProductCategoryPage : IAsyncDisposable
         }
     }
 
+    private void ResetPage() =>
+        NavigationManager.NavigateTo(PageRouteNames.AdminProductCategory, true);
+
+    private void NavigateBack() =>
+        NavigationManager.NavigateTo(PageRouteNames.SalesDashboard);
+
+    private void NavigateToDashboard() =>
+        NavigationManager.NavigateTo(PageRouteNames.Dashboard);
+
+    private async Task Logout() =>
+        await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
+
     public async ValueTask DisposeAsync()
     {
         if (_hotKeysContext is not null)
             await _hotKeysContext.DisposeAsync();
         GC.SuppressFinalize(this);
     }
+    #endregion
 }

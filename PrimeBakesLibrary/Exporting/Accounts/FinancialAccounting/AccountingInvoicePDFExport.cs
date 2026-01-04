@@ -3,44 +3,32 @@ using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.FinancialAccounting;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 
+using Syncfusion.Pdf.Graphics;
+
 namespace PrimeBakesLibrary.Exporting.Accounts.FinancialAccounting;
 
-/// <summary>
-/// Convert Accounting voucher data to Invoice PDF format
-/// </summary>
 public static class AccountingInvoicePDFExport
 {
-    /// <summary>
-    /// Export Accounting voucher as a professional accounting voucher PDF (automatically loads ledger names)
-    /// </summary>
-    /// <param name="accountingHeader">Accounting header data</param>
-    /// <param name="accountingDetails">Accounting detail line items (ledger entries)</param>
-    /// <param name="company">Company information</param>
-    /// <param name="voucher">Voucher type information</param>
-    /// <param name="logoPath">Optional: Path to company logo</param>
-    /// <param name="invoiceType">Type of document (JOURNAL VOUCHER, PAYMENT VOUCHER, etc.)</param>
-    /// <returns>MemoryStream containing the PDF file</returns>
-    public static async Task<MemoryStream> ExportAccountingInvoice(
-        AccountingModel accountingHeader,
-        List<AccountingDetailModel> accountingDetails,
-        CompanyModel company,
-        VoucherModel voucher,
-        string logoPath = null,
-        string invoiceType = "ACCOUNTING VOUCHER")
+    public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId)
     {
-        // Load all ledgers to get names
+        var transaction = await CommonData.LoadTableDataById<AccountingModel>(TableNames.Accounting, transactionId) ??
+            throw new InvalidOperationException("Transaction not found.");
+
+        var transactionDetails = await CommonData.LoadTableDataByMasterId<AccountingDetailModel>(TableNames.AccountingDetail, transaction.Id);
+        if (transactionDetails is null || transactionDetails.Count == 0)
+            throw new InvalidOperationException("No transaction details found for the transaction.");
+
+        var company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, transaction.CompanyId) ?? throw new InvalidOperationException("Company information is missing.");
+        var voucher = await CommonData.LoadTableDataById<VoucherModel>(TableNames.Voucher, transaction.VoucherId);
         var allLedgers = await CommonData.LoadTableData<LedgerModel>(TableNames.Ledger);
 
-        // Map to accounting line items with proper Debit/Credit columns
-        var accountingLineItems = accountingDetails.Select(detail =>
+        var cartItems = transactionDetails.Select(detail =>
         {
             var ledger = allLedgers.FirstOrDefault(l => l.Id == detail.LedgerId);
-            string ledgerName = ledger?.Name ?? $"Ledger #{detail.LedgerId}";
-
-            return new PDFInvoiceExportUtil.AccountingLineItem
+            return new AccountingItemCartModel
             {
                 LedgerId = detail.LedgerId,
-                LedgerName = ledgerName,
+                LedgerName = ledger?.Name ?? $"Ledger #{detail.LedgerId}",
                 ReferenceNo = detail.ReferenceNo,
                 ReferenceType = detail.ReferenceType,
                 Debit = detail.Debit,
@@ -49,102 +37,51 @@ public static class AccountingInvoicePDFExport
             };
         }).ToList();
 
-        // Map invoice header data
+        decimal totalDebit = cartItems.Sum(i => i.Debit ?? 0);
+        decimal totalCredit = cartItems.Sum(i => i.Credit ?? 0);
+        decimal difference = totalDebit - totalCredit;
+
         var invoiceData = new PDFInvoiceExportUtil.InvoiceData
         {
-            TransactionNo = accountingHeader.TransactionNo,
-            TransactionDateTime = accountingHeader.TransactionDateTime,
-            OrderTransactionNo = accountingHeader.ReferenceNo,
-            ItemsTotalAmount = Math.Max(accountingHeader.TotalDebitAmount, accountingHeader.TotalCreditAmount),
-            OtherChargesAmount = 0,
-            OtherChargesPercent = 0,
-            CashDiscountAmount = 0,
-            CashDiscountPercent = 0,
-            RoundOffAmount = 0,
-            TotalAmount = Math.Max(accountingHeader.TotalDebitAmount, accountingHeader.TotalCreditAmount),
-            Cash = 0,
-            Card = 0,
-            UPI = 0,
-            Credit = 0,
-            Remarks = accountingHeader.Remarks,
-            Status = accountingHeader.Status
+            Company = company,
+            BillTo = null,
+            InvoiceType = voucher.Name.ToUpper(),
+            TransactionNo = transaction.TransactionNo,
+            TransactionDateTime = transaction.TransactionDateTime,
+            ReferenceTransactionNo = transaction.ReferenceNo,
+            TotalAmount = Math.Max(transaction.TotalDebitAmount, transaction.TotalCreditAmount),
+            Remarks = transaction.Remarks,
+            Status = transaction.Status,
+            PaymentModes = null
         };
 
-        // Use voucher name as invoice type
-        string voucherInvoiceType = !string.IsNullOrWhiteSpace(voucher?.Name)
-            ? $"{voucher.Name.ToUpper()}"
-            : invoiceType;
-
-        // Generate specialized accounting voucher PDF
-        return await PDFInvoiceExportUtil.ExportAccountingVoucherToPdf(
-            invoiceData,
-            accountingLineItems,
-            company,
-            logoPath,
-            voucherInvoiceType
-        );
-    }
-
-    /// <summary>
-    /// Export Accounting with ledger names (requires additional data)
-    /// </summary>
-    public static async Task<MemoryStream> ExportAccountingInvoiceWithItems(
-        AccountingModel accountingHeader,
-        List<AccountingItemCartModel> accountingItems,
-        CompanyModel company,
-        VoucherModel voucher,
-        string logoPath = null,
-        string invoiceType = "ACCOUNTING VOUCHER")
-    {
-        // Map to accounting line items with proper Debit/Credit columns
-        var accountingLineItems = accountingItems.Select(item => new PDFInvoiceExportUtil.AccountingLineItem
+        var columnSettings = new List<PDFInvoiceExportUtil.InvoiceColumnSetting>
         {
-            LedgerId = item.LedgerId,
-            LedgerName = item.LedgerName,
-            ReferenceNo = item.ReferenceNo,
-            ReferenceType = item.ReferenceType,
-            Debit = item.Debit,
-            Credit = item.Credit,
-            Remarks = item.Remarks
-        }).ToList();
-
-        // Calculate totals
-        decimal totalDebit = accountingItems.Sum(i => i.Debit ?? 0);
-        decimal totalCredit = accountingItems.Sum(i => i.Credit ?? 0);
-
-        // Map invoice header data
-        var invoiceData = new PDFInvoiceExportUtil.InvoiceData
-        {
-            TransactionNo = accountingHeader.TransactionNo,
-            TransactionDateTime = accountingHeader.TransactionDateTime,
-            OrderTransactionNo = accountingHeader.ReferenceNo,
-            ItemsTotalAmount = Math.Max(accountingHeader.TotalDebitAmount, accountingHeader.TotalCreditAmount),
-            OtherChargesAmount = 0,
-            OtherChargesPercent = 0,
-            CashDiscountAmount = 0,
-            CashDiscountPercent = 0,
-            RoundOffAmount = 0,
-            TotalAmount = Math.Max(accountingHeader.TotalDebitAmount, accountingHeader.TotalCreditAmount),
-            Cash = 0,
-            Card = 0,
-            UPI = 0,
-            Credit = 0,
-            Remarks = accountingHeader.Remarks,
-            Status = accountingHeader.Status
+            new("#", "#", 25, PdfTextAlignment.Center),
+            new(nameof(AccountingItemCartModel.LedgerName), "Ledger", 0, PdfTextAlignment.Left),
+            new(nameof(AccountingItemCartModel.ReferenceNo), "Ref No", 80, PdfTextAlignment.Left),
+            new(nameof(AccountingItemCartModel.Debit), "Dr", 70, PdfTextAlignment.Right, "#,##0.00"),
+            new(nameof(AccountingItemCartModel.Credit), "Cr", 70, PdfTextAlignment.Right, "#,##0.00"),
+            new(nameof(AccountingItemCartModel.Remarks), "Remarks", 100, PdfTextAlignment.Left)
         };
 
-        // Use voucher name as invoice type
-        string voucherInvoiceType = !string.IsNullOrWhiteSpace(voucher?.Name)
-            ? $"{voucher.Name.ToUpper()}"
-            : invoiceType;
+        var summaryFields = new Dictionary<string, string>
+        {
+            ["Total Debit"] = totalDebit.FormatIndianCurrency(),
+            ["Total Credit"] = totalCredit.FormatIndianCurrency(),
+            ["Difference"] = difference.FormatIndianCurrency()
+        };
 
-        // Generate specialized accounting voucher PDF
-        return await PDFInvoiceExportUtil.ExportAccountingVoucherToPdf(
+        var stream = await PDFInvoiceExportUtil.ExportInvoiceToPdf(
             invoiceData,
-            accountingLineItems,
-            company,
-            logoPath,
-            voucherInvoiceType
+            cartItems,
+            columnSettings,
+            null,
+            summaryFields
         );
+
+        var currentDateTime = await CommonData.LoadCurrentDateTime();
+        string fileName = $"ACCOUNTING_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
+        return (stream, fileName);
     }
 }

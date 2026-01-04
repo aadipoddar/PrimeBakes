@@ -1,8 +1,6 @@
 ﻿@page "/admin/group"
 
-
 @using PrimeBakesLibrary.Models.Accounts.Masters
-
 
 <PageTitle>Group Management - Prime Bakes</PageTitle>
 
@@ -13,15 +11,12 @@
 else
 {
     <div style="display: flex; flex-direction: column; min-height: 100vh;">
-        <Header Title="Group Management" Subtitle="Manage groups and details"
-                ShowHome="true" ShowBack="true"
-                OnHomeClick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))"
-                OnBackClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard))">
+        <Header Title="Group Management" Subtitle="Manage groups and details" ShowLogout="true" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
             <RightContent>
                 <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
                 <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
                 <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Group (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveGroup" />
-                <IconButton Icon="IconType.New" Title="New Group (Ctrl + N)" Disabled="_isProcessing" OnClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminGroup, true))" />
+                <IconButton Icon="IconType.New" Title="New Group (Ctrl + N)" Disabled="_isProcessing" OnClick="ResetPage" />
             </RightContent>
         </Header>
 

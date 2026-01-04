@@ -1,5 +1,4 @@
 ﻿using PrimeBakesLibrary.Data.Common;
-using PrimeBakesLibrary.Exporting.Accounts.FinancialAccounting;
 using PrimeBakesLibrary.Models.Accounts.FinancialAccounting;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 
@@ -7,10 +6,10 @@ namespace PrimeBakesLibrary.Data.Accounts.FinancialAccounting;
 
 public static class AccountingData
 {
-    public static async Task<int> InsertAccounting(AccountingModel accounting) =>
+    private static async Task<int> InsertAccounting(AccountingModel accounting) =>
         (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertAccounting, accounting)).FirstOrDefault();
 
-    public static async Task<int> InsertAccountingDetail(AccountingDetailModel accountingDetails) =>
+    private static async Task<int> InsertAccountingDetail(AccountingDetailModel accountingDetails) =>
         (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertAccountingDetail, accountingDetails)).FirstOrDefault();
 
     public static async Task<AccountingModel> LoadAccountingByVoucherReference(int VoucherId, int ReferenceId, string ReferenceNo) =>
@@ -19,107 +18,18 @@ public static class AccountingData
     public static async Task<List<TrialBalanceModel>> LoadTrialBalanceByCompanyDate(int CompanyId, DateTime StartDate, DateTime EndDate) =>
         await SqlDataAccess.LoadData<TrialBalanceModel, dynamic>(StoredProcedureNames.LoadTrialBalanceByCompanyDate, new { CompanyId, StartDate, EndDate });
 
-    public static async Task<(MemoryStream pdfStream, string fileName)> GenerateAndDownloadInvoice(int accountingId)
+    public static async Task DeleteTransaction(AccountingModel accounting)
     {
-        try
-        {
-            // Load saved accounting details
-            var transaction = await CommonData.LoadTableDataById<AccountingModel>(TableNames.Accounting, accountingId) ??
-                throw new InvalidOperationException("Transaction not found.");
-
-            // Load accounting details from database
-            var transactionDetails = await CommonData.LoadTableDataByMasterId<AccountingDetailModel>(TableNames.AccountingDetail, accountingId);
-            if (transactionDetails is null || transactionDetails.Count == 0)
-                throw new InvalidOperationException("No transaction details found for the transaction.");
-
-            // Load company and voucher
-            var company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, transaction.CompanyId);
-            var voucher = await CommonData.LoadTableDataById<VoucherModel>(TableNames.Voucher, transaction.VoucherId);
-
-            if (company is null)
-                throw new InvalidOperationException("Invoice generation skipped - company not found.");
-
-            if (voucher is null)
-                throw new InvalidOperationException("Invoice generation skipped - voucher not found.");
-
-            // Generate invoice PDF
-            var pdfStream = await AccountingInvoicePDFExport.ExportAccountingInvoice(
-                transaction,
-                transactionDetails,
-                company,
-                voucher,
-                null, // logo path - uses default
-                $"{voucher.Name.ToUpper()} VOUCHER"
-            );
-
-            // Generate file name
-            var currentDateTime = await CommonData.LoadCurrentDateTime();
-            string fileName = $"ACCOUNTING_VOUCHER_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
-            return (pdfStream, fileName);
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException($"Invoice generation failed: {ex.Message}", ex);
-        }
-    }
-
-    public static async Task<(MemoryStream excelStream, string fileName)> GenerateAndDownloadExcelInvoice(int accountingId)
-    {
-        try
-        {
-            // Load saved accounting details
-            var transaction = await CommonData.LoadTableDataById<AccountingModel>(TableNames.Accounting, accountingId) ??
-                throw new InvalidOperationException("Transaction not found.");
-
-            // Load accounting details from database
-            var transactionDetails = await CommonData.LoadTableDataByMasterId<AccountingDetailModel>(TableNames.AccountingDetail, accountingId);
-            if (transactionDetails is null || transactionDetails.Count == 0)
-                throw new InvalidOperationException("No transaction details found for the transaction.");
-
-            // Load company and voucher
-            var company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, transaction.CompanyId);
-            var voucher = await CommonData.LoadTableDataById<VoucherModel>(TableNames.Voucher, transaction.VoucherId);
-
-            if (company is null)
-                throw new InvalidOperationException("Invoice generation skipped - company not found.");
-
-            if (voucher is null)
-                throw new InvalidOperationException("Invoice generation skipped - voucher not found.");
-
-            // Generate invoice Excel
-            var excelStream = await AccountingInvoiceExcelExport.ExportAccountingInvoice(
-                transaction,
-                transactionDetails,
-                company,
-                voucher,
-                null,
-                $"{voucher.Name.ToUpper()} VOUCHER"
-            );
-
-            // Generate file name
-            var currentDateTime = await CommonData.LoadCurrentDateTime();
-            string fileName = $"ACCOUNTING_VOUCHER_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.xlsx";
-            return (excelStream, fileName);
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException($"Excel invoice generation failed: {ex.Message}", ex);
-        }
-    }
-
-    public static async Task DeleteAccounting(int accountingId)
-    {
-        var accounting = await CommonData.LoadTableDataById<AccountingModel>(TableNames.Accounting, accountingId);
         var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, accounting.FinancialYearId);
         if (financialYear is null || financialYear.Locked || !financialYear.Status)
             throw new InvalidOperationException("Cannot delete transaction as the financial year is locked.");
 
         accounting.Status = false;
         await InsertAccounting(accounting);
-        await SendNotification.FinancialAccountingNotification(accountingId, NotificationType.Delete);
+        await SendNotification.FinancialAccountingNotification(accounting.Id, NotificationType.Delete);
     }
 
-    public static async Task RecoverAccountingTransaction(AccountingModel accounting)
+    public static async Task RecoverTransaction(AccountingModel accounting)
     {
         var accountingDetails = await CommonData.LoadTableDataByMasterId<AccountingDetailModel>(TableNames.AccountingDetail, accounting.Id);
         List<AccountingItemCartModel> accountingItemCarts = [];
@@ -137,11 +47,11 @@ public static class AccountingData
                 Remarks = item.Remarks
             });
 
-        await SaveAccountingTransaction(accounting, accountingItemCarts, false);
+        await SaveTransaction(accounting, accountingItemCarts, false);
         await SendNotification.FinancialAccountingNotification(accounting.Id, NotificationType.Recover);
     }
 
-    public static async Task<int> SaveAccountingTransaction(AccountingModel accounting, List<AccountingItemCartModel> accountingDetails, bool showNotification = true)
+    public static async Task<int> SaveTransaction(AccountingModel accounting, List<AccountingItemCartModel> accountingDetails, bool showNotification = true)
     {
         bool update = accounting.Id > 0;
 
@@ -162,7 +72,7 @@ public static class AccountingData
             throw new InvalidOperationException("Cannot update transaction as the financial year is locked.");
 
         accounting.Id = await InsertAccounting(accounting);
-        await SaveAccountingDetail(accounting, accountingDetails, update);
+        await SaveTransactionDetail(accounting, accountingDetails, update);
 
         if (showNotification && update)
             await SendNotification.FinancialAccountingNotification(accounting.Id, update ? NotificationType.Update : NotificationType.Save);
@@ -170,7 +80,7 @@ public static class AccountingData
         return accounting.Id;
     }
 
-    private static async Task SaveAccountingDetail(AccountingModel accounting, List<AccountingItemCartModel> accountingDetails, bool update)
+    private static async Task SaveTransactionDetail(AccountingModel accounting, List<AccountingItemCartModel> accountingDetails, bool update)
     {
         if (update)
         {

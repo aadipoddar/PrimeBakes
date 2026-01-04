@@ -8,9 +8,6 @@ using Syncfusion.XlsIO;
 
 namespace PrimeBakesLibrary.Exporting.Utils;
 
-/// <summary>
-/// Generic Excel exporter for all report types in the Prime Bakes application
-/// </summary>
 public static class ExcelReportExportUtil
 {
     #region Public Methods
@@ -26,8 +23,7 @@ public static class ExcelReportExportUtil
     /// <param name="dateRangeEnd">Optional end date for date range reports</param>
     /// <param name="columnSettings">Optional custom column settings</param>
     /// <param name="columnOrder">Optional custom column display order</param>
-    /// <param name="locationName">Optional location name to display in header</param>
-    /// <param name="partyName">Optional party/ledger name to display in header</param>
+    /// <param name="headerMetadata">Optional metadata to display in header (e.g., {"Location": "Main Store", "Party": "ABC Corp"})</param>
     /// <param name="customSummaryFields">Optional: Custom fields to display in summary section (key=label, value=formatted value)</param>
     /// <returns>MemoryStream containing the Excel file</returns>
     public static async Task<MemoryStream> ExportToExcel<T>(
@@ -38,8 +34,7 @@ public static class ExcelReportExportUtil
         DateOnly? dateRangeEnd = null,
         Dictionary<string, ColumnSetting> columnSettings = null,
         List<string> columnOrder = null,
-        string locationName = null,
-        string partyName = null,
+        Dictionary<string, string> headerMetadata = null,
         Dictionary<string, string> customSummaryFields = null)
     {
         MemoryStream ms = new();
@@ -71,7 +66,7 @@ public static class ExcelReportExportUtil
                 effectiveColumnOrder = FilterEmptyColumns(data, effectiveColumnOrder, columnSettings);
 
                 // Setup the worksheet
-                int currentRow = SetupHeader(worksheet, reportTitle, effectiveColumnOrder.Count, dateRangeStart, dateRangeEnd, locationName, partyName);
+                int currentRow = SetupHeader(worksheet, reportTitle, effectiveColumnOrder.Count, dateRangeStart, dateRangeEnd, headerMetadata);
 
                 // Add data to worksheet
                 currentRow = AddDataSection(worksheet, data, effectiveColumnOrder, columnSettings, currentRow, customSummaryFields);
@@ -220,7 +215,7 @@ public static class ExcelReportExportUtil
                 setting.Alignment = ExcelHAlign.HAlignCenter;
 
                 if (prop.Name.Contains("DateTime") || prop.Name.EndsWith("Time"))
-                    setting.Format = "dd-MMM-yyyy hh:mm";
+                    setting.Format = "dd-MMM-yyyy hh:mm tt";
                 else
                     setting.Format = "dd-MMM-yyyy";
             }
@@ -228,7 +223,7 @@ public static class ExcelReportExportUtil
             else if (propType == typeof(TimeOnly))
             {
                 setting.Alignment = ExcelHAlign.HAlignCenter;
-                setting.Format = "hh:mm";
+                setting.Format = "hh:mm tt";
             }
             // Boolean type
             else if (propType == typeof(bool))
@@ -345,7 +340,7 @@ public static class ExcelReportExportUtil
                         break;
                     }
                     // For non-numeric types, if it's not null, it has a value
-                    else if (!(value is decimal or double or float or int or long))
+                    else if (!(value is decimal || value is double || value is float || value is int || value is long))
                     {
                         // For strings, check if not empty
                         if (value is string strValue)
@@ -385,8 +380,7 @@ public static class ExcelReportExportUtil
         int columnCount,
         DateOnly? dateRangeStart,
         DateOnly? dateRangeEnd,
-        string locationName = null,
-        string partyName = null)
+        Dictionary<string, string> headerMetadata = null)
     {
         // Set column range based on data width
         string colLetter = GetExcelColumnName(columnCount);
@@ -422,37 +416,30 @@ public static class ExcelReportExportUtil
             currentRow++;
         }
 
-        // Additional info if available (location, ledger, etc.)
-        if (!string.IsNullOrEmpty(locationName))
+        // Additional metadata info if available (location, party, etc.)
+        if (headerMetadata != null && headerMetadata.Count != 0)
         {
-            IRange locationRange = worksheet.Range[$"A{currentRow}:{colLetter}{currentRow}"];
-            locationRange.Merge();
-            locationRange.Text = $"Location: {locationName}";
-            locationRange.CellStyle.Font.Size = 11;
-            locationRange.CellStyle.Font.FontName = "Calibri";
-            locationRange.CellStyle.Font.Bold = true;
-            locationRange.CellStyle.HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            locationRange.CellStyle.Font.RGBColor = Color.FromArgb(100, 116, 139); // Slate gray
-            currentRow++;
-        }
-
-        if (!string.IsNullOrEmpty(partyName))
-        {
-            IRange partyRange = worksheet.Range[$"A{currentRow}:{colLetter}{currentRow}"];
-            partyRange.Merge();
-            partyRange.Text = $"Party: {partyName}";
-            partyRange.CellStyle.Font.Size = 11;
-            partyRange.CellStyle.Font.FontName = "Calibri";
-            partyRange.CellStyle.Font.Bold = true;
-            partyRange.CellStyle.HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            partyRange.CellStyle.Font.RGBColor = Color.FromArgb(100, 116, 139); // Slate gray
-            currentRow++;
+            foreach (var metadata in headerMetadata)
+            {
+                if (!string.IsNullOrEmpty(metadata.Value))
+                {
+                    IRange metadataRange = worksheet.Range[$"A{currentRow}:{colLetter}{currentRow}"];
+                    metadataRange.Merge();
+                    metadataRange.Text = $"{metadata.Key}: {metadata.Value}";
+                    metadataRange.CellStyle.Font.Size = 11;
+                    metadataRange.CellStyle.Font.FontName = "Calibri";
+                    metadataRange.CellStyle.Font.Bold = true;
+                    metadataRange.CellStyle.HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    metadataRange.CellStyle.Font.RGBColor = Color.FromArgb(100, 116, 139); // Slate gray
+                    currentRow++;
+                }
+            }
         }
 
         // Company Name
         IRange companyRange = worksheet.Range[$"A{currentRow}:{colLetter}{currentRow}"];
         companyRange.Merge();
-        companyRange.Text = "Prime Bakes";
+        companyRange.Text = Secrets.DatabaseName;
         companyRange.CellStyle.Font.Size = 14;
         companyRange.CellStyle.Font.FontName = "Calibri";
         companyRange.CellStyle.Font.Bold = true;
@@ -722,7 +709,7 @@ public static class ExcelReportExportUtil
         }
 
         // Add custom summary fields if provided
-        if (customSummaryFields is { Count: > 0 })
+        if (customSummaryFields != null && customSummaryFields.Count > 0)
         {
             rowIndex += 1; // Add spacing
 
@@ -819,9 +806,9 @@ public static class ExcelReportExportUtil
                 }
             }
 
-			// Add footer with AadiSoft branding, date and page numbers
-			var currentDateTime = await CommonData.LoadCurrentDateTime();
-			worksheet.PageSetup.LeftFooter = $"© {currentDateTime.Year} A Product By AadiSoft";
+            // Add footer with AadiSoft branding, date and page numbers
+            var currentDateTime = await CommonData.LoadCurrentDateTime();
+            worksheet.PageSetup.LeftFooter = $"© {currentDateTime.Year} A Product By AadiSoft";
             worksheet.PageSetup.CenterFooter = $"Exported on: {currentDateTime:dd-MMM-yyyy hh:mm tt}";
             worksheet.PageSetup.RightFooter = "Page &P of &N";
 

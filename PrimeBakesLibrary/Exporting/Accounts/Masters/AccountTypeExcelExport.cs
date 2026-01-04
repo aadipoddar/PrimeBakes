@@ -1,21 +1,13 @@
-﻿using PrimeBakesLibrary.Exporting.Utils;
+﻿using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 
 namespace PrimeBakesLibrary.Exporting.Accounts.Masters;
 
-/// <summary>
-/// Excel export functionality for Account Type
-/// </summary>
 public static class AccountTypeExcelExport
 {
-	/// <summary>
-	/// Export Account Type data to Excel with custom column order and formatting
-	/// </summary>
-	/// <param name="accountTypeData">Collection of account type records</param>
-	/// <returns>MemoryStream containing the Excel file</returns>
-	public static async Task<MemoryStream> ExportAccountType(IEnumerable<AccountTypeModel> accountTypeData)
+	public static async Task<(MemoryStream stream, string fileName)> ExportMaster(IEnumerable<AccountTypeModel> accountTypeData)
 	{
-		// Create enriched data with status formatting
 		var enrichedData = accountTypeData.Select(accountType => new
 		{
 			accountType.Id,
@@ -24,21 +16,17 @@ public static class AccountTypeExcelExport
 			Status = accountType.Status ? "Active" : "Deleted"
 		});
 
-		// Define custom column settings
 		var columnSettings = new Dictionary<string, ExcelReportExportUtil.ColumnSetting>
 		{
-			// ID - Center aligned, no totals
 			[nameof(AccountTypeModel.Id)] = new() { DisplayName = "ID", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
 
-			// Text fields - Left aligned
 			[nameof(AccountTypeModel.Name)] = new() { DisplayName = "Account Type Name", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IsRequired = true },
 			[nameof(AccountTypeModel.Remarks)] = new() { DisplayName = "Remarks", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
 
-			// Status - Center aligned
 			[nameof(AccountTypeModel.Status)] = new() { DisplayName = "Status", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false }
 		};
 
-		// Define column order
+
 		List<string> columnOrder =
 		[
 			nameof(AccountTypeModel.Id),
@@ -47,8 +35,7 @@ public static class AccountTypeExcelExport
 			nameof(AccountTypeModel.Status)
 		];
 
-		// Call the generic Excel export utility
-		return await ExcelReportExportUtil.ExportToExcel(
+		var stream = await ExcelReportExportUtil.ExportToExcel(
 			enrichedData,
 			"ACCOUNT TYPE",
 			"Account Type Data",
@@ -57,5 +44,9 @@ public static class AccountTypeExcelExport
 			columnSettings,
 			columnOrder
 		);
+
+		var currentDateTime = await CommonData.LoadCurrentDateTime();
+		var fileName = $"Account_Type_Master_{currentDateTime:yyyyMMdd_HHmmss}.xlsx";
+		return (stream, fileName);
 	}
 }

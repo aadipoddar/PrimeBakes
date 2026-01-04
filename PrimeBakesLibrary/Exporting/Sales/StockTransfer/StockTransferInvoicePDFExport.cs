@@ -2,158 +2,108 @@
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Sales.Product;
 using PrimeBakesLibrary.Models.Sales.StockTransfer;
 
 namespace PrimeBakesLibrary.Exporting.Sales.StockTransfer;
 
-/// <summary>
-/// Convert Stock Transfer data to Invoice PDF format
-/// </summary>
 public static class StockTransferInvoicePDFExport
 {
-    /// <summary>
-    /// Export Stock Transfer as a professional invoice PDF (automatically loads item names and location details from ledger)
-    /// </summary>
-    /// <param name="stockTransferHeader">Stock Transfer header data</param>
-    /// <param name="stockTransferDetails">Stock Transfer detail line items</param>
-    /// <param name="company">Company information</param>
-    /// <param name="logoPath">Optional: Path to company logo</param>
-    /// <param name="invoiceType">Type of document (STOCK TRANSFER INVOICE, etc.)</param>
-    /// <returns>MemoryStream containing the PDF file</returns>
-    public static async Task<MemoryStream> ExportStockTransferInvoice(
-        StockTransferModel stockTransferHeader,
-        List<StockTransferDetailModel> stockTransferDetails,
-        CompanyModel company,
-        string logoPath = null,
-        string invoiceType = "STOCK TRANSFER INVOICE")
+    public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId)
     {
-        // Load From Location (source) and To Location (destination) ledgers
-        var fromLocationLedger = await LedgerData.LoadLedgerByLocation(stockTransferHeader.LocationId);
-        var toLocationLedger = await LedgerData.LoadLedgerByLocation(stockTransferHeader.ToLocationId);
+        var transaction = await CommonData.LoadTableDataById<StockTransferModel>(TableNames.StockTransfer, transactionId) ??
+            throw new InvalidOperationException("Transaction not found.");
 
-        // Load all items to get names
+        var transactionDetails = await CommonData.LoadTableDataByMasterId<StockTransferDetailModel>(TableNames.StockTransferDetail, transaction.Id);
+        if (transactionDetails is null || transactionDetails.Count == 0)
+            throw new InvalidOperationException("No transaction details found for the transaction.");
+
+        var company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, transaction.CompanyId) ??
+            throw new InvalidOperationException("Company information is missing.");
+
+        var fromLocation = await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, transaction.LocationId);
+        var toLocationLedger = await LedgerData.LoadLedgerByLocation(transaction.ToLocationId);
+
         var allItems = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
 
-        // Map line items with actual item names
-        var lineItems = stockTransferDetails.Select(detail =>
+        var cartItems = transactionDetails.Select(detail =>
         {
             var item = allItems.FirstOrDefault(i => i.Id == detail.ProductId);
-            string itemName = item?.Name ?? $"Item #{detail.ProductId}";
-
-            return new PDFInvoiceExportUtil.InvoiceLineItem
+            return new StockTransferItemCartModel
             {
                 ItemId = detail.ProductId,
-                ItemName = itemName,
+                ItemName = item?.Name ?? $"Item #{detail.ProductId}",
                 Quantity = detail.Quantity,
                 Rate = detail.Rate,
+                BaseTotal = detail.BaseTotal,
                 DiscountPercent = detail.DiscountPercent,
+                DiscountAmount = detail.DiscountAmount,
                 AfterDiscount = detail.AfterDiscount,
                 CGSTPercent = detail.InclusiveTax ? 0 : detail.CGSTPercent,
+                CGSTAmount = detail.InclusiveTax ? 0 : detail.CGSTAmount,
                 SGSTPercent = detail.InclusiveTax ? 0 : detail.SGSTPercent,
+                SGSTAmount = detail.InclusiveTax ? 0 : detail.SGSTAmount,
                 IGSTPercent = detail.InclusiveTax ? 0 : detail.IGSTPercent,
+                IGSTAmount = detail.InclusiveTax ? 0 : detail.IGSTAmount,
                 TotalTaxAmount = detail.InclusiveTax ? 0 : detail.TotalTaxAmount,
+                InclusiveTax = detail.InclusiveTax,
                 Total = detail.Total
             };
         }).ToList();
 
-        // Map invoice header data
+        var paymentModes = new Dictionary<string, decimal>();
+        if (transaction.Cash > 0) paymentModes.Add("Cash", transaction.Cash);
+        if (transaction.Card > 0) paymentModes.Add("Card", transaction.Card);
+        if (transaction.UPI > 0) paymentModes.Add("UPI", transaction.UPI);
+        if (transaction.Credit > 0) paymentModes.Add("Credit", transaction.Credit);
+
         var invoiceData = new PDFInvoiceExportUtil.InvoiceData
         {
-            TransactionNo = stockTransferHeader.TransactionNo,
-            TransactionDateTime = stockTransferHeader.TransactionDateTime,
-            ItemsTotalAmount = stockTransferHeader.TotalAfterTax,
-            OtherChargesAmount = stockTransferHeader.OtherChargesAmount,
-            OtherChargesPercent = stockTransferHeader.OtherChargesPercent,
-            CashDiscountAmount = stockTransferHeader.DiscountAmount,
-            CashDiscountPercent = stockTransferHeader.DiscountPercent,
-            RoundOffAmount = stockTransferHeader.RoundOffAmount,
-            TotalAmount = stockTransferHeader.TotalAmount,
-            Cash = stockTransferHeader.Cash,
-            Card = stockTransferHeader.Card,
-            UPI = stockTransferHeader.UPI,
-            Credit = stockTransferHeader.Credit,
-            Remarks = stockTransferHeader.Remarks,
-            Status = stockTransferHeader.Status
+            Company = company,
+            BillTo = toLocationLedger,
+            InvoiceType = "STOCK TRANSFER INVOICE",
+            Outlet = fromLocation?.Name,
+            TransactionNo = transaction.TransactionNo,
+            TransactionDateTime = transaction.TransactionDateTime,
+            TotalAmount = transaction.TotalAmount,
+            Remarks = transaction.Remarks,
+            Status = transaction.Status,
+            PaymentModes = paymentModes
         };
 
-        // Generate invoice PDF - From Location is the source, To Location is the destination
-        return await PDFInvoiceExportUtil.ExportInvoiceToPdf(
-            invoiceData,
-            lineItems,
-            company,
-            toLocationLedger, // Bill To = To Location (destination)
-            logoPath,
-            invoiceType,
-            fromLocationLedger?.Name // Outlet = From Location (source)
-        );
-    }
-
-    /// <summary>
-    /// Export Stock Transfer with item names already loaded (requires StockTransferItemCartModel data)
-    /// </summary>
-    /// <param name="stockTransferHeader">Stock Transfer header data</param>
-    /// <param name="stockTransferItems">Stock Transfer items with names already loaded</param>
-    /// <param name="company">Company information</param>
-    /// <param name="logoPath">Optional: Path to company logo</param>
-    /// <param name="invoiceType">Type of document (STOCK TRANSFER INVOICE, etc.)</param>
-    /// <returns>MemoryStream containing the PDF file</returns>
-    public static async Task<MemoryStream> ExportStockTransferInvoiceWithItems(
-        StockTransferModel stockTransferHeader,
-        List<StockTransferItemCartModel> stockTransferItems,
-        CompanyModel company,
-        string logoPath = null,
-        string invoiceType = "STOCK TRANSFER INVOICE")
-    {
-        // Load From Location (source) and To Location (destination) ledgers
-        var fromLocationLedger = await LedgerData.LoadLedgerByLocation(stockTransferHeader.LocationId);
-        var toLocationLedger = await LedgerData.LoadLedgerByLocation(stockTransferHeader.ToLocationId);
-
-        // Map line items to generic model
-        var lineItems = stockTransferItems.Select(item => new PDFInvoiceExportUtil.InvoiceLineItem
+        var summaryFields = new Dictionary<string, string>
         {
-            ItemId = item.ItemId,
-            ItemName = item.ItemName,
-            Quantity = item.Quantity,
-            Rate = item.Rate,
-            DiscountPercent = item.DiscountPercent,
-            AfterDiscount = item.AfterDiscount,
-            CGSTPercent = item.InclusiveTax ? 0 : item.CGSTPercent,
-            SGSTPercent = item.InclusiveTax ? 0 : item.SGSTPercent,
-            IGSTPercent = item.InclusiveTax ? 0 : item.IGSTPercent,
-            TotalTaxAmount = item.InclusiveTax ? 0 : item.TotalTaxAmount,
-            Total = item.Total
-        }).ToList();
-
-        // Map invoice header data
-        var invoiceData = new PDFInvoiceExportUtil.InvoiceData
-        {
-            TransactionNo = stockTransferHeader.TransactionNo,
-            TransactionDateTime = stockTransferHeader.TransactionDateTime,
-            ItemsTotalAmount = stockTransferHeader.TotalAfterTax,
-            OtherChargesAmount = stockTransferHeader.OtherChargesAmount,
-            OtherChargesPercent = stockTransferHeader.OtherChargesPercent,
-            CashDiscountAmount = stockTransferHeader.DiscountAmount,
-            CashDiscountPercent = stockTransferHeader.DiscountPercent,
-            RoundOffAmount = stockTransferHeader.RoundOffAmount,
-            TotalAmount = stockTransferHeader.TotalAmount,
-            Cash = stockTransferHeader.Cash,
-            Card = stockTransferHeader.Card,
-            UPI = stockTransferHeader.UPI,
-            Credit = stockTransferHeader.Credit,
-            Remarks = stockTransferHeader.Remarks,
-            Status = stockTransferHeader.Status
+            ["Sub Total"] = transaction.TotalAfterTax.FormatIndianCurrency(),
+            [$"Other Charges ({transaction.OtherChargesPercent:0.00}%)"] = transaction.OtherChargesAmount.FormatIndianCurrency(),
+            [$"Discount ({transaction.DiscountPercent:0.00}%)"] = transaction.DiscountAmount.FormatIndianCurrency(),
+            ["Round Off"] = transaction.RoundOffAmount.FormatIndianCurrency(),
+            ["Grand Total"] = transaction.TotalAmount.FormatIndianCurrency()
         };
 
-        // Generate invoice PDF - From Location is the source, To Location is the destination
-        return await PDFInvoiceExportUtil.ExportInvoiceToPdf(
+        var columnSettings = new List<PDFInvoiceExportUtil.InvoiceColumnSetting>
+        {
+            new("#", "#", 30, Syncfusion.Pdf.Graphics.PdfTextAlignment.Center),
+            new(nameof(StockTransferItemCartModel.ItemName), "Item", 150, Syncfusion.Pdf.Graphics.PdfTextAlignment.Left),
+            new(nameof(StockTransferItemCartModel.Quantity), "Qty", 50, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00"),
+            new(nameof(StockTransferItemCartModel.Rate), "Rate", 60, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00"),
+            new(nameof(StockTransferItemCartModel.BaseTotal), "Amount", 60, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00"),
+            new(nameof(StockTransferItemCartModel.DiscountPercent), "Disc %", 45, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00"),
+            new(nameof(StockTransferItemCartModel.AfterDiscount), "Taxable", 60, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00"),
+            new(nameof(StockTransferItemCartModel.TotalTaxAmount), "Tax", 60, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00"),
+            new(nameof(StockTransferItemCartModel.Total), "Total", 80, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00")
+        };
+
+        var stream = await PDFInvoiceExportUtil.ExportInvoiceToPdf(
             invoiceData,
-            lineItems,
-            company,
-            toLocationLedger, // Bill To = To Location (destination)
-            logoPath,
-            invoiceType,
-            fromLocationLedger?.Name // Outlet = From Location (source)
+            cartItems,
+            columnSettings,
+            null,
+            summaryFields
         );
+
+        var currentDateTime = await CommonData.LoadCurrentDateTime();
+        string fileName = $"STOCK_TRANSFER_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
+        return (stream, fileName);
     }
 }

@@ -1,21 +1,13 @@
-﻿using PrimeBakesLibrary.Exporting.Utils;
+﻿using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Sales.Product;
 
 namespace PrimeBakesLibrary.Exporting.Sales.Product;
 
-/// <summary>
-/// Excel export functionality for Product Category
-/// </summary>
 public static class ProductCategoryExcelExport
 {
-	/// <summary>
-	/// Export Product Category data to Excel with custom column order and formatting
-	/// </summary>
-	/// <param name="productCategoryData">Collection of product category records</param>
-	/// <returns>MemoryStream containing the Excel file</returns>
-	public static async Task<MemoryStream> ExportProductCategory(IEnumerable<ProductCategoryModel> productCategoryData)
+	public static async Task<(MemoryStream stream, string fileName)> ExportMaster(IEnumerable<ProductCategoryModel> productCategoryData)
 	{
-		// Create enriched data with status formatting
 		var enrichedData = productCategoryData.Select(productCategory => new
 		{
 			productCategory.Id,
@@ -24,21 +16,14 @@ public static class ProductCategoryExcelExport
 			Status = productCategory.Status ? "Active" : "Deleted"
 		});
 
-		// Define custom column settings
 		var columnSettings = new Dictionary<string, ExcelReportExportUtil.ColumnSetting>
 		{
-			// ID - Center aligned, no totals
 			[nameof(ProductCategoryModel.Id)] = new() { DisplayName = "ID", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
-
-			// Text fields - Left aligned
 			[nameof(ProductCategoryModel.Name)] = new() { DisplayName = "Product Category Name", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IsRequired = true },
 			[nameof(ProductCategoryModel.Remarks)] = new() { DisplayName = "Remarks", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-
-			// Status - Center aligned
 			[nameof(ProductCategoryModel.Status)] = new() { DisplayName = "Status", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false }
 		};
 
-		// Define column order
 		List<string> columnOrder =
 		[
 			nameof(ProductCategoryModel.Id),
@@ -47,8 +32,7 @@ public static class ProductCategoryExcelExport
 			nameof(ProductCategoryModel.Status)
 		];
 
-		// Call the generic Excel export utility
-		return await ExcelReportExportUtil.ExportToExcel(
+		var stream = await ExcelReportExportUtil.ExportToExcel(
 			enrichedData,
 			"PRODUCT CATEGORY",
 			"Product Category Data",
@@ -57,5 +41,9 @@ public static class ProductCategoryExcelExport
 			columnSettings,
 			columnOrder
 		);
+
+		var currentDateTime = await CommonData.LoadCurrentDateTime();
+		var fileName = $"ProductCategory_Master_{currentDateTime:yyyyMMdd_HHmmss}.xlsx";
+		return (stream, fileName);
 	}
 }

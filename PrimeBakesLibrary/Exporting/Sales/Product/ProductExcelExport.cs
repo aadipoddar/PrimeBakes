@@ -1,21 +1,13 @@
-﻿using PrimeBakesLibrary.Exporting.Utils;
+﻿using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Sales.Product;
 
 namespace PrimeBakesLibrary.Exporting.Sales.Product;
 
-/// <summary>
-/// Excel export functionality for Product
-/// </summary>
 public static class ProductExcelExport
 {
-	/// <summary>
-	/// Export Product data to Excel with custom column order and formatting
-	/// </summary>
-	/// <param name="productData">Collection of product records with enriched category and tax information</param>
-	/// <returns>MemoryStream containing the Excel file</returns>
-	public static async Task<MemoryStream> ExportProduct<T>(IEnumerable<T> productData)
+	public static async Task<(MemoryStream stream, string fileName)> ExportMaster<T>(IEnumerable<T> productData)
 	{
-		// Create enriched data with status formatting
 		var formattedData = productData.Select(product =>
 		{
 			var props = typeof(T).GetProperties();
@@ -41,27 +33,18 @@ public static class ProductExcelExport
 			};
 		});
 
-		// Define custom column settings
 		var columnSettings = new Dictionary<string, ExcelReportExportUtil.ColumnSetting>
 		{
-			// ID - Center aligned, no totals
 			[nameof(ProductModel.Id)] = new() { DisplayName = "ID", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
-
-			// Text fields - Left aligned
 			[nameof(ProductModel.Name)] = new() { DisplayName = "Product Name", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IsRequired = true },
 			[nameof(ProductModel.Code)] = new() { DisplayName = "Product Code", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IsRequired = true },
 			["Category"] = new() { DisplayName = "Category", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
 			["Tax"] = new() { DisplayName = "Tax", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
 			[nameof(ProductModel.Remarks)] = new() { DisplayName = "Remarks", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-
-			// Numeric fields - Right aligned
 			[nameof(ProductModel.Rate)] = new() { DisplayName = "Rate", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignRight, Format = "0.00" },
-
-			// Status - Center aligned
 			[nameof(ProductModel.Status)] = new() { DisplayName = "Status", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false }
 		};
 
-		// Define column order
 		List<string> columnOrder =
 		[
 			nameof(ProductModel.Id),
@@ -74,8 +57,7 @@ public static class ProductExcelExport
 			nameof(ProductModel.Status)
 		];
 
-		// Call the generic Excel export utility
-		return await ExcelReportExportUtil.ExportToExcel(
+		var stream = await ExcelReportExportUtil.ExportToExcel(
 			formattedData,
 			"PRODUCT MASTER",
 			"Product Data",
@@ -84,5 +66,9 @@ public static class ProductExcelExport
 			columnSettings,
 			columnOrder
 		);
+
+		var currentDateTime = await CommonData.LoadCurrentDateTime();
+		var fileName = $"Product_Master_{currentDateTime:yyyyMMdd_HHmmss}.xlsx";
+		return (stream, fileName);
 	}
 }

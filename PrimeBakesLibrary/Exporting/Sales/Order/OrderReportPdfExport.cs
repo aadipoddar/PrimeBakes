@@ -1,39 +1,61 @@
-﻿using PrimeBakesLibrary.Models.Sales.Order;
+﻿using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Models.Common;
+using PrimeBakesLibrary.Models.Sales.Order;
 
 namespace PrimeBakesLibrary.Exporting.Sales.Order;
 
-/// <summary>
-/// PDF export functionality for Order Report
-/// </summary>
 public static class OrderReportPdfExport
 {
-	/// <summary>
-	/// Export Order Report to PDF with custom column order and formatting
-	/// </summary>
-	/// <param name="orderData">Collection of order overview records</param>
-	/// <param name="dateRangeStart">Start date of the report</param>
-	/// <param name="dateRangeEnd">End date of the report</param>
-	/// <param name="showAllColumns">Whether to include all columns or just summary columns</param>
-	/// <param name="showLocation">Whether to include location column</param>
-	/// <param name="locationName">Name of the location for report header</param>
-	/// <param name="showSummary">Whether to show summary view with grouped data</param>
-	/// <returns>MemoryStream containing the PDF file</returns>
-	public static async Task<MemoryStream> ExportOrderReport(
+	public static async Task<(MemoryStream stream, string fileName)> ExportReport(
 		IEnumerable<OrderOverviewModel> orderData,
 		DateOnly? dateRangeStart = null,
 		DateOnly? dateRangeEnd = null,
 		bool showAllColumns = true,
-		bool showLocation = false,
-		string locationName = null,
-		bool showSummary = false)
+		bool showSummary = false,
+		CompanyModel company = null,
+		LocationModel location = null)
 	{
-		// Define custom column settings matching Excel export
-		var columnSettings = new Dictionary<string, PDFReportExportUtil.ColumnSetting>();
+		var columnSettings = new Dictionary<string, PDFReportExportUtil.ColumnSetting>
+		{
+			[nameof(OrderOverviewModel.TransactionNo)] = new() { DisplayName = "Trans No", IncludeInTotal = false },
+			[nameof(OrderOverviewModel.SaleTransactionNo)] = new() { DisplayName = "Sale Trans No", IncludeInTotal = false },
+			[nameof(OrderOverviewModel.CompanyName)] = new() { DisplayName = "Company", IncludeInTotal = false },
+			[nameof(OrderOverviewModel.LocationName)] = new() { DisplayName = "Location", IncludeInTotal = false },
+			[nameof(OrderOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm tt", IncludeInTotal = false },
+			[nameof(OrderOverviewModel.SaleDateTime)] = new() { DisplayName = "Sale Date", Format = "dd-MMM-yyyy hh:mm tt", IncludeInTotal = false },
+			[nameof(OrderOverviewModel.FinancialYear)] = new() { DisplayName = "Financial Year", IncludeInTotal = false },
+			[nameof(OrderOverviewModel.Remarks)] = new() { DisplayName = "Remarks", IncludeInTotal = false },
+			[nameof(OrderOverviewModel.CreatedByName)] = new() { DisplayName = "Created By", IncludeInTotal = false },
+			[nameof(OrderOverviewModel.CreatedAt)] = new() { DisplayName = "Created At", Format = "dd-MMM-yyyy hh:mm", IncludeInTotal = false },
+			[nameof(OrderOverviewModel.CreatedFromPlatform)] = new() { DisplayName = "Created Platform", IncludeInTotal = false },
+			[nameof(OrderOverviewModel.LastModifiedByUserName)] = new() { DisplayName = "Modified By", IncludeInTotal = false },
+			[nameof(OrderOverviewModel.LastModifiedAt)] = new() { DisplayName = "Modified At", Format = "dd-MMM-yyyy hh:mm", IncludeInTotal = false },
+			[nameof(OrderOverviewModel.LastModifiedFromPlatform)] = new() { DisplayName = "Modified Platform", IncludeInTotal = false },
+			[nameof(OrderOverviewModel.TotalItems)] = new()
+			{
+				DisplayName = "Items",
+				Format = "#,##0",
+				StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
+				{
+					Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
+					LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
+				}
+			},
+			[nameof(OrderOverviewModel.TotalQuantity)] = new()
+			{
+				DisplayName = "Qty",
+				Format = "#,##0.00",
+				StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
+				{
+					Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
+					LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
+				}
+			}
+		};
 
-		// Define column order based on visibility setting (matching Excel export)
 		List<string> columnOrder;
 
-		// Summary view - grouped by location with totals
 		if (showSummary)
 			columnOrder =
 			[
@@ -41,24 +63,14 @@ public static class OrderReportPdfExport
 				nameof(OrderOverviewModel.TotalItems),
 				nameof(OrderOverviewModel.TotalQuantity)
 			];
-
 		else if (showAllColumns)
 		{
-			// All columns - detailed view (matching Excel export)
 			columnOrder =
 			[
 				nameof(OrderOverviewModel.TransactionNo),
 				nameof(OrderOverviewModel.SaleTransactionNo),
-				nameof(OrderOverviewModel.CompanyName)
-			];
-
-			// Add location columns if showLocation is true
-			if (showLocation)
-				columnOrder.Add(nameof(OrderOverviewModel.LocationName));
-
-			// Continue with remaining columns
-			columnOrder.AddRange(
-			[
+				nameof(OrderOverviewModel.CompanyName),
+				nameof(OrderOverviewModel.LocationName),
 				nameof(OrderOverviewModel.TransactionDateTime),
 				nameof(OrderOverviewModel.SaleDateTime),
 				nameof(OrderOverviewModel.FinancialYear),
@@ -70,10 +82,9 @@ public static class OrderReportPdfExport
 				nameof(OrderOverviewModel.CreatedFromPlatform),
 				nameof(OrderOverviewModel.LastModifiedByUserName),
 				nameof(OrderOverviewModel.LastModifiedAt),
-				nameof(OrderOverviewModel.LastModifiedFromPlatform),
-			]);
+				nameof(OrderOverviewModel.LastModifiedFromPlatform)
+			];
 		}
-		// Summary columns - key fields only (matching Excel export)
 		else
 		{
 			columnOrder =
@@ -82,61 +93,33 @@ public static class OrderReportPdfExport
 				nameof(OrderOverviewModel.SaleTransactionNo),
 				nameof(OrderOverviewModel.TransactionDateTime),
 				nameof(OrderOverviewModel.TotalItems),
-				nameof(OrderOverviewModel.TotalQuantity),
+				nameof(OrderOverviewModel.TotalQuantity)
 			];
-
-			if (showLocation)
-				columnOrder.Insert(2, nameof(OrderOverviewModel.LocationName));
 		}
 
-		// Customize specific columns for PDF display (matching Excel column names)
-		columnSettings[nameof(OrderOverviewModel.TransactionNo)] = new() { DisplayName = "Trans No", IncludeInTotal = false };
-		columnSettings[nameof(OrderOverviewModel.SaleTransactionNo)] = new() { DisplayName = "Sale Trans No", IncludeInTotal = false };
-		columnSettings[nameof(OrderOverviewModel.CompanyName)] = new() { DisplayName = "Company", IncludeInTotal = false };
-		columnSettings[nameof(OrderOverviewModel.LocationName)] = new() { DisplayName = "Location", IncludeInTotal = false };
-		columnSettings[nameof(OrderOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm tt", IncludeInTotal = false };
-		columnSettings[nameof(OrderOverviewModel.SaleDateTime)] = new() { DisplayName = "Sale Date", Format = "dd-MMM-yyyy hh:mm tt", IncludeInTotal = false };
-		columnSettings[nameof(OrderOverviewModel.FinancialYear)] = new() { DisplayName = "Financial Year", IncludeInTotal = false };
-		columnSettings[nameof(OrderOverviewModel.Remarks)] = new() { DisplayName = "Remarks", IncludeInTotal = false };
-		columnSettings[nameof(OrderOverviewModel.CreatedByName)] = new() { DisplayName = "Created By", IncludeInTotal = false };
-		columnSettings[nameof(OrderOverviewModel.CreatedAt)] = new() { DisplayName = "Created At", Format = "dd-MMM-yyyy hh:mm", IncludeInTotal = false };
-		columnSettings[nameof(OrderOverviewModel.CreatedFromPlatform)] = new() { DisplayName = "Created Platform", IncludeInTotal = false };
-		columnSettings[nameof(OrderOverviewModel.LastModifiedByUserName)] = new() { DisplayName = "Modified By", IncludeInTotal = false };
-		columnSettings[nameof(OrderOverviewModel.LastModifiedAt)] = new() { DisplayName = "Modified At", Format = "dd-MMM-yyyy hh:mm", IncludeInTotal = false };
-		columnSettings[nameof(OrderOverviewModel.LastModifiedFromPlatform)] = new() { DisplayName = "Modified Platform", IncludeInTotal = false };
+		if (company is not null)
+			columnOrder.Remove(nameof(OrderOverviewModel.CompanyName));
 
-		columnSettings[nameof(OrderOverviewModel.TotalItems)] = new()
-		{
-			DisplayName = "Items",
-			Format = "#,##0",
-			StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
-			{
-				Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
-				LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
-			}
-		};
+		if (location is not null)
+			columnOrder.Remove(nameof(OrderOverviewModel.LocationName));
 
-		columnSettings[nameof(OrderOverviewModel.TotalQuantity)] = new()
-		{
-			DisplayName = "Qty",
-			Format = "#,##0.00",
-			StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
-			{
-				Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
-				LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
-			}
-		};
-
-		// Call the generic PDF export utility with landscape mode for all columns
-		return await PDFReportExportUtil.ExportToPdf(
+		var stream = await PDFReportExportUtil.ExportToPdf(
 			orderData,
 			"ORDER REPORT",
 			dateRangeStart,
 			dateRangeEnd,
 			columnSettings,
 			columnOrder,
-			useLandscape: showAllColumns && !showSummary,  // Use landscape when showing all columns
-			locationName: locationName
+			useBuiltInStyle: false,
+			useLandscape: showAllColumns && !showSummary,
+			new() { ["Company"] = company?.Name ?? null, ["Location"] = location?.Name ?? null }
 		);
+
+		string fileName = "ORDER_REPORT";
+		if (dateRangeStart.HasValue || dateRangeEnd.HasValue)
+			fileName += $"_{dateRangeStart?.ToString("yyyyMMdd") ?? "START"}_to_{dateRangeEnd?.ToString("yyyyMMdd") ?? "END"}";
+		fileName += ".pdf";
+
+		return (stream, fileName);
 	}
 }

@@ -1,19 +1,12 @@
+using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Inventory;
 
 namespace PrimeBakesLibrary.Exporting.Inventory.RawMaterial;
 
-/// <summary>
-/// Excel export functionality for Raw Material
-/// </summary>
 public static class RawMaterialExcelExport
 {
-    /// <summary>
-    /// Export Raw Material data to Excel with custom column order and formatting
-    /// </summary>
-    /// <param name="rawMaterialData">Collection of raw material records</param>
-    /// <returns>MemoryStream containing the Excel file</returns>
-    public static async Task<MemoryStream> ExportRawMaterial<T>(IEnumerable<T> rawMaterialData)
+    public static async Task<(MemoryStream stream, string fileName)> ExportMaster<T>(IEnumerable<T> rawMaterialData)
     {
         // Create enriched data with status formatting
         var enrichedData = rawMaterialData.Select(rm =>
@@ -46,31 +39,19 @@ public static class RawMaterialExcelExport
         // Define custom column settings
         var columnSettings = new Dictionary<string, ExcelReportExportUtil.ColumnSetting>
         {
-            // ID - Center aligned, no totals
             [nameof(RawMaterialModel.Id)] = new() { DisplayName = "ID", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
 
-            // Name - Left aligned
             [nameof(RawMaterialModel.Name)] = new() { DisplayName = "Raw Material Name", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IsRequired = true },
-
-            // Code - Left aligned
             [nameof(RawMaterialModel.Code)] = new() { DisplayName = "Code", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IsRequired = true },
-
-            // Category - Left aligned
             ["Category"] = new() { DisplayName = "Category", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
 
-            // Rate - Right aligned with 2 decimal places
             [nameof(RawMaterialModel.Rate)] = new() { DisplayName = "Rate", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignRight, Format = "0.00", IncludeInTotal = false },
 
-            // Unit - Center aligned
             [nameof(RawMaterialModel.UnitOfMeasurement)] = new() { DisplayName = "Unit", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
-
-            // Tax - Center aligned
             ["Tax"] = new() { DisplayName = "Tax Code", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
 
-            // Remarks - Left aligned
             [nameof(RawMaterialModel.Remarks)] = new() { DisplayName = "Remarks", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
 
-            // Status - Center aligned
             [nameof(RawMaterialModel.Status)] = new() { DisplayName = "Status", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false }
         };
 
@@ -80,7 +61,7 @@ public static class RawMaterialExcelExport
             nameof(RawMaterialModel.Id),
             nameof(RawMaterialModel.Name),
             nameof(RawMaterialModel.Code),
-			"Category",
+            "Category",
             nameof(RawMaterialModel.Rate),
             nameof(RawMaterialModel.UnitOfMeasurement),
             "Tax",
@@ -88,8 +69,7 @@ public static class RawMaterialExcelExport
             nameof(RawMaterialModel.Status)
         ];
 
-        // Call the generic Excel export utility
-        return await ExcelReportExportUtil.ExportToExcel(
+        var stream = await ExcelReportExportUtil.ExportToExcel(
             enrichedData,
             "RAW MATERIAL MASTER",
             "Raw Material Data",
@@ -98,5 +78,9 @@ public static class RawMaterialExcelExport
             columnSettings,
             columnOrder
         );
+
+        var currentDateTime = await CommonData.LoadCurrentDateTime();
+        var fileName = $"RawMaterial_Master_{currentDateTime:yyyyMMdd_HHmmss}.xlsx";
+        return (stream, fileName);
     }
 }

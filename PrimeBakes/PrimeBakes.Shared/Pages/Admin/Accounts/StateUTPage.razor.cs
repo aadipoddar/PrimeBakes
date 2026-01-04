@@ -50,11 +50,12 @@ public partial class StateUTPage : IAsyncDisposable
     {
         _hotKeysContext = HotKeys.CreateContext()
             .Add(ModCode.Ctrl, Code.S, SaveStateUT, "Save", Exclude.None)
-            .Add(ModCode.Ctrl, Code.N, () => NavigationManager.NavigateTo(PageRouteNames.AdminStateUT, true), "New", Exclude.None)
             .Add(ModCode.Ctrl, Code.E, ExportExcel, "Export Excel", Exclude.None)
             .Add(ModCode.Ctrl, Code.P, ExportPdf, "Export PDF", Exclude.None)
-            .Add(ModCode.Ctrl, Code.D, () => NavigationManager.NavigateTo(PageRouteNames.Dashboard), "Dashboard", Exclude.None)
-            .Add(ModCode.Ctrl, Code.B, () => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard), "Back", Exclude.None)
+            .Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
+            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
+            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
+            .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Dashboard", Exclude.None)
             .Add(Code.Insert, EditSelectedItem, "Edit selected", Exclude.None)
             .Add(Code.Delete, DeleteSelectedItem, "Delete selected", Exclude.None);
 
@@ -268,15 +269,8 @@ public partial class StateUTPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Exporting to Excel...", ToastType.Info);
 
-            // Call the Excel export utility
-            var stream = await StateUTExcelExport.ExportStateUT(_stateUTs);
-
-            // Generate file name
-            string fileName = "STATE_UT_MASTER.xlsx";
-
-            // Save and view the Excel file
+            var (stream, fileName) = await StateUTExcelExport.ExportMaster(_stateUTs);
             await SaveAndViewService.SaveAndView(fileName, stream);
-
             await _toastNotification.ShowAsync("Success", "State/UT data exported to Excel successfully.", ToastType.Success);
         }
         catch (Exception ex)
@@ -301,15 +295,8 @@ public partial class StateUTPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Exporting to PDF...", ToastType.Info);
 
-            // Call the PDF export utility
-            var stream = await StateUTPDFExport.ExportStateUT(_stateUTs);
-
-            // Generate file name
-            string fileName = "STATE_UT_MASTER.pdf";
-
-            // Save and view the PDF file
+            var (stream, fileName) = await StateUTPDFExport.ExportMaster(_stateUTs);
             await SaveAndViewService.SaveAndView(fileName, stream);
-
             await _toastNotification.ShowAsync("Success", "State/UT data exported to PDF successfully.", ToastType.Success);
         }
         catch (Exception ex)
@@ -324,6 +311,7 @@ public partial class StateUTPage : IAsyncDisposable
     }
     #endregion
 
+    #region Utilities
     private async Task EditSelectedItem()
     {
         var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
@@ -343,10 +331,24 @@ public partial class StateUTPage : IAsyncDisposable
         }
     }
 
+    private void ResetPage() =>
+        NavigationManager.NavigateTo(PageRouteNames.AdminStateUT, true);
+
+    private void NavigateBack() =>
+        NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
+
+    private void NavigateToDashboard() =>
+        NavigationManager.NavigateTo(PageRouteNames.Dashboard);
+
+    private async Task Logout() =>
+        await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
+
     public async ValueTask DisposeAsync()
     {
         if (_hotKeysContext is not null)
             await _hotKeysContext.DisposeAsync();
+
         GC.SuppressFinalize(this);
     }
+    #endregion
 }

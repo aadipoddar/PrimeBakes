@@ -1,20 +1,13 @@
-﻿using PrimeBakesLibrary.Models.Sales.Product;
+﻿using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Sales.Product;
 
 namespace PrimeBakesLibrary.Exporting.Sales.Product;
 
-/// <summary>
-/// PDF export functionality for Product
-/// </summary>
 public static class ProductPDFExport
 {
-	/// <summary>
-	/// Export Product data to PDF with custom column order and formatting
-	/// </summary>
-	/// <param name="productData">Collection of product records with enriched category and tax information</param>
-	/// <returns>MemoryStream containing the PDF file</returns>
-	public static async Task<MemoryStream> ExportProduct<T>(IEnumerable<T> productData)
+	public static async Task<(MemoryStream stream, string fileName)> ExportMaster<T>(IEnumerable<T> productData)
 	{
-		// Create enriched data with status and rate formatting
 		var formattedData = productData.Select(product =>
 		{
 			var props = typeof(T).GetProperties();
@@ -40,10 +33,8 @@ public static class ProductPDFExport
 			};
 		});
 
-		// Define custom column settings
 		var columnSettings = new Dictionary<string, PDFReportExportUtil.ColumnSetting>
 		{
-			// ID - Center aligned
 			[nameof(ProductModel.Id)] = new()
 			{
 				DisplayName = "ID",
@@ -55,16 +46,12 @@ public static class ProductPDFExport
 				IncludeInTotal = false
 			},
 
-			// Name - Left aligned
 			[nameof(ProductModel.Name)] = new() { DisplayName = "Product Name", IncludeInTotal = false },
 
-			// Code - Left aligned
 			[nameof(ProductModel.Code)] = new() { DisplayName = "Code", IncludeInTotal = false },
 
-			// Category - Left aligned
 			["Category"] = new() { DisplayName = "Category", IncludeInTotal = false },
 
-			// Rate - Right aligned
 			[nameof(ProductModel.Rate)] = new()
 			{
 				DisplayName = "Rate",
@@ -76,7 +63,6 @@ public static class ProductPDFExport
 				IncludeInTotal = false
 			},
 
-			// Tax - Center aligned
 			["Tax"] = new()
 			{
 				DisplayName = "Tax Code",
@@ -88,7 +74,6 @@ public static class ProductPDFExport
 				IncludeInTotal = false
 			},
 
-			// Status - Center aligned
 			[nameof(ProductModel.Status)] = new()
 			{
 				DisplayName = "Status",
@@ -101,7 +86,6 @@ public static class ProductPDFExport
 			}
 		};
 
-		// Define column order
 		List<string> columnOrder =
 		[
 			nameof(ProductModel.Id),
@@ -114,8 +98,7 @@ public static class ProductPDFExport
 			nameof(ProductModel.Status)
 		];
 
-		// Call the generic PDF export utility
-		return await PDFReportExportUtil.ExportToPdf(
+		var stream = await PDFReportExportUtil.ExportToPdf(
 			formattedData,
 			"PRODUCT MASTER",
 			null,
@@ -124,5 +107,9 @@ public static class ProductPDFExport
 			columnOrder,
 			useLandscape: true
 		);
+
+		var currentDateTime = await CommonData.LoadCurrentDateTime();
+		var fileName = $"Product_Master_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
+		return (stream, fileName);
 	}
 }

@@ -6,42 +6,31 @@ using PrimeBakesLibrary.Models.Inventory.Purchase;
 
 namespace PrimeBakesLibrary.Exporting.Inventory.Purchase;
 
-/// <summary>
-/// Convert Purchase Return data to Invoice PDF format
-/// </summary>
 public static class PurchaseReturnInvoicePDFExport
 {
-    /// <summary>
-    /// Export Purchase Return as a professional invoice PDF (automatically loads item names)
-    /// </summary>
-    /// <param name="purchaseReturnHeader">Purchase return header data</param>
-    /// <param name="purchaseReturnDetails">Purchase return detail line items</param>
-    /// <param name="company">Company information</param>
-    /// <param name="party">Party/Supplier information</param>
-    /// <param name="logoPath">Optional: Path to company logo</param>
-    /// <param name="invoiceType">Type of document (PURCHASE RETURN, DEBIT NOTE, etc.)</param>
-    /// <returns>MemoryStream containing the PDF file</returns>
-    public static async Task<MemoryStream> ExportPurchaseReturnInvoice(
-        PurchaseReturnModel purchaseReturnHeader,
-        List<PurchaseReturnDetailModel> purchaseReturnDetails,
-        CompanyModel company,
-        LedgerModel party,
-        string logoPath = null,
-        string invoiceType = "PURCHASE RETURN")
+    public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId)
     {
-        // Load all items to get names
+        var transaction = await CommonData.LoadTableDataById<PurchaseReturnModel>(TableNames.PurchaseReturn, transactionId) ??
+            throw new InvalidOperationException("Transaction not found.");
+
+        var transactionDetails = await CommonData.LoadTableDataByMasterId<PurchaseReturnDetailModel>(TableNames.PurchaseReturnDetail, transaction.Id);
+        if (transactionDetails is null || transactionDetails.Count == 0)
+            throw new InvalidOperationException("No transaction details found for the transaction.");
+
+        var company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, transaction.CompanyId);
+        var party = await CommonData.LoadTableDataById<LedgerModel>(TableNames.Ledger, transaction.PartyId);
+        if (company is null || party is null)
+            throw new InvalidOperationException("Company or party information is missing.");
+
         var allItems = await CommonData.LoadTableData<RawMaterialModel>(TableNames.RawMaterial);
 
-        // Map line items with actual item names
-        var lineItems = purchaseReturnDetails.Select(detail =>
+        var lineItems = transactionDetails.Select(detail =>
         {
             var item = allItems.FirstOrDefault(i => i.Id == detail.RawMaterialId);
-            string itemName = item?.Name ?? $"Item #{detail.RawMaterialId}";
-
-            return new PDFInvoiceExportUtil.InvoiceLineItem
+            return new PurchaseReturnItemCartModel
             {
                 ItemId = detail.RawMaterialId,
-                ItemName = itemName,
+                ItemName = item?.Name ?? $"Item #{detail.RawMaterialId}",
                 Quantity = detail.Quantity,
                 UnitOfMeasurement = detail.UnitOfMeasurement,
                 Rate = detail.Rate,
@@ -55,30 +44,51 @@ public static class PurchaseReturnInvoicePDFExport
             };
         }).ToList();
 
-        // Map invoice header data
         var invoiceData = new PDFInvoiceExportUtil.InvoiceData
         {
-            TransactionNo = purchaseReturnHeader.TransactionNo,
-            TransactionDateTime = purchaseReturnHeader.TransactionDateTime,
-            ItemsTotalAmount = purchaseReturnHeader.TotalAfterTax,
-            OtherChargesAmount = purchaseReturnHeader.OtherChargesAmount,
-            OtherChargesPercent = purchaseReturnHeader.OtherChargesPercent,
-            CashDiscountAmount = purchaseReturnHeader.CashDiscountAmount,
-            CashDiscountPercent = purchaseReturnHeader.CashDiscountPercent,
-            RoundOffAmount = purchaseReturnHeader.RoundOffAmount,
-            TotalAmount = purchaseReturnHeader.TotalAmount,
-            Remarks = purchaseReturnHeader.Remarks,
-            Status = purchaseReturnHeader.Status
+            TransactionNo = transaction.TransactionNo,
+            Company = company,
+            BillTo = party,
+            InvoiceType = "PURCHASE RETURN INVOICE",
+            TransactionDateTime = transaction.TransactionDateTime,
+            TotalAmount = transaction.TotalAmount,
+            Remarks = transaction.Remarks,
+            Status = transaction.Status,
+            PaymentModes = null
         };
 
-        // Generate invoice PDF with generic models
-        return await PDFInvoiceExportUtil.ExportInvoiceToPdf(
+        var summaryFields = new Dictionary<string, string>
+        {
+            ["Items Total"] = transaction.TotalAfterTax.FormatIndianCurrency(),
+            [$"Other Charges ({transaction.OtherChargesPercent:0.00}%)"] = transaction.OtherChargesAmount.FormatIndianCurrency(),
+            [$"Cash Discount ({transaction.CashDiscountPercent:0.00}%)"] = transaction.CashDiscountAmount.FormatIndianCurrency(),
+            ["Round Off"] = transaction.RoundOffAmount.FormatIndianCurrency(),
+            ["Grand Total"] = transaction.TotalAmount.FormatIndianCurrency()
+        };
+
+        var columnSettings = new List<PDFInvoiceExportUtil.InvoiceColumnSetting>
+        {
+            new("#", "#", 25, Syncfusion.Pdf.Graphics.PdfTextAlignment.Center),
+            new(nameof(PurchaseReturnItemCartModel.ItemName), "Item", 0, Syncfusion.Pdf.Graphics.PdfTextAlignment.Left),
+            new(nameof(PurchaseReturnItemCartModel.UnitOfMeasurement), "UOM", 40, Syncfusion.Pdf.Graphics.PdfTextAlignment.Center),
+            new(nameof(PurchaseReturnItemCartModel.Quantity), "Qty", 40, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00"),
+            new(nameof(PurchaseReturnItemCartModel.Rate), "Rate", 50, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00"),
+            new(nameof(PurchaseReturnItemCartModel.DiscountPercent), "Disc %", 45, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00"),
+            new(nameof(PurchaseReturnItemCartModel.AfterDiscount), "Taxable", 55, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00"),
+            new(nameof(PurchaseReturnItemCartModel.TotalTaxAmount), "Tax", 50, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00"),
+            new(nameof(PurchaseReturnItemCartModel.Total), "Total", 55, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00")
+        };
+
+        var stream = await PDFInvoiceExportUtil.ExportInvoiceToPdf(
             invoiceData,
             lineItems,
-            company,
-            party,
-            logoPath,
-            invoiceType
+            columnSettings,
+            null,
+            summaryFields
         );
+
+        var currentDateTime = await CommonData.LoadCurrentDateTime();
+        string fileName = $"PURCHASE_RETURN_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
+        return (stream, fileName);
     }
 }

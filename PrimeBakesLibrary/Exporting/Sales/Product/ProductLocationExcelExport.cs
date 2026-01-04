@@ -1,11 +1,12 @@
-﻿using PrimeBakesLibrary.Exporting.Utils;
+﻿using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Sales.Product;
 
 namespace PrimeBakesLibrary.Exporting.Sales.Product;
 
 public static class ProductLocationExcelExport
 {
-	public static async Task<MemoryStream> ExportProductLocation<T>(IEnumerable<T> productLocationData)
+	public static async Task<(MemoryStream stream, string fileName)> ExportMaster<T>(IEnumerable<T> productLocationData)
 	{
 		var props = typeof(T).GetProperties();
 
@@ -31,7 +32,6 @@ public static class ProductLocationExcelExport
 
 		var columnSettings = new Dictionary<string, ExcelReportExportUtil.ColumnSetting>
 		{
-			[nameof(ProductLocationModel.Id)] = new() { DisplayName = "ID", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
 			["Location"] = new() { DisplayName = "Location", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
 			["ProductCode"] = new() { DisplayName = "Product Code", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IncludeInTotal = false },
 			["ProductName"] = new() { DisplayName = "Product Name", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IsRequired = true },
@@ -41,7 +41,6 @@ public static class ProductLocationExcelExport
 
 		List<string> columnOrder =
 		[
-			nameof(ProductLocationModel.Id),
 			"Location",
 			"ProductCode",
 			"ProductName",
@@ -49,7 +48,7 @@ public static class ProductLocationExcelExport
 			nameof(ProductLocationModel.Status)
 		];
 
-		return await ExcelReportExportUtil.ExportToExcel(
+		var stream = await ExcelReportExportUtil.ExportToExcel(
 			enrichedData,
 			"PRODUCT LOCATION MASTER",
 			"Product Location Data",
@@ -58,5 +57,9 @@ public static class ProductLocationExcelExport
 			columnSettings,
 			columnOrder
 		);
+
+		var currentDateTime = await CommonData.LoadCurrentDateTime();
+		var fileName = $"ProductLocation_Master_{currentDateTime:yyyyMMdd_HHmmss}.xlsx";
+		return (stream, fileName);
 	}
 }

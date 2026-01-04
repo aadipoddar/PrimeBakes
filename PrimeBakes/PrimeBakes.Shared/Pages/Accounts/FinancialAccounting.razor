@@ -1,11 +1,9 @@
 ﻿@page "/accounts/financial-accounting"
 @page "/accounts/financial-accounting/{Id:int}"
 
-
 @using PrimeBakesLibrary.Models.Accounts.FinancialAccounting
 @using PrimeBakesLibrary.Models.Accounts.Masters
 @using PrimeBakesLibrary.Models.Common
-
 
 <PageTitle>Financial Accounting - Prime Bakes</PageTitle>
 
@@ -16,10 +14,10 @@
 else
 {
     <div style="display: flex; flex-direction: column; min-height: 100vh;">
-        <Header Title="Financial Accounting Entry" Subtitle="Create and manage accounting voucher entries" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack">
+        <Header Title="Financial Accounting Entry" Subtitle="Create and manage accounting voucher entries" ShowLogout="true" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
             <RightContent>
                 <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Transaction (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveTransaction" />
-                @if (Id is > 0)
+                @if (Id.HasValue && Id.Value > 0)
                 {
                     <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Download Excel Invoice (Alt+E)" Disabled="_isProcessing" OnClick="DownloadExcelInvoice" />
                     <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Download PDF Invoice (Alt+P)" Disabled="_isProcessing" OnClick="DownloadPdfInvoice" />

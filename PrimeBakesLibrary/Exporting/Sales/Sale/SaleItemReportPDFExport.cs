@@ -1,39 +1,231 @@
-﻿using PrimeBakesLibrary.Models.Sales.Sale;
+﻿using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Models.Common;
+using PrimeBakesLibrary.Models.Sales.Sale;
 
 namespace PrimeBakesLibrary.Exporting.Sales.Sale;
 
-/// <summary>
-/// PDF export functionality for Sale Item Report
-/// </summary>
 public static class SaleItemReportPDFExport
 {
-	/// <summary>
-	/// Export Sale Item Report to PDF with custom column order and formatting
-	/// </summary>
-	/// <param name="saleItemData">Collection of sale item overview records</param>
-	/// <param name="dateRangeStart">Start date of the report</param>
-	/// <param name="dateRangeEnd">End date of the report</param>
-	/// <param name="showAllColumns">Whether to include all columns or just summary columns</param>
-	/// <param name="showLocation">Whether to include location column (for location ID 1 users)</param>
-	/// <param name="locationName">Name of the location for header</param>
-	/// <param name="showSummary">Whether to show summary grouped by item</param>
-	/// <returns>MemoryStream containing the PDF file</returns>
-	public static async Task<MemoryStream> ExportSaleItemReport(
+	public static async Task<(MemoryStream stream, string fileName)> ExportReport(
 		IEnumerable<SaleItemOverviewModel> saleItemData,
 		DateOnly? dateRangeStart = null,
 		DateOnly? dateRangeEnd = null,
 		bool showAllColumns = true,
-		bool showLocation = false,
-		string locationName = null,
-		bool showSummary = false)
+		bool showSummary = false,
+		LedgerModel party = null,
+		CompanyModel company = null,
+		LocationModel location = null)
 	{
-		// Define custom column settings matching Excel export
-		var columnSettings = new Dictionary<string, PDFReportExportUtil.ColumnSetting>();
+		var columnSettings = new Dictionary<string, PDFReportExportUtil.ColumnSetting>
+		{
+			[nameof(SaleItemOverviewModel.ItemName)] = new() { DisplayName = "Item", IncludeInTotal = false },
+			[nameof(SaleItemOverviewModel.ItemCode)] = new() { DisplayName = "Code", IncludeInTotal = false },
+			[nameof(SaleItemOverviewModel.ItemCategoryName)] = new() { DisplayName = "Category", IncludeInTotal = false },
+			[nameof(SaleItemOverviewModel.TransactionNo)] = new() { DisplayName = "Trans No", IncludeInTotal = false },
+			[nameof(SaleItemOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm", IncludeInTotal = false },
+			[nameof(SaleItemOverviewModel.CompanyName)] = new() { DisplayName = "Company", IncludeInTotal = false },
+			[nameof(SaleItemOverviewModel.LocationName)] = new() { DisplayName = "Location", IncludeInTotal = false },
+			[nameof(SaleItemOverviewModel.PartyName)] = new() { DisplayName = "Party", IncludeInTotal = false },
+			[nameof(SaleItemOverviewModel.SaleRemarks)] = new() { DisplayName = "Sale Remarks", IncludeInTotal = false },
+			[nameof(SaleItemOverviewModel.Remarks)] = new() { DisplayName = "Item Remarks", IncludeInTotal = false },
+			[nameof(SaleItemOverviewModel.InclusiveTax)] = new() { DisplayName = "Incl Tax", IncludeInTotal = false },
 
-		// Define column order based on visibility setting (matching Excel export)
+			[nameof(SaleItemOverviewModel.Quantity)] = new()
+			{
+				DisplayName = "Qty",
+				Format = "#,##0.00",
+				HighlightNegative = true,
+				StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
+				{
+					Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
+					LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
+				}
+			},
+
+			[nameof(SaleItemOverviewModel.Rate)] = new()
+			{
+				DisplayName = "Rate",
+				Format = "#,##0.00",
+				StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
+				{
+					Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
+					LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
+				},
+				IncludeInTotal = false
+			},
+
+			[nameof(SaleItemOverviewModel.NetRate)] = new()
+			{
+				DisplayName = "Net Rate",
+				Format = "#,##0.00",
+				StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
+				{
+					Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
+					LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
+				},
+				IncludeInTotal = false
+			},
+
+			[nameof(SaleItemOverviewModel.BaseTotal)] = new()
+			{
+				DisplayName = "Base Total",
+				Format = "#,##0.00",
+				HighlightNegative = true,
+				StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
+				{
+					Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
+					LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
+				}
+			},
+
+			[nameof(SaleItemOverviewModel.DiscountPercent)] = new()
+			{
+				DisplayName = "Disc %",
+				Format = "#,##0.00",
+				StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
+				{
+					Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Center,
+					LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
+				},
+				IncludeInTotal = false
+			},
+
+			[nameof(SaleItemOverviewModel.DiscountAmount)] = new()
+			{
+				DisplayName = "Disc Amt",
+				Format = "#,##0.00",
+				HighlightNegative = true,
+				StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
+				{
+					Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
+					LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
+				}
+			},
+
+			[nameof(SaleItemOverviewModel.AfterDiscount)] = new()
+			{
+				DisplayName = "After Disc",
+				Format = "#,##0.00",
+				HighlightNegative = true,
+				StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
+				{
+					Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
+					LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
+				}
+			},
+
+			[nameof(SaleItemOverviewModel.SGSTPercent)] = new()
+			{
+				DisplayName = "SGST %",
+				Format = "#,##0.00",
+				StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
+				{
+					Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Center,
+					LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
+				},
+				IncludeInTotal = false
+			},
+
+			[nameof(SaleItemOverviewModel.SGSTAmount)] = new()
+			{
+				DisplayName = "SGST Amt",
+				Format = "#,##0.00",
+				HighlightNegative = true,
+				StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
+				{
+					Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
+					LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
+				}
+			},
+
+			[nameof(SaleItemOverviewModel.CGSTPercent)] = new()
+			{
+				DisplayName = "CGST %",
+				Format = "#,##0.00",
+				StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
+				{
+					Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Center,
+					LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
+				},
+				IncludeInTotal = false
+			},
+
+			[nameof(SaleItemOverviewModel.CGSTAmount)] = new()
+			{
+				DisplayName = "CGST Amt",
+				Format = "#,##0.00",
+				HighlightNegative = true,
+				StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
+				{
+					Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
+					LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
+				}
+			},
+
+			[nameof(SaleItemOverviewModel.IGSTPercent)] = new()
+			{
+				DisplayName = "IGST %",
+				Format = "#,##0.00",
+				StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
+				{
+					Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Center,
+					LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
+				},
+				IncludeInTotal = false
+			},
+
+			[nameof(SaleItemOverviewModel.IGSTAmount)] = new()
+			{
+				DisplayName = "IGST Amt",
+				Format = "#,##0.00",
+				HighlightNegative = true,
+				StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
+				{
+					Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
+					LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
+				}
+			},
+
+			[nameof(SaleItemOverviewModel.TotalTaxAmount)] = new()
+			{
+				DisplayName = "Tax",
+				Format = "#,##0.00",
+				HighlightNegative = true,
+				StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
+				{
+					Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
+					LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
+				}
+			},
+
+			[nameof(SaleItemOverviewModel.Total)] = new()
+			{
+				DisplayName = "Total",
+				Format = "#,##0.00",
+				HighlightNegative = true,
+				StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
+				{
+					Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
+					LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
+				}
+			},
+
+			[nameof(SaleItemOverviewModel.NetTotal)] = new()
+			{
+				DisplayName = "Net Total",
+				Format = "#,##0.00",
+				HighlightNegative = true,
+				StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
+				{
+					Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
+					LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
+				}
+			}
+		};
+
 		List<string> columnOrder;
 
-		// Summary mode - grouped by item with aggregated values
 		if (showSummary)
 			columnOrder =
 			[
@@ -65,7 +257,7 @@ public static class SaleItemReportPDFExport
 				nameof(SaleItemOverviewModel.CompanyName)
 			];
 
-			if (showLocation)
+			if (location is null)
 				columns.Add(nameof(SaleItemOverviewModel.LocationName));
 
 			columns.AddRange([
@@ -108,221 +300,23 @@ public static class SaleItemReportPDFExport
 				nameof(SaleItemOverviewModel.NetTotal)
 			];
 
-		// Customize specific columns for PDF display (matching Excel column names)
-		columnSettings[nameof(SaleItemOverviewModel.ItemName)] = new() { DisplayName = "Item", IncludeInTotal = false };
-		columnSettings[nameof(SaleItemOverviewModel.ItemCode)] = new() { DisplayName = "Code", IncludeInTotal = false };
-		columnSettings[nameof(SaleItemOverviewModel.ItemCategoryName)] = new() { DisplayName = "Category", IncludeInTotal = false };
-		columnSettings[nameof(SaleItemOverviewModel.TransactionNo)] = new() { DisplayName = "Trans No", IncludeInTotal = false };
-		columnSettings[nameof(SaleItemOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm", IncludeInTotal = false };
-		columnSettings[nameof(SaleItemOverviewModel.CompanyName)] = new() { DisplayName = "Company", IncludeInTotal = false };
-		columnSettings[nameof(SaleItemOverviewModel.LocationName)] = new() { DisplayName = "Location", IncludeInTotal = false };
-		columnSettings[nameof(SaleItemOverviewModel.PartyName)] = new() { DisplayName = "Party", IncludeInTotal = false };
-		columnSettings[nameof(SaleItemOverviewModel.SaleRemarks)] = new() { DisplayName = "Sale Remarks", IncludeInTotal = false };
-		columnSettings[nameof(SaleItemOverviewModel.Remarks)] = new() { DisplayName = "Item Remarks", IncludeInTotal = false };
-		columnSettings[nameof(SaleItemOverviewModel.InclusiveTax)] = new() { DisplayName = "Incl Tax", IncludeInTotal = false };
-
-		columnSettings[nameof(SaleItemOverviewModel.Quantity)] = new()
-		{
-			DisplayName = "Qty",
-			Format = "#,##0.00",
-			HighlightNegative = true,
-			StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
-			{
-				Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
-				LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
-			}
-		};
-
-		columnSettings[nameof(SaleItemOverviewModel.Rate)] = new()
-		{
-			DisplayName = "Rate",
-			Format = "#,##0.00",
-			StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
-			{
-				Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
-				LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
-			},
-			IncludeInTotal = false
-		};
-
-		columnSettings[nameof(SaleItemOverviewModel.NetRate)] = new()
-		{
-			DisplayName = "Net Rate",
-			Format = "#,##0.00",
-			StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
-			{
-				Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
-				LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
-			},
-			IncludeInTotal = false
-		};
-
-		columnSettings[nameof(SaleItemOverviewModel.BaseTotal)] = new()
-		{
-			DisplayName = "Base Total",
-			Format = "#,##0.00",
-			HighlightNegative = true,
-			StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
-			{
-				Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
-				LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
-			}
-		};
-
-		columnSettings[nameof(SaleItemOverviewModel.DiscountPercent)] = new()
-		{
-			DisplayName = "Disc %",
-			Format = "#,##0.00",
-			StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
-			{
-				Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Center,
-				LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
-			},
-			IncludeInTotal = false
-		};
-
-		columnSettings[nameof(SaleItemOverviewModel.DiscountAmount)] = new()
-		{
-			DisplayName = "Disc Amt",
-			Format = "#,##0.00",
-			HighlightNegative = true,
-			StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
-			{
-				Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
-				LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
-			}
-		};
-
-		columnSettings[nameof(SaleItemOverviewModel.AfterDiscount)] = new()
-		{
-			DisplayName = "After Disc",
-			Format = "#,##0.00",
-			HighlightNegative = true,
-			StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
-			{
-				Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
-				LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
-			}
-		};
-
-		columnSettings[nameof(SaleItemOverviewModel.SGSTPercent)] = new()
-		{
-			DisplayName = "SGST %",
-			Format = "#,##0.00",
-			StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
-			{
-				Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Center,
-				LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
-			},
-			IncludeInTotal = false
-		};
-
-		columnSettings[nameof(SaleItemOverviewModel.SGSTAmount)] = new()
-		{
-			DisplayName = "SGST Amt",
-			Format = "#,##0.00",
-			HighlightNegative = true,
-			StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
-			{
-				Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
-				LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
-			}
-		};
-
-		columnSettings[nameof(SaleItemOverviewModel.CGSTPercent)] = new()
-		{
-			DisplayName = "CGST %",
-			Format = "#,##0.00",
-			StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
-			{
-				Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Center,
-				LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
-			},
-			IncludeInTotal = false
-		};
-
-		columnSettings[nameof(SaleItemOverviewModel.CGSTAmount)] = new()
-		{
-			DisplayName = "CGST Amt",
-			Format = "#,##0.00",
-			HighlightNegative = true,
-			StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
-			{
-				Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
-				LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
-			}
-		};
-
-		columnSettings[nameof(SaleItemOverviewModel.IGSTPercent)] = new()
-		{
-			DisplayName = "IGST %",
-			Format = "#,##0.00",
-			StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
-			{
-				Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Center,
-				LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
-			},
-			IncludeInTotal = false
-		};
-
-		columnSettings[nameof(SaleItemOverviewModel.IGSTAmount)] = new()
-		{
-			DisplayName = "IGST Amt",
-			Format = "#,##0.00",
-			HighlightNegative = true,
-			StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
-			{
-				Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
-				LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
-			}
-		};
-
-		columnSettings[nameof(SaleItemOverviewModel.TotalTaxAmount)] = new()
-		{
-			DisplayName = "Tax",
-			Format = "#,##0.00",
-			HighlightNegative = true,
-			StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
-			{
-				Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
-				LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
-			}
-		};
-
-		columnSettings[nameof(SaleItemOverviewModel.Total)] = new()
-		{
-			DisplayName = "Total",
-			Format = "#,##0.00",
-			HighlightNegative = true,
-			StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
-			{
-				Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
-				LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
-			}
-		};
-
-		columnSettings[nameof(SaleItemOverviewModel.NetTotal)] = new()
-		{
-			DisplayName = "Net Total",
-			Format = "#,##0.00",
-			HighlightNegative = true,
-			StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
-			{
-				Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
-				LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
-			}
-		};
-
-		// Call the generic PDF export utility with landscape mode for all columns
-		return await PDFReportExportUtil.ExportToPdf(
+		var stream = await PDFReportExportUtil.ExportToPdf(
 			saleItemData,
 			"SALE ITEM REPORT",
 			dateRangeStart,
 			dateRangeEnd,
 			columnSettings,
 			columnOrder,
-			useLandscape: showAllColumns || showSummary,  // Use landscape when showing all columns
-			locationName: locationName
+			useBuiltInStyle: false,
+			useLandscape: showAllColumns || showSummary,
+			new() { ["Company"] = company?.Name ?? null, ["Location"] = location?.Name ?? null, ["Party"] = party?.Name ?? null }
 		);
+
+		string fileName = "SALE_ITEM_REPORT";
+		if (dateRangeStart.HasValue || dateRangeEnd.HasValue)
+			fileName += $"_{dateRangeStart?.ToString("yyyyMMdd") ?? "START"}_to_{dateRangeEnd?.ToString("yyyyMMdd") ?? "END"}";
+		fileName += ".pdf";
+
+		return (stream, fileName);
 	}
 }

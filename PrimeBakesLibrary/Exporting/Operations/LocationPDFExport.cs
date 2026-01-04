@@ -1,20 +1,13 @@
-﻿using PrimeBakesLibrary.Models.Common;
+﻿using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Common;
 
 namespace PrimeBakesLibrary.Exporting.Operations;
 
-/// <summary>
-/// PDF export functionality for Location
-/// </summary>
 public static class LocationPDFExport
 {
-    /// <summary>
-    /// Export Location data to PDF with custom column order and formatting
-    /// </summary>
-    /// <param name="locationData">Collection of location records</param>
-    /// <returns>MemoryStream containing the PDF file</returns>
-    public static async Task<MemoryStream> ExportLocation(IEnumerable<LocationModel> locationData)
+    public static async Task<(MemoryStream stream, string fileName)> ExportMaster(IEnumerable<LocationModel> locationData)
     {
-        // Define custom column settings
         var columnSettings = new Dictionary<string, PDFReportExportUtil.ColumnSetting>
         {
             [nameof(LocationModel.Id)] = new() { DisplayName = "ID", IncludeInTotal = false },
@@ -49,16 +42,15 @@ public static class LocationPDFExport
         // Define column order
         List<string> columnOrder =
         [
-			nameof(LocationModel.Id),
-			nameof(LocationModel.Name),
-			nameof(LocationModel.PrefixCode),
-			nameof(LocationModel.Discount),
-			nameof(LocationModel.Remarks),
-			nameof(LocationModel.Status)
-		];
+            nameof(LocationModel.Id),
+            nameof(LocationModel.Name),
+            nameof(LocationModel.PrefixCode),
+            nameof(LocationModel.Discount),
+            nameof(LocationModel.Remarks),
+            nameof(LocationModel.Status)
+        ];
 
-        // Call the generic PDF export utility
-        return await PDFReportExportUtil.ExportToPdf(
+        var stream = await PDFReportExportUtil.ExportToPdf(
             locationData,
             "LOCATION MASTER",
             null,
@@ -67,5 +59,9 @@ public static class LocationPDFExport
             columnOrder,
             useLandscape: false
         );
+
+        var currentDateTime = await CommonData.LoadCurrentDateTime();
+        var fileName = $"Location_Master_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
+        return (stream, fileName);
     }
 }

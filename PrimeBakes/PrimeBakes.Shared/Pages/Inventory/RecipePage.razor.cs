@@ -56,6 +56,7 @@ public partial class RecipePage : IAsyncDisposable
             .Add(ModCode.Ctrl, Code.N, ResetPage, "New recipe", Exclude.None)
             .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
             .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back to inventory dashboard", Exclude.None)
+            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
             .Add(Code.Delete, RemoveSelectedCartItem, "Delete selected cart item", Exclude.None)
             .Add(Code.Insert, EditSelectedCartItem, "Edit selected cart item", Exclude.None);
 
@@ -270,7 +271,8 @@ public partial class RecipePage : IAsyncDisposable
             }, _recipeItems);
 
             await _toastNotification.ShowAsync("Recipe Saved", $"Recipe saved successfully for {_selectedProduct.Name} with {_recipeItems.Count} items!", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.Recipe, true);
+
+            ResetPage();
         }
         catch (Exception ex)
         {
@@ -288,14 +290,17 @@ public partial class RecipePage : IAsyncDisposable
     #endregion
 
     #region Utilities
-    private async Task ResetPage() =>
+    private void ResetPage() =>
         NavigationManager.NavigateTo(PageRouteNames.Recipe, true);
 
-    private async Task NavigateToDashboard() =>
+    private void NavigateToDashboard() =>
         NavigationManager.NavigateTo(PageRouteNames.Dashboard);
 
-    private async Task NavigateBack() =>
+    private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);
+
+    private async Task Logout() =>
+        await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 
     public async ValueTask DisposeAsync()
     {

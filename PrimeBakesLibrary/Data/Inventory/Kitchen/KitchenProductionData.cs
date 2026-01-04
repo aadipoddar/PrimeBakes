@@ -1,154 +1,32 @@
 ﻿using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Inventory.Stock;
-using PrimeBakesLibrary.Exporting.Inventory.Kitchen;
 using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Inventory.Kitchen;
 using PrimeBakesLibrary.Models.Inventory.Stock;
-using PrimeBakesLibrary.Models.Sales.Product;
 
 namespace PrimeBakesLibrary.Data.Inventory.Kitchen;
 
 public static class KitchenProductionData
 {
-    public static async Task<int> InsertKitchenProduction(KitchenProductionModel kitchenProduction) =>
+    private static async Task<int> InsertKitchenProduction(KitchenProductionModel kitchenProduction) =>
         (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertKitchenProduction, kitchenProduction)).FirstOrDefault();
 
-    public static async Task<int> InsertKitchenProductionDetail(KitchenProductionDetailModel kitchenProductionDetail) =>
+    private static async Task<int> InsertKitchenProductionDetail(KitchenProductionDetailModel kitchenProductionDetail) =>
         (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertKitchenProductionDetail, kitchenProductionDetail)).FirstOrDefault();
 
-    public static async Task<(MemoryStream pdfStream, string fileName)> GenerateAndDownloadInvoice(int kitchenProductionId)
+    public static async Task DeleteTransaction(KitchenProductionModel kitchenProduction)
     {
-        try
-        {
-            // Load saved transaction details
-            var transaction = await CommonData.LoadTableDataById<KitchenProductionModel>(TableNames.KitchenProduction, kitchenProductionId) ??
-                throw new InvalidOperationException("Transaction not found.");
-
-            // Load transaction details from database
-            var transactionDetails = await CommonData.LoadTableDataByMasterId<KitchenProductionDetailModel>(TableNames.KitchenProductionDetail, transaction.Id);
-            if (transactionDetails is null || transactionDetails.Count == 0)
-                throw new InvalidOperationException("No transaction details found for the transaction.");
-
-            // Load company and kitchen
-            var company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, transaction.CompanyId);
-            var kitchen = await CommonData.LoadTableDataById<LocationModel>(TableNames.Kitchen, transaction.KitchenId);
-            if (company is null || kitchen is null)
-                throw new InvalidOperationException("Company or kitchen details not found.");
-
-            // Convert kitchen production details to cart items with product names
-            var products = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
-            var cartItems = new List<KitchenProductionProductCartModel>();
-            foreach (var detail in transactionDetails)
-            {
-                var product = products.FirstOrDefault(p => p.Id == detail.ProductId);
-                cartItems.Add(new KitchenProductionProductCartModel
-                {
-                    ProductId = detail.ProductId,
-                    ProductName = product?.Name ?? "Unknown Product",
-                    Quantity = detail.Quantity,
-                    Rate = detail.Rate,
-                    Total = detail.Total,
-                    Remarks = detail.Remarks
-                });
-            }
-
-            // Generate invoice PDF
-            var pdfStream = await KitchenProductionInvoicePDFExport.ExportKitchenProductionInvoiceWithItems(
-                    transaction,
-                    cartItems,
-                    company,
-                    kitchen,
-                    null, // logo path - uses default
-                    "KITCHEN PRODUCTION INVOICE"
-                );
-
-            // Generate file name
-            var currentDateTime = await CommonData.LoadCurrentDateTime();
-            string fileName = $"KITCHEN_PRODUCTION_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
-            return (pdfStream, fileName);
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException("Failed to generate and download invoice." + ex.Message);
-        }
-    }
-
-    public static async Task<(MemoryStream excelStream, string fileName)> GenerateAndDownloadExcelInvoice(int kitchenProductionId)
-    {
-        try
-        {
-            // Load saved transaction details
-            var transaction = await CommonData.LoadTableDataById<KitchenProductionModel>(TableNames.KitchenProduction, kitchenProductionId) ??
-                throw new InvalidOperationException("Transaction not found.");
-
-            // Load transaction details from database
-            var transactionDetails = await CommonData.LoadTableDataByMasterId<KitchenProductionDetailModel>(TableNames.KitchenProductionDetail, transaction.Id);
-            if (transactionDetails is null || transactionDetails.Count == 0)
-                throw new InvalidOperationException("No transaction details found for the transaction.");
-
-            // Load company and kitchen
-            var company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, transaction.CompanyId);
-            var kitchen = await CommonData.LoadTableDataById<LocationModel>(TableNames.Kitchen, transaction.KitchenId);
-            if (company is null || kitchen is null)
-                throw new InvalidOperationException("Company or kitchen details not found.");
-
-            // Convert kitchen production details to cart items with product names
-            var products = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
-            var cartItems = new List<KitchenProductionProductCartModel>();
-            foreach (var detail in transactionDetails)
-            {
-                var product = products.FirstOrDefault(p => p.Id == detail.ProductId);
-                cartItems.Add(new KitchenProductionProductCartModel
-                {
-                    ProductId = detail.ProductId,
-                    ProductName = product?.Name ?? "Unknown Product",
-                    Quantity = detail.Quantity,
-                    Rate = detail.Rate,
-                    Total = detail.Total,
-                    Remarks = detail.Remarks
-                });
-            }
-
-            // Generate invoice Excel
-            var excelStream = await KitchenProductionInvoiceExcelExport.ExportKitchenProductionInvoiceWithItems(
-                    transaction,
-                    cartItems,
-                    company,
-                    kitchen,
-                    null,
-                    "KITCHEN PRODUCTION INVOICE"
-                );
-
-            // Generate file name
-            var currentDateTime = await CommonData.LoadCurrentDateTime();
-            string fileName = $"KITCHEN_PRODUCTION_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.xlsx";
-            return (excelStream, fileName);
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException("Failed to generate and download Excel invoice." + ex.Message);
-        }
-    }
-
-    public static async Task DeleteKitchenProduction(int kitchenProductionId)
-    {
-        var kitchenProduction = await CommonData.LoadTableDataById<KitchenProductionModel>(TableNames.KitchenProduction, kitchenProductionId);
         var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, kitchenProduction.FinancialYearId);
         if (financialYear is null || financialYear.Locked || !financialYear.Status)
             throw new InvalidOperationException("Cannot delete transaction as the financial year is locked.");
 
-        if (kitchenProduction is not null)
-        {
-            kitchenProduction.Status = false;
-            await InsertKitchenProduction(kitchenProduction);
-            await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.KitchenProduction), kitchenProduction.Id, 1);
-        }
-
-        await SendNotification.KitchenProductionNotification(kitchenProductionId, NotificationType.Delete);
+        kitchenProduction.Status = false;
+        await InsertKitchenProduction(kitchenProduction);
+        await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.KitchenProduction), kitchenProduction.Id, 1);
+        await SendNotification.KitchenProductionNotification(kitchenProduction.Id, NotificationType.Delete);
     }
 
-    public static async Task RecoverKitchenProductionTransaction(KitchenProductionModel kitchenProduction)
+    public static async Task RecoverTransaction(KitchenProductionModel kitchenProduction)
     {
         var kitchenProductionDetails = await CommonData.LoadTableDataByMasterId<KitchenProductionDetailModel>(TableNames.KitchenProductionDetail, kitchenProduction.Id);
         List<KitchenProductionProductCartModel> kitchenProductionProductCarts = [];
@@ -164,11 +42,11 @@ public static class KitchenProductionData
                 Remarks = item.Remarks
             });
 
-        await SaveKitchenProductionTransaction(kitchenProduction, kitchenProductionProductCarts, false);
+        await SaveTransaction(kitchenProduction, kitchenProductionProductCarts, false);
         await SendNotification.KitchenProductionNotification(kitchenProduction.Id, NotificationType.Recover);
     }
 
-    public static async Task<int> SaveKitchenProductionTransaction(KitchenProductionModel kitchenProduction, List<KitchenProductionProductCartModel> kitchenProductionDetails, bool showNotification = true)
+    public static async Task<int> SaveTransaction(KitchenProductionModel kitchenProduction, List<KitchenProductionProductCartModel> kitchenProductionDetails, bool showNotification = true)
     {
         bool update = kitchenProduction.Id > 0;
 
@@ -189,7 +67,7 @@ public static class KitchenProductionData
             throw new InvalidOperationException("Cannot update transaction as the financial year is locked.");
 
         kitchenProduction.Id = await InsertKitchenProduction(kitchenProduction);
-        await SaveKitchenProductionDetail(kitchenProduction, kitchenProductionDetails, update);
+        await SaveTransactionDetail(kitchenProduction, kitchenProductionDetails, update);
         await SaveProductStock(kitchenProduction, kitchenProductionDetails, update);
 
         if (showNotification)
@@ -198,7 +76,7 @@ public static class KitchenProductionData
         return kitchenProduction.Id;
     }
 
-    private static async Task SaveKitchenProductionDetail(KitchenProductionModel kitchenProduction, List<KitchenProductionProductCartModel> kitchenProductionDetails, bool update)
+    private static async Task SaveTransactionDetail(KitchenProductionModel kitchenProduction, List<KitchenProductionProductCartModel> kitchenProductionDetails, bool update)
     {
         if (update)
         {

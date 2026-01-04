@@ -2,7 +2,6 @@
 using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Inventory.Stock;
-using PrimeBakesLibrary.Exporting.Inventory.Purchase;
 using PrimeBakesLibrary.Models.Accounts.FinancialAccounting;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Inventory.Purchase;
@@ -12,118 +11,38 @@ namespace PrimeBakesLibrary.Data.Inventory.Purchase;
 
 public static class PurchaseReturnData
 {
-    public static async Task<int> InsertPurchaseReturn(PurchaseReturnModel purchaseReturn) =>
+    private static async Task<int> InsertPurchaseReturn(PurchaseReturnModel purchaseReturn) =>
         (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertPurchaseReturn, purchaseReturn)).FirstOrDefault();
 
-    public static async Task<int> InsertPurchaseReturnDetail(PurchaseReturnDetailModel purchaseReturnDetail) =>
+    private static async Task<int> InsertPurchaseReturnDetail(PurchaseReturnDetailModel purchaseReturnDetail) =>
         (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertPurchaseReturnDetail, purchaseReturnDetail)).FirstOrDefault();
 
-    public static async Task<(MemoryStream pdfStream, string fileName)> GenerateAndDownloadInvoice(int purchaseReturnId)
+    public static async Task DeleteTransaction(PurchaseReturnModel purchaseReturn)
     {
-        try
-        {
-            // Load saved purchase return details (since _purchaseReturn now has the Id)
-            var transaction = await CommonData.LoadTableDataById<PurchaseReturnModel>(TableNames.PurchaseReturn, purchaseReturnId) ??
-                throw new InvalidOperationException("Transaction not found.");
-
-            // Load purchase return details from database
-            var transactionDetails = await CommonData.LoadTableDataByMasterId<PurchaseReturnDetailModel>(TableNames.PurchaseReturnDetail, purchaseReturnId);
-            if (transactionDetails is null || transactionDetails.Count == 0)
-                throw new InvalidOperationException("No transaction details found for the transaction.");
-
-            // Load company and party
-            var company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, transaction.CompanyId);
-            var party = await CommonData.LoadTableDataById<LedgerModel>(TableNames.Ledger, transaction.PartyId);
-            if (company is null || party is null)
-                throw new InvalidOperationException("Invoice generation skipped - company or party not found.");
-
-            // Generate invoice PDF
-            var pdfStream = await PurchaseReturnInvoicePDFExport.ExportPurchaseReturnInvoice(
-                    transaction,
-                    transactionDetails,
-                    company,
-                    party,
-                    null, // logo path - uses default
-                    "PURCHASE RETURN INVOICE"
-                );
-
-            // Generate file name
-            var currentDateTime = await CommonData.LoadCurrentDateTime();
-            string fileName = $"PURCHASE_RETURN_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
-            return (pdfStream, fileName);
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException($"Invoice generation failed: {ex.Message}", ex);
-        }
-    }
-
-    public static async Task<(MemoryStream excelStream, string fileName)> GenerateAndDownloadExcelInvoice(int purchaseReturnId)
-    {
-        try
-        {
-            // Load saved purchase return details
-            var transaction = await CommonData.LoadTableDataById<PurchaseReturnModel>(TableNames.PurchaseReturn, purchaseReturnId) ??
-                throw new InvalidOperationException("Transaction not found.");
-
-            // Load purchase return details from database
-            var transactionDetails = await CommonData.LoadTableDataByMasterId<PurchaseReturnDetailModel>(TableNames.PurchaseReturnDetail, purchaseReturnId);
-            if (transactionDetails is null || transactionDetails.Count == 0)
-                throw new InvalidOperationException("No transaction details found for the transaction.");
-
-            // Load company and party
-            var company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, transaction.CompanyId);
-            var party = await CommonData.LoadTableDataById<LedgerModel>(TableNames.Ledger, transaction.PartyId);
-            if (company is null || party is null)
-                throw new InvalidOperationException("Invoice generation skipped - company or party not found.");
-
-            // Generate invoice Excel
-            var excelStream = await PurchaseReturnInvoiceExcelExport.ExportPurchaseReturnInvoice(
-                transaction,
-                transactionDetails,
-                company,
-                party,
-                null, // logo path - uses default
-                "PURCHASE RETURN INVOICE"
-            );
-
-            // Generate file name
-            var currentDateTime = await CommonData.LoadCurrentDateTime();
-            string fileName = $"PURCHASE_RETURN_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.xlsx";
-            return (excelStream, fileName);
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException($"Excel invoice generation failed: {ex.Message}", ex);
-        }
-    }
-
-    public static async Task DeletePurchaseReturn(int purchaseReturnId)
-    {
-        var purchaseReturn = await CommonData.LoadTableDataById<PurchaseReturnModel>(TableNames.PurchaseReturn, purchaseReturnId);
         var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, purchaseReturn.FinancialYearId);
         if (financialYear is null || financialYear.Locked || !financialYear.Status)
             throw new InvalidOperationException("Cannot delete transaction as the financial year is locked.");
 
-        if (purchaseReturn is not null)
-        {
-            purchaseReturn.Status = false;
-            await InsertPurchaseReturn(purchaseReturn);
-            await RawMaterialStockData.DeleteRawMaterialStockByTypeTransactionId(nameof(StockType.PurchaseReturn), purchaseReturn.Id);
+        purchaseReturn.Status = false;
+        await InsertPurchaseReturn(purchaseReturn);
+        await RawMaterialStockData.DeleteRawMaterialStockByTypeTransactionId(nameof(StockType.PurchaseReturn), purchaseReturn.Id);
 
-            var purchaseReturnVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.PurchaseReturnVoucherId);
-            var existingAccounting = await AccountingData.LoadAccountingByVoucherReference(int.Parse(purchaseReturnVoucher.Value), purchaseReturn.Id, purchaseReturn.TransactionNo);
-            if (existingAccounting is not null && existingAccounting.Id > 0)
-            {
-                existingAccounting.Status = false;
-                await AccountingData.InsertAccounting(existingAccounting);
-            }
+        var purchaseReturnVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.PurchaseReturnVoucherId);
+        var existingAccounting = await AccountingData.LoadAccountingByVoucherReference(int.Parse(purchaseReturnVoucher.Value), purchaseReturn.Id, purchaseReturn.TransactionNo);
+        if (existingAccounting is not null && existingAccounting.Id > 0)
+        {
+            existingAccounting.Status = false;
+            existingAccounting.LastModifiedBy = purchaseReturn.LastModifiedBy;
+            existingAccounting.LastModifiedAt = purchaseReturn.LastModifiedAt;
+            existingAccounting.LastModifiedFromPlatform = purchaseReturn.LastModifiedFromPlatform;
+
+            await AccountingData.DeleteTransaction(existingAccounting);
         }
 
-        await SendNotification.PurchaseReturnNotification(purchaseReturnId, NotificationType.Delete);
+        await SendNotification.PurchaseReturnNotification(purchaseReturn.Id, NotificationType.Delete);
     }
 
-    public static async Task RecoverPurchaseReturnTransaction(PurchaseReturnModel purchaseReturn)
+    public static async Task RecoverTransaction(PurchaseReturnModel purchaseReturn)
     {
         var transactionDetails = await CommonData.LoadTableDataByMasterId<PurchaseReturnDetailModel>(TableNames.PurchaseReturnDetail, purchaseReturn.Id);
         List<PurchaseReturnItemCartModel> purchaseItemCarts = [];
@@ -153,11 +72,11 @@ public static class PurchaseReturnData
                 Remarks = item.Remarks
             });
 
-        await SavePurchaseReturnTransaction(purchaseReturn, purchaseItemCarts, false);
+        await SaveTransaction(purchaseReturn, purchaseItemCarts, false);
         await SendNotification.PurchaseReturnNotification(purchaseReturn.Id, NotificationType.Recover);
     }
 
-    public static async Task<int> SavePurchaseReturnTransaction(PurchaseReturnModel purchaseReturn, List<PurchaseReturnItemCartModel> purchaseReturnDetails, bool showNotification = true)
+    public static async Task<int> SaveTransaction(PurchaseReturnModel purchaseReturn, List<PurchaseReturnItemCartModel> purchaseReturnDetails, bool showNotification = true)
     {
         bool update = purchaseReturn.Id > 0;
 
@@ -174,7 +93,7 @@ public static class PurchaseReturnData
             throw new InvalidOperationException("Cannot update transaction as the financial year is locked.");
 
         purchaseReturn.Id = await InsertPurchaseReturn(purchaseReturn);
-        await SavePurchaseReturnDetail(purchaseReturn, purchaseReturnDetails, update);
+        await SaveTransactionDetail(purchaseReturn, purchaseReturnDetails, update);
         await SaveRawMaterialStock(purchaseReturn, purchaseReturnDetails, update);
         await SaveAccounting(purchaseReturn, update);
 
@@ -184,7 +103,7 @@ public static class PurchaseReturnData
         return purchaseReturn.Id;
     }
 
-    private static async Task SavePurchaseReturnDetail(PurchaseReturnModel purchaseReturn, List<PurchaseReturnItemCartModel> purchaseReturnDetails, bool update)
+    private static async Task SaveTransactionDetail(PurchaseReturnModel purchaseReturn, List<PurchaseReturnItemCartModel> purchaseReturnDetails, bool update)
     {
         if (update)
         {
@@ -252,7 +171,11 @@ public static class PurchaseReturnData
             if (existingAccounting is not null && existingAccounting.Id > 0)
             {
                 existingAccounting.Status = false;
-                await AccountingData.InsertAccounting(existingAccounting);
+                existingAccounting.LastModifiedBy = purchaseReturn.LastModifiedBy;
+                existingAccounting.LastModifiedAt = purchaseReturn.LastModifiedAt;
+                existingAccounting.LastModifiedFromPlatform = purchaseReturn.LastModifiedFromPlatform;
+
+                await AccountingData.DeleteTransaction(existingAccounting);
             }
         }
 
@@ -329,6 +252,6 @@ public static class PurchaseReturnData
             Status = true
         };
 
-        await AccountingData.SaveAccountingTransaction(accounting, accountingCart);
+        await AccountingData.SaveTransaction(accounting, accountingCart);
     }
 }

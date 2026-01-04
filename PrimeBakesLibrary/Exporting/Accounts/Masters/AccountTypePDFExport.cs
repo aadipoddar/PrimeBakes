@@ -1,20 +1,13 @@
-﻿using PrimeBakesLibrary.Models.Accounts.Masters;
+﻿using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Accounts.Masters;
 
 namespace PrimeBakesLibrary.Exporting.Accounts.Masters;
 
-/// <summary>
-/// PDF export functionality for Account Type
-/// </summary>
 public static class AccountTypePDFExport
 {
-	/// <summary>
-	/// Export account type data to PDF with custom column order and formatting
-	/// </summary>
-	/// <param name="accountTypeData">Collection of account type records</param>
-	/// <returns>MemoryStream containing the PDF file</returns>
-	public static async Task<MemoryStream> ExportAccountType(IEnumerable<AccountTypeModel> accountTypeData)
+	public static async Task<(MemoryStream stream, string fileName)> ExportMaster(IEnumerable<AccountTypeModel> accountTypeData)
 	{
-		// Create enriched data with status formatting
 		var enrichedData = accountTypeData.Select(accountType => new
 		{
 			accountType.Id,
@@ -23,7 +16,6 @@ public static class AccountTypePDFExport
 			Status = accountType.Status ? "Active" : "Deleted"
 		});
 
-		// Define custom column settings
 		var columnSettings = new Dictionary<string, PDFReportExportUtil.ColumnSetting>
 		{
 			[nameof(AccountTypeModel.Id)] = new()
@@ -52,7 +44,6 @@ public static class AccountTypePDFExport
 			}
 		};
 
-		// Define column order
 		List<string> columnOrder =
 		[
 			nameof(AccountTypeModel.Id),
@@ -61,8 +52,7 @@ public static class AccountTypePDFExport
 			nameof(AccountTypeModel.Status)
 		];
 
-		// Call the generic PDF export utility
-		return await PDFReportExportUtil.ExportToPdf(
+		var stream = await PDFReportExportUtil.ExportToPdf(
 			enrichedData,
 			"ACCOUNT TYPE MASTER",
 			null,
@@ -71,5 +61,9 @@ public static class AccountTypePDFExport
 			columnOrder,
 			useLandscape: false
 		);
+
+		var currentDateTime = CommonData.LoadCurrentDateTime();
+		var fileName = $"Account_Type_Master_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
+		return (stream, fileName);
 	}
 }

@@ -1,39 +1,23 @@
-﻿using PrimeBakesLibrary.Exporting.Utils;
+﻿using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Common;
 
 namespace PrimeBakesLibrary.Exporting.Operations;
 
-/// <summary>
-/// Excel export functionality for Location
-/// </summary>
 public static class LocationExcelExport
 {
-    /// <summary>
-    /// Export Location data to Excel with custom column order and formatting
-    /// </summary>
-    /// <param name="locationData">Collection of location records</param>
-    /// <returns>MemoryStream containing the Excel file</returns>
-    public static async Task<MemoryStream> ExportLocation(IEnumerable<LocationModel> locationData)
+    public static async Task<(MemoryStream stream, string fileName)> ExportMaster(IEnumerable<LocationModel> locationData)
     {
-        // Define custom column settings
         var columnSettings = new Dictionary<string, ExcelReportExportUtil.ColumnSetting>
         {
-            // IDs - Center aligned, no totals
             [nameof(LocationModel.Id)] = new() { DisplayName = "ID", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false },
-
-            // Text fields - Left aligned
             [nameof(LocationModel.Name)] = new() { DisplayName = "Location Name", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft, IsRequired = true },
             [nameof(LocationModel.PrefixCode)] = new() { DisplayName = "Prefix Code", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IsRequired = true },
             [nameof(LocationModel.Remarks)] = new() { DisplayName = "Remarks", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignLeft },
-
-            // Numeric fields - Right aligned
             [nameof(LocationModel.Discount)] = new() { DisplayName = "Discount %", Format = "#,##0.00", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignRight, IncludeInTotal = false },
-
-            // Status - Center aligned
             [nameof(LocationModel.Status)] = new() { DisplayName = "Status", Alignment = Syncfusion.XlsIO.ExcelHAlign.HAlignCenter, IncludeInTotal = false }
         };
 
-        // Define column order
         List<string> columnOrder =
         [
             nameof(LocationModel.Id),
@@ -42,10 +26,9 @@ public static class LocationExcelExport
             nameof(LocationModel.Discount),
             nameof(LocationModel.Remarks),
             nameof(LocationModel.Status)
-		];
+        ];
 
-        // Call the generic Excel export utility
-        return await ExcelReportExportUtil.ExportToExcel(
+        var stream = await ExcelReportExportUtil.ExportToExcel(
             locationData,
             "LOCATION MASTER",
             "Location Data",
@@ -54,5 +37,9 @@ public static class LocationExcelExport
             columnSettings,
             columnOrder
         );
+
+        var currentDateTime = await CommonData.LoadCurrentDateTime();
+        var fileName = $"Location_Master_{currentDateTime:yyyyMMdd_HHmmss}.xlsx";
+        return (stream, fileName);
     }
 }

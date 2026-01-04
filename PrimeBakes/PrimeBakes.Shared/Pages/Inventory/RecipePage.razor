@@ -1,10 +1,8 @@
 ﻿@page "/inventory/recipe"
 
-
 @using PrimeBakesLibrary.Models.Common;
 @using PrimeBakesLibrary.Models.Inventory;
 @using PrimeBakesLibrary.Models.Sales.Product
-
 
 <PageTitle>Recipe - Prime Bakes</PageTitle>
 
@@ -15,14 +13,19 @@
 else
 {
 	<div style="display: flex; flex-direction: column; min-height: 100vh;">
-		<Header Title="Product Recipe Management" Subtitle="Create and manage product recipes with raw material quantities" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack">
+		<Header Title="Product Recipe Management" Subtitle="Create and manage product recipes with raw material quantities"
+			ShowLogout="true" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack"
+			OnLogoutClick="Logout">
 			<RightContent>
-				<IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Recipe (Ctrl + S)" Disabled="_isProcessing" OnClick="OnSaveButtonClick" />
+				<IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Recipe (Ctrl + S)"
+					Disabled="_isProcessing" OnClick="OnSaveButtonClick" />
 				@if (_recipe is not null && _recipe.Id > 0)
 				{
-					<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Title="Delete Recipe" Disabled="_isProcessing" OnClick="DeleteRecipe" />
+					<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Title="Delete Recipe"
+						Disabled="_isProcessing" OnClick="DeleteRecipe" />
 				}
-				<IconButton Icon="IconType.New" Title="New Recipe (Ctrl + N)" Disabled="_isProcessing" OnClick="ResetPage" />
+				<IconButton Icon="IconType.New" Title="New Recipe (Ctrl + N)" Disabled="_isProcessing"
+					OnClick="ResetPage" />
 			</RightContent>
 		</Header>
 
@@ -33,11 +36,13 @@ else
 			<div class="section-card">
 				<div class="section-header">
 					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+							viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+							stroke-linejoin="round">
 							<circle cx="12" cy="12" r="10" />
 							<line x1="2" y1="12" x2="22" y2="12" />
-							<path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+							<path
+								d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
 						</svg>
 						<h2 class="section-title">Select Product</h2>
 					</div>
@@ -49,11 +54,11 @@ else
 								Product <span class="required">*</span>
 							</label>
 							<SfAutoComplete Value="@_selectedProduct" TValue="ProductLocationOverviewModel"
-											TItem="ProductLocationOverviewModel" DataSource="@_products" Placeholder="Select a Product"
-											FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
-											FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
-								<AutoCompleteEvents TItem="ProductLocationOverviewModel" TValue="ProductLocationOverviewModel"
-													ValueChange="OnProductChanged" />
+								TItem="ProductLocationOverviewModel" DataSource="@_products" Placeholder="Select a Product"
+								FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
+								FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
+								<AutoCompleteEvents TItem="ProductLocationOverviewModel"
+									TValue="ProductLocationOverviewModel" ValueChange="OnProductChanged" />
 								<AutoCompleteFieldSettings Value="Name" />
 							</SfAutoComplete>
 						</div>
@@ -65,8 +70,9 @@ else
 			<div class="section-card">
 				<div class="section-header">
 					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+							viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+							stroke-linejoin="round">
 							<circle cx="9" cy="21" r="1" />
 							<circle cx="20" cy="21" r="1" />
 							<path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
@@ -80,9 +86,10 @@ else
 						<div class="cart-field cart-field-product">
 							<label class="cart-label">Raw Material <span class="required">*</span></label>
 							<SfAutoComplete @ref="_sfItemAutoComplete" @bind-Value="@_selectedRawMaterial"
-											TValue="RawMaterialModel ?" TItem="RawMaterialModel" DataSource="@_rawMaterials"
-											Placeholder="Select Raw Material" FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
-											FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
+								TValue="RawMaterialModel ?" TItem="RawMaterialModel" DataSource="@_rawMaterials"
+								Placeholder="Select Raw Material" FloatLabelType="FloatLabelType.Never"
+								AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
+								CssClass="custom-autocomplete">
 								<AutoCompleteFieldSettings Value="Name" />
 							</SfAutoComplete>
 						</div>
@@ -90,13 +97,14 @@ else
 						<div class="cart-field cart-field-medium">
 							<label class="cart-label">Quantity <span class="required">*</span></label>
 							<SfNumericTextBox @bind-Value="_selectedRawMaterialQuantity" TValue="decimal" Min="0"
-											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
-											  CssClass="custom-numeric editable-field" />
+								ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+								CssClass="custom-numeric editable-field" />
 						</div>
 
-					<div class="cart-field">
+						<div class="cart-field">
 							<label class="cart-label" style="visibility: hidden;">Action</label>
-							<IconButton Icon="IconType.Add" Variant="ButtonVariant.Add" Text="Add" Title="Add to Cart" Disabled="_isProcessing" OnClick="AddItemToCart" />
+							<IconButton Icon="IconType.Add" Variant="ButtonVariant.Add" Text="Add" Title="Add to Cart"
+								Disabled="_isProcessing" OnClick="AddItemToCart" />
 						</div>
 					</div>
 				</div>
@@ -106,8 +114,9 @@ else
 			<div class="section-card">
 				<div class="section-header">
 					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+							viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+							stroke-linejoin="round">
 							<path d="M3 3h7a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3H3V3z" />
 							<path d="M14 3h7v17h-7V3z" />
 						</svg>
@@ -116,9 +125,9 @@ else
 				</div>
 				<div class="section-body grid-body">
 					<SfGrid ID="_sfCartGrid" @ref="_sfCartGrid" DataSource="_recipeItems" AllowTextWrap="true"
-							AllowPaging="false" AllowSorting="true" AllowResizing="true" AllowFiltering="true"
-							GridLines="GridLine.Horizontal" CssClass="professional-grid"
-							Toolbar="@(new List<string>() { "Search" })">
+						AllowPaging="false" AllowSorting="true" AllowResizing="true" AllowFiltering="true"
+						GridLines="GridLine.Horizontal" CssClass="professional-grid"
+						Toolbar="@(new List<string>() { "Search" })">
 
 						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
@@ -126,7 +135,7 @@ else
 							<GridAggregate>
 								<GridAggregateColumns>
 									<GridAggregateColumn Field="@nameof(RecipeItemCartModel.ItemName)"
-														 Type="AggregateType.Count">
+										Type="AggregateType.Count">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
@@ -136,7 +145,8 @@ else
 											</div>
 										</FooterTemplate>
 									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(RecipeItemCartModel.Quantity)" Type="AggregateType.Sum">
+									<GridAggregateColumn Field="@nameof(RecipeItemCartModel.Quantity)"
+										Type="AggregateType.Sum">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
@@ -158,15 +168,19 @@ else
 										var item = (context as RecipeItemCartModel);
 									}
 									<div class="grid-actions">
-										<IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid" Title="Edit Item" Disabled="@_isProcessing" OnClick="@(() => EditCartItem(item))" />
-										<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Remove Item" Disabled="@_isProcessing" OnClick="@(() => RemoveItemFromCart(item))" />
+										<IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid"
+											Title="Edit Item" Disabled="@_isProcessing"
+											OnClick="@(() => EditCartItem(item))" />
+										<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete"
+											Size="ButtonSize.Grid" Title="Remove Item" Disabled="@_isProcessing"
+											OnClick="@(() => RemoveItemFromCart(item))" />
 									</div>
 								</Template>
 							</GridColumn>
 							<GridColumn Field="@nameof(RecipeItemCartModel.ItemName)" HeaderText="Raw Material Name"
-										Width="250" />
+								Width="250" />
 							<GridColumn Field="@nameof(RecipeItemCartModel.Quantity)" HeaderText="Quantity" Width="150"
-										TextAlign="TextAlign.Right" Format="N2" />
+								TextAlign="TextAlign.Right" Format="N2" />
 						</GridColumns>
 					</SfGrid>
 				</div>
@@ -189,9 +203,9 @@ else
 		padding: 16px 32px;
 		width: 100%;
 		margin: 0 auto;
-        background: linear-gradient(135deg, #ffeef5 0%, #fff5f9 100%);
-        flex: 1;
-    }
+		background: linear-gradient(135deg, #ffeef5 0%, #fff5f9 100%);
+		flex: 1;
+	}
 
 	/* Section Card Styles */
 	.section-card {
@@ -299,10 +313,10 @@ else
 		letter-spacing: 0.3px;
 	}
 
-		.cart-label .required {
-			color: #dc2626;
-			margin-left: 2px;
-		}
+	.cart-label .required {
+		color: #dc2626;
+		margin-left: 2px;
+	}
 
 	::deep .cart-field .e-input-group,
 	::deep .cart-field .custom-numeric .e-input-group,
@@ -312,14 +326,14 @@ else
 		border: 1px solid #3b82f6;
 	}
 
-		::deep .cart-field .e-input-group input,
-		::deep .cart-field .custom-numeric .e-input-group input,
-		::deep .cart-field .custom-autocomplete .e-input-group input {
-			font-size: 14px;
-			font-weight: 500;
-			color: #1e293b;
-			padding: 8px 12px;
-		}
+	::deep .cart-field .e-input-group input,
+	::deep .cart-field .custom-numeric .e-input-group input,
+	::deep .cart-field .custom-autocomplete .e-input-group input {
+		font-size: 14px;
+		font-weight: 500;
+		color: #1e293b;
+		padding: 8px 12px;
+	}
 
 	/* Professional Grid Styles */
 	.e-grid .e-summaryrow .e-summarycell {
@@ -330,74 +344,74 @@ else
 		border: none;
 	}
 
-		::deep .professional-grid .e-gridheader {
-			background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
-			border-bottom: 2px solid #e2e8f0;
-		}
+	::deep .professional-grid .e-gridheader {
+		background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
+		border-bottom: 2px solid #e2e8f0;
+	}
 
-		::deep .professional-grid .e-headercell {
-			background: transparent;
-			color: #475569;
-			font-weight: 600;
-			font-size: 12px;
-			text-transform: uppercase;
-			letter-spacing: 0.3px;
-			border-right: 1px solid #e2e8f0;
-			padding: 12px 8px;
-		}
+	::deep .professional-grid .e-headercell {
+		background: transparent;
+		color: #475569;
+		font-weight: 600;
+		font-size: 12px;
+		text-transform: uppercase;
+		letter-spacing: 0.3px;
+		border-right: 1px solid #e2e8f0;
+		padding: 12px 8px;
+	}
 
-			::deep .professional-grid .e-headercell:last-child {
-				border-right: none;
-			}
+	::deep .professional-grid .e-headercell:last-child {
+		border-right: none;
+	}
 
-		::deep .professional-grid .e-gridcontent {
-			background: #ffffff;
-		}
+	::deep .professional-grid .e-gridcontent {
+		background: #ffffff;
+	}
 
-		::deep .professional-grid .e-row {
-			transition: background-color 0.2s ease;
-		}
+	::deep .professional-grid .e-row {
+		transition: background-color 0.2s ease;
+	}
 
-			::deep .professional-grid .e-row:hover {
-				background-color: #f8fafc;
-			}
+	::deep .professional-grid .e-row:hover {
+		background-color: #f8fafc;
+	}
 
-			::deep .professional-grid .e-row.e-altrow {
-				background-color: #fafbfc;
-			}
+	::deep .professional-grid .e-row.e-altrow {
+		background-color: #fafbfc;
+	}
 
-				::deep .professional-grid .e-row.e-altrow:hover {
-					background-color: #f8fafc;
-				}
+	::deep .professional-grid .e-row.e-altrow:hover {
+		background-color: #f8fafc;
+	}
 
-		::deep .professional-grid .e-rowcell {
-			border-right: 1px solid #f1f5f9;
-			border-bottom: 1px solid #f1f5f9;
-			padding: 10px 8px;
-			font-size: 13px;
-			color: #1e293b;
-		}
+	::deep .professional-grid .e-rowcell {
+		border-right: 1px solid #f1f5f9;
+		border-bottom: 1px solid #f1f5f9;
+		padding: 10px 8px;
+		font-size: 13px;
+		color: #1e293b;
+	}
 
-			::deep .professional-grid .e-rowcell:last-child {
-				border-right: none;
-			}
+	::deep .professional-grid .e-rowcell:last-child {
+		border-right: none;
+	}
 
-		/* Grid Footer Aggregates */
-		::deep .professional-grid .e-gridfooter {
-			background: linear-gradient(to bottom, #f1f5f9 0%, #e2e8f0 100%);
-			border-top: 2px solid #cbd5e1;
-		}
+	/* Grid Footer Aggregates */
+	::deep .professional-grid .e-gridfooter {
+		background: linear-gradient(to bottom, #f1f5f9 0%, #e2e8f0 100%);
+		border-top: 2px solid #cbd5e1;
+	}
 
-		::deep .professional-grid .e-summarycell {
-			font-weight: 600;
-			color: #1e293b;
-			padding: 12px 8px;
-			border-right: 1px solid #cbd5e1;
-		}
+	::deep .professional-grid .e-summarycell {
+		font-weight: 600;
+		color: #1e293b;
+		padding: 12px 8px;
+		border-right: 1px solid #cbd5e1;
+	}
 
-			::deep .professional-grid .e-summarycell:last-child {
-				border-right: none;
-			}
+	::deep .professional-grid .e-summarycell:last-child {
+		border-right: none;
+	}
 
 	.aggregate-label {
 		text-align: left;
@@ -411,10 +425,10 @@ else
 		color: #1e293b;
 	}
 
-		.aggregate-label strong,
-		.aggregate-value strong {
-			font-weight: 700;
-		}
+	.aggregate-label strong,
+	.aggregate-value strong {
+		font-weight: 700;
+	}
 
 	/* Empty Grid State */
 	::deep .professional-grid .e-emptyrow {

@@ -7,42 +7,31 @@ using PrimeBakesLibrary.Models.Inventory.Kitchen;
 
 namespace PrimeBakesLibrary.Exporting.Inventory.Kitchen;
 
-/// <summary>
-/// Convert Kitchen Issue data to Invoice Excel format
-/// </summary>
 public static class KitchenIssueInvoiceExcelExport
 {
-	/// <summary>
-	/// Export Kitchen Issue as a professional invoice Excel (automatically loads item names)
-	/// </summary>
-	/// <param name="kitchenIssueHeader">Kitchen Issue header data</param>
-	/// <param name="kitchenIssueDetails">Kitchen Issue detail line items</param>
-	/// <param name="company">Company information</param>
-	/// <param name="kitchen">Kitchen/Location information</param>
-	/// <param name="logoPath">Optional: Path to company logo</param>
-	/// <param name="invoiceType">Type of document (KITCHEN ISSUE INVOICE, etc.)</param>
-	/// <returns>MemoryStream containing the Excel file</returns>
-	public static async Task<MemoryStream> ExportKitchenIssueInvoice(
-		KitchenIssueModel kitchenIssueHeader,
-		List<KitchenIssueDetailModel> kitchenIssueDetails,
-		CompanyModel company,
-		LocationModel kitchen,
-		string logoPath = null,
-		string invoiceType = "KITCHEN ISSUE INVOICE")
+	public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId)
 	{
-		// Load all raw materials to get names
+		var transaction = await CommonData.LoadTableDataById<KitchenIssueModel>(TableNames.KitchenIssue, transactionId) ??
+			throw new InvalidOperationException("Transaction not found.");
+
+		var transactionDetails = await CommonData.LoadTableDataByMasterId<KitchenIssueDetailModel>(TableNames.KitchenIssueDetail, transaction.Id);
+		if (transactionDetails is null || transactionDetails.Count == 0)
+			throw new InvalidOperationException("No transaction details found for the transaction.");
+
+		var company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, transaction.CompanyId);
+		var kitchen = await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, transaction.KitchenId);
+		if (company is null || kitchen is null)
+			throw new InvalidOperationException("Company or kitchen information is missing.");
+
 		var allItems = await CommonData.LoadTableData<RawMaterialModel>(TableNames.RawMaterial);
 
-		// Map line items with actual item names
-		var cartItems = kitchenIssueDetails.Select(detail =>
+		var cartItems = transactionDetails.Select(detail =>
 		{
 			var item = allItems.FirstOrDefault(i => i.Id == detail.RawMaterialId);
-			string itemName = item?.Name ?? $"Item #{detail.RawMaterialId}";
-
 			return new KitchenIssueItemCartModel
 			{
 				ItemId = detail.RawMaterialId,
-				ItemName = itemName,
+				ItemName = item?.Name ?? $"Item #{detail.RawMaterialId}",
 				Quantity = detail.Quantity,
 				UnitOfMeasurement = detail.UnitOfMeasurement,
 				Rate = detail.Rate,
@@ -51,80 +40,50 @@ public static class KitchenIssueInvoiceExcelExport
 			};
 		}).ToList();
 
-		// Use the simplified export method
-		return await ExportKitchenIssueInvoiceWithItems(
-			kitchenIssueHeader,
-			cartItems,
-			company,
-			kitchen,
-			logoPath,
-			invoiceType
-		);
-	}
-
-	/// <summary>
-	/// Export Kitchen Issue with item names already loaded
-	/// Uses generic invoice utility with zero discount/tax for simplified format
-	/// </summary>
-	public static async Task<MemoryStream> ExportKitchenIssueInvoiceWithItems(
-		KitchenIssueModel kitchenIssueHeader,
-		List<KitchenIssueItemCartModel> kitchenIssueItems,
-		CompanyModel company,
-		LocationModel kitchen,
-		string logoPath = null,
-		string invoiceType = "KITCHEN ISSUE INVOICE")
-	{
-		// Convert LocationModel to LedgerModel format for generic utility
+		// Convert LocationModel to LedgerModel for display
 		var kitchenAsLedger = new LedgerModel
 		{
 			Name = kitchen.Name,
-			Address = "",
-			Phone = "",
-			Email = "",
-			GSTNo = ""
 		};
 
-		// Map line items to generic invoice format (no discount/tax for kitchen issues)
-		var lineItems = kitchenIssueItems.Select(item => new ExcelInvoiceExportUtil.InvoiceLineItem
-		{
-			ItemId = item.ItemId,
-			ItemName = item.ItemName,
-			Quantity = item.Quantity,
-			UnitOfMeasurement = item.UnitOfMeasurement,
-			Rate = item.Rate,
-			DiscountPercent = 0,
-			AfterDiscount = item.Quantity * item.Rate,
-			CGSTPercent = 0,
-			SGSTPercent = 0,
-			IGSTPercent = 0,
-			TotalTaxAmount = 0,
-			Total = item.Total
-		}).ToList();
-
-		// Map invoice header data
 		var invoiceData = new ExcelInvoiceExportUtil.InvoiceData
 		{
-			TransactionNo = kitchenIssueHeader.TransactionNo,
-			TransactionDateTime = kitchenIssueHeader.TransactionDateTime,
-			ItemsTotalAmount = kitchenIssueHeader.TotalAmount,
-			OtherChargesAmount = 0,
-			OtherChargesPercent = 0,
-			CashDiscountAmount = 0,
-			CashDiscountPercent = 0,
-			RoundOffAmount = 0,
-			TotalAmount = kitchenIssueHeader.TotalAmount,
-			Remarks = kitchenIssueHeader.Remarks,
-			Status = kitchenIssueHeader.Status
+			Company = company,
+			BillTo = kitchenAsLedger,
+			InvoiceType = "KITCHEN ISSUE INVOICE",
+			TransactionNo = transaction.TransactionNo,
+			TransactionDateTime = transaction.TransactionDateTime,
+			TotalAmount = transaction.TotalAmount,
+			Remarks = transaction.Remarks,
+			Status = transaction.Status,
+			PaymentModes = null
 		};
 
-		// Generate invoice Excel using generic utility
-		return await ExcelInvoiceExportUtil.ExportInvoiceToExcel(
+		var summaryFields = new Dictionary<string, string>
+		{
+			["Grand Total"] = transaction.TotalAmount.FormatIndianCurrency()
+		};
+
+		var columnSettings = new List<ExcelInvoiceExportUtil.InvoiceColumnSetting>
+		{
+			new("#", "#", 5, Syncfusion.XlsIO.ExcelHAlign.HAlignCenter),
+			new(nameof(KitchenIssueItemCartModel.ItemName), "Item", 35, Syncfusion.XlsIO.ExcelHAlign.HAlignLeft),
+			new(nameof(KitchenIssueItemCartModel.UnitOfMeasurement), "UOM", 10, Syncfusion.XlsIO.ExcelHAlign.HAlignCenter),
+			new(nameof(KitchenIssueItemCartModel.Quantity), "Qty", 12, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00"),
+			new(nameof(KitchenIssueItemCartModel.Rate), "Rate", 12, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00"),
+			new(nameof(KitchenIssueItemCartModel.Total), "Total", 15, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00")
+		};
+
+		var stream = await ExcelInvoiceExportUtil.ExportInvoiceToExcel(
 			invoiceData,
-			lineItems,
-			company,
-			kitchenAsLedger,
-			logoPath,
-			invoiceType
+			cartItems,
+			columnSettings,
+			null,
+			summaryFields
 		);
+
+		var currentDateTime = await CommonData.LoadCurrentDateTime();
+		string fileName = $"KITCHEN_ISSUE_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.xlsx";
+		return (stream, fileName);
 	}
 }

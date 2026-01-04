@@ -54,11 +54,12 @@ public partial class LedgerPage : IAsyncDisposable
     {
         _hotKeysContext = HotKeys.CreateContext()
             .Add(ModCode.Ctrl, Code.S, SaveLedger, "Save", Exclude.None)
-            .Add(ModCode.Ctrl, Code.N, () => NavigationManager.NavigateTo(PageRouteNames.AdminLedger, true), "New", Exclude.None)
             .Add(ModCode.Ctrl, Code.E, ExportExcel, "Export Excel", Exclude.None)
             .Add(ModCode.Ctrl, Code.P, ExportPdf, "Export PDF", Exclude.None)
-            .Add(ModCode.Ctrl, Code.D, () => NavigationManager.NavigateTo(PageRouteNames.Dashboard), "Dashboard", Exclude.None)
-            .Add(ModCode.Ctrl, Code.B, () => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard), "Back", Exclude.None)
+            .Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
+            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
+            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
+            .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Dashboard", Exclude.None)
             .Add(Code.Insert, EditSelectedItem, "Edit selected", Exclude.None)
             .Add(Code.Delete, DeleteSelectedItem, "Delete selected", Exclude.None);
 
@@ -66,7 +67,6 @@ public partial class LedgerPage : IAsyncDisposable
         _groups = await CommonData.LoadTableData<GroupModel>(TableNames.Group);
         _accountTypes = await CommonData.LoadTableData<AccountTypeModel>(TableNames.AccountType);
         _stateUTs = await CommonData.LoadTableData<StateUTModel>(TableNames.StateUT);
-        _locations = await CommonData.LoadTableData<LocationModel>(TableNames.Location);
 
         if (!_showDeleted)
             _ledgers = [.. _ledgers.Where(l => l.Status)];
@@ -87,7 +87,6 @@ public partial class LedgerPage : IAsyncDisposable
             GroupId = ledger.GroupId,
             AccountTypeId = ledger.AccountTypeId,
             StateUTId = ledger.StateUTId,
-            LocationId = ledger.LocationId,
             GSTNo = ledger.GSTNo,
             PANNo = ledger.PANNo,
             CINNo = ledger.CINNo,
@@ -260,31 +259,16 @@ public partial class LedgerPage : IAsyncDisposable
         if (string.IsNullOrWhiteSpace(_ledger.Address)) _ledger.Address = null;
         if (string.IsNullOrWhiteSpace(_ledger.Remarks)) _ledger.Remarks = null;
 
-        // Validate location uniqueness if location is selected
-        if (_ledger.LocationId is > 0)
+        if (!string.IsNullOrWhiteSpace(_ledger.Phone) && !Helper.ValidatePhoneNumber(_ledger.Phone))
         {
-            if (_ledger.Id > 0)
-            {
-                // Editing existing ledger - check if another ledger has this location
-                var existingLedgerWithLocation = _ledgers.FirstOrDefault(_ => _.Id != _ledger.Id && _.LocationId == _ledger.LocationId);
-                if (existingLedgerWithLocation is not null)
-                {
-                    var locationName = _locations.FirstOrDefault(l => l.Id == _ledger.LocationId)?.Name ?? "Unknown";
-                    await _toastNotification.ShowAsync("Error", $"Location '{locationName}' is already tagged to another ledger '{existingLedgerWithLocation.Name}'. Each location can only be tagged to one ledger.", ToastType.Error);
-                    return false;
-                }
-            }
-            else
-            {
-                // Creating new ledger - check if any ledger has this location
-                var existingLedgerWithLocation = _ledgers.FirstOrDefault(_ => _.LocationId == _ledger.LocationId);
-                if (existingLedgerWithLocation is not null)
-                {
-                    var locationName = _locations.FirstOrDefault(l => l.Id == _ledger.LocationId)?.Name ?? "Unknown";
-                    await _toastNotification.ShowAsync("Error", $"Location '{locationName}' is already tagged to ledger '{existingLedgerWithLocation.Name}'. Each location can only be tagged to one ledger.", ToastType.Error);
-                    return false;
-                }
-            }
+            await _toastNotification.ShowAsync("Error", "Invalid phone number format. Please enter a valid phone number.", ToastType.Error);
+            return false;
+        }
+
+        if (!string.IsNullOrWhiteSpace(_ledger.Email) && !Helper.ValidateEmail(_ledger.Email))
+        {
+            await _toastNotification.ShowAsync("Error", "Invalid email format. Please enter a valid email address.", ToastType.Error);
+            return false;
         }
 
         if (_ledger.Id > 0)
@@ -295,6 +279,26 @@ public partial class LedgerPage : IAsyncDisposable
                 await _toastNotification.ShowAsync("Error", $"Ledger name '{_ledger.Name}' already exists. Please choose a different name.", ToastType.Error);
                 return false;
             }
+
+            if (!string.IsNullOrWhiteSpace(_ledger.Phone))
+            {
+                var duplicatePhoneLedger = _ledgers.FirstOrDefault(_ => _.Id != _ledger.Id && _.Phone.Equals(_ledger.Phone, StringComparison.OrdinalIgnoreCase));
+                if (duplicatePhoneLedger is not null)
+                {
+                    await _toastNotification.ShowAsync("Error", $"Phone number '{_ledger.Phone}' is already associated with another ledger. Please use a different phone number.", ToastType.Error);
+                    return false;
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(_ledger.Email))
+            {
+                var duplicateEmailLedger = _ledgers.FirstOrDefault(_ => _.Id != _ledger.Id && _.Email.Equals(_ledger.Email, StringComparison.OrdinalIgnoreCase));
+                if (duplicateEmailLedger is not null)
+                {
+                    await _toastNotification.ShowAsync("Error", $"Email '{_ledger.Email}' is already associated with another ledger. Please use a different email address.", ToastType.Error);
+                    return false;
+                }
+            }
         }
         else
         {
@@ -303,6 +307,26 @@ public partial class LedgerPage : IAsyncDisposable
             {
                 await _toastNotification.ShowAsync("Error", $"Ledger name '{_ledger.Name}' already exists. Please choose a different name.", ToastType.Error);
                 return false;
+            }
+
+            if (!string.IsNullOrWhiteSpace(_ledger.Phone))
+            {
+                var duplicatePhoneLedger = _ledgers.FirstOrDefault(_ => _.Phone.Equals(_ledger.Phone, StringComparison.OrdinalIgnoreCase));
+                if (duplicatePhoneLedger is not null)
+                {
+                    await _toastNotification.ShowAsync("Error", $"Phone number '{_ledger.Phone}' is already associated with another ledger. Please use a different phone number.", ToastType.Error);
+                    return false;
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(_ledger.Email))
+            {
+                var duplicateEmailLedger = _ledgers.FirstOrDefault(_ => _.Email.Equals(_ledger.Email, StringComparison.OrdinalIgnoreCase));
+                if (duplicateEmailLedger is not null)
+                {
+                    await _toastNotification.ShowAsync("Error", $"Email '{_ledger.Email}' is already associated with another ledger. Please use a different email address.", ToastType.Error);
+                    return false;
+                }
             }
         }
 
@@ -358,15 +382,8 @@ public partial class LedgerPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Exporting to Excel...", ToastType.Info);
 
-            // Call the Excel export utility
-            var stream = await LedgerExcelExport.ExportLedger(_ledgers);
-
-            // Generate file name
-            string fileName = "LEDGER_MASTER.xlsx";
-
-            // Save and view the Excel file
+            var (stream, fileName) = await LedgerExcelExport.ExportMaster(_ledgers);
             await SaveAndViewService.SaveAndView(fileName, stream);
-
             await _toastNotification.ShowAsync("Success", "Ledger data exported to Excel successfully.", ToastType.Success);
         }
         catch (Exception ex)
@@ -391,15 +408,8 @@ public partial class LedgerPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Exporting to PDF...", ToastType.Info);
 
-            // Call the PDF export utility
-            var stream = await LedgerPDFExport.ExportLedger(_ledgers);
-
-            // Generate file name
-            string fileName = "LEDGER_MASTER.pdf";
-
-            // Save and view the PDF file
+            var (stream, fileName) = await LedgerPDFExport.ExportMaster(_ledgers);
             await SaveAndViewService.SaveAndView(fileName, stream);
-
             await _toastNotification.ShowAsync("Success", "Ledger data exported to PDF successfully.", ToastType.Success);
         }
         catch (Exception ex)
@@ -414,6 +424,7 @@ public partial class LedgerPage : IAsyncDisposable
     }
     #endregion
 
+    #region Utilities
     private async Task EditSelectedItem()
     {
         var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
@@ -433,10 +444,24 @@ public partial class LedgerPage : IAsyncDisposable
         }
     }
 
+    private void ResetPage() =>
+        NavigationManager.NavigateTo(PageRouteNames.AdminLedger, true);
+
+    private void NavigateBack() =>
+        NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
+
+    private void NavigateToDashboard() =>
+        NavigationManager.NavigateTo(PageRouteNames.Dashboard);
+
+    private async Task Logout() =>
+        await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
+
     public async ValueTask DisposeAsync()
     {
         if (_hotKeysContext is not null)
             await _hotKeysContext.DisposeAsync();
+
         GC.SuppressFinalize(this);
     }
+    #endregion
 }

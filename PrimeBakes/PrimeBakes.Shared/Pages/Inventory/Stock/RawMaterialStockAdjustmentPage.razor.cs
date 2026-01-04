@@ -65,6 +65,7 @@ public partial class RawMaterialStockAdjustmentPage : IAsyncDisposable
             .Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
             .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
             .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
+            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
             .Add(Code.Delete, RemoveSelectedCartItem, "Delete selected cart item", Exclude.None)
             .Add(Code.Insert, EditSelectedCartItem, "Edit selected cart item", Exclude.None);
 
@@ -392,9 +393,8 @@ public partial class RawMaterialStockAdjustmentPage : IAsyncDisposable
             await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
 
             await RawMaterialStockData.SaveRawMaterialStockAdjustment(_transactionDateTime, _cart, _user.Id);
-            await DeleteLocalFiles();
-            NavigationManager.NavigateTo(PageRouteNames.RawMaterialStockAdjustment, true);
 
+            await ResetPage();
             await _toastNotification.ShowAsync("Save Transaction", "Transaction saved successfully!", ToastType.Success);
         }
         catch (Exception ex)
@@ -426,11 +426,14 @@ public partial class RawMaterialStockAdjustmentPage : IAsyncDisposable
             NavigationManager.NavigateTo(PageRouteNames.ReportRawMaterialStock);
     }
 
-    private async Task NavigateToDashboard() =>
+    private void NavigateToDashboard() =>
         NavigationManager.NavigateTo(PageRouteNames.Dashboard);
 
-    private async Task NavigateBack() =>
+    private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);
+
+    private async Task Logout() =>
+        await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 
     public async ValueTask DisposeAsync()
     {

@@ -1,20 +1,13 @@
-﻿using PrimeBakesLibrary.Models.Accounts.Masters;
+﻿using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Accounts.Masters;
 
 namespace PrimeBakesLibrary.Exporting.Accounts.Masters;
 
-/// <summary>
-/// PDF export functionality for State/UT
-/// </summary>
 public static class StateUTPDFExport
 {
-    /// <summary>
-    /// Export state/UT data to PDF with custom column order and formatting
-    /// </summary>
-    /// <param name="stateUTData">Collection of state/UT records</param>
-    /// <returns>MemoryStream containing the PDF file</returns>
-    public static async Task<MemoryStream> ExportStateUT(IEnumerable<StateUTModel> stateUTData)
+    public static async Task<(MemoryStream stream, string fileName)> ExportMaster(IEnumerable<StateUTModel> stateUTData)
     {
-        // Create enriched data with status formatting
         var enrichedData = stateUTData.Select(stateUT => new
         {
             stateUT.Id,
@@ -22,7 +15,8 @@ public static class StateUTPDFExport
             stateUT.Remarks,
             UnionTerritory = stateUT.UnionTerritory ? "Yes" : "No",
             Status = stateUT.Status ? "Active" : "Deleted"
-        });        // Define custom column settings
+        });
+
         var columnSettings = new Dictionary<string, PDFReportExportUtil.ColumnSetting>
         {
             [nameof(StateUTModel.Id)] = new()
@@ -61,7 +55,6 @@ public static class StateUTPDFExport
             }
         };
 
-        // Define column order
         List<string> columnOrder =
         [
             nameof(StateUTModel.Id),
@@ -70,9 +63,8 @@ public static class StateUTPDFExport
             nameof(StateUTModel.UnionTerritory),
             nameof(StateUTModel.Status)
         ];
-        
-        // Call the generic PDF export utility
-        return await PDFReportExportUtil.ExportToPdf(
+
+        var stream = await PDFReportExportUtil.ExportToPdf(
             enrichedData,
             "STATE & UNION TERRITORY MASTER",
             null,
@@ -81,5 +73,9 @@ public static class StateUTPDFExport
             columnOrder,
             useLandscape: false
         );
+
+        var currentDateTime = await CommonData.LoadCurrentDateTime();
+        var fileName = $"StateUT_Master_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
+        return (stream, fileName);
     }
 }

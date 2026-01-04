@@ -50,11 +50,12 @@ public partial class VoucherPage : IAsyncDisposable
     {
         _hotKeysContext = HotKeys.CreateContext()
             .Add(ModCode.Ctrl, Code.S, SaveVoucher, "Save", Exclude.None)
-            .Add(ModCode.Ctrl, Code.N, () => NavigationManager.NavigateTo(PageRouteNames.AdminVoucher, true), "New", Exclude.None)
             .Add(ModCode.Ctrl, Code.E, ExportExcel, "Export Excel", Exclude.None)
             .Add(ModCode.Ctrl, Code.P, ExportPdf, "Export PDF", Exclude.None)
-            .Add(ModCode.Ctrl, Code.D, () => NavigationManager.NavigateTo(PageRouteNames.Dashboard), "Dashboard", Exclude.None)
-            .Add(ModCode.Ctrl, Code.B, () => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard), "Back", Exclude.None)
+            .Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
+            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
+            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
+            .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Dashboard", Exclude.None)
             .Add(Code.Insert, EditSelectedItem, "Edit selected", Exclude.None)
             .Add(Code.Delete, DeleteSelectedItem, "Delete selected", Exclude.None);
 
@@ -75,7 +76,7 @@ public partial class VoucherPage : IAsyncDisposable
         {
             Id = voucher.Id,
             Name = voucher.Name,
-            PrefixCode = voucher.PrefixCode,
+            Code = voucher.Code,
             Remarks = voucher.Remarks,
             Status = voucher.Status
         };
@@ -189,21 +190,21 @@ public partial class VoucherPage : IAsyncDisposable
         _voucher.Name = _voucher.Name?.Trim() ?? "";
         _voucher.Name = _voucher.Name?.ToUpper() ?? "";
 
-        _voucher.PrefixCode = _voucher.PrefixCode?.Trim() ?? "";
-        _voucher.PrefixCode = _voucher.PrefixCode?.ToUpper() ?? "";
+        _voucher.Code = _voucher.Code?.Trim() ?? "";
+        _voucher.Code = _voucher.Code?.ToUpper() ?? "";
 
         _voucher.Remarks = _voucher.Remarks?.Trim() ?? "";
         _voucher.Status = true;
 
         if (string.IsNullOrWhiteSpace(_voucher.Name))
         {
-            await _toastNotification.ShowAsync("Error", "Voucher name is required. Please enter a valid voucher name.", ToastType.Error);
+            await _toastNotification.ShowAsync("Validation", "Voucher name is required. Please enter a valid voucher name.", ToastType.Error);
             return false;
         }
 
-        if (string.IsNullOrWhiteSpace(_voucher.PrefixCode))
+        if (string.IsNullOrWhiteSpace(_voucher.Code))
         {
-            await _toastNotification.ShowAsync("Error", "Prefix code is required. Please enter a valid prefix code.", ToastType.Error);
+            await _toastNotification.ShowAsync("Validation", "Prefix code is required. Please enter a valid prefix code.", ToastType.Error);
             return false;
         }
 
@@ -215,14 +216,14 @@ public partial class VoucherPage : IAsyncDisposable
             var existingVoucher = _vouchers.FirstOrDefault(_ => _.Id != _voucher.Id && _.Name.Equals(_voucher.Name, StringComparison.OrdinalIgnoreCase));
             if (existingVoucher is not null)
             {
-                await _toastNotification.ShowAsync("Error", $"Voucher name '{_voucher.Name}' already exists. Please choose a different name.", ToastType.Error);
+                await _toastNotification.ShowAsync("Duplicate", $"Voucher name '{_voucher.Name}' already exists. Please choose a different name.", ToastType.Error);
                 return false;
             }
 
-            var existingPrefixCode = _vouchers.FirstOrDefault(_ => _.Id != _voucher.Id && _.PrefixCode.Equals(_voucher.PrefixCode, StringComparison.OrdinalIgnoreCase));
+            var existingPrefixCode = _vouchers.FirstOrDefault(_ => _.Id != _voucher.Id && _.Code.Equals(_voucher.Code, StringComparison.OrdinalIgnoreCase));
             if (existingPrefixCode is not null)
             {
-                await _toastNotification.ShowAsync("Error", $"Prefix code '{_voucher.PrefixCode}' already exists. Please choose a different prefix code.", ToastType.Error);
+                await _toastNotification.ShowAsync("Duplicate", $"Code '{_voucher.Code}' already exists. Please choose a different code.", ToastType.Error);
                 return false;
             }
         }
@@ -231,14 +232,14 @@ public partial class VoucherPage : IAsyncDisposable
             var existingVoucher = _vouchers.FirstOrDefault(_ => _.Name.Equals(_voucher.Name, StringComparison.OrdinalIgnoreCase));
             if (existingVoucher is not null)
             {
-                await _toastNotification.ShowAsync("Error", $"Voucher name '{_voucher.Name}' already exists. Please choose a different name.", ToastType.Error);
+                await _toastNotification.ShowAsync("Duplicate", $"Voucher name '{_voucher.Name}' already exists. Please choose a different name.", ToastType.Error);
                 return false;
             }
 
-            var existingPrefixCode = _vouchers.FirstOrDefault(_ => _.PrefixCode.Equals(_voucher.PrefixCode, StringComparison.OrdinalIgnoreCase));
+            var existingPrefixCode = _vouchers.FirstOrDefault(_ => _.Code.Equals(_voucher.Code, StringComparison.OrdinalIgnoreCase));
             if (existingPrefixCode is not null)
             {
-                await _toastNotification.ShowAsync("Error", $"Prefix code '{_voucher.PrefixCode}' already exists. Please choose a different prefix code.", ToastType.Error);
+                await _toastNotification.ShowAsync("Duplicate", $"Code '{_voucher.Code}' already exists. Please choose a different code.", ToastType.Error);
                 return false;
             }
         }
@@ -266,7 +267,7 @@ public partial class VoucherPage : IAsyncDisposable
 
             await VoucherData.InsertVoucher(_voucher);
 
-            await _toastNotification.ShowAsync("Success", $"Voucher '{_voucher.Name}' has been saved successfully.", ToastType.Success);
+            await _toastNotification.ShowAsync("Saved", $"Voucher '{_voucher.Name}' has been saved successfully.", ToastType.Success);
             NavigationManager.NavigateTo(PageRouteNames.AdminVoucher, true);
         }
         catch (Exception ex)
@@ -292,15 +293,8 @@ public partial class VoucherPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Exporting to Excel...", ToastType.Info);
 
-            // Call the Excel export utility
-            var stream = await VoucherExcelExport.ExportVoucher(_vouchers);
-
-            // Generate file name
-            string fileName = "VOUCHER_MASTER.xlsx";
-
-            // Save and view the Excel file
+            var (stream, fileName) = await VoucherExcelExport.ExportMaster(_vouchers);
             await SaveAndViewService.SaveAndView(fileName, stream);
-
             await _toastNotification.ShowAsync("Success", "Voucher data exported to Excel successfully.", ToastType.Success);
         }
         catch (Exception ex)
@@ -325,15 +319,8 @@ public partial class VoucherPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Exporting to PDF...", ToastType.Info);
 
-            // Call the PDF export utility
-            var stream = await VoucherPDFExport.ExportVoucher(_vouchers);
-
-            // Generate file name
-            string fileName = "VOUCHER_MASTER.pdf";
-
-            // Save and view the PDF file
+            var (stream, fileName) = await VoucherPDFExport.ExportMaster(_vouchers);
             await SaveAndViewService.SaveAndView(fileName, stream);
-
             await _toastNotification.ShowAsync("Success", "Voucher data exported to PDF successfully.", ToastType.Success);
         }
         catch (Exception ex)
@@ -348,6 +335,7 @@ public partial class VoucherPage : IAsyncDisposable
     }
     #endregion
 
+    #region Utilities
     private async Task EditSelectedItem()
     {
         var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
@@ -367,10 +355,24 @@ public partial class VoucherPage : IAsyncDisposable
         }
     }
 
+    private void ResetPage() =>
+        NavigationManager.NavigateTo(PageRouteNames.AdminVoucher, true);
+
+    private void NavigateBack() =>
+        NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
+
+    private void NavigateToDashboard() =>
+        NavigationManager.NavigateTo(PageRouteNames.Dashboard);
+
+    private async Task Logout() =>
+        await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
+
     public async ValueTask DisposeAsync()
     {
         if (_hotKeysContext is not null)
             await _hotKeysContext.DisposeAsync();
+
         GC.SuppressFinalize(this);
     }
+    #endregion
 }

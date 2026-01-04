@@ -1,9 +1,7 @@
 ﻿@page "/admin/ledger"
 
-
 @using PrimeBakesLibrary.Models.Accounts.Masters
 @using PrimeBakesLibrary.Models.Common
-
 
 <PageTitle>Ledger Management - Prime Bakes</PageTitle>
 
@@ -14,15 +12,12 @@
 else
 {
     <div style="display: flex; flex-direction: column; min-height: 100vh;">
-        <Header Title="Ledger Management" Subtitle="Manage ledger accounts"
-                ShowHome="true" ShowBack="true"
-                OnHomeClick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))"
-                OnBackClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard))">
+        <Header Title="Ledger Management" Subtitle="Manage ledger accounts" ShowLogout="true" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
             <RightContent>
                 <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
                 <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
                 <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Ledger (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveLedger" />
-                <IconButton Icon="IconType.New" Title="New Ledger (Ctrl + N)" Disabled="_isProcessing" OnClick="@(() => NavigationManager.NavigateTo(PageRouteNames.AdminLedger, true))" />
+                <IconButton Icon="IconType.New" Title="New Ledger (Ctrl + N)" Disabled="_isProcessing" OnClick="ResetPage" />
             </RightContent>
         </Header>
 
@@ -93,16 +88,6 @@ else
                                             DataSource="@_stateUTs" @bind-Value="_ledger.StateUTId"
                                             FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox">
                                 <DropDownListFieldSettings Text="Name" Value="Id" />
-                            </SfDropDownList>
-                        </div>
-
-                        <!-- Location (Autocomplete) -->
-                        <div class="form-field">
-                            <label class="field-label">Location</label>
-                            <SfDropDownList TValue="int?" TItem="LocationModel" Placeholder="Search location (optional)"
-                                            DataSource="@_locations" @bind-Value="_ledger.LocationId"
-                                            FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox">
-                                <DropDownListFieldSettings Value="Id" Text="Name" />
                             </SfDropDownList>
                         </div>
 
@@ -205,14 +190,37 @@ else
                                     }
                                 </Template>
                             </GridColumn>
-                            <GridColumn Field="@nameof(LedgerModel.Id)" HeaderText="ID" Width="80"
-                                        TextAlign="TextAlign.Center" />
+                            <GridColumn Field="@nameof(LedgerModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" />
                             <GridColumn Field="@nameof(LedgerModel.Name)" HeaderText="Ledger Name" Width="250" />
                             <GridColumn Field="@nameof(LedgerModel.Code)" HeaderText="Code" Width="120" />
-                            <GridColumn Field="@nameof(LedgerModel.GSTNo)" HeaderText="GST No" Width="150" />
+                            <GridColumn Field="@nameof(LedgerModel.GroupId)" HeaderText="Group" Width="120">
+                                <Template>
+                                    @{
+                                        var ledger = (context as LedgerModel);
+                                        var group = _groups.FirstOrDefault(g => g.Id == ledger.GroupId);
+                                        <span>@(group != null ? group.Name : "N/A")</span>
+                                    }
+                                </Template>
+                            </GridColumn>
+
+                            <GridColumn Field="@nameof(LedgerModel.AccountTypeId)" HeaderText="Account Type" Width="150">
+                                <Template>
+                                    @{
+                                        var ledger = (context as LedgerModel);
+                                        var accountType = _accountTypes.FirstOrDefault(a => a.Id == ledger.AccountTypeId);
+                                        <span>@(accountType != null ? accountType.Name : "N/A")</span>
+                                    }
+                                </Template>
+                            </GridColumn>
                             <GridColumn Field="@nameof(LedgerModel.Phone)" HeaderText="Phone" Width="150" />
-                            <GridColumn Field="@nameof(LedgerModel.Status)" HeaderText="Status" Width="100"
-                                        TextAlign="TextAlign.Center">
+                            <GridColumn Field="@nameof(LedgerModel.Email)" HeaderText="Email" Width="150" />
+                            <GridColumn Field="@nameof(LedgerModel.Alias)" HeaderText="Alias" Width="150" />
+                            <GridColumn Field="@nameof(LedgerModel.GSTNo)" HeaderText="GST No" Width="150" />
+                            <GridColumn Field="@nameof(LedgerModel.CINNo)" HeaderText="CIN No" Width="150" />
+                            <GridColumn Field="@nameof(LedgerModel.PANNo)" HeaderText="PAN No" Width="150" />
+                            <GridColumn Field="@nameof(LedgerModel.Address)" HeaderText="Address" Width="150" />
+                            <GridColumn Field="@nameof(LedgerModel.Remarks)" HeaderText="Remarks" Width="150" />
+                            <GridColumn Field="@nameof(LedgerModel.Status)" HeaderText="Status" Width="100" TextAlign="TextAlign.Center">
                                 <Template>
                                     @{
                                         var ledger = (context as LedgerModel);

@@ -2,7 +2,6 @@
 using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Inventory.Stock;
-using PrimeBakesLibrary.Exporting.Inventory.Purchase;
 using PrimeBakesLibrary.Models.Accounts.FinancialAccounting;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Inventory;
@@ -13,121 +12,42 @@ namespace PrimeBakesLibrary.Data.Inventory.Purchase;
 
 public static class PurchaseData
 {
-    public static async Task<int> InsertPurchase(PurchaseModel purchase) =>
+    private static async Task<int> InsertPurchase(PurchaseModel purchase) =>
         (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertPurchase, purchase)).FirstOrDefault();
 
-    public static async Task<int> InsertPurchaseDetail(PurchaseDetailModel purchaseDetail) =>
+    private static async Task<int> InsertPurchaseDetail(PurchaseDetailModel purchaseDetail) =>
         (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertPurchaseDetail, purchaseDetail)).FirstOrDefault();
 
     public static async Task<List<RawMaterialModel>> LoadRawMaterialByPartyPurchaseDateTime(int PartyId, DateTime PurchaseDateTime, bool OnlyActive = true) =>
         await SqlDataAccess.LoadData<RawMaterialModel, dynamic>(StoredProcedureNames.LoadRawMaterialByPartyPurchaseDateTime, new { PartyId, PurchaseDateTime, OnlyActive });
 
-    public static async Task<(MemoryStream stream, string fileName)> GenerateAndDownloadInvoice(int purchaseId)
+    public static async Task DeleteTransaction(PurchaseModel purchase)
     {
-        try
-        {
-            // Load saved purchase details (since _purchase now has the Id)
-            var transaction = await CommonData.LoadTableDataById<PurchaseModel>(TableNames.Purchase, purchaseId) ??
-                throw new InvalidOperationException("Transaction not found.");
-
-            // Load purchase details from database
-            var transactionDetails = await CommonData.LoadTableDataByMasterId<PurchaseDetailModel>(TableNames.PurchaseDetail, transaction.Id);
-            if (transactionDetails is null || transactionDetails.Count == 0)
-                throw new InvalidOperationException("No transaction details found for the transaction.");
-
-            // Company and party are already loaded (_selectedCompany, _selectedParty)
-            var company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, transaction.CompanyId);
-            var party = await CommonData.LoadTableDataById<LedgerModel>(TableNames.Ledger, transaction.PartyId);
-            if (company is null || party is null)
-                throw new InvalidOperationException("Company or party information is missing.");
-
-            // Generate invoice PDF
-            var pdfStream = await PurchaseInvoicePDFExport.ExportPurchaseInvoice(
-                    transaction,
-                    transactionDetails,
-                    company,
-                    party,
-                    null, // logo path - uses default
-                    "PURCHASE INVOICE"
-                );
-
-            // Generate file name
-            var currentDateTime = await CommonData.LoadCurrentDateTime();
-            string fileName = $"PURCHASE_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
-            return (pdfStream, fileName);
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException("Failed to generate and download invoice." + ex.Message);
-        }
-    }
-
-    public static async Task<(MemoryStream excelStream, string fileName)> GenerateAndDownloadExcelInvoice(int purchaseId)
-    {
-        try
-        {
-            // Load saved purchase details
-            var transaction = await CommonData.LoadTableDataById<PurchaseModel>(TableNames.Purchase, purchaseId) ??
-                throw new InvalidOperationException("Transaction not found.");
-
-            // Load purchase details from database
-            var transactionDetails = await CommonData.LoadTableDataByMasterId<PurchaseDetailModel>(TableNames.PurchaseDetail, transaction.Id);
-            if (transactionDetails is null || transactionDetails.Count == 0)
-                throw new InvalidOperationException("No transaction details found for the transaction.");
-
-            // Load company and party
-            var company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, transaction.CompanyId);
-            var party = await CommonData.LoadTableDataById<LedgerModel>(TableNames.Ledger, transaction.PartyId);
-            if (company is null || party is null)
-                throw new InvalidOperationException("Company or party information is missing.");
-
-            // Generate invoice Excel
-            var excelStream = await PurchaseInvoiceExcelExport.ExportPurchaseInvoice(
-                transaction,
-                transactionDetails,
-                company,
-                party,
-                null, // logo path - uses default
-                "PURCHASE INVOICE"
-            );
-
-            // Generate file name
-            var currentDateTime = await CommonData.LoadCurrentDateTime();
-            string fileName = $"PURCHASE_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.xlsx";
-            return (excelStream, fileName);
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException("Failed to generate and download Excel invoice." + ex.Message);
-        }
-    }
-
-    public static async Task DeletePurchase(int purchaseId)
-    {
-        var purchase = await CommonData.LoadTableDataById<PurchaseModel>(TableNames.Purchase, purchaseId);
         var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, purchase.FinancialYearId);
         if (financialYear is null || financialYear.Locked || !financialYear.Status)
             throw new InvalidOperationException("Cannot delete transaction as the financial year is locked.");
 
-        if (purchase is not null)
-        {
-            purchase.Status = false;
-            await InsertPurchase(purchase);
-            await RawMaterialStockData.DeleteRawMaterialStockByTypeTransactionId(nameof(StockType.Purchase), purchase.Id);
+        purchase.Status = false;
+        await InsertPurchase(purchase);
+        await RawMaterialStockData.DeleteRawMaterialStockByTypeTransactionId(nameof(StockType.Purchase), purchase.Id);
 
-            var purchaseVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.PurchaseVoucherId);
-            var existingAccounting = await AccountingData.LoadAccountingByVoucherReference(int.Parse(purchaseVoucher.Value), purchase.Id, purchase.TransactionNo);
-            if (existingAccounting is not null && existingAccounting.Id > 0)
-            {
-                existingAccounting.Status = false;
-                await AccountingData.InsertAccounting(existingAccounting);
-            }
+        var purchaseVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.PurchaseVoucherId);
+        var existingAccounting = await AccountingData.LoadAccountingByVoucherReference(int.Parse(purchaseVoucher.Value), purchase.Id, purchase.TransactionNo);
+
+        if (existingAccounting is not null && existingAccounting.Id > 0)
+        {
+            existingAccounting.Status = false;
+            existingAccounting.LastModifiedBy = purchase.LastModifiedBy;
+            existingAccounting.LastModifiedAt = purchase.LastModifiedAt;
+            existingAccounting.LastModifiedFromPlatform = purchase.LastModifiedFromPlatform;
+
+            await AccountingData.DeleteTransaction(existingAccounting);
         }
 
-        await SendNotification.PurchaseNotification(purchaseId, NotificationType.Delete);
+        await SendNotification.PurchaseNotification(purchase.Id, NotificationType.Delete);
     }
 
-    public static async Task RecoverPurchaseTransaction(PurchaseModel purchase)
+    public static async Task RecoverTransaction(PurchaseModel purchase)
     {
         var transactionDetails = await CommonData.LoadTableDataByMasterId<PurchaseDetailModel>(TableNames.PurchaseDetail, purchase.Id);
         List<PurchaseItemCartModel> purchaseItemCarts = [];
@@ -157,11 +77,11 @@ public static class PurchaseData
                 Remarks = item.Remarks
             });
 
-        await SavePurchaseTransaction(purchase, purchaseItemCarts, false);
+        await SaveTransaction(purchase, purchaseItemCarts, false);
         await SendNotification.PurchaseNotification(purchase.Id, NotificationType.Recover);
     }
 
-    public static async Task<int> SavePurchaseTransaction(PurchaseModel purchase, List<PurchaseItemCartModel> purchaseDetails, bool showNotification = true)
+    public static async Task<int> SaveTransaction(PurchaseModel purchase, List<PurchaseItemCartModel> purchaseDetails, bool showNotification = true)
     {
         bool update = purchase.Id > 0;
 
@@ -178,7 +98,7 @@ public static class PurchaseData
             throw new InvalidOperationException("Cannot update transaction as the financial year is locked.");
 
         purchase.Id = await InsertPurchase(purchase);
-        await SavePurchaseDetail(purchase, purchaseDetails, update);
+        await SaveTransactionDetail(purchase, purchaseDetails, update);
         await SaveRawMaterialStock(purchase, purchaseDetails, update);
         await SaveAccounting(purchase, update);
         await UpdateRawMaterialRateAndUOMOnPurchase(purchaseDetails);
@@ -189,7 +109,7 @@ public static class PurchaseData
         return purchase.Id;
     }
 
-    private static async Task SavePurchaseDetail(PurchaseModel purchase, List<PurchaseItemCartModel> purchaseDetails, bool update)
+    private static async Task SaveTransactionDetail(PurchaseModel purchase, List<PurchaseItemCartModel> purchaseDetails, bool update)
     {
         if (update)
         {
@@ -257,7 +177,11 @@ public static class PurchaseData
             if (existingAccounting is not null && existingAccounting.Id > 0)
             {
                 existingAccounting.Status = false;
-                await AccountingData.InsertAccounting(existingAccounting);
+                existingAccounting.LastModifiedBy = purchase.LastModifiedBy;
+                existingAccounting.LastModifiedAt = purchase.LastModifiedAt;
+                existingAccounting.LastModifiedFromPlatform = purchase.LastModifiedFromPlatform;
+
+                await AccountingData.DeleteTransaction(existingAccounting);
             }
         }
 
@@ -334,7 +258,7 @@ public static class PurchaseData
             Status = true
         };
 
-        await AccountingData.SaveAccountingTransaction(accounting, accountingCart);
+        await AccountingData.SaveTransaction(accounting, accountingCart);
     }
 
     private static async Task UpdateRawMaterialRateAndUOMOnPurchase(List<PurchaseItemCartModel> purchaseDetails)

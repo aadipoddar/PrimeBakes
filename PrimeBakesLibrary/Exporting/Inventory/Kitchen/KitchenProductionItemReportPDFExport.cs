@@ -1,36 +1,71 @@
-﻿using PrimeBakesLibrary.Models.Inventory.Kitchen;
+﻿using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Models.Inventory.Kitchen;
 
 namespace PrimeBakesLibrary.Exporting.Inventory.Kitchen;
 
-/// <summary>
-/// PDF export functionality for Kitchen Production Item Report
-/// </summary>
 public static class KitchenProductionItemReportPDFExport
 {
-    /// <summary>
-    /// Export Kitchen Production Item Report to PDF with custom column order and formatting
-    /// </summary>
-    /// <param name="kitchenProductionItemData">Collection of kitchen production item overview records</param>
-    /// <param name="dateRangeStart">Start date of the report</param>
-    /// <param name="dateRangeEnd">End date of the report</param>
-    /// <param name="showAllColumns">Whether to include all columns or just summary columns</param>
-    /// <param name="showSummary">Whether to show summary grouped by item</param>
-    /// <returns>MemoryStream containing the PDF file</returns>
-    public static async Task<MemoryStream> ExportKitchenProductionItemReport(
+    public static async Task<(MemoryStream stream, string fileName)> ExportReport(
         IEnumerable<KitchenProductionItemOverviewModel> kitchenProductionItemData,
         DateOnly? dateRangeStart = null,
         DateOnly? dateRangeEnd = null,
         bool showAllColumns = true,
-        bool showSummary = false)
+        bool showSummary = false,
+        KitchenModel kitchen = null,
+        CompanyModel company = null)
     {
-        // Define custom column settings matching Excel export
-        var columnSettings = new Dictionary<string, PDFReportExportUtil.ColumnSetting>();
+        var columnSettings = new Dictionary<string, PDFReportExportUtil.ColumnSetting>
+        {
+            [nameof(KitchenProductionItemOverviewModel.ItemName)] = new() { DisplayName = "Product", IncludeInTotal = false },
+            [nameof(KitchenProductionItemOverviewModel.ItemCode)] = new() { DisplayName = "Code", IncludeInTotal = false },
+            [nameof(KitchenProductionItemOverviewModel.ItemCategoryName)] = new() { DisplayName = "Category", IncludeInTotal = false },
+            [nameof(KitchenProductionItemOverviewModel.TransactionNo)] = new() { DisplayName = "Trans No", IncludeInTotal = false },
+            [nameof(KitchenProductionItemOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm", IncludeInTotal = false },
+            [nameof(KitchenProductionItemOverviewModel.CompanyName)] = new() { DisplayName = "Company", IncludeInTotal = false },
+            [nameof(KitchenProductionItemOverviewModel.KitchenName)] = new() { DisplayName = "Kitchen", IncludeInTotal = false },
+            [nameof(KitchenProductionItemOverviewModel.KitchenProductionRemarks)] = new() { DisplayName = "Kitchen Production Remarks", IncludeInTotal = false },
+            [nameof(KitchenProductionItemOverviewModel.Remarks)] = new() { DisplayName = "Product Remarks", IncludeInTotal = false },
 
-        // Define column order based on showAllColumns and showSummary flags
+            [nameof(KitchenProductionItemOverviewModel.Quantity)] = new()
+            {
+                DisplayName = "Qty",
+                Format = "#,##0.00",
+                StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
+                {
+                    Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
+                    LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
+                }
+            },
+
+            [nameof(KitchenProductionItemOverviewModel.Rate)] = new()
+            {
+                DisplayName = "Rate",
+                Format = "#,##0.00",
+                StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
+                {
+                    Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
+                    LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
+                },
+                IncludeInTotal = false
+            },
+
+            [nameof(KitchenProductionItemOverviewModel.Total)] = new()
+            {
+                DisplayName = "Total",
+                Format = "#,##0.00",
+                StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
+                {
+                    Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
+                    LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
+                }
+            }
+        };
+
         List<string> columnOrder;
 
-        // Summary mode - grouped by item with aggregated values
         if (showSummary)
+        {
             columnOrder =
             [
                 nameof(KitchenProductionItemOverviewModel.ItemName),
@@ -39,9 +74,10 @@ public static class KitchenProductionItemReportPDFExport
                 nameof(KitchenProductionItemOverviewModel.Quantity),
                 nameof(KitchenProductionItemOverviewModel.Total)
             ];
+        }
 
-        // All columns - detailed view (matching Excel export)
         else if (showAllColumns)
+        {
             columnOrder =
             [
                 nameof(KitchenProductionItemOverviewModel.ItemName),
@@ -57,8 +93,16 @@ public static class KitchenProductionItemReportPDFExport
                 nameof(KitchenProductionItemOverviewModel.KitchenProductionRemarks),
                 nameof(KitchenProductionItemOverviewModel.Remarks)
             ];
-        // Summary columns - key fields only (matching Excel export)
+
+            if (kitchen is not null)
+                columnOrder.Remove(nameof(KitchenProductionItemOverviewModel.KitchenName));
+
+            if (company is not null)
+                columnOrder.Remove(nameof(KitchenProductionItemOverviewModel.CompanyName));
+        }
+
         else
+        {
             columnOrder =
             [
                 nameof(KitchenProductionItemOverviewModel.ItemName),
@@ -71,60 +115,27 @@ public static class KitchenProductionItemReportPDFExport
                 nameof(KitchenProductionItemOverviewModel.Total)
             ];
 
-        // Customize specific columns for PDF display (matching Excel column names)
-        columnSettings[nameof(KitchenProductionItemOverviewModel.ItemName)] = new() { DisplayName = "Product", IncludeInTotal = false };
-        columnSettings[nameof(KitchenProductionItemOverviewModel.ItemCode)] = new() { DisplayName = "Code", IncludeInTotal = false };
-        columnSettings[nameof(KitchenProductionItemOverviewModel.ItemCategoryName)] = new() { DisplayName = "Category", IncludeInTotal = false };
-        columnSettings[nameof(KitchenProductionItemOverviewModel.TransactionNo)] = new() { DisplayName = "Trans No", IncludeInTotal = false };
-        columnSettings[nameof(KitchenProductionItemOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm", IncludeInTotal = false };
-        columnSettings[nameof(KitchenProductionItemOverviewModel.CompanyName)] = new() { DisplayName = "Company", IncludeInTotal = false };
-        columnSettings[nameof(KitchenProductionItemOverviewModel.KitchenName)] = new() { DisplayName = "Kitchen", IncludeInTotal = false };
-        columnSettings[nameof(KitchenProductionItemOverviewModel.KitchenProductionRemarks)] = new() { DisplayName = "Kitchen Production Remarks", IncludeInTotal = false };
-        columnSettings[nameof(KitchenProductionItemOverviewModel.Remarks)] = new() { DisplayName = "Product Remarks", IncludeInTotal = false };
+            if (kitchen is not null)
+                columnOrder.Remove(nameof(KitchenProductionItemOverviewModel.KitchenName));
+        }
 
-        columnSettings[nameof(KitchenProductionItemOverviewModel.Quantity)] = new()
-        {
-            DisplayName = "Qty",
-            Format = "#,##0.00",
-            StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
-            {
-                Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
-                LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
-            }
-        };
-
-        columnSettings[nameof(KitchenProductionItemOverviewModel.Rate)] = new()
-        {
-            DisplayName = "Rate",
-            Format = "#,##0.00",
-            StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
-            {
-                Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
-                LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
-            },
-            IncludeInTotal = false
-        };
-
-        columnSettings[nameof(KitchenProductionItemOverviewModel.Total)] = new()
-        {
-            DisplayName = "Total",
-            Format = "#,##0.00",
-            StringFormat = new Syncfusion.Pdf.Graphics.PdfStringFormat
-            {
-                Alignment = Syncfusion.Pdf.Graphics.PdfTextAlignment.Right,
-                LineAlignment = Syncfusion.Pdf.Graphics.PdfVerticalAlignment.Middle
-            }
-        };
-
-        // Call the generic PDF export utility with landscape mode for all columns
-        return await PDFReportExportUtil.ExportToPdf(
+        var stream = await PDFReportExportUtil.ExportToPdf(
             kitchenProductionItemData,
             "KITCHEN PRODUCTION ITEM REPORT",
             dateRangeStart,
             dateRangeEnd,
             columnSettings,
             columnOrder,
-            useLandscape: showAllColumns && !showSummary  // Use landscape when showing all columns
+            useBuiltInStyle: false,
+            useLandscape: showAllColumns && !showSummary,
+            new() { ["Company"] = company?.Name ?? null, ["Kitchen"] = kitchen?.Name ?? null }
         );
+
+        string fileName = $"KITCHEN_PRODUCTION_ITEM_REPORT";
+        if (dateRangeStart.HasValue || dateRangeEnd.HasValue)
+            fileName += $"_{dateRangeStart?.ToString("yyyyMMdd") ?? "START"}_to_{dateRangeEnd?.ToString("yyyyMMdd") ?? "END"}";
+        fileName += ".pdf";
+
+        return (stream, fileName);
     }
 }
