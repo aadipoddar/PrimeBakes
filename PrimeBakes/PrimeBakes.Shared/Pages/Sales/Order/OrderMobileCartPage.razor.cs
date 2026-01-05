@@ -170,7 +170,6 @@ public partial class OrderMobileCartPage
                 Status = true,
             };
 
-            order.TransactionNo = await GenerateCodes.GenerateOrderTransactionNo(order);
             order.Id = await OrderData.SaveTransaction(order, _cart);
 
             await DataStorageService.LocalRemove(StorageFileNames.OrderMobileCartDataFileName);

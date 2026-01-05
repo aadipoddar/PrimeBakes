@@ -204,7 +204,7 @@ public partial class VoucherPage : IAsyncDisposable
 
         if (string.IsNullOrWhiteSpace(_voucher.Code))
         {
-            await _toastNotification.ShowAsync("Validation", "Prefix code is required. Please enter a valid prefix code.", ToastType.Error);
+            await _toastNotification.ShowAsync("Validation", "Code is required. Please enter a valid code.", ToastType.Error);
             return false;
         }
 
@@ -220,8 +220,8 @@ public partial class VoucherPage : IAsyncDisposable
                 return false;
             }
 
-            var existingPrefixCode = _vouchers.FirstOrDefault(_ => _.Id != _voucher.Id && _.Code.Equals(_voucher.Code, StringComparison.OrdinalIgnoreCase));
-            if (existingPrefixCode is not null)
+            var existingCode = _vouchers.FirstOrDefault(_ => _.Id != _voucher.Id && _.Code.Equals(_voucher.Code, StringComparison.OrdinalIgnoreCase));
+            if (existingCode is not null)
             {
                 await _toastNotification.ShowAsync("Duplicate", $"Code '{_voucher.Code}' already exists. Please choose a different code.", ToastType.Error);
                 return false;
@@ -236,8 +236,8 @@ public partial class VoucherPage : IAsyncDisposable
                 return false;
             }
 
-            var existingPrefixCode = _vouchers.FirstOrDefault(_ => _.Code.Equals(_voucher.Code, StringComparison.OrdinalIgnoreCase));
-            if (existingPrefixCode is not null)
+            var existingCode = _vouchers.FirstOrDefault(_ => _.Code.Equals(_voucher.Code, StringComparison.OrdinalIgnoreCase));
+            if (existingCode is not null)
             {
                 await _toastNotification.ShowAsync("Duplicate", $"Code '{_voucher.Code}' already exists. Please choose a different code.", ToastType.Error);
                 return false;

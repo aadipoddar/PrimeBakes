@@ -45,12 +45,12 @@ else
                                        FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
                         </div>
 
-                        <!-- Prefix Code -->
+                        <!-- Code -->
                         <div class="form-field">
                             <label class="field-label">
-                                Prefix Code <span class="required">*</span>
+                                Code <span class="required">*</span>
                             </label>
-                            <SfTextBox @bind-Value="_voucher.Code" Placeholder="Enter prefix code"
+                            <SfTextBox @bind-Value="_voucher.Code" Placeholder="Enter code"
                                        FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
                         </div>
 
@@ -104,13 +104,11 @@ else
                                     }
                                 </Template>
                             </GridColumn>
-                            <GridColumn Field="@nameof(VoucherModel.Id)" HeaderText="ID" Width="80"
-                                        TextAlign="TextAlign.Center" />
+                            <GridColumn Field="@nameof(VoucherModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" />
                             <GridColumn Field="@nameof(VoucherModel.Name)" HeaderText="Voucher Name" Width="300" />
-                            <GridColumn Field="@nameof(VoucherModel.Code)" HeaderText="Prefix Code" Width="150" />
+                            <GridColumn Field="@nameof(VoucherModel.Code)" HeaderText="Code" Width="150" />
                             <GridColumn Field="@nameof(VoucherModel.Remarks)" HeaderText="Remarks" Width="400" />
-                            <GridColumn Field="@nameof(VoucherModel.Status)" HeaderText="Status" Width="100"
-                                        TextAlign="TextAlign.Center">
+                            <GridColumn Field="@nameof(VoucherModel.Status)" HeaderText="Status" Width="100" TextAlign="TextAlign.Center">
                                 <Template>
                                     @{
                                         var voucher = (context as VoucherModel);
