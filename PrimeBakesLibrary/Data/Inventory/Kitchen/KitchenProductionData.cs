@@ -1,6 +1,7 @@
-﻿using PrimeBakesLibrary.Data.Common;
+﻿using PrimeBakesLibrary.Data.Accounts.Masters;
+using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Inventory.Stock;
-using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Exporting.Inventory.Kitchen;
 using PrimeBakesLibrary.Models.Inventory.Kitchen;
 using PrimeBakesLibrary.Models.Inventory.Stock;
 
@@ -8,107 +9,145 @@ namespace PrimeBakesLibrary.Data.Inventory.Kitchen;
 
 public static class KitchenProductionData
 {
-    private static async Task<int> InsertKitchenProduction(KitchenProductionModel kitchenProduction) =>
-        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertKitchenProduction, kitchenProduction)).FirstOrDefault();
+    private static async Task<int> InsertKitchenProduction(KitchenProductionModel kitchenProduction, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertKitchenProduction, kitchenProduction, sqlDataAccessTransaction)).FirstOrDefault();
 
-    private static async Task<int> InsertKitchenProductionDetail(KitchenProductionDetailModel kitchenProductionDetail) =>
-        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertKitchenProductionDetail, kitchenProductionDetail)).FirstOrDefault();
+    private static async Task<int> InsertKitchenProductionDetail(KitchenProductionDetailModel kitchenProductionDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertKitchenProductionDetail, kitchenProductionDetail, sqlDataAccessTransaction)).FirstOrDefault();
+
+    public static List<KitchenProductionDetailModel> ConvertCartToDetails(List<KitchenProductionProductCartModel> cart, int kitchenProductionId) =>
+        [.. cart.Select(item => new KitchenProductionDetailModel
+        {
+            Id = 0,
+            MasterId = kitchenProductionId,
+            ProductId = item.ProductId,
+            Quantity = item.Quantity,
+            Rate = item.Rate,
+            Total = item.Total,
+            Remarks = item.Remarks,
+            Status = true
+        })];
 
     public static async Task DeleteTransaction(KitchenProductionModel kitchenProduction)
     {
-        var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, kitchenProduction.FinancialYearId);
-        if (financialYear is null || financialYear.Locked || !financialYear.Status)
-            throw new InvalidOperationException("Cannot delete transaction as the financial year is locked.");
+        using SqlDataAccessTransaction sqlDataAccessTransaction = new();
 
-        kitchenProduction.Status = false;
-        await InsertKitchenProduction(kitchenProduction);
-        await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.KitchenProduction), kitchenProduction.Id, 1);
-        await SendNotification.KitchenProductionNotification(kitchenProduction.Id, NotifyType.Deleted);
+        try
+        {
+            sqlDataAccessTransaction.StartTransaction();
+
+            await FinancialYearData.ValidateFinancialYear(kitchenProduction.TransactionDateTime, sqlDataAccessTransaction);
+
+            kitchenProduction.Status = false;
+            await InsertKitchenProduction(kitchenProduction, sqlDataAccessTransaction);
+            await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.KitchenProduction), kitchenProduction.Id, 1, sqlDataAccessTransaction);
+
+            sqlDataAccessTransaction.CommitTransaction();
+
+            await KitchenProductionNotify.Notify(kitchenProduction.Id, NotifyType.Deleted);
+        }
+        catch
+        {
+            sqlDataAccessTransaction.RollbackTransaction();
+            throw;
+        }
     }
 
     public static async Task RecoverTransaction(KitchenProductionModel kitchenProduction)
     {
+        kitchenProduction.Status = true;
         var kitchenProductionDetails = await CommonData.LoadTableDataByMasterId<KitchenProductionDetailModel>(TableNames.KitchenProductionDetail, kitchenProduction.Id);
-        List<KitchenProductionProductCartModel> kitchenProductionProductCarts = [];
 
-        foreach (var item in kitchenProductionDetails)
-            kitchenProductionProductCarts.Add(new()
-            {
-                ProductId = item.ProductId,
-                ProductName = "",
-                Quantity = item.Quantity,
-                Rate = item.Rate,
-                Total = item.Total,
-                Remarks = item.Remarks
-            });
+        await SaveTransaction(kitchenProduction, null, kitchenProductionDetails, false);
 
-        await SaveTransaction(kitchenProduction, kitchenProductionProductCarts, false);
-        await SendNotification.KitchenProductionNotification(kitchenProduction.Id, NotifyType.Recovered);
+        await KitchenProductionNotify.Notify(kitchenProduction.Id, NotifyType.Recovered);
     }
 
-    public static async Task<int> SaveTransaction(KitchenProductionModel kitchenProduction, List<KitchenProductionProductCartModel> kitchenProductionDetails, bool showNotification = true)
+    public static async Task<int> SaveTransaction(KitchenProductionModel kitchenProduction, List<KitchenProductionProductCartModel> cart, List<KitchenProductionDetailModel> kitchenProductionDetails = null, bool showNotification = true, SqlDataAccessTransaction sqlDataAccessTransaction = null)
     {
         bool update = kitchenProduction.Id > 0;
 
+        if (sqlDataAccessTransaction is null)
+        {
+            (MemoryStream, string)? previousInvoice = null;
+            if (update)
+                previousInvoice = await KitchenProductionInvoicePDFExport.ExportInvoice(kitchenProduction.Id);
+
+            using SqlDataAccessTransaction newSqlDataAccessTransaction = new();
+
+            try
+            {
+                newSqlDataAccessTransaction.StartTransaction();
+                kitchenProduction.Id = await SaveTransaction(kitchenProduction, cart, kitchenProductionDetails, showNotification, newSqlDataAccessTransaction);
+                newSqlDataAccessTransaction.CommitTransaction();
+            }
+            catch
+            {
+                newSqlDataAccessTransaction.RollbackTransaction();
+                throw;
+            }
+
+            if (showNotification)
+                await KitchenProductionNotify.Notify(kitchenProduction.Id, update ? NotifyType.Updated : NotifyType.Created, previousInvoice);
+
+            return kitchenProduction.Id;
+        }
+
         if (update)
         {
-            var existingKitchenProduction = await CommonData.LoadTableDataById<KitchenProductionModel>(TableNames.KitchenProduction, kitchenProduction.Id);
-            var updateFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, existingKitchenProduction.FinancialYearId);
-            if (updateFinancialYear is null || updateFinancialYear.Locked || !updateFinancialYear.Status)
-                throw new InvalidOperationException("Cannot update transaction as the financial year is locked.");
-
+            var existingKitchenProduction = await CommonData.LoadTableDataById<KitchenProductionModel>(TableNames.KitchenProduction, kitchenProduction.Id, sqlDataAccessTransaction);
+            await FinancialYearData.ValidateFinancialYear(existingKitchenProduction.TransactionDateTime, sqlDataAccessTransaction);
             kitchenProduction.TransactionNo = existingKitchenProduction.TransactionNo;
         }
         else
-            kitchenProduction.TransactionNo = await GenerateCodes.GenerateKitchenProductionTransactionNo(kitchenProduction);
+            kitchenProduction.TransactionNo = await GenerateCodes.GenerateKitchenProductionTransactionNo(kitchenProduction, sqlDataAccessTransaction);
 
-        var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, kitchenProduction.FinancialYearId);
-        if (financialYear is null || financialYear.Locked || !financialYear.Status)
-            throw new InvalidOperationException("Cannot update transaction as the financial year is locked.");
+        await FinancialYearData.ValidateFinancialYear(kitchenProduction.TransactionDateTime, sqlDataAccessTransaction);
 
-        kitchenProduction.Id = await InsertKitchenProduction(kitchenProduction);
-        await SaveTransactionDetail(kitchenProduction, kitchenProductionDetails, update);
-        await SaveProductStock(kitchenProduction, kitchenProductionDetails, update);
-
-        if (showNotification)
-            await SendNotification.KitchenProductionNotification(kitchenProduction.Id, update ? NotifyType.Updated : NotifyType.Created);
+        kitchenProduction.Id = await InsertKitchenProduction(kitchenProduction, sqlDataAccessTransaction);
+        kitchenProductionDetails ??= ConvertCartToDetails(cart, kitchenProduction.Id);
+        await SaveTransactionDetail(kitchenProduction, kitchenProductionDetails, update, sqlDataAccessTransaction);
+        await SaveProductStock(kitchenProduction, kitchenProductionDetails, update, sqlDataAccessTransaction);
 
         return kitchenProduction.Id;
     }
 
-    private static async Task SaveTransactionDetail(KitchenProductionModel kitchenProduction, List<KitchenProductionProductCartModel> kitchenProductionDetails, bool update)
+    private static async Task SaveTransactionDetail(KitchenProductionModel kitchenProduction, List<KitchenProductionDetailModel> kitchenProductionDetails, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
     {
+        if (kitchenProductionDetails is null || kitchenProductionDetails.Count != kitchenProduction.TotalItems || kitchenProductionDetails.Sum(d => d.Quantity) != kitchenProduction.TotalQuantity)
+            throw new InvalidOperationException("Kitchen production details do not match the transaction summary.");
+
+        if (kitchenProductionDetails.Any(d => !d.Status))
+            throw new InvalidOperationException("Kitchen production detail items must be active.");
+
         if (update)
         {
-            var existingKitchenProductionDetails = await CommonData.LoadTableDataByMasterId<KitchenProductionDetailModel>(TableNames.KitchenProductionDetail, kitchenProduction.Id);
+            var existingKitchenProductionDetails = await CommonData.LoadTableDataByMasterId<KitchenProductionDetailModel>(TableNames.KitchenProductionDetail, kitchenProduction.Id, sqlDataAccessTransaction);
             foreach (var item in existingKitchenProductionDetails)
             {
                 item.Status = false;
-                await InsertKitchenProductionDetail(item);
+                await InsertKitchenProductionDetail(item, sqlDataAccessTransaction);
             }
         }
 
         foreach (var item in kitchenProductionDetails)
-            await InsertKitchenProductionDetail(new()
-            {
-                Id = 0,
-                KitchenProductionId = kitchenProduction.Id,
-                ProductId = item.ProductId,
-                Quantity = item.Quantity,
-                Rate = item.Rate,
-                Total = item.Total,
-                Remarks = item.Remarks,
-                Status = true
-            });
+        {
+            item.MasterId = kitchenProduction.Id;
+            var id = await InsertKitchenProductionDetail(item, sqlDataAccessTransaction);
+
+            if (id <= 0)
+                throw new InvalidOperationException("Failed to save kitchen production detail item.");
+        }
     }
 
-    private static async Task SaveProductStock(KitchenProductionModel kitchenProduction, List<KitchenProductionProductCartModel> cart, bool update)
+    private static async Task SaveProductStock(KitchenProductionModel kitchenProduction, List<KitchenProductionDetailModel> kitchenProductionDetails, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
     {
         if (update)
-            await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.KitchenProduction), kitchenProduction.Id, 1);
+            await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.KitchenProduction), kitchenProduction.Id, 1, sqlDataAccessTransaction);
 
-        foreach (var item in cart)
-            await ProductStockData.InsertProductStock(new()
+        foreach (var item in kitchenProductionDetails)
+        {
+            var id = await ProductStockData.InsertProductStock(new()
             {
                 Id = 0,
                 ProductId = item.ProductId,
@@ -119,6 +158,10 @@ public static class KitchenProductionData
                 TransactionNo = kitchenProduction.TransactionNo,
                 TransactionDate = DateOnly.FromDateTime(kitchenProduction.TransactionDateTime),
                 LocationId = 1, // Main Location
-            });
+            }, sqlDataAccessTransaction);
+
+            if (id <= 0)
+                throw new InvalidOperationException("Failed to save product stock entry.");
+        }
     }
 }

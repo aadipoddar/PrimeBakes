@@ -6,14 +6,14 @@ namespace PrimeBakesLibrary.Data.Inventory.Stock;
 
 public static class ProductStockData
 {
-    public static async Task<int> InsertProductStock(ProductStockModel stock) =>
-        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertProductStock, stock)).FirstOrDefault();
+    public static async Task<int> InsertProductStock(ProductStockModel stock, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertProductStock, stock, sqlDataAccessTransaction)).FirstOrDefault();
 
     public static async Task<List<ProductStockSummaryModel>> LoadProductStockSummaryByDateLocationId(DateTime FromDate, DateTime ToDate, int LocationId) =>
         await SqlDataAccess.LoadData<ProductStockSummaryModel, dynamic>(StoredProcedureNames.LoadProductStockSummaryByDateLocationId, new { FromDate = DateOnly.FromDateTime(FromDate), ToDate = DateOnly.FromDateTime(ToDate), LocationId });
 
-    public static async Task DeleteProductStockByTypeTransactionIdLocationId(string Type, int TransactionId, int LocationId) =>
-        await SqlDataAccess.SaveData(StoredProcedureNames.DeleteProductStockByTypeTransactionIdLocationId, new { Type, TransactionId, LocationId });
+    public static async Task DeleteProductStockByTypeTransactionIdLocationId(string Type, int TransactionId, int LocationId, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+        await SqlDataAccess.SaveData(StoredProcedureNames.DeleteProductStockByTypeTransactionIdLocationId, new { Type, TransactionId, LocationId }, sqlDataAccessTransaction);
 
     public static async Task DeleteProductStockById(int Id, int userId)
     {

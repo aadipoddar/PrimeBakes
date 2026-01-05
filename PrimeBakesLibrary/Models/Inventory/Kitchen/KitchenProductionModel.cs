@@ -10,7 +10,7 @@ public class KitchenProductionModel
     public int KitchenId { get; set; }
     public int TotalItems { get; set; }
     public decimal TotalQuantity { get; set; }
-	public decimal TotalAmount { get; set; }
+    public decimal TotalAmount { get; set; }
     public string? Remarks { get; set; }
     public int CreatedBy { get; set; }
     public DateTime CreatedAt { get; set; }
@@ -24,7 +24,7 @@ public class KitchenProductionModel
 public class KitchenProductionDetailModel
 {
     public int Id { get; set; }
-    public int KitchenProductionId { get; set; }
+    public int MasterId { get; set; }
     public int ProductId { get; set; }
     public decimal Quantity { get; set; }
     public decimal Rate { get; set; }
