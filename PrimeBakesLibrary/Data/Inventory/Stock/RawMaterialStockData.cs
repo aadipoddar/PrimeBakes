@@ -6,14 +6,14 @@ namespace PrimeBakesLibrary.Data.Inventory.Stock;
 
 public static class RawMaterialStockData
 {
-    public static async Task<int> InsertRawMaterialStock(RawMaterialStockModel stock) =>
-        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertRawMaterialStock, stock)).FirstOrDefault();
+    public static async Task<int> InsertRawMaterialStock(RawMaterialStockModel stock, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertRawMaterialStock, stock, sqlDataAccessTransaction)).FirstOrDefault();
 
     public static async Task<List<RawMaterialStockSummaryModel>> LoadRawMaterialStockSummaryByDate(DateTime FromDate, DateTime ToDate) =>
         await SqlDataAccess.LoadData<RawMaterialStockSummaryModel, dynamic>(StoredProcedureNames.LoadRawMaterialStockSummaryByDate, new { FromDate = DateOnly.FromDateTime(FromDate), ToDate = DateOnly.FromDateTime(ToDate) });
 
-    public static async Task DeleteRawMaterialStockByTypeTransactionId(string Type, int TransactionId) =>
-        await SqlDataAccess.SaveData(StoredProcedureNames.DeleteRawMaterialStockByTypeTransactionId, new { Type, TransactionId });
+    public static async Task DeleteRawMaterialStockByTypeTransactionId(string Type, int TransactionId, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+        await SqlDataAccess.SaveData(StoredProcedureNames.DeleteRawMaterialStockByTypeTransactionId, new { Type, TransactionId }, sqlDataAccessTransaction);
 
     public static async Task DeleteRawMaterialStockById(int Id, int userId)
     {

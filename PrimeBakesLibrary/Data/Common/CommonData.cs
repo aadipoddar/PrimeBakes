@@ -23,8 +23,8 @@ public static class CommonData
     public static async Task<List<T>> LoadTableDataByDate<T>(string TableName, DateTime StartDate, DateTime EndDate) where T : new() =>
     await SqlDataAccess.LoadData<T, dynamic>(StoredProcedureNames.LoadTableDataByDate, new { TableName, StartDate, EndDate });
 
-    public static async Task<T> LoadLastTableDataByFinancialYear<T>(string TableName, int FinancialYearId) where T : new() =>
-        (await SqlDataAccess.LoadData<T, dynamic>(StoredProcedureNames.LoadLastTableDataByFinancialYear, new { TableName, FinancialYearId })).FirstOrDefault();
+    public static async Task<T> LoadLastTableDataByFinancialYear<T>(string TableName, int FinancialYearId, SqlDataAccessTransaction sqlDataAccessTransaction = null) where T : new() =>
+        (await SqlDataAccess.LoadData<T, dynamic>(StoredProcedureNames.LoadLastTableDataByFinancialYear, new { TableName, FinancialYearId }, sqlDataAccessTransaction)).FirstOrDefault();
 
     public static async Task<T> LoadLastTableDataByLocationFinancialYear<T>(string TableName, int LocationId, int FinancialYearId, SqlDataAccessTransaction sqlDataAccessTransaction = null) where T : new() =>
         (await SqlDataAccess.LoadData<T, dynamic>(StoredProcedureNames.LoadLastTableDataByLocationFinancialYear, new { TableName, LocationId, FinancialYearId }, sqlDataAccessTransaction)).FirstOrDefault();

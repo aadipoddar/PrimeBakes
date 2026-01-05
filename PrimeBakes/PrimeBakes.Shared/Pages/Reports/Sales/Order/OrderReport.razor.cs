@@ -103,7 +103,7 @@ public partial class OrderReport : IAsyncDisposable
             Name = "All Locations"
         });
         _locations = [.. _locations.OrderBy(s => s.Name)];
-        _selectedLocation = _locations.FirstOrDefault(_ => _.Id == _user.LocationId);
+        _selectedLocation = _locations.FirstOrDefault(_ => _user.LocationId == 1 ? _.Id == 0 : _.Id == _user.LocationId);
     }
 
     private async Task LoadCompanies()

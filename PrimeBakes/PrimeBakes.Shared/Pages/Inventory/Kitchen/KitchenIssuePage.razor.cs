@@ -613,12 +613,7 @@ public partial class KitchenIssuePage : IAsyncDisposable
         if (_kitchenIssue.Id > 0)
         {
             var existingKitchenIssue = await CommonData.LoadTableDataById<KitchenIssueModel>(TableNames.KitchenIssue, _kitchenIssue.Id);
-            var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, _kitchenIssue.FinancialYearId);
-            if (financialYear is null || financialYear.Locked || !financialYear.Status)
-            {
-                await _toastNotification.ShowAsync("Financial Year Locked or Inactive", "The financial year for the selected transaction date is either locked or inactive. Please select a different date.", ToastType.Error);
-                return false;
-            }
+            await FinancialYearData.ValidateFinancialYear(existingKitchenIssue.TransactionDateTime);
 
             if (!_user.Admin)
             {

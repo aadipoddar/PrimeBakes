@@ -127,6 +127,7 @@ public static class OrderData
         if (update)
         {
             var existingOrder = await CommonData.LoadTableDataById<OrderModel>(TableNames.Order, order.Id, sqlDataAccessTransaction);
+            await FinancialYearData.ValidateFinancialYear(existingOrder.TransactionDateTime, sqlDataAccessTransaction);
 
             if (existingOrder.SaleId is not null && existingOrder.SaleId > 0)
                 throw new InvalidOperationException("Cannot update order as it is already converted to a sale.");

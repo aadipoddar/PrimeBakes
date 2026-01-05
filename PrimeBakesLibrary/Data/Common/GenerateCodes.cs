@@ -171,13 +171,13 @@ public static class GenerateCodes
         return $"{locationPrefix}{financialYear.YearNo}{adjustmentPrefix}{currentDateTime:ddMMyy}{currentDateTime:HHmmss}";
     }
 
-    public static async Task<string> GenerateKitchenIssueTransactionNo(KitchenIssueModel kitchenIssue)
+    public static async Task<string> GenerateKitchenIssueTransactionNo(KitchenIssueModel kitchenIssue, SqlDataAccessTransaction sqlDataAccessTransaction = null)
     {
-        var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, kitchenIssue.FinancialYearId);
-        var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, 1)).PrefixCode;
-        var kitchenIssuePrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.KitchenIssueTransactionPrefix)).Value;
+        var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, kitchenIssue.FinancialYearId, sqlDataAccessTransaction);
+        var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, 1, sqlDataAccessTransaction)).PrefixCode;
+        var kitchenIssuePrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.KitchenIssueTransactionPrefix, sqlDataAccessTransaction)).Value;
 
-        var lastKitchenIssue = await CommonData.LoadLastTableDataByFinancialYear<KitchenIssueModel>(TableNames.KitchenIssue, kitchenIssue.FinancialYearId);
+        var lastKitchenIssue = await CommonData.LoadLastTableDataByFinancialYear<KitchenIssueModel>(TableNames.KitchenIssue, kitchenIssue.FinancialYearId, sqlDataAccessTransaction);
         if (lastKitchenIssue is not null)
         {
             var lastTransactionNo = lastKitchenIssue.TransactionNo;
@@ -187,12 +187,12 @@ public static class GenerateCodes
                 if (int.TryParse(lastNumberPart, out int lastNumber))
                 {
                     int nextNumber = lastNumber + 1;
-                    return await CheckDuplicateCode($"{locationPrefix}{financialYear.YearNo}{kitchenIssuePrefix}{nextNumber:D6}", 6, CodeType.KitchenIssue);
+                    return await CheckDuplicateCode($"{locationPrefix}{financialYear.YearNo}{kitchenIssuePrefix}{nextNumber:D6}", 6, CodeType.KitchenIssue, sqlDataAccessTransaction);
                 }
             }
         }
 
-        return await CheckDuplicateCode($"{locationPrefix}{financialYear.YearNo}{kitchenIssuePrefix}000001", 6, CodeType.KitchenIssue);
+        return await CheckDuplicateCode($"{locationPrefix}{financialYear.YearNo}{kitchenIssuePrefix}000001", 6, CodeType.KitchenIssue, sqlDataAccessTransaction);
     }
 
     public static async Task<string> GenerateKitchenProductionTransactionNo(KitchenProductionModel kitchenProduction)
