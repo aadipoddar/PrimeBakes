@@ -50,7 +50,7 @@ public static class SaleReturnData
             await AccountingData.DeleteTransaction(existingAccounting);
         }
 
-        await SendNotification.SaleReturnNotification(saleReturn.Id, NotificationType.Delete);
+        await SendNotification.SaleReturnNotification(saleReturn.Id, NotifyType.Deleted);
     }
 
     public static async Task RecoverTransaction(SaleReturnModel saleReturn)
@@ -81,7 +81,7 @@ public static class SaleReturnData
         }));
 
         await SaveTransaction(saleReturn, transactionItemCarts, false);
-        await SendNotification.SaleReturnNotification(saleReturn.Id, NotificationType.Recover);
+        await SendNotification.SaleReturnNotification(saleReturn.Id, NotifyType.Recovered);
     }
 
     public static async Task<int> SaveTransaction(SaleReturnModel saleReturn, List<SaleReturnItemCartModel> saleReturnDetails, bool showNotification = true)
@@ -112,7 +112,7 @@ public static class SaleReturnData
         await SaveAccounting(saleReturn, update);
 
         if (showNotification)
-            await SendNotification.SaleReturnNotification(saleReturn.Id, update ? NotificationType.Update : NotificationType.Save);
+            await SendNotification.SaleReturnNotification(saleReturn.Id, update ? NotifyType.Updated : NotifyType.Created);
 
         return saleReturn.Id;
     }

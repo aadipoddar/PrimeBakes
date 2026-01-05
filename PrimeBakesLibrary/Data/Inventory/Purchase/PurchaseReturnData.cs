@@ -39,7 +39,7 @@ public static class PurchaseReturnData
             await AccountingData.DeleteTransaction(existingAccounting);
         }
 
-        await SendNotification.PurchaseReturnNotification(purchaseReturn.Id, NotificationType.Delete);
+        await SendNotification.PurchaseReturnNotification(purchaseReturn.Id, NotifyType.Deleted);
     }
 
     public static async Task RecoverTransaction(PurchaseReturnModel purchaseReturn)
@@ -73,7 +73,7 @@ public static class PurchaseReturnData
             });
 
         await SaveTransaction(purchaseReturn, purchaseItemCarts, false);
-        await SendNotification.PurchaseReturnNotification(purchaseReturn.Id, NotificationType.Recover);
+        await SendNotification.PurchaseReturnNotification(purchaseReturn.Id, NotifyType.Recovered);
     }
 
     public static async Task<int> SaveTransaction(PurchaseReturnModel purchaseReturn, List<PurchaseReturnItemCartModel> purchaseReturnDetails, bool showNotification = true)
@@ -98,7 +98,7 @@ public static class PurchaseReturnData
         await SaveAccounting(purchaseReturn, update);
 
         if (showNotification)
-            await SendNotification.PurchaseReturnNotification(purchaseReturn.Id, update ? NotificationType.Update : NotificationType.Save);
+            await SendNotification.PurchaseReturnNotification(purchaseReturn.Id, update ? NotifyType.Updated : NotifyType.Created);
 
         return purchaseReturn.Id;
     }

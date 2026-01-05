@@ -43,7 +43,7 @@ public static class StockTransferData
 			await AccountingData.DeleteTransaction(existingAccounting);
 		}
 
-		await SendNotification.StockTransferNotification(stockTransfer.Id, NotificationType.Delete);
+		await SendNotification.StockTransferNotification(stockTransfer.Id, NotifyType.Deleted);
 	}
 
 	public static async Task RecoverTransaction(StockTransferModel stockTransfer)
@@ -76,7 +76,7 @@ public static class StockTransferData
 			});
 
 		await SaveTransaction(stockTransfer, transactionItemCarts, false);
-		await SendNotification.StockTransferNotification(stockTransfer.Id, NotificationType.Recover);
+		await SendNotification.StockTransferNotification(stockTransfer.Id, NotifyType.Recovered);
 	}
 
 	public static async Task<int> SaveTransaction(StockTransferModel stockTransfer, List<StockTransferItemCartModel> stockTransferDetails, bool showNotification = true)
@@ -107,7 +107,7 @@ public static class StockTransferData
 		await SaveAccounting(stockTransfer, update);
 
 		if (showNotification)
-			await SendNotification.StockTransferNotification(stockTransfer.Id, update ? NotificationType.Update : NotificationType.Save);
+			await SendNotification.StockTransferNotification(stockTransfer.Id, update ? NotifyType.Updated : NotifyType.Created);
 
 		return stockTransfer.Id;
 	}

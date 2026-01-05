@@ -23,7 +23,7 @@ public static class KitchenProductionData
         kitchenProduction.Status = false;
         await InsertKitchenProduction(kitchenProduction);
         await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.KitchenProduction), kitchenProduction.Id, 1);
-        await SendNotification.KitchenProductionNotification(kitchenProduction.Id, NotificationType.Delete);
+        await SendNotification.KitchenProductionNotification(kitchenProduction.Id, NotifyType.Deleted);
     }
 
     public static async Task RecoverTransaction(KitchenProductionModel kitchenProduction)
@@ -43,7 +43,7 @@ public static class KitchenProductionData
             });
 
         await SaveTransaction(kitchenProduction, kitchenProductionProductCarts, false);
-        await SendNotification.KitchenProductionNotification(kitchenProduction.Id, NotificationType.Recover);
+        await SendNotification.KitchenProductionNotification(kitchenProduction.Id, NotifyType.Recovered);
     }
 
     public static async Task<int> SaveTransaction(KitchenProductionModel kitchenProduction, List<KitchenProductionProductCartModel> kitchenProductionDetails, bool showNotification = true)
@@ -71,7 +71,7 @@ public static class KitchenProductionData
         await SaveProductStock(kitchenProduction, kitchenProductionDetails, update);
 
         if (showNotification)
-            await SendNotification.KitchenProductionNotification(kitchenProduction.Id, update ? NotificationType.Update : NotificationType.Save);
+            await SendNotification.KitchenProductionNotification(kitchenProduction.Id, update ? NotifyType.Updated : NotifyType.Created);
 
         return kitchenProduction.Id;
     }

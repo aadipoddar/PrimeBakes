@@ -26,7 +26,7 @@ public static class AccountingData
 
         accounting.Status = false;
         await InsertAccounting(accounting);
-        await SendNotification.FinancialAccountingNotification(accounting.Id, NotificationType.Delete);
+        await SendNotification.FinancialAccountingNotification(accounting.Id, NotifyType.Deleted);
     }
 
     public static async Task RecoverTransaction(AccountingModel accounting)
@@ -48,7 +48,7 @@ public static class AccountingData
             });
 
         await SaveTransaction(accounting, accountingItemCarts, false);
-        await SendNotification.FinancialAccountingNotification(accounting.Id, NotificationType.Recover);
+        await SendNotification.FinancialAccountingNotification(accounting.Id, NotifyType.Recovered);
     }
 
     public static async Task<int> SaveTransaction(AccountingModel accounting, List<AccountingItemCartModel> accountingDetails, bool showNotification = true)
@@ -75,7 +75,7 @@ public static class AccountingData
         await SaveTransactionDetail(accounting, accountingDetails, update);
 
         if (showNotification && update)
-            await SendNotification.FinancialAccountingNotification(accounting.Id, update ? NotificationType.Update : NotificationType.Save);
+            await SendNotification.FinancialAccountingNotification(accounting.Id, update ? NotifyType.Updated : NotifyType.Created);
 
         return accounting.Id;
     }

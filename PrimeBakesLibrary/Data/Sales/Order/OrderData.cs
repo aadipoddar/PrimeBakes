@@ -1,5 +1,6 @@
 ﻿using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Exporting.Sales.Order;
 using PrimeBakesLibrary.Models.Sales.Order;
 using PrimeBakesLibrary.Models.Sales.Sale;
 
@@ -71,9 +72,10 @@ public static class OrderData
 
             order.Status = false;
             await InsertOrder(order, sqlDataAccessTransaction);
-            await SendNotification.OrderNotification(order.Id, NotificationType.Delete);
 
             sqlDataAccessTransaction.CommitTransaction();
+
+            await OrderNotify.Notify(order.Id, NotifyType.Deleted);
         }
         catch
         {
@@ -88,7 +90,8 @@ public static class OrderData
         var transactionDetails = await CommonData.LoadTableDataByMasterId<OrderDetailModel>(TableNames.OrderDetail, order.Id);
 
         await SaveTransaction(order, null, transactionDetails, false);
-        await SendNotification.OrderNotification(order.Id, NotificationType.Recover);
+
+        await OrderNotify.Notify(order.Id, NotifyType.Recovered);
     }
 
     public static async Task<int> SaveTransaction(OrderModel order, List<OrderItemCartModel> cart, List<OrderDetailModel> orderDetails = null, bool showNotification = true, SqlDataAccessTransaction sqlDataAccessTransaction = null)
@@ -97,6 +100,10 @@ public static class OrderData
 
         if (sqlDataAccessTransaction is null)
         {
+            (MemoryStream, string)? previousInvoice = null;
+            if (update)
+                previousInvoice = await OrderInvoicePDFExport.ExportInvoice(order.Id);
+
             using SqlDataAccessTransaction newSqlDataAccessTransaction = new();
 
             try
@@ -112,7 +119,7 @@ public static class OrderData
             }
 
             if (showNotification)
-                await SendNotification.OrderNotification(order.Id, update ? NotificationType.Update : NotificationType.Save);
+                await OrderNotify.Notify(order.Id, update ? NotifyType.Updated : NotifyType.Created, previousInvoice);
 
             return order.Id;
         }

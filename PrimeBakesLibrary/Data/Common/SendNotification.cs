@@ -5,7 +5,6 @@ using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Inventory.Kitchen;
 using PrimeBakesLibrary.Models.Inventory.Purchase;
-using PrimeBakesLibrary.Models.Sales.Order;
 using PrimeBakesLibrary.Models.Sales.Sale;
 using PrimeBakesLibrary.Models.Sales.StockTransfer;
 
@@ -37,101 +36,89 @@ public static class SendNotification
         var response = await httpClient.PostAsync(endpoint, content);
     }
 
-    public static async Task FinancialAccountingNotification(int accountingId, NotificationType type)
+    public static async Task FinancialAccountingNotification(int accountingId, NotifyType type)
     {
         var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
         users = [.. users.Where(u => u.Admin && u.LocationId == 1 || u.Accounts && u.LocationId == 1)];
 
         var accounting = await CommonData.LoadTableDataById<AccountingOverviewModel>(ViewNames.AccountingOverview, accountingId);
-        var title = $"Financial Accounting {(type == NotificationType.Update ? "Updated" : type == NotificationType.Delete ? "Deleted" : type == NotificationType.Recover ? "Recovered" : "Placed")} | Accounting No: {accounting.TransactionNo}";
+        var title = $"Financial Accounting {(type == NotifyType.Updated ? "Updated" : type == NotifyType.Deleted ? "Deleted" : type == NotifyType.Recovered ? "Recovered" : "Placed")} | Accounting No: {accounting.TransactionNo}";
         var text = $"Accounting No: {accounting.TransactionNo} | Ledgers: {accounting.TotalLedgers} | Total Amount: {accounting.TotalAmount.FormatIndianCurrency()} | User: {accounting.CreatedByName} | Date: {accounting.TransactionDateTime:dd/MM/yy hh:mm tt} | Remarks: {accounting.Remarks}";
 
         await SendNotificationToAPI(users, title, text);
     }
 
-    public static async Task PurchaseNotification(int purchaseId, NotificationType type)
+    public static async Task PurchaseNotification(int purchaseId, NotifyType type)
     {
         var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
         users = [.. users.Where(u => u.Admin && u.LocationId == 1 || u.Inventory && u.LocationId == 1)];
 
         var purchase = await CommonData.LoadTableDataById<PurchaseOverviewModel>(ViewNames.PurchaseOverview, purchaseId);
-        var title = $"Purchase {(type == NotificationType.Update ? "Updated" : type == NotificationType.Delete ? "Deleted" : type == NotificationType.Recover ? "Recovered" : "Placed")} from {purchase.PartyName}";
+        var title = $"Purchase {(type == NotifyType.Updated ? "Updated" : type == NotifyType.Deleted ? "Deleted" : type == NotifyType.Recovered ? "Recovered" : "Placed")} from {purchase.PartyName}";
         var text = $"Purchase No: {purchase.TransactionNo} | Vendor: {purchase.PartyName} | Total Items: {purchase.TotalItems} | Total Qty: {purchase.TotalQuantity} | Total Amount: {purchase.TotalAmount.FormatIndianCurrency()} | User: {purchase.CreatedByName} | Date: {purchase.TransactionDateTime:dd/MM/yy hh:mm tt} | Remarks: {purchase.Remarks}";
 
         await SendNotificationToAPI(users, title, text);
     }
 
-    public static async Task PurchaseReturnNotification(int purchaseReturnId, NotificationType type)
+    public static async Task PurchaseReturnNotification(int purchaseReturnId, NotifyType type)
     {
         var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
         users = [.. users.Where(u => u.Admin && u.LocationId == 1 || u.Inventory && u.LocationId == 1)];
 
         var purchaseReturn = await CommonData.LoadTableDataById<PurchaseReturnOverviewModel>(ViewNames.PurchaseReturnOverview, purchaseReturnId);
-        var title = $"Purchase Return {(type == NotificationType.Update ? "Updated" : type == NotificationType.Delete ? "Deleted" : type == NotificationType.Recover ? "Recovered" : "Placed")} from {purchaseReturn.PartyName}";
+        var title = $"Purchase Return {(type == NotifyType.Updated ? "Updated" : type == NotifyType.Deleted ? "Deleted" : type == NotifyType.Recovered ? "Recovered" : "Placed")} from {purchaseReturn.PartyName}";
         var text = $"Purchase Return No: {purchaseReturn.TransactionNo} | Vendor: {purchaseReturn.PartyName} | Total Items: {purchaseReturn.TotalItems} | Total Qty: {purchaseReturn.TotalQuantity} | Total Amount: {purchaseReturn.TotalAmount.FormatIndianCurrency()} | User: {purchaseReturn.CreatedByName} | Date: {purchaseReturn.TransactionDateTime:dd/MM/yy hh:mm tt} | Remarks: {purchaseReturn.Remarks}";
 
         await SendNotificationToAPI(users, title, text);
     }
 
-    public static async Task KitchenIssueNotification(int kitchenIssueId, NotificationType type)
+    public static async Task KitchenIssueNotification(int kitchenIssueId, NotifyType type)
     {
         var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
         users = [.. users.Where(u => u.Admin && u.LocationId == 1 || u.Inventory && u.LocationId == 1)];
 
         var kitchenIssue = await CommonData.LoadTableDataById<KitchenIssueOverviewModel>(ViewNames.KitchenIssueOverview, kitchenIssueId);
-        var title = $"Kitchen Issue {(type == NotificationType.Update ? "Updated" : type == NotificationType.Delete ? "Deleted" : type == NotificationType.Recover ? "Recovered" : "Placed")} from {kitchenIssue.KitchenName}";
+        var title = $"Kitchen Issue {(type == NotifyType.Updated ? "Updated" : type == NotifyType.Deleted ? "Deleted" : type == NotifyType.Recovered ? "Recovered" : "Placed")} from {kitchenIssue.KitchenName}";
         var text = $"Kitchen Issue No: {kitchenIssue.TransactionNo} | Total Items: {kitchenIssue.TotalItems} | Total Qty: {kitchenIssue.TotalQuantity} | Total Amount: {kitchenIssue.TotalAmount.FormatIndianCurrency()} | Kitchen: {kitchenIssue.KitchenName} | User: {kitchenIssue.CreatedByName} | Date: {kitchenIssue.TransactionDateTime:dd/MM/yy hh:mm tt} | Remarks: {kitchenIssue.Remarks}";
 
         await SendNotificationToAPI(users, title, text);
     }
 
-    public static async Task KitchenProductionNotification(int kitchenProductionId, NotificationType type)
+    public static async Task KitchenProductionNotification(int kitchenProductionId, NotifyType type)
     {
         var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
         users = [.. users.Where(u => u.Admin && u.LocationId == 1 || u.Inventory && u.LocationId == 1)];
 
         var kitchenProduction = await CommonData.LoadTableDataById<KitchenProductionOverviewModel>(ViewNames.KitchenProductionOverview, kitchenProductionId);
-        var title = $"Kitchen Production {(type == NotificationType.Update ? "Updated" : type == NotificationType.Delete ? "Deleted" : type == NotificationType.Recover ? "Recovered" : "Placed")} from {kitchenProduction.KitchenName}";
+        var title = $"Kitchen Production {(type == NotifyType.Updated ? "Updated" : type == NotifyType.Deleted ? "Deleted" : type == NotifyType.Recovered ? "Recovered" : "Placed")} from {kitchenProduction.KitchenName}";
         var text = $"Kitchen Production No: {kitchenProduction.TransactionNo} | Total Items: {kitchenProduction.TotalItems} | Total Qty: {kitchenProduction.TotalQuantity} | Total Amount: {kitchenProduction.TotalAmount.FormatIndianCurrency()} | Kitchen: {kitchenProduction.KitchenName} | User: {kitchenProduction.CreatedByName} | Date: {kitchenProduction.TransactionDateTime:dd/MM/yy hh:mm tt} | Remarks: {kitchenProduction.Remarks}";
 
         await SendNotificationToAPI(users, title, text);
     }
 
-    public static async Task RawMaterialStockAdjustmentNotification(int items, decimal quantity, int userId, NotificationType type)
+    public static async Task RawMaterialStockAdjustmentNotification(int items, decimal quantity, int userId, NotifyType type)
     {
         var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
         users = [.. users.Where(u => u.Admin && u.LocationId == 1 || u.Inventory && u.LocationId == 1)];
 
-        var title = $"Raw Material Stock Adjustment {(type == NotificationType.Delete ? "Deleted" : "Placed")}";
+        var title = $"Raw Material Stock Adjustment {(type == NotifyType.Deleted ? "Deleted" : "Placed")}";
         var text = $"Raw Material Stock Adjustment by User: {users.FirstOrDefault(_ => _.Id == userId)?.Name} | Items: {items} | Quantity: {quantity}";
 
         await SendNotificationToAPI(users, title, text);
     }
 
-    public static async Task ProductStockAdjustmentNotification(int items, decimal quantity, int userId, int locationId, NotificationType type)
+    public static async Task ProductStockAdjustmentNotification(int items, decimal quantity, int userId, int locationId, NotifyType type)
     {
         var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
         users = [.. users.Where(u => u.Admin && u.LocationId == 1 || u.Inventory && u.LocationId == 1)];
 
-        var title = $"Finished Goods Stock Adjustment {(type == NotificationType.Delete ? "Deleted" : "Placed")}";
+        var title = $"Finished Goods Stock Adjustment {(type == NotifyType.Deleted ? "Deleted" : "Placed")}";
         var text = $"Finished Goods Stock Adjustment by User: {users.FirstOrDefault(_ => _.Id == userId)?.Name} | Items: {items} | Quantity: {quantity} | Location ID: {locationId}";
 
         await SendNotificationToAPI(users, title, text);
     }
 
-    public static async Task OrderNotification(int orderId, NotificationType type)
-    {
-        var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
-        users = [.. users.Where(u => u.Admin && u.LocationId == 1 || u.Order && u.LocationId == 1)];
-
-        var order = await CommonData.LoadTableDataById<OrderOverviewModel>(ViewNames.OrderOverview, orderId);
-        var title = $"Order {(type == NotificationType.Update ? "Updated" : type == NotificationType.Delete ? "Deleted" : type == NotificationType.Recover ? "Recovered" : "Placed")} from {order.LocationName}";
-        var text = $"Order No: {order.TransactionNo} | Total Items: {order.TotalItems} | Total Qty: {order.TotalQuantity} | Location: {order.LocationName} | User: {order.CreatedByName} | Date: {order.TransactionDateTime:dd/MM/yy hh:mm tt} | Remarks: {order.Remarks}";
-
-        await SendNotificationToAPI(users, title, text);
-    }
-
-    public static async Task SaleNotification(int saleId, NotificationType type)
+    public static async Task SaleNotification(int saleId, NotifyType type)
     {
         var sale = await CommonData.LoadTableDataById<SaleOverviewModel>(ViewNames.SaleOverview, saleId);
         var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
@@ -139,7 +126,7 @@ public static class SendNotification
         List<UserModel> targetUsers = [];
 
         // For Save (new sale creation)
-        if (type == NotificationType.Save)
+        if (type == NotifyType.Created)
             // Only notify sales and admins of the outlet where the sale was made
             targetUsers = [.. users.Where(u => (u.Admin || u.Sales) && u.LocationId == sale.LocationId)];
 
@@ -185,26 +172,26 @@ public static class SendNotification
         // Send notification if there are target users
         if (targetUsers.Count != 0)
         {
-            var title = $"Sale {(type == NotificationType.Update ? "Updated" : type == NotificationType.Delete ? "Deleted" : type == NotificationType.Recover ? "Recovered" : "Placed")} | Sale No: {sale.TransactionNo}";
+            var title = $"Sale {(type == NotifyType.Updated ? "Updated" : type == NotifyType.Deleted ? "Deleted" : type == NotifyType.Recovered ? "Recovered" : "Placed")} | Sale No: {sale.TransactionNo}";
             var text = $"Sale No: {sale.TransactionNo} | Party: {sale.PartyName} | Total Items: {sale.TotalItems} | Total Qty: {sale.TotalQuantity} | Total Amount: {sale.TotalAmount.FormatIndianCurrency()} | User: {sale.CreatedByName} | Date: {sale.TransactionDateTime:dd/MM/yy hh:mm tt} | Remarks: {sale.Remarks}";
 
             await SendNotificationToAPI(targetUsers, title, text);
         }
     }
 
-    public static async Task SaleReturnNotification(int saleReturnId, NotificationType type)
+    public static async Task SaleReturnNotification(int saleReturnId, NotifyType type)
     {
         var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
         users = [.. users.Where(u => u.Admin && u.LocationId == 1 || u.Sales && u.LocationId == 1)];
 
         var saleReturn = await CommonData.LoadTableDataById<SaleReturnOverviewModel>(ViewNames.SaleReturnOverview, saleReturnId);
-        var title = $"Sale Return {(type == NotificationType.Update ? "Updated" : type == NotificationType.Delete ? "Deleted" : type == NotificationType.Recover ? "Recovered" : "Placed")} from {saleReturn.PartyName}";
+        var title = $"Sale Return {(type == NotifyType.Updated ? "Updated" : type == NotifyType.Deleted ? "Deleted" : type == NotifyType.Recovered ? "Recovered" : "Placed")} from {saleReturn.PartyName}";
         var text = $"Sale Return No: {saleReturn.TransactionNo} | Party: {saleReturn.PartyName} | Total Items: {saleReturn.TotalItems} | Total Qty: {saleReturn.TotalQuantity} | Total Amount: {saleReturn.TotalAmount.FormatIndianCurrency()} | User: {saleReturn.CreatedByName} | Date: {saleReturn.TransactionDateTime:dd/MM/yy hh:mm tt} | Remarks: {saleReturn.Remarks}";
 
         await SendNotificationToAPI(users, title, text);
     }
 
-    public static async Task StockTransferNotification(int stockTransferId, NotificationType type)
+    public static async Task StockTransferNotification(int stockTransferId, NotifyType type)
     {
         var stockTransfer = await CommonData.LoadTableDataById<StockTransferOverviewModel>(ViewNames.StockTransferOverview, stockTransferId);
 
@@ -217,17 +204,9 @@ public static class SendNotification
                     u.Admin && u.LocationId == stockTransfer.ToLocationId ||
                     u.Sales && u.LocationId == stockTransfer.ToLocationId)];
 
-        var title = $"Stock Transfer {(type == NotificationType.Update ? "Updated" : type == NotificationType.Delete ? "Deleted" : type == NotificationType.Recover ? "Recovered" : "Placed")} from {stockTransfer.LocationName} to {stockTransfer.ToLocationName}";
+        var title = $"Stock Transfer {(type == NotifyType.Updated ? "Updated" : type == NotifyType.Deleted ? "Deleted" : type == NotifyType.Recovered ? "Recovered" : "Placed")} from {stockTransfer.LocationName} to {stockTransfer.ToLocationName}";
         var text = $"Stock Transfer No: {stockTransfer.TransactionNo} | From: {stockTransfer.LocationName} | To: {stockTransfer.ToLocationName} | Total Items: {stockTransfer.TotalItems} | Total Qty: {stockTransfer.TotalQuantity} | User: {stockTransfer.CreatedByName} | Date: {stockTransfer.TransactionDateTime:dd/MM/yy hh:mm tt} | Remarks: {stockTransfer.Remarks}";
 
         await SendNotificationToAPI(users, title, text);
     }
-}
-
-public enum NotificationType
-{
-    Save,
-    Update,
-    Recover,
-    Delete
 }

@@ -23,7 +23,7 @@ public static class KitchenIssueData
         kitchenIssue.Status = false;
         await InsertKitchenIssue(kitchenIssue);
         await RawMaterialStockData.DeleteRawMaterialStockByTypeTransactionId(nameof(StockType.KitchenIssue), kitchenIssue.Id);
-        await SendNotification.KitchenIssueNotification(kitchenIssue.Id, NotificationType.Delete);
+        await SendNotification.KitchenIssueNotification(kitchenIssue.Id, NotifyType.Deleted);
     }
 
     public static async Task RecoverTransaction(KitchenIssueModel kitchenIssue)
@@ -44,7 +44,7 @@ public static class KitchenIssueData
             });
 
         await SaveTransaction(kitchenIssue, kitchenIssueItemCarts, false);
-        await SendNotification.KitchenIssueNotification(kitchenIssue.Id, NotificationType.Recover);
+        await SendNotification.KitchenIssueNotification(kitchenIssue.Id, NotifyType.Recovered);
     }
 
     public static async Task<int> SaveTransaction(KitchenIssueModel kitchenIssue, List<KitchenIssueItemCartModel> kitchenIssueDetails, bool showNotification = true)
@@ -72,7 +72,7 @@ public static class KitchenIssueData
         await SaveRawMaterialStock(kitchenIssue, kitchenIssueDetails, update);
 
         if (showNotification)
-            await SendNotification.KitchenIssueNotification(kitchenIssue.Id, update ? NotificationType.Update : NotificationType.Save);
+            await SendNotification.KitchenIssueNotification(kitchenIssue.Id, update ? NotifyType.Updated : NotifyType.Created);
 
         return kitchenIssue.Id;
     }

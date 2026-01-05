@@ -26,7 +26,7 @@ public static class ProductStockData
             throw new Exception("Cannot delete stock entry as the financial year is locked.");
 
         await SqlDataAccess.SaveData(StoredProcedureNames.DeleteProductStockById, new { Id });
-        await SendNotification.ProductStockAdjustmentNotification(1, stock.Quantity, userId, stock.LocationId, NotificationType.Delete);
+        await SendNotification.ProductStockAdjustmentNotification(1, stock.Quantity, userId, stock.LocationId, NotifyType.Deleted);
     }
 
     public static async Task SaveProductStockAdjustment(DateTime transactionDateTime, int locationId, List<ProductStockAdjustmentCartModel> cart, int userId)
@@ -62,6 +62,6 @@ public static class ProductStockData
                 });
         }
 
-        await SendNotification.ProductStockAdjustmentNotification(cart.Count, cart.Sum(c => c.Quantity), userId, locationId, NotificationType.Save);
+        await SendNotification.ProductStockAdjustmentNotification(cart.Count, cart.Sum(c => c.Quantity), userId, locationId, NotifyType.Created);
     }
 }

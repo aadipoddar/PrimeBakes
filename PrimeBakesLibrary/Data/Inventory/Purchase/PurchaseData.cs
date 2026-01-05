@@ -44,7 +44,7 @@ public static class PurchaseData
             await AccountingData.DeleteTransaction(existingAccounting);
         }
 
-        await SendNotification.PurchaseNotification(purchase.Id, NotificationType.Delete);
+        await SendNotification.PurchaseNotification(purchase.Id, NotifyType.Deleted);
     }
 
     public static async Task RecoverTransaction(PurchaseModel purchase)
@@ -78,7 +78,7 @@ public static class PurchaseData
             });
 
         await SaveTransaction(purchase, purchaseItemCarts, false);
-        await SendNotification.PurchaseNotification(purchase.Id, NotificationType.Recover);
+        await SendNotification.PurchaseNotification(purchase.Id, NotifyType.Recovered);
     }
 
     public static async Task<int> SaveTransaction(PurchaseModel purchase, List<PurchaseItemCartModel> purchaseDetails, bool showNotification = true)
@@ -104,7 +104,7 @@ public static class PurchaseData
         await UpdateRawMaterialRateAndUOMOnPurchase(purchaseDetails);
 
         if (showNotification)
-            await SendNotification.PurchaseNotification(purchase.Id, update ? NotificationType.Update : NotificationType.Save);
+            await SendNotification.PurchaseNotification(purchase.Id, update ? NotifyType.Updated : NotifyType.Created);
 
         return purchase.Id;
     }
