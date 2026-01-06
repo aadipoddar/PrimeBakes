@@ -315,13 +315,13 @@ public static class GenerateCodes
         return await CheckDuplicateCode($"{locationPrefix}{financialYear.YearNo}{orderPrefix}000001", 6, CodeType.Order, sqlDataAccessTransaction);
     }
 
-    public static async Task<string> GenerateAccountingTransactionNo(AccountingModel accounting)
+    public static async Task<string> GenerateAccountingTransactionNo(AccountingModel accounting, SqlDataAccessTransaction sqlDataAccessTransaction = null)
     {
-        var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, accounting.FinancialYearId);
-        var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, 1)).PrefixCode;
-        var accountingPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.AccountingTransactionPrefix)).Value;
+        var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, accounting.FinancialYearId, sqlDataAccessTransaction);
+        var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, 1, sqlDataAccessTransaction)).PrefixCode;
+        var accountingPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.AccountingTransactionPrefix, sqlDataAccessTransaction)).Value;
 
-        var lastAccounting = await CommonData.LoadLastTableDataByFinancialYear<AccountingModel>(TableNames.Accounting, accounting.FinancialYearId);
+        var lastAccounting = await CommonData.LoadLastTableDataByFinancialYear<AccountingModel>(TableNames.Accounting, accounting.FinancialYearId, sqlDataAccessTransaction);
         if (lastAccounting is not null)
         {
             var lastTransactionNo = lastAccounting.TransactionNo;
@@ -331,12 +331,12 @@ public static class GenerateCodes
                 if (int.TryParse(lastNumberPart, out int lastNumber))
                 {
                     int nextNumber = lastNumber + 1;
-                    return await CheckDuplicateCode($"{locationPrefix}{financialYear.YearNo}{accountingPrefix}{nextNumber:D6}", 6, CodeType.Accounting);
+                    return await CheckDuplicateCode($"{locationPrefix}{financialYear.YearNo}{accountingPrefix}{nextNumber:D6}", 6, CodeType.Accounting, sqlDataAccessTransaction);
                 }
             }
         }
 
-        return await CheckDuplicateCode($"{locationPrefix}{financialYear.YearNo}{accountingPrefix}000001", 6, CodeType.Accounting);
+        return await CheckDuplicateCode($"{locationPrefix}{financialYear.YearNo}{accountingPrefix}000001", 6, CodeType.Accounting, sqlDataAccessTransaction);
     }
 
     public static async Task<string> GenerateRawMaterialCode()

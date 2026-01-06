@@ -199,7 +199,6 @@
     <Build Include="Tables\Accounts\Masters\FinancialYear.sql" />
     <Build Include="Tables\Accounts\Masters\Group.sql" />
     <Build Include="Tables\Accounts\Masters\Ledger.sql" />
-    <Build Include="Tables\Accounts\Masters\Settings.sql" />
     <Build Include="Tables\Accounts\Masters\StateUT.sql" />
     <Build Include="Tables\Accounts\Masters\Voucher.sql" />
     <Build Include="Tables\Common\Customer.sql" />
@@ -254,6 +253,7 @@
     <Build Include="Views\Sales\StockTransfer\StockTransfer_Overview.sql" />
     <Build Include="Views\Sales\ProductLocation_Overview.sql" />
     <Build Include="Tables\Accounts\Masters\Nature.sql" />
+    <Build Include="Tables\Common\Settings.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="DBPrimeBakes.refactorlog" />

@@ -1,6 +1,6 @@
-﻿using PrimeBakesLibrary.Models.Accounts.Masters;
+﻿using PrimeBakesLibrary.Models.Common;
 
-namespace PrimeBakesLibrary.Data.Accounts.Masters;
+namespace PrimeBakesLibrary.Data.Common;
 
 public static class SettingsData
 {

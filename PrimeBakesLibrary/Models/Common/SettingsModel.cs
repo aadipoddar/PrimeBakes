@@ -1,4 +1,4 @@
-﻿namespace PrimeBakesLibrary.Models.Accounts.Masters;
+﻿namespace PrimeBakesLibrary.Models.Common;
 
 public class SettingsModel
 {
