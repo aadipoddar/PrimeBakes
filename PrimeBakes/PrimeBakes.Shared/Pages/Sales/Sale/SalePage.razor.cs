@@ -1054,12 +1054,7 @@ public partial class SalePage : IAsyncDisposable
         if (_sale.Id > 0)
         {
             var existingSale = await CommonData.LoadTableDataById<SaleModel>(TableNames.Sale, _sale.Id);
-            var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, existingSale.FinancialYearId);
-            if (financialYear is null || financialYear.Locked || !financialYear.Status)
-            {
-                await _toastNotification.ShowAsync("Financial Year Locked or Inactive", "The financial year for the selected transaction date is either locked or inactive. Please select a different date.", ToastType.Error);
-                return false;
-            }
+            await FinancialYearData.ValidateFinancialYear(existingSale.TransactionDateTime);
 
             if (!_user.Admin || _user.LocationId > 1)
             {

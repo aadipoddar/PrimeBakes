@@ -3,8 +3,9 @@ using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Inventory;
 using PrimeBakesLibrary.Data.Inventory.Stock;
+using PrimeBakesLibrary.Exporting.Sales;
+using PrimeBakesLibrary.Exporting.Sales.StockTransfer;
 using PrimeBakesLibrary.Models.Accounts.FinancialAccounting;
-using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Inventory;
 using PrimeBakesLibrary.Models.Inventory.Stock;
@@ -14,159 +15,183 @@ namespace PrimeBakesLibrary.Data.Sales.StockTransfer;
 
 public static class StockTransferData
 {
-    private static async Task<int> InsertStockTransfer(StockTransferModel stockTransfer) =>
-        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertStockTransfer, stockTransfer)).FirstOrDefault();
+    private static async Task<int> InsertStockTransfer(StockTransferModel stockTransfer, SqlDataAccessTransaction sqlDataAccessTransaction) =>
+        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertStockTransfer, stockTransfer, sqlDataAccessTransaction)).FirstOrDefault();
 
-    private static async Task<int> InsertStockTransferDetail(StockTransferDetailModel stockTransferDetail) =>
-        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertStockTransferDetail, stockTransferDetail)).FirstOrDefault();
+    private static async Task<int> InsertStockTransferDetail(StockTransferDetailModel stockTransferDetail, SqlDataAccessTransaction sqlDataAccessTransaction) =>
+        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertStockTransferDetail, stockTransferDetail, sqlDataAccessTransaction)).FirstOrDefault();
+
+    private static List<StockTransferDetailModel> ConvertCartToDetails(List<StockTransferItemCartModel> cart, int masterId) =>
+        [.. cart.Select(item => new StockTransferDetailModel
+        {
+            Id = 0,
+            MasterId = masterId,
+            ProductId = item.ItemId,
+            Quantity = item.Quantity,
+            Rate = item.Rate,
+            BaseTotal = item.BaseTotal,
+            DiscountPercent = item.DiscountPercent,
+            DiscountAmount = item.DiscountAmount,
+            AfterDiscount = item.AfterDiscount,
+            CGSTPercent = item.CGSTPercent,
+            CGSTAmount = item.CGSTAmount,
+            SGSTPercent = item.SGSTPercent,
+            SGSTAmount = item.SGSTAmount,
+            IGSTPercent = item.IGSTPercent,
+            IGSTAmount = item.IGSTAmount,
+            TotalTaxAmount = item.TotalTaxAmount,
+            InclusiveTax = item.InclusiveTax,
+            NetRate = item.NetRate,
+            Total = item.Total,
+            Remarks = item.Remarks,
+            Status = true
+        })];
 
     public static async Task DeleteTransaction(StockTransferModel stockTransfer)
     {
-        var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, stockTransfer.FinancialYearId);
-        if (financialYear is null || financialYear.Locked || !financialYear.Status)
-            throw new InvalidOperationException("Cannot delete transaction as the financial year is locked.");
+        await FinancialYearData.ValidateFinancialYear(stockTransfer.TransactionDateTime);
 
-        stockTransfer.Status = false;
-        await InsertStockTransfer(stockTransfer);
+        using SqlDataAccessTransaction sqlDataAccessTransaction = new();
 
-        await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.StockTransfer), stockTransfer.Id, stockTransfer.LocationId);
-        await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.StockTransfer), stockTransfer.Id, stockTransfer.ToLocationId);
-        await RawMaterialStockData.DeleteRawMaterialStockByTypeTransactionId(nameof(StockType.StockTransfer), stockTransfer.Id);
-
-        var stockTransferVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.StockTransferVoucherId);
-        var existingAccounting = await AccountingData.LoadAccountingByVoucherReference(int.Parse(stockTransferVoucher.Value), stockTransfer.Id, stockTransfer.TransactionNo);
-        if (existingAccounting is not null && existingAccounting.Id > 0)
+        try
         {
-            existingAccounting.Status = false;
-            existingAccounting.LastModifiedBy = stockTransfer.LastModifiedBy;
-            existingAccounting.LastModifiedAt = stockTransfer.LastModifiedAt;
-            existingAccounting.LastModifiedFromPlatform = stockTransfer.LastModifiedFromPlatform;
+            sqlDataAccessTransaction.StartTransaction();
 
-            await AccountingData.DeleteTransaction(existingAccounting);
+            stockTransfer.Status = false;
+            await InsertStockTransfer(stockTransfer, sqlDataAccessTransaction);
+
+            await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.StockTransfer), stockTransfer.Id, stockTransfer.LocationId, sqlDataAccessTransaction);
+            await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.StockTransfer), stockTransfer.Id, stockTransfer.ToLocationId, sqlDataAccessTransaction);
+            await RawMaterialStockData.DeleteRawMaterialStockByTypeTransactionId(nameof(StockType.StockTransfer), stockTransfer.Id, sqlDataAccessTransaction);
+
+            var stockTransferVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.StockTransferVoucherId, sqlDataAccessTransaction);
+            var existingAccounting = await AccountingData.LoadAccountingByVoucherReference(int.Parse(stockTransferVoucher.Value), stockTransfer.Id, stockTransfer.TransactionNo, sqlDataAccessTransaction);
+            if (existingAccounting is not null && existingAccounting.Id > 0)
+            {
+                existingAccounting.Status = false;
+                existingAccounting.LastModifiedBy = stockTransfer.LastModifiedBy;
+                existingAccounting.LastModifiedAt = stockTransfer.LastModifiedAt;
+                existingAccounting.LastModifiedFromPlatform = stockTransfer.LastModifiedFromPlatform;
+
+                await AccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
+            }
+
+            sqlDataAccessTransaction.CommitTransaction();
+
+            await StockTransferNotify.Notify(stockTransfer.Id, NotifyType.Deleted);
         }
-
-        await SendNotification.StockTransferNotification(stockTransfer.Id, NotifyType.Deleted);
+        catch
+        {
+            sqlDataAccessTransaction.RollbackTransaction();
+            throw;
+        }
     }
 
     public static async Task RecoverTransaction(StockTransferModel stockTransfer)
     {
+        stockTransfer.Status = true;
         var transactionDetails = await CommonData.LoadTableDataByMasterId<StockTransferDetailModel>(TableNames.StockTransferDetail, stockTransfer.Id);
-        List<StockTransferItemCartModel> transactionItemCarts = [];
 
-        foreach (var item in transactionDetails)
-            transactionItemCarts.Add(new()
-            {
-                ItemId = item.ProductId,
-                ItemName = "",
-                Quantity = item.Quantity,
-                Rate = item.Rate,
-                BaseTotal = item.BaseTotal,
-                DiscountPercent = item.DiscountPercent,
-                DiscountAmount = item.DiscountAmount,
-                AfterDiscount = item.AfterDiscount,
-                CGSTPercent = item.CGSTPercent,
-                CGSTAmount = item.CGSTAmount,
-                SGSTPercent = item.SGSTPercent,
-                SGSTAmount = item.SGSTAmount,
-                IGSTPercent = item.IGSTPercent,
-                IGSTAmount = item.IGSTAmount,
-                InclusiveTax = item.InclusiveTax,
-                TotalTaxAmount = item.TotalTaxAmount,
-                Total = item.Total,
-                NetRate = item.NetRate,
-                Remarks = item.Remarks
-            });
-
-        await SaveTransaction(stockTransfer, transactionItemCarts, false);
-        await SendNotification.StockTransferNotification(stockTransfer.Id, NotifyType.Recovered);
+        await SaveTransaction(stockTransfer, null, transactionDetails, false);
+        await StockTransferNotify.Notify(stockTransfer.Id, NotifyType.Recovered);
     }
 
-    public static async Task<int> SaveTransaction(StockTransferModel stockTransfer, List<StockTransferItemCartModel> stockTransferDetails, bool showNotification = true)
+    public static async Task<int> SaveTransaction(StockTransferModel stockTransfer, List<StockTransferItemCartModel> cart, List<StockTransferDetailModel> stockTransferDetails = null, bool showNotification = true, SqlDataAccessTransaction? sqlDataAccessTransaction = null)
     {
         bool update = stockTransfer.Id > 0;
+
+        if (sqlDataAccessTransaction is null)
+        {
+            (MemoryStream, string)? previousInvoice = null;
+            if (update)
+                previousInvoice = await StockTransferInvoicePDFExport.ExportInvoice(stockTransfer.Id);
+
+            using SqlDataAccessTransaction newSqlDataAccessTransaction = new();
+
+            try
+            {
+                newSqlDataAccessTransaction.StartTransaction();
+                stockTransfer.Id = await SaveTransaction(stockTransfer, cart, stockTransferDetails, showNotification, newSqlDataAccessTransaction);
+                newSqlDataAccessTransaction.CommitTransaction();
+            }
+            catch
+            {
+                newSqlDataAccessTransaction.RollbackTransaction();
+                throw;
+            }
+
+            if (showNotification)
+                await StockTransferNotify.Notify(stockTransfer.Id, update ? NotifyType.Updated : NotifyType.Created, previousInvoice);
+
+            return stockTransfer.Id;
+        }
+
         var existingStockTransfer = stockTransfer;
 
         if (update)
         {
-            existingStockTransfer = await CommonData.LoadTableDataById<StockTransferModel>(TableNames.StockTransfer, stockTransfer.Id);
-            var updateFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, existingStockTransfer.FinancialYearId);
-            if (updateFinancialYear is null || updateFinancialYear.Locked || !updateFinancialYear.Status)
-                throw new InvalidOperationException("Cannot update transaction as the financial year is locked.");
-
+            existingStockTransfer = await CommonData.LoadTableDataById<StockTransferModel>(TableNames.StockTransfer, stockTransfer.Id, sqlDataAccessTransaction);
+            await FinancialYearData.ValidateFinancialYear(existingStockTransfer.TransactionDateTime, sqlDataAccessTransaction);
             stockTransfer.TransactionNo = existingStockTransfer.TransactionNo;
         }
         else
-            stockTransfer.TransactionNo = await GenerateCodes.GenerateStockTransferTransactionNo(stockTransfer);
+            stockTransfer.TransactionNo = await GenerateCodes.GenerateStockTransferTransactionNo(stockTransfer, sqlDataAccessTransaction);
 
-        var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, stockTransfer.FinancialYearId);
-        if (financialYear is null || financialYear.Locked || !financialYear.Status)
-            throw new InvalidOperationException("Cannot update transaction as the financial year is locked.");
+        await FinancialYearData.ValidateFinancialYear(stockTransfer.TransactionDateTime, sqlDataAccessTransaction);
 
-        stockTransfer.Id = await InsertStockTransfer(stockTransfer);
-        await SaveTransactionDetail(stockTransfer, stockTransferDetails, update);
-        await SaveProductStock(stockTransfer, stockTransferDetails, existingStockTransfer, update);
-        await SaveRawMaterialStockByRecipe(stockTransfer, stockTransferDetails, existingStockTransfer, update);
-        await SaveAccounting(stockTransfer, update);
-
-        if (showNotification)
-            await SendNotification.StockTransferNotification(stockTransfer.Id, update ? NotifyType.Updated : NotifyType.Created);
+        stockTransfer.Id = await InsertStockTransfer(stockTransfer, sqlDataAccessTransaction);
+        stockTransferDetails ??= ConvertCartToDetails(cart, stockTransfer.Id);
+        await SaveTransactionDetail(stockTransfer, stockTransferDetails, update, sqlDataAccessTransaction);
+        await SaveProductStock(stockTransfer, stockTransferDetails, existingStockTransfer, update, sqlDataAccessTransaction);
+        await SaveRawMaterialStockByRecipe(stockTransfer, stockTransferDetails, existingStockTransfer, update, sqlDataAccessTransaction);
+        await SaveAccounting(stockTransfer, update, sqlDataAccessTransaction);
 
         return stockTransfer.Id;
     }
 
-    private static async Task SaveTransactionDetail(StockTransferModel stockTransfer, List<StockTransferItemCartModel> stockTransferDetails, bool update)
+    private static async Task SaveTransactionDetail(StockTransferModel stockTransfer, List<StockTransferDetailModel> stockTransferDetails, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
     {
+        if (stockTransferDetails is null || stockTransferDetails.Count != stockTransfer.TotalItems || stockTransferDetails.Sum(d => d.Quantity) != stockTransfer.TotalQuantity)
+            throw new InvalidOperationException("Stock transfer details do not match the transaction summary.");
+
+        if (stockTransferDetails.Any(d => !d.Status))
+            throw new InvalidOperationException("Stock transfer detail items must be active.");
+
         if (update)
         {
-            var existingStockTransferDetails = await CommonData.LoadTableDataByMasterId<StockTransferDetailModel>(TableNames.StockTransferDetail, stockTransfer.Id);
+            var existingStockTransferDetails = await CommonData.LoadTableDataByMasterId<StockTransferDetailModel>(TableNames.StockTransferDetail, stockTransfer.Id, sqlDataAccessTransaction);
             foreach (var item in existingStockTransferDetails)
             {
                 item.Status = false;
-                await InsertStockTransferDetail(item);
+                await InsertStockTransferDetail(item, sqlDataAccessTransaction);
             }
         }
 
         foreach (var item in stockTransferDetails)
-            await InsertStockTransferDetail(new()
-            {
-                Id = 0,
-                MasterId = stockTransfer.Id,
-                ProductId = item.ItemId,
-                Quantity = item.Quantity,
-                Rate = item.Rate,
-                BaseTotal = item.BaseTotal,
-                DiscountPercent = item.DiscountPercent,
-                DiscountAmount = item.DiscountAmount,
-                AfterDiscount = item.AfterDiscount,
-                CGSTPercent = item.CGSTPercent,
-                CGSTAmount = item.CGSTAmount,
-                SGSTPercent = item.SGSTPercent,
-                SGSTAmount = item.SGSTAmount,
-                IGSTPercent = item.IGSTPercent,
-                IGSTAmount = item.IGSTAmount,
-                TotalTaxAmount = item.TotalTaxAmount,
-                InclusiveTax = item.InclusiveTax,
-                NetRate = item.NetRate,
-                Total = item.Total,
-                Remarks = item.Remarks,
-                Status = true
-            });
+        {
+            item.MasterId = stockTransfer.Id;
+            var id = await InsertStockTransferDetail(item, sqlDataAccessTransaction);
+
+            if (id <= 0)
+                throw new InvalidOperationException("Failed to save stock transfer detail.");
+        }
     }
 
-    private static async Task SaveProductStock(StockTransferModel stockTransfer, List<StockTransferItemCartModel> cart, StockTransferModel existingStockTransfer, bool update)
+    private static async Task SaveProductStock(StockTransferModel stockTransfer, List<StockTransferDetailModel> stockTransferDetails, StockTransferModel existingStockTransfer, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
     {
         if (update)
         {
-            await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.StockTransfer), existingStockTransfer.Id, existingStockTransfer.ToLocationId);
-            await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.StockTransfer), existingStockTransfer.Id, existingStockTransfer.LocationId);
+            await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.StockTransfer), existingStockTransfer.Id, existingStockTransfer.ToLocationId, sqlDataAccessTransaction);
+            await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.StockTransfer), existingStockTransfer.Id, existingStockTransfer.LocationId, sqlDataAccessTransaction);
         }
 
-        // From Location Stock Update
-        foreach (var item in cart)
-            await ProductStockData.InsertProductStock(new()
+        // From Location Stock Update (negative quantity - stock leaves)
+        foreach (var item in stockTransferDetails)
+        {
+            var id = await ProductStockData.InsertProductStock(new()
             {
                 Id = 0,
-                ProductId = item.ItemId,
+                ProductId = item.ProductId,
                 Quantity = -item.Quantity,
                 NetRate = item.NetRate,
                 TransactionId = stockTransfer.Id,
@@ -174,14 +199,19 @@ public static class StockTransferData
                 TransactionNo = stockTransfer.TransactionNo,
                 TransactionDate = DateOnly.FromDateTime(stockTransfer.TransactionDateTime),
                 LocationId = stockTransfer.LocationId
-            });
+            }, sqlDataAccessTransaction);
 
-        // To Location Stock Update
-        foreach (var item in cart)
-            await ProductStockData.InsertProductStock(new()
+            if (id <= 0)
+                throw new InvalidOperationException("Failed to save product stock for from location.");
+        }
+
+        // To Location Stock Update (positive quantity - stock arrives)
+        foreach (var item in stockTransferDetails)
+        {
+            var id = await ProductStockData.InsertProductStock(new()
             {
                 Id = 0,
-                ProductId = item.ItemId,
+                ProductId = item.ProductId,
                 Quantity = item.Quantity,
                 NetRate = item.NetRate,
                 TransactionId = stockTransfer.Id,
@@ -189,24 +219,29 @@ public static class StockTransferData
                 TransactionNo = stockTransfer.TransactionNo,
                 TransactionDate = DateOnly.FromDateTime(stockTransfer.TransactionDateTime),
                 LocationId = stockTransfer.ToLocationId
-            });
+            }, sqlDataAccessTransaction);
+
+            if (id <= 0)
+                throw new InvalidOperationException("Failed to save product stock for to location.");
+        }
     }
 
-    private static async Task SaveRawMaterialStockByRecipe(StockTransferModel stockTransfer, List<StockTransferItemCartModel> cart, StockTransferModel existingStockTransfer, bool update)
+    private static async Task SaveRawMaterialStockByRecipe(StockTransferModel stockTransfer, List<StockTransferDetailModel> stockTransferDetails, StockTransferModel existingStockTransfer, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
     {
         if (update)
-            await RawMaterialStockData.DeleteRawMaterialStockByTypeTransactionId(nameof(StockType.StockTransfer), existingStockTransfer.Id);
+            await RawMaterialStockData.DeleteRawMaterialStockByTypeTransactionId(nameof(StockType.StockTransfer), existingStockTransfer.Id, sqlDataAccessTransaction);
 
         if (stockTransfer.LocationId != 1 && stockTransfer.ToLocationId != 1)
             return;
 
-        foreach (var product in cart)
+        foreach (var product in stockTransferDetails)
         {
-            var recipe = await RecipeData.LoadRecipeByProduct(product.ItemId);
-            var recipeItems = recipe is null ? [] : await CommonData.LoadTableDataByMasterId<RecipeDetailModel>(TableNames.RecipeDetail, recipe.Id);
+            var recipe = await RecipeData.LoadRecipeByProduct(product.ProductId, sqlDataAccessTransaction);
+            var recipeItems = recipe is null ? [] : await CommonData.LoadTableDataByMasterId<RecipeDetailModel>(TableNames.RecipeDetail, recipe.Id, sqlDataAccessTransaction);
 
             foreach (var recipeItem in recipeItems)
-                await RawMaterialStockData.InsertRawMaterialStock(new()
+            {
+                var id = await RawMaterialStockData.InsertRawMaterialStock(new()
                 {
                     Id = 0,
                     RawMaterialId = recipeItem.RawMaterialId,
@@ -216,16 +251,20 @@ public static class StockTransferData
                     TransactionNo = stockTransfer.TransactionNo,
                     Type = nameof(StockType.StockTransfer),
                     TransactionDate = DateOnly.FromDateTime(stockTransfer.TransactionDateTime)
-                });
+                }, sqlDataAccessTransaction);
+
+                if (id <= 0)
+                    throw new InvalidOperationException("Failed to save raw material stock for stock transfer.");
+            }
         }
     }
 
-    private static async Task SaveAccounting(StockTransferModel stockTransfer, bool update)
+    private static async Task SaveAccounting(StockTransferModel stockTransfer, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
     {
         if (update)
         {
-            var stockTransferVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.StockTransferVoucherId);
-            var existingAccounting = await AccountingData.LoadAccountingByVoucherReference(int.Parse(stockTransferVoucher.Value), stockTransfer.Id, stockTransfer.TransactionNo);
+            var stockTransferVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.StockTransferVoucherId, sqlDataAccessTransaction);
+            var existingAccounting = await AccountingData.LoadAccountingByVoucherReference(int.Parse(stockTransferVoucher.Value), stockTransfer.Id, stockTransfer.TransactionNo, sqlDataAccessTransaction);
             if (existingAccounting is not null && existingAccounting.Id > 0)
             {
                 existingAccounting.Status = false;
@@ -233,14 +272,14 @@ public static class StockTransferData
                 existingAccounting.LastModifiedAt = stockTransfer.LastModifiedAt;
                 existingAccounting.LastModifiedFromPlatform = stockTransfer.LastModifiedFromPlatform;
 
-                await AccountingData.DeleteTransaction(existingAccounting);
+                await AccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
             }
         }
 
         if (stockTransfer.LocationId != 1 && stockTransfer.ToLocationId != 1)
             return;
 
-        var stockTransferOverview = await CommonData.LoadTableDataById<StockTransferOverviewModel>(ViewNames.StockTransferOverview, stockTransfer.Id);
+        var stockTransferOverview = await CommonData.LoadTableDataById<StockTransferOverviewModel>(ViewNames.StockTransferOverview, stockTransfer.Id, sqlDataAccessTransaction);
         if (stockTransferOverview is null)
             return;
 
@@ -251,7 +290,7 @@ public static class StockTransferData
 
         if (stockTransferOverview.Cash + stockTransferOverview.UPI + stockTransferOverview.Card > 0)
         {
-            var cashLedger = await SettingsData.LoadSettingsByKey(SettingsKeys.CashSalesLedgerId);
+            var cashLedger = await SettingsData.LoadSettingsByKey(SettingsKeys.CashSalesLedgerId, sqlDataAccessTransaction);
             accountingCart.Add(new()
             {
                 ReferenceId = stockTransferOverview.Id,
@@ -266,7 +305,7 @@ public static class StockTransferData
 
         if (stockTransferOverview.Credit > 0)
         {
-            var ledger = await LedgerData.LoadLedgerByLocation(stockTransferOverview.ToLocationId);
+            var ledger = await LedgerData.LoadLedgerByLocation(stockTransferOverview.ToLocationId, sqlDataAccessTransaction);
             accountingCart.Add(new()
             {
                 ReferenceId = stockTransferOverview.Id,
@@ -281,7 +320,7 @@ public static class StockTransferData
 
         if (stockTransferOverview.TotalAmount - stockTransferOverview.TotalExtraTaxAmount > 0)
         {
-            var stockTransferLedger = await SettingsData.LoadSettingsByKey(SettingsKeys.StockTransferLedgerId);
+            var stockTransferLedger = await SettingsData.LoadSettingsByKey(SettingsKeys.StockTransferLedgerId, sqlDataAccessTransaction);
             accountingCart.Add(new()
             {
                 ReferenceId = stockTransferOverview.Id,
@@ -296,7 +335,7 @@ public static class StockTransferData
 
         if (stockTransferOverview.TotalExtraTaxAmount > 0)
         {
-            var gstLedger = await SettingsData.LoadSettingsByKey(SettingsKeys.GSTLedgerId);
+            var gstLedger = await SettingsData.LoadSettingsByKey(SettingsKeys.GSTLedgerId, sqlDataAccessTransaction);
             accountingCart.Add(new()
             {
                 ReferenceId = stockTransferOverview.Id,
@@ -309,7 +348,7 @@ public static class StockTransferData
             });
         }
 
-        var voucher = await SettingsData.LoadSettingsByKey(SettingsKeys.StockTransferVoucherId);
+        var voucher = await SettingsData.LoadSettingsByKey(SettingsKeys.StockTransferVoucherId, sqlDataAccessTransaction);
         var accounting = new AccountingModel
         {
             Id = 0,
@@ -331,6 +370,6 @@ public static class StockTransferData
             Status = true
         };
 
-        await AccountingData.SaveTransaction(accounting, accountingCart);
+        await AccountingData.SaveTransaction(accounting, accountingCart, null, false, sqlDataAccessTransaction);
     }
 }
