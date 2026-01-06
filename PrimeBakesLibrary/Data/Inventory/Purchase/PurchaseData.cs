@@ -85,6 +85,7 @@ public static class PurchaseData
             sqlDataAccessTransaction.RollbackTransaction();
             throw;
         }
+
     }
 
     public static async Task RecoverTransaction(PurchaseModel purchase)
@@ -130,11 +131,8 @@ public static class PurchaseData
         if (update)
         {
             var existingPurchase = await CommonData.LoadTableDataById<PurchaseModel>(TableNames.Purchase, purchase.Id, sqlDataAccessTransaction);
-            purchase.TransactionNo = await GenerateCodes.GeneratePurchaseTransactionNo(existingPurchase, sqlDataAccessTransaction);
-            purchase.TransactionNo = existingPurchase.TransactionNo;
+            await FinancialYearData.ValidateFinancialYear(existingPurchase.TransactionDateTime, sqlDataAccessTransaction);
         }
-        else
-            purchase.TransactionNo = await GenerateCodes.GeneratePurchaseTransactionNo(purchase, sqlDataAccessTransaction);
 
         await FinancialYearData.ValidateFinancialYear(purchase.TransactionDateTime, sqlDataAccessTransaction);
 

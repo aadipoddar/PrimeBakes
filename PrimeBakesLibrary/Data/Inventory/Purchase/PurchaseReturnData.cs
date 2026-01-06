@@ -1,8 +1,9 @@
 ﻿using PrimeBakesLibrary.Data.Accounts.FinancialAccounting;
+using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Inventory.Stock;
+using PrimeBakesLibrary.Exporting.Inventory.Purchase;
 using PrimeBakesLibrary.Models.Accounts.FinancialAccounting;
-using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Inventory.Purchase;
 using PrimeBakesLibrary.Models.Inventory.Stock;
@@ -11,163 +12,55 @@ namespace PrimeBakesLibrary.Data.Inventory.Purchase;
 
 public static class PurchaseReturnData
 {
-    private static async Task<int> InsertPurchaseReturn(PurchaseReturnModel purchaseReturn) =>
-        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertPurchaseReturn, purchaseReturn)).FirstOrDefault();
+    private static async Task<int> InsertPurchaseReturn(PurchaseReturnModel purchaseReturn, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertPurchaseReturn, purchaseReturn, sqlDataAccessTransaction)).FirstOrDefault();
 
-    private static async Task<int> InsertPurchaseReturnDetail(PurchaseReturnDetailModel purchaseReturnDetail) =>
-        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertPurchaseReturnDetail, purchaseReturnDetail)).FirstOrDefault();
+    private static async Task<int> InsertPurchaseReturnDetail(PurchaseReturnDetailModel purchaseReturnDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertPurchaseReturnDetail, purchaseReturnDetail, sqlDataAccessTransaction)).FirstOrDefault();
+
+    private static List<PurchaseReturnDetailModel> ConvertCartToDetails(List<PurchaseReturnItemCartModel> cart, int masterId) =>
+        [.. cart.Select(item => new PurchaseReturnDetailModel
+        {
+            Id = 0,
+            MasterId = masterId,
+            RawMaterialId = item.ItemId,
+            Quantity = item.Quantity,
+            UnitOfMeasurement = item.UnitOfMeasurement,
+            Rate = item.Rate,
+            BaseTotal = item.BaseTotal,
+            DiscountPercent = item.DiscountPercent,
+            DiscountAmount = item.DiscountAmount,
+            AfterDiscount = item.AfterDiscount,
+            CGSTPercent = item.CGSTPercent,
+            CGSTAmount = item.CGSTAmount,
+            SGSTPercent = item.SGSTPercent,
+            SGSTAmount = item.SGSTAmount,
+            IGSTPercent = item.IGSTPercent,
+            IGSTAmount = item.IGSTAmount,
+            TotalTaxAmount = item.TotalTaxAmount,
+            InclusiveTax = item.InclusiveTax,
+            NetRate = item.NetRate,
+            Total = item.Total,
+            Remarks = item.Remarks,
+            Status = true
+        })];
 
     public static async Task DeleteTransaction(PurchaseReturnModel purchaseReturn)
     {
-        var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, purchaseReturn.FinancialYearId);
-        if (financialYear is null || financialYear.Locked || !financialYear.Status)
-            throw new InvalidOperationException("Cannot delete transaction as the financial year is locked.");
 
-        purchaseReturn.Status = false;
-        await InsertPurchaseReturn(purchaseReturn);
-        await RawMaterialStockData.DeleteRawMaterialStockByTypeTransactionId(nameof(StockType.PurchaseReturn), purchaseReturn.Id);
-
-        var purchaseReturnVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.PurchaseReturnVoucherId);
-        var existingAccounting = await AccountingData.LoadAccountingByVoucherReference(int.Parse(purchaseReturnVoucher.Value), purchaseReturn.Id, purchaseReturn.TransactionNo);
-        if (existingAccounting is not null && existingAccounting.Id > 0)
+        using SqlDataAccessTransaction sqlDataAccessTransaction = new();
+        try
         {
-            existingAccounting.Status = false;
-            existingAccounting.LastModifiedBy = purchaseReturn.LastModifiedBy;
-            existingAccounting.LastModifiedAt = purchaseReturn.LastModifiedAt;
-            existingAccounting.LastModifiedFromPlatform = purchaseReturn.LastModifiedFromPlatform;
+            sqlDataAccessTransaction.StartTransaction();
 
-            await AccountingData.DeleteTransaction(existingAccounting);
-        }
+            await FinancialYearData.ValidateFinancialYear(purchaseReturn.TransactionDateTime, sqlDataAccessTransaction);
 
-        await SendNotification.PurchaseReturnNotification(purchaseReturn.Id, NotifyType.Deleted);
-    }
+            purchaseReturn.Status = false;
+            await InsertPurchaseReturn(purchaseReturn, sqlDataAccessTransaction);
+            await RawMaterialStockData.DeleteRawMaterialStockByTypeTransactionId(nameof(StockType.PurchaseReturn), purchaseReturn.Id, sqlDataAccessTransaction);
 
-    public static async Task RecoverTransaction(PurchaseReturnModel purchaseReturn)
-    {
-        var transactionDetails = await CommonData.LoadTableDataByMasterId<PurchaseReturnDetailModel>(TableNames.PurchaseReturnDetail, purchaseReturn.Id);
-        List<PurchaseReturnItemCartModel> purchaseItemCarts = [];
-
-        foreach (var item in transactionDetails)
-            purchaseItemCarts.Add(new()
-            {
-                ItemId = item.RawMaterialId,
-                ItemName = "",
-                UnitOfMeasurement = item.UnitOfMeasurement,
-                Quantity = item.Quantity,
-                Rate = item.Rate,
-                BaseTotal = item.BaseTotal,
-                DiscountPercent = item.DiscountPercent,
-                DiscountAmount = item.DiscountAmount,
-                AfterDiscount = item.AfterDiscount,
-                CGSTPercent = item.CGSTPercent,
-                CGSTAmount = item.CGSTAmount,
-                SGSTPercent = item.SGSTPercent,
-                SGSTAmount = item.SGSTAmount,
-                IGSTPercent = item.IGSTPercent,
-                IGSTAmount = item.IGSTAmount,
-                InclusiveTax = item.InclusiveTax,
-                TotalTaxAmount = item.TotalTaxAmount,
-                Total = item.Total,
-                NetRate = item.NetRate,
-                Remarks = item.Remarks
-            });
-
-        await SaveTransaction(purchaseReturn, purchaseItemCarts, false);
-        await SendNotification.PurchaseReturnNotification(purchaseReturn.Id, NotifyType.Recovered);
-    }
-
-    public static async Task<int> SaveTransaction(PurchaseReturnModel purchaseReturn, List<PurchaseReturnItemCartModel> purchaseReturnDetails, bool showNotification = true)
-    {
-        bool update = purchaseReturn.Id > 0;
-
-        if (update)
-        {
-            var existingPurchaseReturn = await CommonData.LoadTableDataById<PurchaseReturnModel>(TableNames.PurchaseReturn, purchaseReturn.Id);
-            var updateFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, existingPurchaseReturn.FinancialYearId);
-            if (updateFinancialYear is null || updateFinancialYear.Locked || !updateFinancialYear.Status)
-                throw new InvalidOperationException("Cannot update transaction as the financial year is locked.");
-        }
-
-        var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, purchaseReturn.FinancialYearId);
-        if (financialYear is null || financialYear.Locked || !financialYear.Status)
-            throw new InvalidOperationException("Cannot update transaction as the financial year is locked.");
-
-        purchaseReturn.Id = await InsertPurchaseReturn(purchaseReturn);
-        await SaveTransactionDetail(purchaseReturn, purchaseReturnDetails, update);
-        await SaveRawMaterialStock(purchaseReturn, purchaseReturnDetails, update);
-        await SaveAccounting(purchaseReturn, update);
-
-        if (showNotification)
-            await SendNotification.PurchaseReturnNotification(purchaseReturn.Id, update ? NotifyType.Updated : NotifyType.Created);
-
-        return purchaseReturn.Id;
-    }
-
-    private static async Task SaveTransactionDetail(PurchaseReturnModel purchaseReturn, List<PurchaseReturnItemCartModel> purchaseReturnDetails, bool update)
-    {
-        if (update)
-        {
-            var existingPurchaseDetails = await CommonData.LoadTableDataByMasterId<PurchaseReturnDetailModel>(TableNames.PurchaseReturnDetail, purchaseReturn.Id);
-            foreach (var item in existingPurchaseDetails)
-            {
-                item.Status = false;
-                await InsertPurchaseReturnDetail(item);
-            }
-        }
-
-        foreach (var item in purchaseReturnDetails)
-            await InsertPurchaseReturnDetail(new()
-            {
-                Id = 0,
-                MasterId = purchaseReturn.Id,
-                RawMaterialId = item.ItemId,
-                Quantity = item.Quantity,
-                UnitOfMeasurement = item.UnitOfMeasurement,
-                Rate = item.Rate,
-                BaseTotal = item.BaseTotal,
-                DiscountPercent = item.DiscountPercent,
-                DiscountAmount = item.DiscountAmount,
-                AfterDiscount = item.AfterDiscount,
-                CGSTPercent = item.CGSTPercent,
-                CGSTAmount = item.CGSTAmount,
-                SGSTPercent = item.SGSTPercent,
-                SGSTAmount = item.SGSTAmount,
-                IGSTPercent = item.IGSTPercent,
-                IGSTAmount = item.IGSTAmount,
-                TotalTaxAmount = item.TotalTaxAmount,
-                InclusiveTax = item.InclusiveTax,
-                NetRate = item.NetRate,
-                Total = item.Total,
-                Remarks = item.Remarks,
-                Status = true
-            });
-    }
-
-    private static async Task SaveRawMaterialStock(PurchaseReturnModel purchaseReturn, List<PurchaseReturnItemCartModel> cart, bool update)
-    {
-        if (update)
-            await RawMaterialStockData.DeleteRawMaterialStockByTypeTransactionId(nameof(StockType.PurchaseReturn), purchaseReturn.Id);
-
-        foreach (var item in cart)
-            await RawMaterialStockData.InsertRawMaterialStock(new()
-            {
-                Id = 0,
-                RawMaterialId = item.ItemId,
-                Quantity = -item.Quantity,
-                NetRate = item.NetRate,
-                TransactionId = purchaseReturn.Id,
-                Type = nameof(StockType.PurchaseReturn),
-                TransactionNo = purchaseReturn.TransactionNo,
-                TransactionDate = DateOnly.FromDateTime(purchaseReturn.TransactionDateTime)
-            });
-    }
-
-    private static async Task SaveAccounting(PurchaseReturnModel purchaseReturn, bool update)
-    {
-        if (update)
-        {
-            var purchaseReturnVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.PurchaseReturnVoucherId);
-            var existingAccounting = await AccountingData.LoadAccountingByVoucherReference(int.Parse(purchaseReturnVoucher.Value), purchaseReturn.Id, purchaseReturn.TransactionNo);
+            var purchaseReturnVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.PurchaseReturnVoucherId, sqlDataAccessTransaction);
+            var existingAccounting = await AccountingData.LoadAccountingByVoucherReference(int.Parse(purchaseReturnVoucher.Value), purchaseReturn.Id, purchaseReturn.TransactionNo, sqlDataAccessTransaction);
             if (existingAccounting is not null && existingAccounting.Id > 0)
             {
                 existingAccounting.Status = false;
@@ -175,11 +68,148 @@ public static class PurchaseReturnData
                 existingAccounting.LastModifiedAt = purchaseReturn.LastModifiedAt;
                 existingAccounting.LastModifiedFromPlatform = purchaseReturn.LastModifiedFromPlatform;
 
-                await AccountingData.DeleteTransaction(existingAccounting);
+                await AccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
+            }
+
+            sqlDataAccessTransaction.CommitTransaction();
+
+            await PurchaseReturnNotify.Notify(purchaseReturn.Id, NotifyType.Deleted);
+        }
+        catch
+        {
+            sqlDataAccessTransaction.RollbackTransaction();
+            throw;
+        }
+
+    }
+
+    public static async Task RecoverTransaction(PurchaseReturnModel purchaseReturn)
+    {
+        purchaseReturn.Status = true;
+        var transactionDetails = await CommonData.LoadTableDataByMasterId<PurchaseReturnDetailModel>(TableNames.PurchaseReturnDetail, purchaseReturn.Id);
+
+        await SaveTransaction(purchaseReturn, null, transactionDetails, false);
+
+        await PurchaseReturnNotify.Notify(purchaseReturn.Id, NotifyType.Recovered);
+    }
+
+    public static async Task<int> SaveTransaction(PurchaseReturnModel purchaseReturn, List<PurchaseReturnItemCartModel> cart, List<PurchaseReturnDetailModel> purchaseReturnDetails = null, bool showNotification = true, SqlDataAccessTransaction sqlDataAccessTransaction = null)
+    {
+        bool update = purchaseReturn.Id > 0;
+
+        if (sqlDataAccessTransaction is null)
+        {
+            (MemoryStream, string)? previousInvoice = null;
+            if (update)
+                previousInvoice = await PurchaseReturnInvoicePDFExport.ExportInvoice(purchaseReturn.Id);
+
+            using SqlDataAccessTransaction newSqlDataAccessTransaction = new();
+
+            try
+            {
+                newSqlDataAccessTransaction.StartTransaction();
+                purchaseReturn.Id = await SaveTransaction(purchaseReturn, cart, purchaseReturnDetails, showNotification, newSqlDataAccessTransaction);
+                newSqlDataAccessTransaction.CommitTransaction();
+            }
+            catch
+            {
+                newSqlDataAccessTransaction.RollbackTransaction();
+                throw;
+            }
+
+            if (showNotification)
+                await PurchaseReturnNotify.Notify(purchaseReturn.Id, update ? NotifyType.Updated : NotifyType.Created, previousInvoice);
+
+            return purchaseReturn.Id;
+        }
+
+        if (update)
+        {
+            var existingPurchaseReturn = await CommonData.LoadTableDataById<PurchaseReturnModel>(TableNames.PurchaseReturn, purchaseReturn.Id, sqlDataAccessTransaction);
+            await FinancialYearData.ValidateFinancialYear(existingPurchaseReturn.TransactionDateTime, sqlDataAccessTransaction);
+        }
+
+        await FinancialYearData.ValidateFinancialYear(purchaseReturn.TransactionDateTime, sqlDataAccessTransaction);
+
+        purchaseReturn.Id = await InsertPurchaseReturn(purchaseReturn, sqlDataAccessTransaction);
+        purchaseReturnDetails ??= ConvertCartToDetails(cart, purchaseReturn.Id);
+        await SaveTransactionDetail(purchaseReturn, purchaseReturnDetails, update, sqlDataAccessTransaction);
+        await SaveRawMaterialStock(purchaseReturn, purchaseReturnDetails, update, sqlDataAccessTransaction);
+        await SaveAccounting(purchaseReturn, update, sqlDataAccessTransaction);
+
+        return purchaseReturn.Id;
+    }
+
+    private static async Task SaveTransactionDetail(PurchaseReturnModel purchaseReturn, List<PurchaseReturnDetailModel> purchaseReturnDetails, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
+    {
+        if (purchaseReturnDetails is null || purchaseReturnDetails.Count != purchaseReturn.TotalItems || purchaseReturnDetails.Sum(d => d.Quantity) != purchaseReturn.TotalQuantity)
+            throw new InvalidOperationException("Purchase return details do not match the transaction summary.");
+
+        if (purchaseReturnDetails.Any(d => !d.Status))
+            throw new InvalidOperationException("Purchase return detail items must be active.");
+
+        if (update)
+        {
+            var existingPurchaseDetails = await CommonData.LoadTableDataByMasterId<PurchaseReturnDetailModel>(TableNames.PurchaseReturnDetail, purchaseReturn.Id, sqlDataAccessTransaction);
+            foreach (var item in existingPurchaseDetails)
+            {
+                item.Status = false;
+                await InsertPurchaseReturnDetail(item, sqlDataAccessTransaction);
             }
         }
 
-        var purchaseReturnOverview = await CommonData.LoadTableDataById<PurchaseReturnOverviewModel>(ViewNames.PurchaseReturnOverview, purchaseReturn.Id);
+        foreach (var item in purchaseReturnDetails)
+        {
+            item.MasterId = purchaseReturn.Id;
+            var id = await InsertPurchaseReturnDetail(item, sqlDataAccessTransaction);
+
+            if (id <= 0)
+                throw new InvalidOperationException("Failed to save purchase return detail item.");
+        }
+    }
+
+    private static async Task SaveRawMaterialStock(PurchaseReturnModel purchaseReturn, List<PurchaseReturnDetailModel> purchaseReturnDetails, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
+    {
+        if (update)
+            await RawMaterialStockData.DeleteRawMaterialStockByTypeTransactionId(nameof(StockType.PurchaseReturn), purchaseReturn.Id, sqlDataAccessTransaction);
+
+        foreach (var item in purchaseReturnDetails)
+        {
+            var insertedId = await RawMaterialStockData.InsertRawMaterialStock(new()
+            {
+                Id = 0,
+                RawMaterialId = item.RawMaterialId,
+                Quantity = -item.Quantity,
+                NetRate = item.NetRate,
+                TransactionId = purchaseReturn.Id,
+                Type = nameof(StockType.PurchaseReturn),
+                TransactionNo = purchaseReturn.TransactionNo,
+                TransactionDate = DateOnly.FromDateTime(purchaseReturn.TransactionDateTime)
+            }, sqlDataAccessTransaction);
+
+            if (insertedId <= 0)
+                throw new InvalidOperationException("Failed to save raw material stock for purchase return.");
+        }
+    }
+
+    private static async Task SaveAccounting(PurchaseReturnModel purchaseReturn, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
+    {
+        if (update)
+        {
+            var purchaseReturnVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.PurchaseReturnVoucherId, sqlDataAccessTransaction);
+            var existingAccounting = await AccountingData.LoadAccountingByVoucherReference(int.Parse(purchaseReturnVoucher.Value), purchaseReturn.Id, purchaseReturn.TransactionNo, sqlDataAccessTransaction);
+            if (existingAccounting is not null && existingAccounting.Id > 0)
+            {
+                existingAccounting.Status = false;
+                existingAccounting.LastModifiedBy = purchaseReturn.LastModifiedBy;
+                existingAccounting.LastModifiedAt = purchaseReturn.LastModifiedAt;
+                existingAccounting.LastModifiedFromPlatform = purchaseReturn.LastModifiedFromPlatform;
+
+                await AccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
+            }
+        }
+
+        var purchaseReturnOverview = await CommonData.LoadTableDataById<PurchaseReturnOverviewModel>(ViewNames.PurchaseReturnOverview, purchaseReturn.Id, sqlDataAccessTransaction);
         if (purchaseReturnOverview is null)
             return;
 
@@ -202,7 +232,7 @@ public static class PurchaseReturnData
 
         if (purchaseReturnOverview.TotalAmount - purchaseReturnOverview.TotalExtraTaxAmount > 0)
         {
-            var purchaseLedger = await SettingsData.LoadSettingsByKey(SettingsKeys.PurchaseLedgerId);
+            var purchaseLedger = await SettingsData.LoadSettingsByKey(SettingsKeys.PurchaseLedgerId, sqlDataAccessTransaction);
             accountingCart.Add(new()
             {
                 ReferenceId = purchaseReturnOverview.Id,
@@ -217,7 +247,7 @@ public static class PurchaseReturnData
 
         if (purchaseReturnOverview.TotalExtraTaxAmount > 0)
         {
-            var gstLedger = await SettingsData.LoadSettingsByKey(SettingsKeys.GSTLedgerId);
+            var gstLedger = await SettingsData.LoadSettingsByKey(SettingsKeys.GSTLedgerId, sqlDataAccessTransaction);
             accountingCart.Add(new()
             {
                 ReferenceId = purchaseReturnOverview.Id,
@@ -230,7 +260,7 @@ public static class PurchaseReturnData
             });
         }
 
-        var voucher = await SettingsData.LoadSettingsByKey(SettingsKeys.PurchaseReturnVoucherId);
+        var voucher = await SettingsData.LoadSettingsByKey(SettingsKeys.PurchaseReturnVoucherId, sqlDataAccessTransaction);
         var accounting = new AccountingModel
         {
             Id = 0,
@@ -252,6 +282,6 @@ public static class PurchaseReturnData
             Status = true
         };
 
-        await AccountingData.SaveTransaction(accounting, accountingCart);
+        await AccountingData.SaveTransaction(accounting, accountingCart, null, false, sqlDataAccessTransaction);
     }
 }
