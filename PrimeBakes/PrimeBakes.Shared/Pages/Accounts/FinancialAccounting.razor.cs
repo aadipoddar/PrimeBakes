@@ -699,18 +699,12 @@ public partial class FinancialAccounting : IAsyncDisposable
         if (_accounting.Id > 0)
         {
             var existingAccounting = await CommonData.LoadTableDataById<AccountingModel>(TableNames.Accounting, _accounting.Id);
-            var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, existingAccounting.FinancialYearId);
-            if (financialYear is null || financialYear.Locked || !financialYear.Status)
-            {
-                await _toastNotification.ShowAsync("Financial Year Locked or Inactive", "The financial year for the selected transaction date is either locked or inactive. Please select a different date.", ToastType.Error);
-                return false;
-            }
+            await FinancialYearData.ValidateFinancialYear(existingAccounting.TransactionDateTime);
 
             if (!_user.Admin)
             {
                 await _toastNotification.ShowAsync("Insufficient Permissions", "You do not have the necessary permissions to modify this transaction.", ToastType.Error);
-                await DeleteLocalFiles();
-                NavigationManager.NavigateTo(PageRouteNames.FinancialAccounting, true);
+                await ResetPage();
                 return false;
             }
         }

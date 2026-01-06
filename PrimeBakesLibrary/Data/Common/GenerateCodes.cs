@@ -103,13 +103,13 @@ public static class GenerateCodes
         return code;
     }
 
-    public static async Task<string> GeneratePurchaseTransactionNo(PurchaseModel purchase)
+    public static async Task<string> GeneratePurchaseTransactionNo(PurchaseModel purchase, SqlDataAccessTransaction sqlDataAccessTransaction = null)
     {
-        var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, purchase.FinancialYearId);
-        var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, 1)).PrefixCode;
-        var purchasePrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.PurchaseTransactionPrefix)).Value;
+        var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, purchase.FinancialYearId, sqlDataAccessTransaction);
+        var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, 1, sqlDataAccessTransaction)).PrefixCode;
+        var purchasePrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.PurchaseTransactionPrefix, sqlDataAccessTransaction)).Value;
 
-        var lastPurchase = await CommonData.LoadLastTableDataByFinancialYear<PurchaseModel>(TableNames.Purchase, purchase.FinancialYearId);
+        var lastPurchase = await CommonData.LoadLastTableDataByFinancialYear<PurchaseModel>(TableNames.Purchase, purchase.FinancialYearId, sqlDataAccessTransaction);
         if (lastPurchase is not null)
         {
             var lastTransactionNo = lastPurchase.TransactionNo;
@@ -119,12 +119,12 @@ public static class GenerateCodes
                 if (int.TryParse(lastNumberPart, out int lastNumber))
                 {
                     int nextNumber = lastNumber + 1;
-                    return await CheckDuplicateCode($"{locationPrefix}{financialYear.YearNo}{purchasePrefix}{nextNumber:D6}", 6, CodeType.Purchase);
+                    return await CheckDuplicateCode($"{locationPrefix}{financialYear.YearNo}{purchasePrefix}{nextNumber:D6}", 6, CodeType.Purchase, sqlDataAccessTransaction);
                 }
             }
         }
 
-        return await CheckDuplicateCode($"{locationPrefix}{financialYear.YearNo}{purchasePrefix}000001", 6, CodeType.Purchase);
+        return await CheckDuplicateCode($"{locationPrefix}{financialYear.YearNo}{purchasePrefix}000001", 6, CodeType.Purchase, sqlDataAccessTransaction);
     }
 
     public static async Task<string> GeneratePurchaseReturnTransactionNo(PurchaseReturnModel purchaseReturn)

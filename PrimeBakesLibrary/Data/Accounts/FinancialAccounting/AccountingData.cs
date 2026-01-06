@@ -34,22 +34,33 @@ public static class AccountingData
             Status = true
         })];
 
-    public static async Task DeleteTransaction(AccountingModel accounting)
+    public static async Task DeleteTransaction(AccountingModel accounting, SqlDataAccessTransaction sqlDataAccessTransaction = null)
     {
-        using SqlDataAccessTransaction sqlDataAccessTransaction = new();
+        if (sqlDataAccessTransaction is null)
+        {
+            using SqlDataAccessTransaction newSqlDataAccessTransaction = new();
+
+            try
+            {
+                newSqlDataAccessTransaction.StartTransaction();
+                await DeleteTransaction(accounting, newSqlDataAccessTransaction);
+                newSqlDataAccessTransaction.CommitTransaction();
+            }
+            catch
+            {
+                newSqlDataAccessTransaction.RollbackTransaction();
+                throw;
+            }
+
+            await AccountingNotify.Notify(accounting.Id, NotifyType.Deleted);
+        }
 
         try
         {
-            sqlDataAccessTransaction.StartTransaction();
-
             await FinancialYearData.ValidateFinancialYear(accounting.TransactionDateTime, sqlDataAccessTransaction);
 
             accounting.Status = false;
             await InsertAccounting(accounting, sqlDataAccessTransaction);
-
-            sqlDataAccessTransaction.CommitTransaction();
-
-            await AccountingNotify.Notify(accounting.Id, NotifyType.Deleted);
         }
         catch
         {
