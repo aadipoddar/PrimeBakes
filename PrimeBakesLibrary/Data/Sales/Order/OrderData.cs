@@ -59,16 +59,16 @@ public static class OrderData
 
     public static async Task DeleteTransaction(OrderModel order)
     {
+        await FinancialYearData.ValidateFinancialYear(order.TransactionDateTime);
+
+        if (order.SaleId is not null && order.SaleId > 0)
+            throw new InvalidOperationException("Cannot delete order as it is already converted to a sale.");
+
         using SqlDataAccessTransaction sqlDataAccessTransaction = new();
 
         try
         {
             sqlDataAccessTransaction.StartTransaction();
-
-            await FinancialYearData.ValidateFinancialYear(order.TransactionDateTime, sqlDataAccessTransaction);
-
-            if (order.SaleId is not null && order.SaleId > 0)
-                throw new InvalidOperationException("Cannot delete order as it is already converted to a sale.");
 
             order.Status = false;
             await InsertOrder(order, sqlDataAccessTransaction);
@@ -90,7 +90,6 @@ public static class OrderData
         var transactionDetails = await CommonData.LoadTableDataByMasterId<OrderDetailModel>(TableNames.OrderDetail, order.Id);
 
         await SaveTransaction(order, null, transactionDetails, false);
-
         await OrderNotify.Notify(order.Id, NotifyType.Recovered);
     }
 

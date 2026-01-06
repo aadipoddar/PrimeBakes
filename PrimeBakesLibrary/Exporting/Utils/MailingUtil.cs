@@ -153,6 +153,25 @@ internal static class MailingUtil
                                 </tr>
                             </table>";
 
+        // Generate attachment notice (only if attachments exist)
+        var hasAttachments = (data.Action == NotifyType.Updated && data.BeforeAttachment.HasValue && data.AfterAttachment.HasValue) ||
+                            (data.Attachments != null && data.Attachments.Count > 0);
+        
+        var attachmentNotice = !hasAttachments ? "" : $@"<strong>📎 Attachment:</strong> {(data.Action == NotifyType.Updated ? "Before/After comparison invoices are" : "The " + data.TransactionType.ToLower() + " invoice PDF is")} attached to this email for your records.<br>";
+        
+        var websiteLinkSection = $@"
+                            <!-- Website Link Notice -->
+                            <table role=""presentation"" style=""width: 100%; border-collapse: collapse; margin: 25px 0;"">
+                                <tr>
+                                    <td style=""padding: 15px 20px; background-color: #e8f4fd; border-left: 4px solid #2196F3; border-radius: 4px; text-align: center;"">
+                                        <p style=""margin: 0; color: #1565c0; font-size: 14px;"">
+                                            {attachmentNotice}
+                                            <a href=""{Secrets.AppWebsite}"" style=""color: #ec407a; text-decoration: none; font-weight: 600; margin-top: 8px; display: inline-block;"">Visit Prime Bakes</a>
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>";
+
         return $@"
 <!DOCTYPE html>
 <html lang=""en"">
@@ -250,18 +269,7 @@ internal static class MailingUtil
                                 </tr>
                             </table>
                             {remarksSection}
-                            
-                            <!-- Website Link Notice -->
-                            <table role=""presentation"" style=""width: 100%; border-collapse: collapse; margin: 25px 0;"">
-                                <tr>
-                                    <td style=""padding: 15px 20px; background-color: #e8f4fd; border-left: 4px solid #2196F3; border-radius: 4px; text-align: center;"">
-                                        <p style=""margin: 0; color: #1565c0; font-size: 14px;"">
-                                            <strong>📎 Attachment:</strong> {(data.Action == NotifyType.Updated ? "Before/After comparison invoices are" : "The " + data.TransactionType.ToLower() + " invoice PDF is")} attached to this email for your records.<br>
-                                            <a href=""{Secrets.AppWebsite}"" style=""color: #ec407a; text-decoration: none; font-weight: 600; margin-top: 8px; display: inline-block;"">Visit Prime Bakes</a>
-                                        </p>
-                                    </td>
-                                </tr>
-                            </table>
+                            {websiteLinkSection}
                             
                         </td>
                     </tr>

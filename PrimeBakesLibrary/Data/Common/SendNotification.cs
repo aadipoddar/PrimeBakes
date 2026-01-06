@@ -2,7 +2,6 @@
 
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Common;
-using PrimeBakesLibrary.Models.Inventory.Purchase;
 using PrimeBakesLibrary.Models.Sales.Sale;
 using PrimeBakesLibrary.Models.Sales.StockTransfer;
 
@@ -32,40 +31,6 @@ public static class SendNotification
 
         var content = new StringContent(jsonPayload, System.Text.Encoding.UTF8, "application/json");
         var response = await httpClient.PostAsync(endpoint, content);
-    }
-
-    public static async Task PurchaseReturnNotification(int purchaseReturnId, NotifyType type)
-    {
-        var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
-        users = [.. users.Where(u => u.Admin && u.LocationId == 1 || u.Inventory && u.LocationId == 1)];
-
-        var purchaseReturn = await CommonData.LoadTableDataById<PurchaseReturnOverviewModel>(ViewNames.PurchaseReturnOverview, purchaseReturnId);
-        var title = $"Purchase Return {(type == NotifyType.Updated ? "Updated" : type == NotifyType.Deleted ? "Deleted" : type == NotifyType.Recovered ? "Recovered" : "Placed")} from {purchaseReturn.PartyName}";
-        var text = $"Purchase Return No: {purchaseReturn.TransactionNo} | Vendor: {purchaseReturn.PartyName} | Total Items: {purchaseReturn.TotalItems} | Total Qty: {purchaseReturn.TotalQuantity} | Total Amount: {purchaseReturn.TotalAmount.FormatIndianCurrency()} | User: {purchaseReturn.CreatedByName} | Date: {purchaseReturn.TransactionDateTime:dd/MM/yy hh:mm tt} | Remarks: {purchaseReturn.Remarks}";
-
-        await SendNotificationToAPI(users, title, text);
-    }
-
-    public static async Task RawMaterialStockAdjustmentNotification(int items, decimal quantity, int userId, NotifyType type)
-    {
-        var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
-        users = [.. users.Where(u => u.Admin && u.LocationId == 1 || u.Inventory && u.LocationId == 1)];
-
-        var title = $"Raw Material Stock Adjustment {(type == NotifyType.Deleted ? "Deleted" : "Placed")}";
-        var text = $"Raw Material Stock Adjustment by User: {users.FirstOrDefault(_ => _.Id == userId)?.Name} | Items: {items} | Quantity: {quantity}";
-
-        await SendNotificationToAPI(users, title, text);
-    }
-
-    public static async Task ProductStockAdjustmentNotification(int items, decimal quantity, int userId, int locationId, NotifyType type)
-    {
-        var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
-        users = [.. users.Where(u => u.Admin && u.LocationId == 1 || u.Inventory && u.LocationId == 1)];
-
-        var title = $"Finished Goods Stock Adjustment {(type == NotifyType.Deleted ? "Deleted" : "Placed")}";
-        var text = $"Finished Goods Stock Adjustment by User: {users.FirstOrDefault(_ => _.Id == userId)?.Name} | Items: {items} | Quantity: {quantity} | Location ID: {locationId}";
-
-        await SendNotificationToAPI(users, title, text);
     }
 
     public static async Task SaleNotification(int saleId, NotifyType type)

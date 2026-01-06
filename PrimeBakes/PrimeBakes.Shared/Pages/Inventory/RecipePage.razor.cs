@@ -220,6 +220,8 @@ public partial class RecipePage : IAsyncDisposable
 
         try
         {
+            await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being deleted...", ToastType.Info);
+
             await RecipeData.DeleteRecipe(_recipe);
             ResetPage();
         }

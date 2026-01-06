@@ -502,7 +502,7 @@ public partial class SalePage : IAsyncDisposable
             _orders = await OrderData.LoadOrderByLocationPending(_selectedParty.LocationId.Value);
             _orders = [.. _orders.OrderByDescending(s => s.TransactionDateTime)];
 
-            if (Id > 0)
+            if (Id > 0 && _sale.OrderId is not null && _sale.OrderId > 0)
             {
                 var order = await CommonData.LoadTableDataById<OrderModel>(TableNames.Order, _sale.OrderId.Value);
                 if (order is not null && _selectedParty.LocationId == order.LocationId)
