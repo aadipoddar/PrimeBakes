@@ -1,6 +1,6 @@
 ﻿CREATE PROCEDURE [dbo].[Insert_RecipeDetail]
 	@Id INT OUTPUT,
-	@RecipeId INT,
+	@MasterId INT,
 	@RawMaterialId INT,
 	@Quantity MONEY,
 	@Status BIT
@@ -8,15 +8,15 @@ AS
 BEGIN
 	IF @Id = 0
 	BEGIN
-		INSERT INTO [dbo].[RecipeDetail] ([RecipeId], [RawMaterialId], [Quantity], [Status])
-		VALUES (@RecipeId, @RawMaterialId, @Quantity, @Status);
+		INSERT INTO [dbo].[RecipeDetail] ([MasterId], [RawMaterialId], [Quantity], [Status])
+		VALUES (@MasterId, @RawMaterialId, @Quantity, @Status);
 
 		SET @Id = SCOPE_IDENTITY();
 	END
 	ELSE
 	BEGIN
 		UPDATE [dbo].[RecipeDetail]
-		SET [RecipeId] = @RecipeId, 
+		SET [MasterId] = @MasterId, 
 			[RawMaterialId] = @RawMaterialId, 
 			[Quantity] = @Quantity, 
 			[Status] = @Status

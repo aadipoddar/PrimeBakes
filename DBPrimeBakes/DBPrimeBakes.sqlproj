@@ -185,7 +185,6 @@
     <Build Include="StoredProcedures\LoadData\Inventory\Purchase\Load_RawMaterial_By_Party_PurchaseDateTime.sql" />
     <Build Include="StoredProcedures\LoadData\Inventory\RawMaterial\Load_RawMaterial_By_RawMaterialCategory.sql" />
     <Build Include="StoredProcedures\LoadData\Inventory\Recipe\Load_Recipe_By_Product.sql" />
-    <Build Include="StoredProcedures\LoadData\Inventory\Recipe\Load_RecipeDetail_By_Recipe.sql" />
     <Build Include="StoredProcedures\LoadData\Inventory\Stock\Load_ProductStockSummary_By_Date_LocationId.sql" />
     <Build Include="StoredProcedures\LoadData\Inventory\Stock\Load_RawMaterialStockSummary_By_Date.sql" />
     <Build Include="StoredProcedures\LoadData\Sales\Order\Load_Order_By_Location_Pending.sql" />
@@ -254,5 +253,8 @@
     <Build Include="Views\Sales\ProductLocation_Overview.sql" />
     <Build Include="Tables\Accounts\Masters\Nature.sql" />
     <Build Include="Tables\Common\Settings.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="DBPrimeBakes.refactorlog" />
   </ItemGroup>
 </Project>

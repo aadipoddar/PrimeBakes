@@ -64,7 +64,6 @@ public partial class RecipePage : IAsyncDisposable
         {
             _products = await ProductData.LoadProductByLocation(1);
             _rawMaterials = await CommonData.LoadTableData<RawMaterialModel>(TableNames.RawMaterial);
-            _selectedProduct = _products.FirstOrDefault();
         }
         catch (Exception ex)
         {
@@ -107,7 +106,7 @@ public partial class RecipePage : IAsyncDisposable
             if (_recipe is null)
                 return;
 
-            var recipeDetails = await RecipeData.LoadRecipeDetailByRecipe(_recipe.Id);
+            var recipeDetails = await CommonData.LoadTableDataByMasterId<RecipeDetailModel>(TableNames.RecipeDetail, _recipe.Id);
             if (recipeDetails is null || recipeDetails.Count == 0)
                 return;
 
@@ -221,9 +220,8 @@ public partial class RecipePage : IAsyncDisposable
 
         try
         {
-            _recipe.Status = false;
-            await RecipeData.InsertRecipe(_recipe);
-            NavigationManager.NavigateTo(PageRouteNames.Recipe, true);
+            await RecipeData.DeleteRecipe(_recipe);
+            ResetPage();
         }
         catch (Exception ex)
         {

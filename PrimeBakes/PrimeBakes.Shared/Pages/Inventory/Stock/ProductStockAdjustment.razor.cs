@@ -377,6 +377,8 @@ public partial class ProductStockAdjustment : IAsyncDisposable
 
     private async Task<bool> ValidateForm()
     {
+        await FinancialYearData.ValidateFinancialYear(_transactionDateTime);
+
         if (_cart.Count == 0)
         {
             await _toastNotification.ShowAsync("Cart is Empty", "Please add at least one item to the cart before saving the transaction.", ToastType.Warning);
@@ -392,24 +394,6 @@ public partial class ProductStockAdjustment : IAsyncDisposable
         if (_transactionDateTime == default)
         {
             await _toastNotification.ShowAsync("Transaction Date Missing", "Please select a valid transaction date for the adjustment.", ToastType.Warning);
-            return false;
-        }
-
-        if (_selectedFinancialYear is null || _selectedFinancialYear.Id <= 0)
-        {
-            await _toastNotification.ShowAsync("Financial Year Not Found", "The transaction date does not fall within any financial year. Please check the date and try again.", ToastType.Error);
-            return false;
-        }
-
-        if (_selectedFinancialYear.Locked)
-        {
-            await _toastNotification.ShowAsync("Financial Year Locked", "The financial year for the selected transaction date is locked. Please select a different date.", ToastType.Error);
-            return false;
-        }
-
-        if (!_selectedFinancialYear.Status)
-        {
-            await _toastNotification.ShowAsync("Financial Year Inactive", "The financial year for the selected transaction date is inactive. Please select a different date.", ToastType.Error);
             return false;
         }
 

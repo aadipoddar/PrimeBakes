@@ -85,7 +85,6 @@ public static class StoredProcedureNames
     public static string LoadProductStockSummaryByDateLocationId => "Load_ProductStockSummary_By_Date_LocationId";
 
     public static string LoadRecipeByProduct => "Load_Recipe_By_Product";
-    public static string LoadRecipeDetailByRecipe => "Load_RecipeDetail_By_Recipe";
 
     public static string LoadOrderByLocationPending => "Load_Order_By_Location_Pending";
 

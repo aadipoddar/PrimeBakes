@@ -7,6 +7,7 @@ using PrimeBakesLibrary.Data.Sales.Order;
 using PrimeBakesLibrary.Models.Accounts.FinancialAccounting;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Common;
+using PrimeBakesLibrary.Models.Inventory;
 using PrimeBakesLibrary.Models.Inventory.Stock;
 using PrimeBakesLibrary.Models.Sales.Sale;
 
@@ -223,7 +224,7 @@ public static class SaleData
         foreach (var product in cart)
         {
             var recipe = await RecipeData.LoadRecipeByProduct(product.ItemId);
-            var recipeItems = recipe is null ? [] : await RecipeData.LoadRecipeDetailByRecipe(recipe.Id);
+            var recipeItems = recipe is null ? [] : await CommonData.LoadTableDataByMasterId<RecipeDetailModel>(TableNames.RecipeDetail, recipe.Id);
 
             foreach (var recipeItem in recipeItems)
                 await RawMaterialStockData.InsertRawMaterialStock(new()

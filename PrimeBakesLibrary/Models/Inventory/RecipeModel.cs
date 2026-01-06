@@ -10,7 +10,7 @@ public class RecipeModel
 public class RecipeDetailModel
 {
     public int Id { get; set; }
-    public int RecipeId { get; set; }
+    public int MasterId { get; set; }
     public int RawMaterialId { get; set; }
     public decimal Quantity { get; set; }
     public bool Status { get; set; }
