@@ -243,11 +243,11 @@ public static class GenerateCodes
         return await CheckDuplicateCode($"{locationPrefix}{financialYear.YearNo}{salePrefix}000001", 6, CodeType.Sale, sqlDataAccessTransaction);
     }
 
-    public static async Task<string> GenerateSaleReturnTransactionNo(SaleReturnModel saleReturn)
+    public static async Task<string> GenerateSaleReturnTransactionNo(SaleReturnModel saleReturn, SqlDataAccessTransaction? sqlDataAccessTransaction = null)
     {
-        var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, saleReturn.FinancialYearId);
-        var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, saleReturn.LocationId)).PrefixCode;
-        var saleReturnPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.SaleReturnTransactionPrefix)).Value;
+        var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, saleReturn.FinancialYearId, sqlDataAccessTransaction);
+        var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, saleReturn.LocationId, sqlDataAccessTransaction)).PrefixCode;
+        var saleReturnPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.SaleReturnTransactionPrefix, sqlDataAccessTransaction)).Value;
 
         var lastSaleReturn = await CommonData.LoadLastTableDataByLocationFinancialYear<SaleReturnModel>(TableNames.SaleReturn, saleReturn.LocationId, saleReturn.FinancialYearId);
         if (lastSaleReturn is not null)
@@ -259,12 +259,12 @@ public static class GenerateCodes
                 if (int.TryParse(lastNumberPart, out int lastNumber))
                 {
                     int nextNumber = lastNumber + 1;
-                    return await CheckDuplicateCode($"{locationPrefix}{financialYear.YearNo}{saleReturnPrefix}{nextNumber:D6}", 6, CodeType.SaleReturn);
+                    return await CheckDuplicateCode($"{locationPrefix}{financialYear.YearNo}{saleReturnPrefix}{nextNumber:D6}", 6, CodeType.SaleReturn, sqlDataAccessTransaction);
                 }
             }
         }
 
-        return await CheckDuplicateCode($"{locationPrefix}{financialYear.YearNo}{saleReturnPrefix}000001", 6, CodeType.SaleReturn);
+        return await CheckDuplicateCode($"{locationPrefix}{financialYear.YearNo}{saleReturnPrefix}000001", 6, CodeType.SaleReturn, sqlDataAccessTransaction);
     }
 
     public static async Task<string> GenerateStockTransferTransactionNo(StockTransferModel stockTransfer)

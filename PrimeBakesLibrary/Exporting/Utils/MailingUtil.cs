@@ -156,9 +156,9 @@ internal static class MailingUtil
         // Generate attachment notice (only if attachments exist)
         var hasAttachments = (data.Action == NotifyType.Updated && data.BeforeAttachment.HasValue && data.AfterAttachment.HasValue) ||
                             (data.Attachments != null && data.Attachments.Count > 0);
-        
+
         var attachmentNotice = !hasAttachments ? "" : $@"<strong>📎 Attachment:</strong> {(data.Action == NotifyType.Updated ? "Before/After comparison invoices are" : "The " + data.TransactionType.ToLower() + " invoice PDF is")} attached to this email for your records.<br>";
-        
+
         var websiteLinkSection = $@"
                             <!-- Website Link Notice -->
                             <table role=""presentation"" style=""width: 100%; border-collapse: collapse; margin: 25px 0;"">

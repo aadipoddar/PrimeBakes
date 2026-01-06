@@ -1,10 +1,9 @@
 using PrimeBakesLibrary.Data.Common;
-using PrimeBakesLibrary.Exporting.Sales.Sale;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Sales.Sale;
 
-namespace PrimeBakesLibrary.Exporting.Sales;
+namespace PrimeBakesLibrary.Exporting.Sales.Sale;
 
 internal static class SaleNotify
 {
