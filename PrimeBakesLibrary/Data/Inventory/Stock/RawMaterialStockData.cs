@@ -1,5 +1,6 @@
 ﻿using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Exporting.Inventory.Stock;
 using PrimeBakesLibrary.Models.Inventory.Stock;
 
 namespace PrimeBakesLibrary.Data.Inventory.Stock;
@@ -21,12 +22,9 @@ public static class RawMaterialStockData
         if (stock is null)
             return;
 
-        var financialYear = await FinancialYearData.LoadFinancialYearByDateTime(stock.TransactionDate.ToDateTime(TimeOnly.MinValue));
-        if (financialYear is null || financialYear.Locked || !financialYear.Status)
-            throw new Exception("Cannot delete stock entry as the financial year is locked.");
-
+        await FinancialYearData.ValidateFinancialYear(stock.TransactionDate.ToDateTime(TimeOnly.MinValue));
         await SqlDataAccess.SaveData(StoredProcedureNames.DeleteRawMaterialStockById, new { Id });
-        await SendNotification.RawMaterialStockAdjustmentNotification(1, stock.Quantity, userId, NotifyType.Deleted);
+        await RawMaterialStockAdjustmentNotify.Notify(stock, userId, NotifyType.Deleted);
     }
 
     public static async Task SaveRawMaterialStockAdjustment(DateTime transactionDateTime, List<RawMaterialStockAdjustmentCartModel> cart, int userId)
@@ -34,34 +32,54 @@ public static class RawMaterialStockData
         var transactionNo = await GenerateCodes.GenerateRawMaterialStockAdjustmentTransactionNo(transactionDateTime);
         var stockSummary = await LoadRawMaterialStockSummaryByDate(transactionDateTime, transactionDateTime);
 
-        var financialYear = await FinancialYearData.LoadFinancialYearByDateTime(transactionDateTime);
-        if (financialYear is null || financialYear.Locked || !financialYear.Status)
-            throw new Exception("Cannot delete stock entry as the financial year is locked.");
+        if (cart is null || cart.Count == 0)
+            throw new InvalidOperationException("Cannot save stock adjustment with no items.");
 
-        foreach (var item in cart)
+        await FinancialYearData.ValidateFinancialYear(transactionDateTime);
+
+        using SqlDataAccessTransaction sqlDataAccessTransaction = new();
+
+        try
         {
-            decimal adjustmentQuantity = 0;
-            var existingStock = stockSummary.FirstOrDefault(s => s.RawMaterialId == item.RawMaterialId);
+            sqlDataAccessTransaction.StartTransaction();
 
-            if (existingStock is null)
-                adjustmentQuantity = item.Quantity;
-            else
-                adjustmentQuantity = item.Quantity - existingStock.ClosingStock;
+            foreach (var item in cart)
+            {
+                decimal adjustmentQuantity = 0;
+                var existingStock = stockSummary.FirstOrDefault(s => s.RawMaterialId == item.RawMaterialId);
 
-            if (adjustmentQuantity != 0)
-                await InsertRawMaterialStock(new()
+                if (existingStock is null)
+                    adjustmentQuantity = item.Quantity;
+                else
+                    adjustmentQuantity = item.Quantity - existingStock.ClosingStock;
+
+                if (adjustmentQuantity != 0)
                 {
-                    Id = 0,
-                    RawMaterialId = item.RawMaterialId,
-                    Quantity = adjustmentQuantity,
-                    NetRate = null,
-                    TransactionId = null,
-                    Type = nameof(StockType.Adjustment),
-                    TransactionNo = transactionNo,
-                    TransactionDate = DateOnly.FromDateTime(transactionDateTime)
-                });
-        }
+                    var id = await InsertRawMaterialStock(new()
+                    {
+                        Id = 0,
+                        RawMaterialId = item.RawMaterialId,
+                        Quantity = adjustmentQuantity,
+                        NetRate = null,
+                        TransactionId = null,
+                        Type = nameof(StockType.Adjustment),
+                        TransactionNo = transactionNo,
+                        TransactionDate = DateOnly.FromDateTime(transactionDateTime)
+                    }, sqlDataAccessTransaction);
 
-        await SendNotification.RawMaterialStockAdjustmentNotification(cart.Count, cart.Sum(c => c.Quantity), userId, NotifyType.Created);
+                    if (id <= 0)
+                        throw new InvalidOperationException($"Failed to insert stock adjustment for raw material ID {item.RawMaterialId}.");
+                }
+            }
+
+            sqlDataAccessTransaction.CommitTransaction();
+
+            await RawMaterialStockAdjustmentNotify.Notify(cart.Count, cart.Sum(c => c.Quantity), userId, NotifyType.Created);
+        }
+        catch
+        {
+            sqlDataAccessTransaction.RollbackTransaction();
+            throw;
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Exporting.Inventory.Stock;
 using PrimeBakesLibrary.Models.Inventory.Stock;
 
 namespace PrimeBakesLibrary.Data.Inventory.Stock;
@@ -21,12 +22,9 @@ public static class ProductStockData
         if (stock is null)
             return;
 
-        var financialYear = await FinancialYearData.LoadFinancialYearByDateTime(stock.TransactionDate.ToDateTime(TimeOnly.MinValue));
-        if (financialYear is null || financialYear.Locked || !financialYear.Status)
-            throw new Exception("Cannot delete stock entry as the financial year is locked.");
-
+        await FinancialYearData.ValidateFinancialYear(stock.TransactionDate.ToDateTime(TimeOnly.MinValue));
         await SqlDataAccess.SaveData(StoredProcedureNames.DeleteProductStockById, new { Id });
-        await SendNotification.ProductStockAdjustmentNotification(1, stock.Quantity, userId, stock.LocationId, NotifyType.Deleted);
+        await ProductStockAdjustmentNotify.Notify(stock, userId, NotifyType.Deleted);
     }
 
     public static async Task SaveProductStockAdjustment(DateTime transactionDateTime, int locationId, List<ProductStockAdjustmentCartModel> cart, int userId)
@@ -34,34 +32,54 @@ public static class ProductStockData
         var transactionNo = await GenerateCodes.GenerateProductStockAdjustmentTransactionNo(transactionDateTime, locationId);
         var stockSummary = await LoadProductStockSummaryByDateLocationId(transactionDateTime, transactionDateTime, locationId);
 
-        var financialYear = await FinancialYearData.LoadFinancialYearByDateTime(transactionDateTime);
-        if (financialYear is null || financialYear.Locked || !financialYear.Status)
-            throw new Exception("Cannot delete stock entry as the financial year is locked.");
+        if (cart is null || cart.Count == 0)
+            throw new InvalidOperationException("Cannot save stock adjustment with no items.");
 
-        foreach (var item in cart)
+        await FinancialYearData.ValidateFinancialYear(transactionDateTime);
+
+        using SqlDataAccessTransaction sqlDataAccessTransaction = new();
+
+        try
         {
-            decimal adjustmentQuantity = 0;
-            var existingStock = stockSummary.FirstOrDefault(s => s.ProductId == item.ProductId);
+            sqlDataAccessTransaction.StartTransaction();
 
-            if (existingStock is null)
-                adjustmentQuantity = item.Quantity;
-            else
-                adjustmentQuantity = item.Quantity - existingStock.ClosingStock;
+            foreach (var item in cart)
+            {
+                decimal adjustmentQuantity = 0;
+                var existingStock = stockSummary.FirstOrDefault(s => s.ProductId == item.ProductId);
 
-            if (adjustmentQuantity != 0)
-                await InsertProductStock(new()
+                if (existingStock is null)
+                    adjustmentQuantity = item.Quantity;
+                else
+                    adjustmentQuantity = item.Quantity - existingStock.ClosingStock;
+
+                if (adjustmentQuantity != 0)
                 {
-                    Id = 0,
-                    ProductId = item.ProductId,
-                    Quantity = adjustmentQuantity,
-                    NetRate = null,
-                    Type = nameof(StockType.Adjustment),
-                    TransactionNo = transactionNo,
-                    TransactionDate = DateOnly.FromDateTime(transactionDateTime),
-                    LocationId = locationId
-                });
-        }
+                    var id = await InsertProductStock(new()
+                    {
+                        Id = 0,
+                        ProductId = item.ProductId,
+                        Quantity = adjustmentQuantity,
+                        NetRate = null,
+                        Type = nameof(StockType.Adjustment),
+                        TransactionNo = transactionNo,
+                        TransactionDate = DateOnly.FromDateTime(transactionDateTime),
+                        LocationId = locationId
+                    }, sqlDataAccessTransaction);
 
-        await SendNotification.ProductStockAdjustmentNotification(cart.Count, cart.Sum(c => c.Quantity), userId, locationId, NotifyType.Created);
+                    if (id <= 0)
+                        throw new InvalidOperationException($"Failed to insert stock adjustment for product ID {item.ProductId}.");
+                }
+            }
+
+            sqlDataAccessTransaction.CommitTransaction();
+
+            await ProductStockAdjustmentNotify.Notify(cart.Count, cart.Sum(c => c.Quantity), userId, locationId, NotifyType.Created);
+        }
+        catch
+        {
+            sqlDataAccessTransaction.RollbackTransaction();
+            throw;
+        }
     }
 }

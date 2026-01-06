@@ -127,7 +127,7 @@ public static class GenerateCodes
         return await CheckDuplicateCode($"{locationPrefix}{financialYear.YearNo}{purchasePrefix}000001", 6, CodeType.Purchase, sqlDataAccessTransaction);
     }
 
-    public static async Task<string> GeneratePurchaseReturnTransactionNo(PurchaseReturnModel purchaseReturn, SqlDataAccessTransaction? sqlDataAccessTransaction = null)
+    public static async Task<string> GeneratePurchaseReturnTransactionNo(PurchaseReturnModel purchaseReturn, SqlDataAccessTransaction sqlDataAccessTransaction = null)
     {
         var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, purchaseReturn.FinancialYearId, sqlDataAccessTransaction);
         var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, 1, sqlDataAccessTransaction)).PrefixCode;
@@ -151,21 +151,21 @@ public static class GenerateCodes
         return await CheckDuplicateCode($"{locationPrefix}{financialYear.YearNo}{purchaseReturnPrefix}000001", 6, CodeType.PurchaseReturn, sqlDataAccessTransaction);
     }
 
-    public static async Task<string> GenerateProductStockAdjustmentTransactionNo(DateTime transactionDateTime, int locationId)
+    public static async Task<string> GenerateProductStockAdjustmentTransactionNo(DateTime transactionDateTime, int locationId, SqlDataAccessTransaction sqlDataAccessTransaction = null)
     {
-        var financialYear = await FinancialYearData.LoadFinancialYearByDateTime(transactionDateTime);
-        var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, locationId)).PrefixCode;
-        var adjustmentPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.ProductStockAdjustmentTransactionPrefix)).Value;
+        var financialYear = await FinancialYearData.LoadFinancialYearByDateTime(transactionDateTime, sqlDataAccessTransaction);
+        var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, locationId, sqlDataAccessTransaction)).PrefixCode;
+        var adjustmentPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.ProductStockAdjustmentTransactionPrefix, sqlDataAccessTransaction)).Value;
         var currentDateTime = await CommonData.LoadCurrentDateTime();
 
         return $"{locationPrefix}{financialYear.YearNo}{adjustmentPrefix}{currentDateTime:ddMMyy}{currentDateTime:HHmmss}";
     }
 
-    public static async Task<string> GenerateRawMaterialStockAdjustmentTransactionNo(DateTime transactionDateTime)
+    public static async Task<string> GenerateRawMaterialStockAdjustmentTransactionNo(DateTime transactionDateTime, SqlDataAccessTransaction sqlDataAccessTransaction = null)
     {
-        var financialYear = await FinancialYearData.LoadFinancialYearByDateTime(transactionDateTime);
-        var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, 1)).PrefixCode;
-        var adjustmentPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.RawMaterialStockAdjustmentTransactionPrefix)).Value;
+        var financialYear = await FinancialYearData.LoadFinancialYearByDateTime(transactionDateTime, sqlDataAccessTransaction);
+        var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, 1, sqlDataAccessTransaction)).PrefixCode;
+        var adjustmentPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.RawMaterialStockAdjustmentTransactionPrefix, sqlDataAccessTransaction)).Value;
         var currentDateTime = await CommonData.LoadCurrentDateTime();
 
         return $"{locationPrefix}{financialYear.YearNo}{adjustmentPrefix}{currentDateTime:ddMMyy}{currentDateTime:HHmmss}";
