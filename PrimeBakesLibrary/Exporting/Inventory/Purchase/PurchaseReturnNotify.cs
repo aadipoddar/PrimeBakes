@@ -69,7 +69,7 @@ internal static class PurchaseReturnNotify
         // For update emails, include before and after invoices
         if (type == NotifyType.Updated && previousInvoice.HasValue)
         {
-            var (afterStream, afterFileName) = await PurchaseReturnInvoicePDFExport.ExportInvoice(purchaseReturnId);
+            var (afterStream, afterFileName) = await PurchaseReturnInvoiceExport.ExportInvoice(purchaseReturnId, InvoiceExportType.PDF);
 
             // Rename files to make it clear which is which
             var beforeFileName = $"BEFORE_{previousInvoice.Value.Item2}";
@@ -81,7 +81,7 @@ internal static class PurchaseReturnNotify
         else
         {
             // For delete/recover, just attach the current invoice
-            var (pdfStream, pdfFileName) = await PurchaseReturnInvoicePDFExport.ExportInvoice(purchaseReturnId);
+            var (pdfStream, pdfFileName) = await PurchaseReturnInvoiceExport.ExportInvoice(purchaseReturnId, InvoiceExportType.PDF);
             emailData.Attachments = new Dictionary<MemoryStream, string> { { pdfStream, pdfFileName } };
         }
 

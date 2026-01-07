@@ -1,4 +1,5 @@
 using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Inventory;
@@ -6,9 +7,9 @@ using PrimeBakesLibrary.Models.Inventory.Kitchen;
 
 namespace PrimeBakesLibrary.Exporting.Inventory.Kitchen;
 
-public static class KitchenIssueInvoicePDFExport
+public static class KitchenIssueInvoiceExport
 {
-    public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId)
+    public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId, InvoiceExportType exportType)
     {
         var transaction = await CommonData.LoadTableDataById<KitchenIssueModel>(TableNames.KitchenIssue, transactionId) ??
             throw new InvalidOperationException("Transaction not found.");
@@ -45,15 +46,16 @@ public static class KitchenIssueInvoicePDFExport
             Name = kitchen.Name,
         };
 
-        var invoiceData = new PDFInvoiceExportUtil.InvoiceData
+        var invoiceData = new InvoiceData
         {
             Company = company,
             BillTo = kitchenAsLedger,
             InvoiceType = "KITCHEN ISSUE INVOICE",
+            Outlet = kitchen?.Name ?? string.Empty,
             TransactionNo = transaction.TransactionNo,
             TransactionDateTime = transaction.TransactionDateTime,
             TotalAmount = transaction.TotalAmount,
-            Remarks = transaction.Remarks,
+            Remarks = transaction.Remarks ?? string.Empty,
             Status = transaction.Status,
             PaymentModes = null
         };
@@ -63,26 +65,43 @@ public static class KitchenIssueInvoicePDFExport
             ["Grand Total"] = transaction.TotalAmount.FormatIndianCurrency()
         };
 
-        var columnSettings = new List<PDFInvoiceExportUtil.InvoiceColumnSetting>
+        var columnSettings = new List<InvoiceColumnSetting>
         {
-            new("#", "#", 25, Syncfusion.Pdf.Graphics.PdfTextAlignment.Center),
-            new(nameof(KitchenIssueItemCartModel.ItemName), "Item", 0, Syncfusion.Pdf.Graphics.PdfTextAlignment.Left),
-            new(nameof(KitchenIssueItemCartModel.UnitOfMeasurement), "UOM", 50, Syncfusion.Pdf.Graphics.PdfTextAlignment.Center),
-            new(nameof(KitchenIssueItemCartModel.Quantity), "Qty", 50, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00"),
-            new(nameof(KitchenIssueItemCartModel.Rate), "Rate", 60, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00"),
-            new(nameof(KitchenIssueItemCartModel.Total), "Total", 60, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00")
+            new("#", "#", exportType, CellAlignment.Center, 25, 5),
+            new(nameof(KitchenIssueItemCartModel.ItemName), "Item", exportType, CellAlignment.Left, 0, 35),
+            new(nameof(KitchenIssueItemCartModel.UnitOfMeasurement), "UOM", exportType, CellAlignment.Center, 50, 10),
+            new(nameof(KitchenIssueItemCartModel.Quantity), "Qty", exportType, CellAlignment.Right, 50, 12, "#,##0.00"),
+            new(nameof(KitchenIssueItemCartModel.Rate), "Rate", exportType, CellAlignment.Right, 60, 12, "#,##0.00"),
+            new(nameof(KitchenIssueItemCartModel.Total), "Total", exportType, CellAlignment.Right, 60, 15, "#,##0.00")
         };
 
-        var stream = await PDFInvoiceExportUtil.ExportInvoiceToPdf(
-            invoiceData,
-            lineItems,
-            columnSettings,
-            null,
-            summaryFields
-        );
+        if (exportType == InvoiceExportType.PDF)
+        {
+            var stream = await PDFInvoiceExportUtil.ExportInvoiceToPdf(
+                invoiceData,
+                lineItems,
+                columnSettings,
+                null,
+                summaryFields
+            );
 
-        var currentDateTime = await CommonData.LoadCurrentDateTime();
-        string fileName = $"KITCHEN_ISSUE_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
-        return (stream, fileName);
+            var currentDateTime = await CommonData.LoadCurrentDateTime();
+            string fileName = $"KITCHEN_ISSUE_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
+            return (stream, fileName);
+        }
+        else
+        {
+            var stream = await ExcelInvoiceExportUtil.ExportInvoiceToExcel(
+                invoiceData,
+                lineItems,
+                columnSettings,
+                null,
+                summaryFields
+            );
+
+            var currentDateTime = await CommonData.LoadCurrentDateTime();
+            string fileName = $"KITCHEN_ISSUE_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.xlsx";
+            return (stream, fileName);
+        }
     }
 }

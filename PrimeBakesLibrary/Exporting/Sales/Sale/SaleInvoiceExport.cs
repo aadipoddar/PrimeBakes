@@ -1,4 +1,5 @@
-﻿using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Sales.Order;
@@ -7,9 +8,9 @@ using PrimeBakesLibrary.Models.Sales.Sale;
 
 namespace PrimeBakesLibrary.Exporting.Sales.Sale;
 
-public static class SaleInvoicePDFExport
+public static class SaleInvoiceExport
 {
-    public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId)
+    public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId, InvoiceExportType exportType)
     {
         var transaction = await CommonData.LoadTableDataById<SaleModel>(TableNames.Sale, transactionId) ??
             throw new InvalidOperationException("Transaction not found.");
@@ -23,7 +24,7 @@ public static class SaleInvoicePDFExport
 
         var location = await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, transaction.LocationId);
 
-        LedgerModel party = null;
+        LedgerModel? party = null;
 
         if (transaction.PartyId.HasValue)
             party = await CommonData.LoadTableDataById<LedgerModel>(TableNames.Ledger, transaction.PartyId.Value);
@@ -79,18 +80,18 @@ public static class SaleInvoicePDFExport
         if (transaction.UPI > 0) paymentModes.Add("UPI", transaction.UPI);
         if (transaction.Credit > 0) paymentModes.Add("Credit", transaction.Credit);
 
-        var invoiceData = new PDFInvoiceExportUtil.InvoiceData
+        var invoiceData = new InvoiceData
         {
             Company = company,
             BillTo = party,
             InvoiceType = "SALE INVOICE",
-            Outlet = location?.Name,
+            Outlet = location?.Name ?? string.Empty,
             TransactionNo = transaction.TransactionNo,
             TransactionDateTime = transaction.TransactionDateTime,
             ReferenceTransactionNo = order?.TransactionNo ?? string.Empty,
             ReferenceDateTime = order?.TransactionDateTime,
             TotalAmount = transaction.TotalAmount,
-            Remarks = transaction.Remarks,
+            Remarks = transaction.Remarks ?? string.Empty,
             Status = transaction.Status,
             PaymentModes = paymentModes
         };
@@ -104,28 +105,45 @@ public static class SaleInvoicePDFExport
             ["Grand Total"] = transaction.TotalAmount.FormatIndianCurrency()
         };
 
-        var columnSettings = new List<PDFInvoiceExportUtil.InvoiceColumnSetting>
+        var columnSettings = new List<InvoiceColumnSetting>
         {
-            new("#", "#", 25, Syncfusion.Pdf.Graphics.PdfTextAlignment.Center),
-            new(nameof(SaleItemCartModel.ItemName), "Item", 0, Syncfusion.Pdf.Graphics.PdfTextAlignment.Left),
-            new(nameof(SaleItemCartModel.Quantity), "Qty", 40, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00"),
-            new(nameof(SaleItemCartModel.Rate), "Rate", 50, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00"),
-            new(nameof(SaleItemCartModel.DiscountPercent), "Disc %", 45, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00"),
-            new(nameof(SaleItemCartModel.AfterDiscount), "Taxable", 55, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00"),
-            new(nameof(SaleItemCartModel.TotalTaxAmount), "Tax", 50, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00"),
-            new(nameof(SaleItemCartModel.Total), "Total", 55, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00")
+            new("#", "#", exportType, CellAlignment.Center, 25, 5),
+            new(nameof(SaleItemCartModel.ItemName), "Item", exportType, CellAlignment.Left, 0, 30),
+            new(nameof(SaleItemCartModel.Quantity), "Qty", exportType, CellAlignment.Right, 40, 10, "#,##0.00"),
+            new(nameof(SaleItemCartModel.Rate), "Rate", exportType, CellAlignment.Right, 50, 12, "#,##0.00"),
+            new(nameof(SaleItemCartModel.DiscountPercent), "Disc %", exportType, CellAlignment.Right, 45, 8, "#,##0.00"),
+            new(nameof(SaleItemCartModel.AfterDiscount), "Taxable", exportType, CellAlignment.Right, 55, 12, "#,##0.00"),
+            new(nameof(SaleItemCartModel.TotalTaxAmount), exportType == InvoiceExportType.PDF ? "Tax" : "Tax Amt", exportType, CellAlignment.Right, 50, 12, "#,##0.00"),
+            new(nameof(SaleItemCartModel.Total), "Total", exportType, CellAlignment.Right, 55, 15, "#,##0.00")
         };
 
-        var stream = await PDFInvoiceExportUtil.ExportInvoiceToPdf(
-            invoiceData,
-            lineItems,
-            columnSettings,
-            null,
-            summaryFields
-        );
+        if (exportType == InvoiceExportType.PDF)
+        {
+            var stream = await PDFInvoiceExportUtil.ExportInvoiceToPdf(
+                invoiceData,
+                lineItems,
+                columnSettings,
+                null,
+                summaryFields
+            );
 
-        var currentDateTime = await CommonData.LoadCurrentDateTime();
-        string fileName = $"SALE_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
-        return (stream, fileName);
+            var currentDateTime = await CommonData.LoadCurrentDateTime();
+            string fileName = $"SALE_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
+            return (stream, fileName);
+        }
+        else
+        {
+            var stream = await ExcelInvoiceExportUtil.ExportInvoiceToExcel(
+                invoiceData,
+                lineItems,
+                columnSettings,
+                null,
+                summaryFields
+            );
+
+            var currentDateTime = await CommonData.LoadCurrentDateTime();
+            string fileName = $"SALE_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.xlsx";
+            return (stream, fileName);
+        }
     }
 }

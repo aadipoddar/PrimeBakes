@@ -2,6 +2,7 @@
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Inventory.Stock;
 using PrimeBakesLibrary.Exporting.Inventory.Kitchen;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Inventory.Kitchen;
 using PrimeBakesLibrary.Models.Inventory.Stock;
 
@@ -71,7 +72,7 @@ public static class KitchenProductionData
         {
             (MemoryStream, string)? previousInvoice = null;
             if (update)
-                previousInvoice = await KitchenProductionInvoicePDFExport.ExportInvoice(kitchenProduction.Id);
+                previousInvoice = await KitchenProductionInvoiceExport.ExportInvoice(kitchenProduction.Id, InvoiceExportType.PDF);
 
             using SqlDataAccessTransaction newSqlDataAccessTransaction = new();
 

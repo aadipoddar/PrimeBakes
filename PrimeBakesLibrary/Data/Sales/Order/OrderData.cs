@@ -1,6 +1,7 @@
 ﻿using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Exporting.Sales.Order;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Sales.Order;
 using PrimeBakesLibrary.Models.Sales.Sale;
 
@@ -101,7 +102,7 @@ public static class OrderData
         {
             (MemoryStream, string)? previousInvoice = null;
             if (update)
-                previousInvoice = await OrderInvoicePDFExport.ExportInvoice(order.Id);
+                previousInvoice = await OrderInvoiceExport.ExportInvoice(order.Id, InvoiceExportType.PDF);
 
             using SqlDataAccessTransaction newSqlDataAccessTransaction = new();
 

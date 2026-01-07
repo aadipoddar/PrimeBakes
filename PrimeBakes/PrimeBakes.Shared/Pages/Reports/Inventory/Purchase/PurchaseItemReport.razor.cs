@@ -6,6 +6,7 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Inventory.Purchase;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Inventory.Purchase;
@@ -404,12 +405,12 @@ public partial class PurchaseItemReport : IAsyncDisposable
 
             if (isPurchaseReturn)
             {
-                var (pdfStream, fileName) = await PurchaseReturnInvoicePDFExport.ExportInvoice(actualId);
+                var (pdfStream, fileName) = await PurchaseReturnInvoiceExport.ExportInvoice(actualId, InvoiceExportType.PDF);
                 await SaveAndViewService.SaveAndView(fileName, pdfStream);
             }
             else
             {
-                var (pdfStream, fileName) = await PurchaseInvoicePDFExport.ExportInvoice(actualId);
+                var (pdfStream, fileName) = await PurchaseInvoiceExport.ExportInvoice(actualId, InvoiceExportType.PDF);
                 await SaveAndViewService.SaveAndView(fileName, pdfStream);
             }
 
@@ -442,12 +443,12 @@ public partial class PurchaseItemReport : IAsyncDisposable
 
             if (isPurchaseReturn)
             {
-                var (excelStream, fileName) = await PurchaseReturnInvoiceExcelExport.ExportInvoice(actualId);
+                var (excelStream, fileName) = await PurchaseReturnInvoiceExport.ExportInvoice(actualId, InvoiceExportType.Excel);
                 await SaveAndViewService.SaveAndView(fileName, excelStream);
             }
             else
             {
-                var (excelStream, fileName) = await PurchaseInvoiceExcelExport.ExportInvoice(actualId);
+                var (excelStream, fileName) = await PurchaseInvoiceExport.ExportInvoice(actualId, InvoiceExportType.Excel);
                 await SaveAndViewService.SaveAndView(fileName, excelStream);
             }
 

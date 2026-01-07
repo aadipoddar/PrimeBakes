@@ -1,13 +1,14 @@
 using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Inventory;
 using PrimeBakesLibrary.Models.Inventory.Purchase;
 
 namespace PrimeBakesLibrary.Exporting.Inventory.Purchase;
 
-public static class PurchaseReturnInvoicePDFExport
+public static class PurchaseReturnInvoiceExport
 {
-    public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId)
+    public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId, InvoiceExportType exportType)
     {
         var transaction = await CommonData.LoadTableDataById<PurchaseReturnModel>(TableNames.PurchaseReturn, transactionId) ??
             throw new InvalidOperationException("Transaction not found.");
@@ -43,15 +44,16 @@ public static class PurchaseReturnInvoicePDFExport
             };
         }).ToList();
 
-        var invoiceData = new PDFInvoiceExportUtil.InvoiceData
+        var invoiceData = new InvoiceData
         {
-            TransactionNo = transaction.TransactionNo,
             Company = company,
             BillTo = party,
             InvoiceType = "PURCHASE RETURN INVOICE",
+            Outlet = party?.Name ?? string.Empty,
+            TransactionNo = transaction.TransactionNo,
             TransactionDateTime = transaction.TransactionDateTime,
             TotalAmount = transaction.TotalAmount,
-            Remarks = transaction.Remarks,
+            Remarks = transaction.Remarks ?? string.Empty,
             Status = transaction.Status,
             PaymentModes = null
         };
@@ -65,29 +67,46 @@ public static class PurchaseReturnInvoicePDFExport
             ["Grand Total"] = transaction.TotalAmount.FormatIndianCurrency()
         };
 
-        var columnSettings = new List<PDFInvoiceExportUtil.InvoiceColumnSetting>
+        var columnSettings = new List<InvoiceColumnSetting>
         {
-            new("#", "#", 25, Syncfusion.Pdf.Graphics.PdfTextAlignment.Center),
-            new(nameof(PurchaseReturnItemCartModel.ItemName), "Item", 0, Syncfusion.Pdf.Graphics.PdfTextAlignment.Left),
-            new(nameof(PurchaseReturnItemCartModel.UnitOfMeasurement), "UOM", 40, Syncfusion.Pdf.Graphics.PdfTextAlignment.Center),
-            new(nameof(PurchaseReturnItemCartModel.Quantity), "Qty", 40, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00"),
-            new(nameof(PurchaseReturnItemCartModel.Rate), "Rate", 50, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00"),
-            new(nameof(PurchaseReturnItemCartModel.DiscountPercent), "Disc %", 45, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00"),
-            new(nameof(PurchaseReturnItemCartModel.AfterDiscount), "Taxable", 55, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00"),
-            new(nameof(PurchaseReturnItemCartModel.TotalTaxAmount), "Tax", 50, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00"),
-            new(nameof(PurchaseReturnItemCartModel.Total), "Total", 55, Syncfusion.Pdf.Graphics.PdfTextAlignment.Right, "#,##0.00")
+            new("#", "#", exportType, CellAlignment.Center, 25, 5),
+            new(nameof(PurchaseReturnItemCartModel.ItemName), "Item", exportType, CellAlignment.Left, 0, 30),
+            new(nameof(PurchaseReturnItemCartModel.UnitOfMeasurement), "UOM", exportType, CellAlignment.Center, 40, 8),
+            new(nameof(PurchaseReturnItemCartModel.Quantity), "Qty", exportType, CellAlignment.Right, 40, 10, "#,##0.00"),
+            new(nameof(PurchaseReturnItemCartModel.Rate), "Rate", exportType, CellAlignment.Right, 50, 12, "#,##0.00"),
+            new(nameof(PurchaseReturnItemCartModel.DiscountPercent), "Disc %", exportType, CellAlignment.Right, 45, 8, "#,##0.00"),
+            new(nameof(PurchaseReturnItemCartModel.AfterDiscount), "Taxable", exportType, CellAlignment.Right, 55, 12, "#,##0.00"),
+            new(nameof(PurchaseReturnItemCartModel.TotalTaxAmount), exportType == InvoiceExportType.PDF ? "Tax" : "Tax Amt", exportType, CellAlignment.Right, 50, 12, "#,##0.00"),
+            new(nameof(PurchaseReturnItemCartModel.Total), "Total", exportType, CellAlignment.Right, 55, 15, "#,##0.00")
         };
 
-        var stream = await PDFInvoiceExportUtil.ExportInvoiceToPdf(
-            invoiceData,
-            lineItems,
-            columnSettings,
-            null,
-            summaryFields
-        );
+        if (exportType == InvoiceExportType.PDF)
+        {
+            var stream = await PDFInvoiceExportUtil.ExportInvoiceToPdf(
+                invoiceData,
+                lineItems,
+                columnSettings,
+                null,
+                summaryFields
+            );
 
-        var currentDateTime = await CommonData.LoadCurrentDateTime();
-        string fileName = $"PURCHASE_RETURN_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
-        return (stream, fileName);
+            var currentDateTime = await CommonData.LoadCurrentDateTime();
+            string fileName = $"PURCHASE_RETURN_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
+            return (stream, fileName);
+        }
+        else
+        {
+            var stream = await ExcelInvoiceExportUtil.ExportInvoiceToExcel(
+                invoiceData,
+                lineItems,
+                columnSettings,
+                null,
+                summaryFields
+            );
+
+            var currentDateTime = await CommonData.LoadCurrentDateTime();
+            string fileName = $"PURCHASE_RETURN_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.xlsx";
+            return (stream, fileName);
+        }
     }
 }

@@ -1,20 +1,20 @@
 using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Common;
-using PrimeBakesLibrary.Models.Sales.Order;
 using PrimeBakesLibrary.Models.Sales.Product;
 using PrimeBakesLibrary.Models.Sales.Sale;
 
 namespace PrimeBakesLibrary.Exporting.Sales.Sale;
 
-public static class SaleInvoiceExcelExport
+public static class SaleReturnInvoiceExport
 {
-    public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId)
+    public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId, InvoiceExportType exportType)
     {
-        var transaction = await CommonData.LoadTableDataById<SaleModel>(TableNames.Sale, transactionId) ??
+        var transaction = await CommonData.LoadTableDataById<SaleReturnModel>(TableNames.SaleReturn, transactionId) ??
             throw new InvalidOperationException("Transaction not found.");
 
-        var transactionDetails = await CommonData.LoadTableDataByMasterId<SaleDetailModel>(TableNames.SaleDetail, transaction.Id);
+        var transactionDetails = await CommonData.LoadTableDataByMasterId<SaleReturnDetailModel>(TableNames.SaleReturnDetail, transaction.Id);
         if (transactionDetails is null || transactionDetails.Count == 0)
             throw new InvalidOperationException("No transaction details found for the transaction.");
 
@@ -23,7 +23,7 @@ public static class SaleInvoiceExcelExport
 
         var location = await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, transaction.LocationId);
 
-        LedgerModel party = null;
+        LedgerModel? party = null;
 
         if (transaction.PartyId.HasValue)
             party = await CommonData.LoadTableDataById<LedgerModel>(TableNames.Ledger, transaction.PartyId.Value);
@@ -39,18 +39,13 @@ public static class SaleInvoiceExcelExport
                 };
         }
 
-        OrderModel? order = null;
-        if (transaction.OrderId.HasValue)
-            order = await CommonData.LoadTableDataById<OrderModel>(TableNames.Order, transaction.OrderId.Value);
-
         var allProducts = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
 
-        var cartItems = transactionDetails.Select(detail =>
+        var lineItems = transactionDetails.Select(detail =>
         {
             var product = allProducts.FirstOrDefault(p => p.Id == detail.ProductId);
-            return new SaleItemCartModel
+            return new SaleReturnItemCartModel
             {
-                ItemCategoryId = 0,
                 ItemId = detail.ProductId,
                 ItemName = product?.Name ?? $"Product #{detail.ProductId}",
                 Quantity = detail.Quantity,
@@ -79,53 +74,70 @@ public static class SaleInvoiceExcelExport
         if (transaction.UPI > 0) paymentModes.Add("UPI", transaction.UPI);
         if (transaction.Credit > 0) paymentModes.Add("Credit", transaction.Credit);
 
-        var invoiceData = new ExcelInvoiceExportUtil.InvoiceData
+        var invoiceData = new InvoiceData
         {
             Company = company,
             BillTo = party,
-            InvoiceType = "SALE INVOICE",
-            Outlet = location?.Name,
+            InvoiceType = "SALE RETURN INVOICE",
+            Outlet = location?.Name ?? string.Empty,
             TransactionNo = transaction.TransactionNo,
             TransactionDateTime = transaction.TransactionDateTime,
-            ReferenceTransactionNo = order?.TransactionNo ?? string.Empty,
-            ReferenceDateTime = order?.TransactionDateTime,
+            ReferenceTransactionNo = string.Empty,
+            ReferenceDateTime = null,
             TotalAmount = transaction.TotalAmount,
-            Remarks = transaction.Remarks,
+            Remarks = transaction.Remarks ?? string.Empty,
             Status = transaction.Status,
             PaymentModes = paymentModes
         };
 
         var summaryFields = new Dictionary<string, string>
         {
-            ["Sub Total"] = transaction.TotalAfterTax.FormatIndianCurrency(),
+            ["Items Total"] = transaction.TotalAfterTax.FormatIndianCurrency(),
             [$"Other Charges ({transaction.OtherChargesPercent:0.00}%)"] = transaction.OtherChargesAmount.FormatIndianCurrency(),
             [$"Discount ({transaction.DiscountPercent:0.00}%)"] = transaction.DiscountAmount.FormatIndianCurrency(),
             ["Round Off"] = transaction.RoundOffAmount.FormatIndianCurrency(),
             ["Grand Total"] = transaction.TotalAmount.FormatIndianCurrency()
         };
 
-        var columnSettings = new List<ExcelInvoiceExportUtil.InvoiceColumnSetting>
+        var columnSettings = new List<InvoiceColumnSetting>
         {
-            new("#", "#", 5, Syncfusion.XlsIO.ExcelHAlign.HAlignCenter),
-            new(nameof(SaleItemCartModel.ItemName), "Item", 30, Syncfusion.XlsIO.ExcelHAlign.HAlignLeft),
-            new(nameof(SaleItemCartModel.Quantity), "Qty", 10, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00"),
-            new(nameof(SaleItemCartModel.Rate), "Rate", 12, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00"),
-            new(nameof(SaleItemCartModel.DiscountPercent), "Disc %", 8, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00"),
-            new(nameof(SaleItemCartModel.AfterDiscount), "Taxable", 12, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00"),
-            new(nameof(SaleItemCartModel.TotalTaxAmount), "Tax Amt", 12, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00"),
-            new(nameof(SaleItemCartModel.Total), "Total", 15, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00")
+            new("#", "#", exportType, CellAlignment.Center, 25, 5),
+            new(nameof(SaleReturnItemCartModel.ItemName), "Item", exportType, CellAlignment.Left, 0, 30),
+            new(nameof(SaleReturnItemCartModel.Quantity), "Qty", exportType, CellAlignment.Right, 40, 10, "#,##0.00"),
+            new(nameof(SaleReturnItemCartModel.Rate), "Rate", exportType, CellAlignment.Right, 50, 12, "#,##0.00"),
+            new(nameof(SaleReturnItemCartModel.DiscountPercent), "Disc %", exportType, CellAlignment.Right, 45, 8, "#,##0.00"),
+            new(nameof(SaleReturnItemCartModel.AfterDiscount), "Taxable", exportType, CellAlignment.Right, 55, 12, "#,##0.00"),
+            new(nameof(SaleReturnItemCartModel.TotalTaxAmount), exportType == InvoiceExportType.PDF ? "Tax" : "Tax Amt", exportType, CellAlignment.Right, 50, 12, "#,##0.00"),
+            new(nameof(SaleReturnItemCartModel.Total), "Total", exportType, CellAlignment.Right, 55, 15, "#,##0.00")
         };
 
-        var stream = await ExcelInvoiceExportUtil.ExportInvoiceToExcel(
-            invoiceData,
-            cartItems,
-            columnSettings,
-            null,
-            summaryFields
-        );
+        if (exportType == InvoiceExportType.PDF)
+        {
+            var stream = await PDFInvoiceExportUtil.ExportInvoiceToPdf(
+                invoiceData,
+                lineItems,
+                columnSettings,
+                null,
+                summaryFields
+            );
 
-        var currentDateTime = await CommonData.LoadCurrentDateTime();
-        string fileName = $"SALE_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.xlsx";
-        return (stream, fileName);
+            var currentDateTime = await CommonData.LoadCurrentDateTime();
+            string fileName = $"SALE_RETURN_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
+            return (stream, fileName);
+        }
+        else
+        {
+            var stream = await ExcelInvoiceExportUtil.ExportInvoiceToExcel(
+                invoiceData,
+                lineItems,
+                columnSettings,
+                null,
+                summaryFields
+            );
+
+            var currentDateTime = await CommonData.LoadCurrentDateTime();
+            string fileName = $"SALE_RETURN_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.xlsx";
+            return (stream, fileName);
+        }
     }
 }

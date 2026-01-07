@@ -1,5 +1,6 @@
 using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Sales.Product;
@@ -7,9 +8,9 @@ using PrimeBakesLibrary.Models.Sales.StockTransfer;
 
 namespace PrimeBakesLibrary.Exporting.Sales.StockTransfer;
 
-public static class StockTransferInvoiceExcelExport
+public static class StockTransferInvoiceExport
 {
-    public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId)
+    public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId, InvoiceExportType exportType)
     {
         var transaction = await CommonData.LoadTableDataById<StockTransferModel>(TableNames.StockTransfer, transactionId) ??
             throw new InvalidOperationException("Transaction not found.");
@@ -57,7 +58,7 @@ public static class StockTransferInvoiceExcelExport
         if (transaction.UPI > 0) paymentModes.Add("UPI", transaction.UPI);
         if (transaction.Credit > 0) paymentModes.Add("Credit", transaction.Credit);
 
-        var invoiceData = new ExcelInvoiceExportUtil.InvoiceData
+        var invoiceData = new InvoiceData
         {
             Company = company,
             BillTo = toLocationLedger,
@@ -80,30 +81,47 @@ public static class StockTransferInvoiceExcelExport
             ["Grand Total"] = transaction.TotalAmount.FormatIndianCurrency()
         };
 
-        var columnSettings = new List<ExcelInvoiceExportUtil.InvoiceColumnSetting>
+        var columnSettings = new List<InvoiceColumnSetting>
         {
-            new("#", "#", 5, Syncfusion.XlsIO.ExcelHAlign.HAlignCenter),
-            new(nameof(StockTransferItemCartModel.ItemName), "Item", 25, Syncfusion.XlsIO.ExcelHAlign.HAlignLeft),
-            new(nameof(StockTransferItemCartModel.Quantity), "Qty", 10, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00"),
-            new(nameof(StockTransferItemCartModel.Rate), "Rate", 12, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00"),
-            new(nameof(StockTransferItemCartModel.BaseTotal), "Amount", 12, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00"),
-            new(nameof(StockTransferItemCartModel.DiscountPercent), "Disc %", 8, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00"),
-            new(nameof(StockTransferItemCartModel.DiscountAmount), "Disc Amt", 12, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00"),
-            new(nameof(StockTransferItemCartModel.AfterDiscount), "Taxable", 12, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00"),
-            new(nameof(StockTransferItemCartModel.TotalTaxAmount), "Tax", 12, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00"),
-            new(nameof(StockTransferItemCartModel.Total), "Total", 15, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00")
+            new("#", "#", exportType, CellAlignment.Center, 30, 5),
+            new(nameof(StockTransferItemCartModel.ItemName), "Item", exportType, CellAlignment.Left, 150, 25),
+            new(nameof(StockTransferItemCartModel.Quantity), "Qty", exportType, CellAlignment.Right, 50, 10, "#,##0.00"),
+            new(nameof(StockTransferItemCartModel.Rate), "Rate", exportType, CellAlignment.Right, 60, 12, "#,##0.00"),
+            new(nameof(StockTransferItemCartModel.BaseTotal), "Amount", exportType, CellAlignment.Right, 60, 12, "#,##0.00"),
+            new(nameof(StockTransferItemCartModel.DiscountPercent), "Disc %", exportType, CellAlignment.Right, 45, 8, "#,##0.00"),
+            new(nameof(StockTransferItemCartModel.DiscountAmount), exportType == InvoiceExportType.PDF ? "Disc Amt" : "Disc Amt", exportType, CellAlignment.Right, 0, 12, "#,##0.00", true),
+            new(nameof(StockTransferItemCartModel.AfterDiscount), "Taxable", exportType, CellAlignment.Right, 60, 12, "#,##0.00"),
+            new(nameof(StockTransferItemCartModel.TotalTaxAmount), "Tax", exportType, CellAlignment.Right, 60, 12, "#,##0.00"),
+            new(nameof(StockTransferItemCartModel.Total), "Total", exportType, CellAlignment.Right, 80, 15, "#,##0.00")
         };
 
-        var stream = await ExcelInvoiceExportUtil.ExportInvoiceToExcel(
-            invoiceData,
-            cartItems,
-            columnSettings,
-            null,
-            summaryFields
-        );
-
         var currentDateTime = await CommonData.LoadCurrentDateTime();
-        string fileName = $"STOCK_TRANSFER_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.xlsx";
-        return (stream, fileName);
+
+        if (exportType == InvoiceExportType.PDF)
+        {
+            var stream = await PDFInvoiceExportUtil.ExportInvoiceToPdf(
+                invoiceData,
+                cartItems,
+                columnSettings,
+                null,
+                summaryFields
+            );
+
+            string fileName = $"STOCK_TRANSFER_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
+            return (stream, fileName);
+        }
+        else
+        {
+            var stream = await ExcelInvoiceExportUtil.ExportInvoiceToExcel(
+                invoiceData,
+                cartItems,
+                columnSettings,
+                null,
+                summaryFields
+            );
+
+            string fileName = $"STOCK_TRANSFER_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.xlsx";
+            return (stream, fileName);
+        }
     }
 }

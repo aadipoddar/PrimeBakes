@@ -5,6 +5,7 @@ using PrimeBakesLibrary.Data.Inventory;
 using PrimeBakesLibrary.Data.Inventory.Stock;
 using PrimeBakesLibrary.Exporting.Sales;
 using PrimeBakesLibrary.Exporting.Sales.StockTransfer;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.FinancialAccounting;
 using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Inventory;
@@ -104,7 +105,7 @@ public static class StockTransferData
         {
             (MemoryStream, string)? previousInvoice = null;
             if (update)
-                previousInvoice = await StockTransferInvoicePDFExport.ExportInvoice(stockTransfer.Id);
+                previousInvoice = await StockTransferInvoiceExport.ExportInvoice(stockTransfer.Id, InvoiceExportType.PDF);
 
             using SqlDataAccessTransaction newSqlDataAccessTransaction = new();
 

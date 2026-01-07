@@ -17,46 +17,6 @@ public static class PDFInvoiceExportUtil
 {
     private static PdfLayoutFormat _layoutFormat;
 
-    #region Generic Invoice Models
-
-    /// <summary>
-    /// Generic invoice header data that works with any transaction type
-    /// </summary>
-    public class InvoiceData
-    {
-        public string TransactionNo { get; set; }
-        public DateTime TransactionDateTime { get; set; }
-        public string ReferenceTransactionNo { get; set; }
-        public DateTime? ReferenceDateTime { get; set; }
-        public decimal TotalAmount { get; set; }
-        public string Remarks { get; set; }
-        public bool Status { get; set; } = true; // True = Active, False = Deleted
-        /// <summary>
-        /// Payment modes breakdown (e.g., "Cash" => 1000.00, "Card" => 500.00)
-        /// </summary>
-        public Dictionary<string, decimal> PaymentModes { get; set; }
-        public CompanyModel Company { get; set; }
-        public LedgerModel BillTo { get; set; }
-        public string InvoiceType { get; set; } = "INVOICE";
-        public string Outlet { get; set; }
-    }
-
-    /// <summary>
-    /// Column configuration for invoice line items table
-    /// </summary>
-    public class InvoiceColumnSetting(string propertyName, string displayName, float width,
-        PdfTextAlignment alignment = PdfTextAlignment.Right, string format = null, bool showOnlyIfHasValue = true)
-    {
-        public string PropertyName { get; set; } = propertyName;
-        public string DisplayName { get; set; } = displayName;
-        public float Width { get; set; } = width;
-        public PdfTextAlignment Alignment { get; set; } = alignment;
-        public string Format { get; set; } = format;
-        public bool ShowOnlyIfHasValue { get; set; } = showOnlyIfHasValue;
-    }
-
-    #endregion
-
     #region Public Methods
 
     /// <summary>
@@ -340,35 +300,38 @@ public static class PDFInvoiceExportUtil
         graphics.DrawString("FROM:", labelFont, labelBrush, new PointF(leftMargin + padding, leftTextY));
         leftTextY += 10;
 
-        graphics.DrawString(company.Name, valueFont, valueBrush, new PointF(leftMargin + padding, leftTextY));
-        leftTextY += 9;
-
-        if (!string.IsNullOrEmpty(company.Address))
+        if (company != null)
         {
-            // Calculate actual address height dynamically
-            int addressLines = Math.Max(1, company.Address.Length / 50);
-            float addressHeight = addressLines * 9;
-            DrawWrappedText(graphics, company.Address, valueFont, valueBrush,
-                new RectangleF(leftMargin + padding, leftTextY, columnWidth - 2 * padding, addressHeight + 5));
-            leftTextY += addressHeight + 2;
-        }
-
-        if (!string.IsNullOrEmpty(company.Phone))
-        {
-            graphics.DrawString($"Phone: {company.Phone}", valueFont, valueBrush, new PointF(leftMargin + padding, leftTextY));
+            graphics.DrawString(company.Name ?? string.Empty, valueFont, valueBrush, new PointF(leftMargin + padding, leftTextY));
             leftTextY += 9;
-        }
 
-        if (!string.IsNullOrEmpty(company.Email))
-        {
-            graphics.DrawString($"Email: {company.Email}", valueFont, valueBrush, new PointF(leftMargin + padding, leftTextY));
-            leftTextY += 9;
-        }
+            if (!string.IsNullOrEmpty(company.Address))
+            {
+                // Calculate actual address height dynamically
+                int addressLines = Math.Max(1, company.Address.Length / 50);
+                float addressHeight = addressLines * 9;
+                DrawWrappedText(graphics, company.Address, valueFont, valueBrush,
+                    new RectangleF(leftMargin + padding, leftTextY, columnWidth - 2 * padding, addressHeight + 5));
+                leftTextY += addressHeight + 2;
+            }
 
-        if (!string.IsNullOrEmpty(company.GSTNo))
-        {
-            graphics.DrawString($"GSTIN: {company.GSTNo}", valueFont, valueBrush, new PointF(leftMargin + padding, leftTextY));
-            leftTextY += 9;
+            if (!string.IsNullOrEmpty(company.Phone))
+            {
+                graphics.DrawString($"Phone: {company.Phone}", valueFont, valueBrush, new PointF(leftMargin + padding, leftTextY));
+                leftTextY += 9;
+            }
+
+            if (!string.IsNullOrEmpty(company.Email))
+            {
+                graphics.DrawString($"Email: {company.Email}", valueFont, valueBrush, new PointF(leftMargin + padding, leftTextY));
+                leftTextY += 9;
+            }
+
+            if (!string.IsNullOrEmpty(company.GSTNo))
+            {
+                graphics.DrawString($"GSTIN: {company.GSTNo}", valueFont, valueBrush, new PointF(leftMargin + padding, leftTextY));
+                leftTextY += 9;
+            }
         }
 
         // Right Column - To (Customer/Party) - skip entire section if null
@@ -448,26 +411,27 @@ public static class PDFInvoiceExportUtil
 
         // Calculate available width and adjust column widths to fit within page
         float availableWidth = pageWidth - leftMargin - rightMargin;
-        float fixedWidths = orderedColumnSettings.Where(c => c.Width > 0).Sum(c => c.Width);
+        float fixedWidths = orderedColumnSettings.Where(c => c.PDFWidth.HasValue && c.PDFWidth.Value > 0).Sum(c => (float)c.PDFWidth.Value);
 
         // Find first column with width 0 (auto-size column, typically description)
-        var autoSizeColumn = orderedColumnSettings.FirstOrDefault(c => c.Width == 0);
+        var autoSizeColumn = orderedColumnSettings.FirstOrDefault(c => c.PDFWidth.HasValue && c.PDFWidth.Value == 0);
         if (autoSizeColumn != null)
         {
             // Calculate remaining width for auto-size column
             float remainingWidth = availableWidth - fixedWidths;
-            autoSizeColumn.Width = Math.Max(remainingWidth, 80); // Minimum 80 points
+            autoSizeColumn.PDFWidth = Math.Max(remainingWidth, 80); // Minimum 80 points
         }
 
         // Check if total width exceeds available width - if so, scale proportionally
-        float totalWidth = orderedColumnSettings.Sum(c => c.Width);
+        float totalWidth = orderedColumnSettings.Where(c => c.PDFWidth.HasValue).Sum(c => (float)c.PDFWidth.Value);
         if (totalWidth > availableWidth)
         {
             // Scale all columns proportionally to fit within available width
             float scaleFactor = availableWidth / totalWidth;
             foreach (var column in orderedColumnSettings)
             {
-                column.Width *= scaleFactor;
+                if (column.PDFWidth.HasValue)
+                    column.PDFWidth = column.PDFWidth.Value * scaleFactor;
             }
         }
 
@@ -475,7 +439,8 @@ public static class PDFInvoiceExportUtil
         pdfGrid.Columns.Add(orderedColumnSettings.Count);
         for (int i = 0; i < orderedColumnSettings.Count; i++)
         {
-            pdfGrid.Columns[i].Width = orderedColumnSettings[i].Width;
+            if (orderedColumnSettings[i].PDFWidth.HasValue)
+                pdfGrid.Columns[i].Width = (float)orderedColumnSettings[i].PDFWidth.Value;
         }
 
         pdfGrid.Style.AllowHorizontalOverflow = false;
@@ -489,7 +454,7 @@ public static class PDFInvoiceExportUtil
             headerRow.Cells[i].Value = orderedColumnSettings[i].DisplayName;
             headerRow.Cells[i].Style.BackgroundBrush = new PdfSolidBrush(new PdfColor(59, 130, 246));
             headerRow.Cells[i].Style.TextBrush = PdfBrushes.White;
-            headerRow.Cells[i].Style.Font = new PdfStandardFont(PdfFontFamily.Helvetica, 7f, PdfFontStyle.Bold);
+            headerRow.Cells[i].Style.Font = new PdfStandardFont(PdfFontFamily.Helvetica, 9f, PdfFontStyle.Bold);
             headerRow.Cells[i].Style.StringFormat = new PdfStringFormat
             {
                 Alignment = PdfTextAlignment.Center,
@@ -513,12 +478,20 @@ public static class PDFInvoiceExportUtil
                 row.Cells[i].Value = cellValue;
 
                 // Apply styling
-                row.Cells[i].Style.Font = new PdfStandardFont(PdfFontFamily.Helvetica, 7f);
+                row.Cells[i].Style.Font = new PdfStandardFont(PdfFontFamily.Helvetica, 9f);
                 row.Cells[i].Style.Borders.All = new PdfPen(new PdfColor(220, 220, 220), 0.5f);
                 row.Cells[i].Style.CellPadding = new PdfPaddings(1f, 1f, 1f, 1f);
+                // Convert CellAlignment to PdfTextAlignment
+                PdfTextAlignment pdfAlign = column.Alignment switch
+                {
+                    CellAlignment.Left => PdfTextAlignment.Left,
+                    CellAlignment.Center => PdfTextAlignment.Center,
+                    CellAlignment.Right => PdfTextAlignment.Right,
+                    _ => PdfTextAlignment.Right
+                };
                 row.Cells[i].Style.StringFormat = new PdfStringFormat
                 {
-                    Alignment = column.Alignment,
+                    Alignment = pdfAlign,
                     LineAlignment = PdfVerticalAlignment.Middle,
                     WordWrap = PdfWordWrapType.Word
                 };
@@ -877,7 +850,16 @@ public static class PDFInvoiceExportUtil
                 alignment = PdfTextAlignment.Center;
             }
 
-            settings.Add(new InvoiceColumnSetting(prop.Name, displayName, width, alignment, format));
+            // Convert PdfTextAlignment to CellAlignment
+            CellAlignment cellAlignment = alignment switch
+            {
+                PdfTextAlignment.Left => CellAlignment.Left,
+                PdfTextAlignment.Center => CellAlignment.Center,
+                PdfTextAlignment.Right => CellAlignment.Right,
+                _ => CellAlignment.Right
+            };
+
+            settings.Add(new InvoiceColumnSetting(prop.Name, displayName, InvoiceExportType.PDF, cellAlignment, width, null, format));
         }
 
         return settings;
@@ -1012,9 +994,9 @@ public static class PDFInvoiceExportUtil
 
         // Format based on type
         if (value is decimal decValue)
-            return decValue.FormatSmartDecimal();
+            return decValue.ToString(column.Format ?? "#,##0.00");
         else if (value is double dblValue)
-            return ((decimal)dblValue).FormatSmartDecimal();
+            return dblValue.ToString(column.Format ?? "#,##0.00");
         else if (value is DateTime dtValue)
             return dtValue.ToString(column.Format ?? "dd-MMM-yyyy");
         else if (value is DateOnly doValue)

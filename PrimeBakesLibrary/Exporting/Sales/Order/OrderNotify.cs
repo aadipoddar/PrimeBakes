@@ -1,4 +1,5 @@
 using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Sales.Order;
 
@@ -65,7 +66,7 @@ internal static class OrderNotify
         // For update emails, include before and after invoices
         if (type == NotifyType.Updated && previousInvoice.HasValue)
         {
-            var (afterStream, afterFileName) = await OrderInvoicePDFExport.ExportInvoice(orderId);
+            var (afterStream, afterFileName) = await OrderInvoiceExport.ExportInvoice(orderId, InvoiceExportType.PDF);
 
             // Rename files to make it clear which is which
             var beforeFileName = $"BEFORE_{previousInvoice.Value.Item2}";
@@ -77,7 +78,7 @@ internal static class OrderNotify
         else
         {
             // For delete/recover, just attach the current invoice
-            var (pdfStream, pdfFileName) = await OrderInvoicePDFExport.ExportInvoice(orderId);
+            var (pdfStream, pdfFileName) = await OrderInvoiceExport.ExportInvoice(orderId, InvoiceExportType.PDF);
             emailData.Attachments = new Dictionary<MemoryStream, string> { { pdfStream, pdfFileName } };
         }
 

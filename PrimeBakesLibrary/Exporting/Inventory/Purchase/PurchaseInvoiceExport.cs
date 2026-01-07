@@ -1,13 +1,14 @@
 using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Inventory;
 using PrimeBakesLibrary.Models.Inventory.Purchase;
 
 namespace PrimeBakesLibrary.Exporting.Inventory.Purchase;
 
-public static class PurchaseInvoiceExcelExport
+public static class PurchaseInvoiceExport
 {
-    public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId)
+    public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId, InvoiceExportType exportType)
     {
         var transaction = await CommonData.LoadTableDataById<PurchaseModel>(TableNames.Purchase, transactionId) ??
             throw new InvalidOperationException("Transaction not found.");
@@ -23,7 +24,7 @@ public static class PurchaseInvoiceExcelExport
 
         var allItems = await CommonData.LoadTableData<RawMaterialModel>(TableNames.RawMaterial);
 
-        var cartItems = transactionDetails.Select(detail =>
+        var lineItems = transactionDetails.Select(detail =>
         {
             var item = allItems.FirstOrDefault(i => i.Id == detail.RawMaterialId);
             return new PurchaseItemCartModel
@@ -43,15 +44,16 @@ public static class PurchaseInvoiceExcelExport
             };
         }).ToList();
 
-        var invoiceData = new ExcelInvoiceExportUtil.InvoiceData
+        var invoiceData = new InvoiceData
         {
             Company = company,
             BillTo = party,
             InvoiceType = "PURCHASE INVOICE",
+            Outlet = party?.Name ?? string.Empty,
             TransactionNo = transaction.TransactionNo,
             TransactionDateTime = transaction.TransactionDateTime,
             TotalAmount = transaction.TotalAmount,
-            Remarks = transaction.Remarks,
+            Remarks = transaction.Remarks ?? string.Empty,
             Status = transaction.Status,
             PaymentModes = null
         };
@@ -65,29 +67,46 @@ public static class PurchaseInvoiceExcelExport
             ["Grand Total"] = transaction.TotalAmount.FormatIndianCurrency()
         };
 
-        var columnSettings = new List<ExcelInvoiceExportUtil.InvoiceColumnSetting>
+        var columnSettings = new List<InvoiceColumnSetting>
         {
-            new("#", "#", 5, Syncfusion.XlsIO.ExcelHAlign.HAlignCenter),
-            new(nameof(PurchaseItemCartModel.ItemName), "Item", 30, Syncfusion.XlsIO.ExcelHAlign.HAlignLeft),
-            new(nameof(PurchaseItemCartModel.UnitOfMeasurement), "UOM", 8, Syncfusion.XlsIO.ExcelHAlign.HAlignCenter),
-            new(nameof(PurchaseItemCartModel.Quantity), "Qty", 10, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00"),
-            new(nameof(PurchaseItemCartModel.Rate), "Rate", 12, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00"),
-            new(nameof(PurchaseItemCartModel.DiscountPercent), "Disc %", 8, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00"),
-            new(nameof(PurchaseItemCartModel.AfterDiscount), "Taxable", 12, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00"),
-            new(nameof(PurchaseItemCartModel.TotalTaxAmount), "Tax Amt", 12, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00"),
-            new(nameof(PurchaseItemCartModel.Total), "Total", 15, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00")
+            new("#", "#", exportType, CellAlignment.Center, 25, 5),
+            new(nameof(PurchaseItemCartModel.ItemName), "Item", exportType, CellAlignment.Left, 0, 30),
+            new(nameof(PurchaseItemCartModel.UnitOfMeasurement), "UOM", exportType, CellAlignment.Center, 40, 8),
+            new(nameof(PurchaseItemCartModel.Quantity), "Qty", exportType, CellAlignment.Right, 40, 10, "#,##0.00"),
+            new(nameof(PurchaseItemCartModel.Rate), "Rate", exportType, CellAlignment.Right, 50, 12, "#,##0.00"),
+            new(nameof(PurchaseItemCartModel.DiscountPercent), "Disc %", exportType, CellAlignment.Right, 45, 8, "#,##0.00"),
+            new(nameof(PurchaseItemCartModel.AfterDiscount), "Taxable", exportType, CellAlignment.Right, 55, 12, "#,##0.00"),
+            new(nameof(PurchaseItemCartModel.TotalTaxAmount), exportType == InvoiceExportType.PDF ? "Tax" : "Tax Amt", exportType, CellAlignment.Right, 50, 12, "#,##0.00"),
+            new(nameof(PurchaseItemCartModel.Total), "Total", exportType, CellAlignment.Right, 55, 15, "#,##0.00")
         };
 
-        var stream = await ExcelInvoiceExportUtil.ExportInvoiceToExcel(
-            invoiceData,
-            cartItems,
-            columnSettings,
-            null,
-            summaryFields
-        );
+        if (exportType == InvoiceExportType.PDF)
+        {
+            var stream = await PDFInvoiceExportUtil.ExportInvoiceToPdf(
+                invoiceData,
+                lineItems,
+                columnSettings,
+                null,
+                summaryFields
+            );
 
-        var currentDateTime = await CommonData.LoadCurrentDateTime();
-        string fileName = $"PURCHASE_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.xlsx";
-        return (stream, fileName);
+            var currentDateTime = await CommonData.LoadCurrentDateTime();
+            string fileName = $"PURCHASE_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
+            return (stream, fileName);
+        }
+        else
+        {
+            var stream = await ExcelInvoiceExportUtil.ExportInvoiceToExcel(
+                invoiceData,
+                lineItems,
+                columnSettings,
+                null,
+                summaryFields
+            );
+
+            var currentDateTime = await CommonData.LoadCurrentDateTime();
+            string fileName = $"PURCHASE_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.xlsx";
+            return (stream, fileName);
+        }
     }
 }

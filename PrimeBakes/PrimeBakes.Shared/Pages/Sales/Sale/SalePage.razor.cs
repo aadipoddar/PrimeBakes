@@ -11,6 +11,7 @@ using PrimeBakesLibrary.Data.Sales.Sale;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Sales.Order;
 using PrimeBakesLibrary.Exporting.Sales.Sale;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Sales.Order;
@@ -1153,7 +1154,7 @@ public partial class SalePage : IAsyncDisposable
 
             _sale.Id = await SaleData.SaveTransaction(_sale, _cart);
 
-            var (pdfStream, fileName) = await SaleInvoicePDFExport.ExportInvoice(_sale.Id);
+            var (pdfStream, fileName) = await SaleInvoiceExport.ExportInvoice(_sale.Id, InvoiceExportType.PDF);
             await SaveAndViewService.SaveAndView(fileName, pdfStream);
 
             await ResetPage();
@@ -1227,7 +1228,7 @@ public partial class SalePage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
 
-            var (pdfStream, fileName) = await SaleInvoicePDFExport.ExportInvoice(Id.Value);
+            var (pdfStream, fileName) = await SaleInvoiceExport.ExportInvoice(Id.Value, InvoiceExportType.PDF);
             await SaveAndViewService.SaveAndView(fileName, pdfStream);
 
             await _toastNotification.ShowAsync("Invoice Downloaded", "The PDF invoice has been downloaded successfully.", ToastType.Success);
@@ -1259,7 +1260,7 @@ public partial class SalePage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
 
-            var (excelStream, fileName) = await SaleInvoiceExcelExport.ExportInvoice(Id.Value);
+            var (excelStream, fileName) = await SaleInvoiceExport.ExportInvoice(Id.Value, InvoiceExportType.Excel);
             await SaveAndViewService.SaveAndView(fileName, excelStream);
 
             await _toastNotification.ShowAsync("Invoice Downloaded", "The Excel invoice has been downloaded successfully.", ToastType.Success);
@@ -1327,7 +1328,7 @@ public partial class SalePage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
 
-            var (pdfStream, fileName) = await OrderInvoicePDFExport.ExportInvoice(_selectedOrder.Id);
+            var (pdfStream, fileName) = await OrderInvoiceExport.ExportInvoice(_selectedOrder.Id, InvoiceExportType.PDF);
             await SaveAndViewService.SaveAndView(fileName, pdfStream);
 
             await _toastNotification.ShowAsync("Invoice Downloaded", "The PDF invoice has been downloaded successfully.", ToastType.Success);
@@ -1359,7 +1360,7 @@ public partial class SalePage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
 
-            var (excelStream, fileName) = await OrderInvoiceExcelExport.ExportInvoice(_selectedOrder.Id);
+            var (excelStream, fileName) = await OrderInvoiceExport.ExportInvoice(_selectedOrder.Id, InvoiceExportType.Excel);
             await SaveAndViewService.SaveAndView(fileName, excelStream);
 
             await _toastNotification.ShowAsync("Invoice Downloaded", "The Excel invoice has been downloaded successfully.", ToastType.Success);

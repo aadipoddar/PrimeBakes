@@ -19,7 +19,6 @@
 
   <ItemGroup>
     <Using Include="PrimeBakesLibrary.DataAccess" />
-    <Using Include="PrimeBakesLibrary.Exporting.Utils" />
   </ItemGroup>
 
 </Project>

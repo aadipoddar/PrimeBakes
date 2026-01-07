@@ -7,9 +7,11 @@ using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Inventory.Stock;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Inventory.Kitchen;
+using PrimeBakesLibrary.Exporting.Inventory.Purchase;
 using PrimeBakesLibrary.Exporting.Inventory.Stock;
 using PrimeBakesLibrary.Exporting.Sales.Sale;
 using PrimeBakesLibrary.Exporting.Sales.StockTransfer;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Inventory.Stock;
 
@@ -353,37 +355,37 @@ public partial class ProductStockReport : IAsyncDisposable
 
             if (type.Equals("purchase", StringComparison.CurrentCultureIgnoreCase))
             {
-                var (pdfStream, fileName) = await SaleInvoicePDFExport.ExportInvoice(transactionId);
+                var (pdfStream, fileName) = await SaleInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.PDF);
                 await SaveAndViewService.SaveAndView(fileName, pdfStream);
             }
             else if (type.Equals("purchasereturn", StringComparison.CurrentCultureIgnoreCase))
             {
-                var (pdfStream, fileName) = await SaleReturnInvoicePDFExport.ExportInvoice(transactionId);
+                var (pdfStream, fileName) = await PurchaseReturnInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.PDF);
                 await SaveAndViewService.SaveAndView(fileName, pdfStream);
             }
             else if (type.Equals("sale", StringComparison.CurrentCultureIgnoreCase))
             {
-                var (pdfStream, fileName) = await SaleInvoicePDFExport.ExportInvoice(transactionId);
+                var (pdfStream, fileName) = await SaleInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.PDF);
                 await SaveAndViewService.SaveAndView(fileName, pdfStream);
             }
             else if (type.Equals("salereturn", StringComparison.CurrentCultureIgnoreCase))
             {
-                var (pdfStream, fileName) = await SaleReturnInvoicePDFExport.ExportInvoice(transactionId);
+                var (pdfStream, fileName) = await SaleReturnInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.PDF);
                 await SaveAndViewService.SaveAndView(fileName, pdfStream);
             }
             else if (type.Equals("kitchenissue", StringComparison.CurrentCultureIgnoreCase))
             {
-                var (pdfStream, fileName) = await KitchenIssueInvoicePDFExport.ExportInvoice(transactionId);
+                var (pdfStream, fileName) = await KitchenIssueInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.PDF);
                 await SaveAndViewService.SaveAndView(fileName, pdfStream);
             }
             else if (type.Equals("kitchenproduction", StringComparison.CurrentCultureIgnoreCase))
             {
-                var (pdfStream, fileName) = await KitchenProductionInvoicePDFExport.ExportInvoice(transactionId);
+                var (pdfStream, fileName) = await KitchenProductionInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.PDF);
                 await SaveAndViewService.SaveAndView(fileName, pdfStream);
             }
             else if (type.Equals("stocktransfer", StringComparison.CurrentCultureIgnoreCase))
             {
-                var (pdfStream, fileName) = await StockTransferInvoicePDFExport.ExportInvoice(transactionId);
+                var (pdfStream, fileName) = await StockTransferInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.PDF);
                 await SaveAndViewService.SaveAndView(fileName, pdfStream);
             }
 
@@ -413,37 +415,37 @@ public partial class ProductStockReport : IAsyncDisposable
 
             if (type.Equals("purchase", StringComparison.CurrentCultureIgnoreCase))
             {
-                var (excelStream, fileName) = await SaleInvoiceExcelExport.ExportInvoice(transactionId);
+                var (excelStream, fileName) = await PurchaseInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.Excel);
                 await SaveAndViewService.SaveAndView(fileName, excelStream);
             }
             else if (type.Equals("purchasereturn", StringComparison.CurrentCultureIgnoreCase))
             {
-                var (excelStream, fileName) = await SaleReturnInvoiceExcelExport.ExportInvoice(transactionId);
+                var (excelStream, fileName) = await PurchaseReturnInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.Excel);
                 await SaveAndViewService.SaveAndView(fileName, excelStream);
             }
             else if (type.Equals("sale", StringComparison.CurrentCultureIgnoreCase))
             {
-                var (excelStream, fileName) = await SaleInvoiceExcelExport.ExportInvoice(transactionId);
+                var (excelStream, fileName) = await SaleInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.Excel);
                 await SaveAndViewService.SaveAndView(fileName, excelStream);
             }
             else if (type.Equals("salereturn", StringComparison.CurrentCultureIgnoreCase))
             {
-                var (excelStream, fileName) = await SaleReturnInvoiceExcelExport.ExportInvoice(transactionId);
+                var (excelStream, fileName) = await SaleReturnInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.Excel);
                 await SaveAndViewService.SaveAndView(fileName, excelStream);
             }
             else if (type.Equals("kitchenissue", StringComparison.CurrentCultureIgnoreCase))
             {
-                var (excelStream, fileName) = await KitchenIssueInvoiceExcelExport.ExportInvoice(transactionId);
+                var (excelStream, fileName) = await KitchenIssueInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.Excel);
                 await SaveAndViewService.SaveAndView(fileName, excelStream);
             }
             else if (type.Equals("kitchenproduction", StringComparison.CurrentCultureIgnoreCase))
             {
-                var (excelStream, fileName) = await KitchenProductionInvoiceExcelExport.ExportInvoice(transactionId);
+                var (excelStream, fileName) = await KitchenProductionInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.Excel);
                 await SaveAndViewService.SaveAndView(fileName, excelStream);
             }
             else if (type.Equals("stocktransfer", StringComparison.CurrentCultureIgnoreCase))
             {
-                var (excelStream, fileName) = await StockTransferInvoiceExcelExport.ExportInvoice(transactionId);
+                var (excelStream, fileName) = await StockTransferInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.Excel);
                 await SaveAndViewService.SaveAndView(fileName, excelStream);
             }
 

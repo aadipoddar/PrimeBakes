@@ -10,6 +10,7 @@ using PrimeBakesLibrary.Data.Inventory.Purchase;
 using PrimeBakesLibrary.Data.Inventory.Stock;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Inventory.Kitchen;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Inventory;
@@ -659,7 +660,7 @@ public partial class KitchenIssuePage : IAsyncDisposable
 
             _kitchenIssue.Id = await KitchenIssueData.SaveTransaction(_kitchenIssue, _cart);
 
-            var (pdfStream, fileName) = await KitchenIssueInvoicePDFExport.ExportInvoice(_kitchenIssue.Id);
+            var (pdfStream, fileName) = await KitchenIssueInvoiceExport.ExportInvoice(_kitchenIssue.Id, InvoiceExportType.PDF);
             await SaveAndViewService.SaveAndView(fileName, pdfStream);
 
             await ResetPage();
@@ -722,7 +723,7 @@ public partial class KitchenIssuePage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
 
-            var (pdfStream, fileName) = await KitchenIssueInvoicePDFExport.ExportInvoice(Id.Value);
+            var (pdfStream, fileName) = await KitchenIssueInvoiceExport.ExportInvoice(Id.Value, InvoiceExportType.PDF);
             await SaveAndViewService.SaveAndView(fileName, pdfStream);
 
             await _toastNotification.ShowAsync("Invoice Downloaded", "The PDF invoice has been downloaded successfully.", ToastType.Success);
@@ -754,7 +755,7 @@ public partial class KitchenIssuePage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
 
-            var (excelStream, fileName) = await KitchenIssueInvoiceExcelExport.ExportInvoice(Id.Value);
+            var (excelStream, fileName) = await KitchenIssueInvoiceExport.ExportInvoice(Id.Value, InvoiceExportType.Excel);
             await SaveAndViewService.SaveAndView(fileName, excelStream);
 
             await _toastNotification.ShowAsync("Invoice Downloaded", "The Excel invoice has been downloaded successfully.", ToastType.Success);

@@ -1,12 +1,13 @@
 using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.FinancialAccounting;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 
 namespace PrimeBakesLibrary.Exporting.Accounts.FinancialAccounting;
 
-public static class AccountingInvoiceExcelExport
+public static class AccountingInvoiceExport
 {
-    public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId)
+    public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId, InvoiceExportType exportType)
     {
         var transaction = await CommonData.LoadTableDataById<AccountingModel>(TableNames.Accounting, transactionId) ??
             throw new InvalidOperationException("Transaction not found.");
@@ -38,12 +39,12 @@ public static class AccountingInvoiceExcelExport
         decimal totalCredit = cartItems.Sum(i => i.Credit ?? 0);
         decimal difference = totalDebit - totalCredit;
 
-        var invoiceData = new ExcelInvoiceExportUtil.InvoiceData
+        var invoiceData = new InvoiceData
         {
-            TransactionNo = transaction.TransactionNo,
             Company = company,
             BillTo = null,
             InvoiceType = voucher.Name.ToUpper(),
+            TransactionNo = transaction.TransactionNo,
             TransactionDateTime = transaction.TransactionDateTime,
             ReferenceTransactionNo = transaction.ReferenceNo,
             TotalAmount = Math.Max(transaction.TotalDebitAmount, transaction.TotalCreditAmount),
@@ -52,33 +53,50 @@ public static class AccountingInvoiceExcelExport
             PaymentModes = null
         };
 
-        var columnSettings = new List<ExcelInvoiceExportUtil.InvoiceColumnSetting>
+        var columnSettings = new List<InvoiceColumnSetting>
         {
-            new("#", "#", 5, Syncfusion.XlsIO.ExcelHAlign.HAlignCenter),
-            new(nameof(AccountingItemCartModel.LedgerName), "Ledger", 35, Syncfusion.XlsIO.ExcelHAlign.HAlignLeft),
-            new(nameof(AccountingItemCartModel.ReferenceNo), "Ref No", 15, Syncfusion.XlsIO.ExcelHAlign.HAlignLeft),
-            new(nameof(AccountingItemCartModel.Debit), "Dr", 15, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00"),
-            new(nameof(AccountingItemCartModel.Credit), "Cr", 15, Syncfusion.XlsIO.ExcelHAlign.HAlignRight, "#,##0.00"),
-            new(nameof(AccountingItemCartModel.Remarks), "Remarks", 25, Syncfusion.XlsIO.ExcelHAlign.HAlignLeft)
+            new("#", "#", exportType, CellAlignment.Center, 25, 5),
+            new(nameof(AccountingItemCartModel.LedgerName), "Ledger", exportType, CellAlignment.Left, 0, 35),
+            new(nameof(AccountingItemCartModel.ReferenceNo), "Ref No", exportType, CellAlignment.Left, 80, 15),
+            new(nameof(AccountingItemCartModel.Debit), "Dr", exportType, CellAlignment.Right, 70, 15, "#,##0.00"),
+            new(nameof(AccountingItemCartModel.Credit), "Cr", exportType, CellAlignment.Right, 70, 15, "#,##0.00"),
+            new(nameof(AccountingItemCartModel.Remarks), "Remarks", exportType, CellAlignment.Left, 100, 25)
         };
 
         var summaryFields = new Dictionary<string, string>
         {
-            { "Total Debit:", totalDebit.ToString() },
-            { "Total Credit:", totalCredit.ToString() },
-            { "Difference:", difference.ToString() }
+            ["Total Debit"] = totalDebit.FormatIndianCurrency(),
+            ["Total Credit"] = totalCredit.FormatIndianCurrency(),
+            ["Difference"] = difference.FormatIndianCurrency()
         };
 
-        var stream = await ExcelInvoiceExportUtil.ExportInvoiceToExcel(
-            invoiceData,
-            cartItems,
-            columnSettings,
-            null,
-            summaryFields
-        );
-
         var currentDateTime = await CommonData.LoadCurrentDateTime();
-        string fileName = $"ACCOUNTING_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.xlsx";
-        return (stream, fileName);
+
+        if (exportType == InvoiceExportType.PDF)
+        {
+            var stream = await PDFInvoiceExportUtil.ExportInvoiceToPdf(
+                invoiceData,
+                cartItems,
+                columnSettings,
+                null,
+                summaryFields
+            );
+
+            string fileName = $"ACCOUNTING_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
+            return (stream, fileName);
+        }
+        else
+        {
+            var stream = await ExcelInvoiceExportUtil.ExportInvoiceToExcel(
+                invoiceData,
+                cartItems,
+                columnSettings,
+                null,
+                summaryFields
+            );
+
+            string fileName = $"ACCOUNTING_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.xlsx";
+            return (stream, fileName);
+        }
     }
 }

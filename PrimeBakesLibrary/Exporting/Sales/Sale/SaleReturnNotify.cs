@@ -1,4 +1,5 @@
 using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Sales.Sale;
@@ -91,7 +92,7 @@ internal static class SaleReturnNotify
 
         if (type == NotifyType.Updated && previousInvoice.HasValue)
         {
-            var (afterStream, afterFileName) = await SaleReturnInvoicePDFExport.ExportInvoice(saleReturnId);
+            var (afterStream, afterFileName) = await SaleReturnInvoiceExport.ExportInvoice(saleReturnId, InvoiceExportType.PDF);
 
             var beforeFileName = $"BEFORE_{previousInvoice.Value.Item2}";
             var afterFileNameWithPrefix = $"AFTER_{afterFileName}";
@@ -101,7 +102,7 @@ internal static class SaleReturnNotify
         }
         else
         {
-            var (pdfStream, pdfFileName) = await SaleReturnInvoicePDFExport.ExportInvoice(saleReturnId);
+            var (pdfStream, pdfFileName) = await SaleReturnInvoiceExport.ExportInvoice(saleReturnId, InvoiceExportType.PDF);
             emailData.Attachments = new Dictionary<MemoryStream, string> { { pdfStream, pdfFileName } };
         }
 

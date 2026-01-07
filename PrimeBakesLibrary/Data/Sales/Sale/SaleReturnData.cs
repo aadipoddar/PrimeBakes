@@ -5,6 +5,7 @@ using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Inventory;
 using PrimeBakesLibrary.Data.Inventory.Stock;
 using PrimeBakesLibrary.Exporting.Sales.Sale;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.FinancialAccounting;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Common;
@@ -110,7 +111,7 @@ public static class SaleReturnData
         {
             (MemoryStream, string)? previousInvoice = null;
             if (update)
-                previousInvoice = await SaleReturnInvoicePDFExport.ExportInvoice(saleReturn.Id);
+                previousInvoice = await SaleReturnInvoiceExport.ExportInvoice(saleReturn.Id, InvoiceExportType.PDF);
 
             using SqlDataAccessTransaction newTransaction = new();
 

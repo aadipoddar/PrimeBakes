@@ -1,6 +1,7 @@
 ﻿using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Exporting.Accounts.FinancialAccounting;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.FinancialAccounting;
 
 namespace PrimeBakesLibrary.Data.Accounts.FinancialAccounting;
@@ -87,7 +88,7 @@ public static class AccountingData
         {
             (MemoryStream, string)? previousInvoice = null;
             if (update)
-                previousInvoice = await AccountingInvoicePDFExport.ExportInvoice(accounting.Id);
+                previousInvoice = await AccountingInvoiceExport.ExportInvoice(accounting.Id, InvoiceExportType.PDF);
 
             using SqlDataAccessTransaction newSqlDataAccessTransaction = new();
 

@@ -5,6 +5,7 @@ using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Sales.Order;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Sales.Order;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Sales.Order;
 
@@ -174,7 +175,7 @@ public partial class OrderMobileCartPage
             await DataStorageService.LocalRemove(StorageFileNames.OrderMobileCartDataFileName);
             await SendLocalNotification(order.Id);
 
-            var (pdfStream, fileName) = await OrderInvoicePDFExport.ExportInvoice(order.Id);
+            var (pdfStream, fileName) = await OrderInvoiceExport.ExportInvoice(order.Id, InvoiceExportType.PDF);
             await SaveAndViewService.SaveAndView(fileName, pdfStream);
 
             NavigationManager.NavigateTo(PageRouteNames.OrderMobileConfirmation, true);

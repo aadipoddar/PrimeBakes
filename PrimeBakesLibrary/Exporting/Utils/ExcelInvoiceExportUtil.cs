@@ -13,46 +13,6 @@ namespace PrimeBakesLibrary.Exporting.Utils;
 
 public static class ExcelInvoiceExportUtil
 {
-    #region Generic Invoice Models
-
-    /// <summary>
-    /// Generic invoice header data that works with any transaction type
-    /// </summary>
-    public class InvoiceData
-    {
-        public string TransactionNo { get; set; }
-        public DateTime TransactionDateTime { get; set; }
-        public string ReferenceTransactionNo { get; set; }
-        public DateTime? ReferenceDateTime { get; set; }
-        public decimal TotalAmount { get; set; }
-        public string Remarks { get; set; }
-        public bool Status { get; set; } = true; // True = Active, False = Deleted
-        /// <summary>
-        /// Payment modes breakdown (e.g., "Cash" => 1000.00, "Card" => 500.00)
-        /// </summary>
-        public Dictionary<string, decimal> PaymentModes { get; set; }
-        public CompanyModel Company { get; set; }
-        public LedgerModel BillTo { get; set; }
-        public string InvoiceType { get; set; } = "INVOICE";
-        public string Outlet { get; set; }
-    }
-
-    /// <summary>
-    /// Column configuration for invoice line items table
-    /// </summary>
-    public class InvoiceColumnSetting(string propertyName, string displayName, double width,
-        ExcelHAlign alignment = ExcelHAlign.HAlignRight, string format = null, bool showOnlyIfHasValue = true)
-    {
-        public string PropertyName { get; set; } = propertyName;
-        public string DisplayName { get; set; } = displayName;
-        public double Width { get; set; } = width;
-        public ExcelHAlign Alignment { get; set; } = alignment;
-        public string Format { get; set; } = format;
-        public bool ShowOnlyIfHasValue { get; set; } = showOnlyIfHasValue;
-    }
-
-    #endregion
-
     #region Color Definitions
 
     private static readonly Color PrimaryBlue = Color.FromArgb(59, 130, 246);
@@ -294,10 +254,13 @@ public static class ExcelInvoiceExportUtil
         }
 
         // Company Name (Left)
-        worksheet.Range[leftRow, 1, leftRow, 4].Merge();
-        worksheet.Range[leftRow, 1].Text = company.Name;
-        worksheet.Range[leftRow, 1].CellStyle.Font.Bold = true;
-        leftRow++;
+        if (company != null)
+        {
+            worksheet.Range[leftRow, 1, leftRow, 4].Merge();
+            worksheet.Range[leftRow, 1].Text = company.Name ?? string.Empty;
+            worksheet.Range[leftRow, 1].CellStyle.Font.Bold = true;
+            leftRow++;
+        }
 
         // Bill To Name (Right)
         if (billTo != null)
@@ -309,7 +272,7 @@ public static class ExcelInvoiceExportUtil
         }
 
         // Company Address (Left)
-        if (!string.IsNullOrEmpty(company.Address))
+        if (!string.IsNullOrEmpty(company?.Address))
         {
             worksheet.Range[leftRow, 1, leftRow, 4].Merge();
             worksheet.Range[leftRow, 1].Text = company.Address;
@@ -327,7 +290,7 @@ public static class ExcelInvoiceExportUtil
         }
 
         // Company Phone (Left)
-        if (!string.IsNullOrEmpty(company.Phone))
+        if (!string.IsNullOrEmpty(company?.Phone))
         {
             worksheet.Range[leftRow, 1, leftRow, 4].Merge();
             worksheet.Range[leftRow, 1].Text = $"Phone: {company.Phone}";
@@ -343,7 +306,7 @@ public static class ExcelInvoiceExportUtil
         }
 
         // Company Email (Left)
-        if (!string.IsNullOrEmpty(company.Email))
+        if (!string.IsNullOrEmpty(company?.Email))
         {
             worksheet.Range[leftRow, 1, leftRow, 4].Merge();
             worksheet.Range[leftRow, 1].Text = $"Email: {company.Email}";
@@ -359,7 +322,7 @@ public static class ExcelInvoiceExportUtil
         }
 
         // Company GST (Left)
-        if (!string.IsNullOrEmpty(company.GSTNo))
+        if (!string.IsNullOrEmpty(company?.GSTNo))
         {
             worksheet.Range[leftRow, 1, leftRow, 4].Merge();
             worksheet.Range[leftRow, 1].Text = $"GSTIN: {company.GSTNo}";
@@ -654,7 +617,16 @@ public static class ExcelInvoiceExportUtil
                 alignment = ExcelHAlign.HAlignCenter;
             }
 
-            settings.Add(new InvoiceColumnSetting(prop.Name, displayName, width, alignment, format));
+            // Convert ExcelHAlign to CellAlignment
+            CellAlignment cellAlignment = alignment switch
+            {
+                ExcelHAlign.HAlignLeft => CellAlignment.Left,
+                ExcelHAlign.HAlignCenter => CellAlignment.Center,
+                ExcelHAlign.HAlignRight => CellAlignment.Right,
+                _ => CellAlignment.Right
+            };
+
+            settings.Add(new InvoiceColumnSetting(prop.Name, displayName, InvoiceExportType.Excel, cellAlignment, null, width, format));
         }
 
         return settings;
@@ -820,7 +792,8 @@ public static class ExcelInvoiceExportUtil
             worksheet.Range[currentRow, i + 1].CellStyle.Color = PrimaryBlue;
             worksheet.Range[currentRow, i + 1].CellStyle.Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.Medium;
             worksheet.Range[currentRow, i + 1].CellStyle.Borders[ExcelBordersIndex.EdgeBottom].Color = ExcelKnownColors.Blue;
-            worksheet.SetColumnWidth(i + 1, orderedColumnSettings[i].Width);
+            if (orderedColumnSettings[i].ExcelWidth.HasValue)
+                worksheet.SetColumnWidth(i + 1, orderedColumnSettings[i].ExcelWidth.Value);
         }
         currentRow++;
 
@@ -834,7 +807,15 @@ public static class ExcelInvoiceExportUtil
                 string cellValue = GetCellValueDynamic(item, column, rowNumber);
 
                 worksheet.Range[currentRow, i + 1].Text = cellValue;
-                worksheet.Range[currentRow, i + 1].CellStyle.HorizontalAlignment = column.Alignment;
+                // Convert CellAlignment to ExcelHAlign
+                ExcelHAlign excelAlign = column.Alignment switch
+                {
+                    CellAlignment.Left => ExcelHAlign.HAlignLeft,
+                    CellAlignment.Center => ExcelHAlign.HAlignCenter,
+                    CellAlignment.Right => ExcelHAlign.HAlignRight,
+                    _ => ExcelHAlign.HAlignRight
+                };
+                worksheet.Range[currentRow, i + 1].CellStyle.HorizontalAlignment = excelAlign;
                 worksheet.Range[currentRow, i + 1].CellStyle.WrapText = true;
                 worksheet.Range[currentRow, i + 1].CellStyle.Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.Thin;
                 worksheet.Range[currentRow, i + 1].CellStyle.Borders[ExcelBordersIndex.EdgeBottom].Color = ExcelKnownColors.Grey_25_percent;

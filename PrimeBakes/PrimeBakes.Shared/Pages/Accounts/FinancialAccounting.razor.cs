@@ -11,6 +11,7 @@ using PrimeBakesLibrary.Exporting.Accounts.FinancialAccounting;
 using PrimeBakesLibrary.Exporting.Inventory.Purchase;
 using PrimeBakesLibrary.Exporting.Sales.Sale;
 using PrimeBakesLibrary.Exporting.Sales.StockTransfer;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.FinancialAccounting;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Common;
@@ -746,7 +747,7 @@ public partial class FinancialAccounting : IAsyncDisposable
 
             _accounting.Id = await AccountingData.SaveTransaction(_accounting, _cart);
 
-            var (pdfStream, fileName) = await AccountingInvoicePDFExport.ExportInvoice(_accounting.Id);
+            var (pdfStream, fileName) = await AccountingInvoiceExport.ExportInvoice(_accounting.Id, InvoiceExportType.PDF);
             await SaveAndViewService.SaveAndView(fileName, pdfStream);
 
             await ResetPage();
@@ -785,7 +786,7 @@ public partial class FinancialAccounting : IAsyncDisposable
         {
             _isProcessing = true;
             await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
-            var (pdfStream, fileName) = await AccountingInvoicePDFExport.ExportInvoice(Id.Value);
+            var (pdfStream, fileName) = await AccountingInvoiceExport.ExportInvoice(Id.Value, InvoiceExportType.PDF);
             await SaveAndViewService.SaveAndView(fileName, pdfStream);
             await _toastNotification.ShowAsync("Invoice Downloaded", "The PDF invoice has been downloaded successfully.", ToastType.Success);
         }
@@ -814,7 +815,7 @@ public partial class FinancialAccounting : IAsyncDisposable
         {
             _isProcessing = true;
             await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
-            var (excelStream, fileName) = await AccountingInvoiceExcelExport.ExportInvoice(Id.Value);
+            var (excelStream, fileName) = await AccountingInvoiceExport.ExportInvoice(Id.Value, InvoiceExportType.Excel);
             await SaveAndViewService.SaveAndView(fileName, excelStream);
             await _toastNotification.ShowAsync("Invoice Downloaded", "The Excel invoice has been downloaded successfully.", ToastType.Success);
         }
@@ -941,31 +942,31 @@ public partial class FinancialAccounting : IAsyncDisposable
 
             if (_accounting.VoucherId == int.Parse(saleVoucher.Value))
             {
-                var (pdfStream, fileName) = await SaleInvoicePDFExport.ExportInvoice(_accounting.ReferenceId.Value);
+                var (pdfStream, fileName) = await SaleInvoiceExport.ExportInvoice(_accounting.ReferenceId.Value, InvoiceExportType.PDF);
                 await SaveAndViewService.SaveAndView(fileName, pdfStream);
             }
 
             else if (_accounting.VoucherId == int.Parse(saleReturnVoucher.Value))
             {
-                var (pdfStream, fileName) = await SaleReturnInvoicePDFExport.ExportInvoice(_accounting.ReferenceId.Value);
+                var (pdfStream, fileName) = await SaleReturnInvoiceExport.ExportInvoice(_accounting.ReferenceId.Value, InvoiceExportType.PDF);
                 await SaveAndViewService.SaveAndView(fileName, pdfStream);
             }
 
             else if (_accounting.VoucherId == int.Parse(purchaseVoucher.Value))
             {
-                var (pdfStream, fileName) = await PurchaseInvoicePDFExport.ExportInvoice(_accounting.ReferenceId.Value);
+                var (pdfStream, fileName) = await PurchaseInvoiceExport.ExportInvoice(_accounting.ReferenceId.Value, InvoiceExportType.PDF);
                 await SaveAndViewService.SaveAndView(fileName, pdfStream);
             }
 
             else if (_accounting.VoucherId == int.Parse(purchaseReturnVoucher.Value))
             {
-                var (pdfStream, fileName) = await PurchaseReturnInvoicePDFExport.ExportInvoice(_accounting.ReferenceId.Value);
+                var (pdfStream, fileName) = await PurchaseReturnInvoiceExport.ExportInvoice(_accounting.ReferenceId.Value, InvoiceExportType.PDF);
                 await SaveAndViewService.SaveAndView(fileName, pdfStream);
             }
 
             else if (_accounting.VoucherId == int.Parse(stockTransferVoucher.Value))
             {
-                var (pdfStream, fileName) = await StockTransferInvoicePDFExport.ExportInvoice(_accounting.ReferenceId.Value);
+                var (pdfStream, fileName) = await StockTransferInvoiceExport.ExportInvoice(_accounting.ReferenceId.Value, InvoiceExportType.PDF);
                 await SaveAndViewService.SaveAndView(fileName, pdfStream);
             }
 
@@ -1054,31 +1055,31 @@ public partial class FinancialAccounting : IAsyncDisposable
         {
             if (_selectedAccountingLedger.ReferenceType.ToString() == nameof(ReferenceTypes.Sale))
             {
-                var (pdfStream, fileName) = await SaleInvoicePDFExport.ExportInvoice(_selectedAccountingLedger.ReferenceId.Value);
+                var (pdfStream, fileName) = await SaleInvoiceExport.ExportInvoice(_selectedAccountingLedger.ReferenceId.Value, InvoiceExportType.PDF);
                 await SaveAndViewService.SaveAndView(fileName, pdfStream);
             }
 
             else if (_selectedAccountingLedger.ReferenceType.ToString() == nameof(ReferenceTypes.SaleReturn))
             {
-                var (pdfStream, fileName) = await SaleReturnInvoicePDFExport.ExportInvoice(_selectedAccountingLedger.ReferenceId.Value);
+                var (pdfStream, fileName) = await SaleReturnInvoiceExport.ExportInvoice(_selectedAccountingLedger.ReferenceId.Value, InvoiceExportType.PDF);
                 await SaveAndViewService.SaveAndView(fileName, pdfStream);
             }
 
             else if (_selectedAccountingLedger.ReferenceType.ToString() == nameof(ReferenceTypes.Purchase))
             {
-                var (pdfStream, fileName) = await PurchaseInvoicePDFExport.ExportInvoice(_selectedAccountingLedger.ReferenceId.Value);
+                var (pdfStream, fileName) = await PurchaseInvoiceExport.ExportInvoice(_selectedAccountingLedger.ReferenceId.Value, InvoiceExportType.PDF);
                 await SaveAndViewService.SaveAndView(fileName, pdfStream);
             }
 
             else if (_selectedAccountingLedger.ReferenceType.ToString() == nameof(ReferenceTypes.PurchaseReturn))
             {
-                var (pdfStream, fileName) = await PurchaseReturnInvoicePDFExport.ExportInvoice(_selectedAccountingLedger.ReferenceId.Value);
+                var (pdfStream, fileName) = await PurchaseReturnInvoiceExport.ExportInvoice(_selectedAccountingLedger.ReferenceId.Value, InvoiceExportType.PDF);
                 await SaveAndViewService.SaveAndView(fileName, pdfStream);
             }
 
             else if (_selectedAccountingLedger.ReferenceType.ToString() == nameof(ReferenceTypes.StockTransfer))
             {
-                var (pdfStream, fileName) = await StockTransferInvoicePDFExport.ExportInvoice(_selectedAccountingLedger.ReferenceId.Value);
+                var (pdfStream, fileName) = await StockTransferInvoiceExport.ExportInvoice(_selectedAccountingLedger.ReferenceId.Value, InvoiceExportType.PDF);
                 await SaveAndViewService.SaveAndView(fileName, pdfStream);
             }
 

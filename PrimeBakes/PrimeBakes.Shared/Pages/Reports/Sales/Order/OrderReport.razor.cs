@@ -7,6 +7,7 @@ using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Sales.Order;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Sales.Order;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Sales.Order;
@@ -339,7 +340,7 @@ public partial class OrderReport : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
 
-            var (pdfStream, fileName) = await OrderInvoicePDFExport.ExportInvoice(orderId);
+            var (pdfStream, fileName) = await OrderInvoiceExport.ExportInvoice(orderId, InvoiceExportType.PDF);
             await SaveAndViewService.SaveAndView(fileName, pdfStream);
             await _toastNotification.ShowAsync("Success", "PDF invoice generated successfully.", ToastType.Success);
         }
@@ -365,7 +366,7 @@ public partial class OrderReport : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
 
-            var (excelStream, fileName) = await OrderInvoiceExcelExport.ExportInvoice(orderId);
+            var (excelStream, fileName) = await OrderInvoiceExport.ExportInvoice(orderId, InvoiceExportType.Excel);
             await SaveAndViewService.SaveAndView(fileName, excelStream);
             await _toastNotification.ShowAsync("Success", "Excel invoice generated successfully.", ToastType.Success);
         }

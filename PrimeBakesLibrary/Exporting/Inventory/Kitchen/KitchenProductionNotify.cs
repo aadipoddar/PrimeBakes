@@ -68,7 +68,7 @@ internal static class KitchenProductionNotify
         // For update emails, include before and after invoices
         if (type == NotifyType.Updated && previousInvoice.HasValue)
         {
-            var (afterStream, afterFileName) = await KitchenProductionInvoicePDFExport.ExportInvoice(kitchenProductionId);
+            var (afterStream, afterFileName) = await KitchenProductionInvoiceExport.ExportInvoice(kitchenProductionId, InvoiceExportType.PDF);
 
             // Rename files to make it clear which is which
             var beforeFileName = $"BEFORE_{previousInvoice.Value.Item2}";
@@ -80,7 +80,7 @@ internal static class KitchenProductionNotify
         else
         {
             // For delete/recover, just attach the current invoice
-            var (pdfStream, pdfFileName) = await KitchenProductionInvoicePDFExport.ExportInvoice(kitchenProductionId);
+            var (pdfStream, pdfFileName) = await KitchenProductionInvoiceExport.ExportInvoice(kitchenProductionId, InvoiceExportType.PDF);
             emailData.Attachments = new Dictionary<MemoryStream, string> { { pdfStream, pdfFileName } };
         }
 
