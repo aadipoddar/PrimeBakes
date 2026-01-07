@@ -10,14 +10,14 @@ public static class ProductData
     public static async Task<int> InsertProductCategory(ProductCategoryModel productCategory) =>
         (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertProductCategory, productCategory)).FirstOrDefault();
 
-	public static async Task<int> InsertProductLocation(ProductLocationModel productLocation) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertProductLocation, productLocation)).FirstOrDefault();
+    public static async Task<int> InsertProductLocation(ProductLocationModel productLocation, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertProductLocation, productLocation, sqlDataAccessTransaction)).FirstOrDefault();
 
-	public static async Task<List<ProductLocationOverviewModel>> LoadProductRateByProduct(int ProductId) =>
+    public static async Task<List<ProductLocationOverviewModel>> LoadProductRateByProduct(int ProductId) =>
         await SqlDataAccess.LoadData<ProductLocationOverviewModel, dynamic>(StoredProcedureNames.LoadProductRateByProduct, new { ProductId });
 
-    public static async Task<List<ProductLocationOverviewModel>> LoadProductByLocation(int LocationId) =>
-        await SqlDataAccess.LoadData<ProductLocationOverviewModel, dynamic>(StoredProcedureNames.LoadProductByLocation, new { LocationId });
+    public static async Task<List<ProductLocationOverviewModel>> LoadProductByLocation(int LocationId, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+        await SqlDataAccess.LoadData<ProductLocationOverviewModel, dynamic>(StoredProcedureNames.LoadProductByLocation, new { LocationId }, sqlDataAccessTransaction);
 
     public static async Task<List<ProductModel>> LoadProductByProductCategory(int ProductCategoryId) =>
         await SqlDataAccess.LoadData<ProductModel, dynamic>(StoredProcedureNames.LoadProductByProductCategory, new { ProductCategoryId });

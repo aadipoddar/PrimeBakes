@@ -1,13 +1,9 @@
 using PrimeBakes.Shared.Components.Dialog;
 
-using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
-using PrimeBakesLibrary.Data.Sales.Product;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Operations;
-using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Common;
-using PrimeBakesLibrary.Models.Sales.Product;
 
 using Syncfusion.Blazor.Grids;
 
@@ -281,10 +277,7 @@ public partial class LocationPage : IAsyncDisposable
 
             await _toastNotification.ShowAsync("Saving", "Processing location...", ToastType.Info);
 
-            var isNewLocation = _location.Id == 0;
-            _location.Id = await LocationData.InsertLocation(_location);
-            await InsertLedger();
-            await InsertProducts(isNewLocation);
+            _location.Id = await LocationData.SaveTransaction(_location, _copyLocation);
 
             await _toastNotification.ShowAsync("Saved", $"Location '{_location.Name}' saved successfully.", ToastType.Success);
             NavigationManager.NavigateTo(PageRouteNames.AdminLocation, true);
@@ -296,109 +289,6 @@ public partial class LocationPage : IAsyncDisposable
         finally
         {
             _isProcessing = false;
-        }
-    }
-
-    private async Task InsertLedger()
-    {
-        try
-        {
-            var ledgers = await CommonData.LoadTableData<LedgerModel>(TableNames.Ledger);
-            var ledger = ledgers.FirstOrDefault(_ => _.LocationId == _location.Id);
-            var primaryCompany = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
-            var company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, int.Parse(primaryCompany.Value));
-
-            if (ledger is not null && ledger.Id > 0)
-            {
-                ledger.Name = _location.Name;
-                ledger.Remarks = _location.Remarks;
-                ledger.StateUTId = company.StateUTId;
-                await LedgerData.InsertLedger(ledger);
-            }
-
-            else
-                await LedgerData.InsertLedger(new()
-                {
-                    Id = ledger?.Id ?? 0,
-                    Name = _location.Name,
-                    LocationId = _location.Id,
-                    Code = ledger?.Code ?? await GenerateCodes.GenerateLedgerCode(),
-                    AccountTypeId = 3,
-                    GroupId = 1,
-                    Remarks = _location.Remarks,
-                    StateUTId = company.StateUTId,
-                    Status = true
-                });
-        }
-        catch (Exception ex)
-        {
-            await _toastNotification.ShowAsync("Error", $"Failed to create ledger: {ex.Message}", ToastType.Error);
-        }
-    }
-
-    private async Task InsertProducts(bool isNewLocation)
-    {
-        try
-        {
-            if (_copyLocation is not null && _copyLocation.Id > 0)
-            {
-                if (_copyLocation.Id == _location.Id)
-                {
-                    await _toastNotification.ShowAsync("Warning", "Cannot copy products from the same location.", ToastType.Warning);
-                    return;
-                }
-
-                var existingProductLocations = await ProductData.LoadProductByLocation(_location.Id);
-                foreach (var existingProductLocation in existingProductLocations)
-                    await ProductData.InsertProductLocation(new()
-                    {
-                        Id = existingProductLocation.Id,
-                        ProductId = existingProductLocation.ProductId,
-                        LocationId = _location.Id,
-                        Rate = existingProductLocation.Rate,
-                        Status = false
-                    });
-
-                var productLocations = await ProductData.LoadProductByLocation(_copyLocation.Id);
-                foreach (var productLocation in productLocations)
-                    await ProductData.InsertProductLocation(new()
-                    {
-                        Id = 0,
-                        ProductId = productLocation.ProductId,
-                        LocationId = _location.Id,
-                        Rate = productLocation.Rate,
-                        Status = true
-                    });
-            }
-
-            else if (isNewLocation)
-            {
-                var existingProductLocations = await ProductData.LoadProductByLocation(_location.Id);
-                foreach (var existingProductLocation in existingProductLocations)
-                    await ProductData.InsertProductLocation(new()
-                    {
-                        Id = existingProductLocation.Id,
-                        ProductId = existingProductLocation.ProductId,
-                        LocationId = _location.Id,
-                        Rate = existingProductLocation.Rate,
-                        Status = false
-                    });
-
-                var products = await CommonData.LoadTableDataByStatus<ProductModel>(TableNames.Product);
-                foreach (var product in products)
-                    await ProductData.InsertProductLocation(new()
-                    {
-                        Id = 0,
-                        ProductId = product.Id,
-                        LocationId = _location.Id,
-                        Rate = product.Rate,
-                        Status = true
-                    });
-            }
-        }
-        catch (Exception ex)
-        {
-            await _toastNotification.ShowAsync("Error", $"Failed to copy products: {ex.Message}", ToastType.Error);
         }
     }
     #endregion

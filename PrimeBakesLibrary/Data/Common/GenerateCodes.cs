@@ -385,10 +385,10 @@ public static class GenerateCodes
         return await CheckDuplicateCode($"{productPrefix}0001", 4, CodeType.FinishedProduct);
     }
 
-    public static async Task<string> GenerateLedgerCode()
+    public static async Task<string> GenerateLedgerCode(SqlDataAccessTransaction sqlDataAccessTransaction = null)
     {
-        var ledgers = await CommonData.LoadTableData<LedgerModel>(TableNames.Ledger);
-        var ledgerPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.LedgerCodePrefix)).Value;
+        var ledgers = await CommonData.LoadTableData<LedgerModel>(TableNames.Ledger, sqlDataAccessTransaction);
+        var ledgerPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.LedgerCodePrefix, sqlDataAccessTransaction)).Value;
 
         var lastLedger = ledgers.OrderByDescending(l => l.Id).FirstOrDefault();
         if (lastLedger is not null)
@@ -400,11 +400,11 @@ public static class GenerateCodes
                 if (int.TryParse(lastNumberPart, out int lastNumber))
                 {
                     int nextNumber = lastNumber + 1;
-                    return await CheckDuplicateCode($"{ledgerPrefix}{nextNumber:D5}", 5, CodeType.Ledger);
+                    return await CheckDuplicateCode($"{ledgerPrefix}{nextNumber:D5}", 5, CodeType.Ledger, sqlDataAccessTransaction);
                 }
             }
         }
 
-        return await CheckDuplicateCode($"{ledgerPrefix}00001", 5, CodeType.Ledger);
+        return await CheckDuplicateCode($"{ledgerPrefix}00001", 5, CodeType.Ledger, sqlDataAccessTransaction);
     }
 }
