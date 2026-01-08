@@ -4,6 +4,7 @@ using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Accounts.Masters;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Common;
 
@@ -326,7 +327,7 @@ public partial class FinancialYearPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Exporting to Excel...", ToastType.Info);
 
-            var (stream, fileName) = await FinancialYearExcelExport.ExportMaster(_financialYears);
+            var (stream, fileName) = await FinancialYearExport.ExportMaster(_financialYears, ReportExportType.Excel);
             await SaveAndViewService.SaveAndView(fileName, stream);
             await _toastNotification.ShowAsync("Success", "Financial Year data exported to Excel successfully.", ToastType.Success);
         }
@@ -352,7 +353,7 @@ public partial class FinancialYearPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Exporting to PDF...", ToastType.Info);
 
-            var (stream, fileName) = await FinancialYearPDFExport.ExportMaster(_financialYears);
+            var (stream, fileName) = await FinancialYearExport.ExportMaster(_financialYears, ReportExportType.PDF);
             await SaveAndViewService.SaveAndView(fileName, stream);
             await _toastNotification.ShowAsync("Success", "Financial Year data exported to PDF successfully.", ToastType.Success);
         }

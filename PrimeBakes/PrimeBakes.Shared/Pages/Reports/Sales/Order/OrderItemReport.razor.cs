@@ -93,7 +93,7 @@ public partial class OrderItemReport : IAsyncDisposable
             Name = "All Locations"
         });
         _locations = [.. _locations.OrderBy(s => s.Name)];
-        _selectedLocation = _locations.FirstOrDefault(_ => _.Id == _user.LocationId);
+        _selectedLocation = _locations.FirstOrDefault(_ => _user.LocationId == 1 ? _.Id == 0 : _.Id == _user.LocationId);
     }
 
     private async Task LoadCompanies()
@@ -219,8 +219,9 @@ public partial class OrderItemReport : IAsyncDisposable
             DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
             DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
 
-            var (stream, fileName) = await OrderItemReportExcelExport.ExportReport(
+            var (stream, fileName) = await OrderReportExport.ExportItemReport(
                     _transactionOverviews,
+                    ReportExportType.Excel,
                     dateRangeStart,
                     dateRangeEnd,
                     _showAllColumns,
@@ -257,8 +258,9 @@ public partial class OrderItemReport : IAsyncDisposable
             DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
             DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
 
-            var (stream, fileName) = await OrderItemReportPdfExport.ExportReport(
+            var (stream, fileName) = await OrderReportExport.ExportItemReport(
                     _transactionOverviews,
+                    ReportExportType.PDF,
                     dateRangeStart,
                     dateRangeEnd,
                     _showAllColumns,

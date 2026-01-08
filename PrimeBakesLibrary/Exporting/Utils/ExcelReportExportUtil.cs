@@ -10,6 +10,24 @@ namespace PrimeBakesLibrary.Exporting.Utils;
 
 public static class ExcelReportExportUtil
 {
+    #region Private Helper Methods
+
+    /// <summary>
+    /// Converts C# date/time format string to Excel-compatible format string
+    /// </summary>
+    private static string ConvertToExcelFormat(string csharpFormat)
+    {
+        if (string.IsNullOrEmpty(csharpFormat))
+            return csharpFormat;
+
+        // Replace C# AM/PM indicator with Excel AM/PM literal
+        string excelFormat = csharpFormat.Replace("tt", "AM/PM");
+
+        return excelFormat;
+    }
+
+    #endregion
+
     #region Public Methods
 
     /// <summary>
@@ -32,7 +50,7 @@ public static class ExcelReportExportUtil
         string worksheetName,
         DateOnly? dateRangeStart = null,
         DateOnly? dateRangeEnd = null,
-        Dictionary<string, ColumnSetting> columnSettings = null,
+        Dictionary<string, ReportColumnSetting> columnSettings = null,
         List<string> columnOrder = null,
         Dictionary<string, string> headerMetadata = null,
         Dictionary<string, string> customSummaryFields = null)
@@ -95,67 +113,6 @@ public static class ExcelReportExportUtil
         }
     }
 
-    /// <summary>
-    /// Column setting information for customizing Excel export
-    /// </summary>
-    public class ColumnSetting
-    {
-        /// <summary>
-        /// Display name for the column header
-        /// </summary>
-        public string DisplayName { get; set; }
-
-        /// <summary>
-        /// Format string for the cell data
-        /// </summary>
-        public string Format { get; set; }
-
-        /// <summary>
-        /// Width of the column in Excel
-        /// </summary>
-        public double Width { get; set; } = 15;
-
-        /// <summary>
-        /// Horizontal alignment of the cell content
-        /// </summary>
-        public ExcelHAlign Alignment { get; set; } = ExcelHAlign.HAlignCenter;
-
-        /// <summary>
-        /// Whether to highlight negative values in red
-        /// </summary>
-        public bool HighlightNegative { get; set; }
-
-        /// <summary>
-        /// Whether the column should be included in totals
-        /// </summary>
-        public bool IncludeInTotal { get; set; }
-
-        /// <summary>
-        /// Whether the column is required and should never be filtered out (even if all values are null/zero)
-        /// </summary>
-        public bool IsRequired { get; set; }
-
-        /// <summary>
-        /// Whether this column's total should be used as the grand total in summaries (only one column should have this set to true)
-        /// </summary>
-        public bool IsGrandTotal { get; set; }
-
-        /// <summary>
-        /// Custom validation function
-        /// </summary>
-        public Func<object, FormatInfo> FormatCallback { get; set; }
-    }
-
-    /// <summary>
-    /// Format information returned by format callbacks
-    /// </summary>
-    public class FormatInfo
-    {
-        public Color? FontColor { get; set; }
-        public bool Bold { get; set; }
-        public string FormattedText { get; set; }
-    }
-
     #endregion
 
     #region Private Methods
@@ -163,9 +120,9 @@ public static class ExcelReportExportUtil
     /// <summary>
     /// Get default column settings from type T
     /// </summary>
-    private static Dictionary<string, ColumnSetting> GetDefaultColumnSettings<T>()
+    private static Dictionary<string, ReportColumnSetting> GetDefaultColumnSettings<T>()
     {
-        var settings = new Dictionary<string, ColumnSetting>();
+        var settings = new Dictionary<string, ReportColumnSetting>();
 
         // Use reflection to get properties of T
         var properties = typeof(T).GetProperties();
@@ -178,7 +135,7 @@ public static class ExcelReportExportUtil
                 prop.PropertyType != typeof(string))
                 continue;
 
-            var setting = new ColumnSetting
+            var setting = new ReportColumnSetting
             {
                 DisplayName = SplitCamelCase(prop.Name),
             };
@@ -189,7 +146,8 @@ public static class ExcelReportExportUtil
             // Numeric types - all should be included in totals
             if (propType == typeof(decimal) || propType == typeof(double) || propType == typeof(float))
             {
-                setting.Alignment = ExcelHAlign.HAlignRight;
+                setting.Alignment = CellAlignment.Right;
+                setting.ExcelWidth = 15;
                 setting.Format = "#,##0.00";
                 setting.IncludeInTotal = true;
                 setting.HighlightNegative = true;
@@ -199,12 +157,14 @@ public static class ExcelReportExportUtil
                 // Check if it's likely an ID field (skip totals for IDs)
                 if (prop.Name.EndsWith("Id") || prop.Name.Equals("Id", StringComparison.OrdinalIgnoreCase))
                 {
-                    setting.Alignment = ExcelHAlign.HAlignCenter;
+                    setting.Alignment = CellAlignment.Center;
+                    setting.ExcelWidth = 10;
                     setting.IncludeInTotal = false;
                 }
                 else
                 {
-                    setting.Alignment = ExcelHAlign.HAlignRight;
+                    setting.Alignment = CellAlignment.Right;
+                    setting.ExcelWidth = 15;
                     setting.Format = "#,##0";
                     setting.IncludeInTotal = true;
                 }
@@ -212,7 +172,8 @@ public static class ExcelReportExportUtil
             // DateTime types
             else if (propType == typeof(DateTime) || propType == typeof(DateOnly))
             {
-                setting.Alignment = ExcelHAlign.HAlignCenter;
+                setting.Alignment = CellAlignment.Center;
+                setting.ExcelWidth = 20;
 
                 if (prop.Name.Contains("DateTime") || prop.Name.EndsWith("Time"))
                     setting.Format = "dd-MMM-yyyy hh:mm tt";
@@ -222,13 +183,15 @@ public static class ExcelReportExportUtil
             // TimeOnly type
             else if (propType == typeof(TimeOnly))
             {
-                setting.Alignment = ExcelHAlign.HAlignCenter;
+                setting.Alignment = CellAlignment.Center;
+                setting.ExcelWidth = 15;
                 setting.Format = "hh:mm tt";
             }
             // Boolean type
             else if (propType == typeof(bool))
             {
-                setting.Alignment = ExcelHAlign.HAlignCenter;
+                setting.Alignment = CellAlignment.Center;
+                setting.ExcelWidth = 10;
 
                 // For status-related properties, add conditional formatting
                 if (prop.Name.Contains("Status") || prop.Name.Contains("Active") || prop.Name.Contains("Is"))
@@ -237,7 +200,7 @@ public static class ExcelReportExportUtil
                     {
                         if (value == null) return null;
                         bool boolValue = (bool)value;
-                        return new FormatInfo
+                        return new ReportFormatInfo
                         {
                             Bold = true,
                             FontColor = boolValue ? Color.FromArgb(22, 163, 74) : Color.FromArgb(220, 38, 38),
@@ -249,7 +212,8 @@ public static class ExcelReportExportUtil
             // Default for strings and other types
             else
             {
-                setting.Alignment = ExcelHAlign.HAlignLeft;
+                setting.Alignment = CellAlignment.Left;
+                setting.ExcelWidth = 25;
             }
 
             // Add to collection
@@ -263,7 +227,7 @@ public static class ExcelReportExportUtil
     /// Determine effective column order for the report
     /// </summary>
     private static List<string> DetermineColumnOrder<T>(
-        Dictionary<string, ColumnSetting> columnSettings,
+        Dictionary<string, ReportColumnSetting> columnSettings,
         List<string> columnOrder)
     {
         // If explicit column order is provided, use it
@@ -280,7 +244,7 @@ public static class ExcelReportExportUtil
     private static List<string> FilterEmptyColumns<T>(
         IEnumerable<T> data,
         List<string> columnOrder,
-        Dictionary<string, ColumnSetting> columnSettings = null)
+        Dictionary<string, ReportColumnSetting> columnSettings = null)
     {
         if (data == null || !data.Any())
             return columnOrder;
@@ -469,7 +433,7 @@ public static class ExcelReportExportUtil
         IWorksheet worksheet,
         IEnumerable<T> data,
         List<string> columnOrder,
-        Dictionary<string, ColumnSetting> columnSettings,
+        Dictionary<string, ReportColumnSetting> columnSettings,
         int startRow,
         Dictionary<string, string> customSummaryFields = null)
     {
@@ -528,7 +492,7 @@ public static class ExcelReportExportUtil
                     {
                         cell.Number = (double)decimalValue;
                         if (!string.IsNullOrEmpty(setting.Format))
-                            cell.CellStyle.NumberFormat = setting.Format;
+                            cell.CellStyle.NumberFormat = ConvertToExcelFormat(setting.Format);
 
                         // Track this column for totals
                         if (setting.IncludeInTotal)
@@ -545,7 +509,7 @@ public static class ExcelReportExportUtil
                     {
                         cell.Number = doubleValue;
                         if (!string.IsNullOrEmpty(setting.Format))
-                            cell.CellStyle.NumberFormat = setting.Format;
+                            cell.CellStyle.NumberFormat = ConvertToExcelFormat(setting.Format);
 
                         if (setting.IncludeInTotal)
                             columnsWithData.Add(columnName);
@@ -554,7 +518,7 @@ public static class ExcelReportExportUtil
                     {
                         cell.Number = floatValue;
                         if (!string.IsNullOrEmpty(setting.Format))
-                            cell.CellStyle.NumberFormat = setting.Format;
+                            cell.CellStyle.NumberFormat = ConvertToExcelFormat(setting.Format);
 
                         if (setting.IncludeInTotal)
                             columnsWithData.Add(columnName);
@@ -563,7 +527,7 @@ public static class ExcelReportExportUtil
                     {
                         cell.Number = intValue;
                         if (!string.IsNullOrEmpty(setting.Format))
-                            cell.CellStyle.NumberFormat = setting.Format;
+                            cell.CellStyle.NumberFormat = ConvertToExcelFormat(setting.Format);
 
                         if (setting.IncludeInTotal)
                             columnsWithData.Add(columnName);
@@ -572,7 +536,7 @@ public static class ExcelReportExportUtil
                     {
                         cell.Number = longValue;
                         if (!string.IsNullOrEmpty(setting.Format))
-                            cell.CellStyle.NumberFormat = setting.Format;
+                            cell.CellStyle.NumberFormat = ConvertToExcelFormat(setting.Format);
 
                         if (setting.IncludeInTotal)
                             columnsWithData.Add(columnName);
@@ -581,7 +545,7 @@ public static class ExcelReportExportUtil
                     {
                         cell.Number = shortValue;
                         if (!string.IsNullOrEmpty(setting.Format))
-                            cell.CellStyle.NumberFormat = setting.Format;
+                            cell.CellStyle.NumberFormat = ConvertToExcelFormat(setting.Format);
 
                         if (setting.IncludeInTotal)
                             columnsWithData.Add(columnName);
@@ -589,17 +553,17 @@ public static class ExcelReportExportUtil
                     else if (value is DateTime dateTimeValue)
                     {
                         cell.DateTime = dateTimeValue;
-                        cell.CellStyle.NumberFormat = setting.Format ?? "dd-MMM-yyyy";
+                        cell.CellStyle.NumberFormat = ConvertToExcelFormat(setting.Format ?? "dd-MMM-yyyy");
                     }
                     else if (value is DateOnly dateOnlyValue)
                     {
                         cell.DateTime = dateOnlyValue.ToDateTime(TimeOnly.MinValue);
-                        cell.CellStyle.NumberFormat = setting.Format ?? "dd-MMM-yyyy";
+                        cell.CellStyle.NumberFormat = ConvertToExcelFormat(setting.Format ?? "dd-MMM-yyyy");
                     }
                     else if (value is TimeOnly timeOnlyValue)
                     {
                         cell.DateTime = DateTime.Today.Add(timeOnlyValue.ToTimeSpan());
-                        cell.CellStyle.NumberFormat = setting.Format ?? "hh:mm";
+                        cell.CellStyle.NumberFormat = ConvertToExcelFormat(setting.Format ?? "hh:mm");
                     }
                     else if (value is bool boolValue)
                     {
@@ -627,8 +591,15 @@ public static class ExcelReportExportUtil
                         }
                     }
 
-                    // Apply alignment
-                    cell.CellStyle.HorizontalAlignment = setting.Alignment;
+                    // Apply alignment - convert CellAlignment to ExcelHAlign
+                    ExcelHAlign excelAlign = setting.Alignment switch
+                    {
+                        CellAlignment.Left => ExcelHAlign.HAlignLeft,
+                        CellAlignment.Center => ExcelHAlign.HAlignCenter,
+                        CellAlignment.Right => ExcelHAlign.HAlignRight,
+                        _ => ExcelHAlign.HAlignGeneral
+                    };
+                    cell.CellStyle.HorizontalAlignment = excelAlign;
                 }
             }
 
@@ -681,11 +652,20 @@ public static class ExcelReportExportUtil
 
                     // Apply appropriate formatting
                     var setting = columnSettings[columnName];
-                    worksheet.Range[cellAddress].CellStyle.NumberFormat = setting.Format;
+                    worksheet.Range[cellAddress].CellStyle.NumberFormat = ConvertToExcelFormat(setting.Format);
                     worksheet.Range[cellAddress].CellStyle.Font.Bold = true;
                     worksheet.Range[cellAddress].CellStyle.Color = Color.FromArgb(219, 234, 254); // Light blue background
                     worksheet.Range[cellAddress].CellStyle.Font.RGBColor = Color.FromArgb(30, 64, 175); // Dark blue text
-                    worksheet.Range[cellAddress].CellStyle.HorizontalAlignment = setting.Alignment;
+
+                    // Convert CellAlignment to ExcelHAlign
+                    ExcelHAlign excelAlign = setting.Alignment switch
+                    {
+                        CellAlignment.Left => ExcelHAlign.HAlignLeft,
+                        CellAlignment.Center => ExcelHAlign.HAlignCenter,
+                        CellAlignment.Right => ExcelHAlign.HAlignRight,
+                        _ => ExcelHAlign.HAlignGeneral
+                    };
+                    worksheet.Range[cellAddress].CellStyle.HorizontalAlignment = excelAlign;
                     worksheet.Range[cellAddress].CellStyle.Font.Size = 11;
                 }
                 else

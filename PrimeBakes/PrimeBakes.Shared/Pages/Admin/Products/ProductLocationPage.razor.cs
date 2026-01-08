@@ -4,6 +4,7 @@ using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Sales.Product;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Sales.Product;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Sales.Product;
 
@@ -295,7 +296,7 @@ public partial class ProductLocationPage : IAsyncDisposable
                 Status = _productLocations.FirstOrDefault(p => p.Id == pl.Id)?.Status ?? false
             }).ToList();
 
-            var (stream, fileName) = await ProductLocationExcelExport.ExportMaster(exportData);
+            var (stream, fileName) = await ProductLocationExport.ExportMaster(exportData, ReportExportType.Excel);
 
             await SaveAndViewService.SaveAndView(fileName, stream);
             await _toastNotification.ShowAsync("Success", "Excel file downloaded successfully.", ToastType.Success);
@@ -333,7 +334,7 @@ public partial class ProductLocationPage : IAsyncDisposable
                 Status = _productLocations.FirstOrDefault(p => p.Id == pl.Id)?.Status ?? false
             }).ToList();
 
-            var (stream, fileName) = await ProductLocationPDFExport.ExportMaster(exportData);
+            var (stream, fileName) = await ProductLocationExport.ExportMaster(exportData, ReportExportType.PDF);
 
             await SaveAndViewService.SaveAndView(fileName, stream);
             await _toastNotification.ShowAsync("Success", "PDF file downloaded successfully.", ToastType.Success);

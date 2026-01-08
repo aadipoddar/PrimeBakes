@@ -168,15 +168,28 @@ public partial class RawMaterialStockReport : IAsyncDisposable
             DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
             DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
 
-            var (stream, fileName) = await RawMaterialStockReportExcelExport.ExportReport(
+            var (summaryStream, summaryFileName) = await RawMaterialStockReportExport.ExportSummaryReport(
                     _stockSummary,
+                    ReportExportType.Excel,
                     dateRangeStart,
                     dateRangeEnd,
-                    _showAllColumns,
-                    _showDetails ? _stockDetails : null
+                    _showAllColumns
                 );
 
-            await SaveAndViewService.SaveAndView(fileName, stream);
+            await SaveAndViewService.SaveAndView(summaryFileName, summaryStream);
+
+            if (_showDetails && _stockDetails is not null && _stockDetails.Count > 0)
+            {
+                var (detailsStream, detailsFileName) = await RawMaterialStockReportExport.ExportDetailsReport(
+                        _stockDetails,
+                        ReportExportType.Excel,
+                        dateRangeStart,
+                        dateRangeEnd
+                    );
+
+                await SaveAndViewService.SaveAndView(detailsFileName, detailsStream);
+            }
+
             await _toastNotification.ShowAsync("Success", "Excel file downloaded successfully.", ToastType.Success);
         }
         catch (Exception ex)
@@ -204,8 +217,9 @@ public partial class RawMaterialStockReport : IAsyncDisposable
             DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
             DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
 
-            var (summaryStream, summaryFileName) = await RawMaterialStockSummaryReportPDFExport.ExportReport(
+            var (summaryStream, summaryFileName) = await RawMaterialStockReportExport.ExportSummaryReport(
                     _stockSummary,
+                    ReportExportType.PDF,
                     dateRangeStart,
                     dateRangeEnd,
                     _showAllColumns
@@ -215,8 +229,9 @@ public partial class RawMaterialStockReport : IAsyncDisposable
 
             if (_showDetails && _stockDetails is not null && _stockDetails.Count > 0)
             {
-                var (detailsStream, detailsFileName) = await RawMaterialStockDetailsReportPDFExport.ExportReport(
+                var (detailsStream, detailsFileName) = await RawMaterialStockReportExport.ExportDetailsReport(
                         _stockDetails,
+                        ReportExportType.PDF,
                         dateRangeStart,
                         dateRangeEnd
                     );

@@ -4,6 +4,7 @@ using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Sales.Product;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Sales.Product;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Sales.Product;
 
@@ -378,7 +379,7 @@ public partial class ProductPage : IAsyncDisposable
                 p.Status
             }).ToList();
 
-            var (stream, fileName) = await ProductExcelExport.ExportMaster(enrichedData);
+            var (stream, fileName) = await ProductExport.ExportMaster(enrichedData, ReportExportType.Excel);
             await SaveAndViewService.SaveAndView(fileName, stream);
 
             await _toastNotification.ShowAsync("Success", "Product data exported to Excel successfully.", ToastType.Success);
@@ -418,7 +419,7 @@ public partial class ProductPage : IAsyncDisposable
                 p.Status
             }).ToList();
 
-            var (stream, fileName) = await ProductPDFExport.ExportMaster(enrichedData);
+            var (stream, fileName) = await ProductExport.ExportMaster(enrichedData, ReportExportType.PDF);
             await SaveAndViewService.SaveAndView(fileName, stream);
 
             await _toastNotification.ShowAsync("Success", "Product data exported to PDF successfully.", ToastType.Success);

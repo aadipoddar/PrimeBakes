@@ -3,6 +3,7 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Operations;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Common;
 
 using Syncfusion.Blazor.Grids;
@@ -325,7 +326,7 @@ public partial class UserPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Exporting to Excel...", ToastType.Info);
 
-            var (stream, fileName) = await UserExcelExport.ExportMaster(_users);
+            var (stream, fileName) = await UserExport.ExportMaster(_users, ReportExportType.Excel);
             await SaveAndViewService.SaveAndView(fileName, stream);
 
             await _toastNotification.ShowAsync("Success", "User data exported to Excel successfully.", ToastType.Success);
@@ -352,7 +353,7 @@ public partial class UserPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Exporting to PDF...", ToastType.Info);
 
-            var (stream, fileName) = await UserPDFExport.ExportMaster(_users);
+            var (stream, fileName) = await UserExport.ExportMaster(_users, ReportExportType.PDF);
             await SaveAndViewService.SaveAndView(fileName, stream);
 
             await _toastNotification.ShowAsync("Success", "User data exported to PDF successfully.", ToastType.Success);

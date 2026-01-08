@@ -222,8 +222,9 @@ public partial class PurchaseReturnReport : IAsyncDisposable
             DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
             DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
 
-            var (stream, fileName) = await PurchaseReturnReportExcelExport.ExportReport(
+            var (stream, fileName) = await PurchaseReturnReportExport.ExportReport(
                     _transactionOverviews,
+                    ReportExportType.Excel,
                     dateRangeStart,
                     dateRangeEnd,
                     _showAllColumns,
@@ -260,8 +261,9 @@ public partial class PurchaseReturnReport : IAsyncDisposable
             DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
             DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
 
-            var (stream, fileName) = await PurchaseReturnReportPdfExport.ExportReport(
+            var (stream, fileName) = await PurchaseReturnReportExport.ExportReport(
                     _transactionOverviews,
+                    ReportExportType.PDF,
                     dateRangeStart,
                     dateRangeEnd,
                     _showAllColumns,

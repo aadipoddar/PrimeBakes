@@ -242,8 +242,9 @@ public partial class SaleReturnItemReport : IAsyncDisposable
             DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
             DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
 
-            var (stream, fileName) = await SaleReturnItemReportExcelExport.ExportReport(
+            var (stream, fileName) = await SaleReturnReportExport.ExportItemReport(
                     _transactionOverviews,
+                    ReportExportType.Excel,
                     dateRangeStart,
                     dateRangeEnd,
                     _showAllColumns,
@@ -281,8 +282,9 @@ public partial class SaleReturnItemReport : IAsyncDisposable
             DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
             DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
 
-            var (stream, fileName) = await SaleReturnItemReportPDFExport.ExportReport(
+            var (stream, fileName) = await SaleReturnReportExport.ExportItemReport(
                     _transactionOverviews,
+                    ReportExportType.PDF,
                     dateRangeStart,
                     dateRangeEnd,
                     _showAllColumns,

@@ -4,6 +4,7 @@ using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Accounts.Masters;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Common;
 
@@ -383,7 +384,7 @@ public partial class CompanyPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Exporting to Excel...", ToastType.Info);
 
-            var (stream, fileName) = await CompanyExcelExport.ExportMaster(_companies);
+            var (stream, fileName) = await CompanyExport.ExportMaster(_companies, ReportExportType.Excel);
             await SaveAndViewService.SaveAndView(fileName, stream);
             await _toastNotification.ShowAsync("Success", "Company data exported to Excel successfully.", ToastType.Success);
         }
@@ -409,7 +410,7 @@ public partial class CompanyPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Exporting to PDF...", ToastType.Info);
 
-            var (stream, fileName) = await CompanyPDFExport.ExportMaster(_companies);
+            var (stream, fileName) = await CompanyExport.ExportMaster(_companies, ReportExportType.PDF);
             await SaveAndViewService.SaveAndView(fileName, stream);
             await _toastNotification.ShowAsync("Success", "Company data exported to PDF successfully.", ToastType.Success);
         }

@@ -4,6 +4,7 @@ using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Sales.Product;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Sales.Product;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Sales.Product;
 
@@ -299,7 +300,7 @@ public partial class TaxPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Exporting to Excel...", ToastType.Info);
 
-            var (stream, fileName) = await TaxExcelExport.ExportMaster(_taxes);
+            var (stream, fileName) = await TaxExport.ExportMaster(_taxes, ReportExportType.Excel);
             await SaveAndViewService.SaveAndView(fileName, stream);
 
             await _toastNotification.ShowAsync("Success", "Tax data exported to Excel successfully.", ToastType.Success);
@@ -326,7 +327,7 @@ public partial class TaxPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Exporting to PDF...", ToastType.Info);
 
-            var (stream, fileName) = await TaxPDFExport.ExportMaster(_taxes);
+            var (stream, fileName) = await TaxExport.ExportMaster(_taxes, ReportExportType.PDF);
             await SaveAndViewService.SaveAndView(fileName, stream);
 
             await _toastNotification.ShowAsync("Success", "Tax data exported to PDF successfully.", ToastType.Success);

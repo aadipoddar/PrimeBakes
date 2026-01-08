@@ -205,16 +205,30 @@ public partial class ProductStockReport : IAsyncDisposable
             DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
             DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
 
-            var (stream, fileName) = await ProductStockReportExcelExport.ExportReport(
+            var (summaryStream, summaryFileName) = await ProductStockReportExport.ExportSummaryReport(
                     _stockSummary,
-                    _showDetails ? _stockDetails : null,
+                    ReportExportType.Excel,
                     dateRangeStart,
                     dateRangeEnd,
                     _showAllColumns,
                     _selectedLocation?.Id > 0 ? _selectedLocation : null
                 );
 
-            await SaveAndViewService.SaveAndView(fileName, stream);
+            await SaveAndViewService.SaveAndView(summaryFileName, summaryStream);
+
+            if (_showDetails && _stockDetails is not null && _stockDetails.Count > 0)
+            {
+                var (detailsStream, detailsFileName) = await ProductStockReportExport.ExportDetailsReport(
+                        _showDetails ? _stockDetails : null,
+                        ReportExportType.Excel,
+                        dateRangeStart,
+                        dateRangeEnd,
+                        _selectedLocation?.Id > 0 ? _selectedLocation : null
+                   );
+
+                await SaveAndViewService.SaveAndView(detailsFileName, detailsStream);
+            }
+
             await _toastNotification.ShowAsync("Success", "Excel file downloaded successfully.", ToastType.Success);
         }
         catch (Exception ex)
@@ -242,8 +256,9 @@ public partial class ProductStockReport : IAsyncDisposable
             DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
             DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
 
-            var (summaryStream, summaryFileName) = await ProductStockSummaryReportPDFExport.ExportReport(
+            var (summaryStream, summaryFileName) = await ProductStockReportExport.ExportSummaryReport(
                     _stockSummary,
+                    ReportExportType.PDF,
                     dateRangeStart,
                     dateRangeEnd,
                     _showAllColumns,
@@ -254,8 +269,9 @@ public partial class ProductStockReport : IAsyncDisposable
 
             if (_showDetails && _stockDetails is not null && _stockDetails.Count > 0)
             {
-                var (detailsStream, detailsFileName) = await ProductStockDetailsReportPDFExport.ExportReport(
+                var (detailsStream, detailsFileName) = await ProductStockReportExport.ExportDetailsReport(
                         _showDetails ? _stockDetails : null,
+                        ReportExportType.PDF,
                         dateRangeStart,
                         dateRangeEnd,
                         _selectedLocation?.Id > 0 ? _selectedLocation : null

@@ -215,8 +215,9 @@ public partial class AccountingLedgerReport : IAsyncDisposable
             DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
             DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
 
-            var (stream, fileName) = await AccountingLedgerReportExcelExport.ExportReport(
+            var (stream, fileName) = await AccountingReportExport.ExportLedgerReport(
                 _transactionOverviews,
+                ReportExportType.Excel,
                 dateRangeStart,
                 dateRangeEnd,
                 _showAllColumns,
@@ -253,8 +254,9 @@ public partial class AccountingLedgerReport : IAsyncDisposable
             DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
             DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
 
-            var (stream, fileName) = await AccountingLedgerReportPdfExport.ExportReport(
+            var (stream, fileName) = await AccountingReportExport.ExportLedgerReport(
                 _transactionOverviews,
+                ReportExportType.PDF,
                 dateRangeStart,
                 dateRangeEnd,
                 _showAllColumns,

@@ -3,6 +3,7 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Operations;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Common;
 
 using Syncfusion.Blazor.Grids;
@@ -305,7 +306,7 @@ public partial class LocationPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Exporting to Excel...", ToastType.Info);
 
-            var (stream, fileName) = await LocationExcelExport.ExportMaster(_locations);
+            var (stream, fileName) = await LocationExport.ExportMaster(_locations, ReportExportType.Excel);
             await SaveAndViewService.SaveAndView(fileName, stream);
 
             await _toastNotification.ShowAsync("Success", "Location data exported to Excel successfully.", ToastType.Success);
@@ -332,7 +333,7 @@ public partial class LocationPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Exporting to PDF...", ToastType.Info);
 
-            var (stream, fileName) = await LocationPDFExport.ExportMaster(_locations);
+            var (stream, fileName) = await LocationExport.ExportMaster(_locations, ReportExportType.PDF);
             await SaveAndViewService.SaveAndView(fileName, stream);
 
             await _toastNotification.ShowAsync("Success", "Location data exported to PDF successfully.", ToastType.Success);

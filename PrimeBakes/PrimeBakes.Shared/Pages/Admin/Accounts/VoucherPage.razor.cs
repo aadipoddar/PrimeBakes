@@ -4,6 +4,7 @@ using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Accounts.Masters;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Common;
 
@@ -293,7 +294,7 @@ public partial class VoucherPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Exporting to Excel...", ToastType.Info);
 
-            var (stream, fileName) = await VoucherExcelExport.ExportMaster(_vouchers);
+            var (stream, fileName) = await VoucherExport.ExportMaster(_vouchers, ReportExportType.Excel);
             await SaveAndViewService.SaveAndView(fileName, stream);
             await _toastNotification.ShowAsync("Success", "Voucher data exported to Excel successfully.", ToastType.Success);
         }
@@ -319,7 +320,7 @@ public partial class VoucherPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Exporting to PDF...", ToastType.Info);
 
-            var (stream, fileName) = await VoucherPDFExport.ExportMaster(_vouchers);
+            var (stream, fileName) = await VoucherExport.ExportMaster(_vouchers, ReportExportType.PDF);
             await SaveAndViewService.SaveAndView(fileName, stream);
             await _toastNotification.ShowAsync("Success", "Voucher data exported to PDF successfully.", ToastType.Success);
         }

@@ -230,8 +230,9 @@ public partial class OrderReport : IAsyncDisposable
             DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
             DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
 
-            var (stream, fileName) = await OrderReportExcelExport.ExportReport(
+            var (stream, fileName) = await OrderReportExport.ExportReport(
                     _transactionOverviews,
+                    ReportExportType.Excel,
                     dateRangeStart,
                     dateRangeEnd,
                     _showAllColumns,
@@ -268,8 +269,9 @@ public partial class OrderReport : IAsyncDisposable
             DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
             DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
 
-            var (stream, fileName) = await OrderReportPdfExport.ExportReport(
+            var (stream, fileName) = await OrderReportExport.ExportReport(
                     _transactionOverviews,
+                    ReportExportType.PDF,
                     dateRangeStart,
                     dateRangeEnd,
                     _showAllColumns,
@@ -341,7 +343,7 @@ public partial class OrderReport : IAsyncDisposable
             await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
 
             var (pdfStream, fileName) = await OrderInvoiceExport.ExportInvoice(orderId, InvoiceExportType.PDF);
-            await SaveAndViewService.SaveAndView(fileName, pdfStream);
+          await SaveAndViewService.SaveAndView(fileName, pdfStream);
             await _toastNotification.ShowAsync("Success", "PDF invoice generated successfully.", ToastType.Success);
         }
         catch (Exception ex)
@@ -366,8 +368,8 @@ public partial class OrderReport : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
 
-            var (excelStream, fileName) = await OrderInvoiceExport.ExportInvoice(orderId, InvoiceExportType.Excel);
-            await SaveAndViewService.SaveAndView(fileName, excelStream);
+              var (excelStream, fileName) = await OrderInvoiceExport.ExportInvoice(orderId, InvoiceExportType.Excel);
+          await SaveAndViewService.SaveAndView(fileName, excelStream);
             await _toastNotification.ShowAsync("Success", "Excel invoice generated successfully.", ToastType.Success);
         }
         catch (Exception ex)

@@ -4,6 +4,7 @@ using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Inventory;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Inventory.RawMaterial;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Inventory;
 
@@ -269,7 +270,7 @@ public partial class RawMaterialCategoryPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Exporting to Excel...", ToastType.Info);
 
-            var (stream, fileName) = await RawMaterialCategoryExcelExport.ExportMaster(_rawMaterialCategories);
+            var (stream, fileName) = await RawMaterialCategoryExport.ExportMaster(_rawMaterialCategories, ReportExportType.Excel);
             await SaveAndViewService.SaveAndView(fileName, stream);
 
             await _toastNotification.ShowAsync("Success", "Raw Material Category data exported to Excel successfully.", ToastType.Success);
@@ -296,7 +297,7 @@ public partial class RawMaterialCategoryPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Exporting to PDF...", ToastType.Info);
 
-            var (stream, fileName) = await RawMaterialCategoryPDFExport.ExportMaster(_rawMaterialCategories);
+            var (stream, fileName) = await RawMaterialCategoryExport.ExportMaster(_rawMaterialCategories, ReportExportType.PDF);
             await SaveAndViewService.SaveAndView(fileName, stream);
 
             await _toastNotification.ShowAsync("Success", "Raw Material Category data exported to PDF successfully.", ToastType.Success);

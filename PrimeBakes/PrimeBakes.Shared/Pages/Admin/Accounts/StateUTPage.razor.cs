@@ -4,6 +4,7 @@ using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Accounts.Masters;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Common;
 
@@ -269,7 +270,7 @@ public partial class StateUTPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Exporting to Excel...", ToastType.Info);
 
-            var (stream, fileName) = await StateUTExcelExport.ExportMaster(_stateUTs);
+            var (stream, fileName) = await StateUTExport.ExportMaster(_stateUTs, ReportExportType.Excel);
             await SaveAndViewService.SaveAndView(fileName, stream);
             await _toastNotification.ShowAsync("Success", "State/UT data exported to Excel successfully.", ToastType.Success);
         }
@@ -295,7 +296,7 @@ public partial class StateUTPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Exporting to PDF...", ToastType.Info);
 
-            var (stream, fileName) = await StateUTPDFExport.ExportMaster(_stateUTs);
+            var (stream, fileName) = await StateUTExport.ExportMaster(_stateUTs, ReportExportType.PDF);
             await SaveAndViewService.SaveAndView(fileName, stream);
             await _toastNotification.ShowAsync("Success", "State/UT data exported to PDF successfully.", ToastType.Success);
         }

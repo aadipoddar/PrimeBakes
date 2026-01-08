@@ -4,6 +4,7 @@ using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Inventory.Kitchen;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Inventory.Kitchen;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Inventory.Kitchen;
 
@@ -269,7 +270,7 @@ public partial class KitchenPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Exporting to Excel...", ToastType.Info);
 
-            var (stream, fileName) = await KitchenExcelExport.ExportMaster(_kitchens);
+            var (stream, fileName) = await KitchenExport.ExportMaster(_kitchens, ReportExportType.Excel);
             await SaveAndViewService.SaveAndView(fileName, stream);
 
             await _toastNotification.ShowAsync("Success", "Kitchen data exported to Excel successfully.", ToastType.Success);
@@ -296,7 +297,7 @@ public partial class KitchenPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Exporting to PDF...", ToastType.Info);
 
-            var (stream, fileName) = await KitchenPDFExport.ExportMaster(_kitchens);
+            var (stream, fileName) = await KitchenExport.ExportMaster(_kitchens, ReportExportType.PDF);
             await SaveAndViewService.SaveAndView(fileName, stream);
 
             await _toastNotification.ShowAsync("Success", "Kitchen data exported to PDF successfully.", ToastType.Success);

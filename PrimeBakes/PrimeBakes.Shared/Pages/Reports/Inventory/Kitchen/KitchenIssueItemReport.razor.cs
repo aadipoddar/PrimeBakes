@@ -199,8 +199,9 @@ public partial class KitchenIssueItemReport : IAsyncDisposable
             DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
             DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
 
-            var (stream, fileName) = await KitchenIssueItemReportExcelExport.ExportReport(
+            var (stream, fileName) = await KitchenIssueReportExport.ExportItemReport(
                     _transactionOverviews,
+                    ReportExportType.Excel,
                     dateRangeStart,
                     dateRangeEnd,
                     _showAllColumns,
@@ -238,8 +239,9 @@ public partial class KitchenIssueItemReport : IAsyncDisposable
             DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
             DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
 
-            var (stream, fileName) = await KitchenIssueItemReportPDFExport.ExportReport(
+            var (stream, fileName) = await KitchenIssueReportExport.ExportItemReport(
                     _transactionOverviews,
+                    ReportExportType.PDF,
                     dateRangeStart,
                     dateRangeEnd,
                     _showAllColumns,
