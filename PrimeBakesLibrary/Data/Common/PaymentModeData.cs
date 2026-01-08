@@ -1,4 +1,4 @@
-﻿using PrimeBakesLibrary.Models.Common;
+﻿using PrimeBakesLibrary.Models.Sales;
 
 namespace PrimeBakesLibrary.Data.Common;
 

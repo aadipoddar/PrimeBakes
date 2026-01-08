@@ -27,20 +27,21 @@ public static class PurchaseReturnInvoiceExport
         var lineItems = transactionDetails.Select(detail =>
         {
             var item = allItems.FirstOrDefault(i => i.Id == detail.RawMaterialId);
-            return new PurchaseReturnItemCartModel
+            return new
             {
                 ItemId = detail.RawMaterialId,
                 ItemName = item?.Name ?? $"Item #{detail.RawMaterialId}",
-                Quantity = detail.Quantity,
-                UnitOfMeasurement = detail.UnitOfMeasurement,
-                Rate = detail.Rate,
-                DiscountPercent = detail.DiscountPercent,
-                AfterDiscount = detail.AfterDiscount,
+                detail.Quantity,
+                detail.UnitOfMeasurement,
+                detail.Rate,
+                detail.DiscountPercent,
+                AfterDiscount = detail.DiscountPercent == 0 ? 0 : detail.AfterDiscount,
                 CGSTPercent = detail.InclusiveTax ? 0 : detail.CGSTPercent,
                 SGSTPercent = detail.InclusiveTax ? 0 : detail.SGSTPercent,
                 IGSTPercent = detail.InclusiveTax ? 0 : detail.IGSTPercent,
+                TaxPercent = detail.InclusiveTax ? 0 : detail.CGSTPercent + detail.SGSTPercent + detail.IGSTPercent,
                 TotalTaxAmount = detail.InclusiveTax ? 0 : detail.TotalTaxAmount,
-                Total = detail.Total
+                detail.Total
             };
         }).ToList();
 
@@ -76,9 +77,13 @@ public static class PurchaseReturnInvoiceExport
             new(nameof(PurchaseReturnItemCartModel.Rate), "Rate", exportType, CellAlignment.Right, 50, 12, "#,##0.00"),
             new(nameof(PurchaseReturnItemCartModel.DiscountPercent), "Disc %", exportType, CellAlignment.Right, 45, 8, "#,##0.00"),
             new(nameof(PurchaseReturnItemCartModel.AfterDiscount), "Taxable", exportType, CellAlignment.Right, 55, 12, "#,##0.00"),
-            new(nameof(PurchaseReturnItemCartModel.TotalTaxAmount), exportType == InvoiceExportType.PDF ? "Tax" : "Tax Amt", exportType, CellAlignment.Right, 50, 12, "#,##0.00"),
+            new("TaxPercent","Tax %", exportType, CellAlignment.Right, 45, 8, "#,##0.00"),
+            new(nameof(PurchaseReturnItemCartModel.TotalTaxAmount), "Tax", exportType, CellAlignment.Right, 50, 12, "#,##0.00"),
             new(nameof(PurchaseReturnItemCartModel.Total), "Total", exportType, CellAlignment.Right, 55, 15, "#,##0.00")
         };
+
+        var currentDateTime = await CommonData.LoadCurrentDateTime();
+        string fileName = $"PURCHASE_RETURN_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}";
 
         if (exportType == InvoiceExportType.PDF)
         {
@@ -90,8 +95,7 @@ public static class PurchaseReturnInvoiceExport
                 summaryFields
             );
 
-            var currentDateTime = await CommonData.LoadCurrentDateTime();
-            string fileName = $"PURCHASE_RETURN_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
+            fileName += ".pdf";
             return (stream, fileName);
         }
         else
@@ -104,8 +108,7 @@ public static class PurchaseReturnInvoiceExport
                 summaryFields
             );
 
-            var currentDateTime = await CommonData.LoadCurrentDateTime();
-            string fileName = $"PURCHASE_RETURN_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.xlsx";
+            fileName += ".xlsx";
             return (stream, fileName);
         }
     }

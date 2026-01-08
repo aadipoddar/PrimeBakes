@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components;
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Sales.Product;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Models.Common;
+using PrimeBakesLibrary.Models.Operations;
 using PrimeBakesLibrary.Models.Sales.Order;
 using PrimeBakesLibrary.Models.Sales.Product;
 

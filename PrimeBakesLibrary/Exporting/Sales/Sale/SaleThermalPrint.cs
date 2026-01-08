@@ -2,10 +2,10 @@
 
 using NumericWordsConversion;
 
-using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Common;
+using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Models.Sales;
 using PrimeBakesLibrary.Models.Sales.Product;
 using PrimeBakesLibrary.Models.Sales.Sale;
 
@@ -35,25 +35,26 @@ public class SaleThermalPrint
 
     private static async Task AddHeader(StringBuilder content)
     {
-        var mainLocation = await LedgerData.LoadLedgerByLocation(1);
+        var primaryCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
+        var company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, int.Parse(primaryCompanyId.Value));
 
         content.AppendLine("<div class='header'>");
         content.AppendLine($"<div class='company-name'>PRIME BAKES</div>");
 
-        if (!string.IsNullOrEmpty(mainLocation.Alias))
-            content.AppendLine($"<div class='header-line'>{mainLocation.Alias}</div>");
+        if (!string.IsNullOrEmpty(company.Alias))
+            content.AppendLine($"<div class='header-line'>{company.Alias}</div>");
 
-        if (!string.IsNullOrEmpty(mainLocation.GSTNo))
-            content.AppendLine($"<div class='header-line'>GSTNO: {mainLocation.GSTNo}</div>");
+        if (!string.IsNullOrEmpty(company.GSTNo))
+            content.AppendLine($"<div class='header-line'>GSTNO: {company.GSTNo}</div>");
 
-        if (!string.IsNullOrEmpty(mainLocation.Address))
-            content.AppendLine($"<div class='header-line'>{mainLocation.Address}</div>");
+        if (!string.IsNullOrEmpty(company.Address))
+            content.AppendLine($"<div class='header-line'>{company.Address}</div>");
 
-        if (!string.IsNullOrEmpty(mainLocation.Email))
-            content.AppendLine($"<div class='header-line'>Email: {mainLocation.Email}</div>");
+        if (!string.IsNullOrEmpty(company.Email))
+            content.AppendLine($"<div class='header-line'>Email: {company.Email}</div>");
 
-        if (!string.IsNullOrEmpty(mainLocation.Phone))
-            content.AppendLine($"<div class='header-line'>Phone: {mainLocation.Phone}</div>");
+        if (!string.IsNullOrEmpty(company.Phone))
+            content.AppendLine($"<div class='header-line'>Phone: {company.Phone}</div>");
 
         content.AppendLine("</div>");
         content.AppendLine("<div class='bold-separator'></div>");

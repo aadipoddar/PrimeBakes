@@ -13,7 +13,6 @@
 	@Email VARCHAR(MAX) = NULL,
 	@Address VARCHAR(MAX) = NULL,
 	@Remarks VARCHAR(MAX) = NULL,
-	@LocationId INT = NULL,
 	@Status BIT = 1
 AS
 BEGIN
@@ -34,7 +33,6 @@ BEGIN
 			[Email],
 			[Address],
 			[Remarks],
-			[LocationId],
 			[Status]
 		)
 		VALUES
@@ -52,7 +50,6 @@ BEGIN
 			@Email,
 			@Address,
 			@Remarks,
-			@LocationId,
 			@Status
 		);
 		SET @Id = SCOPE_IDENTITY();
@@ -75,7 +72,6 @@ BEGIN
 			[Email] = @Email,
 			[Address] = @Address,
 			[Remarks] = @Remarks,
-			[LocationId] = @LocationId,
 			[Status] = @Status
 		WHERE
 			[Id] = @Id;

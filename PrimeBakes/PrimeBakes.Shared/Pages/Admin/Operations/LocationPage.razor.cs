@@ -4,7 +4,8 @@ using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Operations;
 using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Common;
+using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Models.Operations;
 
 using Syncfusion.Blazor.Grids;
 
@@ -19,8 +20,10 @@ public partial class LocationPage : IAsyncDisposable
 
     private LocationModel _location = new();
     private LocationModel _copyLocation;
+    private LedgerModel _selectedLedger;
 
     private List<LocationModel> _locations = [];
+    private List<LedgerModel> _ledgers = [];
 
     private SfGrid<LocationModel> _sfGrid;
     private DeleteConfirmationDialog _deleteConfirmationDialog;
@@ -60,6 +63,7 @@ public partial class LocationPage : IAsyncDisposable
             .Add(Code.Delete, DeleteSelectedItem, "Delete selected", Exclude.None);
 
         _locations = await CommonData.LoadTableData<LocationModel>(TableNames.Location);
+        _ledgers = await CommonData.LoadTableDataByStatus<LedgerModel>(TableNames.Ledger);
 
         if (!_showDeleted)
             _locations = [.. _locations.Where(l => l.Status)];
@@ -70,17 +74,28 @@ public partial class LocationPage : IAsyncDisposable
     #endregion
 
     #region Actions
+    private void OnLedgerChange(Syncfusion.Blazor.DropDowns.ChangeEventArgs<LedgerModel, LedgerModel> args)
+    {
+        if (args.ItemData != null)
+            _location.LedgerId = args.ItemData.Id;
+        else
+            _location.LedgerId = 0;
+    }
+
     private void OnEditLocation(LocationModel location)
     {
         _location = new()
         {
             Id = location.Id,
             Name = location.Name,
-            PrefixCode = location.PrefixCode,
+            Code = location.Code,
             Discount = location.Discount,
+            LedgerId = location.LedgerId,
             Remarks = location.Remarks,
             Status = location.Status
         };
+
+        _selectedLedger = _ledgers.FirstOrDefault(l => l.Id == location.LedgerId);
 
         StateHasChanged();
     }
@@ -195,10 +210,10 @@ public partial class LocationPage : IAsyncDisposable
     private async Task<bool> ValidateForm()
     {
         _location.Name = _location.Name?.Trim() ?? "";
-        _location.PrefixCode = _location.PrefixCode?.Trim() ?? "";
+        _location.Code = _location.Code?.Trim() ?? "";
 
         _location.Name = _location.Name?.ToUpper() ?? "";
-        _location.PrefixCode = _location.PrefixCode?.ToUpper() ?? "";
+        _location.Code = _location.Code?.ToUpper() ?? "";
 
         _location.Remarks = _location.Remarks?.Trim() ?? "";
         _location.Status = true;
@@ -209,9 +224,15 @@ public partial class LocationPage : IAsyncDisposable
             return false;
         }
 
-        if (string.IsNullOrWhiteSpace(_location.PrefixCode))
+        if (string.IsNullOrWhiteSpace(_location.Code))
         {
-            await _toastNotification.ShowAsync("Validation", "Prefix code is required.", ToastType.Warning);
+            await _toastNotification.ShowAsync("Validation", "Code is required.", ToastType.Warning);
+            return false;
+        }
+
+        if (_location.LedgerId <= 0)
+        {
+            await _toastNotification.ShowAsync("Validation", "Ledger is required.", ToastType.Warning);
             return false;
         }
 
@@ -220,10 +241,10 @@ public partial class LocationPage : IAsyncDisposable
 
         if (_location.Id > 0)
         {
-            var existingLocation = _locations.FirstOrDefault(_ => _.Id != _location.Id && _.PrefixCode.Equals(_location.PrefixCode, StringComparison.OrdinalIgnoreCase));
+            var existingLocation = _locations.FirstOrDefault(_ => _.Id != _location.Id && _.Code.Equals(_location.Code, StringComparison.OrdinalIgnoreCase));
             if (existingLocation is not null)
             {
-                await _toastNotification.ShowAsync("Validation", $"Prefix code '{_location.PrefixCode}' already exists.", ToastType.Warning);
+                await _toastNotification.ShowAsync("Validation", $"Code '{_location.Code}' already exists.", ToastType.Warning);
                 return false;
             }
 
@@ -236,10 +257,10 @@ public partial class LocationPage : IAsyncDisposable
         }
         else
         {
-            var existingLocation = _locations.FirstOrDefault(_ => _.PrefixCode.Equals(_location.PrefixCode, StringComparison.OrdinalIgnoreCase));
+            var existingLocation = _locations.FirstOrDefault(_ => _.Code.Equals(_location.Code, StringComparison.OrdinalIgnoreCase));
             if (existingLocation is not null)
             {
-                await _toastNotification.ShowAsync("Validation", $"Prefix code '{_location.PrefixCode}' already exists.", ToastType.Warning);
+                await _toastNotification.ShowAsync("Validation", $"Code '{_location.Code}' already exists.", ToastType.Warning);
                 return false;
             }
 

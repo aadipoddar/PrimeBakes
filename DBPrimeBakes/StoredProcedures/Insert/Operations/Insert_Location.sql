@@ -1,16 +1,17 @@
 ﻿CREATE PROCEDURE [dbo].[Insert_Location]
 	@Id INT OUTPUT,
 	@Name VARCHAR(500),
-	@PrefixCode VARCHAR(10),
+	@Code VARCHAR(10),
 	@Discount DECIMAL(5, 2),
+	@LedgerId INT,
 	@Remarks VARCHAR(MAX),
 	@Status BIT
 AS
 BEGIN
 	IF @Id = 0
 	BEGIN
-		INSERT INTO [dbo].[Location] (Name, PrefixCode, Discount, Remarks, Status)
-		VALUES (@Name, @PrefixCode, @Discount, @Remarks, @Status);
+		INSERT INTO [dbo].[Location] (Name, [Code], Discount, LedgerId, Remarks, Status)
+		VALUES (@Name, @Code, @Discount, @LedgerId, @Remarks, @Status);
 		SET @Id = SCOPE_IDENTITY();
 	END
 
@@ -19,8 +20,9 @@ BEGIN
 		UPDATE [dbo].[Location]
 		SET
 			Name = @Name,
-			PrefixCode = @PrefixCode,
+			[Code] = @Code,
 			Discount = @Discount,
+			LedgerId = @LedgerId,
 			Remarks = @Remarks,
 			Status = @Status
 		WHERE Id = @Id;

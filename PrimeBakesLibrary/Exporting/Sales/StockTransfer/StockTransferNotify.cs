@@ -1,7 +1,7 @@
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Exporting.Sales.StockTransfer;
 using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Common;
+using PrimeBakesLibrary.Models.Operations;
 using PrimeBakesLibrary.Models.Sales.StockTransfer;
 
 namespace PrimeBakesLibrary.Exporting.Sales;

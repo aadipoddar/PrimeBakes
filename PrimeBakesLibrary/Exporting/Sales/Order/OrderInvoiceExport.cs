@@ -20,7 +20,7 @@ public static class OrderInvoiceExport
             throw new InvalidOperationException("No transaction details found for the transaction.");
 
         var company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, transaction.CompanyId);
-        var locationLedger = await LedgerData.LoadLedgerByLocation(transaction.LocationId);
+        var locationLedger = await LedgerData.LoadLedgerByLocationId(transaction.LocationId);
         if (company is null || locationLedger is null)
             throw new InvalidOperationException("Company or location information is missing.");
 
@@ -71,6 +71,9 @@ public static class OrderInvoiceExport
             new(nameof(OrderItemCartModel.Quantity), "Qty", exportType,CellAlignment.Right,60, 15, "#,##0.00")
         };
 
+        var currentDateTime = await CommonData.LoadCurrentDateTime();
+        string fileName = $"ORDER_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}";
+
         if (exportType == InvoiceExportType.PDF)
         {
             var stream = await PDFInvoiceExportUtil.ExportInvoiceToPdf(
@@ -81,23 +84,20 @@ public static class OrderInvoiceExport
                 summaryFields
             );
 
-            var currentDateTime = await CommonData.LoadCurrentDateTime();
-            string fileName = $"ORDER_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
+            fileName += ".pdf";
             return (stream, fileName);
         }
-
         else
         {
             var stream = await ExcelInvoiceExportUtil.ExportInvoiceToExcel(
                 invoiceData,
                 lineItems,
                 columnSettings,
-             null,
+                null,
                 summaryFields
             );
 
-            var currentDateTime = await CommonData.LoadCurrentDateTime();
-            string fileName = $"ORDER_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.xlsx";
+            fileName += ".xlsx";
             return (stream, fileName);
         }
     }

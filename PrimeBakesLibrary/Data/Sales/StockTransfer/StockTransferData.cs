@@ -7,9 +7,9 @@ using PrimeBakesLibrary.Exporting.Sales;
 using PrimeBakesLibrary.Exporting.Sales.StockTransfer;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.FinancialAccounting;
-using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Inventory;
 using PrimeBakesLibrary.Models.Inventory.Stock;
+using PrimeBakesLibrary.Models.Operations;
 using PrimeBakesLibrary.Models.Sales.StockTransfer;
 
 namespace PrimeBakesLibrary.Data.Sales.StockTransfer;
@@ -306,7 +306,7 @@ public static class StockTransferData
 
         if (stockTransferOverview.Credit > 0)
         {
-            var ledger = await LedgerData.LoadLedgerByLocation(stockTransferOverview.ToLocationId, sqlDataAccessTransaction);
+            var ledger = await LedgerData.LoadLedgerByLocationId(stockTransferOverview.ToLocationId, sqlDataAccessTransaction);
             accountingCart.Add(new()
             {
                 ReferenceId = stockTransferOverview.Id,

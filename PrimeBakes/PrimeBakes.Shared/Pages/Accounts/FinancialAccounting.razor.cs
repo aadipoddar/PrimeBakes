@@ -14,7 +14,7 @@ using PrimeBakesLibrary.Exporting.Sales.StockTransfer;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.FinancialAccounting;
 using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Common;
+using PrimeBakesLibrary.Models.Operations;
 
 using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;
@@ -387,7 +387,7 @@ public partial class FinancialAccounting : IAsyncDisposable
 
     private async Task AddItemToCart()
     {
-        if (_selectedLedger is null || _selectedLedger.LocationId <= 0 ||
+        if (_selectedLedger is null ||
             ((_selectedCart.Debit ?? 0) <= 0 && (_selectedCart.Credit ?? 0) <= 0) ||
             ((_selectedCart.Debit ?? 0) > 0 && (_selectedCart.Credit ?? 0) > 0) ||
             (_selectedCart.Debit ?? 0) < 0 || (_selectedCart.Credit ?? 0) < 0)

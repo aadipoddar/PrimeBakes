@@ -2,7 +2,8 @@
 @page "/sales/sale/{Id:int}"
 
 @using PrimeBakesLibrary.Models.Accounts.Masters
-@using PrimeBakesLibrary.Models.Common
+@using PrimeBakesLibrary.Models.Operations
+@using PrimeBakesLibrary.Models.Operations
 @using PrimeBakesLibrary.Models.Sales.Order
 @using PrimeBakesLibrary.Models.Sales.Product
 @using PrimeBakesLibrary.Models.Sales.Sale
@@ -122,8 +123,7 @@ else
                                     </SfAutoComplete>
                                 </div>
 
-                                @if (_sale.OrderId is not null && _sale.OrderId > 0 && _selectedOrder is not null &&
-                                                        _selectedOrder.Id > 0)
+                                @if (_sale.OrderId is not null && _sale.OrderId > 0 && _selectedOrder is not null && _selectedOrder.Id > 0)
                                 {
                                     <!-- Order Action Buttons -->
                                     <div class="form-field">

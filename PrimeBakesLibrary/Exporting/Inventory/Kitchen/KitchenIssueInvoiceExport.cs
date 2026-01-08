@@ -1,9 +1,9 @@
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Inventory;
 using PrimeBakesLibrary.Models.Inventory.Kitchen;
+using PrimeBakesLibrary.Models.Operations;
 
 namespace PrimeBakesLibrary.Exporting.Inventory.Kitchen;
 
@@ -75,6 +75,9 @@ public static class KitchenIssueInvoiceExport
             new(nameof(KitchenIssueItemCartModel.Total), "Total", exportType, CellAlignment.Right, 60, 15, "#,##0.00")
         };
 
+        var currentDateTime = await CommonData.LoadCurrentDateTime();
+        string fileName = $"KITCHEN_ISSUE_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}";
+
         if (exportType == InvoiceExportType.PDF)
         {
             var stream = await PDFInvoiceExportUtil.ExportInvoiceToPdf(
@@ -85,8 +88,7 @@ public static class KitchenIssueInvoiceExport
                 summaryFields
             );
 
-            var currentDateTime = await CommonData.LoadCurrentDateTime();
-            string fileName = $"KITCHEN_ISSUE_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
+            fileName += ".pdf";
             return (stream, fileName);
         }
         else
@@ -99,8 +101,7 @@ public static class KitchenIssueInvoiceExport
                 summaryFields
             );
 
-            var currentDateTime = await CommonData.LoadCurrentDateTime();
-            string fileName = $"KITCHEN_ISSUE_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.xlsx";
+            fileName += ".xlsx";
             return (stream, fileName);
         }
     }

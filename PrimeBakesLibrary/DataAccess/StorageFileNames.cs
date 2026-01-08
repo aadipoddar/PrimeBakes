@@ -1,4 +1,4 @@
-﻿namespace PrimeBakesLibrary.Models.Common;
+﻿namespace PrimeBakesLibrary.DataAccess;
 
 public static class StorageFileNames
 {

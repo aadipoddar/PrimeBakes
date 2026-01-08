@@ -1,7 +1,6 @@
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Common;
+using PrimeBakesLibrary.Models.Operations;
 using PrimeBakesLibrary.Models.Sales.Sale;
 
 namespace PrimeBakesLibrary.Exporting.Sales.Sale;
@@ -33,17 +32,17 @@ internal static class SaleNotify
         {
             if (sale.PartyId != null && sale.PartyId > 0)
             {
-                var party = await CommonData.LoadTableDataById<LedgerModel>(TableNames.Ledger, sale.PartyId.Value);
+                var location = await LocationData.LoadLocationByLedgerId(sale.PartyId.Value);
 
                 // If party has a valid location
-                if (party.LocationId != null && party.LocationId > 0)
+                if (location is not null)
                     // Notify sales and admins of:
                     // 1. The party outlet (where sale was made to)
                     // 2. The main outlet (LocationId = 1)
                     // 3. The outlet where the sale originated from (sale.LocationId)
                     targetUsers = [.. users.Where(u =>
                         (u.Admin || u.Sales) && (
-                            u.LocationId == party.LocationId ||     // Party outlet
+                            u.LocationId == location.Id ||          // Party outlet
                             u.LocationId == 1 ||                    // Main outlet
                             u.LocationId == sale.LocationId         // Originating outlet
                         ))];

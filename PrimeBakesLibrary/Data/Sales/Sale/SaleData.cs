@@ -7,10 +7,9 @@ using PrimeBakesLibrary.Data.Sales.Order;
 using PrimeBakesLibrary.Exporting.Sales.Sale;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.FinancialAccounting;
-using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Inventory;
 using PrimeBakesLibrary.Models.Inventory.Stock;
+using PrimeBakesLibrary.Models.Operations;
 using PrimeBakesLibrary.Models.Sales.Sale;
 
 namespace PrimeBakesLibrary.Data.Sales.Sale;
@@ -71,9 +70,9 @@ public static class SaleData
 
             if (sale.PartyId is not null and > 0)
             {
-                var party = await CommonData.LoadTableDataById<LedgerModel>(TableNames.Ledger, sale.PartyId.Value, sqlDataAccessTransaction);
-                if (party.LocationId is > 0)
-                    await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.Purchase), sale.Id, party.LocationId.Value, sqlDataAccessTransaction);
+                var location = await LocationData.LoadLocationByLedgerId(sale.PartyId.Value, sqlDataAccessTransaction);
+                if (location is not null)
+                    await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.Purchase), sale.Id, location.Id, sqlDataAccessTransaction);
             }
 
             var saleVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.SaleVoucherId, sqlDataAccessTransaction);
@@ -198,9 +197,9 @@ public static class SaleData
 
             if (existingSale.PartyId is not null and > 0)
             {
-                var party = await CommonData.LoadTableDataById<LedgerModel>(TableNames.Ledger, existingSale.PartyId.Value, sqlDataAccessTransaction);
-                if (party.LocationId is > 0)
-                    await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.Purchase), existingSale.Id, party.LocationId.Value, sqlDataAccessTransaction);
+                var location = await LocationData.LoadLocationByLedgerId(existingSale.PartyId.Value, sqlDataAccessTransaction);
+                if (location is not null)
+                    await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.Purchase), existingSale.Id, location.Id, sqlDataAccessTransaction);
             }
         }
 
@@ -225,8 +224,8 @@ public static class SaleData
 
         if (sale.PartyId is not null and > 0)
         {
-            var party = await CommonData.LoadTableDataById<LedgerModel>(TableNames.Ledger, sale.PartyId.Value, sqlDataAccessTransaction);
-            if (party.LocationId is > 0)
+            var location = await LocationData.LoadLocationByLedgerId(sale.PartyId.Value, sqlDataAccessTransaction);
+            if (location is not null)
                 foreach (var item in saleDetails)
                 {
                     var id = await ProductStockData.InsertProductStock(new()
@@ -239,7 +238,7 @@ public static class SaleData
                         Type = nameof(StockType.Purchase),
                         TransactionNo = sale.TransactionNo,
                         TransactionDate = DateOnly.FromDateTime(sale.TransactionDateTime),
-                        LocationId = party.LocationId.Value
+                        LocationId = location.Id
                     }, sqlDataAccessTransaction);
 
                     if (id <= 0)
@@ -349,7 +348,7 @@ public static class SaleData
         {
             if (saleOverview.Cash + saleOverview.UPI + saleOverview.Card + saleOverview.Credit > 0)
             {
-                var ledger = await LedgerData.LoadLedgerByLocation(sale.LocationId, sqlDataAccessTransaction);
+                var ledger = await LedgerData.LoadLedgerByLocationId(sale.LocationId, sqlDataAccessTransaction);
                 accountingCart.Add(new()
                 {
                     ReferenceId = saleOverview.Id,

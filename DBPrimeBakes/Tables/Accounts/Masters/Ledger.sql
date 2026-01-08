@@ -14,10 +14,8 @@
     [Email] VARCHAR(MAX) NULL, 
     [Address] VARCHAR(MAX) NULL, 
     [Remarks] VARCHAR(MAX) NULL, 
-    [LocationId] INT NULL, 
     [Status] BIT NOT NULL DEFAULT 1, 
     CONSTRAINT [FK_Ledger_ToGroup] FOREIGN KEY (GroupId) REFERENCES [Group](Id), 
     CONSTRAINT [FK_Ledger_ToAccountType] FOREIGN KEY (AccountTypeId) REFERENCES [AccountType](Id),
-    CONSTRAINT [FK_Ledger_ToLocation] FOREIGN KEY (LocationId) REFERENCES [Location](Id), 
     CONSTRAINT [FK_Ledger_ToStateUT] FOREIGN KEY ([StateUTId]) REFERENCES [StateUT](Id)
 )

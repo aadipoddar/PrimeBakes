@@ -11,7 +11,8 @@ using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Sales.Sale;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Common;
+using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Models.Sales;
 using PrimeBakesLibrary.Models.Sales.Product;
 using PrimeBakesLibrary.Models.Sales.Sale;
 
@@ -229,7 +230,12 @@ public partial class SaleReturnPage : IAsyncDisposable
             }
 
             if (_saleReturn.PartyId is not null && _saleReturn.LocationId == 1 && _saleReturn.PartyId > 0)
+            {
                 _selectedParty = _parties.FirstOrDefault(s => s.Id == _saleReturn.PartyId);
+                var location = _locations.FirstOrDefault(s => s.LedgerId == _selectedParty.Id);
+                if (location is not null && Id is null)
+                    _saleReturn.DiscountPercent = location.Discount;
+            }
             else
             {
                 _selectedParty = null;
@@ -436,6 +442,12 @@ public partial class SaleReturnPage : IAsyncDisposable
 
         _selectedParty = args.Value;
         _saleReturn.PartyId = _selectedParty.Id;
+
+        var location = _locations.FirstOrDefault(s => s.LedgerId == _selectedParty.Id);
+        if (location is not null)
+            _saleReturn.DiscountPercent = location.Discount;
+        else
+            _saleReturn.DiscountPercent = 0;
 
         await LoadItems();
         await SaveTransactionFile();

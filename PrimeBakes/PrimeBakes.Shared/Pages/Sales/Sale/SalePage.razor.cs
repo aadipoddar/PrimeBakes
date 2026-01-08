@@ -13,7 +13,8 @@ using PrimeBakesLibrary.Exporting.Sales.Order;
 using PrimeBakesLibrary.Exporting.Sales.Sale;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Common;
+using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Models.Sales;
 using PrimeBakesLibrary.Models.Sales.Order;
 using PrimeBakesLibrary.Models.Sales.Product;
 using PrimeBakesLibrary.Models.Sales.Sale;
@@ -251,36 +252,37 @@ public partial class SalePage : IAsyncDisposable
                 _sale.CustomerId = null;
             }
 
-            if (_selectedParty is not null && _selectedParty.LocationId is not null && _selectedParty.LocationId > 0)
+            if (_selectedParty is not null)
             {
-                if (Id is null)
+                var location = _locations.FirstOrDefault(s => s.LedgerId == _selectedParty.Id);
+                if (location is not null)
                 {
-                    var location = _locations.FirstOrDefault(s => s.Id == _selectedParty.LocationId.Value);
-                    _sale.DiscountPercent = location.Discount;
-                }
+                    if (Id is null)
+                        _sale.DiscountPercent = location.Discount;
 
-                _orders = await OrderData.LoadOrderByLocationPending(_selectedParty.LocationId.Value);
-                _orders = [.. _orders.OrderByDescending(s => s.TransactionDateTime)];
+                    _orders = await OrderData.LoadOrderByLocationPending(location.Id);
+                    _orders = [.. _orders.OrderByDescending(s => s.TransactionDateTime)];
 
-                if (_sale.OrderId is not null && _sale.OrderId > 0)
-                {
-                    if (Id > 0)
+                    if (_sale.OrderId is not null && _sale.OrderId > 0)
                     {
-                        var order = await CommonData.LoadTableDataById<OrderModel>(TableNames.Order, _sale.OrderId.Value);
-                        if (order is not null && _selectedParty.LocationId == order.LocationId)
+                        if (Id > 0)
                         {
-                            if (_orders.FirstOrDefault(s => s.Id == order.Id) is null)
-                                _orders.Insert(0, order);
+                            var order = await CommonData.LoadTableDataById<OrderModel>(TableNames.Order, _sale.OrderId.Value);
+                            if (order is not null && location.Id == order.LocationId)
+                            {
+                                if (_orders.FirstOrDefault(s => s.Id == order.Id) is null)
+                                    _orders.Insert(0, order);
+                            }
                         }
+
+                        _selectedOrder = _orders.FirstOrDefault(s => s.Id == _sale.OrderId);
                     }
 
-                    _selectedOrder = _orders.FirstOrDefault(s => s.Id == _sale.OrderId);
-                }
-
-                else
-                {
-                    _selectedOrder = null;
-                    _sale.OrderId = null;
+                    else
+                    {
+                        _selectedOrder = null;
+                        _sale.OrderId = null;
+                    }
                 }
             }
             else
@@ -495,18 +497,18 @@ public partial class SalePage : IAsyncDisposable
         _selectedOrder = null;
         _sale.OrderId = null;
 
-        if (_selectedParty.LocationId is not null && _selectedParty.LocationId > 0)
+        var location = _locations.FirstOrDefault(s => s.LedgerId == _selectedParty.Id);
+        if (location is not null)
         {
-            var location = _locations.FirstOrDefault(s => s.Id == _selectedParty.LocationId.Value);
             _sale.DiscountPercent = location.Discount;
 
-            _orders = await OrderData.LoadOrderByLocationPending(_selectedParty.LocationId.Value);
+            _orders = await OrderData.LoadOrderByLocationPending(location.Id);
             _orders = [.. _orders.OrderByDescending(s => s.TransactionDateTime)];
 
             if (Id > 0 && _sale.OrderId is not null && _sale.OrderId > 0)
             {
                 var order = await CommonData.LoadTableDataById<OrderModel>(TableNames.Order, _sale.OrderId.Value);
-                if (order is not null && _selectedParty.LocationId == order.LocationId)
+                if (order is not null && location.Id == order.LocationId)
                 {
                     if (_orders.FirstOrDefault(s => s.Id == order.Id) is null)
                         _orders.Insert(0, order);
@@ -1113,7 +1115,8 @@ public partial class SalePage : IAsyncDisposable
         if (_selectedOrder is null)
             _sale.OrderId = null;
 
-        if (_selectedOrder is not null && _selectedOrder.LocationId != _selectedParty.LocationId)
+        var location = _locations.FirstOrDefault(s => s.LedgerId == _sale.PartyId);
+        if (_selectedOrder is not null && _selectedOrder.LocationId != location.Id)
         {
             await _toastNotification.ShowAsync("Order Location Mismatch", "The selected order does not belong to the selected party's location. Please select a valid order.", ToastType.Error);
             return false;

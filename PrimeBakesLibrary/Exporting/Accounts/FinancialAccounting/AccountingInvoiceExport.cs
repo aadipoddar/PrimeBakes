@@ -71,6 +71,7 @@ public static class AccountingInvoiceExport
         };
 
         var currentDateTime = await CommonData.LoadCurrentDateTime();
+        string fileName = $"ACCOUNTING_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}";
 
         if (exportType == InvoiceExportType.PDF)
         {
@@ -82,7 +83,7 @@ public static class AccountingInvoiceExport
                 summaryFields
             );
 
-            string fileName = $"ACCOUNTING_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
+            fileName += ".pdf";
             return (stream, fileName);
         }
         else
@@ -95,7 +96,7 @@ public static class AccountingInvoiceExport
                 summaryFields
             );
 
-            string fileName = $"ACCOUNTING_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.xlsx";
+            fileName += ".xlsx";
             return (stream, fileName);
         }
     }

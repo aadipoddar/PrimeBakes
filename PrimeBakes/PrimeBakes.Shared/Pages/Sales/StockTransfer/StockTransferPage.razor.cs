@@ -11,7 +11,7 @@ using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Sales.StockTransfer;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Common;
+using PrimeBakesLibrary.Models.Operations;
 using PrimeBakesLibrary.Models.Sales.Product;
 using PrimeBakesLibrary.Models.Sales.StockTransfer;
 
@@ -167,7 +167,7 @@ public partial class StockTransferPage : IAsyncDisposable
                     TotalInclusiveTaxAmount = 0,
                     TotalExtraTaxAmount = 0,
                     TotalAfterTax = 0,
-                    DiscountPercent = 0,
+                    DiscountPercent = _locations.FirstOrDefault(s => s.Id == _user.LocationId).Discount,
                     DiscountAmount = 0,
                     OtherChargesPercent = 0,
                     OtherChargesAmount = 0,
@@ -328,6 +328,7 @@ public partial class StockTransferPage : IAsyncDisposable
 
         _selectedToLocation = args.Value;
         _stockTransfer.ToLocationId = _selectedToLocation.Id;
+        _stockTransfer.DiscountPercent = _selectedToLocation.Discount;
 
         await SaveTransactionFile();
     }
@@ -412,8 +413,8 @@ public partial class StockTransferPage : IAsyncDisposable
 
         else
         {
-            var fromLedger = await LedgerData.LoadLedgerByLocation(_stockTransfer.LocationId);
-            var toLedger = await LedgerData.LoadLedgerByLocation(_stockTransfer.ToLocationId);
+            var fromLedger = await LedgerData.LoadLedgerByLocationId(_stockTransfer.LocationId);
+            var toLedger = await LedgerData.LoadLedgerByLocationId(_stockTransfer.ToLocationId);
 
             var isSameState = fromLedger.StateUTId == toLedger.StateUTId;
 

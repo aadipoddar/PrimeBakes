@@ -1,6 +1,8 @@
 ﻿@page "/admin/location"
 
-@using PrimeBakesLibrary.Models.Common
+@using PrimeBakesLibrary.Models.Accounts.Masters
+@using PrimeBakesLibrary.Models.Operations
+@using PrimeBakesLibrary.Models.Operations
 
 <PageTitle>Location Management - PrimeBakes</PageTitle>
 
@@ -11,18 +13,12 @@
 else
 {
     <div style="display: flex; flex-direction: column; min-height: 100vh;">
-        <Header Title="Location Management" Subtitle="Manage outlet locations and their configurations" ShowLogout="true"
-            ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack"
-            OnLogoutClick="Logout">
+        <Header Title="Location Management" Subtitle="Manage outlet locations and their configurations" ShowLogout="true" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
             <RightContent>
-                <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)"
-                    Disabled="_isProcessing" OnClick="ExportExcel" />
-                <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)"
-                    Disabled="_isProcessing" OnClick="ExportPdf" />
-                <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Location (Ctrl + S)"
-                    Disabled="_isProcessing" OnClick="SaveLocation" />
-                <IconButton Icon="IconType.New" Title="New Location (Ctrl + N)" Disabled="_isProcessing"
-                    OnClick="ResetPage" />
+                <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
+                <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
+                <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Location (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveLocation" />
+                <IconButton Icon="IconType.New" Title="New Location (Ctrl + N)" Disabled="_isProcessing" OnClick="ResetPage" />
             </RightContent>
         </Header>
 
@@ -34,8 +30,8 @@ else
                 <div class="section-header">
                     <div class="section-title-wrapper">
                         <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round">
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round">
                             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                             <circle cx="12" cy="10" r="3" />
                         </svg>
@@ -50,16 +46,16 @@ else
                                 Location Name <span class="required">*</span>
                             </label>
                             <SfTextBox @bind-Value="_location.Name" Placeholder="Enter location name"
-                                FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
                         </div>
 
-                        <!-- Prefix Code -->
+                        <!-- Code -->
                         <div class="form-field">
                             <label class="field-label">
-                                Prefix Code <span class="required">*</span>
+                                Code <span class="required">*</span>
                             </label>
-                            <SfTextBox @bind-Value="_location.PrefixCode" Placeholder="Enter prefix code"
-                                FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                            <SfTextBox @bind-Value="_location.Code" Placeholder="Enter prefix code"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
                         </div>
 
                         <!-- Discount -->
@@ -68,8 +64,22 @@ else
                                 Discount (%)
                             </label>
                             <SfNumericTextBox TValue="decimal" @bind-Value="_location.Discount"
-                                Placeholder="Enter discount percentage" FloatLabelType="FloatLabelType.Never"
-                                CssClass="custom-textbox" Format="N2" Min="0" Max="100" Step="0.01m" />
+                                              Placeholder="Enter discount percentage" FloatLabelType="FloatLabelType.Never"
+                                              CssClass="custom-textbox" Format="N2" Min="0" Max="100" Step="0.01m" />
+                        </div>
+
+                        <!-- Ledger -->
+                        <div class="form-field">
+                            <label class="field-label">
+                                Ledger <span class="required">*</span>
+                            </label>
+                            <SfAutoComplete @bind-Value="_selectedLedger" TValue="LedgerModel" TItem="LedgerModel"
+                                            DataSource="@_ledgers" Placeholder="Select ledger"
+                                            FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
+                                            FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
+                                <AutoCompleteEvents TValue="LedgerModel" TItem="LedgerModel" ValueChange="OnLedgerChange" />
+                                <AutoCompleteFieldSettings Value="Name" />
+                            </SfAutoComplete>
                         </div>
 
                         <!-- Copy Products From Location -->
@@ -78,20 +88,20 @@ else
                                 Copy Products From Location
                             </label>
                             <SfAutoComplete @bind-Value="_copyLocation" TValue="LocationModel" TItem="LocationModel"
-                                DataSource="@_locations" Placeholder="Select location to copy products (optional)"
-                                FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
-                                FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
+                                            DataSource="@_locations" Placeholder="Select location to copy products (optional)"
+                                            FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
+                                            FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
                                 <AutoCompleteFieldSettings Value="Name" />
                             </SfAutoComplete>
                         </div>
 
                         <!-- Remarks (Spanning 2 columns) -->
-                        <div class="form-field form-field-span-2">
+                        <div class="form-field">
                             <label class="field-label">
                                 Remarks
                             </label>
                             <SfTextBox @bind-Value="_location.Remarks" Placeholder="Enter remarks (optional)"
-                                FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" Multiline="true" />
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" Multiline="true" />
                         </div>
                     </div>
                 </div>
@@ -102,8 +112,8 @@ else
                 <div class="section-header">
                     <div class="section-title-wrapper">
                         <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round">
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round">
                             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                             <polyline points="9 22 9 12 15 12 15 22" />
                         </svg>
@@ -111,18 +121,18 @@ else
                     </div>
                     <div class="header-actions">
                         <ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted"
-                            OnToggle="ToggleDeleted" />
+                                             OnToggle="ToggleDeleted" />
                     </div>
                 </div>
                 <div class="section-body grid-body">
                     <SfGrid @ref="_sfGrid" DataSource="@_locations" AllowPaging="true" AllowSorting="true"
-                        AllowFiltering="true" AllowResizing="true" CssClass="professional-grid"
-                        Toolbar="@(new List<string>() { "Search" })">
+                            AllowFiltering="true" AllowResizing="true" CssClass="professional-grid"
+                            Toolbar="@(new List<string>() { "Search" })">
                         <GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
                         <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
                         <GridColumns>
                             <GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center"
-                                AllowFiltering="false">
+                                        AllowFiltering="false">
                                 <Template>
                                     @{
                                         var location = (context as LocationModel);
@@ -130,37 +140,30 @@ else
                                         <div class="grid-actions">
                                             @if (location.Status)
                                             {
-                                                <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid"
-                                                    Title="Edit (Insert)" OnClick="@(() => OnEditLocation(location))" />
-                                                <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete"
-                                                    Size="ButtonSize.Grid" Title="Delete (Delete)"
-                                                    OnClick="@(() => ShowDeleteConfirmation(location.Id, location.Name))" />
+                                                <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid" Title="Edit (Insert)" OnClick="@(() => OnEditLocation(location))" />
+                                                <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete (Delete)" OnClick="@(() => ShowDeleteConfirmation(location.Id, location.Name))" />
                                             }
                                             else
                                             {
-                                                <IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover"
-                                                    Size="ButtonSize.Grid" Title="Recover (Delete)"
-                                                    OnClick="@(() => ShowRecoverConfirmation(location.Id, location.Name))" />
+                                                <IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover" Size="ButtonSize.Grid" Title="Recover (Delete)" OnClick="@(() => ShowRecoverConfirmation(location.Id, location.Name))" />
                                             }
                                         </div>
                                     }
                                 </Template>
                             </GridColumn>
-                            <GridColumn Field="@nameof(LocationModel.Id)" HeaderText="ID" Width="80"
-                                TextAlign="TextAlign.Center" />
+                            <GridColumn Field="@nameof(LocationModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" />
                             <GridColumn Field="@nameof(LocationModel.Name)" HeaderText="Location Name" Width="200" />
-                            <GridColumn Field="@nameof(LocationModel.PrefixCode)" HeaderText="Prefix Code" Width="150"
-                                TextAlign="TextAlign.Center" />
-                            <GridColumn Field="@nameof(LocationModel.Discount)" HeaderText="Discount (%)" Width="120"
-                                Format="N2" TextAlign="TextAlign.Right" />
+                            <GridColumn Field="@nameof(LocationModel.Code)" HeaderText="Code" Width="150" TextAlign="TextAlign.Center" />
+                            <GridColumn Field="@nameof(LocationModel.Discount)" HeaderText="Discount (%)" Width="120" Format="N2" TextAlign="TextAlign.Right" />
+                            <GridColumn Field="@nameof(LocationModel.LedgerId)" HeaderText="Ledger" Width="200" />
                             <GridColumn Field="@nameof(LocationModel.Remarks)" HeaderText="Remarks" Width="250" />
                             <GridColumn Field="@nameof(LocationModel.Status)" HeaderText="Status" Width="100"
-                                TextAlign="TextAlign.Center">
+                                        TextAlign="TextAlign.Center">
                                 <Template>
                                     @{
                                         var location = (context as LocationModel);
                                         <div class="grid-checkbox"
-                                            style="@(location.Status ? "color: #10b981; background: #d1fae5;" : "color: #dc2626; background: #fee2e2;")">
+                                             style="@(location.Status ? "color: #10b981; background: #d1fae5;" : "color: #dc2626; background: #fee2e2;")">
                                             @(location.Status ? "✓" : "✗")
                                         </div>
                                     }
@@ -177,12 +180,12 @@ else
 }
 
 <DeleteConfirmationDialog @ref="_deleteConfirmationDialog" EntityName="Location" IdentifierLabel="Location Name"
-    IdentifierValue="@_deleteLocationName" IsPermanentDelete="false" Disabled="@_isProcessing" OnConfirm="ConfirmDelete"
-    OnCancel="CancelDelete" />
+                          IdentifierValue="@_deleteLocationName" IsPermanentDelete="false" Disabled="@_isProcessing" OnConfirm="ConfirmDelete"
+                          OnCancel="CancelDelete" />
 
 <RecoverConfirmationDialog @ref="_recoverConfirmationDialog" EntityName="Location" IdentifierLabel="Location Name"
-    IdentifierValue="@_recoverLocationName" Disabled="@_isProcessing" OnConfirm="ConfirmRecover"
-    OnCancel="CancelRecover" />
+                           IdentifierValue="@_recoverLocationName" Disabled="@_isProcessing" OnConfirm="ConfirmRecover"
+                           OnCancel="CancelRecover" />
 
 <!-- Toast Notification -->
 <ToastNotification @ref="_toastNotification" />
@@ -291,35 +294,35 @@ else
         transition: all 0.2s ease;
     }
 
-    ::deep .custom-textbox .e-input-group:focus-within,
-    ::deep .custom-autocomplete .e-input-group:focus-within {
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
+        ::deep .custom-textbox .e-input-group:focus-within,
+        ::deep .custom-autocomplete .e-input-group:focus-within {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
 
-    ::deep .custom-textbox .e-input-group input,
-    ::deep .custom-autocomplete .e-input-group input {
-        font-size: 13px;
-        color: #1e293b;
-        font-weight: 500;
-        padding: 8px 12px;
-    }
+        ::deep .custom-textbox .e-input-group input,
+        ::deep .custom-autocomplete .e-input-group input {
+            font-size: 13px;
+            color: #1e293b;
+            font-weight: 500;
+            padding: 8px 12px;
+        }
 
-    ::deep .custom-textbox .e-input-group input::placeholder,
-    ::deep .custom-autocomplete .e-input-group input::placeholder {
-        color: #94a3b8;
-        font-style: italic;
-    }
+            ::deep .custom-textbox .e-input-group input::placeholder,
+            ::deep .custom-autocomplete .e-input-group input::placeholder {
+                color: #94a3b8;
+                font-style: italic;
+            }
 
-    /* Multiline TextBox */
-    ::deep .custom-textbox .e-input-group textarea {
-        min-height: 80px;
-        font-size: 13px;
-        color: #1e293b;
-        font-weight: 500;
-        padding: 8px 12px;
-        resize: vertical;
-    }
+        /* Multiline TextBox */
+        ::deep .custom-textbox .e-input-group textarea {
+            min-height: 80px;
+            font-size: 13px;
+            color: #1e293b;
+            font-weight: 500;
+            padding: 8px 12px;
+            resize: vertical;
+        }
 
     /* Grid Styles */
     .grid-body {
@@ -330,57 +333,57 @@ else
         border: none;
     }
 
-    ::deep .professional-grid .e-gridheader {
-        background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
-        border-bottom: 2px solid #e2e8f0;
-    }
+        ::deep .professional-grid .e-gridheader {
+            background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
+            border-bottom: 2px solid #e2e8f0;
+        }
 
-    ::deep .professional-grid .e-headercell {
-        background: transparent;
-        color: #475569;
-        font-weight: 600;
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
-        border-right: 1px solid #e2e8f0;
-        padding: 12px 8px;
-    }
+        ::deep .professional-grid .e-headercell {
+            background: transparent;
+            color: #475569;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            border-right: 1px solid #e2e8f0;
+            padding: 12px 8px;
+        }
 
-    ::deep .professional-grid .e-headercell:last-child {
-        border-right: none;
-    }
+            ::deep .professional-grid .e-headercell:last-child {
+                border-right: none;
+            }
 
-    ::deep .professional-grid .e-gridcontent {
-        background: #ffffff;
-    }
+        ::deep .professional-grid .e-gridcontent {
+            background: #ffffff;
+        }
 
-    ::deep .professional-grid .e-row {
-        transition: background-color 0.2s ease;
-    }
+        ::deep .professional-grid .e-row {
+            transition: background-color 0.2s ease;
+        }
 
-    ::deep .professional-grid .e-row:hover {
-        background-color: #f8fafc;
-    }
+            ::deep .professional-grid .e-row:hover {
+                background-color: #f8fafc;
+            }
 
-    ::deep .professional-grid .e-row.e-altrow {
-        background-color: #fafbfc;
-    }
+            ::deep .professional-grid .e-row.e-altrow {
+                background-color: #fafbfc;
+            }
 
-    ::deep .professional-grid .e-row.e-altrow:hover {
-        background-color: #f8fafc;
-    }
+                ::deep .professional-grid .e-row.e-altrow:hover {
+                    background-color: #f8fafc;
+                }
 
-    ::deep .professional-grid .e-rowcell {
-        border-right: 1px solid #f1f5f9;
-        border-bottom: 1px solid #f1f5f9;
-        padding: 10px 8px;
-        font-size: 13px;
-        color: #1e293b;
-    }
+        ::deep .professional-grid .e-rowcell {
+            border-right: 1px solid #f1f5f9;
+            border-bottom: 1px solid #f1f5f9;
+            padding: 10px 8px;
+            font-size: 13px;
+            color: #1e293b;
+        }
 
-    ::deep .professional-grid .e-rowcell:last-child {
-        border-right: none;
-    }
+            ::deep .professional-grid .e-rowcell:last-child {
+                border-right: none;
+            }
 
     .grid-checkbox {
         display: inline-block;
@@ -409,19 +412,19 @@ else
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
     }
 
-    .dialog-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
-    }
+        .dialog-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+        }
 
-    .dialog-btn:active {
-        transform: translateY(0);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-    }
+        .dialog-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        }
 
-    .dialog-btn svg {
-        flex-shrink: 0;
-    }
+        .dialog-btn svg {
+            flex-shrink: 0;
+        }
 
     .dialog-btn-cancel {
         background: #ffffff;
@@ -429,29 +432,29 @@ else
         border: 2px solid #e2e8f0;
     }
 
-    .dialog-btn-cancel:hover {
-        background: #f8fafc;
-        border-color: #cbd5e1;
-        color: #475569;
-    }
+        .dialog-btn-cancel:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            color: #475569;
+        }
 
     .dialog-btn-delete {
         background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         color: white;
     }
 
-    .dialog-btn-delete:hover {
-        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-    }
+        .dialog-btn-delete:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        }
 
     .dialog-btn-recover {
         background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         color: white;
     }
 
-    .dialog-btn-recover:hover {
-        background: linear-gradient(135deg, #059669 0%, #047857 100%);
-    }
+        .dialog-btn-recover:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
 
     /* Empty Grid State */
     ::deep .professional-grid .e-emptyrow {
@@ -477,19 +480,19 @@ else
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
     }
 
-    .dialog-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
-    }
+        .dialog-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+        }
 
-    .dialog-btn:active {
-        transform: translateY(0);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-    }
+        .dialog-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        }
 
-    .dialog-btn svg {
-        flex-shrink: 0;
-    }
+        .dialog-btn svg {
+            flex-shrink: 0;
+        }
 
     .dialog-btn-cancel {
         background: #ffffff;
@@ -497,29 +500,29 @@ else
         border: 2px solid #e2e8f0;
     }
 
-    .dialog-btn-cancel:hover {
-        background: #f8fafc;
-        border-color: #cbd5e1;
-        color: #475569;
-    }
+        .dialog-btn-cancel:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            color: #475569;
+        }
 
     .dialog-btn-delete {
         background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         color: white;
     }
 
-    .dialog-btn-delete:hover {
-        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-    }
+        .dialog-btn-delete:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        }
 
     .dialog-btn-recover {
         background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         color: white;
     }
 
-    .dialog-btn-recover:hover {
-        background: linear-gradient(135deg, #059669 0%, #047857 100%);
-    }
+        .dialog-btn-recover:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
 
     /* Responsive Design */
     @@media (max-width: 1024px) {

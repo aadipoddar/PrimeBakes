@@ -9,13 +9,12 @@
 //var worksheet1 = package.Workbook.Worksheets[0];
 //var worksheet2 = package.Workbook.Worksheets[1];
 
-
 using PrimeBakesLibrary.Data.Common;
-using PrimeBakesLibrary.Data.Sales.Product;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Models.Sales.Product;
+using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Models.Common;
 
-await UpdatePrices();
+await UpdateLocations();
 
 Console.WriteLine("Finished importing Items.");
 Console.ReadLine();
@@ -68,6 +67,8 @@ Console.ReadLine();
 // await InsertSaleAccounting();
 
 // await DeleteRawMaterial(worksheet1);
+
+// await UpdatePrices();
 
 //static async Task UpdateProducts()
 //{
@@ -1715,17 +1716,31 @@ Console.ReadLine();
 //	public decimal Quantity { get; set; }
 //	public bool Status { get; set; }
 //}
+
+//static async Task UpdatePrices()
+//{
+//    var productLocations = await CommonData.LoadTableDataByStatus<ProductLocationModel>(TableNames.ProductLocation);
+//    productLocations = [.. productLocations.Where(pl => pl.LocationId == 34)];
+
+//    foreach (var pl in productLocations)
+//    {
+//        var product = await CommonData.LoadTableDataById<ProductModel>(TableNames.Product, pl.ProductId);
+//        pl.Rate = product.Rate;
+//        await ProductData.InsertProductLocation(pl);
+//    }
+//}
 #endregion
 
-static async Task UpdatePrices()
+static async Task UpdateLocations()
 {
-    var productLocations = await CommonData.LoadTableDataByStatus<ProductLocationModel>(TableNames.ProductLocation);
-    productLocations = [.. productLocations.Where(pl => pl.LocationId == 34)];
+    var ledgers = await CommonData.LoadTableData<LedgerModel>(TableNames.Ledger);
+    var locations = await CommonData.LoadTableData<LocationModel>(TableNames.Location);
 
-    foreach (var pl in productLocations)
+    ledgers = [.. ledgers.Where(l => l.LocationId is not null)];
+
+    foreach (var location in locations)
     {
-        var product = await CommonData.LoadTableDataById<ProductModel>(TableNames.Product, pl.ProductId);
-        pl.Rate = product.Rate;
-        await ProductData.InsertProductLocation(pl);
+        location.LedgerId = ledgers.FirstOrDefault(l => l.LocationId == location.Id).Id;
+        await LocationData.InsertLocation(location);
     }
 }

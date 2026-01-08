@@ -1,7 +1,8 @@
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Common;
+using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Models.Sales;
 using PrimeBakesLibrary.Models.Sales.Product;
 using PrimeBakesLibrary.Models.Sales.Sale;
 
@@ -44,27 +45,29 @@ public static class SaleReturnInvoiceExport
         var lineItems = transactionDetails.Select(detail =>
         {
             var product = allProducts.FirstOrDefault(p => p.Id == detail.ProductId);
-            return new SaleReturnItemCartModel
+            return new
             {
+                ItemCategoryId = 0,
                 ItemId = detail.ProductId,
                 ItemName = product?.Name ?? $"Product #{detail.ProductId}",
-                Quantity = detail.Quantity,
-                Rate = detail.Rate,
-                BaseTotal = detail.BaseTotal,
-                DiscountPercent = detail.DiscountPercent,
-                DiscountAmount = detail.DiscountAmount,
-                AfterDiscount = detail.AfterDiscount,
+                detail.Quantity,
+                detail.Rate,
+                detail.BaseTotal,
+                detail.DiscountPercent,
+                detail.DiscountAmount,
+                AfterDiscount = detail.DiscountPercent == 0 ? 0 : detail.AfterDiscount,
                 CGSTPercent = detail.InclusiveTax ? 0 : detail.CGSTPercent,
                 CGSTAmount = detail.InclusiveTax ? 0 : detail.CGSTAmount,
                 SGSTPercent = detail.InclusiveTax ? 0 : detail.SGSTPercent,
                 SGSTAmount = detail.InclusiveTax ? 0 : detail.SGSTAmount,
                 IGSTPercent = detail.InclusiveTax ? 0 : detail.IGSTPercent,
                 IGSTAmount = detail.InclusiveTax ? 0 : detail.IGSTAmount,
+                TaxPercent = detail.InclusiveTax ? 0 : detail.CGSTPercent + detail.SGSTPercent + detail.IGSTPercent,
                 TotalTaxAmount = detail.InclusiveTax ? 0 : detail.TotalTaxAmount,
-                InclusiveTax = detail.InclusiveTax,
-                Total = detail.Total,
-                NetRate = detail.NetRate,
-                Remarks = detail.Remarks
+                detail.InclusiveTax,
+                detail.Total,
+                detail.NetRate,
+                detail.Remarks
             };
         }).ToList();
 
@@ -107,9 +110,13 @@ public static class SaleReturnInvoiceExport
             new(nameof(SaleReturnItemCartModel.Rate), "Rate", exportType, CellAlignment.Right, 50, 12, "#,##0.00"),
             new(nameof(SaleReturnItemCartModel.DiscountPercent), "Disc %", exportType, CellAlignment.Right, 45, 8, "#,##0.00"),
             new(nameof(SaleReturnItemCartModel.AfterDiscount), "Taxable", exportType, CellAlignment.Right, 55, 12, "#,##0.00"),
-            new(nameof(SaleReturnItemCartModel.TotalTaxAmount), exportType == InvoiceExportType.PDF ? "Tax" : "Tax Amt", exportType, CellAlignment.Right, 50, 12, "#,##0.00"),
+            new("TaxPercent","Tax %", exportType, CellAlignment.Right, 45, 8, "#,##0.00"),
+            new(nameof(SaleReturnItemCartModel.TotalTaxAmount), "Tax", exportType, CellAlignment.Right, 50, 12, "#,##0.00"),
             new(nameof(SaleReturnItemCartModel.Total), "Total", exportType, CellAlignment.Right, 55, 15, "#,##0.00")
         };
+
+        var currentDateTime = await CommonData.LoadCurrentDateTime();
+        string fileName = $"SALE_RETURN_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}";
 
         if (exportType == InvoiceExportType.PDF)
         {
@@ -121,8 +128,7 @@ public static class SaleReturnInvoiceExport
                 summaryFields
             );
 
-            var currentDateTime = await CommonData.LoadCurrentDateTime();
-            string fileName = $"SALE_RETURN_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
+            fileName += ".pdf";
             return (stream, fileName);
         }
         else
@@ -135,8 +141,7 @@ public static class SaleReturnInvoiceExport
                 summaryFields
             );
 
-            var currentDateTime = await CommonData.LoadCurrentDateTime();
-            string fileName = $"SALE_RETURN_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.xlsx";
+            fileName += ".xlsx";
             return (stream, fileName);
         }
     }

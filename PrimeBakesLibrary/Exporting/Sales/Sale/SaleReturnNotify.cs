@@ -1,7 +1,6 @@
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Common;
+using PrimeBakesLibrary.Models.Operations;
 using PrimeBakesLibrary.Models.Sales.Sale;
 
 namespace PrimeBakesLibrary.Exporting.Sales.Sale;
@@ -29,12 +28,12 @@ internal static class SaleReturnNotify
         {
             if (saleReturn.PartyId != null && saleReturn.PartyId > 0)
             {
-                var party = await CommonData.LoadTableDataById<LedgerModel>(TableNames.Ledger, saleReturn.PartyId.Value);
+                var location = await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, saleReturn.PartyId.Value);
 
-                if (party.LocationId != null && party.LocationId > 0)
+                if (location is not null)
                     targetUsers = [.. users.Where(u =>
                         (u.Admin || u.Sales) && (
-                            u.LocationId == party.LocationId ||
+                            u.LocationId == location.Id ||
                             u.LocationId == 1 ||
                             u.LocationId == saleReturn.LocationId))];
                 else

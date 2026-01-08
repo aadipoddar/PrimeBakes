@@ -9,7 +9,7 @@ using PrimeBakesLibrary.Exporting.Sales.Sale;
 using PrimeBakesLibrary.Exporting.Sales.StockTransfer;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Common;
+using PrimeBakesLibrary.Models.Operations;
 using PrimeBakesLibrary.Models.Sales.Sale;
 using PrimeBakesLibrary.Models.Sales.StockTransfer;
 
@@ -275,8 +275,12 @@ public partial class SaleItemReport : IAsyncDisposable
         if (_selectedCompany?.Id > 0)
             _transactionTransferOverviews = [.. _transactionTransferOverviews.Where(_ => _.CompanyId == _selectedCompany.Id)];
 
-        if (_selectedParty is { Id: > 0, LocationId: > 0 })
-            _transactionTransferOverviews = [.. _transactionTransferOverviews.Where(_ => _.ToLocationId == _selectedParty.LocationId)];
+        if (_selectedParty?.Id > 0)
+        {
+            var location = _locations.FirstOrDefault(l => l.LedgerId == _selectedParty.Id);
+            if (location is not null)
+                _transactionTransferOverviews = [.. _transactionTransferOverviews.Where(_ => _.ToLocationId == location.Id)];
+        }
 
         _transactionReturnOverviews = [.. _transactionReturnOverviews.OrderBy(_ => _.TransactionDateTime)];
 
@@ -302,8 +306,8 @@ public partial class SaleItemReport : IAsyncDisposable
             ItemCategoryName = pr.ItemCategoryName,
             CompanyId = pr.CompanyId,
             CompanyName = pr.CompanyName,
-            PartyId = _parties.FirstOrDefault(p => p.LocationId == pr.ToLocationId)?.Id,
-            PartyName = _parties.FirstOrDefault(p => p.LocationId == pr.ToLocationId)?.Name,
+            PartyId = _locations.FirstOrDefault(l => l.LedgerId == pr.ToLocationId)?.Id,
+            PartyName = _locations.FirstOrDefault(l => l.LedgerId == pr.ToLocationId)?.Name,
             TransactionNo = pr.TransactionNo,
             TransactionDateTime = pr.TransactionDateTime,
             Quantity = pr.Quantity,

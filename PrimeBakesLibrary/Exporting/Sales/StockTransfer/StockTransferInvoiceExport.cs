@@ -2,7 +2,7 @@ using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Common;
+using PrimeBakesLibrary.Models.Operations;
 using PrimeBakesLibrary.Models.Sales.Product;
 using PrimeBakesLibrary.Models.Sales.StockTransfer;
 
@@ -23,32 +23,33 @@ public static class StockTransferInvoiceExport
             throw new InvalidOperationException("Company information is missing.");
 
         var fromLocation = await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, transaction.LocationId);
-        var toLocationLedger = await LedgerData.LoadLedgerByLocation(transaction.ToLocationId);
+        var toLocationLedger = await LedgerData.LoadLedgerByLocationId(transaction.ToLocationId);
 
         var allItems = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
 
         var cartItems = transactionDetails.Select(detail =>
         {
             var item = allItems.FirstOrDefault(i => i.Id == detail.ProductId);
-            return new StockTransferItemCartModel
+            return new
             {
                 ItemId = detail.ProductId,
                 ItemName = item?.Name ?? $"Item #{detail.ProductId}",
-                Quantity = detail.Quantity,
-                Rate = detail.Rate,
-                BaseTotal = detail.BaseTotal,
-                DiscountPercent = detail.DiscountPercent,
-                DiscountAmount = detail.DiscountAmount,
-                AfterDiscount = detail.AfterDiscount,
+                detail.Quantity,
+                detail.Rate,
+                detail.BaseTotal,
+                detail.DiscountPercent,
+                detail.DiscountAmount,
+                AfterDiscount = detail.DiscountPercent == 0 ? 0 : detail.AfterDiscount,
                 CGSTPercent = detail.InclusiveTax ? 0 : detail.CGSTPercent,
                 CGSTAmount = detail.InclusiveTax ? 0 : detail.CGSTAmount,
                 SGSTPercent = detail.InclusiveTax ? 0 : detail.SGSTPercent,
                 SGSTAmount = detail.InclusiveTax ? 0 : detail.SGSTAmount,
                 IGSTPercent = detail.InclusiveTax ? 0 : detail.IGSTPercent,
                 IGSTAmount = detail.InclusiveTax ? 0 : detail.IGSTAmount,
+                TaxPercent = detail.InclusiveTax ? 0 : detail.CGSTPercent + detail.SGSTPercent + detail.IGSTPercent,
                 TotalTaxAmount = detail.InclusiveTax ? 0 : detail.TotalTaxAmount,
-                InclusiveTax = detail.InclusiveTax,
-                Total = detail.Total
+                detail.InclusiveTax,
+                detail.Total
             };
         }).ToList();
 
@@ -91,11 +92,13 @@ public static class StockTransferInvoiceExport
             new(nameof(StockTransferItemCartModel.DiscountPercent), "Disc %", exportType, CellAlignment.Right, 45, 8, "#,##0.00"),
             new(nameof(StockTransferItemCartModel.DiscountAmount), exportType == InvoiceExportType.PDF ? "Disc Amt" : "Disc Amt", exportType, CellAlignment.Right, 0, 12, "#,##0.00", true),
             new(nameof(StockTransferItemCartModel.AfterDiscount), "Taxable", exportType, CellAlignment.Right, 60, 12, "#,##0.00"),
+            new("TaxPercent","Tax %", exportType, CellAlignment.Right, 45, 8, "#,##0.00"),
             new(nameof(StockTransferItemCartModel.TotalTaxAmount), "Tax", exportType, CellAlignment.Right, 60, 12, "#,##0.00"),
             new(nameof(StockTransferItemCartModel.Total), "Total", exportType, CellAlignment.Right, 80, 15, "#,##0.00")
         };
 
         var currentDateTime = await CommonData.LoadCurrentDateTime();
+        string fileName = $"STOCK_TRANSFER_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}";
 
         if (exportType == InvoiceExportType.PDF)
         {
@@ -107,7 +110,7 @@ public static class StockTransferInvoiceExport
                 summaryFields
             );
 
-            string fileName = $"STOCK_TRANSFER_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.pdf";
+            fileName += ".pdf";
             return (stream, fileName);
         }
         else
@@ -120,7 +123,7 @@ public static class StockTransferInvoiceExport
                 summaryFields
             );
 
-            string fileName = $"STOCK_TRANSFER_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}.xlsx";
+            fileName += ".xlsx";
             return (stream, fileName);
         }
     }

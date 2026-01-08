@@ -63,7 +63,7 @@
     <Folder Include="StoredProcedures\Insert\Accounts" />
     <Folder Include="StoredProcedures\Insert\Accounts\FinancialAccounting" />
     <Folder Include="StoredProcedures\Insert\Accounts\Masters" />
-    <Folder Include="StoredProcedures\Insert\Common" />
+    <Folder Include="StoredProcedures\Insert\Operations" />
     <Folder Include="StoredProcedures\Insert\Inventory" />
     <Folder Include="StoredProcedures\Insert\Inventory\Kitchen" />
     <Folder Include="StoredProcedures\Insert\Inventory\Purchase" />
@@ -92,7 +92,7 @@
     <Folder Include="Tables\Accounts" />
     <Folder Include="Tables\Accounts\FinancialAccounting" />
     <Folder Include="Tables\Accounts\Masters" />
-    <Folder Include="Tables\Common" />
+    <Folder Include="Tables\Operations" />
     <Folder Include="Tables\Inventory" />
     <Folder Include="Tables\Inventory\Kitchen" />
     <Folder Include="Tables\Inventory\Purchase" />
@@ -114,6 +114,7 @@
     <Folder Include="Views\Sales\Order" />
     <Folder Include="Views\Sales\Sale" />
     <Folder Include="Views\Sales\StockTransfer" />
+    <Folder Include="StoredProcedures\LoadData\Operations" />
   </ItemGroup>
   <ItemGroup>
     <None Include="PublishLocations\AzureDBPrimeBakes.publish.xml" />
@@ -133,11 +134,11 @@
     <Build Include="StoredProcedures\Insert\Accounts\Masters\Insert_Ledger.sql" />
     <Build Include="StoredProcedures\Insert\Accounts\Masters\Insert_StateUT.sql" />
     <Build Include="StoredProcedures\Insert\Accounts\Masters\Insert_Voucher.sql" />
-    <Build Include="StoredProcedures\Insert\Common\Insert_Customer.sql" />
-    <Build Include="StoredProcedures\Insert\Common\Insert_Location.sql" />
-    <Build Include="StoredProcedures\Insert\Common\Insert_User.sql" />
-    <Build Include="StoredProcedures\Insert\Common\Reset_Settings.sql" />
-    <Build Include="StoredProcedures\Insert\Common\Update_Settings.sql" />
+    <Build Include="StoredProcedures\Insert\Operations\Insert_Customer.sql" />
+    <Build Include="StoredProcedures\Insert\Operations\Insert_Location.sql" />
+    <Build Include="StoredProcedures\Insert\Operations\Insert_User.sql" />
+    <Build Include="StoredProcedures\Insert\Operations\Reset_Settings.sql" />
+    <Build Include="StoredProcedures\Insert\Operations\Update_Settings.sql" />
     <Build Include="StoredProcedures\Insert\Inventory\Kitchen\Insert_Kitchen.sql" />
     <Build Include="StoredProcedures\Insert\Inventory\Kitchen\Insert_KitchenIssue.sql" />
     <Build Include="StoredProcedures\Insert\Inventory\Kitchen\Insert_KitchenIssueDetail.sql" />
@@ -168,12 +169,9 @@
     <Build Include="StoredProcedures\LoadData\Accounts\FinancialAccounting\Load_Accounting_By_Voucher_Reference.sql" />
     <Build Include="StoredProcedures\LoadData\Accounts\FinancialAccounting\Load_TrialBalance_By_Company_Date.sql" />
     <Build Include="StoredProcedures\LoadData\Accounts\Masters\Load_FinancialYear_By_DateTime.sql" />
-    <Build Include="StoredProcedures\LoadData\Accounts\Masters\Load_Ledger_By_Location.sql" />
     <Build Include="StoredProcedures\LoadData\Common\Load_CurrentDateTime.sql" />
-    <Build Include="StoredProcedures\LoadData\Common\Load_Customer_By_Number.sql" />
     <Build Include="StoredProcedures\LoadData\Common\Load_LastTableData_By_FinancialYear.sql" />
     <Build Include="StoredProcedures\LoadData\Common\Load_LastTableData_By_Location_FinancialYear.sql" />
-    <Build Include="StoredProcedures\LoadData\Common\Load_Settings_By_Key.sql" />
     <Build Include="StoredProcedures\LoadData\Common\Load_TableData.sql" />
     <Build Include="StoredProcedures\LoadData\Common\Load_TableData_By_Code.sql" />
     <Build Include="StoredProcedures\LoadData\Common\Load_TableData_By_Date.sql" />
@@ -181,7 +179,6 @@
     <Build Include="StoredProcedures\LoadData\Common\Load_TableData_By_MasterId.sql" />
     <Build Include="StoredProcedures\LoadData\Common\Load_TableData_By_Status.sql" />
     <Build Include="StoredProcedures\LoadData\Common\Load_TableData_By_TransactionNo.sql" />
-    <Build Include="StoredProcedures\LoadData\Common\Load_User_By_Passcode.sql" />
     <Build Include="StoredProcedures\LoadData\Inventory\Purchase\Load_RawMaterial_By_Party_PurchaseDateTime.sql" />
     <Build Include="StoredProcedures\LoadData\Inventory\RawMaterial\Load_RawMaterial_By_RawMaterialCategory.sql" />
     <Build Include="StoredProcedures\LoadData\Inventory\Recipe\Load_Recipe_By_Product.sql" />
@@ -200,9 +197,8 @@
     <Build Include="Tables\Accounts\Masters\Ledger.sql" />
     <Build Include="Tables\Accounts\Masters\StateUT.sql" />
     <Build Include="Tables\Accounts\Masters\Voucher.sql" />
-    <Build Include="Tables\Common\Customer.sql" />
-    <Build Include="Tables\Common\Location.sql" />
-    <Build Include="Tables\Common\User.sql" />
+    <Build Include="Tables\Operations\Location.sql" />
+    <Build Include="Tables\Operations\User.sql" />
     <Build Include="Tables\Inventory\Kitchen\Kitchen.sql" />
     <Build Include="Tables\Inventory\Kitchen\KitchenIssue.sql" />
     <Build Include="Tables\Inventory\Kitchen\KitchenIssueDetail.sql" />
@@ -252,7 +248,11 @@
     <Build Include="Views\Sales\StockTransfer\StockTransfer_Overview.sql" />
     <Build Include="Views\Sales\ProductLocation_Overview.sql" />
     <Build Include="Tables\Accounts\Masters\Nature.sql" />
-    <Build Include="Tables\Common\Settings.sql" />
+    <Build Include="Tables\Operations\Settings.sql" />
+    <Build Include="StoredProcedures\LoadData\Sales\Load_Customer_By_Number.sql" />
+    <Build Include="StoredProcedures\LoadData\Operations\Load_User_By_Passcode.sql" />
+    <Build Include="StoredProcedures\LoadData\Operations\Load_Settings_By_Key.sql" />
+    <Build Include="Tables\Sales\Customer.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="DBPrimeBakes.refactorlog" />

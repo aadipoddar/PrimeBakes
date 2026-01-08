@@ -307,9 +307,17 @@ public static class PDFInvoiceExportUtil
 
             if (!string.IsNullOrEmpty(company.Address))
             {
-                // Calculate actual address height dynamically
-                int addressLines = Math.Max(1, company.Address.Length / 50);
-                float addressHeight = addressLines * 9;
+                // Measure actual text height needed for the address
+                PdfStringFormat format = new()
+                {
+                    LineAlignment = PdfVerticalAlignment.Top,
+                    Alignment = PdfTextAlignment.Left,
+                    WordWrap = PdfWordWrapType.Word
+                };
+
+                SizeF textSize = valueFont.MeasureString(company.Address, new SizeF(columnWidth - 2 * padding, 1000), format);
+                float addressHeight = textSize.Height;
+
                 DrawWrappedText(graphics, company.Address, valueFont, valueBrush,
                     new RectangleF(leftMargin + padding, leftTextY, columnWidth - 2 * padding, addressHeight + 5));
                 leftTextY += addressHeight + 2;
@@ -345,9 +353,17 @@ public static class PDFInvoiceExportUtil
 
             if (!string.IsNullOrEmpty(billTo.Address))
             {
-                // Calculate actual address height dynamically
-                int addressLines = Math.Max(1, billTo.Address.Length / 50);
-                float addressHeight = addressLines * 9;
+                // Measure actual text height needed for the address
+                PdfStringFormat format = new()
+                {
+                    LineAlignment = PdfVerticalAlignment.Top,
+                    Alignment = PdfTextAlignment.Left,
+                    WordWrap = PdfWordWrapType.Word
+                };
+
+                SizeF textSize = valueFont.MeasureString(billTo.Address, new SizeF(columnWidth - 2 * padding, 1000), format);
+                float addressHeight = textSize.Height;
+
                 DrawWrappedText(graphics, billTo.Address, valueFont, valueBrush,
                     new RectangleF(rightColumnX + padding, rightTextY, columnWidth - 2 * padding, addressHeight + 5));
                 rightTextY += addressHeight + 2;

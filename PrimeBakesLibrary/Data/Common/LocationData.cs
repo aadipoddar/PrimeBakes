@@ -1,7 +1,5 @@
-﻿using PrimeBakesLibrary.Data.Accounts.Masters;
-using PrimeBakesLibrary.Data.Sales.Product;
-using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Common;
+﻿using PrimeBakesLibrary.Data.Sales.Product;
+using PrimeBakesLibrary.Models.Operations;
 using PrimeBakesLibrary.Models.Sales.Product;
 
 namespace PrimeBakesLibrary.Data.Common;
@@ -10,6 +8,12 @@ public static class LocationData
 {
     public static async Task<int> InsertLocation(LocationModel location, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
         (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertLocation, location, sqlDataAccessTransaction)).FirstOrDefault();
+
+    public static async Task<LocationModel?> LoadLocationByLedgerId(int ledgerId, SqlDataAccessTransaction sqlDataAccessTransaction = null)
+    {
+        var locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location, true, sqlDataAccessTransaction);
+        return locations.FirstOrDefault(l => l.LedgerId == ledgerId);
+    }
 
     public static async Task<int> SaveTransaction(LocationModel location, LocationModel copyLocation)
     {
@@ -22,7 +26,6 @@ public static class LocationData
             sqlDataAccessTransaction.StartTransaction();
 
             location.Id = await InsertLocation(location, sqlDataAccessTransaction);
-            await InsertLedger(location, sqlDataAccessTransaction);
             await InsertProducts(location, copyLocation, isNewLocation, sqlDataAccessTransaction);
 
             sqlDataAccessTransaction.CommitTransaction();
@@ -34,43 +37,6 @@ public static class LocationData
         }
 
         return location.Id;
-    }
-
-    private static async Task InsertLedger(LocationModel location, SqlDataAccessTransaction sqlDataAccessTransaction)
-    {
-        try
-        {
-            var ledgers = await CommonData.LoadTableData<LedgerModel>(TableNames.Ledger, sqlDataAccessTransaction);
-            var ledger = ledgers.FirstOrDefault(_ => _.LocationId == location.Id);
-            var primaryCompany = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId, sqlDataAccessTransaction);
-            var company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, int.Parse(primaryCompany.Value), sqlDataAccessTransaction);
-
-            if (ledger is not null && ledger.Id > 0)
-            {
-                ledger.Name = location.Name;
-                ledger.Remarks = location.Remarks;
-                ledger.StateUTId = company.StateUTId;
-                await LedgerData.InsertLedger(ledger, sqlDataAccessTransaction);
-            }
-
-            else
-                await LedgerData.InsertLedger(new()
-                {
-                    Id = ledger?.Id ?? 0,
-                    Name = location.Name,
-                    LocationId = location.Id,
-                    Code = ledger?.Code ?? await GenerateCodes.GenerateLedgerCode(sqlDataAccessTransaction),
-                    AccountTypeId = 3,
-                    GroupId = 1,
-                    Remarks = location.Remarks,
-                    StateUTId = company.StateUTId,
-                    Status = true
-                }, sqlDataAccessTransaction);
-        }
-        catch
-        {
-            throw;
-        }
     }
 
     private static async Task InsertProducts(LocationModel location, LocationModel copyLocation, bool isNewLocation, SqlDataAccessTransaction sqlDataAccessTransaction)

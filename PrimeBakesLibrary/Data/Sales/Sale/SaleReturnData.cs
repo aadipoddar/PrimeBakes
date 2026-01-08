@@ -7,10 +7,9 @@ using PrimeBakesLibrary.Data.Inventory.Stock;
 using PrimeBakesLibrary.Exporting.Sales.Sale;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.FinancialAccounting;
-using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Common;
 using PrimeBakesLibrary.Models.Inventory;
 using PrimeBakesLibrary.Models.Inventory.Stock;
+using PrimeBakesLibrary.Models.Operations;
 using PrimeBakesLibrary.Models.Sales.Sale;
 
 namespace PrimeBakesLibrary.Data.Sales.Sale;
@@ -66,9 +65,9 @@ public static class SaleReturnData
 
             if (saleReturn.PartyId is not null and > 0)
             {
-                var party = await CommonData.LoadTableDataById<LedgerModel>(TableNames.Ledger, saleReturn.PartyId.Value, sqlDataAccessTransaction);
-                if (party.LocationId is > 0)
-                    await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.PurchaseReturn), saleReturn.Id, party.LocationId.Value, sqlDataAccessTransaction);
+                var location = await LocationData.LoadLocationByLedgerId(saleReturn.PartyId.Value, sqlDataAccessTransaction);
+                if (location is not null)
+                    await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.PurchaseReturn), saleReturn.Id, location.Id, sqlDataAccessTransaction);
             }
 
             var saleReturnVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.SaleReturnVoucherId, sqlDataAccessTransaction);
@@ -192,9 +191,9 @@ public static class SaleReturnData
 
             if (existingSaleReturn.PartyId is not null and > 0)
             {
-                var party = await CommonData.LoadTableDataById<LedgerModel>(TableNames.Ledger, existingSaleReturn.PartyId.Value, sqlDataAccessTransaction);
-                if (party.LocationId is > 0)
-                    await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.PurchaseReturn), existingSaleReturn.Id, party.LocationId.Value, sqlDataAccessTransaction);
+                var location = await LocationData.LoadLocationByLedgerId(existingSaleReturn.PartyId.Value, sqlDataAccessTransaction);
+                if (location is not null)
+                    await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.PurchaseReturn), existingSaleReturn.Id, location.Id, sqlDataAccessTransaction);
             }
         }
 
@@ -221,8 +220,8 @@ public static class SaleReturnData
         // Party Location Stock Update (negative quantity - product leaves party's location)
         if (saleReturn.PartyId is not null and > 0)
         {
-            var party = await CommonData.LoadTableDataById<LedgerModel>(TableNames.Ledger, saleReturn.PartyId.Value, sqlDataAccessTransaction);
-            if (party.LocationId is > 0)
+            var location = await LocationData.LoadLocationByLedgerId(saleReturn.PartyId.Value, sqlDataAccessTransaction);
+            if (location is not null)
                 foreach (var item in saleReturnDetails)
                 {
                     var id = await ProductStockData.InsertProductStock(new()
@@ -235,7 +234,7 @@ public static class SaleReturnData
                         Type = nameof(StockType.PurchaseReturn),
                         TransactionNo = saleReturn.TransactionNo,
                         TransactionDate = DateOnly.FromDateTime(saleReturn.TransactionDateTime),
-                        LocationId = party.LocationId.Value
+                        LocationId = location.Id
                     }, sqlDataAccessTransaction);
 
                     if (id <= 0)
@@ -336,7 +335,7 @@ public static class SaleReturnData
         {
             if (saleReturnOverview.Cash + saleReturnOverview.UPI + saleReturnOverview.Card + saleReturnOverview.Credit > 0)
             {
-                var ledger = await LedgerData.LoadLedgerByLocation(saleReturnOverview.LocationId, sqlDataAccessTransaction);
+                var ledger = await LedgerData.LoadLedgerByLocationId(saleReturnOverview.LocationId, sqlDataAccessTransaction);
                 accountingCart.Add(new()
                 {
                     ReferenceId = saleReturnOverview.Id,

@@ -75,7 +75,6 @@ public static class StoredProcedureNames
     public static string LoadCustomerByNumber => "Load_Customer_By_Number";
 
     public static string LoadFinancialYearByDateTime => "Load_FinancialYear_By_DateTime";
-    public static string LoadLedgerByLocation => "Load_Ledger_By_Location";
 
     public static string LoadRawMaterialByRawMaterialCategory => "Load_RawMaterial_By_RawMaterialCategory";
 

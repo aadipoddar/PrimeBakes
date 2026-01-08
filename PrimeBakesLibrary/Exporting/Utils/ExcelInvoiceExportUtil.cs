@@ -277,6 +277,14 @@ public static class ExcelInvoiceExportUtil
             worksheet.Range[leftRow, 1, leftRow, 4].Merge();
             worksheet.Range[leftRow, 1].Text = company.Address;
             worksheet.Range[leftRow, 1].WrapText = true;
+            worksheet.Range[leftRow, 1].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+
+            // Calculate required row height based on text length
+            // Assuming average character width of ~2.5 and column width for 4 merged columns
+            int estimatedCharsPerLine = 50; // Approximate characters that fit in 4 merged columns
+            int numberOfLines = Math.Max(1, (int)Math.Ceiling((double)company.Address.Length / estimatedCharsPerLine));
+            worksheet.Range[leftRow, 1].RowHeight = Math.Max(15, numberOfLines * 15); // 15 points per line
+
             leftRow++;
         }
 
@@ -286,6 +294,13 @@ public static class ExcelInvoiceExportUtil
             worksheet.Range[rightRow, 6, rightRow, 10].Merge();
             worksheet.Range[rightRow, 6].Text = billTo.Address;
             worksheet.Range[rightRow, 6].WrapText = true;
+            worksheet.Range[rightRow, 6].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+
+            // Calculate required row height based on text length
+            int estimatedCharsPerLine = 50; // Approximate characters that fit in 5 merged columns
+            int numberOfLines = Math.Max(1, (int)Math.Ceiling((double)billTo.Address.Length / estimatedCharsPerLine));
+            worksheet.Range[rightRow, 6].RowHeight = Math.Max(15, numberOfLines * 15); // 15 points per line
+
             rightRow++;
         }
 
@@ -339,6 +354,21 @@ public static class ExcelInvoiceExportUtil
 
         // Use the maximum row from both columns
         int currentRow = Math.Max(leftRow, rightRow);
+
+        // Set column widths to ensure addresses display properly
+        // Columns 1-4 for left section (FROM)
+        worksheet.SetColumnWidth(1, 12);
+        worksheet.SetColumnWidth(2, 12);
+        worksheet.SetColumnWidth(3, 12);
+        worksheet.SetColumnWidth(4, 12);
+        // Column 5 is gap
+        worksheet.SetColumnWidth(5, 2);
+        // Columns 6-10 for right section (BILL TO)
+        worksheet.SetColumnWidth(6, 12);
+        worksheet.SetColumnWidth(7, 12);
+        worksheet.SetColumnWidth(8, 12);
+        worksheet.SetColumnWidth(9, 12);
+        worksheet.SetColumnWidth(10, 12);
 
         // Linked Transaction Details (Left column) - shows connected order/sale reference
         if (!string.IsNullOrWhiteSpace(invoiceData.ReferenceTransactionNo))

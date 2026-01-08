@@ -1,6 +1,6 @@
 ﻿using PrimeBakes.Shared.Services;
 
-using PrimeBakesLibrary.Models.Common;
+using PrimeBakesLibrary.DataAccess;
 
 namespace PrimeBakes.Services;
 

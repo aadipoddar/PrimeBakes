@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
 
 using PrimeBakesLibrary.Data.Common;
-using PrimeBakesLibrary.Models.Common;
+using PrimeBakesLibrary.DataAccess;
 
 using Syncfusion.Blazor.Inputs;
 
