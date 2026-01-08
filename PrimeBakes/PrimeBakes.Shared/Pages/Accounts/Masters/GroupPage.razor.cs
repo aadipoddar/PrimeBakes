@@ -1,0 +1,364 @@
+using PrimeBakes.Shared.Components.Dialog;
+
+using PrimeBakesLibrary.Data.Accounts.Masters;
+using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.DataAccess;
+using PrimeBakesLibrary.Exporting.Accounts.Masters;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Models.Operations;
+
+using Syncfusion.Blazor.Grids;
+
+namespace PrimeBakes.Shared.Pages.Accounts.Masters;
+
+public partial class GroupPage : IAsyncDisposable
+{
+    private HotKeysContext _hotKeysContext;
+    private bool _isLoading = true;
+    private bool _isProcessing = false;
+    private bool _showDeleted = false;
+
+    private GroupModel _group = new();
+
+    private List<GroupModel> _groups = [];
+    private List<NatureModel> _natures = [];
+
+    private SfGrid<GroupModel> _sfGrid;
+    private DeleteConfirmationDialog _deleteConfirmationDialog;
+    private RecoverConfirmationDialog _recoverConfirmationDialog;
+
+    private int _deleteGroupId = 0;
+    private string _deleteGroupName = string.Empty;
+
+    private int _recoverGroupId = 0;
+    private string _recoverGroupName = string.Empty;
+
+    private ToastNotification _toastNotification;
+
+    #region Load Data
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, UserRoles.Admin, true);
+        await LoadData();
+        _isLoading = false;
+        StateHasChanged();
+    }
+
+    private async Task LoadData()
+    {
+        _hotKeysContext = HotKeys.CreateContext()
+            .Add(ModCode.Ctrl, Code.S, SaveGroup, "Save", Exclude.None)
+            .Add(ModCode.Ctrl, Code.E, ExportExcel, "Export Excel", Exclude.None)
+            .Add(ModCode.Ctrl, Code.P, ExportPdf, "Export PDF", Exclude.None)
+            .Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
+            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
+            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
+            .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Dashboard", Exclude.None)
+            .Add(Code.Insert, EditSelectedItem, "Edit selected", Exclude.None)
+            .Add(Code.Delete, DeleteSelectedItem, "Delete selected", Exclude.None);
+
+        _natures = await CommonData.LoadTableDataByStatus<NatureModel>(TableNames.Nature);
+        _groups = await CommonData.LoadTableData<GroupModel>(TableNames.Group);
+
+        if (!_showDeleted)
+            _groups = [.. _groups.Where(g => g.Status)];
+
+        if (_sfGrid is not null)
+            await _sfGrid.Refresh();
+    }
+    #endregion
+
+    #region Actions
+    private void OnEditGroup(GroupModel group)
+    {
+        _group = new()
+        {
+            Id = group.Id,
+            Name = group.Name,
+            NatureId = group.NatureId,
+            Remarks = group.Remarks,
+            Status = group.Status
+        };
+
+        StateHasChanged();
+    }
+
+    private async Task ShowDeleteConfirmation(int id, string name)
+    {
+        _deleteGroupId = id;
+        _deleteGroupName = name;
+        await _deleteConfirmationDialog.ShowAsync();
+    }
+
+    private async Task CancelDelete()
+    {
+        _deleteGroupId = 0;
+        _deleteGroupName = string.Empty;
+        await _deleteConfirmationDialog.HideAsync();
+    }
+
+    private async Task ConfirmDelete()
+    {
+        try
+        {
+            _isProcessing = true;
+            await _deleteConfirmationDialog.HideAsync();
+
+            var group = _groups.FirstOrDefault(g => g.Id == _deleteGroupId);
+            if (group == null)
+            {
+                await _toastNotification.ShowAsync("Error", "Group not found.", ToastType.Error);
+                return;
+            }
+
+            group.Status = false;
+            await GroupData.InsertGroup(group);
+
+            await _toastNotification.ShowAsync("Success", $"Group '{group.Name}' has been deleted successfully.", ToastType.Success);
+            NavigationManager.NavigateTo(PageRouteNames.AdminGroup, true);
+        }
+        catch (Exception ex)
+        {
+            await _toastNotification.ShowAsync("Error", $"Failed to delete Group: {ex.Message}", ToastType.Error);
+        }
+        finally
+        {
+            _isProcessing = false;
+            _deleteGroupId = 0;
+            _deleteGroupName = string.Empty;
+        }
+    }
+
+    private async Task ShowRecoverConfirmation(int id, string name)
+    {
+        _recoverGroupId = id;
+        _recoverGroupName = name;
+        await _recoverConfirmationDialog.ShowAsync();
+    }
+
+    private async Task CancelRecover()
+    {
+        _recoverGroupId = 0;
+        _recoverGroupName = string.Empty;
+        await _recoverConfirmationDialog.HideAsync();
+    }
+
+    private async Task ToggleDeleted()
+    {
+        _showDeleted = !_showDeleted;
+        await LoadData();
+        StateHasChanged();
+    }
+
+    private async Task ConfirmRecover()
+    {
+        try
+        {
+            _isProcessing = true;
+            await _recoverConfirmationDialog.HideAsync();
+
+            var group = _groups.FirstOrDefault(g => g.Id == _recoverGroupId);
+            if (group == null)
+            {
+                await _toastNotification.ShowAsync("Error", "Group not found.", ToastType.Error);
+                return;
+            }
+
+            group.Status = true;
+            await GroupData.InsertGroup(group);
+
+            await _toastNotification.ShowAsync("Success", $"Group '{group.Name}' has been recovered successfully.", ToastType.Success);
+            NavigationManager.NavigateTo(PageRouteNames.AdminGroup, true);
+        }
+        catch (Exception ex)
+        {
+            await _toastNotification.ShowAsync("Error", $"Failed to recover Group: {ex.Message}", ToastType.Error);
+        }
+        finally
+        {
+            _isProcessing = false;
+            _recoverGroupId = 0;
+            _recoverGroupName = string.Empty;
+        }
+    }
+    #endregion
+
+    #region Saving
+    private async Task<bool> ValidateForm()
+    {
+        _group.Name = _group.Name?.Trim() ?? "";
+        _group.Name = _group.Name?.ToUpper() ?? "";
+
+        _group.Remarks = _group.Remarks?.Trim() ?? "";
+        _group.Status = true;
+
+        if (string.IsNullOrWhiteSpace(_group.Name))
+        {
+            await _toastNotification.ShowAsync("Error", "Group name is required. Please enter a valid group name.", ToastType.Error);
+            return false;
+        }
+
+        if (_group.NatureId <= 0)
+        {
+            await _toastNotification.ShowAsync("Error", "Nature is required. Please select a nature.", ToastType.Error);
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(_group.Remarks))
+            _group.Remarks = null;
+
+        if (_group.Id > 0)
+        {
+            var existingGroup = _groups.FirstOrDefault(_ => _.Id != _group.Id && _.Name.Equals(_group.Name, StringComparison.OrdinalIgnoreCase));
+            if (existingGroup is not null)
+            {
+                await _toastNotification.ShowAsync("Error", $"Group name '{_group.Name}' already exists. Please choose a different name.", ToastType.Error);
+                return false;
+            }
+        }
+        else
+        {
+            var existingGroup = _groups.FirstOrDefault(_ => _.Name.Equals(_group.Name, StringComparison.OrdinalIgnoreCase));
+            if (existingGroup is not null)
+            {
+                await _toastNotification.ShowAsync("Error", $"Group name '{_group.Name}' already exists. Please choose a different name.", ToastType.Error);
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private async Task SaveGroup()
+    {
+        if (_isProcessing)
+            return;
+
+        try
+        {
+            _isProcessing = true;
+            StateHasChanged();
+
+            if (!await ValidateForm())
+            {
+                _isProcessing = false;
+                return;
+            }
+
+            await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
+
+            await GroupData.InsertGroup(_group);
+
+            await _toastNotification.ShowAsync("Success", $"Group '{_group.Name}' has been saved successfully.", ToastType.Success);
+            NavigationManager.NavigateTo(PageRouteNames.AdminGroup, true);
+        }
+        catch (Exception ex)
+        {
+            await _toastNotification.ShowAsync("Error", $"Failed to save Group: {ex.Message}", ToastType.Error);
+        }
+        finally
+        {
+            _isProcessing = false;
+        }
+    }
+    #endregion
+
+    #region Exporting
+    private async Task ExportExcel()
+    {
+        if (_isProcessing)
+            return;
+
+        try
+        {
+            _isProcessing = true;
+            StateHasChanged();
+            await _toastNotification.ShowAsync("Processing", "Exporting to Excel...", ToastType.Info);
+
+            var (stream, fileName) = await GroupExport.ExportMaster(_groups, ReportExportType.Excel);
+            await SaveAndViewService.SaveAndView(fileName, stream);
+            await _toastNotification.ShowAsync("Success", "Group data exported to Excel successfully.", ToastType.Success);
+        }
+        catch (Exception ex)
+        {
+            await _toastNotification.ShowAsync("Error", $"An error occurred while exporting to Excel: {ex.Message}", ToastType.Error);
+        }
+        finally
+        {
+            _isProcessing = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ExportPdf()
+    {
+        if (_isProcessing)
+            return;
+
+        try
+        {
+            _isProcessing = true;
+            StateHasChanged();
+            await _toastNotification.ShowAsync("Processing", "Exporting to PDF...", ToastType.Info);
+
+            var (stream, fileName) = await GroupExport.ExportMaster(_groups, ReportExportType.PDF);
+            await SaveAndViewService.SaveAndView(fileName, stream);
+            await _toastNotification.ShowAsync("Success", "Group data exported to PDF successfully.", ToastType.Success);
+        }
+        catch (Exception ex)
+        {
+            await _toastNotification.ShowAsync("Error", $"An error occurred while exporting to PDF: {ex.Message}", ToastType.Error);
+        }
+        finally
+        {
+            _isProcessing = false;
+            StateHasChanged();
+        }
+    }
+    #endregion
+
+    #region Utilities
+    private async Task EditSelectedItem()
+    {
+        var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
+        if (selectedRecords.Count > 0)
+            OnEditGroup(selectedRecords[0]);
+    }
+
+    private async Task DeleteSelectedItem()
+    {
+        var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
+        if (selectedRecords.Count > 0)
+        {
+            if (selectedRecords[0].Status)
+                await ShowDeleteConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
+            else
+                await ShowRecoverConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
+        }
+    }
+
+    private void ResetPage() =>
+        NavigationManager.NavigateTo(PageRouteNames.AdminGroup, true);
+
+    private void NavigateBack() =>
+        NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
+
+    private void NavigateToDashboard() =>
+        NavigationManager.NavigateTo(PageRouteNames.Dashboard);
+
+    private async Task Logout() =>
+        await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_hotKeysContext is not null)
+            await _hotKeysContext.DisposeAsync();
+
+        GC.SuppressFinalize(this);
+    }
+    #endregion
+}
