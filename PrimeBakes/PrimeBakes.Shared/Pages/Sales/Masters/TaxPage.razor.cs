@@ -1,16 +1,16 @@
 using PrimeBakes.Shared.Components.Dialog;
 
 using PrimeBakesLibrary.Data.Common;
-using PrimeBakesLibrary.Data.Sales.Product;
+using PrimeBakesLibrary.Data.Sales.Masters;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Sales.Product;
+using PrimeBakesLibrary.Exporting.Sales.Masters;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Sales.Product;
+using PrimeBakesLibrary.Models.Sales.Masters;
 
 using Syncfusion.Blazor.Grids;
 
-namespace PrimeBakes.Shared.Pages.Sales.Product;
+namespace PrimeBakes.Shared.Pages.Sales.Masters;
 
 public partial class TaxPage : IAsyncDisposable
 {

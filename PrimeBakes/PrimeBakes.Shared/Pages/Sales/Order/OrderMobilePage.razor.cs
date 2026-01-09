@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Components;
 
 using PrimeBakesLibrary.Data.Common;
-using PrimeBakesLibrary.Data.Sales.Product;
+using PrimeBakesLibrary.Data.Sales.Masters;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Models.Sales.Masters;
 using PrimeBakesLibrary.Models.Sales.Order;
-using PrimeBakesLibrary.Models.Sales.Product;
 
 using Syncfusion.Blazor.Grids;
 

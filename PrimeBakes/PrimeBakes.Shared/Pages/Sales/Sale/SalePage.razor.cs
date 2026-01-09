@@ -6,9 +6,8 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Operations;
-using PrimeBakesLibrary.Data.Sales;
+using PrimeBakesLibrary.Data.Sales.Masters;
 using PrimeBakesLibrary.Data.Sales.Order;
-using PrimeBakesLibrary.Data.Sales.Product;
 using PrimeBakesLibrary.Data.Sales.Sale;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Sales.Order;
@@ -16,9 +15,8 @@ using PrimeBakesLibrary.Exporting.Sales.Sale;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Sales;
+using PrimeBakesLibrary.Models.Sales.Masters;
 using PrimeBakesLibrary.Models.Sales.Order;
-using PrimeBakesLibrary.Models.Sales.Product;
 using PrimeBakesLibrary.Models.Sales.Sale;
 
 using Syncfusion.Blazor.DropDowns;
@@ -1118,6 +1116,12 @@ public partial class SalePage : IAsyncDisposable
             _sale.OrderId = null;
 
         var location = _locations.FirstOrDefault(s => s.LedgerId == _sale.PartyId);
+        if (location is null)
+        {
+            _selectedOrder = null;
+            _sale.OrderId = null;
+        }
+
         if (_selectedOrder is not null && _selectedOrder.LocationId != location.Id)
         {
             await _toastNotification.ShowAsync("Order Location Mismatch", "The selected order does not belong to the selected party's location. Please select a valid order.", ToastType.Error);

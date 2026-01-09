@@ -6,12 +6,12 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Inventory.Stock;
-using PrimeBakesLibrary.Data.Sales.Product;
+using PrimeBakesLibrary.Data.Sales.Masters;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Inventory.Stock;
 using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Sales.Product;
+using PrimeBakesLibrary.Models.Sales.Masters;
 
 using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;

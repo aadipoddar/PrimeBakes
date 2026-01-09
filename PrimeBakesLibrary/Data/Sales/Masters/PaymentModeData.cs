@@ -1,6 +1,6 @@
-﻿using PrimeBakesLibrary.Models.Sales;
+﻿using PrimeBakesLibrary.Models.Sales.Masters;
 
-namespace PrimeBakesLibrary.Data.Sales;
+namespace PrimeBakesLibrary.Data.Sales.Masters;
 
 public static class PaymentModeData
 {

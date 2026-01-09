@@ -1,4 +1,4 @@
-﻿namespace PrimeBakesLibrary.Models.Sales;
+﻿namespace PrimeBakesLibrary.Models.Sales.Masters;
 
 public class CustomerModel
 {

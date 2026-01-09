@@ -1,6 +1,6 @@
-﻿using PrimeBakesLibrary.Models.Sales.Product;
+﻿using PrimeBakesLibrary.Models.Sales.Masters;
 
-namespace PrimeBakesLibrary.Data.Sales.Product;
+namespace PrimeBakesLibrary.Data.Sales.Masters;
 
 public static class TaxData
 {

@@ -14,7 +14,7 @@ using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Inventory;
 using PrimeBakesLibrary.Models.Inventory.Purchase;
 using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Sales.Product;
+using PrimeBakesLibrary.Models.Sales.Masters;
 
 using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;

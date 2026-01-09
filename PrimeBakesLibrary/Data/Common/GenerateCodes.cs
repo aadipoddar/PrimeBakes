@@ -6,8 +6,8 @@ using PrimeBakesLibrary.Models.Inventory;
 using PrimeBakesLibrary.Models.Inventory.Kitchen;
 using PrimeBakesLibrary.Models.Inventory.Purchase;
 using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Models.Sales.Masters;
 using PrimeBakesLibrary.Models.Sales.Order;
-using PrimeBakesLibrary.Models.Sales.Product;
 using PrimeBakesLibrary.Models.Sales.Sale;
 using PrimeBakesLibrary.Models.Sales.StockTransfer;
 
@@ -363,10 +363,10 @@ public static class GenerateCodes
         return await CheckDuplicateCode($"{rawMaterialPrefix}0001", 4, CodeType.RawMaterial);
     }
 
-    public static async Task<string> GenerateProductCode()
+    public static async Task<string> GenerateProductCode(SqlDataAccessTransaction sqlDataAccessTransaction = null)
     {
-        var products = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
-        var productPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.FinishedProductCodePrefix)).Value;
+        var products = await CommonData.LoadTableData<ProductModel>(TableNames.Product, sqlDataAccessTransaction);
+        var productPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.FinishedProductCodePrefix, sqlDataAccessTransaction)).Value;
 
         var lastProduct = products.OrderByDescending(p => p.Id).FirstOrDefault();
         if (lastProduct is not null)
@@ -378,12 +378,12 @@ public static class GenerateCodes
                 if (int.TryParse(lastNumberPart, out int lastNumber))
                 {
                     int nextNumber = lastNumber + 1;
-                    return await CheckDuplicateCode($"{productPrefix}{nextNumber:D4}", 4, CodeType.FinishedProduct);
+                    return await CheckDuplicateCode($"{productPrefix}{nextNumber:D4}", 4, CodeType.FinishedProduct, sqlDataAccessTransaction);
                 }
             }
         }
 
-        return await CheckDuplicateCode($"{productPrefix}0001", 4, CodeType.FinishedProduct);
+        return await CheckDuplicateCode($"{productPrefix}0001", 4, CodeType.FinishedProduct, sqlDataAccessTransaction);
     }
 
     public static async Task<string> GenerateLedgerCode(SqlDataAccessTransaction sqlDataAccessTransaction = null)

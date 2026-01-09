@@ -1,17 +1,17 @@
 using PrimeBakes.Shared.Components.Dialog;
 
 using PrimeBakesLibrary.Data.Common;
-using PrimeBakesLibrary.Data.Sales.Product;
+using PrimeBakesLibrary.Data.Sales.Masters;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Sales.Product;
+using PrimeBakesLibrary.Exporting.Sales.Masters;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Sales.Product;
+using PrimeBakesLibrary.Models.Sales.Masters;
 
 using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;
 
-namespace PrimeBakes.Shared.Pages.Sales.Product;
+namespace PrimeBakes.Shared.Pages.Sales.Masters;
 
 public partial class ProductPage : IAsyncDisposable
 {
@@ -250,8 +250,6 @@ public partial class ProductPage : IAsyncDisposable
             return false;
         }
 
-        // Code is auto-generated, no need to validate
-
         if (_product.ProductCategoryId <= 0)
         {
             await _toastNotification.ShowAsync("Validation", "Please select a category.", ToastType.Warning);
@@ -281,8 +279,6 @@ public partial class ProductPage : IAsyncDisposable
                 await _toastNotification.ShowAsync("Validation", $"Product name '{_product.Name}' already exists.", ToastType.Warning);
                 return false;
             }
-
-            // Code is preserved when editing, no need to check for duplicates
         }
         else
         {
@@ -292,8 +288,6 @@ public partial class ProductPage : IAsyncDisposable
                 await _toastNotification.ShowAsync("Validation", $"Product name '{_product.Name}' already exists.", ToastType.Warning);
                 return false;
             }
-
-            // Code is auto-generated and unique, no need to check for duplicates
         }
 
         return true;
@@ -317,14 +311,7 @@ public partial class ProductPage : IAsyncDisposable
 
             await _toastNotification.ShowAsync("Saving", "Processing product...", ToastType.Info);
 
-            if (_product.Id == 0)
-                _product.Code = await GenerateCodes.GenerateProductCode();
-
-            var isNewProduct = _product.Id == 0;
-
-            _product.Id = await ProductData.InsertProduct(_product);
-            if (isNewProduct)
-                await InsertProductLocations();
+            _product.Id = await ProductData.SaveProduct(_product);
 
             await _toastNotification.ShowAsync("Saved", $"Product '{_product.Name}' saved successfully.", ToastType.Success);
             NavigationManager.NavigateTo(PageRouteNames.AdminProduct, true);
@@ -337,20 +324,6 @@ public partial class ProductPage : IAsyncDisposable
         {
             _isProcessing = false;
         }
-    }
-
-    private async Task InsertProductLocations()
-    {
-        var locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
-        foreach (var location in locations)
-            await ProductData.InsertProductLocation(new()
-            {
-                Id = 0,
-                Rate = _product.Rate,
-                ProductId = _product.Id,
-                LocationId = location.Id,
-                Status = true,
-            });
     }
     #endregion
 

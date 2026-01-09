@@ -1,4 +1,4 @@
-﻿namespace PrimeBakesLibrary.Models.Sales.Product;
+﻿namespace PrimeBakesLibrary.Models.Sales.Masters;
 
 public class TaxModel
 {

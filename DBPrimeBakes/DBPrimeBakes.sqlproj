@@ -72,7 +72,7 @@
     <Folder Include="StoredProcedures\Insert\Inventory\Stock" />
     <Folder Include="StoredProcedures\Insert\Sales" />
     <Folder Include="StoredProcedures\Insert\Sales\Order" />
-    <Folder Include="StoredProcedures\Insert\Sales\Product" />
+    <Folder Include="StoredProcedures\Insert\Sales\Masters" />
     <Folder Include="StoredProcedures\Insert\Sales\Sale" />
     <Folder Include="StoredProcedures\Insert\Sales\StockTransfer" />
     <Folder Include="StoredProcedures\LoadData" />
@@ -87,7 +87,7 @@
     <Folder Include="StoredProcedures\LoadData\Inventory\Stock" />
     <Folder Include="StoredProcedures\LoadData\Sales" />
     <Folder Include="StoredProcedures\LoadData\Sales\Order" />
-    <Folder Include="StoredProcedures\LoadData\Sales\Product" />
+    <Folder Include="StoredProcedures\LoadData\Sales\Masters" />
     <Folder Include="Tables" />
     <Folder Include="Tables\Accounts" />
     <Folder Include="Tables\Accounts\FinancialAccounting" />
@@ -101,7 +101,7 @@
     <Folder Include="Tables\Inventory\Stock" />
     <Folder Include="Tables\Sales" />
     <Folder Include="Tables\Sales\Order" />
-    <Folder Include="Tables\Sales\Product" />
+    <Folder Include="Tables\Sales\Masters" />
     <Folder Include="Tables\Sales\Sale" />
     <Folder Include="Tables\Sales\StockTransfer" />
     <Folder Include="Views" />
@@ -156,10 +156,10 @@
     <Build Include="StoredProcedures\Insert\Inventory\Stock\Insert_RawMaterialStock.sql" />
     <Build Include="StoredProcedures\Insert\Sales\Order\Insert_Order.sql" />
     <Build Include="StoredProcedures\Insert\Sales\Order\Insert_OrderDetail.sql" />
-    <Build Include="StoredProcedures\Insert\Sales\Product\Insert_Product.sql" />
-    <Build Include="StoredProcedures\Insert\Sales\Product\Insert_ProductCategory.sql" />
-    <Build Include="StoredProcedures\Insert\Sales\Product\Insert_ProductLocation.sql" />
-    <Build Include="StoredProcedures\Insert\Sales\Product\Insert_Tax.sql" />
+    <Build Include="StoredProcedures\Insert\Sales\Masters\Insert_Product.sql" />
+    <Build Include="StoredProcedures\Insert\Sales\Masters\Insert_ProductCategory.sql" />
+    <Build Include="StoredProcedures\Insert\Sales\Masters\Insert_ProductLocation.sql" />
+    <Build Include="StoredProcedures\Insert\Sales\Masters\Insert_Tax.sql" />
     <Build Include="StoredProcedures\Insert\Sales\Sale\Insert_Sale.sql" />
     <Build Include="StoredProcedures\Insert\Sales\Sale\Insert_SaleDetail.sql" />
     <Build Include="StoredProcedures\Insert\Sales\Sale\Insert_SaleReturn.sql" />
@@ -185,9 +185,9 @@
     <Build Include="StoredProcedures\LoadData\Inventory\Stock\Load_ProductStockSummary_By_Date_LocationId.sql" />
     <Build Include="StoredProcedures\LoadData\Inventory\Stock\Load_RawMaterialStockSummary_By_Date.sql" />
     <Build Include="StoredProcedures\LoadData\Sales\Order\Load_Order_By_Location_Pending.sql" />
-    <Build Include="StoredProcedures\LoadData\Sales\Product\Load_Product_By_Location.sql" />
-    <Build Include="StoredProcedures\LoadData\Sales\Product\Load_Product_By_ProductCategory.sql" />
-    <Build Include="StoredProcedures\LoadData\Sales\Product\Load_ProductRate_By_Product.sql" />
+    <Build Include="StoredProcedures\LoadData\Sales\Masters\Load_Product_By_Location.sql" />
+    <Build Include="StoredProcedures\LoadData\Sales\Masters\Load_Product_By_ProductCategory.sql" />
+    <Build Include="StoredProcedures\LoadData\Sales\Masters\Load_ProductRate_By_Product.sql" />
     <Build Include="Tables\Accounts\FinancialAccounting\Accounting.sql" />
     <Build Include="Tables\Accounts\FinancialAccounting\AccountingDetail.sql" />
     <Build Include="Tables\Accounts\Masters\AccountType.sql" />
@@ -216,10 +216,10 @@
     <Build Include="Tables\Inventory\Stock\RawMaterialStock.sql" />
     <Build Include="Tables\Sales\Order\Order.sql" />
     <Build Include="Tables\Sales\Order\OrderDetail.sql" />
-    <Build Include="Tables\Sales\Product\Product.sql" />
-    <Build Include="Tables\Sales\Product\ProductCategory.sql" />
-    <Build Include="Tables\Sales\Product\ProductLocation.sql" />
-    <Build Include="Tables\Sales\Product\Tax.sql" />
+    <Build Include="Tables\Sales\Masters\Product.sql" />
+    <Build Include="Tables\Sales\Masters\ProductCategory.sql" />
+    <Build Include="Tables\Sales\Masters\ProductLocation.sql" />
+    <Build Include="Tables\Sales\Masters\Tax.sql" />
     <Build Include="Tables\Sales\Sale\Sale.sql" />
     <Build Include="Tables\Sales\Sale\SaleDetail.sql" />
     <Build Include="Tables\Sales\Sale\SaleReturn.sql" />
@@ -249,10 +249,10 @@
     <Build Include="Views\Sales\ProductLocation_Overview.sql" />
     <Build Include="Tables\Accounts\Masters\Nature.sql" />
     <Build Include="Tables\Operations\Settings.sql" />
-    <Build Include="StoredProcedures\LoadData\Sales\Load_Customer_By_Number.sql" />
     <Build Include="StoredProcedures\LoadData\Operations\Load_User_By_Passcode.sql" />
     <Build Include="StoredProcedures\LoadData\Operations\Load_Settings_By_Key.sql" />
-    <Build Include="Tables\Sales\Customer.sql" />
+    <Build Include="Tables\Sales\Masters\Customer.sql" />
+    <Build Include="StoredProcedures\LoadData\Sales\Masters\Load_Customer_By_Number.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="DBPrimeBakes.refactorlog" />

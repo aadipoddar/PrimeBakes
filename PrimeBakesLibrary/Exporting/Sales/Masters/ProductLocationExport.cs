@@ -1,8 +1,8 @@
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Sales.Product;
+using PrimeBakesLibrary.Models.Sales.Masters;
 
-namespace PrimeBakesLibrary.Exporting.Sales.Product;
+namespace PrimeBakesLibrary.Exporting.Sales.Masters;
 
 public static class ProductLocationExport
 {
