@@ -102,6 +102,8 @@ public enum IconType
     Cart,
     Upload,
     TrialBalance,
+    ProfitAndLoss,
+    BalanceSheet,
     Generate,
     Reset,
     Recover,

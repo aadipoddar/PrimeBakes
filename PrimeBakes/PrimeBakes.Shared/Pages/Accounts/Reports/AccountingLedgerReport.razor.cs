@@ -64,6 +64,8 @@ public partial class AccountingLedgerReport : IAsyncDisposable
             .Add(ModCode.Ctrl, Code.P, ExportPdf, "Export to PDF", Exclude.None)
             .Add(ModCode.Ctrl, Code.H, NavigateToTransactionHistory, "Open transaction history", Exclude.None)
             .Add(ModCode.Ctrl, Code.T, NavigateToTrialBalance, "Open trial balance report", Exclude.None)
+            .Add(ModCode.Alt, Code.F, NavigateToProfitAndLoss, "Open profit and loss report", Exclude.None)
+            .Add(ModCode.Alt, Code.B, NavigateToBalanceSheet, "Open balance sheet report", Exclude.None)
             .Add(ModCode.Ctrl, Code.N, NavigateToTransactionPage, "New Transaction", Exclude.None)
             .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
             .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
@@ -411,6 +413,22 @@ public partial class AccountingLedgerReport : IAsyncDisposable
             await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportTrialBalance, "_blank");
         else
             NavigationManager.NavigateTo(PageRouteNames.ReportTrialBalance);
+    }
+
+    private async Task NavigateToProfitAndLoss()
+    {
+        if (FormFactor.GetFormFactor() == "Web")
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportProfitAndLoss, "_blank");
+        else
+            NavigationManager.NavigateTo(PageRouteNames.ReportProfitAndLoss);
+    }
+
+    private async Task NavigateToBalanceSheet()
+    {
+        if (FormFactor.GetFormFactor() == "Web")
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportBalanceSheet, "_blank");
+        else
+            NavigationManager.NavigateTo(PageRouteNames.ReportBalanceSheet);
     }
 
     private void NavigateToDashboard() =>

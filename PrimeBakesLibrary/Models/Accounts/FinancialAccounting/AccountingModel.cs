@@ -12,9 +12,9 @@ public class AccountingModel
     public int FinancialYearId { get; set; }
     public int TotalDebitLedgers { get; set; }
     public int TotalCreditLedgers { get; set; }
-	public decimal TotalDebitAmount { get; set; }
+    public decimal TotalDebitAmount { get; set; }
     public decimal TotalCreditAmount { get; set; }
-	public string? Remarks { get; set; }
+    public string? Remarks { get; set; }
     public int CreatedBy { get; set; }
     public DateTime CreatedAt { get; set; }
     public string CreatedFromPlatform { get; set; }
@@ -130,6 +130,8 @@ public class TrialBalanceModel
     public string LedgerName { get; set; }
     public int GroupId { get; set; }
     public string GroupName { get; set; }
+    public int NatureId { get; set; }
+    public string NatureName { get; set; }
     public int AccountTypeId { get; set; }
     public string AccountTypeName { get; set; }
 

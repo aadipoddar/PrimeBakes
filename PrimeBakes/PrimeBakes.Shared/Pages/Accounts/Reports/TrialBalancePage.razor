@@ -13,9 +13,8 @@
 else
 {
 	<div style="display: flex; flex-direction: column; min-height: 100vh;">
-		<Header Title="Trial Balance Report" Subtitle="View ledger balances for specified period" ShowHome="true"
-			ShowBack="true" ShowLogout="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack"
-			OnLogoutClick="Logout">
+		<Header Title="Trial Balance" Subtitle="View ledger balances for specified period" ShowHome="true" ShowBack="true"
+			ShowLogout="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
 			<RightContent>
 				<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)"
 					Disabled="_isProcessing" OnClick="ExportExcel" />
@@ -25,6 +24,10 @@ else
 					OnClick="LoadTrialBalance" />
 				<IconButton Icon="IconType.Report" Title="Ledger Report (Ctrl + I)" Disabled="_isProcessing"
 					OnClick="NavigateToLedgerReport" />
+				<IconButton Icon="IconType.ProfitAndLoss" Title="Profit & Loss (Alt+ F)" Disabled="_isProcessing"
+					OnClick="NavigateToProfitAndLoss" />
+				<IconButton Icon="IconType.BalanceSheet" Title="Balance Sheet (Alt+ B)" Disabled="_isProcessing"
+					OnClick="NavigateToBalanceSheet" />
 				<IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing"
 					OnClick="NavigateToTransactionPage" />
 			</RightContent>
@@ -166,21 +169,24 @@ else
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-debit"><strong>@aggregate.Sum</strong>
+												<div class="aggregate-value aggregate-debit">
+													<strong>@aggregate.Sum</strong>
 												</div>
 											}
 										</FooterTemplate>
 										<GroupFooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-debit"><strong>@aggregate.Sum</strong>
+												<div class="aggregate-value aggregate-debit">
+													<strong>@aggregate.Sum</strong>
 												</div>
 											}
 										</GroupFooterTemplate>
 										<GroupCaptionTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-debit"><strong>@aggregate.Sum</strong>
+												<div class="aggregate-value aggregate-debit">
+													<strong>@aggregate.Sum</strong>
 												</div>
 											}
 										</GroupCaptionTemplate>
@@ -190,21 +196,24 @@ else
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-credit"><strong>@aggregate.Sum</strong>
+												<div class="aggregate-value aggregate-credit">
+													<strong>@aggregate.Sum</strong>
 												</div>
 											}
 										</FooterTemplate>
 										<GroupFooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-credit"><strong>@aggregate.Sum</strong>
+												<div class="aggregate-value aggregate-credit">
+													<strong>@aggregate.Sum</strong>
 												</div>
 											}
 										</GroupFooterTemplate>
 										<GroupCaptionTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-credit"><strong>@aggregate.Sum</strong>
+												<div class="aggregate-value aggregate-credit">
+													<strong>@aggregate.Sum</strong>
 												</div>
 											}
 										</GroupCaptionTemplate>
@@ -214,21 +223,24 @@ else
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-debit"><strong>@aggregate.Sum</strong>
+												<div class="aggregate-value aggregate-debit">
+													<strong>@aggregate.Sum</strong>
 												</div>
 											}
 										</FooterTemplate>
 										<GroupFooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-debit"><strong>@aggregate.Sum</strong>
+												<div class="aggregate-value aggregate-debit">
+													<strong>@aggregate.Sum</strong>
 												</div>
 											}
 										</GroupFooterTemplate>
 										<GroupCaptionTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-debit"><strong>@aggregate.Sum</strong>
+												<div class="aggregate-value aggregate-debit">
+													<strong>@aggregate.Sum</strong>
 												</div>
 											}
 										</GroupCaptionTemplate>
@@ -238,21 +250,24 @@ else
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-credit"><strong>@aggregate.Sum</strong>
+												<div class="aggregate-value aggregate-credit">
+													<strong>@aggregate.Sum</strong>
 												</div>
 											}
 										</FooterTemplate>
 										<GroupFooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-credit"><strong>@aggregate.Sum</strong>
+												<div class="aggregate-value aggregate-credit">
+													<strong>@aggregate.Sum</strong>
 												</div>
 											}
 										</GroupFooterTemplate>
 										<GroupCaptionTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-credit"><strong>@aggregate.Sum</strong>
+												<div class="aggregate-value aggregate-credit">
+													<strong>@aggregate.Sum</strong>
 												</div>
 											}
 										</GroupCaptionTemplate>
@@ -262,21 +277,24 @@ else
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-debit"><strong>@aggregate.Sum</strong>
+												<div class="aggregate-value aggregate-debit">
+													<strong>@aggregate.Sum</strong>
 												</div>
 											}
 										</FooterTemplate>
 										<GroupFooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-debit"><strong>@aggregate.Sum</strong>
+												<div class="aggregate-value aggregate-debit">
+													<strong>@aggregate.Sum</strong>
 												</div>
 											}
 										</GroupFooterTemplate>
 										<GroupCaptionTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-debit"><strong>@aggregate.Sum</strong>
+												<div class="aggregate-value aggregate-debit">
+													<strong>@aggregate.Sum</strong>
 												</div>
 											}
 										</GroupCaptionTemplate>
@@ -286,21 +304,24 @@ else
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-credit"><strong>@aggregate.Sum</strong>
+												<div class="aggregate-value aggregate-credit">
+													<strong>@aggregate.Sum</strong>
 												</div>
 											}
 										</FooterTemplate>
 										<GroupFooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-credit"><strong>@aggregate.Sum</strong>
+												<div class="aggregate-value aggregate-credit">
+													<strong>@aggregate.Sum</strong>
 												</div>
 											}
 										</GroupFooterTemplate>
 										<GroupCaptionTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-credit"><strong>@aggregate.Sum</strong>
+												<div class="aggregate-value aggregate-credit">
+													<strong>@aggregate.Sum</strong>
 												</div>
 											}
 										</GroupCaptionTemplate>

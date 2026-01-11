@@ -50,6 +50,8 @@ BEGIN
 		l.Name AS LedgerName,
 		g.Id AS GroupId,
 		g.Name AS GroupName,
+		g.NatureId AS NatureId,
+		n.Name AS NatureName,
 		at.Id AS AccountTypeId,
 		at.Name AS AccountTypeName,
 		
@@ -72,6 +74,8 @@ BEGIN
 		Ledger l
 	INNER JOIN 
 		[Group] g ON l.GroupId = g.Id
+	INNER JOIN 
+		[Nature] n ON g.NatureId = n.Id
 	INNER JOIN 
 		AccountType at ON l.AccountTypeId = at.Id
 	LEFT JOIN 

@@ -414,19 +414,48 @@ else
 								</IconContent>
 							</ButtonCard>
 
-							<!-- Trial Balance Report -->
-							<ButtonCard Title="Trial Balance"
-										Description="View trial balance summary"
-										Color="sky"
+							<!-- Trial Balance -->
+							<ButtonCard Title="Trial Balance" Description="View trial balance summary" Color="sky"
 										OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportTrialBalance)">
 								<IconContent>
 									<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
 										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
 										 stroke-linejoin="round">
-										<rect x="3" y="3" width="7" height="7" />
-										<rect x="14" y="3" width="7" height="7" />
-										<rect x="14" y="14" width="7" height="7" />
-										<rect x="3" y="14" width="7" height="7" />
+										<rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+										<line x1="8" y1="21" x2="16" y2="21" />
+										<line x1="12" y1="17" x2="12" y2="21" />
+										<line x1="7" y1="7" x2="7" y2="11" />
+										<line x1="12" y1="7" x2="12" y2="11" />
+										<line x1="17" y1="7" x2="17" y2="11" />
+									</svg>
+								</IconContent>
+							</ButtonCard>
+
+							<!-- Profit & Loss -->
+							<ButtonCard Title="Profit & Loss" Description="View income and expense summary" Color="green"
+										OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportProfitAndLoss)">
+								<IconContent>
+									<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+										 stroke-linejoin="round">
+										<line x1="12" y1="1" x2="12" y2="23" />
+										<path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+									</svg>
+								</IconContent>
+							</ButtonCard>
+
+							<!-- Balance Sheet -->
+							<ButtonCard Title="Balance Sheet" Description="View assets, liabilities & equity" Color="indigo"
+										OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportBalanceSheet)">
+								<IconContent>
+									<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+										 stroke-linejoin="round">
+										<line x1="12" y1="3" x2="12" y2="21" />
+										<line x1="3" y1="6" x2="21" y2="6" />
+										<path d="M5 6L3 12h4L5 6" />
+										<path d="M19 6l-2 6h4l-2-6" />
+										<line x1="7" y1="21" x2="17" y2="21" />
 									</svg>
 								</IconContent>
 							</ButtonCard>
