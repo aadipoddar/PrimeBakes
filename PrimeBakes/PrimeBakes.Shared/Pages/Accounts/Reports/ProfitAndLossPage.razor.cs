@@ -6,6 +6,8 @@ using PrimeBakesLibrary.Data.Accounts.FinancialAccounting;
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Operations;
 using PrimeBakesLibrary.DataAccess;
+using PrimeBakesLibrary.Exporting.Accounts.FinancialAccounting;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.FinancialAccounting;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Operations;
@@ -161,13 +163,35 @@ public partial class ProfitAndLossPage : IAsyncDisposable
         {
             _isProcessing = true;
             StateHasChanged();
-            await _toastNotification.ShowAsync("Processing", "Generating Excel file...", ToastType.Info);
+            await _toastNotification.ShowAsync("Processing", "Generating Excel files...", ToastType.Info);
 
             DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
             DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
 
-            // await SaveAndViewService.SaveAndView(fileName, stream);
-            await _toastNotification.ShowAsync("Success", "Excel file downloaded successfully.", ToastType.Success);
+            // Export Income Statement
+            var (incomeStream, incomeFileName) = await ProfitAndLossReportExport.ExportIncomeReport(
+                    _incomeTrialBalance,
+                    ReportExportType.Excel,
+                    dateRangeStart,
+                    dateRangeEnd,
+                    _showAllColumns,
+                    _selectedCompany?.Id > 0 ? _selectedCompany : null
+                );
+
+            await SaveAndViewService.SaveAndView(incomeFileName, incomeStream);
+
+            // Export Expense Statement
+            var (expenseStream, expenseFileName) = await ProfitAndLossReportExport.ExportExpenseReport(
+                    _expenseTrialBalance,
+                    ReportExportType.Excel,
+                    dateRangeStart,
+                    dateRangeEnd,
+                    _showAllColumns,
+                    _selectedCompany?.Id > 0 ? _selectedCompany : null
+                );
+
+            await SaveAndViewService.SaveAndView(expenseFileName, expenseStream);
+            await _toastNotification.ShowAsync("Success", "Excel files downloaded successfully.", ToastType.Success);
         }
         catch (Exception ex)
         {
@@ -189,13 +213,35 @@ public partial class ProfitAndLossPage : IAsyncDisposable
         {
             _isProcessing = true;
             StateHasChanged();
-            await _toastNotification.ShowAsync("Processing", "Generating PDF file...", ToastType.Info);
+            await _toastNotification.ShowAsync("Processing", "Generating PDF files...", ToastType.Info);
 
             DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
             DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
 
-            // await SaveAndViewService.SaveAndView(fileName, stream);
-            await _toastNotification.ShowAsync("Success", "PDF file downloaded successfully.", ToastType.Success);
+            // Export Income Statement
+            var (incomeStream, incomeFileName) = await ProfitAndLossReportExport.ExportIncomeReport(
+                    _incomeTrialBalance,
+                    ReportExportType.PDF,
+                    dateRangeStart,
+                    dateRangeEnd,
+                    _showAllColumns,
+                    _selectedCompany?.Id > 0 ? _selectedCompany : null
+                );
+
+            await SaveAndViewService.SaveAndView(incomeFileName, incomeStream);
+
+            // Export Expense Statement
+            var (expenseStream, expenseFileName) = await ProfitAndLossReportExport.ExportExpenseReport(
+                    _expenseTrialBalance,
+                    ReportExportType.PDF,
+                    dateRangeStart,
+                    dateRangeEnd,
+                    _showAllColumns,
+                    _selectedCompany?.Id > 0 ? _selectedCompany : null
+                );
+
+            await SaveAndViewService.SaveAndView(expenseFileName, expenseStream);
+            await _toastNotification.ShowAsync("Success", "PDF files downloaded successfully.", ToastType.Success);
         }
         catch (Exception ex)
         {
