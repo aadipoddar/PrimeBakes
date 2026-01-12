@@ -64,7 +64,7 @@ else
                 OnLogoutClick="Logout" />
 
         <!-- Main Content Container -->
-        <div class="dashboard-container">
+        <div class="page-container">
             @if (Factor != "Desktop")
             {
                 <!-- Row 1: Mobile Cards -->
@@ -180,14 +180,6 @@ else
         margin: 0;
         padding: 0;
         overflow-x: hidden;
-    }
-
-    /* Dashboard Container */
-    .dashboard-container {
-        padding: 32px;
-        width: 100%;
-        background: linear-gradient(135deg, #ffeef5 0%, #fff5f9 100%);
-        flex: 1;
     }
 
     /* Dashboard Grid */
