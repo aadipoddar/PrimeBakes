@@ -402,9 +402,9 @@ FodyWeavers.xsd
 /PrimeBakes/Platforms/Android/google-services.json
 /PrimeBakes/Config.local_secrets.cs
 /PrimeBakes/PrimeBakes/Platforms/Android/google-services.json
-/PrimeBakesLibrary/DataAccess/Secrets.cs
 /PrimeBakesLibrary/DataAccess/primebakes-7aad6-firebase-adminsdk-fbsvc-468eb53249.json
 /PrimeBakes/PrimeBakes/Prime Bakes.keyInfo
 /PrimeBakes/PrimeBakes/PrimeBakes.keystore
 /PrimeBakes/PrimeBakes/Config.local_secrets.cs
 /.idea
+.env
