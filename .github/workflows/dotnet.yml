@@ -25,6 +25,44 @@ jobs:
     - name: Install .NET MAUI Workload
       run: dotnet workload install maui --skip-sign-check
     
+    - name: Create placeholder google-services.json
+      run: |
+        $googleServicesPath = "PrimeBakes/PrimeBakes/Platforms/Android/google-services.json"
+        $placeholderContent = @'
+        {
+          "project_info": {
+            "project_number": "000000000000",
+            "project_id": "placeholder-project",
+            "storage_bucket": "placeholder-project.appspot.com"
+          },
+          "client": [
+            {
+              "client_info": {
+                "mobilesdk_app_id": "1:000000000000:android:0000000000000000000000",
+                "android_client_info": {
+                  "package_name": "com.primebakes.app"
+                }
+              },
+              "oauth_client": [],
+              "api_key": [
+                {
+                  "current_key": "AIzaSyDummyKeyForBuildPurposesOnly"
+                }
+              ],
+              "services": {
+                "appinvite_service": {
+                  "other_platform_oauth_client": []
+                }
+              }
+            }
+          ],
+          "configuration_version": "1"
+        }
+        '@
+        New-Item -ItemType Directory -Force -Path (Split-Path $googleServicesPath)
+        $placeholderContent | Out-File -FilePath $googleServicesPath -Encoding utf8
+      shell: pwsh
+    
     - name: Restore dependencies
       run: dotnet restore PrimeBakes.slnx
     
@@ -37,8 +75,11 @@ jobs:
     - name: Build PrimeBakes.Web
       run: dotnet build PrimeBakes/PrimeBakes.Web/PrimeBakes.Web.csproj --no-restore --configuration Release
     
-    - name: Build PrimeBakes MAUI
-      run: dotnet build PrimeBakes/PrimeBakes/PrimeBakes.csproj --no-restore --configuration Release
+    - name: Build PrimeBakes MAUI for Windows
+      run: dotnet build PrimeBakes/PrimeBakes/PrimeBakes.csproj --no-restore --configuration Release --framework net10.0-windows10.0.19041.0
+    
+    - name: Build PrimeBakes MAUI for Android
+      run: dotnet build PrimeBakes/PrimeBakes/PrimeBakes.csproj --no-restore --configuration Release --framework net10.0-android
     
     - name: Build PushNotificationsAPI
       run: dotnet build PushNotificationsAPI/PushNotificationsAPI.csproj --no-restore --configuration Release
