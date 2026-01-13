@@ -37,8 +37,8 @@ jobs:
     - name: Build PrimeBakes.Web
       run: dotnet build PrimeBakes/PrimeBakes.Web/PrimeBakes.Web.csproj --no-restore --configuration Release
     
-    - name: Build PrimeBakes MAUI (Android APK)
-      run: dotnet publish PrimeBakes/PrimeBakes/PrimeBakes.csproj --configuration Release --framework net10.0-android --output ./artifacts/android
+    - name: Build PrimeBakes MAUI (Android)
+      run: dotnet build PrimeBakes/PrimeBakes/PrimeBakes.csproj --configuration Release --framework net10.0-android
     
     - name: Build PushNotificationsAPI
       run: dotnet build PushNotificationsAPI/PushNotificationsAPI.csproj --no-restore --configuration Release

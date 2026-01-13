@@ -9,13 +9,6 @@
 //var worksheet1 = package.Workbook.Worksheets[0];
 //var worksheet2 = package.Workbook.Worksheets[1];
 
-using PrimeBakesLibrary.Data.Common;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Common;
-
-await UpdateLocations();
-
 Console.WriteLine("Finished importing Items.");
 Console.ReadLine();
 
@@ -69,6 +62,8 @@ Console.ReadLine();
 // await DeleteRawMaterial(worksheet1);
 
 // await UpdatePrices();
+
+// await UpdateLocations();
 
 //static async Task UpdateProducts()
 //{
@@ -1729,18 +1724,18 @@ Console.ReadLine();
 //        await ProductData.InsertProductLocation(pl);
 //    }
 //}
+
+//static async Task UpdateLocations()
+//{
+//    var ledgers = await CommonData.LoadTableData<LedgerModel>(TableNames.Ledger);
+//    var locations = await CommonData.LoadTableData<LocationModel>(TableNames.Location);
+
+//    ledgers = [.. ledgers.Where(l => l.LocationId is not null)];
+
+//    foreach (var location in locations)
+//    {
+//        location.LedgerId = ledgers.FirstOrDefault(l => l.LocationId == location.Id).Id;
+//        await LocationData.InsertLocation(location);
+//    }
+//}
 #endregion
-
-static async Task UpdateLocations()
-{
-    var ledgers = await CommonData.LoadTableData<LedgerModel>(TableNames.Ledger);
-    var locations = await CommonData.LoadTableData<LocationModel>(TableNames.Location);
-
-    ledgers = [.. ledgers.Where(l => l.LocationId is not null)];
-
-    foreach (var location in locations)
-    {
-        location.LedgerId = ledgers.FirstOrDefault(l => l.LocationId == location.Id).Id;
-        await LocationData.InsertLocation(location);
-    }
-}
