@@ -1,7 +1,6 @@
 ﻿using PrimeBakesLibrary.Data.Accounts.FinancialAccounting;
 using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
-using PrimeBakesLibrary.Data.Inventory;
 using PrimeBakesLibrary.Data.Inventory.Stock;
 using PrimeBakesLibrary.Data.Operations;
 using PrimeBakesLibrary.Data.Sales.Order;
@@ -256,10 +255,13 @@ public static class SaleData
         if (sale.LocationId != 1)
             return;
 
+        var recipes = await CommonData.LoadTableDataByStatus<RecipeModel>(TableNames.Recipe, true, sqlDataAccessTransaction);
+        var recipeDetails = await CommonData.LoadTableDataByStatus<RecipeDetailModel>(TableNames.RecipeDetail, true, sqlDataAccessTransaction);
+
         foreach (var product in saleDetails)
         {
-            var recipe = await RecipeData.LoadRecipeByProduct(product.ProductId);
-            var recipeItems = recipe is null ? [] : await CommonData.LoadTableDataByMasterId<RecipeDetailModel>(TableNames.RecipeDetail, recipe.Id, sqlDataAccessTransaction);
+            var recipe = recipes.FirstOrDefault(_ => _.ProductId == product.ProductId);
+            var recipeItems = recipe is null ? [] : recipeDetails.Where(_ => _.MasterId == recipe.Id).ToList();
 
             foreach (var recipeItem in recipeItems)
             {

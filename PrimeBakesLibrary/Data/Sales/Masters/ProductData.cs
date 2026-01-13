@@ -22,9 +22,6 @@ public static class ProductData
     public static async Task<List<ProductLocationOverviewModel>> LoadProductByLocation(int LocationId, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
         await SqlDataAccess.LoadData<ProductLocationOverviewModel, dynamic>(StoredProcedureNames.LoadProductByLocation, new { LocationId }, sqlDataAccessTransaction);
 
-    public static async Task<List<ProductModel>> LoadProductByProductCategory(int ProductCategoryId) =>
-        await SqlDataAccess.LoadData<ProductModel, dynamic>(StoredProcedureNames.LoadProductByProductCategory, new { ProductCategoryId });
-
     public static async Task<int> SaveProduct(ProductModel product)
     {
         bool isNewProduct = product.Id == 0;

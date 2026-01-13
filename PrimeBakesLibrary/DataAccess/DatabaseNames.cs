@@ -87,7 +87,6 @@ public static class StoredProcedureNames
 
     public static string LoadOrderByLocationPending => "Load_Order_By_Location_Pending";
 
-    public static string LoadProductByProductCategory => "Load_Product_By_ProductCategory";
     public static string LoadProductRateByProduct => "Load_ProductRate_By_Product";
     public static string LoadProductByLocation => "Load_Product_By_Location";
 
