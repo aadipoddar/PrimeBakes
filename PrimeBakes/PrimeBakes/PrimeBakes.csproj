@@ -62,6 +62,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<None Remove=".env" />
 		<None Remove="keycommand.txt" />
 		<GoogleServicesJson Include="Platforms\Android\google-services.json" />
 	</ItemGroup>

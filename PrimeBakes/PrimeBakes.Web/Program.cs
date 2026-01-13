@@ -10,7 +10,6 @@ using Toolbelt.Blazor.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-DotNetEnv.Env.TraversePath().Load();
 Dapper.SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
 Dapper.SqlMapper.AddTypeHandler(new TimeOnlyTypeHandler());
 Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(Secrets.SyncfusionLicense);

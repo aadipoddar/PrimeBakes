@@ -405,4 +405,5 @@ FodyWeavers.xsd
 /PrimeBakes/PrimeBakes/PrimeBakes.keystore
 /PrimeBakes/PrimeBakes/Config.local_secrets.cs
 /.idea
-.env
+/PrimeBakes/PrimeBakes/Platforms/Android/google-services.json
+/PrimeBakesLibrary/DataAccess/Secrets.cs
