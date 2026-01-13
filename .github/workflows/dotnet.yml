@@ -38,10 +38,10 @@ jobs:
       run: dotnet build PrimeBakes/PrimeBakes.Web/PrimeBakes.Web.csproj --no-restore --configuration Release
     
     - name: Build PrimeBakes MAUI (Windows)
-      run: dotnet build PrimeBakes/PrimeBakes/PrimeBakes.csproj --no-restore --configuration Release --framework net10.0-windows10.0.19041.0
+      run: dotnet build PrimeBakes/PrimeBakes/PrimeBakes.csproj --configuration Release --framework net10.0-windows10.0.19041.0 /p:RuntimeIdentifier=win-x64
     
     - name: Build PrimeBakes MAUI (Android)
-      run: dotnet build PrimeBakes/PrimeBakes/PrimeBakes.csproj --no-restore --configuration Release --framework net10.0-android
+      run: dotnet build PrimeBakes/PrimeBakes/PrimeBakes.csproj --configuration Release --framework net10.0-android
     
     - name: Build PushNotificationsAPI
       run: dotnet build PushNotificationsAPI/PushNotificationsAPI.csproj --no-restore --configuration Release
