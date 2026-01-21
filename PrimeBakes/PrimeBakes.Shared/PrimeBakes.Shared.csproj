@@ -35,8 +35,4 @@
     <Using Include="Toolbelt.Blazor.HotKeys2" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Components\ToggleButton\" />
-  </ItemGroup>
-
 </Project>

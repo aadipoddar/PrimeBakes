@@ -1,14 +1,14 @@
 using Microsoft.AspNetCore.Components;
 
-namespace PrimeBakes.Shared.Components.Button;
+namespace PrimeBakes.Shared.Components.ToggleButton;
 
-public partial class ToggleTransfersButton
+public partial class ToggleDeletedButton
 {
 	[Parameter]
 	public bool Disabled { get; set; } = false;
 
 	[Parameter]
-	public bool ShowTransfers { get; set; } = false;
+	public bool ShowDeleted { get; set; } = false;
 
 	[Parameter]
 	public EventCallback OnToggle { get; set; }
