@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Components;
-
 using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Operations;
@@ -136,21 +134,16 @@ public partial class OrderMobileCartPage
         return true;
     }
 
-    private async Task SaveOrder()
+    private async Task SaveOrder(DateTime animationStart, double animationTime)
     {
-        if (_isProcessing || _isLoading)
-            return;
-
         try
         {
-            _isProcessing = true;
-            StateHasChanged();
-
             await SaveOrderFile();
 
             if (!ValidateForm())
             {
                 _isProcessing = false;
+                StateHasChanged();
                 return;
             }
 
@@ -179,20 +172,34 @@ public partial class OrderMobileCartPage
             var (pdfStream, fileName) = await OrderInvoiceExport.ExportInvoice(order.Id, InvoiceExportType.PDF);
             await SaveAndViewService.SaveAndView(fileName, pdfStream);
 
+            // Wait for animation to complete before navigating
+            var elapsed = (DateTime.Now - animationStart).TotalSeconds;
+            var remaining = (animationTime * 1000) - (elapsed * 1000);
+            if (remaining > 0)
+                await Task.Delay((int)remaining);
+
             NavigationManager.NavigateTo(PageRouteNames.OrderMobileConfirmation, true);
         }
         catch (Exception ex)
         {
             ShowError("An Error Occurred While Saving Order", ex.Message);
-        }
-        finally
-        {
             _isProcessing = false;
         }
     }
     #endregion
 
     #region Utilities
+    private async Task OnPlaceOrderClick()
+    {
+        if (_isProcessing || _isLoading)
+            return;
+
+        _isProcessing = true;
+        StateHasChanged();
+
+        await SaveOrder(DateTime.Now, 6.5);
+    }
+
     private async Task SendLocalNotification(int orderId)
     {
         var order = await CommonData.LoadTableDataById<OrderOverviewModel>(ViewNames.OrderOverview, orderId);

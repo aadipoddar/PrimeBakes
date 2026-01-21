@@ -4,10 +4,10 @@ public static class TableNames
 {
     public static string User => "User";
     public static string Location => "Location";
+    public static string Settings => "Settings";
+    
     public static string Company => "Company";
     public static string StateUT => "StateUT";
-    public static string Settings => "Settings";
-    public static string Tax => "Tax";
     public static string Ledger => "Ledger";
     public static string Group => "Group";
     public static string Nature => "Nature";
@@ -21,6 +21,7 @@ public static class TableNames
     public static string ProductCategory => "ProductCategory";
     public static string Product => "Product";
     public static string ProductLocation => "ProductLocation";
+    public static string Tax => "Tax";
 
     public static string RawMaterialCategory => "RawMaterialCategory";
     public static string RawMaterial => "RawMaterial";
@@ -75,8 +76,10 @@ public static class StoredProcedureNames
     public static string LoadCustomerByNumber => "Load_Customer_By_Number";
 
     public static string LoadFinancialYearByDateTime => "Load_FinancialYear_By_DateTime";
+	public static string LoadAccountingByVoucherReference => "Load_Accounting_By_Voucher_Reference";
+	public static string LoadTrialBalanceByCompanyDate => "Load_TrialBalance_By_Company_Date";
 
-    public static string LoadRawMaterialByRawMaterialCategory => "Load_RawMaterial_By_RawMaterialCategory";
+	public static string LoadRawMaterialByRawMaterialCategory => "Load_RawMaterial_By_RawMaterialCategory";
 
     public static string LoadRawMaterialByPartyPurchaseDateTime => "Load_RawMaterial_By_Party_PurchaseDateTime";
 
@@ -89,9 +92,6 @@ public static class StoredProcedureNames
 
     public static string LoadProductRateByProduct => "Load_ProductRate_By_Product";
     public static string LoadProductByLocation => "Load_Product_By_Location";
-
-    public static string LoadAccountingByVoucherReference => "Load_Accounting_By_Voucher_Reference";
-    public static string LoadTrialBalanceByCompanyDate => "Load_TrialBalance_By_Company_Date";
 
     public static string InsertUser => "Insert_User";
     public static string ResetSettings => "Reset_Settings";

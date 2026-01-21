@@ -13,31 +13,25 @@
 else
 {
     <div style="display: flex; flex-direction: column; min-height: 100vh;">
-        <Header Title="Order Cart" 
-                Subtitle="Review and submit your order"
-                ShowBack="true"
+        <Header Title="Order Cart" Subtitle="Review and submit your order" ShowBack="true"
                 OnBackClick="() => NavigationManager.NavigateTo(PageRouteNames.OrderMobile)" />
 
         <!-- Main Content Container -->
         <div class="order-cart-container">
-            
+
             @if (_cart.Any())
             {
                 <!-- Grid Container -->
                 <div class="grid-container">
-                    <SfGrid @ref="_sfCartGrid"
-                            EnableAdaptiveUI="true"
-                            DataSource="_cart"
-                            AllowPaging="true"
-                            AllowSorting="false"
-                            AllowTextWrap="true"
-                            Toolbar="@(new List<string>() { "Search" })">
+                    <SfGrid @ref="_sfCartGrid" EnableAdaptiveUI="true" DataSource="_cart" AllowPaging="true"
+                            AllowSorting="false" AllowTextWrap="true" Toolbar="@(new List<string>() { "Search" })">
 
                         <GridPageSettings PageSize="10" />
 
                         <GridColumns>
                             <GridColumn Field="@nameof(OrderItemCartModel.ItemName)" HeaderText="Product" Width="50%" />
-                            <GridColumn Field="@nameof(OrderItemCartModel.Quantity)" HeaderText="Quantity" Width="50%" TextAlign="TextAlign.Right">
+                            <GridColumn Field="@nameof(OrderItemCartModel.Quantity)" HeaderText="Quantity" Width="50%"
+                                        TextAlign="TextAlign.Right">
                                 <Template>
                                     @{
                                         var item = (context as OrderItemCartModel);
@@ -47,15 +41,9 @@ else
                                         <div class="quantity-section">
                                             <div class="quantity-controls">
                                                 <div class="quantity-input-wrapper">
-                                                    <SfNumericTextBox TValue="decimal"
-                                                                      Value="@item.Quantity"
-                                                                      ValueChanged="@((decimal value) => UpdateQuantity(item, value))"
-                                                                      Min="0"
-                                                                      Step="1"
-                                                                      type="tel"
-                                                                      Format="N0"
-                                                                      Width="100%"
-                                                                      CssClass="quantity-input"
+                                                    <SfNumericTextBox TValue="decimal" Value="@item.Quantity"
+                                                                      ValueChanged="@((decimal value) => UpdateQuantity(item, value))" Min="0"
+                                                                      Step="1" type="tel" Format="N0" Width="100%" CssClass="quantity-input"
                                                                       Enabled="@(!_isProcessing)" />
                                                 </div>
                                             </div>
@@ -73,7 +61,8 @@ else
                     <div class="empty-icon">🛒</div>
                     <h3>Your cart is empty</h3>
                     <p>Add some items to your cart to continue</p>
-                    <button @onclick="() => NavigationManager.NavigateTo(PageRouteNames.OrderMobile)" class="continue-shopping-btn" disabled="@_isProcessing">
+                    <button @onclick="() => NavigationManager.NavigateTo(PageRouteNames.OrderMobile)"
+                            class="continue-shopping-btn" disabled="@_isProcessing">
                         Continue Shopping
                     </button>
                 </div>
@@ -97,14 +86,8 @@ else
 }
 
 <!-- Validation Error Dialog -->
-<SfDialog ID="_sfValidationErrorDialog"
-          @ref="_sfValidationErrorDialog"
-          Width="500px"
-          Height="auto"
-          AllowDragging="false"
-          EnableResize="false"
-          @bind-Visible="_showValidationDialog"
-          IsModal="true">
+<SfDialog ID="_sfValidationErrorDialog" @ref="_sfValidationErrorDialog" Width="500px" Height="auto"
+          AllowDragging="false" EnableResize="false" @bind-Visible="_showValidationDialog" IsModal="true">
     <DialogPositionData X="Center" Y="Center" />
     <DialogTemplates>
         <Header>
@@ -143,21 +126,16 @@ else
         </Content>
         <FooterTemplate>
             <div class="dialog-footer error-footer">
-                <SfButton Content="Fix Issues" OnClick="() => _showValidationDialog = false" CssClass="dialog-button error-fix-button" />
+                <SfButton Content="Fix Issues" OnClick="() => _showValidationDialog = false"
+                          CssClass="dialog-button error-fix-button" />
             </div>
         </FooterTemplate>
     </DialogTemplates>
 </SfDialog>
 
 <!-- Order Confirmation Dialog -->
-<SfDialog ID="_sfOrderConfirmationDialog"
-          @ref="_sfOrderConfirmationDialog"
-          Width="450px"
-          Height="auto"
-          AllowDragging="false"
-          EnableResize="false"
-          @bind-Visible="_showConfirmDialog"
-          IsModal="true">
+<SfDialog ID="_sfOrderConfirmationDialog" @ref="_sfOrderConfirmationDialog" Width="450px" Height="auto"
+          AllowDragging="false" EnableResize="false" @bind-Visible="_showConfirmDialog" IsModal="true">
     <DialogPositionData X="Center" Y="Center" />
     <DialogTemplates>
         <Header>
@@ -183,17 +161,36 @@ else
                 <div class="remarks-section">
                     <label class="remarks-label">Remarks (Optional)</label>
                     <SfTextBox @bind-Value="_orderRemarks"
-                               Placeholder="Add any special instructions or notes for this order..."
-                               Multiline="true"
-                               CssClass="remarks-input"
-                               Enabled="@(!_isProcessing)" />
+                               Placeholder="Add any special instructions or notes for this order..." Multiline="true"
+                               CssClass="remarks-input" Enabled="@(!_isProcessing)" />
                 </div>
             </div>
         </Content>
         <FooterTemplate>
-            <div class="dialog-footer confirmation-footer">
-                <SfButton Content="No, Cancel" OnClick="() => _showConfirmDialog = false" CssClass="dialog-button cancel-button" Disabled="@_isProcessing" />
-                <SfButton Content="@(_isProcessing ? "⏳ Saving Order..." : "Place Order")" OnClick="async () => await SaveOrder()" CssClass="dialog-button confirm-button-dialog" Disabled="@_isProcessing" />
+            <div class="dialog-footer confirmation-footer animated-button-footer">
+                <SfButton Content="Cancel" OnClick="() => _showConfirmDialog = false" CssClass="dialog-button cancel-button" Disabled="@_isProcessing" />
+
+                <!-- Animated Order Button -->
+                <button id="orderAnimatedBtn" class="order-button-animated @(_isProcessing ? "animate" : "")"
+                        @onclick="OnPlaceOrderClick" disabled="@_isProcessing">
+                    <span class="default">@(_isProcessing ? "Processing..." : "Place Order")</span>
+                    <span class="success">
+                        Processing Order
+                        <svg viewBox="0 0 12 10">
+                            <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+                        </svg>
+                    </span>
+                    <div class="box"></div>
+                    <div class="truck">
+                        <div class="back"></div>
+                        <div class="front">
+                            <div class="window"></div>
+                        </div>
+                        <div class="light top"></div>
+                        <div class="light bottom"></div>
+                    </div>
+                    <div class="lines"></div>
+                </button>
             </div>
         </FooterTemplate>
     </DialogTemplates>
@@ -568,7 +565,8 @@ else
         color: var(--error-color);
     }
 
-    .confirmation-icon, .error-icon {
+    .confirmation-icon,
+    .error-icon {
         font-size: 24px;
     }
 
@@ -576,18 +574,21 @@ else
         padding: 20px;
     }
 
-    .confirmation-content, .error-content {
+    .confirmation-content,
+    .error-content {
         text-align: center;
     }
 
-    .confirmation-message h3, .error-message h3 {
+    .confirmation-message h3,
+    .error-message h3 {
         margin: 0 0 10px 0;
         color: var(--text-dark);
         font-size: 18px;
         font-weight: 600;
     }
 
-    .confirmation-message p, .error-message p {
+    .confirmation-message p,
+    .error-message p {
         margin: 0 0 20px 0;
         color: var(--text-light);
         font-size: 14px;
@@ -728,7 +729,8 @@ else
         gap: 10px;
     }
 
-    .confirmation-footer, .error-footer {
+    .confirmation-footer,
+    .error-footer {
         justify-content: center;
         gap: 20px;
     }
@@ -787,4 +789,52 @@ else
             transform: translateY(-1px);
             box-shadow: var(--shadow-light);
         }
+
+    /* Animated Button Footer Adjustments */
+    .animated-button-footer {
+        flex-direction: row;
+        gap: 12px;
+        padding: 15px 20px;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: nowrap;
+    }
+
+        .animated-button-footer .cancel-button {
+            width: auto;
+            min-width: 80px;
+            max-width: 100px;
+            padding: 10px 12px;
+            font-size: 14px;
+            order: 1;
+            height: 63px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .animated-button-footer .order-button-animated {
+            order: 2;
+            flex-shrink: 0;
+        }
+
+    @@media (max-width: 380px) {
+        .animated-button-footer {
+            gap: 8px;
+            padding: 12px 10px;
+        }
+
+            .animated-button-footer .cancel-button {
+                min-width: 70px;
+                max-width: 80px;
+                padding: 8px 10px;
+                font-size: 13px;
+                height: 58px;
+            }
+
+            .animated-button-footer .order-button-animated {
+                width: 200px;
+                height: 58px;
+            }
+    }
 </style>
