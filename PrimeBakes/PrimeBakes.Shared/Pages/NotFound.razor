@@ -2,336 +2,261 @@
 
 <PageTitle>404 - Not Found</PageTitle>
 
-<div class="not-found-container">
-    <div class="not-found-card">
-        <!-- Logo Section -->
-        <div class="logo-section">
-            <img src="images/logo_full.png" alt="Prime Bakes Logo" class="not-found-logo" />
-        </div>
+<div class="page_404">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="col-sm-10 col-sm-offset-1 text-center">
+                    <div class="four_zero_four_bg">
+                    </div>
 
-        <!-- Error Icon -->
-        <div class="error-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="8" x2="12" y2="12"></line>
-                <line x1="12" y1="16" x2="12.01" y2="16"></line>
-            </svg>
+                    <div class="contant_box_404">
+                        <h3 class="h2">Look like you're lost</h3>
+                        <p>The page you are looking for is not available!</p>
+                        <div class="button-group">
+                            <a href="/" class="link_404">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                                </svg>
+                                Go to Home
+                            </a>
+                            <button class="link_404 btn-back" onclick="history.back()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                                    <polyline points="12 19 5 12 12 5"></polyline>
+                                </svg>
+                                Go Back
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <!-- Error Content -->
-        <div class="error-content">
-            <h1 class="error-code">404</h1>
-            <h2 class="error-title">Page Not Found</h2>
-            <p class="error-message">
-                Sorry, the page you are looking for doesn't exist or has been moved.
-            </p>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="action-buttons">
-            <a href="/" class="btn-primary">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                </svg>
-                Go Home
-            </a>
-            <button class="btn-secondary" onclick="history.back()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="19" y1="12" x2="5" y2="12"></line>
-                    <polyline points="12 19 5 12 12 5"></polyline>
-                </svg>
-                Go Back
-            </button>
-        </div>
-
-        <!-- Footer -->
-        <div class="footer-section">
-            <p class="copyright">
-                &copy; @DateTime.Now.Year A Product By
-                <a href="https://aadisoft.vercel.app" target="_blank" class="footer-link">AadiSoft</a>.
-                All rights reserved.
-            </p>
-        </div>
+    </div>
+    <div class="footer-section">
+        <p class="copyright">
+            &copy; @DateTime.Now.Year A Product By
+            <a href="https://aadisoft.vercel.app" target="_blank" class="footer-link">AadiSoft</a>.
+            All rights reserved.
+        </p>
     </div>
 </div>
 
 <style>
-    * {
-        box-sizing: border-box;
-    }
-
-    /* Color Variables - Matching Dashboard Theme */
-    :root {
-        --primary-color: #3b82f6;
-        --primary-dark: #2563eb;
-        --primary-light: #60a5fa;
-        --secondary-color: #f8fafc;
-        --text-dark: #1e293b;
-        --text-light: #64748b;
-        --white: #ffffff;
-        --border-color: #e2e8f0;
-        --error-color: #ef4444;
-        --shadow: 0 10px 40px rgba(59, 130, 246, 0.15);
-        --shadow-hover: 0 15px 50px rgba(59, 130, 246, 0.25);
-        --border-radius: 16px;
-    }
-
     body {
-        margin: 0;
-        padding: 0;
-        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        overflow: hidden;
     }
 
-    /* Not Found Container */
-    .not-found-container {
+    .page_404 {
+        padding: 40px 0;
+        background: #fff;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        min-height: 100vh;
         display: flex;
         align-items: center;
         justify-content: center;
-        min-height: 100vh;
-        padding: 20px;
-        background: var(--secondary-color);
-        position: relative;
     }
 
-    /* Not Found Card */
-    .not-found-card {
-        background: var(--white);
-        border-radius: var(--border-radius);
-        box-shadow: var(--shadow);
-        padding: 48px 40px;
+    .page_404 img {
         width: 100%;
-        max-width: 500px;
-        text-align: center;
-        animation: slideUp 0.4s ease;
     }
 
-    @@keyframes slideUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    .four_zero_four_bg {
+        background-image: url(_content/PrimeBakes.Shared/images/404-bg.gif);
+        height: 500px;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: contain;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
     }
 
-    /* Logo Section */
-    .logo-section {
-        margin-bottom: 32px;
+    .contant_box_404 {
+        margin-top: 20px;
+        padding: 0 20px;
     }
 
-    .not-found-logo {
-        width: 400px;
-        height: auto;
-        object-fit: contain;
+    .contant_box_404 h3 {
+        font-size: 32px;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 16px;
     }
 
-    /* Error Icon */
-    .error-icon {
+    .contant_box_404 p {
+        font-size: 18px;
+        color: #7f8c8d;
         margin-bottom: 24px;
     }
 
-    .error-icon svg {
-        width: 80px;
-        height: 80px;
-        color: var(--error-color);
-        animation: pulse 2s ease-in-out infinite;
-    }
-
-    @@keyframes pulse {
-
-        0%,
-        100% {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        50% {
-            opacity: 0.8;
-            transform: scale(1.05);
-        }
-    }
-
-    /* Error Content */
-    .error-content {
-        margin-bottom: 40px;
-    }
-
-    .error-code {
-        font-size: 72px;
-        font-weight: 800;
-        color: var(--primary-color);
-        margin: 0 0 16px 0;
-        letter-spacing: -2px;
-        line-height: 1;
-    }
-
-    .error-title {
-        font-size: 28px;
-        font-weight: 700;
-        color: var(--text-dark);
-        margin: 0 0 16px 0;
-        letter-spacing: -0.5px;
-    }
-
-    .error-message {
-        font-size: 16px;
-        color: var(--text-light);
-        margin: 0;
-        line-height: 1.6;
-        max-width: 400px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    /* Action Buttons */
-    .action-buttons {
+    .button-group {
         display: flex;
         gap: 16px;
         justify-content: center;
-        margin-bottom: 32px;
         flex-wrap: wrap;
+        margin-top: 20px;
     }
 
-    .btn-primary,
-    .btn-secondary {
+    .link_404 {
+        color: #fff !important;
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        margin: 0;
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        padding: 12px 24px;
-        border-radius: 12px;
-        font-size: 15px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
         text-decoration: none;
-        border: none;
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-        color: var(--white);
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 15px;
+        transition: all 0.3s ease;
         box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        border: none;
+        cursor: pointer;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     }
 
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
-    }
-
-    .btn-secondary {
-        background: var(--white);
-        color: var(--text-dark);
-        border: 2px solid var(--border-color);
-    }
-
-    .btn-secondary:hover {
-        border-color: var(--primary-color);
-        color: var(--primary-color);
-        transform: translateY(-2px);
-    }
-
-    .btn-primary svg,
-    .btn-secondary svg {
+    .link_404 svg {
         width: 18px;
         height: 18px;
     }
 
+    .link_404:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-back {
+        background: #fff !important;
+        color: #1e293b !important;
+        border: 2px solid #e2e8f0 !important;
+        box-shadow: none !important;
+    }
+
+    .btn-back:hover {
+        border-color: #3b82f6 !important;
+        color: #3b82f6 !important;
+        box-shadow: none !important;
+    }
+
+    /* Grid System for Layout */
+    .container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 15px;
+    }
+
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 0 -15px;
+    }
+
+    .col-sm-12 {
+        flex: 0 0 100%;
+        max-width: 100%;
+        padding: 0 15px;
+    }
+
+    .col-sm-10 {
+        flex: 0 0 83.333333%;
+        max-width: 83.333333%;
+        padding: 0 15px;
+    }
+
+    .col-sm-offset-1 {
+        margin-left: 8.333333%;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
     /* Footer Section */
     .footer-section {
-        padding-top: 24px;
-        border-top: 1px solid var(--border-color);
+        position: absolute;
+        bottom: 20px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        padding: 0 20px;
     }
 
     .copyright {
         font-size: 13px;
-        color: var(--text-light);
+        color: #64748b;
         line-height: 1.5;
         margin: 0;
     }
 
     .footer-link {
-        color: var(--primary-color);
+        color: #3b82f6;
         text-decoration: none;
         font-weight: 600;
         transition: color 0.2s ease;
     }
 
     .footer-link:hover {
-        color: var(--primary-dark);
+        color: #2563eb;
         text-decoration: underline;
     }
 
-    .footer-link:focus {
-        outline: 2px solid var(--primary-color);
-        outline-offset: 2px;
-        border-radius: 2px;
-    }
-
     /* Responsive Design */
-    @@media (max-width: 480px) {
-        .not-found-card {
-            padding: 32px 24px;
+    @@media (max-width: 768px) {
+        .four_zero_four_bg {
+            height: 350px;
         }
 
-        .not-found-logo {
-            width: 140px;
+        .four_zero_four_bg h1 {
+            font-size: 70px;
         }
 
-        .error-icon svg {
-            width: 60px;
-            height: 60px;
-        }
-
-        .error-code {
-            font-size: 56px;
-        }
-
-        .error-title {
+        .contant_box_404 h3 {
             font-size: 24px;
         }
 
-        .error-message {
-            font-size: 14px;
+        .contant_box_404 p {
+            font-size: 16px;
         }
 
-        .action-buttons {
+        .col-sm-offset-1 {
+            margin-left: 0;
+        }
+
+        .col-sm-10 {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .page_404 {
+            padding: 20px 0;
+        }
+
+        .four_zero_four_bg {
+            height: 250px;
+        }
+
+        .button-group {
             flex-direction: column;
             width: 100%;
         }
 
-        .btn-primary,
-        .btn-secondary {
+        .link_404 {
             width: 100%;
-            justify-content: center;
-        }
-    }
-
-    /* Accessibility */
-    @@media (prefers-reduced-motion: reduce) {
-
-        .error-icon svg,
-        .not-found-card {
-            animation: none;
         }
 
-        .btn-primary:hover,
-        .btn-secondary:hover {
-            transform: none;
-        }
-    }
-
-    /* High contrast mode support */
-    @@media (prefers-contrast: high) {
-        .not-found-card {
-            border: 2px solid var(--text-dark);
+        .contant_box_404 h3 {
+            font-size: 20px;
         }
 
-        .btn-secondary {
-            border-width: 3px;
+        .contant_box_404 p {
+            font-size: 14px;
         }
     }
 </style>
