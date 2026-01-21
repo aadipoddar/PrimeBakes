@@ -9,7 +9,7 @@ namespace PrimeBakesLibrary.DataAccess;
 
 internal static class SqlDataAccess
 {
-    public static readonly string _databaseConnection = Secrets.LocalConnectionString;
+    public static readonly string _databaseConnection = Secrets.AzureConnectionString;
 
     public static async Task<List<T>> LoadData<T, U>(string storedProcedure, U parameters, SqlDataAccessTransaction sqlDataAccessTransaction = null)
     {
