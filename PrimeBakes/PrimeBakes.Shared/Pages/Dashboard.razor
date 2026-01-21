@@ -6,7 +6,7 @@
 
 @if (_isLoading)
 {
-    <SfSpinner @bind-Visible="_isLoading" Label="Page is Loading, Please Wait" />
+    <AnimatedLoader Visible="true" Label="Page is Loading, Please Wait" />
 }
 else if (_isUpdating)
 {
