@@ -16,8 +16,6 @@ public partial class ToggleSummaryButton
     private async Task HandleClick()
     {
         if (!Disabled)
-        {
             await OnToggle.InvokeAsync();
-        }
     }
 }

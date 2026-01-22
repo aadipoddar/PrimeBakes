@@ -1,92 +1,116 @@
-
 @using PrimeBakesLibrary.Models.Accounts.Masters
-
 
 <div class="date-range-buttons">
     <button class="btn-date-utility" @onclick="() => HandleDateRangeClick(DateRangeType.Today)" title="Today"
-        disabled="@(Disabled || _isProcessing)">
+            disabled="@(Disabled || _isProcessing)">
         <span>Today</span>
     </button>
-    <button class="btn-date-utility" @onclick="() => HandleDateRangeClick(DateRangeType.Yesterday)"
-        title="Yesterday" disabled="@(Disabled || _isProcessing)">
+    <button class="btn-date-utility" @onclick="() => HandleDateRangeClick(DateRangeType.Yesterday)" title="Yesterday"
+            disabled="@(Disabled || _isProcessing)">
         <span>Yesterday</span>
     </button>
     <button class="btn-date-utility" @onclick="() => HandleDateRangeClick(DateRangeType.CurrentMonth)"
-        title="Current Month" disabled="@(Disabled || _isProcessing)">
+            title="Current Month" disabled="@(Disabled || _isProcessing)">
         <span>Current Month</span>
     </button>
     <button class="btn-date-utility" @onclick="() => HandleDateRangeClick(DateRangeType.PreviousMonth)"
-        title="Previous Month" disabled="@(Disabled || _isProcessing)">
+            title="Previous Month" disabled="@(Disabled || _isProcessing)">
         <span>Previous Month</span>
     </button>
-    <button class="btn-date-utility"
-        @onclick="() => HandleDateRangeClick(DateRangeType.CurrentFinancialYear)"
-        title="Current Financial Year" disabled="@(Disabled || _isProcessing)">
+    <button class="btn-date-utility" @onclick="() => HandleDateRangeClick(DateRangeType.CurrentFinancialYear)"
+            title="Current Financial Year" disabled="@(Disabled || _isProcessing)">
         <span>Current FY</span>
     </button>
-    <button class="btn-date-utility"
-        @onclick="() => HandleDateRangeClick(DateRangeType.PreviousFinancialYear)"
-        title="Previous Financial Year" disabled="@(Disabled || _isProcessing)">
+    <button class="btn-date-utility" @onclick="() => HandleDateRangeClick(DateRangeType.PreviousFinancialYear)"
+            title="Previous Financial Year" disabled="@(Disabled || _isProcessing)">
         <span>Previous FY</span>
     </button>
-    <button class="btn-date-utility" @onclick="() => HandleDateRangeClick(DateRangeType.AllTime)"
-        title="All Time" disabled="@(Disabled || _isProcessing)">
+    <button class="btn-date-utility" @onclick="() => HandleDateRangeClick(DateRangeType.AllTime)" title="All Time"
+            disabled="@(Disabled || _isProcessing)">
         <span>All Time</span>
     </button>
 </div>
 
 <style>
+    /* iOS 26 Glass Effect Date Range Buttons */
     .date-range-buttons {
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
         padding: 12px;
-        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-        border-radius: 8px;
-        border: 1px solid #e2e8f0;
+        background: linear-gradient(135deg, rgba(248, 250, 252, 0.8) 0%, rgba(241, 245, 249, 0.6) 100%);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 12px;
+        border: 1px solid rgba(226, 232, 240, 0.5);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.6);
     }
 
     .btn-date-utility {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        padding: 6px 12px;
-        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        padding: 8px 16px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.7) 100%);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
         color: #475569;
-        border: 1px solid #cbd5e1;
-        border-radius: 6px;
-        font-size: 12px;
+        border: 1px solid rgba(203, 213, 225, 0.4);
+        border-radius: 10px;
+        font-size: 13px;
         font-weight: 600;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         white-space: nowrap;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+        position: relative;
+        overflow: hidden;
     }
 
-    .btn-date-utility:hover {
-        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-        color: white;
-        border-color: #2563eb;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-    }
+        .btn-date-utility::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 100%);
+            border-radius: 10px 10px 0 0;
+            pointer-events: none;
+        }
 
-    .btn-date-utility:active {
-        transform: translateY(0);
-        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
-    }
+        .btn-date-utility:hover:not(:disabled) {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.9) 0%, rgba(37, 99, 235, 0.85) 100%);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3), 0 8px 24px rgba(59, 130, 246, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+        }
 
-    .btn-date-utility:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-        transform: none;
-        box-shadow: none;
-    }
+            .btn-date-utility:hover:not(:disabled)::before {
+                background: linear-gradient(180deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0) 100%);
+            }
 
-    .btn-date-utility:disabled:hover {
-        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-        color: #475569;
-        border-color: #cbd5e1;
-    }
+        .btn-date-utility:active:not(:disabled) {
+            transform: translateY(0) scale(0.98);
+            box-shadow: 0 1px 4px rgba(59, 130, 246, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+            transition: all 0.1s ease;
+        }
+
+        .btn-date-utility:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+        }
+
+            .btn-date-utility:disabled:hover {
+                background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.7) 100%);
+                color: #475569;
+                border-color: rgba(203, 213, 225, 0.4);
+                transform: none;
+            }
 
     /* Responsive adjustments for date range buttons */
     @@media (max-width: 768px) {
