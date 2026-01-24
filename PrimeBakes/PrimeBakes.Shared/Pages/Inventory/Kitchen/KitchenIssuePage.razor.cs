@@ -347,7 +347,7 @@ public partial class KitchenIssuePage : IAsyncDisposable
             {
                 ItemId = 0,
                 ItemName = "",
-                Quantity = 1,
+                Quantity = 0,
                 UnitOfMeasurement = "",
                 Rate = 0
             };
@@ -381,7 +381,7 @@ public partial class KitchenIssuePage : IAsyncDisposable
         if (_selectedRawMaterial is null)
             return;
 
-        if (_selectedCart.Quantity <= 0)
+        if (_selectedCart.Quantity < 0)
             _selectedCart.Quantity = 1;
 
         if (string.IsNullOrWhiteSpace(_selectedCart.UnitOfMeasurement))

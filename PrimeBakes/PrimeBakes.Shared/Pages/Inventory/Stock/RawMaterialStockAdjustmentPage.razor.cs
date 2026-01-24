@@ -164,7 +164,7 @@ public partial class RawMaterialStockAdjustmentPage : IAsyncDisposable
                 RawMaterialId = 0,
                 RawMaterialName = "",
                 Stock = 0,
-                Quantity = 1,
+                Quantity = 0,
                 Total = 0,
                 Rate = 0,
             };

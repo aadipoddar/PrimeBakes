@@ -652,7 +652,7 @@ public partial class SalePage : IAsyncDisposable
             {
                 ItemId = 0,
                 ItemName = "",
-                Quantity = 1,
+                Quantity = 0,
                 Rate = 0,
                 DiscountPercent = 0,
                 CGSTPercent = 0,
@@ -666,7 +666,7 @@ public partial class SalePage : IAsyncDisposable
 
             _selectedCart.ItemId = _selectedProduct.ProductId;
             _selectedCart.ItemName = _selectedProduct.Name;
-            _selectedCart.Quantity = 1;
+            _selectedCart.Quantity = 0;
             _selectedCart.Rate = _selectedProduct.Rate;
             _selectedCart.DiscountPercent = 0;
             _selectedCart.CGSTPercent = _taxes.FirstOrDefault(s => s.Id == _selectedProduct.TaxId).CGST;
@@ -725,7 +725,7 @@ public partial class SalePage : IAsyncDisposable
         if (_selectedProduct is null)
             return;
 
-        if (_selectedCart.Quantity <= 0)
+        if (_selectedCart.Quantity < 0)
             _selectedCart.Quantity = 1;
 
         _selectedCart.ItemId = _selectedProduct.ProductId;

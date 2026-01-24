@@ -207,7 +207,7 @@ public partial class ProductStockAdjustment : IAsyncDisposable
                 ProductId = 0,
                 ProductName = "",
                 Stock = 0,
-                Quantity = 1,
+                Quantity = 0,
                 Total = 0,
                 Rate = 0,
             };

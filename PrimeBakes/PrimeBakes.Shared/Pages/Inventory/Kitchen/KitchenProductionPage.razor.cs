@@ -340,7 +340,7 @@ public partial class KitchenProductionPage : IAsyncDisposable
             {
                 ProductId = 0,
                 ProductName = "",
-                Quantity = 1,
+                Quantity = 0,
                 Rate = 0
             };
 
@@ -372,7 +372,7 @@ public partial class KitchenProductionPage : IAsyncDisposable
         if (_selectedProduct is null)
             return;
 
-        if (_selectedCart.Quantity <= 0)
+        if (_selectedCart.Quantity < 0)
             _selectedCart.Quantity = 1;
 
         _selectedCart.ProductId = _selectedProduct.Id;

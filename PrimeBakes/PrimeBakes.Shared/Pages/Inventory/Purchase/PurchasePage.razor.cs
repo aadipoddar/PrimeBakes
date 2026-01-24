@@ -397,7 +397,7 @@ public partial class PurchasePage : IAsyncDisposable
             {
                 ItemId = 0,
                 ItemName = "",
-                Quantity = 1,
+                Quantity = 0,
                 UnitOfMeasurement = "",
                 Rate = 0,
                 DiscountPercent = 0,
@@ -412,7 +412,7 @@ public partial class PurchasePage : IAsyncDisposable
 
             _selectedCart.ItemId = _selectedRawMaterial.Id;
             _selectedCart.ItemName = _selectedRawMaterial.Name;
-            _selectedCart.Quantity = 1;
+            _selectedCart.Quantity = 0;
             _selectedCart.UnitOfMeasurement = _selectedRawMaterial.UnitOfMeasurement;
             _selectedCart.Rate = _selectedRawMaterial.Rate;
             _selectedCart.DiscountPercent = 0;
@@ -472,7 +472,7 @@ public partial class PurchasePage : IAsyncDisposable
         if (_selectedRawMaterial is null)
             return;
 
-        if (_selectedCart.Quantity <= 0)
+        if (_selectedCart.Quantity < 0)
             _selectedCart.Quantity = 1;
 
         if (string.IsNullOrWhiteSpace(_selectedCart.UnitOfMeasurement))
