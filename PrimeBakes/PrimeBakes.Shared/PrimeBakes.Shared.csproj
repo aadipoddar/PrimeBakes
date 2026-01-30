@@ -13,15 +13,14 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.2" />
-    <PackageReference Include="Syncfusion.Blazor.Buttons" Version="32.1.24" />
-    <PackageReference Include="Syncfusion.Blazor.Calendars" Version="32.1.24" />
-    <PackageReference Include="Syncfusion.Blazor.DropDowns" Version="32.1.24" />
-    <PackageReference Include="Syncfusion.Blazor.Grid" Version="32.1.24" />
-    <PackageReference Include="Syncfusion.Blazor.Inputs" Version="32.1.24" />
-    <PackageReference Include="Syncfusion.Blazor.Notifications" Version="32.1.24" />
-    <PackageReference Include="Syncfusion.Blazor.Popups" Version="32.1.24" />
-    <PackageReference Include="Syncfusion.Blazor.Spinner" Version="32.1.24" />
-    <PackageReference Include="Syncfusion.Blazor.Themes" Version="32.1.24" />
+    <PackageReference Include="Syncfusion.Blazor.Buttons" Version="32.1.25" />
+    <PackageReference Include="Syncfusion.Blazor.Calendars" Version="32.1.25" />
+    <PackageReference Include="Syncfusion.Blazor.DropDowns" Version="32.1.25" />
+    <PackageReference Include="Syncfusion.Blazor.Grid" Version="32.1.25" />
+    <PackageReference Include="Syncfusion.Blazor.Inputs" Version="32.1.25" />
+    <PackageReference Include="Syncfusion.Blazor.Notifications" Version="32.1.25" />
+    <PackageReference Include="Syncfusion.Blazor.Popups" Version="32.1.25" />
+    <PackageReference Include="Syncfusion.Blazor.Themes" Version="32.1.25" />
     <PackageReference Include="Toolbelt.Blazor.HotKeys2" Version="6.2.0" />
   </ItemGroup>
 

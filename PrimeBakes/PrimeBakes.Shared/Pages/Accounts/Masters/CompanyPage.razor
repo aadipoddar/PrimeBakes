@@ -6,17 +6,22 @@
 
 @if (_isLoading)
 {
-    <AnimatedLoader Visible="true" Label="Page is Loading, Please Wait" />
+    <AnimatedLoader Visible="true" />
 }
 else
 {
     <div style="display: flex; flex-direction: column; min-height: 100vh;">
-        <Header Title="Company Management" Subtitle="Manage company details" ShowLogout="true" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
+        <Header Title="Company Management" Subtitle="Manage company details" ShowLogout="true" ShowHome="true"
+                ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
             <RightContent>
-                <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
-                <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
-                <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Company (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveCompany" />
-                <IconButton Icon="IconType.New" Title="New Company (Ctrl + N)" Disabled="_isProcessing" OnClick="ResetPage" />
+                <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)"
+                            Disabled="_isProcessing" OnClick="ExportExcel" />
+                <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)"
+                            Disabled="_isProcessing" OnClick="ExportPdf" />
+                <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Company (Ctrl + S)"
+                            Disabled="_isProcessing" OnClick="SaveCompany" />
+                <IconButton Icon="IconType.New" Title="New Company (Ctrl + N)" Disabled="_isProcessing"
+                            OnClick="ResetPage" />
             </RightContent>
         </Header>
 
@@ -27,8 +32,9 @@ else
             <div class="section-card">
                 <div class="section-header">
                     <div class="section-title-wrapper">
-                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round">
                             <path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
                         </svg>
                         <h2 class="section-title">Company Details</h2>
@@ -118,8 +124,8 @@ else
                         <!-- Remarks -->
                         <div class="form-field form-field-span-4">
                             <label class="field-label">Remarks</label>
-                            <SfTextBox @bind-Value="_company.Remarks" Placeholder="Enter remarks (optional)" Multiline="true"
-                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                            <SfTextBox @bind-Value="_company.Remarks" Placeholder="Enter remarks (optional)"
+                                       Multiline="true" FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
                         </div>
                     </div>
                 </div>
@@ -129,24 +135,28 @@ else
             <div class="section-card">
                 <div class="section-header">
                     <div class="section-title-wrapper">
-                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round">
                             <path d="M9 11l3 3L22 4" />
                             <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
                         </svg>
                         <h2 class="section-title">Companies List</h2>
                     </div>
                     <div class="header-actions">
-                        <ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted" OnToggle="ToggleDeleted" />
+                        <ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted"
+                                             OnToggle="ToggleDeleted" />
                     </div>
                 </div>
                 <div class="section-body grid-body">
-                    <SfGrid @ref="_sfGrid" DataSource="@_companies" AllowPaging="true" AllowSorting="true" AllowFiltering="true"
-                            AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
+                    <SfGrid @ref="_sfGrid" DataSource="@_companies" AllowPaging="true" AllowSorting="true"
+                            AllowFiltering="true" AllowResizing="true" CssClass="professional-grid"
+                            Toolbar="@(new List<string>() { "Search" })">
                         <GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
                         <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
                         <GridColumns>
-                            <GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center" AllowFiltering="false">
+                            <GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center"
+                                        AllowFiltering="false">
                                 <Template>
                                     @{
                                         var company = (context as CompanyModel);
@@ -154,18 +164,24 @@ else
                                         <div class="grid-actions">
                                             @if (company.Status)
                                             {
-                                                <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid" Title="Edit (Insert)" OnClick="@(() => OnEditCompany(company))" />
-                                                <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete (Delete)" OnClick="@(() => ShowDeleteConfirmation(company.Id, company.Name))" />
+                                                <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid"
+                                                            Title="Edit (Insert)" OnClick="@(() => OnEditCompany(company))" />
+                                                <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete"
+                                                            Size="ButtonSize.Grid" Title="Delete (Delete)"
+                                                            OnClick="@(() => ShowDeleteConfirmation(company.Id, company.Name))" />
                                             }
                                             else
                                             {
-                                                <IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover" Size="ButtonSize.Grid" Title="Recover (Delete)" OnClick="@(() => ShowRecoverConfirmation(company.Id, company.Name))" />
+                                                <IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover"
+                                                            Size="ButtonSize.Grid" Title="Recover (Delete)"
+                                                            OnClick="@(() => ShowRecoverConfirmation(company.Id, company.Name))" />
                                             }
                                         </div>
                                     }
                                 </Template>
                             </GridColumn>
-                            <GridColumn Field="@nameof(CompanyModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" />
+                            <GridColumn Field="@nameof(CompanyModel.Id)" HeaderText="ID" Width="80"
+                                        TextAlign="TextAlign.Center" />
                             <GridColumn Field="@nameof(CompanyModel.Name)" HeaderText="Company Name" Width="250" />
                             <GridColumn Field="@nameof(CompanyModel.Alias)" HeaderText="Alias" Width="150" />
                             <GridColumn Field="@nameof(CompanyModel.Code)" HeaderText="Code" Width="120" />
@@ -176,7 +192,8 @@ else
                             <GridColumn Field="@nameof(CompanyModel.PANNo)" HeaderText="PAN No" Width="150" />
                             <GridColumn Field="@nameof(CompanyModel.Address)" HeaderText="Address" Width="200" />
                             <GridColumn Field="@nameof(CompanyModel.Remarks)" HeaderText="Remarks" Width="200" />
-                            <GridColumn Field="@nameof(CompanyModel.Status)" HeaderText="Status" Width="100" TextAlign="TextAlign.Center">
+                            <GridColumn Field="@nameof(CompanyModel.Status)" HeaderText="Status" Width="100"
+                                        TextAlign="TextAlign.Center">
                                 <Template>
                                     @{
                                         var company = (context as CompanyModel);
@@ -197,21 +214,12 @@ else
     </div>
 }
 
-<DeleteConfirmationDialog @ref="_deleteConfirmationDialog"
-                          EntityName="Company"
-                          IdentifierLabel="Company Name"
-                          IdentifierValue="@_deleteCompanyName"
-                          IsPermanentDelete="false"
-                          Disabled="@_isProcessing"
-                          OnConfirm="ConfirmDelete"
+<DeleteConfirmationDialog @ref="_deleteConfirmationDialog" EntityName="Company" IdentifierLabel="Company Name"
+                          IdentifierValue="@_deleteCompanyName" IsPermanentDelete="false" Disabled="@_isProcessing" OnConfirm="ConfirmDelete"
                           OnCancel="CancelDelete" />
 
-<RecoverConfirmationDialog @ref="_recoverConfirmationDialog"
-                           EntityName="Company"
-                           IdentifierLabel="Company Name"
-                           IdentifierValue="@_recoverCompanyName"
-                           Disabled="@_isProcessing"
-                           OnConfirm="ConfirmRecover"
+<RecoverConfirmationDialog @ref="_recoverConfirmationDialog" EntityName="Company" IdentifierLabel="Company Name"
+                           IdentifierValue="@_recoverCompanyName" Disabled="@_isProcessing" OnConfirm="ConfirmRecover"
                            OnCancel="CancelRecover" />
 
 <ToastNotification @ref="_toastNotification" />
@@ -342,19 +350,19 @@ else
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
     }
 
-        .dialog-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
-        }
+    .dialog-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+    }
 
-        .dialog-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-        }
+    .dialog-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    }
 
-        .dialog-btn svg {
-            flex-shrink: 0;
-        }
+    .dialog-btn svg {
+        flex-shrink: 0;
+    }
 
     .dialog-btn-cancel {
         background: #ffffff;
@@ -362,29 +370,29 @@ else
         border: 2px solid #e2e8f0;
     }
 
-        .dialog-btn-cancel:hover {
-            background: #f8fafc;
-            border-color: #cbd5e1;
-            color: #475569;
-        }
+    .dialog-btn-cancel:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+        color: #475569;
+    }
 
     .dialog-btn-delete {
         background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         color: white;
     }
 
-        .dialog-btn-delete:hover {
-            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-        }
+    .dialog-btn-delete:hover {
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    }
 
     .dialog-btn-recover {
         background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         color: white;
     }
 
-        .dialog-btn-recover:hover {
-            background: linear-gradient(135deg, #059669 0%, #047857 100%);
-        }
+    .dialog-btn-recover:hover {
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    }
 
     /* Responsive Design */
     @@media (max-width: 1024px) {

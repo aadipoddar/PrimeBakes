@@ -19,7 +19,6 @@ public class OrderModel
     public int? LastModifiedBy { get; set; }
     public DateTime? LastModifiedAt { get; set; }
     public string? LastModifiedFromPlatform { get; set; }
-
 }
 
 public class OrderDetailModel

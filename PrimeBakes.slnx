@@ -3,7 +3,7 @@
     <Build />
     <Deploy />
   </Project>
-  <Project Path="ExcelImportProduct/ExcelImportProduct.csproj" />
+  <Project Path="ExcelImport/ExcelImport.csproj" />
   <Project Path="PrimeBakes/PrimeBakes.Shared/PrimeBakes.Shared.csproj" />
   <Project Path="PrimeBakes/PrimeBakes.Web/PrimeBakes.Web.csproj" />
   <Project Path="PrimeBakes/PrimeBakes/PrimeBakes.csproj">

@@ -2,10 +2,14 @@
 
 <PageTitle>Order Confirmed - Prime Bakes</PageTitle>
 
+<HeadContent>
+	<script src="https://unpkg.com/@@lottiefiles/dotlottie-wc@@0.8.11/dist/dotlottie-wc.js" type="module"></script>
+</HeadContent>
+
 <div class="order-confirmed-container">
 	<div class="success-content">
 		<div class="success-animation">
-			<img src="_content/PrimeBakes.Shared/images/ordersuccess.gif" alt="Order Success Animation" class="success-gif" />
+			<dotlottie-wc src="https://lottie.host/cda968a0-4173-4006-9fa9-9a2a725f4b8e/TBpJqpO4ML.lottie" class="success-gif" autoplay loop></dotlottie-wc>
 		</div>
 
 		<div class="success-message">
@@ -60,6 +64,8 @@
 	.success-gif {
 		width: 200px;
 		height: 200px;
+		display: block;
+		margin: 0 auto;
 		border-radius: 50%;
 		box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
 		border: 8px solid var(--white);

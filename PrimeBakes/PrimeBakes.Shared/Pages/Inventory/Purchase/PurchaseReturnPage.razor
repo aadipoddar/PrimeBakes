@@ -1,4 +1,4 @@
-﻿@page "/inventory/purchase-return"
+@page "/inventory/purchase-return"
 @page "/inventory/purchase-return/{Id:int}"
 
 @using PrimeBakesLibrary.Models.Accounts.Masters
@@ -9,7 +9,7 @@
 
 @if (_isLoading)
 {
-	<AnimatedLoader Visible="true" Label="Page is Loading, Please Wait" />
+	<AnimatedLoader Visible="true" />
 }
 else
 {

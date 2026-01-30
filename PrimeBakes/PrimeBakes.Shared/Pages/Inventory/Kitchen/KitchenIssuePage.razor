@@ -1,4 +1,4 @@
-﻿@page "/inventory/kitchen-issue"
+@page "/inventory/kitchen-issue"
 @page "/inventory/kitchen-issue/{Id:int}"
 
 @using PrimeBakesLibrary.Models.Accounts.Masters
@@ -10,7 +10,7 @@
 
 @if (_isLoading)
 {
-    <AnimatedLoader Visible="true" Label="Page is Loading, Please Wait" />
+    <AnimatedLoader Visible="true" />
 }
 else
 {

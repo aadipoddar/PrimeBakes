@@ -8,6 +8,9 @@ internal static class NotificationUtil
 {
     private static async Task SendNotificationToAPI(List<UserModel> users, string title, string text)
     {
+        if (SqlDataAccess._databaseConnection == Secrets.LocalConnectionString)
+            return; // Do not send notifications in local/dev environment
+
         string endpoint = $"{Secrets.NotificationBackendServiceEndpoint}api/notifications/requests";
         using var httpClient = new HttpClient();
         httpClient.DefaultRequestHeaders.Add("apikey", Secrets.NotificationAPIKey);

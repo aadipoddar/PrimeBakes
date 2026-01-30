@@ -12,22 +12,29 @@
 
 @if (_isLoading)
 {
-	<AnimatedLoader Visible="true" Label="Page is Loading, Please Wait" />
+	<AnimatedLoader Visible="true" />
 }
 else
 {
 	<div style="display: flex; flex-direction: column; min-height: 100vh;">
-		<Header Title="Stock Transfer" Subtitle="Move stock between locations" ShowLogout="true" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
+		<Header Title="Stock Transfer" Subtitle="Move stock between locations" ShowLogout="true" ShowHome="true"
+				ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
 			<RightContent>
-				<IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Transaction (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveTransaction" />
+				<IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Transaction (Ctrl + S)"
+							Disabled="_isProcessing" OnClick="SaveTransaction" />
 				@if (Id is > 0)
 				{
-					<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Download Excel Transfer Note (Alt+E)" Disabled="_isProcessing" OnClick="DownloadExcelInvoice" />
-					<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Download PDF Transfer Note (Alt+P)" Disabled="_isProcessing" OnClick="DownloadPdfInvoice" />
+					<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Download Excel Transfer Note (Alt+E)"
+								Disabled="_isProcessing" OnClick="DownloadExcelInvoice" />
+					<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Download PDF Transfer Note (Alt+P)"
+								Disabled="_isProcessing" OnClick="DownloadPdfInvoice" />
 				}
-				<IconButton Icon="IconType.History" Title="Transaction History (Ctrl + H)" Disabled="_isProcessing" OnClick="NavigateToTransactionHistoryPage" />
-				<IconButton Icon="IconType.Report" Title="Item Report (Ctrl + I)" Disabled="_isProcessing" OnClick="NavigateToItemReport" />
-				<IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing" OnClick="ResetPage" />
+				<IconButton Icon="IconType.History" Title="Transaction History (Ctrl + H)" Disabled="_isProcessing"
+							OnClick="NavigateToTransactionHistoryPage" />
+				<IconButton Icon="IconType.Report" Title="Item Report (Ctrl + I)" Disabled="_isProcessing"
+							OnClick="NavigateToItemReport" />
+				<IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing"
+							OnClick="ResetPage" />
 			</RightContent>
 		</Header>
 
@@ -119,9 +126,10 @@ else
 								<label class="field-label">
 									Financial Year
 								</label>
-								<SfTextBox Value="@($"{_selectedFinancialYear?.StartDate:yyyy} to {_selectedFinancialYear?.EndDate:yyyy}")"
-										   Readonly="true" Placeholder="Financial Year" FloatLabelType="FloatLabelType.Never"
-										   CssClass="custom-textbox readonly-field" />
+								<SfTextBox
+								Value="@($"{_selectedFinancialYear?.StartDate:yyyy} to {_selectedFinancialYear?.EndDate:yyyy}")"
+								Readonly="true" Placeholder="Financial Year" FloatLabelType="FloatLabelType.Never"
+								CssClass="custom-textbox readonly-field" />
 							</div>
 
 							<!-- Transaction No -->
@@ -642,13 +650,13 @@ else
 		margin-bottom: 16px;
 	}
 
-		.two-column-layout > :first-child {
-			flex: 0 0 75%;
-		}
+	.two-column-layout> :first-child {
+		flex: 0 0 75%;
+	}
 
-		.two-column-layout > :last-child {
-			flex: 0 0 calc(25% - 16px);
-		}
+	.two-column-layout> :last-child {
+		flex: 0 0 calc(25% - 16px);
+	}
 
 	/* Section Card Styles */
 	.section-card {
@@ -740,9 +748,9 @@ else
 		align-items: stretch;
 	}
 
-		.transaction-no-wrapper > :first-child {
-			flex: 1;
-		}
+	.transaction-no-wrapper> :first-child {
+		flex: 1;
+	}
 
 	/* Financial Grid Layout */
 	.financial-grid {
@@ -805,19 +813,19 @@ else
 		background: #eff6ff;
 	}
 
-		::deep .editable-field .e-input-group input {
-			font-weight: 600;
-			color: #1e40af;
-		}
+	::deep .editable-field .e-input-group input {
+		font-weight: 600;
+		color: #1e40af;
+	}
 
 	::deep .small-input .e-input-group {
 		width: 100%;
 	}
 
-		::deep .small-input .e-input-group input {
-			text-align: center;
-			padding: 8px;
-		}
+	::deep .small-input .e-input-group input {
+		text-align: center;
+		padding: 8px;
+	}
 
 	::deep .discount-field .e-input-group input {
 		color: #dc2626;
@@ -830,31 +838,31 @@ else
 		height: 48px;
 	}
 
-		::deep .total-field .e-input-group input {
-			font-size: 18px;
-			font-weight: 700;
-			color: #1e40af;
-		}
+	::deep .total-field .e-input-group input {
+		font-size: 18px;
+		font-weight: 700;
+		color: #1e40af;
+	}
 
 	::deep .textarea-field .e-input-group {
 		height: auto;
 		min-height: 80px;
 	}
 
-		::deep .textarea-field .e-input-group textarea {
-			resize: vertical;
-			min-height: 80px;
-		}
+	::deep .textarea-field .e-input-group textarea {
+		resize: vertical;
+		min-height: 80px;
+	}
 
 	::deep .textarea-field-small .e-input-group {
 		height: auto;
 		min-height: 60px;
 	}
 
-		::deep .textarea-field-small .e-input-group textarea {
-			resize: vertical;
-			min-height: 60px;
-		}
+	::deep .textarea-field-small .e-input-group textarea {
+		resize: vertical;
+		min-height: 60px;
+	}
 
 	/* Add to Cart Section Styles */
 	.cart-row {
@@ -891,10 +899,10 @@ else
 		letter-spacing: 0.3px;
 	}
 
-		.cart-label .required {
-			color: #dc2626;
-			margin-left: 2px;
-		}
+	.cart-label .required {
+		color: #dc2626;
+		margin-left: 2px;
+	}
 
 	::deep .cart-field .e-input-group,
 	::deep .cart-field .custom-numeric .e-input-group,
@@ -905,15 +913,15 @@ else
 		border: 1px solid #3b82f6;
 	}
 
-		::deep .cart-field .e-input-group input,
-		::deep .cart-field .custom-numeric .e-input-group input,
-		::deep .cart-field .custom-autocomplete .e-input-group input,
-		::deep .cart-field .custom-textbox .e-input-group input {
-			font-size: 14px;
-			font-weight: 500;
-			color: #1e293b;
-			padding: 8px 12px;
-		}
+	::deep .cart-field .e-input-group input,
+	::deep .cart-field .custom-numeric .e-input-group input,
+	::deep .cart-field .custom-autocomplete .e-input-group input,
+	::deep .cart-field .custom-textbox .e-input-group input {
+		font-size: 14px;
+		font-weight: 500;
+		color: #1e293b;
+		padding: 8px 12px;
+	}
 
 	/* Checkbox Wrapper in Cart Row */
 	.checkbox-wrapper {
@@ -973,31 +981,31 @@ else
 		min-height: 58px;
 	}
 
-		.amount-display.identification-field {
-			padding: 0;
-			background: transparent;
-			border: none;
-			min-height: 38px;
-			justify-content: center;
-		}
+	.amount-display.identification-field {
+		padding: 0;
+		background: transparent;
+		border: none;
+		min-height: 38px;
+		justify-content: center;
+	}
 
-		.amount-display.empty-display {
-			background: #f8fafc;
-		}
+	.amount-display.empty-display {
+		background: #f8fafc;
+	}
 
-		.amount-display.total-display {
-			background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
-			border: 2px solid #3b82f6;
-		}
+	.amount-display.total-display {
+		background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+		border: 2px solid #3b82f6;
+	}
 
-			.amount-display.total-display .amount-label {
-				color: #1e40af;
-			}
+	.amount-display.total-display .amount-label {
+		color: #1e40af;
+	}
 
-			.amount-display.total-display .amount-value {
-				color: #1e40af;
-				font-size: 16px;
-			}
+	.amount-display.total-display .amount-value {
+		color: #1e40af;
+		font-size: 16px;
+	}
 
 	::deep .identification-field .identification-input .e-input-group {
 		height: 38px;
@@ -1005,17 +1013,17 @@ else
 		border: 1px solid #cbd5e1;
 	}
 
-		::deep .identification-field .identification-input .e-input-group input {
-			font-size: 13px;
-			color: #64748b;
-			font-weight: 500;
-			padding: 8px 12px;
-		}
+	::deep .identification-field .identification-input .e-input-group input {
+		font-size: 13px;
+		color: #64748b;
+		font-weight: 500;
+		padding: 8px 12px;
+	}
 
-			::deep .identification-field .identification-input .e-input-group input::placeholder {
-				color: #94a3b8;
-				font-style: italic;
-			}
+	::deep .identification-field .identification-input .e-input-group input::placeholder {
+		color: #94a3b8;
+		font-style: italic;
+	}
 
 	.amount-label {
 		font-size: 10px;
@@ -1034,9 +1042,9 @@ else
 		display: block;
 	}
 
-		.amount-value.discount-amt {
-			color: #dc2626;
-		}
+	.amount-value.discount-amt {
+		color: #dc2626;
+	}
 
 	.checkbox-display {
 		display: flex;
@@ -1054,9 +1062,9 @@ else
 		font-weight: 500;
 	}
 
-		::deep .custom-checkbox label {
-			white-space: nowrap;
-		}
+	::deep .custom-checkbox label {
+		white-space: nowrap;
+	}
 
 	/* Professional Grid Styles */
 	.e-grid .e-summaryrow .e-summarycell {
@@ -1071,57 +1079,57 @@ else
 		border: none;
 	}
 
-		::deep .professional-grid .e-gridheader {
-			background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
-			border-bottom: 2px solid #e2e8f0;
-		}
+	::deep .professional-grid .e-gridheader {
+		background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
+		border-bottom: 2px solid #e2e8f0;
+	}
 
-		::deep .professional-grid .e-headercell {
-			background: transparent;
-			color: #475569;
-			font-weight: 600;
-			font-size: 12px;
-			text-transform: uppercase;
-			letter-spacing: 0.3px;
-			border-right: 1px solid #e2e8f0;
-			padding: 12px 8px;
-		}
+	::deep .professional-grid .e-headercell {
+		background: transparent;
+		color: #475569;
+		font-weight: 600;
+		font-size: 12px;
+		text-transform: uppercase;
+		letter-spacing: 0.3px;
+		border-right: 1px solid #e2e8f0;
+		padding: 12px 8px;
+	}
 
-			::deep .professional-grid .e-headercell:last-child {
-				border-right: none;
-			}
+	::deep .professional-grid .e-headercell:last-child {
+		border-right: none;
+	}
 
-		::deep .professional-grid .e-gridcontent {
-			background: #ffffff;
-		}
+	::deep .professional-grid .e-gridcontent {
+		background: #ffffff;
+	}
 
-		::deep .professional-grid .e-row {
-			transition: background-color 0.2s ease;
-		}
+	::deep .professional-grid .e-row {
+		transition: background-color 0.2s ease;
+	}
 
-			::deep .professional-grid .e-row:hover {
-				background-color: #f8fafc;
-			}
+	::deep .professional-grid .e-row:hover {
+		background-color: #f8fafc;
+	}
 
-			::deep .professional-grid .e-row.e-altrow {
-				background-color: #fafbfc;
-			}
+	::deep .professional-grid .e-row.e-altrow {
+		background-color: #fafbfc;
+	}
 
-				::deep .professional-grid .e-row.e-altrow:hover {
-					background-color: #f8fafc;
-				}
+	::deep .professional-grid .e-row.e-altrow:hover {
+		background-color: #f8fafc;
+	}
 
-		::deep .professional-grid .e-rowcell {
-			border-right: 1px solid #f1f5f9;
-			border-bottom: 1px solid #f1f5f9;
-			padding: 10px 8px;
-			font-size: 13px;
-			color: #1e293b;
-		}
+	::deep .professional-grid .e-rowcell {
+		border-right: 1px solid #f1f5f9;
+		border-bottom: 1px solid #f1f5f9;
+		padding: 10px 8px;
+		font-size: 13px;
+		color: #1e293b;
+	}
 
-			::deep .professional-grid .e-rowcell:last-child {
-				border-right: none;
-			}
+	::deep .professional-grid .e-rowcell:last-child {
+		border-right: none;
+	}
 
 	.grid-discount {
 		color: #dc2626;
@@ -1158,9 +1166,9 @@ else
 		border-right: 1px solid #cbd5e1;
 	}
 
-		::deep .professional-grid .e-summarycell:last-child {
-			border-right: none;
-		}
+	::deep .professional-grid .e-summarycell:last-child {
+		border-right: none;
+	}
 
 	.aggregate-label {
 		text-align: left;
@@ -1174,23 +1182,23 @@ else
 		color: #1e293b;
 	}
 
-		.aggregate-value.aggregate-discount {
-			color: #dc2626;
-		}
+	.aggregate-value.aggregate-discount {
+		color: #dc2626;
+	}
 
-		.aggregate-value.aggregate-total {
-			color: #1e40af;
-			font-size: 14px;
-		}
+	.aggregate-value.aggregate-total {
+		color: #1e40af;
+		font-size: 14px;
+	}
 
-			.aggregate-value.aggregate-total strong {
-				font-size: 15px;
-			}
+	.aggregate-value.aggregate-total strong {
+		font-size: 15px;
+	}
 
-		.aggregate-label strong,
-		.aggregate-value strong {
-			font-weight: 700;
-		}
+	.aggregate-label strong,
+	.aggregate-value strong {
+		font-weight: 700;
+	}
 
 	/* Empty Grid State */
 	::deep .professional-grid .e-emptyrow {

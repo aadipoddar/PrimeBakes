@@ -8,29 +8,29 @@
 
 @if (_isLoading)
 {
-	<AnimatedLoader Visible="true" Label="Page is Loading, Please Wait" />
+	<AnimatedLoader Visible="true" />
 }
 else
 {
 	<div style="display: flex; flex-direction: column; min-height: 100vh;">
 		<Header Title="Balance Sheet" Subtitle="View assets and liabilities for specified period" ShowHome="true"
-			ShowBack="true" ShowLogout="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack"
-			OnLogoutClick="Logout">
+				ShowBack="true" ShowLogout="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack"
+				OnLogoutClick="Logout">
 			<RightContent>
 				<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)"
-					Disabled="_isProcessing" OnClick="ExportExcel" />
+							Disabled="_isProcessing" OnClick="ExportExcel" />
 				<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)"
-					Disabled="_isProcessing" OnClick="ExportPdf" />
+							Disabled="_isProcessing" OnClick="ExportPdf" />
 				<IconButton Icon="IconType.Refresh" Title="Refresh Data (Ctrl + R)" Disabled="_isProcessing"
-					OnClick="LoadBalanceSheet" />
+							OnClick="LoadBalanceSheet" />
 				<IconButton Icon="IconType.Report" Title="Ledger Report (Ctrl + I)" Disabled="_isProcessing"
-					OnClick="NavigateToLedgerReport" />
+							OnClick="NavigateToLedgerReport" />
 				<IconButton Icon="IconType.TrialBalance" Title="Trial Balance (Ctrl + T)" Disabled="_isProcessing"
-					OnClick="NavigateToTrialBalance" />
+							OnClick="NavigateToTrialBalance" />
 				<IconButton Icon="IconType.ProfitAndLoss" Title="Profit & Loss (Alt + F)" Disabled="_isProcessing"
-					OnClick="NavigateToProfitAndLoss" />
+							OnClick="NavigateToProfitAndLoss" />
 				<IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing"
-					OnClick="NavigateToTransactionPage" />
+							OnClick="NavigateToTransactionPage" />
 			</RightContent>
 		</Header>
 
@@ -42,8 +42,8 @@ else
 				<div class="section-header">
 					<div class="section-title-wrapper">
 						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-							viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-							stroke-linejoin="round">
+							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+							 stroke-linejoin="round">
 							<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
 						</svg>
 						<h2 class="section-title">Filters</h2>
@@ -56,7 +56,7 @@ else
 							<div class="form-field">
 								<label class="field-label">Date Range</label>
 								<SfDateRangePicker CssClass="custom-daterange" StartDate="_fromDate" EndDate="_toDate"
-									TValue="DateTime" Format="dd/MM/yyyy" AllowEdit="true" Placeholder="Select date range">
+												   TValue="DateTime" Format="dd/MM/yyyy" AllowEdit="true" Placeholder="Select date range">
 									<DateRangePickerEvents TValue="DateTime" ValueChange="OnDateRangeChanged" />
 								</SfDateRangePicker>
 							</div>
@@ -65,11 +65,11 @@ else
 							<div class="form-field">
 								<label class="field-label">Company</label>
 								<SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedCompany"
-									TValue="CompanyModel" TItem="CompanyModel" DataSource="@_companies"
-									Placeholder="All Companies" AllowFiltering="true"
-									FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
+												TValue="CompanyModel" TItem="CompanyModel" DataSource="@_companies"
+												Placeholder="All Companies" AllowFiltering="true"
+												FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
 									<AutoCompleteEvents TItem="CompanyModel" TValue="CompanyModel"
-										ValueChange="OnCompanyChanged" />
+														ValueChange="OnCompanyChanged" />
 									<AutoCompleteFieldSettings Value="Name" />
 								</SfAutoComplete>
 							</div>
@@ -77,7 +77,7 @@ else
 
 						<!-- Date Utility Buttons -->
 						<DateRangeButtons Disabled="_isProcessing" FromDate="_fromDate" ToDate="_toDate"
-							OnDatesChanged="HandleDatesChanged" ToastNotification="_toastNotification" />
+										  OnDatesChanged="HandleDatesChanged" ToastNotification="_toastNotification" />
 					</div>
 				</div>
 			</div>
@@ -87,8 +87,8 @@ else
 				<div class="section-header">
 					<div class="section-title-wrapper">
 						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-							viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-							stroke-linejoin="round">
+							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+							 stroke-linejoin="round">
 							<rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
 							<line x1="8" y1="21" x2="16" y2="21" />
 							<line x1="12" y1="17" x2="12" y2="21" />
@@ -97,7 +97,7 @@ else
 					</div>
 					<div class="header-actions">
 						<ToggleDetailsButton Disabled="@_isProcessing" ShowAllColumns="@_showAllColumns"
-							OnToggle="ToggleDetailsView" />
+											 OnToggle="ToggleDetailsView" />
 					</div>
 				</div>
 				<div class="section-body grid-body">
@@ -106,8 +106,8 @@ else
 						<div class="grid-section assets-section">
 							<div class="grid-section-header">
 								<svg class="grid-section-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-									viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-									stroke-linecap="round" stroke-linejoin="round">
+									 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+									 stroke-linecap="round" stroke-linejoin="round">
 									<rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
 									<line x1="3" y1="9" x2="21" y2="9" />
 									<line x1="9" y1="21" x2="9" y2="9" />
@@ -116,21 +116,21 @@ else
 								<span class="grid-section-count">(@_assetsTrialBalance.Count ledgers)</span>
 							</div>
 							<SfGrid @ref="_assetsGrid" TValue="TrialBalanceModel" DataSource="_assetsTrialBalance"
-								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
-								AllowFiltering="true" AllowExcelExport="true" AllowPdfExport="true"
-								GridLines="GridLine.Horizontal" AllowGrouping="true" CssClass="professional-grid"
-								Toolbar="@(new List<string>() { "Search" })">
+									AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+									AllowFiltering="true" AllowExcelExport="true" AllowPdfExport="true"
+									GridLines="GridLine.Horizontal" AllowGrouping="true" CssClass="professional-grid"
+									Toolbar="@(new List<string>() { "Search" })">
 
 								<GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
 								<GridPageSettings PageSize="20"
-									PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
+												  PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
 								<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
 								<GridAggregates>
 									<GridAggregate>
 										<GridAggregateColumns>
 											<GridAggregateColumn Field="@nameof(TrialBalanceModel.LedgerName)"
-												Type="AggregateType.Count">
+																 Type="AggregateType.Count">
 												<FooterTemplate>
 													@{
 														var aggregate = (context as AggregateTemplateContext);
@@ -141,7 +141,7 @@ else
 												</FooterTemplate>
 											</GridAggregateColumn>
 											<GridAggregateColumn Field="@nameof(TrialBalanceModel.OpeningBalance)"
-												Type="AggregateType.Sum" Format="N2">
+																 Type="AggregateType.Sum" Format="N2">
 												<FooterTemplate>
 													@{
 														var aggregate = (context as AggregateTemplateContext);
@@ -152,7 +152,7 @@ else
 												</FooterTemplate>
 											</GridAggregateColumn>
 											<GridAggregateColumn Field="@nameof(TrialBalanceModel.Debit)"
-												Type="AggregateType.Sum" Format="N2">
+																 Type="AggregateType.Sum" Format="N2">
 												<FooterTemplate>
 													@{
 														var aggregate = (context as AggregateTemplateContext);
@@ -163,7 +163,7 @@ else
 												</FooterTemplate>
 											</GridAggregateColumn>
 											<GridAggregateColumn Field="@nameof(TrialBalanceModel.ClosingBalance)"
-												Type="AggregateType.Sum" Format="N2">
+																 Type="AggregateType.Sum" Format="N2">
 												<FooterTemplate>
 													@{
 														var aggregate = (context as AggregateTemplateContext);
@@ -179,12 +179,12 @@ else
 
 								<GridColumns>
 									<GridColumn Field="@nameof(TrialBalanceModel.LedgerName)" HeaderText="Ledger Name"
-										Width="250" />
+												Width="250" />
 									<GridColumn Field="@nameof(TrialBalanceModel.GroupName)" HeaderText="Group" Width="150"
-										Visible="_showAllColumns" />
+												Visible="_showAllColumns" />
 									<GridColumn Field="@nameof(TrialBalanceModel.OpeningBalance)"
-										HeaderText="Opening Balance" Width="140" TextAlign="TextAlign.Right"
-										Visible="_showAllColumns">
+												HeaderText="Opening Balance" Width="140" TextAlign="TextAlign.Right"
+												Visible="_showAllColumns">
 										<Template>
 											@{
 												var item = (context as TrialBalanceModel);
@@ -193,7 +193,7 @@ else
 										</Template>
 									</GridColumn>
 									<GridColumn Field="@nameof(TrialBalanceModel.Debit)" HeaderText="Period Debit"
-										Width="140" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+												Width="140" TextAlign="TextAlign.Right" Visible="_showAllColumns">
 										<Template>
 											@{
 												var item = (context as TrialBalanceModel);
@@ -202,7 +202,7 @@ else
 										</Template>
 									</GridColumn>
 									<GridColumn Field="@nameof(TrialBalanceModel.ClosingBalance)"
-										HeaderText="Closing Balance" Width="140" TextAlign="TextAlign.Right">
+												HeaderText="Closing Balance" Width="140" TextAlign="TextAlign.Right">
 										<Template>
 											@{
 												var item = (context as TrialBalanceModel);
@@ -218,10 +218,10 @@ else
 						<div class="grid-section liabilities-section">
 							<div class="grid-section-header">
 								<svg class="grid-section-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-									viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-									stroke-linecap="round" stroke-linejoin="round">
+									 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+									 stroke-linecap="round" stroke-linejoin="round">
 									<path
-										d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+									d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
 									<polyline points="7.5 4.21 12 6.81 16.5 4.21" />
 									<polyline points="7.5 19.79 7.5 14.6 3 12" />
 									<polyline points="21 12 16.5 14.6 16.5 19.79" />
@@ -232,21 +232,21 @@ else
 								<span class="grid-section-count">(@_liabilitiesTrialBalance.Count ledgers)</span>
 							</div>
 							<SfGrid @ref="_liabilitiesGrid" TValue="TrialBalanceModel" DataSource="_liabilitiesTrialBalance"
-								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
-								AllowFiltering="true" AllowExcelExport="true" AllowPdfExport="true"
-								GridLines="GridLine.Horizontal" AllowGrouping="true" CssClass="professional-grid"
-								Toolbar="@(new List<string>() { "Search" })">
+									AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+									AllowFiltering="true" AllowExcelExport="true" AllowPdfExport="true"
+									GridLines="GridLine.Horizontal" AllowGrouping="true" CssClass="professional-grid"
+									Toolbar="@(new List<string>() { "Search" })">
 
 								<GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
 								<GridPageSettings PageSize="20"
-									PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
+												  PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
 								<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
 								<GridAggregates>
 									<GridAggregate>
 										<GridAggregateColumns>
 											<GridAggregateColumn Field="@nameof(TrialBalanceModel.LedgerName)"
-												Type="AggregateType.Count">
+																 Type="AggregateType.Count">
 												<FooterTemplate>
 													@{
 														var aggregate = (context as AggregateTemplateContext);
@@ -257,7 +257,7 @@ else
 												</FooterTemplate>
 											</GridAggregateColumn>
 											<GridAggregateColumn Field="@nameof(TrialBalanceModel.OpeningBalance)"
-												Type="AggregateType.Sum" Format="N2">
+																 Type="AggregateType.Sum" Format="N2">
 												<FooterTemplate>
 													@{
 														var aggregate = (context as AggregateTemplateContext);
@@ -268,7 +268,7 @@ else
 												</FooterTemplate>
 											</GridAggregateColumn>
 											<GridAggregateColumn Field="@nameof(TrialBalanceModel.Credit)"
-												Type="AggregateType.Sum" Format="N2">
+																 Type="AggregateType.Sum" Format="N2">
 												<FooterTemplate>
 													@{
 														var aggregate = (context as AggregateTemplateContext);
@@ -279,7 +279,7 @@ else
 												</FooterTemplate>
 											</GridAggregateColumn>
 											<GridAggregateColumn Field="@nameof(TrialBalanceModel.ClosingBalance)"
-												Type="AggregateType.Sum" Format="N2">
+																 Type="AggregateType.Sum" Format="N2">
 												<FooterTemplate>
 													@{
 														var aggregate = (context as AggregateTemplateContext);
@@ -295,12 +295,12 @@ else
 
 								<GridColumns>
 									<GridColumn Field="@nameof(TrialBalanceModel.LedgerName)" HeaderText="Ledger Name"
-										Width="250" />
+												Width="250" />
 									<GridColumn Field="@nameof(TrialBalanceModel.GroupName)" HeaderText="Group" Width="150"
-										Visible="_showAllColumns" />
+												Visible="_showAllColumns" />
 									<GridColumn Field="@nameof(TrialBalanceModel.OpeningBalance)"
-										HeaderText="Opening Balance" Width="140" TextAlign="TextAlign.Right"
-										Visible="_showAllColumns">
+												HeaderText="Opening Balance" Width="140" TextAlign="TextAlign.Right"
+												Visible="_showAllColumns">
 										<Template>
 											@{
 												var item = (context as TrialBalanceModel);
@@ -309,7 +309,7 @@ else
 										</Template>
 									</GridColumn>
 									<GridColumn Field="@nameof(TrialBalanceModel.Credit)" HeaderText="Period Credit"
-										Width="140" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+												Width="140" TextAlign="TextAlign.Right" Visible="_showAllColumns">
 										<Template>
 											@{
 												var item = (context as TrialBalanceModel);
@@ -318,7 +318,7 @@ else
 										</Template>
 									</GridColumn>
 									<GridColumn Field="@nameof(TrialBalanceModel.ClosingBalance)"
-										HeaderText="Closing Balance" Width="140" TextAlign="TextAlign.Right">
+												HeaderText="Closing Balance" Width="140" TextAlign="TextAlign.Right">
 										<Template>
 											@{
 												var item = (context as TrialBalanceModel);
@@ -338,8 +338,8 @@ else
 				<div class="section-header">
 					<div class="section-title-wrapper">
 						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-							viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-							stroke-linejoin="round">
+							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+							 stroke-linejoin="round">
 							<rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
 							<line x1="8" y1="21" x2="16" y2="21" />
 							<line x1="12" y1="17" x2="12" y2="21" />
@@ -356,8 +356,8 @@ else
 						<div class="balance-info-card assets-card">
 							<div class="card-icon">
 								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-									fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-									stroke-linejoin="round">
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
 									<rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
 									<line x1="3" y1="9" x2="21" y2="9" />
 									<line x1="9" y1="21" x2="9" y2="9" />
@@ -366,487 +366,487 @@ else
 							<div class="card-content">
 								<div class="card-label">Total Assets</div>
 								<div class="card-value assets-amount">₹@_assetsTrialBalance.Sum(x =>
-																	x.ClosingBalance).ToString("N2")</div>
-							<div class="card-breakdown">
-								<span class="breakdown-item">@_assetsTrialBalance.Count ledgers</span>
-							</div>
-						</div>
-					</div>
-
-						<!-- Total Liabilities Card -->
-						<div class="balance-info-card liabilities-card">
-							<div class="card-icon">
-								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-									fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-									stroke-linejoin="round">
-									<path
-										d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-								</svg>
-							</div>
-							<div class="card-content">
-								<div class="card-label">Total Liabilities</div>
-								<div class="card-value liabilities-amount">₹@_liabilitiesTrialBalance.Sum(x =>
-																x.ClosingBalance).ToString("N2")</div>
-							<div class="card-breakdown">
-								<span class="breakdown-item">@_liabilitiesTrialBalance.Count ledgers</span>
-							</div>
-						</div>
-					</div>
-
-						<!-- Net Position Card -->
-					@{
-							var totalAssets = _assetsTrialBalance.Sum(x => x.ClosingBalance);
-							var totalLiabilities = _liabilitiesTrialBalance.Sum(x => x.ClosingBalance);
-							var netPosition = totalAssets - totalLiabilities;
-							var isPositive = netPosition >= 0;
-						}
-						<div class="balance-info-card @(isPositive ? "positive-card" : "negative-card")">
-							<div class="card-icon">
-								@if (isPositive)
-								{
-									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-										fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-										stroke-linejoin="round">
-										<line x1="12" y1="1" x2="12" y2="23" />
-										<path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-									</svg>
-								}
-								else
-								{
-									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-										fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-										stroke-linejoin="round">
-										<circle cx="12" cy="12" r="10" />
-										<line x1="15" y1="9" x2="9" y2="15" />
-										<line x1="9" y1="9" x2="15" y2="15" />
-									</svg>
-								}
-							</div>
-							<div class="card-content">
-								<div class="card-label">@(isPositive ? "Net Position" : "Net Deficit")</div>
-								<div class="card-value @(isPositive ? "positive-amount" : "negative-amount")">
-									₹@Math.Abs(netPosition).ToString("N2")
+																										x.ClosingBalance).ToString("N2")</div>
+									<div class="card-breakdown">
+										<span class="breakdown-item">@_assetsTrialBalance.Count ledgers</span>
+									</div>
 								</div>
-								<div class="card-breakdown">
-									@if (totalAssets > 0)
-									{
-										var ratio = (netPosition / totalAssets) * 100;
-										<span class="breakdown-item">Ratio: @ratio.ToString("N2")%</span>
-									}
+							</div>
+
+							<!-- Total Liabilities Card -->
+							<div class="balance-info-card liabilities-card">
+								<div class="card-icon">
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+										 stroke-linejoin="round">
+										<path
+										d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+									</svg>
+								</div>
+								<div class="card-content">
+									<div class="card-label">Total Liabilities</div>
+									<div class="card-value liabilities-amount">₹@_liabilitiesTrialBalance.Sum(x =>
+																										x.ClosingBalance).ToString("N2")</div>
+										<div class="card-breakdown">
+											<span class="breakdown-item">@_liabilitiesTrialBalance.Count ledgers</span>
+										</div>
+									</div>
+								</div>
+
+								<!-- Net Position Card -->
+								@{
+									var totalAssets = _assetsTrialBalance.Sum(x => x.ClosingBalance);
+									var totalLiabilities = _liabilitiesTrialBalance.Sum(x => x.ClosingBalance);
+									var netPosition = totalAssets - totalLiabilities;
+									var isPositive = netPosition >= 0;
+								}
+								<div class="balance-info-card @(isPositive ? "positive-card" : "negative-card")">
+									<div class="card-icon">
+										@if (isPositive)
+										{
+											<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+												 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+												 stroke-linejoin="round">
+												<line x1="12" y1="1" x2="12" y2="23" />
+												<path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+											</svg>
+										}
+										else
+										{
+											<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+												 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+												 stroke-linejoin="round">
+												<circle cx="12" cy="12" r="10" />
+												<line x1="15" y1="9" x2="9" y2="15" />
+												<line x1="9" y1="9" x2="15" y2="15" />
+											</svg>
+										}
+									</div>
+									<div class="card-content">
+										<div class="card-label">@(isPositive ? "Net Position" : "Net Deficit")</div>
+										<div class="card-value @(isPositive ? "positive-amount" : "negative-amount")">
+											₹@Math.Abs(netPosition).ToString("N2")
+										</div>
+										<div class="card-breakdown">
+											@if (totalAssets > 0)
+											{
+												var ratio = (netPosition / totalAssets) * 100;
+												<span class="breakdown-item">Ratio: @ratio.ToString("N2")%</span>
+											}
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
+
+				<Footer />
 			</div>
-		</div>
-
-		<Footer />
-	</div>
-}
-
-<ToastNotification @ref="_toastNotification" />
-
-<style>
-	* {
-		box-sizing: border-box;
-	}
-
-	/* Section Card Styles */
-	.section-card {
-		background: #ffffff;
-		border-radius: 12px;
-		border: 1px solid #e2e8f0;
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-		margin-bottom: 24px;
-		overflow: hidden;
-	}
-
-	.section-header {
-		padding: 20px 24px;
-		border-bottom: 1px solid #e2e8f0;
-		background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-	}
-
-	.section-title-wrapper {
-		display: flex;
-		align-items: center;
-		gap: 12px;
-	}
-
-	.section-icon {
-		color: #3b82f6;
-		flex-shrink: 0;
-	}
-
-	.section-title {
-		font-size: 16px;
-		font-weight: 600;
-		color: #0f172a;
-		margin: 0;
-		letter-spacing: -0.2px;
-	}
-
-	/* Header Actions Container */
-	.header-actions {
-		display: flex;
-		align-items: center;
-		gap: 12px;
-	}
-
-	.section-body {
-		padding: 24px;
-	}
-
-	.grid-body {
-		padding: 0 !important;
-	}
-
-	/* Filters Container and Grid Layout */
-	.filters-container {
-		display: flex;
-		flex-direction: column;
-		gap: 16px;
-	}
-
-	.filters-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(180px, 250px));
-		gap: 12px;
-		align-items: end;
-	}
-
-	.form-field {
-		display: flex;
-		flex-direction: column;
-		gap: 6px;
-		max-width: 250px;
-	}
-
-	.field-label {
-		font-size: 12px;
-		font-weight: 600;
-		color: #334155;
-		letter-spacing: 0.1px;
-	}
-
-	/* Professional Grid Styles */
-	.e-grid .e-summaryrow .e-summarycell {
-		background-color: #deecf9;
-	}
-
-	::deep .professional-grid {
-		border: none;
-	}
-
-	::deep .professional-grid .e-gridheader {
-		background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
-		border-bottom: 2px solid #e2e8f0;
-	}
-
-	::deep .professional-grid .e-headercell {
-		background: transparent;
-		color: #475569;
-		font-weight: 600;
-		font-size: 12px;
-		text-transform: uppercase;
-		letter-spacing: 0.3px;
-		border-right: 1px solid #e2e8f0;
-		padding: 12px 8px;
-	}
-
-	::deep .professional-grid .e-headercell:last-child {
-		border-right: none;
-	}
-
-	::deep .professional-grid .e-gridcontent {
-		background: #ffffff;
-	}
-
-	::deep .professional-grid .e-row {
-		transition: background-color 0.2s ease;
-	}
-
-	::deep .professional-grid .e-row:hover {
-		background-color: #f8fafc;
-	}
-
-	::deep .professional-grid .e-row.e-altrow {
-		background-color: #fafbfc;
-	}
-
-	::deep .professional-grid .e-row.e-altrow:hover {
-		background-color: #f8fafc;
-	}
-
-	::deep .professional-grid .e-rowcell {
-		border-right: 1px solid #f1f5f9;
-		border-bottom: 1px solid #f1f5f9;
-		padding: 10px 8px;
-		font-size: 13px;
-		color: #1e293b;
-	}
-
-	::deep .professional-grid .e-rowcell:last-child {
-		border-right: none;
-	}
-
-	/* Grid Pager Styling */
-	::deep .professional-grid .e-gridpager {
-		background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
-		border-top: 2px solid #e2e8f0;
-		padding: 12px 16px;
-	}
-
-	/* Empty Grid State */
-	::deep .professional-grid .e-emptyrow {
-		text-align: center;
-		padding: 48px 24px;
-		color: #94a3b8;
-		font-size: 14px;
-	}
-
-	/* Grid Cell Text Coloring */
-	.grid-debit {
-		color: #dc2626;
-		font-weight: 600;
-	}
-
-	.grid-credit {
-		color: #059669;
-		font-weight: 600;
-	}
-
-	.grid-total {
-		color: #1e40af;
-		font-weight: 700;
-		font-size: 14px;
-	}
-
-	/* Grid Footer Aggregates */
-	::deep .professional-grid .e-gridfooter {
-		background: linear-gradient(to bottom, #f1f5f9 0%, #e2e8f0 100%);
-		border-top: 2px solid #cbd5e1;
-	}
-
-	::deep .professional-grid .e-summarycell {
-		font-weight: 600;
-		color: #1e293b;
-		padding: 12px 8px;
-		border-right: 1px solid #cbd5e1;
-	}
-
-	::deep .professional-grid .e-summarycell:last-child {
-		border-right: none;
-	}
-
-	.aggregate-value.aggregate-debit {
-		color: #dc2626;
-	}
-
-	.aggregate-value.aggregate-credit {
-		color: #059669;
-	}
-
-	.aggregate-label {
-		color: #1e40af;
-		font-size: 14px;
-	}
-
-	/* Dual Grid Container */
-	.dual-grid-container {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 24px;
-		padding: 24px;
-	}
-
-	.grid-section {
-		background: #ffffff;
-		border-radius: 8px;
-		border: 1px solid #e2e8f0;
-		overflow: hidden;
-	}
-
-	.grid-section-header {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		padding: 12px 16px;
-		background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
-		border-bottom: 2px solid #e2e8f0;
-	}
-
-	.grid-section-icon {
-		flex-shrink: 0;
-	}
-
-	.assets-section .grid-section-icon {
-		color: #0891b2;
-	}
-
-	.liabilities-section .grid-section-icon {
-		color: #6366f1;
-	}
-
-	.grid-section-title {
-		font-size: 15px;
-		font-weight: 600;
-		color: #0f172a;
-		margin: 0;
-	}
-
-	.grid-section-count {
-		font-size: 12px;
-		color: #64748b;
-		margin-left: auto;
-	}
-
-	/* Balance Sheet Summary Section */
-	.balance-sheet-summary {
-		background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-	}
-
-	.balance-sheet-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-		gap: 14px;
-	}
-
-	.balance-info-card {
-		background: #ffffff;
-		border: 1px solid #e2e8f0;
-		border-radius: 8px;
-		padding: 14px;
-		display: flex;
-		gap: 12px;
-		align-items: center;
-		transition: all 0.2s ease;
-		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-	}
-
-	.balance-info-card:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-	}
-
-	.balance-info-card .card-icon {
-		width: 36px;
-		height: 36px;
-		border-radius: 7px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		flex-shrink: 0;
-		transition: all 0.2s ease;
-	}
-
-	.assets-card .card-icon {
-		background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
-		color: #ffffff;
-	}
-
-	.liabilities-card .card-icon {
-		background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
-		color: #ffffff;
-	}
-
-	.positive-card .card-icon {
-		background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-		color: #ffffff;
-	}
-
-	.negative-card .card-icon {
-		background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
-		color: #ffffff;
-	}
-
-	.balance-info-card:hover .card-icon {
-		transform: scale(1.05);
-	}
-
-	.balance-info-card .card-content {
-		flex: 1;
-		min-width: 0;
-	}
-
-	.balance-info-card .card-label {
-		font-size: 11px;
-		font-weight: 600;
-		color: #64748b;
-		text-transform: uppercase;
-		letter-spacing: 0.3px;
-		margin-bottom: 5px;
-	}
-
-	.balance-info-card .card-value {
-		font-size: 18px;
-		font-weight: 700;
-		color: #0f172a;
-		margin-bottom: 3px;
-		line-height: 1.2;
-	}
-
-	.balance-info-card .assets-amount {
-		color: #0891b2;
-	}
-
-	.balance-info-card .liabilities-amount {
-		color: #6366f1;
-	}
-
-	.balance-info-card .positive-amount {
-		color: #059669;
-	}
-
-	.balance-info-card .negative-amount {
-		color: #dc2626;
-	}
-
-	.balance-info-card .card-breakdown {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		font-size: 10px;
-		font-weight: 500;
-		margin-top: 5px;
-		color: #64748b;
-	}
-
-	.breakdown-item {
-		display: inline-flex;
-		white-space: nowrap;
-	}
-
-	/* Responsive Design */
-	@@media (max-width: 1400px) {
-		.filters-grid {
-			grid-template-columns: repeat(2, 1fr);
 		}
 
-		.dual-grid-container {
-			grid-template-columns: 1fr;
-		}
-	}
+		<ToastNotification @ref="_toastNotification" />
 
-	@@media (max-width: 768px) {
-		.filters-grid {
-			grid-template-columns: 1fr;
-		}
+		<style>
+			* {
+				box-sizing: border-box;
+			}
 
-		.dual-grid-container {
-			padding: 16px;
-		}
+			/* Section Card Styles */
+			.section-card {
+				background: #ffffff;
+				border-radius: 12px;
+				border: 1px solid #e2e8f0;
+				box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+				margin-bottom: 24px;
+				overflow: hidden;
+			}
 
-		.balance-sheet-grid {
-			grid-template-columns: 1fr;
-		}
+			.section-header {
+				padding: 20px 24px;
+				border-bottom: 1px solid #e2e8f0;
+				background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+			}
 
-		.balance-info-card .card-value {
-			font-size: 20px;
-		}
-	}
-</style>
+			.section-title-wrapper {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+			}
+
+			.section-icon {
+				color: #3b82f6;
+				flex-shrink: 0;
+			}
+
+			.section-title {
+				font-size: 16px;
+				font-weight: 600;
+				color: #0f172a;
+				margin: 0;
+				letter-spacing: -0.2px;
+			}
+
+			/* Header Actions Container */
+			.header-actions {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+			}
+
+			.section-body {
+				padding: 24px;
+			}
+
+			.grid-body {
+				padding: 0 !important;
+			}
+
+			/* Filters Container and Grid Layout */
+			.filters-container {
+				display: flex;
+				flex-direction: column;
+				gap: 16px;
+			}
+
+			.filters-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(180px, 250px));
+				gap: 12px;
+				align-items: end;
+			}
+
+			.form-field {
+				display: flex;
+				flex-direction: column;
+				gap: 6px;
+				max-width: 250px;
+			}
+
+			.field-label {
+				font-size: 12px;
+				font-weight: 600;
+				color: #334155;
+				letter-spacing: 0.1px;
+			}
+
+			/* Professional Grid Styles */
+			.e-grid .e-summaryrow .e-summarycell {
+				background-color: #deecf9;
+			}
+
+			::deep .professional-grid {
+				border: none;
+			}
+
+			::deep .professional-grid .e-gridheader {
+				background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
+				border-bottom: 2px solid #e2e8f0;
+			}
+
+			::deep .professional-grid .e-headercell {
+				background: transparent;
+				color: #475569;
+				font-weight: 600;
+				font-size: 12px;
+				text-transform: uppercase;
+				letter-spacing: 0.3px;
+				border-right: 1px solid #e2e8f0;
+				padding: 12px 8px;
+			}
+
+			::deep .professional-grid .e-headercell:last-child {
+				border-right: none;
+			}
+
+			::deep .professional-grid .e-gridcontent {
+				background: #ffffff;
+			}
+
+			::deep .professional-grid .e-row {
+				transition: background-color 0.2s ease;
+			}
+
+			::deep .professional-grid .e-row:hover {
+				background-color: #f8fafc;
+			}
+
+			::deep .professional-grid .e-row.e-altrow {
+				background-color: #fafbfc;
+			}
+
+			::deep .professional-grid .e-row.e-altrow:hover {
+				background-color: #f8fafc;
+			}
+
+			::deep .professional-grid .e-rowcell {
+				border-right: 1px solid #f1f5f9;
+				border-bottom: 1px solid #f1f5f9;
+				padding: 10px 8px;
+				font-size: 13px;
+				color: #1e293b;
+			}
+
+			::deep .professional-grid .e-rowcell:last-child {
+				border-right: none;
+			}
+
+			/* Grid Pager Styling */
+			::deep .professional-grid .e-gridpager {
+				background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
+				border-top: 2px solid #e2e8f0;
+				padding: 12px 16px;
+			}
+
+			/* Empty Grid State */
+			::deep .professional-grid .e-emptyrow {
+				text-align: center;
+				padding: 48px 24px;
+				color: #94a3b8;
+				font-size: 14px;
+			}
+
+			/* Grid Cell Text Coloring */
+			.grid-debit {
+				color: #dc2626;
+				font-weight: 600;
+			}
+
+			.grid-credit {
+				color: #059669;
+				font-weight: 600;
+			}
+
+			.grid-total {
+				color: #1e40af;
+				font-weight: 700;
+				font-size: 14px;
+			}
+
+			/* Grid Footer Aggregates */
+			::deep .professional-grid .e-gridfooter {
+				background: linear-gradient(to bottom, #f1f5f9 0%, #e2e8f0 100%);
+				border-top: 2px solid #cbd5e1;
+			}
+
+			::deep .professional-grid .e-summarycell {
+				font-weight: 600;
+				color: #1e293b;
+				padding: 12px 8px;
+				border-right: 1px solid #cbd5e1;
+			}
+
+			::deep .professional-grid .e-summarycell:last-child {
+				border-right: none;
+			}
+
+			.aggregate-value.aggregate-debit {
+				color: #dc2626;
+			}
+
+			.aggregate-value.aggregate-credit {
+				color: #059669;
+			}
+
+			.aggregate-label {
+				color: #1e40af;
+				font-size: 14px;
+			}
+
+			/* Dual Grid Container */
+			.dual-grid-container {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 24px;
+				padding: 24px;
+			}
+
+			.grid-section {
+				background: #ffffff;
+				border-radius: 8px;
+				border: 1px solid #e2e8f0;
+				overflow: hidden;
+			}
+
+			.grid-section-header {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				padding: 12px 16px;
+				background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
+				border-bottom: 2px solid #e2e8f0;
+			}
+
+			.grid-section-icon {
+				flex-shrink: 0;
+			}
+
+			.assets-section .grid-section-icon {
+				color: #0891b2;
+			}
+
+			.liabilities-section .grid-section-icon {
+				color: #6366f1;
+			}
+
+			.grid-section-title {
+				font-size: 15px;
+				font-weight: 600;
+				color: #0f172a;
+				margin: 0;
+			}
+
+			.grid-section-count {
+				font-size: 12px;
+				color: #64748b;
+				margin-left: auto;
+			}
+
+			/* Balance Sheet Summary Section */
+			.balance-sheet-summary {
+				background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+			}
+
+			.balance-sheet-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+				gap: 14px;
+			}
+
+			.balance-info-card {
+				background: #ffffff;
+				border: 1px solid #e2e8f0;
+				border-radius: 8px;
+				padding: 14px;
+				display: flex;
+				gap: 12px;
+				align-items: center;
+				transition: all 0.2s ease;
+				box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+			}
+
+			.balance-info-card:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+			}
+
+			.balance-info-card .card-icon {
+				width: 36px;
+				height: 36px;
+				border-radius: 7px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				flex-shrink: 0;
+				transition: all 0.2s ease;
+			}
+
+			.assets-card .card-icon {
+				background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+				color: #ffffff;
+			}
+
+			.liabilities-card .card-icon {
+				background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+				color: #ffffff;
+			}
+
+			.positive-card .card-icon {
+				background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+				color: #ffffff;
+			}
+
+			.negative-card .card-icon {
+				background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+				color: #ffffff;
+			}
+
+			.balance-info-card:hover .card-icon {
+				transform: scale(1.05);
+			}
+
+			.balance-info-card .card-content {
+				flex: 1;
+				min-width: 0;
+			}
+
+			.balance-info-card .card-label {
+				font-size: 11px;
+				font-weight: 600;
+				color: #64748b;
+				text-transform: uppercase;
+				letter-spacing: 0.3px;
+				margin-bottom: 5px;
+			}
+
+			.balance-info-card .card-value {
+				font-size: 18px;
+				font-weight: 700;
+				color: #0f172a;
+				margin-bottom: 3px;
+				line-height: 1.2;
+			}
+
+			.balance-info-card .assets-amount {
+				color: #0891b2;
+			}
+
+			.balance-info-card .liabilities-amount {
+				color: #6366f1;
+			}
+
+			.balance-info-card .positive-amount {
+				color: #059669;
+			}
+
+			.balance-info-card .negative-amount {
+				color: #dc2626;
+			}
+
+			.balance-info-card .card-breakdown {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				font-size: 10px;
+				font-weight: 500;
+				margin-top: 5px;
+				color: #64748b;
+			}
+
+			.breakdown-item {
+				display: inline-flex;
+				white-space: nowrap;
+			}
+
+			/* Responsive Design */
+			@@media (max-width: 1400px) {
+				.filters-grid {
+					grid-template-columns: repeat(2, 1fr);
+				}
+
+				.dual-grid-container {
+					grid-template-columns: 1fr;
+				}
+			}
+
+			@@media (max-width: 768px) {
+				.filters-grid {
+					grid-template-columns: 1fr;
+				}
+
+				.dual-grid-container {
+					padding: 16px;
+				}
+
+				.balance-sheet-grid {
+					grid-template-columns: 1fr;
+				}
+
+				.balance-info-card .card-value {
+					font-size: 20px;
+				}
+			}
+		</style>
