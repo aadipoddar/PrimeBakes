@@ -5,7 +5,7 @@ public static class TableNames
     public static string User => "User";
     public static string Location => "Location";
     public static string Settings => "Settings";
-    
+
     public static string Company => "Company";
     public static string StateUT => "StateUT";
     public static string Ledger => "Ledger";
@@ -15,13 +15,8 @@ public static class TableNames
     public static string Voucher => "Voucher";
     public static string FinancialYear => "FinancialYear";
 
-    public static string Accounting => "Accounting";
-    public static string AccountingDetail => "AccountingDetail";
-
-    public static string ProductCategory => "ProductCategory";
-    public static string Product => "Product";
-    public static string ProductLocation => "ProductLocation";
-    public static string Tax => "Tax";
+    public static string FinancialAccounting => "FinancialAccounting";
+    public static string FinancialAccountingDetail => "FinancialAccountingDetail";
 
     public static string RawMaterialCategory => "RawMaterialCategory";
     public static string RawMaterial => "RawMaterial";
@@ -34,13 +29,24 @@ public static class TableNames
     public static string PurchaseReturn => "PurchaseReturn";
     public static string PurchaseReturnDetail => "PurchaseReturnDetail";
 
+    public static string Kitchen => "Kitchen";
+    public static string KitchenIssue => "KitchenIssue";
+    public static string KitchenIssueDetail => "KitchenIssueDetail";
+    public static string KitchenProduction => "KitchenProduction";
+    public static string KitchenProductionDetail => "KitchenProductionDetail";
+
     public static string ProductStock => "ProductStock";
     public static string RawMaterialStock => "RawMaterialStock";
 
+    public static string Customer => "Customer";
+
+    public static string ProductCategory => "ProductCategory";
+    public static string Product => "Product";
+    public static string ProductLocation => "ProductLocation";
+    public static string Tax => "Tax";
+
     public static string Order => "Order";
     public static string OrderDetail => "OrderDetail";
-
-    public static string Customer => "Customer";
 
     public static string Sale => "Sale";
     public static string SaleDetail => "SaleDetail";
@@ -49,13 +55,6 @@ public static class TableNames
 
     public static string StockTransfer => "StockTransfer";
     public static string StockTransferDetail => "StockTransferDetail";
-
-    public static string Kitchen => "Kitchen";
-
-    public static string KitchenIssue => "KitchenIssue";
-    public static string KitchenIssueDetail => "KitchenIssueDetail";
-    public static string KitchenProduction => "KitchenProduction";
-    public static string KitchenProductionDetail => "KitchenProductionDetail";
 }
 
 public static class StoredProcedureNames
@@ -73,39 +72,42 @@ public static class StoredProcedureNames
     public static string LoadSettingsByKey => "Load_Settings_By_Key";
 
     public static string LoadUserByPasscode => "Load_User_By_Passcode";
-    public static string LoadCustomerByNumber => "Load_Customer_By_Number";
 
     public static string LoadFinancialYearByDateTime => "Load_FinancialYear_By_DateTime";
-	public static string LoadAccountingByVoucherReference => "Load_Accounting_By_Voucher_Reference";
-	public static string LoadTrialBalanceByCompanyDate => "Load_TrialBalance_By_Company_Date";
+    public static string LoadFinancialAccountingByVoucherReference => "Load_FinancialAccounting_By_Voucher_Reference";
+    public static string LoadTrialBalanceByCompanyDate => "Load_TrialBalance_By_Company_Date";
 
-	public static string LoadRawMaterialByRawMaterialCategory => "Load_RawMaterial_By_RawMaterialCategory";
-
+    public static string LoadRecipeByProduct => "Load_Recipe_By_Product";
     public static string LoadRawMaterialByPartyPurchaseDateTime => "Load_RawMaterial_By_Party_PurchaseDateTime";
 
     public static string LoadRawMaterialStockSummaryByDate => "Load_RawMaterialStockSummary_By_Date";
     public static string LoadProductStockSummaryByDateLocationId => "Load_ProductStockSummary_By_Date_LocationId";
 
-    public static string LoadRecipeByProduct => "Load_Recipe_By_Product";
-
+    public static string LoadProductLocationOverviewByProductLocation => "Load_ProductLocation_Overview_By_Product_Location";
+    public static string LoadCustomerByNumber => "Load_Customer_By_Number";
     public static string LoadOrderByLocationPending => "Load_Order_By_Location_Pending";
-
-    public static string LoadProductRateByProduct => "Load_ProductRate_By_Product";
-    public static string LoadProductByLocation => "Load_Product_By_Location";
 
     public static string InsertUser => "Insert_User";
     public static string ResetSettings => "Reset_Settings";
     public static string UpdateSettings => "Update_Settings";
     public static string InsertLocation => "Insert_Location";
-    public static string InsertCustomer => "Insert_Customer";
-    public static string InsertTax => "Insert_Tax";
 
-    public static string InsertProductCategory => "Insert_ProductCategory";
-    public static string InsertProduct => "Insert_Product";
-    public static string InsertProductLocation => "Insert_ProductLocation";
+    public static string InsertStateUT => "Insert_StateUT";
+    public static string InsertCompany => "Insert_Company";
+    public static string InsertLedger => "Insert_Ledger";
+    public static string InsertGroup => "Insert_Group";
+    public static string InsertAccountType => "Insert_AccountType";
+    public static string InsertVoucher => "Insert_Voucher";
+    public static string InsertFinancialYear => "Insert_FinancialYear";
+
+    public static string InsertFinancialAccounting => "Insert_FinancialAccounting";
+    public static string InsertFinancialAccountingDetail => "Insert_FinancialAccountingDetail";
 
     public static string InsertRawMaterialCategory => "Insert_RawMaterialCategory";
     public static string InsertRawMaterial => "Insert_RawMaterial";
+
+    public static string InsertRecipe => "Insert_Recipe";
+    public static string InsertRecipeDetail => "Insert_RecipeDetail";
 
     public static string InsertPurchase => "Insert_Purchase";
     public static string InsertPurchaseDetail => "Insert_PurchaseDetail";
@@ -121,8 +123,15 @@ public static class StoredProcedureNames
     public static string InsertProductStock => "Insert_ProductStock";
     public static string InsertRawMaterialStock => "Insert_RawMaterialStock";
 
-    public static string InsertRecipe => "Insert_Recipe";
-    public static string InsertRecipeDetail => "Insert_RecipeDetail";
+    public static string InsertCustomer => "Insert_Customer";
+
+    public static string InsertProductCategory => "Insert_ProductCategory";
+    public static string InsertProduct => "Insert_Product";
+    public static string InsertProductLocation => "Insert_ProductLocation";
+    public static string InsertTax => "Insert_Tax";
+
+    public static string InsertOrder => "Insert_Order";
+    public static string InsertOrderDetail => "Insert_OrderDetail";
 
     public static string InsertSale => "Insert_Sale";
     public static string InsertSaleDetail => "Insert_SaleDetail";
@@ -132,20 +141,6 @@ public static class StoredProcedureNames
     public static string InsertStockTransfer => "Insert_StockTransfer";
     public static string InsertStockTransferDetail => "Insert_StockTransferDetail";
 
-    public static string InsertOrder => "Insert_Order";
-    public static string InsertOrderDetail => "Insert_OrderDetail";
-
-    public static string InsertStateUT => "Insert_StateUT";
-    public static string InsertCompany => "Insert_Company";
-    public static string InsertLedger => "Insert_Ledger";
-    public static string InsertGroup => "Insert_Group";
-    public static string InsertAccountType => "Insert_AccountType";
-    public static string InsertVoucher => "Insert_Voucher";
-    public static string InsertFinancialYear => "Insert_FinancialYear";
-
-    public static string InsertAccounting => "Insert_Accounting";
-    public static string InsertAccountingDetail => "Insert_AccountingDetail";
-
     public static string DeleteProductStockById => "Delete_ProductStock_By_Id";
     public static string DeleteProductStockByTypeTransactionIdLocationId => "Delete_ProductStock_By_Type_TransactionId_LocationId";
     public static string DeleteRawMaterialStockById => "Delete_RawMaterialStock_By_Id";
@@ -154,6 +149,9 @@ public static class StoredProcedureNames
 
 public static class ViewNames
 {
+    public static string FinancialAccountingOverview => "FinancialAccounting_Overview";
+    public static string FinancialAccountingLedgerOverview => "FinancialAccounting_Ledger_Overview";
+
     public static string PurchaseOverview => "Purchase_Overview";
     public static string PurchaseReturnOverview => "PurchaseReturn_Overview";
     public static string PurchaseItemOverview => "Purchase_Item_Overview";
@@ -167,6 +165,11 @@ public static class ViewNames
     public static string RawMaterialStockDetails => "RawMaterialStockDetails";
     public static string ProductStockDetails => "ProductStockDetails";
 
+    public static string ProductLocationOverview => "ProductLocation_Overview";
+
+    public static string OrderOverview => "Order_Overview";
+    public static string OrderItemOverview => "Order_Item_Overview";
+
     public static string SaleOverview => "Sale_Overview";
     public static string SaleItemOverview => "Sale_Item_Overview";
     public static string SaleReturnOverview => "SaleReturn_Overview";
@@ -174,12 +177,4 @@ public static class ViewNames
 
     public static string StockTransferOverview => "StockTransfer_Overview";
     public static string StockTransferItemOverview => "StockTransfer_Item_Overview";
-
-    public static string OrderOverview => "Order_Overview";
-    public static string OrderItemOverview => "Order_Item_Overview";
-
-    public static string ProductLocationOverview => "ProductLocation_Overview";
-
-    public static string AccountingOverview => "Accounting_Overview";
-    public static string AccountingLedgerOverview => "Accounting_Ledger_Overview";
 }

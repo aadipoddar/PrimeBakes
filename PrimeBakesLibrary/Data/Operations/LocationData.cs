@@ -1,7 +1,7 @@
 ﻿using PrimeBakesLibrary.Data.Common;
-using PrimeBakesLibrary.Data.Sales.Masters;
+using PrimeBakesLibrary.Data.Store.Product;
 using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Sales.Masters;
+using PrimeBakesLibrary.Models.Store.Product;
 
 namespace PrimeBakesLibrary.Data.Operations;
 
@@ -49,9 +49,9 @@ public static class LocationData
                 if (copyLocation.Id == location.Id)
                     return;
 
-                var existingProductLocations = await ProductData.LoadProductByLocation(location.Id, sqlDataAccessTransaction);
+                var existingProductLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(null, location.Id, sqlDataAccessTransaction);
                 foreach (var existingProductLocation in existingProductLocations)
-                    await ProductData.InsertProductLocation(new()
+                    await ProductLocationData.InsertProductLocation(new()
                     {
                         Id = existingProductLocation.Id,
                         ProductId = existingProductLocation.ProductId,
@@ -60,23 +60,23 @@ public static class LocationData
                         Status = false
                     }, sqlDataAccessTransaction);
 
-                var productLocations = await ProductData.LoadProductByLocation(copyLocation.Id, sqlDataAccessTransaction);
-                foreach (var productLocation in productLocations)
-                    await ProductData.InsertProductLocation(new()
+                var copyProductLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(null, copyLocation.Id, sqlDataAccessTransaction);
+                foreach (var copyProductLocation in copyProductLocations)
+                    await ProductLocationData.InsertProductLocation(new()
                     {
                         Id = 0,
-                        ProductId = productLocation.ProductId,
+                        ProductId = copyProductLocation.ProductId,
                         LocationId = location.Id,
-                        Rate = productLocation.Rate,
+                        Rate = copyProductLocation.Rate,
                         Status = true
                     }, sqlDataAccessTransaction);
             }
 
             else if (isNewLocation)
             {
-                var existingProductLocations = await ProductData.LoadProductByLocation(location.Id, sqlDataAccessTransaction);
+                var existingProductLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(null, location.Id, sqlDataAccessTransaction);
                 foreach (var existingProductLocation in existingProductLocations)
-                    await ProductData.InsertProductLocation(new()
+                    await ProductLocationData.InsertProductLocation(new()
                     {
                         Id = existingProductLocation.Id,
                         ProductId = existingProductLocation.ProductId,
@@ -87,7 +87,7 @@ public static class LocationData
 
                 var products = await CommonData.LoadTableDataByStatus<ProductModel>(TableNames.Product, true, sqlDataAccessTransaction);
                 foreach (var product in products)
-                    await ProductData.InsertProductLocation(new()
+                    await ProductLocationData.InsertProductLocation(new()
                     {
                         Id = 0,
                         ProductId = product.Id,

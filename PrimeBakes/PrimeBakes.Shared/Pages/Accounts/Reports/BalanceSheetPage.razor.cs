@@ -104,7 +104,7 @@ public partial class BalanceSheetPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
-            _trialBalance = await AccountingData.LoadTrialBalanceByCompanyDate(
+            _trialBalance = await FinancialAccountingData.LoadTrialBalanceByCompanyDate(
                 _selectedCompany?.Id ?? 0,
                 DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
                 DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));

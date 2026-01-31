@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Operations Version="1.0" xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
+  <Operation Name="Rename Refactor" Key="0dd797b1-428f-4fb7-a82f-e5409708e06f" ChangeDateTime="01/31/2026 04:33:39">
+    <Property Name="ElementName" Value="[dbo].[AccountingDetail]" />
+    <Property Name="ElementType" Value="SqlTable" />
+    <Property Name="ParentElementName" Value="[dbo]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="[FinancialAccountingDetail]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="13e19439-d492-4bba-b94a-76e6bf8cac8d" ChangeDateTime="01/31/2026 04:33:49">
+    <Property Name="ElementName" Value="[dbo].[Accounting]" />
+    <Property Name="ElementType" Value="SqlTable" />
+    <Property Name="ParentElementName" Value="[dbo]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="[FinancialAccounting]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="f7a1f74b-fb2e-4bea-9a73-77bc705b8c2b" ChangeDateTime="01/31/2026 05:46:01">
+    <Property Name="ElementName" Value="[dbo].[Load_Accounting_By_Voucher_Reference]" />
+    <Property Name="ElementType" Value="SqlProcedure" />
+    <Property Name="ParentElementName" Value="[dbo]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="[Load_FinancialAccounting_By_Voucher_Reference]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="b86cc61e-e49c-4067-9d3b-f068e136ae18" ChangeDateTime="01/31/2026 05:47:58">
+    <Property Name="ElementName" Value="[dbo].[Insert_Accounting]" />
+    <Property Name="ElementType" Value="SqlProcedure" />
+    <Property Name="ParentElementName" Value="[dbo]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="[Insert_FinancialAccounting]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="36ecda39-b4f7-46f4-84bc-6860e252d1a8" ChangeDateTime="01/31/2026 05:48:18">
+    <Property Name="ElementName" Value="[dbo].[Insert_AccountingDetail]" />
+    <Property Name="ElementType" Value="SqlProcedure" />
+    <Property Name="ParentElementName" Value="[dbo]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="[Insert_FinancialAccountingDetail]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="8d4da673-2143-484c-89de-4211d1af038c" ChangeDateTime="01/31/2026 05:53:48">
+    <Property Name="ElementName" Value="[dbo].[Load_Product_By_Location]" />
+    <Property Name="ElementType" Value="SqlProcedure" />
+    <Property Name="ParentElementName" Value="[dbo]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="[Load_ProductLocation_Overview_By_Location]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="bebc15bb-d1cc-4e96-b12a-1bb5bf6df896" ChangeDateTime="01/31/2026 07:13:57">
+    <Property Name="ElementName" Value="[dbo].[Accounting_Ledger_Overview]" />
+    <Property Name="ElementType" Value="SqlView" />
+    <Property Name="ParentElementName" Value="[dbo]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="[FinancialAccounting_Ledger_Overview]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="2bfc6c0b-dce9-433c-be1e-7cc20ce1867e" ChangeDateTime="01/31/2026 07:14:12">
+    <Property Name="ElementName" Value="[dbo].[Accounting_Overview]" />
+    <Property Name="ElementType" Value="SqlView" />
+    <Property Name="ParentElementName" Value="[dbo]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="[FinancialAccounting_Overview]" />
+  </Operation>
+</Operations>

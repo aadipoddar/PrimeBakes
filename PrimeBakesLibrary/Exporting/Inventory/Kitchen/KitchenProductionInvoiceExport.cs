@@ -3,7 +3,7 @@ using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Inventory.Kitchen;
 using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Sales.Masters;
+using PrimeBakesLibrary.Models.Store.Product;
 
 namespace PrimeBakesLibrary.Exporting.Inventory.Kitchen;
 

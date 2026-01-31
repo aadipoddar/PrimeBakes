@@ -66,7 +66,7 @@ public static class PurchaseData
             await RawMaterialStockData.DeleteRawMaterialStockByTypeTransactionId(nameof(StockType.Purchase), purchase.Id, sqlDataAccessTransaction);
 
             var purchaseVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.PurchaseVoucherId, sqlDataAccessTransaction);
-            var existingAccounting = await AccountingData.LoadAccountingByVoucherReference(int.Parse(purchaseVoucher.Value), purchase.Id, purchase.TransactionNo, sqlDataAccessTransaction);
+            var existingAccounting = await FinancialAccountingData.LoadFinancialAccountingByVoucherReference(int.Parse(purchaseVoucher.Value), purchase.Id, purchase.TransactionNo, sqlDataAccessTransaction);
 
             if (existingAccounting is not null && existingAccounting.Id > 0)
             {
@@ -75,7 +75,7 @@ public static class PurchaseData
                 existingAccounting.LastModifiedAt = purchase.LastModifiedAt;
                 existingAccounting.LastModifiedFromPlatform = purchase.LastModifiedFromPlatform;
 
-                await AccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
+                await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
             }
 
             sqlDataAccessTransaction.CommitTransaction();
@@ -205,7 +205,7 @@ public static class PurchaseData
         if (update)
         {
             var purchaseVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.PurchaseVoucherId, sqlDataAccessTransaction);
-            var existingAccounting = await AccountingData.LoadAccountingByVoucherReference(int.Parse(purchaseVoucher.Value), purchase.Id, purchase.TransactionNo, sqlDataAccessTransaction);
+            var existingAccounting = await FinancialAccountingData.LoadFinancialAccountingByVoucherReference(int.Parse(purchaseVoucher.Value), purchase.Id, purchase.TransactionNo, sqlDataAccessTransaction);
             if (existingAccounting is not null && existingAccounting.Id > 0)
             {
                 existingAccounting.Status = false;
@@ -213,7 +213,7 @@ public static class PurchaseData
                 existingAccounting.LastModifiedAt = purchase.LastModifiedAt;
                 existingAccounting.LastModifiedFromPlatform = purchase.LastModifiedFromPlatform;
 
-                await AccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
+                await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
             }
         }
 
@@ -224,7 +224,7 @@ public static class PurchaseData
         if (purchaseOverview.TotalAmount == 0)
             return;
 
-        var accountingCart = new List<AccountingItemCartModel>();
+        var accountingCart = new List<FinancialAccountingItemCartModel>();
 
         if (purchaseOverview.TotalAmount > 0)
             accountingCart.Add(new()
@@ -269,7 +269,7 @@ public static class PurchaseData
         }
 
         var voucher = await SettingsData.LoadSettingsByKey(SettingsKeys.PurchaseVoucherId, sqlDataAccessTransaction);
-        var accounting = new AccountingModel
+        var accounting = new FinancialAccountingModel
         {
             Id = 0,
             TransactionNo = "",
@@ -290,7 +290,7 @@ public static class PurchaseData
             Status = true
         };
 
-        await AccountingData.SaveTransaction(accounting, accountingCart, null, false, sqlDataAccessTransaction);
+        await FinancialAccountingData.SaveTransaction(accounting, accountingCart, null, false, sqlDataAccessTransaction);
     }
 
     private static async Task UpdateRawMaterialRateAndUOMOnPurchase(List<PurchaseDetailModel> purchaseDetails, SqlDataAccessTransaction sqlDataAccessTransaction)

@@ -1,0 +1,823 @@
+@page "/sales/order-cart/mobile"
+
+@using PrimeBakesLibrary.Models.Accounts.Masters
+@using PrimeBakesLibrary.Models.Operations
+@using PrimeBakesLibrary.Models.Store.Order
+
+<PageTitle>Order Cart - PrimeBakes</PageTitle>
+
+@if (_isLoading)
+{
+    <AnimatedLoader Visible="true" />
+}
+else
+{
+    <div style="display: flex; flex-direction: column; min-height: 100vh;">
+        <Header Title="Order Cart" Subtitle="Review and submit your order" ShowBack="true"
+                OnBackClick="() => NavigationManager.NavigateTo(PageRouteNames.OrderMobile)" />
+
+        <!-- Main Content Container -->
+        <div class="order-cart-container">
+
+            @if (_cart.Any())
+            {
+                <!-- Grid Container -->
+                <div class="grid-container">
+                    <SfGrid @ref="_sfCartGrid" EnableAdaptiveUI="true" DataSource="_cart" AllowPaging="true"
+                            AllowSorting="false" AllowTextWrap="true" Toolbar="@(new List<string>() { "Search" })">
+
+                        <GridPageSettings PageSize="10" />
+
+                        <GridColumns>
+                            <GridColumn Field="@nameof(OrderItemCartModel.ItemName)" HeaderText="Product" Width="50%" />
+                            <GridColumn Field="@nameof(OrderItemCartModel.Quantity)" HeaderText="Quantity" Width="50%"
+                                        TextAlign="TextAlign.Right">
+                                <Template>
+                                    @{
+                                        var item = (context as OrderItemCartModel);
+                                    }
+                                    @if (item is not null)
+                                    {
+                                        <div class="quantity-section">
+                                            <div class="quantity-controls">
+                                                <div class="quantity-input-wrapper">
+                                                    <SfNumericTextBox TValue="decimal" Value="@item.Quantity"
+                                                                      ValueChanged="@((decimal value) => UpdateQuantity(item, value))" Min="0"
+                                                                      Step="1" type="tel" Format="N0" Width="100%" CssClass="quantity-input"
+                                                                      Enabled="@(!_isProcessing)" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </Template>
+                            </GridColumn>
+                        </GridColumns>
+                    </SfGrid>
+                </div>
+            }
+            else
+            {
+                <div class="empty-cart">
+                    <div class="empty-icon">🛒</div>
+                    <h3>Your cart is empty</h3>
+                    <p>Add some items to your cart to continue</p>
+                    <button @onclick="() => NavigationManager.NavigateTo(PageRouteNames.OrderMobile)"
+                            class="continue-shopping-btn" disabled="@_isProcessing">
+                        Continue Shopping
+                    </button>
+                </div>
+            }
+
+        </div>
+
+        @if (_cart.Any())
+        {
+            <div class="cart-footer">
+                <button @onclick="() => _showConfirmDialog = true" class="cart-button" disabled="@_isProcessing">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Confirm Order</span>
+                    <span class="cart-count">@_cart.Count()</span>
+                </button>
+            </div>
+        }
+
+        <Footer ShowVersion="false" />
+    </div>
+}
+
+<!-- Validation Error Dialog -->
+<SfDialog ID="_sfValidationErrorDialog" @ref="_sfValidationErrorDialog" Width="500px" Height="auto"
+          AllowDragging="false" EnableResize="false" @bind-Visible="_showValidationDialog" IsModal="true">
+    <DialogPositionData X="Center" Y="Center" />
+    <DialogTemplates>
+        <Header>
+            <div class="dialog-header error-header">
+                <span class="error-icon">❌</span>
+                <span>Validation Errors</span>
+            </div>
+        </Header>
+        <Content>
+            <div class="dialog-content error-content">
+                <div class="error-message">
+                    <h3>Please fix the following errors before proceeding:</h3>
+                    <p>Review and correct the issues listed below to continue with your order.</p>
+                </div>
+
+                <div class="error-list">
+                    @foreach (var error in _validationErrors)
+                    {
+                        <div class="error-item">
+                            <div class="error-item-icon">⚠️</div>
+                            <div class="error-item-content">
+                                <div class="error-item-title">@error.Field</div>
+                                <div class="error-item-message">@error.Message</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                @if (_validationErrors.Count > 1)
+                {
+                    <div class="error-summary">
+                        <span class="error-count">@_validationErrors.Count errors found</span>
+                    </div>
+                }
+            </div>
+        </Content>
+        <FooterTemplate>
+            <div class="dialog-footer error-footer">
+                <SfButton Content="Fix Issues" OnClick="() => _showValidationDialog = false"
+                          CssClass="dialog-button error-fix-button" />
+            </div>
+        </FooterTemplate>
+    </DialogTemplates>
+</SfDialog>
+
+<!-- Order Confirmation Dialog -->
+<SfDialog ID="_sfOrderConfirmationDialog" @ref="_sfOrderConfirmationDialog" Width="450px" Height="auto"
+          AllowDragging="false" EnableResize="false" @bind-Visible="_showConfirmDialog" IsModal="true">
+    <DialogPositionData X="Center" Y="Center" />
+    <DialogTemplates>
+        <Header>
+            <div class="dialog-header confirmation-header">
+                <span class="confirmation-icon">⚠️</span>
+                <span>Confirm Order</span>
+            </div>
+        </Header>
+        <Content>
+            <div class="dialog-content confirmation-content">
+                <div class="confirmation-message">
+                    <h3>Are you sure you want to place this order?</h3>
+                    <p>This action cannot be undone. Please review your order before confirming.</p>
+                </div>
+
+                <div class="order-summary">
+                    <div class="summary-item">
+                        <span class="summary-label">Total Items:</span>
+                        <span class="summary-value">@_cart.Sum(x => x.Quantity)</span>
+                    </div>
+                </div>
+
+                <div class="remarks-section">
+                    <label class="remarks-label">Remarks (Optional)</label>
+                    <SfTextBox @bind-Value="_orderRemarks" Placeholder="Add any special instructions .."
+                               Multiline="true" CssClass="remarks-input" Enabled="@(!_isProcessing)" />
+                </div>
+            </div>
+        </Content>
+        <FooterTemplate>
+            <div class="dialog-footer confirmation-footer animated-button-footer">
+                <SfButton Content="Cancel" OnClick="() => _showConfirmDialog = false"
+                          CssClass="dialog-button cancel-button" Disabled="@_isProcessing" />
+
+                <!-- Animated Order Button -->
+                <OrderButton IsProcessing="@_isProcessing" Disabled="@_isProcessing"
+                             DefaultText="@(_isProcessing ? "Processing..." : "Place Order")" SuccessText="Processing Order"
+                             OnClick="OnPlaceOrderClick" />
+            </div>
+        </FooterTemplate>
+    </DialogTemplates>
+</SfDialog>
+
+<style>
+    :root {
+        --primary-color: #e2137b;
+        --primary-dark: #c71068;
+        --primary-light: #f5c2d3;
+        --text-dark: #2c3e50;
+        --text-light: #7f8c8d;
+        --bg-light: #f8f9fa;
+        --border-color: #e9ecef;
+        --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.1);
+        --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.15);
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+        --warning-color: #ffc107;
+        --error-color: #dc3545;
+        --error-bg: #f8d7da;
+        --error-border: #f5c6cb;
+        --info-color: #17a2b8;
+    }
+
+    .order-cart-container {
+        flex: 1;
+        background: linear-gradient(135deg, #ffeef5 0%, #fff5f9 100%);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    /* Grid Container */
+    .grid-container {
+        flex: 1;
+        padding: 15px;
+        overflow: hidden;
+    }
+
+    /* Quantity Section */
+    .quantity-section {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        width: 100%;
+        padding: 8px 0;
+    }
+
+    /* Quantity Controls */
+    .quantity-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        justify-content: flex-end;
+        max-width: 200px;
+    }
+
+    .quantity-input-wrapper {
+        flex: 1;
+        min-width: 80px;
+        max-width: 120px;
+    }
+
+    .quantity-input {
+        width: 100% !important;
+    }
+
+    .quantity-input input {
+        text-align: right !important;
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        padding: 8px 12px !important;
+        font-weight: 600;
+        font-size: 16px;
+        color: var(--text-dark);
+        transition: all 0.2s ease;
+        height: 40px;
+        box-sizing: border-box;
+    }
+
+    .quantity-input input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(226, 19, 123, 0.1);
+        outline: none;
+    }
+
+    /* Empty Cart */
+    .empty-cart {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: var(--shadow-light);
+        margin: 20px;
+        max-width: 400px;
+        align-self: center;
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        opacity: 0.6;
+    }
+
+    .empty-cart h3 {
+        margin: 0 0 10px 0;
+        color: var(--text-dark);
+        font-size: 24px;
+        font-weight: 600;
+    }
+
+    .empty-cart p {
+        margin: 0 0 30px 0;
+        color: var(--text-light);
+        font-size: 16px;
+    }
+
+    .continue-shopping-btn {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 15px 30px;
+        font-weight: 600;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: var(--shadow-light);
+        min-height: 48px;
+    }
+
+    .continue-shopping-btn:hover:not(:disabled) {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-medium);
+    }
+
+    .continue-shopping-btn:disabled {
+        background: var(--text-light);
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* Cart Footer - Like OrderMobilePage */
+    .cart-footer {
+        position: sticky;
+        bottom: 0;
+        background: white;
+        padding: 15px 20px;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 100;
+        animation: slideUp 0.3s ease-out;
+    }
+
+    .cart-button {
+        width: 100%;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 15px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-weight: 600;
+        font-size: 16px;
+        box-shadow: var(--shadow-medium);
+        position: relative;
+        min-height: 56px;
+    }
+
+    .cart-button:hover:not(:disabled) {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(226, 19, 123, 0.3);
+    }
+
+    .cart-button:active {
+        transform: translateY(0);
+    }
+
+    .cart-button:disabled {
+        background: var(--text-light);
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .cart-count {
+        background: white;
+        color: var(--primary-color);
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 14px;
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Grid Styling */
+    ::deep .e-grid {
+        border-radius: 12px;
+        overflow: hidden;
+        background: white;
+        box-shadow: var(--shadow-light);
+        border: none;
+    }
+
+    ::deep .e-grid .e-gridheader {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    }
+
+    ::deep .e-grid .e-headercell {
+        background: transparent;
+        color: white;
+        font-weight: 600;
+        border: none;
+        padding: 15px 12px;
+    }
+
+    ::deep .e-grid .e-rowcell {
+        border: none;
+        border-bottom: 1px solid var(--border-color);
+        padding: 12px;
+        vertical-align: middle;
+    }
+
+    ::deep .e-grid .e-row:nth-child(even) {
+        background-color: #fafafa;
+    }
+
+    ::deep .e-grid .e-row:hover {
+        background-color: var(--primary-light);
+    }
+
+    /* Toolbar Styling */
+    ::deep .e-toolbar {
+        background: white;
+        border-bottom: 1px solid var(--border-color);
+        padding: 10px 15px;
+    }
+
+    ::deep .e-toolbar .e-input-group input {
+        border-radius: 25px;
+        border: 2px solid var(--border-color);
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+
+    ::deep .e-toolbar .e-input-group input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(226, 19, 123, 0.1);
+    }
+
+    /* Pager Styling */
+    ::deep .e-pager {
+        background: white;
+        border-top: 1px solid var(--border-color);
+        padding: 10px;
+    }
+
+    ::deep .e-pager .e-currentitem {
+        background: var(--primary-color);
+        color: white;
+        border-radius: 6px;
+    }
+
+    /* Animations */
+    @@keyframes slideUp {
+        from {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    /* Mobile Responsiveness */
+    @@media (max-width: 576px) {
+        .grid-container {
+            padding: 10px;
+        }
+
+        .quantity-controls {
+            max-width: 160px;
+            gap: 6px;
+        }
+
+        .cart-footer {
+            padding: 12px 15px;
+        }
+
+        .cart-button {
+            padding: 12px 15px;
+            font-size: 14px;
+            min-height: 48px;
+        }
+
+        .cart-count {
+            width: 24px;
+            height: 24px;
+            font-size: 12px;
+            right: 12px;
+        }
+
+        ::deep .e-grid .e-headercell {
+            padding: 12px 8px;
+            font-size: 14px;
+        }
+
+        ::deep .e-grid .e-rowcell {
+            padding: 8px;
+            font-size: 14px;
+        }
+
+        .empty-cart {
+            padding: 40px 15px;
+            margin: 15px;
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+        }
+    }
+
+    /* Improved touch targets for mobile */
+    @@media (hover: none) and (pointer: coarse) {
+        .cart-button {
+            min-height: 48px;
+            padding: 12px 20px;
+        }
+
+        .continue-shopping-btn {
+            min-height: 48px;
+            padding: 15px 30px;
+        }
+    }
+
+    /* Dialog Styling */
+    .dialog-header {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--text-dark);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .confirmation-header {
+        color: var(--warning-color);
+    }
+
+    .error-header {
+        color: var(--error-color);
+    }
+
+    .confirmation-icon,
+    .error-icon {
+        font-size: 24px;
+    }
+
+    .dialog-content {
+        padding: 20px;
+    }
+
+    .confirmation-content,
+    .error-content {
+        text-align: center;
+    }
+
+    .confirmation-message h3,
+    .error-message h3 {
+        margin: 0 0 10px 0;
+        color: var(--text-dark);
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .confirmation-message p,
+    .error-message p {
+        margin: 0 0 20px 0;
+        color: var(--text-light);
+        font-size: 14px;
+    }
+
+    /* Error Dialog Specific Styles */
+    .error-list {
+        background: var(--error-bg);
+        border: 1px solid var(--error-border);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        text-align: left;
+    }
+
+    .error-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 12px;
+        padding: 8px;
+        background: white;
+        border-radius: 6px;
+        border-left: 4px solid var(--error-color);
+    }
+
+    .error-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .error-item-icon {
+        font-size: 16px;
+        margin-top: 2px;
+        flex-shrink: 0;
+    }
+
+    .error-item-content {
+        flex: 1;
+    }
+
+    .error-item-title {
+        font-weight: 600;
+        color: var(--error-color);
+        font-size: 14px;
+        margin-bottom: 2px;
+    }
+
+    .error-item-message {
+        color: var(--text-dark);
+        font-size: 13px;
+        line-height: 1.4;
+    }
+
+    .error-summary {
+        text-align: center;
+        padding: 10px;
+        background: rgba(220, 53, 69, 0.1);
+        border-radius: 6px;
+        margin-top: 10px;
+    }
+
+    .error-count {
+        font-weight: 600;
+        color: var(--error-color);
+        font-size: 14px;
+    }
+
+    .order-summary {
+        background: var(--bg-light);
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid var(--primary-color);
+    }
+
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+
+    .summary-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .summary-label {
+        font-weight: 500;
+        color: var(--text-dark);
+    }
+
+    .summary-value {
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+
+    /* Remarks Section in Confirmation Dialog */
+    .remarks-section {
+        margin-top: 15px;
+        text-align: left;
+    }
+
+    .remarks-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: var(--text-dark);
+        font-size: 14px;
+    }
+
+    .remarks-input {
+        width: 100%;
+        border-radius: 8px;
+    }
+
+    .remarks-input textarea {
+        min-height: 80px;
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        padding: 10px;
+        font-size: 14px;
+        color: var(--text-dark);
+        transition: all 0.2s ease;
+        resize: vertical;
+    }
+
+    .remarks-input textarea:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(226, 19, 123, 0.1);
+        outline: none;
+    }
+
+    .dialog-footer {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 15px 20px;
+        background-color: var(--bg-light);
+        border-top: 1px solid var(--border-color);
+        gap: 10px;
+    }
+
+    .confirmation-footer,
+    .error-footer {
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .dialog-button {
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        min-height: 44px;
+    }
+
+    .cancel-button {
+        background: white;
+        color: var(--text-light);
+        border: 2px solid var(--border-color);
+    }
+
+    .cancel-button:hover:not(:disabled) {
+        background: var(--bg-light);
+        border-color: var(--text-light);
+    }
+
+    .cancel-button:disabled {
+        cursor: not-allowed;
+    }
+
+    .confirm-button-dialog {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .confirm-button-dialog:hover:not(:disabled) {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-light);
+    }
+
+    .confirm-button-dialog:disabled {
+        background: var(--text-light);
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .error-fix-button {
+        background: var(--error-color);
+        color: white;
+        padding: 12px 24px;
+        font-weight: 600;
+    }
+
+    .error-fix-button:hover {
+        background: #c82333;
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-light);
+    }
+
+    /* Animated Button Footer Adjustments */
+    .animated-button-footer {
+        flex-direction: row;
+        gap: 12px;
+        padding: 15px 20px;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: nowrap;
+    }
+
+    .animated-button-footer .cancel-button {
+        width: auto;
+        min-width: 80px;
+        max-width: 100px;
+        padding: 10px 12px;
+        font-size: 14px;
+        order: 1;
+        height: 63px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .animated-button-footer .order-button-animated {
+        order: 2;
+        flex-shrink: 0;
+    }
+
+    @@media (max-width: 380px) {
+        .animated-button-footer {
+            gap: 8px;
+            padding: 12px 10px;
+        }
+
+        .animated-button-footer .cancel-button {
+            min-width: 70px;
+            max-width: 80px;
+            padding: 8px 10px;
+            font-size: 13px;
+            height: 58px;
+        }
+
+        .animated-button-footer .order-button-animated {
+            width: 200px;
+            height: 58px;
+        }
+    }
+</style>

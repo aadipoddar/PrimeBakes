@@ -6,12 +6,12 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Inventory.Stock;
-using PrimeBakesLibrary.Data.Sales.Masters;
+using PrimeBakesLibrary.Data.Store.Product;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Inventory.Stock;
 using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Sales.Masters;
+using PrimeBakesLibrary.Models.Store.Product;
 
 using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;
@@ -118,7 +118,7 @@ public partial class ProductStockAdjustment : IAsyncDisposable
     {
         try
         {
-            _products = await ProductData.LoadProductByLocation(_selectedLocation.Id);
+            _products = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _selectedLocation.Id);
 
             _products = [.. _products.OrderBy(s => s.Name)];
             _products.Add(new()

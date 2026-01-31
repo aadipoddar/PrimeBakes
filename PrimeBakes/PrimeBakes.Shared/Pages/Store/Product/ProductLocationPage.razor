@@ -1,0 +1,397 @@
+@page "/admin/product-location"
+
+@using PrimeBakesLibrary.Models.Operations
+@using PrimeBakesLibrary.Models.Store.Product
+
+
+<PageTitle>Product Location Management - Prime Bakes</PageTitle>
+
+@if (_isLoading)
+{
+    <AnimatedLoader Visible="true" />
+}
+else
+{
+    <div style="display: flex; flex-direction: column; min-height: 100vh;">
+        <Header Title="Product Location Management" Subtitle="Manage product rates by location" ShowLogout="true"
+                ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack"
+                OnLogoutClick="Logout">
+            <RightContent>
+                <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)"
+                            Disabled="_isProcessing" OnClick="ExportExcel" />
+                <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)"
+                            Disabled="_isProcessing" OnClick="ExportPdf" />
+                <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Product Location (Ctrl + S)"
+                            Disabled="_isProcessing" OnClick="SaveProductLocation" />
+                <IconButton Icon="IconType.New" Title="New Product Location (Ctrl + N)" Disabled="_isProcessing"
+                            OnClick="ResetPage" />
+            </RightContent>
+        </Header>
+
+        <!-- Main Content Container -->
+        <div class="page-container">
+
+            <!-- Product Location Entry Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round">
+                            <path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
+                        </svg>
+                        <h2 class="section-title">Product Location Details</h2>
+                    </div>
+                </div>
+                <div class="section-body">
+                    <div class="form-grid-three">
+                        <!-- Location -->
+                        <div class="form-field">
+                            <label class="field-label">Location <span class="required">*</span></label>
+                            <SfAutoComplete @bind-Value="_selectedLocationName" TValue="string" TItem="LocationModel"
+                                            Placeholder="Select location" DataSource="@_locations" PopupHeight="300px"
+                                            CssClass="custom-autocomplete" AllowFiltering="true"
+                                            FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
+                                <AutoCompleteFieldSettings Value="Name"></AutoCompleteFieldSettings>
+                                <AutoCompleteEvents TValue="string" TItem="LocationModel" ValueChange="OnLocationChange">
+                                </AutoCompleteEvents>
+                            </SfAutoComplete>
+                        </div>
+
+                        <!-- Product -->
+                        <div class="form-field">
+                            <label class="field-label">Product <span class="required">*</span></label>
+                            <SfAutoComplete @bind-Value="_selectedProductName" TValue="string" TItem="ProductModel"
+                                            Placeholder="Select product" DataSource="@_products" PopupHeight="300px"
+                                            CssClass="custom-autocomplete" AllowFiltering="true"
+                                            FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
+                                <AutoCompleteFieldSettings Value="Name"></AutoCompleteFieldSettings>
+                                <AutoCompleteEvents TValue="string" TItem="ProductModel" ValueChange="OnProductChange">
+                                </AutoCompleteEvents>
+                            </SfAutoComplete>
+                        </div>
+
+                        <!-- Rate -->
+                        <div class="form-field">
+                            <label class="field-label">Rate <span class="required">*</span></label>
+                            <SfNumericTextBox @bind-Value="_productLocation.Rate" TValue="decimal" Placeholder="0.00"
+                                              CssClass="custom-textbox" Format="N2" Decimals="2" Min="0" ShowSpinButton="false">
+                            </SfNumericTextBox>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Location List Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round">
+                            <path d="M9 11l3 3L22 4" />
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                        </svg>
+                        <h2 class="section-title">Product Location List</h2>
+                    </div>
+                    <div class="header-actions">
+                        <!-- Deleted toggle removed: page shows only active product locations -->
+                    </div>
+                </div>
+                <div class="section-body grid-body">
+                    <SfGrid @ref="_sfGrid" DataSource="@_productLocationOverviews" AllowPaging="true" AllowSorting="true"
+                            AllowFiltering="true" AllowResizing="true" CssClass="professional-grid"
+                            Toolbar="@(new List<string>() { "Search" })">
+                        <GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+                        <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+                        <GridColumns>
+                            <GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center"
+                                        AllowFiltering="false">
+                                <Template>
+                                    @{
+                                        var productLocation = (context as ProductLocationOverviewModel);
+                                        var actualProductLocation = _productLocations.FirstOrDefault(pl => pl.Id ==
+                                        productLocation.Id);
+
+                                        <div class="grid-actions">
+                                            @if (actualProductLocation is { Status: true })
+                                            {
+                                                <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid"
+                                                            Title="Edit (Insert)"
+                                                            OnClick="@(() => OnEditProductLocation(actualProductLocation))" />
+                                                <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete"
+                                                            Size="ButtonSize.Grid" Title="Delete (Delete)"
+                                                            OnClick="@(() => ShowDeleteConfirmation(actualProductLocation.Id, GetDisplayName(productLocation)))" />
+                                            }
+                                        </div>
+                                    }
+                                </Template>
+                            </GridColumn>
+                            <GridColumn Field="@nameof(ProductLocationOverviewModel.Id)" HeaderText="ID" Width="80"
+                                        TextAlign="TextAlign.Center" />
+                            <GridColumn HeaderText="Location" Width="150">
+                                <Template>
+                                    @{
+                                        var productLocation = (context as ProductLocationOverviewModel);
+                                        var location = _locations.FirstOrDefault(l => l.Id == productLocation.LocationId);
+                                        <span>@(location?.Name ?? "N/A")</span>
+                                    }
+                                </Template>
+                            </GridColumn>
+                            <GridColumn Field="@nameof(ProductLocationOverviewModel.Code)" HeaderText="Product Code"
+                                        Width="150" />
+                            <GridColumn Field="@nameof(ProductLocationOverviewModel.Name)" HeaderText="Product Name"
+                                        Width="200" />
+                            <GridColumn Field="@nameof(ProductLocationOverviewModel.Rate)" HeaderText="Rate" Width="120"
+                                        TextAlign="TextAlign.Right" Format="N2" />
+                            <GridColumn HeaderText="Status" Width="100" TextAlign="TextAlign.Center">
+                                <Template>
+                                    @{
+                                        var productLocation = (context as ProductLocationOverviewModel);
+                                        var actualProductLocation = _productLocations.FirstOrDefault(pl => pl.Id ==
+                                        productLocation.Id);
+                                        <div class="grid-checkbox"
+                                             style="@(actualProductLocation?.Status == true ? "color: #10b981; background: #d1fae5;" : "color: #dc2626; background: #fee2e2;")">
+                                            @(actualProductLocation?.Status == true ? "✓" : "✗")
+                                        </div>
+                                    }
+                                </Template>
+                            </GridColumn>
+                        </GridColumns>
+                    </SfGrid>
+                </div>
+            </div>
+        </div>
+
+        <Footer />
+    </div>
+}
+
+<!-- Delete Confirmation Dialog -->
+<DeleteConfirmationDialog @ref="_deleteConfirmationDialog" EntityName="Product Location" IdentifierLabel="Name"
+                          IdentifierValue="@_deleteProductLocationName" IsPermanentDelete="false" Disabled="@_isProcessing"
+                          OnConfirm="ConfirmDelete" OnCancel="CancelDelete" />
+
+<!-- Toast Notification -->
+<ToastNotification @ref="_toastNotification" />
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+    * {
+        box-sizing: border-box;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    }
+
+    /* Section Card */
+    .section-card {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        margin-bottom: 24px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .section-card:hover {
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    .section-header {
+        padding: 20px 24px;
+        border-bottom: 2px solid #e2e8f0;
+        background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .section-title-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .section-icon {
+        color: #3b82f6;
+        flex-shrink: 0;
+    }
+
+    .section-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #0f172a;
+        margin: 0;
+        letter-spacing: -0.3px;
+    }
+
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .section-body {
+        padding: 24px;
+    }
+
+    /* Form Grid */
+    .form-grid-three {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-bottom: 16px;
+    }
+
+    .form-field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .field-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #334155;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+    }
+
+    .required {
+        color: #ef4444;
+        margin-left: 2px;
+    }
+
+    /* Badge Styles */
+    .badge {
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-active {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .badge-deleted {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    /* Grid Body */
+    .grid-body {
+        padding: 0;
+    }
+
+    .professional-grid {
+        border: none;
+    }
+
+    .grid-checkbox {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+        font-weight: 700;
+        font-size: 14px;
+    }
+
+    /* Dialog Styles */
+    .dialog-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        height: 44px;
+        padding: 0 24px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    }
+
+    .dialog-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+    }
+
+    .dialog-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    }
+
+    .dialog-btn svg {
+        flex-shrink: 0;
+    }
+
+    .dialog-btn-cancel {
+        background: #ffffff;
+        color: #64748b;
+        border: 2px solid #e2e8f0;
+    }
+
+    .dialog-btn-cancel:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+        color: #475569;
+    }
+
+    .dialog-btn-delete {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+    }
+
+    .dialog-btn-delete:hover {
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    }
+
+    .dialog-btn-recover {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+    }
+
+    .dialog-btn-recover:hover {
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    }
+
+    /* Toggle Deleted Button */
+    /* Deleted toggle removed (only active items shown) */
+
+    /* Toast Styles */
+    ::deep .toast-success .e-toast {
+        background: #10b981 !important;
+        color: #ffffff !important;
+    }
+
+    ::deep .toast-error .e-toast {
+        background: #ef4444 !important;
+        color: #ffffff !important;
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 1200px) {
+        .form-grid-three {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .form-grid-three {
+            grid-template-columns: 1fr;
+        }
+
+        .section-body {
+            padding: 16px;
+        }
+    }
+</style>

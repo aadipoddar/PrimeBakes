@@ -1,0 +1,534 @@
+@page "/sales/order/mobile"
+
+@using PrimeBakesLibrary.Models.Store.Order
+
+<PageTitle>Order - PrimeBakes</PageTitle>
+
+@if (_isLoading)
+{
+    <AnimatedLoader Visible="true" />
+}
+else
+{
+    <div style="display: flex; flex-direction: column; min-height: 100vh;">
+        <Header Title="Create Order" Subtitle="Mobile order entry" ShowBack="true"
+                OnBackClick="() => NavigationManager.NavigateTo(PageRouteNames.Dashboard)" />
+
+        <!-- Main Content Container -->
+        <div class="order-mobile-container">
+
+            <!-- Enhanced Category Filter Section -->
+            <div class="filter-section">
+                <div class="category-chips-container">
+                    @foreach (var category in _productCategories)
+                    {
+                        <button class="category-chip @(category.Id == _selectedCategory?.Id ? "active" : "")"
+                                @onclick="() => _selectedCategory = category">
+                            @category.Name
+                        </button>
+                    }
+                </div>
+            </div>
+
+            <!-- Grid Container -->
+            <div class="grid-container">
+                <SfGrid @ref="_sfCartGrid" EnableAdaptiveUI="true"
+                        DataSource="@(_selectedCategory.Id == 0 ? _cart : _cart.Where(x => x.ItemCategoryId == _selectedCategory.Id))"
+                        AllowPaging="true" AllowSorting="false" AllowTextWrap="true"
+                        Toolbar="@(new List<string>() { "Search" })">
+
+                    <GridPageSettings PageSize="10" />
+
+                    <GridColumns>
+                        <GridColumn Field="@nameof(OrderItemCartModel.ItemName)" HeaderText="Product" Width="50%" />
+                        <GridColumn Field="@nameof(OrderItemCartModel.Quantity)" HeaderText="Quantity" Width="50%"
+                                    TextAlign="TextAlign.Right">
+                            <Template>
+                                @{
+                                    var item = (context as OrderItemCartModel);
+                                }
+                                @if (item is not null)
+                                {
+                                    <div class="quantity-section">
+                                        @if (item.Quantity == 0)
+                                        {
+                                            <button class="add-button" @onclick="() => AddToCart(item)"
+                                                    @onclick:stopPropagation="true">
+                                                <span class="add-text">Add</span>
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <div class="quantity-controls">
+                                                <div class="quantity-input-wrapper">
+                                                    <SfNumericTextBox TValue="decimal" Value="@item.Quantity"
+                                                                      ValueChanged="@((decimal value) => UpdateQuantity(item, value))" Min="0"
+                                                                      Step="1" type="tel" Format="N0" Width="100%" CssClass="quantity-input" />
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </Template>
+                        </GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </div>
+
+        </div>
+
+        @if (_cart.Any(c => c.Quantity > 0))
+        {
+            <div class="cart-footer">
+                <button @onclick="GoToCart" class="cart-button">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Go to Cart</span>
+                    <span class="cart-count">@_cart.Count(c => c.Quantity > 0)</span>
+                </button>
+            </div>
+        }
+
+        <Footer ShowVersion="false" />
+    </div>
+}
+
+<style>
+    :root {
+        --primary-color: #e2137b;
+        --primary-dark: #c71068;
+        --primary-light: #f5c2d3;
+        --text-dark: #2c3e50;
+        --text-light: #7f8c8d;
+        --bg-light: #f8f9fa;
+        --border-color: #e9ecef;
+        --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.1);
+        --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.15);
+        --success-color: #28a745;
+        --info-color: #17a2b8;
+    }
+
+    .order-mobile-container {
+        background: linear-gradient(135deg, #ffeef5 0%, #fff5f9 100%);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    /* Enhanced Filter Section */
+    .filter-section {
+        background: white;
+        margin: 0;
+        padding: 15px 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        position: sticky;
+        top: 0;
+        z-index: 50;
+    }
+
+    /* Category Chips Container - Horizontal Scroll */
+    .category-chips-container {
+        display: flex;
+        gap: 10px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 0 15px 5px 15px;
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        /* Firefox */
+        -ms-overflow-style: none;
+        /* IE/Edge */
+    }
+
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .category-chips-container::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Category Chip Button */
+    .category-chip {
+        background: var(--bg-light);
+        color: var(--text-dark);
+        border: 2px solid var(--border-color);
+        border-radius: 25px;
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        flex-shrink: 0;
+        outline: none;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .category-chip:hover {
+        border-color: var(--primary-light);
+        background: var(--primary-light);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-light);
+    }
+
+    .category-chip:active {
+        transform: translateY(0);
+    }
+
+    .category-chip.active {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        color: white;
+        border-color: var(--primary-color);
+        box-shadow: 0 4px 12px rgba(226, 19, 123, 0.3);
+        font-weight: 600;
+    }
+
+    .category-chip.active:hover {
+        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+        transform: translateY(-1px);
+    }
+
+    /* Grid Container */
+    .grid-container {
+        flex: 1;
+        padding: 15px;
+        overflow: hidden;
+    }
+
+    /* Quantity Section */
+    .quantity-section {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        width: 100%;
+        padding: 8px 0;
+    }
+
+    /* Add Button */
+    .add-button {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-weight: 500;
+        font-size: 14px;
+        box-shadow: var(--shadow-light);
+        min-height: 40px;
+        min-width: 80px;
+    }
+
+    .add-button:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-medium);
+    }
+
+    .add-button:active {
+        transform: translateY(0);
+    }
+
+    .add-text {
+        display: inline;
+        margin-left: 4px;
+        font-weight: 600;
+    }
+
+    /* Quantity Controls */
+    .quantity-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        justify-content: flex-end;
+        max-width: 200px;
+    }
+
+    .quantity-input-wrapper {
+        flex: 1;
+        min-width: 80px;
+        max-width: 120px;
+    }
+
+    .quantity-input {
+        width: 100% !important;
+    }
+
+    .quantity-input input {
+        text-align: right !important;
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        padding: 8px 12px !important;
+        font-weight: 600;
+        font-size: 16px;
+        color: var(--text-dark);
+        transition: all 0.2s ease;
+        height: 40px;
+        box-sizing: border-box;
+    }
+
+    .quantity-input input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(226, 19, 123, 0.1);
+        outline: none;
+    }
+
+    /* Cart Footer */
+    .cart-footer {
+        position: sticky;
+        bottom: 0;
+        background: white;
+        padding: 15px 20px;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 100;
+        animation: slideUp 0.3s ease-out;
+    }
+
+    .cart-button {
+        width: 100%;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 15px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-weight: 600;
+        font-size: 16px;
+        box-shadow: var(--shadow-medium);
+        position: relative;
+        min-height: 56px;
+    }
+
+    .cart-button:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(226, 19, 123, 0.3);
+    }
+
+    .cart-button:active {
+        transform: translateY(0);
+    }
+
+    .cart-count {
+        background: white;
+        color: var(--primary-color);
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 14px;
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Grid Styling */
+    ::deep .e-grid {
+        border-radius: 12px;
+        overflow: hidden;
+        background: white;
+        box-shadow: var(--shadow-light);
+        border: none;
+    }
+
+    ::deep .e-grid .e-gridheader {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    }
+
+    ::deep .e-grid .e-headercell {
+        background: transparent;
+        color: white;
+        font-weight: 600;
+        border: none;
+        padding: 15px 12px;
+    }
+
+    ::deep .e-grid .e-rowcell {
+        border: none;
+        border-bottom: 1px solid var(--border-color);
+        padding: 12px;
+        vertical-align: middle;
+    }
+
+    ::deep .e-grid .e-row:nth-child(even) {
+        background-color: #fafafa;
+    }
+
+    ::deep .e-grid .e-row:hover {
+        background-color: var(--primary-light);
+    }
+
+    /* Toolbar Styling */
+    ::deep .e-toolbar {
+        background: white;
+        border-bottom: 1px solid var(--border-color);
+        padding: 10px 15px;
+    }
+
+    ::deep .e-toolbar .e-input-group input {
+        border-radius: 25px;
+        border: 2px solid var(--border-color);
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+
+    ::deep .e-toolbar .e-input-group input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(226, 19, 123, 0.1);
+    }
+
+    /* Pager Styling */
+    ::deep .e-pager {
+        background: white;
+        border-top: 1px solid var(--border-color);
+        padding: 10px;
+    }
+
+    ::deep .e-pager .e-currentitem {
+        background: var(--primary-color);
+        color: white;
+        border-radius: 6px;
+    }
+
+    /* Animations */
+    @@keyframes slideUp {
+        from {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    /* Mobile Responsiveness */
+    @@media (max-width: 576px) {
+        .filter-section {
+            margin: 10px;
+            padding: 15px;
+        }
+
+        .category-filter-wrapper {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+        }
+
+        .grid-container {
+            padding: 10px;
+        }
+
+        .quantity-controls {
+            max-width: 160px;
+            gap: 6px;
+        }
+
+        .add-button {
+            padding: 8px 16px;
+            font-size: 13px;
+            min-height: 36px;
+            min-width: 70px;
+            border-radius: 20px;
+        }
+
+        .add-text {
+            display: inline !important;
+            font-size: 12px;
+        }
+
+        .cart-footer {
+            padding: 12px 15px;
+        }
+
+        .cart-button {
+            padding: 12px 15px;
+            font-size: 14px;
+            min-height: 48px;
+        }
+
+        .cart-count {
+            width: 24px;
+            height: 24px;
+            font-size: 12px;
+            right: 12px;
+        }
+
+        ::deep .e-grid .e-headercell {
+            padding: 12px 8px;
+            font-size: 14px;
+        }
+
+        ::deep .e-grid .e-rowcell {
+            padding: 8px;
+            font-size: 14px;
+        }
+
+        ::deep .category-filter .e-input-group input {
+            padding: 8px 10px;
+            font-size: 14px;
+            height: 32px;
+        }
+    }
+
+    @@media (max-width: 400px) {
+        .add-button {
+            padding: 6px 12px;
+            font-size: 12px;
+            min-height: 32px;
+            min-width: 60px;
+            gap: 4px;
+        }
+
+        .add-text {
+            display: inline !important;
+            font-size: 11px;
+            margin-left: 2px;
+        }
+    }
+
+    /* Improved touch targets for mobile */
+    @@media (hover: none) and (pointer: coarse) {
+        .add-button {
+            min-height: 44px;
+            padding: 10px 20px;
+            min-width: 80px;
+        }
+    }
+
+    /* Extra small screens */
+    @@media (max-width: 320px) {
+        .add-button {
+            padding: 6px 10px;
+            font-size: 11px;
+            min-height: 30px;
+            min-width: 55px;
+            gap: 3px;
+        }
+
+        .add-text {
+            display: inline !important;
+            font-size: 10px;
+            margin-left: 1px;
+        }
+    }
+</style>

@@ -6,10 +6,10 @@ using PrimeBakesLibrary.Models.Inventory;
 using PrimeBakesLibrary.Models.Inventory.Kitchen;
 using PrimeBakesLibrary.Models.Inventory.Purchase;
 using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Sales.Masters;
-using PrimeBakesLibrary.Models.Sales.Order;
-using PrimeBakesLibrary.Models.Sales.Sale;
-using PrimeBakesLibrary.Models.Sales.StockTransfer;
+using PrimeBakesLibrary.Models.Store.Order;
+using PrimeBakesLibrary.Models.Store.Product;
+using PrimeBakesLibrary.Models.Store.Sale;
+using PrimeBakesLibrary.Models.Store.StockTransfer;
 
 namespace PrimeBakesLibrary.Data.Common;
 
@@ -71,7 +71,7 @@ public static class GenerateCodes
                     isDuplicate = order is not null;
                     break;
                 case CodeType.Accounting:
-                    var accounting = await CommonData.LoadTableDataByTransactionNo<AccountingModel>(TableNames.Accounting, code, sqlDataAccessTransaction);
+                    var accounting = await CommonData.LoadTableDataByTransactionNo<FinancialAccountingModel>(TableNames.FinancialAccounting, code, sqlDataAccessTransaction);
                     isDuplicate = accounting is not null;
                     break;
                 case CodeType.RawMaterial:
@@ -316,13 +316,13 @@ public static class GenerateCodes
         return await CheckDuplicateCode($"{locationPrefix}{financialYear.YearNo}{orderPrefix}000001", 6, CodeType.Order, sqlDataAccessTransaction);
     }
 
-    public static async Task<string> GenerateAccountingTransactionNo(AccountingModel accounting, SqlDataAccessTransaction sqlDataAccessTransaction = null)
+    public static async Task<string> GenerateAccountingTransactionNo(FinancialAccountingModel accounting, SqlDataAccessTransaction sqlDataAccessTransaction = null)
     {
         var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, accounting.FinancialYearId, sqlDataAccessTransaction);
         var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, 1, sqlDataAccessTransaction)).Code;
         var accountingPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.AccountingTransactionPrefix, sqlDataAccessTransaction)).Value;
 
-        var lastAccounting = await CommonData.LoadLastTableDataByFinancialYear<AccountingModel>(TableNames.Accounting, accounting.FinancialYearId, sqlDataAccessTransaction);
+        var lastAccounting = await CommonData.LoadLastTableDataByFinancialYear<FinancialAccountingModel>(TableNames.FinancialAccounting, accounting.FinancialYearId, sqlDataAccessTransaction);
         if (lastAccounting is not null)
         {
             var lastTransactionNo = lastAccounting.TransactionNo;

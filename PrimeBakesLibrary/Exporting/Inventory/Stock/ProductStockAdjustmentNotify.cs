@@ -2,7 +2,7 @@ using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Inventory.Stock;
 using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Sales.Masters;
+using PrimeBakesLibrary.Models.Store.Product;
 
 namespace PrimeBakesLibrary.Exporting.Inventory.Stock;
 

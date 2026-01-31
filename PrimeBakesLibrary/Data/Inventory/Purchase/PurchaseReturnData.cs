@@ -62,7 +62,7 @@ public static class PurchaseReturnData
             await RawMaterialStockData.DeleteRawMaterialStockByTypeTransactionId(nameof(StockType.PurchaseReturn), purchaseReturn.Id, sqlDataAccessTransaction);
 
             var purchaseReturnVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.PurchaseReturnVoucherId, sqlDataAccessTransaction);
-            var existingAccounting = await AccountingData.LoadAccountingByVoucherReference(int.Parse(purchaseReturnVoucher.Value), purchaseReturn.Id, purchaseReturn.TransactionNo, sqlDataAccessTransaction);
+            var existingAccounting = await FinancialAccountingData.LoadFinancialAccountingByVoucherReference(int.Parse(purchaseReturnVoucher.Value), purchaseReturn.Id, purchaseReturn.TransactionNo, sqlDataAccessTransaction);
             if (existingAccounting is not null && existingAccounting.Id > 0)
             {
                 existingAccounting.Status = false;
@@ -70,7 +70,7 @@ public static class PurchaseReturnData
                 existingAccounting.LastModifiedAt = purchaseReturn.LastModifiedAt;
                 existingAccounting.LastModifiedFromPlatform = purchaseReturn.LastModifiedFromPlatform;
 
-                await AccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
+                await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
             }
 
             sqlDataAccessTransaction.CommitTransaction();
@@ -199,7 +199,7 @@ public static class PurchaseReturnData
         if (update)
         {
             var purchaseReturnVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.PurchaseReturnVoucherId, sqlDataAccessTransaction);
-            var existingAccounting = await AccountingData.LoadAccountingByVoucherReference(int.Parse(purchaseReturnVoucher.Value), purchaseReturn.Id, purchaseReturn.TransactionNo, sqlDataAccessTransaction);
+            var existingAccounting = await FinancialAccountingData.LoadFinancialAccountingByVoucherReference(int.Parse(purchaseReturnVoucher.Value), purchaseReturn.Id, purchaseReturn.TransactionNo, sqlDataAccessTransaction);
             if (existingAccounting is not null && existingAccounting.Id > 0)
             {
                 existingAccounting.Status = false;
@@ -207,7 +207,7 @@ public static class PurchaseReturnData
                 existingAccounting.LastModifiedAt = purchaseReturn.LastModifiedAt;
                 existingAccounting.LastModifiedFromPlatform = purchaseReturn.LastModifiedFromPlatform;
 
-                await AccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
+                await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
             }
         }
 
@@ -218,7 +218,7 @@ public static class PurchaseReturnData
         if (purchaseReturnOverview.TotalAmount == 0)
             return;
 
-        var accountingCart = new List<AccountingItemCartModel>();
+        var accountingCart = new List<FinancialAccountingItemCartModel>();
 
         if (purchaseReturnOverview.TotalAmount > 0)
             accountingCart.Add(new()
@@ -263,7 +263,7 @@ public static class PurchaseReturnData
         }
 
         var voucher = await SettingsData.LoadSettingsByKey(SettingsKeys.PurchaseReturnVoucherId, sqlDataAccessTransaction);
-        var accounting = new AccountingModel
+        var accounting = new FinancialAccountingModel
         {
             Id = 0,
             TransactionNo = "",
@@ -284,6 +284,6 @@ public static class PurchaseReturnData
             Status = true
         };
 
-        await AccountingData.SaveTransaction(accounting, accountingCart, null, false, sqlDataAccessTransaction);
+        await FinancialAccountingData.SaveTransaction(accounting, accountingCart, null, false, sqlDataAccessTransaction);
     }
 }

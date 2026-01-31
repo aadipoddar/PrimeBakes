@@ -38,9 +38,9 @@ public partial class AccountingLedgerReport : IAsyncDisposable
 
     private List<CompanyModel> _companies = [];
     private List<LedgerModel> _ledgers = [];
-    private List<AccountingLedgerOverviewModel> _transactionOverviews = [];
+    private List<FinancialAccountingLedgerOverviewModel> _transactionOverviews = [];
 
-    private SfGrid<AccountingLedgerOverviewModel> _sfGrid;
+    private SfGrid<FinancialAccountingLedgerOverviewModel> _sfGrid;
     private ToastNotification _toastNotification;
 
     #region Load Data
@@ -123,8 +123,8 @@ public partial class AccountingLedgerReport : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
-            _transactionOverviews = await CommonData.LoadTableDataByDate<AccountingLedgerOverviewModel>(
-                ViewNames.AccountingLedgerOverview,
+            _transactionOverviews = await CommonData.LoadTableDataByDate<FinancialAccountingLedgerOverviewModel>(
+                ViewNames.FinancialAccountingLedgerOverview,
                 DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
                 DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));
 
@@ -134,7 +134,7 @@ public partial class AccountingLedgerReport : IAsyncDisposable
             // Filter by ledger with contra ledger details
             if (_selectedLedger?.Id > 0)
             {
-                List<AccountingLedgerOverviewModel> filteredOverviews = [];
+                List<FinancialAccountingLedgerOverviewModel> filteredOverviews = [];
                 var partyLedgers = _transactionOverviews.Where(l => l.Id == _selectedLedger.Id).ToList();
 
                 foreach (var item in partyLedgers)
@@ -151,7 +151,7 @@ public partial class AccountingLedgerReport : IAsyncDisposable
 
                 _transactionOverviews = filteredOverviews;
 
-                var trialBalances = await AccountingData.LoadTrialBalanceByCompanyDate(
+                var trialBalances = await FinancialAccountingData.LoadTrialBalanceByCompanyDate(
                     _selectedCompany?.Id ?? 0,
                     DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
                     DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));
@@ -218,7 +218,7 @@ public partial class AccountingLedgerReport : IAsyncDisposable
             DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
             DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
 
-            var (stream, fileName) = await AccountingReportExport.ExportLedgerReport(
+            var (stream, fileName) = await FinancialAccountingReportExport.ExportLedgerReport(
                 _transactionOverviews,
                 ReportExportType.Excel,
                 dateRangeStart,
@@ -257,7 +257,7 @@ public partial class AccountingLedgerReport : IAsyncDisposable
             DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
             DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
 
-            var (stream, fileName) = await AccountingReportExport.ExportLedgerReport(
+            var (stream, fileName) = await FinancialAccountingReportExport.ExportLedgerReport(
                 _transactionOverviews,
                 ReportExportType.PDF,
                 dateRangeStart,
@@ -337,7 +337,7 @@ public partial class AccountingLedgerReport : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
 
-            var (pdfStream, fileName) = await AccountingInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.PDF);
+            var (pdfStream, fileName) = await FinancialAccountingInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.PDF);
             await SaveAndViewService.SaveAndView(fileName, pdfStream);
 
             await _toastNotification.ShowAsync("Success", "PDF invoice downloaded successfully.", ToastType.Success);
@@ -364,7 +364,7 @@ public partial class AccountingLedgerReport : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
 
-            var (excelStream, fileName) = await AccountingInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.Excel);
+            var (excelStream, fileName) = await FinancialAccountingInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.Excel);
             await SaveAndViewService.SaveAndView(fileName, excelStream);
 
             await _toastNotification.ShowAsync("Success", "Excel invoice downloaded successfully.", ToastType.Success);

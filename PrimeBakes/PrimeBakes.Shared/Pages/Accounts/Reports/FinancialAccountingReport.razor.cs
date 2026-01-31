@@ -38,9 +38,9 @@ public partial class FinancialAccountingReport : IAsyncDisposable
 
     private List<CompanyModel> _companies = [];
     private List<VoucherModel> _vouchers = [];
-    private List<AccountingOverviewModel> _transactionOverviews = [];
+    private List<FinancialAccountingOverviewModel> _transactionOverviews = [];
 
-    private SfGrid<AccountingOverviewModel> _sfGrid;
+    private SfGrid<FinancialAccountingOverviewModel> _sfGrid;
     private ToastNotification _toastNotification;
 
     private string _deleteTransactionNo = string.Empty;
@@ -132,8 +132,8 @@ public partial class FinancialAccountingReport : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
-            _transactionOverviews = await CommonData.LoadTableDataByDate<AccountingOverviewModel>(
-                ViewNames.AccountingOverview,
+            _transactionOverviews = await CommonData.LoadTableDataByDate<FinancialAccountingOverviewModel>(
+                ViewNames.FinancialAccountingOverview,
                 DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
                 DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));
 
@@ -205,7 +205,7 @@ public partial class FinancialAccountingReport : IAsyncDisposable
             DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
             DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
 
-            var (stream, fileName) = await AccountingReportExport.ExportReport(
+            var (stream, fileName) = await FinancialAccountingReportExport.ExportReport(
                 _transactionOverviews,
                 ReportExportType.Excel,
                 dateRangeStart,
@@ -243,7 +243,7 @@ public partial class FinancialAccountingReport : IAsyncDisposable
             DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
             DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
 
-            var (stream, fileName) = await AccountingReportExport.ExportReport(
+            var (stream, fileName) = await FinancialAccountingReportExport.ExportReport(
                  _transactionOverviews,
                  ReportExportType.PDF,
                  dateRangeStart,
@@ -322,7 +322,7 @@ public partial class FinancialAccountingReport : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
 
-            var (pdfStream, fileName) = await AccountingInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.PDF);
+            var (pdfStream, fileName) = await FinancialAccountingInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.PDF);
             await SaveAndViewService.SaveAndView(fileName, pdfStream);
 
             await _toastNotification.ShowAsync("Success", "PDF invoice downloaded successfully.", ToastType.Success);
@@ -349,7 +349,7 @@ public partial class FinancialAccountingReport : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
 
-            var (excelStream, fileName) = await AccountingInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.Excel);
+            var (excelStream, fileName) = await FinancialAccountingInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.Excel);
             await SaveAndViewService.SaveAndView(fileName, excelStream);
 
             await _toastNotification.ShowAsync("Success", "Excel invoice downloaded successfully.", ToastType.Success);
@@ -394,7 +394,7 @@ public partial class FinancialAccountingReport : IAsyncDisposable
 
             await _toastNotification.ShowAsync("Processing", "Deleting transaction...", ToastType.Info);
 
-            var accounting = await CommonData.LoadTableDataById<AccountingModel>(TableNames.Accounting, _deleteTransactionId);
+            var accounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(TableNames.FinancialAccounting, _deleteTransactionId);
             if (accounting is null)
             {
                 await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);
@@ -406,7 +406,7 @@ public partial class FinancialAccountingReport : IAsyncDisposable
             accounting.LastModifiedAt = await CommonData.LoadCurrentDateTime();
             accounting.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
 
-            await AccountingData.DeleteTransaction(accounting);
+            await FinancialAccountingData.DeleteTransaction(accounting);
 
             await _toastNotification.ShowAsync("Success", $"Transaction {_deleteTransactionNo} has been deleted successfully.", ToastType.Success);
 
@@ -468,7 +468,7 @@ public partial class FinancialAccountingReport : IAsyncDisposable
 
     private async Task RecoverTransaction(int recoverTransactionId)
     {
-        var accounting = await CommonData.LoadTableDataById<AccountingModel>(TableNames.Accounting, recoverTransactionId);
+        var accounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(TableNames.FinancialAccounting, recoverTransactionId);
         if (accounting is null)
         {
             await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);
@@ -480,7 +480,7 @@ public partial class FinancialAccountingReport : IAsyncDisposable
         accounting.LastModifiedAt = await CommonData.LoadCurrentDateTime();
         accounting.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
 
-        await AccountingData.RecoverTransaction(accounting);
+        await FinancialAccountingData.RecoverTransaction(accounting);
     }
     #endregion
 

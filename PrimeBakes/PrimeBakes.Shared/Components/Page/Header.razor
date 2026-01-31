@@ -19,10 +19,6 @@
         {
             @RightContent
         }
-        @if (ShowLogout)
-        {
-            <IconButton Icon="IconType.Logout" Variant="ButtonVariant.Logout" Title="Logout (Ctrl + L)" OnClick="OnLogoutClick" />
-        }
         @if (ShowHome)
         {
             <IconButton Icon="IconType.Home" Title="Home (Ctrl + D)" OnClick="OnHomeClick" />
@@ -30,6 +26,10 @@
         @if (ShowBack)
         {
             <IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="OnBackClick" />
+        }
+        @if (ShowLogout)
+        {
+            <IconButton Icon="IconType.Logout" Variant="ButtonVariant.Logout" Title="Logout (Ctrl + L)" OnClick="OnLogoutClick" />
         }
     </div>
 </div>

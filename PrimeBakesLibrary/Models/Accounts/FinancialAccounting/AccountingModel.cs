@@ -1,6 +1,6 @@
 ﻿namespace PrimeBakesLibrary.Models.Accounts.FinancialAccounting;
 
-public class AccountingModel
+public class FinancialAccountingModel
 {
     public int Id { get; set; }
     public string TransactionNo { get; set; }
@@ -24,7 +24,7 @@ public class AccountingModel
     public string? LastModifiedFromPlatform { get; set; }
 }
 
-public class AccountingDetailModel
+public class FinancialAccountingDetailModel
 {
     public int Id { get; set; }
     public int MasterId { get; set; }
@@ -38,7 +38,7 @@ public class AccountingDetailModel
     public bool Status { get; set; }
 }
 
-public class AccountingItemCartModel
+public class FinancialAccountingItemCartModel
 {
     public int LedgerId { get; set; }
     public string LedgerName { get; set; }
@@ -59,7 +59,7 @@ public enum ReferenceTypes
     StockTransfer
 }
 
-public class AccountingOverviewModel
+public class FinancialAccountingOverviewModel
 {
     public int Id { get; set; }
     public string TransactionNo { get; set; }
@@ -94,7 +94,7 @@ public class AccountingOverviewModel
     public bool Status { get; set; }
 }
 
-public class AccountingLedgerOverviewModel
+public class FinancialAccountingLedgerOverviewModel
 {
     public int Id { get; set; }
     public string LedgerName { get; set; }

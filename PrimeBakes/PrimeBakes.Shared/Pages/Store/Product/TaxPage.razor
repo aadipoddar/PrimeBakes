@@ -1,0 +1,402 @@
+@page "/admin/tax"
+
+@using PrimeBakesLibrary.Models.Store.Product
+
+<PageTitle>Tax Management - Prime Bakes</PageTitle>
+
+@if (_isLoading)
+{
+    <AnimatedLoader Visible="true" />
+}
+else
+{
+    <div style="display: flex; flex-direction: column; min-height: 100vh;">
+        <Header Title="Tax Management" Subtitle="Manage tax rates and configurations" ShowLogout="true" ShowHome="true"
+                ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
+            <RightContent>
+                <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)"
+                            Disabled="_isProcessing" OnClick="ExportExcel" />
+                <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)"
+                            Disabled="_isProcessing" OnClick="ExportPdf" />
+                <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Tax (Ctrl + S)"
+                            Disabled="_isProcessing" OnClick="SaveTax" />
+                <IconButton Icon="IconType.New" Title="New Tax (Ctrl + N)" Disabled="_isProcessing" OnClick="ResetPage" />
+            </RightContent>
+        </Header>
+
+        <!-- Main Content Container -->
+        <div class="page-container">
+
+            <!-- Tax Entry Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round">
+                            <path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
+                        </svg>
+                        <h2 class="section-title">Tax Details</h2>
+                    </div>
+                </div>
+                <div class="section-body">
+                    <div class="form-grid-six">
+                        <!-- Tax Code -->
+                        <div class="form-field">
+                            <label class="field-label">Tax Code <span class="required">*</span></label>
+                            <SfTextBox @bind-Value="_tax.Code" Placeholder="Enter tax code"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
+
+                        <!-- CGST -->
+                        <div class="form-field">
+                            <label class="field-label">CGST % <span class="required">*</span></label>
+                            <SfNumericTextBox @bind-Value="_tax.CGST" Placeholder="Enter CGST %"
+                                              FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" Format="N2" Decimals="2"
+                                              Min="0" Max="100" />
+                        </div>
+
+                        <!-- SGST -->
+                        <div class="form-field">
+                            <label class="field-label">SGST % <span class="required">*</span></label>
+                            <SfNumericTextBox @bind-Value="_tax.SGST" Placeholder="Enter SGST %"
+                                              FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" Format="N2" Decimals="2"
+                                              Min="0" Max="100" />
+                        </div>
+
+                        <!-- IGST -->
+                        <div class="form-field">
+                            <label class="field-label">IGST % <span class="required">*</span></label>
+                            <SfNumericTextBox @bind-Value="_tax.IGST" Placeholder="Enter IGST %"
+                                              FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" Format="N2" Decimals="2"
+                                              Min="0" Max="100" />
+                        </div>
+
+                        <!-- Inclusive Checkbox -->
+                        <div class="form-field">
+                            <label class="field-label">Inclusive</label>
+                            <SfCheckBox @bind-Checked="_tax.Inclusive" Label="Tax Inclusive" CssClass="custom-checkbox" />
+                        </div>
+
+                        <!-- Extra Checkbox -->
+                        <div class="form-field">
+                            <label class="field-label">Extra</label>
+                            <SfCheckBox @bind-Checked="_tax.Extra" Label="Extra Tax" CssClass="custom-checkbox" />
+                        </div>
+                    </div>
+                    <div class="form-grid-single">
+                        <!-- Remarks -->
+                        <div class="form-field">
+                            <label class="field-label">Remarks</label>
+                            <SfTextBox @bind-Value="_tax.Remarks" Placeholder="Enter remarks (optional)" Multiline="true"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tax List Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round">
+                            <path d="M9 11l3 3L22 4" />
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                        </svg>
+                        <h2 class="section-title">Tax List</h2>
+                    </div>
+                    <div class="header-actions">
+                        <ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted"
+                                             OnToggle="ToggleDeleted" />
+                    </div>
+                </div>
+                <div class="section-body grid-body">
+                    <SfGrid @ref="_sfGrid" DataSource="@_taxes" AllowPaging="true" AllowSorting="true" AllowFiltering="true"
+                            AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
+                        <GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+                        <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+                        <GridColumns>
+                            <GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center"
+                                        AllowFiltering="false">
+                                <Template>
+                                    @{
+                                        var tax = (context as TaxModel);
+
+                                        <div class="grid-actions">
+                                            @if (tax.Status)
+                                            {
+                                                <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid"
+                                                            Title="Edit (Insert)" OnClick="@(() => OnEditTax(tax))" />
+                                                <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete"
+                                                            Size="ButtonSize.Grid" Title="Delete (Delete)"
+                                                            OnClick="@(() => ShowDeleteConfirmation(tax.Id, tax.Code))" />
+                                            }
+                                            else
+                                            {
+                                                <IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover"
+                                                            Size="ButtonSize.Grid" Title="Recover (Delete)"
+                                                            OnClick="@(() => ShowRecoverConfirmation(tax.Id, tax.Code))" />
+                                            }
+                                        </div>
+                                    }
+                                </Template>
+                            </GridColumn>
+                            <GridColumn Field="@nameof(TaxModel.Id)" HeaderText="ID" Width="80"
+                                        TextAlign="TextAlign.Center" />
+                            <GridColumn Field="@nameof(TaxModel.Code)" HeaderText="Tax Code" Width="150" />
+                            <GridColumn Field="@nameof(TaxModel.CGST)" HeaderText="CGST %" Width="100"
+                                        TextAlign="TextAlign.Right" Format="N2" />
+                            <GridColumn Field="@nameof(TaxModel.SGST)" HeaderText="SGST %" Width="100"
+                                        TextAlign="TextAlign.Right" Format="N2" />
+                            <GridColumn Field="@nameof(TaxModel.IGST)" HeaderText="IGST %" Width="100"
+                                        TextAlign="TextAlign.Right" Format="N2" />
+                            <GridColumn Field="@nameof(TaxModel.Inclusive)" HeaderText="Inclusive" Width="120"
+                                        TextAlign="TextAlign.Center">
+                                <Template>
+                                    @{
+                                        var tax = (context as TaxModel);
+                                        <div class="grid-checkbox"
+                                             style="@(tax.Inclusive ? "color: #10b981; background: #d1fae5;" : "color: #64748b; background: #f1f5f9;")">
+                                            @(tax.Inclusive ? "✓" : "✗")
+                                        </div>
+                                    }
+                                </Template>
+                            </GridColumn>
+                            <GridColumn Field="@nameof(TaxModel.Extra)" HeaderText="Extra" Width="100"
+                                        TextAlign="TextAlign.Center">
+                                <Template>
+                                    @{
+                                        var tax = (context as TaxModel);
+                                        <div class="grid-checkbox"
+                                             style="@(tax.Extra ? "color: #10b981; background: #d1fae5;" : "color: #64748b; background: #f1f5f9;")">
+                                            @(tax.Extra ? "✓" : "✗")
+                                        </div>
+                                    }
+                                </Template>
+                            </GridColumn>
+                            <GridColumn Field="@nameof(TaxModel.Remarks)" HeaderText="Remarks" Width="250" />
+                            <GridColumn Field="@nameof(TaxModel.Status)" HeaderText="Status" Width="100"
+                                        TextAlign="TextAlign.Center">
+                                <Template>
+                                    @{
+                                        var tax = (context as TaxModel);
+                                        <div class="grid-checkbox"
+                                             style="@(tax.Status ? "color: #10b981; background: #d1fae5;" : "color: #dc2626; background: #fee2e2;")">
+                                            @(tax.Status ? "✓" : "✗")
+                                        </div>
+                                    }
+                                </Template>
+                            </GridColumn>
+                        </GridColumns>
+                    </SfGrid>
+                </div>
+            </div>
+        </div>
+
+        <Footer />
+    </div>
+}
+
+<!-- Delete Confirmation Dialog -->
+<DeleteConfirmationDialog @ref="_deleteConfirmationDialog" EntityName="Tax" IdentifierLabel="Tax Code"
+                          IdentifierValue="@_deleteTaxCode" IsPermanentDelete="false" Disabled="@_isProcessing" OnConfirm="ConfirmDelete"
+                          OnCancel="CancelDelete" />
+
+<!-- Recover Confirmation Dialog -->
+<RecoverConfirmationDialog @ref="_recoverConfirmationDialog" EntityName="Tax" IdentifierLabel="Tax Code"
+                           IdentifierValue="@_recoverTaxCode" Disabled="@_isProcessing" OnConfirm="ConfirmRecover" OnCancel="CancelRecover" />
+
+<!-- Toast Notification -->
+<ToastNotification @ref="_toastNotification" />
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    /* Section Card */
+    .section-card {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        margin-bottom: 24px;
+        overflow: hidden;
+    }
+
+    .section-header {
+        padding: 20px 24px;
+        border-bottom: 2px solid #e2e8f0;
+        background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .section-title-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .section-icon {
+        color: #3b82f6;
+        flex-shrink: 0;
+    }
+
+    .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #0f172a;
+        margin: 0;
+        letter-spacing: -0.3px;
+    }
+
+    .section-body {
+        padding: 24px;
+    }
+
+    /* Form Grid */
+    .form-grid-six {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 16px;
+        align-items: start;
+        margin-bottom: 16px;
+    }
+
+    .form-grid-single {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+        align-items: start;
+    }
+
+    .form-field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .field-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #475569;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        margin-bottom: 2px;
+    }
+
+    .required {
+        color: #dc2626;
+        margin-left: 2px;
+    }
+
+    /* Grid Body */
+    .grid-body {
+        padding: 0;
+    }
+
+    .professional-grid {
+        border: none;
+    }
+
+    .grid-checkbox {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+        font-weight: 700;
+        font-size: 14px;
+    }
+
+    /* Dialog Styles */
+    .dialog-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        height: 44px;
+        padding: 0 24px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    }
+
+    .dialog-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+    }
+
+    .dialog-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    }
+
+    .dialog-btn svg {
+        flex-shrink: 0;
+    }
+
+    .dialog-btn-cancel {
+        background: #ffffff;
+        color: #64748b;
+        border: 2px solid #e2e8f0;
+    }
+
+    .dialog-btn-cancel:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+        color: #475569;
+    }
+
+    .dialog-btn-delete {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+    }
+
+    .dialog-btn-delete:hover {
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    }
+
+    .dialog-btn-recover {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+    }
+
+    .dialog-btn-recover:hover {
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 1400px) {
+        .form-grid-six {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @@media (max-width: 1024px) {
+        .form-grid-six {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .form-grid-six {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

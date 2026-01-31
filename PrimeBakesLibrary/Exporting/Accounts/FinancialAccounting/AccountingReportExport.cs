@@ -4,10 +4,10 @@ using PrimeBakesLibrary.Models.Accounts.Masters;
 
 namespace PrimeBakesLibrary.Exporting.Accounts.FinancialAccounting;
 
-public static class AccountingReportExport
+public static class FinancialAccountingReportExport
 {
     public static async Task<(MemoryStream stream, string fileName)> ExportReport(
-        IEnumerable<AccountingOverviewModel> accountingData,
+        IEnumerable<FinancialAccountingOverviewModel> accountingData,
         ReportExportType exportType,
         DateOnly? dateRangeStart = null,
         DateOnly? dateRangeEnd = null,
@@ -17,24 +17,24 @@ public static class AccountingReportExport
     {
         var columnSettings = new Dictionary<string, ReportColumnSetting>
         {
-            [nameof(AccountingOverviewModel.TransactionNo)] = new() { DisplayName = "Trans No", Alignment = CellAlignment.Left, IncludeInTotal = false },
-            [nameof(AccountingOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = CellAlignment.Left, IncludeInTotal = false },
-            [nameof(AccountingOverviewModel.VoucherName)] = new() { DisplayName = "Voucher", Alignment = CellAlignment.Left, IncludeInTotal = false },
-            [nameof(AccountingOverviewModel.ReferenceNo)] = new() { DisplayName = "Ref No", Alignment = CellAlignment.Left, IncludeInTotal = false },
-            [nameof(AccountingOverviewModel.FinancialYear)] = new() { DisplayName = "Financial Year", Alignment = CellAlignment.Left, IncludeInTotal = false },
-            [nameof(AccountingOverviewModel.Remarks)] = new() { DisplayName = "Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
-            [nameof(AccountingOverviewModel.CreatedByName)] = new() { DisplayName = "Created By", Alignment = CellAlignment.Left, IncludeInTotal = false },
-            [nameof(AccountingOverviewModel.CreatedFromPlatform)] = new() { DisplayName = "Created Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
-            [nameof(AccountingOverviewModel.LastModifiedByUserName)] = new() { DisplayName = "Modified By", Alignment = CellAlignment.Left, IncludeInTotal = false },
-            [nameof(AccountingOverviewModel.LastModifiedFromPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
-            [nameof(AccountingOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm tt", Alignment = CellAlignment.Center, IncludeInTotal = false },
-            [nameof(AccountingOverviewModel.CreatedAt)] = new() { DisplayName = "Created At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
-            [nameof(AccountingOverviewModel.LastModifiedAt)] = new() { DisplayName = "Modified At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
-            [nameof(AccountingOverviewModel.TotalDebitLedgers)] = new() { DisplayName = "Debit Ledgers", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = true },
-            [nameof(AccountingOverviewModel.TotalCreditLedgers)] = new() { DisplayName = "Credit Ledgers", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = true },
-            [nameof(AccountingOverviewModel.TotalDebitAmount)] = new() { DisplayName = "Debit", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
-            [nameof(AccountingOverviewModel.TotalCreditAmount)] = new() { DisplayName = "Credit", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
-            [nameof(AccountingOverviewModel.TotalAmount)] = new() { DisplayName = "Amt", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true }
+            [nameof(FinancialAccountingOverviewModel.TransactionNo)] = new() { DisplayName = "Trans No", Alignment = CellAlignment.Left, IncludeInTotal = false },
+            [nameof(FinancialAccountingOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = CellAlignment.Left, IncludeInTotal = false },
+            [nameof(FinancialAccountingOverviewModel.VoucherName)] = new() { DisplayName = "Voucher", Alignment = CellAlignment.Left, IncludeInTotal = false },
+            [nameof(FinancialAccountingOverviewModel.ReferenceNo)] = new() { DisplayName = "Ref No", Alignment = CellAlignment.Left, IncludeInTotal = false },
+            [nameof(FinancialAccountingOverviewModel.FinancialYear)] = new() { DisplayName = "Financial Year", Alignment = CellAlignment.Left, IncludeInTotal = false },
+            [nameof(FinancialAccountingOverviewModel.Remarks)] = new() { DisplayName = "Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
+            [nameof(FinancialAccountingOverviewModel.CreatedByName)] = new() { DisplayName = "Created By", Alignment = CellAlignment.Left, IncludeInTotal = false },
+            [nameof(FinancialAccountingOverviewModel.CreatedFromPlatform)] = new() { DisplayName = "Created Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
+            [nameof(FinancialAccountingOverviewModel.LastModifiedByUserName)] = new() { DisplayName = "Modified By", Alignment = CellAlignment.Left, IncludeInTotal = false },
+            [nameof(FinancialAccountingOverviewModel.LastModifiedFromPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
+            [nameof(FinancialAccountingOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm tt", Alignment = CellAlignment.Center, IncludeInTotal = false },
+            [nameof(FinancialAccountingOverviewModel.CreatedAt)] = new() { DisplayName = "Created At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
+            [nameof(FinancialAccountingOverviewModel.LastModifiedAt)] = new() { DisplayName = "Modified At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
+            [nameof(FinancialAccountingOverviewModel.TotalDebitLedgers)] = new() { DisplayName = "Debit Ledgers", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = true },
+            [nameof(FinancialAccountingOverviewModel.TotalCreditLedgers)] = new() { DisplayName = "Credit Ledgers", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = true },
+            [nameof(FinancialAccountingOverviewModel.TotalDebitAmount)] = new() { DisplayName = "Debit", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
+            [nameof(FinancialAccountingOverviewModel.TotalCreditAmount)] = new() { DisplayName = "Credit", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
+            [nameof(FinancialAccountingOverviewModel.TotalAmount)] = new() { DisplayName = "Amt", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true }
         };
 
         List<string> columnOrder;
@@ -43,42 +43,42 @@ public static class AccountingReportExport
         {
             columnOrder =
             [
-                nameof(AccountingOverviewModel.TransactionNo),
-                nameof(AccountingOverviewModel.TransactionDateTime),
-                nameof(AccountingOverviewModel.CompanyName),
-                nameof(AccountingOverviewModel.VoucherName),
-                nameof(AccountingOverviewModel.ReferenceNo),
-                nameof(AccountingOverviewModel.FinancialYear),
-                nameof(AccountingOverviewModel.TotalDebitLedgers),
-                nameof(AccountingOverviewModel.TotalCreditLedgers),
-                nameof(AccountingOverviewModel.TotalDebitAmount),
-                nameof(AccountingOverviewModel.TotalCreditAmount),
-                nameof(AccountingOverviewModel.TotalAmount),
-                nameof(AccountingOverviewModel.Remarks),
-                nameof(AccountingOverviewModel.CreatedByName),
-                nameof(AccountingOverviewModel.CreatedAt),
-                nameof(AccountingOverviewModel.CreatedFromPlatform),
-                nameof(AccountingOverviewModel.LastModifiedByUserName),
-                nameof(AccountingOverviewModel.LastModifiedAt),
-                nameof(AccountingOverviewModel.LastModifiedFromPlatform)
+                nameof(FinancialAccountingOverviewModel.TransactionNo),
+                nameof(FinancialAccountingOverviewModel.TransactionDateTime),
+                nameof(FinancialAccountingOverviewModel.CompanyName),
+                nameof(FinancialAccountingOverviewModel.VoucherName),
+                nameof(FinancialAccountingOverviewModel.ReferenceNo),
+                nameof(FinancialAccountingOverviewModel.FinancialYear),
+                nameof(FinancialAccountingOverviewModel.TotalDebitLedgers),
+                nameof(FinancialAccountingOverviewModel.TotalCreditLedgers),
+                nameof(FinancialAccountingOverviewModel.TotalDebitAmount),
+                nameof(FinancialAccountingOverviewModel.TotalCreditAmount),
+                nameof(FinancialAccountingOverviewModel.TotalAmount),
+                nameof(FinancialAccountingOverviewModel.Remarks),
+                nameof(FinancialAccountingOverviewModel.CreatedByName),
+                nameof(FinancialAccountingOverviewModel.CreatedAt),
+                nameof(FinancialAccountingOverviewModel.CreatedFromPlatform),
+                nameof(FinancialAccountingOverviewModel.LastModifiedByUserName),
+                nameof(FinancialAccountingOverviewModel.LastModifiedAt),
+                nameof(FinancialAccountingOverviewModel.LastModifiedFromPlatform)
             ];
 
             if (company is not null)
-                columnOrder.Remove(nameof(AccountingOverviewModel.CompanyName));
+                columnOrder.Remove(nameof(FinancialAccountingOverviewModel.CompanyName));
 
             if (voucher is not null)
-                columnOrder.Remove(nameof(AccountingOverviewModel.VoucherName));
+                columnOrder.Remove(nameof(FinancialAccountingOverviewModel.VoucherName));
         }
         else
         {
             columnOrder =
             [
-                nameof(AccountingOverviewModel.TransactionNo),
-                nameof(AccountingOverviewModel.TransactionDateTime),
-                nameof(AccountingOverviewModel.ReferenceNo),
-                nameof(AccountingOverviewModel.TotalDebitAmount),
-                nameof(AccountingOverviewModel.TotalCreditAmount),
-                nameof(AccountingOverviewModel.TotalAmount)
+                nameof(FinancialAccountingOverviewModel.TransactionNo),
+                nameof(FinancialAccountingOverviewModel.TransactionDateTime),
+                nameof(FinancialAccountingOverviewModel.ReferenceNo),
+                nameof(FinancialAccountingOverviewModel.TotalDebitAmount),
+                nameof(FinancialAccountingOverviewModel.TotalCreditAmount),
+                nameof(FinancialAccountingOverviewModel.TotalAmount)
             ];
         }
 
@@ -122,7 +122,7 @@ public static class AccountingReportExport
     }
 
     public static async Task<(MemoryStream stream, string fileName)> ExportLedgerReport(
-        IEnumerable<AccountingLedgerOverviewModel> ledgerData,
+        IEnumerable<FinancialAccountingLedgerOverviewModel> ledgerData,
         ReportExportType exportType,
         DateOnly? dateRangeStart = null,
         DateOnly? dateRangeEnd = null,
@@ -133,21 +133,21 @@ public static class AccountingReportExport
     {
         var columnSettings = new Dictionary<string, ReportColumnSetting>
         {
-            [nameof(AccountingLedgerOverviewModel.LedgerName)] = new() { DisplayName = "Ledger", Alignment = CellAlignment.Left, IncludeInTotal = false },
-            [nameof(AccountingLedgerOverviewModel.LedgerCode)] = new() { DisplayName = "Code", Alignment = CellAlignment.Left, IncludeInTotal = false },
-            [nameof(AccountingLedgerOverviewModel.AccountTypeName)] = new() { DisplayName = "Account Type", Alignment = CellAlignment.Left, IncludeInTotal = false },
-            [nameof(AccountingLedgerOverviewModel.GroupName)] = new() { DisplayName = "Group", Alignment = CellAlignment.Left, IncludeInTotal = false },
-            [nameof(AccountingLedgerOverviewModel.TransactionNo)] = new() { DisplayName = "Trans No", Alignment = CellAlignment.Left, IncludeInTotal = false },
-            [nameof(AccountingLedgerOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = CellAlignment.Left, IncludeInTotal = false },
-            [nameof(AccountingLedgerOverviewModel.ReferenceType)] = new() { DisplayName = "Ref Type", Alignment = CellAlignment.Left, IncludeInTotal = false },
-            [nameof(AccountingLedgerOverviewModel.ReferenceNo)] = new() { DisplayName = "Ref No", Alignment = CellAlignment.Left, IncludeInTotal = false },
-            [nameof(AccountingLedgerOverviewModel.AccountingRemarks)] = new() { DisplayName = "Accounting Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
-            [nameof(AccountingLedgerOverviewModel.Remarks)] = new() { DisplayName = "Ledger Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
-            [nameof(AccountingLedgerOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy", Alignment = CellAlignment.Center, IncludeInTotal = false },
-            [nameof(AccountingLedgerOverviewModel.ReferenceDateTime)] = new() { DisplayName = "Ref Date", Format = "dd-MMM-yyyy hh:mm tt", Alignment = CellAlignment.Center, IncludeInTotal = false },
-            [nameof(AccountingLedgerOverviewModel.Debit)] = new() { DisplayName = "Debit", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
-            [nameof(AccountingLedgerOverviewModel.Credit)] = new() { DisplayName = "Credit", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
-            [nameof(AccountingLedgerOverviewModel.ReferenceAmount)] = new() { DisplayName = "Ref Amt", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true }
+            [nameof(FinancialAccountingLedgerOverviewModel.LedgerName)] = new() { DisplayName = "Ledger", Alignment = CellAlignment.Left, IncludeInTotal = false },
+            [nameof(FinancialAccountingLedgerOverviewModel.LedgerCode)] = new() { DisplayName = "Code", Alignment = CellAlignment.Left, IncludeInTotal = false },
+            [nameof(FinancialAccountingLedgerOverviewModel.AccountTypeName)] = new() { DisplayName = "Account Type", Alignment = CellAlignment.Left, IncludeInTotal = false },
+            [nameof(FinancialAccountingLedgerOverviewModel.GroupName)] = new() { DisplayName = "Group", Alignment = CellAlignment.Left, IncludeInTotal = false },
+            [nameof(FinancialAccountingLedgerOverviewModel.TransactionNo)] = new() { DisplayName = "Trans No", Alignment = CellAlignment.Left, IncludeInTotal = false },
+            [nameof(FinancialAccountingLedgerOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = CellAlignment.Left, IncludeInTotal = false },
+            [nameof(FinancialAccountingLedgerOverviewModel.ReferenceType)] = new() { DisplayName = "Ref Type", Alignment = CellAlignment.Left, IncludeInTotal = false },
+            [nameof(FinancialAccountingLedgerOverviewModel.ReferenceNo)] = new() { DisplayName = "Ref No", Alignment = CellAlignment.Left, IncludeInTotal = false },
+            [nameof(FinancialAccountingLedgerOverviewModel.AccountingRemarks)] = new() { DisplayName = "Accounting Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
+            [nameof(FinancialAccountingLedgerOverviewModel.Remarks)] = new() { DisplayName = "Ledger Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
+            [nameof(FinancialAccountingLedgerOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy", Alignment = CellAlignment.Center, IncludeInTotal = false },
+            [nameof(FinancialAccountingLedgerOverviewModel.ReferenceDateTime)] = new() { DisplayName = "Ref Date", Format = "dd-MMM-yyyy hh:mm tt", Alignment = CellAlignment.Center, IncludeInTotal = false },
+            [nameof(FinancialAccountingLedgerOverviewModel.Debit)] = new() { DisplayName = "Debit", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
+            [nameof(FinancialAccountingLedgerOverviewModel.Credit)] = new() { DisplayName = "Credit", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
+            [nameof(FinancialAccountingLedgerOverviewModel.ReferenceAmount)] = new() { DisplayName = "Ref Amt", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true }
         };
 
         List<string> columnOrder;
@@ -156,42 +156,42 @@ public static class AccountingReportExport
         {
             columnOrder =
             [
-                nameof(AccountingLedgerOverviewModel.LedgerName),
-                nameof(AccountingLedgerOverviewModel.AccountTypeName),
-                nameof(AccountingLedgerOverviewModel.GroupName),
-                nameof(AccountingLedgerOverviewModel.CompanyName),
-                nameof(AccountingLedgerOverviewModel.TransactionNo),
-                nameof(AccountingLedgerOverviewModel.TransactionDateTime),
-                nameof(AccountingLedgerOverviewModel.ReferenceType),
-                nameof(AccountingLedgerOverviewModel.ReferenceNo),
-                nameof(AccountingLedgerOverviewModel.ReferenceDateTime),
-                nameof(AccountingLedgerOverviewModel.ReferenceAmount),
-                nameof(AccountingLedgerOverviewModel.Debit),
-                nameof(AccountingLedgerOverviewModel.Credit),
-                nameof(AccountingLedgerOverviewModel.AccountingRemarks),
-                nameof(AccountingLedgerOverviewModel.Remarks)
+                nameof(FinancialAccountingLedgerOverviewModel.LedgerName),
+                nameof(FinancialAccountingLedgerOverviewModel.AccountTypeName),
+                nameof(FinancialAccountingLedgerOverviewModel.GroupName),
+                nameof(FinancialAccountingLedgerOverviewModel.CompanyName),
+                nameof(FinancialAccountingLedgerOverviewModel.TransactionNo),
+                nameof(FinancialAccountingLedgerOverviewModel.TransactionDateTime),
+                nameof(FinancialAccountingLedgerOverviewModel.ReferenceType),
+                nameof(FinancialAccountingLedgerOverviewModel.ReferenceNo),
+                nameof(FinancialAccountingLedgerOverviewModel.ReferenceDateTime),
+                nameof(FinancialAccountingLedgerOverviewModel.ReferenceAmount),
+                nameof(FinancialAccountingLedgerOverviewModel.Debit),
+                nameof(FinancialAccountingLedgerOverviewModel.Credit),
+                nameof(FinancialAccountingLedgerOverviewModel.AccountingRemarks),
+                nameof(FinancialAccountingLedgerOverviewModel.Remarks)
             ];
 
             if (ledger is not null)
-                columnOrder.Remove(nameof(AccountingLedgerOverviewModel.LedgerName));
+                columnOrder.Remove(nameof(FinancialAccountingLedgerOverviewModel.LedgerName));
 
             if (company is not null)
-                columnOrder.Remove(nameof(AccountingLedgerOverviewModel.CompanyName));
+                columnOrder.Remove(nameof(FinancialAccountingLedgerOverviewModel.CompanyName));
         }
         else
         {
             columnOrder =
             [
-                nameof(AccountingLedgerOverviewModel.LedgerName),
-                nameof(AccountingLedgerOverviewModel.TransactionNo),
-                nameof(AccountingLedgerOverviewModel.TransactionDateTime),
-                nameof(AccountingLedgerOverviewModel.ReferenceNo),
-                nameof(AccountingLedgerOverviewModel.Debit),
-                nameof(AccountingLedgerOverviewModel.Credit)
+                nameof(FinancialAccountingLedgerOverviewModel.LedgerName),
+                nameof(FinancialAccountingLedgerOverviewModel.TransactionNo),
+                nameof(FinancialAccountingLedgerOverviewModel.TransactionDateTime),
+                nameof(FinancialAccountingLedgerOverviewModel.ReferenceNo),
+                nameof(FinancialAccountingLedgerOverviewModel.Debit),
+                nameof(FinancialAccountingLedgerOverviewModel.Credit)
             ];
 
             if (ledger is not null)
-                columnOrder.Remove(nameof(AccountingLedgerOverviewModel.LedgerName));
+                columnOrder.Remove(nameof(FinancialAccountingLedgerOverviewModel.LedgerName));
         }
 
         Dictionary<string, string> customSummaryFields = null;

@@ -2,11 +2,11 @@ using PrimeBakes.Shared.Components.Dialog;
 
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Inventory;
-using PrimeBakesLibrary.Data.Sales.Masters;
+using PrimeBakesLibrary.Data.Store.Product;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Models.Inventory;
 using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Sales.Masters;
+using PrimeBakesLibrary.Models.Store.Product;
 
 using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;
@@ -62,7 +62,7 @@ public partial class RecipePage : IAsyncDisposable
 
         try
         {
-            _products = await ProductData.LoadProductByLocation(1);
+            _products = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: 1);
             _rawMaterials = await CommonData.LoadTableData<RawMaterialModel>(TableNames.RawMaterial);
         }
         catch (Exception ex)

@@ -13,9 +13,9 @@ BEGIN
 			SUM(ISNULL(ad.Debit, 0)) AS OpeningDebit,
 			SUM(ISNULL(ad.Credit, 0)) AS OpeningCredit
 		FROM 
-			AccountingDetail ad
+			[FinancialAccountingDetail] ad
 		INNER JOIN 
-			Accounting a ON ad.[MasterId] = a.Id
+			[FinancialAccounting] a ON ad.[MasterId] = a.Id
 		WHERE 
 			(@CompanyId = 0 OR a.CompanyId = @CompanyId)
 			AND a.TransactionDateTime < @StartDate
@@ -31,9 +31,9 @@ BEGIN
 			SUM(ISNULL(ad.Debit, 0)) AS PeriodDebit,
 			SUM(ISNULL(ad.Credit, 0)) AS PeriodCredit
 		FROM 
-			AccountingDetail ad
+			[FinancialAccountingDetail] ad
 		INNER JOIN 
-			Accounting a ON ad.[MasterId] = a.Id
+			[FinancialAccounting] a ON ad.[MasterId] = a.Id
 		WHERE
 			(@CompanyId = 0 OR a.CompanyId = @CompanyId)
 			AND a.TransactionDateTime >= @StartDate
