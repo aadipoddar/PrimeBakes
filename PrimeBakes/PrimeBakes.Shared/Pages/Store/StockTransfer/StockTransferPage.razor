@@ -1,5 +1,5 @@
-﻿@page "/sales/stock-transfer"
-@page "/sales/stock-transfer/{Id:int}"
+﻿@attribute [Route(PageRouteNames.StockTransfer)]
+@attribute [Route(PageRouteNames.StockTransfer + "/{Id:int}")]
 
 @using PrimeBakesLibrary.Models.Accounts.Masters
 @using PrimeBakesLibrary.Models.Operations

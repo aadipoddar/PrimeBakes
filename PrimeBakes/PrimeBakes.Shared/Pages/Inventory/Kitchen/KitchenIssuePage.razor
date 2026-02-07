@@ -1,5 +1,5 @@
-@page "/inventory/kitchen-issue"
-@page "/inventory/kitchen-issue/{Id:int}"
+@attribute [Route(PageRouteNames.KitchenIssue)]
+@attribute [Route(PageRouteNames.KitchenIssue + "/{Id:int}")]
 
 @using PrimeBakesLibrary.Models.Accounts.Masters
 @using PrimeBakesLibrary.Models.Operations

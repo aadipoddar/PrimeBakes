@@ -1,5 +1,5 @@
-@page "/inventory/purchase"
-@page "/inventory/purchase/{Id:int}"
+@attribute [Route(PageRouteNames.Purchase)]
+@attribute [Route(PageRouteNames.Purchase + "/{Id:int}")]
 
 @using PrimeBakesLibrary.Models.Accounts.Masters
 @using PrimeBakesLibrary.Models.Operations

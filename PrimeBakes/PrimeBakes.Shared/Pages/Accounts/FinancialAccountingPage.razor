@@ -1,5 +1,5 @@
-﻿@page "/accounts/financial-accounting"
-@page "/accounts/financial-accounting/{Id:int}"
+﻿@attribute [Route(PageRouteNames.FinancialAccounting)]
+@attribute [Route(PageRouteNames.FinancialAccounting + "/{Id:int}")]
 
 @using PrimeBakesLibrary.Models.Accounts.FinancialAccounting
 @using PrimeBakesLibrary.Models.Accounts.Masters
