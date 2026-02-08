@@ -789,10 +789,8 @@ public partial class FinancialAccountingPage : IAsyncDisposable
         {
             _isProcessing = true;
             await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
-
             var (pdfStream, fileName) = await FinancialAccountingInvoiceExport.ExportInvoice(Id.Value, InvoiceExportType.PDF);
             await SaveAndViewService.SaveAndView(fileName, pdfStream);
-
             await _toastNotification.ShowAsync("Invoice Downloaded", "The PDF invoice has been downloaded successfully.", ToastType.Success);
         }
         catch (Exception ex)
@@ -820,10 +818,8 @@ public partial class FinancialAccountingPage : IAsyncDisposable
         {
             _isProcessing = true;
             await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
-
             var (excelStream, fileName) = await FinancialAccountingInvoiceExport.ExportInvoice(Id.Value, InvoiceExportType.Excel);
             await SaveAndViewService.SaveAndView(fileName, excelStream);
-
             await _toastNotification.ShowAsync("Invoice Downloaded", "The Excel invoice has been downloaded successfully.", ToastType.Success);
         }
         catch (Exception ex)

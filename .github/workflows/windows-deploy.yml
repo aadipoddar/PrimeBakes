@@ -1,0 +1,95 @@
+name: Deploy for Windows
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  version-check:
+    uses: ./.github/workflows/version-checks.yml
+
+  build:
+    runs-on: windows-latest
+    needs: version-check
+    if: needs.version-check.outputs.should-deploy == 'true'
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET 10.0
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.0.x
+    
+    - name: Install .NET MAUI Workload
+      run: dotnet workload install maui --skip-sign-check
+    
+    - name: Create Secrets.local_secrets.cs
+      run: |
+        $secretsContent = @"
+        namespace PrimeBakesLibrary.DataAccess;
+
+        public static partial class Secrets
+        {
+            static Secrets()
+            {
+                AzureConnectionString = "${{ secrets.AzureConnectionString }}";
+
+                AzureBlobStorageConnectionString = "${{ secrets.AzureBlobStorageConnectionString }}";
+                AzureBlobStorageAccountKey = "${{ secrets.AzureBlobStorageAccountKey }}";
+
+                NotificationAPIKey = "${{ secrets.NotificationAPIKey }}";
+                NotificationBackendServiceEndpoint = "${{ secrets.NotificationBackendServiceEndpoint }}";
+
+                SyncfusionLicense = "${{ secrets.SyncfusionLicense }}";
+
+                EmailPassword = "${{ secrets.EmailPassword }}";
+                ToEmail = "${{ secrets.ToEmail }}";
+            }
+        }
+        "@
+        Set-Content -Path "PrimeBakesLibrary/DataAccess/Secrets.local_secrets.cs" -Value $secretsContent
+    
+    - name: Restore dependencies
+      run: dotnet restore PrimeBakes/PrimeBakes/PrimeBakes.csproj
+    
+    - name: Publish Windows MAUI App
+      run: dotnet publish PrimeBakes/PrimeBakes/PrimeBakes.csproj -f net10.0-windows10.0.19041.0 -c Release -p:WindowsPackageType=None -o PrimeBakes/PrimeBakes/publish/windows
+    
+    - name: Create Zip Archive
+      run: Compress-Archive -Path "PrimeBakes/PrimeBakes/publish/windows/*" -DestinationPath "PrimeBakes.zip" -Force
+    
+    - name: Upload Windows Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: windows-release
+        path: PrimeBakes.zip
+
+  deploy:
+    runs-on: windows-latest
+    needs: [version-check, build]
+    if: needs.version-check.outputs.should-deploy == 'true'
+    permissions:
+      contents: write
+
+    steps:
+    - name: Download artifact from build job
+      uses: actions/download-artifact@v4
+      with:
+        name: windows-release
+    
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ needs.version-check.outputs.current-version }}
+        name: ${{ github.event.head_commit.message }}
+        files: PrimeBakes.zip
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Deployment Summary
+      run: |
+        echo "🚀 Successfully deployed PrimeBakes Windows version ${{ needs.version-check.outputs.current-version }} to GitHub Releases"

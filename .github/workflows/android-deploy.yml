@@ -1,0 +1,120 @@
+name: Deploy for Android
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  version-check:
+    uses: ./.github/workflows/version-checks.yml
+
+  build:
+    runs-on: windows-latest
+    needs: version-check
+    if: needs.version-check.outputs.should-deploy == 'true'
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET 10.0
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.0.x
+    
+    - name: Install .NET MAUI Workload
+      run: dotnet workload install maui --skip-sign-check
+    
+    - name: Create Secrets.local_secrets.cs
+      run: |
+        $secretsContent = @"
+        namespace PrimeBakesLibrary.DataAccess;
+
+        public static partial class Secrets
+        {
+            static Secrets()
+            {
+                AzureConnectionString = "${{ secrets.AzureConnectionString }}";
+
+                AzureBlobStorageConnectionString = "${{ secrets.AzureBlobStorageConnectionString }}";
+                AzureBlobStorageAccountKey = "${{ secrets.AzureBlobStorageAccountKey }}";
+
+                NotificationAPIKey = "${{ secrets.NotificationAPIKey }}";
+                NotificationBackendServiceEndpoint = "${{ secrets.NotificationBackendServiceEndpoint }}";
+
+                SyncfusionLicense = "${{ secrets.SyncfusionLicense }}";
+
+                EmailPassword = "${{ secrets.EmailPassword }}";
+                ToEmail = "${{ secrets.ToEmail }}";
+            }
+        }
+        "@
+        Set-Content -Path "PrimeBakesLibrary/DataAccess/Secrets.local_secrets.cs" -Value $secretsContent
+    
+    - name: Setup Keystore
+      run: |
+        # Decode base64 keystore and save it
+        $keystoreBase64 = "${{ secrets.ANDROID_KEYSTORE_BASE64 }}"
+        $keystoreBytes = [System.Convert]::FromBase64String($keystoreBase64)
+        $keystorePath = "PrimeBakes/PrimeBakes/primebakes.keystore"
+        [System.IO.File]::WriteAllBytes($keystorePath, $keystoreBytes)
+        echo "Keystore created at: $keystorePath"
+    
+    - name: Restore dependencies
+      run: dotnet restore PrimeBakes/PrimeBakes/PrimeBakes.csproj
+    
+    - name: Build Signed Android APK
+      run: |
+        dotnet publish PrimeBakes/PrimeBakes/PrimeBakes.csproj `
+          -f net10.0-android `
+          -c Release `
+          -p:AndroidPackageFormat=apk `
+          -p:AndroidKeyStore=true `
+          -p:AndroidSigningKeyStore=primebakes.keystore `
+          -p:AndroidSigningKeyAlias=primebakes `
+          -p:AndroidSigningKeyPass="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" `
+          -p:AndroidSigningStorePass="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" `
+          -o PrimeBakes/PrimeBakes/publish/android
+    
+    - name: Find and Rename APK
+      id: find-apk
+      run: |
+        $apkPath = Get-ChildItem -Path "PrimeBakes/PrimeBakes/publish/android" -Filter "*.apk" -Recurse | Select-Object -First 1 -ExpandProperty FullName
+        echo "APK found at: $apkPath"
+        
+        # Rename to match UpdateManager expectations: PrimeBakes.apk
+        Copy-Item $apkPath -Destination "PrimeBakes.apk"
+        echo "APK renamed to: PrimeBakes.apk"
+    
+    - name: Upload Android Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: android-release
+        path: PrimeBakes.apk
+
+  deploy:
+    runs-on: windows-latest
+    needs: [version-check, build]
+    if: needs.version-check.outputs.should-deploy == 'true'
+    permissions:
+      contents: write
+
+    steps:
+    - name: Download artifact from build job
+      uses: actions/download-artifact@v4
+      with:
+        name: android-release
+    
+    - name: Upload APK to Existing Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ needs.version-check.outputs.current-version }}
+        files: PrimeBakes.apk
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Deployment Summary
+      run: |
+        echo "🚀 Successfully deployed PrimeBakes Android APK to release ${{ needs.version-check.outputs.current-version }}"

@@ -109,7 +109,6 @@ This application **ALWAYS** uses Syncfusion Blazor components. When writing C# c
 - Implement proper project references and NuGet package management
 - Structure multi-project solutions (like Shared, Web, MAUI)
 - Separate shared code into reusable class libraries
-- Implement proper configuration using appsettings.json and user secrets
 
 ## Nullable Reference Types
 

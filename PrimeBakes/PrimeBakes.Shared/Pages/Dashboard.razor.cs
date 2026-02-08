@@ -60,9 +60,7 @@ public partial class Dashboard : IDisposable
             InvokeAsync(StateHasChanged);
         });
 
-        // Use appropriate file name based on platform
-        var setupFileName = Factor.Contains("Desktop") ? "PrimeBakes" : "com.aadisoft.primebakes";
-        await UpdateService.UpdateAppAsync("aadipoddar", "PrimeBakes", setupFileName, progress);
+        await UpdateService.UpdateAppAsync("aadipoddar", "PrimeBakes", "PrimeBakes", progress);
 
         _isUpdating = false;
         StateHasChanged();

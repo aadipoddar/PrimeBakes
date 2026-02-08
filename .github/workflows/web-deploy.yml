@@ -1,0 +1,104 @@
+name: Deploy to Azure Web App
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  version-check:
+    uses: ./.github/workflows/version-checks.yml
+
+  build:
+    runs-on: ubuntu-latest
+    needs: version-check
+    if: needs.version-check.outputs.should-deploy == 'true'
+    permissions:
+      contents: read #This is required for actions/checkout
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Restore PrimeBakesLibrary
+        run: dotnet restore PrimeBakesLibrary/PrimeBakesLibrary.csproj
+
+      - name: Restore PrimeBakes.Shared
+        run: dotnet restore PrimeBakes/PrimeBakes.Shared/PrimeBakes.Shared.csproj
+
+      - name: Restore PrimeBakes.Web
+        run: dotnet restore PrimeBakes/PrimeBakes.Web/PrimeBakes.Web.csproj
+
+      - name: Create Secrets.local_secrets.cs
+        run: |
+          $secretsContent = @"
+          namespace PrimeBakesLibrary.DataAccess;
+
+          public static partial class Secrets
+          {
+              static Secrets()
+              {
+                  AzureConnectionString = "${{ secrets.AzureConnectionString }}";
+
+                  AzureBlobStorageConnectionString = "${{ secrets.AzureBlobStorageConnectionString }}";
+                  AzureBlobStorageAccountKey = "${{ secrets.AzureBlobStorageAccountKey }}";
+
+                  NotificationAPIKey = "${{ secrets.NotificationAPIKey }}";
+                  NotificationBackendServiceEndpoint = "${{ secrets.NotificationBackendServiceEndpoint }}";
+
+                  SyncfusionLicense = "${{ secrets.SyncfusionLicense }}";
+
+                  EmailPassword = "${{ secrets.EmailPassword }}";
+                  ToEmail = "${{ secrets.ToEmail }}";
+              }
+          }
+          "@
+          Set-Content -Path "PrimeBakesLibrary/DataAccess/Secrets.local_secrets.cs" -Value $secretsContent
+        shell: pwsh
+
+      - name: Build PrimeBakesLibrary
+        run: dotnet build PrimeBakesLibrary/PrimeBakesLibrary.csproj --configuration Release --no-restore
+
+      - name: Build PrimeBakes.Shared
+        run: dotnet build PrimeBakes/PrimeBakes.Shared/PrimeBakes.Shared.csproj --configuration Release --no-restore
+
+      - name: Build PrimeBakes.Web
+        run: dotnet build PrimeBakes/PrimeBakes.Web/PrimeBakes.Web.csproj --configuration Release --no-restore
+
+      - name: Publish PrimeBakes.Web
+        run: dotnet publish PrimeBakes/PrimeBakes.Web/PrimeBakes.Web.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp --no-build
+
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v4
+        with:
+          name: .net-app
+          path: ${{env.DOTNET_ROOT}}/myapp
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [version-check, build]
+    if: needs.version-check.outputs.should-deploy == 'true'
+    
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: .net-app
+      
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'primebakes'
+          slot-name: 'Production'
+          package: .
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
+      
+      - name: Deployment Summary
+        run: |
+          echo "🚀 Successfully deployed PrimeBakes version ${{ needs.version-check.outputs.current-version }} to Azure"
