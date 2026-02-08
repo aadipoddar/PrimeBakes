@@ -13,7 +13,6 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.0.8.0-blue?style=for-the-badge" alt="Version"/>
   <img src="https://img.shields.io/badge/.NET-10.0-purple?style=for-the-badge&logo=dotnet" alt=".NET"/>
   <img src="https://img.shields.io/badge/Blazor-Hybrid-blueviolet?style=for-the-badge&logo=blazor" alt="Blazor"/>
   <img src="https://img.shields.io/badge/MAUI-Cross_Platform-green?style=for-the-badge&logo=xamarin" alt="MAUI"/>
@@ -485,4 +484,4 @@ This project is proprietary software developed for **Salasar Foods Guwahati**.
 
 ---
 
-Latest Version = 1.0.8.4
+Latest Version = 1.0.8.5

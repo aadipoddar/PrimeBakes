@@ -97,7 +97,7 @@ jobs:
           app-name: 'primebakes'
           slot-name: 'Production'
           package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_D525FE5266A146ABBF61427609BA447D }}
       
       - name: Deployment Summary
         run: |
