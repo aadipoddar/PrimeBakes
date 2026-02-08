@@ -71,7 +71,7 @@ jobs:
           -p:AndroidPackageFormat=apk `
           -p:AndroidKeyStore=true `
           -p:AndroidSigningKeyStore=primebakes.keystore `
-          -p:AndroidSigningKeyAlias=primebakes `
+          -p:AndroidSigningKeyAlias=prime bakes `
           -p:AndroidSigningKeyPass="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" `
           -p:AndroidSigningStorePass="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" `
           -o PrimeBakes/PrimeBakes/publish/android
