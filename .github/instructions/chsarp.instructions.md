@@ -22,7 +22,7 @@ This application **ALWAYS** uses Syncfusion Blazor components. When writing C# c
 
 - **Syncfusion Documentation**: https://blazor.syncfusion.com/documentation/introduction
 - **Syncfusion API Reference**: https://help.syncfusion.com/cr/blazor/Syncfusion.Blazor.html
-- Ensure compatibility with Syncfusion.Blazor v32.1.25+ and .NET 10.0
+- Ensure compatibility with Syncfusion.Blazor latest version and .NET latest version
 - Use strongly-typed Syncfusion component properties and events
 - Implement data models that work efficiently with Syncfusion Grid's data binding
 - Handle Syncfusion component events (OnChange, OnActionComplete, etc.) properly
@@ -30,7 +30,7 @@ This application **ALWAYS** uses Syncfusion Blazor components. When writing C# c
 
 ## C# Version and Language Features
 
-- Always use the latest C# version, currently **C# 14** features:
+- Always use the latest C# version and features:
   - Primary constructors for classes and structs
   - Collection expressions: `[]`, `[.. items]`
   - Inline arrays and improved pattern matching
@@ -62,8 +62,7 @@ This application **ALWAYS** uses Syncfusion Blazor components. When writing C# c
 
 **CRITICAL**: Always build the project and fix all errors after making changes:
 
-- After creating or modifying any C# files, **ALWAYS** build the project to verify compilation
-- Use `dotnet build` for individual projects or `dotnet build PrimeBakes.slnx` for the entire solution
+- After creating or modifying any C# files, **ALWAYS** build the project and solution to verify compilation
 - Check for and resolve ALL compilation errors, warnings, and code analysis issues
 - Use the editor's error diagnostics to identify and fix issues
 - Never leave code in a non-compiling state
@@ -101,14 +100,14 @@ This application **ALWAYS** uses Syncfusion Blazor components. When writing C# c
 
 ## Project Setup and Structure
 
-- Guide users through creating new .NET 10.0 projects with appropriate templates
+- Guide users through creating new .NET projects with appropriate templates
 - Explain the purpose of each generated file and folder to build understanding
 - Demonstrate how to organize code using feature folders or domain-driven design principles
 - Show proper separation of concerns with models, services, and data access layers
-- Explain the Program.cs and configuration system in ASP.NET Core 10 including environment-specific settings
-- Use minimal hosting model in .NET 10 with top-level statements
+- Explain the Program.cs and configuration system in ASP.NET Core including environment-specific settings
+- Use minimal hosting model in .NET with top-level statements
 - Implement proper project references and NuGet package management
-- Structure multi-project solutions (like PrimeBakes.Shared, PrimeBakes.Web, PrimeBakes MAUI)
+- Structure multi-project solutions (like Shared, Web, MAUI)
 - Separate shared code into reusable class libraries
 - Implement proper configuration using appsettings.json and user secrets
 
@@ -162,19 +161,6 @@ This application **ALWAYS** uses Syncfusion Blazor components. When writing C# c
 - Explain versioning in both controller-based and Minimal APIs
 - Guide users on creating meaningful API documentation that helps consumers
 
-## Logging and Monitoring
-
-- Guide the implementation of structured logging using ILogger<T> with dependency injection
-- Explain the logging levels and when to use each (Trace, Debug, Information, Warning, Error, Critical)
-- Demonstrate integration with Application Insights or Azure Monitor for telemetry collection
-- Show how to implement custom telemetry and correlation IDs for request tracking
-- Explain how to monitor application performance, errors, and usage patterns
-- Use log scopes for grouping related log entries
-- Implement proper log message templates for structured logging
-- Avoid logging sensitive data (passwords, tokens, PII)
-- Configure different logging providers for different environments
-- Use Azure Application Insights SDK for cloud-native monitoring
-
 ## Performance Optimization
 
 - Guide users on implementing caching strategies (in-memory, distributed, response caching)
@@ -196,7 +182,7 @@ This application **ALWAYS** uses Syncfusion Blazor components. When writing C# c
 
 - Guide users through containerizing applications using .NET's built-in container support:
   - `dotnet publish --os linux --arch x64 -p:PublishProfile=DefaultContainer`
-- Explain CI/CD pipelines for .NET 10 applications (GitHub Actions, Azure DevOps)
+- Explain CI/CD pipelines for .NET applications (GitHub Actions, Azure DevOps)
 - Demonstrate deployment to:
   - Azure App Service (Blazor Server/Web)
   - Azure Container Apps
@@ -226,9 +212,7 @@ This application **ALWAYS** uses Syncfusion Blazor components. When writing C# c
 
 ## Security Best Practices
 
-- Implement proper authentication and authorization using ASP.NET Core Identity or Azure AD B2C
 - Use HTTPS everywhere and enforce it in production
-- Store secrets in Azure Key Vault or user secrets during development
 - Implement proper CORS policies for API access
 - Use secure headers middleware
 - Validate and sanitize all user inputs

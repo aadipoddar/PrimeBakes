@@ -21,7 +21,7 @@ This application **ALWAYS** uses Syncfusion components. When implementing UI fea
 
 - **Primary Reference**: https://blazor.syncfusion.com/documentation/introduction
 - **API Reference**: https://help.syncfusion.com/cr/blazor/Syncfusion.Blazor.html
-- Ensure Syncfusion version matches project dependencies (currently using Syncfusion.Blazor v32.1.25 with .NET 10.0)
+- Ensure Syncfusion version matches project dependencies
 - Use Syncfusion components instead of native HTML elements for grids, calendars, dropdowns, inputs, buttons, notifications, and popups
 - Always include proper Syncfusion namespaces: `@using Syncfusion.Blazor.*`
 - Reference Syncfusion themes from `Syncfusion.Blazor.Themes` package
@@ -32,19 +32,18 @@ This application **ALWAYS** uses Syncfusion components. When implementing UI fea
 
 ## Blazor Code Style and Structure
 
-- Write idiomatic and efficient Blazor and C# code following .NET 10 conventions
+- Write idiomatic and efficient Blazor and C# code following .NET conventions
 - Follow .NET and Blazor best practices from official Microsoft documentation
 - Use Razor Components appropriately for component-based UI development
 - Prefer inline functions for smaller components but separate complex logic into code-behind or service classes
 - Async/await should be used where applicable to ensure non-blocking UI operations
-- Use file-scoped namespaces and modern C# 14 features
+- Use file-scoped namespaces and modern C# features
 
 ## Build and Error Resolution
 
 **CRITICAL**: Always build the project and fix all errors after making changes:
 
 - After creating or modifying any Blazor components or C# files, **ALWAYS** build the project
-- Use `dotnet build` for the specific project or `dotnet build PrimeBakes.slnx` for the entire solution
 - Verify there are no compilation errors, warnings, or Razor component errors
 - Check the Problems panel in the editor for all diagnostics
 - Never leave the project in a non-compiling state
