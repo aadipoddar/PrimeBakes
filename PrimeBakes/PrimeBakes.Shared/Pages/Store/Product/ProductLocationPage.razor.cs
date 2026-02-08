@@ -381,10 +381,10 @@ public partial class ProductLocationPage : IAsyncDisposable
     }
 
     private void ResetPage() =>
-         NavigationManager.NavigateTo(PageRouteNames.AdminProductLocation, true);
+         NavigationManager.NavigateTo(PageRouteNames.ProductLocation, true);
 
     private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.SalesDashboard);
+        NavigationManager.NavigateTo(PageRouteNames.StoreDashboard);
 
     private void NavigateToDashboard() =>
         NavigationManager.NavigateTo(PageRouteNames.Dashboard);

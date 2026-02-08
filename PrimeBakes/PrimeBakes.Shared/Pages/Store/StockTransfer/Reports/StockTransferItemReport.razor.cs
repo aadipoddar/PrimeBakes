@@ -413,16 +413,16 @@ public partial class StockTransferItemReport : IAsyncDisposable
     private async Task NavigateToTransactionHistory()
     {
         if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportStockTransfer, "_blank");
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.StockTransferReport, "_blank");
         else
-            NavigationManager.NavigateTo(PageRouteNames.ReportStockTransfer);
+            NavigationManager.NavigateTo(PageRouteNames.StockTransferReport);
     }
 
     private void NavigateToDashboard() =>
         NavigationManager.NavigateTo(PageRouteNames.Dashboard);
 
     private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.SalesDashboard);
+        NavigationManager.NavigateTo(PageRouteNames.StoreDashboard);
 
     private async Task Logout() =>
         await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);

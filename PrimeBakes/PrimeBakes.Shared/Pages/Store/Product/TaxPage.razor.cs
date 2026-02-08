@@ -121,7 +121,7 @@ public partial class TaxPage : IAsyncDisposable
             await TaxData.InsertTax(tax);
 
             await _toastNotification.ShowAsync("Deleted", $"Tax '{tax.Code}' has been deleted successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminTax, true);
+            NavigationManager.NavigateTo(PageRouteNames.Tax, true);
         }
         catch (Exception ex)
         {
@@ -174,7 +174,7 @@ public partial class TaxPage : IAsyncDisposable
             await TaxData.InsertTax(tax);
 
             await _toastNotification.ShowAsync("Recovered", $"Tax '{tax.Code}' has been recovered successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminTax, true);
+            NavigationManager.NavigateTo(PageRouteNames.Tax, true);
         }
         catch (Exception ex)
         {
@@ -275,7 +275,7 @@ public partial class TaxPage : IAsyncDisposable
             await TaxData.InsertTax(_tax);
 
             await _toastNotification.ShowAsync("Saved", $"Tax '{_tax.Code}' has been saved successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminTax, true);
+            NavigationManager.NavigateTo(PageRouteNames.Tax, true);
         }
         catch (Exception ex)
         {
@@ -365,10 +365,10 @@ public partial class TaxPage : IAsyncDisposable
     }
 
     private void ResetPage() =>
-        NavigationManager.NavigateTo(PageRouteNames.AdminTax, true);
+        NavigationManager.NavigateTo(PageRouteNames.Tax, true);
 
     private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.SalesDashboard);
+        NavigationManager.NavigateTo(PageRouteNames.StoreDashboard);
 
     private void NavigateToDashboard() =>
         NavigationManager.NavigateTo(PageRouteNames.Dashboard);

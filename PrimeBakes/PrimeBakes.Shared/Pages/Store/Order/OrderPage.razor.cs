@@ -291,9 +291,9 @@ public partial class OrderPage : IAsyncDisposable
         if (args.Value.Id == 0)
         {
             if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.AdminLocation, "_blank");
+                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Location, "_blank");
             else
-                NavigationManager.NavigateTo(PageRouteNames.AdminLocation);
+                NavigationManager.NavigateTo(PageRouteNames.Location);
 
             return;
         }
@@ -322,9 +322,9 @@ public partial class OrderPage : IAsyncDisposable
         if (args.Value.Id == 0)
         {
             if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.AdminCompany, "_blank");
+                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.CompanyMaster, "_blank");
             else
-                NavigationManager.NavigateTo(PageRouteNames.AdminCompany);
+                NavigationManager.NavigateTo(PageRouteNames.CompanyMaster);
 
             return;
         }
@@ -359,9 +359,9 @@ public partial class OrderPage : IAsyncDisposable
         if (args.Value.Id == 0)
         {
             if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.AdminProduct, "_blank");
+                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Product, "_blank");
             else
-                NavigationManager.NavigateTo(PageRouteNames.AdminProduct);
+                NavigationManager.NavigateTo(PageRouteNames.Product);
 
             return;
         }
@@ -782,9 +782,9 @@ public partial class OrderPage : IAsyncDisposable
     private async Task NavigateToTransactionHistoryPage()
     {
         if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportOrder, "_blank");
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.OrderReport, "_blank");
         else
-            NavigationManager.NavigateTo(PageRouteNames.ReportOrder);
+            NavigationManager.NavigateTo(PageRouteNames.OrderReport);
     }
 
     private async Task NavigateToItemReport()
@@ -877,7 +877,7 @@ public partial class OrderPage : IAsyncDisposable
         NavigationManager.NavigateTo(PageRouteNames.Dashboard);
 
     private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.SalesDashboard);
+        NavigationManager.NavigateTo(PageRouteNames.StoreDashboard);
 
     private async Task Logout() =>
         await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);

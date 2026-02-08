@@ -134,7 +134,7 @@ public partial class LedgerPage : IAsyncDisposable
             await LedgerData.InsertLedger(ledger);
 
             await _toastNotification.ShowAsync("Success", $"Ledger '{ledger.Name}' has been deleted successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminLedger, true);
+            NavigationManager.NavigateTo(PageRouteNames.LedgerMaster, true);
         }
         catch (Exception ex)
         {
@@ -187,7 +187,7 @@ public partial class LedgerPage : IAsyncDisposable
             await LedgerData.InsertLedger(ledger);
 
             await _toastNotification.ShowAsync("Success", $"Ledger '{ledger.Name}' has been recovered successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminLedger, true);
+            NavigationManager.NavigateTo(PageRouteNames.LedgerMaster, true);
         }
         catch (Exception ex)
         {
@@ -358,7 +358,7 @@ public partial class LedgerPage : IAsyncDisposable
             await LedgerData.InsertLedger(_ledger);
 
             await _toastNotification.ShowAsync("Success", $"Ledger '{_ledger.Name}' has been saved successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminLedger, true);
+            NavigationManager.NavigateTo(PageRouteNames.LedgerMaster, true);
         }
         catch (Exception ex)
         {
@@ -446,7 +446,7 @@ public partial class LedgerPage : IAsyncDisposable
     }
 
     private void ResetPage() =>
-        NavigationManager.NavigateTo(PageRouteNames.AdminLedger, true);
+        NavigationManager.NavigateTo(PageRouteNames.LedgerMaster, true);
 
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);

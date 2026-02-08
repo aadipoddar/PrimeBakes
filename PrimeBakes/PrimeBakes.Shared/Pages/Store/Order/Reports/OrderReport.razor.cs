@@ -564,7 +564,7 @@ public partial class OrderReport : IAsyncDisposable
         NavigationManager.NavigateTo(PageRouteNames.Dashboard);
 
     private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.SalesDashboard);
+        NavigationManager.NavigateTo(PageRouteNames.StoreDashboard);
 
     private async Task Logout() =>
         await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);

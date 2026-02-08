@@ -1,37 +1,37 @@
 using PrimeBakes.Shared.Components.Dialog;
 
 using PrimeBakesLibrary.Data.Common;
-using PrimeBakesLibrary.Data.Inventory;
+using PrimeBakesLibrary.Data.Inventory.Kitchen;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Inventory.RawMaterial;
+using PrimeBakesLibrary.Exporting.Inventory.Kitchen;
 using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Inventory;
+using PrimeBakesLibrary.Models.Inventory.Kitchen;
 using PrimeBakesLibrary.Models.Operations;
 
 using Syncfusion.Blazor.Grids;
 
-namespace PrimeBakes.Shared.Pages.Inventory.Masters;
+namespace PrimeBakes.Shared.Pages.Inventory.Kitchen;
 
-public partial class RawMaterialCategoryPage : IAsyncDisposable
+public partial class KitchenPage : IAsyncDisposable
 {
     private HotKeysContext _hotKeysContext;
     private bool _isLoading = true;
     private bool _isProcessing = false;
     private bool _showDeleted = false;
 
-    private RawMaterialCategoryModel _rawMaterialCategory = new();
+    private KitchenModel _kitchen = new();
 
-    private List<RawMaterialCategoryModel> _rawMaterialCategories = [];
+    private List<KitchenModel> _kitchens = [];
 
-    private SfGrid<RawMaterialCategoryModel> _sfGrid;
+    private SfGrid<KitchenModel> _sfGrid;
     private DeleteConfirmationDialog _deleteConfirmationDialog;
     private RecoverConfirmationDialog _recoverConfirmationDialog;
 
-    private int _deleteRawMaterialCategoryId = 0;
-    private string _deleteRawMaterialCategoryName = string.Empty;
+    private int _deleteKitchenId = 0;
+    private string _deleteKitchenName = string.Empty;
 
-    private int _recoverRawMaterialCategoryId = 0;
-    private string _recoverRawMaterialCategoryName = string.Empty;
+    private int _recoverKitchenId = 0;
+    private string _recoverKitchenName = string.Empty;
 
     private ToastNotification _toastNotification;
 
@@ -50,7 +50,7 @@ public partial class RawMaterialCategoryPage : IAsyncDisposable
     private async Task LoadData()
     {
         _hotKeysContext = HotKeys.CreateContext()
-            .Add(ModCode.Ctrl, Code.S, SaveRawMaterialCategory, "Save", Exclude.None)
+            .Add(ModCode.Ctrl, Code.S, SaveKitchen, "Save", Exclude.None)
             .Add(ModCode.Ctrl, Code.E, ExportExcel, "Export Excel", Exclude.None)
             .Add(ModCode.Ctrl, Code.P, ExportPdf, "Export PDF", Exclude.None)
             .Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
@@ -60,10 +60,10 @@ public partial class RawMaterialCategoryPage : IAsyncDisposable
             .Add(Code.Insert, EditSelectedItem, "Edit selected", Exclude.None)
             .Add(Code.Delete, DeleteSelectedItem, "Delete selected", Exclude.None);
 
-        _rawMaterialCategories = await CommonData.LoadTableData<RawMaterialCategoryModel>(TableNames.RawMaterialCategory);
+        _kitchens = await CommonData.LoadTableData<KitchenModel>(TableNames.Kitchen);
 
         if (!_showDeleted)
-            _rawMaterialCategories = [.. _rawMaterialCategories.Where(l => l.Status)];
+            _kitchens = [.. _kitchens.Where(k => k.Status)];
 
         if (_sfGrid is not null)
             await _sfGrid.Refresh();
@@ -71,14 +71,14 @@ public partial class RawMaterialCategoryPage : IAsyncDisposable
     #endregion
 
     #region Actions
-    private void OnEditRawMaterialCategory(RawMaterialCategoryModel rawMaterialCategory)
+    private void OnEditKitchen(KitchenModel kitchen)
     {
-        _rawMaterialCategory = new()
+        _kitchen = new()
         {
-            Id = rawMaterialCategory.Id,
-            Name = rawMaterialCategory.Name,
-            Remarks = rawMaterialCategory.Remarks,
-            Status = rawMaterialCategory.Status
+            Id = kitchen.Id,
+            Name = kitchen.Name,
+            Remarks = kitchen.Remarks,
+            Status = kitchen.Status
         };
 
         StateHasChanged();
@@ -86,15 +86,15 @@ public partial class RawMaterialCategoryPage : IAsyncDisposable
 
     private async Task ShowDeleteConfirmation(int id, string name)
     {
-        _deleteRawMaterialCategoryId = id;
-        _deleteRawMaterialCategoryName = name;
+        _deleteKitchenId = id;
+        _deleteKitchenName = name;
         await _deleteConfirmationDialog.ShowAsync();
     }
 
     private async Task CancelDelete()
     {
-        _deleteRawMaterialCategoryId = 0;
-        _deleteRawMaterialCategoryName = string.Empty;
+        _deleteKitchenId = 0;
+        _deleteKitchenName = string.Empty;
         await _deleteConfirmationDialog.HideAsync();
     }
 
@@ -105,42 +105,42 @@ public partial class RawMaterialCategoryPage : IAsyncDisposable
             _isProcessing = true;
             await _deleteConfirmationDialog.HideAsync();
 
-            var rawMaterialCategory = _rawMaterialCategories.FirstOrDefault(l => l.Id == _deleteRawMaterialCategoryId);
-            if (rawMaterialCategory == null)
+            var kitchen = _kitchens.FirstOrDefault(k => k.Id == _deleteKitchenId);
+            if (kitchen == null)
             {
-                await _toastNotification.ShowAsync("Error", "Raw Material Category not found.", ToastType.Error);
+                await _toastNotification.ShowAsync("Error", "Kitchen not found.", ToastType.Error);
                 return;
             }
 
-            rawMaterialCategory.Status = false;
-            await RawMaterialData.InsertRawMaterialCategory(rawMaterialCategory);
+            kitchen.Status = false;
+            await KitchenData.InsertKitchen(kitchen);
 
-            await _toastNotification.ShowAsync("Deleted", $"Raw Material Category '{rawMaterialCategory.Name}' has been deleted successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminRawMaterialCategory, true);
+            await _toastNotification.ShowAsync("Deleted", $"Kitchen '{kitchen.Name}' has been deleted successfully.", ToastType.Success);
+            NavigationManager.NavigateTo(PageRouteNames.Kitchen, true);
         }
         catch (Exception ex)
         {
-            await _toastNotification.ShowAsync("Error", $"Failed to delete Raw Material Category: {ex.Message}", ToastType.Error);
+            await _toastNotification.ShowAsync("Error", $"Failed to delete kitchen: {ex.Message}", ToastType.Error);
         }
         finally
         {
             _isProcessing = false;
-            _deleteRawMaterialCategoryId = 0;
-            _deleteRawMaterialCategoryName = string.Empty;
+            _deleteKitchenId = 0;
+            _deleteKitchenName = string.Empty;
         }
     }
 
     private async Task ShowRecoverConfirmation(int id, string name)
     {
-        _recoverRawMaterialCategoryId = id;
-        _recoverRawMaterialCategoryName = name;
+        _recoverKitchenId = id;
+        _recoverKitchenName = name;
         await _recoverConfirmationDialog.ShowAsync();
     }
 
     private async Task CancelRecover()
     {
-        _recoverRawMaterialCategoryId = 0;
-        _recoverRawMaterialCategoryName = string.Empty;
+        _recoverKitchenId = 0;
+        _recoverKitchenName = string.Empty;
         await _recoverConfirmationDialog.HideAsync();
     }
 
@@ -158,28 +158,28 @@ public partial class RawMaterialCategoryPage : IAsyncDisposable
             _isProcessing = true;
             await _recoverConfirmationDialog.HideAsync();
 
-            var rawMaterialCategory = _rawMaterialCategories.FirstOrDefault(l => l.Id == _recoverRawMaterialCategoryId);
-            if (rawMaterialCategory == null)
+            var kitchen = _kitchens.FirstOrDefault(k => k.Id == _recoverKitchenId);
+            if (kitchen == null)
             {
-                await _toastNotification.ShowAsync("Error", "Raw Material Category not found.", ToastType.Error);
+                await _toastNotification.ShowAsync("Error", "Kitchen not found.", ToastType.Error);
                 return;
             }
 
-            rawMaterialCategory.Status = true;
-            await RawMaterialData.InsertRawMaterialCategory(rawMaterialCategory);
+            kitchen.Status = true;
+            await KitchenData.InsertKitchen(kitchen);
 
-            await _toastNotification.ShowAsync("Recovered", $"Raw Material Category '{rawMaterialCategory.Name}' has been recovered successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminRawMaterialCategory, true);
+            await _toastNotification.ShowAsync("Recovered", $"Kitchen '{kitchen.Name}' has been recovered successfully.", ToastType.Success);
+            NavigationManager.NavigateTo(PageRouteNames.Kitchen, true);
         }
         catch (Exception ex)
         {
-            await _toastNotification.ShowAsync("Error", $"Failed to recover Raw Material Category: {ex.Message}", ToastType.Error);
+            await _toastNotification.ShowAsync("Error", $"Failed to recover kitchen: {ex.Message}", ToastType.Error);
         }
         finally
         {
             _isProcessing = false;
-            _recoverRawMaterialCategoryId = 0;
-            _recoverRawMaterialCategoryName = string.Empty;
+            _recoverKitchenId = 0;
+            _recoverKitchenName = string.Empty;
         }
     }
     #endregion
@@ -187,36 +187,36 @@ public partial class RawMaterialCategoryPage : IAsyncDisposable
     #region Saving
     private async Task<bool> ValidateForm()
     {
-        _rawMaterialCategory.Name = _rawMaterialCategory.Name?.Trim() ?? "";
-        _rawMaterialCategory.Name = _rawMaterialCategory.Name?.ToUpper() ?? "";
+        _kitchen.Name = _kitchen.Name?.Trim() ?? "";
+        _kitchen.Remarks = _kitchen.Remarks?.Trim() ?? "";
 
-        _rawMaterialCategory.Remarks = _rawMaterialCategory.Remarks?.Trim() ?? "";
-        _rawMaterialCategory.Status = true;
+        _kitchen.Name = _kitchen.Name?.ToUpper() ?? "";
+        _kitchen.Status = true;
 
-        if (string.IsNullOrWhiteSpace(_rawMaterialCategory.Name))
+        if (string.IsNullOrWhiteSpace(_kitchen.Name))
         {
-            await _toastNotification.ShowAsync("Validation", "Category name is required. Please enter a valid name.", ToastType.Warning);
+            await _toastNotification.ShowAsync("Validation", "Kitchen name is required. Please enter a valid kitchen name.", ToastType.Warning);
             return false;
         }
 
-        if (string.IsNullOrWhiteSpace(_rawMaterialCategory.Remarks))
-            _rawMaterialCategory.Remarks = null;
+        if (string.IsNullOrWhiteSpace(_kitchen.Remarks))
+            _kitchen.Remarks = null;
 
-        if (_rawMaterialCategory.Id > 0)
+        if (_kitchen.Id > 0)
         {
-            var existingRawMaterialCategory = _rawMaterialCategories.FirstOrDefault(_ => _.Id != _rawMaterialCategory.Id && _.Name.Equals(_rawMaterialCategory.Name, StringComparison.OrdinalIgnoreCase));
-            if (existingRawMaterialCategory is not null)
+            var existingKitchen = _kitchens.FirstOrDefault(_ => _.Id != _kitchen.Id && _.Name.Equals(_kitchen.Name, StringComparison.OrdinalIgnoreCase));
+            if (existingKitchen is not null)
             {
-                await _toastNotification.ShowAsync("Duplicate", $"Raw Material Category name '{_rawMaterialCategory.Name}' already exists. Please choose a different name.", ToastType.Warning);
+                await _toastNotification.ShowAsync("Duplicate", $"Kitchen name '{_kitchen.Name}' already exists. Please choose a different name.", ToastType.Warning);
                 return false;
             }
         }
         else
         {
-            var existingRawMaterialCategory = _rawMaterialCategories.FirstOrDefault(_ => _.Name.Equals(_rawMaterialCategory.Name, StringComparison.OrdinalIgnoreCase));
-            if (existingRawMaterialCategory is not null)
+            var existingKitchen = _kitchens.FirstOrDefault(_ => _.Name.Equals(_kitchen.Name, StringComparison.OrdinalIgnoreCase));
+            if (existingKitchen is not null)
             {
-                await _toastNotification.ShowAsync("Duplicate", $"Raw Material Category name '{_rawMaterialCategory.Name}' already exists. Please choose a different name.", ToastType.Warning);
+                await _toastNotification.ShowAsync("Duplicate", $"Kitchen name '{_kitchen.Name}' already exists. Please choose a different name.", ToastType.Warning);
                 return false;
             }
         }
@@ -224,7 +224,7 @@ public partial class RawMaterialCategoryPage : IAsyncDisposable
         return true;
     }
 
-    private async Task SaveRawMaterialCategory()
+    private async Task SaveKitchen()
     {
         if (_isProcessing)
             return;
@@ -240,16 +240,16 @@ public partial class RawMaterialCategoryPage : IAsyncDisposable
                 return;
             }
 
-            await _toastNotification.ShowAsync("Processing", "Please wait while the category is being saved...", ToastType.Info);
+            await _toastNotification.ShowAsync("Processing", "Please wait while the kitchen is being saved...", ToastType.Info);
 
-            await RawMaterialData.InsertRawMaterialCategory(_rawMaterialCategory);
+            await KitchenData.InsertKitchen(_kitchen);
 
-            await _toastNotification.ShowAsync("Saved", $"Raw Material Category '{_rawMaterialCategory.Name}' has been saved successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminRawMaterialCategory, true);
+            await _toastNotification.ShowAsync("Saved", $"Kitchen '{_kitchen.Name}' has been saved successfully.", ToastType.Success);
+            NavigationManager.NavigateTo(PageRouteNames.Kitchen, true);
         }
         catch (Exception ex)
         {
-            await _toastNotification.ShowAsync("Error", $"Failed to save Raw Material Category: {ex.Message}", ToastType.Error);
+            await _toastNotification.ShowAsync("Error", $"Failed to save kitchen: {ex.Message}", ToastType.Error);
         }
         finally
         {
@@ -270,10 +270,10 @@ public partial class RawMaterialCategoryPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Exporting to Excel...", ToastType.Info);
 
-            var (stream, fileName) = await RawMaterialCategoryExport.ExportMaster(_rawMaterialCategories, ReportExportType.Excel);
+            var (stream, fileName) = await KitchenExport.ExportMaster(_kitchens, ReportExportType.Excel);
             await SaveAndViewService.SaveAndView(fileName, stream);
 
-            await _toastNotification.ShowAsync("Success", "Raw Material Category data exported to Excel successfully.", ToastType.Success);
+            await _toastNotification.ShowAsync("Success", "Kitchen data exported to Excel successfully.", ToastType.Success);
         }
         catch (Exception ex)
         {
@@ -297,10 +297,10 @@ public partial class RawMaterialCategoryPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Exporting to PDF...", ToastType.Info);
 
-            var (stream, fileName) = await RawMaterialCategoryExport.ExportMaster(_rawMaterialCategories, ReportExportType.PDF);
+            var (stream, fileName) = await KitchenExport.ExportMaster(_kitchens, ReportExportType.PDF);
             await SaveAndViewService.SaveAndView(fileName, stream);
 
-            await _toastNotification.ShowAsync("Success", "Raw Material Category data exported to PDF successfully.", ToastType.Success);
+            await _toastNotification.ShowAsync("Success", "Kitchen data exported to PDF successfully.", ToastType.Success);
         }
         catch (Exception ex)
         {
@@ -319,7 +319,7 @@ public partial class RawMaterialCategoryPage : IAsyncDisposable
     {
         var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
         if (selectedRecords.Count > 0)
-            OnEditRawMaterialCategory(selectedRecords[0]);
+            OnEditKitchen(selectedRecords[0]);
     }
 
     private async Task DeleteSelectedItem()
@@ -335,7 +335,7 @@ public partial class RawMaterialCategoryPage : IAsyncDisposable
     }
 
     private void ResetPage() =>
-        NavigationManager.NavigateTo(PageRouteNames.AdminRawMaterialCategory, true);
+        NavigationManager.NavigateTo(PageRouteNames.Kitchen, true);
 
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);
@@ -350,6 +350,7 @@ public partial class RawMaterialCategoryPage : IAsyncDisposable
     {
         if (_hotKeysContext is not null)
             await _hotKeysContext.DisposeAsync();
+
         GC.SuppressFinalize(this);
     }
     #endregion

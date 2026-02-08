@@ -404,9 +404,9 @@ public partial class PurchaseReturnItemReport : IAsyncDisposable
     private async Task NavigateToTransactionHistory()
     {
         if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportPurchaseReturn, "_blank");
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.PurchaseReturnReport, "_blank");
         else
-            NavigationManager.NavigateTo(PageRouteNames.ReportPurchaseReturn);
+            NavigationManager.NavigateTo(PageRouteNames.PurchaseReturnReport);
     }
 
     private void NavigateToDashboard() =>

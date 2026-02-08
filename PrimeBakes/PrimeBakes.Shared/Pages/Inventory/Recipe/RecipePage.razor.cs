@@ -11,7 +11,7 @@ using PrimeBakesLibrary.Models.Store.Product;
 using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;
 
-namespace PrimeBakes.Shared.Pages.Inventory.Masters;
+namespace PrimeBakes.Shared.Pages.Inventory.Recipe;
 
 public partial class RecipePage : IAsyncDisposable
 {

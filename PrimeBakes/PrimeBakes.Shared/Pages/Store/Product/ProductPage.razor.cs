@@ -165,7 +165,7 @@ public partial class ProductPage : IAsyncDisposable
             await ProductData.InsertProduct(product);
 
             await _toastNotification.ShowAsync("Deleted", $"Product '{product.Name}' removed successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminProduct, true);
+            NavigationManager.NavigateTo(PageRouteNames.Product, true);
         }
         catch (Exception ex)
         {
@@ -218,7 +218,7 @@ public partial class ProductPage : IAsyncDisposable
             await ProductData.InsertProduct(product);
 
             await _toastNotification.ShowAsync("Recovered", $"Product '{product.Name}' restored successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminProduct, true);
+            NavigationManager.NavigateTo(PageRouteNames.Product, true);
         }
         catch (Exception ex)
         {
@@ -314,7 +314,7 @@ public partial class ProductPage : IAsyncDisposable
             _product.Id = await ProductData.SaveProduct(_product);
 
             await _toastNotification.ShowAsync("Saved", $"Product '{_product.Name}' saved successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminProduct, true);
+            NavigationManager.NavigateTo(PageRouteNames.Product, true);
         }
         catch (Exception ex)
         {
@@ -430,10 +430,10 @@ public partial class ProductPage : IAsyncDisposable
     }
 
     private void ResetPage() =>
-        NavigationManager.NavigateTo(PageRouteNames.AdminProduct, true);
+        NavigationManager.NavigateTo(PageRouteNames.Product, true);
 
     private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.SalesDashboard);
+        NavigationManager.NavigateTo(PageRouteNames.StoreDashboard);
 
     private void NavigateToDashboard() =>
         NavigationManager.NavigateTo(PageRouteNames.Dashboard);

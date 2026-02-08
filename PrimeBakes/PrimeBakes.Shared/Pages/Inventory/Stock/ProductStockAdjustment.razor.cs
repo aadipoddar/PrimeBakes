@@ -170,9 +170,9 @@ public partial class ProductStockAdjustment : IAsyncDisposable
         if (args.Value.Id == 0)
         {
             if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.AdminLocation, "_blank");
+                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Location, "_blank");
             else
-                NavigationManager.NavigateTo(PageRouteNames.AdminLocation);
+                NavigationManager.NavigateTo(PageRouteNames.Location);
             return;
         }
 
@@ -192,9 +192,9 @@ public partial class ProductStockAdjustment : IAsyncDisposable
         if (args.Value.Id == 0)
         {
             if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.AdminProduct, "_blank");
+                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Product, "_blank");
             else
-                NavigationManager.NavigateTo(PageRouteNames.AdminProduct);
+                NavigationManager.NavigateTo(PageRouteNames.Product);
 
             return;
         }
@@ -449,9 +449,9 @@ public partial class ProductStockAdjustment : IAsyncDisposable
     private async Task NavigateToTransactionHistoryPage()
     {
         if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportProductStock, "_blank");
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ProductStockReport, "_blank");
         else
-            NavigationManager.NavigateTo(PageRouteNames.ReportProductStock);
+            NavigationManager.NavigateTo(PageRouteNames.ProductStockReport);
     }
 
     private void NavigateToDashboard() =>

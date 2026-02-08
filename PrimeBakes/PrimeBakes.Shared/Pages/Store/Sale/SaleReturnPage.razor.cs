@@ -363,9 +363,9 @@ public partial class SaleReturnPage : IAsyncDisposable
         if (args.Value.Id == 0)
         {
             if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.AdminLocation, "_blank");
+                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Location, "_blank");
             else
-                NavigationManager.NavigateTo(PageRouteNames.AdminLocation);
+                NavigationManager.NavigateTo(PageRouteNames.Location);
 
             return;
         }
@@ -401,9 +401,9 @@ public partial class SaleReturnPage : IAsyncDisposable
         if (args.Value.Id == 0)
         {
             if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.AdminCompany, "_blank");
+                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.CompanyMaster, "_blank");
             else
-                NavigationManager.NavigateTo(PageRouteNames.AdminCompany);
+                NavigationManager.NavigateTo(PageRouteNames.CompanyMaster);
 
             return;
         }
@@ -435,9 +435,9 @@ public partial class SaleReturnPage : IAsyncDisposable
         if (args.Value.Id == 0)
         {
             if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.AdminLedger, "_blank");
+                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.LedgerMaster, "_blank");
             else
-                NavigationManager.NavigateTo(PageRouteNames.AdminLedger);
+                NavigationManager.NavigateTo(PageRouteNames.LedgerMaster);
 
             return;
         }
@@ -523,9 +523,9 @@ public partial class SaleReturnPage : IAsyncDisposable
         if (args.Value.Id == 0)
         {
             if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.AdminProduct, "_blank");
+                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Product, "_blank");
             else
-                NavigationManager.NavigateTo(PageRouteNames.AdminProduct);
+                NavigationManager.NavigateTo(PageRouteNames.Product);
 
             return;
         }
@@ -1129,24 +1129,24 @@ public partial class SaleReturnPage : IAsyncDisposable
     private async Task NavigateToTransactionHistoryPage()
     {
         if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportSaleReturn, "_blank");
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.SaleReturnReport, "_blank");
         else
-            NavigationManager.NavigateTo(PageRouteNames.ReportSaleReturn);
+            NavigationManager.NavigateTo(PageRouteNames.SaleReturnReport);
     }
 
     private async Task NavigateToItemReport()
     {
         if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportSaleItem, "_blank");
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.SaleItemReport, "_blank");
         else
-            NavigationManager.NavigateTo(PageRouteNames.ReportSaleItem);
+            NavigationManager.NavigateTo(PageRouteNames.SaleItemReport);
     }
 
     private void NavigateToDashboard() =>
         NavigationManager.NavigateTo(PageRouteNames.Dashboard);
 
     private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.SalesDashboard);
+        NavigationManager.NavigateTo(PageRouteNames.StoreDashboard);
 
     private async Task Logout() =>
         await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);

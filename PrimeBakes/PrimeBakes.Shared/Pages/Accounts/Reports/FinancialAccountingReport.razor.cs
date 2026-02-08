@@ -515,33 +515,33 @@ public partial class FinancialAccountingReport : IAsyncDisposable
     private async Task NavigateToItemReport()
     {
         if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportAccountingLedger, "_blank");
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.AccountingLedgerReport, "_blank");
         else
-            NavigationManager.NavigateTo(PageRouteNames.ReportAccountingLedger);
+            NavigationManager.NavigateTo(PageRouteNames.AccountingLedgerReport);
     }
 
     private async Task NavigateToTrialBalance()
     {
         if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportTrialBalance, "_blank");
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.TrialBalanceReport, "_blank");
         else
-            NavigationManager.NavigateTo(PageRouteNames.ReportTrialBalance);
+            NavigationManager.NavigateTo(PageRouteNames.TrialBalanceReport);
     }
 
     private async Task NavigateToProfitAndLoss()
     {
         if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportProfitAndLoss, "_blank");
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ProfitAndLossReport, "_blank");
         else
-            NavigationManager.NavigateTo(PageRouteNames.ReportProfitAndLoss);
+            NavigationManager.NavigateTo(PageRouteNames.ProfitAndLossReport);
     }
 
     private async Task NavigateToBalanceSheet()
     {
         if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportBalanceSheet, "_blank");
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.BalanceSheetReport, "_blank");
         else
-            NavigationManager.NavigateTo(PageRouteNames.ReportBalanceSheet);
+            NavigationManager.NavigateTo(PageRouteNames.BalanceSheetReport);
     }
 
     private void NavigateToDashboard() =>

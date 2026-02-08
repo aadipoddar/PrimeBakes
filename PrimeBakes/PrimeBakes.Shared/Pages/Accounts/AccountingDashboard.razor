@@ -1,8 +1,6 @@
 ﻿@attribute [Route(PageRouteNames.AccountsDashboard)]
 
-
 @using PrimeBakesLibrary.Models.Operations
-
 
 <PageTitle>Accounting - Prime Bakes</PageTitle>
 
@@ -73,7 +71,7 @@ else
                         <!-- Financial Accounting Report -->
                         <ButtonCard Title="Financial Accounting Report" Description="View accounting transaction history"
                                     Color="cyan"
-                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportFinancialAccounting)">
+                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.FinancialAccountingReport)">
                             <IconContent>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -85,7 +83,7 @@ else
 
                         <!-- Ledger Report -->
                         <ButtonCard Title="Ledger Report" Description="View detailed ledger transactions" Color="emerald"
-                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportAccountingLedger)">
+                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AccountingLedgerReport)">
                             <IconContent>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -98,7 +96,7 @@ else
 
                         <!-- Trial Balance -->
                         <ButtonCard Title="Trial Balance" Description="View trial balance summary" Color="sky"
-                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportTrialBalance)">
+                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.TrialBalanceReport)">
                             <IconContent>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -115,7 +113,7 @@ else
 
                         <!-- Profit & Loss -->
                         <ButtonCard Title="Profit & Loss" Description="View income and expense summary" Color="green"
-                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportProfitAndLoss)">
+                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ProfitAndLossReport)">
                             <IconContent>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -128,7 +126,7 @@ else
 
                         <!-- Balance Sheet -->
                         <ButtonCard Title="Balance Sheet" Description="View assets, liabilities & equity" Color="indigo"
-                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportBalanceSheet)">
+                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.BalanceSheetReport)">
                             <IconContent>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -163,7 +161,7 @@ else
                     <div class="dashboard-grid">
                         <!-- Group -->
                         <ButtonCard Title="Group" Description="Manage account groups" Color="purple"
-                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminGroup)">
+                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.GroupMaster)">
                             <IconContent>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -178,7 +176,7 @@ else
 
                         <!-- Account Type -->
                         <ButtonCard Title="Account Type" Description="Manage account types" Color="indigo"
-                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminAccountType)">
+                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AccountTypeMaster)">
                             <IconContent>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -191,7 +189,7 @@ else
 
                         <!-- Ledgers -->
                         <ButtonCard Title="Ledgers" Description="Manage ledger accounts" Color="teal"
-                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminLedger)">
+                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.LedgerMaster)">
                             <IconContent>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -207,7 +205,7 @@ else
 
                         <!-- Voucher -->
                         <ButtonCard Title="Voucher" Description="Manage voucher types" Color="rose"
-                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminVoucher)">
+                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.VoucherMaster)">
                             <IconContent>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -222,7 +220,7 @@ else
 
                         <!-- Financial Years -->
                         <ButtonCard Title="Financial Years" Description="Manage financial year periods" Color="amber"
-                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminFinancialYear)">
+                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.FinancialYearMaster)">
                             <IconContent>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -237,7 +235,7 @@ else
 
                         <!-- States -->
                         <ButtonCard Title="States" Description="Manage state/UT information" Color="violet"
-                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminStateUT)">
+                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.StateUTMaster)">
                             <IconContent>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -251,7 +249,7 @@ else
 
                         <!-- Company -->
                         <ButtonCard Title="Company" Description="Manage company settings" Color="green"
-                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminCompany)">
+                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.CompanyMaster)">
                             <IconContent>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -264,7 +262,7 @@ else
 
                         <!-- Settings -->
                         <ButtonCard Title="Settings" Description="Manage system settings" Color="blue"
-                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminSettings)">
+                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.Settings)">
                             <IconContent>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"

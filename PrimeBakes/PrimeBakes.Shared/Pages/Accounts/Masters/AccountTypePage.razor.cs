@@ -116,7 +116,7 @@ public partial class AccountTypePage : IAsyncDisposable
             await AccountTypeData.InsertAccountType(accountType);
 
             await _toastNotification.ShowAsync("Success", $"Account Type '{accountType.Name}' has been deleted successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminAccountType, true);
+            NavigationManager.NavigateTo(PageRouteNames.AccountTypeMaster, true);
         }
         catch (Exception ex)
         {
@@ -169,7 +169,7 @@ public partial class AccountTypePage : IAsyncDisposable
             await AccountTypeData.InsertAccountType(accountType);
 
             await _toastNotification.ShowAsync("Success", $"Account Type '{accountType.Name}' has been recovered successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminAccountType, true);
+            NavigationManager.NavigateTo(PageRouteNames.AccountTypeMaster, true);
         }
         catch (Exception ex)
         {
@@ -245,7 +245,7 @@ public partial class AccountTypePage : IAsyncDisposable
             await AccountTypeData.InsertAccountType(_accountType);
 
             await _toastNotification.ShowAsync("Success", $"Account Type '{_accountType.Name}' has been saved successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminAccountType, true);
+            NavigationManager.NavigateTo(PageRouteNames.AccountTypeMaster, true);
         }
         catch (Exception ex)
         {
@@ -335,7 +335,7 @@ public partial class AccountTypePage : IAsyncDisposable
     }
 
     private void ResetPage() =>
-        NavigationManager.NavigateTo(PageRouteNames.AdminAccountType, true);
+        NavigationManager.NavigateTo(PageRouteNames.AccountTypeMaster, true);
 
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);

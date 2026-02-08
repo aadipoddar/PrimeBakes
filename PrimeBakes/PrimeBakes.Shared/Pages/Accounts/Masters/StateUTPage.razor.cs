@@ -116,7 +116,7 @@ public partial class StateUTPage : IAsyncDisposable
             await StateUTData.InsertStateUT(stateUT);
 
             await _toastNotification.ShowAsync("Success", $"State/UT '{stateUT.Name}' has been deleted successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminStateUT, true);
+            NavigationManager.NavigateTo(PageRouteNames.StateUTMaster, true);
         }
         catch (Exception ex)
         {
@@ -169,7 +169,7 @@ public partial class StateUTPage : IAsyncDisposable
             await StateUTData.InsertStateUT(stateUT);
 
             await _toastNotification.ShowAsync("Success", $"State/UT '{stateUT.Name}' has been recovered successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminStateUT, true);
+            NavigationManager.NavigateTo(PageRouteNames.StateUTMaster, true);
         }
         catch (Exception ex)
         {
@@ -245,7 +245,7 @@ public partial class StateUTPage : IAsyncDisposable
             await StateUTData.InsertStateUT(_stateUT);
 
             await _toastNotification.ShowAsync("Success", $"State/UT '{_stateUT.Name}' has been saved successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminStateUT, true);
+            NavigationManager.NavigateTo(PageRouteNames.StateUTMaster, true);
         }
         catch (Exception ex)
         {
@@ -333,7 +333,7 @@ public partial class StateUTPage : IAsyncDisposable
     }
 
     private void ResetPage() =>
-        NavigationManager.NavigateTo(PageRouteNames.AdminStateUT, true);
+        NavigationManager.NavigateTo(PageRouteNames.StateUTMaster, true);
 
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);

@@ -133,6 +133,7 @@ public partial class SaleMobilePage
     private async Task UpdateFinancialDetails()
     {
         var taxes = await CommonData.LoadTableData<TaxModel>(TableNames.Tax);
+        var items = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
 
         foreach (var item in _cart.Where(_ => _.Quantity > 0))
         {
@@ -142,10 +143,13 @@ public partial class SaleMobilePage
             item.BaseTotal = item.Rate * item.Quantity;
             item.AfterDiscount = item.BaseTotal - item.DiscountAmount;
 
-            item.CGSTPercent = taxes.FirstOrDefault(s => s.Id == 1)?.CGST ?? 0;
-            item.SGSTPercent = taxes.FirstOrDefault(s => s.Id == 1)?.SGST ?? 0;
-            item.IGSTPercent = taxes.FirstOrDefault(s => s.Id == 1)?.IGST ?? 0;
-            item.InclusiveTax = taxes.FirstOrDefault(s => s.Id == 1)?.Inclusive ?? false;
+            var selectedItem = items.FirstOrDefault(s => s.Id == item.ItemId);
+            var tax = taxes.FirstOrDefault(s => s.Id == selectedItem.TaxId);
+
+            item.CGSTPercent = tax?.CGST ?? 0;
+            item.SGSTPercent = tax?.SGST ?? 0;
+            item.IGSTPercent = 0;
+            item.InclusiveTax = tax?.Inclusive ?? false;
 
             if (item.InclusiveTax)
             {

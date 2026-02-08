@@ -307,9 +307,9 @@ public partial class PurchasePage : IAsyncDisposable
         if (args.Value.Id == 0)
         {
             if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.AdminCompany, "_blank");
+                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.CompanyMaster, "_blank");
             else
-                NavigationManager.NavigateTo(PageRouteNames.AdminCompany);
+                NavigationManager.NavigateTo(PageRouteNames.CompanyMaster);
 
             return;
         }
@@ -328,9 +328,9 @@ public partial class PurchasePage : IAsyncDisposable
         if (args.Value.Id == 0)
         {
             if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.AdminLedger, "_blank");
+                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.LedgerMaster, "_blank");
             else
-                NavigationManager.NavigateTo(PageRouteNames.AdminLedger);
+                NavigationManager.NavigateTo(PageRouteNames.LedgerMaster);
 
             return;
         }
@@ -383,9 +383,9 @@ public partial class PurchasePage : IAsyncDisposable
         if (args.Value.Id == 0)
         {
             if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.AdminRawMaterial, "_blank");
+                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.RawMaterial, "_blank");
             else
-                NavigationManager.NavigateTo(PageRouteNames.AdminRawMaterial);
+                NavigationManager.NavigateTo(PageRouteNames.RawMaterial);
 
             return;
         }
@@ -1026,17 +1026,17 @@ public partial class PurchasePage : IAsyncDisposable
     private async Task NavigateToTransactionHistoryPage()
     {
         if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportPurchase, "_blank");
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.PurchaseReport, "_blank");
         else
-            NavigationManager.NavigateTo(PageRouteNames.ReportPurchase);
+            NavigationManager.NavigateTo(PageRouteNames.PurchaseReport);
     }
 
     private async Task NavigateToItemReport()
     {
         if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportPurchaseItem, "_blank");
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.PurchaseItemReport, "_blank");
         else
-            NavigationManager.NavigateTo(PageRouteNames.ReportPurchaseItem);
+            NavigationManager.NavigateTo(PageRouteNames.PurchaseItemReport);
     }
 
     private void NavigateToDashboard() =>

@@ -971,16 +971,16 @@ public partial class SaleReport : IAsyncDisposable
     private async Task NavigateToItemReport()
     {
         if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportSaleItem, "_blank");
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.SaleItemReport, "_blank");
         else
-            NavigationManager.NavigateTo(PageRouteNames.ReportSaleItem);
+            NavigationManager.NavigateTo(PageRouteNames.SaleItemReport);
     }
 
     private void NavigateToDashboard() =>
         NavigationManager.NavigateTo(PageRouteNames.Dashboard);
 
     private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.SalesDashboard);
+        NavigationManager.NavigateTo(PageRouteNames.StoreDashboard);
 
     private async Task Logout() =>
         await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);

@@ -502,9 +502,9 @@ public partial class PurchaseItemReport : IAsyncDisposable
     private async Task NavigateToTransactionHistory()
     {
         if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportPurchase, "_blank");
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.PurchaseReport, "_blank");
         else
-            NavigationManager.NavigateTo(PageRouteNames.ReportPurchase);
+            NavigationManager.NavigateTo(PageRouteNames.PurchaseReport);
     }
 
     private void NavigateToDashboard() =>

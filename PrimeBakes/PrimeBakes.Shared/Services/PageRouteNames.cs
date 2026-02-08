@@ -2,76 +2,89 @@
 
 internal static class PageRouteNames
 {
+    #region Operations
     public const string Dashboard = "/";
     public const string Login = "/login";
+    public const string AdminDashboard = "/admin";
+    public const string ReportDashboard = "/report";
 
-    public const string InventoryDashboard = "/inventory";
-    public const string Purchase = "/inventory/purchase";
-    public const string PurchaseReturn = "/inventory/purchase-return";
-    public const string KitchenIssue = "/inventory/kitchen-issue";
-    public const string KitchenProduction = "/inventory/kitchen-production";
-    public const string ProductStockAdjustment = "/inventory/product-stock-adjustment";
-    public const string RawMaterialStockAdjustment = "/inventory/raw-material-stock-adjustment";
-    public const string Recipe = "/inventory/recipe";
+    public const string Location = "/operations/location";
+    public const string User = "/operations/user";
+    public const string Settings = "/operations/settings";
+    #endregion
 
-    public const string SalesDashboard = "/sales";
-    public const string Sale = "/sales/sale";
-    public const string SaleMobile = "/sales/sale/mobile";
-    public const string SaleMobileCart = "/sales/sale-cart/mobile";
-    public const string SaleMobileConfirmation = "/sales/sale-confirmation/mobile";
-    public const string SaleReturn = "/sales/sale-return";
-    public const string StockTransfer = "/sales/stock-transfer";
-    public const string Order = "/sales/order";
-    public const string OrderMobile = "/sales/order/mobile";
-    public const string OrderMobileCart = "/sales/order-cart/mobile";
-    public const string OrderMobileConfirmation = "/sales/order-confirmation/mobile";
-
+    #region Accounts
     public const string AccountsDashboard = "/accounts";
     public const string FinancialAccounting = "/accounts/financial-accounting";
 
-    public const string ReportDashboard = "/report";
-    public const string ReportPurchase = "/report/purchase";
-    public const string ReportPurchaseReturn = "/report/purchase-return";
-    public const string ReportPurchaseItem = "/report/purchase-item";
-    public const string ReportPurchaseReturnItem = "/report/purchase-return-item";
-    public const string ReportKitchenIssue = "/report/kitchen-issue";
-    public const string ReportKitchenProduction = "/report/kitchen-production";
-    public const string ReportKitchenIssueItem = "/report/kitchen-issue-item";
-    public const string ReportKitchenProductionItem = "/report/kitchen-production-item";
-    public const string ReportRawMaterialStock = "/report/raw-material-stock";
-    public const string ReportProductStock = "/report/product-stock";
+    public const string FinancialAccountingReport = "/accounts/reports/financial-accounting";
+    public const string AccountingLedgerReport = "/accounts/reports/accounting-ledger";
+    public const string TrialBalanceReport = "/accounts/reports/trial-balance";
+    public const string ProfitAndLossReport = "/accounts/reports/profit-and-loss";
+    public const string BalanceSheetReport = "/accounts/reports/balance-sheet";
 
-    public const string ReportSale = "/report/sale";
-    public const string ReportSaleItem = "/report/sale-item";
-    public const string ReportSaleReturn = "/report/sale-return";
-    public const string ReportSaleReturnItem = "/report/sale-return-item";
-    public const string ReportStockTransfer = "/report/stock-transfer";
-    public const string ReportStockTransferItem = "/report/stock-transfer-item";
-    public const string ReportOrder = "/report/order";
-    public const string ReportOrderItem = "/report/order-item";
+    public const string CompanyMaster = "/accounts/masters/company";
+    public const string LedgerMaster = "/accounts/masters/ledger";
+    public const string VoucherMaster = "/accounts/masters/voucher";
+    public const string GroupMaster = "/accounts/masters/group";
+    public const string AccountTypeMaster = "/accounts/masters/account-type";
+    public const string FinancialYearMaster = "/accounts/masters/financial-year";
+    public const string StateUTMaster = "/accounts/masters/state-ut";
+    #endregion
 
-    public const string ReportFinancialAccounting = "/report/financial-accounting";
-    public const string ReportAccountingLedger = "/report/accounting-ledger";
-    public const string ReportTrialBalance = "/report/trial-balance";
-    public const string ReportProfitAndLoss = "/report/profit-and-loss";
-    public const string ReportBalanceSheet = "/report/balance-sheet";
+    #region Inventory
+    public const string InventoryDashboard = "/inventory";
+    public const string Purchase = "/inventory/purchase/purchase";
+    public const string PurchaseReturn = "/inventory/purchase/purchase-return";
+    public const string PurchaseReport = "/inventory/purchase/reports/purchase";
+    public const string PurchaseItemReport = "/inventory/purchase/reports/purchase-item";
+    public const string PurchaseReturnReport = "/inventory/purchase/reports/purchase-return";
+    public const string PurchaseReturnItemReport = "/inventory/purchase/reports/purchase-return-item";
 
-    public const string AdminDashboard = "/admin";
-    public const string AdminLocation = "/admin/location";
-    public const string AdminRawMaterial = "/admin/raw-material";
-    public const string AdminRawMaterialCategory = "/admin/raw-material-category";
-    public const string AdminKitchen = "/admin/kitchen";
-    public const string AdminProduct = "/admin/product";
-    public const string AdminProductCategory = "/admin/product-category";
-    public const string AdminProductLocation = "/admin/product-location";
-    public const string AdminUser = "/admin/user";
-    public const string AdminTax = "/admin/tax";
-    public const string AdminCompany = "/admin/company";
-    public const string AdminLedger = "/admin/ledger";
-    public const string AdminVoucher = "/admin/voucher";
-    public const string AdminGroup = "/admin/group";
-    public const string AdminAccountType = "/admin/account-type";
-    public const string AdminFinancialYear = "/admin/financial-year";
-    public const string AdminStateUT = "/admin/state-ut";
-    public const string AdminSettings = "/admin/settings";
+    public const string Kitchen = "/inventory/kitchen/kitchen";
+    public const string KitchenIssue = "/inventory/kitchen/kitchen-issue";
+    public const string KitchenProduction = "/inventory/kitchen/kitchen-production";
+    public const string KitchenIssueReport = "/inventory/kitchen/reports/kitchen-issue";
+    public const string KitchenIssueItemReport = "/inventory/kitchen/reports/kitchen-issue-item";
+    public const string KitchenProductionReport = "/inventory/kitchen/reports/kitchen-production";
+    public const string KitchenProductionItemReport = "/inventory/kitchen/reports/kitchen-production-item";
+
+    public const string ProductStockAdjustment = "/inventory/stock/product-stock-adjustment";
+    public const string RawMaterialStockAdjustment = "/inventory/stock/raw-material-stock-adjustment";
+    public const string RawMaterialStockReport = "/inventory/stock/reports/raw-material-stock";
+    public const string ProductStockReport = "/inventory/stock/reports/product-stock";
+
+    public const string RawMaterial = "/inventory/raw-material/raw-material";
+    public const string RawMaterialCategory = "/inventory/raw-material/raw-material-category";
+    public const string Recipe = "/inventory/recipe/recipe";
+    #endregion
+
+    #region Store
+    public const string StoreDashboard = "/store";
+    public const string Order = "/store/order/order";
+    public const string OrderMobile = "/store/order/order/mobile";
+    public const string OrderMobileCart = "/store/order/order-cart/mobile";
+    public const string OrderMobileConfirmation = "/store/order/order-confirmation/mobile";
+    public const string OrderReport = "/store/order/reports/order";
+    public const string ReportOrderItem = "/store/order/reports/order-item";
+
+    public const string Sale = "/store/sale/sale";
+    public const string SaleReturn = "/store/sale/sale-return";
+    public const string SaleMobile = "/store/sale/sale/mobile";
+    public const string SaleMobileCart = "/store/sale/sale-cart/mobile";
+    public const string SaleMobileConfirmation = "/store/sale/sale-confirmation/mobile";
+    public const string SaleReport = "/store/sale/reports/sale";
+    public const string SaleItemReport = "/store/sale/reports/sale-item";
+    public const string SaleReturnReport = "/store/sale/reports/sale-return";
+    public const string SaleReturnItemReport = "/store/sale/reports/sale-return-item";
+
+    public const string StockTransfer = "/store/stock-transfer/stock-transfer";
+    public const string StockTransferReport = "/store/stock-transfer/reports/stock-transfer";
+    public const string StockTransferItemReport = "/store/stock-transfer/reports/stock-transfer-item";
+
+    public const string Product = "/store/product/product";
+    public const string ProductCategory = "/store/product/product-category";
+    public const string ProductLocation = "/store/product/product-location";
+    public const string Tax = "/store/product/tax";
+    #endregion
 }

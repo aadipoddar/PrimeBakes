@@ -281,9 +281,9 @@ public partial class KitchenIssuePage : IAsyncDisposable
         if (args.Value.Id == 0)
         {
             if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.AdminCompany, "_blank");
+                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.CompanyMaster, "_blank");
             else
-                NavigationManager.NavigateTo(PageRouteNames.AdminCompany);
+                NavigationManager.NavigateTo(PageRouteNames.CompanyMaster);
 
             return;
         }
@@ -302,9 +302,9 @@ public partial class KitchenIssuePage : IAsyncDisposable
         if (args.Value.Id == 0)
         {
             if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.AdminKitchen, "_blank");
+                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Kitchen, "_blank");
             else
-                NavigationManager.NavigateTo(PageRouteNames.AdminKitchen);
+                NavigationManager.NavigateTo(PageRouteNames.Kitchen);
 
             return;
         }
@@ -333,9 +333,9 @@ public partial class KitchenIssuePage : IAsyncDisposable
         if (args.Value.Id == 0)
         {
             if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.AdminRawMaterial, "_blank");
+                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.RawMaterial, "_blank");
             else
-                NavigationManager.NavigateTo(PageRouteNames.AdminRawMaterial);
+                NavigationManager.NavigateTo(PageRouteNames.RawMaterial);
 
             return;
         }
@@ -694,17 +694,17 @@ public partial class KitchenIssuePage : IAsyncDisposable
     private async Task NavigateToTransactionHistoryPage()
     {
         if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportKitchenIssue, "_blank");
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.KitchenIssueReport, "_blank");
         else
-            NavigationManager.NavigateTo(PageRouteNames.ReportKitchenIssue);
+            NavigationManager.NavigateTo(PageRouteNames.KitchenIssueReport);
     }
 
     private async Task NavigateToItemReport()
     {
         if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportKitchenIssueItem, "_blank");
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.KitchenIssueItemReport, "_blank");
         else
-            NavigationManager.NavigateTo(PageRouteNames.ReportKitchenIssueItem);
+            NavigationManager.NavigateTo(PageRouteNames.KitchenIssueItemReport);
     }
 
     private async Task DownloadPdfInvoice()

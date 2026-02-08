@@ -126,7 +126,7 @@ public partial class UserPage : IAsyncDisposable
             await UserData.InsertUser(user);
 
             await _toastNotification.ShowAsync("Deleted", $"User '{user.Name}' removed successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminUser, true);
+            NavigationManager.NavigateTo(PageRouteNames.User, true);
         }
         catch (Exception ex)
         {
@@ -179,7 +179,7 @@ public partial class UserPage : IAsyncDisposable
             await UserData.InsertUser(user);
 
             await _toastNotification.ShowAsync("Recovered", $"User '{user.Name}' restored successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminUser, true);
+            NavigationManager.NavigateTo(PageRouteNames.User, true);
         }
         catch (Exception ex)
         {
@@ -302,7 +302,7 @@ public partial class UserPage : IAsyncDisposable
             await UserData.InsertUser(_user);
 
             await _toastNotification.ShowAsync("Saved", $"User '{_user.Name}' saved successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminUser, true);
+            NavigationManager.NavigateTo(PageRouteNames.User, true);
         }
         catch (Exception ex)
         {
@@ -392,7 +392,7 @@ public partial class UserPage : IAsyncDisposable
     }
 
     private void ResetPage() =>
-        NavigationManager.NavigateTo(PageRouteNames.AdminUser, true);
+        NavigationManager.NavigateTo(PageRouteNames.User, true);
 
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.AdminDashboard);

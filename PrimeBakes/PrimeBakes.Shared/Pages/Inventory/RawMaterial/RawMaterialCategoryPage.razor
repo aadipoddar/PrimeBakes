@@ -1,8 +1,8 @@
-@attribute [Route(PageRouteNames.AdminKitchen)]
+@attribute [Route(PageRouteNames.RawMaterialCategory)]
 
-@using PrimeBakesLibrary.Models.Inventory.Kitchen
+@using PrimeBakesLibrary.Models.Inventory
 
-<PageTitle>Kitchen Management - Prime Bakes</PageTitle>
+<PageTitle>Raw Material Management - Prime Bakes</PageTitle>
 
 @if (_isLoading)
 {
@@ -11,12 +11,12 @@
 else
 {
     <div style="display: flex; flex-direction: column; min-height: 100vh;">
-        <Header Title="Kitchen Management" Subtitle="Manage Kitchen Details" ShowLogout="true" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
+        <Header Title="Raw Material Category Management" Subtitle="Manage raw material categories and details" ShowLogout="true" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
             <RightContent>
                 <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
                 <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
-                <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Kitchen (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveKitchen" />
-                <IconButton Icon="IconType.New" Title="New Kitchen (Ctrl + N)" Disabled="_isProcessing" OnClick="ResetPage" />
+                <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Raw Material Category (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveRawMaterialCategory" />
+                <IconButton Icon="IconType.New" Title="New Raw Material Category (Ctrl + N)" Disabled="_isProcessing" OnClick="ResetPage" />
             </RightContent>
         </Header>
 
@@ -31,7 +31,7 @@ else
                              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
                         </svg>
-                        <h2 class="section-title">Kitchen Details</h2>
+                        <h2 class="section-title">Raw Material Category Details</h2>
                     </div>
                 </div>
                 <div class="section-body">
@@ -39,16 +39,16 @@ else
                         <!-- Kitchen Name -->
                         <div class="form-field">
                             <label class="field-label">
-                                Kitchen Name <span class="required">*</span>
+                                Raw Material Category Name <span class="required">*</span>
                             </label>
-                            <SfTextBox @bind-Value="_kitchen.Name" Placeholder="Enter kitchen name"
+                            <SfTextBox @bind-Value="_rawMaterialCategory.Name" Placeholder="Enter raw material category name"
                                        FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
                         </div>
 
                         <!-- Remarks -->
                         <div class="form-field form-field-span-2">
                             <label class="field-label">Remarks</label>
-                            <SfTextBox @bind-Value="_kitchen.Remarks" Placeholder="Enter remarks (optional)" Multiline="true"
+                            <SfTextBox @bind-Value="_rawMaterialCategory.Remarks" Placeholder="Enter remarks (optional)" Multiline="true"
                                        FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
                         </div>
                     </div>
@@ -64,14 +64,14 @@ else
                             <path d="M9 11l3 3L22 4" />
                             <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
                         </svg>
-                        <h2 class="section-title">Kitchens List</h2>
+                        <h2 class="section-title">Raw Material Categories List</h2>
                     </div>
                     <div class="header-actions">
                         <ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted" OnToggle="ToggleDeleted" />
                     </div>
                 </div>
                 <div class="section-body grid-body">
-                    <SfGrid @ref="_sfGrid" DataSource="@_kitchens" AllowPaging="true" AllowSorting="true" AllowFiltering="true"
+                    <SfGrid @ref="_sfGrid" DataSource="@_rawMaterialCategories" AllowPaging="true" AllowSorting="true" AllowFiltering="true"
                             AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
                         <GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
                         <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
@@ -79,32 +79,34 @@ else
                             <GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center" AllowFiltering="false">
                                 <Template>
                                     @{
-                                        var kitchen = (context as KitchenModel);
+                                        var rawMaterialCategory = (context as RawMaterialCategoryModel);
 
                                         <div class="grid-actions">
-                                            @if (kitchen.Status)
+                                            @if (rawMaterialCategory.Status)
                                             {
-                                                <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid" Title="Edit (Insert)" OnClick="@(() => OnEditKitchen(kitchen))" />
-                                                <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete (Delete)" OnClick="@(() => ShowDeleteConfirmation(kitchen.Id, kitchen.Name))" />
+                                                <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid" Title="Edit (Insert)" OnClick="@(() => OnEditRawMaterialCategory(rawMaterialCategory))" />
+                                                <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete (Delete)" OnClick="@(() => ShowDeleteConfirmation(rawMaterialCategory.Id, rawMaterialCategory.Name))" />
                                             }
                                             else
                                             {
-                                                <IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover" Size="ButtonSize.Grid" Title="Recover (Delete)" OnClick="@(() => ShowRecoverConfirmation(kitchen.Id, kitchen.Name))" />
+                                                <IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover" Size="ButtonSize.Grid" Title="Recover (Delete)" OnClick="@(() => ShowRecoverConfirmation(rawMaterialCategory.Id, rawMaterialCategory.Name))" />
                                             }
                                         </div>
                                     }
                                 </Template>
                             </GridColumn>
-                            <GridColumn Field="@nameof(KitchenModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" />
-                            <GridColumn Field="@nameof(KitchenModel.Name)" HeaderText="Kitchen Name" Width="300" />
-                            <GridColumn Field="@nameof(KitchenModel.Remarks)" HeaderText="Remarks" Width="400" />
-                            <GridColumn Field="@nameof(KitchenModel.Status)" HeaderText="Status" Width="100" TextAlign="TextAlign.Center">
+                            <GridColumn Field="@nameof(RawMaterialCategoryModel.Id)" HeaderText="ID" Width="80"
+                                        TextAlign="TextAlign.Center" />
+                            <GridColumn Field="@nameof(RawMaterialCategoryModel.Name)" HeaderText="Category Name" Width="300" />
+                            <GridColumn Field="@nameof(RawMaterialCategoryModel.Remarks)" HeaderText="Remarks" Width="400" />
+                            <GridColumn Field="@nameof(RawMaterialCategoryModel.Status)" HeaderText="Status" Width="100"
+                                        TextAlign="TextAlign.Center">
                                 <Template>
                                     @{
-                                        var kitchen = (context as KitchenModel);
+                                        var rawMaterialCategory = (context as RawMaterialCategoryModel);
                                         <div class="grid-checkbox"
-                                             style="@(kitchen.Status ? "color: #10b981; background: #d1fae5;" : "color: #dc2626; background: #fee2e2;")">
-                                            @(kitchen.Status ? "✓" : "✗")
+                                             style="@(rawMaterialCategory.Status ? "color: #10b981; background: #d1fae5;" : "color: #dc2626; background: #fee2e2;")">
+                                            @(rawMaterialCategory.Status ? "✓" : "✗")
                                         </div>
                                     }
                                 </Template>
@@ -120,18 +122,18 @@ else
 }
 
 <DeleteConfirmationDialog @ref="_deleteConfirmationDialog"
-                          EntityName="Kitchen"
-                          IdentifierLabel="Kitchen Name"
-                          IdentifierValue="@_deleteKitchenName"
+                          EntityName="Raw Material Category"
+                          IdentifierLabel="Raw Material Category Name"
+                          IdentifierValue="@_deleteRawMaterialCategoryName"
                           IsPermanentDelete="false"
                           Disabled="@_isProcessing"
                           OnConfirm="ConfirmDelete"
                           OnCancel="CancelDelete" />
 
 <RecoverConfirmationDialog @ref="_recoverConfirmationDialog"
-                           EntityName="Kitchen"
-                           IdentifierLabel="Kitchen Name"
-                           IdentifierValue="@_recoverKitchenName"
+                           EntityName="Raw Material Category"
+                           IdentifierLabel="Raw Material Category Name"
+                           IdentifierValue="@_recoverRawMaterialCategoryName"
                            Disabled="@_isProcessing"
                            OnConfirm="ConfirmRecover"
                            OnCancel="CancelRecover" />
@@ -237,7 +239,6 @@ else
         border: none;
     }
 
-    /* Grid Actions */
     .grid-checkbox {
         display: inline-flex;
         align-items: center;

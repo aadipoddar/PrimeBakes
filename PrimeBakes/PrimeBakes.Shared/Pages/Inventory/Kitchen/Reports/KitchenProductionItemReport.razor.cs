@@ -392,9 +392,9 @@ public partial class KitchenProductionItemReport : IAsyncDisposable
     private async Task NavigateToTransactionHistory()
     {
         if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportKitchenProduction, "_blank");
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.KitchenProductionReport, "_blank");
         else
-            NavigationManager.NavigateTo(PageRouteNames.ReportKitchenProduction);
+            NavigationManager.NavigateTo(PageRouteNames.KitchenProductionReport);
     }
 
     private void NavigateToDashboard() =>

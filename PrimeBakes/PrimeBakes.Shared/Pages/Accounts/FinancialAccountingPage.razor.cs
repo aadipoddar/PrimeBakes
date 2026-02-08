@@ -285,9 +285,9 @@ public partial class FinancialAccountingPage : IAsyncDisposable
         if (args.Value.Id == 0)
         {
             if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.AdminCompany, "_blank");
+                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.CompanyMaster, "_blank");
             else
-                NavigationManager.NavigateTo(PageRouteNames.AdminCompany);
+                NavigationManager.NavigateTo(PageRouteNames.CompanyMaster);
 
             return;
         }
@@ -306,9 +306,9 @@ public partial class FinancialAccountingPage : IAsyncDisposable
         if (args.Value.Id == 0)
         {
             if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.AdminVoucher, "_blank");
+                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.VoucherMaster, "_blank");
             else
-                NavigationManager.NavigateTo(PageRouteNames.AdminVoucher);
+                NavigationManager.NavigateTo(PageRouteNames.VoucherMaster);
 
             return;
         }
@@ -335,9 +335,9 @@ public partial class FinancialAccountingPage : IAsyncDisposable
         if (args.Value.Id == 0)
         {
             if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.AdminLedger, "_blank");
+                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.LedgerMaster, "_blank");
             else
-                NavigationManager.NavigateTo(PageRouteNames.AdminLedger);
+                NavigationManager.NavigateTo(PageRouteNames.LedgerMaster);
 
             return;
         }
@@ -789,8 +789,10 @@ public partial class FinancialAccountingPage : IAsyncDisposable
         {
             _isProcessing = true;
             await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
+
             var (pdfStream, fileName) = await FinancialAccountingInvoiceExport.ExportInvoice(Id.Value, InvoiceExportType.PDF);
             await SaveAndViewService.SaveAndView(fileName, pdfStream);
+
             await _toastNotification.ShowAsync("Invoice Downloaded", "The PDF invoice has been downloaded successfully.", ToastType.Success);
         }
         catch (Exception ex)
@@ -818,8 +820,10 @@ public partial class FinancialAccountingPage : IAsyncDisposable
         {
             _isProcessing = true;
             await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
+
             var (excelStream, fileName) = await FinancialAccountingInvoiceExport.ExportInvoice(Id.Value, InvoiceExportType.Excel);
             await SaveAndViewService.SaveAndView(fileName, excelStream);
+
             await _toastNotification.ShowAsync("Invoice Downloaded", "The Excel invoice has been downloaded successfully.", ToastType.Success);
         }
         catch (Exception ex)
@@ -841,41 +845,41 @@ public partial class FinancialAccountingPage : IAsyncDisposable
     private async Task NavigateToTransactionHistoryPage()
     {
         if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportFinancialAccounting, "_blank");
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.FinancialAccountingReport, "_blank");
         else
-            NavigationManager.NavigateTo(PageRouteNames.ReportFinancialAccounting);
+            NavigationManager.NavigateTo(PageRouteNames.FinancialAccountingReport);
     }
 
     private async Task NavigateToItemReport()
     {
         if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportAccountingLedger, "_blank");
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.AccountingLedgerReport, "_blank");
         else
-            NavigationManager.NavigateTo(PageRouteNames.ReportAccountingLedger);
+            NavigationManager.NavigateTo(PageRouteNames.AccountingLedgerReport);
     }
 
     private async Task NavigateToTrialBalance()
     {
         if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportTrialBalance, "_blank");
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.TrialBalanceReport, "_blank");
         else
-            NavigationManager.NavigateTo(PageRouteNames.ReportTrialBalance);
+            NavigationManager.NavigateTo(PageRouteNames.TrialBalanceReport);
     }
 
     private async Task NavigateToProfitAndLoss()
     {
         if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportProfitAndLoss, "_blank");
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ProfitAndLossReport, "_blank");
         else
-            NavigationManager.NavigateTo(PageRouteNames.ReportProfitAndLoss);
+            NavigationManager.NavigateTo(PageRouteNames.ProfitAndLossReport);
     }
 
     private async Task NavigateToBalanceSheet()
     {
         if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportBalanceSheet, "_blank");
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.BalanceSheetReport, "_blank");
         else
-            NavigationManager.NavigateTo(PageRouteNames.ReportBalanceSheet);
+            NavigationManager.NavigateTo(PageRouteNames.BalanceSheetReport);
     }
 
     private async Task ViewReferenceInvoice()

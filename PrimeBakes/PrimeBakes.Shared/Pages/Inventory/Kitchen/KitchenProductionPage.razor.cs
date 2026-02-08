@@ -274,9 +274,9 @@ public partial class KitchenProductionPage : IAsyncDisposable
         if (args.Value.Id == 0)
         {
             if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.AdminCompany, "_blank");
+                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.CompanyMaster, "_blank");
             else
-                NavigationManager.NavigateTo(PageRouteNames.AdminCompany);
+                NavigationManager.NavigateTo(PageRouteNames.CompanyMaster);
 
             return;
         }
@@ -295,9 +295,9 @@ public partial class KitchenProductionPage : IAsyncDisposable
         if (args.Value.Id == 0)
         {
             if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.AdminKitchen, "_blank");
+                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Kitchen, "_blank");
             else
-                NavigationManager.NavigateTo(PageRouteNames.AdminKitchen);
+                NavigationManager.NavigateTo(PageRouteNames.Kitchen);
 
             return;
         }
@@ -326,9 +326,9 @@ public partial class KitchenProductionPage : IAsyncDisposable
         if (args.Value.Id == 0)
         {
             if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.AdminProduct, "_blank");
+                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Product, "_blank");
             else
-                NavigationManager.NavigateTo(PageRouteNames.AdminProduct);
+                NavigationManager.NavigateTo(PageRouteNames.Product);
 
             return;
         }
@@ -680,17 +680,17 @@ public partial class KitchenProductionPage : IAsyncDisposable
     private async Task NavigateToTransactionHistoryPage()
     {
         if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportKitchenProduction, "_blank");
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.KitchenProductionReport, "_blank");
         else
-            NavigationManager.NavigateTo(PageRouteNames.ReportKitchenProduction);
+            NavigationManager.NavigateTo(PageRouteNames.KitchenProductionReport);
     }
 
     private async Task NavigateToItemReport()
     {
         if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportKitchenProductionItem, "_blank");
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.KitchenProductionItemReport, "_blank");
         else
-            NavigationManager.NavigateTo(PageRouteNames.ReportKitchenProductionItem);
+            NavigationManager.NavigateTo(PageRouteNames.KitchenProductionItemReport);
     }
 
     private async Task DownloadPdfInvoice()

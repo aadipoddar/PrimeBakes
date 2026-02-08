@@ -163,7 +163,7 @@ public partial class FinancialYearPage : IAsyncDisposable
             await FinancialYearData.InsertFinancialYear(financialYear);
 
             await _toastNotification.ShowAsync("Success", $"Financial Year '{_deleteFinancialYearName}' has been deleted successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminFinancialYear, true);
+            NavigationManager.NavigateTo(PageRouteNames.FinancialYearMaster, true);
         }
         catch (Exception ex)
         {
@@ -216,7 +216,7 @@ public partial class FinancialYearPage : IAsyncDisposable
             await FinancialYearData.InsertFinancialYear(financialYear);
 
             await _toastNotification.ShowAsync("Success", $"Financial Year '{_recoverFinancialYearName}' has been recovered successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminFinancialYear, true);
+            NavigationManager.NavigateTo(PageRouteNames.FinancialYearMaster, true);
         }
         catch (Exception ex)
         {
@@ -302,7 +302,7 @@ public partial class FinancialYearPage : IAsyncDisposable
             await FinancialYearData.InsertFinancialYear(_financialYear);
 
             await _toastNotification.ShowAsync("Success", $"Financial Year '{_financialYear.StartDate:dd-MMM-yyyy} to {_financialYear.EndDate:dd-MMM-yyyy}' has been saved successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminFinancialYear, true);
+            NavigationManager.NavigateTo(PageRouteNames.FinancialYearMaster, true);
         }
         catch (Exception ex)
         {
@@ -390,7 +390,7 @@ public partial class FinancialYearPage : IAsyncDisposable
     }
 
     private void ResetPage() =>
-        NavigationManager.NavigateTo(PageRouteNames.AdminFinancialYear, true);
+        NavigationManager.NavigateTo(PageRouteNames.FinancialYearMaster, true);
 
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);

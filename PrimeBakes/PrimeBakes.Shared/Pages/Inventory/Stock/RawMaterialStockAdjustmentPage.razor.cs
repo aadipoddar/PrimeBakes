@@ -149,9 +149,9 @@ public partial class RawMaterialStockAdjustmentPage : IAsyncDisposable
         if (args.Value.Id == 0)
         {
             if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.AdminRawMaterial, "_blank");
+                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.RawMaterial, "_blank");
             else
-                NavigationManager.NavigateTo(PageRouteNames.AdminRawMaterial);
+                NavigationManager.NavigateTo(PageRouteNames.RawMaterial);
 
             return;
         }
@@ -406,9 +406,9 @@ public partial class RawMaterialStockAdjustmentPage : IAsyncDisposable
     private async Task NavigateToTransactionHistoryPage()
     {
         if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportRawMaterialStock, "_blank");
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.RawMaterialStockReport, "_blank");
         else
-            NavigationManager.NavigateTo(PageRouteNames.ReportRawMaterialStock);
+            NavigationManager.NavigateTo(PageRouteNames.RawMaterialStockReport);
     }
 
     private void NavigateToDashboard() =>

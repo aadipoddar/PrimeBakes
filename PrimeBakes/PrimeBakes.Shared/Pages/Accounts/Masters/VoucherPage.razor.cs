@@ -117,7 +117,7 @@ public partial class VoucherPage : IAsyncDisposable
             await VoucherData.InsertVoucher(voucher);
 
             await _toastNotification.ShowAsync("Success", $"Voucher '{voucher.Name}' has been deleted successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminVoucher, true);
+            NavigationManager.NavigateTo(PageRouteNames.VoucherMaster, true);
         }
         catch (Exception ex)
         {
@@ -170,7 +170,7 @@ public partial class VoucherPage : IAsyncDisposable
             await VoucherData.InsertVoucher(voucher);
 
             await _toastNotification.ShowAsync("Success", $"Voucher '{voucher.Name}' has been recovered successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminVoucher, true);
+            NavigationManager.NavigateTo(PageRouteNames.VoucherMaster, true);
         }
         catch (Exception ex)
         {
@@ -269,7 +269,7 @@ public partial class VoucherPage : IAsyncDisposable
             await VoucherData.InsertVoucher(_voucher);
 
             await _toastNotification.ShowAsync("Saved", $"Voucher '{_voucher.Name}' has been saved successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminVoucher, true);
+            NavigationManager.NavigateTo(PageRouteNames.VoucherMaster, true);
         }
         catch (Exception ex)
         {
@@ -357,7 +357,7 @@ public partial class VoucherPage : IAsyncDisposable
     }
 
     private void ResetPage() =>
-        NavigationManager.NavigateTo(PageRouteNames.AdminVoucher, true);
+        NavigationManager.NavigateTo(PageRouteNames.VoucherMaster, true);
 
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);

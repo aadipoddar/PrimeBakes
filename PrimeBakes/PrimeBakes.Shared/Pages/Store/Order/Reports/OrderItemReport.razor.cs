@@ -408,16 +408,16 @@ public partial class OrderItemReport : IAsyncDisposable
     private async Task NavigateToTransactionHistory()
     {
         if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportOrder, "_blank");
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.OrderReport, "_blank");
         else
-            NavigationManager.NavigateTo(PageRouteNames.ReportOrder);
+            NavigationManager.NavigateTo(PageRouteNames.OrderReport);
     }
 
     private void NavigateToDashboard() =>
         NavigationManager.NavigateTo(PageRouteNames.Dashboard);
 
     private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.SalesDashboard);
+        NavigationManager.NavigateTo(PageRouteNames.StoreDashboard);
 
     private async Task Logout() =>
         await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);

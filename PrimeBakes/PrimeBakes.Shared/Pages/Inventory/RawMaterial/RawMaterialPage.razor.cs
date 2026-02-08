@@ -12,7 +12,7 @@ using PrimeBakesLibrary.Models.Store.Product;
 using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;
 
-namespace PrimeBakes.Shared.Pages.Inventory.Masters;
+namespace PrimeBakes.Shared.Pages.Inventory.RawMaterial;
 
 public partial class RawMaterialPage : IAsyncDisposable
 {
@@ -167,7 +167,7 @@ public partial class RawMaterialPage : IAsyncDisposable
             await RawMaterialData.InsertRawMaterial(rawMaterial);
 
             await _toastNotification.ShowAsync("Deleted", $"Raw material '{rawMaterial.Name}' has been deleted successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminRawMaterial, true);
+            NavigationManager.NavigateTo(PageRouteNames.RawMaterial, true);
         }
         catch (Exception ex)
         {
@@ -220,7 +220,7 @@ public partial class RawMaterialPage : IAsyncDisposable
             await RawMaterialData.InsertRawMaterial(rawMaterial);
 
             await _toastNotification.ShowAsync("Recovered", $"Raw material '{rawMaterial.Name}' has been recovered successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminRawMaterial, true);
+            NavigationManager.NavigateTo(PageRouteNames.RawMaterial, true);
         }
         catch (Exception ex)
         {
@@ -333,7 +333,7 @@ public partial class RawMaterialPage : IAsyncDisposable
             await RawMaterialData.InsertRawMaterial(_rawMaterial);
 
             await _toastNotification.ShowAsync("Saved", $"Raw material '{_rawMaterial.Name}' has been saved successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminRawMaterial, true);
+            NavigationManager.NavigateTo(PageRouteNames.RawMaterial, true);
         }
         catch (Exception ex)
         {
@@ -451,7 +451,7 @@ public partial class RawMaterialPage : IAsyncDisposable
     }
 
     private void ResetPage() =>
-        NavigationManager.NavigateTo(PageRouteNames.AdminRawMaterial, true);
+        NavigationManager.NavigateTo(PageRouteNames.RawMaterial, true);
 
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);

@@ -593,16 +593,16 @@ public partial class SaleReturnReport : IAsyncDisposable
     private async Task NavigateToItemReport()
     {
         if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportSaleReturnItem, "_blank");
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.SaleReturnItemReport, "_blank");
         else
-            NavigationManager.NavigateTo(PageRouteNames.ReportSaleReturnItem);
+            NavigationManager.NavigateTo(PageRouteNames.SaleReturnItemReport);
     }
 
     private void NavigateToDashboard() =>
         NavigationManager.NavigateTo(PageRouteNames.Dashboard);
 
     private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.SalesDashboard);
+        NavigationManager.NavigateTo(PageRouteNames.StoreDashboard);
 
     private async Task Logout() =>
         await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);

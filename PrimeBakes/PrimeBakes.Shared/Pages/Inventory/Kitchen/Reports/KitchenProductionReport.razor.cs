@@ -543,9 +543,9 @@ public partial class KitchenProductionReport : IAsyncDisposable
     private async Task NavigateToItemReport()
     {
         if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportKitchenProductionItem, "_blank");
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.KitchenProductionItemReport, "_blank");
         else
-            NavigationManager.NavigateTo(PageRouteNames.ReportKitchenProductionItem);
+            NavigationManager.NavigateTo(PageRouteNames.KitchenProductionItemReport);
     }
 
     private void NavigateToDashboard() =>

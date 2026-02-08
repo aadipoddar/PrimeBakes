@@ -139,7 +139,7 @@ public partial class LocationPage : IAsyncDisposable
             await LocationData.InsertLocation(location);
 
             await _toastNotification.ShowAsync("Deleted", $"Location '{location.Name}' removed successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminLocation, true);
+            NavigationManager.NavigateTo(PageRouteNames.Location, true);
         }
         catch (Exception ex)
         {
@@ -192,7 +192,7 @@ public partial class LocationPage : IAsyncDisposable
             await LocationData.InsertLocation(location);
 
             await _toastNotification.ShowAsync("Recovered", $"Location '{location.Name}' restored successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminLocation, true);
+            NavigationManager.NavigateTo(PageRouteNames.Location, true);
         }
         catch (Exception ex)
         {
@@ -303,7 +303,7 @@ public partial class LocationPage : IAsyncDisposable
             _location.Id = await LocationData.SaveTransaction(_location, _copyLocation);
 
             await _toastNotification.ShowAsync("Saved", $"Location '{_location.Name}' saved successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminLocation, true);
+            NavigationManager.NavigateTo(PageRouteNames.Location, true);
         }
         catch (Exception ex)
         {
@@ -393,7 +393,7 @@ public partial class LocationPage : IAsyncDisposable
     }
 
     private void ResetPage() =>
-        NavigationManager.NavigateTo(PageRouteNames.AdminLocation, true);
+        NavigationManager.NavigateTo(PageRouteNames.Location, true);
 
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.AdminDashboard);

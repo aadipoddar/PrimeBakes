@@ -119,7 +119,7 @@ public partial class GroupPage : IAsyncDisposable
             await GroupData.InsertGroup(group);
 
             await _toastNotification.ShowAsync("Success", $"Group '{group.Name}' has been deleted successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminGroup, true);
+            NavigationManager.NavigateTo(PageRouteNames.GroupMaster, true);
         }
         catch (Exception ex)
         {
@@ -172,7 +172,7 @@ public partial class GroupPage : IAsyncDisposable
             await GroupData.InsertGroup(group);
 
             await _toastNotification.ShowAsync("Success", $"Group '{group.Name}' has been recovered successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminGroup, true);
+            NavigationManager.NavigateTo(PageRouteNames.GroupMaster, true);
         }
         catch (Exception ex)
         {
@@ -254,7 +254,7 @@ public partial class GroupPage : IAsyncDisposable
             await GroupData.InsertGroup(_group);
 
             await _toastNotification.ShowAsync("Success", $"Group '{_group.Name}' has been saved successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminGroup, true);
+            NavigationManager.NavigateTo(PageRouteNames.GroupMaster, true);
         }
         catch (Exception ex)
         {
@@ -342,7 +342,7 @@ public partial class GroupPage : IAsyncDisposable
     }
 
     private void ResetPage() =>
-        NavigationManager.NavigateTo(PageRouteNames.AdminGroup, true);
+        NavigationManager.NavigateTo(PageRouteNames.GroupMaster, true);
 
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);

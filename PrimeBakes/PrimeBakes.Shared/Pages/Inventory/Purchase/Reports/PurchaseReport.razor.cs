@@ -729,9 +729,9 @@ public partial class PurchaseReport : IAsyncDisposable
     private async Task NavigateToItemReport()
     {
         if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportPurchaseItem, "_blank");
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.PurchaseItemReport, "_blank");
         else
-            NavigationManager.NavigateTo(PageRouteNames.ReportPurchaseItem);
+            NavigationManager.NavigateTo(PageRouteNames.PurchaseItemReport);
     }
 
     private void NavigateToDashboard() =>

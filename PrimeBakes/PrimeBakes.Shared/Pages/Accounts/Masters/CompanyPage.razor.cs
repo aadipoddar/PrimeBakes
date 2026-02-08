@@ -127,7 +127,7 @@ public partial class CompanyPage : IAsyncDisposable
             await CompanyData.InsertCompany(company);
 
             await _toastNotification.ShowAsync("Success", $"Company '{company.Name}' has been deleted successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminCompany, true);
+            NavigationManager.NavigateTo(PageRouteNames.CompanyMaster, true);
         }
         catch (Exception ex)
         {
@@ -180,7 +180,7 @@ public partial class CompanyPage : IAsyncDisposable
             await CompanyData.InsertCompany(company);
 
             await _toastNotification.ShowAsync("Success", $"Company '{company.Name}' has been recovered successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminCompany, true);
+            NavigationManager.NavigateTo(PageRouteNames.CompanyMaster, true);
         }
         catch (Exception ex)
         {
@@ -359,7 +359,7 @@ public partial class CompanyPage : IAsyncDisposable
             await CompanyData.InsertCompany(_company);
 
             await _toastNotification.ShowAsync("Success", $"Company '{_company.Name}' has been saved successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminCompany, true);
+            NavigationManager.NavigateTo(PageRouteNames.CompanyMaster, true);
         }
         catch (Exception ex)
         {
@@ -447,7 +447,7 @@ public partial class CompanyPage : IAsyncDisposable
     }
 
     private void ResetPage() =>
-        NavigationManager.NavigateTo(PageRouteNames.AdminCompany, true);
+        NavigationManager.NavigateTo(PageRouteNames.CompanyMaster, true);
 
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);

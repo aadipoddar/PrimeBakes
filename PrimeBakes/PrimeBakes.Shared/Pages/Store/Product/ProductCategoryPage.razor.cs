@@ -116,7 +116,7 @@ public partial class ProductCategoryPage : IAsyncDisposable
             await ProductData.InsertProductCategory(productCategory);
 
             await _toastNotification.ShowAsync("Deleted", $"Category '{productCategory.Name}' removed successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminProductCategory, true);
+            NavigationManager.NavigateTo(PageRouteNames.ProductCategory, true);
         }
         catch (Exception ex)
         {
@@ -169,7 +169,7 @@ public partial class ProductCategoryPage : IAsyncDisposable
             await ProductData.InsertProductCategory(productCategory);
 
             await _toastNotification.ShowAsync("Recovered", $"Category '{productCategory.Name}' restored successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminProductCategory, true);
+            NavigationManager.NavigateTo(PageRouteNames.ProductCategory, true);
         }
         catch (Exception ex)
         {
@@ -245,7 +245,7 @@ public partial class ProductCategoryPage : IAsyncDisposable
             await ProductData.InsertProductCategory(_productCategory);
 
             await _toastNotification.ShowAsync("Saved", $"Category '{_productCategory.Name}' saved successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AdminProductCategory, true);
+            NavigationManager.NavigateTo(PageRouteNames.ProductCategory, true);
         }
         catch (Exception ex)
         {
@@ -335,10 +335,10 @@ public partial class ProductCategoryPage : IAsyncDisposable
     }
 
     private void ResetPage() =>
-        NavigationManager.NavigateTo(PageRouteNames.AdminProductCategory, true);
+        NavigationManager.NavigateTo(PageRouteNames.ProductCategory, true);
 
     private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.SalesDashboard);
+        NavigationManager.NavigateTo(PageRouteNames.StoreDashboard);
 
     private void NavigateToDashboard() =>
         NavigationManager.NavigateTo(PageRouteNames.Dashboard);
