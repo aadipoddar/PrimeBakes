@@ -128,7 +128,19 @@ public class SaleThermalPrint
 
     private static async Task AddTotalDetails(SaleOverviewModel sale, StringBuilder content)
     {
+        var saleDetails = await CommonData.LoadTableDataByMasterId<SaleDetailModel>(TableNames.SaleDetail, sale.Id);
+
         content.AppendLine("<table class='summary-table'>");
+
+        if (saleDetails.Where(s => !s.InclusiveTax).Sum(s => s.CGSTAmount) > 0)
+            content.AppendLine($"<tr><td class='summary-label'>CGST:</td><td align='right' class='summary-value'>{saleDetails.Sum(s => s.CGSTAmount).FormatIndianCurrency()}</td></tr>");
+
+        if (saleDetails.Where(s => !s.InclusiveTax).Sum(s => s.SGSTAmount) > 0)
+            content.AppendLine($"<tr><td class='summary-label'>SGST:</td><td align='right' class='summary-value'>{saleDetails.Sum(s => s.SGSTAmount).FormatIndianCurrency()}</td></tr>");
+
+        if (saleDetails.Where(s => !s.InclusiveTax).Sum(s => s.IGSTAmount) > 0)
+            content.AppendLine($"<tr><td class='summary-label'>IGST:</td><td align='right' class='summary-value'>{saleDetails.Sum(s => s.IGSTAmount).FormatIndianCurrency()}</td></tr>");
+
         content.AppendLine($"<tr><td class='summary-label'>Sub Total:</td><td align='right' class='summary-value'>{sale.TotalAfterTax.FormatIndianCurrency()}</td></tr>");
 
         if (sale.DiscountPercent > 0)
