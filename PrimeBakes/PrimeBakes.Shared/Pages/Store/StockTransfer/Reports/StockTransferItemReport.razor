@@ -124,10 +124,10 @@ else
                         <h2 class="section-title">Stock Transfer Item Transactions</h2>
                     </div>
                     <div class="header-actions">
-                        <ToggleSummaryButton Disabled="@_isProcessing" ShowSummary="@_showSummary"
-                                             OnToggle="ToggleSummary" />
-                        <ToggleDetailsButton Disabled="@_isProcessing" ShowAllColumns="@_showAllColumns"
-                                             OnToggle="ToggleDetailsView" />
+                        <ToggleButton Disabled="@_isProcessing" IsActive="@_showSummary"
+                                      Variant="ToggleButton.ToggleVariant.Summary" OnToggle="ToggleSummary" />
+                        <ToggleButton Disabled="@_isProcessing" IsActive="@_showAllColumns"
+                                      Variant="ToggleButton.ToggleVariant.Details" OnToggle="ToggleDetailsView" />
                     </div>
                 </div>
                 <div class="section-body grid-body">

@@ -95,8 +95,8 @@ else
 						<h2 class="section-title">Profit & Loss Statement</h2>
 					</div>
 					<div class="header-actions">
-						<ToggleDetailsButton Disabled="@_isProcessing" ShowAllColumns="@_showAllColumns"
-											 OnToggle="ToggleDetailsView" />
+						<ToggleButton Disabled="@_isProcessing" IsActive="@_showAllColumns"
+									  Variant="ToggleButton.ToggleVariant.Details" OnToggle="ToggleDetailsView" />
 					</div>
 				</div>
 				<div class="section-body grid-body">

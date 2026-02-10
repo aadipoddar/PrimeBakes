@@ -67,7 +67,8 @@ else
                         <h2 class="section-title">Raw Material Categories List</h2>
                     </div>
                     <div class="header-actions">
-                        <ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted" OnToggle="ToggleDeleted" />
+                        <ToggleButton Disabled="@_isProcessing" IsActive="@_showDeleted"
+                                      Variant="ToggleButton.ToggleVariant.Deleted" OnToggle="ToggleDeleted" />
                     </div>
                 </div>
                 <div class="section-body grid-body">

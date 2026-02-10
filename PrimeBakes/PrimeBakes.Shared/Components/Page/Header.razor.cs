@@ -1,5 +1,3 @@
-#nullable enable
-
 using Microsoft.AspNetCore.Components;
 
 namespace PrimeBakes.Shared.Components.Page;

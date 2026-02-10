@@ -2,6 +2,8 @@ using System.Reflection;
 
 using Microsoft.AspNetCore.Components;
 
+using PrimeBakesLibrary.DataAccess;
+
 namespace PrimeBakes.Shared.Components.Page;
 
 public partial class Footer
@@ -19,5 +21,5 @@ public partial class Footer
         Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "1.0.0.0";
 
     private static string CopyrightUrl =>
-        "https://aadisoft.vercel.app";
+        Secrets.AadiSoftWebsite;
 }

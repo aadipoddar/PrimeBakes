@@ -1,0 +1,17 @@
+<div class="balance-info-card @GetVariantClass()">
+    <div class="card-icon">
+        @Icon
+    </div>
+    <div class="card-content">
+        <div class="card-label">@Label</div>
+        <div class="card-value @GetAmountClass()">
+            @Value
+        </div>
+        @if (!string.IsNullOrEmpty(Breakdown))
+        {
+            <div class="card-breakdown">
+                <span class="breakdown-item">@Breakdown</span>
+            </div>
+        }
+    </div>
+</div>

@@ -124,17 +124,17 @@ else
                     <div class="header-actions">
                         @if (_user.LocationId == 1)
                         {
-                            <ToggleSummaryButton Disabled="@_isProcessing" ShowSummary="@_showSummary"
-                                                 OnToggle="ToggleSummary" />
+                            <ToggleButton Disabled="@_isProcessing" IsActive="@_showSummary"
+                                          Variant="ToggleButton.ToggleVariant.Summary" OnToggle="ToggleSummary" />
                         }
-                        <ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted"
-                                             OnToggle="ToggleDeleted" />
-                        <ToggleReturnsButton Disabled="@_isProcessing" ShowReturns="@_showSaleReturns"
-                                             OnToggle="ToggleSaleReturns" />
-                        <ToggleTransfersButton Disabled="@_isProcessing" ShowTransfers="@_showStockTransfers"
-                                               OnToggle="ToggleStockTransfers" />
-                        <ToggleDetailsButton Disabled="@_isProcessing" ShowAllColumns="@_showAllColumns"
-                                             OnToggle="ToggleDetailsView" />
+                        <ToggleButton Disabled="@_isProcessing" IsActive="@_showDeleted"
+                                      Variant="ToggleButton.ToggleVariant.Deleted" OnToggle="ToggleDeleted" />
+                        <ToggleButton Disabled="@_isProcessing" IsActive="@_showSaleReturns"
+                                      Variant="ToggleButton.ToggleVariant.Returns" OnToggle="ToggleSaleReturns" />
+                        <ToggleButton Disabled="@_isProcessing" IsActive="@_showStockTransfers"
+                                      Variant="ToggleButton.ToggleVariant.Transfers" OnToggle="ToggleStockTransfers" />
+                        <ToggleButton Disabled="@_isProcessing" IsActive="@_showAllColumns"
+                                      Variant="ToggleButton.ToggleVariant.Details" OnToggle="ToggleDetailsView" />
                     </div>
                 </div>
                 <div class="section-body grid-body">

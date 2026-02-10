@@ -1,0 +1,164 @@
+/* Balance Info Card Styles */
+.balance-info-card {
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	padding: 14px;
+	display: flex;
+	gap: 12px;
+	align-items: center;
+	transition: all 0.2s ease;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+	.balance-info-card:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	}
+
+	.balance-info-card .card-icon {
+		width: 36px;
+		height: 36px;
+		border-radius: 7px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		transition: all 0.2s ease;
+	}
+
+	.balance-info-card:hover .card-icon {
+		transform: scale(1.05);
+	}
+
+/* Card Icon Variants */
+.opening-card .card-icon {
+	background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+	color: #ffffff;
+}
+
+.debit-card .card-icon {
+	background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+	color: #ffffff;
+}
+
+.credit-card .card-icon {
+	background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+	color: #ffffff;
+}
+
+.closing-card .card-icon {
+	background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+	color: #ffffff;
+}
+
+.assets-card .card-icon {
+	background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+	color: #ffffff;
+}
+
+.liabilities-card .card-icon {
+	background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+	color: #ffffff;
+}
+
+.positive-card .card-icon {
+	background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+	color: #ffffff;
+}
+
+.negative-card .card-icon {
+	background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+	color: #ffffff;
+}
+
+.income-card .card-icon {
+	background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+	color: #ffffff;
+}
+
+.expense-card .card-icon {
+	background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+	color: #ffffff;
+}
+
+.profit-card .card-icon {
+	background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+	color: #ffffff;
+}
+
+.loss-card .card-icon {
+	background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+	color: #ffffff;
+}
+
+/* Card Content */
+.balance-info-card .card-content {
+	flex: 1;
+	min-width: 0;
+}
+
+.balance-info-card .card-label {
+	font-size: 11px;
+	font-weight: 600;
+	color: #64748b;
+	text-transform: uppercase;
+	letter-spacing: 0.3px;
+	margin-bottom: 5px;
+}
+
+.balance-info-card .card-value {
+	font-size: 18px;
+	font-weight: 700;
+	color: #0f172a;
+	margin-bottom: 3px;
+	line-height: 1.2;
+}
+
+/* Amount Colors */
+.balance-info-card .debit-amount {
+	color: #dc2626;
+}
+
+.balance-info-card .credit-amount {
+	color: #059669;
+}
+
+.balance-info-card .assets-amount {
+	color: #0891b2;
+}
+
+.balance-info-card .liabilities-amount {
+	color: #6366f1;
+}
+
+.balance-info-card .positive-amount {
+	color: #059669;
+}
+
+.balance-info-card .negative-amount {
+	color: #dc2626;
+}
+
+.balance-info-card .profit-amount {
+	color: #0891b2;
+}
+
+.balance-info-card .loss-amount {
+	color: #d97706;
+}
+
+.balance-info-card .card-breakdown {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 10px;
+	font-weight: 500;
+	margin-top: 5px;
+	color: #64748b;
+}
+
+.breakdown-item {
+	display: inline-flex;
+	white-space: nowrap;
+}

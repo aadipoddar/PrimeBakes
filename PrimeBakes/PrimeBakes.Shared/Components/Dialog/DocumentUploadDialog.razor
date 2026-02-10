@@ -1,0 +1,261 @@
+<SfDialog @ref="_dialog" Width="700px" IsModal="true" ShowCloseIcon="true" @bind-Visible="IsVisible">
+    <DialogEvents Closed="HandleDialogClose" />
+    <DialogTemplates>
+        <Header>
+            <div style="display: flex; align-items: center; gap: 12px; padding: 4px 0;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                     style="color: #3b82f6;">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17 8 12 3 7 8" />
+                    <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+                <span style="font-size: 18px; font-weight: 600; color: #0f172a;">@Title</span>
+            </div>
+        </Header>
+        <Content>
+            <div style="padding: 24px;">
+                @if (!string.IsNullOrEmpty(ExistingDocumentUrl))
+                {
+                    <!-- Existing Document Section -->
+                    <div style="background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 12px; padding: 32px; text-align: center; margin-bottom: 24px;">
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                 style="color: #10b981;">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                <polyline points="14 2 14 8 20 8" />
+                                <line x1="9" y1="15" x2="15" y2="15" />
+                                <line x1="9" y1="11" x2="15" y2="11" />
+                            </svg>
+                            <div>
+                                <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #0f172a;">
+                                    Document Uploaded Successfully
+                                </h3>
+                                <p style="margin: 0; font-size: 14px; color: #64748b;">
+                                    @(ExistingDocumentUrl.Split('/').Last())
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                        <button class="dialog-btn dialog-btn-primary" @onclick="OnDownloadClick">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="7 10 12 15 17 10" />
+                                <line x1="12" y1="15" x2="12" y2="3" />
+                            </svg>
+                            <span>Download</span>
+                        </button>
+                        @if (ShowInterpretButton)
+                        {
+                            <button class="dialog-btn dialog-btn-info" @onclick="OnInterpretClick">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="12" y1="16" x2="12" y2="12" />
+                                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                                </svg>
+                                <span>Interpret</span>
+                            </button>
+                        }
+                        <button class="dialog-btn dialog-btn-danger" @onclick="OnRemoveClick">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6" />
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                <line x1="10" y1="11" x2="10" y2="17" />
+                                <line x1="14" y1="11" x2="14" y2="17" />
+                            </svg>
+                            <span>Remove</span>
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <!-- Upload Area -->
+                    <div style="background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 12px; padding: 48px 32px; text-align: center; transition: all 0.3s ease;">
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 16px; margin-bottom: 24px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                 style="color: #94a3b8;">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="17 8 12 3 7 8" />
+                                <line x1="12" y1="3" x2="12" y2="15" />
+                            </svg>
+                            <div>
+                                <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #0f172a;">
+                                    Upload Document
+                                </h3>
+                                <p style="margin: 0 0 4px 0; font-size: 14px; color: #64748b;">
+                                    Drag and drop your file here or click to browse
+                                </p>
+                                <p style="margin: 0; font-size: 12px; color: #94a3b8;">
+                                    Supported formats: PDF, DOC, DOCX, JPG, JPEG, PNG (Max 50MB)
+                                </p>
+                            </div>
+                        </div>
+
+                        <SfUploader @ref="UploaderReference" AutoUpload="true" ShowFileList="true" ShowProgressBar="true"
+                                    AllowMultiple="false" MaxFileSize="52428800" AllowedExtensions=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                    CssClass="custom-uploader">
+                            <UploaderEvents ValueChange="OnFileChange" OnRemove="OnFileRemove" />
+                        </SfUploader>
+                    </div>
+
+                    <!-- Info Section -->
+                    <div style="margin-top: 20px; padding: 16px; background: #eff6ff; border-left: 4px solid #3b82f6; border-radius: 6px;">
+                        <p style="margin: 0; font-size: 13px; color: #1e40af; line-height: 1.6;">
+                            <strong>Note:</strong> @InfoMessage
+                        </p>
+                    </div>
+                }
+            </div>
+        </Content>
+    </DialogTemplates>
+</SfDialog>
+
+<style>
+    /* Dialog Button Styles */
+    .dialog-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        height: 44px;
+        padding: 0 24px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    }
+
+        .dialog-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        .dialog-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        }
+
+        .dialog-btn svg {
+            flex-shrink: 0;
+        }
+
+    .dialog-btn-primary {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+    }
+
+        .dialog-btn-primary:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        }
+
+    .dialog-btn-info {
+        background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+        color: white;
+    }
+
+        .dialog-btn-info:hover {
+            background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+        }
+
+    .dialog-btn-danger {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+    }
+
+        .dialog-btn-danger:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        }
+
+    /* Custom Uploader Styles */
+    ::deep .custom-uploader .e-upload {
+        border: none;
+        background: transparent;
+    }
+
+    ::deep .custom-uploader .e-file-select-wrap {
+        padding: 0;
+    }
+
+    ::deep .custom-uploader .e-file-select {
+        background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 32px;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        transition: all 0.2s ease;
+    }
+
+        ::deep .custom-uploader .e-file-select:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+    ::deep .custom-uploader .e-file-drop {
+        border: none;
+        padding: 0;
+        background: transparent;
+    }
+
+    ::deep .custom-uploader .e-upload-files {
+        margin-top: 24px;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+    }
+
+    ::deep .custom-uploader .e-upload-file-list {
+        padding: 16px;
+        border-radius: 8px;
+    }
+
+    ::deep .custom-uploader .e-file-name {
+        font-weight: 600;
+        color: #0f172a;
+    }
+
+    ::deep .custom-uploader .e-file-size {
+        color: #64748b;
+        font-size: 13px;
+    }
+
+    ::deep .custom-uploader .e-file-status {
+        color: #10b981;
+        font-weight: 500;
+    }
+
+    ::deep .custom-uploader .e-icons.e-file-delete-btn,
+    ::deep .custom-uploader .e-icons.e-file-remove-btn {
+        color: #ef4444;
+        transition: all 0.2s ease;
+    }
+
+        ::deep .custom-uploader .e-icons.e-file-delete-btn:hover,
+        ::deep .custom-uploader .e-icons.e-file-remove-btn:hover {
+            color: #dc2626;
+            transform: scale(1.1);
+        }
+
+    ::deep .custom-uploader .e-upload-progress-wrap {
+        background: #e2e8f0;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    ::deep .custom-uploader .e-upload-progress-bar {
+        background: linear-gradient(90deg, #3b82f6 0%, #6366f1 100%);
+    }
+</style>

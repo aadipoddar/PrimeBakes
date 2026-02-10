@@ -1,0 +1,197 @@
+/* Base Toggle Button Styles */
+.btn-toggle {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	height: 38px;
+	padding: 0 20px;
+	border: 1px solid rgba(226, 232, 240, 0.4);
+	background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.7) 100%);
+	backdrop-filter: blur(15px);
+	-webkit-backdrop-filter: blur(15px);
+	border-radius: 10px;
+	font-size: 13px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	color: #64748b;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+	position: relative;
+	overflow: hidden;
+}
+
+	.btn-toggle::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 50%;
+		background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 100%);
+		border-radius: 10px 10px 0 0;
+		pointer-events: none;
+	}
+
+	.btn-toggle:active:not(:disabled) {
+		transform: translateY(0) scale(0.99);
+		transition: all 0.1s ease;
+	}
+
+	.btn-toggle:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+		transform: none;
+		backdrop-filter: blur(10px);
+	}
+
+		.btn-toggle:disabled:hover {
+			background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.7) 100%);
+			border-color: rgba(226, 232, 240, 0.4);
+			color: #64748b;
+			transform: none;
+		}
+
+	.btn-toggle svg {
+		flex-shrink: 0;
+	}
+
+/* Details Variant (Blue) */
+.btn-toggle-details {
+	border-color: rgba(59, 130, 246, 0.3);
+	background: linear-gradient(135deg, rgba(239, 246, 255, 0.9) 0%, rgba(219, 234, 254, 0.7) 100%);
+	color: #3b82f6;
+	box-shadow: 0 1px 4px rgba(59, 130, 246, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+}
+
+	.btn-toggle-details:hover:not(:disabled) {
+		background: linear-gradient(135deg, rgba(219, 234, 254, 0.95) 0%, rgba(191, 219, 254, 0.8) 100%);
+		border-color: rgba(59, 130, 246, 0.5);
+		box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2), 0 4px 16px rgba(59, 130, 246, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.9);
+		transform: translateY(-2px) scale(1.01);
+	}
+
+	.btn-toggle-details:disabled:hover {
+		background: linear-gradient(135deg, rgba(239, 246, 255, 0.9) 0%, rgba(219, 234, 254, 0.7) 100%);
+		border-color: rgba(59, 130, 246, 0.3);
+	}
+
+/* Deleted Variant (Orange) */
+.btn-toggle-deleted:hover:not(:disabled) {
+	background: linear-gradient(135deg, rgba(255, 247, 237, 0.9) 0%, rgba(254, 243, 199, 0.7) 100%);
+	border-color: rgba(249, 115, 22, 0.4);
+	color: #f97316;
+	box-shadow: 0 2px 8px rgba(249, 115, 22, 0.2), 0 4px 16px rgba(249, 115, 22, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.9);
+	transform: translateY(-2px) scale(1.01);
+}
+
+.btn-toggle-deleted.active {
+	background: linear-gradient(135deg, rgba(249, 115, 22, 0.9) 0%, rgba(234, 88, 12, 0.85) 100%);
+	border-color: rgba(255, 255, 255, 0.2);
+	color: #ffffff;
+	box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3), 0 4px 16px rgba(249, 115, 22, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+	.btn-toggle-deleted.active::before {
+		background: linear-gradient(180deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0) 100%);
+	}
+
+	.btn-toggle-deleted.active:hover:not(:disabled) {
+		background: linear-gradient(135deg, rgba(234, 88, 12, 0.95) 0%, rgba(194, 65, 12, 0.9) 100%);
+		box-shadow: 0 3px 12px rgba(249, 115, 22, 0.4), 0 6px 24px rgba(249, 115, 22, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+		transform: translateY(-2px) scale(1.01);
+	}
+
+.btn-toggle-deleted:active:not(:disabled) {
+	box-shadow: 0 1px 4px rgba(249, 115, 22, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+}
+
+/* Summary Variant (Purple) */
+.btn-toggle-summary:hover:not(:disabled) {
+	background: linear-gradient(135deg, rgba(250, 245, 255, 0.9) 0%, rgba(243, 232, 255, 0.7) 100%);
+	border-color: rgba(168, 85, 247, 0.4);
+	color: #a855f7;
+	box-shadow: 0 2px 8px rgba(168, 85, 247, 0.2), 0 4px 16px rgba(168, 85, 247, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.9);
+	transform: translateY(-2px) scale(1.01);
+}
+
+.btn-toggle-summary.active {
+	background: linear-gradient(135deg, rgba(168, 85, 247, 0.9) 0%, rgba(147, 51, 234, 0.85) 100%);
+	border-color: rgba(255, 255, 255, 0.2);
+	color: #ffffff;
+	box-shadow: 0 2px 8px rgba(168, 85, 247, 0.3), 0 4px 16px rgba(168, 85, 247, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+	.btn-toggle-summary.active::before {
+		background: linear-gradient(180deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0) 100%);
+	}
+
+	.btn-toggle-summary.active:hover:not(:disabled) {
+		background: linear-gradient(135deg, rgba(147, 51, 234, 0.95) 0%, rgba(126, 34, 206, 0.9) 100%);
+		box-shadow: 0 3px 12px rgba(168, 85, 247, 0.4), 0 6px 24px rgba(168, 85, 247, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+		transform: translateY(-2px) scale(1.01);
+	}
+
+.btn-toggle-summary:active:not(:disabled) {
+	box-shadow: 0 1px 4px rgba(168, 85, 247, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+}
+
+/* Returns Variant (Red) */
+.btn-toggle-returns:hover:not(:disabled) {
+	background: linear-gradient(135deg, rgba(254, 242, 242, 0.9) 0%, rgba(254, 226, 226, 0.7) 100%);
+	border-color: rgba(239, 68, 68, 0.4);
+	color: #ef4444;
+	box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2), 0 4px 16px rgba(239, 68, 68, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.9);
+	transform: translateY(-2px) scale(1.01);
+}
+
+.btn-toggle-returns.active {
+	background: linear-gradient(135deg, rgba(239, 68, 68, 0.9) 0%, rgba(220, 38, 38, 0.85) 100%);
+	border-color: rgba(255, 255, 255, 0.2);
+	color: #ffffff;
+	box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3), 0 4px 16px rgba(239, 68, 68, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+	.btn-toggle-returns.active::before {
+		background: linear-gradient(180deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0) 100%);
+	}
+
+	.btn-toggle-returns.active:hover:not(:disabled) {
+		background: linear-gradient(135deg, rgba(220, 38, 38, 0.95) 0%, rgba(185, 28, 28, 0.9) 100%);
+		box-shadow: 0 3px 12px rgba(239, 68, 68, 0.4), 0 6px 24px rgba(239, 68, 68, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+		transform: translateY(-2px) scale(1.01);
+	}
+
+.btn-toggle-returns:active:not(:disabled) {
+	box-shadow: 0 1px 4px rgba(239, 68, 68, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+}
+
+/* Transfers Variant (Cyan) */
+.btn-toggle-transfers:hover:not(:disabled) {
+	background: linear-gradient(135deg, rgba(240, 249, 255, 0.9) 0%, rgba(224, 242, 254, 0.7) 100%);
+	border-color: rgba(14, 165, 233, 0.4);
+	color: #0ea5e9;
+	box-shadow: 0 2px 8px rgba(14, 165, 233, 0.2), 0 4px 16px rgba(14, 165, 233, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.9);
+	transform: translateY(-2px) scale(1.01);
+}
+
+.btn-toggle-transfers.active {
+	background: linear-gradient(135deg, rgba(14, 165, 233, 0.9) 0%, rgba(2, 132, 199, 0.85) 100%);
+	border-color: rgba(255, 255, 255, 0.2);
+	color: #ffffff;
+	box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3), 0 4px 16px rgba(14, 165, 233, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+	.btn-toggle-transfers.active::before {
+		background: linear-gradient(180deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0) 100%);
+	}
+
+	.btn-toggle-transfers.active:hover:not(:disabled) {
+		background: linear-gradient(135deg, rgba(2, 132, 199, 0.95) 0%, rgba(3, 105, 161, 0.9) 100%);
+		box-shadow: 0 3px 12px rgba(14, 165, 233, 0.4), 0 6px 24px rgba(14, 165, 233, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+		transform: translateY(-2px) scale(1.01);
+	}
+
+.btn-toggle-transfers:active:not(:disabled) {
+	box-shadow: 0 1px 4px rgba(14, 165, 233, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+}

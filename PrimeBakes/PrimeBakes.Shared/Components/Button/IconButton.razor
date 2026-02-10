@@ -243,7 +243,7 @@
 
         case IconType.ThermalPrinter:
             <svg xmlns="http://www.w3.org/2000/svg" width="@IconSize" height="@IconSize" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="6" y="2" width="12" height="6" rx="1" />
                 <path d="M6 8H4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h2" />
                 <path d="M18 8h2a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
@@ -251,6 +251,15 @@
                 <path d="M9 18h6" />
                 <circle cx="8" cy="11" r="0.5" fill="currentColor" />
                 <circle cx="16" cy="11" r="0.5" fill="currentColor" />
+            </svg>
+            break;
+
+        case IconType.Get:
+            <svg xmlns="http://www.w3.org/2000/svg" width="@IconSize" height="@IconSize" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                <line x1="12" y1="22.08" x2="12" y2="12" />
             </svg>
             break;
 
@@ -442,6 +451,20 @@
             height: 28px;
             border-radius: 8px;
         }
+
+        /* Get Button - Glass Light Green */
+        .icon-btn.icon-btn-get {
+            color: #10b981;
+            border-color: rgba(16, 185, 129, 0.3);
+            background: linear-gradient(135deg, rgba(236, 253, 245, 0.9) 0%, rgba(209, 250, 229, 0.7) 100%);
+        }
+
+            .icon-btn.icon-btn-get:hover:not(:disabled) {
+                background: linear-gradient(135deg, rgba(236, 253, 245, 0.95) 0%, rgba(167, 243, 208, 0.8) 100%);
+                border-color: rgba(5, 150, 105, 0.5);
+                color: #059669;
+                box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2), 0 8px 24px rgba(16, 185, 129, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.9);
+            }
 
         /* Add Button - Primary Action Glass */
         .icon-btn.icon-btn-add {

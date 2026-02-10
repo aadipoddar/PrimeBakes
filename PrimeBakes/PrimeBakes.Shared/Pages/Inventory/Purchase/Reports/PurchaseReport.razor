@@ -101,14 +101,14 @@ else
 						<h2 class="section-title">Purchase Transactions</h2>
 					</div>
 					<div class="header-actions">
-						<ToggleSummaryButton Disabled="@_isProcessing" ShowSummary="@_showSummary"
-											 OnToggle="ToggleSummary" />
-						<ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted"
-											 OnToggle="ToggleDeleted" />
-						<ToggleReturnsButton Disabled="@_isProcessing" ShowReturns="@_showTransactionReturns"
-											 OnToggle="ToggleTransactionReturns" />
-						<ToggleDetailsButton Disabled="@_isProcessing" ShowAllColumns="@_showAllColumns"
-											 OnToggle="ToggleDetailsView" />
+						<ToggleButton Disabled="@_isProcessing" IsActive="@_showSummary"
+									  Variant="ToggleButton.ToggleVariant.Summary" OnToggle="ToggleSummary" />
+						<ToggleButton Disabled="@_isProcessing" IsActive="@_showDeleted"
+									  Variant="ToggleButton.ToggleVariant.Deleted" OnToggle="ToggleDeleted" />
+						<ToggleButton Disabled="@_isProcessing" IsActive="@_showTransactionReturns"
+									  Variant="ToggleButton.ToggleVariant.Returns" OnToggle="ToggleTransactionReturns" />
+						<ToggleButton Disabled="@_isProcessing" IsActive="@_showAllColumns"
+									  Variant="ToggleButton.ToggleVariant.Details" OnToggle="ToggleDetailsView" />
 					</div>
 				</div>
 				<div class="section-body grid-body">
