@@ -57,7 +57,7 @@ public partial class ProductStockReport : IAsyncDisposable
         if (!firstRender)
             return;
 
-        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, UserRoles.Inventory, true);
+        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Inventory, UserRoles.Reports], true);
         await LoadData();
         _isLoading = false;
         StateHasChanged();

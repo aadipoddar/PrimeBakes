@@ -1,9 +1,9 @@
-﻿using System.Data;
-using System.Diagnostics.CodeAnalysis;
-
-using Dapper;
+﻿using Dapper;
 
 using Microsoft.Data.SqlClient;
+
+using System.Data;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PrimeBakesLibrary.DataAccess;
 

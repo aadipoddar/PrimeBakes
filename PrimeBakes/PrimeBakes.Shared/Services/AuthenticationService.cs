@@ -8,7 +8,7 @@ namespace PrimeBakes.Shared.Services;
 
 public static class AuthenticationService
 {
-    public static async Task<UserModel> ValidateUser(IDataStorageService dataStorageService, NavigationManager navigationManager, INotificationService notificationService, IVibrationService vibrationService, Enum userRoles = null, bool primaryLocationRequirement = false)
+    public static async Task<UserModel> ValidateUser(IDataStorageService dataStorageService, NavigationManager navigationManager, INotificationService notificationService, IVibrationService vibrationService, List<UserRoles> userRoles = null, bool primaryLocationRequirement = false)
     {
         var userData = await dataStorageService.SecureGetAsync(StorageFileNames.UserDataFileName);
         if (string.IsNullOrEmpty(userData))
@@ -34,15 +34,16 @@ public static class AuthenticationService
         if (userRoles is null)
             return user;
 
-        var hasPermission = userRoles switch
+        var hasPermission = userRoles.All(role => role switch
         {
             UserRoles.Admin => user.Admin,
             UserRoles.Sales => user.Sales,
             UserRoles.Order => user.Order,
             UserRoles.Inventory => user.Inventory,
+            UserRoles.Reports => user.Reports,
             UserRoles.Accounts => user.Accounts,
             _ => false
-        };
+        });
 
         if (!hasPermission)
             await Logout(dataStorageService, navigationManager, notificationService, vibrationService);

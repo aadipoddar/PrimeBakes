@@ -4,6 +4,7 @@ namespace PrimeBakes.Shared.Pages.Accounts;
 
 public partial class AccountingDashboard : IAsyncDisposable
 {
+    private UserModel _user;
     private HotKeysContext _hotKeysContext;
     private bool _isLoading = true;
 
@@ -12,7 +13,7 @@ public partial class AccountingDashboard : IAsyncDisposable
         if (!firstRender)
             return;
 
-        await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, UserRoles.Accounts, true);
+        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Accounts], true);
 
         _hotKeysContext = HotKeys.CreateContext()
             .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)

@@ -48,7 +48,7 @@ public partial class TrialBalancePage : IAsyncDisposable
         if (!firstRender)
             return;
 
-        await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, UserRoles.Accounts, true);
+        await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Accounts, UserRoles.Reports], true);
         await LoadData();
         _isLoading = false;
         StateHasChanged();

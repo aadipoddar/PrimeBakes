@@ -12,7 +12,7 @@ public partial class AdminDashboard : IAsyncDisposable
         if (!firstRender)
             return;
 
-        await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, UserRoles.Admin, true);
+        await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Admin], true);
 
         _hotKeysContext = HotKeys.CreateContext()
             .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)

@@ -14,7 +14,7 @@ public partial class ReportsDashboard : IAsyncDisposable
         if (!firstRender)
             return;
 
-        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService);
+        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Reports]);
 
         _hotKeysContext = HotKeys.CreateContext()
             .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)

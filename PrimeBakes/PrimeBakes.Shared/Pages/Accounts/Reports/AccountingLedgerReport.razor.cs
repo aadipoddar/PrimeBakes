@@ -49,7 +49,7 @@ public partial class AccountingLedgerReport : IAsyncDisposable
         if (!firstRender)
             return;
 
-        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, UserRoles.Accounts, true);
+        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Accounts, UserRoles.Reports], true);
         await LoadData();
         _isLoading = false;
         StateHasChanged();

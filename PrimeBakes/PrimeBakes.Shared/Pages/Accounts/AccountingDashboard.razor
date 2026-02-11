@@ -50,98 +50,101 @@ else
             </div>
 
             <!-- Reports Section -->
-            <div class="section-card">
-                <div class="section-header">
-                    <div class="section-title-wrapper">
-                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                             stroke-linejoin="round">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                            <polyline points="14 2 14 8 20 8" />
-                            <line x1="16" y1="13" x2="8" y2="13" />
-                            <line x1="16" y1="17" x2="8" y2="17" />
-                            <line x1="12" y1="18" x2="12" y2="12" />
-                        </svg>
-                        <h2 class="section-title">Financial Reports</h2>
+            @if (_user.Reports)
+            {
+                <div class="section-card">
+                    <div class="section-header">
+                        <div class="section-title-wrapper">
+                            <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                <polyline points="14 2 14 8 20 8" />
+                                <line x1="16" y1="13" x2="8" y2="13" />
+                                <line x1="16" y1="17" x2="8" y2="17" />
+                                <line x1="12" y1="18" x2="12" y2="12" />
+                            </svg>
+                            <h2 class="section-title">Financial Reports</h2>
+                        </div>
+                        <p class="section-subtitle">View and analyze accounting and financial reports</p>
                     </div>
-                    <p class="section-subtitle">View and analyze accounting and financial reports</p>
-                </div>
-                <div class="section-body">
-                    <div class="dashboard-grid">
-                        <!-- Financial Accounting Report -->
-                        <ButtonCard Title="Financial Accounting Report" Description="View accounting transaction history"
-                                    Color="cyan"
-                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.FinancialAccountingReport)">
-                            <IconContent>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round">
-                                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-                                </svg>
-                            </IconContent>
-                        </ButtonCard>
+                    <div class="section-body">
+                        <div class="dashboard-grid">
+                            <!-- Financial Accounting Report -->
+                            <ButtonCard Title="Financial Accounting Report" Description="View accounting transaction history"
+                                        Color="cyan"
+                                        OnClick="() => NavigationManager.NavigateTo(PageRouteNames.FinancialAccountingReport)">
+                                <IconContent>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                         stroke-linejoin="round">
+                                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                                    </svg>
+                                </IconContent>
+                            </ButtonCard>
 
-                        <!-- Ledger Report -->
-                        <ButtonCard Title="Ledger Report" Description="View detailed ledger transactions" Color="emerald"
-                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AccountingLedgerReport)">
-                            <IconContent>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round">
-                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-                                </svg>
-                            </IconContent>
-                        </ButtonCard>
+                            <!-- Ledger Report -->
+                            <ButtonCard Title="Ledger Report" Description="View detailed ledger transactions" Color="emerald"
+                                        OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AccountingLedgerReport)">
+                                <IconContent>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                         stroke-linejoin="round">
+                                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                                    </svg>
+                                </IconContent>
+                            </ButtonCard>
 
-                        <!-- Trial Balance -->
-                        <ButtonCard Title="Trial Balance" Description="View trial balance summary" Color="sky"
-                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.TrialBalanceReport)">
-                            <IconContent>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round">
-                                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-                                    <line x1="8" y1="21" x2="16" y2="21" />
-                                    <line x1="12" y1="17" x2="12" y2="21" />
-                                    <line x1="7" y1="7" x2="7" y2="11" />
-                                    <line x1="12" y1="7" x2="12" y2="11" />
-                                    <line x1="17" y1="7" x2="17" y2="11" />
-                                </svg>
-                            </IconContent>
-                        </ButtonCard>
+                            <!-- Trial Balance -->
+                            <ButtonCard Title="Trial Balance" Description="View trial balance summary" Color="sky"
+                                        OnClick="() => NavigationManager.NavigateTo(PageRouteNames.TrialBalanceReport)">
+                                <IconContent>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                         stroke-linejoin="round">
+                                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                                        <line x1="8" y1="21" x2="16" y2="21" />
+                                        <line x1="12" y1="17" x2="12" y2="21" />
+                                        <line x1="7" y1="7" x2="7" y2="11" />
+                                        <line x1="12" y1="7" x2="12" y2="11" />
+                                        <line x1="17" y1="7" x2="17" y2="11" />
+                                    </svg>
+                                </IconContent>
+                            </ButtonCard>
 
-                        <!-- Profit & Loss -->
-                        <ButtonCard Title="Profit & Loss" Description="View income and expense summary" Color="green"
-                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ProfitAndLossReport)">
-                            <IconContent>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round">
-                                    <line x1="12" y1="1" x2="12" y2="23" />
-                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                                </svg>
-                            </IconContent>
-                        </ButtonCard>
+                            <!-- Profit & Loss -->
+                            <ButtonCard Title="Profit & Loss" Description="View income and expense summary" Color="green"
+                                        OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ProfitAndLossReport)">
+                                <IconContent>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                         stroke-linejoin="round">
+                                        <line x1="12" y1="1" x2="12" y2="23" />
+                                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                                    </svg>
+                                </IconContent>
+                            </ButtonCard>
 
-                        <!-- Balance Sheet -->
-                        <ButtonCard Title="Balance Sheet" Description="View assets, liabilities & equity" Color="indigo"
-                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.BalanceSheetReport)">
-                            <IconContent>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round">
-                                    <line x1="12" y1="3" x2="12" y2="21" />
-                                    <line x1="3" y1="6" x2="21" y2="6" />
-                                    <path d="M5 6L3 12h4L5 6" />
-                                    <path d="M19 6l-2 6h4l-2-6" />
-                                    <line x1="7" y1="21" x2="17" y2="21" />
-                                </svg>
-                            </IconContent>
-                        </ButtonCard>
+                            <!-- Balance Sheet -->
+                            <ButtonCard Title="Balance Sheet" Description="View assets, liabilities & equity" Color="indigo"
+                                        OnClick="() => NavigationManager.NavigateTo(PageRouteNames.BalanceSheetReport)">
+                                <IconContent>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                         stroke-linejoin="round">
+                                        <line x1="12" y1="3" x2="12" y2="21" />
+                                        <line x1="3" y1="6" x2="21" y2="6" />
+                                        <path d="M5 6L3 12h4L5 6" />
+                                        <path d="M19 6l-2 6h4l-2-6" />
+                                        <line x1="7" y1="21" x2="17" y2="21" />
+                                    </svg>
+                                </IconContent>
+                            </ButtonCard>
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
 
             <!-- Master Pages Section -->
             <div class="section-card">
@@ -242,8 +245,7 @@ else
                                      stroke-linejoin="round">
                                     <circle cx="12" cy="12" r="10" />
                                     <line x1="2" y1="12" x2="22" y2="12" />
-                                    <path
-                                    d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
                                 </svg>
                             </IconContent>
                         </ButtonCard>

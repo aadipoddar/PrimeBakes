@@ -58,7 +58,7 @@ public partial class StockTransferPage : IAsyncDisposable
         if (!firstRender)
             return;
 
-        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, UserRoles.Sales, true);
+        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Sales], true);
         await LoadData();
         _isLoading = false;
         StateHasChanged();

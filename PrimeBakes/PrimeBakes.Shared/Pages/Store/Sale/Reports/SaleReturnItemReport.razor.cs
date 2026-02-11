@@ -51,7 +51,7 @@ public partial class SaleReturnItemReport : IAsyncDisposable
         if (!firstRender)
             return;
 
-        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, UserRoles.Sales);
+        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Sales, UserRoles.Reports]);
         await LoadData();
         _isLoading = false;
         StateHasChanged();

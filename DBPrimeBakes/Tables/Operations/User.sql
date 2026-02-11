@@ -8,6 +8,7 @@
     [Order] BIT NOT NULL DEFAULT 0, 
     [Inventory] BIT NOT NULL DEFAULT 0, 
     [Accounts] BIT NOT NULL DEFAULT 0, 
+    [Reports] BIT NOT NULL DEFAULT 0, 
     [Admin] BIT NOT NULL DEFAULT 0, 
     [Remarks] VARCHAR(MAX) NULL,
     [Status] BIT NOT NULL DEFAULT 1, 

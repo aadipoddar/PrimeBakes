@@ -7,7 +7,6 @@ using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Operations;
 
 using Syncfusion.Blazor.DropDowns;
-using Syncfusion.Blazor.Popups;
 
 namespace PrimeBakes.Shared.Pages.Operations;
 
@@ -20,11 +19,10 @@ public partial class SettingsPage : IAsyncDisposable
     // UI State
     private bool _isLoading = true;
     private bool _isProcessing = false;
-    private bool _isResetDialogVisible = false;
 
     // Toast and Dialog References
     private ToastNotification _toastNotification;
-    private SfDialog _resetConfirmationDialog = default!;
+    private ResetConfirmationDialog _resetConfirmationDialog = default!;
 
     // Primary Configuration
     private string _primaryCompanyLinkingId = string.Empty;
@@ -93,7 +91,7 @@ public partial class SettingsPage : IAsyncDisposable
         if (!firstRender)
             return;
 
-        await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, UserRoles.Admin, true);
+        await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Admin], true);
         await LoadData();
         _isLoading = false;
         StateHasChanged();
@@ -505,15 +503,15 @@ public partial class SettingsPage : IAsyncDisposable
 
     #region Reset Settings
 
-    private void ShowResetConfirmation() => _isResetDialogVisible = true;
+    private async Task ShowResetConfirmation() => await _resetConfirmationDialog.ShowAsync();
 
-    private void CancelReset() => _isResetDialogVisible = false;
+    private async Task CancelReset() => await _resetConfirmationDialog.HideAsync();
 
     private async Task ConfirmReset()
     {
         try
         {
-            _isResetDialogVisible = false;
+            await _resetConfirmationDialog.HideAsync();
             _isProcessing = true;
 
             await _toastNotification.ShowAsync("Resetting", "Restoring default settings...", ToastType.Info);

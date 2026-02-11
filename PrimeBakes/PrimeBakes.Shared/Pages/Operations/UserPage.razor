@@ -1,7 +1,6 @@
 @attribute [Route(PageRouteNames.User)]
 
 @using PrimeBakesLibrary.Models.Operations
-@using PrimeBakesLibrary.Models.Operations
 
 <PageTitle>User Management - Prime Bakes</PageTitle>
 
@@ -37,7 +36,7 @@ else
                     </div>
                 </div>
                 <div class="section-body">
-                    <div class="form-grid-triple">
+                    <div class="form-grid">
                         <!-- User Name -->
                         <div class="form-field">
                             <label class="field-label">
@@ -69,30 +68,51 @@ else
                             </SfAutoComplete>
                         </div>
 
-                        <!-- Permissions Section -->
-                        <div class="form-field form-field-span-3">
-                            <label class="field-label">Permissions</label>
-                            <div class="permissions-grid">
-                                <div class="permission-item">
-                                    <SfCheckBox @bind-Checked="_user.Sales" Label="Sales" CssClass="custom-checkbox" />
-                                </div>
-                                <div class="permission-item">
-                                    <SfCheckBox @bind-Checked="_user.Order" Label="Order" CssClass="custom-checkbox" />
-                                </div>
-                                <div class="permission-item">
-                                    <SfCheckBox @bind-Checked="_user.Inventory" Label="Inventory" CssClass="custom-checkbox" />
-                                </div>
-                                <div class="permission-item">
-                                    <SfCheckBox @bind-Checked="_user.Accounts" Label="Accounts" CssClass="custom-checkbox" />
-                                </div>
-                                <div class="permission-item">
-                                    <SfCheckBox @bind-Checked="_user.Admin" Label="Admin" CssClass="custom-checkbox" />
-                                </div>
+                        <!-- Permissions -->
+                        <div class="form-field">
+                            <label class="field-label">Sales</label>
+                            <div class="checkbox-wrapper">
+                                <SfCheckBox @bind-Checked="_user.Sales" Label="Sales" CssClass="custom-checkbox" />
+                            </div>
+                        </div>
+
+                        <div class="form-field">
+                            <label class="field-label">Order</label>
+                            <div class="checkbox-wrapper">
+                                <SfCheckBox @bind-Checked="_user.Order" Label="Order" CssClass="custom-checkbox" />
+                            </div>
+                        </div>
+
+                        <div class="form-field">
+                            <label class="field-label">Inventory</label>
+                            <div class="checkbox-wrapper">
+                                <SfCheckBox @bind-Checked="_user.Inventory" Label="Inventory" CssClass="custom-checkbox" />
+                            </div>
+                        </div>
+
+                        <div class="form-field">
+                            <label class="field-label">Accounts</label>
+                            <div class="checkbox-wrapper">
+                                <SfCheckBox @bind-Checked="_user.Accounts" Label="Accounts" CssClass="custom-checkbox" />
+                            </div>
+                        </div>
+
+                        <div class="form-field">
+                            <label class="field-label">Reports</label>
+                            <div class="checkbox-wrapper">
+                                <SfCheckBox @bind-Checked="_user.Reports" Label="Reports" CssClass="custom-checkbox" />
+                            </div>
+                        </div>
+
+                        <div class="form-field">
+                            <label class="field-label">Admin</label>
+                            <div class="checkbox-wrapper">
+                                <SfCheckBox @bind-Checked="_user.Admin" Label="Admin" CssClass="custom-checkbox" />
                             </div>
                         </div>
 
                         <!-- Remarks -->
-                        <div class="form-field form-field-span-3">
+                        <div class="form-field">
                             <label class="field-label">Remarks</label>
                             <SfTextBox @bind-Value="_user.Remarks" Placeholder="Enter remarks (optional)" Multiline="true"
                                        FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
@@ -167,6 +187,7 @@ else
                                         if (user.Order) permissions.Add("Order");
                                         if (user.Inventory) permissions.Add("Inventory");
                                         if (user.Accounts) permissions.Add("Accounts");
+                                        if (user.Reports) permissions.Add("Reports");
                                         if (user.Admin) permissions.Add("Admin");
                                         <span>@string.Join(", ", permissions)</span>
                                     }
@@ -212,213 +233,4 @@ else
                            OnConfirm="ConfirmRecover"
                            OnCancel="CancelRecover" />
 
-<!-- Toast Notification -->
 <ToastNotification @ref="_toastNotification" />
-
-<style>
-    * {
-        box-sizing: border-box;
-    }
-
-    /* Section Card */
-    .section-card {
-        background: #ffffff;
-        border-radius: 12px;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        margin-bottom: 24px;
-        overflow: hidden;
-    }
-
-    .section-header {
-        padding: 20px 24px;
-        border-bottom: 2px solid #e2e8f0;
-        background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .section-title-wrapper {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .header-actions {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-    }
-
-    .section-icon {
-        color: #3b82f6;
-        flex-shrink: 0;
-    }
-
-    .section-title {
-        font-size: 18px;
-        font-weight: 600;
-        color: #0f172a;
-        margin: 0;
-        letter-spacing: -0.3px;
-    }
-
-    .section-body {
-        padding: 24px;
-    }
-
-    /* Form Grid */
-    .form-grid-triple {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 16px;
-        align-items: start;
-    }
-
-    .form-field {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .form-field-span-2 {
-        grid-column: span 2;
-    }
-
-    .form-field-span-3 {
-        grid-column: span 3;
-    }
-
-    .field-label {
-        font-size: 12px;
-        font-weight: 600;
-        color: #475569;
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
-        margin-bottom: 2px;
-    }
-
-    .required {
-        color: #dc2626;
-        margin-left: 2px;
-    }
-
-    /* Permissions Grid */
-    .permissions-grid {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 16px;
-        padding: 16px;
-        background: #f8fafc;
-        border-radius: 8px;
-        border: 1px solid #e2e8f0;
-    }
-
-    .permission-item {
-        display: flex;
-        align-items: center;
-    }
-
-    /* Grid Body */
-    .grid-body {
-        padding: 0;
-    }
-
-    .professional-grid {
-        border: none;
-    }
-
-    .grid-checkbox {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 24px;
-        height: 24px;
-        border-radius: 4px;
-        font-weight: 700;
-        font-size: 14px;
-    }
-
-    /* Dialog Styles */
-    .dialog-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        height: 44px;
-        padding: 0 24px;
-        border: none;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-    }
-
-        .dialog-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
-        }
-
-        .dialog-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-        }
-
-        .dialog-btn svg {
-            flex-shrink: 0;
-        }
-
-    .dialog-btn-cancel {
-        background: #ffffff;
-        color: #64748b;
-        border: 2px solid #e2e8f0;
-    }
-
-        .dialog-btn-cancel:hover {
-            background: #f8fafc;
-            border-color: #cbd5e1;
-            color: #475569;
-        }
-
-    .dialog-btn-delete {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-        color: white;
-    }
-
-        .dialog-btn-delete:hover {
-            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-        }
-
-    .dialog-btn-recover {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        color: white;
-    }
-
-        .dialog-btn-recover:hover {
-            background: linear-gradient(135deg, #059669 0%, #047857 100%);
-        }
-
-    /* Responsive Design */
-    @@media (max-width: 1024px) {
-        .form-grid-triple {
-            grid-template-columns: repeat(2, 1fr);
-        }
-
-        .permissions-grid {
-            grid-template-columns: repeat(3, 1fr);
-        }
-    }
-
-    @@media (max-width: 768px) {
-        .form-grid-triple {
-            grid-template-columns: 1fr;
-        }
-
-        .permissions-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-</style>

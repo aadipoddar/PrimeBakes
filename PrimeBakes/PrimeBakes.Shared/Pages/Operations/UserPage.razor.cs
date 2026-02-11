@@ -42,7 +42,7 @@ public partial class UserPage : IAsyncDisposable
         if (!firstRender)
             return;
 
-        await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, UserRoles.Admin, true);
+        await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Admin], true);
         await LoadData();
         _isLoading = false;
         StateHasChanged();
@@ -85,6 +85,7 @@ public partial class UserPage : IAsyncDisposable
             Sales = user.Sales,
             Inventory = user.Inventory,
             Accounts = user.Accounts,
+            Reports = user.Reports,
             Admin = user.Admin,
             Status = user.Status
         };
@@ -215,18 +216,6 @@ public partial class UserPage : IAsyncDisposable
             return false;
         }
 
-        if (_user.LocationId <= 0)
-        {
-            await _toastNotification.ShowAsync("Validation", "Please select a location.", ToastType.Warning);
-            return false;
-        }
-
-        if (!_user.Admin && !_user.Sales && !_user.Inventory && !_user.Accounts && !_user.Order)
-        {
-            await _toastNotification.ShowAsync("Validation", "At least one role must be assigned.", ToastType.Warning);
-            return false;
-        }
-
         if (_location is null || _location.Id <= 0)
         {
             await _toastNotification.ShowAsync("Validation", "Please select a valid location.", ToastType.Warning);
@@ -234,12 +223,16 @@ public partial class UserPage : IAsyncDisposable
         }
         _user.LocationId = _location.Id;
 
-        if (_user.Admin)
+        if (_user.LocationId <= 0)
         {
-            _user.Order = true;
-            _user.Sales = true;
-            _user.Inventory = true;
-            _user.Accounts = true;
+            await _toastNotification.ShowAsync("Validation", "Please select a location.", ToastType.Warning);
+            return false;
+        }
+
+        if (!_user.Admin && !_user.Sales && !_user.Inventory && !_user.Accounts && !_user.Order && !_user.Reports)
+        {
+            await _toastNotification.ShowAsync("Validation", "At least one role must be assigned.", ToastType.Warning);
+            return false;
         }
 
         if (string.IsNullOrWhiteSpace(_user.Remarks))

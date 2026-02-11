@@ -59,7 +59,7 @@ public partial class OrderReport : IAsyncDisposable
         if (!firstRender)
             return;
 
-        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, UserRoles.Order);
+        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Order, UserRoles.Reports]);
         await LoadData();
         _isLoading = false;
         StateHasChanged();
@@ -344,7 +344,7 @@ public partial class OrderReport : IAsyncDisposable
             await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
 
             var (pdfStream, fileName) = await OrderInvoiceExport.ExportInvoice(orderId, InvoiceExportType.PDF);
-          await SaveAndViewService.SaveAndView(fileName, pdfStream);
+            await SaveAndViewService.SaveAndView(fileName, pdfStream);
             await _toastNotification.ShowAsync("Success", "PDF invoice generated successfully.", ToastType.Success);
         }
         catch (Exception ex)
@@ -369,8 +369,8 @@ public partial class OrderReport : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
 
-              var (excelStream, fileName) = await OrderInvoiceExport.ExportInvoice(orderId, InvoiceExportType.Excel);
-          await SaveAndViewService.SaveAndView(fileName, excelStream);
+            var (excelStream, fileName) = await OrderInvoiceExport.ExportInvoice(orderId, InvoiceExportType.Excel);
+            await SaveAndViewService.SaveAndView(fileName, excelStream);
             await _toastNotification.ShowAsync("Success", "Excel invoice generated successfully.", ToastType.Success);
         }
         catch (Exception ex)

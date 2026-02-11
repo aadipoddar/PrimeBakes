@@ -14,6 +14,7 @@ namespace PrimeBakes.Shared.Pages.Accounts.Masters;
 
 public partial class StateUTPage : IAsyncDisposable
 {
+    private UserModel _user;
     private HotKeysContext _hotKeysContext;
     private bool _isLoading = true;
     private bool _isProcessing = false;
@@ -41,7 +42,7 @@ public partial class StateUTPage : IAsyncDisposable
         if (!firstRender)
             return;
 
-        await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, UserRoles.Admin, true);
+        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Accounts], true);
         await LoadData();
         _isLoading = false;
         StateHasChanged();
@@ -187,6 +188,12 @@ public partial class StateUTPage : IAsyncDisposable
     #region Saving
     private async Task<bool> ValidateForm()
     {
+        if (!_user.Admin)
+        {
+            await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
+            return false;
+        }
+        
         _stateUT.Name = _stateUT.Name?.Trim() ?? "";
         _stateUT.Name = _stateUT.Name?.ToUpper() ?? "";
 

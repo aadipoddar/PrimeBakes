@@ -56,7 +56,6 @@
   <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
   <ItemGroup>
     <Folder Include="Properties" />
-    <Folder Include="PublishLocations" />
     <Folder Include="StoredProcedures" />
     <Folder Include="StoredProcedures\Delete" />
     <Folder Include="StoredProcedures\Insert" />
@@ -118,10 +117,7 @@
     <Folder Include="StoredProcedures\Insert\Store\Masters" />
     <Folder Include="StoredProcedures\LoadData\Store\Product" />
     <Folder Include="Views\Store\Product" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="PublishLocations\AzureDBPrimeBakes.publish.xml" />
-    <None Include="PublishLocations\LocalDBPrimeBakes.publish.xml" />
+    <Folder Include="PublishLocation" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="StoredProcedures\Delete\Delete_ProductStock_By_Id.sql" />
@@ -256,5 +252,9 @@
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="DBPrimeBakes.refactorlog" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DBPrimeBakes.publish.xml" />
+    <None Include="PublishLocation\LocalDBPrimeBakes.publish.xml" />
   </ItemGroup>
 </Project>

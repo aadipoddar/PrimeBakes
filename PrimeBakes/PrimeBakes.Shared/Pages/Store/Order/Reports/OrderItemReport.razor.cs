@@ -50,7 +50,7 @@ public partial class OrderItemReport : IAsyncDisposable
         if (!firstRender)
             return;
 
-        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, UserRoles.Order);
+        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Order, UserRoles.Reports]);
         await LoadData();
         _isLoading = false;
         StateHasChanged();
