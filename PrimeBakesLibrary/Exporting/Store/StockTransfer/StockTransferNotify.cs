@@ -23,9 +23,9 @@ internal static class StockTransferNotify
         List<UserModel> targetUsers = [];
 
         if (type == NotifyType.Created)
-            targetUsers = [.. users.Where(u => (u.Admin || u.Sales) && (u.LocationId == stockTransfer.LocationId || u.LocationId == stockTransfer.ToLocationId))];
+            targetUsers = [.. users.Where(u => (u.Admin || u.Store) && (u.LocationId == stockTransfer.LocationId || u.LocationId == stockTransfer.ToLocationId))];
         else
-            targetUsers = [.. users.Where(u => (u.Admin || u.Sales) && (u.LocationId == 1 || u.LocationId == stockTransfer.LocationId || u.LocationId == stockTransfer.ToLocationId))];
+            targetUsers = [.. users.Where(u => (u.Admin || u.Store) && (u.LocationId == 1 || u.LocationId == stockTransfer.LocationId || u.LocationId == stockTransfer.ToLocationId))];
 
         var notificationData = new NotificationUtil.TransactionNotificationData
         {

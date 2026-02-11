@@ -37,8 +37,7 @@ public static class AuthenticationService
         var hasPermission = userRoles.All(role => role switch
         {
             UserRoles.Admin => user.Admin,
-            UserRoles.Sales => user.Sales,
-            UserRoles.Order => user.Order,
+            UserRoles.Store => user.Store,
             UserRoles.Inventory => user.Inventory,
             UserRoles.Reports => user.Reports,
             UserRoles.Accounts => user.Accounts,

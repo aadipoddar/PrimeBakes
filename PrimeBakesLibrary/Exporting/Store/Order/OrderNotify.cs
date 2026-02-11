@@ -18,7 +18,7 @@ internal static class OrderNotify
     private static async Task OrderNotification(int orderId, NotifyType type)
     {
         var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
-        users = [.. users.Where(u => u.Admin && u.LocationId == 1 || u.Order && u.LocationId == 1)];
+        users = [.. users.Where(u => u.Admin && u.LocationId == 1 || u.Store && u.LocationId == 1)];
 
         var order = await CommonData.LoadTableDataById<OrderOverviewModel>(ViewNames.OrderOverview, orderId);
 

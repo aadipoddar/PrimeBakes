@@ -25,8 +25,8 @@ internal static class SaleNotify
 
         // For Save (new sale creation)
         if (type == NotifyType.Created)
-            // Only notify sales and admins of the outlet where the sale was made
-            targetUsers = [.. users.Where(u => (u.Admin || u.Sales) && u.LocationId == sale.LocationId)];
+            // Only notify stores and admins of the outlet where the sale was made
+            targetUsers = [.. users.Where(u => (u.Admin || u.Store) && u.LocationId == sale.LocationId)];
 
         // For Delete, Recover, or Update operations
         else
@@ -37,12 +37,12 @@ internal static class SaleNotify
 
                 // If party has a valid location
                 if (location is not null)
-                    // Notify sales and admins of:
+                    // Notify stores and admins of:
                     // 1. The party outlet (where sale was made to)
                     // 2. The main outlet (LocationId = 1)
                     // 3. The outlet where the sale originated from (sale.LocationId)
                     targetUsers = [.. users.Where(u =>
-                        (u.Admin || u.Sales) && (
+                        (u.Admin || u.Store) && (
                             u.LocationId == location.Id ||          // Party outlet
                             u.LocationId == 1 ||                    // Main outlet
                             u.LocationId == sale.LocationId         // Originating outlet
@@ -50,15 +50,15 @@ internal static class SaleNotify
                 else
                     // If party doesn't have a location, notify sales and admins of the originating outlet and main outlet
                     targetUsers = [.. users.Where(u =>
-                        (u.Admin || u.Sales) && (
+                        (u.Admin || u.Store) && (
                             u.LocationId == sale.LocationId ||      // Originating outlet
                             u.LocationId == 1                       // Main outlet
                         ))];
             }
             else
-                // If no party, notify sales and admins of the originating outlet and main outlet
+                // If no party, notify stores and admins of the originating outlet and main outlet
                 targetUsers = [.. users.Where(u =>
-                    (u.Admin || u.Sales) && (
+                    (u.Admin || u.Store) && (
                         u.LocationId == sale.LocationId ||          // Originating outlet
                         u.LocationId == 1                           // Main outlet
                     ))];

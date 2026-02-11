@@ -153,6 +153,12 @@ public partial class FinancialYearPage : IAsyncDisposable
             _isProcessing = true;
             await _deleteConfirmationDialog.HideAsync();
 
+            if (!_user.Admin)
+            {
+                await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
+                return;
+            }
+
             var financialYear = _financialYears.FirstOrDefault(g => g.Id == _deleteFinancialYearId);
             if (financialYear == null)
             {
@@ -205,6 +211,12 @@ public partial class FinancialYearPage : IAsyncDisposable
         {
             _isProcessing = true;
             await _recoverConfirmationDialog.HideAsync();
+
+            if (!_user.Admin)
+            {
+                await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
+                return;
+            }
 
             var financialYear = _financialYears.FirstOrDefault(g => g.Id == _recoverFinancialYearId);
             if (financialYear == null)

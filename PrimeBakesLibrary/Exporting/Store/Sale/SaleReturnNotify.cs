@@ -23,7 +23,7 @@ internal static class SaleReturnNotify
         List<UserModel> targetUsers = [];
 
         if (type == NotifyType.Created)
-            targetUsers = [.. users.Where(u => (u.Admin || u.Sales) && u.LocationId == saleReturn.LocationId)];
+            targetUsers = [.. users.Where(u => (u.Admin || u.Store) && u.LocationId == saleReturn.LocationId)];
         else
         {
             if (saleReturn.PartyId != null && saleReturn.PartyId > 0)
@@ -32,15 +32,15 @@ internal static class SaleReturnNotify
 
                 if (location is not null)
                     targetUsers = [.. users.Where(u =>
-                        (u.Admin || u.Sales) && (
+                        (u.Admin || u.Store) && (
                             u.LocationId == location.Id ||
                             u.LocationId == 1 ||
                             u.LocationId == saleReturn.LocationId))];
                 else
-                    targetUsers = [.. users.Where(u => (u.Admin || u.Sales) && (u.LocationId == 1 || u.LocationId == saleReturn.LocationId))];
+                    targetUsers = [.. users.Where(u => (u.Admin || u.Store) && (u.LocationId == 1 || u.LocationId == saleReturn.LocationId))];
             }
             else
-                targetUsers = [.. users.Where(u => (u.Admin || u.Sales) && (u.LocationId == 1 || u.LocationId == saleReturn.LocationId))];
+                targetUsers = [.. users.Where(u => (u.Admin || u.Store) && (u.LocationId == 1 || u.LocationId == saleReturn.LocationId))];
         }
 
         var notificationData = new NotificationUtil.TransactionNotificationData

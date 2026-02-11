@@ -107,6 +107,12 @@ public partial class VoucherPage : IAsyncDisposable
             _isProcessing = true;
             await _deleteConfirmationDialog.HideAsync();
 
+            if (!_user.Admin)
+            {
+                await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
+                return;
+            }
+
             var voucher = _vouchers.FirstOrDefault(v => v.Id == _deleteVoucherId);
             if (voucher == null)
             {
@@ -159,6 +165,12 @@ public partial class VoucherPage : IAsyncDisposable
         {
             _isProcessing = true;
             await _recoverConfirmationDialog.HideAsync();
+
+            if (!_user.Admin)
+            {
+                await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
+                return;
+            }
 
             var voucher = _vouchers.FirstOrDefault(v => v.Id == _recoverVoucherId);
             if (voucher == null)

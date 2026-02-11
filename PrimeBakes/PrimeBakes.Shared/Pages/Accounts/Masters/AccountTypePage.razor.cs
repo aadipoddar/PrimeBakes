@@ -106,6 +106,12 @@ public partial class AccountTypePage : IAsyncDisposable
             _isProcessing = true;
             await _deleteConfirmationDialog.HideAsync();
 
+            if (!_user.Admin)
+            {
+                await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
+                return;
+            }
+
             var accountType = _accountTypes.FirstOrDefault(at => at.Id == _deleteAccountTypeId);
             if (accountType == null)
             {
@@ -158,6 +164,12 @@ public partial class AccountTypePage : IAsyncDisposable
         {
             _isProcessing = true;
             await _recoverConfirmationDialog.HideAsync();
+
+            if (!_user.Admin)
+            {
+                await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
+                return;
+            }
 
             var accountType = _accountTypes.FirstOrDefault(at => at.Id == _recoverAccountTypeId);
             if (accountType == null)

@@ -117,6 +117,12 @@ public partial class CompanyPage : IAsyncDisposable
             _isProcessing = true;
             await _deleteConfirmationDialog.HideAsync();
 
+            if (!_user.Admin)
+            {
+                await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
+                return;
+            }
+
             var company = _companies.FirstOrDefault(c => c.Id == _deleteCompanyId);
             if (company == null)
             {
@@ -169,6 +175,12 @@ public partial class CompanyPage : IAsyncDisposable
         {
             _isProcessing = true;
             await _recoverConfirmationDialog.HideAsync();
+
+            if (!_user.Admin)
+            {
+                await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
+                return;
+            }
 
             var company = _companies.FirstOrDefault(c => c.Id == _recoverCompanyId);
             if (company == null)

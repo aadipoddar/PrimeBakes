@@ -70,16 +70,9 @@ else
 
                         <!-- Permissions -->
                         <div class="form-field">
-                            <label class="field-label">Sales</label>
+                            <label class="field-label">Store</label>
                             <div class="checkbox-wrapper">
-                                <SfCheckBox @bind-Checked="_user.Sales" Label="Sales" CssClass="custom-checkbox" />
-                            </div>
-                        </div>
-
-                        <div class="form-field">
-                            <label class="field-label">Order</label>
-                            <div class="checkbox-wrapper">
-                                <SfCheckBox @bind-Checked="_user.Order" Label="Order" CssClass="custom-checkbox" />
+                                <SfCheckBox @bind-Checked="_user.Store" Label="Store" CssClass="custom-checkbox" />
                             </div>
                         </div>
 
@@ -183,8 +176,7 @@ else
                                     @{
                                         var user = (context as UserModel);
                                         var permissions = new List<string>();
-                                        if (user.Sales) permissions.Add("Sales");
-                                        if (user.Order) permissions.Add("Order");
+                                        if (user.Store) permissions.Add("Store");
                                         if (user.Inventory) permissions.Add("Inventory");
                                         if (user.Accounts) permissions.Add("Accounts");
                                         if (user.Reports) permissions.Add("Reports");

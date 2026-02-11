@@ -50,7 +50,7 @@ public partial class StockTransferItemReport : IAsyncDisposable
         if (!firstRender)
             return;
 
-        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Sales, UserRoles.Reports], true);
+        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Store, UserRoles.Reports], true);
         await LoadData();
         _isLoading = false;
         StateHasChanged();

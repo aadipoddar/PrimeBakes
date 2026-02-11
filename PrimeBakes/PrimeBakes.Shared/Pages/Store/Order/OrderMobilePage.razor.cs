@@ -31,7 +31,7 @@ public partial class OrderMobilePage
         if (!firstRender)
             return;
 
-        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Order]);
+        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Store]);
         await LoadData();
         _isLoading = false;
         StateHasChanged();

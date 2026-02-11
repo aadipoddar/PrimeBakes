@@ -81,8 +81,7 @@ public partial class UserPage : IAsyncDisposable
             Name = user.Name,
             LocationId = user.LocationId,
             Passcode = user.Passcode,
-            Order = user.Order,
-            Sales = user.Sales,
+            Store = user.Store,
             Inventory = user.Inventory,
             Accounts = user.Accounts,
             Reports = user.Reports,
@@ -229,7 +228,7 @@ public partial class UserPage : IAsyncDisposable
             return false;
         }
 
-        if (!_user.Admin && !_user.Sales && !_user.Inventory && !_user.Accounts && !_user.Order && !_user.Reports)
+        if (!_user.Admin && !_user.Inventory && !_user.Accounts && !_user.Store && !_user.Reports)
         {
             await _toastNotification.ShowAsync("Validation", "At least one role must be assigned.", ToastType.Warning);
             return false;

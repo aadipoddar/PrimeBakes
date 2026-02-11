@@ -109,6 +109,12 @@ public partial class GroupPage : IAsyncDisposable
             _isProcessing = true;
             await _deleteConfirmationDialog.HideAsync();
 
+            if (!_user.Admin)
+            {
+                await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
+                return;
+            }
+
             var group = _groups.FirstOrDefault(g => g.Id == _deleteGroupId);
             if (group == null)
             {
@@ -161,6 +167,12 @@ public partial class GroupPage : IAsyncDisposable
         {
             _isProcessing = true;
             await _recoverConfirmationDialog.HideAsync();
+
+            if (!_user.Admin)
+            {
+                await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
+                return;
+            }
 
             var group = _groups.FirstOrDefault(g => g.Id == _recoverGroupId);
             if (group == null)

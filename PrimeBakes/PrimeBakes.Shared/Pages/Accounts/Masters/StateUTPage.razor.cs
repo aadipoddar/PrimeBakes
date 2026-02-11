@@ -106,6 +106,12 @@ public partial class StateUTPage : IAsyncDisposable
             _isProcessing = true;
             await _deleteConfirmationDialog.HideAsync();
 
+            if (!_user.Admin)
+            {
+                await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
+                return;
+            }
+
             var stateUT = _stateUTs.FirstOrDefault(g => g.Id == _deleteStateUTId);
             if (stateUT == null)
             {
@@ -158,6 +164,12 @@ public partial class StateUTPage : IAsyncDisposable
         {
             _isProcessing = true;
             await _recoverConfirmationDialog.HideAsync();
+
+            if (!_user.Admin)
+            {
+                await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
+                return;
+            }
 
             var stateUT = _stateUTs.FirstOrDefault(g => g.Id == _recoverStateUTId);
             if (stateUT == null)

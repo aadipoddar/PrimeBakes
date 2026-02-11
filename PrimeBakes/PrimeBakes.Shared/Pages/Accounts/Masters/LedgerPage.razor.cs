@@ -124,6 +124,12 @@ public partial class LedgerPage : IAsyncDisposable
             _isProcessing = true;
             await _deleteConfirmationDialog.HideAsync();
 
+            if (!_user.Admin)
+            {
+                await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
+                return;
+            }
+
             var ledger = _ledgers.FirstOrDefault(l => l.Id == _deleteLedgerId);
             if (ledger == null)
             {
@@ -176,6 +182,12 @@ public partial class LedgerPage : IAsyncDisposable
         {
             _isProcessing = true;
             await _recoverConfirmationDialog.HideAsync();
+
+            if (!_user.Admin)
+            {
+                await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
+                return;
+            }
 
             var ledger = _ledgers.FirstOrDefault(l => l.Id == _recoverLedgerId);
             if (ledger == null)
