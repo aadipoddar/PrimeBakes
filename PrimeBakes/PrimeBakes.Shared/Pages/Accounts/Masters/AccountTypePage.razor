@@ -27,15 +27,16 @@ else
             <div class="section-card">
                 <div class="section-header">
                     <div class="section-title-wrapper">
-                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round">
                             <path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
                         </svg>
                         <h2 class="section-title">Account Type Details</h2>
                     </div>
                 </div>
                 <div class="section-body">
-                    <div class="form-grid-triple">
+                    <div class="form-grid">
                         <!-- Account Type Name -->
                         <div class="form-field">
                             <label class="field-label">
@@ -46,10 +47,10 @@ else
                         </div>
 
                         <!-- Remarks -->
-                        <div class="form-field form-field-span-2">
+                        <div class="form-field">
                             <label class="field-label">Remarks</label>
-                            <SfTextBox @bind-Value="_accountType.Remarks" Placeholder="Enter remarks (optional)" Multiline="true"
-                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                            <SfTextBox @bind-Value="_accountType.Remarks" Placeholder="Enter remarks (optional)"
+                                       Multiline="true" FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
                         </div>
                     </div>
                 </div>
@@ -59,8 +60,9 @@ else
             <div class="section-card">
                 <div class="section-header">
                     <div class="section-title-wrapper">
-                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round">
                             <path d="M9 11l3 3L22 4" />
                             <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
                         </svg>
@@ -72,12 +74,14 @@ else
                     </div>
                 </div>
                 <div class="section-body grid-body">
-                    <SfGrid @ref="_sfGrid" DataSource="@_accountTypes" AllowPaging="true" AllowSorting="true" AllowFiltering="true"
-                            AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
+                    <SfGrid @ref="_sfGrid" DataSource="@_accountTypes" AllowPaging="true" AllowSorting="true"
+                            AllowFiltering="true" AllowResizing="true" CssClass="professional-grid"
+                            Toolbar="@(new List<string>() { "Search" })">
                         <GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
                         <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
                         <GridColumns>
-                            <GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center" AllowFiltering="false">
+                            <GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center"
+                                        AllowFiltering="false">
                                 <Template>
                                     @{
                                         var accountType = (context as AccountTypeModel);
@@ -140,187 +144,3 @@ else
                            OnCancel="CancelRecover" />
 
 <ToastNotification @ref="_toastNotification" />
-
-<style>
-    * {
-        box-sizing: border-box;
-    }
-
-    /* Section Card */
-    .section-card {
-        background: #ffffff;
-        border-radius: 12px;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        margin-bottom: 24px;
-        overflow: hidden;
-    }
-
-    .section-header {
-        padding: 20px 24px;
-        border-bottom: 2px solid #e2e8f0;
-        background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .section-title-wrapper {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .header-actions {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-    }
-
-    .section-icon {
-        color: #3b82f6;
-        flex-shrink: 0;
-    }
-
-    .section-title {
-        font-size: 18px;
-        font-weight: 600;
-        color: #0f172a;
-        margin: 0;
-        letter-spacing: -0.3px;
-    }
-
-    .section-body {
-        padding: 24px;
-    }
-
-    /* Form Grid */
-    .form-grid-triple {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 16px;
-        align-items: start;
-    }
-
-    .form-field {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .form-field-span-2 {
-        grid-column: span 2;
-    }
-
-    .form-field-span-3 {
-        grid-column: span 3;
-    }
-
-    .field-label {
-        font-size: 12px;
-        font-weight: 600;
-        color: #475569;
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
-        margin-bottom: 2px;
-    }
-
-    .required {
-        color: #dc2626;
-        margin-left: 2px;
-    }
-
-    /* Grid Body */
-    .grid-body {
-        padding: 0;
-    }
-
-    .professional-grid {
-        border: none;
-    }
-
-    .grid-checkbox {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 24px;
-        height: 24px;
-        border-radius: 4px;
-        font-weight: 700;
-        font-size: 14px;
-    }
-
-    /* Dialog Styles */
-    .dialog-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        height: 44px;
-        padding: 0 24px;
-        border: none;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-    }
-
-        .dialog-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
-        }
-
-        .dialog-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-        }
-
-        .dialog-btn svg {
-            flex-shrink: 0;
-        }
-
-    .dialog-btn-cancel {
-        background: #ffffff;
-        color: #64748b;
-        border: 2px solid #e2e8f0;
-    }
-
-        .dialog-btn-cancel:hover {
-            background: #f8fafc;
-            border-color: #cbd5e1;
-            color: #475569;
-        }
-
-    .dialog-btn-delete {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-        color: white;
-    }
-
-        .dialog-btn-delete:hover {
-            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-        }
-
-    .dialog-btn-recover {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        color: white;
-    }
-
-        .dialog-btn-recover:hover {
-            background: linear-gradient(135deg, #059669 0%, #047857 100%);
-        }
-
-    /* Responsive Design */
-    @@media (max-width: 1024px) {
-        .form-grid-triple {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    @@media (max-width: 768px) {
-        .form-grid-triple {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>

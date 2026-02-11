@@ -352,9 +352,18 @@ else
 				</div>
 				<div class="section-body">
 					<div class="balance-sheet-grid">
+						@{
+							var totalAssets = _assetsTrialBalance.Sum(x => x.ClosingBalance);
+							var totalLiabilities = _liabilitiesTrialBalance.Sum(x => x.ClosingBalance);
+							var netPosition = totalAssets - totalLiabilities;
+							var isPositive = netPosition >= 0;
+						}
+
 						<!-- Total Assets Card -->
-						<div class="balance-info-card assets-card">
-							<div class="card-icon">
+						<BalanceInfoCard Label="Total Assets" Value="@($"₹{totalAssets:N2}")"
+										 Breakdown="@($"{_assetsTrialBalance.Count} ledgers")"
+										 Variant="BalanceInfoCard.CardVariant.Assets">
+							<Icon>
 								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
 									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
 									 stroke-linejoin="round">
@@ -362,491 +371,86 @@ else
 									<line x1="3" y1="9" x2="21" y2="9" />
 									<line x1="9" y1="21" x2="9" y2="9" />
 								</svg>
-							</div>
-							<div class="card-content">
-								<div class="card-label">Total Assets</div>
-								<div class="card-value assets-amount">₹@_assetsTrialBalance.Sum(x =>
-																										x.ClosingBalance).ToString("N2")</div>
-									<div class="card-breakdown">
-										<span class="breakdown-item">@_assetsTrialBalance.Count ledgers</span>
-									</div>
-								</div>
-							</div>
+							</Icon>
+						</BalanceInfoCard>
 
-							<!-- Total Liabilities Card -->
-							<div class="balance-info-card liabilities-card">
-								<div class="card-icon">
+						<!-- Total Liabilities Card -->
+						<BalanceInfoCard Label="Total Liabilities" Value="@($"₹{totalLiabilities:N2}")"
+										 Breakdown="@($"{_liabilitiesTrialBalance.Count} ledgers")"
+										 Variant="BalanceInfoCard.CardVariant.Liabilities">
+							<Icon>
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<path
+									d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+								</svg>
+							</Icon>
+						</BalanceInfoCard>
+
+						<!-- Net Position Card -->
+						<BalanceInfoCard Label="@(isPositive ? "Net Position" : "Net Deficit")"
+										 Value="@($"₹{Math.Abs(netPosition):N2}")"
+										 Breakdown="@(totalAssets > 0 ? $"Ratio: {((netPosition / totalAssets) * 100):N2}%" : "")"
+										 Variant="@(isPositive? BalanceInfoCard.CardVariant.Positive : BalanceInfoCard.CardVariant.Negative)">
+							<Icon>
+								@if (isPositive)
+								{
 									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
 										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
 										 stroke-linejoin="round">
-										<path
-										d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+										<line x1="12" y1="1" x2="12" y2="23" />
+										<path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
 									</svg>
-								</div>
-								<div class="card-content">
-									<div class="card-label">Total Liabilities</div>
-									<div class="card-value liabilities-amount">₹@_liabilitiesTrialBalance.Sum(x =>
-																										x.ClosingBalance).ToString("N2")</div>
-										<div class="card-breakdown">
-											<span class="breakdown-item">@_liabilitiesTrialBalance.Count ledgers</span>
-										</div>
-									</div>
-								</div>
-
-								<!-- Net Position Card -->
-								@{
-									var totalAssets = _assetsTrialBalance.Sum(x => x.ClosingBalance);
-									var totalLiabilities = _liabilitiesTrialBalance.Sum(x => x.ClosingBalance);
-									var netPosition = totalAssets - totalLiabilities;
-									var isPositive = netPosition >= 0;
 								}
-								<div class="balance-info-card @(isPositive ? "positive-card" : "negative-card")">
-									<div class="card-icon">
-										@if (isPositive)
-										{
-											<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-												 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-												 stroke-linejoin="round">
-												<line x1="12" y1="1" x2="12" y2="23" />
-												<path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-											</svg>
-										}
-										else
-										{
-											<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-												 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-												 stroke-linejoin="round">
-												<circle cx="12" cy="12" r="10" />
-												<line x1="15" y1="9" x2="9" y2="15" />
-												<line x1="9" y1="9" x2="15" y2="15" />
-											</svg>
-										}
-									</div>
-									<div class="card-content">
-										<div class="card-label">@(isPositive ? "Net Position" : "Net Deficit")</div>
-										<div class="card-value @(isPositive ? "positive-amount" : "negative-amount")">
-											₹@Math.Abs(netPosition).ToString("N2")
-										</div>
-										<div class="card-breakdown">
-											@if (totalAssets > 0)
-											{
-												var ratio = (netPosition / totalAssets) * 100;
-												<span class="breakdown-item">Ratio: @ratio.ToString("N2")%</span>
-											}
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
+								else
+								{
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+										 stroke-linejoin="round">
+										<circle cx="12" cy="12" r="10" />
+										<line x1="15" y1="9" x2="9" y2="15" />
+										<line x1="9" y1="9" x2="15" y2="15" />
+									</svg>
+								}
+							</Icon>
+						</BalanceInfoCard>
 					</div>
 				</div>
-
-				<Footer />
 			</div>
-		}
-
-		<ToastNotification @ref="_toastNotification" />
-
-		<style>
-			* {
-				box-sizing: border-box;
-			}
-
-			/* Section Card Styles */
-			.section-card {
-				background: #ffffff;
-				border-radius: 12px;
-				border: 1px solid #e2e8f0;
-				box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-				margin-bottom: 24px;
-				overflow: hidden;
-			}
-
-			.section-header {
-				padding: 20px 24px;
-				border-bottom: 1px solid #e2e8f0;
-				background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
-				display: flex;
-				align-items: center;
-				justify-content: space-between;
-			}
-
-			.section-title-wrapper {
-				display: flex;
-				align-items: center;
-				gap: 12px;
-			}
-
-			.section-icon {
-				color: #3b82f6;
-				flex-shrink: 0;
-			}
-
-			.section-title {
-				font-size: 16px;
-				font-weight: 600;
-				color: #0f172a;
-				margin: 0;
-				letter-spacing: -0.2px;
-			}
-
-			/* Header Actions Container */
-			.header-actions {
-				display: flex;
-				align-items: center;
-				gap: 12px;
-			}
-
-			.section-body {
-				padding: 24px;
-			}
-
-			.grid-body {
-				padding: 0 !important;
-			}
-
-			/* Filters Container and Grid Layout */
-			.filters-container {
-				display: flex;
-				flex-direction: column;
-				gap: 16px;
-			}
-
-			.filters-grid {
-				display: grid;
-				grid-template-columns: repeat(auto-fit, minmax(180px, 250px));
-				gap: 12px;
-				align-items: end;
-			}
-
-			.form-field {
-				display: flex;
-				flex-direction: column;
-				gap: 6px;
-				max-width: 250px;
-			}
-
-			.field-label {
-				font-size: 12px;
-				font-weight: 600;
-				color: #334155;
-				letter-spacing: 0.1px;
-			}
-
-			/* Professional Grid Styles */
-			.e-grid .e-summaryrow .e-summarycell {
-				background-color: #deecf9;
-			}
-
-			::deep .professional-grid {
-				border: none;
-			}
-
-			::deep .professional-grid .e-gridheader {
-				background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
-				border-bottom: 2px solid #e2e8f0;
-			}
-
-			::deep .professional-grid .e-headercell {
-				background: transparent;
-				color: #475569;
-				font-weight: 600;
-				font-size: 12px;
-				text-transform: uppercase;
-				letter-spacing: 0.3px;
-				border-right: 1px solid #e2e8f0;
-				padding: 12px 8px;
-			}
-
-			::deep .professional-grid .e-headercell:last-child {
-				border-right: none;
-			}
-
-			::deep .professional-grid .e-gridcontent {
-				background: #ffffff;
-			}
-
-			::deep .professional-grid .e-row {
-				transition: background-color 0.2s ease;
-			}
-
-			::deep .professional-grid .e-row:hover {
-				background-color: #f8fafc;
-			}
-
-			::deep .professional-grid .e-row.e-altrow {
-				background-color: #fafbfc;
-			}
-
-			::deep .professional-grid .e-row.e-altrow:hover {
-				background-color: #f8fafc;
-			}
-
-			::deep .professional-grid .e-rowcell {
-				border-right: 1px solid #f1f5f9;
-				border-bottom: 1px solid #f1f5f9;
-				padding: 10px 8px;
-				font-size: 13px;
-				color: #1e293b;
-			}
-
-			::deep .professional-grid .e-rowcell:last-child {
-				border-right: none;
-			}
-
-			/* Grid Pager Styling */
-			::deep .professional-grid .e-gridpager {
-				background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
-				border-top: 2px solid #e2e8f0;
-				padding: 12px 16px;
-			}
-
-			/* Empty Grid State */
-			::deep .professional-grid .e-emptyrow {
-				text-align: center;
-				padding: 48px 24px;
-				color: #94a3b8;
-				font-size: 14px;
-			}
-
-			/* Grid Cell Text Coloring */
-			.grid-debit {
-				color: #dc2626;
-				font-weight: 600;
-			}
-
-			.grid-credit {
-				color: #059669;
-				font-weight: 600;
-			}
-
-			.grid-total {
-				color: #1e40af;
-				font-weight: 700;
-				font-size: 14px;
-			}
-
-			/* Grid Footer Aggregates */
-			::deep .professional-grid .e-gridfooter {
-				background: linear-gradient(to bottom, #f1f5f9 0%, #e2e8f0 100%);
-				border-top: 2px solid #cbd5e1;
-			}
-
-			::deep .professional-grid .e-summarycell {
-				font-weight: 600;
-				color: #1e293b;
-				padding: 12px 8px;
-				border-right: 1px solid #cbd5e1;
-			}
-
-			::deep .professional-grid .e-summarycell:last-child {
-				border-right: none;
-			}
-
-			.aggregate-value.aggregate-debit {
-				color: #dc2626;
-			}
-
-			.aggregate-value.aggregate-credit {
-				color: #059669;
-			}
-
-			.aggregate-label {
-				color: #1e40af;
-				font-size: 14px;
-			}
-
-			/* Dual Grid Container */
-			.dual-grid-container {
-				display: grid;
-				grid-template-columns: 1fr 1fr;
-				gap: 24px;
-				padding: 24px;
-			}
-
-			.grid-section {
-				background: #ffffff;
-				border-radius: 8px;
-				border: 1px solid #e2e8f0;
-				overflow: hidden;
-			}
-
-			.grid-section-header {
-				display: flex;
-				align-items: center;
-				gap: 8px;
-				padding: 12px 16px;
-				background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
-				border-bottom: 2px solid #e2e8f0;
-			}
-
-			.grid-section-icon {
-				flex-shrink: 0;
-			}
-
-			.assets-section .grid-section-icon {
-				color: #0891b2;
-			}
-
-			.liabilities-section .grid-section-icon {
-				color: #6366f1;
-			}
-
-			.grid-section-title {
-				font-size: 15px;
-				font-weight: 600;
-				color: #0f172a;
-				margin: 0;
-			}
-
-			.grid-section-count {
-				font-size: 12px;
-				color: #64748b;
-				margin-left: auto;
-			}
-
-			/* Balance Sheet Summary Section */
-			.balance-sheet-summary {
-				background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-			}
-
-			.balance-sheet-grid {
-				display: grid;
-				grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-				gap: 14px;
-			}
-
-			.balance-info-card {
-				background: #ffffff;
-				border: 1px solid #e2e8f0;
-				border-radius: 8px;
-				padding: 14px;
-				display: flex;
-				gap: 12px;
-				align-items: center;
-				transition: all 0.2s ease;
-				box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-			}
-
-			.balance-info-card:hover {
-				transform: translateY(-2px);
-				box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-			}
-
-			.balance-info-card .card-icon {
-				width: 36px;
-				height: 36px;
-				border-radius: 7px;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				flex-shrink: 0;
-				transition: all 0.2s ease;
-			}
-
-			.assets-card .card-icon {
-				background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
-				color: #ffffff;
-			}
-
-			.liabilities-card .card-icon {
-				background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
-				color: #ffffff;
-			}
-
-			.positive-card .card-icon {
-				background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-				color: #ffffff;
-			}
-
-			.negative-card .card-icon {
-				background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
-				color: #ffffff;
-			}
-
-			.balance-info-card:hover .card-icon {
-				transform: scale(1.05);
-			}
-
-			.balance-info-card .card-content {
-				flex: 1;
-				min-width: 0;
-			}
-
-			.balance-info-card .card-label {
-				font-size: 11px;
-				font-weight: 600;
-				color: #64748b;
-				text-transform: uppercase;
-				letter-spacing: 0.3px;
-				margin-bottom: 5px;
-			}
-
-			.balance-info-card .card-value {
-				font-size: 18px;
-				font-weight: 700;
-				color: #0f172a;
-				margin-bottom: 3px;
-				line-height: 1.2;
-			}
-
-			.balance-info-card .assets-amount {
-				color: #0891b2;
-			}
-
-			.balance-info-card .liabilities-amount {
-				color: #6366f1;
-			}
-
-			.balance-info-card .positive-amount {
-				color: #059669;
-			}
-
-			.balance-info-card .negative-amount {
-				color: #dc2626;
-			}
-
-			.balance-info-card .card-breakdown {
-				display: flex;
-				align-items: center;
-				gap: 8px;
-				font-size: 10px;
-				font-weight: 500;
-				margin-top: 5px;
-				color: #64748b;
-			}
-
-			.breakdown-item {
-				display: inline-flex;
-				white-space: nowrap;
-			}
-
-			/* Responsive Design */
-			@@media (max-width: 1400px) {
-				.filters-grid {
-					grid-template-columns: repeat(2, 1fr);
-				}
-
-				.dual-grid-container {
-					grid-template-columns: 1fr;
-				}
-			}
-
-			@@media (max-width: 768px) {
-				.filters-grid {
-					grid-template-columns: 1fr;
-				}
-
-				.dual-grid-container {
-					padding: 16px;
-				}
-
-				.balance-sheet-grid {
-					grid-template-columns: 1fr;
-				}
-
-				.balance-info-card .card-value {
-					font-size: 20px;
-				}
-			}
-		</style>
+		</div>
+
+		<Footer />
+	</div>
+}
+
+<ToastNotification @ref="_toastNotification" />
+
+<style>
+	.dual-grid-container {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 24px;
+		padding: 24px;
+	}
+
+	/* Balance Sheet Section Colors */
+	.assets-section .grid-section-icon {
+		color: #0891b2;
+	}
+
+	.liabilities-section .grid-section-icon {
+		color: #6366f1;
+	}
+
+	/* Balance Sheet Summary Section */
+	.balance-sheet-summary {
+		background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+	}
+
+	.balance-sheet-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+		gap: 14px;
+	}
+</style>

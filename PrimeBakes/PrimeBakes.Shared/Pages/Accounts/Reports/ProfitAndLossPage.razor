@@ -345,497 +345,102 @@ else
 				</div>
 				<div class="section-body">
 					<div class="profit-loss-grid">
+						@{
+							var totalIncome = _incomeTrialBalance.Sum(x => x.ClosingBalance);
+							var totalExpense = _expenseTrialBalance.Sum(x => x.ClosingBalance);
+							var profitLoss = totalIncome - totalExpense;
+							var isProfitable = profitLoss >= 0;
+						}
+
 						<!-- Total Income Card -->
-						<div class="balance-info-card income-card">
-							<div class="card-icon">
+						<BalanceInfoCard Label="Total Income" Value="@($"₹{totalIncome:N2}")"
+										 Breakdown="@($"{_incomeTrialBalance.Count} ledgers")"
+										 Variant="BalanceInfoCard.CardVariant.Income">
+							<Icon>
 								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
 									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
 									 stroke-linejoin="round">
 									<line x1="12" y1="19" x2="12" y2="5" />
 									<polyline points="5 12 12 5 19 12" />
 								</svg>
-							</div>
-							<div class="card-content">
-								<div class="card-label">Total Income</div>
-								<div class="card-value credit-amount">₹@_incomeTrialBalance.Sum(x =>
-																	x.ClosingBalance).ToString("N2")</div>
-									<div class="card-breakdown">
-										<span class="breakdown-item">@_incomeTrialBalance.Count ledgers</span>
-									</div>
-								</div>
-							</div>
+							</Icon>
+						</BalanceInfoCard>
 
-							<!-- Total Expenses Card -->
-							<div class="balance-info-card expense-card">
-								<div class="card-icon">
+						<!-- Total Expenses Card -->
+						<BalanceInfoCard Label="Total Expenses" Value="@($"₹{totalExpense:N2}")"
+										 Breakdown="@($"{_expenseTrialBalance.Count} ledgers")"
+										 Variant="BalanceInfoCard.CardVariant.Expense">
+							<Icon>
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<line x1="12" y1="5" x2="12" y2="19" />
+									<polyline points="19 12 12 19 5 12" />
+								</svg>
+							</Icon>
+						</BalanceInfoCard>
+
+						<!-- Net Profit/Loss Card -->
+						<BalanceInfoCard Label="@(isProfitable ? "Net Profit" : "Net Loss")"
+										 Value="@($"₹{Math.Abs(profitLoss):N2}")"
+										 Breakdown="@(totalIncome > 0 ? $"Margin: {((profitLoss / totalIncome) * 100):N2}%" : "")"
+										 Variant="@(isProfitable ? BalanceInfoCard.CardVariant.Profit : BalanceInfoCard.CardVariant.Loss)">
+							<Icon>
+								@if (isProfitable)
+								{
 									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
 										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
 										 stroke-linejoin="round">
-										<line x1="12" y1="5" x2="12" y2="19" />
-										<polyline points="19 12 12 19 5 12" />
+										<polyline points="20 6 9 17 4 12" />
 									</svg>
-								</div>
-								<div class="card-content">
-									<div class="card-label">Total Expenses</div>
-									<div class="card-value debit-amount">₹@_expenseTrialBalance.Sum(x =>
-																		x.ClosingBalance).ToString("N2")</div>
-										<div class="card-breakdown">
-											<span class="breakdown-item">@_expenseTrialBalance.Count ledgers</span>
-										</div>
-									</div>
-								</div>
-
-								<!-- Net Profit/Loss Card -->
-								@{
-									var totalIncome = _incomeTrialBalance.Sum(x => x.ClosingBalance);
-									var totalExpense = _expenseTrialBalance.Sum(x => x.ClosingBalance);
-									var profitLoss = totalIncome - totalExpense;
-									var isProfitable = profitLoss >= 0;
 								}
-								<div class="balance-info-card @(isProfitable ? "profit-card" : "loss-card")">
-									<div class="card-icon">
-										@if (isProfitable)
-										{
-											<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-												 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-												 stroke-linejoin="round">
-												<polyline points="20 6 9 17 4 12" />
-											</svg>
-										}
-										else
-										{
-											<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-												 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-												 stroke-linejoin="round">
-												<line x1="18" y1="6" x2="6" y2="18" />
-												<line x1="6" y1="6" x2="18" y2="18" />
-											</svg>
-										}
-									</div>
-									<div class="card-content">
-										<div class="card-label">@(isProfitable ? "Net Profit" : "Net Loss")</div>
-										<div class="card-value @(isProfitable ? "profit-amount" : "loss-amount")">
-											₹@Math.Abs(profitLoss).ToString("N2")</div>
-											<div class="card-breakdown">
-												@if (totalIncome > 0)
-												{
-													var margin = (profitLoss / totalIncome) * 100;
-													<span class="breakdown-item">Margin: @margin.ToString("N2")%</span>
-												}
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
+								else
+								{
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+										 stroke-linejoin="round">
+										<line x1="18" y1="6" x2="6" y2="18" />
+										<line x1="6" y1="6" x2="18" y2="18" />
+									</svg>
+								}
+							</Icon>
+						</BalanceInfoCard>
 					</div>
-
-					<Footer />
 				</div>
-			}
-
-			<ToastNotification @ref="_toastNotification" />
-
-			<style>
-				* {
-					box-sizing: border-box;
-				}
-
-				/* Section Card Styles */
-				.section-card {
-					background: #ffffff;
-					border-radius: 12px;
-					border: 1px solid #e2e8f0;
-					box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-					margin-bottom: 24px;
-					overflow: hidden;
-				}
-
-				.section-header {
-					padding: 20px 24px;
-					border-bottom: 1px solid #e2e8f0;
-					background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
-					display: flex;
-					align-items: center;
-					justify-content: space-between;
-				}
-
-				.section-title-wrapper {
-					display: flex;
-					align-items: center;
-					gap: 12px;
-				}
-
-				.section-icon {
-					color: #3b82f6;
-					flex-shrink: 0;
-				}
-
-				.section-title {
-					font-size: 16px;
-					font-weight: 600;
-					color: #0f172a;
-					margin: 0;
-					letter-spacing: -0.2px;
-				}
-
-				/* Header Actions Container */
-				.header-actions {
-					display: flex;
-					align-items: center;
-					gap: 12px;
-				}
-
-				.section-body {
-					padding: 24px;
-				}
-
-				.grid-body {
-					padding: 0 !important;
-				}
-
-				/* Filters Container and Grid Layout */
-				.filters-container {
-					display: flex;
-					flex-direction: column;
-					gap: 16px;
-				}
-
-				.filters-grid {
-					display: grid;
-					grid-template-columns: repeat(auto-fit, minmax(180px, 250px));
-					gap: 12px;
-					align-items: end;
-				}
-
-				.form-field {
-					display: flex;
-					flex-direction: column;
-					gap: 6px;
-					max-width: 250px;
-				}
-
-				.field-label {
-					font-size: 12px;
-					font-weight: 600;
-					color: #334155;
-					letter-spacing: 0.1px;
-				}
-
-				/* Professional Grid Styles */
-				.e-grid .e-summaryrow .e-summarycell {
-					background-color: #deecf9;
-				}
-
-				::deep .professional-grid {
-					border: none;
-				}
-
-				::deep .professional-grid .e-gridheader {
-					background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
-					border-bottom: 2px solid #e2e8f0;
-				}
-
-				::deep .professional-grid .e-headercell {
-					background: transparent;
-					color: #475569;
-					font-weight: 600;
-					font-size: 12px;
-					text-transform: uppercase;
-					letter-spacing: 0.3px;
-					border-right: 1px solid #e2e8f0;
-					padding: 12px 8px;
-				}
-
-				::deep .professional-grid .e-headercell:last-child {
-					border-right: none;
-				}
-
-				::deep .professional-grid .e-gridcontent {
-					background: #ffffff;
-				}
-
-				::deep .professional-grid .e-row {
-					transition: background-color 0.2s ease;
-				}
-
-				::deep .professional-grid .e-row:hover {
-					background-color: #f8fafc;
-				}
-
-				::deep .professional-grid .e-row.e-altrow {
-					background-color: #fafbfc;
-				}
-
-				::deep .professional-grid .e-row.e-altrow:hover {
-					background-color: #f8fafc;
-				}
-
-				::deep .professional-grid .e-rowcell {
-					border-right: 1px solid #f1f5f9;
-					border-bottom: 1px solid #f1f5f9;
-					padding: 10px 8px;
-					font-size: 13px;
-					color: #1e293b;
-				}
-
-				::deep .professional-grid .e-rowcell:last-child {
-					border-right: none;
-				}
-
-				/* Grid Pager Styling */
-				::deep .professional-grid .e-gridpager {
-					background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
-					border-top: 2px solid #e2e8f0;
-					padding: 12px 16px;
-				}
-
-				/* Empty Grid State */
-				::deep .professional-grid .e-emptyrow {
-					text-align: center;
-					padding: 48px 24px;
-					color: #94a3b8;
-					font-size: 14px;
-				}
-
-				/* Grid Cell Text Coloring */
-				.grid-debit {
-					color: #dc2626;
-					font-weight: 600;
-				}
-
-				.grid-credit {
-					color: #059669;
-					font-weight: 600;
-				}
-
-				.grid-total {
-					color: #1e40af;
-					font-weight: 700;
-					font-size: 14px;
-				}
-
-				/* Grid Footer Aggregates */
-				::deep .professional-grid .e-gridfooter {
-					background: linear-gradient(to bottom, #f1f5f9 0%, #e2e8f0 100%);
-					border-top: 2px solid #cbd5e1;
-				}
-
-				::deep .professional-grid .e-summarycell {
-					font-weight: 600;
-					color: #1e293b;
-					padding: 12px 8px;
-					border-right: 1px solid #cbd5e1;
-				}
-
-				::deep .professional-grid .e-summarycell:last-child {
-					border-right: none;
-				}
-
-				.aggregate-value.aggregate-debit {
-					color: #dc2626;
-				}
-
-				.aggregate-value.aggregate-credit {
-					color: #059669;
-				}
-
-				.aggregate-label {
-					color: #1e40af;
-					font-size: 14px;
-				}
-
-				/* Dual Grid Container */
-				.dual-grid-container {
-					display: grid;
-					grid-template-columns: 1fr 1fr;
-					gap: 24px;
-					padding: 24px;
-				}
-
-				.grid-section {
-					background: #ffffff;
-					border-radius: 8px;
-					border: 1px solid #e2e8f0;
-					overflow: hidden;
-				}
-
-				.grid-section-header {
-					display: flex;
-					align-items: center;
-					gap: 8px;
-					padding: 12px 16px;
-					background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
-					border-bottom: 2px solid #e2e8f0;
-				}
-
-				.grid-section-icon {
-					flex-shrink: 0;
-				}
-
-				.income-section .grid-section-icon {
-					color: #059669;
-				}
-
-				.expense-section .grid-section-icon {
-					color: #dc2626;
-				}
-
-				.grid-section-title {
-					font-size: 15px;
-					font-weight: 600;
-					color: #0f172a;
-					margin: 0;
-				}
-
-				.grid-section-count {
-					font-size: 12px;
-					color: #64748b;
-					margin-left: auto;
-				}
-
-				/* Profit & Loss Summary Section */
-				.profit-loss-summary {
-					background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-				}
-
-				.profit-loss-grid {
-					display: grid;
-					grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-					gap: 14px;
-				}
-
-				.balance-info-card {
-					background: #ffffff;
-					border: 1px solid #e2e8f0;
-					border-radius: 8px;
-					padding: 14px;
-					display: flex;
-					gap: 12px;
-					align-items: center;
-					transition: all 0.2s ease;
-					box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-				}
-
-				.balance-info-card:hover {
-					transform: translateY(-2px);
-					box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-				}
-
-				.balance-info-card .card-icon {
-					width: 36px;
-					height: 36px;
-					border-radius: 7px;
-					display: flex;
-					align-items: center;
-					justify-content: center;
-					flex-shrink: 0;
-					transition: all 0.2s ease;
-				}
-
-				.income-card .card-icon {
-					background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-					color: #ffffff;
-				}
-
-				.expense-card .card-icon {
-					background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
-					color: #ffffff;
-				}
-
-				.profit-card .card-icon {
-					background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
-					color: #ffffff;
-				}
-
-				.loss-card .card-icon {
-					background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
-					color: #ffffff;
-				}
-
-				.balance-info-card:hover .card-icon {
-					transform: scale(1.05);
-				}
-
-				.balance-info-card .card-content {
-					flex: 1;
-					min-width: 0;
-				}
-
-				.balance-info-card .card-label {
-					font-size: 11px;
-					font-weight: 600;
-					color: #64748b;
-					text-transform: uppercase;
-					letter-spacing: 0.3px;
-					margin-bottom: 5px;
-				}
-
-				.balance-info-card .card-value {
-					font-size: 18px;
-					font-weight: 700;
-					color: #0f172a;
-					margin-bottom: 3px;
-					line-height: 1.2;
-				}
-
-				.balance-info-card .debit-amount {
-					color: #dc2626;
-				}
-
-				.balance-info-card .credit-amount {
-					color: #059669;
-				}
-
-				.balance-info-card .profit-amount {
-					color: #0891b2;
-				}
-
-				.balance-info-card .loss-amount {
-					color: #d97706;
-				}
-
-				.balance-info-card .card-breakdown {
-					display: flex;
-					align-items: center;
-					gap: 8px;
-					font-size: 10px;
-					font-weight: 500;
-					margin-top: 5px;
-					color: #64748b;
-				}
-
-				.breakdown-item {
-					display: inline-flex;
-					white-space: nowrap;
-				}
-
-				/* Responsive Design */
-				@@media (max-width: 1400px) {
-					.filters-grid {
-						grid-template-columns: repeat(2, 1fr);
-					}
-
-					.dual-grid-container {
-						grid-template-columns: 1fr;
-					}
-				}
-
-				@@media (max-width: 768px) {
-					.filters-grid {
-						grid-template-columns: 1fr;
-					}
-
-					.dual-grid-container {
-						padding: 16px;
-					}
-
-					.profit-loss-grid {
-						grid-template-columns: 1fr;
-					}
-
-					.balance-info-card .card-value {
-						font-size: 20px;
-					}
-				}
-			</style>
+			</div>
+		</div>
+
+		<Footer />
+	</div>
+}
+
+<ToastNotification @ref="_toastNotification" />
+
+<style>
+	.dual-grid-container {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 24px;
+		padding: 24px;
+	}
+
+	/* P&L Section Colors */
+	.income-section .grid-section-icon {
+		color: #059669;
+	}
+
+	.expense-section .grid-section-icon {
+		color: #dc2626;
+	}
+
+	/* Profit & Loss Summary Section */
+	.profit-loss-summary {
+		background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+	}
+
+	.profit-loss-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+		gap: 14px;
+	}
+</style>
