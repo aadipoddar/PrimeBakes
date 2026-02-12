@@ -51,7 +51,7 @@ public partial class PurchaseReturnPage : IAsyncDisposable
 
     private SfAutoComplete<RawMaterialModel?, RawMaterialModel> _sfItemAutoComplete;
     private SfGrid<PurchaseReturnItemCartModel> _sfCartGrid;
-    private SfDialog _uploadDocumentDialog;
+    private DocumentUploadDialog _documentUploadDialog;
     private SfUploader _sfDocumentUploader;
 
     private ToastNotification _toastNotification;
