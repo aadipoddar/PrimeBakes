@@ -495,8 +495,6 @@ else
 	</div>
 }
 
-<ToastNotification @ref="_toastNotification" />
-
 <DeleteConfirmationDialog @ref="_deleteConfirmationDialog"
 						  EntityName="Purchase Return Transaction"
 						  IdentifierLabel="Transaction No"
@@ -513,3 +511,5 @@ else
 						   Disabled="@_isProcessing"
 						   OnConfirm="ConfirmRecover"
 						   OnCancel="CancelRecover" />
+
+<ToastNotification @ref="_toastNotification" />
