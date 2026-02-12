@@ -13,11 +13,16 @@
 else
 {
 	<div style="display: flex; flex-direction: column; min-height: 100vh;">
-		<Header Title="Create Raw Material Stock Adjustment" Subtitle="Create and manage raw material stock adjustments" ShowLogout="true" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
+		<Header Title="Create Raw Material Stock Adjustment" Subtitle="Create and manage raw material stock adjustments"
+				ShowLogout="true" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack"
+				OnLogoutClick="Logout">
 			<RightContent>
-				<IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Transaction (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveTransaction" />
-				<IconButton Icon="IconType.History" Title="Transaction History (Ctrl + H)" Disabled="_isProcessing" OnClick="NavigateToTransactionHistoryPage" />
-				<IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing" OnClick="ResetPage" />
+				<IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Transaction (Ctrl + S)"
+							Disabled="_isProcessing" OnClick="SaveTransaction" />
+				<IconButton Icon="IconType.History" Title="Transaction History (Ctrl + H)" Disabled="_isProcessing"
+							OnClick="NavigateToTransactionHistoryPage" />
+				<IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing"
+							OnClick="ResetPage" />
 			</RightContent>
 		</Header>
 
@@ -58,15 +63,16 @@ else
 							<label class="field-label">
 								Financial Year
 							</label>
-							<SfTextBox Value="@($"{_selectedFinancialYear?.StartDate:yyyy} to {_selectedFinancialYear?.EndDate:yyyy}")"
-									   Readonly="true" Placeholder="Financial Year" FloatLabelType="FloatLabelType.Never"
-									   CssClass="custom-textbox readonly-field" />
+							<SfTextBox
+							Value="@($"{_selectedFinancialYear?.StartDate:yyyy} to {_selectedFinancialYear?.EndDate:yyyy}")"
+							Readonly="true" Placeholder="Financial Year" FloatLabelType="FloatLabelType.Never"
+							CssClass="custom-textbox readonly-field" />
 						</div>
 
 						<!-- Transaction No -->
 						<div class="form-field">
 							<label class="field-label">
-								Transaction No
+								Transaction No <span class="required">*</span>
 							</label>
 							<SfTextBox @bind-Value="_transactionNo" Placeholder="Enter Transaction No"
 									   FloatLabelType="FloatLabelType.Never" Readonly=true
@@ -96,7 +102,7 @@ else
 						<div class="cart-field cart-field-wide">
 							<label class="field-label">Item Name <span class="required">*</span></label>
 							<SfAutoComplete @ref="_sfItemAutoComplete" Value="@_selectedRawMaterial"
-											TValue="RawMaterialModel ?" TItem="RawMaterialModel" DataSource="@_rawMaterials"
+											TValue="RawMaterialModel?" TItem="RawMaterialModel" DataSource="@_rawMaterials"
 											Placeholder="Select Item (Ctrl + E)" FloatLabelType="FloatLabelType.Never"
 											AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
 											CssClass="custom-autocomplete">
@@ -110,8 +116,7 @@ else
 						<div class="cart-field">
 							<label class="field-label">Current Stock</label>
 							<SfNumericTextBox Value="@_selectedCart.Stock" TValue="decimal" ShowSpinButton="false"
-											  Readonly="true" FloatLabelType="FloatLabelType.Never"
-											  CssClass="custom-numeric" />
+											  Readonly="true" FloatLabelType="FloatLabelType.Never" CssClass="custom-numeric" />
 						</div>
 
 						<!-- New Quantity -->
@@ -128,16 +133,14 @@ else
 						<div class="cart-field">
 							<label class="field-label">Rate</label>
 							<SfNumericTextBox Value="@_selectedCart.Rate" TValue="decimal" ShowSpinButton="false"
-											  Readonly="true" FloatLabelType="FloatLabelType.Never"
-											  CssClass="custom-numeric" />
+											  Readonly="true" FloatLabelType="FloatLabelType.Never" CssClass="custom-numeric" />
 						</div>
 
 						<!-- Total -->
 						<div class="form-field">
 							<label class="field-label">Total Amount</label>
 							<SfNumericTextBox Value="@_selectedCart.Total" TValue="decimal" ShowSpinButton="false"
-											  Readonly="true" FloatLabelType="FloatLabelType.Never"
-											  CssClass="custom-numeric" />
+											  Readonly="true" FloatLabelType="FloatLabelType.Never" CssClass="custom-numeric" />
 						</div>
 
 						<!-- Add Button -->

@@ -169,10 +169,10 @@ else
                         </ButtonCard>
                     }
 
-                    <!-- Admin -->
+                    <!-- Operations -->
                     @if (_user.Admin)
                     {
-                        <ButtonCard Title="Admin" Description="Access admin dashboard" Color="indigo" OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard)">
+                        <ButtonCard Title="Operations" Description="Access operations dashboard" Color="indigo" OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard)">
                             <IconContent>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -193,46 +193,6 @@ else
 }
 
 <style>
-    * {
-        box-sizing: border-box;
-    }
-
-    body {
-        margin: 0;
-        padding: 0;
-        overflow-x: hidden;
-    }
-
-    /* Dashboard Grid */
-    .dashboard-grid {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 24px;
-        width: 100%;
-        margin-bottom: 32px;
-    }
-
-        .dashboard-grid:last-child {
-            margin-bottom: 0;
-        }
-
-    /* Single card row */
-    .dashboard-grid-single {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 24px;
-        width: 100%;
-        margin-bottom: 32px;
-    }
-
-        /* Fixed card width */
-        .dashboard-grid .dashboard-card,
-        .dashboard-grid-single .dashboard-card {
-            width: 240px !important;
-            min-width: 240px !important;
-            max-width: 240px !important;
-        }
-
     /* Update Progress Overlay */
     .update-overlay {
         position: fixed;

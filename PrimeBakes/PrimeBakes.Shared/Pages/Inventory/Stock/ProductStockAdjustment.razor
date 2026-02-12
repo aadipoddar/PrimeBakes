@@ -64,9 +64,10 @@ else
 							<label class="field-label">
 								Financial Year
 							</label>
-							<SfTextBox Value="@($"{_selectedFinancialYear?.StartDate:yyyy} to {_selectedFinancialYear?.EndDate:yyyy}")"
-									   Readonly="true" Placeholder="Financial Year" FloatLabelType="FloatLabelType.Never"
-									   CssClass="custom-textbox readonly-field" />
+							<SfTextBox
+							Value="@($"{_selectedFinancialYear?.StartDate:yyyy} to {_selectedFinancialYear?.EndDate:yyyy}")"
+							Readonly="true" Placeholder="Financial Year" FloatLabelType="FloatLabelType.Never"
+							CssClass="custom-textbox readonly-field" />
 						</div>
 
 						<div class="form-field">
@@ -86,7 +87,7 @@ else
 						<!-- Transaction No -->
 						<div class="form-field">
 							<label class="field-label">
-								Transaction No
+								Transaction No <span class="required">*</span>
 							</label>
 							<SfTextBox @bind-Value="_transactionNo" Placeholder="Enter Transaction No"
 									   FloatLabelType="FloatLabelType.Never" Readonly=true
@@ -116,7 +117,7 @@ else
 						<div class="cart-field cart-field-wide">
 							<label class="field-label">Item Name <span class="required">*</span></label>
 							<SfAutoComplete @ref="_sfItemAutoComplete" Value="@_selectedProduct"
-											TValue="ProductLocationOverviewModel ?" TItem="ProductLocationOverviewModel"
+											TValue="ProductLocationOverviewModel?" TItem="ProductLocationOverviewModel"
 											DataSource="@_products" Placeholder="Select Item (Ctrl + E)"
 											FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
 											FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">

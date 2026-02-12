@@ -57,115 +57,94 @@ else
                     </div>
                 </div>
                 <div class="section-body">
-                    <div class="form-layout">
-                        <!-- First Row: Location, Company, Date, FY -->
+                    <div class="form-grid">
                         @if (_user.LocationId == 1)
                         {
-                            <div class="form-row-four">
-                                <!-- Location -->
-                                <div class="form-field">
-                                    <label class="field-label">
-                                        Location <span class="required">*</span>
-                                    </label>
-                                    <SfAutoComplete Value="@_selectedLocation" TValue="LocationModel" TItem="LocationModel"
-                                                    DataSource="@_locations" Placeholder="Select a Location"
-                                                    FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
-                                                    FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
-                                                    CssClass="custom-autocomplete">
-                                        <AutoCompleteEvents TItem="LocationModel" TValue="LocationModel"
-                                                            ValueChange="OnLocationChanged" />
-                                        <AutoCompleteFieldSettings Value="Name" />
-                                    </SfAutoComplete>
-                                </div>
+                            <div class="form-field">
+                                <label class="field-label">
+                                    Location <span class="required">*</span>
+                                </label>
+                                <SfAutoComplete Value="@_selectedLocation" TValue="LocationModel" TItem="LocationModel"
+                                                DataSource="@_locations" Placeholder="Select a Location"
+                                                FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
+                                                FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
+                                                CssClass="custom-autocomplete">
+                                    <AutoCompleteEvents TItem="LocationModel" TValue="LocationModel"
+                                                        ValueChange="OnLocationChanged" />
+                                    <AutoCompleteFieldSettings Value="Name" />
+                                </SfAutoComplete>
+                            </div>
 
-                                <!-- Company -->
-                                <div class="form-field">
-                                    <label class="field-label">
-                                        Company <span class="required">*</span>
-                                    </label>
-                                    <SfAutoComplete Value="@_selectedCompany" TValue="CompanyModel" TItem="CompanyModel"
-                                                    DataSource="@_companies" Placeholder="Select a Company"
-                                                    FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
-                                                    FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
-                                                    CssClass="custom-autocomplete">
-                                        <AutoCompleteEvents TItem="CompanyModel" TValue="CompanyModel"
-                                                            ValueChange="OnCompanyChanged" />
-                                        <AutoCompleteFieldSettings Value="Name" />
-                                    </SfAutoComplete>
-                                </div>
+                            <div class="form-field">
+                                <label class="field-label">
+                                    Company <span class="required">*</span>
+                                </label>
+                                <SfAutoComplete Value="@_selectedCompany" TValue="CompanyModel" TItem="CompanyModel"
+                                                DataSource="@_companies" Placeholder="Select a Company"
+                                                FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
+                                                FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
+                                                CssClass="custom-autocomplete">
+                                    <AutoCompleteEvents TItem="CompanyModel" TValue="CompanyModel"
+                                                        ValueChange="OnCompanyChanged" />
+                                    <AutoCompleteFieldSettings Value="Name" />
+                                </SfAutoComplete>
+                            </div>
 
-                                <!-- Transaction Date -->
-                                <div class="form-field">
-                                    <label class="field-label">
-                                        Transaction Date <span class="required">*</span>
-                                    </label>
+                            <div class="form-field">
+                                <label class="field-label">
+                                    Transaction Date <span class="required">*</span> / Financial Year
+                                </label>
+                                <div class="date-year-wrapper">
                                     <SfDatePicker Value="@_order.TransactionDateTime" TValue="DateTime" Format="dd/MM/yy"
                                                   Placeholder="Select Date" FloatLabelType="FloatLabelType.Never"
                                                   CssClass="custom-datepicker">
                                         <DatePickerEvents TValue="DateTime" ValueChange="OnTransactionDateChanged" />
                                     </SfDatePicker>
-                                </div>
-
-                                <!-- Financial Year -->
-                                <div class="form-field">
-                                    <label class="field-label">
-                                        Financial Year
-                                    </label>
-                                    <SfTextBox
-                                    Value="@($"{_selectedFinancialYear?.StartDate:yyyy} to {_selectedFinancialYear?.EndDate:yyyy}")"
-                                    Readonly="true" Placeholder="Financial Year" FloatLabelType="FloatLabelType.Never"
-                                    CssClass="custom-textbox readonly-field" />
+                                    <SfTextBox Value="@($"{_selectedFinancialYear?.StartDate:yyyy} to {_selectedFinancialYear?.EndDate:yyyy}")"
+                                               Readonly="true" Placeholder="Financial Year" FloatLabelType="FloatLabelType.Never"
+                                               CssClass="custom-textbox readonly-field" />
                                 </div>
                             </div>
                         }
 
-                        <!-- Second Row: Transaction No, Sale (if linked), and Remarks -->
-                        <div class="form-row-four">
-                            <!-- Transaction No -->
-                            @if (_user.LocationId == 1)
-                            {
-                                <div class="form-field">
-                                    <label class="field-label">
-                                        Transaction No
-                                    </label>
-                                    <SfTextBox @bind-Value="_order.TransactionNo" Placeholder="Transaction No"
-                                               FloatLabelType="FloatLabelType.Never" Readonly="true"
-                                               CssClass="custom-textbox readonly-field" />
-                                </div>
-                            }
-
-                            <!-- Sale (if linked) -->
-                            @if (_sale?.Id > 0)
-                            {
-                                <div class="form-field">
-                                    <label class="field-label">
-                                        Linked Sale
-                                    </label>
-                                    <div class="sale-field-with-actions">
-                                        <SfTextBox Value="@_sale.TransactionNo" Readonly="true" Placeholder="No Sale Linked"
-                                                   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox readonly-field" />
-                                        <div class="order-action-buttons">
-                                            <IconButton Icon="IconType.View" Variant="ButtonVariant.View"
-                                                        Size="ButtonSize.Small" Title="View Sale"
-                                                        OnClick="NavigateToSelectedSalePage" />
-                                            <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel"
-                                                        Size="ButtonSize.Small" Title="Download Excel Invoice"
-                                                        OnClick="DownloadSelectedSaleExcel" />
-                                            <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Small"
-                                                        Title="Download PDF Invoice" OnClick="DownloadSelectedSalePdf" />
-                                        </div>
-                                    </div>
-                                </div>
-                            }
-
-                            <!-- Remarks -->
                             <div class="form-field">
                                 <label class="field-label">
-                                    Remarks / Narration
+                                    Transaction No <span class="required">*</span>
                                 </label>
-                                <SfTextBox @bind-Value="_order.Remarks" Multiline="true" Placeholder="Enter remarks..."
-                                           FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox textarea-field-small" />
+                                <SfTextBox @bind-Value="_order.TransactionNo" Placeholder="Transaction No"
+                                           FloatLabelType="FloatLabelType.Never" Readonly="true"
+                                           CssClass="custom-textbox readonly-field" />
                             </div>
+
+                        @if (_sale?.Id > 0)
+                        {
+                            <div class="form-field">
+                                <label class="field-label">
+                                    Linked Sale
+                                </label>
+                                <div class="reference-wrapper">
+                                    <SfTextBox Value="@_sale.TransactionNo" Readonly="true" Placeholder="No Sale Linked"
+                                               FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox readonly-field" />
+                                    <div class="reference-actions">
+                                        <IconButton Icon="IconType.View" Variant="ButtonVariant.View"
+                                                    Size="ButtonSize.Small" Title="View Sale"
+                                                    OnClick="NavigateToSelectedSalePage" />
+                                        <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel"
+                                                    Size="ButtonSize.Small" Title="Download Excel Invoice"
+                                                    OnClick="DownloadSelectedSaleExcel" />
+                                        <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Small"
+                                                    Title="Download PDF Invoice" OnClick="DownloadSelectedSalePdf" />
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="form-field">
+                            <label class="field-label">
+                                Remarks / Narration
+                            </label>
+                            <SfTextBox @bind-Value="_order.Remarks" Multiline="true" Placeholder="Enter remarks..."
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
                         </div>
                     </div>
                 </div>
@@ -186,9 +165,8 @@ else
                     </div>
                 </div>
                 <div class="section-body">
-                    <!-- Cart Row: Item Selection and Quantity -->
-                    <div class="cart-row">
-                        <div class="cart-field cart-field-item">
+                    <div class="cart-input-row">
+                        <div class="cart-field cart-field-wide">
                             <label class="cart-label">Item <span class="required">*</span></label>
                             <SfAutoComplete @ref="_sfItemAutoComplete" Value="@_selectedProduct"
                                             TValue="ProductLocationOverviewModel" TItem="ProductLocationOverviewModel"
@@ -201,24 +179,23 @@ else
                             </SfAutoComplete>
                         </div>
 
-                        <div class="cart-field cart-field-small">
-                            <label class="cart-label">Qty</label>
+                        <div class="cart-field">
+                            <label class="cart-label">Qty <span class="required">*</span></label>
                             <SfNumericTextBox Value="@_selectedCart.Quantity" TValue="decimal" Min="0"
                                               ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
-                                              CssClass="custom-numeric editable-field">
+                                              CssClass="custom-numeric">
                                 <NumericTextBoxEvents TValue="decimal" ValueChange="OnItemQuantityChanged" />
                             </SfNumericTextBox>
                         </div>
 
-                        <!-- Item Remarks -->
-                        <div class="cart-field">
+                        <div class="cart-field cart-field-wide">
                             <label class="cart-label">Remarks</label>
                             <SfTextBox @bind-Value="_selectedCart.Remarks" Placeholder="Item Narration..."
                                        FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
                         </div>
 
-                        <!-- Add Button -->
                         <div class="cart-field">
+                            <label class="cart-label">&nbsp;</label>
                             <IconButton Icon="IconType.Add" Variant="ButtonVariant.Add" Text="Add" Title="Add to Cart"
                                         OnClick="AddItemToCart" />
                         </div>
@@ -303,370 +280,4 @@ else
     </div>
 }
 
-<!-- Toast Notification -->
 <ToastNotification @ref="_toastNotification" />
-
-<style>
-    * {
-        box-sizing: border-box;
-    }
-
-    /* Order Action Buttons */
-    .order-action-buttons {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-        margin-top: 4px;
-    }
-
-    .btn-order-action {
-        width: 32px;
-        height: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid #e2e8f0;
-        background: #ffffff;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        color: #64748b;
-        padding: 0;
-    }
-
-    .btn-order-action:hover:not(:disabled) {
-        background: #f8fafc;
-        border-color: #cbd5e1;
-        color: #0f172a;
-        transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    }
-
-    .btn-order-action:active:not(:disabled) {
-        transform: translateY(0);
-        box-shadow: none;
-    }
-
-    .btn-order-action:disabled {
-        opacity: 0.4;
-        cursor: not-allowed;
-    }
-
-    .btn-order-action.btn-order-action-view {
-        color: #3b82f6;
-        border-color: #3b82f6;
-    }
-
-    .btn-order-action.btn-order-action-view:hover:not(:disabled) {
-        background: #eff6ff;
-        border-color: #2563eb;
-        color: #2563eb;
-    }
-
-    .btn-order-action.btn-order-action-excel {
-        color: #16a34a;
-        border-color: #16a34a;
-    }
-
-    .btn-order-action.btn-order-action-excel:hover:not(:disabled) {
-        background: #f0fdf4;
-        border-color: #15803d;
-        color: #15803d;
-    }
-
-    .btn-order-action.btn-order-action-pdf {
-        color: #dc2626;
-        border-color: #dc2626;
-    }
-
-    .btn-order-action.btn-order-action-pdf:hover:not(:disabled) {
-        background: #fef2f2;
-        border-color: #b91c1c;
-        color: #b91c1c;
-    }
-
-    /* Section Card Styles */
-    .section-card {
-        background: #ffffff;
-        border-radius: 12px;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        margin-bottom: 16px;
-        overflow: hidden;
-    }
-
-    .section-header {
-        padding: 16px 20px;
-        border-bottom: 1px solid #e2e8f0;
-        background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
-    }
-
-    .section-title-wrapper {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .section-icon {
-        color: #3b82f6;
-        flex-shrink: 0;
-    }
-
-    .section-title {
-        font-size: 16px;
-        font-weight: 600;
-        color: #0f172a;
-        margin: 0;
-        letter-spacing: -0.2px;
-    }
-
-    .section-body {
-        padding: 16px 20px;
-    }
-
-    /* Form Layout */
-    .form-layout {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-    }
-
-    .form-row-four {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 16px 20px;
-    }
-
-    .form-row-mixed {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 16px 20px;
-    }
-
-    .form-field {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    }
-
-    .form-field-remarks {
-        /* Will take remaining space in mixed row */
-    }
-
-    .sale-field-with-actions {
-        display: flex;
-        gap: 8px;
-        align-items: flex-end;
-    }
-
-    .sale-field-with-actions> :first-child {
-        flex: 1;
-    }
-
-    .field-label {
-        font-size: 13px;
-        font-weight: 600;
-        color: #334155;
-        letter-spacing: 0.1px;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-
-    .required {
-        color: #ef4444;
-        font-weight: 700;
-    }
-
-    /* Transaction Number with Auto-generate Checkbox */
-    .transaction-no-wrapper {
-        display: flex;
-        gap: 12px;
-        align-items: stretch;
-    }
-
-    .transaction-no-wrapper> :first-child {
-        flex: 1;
-    }
-
-    ::deep .editable-field .e-input-group {
-        border-color: #3b82f6;
-        background: #eff6ff;
-    }
-
-    ::deep .editable-field .e-input-group input {
-        font-weight: 600;
-        color: #1e40af;
-    }
-
-    ::deep .textarea-field-small .e-input-group {
-        height: auto;
-        min-height: 60px;
-    }
-
-    ::deep .textarea-field-small .e-input-group textarea {
-        resize: vertical;
-        min-height: 60px;
-    }
-
-    /* Add to Cart Section Styles */
-    .cart-row {
-        display: grid;
-        grid-template-columns: 2fr 1fr 2fr 120px;
-        gap: 12px;
-        align-items: end;
-    }
-
-    .cart-field {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
-
-    .cart-field-item {
-        /* Standard column */
-    }
-
-    .cart-field-small {
-        /* Standard column */
-    }
-
-    .cart-label {
-        font-size: 12px;
-        font-weight: 600;
-        color: #475569;
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
-    }
-
-    .cart-label .required {
-        color: #dc2626;
-        margin-left: 2px;
-    }
-
-    ::deep .cart-field .e-input-group,
-    ::deep .cart-field .custom-numeric .e-input-group,
-    ::deep .cart-field .custom-autocomplete .e-input-group,
-    ::deep .cart-field .custom-textbox .e-input-group {
-        height: 38px;
-        background: #eff6ff;
-        border: 1px solid #3b82f6;
-    }
-
-    ::deep .cart-field .e-input-group input,
-    ::deep .cart-field .custom-numeric .e-input-group input,
-    ::deep .cart-field .custom-autocomplete .e-input-group input,
-    ::deep .cart-field .custom-textbox .e-input-group input {
-        font-size: 14px;
-        font-weight: 500;
-        color: #1e293b;
-        padding: 8px 12px;
-    }
-
-    /* Professional Grid Styles */
-    .e-grid .e-summaryrow .e-summarycell {
-        background-color: #deecf9;
-    }
-
-    .grid-body {
-        padding: 0 !important;
-    }
-
-    ::deep .professional-grid {
-        border: none;
-    }
-
-    ::deep .professional-grid .e-gridheader {
-        background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
-        border-bottom: 2px solid #e2e8f0;
-    }
-
-    ::deep .professional-grid .e-headercell {
-        background: transparent;
-        color: #475569;
-        font-weight: 600;
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
-        border-right: 1px solid #e2e8f0;
-        padding: 12px 8px;
-    }
-
-    ::deep .professional-grid .e-headercell:last-child {
-        border-right: none;
-    }
-
-    ::deep .professional-grid .e-gridcontent {
-        background: #ffffff;
-    }
-
-    ::deep .professional-grid .e-row {
-        transition: background-color 0.2s ease;
-    }
-
-    ::deep .professional-grid .e-row:hover {
-        background-color: #f8fafc;
-    }
-
-    ::deep .professional-grid .e-row.e-altrow {
-        background-color: #fafbfc;
-    }
-
-    ::deep .professional-grid .e-row.e-altrow:hover {
-        background-color: #f8fafc;
-    }
-
-    ::deep .professional-grid .e-rowcell {
-        border-right: 1px solid #f1f5f9;
-        border-bottom: 1px solid #f1f5f9;
-        padding: 10px 8px;
-        font-size: 13px;
-        color: #1e293b;
-    }
-
-    ::deep .professional-grid .e-rowcell:last-child {
-        border-right: none;
-    }
-
-    /* Grid Footer Aggregates */
-    ::deep .professional-grid .e-gridfooter {
-        background: linear-gradient(to bottom, #f1f5f9 0%, #e2e8f0 100%);
-        border-top: 2px solid #cbd5e1;
-    }
-
-    ::deep .professional-grid .e-summarycell {
-        font-weight: 600;
-        color: #1e293b;
-        padding: 12px 8px;
-        border-right: 1px solid #cbd5e1;
-    }
-
-    ::deep .professional-grid .e-summarycell:last-child {
-        border-right: none;
-    }
-
-    .aggregate-label {
-        text-align: left;
-        font-size: 13px;
-        color: #475569;
-    }
-
-    .aggregate-value {
-        text-align: right;
-        font-size: 13px;
-        color: #1e293b;
-    }
-
-    .aggregate-label strong,
-    .aggregate-value strong {
-        font-weight: 700;
-    }
-
-    /* Empty Grid State */
-    ::deep .professional-grid .e-emptyrow {
-        text-align: center;
-        padding: 48px 24px;
-        color: #94a3b8;
-        font-size: 14px;
-    }
-</style>

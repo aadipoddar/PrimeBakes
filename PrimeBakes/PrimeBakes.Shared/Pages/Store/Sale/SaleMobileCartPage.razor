@@ -265,14 +265,14 @@ else
                 <div class="payment-form">
                     <div class="form-row">
                         <div class="form-field form-field-half">
-                            <label class="field-label">Pay Amt</label>
+                            <label class="field-label">Pay Amt <span class="required">*</span></label>
                             <SfNumericTextBox TValue="decimal" @bind-Value="_paymentAmount" Min="0"
                                               Max="@_remainingAmount" Step="1" type="tel" Format="N2" Placeholder="0.00"
                                               CssClass="dialog-input" Enabled="@(!_isProcessing)" />
                         </div>
 
                         <div class="form-field form-field-half">
-                            <label class="field-label">Method</label>
+                            <label class="field-label">Method <span class="required">*</span></label>
                             <SfDropDownList TValue="PaymentModeModel" TItem="PaymentModeModel"
                                             @bind-Value="@_selectedPaymentMethod" DataSource="@_paymentMethods"
                                             Placeholder="Select payment method" CssClass="payment-dropdown"

@@ -59,7 +59,7 @@ else
 						</div>
 					</div>
 					<div class="section-body">
-						<div class="form-grid-triple">
+						<div class="form-grid">
 							<!-- Location -->
 							@if (_user.LocationId == 1)
 							{
@@ -93,6 +93,24 @@ else
 										<AutoCompleteFieldSettings Value="Name" />
 									</SfAutoComplete>
 								</div>
+
+								<!-- Transaction Date -->
+								<div class="form-field">
+									<label class="field-label">
+										Transaction Date <span class="required">*</span> / Financial Year
+									</label>
+									<div class="date-year-wrapper">
+										<SfDatePicker Value="@_saleReturn.TransactionDateTime" TValue="DateTime" Format="dd/MM/yy"
+												  Placeholder="Select Date" FloatLabelType="FloatLabelType.Never"
+												  CssClass="custom-datepicker">
+											<DatePickerEvents TValue="DateTime" ValueChange="OnTransactionDateChanged" />
+										</SfDatePicker>
+										<SfTextBox
+										Value="@($"{_selectedFinancialYear?.StartDate:yyyy} to {_selectedFinancialYear?.EndDate:yyyy}")"
+										Readonly="true" Placeholder="Financial Year" FloatLabelType="FloatLabelType.Never"
+										CssClass="custom-textbox readonly-field" />
+									</div>
+								</div>
 							}
 
 							<!-- Party -->
@@ -114,35 +132,10 @@ else
 								</div>
 							}
 
-							<!-- Transaction Date -->
-							@if (_user.LocationId == 1)
-							{
-								<div class="form-field">
-									<label class="field-label">
-										Transaction Date <span class="required">*</span>
-									</label>
-									<SfDatePicker Value="@_saleReturn.TransactionDateTime" TValue="DateTime" Format="dd/MM/yy"
-												  Placeholder="Select Date" FloatLabelType="FloatLabelType.Never"
-												  CssClass="custom-datepicker">
-										<DatePickerEvents TValue="DateTime" ValueChange="OnTransactionDateChanged" />
-									</SfDatePicker>
-								</div>
-
-								<!-- Financial Year -->
-								<div class="form-field">
-									<label class="field-label">
-										Financial Year
-									</label>
-									<SfTextBox
-									Value="@($"{_selectedFinancialYear?.StartDate:yyyy} to {_selectedFinancialYear?.EndDate:yyyy}")"
-									Readonly="true" Placeholder="Financial Year" FloatLabelType="FloatLabelType.Never"
-									CssClass="custom-textbox readonly-field" />
-								</div>
-
 								<!-- Transaction No -->
 								<div class="form-field">
 									<label class="field-label">
-										Transaction No
+										Transaction No <span class="required">*</span>
 									</label>
 									<div class="transaction-no-wrapper">
 										<SfTextBox @bind-Value="_saleReturn.TransactionNo" Placeholder="Transaction No"
@@ -150,7 +143,6 @@ else
 												   CssClass="custom-textbox readonly-field" />
 									</div>
 								</div>
-							}
 
 							<!-- Customer Number -->
 							<div class="form-field">
@@ -177,7 +169,7 @@ else
 									Remarks / Narration
 								</label>
 								<SfTextBox @bind-Value="_saleReturn.Remarks" Multiline="true" Placeholder="Enter remarks..."
-										   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox textarea-field-small" />
+										   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
 							</div>
 						</div>
 					</div>
@@ -297,9 +289,8 @@ else
 					</div>
 				</div>
 				<div class="section-body">
-					<!-- First Row: Item Selection and Basic Info -->
-					<div class="cart-row">
-						<div class="cart-field cart-field-item">
+					<div class="cart-input-row">
+						<div class="cart-field cart-field-wide">
 							<label class="cart-label">Item <span class="required">*</span></label>
 							<SfAutoComplete @ref="_sfItemAutoComplete" Value="@_selectedProduct"
 											TValue="ProductLocationOverviewModel" TItem="ProductLocationOverviewModel"
@@ -312,8 +303,8 @@ else
 							</SfAutoComplete>
 						</div>
 
-						<div class="cart-field cart-field-small">
-							<label class="cart-label">Qty</label>
+						<div class="cart-field">
+							<label class="cart-label">Qty <span class="required">*</span></label>
 							<SfNumericTextBox Value="@_selectedCart.Quantity" TValue="decimal" Min="0"
 											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
 											  CssClass="custom-numeric editable-field">
@@ -321,7 +312,7 @@ else
 							</SfNumericTextBox>
 						</div>
 
-						<div class="cart-field cart-field-small">
+						<div class="cart-field">
 							<label class="cart-label">Rate</label>
 							<SfNumericTextBox Value="@_selectedCart.Rate" TValue="decimal" Min="0" ShowSpinButton="false"
 											  Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
@@ -330,7 +321,7 @@ else
 							</SfNumericTextBox>
 						</div>
 
-						<div class="cart-field cart-field-small">
+						<div class="cart-field">
 							<label class="cart-label">Disc %</label>
 							<SfNumericTextBox Value="@_selectedCart.DiscountPercent" TValue="decimal" Decimals="2" Min="0"
 											  Max="100" ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
@@ -339,7 +330,7 @@ else
 							</SfNumericTextBox>
 						</div>
 
-						<div class="cart-field cart-field-small">
+						<div class="cart-field">
 							<label class="cart-label">CGST %</label>
 							<SfNumericTextBox Value="@_selectedCart.CGSTPercent" TValue="decimal" Decimals="2" Min="0"
 											  Max="100" ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
@@ -348,7 +339,7 @@ else
 							</SfNumericTextBox>
 						</div>
 
-						<div class="cart-field cart-field-small">
+						<div class="cart-field">
 							<label class="cart-label">SGST %</label>
 							<SfNumericTextBox Value="@_selectedCart.SGSTPercent" TValue="decimal" Decimals="2" Min="0"
 											  Max="100" ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
@@ -357,7 +348,7 @@ else
 							</SfNumericTextBox>
 						</div>
 
-						<div class="cart-field cart-field-small">
+						<div class="cart-field">
 							<label class="cart-label">IGST %</label>
 							<SfNumericTextBox Value="@_selectedCart.IGSTPercent" TValue="decimal" Decimals="2" Min="0"
 											  Max="100" ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
@@ -374,72 +365,57 @@ else
 						</div>
 					</div>
 
-					<!-- Second Row: Readonly Amounts Aligned with Percentages -->
-					<div class="cart-amounts-row">
-						<!-- Item Name (below item field) -->
-						<div class="amount-field amount-field-item">
-							<div class="amount-display identification-field">
-								<label class="cart-label">Remarks</label>
-								<SfTextBox @bind-Value="_selectedCart.Remarks" Placeholder="Item Narration..."
-										   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox identification-input" />
-							</div>
+					<div class="cart-input-row">
+						<div class="cart-field cart-field-wide">
+							<label class="cart-label">Remarks</label>
+							<SfTextBox @bind-Value="_selectedCart.Remarks" Placeholder="Item Narration..."
+									   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
 						</div>
 
-						<!-- Spacer for UOM (not used in Sale Return usually, or is it? PurchaseReturn has it. SaleReturnModel has it? Let's check SaleReturnItemCartModel in .cs - it does NOT have UOM in the snippet I saw, wait. `SaleReturnItemCartModel` in `SaleReturnPage.razor.cs` line 49: `_selectedCart`. Line 299 in .cs: `_cart.Add(new() { ... UnitOfMeasurement = item.UnitOfMeasurement ... })`? No, line 299 in `SaleReturnPage.razor.cs` does NOT show `UnitOfMeasurement`. It shows `Quantity`, `Rate`, `BaseTotal`. Let's check `SaleReturnItemCartModel` definition if possible. I can't see the model definition but I can infer from usage. `SaleReturnPage.razor.cs` line 299-319 does NOT assign `UnitOfMeasurement`. So I should remove UOM field.) -->
-						<div class="amount-field amount-field-small">
-							<!-- Spacer or remove -->
+						<div class="cart-field">
+							<label class="cart-label">Base</label>
+							<SfNumericTextBox Value="@_selectedCart.BaseTotal" Readonly="true" TValue="decimal"
+										  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+										  CssClass="custom-numeric readonly-field" />
 						</div>
 
-						<!-- Base Total (below Rate) -->
-						<div class="amount-field amount-field-small">
-							<div class="amount-display empty-display">
-								<span class="amount-label">Base</span>
-								<span class="amount-value">@_selectedCart.BaseTotal.ToString("N2")</span>
-							</div>
+						<div class="cart-field">
+							<label class="cart-label">Disc Amt</label>
+							<SfNumericTextBox Value="@_selectedCart.DiscountAmount" Readonly="true" TValue="decimal"
+										  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+										  CssClass="custom-numeric readonly-field" />
 						</div>
 
-						<!-- Discount Amount (below Disc %) -->
-						<div class="amount-field amount-field-small">
-							<div class="amount-display empty-display">
-								<span class="amount-label">Disc Amt</span>
-								<span class="amount-value discount-amt">@_selectedCart.DiscountAmount.ToString("N2")</span>
-							</div>
+						<div class="cart-field">
+							<label class="cart-label">CGST Amt</label>
+							<SfNumericTextBox Value="@_selectedCart.CGSTAmount" Readonly="true" TValue="decimal"
+										  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+										  CssClass="custom-numeric readonly-field" />
 						</div>
 
-						<!-- CGST Amount (below CGST %) -->
-						<div class="amount-field amount-field-small">
-							<div class="amount-display empty-display">
-								<span class="amount-label">CGST Amt</span>
-								<span class="amount-value">@_selectedCart.CGSTAmount.ToString("N2")</span>
-							</div>
+						<div class="cart-field">
+							<label class="cart-label">SGST Amt</label>
+							<SfNumericTextBox Value="@_selectedCart.SGSTAmount" Readonly="true" TValue="decimal"
+										  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+										  CssClass="custom-numeric readonly-field" />
 						</div>
 
-						<!-- SGST Amount (below SGST %) -->
-						<div class="amount-field amount-field-small">
-							<div class="amount-display empty-display">
-								<span class="amount-label">SGST Amt</span>
-								<span class="amount-value">@_selectedCart.SGSTAmount.ToString("N2")</span>
-							</div>
+						<div class="cart-field">
+							<label class="cart-label">IGST Amt</label>
+							<SfNumericTextBox Value="@_selectedCart.IGSTAmount" Readonly="true" TValue="decimal"
+										  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+										  CssClass="custom-numeric readonly-field" />
 						</div>
 
-						<!-- IGST Amount (below IGST %) -->
-						<div class="amount-field amount-field-small">
-							<div class="amount-display empty-display">
-								<span class="amount-label">IGST Amt</span>
-								<span class="amount-value">@_selectedCart.IGSTAmount.ToString("N2")</span>
-							</div>
+						<div class="cart-field">
+							<label class="cart-label">Total</label>
+							<SfNumericTextBox Value="@_selectedCart.Total" Readonly="true" TValue="decimal"
+										  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+										  CssClass="custom-numeric readonly-field" />
 						</div>
 
-						<!-- Total and Checkbox (below Remarks) -->
-						<div class="amount-field amount-field-medium">
-							<div class="amount-display total-display">
-								<span class="amount-label">Total</span>
-								<span class="amount-value">@_selectedCart.Total.ToString("N2")</span>
-							</div>
-						</div>
-
-						<!-- Add Button (below Tax Incl. checkbox) -->
-						<div class="amount-field amount-field-button">
+						<div class="cart-field">
+							<label class="cart-label">&nbsp;</label>
 							<IconButton Icon="IconType.Add" Variant="ButtonVariant.Add" Text="Add" Title="Add to Cart"
 										OnClick="AddItemToCart" />
 						</div>
@@ -616,24 +592,15 @@ else
 									}
 								</Template>
 							</GridColumn>
-							<GridColumn Field="AfterDiscount" HeaderText="After Disc" Width="140"
-										TextAlign="TextAlign.Right" Format="N2" />
-							<GridColumn Field="CGSTPercent" HeaderText="CGST %" Width="140" TextAlign="TextAlign.Right"
-										Format="N2" />
-							<GridColumn Field="CGSTAmount" HeaderText="CGST Amt" Width="150" TextAlign="TextAlign.Right"
-										Format="N2" />
-							<GridColumn Field="SGSTPercent" HeaderText="SGST %" Width="140" TextAlign="TextAlign.Right"
-										Format="N2" />
-							<GridColumn Field="SGSTAmount" HeaderText="SGST Amt" Width="150" TextAlign="TextAlign.Right"
-										Format="N2" />
-							<GridColumn Field="IGSTPercent" HeaderText="IGST %" Width="140" TextAlign="TextAlign.Right"
-										Format="N2" />
-							<GridColumn Field="IGSTAmount" HeaderText="IGST Amt" Width="150" TextAlign="TextAlign.Right"
-										Format="N2" />
-							<GridColumn Field="TotalTaxAmount" HeaderText="Tax Total" Width="150"
-										TextAlign="TextAlign.Right" Format="N2" />
-							<GridColumn Field="InclusiveTax" HeaderText="Tax Incl." Width="100"
-										TextAlign="TextAlign.Center">
+							<GridColumn Field="AfterDiscount" HeaderText="After Disc" Width="140" TextAlign="TextAlign.Right" Format="N2" />
+							<GridColumn Field="CGSTPercent" HeaderText="CGST %" Width="140" TextAlign="TextAlign.Right" Format="N2" />
+							<GridColumn Field="CGSTAmount" HeaderText="CGST Amt" Width="150" TextAlign="TextAlign.Right" Format="N2" />
+							<GridColumn Field="SGSTPercent" HeaderText="SGST %" Width="140" TextAlign="TextAlign.Right" Format="N2" />
+							<GridColumn Field="SGSTAmount" HeaderText="SGST Amt" Width="150" TextAlign="TextAlign.Right" Format="N2" />
+							<GridColumn Field="IGSTPercent" HeaderText="IGST %" Width="140" TextAlign="TextAlign.Right" Format="N2" />
+							<GridColumn Field="IGSTAmount" HeaderText="IGST Amt" Width="150" TextAlign="TextAlign.Right" Format="N2" />
+							<GridColumn Field="TotalTaxAmount" HeaderText="Tax Total" Width="150" TextAlign="TextAlign.Right" Format="N2" />
+							<GridColumn Field="InclusiveTax" HeaderText="Tax Incl." Width="100" TextAlign="TextAlign.Center">
 								<Template>
 									@{
 										var item = (context as dynamic);
@@ -661,674 +628,4 @@ else
 	</div>
 }
 
-<!-- Toast Notification -->
 <ToastNotification @ref="_toastNotification" />
-
-<style>
-	* {
-		box-sizing: border-box;
-	}
-
-	/* Two Column Layout */
-	.two-column-layout {
-		display: flex;
-		gap: 16px;
-		margin-bottom: 16px;
-	}
-
-	.two-column-layout> :first-child {
-		flex: 0 0 75%;
-	}
-
-	.two-column-layout> :last-child {
-		flex: 0 0 calc(25% - 16px);
-	}
-
-	/* Section Card Styles */
-	.section-card {
-		background: #ffffff;
-		border-radius: 12px;
-		border: 1px solid #e2e8f0;
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-		margin-bottom: 16px;
-		overflow: hidden;
-	}
-
-	.section-header {
-		padding: 16px 20px;
-		border-bottom: 1px solid #e2e8f0;
-		background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
-	}
-
-	.section-title-wrapper {
-		display: flex;
-		align-items: center;
-		gap: 12px;
-	}
-
-	.section-icon {
-		color: #3b82f6;
-		flex-shrink: 0;
-	}
-
-	.section-title {
-		font-size: 16px;
-		font-weight: 600;
-		color: #0f172a;
-		margin: 0;
-		letter-spacing: -0.2px;
-	}
-
-	.section-body {
-		padding: 16px 20px;
-	}
-
-	/* Form Grid Layout */
-	.form-grid {
-		display: grid;
-		grid-template-columns: repeat(2, 1fr);
-		gap: 16px 20px;
-	}
-
-	.form-grid-single {
-		display: grid;
-		grid-template-columns: repeat(2, 1fr);
-		gap: 16px 20px;
-	}
-
-	.form-grid-triple {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: 16px 20px;
-	}
-
-	.form-field {
-		display: flex;
-		flex-direction: column;
-		gap: 6px;
-	}
-
-	.form-field-full {
-		grid-column: 1 / -1;
-	}
-
-	.field-label {
-		font-size: 13px;
-		font-weight: 600;
-		color: #334155;
-		letter-spacing: 0.1px;
-		display: flex;
-		align-items: center;
-		gap: 4px;
-	}
-
-	.required {
-		color: #ef4444;
-		font-weight: 700;
-	}
-
-	/* Transaction Date and Financial Year Wrapper */
-	.date-year-wrapper {
-		display: flex;
-		gap: 12px;
-		align-items: stretch;
-	}
-
-	.date-year-wrapper> :first-child {
-		flex: 1;
-	}
-
-	.date-year-wrapper> :last-child {
-		flex: 1;
-	}
-
-	/* Transaction Number with Auto-generate Checkbox */
-	.transaction-no-wrapper {
-		display: flex;
-		gap: 12px;
-		align-items: stretch;
-	}
-
-	.transaction-no-wrapper> :first-child {
-		flex: 1;
-	}
-
-	.auto-generate-checkbox {
-		display: flex;
-		align-items: center;
-		padding: 0 16px;
-		background: #f8fafc;
-		border: 1px solid #cbd5e1;
-		border-radius: 6px;
-		white-space: nowrap;
-		min-width: 140px;
-		justify-content: center;
-	}
-
-	.auto-generate-checkbox ::deep .custom-checkbox {
-		font-size: 13px;
-		font-weight: 500;
-	}
-
-	/* Action Buttons */
-	.action-buttons {
-		display: flex;
-		gap: 12px;
-	}
-
-	.btn-primary,
-	.btn-secondary {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 8px;
-		height: 44px;
-		padding: 0 24px;
-		border: none;
-		border-radius: 8px;
-		font-size: 14px;
-		font-weight: 600;
-		cursor: pointer;
-		transition: all 0.2s ease;
-		letter-spacing: 0.3px;
-		flex: 1;
-	}
-
-	.btn-primary svg,
-	.btn-secondary svg {
-		flex-shrink: 0;
-	}
-
-	.btn-primary {
-		background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
-		color: #ffffff;
-		box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
-	}
-
-	.btn-primary:hover {
-		box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-		transform: translateY(-1px);
-		background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
-	}
-
-	.btn-primary:active {
-		transform: translateY(0);
-		box-shadow: 0 1px 4px rgba(59, 130, 246, 0.3);
-	}
-
-	.btn-secondary {
-		background: #ffffff;
-		color: #64748b;
-		border: 2px solid #e2e8f0;
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-	}
-
-	.btn-secondary:hover {
-		background: #f8fafc;
-		border-color: #cbd5e1;
-		color: #475569;
-		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-		transform: translateY(-1px);
-	}
-
-	.btn-secondary:active {
-		transform: translateY(0);
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-	}
-
-	/* Financial Grid Layout */
-	.financial-grid {
-		display: flex;
-		flex-direction: column;
-		gap: 6px;
-	}
-
-	.financial-row {
-		display: grid;
-		grid-template-columns: 100px 1fr;
-		align-items: center;
-		gap: 10px;
-	}
-
-	.financial-row-dual {
-		display: grid;
-		grid-template-columns: 100px 1fr;
-		align-items: center;
-		gap: 10px;
-	}
-
-	.dual-inputs {
-		display: grid;
-		grid-template-columns: 1.5fr 1.5fr;
-		gap: 8px;
-		align-items: center;
-	}
-
-	.financial-row.total-row {
-		margin-top: 4px;
-		padding-top: 8px;
-		border-top: 2px solid #e2e8f0;
-	}
-
-	.financial-label {
-		font-size: 13px;
-		font-weight: 500;
-		color: #475569;
-		text-align: right;
-		white-space: nowrap;
-	}
-
-	.financial-label-total {
-		font-size: 14px;
-		font-weight: 700;
-		color: #0f172a;
-		text-align: right;
-		white-space: nowrap;
-	}
-
-	.financial-divider {
-		height: 1px;
-		background: #e2e8f0;
-		margin: 4px 0;
-	}
-
-	::deep .editable-field .e-input-group {
-		border-color: #3b82f6;
-		background: #eff6ff;
-	}
-
-	::deep .editable-field .e-input-group input {
-		font-weight: 600;
-		color: #1e40af;
-	}
-
-	::deep .small-input .e-input-group {
-		width: 100%;
-	}
-
-	::deep .small-input .e-input-group input {
-		text-align: center;
-		padding: 8px;
-	}
-
-	::deep .discount-field .e-input-group input {
-		color: #dc2626;
-		font-weight: 500;
-	}
-
-	::deep .total-field .e-input-group {
-		background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
-		border: 2px solid #3b82f6;
-		height: 48px;
-	}
-
-	::deep .total-field .e-input-group input {
-		font-size: 18px;
-		font-weight: 700;
-		color: #1e40af;
-	}
-
-	::deep .textarea-field .e-input-group {
-		height: auto;
-		min-height: 80px;
-	}
-
-	::deep .textarea-field .e-input-group textarea {
-		resize: vertical;
-		min-height: 80px;
-	}
-
-	::deep .textarea-field-small .e-input-group {
-		height: auto;
-		min-height: 60px;
-	}
-
-	::deep .textarea-field-small .e-input-group textarea {
-		resize: vertical;
-		min-height: 60px;
-	}
-
-	/* Add to Cart Section Styles */
-	.cart-row {
-		display: grid;
-		grid-template-columns: 2fr repeat(7, 1fr) 1.5fr 100px;
-		gap: 12px;
-		align-items: end;
-		margin-bottom: 12px;
-	}
-
-	.cart-field {
-		display: flex;
-		flex-direction: column;
-		gap: 4px;
-	}
-
-	.cart-field-item {
-		grid-column: span 2;
-	}
-
-	.cart-field-small {
-		/* Standard single column */
-	}
-
-	.cart-field-medium {
-		grid-column: span 1;
-	}
-
-	.cart-label {
-		font-size: 12px;
-		font-weight: 600;
-		color: #475569;
-		text-transform: uppercase;
-		letter-spacing: 0.3px;
-	}
-
-	.cart-label .required {
-		color: #dc2626;
-		margin-left: 2px;
-	}
-
-	::deep .cart-field .e-input-group,
-	::deep .cart-field .custom-numeric .e-input-group,
-	::deep .cart-field .custom-autocomplete .e-input-group,
-	::deep .cart-field .custom-textbox .e-input-group {
-		height: 38px;
-		background: #eff6ff;
-		border: 1px solid #3b82f6;
-	}
-
-	::deep .cart-field .e-input-group input,
-	::deep .cart-field .custom-numeric .e-input-group input,
-	::deep .cart-field .custom-autocomplete .e-input-group input,
-	::deep .cart-field .custom-textbox .e-input-group input {
-		font-size: 14px;
-		font-weight: 500;
-		color: #1e293b;
-		padding: 8px 12px;
-	}
-
-	/* Checkbox Wrapper in Cart Row */
-	.checkbox-wrapper {
-		height: 38px;
-		display: flex;
-		align-items: center;
-		padding: 0 12px;
-		background: #f8fafc;
-		border: 1px solid #cbd5e1;
-		border-radius: 6px;
-	}
-
-	::deep .checkbox-wrapper .custom-checkbox {
-		font-size: 13px;
-		font-weight: 500;
-	}
-
-	/* Cart Amounts Row - Aligned with Input Fields Above */
-	.cart-amounts-row {
-		display: grid;
-		grid-template-columns: 2fr repeat(7, 1fr) 1.5fr 100px;
-		gap: 12px;
-		margin-top: 8px;
-	}
-
-	.amount-field {
-		display: flex;
-		flex-direction: column;
-	}
-
-	.amount-field-item {
-		grid-column: span 2;
-	}
-
-	.amount-field-small {
-		/* Standard single column */
-	}
-
-	.amount-field-medium {
-		grid-column: span 1;
-	}
-
-	.amount-field-button {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-
-	.amount-display {
-		display: flex;
-		flex-direction: column;
-		gap: 4px;
-		padding: 8px 12px;
-		background: #ffffff;
-		border-radius: 6px;
-		border: 1px solid #e2e8f0;
-		min-height: 58px;
-	}
-
-	.amount-display.identification-field {
-		padding: 0;
-		background: transparent;
-		border: none;
-		min-height: 38px;
-		justify-content: center;
-	}
-
-	.amount-display.empty-display {
-		background: #f8fafc;
-	}
-
-	.amount-display.total-display {
-		background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
-		border: 2px solid #3b82f6;
-	}
-
-	.amount-display.total-display .amount-label {
-		color: #1e40af;
-	}
-
-	.amount-display.total-display .amount-value {
-		color: #1e40af;
-		font-size: 16px;
-	}
-
-	::deep .identification-field .identification-input .e-input-group {
-		height: 38px;
-		background: #ffffff;
-		border: 1px solid #cbd5e1;
-	}
-
-	::deep .identification-field .identification-input .e-input-group input {
-		font-size: 13px;
-		color: #64748b;
-		font-weight: 500;
-		padding: 8px 12px;
-	}
-
-	::deep .identification-field .identification-input .e-input-group input::placeholder {
-		color: #94a3b8;
-		font-style: italic;
-	}
-
-	.amount-label {
-		font-size: 10px;
-		font-weight: 600;
-		color: #64748b;
-		text-transform: uppercase;
-		letter-spacing: 0.3px;
-	}
-
-	.amount-value {
-		font-size: 14px;
-		font-weight: 700;
-		color: #1e293b;
-		text-align: right;
-		width: 100%;
-		display: block;
-	}
-
-	.amount-value.discount-amt {
-		color: #dc2626;
-	}
-
-	.checkbox-display {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		padding: 8px;
-		background: #f8fafc;
-		border-radius: 6px;
-		border: 1px solid #e2e8f0;
-		min-height: 58px;
-	}
-
-	::deep .custom-checkbox {
-		font-size: 12px;
-		font-weight: 500;
-	}
-
-	::deep .custom-checkbox label {
-		white-space: nowrap;
-	}
-
-	/* Professional Grid Styles */
-	.e-grid .e-summaryrow .e-summarycell {
-		background-color: #deecf9;
-	}
-
-	.grid-body {
-		padding: 0 !important;
-	}
-
-	::deep .professional-grid {
-		border: none;
-	}
-
-	::deep .professional-grid .e-gridheader {
-		background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
-		border-bottom: 2px solid #e2e8f0;
-	}
-
-	::deep .professional-grid .e-headercell {
-		background: transparent;
-		color: #475569;
-		font-weight: 600;
-		font-size: 12px;
-		text-transform: uppercase;
-		letter-spacing: 0.3px;
-		border-right: 1px solid #e2e8f0;
-		padding: 12px 8px;
-	}
-
-	::deep .professional-grid .e-headercell:last-child {
-		border-right: none;
-	}
-
-	::deep .professional-grid .e-gridcontent {
-		background: #ffffff;
-	}
-
-	::deep .professional-grid .e-row {
-		transition: background-color 0.2s ease;
-	}
-
-	::deep .professional-grid .e-row:hover {
-		background-color: #f8fafc;
-	}
-
-	::deep .professional-grid .e-row.e-altrow {
-		background-color: #fafbfc;
-	}
-
-	::deep .professional-grid .e-row.e-altrow:hover {
-		background-color: #f8fafc;
-	}
-
-	::deep .professional-grid .e-rowcell {
-		border-right: 1px solid #f1f5f9;
-		border-bottom: 1px solid #f1f5f9;
-		padding: 10px 8px;
-		font-size: 13px;
-		color: #1e293b;
-	}
-
-	::deep .professional-grid .e-rowcell:last-child {
-		border-right: none;
-	}
-
-	.grid-discount {
-		color: #dc2626;
-		font-weight: 600;
-	}
-
-	.grid-total {
-		color: #1e40af;
-		font-weight: 700;
-		font-size: 14px;
-	}
-
-	.grid-checkbox {
-		display: inline-block;
-		width: 20px;
-		height: 20px;
-		line-height: 20px;
-		text-align: center;
-		border-radius: 4px;
-		font-weight: 700;
-		font-size: 14px;
-	}
-
-	/* Grid Footer Aggregates */
-	::deep .professional-grid .e-gridfooter {
-		background: linear-gradient(to bottom, #f1f5f9 0%, #e2e8f0 100%);
-		border-top: 2px solid #cbd5e1;
-	}
-
-	::deep .professional-grid .e-summarycell {
-		font-weight: 600;
-		color: #1e293b;
-		padding: 12px 8px;
-		border-right: 1px solid #cbd5e1;
-	}
-
-	::deep .professional-grid .e-summarycell:last-child {
-		border-right: none;
-	}
-
-	.aggregate-label {
-		text-align: left;
-		font-size: 13px;
-		color: #475569;
-	}
-
-	.aggregate-value {
-		text-align: right;
-		font-size: 13px;
-		color: #1e293b;
-	}
-
-	.aggregate-value.aggregate-discount {
-		color: #dc2626;
-	}
-
-	.aggregate-value.aggregate-total {
-		color: #1e40af;
-		font-size: 14px;
-	}
-
-	.aggregate-value.aggregate-total strong {
-		font-size: 15px;
-	}
-
-	.aggregate-label strong,
-	.aggregate-value strong {
-		font-weight: 700;
-	}
-
-	/* Empty Grid State */
-	::deep .professional-grid .e-emptyrow {
-		text-align: center;
-		padding: 48px 24px;
-		color: #94a3b8;
-		font-size: 14px;
-	}
-</style>

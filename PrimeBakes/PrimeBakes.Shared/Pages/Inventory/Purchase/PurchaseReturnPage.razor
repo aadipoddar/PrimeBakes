@@ -113,7 +113,7 @@ else
 							<!-- Transaction No with Auto-generate -->
 							<div class="form-field">
 								<label class="field-label">
-									Transaction No
+									Transaction No <span class="required">*</span>
 								</label>
 								<div class="transaction-no-wrapper">
 									<SfTextBox @bind-Value="_purchaseReturn.TransactionNo"
@@ -325,7 +325,7 @@ else
 
 						<!-- UOM (below Quantity) -->
 						<div class="cart-field">
-							<label class="cart-label">UOM</label>
+							<label class="cart-label">UOM <span class="required">*</span></label>
 							<SfTextBox @bind-Value="_selectedCart.UnitOfMeasurement" Placeholder="UOM..."
 									   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
 						</div>

@@ -100,7 +100,7 @@ else
 						<!-- Transaction No -->
 						<div class="form-field">
 							<label class="field-label">
-								Transaction No
+								Transaction No <span class="required">*</span>
 							</label>
 							<div class="transaction-no-wrapper">
 								<SfTextBox @bind-Value="_kitchenIssue.TransactionNo" Placeholder="Enter Transaction No"
@@ -158,7 +158,7 @@ else
 						</div>
 
 						<div class="cart-field">
-							<label class="cart-label">Qty</label>
+							<label class="cart-label">Qty <span class="required">*</span></label>
 							<SfNumericTextBox Value="@_selectedCart.Quantity" TValue="decimal" Min="0" ShowSpinButton="false"
 											  Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
 											  CssClass="custom-numeric editable-field">
@@ -167,7 +167,7 @@ else
 						</div>
 
 						<div class="cart-field">
-							<label class="cart-label">UOM</label>
+							<label class="cart-label">UOM <span class="required">*</span></label>
 							<SfTextBox @bind-Value="_selectedCart.UnitOfMeasurement" Placeholder="UOM..."
 									   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox identification-input" />
 						</div>

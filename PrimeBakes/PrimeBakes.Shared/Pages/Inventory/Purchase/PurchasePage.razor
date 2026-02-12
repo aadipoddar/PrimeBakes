@@ -103,16 +103,17 @@ else
 												  CssClass="custom-datepicker">
 										<DatePickerEvents TValue="DateTime" ValueChange="OnTransactionDateChanged" />
 									</SfDatePicker>
-									<SfTextBox Value="@($"{_selectedFinancialYear?.StartDate:yyyy} to {_selectedFinancialYear?.EndDate:yyyy}")"
-											   Readonly="true" Placeholder="Financial Year" FloatLabelType="FloatLabelType.Never"
-											   CssClass="custom-textbox readonly-field" />
+									<SfTextBox
+									Value="@($"{_selectedFinancialYear?.StartDate:yyyy} to {_selectedFinancialYear?.EndDate:yyyy}")"
+									Readonly="true" Placeholder="Financial Year" FloatLabelType="FloatLabelType.Never"
+									CssClass="custom-textbox readonly-field" />
 								</div>
 							</div>
 
 							<!-- Transaction No with Auto-generate -->
 							<div class="form-field">
 								<label class="field-label">
-									Transaction No
+									Transaction No <span class="required">*</span>
 								</label>
 								<div class="transaction-no-wrapper">
 									<SfTextBox @bind-Value="_purchase.TransactionNo" Placeholder="Enter Transaction No"
@@ -235,7 +236,7 @@ else
 						<div class="cart-field cart-field-wide">
 							<label class="cart-label">Item <span class="required">*</span></label>
 							<SfAutoComplete @ref="_sfItemAutoComplete" Value="@_selectedRawMaterial"
-											TValue="RawMaterialModel ?" TItem="RawMaterialModel" DataSource="@_rawMaterials"
+											TValue="RawMaterialModel?" TItem="RawMaterialModel" DataSource="@_rawMaterials"
 											Placeholder="Select Item (Ctrl + E)" FloatLabelType="FloatLabelType.Never"
 											AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
 											CssClass="custom-autocomplete">
@@ -320,7 +321,7 @@ else
 
 						<!-- UOM (below Quantity) -->
 						<div class="cart-field">
-							<label class="cart-label">UOM</label>
+							<label class="cart-label">UOM <span class="required">*</span></label>
 							<SfTextBox @bind-Value="_selectedCart.UnitOfMeasurement" Placeholder="UOM..."
 									   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
 						</div>
