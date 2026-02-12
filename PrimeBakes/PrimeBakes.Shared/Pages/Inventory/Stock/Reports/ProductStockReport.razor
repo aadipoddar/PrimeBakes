@@ -82,41 +82,15 @@ else
                             <line x1="3" y1="12" x2="3.01" y2="12" />
                             <line x1="3" y1="18" x2="3.01" y2="18" />
                         </svg>
-                        <h2 class="section-title">Raw Material Stock Summary</h2>
+                        <h2 class="section-title">Product Stock Summary</h2>
                     </div>
                     <div class="header-actions">
-                        <button class="btn-toggle-details" @onclick="ToggleColumnsView"
-                                title="@(_showAllColumns ? "Show Less" : "Show All Columns")" disabled="@_isProcessing">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                @if (_showAllColumns)
-                                {
-                                    <circle cx="12" cy="12" r="1" />
-                                    <circle cx="19" cy="12" r="1" />
-                                    <circle cx="5" cy="12" r="1" />
-                                }
-                                else
-                                {
-                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                                    <line x1="9" y1="9" x2="15" y2="9" />
-                                    <line x1="9" y1="15" x2="15" y2="15" />
-                                }
-                            </svg>
-                            @(_showAllColumns ? "Show Less" : "All Columns")
-                        </button>
-                        <button class="btn-toggle-details" @onclick="ToggleDetailsView"
-                                title="@(_showDetails ? "Hide Transaction Details" : "Show Transaction Details")"
-                                disabled="@_isProcessing">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                <polyline points="14 2 14 8 20 8"></polyline>
-                                <line x1="16" y1="13" x2="8" y2="13"></line>
-                                <line x1="16" y1="17" x2="8" y2="17"></line>
-                                <polyline points="10 9 9 9 8 9"></polyline>
-                            </svg>
-                            @(_showDetails ? "Hide Details" : "Transaction Details")
-                        </button>
+                        <ToggleButton Disabled="@_isProcessing" IsActive="@_showAllColumns"
+                                      Variant="ToggleButton.ToggleVariant.Details" TextWhenActive="Show Less"
+                                      TextWhenInactive="All Columns" OnToggle="ToggleColumnsView" />
+                        <ToggleButton Disabled="@_isProcessing" IsActive="@_showDetails"
+                                      Variant="ToggleButton.ToggleVariant.Details" TextWhenActive="Hide Details"
+                                      TextWhenInactive="Transaction Details" OnToggle="ToggleDetailsView" />
                     </div>
                 </div>
                 <div class="section-body grid-body">
@@ -343,7 +317,7 @@ else
                                 <Template>
                                     @{
                                         var item = (context as ProductStockSummaryModel);
-                                        <span class="@(item.ClosingStock < 0 ? "stock-negative" : "")">@item.ClosingStock.ToString("N2")</span>
+                                        <span class="@(item.ClosingStock < 0 ? "grid-debit" : "")">@item.ClosingStock.ToString("N2")</span>
                                     }
                                 </Template>
                             </GridColumn>
@@ -487,7 +461,7 @@ else
                                     <Template>
                                         @{
                                             var item = (context as ProductStockDetailsModel);
-                                            <span class="@(item.Quantity < 0 ? "stock-negative" : "stock-positive")">
+                                            <span class="@(item.Quantity < 0 ? "grid-debit" : "grid-credit")">
                                                 @item.Quantity.ToString("N2")
                                             </span>
                                         }
@@ -506,8 +480,6 @@ else
     </div>
 }
 
-<ToastNotification @ref="_toastNotification" />
-
 <DeleteConfirmationDialog @ref="_deleteConfirmationDialog"
                           EntityName="Stock Adjustment"
                           IdentifierLabel="Transaction No"
@@ -517,303 +489,10 @@ else
                           OnConfirm="ConfirmDelete"
                           OnCancel="CancelDelete" />
 
+<ToastNotification @ref="_toastNotification" />
+
 <style>
-    * {
-        box-sizing: border-box;
-    }
-
-    /* Section Card Styles */
-    .section-card {
-        background: #ffffff;
-        border-radius: 12px;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        margin-bottom: 24px;
-        overflow: hidden;
-    }
-
-    .section-header {
-        padding: 20px 24px;
-        border-bottom: 1px solid #e2e8f0;
-        background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .section-title-wrapper {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .section-icon {
-        color: #3b82f6;
-        flex-shrink: 0;
-    }
-
-    .section-title {
-        font-size: 16px;
-        font-weight: 600;
-        color: #0f172a;
-        margin: 0;
-        letter-spacing: -0.2px;
-    }
-
-    /* Header Actions Container */
-    .header-actions {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    /* Toggle Details Button */
-    .btn-toggle-details {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        height: 38px;
-        padding: 0 20px;
-        border: 1px solid #e2e8f0;
-        background: #ffffff;
-        border-radius: 8px;
-        font-size: 13px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        color: #3b82f6;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
-
-        .btn-toggle-details:hover {
-            background: #eff6ff;
-            border-color: #3b82f6;
-            box-shadow: 0 2px 6px rgba(59, 130, 246, 0.2);
-            transform: translateY(-1px);
-        }
-
-        .btn-toggle-details:active {
-            transform: translateY(0);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        }
-
-        .btn-toggle-details svg {
-            flex-shrink: 0;
-        }
-
-    .section-body {
-        padding: 24px;
-    }
-
-
-    .grid-body {
-        padding: 0 !important;
-    }
-
-    /* Filters Container and Grid Layout */
-    .filters-container {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-    }
-
-    .filters-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(180px, 250px));
-        gap: 12px;
-        align-items: end;
-    }
-
-    .form-field {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        max-width: 250px;
-    }
-
-    .field-label {
-        font-size: 12px;
-        font-weight: 600;
-        color: #334155;
-        letter-spacing: 0.1px;
-    }
-
-    /* Professional Grid Styles */
-    .e-grid .e-summaryrow .e-summarycell {
-        background-color: #deecf9;
-    }
-
-    ::deep .professional-grid {
-        border: none;
-    }
-
-        ::deep .professional-grid .e-gridheader {
-            background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
-            border-bottom: 2px solid #e2e8f0;
-        }
-
-        ::deep .professional-grid .e-headercell {
-            background: transparent;
-            color: #475569;
-            font-weight: 600;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            border-right: 1px solid #e2e8f0;
-            padding: 12px 8px;
-        }
-
-            ::deep .professional-grid .e-headercell:last-child {
-                border-right: none;
-            }
-
-        ::deep .professional-grid .e-gridcontent {
-            background: #ffffff;
-        }
-
-        ::deep .professional-grid .e-row {
-            transition: background-color 0.2s ease;
-        }
-
-            ::deep .professional-grid .e-row:hover {
-                background-color: #f8fafc;
-            }
-
-            ::deep .professional-grid .e-row.e-altrow {
-                background-color: #fafbfc;
-            }
-
-                ::deep .professional-grid .e-row.e-altrow:hover {
-                    background-color: #f8fafc;
-                }
-
-        ::deep .professional-grid .e-rowcell {
-            border-right: 1px solid #f1f5f9;
-            border-bottom: 1px solid #f1f5f9;
-            padding: 10px 8px;
-            font-size: 13px;
-            color: #1e293b;
-        }
-
-            ::deep .professional-grid .e-rowcell:last-child {
-                border-right: none;
-            }
-
-        /* Grid Pager Styling */
-        ::deep .professional-grid .e-gridpager {
-            background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
-            border-top: 2px solid #e2e8f0;
-            padding: 12px 16px;
-        }
-
-            ::deep .professional-grid .e-gridpager .e-pagercontainer {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-            }
-
-            ::deep .professional-grid .e-gridpager .e-numericitem,
-            ::deep .professional-grid .e-gridpager .e-currentitem {
-                min-width: 32px;
-                height: 32px;
-                border-radius: 6px;
-                margin: 0 4px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 13px;
-                font-weight: 500;
-                transition: all 0.2s ease;
-            }
-
-            ::deep .professional-grid .e-gridpager .e-numericitem {
-                background: #ffffff;
-                color: #64748b;
-                border: 1px solid #e2e8f0;
-            }
-
-                ::deep .professional-grid .e-gridpager .e-numericitem:hover {
-                    background: #f8fafc;
-                    color: #3b82f6;
-                    border-color: #3b82f6;
-                }
-
-            ::deep .professional-grid .e-gridpager .e-currentitem {
-                background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
-                color: #ffffff;
-                border: none;
-                box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
-            }
-
-        /* Empty Grid State */
-        ::deep .professional-grid .e-emptyrow {
-            text-align: center;
-            padding: 48px 24px;
-            color: #94a3b8;
-            font-size: 14px;
-        }
-
-    /* Grid Cell Text Coloring (matching Purchase screen) */
-    .grid-discount {
-        color: #dc2626;
-        font-weight: 600;
-    }
-
-    .grid-total {
-        color: #1e40af;
-        font-weight: 700;
-        font-size: 14px;
-    }
-
-    /* Grid Footer Aggregates */
-    ::deep .professional-grid .e-gridfooter {
-        background: linear-gradient(to bottom, #f1f5f9 0%, #e2e8f0 100%);
-        border-top: 2px solid #cbd5e1;
-    }
-
-    ::deep .professional-grid .e-summarycell {
-        font-weight: 600;
-        color: #1e293b;
-        padding: 12px 8px;
-        border-right: 1px solid #cbd5e1;
-    }
-
-        ::deep .professional-grid .e-summarycell:last-child {
-            border-right: none;
-        }
-
-    .aggregate-value.aggregate-discount {
-        color: #dc2626;
-    }
-
-    .aggregate-value.aggregate-total {
-        color: #1e40af;
-        font-size: 14px;
-    }
-
-        .aggregate-value.aggregate-total strong {
-            font-size: 15px;
-        }
-
-    /* Total Aggregate Footer Styling */
-    .total-aggregate {
-        color: #1e40af;
-        font-size: 14px;
-    }
-
-    /* Stock Styling */
-    .stock-negative {
-        color: #dc2626;
-        font-weight: 600;
-    }
-
-    .stock-positive {
-        color: #059669;
-        font-weight: 600;
-    }
-
-    /* Transaction Type Badges */
+    /* Page-Specific: Transaction Type Badges */
     .transaction-type {
         display: inline-block;
         padding: 4px 12px;
@@ -860,98 +539,7 @@ else
 
     /* Stock Transfer */
     .transaction-type-stocktransfer {
-        background: #ccfbf1; /* teal-50 */
-        color: #0f766e; /* teal-700 */
-    }
-
-    /* Dialog Button Styles */
-    .dialog-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        padding: 12px 20px;
-        border: none;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-    }
-
-        .dialog-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
-        }
-
-        .dialog-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-        }
-
-        .dialog-btn svg {
-            flex-shrink: 0;
-        }
-
-    .dialog-btn-cancel {
-        background: #ffffff;
-        color: #64748b;
-        border: 2px solid #e2e8f0;
-    }
-
-        .dialog-btn-cancel:hover {
-            background: #f8fafc;
-            border-color: #cbd5e1;
-            color: #475569;
-        }
-
-    .dialog-btn-delete {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-        color: white;
-    }
-
-        .dialog-btn-delete:hover {
-            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-        }
-
-    .dialog-btn-recover {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        color: white;
-    }
-
-        .dialog-btn-recover:hover {
-            background: linear-gradient(135deg, #059669 0%, #047857 100%);
-        }
-
-    /* Responsive Design */
-    @@media (max-width: 1400px) {
-        .filters-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    @@media (max-width: 768px) {
-        .page-header {
-            grid-template-columns: 1fr;
-            gap: 16px;
-            padding: 16px;
-        }
-
-        .header-left {
-            justify-content: center;
-        }
-
-        .header-center {
-            order: -1;
-        }
-
-        .header-right {
-            justify-content: center;
-        }
-
-        .filters-grid {
-            grid-template-columns: 1fr;
-        }
+        background: #ccfbf1;
+        color: #0f766e;
     }
 </style>
