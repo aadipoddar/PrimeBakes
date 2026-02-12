@@ -16,6 +16,7 @@ namespace PrimeBakes.Shared.Pages.Inventory.RawMaterial;
 
 public partial class RawMaterialPage : IAsyncDisposable
 {
+    private UserModel _user;
     private HotKeysContext _hotKeysContext;
     private bool _isLoading = true;
     private bool _isProcessing = false;
@@ -48,7 +49,7 @@ public partial class RawMaterialPage : IAsyncDisposable
         if (!firstRender)
             return;
 
-        await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Admin], true);
+        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Inventory], true);
         await LoadData();
         _isLoading = false;
         StateHasChanged();
@@ -156,6 +157,12 @@ public partial class RawMaterialPage : IAsyncDisposable
             _isProcessing = true;
             await _deleteConfirmationDialog.HideAsync();
 
+            if (!_user.Admin)
+            {
+                await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
+                return;
+            }
+
             var rawMaterial = _rawMaterials.FirstOrDefault(rm => rm.Id == _deleteRawMaterialId);
             if (rawMaterial == null)
             {
@@ -209,6 +216,12 @@ public partial class RawMaterialPage : IAsyncDisposable
             _isProcessing = true;
             await _recoverConfirmationDialog.HideAsync();
 
+            if (!_user.Admin)
+            {
+                await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
+                return;
+            }
+
             var rawMaterial = _rawMaterials.FirstOrDefault(rm => rm.Id == _recoverRawMaterialId);
             if (rawMaterial == null)
             {
@@ -238,6 +251,12 @@ public partial class RawMaterialPage : IAsyncDisposable
     #region Saving
     private async Task<bool> ValidateForm()
     {
+        if (!_user.Admin)
+        {
+            await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
+            return false;
+        }
+
         _rawMaterial.Name = _rawMaterial.Name?.Trim() ?? "";
         _rawMaterial.Code = _rawMaterial.Code?.Trim() ?? "";
         _rawMaterial.UnitOfMeasurement = _rawMaterial.UnitOfMeasurement?.Trim() ?? "";

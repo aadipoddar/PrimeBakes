@@ -14,6 +14,7 @@ namespace PrimeBakes.Shared.Pages.Inventory.Kitchen;
 
 public partial class KitchenPage : IAsyncDisposable
 {
+    private UserModel _user;
     private HotKeysContext _hotKeysContext;
     private bool _isLoading = true;
     private bool _isProcessing = false;
@@ -41,7 +42,7 @@ public partial class KitchenPage : IAsyncDisposable
         if (!firstRender)
             return;
 
-        await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Admin], true);
+        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Inventory], true);
         await LoadData();
         _isLoading = false;
         StateHasChanged();
@@ -105,6 +106,12 @@ public partial class KitchenPage : IAsyncDisposable
             _isProcessing = true;
             await _deleteConfirmationDialog.HideAsync();
 
+            if (!_user.Admin)
+            {
+                await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
+                return;
+            }
+
             var kitchen = _kitchens.FirstOrDefault(k => k.Id == _deleteKitchenId);
             if (kitchen == null)
             {
@@ -157,6 +164,12 @@ public partial class KitchenPage : IAsyncDisposable
         {
             _isProcessing = true;
             await _recoverConfirmationDialog.HideAsync();
+
+            if (!_user.Admin)
+            {
+                await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
+                return;
+            }
 
             var kitchen = _kitchens.FirstOrDefault(k => k.Id == _recoverKitchenId);
             if (kitchen == null)
