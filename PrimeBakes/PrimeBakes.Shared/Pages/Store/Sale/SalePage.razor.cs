@@ -55,6 +55,12 @@ public partial class SalePage : IAsyncDisposable
     private List<ProductLocationOverviewModel> _products = [];
     private List<TaxModel> _taxes = [];
     private List<SaleItemCartModel> _cart = [];
+    private readonly List<PaymentItem> _payments = [];
+    private readonly List<PaymentModeModel> _paymentMethods = PaymentModeData.GetPaymentModes();
+
+    private PaymentModeModel _selectedPaymentMethod = new();
+    private decimal _paymentAmount = 0;
+    private decimal _remainingAmount => _sale.TotalAmount - _payments.Sum(p => p.Amount);
 
     private SfAutoComplete<ProductLocationOverviewModel?, ProductLocationOverviewModel> _sfItemAutoComplete;
     private SfGrid<SaleItemCartModel> _sfCartGrid;
@@ -294,6 +300,7 @@ public partial class SalePage : IAsyncDisposable
             }
 
             _selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, _sale.FinancialYearId);
+            SyncPaymentsFromSale();
         }
         catch (Exception ex)
         {
@@ -384,6 +391,90 @@ public partial class SalePage : IAsyncDisposable
         {
             await SaveTransactionFile();
         }
+    }
+    #endregion
+
+    #region Payment
+    private void SyncPaymentsFromSale()
+    {
+        _payments.Clear();
+
+        AddPaymentFromSale("Cash", _sale.Cash);
+        AddPaymentFromSale("Card", _sale.Card);
+        AddPaymentFromSale("UPI", _sale.UPI);
+        AddPaymentFromSale("Credit", _sale.Credit);
+
+        _selectedPaymentMethod = _paymentMethods.FirstOrDefault();
+        _paymentAmount = Math.Max(0, _remainingAmount);
+    }
+
+    private void AddPaymentFromSale(string modeName, decimal amount)
+    {
+        if (amount <= 0)
+            return;
+
+        var mode = _paymentMethods.FirstOrDefault(pm => pm.Name == modeName);
+        if (mode is null)
+            return;
+
+        _payments.Add(new()
+        {
+            Id = mode.Id,
+            Method = mode.Name,
+            Amount = amount
+        });
+    }
+
+    private void ApplyPaymentsToSale()
+    {
+        _sale.Cash = _payments.FirstOrDefault(p => p.Method == "Cash")?.Amount ?? 0;
+        _sale.Card = _payments.FirstOrDefault(p => p.Method == "Card")?.Amount ?? 0;
+        _sale.UPI = _payments.FirstOrDefault(p => p.Method == "UPI")?.Amount ?? 0;
+        _sale.Credit = _payments.FirstOrDefault(p => p.Method == "Credit")?.Amount ?? 0;
+    }
+
+    private async Task AddPayment()
+    {
+        if (_isProcessing || _paymentAmount <= 0 || _selectedPaymentMethod is null || _selectedPaymentMethod.Id <= 0)
+            return;
+
+        if (_paymentAmount > _remainingAmount)
+        {
+            await _toastNotification.ShowAsync("Invalid Payment Amount", $"Payment amount cannot exceed remaining amount of ₹{_remainingAmount:N2}", ToastType.Error);
+            return;
+        }
+
+        var existingPayment = _payments.FirstOrDefault(p => p.Id == _selectedPaymentMethod.Id);
+        if (existingPayment is not null)
+            existingPayment.Amount += _paymentAmount;
+        else
+            _payments.Add(new()
+            {
+                Id = _selectedPaymentMethod.Id,
+                Method = _selectedPaymentMethod.Name,
+                Amount = _paymentAmount
+            });
+
+        ApplyPaymentsToSale();
+        _paymentAmount = Math.Max(0, _remainingAmount);
+        _selectedPaymentMethod = _paymentMethods.FirstOrDefault(pm => pm.Id != _selectedPaymentMethod.Id)
+                                 ?? _paymentMethods.FirstOrDefault()
+                                 ?? new();
+
+        await SaveTransactionFile(true);
+    }
+
+    private async Task RemovePayment(PaymentItem payment)
+    {
+        if (_isProcessing || payment is null)
+            return;
+
+        _payments.Remove(payment);
+        ApplyPaymentsToSale();
+
+        _selectedPaymentMethod = _paymentMethods.FirstOrDefault(); ;
+        _paymentAmount = Math.Max(0, _remainingAmount);
+        await SaveTransactionFile(true);
     }
     #endregion
 
@@ -942,6 +1033,8 @@ public partial class SalePage : IAsyncDisposable
 
         if (Id is null)
             _sale.TransactionNo = await GenerateCodes.GenerateSaleTransactionNo(_sale);
+
+        ApplyPaymentsToSale();
     }
 
     private async Task SaveTransactionFile(bool customRoundOff = false)
@@ -966,6 +1059,8 @@ public partial class SalePage : IAsyncDisposable
         {
             if (_sfCartGrid is not null)
                 await _sfCartGrid?.Refresh();
+
+            _paymentAmount = Math.Max(0, _remainingAmount);
 
             _isProcessing = false;
             StateHasChanged();
@@ -1098,13 +1193,13 @@ public partial class SalePage : IAsyncDisposable
 
         if (_sale.Cash < 0 || _sale.Card < 0 || _sale.Credit < 0 || _sale.UPI < 0)
         {
-            await _toastNotification.ShowAsync("Invalid Payment Amounts", "Payment amounts (Cash, Card, Credit, UPI) cannot be negative. Please correct the amounts before saving.", ToastType.Error);
+            await _toastNotification.ShowAsync("Invalid Payment Amounts", "Payment amounts cannot be negative. Please correct the amounts before saving.", ToastType.Error);
             return false;
         }
 
         if (_sale.Cash + _sale.Card + _sale.Credit + _sale.UPI != _sale.TotalAmount)
         {
-            await _toastNotification.ShowAsync("Payment Amount Mismatch", "The sum of payment amounts (Cash, Card, Credit, UPI) must equal the total amount of the transaction. Please correct the amounts before saving.", ToastType.Error);
+            await _toastNotification.ShowAsync("Payment Amount Mismatch", "The sum of all payments must equal the total amount of the transaction. Please correct the payments before saving.", ToastType.Error);
             return false;
         }
 

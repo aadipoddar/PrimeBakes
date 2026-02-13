@@ -570,6 +570,12 @@ h1:focus {
 	align-items: center;
 }
 
+.financial-divider {
+	height: 1px;
+	background: var(--gray-200);
+	margin: 8px 0;
+}
+
 .financial-row.total-row {
 	margin-top: 4px;
 	padding-top: 8px;
