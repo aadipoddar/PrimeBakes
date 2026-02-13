@@ -1,4 +1,4 @@
-namespace PrimeBakes.Shared.Pages.Store.Sale;
+namespace PrimeBakes.Shared.Pages.Store.Sale.Mobile;
 
 public partial class SaleMobileConfirmationPage
 {

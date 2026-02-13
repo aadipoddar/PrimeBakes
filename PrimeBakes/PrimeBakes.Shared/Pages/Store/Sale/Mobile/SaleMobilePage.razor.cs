@@ -7,7 +7,7 @@ using PrimeBakesLibrary.Models.Store.Sale;
 
 using Syncfusion.Blazor.Grids;
 
-namespace PrimeBakes.Shared.Pages.Store.Sale;
+namespace PrimeBakes.Shared.Pages.Store.Sale.Mobile;
 
 public partial class SaleMobilePage
 {

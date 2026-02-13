@@ -1,0 +1,411 @@
+﻿@attribute [Route(PageRouteNames.SaleMobilePayment)]
+
+@using PrimeBakesLibrary.Data.Common
+@using PrimeBakesLibrary.Models.Store.Masters
+
+<PageTitle>Sale Payment - Prime Bakes</PageTitle>
+
+@if (_isLoading || _user is null)
+{
+	<AnimatedLoader Visible="true" />
+}
+else
+{
+	<div class="page-shell">
+		<Header Title="Sale Payment" Subtitle="Customer details and payment" ShowBack="true"
+				OnBackClick="() => NavigationManager.NavigateTo(PageRouteNames.SaleMobileCart)" />
+
+		<div class="sale-payment-container">
+			<div class="payment-section-card">
+				<div class="section-title">Customer</div>
+
+				<div class="form-section">
+					<div class="form-row">
+						<div class="form-field form-field-half">
+							<label class="field-label">Cust Mobile</label>
+							<SfTextBox Value="@_selectedCustomer?.Number" ValueChanged="OnCustomerNumberChanged"
+									   Type="InputType.Tel" Placeholder="Enter Mobile Number..." ShowClearButton="true"
+									   CssClass="dialog-input" Enabled="@(!_isProcessing)" />
+						</div>
+
+						<div class="form-field form-field-half">
+							<label class="field-label">Cust Name</label>
+							<SfTextBox @bind-Value="_selectedCustomer.Name" Placeholder="Enter name..."
+									   ShowClearButton="true" CssClass="dialog-input" Enabled="@(!_isProcessing)" />
+						</div>
+
+						<div class="remarks-section">
+						<label class="remarks-label">Remarks (Optional)</label>
+						<SfTextBox @bind-Value="_sale.Remarks"
+								Placeholder="Add any special instructions or notes for this sale..." Multiline="true"
+								CssClass="remarks-input" Enabled="@(!_isProcessing)" />
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="payment-section-card">
+				<div class="section-title">Sale Details & Payment</div>
+
+				<div class="form-row disc-roundoff-row">
+					<div class="form-field form-field-half">
+						<label class="field-label">Disc %</label>
+						<SfNumericTextBox TValue="decimal" Value="@_sale.DiscountPercent" Min="0" Max="100" Step="1"
+									  type="tel" Format="N2" Placeholder="0.00" CssClass="dialog-input"
+									  Enabled="@(!_isProcessing)">
+							<NumericTextBoxEvents TValue="decimal" ValueChange="OnDiscountPercentChanged" />
+						</SfNumericTextBox>
+					</div>
+
+					<div class="form-field form-field-half">
+						<label class="field-label">Round Off</label>
+						<SfNumericTextBox TValue="decimal" Value="@_sale.RoundOffAmount" Step="1" Format="N2"
+									  type="tel" Placeholder="0.00" CssClass="dialog-input" Enabled="@(!_isProcessing)">
+							<NumericTextBoxEvents TValue="decimal" ValueChange="OnRoundOffAmountChanged" />
+						</SfNumericTextBox>
+					</div>
+				</div>
+
+				<div class="sale-summary">
+					<div class="summary-item">
+						<span class="summary-label">Base:</span>
+						<span class="summary-value">@_sale.TotalAfterTax.FormatIndianCurrency()</span>
+					</div>
+					<div class="summary-item">
+						<span class="summary-label">Disc:</span>
+						<span class="summary-value">@_sale.DiscountAmount.FormatIndianCurrency()</span>
+					</div>
+					<div class="summary-item">
+						<span class="summary-label">Total:</span>
+						<span class="summary-value">@_sale.TotalAmount.FormatIndianCurrency()</span>
+					</div>
+				</div>
+
+				<div class="payment-form">
+					<div class="form-row payment-entry-row">
+						<div class="form-field form-field-half">
+							<label class="field-label">Pay Amt</label>
+							<SfNumericTextBox TValue="decimal" @bind-Value="_paymentAmount" Min="0"
+											  Max="@_remainingAmount" Step="1" type="tel" Format="N2" Placeholder="0.00"
+											  CssClass="dialog-input" Enabled="@(!_isProcessing)" />
+						</div>
+
+						<div class="form-field form-field-half">
+							<label class="field-label">Method</label>
+							<SfDropDownList TValue="PaymentModeModel" TItem="PaymentModeModel"
+											@bind-Value="@_selectedPaymentMethod" DataSource="@_paymentMethods"
+											Placeholder="Select payment method" CssClass="payment-dropdown"
+											Enabled="@(!_isProcessing)">
+								<DropDownListFieldSettings Text="Name" />
+							</SfDropDownList>
+						</div>
+					</div>
+
+					<div class="payment-actions">
+						<SfButton Content="Add Payment" CssClass="add-payment-btn" OnClick="AddPayment"
+								  Disabled="@(_isProcessing || _paymentAmount <= 0 || _selectedPaymentMethod is null || _selectedPaymentMethod.Id <= 0)" />
+					</div>
+				</div>
+
+				@if (_payments.Any())
+				{
+					<div class="payments-list">
+						<div class="payments-list-header">
+							<span>Payments</span>
+						</div>
+
+						@foreach (var payment in _payments)
+						{
+							<div class="payment-item">
+								<div class="payment-item-details">
+									<span class="payment-method">@payment.Method</span>
+									<span class="payment-amount">₹@payment.Amount.ToString("N2")</span>
+								</div>
+								<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid"
+											Title="Remove Payment" Disabled="@_isProcessing"
+											OnClick="() => RemovePayment(payment)" />
+							</div>
+						}
+					</div>
+				}
+			</div>
+		</div>
+
+		<div class="payment-page-footer">
+			<SfButton Content="@(_isProcessing ? "Saving..." : "Save")" CssClass="dialog-button confirm-button-dialog"
+					  OnClick="async () => await SaveTransaction()" Disabled="@(_isProcessing || _remainingAmount > 0)" />
+			<SfButton Content="@(_isProcessing ? "Saving..." : "Thermal")" CssClass="dialog-button confirm-button-dialog"
+					  OnClick="async () => await SaveTransaction(true)" Disabled="@(_isProcessing || _remainingAmount > 0)" />
+		</div>
+
+		<Footer ShowVersion="false" />
+	</div>
+}
+
+<MobileValidationErrorDialog @bind-Visible="_showValidationDialog" Errors="_validationErrors" ContextLabel="sale" />
+
+<style>
+	:root {
+		--primary-color: #e2137b;
+		--primary-dark: #c71068;
+		--text-dark: #2c3e50;
+		--text-light: #7f8c8d;
+		--bg-light: #f8f9fa;
+		--border-color: #e9ecef;
+		--shadow-light: 0 2px 8px rgba(0, 0, 0, 0.1);
+		--shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.15);
+		--error-color: #dc3545;
+	}
+
+	.sale-payment-container {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		padding: 12px;
+		background: linear-gradient(135deg, #ffeef5 0%, #fff5f9 100%);
+		overflow-y: auto;
+	}
+
+	.payment-section-card {
+		background: white;
+		border-radius: 12px;
+		padding: 14px;
+		box-shadow: var(--shadow-light);
+		border: 1px solid var(--border-color);
+	}
+
+	.section-title {
+		font-weight: 700;
+		color: var(--text-dark);
+		margin-bottom: 12px;
+		font-size: 16px;
+	}
+
+	.form-section,
+	.payment-form {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	}
+
+	.payment-form {
+		margin-top: 8px;
+	}
+
+	.form-row {
+		display: flex;
+		gap: 10px;
+	}
+
+	.form-field {
+		flex: 1;
+		min-width: 0;
+	}
+
+	.form-field-half {
+		flex: 1;
+		min-width: 0;
+	}
+
+	.field-label {
+		display: block;
+		margin-bottom: 6px;
+		font-weight: 600;
+		color: var(--text-dark);
+		font-size: 13px;
+	}
+
+	.dialog-input,
+	.payment-dropdown,
+	.remarks-input {
+		width: 100%;
+	}
+
+	.dialog-input input,
+	.dialog-input textarea,
+	.remarks-input textarea {
+		width: 100% !important;
+		border: 2px solid var(--border-color);
+		border-radius: 8px;
+		padding: 10px;
+		font-size: 14px;
+		color: var(--text-dark);
+		transition: all 0.2s ease;
+	}
+
+	.dialog-input input:focus,
+	.dialog-input textarea:focus,
+	.remarks-input textarea:focus {
+		border-color: var(--primary-color);
+		box-shadow: 0 0 0 3px rgba(226, 19, 123, 0.1);
+		outline: none;
+	}
+
+	.sale-summary,
+	.payment-info,
+	.payments-list {
+		background: var(--bg-light);
+		border-radius: 8px;
+		padding: 12px;
+		margin-top: 12px;
+	}
+
+	.sale-summary {
+		border-left: 4px solid var(--primary-color);
+	}
+
+	.summary-item,
+	.info-row {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 6px;
+	}
+
+	.summary-item:last-child,
+	.info-row:last-child {
+		margin-bottom: 0;
+	}
+
+	.summary-label,
+	.info-label {
+		color: var(--text-dark);
+		font-weight: 500;
+	}
+
+	.summary-value,
+	.info-value,
+	.payment-amount {
+		color: var(--primary-color);
+		font-weight: 700;
+	}
+
+	.remarks-section {
+		margin-top: 12px;
+	}
+
+	.remarks-label {
+		display: block;
+		margin-bottom: 6px;
+		font-weight: 600;
+		color: var(--text-dark);
+		font-size: 13px;
+	}
+
+	.remarks-input textarea {
+		min-height: 78px;
+		resize: vertical;
+	}
+
+	.payment-actions {
+		display: flex;
+		justify-content: flex-end;
+	}
+
+	.add-payment-btn {
+		background: var(--primary-color);
+		color: white;
+		border-radius: 8px;
+		min-height: 42px;
+	}
+
+	.payments-list-header {
+		display: flex;
+		justify-content: flex-start;
+		align-items: center;
+		margin-bottom: 8px;
+		padding-bottom: 6px;
+		border-bottom: 1px solid var(--border-color);
+		font-weight: 600;
+		color: var(--text-dark);
+		font-size: 14px;
+	}
+
+	.payment-item {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 8px;
+		padding: 8px 0;
+		border-bottom: 1px solid var(--border-color);
+		margin-bottom: 0;
+	}
+
+	.payment-item:last-child {
+		border-bottom: none;
+	}
+
+	.payment-item-details {
+		flex: 1;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		gap: 10px;
+	}
+
+	.payment-method {
+		color: var(--text-dark);
+		font-weight: 600;
+		font-size: 14px;
+	}
+
+	.payment-amount {
+		white-space: nowrap;
+	}
+
+	.payment-page-footer {
+		display: flex;
+		gap: 8px;
+		padding: 12px;
+		background: white;
+		border-top: 1px solid var(--border-color);
+		position: sticky;
+		bottom: 0;
+		z-index: 2;
+	}
+
+	.dialog-button {
+		border-radius: 8px;
+		min-height: 44px;
+		flex: 1;
+	}
+
+	.cancel-button {
+		background: white;
+		color: var(--text-light);
+		border: 2px solid var(--border-color);
+	}
+
+	.confirm-button-dialog {
+		background: var(--primary-color);
+		color: white;
+	}
+
+	@@media (max-width: 576px) {
+		.form-row {
+			flex-direction: column;
+			gap: 8px;
+		}
+
+		.disc-roundoff-row {
+			flex-direction: row;
+			gap: 10px;
+		}
+
+		.disc-roundoff-row .form-field-half {
+			flex: 1;
+			min-width: 0;
+		}
+
+		.payment-entry-row {
+			flex-direction: row;
+			gap: 10px;
+		}
+
+		.payment-entry-row .form-field-half {
+			flex: 1;
+			min-width: 0;
+		}
+	}
+</style>
