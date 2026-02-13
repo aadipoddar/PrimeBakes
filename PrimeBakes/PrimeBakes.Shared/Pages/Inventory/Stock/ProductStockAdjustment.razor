@@ -7,13 +7,13 @@
 
 <PageTitle>Product Stock Adjustment - Prime Bakes</PageTitle>
 
-@if (_isLoading)
+@if (_isLoading || _user is null)
 {
 	<AnimatedLoader Visible="true" />
 }
 else
 {
-	<div style="display: flex; flex-direction: column; min-height: 100vh;">
+	<div class="page-shell">
 		<Header Title="Create Product Stock Adjustment" Subtitle="Create and manage product stock adjustments"
 				ShowLogout="true" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack"
 				OnLogoutClick="Logout">

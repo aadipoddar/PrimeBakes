@@ -4,13 +4,13 @@
 
 <PageTitle>Accounting - Prime Bakes</PageTitle>
 
-@if (_isLoading)
+@if (_isLoading || _user is null)
 {
     <AnimatedLoader Visible="true" />
 }
 else
 {
-    <div style="display: flex; flex-direction: column; min-height: 100vh;">
+    <div class="page-shell">
         <Header Title="Accounting Dashboard" Subtitle="Access all accounting modules and reports" ShowLogout="true"
                 ShowHome="true" OnLogoutClick="Logout" OnHomeClick="NavigateToDashboard" />
 

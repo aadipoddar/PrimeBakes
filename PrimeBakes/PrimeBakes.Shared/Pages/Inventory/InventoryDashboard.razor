@@ -4,13 +4,13 @@
 
 <PageTitle>Inventory - Prime Bakes</PageTitle>
 
-@if (_isLoading)
+@if (_isLoading || _user is null)
 {
     <AnimatedLoader Visible="true" />
 }
 else
 {
-    <div style="display: flex; flex-direction: column; min-height: 100vh;">
+    <div class="page-shell">
         <Header Title="Inventory Dashboard"
                 Subtitle="Access all inventory modules and reports"
                 ShowLogout="true"

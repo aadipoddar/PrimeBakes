@@ -8,13 +8,13 @@
 
 <PageTitle>Stock Transfer - PrimeBakes</PageTitle>
 
-@if (_isLoading)
+@if (_isLoading || _user is null)
 {
 	<AnimatedLoader Visible="true" />
 }
 else
 {
-	<div style="display: flex; flex-direction: column; min-height: 100vh;">
+	<div class="page-shell">
 		<Header Title="Stock Transfer" Subtitle="Move stock between locations" ShowLogout="true" ShowHome="true"
 				ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
 			<RightContent>
@@ -113,8 +113,8 @@ else
 								</label>
 								<div class="date-year-wrapper">
 									<SfDatePicker Value="@_stockTransfer.TransactionDateTime" TValue="DateTime"
-											  Format="dd/MM/yy" Placeholder="Select Date" FloatLabelType="FloatLabelType.Never"
-											  CssClass="custom-datepicker">
+												  Format="dd/MM/yy" Placeholder="Select Date" FloatLabelType="FloatLabelType.Never"
+												  CssClass="custom-datepicker">
 										<DatePickerEvents TValue="DateTime" ValueChange="OnTransactionDateChanged" />
 									</SfDatePicker>
 									<SfTextBox
@@ -350,43 +350,43 @@ else
 						<div class="cart-field">
 							<label class="cart-label">Base</label>
 							<SfNumericTextBox Value="@_selectedCart.BaseTotal" Readonly="true" TValue="decimal"
-										  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
-										  CssClass="custom-numeric readonly-field" />
+											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+											  CssClass="custom-numeric readonly-field" />
 						</div>
 
 						<div class="cart-field">
 							<label class="cart-label">Disc Amt</label>
 							<SfNumericTextBox Value="@_selectedCart.DiscountAmount" Readonly="true" TValue="decimal"
-										  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
-										  CssClass="custom-numeric readonly-field" />
+											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+											  CssClass="custom-numeric readonly-field" />
 						</div>
 
 						<div class="cart-field">
 							<label class="cart-label">CGST Amt</label>
 							<SfNumericTextBox Value="@_selectedCart.CGSTAmount" Readonly="true" TValue="decimal"
-										  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
-										  CssClass="custom-numeric readonly-field" />
+											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+											  CssClass="custom-numeric readonly-field" />
 						</div>
 
 						<div class="cart-field">
 							<label class="cart-label">SGST Amt</label>
 							<SfNumericTextBox Value="@_selectedCart.SGSTAmount" Readonly="true" TValue="decimal"
-										  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
-										  CssClass="custom-numeric readonly-field" />
+											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+											  CssClass="custom-numeric readonly-field" />
 						</div>
 
 						<div class="cart-field">
 							<label class="cart-label">IGST Amt</label>
 							<SfNumericTextBox Value="@_selectedCart.IGSTAmount" Readonly="true" TValue="decimal"
-										  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
-										  CssClass="custom-numeric readonly-field" />
+											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+											  CssClass="custom-numeric readonly-field" />
 						</div>
 
 						<div class="cart-field">
 							<label class="cart-label">Total</label>
 							<SfNumericTextBox Value="@_selectedCart.Total" Readonly="true" TValue="decimal"
-										  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
-										  CssClass="custom-numeric readonly-field" />
+											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+											  CssClass="custom-numeric readonly-field" />
 						</div>
 
 						<div class="cart-field">

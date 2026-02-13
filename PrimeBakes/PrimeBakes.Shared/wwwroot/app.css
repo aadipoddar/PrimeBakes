@@ -93,6 +93,12 @@ h1:focus {
 	flex: 1;
 }
 
+.page-shell {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+
 /* Grid Action Buttons Container - used in all grids */
 .grid-actions {
 	display: flex;
@@ -656,9 +662,9 @@ h1:focus {
 .dashboard-grid {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 24px;
+	gap: 16px;
 	width: 100%;
-	margin-bottom: 32px;
+	margin-bottom: 16px;
 }
 
 	.dashboard-grid:last-child {

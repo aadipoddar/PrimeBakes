@@ -4,13 +4,13 @@
 
 <PageTitle>Voucher Management - Prime Bakes</PageTitle>
 
-@if (_isLoading)
+@if (_isLoading || _user is null)
 {
     <AnimatedLoader Visible="true" />
 }
 else
 {
-    <div style="display: flex; flex-direction: column; min-height: 100vh;">
+    <div class="page-shell">
         <Header Title="Voucher Management" Subtitle="Manage vouchers and details" ShowLogout="true" ShowHome="true"
                 ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
             <RightContent>
@@ -147,22 +147,13 @@ else
 }
 
 <!-- Delete Confirmation Dialog -->
-<DeleteConfirmationDialog @ref="_deleteConfirmationDialog"
-                          EntityName="Voucher"
-                          IdentifierLabel="Name"
-                          IdentifierValue="@_deleteVoucherName"
-                          IsPermanentDelete="false"
-                          Disabled="@_isProcessing"
-                          OnConfirm="ConfirmDelete"
+<DeleteConfirmationDialog @ref="_deleteConfirmationDialog" EntityName="Voucher" IdentifierLabel="Name"
+                          IdentifierValue="@_deleteVoucherName" IsPermanentDelete="false" Disabled="@_isProcessing" OnConfirm="ConfirmDelete"
                           OnCancel="CancelDelete" />
 
 <!-- Recover Confirmation Dialog -->
-<RecoverConfirmationDialog @ref="_recoverConfirmationDialog"
-                           EntityName="Voucher"
-                           IdentifierLabel="Name"
-                           IdentifierValue="@_recoverVoucherName"
-                           Disabled="@_isProcessing"
-                           OnConfirm="ConfirmRecover"
+<RecoverConfirmationDialog @ref="_recoverConfirmationDialog" EntityName="Voucher" IdentifierLabel="Name"
+                           IdentifierValue="@_recoverVoucherName" Disabled="@_isProcessing" OnConfirm="ConfirmRecover"
                            OnCancel="CancelRecover" />
 
 <ToastNotification @ref="_toastNotification" />

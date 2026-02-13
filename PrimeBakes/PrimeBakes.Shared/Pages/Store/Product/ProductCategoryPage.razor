@@ -10,7 +10,7 @@
 }
 else
 {
-    <div style="display: flex; flex-direction: column; min-height: 100vh;">
+    <div class="page-shell">
         <Header Title="Product Category Management" Subtitle="Manage product categories and details" ShowLogout="true" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
             <RightContent>
                 <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />

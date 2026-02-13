@@ -5,13 +5,13 @@
 
 <PageTitle>Ledger Management - Prime Bakes</PageTitle>
 
-@if (_isLoading)
+@if (_isLoading || _user is null)
 {
     <AnimatedLoader Visible="true" />
 }
 else
 {
-    <div style="display: flex; flex-direction: column; min-height: 100vh;">
+    <div class="page-shell">
         <Header Title="Ledger Management" Subtitle="Manage ledger accounts" ShowLogout="true" ShowHome="true"
                 ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
             <RightContent>
@@ -259,22 +259,13 @@ else
 }
 
 <!-- Delete Confirmation Dialog -->
-<DeleteConfirmationDialog @ref="_deleteConfirmationDialog"
-                          EntityName="Ledger"
-                          IdentifierLabel="Name"
-                          IdentifierValue="@_deleteLedgerName"
-                          IsPermanentDelete="false"
-                          Disabled="@_isProcessing"
-                          OnConfirm="ConfirmDelete"
+<DeleteConfirmationDialog @ref="_deleteConfirmationDialog" EntityName="Ledger" IdentifierLabel="Name"
+                          IdentifierValue="@_deleteLedgerName" IsPermanentDelete="false" Disabled="@_isProcessing" OnConfirm="ConfirmDelete"
                           OnCancel="CancelDelete" />
 
 <!-- Recover Confirmation Dialog -->
-<RecoverConfirmationDialog @ref="_recoverConfirmationDialog"
-                           EntityName="Ledger"
-                           IdentifierLabel="Name"
-                           IdentifierValue="@_recoverLedgerName"
-                           Disabled="@_isProcessing"
-                           OnConfirm="ConfirmRecover"
+<RecoverConfirmationDialog @ref="_recoverConfirmationDialog" EntityName="Ledger" IdentifierLabel="Name"
+                           IdentifierValue="@_recoverLedgerName" Disabled="@_isProcessing" OnConfirm="ConfirmRecover"
                            OnCancel="CancelRecover" />
 
 <ToastNotification @ref="_toastNotification" />

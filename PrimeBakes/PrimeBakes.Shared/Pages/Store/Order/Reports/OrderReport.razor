@@ -6,13 +6,13 @@
 
 <PageTitle>Order Report - Prime Bakes</PageTitle>
 
-@if (_isLoading)
+@if (_isLoading || _user is null)
 {
     <AnimatedLoader Visible="true" />
 }
 else
 {
-    <div style="display: flex; flex-direction: column; min-height: 100vh;">
+    <div class="page-shell">
         <Header Title="Order Report" Subtitle="View and analyze order transactions" ShowHome="true" ShowBack="true"
                 ShowLogout="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
             <RightContent>

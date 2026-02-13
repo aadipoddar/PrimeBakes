@@ -27,7 +27,6 @@ public partial class OrderMobileCartPage
     private List<OrderItemCartModel> _cart = [];
     private readonly List<(string Field, string Message)> _validationErrors = [];
 
-    private SfDialog _sfValidationErrorDialog;
     private SfDialog _sfOrderConfirmationDialog;
     private SfGrid<OrderItemCartModel> _sfCartGrid;
 

@@ -41,7 +41,6 @@ public partial class SaleMobileCartPage
     private decimal _paymentAmount = 0;
     private decimal _remainingAmount => _sale.TotalAmount - _payments.Sum(p => p.Amount);
 
-    private SfDialog _sfValidationErrorDialog;
     private SfDialog _sfOrderConfirmationDialog;
     private SfDialog _sfPaymentDialog;
     private SfGrid<SaleItemCartModel> _sfCartGrid;

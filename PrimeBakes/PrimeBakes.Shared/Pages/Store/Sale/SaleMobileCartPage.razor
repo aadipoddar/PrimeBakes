@@ -10,13 +10,13 @@
 
 <PageTitle>Sale Cart - PrimeBakes</PageTitle>
 
-@if (_isLoading)
+@if (_isLoading || _user is null)
 {
     <AnimatedLoader Visible="true" />
 }
 else
 {
-    <div style="display: flex; flex-direction: column; min-height: 100vh;">
+    <div class="page-shell">
         <Header Title="Sale Cart" Subtitle="Review and submit your sale" ShowBack="true"
                 OnBackClick="() => NavigationManager.NavigateTo(PageRouteNames.SaleMobile)" />
 
@@ -83,15 +83,7 @@ else
             }
             else
             {
-                <div class="empty-cart">
-                    <div class="empty-icon">🛒</div>
-                    <h3>Your cart is empty</h3>
-                    <p>Add some items to your cart to continue</p>
-                    <button @onclick="() => NavigationManager.NavigateTo(PageRouteNames.SaleMobile)"
-                            class="continue-shopping-btn" disabled="@_isProcessing">
-                        Continue Shopping
-                    </button>
-                </div>
+                <MobileEmptyCartState NavigateTo="@PageRouteNames.SaleMobile" Disabled="@_isProcessing" />
             }
 
         </div>
@@ -99,11 +91,8 @@ else
         @if (_cart.Any())
         {
             <div class="cart-footer">
-                <button @onclick="ShowConfirmationDialog" class="cart-button" disabled="@_isProcessing">
-                    <i class="fas fa-check-circle"></i>
-                    <span>Confirm Sale</span>
-                    <span class="cart-count">@_cart.Count()</span>
-                </button>
+                <MobileActionButton CssClass="cart-button" IconCssClass="fas fa-check-circle" Text="Confirm Sale"
+                                    BadgeCount="@_cart.Count()" Disabled="@_isProcessing" OnClick="ShowConfirmationDialog" />
             </div>
         }
 
@@ -111,53 +100,7 @@ else
     </div>
 }
 
-<!-- Validation Error Dialog -->
-<SfDialog ID="_sfValidationErrorDialog" @ref="_sfValidationErrorDialog" Width="500px" Height="auto"
-          AllowDragging="false" EnableResize="false" @bind-Visible="_showValidationDialog" IsModal="true">
-    <DialogPositionData X="Center" Y="Center" />
-    <DialogTemplates>
-        <Header>
-            <div class="dialog-header error-header">
-                <span class="error-icon">❌</span>
-                <span>Validation Errors</span>
-            </div>
-        </Header>
-        <Content>
-            <div class="dialog-content error-content">
-                <div class="error-message">
-                    <h3>Please fix the following errors before proceeding:</h3>
-                    <p>Review and correct the issues listed below to continue with your sale.</p>
-                </div>
-
-                <div class="error-list">
-                    @foreach (var error in _validationErrors)
-                    {
-                        <div class="error-item">
-                            <div class="error-item-icon">⚠️</div>
-                            <div class="error-item-content">
-                                <div class="error-item-title">@error.Field</div>
-                                <div class="error-item-message">@error.Message</div>
-                            </div>
-                        </div>
-                    }
-                </div>
-
-                @if (_validationErrors.Count > 1)
-                {
-                    <div class="error-summary">
-                        <span class="error-count">@_validationErrors.Count errors found</span>
-                    </div>
-                }
-            </div>
-        </Content>
-        <FooterTemplate>
-            <div class="dialog-footer error-footer">
-                <SfButton Content="Fix Issues" OnClick="() => _showValidationDialog = false"
-                          CssClass="dialog-button error-fix-button" />
-            </div>
-        </FooterTemplate>
-    </DialogTemplates>
-</SfDialog>
+<MobileValidationErrorDialog @bind-Visible="_showValidationDialog" Errors="_validationErrors" ContextLabel="sale" />
 
 <!-- Sale Confirmation Dialog -->
 <SfDialog ID="_sfSaleConfirmationDialog" @ref="_sfOrderConfirmationDialog" Width="450px" Height="auto"
@@ -351,12 +294,10 @@ else
         --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.1);
         --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.15);
         --success-color: #28a745;
-        --danger-color: #dc3545;
         --warning-color: #ffc107;
         --error-color: #dc3545;
         --error-bg: #f8d7da;
         --error-border: #f5c6cb;
-        --info-color: #17a2b8;
     }
 
     .sale-cart-container {
@@ -555,24 +496,6 @@ else
         transform: none;
     }
 
-    .cart-count {
-        background: white;
-        color: var(--primary-color);
-        border-radius: 50%;
-        width: 28px;
-        height: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 14px;
-        position: absolute;
-        right: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-
     /* Grid Styling */
     ::deep .e-grid {
         border-radius: 12px;
@@ -679,13 +602,6 @@ else
             min-height: 48px;
         }
 
-        .cart-count {
-            width: 24px;
-            height: 24px;
-            font-size: 12px;
-            right: 12px;
-        }
-
         ::deep .e-grid .e-headercell {
             padding: 12px 8px;
             font-size: 14px;
@@ -733,10 +649,6 @@ else
         color: var(--warning-color);
     }
 
-    .error-header {
-        color: var(--error-color);
-    }
-
     .confirmation-icon,
     .error-icon {
         font-size: 24px;
@@ -749,21 +661,6 @@ else
     .confirmation-content,
     .error-content {
         text-align: center;
-    }
-
-    .confirmation-message h3,
-    .error-message h3 {
-        margin: 0 0 10px 0;
-        color: var(--text-dark);
-        font-size: 18px;
-        font-weight: 600;
-    }
-
-    .confirmation-message p,
-    .error-message p {
-        margin: 0 0 20px 0;
-        color: var(--text-light);
-        font-size: 14px;
     }
 
     /* Error Dialog Specific Styles */
@@ -1194,24 +1091,8 @@ else
         transform: scale(1.1);
     }
 
-    6px;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    flex-shrink: 0;
-    }
-
     .remove-payment-btn svg {
         width: 16px;
         height: 16px;
-    }
-
-    .remove-payment-btn:hover:not(:disabled) {
-        background: #c82333;
-        transform: scale(1.05);
     }
 </style>

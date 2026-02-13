@@ -62,17 +62,17 @@ internal static class PageRouteNames
     #region Store
     public const string StoreDashboard = "/store";
     public const string Order = "/store/order/order";
-    public const string OrderMobile = "/store/order/order/mobile";
-    public const string OrderMobileCart = "/store/order/order-cart/mobile";
-    public const string OrderMobileConfirmation = "/store/order/order-confirmation/mobile";
+    public const string OrderMobile = "/store/order/mobile/order";
+    public const string OrderMobileCart = "/store/order/mobile/order-cart";
+    public const string OrderMobileConfirmation = "/store/order/mobile/order-confirmation";
     public const string OrderReport = "/store/order/reports/order";
     public const string ReportOrderItem = "/store/order/reports/order-item";
 
     public const string Sale = "/store/sale/sale";
     public const string SaleReturn = "/store/sale/sale-return";
-    public const string SaleMobile = "/store/sale/sale/mobile";
-    public const string SaleMobileCart = "/store/sale/sale-cart/mobile";
-    public const string SaleMobileConfirmation = "/store/sale/sale-confirmation/mobile";
+    public const string SaleMobile = "/store/sale/mobile/sale";
+    public const string SaleMobileCart = "/store/sale/mobile/sale-cart";
+    public const string SaleMobileConfirmation = "/store/sale/mobile/sale-confirmation";
     public const string SaleReport = "/store/sale/reports/sale";
     public const string SaleItemReport = "/store/sale/reports/sale-item";
     public const string SaleReturnReport = "/store/sale/reports/sale-return";

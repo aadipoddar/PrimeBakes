@@ -4,31 +4,20 @@
 
 <PageTitle>Sale - PrimeBakes</PageTitle>
 
-@if (_isLoading)
+@if (_isLoading || _user is null)
 {
     <AnimatedLoader Visible="true" />
 }
 else
 {
-    <div style="display: flex; flex-direction: column; min-height: 100vh;">
+    <div class="page-shell">
         <Header Title="Create Sale" Subtitle="Mobile sale entry" ShowBack="true"
                 OnBackClick="() => NavigationManager.NavigateTo(PageRouteNames.Dashboard)" />
 
         <!-- Main Content Container -->
         <div class="sale-mobile-container">
 
-            <!-- Enhanced Category Filter Section -->
-            <div class="filter-section">
-                <div class="category-chips-container">
-                    @foreach (var category in _productCategories)
-                    {
-                        <button class="category-chip @(category.Id == _selectedCategory?.Id ? "active" : "")"
-                                @onclick="() => _selectedCategory = category">
-                            @category.Name
-                        </button>
-                    }
-                </div>
-            </div>
+            <MobileCategoryChipsFilter Categories="_productCategories" @bind-SelectedCategory="_selectedCategory" />
 
             <!-- Grid Container -->
             <div class="grid-container">
@@ -55,10 +44,8 @@ else
                                             <div class="detail-row-control">
                                                 @if (item.Quantity == 0)
                                                 {
-                                                    <button class="add-button" @onclick="() => AddToCart(item)"
-                                                            @onclick:stopPropagation="true">
-                                                        <span class="add-text">Add</span>
-                                                    </button>
+                                                    <MobileActionButton CssClass="add-button" Text="Add" TextCssClass="add-text"
+                                                                        OnClick="() => AddToCart(item)" StopPropagation="true" />
                                                 }
                                                 else
                                                 {
@@ -105,11 +92,8 @@ else
         @if (_cart.Any(c => c.Quantity > 0))
         {
             <div class="cart-footer">
-                <button @onclick="GoToCart" class="cart-button">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span>Go to Cart</span>
-                    <span class="cart-count">@_cart.Count(c => c.Quantity > 0)</span>
-                </button>
+                <MobileActionButton CssClass="cart-button" IconCssClass="fas fa-shopping-cart" Text="Go to Cart"
+                                    BadgeCount="@_cart.Count(c => c.Quantity > 0)" OnClick="GoToCart" />
             </div>
         }
 
@@ -128,8 +112,6 @@ else
         --border-color: #e9ecef;
         --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.1);
         --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.15);
-        --success-color: #28a745;
-        --info-color: #17a2b8;
     }
 
     .sale-mobile-container {
@@ -266,59 +248,6 @@ else
         color: var(--primary-color);
     }
 
-    /* Product Info */
-    .product-info {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        padding: 4px 0;
-    }
-
-    .product-name {
-        font-weight: 600;
-        color: var(--text-dark);
-        font-size: 15px;
-        line-height: 1.4;
-    }
-
-    .product-details {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
-        font-size: 13px;
-    }
-
-    .detail-item {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-    }
-
-    .detail-label {
-        color: var(--text-light);
-        font-weight: 500;
-    }
-
-    .detail-value {
-        color: var(--primary-color);
-        font-weight: 700;
-    }
-
-    .detail-separator {
-        color: var(--border-color);
-        font-weight: 700;
-    }
-
-    /* Quantity Section */
-    .quantity-section {
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        width: 100%;
-        padding: 8px 0;
-    }
-
     /* Add Button */
     .add-button {
         background: var(--primary-color);
@@ -355,30 +284,16 @@ else
         font-weight: 600;
     }
 
-    /* Quantity Controls */
-    .quantity-controls {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        width: 100%;
-        justify-content: flex-end;
-        max-width: 200px;
-    }
-
     .quantity-input-wrapper,
     .rate-input-wrapper {
         flex: 1;
         width: 100%;
     }
 
-    .quantity-input,
-    .rate-input,
     .input-field {
         width: 100% !important;
     }
 
-    .quantity-input input,
-    .rate-input input,
     .input-field input {
         text-align: right !important;
         border: 2px solid var(--border-color);
@@ -392,8 +307,6 @@ else
         box-sizing: border-box;
     }
 
-    .quantity-input input:focus,
-    .rate-input input:focus,
     .input-field input:focus {
         border-color: var(--primary-color);
         box-shadow: 0 0 0 3px rgba(226, 19, 123, 0.1);
@@ -439,24 +352,6 @@ else
 
     .cart-button:active {
         transform: translateY(0);
-    }
-
-    .cart-count {
-        background: white;
-        color: var(--primary-color);
-        border-radius: 50%;
-        width: 28px;
-        height: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 14px;
-        position: absolute;
-        right: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
     /* Grid Styling */
@@ -547,28 +442,12 @@ else
             padding: 15px;
         }
 
-        .category-filter-wrapper {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 10px;
-        }
-
-        detail-row-label {
-            font-size: 12px;
-            min-width: 60px;
-        }
-
         .detail-row-control {
             max-width: 120px;
         }
 
-        . .grid-container {
+        .grid-container {
             padding: 10px;
-        }
-
-        .quantity-controls {
-            max-width: 160px;
-            gap: 6px;
         }
 
         .add-button {
@@ -594,13 +473,6 @@ else
             min-height: 48px;
         }
 
-        .cart-count {
-            width: 24px;
-            height: 24px;
-            font-size: 12px;
-            right: 12px;
-        }
-
         ::deep .e-grid .e-headercell {
             padding: 12px 8px;
             font-size: 14px;
@@ -611,11 +483,6 @@ else
             font-size: 14px;
         }
 
-        ::deep .category-filter .e-input-group input {
-            padding: 8px 10px;
-            font-size: 14px;
-            height: 32px;
-        }
     }
 
     @@media (max-width: 400px) {

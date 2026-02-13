@@ -1,0 +1,13 @@
+@using PrimeBakesLibrary.Models.Store.Product
+
+<div class="filter-section">
+    <div class="category-chips-container">
+        @foreach (var category in Categories)
+        {
+            <button class="category-chip @(category.Id == SelectedCategory?.Id ? "active" : string.Empty)"
+                    @onclick="() => SelectCategory(category)">
+                @category.Name
+            </button>
+        }
+    </div>
+</div>

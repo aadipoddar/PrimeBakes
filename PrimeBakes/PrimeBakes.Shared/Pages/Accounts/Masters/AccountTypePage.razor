@@ -4,19 +4,25 @@
 
 <PageTitle>Account Type Management - Prime Bakes</PageTitle>
 
-@if (_isLoading)
+@if (_isLoading || _user is null)
 {
     <AnimatedLoader Visible="true" />
 }
 else
 {
-    <div style="display: flex; flex-direction: column; min-height: 100vh;">
-        <Header Title="Account Type Management" Subtitle="Manage account types and details" ShowLogout="true" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
+    <div class="page-shell">
+        <Header Title="Account Type Management" Subtitle="Manage account types and details" ShowLogout="true"
+                ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack"
+                OnLogoutClick="Logout">
             <RightContent>
-                <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
-                <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
-                <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Account Type (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveAccountType" />
-                <IconButton Icon="IconType.New" Title="New Account Type (Ctrl + N)" Disabled="_isProcessing" OnClick="ResetPage" />
+                <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)"
+                            Disabled="_isProcessing" OnClick="ExportExcel" />
+                <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)"
+                            Disabled="_isProcessing" OnClick="ExportPdf" />
+                <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Account Type (Ctrl + S)"
+                            Disabled="_isProcessing" OnClick="SaveAccountType" />
+                <IconButton Icon="IconType.New" Title="New Account Type (Ctrl + N)" Disabled="_isProcessing"
+                            OnClick="ResetPage" />
             </RightContent>
         </Header>
 
@@ -89,12 +95,17 @@ else
                                         <div class="grid-actions">
                                             @if (accountType.Status)
                                             {
-                                                <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid" Title="Edit (Insert)" OnClick="@(() => OnEditAccountType(accountType))" />
-                                                <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete (Delete)" OnClick="@(() => ShowDeleteConfirmation(accountType.Id, accountType.Name))" />
+                                                <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid"
+                                                            Title="Edit (Insert)" OnClick="@(() => OnEditAccountType(accountType))" />
+                                                <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete"
+                                                            Size="ButtonSize.Grid" Title="Delete (Delete)"
+                                                            OnClick="@(() => ShowDeleteConfirmation(accountType.Id, accountType.Name))" />
                                             }
                                             else
                                             {
-                                                <IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover" Size="ButtonSize.Grid" Title="Recover (Delete)" OnClick="@(() => ShowRecoverConfirmation(accountType.Id, accountType.Name))" />
+                                                <IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover"
+                                                            Size="ButtonSize.Grid" Title="Recover (Delete)"
+                                                            OnClick="@(() => ShowRecoverConfirmation(accountType.Id, accountType.Name))" />
                                             }
                                         </div>
                                     }
@@ -126,21 +137,12 @@ else
     </div>
 }
 
-<DeleteConfirmationDialog @ref="_deleteConfirmationDialog"
-                          EntityName="Account Type"
-                          IdentifierLabel="Account Type Name"
-                          IdentifierValue="@_deleteAccountTypeName"
-                          IsPermanentDelete="false"
-                          Disabled="@_isProcessing"
-                          OnConfirm="ConfirmDelete"
-                          OnCancel="CancelDelete" />
+<DeleteConfirmationDialog @ref="_deleteConfirmationDialog" EntityName="Account Type" IdentifierLabel="Account Type Name"
+                          IdentifierValue="@_deleteAccountTypeName" IsPermanentDelete="false" Disabled="@_isProcessing"
+                          OnConfirm="ConfirmDelete" OnCancel="CancelDelete" />
 
-<RecoverConfirmationDialog @ref="_recoverConfirmationDialog"
-                           EntityName="Account Type"
-                           IdentifierLabel="Account Type Name"
-                           IdentifierValue="@_recoverAccountTypeName"
-                           Disabled="@_isProcessing"
-                           OnConfirm="ConfirmRecover"
-                           OnCancel="CancelRecover" />
+<RecoverConfirmationDialog @ref="_recoverConfirmationDialog" EntityName="Account Type"
+                           IdentifierLabel="Account Type Name" IdentifierValue="@_recoverAccountTypeName" Disabled="@_isProcessing"
+                           OnConfirm="ConfirmRecover" OnCancel="CancelRecover" />
 
 <ToastNotification @ref="_toastNotification" />

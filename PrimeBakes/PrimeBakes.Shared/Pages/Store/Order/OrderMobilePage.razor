@@ -4,31 +4,20 @@
 
 <PageTitle>Order - PrimeBakes</PageTitle>
 
-@if (_isLoading)
+@if (_isLoading || _user is null)
 {
     <AnimatedLoader Visible="true" />
 }
 else
 {
-    <div style="display: flex; flex-direction: column; min-height: 100vh;">
+    <div class="page-shell">
         <Header Title="Create Order" Subtitle="Mobile order entry" ShowBack="true"
                 OnBackClick="() => NavigationManager.NavigateTo(PageRouteNames.Dashboard)" />
 
         <!-- Main Content Container -->
         <div class="order-mobile-container">
 
-            <!-- Enhanced Category Filter Section -->
-            <div class="filter-section">
-                <div class="category-chips-container">
-                    @foreach (var category in _productCategories)
-                    {
-                        <button class="category-chip @(category.Id == _selectedCategory?.Id ? "active" : "")"
-                                @onclick="() => _selectedCategory = category">
-                            @category.Name
-                        </button>
-                    }
-                </div>
-            </div>
+            <MobileCategoryChipsFilter Categories="_productCategories" @bind-SelectedCategory="_selectedCategory" />
 
             <!-- Grid Container -->
             <div class="grid-container">
@@ -52,10 +41,8 @@ else
                                     <div class="quantity-section">
                                         @if (item.Quantity == 0)
                                         {
-                                            <button class="add-button" @onclick="() => AddToCart(item)"
-                                                    @onclick:stopPropagation="true">
-                                                <span class="add-text">Add</span>
-                                            </button>
+                                            <MobileActionButton CssClass="add-button" Text="Add" TextCssClass="add-text"
+                                                                OnClick="() => AddToCart(item)" StopPropagation="true" />
                                         }
                                         else
                                         {
@@ -80,11 +67,8 @@ else
         @if (_cart.Any(c => c.Quantity > 0))
         {
             <div class="cart-footer">
-                <button @onclick="GoToCart" class="cart-button">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span>Go to Cart</span>
-                    <span class="cart-count">@_cart.Count(c => c.Quantity > 0)</span>
-                </button>
+                <MobileActionButton CssClass="cart-button" IconCssClass="fas fa-shopping-cart" Text="Go to Cart"
+                                    BadgeCount="@_cart.Count(c => c.Quantity > 0)" OnClick="GoToCart" />
             </div>
         }
 
@@ -103,8 +87,6 @@ else
         --border-color: #e9ecef;
         --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.1);
         --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.15);
-        --success-color: #28a745;
-        --info-color: #17a2b8;
     }
 
     .order-mobile-container {
@@ -322,24 +304,6 @@ else
         transform: translateY(0);
     }
 
-    .cart-count {
-        background: white;
-        color: var(--primary-color);
-        border-radius: 50%;
-        width: 28px;
-        height: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 14px;
-        position: absolute;
-        right: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-
     /* Grid Styling */
     ::deep .e-grid {
         border-radius: 12px;
@@ -428,12 +392,6 @@ else
             padding: 15px;
         }
 
-        .category-filter-wrapper {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 10px;
-        }
-
         .grid-container {
             padding: 10px;
         }
@@ -466,13 +424,6 @@ else
             min-height: 48px;
         }
 
-        .cart-count {
-            width: 24px;
-            height: 24px;
-            font-size: 12px;
-            right: 12px;
-        }
-
         ::deep .e-grid .e-headercell {
             padding: 12px 8px;
             font-size: 14px;
@@ -483,11 +434,6 @@ else
             font-size: 14px;
         }
 
-        ::deep .category-filter .e-input-group input {
-            padding: 8px 10px;
-            font-size: 14px;
-            height: 32px;
-        }
     }
 
     @@media (max-width: 400px) {

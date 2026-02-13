@@ -1,0 +1,44 @@
+<SfDialog Width="500px" Height="auto" AllowDragging="false" EnableResize="false" IsModal="true" @bind-Visible="Visible">
+    <DialogPositionData X="Center" Y="Center" />
+    <DialogTemplates>
+        <Header>
+            <div class="dialog-header error-header">
+                <span class="error-icon">❌</span>
+                <span>Validation Errors</span>
+            </div>
+        </Header>
+        <Content>
+            <div class="dialog-content error-content">
+                <div class="error-message">
+                    <h3>Please fix the following errors before proceeding:</h3>
+                    <p>Review and correct the issues listed below to continue with your @ContextLabel.</p>
+                </div>
+
+                <div class="error-list">
+                    @foreach (var error in Errors)
+                    {
+                        <div class="error-item">
+                            <div class="error-item-icon">⚠️</div>
+                            <div class="error-item-content">
+                                <div class="error-item-title">@error.Field</div>
+                                <div class="error-item-message">@error.Message</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                @if (Errors.Count > 1)
+                {
+                    <div class="error-summary">
+                        <span class="error-count">@Errors.Count errors found</span>
+                    </div>
+                }
+            </div>
+        </Content>
+        <FooterTemplate>
+            <div class="dialog-footer error-footer">
+                <SfButton Content="Fix Issues" OnClick="Close" CssClass="dialog-button error-fix-button" />
+            </div>
+        </FooterTemplate>
+    </DialogTemplates>
+</SfDialog>

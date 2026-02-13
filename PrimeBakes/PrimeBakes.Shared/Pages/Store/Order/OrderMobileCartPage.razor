@@ -6,13 +6,13 @@
 
 <PageTitle>Order Cart - PrimeBakes</PageTitle>
 
-@if (_isLoading)
+@if (_isLoading || _user is null)
 {
     <AnimatedLoader Visible="true" />
 }
 else
 {
-    <div style="display: flex; flex-direction: column; min-height: 100vh;">
+    <div class="page-shell">
         <Header Title="Order Cart" Subtitle="Review and submit your order" ShowBack="true"
                 OnBackClick="() => NavigationManager.NavigateTo(PageRouteNames.OrderMobile)" />
 
@@ -57,15 +57,7 @@ else
             }
             else
             {
-                <div class="empty-cart">
-                    <div class="empty-icon">🛒</div>
-                    <h3>Your cart is empty</h3>
-                    <p>Add some items to your cart to continue</p>
-                    <button @onclick="() => NavigationManager.NavigateTo(PageRouteNames.OrderMobile)"
-                            class="continue-shopping-btn" disabled="@_isProcessing">
-                        Continue Shopping
-                    </button>
-                </div>
+                <MobileEmptyCartState NavigateTo="@PageRouteNames.OrderMobile" Disabled="@_isProcessing" />
             }
 
         </div>
@@ -73,11 +65,8 @@ else
         @if (_cart.Any())
         {
             <div class="cart-footer">
-                <button @onclick="() => _showConfirmDialog = true" class="cart-button" disabled="@_isProcessing">
-                    <i class="fas fa-check-circle"></i>
-                    <span>Confirm Order</span>
-                    <span class="cart-count">@_cart.Count()</span>
-                </button>
+                <MobileActionButton CssClass="cart-button" IconCssClass="fas fa-check-circle" Text="Confirm Order"
+                                    BadgeCount="@_cart.Count()" Disabled="@_isProcessing" OnClick="() => _showConfirmDialog = true" />
             </div>
         }
 
@@ -85,53 +74,7 @@ else
     </div>
 }
 
-<!-- Validation Error Dialog -->
-<SfDialog ID="_sfValidationErrorDialog" @ref="_sfValidationErrorDialog" Width="500px" Height="auto"
-          AllowDragging="false" EnableResize="false" @bind-Visible="_showValidationDialog" IsModal="true">
-    <DialogPositionData X="Center" Y="Center" />
-    <DialogTemplates>
-        <Header>
-            <div class="dialog-header error-header">
-                <span class="error-icon">❌</span>
-                <span>Validation Errors</span>
-            </div>
-        </Header>
-        <Content>
-            <div class="dialog-content error-content">
-                <div class="error-message">
-                    <h3>Please fix the following errors before proceeding:</h3>
-                    <p>Review and correct the issues listed below to continue with your order.</p>
-                </div>
-
-                <div class="error-list">
-                    @foreach (var error in _validationErrors)
-                    {
-                        <div class="error-item">
-                            <div class="error-item-icon">⚠️</div>
-                            <div class="error-item-content">
-                                <div class="error-item-title">@error.Field</div>
-                                <div class="error-item-message">@error.Message</div>
-                            </div>
-                        </div>
-                    }
-                </div>
-
-                @if (_validationErrors.Count > 1)
-                {
-                    <div class="error-summary">
-                        <span class="error-count">@_validationErrors.Count errors found</span>
-                    </div>
-                }
-            </div>
-        </Content>
-        <FooterTemplate>
-            <div class="dialog-footer error-footer">
-                <SfButton Content="Fix Issues" OnClick="() => _showValidationDialog = false"
-                          CssClass="dialog-button error-fix-button" />
-            </div>
-        </FooterTemplate>
-    </DialogTemplates>
-</SfDialog>
+<MobileValidationErrorDialog @bind-Visible="_showValidationDialog" Errors="_validationErrors" ContextLabel="order" />
 
 <!-- Order Confirmation Dialog -->
 <SfDialog ID="_sfOrderConfirmationDialog" @ref="_sfOrderConfirmationDialog" Width="450px" Height="auto"
@@ -171,9 +114,9 @@ else
                           CssClass="dialog-button cancel-button" Disabled="@_isProcessing" />
 
                 <!-- Animated Order Button -->
-                <OrderButton IsProcessing="@_isProcessing" Disabled="@_isProcessing"
-                             DefaultText="@(_isProcessing ? "Processing..." : "Place Order")" SuccessText="Processing Order"
-                             OnClick="OnPlaceOrderClick" />
+                <MobileOrderButton IsProcessing="@_isProcessing" Disabled="@_isProcessing"
+                                   DefaultText="@(_isProcessing ? "Processing..." : "Place Order")" SuccessText="Processing Order"
+                                   OnClick="OnPlaceOrderClick" />
             </div>
         </FooterTemplate>
     </DialogTemplates>
@@ -190,13 +133,10 @@ else
         --border-color: #e9ecef;
         --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.1);
         --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.15);
-        --success-color: #28a745;
-        --danger-color: #dc3545;
         --warning-color: #ffc107;
         --error-color: #dc3545;
         --error-bg: #f8d7da;
         --error-border: #f5c6cb;
-        --info-color: #17a2b8;
     }
 
     .order-cart-container {
@@ -370,24 +310,6 @@ else
         transform: none;
     }
 
-    .cart-count {
-        background: white;
-        color: var(--primary-color);
-        border-radius: 50%;
-        width: 28px;
-        height: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 14px;
-        position: absolute;
-        right: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-
     /* Grid Styling */
     ::deep .e-grid {
         border-radius: 12px;
@@ -488,13 +410,6 @@ else
             padding: 12px 15px;
             font-size: 14px;
             min-height: 48px;
-        }
-
-        .cart-count {
-            width: 24px;
-            height: 24px;
-            font-size: 12px;
-            right: 12px;
         }
 
         ::deep .e-grid .e-headercell {
@@ -741,23 +656,6 @@ else
 
     .cancel-button:disabled {
         cursor: not-allowed;
-    }
-
-    .confirm-button-dialog {
-        background: var(--primary-color);
-        color: white;
-    }
-
-    .confirm-button-dialog:hover:not(:disabled) {
-        background: var(--primary-dark);
-        transform: translateY(-1px);
-        box-shadow: var(--shadow-light);
-    }
-
-    .confirm-button-dialog:disabled {
-        background: var(--text-light);
-        cursor: not-allowed;
-        transform: none;
     }
 
     .error-fix-button {

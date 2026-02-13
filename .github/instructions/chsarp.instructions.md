@@ -208,6 +208,8 @@ This application **ALWAYS** uses Syncfusion Blazor components. When writing C# c
 - **Configuration**: Use appsettings.json for Web, MauiProgram.cs for MAUI
 - **Data Models**: Keep models in `PrimeBakesLibrary/Models` for consistency
 - **Export Logic**: Implement export functionality in `PrimeBakesLibrary/Exporting`
+- **Styling Consistency**: Reuse global styles from `PrimeBakes.Shared/wwwroot/app.css` when available instead of duplicating local page styles
+- **CSS Cleanup**: Remove unused CSS and stale style rules introduced by UI changes in the same update
 
 ## Security Best Practices
 

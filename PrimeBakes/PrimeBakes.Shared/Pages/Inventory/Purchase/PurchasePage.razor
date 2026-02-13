@@ -7,13 +7,13 @@
 
 <PageTitle>Purchase - Prime Bakes</PageTitle>
 
-@if (_isLoading)
+@if (_isLoading || _user is null)
 {
 	<AnimatedLoader Visible="true" />
 }
 else
 {
-	<div style="display: flex; flex-direction: column; min-height: 100vh;">
+	<div class="page-shell">
 		<Header Title="Create Purchase" Subtitle="Create and manage purchase transactions" ShowLogout="true" ShowHome="true"
 				ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
 			<RightContent>

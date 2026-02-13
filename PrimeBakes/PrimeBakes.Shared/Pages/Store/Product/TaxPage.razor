@@ -10,7 +10,7 @@
 }
 else
 {
-    <div style="display: flex; flex-direction: column; min-height: 100vh;">
+    <div class="page-shell">
         <Header Title="Tax Management" Subtitle="Manage tax rates and configurations" ShowLogout="true" ShowHome="true"
                 ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
             <RightContent>
@@ -53,7 +53,8 @@ else
                             <label class="field-label">Tax Type (Select one only)</label>
                             <div class="d-flex gap-2">
                                 <div class="checkbox-wrapper">
-                                    <SfCheckBox @bind-Checked="_tax.Inclusive" Label="Inclusive" CssClass="custom-checkbox" />
+                                    <SfCheckBox @bind-Checked="_tax.Inclusive" Label="Inclusive"
+                                                CssClass="custom-checkbox" />
                                 </div>
                                 <div class="checkbox-wrapper">
                                     <SfCheckBox @bind-Checked="_tax.Extra" Label="Extra" CssClass="custom-checkbox" />

@@ -1,0 +1,17 @@
+<button type="@Type" class="@CssClass" @onclick="OnClick" @onclick:stopPropagation="StopPropagation"
+		disabled="@Disabled" title="@Title">
+	@if (!string.IsNullOrWhiteSpace(IconCssClass))
+	{
+		<i class="@IconCssClass"></i>
+	}
+
+	@if (!string.IsNullOrWhiteSpace(Text))
+	{
+		<span class="@TextCssClass">@Text</span>
+	}
+
+	@if (BadgeCount.HasValue)
+	{
+		<span class="@BadgeCssClass">@BadgeCount.Value</span>
+	}
+</button>

@@ -39,6 +39,15 @@ This application **ALWAYS** uses Syncfusion components. When implementing UI fea
 - Async/await should be used where applicable to ensure non-blocking UI operations
 - Use file-scoped namespaces and modern C# features
 
+## CSS and Styling Hygiene
+
+- Remove unused CSS selectors, style blocks, and duplicated styling from Razor pages/components
+- Before adding new local styles, first check for existing reusable styles in `PrimeBakes.Shared/wwwroot/app.css`
+- Prefer global CSS classes from `app.css` over creating page-local `<style>` blocks when an equivalent style already exists
+- Keep only page-local styles that are truly page-specific and not reusable globally
+- Do not keep dead/unused style definitions after UI refactors; clean them up in the same change
+- When moving repeated styles, consolidate them into `app.css` to reduce duplication across pages
+
 ## Build and Error Resolution
 
 **CRITICAL**: Always build the project and fix all errors after making changes:

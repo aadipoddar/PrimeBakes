@@ -10,7 +10,7 @@
 }
 else
 {
-    <div style="display: flex; flex-direction: column; min-height: 100vh;">
+    <div class="page-shell">
         <Header Title="System Settings" Subtitle="Configure system-wide parameters and defaults" ShowHome="true"
                 ShowBack="true" ShowLogout="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack"
                 OnLogoutClick="Logout">
@@ -33,7 +33,8 @@ else
                              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                              stroke-linejoin="round">
                             <circle cx="12" cy="12" r="3" />
-                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                            <path
+                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
                         </svg>
                         <h2 class="section-title">Primary Configuration</h2>
                     </div>
@@ -442,61 +443,61 @@ else
                         <div class="form-field">
                             <label class="field-label">Automatically update raw material master rate when purchasing</label>
                             <div class="checkbox-wrapper">
-                                <SfCheckBox @bind-Checked="_updateItemMasterRateOnPurchase" Label="Update Raw Material Rate on Purchase" CssClass="custom-checkbox" />
+                                <SfCheckBox @bind-Checked="_updateItemMasterRateOnPurchase"
+                                            Label="Update Raw Material Rate on Purchase" CssClass="custom-checkbox" />
                             </div>
                         </div>
 
                         <!-- Update Item Master UOM on Purchase -->
                         <div class="form-field">
-                            <label class="field-label">Automatically update raw material unit of measure when purchasing</label>
-                            <div class="checkbox-wrapper">
-                                <SfCheckBox @bind-Checked="_updateItemMasterUOMOnPurchase" Label="Update Raw Material UOM on Purchase" CssClass="custom-checkbox" />
+                            <label class="field-label">Automatically update raw material unit of measure when
+                                purchasing</label>
+                                <div class="checkbox-wrapper">
+                                    <SfCheckBox @bind-Checked="_updateItemMasterUOMOnPurchase"
+                                                Label="Update Raw Material UOM on Purchase" CssClass="custom-checkbox" />
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Report Settings Section -->
-            <div class="section-card">
-                <div class="section-header">
-                    <div class="section-title-wrapper">
-                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                             stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10" />
-                            <polyline points="12 6 12 12 16 14" />
-                        </svg>
-                        <h2 class="section-title">Report Settings</h2>
+                <!-- Report Settings Section -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <div class="section-title-wrapper">
+                            <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <polyline points="12 6 12 12 16 14" />
+                            </svg>
+                            <h2 class="section-title">Report Settings</h2>
+                        </div>
                     </div>
-                </div>
-                <div class="section-body">
-                    <div class="form-grid">
-                        <!-- Auto Refresh Report Timer -->
-                        <div class="form-field">
-                            <label class="field-label">
-                                Auto Refresh Timer (Interval in minutes for automatic report data refresh)
-                            </label>
-                            <SfNumericTextBox @bind-Value="_autoRefreshReportTimer" TValue="int" Min="1" Max="60"
-                                              Placeholder="e.g., 5" FloatLabelType="FloatLabelType.Never" CssClass="custom-numeric" />
+                    <div class="section-body">
+                        <div class="form-grid">
+                            <!-- Auto Refresh Report Timer -->
+                            <div class="form-field">
+                                <label class="field-label">
+                                    Auto Refresh Timer (Interval in minutes for automatic report data refresh)
+                                </label>
+                                <SfNumericTextBox @bind-Value="_autoRefreshReportTimer" TValue="int" Min="1" Max="60"
+                                                  Placeholder="e.g., 5" FloatLabelType="FloatLabelType.Never" CssClass="custom-numeric" />
+                            </div>
                         </div>
                     </div>
                 </div>
+
             </div>
 
+            <ResetConfirmationDialog @ref="_resetConfirmationDialog"
+                                     Message="Are you sure you want to reset all settings to their default values?"
+                                     WarningMessage="This will reset all system configuration to default values including company linking, code prefixes, transaction prefixes, voucher and ledger associations, and purchase behavior settings."
+                                     NoteMessage="This action cannot be undone. You will need to reconfigure all settings manually."
+                                     ConfirmButtonText="Reset Settings" Disabled="@_isProcessing" OnConfirm="ConfirmReset" OnCancel="CancelReset" />
+
+            <Footer />
         </div>
+    }
 
-        <ResetConfirmationDialog @ref="_resetConfirmationDialog"
-                                 Message="Are you sure you want to reset all settings to their default values?"
-                                 WarningMessage="This will reset all system configuration to default values including company linking, code prefixes, transaction prefixes, voucher and ledger associations, and purchase behavior settings."
-                                 NoteMessage="This action cannot be undone. You will need to reconfigure all settings manually."
-                                 ConfirmButtonText="Reset Settings"
-                                 Disabled="@_isProcessing"
-                                 OnConfirm="ConfirmReset"
-                                 OnCancel="CancelReset" />
-
-        <Footer />
-    </div>
-}
-
-<ToastNotification @ref="_toastNotification" />
+    <ToastNotification @ref="_toastNotification" />

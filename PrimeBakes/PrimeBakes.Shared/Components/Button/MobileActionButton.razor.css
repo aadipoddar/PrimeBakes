@@ -1,0 +1,31 @@
+.cart-button {
+    padding-right: 56px !important;
+}
+
+.cart-button .cart-count {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    color: var(--primary-color);
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 1;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 576px) {
+    .cart-button .cart-count {
+        width: 24px;
+        height: 24px;
+        right: 12px;
+        font-size: 12px;
+    }
+}

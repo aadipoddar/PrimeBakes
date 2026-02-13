@@ -4,13 +4,13 @@
 
 <PageTitle>Reports - Prime Bakes</PageTitle>
 
-@if (_isLoading)
+@if (_isLoading || _user is null)
 {
     <AnimatedLoader Visible="true" />
 }
 else
 {
-    <div style="display: flex; flex-direction: column; min-height: 100vh;">
+    <div class="page-shell">
         <Header Title="Reports Dashboard"
                 Subtitle="Access all business reports and analytics"
                 ShowLogout="true"
