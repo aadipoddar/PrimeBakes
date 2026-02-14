@@ -3,6 +3,7 @@
 
 @using PrimeBakesLibrary.Models.Accounts.Masters
 @using PrimeBakesLibrary.Models.Operations
+@using PrimeBakesLibrary.Models.Store.Masters
 @using PrimeBakesLibrary.Models.Store.Product
 @using PrimeBakesLibrary.Models.Store.Sale
 
@@ -250,25 +251,43 @@ else
 
 							<div class="financial-divider"></div>
 
-							<!-- Cash / Card -->
-							<div class="dual-inputs">
-								<SfNumericTextBox @bind-Value="@_saleReturn.Cash" TValue="decimal" Min="0"
-												  ShowSpinButton="false" Placeholder="Cash" FloatLabelType="FloatLabelType.Always"
+							<div class="financial-row-dual">
+								<SfDropDownList TValue="PaymentModeModel" TItem="PaymentModeModel"
+											@bind-Value="_selectedPaymentMethod" DataSource="@_paymentMethods"
+											Placeholder="Mode" CssClass="custom-autocomplete small-input"
+											FloatLabelType="FloatLabelType.Never">
+									<DropDownListFieldSettings Text="Name" />
+								</SfDropDownList>
+								<div class="dual-inputs">
+									<SfNumericTextBox @bind-Value="_paymentAmount" TValue="decimal" Min="0"
+												  ShowSpinButton="false" Placeholder="Pay Amt"
+												  FloatLabelType="FloatLabelType.Never"
 												  CssClass="custom-numeric editable-field small-input" />
-								<SfNumericTextBox @bind-Value="@_saleReturn.Card" TValue="decimal" Min="0"
-												  ShowSpinButton="false" Placeholder="Card" FloatLabelType="FloatLabelType.Always"
-												  CssClass="custom-numeric editable-field small-input" />
+									<IconButton Icon="IconType.Add" Variant="ButtonVariant.Add" Text="Add"
+												Title="Add Payment" Disabled="@(_isProcessing || _paymentAmount <= 0 || _selectedPaymentMethod is null || _selectedPaymentMethod.Id <= 0)"
+												OnClick="AddPayment" />
+								</div>
 							</div>
 
-							<!-- UPI / Credit -->
-							<div class="dual-inputs">
-								<SfNumericTextBox @bind-Value="@_saleReturn.UPI" TValue="decimal" Min="0"
-												  ShowSpinButton="false" Placeholder="UPI" FloatLabelType="FloatLabelType.Always"
-												  CssClass="custom-numeric editable-field small-input" />
-								<SfNumericTextBox @bind-Value="@_saleReturn.Credit" TValue="decimal" Min="0"
-												  ShowSpinButton="false" Placeholder="Credit" FloatLabelType="FloatLabelType.Always"
-												  CssClass="custom-numeric editable-field small-input" />
-							</div>
+							@if (_payments.Any())
+							{
+								<div class="financial-divider"></div>
+								@foreach (var payment in _payments)
+								{
+									<div class="financial-row">
+										<label class="financial-label">@payment.Method</label>
+										<div class="dual-inputs">
+											<SfNumericTextBox Value="@payment.Amount" TValue="decimal" Readonly="true"
+													  ShowSpinButton="false" Placeholder="0.00"
+													  FloatLabelType="FloatLabelType.Never"
+													  CssClass="custom-numeric readonly-field small-input" />
+											<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid"
+														Title="Remove Payment" Disabled="@_isProcessing"
+														OnClick="() => RemovePayment(payment)" />
+										</div>
+									</div>
+								}
+							}
 						</div>
 					</div>
 				</div>
@@ -363,6 +382,8 @@ else
 											ValueChange="OnItemInclusiveTaxChanged" CssClass="custom-checkbox" />
 							</div>
 						</div>
+
+						<div class="cart-field"></div>
 					</div>
 
 					<div class="cart-input-row">
@@ -371,6 +392,8 @@ else
 							<SfTextBox @bind-Value="_selectedCart.Remarks" Placeholder="Item Narration..."
 									   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
 						</div>
+
+						<div class="cart-field"></div>
 
 						<div class="cart-field">
 							<label class="cart-label">Base</label>

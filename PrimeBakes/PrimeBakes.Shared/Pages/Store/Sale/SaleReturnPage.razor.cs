@@ -50,6 +50,12 @@ public partial class SaleReturnPage : IAsyncDisposable
     private List<ProductLocationOverviewModel> _products = [];
     private List<TaxModel> _taxes = [];
     private List<SaleReturnItemCartModel> _cart = [];
+    private readonly List<PaymentItem> _payments = [];
+    private readonly List<PaymentModeModel> _paymentMethods = PaymentModeData.GetPaymentModes();
+
+    private PaymentModeModel _selectedPaymentMethod = new();
+    private decimal _paymentAmount = 0;
+    private decimal _remainingAmount => _saleReturn.TotalAmount - _payments.Sum(p => p.Amount);
 
     private SfAutoComplete<ProductLocationOverviewModel?, ProductLocationOverviewModel> _sfItemAutoComplete;
     private SfGrid<SaleReturnItemCartModel> _sfCartGrid;
@@ -253,6 +259,7 @@ public partial class SaleReturnPage : IAsyncDisposable
             }
 
             _selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, _saleReturn.FinancialYearId);
+            SyncPaymentsFromSaleReturn();
         }
         catch (Exception ex)
         {
@@ -343,6 +350,90 @@ public partial class SaleReturnPage : IAsyncDisposable
         {
             await SaveTransactionFile();
         }
+    }
+    #endregion
+
+    #region Payment
+    private void SyncPaymentsFromSaleReturn()
+    {
+        _payments.Clear();
+
+        AddPaymentFromSaleReturn("Cash", _saleReturn.Cash);
+        AddPaymentFromSaleReturn("Card", _saleReturn.Card);
+        AddPaymentFromSaleReturn("UPI", _saleReturn.UPI);
+        AddPaymentFromSaleReturn("Credit", _saleReturn.Credit);
+
+        _selectedPaymentMethod = _paymentMethods.FirstOrDefault();
+        _paymentAmount = Math.Max(0, _remainingAmount);
+    }
+
+    private void AddPaymentFromSaleReturn(string modeName, decimal amount)
+    {
+        if (amount <= 0)
+            return;
+
+        var mode = _paymentMethods.FirstOrDefault(pm => pm.Name == modeName);
+        if (mode is null)
+            return;
+
+        _payments.Add(new()
+        {
+            Id = mode.Id,
+            Method = mode.Name,
+            Amount = amount
+        });
+    }
+
+    private void ApplyPaymentsToSaleReturn()
+    {
+        _saleReturn.Cash = _payments.FirstOrDefault(p => p.Method == "Cash")?.Amount ?? 0;
+        _saleReturn.Card = _payments.FirstOrDefault(p => p.Method == "Card")?.Amount ?? 0;
+        _saleReturn.UPI = _payments.FirstOrDefault(p => p.Method == "UPI")?.Amount ?? 0;
+        _saleReturn.Credit = _payments.FirstOrDefault(p => p.Method == "Credit")?.Amount ?? 0;
+    }
+
+    private async Task AddPayment()
+    {
+        if (_isProcessing || _paymentAmount <= 0 || _selectedPaymentMethod is null || _selectedPaymentMethod.Id <= 0)
+            return;
+
+        if (_paymentAmount > _remainingAmount)
+        {
+            await _toastNotification.ShowAsync("Invalid Payment Amount", $"Payment amount cannot exceed remaining amount of ₹{_remainingAmount:N2}", ToastType.Error);
+            return;
+        }
+
+        var existingPayment = _payments.FirstOrDefault(p => p.Id == _selectedPaymentMethod.Id);
+        if (existingPayment is not null)
+            existingPayment.Amount += _paymentAmount;
+        else
+            _payments.Add(new()
+            {
+                Id = _selectedPaymentMethod.Id,
+                Method = _selectedPaymentMethod.Name,
+                Amount = _paymentAmount
+            });
+
+        ApplyPaymentsToSaleReturn();
+        _paymentAmount = Math.Max(0, _remainingAmount);
+        _selectedPaymentMethod = _paymentMethods.FirstOrDefault(pm => pm.Id != _selectedPaymentMethod.Id)
+                                 ?? _paymentMethods.FirstOrDefault()
+                                 ?? new();
+
+        await SaveTransactionFile(true);
+    }
+
+    private async Task RemovePayment(PaymentItem payment)
+    {
+        if (_isProcessing || payment is null)
+            return;
+
+        _payments.Remove(payment);
+        ApplyPaymentsToSaleReturn();
+
+        _selectedPaymentMethod = _paymentMethods.FirstOrDefault();
+        _paymentAmount = Math.Max(0, _remainingAmount);
+        await SaveTransactionFile(true);
     }
     #endregion
 
@@ -825,6 +916,8 @@ public partial class SaleReturnPage : IAsyncDisposable
 
         if (Id is null)
             _saleReturn.TransactionNo = await GenerateCodes.GenerateSaleReturnTransactionNo(_saleReturn);
+
+        ApplyPaymentsToSaleReturn();
     }
 
     private async Task SaveTransactionFile(bool customRoundOff = false)
@@ -849,6 +942,8 @@ public partial class SaleReturnPage : IAsyncDisposable
         {
             if (_sfCartGrid is not null)
                 await _sfCartGrid?.Refresh();
+
+            _paymentAmount = Math.Max(0, _remainingAmount);
 
             _isProcessing = false;
             StateHasChanged();

@@ -484,4 +484,4 @@ This project is proprietary software developed for **Salasar Foods Guwahati**.
 
 ---
 
-Latest Version = 1.0.9.2
+Latest Version = 1.0.9.3

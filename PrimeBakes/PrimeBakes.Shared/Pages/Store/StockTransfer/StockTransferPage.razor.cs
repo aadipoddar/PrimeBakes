@@ -6,6 +6,7 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Operations;
+using PrimeBakesLibrary.Data.Store.Masters;
 using PrimeBakesLibrary.Data.Store.Product;
 using PrimeBakesLibrary.Data.Store.StockTransfer;
 using PrimeBakesLibrary.DataAccess;
@@ -13,6 +14,7 @@ using PrimeBakesLibrary.Exporting.Store.StockTransfer;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Models.Store.Masters;
 using PrimeBakesLibrary.Models.Store.Product;
 using PrimeBakesLibrary.Models.Store.StockTransfer;
 
@@ -46,6 +48,12 @@ public partial class StockTransferPage : IAsyncDisposable
     private List<ProductLocationOverviewModel> _products = [];
     private List<TaxModel> _taxes = [];
     private List<StockTransferItemCartModel> _cart = [];
+    private readonly List<PaymentItem> _payments = [];
+    private readonly List<PaymentModeModel> _paymentMethods = PaymentModeData.GetPaymentModes();
+
+    private PaymentModeModel _selectedPaymentMethod = new();
+    private decimal _paymentAmount = 0;
+    private decimal _remainingAmount => _stockTransfer.TotalAmount - _payments.Sum(p => p.Amount);
 
     private SfAutoComplete<ProductLocationOverviewModel?, ProductLocationOverviewModel> _sfItemAutoComplete;
     private SfGrid<StockTransferItemCartModel> _sfCartGrid;
@@ -197,6 +205,7 @@ public partial class StockTransferPage : IAsyncDisposable
                 _stockTransfer.DiscountPercent = _selectedToLocation.Discount;
 
             _selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, _stockTransfer.FinancialYearId);
+            SyncPaymentsFromStockTransfer();
         }
         catch (Exception ex)
         {
@@ -286,6 +295,90 @@ public partial class StockTransferPage : IAsyncDisposable
         {
             await SaveTransactionFile();
         }
+    }
+    #endregion
+
+    #region Payment
+    private void SyncPaymentsFromStockTransfer()
+    {
+        _payments.Clear();
+
+        AddPaymentFromStockTransfer("Cash", _stockTransfer.Cash);
+        AddPaymentFromStockTransfer("Card", _stockTransfer.Card);
+        AddPaymentFromStockTransfer("UPI", _stockTransfer.UPI);
+        AddPaymentFromStockTransfer("Credit", _stockTransfer.Credit);
+
+        _selectedPaymentMethod = _paymentMethods.FirstOrDefault();
+        _paymentAmount = Math.Max(0, _remainingAmount);
+    }
+
+    private void AddPaymentFromStockTransfer(string modeName, decimal amount)
+    {
+        if (amount <= 0)
+            return;
+
+        var mode = _paymentMethods.FirstOrDefault(pm => pm.Name == modeName);
+        if (mode is null)
+            return;
+
+        _payments.Add(new()
+        {
+            Id = mode.Id,
+            Method = mode.Name,
+            Amount = amount
+        });
+    }
+
+    private void ApplyPaymentsToStockTransfer()
+    {
+        _stockTransfer.Cash = _payments.FirstOrDefault(p => p.Method == "Cash")?.Amount ?? 0;
+        _stockTransfer.Card = _payments.FirstOrDefault(p => p.Method == "Card")?.Amount ?? 0;
+        _stockTransfer.UPI = _payments.FirstOrDefault(p => p.Method == "UPI")?.Amount ?? 0;
+        _stockTransfer.Credit = _payments.FirstOrDefault(p => p.Method == "Credit")?.Amount ?? 0;
+    }
+
+    private async Task AddPayment()
+    {
+        if (_isProcessing || _paymentAmount <= 0 || _selectedPaymentMethod is null || _selectedPaymentMethod.Id <= 0)
+            return;
+
+        if (_paymentAmount > _remainingAmount)
+        {
+            await _toastNotification.ShowAsync("Invalid Payment Amount", $"Payment amount cannot exceed remaining amount of ₹{_remainingAmount:N2}", ToastType.Error);
+            return;
+        }
+
+        var existingPayment = _payments.FirstOrDefault(p => p.Id == _selectedPaymentMethod.Id);
+        if (existingPayment is not null)
+            existingPayment.Amount += _paymentAmount;
+        else
+            _payments.Add(new()
+            {
+                Id = _selectedPaymentMethod.Id,
+                Method = _selectedPaymentMethod.Name,
+                Amount = _paymentAmount
+            });
+
+        ApplyPaymentsToStockTransfer();
+        _paymentAmount = Math.Max(0, _remainingAmount);
+        _selectedPaymentMethod = _paymentMethods.FirstOrDefault(pm => pm.Id != _selectedPaymentMethod.Id)
+                                 ?? _paymentMethods.FirstOrDefault()
+                                 ?? new();
+
+        await SaveTransactionFile(true);
+    }
+
+    private async Task RemovePayment(PaymentItem payment)
+    {
+        if (_isProcessing || payment is null)
+            return;
+
+        _payments.Remove(payment);
+        ApplyPaymentsToStockTransfer();
+
+        _selectedPaymentMethod = _paymentMethods.FirstOrDefault();
+        _paymentAmount = Math.Max(0, _remainingAmount);
+        await SaveTransactionFile(true);
     }
     #endregion
 
@@ -692,6 +785,8 @@ public partial class StockTransferPage : IAsyncDisposable
 
         if (Id is null)
             _stockTransfer.TransactionNo = await GenerateCodes.GenerateStockTransferTransactionNo(_stockTransfer);
+
+        ApplyPaymentsToStockTransfer();
     }
 
     private async Task SaveTransactionFile(bool customRoundOff = false)
@@ -716,6 +811,8 @@ public partial class StockTransferPage : IAsyncDisposable
         {
             if (_sfCartGrid is not null)
                 await _sfCartGrid?.Refresh();
+
+            _paymentAmount = Math.Max(0, _remainingAmount);
 
             _isProcessing = false;
             StateHasChanged();
