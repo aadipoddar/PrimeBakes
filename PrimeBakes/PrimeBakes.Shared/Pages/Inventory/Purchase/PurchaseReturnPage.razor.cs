@@ -19,7 +19,6 @@ using PrimeBakesLibrary.Models.Store.Product;
 using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;
 using Syncfusion.Blazor.Inputs;
-using Syncfusion.Blazor.Popups;
 
 namespace PrimeBakes.Shared.Pages.Inventory.Purchase;
 

@@ -152,10 +152,27 @@ else
                         </ButtonCard>
                     }
 
+                    <!-- Restaurant -->
+                    @if (_user.Restaurant)
+                    {
+                        <ButtonCard Title="Restaurant" Description="Access restaurant dashboard" Color="red" OnClick="() => NavigationManager.NavigateTo(PageRouteNames.RestaurantDashboard)">
+                            <IconContent>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <path d="M3 2v7a3 3 0 0 0 6 0V2" />
+                                    <path d="M7 2v20" />
+                                    <path d="M14 2v8a2 2 0 0 0 4 0V2" />
+                                    <path d="M18 2v20" />
+                                </svg>
+                            </IconContent>
+                        </ButtonCard>
+                    }
+
                     <!-- Operations -->
                     @if (_user.Admin)
                     {
-                        <ButtonCard Title="Operations" Description="Access operations dashboard" Color="indigo" OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AdminDashboard)">
+                        <ButtonCard Title="Operations" Description="Access operations dashboard" Color="indigo" OnClick="() => NavigationManager.NavigateTo(PageRouteNames.OperationsDashboard)">
                             <IconContent>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"

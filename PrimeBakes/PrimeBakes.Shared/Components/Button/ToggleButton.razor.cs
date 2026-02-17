@@ -69,7 +69,7 @@ public partial class ToggleButton
                 builder.CloseElement();
             }),
 
-        ToggleVariant.Deleted => (builder =>
+        ToggleVariant.Deleted => builder =>
         {
             builder.OpenElement(0, "polyline");
             builder.AddAttribute(1, "points", "3 6 5 6 21 6");
@@ -89,7 +89,7 @@ public partial class ToggleButton
             builder.AddAttribute(12, "x2", "14");
             builder.AddAttribute(13, "y2", "17");
             builder.CloseElement();
-        }),
+        },
 
         ToggleVariant.Summary => IsActive
             ? (builder =>
@@ -161,7 +161,7 @@ public partial class ToggleButton
                 builder.CloseElement();
             }),
 
-        ToggleVariant.Returns => (builder =>
+        ToggleVariant.Returns => builder =>
         {
             builder.OpenElement(0, "polyline");
             builder.AddAttribute(1, "points", "9 14 4 9 9 4");
@@ -169,9 +169,9 @@ public partial class ToggleButton
             builder.OpenElement(2, "path");
             builder.AddAttribute(3, "d", "M20 20v-7a4 4 0 0 0-4-4H4");
             builder.CloseElement();
-        }),
+        },
 
-        ToggleVariant.Transfers => (builder =>
+        ToggleVariant.Transfers => builder =>
         {
             builder.OpenElement(0, "polyline");
             builder.AddAttribute(1, "points", "17 2 21 6 17 10");
@@ -185,9 +185,9 @@ public partial class ToggleButton
             builder.OpenElement(6, "path");
             builder.AddAttribute(7, "d", "M21 10v2a4 4 0 0 1-4 4H3");
             builder.CloseElement();
-        }),
+        },
 
-        _ => (builder => { })
+        _ => builder => { }
     };
 
     private string GetButtonText() => Variant switch

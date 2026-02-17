@@ -5,7 +5,7 @@ internal static class PageRouteNames
 	#region Operations
 	public const string Dashboard = "/";
 	public const string Login = "/login";
-	public const string AdminDashboard = "/admin";
+	public const string OperationsDashboard = "/operations";
 	public const string ReportDashboard = "/report";
 
 	public const string Location = "/operations/location";
@@ -61,6 +61,7 @@ internal static class PageRouteNames
 
 	#region Store
 	public const string StoreDashboard = "/store";
+
 	public const string Order = "/store/order/order";
 	public const string OrderMobile = "/store/order/mobile/order";
 	public const string OrderMobileCart = "/store/order/mobile/order-cart";
@@ -87,5 +88,17 @@ internal static class PageRouteNames
 	public const string ProductCategory = "/store/product/product-category";
 	public const string ProductLocation = "/store/product/product-location";
 	public const string Tax = "/store/product/tax";
+	#endregion
+
+	#region Restaurant
+	public const string RestaurantDashboard = "/restaurant";
+	public const string DiningDashboard = "/restaurant/dining";
+
+	public const string Bill = "/restaurant/bill/bill";
+	public const string BillReport = "/restaurant/bill/report/bill";
+	public const string BillItemReport = "/restaurant/bill/report/bill-item";
+
+	public const string DiningArea = "/restaurant/dining/dining-area";
+	public const string DiningTable = "/restaurant/dining/dining-table";
 	#endregion
 }

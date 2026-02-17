@@ -18,7 +18,13 @@ public partial class ButtonCard
     public string Description { get; set; } = string.Empty;
 
     /// <summary>
-    /// The color theme for the card (blue, green, red, orange, purple, teal, indigo, amber, emerald, cyan, rose, sky, violet)
+    /// Whether description line breaks should be preserved.
+    /// </summary>
+    [Parameter]
+    public bool PreserveDescriptionLineBreaks { get; set; }
+
+    /// <summary>
+    /// The color theme for the card (blue, green, red, orange, purple, teal, indigo, amber, emerald, cyan, rose, sky, violet, running, available)
     /// </summary>
     [Parameter]
     public string Color { get; set; } = "blue";
@@ -27,7 +33,7 @@ public partial class ButtonCard
     /// The SVG icon content to display
     /// </summary>
     [Parameter]
-    public RenderFragment? IconContent { get; set; }
+    public RenderFragment IconContent { get; set; }
 
     /// <summary>
     /// The click event callback

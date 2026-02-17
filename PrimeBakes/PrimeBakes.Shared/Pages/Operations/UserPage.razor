@@ -70,9 +70,9 @@ else
 
                         <!-- Permissions -->
                         <div class="form-field">
-                            <label class="field-label">Store</label>
+                            <label class="field-label">Accounts</label>
                             <div class="checkbox-wrapper">
-                                <SfCheckBox @bind-Checked="_user.Store" Label="Store" CssClass="custom-checkbox" />
+                                <SfCheckBox @bind-Checked="_user.Accounts" Label="Accounts" CssClass="custom-checkbox" />
                             </div>
                         </div>
 
@@ -84,9 +84,16 @@ else
                         </div>
 
                         <div class="form-field">
-                            <label class="field-label">Accounts</label>
+                            <label class="field-label">Store</label>
                             <div class="checkbox-wrapper">
-                                <SfCheckBox @bind-Checked="_user.Accounts" Label="Accounts" CssClass="custom-checkbox" />
+                                <SfCheckBox @bind-Checked="_user.Store" Label="Store" CssClass="custom-checkbox" />
+                            </div>
+                        </div>
+
+                        <div class="form-field">
+                            <label class="field-label">Restaurant</label>
+                            <div class="checkbox-wrapper">
+                                <SfCheckBox @bind-Checked="_user.Restaurant" Label="Restaurant" CssClass="custom-checkbox" />
                             </div>
                         </div>
 
@@ -157,11 +164,9 @@ else
                                     }
                                 </Template>
                             </GridColumn>
-                            <GridColumn Field="@nameof(UserModel.Id)" HeaderText="ID" Width="80"
-                                        TextAlign="TextAlign.Center" />
+                            <GridColumn Field="@nameof(UserModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" />
                             <GridColumn Field="@nameof(UserModel.Name)" HeaderText="User Name" Width="200" />
-                            <GridColumn Field="@nameof(UserModel.Passcode)" HeaderText="Passcode" Width="120" Format="0000"
-                                        TextAlign="TextAlign.Center" />
+                            <GridColumn Field="@nameof(UserModel.Passcode)" HeaderText="Passcode" Width="120" Format="0000" TextAlign="TextAlign.Center" />
                             <GridColumn Field="@nameof(UserModel.LocationId)" HeaderText="Location" Width="150">
                                 <Template>
                                     @{
@@ -176,9 +181,10 @@ else
                                     @{
                                         var user = (context as UserModel);
                                         var permissions = new List<string>();
-                                        if (user.Store) permissions.Add("Store");
-                                        if (user.Inventory) permissions.Add("Inventory");
                                         if (user.Accounts) permissions.Add("Accounts");
+                                        if (user.Inventory) permissions.Add("Inventory");
+                                        if (user.Store) permissions.Add("Store");
+                                        if (user.Restaurant) permissions.Add("Restaurant");
                                         if (user.Reports) permissions.Add("Reports");
                                         if (user.Admin) permissions.Add("Admin");
                                         <span>@string.Join(", ", permissions)</span>

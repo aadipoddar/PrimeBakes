@@ -1,0 +1,642 @@
+﻿@attribute [Route(PageRouteNames.Bill)]
+@attribute [Route($"{PageRouteNames.Bill}/table/{{DiningTableId:int}}")]
+@attribute [Route($"{PageRouteNames.Bill}/transaction/{{Id:int}}")]
+
+@using PrimeBakesLibrary.Models.Accounts.Masters
+@using PrimeBakesLibrary.Models.Operations
+@using PrimeBakesLibrary.Models.Restuarant.Bill
+@using PrimeBakesLibrary.Models.Restuarant.Dining
+@using PrimeBakesLibrary.Models.Store.Masters
+@using PrimeBakesLibrary.Models.Store.Product
+
+<PageTitle>Bill - Prime Bakes</PageTitle>
+
+@if (_isLoading || _user is null)
+{
+	<AnimatedLoader Visible="true" />
+}
+else
+{
+	<div class="page-shell">
+		<Header Title="Create Bill" Subtitle="Create and manage restaurant bills" ShowLogout="true" ShowHome="true"
+				ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
+			<RightContent>
+				<IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Transaction (Ctrl + S)"
+							Disabled="_isProcessing" OnClick="SaveTransaction" />
+				<IconButton Icon="IconType.ThermalPrinter" Variant="ButtonVariant.ThermalPrinter"
+							Title="Download Thermal Invoice (Alt + T)" Disabled="_isProcessing" OnClick="DownloadThermalInvoice" />
+				@if (Id is > 0)
+				{
+					<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Download Excel Invoice (Alt + E)"
+								Disabled="_isProcessing" OnClick="DownloadExcelInvoice" />
+					<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Download PDF Invoice (Alt + P)"
+								Disabled="_isProcessing" OnClick="DownloadPdfInvoice" />
+				}
+				<IconButton Icon="IconType.History" Title="Transaction History (Ctrl + H)" Disabled="_isProcessing"
+							OnClick="NavigateToTransactionHistoryPage" />
+				<IconButton Icon="IconType.Report" Title="Item Report (Ctrl + I)" Disabled="_isProcessing"
+							OnClick="NavigateToItemReport" />
+				<IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing"
+							OnClick="ResetPage" />
+			</RightContent>
+		</Header>
+
+		<div class="page-container">
+			<div class="two-column-layout">
+				<div class="section-card">
+					<div class="section-header">
+						<div class="section-title-wrapper">
+							<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+								 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+								 stroke-linecap="round" stroke-linejoin="round">
+								<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+								<polyline points="14 2 14 8 20 8" />
+								<line x1="16" y1="13" x2="8" y2="13" />
+								<line x1="16" y1="17" x2="8" y2="17" />
+								<polyline points="10 9 9 9 8 9" />
+							</svg>
+							<h2 class="section-title">Transaction Summary</h2>
+						</div>
+					</div>
+					<div class="section-body">
+						<div class="form-grid">
+							@if (_user.LocationId == 1)
+							{
+								<div class="form-field">
+									<label class="field-label">
+										Location <span class="required">*</span>
+									</label>
+									<SfAutoComplete Value="@_selectedLocation" TValue="LocationModel" TItem="LocationModel"
+													DataSource="@_locations" Placeholder="Select a Location"
+													FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
+													FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
+													CssClass="custom-autocomplete">
+										<AutoCompleteEvents TItem="LocationModel" TValue="LocationModel"
+															ValueChange="OnLocationChanged" />
+										<AutoCompleteFieldSettings Value="Name" />
+									</SfAutoComplete>
+								</div>
+
+								<div class="form-field">
+									<label class="field-label">
+										Company <span class="required">*</span>
+									</label>
+									<SfAutoComplete Value="@_selectedCompany" TValue="CompanyModel" TItem="CompanyModel"
+													DataSource="@_companies" Placeholder="Select a Company"
+													FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
+													FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
+													CssClass="custom-autocomplete">
+										<AutoCompleteEvents TItem="CompanyModel" TValue="CompanyModel"
+															ValueChange="OnCompanyChanged" />
+										<AutoCompleteFieldSettings Value="Name" />
+									</SfAutoComplete>
+								</div>
+
+								<div class="form-field">
+									<label class="field-label">
+										Transaction Date <span class="required">*</span> / Financial Year
+									</label>
+									<div class="date-year-wrapper">
+										<SfDatePicker Value="@_bill.TransactionDateTime" TValue="DateTime" Format="dd/MM/yy"
+													  Placeholder="Select Date" FloatLabelType="FloatLabelType.Never"
+													  CssClass="custom-datepicker">
+											<DatePickerEvents TValue="DateTime" ValueChange="OnTransactionDateChanged" />
+										</SfDatePicker>
+										<SfTextBox Value="@($"{_selectedFinancialYear?.StartDate:yyyy} to {_selectedFinancialYear?.EndDate:yyyy}")"
+												   Readonly="true" Placeholder="Financial Year" FloatLabelType="FloatLabelType.Never"
+												   CssClass="custom-textbox readonly-field" />
+									</div>
+								</div>
+							}
+
+							<div class="form-field">
+								<label class="field-label">
+									Dining Table <span class="required">*</span>
+								</label>
+								<SfAutoComplete Value="@_selectedDiningTable" TValue="DiningTableModel" TItem="DiningTableModel"
+												DataSource="@_diningTables" Placeholder="Select a Dining Table"
+												FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
+												FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
+												CssClass="custom-autocomplete">
+									<AutoCompleteEvents TItem="DiningTableModel" TValue="DiningTableModel"
+														ValueChange="OnDiningTableChanged" />
+									<AutoCompleteFieldSettings Value="Name" />
+								</SfAutoComplete>
+							</div>
+
+							<div class="form-field">
+								<label class="field-label">
+									Transaction No <span class="required">*</span>
+								</label>
+								<div class="transaction-no-wrapper">
+									<SfTextBox @bind-Value="_bill.TransactionNo" Placeholder="Transaction No"
+											   FloatLabelType="FloatLabelType.Never" Readonly="true"
+											   CssClass="custom-textbox readonly-field" />
+								</div>
+							</div>
+
+							<div class="form-field">
+								<label class="field-label">Customer Number</label>
+								<SfTextBox Value="@_selectedCustomer?.Number" ValueChanged="OnCustomerNumberChanged"
+										   Placeholder="Customer Mobile No" FloatLabelType="FloatLabelType.Never"
+										   Type="InputType.Tel" CssClass="custom-textbox" />
+							</div>
+
+							<div class="form-field">
+								<label class="field-label">Customer Name</label>
+								<SfTextBox @bind-Value="_selectedCustomer.Name" Placeholder="Customer Name"
+										   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+							</div>
+
+							<div class="form-field">
+								<label class="field-label">Total People</label>
+								<SfNumericTextBox @bind-Value="_bill.TotalPeople" TValue="int" Min="1" Max="100"
+												  ShowSpinButton="true" FloatLabelType="FloatLabelType.Never"
+												  CssClass="custom-numeric editable-field" />
+							</div>
+
+							<div class="form-field">
+								<label class="field-label">Remarks / Narration</label>
+								<SfTextBox @bind-Value="_bill.Remarks" Multiline="true" Placeholder="Enter remarks..."
+										   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="section-card">
+					<div class="section-header">
+						<div class="section-title-wrapper">
+							<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+								 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+								 stroke-linecap="round" stroke-linejoin="round">
+								<line x1="12" y1="1" x2="12" y2="23" />
+								<path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+							</svg>
+							<h2 class="section-title">Financial Summary</h2>
+						</div>
+					</div>
+					<div class="section-body">
+						<div class="financial-grid">
+							<div class="financial-row">
+								<label class="financial-label">Sub Total</label>
+								<SfNumericTextBox Value="@_bill.TotalAfterTax" Readonly="true" TValue="decimal"
+												  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+												  CssClass="custom-numeric readonly-field" />
+							</div>
+
+							<div class="financial-row-dual">
+								<label class="financial-label">Discount</label>
+								<div class="dual-inputs">
+									<SfNumericTextBox Value="@_bill.DiscountPercent" TValue="decimal" Max="100" Min="0"
+													  Decimals="2" ShowSpinButton="false" Placeholder="%"
+													  FloatLabelType="FloatLabelType.Never"
+													  CssClass="custom-numeric editable-field small-input">
+										<NumericTextBoxEvents TValue="decimal" ValueChange="OnDiscountPercentChanged" />
+									</SfNumericTextBox>
+									<SfNumericTextBox Value="@_bill.DiscountAmount" Readonly="true" TValue="decimal"
+													  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+													  CssClass="custom-numeric readonly-field discount-field" />
+								</div>
+							</div>
+
+							<div class="financial-row-dual">
+								<label class="financial-label">Service Charge</label>
+								<div class="dual-inputs">
+									<SfNumericTextBox Value="@_bill.ServiceChargePercent" TValue="decimal" Max="100" Min="0"
+													  Decimals="2" ShowSpinButton="false" Placeholder="%"
+													  FloatLabelType="FloatLabelType.Never"
+													  CssClass="custom-numeric editable-field small-input">
+										<NumericTextBoxEvents TValue="decimal" ValueChange="OnServiceChargePercentChanged" />
+									</SfNumericTextBox>
+									<SfNumericTextBox Value="@_bill.ServiceChargeAmount" Readonly="true" TValue="decimal"
+													  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+													  CssClass="custom-numeric readonly-field" />
+								</div>
+							</div>
+
+							<div class="financial-row">
+								<label class="financial-label">Round Off</label>
+								<SfNumericTextBox Value="@_bill.RoundOffAmount" TValue="decimal" Placeholder="0.00"
+												  FloatLabelType="FloatLabelType.Never" CssClass="custom-numeric editable-field">
+									<NumericTextBoxEvents TValue="decimal" ValueChange="OnRoundOffAmountChanged" />
+								</SfNumericTextBox>
+							</div>
+
+							<div class="financial-row total-row">
+								<label class="financial-label-total">Total Amount</label>
+								<SfNumericTextBox Value="@_bill.TotalAmount" Readonly="true" TValue="decimal"
+												  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+												  CssClass="custom-numeric total-field" />
+							</div>
+
+							<div class="financial-divider"></div>
+
+							<div class="financial-row-dual">
+								<SfDropDownList TValue="PaymentModeModel" TItem="PaymentModeModel"
+												@bind-Value="_selectedPaymentMethod" DataSource="@_paymentMethods"
+												Placeholder="Mode" CssClass="custom-autocomplete small-input"
+												FloatLabelType="FloatLabelType.Never">
+									<DropDownListFieldSettings Text="Name" />
+								</SfDropDownList>
+								<div class="dual-inputs">
+									<SfNumericTextBox @bind-Value="_paymentAmount" TValue="decimal" Min="0"
+													  ShowSpinButton="false" Placeholder="Pay Amt"
+													  FloatLabelType="FloatLabelType.Never"
+													  CssClass="custom-numeric editable-field small-input" />
+									<IconButton Icon="IconType.Add" Variant="ButtonVariant.Add" Text="Add"
+												Title="Add Payment" Disabled="@(_isProcessing || _paymentAmount <= 0 || _selectedPaymentMethod is null || _selectedPaymentMethod.Id <= 0)"
+												OnClick="AddPayment" />
+								</div>
+							</div>
+
+							@if (_payments.Any())
+							{
+								<div class="financial-divider"></div>
+								@foreach (var payment in _payments)
+								{
+									<div class="financial-row">
+										<label class="financial-label">@payment.Method</label>
+										<div class="dual-inputs">
+											<SfNumericTextBox Value="@payment.Amount" TValue="decimal" Readonly="true"
+															  ShowSpinButton="false" Placeholder="0.00"
+															  FloatLabelType="FloatLabelType.Never"
+															  CssClass="custom-numeric readonly-field small-input" />
+											<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid"
+														Title="Remove Payment" Disabled="@_isProcessing"
+														OnClick="() => RemovePayment(payment)" />
+										</div>
+									</div>
+								}
+							}
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+							 stroke-linejoin="round">
+							<circle cx="9" cy="21" r="1" />
+							<circle cx="20" cy="21" r="1" />
+							<path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+						</svg>
+						<h2 class="section-title">Add Item to Cart</h2>
+					</div>
+				</div>
+				<div class="section-body">
+					<div class="cart-input-row">
+						<div class="cart-field cart-field-wide">
+							<label class="cart-label">Item <span class="required">*</span></label>
+							<SfAutoComplete @ref="_sfItemAutoComplete" Value="@_selectedProduct"
+											TValue="ProductLocationOverviewModel" TItem="ProductLocationOverviewModel"
+											DataSource="@_products" Placeholder="Select Item (Ctrl + E)"
+											FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
+											FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
+								<AutoCompleteEvents TItem="ProductLocationOverviewModel"
+													TValue="ProductLocationOverviewModel" ValueChange="OnItemChanged" />
+								<AutoCompleteFieldSettings Value="Name" />
+							</SfAutoComplete>
+						</div>
+
+						<div class="cart-field">
+							<label class="cart-label">Qty <span class="required">*</span></label>
+							<SfNumericTextBox Value="@_selectedCart.Quantity" TValue="decimal" Min="0"
+											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+											  CssClass="custom-numeric editable-field">
+								<NumericTextBoxEvents TValue="decimal" ValueChange="OnItemQuantityChanged" />
+							</SfNumericTextBox>
+						</div>
+
+						<div class="cart-field">
+							<label class="cart-label">Rate <span class="required">*</span></label>
+							<SfNumericTextBox Value="@_selectedCart.Rate" TValue="decimal" Min="0" ShowSpinButton="false"
+											  Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+											  CssClass="custom-numeric editable-field">
+								<NumericTextBoxEvents TValue="decimal" ValueChange="OnItemRateChanged" />
+							</SfNumericTextBox>
+						</div>
+
+						<div class="cart-field">
+							<label class="cart-label">Disc %</label>
+							<SfNumericTextBox Value="@_selectedCart.DiscountPercent" TValue="decimal" Decimals="2" Min="0"
+											  Max="100" ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+											  CssClass="custom-numeric editable-field">
+								<NumericTextBoxEvents TValue="decimal" ValueChange="OnItemDiscountPercentChanged" />
+							</SfNumericTextBox>
+						</div>
+
+						<div class="cart-field">
+							<label class="cart-label">CGST %</label>
+							<SfNumericTextBox Value="@_selectedCart.CGSTPercent" TValue="decimal" Decimals="2" Min="0"
+											  Max="100" ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+											  CssClass="custom-numeric editable-field">
+								<NumericTextBoxEvents TValue="decimal" ValueChange="OnItemCGSTPercentChanged" />
+							</SfNumericTextBox>
+						</div>
+
+						<div class="cart-field">
+							<label class="cart-label">SGST %</label>
+							<SfNumericTextBox Value="@_selectedCart.SGSTPercent" TValue="decimal" Decimals="2" Min="0"
+											  Max="100" ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+											  CssClass="custom-numeric editable-field">
+								<NumericTextBoxEvents TValue="decimal" ValueChange="OnItemSGSTPercentChanged" />
+							</SfNumericTextBox>
+						</div>
+
+						<div class="cart-field">
+							<label class="cart-label">IGST %</label>
+							<SfNumericTextBox Value="@_selectedCart.IGSTPercent" TValue="decimal" Decimals="2" Min="0"
+											  Max="100" ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+											  CssClass="custom-numeric editable-field">
+								<NumericTextBoxEvents TValue="decimal" ValueChange="OnItemIGSTPercentChanged" />
+							</SfNumericTextBox>
+						</div>
+
+						<div class="cart-field">
+							<div class="checkbox-wrapper">
+								<SfCheckBox @bind-Checked="_selectedCart.InclusiveTax" Label="Tax Incl." TChecked="bool"
+											ValueChange="OnItemInclusiveTaxChanged" CssClass="custom-checkbox" />
+							</div>
+						</div>
+
+						<div class="cart-field"></div>
+					</div>
+
+					<div class="cart-input-row">
+						<div class="cart-field cart-field-wide">
+							<label class="cart-label">Remarks</label>
+							<SfTextBox @bind-Value="_selectedCart.Remarks" Placeholder="Item Narration..."
+									   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+						</div>
+
+						<div class="cart-field"></div>
+
+						<div class="cart-field">
+							<label class="cart-label">Base</label>
+							<SfNumericTextBox Value="@_selectedCart.BaseTotal" Readonly="true" TValue="decimal"
+											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+											  CssClass="custom-numeric readonly-field" />
+						</div>
+
+						<div class="cart-field">
+							<label class="cart-label">Disc Amt</label>
+							<SfNumericTextBox Value="@_selectedCart.DiscountAmount" Readonly="true" TValue="decimal"
+											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+											  CssClass="custom-numeric readonly-field" />
+						</div>
+
+						<div class="cart-field">
+							<label class="cart-label">CGST Amt</label>
+							<SfNumericTextBox Value="@_selectedCart.CGSTAmount" Readonly="true" TValue="decimal"
+											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+											  CssClass="custom-numeric readonly-field" />
+						</div>
+
+						<div class="cart-field">
+							<label class="cart-label">SGST Amt</label>
+							<SfNumericTextBox Value="@_selectedCart.SGSTAmount" Readonly="true" TValue="decimal"
+											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+											  CssClass="custom-numeric readonly-field" />
+						</div>
+
+						<div class="cart-field">
+							<label class="cart-label">IGST Amt</label>
+							<SfNumericTextBox Value="@_selectedCart.IGSTAmount" Readonly="true" TValue="decimal"
+											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+											  CssClass="custom-numeric readonly-field" />
+						</div>
+
+						<div class="cart-field">
+							<label class="cart-label">Total</label>
+							<SfNumericTextBox Value="@_selectedCart.Total" Readonly="true" TValue="decimal"
+											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+											  CssClass="custom-numeric readonly-field" />
+						</div>
+
+						<div class="cart-field">
+							<label class="cart-label">&nbsp;</label>
+							<IconButton Icon="IconType.Add" Variant="ButtonVariant.Add" Text="Add" Title="Add to Cart"
+										OnClick="AddItemToCart" />
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+							 stroke-linejoin="round">
+							<path d="M3 3h7a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3H3V3z" />
+							<path d="M14 3h7v17h-7V3z" />
+						</svg>
+						<h2 class="section-title">Bill Items</h2>
+					</div>
+				</div>
+				<div class="section-body grid-body">
+					<SfGrid ID="_sfCartGrid" @ref="_sfCartGrid" DataSource="_cart" AllowTextWrap="true" AllowPaging="false"
+							AllowSorting="true" AllowResizing="true" AllowFiltering="true" GridLines="GridLine.Horizontal"
+							CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
+
+						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+						<GridAggregates>
+							<GridAggregate>
+								<GridAggregateColumns>
+									<GridAggregateColumn Field="ItemName" Type="AggregateType.Count">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+											}
+											<div class="aggregate-label">
+												<strong>Total Items: @aggregate.Count</strong>
+											</div>
+										</FooterTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="Quantity" Type="AggregateType.Sum">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
+											}
+											<div class="aggregate-value">
+												<strong>@sum.ToString("N2")</strong>
+											</div>
+										</FooterTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="BaseTotal" Type="AggregateType.Sum">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
+											}
+											<div class="aggregate-value">
+												<strong>@sum.ToString("N2")</strong>
+											</div>
+										</FooterTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="DiscountAmount" Type="AggregateType.Sum">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
+											}
+											<div class="aggregate-value aggregate-discount">
+												<strong>@sum.ToString("N2")</strong>
+											</div>
+										</FooterTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="AfterDiscount" Type="AggregateType.Sum">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
+											}
+											<div class="aggregate-value">
+												<strong>@sum.ToString("N2")</strong>
+											</div>
+										</FooterTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="CGSTAmount" Type="AggregateType.Sum">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
+											}
+											<div class="aggregate-value">
+												<strong>@sum.ToString("N2")</strong>
+											</div>
+										</FooterTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="SGSTAmount" Type="AggregateType.Sum">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
+											}
+											<div class="aggregate-value">
+												<strong>@sum.ToString("N2")</strong>
+											</div>
+										</FooterTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="IGSTAmount" Type="AggregateType.Sum">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
+											}
+											<div class="aggregate-value">
+												<strong>@sum.ToString("N2")</strong>
+											</div>
+										</FooterTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="TotalTaxAmount" Type="AggregateType.Sum">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
+											}
+											<div class="aggregate-value">
+												<strong>@sum.ToString("N2")</strong>
+											</div>
+										</FooterTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="Total" Type="AggregateType.Sum">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
+											}
+											<div class="aggregate-value aggregate-total">
+												<strong>@sum.ToString("N2")</strong>
+											</div>
+										</FooterTemplate>
+									</GridAggregateColumn>
+								</GridAggregateColumns>
+							</GridAggregate>
+						</GridAggregates>
+
+						<GridColumns>
+							<GridColumn HeaderText="Actions" Width="100" TextAlign="TextAlign.Center">
+								<Template>
+									@{
+										var item = (context as BillItemCartModel);
+										<div class="grid-actions">
+											<IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid"
+														Title="Edit Item (Insert)" OnClick="@(() => EditCartItem(item))" />
+											<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete"
+														Size="ButtonSize.Grid" Title="Remove Item (Del)"
+														OnClick="@(() => RemoveItemFromCart(item))" />
+										</div>
+									}
+								</Template>
+							</GridColumn>
+							<GridColumn Field="ItemName" HeaderText="Item Name" Width="200" />
+							<GridColumn Field="Quantity" HeaderText="Qty" Width="100" TextAlign="TextAlign.Right"
+										Format="N2" />
+							<GridColumn Field="Rate" HeaderText="Rate" Width="110" TextAlign="TextAlign.Right"
+										Format="N2" />
+							<GridColumn Field="BaseTotal" HeaderText="Base Total" Width="150" TextAlign="TextAlign.Right"
+										Format="N2" />
+							<GridColumn Field="DiscountPercent" HeaderText="Disc %" Width="120" TextAlign="TextAlign.Right"
+										Format="N2" />
+							<GridColumn Field="DiscountAmount" HeaderText="Disc Amt" Width="140" TextAlign="TextAlign.Right"
+										Format="N2">
+								<Template>
+									@{
+										var item = (context as BillItemCartModel);
+										<span class="grid-discount">@item.DiscountAmount.ToString("N2")</span>
+									}
+								</Template>
+							</GridColumn>
+							<GridColumn Field="AfterDiscount" HeaderText="After Disc" Width="140"
+										TextAlign="TextAlign.Right" Format="N2" />
+							<GridColumn Field="CGSTPercent" HeaderText="CGST %" Width="140" TextAlign="TextAlign.Right"
+										Format="N2" />
+							<GridColumn Field="CGSTAmount" HeaderText="CGST Amt" Width="150" TextAlign="TextAlign.Right"
+										Format="N2" />
+							<GridColumn Field="SGSTPercent" HeaderText="SGST %" Width="140" TextAlign="TextAlign.Right"
+										Format="N2" />
+							<GridColumn Field="SGSTAmount" HeaderText="SGST Amt" Width="150" TextAlign="TextAlign.Right"
+										Format="N2" />
+							<GridColumn Field="IGSTPercent" HeaderText="IGST %" Width="140" TextAlign="TextAlign.Right"
+										Format="N2" />
+							<GridColumn Field="IGSTAmount" HeaderText="IGST Amt" Width="150" TextAlign="TextAlign.Right"
+										Format="N2" />
+							<GridColumn Field="TotalTaxAmount" HeaderText="Tax Total" Width="150"
+										TextAlign="TextAlign.Right" Format="N2" />
+							<GridColumn Field="InclusiveTax" HeaderText="Tax Incl." Width="100"
+										TextAlign="TextAlign.Center">
+								<Template>
+									@{
+										var item = (context as BillItemCartModel);
+										<span class="grid-checkbox">@(item.InclusiveTax ? "✓" : "–")</span>
+									}
+								</Template>
+							</GridColumn>
+							<GridColumn Field="Total" HeaderText="Total" Width="130" TextAlign="TextAlign.Right"
+										Format="N2">
+								<Template>
+									@{
+										var item = (context as BillItemCartModel);
+										<span class="grid-total">@item.Total.ToString("N2")</span>
+									}
+								</Template>
+							</GridColumn>
+							<GridColumn Field="Remarks" HeaderText="Remarks" Width="150" />
+						</GridColumns>
+					</SfGrid>
+				</div>
+			</div>
+		</div>
+
+		<Footer />
+	</div>
+}
+
+<ToastNotification @ref="_toastNotification" />

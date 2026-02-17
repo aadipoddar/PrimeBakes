@@ -3,9 +3,10 @@
 	@Name VARCHAR(500),
 	@Passcode SMALLINT,
 	@LocationId INT,
-	@Store BIT,
-	@Inventory BIT,
 	@Accounts BIT,
+	@Inventory BIT,
+	@Store BIT,
+	@Restaurant BIT,
 	@Reports BIT,
 	@Admin BIT,
 	@Remarks VARCHAR(MAX),
@@ -14,8 +15,34 @@ AS
 BEGIN
 	IF @Id = 0
 	BEGIN
-		INSERT INTO [dbo].[User] (Name, Passcode, LocationId, Store, Inventory, Accounts, Reports, Admin, Remarks, Status)
-		VALUES (@Name, @Passcode, @LocationId, @Store, @Inventory, @Accounts, @Reports, @Admin, @Remarks, @Status);
+		INSERT INTO [dbo].[User]
+		(
+			Name,
+			Passcode,
+			LocationId,
+			Accounts,
+			Inventory,
+			Store,
+			Restaurant,
+			Reports,
+			Admin,
+			Remarks,
+			Status
+		)
+		VALUES
+		(
+			@Name,
+			@Passcode,
+			@LocationId,
+			@Accounts, 
+			@Inventory, 
+			@Store, 
+			@Restaurant, 
+			@Reports,
+			@Admin, 
+			@Remarks, 
+			@Status
+		);
 
 		SET @Id = SCOPE_IDENTITY();
 	END
@@ -26,9 +53,10 @@ BEGIN
 		SET Name = @Name,
 			Passcode = @Passcode,
 			LocationId = @LocationId,
-			Store = @Store,
-			Inventory = @Inventory,
 			Accounts = @Accounts,
+			Inventory = @Inventory,
+			Store = @Store,
+			Restaurant = @Restaurant,
 			Reports = @Reports,
 			Admin = @Admin,
 			Remarks = @Remarks,

@@ -396,7 +396,7 @@ public partial class LocationPage : IAsyncDisposable
         NavigationManager.NavigateTo(PageRouteNames.Location, true);
 
     private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.AdminDashboard);
+        NavigationManager.NavigateTo(PageRouteNames.OperationsDashboard);
 
     private void NavigateToDashboard() =>
         NavigationManager.NavigateTo(PageRouteNames.Dashboard);

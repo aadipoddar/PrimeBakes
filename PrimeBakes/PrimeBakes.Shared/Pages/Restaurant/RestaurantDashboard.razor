@@ -1,0 +1,75 @@
+﻿@attribute [Route(PageRouteNames.RestaurantDashboard)]
+@namespace PrimeBakes.Shared.Pages.Restaurant
+
+@using PrimeBakesLibrary.Models.Operations
+
+<PageTitle>Restaurant - Prime Bakes</PageTitle>
+
+@if (_isLoading)
+{
+	<AnimatedLoader Visible="true" />
+}
+else
+{
+	<div class="page-shell">
+		<Header Title="Restaurant Dashboard"
+				Subtitle="Access all restaurant modules"
+				ShowLogout="true"
+				ShowHome="true"
+				OnLogoutClick="Logout"
+				OnHomeClick="NavigateToDashboard" />
+
+		<div class="page-container">
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M3 2v7a3 3 0 0 0 6 0V2" />
+							<path d="M7 2v20" />
+							<path d="M14 2v8a2 2 0 0 0 4 0V2" />
+							<path d="M18 2v20" />
+						</svg>
+						<h2 class="section-title">Restaurant Operations</h2>
+					</div>
+					<p class="section-subtitle">Manage dining and billing</p>
+				</div>
+				<div class="section-body">
+					<div class="dashboard-grid">
+						<ButtonCard Title="Dining Dashboard" Description="Access dining area and table operations" Color="blue"
+									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.DiningDashboard)">
+							<IconContent>
+								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<rect x="3" y="3" width="8" height="8" rx="1" />
+									<rect x="13" y="3" width="8" height="8" rx="1" />
+									<rect x="3" y="13" width="8" height="8" rx="1" />
+									<rect x="13" y="13" width="8" height="8" rx="1" />
+								</svg>
+							</IconContent>
+						</ButtonCard>
+
+						<ButtonCard Title="Bill" Description="Create and manage restaurant bills" Color="green"
+									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.Bill)">
+							<IconContent>
+								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<path d="M6 2h12v20l-2.5-1.8L13 22l-2.5-1.8L8 22l-2-1.8V2z" />
+									<line x1="9" y1="7" x2="15" y2="7" />
+									<line x1="9" y1="11" x2="15" y2="11" />
+									<line x1="9" y1="15" x2="13" y2="15" />
+									<circle cx="17" cy="15" r="3" />
+									<path d="M16 15h2" />
+								</svg>
+							</IconContent>
+						</ButtonCard>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<Footer />
+	</div>
+}

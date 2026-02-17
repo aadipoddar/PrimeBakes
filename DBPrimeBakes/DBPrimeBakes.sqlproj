@@ -118,6 +118,13 @@
     <Folder Include="StoredProcedures\LoadData\Store\Product" />
     <Folder Include="Views\Store\Product" />
     <Folder Include="PublishLocation" />
+    <Folder Include="Tables\Restaurant" />
+    <Folder Include="Tables\Restaurant\Dining" />
+    <Folder Include="Tables\Restaurant\Bill" />
+    <Folder Include="StoredProcedures\Insert\Restaurant" />
+    <Folder Include="StoredProcedures\Insert\Restaurant\Bill" />
+    <Folder Include="StoredProcedures\LoadData\Restaurant" />
+    <Folder Include="StoredProcedures\LoadData\Restaurant\Bill" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="StoredProcedures\Delete\Delete_ProductStock_By_Id.sql" />
@@ -249,9 +256,14 @@
     <Build Include="StoredProcedures\Insert\Store\Masters\Insert_Customer.sql" />
     <Build Include="StoredProcedures\LoadData\Store\Product\Load_ProductLocation_Overview_By_Product_Location.sql" />
     <Build Include="Views\Store\Product\ProductLocation_Overview.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <RefactorLog Include="DBPrimeBakes.refactorlog" />
+    <Build Include="Tables\Restaurant\Dining\DiningTable.sql" />
+    <Build Include="Tables\Restaurant\Dining\DiningArea.sql" />
+    <Build Include="Tables\Restaurant\Bill\Bill.sql" />
+    <Build Include="Tables\Restaurant\Bill\BillDetail.sql" />
+    <Build Include="StoredProcedures\Insert\Restaurant\Bill\Insert_Bill.sql" />
+    <Build Include="StoredProcedures\Insert\Restaurant\Bill\Insert_BillDetail.sql" />
+    <Build Include="StoredProcedures\Delete\Delete_BillDetail_By_Id.sql" />
+    <Build Include="StoredProcedures\LoadData\Restaurant\Bill\Load_RunningBill_By_LocationId.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="DBPrimeBakes.publish.xml" />

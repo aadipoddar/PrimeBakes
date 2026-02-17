@@ -6,7 +6,7 @@
             @IconContent
         </div>
         <h3 class="card-title">@Title</h3>
-        <p class="card-description">@Description</p>
+        <p class="@DescriptionCssClass">@Description</p>
     </div>
 </SfButton>
 
@@ -32,39 +32,39 @@
         flex-shrink: 0 !important;
     }
 
-        .dashboard-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #3b82f6 0%, #6366f1 100%);
-            transform: scaleX(0);
-            transition: transform 0.3s ease;
-            border-radius: 12px 12px 0 0;
-        }
+    .dashboard-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #3b82f6 0%, #6366f1 100%);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+        border-radius: 12px 12px 0 0;
+    }
 
-        .dashboard-card:hover {
-            transform: translateY(-4px) !important;
-            box-shadow: 0 12px 24px rgba(59, 130, 246, 0.15) !important;
-            border-color: #3b82f6 !important;
-            background: #f8fafc !important;
-        }
+    .dashboard-card:hover {
+        transform: translateY(-4px) !important;
+        box-shadow: 0 12px 24px rgba(59, 130, 246, 0.15) !important;
+        border-color: #3b82f6 !important;
+        background: #f8fafc !important;
+    }
 
-            .dashboard-card:hover::before {
-                transform: scaleX(1);
-            }
+    .dashboard-card:hover::before {
+        transform: scaleX(1);
+    }
 
-        .dashboard-card:active {
-            transform: translateY(-2px) !important;
-            box-shadow: 0 8px 16px rgba(59, 130, 246, 0.2) !important;
-        }
+    .dashboard-card:active {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 16px rgba(59, 130, 246, 0.2) !important;
+    }
 
-        .dashboard-card:focus {
-            outline: 2px solid #3b82f6 !important;
-            outline-offset: 2px !important;
-        }
+    .dashboard-card:focus {
+        outline: 2px solid #3b82f6 !important;
+        outline-offset: 2px !important;
+    }
 
     /* Card Content Structure */
     .card-content {
@@ -111,6 +111,68 @@
         white-space: normal;
         overflow-wrap: anywhere;
         word-break: break-word;
+    }
+
+    .card-description-preline {
+        white-space: pre-line;
+    }
+
+    .card-running {
+        background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%) !important;
+        border-color: #fda4af !important;
+    }
+
+    .card-running::before {
+        background: linear-gradient(90deg, #fb7185 0%, #f43f5e 100%);
+        transform: scaleX(1);
+    }
+
+    .card-running .card-title {
+        color: #9f1239;
+    }
+
+    .card-running .card-description {
+        color: #be123c;
+    }
+
+    .card-running .card-icon-wrapper {
+        background: linear-gradient(135deg, #ffe4e6 0%, #fecdd3 100%);
+        color: #e11d48;
+    }
+
+    .card-running:hover {
+        border-color: #fb7185 !important;
+        box-shadow: 0 12px 24px rgba(244, 63, 94, 0.2) !important;
+        background: linear-gradient(135deg, #ffe4e6 0%, #fecdd3 100%) !important;
+    }
+
+    .card-available {
+        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%) !important;
+        border-color: #86efac !important;
+    }
+
+    .card-available::before {
+        background: linear-gradient(90deg, #4ade80 0%, #22c55e 100%);
+        transform: scaleX(1);
+    }
+
+    .card-available .card-title {
+        color: #166534;
+    }
+
+    .card-available .card-description {
+        color: #15803d;
+    }
+
+    .card-available .card-icon-wrapper {
+        background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+        color: #16a34a;
+    }
+
+    .card-available:hover {
+        border-color: #4ade80 !important;
+        box-shadow: 0 12px 24px rgba(34, 197, 94, 0.18) !important;
+        background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%) !important;
     }
 
     /* Color Variations */
@@ -344,3 +406,7 @@
         }
     }
 </style>
+
+@code {
+    private string DescriptionCssClass => PreserveDescriptionLineBreaks ? "card-description card-description-preline" : "card-description";
+}

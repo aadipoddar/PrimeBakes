@@ -369,7 +369,6 @@ public partial class SaleMobilePaymentPage
 			{
 				var content = await SaleThermalPrint.GenerateThermalBill(_sale.Id);
 				await JSRuntime.InvokeVoidAsync("printToPrinter", content.ToString());
-
 				await Task.Delay(2000);
 			}
 
