@@ -6,349 +6,318 @@
 
 @if (_isLoading || _user is null)
 {
-    <AnimatedLoader Visible="true" />
+	<AnimatedLoader Visible="true" />
 }
 else if (_isUpdating)
 {
-    <!-- Update Progress Overlay -->
-    <div class="update-overlay">
-        <div class="update-container">
-            <div class="update-header">
-                <svg class="update-icon" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24"
-                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
-                </svg>
-                <h2 class="update-title">Updating Prime Bakes</h2>
-                <p class="update-subtitle">Please wait while we update your app</p>
-            </div>
+	<!-- Update Progress Overlay -->
+	<div class="update-overlay">
+		<div class="update-container">
+			<div class="update-header">
+				<svg class="update-icon" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24"
+					 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
+				</svg>
+				<h2 class="update-title">Updating Prime Bakes</h2>
+				<p class="update-subtitle">Please wait while we update your app</p>
+			</div>
 
-            <div class="update-progress-section">
-                <div class="progress-info">
-                    <span class="progress-label">Progress</span>
-                    <span class="progress-percentage">@_updateProgress%</span>
-                </div>
-                <div class="progress-bar-container">
-                    <div class="progress-bar-fill" style="width: @(_updateProgress)%"></div>
-                </div>
-                <div class="time-remaining">
-                    @if (_timeRemaining > 0)
-                    {
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10" />
-                            <polyline points="12 6 12 12 16 14" />
-                        </svg>
-                        <span>Estimated time: @_timeRemaining seconds</span>
-                    }
-                    else
-                    {
-                        <span>Calculating...</span>
-                    }
-                </div>
-            </div>
+			<div class="update-progress-section">
+				<div class="progress-info">
+					<span class="progress-label">Progress</span>
+					<span class="progress-percentage">@_updateProgress%</span>
+				</div>
+				<div class="progress-bar-container">
+					<div class="progress-bar-fill" style="width: @(_updateProgress)%"></div>
+				</div>
+				<div class="time-remaining">
+					@if (_timeRemaining > 0)
+					{
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+							 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<circle cx="12" cy="12" r="10" />
+							<polyline points="12 6 12 12 16 14" />
+						</svg>
+						<span>Estimated time: @_timeRemaining seconds</span>
+					}
+					else
+					{
+						<span>Calculating...</span>
+					}
+				</div>
+			</div>
 
-            <div class="update-status">
-                <div class="status-dot"></div>
-                <span>@_updateStatus</span>
-            </div>
-        </div>
-    </div>
+			<div class="update-status">
+				<div class="status-dot"></div>
+				<span>@_updateStatus</span>
+			</div>
+		</div>
+	</div>
 }
 else
 {
-    <div class="page-shell">
-        <Header Title="Main Dashboard"
-                Subtitle="Quick access to all modules and operations"
-                UserName="@_user?.Name"
-                ShowLogout="true"
-                OnLogoutClick="Logout" />
+	<div class="page-shell">
+		<Header Title="Main Dashboard"
+				Subtitle="Quick access to all modules and operations"
+				UserName="@_user?.Name"
+				ShowLogout="true"
+				OnLogoutClick="Logout" />
 
-        <!-- Main Content Container -->
-        <div class="page-container">
-            @if (Factor != "Desktop")
-            {
-                <!-- Row 1: Mobile Cards -->
-                <div class="dashboard-grid">
-                    <!-- Order Mobile -->
-                    @if (_user.Store)
-                    {
-                        <ButtonCard Title="Order" Description="Create orders on mobile" Color="blue" OnClick="() => NavigationManager.NavigateTo(PageRouteNames.OrderMobile)">
-                            <IconContent>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round">
-                                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-                                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
-                                </svg>
-                            </IconContent>
-                        </ButtonCard>
+		<!-- Main Content Container -->
+		<div class="page-container">
 
-                        <!-- Sale Mobile -->
-                        <ButtonCard Title="Sale" Description="Process sales on mobile" Color="emerald" OnClick="() => NavigationManager.NavigateTo(PageRouteNames.SaleMobile)">
-                            <IconContent>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round">
-                                    <circle cx="9" cy="21" r="1" />
-                                    <circle cx="20" cy="21" r="1" />
-                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-                                </svg>
-                            </IconContent>
-                        </ButtonCard>
-                    }
-                </div>
-            }
+			<div class="dashboard-grid">
+				@if (Factor != "Phone")
+				{
+					<!-- Accounts -->
+					@if (_user.Accounts)
+					{
+						<ButtonCard Title="Accounts" Description="Access accounting dashboard" Color="purple" OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard)">
+							<IconContent>
+								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<line x1="12" y1="1" x2="12" y2="23" />
+									<path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+								</svg>
+							</IconContent>
+						</ButtonCard>
+					}
 
-            @if (Factor != "Phone")
-            {
-                <!-- Row 2: Other Dashboards -->
-                <div class="dashboard-grid">
-                    <!-- Accounts -->
-                    @if (_user.Accounts)
-                    {
-                        <ButtonCard Title="Accounts" Description="Access accounting dashboard" Color="purple" OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard)">
-                            <IconContent>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round">
-                                    <line x1="12" y1="1" x2="12" y2="23" />
-                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                                </svg>
-                            </IconContent>
-                        </ButtonCard>
-                    }
+					<!-- Inventory -->
+					@if (_user.Inventory)
+					{
+						<ButtonCard Title="Inventory" Description="Access inventory dashboard" Color="orange" OnClick="() => NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard)">
+							<IconContent>
+								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+									<polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+									<line x1="12" y1="22.08" x2="12" y2="12" />
+								</svg>
+							</IconContent>
+						</ButtonCard>
+					}
+				}
 
-                    <!-- Inventory -->
-                    @if (_user.Inventory)
-                    {
-                        <ButtonCard Title="Inventory" Description="Access inventory dashboard" Color="orange" OnClick="() => NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard)">
-                            <IconContent>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round">
-                                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-                                    <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-                                    <line x1="12" y1="22.08" x2="12" y2="12" />
-                                </svg>
-                            </IconContent>
-                        </ButtonCard>
-                    }
+				<!-- Store -->
+				@if (_user.Store)
+				{
+					<ButtonCard Title="Store" Description="Access store dashboard" Color="green" OnClick="() => NavigationManager.NavigateTo(PageRouteNames.StoreDashboard)">
+						<IconContent>
+							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+								 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+								 stroke-linejoin="round">
+								<path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" />
+								<path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+								<path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" />
+								<path d="M2 7h20" />
+								<path d="M22 7v3a2 2 0 0 1-2 2v0a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12v0a2 2 0 0 1-2-2V7" />
+							</svg>
+						</IconContent>
+					</ButtonCard>
+				}
 
-                    <!-- Store -->
-                    @if (_user.Store)
-                    {
-                        <ButtonCard Title="Store" Description="Access store dashboard" Color="green" OnClick="() => NavigationManager.NavigateTo(PageRouteNames.StoreDashboard)">
-                            <IconContent>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round">
-                                    <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" />
-                                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-                                    <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" />
-                                    <path d="M2 7h20" />
-                                    <path d="M22 7v3a2 2 0 0 1-2 2v0a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12v0a2 2 0 0 1-2-2V7" />
-                                </svg>
-                            </IconContent>
-                        </ButtonCard>
-                    }
+				<!-- Restaurant -->
+				@if (_user.Restaurant)
+				{
+					<ButtonCard Title="Restaurant" Description="Access restaurant dashboard" Color="red" OnClick="() => NavigationManager.NavigateTo(PageRouteNames.RestaurantDashboard)">
+						<IconContent>
+							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+								 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+								 stroke-linejoin="round">
+								<path d="M3 2v7a3 3 0 0 0 6 0V2" />
+								<path d="M7 2v20" />
+								<path d="M14 2v8a2 2 0 0 0 4 0V2" />
+								<path d="M18 2v20" />
+							</svg>
+						</IconContent>
+					</ButtonCard>
+				}
 
-                    <!-- Restaurant -->
-                    @if (_user.Restaurant)
-                    {
-                        <ButtonCard Title="Restaurant" Description="Access restaurant dashboard" Color="red" OnClick="() => NavigationManager.NavigateTo(PageRouteNames.RestaurantDashboard)">
-                            <IconContent>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round">
-                                    <path d="M3 2v7a3 3 0 0 0 6 0V2" />
-                                    <path d="M7 2v20" />
-                                    <path d="M14 2v8a2 2 0 0 0 4 0V2" />
-                                    <path d="M18 2v20" />
-                                </svg>
-                            </IconContent>
-                        </ButtonCard>
-                    }
+				@if (Factor != "Phone")
+				{
+					<!-- Operations -->
+					@if (_user.Admin)
+					{
+						<ButtonCard Title="Operations" Description="Access operations dashboard" Color="indigo" OnClick="() => NavigationManager.NavigateTo(PageRouteNames.OperationsDashboard)">
+							<IconContent>
+								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<circle cx="12" cy="12" r="3" />
+									<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+								</svg>
+							</IconContent>
+						</ButtonCard>
+					}
 
-                    <!-- Operations -->
-                    @if (_user.Admin)
-                    {
-                        <ButtonCard Title="Operations" Description="Access operations dashboard" Color="indigo" OnClick="() => NavigationManager.NavigateTo(PageRouteNames.OperationsDashboard)">
-                            <IconContent>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="3" />
-                                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                                </svg>
-                            </IconContent>
-                        </ButtonCard>
-                    }
+					<!-- Reports -->
+					@if (_user.Reports)
+					{
+						<ButtonCard Title="Reports" Description="Access reports dashboard" Color="teal" OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportDashboard)">
+							<IconContent>
+								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<path d="M3 3v18h18" />
+									<path d="M18 17V9" />
+									<path d="M13 17V5" />
+									<path d="M8 17v-3" />
+								</svg>
+							</IconContent>
+						</ButtonCard>
+					}
+				}
+			</div>
 
-                    <!-- Reports -->
-                    @if (_user.Reports)
-                    {
-                        <ButtonCard Title="Reports" Description="Access reports dashboard" Color="teal" OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportDashboard)">
-                            <IconContent>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round">
-                                    <path d="M3 3v18h18" />
-                                    <path d="M18 17V9" />
-                                    <path d="M13 17V5" />
-                                    <path d="M8 17v-3" />
-                                </svg>
-                            </IconContent>
-                        </ButtonCard>
-                    }
-                </div>
-            }
+		</div>
 
-        </div>
-
-        <Footer />
-    </div>
+		<Footer />
+	</div>
 }
 
 <style>
-    /* Update Progress Overlay */
-    .update-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.95) 0%, rgba(99, 102, 241, 0.95) 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 10000;
-        animation: fadeIn 0.3s ease;
-    }
+	/* Update Progress Overlay */
+	.update-overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: linear-gradient(135deg, rgba(59, 130, 246, 0.95) 0%, rgba(99, 102, 241, 0.95) 100%);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 10000;
+		animation: fadeIn 0.3s ease;
+	}
 
-    .update-container {
-        background: #ffffff;
-        border-radius: 20px;
-        padding: 40px;
-        max-width: 500px;
-        width: 90%;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        animation: slideUp 0.4s ease;
-    }
+	.update-container {
+		background: #ffffff;
+		border-radius: 20px;
+		padding: 40px;
+		max-width: 500px;
+		width: 90%;
+		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+		animation: slideUp 0.4s ease;
+	}
 
-    .update-header {
-        text-align: center;
-        margin-bottom: 32px;
-    }
+	.update-header {
+		text-align: center;
+		margin-bottom: 32px;
+	}
 
-    .update-icon {
-        color: #3b82f6;
-        margin-bottom: 16px;
-        animation: rotate 2s linear infinite;
-    }
+	.update-icon {
+		color: #3b82f6;
+		margin-bottom: 16px;
+		animation: rotate 2s linear infinite;
+	}
 
-    .update-title {
-        font-size: 24px;
-        font-weight: 600;
-        color: #0f172a;
-        margin: 0 0 8px 0;
-        letter-spacing: -0.5px;
-    }
+	.update-title {
+		font-size: 24px;
+		font-weight: 600;
+		color: #0f172a;
+		margin: 0 0 8px 0;
+		letter-spacing: -0.5px;
+	}
 
-    .update-subtitle {
-        font-size: 14px;
-        color: #64748b;
-        margin: 0;
-        font-weight: 400;
-    }
+	.update-subtitle {
+		font-size: 14px;
+		color: #64748b;
+		margin: 0;
+		font-weight: 400;
+	}
 
-    .update-progress-section {
-        margin-bottom: 24px;
-    }
+	.update-progress-section {
+		margin-bottom: 24px;
+	}
 
-    .progress-info {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 12px;
-    }
+	.progress-info {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 12px;
+	}
 
-    .progress-label {
-        font-size: 14px;
-        color: #475569;
-        font-weight: 500;
-    }
+	.progress-label {
+		font-size: 14px;
+		color: #475569;
+		font-weight: 500;
+	}
 
-    .progress-percentage {
-        font-size: 20px;
-        font-weight: 700;
-        color: #3b82f6;
-        letter-spacing: -0.5px;
-    }
+	.progress-percentage {
+		font-size: 20px;
+		font-weight: 700;
+		color: #3b82f6;
+		letter-spacing: -0.5px;
+	}
 
-    .progress-bar-container {
-        height: 12px;
-        background: #e2e8f0;
-        border-radius: 12px;
-        overflow: hidden;
-        margin-bottom: 12px;
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
-    }
+	.progress-bar-container {
+		height: 12px;
+		background: #e2e8f0;
+		border-radius: 12px;
+		overflow: hidden;
+		margin-bottom: 12px;
+		box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+	}
 
-    .progress-bar-fill {
-        height: 100%;
-        background: linear-gradient(90deg, #3b82f6 0%, #6366f1 100%);
-        border-radius: 12px;
-        transition: width 0.3s ease;
-        position: relative;
-        overflow: hidden;
-    }
+	.progress-bar-fill {
+		height: 100%;
+		background: linear-gradient(90deg, #3b82f6 0%, #6366f1 100%);
+		border-radius: 12px;
+		transition: width 0.3s ease;
+		position: relative;
+		overflow: hidden;
+	}
 
-        .progress-bar-fill::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            right: 0;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            animation: shimmer 1.5s infinite;
-        }
+		.progress-bar-fill::after {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			bottom: 0;
+			right: 0;
+			background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+			animation: shimmer 1.5s infinite;
+		}
 
-    .time-remaining {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 13px;
-        color: #64748b;
-        justify-content: center;
-    }
+	.time-remaining {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		font-size: 13px;
+		color: #64748b;
+		justify-content: center;
+	}
 
-        .time-remaining svg {
-            color: #94a3b8;
-        }
+		.time-remaining svg {
+			color: #94a3b8;
+		}
 
-    .update-status {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        justify-content: center;
-        padding: 16px;
-        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-        border-radius: 12px;
-        border: 1px solid #bae6fd;
-    }
+	.update-status {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		justify-content: center;
+		padding: 16px;
+		background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+		border-radius: 12px;
+		border: 1px solid #bae6fd;
+	}
 
-    .status-dot {
-        width: 8px;
-        height: 8px;
-        background: #3b82f6;
-        border-radius: 50%;
-        animation: pulse 1.5s ease-in-out infinite;
-    }
+	.status-dot {
+		width: 8px;
+		height: 8px;
+		background: #3b82f6;
+		border-radius: 50%;
+		animation: pulse 1.5s ease-in-out infinite;
+	}
 
-    .update-status span {
-        font-size: 14px;
-        color: #0c4a6e;
-        font-weight: 500;
-    }
+	.update-status span {
+		font-size: 14px;
+		color: #0c4a6e;
+		font-weight: 500;
+	}
 </style>

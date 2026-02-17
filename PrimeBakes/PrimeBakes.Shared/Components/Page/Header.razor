@@ -123,10 +123,25 @@
     /* Hide title and subtitle on smaller displays (phones) */
     @@media (max-width: 768px) {
         .page-header {
-            grid-template-columns: auto 1fr;
+            grid-template-columns: auto 1fr auto;
+            gap: 8px;
+            padding: 8px 12px;
         }
 
         .header-center {
+            display: block;
+            text-align: center;
+            min-width: 0;
+        }
+
+        .page-title {
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .page-subtitle {
             display: none;
         }
 

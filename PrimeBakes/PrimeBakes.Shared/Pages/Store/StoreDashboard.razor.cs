@@ -6,38 +6,41 @@ namespace PrimeBakes.Shared.Pages.Store;
 
 public partial class StoreDashboard : IAsyncDisposable
 {
-    private HotKeysContext _hotKeysContext;
+	private HotKeysContext _hotKeysContext;
 
-    private bool _isLoading = true;
-    private UserModel _user;
+	private bool _isLoading = true;
+	private UserModel _user;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!firstRender)
-            return;
+	private string Factor =>
+		FormFactor.GetFormFactor();
 
-        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Store]);
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (!firstRender)
+			return;
 
-        _hotKeysContext = HotKeys.CreateContext()
-            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
-            .Add(ModCode.Ctrl, Code.B, NavigateToDashboard, "Back", Exclude.None)
-            .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Dashboard", Exclude.None);
+		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Store]);
 
-        _isLoading = false;
-        StateHasChanged();
-    }
+		_hotKeysContext = HotKeys.CreateContext()
+			.Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
+			.Add(ModCode.Ctrl, Code.B, NavigateToDashboard, "Back", Exclude.None)
+			.Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Dashboard", Exclude.None);
 
-    private void NavigateToDashboard() =>
-        NavigationManager.NavigateTo(PageRouteNames.Dashboard);
+		_isLoading = false;
+		StateHasChanged();
+	}
 
-    private async Task Logout() =>
-        await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
+	private void NavigateToDashboard() =>
+		NavigationManager.NavigateTo(PageRouteNames.Dashboard);
 
-    public async ValueTask DisposeAsync()
-    {
-        if (_hotKeysContext is not null)
-            await _hotKeysContext.DisposeAsync();
+	private async Task Logout() =>
+		await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 
-        GC.SuppressFinalize(this);
-    }
+	public async ValueTask DisposeAsync()
+	{
+		if (_hotKeysContext is not null)
+			await _hotKeysContext.DisposeAsync();
+
+		GC.SuppressFinalize(this);
+	}
 }
