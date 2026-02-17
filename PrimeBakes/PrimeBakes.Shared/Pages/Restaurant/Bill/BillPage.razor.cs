@@ -393,7 +393,7 @@ public partial class BillPage : IAsyncDisposable
 			if (Id.HasValue && Id.Value == existingBill.Id)
 				return await LoadExistingBill(existingBill.Id);
 
-			NavigationManager.NavigateTo($"{PageRouteNames.Bill}/transaction/{existingBill.Id}", true);
+			NavigationManager.NavigateTo($"{PageRouteNames.Bill}/{existingBill.Id}", true);
 			return false;
 		}
 
@@ -635,7 +635,7 @@ public partial class BillPage : IAsyncDisposable
 		var existingRunningBill = runningBills.FirstOrDefault(b => b.DiningTableId == args.Value.Id);
 		if (existingRunningBill is not null)
 		{
-			NavigationManager.NavigateTo($"{PageRouteNames.Bill}/transaction/{existingRunningBill.Id}", true);
+			NavigationManager.NavigateTo($"{PageRouteNames.Bill}/{existingRunningBill.Id}", true);
 			return;
 		}
 
@@ -1146,6 +1146,16 @@ public partial class BillPage : IAsyncDisposable
 				item.KOTPrint = false;
 	}
 
+	private async Task HandleKOTPrint()
+	{
+		if (_cart.Any(item => item.KOTPrint))
+		{
+			var kotPrintStream = await KOTThermalPrint.GenerateThermalBill(_bill.Id);
+			await JSRuntime.InvokeVoidAsync("printToPrinter", kotPrintStream.ToString());
+			await Task.Delay(2000);
+		}
+	}
+
 	private bool NeedsSave => _bill.Id == 0 || _bill.Running;
 
 	private async Task<bool> SaveCore()
@@ -1161,6 +1171,9 @@ public partial class BillPage : IAsyncDisposable
 		await HandleBillSettlement();
 
 		_bill.Id = await BillData.SaveTransaction(_bill, _cart);
+
+		await HandleKOTPrint();
+
 		return true;
 	}
 
@@ -1200,7 +1213,6 @@ public partial class BillPage : IAsyncDisposable
 	#endregion
 
 	#region Utilities
-
 	private async Task DownloadThermalInvoice()
 	{
 		if (_isProcessing)
@@ -1313,7 +1325,7 @@ public partial class BillPage : IAsyncDisposable
 	private async Task ResetPage()
 	{
 		await DeleteLocalFiles();
-		NavigationManager.NavigateTo(PageRouteNames.Bill, true);
+		NavigationManager.NavigateTo(PageRouteNames.DiningDashboard, true);
 	}
 
 	private async Task NavigateToTransactionHistoryPage()

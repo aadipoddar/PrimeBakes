@@ -92,7 +92,7 @@ internal static class PageRouteNames
 
 	#region Restaurant
 	public const string RestaurantDashboard = "/restaurant";
-	public const string DiningDashboard = "/restaurant/dining";
+	public const string DiningDashboard = "/restaurant/bill";
 
 	public const string Bill = "/restaurant/bill/bill";
 	public const string BillReport = "/restaurant/bill/report/bill";

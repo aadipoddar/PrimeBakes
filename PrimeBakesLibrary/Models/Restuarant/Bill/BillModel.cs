@@ -90,3 +90,110 @@ public class BillItemCartModel
 	public string? Remarks { get; set; }
 	public bool KOTPrint { get; set; }
 }
+
+public class BillOverviewModel
+{
+	public int Id { get; set; }
+	public string TransactionNo { get; set; }
+	public int CompanyId { get; set; }
+	public string CompanyName { get; set; }
+	public int LocationId { get; set; }
+	public string LocationName { get; set; }
+
+	public int DiningTableId { get; set; }
+	public string DiningTableName { get; set; }
+	public string DiningAreaName { get; set; }
+
+	public int? CustomerId { get; set; }
+	public string? CustomerName { get; set; }
+
+	public DateTime TransactionDateTime { get; set; }
+	public int FinancialYearId { get; set; }
+	public string FinancialYear { get; set; }
+
+	public int TotalPeople { get; set; }
+	public int TotalItems { get; set; }
+	public decimal TotalQuantity { get; set; }
+	public decimal BaseTotal { get; set; }
+	public decimal ItemDiscountAmount { get; set; }
+	public decimal TotalAfterItemDiscount { get; set; }
+	public decimal TotalInclusiveTaxAmount { get; set; }
+	public decimal TotalExtraTaxAmount { get; set; }
+	public decimal TotalAfterTax { get; set; }
+
+	public decimal DiscountPercent { get; set; }
+	public decimal DiscountAmount { get; set; }
+	public decimal ServiceChargePercent { get; set; }
+	public decimal ServiceChargeAmount { get; set; }
+
+	public decimal RoundOffAmount { get; set; }
+	public decimal TotalAmount { get; set; }
+
+	public decimal Cash { get; set; }
+	public decimal Card { get; set; }
+	public decimal UPI { get; set; }
+	public decimal Credit { get; set; }
+
+	public string? PaymentModes { get; set; }
+
+	public string? Remarks { get; set; }
+	public int CreatedBy { get; set; }
+	public string CreatedByName { get; set; }
+	public DateTime CreatedAt { get; set; }
+	public string CreatedFromPlatform { get; set; }
+	public int? LastModifiedBy { get; set; }
+	public string? LastModifiedByUserName { get; set; }
+	public DateTime? LastModifiedAt { get; set; }
+	public string? LastModifiedFromPlatform { get; set; }
+
+	public bool Running { get; set; }
+	public bool Status { get; set; }
+}
+
+public class BillItemOverviewModel
+{
+	public int Id { get; set; }
+	public string ItemName { get; set; }
+	public string ItemCode { get; set; }
+	public int ItemCategoryId { get; set; }
+	public string ItemCategoryName { get; set; }
+
+	public int MasterId { get; set; }
+	public string TransactionNo { get; set; }
+	public DateTime TransactionDateTime { get; set; }
+	public int CompanyId { get; set; }
+	public string CompanyName { get; set; }
+	public int LocationId { get; set; }
+	public string LocationName { get; set; }
+
+	public int DiningTableId { get; set; }
+	public string DiningTableName { get; set; }
+	public string DiningAreaName { get; set; }
+
+	public int? CustomerId { get; set; }
+	public string? CustomerName { get; set; }
+	public string? BillRemarks { get; set; }
+
+	public decimal Quantity { get; set; }
+	public decimal Rate { get; set; }
+	public decimal BaseTotal { get; set; }
+
+	public decimal DiscountPercent { get; set; }
+	public decimal DiscountAmount { get; set; }
+	public decimal AfterDiscount { get; set; }
+
+	public decimal CGSTPercent { get; set; }
+	public decimal CGSTAmount { get; set; }
+	public decimal SGSTPercent { get; set; }
+	public decimal SGSTAmount { get; set; }
+	public decimal IGSTPercent { get; set; }
+	public decimal IGSTAmount { get; set; }
+	public decimal TotalTaxAmount { get; set; }
+	public bool InclusiveTax { get; set; }
+
+	public decimal Total { get; set; }
+	public decimal NetRate { get; set; }
+	public decimal NetTotal { get; set; }
+
+	public string? Remarks { get; set; }
+}

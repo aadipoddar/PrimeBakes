@@ -1,0 +1,161 @@
+@attribute [Route(PageRouteNames.DiningArea)]
+
+@using PrimeBakesLibrary.Models.Operations
+@using PrimeBakesLibrary.Models.Restuarant.Dining
+
+<PageTitle>Dining Area Management - Prime Bakes</PageTitle>
+
+@if (_isLoading)
+{
+	<AnimatedLoader Visible="true" />
+}
+else
+{
+	<div class="page-shell">
+		<Header Title="Dining Area Management" Subtitle="Manage dining area details" ShowLogout="true" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
+			<RightContent>
+				<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
+				<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
+				<IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Dining Area (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveDiningArea" />
+				<IconButton Icon="IconType.New" Title="New Dining Area (Ctrl + N)" Disabled="_isProcessing" OnClick="ResetPage" />
+			</RightContent>
+		</Header>
+
+		<div class="page-container">
+
+			<!-- Dining Area Entry Section -->
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
+						</svg>
+						<h2 class="section-title">Dining Area Details</h2>
+					</div>
+				</div>
+				<div class="section-body">
+					<div class="form-grid">
+						<!-- Dining Area Name -->
+						<div class="form-field">
+							<label class="field-label">
+								Dining Area Name <span class="required">*</span>
+							</label>
+							<SfTextBox @bind-Value="_diningArea.Name" Placeholder="Enter dining area name"
+									   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+						</div>
+
+						<!-- Location -->
+						<div class="form-field">
+							<label class="field-label">Location <span class="required">*</span></label>
+							<SfAutoComplete @bind-Value="_selectedLocationName" TValue="string" TItem="LocationModel"
+											Placeholder="Select location" DataSource="@_locations" PopupHeight="300px"
+											CssClass="custom-autocomplete" AllowFiltering="true"
+											FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
+								<AutoCompleteFieldSettings Value="Name" />
+								<AutoCompleteEvents TValue="string" TItem="LocationModel" ValueChange="OnLocationChange" />
+							</SfAutoComplete>
+						</div>
+
+						<!-- Remarks -->
+						<div class="form-field form-field-span-2">
+							<label class="field-label">Remarks</label>
+							<SfTextBox @bind-Value="_diningArea.Remarks" Placeholder="Enter remarks (optional)" Multiline="true"
+									   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Dining Areas List Section -->
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M9 11l3 3L22 4" />
+							<path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+						</svg>
+						<h2 class="section-title">Dining Areas List</h2>
+					</div>
+					<div class="header-actions">
+						<ToggleButton Disabled="@_isProcessing" IsActive="@_showDeleted"
+									  Variant="ToggleButton.ToggleVariant.Deleted" OnToggle="ToggleDeleted" />
+					</div>
+				</div>
+				<div class="section-body grid-body">
+					<SfGrid @ref="_sfGrid" DataSource="@_diningAreas" AllowPaging="true" AllowSorting="true" AllowFiltering="true"
+							AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
+						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+						<GridColumns>
+							<GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center" AllowFiltering="false">
+								<Template>
+									@{
+										var diningArea = (context as DiningAreaModel);
+
+										<div class="grid-actions">
+											@if (diningArea.Status)
+											{
+												<IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid" Title="Edit (Insert)" OnClick="@(() => OnEditDiningArea(diningArea))" />
+												<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete (Delete)" OnClick="@(() => ShowDeleteConfirmation(diningArea.Id, diningArea.Name))" />
+											}
+											else
+											{
+												<IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover" Size="ButtonSize.Grid" Title="Recover (Delete)" OnClick="@(() => ShowRecoverConfirmation(diningArea.Id, diningArea.Name))" />
+											}
+										</div>
+									}
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(DiningAreaModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" />
+							<GridColumn Field="@nameof(DiningAreaModel.Name)" HeaderText="Dining Area Name" Width="250" />
+							<GridColumn HeaderText="Location" Width="200">
+								<Template>
+									@{
+										var diningArea = (context as DiningAreaModel);
+										var location = _locations.FirstOrDefault(l => l.Id == diningArea.LocationId);
+										<span>@(location?.Name ?? "N/A")</span>
+									}
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(DiningAreaModel.Remarks)" HeaderText="Remarks" Width="400" />
+							<GridColumn Field="@nameof(DiningAreaModel.Status)" HeaderText="Status" Width="100" TextAlign="TextAlign.Center">
+								<Template>
+									@{
+										var diningArea = (context as DiningAreaModel);
+										<div class="grid-checkbox"
+											 style="@(diningArea.Status ? "color: #10b981; background: #d1fae5;" : "color: #dc2626; background: #fee2e2;")">
+											@(diningArea.Status ? "✓" : "✗")
+										</div>
+									}
+								</Template>
+							</GridColumn>
+						</GridColumns>
+					</SfGrid>
+				</div>
+			</div>
+		</div>
+
+		<Footer />
+	</div>
+}
+
+<DeleteConfirmationDialog @ref="_deleteConfirmationDialog"
+						  EntityName="Dining Area"
+						  IdentifierLabel="Dining Area Name"
+						  IdentifierValue="@_deleteDiningAreaName"
+						  IsPermanentDelete="false"
+						  Disabled="@_isProcessing"
+						  OnConfirm="ConfirmDelete"
+						  OnCancel="CancelDelete" />
+
+<RecoverConfirmationDialog @ref="_recoverConfirmationDialog"
+						   EntityName="Dining Area"
+						   IdentifierLabel="Dining Area Name"
+						   IdentifierValue="@_recoverDiningAreaName"
+						   Disabled="@_isProcessing"
+						   OnConfirm="ConfirmRecover"
+						   OnCancel="CancelRecover" />
+
+<ToastNotification @ref="_toastNotification" />

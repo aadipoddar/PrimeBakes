@@ -149,6 +149,9 @@ public static class StoredProcedureNames
 	public static string InsertStockTransfer => "Insert_StockTransfer";
 	public static string InsertStockTransferDetail => "Insert_StockTransferDetail";
 
+	public static string InsertDiningArea => "Insert_DiningArea";
+	public static string InsertDiningTable => "Insert_DiningTable";
+
 	public static string InsertBill => "Insert_Bill";
 	public static string InsertBillDetail => "Insert_BillDetail";
 
@@ -189,4 +192,7 @@ public static class ViewNames
 
 	public static string StockTransferOverview => "StockTransfer_Overview";
 	public static string StockTransferItemOverview => "StockTransfer_Item_Overview";
+
+	public static string BillOverview => "Bill_Overview";
+	public static string BillItemOverview => "Bill_Item_Overview";
 }

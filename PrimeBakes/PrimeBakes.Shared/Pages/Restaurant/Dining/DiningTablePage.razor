@@ -1,0 +1,160 @@
+@attribute [Route(PageRouteNames.DiningTable)]
+
+@using PrimeBakesLibrary.Models.Restuarant.Dining
+
+<PageTitle>Dining Table Management - Prime Bakes</PageTitle>
+
+@if (_isLoading)
+{
+	<AnimatedLoader Visible="true" />
+}
+else
+{
+	<div class="page-shell">
+		<Header Title="Dining Table Management" Subtitle="Manage dining table details" ShowLogout="true" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
+			<RightContent>
+				<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
+				<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
+				<IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Dining Table (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveDiningTable" />
+				<IconButton Icon="IconType.New" Title="New Dining Table (Ctrl + N)" Disabled="_isProcessing" OnClick="ResetPage" />
+			</RightContent>
+		</Header>
+
+		<div class="page-container">
+
+			<!-- Dining Table Entry Section -->
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
+						</svg>
+						<h2 class="section-title">Dining Table Details</h2>
+					</div>
+				</div>
+				<div class="section-body">
+					<div class="form-grid">
+						<!-- Dining Table Name -->
+						<div class="form-field">
+							<label class="field-label">
+								Dining Table Name <span class="required">*</span>
+							</label>
+							<SfTextBox @bind-Value="_diningTable.Name" Placeholder="Enter dining table name"
+									   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+						</div>
+
+						<!-- Dining Area -->
+						<div class="form-field">
+							<label class="field-label">Dining Area <span class="required">*</span></label>
+							<SfAutoComplete @bind-Value="_selectedDiningAreaName" TValue="string" TItem="DiningAreaModel"
+											Placeholder="Select dining area" DataSource="@_diningAreas" PopupHeight="300px"
+											CssClass="custom-autocomplete" AllowFiltering="true"
+											FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
+								<AutoCompleteFieldSettings Value="Name" />
+								<AutoCompleteEvents TValue="string" TItem="DiningAreaModel" ValueChange="OnDiningAreaChange" />
+							</SfAutoComplete>
+						</div>
+
+						<!-- Remarks -->
+						<div class="form-field form-field-span-2">
+							<label class="field-label">Remarks</label>
+							<SfTextBox @bind-Value="_diningTable.Remarks" Placeholder="Enter remarks (optional)" Multiline="true"
+									   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Dining Tables List Section -->
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M9 11l3 3L22 4" />
+							<path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+						</svg>
+						<h2 class="section-title">Dining Tables List</h2>
+					</div>
+					<div class="header-actions">
+						<ToggleButton Disabled="@_isProcessing" IsActive="@_showDeleted"
+									  Variant="ToggleButton.ToggleVariant.Deleted" OnToggle="ToggleDeleted" />
+					</div>
+				</div>
+				<div class="section-body grid-body">
+					<SfGrid @ref="_sfGrid" DataSource="@_diningTables" AllowPaging="true" AllowSorting="true" AllowFiltering="true"
+							AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
+						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+						<GridColumns>
+							<GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center" AllowFiltering="false">
+								<Template>
+									@{
+										var diningTable = (context as DiningTableModel);
+
+										<div class="grid-actions">
+											@if (diningTable.Status)
+											{
+												<IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid" Title="Edit (Insert)" OnClick="@(() => OnEditDiningTable(diningTable))" />
+												<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete (Delete)" OnClick="@(() => ShowDeleteConfirmation(diningTable.Id, diningTable.Name))" />
+											}
+											else
+											{
+												<IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover" Size="ButtonSize.Grid" Title="Recover (Delete)" OnClick="@(() => ShowRecoverConfirmation(diningTable.Id, diningTable.Name))" />
+											}
+										</div>
+									}
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(DiningTableModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" />
+							<GridColumn Field="@nameof(DiningTableModel.Name)" HeaderText="Table Name" Width="250" />
+							<GridColumn HeaderText="Dining Area" Width="200">
+								<Template>
+									@{
+										var diningTable = (context as DiningTableModel);
+										var diningArea = _diningAreas.FirstOrDefault(da => da.Id == diningTable.DiningAreaId);
+										<span>@(diningArea?.Name ?? "N/A")</span>
+									}
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(DiningTableModel.Remarks)" HeaderText="Remarks" Width="400" />
+							<GridColumn Field="@nameof(DiningTableModel.Status)" HeaderText="Status" Width="100" TextAlign="TextAlign.Center">
+								<Template>
+									@{
+										var diningTable = (context as DiningTableModel);
+										<div class="grid-checkbox"
+											 style="@(diningTable.Status ? "color: #10b981; background: #d1fae5;" : "color: #dc2626; background: #fee2e2;")">
+											@(diningTable.Status ? "✓" : "✗")
+										</div>
+									}
+								</Template>
+							</GridColumn>
+						</GridColumns>
+					</SfGrid>
+				</div>
+			</div>
+		</div>
+
+		<Footer />
+	</div>
+}
+
+<DeleteConfirmationDialog @ref="_deleteConfirmationDialog"
+						  EntityName="Dining Table"
+						  IdentifierLabel="Dining Table Name"
+						  IdentifierValue="@_deleteDiningTableName"
+						  IsPermanentDelete="false"
+						  Disabled="@_isProcessing"
+						  OnConfirm="ConfirmDelete"
+						  OnCancel="CancelDelete" />
+
+<RecoverConfirmationDialog @ref="_recoverConfirmationDialog"
+						   EntityName="Dining Table"
+						   IdentifierLabel="Dining Table Name"
+						   IdentifierValue="@_recoverDiningTableName"
+						   Disabled="@_isProcessing"
+						   OnConfirm="ConfirmRecover"
+						   OnCancel="CancelRecover" />
+
+<ToastNotification @ref="_toastNotification" />

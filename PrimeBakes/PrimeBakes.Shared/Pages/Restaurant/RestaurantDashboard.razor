@@ -1,5 +1,4 @@
 ﻿@attribute [Route(PageRouteNames.RestaurantDashboard)]
-@namespace PrimeBakes.Shared.Pages.Restaurant
 
 @using PrimeBakesLibrary.Models.Operations
 
@@ -25,18 +24,18 @@ else
 					<div class="section-title-wrapper">
 						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
 							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-							<path d="M3 2v7a3 3 0 0 0 6 0V2" />
-							<path d="M7 2v20" />
-							<path d="M14 2v8a2 2 0 0 0 4 0V2" />
-							<path d="M18 2v20" />
+							<path d="M6 2h12v20l-2.5-1.8L13 22l-2.5-1.8L8 22l-2-1.8V2z" />
+							<line x1="9" y1="7" x2="15" y2="7" />
+							<line x1="9" y1="11" x2="15" y2="11" />
+							<line x1="9" y1="15" x2="13" y2="15" />
 						</svg>
-						<h2 class="section-title">Restaurant Operations</h2>
+						<h2 class="section-title">Bill</h2>
 					</div>
-					<p class="section-subtitle">Manage dining and billing</p>
+					<p class="section-subtitle">Create and manage restaurant bills</p>
 				</div>
 				<div class="section-body">
 					<div class="dashboard-grid">
-						<ButtonCard Title="Dining Dashboard" Description="Access dining area and table operations" Color="blue"
+						<ButtonCard Title="Dining Dashboard" Description="Access dining operations" Color="blue"
 									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.DiningDashboard)">
 							<IconContent>
 								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
@@ -49,7 +48,7 @@ else
 								</svg>
 							</IconContent>
 						</ButtonCard>
-
+						
 						<ButtonCard Title="Bill" Description="Create and manage restaurant bills" Color="green"
 									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.Bill)">
 							<IconContent>
@@ -60,8 +59,101 @@ else
 									<line x1="9" y1="7" x2="15" y2="7" />
 									<line x1="9" y1="11" x2="15" y2="11" />
 									<line x1="9" y1="15" x2="13" y2="15" />
-									<circle cx="17" cy="15" r="3" />
-									<path d="M16 15h2" />
+								</svg>
+							</IconContent>
+						</ButtonCard>
+					</div>
+				</div>
+			</div>
+
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M3 3h18v18H3z" />
+							<path d="M7 7h10" />
+							<path d="M7 11h10" />
+							<path d="M7 15h6" />
+						</svg>
+						<h2 class="section-title">Bill Reports</h2>
+					</div>
+					<p class="section-subtitle">View bill and bill item reports</p>
+				</div>
+				<div class="section-body">
+					<div class="dashboard-grid">
+						<ButtonCard Title="Bill Report" Description="View bill transaction reports" Color="cyan"
+									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.BillReport)">
+							<IconContent>
+								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<path d="M3 3h18v18H3z" />
+									<path d="M7 7h10" />
+									<path d="M7 11h10" />
+									<path d="M7 15h6" />
+								</svg>
+							</IconContent>
+						</ButtonCard>
+
+						<ButtonCard Title="Bill Item Report" Description="View bill item-wise reports" Color="sky"
+									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.BillItemReport)">
+							<IconContent>
+								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<path d="M4 6h16" />
+									<path d="M4 12h16" />
+									<path d="M4 18h16" />
+									<path d="M9 6v12" />
+								</svg>
+							</IconContent>
+						</ButtonCard>
+					</div>
+				</div>
+			</div>
+
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<rect x="3" y="3" width="8" height="8" rx="1" />
+							<rect x="13" y="3" width="8" height="8" rx="1" />
+							<rect x="3" y="13" width="8" height="8" rx="1" />
+							<rect x="13" y="13" width="8" height="8" rx="1" />
+						</svg>
+						<h2 class="section-title">Dining</h2>
+					</div>
+					<p class="section-subtitle">Manage dining dashboard, tables, and areas</p>
+				</div>
+				<div class="section-body">
+					<div class="dashboard-grid">
+						<ButtonCard Title="Dining Table" Description="Manage dining table master" Color="teal"
+									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.DiningTable)">
+							<IconContent>
+								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<rect x="4" y="8" width="16" height="8" rx="2" />
+									<path d="M6 16v4" />
+									<path d="M18 16v4" />
+								</svg>
+							</IconContent>
+						</ButtonCard>
+
+						<ButtonCard Title="Dining Area" Description="Manage dining area master" Color="indigo"
+									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.DiningArea)">
+							<IconContent>
+								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<path d="M3 10h18" />
+									<path d="M5 10V6a1 1 0 0 1 1-1h3" />
+									<path d="M15 5h3a1 1 0 0 1 1 1v4" />
+									<path d="M5 10v9" />
+									<path d="M19 10v9" />
+									<path d="M8 19h8" />
 								</svg>
 							</IconContent>
 						</ButtonCard>

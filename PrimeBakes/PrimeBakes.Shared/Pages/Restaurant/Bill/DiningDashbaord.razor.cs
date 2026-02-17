@@ -5,7 +5,7 @@ using PrimeBakesLibrary.Models.Operations;
 using PrimeBakesLibrary.Models.Restuarant.Bill;
 using PrimeBakesLibrary.Models.Restuarant.Dining;
 
-namespace PrimeBakes.Shared.Pages.Restaurant.Dining;
+namespace PrimeBakes.Shared.Pages.Restaurant.Bill;
 
 public partial class DiningDashbaord : IAsyncDisposable
 {
@@ -56,7 +56,7 @@ public partial class DiningDashbaord : IAsyncDisposable
 	{
 		if (_runningBills.Any(bill => bill.DiningTableId == diningTableId))
 		{
-			
+
 		}
 
 		NavigationManager.NavigateTo($"{PageRouteNames.Bill}/table/{diningTableId}");

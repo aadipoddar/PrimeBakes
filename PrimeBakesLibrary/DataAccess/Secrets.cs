@@ -27,7 +27,7 @@ public static partial class Secrets
     public static string ToName => "Prime Bakes";
 
     public static string OnlineFullLogoPath => "https://raw.githubusercontent.com/aadipoddar/PrimeBakes/refs/heads/main/PrimeBakes/PrimeBakes.Web/wwwroot/images/logo_full.png";
-    public static string AadiSoftWebsite => "https://aadisoft.vercel.app";
+    public static string AadiSoftWebsite => "https://aadisoft.tech";
     public static string AppWebsite => "https://primebakes.azurewebsites.net";
 
     private static string GetSecret(string key) =>

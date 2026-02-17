@@ -25,7 +25,7 @@ public class BillThermalPrint
 		await AddItemDetails(bill, content);
 		await AddTotalDetails(bill, content);
 		await AddPaymentModes(bill, content);
-		await AddFooter(content);
+		await AddFooter(bill, content);
 
 		return content;
 	}
@@ -67,16 +67,7 @@ public class BillThermalPrint
 		content.AppendLine($"<div class='detail-row'><span class='detail-label'>Outlet:</span> <span class='detail-value'>{location?.Name}</span></div>");
 		content.AppendLine($"<div class='detail-row'><span class='detail-label'>Bill No:</span> <span class='detail-value'>{bill.TransactionNo}</span></div>");
 		content.AppendLine($"<div class='detail-row'><span class='detail-label'>Date:</span> <span class='detail-value'>{bill.TransactionDateTime:dd/MM/yy hh:mm tt}</span></div>");
-		content.AppendLine($"<div class='detail-row'><span class='detail-label'>User:</span> <span class='detail-value'>{users.FirstOrDefault(u => u.Id == bill.CreatedBy)?.Name}</span></div>");
-		content.AppendLine($"<div class='detail-row'><span class='detail-label'>Table:</span> <span class='detail-value'>{table?.Name}</span></div>");
-		content.AppendLine($"<div class='detail-row'><span class='detail-label'>People:</span> <span class='detail-value'>{bill.TotalPeople}</span></div>");
-
-		if (bill.CustomerId.HasValue && bill.CustomerId.Value > 0)
-		{
-			var customer = await CommonData.LoadTableDataById<CustomerModel>(TableNames.Customer, bill.CustomerId.Value);
-			content.AppendLine($"<div class='detail-row'><span class='detail-label'>Cust. Name:</span> <span class='detail-value'>{customer?.Name}</span></div>");
-			content.AppendLine($"<div class='detail-row'><span class='detail-label'>Cust. No.:</span> <span class='detail-value'>{customer?.Number}</span></div>");
-		}
+		content.AppendLine($"<div class='detail-row'><span class='detail-label'>Table :</span> <span class='detail-value'>{table?.Name} | Pax: {bill.TotalPeople}</span></div>");
 
 		content.AppendLine("</div>");
 		content.AppendLine("<div class='bold-separator'></div>");
@@ -188,17 +179,20 @@ public class BillThermalPrint
 		return Task.CompletedTask;
 	}
 
-	private static async Task AddFooter(StringBuilder content)
+	private static async Task AddFooter(BillModel bill, StringBuilder content)
 	{
 		content.AppendLine("<div class='bold-separator'></div>");
 
+		var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
+		content.AppendLine($"<div class='footer-text'>Printed By: {users.FirstOrDefault(u => u.Id == bill.CreatedBy)?.Name}</div>");
+
 		var currentDateTime = await CommonData.LoadCurrentDateTime();
-		content.AppendLine($"<div class='footer-timestamp'>Printed: {currentDateTime:dd/MM/yy hh:mm tt}</div>");
+		content.AppendLine($"<div class='footer-timestamp'>Printed On: {currentDateTime:dd/MM/yy hh:mm tt}</div>");
 
 		const string footerLineOne = "Thanks. Visit Again";
 		content.AppendLine($"<div class='footer-text'>{footerLineOne}</div>");
 
-		const string footerLineTwo = "A Product of aadisoft.vercel.app";
+		const string footerLineTwo = "A Product of aadisoft.tech";
 		content.AppendLine($"<div class='footer-text'>{footerLineTwo}</div>");
 	}
 }

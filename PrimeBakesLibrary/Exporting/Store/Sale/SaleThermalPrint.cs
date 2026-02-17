@@ -206,7 +206,7 @@ public class SaleThermalPrint
         string footerLine = "Thanks. Visit Again";
         content.AppendLine($"<div class='footer-text'>{footerLine}</div>");
 
-        footerLine = "A Product of aadisoft.vercel.app";
+        footerLine = "A Product of aadisoft.tech";
         content.AppendLine($"<div class='footer-text'>{footerLine}</div>");
     }
 }

@@ -20,6 +20,39 @@ public static class BillData
 	public static async Task<List<BillModel>> LoadRunningBillByLocationId(int LocationId, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		await SqlDataAccess.LoadData<BillModel, dynamic>(StoredProcedureNames.LoadRunningBillByLocationId, new { LocationId }, sqlDataAccessTransaction);
 
+	public static async Task DeleteTransaction(BillModel bill)
+	{
+		await FinancialYearData.ValidateFinancialYear(bill.TransactionDateTime);
+
+		using SqlDataAccessTransaction sqlDataAccessTransaction = new();
+
+		try
+		{
+			sqlDataAccessTransaction.StartTransaction();
+
+			bill.Status = false;
+			await InsertBill(bill, sqlDataAccessTransaction);
+
+			sqlDataAccessTransaction.CommitTransaction();
+
+			await BillNotify.Notify(bill.Id, NotifyType.Deleted);
+		}
+		catch
+		{
+			sqlDataAccessTransaction.RollbackTransaction();
+			throw;
+		}
+	}
+
+	public static async Task RecoverTransaction(BillModel bill)
+	{
+		bill.Status = true;
+		var transactionDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(TableNames.BillDetail, bill.Id);
+
+		await SaveTransaction(bill, null, transactionDetails, false);
+		await BillNotify.Notify(bill.Id, NotifyType.Recovered);
+	}
+
 	private static List<BillDetailModel> ConvertCartToDetails(List<BillItemCartModel> cart, int masterId) =>
 		[.. cart.Select(item => new BillDetailModel
 		{
@@ -97,6 +130,17 @@ public static class BillData
 		await SaveTransactionDetail(bill, billDetails, update, previousRunning, sqlDataAccessTransaction);
 
 		return bill.Id;
+	}
+
+	public static async Task MarkKOTAsPrinted(int billId)
+	{
+		var billDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(TableNames.BillDetail, billId);
+
+		foreach (var detail in billDetails.Where(d => d.KOTPrint))
+		{
+			detail.KOTPrint = false;
+			await InsertBillDetail(detail);
+		}
 	}
 
 	private static async Task SaveTransactionDetail(BillModel bill, List<BillDetailModel> billDetails, bool update, bool previousRunning, SqlDataAccessTransaction sqlDataAccessTransaction)
