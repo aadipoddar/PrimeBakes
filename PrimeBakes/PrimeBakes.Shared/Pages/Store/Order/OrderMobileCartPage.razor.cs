@@ -196,7 +196,7 @@ public partial class OrderMobileCartPage
         _isProcessing = true;
         StateHasChanged();
 
-        await SaveOrder(DateTime.Now, 6.5);
+        // await SaveOrder(DateTime.Now, 6.5);
     }
 
     private async Task SendLocalNotification(int orderId)

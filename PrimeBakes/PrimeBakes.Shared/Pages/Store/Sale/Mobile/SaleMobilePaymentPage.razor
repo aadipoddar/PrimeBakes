@@ -22,14 +22,14 @@ else
 				<div class="form-section">
 					<div class="form-row">
 						<div class="form-field form-field-half">
-							<label class="field-label">Cust Mobile</label>
+							<label class="field-label">Customer Mobile</label>
 							<SfTextBox Value="@_selectedCustomer?.Number" ValueChanged="OnCustomerNumberChanged"
 									   Type="InputType.Tel" Placeholder="Enter Mobile Number..." ShowClearButton="true"
 									   CssClass="dialog-input" Enabled="@(!_isProcessing)" />
 						</div>
 
 						<div class="form-field form-field-half">
-							<label class="field-label">Cust Name</label>
+							<label class="field-label">Customer Name</label>
 							<SfTextBox @bind-Value="_selectedCustomer.Name" Placeholder="Enter name..."
 									   ShowClearButton="true" CssClass="dialog-input" Enabled="@(!_isProcessing)" />
 						</div>

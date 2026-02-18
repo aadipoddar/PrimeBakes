@@ -1,0 +1,230 @@
+.animated-cart-btn {
+    --background-default: var(--primary-color, #e2137b);
+    --background-hover: var(--primary-dark, #c71068);
+    --background-scale: 1;
+    --text-color: #fff;
+    --text-o: 1;
+    --text-x: 12px;
+    --cart: #fff;
+    --cart-x: -48px;
+    --cart-y: 0px;
+    --cart-rotate: 0deg;
+    --cart-scale: .75;
+    --cart-clip: 0px;
+    --cart-clip-x: 0px;
+    --cart-tick-offset: 10px;
+    --cart-tick-color: #FFD700;
+    --item-y: -16px;
+    --item-scale: 0;
+    --item-color: var(--primary-color, #e2137b);
+    --item-detail: #fff;
+    --item-second-y: 24px;
+    --item-second-color: #fff;
+    --item-second-detail: var(--primary-color, #e2137b);
+    -webkit-tap-highlight-color: transparent;
+    -webkit-appearance: none;
+    outline: none;
+    background: none;
+    border: none;
+    padding: 14px 0;
+    width: 100%;
+    max-width: 280px;
+    margin: 0;
+    cursor: pointer;
+    position: relative;
+    font-family: inherit;
+}
+
+.animated-cart-btn:before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    border-radius: 12px;
+    transition: background 0.25s;
+    background: var(--background, var(--background-default));
+    transform: scaleX(var(--background-scale)) translateZ(0);
+}
+
+.animated-cart-btn:not(.animating):hover {
+    --background: var(--background-hover);
+}
+
+.animated-cart-btn > span {
+    display: block;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 28px;
+    color: var(--text-color);
+    opacity: var(--text-o);
+    transform: translateX(var(--text-x)) translateZ(0);
+}
+
+.animated-cart-btn .cart-badge {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    color: var(--background-default);
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 1;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    opacity: var(--text-o);
+}
+
+.animated-cart-btn svg {
+    display: block;
+    width: var(--svg-width, 24px);
+    height: var(--svg-height, 24px);
+    position: var(--svg-position, relative);
+    left: var(--svg-left, 0);
+    top: var(--svg-top, 0);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.animated-cart-btn svg path {
+    fill: var(--svg-fill, none);
+    stroke: var(--svg-stroke, none);
+    stroke-width: var(--svg-stroke-width, 2);
+}
+
+.animated-cart-btn .morph {
+    --svg-width: 64px;
+    --svg-height: 13px;
+    --svg-left: 50%;
+    --svg-top: -12px;
+    --svg-position: absolute;
+    --svg-fill: var(--background, var(--background-default));
+    transition: fill 0.25s;
+    pointer-events: none;
+    margin-left: -32px;
+}
+
+.animated-cart-btn .cupcake,
+.animated-cart-btn .cart {
+    pointer-events: none;
+    position: absolute;
+    left: 50%;
+}
+
+.animated-cart-btn .cupcake {
+    margin: -12px 0 0 -12px;
+    top: 0;
+    transform-origin: 50% 100%;
+    transform: translateY(var(--item-y)) scale(var(--item-scale));
+}
+
+.animated-cart-btn .cupcake svg {
+    --svg-fill: var(--item-color);
+    --svg-width: 24px;
+    --svg-height: 26px;
+}
+
+.animated-cart-btn .cupcake svg g {
+    --svg-fill: var(--svg-g-fill, var(--item-detail));
+    --svg-stroke: var(--svg-g-stroke, var(--item-detail));
+}
+
+.animated-cart-btn .cupcake svg g circle,
+.animated-cart-btn .cupcake svg g rect {
+    --svg-fill: var(--svg-g-fill, var(--item-detail));
+}
+
+.animated-cart-btn .cupcake svg g rect.candle {
+    fill: #FFD700;
+    stroke: none;
+}
+
+.animated-cart-btn .cupcake svg g path.flame {
+    fill: #FF6B35;
+    stroke: none;
+    animation: flicker 0.4s ease-in-out infinite alternate;
+    transform-origin: center bottom;
+}
+
+.animated-cart-btn .cupcake svg g path.flame-sm {
+    fill: #FFA500;
+    animation-duration: 0.35s;
+    animation-delay: 0.1s;
+}
+
+@keyframes flicker {
+    0%   { transform: scaleX(1)   scaleY(1);   opacity: 1;   }
+    50%  { transform: scaleX(0.85) scaleY(1.12); opacity: 0.9; }
+    100% { transform: scaleX(1.1) scaleY(0.9);  opacity: 1;   }
+}
+
+.animated-cart-btn .cupcake svg g path {
+    fill: none;
+    stroke: var(--svg-g-stroke, var(--item-detail));
+}
+
+.animated-cart-btn .cupcake svg.second {
+    --svg-fill: var(--item-second-color);
+    --svg-g-fill: var(--item-second-detail);
+    --svg-g-stroke: var(--item-second-detail);
+    --svg-position: absolute;
+    -webkit-clip-path: polygon(0 var(--item-second-y), 24px var(--item-second-y), 24px 26px, 0 26px);
+    clip-path: polygon(0 var(--item-second-y), 24px var(--item-second-y), 24px 26px, 0 26px);
+}
+
+.animated-cart-btn .cart {
+    --svg-width: 36px;
+    --svg-height: 26px;
+    --svg-stroke: var(--cart);
+    top: 10px;
+    margin-left: -18px;
+    transform: translate(var(--cart-x), var(--cart-y)) rotate(var(--cart-rotate)) scale(var(--cart-scale)) translateZ(0);
+}
+
+.animated-cart-btn .cart:before {
+    content: "";
+    display: block;
+    width: 22px;
+    height: 12px;
+    position: absolute;
+    left: 7px;
+    top: 7px;
+    background: var(--cart);
+    -webkit-clip-path: polygon(0 0, 22px 0, calc(22px - var(--cart-clip-x)) var(--cart-clip), var(--cart-clip-x) var(--cart-clip));
+    clip-path: polygon(0 0, 22px 0, calc(22px - var(--cart-clip-x)) var(--cart-clip), var(--cart-clip-x) var(--cart-clip));
+}
+
+.animated-cart-btn .cart path.wheel {
+    --svg-stroke-width: 1.5;
+}
+
+.animated-cart-btn .cart path.tick {
+    --svg-stroke: var(--cart-tick-color);
+    stroke-dasharray: 10px;
+    stroke-dashoffset: var(--cart-tick-offset);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 576px) {
+    .animated-cart-btn {
+        max-width: 240px;
+        padding: 12px 0;
+    }
+
+    .animated-cart-btn > span {
+        font-size: 14px;
+        line-height: 24px;
+    }
+}

@@ -12,7 +12,7 @@ else
 {
     <div class="page-shell">
         <Header Title="Create Order" Subtitle="Mobile order entry" ShowBack="true"
-                OnBackClick="() => NavigationManager.NavigateTo(PageRouteNames.Dashboard)" />
+                OnBackClick="() => NavigationManager.NavigateTo(PageRouteNames.StoreDashboard)" />
 
         <!-- Main Content Container -->
         <div class="order-mobile-container">
@@ -67,8 +67,7 @@ else
         @if (_cart.Any(c => c.Quantity > 0))
         {
             <div class="cart-footer">
-                <MobileActionButton CssClass="cart-button" IconCssClass="fas fa-shopping-cart" Text="Go to Cart"
-                                    BadgeCount="@_cart.Count(c => c.Quantity > 0)" OnClick="GoToCart" />
+                <MobileCartButton Text="Go to Cart" BadgeCount="@_cart.Count(c => c.Quantity > 0)" OnClick="GoToCart" />
             </div>
         }
 
@@ -272,36 +271,9 @@ else
         box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
         z-index: 100;
         animation: slideUp 0.3s ease-out;
-    }
-
-    .cart-button {
-        width: 100%;
-        background: var(--primary-color);
-        color: white;
-        border: none;
-        border-radius: 12px;
-        padding: 15px 20px;
         display: flex;
-        align-items: center;
         justify-content: center;
-        gap: 12px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        font-weight: 600;
-        font-size: 16px;
-        box-shadow: var(--shadow-medium);
-        position: relative;
-        min-height: 56px;
-    }
-
-    .cart-button:hover {
-        background: var(--primary-dark);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(226, 19, 123, 0.3);
-    }
-
-    .cart-button:active {
-        transform: translateY(0);
+        align-items: center;
     }
 
     /* Grid Styling */
@@ -416,12 +388,6 @@ else
 
         .cart-footer {
             padding: 12px 15px;
-        }
-
-        .cart-button {
-            padding: 12px 15px;
-            font-size: 14px;
-            min-height: 48px;
         }
 
         ::deep .e-grid .e-headercell {

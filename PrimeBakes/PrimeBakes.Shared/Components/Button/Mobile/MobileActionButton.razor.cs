@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
-namespace PrimeBakes.Shared.Components.Button;
+namespace PrimeBakes.Shared.Components.Button.Mobile;
 
 public partial class MobileActionButton
 {

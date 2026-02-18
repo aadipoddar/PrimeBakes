@@ -1,0 +1,85 @@
+@{
+	var buttonId = $"animated-cart-btn-{_instanceId}";
+}
+
+<button id="@buttonId" class="animated-cart-btn" @onclick="OnClickHandler">
+	<span>@Text</span>
+	@if (BadgeCount.HasValue)
+	{
+		<span class="cart-badge">@BadgeCount.Value</span>
+	}
+	<svg class="morph" viewBox="0 0 64 13">
+		<path d="M0 12C6 12 17 12 32 12C47.9024 12 58 12 64 12V13H0V12Z" />
+	</svg>
+	<div class="cupcake">
+		<svg class="first" viewBox="0 0 24 26">
+			@* Cupcake body: frosting dome + wrapper *@
+			<path d="M5 13C5 13 4 9 4 8C4 5 7 3 12 3C17 3 20 5 20 8C20 9 19 13 19 13L17 22L7 22L5 13Z" />
+			<g>
+				@* ── Wrapper ridges ── *@
+				<path d="M7.2 15L7.6 22" style="stroke-width:0.45" />
+				<path d="M9.5 14.2L9.5 22" style="stroke-width:0.45" />
+				<path d="M12 14L12 22" style="stroke-width:0.45" />
+				<path d="M14.5 14.2L14.5 22" style="stroke-width:0.45" />
+				<path d="M16.8 15L16.4 22" style="stroke-width:0.45" />
+				@* ── Frosting swirl ── *@
+				<path d="M5.8 11C7.5 8.5 9.5 7.5 12 8C14.5 7.5 16.5 8.5 18.2 11" style="stroke-width:0.6" />
+				<path d="M7 9C8.5 7 10 6.5 12 7C14 6.5 15.5 7 17 9" style="stroke-width:0.5" />
+				@* ── Sprinkles on frosting ── *@
+				<rect x="8" y="5.8" width="1" height="0.5" rx="0.25" transform="rotate(-35 8.5 6)" />
+				<rect x="14.5" y="6.2" width="1" height="0.5" rx="0.25" transform="rotate(30 15 6.5)" />
+				<rect x="10.8" y="5" width="1" height="0.5" rx="0.25" transform="rotate(15 11.3 5.2)" />
+				<rect x="13" y="5.2" width="1" height="0.5" rx="0.25" transform="rotate(-20 13.5 5.4)" />
+				@* ── Center candle (tall) ── *@
+				<rect class="candle" x="11.4" y="-1" width="1.2" height="5" rx="0.6" />
+				<path class="flame"
+					  d="M12 -3.5C12 -3.5 10.8 -2.2 10.8 -1.3C10.8 -0.6 11.3 -0.1 12 -0.1C12.7 -0.1 13.2 -0.6 13.2 -1.3C13.2 -2.2 12 -3.5 12 -3.5Z" />
+				@* ── Left candle (shorter) ── *@
+				<rect class="candle" x="8.4" y="0.5" width="1" height="4" rx="0.5" />
+				<path class="flame flame-sm"
+					  d="M8.9 -1.5C8.9 -1.5 8 -0.5 8 0C8 0.5 8.4 0.8 8.9 0.8C9.4 0.8 9.8 0.5 9.8 0C9.8 -0.5 8.9 -1.5 8.9 -1.5Z" />
+				@* ── Right candle (shorter) ── *@
+				<rect class="candle" x="14.6" y="0.5" width="1" height="4" rx="0.5" />
+				<path class="flame flame-sm"
+					  d="M15.1 -1.5C15.1 -1.5 14.2 -0.5 14.2 0C14.2 0.5 14.6 0.8 15.1 0.8C15.6 0.8 16 0.5 16 0C16 -0.5 15.1 -1.5 15.1 -1.5Z" />
+			</g>
+		</svg>
+		<svg class="second" viewBox="0 0 24 26">
+			<path d="M5 13C5 13 4 9 4 8C4 5 7 3 12 3C17 3 20 5 20 8C20 9 19 13 19 13L17 22L7 22L5 13Z" />
+			<g>
+				<path d="M7.2 15L7.6 22" style="stroke-width:0.45" />
+				<path d="M9.5 14.2L9.5 22" style="stroke-width:0.45" />
+				<path d="M12 14L12 22" style="stroke-width:0.45" />
+				<path d="M14.5 14.2L14.5 22" style="stroke-width:0.45" />
+				<path d="M16.8 15L16.4 22" style="stroke-width:0.45" />
+				<path d="M5.8 11C7.5 8.5 9.5 7.5 12 8C14.5 7.5 16.5 8.5 18.2 11" style="stroke-width:0.6" />
+				<path d="M7 9C8.5 7 10 6.5 12 7C14 6.5 15.5 7 17 9" style="stroke-width:0.5" />
+				<rect x="8" y="5.8" width="1" height="0.5" rx="0.25" transform="rotate(-35 8.5 6)" />
+				<rect x="14.5" y="6.2" width="1" height="0.5" rx="0.25" transform="rotate(30 15 6.5)" />
+				<rect x="10.8" y="5" width="1" height="0.5" rx="0.25" transform="rotate(15 11.3 5.2)" />
+				<rect x="13" y="5.2" width="1" height="0.5" rx="0.25" transform="rotate(-20 13.5 5.4)" />
+				<rect class="candle" x="11.4" y="-1" width="1.2" height="5" rx="0.6" />
+				<path class="flame"
+					  d="M12 -3.5C12 -3.5 10.8 -2.2 10.8 -1.3C10.8 -0.6 11.3 -0.1 12 -0.1C12.7 -0.1 13.2 -0.6 13.2 -1.3C13.2 -2.2 12 -3.5 12 -3.5Z" />
+				<rect class="candle" x="8.4" y="0.5" width="1" height="4" rx="0.5" />
+				<path class="flame flame-sm"
+					  d="M8.9 -1.5C8.9 -1.5 8 -0.5 8 0C8 0.5 8.4 0.8 8.9 0.8C9.4 0.8 9.8 0.5 9.8 0C9.8 -0.5 8.9 -1.5 8.9 -1.5Z" />
+				<rect class="candle" x="14.6" y="0.5" width="1" height="4" rx="0.5" />
+				<path class="flame flame-sm"
+					  d="M15.1 -1.5C15.1 -1.5 14.2 -0.5 14.2 0C14.2 0.5 14.6 0.8 15.1 0.8C15.6 0.8 16 0.5 16 0C16 -0.5 15.1 -1.5 15.1 -1.5Z" />
+			</g>
+		</svg>
+	</div>
+	<div class="cart">
+		<svg viewBox="0 0 36 26">
+			<path d="M1 2.5H6L10 18.5H25.5L28.5 7.5L7.5 7.5" class="shape" />
+			<path
+			d="M11.5 25C12.6046 25 13.5 24.1046 13.5 23C13.5 21.8954 12.6046 21 11.5 21C10.3954 21 9.5 21.8954 9.5 23C9.5 24.1046 10.3954 25 11.5 25Z"
+			class="wheel" />
+			<path
+			d="M24 25C25.1046 25 26 24.1046 26 23C26 21.8954 25.1046 21 24 21C22.8954 21 22 21.8954 22 23C22 24.1046 22.8954 25 24 25Z"
+			class="wheel" />
+			<path d="M14.5 13.5L16.5 15.5L21.5 10.5" class="tick" />
+		</svg>
+	</div>
+</button>
