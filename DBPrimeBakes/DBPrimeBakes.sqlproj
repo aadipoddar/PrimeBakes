@@ -272,7 +272,7 @@
     <Build Include="StoredProcedures\Insert\Restaurant\Dining\Insert_DiningTable.sql" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="DBPrimeBakes.publish.xml" />
     <None Include="PublishLocation\LocalDBPrimeBakes.publish.xml" />
+    <None Include="PublishLocation\AzurePrimeBakesTesting.publish.xml" />
   </ItemGroup>
 </Project>
