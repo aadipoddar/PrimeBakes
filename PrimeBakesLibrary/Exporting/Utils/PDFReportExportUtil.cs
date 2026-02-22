@@ -807,7 +807,7 @@ public static class PDFReportExportUtil
 
             // Left: AadiSoft branding
             var currentDateTime = await CommonData.LoadCurrentDateTime();
-            string branding = $"© {currentDateTime.Year} A Product By aadisoft.tech";
+            string branding = $"© {currentDateTime.Year} A Product By aadisoft.vercel.app";
             footer.Graphics.DrawString(branding, footerFont, footerBrush, new PointF(15, 8));
 
             // Center: Export date

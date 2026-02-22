@@ -15,8 +15,6 @@ public partial class SaleMobileCartPage
 	private bool _isLoading = true;
 	private bool _isProcessing = false;
 
-	private readonly SaleModel _sale = new();
-
 	private List<SaleItemCartModel> _cart = [];
 
 	private SfGrid<SaleItemCartModel> _sfCartGrid;
@@ -151,6 +149,19 @@ public partial class SaleMobileCartPage
 			_isProcessing = false;
 			StateHasChanged();
 		}
+	}
+
+	private async Task GoToPayment()
+	{
+		await SaveTransactionFile();
+
+		if (_cart.Sum(x => x.Quantity) <= 0 || !await DataStorageService.LocalExists(StorageFileNames.SaleMobileCartDataFileName))
+			return;
+
+		VibrationService.VibrateWithTime(500);
+		_cart.Clear();
+
+		NavigationManager.NavigateTo(PageRouteNames.SaleMobilePayment);
 	}
 	#endregion
 }

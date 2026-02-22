@@ -906,7 +906,7 @@ public partial class BillPage : IAsyncDisposable
 	#endregion
 
 	#region Financial Calculations
-	private static void CalculateItemFinancials(BillItemCartModel item)
+	private void CalculateItemFinancials(BillItemCartModel item)
 	{
 		item.BaseTotal = item.Rate * item.Quantity;
 		item.DiscountAmount = item.BaseTotal * (item.DiscountPercent / 100);
@@ -932,7 +932,7 @@ public partial class BillPage : IAsyncDisposable
 		item.Remarks = string.IsNullOrWhiteSpace(item.Remarks) ? null : item.Remarks.Trim();
 
 		if (item.Quantity > 0)
-			item.NetRate = item.Total / item.Quantity * (1 - item.DiscountPercent / 100);
+			item.NetRate = item.Total / item.Quantity * (1 - _bill.DiscountPercent / 100);
 	}
 
 	private async Task RecalculateAndSave(bool customRoundOff = false)
@@ -1078,6 +1078,12 @@ public partial class BillPage : IAsyncDisposable
 			if (!existingBill.Running && !(_user.Admin && _user.LocationId == 1))
 			{
 				await _toastNotification.ShowAsync("Insufficient Permissions", "Only admin users can modify settled bills.", ToastType.Error);
+				return false;
+			}
+
+			if (!existingBill.Running && (_bill.Cash + _bill.Card + _bill.UPI + _bill.Credit != _bill.TotalAmount))
+			{
+				await _toastNotification.ShowAsync("Payment Mismatch", "For settled bills, the total payment must equal the total amount.", ToastType.Error);
 				return false;
 			}
 		}

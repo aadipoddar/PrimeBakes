@@ -5,14 +5,18 @@ namespace PrimeBakes.Shared.Pages.Restaurant;
 public partial class RestaurantDashboard : IAsyncDisposable
 {
 	private HotKeysContext _hotKeysContext;
+	private UserModel _user;
 	private bool _isLoading = true;
+
+	private string Factor =>
+		FormFactor.GetFormFactor();
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (!firstRender)
 			return;
 
-		await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Restaurant]);
+		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Restaurant]);
 
 		_hotKeysContext = HotKeys.CreateContext()
 			.Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)

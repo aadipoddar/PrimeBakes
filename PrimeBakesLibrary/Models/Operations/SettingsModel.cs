@@ -34,14 +34,17 @@ public static class SettingsKeys
 
 	public static string PrimaryCompanyLinkingId => "PrimaryCompanyLinkingId";
 
-	public static string SaleVoucherId => "SaleVoucherId";
-	public static string StockTransferVoucherId => "StockTransferVoucherId";
-	public static string SaleReturnVoucherId => "SaleReturnVoucherId";
 	public static string PurchaseVoucherId => "PurchaseVoucherId";
 	public static string PurchaseReturnVoucherId => "PurchaseReturnVoucherId";
+	public static string SaleVoucherId => "SaleVoucherId";
+	public static string SaleReturnVoucherId => "SaleReturnVoucherId";
+	public static string StockTransferVoucherId => "StockTransferVoucherId";
+	public static string BillVoucherId => "BillVoucherId";
+	
+	public static string PurchaseLedgerId => "PurchaseLedgerId";
 	public static string SaleLedgerId => "SaleLedgerId";
 	public static string StockTransferLedgerId => "StockTransferLedgerId";
-	public static string PurchaseLedgerId => "PurchaseLedgerId";
+	public static string BillLedgerId => "BillLedgerId";
 	public static string CashLedgerId => "CashLedgerId";
 	public static string CashSalesLedgerId => "CashSalesLedgerId";
 	public static string GSTLedgerId => "GSTLedgerId";

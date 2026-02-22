@@ -1,14 +1,15 @@
-@attribute [Route(PageRouteNames.SaleMobileCart)]
+﻿@attribute [Route(PageRouteNames.BillMobileCart)]
+@attribute [Route($"{PageRouteNames.BillMobileCart}/table/{{DiningTableId:int}}")]
 
 @using PrimeBakesLibrary.Data.Common
 @using PrimeBakesLibrary.Models.Accounts.Masters
 @using PrimeBakesLibrary.Models.Operations
+@using PrimeBakesLibrary.Models.Restuarant.Bill
 @using PrimeBakesLibrary.Models.Store
 @using PrimeBakesLibrary.Models.Store.Masters
 @using PrimeBakesLibrary.Models.Store.Product
-@using PrimeBakesLibrary.Models.Store.Sale
 
-<PageTitle>Sale Cart - Prime Bakes</PageTitle>
+<PageTitle>Bill Cart - Prime Bakes</PageTitle>
 
 @if (_isLoading || _user is null)
 {
@@ -17,27 +18,28 @@
 else
 {
     <div class="page-shell">
-        <Header Title="Sale Cart" Subtitle="Review and submit your sale" ShowBack="true"
-                OnBackClick="() => NavigationManager.NavigateTo(PageRouteNames.SaleMobile)" />
+        <Header Title="@($"{_diningTable.Name} Cart")" Subtitle="Review and submit your bill" ShowBack="true"
+                OnBackClick='() => NavigationManager.NavigateTo($"{PageRouteNames.BillMobile}/table/{_diningTable.Id}")' />
 
         <!-- Main Content Container -->
         <div class="sale-cart-container">
 
             @if (_cart.Any())
             {
-                <!-- Grid Container -->
                 <div class="grid-container">
+                    <div class="section-title">New Cart</div>
+
                     <SfGrid @ref="_sfCartGrid" EnableAdaptiveUI="true" DataSource="_cart" AllowPaging="true"
                             AllowSorting="false" AllowTextWrap="true" Toolbar="@(new List<string>() { "Search" })">
 
                         <GridPageSettings PageSize="10" />
 
                         <GridColumns>
-                            <GridColumn Field="@nameof(SaleItemCartModel.ItemName)" HeaderText="Product" Width="40%" />
+                            <GridColumn Field="@nameof(BillItemCartModel.ItemName)" HeaderText="Product" Width="40%" />
                             <GridColumn HeaderText="Details" Width="60%" TextAlign="TextAlign.Right">
                                 <Template>
                                     @{
-                                        var item = (context as SaleItemCartModel);
+                                        var item = (context as BillItemCartModel);
                                     }
                                     @if (item is not null)
                                     {
@@ -68,6 +70,17 @@ else
                                                 </div>
                                             </div>
 
+                                            <!-- Remarks Section -->
+                                            <div class="detail-row remarks-row">
+                                                <span class="detail-row-label">Remarks:</span>
+                                                <div class="detail-row-control remarks-control">
+                                                    <SfTextBox Value="@item.Remarks"
+                                                               ValueChanged="@((string value) => UpdateRemarks(item, value))"
+                                                               Placeholder="Instructions" FloatLabelType="FloatLabelType.Never"
+                                                               CssClass="input-field remarks-input" Enabled="@(!_isProcessing)" />
+                                                </div>
+                                            </div>
+
                                             <!-- Total Display -->
                                             <div class="detail-row total-row">
                                                 <span class="detail-row-label">Total:</span>
@@ -81,17 +94,66 @@ else
                     </SfGrid>
                 </div>
             }
-            else
+
+            @if (_previousCart.Any())
             {
-                <MobileEmptyCartState NavigateTo="@PageRouteNames.SaleMobile" Disabled="@_isProcessing" />
+                <div class="grid-container previous-grid-container">
+                    <div class="section-title">Previous Cart (Read-only)</div>
+
+                    <SfGrid EnableAdaptiveUI="true" DataSource="_previousCart" AllowPaging="true"
+                            AllowSorting="false" AllowTextWrap="true" Toolbar="@(new List<string>() { "Search" })">
+
+                        <GridPageSettings PageSize="5" />
+
+                        <GridColumns>
+                            <GridColumn Field="@nameof(BillItemCartModel.ItemName)" HeaderText="Product" Width="40%" />
+                            <GridColumn HeaderText="Details" Width="60%" TextAlign="TextAlign.Right">
+                                <Template>
+                                    @{
+                                        var item = (context as BillItemCartModel);
+                                    }
+                                    @if (item is not null)
+                                    {
+                                        <div class="item-details-section">
+                                            <div class="detail-row">
+                                                <span class="detail-row-label">Qty:</span>
+                                                <span class="readonly-value">@item.Quantity.ToString("N0")</span>
+                                            </div>
+
+                                            <div class="detail-row">
+                                                <span class="detail-row-label">Rate:</span>
+                                                <span class="readonly-value">₹@item.Rate.ToString("N2")</span>
+                                            </div>
+
+                                            <div class="detail-row remarks-row">
+                                                <span class="detail-row-label">Remarks:</span>
+                                                <span class="readonly-value remarks-text">@(string.IsNullOrWhiteSpace(item.Remarks) ? "-" : item.Remarks)</span>
+                                            </div>
+
+                                            <div class="detail-row total-row">
+                                                <span class="detail-row-label">Total:</span>
+                                                <span class="total-value">₹@item.Total.ToString("N2")</span>
+                                            </div>
+                                        </div>
+                                    }
+                                </Template>
+                            </GridColumn>
+                        </GridColumns>
+                    </SfGrid>
+                </div>
+            }
+
+            @if (!_cart.Any() && !_previousCart.Any())
+            {
+                <MobileEmptyCartState NavigateTo="@PageRouteNames.DiningMobileDashboard" Disabled="@_isProcessing" />
             }
 
         </div>
 
-        @if (_cart.Any())
+        @if (_cart.Any() || _previousCart.Count > 0)
         {
             <div class="cart-footer">
-                <MobileCartButton Text="Settle Bill" BadgeCount="@_cart.Count()" Disabled="@_isProcessing"
+                <MobileCartButton Text="Settle Bill" BadgeCount="@(_cart.Count() + _previousCart.Count)" Disabled="@_isProcessing"
                                   OnClick="GoToPayment" />
             </div>
         }
@@ -133,6 +195,18 @@ else
         overflow: hidden;
     }
 
+    .previous-grid-container {
+        padding-bottom: 0;
+    }
+
+    .section-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 8px;
+        padding-left: 2px;
+    }
+
     /* Item Details Section */
     .item-details-section {
         display: flex;
@@ -165,10 +239,35 @@ else
         max-width: 140px;
     }
 
+    .remarks-row {
+        align-items: flex-start;
+    }
+
+    .remarks-control {
+        max-width: none;
+    }
+
+    .remarks-input {
+        width: 100%;
+    }
+
     .total-row {
         padding-top: 6px;
         border-top: 1px solid var(--border-color);
         margin-top: 4px;
+    }
+
+    .readonly-value {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-dark);
+        text-align: right;
+    }
+
+    .remarks-text {
+        max-width: 180px;
+        white-space: normal;
+        word-break: break-word;
     }
 
     .total-value {

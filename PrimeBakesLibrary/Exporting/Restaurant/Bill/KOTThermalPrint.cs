@@ -99,7 +99,7 @@ public static class KOTThermalPrint
 		content.AppendLine($"<div class='footer-text'>Printed By: {users.FirstOrDefault(u => u.Id == bill.CreatedBy)?.Name}</div>");
 		content.AppendLine($"<div class='footer-timestamp'>Printed On: {currentDateTime:dd/MM/yy hh:mm tt}</div>");
 
-		const string footerLineTwo = "A Product of aadisoft.tech";
+		const string footerLineTwo = "A Product of aadisoft.vercel.app";
 		content.AppendLine($"<div class='footer-text'>{footerLineTwo}</div>");
 	}
 }

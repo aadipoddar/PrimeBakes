@@ -192,7 +192,7 @@ public class BillThermalPrint
 		const string footerLineOne = "Thanks. Visit Again";
 		content.AppendLine($"<div class='footer-text'>{footerLineOne}</div>");
 
-		const string footerLineTwo = "A Product of aadisoft.tech";
+		const string footerLineTwo = "A Product of aadisoft.vercel.app";
 		content.AppendLine($"<div class='footer-text'>{footerLineTwo}</div>");
 	}
 }

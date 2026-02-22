@@ -556,7 +556,7 @@ public static class ExcelInvoiceExportUtil
         // Footer row with three sections: Left (branding), Center (export date), Right (empty for Excel - no page numbers needed)
         // Left section: AadiSoft branding
         worksheet.Range[currentRow, 1, currentRow, 3].Merge();
-        worksheet.Range[currentRow, 1].Text = $"© {currentDateTime.Year} A Product By aadisoft.tech";
+        worksheet.Range[currentRow, 1].Text = $"© {currentDateTime.Year} A Product By aadisoft.vercel.app";
         worksheet.Range[currentRow, 1].CellStyle.Font.Size = 7;
         worksheet.Range[currentRow, 1].CellStyle.Font.Italic = true;
         worksheet.Range[currentRow, 1].CellStyle.Font.Color = ExcelKnownColors.Grey_50_percent;

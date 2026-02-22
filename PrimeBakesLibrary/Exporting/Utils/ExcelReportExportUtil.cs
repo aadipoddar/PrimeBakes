@@ -741,7 +741,7 @@ public static class ExcelReportExportUtil
             string colLetter = GetExcelColumnName(columnCount);
             IRange brandingRange = worksheet.Range[$"A{startRow}:{colLetter}{startRow}"];
             brandingRange.Merge();
-            brandingRange.Text = $"© {DateTime.Now.Year} A Product By AadiSoft | www.aadisoft.tech";
+            brandingRange.Text = $"© {DateTime.Now.Year} A Product By AadiSoft | www.aadisoft.vercel.app";
             brandingRange.CellStyle.HorizontalAlignment = ExcelHAlign.HAlignCenter;
             brandingRange.CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
             brandingRange.CellStyle.Font.Size = 10;

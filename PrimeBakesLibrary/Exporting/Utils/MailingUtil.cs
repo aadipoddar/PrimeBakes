@@ -286,7 +286,7 @@ internal static class MailingUtil
                             </p>
                             <p style=""margin: 20px 0 0 0; color: #999999; font-size: 12px; line-height: 1.6;"">
                                 This is an automated message, please do not reply to this email.<br>
-                                <a href=""https://aadisoft.tech/"" style=""color: #ec407a; text-decoration: none;"">Visit our website</a>
+                                <a href=""https://aadisoft.vercel.app/"" style=""color: #ec407a; text-decoration: none;"">Visit our website</a>
                             </p>
                         </td>
                     </tr>

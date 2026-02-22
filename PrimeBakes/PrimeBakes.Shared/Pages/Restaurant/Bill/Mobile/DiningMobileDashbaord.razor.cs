@@ -5,9 +5,9 @@ using PrimeBakesLibrary.Models.Operations;
 using PrimeBakesLibrary.Models.Restuarant.Bill;
 using PrimeBakesLibrary.Models.Restuarant.Dining;
 
-namespace PrimeBakes.Shared.Pages.Restaurant.Bill;
+namespace PrimeBakes.Shared.Pages.Restaurant.Bill.Mobile;
 
-public partial class DiningDashbaord : IAsyncDisposable
+public partial class DiningMobileDashbaord : IAsyncDisposable
 {
 	private HotKeysContext _hotKeysContext;
 	private UserModel _user;
@@ -53,7 +53,7 @@ public partial class DiningDashbaord : IAsyncDisposable
 		NavigationManager.NavigateTo(PageRouteNames.RestaurantDashboard);
 
 	private void OpenBillPage(int diningTableId) =>
-		NavigationManager.NavigateTo($"{PageRouteNames.Bill}/table/{diningTableId}");
+		NavigationManager.NavigateTo($"{PageRouteNames.BillMobile}/table/{diningTableId}");
 
 	private async Task Logout() =>
 		await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);

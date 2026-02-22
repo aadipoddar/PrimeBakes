@@ -1,8 +1,9 @@
-@attribute [Route(PageRouteNames.SaleMobile)]
+﻿@attribute [Route(PageRouteNames.BillMobile)]
+@attribute [Route($"{PageRouteNames.BillMobile}/table/{{DiningTableId:int}}")]
 
-@using PrimeBakesLibrary.Models.Store.Sale
+@using PrimeBakesLibrary.Models.Restuarant.Bill
 
-<PageTitle>Sale - Prime Bakes</PageTitle>
+<PageTitle>Bill - Prime Bakes</PageTitle>
 
 @if (_isLoading || _user is null)
 {
@@ -11,8 +12,8 @@
 else
 {
     <div class="page-shell">
-        <Header Title="Create Sale" Subtitle="Mobile sale entry" ShowBack="true"
-                OnBackClick="() => NavigationManager.NavigateTo(PageRouteNames.StoreDashboard)" />
+        <Header Title="@_diningTable.Name" Subtitle="Mobile bill entry" ShowBack="true"
+                OnBackClick="() => NavigationManager.NavigateTo(PageRouteNames.DiningMobileDashboard)" />
 
         <!-- Main Content Container -->
         <div class="sale-mobile-container">
@@ -29,11 +30,11 @@ else
                     <GridPageSettings PageSize="10" />
 
                     <GridColumns>
-                        <GridColumn Field="@nameof(SaleItemCartModel.ItemName)" HeaderText="Product" Width="40%" />
+                        <GridColumn Field="@nameof(BillItemCartModel.ItemName)" HeaderText="Product" Width="40%" />
                         <GridColumn HeaderText="Details" Width="60%" TextAlign="TextAlign.Right">
                             <Template>
                                 @{
-                                    var item = (context as SaleItemCartModel);
+                                    var item = (context as BillItemCartModel);
                                 }
                                 @if (item is not null)
                                 {
@@ -73,6 +74,17 @@ else
                                                 </div>
                                             </div>
 
+                                            <!-- Remarks Section -->
+                                            <div class="detail-row remarks-row">
+                                                <span class="detail-row-label">Remarks:</span>
+                                                <div class="detail-row-control remarks-control">
+                                                    <SfTextBox Value="@item.Remarks"
+                                                               ValueChanged="@((string value) => UpdateRemarks(item, value))"
+                                                               Placeholder="Instructions" FloatLabelType="FloatLabelType.Never"
+                                                               CssClass="input-field remarks-input" />
+                                                </div>
+                                            </div>
+
                                             <!-- Total Display (only when quantity > 0) -->
                                             <div class="detail-row total-row">
                                                 <span class="detail-row-label">Total:</span>
@@ -89,10 +101,10 @@ else
 
         </div>
 
-        @if (_cart.Any(c => c.Quantity > 0))
+        @if (_cart.Any(c => c.Quantity > 0) || _previousCart.Count > 0)
         {
             <div class="cart-footer">
-                <MobileCartButton Text="Go to Cart" BadgeCount="@_cart.Count(c => c.Quantity > 0)" OnClick="GoToCart" />
+                <MobileCartButton Text="Go to Cart" BadgeCount="@(_cart.Count(c => c.Quantity > 0) + _previousCart.Count)" OnClick="GoToCart" />
             </div>
         }
 
@@ -158,6 +170,18 @@ else
         display: flex;
         justify-content: flex-end;
         max-width: 140px;
+    }
+
+    .remarks-row {
+        align-items: flex-start;
+    }
+
+    .remarks-control {
+        max-width: none;
+    }
+
+    .remarks-input {
+        width: 100%;
     }
 
     .total-row {
@@ -368,7 +392,6 @@ else
             padding: 8px;
             font-size: 14px;
         }
-
     }
 
     @@media (max-width: 400px) {

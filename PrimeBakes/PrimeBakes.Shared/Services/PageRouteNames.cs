@@ -93,8 +93,13 @@ internal static class PageRouteNames
 	#region Restaurant
 	public const string RestaurantDashboard = "/restaurant";
 	public const string DiningDashboard = "/restaurant/bill";
+	public const string DiningMobileDashboard = "/restaurant/bill/mobile";
 
 	public const string Bill = "/restaurant/bill/bill";
+	public const string BillMobile = "/restaurant/bill/mobile/bill";
+	public const string BillMobileCart = "/restaurant/bill/mobile/bill-cart";
+	public const string BillMobilePayment = "/restaurant/bill/mobile/bill-payment";
+	public const string BillMobileConfirmation = "/restaurant/bill/mobile/bill-confirmation";
 	public const string BillReport = "/restaurant/bill/report/bill";
 	public const string BillItemReport = "/restaurant/bill/report/bill-item";
 

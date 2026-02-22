@@ -28,14 +28,17 @@ BEGIN
 
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'PrimaryCompanyLinkingId'			, N'1'		, N'Company Id for the Primary Company Account')
 
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'PurchaseVoucherId', N'4', N'Voucher type for Purchase transactions')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'PurchaseReturnVoucherId', N'6', N'Voucher type for Purchase Return transactions')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'SaleVoucherId', N'3', N'Voucher type for Sales transactions')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'SaleReturnVoucherId', N'5', N'Voucher type for Sale Return transactions')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'StockTransferVoucherId', N'7', N'Voucher type for Stock Transfer transactions')
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'PurchaseVoucherId', N'4', N'Voucher type for Purchase transactions')
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'PurchaseReturnVoucherId', N'6', N'Voucher type for Purchase Return transactions')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'BillVoucherId', N'9', N'Voucher type for Bill transactions')
+	
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'PurchaseLedgerId', N'155', N'Ledger account for Purchase entries')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'SaleLedgerId', N'144', N'Ledger account for Sales entries')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'StockTransferLedgerId', N'156', N'Ledger account for Stock Transfer entries')
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'PurchaseLedgerId', N'155', N'Ledger account for Purchase entries')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'BillLedgerId', N'144', N'Ledger account for Bill entries')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'CashLedgerId', N'1', N'Cash ledger account for Cash Entries')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'CashSalesLedgerId', N'170', N'Cash ledger account for Cash Sales Entries')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'GSTLedgerId', N'1751', N'GST ledger account for GST Tax Entries')

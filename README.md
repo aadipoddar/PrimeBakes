@@ -475,7 +475,7 @@ This project is proprietary software developed for **Salasar Foods Guwahati**.
 ## 👨‍💻 Development
 
 <p align="center">
-  <strong>Developed with ❤️ by <a href="https://aadisoft.tech">AadiSoft</a></strong>
+  <strong>Developed with ❤️ by <a href="https://aadisoft.vercel.app">AadiSoft</a></strong>
 </p>
 
 <p align="center">
@@ -484,4 +484,4 @@ This project is proprietary software developed for **Salasar Foods Guwahati**.
 
 ---
 
-Latest Version = 1.0.9.3
+Latest Version = 1.0.9.4
