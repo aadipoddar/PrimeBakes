@@ -45,11 +45,14 @@ public partial class SettingsPage : IAsyncDisposable
     private string _saleReturnTransactionPrefix = string.Empty;
     private string _stockTransferTransactionPrefix = string.Empty;
     private string _orderTransactionPrefix = string.Empty;
+    private string _billTransactionPrefix = string.Empty;
     private string _accountingTransactionPrefix = string.Empty;
 
     // Vouchers
     private string _saleVoucherId = string.Empty;
     private string _selectedSaleVoucherName = string.Empty;
+    private string _billVoucherId = string.Empty;
+    private string _selectedBillVoucherName = string.Empty;
     private string _saleReturnVoucherId = string.Empty;
     private string _selectedSaleReturnVoucherName = string.Empty;
     private string _stockTransferVoucherId = string.Empty;
@@ -63,6 +66,8 @@ public partial class SettingsPage : IAsyncDisposable
     // Ledgers
     private string _saleLedgerId = string.Empty;
     private string _selectedSaleLedgerName = string.Empty;
+    private string _billLedgerId = string.Empty;
+    private string _selectedBillLedgerName = string.Empty;
     private string _stockTransferLedgerId = string.Empty;
     private string _selectedStockTransferLedgerName = string.Empty;
     private string _purchaseLedgerId = string.Empty;
@@ -172,12 +177,18 @@ public partial class SettingsPage : IAsyncDisposable
         var orderPrefixSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.OrderTransactionPrefix);
         _orderTransactionPrefix = orderPrefixSetting?.Value ?? string.Empty;
 
+        var billPrefixSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.BillTransactionPrefix);
+        _billTransactionPrefix = billPrefixSetting?.Value ?? string.Empty;
+
         var accountingPrefixSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.AccountingTransactionPrefix);
         _accountingTransactionPrefix = accountingPrefixSetting?.Value ?? string.Empty;
 
         // Vouchers
         var saleVoucherSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.SaleVoucherId);
         _saleVoucherId = saleVoucherSetting?.Value ?? string.Empty;
+
+        var billVoucherSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.BillVoucherId);
+        _billVoucherId = billVoucherSetting?.Value ?? string.Empty;
 
         var saleReturnVoucherSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.SaleReturnVoucherId);
         _saleReturnVoucherId = saleReturnVoucherSetting?.Value ?? string.Empty;
@@ -194,6 +205,9 @@ public partial class SettingsPage : IAsyncDisposable
         // Ledgers
         var saleLedgerSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.SaleLedgerId);
         _saleLedgerId = saleLedgerSetting?.Value ?? string.Empty;
+
+        var billLedgerSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.BillLedgerId);
+        _billLedgerId = billLedgerSetting?.Value ?? string.Empty;
 
         var stockTransferLedgerSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.StockTransferLedgerId);
         _stockTransferLedgerId = stockTransferLedgerSetting?.Value ?? string.Empty;
@@ -256,6 +270,12 @@ public partial class SettingsPage : IAsyncDisposable
             _selectedSaleVoucherName = voucher?.Name ?? string.Empty;
         }
 
+        if (!string.IsNullOrEmpty(_billVoucherId) && long.TryParse(_billVoucherId, out var billVoucherId))
+        {
+            var voucher = _vouchers.FirstOrDefault(v => v.Id == billVoucherId);
+            _selectedBillVoucherName = voucher?.Name ?? string.Empty;
+        }
+
         if (!string.IsNullOrEmpty(_saleReturnVoucherId) && long.TryParse(_saleReturnVoucherId, out var saleReturnVoucherId))
         {
             var voucher = _vouchers.FirstOrDefault(v => v.Id == saleReturnVoucherId);
@@ -285,6 +305,12 @@ public partial class SettingsPage : IAsyncDisposable
         {
             var ledger = _ledgers.FirstOrDefault(l => l.Id == saleLedgerId);
             _selectedSaleLedgerName = ledger?.Name ?? string.Empty;
+        }
+
+        if (!string.IsNullOrEmpty(_billLedgerId) && long.TryParse(_billLedgerId, out var billLedgerId))
+        {
+            var ledger = _ledgers.FirstOrDefault(l => l.Id == billLedgerId);
+            _selectedBillLedgerName = ledger?.Name ?? string.Empty;
         }
 
         if (!string.IsNullOrEmpty(_stockTransferLedgerId) && long.TryParse(_stockTransferLedgerId, out var stockTransferLedgerId))
@@ -338,6 +364,14 @@ public partial class SettingsPage : IAsyncDisposable
         }
     }
 
+    private void OnBillVoucherChange(ChangeEventArgs<string, VoucherModel> args)
+    {
+        if (args.ItemData != null)
+        {
+            _billVoucherId = args.ItemData.Id.ToString();
+        }
+    }
+
     private void OnSaleReturnVoucherChange(ChangeEventArgs<string, VoucherModel> args)
     {
         if (args.ItemData != null)
@@ -375,6 +409,14 @@ public partial class SettingsPage : IAsyncDisposable
         if (args.ItemData != null)
         {
             _saleLedgerId = args.ItemData.Id.ToString();
+        }
+    }
+
+    private void OnBillLedgerChange(ChangeEventArgs<string, LedgerModel> args)
+    {
+        if (args.ItemData != null)
+        {
+            _billLedgerId = args.ItemData.Id.ToString();
         }
     }
 
@@ -457,14 +499,17 @@ public partial class SettingsPage : IAsyncDisposable
             await UpdateSetting(SettingsKeys.SaleReturnTransactionPrefix, _saleReturnTransactionPrefix, settings.FirstOrDefault(_ => _.Key == SettingsKeys.SaleReturnTransactionPrefix).Description);
             await UpdateSetting(SettingsKeys.StockTransferTransactionPrefix, _stockTransferTransactionPrefix, settings.FirstOrDefault(_ => _.Key == SettingsKeys.StockTransferTransactionPrefix).Description);
             await UpdateSetting(SettingsKeys.OrderTransactionPrefix, _orderTransactionPrefix, settings.FirstOrDefault(_ => _.Key == SettingsKeys.OrderTransactionPrefix).Description);
+            await UpdateSetting(SettingsKeys.BillTransactionPrefix, _billTransactionPrefix, settings.FirstOrDefault(_ => _.Key == SettingsKeys.BillTransactionPrefix)?.Description ?? string.Empty);
             await UpdateSetting(SettingsKeys.AccountingTransactionPrefix, _accountingTransactionPrefix, settings.FirstOrDefault(_ => _.Key == SettingsKeys.AccountingTransactionPrefix).Description);
 
             await UpdateSetting(SettingsKeys.SaleVoucherId, _saleVoucherId, settings.FirstOrDefault(_ => _.Key == SettingsKeys.SaleVoucherId).Description);
+            await UpdateSetting(SettingsKeys.BillVoucherId, _billVoucherId, settings.FirstOrDefault(_ => _.Key == SettingsKeys.BillVoucherId)?.Description ?? string.Empty);
             await UpdateSetting(SettingsKeys.SaleReturnVoucherId, _saleReturnVoucherId, settings.FirstOrDefault(_ => _.Key == SettingsKeys.SaleReturnVoucherId).Description);
             await UpdateSetting(SettingsKeys.StockTransferVoucherId, _stockTransferVoucherId, settings.FirstOrDefault(_ => _.Key == SettingsKeys.StockTransferVoucherId).Description);
             await UpdateSetting(SettingsKeys.PurchaseVoucherId, _purchaseVoucherId, settings.FirstOrDefault(_ => _.Key == SettingsKeys.PurchaseVoucherId).Description);
             await UpdateSetting(SettingsKeys.PurchaseReturnVoucherId, _purchaseReturnVoucherId, settings.FirstOrDefault(_ => _.Key == SettingsKeys.PurchaseReturnVoucherId).Description);
             await UpdateSetting(SettingsKeys.SaleLedgerId, _saleLedgerId, settings.FirstOrDefault(_ => _.Key == SettingsKeys.SaleLedgerId).Description);
+            await UpdateSetting(SettingsKeys.BillLedgerId, _billLedgerId, settings.FirstOrDefault(_ => _.Key == SettingsKeys.BillLedgerId)?.Description ?? string.Empty);
             await UpdateSetting(SettingsKeys.StockTransferLedgerId, _stockTransferLedgerId, settings.FirstOrDefault(_ => _.Key == SettingsKeys.StockTransferLedgerId).Description);
             await UpdateSetting(SettingsKeys.PurchaseLedgerId, _purchaseLedgerId, settings.FirstOrDefault(_ => _.Key == SettingsKeys.PurchaseLedgerId).Description);
             await UpdateSetting(SettingsKeys.CashLedgerId, _cashLedgerId, settings.FirstOrDefault(_ => _.Key == SettingsKeys.CashLedgerId).Description);
