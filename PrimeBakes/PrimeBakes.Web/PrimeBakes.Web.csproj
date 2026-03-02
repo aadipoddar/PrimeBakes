@@ -16,4 +16,8 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Blazor.Bluetooth" Version="1.0.6.2" />
+  </ItemGroup>
+
 </Project>

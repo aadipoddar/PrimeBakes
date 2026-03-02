@@ -38,6 +38,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<IDataStorageService, DataStorageService>();
         builder.Services.AddSingleton<IVibrationService, VibrationService>();
         builder.Services.AddSingleton<ISoundService, SoundService>();
+        builder.Services.AddSingleton<IBluetoothPrinterService, BluetoothPrinterService>();
         builder.Services.AddScoped<INotificationService, NotificationService>();
 
         builder.Services.AddMauiBlazorWebView();

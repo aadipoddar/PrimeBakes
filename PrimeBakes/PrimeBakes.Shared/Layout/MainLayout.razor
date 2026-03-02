@@ -9,3 +9,8 @@
 	<a href="." class="reload">Reload</a>
 	<span class="dismiss">🗙</span>
 </div>
+
+<ToastNotification @ref="_toastNotification" />
+
+<BluetoothReconnectDialog @ref="_bluetoothReconnectDialog" PrinterName="@_savedPrinterName" Disabled="_isReconnecting"
+						  OnReconnect="ReconnectPrinterFromDialog" OnDismiss="DismissReconnectDialog" />

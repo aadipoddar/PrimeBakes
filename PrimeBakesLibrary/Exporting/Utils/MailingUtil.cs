@@ -8,7 +8,7 @@ internal static class MailingUtil
 {
     private static async Task SendEmail(string subject, string htmlBody, Dictionary<MemoryStream, string>? attachments = null)
     {
-        if (SqlDataAccess._databaseConnection == Secrets.LocalConnectionString)
+        if (SqlDataAccess._databaseConnection != Secrets.AzureConnectionString)
             return; // Do not send emails in local/dev environment
 
         var message = new MimeMessage();

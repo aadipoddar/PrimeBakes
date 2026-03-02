@@ -45,6 +45,7 @@ public class DataStorageService(ProtectedLocalStorage protectedLocalStorage) : I
 		await LocalRemove(StorageFileNames.StockTransferCartDataFileName);
 		await LocalRemove(StorageFileNames.BillDataFileName);
 		await LocalRemove(StorageFileNames.BillCartDataFileName);
+		await LocalRemove(StorageFileNames.BluetoothPrinterDataFileName);
 	}
 
 

@@ -57,11 +57,8 @@ else if (_isUpdating)
 else
 {
 	<div class="page-shell">
-		<Header Title="Main Dashboard"
-				Subtitle="Quick access to all modules and operations"
-				UserName="@_user?.Name"
-				ShowLogout="true"
-				OnLogoutClick="Logout" />
+		<Header Title="Main Dashboard" Subtitle="Quick access to all modules and operations" UserName="@_user?.Name"
+				ShowLogout="true" OnLogoutClick="Logout" />
 
 		<!-- Main Content Container -->
 		<div class="page-container">
@@ -72,11 +69,11 @@ else
 					<!-- Accounts -->
 					@if (_user.Accounts)
 					{
-						<ButtonCard Title="Accounts" Description="Access accounting dashboard" Color="purple" OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard)">
+						<ButtonCard Title="Accounts" Description="Access accounting dashboard" Color="purple"
+									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard)">
 							<IconContent>
-								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-									 stroke-linejoin="round">
+								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+									 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 									<line x1="12" y1="1" x2="12" y2="23" />
 									<path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
 								</svg>
@@ -87,12 +84,13 @@ else
 					<!-- Inventory -->
 					@if (_user.Inventory)
 					{
-						<ButtonCard Title="Inventory" Description="Access inventory dashboard" Color="orange" OnClick="() => NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard)">
+						<ButtonCard Title="Inventory" Description="Access inventory dashboard" Color="orange"
+									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard)">
 							<IconContent>
-								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-									 stroke-linejoin="round">
-									<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+									 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<path
+									d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
 									<polyline points="3.27 6.96 12 12.01 20.73 6.96" />
 									<line x1="12" y1="22.08" x2="12" y2="12" />
 								</svg>
@@ -104,16 +102,17 @@ else
 				<!-- Store -->
 				@if (_user.Store)
 				{
-					<ButtonCard Title="Store" Description="Access store dashboard" Color="green" OnClick="() => NavigationManager.NavigateTo(PageRouteNames.StoreDashboard)">
+					<ButtonCard Title="Store" Description="Access store dashboard" Color="green"
+								OnClick="() => NavigationManager.NavigateTo(PageRouteNames.StoreDashboard)">
 						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								 stroke-linejoin="round">
+							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+								 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 								<path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" />
 								<path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
 								<path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" />
 								<path d="M2 7h20" />
-								<path d="M22 7v3a2 2 0 0 1-2 2v0a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12v0a2 2 0 0 1-2-2V7" />
+								<path
+								d="M22 7v3a2 2 0 0 1-2 2v0a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12v0a2 2 0 0 1-2-2V7" />
 							</svg>
 						</IconContent>
 					</ButtonCard>
@@ -122,11 +121,11 @@ else
 				<!-- Restaurant -->
 				@if (_user.Restaurant)
 				{
-					<ButtonCard Title="Restaurant" Description="Access restaurant dashboard" Color="red" OnClick="() => NavigationManager.NavigateTo(PageRouteNames.RestaurantDashboard)">
+					<ButtonCard Title="Restaurant" Description="Access restaurant dashboard" Color="red"
+								OnClick="() => NavigationManager.NavigateTo(PageRouteNames.RestaurantDashboard)">
 						<IconContent>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-								 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								 stroke-linejoin="round">
+							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+								 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 								<path d="M3 2v7a3 3 0 0 0 6 0V2" />
 								<path d="M7 2v20" />
 								<path d="M14 2v8a2 2 0 0 0 4 0V2" />
@@ -136,41 +135,38 @@ else
 					</ButtonCard>
 				}
 
-				@if (Factor != "Phone")
-				{
-					<!-- Operations -->
-					@if (_user.Admin)
-					{
-						<ButtonCard Title="Operations" Description="Access operations dashboard" Color="indigo" OnClick="() => NavigationManager.NavigateTo(PageRouteNames.OperationsDashboard)">
-							<IconContent>
-								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-									 stroke-linejoin="round">
-									<circle cx="12" cy="12" r="3" />
-									<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-								</svg>
-							</IconContent>
-						</ButtonCard>
-					}
+				<!-- Operations -->
+				<ButtonCard Title="Operations" Description="Access operations dashboard" Color="indigo"
+							OnClick="() => NavigationManager.NavigateTo(PageRouteNames.OperationsDashboard)">
+					<IconContent>
+						<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+							 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<circle cx="12" cy="12" r="3" />
+							<path
+							d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+						</svg>
+					</IconContent>
+				</ButtonCard>
 
-					<!-- Reports -->
-					@if (_user.Reports)
-					{
-						<ButtonCard Title="Reports" Description="Access reports dashboard" Color="teal" OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportDashboard)">
-							<IconContent>
-								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-									 stroke-linejoin="round">
-									<path d="M3 3v18h18" />
-									<path d="M18 17V9" />
-									<path d="M13 17V5" />
-									<path d="M8 17v-3" />
-								</svg>
-							</IconContent>
-						</ButtonCard>
-					}
+				<!-- Reports -->
+				@if (Factor != "Phone" && _user.Reports)
+				{
+					<ButtonCard Title="Reports" Description="Access reports dashboard" Color="teal"
+								OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportDashboard)">
+						<IconContent>
+							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+								 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M3 3v18h18" />
+								<path d="M18 17V9" />
+								<path d="M13 17V5" />
+								<path d="M8 17v-3" />
+							</svg>
+						</IconContent>
+					</ButtonCard>
 				}
 			</div>
+
+
 
 		</div>
 
@@ -272,16 +268,16 @@ else
 		overflow: hidden;
 	}
 
-		.progress-bar-fill::after {
-			content: '';
-			position: absolute;
-			top: 0;
-			left: 0;
-			bottom: 0;
-			right: 0;
-			background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-			animation: shimmer 1.5s infinite;
-		}
+	.progress-bar-fill::after {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		bottom: 0;
+		right: 0;
+		background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+		animation: shimmer 1.5s infinite;
+	}
 
 	.time-remaining {
 		display: flex;
@@ -292,9 +288,9 @@ else
 		justify-content: center;
 	}
 
-		.time-remaining svg {
-			color: #94a3b8;
-		}
+	.time-remaining svg {
+		color: #94a3b8;
+	}
 
 	.update-status {
 		display: flex;

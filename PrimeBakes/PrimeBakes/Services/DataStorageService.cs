@@ -43,6 +43,7 @@ public class DataStorageService : IDataStorageService
 		await LocalRemove(StorageFileNames.StockTransferCartDataFileName);
 		await LocalRemove(StorageFileNames.BillDataFileName);
 		await LocalRemove(StorageFileNames.BillCartDataFileName);
+		await LocalRemove(StorageFileNames.BluetoothPrinterDataFileName);
 	}
 
 

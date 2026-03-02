@@ -38,4 +38,6 @@ public static class StorageFileNames
 	public static string BillDataFileName => "bill_data.json";
 	public static string BillCartDataFileName => "bill_cart_data.json";
 	public static string BillMobileCartDataFileName => "bill_mobile_cart_data.json";
+
+	public static string BluetoothPrinterDataFileName => "bluetooth_printer_data.json";
 }

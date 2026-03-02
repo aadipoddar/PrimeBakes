@@ -9,7 +9,8 @@ public static partial class Secrets
 	public static string DatabaseName => "PrimeBakes";
 
 	public static string AzureConnectionString = GetSecret(nameof(AzureConnectionString));
-	public static string LocalConnectionString = GetSecret(nameof(LocalConnectionString));
+	public static string AzureTestingConnectionString = GetSecret(nameof(AzureTestingConnectionString));
+	public static string LocalConnectionString = "Data Source=AADILAPIKIIT;Initial Catalog=PrimeBakes;Integrated Security=True;Connect Timeout=300;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False";
 
 	public static string AzureBlobStorageAccountName => "primebakesstore";
 	public static string AzureBlobStorageConnectionString = GetSecret(nameof(AzureBlobStorageConnectionString));

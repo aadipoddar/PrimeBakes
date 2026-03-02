@@ -11,6 +11,7 @@ internal static class PageRouteNames
 	public const string Location = "/operations/location";
 	public const string User = "/operations/user";
 	public const string Settings = "/operations/settings";
+	public const string LocalSettings = "/operations/local-settings";
 	#endregion
 
 	#region Accounts

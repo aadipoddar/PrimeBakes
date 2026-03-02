@@ -11,12 +11,8 @@
 else
 {
     <div class="page-shell">
-        <Header Title="Operations Dashboard"
-                Subtitle="Manage operations, master data, and system configuration"
-                ShowLogout="true"
-                ShowHome="true"
-                OnLogoutClick="Logout"
-                OnHomeClick="NavigateToDashboard" />
+        <Header Title="Operations Dashboard" Subtitle="Manage operations, master data, and system configuration"
+                ShowLogout="true" ShowHome="true" OnLogoutClick="Logout" OnHomeClick="NavigateToDashboard" />
 
         <!-- Main Content Container -->
         <div class="page-container">
@@ -25,8 +21,9 @@ else
             <div class="section-card">
                 <div class="section-header">
                     <div class="section-title-wrapper">
-                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
-                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round">
                             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                             <polyline points="9 22 9 12 15 12 15 22" />
                         </svg>
@@ -36,42 +33,60 @@ else
                 </div>
                 <div class="section-body">
                     <div class="dashboard-grid">
-                        <!-- Outlet / Location -->
-                        <ButtonCard Title="Outlet / Location" Description="Manage outlet locations" Color="sky"
-                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.Location)">
+
+                        @if (Factor != "Phone" && _user.Reports)
+                        {
+                            <!-- Outlet / Location -->
+                            <ButtonCard Title="Outlet / Location" Description="Manage outlet locations" Color="sky"
+                                        OnClick="() => NavigationManager.NavigateTo(PageRouteNames.Location)">
+                                <IconContent>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                         stroke-linejoin="round">
+                                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                        <circle cx="12" cy="10" r="3" />
+                                    </svg>
+                                </IconContent>
+                            </ButtonCard>
+
+                            <!-- User Management -->
+                            <ButtonCard Title="User" Description="Manage user accounts" Color="purple"
+                                        OnClick="() => NavigationManager.NavigateTo(PageRouteNames.User)">
+                                <IconContent>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                         stroke-linejoin="round">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                        <circle cx="9" cy="7" r="4" />
+                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                    </svg>
+                                </IconContent>
+                            </ButtonCard>
+
+                            <!-- Settings -->
+                            <ButtonCard Title="Settings" Description="Manage system settings" Color="blue"
+                                        OnClick="() => NavigationManager.NavigateTo(PageRouteNames.Settings)">
+                                <IconContent>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                         stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="3" />
+                                        <path
+                                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                                    </svg>
+                                </IconContent>
+                            </ButtonCard>
+                        }
+
+                        <!-- Local Settings -->
+                        <ButtonCard Title="Local Settings" Description="Manage Bluetooth printer settings" Color="teal"
+                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.LocalSettings)">
                             <IconContent>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                      stroke-linejoin="round">
-                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                                    <circle cx="12" cy="10" r="3" />
-                                </svg>
-                            </IconContent>
-                        </ButtonCard>
-
-                        <!-- User Management -->
-                        <ButtonCard Title="User" Description="Manage user accounts" Color="purple"
-                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.User)">
-                            <IconContent>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                                    <circle cx="9" cy="7" r="4" />
-                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                                </svg>
-                            </IconContent>
-                        </ButtonCard>
-
-                        <!-- Settings -->
-                        <ButtonCard Title="Settings" Description="Manage system settings" Color="blue"
-                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.Settings)">
-                            <IconContent>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="3" />
-                                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                                    <polyline points="6.5 6.5 17.5 17.5 12 23 12 1 17.5 6.5 6.5 17.5" />
                                 </svg>
                             </IconContent>
                         </ButtonCard>
