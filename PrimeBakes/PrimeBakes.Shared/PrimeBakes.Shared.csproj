@@ -34,8 +34,4 @@
     <Using Include="Toolbelt.Blazor.HotKeys2" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="wwwroot\images\" />
-  </ItemGroup>
-
 </Project>

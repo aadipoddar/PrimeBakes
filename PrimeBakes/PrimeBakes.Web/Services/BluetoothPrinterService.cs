@@ -45,8 +45,12 @@ public class BluetoothPrinterService(IBluetoothNavigator bluetoothNavigator) : I
         "49535343-8841-43f4-a8d4-ecbe34729bb3", // ISSC transparent TX
     ];
 
-    /// <summary>Maximum BLE write payload size per chunk (ATT MTU minus overhead).</summary>
-    private const int MaxBleChunkSize = 512;
+    /// <summary>
+    /// Maximum BLE write payload size per chunk.
+    /// Most BLE printers negotiate a small MTU (default ATT MTU = 23 → 20-byte payload).
+    /// 100 bytes is a safe upper bound that works with virtually all BLE thermal printers.
+    /// </summary>
+    private const int MaxBleChunkSize = 100;
 
     private IDevice? _connectedDevice;
     private IBluetoothRemoteGATTCharacteristic? _writeCharacteristic;
@@ -315,9 +319,9 @@ public class BluetoothPrinterService(IBluetoothNavigator bluetoothNavigator) : I
                 else
                     await _writeCharacteristic.WriteValueWithResponse(chunk);
 
-                // Small delay between chunks to avoid overwhelming the BLE buffer
+                // Delay between chunks to avoid overwhelming the BLE buffer
                 if (offset + chunkSize < data.Length)
-                    await Task.Delay(20);
+                    await Task.Delay(50);
             }
 
             return true;

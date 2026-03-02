@@ -1,13 +1,14 @@
 using PrimeBakes.Shared.Components.Dialog;
 
+using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Data.Operations;
 using PrimeBakesLibrary.DataAccess;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Models.Operations;
 
 namespace PrimeBakes.Shared.Pages.Operations;
 
-/// <summary>
-/// Code-behind for the Local Device Settings page.
-/// Handles Bluetooth thermal printer discovery, connection, and management.
-/// </summary>
 public partial class LocalSettingsPage : IAsyncDisposable
 {
     private HotKeysContext _hotKeysContext;
@@ -18,6 +19,7 @@ public partial class LocalSettingsPage : IAsyncDisposable
     private bool _isLoading = true;
     private bool _isProcessing;
     private bool _isScanning;
+    private bool _isTestPrinting;
     private bool _hasScanned;
     private string _connectingAddress = string.Empty;
 
@@ -49,7 +51,6 @@ public partial class LocalSettingsPage : IAsyncDisposable
             .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
             .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
             .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Dashboard", Exclude.None);
-
     }
 
     #endregion
@@ -111,10 +112,8 @@ public partial class LocalSettingsPage : IAsyncDisposable
     /// <summary>
     /// Cancels an ongoing Bluetooth device scan.
     /// </summary>
-    private void CancelScan()
-    {
+    private void CancelScan() =>
         _scanCancellationTokenSource?.Cancel();
-    }
 
     /// <summary>
     /// Connects to a Bluetooth device by its MAC address.
@@ -187,6 +186,96 @@ public partial class LocalSettingsPage : IAsyncDisposable
         }
     }
 
+    /// <summary>
+    /// Sends a test receipt to the connected thermal printer using raw ESC/POS commands.
+    /// Prints a formatted test page with bold header, alignment, separator, and paper cut.
+    /// </summary>
+    private async Task TestPrint()
+    {
+        if (!BluetoothPrinterService.IsConnected || _isTestPrinting)
+            return;
+
+        try
+        {
+            _isTestPrinting = true;
+            StateHasChanged();
+
+            // Load primary company info for header
+            CompanyModel company = null;
+            try
+            {
+                var companySetting = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
+                if (companySetting is not null && int.TryParse(companySetting.Value, out var companyId))
+                    company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, companyId);
+            }
+            catch
+            {
+                // Company info unavailable — header will print logo only
+            }
+
+            var data = BuildTestReceipt(company);
+
+            System.Diagnostics.Debug.WriteLine($"Test receipt built: {data.Length} bytes");
+
+            var success = await BluetoothPrinterService.SendDataAsync(data);
+
+            if (success)
+            {
+                VibrationService.VibrateHapticClick();
+                await _toastNotification.ShowAsync("Test Print", "Test page sent to printer successfully.", ToastType.Success);
+            }
+            else
+            {
+                await _toastNotification.ShowAsync("Print Failed",
+                    $"Could not send {data.Length} bytes. Check printer is on and connected.",
+                    ToastType.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            await _toastNotification.ShowAsync("Print Error", $"Test print failed: {ex.Message}", ToastType.Error);
+        }
+        finally
+        {
+            _isTestPrinting = false;
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    /// Builds a test receipt with company header, sample table, and footer.
+    /// </summary>
+    private byte[] BuildTestReceipt(CompanyModel company)
+    {
+        using var ms = new MemoryStream();
+
+        ThermalPrintUtil.Initialize(ms);
+
+        // Header
+        ThermalPrintUtil.WriteCompanyHeader(ms, company);
+
+        // Subtitle
+        ThermalPrintUtil.SetAlignment(ms, 1);
+        ThermalPrintUtil.SetBold(ms, true);
+        ThermalPrintUtil.WriteText(ms, "--- Test Print ---");
+        ThermalPrintUtil.SetBold(ms, false);
+        ThermalPrintUtil.WriteLf(ms);
+
+        // === Left alignment — Printer info ===
+        ThermalPrintUtil.SetAlignment(ms, 0);
+
+        ThermalPrintUtil.WriteLabelValue(ms, "Printer", BluetoothPrinterService.ConnectedPrinterName);
+        ThermalPrintUtil.WriteLabelValue(ms, "Address", BluetoothPrinterService.ConnectedPrinterAddress);
+        ThermalPrintUtil.WriteLabelValue(ms, "Date", DateTime.Now.ToString("dd MMM yyyy  hh:mm tt"));
+        ThermalPrintUtil.WriteLabelValue(ms, "Platform", $"{FormFactor.GetFormFactor()} / {FormFactor.GetPlatform()}");
+
+        // === Footer ===
+        ThermalPrintUtil.WriteSeparator(ms);
+        ThermalPrintUtil.WriteFooter(ms);
+        ThermalPrintUtil.FeedAndCut(ms);
+
+        return ms.ToArray();
+    }
     #endregion
 
     #region Bluetooth Storage

@@ -78,9 +78,30 @@ else
                             </div>
                             @if (BluetoothPrinterService.IsConnected)
                             {
-                                <SfButton CssClass="e-outline e-danger bt-action-btn" Content="Disconnect"
-                                          Disabled="_isProcessing" @onclick="DisconnectPrinter">
-                                </SfButton>
+                                <div class="bt-action-buttons">
+                                    <SfButton CssClass="e-outline e-info bt-action-btn" Disabled="_isProcessing || _isTestPrinting"
+                                              @onclick="TestPrint">
+                                        @if (_isTestPrinting)
+                                        {
+                                            <span class="bt-spinner"></span>
+                                            <span>Printing...</span>
+                                        }
+                                        else
+                                        {
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                 stroke-linejoin="round">
+                                                <polyline points="6 9 6 2 18 2 18 9" />
+                                                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                                                <rect x="6" y="14" width="12" height="8" />
+                                            </svg>
+                                            <span>Test Print</span>
+                                        }
+                                    </SfButton>
+                                    <SfButton CssClass="e-outline e-danger bt-action-btn" Content="Disconnect"
+                                              Disabled="_isProcessing" @onclick="DisconnectPrinter">
+                                    </SfButton>
+                                </div>
                             }
                         </div>
 
@@ -250,8 +271,17 @@ else
         color: #1e293b;
     }
 
+    .bt-action-buttons {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
     .bt-action-btn {
         font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
     }
 
     /* Scan Controls */
