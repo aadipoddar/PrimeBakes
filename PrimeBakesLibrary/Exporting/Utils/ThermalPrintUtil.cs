@@ -1,31 +1,404 @@
-using System.Text;
-
 using PrimeBakesLibrary.Models.Accounts.Masters;
 
 using SkiaSharp;
 
+using Syncfusion.Drawing;
+using Syncfusion.Pdf;
+using Syncfusion.Pdf.Graphics;
+
 namespace PrimeBakesLibrary.Exporting.Utils;
 
 /// <summary>
-/// Utility for building ESC/POS byte payloads for thermal receipt printers.
-/// Provides helper methods for text formatting, image rasterisation, and
-/// common receipt structures (headers, tables, footers).
+/// Unified utility for rendering thermal receipts as high-quality raster images
+/// using SkiaSharp, converting to ESC/POS raster commands, and optionally wrapping
+/// in a Syncfusion PDF for preview / sharing.
+/// <para>
+/// Contains reusable drawing primitives, text helpers, ESC/POS conversion, and
+/// bitmap-to-PDF wrapping. Specific receipt layouts (bills, test pages, etc.)
+/// should compose these helpers from their own classes.
+/// </para>
 /// </summary>
 public static class ThermalPrintUtil
 {
 	#region Constants
 
-	/// <summary>Standard line width for 80 mm paper with Font A (12×24).</summary>
-	public const int LineWidth80mm = 48;
+	/// <summary>Standard thermal printer resolution in DPI.</summary>
+	public const int PrinterDpi = 203;
 
-	/// <summary>Standard line width for 58 mm paper with Font A (12×24).</summary>
-	public const int LineWidth58mm = 32;
+	/// <summary>
+	/// Full raster image width in dots for 80 mm paper at 203 DPI.
+	/// Print head covers ~72 mm → 576 dots.
+	/// </summary>
+	public const int PaperDots80mm = 576;
 
-	/// <summary>Maximum raster image width in dots for 80 mm paper at 203 DPI.</summary>
-	public const int MaxImageDots80mm = 384;
+	/// <summary>
+	/// Full raster image width in dots for 58 mm paper at 203 DPI.
+	/// Print head covers ~48 mm → 384 dots.
+	/// </summary>
+	public const int PaperDots58mm = 384;
 
-	/// <summary>Maximum raster image width in dots for 58 mm paper at 203 DPI.</summary>
-	public const int MaxImageDots58mm = 384;
+	/// <summary>Horizontal margin in dots from each edge.</summary>
+	public const int Margin = 4;
+
+	/// <summary>Vertical gap between text lines in dots.</summary>
+	public const int LineGap = 1;
+
+	/// <summary>Vertical gap between sections in dots.</summary>
+	public const int SectionGap = 12;
+
+	/// <summary>Embedded resource name for the company logo.</summary>
+	public const string LogoResourceName = "PrimeBakesLibrary.Exporting.Resources.logo_full.png";
+
+	// Font sizes in pixels (at 203 DPI: 1pt ≈ 2.82px)
+
+	/// <summary>~14pt — company name / large headers.</summary>
+	public const float FontSizeTitle = 40f;
+
+	/// <summary>~10.5pt — section titles.</summary>
+	public const float FontSizeHeader = 30f;
+
+	/// <summary>~9pt — body text, label-value pairs.</summary>
+	public const float FontSizeNormal = 26f;
+
+	/// <summary>~8pt — sub-info (GSTIN, phone, address).</summary>
+	public const float FontSizeSmall = 22f;
+
+	#endregion
+
+	#region Drawing Primitives
+
+	/// <summary>
+	/// Draws the company logo from the embedded resource, centred horizontally.
+	/// </summary>
+	/// <returns>Updated Y position after the logo (unchanged if logo is unavailable).</returns>
+	public static float DrawLogo(SKCanvas canvas, int paperWidth, float y)
+	{
+		try
+		{
+			var assembly = typeof(ThermalPrintUtil).Assembly;
+			using var stream = assembly.GetManifestResourceStream(LogoResourceName);
+			if (stream is null)
+				return y;
+
+			using var logoBitmap = SKBitmap.Decode(stream);
+			if (logoBitmap is null)
+				return y;
+
+			// Scale to fit within margins, capped at 140 px height, never upscale
+			int maxLogoWidth = paperWidth - (2 * Margin);
+			float maxLogoHeight = 140f;
+			float scale = Math.Min(
+				(float)maxLogoWidth / logoBitmap.Width,
+				maxLogoHeight / logoBitmap.Height);
+			scale = Math.Min(scale, 1f);
+
+			int logoW = (int)(logoBitmap.Width * scale);
+			int logoH = (int)(logoBitmap.Height * scale);
+			float logoX = (paperWidth - logoW) / 2f;
+
+			var dest = new SKRect(logoX, y, logoX + logoW, y + logoH);
+			using var paint = new SKPaint { IsAntialias = true };
+			canvas.DrawBitmap(logoBitmap, dest, paint);
+
+			return y + logoH + SectionGap;
+		}
+		catch
+		{
+			return y; // Logo unavailable — skip silently
+		}
+	}
+
+	/// <summary>
+	/// Draws the company header block (alias, GSTIN, phone, email, address) centred below the logo.
+	/// </summary>
+	public static float DrawCompanyHeader(SKCanvas canvas, CompanyModel company, int paperWidth, float y)
+	{
+		if (!string.IsNullOrWhiteSpace(company.Alias))
+			y = DrawCenteredText(canvas, company.Alias, paperWidth, y, FontSizeNormal, bold: true);
+
+		if (!string.IsNullOrWhiteSpace(company.GSTNo))
+			y = DrawCenteredText(canvas, $"GSTIN: {company.GSTNo}", paperWidth, y, FontSizeSmall, bold: true);
+
+		if (!string.IsNullOrWhiteSpace(company.Phone))
+			y = DrawCenteredText(canvas, $"Ph: {company.Phone}", paperWidth, y, FontSizeSmall, bold: true);
+
+		if (!string.IsNullOrWhiteSpace(company.Email))
+			y = DrawCenteredText(canvas, company.Email, paperWidth, y, FontSizeSmall, bold: true);
+
+		if (!string.IsNullOrWhiteSpace(company.Address))
+			y = DrawCenteredText(canvas, company.Address, paperWidth, y, FontSizeSmall, bold: true);
+
+		return y + SectionGap;
+	}
+
+	/// <summary>
+	/// Draws horizontally centred text, word-wrapping if the text exceeds the printable width.
+	/// </summary>
+	/// <returns>Updated Y position after the text.</returns>
+	public static float DrawCenteredText(
+		SKCanvas canvas, string text, int paperWidth, float y, float fontSize, bool bold)
+	{
+		using var typeface = SKTypeface.FromFamilyName("sans-serif", bold ? SKFontStyle.Bold : SKFontStyle.Normal);
+		using var font = new SKFont(typeface, fontSize);
+		using var paint = new SKPaint { Color = SKColors.Black, IsAntialias = true };
+
+		float maxWidth = paperWidth - (2 * Margin);
+		var lines = WrapText(text, font, maxWidth);
+		var metrics = font.Metrics;
+		float lineHeight = metrics.Descent - metrics.Ascent;
+
+		foreach (var line in lines)
+		{
+			float textWidth = font.MeasureText(line);
+			float x = (paperWidth - textWidth) / 2f;
+			canvas.DrawText(line, x, y - metrics.Ascent, font, paint);
+			y += lineHeight + LineGap;
+		}
+
+		return y;
+	}
+
+	/// <summary>
+	/// Draws a block of left-aligned label-value pairs with all values starting at the same
+	/// X position (determined by the widest label). Long values are word-wrapped and continuation
+	/// lines are indented to the value column.
+	/// </summary>
+	/// <param name="canvas">Target drawing canvas.</param>
+	/// <param name="pairs">Ordered list of (label, value) tuples to render.</param>
+	/// <param name="paperWidth">Total paper width in dots.</param>
+	/// <param name="y">Starting Y position.</param>
+	/// <param name="fontSize">Font size for both labels and values (default <see cref="FontSizeNormal"/>).</param>
+	/// <returns>Updated Y position after all rows.</returns>
+	public static float DrawLabelValueBlock(
+		SKCanvas canvas,
+		List<(string Label, string Value)> pairs,
+		int paperWidth,
+		float y,
+		float fontSize = FontSizeNormal)
+	{
+		if (pairs is null || pairs.Count == 0)
+			return y;
+
+		using var boldTypeface = SKTypeface.FromFamilyName("sans-serif", SKFontStyle.Bold);
+		using var normalTypeface = SKTypeface.FromFamilyName("sans-serif", SKFontStyle.Normal);
+		using var labelFont = new SKFont(boldTypeface, fontSize);
+		using var valueFont = new SKFont(normalTypeface, fontSize);
+		using var paint = new SKPaint { Color = SKColors.Black, IsAntialias = true };
+
+		var metrics = labelFont.Metrics;
+		float lineHeight = metrics.Descent - metrics.Ascent;
+
+		// Measure the widest label to determine the shared value-start column
+		float maxLabelWidth = 0;
+		foreach (var (label, _) in pairs)
+		{
+			float w = labelFont.MeasureText($"{label}: ");
+			if (w > maxLabelWidth)
+				maxLabelWidth = w;
+		}
+
+		// Add a small gap after the colon column
+		float valueX = Margin + maxLabelWidth + 4;
+		float maxValueWidth = paperWidth - valueX - Margin;
+
+		// Draw each pair
+		foreach (var (label, value) in pairs)
+		{
+			// Bold label
+			canvas.DrawText($"{label}: ", Margin, y - metrics.Ascent, labelFont, paint);
+
+			// Value (word-wrapped, aligned to the value column)
+			var lines = WrapText(value ?? string.Empty, valueFont, maxValueWidth);
+			for (int i = 0; i < lines.Count; i++)
+			{
+				canvas.DrawText(lines[i], valueX, y - metrics.Ascent, valueFont, paint);
+				y += lineHeight + LineGap;
+			}
+		}
+
+		return y;
+	}
+
+	/// <summary>
+	/// Draws a solid separator line spanning the full paper width.
+	/// </summary>
+	public static float DrawSeparator(SKCanvas canvas, int paperWidth, float y)
+	{
+		using var paint = new SKPaint
+		{
+			Color = SKColors.Black,
+			StrokeWidth = 2f,
+			Style = SKPaintStyle.Stroke
+		};
+
+		float lineY = y + 6;
+		canvas.DrawLine(0, lineY, paperWidth, lineY, paint);
+		return lineY + SectionGap;
+	}
+
+	#endregion
+
+	#region Text Utilities
+
+	/// <summary>
+	/// Word-wraps text to fit within a maximum pixel width using the specified font metrics.
+	/// </summary>
+	public static List<string> WrapText(string text, SKFont font, float maxWidth)
+	{
+		var lines = new List<string>();
+		if (string.IsNullOrEmpty(text))
+		{
+			lines.Add(string.Empty);
+			return lines;
+		}
+
+		var words = text.Split(' ');
+		string currentLine = string.Empty;
+
+		foreach (var word in words)
+		{
+			// If a single word is wider than maxWidth, break it character-by-character
+			if (font.MeasureText(word) > maxWidth)
+			{
+				// Flush any pending line first
+				if (!string.IsNullOrEmpty(currentLine))
+				{
+					lines.Add(currentLine);
+					currentLine = string.Empty;
+				}
+
+				// Break the long word at character boundaries
+				string chunk = string.Empty;
+				foreach (char c in word)
+				{
+					string test = chunk + c;
+					if (font.MeasureText(test) > maxWidth && chunk.Length > 0)
+					{
+						lines.Add(chunk);
+						chunk = c.ToString();
+					}
+					else
+					{
+						chunk = test;
+					}
+				}
+
+				currentLine = chunk;
+				continue;
+			}
+
+			var testLine = string.IsNullOrEmpty(currentLine) ? word : $"{currentLine} {word}";
+			float testWidth = font.MeasureText(testLine);
+
+			if (testWidth > maxWidth && !string.IsNullOrEmpty(currentLine))
+			{
+				lines.Add(currentLine);
+				currentLine = word;
+			}
+			else
+			{
+				currentLine = testLine;
+			}
+		}
+
+		if (!string.IsNullOrEmpty(currentLine))
+			lines.Add(currentLine);
+
+		if (lines.Count == 0)
+			lines.Add(string.Empty);
+
+		return lines;
+	}
+
+	#endregion
+
+	#region Bitmap Utilities
+
+	/// <summary>
+	/// Crops an <see cref="SKBitmap"/> to the specified height, discarding empty space below content.
+	/// </summary>
+	public static SKBitmap CropBitmap(SKBitmap source, int width, int height)
+	{
+		height = Math.Min(height, source.Height);
+		var cropped = new SKBitmap(width, height);
+		using var canvas = new SKCanvas(cropped);
+		var rect = new SKRect(0, 0, width, height);
+		canvas.DrawBitmap(source, rect, rect);
+		return cropped;
+	}
+
+	#endregion
+
+	#region Conversion — SkiaSharp Bitmap → ESC/POS Raster
+
+	/// <summary>
+	/// Converts an <see cref="SKBitmap"/> to ESC/POS raster bytes ready for thermal printing.
+	/// The bitmap is encoded as PNG, then converted to monochrome raster data (GS v 0 command).
+	/// The output includes printer initialisation (ESC @), the raster image, line feed, and paper cut.
+	/// </summary>
+	public static byte[] ConvertBitmapToThermalBytes(SKBitmap bitmap, int maxWidthDots)
+	{
+		using var ms = new MemoryStream();
+		Initialize(ms);
+
+		// Encode the bitmap as PNG bytes
+		using var image = SKImage.FromBitmap(bitmap);
+		using var data = image.Encode(SKEncodedImageFormat.Png, 100);
+
+		if (data is null)
+		{
+			Console.WriteLine("ThermalPrintUtil: Failed to encode bitmap as PNG.");
+			FeedAndCut(ms);
+			return ms.ToArray();
+		}
+
+		var imageBytes = data.ToArray();
+
+		// Convert to ESC/POS monochrome raster image
+		var rasterBytes = BuildRasterImage(imageBytes, maxWidthDots, center: true);
+		if (rasterBytes is not null)
+			ms.Write(rasterBytes);
+
+		FeedAndCut(ms);
+		return ms.ToArray();
+	}
+
+	#endregion
+
+	#region Conversion — SkiaSharp Bitmap → Syncfusion PDF
+
+	/// <summary>
+	/// Wraps an <see cref="SKBitmap"/> into a Syncfusion PDF document sized to thermal paper dimensions.
+	/// Useful for previewing the thermal receipt on screen or sharing as a PDF file.
+	/// </summary>
+	public static MemoryStream WrapBitmapInPdf(SKBitmap bitmap, int paperWidthDots)
+	{
+		// Convert dots to PDF points: points = dots / DPI × 72
+		float pdfWidth = paperWidthDots / (float)PrinterDpi * 72f;
+		float pdfHeight = bitmap.Height / (float)PrinterDpi * 72f;
+
+		var ms = new MemoryStream();
+		using var pdfDoc = new PdfDocument();
+
+		pdfDoc.PageSettings.Size = new SizeF(pdfWidth, pdfHeight);
+		pdfDoc.PageSettings.Margins.All = 0;
+
+		var page = pdfDoc.Pages.Add();
+		var graphics = page.Graphics;
+
+		// Embed the rendered bitmap as a full-page image
+		using var encoded = SKImage.FromBitmap(bitmap)?.Encode(SKEncodedImageFormat.Png, 100);
+		if (encoded is not null)
+		{
+			using var imageStream = new MemoryStream(encoded.ToArray());
+			var pdfImage = new PdfBitmap(imageStream);
+			graphics.DrawImage(pdfImage, 0, 0, pdfWidth, pdfHeight);
+		}
+
+		pdfDoc.Save(ms);
+		ms.Position = 0;
+		return ms;
+	}
 
 	#endregion
 
@@ -39,74 +412,11 @@ public static class ThermalPrintUtil
 		=> ms.Write([0x1B, 0x40]);
 
 	/// <summary>
-	/// Sets text alignment.
-	/// </summary>
-	/// <param name="ms">Target stream.</param>
-	/// <param name="alignment">0 = Left, 1 = Centre, 2 = Right.</param>
-	public static void SetAlignment(MemoryStream ms, int alignment)
-		=> ms.Write([0x1B, 0x61, (byte)alignment]);
-
-	/// <summary>
-	/// Turns bold (emphasised) mode on or off (ESC E n).
-	/// </summary>
-	public static void SetBold(MemoryStream ms, bool on)
-		=> ms.Write([0x1B, 0x45, (byte)(on ? 0x01 : 0x00)]);
-
-	/// <summary>
-	/// Sets character size via GS ! n.
-	/// 0x00 = normal, 0x11 = double width + double height.
-	/// </summary>
-	public static void SetCharacterSize(MemoryStream ms, byte size)
-		=> ms.Write([0x1D, 0x21, size]);
-
-	/// <summary>
-	/// Resets character size to normal and bold to off.
-	/// Useful after headers or emphasis blocks.
-	/// </summary>
-	public static void ResetFont(MemoryStream ms)
-	{
-		SetCharacterSize(ms, 0x00);
-		SetBold(ms, false);
-	}
-
-	/// <summary>
-	/// Sets horizontal tab positions using ESC D.
-	/// Positions are absolute column numbers; the list is NUL-terminated automatically.
-	/// </summary>
-	public static void SetTabPositions(MemoryStream ms, params byte[] positions)
-	{
-		ms.Write([0x1B, 0x44]);
-		ms.Write(positions);
-		ms.WriteByte(0x00); // NUL terminator
-	}
-
-	/// <summary>
-	/// Writes a horizontal tab character (HT, 0x09) to advance to the next tab stop.
-	/// </summary>
-	public static void WriteTab(MemoryStream ms)
-		=> ms.WriteByte(0x09);
-
-	/// <summary>
-	/// Writes a UTF-8 encoded text string to the stream.
-	/// </summary>
-	public static void WriteText(MemoryStream ms, string text)
-		=> ms.Write(Encoding.UTF8.GetBytes(text));
-
-	/// <summary>
-	/// Writes one or more line-feed characters (0x0A) to the stream.
-	/// </summary>
-	public static void WriteLf(MemoryStream ms, int count = 1)
-	{
-		for (var i = 0; i < count; i++)
-			ms.WriteByte(0x0A);
-	}
-
-	/// <summary>
 	/// Feeds n lines using the proper ESC d command, then performs a partial paper cut.
 	/// This ensures text is not cut off by the cutter blade.
 	/// </summary>
 	/// <param name="ms">Target stream.</param>
-	/// <param name="feedLines">Number of lines to feed before cutting (default 6).</param>
+	/// <param name="feedLines">Number of lines to feed before cutting (default 5).</param>
 	public static void FeedAndCut(MemoryStream ms, byte feedLines = 5)
 	{
 		// ESC d n — Print and feed n lines
@@ -117,228 +427,29 @@ public static class ThermalPrintUtil
 	}
 
 	/// <summary>
-	/// Writes a full-width separator line.
-	/// Default character is '_' which prints as a continuous straight line on thermal printers.
-	/// </summary>
-	public static void WriteSeparator(MemoryStream ms, int lineWidth = LineWidth80mm, char character = '-')
-	{
-		SetBold(ms, true);
-		WriteText(ms, new string(character, lineWidth));
-		SetBold(ms, false);
-		WriteLf(ms);
-	}
-
-	#endregion
-
-	#region Text Formatting Helpers
-
-	/// <summary>
-	/// Right-pads a string to the specified width, truncating if longer.
-	/// </summary>
-	public static string PadRight(string text, int width) =>
-		text.Length >= width ? text[..width] : text + new string(' ', width - text.Length);
-
-	/// <summary>
-	/// Left-pads a string to the specified width, truncating if longer.
-	/// </summary>
-	public static string PadLeft(string text, int width) =>
-		text.Length >= width ? text[..width] : new string(' ', width - text.Length) + text;
-
-	/// <summary>
-	/// Word-wraps text to fit within the given character width,
-	/// breaking on spaces when possible.
-	/// </summary>
-	public static List<string> WordWrap(string text, int maxWidth)
-	{
-		var lines = new List<string>();
-		if (string.IsNullOrEmpty(text) || maxWidth <= 0)
-		{
-			lines.Add(string.Empty);
-			return lines;
-		}
-
-		while (text.Length > 0)
-		{
-			if (text.Length <= maxWidth)
-			{
-				lines.Add(text);
-				break;
-			}
-
-			var breakAt = text.LastIndexOf(' ', maxWidth - 1);
-			if (breakAt <= 0)
-				breakAt = maxWidth;
-
-			lines.Add(text[..breakAt].TrimEnd());
-			text = text[breakAt..].TrimStart();
-		}
-
-		return lines;
-	}
-
-	/// <summary>
-	/// Writes a label-value pair with proper indented wrapping.
-	/// The first line prints "Label : Value" and any continuation lines
-	/// are indented to align under the value, not the label.
+	/// Sets text alignment (ESC a n).
 	/// </summary>
 	/// <param name="ms">Target stream.</param>
-	/// <param name="label">Field label (e.g. "Printer").</param>
-	/// <param name="value">Field value which may be long and need wrapping.</param>
-	/// <param name="labelWidth">Total width of the label area including separator (default 10).</param>
-	/// <param name="lineWidth">Total line width for wrapping (default 48 for 80 mm paper).</param>
-	public static void WriteLabelValue(MemoryStream ms, string label, string value, int labelWidth = 10, int lineWidth = LineWidth80mm)
-	{
-		var prefix = PadRight($"{label}: ", labelWidth);
-		var valueWidth = lineWidth - labelWidth;
-		var valueLines = WordWrap(value ?? string.Empty, valueWidth);
-
-		// First line: label + value
-		WriteText(ms, prefix + valueLines[0]);
-		WriteLf(ms);
-
-		// Continuation lines: indent to align under the value
-		var indent = new string(' ', labelWidth);
-		for (var i = 1; i < valueLines.Count; i++)
-		{
-			WriteText(ms, indent + valueLines[i]);
-			WriteLf(ms);
-		}
-	}
+	/// <param name="alignment">0 = Left, 1 = Centre, 2 = Right.</param>
+	private static void SetAlignment(MemoryStream ms, int alignment)
+		=> ms.Write([0x1B, 0x61, (byte)alignment]);
 
 	#endregion
 
-	#region Company Header
-
-	/// <summary>
-	/// Embedded resource name for the company logo.
-	/// </summary>
-	private const string LogoResourceName = "PrimeBakesLibrary.Exporting.Resources.logo_full.png";
-
-	/// <summary>
-	/// Writes the full company header to the print stream: logo + company info.
-	/// This is mandatory for all receipts. The logo is loaded from an embedded
-	/// resource; company details (name, alias, GST, address, email, phone) are
-	/// printed centre-aligned below the logo. Long addresses are word-wrapped.
-	/// </summary>
-	/// <param name="ms">Target stream.</param>
-	/// <param name="company">Company data to print. If null, only the logo / text fallback is printed.</param>
-	/// <param name="lineWidth">Character line width for address wrapping (default 48 for 80 mm paper).</param>
-	public static void WriteCompanyHeader(MemoryStream ms, CompanyModel company = null, int lineWidth = LineWidth80mm)
-	{
-		// --- Logo ---
-		bool logoWritten = false;
-		try
-		{
-			var assembly = typeof(ThermalPrintUtil).Assembly;
-			using var logoStream = assembly.GetManifestResourceStream(LogoResourceName);
-
-			if (logoStream is not null)
-			{
-				var logoRaster = BuildRasterImage(logoStream);
-				if (logoRaster is not null)
-				{
-					ms.Write(logoRaster);
-					WriteLf(ms);
-					logoWritten = true;
-				}
-			}
-		}
-		catch
-		{
-			// Fall through to text header
-		}
-
-		// Centre-align the entire header block
-		SetAlignment(ms, 1);
-
-		// Text fallback if logo resource is unavailable
-		if (!logoWritten)
-		{
-			SetBold(ms, true);
-			SetCharacterSize(ms, 0x11);
-			WriteText(ms, company?.Name ?? "PRIME BAKES");
-			WriteLf(ms);
-			ResetFont(ms);
-		}
-
-		// --- Company info (bold) ---
-		if (company is not null)
-		{
-			SetBold(ms, true);
-
-			if (!string.IsNullOrEmpty(company.Alias))
-			{
-				WriteText(ms, company.Alias);
-				WriteLf(ms);
-			}
-
-			if (!string.IsNullOrEmpty(company.GSTNo))
-			{
-				WriteText(ms, $"GSTIN: {company.GSTNo}");
-				WriteLf(ms);
-			}
-
-			if (!string.IsNullOrEmpty(company.Phone))
-			{
-				WriteText(ms, $"Ph: {company.Phone}");
-				WriteLf(ms);
-			}
-
-			if (!string.IsNullOrEmpty(company.Email))
-			{
-				WriteText(ms, company.Email);
-				WriteLf(ms);
-			}
-
-			if (!string.IsNullOrEmpty(company.Address))
-			{
-				var addressLines = WordWrap(company.Address, lineWidth);
-				foreach (var line in addressLines)
-				{
-					WriteText(ms, line);
-					WriteLf(ms);
-				}
-			}
-
-			SetBold(ms, false);
-		}
-
-		WriteSeparator(ms, lineWidth);
-	}
-
-	/// <summary>
-	/// Writes the standard receipt footer: separator, thank-you message, and branding.
-	/// This is mandatory for all receipts.
-	/// </summary>
-	public static void WriteFooter(MemoryStream ms, int lineWidth = LineWidth80mm)
-	{
-		SetAlignment(ms, 1);
-		WriteText(ms, "Thanks. Visit Again");
-		WriteLf(ms);
-		WriteText(ms, "A Product of");
-		WriteLf(ms);
-		SetBold(ms, true);
-		WriteText(ms, "aadisoft.vercel.app");
-		SetBold(ms, false);
-		WriteLf(ms);
-	}
-
-	#endregion
-
-	#region Image / Logo Rasterisation
+	#region Image Rasterisation
 
 	/// <summary>
 	/// Converts a PNG/JPEG image stream into ESC/POS raster image bytes (GS v 0 command).
 	/// The image is resized to fit the paper width and converted to monochrome.
 	/// Returns null if the image cannot be decoded.
 	/// </summary>
-	/// <param name="imageStream">Readable stream containing the source image (PNG, JPEG, etc.).</param>
-	/// <param name="maxWidthDots">Maximum image width in dots (default 384 for 80 mm paper at 203 DPI).</param>
-	/// <param name="threshold">Luminance threshold (0-255) below which a pixel is printed as black. Default 128.</param>
-	/// <param name="center">Whether to prepend an ESC a 1 (centre align) command before the image.</param>
+	/// <param name="imageStream">Readable stream containing the source image.</param>
+	/// <param name="maxWidthDots">Maximum image width in dots (default 576 for 80 mm paper).</param>
+	/// <param name="threshold">Luminance threshold (0-255) below which a pixel is printed as black.</param>
+	/// <param name="center">Whether to prepend a centre-align command before the image.</param>
 	public static byte[] BuildRasterImage(
 		Stream imageStream,
-		int maxWidthDots = MaxImageDots80mm,
+		int maxWidthDots = PaperDots80mm,
 		int threshold = 128,
 		bool center = true)
 	{
@@ -366,7 +477,7 @@ public static class ThermalPrintUtil
 	/// <param name="center">Whether to centre-align the image.</param>
 	public static byte[] BuildRasterImage(
 		byte[] imageBytes,
-		int maxWidthDots = MaxImageDots80mm,
+		int maxWidthDots = PaperDots80mm,
 		int threshold = 128,
 		bool center = true)
 	{

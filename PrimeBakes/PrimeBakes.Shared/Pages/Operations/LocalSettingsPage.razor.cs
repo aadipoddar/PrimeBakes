@@ -243,38 +243,64 @@ public partial class LocalSettingsPage : IAsyncDisposable
     }
 
     /// <summary>
-    /// Builds a test receipt with company header, sample table, and footer.
+    /// Renders a test receipt as a SkiaSharp bitmap and converts it to ESC/POS raster bytes.
+    /// Uses <see cref="ThermalPrintUtil"/> drawing helpers for rich visual rendering.
     /// </summary>
     private byte[] BuildTestReceipt(CompanyModel company)
     {
-        using var ms = new MemoryStream();
+        int width = ThermalPrintUtil.PaperDots80mm;
 
-        ThermalPrintUtil.Initialize(ms);
+        // Render the test receipt bitmap
+        int maxHeight = 1200;
+        using var tempBitmap = new SkiaSharp.SKBitmap(width, maxHeight);
+        using var canvas = new SkiaSharp.SKCanvas(tempBitmap);
+        canvas.Clear(SkiaSharp.SKColors.White);
 
-        // Header
-        ThermalPrintUtil.WriteCompanyHeader(ms, company);
+        float y = ThermalPrintUtil.Margin;
 
-        // Subtitle
-        ThermalPrintUtil.SetAlignment(ms, 1);
-        ThermalPrintUtil.SetBold(ms, true);
-        ThermalPrintUtil.WriteText(ms, "--- Test Print ---");
-        ThermalPrintUtil.SetBold(ms, false);
-        ThermalPrintUtil.WriteLf(ms);
+        // 1. Logo (centred)
+        y = ThermalPrintUtil.DrawLogo(canvas, width, y);
 
-        // === Left alignment — Printer info ===
-        ThermalPrintUtil.SetAlignment(ms, 0);
+        // 2. Company header
+        if (company is not null)
+        {
+            y = ThermalPrintUtil.DrawCompanyHeader(canvas, company, width, y);
+        }
+        else
+        {
+            y = ThermalPrintUtil.DrawCenteredText(canvas, "PRIME BAKES", width, y, ThermalPrintUtil.FontSizeTitle, bold: true);
+            y += ThermalPrintUtil.SectionGap;
+        }
 
-        ThermalPrintUtil.WriteLabelValue(ms, "Printer", BluetoothPrinterService.ConnectedPrinterName);
-        ThermalPrintUtil.WriteLabelValue(ms, "Address", BluetoothPrinterService.ConnectedPrinterAddress);
-        ThermalPrintUtil.WriteLabelValue(ms, "Date", DateTime.Now.ToString("dd MMM yyyy  hh:mm tt"));
-        ThermalPrintUtil.WriteLabelValue(ms, "Platform", $"{FormFactor.GetFormFactor()} / {FormFactor.GetPlatform()}");
+        // 3. Separator
+        y = ThermalPrintUtil.DrawSeparator(canvas, width, y);
 
-        // === Footer ===
-        ThermalPrintUtil.WriteSeparator(ms);
-        ThermalPrintUtil.WriteFooter(ms);
-        ThermalPrintUtil.FeedAndCut(ms);
+        // 4. "Test Print" title
+        y = ThermalPrintUtil.DrawCenteredText(canvas, "--- Test Print ---", width, y, ThermalPrintUtil.FontSizeHeader, bold: true);
+        y += ThermalPrintUtil.SectionGap;
 
-        return ms.ToArray();
+        // 5. Printer diagnostics (aligned label-value block)
+        y = ThermalPrintUtil.DrawLabelValueBlock(canvas,
+        [
+            ("Printer", BluetoothPrinterService.ConnectedPrinterName ?? "N/A"),
+            ("Address", BluetoothPrinterService.ConnectedPrinterAddress ?? "N/A"),
+            ("Date", DateTime.Now.ToString("dd MMM yyyy  hh:mm tt")),
+            ("Platform", $"{FormFactor.GetFormFactor()} / {FormFactor.GetPlatform()}"),
+        ], width, y);
+        y += ThermalPrintUtil.SectionGap;
+
+        // 6. Separator
+        y = ThermalPrintUtil.DrawSeparator(canvas, width, y);
+
+        // 7. Footer
+        y = ThermalPrintUtil.DrawCenteredText(canvas, "Thanks. Visit Again", width, y, ThermalPrintUtil.FontSizeNormal, bold: false);
+        y += ThermalPrintUtil.LineGap;
+        y = ThermalPrintUtil.DrawCenteredText(canvas, "A Product of aadisoft.vercel.app", width, y, ThermalPrintUtil.FontSizeSmall, bold: true);
+        y += ThermalPrintUtil.Margin;
+
+        // Crop and convert to ESC/POS raster bytes
+        using var cropped = ThermalPrintUtil.CropBitmap(tempBitmap, width, (int)Math.Ceiling(y));
+        return ThermalPrintUtil.ConvertBitmapToThermalBytes(cropped, width);
     }
     #endregion
 
