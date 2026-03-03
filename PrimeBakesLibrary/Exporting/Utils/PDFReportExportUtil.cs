@@ -305,28 +305,14 @@ public static class PDFReportExportUtil
         float rightMargin = 15;
         float pageWidth = page.GetClientSize().Width;
 
-        // Try to load and draw company logo
+        // Try to load and draw company logo from embedded resources
         try
         {
-            // Use custom logo path if provided, otherwise try default locations
-            string[] possibleLogoPaths;
+            const string logoResourceName = "PrimeBakesLibrary.Exporting.Resources.logo_full.png";
+            using Stream imageStream = typeof(PDFReportExportUtil).Assembly.GetManifestResourceStream(logoResourceName);
 
-            // Try multiple possible logo paths
-            possibleLogoPaths =
-            [
-                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot", "images", "logo_full.png"),
-                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "wwwroot", "images", "logo_full.png"),
-                Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "logo_full.png"),
-                Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "PrimeBakes", "PrimeBakes", "wwwroot", "images", "logo_full.png"),
-                Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "PrimeBakes", "PrimeBakes.Web", "wwwroot", "images", "logo_full.png")
-            ];
-
-            string logoPath = possibleLogoPaths.FirstOrDefault(File.Exists);
-
-            if (!string.IsNullOrEmpty(logoPath))
+            if (imageStream is not null)
             {
-                // Load the logo image
-                using FileStream imageStream = new(logoPath, FileMode.Open, FileAccess.Read);
                 PdfBitmap logoBitmap = new(imageStream);
 
                 // Calculate logo dimensions (compact for better space utilization)

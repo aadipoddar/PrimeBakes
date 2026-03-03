@@ -153,24 +153,14 @@ public static class PDFInvoiceExportUtil
     {
         float currentY = startY;
 
-        // Try to load logo - use same logic as PDFReportExportUtil
+        // Try to load logo from embedded resources
         try
         {
-            // Try multiple possible logo paths
-            var possibleLogoPaths = new[]
-            {
-                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot", "images", "logo_full.png"),
-                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "wwwroot", "images", "logo_full.png"),
-                Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "logo_full.png"),
-                Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "PrimeBakes", "PrimeBakes", "wwwroot", "images", "logo_full.png"),
-                Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "PrimeBakes", "PrimeBakes.Web", "wwwroot", "images", "logo_full.png")
-            };
+            const string logoResourceName = "PrimeBakesLibrary.Exporting.Resources.logo_full.png";
+            using Stream imageStream = typeof(PDFInvoiceExportUtil).Assembly.GetManifestResourceStream(logoResourceName);
 
-            string resolvedLogoPath = possibleLogoPaths.FirstOrDefault(File.Exists);
-
-            if (!string.IsNullOrEmpty(resolvedLogoPath))
+            if (imageStream is not null)
             {
-                using FileStream imageStream = new(resolvedLogoPath, FileMode.Open, FileAccess.Read);
                 PdfBitmap logoBitmap = new(imageStream);
 
                 // Calculate logo dimensions (compact for better space utilization)

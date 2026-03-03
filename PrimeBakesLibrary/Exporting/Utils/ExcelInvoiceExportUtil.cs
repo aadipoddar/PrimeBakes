@@ -123,23 +123,14 @@ public static class ExcelInvoiceExportUtil
     {
         int currentRow = startRow;
 
-        // Try to load and insert logo
+        // Try to load and insert logo from embedded resources
         try
         {
-            var possibleLogoPaths = new[]
-            {
-                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot", "images", "logo_full.png"),
-                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "wwwroot", "images", "logo_full.png"),
-                Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "logo_full.png"),
-                Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "PrimeBakes", "PrimeBakes", "wwwroot", "images", "logo_full.png"),
-                Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "PrimeBakes", "PrimeBakes.Web", "wwwroot", "images", "logo_full.png")
-            };
+            const string logoResourceName = "PrimeBakesLibrary.Exporting.Resources.logo_full.png";
+            using Stream imageStream = typeof(ExcelInvoiceExportUtil).Assembly.GetManifestResourceStream(logoResourceName);
 
-            string resolvedLogoPath = possibleLogoPaths.FirstOrDefault(File.Exists);
-
-            if (!string.IsNullOrEmpty(resolvedLogoPath))
+            if (imageStream is not null)
             {
-                using FileStream imageStream = new(resolvedLogoPath, FileMode.Open, FileAccess.Read);
                 IPictureShape logo = worksheet.Pictures.AddPicture(currentRow, 4, imageStream); // Column 4 for centering
 
                 // Calculate logo dimensions maintaining aspect ratio
