@@ -23,12 +23,31 @@ public static class KOTThermalPrint
 	/// <returns>ESC/POS byte array, or empty array if there are no pending KOT items.</returns>
 	public static async Task<byte[]> GenerateThermalBill(int billId)
 	{
+		using var bitmap = await RenderReceipt(billId);
+		return ThermalPrintUtil.BitmapToEscPosBytes(bitmap);
+	}
+
+	/// <summary>
+	/// Generates PNG image bytes for a KOT thermal receipt.
+	/// Used as a browser-print fallback when Bluetooth is disconnected.
+	/// </summary>
+	/// <param name="billId">The bill ID whose pending KOT items should be printed.</param>
+	/// <returns>PNG-encoded byte array of the rendered receipt, or empty array if no pending KOT items.</returns>
+	public static async Task<byte[]> GenerateThermalBillPng(int billId)
+	{
+		using var bitmap = await RenderReceipt(billId);
+		return ThermalPrintUtil.BitmapToPngBytes(bitmap);
+	}
+
+	/// <summary>Renders the KOT receipt onto an <see cref="SKBitmap"/>, or returns null if there are no pending KOT items.</summary>
+	private static async Task<SKBitmap?> RenderReceipt(int billId)
+	{
 		var bill = await CommonData.LoadTableDataById<BillModel>(TableNames.Bill, billId);
 		var billDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(TableNames.BillDetail, bill.Id);
 		var kotItems = billDetails.Where(d => d.KOTPrint).ToList();
 
 		if (kotItems.Count == 0)
-			return [];
+			return null;
 
 		int width = ThermalPrintUtil.PaperDots80mm;
 		int maxHeight = 3000;
@@ -47,8 +66,7 @@ public static class KOTThermalPrint
 
 		await BillData.MarkKOTAsPrinted(bill.Id);
 
-		using var cropped = ThermalPrintUtil.CropBitmap(tempBitmap, width, (int)Math.Ceiling(y));
-		return ThermalPrintUtil.ConvertBitmapToThermalBytes(cropped, width);
+		return ThermalPrintUtil.CropBitmap(tempBitmap, width, (int)Math.Ceiling(y));
 	}
 
 	private static float DrawHeader(SKCanvas canvas, int width, float y)
@@ -67,7 +85,7 @@ public static class KOTThermalPrint
 		{
 			("Outlet",   location?.Name ?? "N/A"),
 			("Bill No",  bill.TransactionNo),
-			("Date",     bill.TransactionDateTime.ToString("dd/MM/yy hh:mm tt")),
+			("Date",     bill.TransactionDateTime.ToString("dd/MMM/yy hh:mm tt")),
 			("Table No", table?.Name ?? "N/A")
 		};
 
@@ -80,18 +98,32 @@ public static class KOTThermalPrint
 	{
 		var products = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
 
-		string[] headers = ["Item", "Qty"];
-		SKTextAlign[] alignments = [SKTextAlign.Left, SKTextAlign.Right];
-		float[] columnPercents = [0.78f, 0.22f];
+		bool hasNotes = kotItems.Any(i => !string.IsNullOrWhiteSpace(i.Remarks));
+
+		string[] headers;
+		SKTextAlign[] alignments;
+		float[] columnPercents;
+
+		if (hasNotes)
+		{
+			headers = ["Item", "Qty", "Notes"];
+			alignments = [SKTextAlign.Left, SKTextAlign.Right, SKTextAlign.Left];
+			columnPercents = [0.50f, 0.15f, 0.35f];
+		}
+		else
+		{
+			headers = ["Item", "Qty"];
+			alignments = [SKTextAlign.Left, SKTextAlign.Right];
+			columnPercents = [0.78f, 0.22f];
+		}
 
 		var rows = new List<string[]>();
 		foreach (var item in kotItems)
 		{
 			string productName = products.FirstOrDefault(p => p.Id == item.ProductId)?.Name ?? "Unknown";
-			rows.Add([productName, item.Quantity.FormatSmartDecimal()]);
-
-			if (!string.IsNullOrWhiteSpace(item.Remarks))
-				rows.Add([$"  [Note] {item.Remarks}", string.Empty]);
+			rows.Add(hasNotes
+				? [productName, item.Quantity.FormatSmartDecimal(), item.Remarks ?? string.Empty]
+				: [productName, item.Quantity.FormatSmartDecimal()]);
 		}
 
 		y = ThermalPrintUtil.DrawTable(canvas, headers, alignments, columnPercents, rows, width, y);
@@ -105,7 +137,7 @@ public static class KOTThermalPrint
 		var currentDateTime = await CommonData.LoadCurrentDateTime();
 
 		string printedBy = users.FirstOrDefault(u => u.Id == bill.CreatedBy)?.Name ?? "Unknown";
-		y = ThermalPrintUtil.DrawCenteredText(canvas, $"Printed By: {printedBy} | On: {currentDateTime:dd/MM/yy hh:mm tt}", width, y, ThermalPrintUtil.FontSizeSmall, bold: false);
+		y = ThermalPrintUtil.DrawCenteredText(canvas, $"Printed By: {printedBy} | On: {currentDateTime:dd/MMM/yy hh:mm tt}", width, y, ThermalPrintUtil.FontSizeSmall, bold: false);
 		y = ThermalPrintUtil.DrawCenteredText(canvas, "A Product of aadisoft.vercel.app", width, y, ThermalPrintUtil.FontSizeSmall, bold: true);
 		return y;
 	}

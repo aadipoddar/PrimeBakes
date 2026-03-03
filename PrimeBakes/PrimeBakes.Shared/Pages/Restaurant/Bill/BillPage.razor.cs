@@ -83,6 +83,7 @@ public partial class BillPage : IAsyncDisposable
 		_hotKeysContext = HotKeys.CreateContext()
 			.Add(ModCode.Ctrl, Code.Enter, AddItemToCart, "Add item to cart", Exclude.None)
 			.Add(ModCode.Ctrl, Code.E, () => _sfItemAutoComplete.FocusAsync(), "Focus on item input", Exclude.None)
+			.Add(ModCode.Alt, Code.K, PrintKOT, "Print KOT", Exclude.None)
 			.Add(ModCode.Ctrl, Code.S, SaveTransaction, "Save the transaction", Exclude.None)
 			.Add(ModCode.Alt, Code.T, DownloadThermalInvoice, "Download Thermal invoice", Exclude.None)
 			.Add(ModCode.Alt, Code.P, DownloadPdfInvoice, "Download PDF invoice", Exclude.None)
@@ -1152,16 +1153,6 @@ public partial class BillPage : IAsyncDisposable
 				item.KOTPrint = false;
 	}
 
-	private async Task HandleKOTPrint()
-	{
-		if (_cart.Any(item => item.KOTPrint))
-		{
-			var printData = await KOTThermalPrint.GenerateThermalBill(_bill.Id);
-			if (printData.Length > 0)
-				await BluetoothPrinterService.SendDataAsync(printData);
-		}
-	}
-
 	private bool NeedsSave => _bill.Id == 0 || _bill.Running;
 
 	private async Task<bool> SaveCore()
@@ -1177,8 +1168,6 @@ public partial class BillPage : IAsyncDisposable
 		await HandleBillSettlement();
 
 		_bill.Id = await BillData.SaveTransaction(_bill, _cart);
-
-		await HandleKOTPrint();
 
 		return true;
 	}
@@ -1218,6 +1207,54 @@ public partial class BillPage : IAsyncDisposable
 	}
 	#endregion
 
+	#region KOT
+	private async Task HandleKOTPrint()
+	{
+		if (_cart.Any(item => item.KOTPrint))
+			await ThermalPrintDispatcher.PrintAsync(
+				() => KOTThermalPrint.GenerateThermalBill(_bill.Id),
+				() => KOTThermalPrint.GenerateThermalBillPng(_bill.Id));
+	}
+
+	private async Task PrintKOT()
+	{
+		if (!NeedsSave)
+		{
+			await _toastNotification.ShowAsync("Transaction Already Saved", "The transaction has already been saved. KOT has been printed if there were items marked for KOT print.", ToastType.Info);
+			return;
+		}
+
+		if (_isProcessing || _isLoading)
+			return;
+
+		try
+		{
+			_isProcessing = true;
+
+			if (!await SaveCore())
+			{
+				_isProcessing = false;
+				return;
+			}
+
+			await HandleKOTPrint();
+
+			await _toastNotification.ShowAsync("KOT Printed", "Kitchen order ticket sent to printer.", ToastType.Success);
+
+			await DeleteLocalFiles();
+			NavigationManager.NavigateTo($"{PageRouteNames.Bill}/{_bill.Id}", true);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error Printing KOT", ex.Message, ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+		}
+	}
+	#endregion
+
 	#region Utilities
 	private async Task DownloadThermalInvoice()
 	{
@@ -1237,13 +1274,14 @@ public partial class BillPage : IAsyncDisposable
 
 			await _toastNotification.ShowAsync("Processing", "Generating Thermal invoice...", ToastType.Info);
 
-			var printData = await BillThermalPrint.GenerateThermalBill(_bill.Id);
-			await BluetoothPrinterService.SendDataAsync(printData);
+			await ThermalPrintDispatcher.PrintAsync(
+				() => BillThermalPrint.GenerateThermalBill(_bill.Id),
+				() => BillThermalPrint.GenerateThermalBillPng(_bill.Id));
+			
+			await _toastNotification.ShowAsync("Invoice Downloaded", "The thermal invoice has been generated successfully.", ToastType.Success);
 
 			if (!_bill.Running)
 				await ResetPage();
-
-			await _toastNotification.ShowAsync("Invoice Downloaded", "The thermal invoice has been generated successfully.", ToastType.Success);
 		}
 		catch (Exception ex)
 		{
@@ -1257,6 +1295,12 @@ public partial class BillPage : IAsyncDisposable
 
 	private async Task DownloadPdfInvoice()
 	{
+		if (NeedsSave)
+		{
+			await _toastNotification.ShowAsync("No Transaction Selected", "Please save the transaction first before downloading the invoice.", ToastType.Error);
+			return;
+		}
+
 		if (_isProcessing)
 			return;
 
@@ -1264,13 +1308,6 @@ public partial class BillPage : IAsyncDisposable
 		{
 			_isProcessing = true;
 			StateHasChanged();
-
-			if (NeedsSave && !await SaveCore())
-			{
-				_isProcessing = false;
-				return;
-			}
-
 			await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
 
 			var (pdfStream, fileName) = await BillInvoiceExport.ExportInvoice(_bill.Id, InvoiceExportType.PDF);
@@ -1290,6 +1327,12 @@ public partial class BillPage : IAsyncDisposable
 
 	private async Task DownloadExcelInvoice()
 	{
+		if (NeedsSave)
+		{
+			await _toastNotification.ShowAsync("No Transaction Selected", "Please save the transaction first before downloading the invoice.", ToastType.Error);
+			return;
+		}
+
 		if (_isProcessing)
 			return;
 
@@ -1297,13 +1340,6 @@ public partial class BillPage : IAsyncDisposable
 		{
 			_isProcessing = true;
 			StateHasChanged();
-
-			if (NeedsSave && !await SaveCore())
-			{
-				_isProcessing = false;
-				return;
-			}
-
 			await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
 
 			var (excelStream, fileName) = await BillInvoiceExport.ExportInvoice(_bill.Id, InvoiceExportType.Excel);

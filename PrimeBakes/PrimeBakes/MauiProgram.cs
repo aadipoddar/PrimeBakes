@@ -40,6 +40,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<ISoundService, SoundService>();
         builder.Services.AddSingleton<IBluetoothPrinterService, BluetoothPrinterService>();
         builder.Services.AddScoped<INotificationService, NotificationService>();
+        builder.Services.AddScoped<IThermalPrintDispatcher, ThermalPrintDispatcher>();
 
         builder.Services.AddMauiBlazorWebView();
         builder.Services.AddSyncfusionBlazor();

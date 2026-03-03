@@ -2,10 +2,6 @@ using PrimeBakesLibrary.Models.Accounts.Masters;
 
 using SkiaSharp;
 
-using Syncfusion.Drawing;
-using Syncfusion.Pdf;
-using Syncfusion.Pdf.Graphics;
-
 namespace PrimeBakesLibrary.Exporting.Utils;
 
 /// <summary>Unified utility for rendering thermal receipts as SkiaSharp raster images and converting to ESC/POS bytes.</summary>
@@ -15,7 +11,6 @@ public static class ThermalPrintUtil
 
 	public const int PrinterDpi = 203;
 	public const int PaperDots80mm = 576;
-	public const int PaperDots58mm = 384;
 	public const int Margin = 4;
 	public const int LineGap = 1;
 	public const int SectionGap = 12;
@@ -27,6 +22,7 @@ public static class ThermalPrintUtil
 	public const float FontSizeSmall = 22f;
 
 	private const float ColGap = 12f;
+	private const float ColPad = 8f;  // leading gap for columns > 0
 
 	// ── Font helpers ─────────────────────────────────────────────────────────
 
@@ -199,8 +195,10 @@ public static class ThermalPrintUtil
 		float hLineH = hm.Descent - hm.Ascent;
 		for (int i = 0; i < headers.Length; i++)
 		{
-			float tw = headerFont.MeasureText(headers[i]);
-			canvas.DrawText(headers[i], AlignX(alignments[i], colX[i], colW[i], tw), y - hm.Ascent, headerFont, paint);
+			float textX = i == 0
+				? AlignX(alignments[i], colX[i], colW[i], headerFont.MeasureText(headers[i]))
+				: AlignX(alignments[i], colX[i] + ColPad, colW[i] - ColPad, headerFont.MeasureText(headers[i]));
+			canvas.DrawText(headers[i], textX, y - hm.Ascent, headerFont, paint);
 		}
 		y += hLineH + LineGap;
 		y = DrawSeparator(canvas, paperWidth, y);
@@ -213,13 +211,16 @@ public static class ThermalPrintUtil
 			for (int i = 0; i < Math.Min(row.Length, headers.Length); i++)
 			{
 				string cell = row[i] ?? string.Empty;
-				if (i == 0)
+				float cellStartX = i == 0 ? colX[i] : colX[i] + ColPad;
+				float cellWidth = i == 0 ? colW[i] - 4 : colW[i] - ColPad - 4;
+
+				if (alignments[i] == SKTextAlign.Left)
 				{
-					var lines = WrapText(cell, rowFont, colW[i] - 4);
+					var lines = WrapText(cell, rowFont, cellWidth);
 					float cellY = y;
 					for (int li = 0; li < lines.Count; li++)
 					{
-						canvas.DrawText(lines[li], li == 0 ? colX[i] : colX[i] + 12f, cellY - rm.Ascent, rowFont, paint);
+						canvas.DrawText(lines[li], li == 0 ? cellStartX : cellStartX + 12f, cellY - rm.Ascent, rowFont, paint);
 						cellY += rLineH + LineGap;
 					}
 					maxCellH = Math.Max(maxCellH, (rLineH + LineGap) * lines.Count - LineGap);
@@ -227,7 +228,7 @@ public static class ThermalPrintUtil
 				else
 				{
 					float tw = rowFont.MeasureText(cell);
-					canvas.DrawText(cell, AlignX(alignments[i], colX[i], colW[i], tw), y - rm.Ascent, rowFont, paint);
+					canvas.DrawText(cell, AlignX(alignments[i], cellStartX, cellWidth, tw), y - rm.Ascent, rowFont, paint);
 				}
 			}
 			y += maxCellH + LineGap;
@@ -416,31 +417,29 @@ public static class ThermalPrintUtil
 		return ms.ToArray();
 	}
 
-	/// <summary>Wraps a bitmap into a Syncfusion PDF sized to thermal paper dimensions.</summary>
-	public static MemoryStream WrapBitmapInPdf(SKBitmap bitmap, int paperWidthDots)
+	/// <summary>
+	/// Null-safe convenience wrapper: converts a rendered receipt bitmap to ESC/POS raster bytes
+	/// at 80 mm paper width. Returns an empty array when <paramref name="bitmap"/> is null.
+	/// </summary>
+	public static byte[] BitmapToEscPosBytes(SKBitmap? bitmap)
+		=> bitmap is null ? [] : ConvertBitmapToThermalBytes(bitmap, PaperDots80mm);
+
+	/// <summary>
+	/// Null-safe convenience wrapper: PNG-encodes a rendered receipt bitmap.
+	/// Returns an empty array when <paramref name="bitmap"/> is null.
+	/// Used as the browser-print fallback payload.
+	/// </summary>
+	public static byte[] BitmapToPngBytes(SKBitmap? bitmap)
 	{
-		float pdfW = paperWidthDots / (float)PrinterDpi * 72f;
-		float pdfH = bitmap.Height / (float)PrinterDpi * 72f;
-
-		var ms = new MemoryStream();
-		using var doc = new PdfDocument();
-		doc.PageSettings.Size = new SizeF(pdfW, pdfH);
-		doc.PageSettings.Margins.All = 0;
-
-		var page = doc.Pages.Add();
-		using var encoded = SKImage.FromBitmap(bitmap)?.Encode(SKEncodedImageFormat.Png, 100);
-		if (encoded is not null)
-		{
-			using var imgStream = new MemoryStream(encoded.ToArray());
-			page.Graphics.DrawImage(new PdfBitmap(imgStream), 0, 0, pdfW, pdfH);
-		}
-		doc.Save(ms);
-		ms.Position = 0;
-		return ms;
+		if (bitmap is null)
+			return [];
+		using var image = SKImage.FromBitmap(bitmap);
+		using var data = image?.Encode(SKEncodedImageFormat.Png, 100);
+		return data?.ToArray() ?? [];
 	}
 
 	/// <summary>Converts raw image bytes to ESC/POS raster bytes (GS v 0 command).</summary>
-	public static byte[] BuildRasterImage(byte[] imageBytes, int maxWidthDots = PaperDots80mm,
+	private static byte[] BuildRasterImage(byte[] imageBytes, int maxWidthDots = PaperDots80mm,
 		int threshold = 128, bool center = true)
 	{
 		try
@@ -482,13 +481,5 @@ public static class ThermalPrintUtil
 			Console.WriteLine($"Raster image conversion failed: {ex.Message}");
 			return null;
 		}
-	}
-
-	// Kept public for external callers
-	public static void Initialize(MemoryStream ms) => ms.Write([0x1B, 0x40]);
-	public static void FeedAndCut(MemoryStream ms, byte feedLines = 5)
-	{
-		ms.Write([0x1B, 0x64, feedLines]);
-		ms.Write([0x1D, 0x56, 0x01]);
 	}
 }

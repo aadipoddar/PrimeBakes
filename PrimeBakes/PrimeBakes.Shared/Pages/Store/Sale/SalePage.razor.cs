@@ -404,7 +404,9 @@ public partial class SalePage : IAsyncDisposable
 		AddPaymentFromSale("UPI", _sale.UPI);
 		AddPaymentFromSale("Credit", _sale.Credit);
 
-		_selectedPaymentMethod = _paymentMethods.FirstOrDefault();
+		_selectedPaymentMethod = _user?.LocationId == 1
+			? _paymentMethods.FirstOrDefault(pm => pm.Name == "Credit") ?? _paymentMethods.FirstOrDefault()
+			: _paymentMethods.FirstOrDefault();
 		_paymentAmount = Math.Max(0, _remainingAmount);
 	}
 
@@ -1304,9 +1306,9 @@ public partial class SalePage : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating Thermal invoice...", ToastType.Info);
 
-			var printData = await SaleThermalPrint.GenerateThermalBill(_sale.Id);
-			await BluetoothPrinterService.SendDataAsync(printData);
-
+			await ThermalPrintDispatcher.PrintAsync(
+				() => SaleThermalPrint.GenerateThermalBill(_sale.Id),
+				() => SaleThermalPrint.GenerateThermalBillPng(_sale.Id));
 			await _toastNotification.ShowAsync("Print Sent", "Thermal invoice sent to printer.", ToastType.Success);
 
 			if (isNewSale)

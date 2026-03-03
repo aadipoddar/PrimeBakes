@@ -308,8 +308,10 @@ public partial class StockTransferPage : IAsyncDisposable
         AddPaymentFromStockTransfer("UPI", _stockTransfer.UPI);
         AddPaymentFromStockTransfer("Credit", _stockTransfer.Credit);
 
-        _selectedPaymentMethod = _paymentMethods.FirstOrDefault();
-        _paymentAmount = Math.Max(0, _remainingAmount);
+		_selectedPaymentMethod = _user?.LocationId == 1
+			? _paymentMethods.FirstOrDefault(pm => pm.Name == "Credit") ?? _paymentMethods.FirstOrDefault()
+			: _paymentMethods.FirstOrDefault();
+		_paymentAmount = Math.Max(0, _remainingAmount);
     }
 
     private void AddPaymentFromStockTransfer(string modeName, decimal amount)

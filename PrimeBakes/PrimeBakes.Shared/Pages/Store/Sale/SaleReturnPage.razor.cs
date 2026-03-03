@@ -363,7 +363,9 @@ public partial class SaleReturnPage : IAsyncDisposable
         AddPaymentFromSaleReturn("UPI", _saleReturn.UPI);
         AddPaymentFromSaleReturn("Credit", _saleReturn.Credit);
 
-        _selectedPaymentMethod = _paymentMethods.FirstOrDefault();
+        _selectedPaymentMethod = _user?.LocationId == 1
+            ? _paymentMethods.FirstOrDefault(pm => pm.Name == "Credit") ?? _paymentMethods.FirstOrDefault()
+            : _paymentMethods.FirstOrDefault();
         _paymentAmount = Math.Max(0, _remainingAmount);
     }
 

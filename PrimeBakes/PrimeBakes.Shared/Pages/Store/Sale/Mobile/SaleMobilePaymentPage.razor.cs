@@ -366,10 +366,9 @@ public partial class SaleMobilePaymentPage
 			await SendLocalNotification(_sale.Id);
 
 			if (thermal)
-			{
-				var printData = await SaleThermalPrint.GenerateThermalBill(_sale.Id);
-				await BluetoothPrinterService.SendDataAsync(printData);
-			}
+				await ThermalPrintDispatcher.PrintAsync(
+					() => SaleThermalPrint.GenerateThermalBill(_sale.Id),
+					() => SaleThermalPrint.GenerateThermalBillPng(_sale.Id));
 
 			else
 			{

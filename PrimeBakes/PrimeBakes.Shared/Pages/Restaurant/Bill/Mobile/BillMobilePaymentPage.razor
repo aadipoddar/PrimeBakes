@@ -130,10 +130,12 @@ else
 		</div>
 
 		<div class="payment-page-footer">
+			<SfButton Content="@(_isProcessing ? "Saving..." : "KOT")" CssClass="dialog-button confirm-button-dialog"
+					  OnClick="async () => await SaveTransaction(kotOnly: true)" Disabled="@(_isProcessing)" />
 			<SfButton Content="@(_isProcessing ? "Saving..." : "Save")" CssClass="dialog-button confirm-button-dialog"
 					  OnClick="async () => await SaveTransaction()" Disabled="@(_isProcessing)" />
 			<SfButton Content="@(_isProcessing ? "Saving..." : "Thermal")" CssClass="dialog-button confirm-button-dialog"
-					  OnClick="async () => await SaveTransaction(true)" Disabled="@(_isProcessing)" />
+					  OnClick="async () => await SaveTransaction(thermal: true)" Disabled="@(_isProcessing)" />
 		</div>
 
 		<Footer ShowVersion="false" />

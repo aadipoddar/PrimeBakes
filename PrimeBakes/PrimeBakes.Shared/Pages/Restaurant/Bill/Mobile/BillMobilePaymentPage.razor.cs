@@ -442,12 +442,12 @@ public partial class BillMobilePaymentPage
 		if (!_finalCart.Any(item => item.KOTPrint))
 			return;
 
-		var printData = await KOTThermalPrint.GenerateThermalBill(_bill.Id);
-		if (printData.Length > 0)
-			await BluetoothPrinterService.SendDataAsync(printData);
+		await ThermalPrintDispatcher.PrintAsync(
+			() => KOTThermalPrint.GenerateThermalBill(_bill.Id),
+			() => KOTThermalPrint.GenerateThermalBillPng(_bill.Id));
 	}
 
-	private async Task SaveTransaction(bool thermal = false)
+	private async Task SaveTransaction(bool thermal = false, bool kotOnly = false)
 	{
 		if (_isProcessing || _isLoading)
 			return;
@@ -469,18 +469,23 @@ public partial class BillMobilePaymentPage
 			HandleBillSettlement();
 
 			_bill.Id = await BillData.SaveTransaction(_bill, billDetails: _finalCart);
-			await HandleKOTPrint();
+
+			if (kotOnly)
+			{
+				await HandleKOTPrint();
+				NavigationManager.NavigateTo(PageRouteNames.DiningMobileDashboard, true);
+				return;
+			}
 
 			await DataStorageService.LocalRemove(StorageFileNames.BillMobileCartDataFileName);
 			await SendLocalNotification(_bill.Id);
 
 			if (thermal)
-			{
-				var printData = await BillThermalPrint.GenerateThermalBill(_bill.Id);
-				await BluetoothPrinterService.SendDataAsync(printData);
-			}
+				await ThermalPrintDispatcher.PrintAsync(
+					() => BillThermalPrint.GenerateThermalBill(_bill.Id),
+					() => BillThermalPrint.GenerateThermalBillPng(_bill.Id));
 
-			else if (!_bill.Running)
+			if (!_bill.Running)
 			{
 				var (pdfStream, fileName) = await BillInvoiceExport.ExportInvoice(_bill.Id, InvoiceExportType.PDF);
 				await SaveAndViewService.SaveAndView(fileName, pdfStream);

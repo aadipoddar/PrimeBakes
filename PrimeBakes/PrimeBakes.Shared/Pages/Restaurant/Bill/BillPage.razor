@@ -21,14 +21,22 @@ else
 		<Header Title="Create Bill" Subtitle="Create and manage restaurant bills" ShowLogout="true" ShowHome="true"
 				ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
 			<RightContent>
+				@if (NeedsSave)
+				{
+					<IconButton Icon="IconType.KOT" Variant="ButtonVariant.KOT" Title="Print KOT (Alt + K)"
+								Disabled="_isProcessing" OnClick="PrintKOT" />
+				}
 				<IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Transaction (Ctrl + S)"
 							Disabled="_isProcessing" OnClick="SaveTransaction" />
 				<IconButton Icon="IconType.ThermalPrinter" Variant="ButtonVariant.ThermalPrinter"
 							Title="Download Thermal Invoice (Alt + T)" Disabled="_isProcessing" OnClick="DownloadThermalInvoice" />
-				<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Download Excel Invoice (Alt + E)"
-							Disabled="_isProcessing" OnClick="DownloadExcelInvoice" />
-				<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Download PDF Invoice (Alt + P)"
-							Disabled="_isProcessing" OnClick="DownloadPdfInvoice" />
+				@if (!NeedsSave)
+				{
+					<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Download Excel Invoice (Alt + E)"
+								Disabled="_isProcessing" OnClick="DownloadExcelInvoice" />
+					<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Download PDF Invoice (Alt + P)"
+								Disabled="_isProcessing" OnClick="DownloadPdfInvoice" />
+				}
 				<IconButton Icon="IconType.History" Title="Transaction History (Ctrl + H)" Disabled="_isProcessing"
 							OnClick="NavigateToTransactionHistoryPage" />
 				<IconButton Icon="IconType.Report" Title="Item Report (Ctrl + I)" Disabled="_isProcessing"
@@ -99,9 +107,10 @@ else
 													  CssClass="custom-datepicker">
 											<DatePickerEvents TValue="DateTime" ValueChange="OnTransactionDateChanged" />
 										</SfDatePicker>
-										<SfTextBox Value="@($"{_selectedFinancialYear?.StartDate:yyyy} to {_selectedFinancialYear?.EndDate:yyyy}")"
-												   Readonly="true" Placeholder="Financial Year" FloatLabelType="FloatLabelType.Never"
-												   CssClass="custom-textbox readonly-field" />
+										<SfTextBox
+										Value="@($"{_selectedFinancialYear?.StartDate:yyyy} to {_selectedFinancialYear?.EndDate:yyyy}")"
+										Readonly="true" Placeholder="Financial Year" FloatLabelType="FloatLabelType.Never"
+										CssClass="custom-textbox readonly-field" />
 									</div>
 								</div>
 							}
@@ -110,8 +119,8 @@ else
 								<label class="field-label">
 									Dining Table <span class="required">*</span>
 								</label>
-								<SfAutoComplete Value="@_selectedDiningTable" TValue="DiningTableModel" TItem="DiningTableModel"
-												DataSource="@_diningTables" Placeholder="Select a Dining Table"
+								<SfAutoComplete Value="@_selectedDiningTable" TValue="DiningTableModel"
+												TItem="DiningTableModel" DataSource="@_diningTables" Placeholder="Select a Dining Table"
 												FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
 												FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
 												CssClass="custom-autocomplete">
@@ -204,7 +213,8 @@ else
 													  Decimals="2" ShowSpinButton="false" Placeholder="%"
 													  FloatLabelType="FloatLabelType.Never"
 													  CssClass="custom-numeric editable-field small-input">
-										<NumericTextBoxEvents TValue="decimal" ValueChange="OnServiceChargePercentChanged" />
+										<NumericTextBoxEvents TValue="decimal"
+															  ValueChange="OnServiceChargePercentChanged" />
 									</SfNumericTextBox>
 									<SfNumericTextBox Value="@_bill.ServiceChargeAmount" Readonly="true" TValue="decimal"
 													  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
@@ -231,18 +241,17 @@ else
 
 							<div class="financial-row-dual">
 								<SfDropDownList TValue="PaymentModeModel" TItem="PaymentModeModel"
-												@bind-Value="_selectedPaymentMethod" DataSource="@_paymentMethods"
-												Placeholder="Mode" CssClass="custom-autocomplete small-input"
-												FloatLabelType="FloatLabelType.Never">
+												@bind-Value="_selectedPaymentMethod" DataSource="@_paymentMethods" Placeholder="Mode"
+												CssClass="custom-autocomplete small-input" FloatLabelType="FloatLabelType.Never">
 									<DropDownListFieldSettings Text="Name" />
 								</SfDropDownList>
 								<div class="dual-inputs">
 									<SfNumericTextBox @bind-Value="_paymentAmount" TValue="decimal" Min="0"
-													  ShowSpinButton="false" Placeholder="Pay Amt"
-													  FloatLabelType="FloatLabelType.Never"
+													  ShowSpinButton="false" Placeholder="Pay Amt" FloatLabelType="FloatLabelType.Never"
 													  CssClass="custom-numeric editable-field small-input" />
 									<IconButton Icon="IconType.Add" Variant="ButtonVariant.Add" Text="Add"
-												Title="Add Payment" Disabled="@(_isProcessing || _paymentAmount <= 0 || _selectedPaymentMethod is null || _selectedPaymentMethod.Id <= 0)"
+												Title="Add Payment"
+												Disabled="@(_isProcessing || _paymentAmount <= 0 || _selectedPaymentMethod is null || _selectedPaymentMethod.Id <= 0)"
 												OnClick="AddPayment" />
 								</div>
 							</div>
@@ -256,8 +265,7 @@ else
 										<label class="financial-label">@payment.Method</label>
 										<div class="dual-inputs">
 											<SfNumericTextBox Value="@payment.Amount" TValue="decimal" Readonly="true"
-															  ShowSpinButton="false" Placeholder="0.00"
-															  FloatLabelType="FloatLabelType.Never"
+															  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
 															  CssClass="custom-numeric readonly-field small-input" />
 											<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid"
 														Title="Remove Payment" Disabled="@_isProcessing"

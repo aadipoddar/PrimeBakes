@@ -27,6 +27,25 @@ public static class BillThermalPrint
 	/// <returns>ESC/POS byte array including initialise, raster image, feed, and cut commands.</returns>
 	public static async Task<byte[]> GenerateThermalBill(int billId)
 	{
+		using var bitmap = await RenderReceipt(billId);
+		return ThermalPrintUtil.BitmapToEscPosBytes(bitmap);
+	}
+
+	/// <summary>
+	/// Generates PNG image bytes for a complete bill thermal receipt.
+	/// Used as a browser-print fallback when Bluetooth is disconnected.
+	/// </summary>
+	/// <param name="billId">The bill transaction ID.</param>
+	/// <returns>PNG-encoded byte array of the rendered receipt.</returns>
+	public static async Task<byte[]> GenerateThermalBillPng(int billId)
+	{
+		using var bitmap = await RenderReceipt(billId);
+		return ThermalPrintUtil.BitmapToPngBytes(bitmap);
+	}
+
+	/// <summary>Renders the full bill receipt onto an <see cref="SKBitmap"/>.</summary>
+	private static async Task<SKBitmap> RenderReceipt(int billId)
+	{
 		var bill = await CommonData.LoadTableDataById<BillModel>(TableNames.Bill, billId);
 
 		int width = ThermalPrintUtil.PaperDots80mm;
@@ -46,8 +65,7 @@ public static class BillThermalPrint
 
 		y += ThermalPrintUtil.Margin;
 
-		using var cropped = ThermalPrintUtil.CropBitmap(tempBitmap, width, (int)Math.Ceiling(y));
-		return ThermalPrintUtil.ConvertBitmapToThermalBytes(cropped, width);
+		return ThermalPrintUtil.CropBitmap(tempBitmap, width, (int)Math.Ceiling(y));
 	}
 
 	private static async Task<float> DrawCompanyHeader(SKCanvas canvas, int width, float y)

@@ -34,6 +34,7 @@ builder.Services.AddScoped<ISaveAndViewService, SaveAndViewService>();
 builder.Services.AddScoped<ISoundService, SoundService>();
 builder.Services.AddScoped<IDataStorageService, DataStorageService>();
 builder.Services.AddScoped<IBluetoothPrinterService, BluetoothPrinterService>();
+builder.Services.AddScoped<IThermalPrintDispatcher, ThermalPrintDispatcher>();
 
 var app = builder.Build();
 
