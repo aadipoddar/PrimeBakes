@@ -77,7 +77,7 @@ public static class SaleThermalPrint
         {
             ("Outlet", sale.LocationName),
             ("Bill No", sale.TransactionNo),
-            ("Date", sale.TransactionDateTime.ToString("dd/MM/yy hh:mm tt"))
+            ("Date", sale.TransactionDateTime.ToString("dd/MMM/yy hh:mm tt"))
         };
 
         if (sale.OrderId.HasValue && sale.OrderId.Value > 0)
@@ -237,7 +237,7 @@ public static class SaleThermalPrint
     private static async Task<float> DrawFooter(SKCanvas canvas, SaleOverviewModel sale, int width, float y)
     {
         var currentDateTime = await CommonData.LoadCurrentDateTime();
-        y = ThermalPrintUtil.DrawCenteredText(canvas, $"Printed By: {sale.CreatedByName} | On: {currentDateTime:dd/MM/yy hh:mm tt}", width, y, ThermalPrintUtil.FontSizeSmall, bold: false);
+        y = ThermalPrintUtil.DrawCenteredText(canvas, $"Printed By: {sale.CreatedByName} | On: {currentDateTime:dd/MMM/yy hh:mm tt}", width, y, ThermalPrintUtil.FontSizeSmall, bold: false);
         y = ThermalPrintUtil.DrawCenteredText(canvas, "Thanks. Visit Again", width, y, ThermalPrintUtil.FontSizeNormal, bold: false);
         y = ThermalPrintUtil.DrawCenteredText(canvas, "A Product of aadisoft.vercel.app", width, y, ThermalPrintUtil.FontSizeSmall, bold: true);
 

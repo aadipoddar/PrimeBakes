@@ -1156,9 +1156,9 @@ public partial class BillPage : IAsyncDisposable
 	{
 		if (_cart.Any(item => item.KOTPrint))
 		{
-			var kotPrintStream = await KOTThermalPrint.GenerateThermalBill(_bill.Id);
-			await JSRuntime.InvokeVoidAsync("printToPrinter", kotPrintStream.ToString());
-			await Task.Delay(2000);
+			var printData = await KOTThermalPrint.GenerateThermalBill(_bill.Id);
+			if (printData.Length > 0)
+				await BluetoothPrinterService.SendDataAsync(printData);
 		}
 	}
 
@@ -1237,9 +1237,8 @@ public partial class BillPage : IAsyncDisposable
 
 			await _toastNotification.ShowAsync("Processing", "Generating Thermal invoice...", ToastType.Info);
 
-			var printStream = await BillThermalPrint.GenerateThermalBill(_bill.Id);
-			await JSRuntime.InvokeVoidAsync("printToPrinter", printStream.ToString());
-			await Task.Delay(2000);
+			var printData = await BillThermalPrint.GenerateThermalBill(_bill.Id);
+			await BluetoothPrinterService.SendDataAsync(printData);
 
 			if (!_bill.Running)
 				await ResetPage();

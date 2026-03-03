@@ -31,8 +31,26 @@
         {
             <IconButton Icon="IconType.Logout" Variant="ButtonVariant.Logout" Title="Logout (Ctrl + L)" OnClick="OnLogoutClick" />
         }
+        @if (ShowBtButton)
+        {
+            <IconButton Icon="IconType.Bluetooth"
+                        Variant="@(BtIsConnected ? ButtonVariant.BluetoothConnected : ButtonVariant.BluetoothDisconnected)"
+                        Title="@(BtIsConnected ? $"Printer: {_btSaved?.Name} (Connected)" : $"Printer: {_btSaved?.Name} (Not Connected)")"
+                        OnClick="HandleBtClick" />
+        }
     </div>
 </div>
+
+@if (ShowBtButton)
+{
+    <BluetoothReconnectDialog @ref="_btDialog"
+        PrinterName="@(_btSaved?.Name ?? "Unknown")"
+        IsConnected="@BtIsConnected"
+        Disabled="@_isBtReconnecting"
+        OnReconnect="HandleBtReconnect"
+        OnDismiss="HandleBtDismiss"
+        OnDisconnect="HandleBtDisconnect" />
+}
 
 <style>
     /* Professional Header Section */

@@ -390,8 +390,8 @@ public partial class BillReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating thermal invoice...", ToastType.Info);
 
-			var printStream = await BillThermalPrint.GenerateThermalBill(transactionId);
-			await JSRuntime.InvokeVoidAsync("printToPrinter", printStream.ToString());
+			var printData = await BillThermalPrint.GenerateThermalBill(transactionId);
+			await BluetoothPrinterService.SendDataAsync(printData);
 
 			await _toastNotification.ShowAsync("Success", "Thermal invoice generated successfully.", ToastType.Success);
 		}

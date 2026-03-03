@@ -241,6 +241,13 @@
             </svg>
             break;
 
+        case IconType.Bluetooth:
+            <svg xmlns="http://www.w3.org/2000/svg" width="@IconSize" height="@IconSize" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6.5 6.5 17.5 17.5 12 23 12 1 17.5 6.5 6.5 17.5" />
+            </svg>
+            break;
+
         case IconType.ThermalPrinter:
             <svg xmlns="http://www.w3.org/2000/svg" width="@IconSize" height="@IconSize" viewBox="0 0 24 24" fill="none"
                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -488,6 +495,34 @@
             .icon-btn.icon-btn-add:active:not(:disabled) {
                 transform: translateY(0) scale(0.98);
                 box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+            }
+
+        /* Bluetooth Connected - Glass Green */
+        .icon-btn.icon-btn-bt-connected {
+            color: #10b981;
+            border-color: rgba(16, 185, 129, 0.3);
+            background: linear-gradient(135deg, rgba(236, 253, 245, 0.9) 0%, rgba(209, 250, 229, 0.7) 100%);
+        }
+
+            .icon-btn.icon-btn-bt-connected:hover:not(:disabled) {
+                background: linear-gradient(135deg, rgba(236, 253, 245, 0.95) 0%, rgba(167, 243, 208, 0.8) 100%);
+                border-color: rgba(5, 150, 105, 0.5);
+                color: #059669;
+                box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2), 0 8px 24px rgba(16, 185, 129, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.9);
+            }
+
+        /* Bluetooth Disconnected - Glass Amber */
+        .icon-btn.icon-btn-bt-disconnected {
+            color: #f59e0b;
+            border-color: rgba(245, 158, 11, 0.3);
+            background: linear-gradient(135deg, rgba(255, 251, 235, 0.9) 0%, rgba(254, 243, 199, 0.7) 100%);
+        }
+
+            .icon-btn.icon-btn-bt-disconnected:hover:not(:disabled) {
+                background: linear-gradient(135deg, rgba(255, 251, 235, 0.95) 0%, rgba(253, 230, 138, 0.8) 100%);
+                border-color: rgba(217, 119, 6, 0.5);
+                color: #d97706;
+                box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2), 0 8px 24px rgba(245, 158, 11, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.9);
             }
 
         /* Button with Text */

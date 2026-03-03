@@ -442,9 +442,9 @@ public partial class BillMobilePaymentPage
 		if (!_finalCart.Any(item => item.KOTPrint))
 			return;
 
-		var kotPrintStream = await KOTThermalPrint.GenerateThermalBill(_bill.Id);
-		await JSRuntime.InvokeVoidAsync("printToPrinter", kotPrintStream.ToString());
-		await Task.Delay(2000);
+		var printData = await KOTThermalPrint.GenerateThermalBill(_bill.Id);
+		if (printData.Length > 0)
+			await BluetoothPrinterService.SendDataAsync(printData);
 	}
 
 	private async Task SaveTransaction(bool thermal = false)
@@ -476,9 +476,8 @@ public partial class BillMobilePaymentPage
 
 			if (thermal)
 			{
-				var content = await BillThermalPrint.GenerateThermalBill(_bill.Id);
-				await JSRuntime.InvokeVoidAsync("printToPrinter", content.ToString());
-				await Task.Delay(2000);
+				var printData = await BillThermalPrint.GenerateThermalBill(_bill.Id);
+				await BluetoothPrinterService.SendDataAsync(printData);
 			}
 
 			else if (!_bill.Running)

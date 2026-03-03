@@ -82,6 +82,37 @@ public static class ThermalPrintUtil
 		return y + SectionGap;
 	}
 
+	/// <summary>
+	/// Draws two label-value pairs side by side on the same line:
+	/// <c>leftLabel: leftValue</c> starting from the left margin,
+	/// <c>rightLabel: rightValue</c> right-aligned to the paper edge.
+	/// </summary>
+	public static float DrawSplitRow(SKCanvas canvas, string leftLabel, string leftValue,
+		string rightLabel, string rightValue, int paperWidth, float y, float fontSize = FontSizeNormal)
+	{
+		using var boldTf = BoldTypeface();
+		using var semiTf = SemiBoldTypeface();
+		using var labelFont = new SKFont(boldTf, fontSize);
+		using var valueFont = new SKFont(semiTf, fontSize);
+		using var paint = new SKPaint { Color = SKColors.Black, IsAntialias = true };
+		var metrics = labelFont.Metrics;
+		float lineH = metrics.Descent - metrics.Ascent;
+
+		// Left: label bold, value semi-bold
+		string leftLbl = $"{leftLabel}: ";
+		canvas.DrawText(leftLbl, Margin, y - metrics.Ascent, labelFont, paint);
+		canvas.DrawText(leftValue, Margin + labelFont.MeasureText(leftLbl), y - metrics.Ascent, valueFont, paint);
+
+		// Right: anchored near centre (starts at paperWidth / 2)
+		string rightVal = rightValue;
+		string rightLbl = $"{rightLabel}: ";
+		float rightStartX = paperWidth / 2f;
+		canvas.DrawText(rightLbl, rightStartX, y - metrics.Ascent, labelFont, paint);
+		canvas.DrawText(rightVal, rightStartX + labelFont.MeasureText(rightLbl), y - metrics.Ascent, valueFont, paint);
+
+		return y + lineH + LineGap;
+	}
+
 	/// <summary>Draws word-wrapped centred text; returns updated Y.</summary>
 	public static float DrawCenteredText(SKCanvas canvas, string text, int paperWidth, float y, float fontSize, bool bold)
 	{

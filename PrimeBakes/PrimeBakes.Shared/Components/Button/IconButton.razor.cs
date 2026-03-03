@@ -54,6 +54,8 @@ public partial class IconButton
                 ButtonVariant.Recover => "icon-btn-recover",
                 ButtonVariant.Logout => "icon-btn-logout",
                 ButtonVariant.Get => "icon-btn-get",
+                ButtonVariant.BluetoothConnected => "icon-btn-bt-connected",
+                ButtonVariant.BluetoothDisconnected => "icon-btn-bt-disconnected",
                 _ => string.Empty
             },
 
@@ -108,6 +110,7 @@ public enum IconType
     Reset,
     Recover,
     ThermalPrinter,
+    Bluetooth,
     Get
 }
 
@@ -124,6 +127,8 @@ public enum ButtonVariant
     Recover,
     Logout,
     ThermalPrinter,
+    BluetoothConnected,
+    BluetoothDisconnected,
     Get
 }
 

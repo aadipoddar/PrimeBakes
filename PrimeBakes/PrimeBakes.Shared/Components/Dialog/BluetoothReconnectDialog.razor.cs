@@ -19,11 +19,29 @@ public partial class BluetoothReconnectDialog
     [Parameter]
     public bool Disabled { get; set; }
 
+    /// <summary>
+    /// When true the dialog shows a "Connected" status view instead of the reconnect prompt.
+    /// </summary>
+    [Parameter]
+    public bool IsConnected { get; set; }
+
     [Parameter]
     public EventCallback OnReconnect { get; set; }
 
     [Parameter]
     public EventCallback OnDismiss { get; set; }
+
+    /// <summary>
+    /// Called when the user explicitly clicks Disconnect while the printer is connected.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnDisconnect { get; set; }
+
+    private async Task HandleDisconnect()
+    {
+        _isVisible = false;
+        await OnDisconnect.InvokeAsync();
+    }
 
     /// <summary>
     /// Shows the reconnect dialog.
