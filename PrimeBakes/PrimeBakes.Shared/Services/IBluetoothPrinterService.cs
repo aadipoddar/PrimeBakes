@@ -94,6 +94,12 @@ public class BluetoothDeviceInfo
     public bool IsPaired { get; set; }
 
     /// <summary>
+    /// Indicates whether the last connection attempt to this device was successful.
+    /// Set to false when a reconnect attempt fails so the device is remembered for future reconnects.
+    /// </summary>
+    public bool IsConnected { get; set; }
+
+    /// <summary>
     /// The signal strength (RSSI) if available, otherwise null.
     /// </summary>
     public int? SignalStrength { get; set; }

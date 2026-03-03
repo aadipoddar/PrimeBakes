@@ -8,315 +8,354 @@ using Syncfusion.Pdf.Graphics;
 
 namespace PrimeBakesLibrary.Exporting.Utils;
 
-/// <summary>
-/// Unified utility for rendering thermal receipts as high-quality raster images
-/// using SkiaSharp, converting to ESC/POS raster commands, and optionally wrapping
-/// in a Syncfusion PDF for preview / sharing.
-/// <para>
-/// Contains reusable drawing primitives, text helpers, ESC/POS conversion, and
-/// bitmap-to-PDF wrapping. Specific receipt layouts (bills, test pages, etc.)
-/// should compose these helpers from their own classes.
-/// </para>
-/// </summary>
+/// <summary>Unified utility for rendering thermal receipts as SkiaSharp raster images and converting to ESC/POS bytes.</summary>
 public static class ThermalPrintUtil
 {
-	#region Constants
+	// ── Constants ────────────────────────────────────────────────────────────
 
-	/// <summary>Standard thermal printer resolution in DPI.</summary>
 	public const int PrinterDpi = 203;
-
-	/// <summary>
-	/// Full raster image width in dots for 80 mm paper at 203 DPI.
-	/// Print head covers ~72 mm → 576 dots.
-	/// </summary>
 	public const int PaperDots80mm = 576;
-
-	/// <summary>
-	/// Full raster image width in dots for 58 mm paper at 203 DPI.
-	/// Print head covers ~48 mm → 384 dots.
-	/// </summary>
 	public const int PaperDots58mm = 384;
-
-	/// <summary>Horizontal margin in dots from each edge.</summary>
 	public const int Margin = 4;
-
-	/// <summary>Vertical gap between text lines in dots.</summary>
 	public const int LineGap = 1;
-
-	/// <summary>Vertical gap between sections in dots.</summary>
 	public const int SectionGap = 12;
-
-	/// <summary>Embedded resource name for the company logo.</summary>
 	public const string LogoResourceName = "PrimeBakesLibrary.Exporting.Resources.logo_full.png";
 
-	// Font sizes in pixels (at 203 DPI: 1pt ≈ 2.82px)
-
-	/// <summary>~14pt — company name / large headers.</summary>
 	public const float FontSizeTitle = 40f;
-
-	/// <summary>~10.5pt — section titles.</summary>
 	public const float FontSizeHeader = 30f;
-
-	/// <summary>~9pt — body text, label-value pairs.</summary>
 	public const float FontSizeNormal = 26f;
-
-	/// <summary>~8pt — sub-info (GSTIN, phone, address).</summary>
 	public const float FontSizeSmall = 22f;
 
-	#endregion
+	private const float ColGap = 12f;
 
-	#region Drawing Primitives
+	// ── Font helpers ─────────────────────────────────────────────────────────
 
-	/// <summary>
-	/// Draws the company logo from the embedded resource, centred horizontally.
-	/// </summary>
-	/// <returns>Updated Y position after the logo (unchanged if logo is unavailable).</returns>
+	private static SKTypeface BoldTypeface() =>
+		SKTypeface.FromFamilyName("sans-serif", SKFontStyle.Bold);
+
+	private static SKTypeface SemiBoldTypeface() =>
+		SKTypeface.FromFamilyName("sans-serif",
+			new SKFontStyle(SKFontStyleWeight.SemiBold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright));
+
+	// ── Drawing primitives ───────────────────────────────────────────────────
+
+	/// <summary>Draws the embedded logo centred; returns updated Y.</summary>
 	public static float DrawLogo(SKCanvas canvas, int paperWidth, float y)
 	{
 		try
 		{
-			var assembly = typeof(ThermalPrintUtil).Assembly;
-			using var stream = assembly.GetManifestResourceStream(LogoResourceName);
-			if (stream is null)
-				return y;
+			using var stream = typeof(ThermalPrintUtil).Assembly.GetManifestResourceStream(LogoResourceName);
+			if (stream is null) return y;
 
 			using var logoBitmap = SKBitmap.Decode(stream);
-			if (logoBitmap is null)
-				return y;
+			if (logoBitmap is null) return y;
 
-			// Scale to fit within margins, capped at 140 px height, never upscale
-			int maxLogoWidth = paperWidth - (2 * Margin);
-			float maxLogoHeight = 140f;
 			float scale = Math.Min(
-				(float)maxLogoWidth / logoBitmap.Width,
-				maxLogoHeight / logoBitmap.Height);
-			scale = Math.Min(scale, 1f);
+				Math.Min((float)(paperWidth - 2 * Margin) / logoBitmap.Width, 140f / logoBitmap.Height),
+				1f);
 
 			int logoW = (int)(logoBitmap.Width * scale);
 			int logoH = (int)(logoBitmap.Height * scale);
 			float logoX = (paperWidth - logoW) / 2f;
 
-			var dest = new SKRect(logoX, y, logoX + logoW, y + logoH);
 			using var paint = new SKPaint { IsAntialias = true };
-			canvas.DrawBitmap(logoBitmap, dest, paint);
-
+			canvas.DrawBitmap(logoBitmap, new SKRect(logoX, y, logoX + logoW, y + logoH), paint);
 			return y + logoH + SectionGap;
 		}
-		catch
-		{
-			return y; // Logo unavailable — skip silently
-		}
+		catch { return y; }
 	}
 
-	/// <summary>
-	/// Draws the company header block (alias, GSTIN, phone, email, address) centred below the logo.
-	/// </summary>
+	/// <summary>Draws company name, GSTIN, phone, email, address centred; returns updated Y.</summary>
 	public static float DrawCompanyHeader(SKCanvas canvas, CompanyModel company, int paperWidth, float y)
 	{
 		if (!string.IsNullOrWhiteSpace(company.Alias))
 			y = DrawCenteredText(canvas, company.Alias, paperWidth, y, FontSizeNormal, bold: true);
-
 		if (!string.IsNullOrWhiteSpace(company.GSTNo))
 			y = DrawCenteredText(canvas, $"GSTIN: {company.GSTNo}", paperWidth, y, FontSizeSmall, bold: true);
-
 		if (!string.IsNullOrWhiteSpace(company.Phone))
 			y = DrawCenteredText(canvas, $"Ph: {company.Phone}", paperWidth, y, FontSizeSmall, bold: true);
-
 		if (!string.IsNullOrWhiteSpace(company.Email))
 			y = DrawCenteredText(canvas, company.Email, paperWidth, y, FontSizeSmall, bold: true);
-
 		if (!string.IsNullOrWhiteSpace(company.Address))
 			y = DrawCenteredText(canvas, company.Address, paperWidth, y, FontSizeSmall, bold: true);
 
 		return y + SectionGap;
 	}
 
-	/// <summary>
-	/// Draws horizontally centred text, word-wrapping if the text exceeds the printable width.
-	/// </summary>
-	/// <returns>Updated Y position after the text.</returns>
-	public static float DrawCenteredText(
-		SKCanvas canvas, string text, int paperWidth, float y, float fontSize, bool bold)
+	/// <summary>Draws word-wrapped centred text; returns updated Y.</summary>
+	public static float DrawCenteredText(SKCanvas canvas, string text, int paperWidth, float y, float fontSize, bool bold)
 	{
-		using var typeface = SKTypeface.FromFamilyName("sans-serif", bold ? SKFontStyle.Bold : SKFontStyle.Normal);
+		using var typeface = bold ? BoldTypeface() : SemiBoldTypeface();
 		using var font = new SKFont(typeface, fontSize);
 		using var paint = new SKPaint { Color = SKColors.Black, IsAntialias = true };
-
-		float maxWidth = paperWidth - (2 * Margin);
-		var lines = WrapText(text, font, maxWidth);
 		var metrics = font.Metrics;
-		float lineHeight = metrics.Descent - metrics.Ascent;
+		float lineH = metrics.Descent - metrics.Ascent;
 
-		foreach (var line in lines)
+		foreach (var line in WrapText(text, font, paperWidth - 2 * Margin))
 		{
-			float textWidth = font.MeasureText(line);
-			float x = (paperWidth - textWidth) / 2f;
-			canvas.DrawText(line, x, y - metrics.Ascent, font, paint);
-			y += lineHeight + LineGap;
+			canvas.DrawText(line, (paperWidth - font.MeasureText(line)) / 2f, y - metrics.Ascent, font, paint);
+			y += lineH + LineGap;
 		}
-
 		return y;
 	}
 
 	/// <summary>
-	/// Draws a block of left-aligned label-value pairs with all values starting at the same
-	/// X position (determined by the widest label). Long values are word-wrapped and continuation
-	/// lines are indented to the value column.
+	/// Draws left-aligned label-value pairs. Labels are bold, values semi-bold.
+	/// All values start at the same X column (widest label). Long values word-wrap.
 	/// </summary>
-	/// <param name="canvas">Target drawing canvas.</param>
-	/// <param name="pairs">Ordered list of (label, value) tuples to render.</param>
-	/// <param name="paperWidth">Total paper width in dots.</param>
-	/// <param name="y">Starting Y position.</param>
-	/// <param name="fontSize">Font size for both labels and values (default <see cref="FontSizeNormal"/>).</param>
-	/// <returns>Updated Y position after all rows.</returns>
-	public static float DrawLabelValueBlock(
-		SKCanvas canvas,
-		List<(string Label, string Value)> pairs,
-		int paperWidth,
-		float y,
-		float fontSize = FontSizeNormal)
+	public static float DrawLabelValueBlock(SKCanvas canvas, List<(string Label, string Value)> pairs,
+		int paperWidth, float y, float fontSize = FontSizeNormal)
 	{
-		if (pairs is null || pairs.Count == 0)
-			return y;
+		if (pairs is null || pairs.Count == 0) return y;
 
-		using var boldTypeface = SKTypeface.FromFamilyName("sans-serif", SKFontStyle.Bold);
-		using var normalTypeface = SKTypeface.FromFamilyName("sans-serif", SKFontStyle.Normal);
-		using var labelFont = new SKFont(boldTypeface, fontSize);
-		using var valueFont = new SKFont(normalTypeface, fontSize);
+		using var boldTf = BoldTypeface();
+		using var semiTf = SemiBoldTypeface();
+		using var labelFont = new SKFont(boldTf, fontSize);
+		using var valueFont = new SKFont(semiTf, fontSize);
 		using var paint = new SKPaint { Color = SKColors.Black, IsAntialias = true };
-
 		var metrics = labelFont.Metrics;
-		float lineHeight = metrics.Descent - metrics.Ascent;
+		float lineH = metrics.Descent - metrics.Ascent;
 
-		// Measure the widest label to determine the shared value-start column
-		float maxLabelWidth = 0;
+		float maxLabelW = 0;
 		foreach (var (label, _) in pairs)
 		{
 			float w = labelFont.MeasureText($"{label}: ");
-			if (w > maxLabelWidth)
-				maxLabelWidth = w;
+			if (w > maxLabelW) maxLabelW = w;
 		}
 
-		// Add a small gap after the colon column
-		float valueX = Margin + maxLabelWidth + 4;
-		float maxValueWidth = paperWidth - valueX - Margin;
+		float valueX = Margin + maxLabelW + 4;
+		float maxValueW = paperWidth - valueX - Margin;
 
-		// Draw each pair
 		foreach (var (label, value) in pairs)
 		{
-			// Bold label
 			canvas.DrawText($"{label}: ", Margin, y - metrics.Ascent, labelFont, paint);
-
-			// Value (word-wrapped, aligned to the value column)
-			var lines = WrapText(value ?? string.Empty, valueFont, maxValueWidth);
-			for (int i = 0; i < lines.Count; i++)
+			foreach (var line in WrapText(value ?? string.Empty, valueFont, maxValueW))
 			{
-				canvas.DrawText(lines[i], valueX, y - metrics.Ascent, valueFont, paint);
-				y += lineHeight + LineGap;
+				canvas.DrawText(line, valueX, y - metrics.Ascent, valueFont, paint);
+				y += lineH + LineGap;
 			}
 		}
+		return y;
+	}
 
+	/// <summary>Draws a full-width solid separator with equal spacing above and below; returns updated Y.</summary>
+	public static float DrawSeparator(SKCanvas canvas, int paperWidth, float y)
+	{
+		using var paint = new SKPaint { Color = SKColors.Black, StrokeWidth = 2f, Style = SKPaintStyle.Stroke };
+		float half = SectionGap / 2f;
+		float lineY = y + half;
+		canvas.DrawLine(0, lineY, paperWidth, lineY, paint);
+		return lineY + half;
+	}
+
+	/// <summary>
+	/// Draws a table with bold headers and semi-bold rows.
+	/// Column 0 word-wraps with a 12px continuation indent.
+	/// </summary>
+	public static float DrawTable(SKCanvas canvas, string[] headers, SKTextAlign[] alignments,
+		float[] columnPercents, List<string[]> rows, int paperWidth, float y,
+		float headerFontSize = FontSizeHeader, float rowFontSize = FontSizeNormal)
+	{
+		(var colX, var colW) = BuildColumns(columnPercents, paperWidth);
+
+		using var boldTf = BoldTypeface();
+		using var semiTf = SemiBoldTypeface();
+		using var headerFont = new SKFont(boldTf, headerFontSize);
+		using var rowFont = new SKFont(semiTf, rowFontSize);
+		using var paint = new SKPaint { Color = SKColors.Black, IsAntialias = true };
+
+		var hm = headerFont.Metrics;
+		float hLineH = hm.Descent - hm.Ascent;
+		for (int i = 0; i < headers.Length; i++)
+		{
+			float tw = headerFont.MeasureText(headers[i]);
+			canvas.DrawText(headers[i], AlignX(alignments[i], colX[i], colW[i], tw), y - hm.Ascent, headerFont, paint);
+		}
+		y += hLineH + LineGap;
+		y = DrawSeparator(canvas, paperWidth, y);
+
+		var rm = rowFont.Metrics;
+		float rLineH = rm.Descent - rm.Ascent;
+		foreach (var row in rows)
+		{
+			float maxCellH = rLineH;
+			for (int i = 0; i < Math.Min(row.Length, headers.Length); i++)
+			{
+				string cell = row[i] ?? string.Empty;
+				if (i == 0)
+				{
+					var lines = WrapText(cell, rowFont, colW[i] - 4);
+					float cellY = y;
+					for (int li = 0; li < lines.Count; li++)
+					{
+						canvas.DrawText(lines[li], li == 0 ? colX[i] : colX[i] + 12f, cellY - rm.Ascent, rowFont, paint);
+						cellY += rLineH + LineGap;
+					}
+					maxCellH = Math.Max(maxCellH, (rLineH + LineGap) * lines.Count - LineGap);
+				}
+				else
+				{
+					float tw = rowFont.MeasureText(cell);
+					canvas.DrawText(cell, AlignX(alignments[i], colX[i], colW[i], tw), y - rm.Ascent, rowFont, paint);
+				}
+			}
+			y += maxCellH + LineGap;
+		}
 		return y;
 	}
 
 	/// <summary>
-	/// Draws a solid separator line spanning the full paper width.
+	/// Draws "Total Qty" label+value aligned under a table column on the left,
+	/// and a right-aligned two-column block (Sub Total, taxes, etc.) on the right.
+	/// All labels share a right-edge column; all values share a right-edge column.
 	/// </summary>
-	public static float DrawSeparator(SKCanvas canvas, int paperWidth, float y)
+	public static float DrawTableTotals(SKCanvas canvas, float[] columnPercents, SKTextAlign[] alignments,
+		int paperWidth, float y, string leftLabel, string columnValue, int columnIndex,
+		(string Label, string Value) rightPair,
+		List<(string Label, string Value)>? additionalRightRows = null,
+		float fontSize = FontSizeNormal)
 	{
-		using var paint = new SKPaint
-		{
-			Color = SKColors.Black,
-			StrokeWidth = 2f,
-			Style = SKPaintStyle.Stroke
-		};
+		using var boldTf = BoldTypeface();
+		using var semiTf = SemiBoldTypeface();
+		using var labelFont = new SKFont(semiTf, fontSize);
+		using var boldFont = new SKFont(boldTf, fontSize);
+		using var paint = new SKPaint { Color = SKColors.Black, IsAntialias = true };
+		var metrics = labelFont.Metrics;
+		float lineH = metrics.Descent - metrics.Ascent;
 
-		float lineY = y + 6;
-		canvas.DrawLine(0, lineY, paperWidth, lineY, paint);
-		return lineY + SectionGap;
+		(var colX, var colW) = BuildColumns(columnPercents, paperWidth);
+
+		// Left: label sits just before the column value
+		float vw = boldFont.MeasureText(columnValue);
+		float colValueX = AlignX(alignments[columnIndex], colX[columnIndex], colW[columnIndex], vw);
+		canvas.DrawText(columnValue, colValueX, y - metrics.Ascent, boldFont, paint);
+		float leftLabelW = labelFont.MeasureText(leftLabel);
+		canvas.DrawText(leftLabel, Math.Max(colValueX - leftLabelW - 4, (float)Margin), y - metrics.Ascent, labelFont, paint);
+
+		// Right: all rows aligned
+		var allRows = new List<(string Label, string Value)> { rightPair };
+		if (additionalRightRows is not null) allRows.AddRange(additionalRightRows);
+
+		float rightEdge = paperWidth - Margin;
+		float labelColRight = rightEdge - MaxWidth(boldFont, allRows.Select(r => r.Value)) - ColGap;
+
+		foreach (var (lbl, val) in allRows)
+		{
+			DrawAlignedRightRow(canvas, lbl, val, labelColRight, rightEdge, y, metrics, labelFont, boldFont, paint);
+			y += lineH + LineGap;
+		}
+		return y;
 	}
 
-	#endregion
-
-	#region Text Utilities
-
 	/// <summary>
-	/// Word-wraps text to fit within a maximum pixel width using the specified font metrics.
+	/// Draws a right-aligned block: labels share a right-edge column (semi-bold + colon),
+	/// values share the paper right edge (bold).
 	/// </summary>
+	public static float DrawAlignedBlock(SKCanvas canvas, List<(string Label, string Value)> pairs,
+		int paperWidth, float y, float fontSize = FontSizeNormal)
+	{
+		if (pairs is null || pairs.Count == 0) return y;
+
+		using var boldTf = BoldTypeface();
+		using var semiTf = SemiBoldTypeface();
+		using var labelFont = new SKFont(semiTf, fontSize);
+		using var boldFont = new SKFont(boldTf, fontSize);
+		using var paint = new SKPaint { Color = SKColors.Black, IsAntialias = true };
+		var metrics = labelFont.Metrics;
+		float lineH = metrics.Descent - metrics.Ascent;
+		float rightEdge = paperWidth - Margin;
+		float labelColRight = rightEdge - MaxWidth(boldFont, pairs.Select(p => p.Value)) - ColGap;
+
+		foreach (var (label, value) in pairs)
+		{
+			DrawAlignedRightRow(canvas, label, value, labelColRight, rightEdge, y, metrics, labelFont, boldFont, paint);
+			y += lineH + LineGap;
+		}
+		return y;
+	}
+
+	/// <summary>Draws a single right-aligned label+value pair. Delegates to <see cref="DrawAlignedBlock"/>.</summary>
+	public static float DrawRightLabelValue(SKCanvas canvas, string label, string value,
+		int paperWidth, float y, float fontSize = FontSizeNormal)
+		=> DrawAlignedBlock(canvas, [(label, value)], paperWidth, y, fontSize);
+
+	// ── Private layout helpers ────────────────────────────────────────────────
+
+	private static (float[] colX, float[] colW) BuildColumns(float[] columnPercents, int paperWidth)
+	{
+		float totalW = paperWidth - 2 * Margin;
+		var colX = new float[columnPercents.Length];
+		var colW = new float[columnPercents.Length];
+		float x = Margin;
+		for (int i = 0; i < columnPercents.Length; i++)
+		{
+			colX[i] = x;
+			colW[i] = totalW * columnPercents[i];
+			x += colW[i];
+		}
+		return (colX, colW);
+	}
+
+	private static float AlignX(SKTextAlign align, float colX, float colW, float textW) => align switch
+	{
+		SKTextAlign.Center => colX + (colW - textW) / 2,
+		SKTextAlign.Right => colX + colW - textW,
+		_ => colX
+	};
+
+	private static float MaxWidth(SKFont font, IEnumerable<string> texts)
+	{
+		float max = 0;
+		foreach (var t in texts) { float w = font.MeasureText(t); if (w > max) max = w; }
+		return max;
+	}
+
+	private static void DrawAlignedRightRow(SKCanvas canvas, string label, string value,
+		float labelColRight, float rightEdge, float y, SKFontMetrics metrics,
+		SKFont labelFont, SKFont boldFont, SKPaint paint)
+	{
+		string lbl = $"{label}:";
+		canvas.DrawText(lbl, labelColRight - labelFont.MeasureText(lbl), y - metrics.Ascent, labelFont, paint);
+		canvas.DrawText(value, rightEdge - boldFont.MeasureText(value), y - metrics.Ascent, boldFont, paint);
+	}
+
+	// ── Text utilities ───────────────────────────────────────────────────────
+
+	/// <summary>Word-wraps text to fit within maxWidth using the given font.</summary>
 	public static List<string> WrapText(string text, SKFont font, float maxWidth)
 	{
 		var lines = new List<string>();
-		if (string.IsNullOrEmpty(text))
-		{
-			lines.Add(string.Empty);
-			return lines;
-		}
+		if (string.IsNullOrEmpty(text)) { lines.Add(string.Empty); return lines; }
 
-		var words = text.Split(' ');
 		string currentLine = string.Empty;
-
-		foreach (var word in words)
+		foreach (var word in text.Split(' '))
 		{
-			// If a single word is wider than maxWidth, break it character-by-character
 			if (font.MeasureText(word) > maxWidth)
 			{
-				// Flush any pending line first
-				if (!string.IsNullOrEmpty(currentLine))
-				{
-					lines.Add(currentLine);
-					currentLine = string.Empty;
-				}
-
-				// Break the long word at character boundaries
+				if (!string.IsNullOrEmpty(currentLine)) { lines.Add(currentLine); currentLine = string.Empty; }
 				string chunk = string.Empty;
 				foreach (char c in word)
 				{
 					string test = chunk + c;
-					if (font.MeasureText(test) > maxWidth && chunk.Length > 0)
-					{
-						lines.Add(chunk);
-						chunk = c.ToString();
-					}
-					else
-					{
-						chunk = test;
-					}
+					if (font.MeasureText(test) > maxWidth && chunk.Length > 0) { lines.Add(chunk); chunk = c.ToString(); }
+					else chunk = test;
 				}
-
 				currentLine = chunk;
 				continue;
 			}
-
-			var testLine = string.IsNullOrEmpty(currentLine) ? word : $"{currentLine} {word}";
-			float testWidth = font.MeasureText(testLine);
-
-			if (testWidth > maxWidth && !string.IsNullOrEmpty(currentLine))
-			{
-				lines.Add(currentLine);
-				currentLine = word;
-			}
-			else
-			{
-				currentLine = testLine;
-			}
+			string tryLine = string.IsNullOrEmpty(currentLine) ? word : $"{currentLine} {word}";
+			if (font.MeasureText(tryLine) > maxWidth && !string.IsNullOrEmpty(currentLine))
+			{ lines.Add(currentLine); currentLine = word; }
+			else currentLine = tryLine;
 		}
-
-		if (!string.IsNullOrEmpty(currentLine))
-			lines.Add(currentLine);
-
-		if (lines.Count == 0)
-			lines.Add(string.Empty);
-
+		if (!string.IsNullOrEmpty(currentLine)) lines.Add(currentLine);
+		if (lines.Count == 0) lines.Add(string.Empty);
 		return lines;
 	}
 
-	#endregion
+	// ── Bitmap / ESC-POS utilities ────────────────────────────────────────────
 
-	#region Bitmap Utilities
-
-	/// <summary>
-	/// Crops an <see cref="SKBitmap"/> to the specified height, discarding empty space below content.
-	/// </summary>
+	/// <summary>Crops bitmap to the specified height.</summary>
 	public static SKBitmap CropBitmap(SKBitmap source, int width, int height)
 	{
 		height = Math.Min(height, source.Height);
@@ -327,167 +366,85 @@ public static class ThermalPrintUtil
 		return cropped;
 	}
 
-	#endregion
-
-	#region Conversion — SkiaSharp Bitmap → ESC/POS Raster
-
-	/// <summary>
-	/// Converts an <see cref="SKBitmap"/> to ESC/POS raster bytes ready for thermal printing.
-	/// The bitmap is encoded as PNG, then converted to monochrome raster data (GS v 0 command).
-	/// The output includes printer initialisation (ESC @), the raster image, line feed, and paper cut.
-	/// </summary>
+	/// <summary>Converts a bitmap to ESC/POS raster bytes (initialise + raster image + feed + cut).</summary>
 	public static byte[] ConvertBitmapToThermalBytes(SKBitmap bitmap, int maxWidthDots)
 	{
 		using var ms = new MemoryStream();
-		Initialize(ms);
+		ms.Write([0x1B, 0x40]); // ESC @ — initialise
 
-		// Encode the bitmap as PNG bytes
 		using var image = SKImage.FromBitmap(bitmap);
-		using var data = image.Encode(SKEncodedImageFormat.Png, 100);
-
-		if (data is null)
+		using var data = image?.Encode(SKEncodedImageFormat.Png, 100);
+		if (data is not null)
 		{
-			Console.WriteLine("ThermalPrintUtil: Failed to encode bitmap as PNG.");
-			FeedAndCut(ms);
-			return ms.ToArray();
+			var raster = BuildRasterImage(data.ToArray(), maxWidthDots, center: true);
+			if (raster is not null) ms.Write(raster);
 		}
 
-		var imageBytes = data.ToArray();
-
-		// Convert to ESC/POS monochrome raster image
-		var rasterBytes = BuildRasterImage(imageBytes, maxWidthDots, center: true);
-		if (rasterBytes is not null)
-			ms.Write(rasterBytes);
-
-		FeedAndCut(ms);
+		ms.Write([0x1B, 0x64, 5]);    // ESC d 5 — feed 5 lines
+		ms.Write([0x1D, 0x56, 0x01]); // GS V 1 — partial cut
 		return ms.ToArray();
 	}
 
-	#endregion
-
-	#region Conversion — SkiaSharp Bitmap → Syncfusion PDF
-
-	/// <summary>
-	/// Wraps an <see cref="SKBitmap"/> into a Syncfusion PDF document sized to thermal paper dimensions.
-	/// Useful for previewing the thermal receipt on screen or sharing as a PDF file.
-	/// </summary>
+	/// <summary>Wraps a bitmap into a Syncfusion PDF sized to thermal paper dimensions.</summary>
 	public static MemoryStream WrapBitmapInPdf(SKBitmap bitmap, int paperWidthDots)
 	{
-		// Convert dots to PDF points: points = dots / DPI × 72
-		float pdfWidth = paperWidthDots / (float)PrinterDpi * 72f;
-		float pdfHeight = bitmap.Height / (float)PrinterDpi * 72f;
+		float pdfW = paperWidthDots / (float)PrinterDpi * 72f;
+		float pdfH = bitmap.Height / (float)PrinterDpi * 72f;
 
 		var ms = new MemoryStream();
-		using var pdfDoc = new PdfDocument();
+		using var doc = new PdfDocument();
+		doc.PageSettings.Size = new SizeF(pdfW, pdfH);
+		doc.PageSettings.Margins.All = 0;
 
-		pdfDoc.PageSettings.Size = new SizeF(pdfWidth, pdfHeight);
-		pdfDoc.PageSettings.Margins.All = 0;
-
-		var page = pdfDoc.Pages.Add();
-		var graphics = page.Graphics;
-
-		// Embed the rendered bitmap as a full-page image
+		var page = doc.Pages.Add();
 		using var encoded = SKImage.FromBitmap(bitmap)?.Encode(SKEncodedImageFormat.Png, 100);
 		if (encoded is not null)
 		{
-			using var imageStream = new MemoryStream(encoded.ToArray());
-			var pdfImage = new PdfBitmap(imageStream);
-			graphics.DrawImage(pdfImage, 0, 0, pdfWidth, pdfHeight);
+			using var imgStream = new MemoryStream(encoded.ToArray());
+			page.Graphics.DrawImage(new PdfBitmap(imgStream), 0, 0, pdfW, pdfH);
 		}
-
-		pdfDoc.Save(ms);
+		doc.Save(ms);
 		ms.Position = 0;
 		return ms;
 	}
 
-	#endregion
-
-	#region ESC/POS Command Helpers
-
-	/// <summary>
-	/// Initialises the printer (ESC @).
-	/// Should be the first command in every print job.
-	/// </summary>
-	public static void Initialize(MemoryStream ms)
-		=> ms.Write([0x1B, 0x40]);
-
-	/// <summary>
-	/// Feeds n lines using the proper ESC d command, then performs a partial paper cut.
-	/// This ensures text is not cut off by the cutter blade.
-	/// </summary>
-	/// <param name="ms">Target stream.</param>
-	/// <param name="feedLines">Number of lines to feed before cutting (default 5).</param>
-	public static void FeedAndCut(MemoryStream ms, byte feedLines = 5)
-	{
-		// ESC d n — Print and feed n lines
-		ms.Write([0x1B, 0x64, feedLines]);
-
-		// GS V 1 — Partial cut
-		ms.Write([0x1D, 0x56, 0x01]);
-	}
-
-	/// <summary>
-	/// Sets text alignment (ESC a n).
-	/// </summary>
-	/// <param name="ms">Target stream.</param>
-	/// <param name="alignment">0 = Left, 1 = Centre, 2 = Right.</param>
-	private static void SetAlignment(MemoryStream ms, int alignment)
-		=> ms.Write([0x1B, 0x61, (byte)alignment]);
-
-	#endregion
-
-	#region Image Rasterisation
-
-	/// <summary>
-	/// Converts a PNG/JPEG image stream into ESC/POS raster image bytes (GS v 0 command).
-	/// The image is resized to fit the paper width and converted to monochrome.
-	/// Returns null if the image cannot be decoded.
-	/// </summary>
-	/// <param name="imageStream">Readable stream containing the source image.</param>
-	/// <param name="maxWidthDots">Maximum image width in dots (default 576 for 80 mm paper).</param>
-	/// <param name="threshold">Luminance threshold (0-255) below which a pixel is printed as black.</param>
-	/// <param name="center">Whether to prepend a centre-align command before the image.</param>
-	public static byte[] BuildRasterImage(
-		Stream imageStream,
-		int maxWidthDots = PaperDots80mm,
-		int threshold = 128,
-		bool center = true)
-	{
-		try
-		{
-			using var original = SKBitmap.Decode(imageStream);
-			if (original is null)
-				return null;
-
-			return BuildRasterImageFromBitmap(original, maxWidthDots, threshold, center);
-		}
-		catch (Exception ex)
-		{
-			Console.WriteLine($"Raster image conversion failed: {ex.Message}");
-			return null;
-		}
-	}
-
-	/// <summary>
-	/// Converts raw image bytes into ESC/POS raster image bytes (GS v 0 command).
-	/// </summary>
-	/// <param name="imageBytes">Raw image file bytes (PNG, JPEG, etc.).</param>
-	/// <param name="maxWidthDots">Maximum image width in dots.</param>
-	/// <param name="threshold">Luminance threshold for monochrome conversion.</param>
-	/// <param name="center">Whether to centre-align the image.</param>
-	public static byte[] BuildRasterImage(
-		byte[] imageBytes,
-		int maxWidthDots = PaperDots80mm,
-		int threshold = 128,
-		bool center = true)
+	/// <summary>Converts raw image bytes to ESC/POS raster bytes (GS v 0 command).</summary>
+	public static byte[] BuildRasterImage(byte[] imageBytes, int maxWidthDots = PaperDots80mm,
+		int threshold = 128, bool center = true)
 	{
 		try
 		{
 			using var original = SKBitmap.Decode(imageBytes);
-			if (original is null)
-				return null;
+			if (original is null) return null;
 
-			return BuildRasterImageFromBitmap(original, maxWidthDots, threshold, center);
+			float scale = Math.Min((float)maxWidthDots / original.Width, 1f);
+			int newWidth = ((int)(original.Width * scale) + 7) / 8 * 8;
+			int newHeight = (int)(original.Height * scale);
+
+			using var resized = original.Resize(new SKImageInfo(newWidth, newHeight), SKSamplingOptions.Default);
+			if (resized is null) return null;
+
+			int widthBytes = newWidth / 8;
+			var rasterData = new byte[widthBytes * newHeight];
+			for (int y = 0; y < newHeight; y++)
+			{
+				for (int x = 0; x < newWidth; x++)
+				{
+					var px = resized.GetPixel(x, y);
+					float alpha = px.Alpha / 255f;
+					float lum = (0.299f * px.Red + 0.587f * px.Green + 0.114f * px.Blue) * alpha + 255f * (1f - alpha);
+					if (lum < threshold)
+						rasterData[y * widthBytes + x / 8] |= (byte)(1 << (7 - x % 8));
+				}
+			}
+
+			using var ms = new MemoryStream();
+			if (center) ms.Write([0x1B, 0x61, 0x01]); // ESC a 1 — centre align
+			byte xL = (byte)(widthBytes & 0xFF), xH = (byte)(widthBytes >> 8);
+			byte yL = (byte)(newHeight & 0xFF), yH = (byte)(newHeight >> 8);
+			ms.Write([0x1D, 0x76, 0x30, 0x00, xL, xH, yL, yH]);
+			ms.Write(rasterData);
+			return ms.ToArray();
 		}
 		catch (Exception ex)
 		{
@@ -496,69 +453,11 @@ public static class ThermalPrintUtil
 		}
 	}
 
-	/// <summary>
-	/// Core rasterisation logic shared by the Stream and byte[] overloads.
-	/// </summary>
-	private static byte[] BuildRasterImageFromBitmap(
-		SKBitmap original,
-		int maxWidthDots,
-		int threshold,
-		bool center)
+	// Kept public for external callers
+	public static void Initialize(MemoryStream ms) => ms.Write([0x1B, 0x40]);
+	public static void FeedAndCut(MemoryStream ms, byte feedLines = 5)
 	{
-		// Calculate resize dimensions maintaining aspect ratio
-		float scale = Math.Min((float)maxWidthDots / original.Width, 1.0f);
-		int newWidth = (int)(original.Width * scale);
-		int newHeight = (int)(original.Height * scale);
-
-		// Width must be a multiple of 8 for byte alignment in raster data
-		newWidth = (newWidth + 7) / 8 * 8;
-
-		// Resize image
-		using var resized = original.Resize(new SKImageInfo(newWidth, newHeight), SKSamplingOptions.Default);
-		if (resized is null)
-			return null;
-
-		// Convert to monochrome raster data (1 bit per pixel, MSB first)
-		int widthBytes = newWidth / 8;
-		var rasterData = new byte[widthBytes * newHeight];
-
-		for (int y = 0; y < newHeight; y++)
-		{
-			for (int x = 0; x < newWidth; x++)
-			{
-				var pixel = resized.GetPixel(x, y);
-
-				// Handle transparency: transparent pixels → white (not printed)
-				float alpha = pixel.Alpha / 255f;
-				float luminance = ((0.299f * pixel.Red) + (0.587f * pixel.Green) + (0.114f * pixel.Blue)) * alpha
-								+ (255f * (1f - alpha));
-
-				// Dark pixels (luminance < threshold) → bit = 1 (printed)
-				if (luminance < threshold)
-				{
-					int byteIndex = (y * widthBytes) + (x / 8);
-					int bitIndex = 7 - (x % 8); // MSB first
-					rasterData[byteIndex] |= (byte)(1 << bitIndex);
-				}
-			}
-		}
-
-		// Build the GS v 0 command: $1D $76 $30 m xL xH yL yH d1...dk
-		using var ms = new MemoryStream();
-
-		if (center)
-			SetAlignment(ms, 1);
-
-		byte xL = (byte)(widthBytes & 0xFF);
-		byte xH = (byte)((widthBytes >> 8) & 0xFF);
-		byte yL = (byte)(newHeight & 0xFF);
-		byte yH = (byte)((newHeight >> 8) & 0xFF);
-
-		ms.Write([0x1D, 0x76, 0x30, 0x00, xL, xH, yL, yH]);
-		ms.Write(rasterData);
-
-		return ms.ToArray();
+		ms.Write([0x1B, 0x64, feedLines]);
+		ms.Write([0x1D, 0x56, 0x01]);
 	}
-
-	#endregion
 }

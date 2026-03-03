@@ -591,11 +591,11 @@ public partial class SaleReport : IAsyncDisposable
             }
             else
             {
-                var printStream = await SaleThermalPrint.GenerateThermalBill(transactionId);
-                await JSRuntime.InvokeVoidAsync("printToPrinter", printStream.ToString());
+                var printData = await SaleThermalPrint.GenerateThermalBill(transactionId);
+                await BluetoothPrinterService.SendDataAsync(printData);
             }
 
-            await _toastNotification.ShowAsync("Success", "PDF invoice generated successfully.", ToastType.Success);
+            await _toastNotification.ShowAsync("Success", "Thermal invoice sent to printer.", ToastType.Success);
         }
         catch (Exception ex)
         {

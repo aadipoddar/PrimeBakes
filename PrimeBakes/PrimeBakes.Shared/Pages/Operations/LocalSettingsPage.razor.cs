@@ -315,7 +315,8 @@ public partial class LocalSettingsPage : IAsyncDisposable
         {
             Name = BluetoothPrinterService.ConnectedPrinterName,
             Address = BluetoothPrinterService.ConnectedPrinterAddress,
-            IsPaired = true
+            IsPaired = true,
+            IsConnected = true
         };
 
         var json = System.Text.Json.JsonSerializer.Serialize(info);

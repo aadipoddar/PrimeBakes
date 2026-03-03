@@ -1,161 +1,195 @@
-﻿using System.Text;
-
-using NumericWordsConversion;
+﻿using NumericWordsConversion;
 
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Operations;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Operations;
 using PrimeBakesLibrary.Models.Store.Masters;
 using PrimeBakesLibrary.Models.Store.Product;
 using PrimeBakesLibrary.Models.Store.Sale;
 
+using SkiaSharp;
+
 namespace PrimeBakesLibrary.Exporting.Store.Sale;
 
-public class SaleThermalPrint
+/// <summary>
+/// Renders a store sale thermal receipt as a SkiaSharp raster bitmap and converts it
+/// to ESC/POS byte data ready for Bluetooth thermal printing.
+/// Uses <see cref="ThermalPrintUtil"/> drawing helpers for consistent visual rendering.
+/// </summary>
+public static class SaleThermalPrint
 {
-    public static async Task<StringBuilder> GenerateThermalBill(int saleId)
+    /// <summary>
+    /// Generates ESC/POS raster bytes for a complete sale thermal receipt.
+    /// </summary>
+    /// <param name="saleId">The sale transaction ID.</param>
+    /// <returns>ESC/POS byte array including initialise, raster image, feed, and cut commands.</returns>
+    public static async Task<byte[]> GenerateThermalBill(int saleId)
     {
         var sale = await CommonData.LoadTableDataById<SaleOverviewModel>(ViewNames.SaleOverview, saleId);
-        StringBuilder content = new();
 
-        await AddHeader(content);
+        int width = ThermalPrintUtil.PaperDots80mm;
+        int maxHeight = 3000;
+        using var tempBitmap = new SKBitmap(width, maxHeight);
+        using var canvas = new SKCanvas(tempBitmap);
+        canvas.Clear(SKColors.White);
 
-        await AddBillDetails(sale, content);
+        float y = ThermalPrintUtil.Margin;
 
-        await AddItemDetails(sale, content);
+        y = await DrawCompanyHeader(canvas, width, y);
+        y = await DrawBillDetails(canvas, sale, width, y);
+        y = await DrawItemDetails(canvas, sale, width, y);
+        y = await DrawTotalDetails(canvas, sale, width, y);
+        y = DrawPaymentModes(canvas, sale, width, y);
+        y = await DrawFooter(canvas, sale, width, y);
 
-        await AddTotalDetails(sale, content);
+        y += ThermalPrintUtil.Margin;
 
-        await AddPaymentModes(sale, content);
-
-        await AddFooter(content);
-
-        return content;
+        // Crop and convert
+        using var cropped = ThermalPrintUtil.CropBitmap(tempBitmap, width, (int)Math.Ceiling(y));
+        return ThermalPrintUtil.ConvertBitmapToThermalBytes(cropped, width);
     }
 
-    private static async Task AddHeader(StringBuilder content)
+    private static async Task<float> DrawCompanyHeader(SKCanvas canvas, int width, float y)
     {
+        y = ThermalPrintUtil.DrawLogo(canvas, width, y);
+
         var primaryCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
         var company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, int.Parse(primaryCompanyId.Value));
 
-        content.AppendLine("<div class='header'>");
-        content.AppendLine($"<div class='company-name'>PRIME BAKES</div>");
+        if (company is not null)
+            y = ThermalPrintUtil.DrawCompanyHeader(canvas, company, width, y);
+        else
+        {
+            y = ThermalPrintUtil.DrawCenteredText(canvas, "PRIME BAKES", width, y, ThermalPrintUtil.FontSizeTitle, bold: true);
+            y += ThermalPrintUtil.SectionGap;
+        }
 
-        if (!string.IsNullOrEmpty(company.Alias))
-            content.AppendLine($"<div class='header-line'>{company.Alias}</div>");
+        y = ThermalPrintUtil.DrawSeparator(canvas, width, y);
 
-        if (!string.IsNullOrEmpty(company.GSTNo))
-            content.AppendLine($"<div class='header-line'>GSTNO: {company.GSTNo}</div>");
-
-        if (!string.IsNullOrEmpty(company.Address))
-            content.AppendLine($"<div class='header-line'>{company.Address}</div>");
-
-        if (!string.IsNullOrEmpty(company.Email))
-            content.AppendLine($"<div class='header-line'>Email: {company.Email}</div>");
-
-        if (!string.IsNullOrEmpty(company.Phone))
-            content.AppendLine($"<div class='header-line'>Phone: {company.Phone}</div>");
-
-        content.AppendLine("</div>");
-        content.AppendLine("<div class='bold-separator'></div>");
+        return y;
     }
 
-    private static async Task AddBillDetails(SaleOverviewModel sale, StringBuilder content)
+    private static async Task<float> DrawBillDetails(SKCanvas canvas, SaleOverviewModel sale, int width, float y)
     {
-        content.AppendLine("<div class='bill-details'>");
-        content.AppendLine($"<div class='detail-row'><span class='detail-label'>Outlet:</span> <span class='detail-value'>{sale.LocationName}</span></div>");
-        content.AppendLine($"<div class='detail-row'><span class='detail-label'>Bill No:</span> <span class='detail-value'>{sale.TransactionNo}</span></div>");
-        content.AppendLine($"<div class='detail-row'><span class='detail-label'>Date:</span> <span class='detail-value'>{sale.TransactionDateTime:dd/MM/yy hh:mm tt}</span></div>");
-        content.AppendLine($"<div class='detail-row'><span class='detail-label'>User:</span> <span class='detail-value'>{sale.CreatedByName}</span></div>");
+        var pairs = new List<(string Label, string Value)>
+        {
+            ("Outlet", sale.LocationName),
+            ("Bill No", sale.TransactionNo),
+            ("Date", sale.TransactionDateTime.ToString("dd/MM/yy hh:mm tt"))
+        };
 
         if (sale.OrderId.HasValue && sale.OrderId.Value > 0)
         {
-            content.AppendLine($"<div class='detail-row'><span class='detail-label'>Order:</span>");
-            content.AppendLine($"<span class='detail-value'>{sale.OrderTransactionNo}</span></div>");
-            content.AppendLine($"<span class='detail-value'>{sale.OrderDateTime:dd/MM/yy hh:mm tt}</span></div>");
+            pairs.Add(("Order", sale.OrderTransactionNo ?? "N/A"));
+            if (sale.OrderDateTime.HasValue)
+                pairs.Add(("Order Date", sale.OrderDateTime.Value.ToString("dd/MM/yy hh:mm tt")));
         }
 
         if (sale.PartyId.HasValue && sale.PartyId.Value > 0)
         {
             var party = await CommonData.LoadTableDataById<LedgerModel>(TableNames.Ledger, sale.PartyId.Value);
             if (party is not null)
-                content.AppendLine($"<div class='detail-row'><span class='detail-label'>Party:</span> <span class='detail-value'>{party.Name}</span></div>");
+                pairs.Add(("Party", party.Name));
         }
 
         if (sale.CustomerId.HasValue && sale.CustomerId.Value > 0)
         {
             var customer = await CommonData.LoadTableDataById<CustomerModel>(TableNames.Customer, sale.CustomerId.Value);
-            content.AppendLine($"<div class='detail-row'><span class='detail-label'>Cust. Name:</span> <span class='detail-value'>{customer.Name}</span></div>");
-            content.AppendLine($"<div class='detail-row'><span class='detail-label'>Cust. No.:</span> <span class='detail-value'>{customer.Number}</span></div>");
+            if (customer is not null)
+            {
+                pairs.Add(("Cust. Name", customer.Name));
+                pairs.Add(("Cust. No.", customer.Number));
+            }
         }
 
-        content.AppendLine("</div>");
-        content.AppendLine("<div class='bold-separator'></div>");
+        y = ThermalPrintUtil.DrawLabelValueBlock(canvas, pairs, width, y);
+
+        y = ThermalPrintUtil.DrawSeparator(canvas, width, y);
+
+        return y;
     }
 
-    private static async Task AddItemDetails(SaleOverviewModel sale, StringBuilder content)
+    private static async Task<float> DrawItemDetails(SKCanvas canvas, SaleOverviewModel sale, int width, float y)
     {
         var saleDetails = await CommonData.LoadTableDataByMasterId<SaleDetailModel>(TableNames.SaleDetail, sale.Id);
-
-        content.AppendLine("<table class='items-table'>");
-        content.AppendLine("<thead>");
-        content.AppendLine("<tr class='table-header'>");
-        content.AppendLine("<th align='left'>Item</th>");
-        content.AppendLine("<th align='center'>Qty</th>");
-        content.AppendLine("<th align='right'>Rate</th>");
-        content.AppendLine("<th align='right'>Amt</th>");
-        content.AppendLine("</tr>");
-        content.AppendLine("</thead>");
-        content.AppendLine("<tbody>");
-
         var products = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
 
+        string[] headers = ["Item", "Qty", "Rate", "Amt"];
+        SKTextAlign[] alignments = [SKTextAlign.Left, SKTextAlign.Center, SKTextAlign.Right, SKTextAlign.Right];
+        float[] columnPercents = [0.44f, 0.14f, 0.20f, 0.22f];
+
+        var rows = new List<string[]>();
         foreach (var item in saleDetails)
         {
-            content.AppendLine("<tr class='table-row'>");
-            content.AppendLine($"<td align='left'>{products.FirstOrDefault(p => p.Id == item.ProductId)?.Name}</td>");
-            content.AppendLine($"<td align='center'>{item.Quantity.FormatSmartDecimal()}</td>");
-            content.AppendLine($"<td align='right'>{item.Rate.FormatSmartDecimal()}</td>");
-            content.AppendLine($"<td align='right'>{item.BaseTotal.FormatSmartDecimal()}</td>");
-            content.AppendLine("</tr>");
+            string productName = products.FirstOrDefault(p => p.Id == item.ProductId)?.Name ?? "Unknown";
+            rows.Add(
+            [
+                productName,
+                item.Quantity.FormatSmartDecimal(),
+                item.Rate.FormatSmartDecimal(),
+                item.BaseTotal.FormatSmartDecimal()
+            ]);
         }
 
-        content.AppendLine("</tbody>");
-        content.AppendLine("</table>");
-        content.AppendLine("<div class='bold-separator'></div>");
+        y = ThermalPrintUtil.DrawTable(canvas, headers, alignments, columnPercents, rows, width, y);
+
+        y = ThermalPrintUtil.DrawSeparator(canvas, width, y);
+
+        return y;
     }
 
-    private static async Task AddTotalDetails(SaleOverviewModel sale, StringBuilder content)
+    /// <summary>
+    /// Draws total qty + sub-total, tax breakdown, discount, round-off, grand total, and amount in words.
+    /// Uses the same column layout as the items table so the qty value sits under the Qty column.
+    /// </summary>
+    private static async Task<float> DrawTotalDetails(SKCanvas canvas, SaleOverviewModel sale, int width, float y)
     {
         var saleDetails = await CommonData.LoadTableDataByMasterId<SaleDetailModel>(TableNames.SaleDetail, sale.Id);
 
-        content.AppendLine("<table class='summary-table'>");
+        // Must match the column layout in DrawItemDetails
+        float[] columnPercents = [0.44f, 0.14f, 0.20f, 0.22f];
+        SKTextAlign[] alignments = [SKTextAlign.Left, SKTextAlign.Center, SKTextAlign.Right, SKTextAlign.Right];
 
-        if (saleDetails.Where(s => !s.InclusiveTax).Sum(s => s.CGSTAmount) > 0)
-            content.AppendLine($"<tr><td class='summary-label'>CGST:</td><td align='right' class='summary-value'>{saleDetails.Sum(s => s.CGSTAmount).FormatIndianCurrency()}</td></tr>");
-
-        if (saleDetails.Where(s => !s.InclusiveTax).Sum(s => s.SGSTAmount) > 0)
-            content.AppendLine($"<tr><td class='summary-label'>SGST:</td><td align='right' class='summary-value'>{saleDetails.Sum(s => s.SGSTAmount).FormatIndianCurrency()}</td></tr>");
-
-        if (saleDetails.Where(s => !s.InclusiveTax).Sum(s => s.IGSTAmount) > 0)
-            content.AppendLine($"<tr><td class='summary-label'>IGST:</td><td align='right' class='summary-value'>{saleDetails.Sum(s => s.IGSTAmount).FormatIndianCurrency()}</td></tr>");
-
-        content.AppendLine($"<tr><td class='summary-label'>Sub Total:</td><td align='right' class='summary-value'>{sale.TotalAfterTax.FormatIndianCurrency()}</td></tr>");
+        // Build right-aligned detail rows as (label, value) tuples
+        var detailRows = new List<(string Label, string Value)>();
 
         if (sale.DiscountPercent > 0)
-            content.AppendLine($"<tr><td class='summary-label'>Discount ({sale.DiscountPercent}%):</td><td align='right' class='summary-value'>{sale.DiscountAmount.FormatIndianCurrency()}</td></tr>");
+            detailRows.Add(($"Discount ({sale.DiscountPercent}%)", $"- {sale.DiscountAmount.FormatDecimalWithTwoDigits()}"));
+
+        decimal cgst = saleDetails.Where(s => !s.InclusiveTax).Sum(s => s.CGSTAmount);
+        if (cgst > 0)
+            detailRows.Add(("CGST", cgst.FormatDecimalWithTwoDigits()));
+
+        decimal sgst = saleDetails.Where(s => !s.InclusiveTax).Sum(s => s.SGSTAmount);
+        if (sgst > 0)
+            detailRows.Add(("SGST", sgst.FormatDecimalWithTwoDigits()));
+
+        decimal igst = saleDetails.Where(s => !s.InclusiveTax).Sum(s => s.IGSTAmount);
+        if (igst > 0)
+            detailRows.Add(("IGST", igst.FormatDecimalWithTwoDigits()));
 
         if (sale.RoundOffAmount != 0)
-            content.AppendLine($"<tr><td class='summary-label'>Round Off:</td><td align='right' class='summary-value'>{sale.RoundOffAmount.FormatIndianCurrency()}</td></tr>");
+            detailRows.Add(("Round Off", sale.RoundOffAmount.FormatDecimalWithTwoDigits()));
 
-        content.AppendLine("</table>");
-        content.AppendLine("<div class='bold-separator'></div>");
+        y = ThermalPrintUtil.DrawTableTotals(
+            canvas, columnPercents, alignments, width, y,
+            leftLabel: "Total Qty:",
+            columnValue: sale.TotalQuantity.FormatSmartDecimal(),
+            columnIndex: 1,  // Qty column
+            rightPair: ("Sub Total", sale.TotalAfterTax.FormatDecimalWithTwoDigits()),
+            additionalRightRows: detailRows);
 
-        content.AppendLine("<table class='grand-total'>");
-        content.AppendLine($"<tr><td class='grand-total-label'>Grand Total:</td><td align='right' class='grand-total-value'>{sale.TotalAmount.FormatIndianCurrency()}</td></tr>");
-        content.AppendLine("</table>");
+        // Separator before grand total
+        y = ThermalPrintUtil.DrawSeparator(canvas, width, y);
 
+        // Grand total (bold, larger font, right-aligned with label and value close together)
+        y = ThermalPrintUtil.DrawRightLabelValue(canvas,
+            "Grand Total", sale.TotalAmount.FormatIndianCurrency(),
+            width, y, ThermalPrintUtil.FontSizeHeader);
+
+        // Amount in words
         CurrencyWordsConverter numericWords = new(new()
         {
             Culture = Culture.Hindi,
@@ -168,45 +202,45 @@ public class SaleThermalPrint
 
         amountInWords += " Rupees Only";
 
-        content.AppendLine("<div class='amount-words'>" + amountInWords + "</div>");
+        y += ThermalPrintUtil.LineGap;
+        y = ThermalPrintUtil.DrawCenteredText(canvas, amountInWords, width, y, ThermalPrintUtil.FontSizeSmall, bold: false);
+
+        y = ThermalPrintUtil.DrawSeparator(canvas, width, y);
+
+        return y;
     }
 
-    private static async Task AddPaymentModes(SaleOverviewModel sale, StringBuilder content)
+    private static float DrawPaymentModes(SKCanvas canvas, SaleOverviewModel sale, int width, float y)
     {
-        // Check if any payment is made
-        bool hasPayments = sale.Cash > 0 || sale.Card > 0 || sale.UPI > 0 || sale.Credit > 0;
-
-        if (!hasPayments)
-            return;
-
-        content.AppendLine("<table class='summary-table'>");
+        var paymentPairs = new List<(string Label, string Value)>();
 
         if (sale.Cash > 0)
-            content.AppendLine($"<tr><td class='summary-label'>Cash:</td><td align='right' class='summary-value'>{sale.Cash.FormatIndianCurrency()}</td></tr>");
+            paymentPairs.Add(("Cash", sale.Cash.FormatIndianCurrency()));
 
         if (sale.Card > 0)
-            content.AppendLine($"<tr><td class='summary-label'>Card:</td><td align='right' class='summary-value'>{sale.Card.FormatIndianCurrency()}</td></tr>");
+            paymentPairs.Add(("Card", sale.Card.FormatIndianCurrency()));
 
         if (sale.UPI > 0)
-            content.AppendLine($"<tr><td class='summary-label'>UPI:</td><td align='right' class='summary-value'>{sale.UPI.FormatIndianCurrency()}</td></tr>");
+            paymentPairs.Add(("UPI", sale.UPI.FormatIndianCurrency()));
 
         if (sale.Credit > 0)
-            content.AppendLine($"<tr><td class='summary-label'>Credit:</td><td align='right' class='summary-value'>{sale.Credit.FormatIndianCurrency()}</td></tr>");
+            paymentPairs.Add(("Credit", sale.Credit.FormatIndianCurrency()));
 
-        content.AppendLine("</table>");
+        if (paymentPairs.Count == 0)
+            return y;
+
+        y = ThermalPrintUtil.DrawAlignedBlock(canvas, paymentPairs, width, y);
+        y = ThermalPrintUtil.DrawSeparator(canvas, width, y);
+        return y;
     }
 
-    private static async Task AddFooter(StringBuilder content)
+    private static async Task<float> DrawFooter(SKCanvas canvas, SaleOverviewModel sale, int width, float y)
     {
-        content.AppendLine("<div class='bold-separator'></div>");
-
         var currentDateTime = await CommonData.LoadCurrentDateTime();
-        content.AppendLine($"<div class='footer-timestamp'>Printed: {currentDateTime:dd/MM/yy hh:mm tt}</div>");
+        y = ThermalPrintUtil.DrawCenteredText(canvas, $"Printed By: {sale.CreatedByName} | On: {currentDateTime:dd/MM/yy hh:mm tt}", width, y, ThermalPrintUtil.FontSizeSmall, bold: false);
+        y = ThermalPrintUtil.DrawCenteredText(canvas, "Thanks. Visit Again", width, y, ThermalPrintUtil.FontSizeNormal, bold: false);
+        y = ThermalPrintUtil.DrawCenteredText(canvas, "A Product of aadisoft.vercel.app", width, y, ThermalPrintUtil.FontSizeSmall, bold: true);
 
-        string footerLine = "Thanks. Visit Again";
-        content.AppendLine($"<div class='footer-text'>{footerLine}</div>");
-
-        footerLine = "A Product of aadisoft.vercel.app";
-        content.AppendLine($"<div class='footer-text'>{footerLine}</div>");
+        return y;
     }
 }

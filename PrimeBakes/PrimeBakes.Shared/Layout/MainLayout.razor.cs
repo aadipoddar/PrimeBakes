@@ -17,6 +17,45 @@ public partial class MainLayout
 	private string _savedPrinterAddress = string.Empty;
 	private bool _isReconnecting;
 
+	/// <summary>
+	/// Persists the saved printer record with <c>IsConnected = true</c> after a successful reconnect.
+	/// </summary>
+	private async Task MarkSavedPrinterConnectedAsync()
+	{
+		if (string.IsNullOrEmpty(_savedPrinterAddress))
+			return;
+
+		var info = new BluetoothDeviceInfo
+		{
+			Name = BluetoothPrinterService.ConnectedPrinterName ?? _savedPrinterName,
+			Address = _savedPrinterAddress,
+			IsPaired = true,
+			IsConnected = true
+		};
+		var json = System.Text.Json.JsonSerializer.Serialize(info);
+		await DataStorageService.LocalSaveAsync(StorageFileNames.BluetoothPrinterDataFileName, json);
+	}
+
+	/// <summary>
+	/// Persists the saved printer record with <c>IsConnected = false</c> so the device
+	/// is remembered for future reconnect attempts without treating it as connected.
+	/// </summary>
+	private async Task MarkSavedPrinterDisconnectedAsync()
+	{
+		if (string.IsNullOrEmpty(_savedPrinterAddress))
+			return;
+
+		var info = new BluetoothDeviceInfo
+		{
+			Name = _savedPrinterName,
+			Address = _savedPrinterAddress,
+			IsPaired = true,
+			IsConnected = false
+		};
+		var json = System.Text.Json.JsonSerializer.Serialize(info);
+		await DataStorageService.LocalSaveAsync(StorageFileNames.BluetoothPrinterDataFileName, json);
+	}
+
 	private string Factor =>
 		FormFactor.GetFormFactor();
 
@@ -46,11 +85,13 @@ public partial class MainLayout
 				return;
 			}
 
+			// Cache for the helper so all code paths can mark the printer disconnected
+			_savedPrinterName = saved.Name ?? "Unknown";
+			_savedPrinterAddress = saved.Address;
+
 			// On web, requestDevice requires a user gesture — show a reconnect dialog.
 			if (Factor == "Web")
 			{
-				_savedPrinterName = saved.Name ?? "Unknown";
-				_savedPrinterAddress = saved.Address;
 				await _bluetoothReconnectDialog.ShowAsync();
 				return;
 			}
@@ -60,6 +101,7 @@ public partial class MainLayout
 
 			if (connected)
 			{
+				await MarkSavedPrinterConnectedAsync();
 				await _toastNotification.ShowAsync(
 					"Printer Connected",
 					$"Reconnected to {BluetoothPrinterService.ConnectedPrinterName}.",
@@ -67,7 +109,7 @@ public partial class MainLayout
 			}
 			else
 			{
-				await DataStorageService.LocalRemove(StorageFileNames.BluetoothPrinterDataFileName);
+				await MarkSavedPrinterDisconnectedAsync();
 				await _toastNotification.ShowAsync(
 					"Printer Unavailable",
 					$"Could not reconnect to {saved.Name}. Please reconnect from Local Settings.",
@@ -76,7 +118,7 @@ public partial class MainLayout
 		}
 		catch
 		{
-			await DataStorageService.LocalRemove(StorageFileNames.BluetoothPrinterDataFileName);
+			await MarkSavedPrinterDisconnectedAsync();
 		}
 	}
 
@@ -95,6 +137,7 @@ public partial class MainLayout
 
 			if (connected)
 			{
+				await MarkSavedPrinterConnectedAsync();
 				await _bluetoothReconnectDialog.HideAsync();
 				await _toastNotification.ShowAsync(
 					"Printer Connected",
@@ -103,7 +146,7 @@ public partial class MainLayout
 			}
 			else
 			{
-				await DataStorageService.LocalRemove(StorageFileNames.BluetoothPrinterDataFileName);
+				await MarkSavedPrinterDisconnectedAsync();
 				await _bluetoothReconnectDialog.HideAsync();
 				await _toastNotification.ShowAsync(
 					"Printer Unavailable",
@@ -113,7 +156,7 @@ public partial class MainLayout
 		}
 		catch
 		{
-			await DataStorageService.LocalRemove(StorageFileNames.BluetoothPrinterDataFileName);
+			await MarkSavedPrinterDisconnectedAsync();
 			await _bluetoothReconnectDialog.HideAsync();
 		}
 		finally
@@ -124,8 +167,9 @@ public partial class MainLayout
 	}
 
 	/// <summary>
-	/// Dismisses the reconnect dialog without reconnecting and clears saved printer data.
+	/// Dismisses the reconnect dialog without reconnecting.
+	/// Marks the printer as disconnected so it is remembered for future reconnect attempts.
 	/// </summary>
 	private async Task DismissReconnectDialog() =>
-		await DataStorageService.LocalRemove(StorageFileNames.BluetoothPrinterDataFileName);
+		await MarkSavedPrinterDisconnectedAsync();
 }

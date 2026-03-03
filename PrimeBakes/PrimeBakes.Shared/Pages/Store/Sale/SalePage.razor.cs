@@ -1304,11 +1304,10 @@ public partial class SalePage : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating Thermal invoice...", ToastType.Info);
 
-			var printStream = await SaleThermalPrint.GenerateThermalBill(_sale.Id);
-			await JSRuntime.InvokeVoidAsync("printToPrinter", printStream.ToString());
-			await Task.Delay(2000);
+			var printData = await SaleThermalPrint.GenerateThermalBill(_sale.Id);
+			await BluetoothPrinterService.SendDataAsync(printData);
 
-			await _toastNotification.ShowAsync("Invoice Downloaded", "The PDF invoice has been downloaded successfully.", ToastType.Success);
+			await _toastNotification.ShowAsync("Print Sent", "Thermal invoice sent to printer.", ToastType.Success);
 
 			if (isNewSale)
 				await ResetPage();

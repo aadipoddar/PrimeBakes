@@ -367,9 +367,8 @@ public partial class SaleMobilePaymentPage
 
 			if (thermal)
 			{
-				var content = await SaleThermalPrint.GenerateThermalBill(_sale.Id);
-				await JSRuntime.InvokeVoidAsync("printToPrinter", content.ToString());
-				await Task.Delay(2000);
+				var printData = await SaleThermalPrint.GenerateThermalBill(_sale.Id);
+				await BluetoothPrinterService.SendDataAsync(printData);
 			}
 
 			else
