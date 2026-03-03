@@ -62,8 +62,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Remove=".env" />
-		<None Remove="keycommand.txt" />
 		<GoogleServicesJson Include="Platforms\Android\google-services.json" />
 	</ItemGroup>
 
@@ -73,10 +71,6 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.3" />
 		<PackageReference Include="Plugin.LocalNotification" Version="13.0.0" />
 		<PackageReference Include="Plugin.Maui.Audio" Version="4.0.0" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\PrimeBakes.Shared\PrimeBakes.Shared.csproj" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net10.0-android'">
@@ -92,6 +86,10 @@
 		<PackageReference Include="Xamarin.AndroidX.Lifecycle.LiveData.Core" Version="2.9.2.1" />
 		<PackageReference Include="Xamarin.AndroidX.Lifecycle.ViewModel" Version="2.9.2.1" />
 		<PackageReference Include="Xamarin.AndroidX.Fragment" Version="1.8.8.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\PrimeBakes.Shared\PrimeBakes.Shared.csproj" />
 	</ItemGroup>
 
 </Project>

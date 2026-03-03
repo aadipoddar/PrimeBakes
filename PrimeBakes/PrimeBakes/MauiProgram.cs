@@ -42,6 +42,12 @@ public static class MauiProgram
         builder.Services.AddScoped<INotificationService, NotificationService>();
         builder.Services.AddScoped<IThermalPrintDispatcher, ThermalPrintDispatcher>();
 
+#if WINDOWS
+        builder.Services.AddSingleton<IDirectPrintService, Platforms.Windows.WindowsDirectPrintService>();
+#else
+        builder.Services.AddSingleton<IDirectPrintService, NullDirectPrintService>();
+#endif
+
         builder.Services.AddMauiBlazorWebView();
         builder.Services.AddSyncfusionBlazor();
         builder.Services.AddHotKeys2();
@@ -61,7 +67,7 @@ public static class MauiProgram
 #endif
 
         builder.Services.AddSingleton<IPushDemoNotificationActionService, PushDemoNotificationActionService>();
-        builder.Services.AddSingleton<INotificationRegistrationService>(new NotificationRegistrationService(Config.BackendServiceEndpoint, Config.ApiKey));
+        builder.Services.AddSingleton<INotificationRegistrationService>(new NotificationRegistrationService(Secrets.NotificationBackendServiceEndpoint, Secrets.NotificationAPIKey));
 
         return builder;
     }

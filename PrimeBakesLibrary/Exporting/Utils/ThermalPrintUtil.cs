@@ -11,7 +11,7 @@ public static class ThermalPrintUtil
 
 	public const int PrinterDpi = 203;
 	public const int PaperDots80mm = 576;
-	public const int Margin = 4;
+	public const int Margin = 20;
 	public const int LineGap = 1;
 	public const int SectionGap = 12;
 	public const string LogoResourceName = "PrimeBakesLibrary.Exporting.Resources.logo_full.png";

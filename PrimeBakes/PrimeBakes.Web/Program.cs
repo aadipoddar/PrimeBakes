@@ -35,6 +35,7 @@ builder.Services.AddScoped<ISoundService, SoundService>();
 builder.Services.AddScoped<IDataStorageService, DataStorageService>();
 builder.Services.AddScoped<IBluetoothPrinterService, BluetoothPrinterService>();
 builder.Services.AddScoped<IThermalPrintDispatcher, ThermalPrintDispatcher>();
+builder.Services.AddSingleton<IDirectPrintService, NullDirectPrintService>();
 
 var app = builder.Build();
 
