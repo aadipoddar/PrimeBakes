@@ -96,7 +96,7 @@ public partial class KitchenProductionPage : IAsyncDisposable
             _companies = [.. _companies.OrderBy(s => s.Name)];
             _companies.Add(new()
             {
-                Id = 0,
+                Id = -1,
                 Name = "Create New Company ..."
             });
 
@@ -117,7 +117,7 @@ public partial class KitchenProductionPage : IAsyncDisposable
             _kitchens = [.. _kitchens.OrderBy(s => s.Name)];
             _kitchens.Add(new()
             {
-                Id = 0,
+                Id = -1,
                 Name = "Create New Kitchen ..."
             });
 
@@ -208,7 +208,7 @@ public partial class KitchenProductionPage : IAsyncDisposable
             _products = [.. _products.OrderBy(s => s.Name)];
             _products.Add(new()
             {
-                Id = 0,
+                Id = -1,
                 Name = "Create New Product ..."
             });
         }
@@ -268,10 +268,10 @@ public partial class KitchenProductionPage : IAsyncDisposable
     #region Change Events
     private async Task OnCompanyChanged(ChangeEventArgs<CompanyModel, CompanyModel> args)
     {
-        if (args.Value is null)
+        if (args.Value is null || args.Value.Id == 0)
             return;
 
-        if (args.Value.Id == 0)
+        if (args.Value.Id == -1)
         {
             if (FormFactor.GetFormFactor() == "Web")
                 await JSRuntime.InvokeVoidAsync("open", PageRouteNames.CompanyMaster, "_blank");
@@ -289,10 +289,10 @@ public partial class KitchenProductionPage : IAsyncDisposable
 
     private async Task OnKitchenChanged(ChangeEventArgs<KitchenModel, KitchenModel> args)
     {
-        if (args.Value is null)
+        if (args.Value is null || args.Value.Id == 0)
             return;
 
-        if (args.Value.Id == 0)
+        if (args.Value.Id == -1)
         {
             if (FormFactor.GetFormFactor() == "Web")
                 await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Kitchen, "_blank");
@@ -320,10 +320,10 @@ public partial class KitchenProductionPage : IAsyncDisposable
     #region Cart
     private async Task OnItemChanged(ChangeEventArgs<ProductModel?, ProductModel> args)
     {
-        if (args.Value is null)
+        if (args.Value is null || args.Value.Id == 0)
             return;
 
-        if (args.Value.Id == 0)
+        if (args.Value.Id == -1)
         {
             if (FormFactor.GetFormFactor() == "Web")
                 await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Product, "_blank");
@@ -335,7 +335,7 @@ public partial class KitchenProductionPage : IAsyncDisposable
 
         _selectedProduct = args.Value;
 
-        if (_selectedProduct is null)
+        if (_selectedProduct is null || _selectedProduct.Id == 0)
             _selectedCart = new()
             {
                 ProductId = 0,

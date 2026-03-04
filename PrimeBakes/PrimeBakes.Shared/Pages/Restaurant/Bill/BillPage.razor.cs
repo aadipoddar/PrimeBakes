@@ -119,7 +119,7 @@ public partial class BillPage : IAsyncDisposable
 			_companies = [.. _companies.OrderBy(s => s.Name)];
 
 			if (_user.LocationId == 1)
-				_companies.Add(new() { Id = 0, Name = "Create New Company ..." });
+				_companies.Add(new() { Id = -1, Name = "Create New Company ..." });
 
 			var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
 			_primaryCompanyId = int.TryParse(mainCompanyId?.Value, out var id) ? id : 0;
@@ -140,7 +140,7 @@ public partial class BillPage : IAsyncDisposable
 			_locations = [.. _locations.OrderBy(s => s.Name)];
 
 			if (_user.LocationId == 1)
-				_locations.Add(new() { Id = 0, Name = "Create New Location ..." });
+				_locations.Add(new() { Id = -1, Name = "Create New Location ..." });
 
 			_selectedLocation = _locations.FirstOrDefault(s => s.Id == _user.LocationId);
 		}
@@ -195,7 +195,7 @@ public partial class BillPage : IAsyncDisposable
 				await _toastNotification.ShowAsync("No Dining Tables Found", "No dining tables were found for the selected location. Please create dining tables to proceed.", ToastType.Warning);
 
 			if (_user.LocationId == 1)
-				_diningTables.Add(new() { Id = 0, Name = "Create New Dining Table ..." });
+				_diningTables.Add(new() { Id = -1, Name = "Create New Dining Table ..." });
 
 			_selectedDiningTable = _bill.DiningTableId > 0 ?
 				_diningTables.FirstOrDefault(s => s.Id == _bill.DiningTableId) ?? new() :
@@ -218,7 +218,7 @@ public partial class BillPage : IAsyncDisposable
 			_products = [.. _products.OrderBy(s => s.Name)];
 
 			if (_user.LocationId == 1)
-				_products.Add(new() { Id = 0, Name = "Create New Item ..." });
+				_products.Add(new() { Id = -1, Name = "Create New Item ..." });
 		}
 		catch (Exception ex)
 		{
@@ -561,10 +561,10 @@ public partial class BillPage : IAsyncDisposable
 			return;
 		}
 
-		if (args.Value is null)
+		if (args.Value is null || args.Value.Id == 0)
 			return;
 
-		if (args.Value.Id == 0)
+		if (args.Value.Id == -1)
 		{
 			if (FormFactor.GetFormFactor() == "Web")
 				await JSRuntime.InvokeVoidAsync("open", PageRouteNames.CompanyMaster, "_blank");
@@ -589,10 +589,10 @@ public partial class BillPage : IAsyncDisposable
 			return;
 		}
 
-		if (args.Value is null)
+		if (args.Value is null || args.Value.Id == 0)
 			return;
 
-		if (args.Value.Id == 0)
+		if (args.Value.Id == -1)
 		{
 			if (FormFactor.GetFormFactor() == "Web")
 				await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Location, "_blank");
@@ -612,10 +612,10 @@ public partial class BillPage : IAsyncDisposable
 
 	private async Task OnDiningTableChanged(ChangeEventArgs<DiningTableModel, DiningTableModel> args)
 	{
-		if (args.Value is null)
+		if (args.Value is null || args.Value.Id == 0)
 			return;
 
-		if (args.Value.Id == 0)
+		if (args.Value.Id == -1)
 		{
 			if (FormFactor.GetFormFactor() == "Web")
 				await JSRuntime.InvokeVoidAsync("open", PageRouteNames.DiningTable, "_blank");
@@ -704,10 +704,10 @@ public partial class BillPage : IAsyncDisposable
 	#region Cart
 	private async Task OnItemChanged(ChangeEventArgs<ProductLocationOverviewModel, ProductLocationOverviewModel> args)
 	{
-		if (args.Value is null)
+		if (args.Value is null || args.Value.Id == 0)
 			return;
 
-		if (args.Value.Id == 0)
+		if (args.Value.Id == -1)
 		{
 			if (FormFactor.GetFormFactor() == "Web")
 				await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Product, "_blank");
@@ -719,7 +719,7 @@ public partial class BillPage : IAsyncDisposable
 
 		_selectedProduct = args.Value;
 
-		if (_selectedProduct is null)
+		if (_selectedProduct is null || _selectedProduct.ProductId == 0)
 		{
 			_selectedCart = new();
 			return;
@@ -732,10 +732,10 @@ public partial class BillPage : IAsyncDisposable
 		_selectedCart.Quantity = 0;
 		_selectedCart.Rate = _selectedProduct.Rate;
 		_selectedCart.DiscountPercent = 0;
-		_selectedCart.CGSTPercent = _taxes.FirstOrDefault(s => s.Id == _selectedProduct.TaxId).CGST;
-		_selectedCart.SGSTPercent = _taxes.FirstOrDefault(s => s.Id == _selectedProduct.TaxId).SGST;
+		_selectedCart.CGSTPercent = tax?.CGST ?? 0;
+		_selectedCart.SGSTPercent = tax?.SGST ?? 0;
 		_selectedCart.IGSTPercent = 0;
-		_selectedCart.InclusiveTax = _taxes.FirstOrDefault(s => s.Id == _selectedProduct.TaxId).Inclusive;
+		_selectedCart.InclusiveTax = tax?.Inclusive ?? false;
 		_selectedCart.KOTPrint = true;
 
 		RecalculateSelectedItem();
@@ -1277,7 +1277,7 @@ public partial class BillPage : IAsyncDisposable
 			await ThermalPrintDispatcher.PrintAsync(
 				() => BillThermalPrint.GenerateThermalBill(_bill.Id),
 				() => BillThermalPrint.GenerateThermalBillPng(_bill.Id));
-			
+
 			await _toastNotification.ShowAsync("Invoice Downloaded", "The thermal invoice has been generated successfully.", ToastType.Success);
 
 			if (!_bill.Running)

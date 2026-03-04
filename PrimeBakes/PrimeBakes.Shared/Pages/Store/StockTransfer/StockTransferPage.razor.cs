@@ -105,7 +105,7 @@ public partial class StockTransferPage : IAsyncDisposable
             _locations = [.. _locations.OrderBy(s => s.Name)];
             _locations.Add(new()
             {
-                Id = 0,
+                Id = -1,
                 Name = "Create New Location ..."
             });
 
@@ -126,7 +126,7 @@ public partial class StockTransferPage : IAsyncDisposable
             _companies = [.. _companies.OrderBy(s => s.Name)];
             _companies.Add(new()
             {
-                Id = 0,
+                Id = -1,
                 Name = "Create New Company ..."
             });
 
@@ -229,7 +229,7 @@ public partial class StockTransferPage : IAsyncDisposable
 
             _products.Add(new()
             {
-                Id = 0,
+                Id = -1,
                 Name = "Create New Item ..."
             });
         }
@@ -308,10 +308,7 @@ public partial class StockTransferPage : IAsyncDisposable
         AddPaymentFromStockTransfer("UPI", _stockTransfer.UPI);
         AddPaymentFromStockTransfer("Credit", _stockTransfer.Credit);
 
-		_selectedPaymentMethod = _user?.LocationId == 1
-			? _paymentMethods.FirstOrDefault(pm => pm.Name == "Credit") ?? _paymentMethods.FirstOrDefault()
-			: _paymentMethods.FirstOrDefault();
-		_paymentAmount = Math.Max(0, _remainingAmount);
+        _paymentAmount = Math.Max(0, _remainingAmount);
     }
 
     private void AddPaymentFromStockTransfer(string modeName, decimal amount)
@@ -387,10 +384,10 @@ public partial class StockTransferPage : IAsyncDisposable
     #region Change Events
     private async Task OnFromLocationChanged(ChangeEventArgs<LocationModel, LocationModel> args)
     {
-        if (args.Value is null)
+        if (args.Value is null || args.Value.Id == 0)
             return;
 
-        if (args.Value.Id == 0)
+        if (args.Value.Id == -1)
         {
             if (FormFactor.GetFormFactor() == "Web")
                 await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Location, "_blank");
@@ -409,10 +406,10 @@ public partial class StockTransferPage : IAsyncDisposable
 
     private async Task OnToLocationChanged(ChangeEventArgs<LocationModel, LocationModel> args)
     {
-        if (args.Value is null)
+        if (args.Value is null || args.Value.Id == 0)
             return;
 
-        if (args.Value.Id == 0)
+        if (args.Value.Id == -1)
         {
             if (FormFactor.GetFormFactor() == "Web")
                 await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Location, "_blank");
@@ -431,10 +428,10 @@ public partial class StockTransferPage : IAsyncDisposable
 
     private async Task OnCompanyChanged(ChangeEventArgs<CompanyModel, CompanyModel> args)
     {
-        if (args.Value is null)
+        if (args.Value is null || args.Value.Id == 0)
             return;
 
-        if (args.Value.Id == 0)
+        if (args.Value.Id == -1)
         {
             if (FormFactor.GetFormFactor() == "Web")
                 await JSRuntime.InvokeVoidAsync("open", PageRouteNames.CompanyMaster, "_blank");
@@ -482,7 +479,7 @@ public partial class StockTransferPage : IAsyncDisposable
         if (args.Value is null)
             return;
 
-        if (args.Value.Id == 0)
+        if (args.Value.Id == -1)
         {
             if (FormFactor.GetFormFactor() == "Web")
                 await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Product, "_blank");
@@ -494,7 +491,7 @@ public partial class StockTransferPage : IAsyncDisposable
 
         _selectedProduct = args.Value;
 
-        if (_selectedProduct is null)
+        if (_selectedProduct is null || _selectedProduct.Id == 0)
             _selectedCart = new()
             {
                 ItemId = 0,
@@ -519,10 +516,10 @@ public partial class StockTransferPage : IAsyncDisposable
             _selectedCart.Quantity = 0;
             _selectedCart.Rate = _selectedProduct.Rate;
             _selectedCart.DiscountPercent = 0;
-            _selectedCart.CGSTPercent = _taxes.FirstOrDefault(s => s.Id == _selectedProduct.TaxId).CGST;
-            _selectedCart.SGSTPercent = isSameState ? _taxes.FirstOrDefault(s => s.Id == _selectedProduct.TaxId).SGST : 0;
-            _selectedCart.IGSTPercent = isSameState ? 0 : _taxes.FirstOrDefault(s => s.Id == _selectedProduct.TaxId).IGST;
-            _selectedCart.InclusiveTax = _taxes.FirstOrDefault(s => s.Id == _selectedProduct.TaxId).Inclusive;
+            _selectedCart.CGSTPercent = _taxes.FirstOrDefault(s => s.Id == _selectedProduct.TaxId)?.CGST ?? 0;
+            _selectedCart.SGSTPercent = isSameState ? _taxes.FirstOrDefault(s => s.Id == _selectedProduct.TaxId)?.SGST ?? 0 : 0;
+            _selectedCart.IGSTPercent = isSameState ? 0 : _taxes.FirstOrDefault(s => s.Id == _selectedProduct.TaxId)?.IGST ?? 0;
+            _selectedCart.InclusiveTax = _taxes.FirstOrDefault(s => s.Id == _selectedProduct.TaxId)?.Inclusive ?? false;
         }
 
         UpdateSelectedItemFinancialDetails();

@@ -97,14 +97,7 @@ public partial class ProductStockReport : IAsyncDisposable
 		try
 		{
 			_locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
-
 			_locations = [.. _locations.OrderBy(s => s.Name)];
-			_locations.Insert(0, new()
-			{
-				Id = 0,
-				Name = "Create New Location ..."
-			});
-
 			_selectedLocation = _locations.FirstOrDefault(_ => _.Id == 1);
 		}
 		catch (Exception ex)

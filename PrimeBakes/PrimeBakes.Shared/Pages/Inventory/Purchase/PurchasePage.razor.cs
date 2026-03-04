@@ -101,7 +101,7 @@ public partial class PurchasePage : IAsyncDisposable
             _companies = [.. _companies.OrderBy(s => s.Name)];
             _companies.Add(new()
             {
-                Id = 0,
+                Id = -1,
                 Name = "Create New Company ..."
             });
 
@@ -122,7 +122,7 @@ public partial class PurchasePage : IAsyncDisposable
             _parties = [.. _parties.OrderBy(s => s.Name)];
             _parties.Add(new()
             {
-                Id = 0,
+                Id = -1,
                 Name = "Create New Party Ledger..."
             });
 
@@ -227,7 +227,7 @@ public partial class PurchasePage : IAsyncDisposable
             _rawMaterials = [.. _rawMaterials.OrderBy(s => s.Name)];
             _rawMaterials.Add(new()
             {
-                Id = 0,
+                Id = -1,
                 Name = "Create New Item ..."
             });
         }
@@ -300,10 +300,10 @@ public partial class PurchasePage : IAsyncDisposable
     #region Change Events
     private async Task OnCompanyChanged(ChangeEventArgs<CompanyModel, CompanyModel> args)
     {
-        if (args.Value is null)
+        if (args.Value is null || args.Value.Id == 0)
             return;
 
-        if (args.Value.Id == 0)
+        if (args.Value.Id == -1)
         {
             if (FormFactor.GetFormFactor() == "Web")
                 await JSRuntime.InvokeVoidAsync("open", PageRouteNames.CompanyMaster, "_blank");
@@ -321,10 +321,10 @@ public partial class PurchasePage : IAsyncDisposable
 
     private async Task OnPartyChanged(ChangeEventArgs<LedgerModel, LedgerModel> args)
     {
-        if (args.Value is null)
+        if (args.Value is null || args.Value.Id == 0)
             return;
 
-        if (args.Value.Id == 0)
+        if (args.Value.Id == -1)
         {
             if (FormFactor.GetFormFactor() == "Web")
                 await JSRuntime.InvokeVoidAsync("open", PageRouteNames.LedgerMaster, "_blank");
@@ -379,7 +379,7 @@ public partial class PurchasePage : IAsyncDisposable
         if (args.Value is null)
             return;
 
-        if (args.Value.Id == 0)
+        if (args.Value.Id == -1)
         {
             if (FormFactor.GetFormFactor() == "Web")
                 await JSRuntime.InvokeVoidAsync("open", PageRouteNames.RawMaterial, "_blank");
@@ -391,7 +391,7 @@ public partial class PurchasePage : IAsyncDisposable
 
         _selectedRawMaterial = args.Value;
 
-        if (_selectedRawMaterial is null)
+        if (_selectedRawMaterial is null || _selectedRawMaterial.Id == 0)
             _selectedCart = new()
             {
                 ItemId = 0,
@@ -415,10 +415,10 @@ public partial class PurchasePage : IAsyncDisposable
             _selectedCart.UnitOfMeasurement = _selectedRawMaterial.UnitOfMeasurement;
             _selectedCart.Rate = _selectedRawMaterial.Rate;
             _selectedCart.DiscountPercent = 0;
-            _selectedCart.CGSTPercent = _taxes.FirstOrDefault(s => s.Id == _selectedRawMaterial.TaxId).CGST;
-            _selectedCart.SGSTPercent = isSameState ? _taxes.FirstOrDefault(s => s.Id == _selectedRawMaterial.TaxId).SGST : 0;
-            _selectedCart.IGSTPercent = isSameState ? 0 : _taxes.FirstOrDefault(s => s.Id == _selectedRawMaterial.TaxId).IGST;
-            _selectedCart.InclusiveTax = _taxes.FirstOrDefault(s => s.Id == _selectedRawMaterial.TaxId).Inclusive;
+            _selectedCart.CGSTPercent = _taxes.FirstOrDefault(s => s.Id == _selectedRawMaterial.TaxId)?.CGST ?? 0;
+            _selectedCart.SGSTPercent = isSameState ? _taxes.FirstOrDefault(s => s.Id == _selectedRawMaterial.TaxId)?.SGST ?? 0 : 0;
+            _selectedCart.IGSTPercent = isSameState ? 0 : _taxes.FirstOrDefault(s => s.Id == _selectedRawMaterial.TaxId)?.IGST ?? 0;
+            _selectedCart.InclusiveTax = _taxes.FirstOrDefault(s => s.Id == _selectedRawMaterial.TaxId)?.Inclusive ?? false;
         }
 
         UpdateSelectedItemFinancialDetails();
