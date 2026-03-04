@@ -38,7 +38,7 @@ public partial class OrderPage : IAsyncDisposable
     private CompanyModel _selectedCompany = new();
     private LocationModel _selectedLocation = new();
     private FinancialYearModel _selectedFinancialYear = new();
-    private ProductLocationOverviewModel _selectedProduct = new();
+    private ProductLocationOverviewModel? _selectedProduct = new();
     private OrderItemCartModel _selectedCart = new();
     private OrderModel _order = new();
     private SaleModel _sale = new();
@@ -48,7 +48,7 @@ public partial class OrderPage : IAsyncDisposable
     private List<ProductLocationOverviewModel> _products = [];
     private List<OrderItemCartModel> _cart = [];
 
-    private SfAutoComplete<ProductLocationOverviewModel, ProductLocationOverviewModel> _sfItemAutoComplete;
+    private SfAutoComplete<ProductLocationOverviewModel?, ProductLocationOverviewModel> _sfItemAutoComplete;
     private SfGrid<OrderItemCartModel> _sfCartGrid;
 
     ToastNotification _toastNotification;
@@ -99,7 +99,7 @@ public partial class OrderPage : IAsyncDisposable
             _locations = [.. _locations.OrderBy(s => s.Name)];
             _locations.Add(new()
             {
-                Id = -1,
+                Id = 0,
                 Name = "Create New Location ..."
             });
 
@@ -122,7 +122,7 @@ public partial class OrderPage : IAsyncDisposable
             _companies = [.. _companies.OrderBy(s => s.Name)];
             _companies.Add(new()
             {
-                Id = -1,
+                Id = 0,
                 Name = "Create New Company ..."
             });
 
@@ -220,7 +220,7 @@ public partial class OrderPage : IAsyncDisposable
             if (_user.LocationId == 1)
                 _products.Add(new()
                 {
-                    Id = -1,
+                    Id = 0,
                     Name = "Create New Item ..."
                 });
         }
@@ -285,10 +285,10 @@ public partial class OrderPage : IAsyncDisposable
             return;
         }
 
-        if (args.Value is null || args.Value.Id == 0)
+        if (args.Value is null)
             return;
 
-        if (args.Value.Id == -1)
+        if (args.Value.Id == 0)
         {
             if (FormFactor.GetFormFactor() == "Web")
                 await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Location, "_blank");
@@ -316,10 +316,10 @@ public partial class OrderPage : IAsyncDisposable
             return;
         }
 
-        if (args.Value is null || args.Value.Id == 0)
+        if (args.Value is null)
             return;
 
-        if (args.Value.Id == -1)
+        if (args.Value.Id == 0)
         {
             if (FormFactor.GetFormFactor() == "Web")
                 await JSRuntime.InvokeVoidAsync("open", PageRouteNames.CompanyMaster, "_blank");
@@ -351,12 +351,12 @@ public partial class OrderPage : IAsyncDisposable
     #endregion
 
     #region Cart
-    private async Task OnItemChanged(ChangeEventArgs<ProductLocationOverviewModel, ProductLocationOverviewModel> args)
+    private async Task OnItemChanged(ChangeEventArgs<ProductLocationOverviewModel?, ProductLocationOverviewModel?> args)
     {
-        if (args.Value is null || args.Value.Id == 0)
+        if (args.Value is null)
             return;
 
-        if (args.Value.Id == -1)
+        if (args.Value.Id == 0)
         {
             if (FormFactor.GetFormFactor() == "Web")
                 await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Product, "_blank");
@@ -368,7 +368,7 @@ public partial class OrderPage : IAsyncDisposable
 
         _selectedProduct = args.Value;
 
-        if (_selectedProduct is null || _selectedProduct.ProductId == 0)
+        if (_selectedProduct is null)
             _selectedCart = new()
             {
                 ItemCategoryId = 0,

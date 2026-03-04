@@ -37,7 +37,7 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 	private CompanyModel _selectedCompany = new();
 	private VoucherModel _selectedVoucher = new();
 	private FinancialYearModel _selectedFinancialYear = new();
-	private LedgerModel _selectedLedger = new();
+	private LedgerModel? _selectedLedger = new();
 	private FinancialAccountingLedgerOverviewModel _selectedAccountingLedger = new();
 	private FinancialAccountingItemCartModel _selectedCart = new();
 	private FinancialAccountingModel _accounting = new();
@@ -48,7 +48,7 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 	private List<FinancialAccountingLedgerOverviewModel> _accountingLedgers = [];
 	private List<FinancialAccountingItemCartModel> _cart = [];
 
-	private SfAutoComplete<LedgerModel, LedgerModel> _sfLedgerAutoComplete;
+	private SfAutoComplete<LedgerModel?, LedgerModel> _sfLedgerAutoComplete;
 	private SfGrid<FinancialAccountingItemCartModel> _sfCartGrid;
 
 	private ToastNotification _toastNotification;
@@ -101,7 +101,7 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 			_companies = [.. _companies.OrderBy(s => s.Name)];
 			_companies.Add(new()
 			{
-				Id = -1,
+				Id = 0,
 				Name = "Create New Company ..."
 			});
 
@@ -122,7 +122,7 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 			_vouchers = [.. _vouchers.OrderBy(s => s.Name)];
 			_vouchers.Add(new()
 			{
-				Id = -1,
+				Id = 0,
 				Name = "Create New Voucher ..."
 			});
 
@@ -219,7 +219,7 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 			_ledgers = [.. _ledgers.OrderBy(s => s.Name)];
 			_ledgers.Add(new()
 			{
-				Id = -1,
+				Id = 0,
 				Name = "Create New Ledger ..."
 			});
 		}
@@ -280,10 +280,10 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 	#region Change Events
 	private async Task OnCompanyChanged(ChangeEventArgs<CompanyModel, CompanyModel> args)
 	{
-		if (args.Value is null || args.Value.Id == 0)
+		if (args.Value is null)
 			return;
 
-		if (args.Value.Id == -1)
+		if (args.Value.Id == 0)
 		{
 			if (FormFactor.GetFormFactor() == "Web")
 				await JSRuntime.InvokeVoidAsync("open", PageRouteNames.CompanyMaster, "_blank");
@@ -301,10 +301,10 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 
 	private async Task OnPartyChanged(ChangeEventArgs<VoucherModel, VoucherModel> args)
 	{
-		if (args.Value is null || args.Value.Id == 0)
+		if (args.Value is null)
 			return;
 
-		if (args.Value.Id == -1)
+		if (args.Value.Id == 0)
 		{
 			if (FormFactor.GetFormFactor() == "Web")
 				await JSRuntime.InvokeVoidAsync("open", PageRouteNames.VoucherMaster, "_blank");
@@ -328,12 +328,12 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 	#endregion
 
 	#region Cart
-	private async Task OnItemChanged(ChangeEventArgs<LedgerModel, LedgerModel> args)
+	private async Task OnItemChanged(ChangeEventArgs<LedgerModel?, LedgerModel?> args)
 	{
-		if (args.Value is null || args.Value.Id == 0)
+		if (args.Value is null)
 			return;
 
-		if (args.Value.Id == -1)
+		if (args.Value.Id == 0)
 		{
 			if (FormFactor.GetFormFactor() == "Web")
 				await JSRuntime.InvokeVoidAsync("open", PageRouteNames.LedgerMaster, "_blank");
@@ -345,7 +345,7 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 
 		_selectedLedger = args.Value;
 
-		if (_selectedLedger is null || _selectedLedger.Id == 0)
+		if (_selectedLedger is null)
 			_selectedCart = new()
 			{
 				LedgerId = 0,

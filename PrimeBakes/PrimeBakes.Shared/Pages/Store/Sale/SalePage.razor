@@ -97,7 +97,7 @@ else
                                     </SfAutoComplete>
                                 </div>
 
-                                <!-- Transaction Date -->
+                            <!-- Transaction Date -->
                                 <div class="form-field">
                                     <label class="field-label">
                                         Transaction Date <span class="required">*</span> / Financial Year
@@ -108,9 +108,10 @@ else
                                                       CssClass="custom-datepicker">
                                             <DatePickerEvents TValue="DateTime" ValueChange="OnTransactionDateChanged" />
                                         </SfDatePicker>
-                                        <SfTextBox Value="@($"{_selectedFinancialYear?.StartDate:yyyy} to {_selectedFinancialYear?.EndDate:yyyy}")"
-                                                   Readonly="true" Placeholder="Financial Year" FloatLabelType="FloatLabelType.Never"
-                                                   CssClass="custom-textbox readonly-field" />
+                                        <SfTextBox
+                                        Value="@($"{_selectedFinancialYear?.StartDate:yyyy} to {_selectedFinancialYear?.EndDate:yyyy}")"
+                                        Readonly="true" Placeholder="Financial Year" FloatLabelType="FloatLabelType.Never"
+                                        CssClass="custom-textbox readonly-field" />
                                     </div>
                                 </div>
                             }
@@ -126,7 +127,8 @@ else
                                                     FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
                                                     FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
                                                     CssClass="custom-autocomplete">
-                                        <AutoCompleteEvents TItem="LedgerModel" TValue="LedgerModel" ValueChange="OnPartyChanged" />
+                                        <AutoCompleteEvents TItem="LedgerModel" TValue="LedgerModel"
+                                                            ValueChange="OnPartyChanged" />
                                         <AutoCompleteFieldSettings Value="Name" />
                                     </SfAutoComplete>
                                 </div>
@@ -159,19 +161,19 @@ else
                                         }
                                     </div>
                                 </div>
-                            }
+                                }
 
-                            <!-- Transaction No -->
-                            <div class="form-field">
-                                <label class="field-label">
-                                    Transaction No <span class="required">*</span>
-                                </label>
-                                <div class="transaction-no-wrapper">
-                                    <SfTextBox @bind-Value="_sale.TransactionNo" Placeholder="Transaction No"
-                                               FloatLabelType="FloatLabelType.Never" Readonly="true"
-                                               CssClass="custom-textbox readonly-field" />
+                                <!-- Transaction No -->
+                                <div class="form-field">
+                                    <label class="field-label">
+                                        Transaction No <span class="required">*</span>
+                                    </label>
+                                    <div class="transaction-no-wrapper">
+                                        <SfTextBox @bind-Value="_sale.TransactionNo" Placeholder="Transaction No"
+                                                   FloatLabelType="FloatLabelType.Never" Readonly="true"
+                                                   CssClass="custom-textbox readonly-field" />
+                                    </div>
                                 </div>
-                            </div>
 
                             <!-- Customer Number -->
                             <div class="form-field">
@@ -281,11 +283,11 @@ else
 
                             <div class="financial-row-dual">
                                 <SfDropDownList TValue="PaymentModeModel" TItem="PaymentModeModel"
-                                                @bind-Value="_selectedPaymentMethod" DataSource="@_paymentMethods"
-                                                Placeholder="Mode" CssClass="custom-autocomplete small-input"
-                                                FloatLabelType="FloatLabelType.Never">
-                                    <DropDownListFieldSettings Text="Name" />
-                                </SfDropDownList>
+                                                    @bind-Value="_selectedPaymentMethod" DataSource="@_paymentMethods"
+                                                    Placeholder="Mode" CssClass="custom-autocomplete small-input"
+                                                    FloatLabelType="FloatLabelType.Never">
+                                        <DropDownListFieldSettings Text="Name" />
+                                    </SfDropDownList>
                                 <div class="dual-inputs">
                                     <SfNumericTextBox @bind-Value="_paymentAmount" TValue="decimal" Min="0"
                                                       ShowSpinButton="false" Placeholder="Pay Amt"
@@ -344,7 +346,8 @@ else
                                             DataSource="@_products" Placeholder="Select Item (Ctrl + E)"
                                             FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
                                             FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
-                                <AutoCompleteEvents TItem="ProductLocationOverviewModel" TValue="ProductLocationOverviewModel" ValueChange="OnItemChanged" />
+                                <AutoCompleteEvents TItem="ProductLocationOverviewModel"
+                                                    TValue="ProductLocationOverviewModel" ValueChange="OnItemChanged" />
                                 <AutoCompleteFieldSettings Value="Name" />
                             </SfAutoComplete>
                         </div>

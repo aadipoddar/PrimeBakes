@@ -4,7 +4,7 @@
 
 <PageTitle>Dashboard - Prime Bakes</PageTitle>
 
-@if (_isLoading)
+@if (!_isUpdating && (_isLoading || _user == null))
 {
 	<AnimatedLoader Visible="true" />
 }

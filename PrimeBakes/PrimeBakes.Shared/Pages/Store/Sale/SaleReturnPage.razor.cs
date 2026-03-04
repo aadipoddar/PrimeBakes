@@ -108,7 +108,7 @@ public partial class SaleReturnPage : IAsyncDisposable
             _locations = [.. _locations.OrderBy(s => s.Name)];
             _locations.Add(new()
             {
-                Id = -1,
+                Id = 0,
                 Name = "Create New Location ..."
             });
 
@@ -128,7 +128,7 @@ public partial class SaleReturnPage : IAsyncDisposable
             _companies = [.. _companies.OrderBy(s => s.Name)];
             _companies.Add(new()
             {
-                Id = -1,
+                Id = 0,
                 Name = "Create New Company ..."
             });
 
@@ -149,7 +149,7 @@ public partial class SaleReturnPage : IAsyncDisposable
             _parties = [.. _parties.OrderBy(s => s.Name)];
             _parties.Add(new()
             {
-                Id = -1,
+                Id = 0,
                 Name = "Create New Party Ledger..."
             });
 
@@ -284,7 +284,7 @@ public partial class SaleReturnPage : IAsyncDisposable
             if (_user.LocationId == 1)
                 _products.Add(new()
                 {
-                    Id = -1,
+                    Id = 0,
                     Name = "Create New Item ..."
                 });
         }
@@ -362,6 +362,10 @@ public partial class SaleReturnPage : IAsyncDisposable
         AddPaymentFromSaleReturn("Card", _saleReturn.Card);
         AddPaymentFromSaleReturn("UPI", _saleReturn.UPI);
         AddPaymentFromSaleReturn("Credit", _saleReturn.Credit);
+
+        _selectedPaymentMethod = _user?.LocationId == 1
+            ? _paymentMethods.FirstOrDefault(pm => pm.Name == "Credit") ?? _paymentMethods.FirstOrDefault()
+            : _paymentMethods.FirstOrDefault();
         _paymentAmount = Math.Max(0, _remainingAmount);
     }
 
@@ -446,10 +450,10 @@ public partial class SaleReturnPage : IAsyncDisposable
             return;
         }
 
-        if (args.Value is null || args.Value.Id == 0)
+        if (args.Value is null)
             return;
 
-        if (args.Value.Id == -1)
+        if (args.Value.Id == 0)
         {
             if (FormFactor.GetFormFactor() == "Web")
                 await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Location, "_blank");
@@ -484,10 +488,10 @@ public partial class SaleReturnPage : IAsyncDisposable
             return;
         }
 
-        if (args.Value is null || args.Value.Id == 0)
+        if (args.Value is null)
             return;
 
-        if (args.Value.Id == -1)
+        if (args.Value.Id == 0)
         {
             if (FormFactor.GetFormFactor() == "Web")
                 await JSRuntime.InvokeVoidAsync("open", PageRouteNames.CompanyMaster, "_blank");
@@ -521,7 +525,7 @@ public partial class SaleReturnPage : IAsyncDisposable
             return;
         }
 
-        if (args.Value.Id == -1)
+        if (args.Value.Id == 0)
         {
             if (FormFactor.GetFormFactor() == "Web")
                 await JSRuntime.InvokeVoidAsync("open", PageRouteNames.LedgerMaster, "_blank");
@@ -609,7 +613,7 @@ public partial class SaleReturnPage : IAsyncDisposable
         if (args.Value is null)
             return;
 
-        if (args.Value.Id == -1)
+        if (args.Value.Id == 0)
         {
             if (FormFactor.GetFormFactor() == "Web")
                 await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Product, "_blank");
@@ -621,7 +625,7 @@ public partial class SaleReturnPage : IAsyncDisposable
 
         _selectedProduct = args.Value;
 
-        if (_selectedProduct is null || _selectedProduct.Id == 0)
+        if (_selectedProduct is null)
             _selectedCart = new()
             {
                 ItemId = 0,
@@ -643,10 +647,10 @@ public partial class SaleReturnPage : IAsyncDisposable
             _selectedCart.Quantity = 0;
             _selectedCart.Rate = _selectedProduct.Rate;
             _selectedCart.DiscountPercent = 0;
-            _selectedCart.CGSTPercent = _taxes.FirstOrDefault(s => s.Id == _selectedProduct.TaxId)?.CGST ?? 0;
-            _selectedCart.SGSTPercent = isSameState ? _taxes.FirstOrDefault(s => s.Id == _selectedProduct.TaxId)?.SGST ?? 0 : 0;
-            _selectedCart.IGSTPercent = isSameState ? 0 : _taxes.FirstOrDefault(s => s.Id == _selectedProduct.TaxId)?.IGST ?? 0;
-            _selectedCart.InclusiveTax = _taxes.FirstOrDefault(s => s.Id == _selectedProduct.TaxId)?.Inclusive ?? false;
+            _selectedCart.CGSTPercent = _taxes.FirstOrDefault(s => s.Id == _selectedProduct.TaxId).CGST;
+            _selectedCart.SGSTPercent = isSameState ? _taxes.FirstOrDefault(s => s.Id == _selectedProduct.TaxId).SGST : 0;
+            _selectedCart.IGSTPercent = isSameState ? 0 : _taxes.FirstOrDefault(s => s.Id == _selectedProduct.TaxId).IGST;
+            _selectedCart.InclusiveTax = _taxes.FirstOrDefault(s => s.Id == _selectedProduct.TaxId).Inclusive;
         }
 
         UpdateSelectedItemFinancialDetails();

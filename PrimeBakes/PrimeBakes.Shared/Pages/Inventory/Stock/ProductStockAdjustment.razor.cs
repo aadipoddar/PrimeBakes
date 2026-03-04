@@ -88,7 +88,7 @@ public partial class ProductStockAdjustment : IAsyncDisposable
             _locations = [.. _locations.OrderBy(s => s.Name)];
             _locations.Insert(0, new()
             {
-                Id = -1,
+                Id = 0,
                 Name = "Create New Location ..."
             });
 
@@ -123,7 +123,7 @@ public partial class ProductStockAdjustment : IAsyncDisposable
             _products = [.. _products.OrderBy(s => s.Name)];
             _products.Add(new()
             {
-                Id = -1,
+                Id = 0,
                 Name = "Create New Item ..."
             });
         }
@@ -167,10 +167,7 @@ public partial class ProductStockAdjustment : IAsyncDisposable
     {
         args.Value ??= _locations.FirstOrDefault(_ => _.Id == 1);
 
-        if (args.Value is null || args.Value.Id == 0)
-            return;
-
-        if (args.Value.Id == -1)
+        if (args.Value.Id == 0)
         {
             if (FormFactor.GetFormFactor() == "Web")
                 await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Location, "_blank");
@@ -189,10 +186,10 @@ public partial class ProductStockAdjustment : IAsyncDisposable
     #region Cart
     private async Task OnItemChanged(ChangeEventArgs<ProductLocationOverviewModel?, ProductLocationOverviewModel> args)
     {
-        if (args.Value is null || args.Value.Id == 0)
+        if (args.Value is null)
             return;
 
-        if (args.Value.Id == -1)
+        if (args.Value.Id == 0)
         {
             if (FormFactor.GetFormFactor() == "Web")
                 await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Product, "_blank");
@@ -204,7 +201,7 @@ public partial class ProductStockAdjustment : IAsyncDisposable
 
         _selectedProduct = args.Value;
 
-        if (_selectedProduct is null || _selectedProduct.ProductId == 0)
+        if (_selectedProduct is null)
             _selectedCart = new()
             {
                 ProductId = 0,
