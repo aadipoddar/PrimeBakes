@@ -1,6 +1,7 @@
 ﻿@attribute [Route(PageRouteNames.DiningDashboard)]
 
 @using PrimeBakesLibrary.Data.Common
+@using PrimeBakesLibrary.Models.Operations
 @using PrimeBakesLibrary.Models.Restuarant.Dining
 
 <PageTitle>Dining Dashboard - Prime Bakes</PageTitle>
@@ -22,6 +23,42 @@ else
 				OnBackClick="NavigateBack" />
 
 		<div class="page-container">
+
+			<!-- Location (if admin) -->
+			@if (_user.LocationId == 1)
+			{
+				<!-- Filters Section -->
+				<div class="section-card">
+					<div class="section-header">
+						<div class="section-title-wrapper">
+							<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+								 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+								 stroke-linejoin="round">
+								<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+							</svg>
+							<h2 class="section-title">Filters</h2>
+						</div>
+					</div>
+					<div class="section-body">
+						<div class="filters-container">
+							<div class="filters-grid">
+								<div class="form-field">
+									<label class="field-label">Location</label>
+									<SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedLocation"
+													TValue="LocationModel" TItem="LocationModel" DataSource="@_locations"
+													Placeholder="All Locations" AllowFiltering="true"
+													FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
+										<AutoCompleteEvents TItem="LocationModel" TValue="LocationModel"
+															ValueChange="OnLocationChanged" />
+										<AutoCompleteFieldSettings Value="Name" />
+									</SfAutoComplete>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			}
+
 			@if (_diningAreas.Count == 0)
 			{
 				<div class="section-card">
@@ -68,8 +105,8 @@ else
 										var hasRunningBill = runningBill is not null;
 										var cardColor = hasRunningBill ? "running" : "available";
 										var description = hasRunningBill
-											? $"Bill No: {runningBill.TransactionNo}\nItems: {runningBill.TotalItems}\nQty: {runningBill.TotalQuantity.FormatSmartDecimal()}\nAmt: {runningBill.TotalAmount.FormatIndianCurrency()}"
-											: $"Area: {area.Name} • Available";
+										? $"Bill No: {runningBill.TransactionNo}\nItems: {runningBill.TotalItems}\nQty: {runningBill.TotalQuantity.FormatSmartDecimal()}\nAmt: {runningBill.TotalAmount.FormatIndianCurrency()}"
+										: $"Area: {area.Name} • Available";
 
 										<ButtonCard Title="@table.Name"
 													Description="@description"
