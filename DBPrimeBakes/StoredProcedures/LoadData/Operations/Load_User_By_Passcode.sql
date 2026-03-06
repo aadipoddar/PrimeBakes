@@ -2,5 +2,9 @@
 	@Passcode smallint
 AS
 BEGIN
-	SELECT * FROM [User] WHERE Passcode = @Passcode
+
+	SELECT * FROM [User]
+	WHERE Passcode = @Passcode
+		AND Status = 1
+
 END

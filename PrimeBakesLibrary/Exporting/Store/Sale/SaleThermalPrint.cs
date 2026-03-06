@@ -13,37 +13,20 @@ using SkiaSharp;
 
 namespace PrimeBakesLibrary.Exporting.Store.Sale;
 
-/// <summary>
-/// Renders a store sale thermal receipt as a SkiaSharp raster bitmap and converts it
-/// to ESC/POS byte data ready for Bluetooth thermal printing.
-/// Uses <see cref="ThermalPrintUtil"/> drawing helpers for consistent visual rendering.
-/// </summary>
 public static class SaleThermalPrint
 {
-    /// <summary>
-    /// Generates ESC/POS raster bytes for a complete sale thermal receipt.
-    /// </summary>
-    /// <param name="saleId">The sale transaction ID.</param>
-    /// <returns>ESC/POS byte array including initialise, raster image, feed, and cut commands.</returns>
     public static async Task<byte[]> GenerateThermalBill(int saleId)
     {
         using var bitmap = await RenderReceipt(saleId);
         return ThermalPrintUtil.BitmapToEscPosBytes(bitmap);
     }
 
-    /// <summary>
-    /// Generates PNG image bytes for a complete sale thermal receipt.
-    /// Used as a browser-print fallback when Bluetooth is disconnected.
-    /// </summary>
-    /// <param name="saleId">The sale transaction ID.</param>
-    /// <returns>PNG-encoded byte array of the rendered receipt.</returns>
     public static async Task<byte[]> GenerateThermalBillPng(int saleId)
     {
         using var bitmap = await RenderReceipt(saleId);
         return ThermalPrintUtil.BitmapToPngBytes(bitmap);
     }
 
-    /// <summary>Renders the full sale receipt onto an <see cref="SKBitmap"/>.</summary>
     private static async Task<SKBitmap> RenderReceipt(int saleId)
     {
         var sale = await CommonData.LoadTableDataById<SaleOverviewModel>(ViewNames.SaleOverview, saleId);
@@ -141,6 +124,10 @@ public static class SaleThermalPrint
         foreach (var item in saleDetails)
         {
             string productName = products.FirstOrDefault(p => p.Id == item.ProductId)?.Name ?? "Unknown";
+            var hasExtraTax = !item.InclusiveTax && item.TotalTaxAmount > 0;
+            if (hasExtraTax)
+                productName += "*";
+
             rows.Add(
             [
                 productName,

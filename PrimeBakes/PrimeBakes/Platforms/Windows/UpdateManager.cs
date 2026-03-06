@@ -1,30 +1,21 @@
 using System.Diagnostics;
+using System.Text.Json;
 
-namespace PrimeBakes.Services.WindowsPlatform;
+namespace PrimeBakes.Services;
 
-/// <summary>
-/// Automatic Updater for Windows MAUI Applications.
-/// Check for updates on the Github repository by using CheckForUpdates().
-/// Update the App by using UpdateApp().
-/// Downloads ZIP from Github Releases, extracts and replaces existing files.
-/// </summary>
 public static class AadiSoftUpdater
 {
-    /// <summary>
-    /// Check for updates on the Github repository.
-    /// It uses the Readme File in the Github Account.
-    /// The readme File should have a text "Latest Version = 1.0.0.0" in it.
-    /// Returns true if update is Found.
-    /// </summary>
-    public static async Task<bool> CheckForUpdates(string githubRepoOwner, string githubRepoName, string currentVersion)
+    private const string LatestVersionMarker = "Latest Version = ";
+
+    public static async Task<bool> CheckForUpdates(string githubRepoOwner, string githubRepoName, string setupFileName, string currentVersion)
     {
         try
         {
-            var fileContent = await GetLatestVersionFromGithub(githubRepoOwner, githubRepoName);
-            if (!fileContent.Contains("Latest Version = ")) return false;
+            var latestVersion = await GetLatestVersionFromGithubReadme(githubRepoOwner, githubRepoName);
+            if (string.IsNullOrWhiteSpace(latestVersion) || string.Equals(latestVersion, currentVersion, StringComparison.OrdinalIgnoreCase))
+                return false;
 
-            var latestVersion = fileContent.Substring(fileContent.IndexOf("Latest Version = ", StringComparison.Ordinal) + 17, 7);
-            return latestVersion != currentVersion;
+            return await ReleaseTagHasAssets(githubRepoOwner, githubRepoName, latestVersion, setupFileName);
         }
         catch
         {
@@ -32,32 +23,63 @@ public static class AadiSoftUpdater
         }
     }
 
-    private static async Task<string> GetLatestVersionFromGithub(string githubRepoOwner, string githubRepoName)
+    private static async Task<bool> ReleaseTagHasAssets(string githubRepoOwner, string githubRepoName, string tag, string setupFileName)
     {
-        var fileUrl = $"https://raw.githubusercontent.com/{githubRepoOwner}/{githubRepoName}/refs/heads/main/README.md";
-        using HttpClient client = new();
         var cacheBuster = DateTime.UtcNow.Ticks.ToString();
-        var requestUrl = $"{fileUrl}?cb={cacheBuster}";
-        return await client.GetStringAsync(requestUrl);
+        var releaseApiUrl = $"https://api.github.com/repos/{githubRepoOwner}/{githubRepoName}/releases/tags/{tag}?cb={cacheBuster}";
+        var expectedAssetName = $"{setupFileName}.zip";
+
+        using var client = CreateHttpClient(withUserAgent: true);
+        using var response = await client.GetAsync(releaseApiUrl);
+        if (!response.IsSuccessStatusCode)
+            return false;
+
+        var content = await response.Content.ReadAsStringAsync();
+        using var document = JsonDocument.Parse(content);
+
+        if (!document.RootElement.TryGetProperty("assets", out var assets) || assets.ValueKind != JsonValueKind.Array)
+            return false;
+
+        foreach (var asset in assets.EnumerateArray())
+        {
+            if (!asset.TryGetProperty("name", out var nameElement))
+                continue;
+
+            var assetName = nameElement.GetString();
+            if (string.Equals(assetName, expectedAssetName, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        return false;
     }
 
-    /// <summary>
-    /// Update the App by downloading ZIP from Github Releases, extracting and replacing files.
-    /// </summary>
-    /// <param name="githubRepoOwner">Username of the Github Account</param>
-    /// <param name="githubRepoName">Name of the Github Repository</param>
-    /// <param name="zipFileName">ZIP file name (without extension)</param>
-    /// <param name="progress">Optional progress reporter (0-100)</param>
-    /// <param name="unused">Unused parameter for compatibility</param>
+    private static async Task<string> GetLatestVersionFromGithubReadme(string githubRepoOwner, string githubRepoName)
+    {
+        var fileUrl = $"https://raw.githubusercontent.com/{githubRepoOwner}/{githubRepoName}/refs/heads/main/README.md";
+        var cacheBuster = DateTime.UtcNow.Ticks.ToString();
+        var requestUrl = $"{fileUrl}?cb={cacheBuster}";
+        using var client = CreateHttpClient();
+        var fileContent = await client.GetStringAsync(requestUrl);
+
+        if (!fileContent.Contains(LatestVersionMarker, StringComparison.Ordinal))
+            return string.Empty;
+
+        return fileContent.Substring(fileContent.IndexOf(LatestVersionMarker, StringComparison.Ordinal) + LatestVersionMarker.Length, 7);
+    }
+
     public static async Task UpdateApp(string githubRepoOwner, string githubRepoName, string zipFileName, IProgress<int> progress = null, string unused = null)
     {
-        var url = $"https://github.com/{githubRepoOwner}/{githubRepoName}/releases/latest/download/{zipFileName}.zip";
+        var latestVersion = await GetLatestVersionFromGithubReadme(githubRepoOwner, githubRepoName);
+        if (string.IsNullOrWhiteSpace(latestVersion))
+            throw new Exception("Latest Version not found in README.");
+
+        var url = $"https://github.com/{githubRepoOwner}/{githubRepoName}/releases/download/{latestVersion}/{zipFileName}.zip";
         var zipPath = Path.Combine(Path.GetTempPath(), $"{zipFileName}.zip");
         var extractPath = Path.Combine(Path.GetTempPath(), $"{zipFileName}_update");
         var appPath = AppContext.BaseDirectory;
 
         // Download ZIP
-        using HttpClient client = new();
+        using var client = CreateHttpClient();
         using var response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
         response.EnsureSuccessStatusCode();
 
@@ -127,5 +149,20 @@ del ""%~f0""
 
         // Exit the current application to allow update
         Environment.Exit(0);
+    }
+
+    private static HttpClient CreateHttpClient(bool withUserAgent = false)
+    {
+        var client = new HttpClient();
+        client.DefaultRequestHeaders.CacheControl = new System.Net.Http.Headers.CacheControlHeaderValue
+        {
+            NoCache = true,
+            NoStore = true,
+            MustRevalidate = true
+        };
+        client.DefaultRequestHeaders.Pragma.ParseAdd("no-cache");
+        if (withUserAgent)
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("PrimeBakes-Updater");
+        return client;
     }
 }

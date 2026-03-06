@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakes.Shared.Services;
 
 using PrimeBakesLibrary.DataAccess;
 

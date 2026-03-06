@@ -702,7 +702,14 @@ else
                             <GridColumn Field="@nameof(BillOverviewModel.PaymentModes)" HeaderText="Payment Modes"
                                         Width="180" Visible="@(!_showSummary)" />
                             <GridColumn Field="@nameof(BillOverviewModel.Running)" HeaderText="Running" Width="100"
-                                        TextAlign="TextAlign.Center" Visible="@(!_showSummary)" />
+                                        TextAlign="TextAlign.Center" Visible="@(!_showSummary)">
+                                <Template>
+                                    @{
+                                        var item = (context as BillOverviewModel);
+                                        <span>@(item?.Running == true ? "Running" : "Billed")</span>
+                                    }
+                                </Template>
+                            </GridColumn>
                             <GridColumn Field="@nameof(BillOverviewModel.Remarks)" HeaderText="Remarks" Width="200"
                                         Visible="@(_showAllColumns && !_showSummary)" />
                             <GridColumn Field="@nameof(BillOverviewModel.CreatedByName)" HeaderText="Created By" Width="150"

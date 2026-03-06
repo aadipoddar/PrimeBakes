@@ -2,7 +2,6 @@ using NumericWordsConversion;
 
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Operations;
-using PrimeBakesLibrary.Data.Restaurant.Bill;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Operations;
@@ -14,36 +13,20 @@ using SkiaSharp;
 
 namespace PrimeBakesLibrary.Exporting.Restaurant.Bill;
 
-/// <summary>
-/// Renders a restaurant bill thermal receipt as a SkiaSharp raster bitmap and converts it
-/// to ESC/POS byte data ready for Bluetooth thermal printing.
-/// </summary>
 public static class BillThermalPrint
 {
-	/// <summary>
-	/// Generates ESC/POS raster bytes for a complete bill thermal receipt.
-	/// </summary>
-	/// <param name="billId">The bill transaction ID.</param>
-	/// <returns>ESC/POS byte array including initialise, raster image, feed, and cut commands.</returns>
 	public static async Task<byte[]> GenerateThermalBill(int billId)
 	{
 		using var bitmap = await RenderReceipt(billId);
 		return ThermalPrintUtil.BitmapToEscPosBytes(bitmap);
 	}
 
-	/// <summary>
-	/// Generates PNG image bytes for a complete bill thermal receipt.
-	/// Used as a browser-print fallback when Bluetooth is disconnected.
-	/// </summary>
-	/// <param name="billId">The bill transaction ID.</param>
-	/// <returns>PNG-encoded byte array of the rendered receipt.</returns>
 	public static async Task<byte[]> GenerateThermalBillPng(int billId)
 	{
 		using var bitmap = await RenderReceipt(billId);
 		return ThermalPrintUtil.BitmapToPngBytes(bitmap);
 	}
 
-	/// <summary>Renders the full bill receipt onto an <see cref="SKBitmap"/>.</summary>
 	private static async Task<SKBitmap> RenderReceipt(int billId)
 	{
 		var bill = await CommonData.LoadTableDataById<BillModel>(TableNames.Bill, billId);
@@ -124,6 +107,10 @@ public static class BillThermalPrint
 		foreach (var item in billDetails)
 		{
 			string productName = products.FirstOrDefault(p => p.Id == item.ProductId)?.Name ?? "Unknown";
+			var hasExtraTax = !item.InclusiveTax && item.TotalTaxAmount > 0;
+			if (hasExtraTax)
+				productName += "*";
+
 			rows.Add(
 			[
 				productName,

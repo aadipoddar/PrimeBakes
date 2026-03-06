@@ -5,5 +5,6 @@ BEGIN
 	SELECT *
 	FROM [dbo].[Bill]
 	WHERE [Running] = 1
-	AND [LocationId] = @LocationId
+		AND [LocationId] = @LocationId
+		AND [Status] = 1
 END
