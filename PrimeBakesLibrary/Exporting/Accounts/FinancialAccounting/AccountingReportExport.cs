@@ -187,7 +187,8 @@ public static class FinancialAccountingReportExport
                 nameof(FinancialAccountingLedgerOverviewModel.TransactionDateTime),
                 nameof(FinancialAccountingLedgerOverviewModel.ReferenceNo),
                 nameof(FinancialAccountingLedgerOverviewModel.Debit),
-                nameof(FinancialAccountingLedgerOverviewModel.Credit)
+                nameof(FinancialAccountingLedgerOverviewModel.Credit),
+                nameof(FinancialAccountingLedgerOverviewModel.Remarks)
             ];
 
             if (ledger is not null)
