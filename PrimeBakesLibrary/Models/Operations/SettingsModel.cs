@@ -48,6 +48,8 @@ public static class SettingsKeys
 	public static string CashLedgerId => "CashLedgerId";
 	public static string CashSalesLedgerId => "CashSalesLedgerId";
 	public static string GSTLedgerId => "GSTLedgerId";
+	
+	public static string DefaultSelectedVoucherId => "DefaultSelectedVoucherId";
 
 	public static string AutoRefreshReportTimer => "AutoRefreshReportTimer";
 }

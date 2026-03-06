@@ -126,7 +126,8 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 				Name = "Create New Voucher ..."
 			});
 
-			_selectedVoucher = _vouchers.FirstOrDefault();
+			var defaultSelectedVoucherId = await SettingsData.LoadSettingsByKey(SettingsKeys.DefaultSelectedVoucherId);
+			_selectedVoucher = _vouchers.FirstOrDefault(v => v.Id.ToString() == defaultSelectedVoucherId.Value) ?? _vouchers.FirstOrDefault();
 		}
 		catch (Exception ex)
 		{

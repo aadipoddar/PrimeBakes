@@ -118,6 +118,15 @@ else
                 </div>
                 <div class="section-body">
                     <div class="form-grid">
+                        <!-- Accounting Transaction Prefix -->
+                        <div class="form-field">
+                            <label class="field-label">
+                                Accounting Transaction Prefix
+                            </label>
+                            <SfTextBox @bind-Value="_accountingTransactionPrefix" Placeholder="e.g., ACC"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
+
                         <!-- Purchase Transaction Prefix -->
                         <div class="form-field">
                             <label class="field-label">
@@ -217,14 +226,6 @@ else
                                        FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
                         </div>
 
-                        <!-- Accounting Transaction Prefix -->
-                        <div class="form-field">
-                            <label class="field-label">
-                                Accounting Transaction Prefix
-                            </label>
-                            <SfTextBox @bind-Value="_accountingTransactionPrefix" Placeholder="e.g., ACC"
-                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                        </div>
                     </div>
                 </div>
             </div>
@@ -246,6 +247,36 @@ else
                 </div>
                 <div class="section-body">
                     <div class="form-grid">
+                        <!-- Purchase Voucher -->
+                        <div class="form-field">
+                            <label class="field-label">
+                                Purchase Voucher
+                            </label>
+                            <SfAutoComplete @bind-Value="_selectedPurchaseVoucherName" TValue="string" TItem="VoucherModel"
+                                            DataSource="@_vouchers" Placeholder="Select purchase voucher"
+                                            FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
+                                            FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
+                                <AutoCompleteFieldSettings Value="Name" />
+                                <AutoCompleteEvents TValue="string" TItem="VoucherModel"
+                                                    ValueChange="OnPurchaseVoucherChange" />
+                            </SfAutoComplete>
+                        </div>
+
+                        <!-- Purchase Return Voucher -->
+                        <div class="form-field">
+                            <label class="field-label">
+                                Purchase Return Voucher
+                            </label>
+                            <SfAutoComplete @bind-Value="_selectedPurchaseReturnVoucherName" TValue="string"
+                                            TItem="VoucherModel" DataSource="@_vouchers" Placeholder="Select purchase return voucher"
+                                            FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
+                                            FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
+                                <AutoCompleteFieldSettings Value="Name" />
+                                <AutoCompleteEvents TValue="string" TItem="VoucherModel"
+                                                    ValueChange="OnPurchaseReturnVoucherChange" />
+                            </SfAutoComplete>
+                        </div>
+
                         <!-- Sale Voucher -->
                         <div class="form-field">
                             <label class="field-label">
@@ -276,21 +307,6 @@ else
                             </SfAutoComplete>
                         </div>
 
-                        <!-- Bill Voucher -->
-                        <div class="form-field">
-                            <label class="field-label">
-                                Bill Voucher
-                            </label>
-                            <SfAutoComplete @bind-Value="_selectedBillVoucherName" TValue="string" TItem="VoucherModel"
-                                            DataSource="@_vouchers" Placeholder="Select bill voucher"
-                                            FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
-                                            FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
-                                <AutoCompleteFieldSettings Value="Name" />
-                                <AutoCompleteEvents TValue="string" TItem="VoucherModel"
-                                                    ValueChange="OnBillVoucherChange" />
-                            </SfAutoComplete>
-                        </div>
-
                         <!-- Stock Transfer Voucher -->
                         <div class="form-field">
                             <label class="field-label">
@@ -306,33 +322,18 @@ else
                             </SfAutoComplete>
                         </div>
 
-                        <!-- Purchase Voucher -->
+                        <!-- Bill Voucher -->
                         <div class="form-field">
                             <label class="field-label">
-                                Purchase Voucher
+                                Bill Voucher
                             </label>
-                            <SfAutoComplete @bind-Value="_selectedPurchaseVoucherName" TValue="string" TItem="VoucherModel"
-                                            DataSource="@_vouchers" Placeholder="Select purchase voucher"
+                            <SfAutoComplete @bind-Value="_selectedBillVoucherName" TValue="string" TItem="VoucherModel"
+                                            DataSource="@_vouchers" Placeholder="Select bill voucher"
                                             FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
                                             FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
                                 <AutoCompleteFieldSettings Value="Name" />
                                 <AutoCompleteEvents TValue="string" TItem="VoucherModel"
-                                                    ValueChange="OnPurchaseVoucherChange" />
-                            </SfAutoComplete>
-                        </div>
-
-                        <!-- Purchase Return Voucher -->
-                        <div class="form-field">
-                            <label class="field-label">
-                                Purchase Return Voucher
-                            </label>
-                            <SfAutoComplete @bind-Value="_selectedPurchaseReturnVoucherName" TValue="string"
-                                            TItem="VoucherModel" DataSource="@_vouchers" Placeholder="Select purchase return voucher"
-                                            FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
-                                            FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
-                                <AutoCompleteFieldSettings Value="Name" />
-                                <AutoCompleteEvents TValue="string" TItem="VoucherModel"
-                                                    ValueChange="OnPurchaseReturnVoucherChange" />
+                                                    ValueChange="OnBillVoucherChange" />
                             </SfAutoComplete>
                         </div>
                     </div>
@@ -357,6 +358,21 @@ else
                 </div>
                 <div class="section-body">
                     <div class="form-grid">
+                        <!-- Purchase Ledger -->
+                        <div class="form-field">
+                            <label class="field-label">
+                                Purchase Ledger
+                            </label>
+                            <SfAutoComplete @bind-Value="_selectedPurchaseLedgerName" TValue="string" TItem="LedgerModel"
+                                            DataSource="@_ledgers" Placeholder="Select purchase ledger"
+                                            FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
+                                            FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
+                                <AutoCompleteFieldSettings Value="Name" />
+                                <AutoCompleteEvents TValue="string" TItem="LedgerModel"
+                                                    ValueChange="OnPurchaseLedgerChange" />
+                            </SfAutoComplete>
+                        </div>
+
                         <!-- Sale Ledger -->
                         <div class="form-field">
                             <label class="field-label">
@@ -397,21 +413,6 @@ else
                                             FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
                                 <AutoCompleteFieldSettings Value="Name" />
                                 <AutoCompleteEvents TValue="string" TItem="LedgerModel" ValueChange="OnBillLedgerChange" />
-                            </SfAutoComplete>
-                        </div>
-
-                        <!-- Purchase Ledger -->
-                        <div class="form-field">
-                            <label class="field-label">
-                                Purchase Ledger
-                            </label>
-                            <SfAutoComplete @bind-Value="_selectedPurchaseLedgerName" TValue="string" TItem="LedgerModel"
-                                            DataSource="@_ledgers" Placeholder="Select purchase ledger"
-                                            FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
-                                            FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
-                                <AutoCompleteFieldSettings Value="Name" />
-                                <AutoCompleteEvents TValue="string" TItem="LedgerModel"
-                                                    ValueChange="OnPurchaseLedgerChange" />
                             </SfAutoComplete>
                         </div>
 
@@ -461,6 +462,40 @@ else
                 </div>
             </div>
 
+            <!-- Default Values Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="16" rx="2" />
+                            <line x1="8" y1="9" x2="16" y2="9" />
+                            <line x1="8" y1="13" x2="13" y2="13" />
+                            <line x1="8" y1="17" x2="11" y2="17" />
+                        </svg>
+                        <h2 class="section-title">Default Values</h2>
+                    </div>
+                </div>
+                <div class="section-body">
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label class="field-label">
+                                Default Selected Voucher for Accounting Transactions
+                            </label>
+                            <SfAutoComplete @bind-Value="_selectedDefaultVoucherName" TValue="string" TItem="VoucherModel"
+                                            DataSource="@_vouchers" Placeholder="Select default accounting voucher"
+                                            FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
+                                            FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
+                                <AutoCompleteFieldSettings Value="Name" />
+                                <AutoCompleteEvents TValue="string" TItem="VoucherModel"
+                                                    ValueChange="OnDefaultSelectedVoucherChange" />
+                            </SfAutoComplete>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Purchase Behavior Section -->
             <div class="section-card">
                 <div class="section-header">
@@ -490,42 +525,40 @@ else
                         <div class="form-field">
                             <label class="field-label">Automatically update raw material unit of measure when
                                 purchasing</label>
-                                <div class="checkbox-wrapper">
-                                    <SfCheckBox @bind-Checked="_updateItemMasterUOMOnPurchase"
-                                                Label="Update Raw Material UOM on Purchase" CssClass="custom-checkbox" />
-                                </div>
+                            <div class="checkbox-wrapper">
+                                <SfCheckBox @bind-Checked="_updateItemMasterUOMOnPurchase"
+                                            Label="Update Raw Material UOM on Purchase" CssClass="custom-checkbox" />
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Report Settings Section -->
-                <div class="section-card">
-                    <div class="section-header">
-                        <div class="section-title-wrapper">
-                            <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                 stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10" />
-                                <polyline points="12 6 12 12 16 14" />
-                            </svg>
-                            <h2 class="section-title">Report Settings</h2>
-                        </div>
+            <!-- Report Settings Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        <h2 class="section-title">Report Settings</h2>
                     </div>
-                    <div class="section-body">
-                        <div class="form-grid">
-                            <!-- Auto Refresh Report Timer -->
-                            <div class="form-field">
-                                <label class="field-label">
-                                    Auto Refresh Timer (Interval in minutes for automatic report data refresh)
-                                </label>
-                                <SfNumericTextBox @bind-Value="_autoRefreshReportTimer" TValue="int" Min="1" Max="60"
-                                                  Placeholder="e.g., 5" FloatLabelType="FloatLabelType.Never" CssClass="custom-numeric" />
-                            </div>
+                </div>
+                <div class="section-body">
+                    <div class="form-grid">
+                        <!-- Auto Refresh Report Timer -->
+                        <div class="form-field">
+                            <label class="field-label">
+                                Auto Refresh Timer (Interval in minutes for automatic report data refresh)
+                            </label>
+                            <SfNumericTextBox @bind-Value="_autoRefreshReportTimer" TValue="int" Min="1" Max="60"
+                                              Placeholder="e.g., 5" FloatLabelType="FloatLabelType.Never" CssClass="custom-numeric" />
                         </div>
                     </div>
                 </div>
-
             </div>
 
             <ResetConfirmationDialog @ref="_resetConfirmationDialog"
@@ -536,6 +569,7 @@ else
 
             <Footer />
         </div>
+    </div>
     }
 
     <ToastNotification @ref="_toastNotification" />
