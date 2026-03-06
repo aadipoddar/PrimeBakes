@@ -3,6 +3,7 @@
 	@Name VARCHAR(500),
 	@Code VARCHAR(10),
 	@ProductCategoryId INT,
+	@KOTCategoryId INT,
 	@Rate MONEY,
 	@TaxId INT,
 	@Remarks VARCHAR(MAX),
@@ -11,8 +12,8 @@ AS
 BEGIN
 	IF @Id = 0
 	BEGIN
-		INSERT INTO [dbo].[Product] ([ProductCategoryId], [Code], [Name], [TaxId], [Rate], [Status], [Remarks])
-		VALUES (@ProductCategoryId, @Code, @Name, @TaxId, @Rate, @Status, @Remarks);
+		INSERT INTO [dbo].[Product] ([ProductCategoryId], [KOTCategoryId], [Code], [Name], [TaxId], [Rate], [Status], [Remarks])
+		VALUES (@ProductCategoryId, @KOTCategoryId, @Code, @Name, @TaxId, @Rate, @Status, @Remarks);
 		SET @Id = SCOPE_IDENTITY();
 	END
 
@@ -20,6 +21,7 @@ BEGIN
 	BEGIN
 		UPDATE [dbo].[Product]
 		SET [ProductCategoryId] = @ProductCategoryId, 
+			[KOTCategoryId] = @KOTCategoryId,
 			[Code] = @Code, 
 			[Name] = @Name, 
 			[TaxId] = @TaxId, 

@@ -41,6 +41,7 @@ public static class TableNames
 	public static string Customer => "Customer";
 
 	public static string ProductCategory => "ProductCategory";
+	public static string KOTCategory => "KOTCategory";
 	public static string Product => "Product";
 	public static string ProductLocation => "ProductLocation";
 	public static string Tax => "Tax";
@@ -134,6 +135,7 @@ public static class StoredProcedureNames
 	public static string InsertCustomer => "Insert_Customer";
 
 	public static string InsertProductCategory => "Insert_ProductCategory";
+	public static string InsertKOTCategory => "Insert_KOTCategory";
 	public static string InsertProduct => "Insert_Product";
 	public static string InsertProductLocation => "Insert_ProductLocation";
 	public static string InsertTax => "Insert_Tax";

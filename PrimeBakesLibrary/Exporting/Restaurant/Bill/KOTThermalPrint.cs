@@ -10,41 +10,22 @@ using SkiaSharp;
 
 namespace PrimeBakesLibrary.Exporting.Restaurant.Bill;
 
-/// <summary>
-/// Renders a KOT (Kitchen Order Ticket) as a SkiaSharp raster bitmap and converts it
-/// to ESC/POS byte data ready for Bluetooth thermal printing.
-/// </summary>
 public static class KOTThermalPrint
 {
-	/// <summary>
-	/// Generates ESC/POS raster bytes for a KOT thermal receipt.
-	/// </summary>
-	/// <param name="billId">The bill ID whose pending KOT items should be printed.</param>
-	/// <returns>ESC/POS byte array, or empty array if there are no pending KOT items.</returns>
-	public static async Task<byte[]> GenerateThermalBill(int billId)
+	public static async Task<byte[]> GenerateThermalBill(int billId, int kotCategoryId, List<BillItemCartModel> kotItems)
 	{
-		using var bitmap = await RenderReceipt(billId);
+		using var bitmap = await RenderReceipt(billId, kotCategoryId, kotItems);
 		return ThermalPrintUtil.BitmapToEscPosBytes(bitmap);
 	}
-
-	/// <summary>
-	/// Generates PNG image bytes for a KOT thermal receipt.
-	/// Used as a browser-print fallback when Bluetooth is disconnected.
-	/// </summary>
-	/// <param name="billId">The bill ID whose pending KOT items should be printed.</param>
-	/// <returns>PNG-encoded byte array of the rendered receipt, or empty array if no pending KOT items.</returns>
-	public static async Task<byte[]> GenerateThermalBillPng(int billId)
+	public static async Task<byte[]> GenerateThermalBillPng(int billId, int kotCategoryId, List<BillItemCartModel> kotItems)
 	{
-		using var bitmap = await RenderReceipt(billId);
+		using var bitmap = await RenderReceipt(billId, kotCategoryId, kotItems);
 		return ThermalPrintUtil.BitmapToPngBytes(bitmap);
 	}
 
-	/// <summary>Renders the KOT receipt onto an <see cref="SKBitmap"/>, or returns null if there are no pending KOT items.</summary>
-	private static async Task<SKBitmap?> RenderReceipt(int billId)
+	private static async Task<SKBitmap?> RenderReceipt(int billId, int kotCategoryId, List<BillItemCartModel> kotItems)
 	{
 		var bill = await CommonData.LoadTableDataById<BillModel>(TableNames.Bill, billId);
-		var billDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(TableNames.BillDetail, bill.Id);
-		var kotItems = billDetails.Where(d => d.KOTPrint).ToList();
 
 		if (kotItems.Count == 0)
 			return null;
@@ -58,7 +39,7 @@ public static class KOTThermalPrint
 		float y = ThermalPrintUtil.Margin;
 
 		y = DrawHeader(canvas, width, y);
-		y = await DrawBillDetails(canvas, bill, width, y);
+		y = await DrawBillDetails(canvas, bill, kotCategoryId, width, y);
 		y = await DrawItems(canvas, kotItems, width, y);
 		y = await DrawFooter(canvas, bill, width, y);
 
@@ -76,17 +57,19 @@ public static class KOTThermalPrint
 		return y;
 	}
 
-	private static async Task<float> DrawBillDetails(SKCanvas canvas, BillModel bill, int width, float y)
+	private static async Task<float> DrawBillDetails(SKCanvas canvas, BillModel bill, int kotCategoryId, int width, float y)
 	{
 		var location = await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, bill.LocationId);
 		var table = await CommonData.LoadTableDataById<DiningTableModel>(TableNames.DiningTable, bill.DiningTableId);
+		var kotCategory = await CommonData.LoadTableDataById<KOTCategoryModel>(TableNames.KOTCategory, kotCategoryId);
 
 		var pairs = new List<(string Label, string Value)>
 		{
 			("Outlet",   location?.Name ?? "N/A"),
 			("Bill No",  bill.TransactionNo),
 			("Date",     bill.TransactionDateTime.ToString("dd/MMM/yy hh:mm tt")),
-			("Table No", table?.Name ?? "N/A")
+			("Table No", table?.Name ?? "N/A"),
+			("KOT Category", kotCategory?.Name ?? "N/A")
 		};
 
 		y = ThermalPrintUtil.DrawLabelValueBlock(canvas, pairs, width, y);
@@ -94,7 +77,7 @@ public static class KOTThermalPrint
 		return y;
 	}
 
-	private static async Task<float> DrawItems(SKCanvas canvas, List<BillDetailModel> kotItems, int width, float y)
+	private static async Task<float> DrawItems(SKCanvas canvas, List<BillItemCartModel> kotItems, int width, float y)
 	{
 		var products = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
 
@@ -120,7 +103,7 @@ public static class KOTThermalPrint
 		var rows = new List<string[]>();
 		foreach (var item in kotItems)
 		{
-			string productName = products.FirstOrDefault(p => p.Id == item.ProductId)?.Name ?? "Unknown";
+			string productName = products.FirstOrDefault(p => p.Id == item.ItemId)?.Name ?? "Unknown";
 			rows.Add(hasNotes
 				? [productName, item.Quantity.FormatSmartDecimal(), item.Remarks ?? string.Empty]
 				: [productName, item.Quantity.FormatSmartDecimal()]);

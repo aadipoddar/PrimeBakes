@@ -270,9 +270,13 @@
     <Build Include="Views\Restaurant\Bill_Overview.sql" />
     <Build Include="StoredProcedures\Insert\Restaurant\Dining\Insert_DiningArea.sql" />
     <Build Include="StoredProcedures\Insert\Restaurant\Dining\Insert_DiningTable.sql" />
+    <Build Include="Tables\Store\Product\KOTCategory.sql" />
+    <Build Include="StoredProcedures\Insert\Store\Product\Insert_KOTCategory.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="PublishLocation\LocalDBPrimeBakes.publish.xml" />
     <None Include="PublishLocation\AzurePrimeBakesTesting.publish.xml" />
+    <None Include="DBPrimeBakes.publish.xml" />
+    <None Include="PublishLocation\AzurePrimeBakes.publish.xml" />
   </ItemGroup>
 </Project>

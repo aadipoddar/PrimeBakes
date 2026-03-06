@@ -1,0 +1,7 @@
+﻿CREATE TABLE [dbo].[KOTCategory]
+(
+	[Id] INT NOT NULL PRIMARY KEY IDENTITY, 
+    [Name] VARCHAR(500) NOT NULL UNIQUE, 
+    [Remarks] VARCHAR(MAX) NULL,
+    [Status] BIT NOT NULL DEFAULT 1, 
+)

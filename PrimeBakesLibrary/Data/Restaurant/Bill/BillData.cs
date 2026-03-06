@@ -10,6 +10,8 @@ using PrimeBakesLibrary.Models.Inventory;
 using PrimeBakesLibrary.Models.Inventory.Stock;
 using PrimeBakesLibrary.Models.Operations;
 using PrimeBakesLibrary.Models.Restuarant.Bill;
+using PrimeBakesLibrary.Models.Store.Product;
+using Syncfusion.XlsIO;
 
 namespace PrimeBakesLibrary.Data.Restaurant.Bill;
 
@@ -26,6 +28,44 @@ public static class BillData
 
 	public static async Task<List<BillModel>> LoadRunningBillByLocationId(int LocationId, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		await SqlDataAccess.LoadData<BillModel, dynamic>(StoredProcedureNames.LoadRunningBillByLocationId, new { LocationId }, sqlDataAccessTransaction);
+
+	public static async Task<Dictionary<int, List<BillItemCartModel>>> KOTCategoryItemsFromBill(int billId)
+	{
+		var billDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(TableNames.BillDetail, billId);
+		var kotItems = billDetails.Where(item => item.KOTPrint).ToList();
+
+		if (kotItems.Count == 0)
+			return [];
+
+		var allProducts = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
+		var kotProducts = allProducts.Where(p => kotItems.Any(ki => ki.ProductId == p.Id)).ToList();
+		var kotCategoryIds = kotProducts.Select(p => p.KOTCategoryId).Distinct().ToList();
+
+		var result = new Dictionary<int, List<BillItemCartModel>>();
+
+		foreach (var kotCategoryId in kotCategoryIds)
+		{
+			var categoryProducts = kotProducts.Where(p => p.KOTCategoryId == kotCategoryId).ToList();
+			result[kotCategoryId] = [];
+
+			foreach (var product in categoryProducts)
+			{
+				var items = kotItems.Where(ki => ki.ProductId == product.Id).ToList();
+				foreach (var item in items)
+					result[kotCategoryId].Add(new BillItemCartModel
+					{
+						ItemCategoryId = product.KOTCategoryId,
+						ItemId = product.Id,
+						ItemName = product.Name,
+						Quantity = item.Quantity,
+						Remarks = item.Remarks,
+						KOTPrint = item.KOTPrint
+					});
+			}
+		}
+
+		return result;
+	}
 
 	public static async Task MarkKOTAsPrinted(int billId)
 	{

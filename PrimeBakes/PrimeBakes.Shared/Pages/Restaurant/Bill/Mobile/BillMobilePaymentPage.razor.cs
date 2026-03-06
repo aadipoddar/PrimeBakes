@@ -439,12 +439,19 @@ public partial class BillMobilePaymentPage
 
 	private async Task HandleKOTPrint()
 	{
-		if (!_finalCart.Any(item => item.KOTPrint))
+		var kotCategoryItems = await BillData.KOTCategoryItemsFromBill(_bill.Id);
+		if (kotCategoryItems.Count == 0)
+		{
+			ShowError("KOT Print", "No items found for KOT printing.");
 			return;
+		}
 
-		await ThermalPrintDispatcher.PrintAsync(
-			() => KOTThermalPrint.GenerateThermalBill(_bill.Id),
-			() => KOTThermalPrint.GenerateThermalBillPng(_bill.Id));
+		foreach (var kotCategoryId in kotCategoryItems.Keys)
+			await ThermalPrintDispatcher.PrintAsync(
+				async () => await KOTThermalPrint.GenerateThermalBill(_bill.Id, kotCategoryId, kotCategoryItems[kotCategoryId]),
+				async () => await KOTThermalPrint.GenerateThermalBillPng(_bill.Id, kotCategoryId, kotCategoryItems[kotCategoryId]));
+
+		await BillData.MarkKOTAsPrinted(_bill.Id);
 	}
 
 	private async Task SaveTransaction(bool thermal = false, bool kotOnly = false)
@@ -469,6 +476,7 @@ public partial class BillMobilePaymentPage
 			HandleBillSettlement();
 
 			_bill.Id = await BillData.SaveTransaction(_bill, billDetails: _finalCart);
+			await DataStorageService.LocalRemove(StorageFileNames.BillMobileCartDataFileName);
 
 			if (kotOnly)
 			{
@@ -477,7 +485,6 @@ public partial class BillMobilePaymentPage
 				return;
 			}
 
-			await DataStorageService.LocalRemove(StorageFileNames.BillMobileCartDataFileName);
 			await SendLocalNotification(_bill.Id);
 
 			if (thermal)

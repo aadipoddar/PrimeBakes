@@ -17,7 +17,8 @@ public static class ProductExport
             var name = props.FirstOrDefault(p => p.Name == "Name")?.GetValue(product)?.ToString();
             var code = props.FirstOrDefault(p => p.Name == "Code")?.GetValue(product)?.ToString();
             var category = props.FirstOrDefault(p => p.Name == "Category")?.GetValue(product)?.ToString();
-            var rate = props.FirstOrDefault(p => p.Name == "Rate")?.GetValue(product);
+            var kotCategory = props.FirstOrDefault(p => p.Name == "KOTCategory")?.GetValue(product)?.ToString();
+			var rate = props.FirstOrDefault(p => p.Name == "Rate")?.GetValue(product);
             var tax = props.FirstOrDefault(p => p.Name == "Tax")?.GetValue(product)?.ToString();
             var remarks = props.FirstOrDefault(p => p.Name == "Remarks")?.GetValue(product)?.ToString();
             var status = props.FirstOrDefault(p => p.Name == "Status")?.GetValue(product);
@@ -28,6 +29,7 @@ public static class ProductExport
                 Name = name,
                 Code = code,
                 Category = category,
+                KotCategory = kotCategory,
                 Rate = rate is decimal rateVal ? rateVal : 0m,
                 Tax = tax,
                 Remarks = remarks,
@@ -41,6 +43,7 @@ public static class ProductExport
             [nameof(ProductModel.Name)] = new() { DisplayName = "Product Name", Alignment = CellAlignment.Left, IsRequired = true },
             [nameof(ProductModel.Code)] = new() { DisplayName = "Product Code", Alignment = CellAlignment.Left, IsRequired = true },
             ["Category"] = new() { DisplayName = "Category", Alignment = CellAlignment.Left },
+            ["KOTCategory"] = new() { DisplayName = "KOT Category", Alignment = CellAlignment.Left },
             [nameof(ProductModel.Rate)] = new() { DisplayName = "Rate", Alignment = CellAlignment.Right, Format = "0.00" },
             ["Tax"] = new() { DisplayName = "Tax Code", Alignment = CellAlignment.Center },
             [nameof(ProductModel.Remarks)] = new() { DisplayName = "Remarks", Alignment = CellAlignment.Left },
@@ -53,7 +56,8 @@ public static class ProductExport
             nameof(ProductModel.Name),
             nameof(ProductModel.Code),
             "Category",
-            nameof(ProductModel.Rate),
+            "KOTCategory",
+			nameof(ProductModel.Rate),
             "Tax",
             nameof(ProductModel.Remarks),
             nameof(ProductModel.Status)

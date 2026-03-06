@@ -1210,10 +1210,19 @@ public partial class BillPage : IAsyncDisposable
 	#region KOT
 	private async Task HandleKOTPrint()
 	{
-		if (_cart.Any(item => item.KOTPrint))
+		var kotCategoryItems = await BillData.KOTCategoryItemsFromBill(_bill.Id);
+		if (kotCategoryItems.Count == 0)
+		{
+			await _toastNotification.ShowAsync("No KOT Items", "There are no items marked for KOT printing.", ToastType.Info);
+			return;
+		}
+
+		foreach (var kotCategoryId in kotCategoryItems.Keys)
 			await ThermalPrintDispatcher.PrintAsync(
-				() => KOTThermalPrint.GenerateThermalBill(_bill.Id),
-				() => KOTThermalPrint.GenerateThermalBillPng(_bill.Id));
+				async () => await KOTThermalPrint.GenerateThermalBill(_bill.Id, kotCategoryId, kotCategoryItems[kotCategoryId]),
+				async () => await KOTThermalPrint.GenerateThermalBillPng(_bill.Id, kotCategoryId, kotCategoryItems[kotCategoryId]));
+		
+		await BillData.MarkKOTAsPrinted(_bill.Id);
 	}
 
 	private async Task PrintKOT()
@@ -1277,7 +1286,7 @@ public partial class BillPage : IAsyncDisposable
 			await ThermalPrintDispatcher.PrintAsync(
 				() => BillThermalPrint.GenerateThermalBill(_bill.Id),
 				() => BillThermalPrint.GenerateThermalBillPng(_bill.Id));
-			
+
 			await _toastNotification.ShowAsync("Invoice Downloaded", "The thermal invoice has been generated successfully.", ToastType.Success);
 
 			if (!_bill.Running)

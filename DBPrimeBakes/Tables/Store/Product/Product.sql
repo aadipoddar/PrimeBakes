@@ -4,10 +4,12 @@
     [Name] VARCHAR(500) NOT NULL, 
     [Code] VARCHAR(10) NOT NULL UNIQUE, 
     [ProductCategoryId] INT NOT NULL, 
+    [KOTCategoryId] INT NOT NULL, 
     [Rate] MONEY NOT NULL, 
     [TaxId] INT NOT NULL, 
     [Remarks] VARCHAR(MAX) NULL,
     [Status] BIT NOT NULL DEFAULT 1, 
     CONSTRAINT [FK_Item_ToItemCategory] FOREIGN KEY ([ProductCategoryId]) REFERENCES [ProductCategory](Id), 
+    CONSTRAINT [FK_Product_ToKOTCategory] FOREIGN KEY ([KOTCategoryId]) REFERENCES [KOTCategory](Id), 
     CONSTRAINT [FK_Item_ToTax] FOREIGN KEY (TaxId) REFERENCES [Tax](Id), 
 )

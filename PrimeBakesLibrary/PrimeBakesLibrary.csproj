@@ -9,12 +9,12 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Blobs" Version="12.27.0" />
-    <PackageReference Include="Dapper" Version="2.1.66" />
-    <PackageReference Include="MailKit" Version="4.15.0" />
+    <PackageReference Include="Dapper" Version="2.1.72" />
+    <PackageReference Include="MailKit" Version="4.15.1" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.4" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.3" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.3" />
-    <PackageReference Include="MimeKit" Version="4.15.0" />
+    <PackageReference Include="MimeKit" Version="4.15.1" />
     <PackageReference Include="NumericWordsConversion" Version="2.1.1" />
     <PackageReference Include="SkiaSharp" Version="3.119.2" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.2" />

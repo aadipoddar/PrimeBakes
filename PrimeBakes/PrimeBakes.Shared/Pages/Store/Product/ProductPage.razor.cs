@@ -24,9 +24,11 @@ public partial class ProductPage : IAsyncDisposable
 
     private List<ProductModel> _products = [];
     private List<ProductCategoryModel> _categories = [];
+    private List<KOTCategoryModel> _kotCategories = [];
     private List<TaxModel> _taxes = [];
 
     private string _selectedCategoryName = string.Empty;
+    private string _selectedKOTCategoryName = string.Empty;
     private string _selectedTaxCode = string.Empty;
 
     private SfGrid<ProductModel> _sfGrid;
@@ -68,7 +70,8 @@ public partial class ProductPage : IAsyncDisposable
 
         _products = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
         _categories = await CommonData.LoadTableData<ProductCategoryModel>(TableNames.ProductCategory);
-        _taxes = await CommonData.LoadTableData<TaxModel>(TableNames.Tax);
+        _kotCategories = await CommonData.LoadTableData<KOTCategoryModel>(TableNames.KOTCategory);
+		_taxes = await CommonData.LoadTableData<TaxModel>(TableNames.Tax);
 
         if (!_showDeleted)
             _products = [.. _products.Where(p => p.Status)];
@@ -90,6 +93,20 @@ public partial class ProductPage : IAsyncDisposable
         {
             _product.ProductCategoryId = 0;
             _selectedCategoryName = string.Empty;
+        }
+    }
+
+    private void OnKOTCategoryChange(ChangeEventArgs<string, KOTCategoryModel> args)
+    {
+        if (args.ItemData != null)
+        {
+            _product.KOTCategoryId = args.ItemData.Id;
+            _selectedKOTCategoryName = args.ItemData.Name;
+        }
+        else
+        {
+            _product.KOTCategoryId = 0;
+            _selectedKOTCategoryName = string.Empty;
         }
     }
 
@@ -117,6 +134,7 @@ public partial class ProductPage : IAsyncDisposable
             Name = product.Name,
             Code = product.Code,
             ProductCategoryId = product.ProductCategoryId,
+            KOTCategoryId = product.KOTCategoryId,
             Rate = product.Rate,
             TaxId = product.TaxId,
             Remarks = product.Remarks,
@@ -127,7 +145,10 @@ public partial class ProductPage : IAsyncDisposable
         var category = _categories.FirstOrDefault(c => c.Id == product.ProductCategoryId);
         _selectedCategoryName = category?.Name ?? string.Empty;
 
-        var tax = _taxes.FirstOrDefault(t => t.Id == product.TaxId);
+        var kotCategory = _kotCategories.FirstOrDefault(k => k.Id == product.KOTCategoryId);
+        _selectedKOTCategoryName = kotCategory?.Name ?? string.Empty;
+
+		var tax = _taxes.FirstOrDefault(t => t.Id == product.TaxId);
         _selectedTaxCode = tax?.Code ?? string.Empty;
 
         StateHasChanged();
@@ -256,6 +277,12 @@ public partial class ProductPage : IAsyncDisposable
             return false;
         }
 
+        if (_product.KOTCategoryId <= 0)
+        {
+            await _toastNotification.ShowAsync("Validation", "Please select a KOT category.", ToastType.Warning);
+            return false;
+        }
+
         if (_product.Rate < 0)
         {
             await _toastNotification.ShowAsync("Validation", "Rate must be 0 or greater.", ToastType.Warning);
@@ -346,7 +373,8 @@ public partial class ProductPage : IAsyncDisposable
                 p.Name,
                 p.Code,
                 Category = _categories.FirstOrDefault(c => c.Id == p.ProductCategoryId)?.Name ?? "N/A",
-                p.Rate,
+                KOTCategory = _kotCategories.FirstOrDefault(k => k.Id == p.KOTCategoryId)?.Name ?? "N/A",
+				p.Rate,
                 Tax = _taxes.FirstOrDefault(t => t.Id == p.TaxId)?.Code ?? "N/A",
                 p.Remarks,
                 p.Status
@@ -386,7 +414,8 @@ public partial class ProductPage : IAsyncDisposable
                 p.Name,
                 p.Code,
                 Category = _categories.FirstOrDefault(c => c.Id == p.ProductCategoryId)?.Name ?? "N/A",
-                p.Rate,
+				KOTCategory = _kotCategories.FirstOrDefault(k => k.Id == p.KOTCategoryId)?.Name ?? "N/A",
+				p.Rate,
                 Tax = _taxes.FirstOrDefault(t => t.Id == p.TaxId)?.Code ?? "N/A",
                 p.Remarks,
                 p.Status

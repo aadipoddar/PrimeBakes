@@ -70,6 +70,18 @@ else
                             </SfAutoComplete>
                         </div>
 
+                        <!-- KOT Category Autocomplete -->
+                        <div class="form-field">
+                            <label class="field-label">KOT Category <span class="required">*</span></label>
+                            <SfAutoComplete TValue="string" TItem="KOTCategoryModel" @bind-Value="_selectedKOTCategoryName"
+                                            DataSource="@_kotCategories" Placeholder="Select KOT category"
+                                            FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox">
+                                <AutoCompleteFieldSettings Value="Name" />
+                                <AutoCompleteEvents TValue="string" TItem="KOTCategoryModel"
+                                                    ValueChange="OnKOTCategoryChange" />
+                            </SfAutoComplete>
+                        </div>
+
                         <!-- Rate -->
                         <div class="form-field">
                             <label class="field-label">Rate <span class="required">*</span></label>
@@ -157,6 +169,15 @@ else
                                         var product = (context as ProductModel);
                                         var category = _categories.FirstOrDefault(c => c.Id == product.ProductCategoryId);
                                         <span>@(category?.Name ?? "N/A")</span>
+                                    }
+                                </Template>
+                            </GridColumn>
+                            <GridColumn HeaderText="KOT Category" Width="150">
+                                <Template>
+                                    @{
+                                        var product = (context as ProductModel);
+                                        var kotCategory = _kotCategories.FirstOrDefault(c => c.Id == product.KOTCategoryId);
+                                        <span>@(kotCategory?.Name ?? "N/A")</span>
                                     }
                                 </Template>
                             </GridColumn>

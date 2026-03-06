@@ -87,6 +87,7 @@ internal static class PageRouteNames
 
 	public const string Product = "/store/product/product";
 	public const string ProductCategory = "/store/product/product-category";
+	public const string KOTCategory = "/store/product/kot-category";
 	public const string ProductLocation = "/store/product/product-location";
 	public const string Tax = "/store/product/tax";
 	#endregion

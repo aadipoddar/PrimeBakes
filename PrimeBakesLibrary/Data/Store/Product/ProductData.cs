@@ -12,7 +12,10 @@ public static class ProductData
     public static async Task<int> InsertProductCategory(ProductCategoryModel productCategory) =>
         (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertProductCategory, productCategory)).FirstOrDefault();
 
-    public static async Task<int> SaveProduct(ProductModel product)
+	public static async Task<int> InsertKOTCategory(KOTCategoryModel kotCategory) =>
+		(await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertKOTCategory, kotCategory)).FirstOrDefault();
+
+	public static async Task<int> SaveProduct(ProductModel product)
     {
         bool isNewProduct = product.Id == 0;
 
