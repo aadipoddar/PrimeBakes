@@ -7,6 +7,7 @@ SELECT
 	P.Name AS ProductName,
 	PS.Quantity,
 	PS.NetRate,
+	PS.Quantity * PS.NetRate AS Total,
 	PS.Type,
 	PS.TransactionId,
 	PS.TransactionNo,

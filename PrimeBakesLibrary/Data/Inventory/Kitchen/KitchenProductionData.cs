@@ -153,11 +153,11 @@ public static class KitchenProductionData
                 Id = 0,
                 ProductId = item.ProductId,
                 Quantity = item.Quantity,
-                NetRate = null,
+                NetRate = item.Rate,
                 Type = nameof(StockType.KitchenProduction),
                 TransactionId = kitchenProduction.Id,
                 TransactionNo = kitchenProduction.TransactionNo,
-                TransactionDate = DateOnly.FromDateTime(kitchenProduction.TransactionDateTime),
+                TransactionDate = kitchenProduction.TransactionDateTime,
                 LocationId = 1, // Main Location
             }, sqlDataAccessTransaction);
 

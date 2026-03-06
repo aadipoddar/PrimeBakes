@@ -192,7 +192,7 @@ public static class PurchaseData
                 Type = nameof(StockType.Purchase),
                 TransactionId = purchase.Id,
                 TransactionNo = purchase.TransactionNo,
-                TransactionDate = DateOnly.FromDateTime(purchase.TransactionDateTime)
+                TransactionDate = purchase.TransactionDateTime
             }, sqlDataAccessTransaction);
 
             if (id <= 0)

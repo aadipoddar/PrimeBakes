@@ -261,7 +261,7 @@ public static class BillData
 				TransactionId = bill.Id,
 				Type = nameof(StockType.Bill),
 				TransactionNo = bill.TransactionNo,
-				TransactionDate = DateOnly.FromDateTime(bill.TransactionDateTime),
+				TransactionDate = bill.TransactionDateTime,
 				LocationId = bill.LocationId
 			}, sqlDataAccessTransaction);
 
@@ -297,7 +297,7 @@ public static class BillData
 					TransactionId = bill.Id,
 					TransactionNo = bill.TransactionNo,
 					Type = nameof(StockType.Bill),
-					TransactionDate = DateOnly.FromDateTime(bill.TransactionDateTime)
+					TransactionDate = bill.TransactionDateTime
 				}, sqlDataAccessTransaction);
 
 				if (id <= 0)

@@ -5,11 +5,11 @@ public class ProductStockModel
     public int Id { get; set; }
     public int ProductId { get; set; }
     public decimal Quantity { get; set; }
-    public decimal? NetRate { get; set; }
-    public string Type { get; set; }
+    public decimal NetRate { get; set; }
+	public string Type { get; set; }
     public int? TransactionId { get; set; }
     public string TransactionNo { get; set; }
-    public DateOnly TransactionDate { get; set; }
+    public DateTime TransactionDate { get; set; }
     public int LocationId { get; set; }
 }
 
@@ -20,11 +20,12 @@ public class ProductStockDetailsModel
     public string ProductCode { get; set; }
     public string ProductName { get; set; }
     public decimal Quantity { get; set; }
-    public decimal? NetRate { get; set; }
-    public string Type { get; set; }
+    public decimal NetRate { get; set; }
+	public decimal Total { get; set; }
+	public string Type { get; set; }
     public int? TransactionId { get; set; }
     public string TransactionNo { get; set; }
-    public DateOnly TransactionDateTime { get; set; }
+    public DateTime TransactionDateTime { get; set; }
     public int LocationId { get; set; }
     public string LocationName { get; set; }
 }

@@ -122,7 +122,8 @@ public static class ProductStockReportExport
 			[nameof(ProductStockDetailsModel.ProductName)] = new() { DisplayName = "Product", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(ProductStockDetailsModel.ProductCode)] = new() { DisplayName = "Code", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(ProductStockDetailsModel.Quantity)] = new() { DisplayName = "Qty", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
-			[nameof(ProductStockDetailsModel.NetRate)] = new() { DisplayName = "Net Rate", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false }
+			[nameof(ProductStockDetailsModel.NetRate)] = new() { DisplayName = "Net Rate", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(ProductStockDetailsModel.Total)] = new() { DisplayName = "Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true }
 		};
 
 		var columnOrder = new List<string>
@@ -133,7 +134,8 @@ public static class ProductStockReportExport
 			nameof(ProductStockDetailsModel.ProductName),
 			nameof(ProductStockDetailsModel.ProductCode),
 			nameof(ProductStockDetailsModel.Quantity),
-			nameof(ProductStockDetailsModel.NetRate)
+			nameof(ProductStockDetailsModel.NetRate),
+			nameof(ProductStockDetailsModel.Total)
 		};
 
 		string fileName = $"PRODUCT_STOCK_DETAILS";

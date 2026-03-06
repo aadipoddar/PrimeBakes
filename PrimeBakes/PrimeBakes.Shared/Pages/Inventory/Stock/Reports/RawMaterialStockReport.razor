@@ -14,12 +14,18 @@
 else
 {
 	<div class="page-shell">
-		<Header Title="Raw Material Stock Report" Subtitle="View and analyze raw material stock" ShowHome="true" ShowBack="true" ShowLogout="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
+		<Header Title="Raw Material Stock Report" Subtitle="View and analyze raw material stock" ShowHome="true"
+				ShowBack="true" ShowLogout="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack"
+				OnLogoutClick="Logout">
 			<RightContent>
-				<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
-				<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
-				<IconButton Icon="IconType.Refresh" Title="Refresh Data (Ctrl + R)" Disabled="_isProcessing" OnClick="LoadStockData" />
-				<IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing" OnClick="NavigateToTransactionPage" />
+				<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)"
+							Disabled="_isProcessing" OnClick="ExportExcel" />
+				<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)"
+							Disabled="_isProcessing" OnClick="ExportPdf" />
+				<IconButton Icon="IconType.Refresh" Title="Refresh Data (Ctrl + R)" Disabled="_isProcessing"
+							OnClick="LoadStockData" />
+				<IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing"
+							OnClick="NavigateToTransactionPage" />
 			</RightContent>
 		</Header>
 
@@ -30,8 +36,9 @@ else
 			<div class="section-card">
 				<div class="section-header">
 					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+							 stroke-linejoin="round">
 							<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
 						</svg>
 						<h2 class="section-title">Filters</h2>
@@ -61,8 +68,9 @@ else
 			<div class="section-card">
 				<div class="section-header">
 					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+							 stroke-linejoin="round">
 							<line x1="8" y1="6" x2="21" y2="6" />
 							<line x1="8" y1="12" x2="21" y2="12" />
 							<line x1="8" y1="18" x2="21" y2="18" />
@@ -232,19 +240,25 @@ else
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
+												</div>
 											}
 										</FooterTemplate>
 										<GroupFooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
+												</div>
 											}
 										</GroupFooterTemplate>
 										<GroupCaptionTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
+												</div>
 											}
 										</GroupCaptionTemplate>
 									</GridAggregateColumn>
@@ -295,26 +309,37 @@ else
 						</GridAggregates>
 
 						<GridColumns>
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.RawMaterialCode)" HeaderText="Code" Width="120" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.RawMaterialName)" HeaderText="Raw Material" Width="250" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.RawMaterialCategoryName)" HeaderText="Category" Width="180" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.UnitOfMeasurement)" HeaderText="UOM" Width="100" TextAlign="TextAlign.Center" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.OpeningStock)" HeaderText="Opening Stock" Width="150" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.PurchaseStock)" HeaderText="Purchase" Width="130" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.SaleStock)" HeaderText="Sale" Width="130" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.MonthlyStock)" HeaderText="Monthly Stock" Width="150" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.ClosingStock)" HeaderText="Closing Stock" Width="150" Format="N2" TextAlign="TextAlign.Right">
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.RawMaterialCode)" HeaderText="Code"
+										Width="120" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.RawMaterialName)"
+										HeaderText="Raw Material" Width="250" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.RawMaterialCategoryName)"
+										HeaderText="Category" Width="180" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.UnitOfMeasurement)" HeaderText="UOM"
+										Width="100" TextAlign="TextAlign.Center" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.OpeningStock)"
+										HeaderText="Opening Stock" Width="150" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.PurchaseStock)" HeaderText="Purchase"
+										Width="130" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.SaleStock)" HeaderText="Sale"
+										Width="130" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.MonthlyStock)"
+										HeaderText="Monthly Stock" Width="150" Format="N2" TextAlign="TextAlign.Right"
+										Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.ClosingStock)"
+										HeaderText="Closing Stock" Width="150" Format="N2" TextAlign="TextAlign.Right">
 								<Template>
 									@{
 										var item = (context as RawMaterialStockSummaryModel);
-										<span class="@(item.ClosingStock < 0 ? "grid-debit" : "")">@item.ClosingStock.ToString("N2")</span>
+										<span
+										class="@(item.ClosingStock < 0 ? "grid-debit" : "")">@item.ClosingStock.ToString("N2")</span>
 									}
 								</Template>
 							</GridColumn>
 							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.Rate)" HeaderText="Rate" Width="120"
 										Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.ClosingValue)" HeaderText="Closing Value"
-										Width="150" Format="N2" TextAlign="TextAlign.Right">
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.ClosingValue)"
+										HeaderText="Closing Value" Width="150" Format="N2" TextAlign="TextAlign.Right">
 								<Template>
 									@{
 										var item = (context as RawMaterialStockSummaryModel);
@@ -323,10 +348,17 @@ else
 								</Template>
 							</GridColumn>
 
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.AveragePrice)" HeaderText="Avg Price" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.WeightedAverageValue)" HeaderText="Weighted Avg Value" Width="180" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.LastPurchasePrice)" HeaderText="Last Purchase Price" Width="170" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.LastPurchaseValue)" HeaderText="Last Purchase Value" Width="180" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.AveragePrice)" HeaderText="Avg Price"
+										Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.WeightedAverageValue)"
+										HeaderText="Weighted Avg Value" Width="180" Format="N2" TextAlign="TextAlign.Right"
+										Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.LastPurchasePrice)"
+										HeaderText="Last Purchase Price" Width="170" Format="N2" TextAlign="TextAlign.Right"
+										Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.LastPurchaseValue)"
+										HeaderText="Last Purchase Value" Width="180" Format="N2" TextAlign="TextAlign.Right"
+										Visible="_showAllColumns" />
 						</GridColumns>
 					</SfGrid>
 				</div>
@@ -338,8 +370,9 @@ else
 				<div class="section-card">
 					<div class="section-header">
 						<div class="section-title-wrapper">
-							<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-								 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+								 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+								 stroke-linejoin="round">
 								<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
 								<polyline points="14 2 14 8 20 8"></polyline>
 								<line x1="16" y1="13" x2="8" y2="13"></line>
@@ -411,6 +444,36 @@ else
 												}
 											</GroupCaptionTemplate>
 										</GridAggregateColumn>
+										<GridAggregateColumn Field="@nameof(RawMaterialStockDetailsModel.Total)"
+															 Type="AggregateType.Sum" Format="N2">
+											<FooterTemplate>
+												@{
+													var aggregate = (context as AggregateTemplateContext);
+													var total = aggregate?.Sum is null ? 0 : Convert.ToDecimal(aggregate.Sum);
+													<div><strong
+														class="@(total < 0 ? "grid-debit" : "grid-credit")">@total.ToString("N2")</strong>
+													</div>
+												}
+											</FooterTemplate>
+											<GroupFooterTemplate>
+												@{
+													var aggregate = (context as AggregateTemplateContext);
+													var total = aggregate?.Sum is null ? 0 : Convert.ToDecimal(aggregate.Sum);
+													<div><strong
+														class="@(total < 0 ? "grid-debit" : "grid-credit")">@total.ToString("N2")</strong>
+													</div>
+												}
+											</GroupFooterTemplate>
+											<GroupCaptionTemplate>
+												@{
+													var aggregate = (context as AggregateTemplateContext);
+													var total = aggregate?.Sum is null ? 0 : Convert.ToDecimal(aggregate.Sum);
+													<div><strong
+														class="@(total < 0 ? "grid-debit" : "grid-credit")">@total.ToString("N2")</strong>
+													</div>
+												}
+											</GroupCaptionTemplate>
+										</GridAggregateColumn>
 									</GridAggregateColumns>
 								</GridAggregate>
 							</GridAggregates>
@@ -424,19 +487,31 @@ else
 										<div class="grid-actions">
 											@if (item.TransactionId is null && item.Type?.ToLower() == "adjustment")
 											{
-												<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete Transaction (Delete)" Disabled="_isProcessing" OnClick="@(() => ShowDeleteConfirmation(item.Id, item.TransactionNo))" />
+												<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete"
+															Size="ButtonSize.Grid" Title="Delete Transaction (Delete)"
+															Disabled="_isProcessing"
+															OnClick="@(() => ShowDeleteConfirmation(item.Id, item.TransactionNo))" />
 											}
 											@if (item.TransactionId is not null && item.Type?.ToLower() != "adjustment")
 											{
-												<IconButton Icon="IconType.View" Variant="ButtonVariant.View" Size="ButtonSize.Grid" Title="View Transaction (Ctrl + O)" Disabled="_isProcessing" OnClick="@(() => ViewTransaction(item.Type, item.TransactionId.Value))" />
-												<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Size="ButtonSize.Grid" Title="Download Excel Invoice (Alt+E)" Disabled="_isProcessing" OnClick="@(() => DownloadExcelInvoice(item.Type, item.TransactionId.Value))" />
-												<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Grid" Title="Download PDF Invoice (Alt+P)" Disabled="_isProcessing" OnClick="@(() => DownloadPdfInvoice(item.Type, item.TransactionId.Value))" />
+												<IconButton Icon="IconType.View" Variant="ButtonVariant.View" Size="ButtonSize.Grid"
+															Title="View Transaction (Ctrl + O)" Disabled="_isProcessing"
+															OnClick="@(() => ViewTransaction(item.Type, item.TransactionId.Value))" />
+												<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel"
+															Size="ButtonSize.Grid" Title="Download Excel Invoice (Alt+E)"
+															Disabled="_isProcessing"
+															OnClick="@(() => DownloadExcelInvoice(item.Type, item.TransactionId.Value))" />
+												<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Grid"
+															Title="Download PDF Invoice (Alt+P)" Disabled="_isProcessing"
+															OnClick="@(() => DownloadPdfInvoice(item.Type, item.TransactionId.Value))" />
 											}
 										</div>
 									</Template>
 								</GridColumn>
-								<GridColumn Field="@nameof(RawMaterialStockDetailsModel.TransactionDateTime)" HeaderText="Date" Width="130" Format="dd/MM/yyyy" Type="ColumnType.Date" />
-								<GridColumn Field="@nameof(RawMaterialStockDetailsModel.TransactionNo)" HeaderText="Transaction No" Width="180" />
+								<GridColumn Field="@nameof(RawMaterialStockDetailsModel.TransactionDateTime)" HeaderText="Date"
+											Width="130" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<GridColumn Field="@nameof(RawMaterialStockDetailsModel.TransactionNo)"
+											HeaderText="Transaction No" Width="180" />
 								<GridColumn Field="@nameof(RawMaterialStockDetailsModel.Type)" HeaderText="Type" Width="150">
 									<Template>
 										@{
@@ -447,9 +522,12 @@ else
 										}
 									</Template>
 								</GridColumn>
-								<GridColumn Field="@nameof(RawMaterialStockDetailsModel.RawMaterialCode)" HeaderText="Code" Width="120" />
-								<GridColumn Field="@nameof(RawMaterialStockDetailsModel.RawMaterialName)" HeaderText="Raw Material" Width="250" />
-								<GridColumn Field="@nameof(RawMaterialStockDetailsModel.Quantity)" HeaderText="Qty" Width="130" Format="N2" TextAlign="TextAlign.Right">
+								<GridColumn Field="@nameof(RawMaterialStockDetailsModel.RawMaterialCode)" HeaderText="Code"
+											Width="120" />
+								<GridColumn Field="@nameof(RawMaterialStockDetailsModel.RawMaterialName)"
+											HeaderText="Raw Material" Width="250" />
+								<GridColumn Field="@nameof(RawMaterialStockDetailsModel.Quantity)" HeaderText="Qty" Width="130"
+											Format="N2" TextAlign="TextAlign.Right">
 									<Template>
 										@{
 											var item = (context as RawMaterialStockDetailsModel);
@@ -459,7 +537,19 @@ else
 										}
 									</Template>
 								</GridColumn>
-								<GridColumn Field="@nameof(RawMaterialStockDetailsModel.NetRate)" HeaderText="Rate" Width="120" Format="N2" TextAlign="TextAlign.Right" />
+								<GridColumn Field="@nameof(RawMaterialStockDetailsModel.NetRate)" HeaderText="Rate" Width="120"
+											Format="N2" TextAlign="TextAlign.Right" />
+								<GridColumn Field="@nameof(RawMaterialStockDetailsModel.Total)" HeaderText="Total" Width="140"
+											Format="N2" TextAlign="TextAlign.Right">
+									<Template>
+										@{
+											var item = (context as RawMaterialStockDetailsModel);
+											<span class="@(item.Total < 0 ? "grid-debit" : "grid-credit")">
+												@item.Total.ToString("N2")
+											</span>
+										}
+									</Template>
+								</GridColumn>
 							</GridColumns>
 						</SfGrid>
 					</div>
@@ -472,14 +562,9 @@ else
 	</div>
 }
 
-<DeleteConfirmationDialog @ref="_deleteConfirmationDialog"
-						  EntityName="Stock Adjustment"
-						  IdentifierLabel="Transaction No"
-						  IdentifierValue="@_deleteTransactionNo"
-						  IsPermanentDelete="true"
-						  Disabled="@_isProcessing"
-						  OnConfirm="ConfirmDelete"
-						  OnCancel="CancelDelete" />
+<DeleteConfirmationDialog @ref="_deleteConfirmationDialog" EntityName="Stock Adjustment"
+						  IdentifierLabel="Transaction No" IdentifierValue="@_deleteTransactionNo" IsPermanentDelete="true"
+						  Disabled="@_isProcessing" OnConfirm="ConfirmDelete" OnCancel="CancelDelete" />
 
 <ToastNotification @ref="_toastNotification" />
 
@@ -507,6 +592,11 @@ else
 	.transaction-type-sale {
 		background: #dbeafe;
 		color: #1e40af;
+	}
+
+	.transaction-type-bill {
+		background: #dcfce7;
+		color: #166534;
 	}
 
 	.transaction-type-salereturn {

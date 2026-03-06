@@ -65,6 +65,8 @@ Console.ReadLine();
 
 // await UpdateLocations();
 
+// await UpdateStockPrices();
+
 //static async Task UpdateProducts()
 //{
 //	var products = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
@@ -1737,5 +1739,19 @@ Console.ReadLine();
 //        location.LedgerId = ledgers.FirstOrDefault(l => l.LocationId == location.Id).Id;
 //        await LocationData.InsertLocation(location);
 //    }
+//}
+
+//static async Task UpdateStockPrices()
+//{
+//	var rawMaterialStocks = await CommonData.LoadTableData<RawMaterialStockModel>(TableNames.RawMaterialStock);
+//	rawMaterialStocks = [.. rawMaterialStocks.Where(rms => rms.NetRate is null)];
+
+//	foreach (var stock in rawMaterialStocks)
+//	{
+//		var rawMaterial = await CommonData.LoadTableDataById<RawMaterialModel>(TableNames.RawMaterial, stock.RawMaterialId);
+//		stock.NetRate = rawMaterial.Rate;
+//		await RawMaterialStockData.InsertRawMaterialStock(stock);
+//		Console.WriteLine("Updated Stock Price for Raw Material Stock Id: " + stock.Id);
+//	}
 //}
 #endregion

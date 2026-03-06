@@ -5,19 +5,35 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 
+	-- Keep transaction-type rules in one place to avoid repeating conditions.
+	WITH StockBase AS (
+		SELECT
+			Id,
+			RawMaterialId,
+			Quantity,
+			NetRate,
+			TransactionDate,
+			CASE WHEN [Type] IN ('Purchase', 'SaleReturn', 'StockTransfer') THEN 1 ELSE 0 END AS IsPurchaseLike,
+			CASE WHEN [Type] IN ('Sale', 'Bill', 'PurchaseReturn', 'StockTransfer') THEN 1 ELSE 0 END AS IsSaleLike
+		FROM [RawMaterialStock] WITH (NOLOCK)
+		WHERE TransactionDate <= @ToDate
+	),
+	
 	-- Pre-calculate all stock aggregations in a single pass for each raw material
-	WITH StockAggregates AS (
+	StockAggregates AS (
 		SELECT 
 			RawMaterialId,
 			-- Opening Stock: sum of all quantities before FromDate
 			SUM(CASE WHEN TransactionDate < @FromDate THEN Quantity ELSE 0 END) AS OpeningStock,
 			
-			-- Purchase Stock: sum of positive quantities in date range
-			SUM(CASE WHEN TransactionDate >= @FromDate AND TransactionDate <= @ToDate AND Quantity > 0 
+			-- Purchase Stock: only purchase-like inflow types in date range
+			SUM(CASE WHEN TransactionDate >= @FromDate AND TransactionDate <= @ToDate AND Quantity > 0
+				AND IsPurchaseLike = 1
 				THEN Quantity ELSE 0 END) AS PurchaseStock,
 			
-			-- Sale Stock: sum of negative quantities in date range
+			-- Sale Stock: only sales-like outflow types in date range
 			SUM(CASE WHEN TransactionDate >= @FromDate AND TransactionDate <= @ToDate AND Quantity < 0 
+				AND IsSaleLike = 1
 				THEN Quantity ELSE 0 END) AS SaleStock,
 			
 			-- Monthly Stock: sum of all quantities in date range
@@ -26,15 +42,15 @@ BEGIN
 			
 			-- Closing Stock: sum of all quantities up to ToDate
 			SUM(CASE WHEN TransactionDate <= @ToDate THEN Quantity ELSE 0 END) AS ClosingStock
-		FROM [RawMaterialStock] WITH (NOLOCK)
+		FROM StockBase
 		GROUP BY RawMaterialId
 	),
 	-- Calculate average prices for purchases in date range
 	PriceAggregates AS (
 		SELECT 
 			RawMaterialId,
-			AVG(CASE WHEN Quantity > 0 AND NetRate IS NOT NULL THEN NetRate ELSE NULL END) AS AveragePrice
-		FROM [RawMaterialStock] WITH (NOLOCK)
+			AVG(CASE WHEN Quantity > 0 AND IsPurchaseLike = 1 THEN NetRate ELSE NULL END) AS AveragePrice
+		FROM StockBase
 		WHERE TransactionDate >= @FromDate 
 			AND TransactionDate <= @ToDate
 		GROUP BY RawMaterialId
@@ -45,11 +61,11 @@ BEGIN
 			RawMaterialId,
 			NetRate AS LastPurchasePrice,
 			ROW_NUMBER() OVER (PARTITION BY RawMaterialId ORDER BY TransactionDate DESC, Id DESC) AS RowNum
-		FROM [RawMaterialStock] WITH (NOLOCK)
+		FROM StockBase
 		WHERE TransactionDate >= @FromDate 
 			AND TransactionDate <= @ToDate
 			AND Quantity > 0
-			AND NetRate IS NOT NULL
+			AND IsPurchaseLike = 1
 	)
 	-- Final select combining all pre-calculated data
 	SELECT

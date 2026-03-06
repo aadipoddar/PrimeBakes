@@ -5,11 +5,11 @@ public class RawMaterialStockModel
 	public int Id { get; set; }
 	public int RawMaterialId { get; set; }
 	public decimal Quantity { get; set; }
-	public decimal? NetRate { get; set; }
+	public decimal NetRate { get; set; }
 	public string Type { get; set; }
 	public int? TransactionId { get; set; }
 	public string TransactionNo { get; set; }
-	public DateOnly TransactionDate { get; set; }
+	public DateTime TransactionDate { get; set; }
 }
 
 public enum StockType
@@ -32,11 +32,12 @@ public class RawMaterialStockDetailsModel
 	public string RawMaterialCode { get; set; }
 	public string RawMaterialName { get; set; }
 	public decimal Quantity { get; set; }
-	public decimal? NetRate { get; set; }
+	public decimal NetRate { get; set; }
+	public decimal Total { get; set; }
 	public string Type { get; set; }
 	public int? TransactionId { get; set; }
 	public string TransactionNo { get; set; }
-	public DateOnly TransactionDateTime { get; set; }
+	public DateTime TransactionDateTime { get; set; }
 }
 
 public class RawMaterialStockSummaryModel

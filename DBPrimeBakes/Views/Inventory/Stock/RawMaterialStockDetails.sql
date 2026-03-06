@@ -7,6 +7,7 @@ SELECT
 	RM.Name AS RawMaterialName,
 	RMS.Quantity,
 	RMS.NetRate,
+	RMS.Quantity * RMS.NetRate AS Total,
 	RMS.Type,
 	RMS.TransactionId,
 	RMS.TransactionNo,

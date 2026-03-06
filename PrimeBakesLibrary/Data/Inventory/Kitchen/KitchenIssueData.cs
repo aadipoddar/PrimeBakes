@@ -154,11 +154,11 @@ public static class KitchenIssueData
                 Id = 0,
                 RawMaterialId = item.RawMaterialId,
                 Quantity = -item.Quantity,
-                NetRate = null,
+                NetRate = item.Rate,
                 Type = nameof(StockType.KitchenIssue),
                 TransactionId = kitchenIssue.Id,
                 TransactionNo = kitchenIssue.TransactionNo,
-                TransactionDate = DateOnly.FromDateTime(kitchenIssue.TransactionDateTime)
+                TransactionDate = kitchenIssue.TransactionDateTime
             }, sqlDataAccessTransaction);
 
             if (id <= 0)

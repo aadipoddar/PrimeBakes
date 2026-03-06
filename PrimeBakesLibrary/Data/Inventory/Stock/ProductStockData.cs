@@ -23,7 +23,7 @@ public static class ProductStockData
         if (stock is null)
             return;
 
-        await FinancialYearData.ValidateFinancialYear(stock.TransactionDate.ToDateTime(TimeOnly.MinValue));
+        await FinancialYearData.ValidateFinancialYear(stock.TransactionDate);
         await SqlDataAccess.SaveData(StoredProcedureNames.DeleteProductStockById, new { Id });
         await ProductStockAdjustmentNotify.Notify(stock, userId, NotifyType.Deleted);
     }
@@ -61,10 +61,11 @@ public static class ProductStockData
                         Id = 0,
                         ProductId = item.ProductId,
                         Quantity = adjustmentQuantity,
-                        NetRate = null,
+                        NetRate = item.Rate,
+                        TransactionId = null,
                         Type = nameof(StockType.Adjustment),
                         TransactionNo = transactionNo,
-                        TransactionDate = DateOnly.FromDateTime(transactionDateTime),
+                        TransactionDate = transactionDateTime,
                         LocationId = locationId
                     }, sqlDataAccessTransaction);
 

@@ -6,19 +6,36 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 
+	-- Keep transaction-type rules in one place to avoid repeating conditions.
+	WITH StockBase AS (
+		SELECT
+			Id,
+			ProductId,
+			Quantity,
+			NetRate,
+			TransactionDate,
+			CASE WHEN [Type] IN ('Purchase', 'SaleReturn', 'StockTransfer') THEN 1 ELSE 0 END AS IsPurchaseLike,
+			CASE WHEN [Type] IN ('Sale', 'Bill', 'PurchaseReturn', 'StockTransfer') THEN 1 ELSE 0 END AS IsSaleLike
+		FROM [ProductStock] WITH (NOLOCK)
+		WHERE LocationId = @LocationId
+			AND TransactionDate <= @ToDate
+	),
+	
 	-- Pre-calculate all stock aggregations in a single pass for each product
-	WITH StockAggregates AS (
+	StockAggregates AS (
 		SELECT 
 			ProductId,
 			-- Opening Stock: sum of all quantities before FromDate
 			SUM(CASE WHEN TransactionDate < @FromDate THEN Quantity ELSE 0 END) AS OpeningStock,
 			
-			-- Purchase Stock: sum of positive quantities in date range
+			-- Purchase Stock: only purchase-like inflow types in date range
 			SUM(CASE WHEN TransactionDate >= @FromDate AND TransactionDate <= @ToDate AND Quantity > 0 
+				AND IsPurchaseLike = 1
 				THEN Quantity ELSE 0 END) AS PurchaseStock,
 			
-			-- Sale Stock: sum of negative quantities in date range
+			-- Sale Stock: only sales-like outflow types in date range
 			SUM(CASE WHEN TransactionDate >= @FromDate AND TransactionDate <= @ToDate AND Quantity < 0 
+				AND IsSaleLike = 1
 				THEN Quantity ELSE 0 END) AS SaleStock,
 			
 			-- Monthly Stock: sum of all quantities in date range
@@ -27,18 +44,16 @@ BEGIN
 			
 			-- Closing Stock: sum of all quantities up to ToDate
 			SUM(CASE WHEN TransactionDate <= @ToDate THEN Quantity ELSE 0 END) AS ClosingStock
-		FROM [ProductStock] WITH (NOLOCK)
-		WHERE LocationId = @LocationId
+		FROM StockBase
 		GROUP BY ProductId
 	),
 	-- Calculate average and weighted average prices for sales in date range
 	PriceAggregates AS (
 		SELECT 
 			ProductId,
-			AVG(CASE WHEN Quantity < 0 AND NetRate IS NOT NULL THEN NetRate ELSE NULL END) AS AveragePrice
-		FROM [ProductStock] WITH (NOLOCK)
-		WHERE LocationId = @LocationId
-			AND TransactionDate >= @FromDate 
+			AVG(CASE WHEN Quantity < 0 AND IsSaleLike = 1 THEN NetRate ELSE NULL END) AS AveragePrice
+		FROM StockBase
+		WHERE TransactionDate >= @FromDate 
 			AND TransactionDate <= @ToDate
 		GROUP BY ProductId
 	),
@@ -48,12 +63,11 @@ BEGIN
 			ProductId,
 			NetRate AS LastSalePrice,
 			ROW_NUMBER() OVER (PARTITION BY ProductId ORDER BY TransactionDate DESC, Id DESC) AS RowNum
-		FROM [ProductStock] WITH (NOLOCK)
-		WHERE LocationId = @LocationId
-			AND TransactionDate >= @FromDate 
+		FROM StockBase
+		WHERE TransactionDate >= @FromDate 
 			AND TransactionDate <= @ToDate
 			AND Quantity < 0
-			AND NetRate IS NOT NULL
+			AND IsSaleLike = 1
 	),
 	-- Get product location rate
 	ProductLocationRate AS (

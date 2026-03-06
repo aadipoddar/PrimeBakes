@@ -23,7 +23,7 @@ public static class RawMaterialStockData
         if (stock is null)
             return;
 
-        await FinancialYearData.ValidateFinancialYear(stock.TransactionDate.ToDateTime(TimeOnly.MinValue));
+        await FinancialYearData.ValidateFinancialYear(stock.TransactionDate);
         await SqlDataAccess.SaveData(StoredProcedureNames.DeleteRawMaterialStockById, new { Id });
         await RawMaterialStockAdjustmentNotify.Notify(stock, userId, NotifyType.Deleted);
     }
@@ -61,11 +61,11 @@ public static class RawMaterialStockData
                         Id = 0,
                         RawMaterialId = item.RawMaterialId,
                         Quantity = adjustmentQuantity,
-                        NetRate = null,
-                        TransactionId = null,
+                        NetRate = item.Rate,
+						TransactionId = null,
                         Type = nameof(StockType.Adjustment),
                         TransactionNo = transactionNo,
-                        TransactionDate = DateOnly.FromDateTime(transactionDateTime)
+                        TransactionDate = transactionDateTime
                     }, sqlDataAccessTransaction);
 
                     if (id <= 0)

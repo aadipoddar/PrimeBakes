@@ -197,7 +197,7 @@ public static class StockTransferData
                 TransactionId = stockTransfer.Id,
                 Type = nameof(StockType.StockTransfer),
                 TransactionNo = stockTransfer.TransactionNo,
-                TransactionDate = DateOnly.FromDateTime(stockTransfer.TransactionDateTime),
+                TransactionDate = stockTransfer.TransactionDateTime,
                 LocationId = stockTransfer.LocationId
             }, sqlDataAccessTransaction);
 
@@ -217,7 +217,7 @@ public static class StockTransferData
                 TransactionId = stockTransfer.Id,
                 Type = nameof(StockType.StockTransfer),
                 TransactionNo = stockTransfer.TransactionNo,
-                TransactionDate = DateOnly.FromDateTime(stockTransfer.TransactionDateTime),
+                TransactionDate = stockTransfer.TransactionDateTime,
                 LocationId = stockTransfer.ToLocationId
             }, sqlDataAccessTransaction);
 
@@ -253,7 +253,7 @@ public static class StockTransferData
                     TransactionId = stockTransfer.Id,
                     TransactionNo = stockTransfer.TransactionNo,
                     Type = nameof(StockType.StockTransfer),
-                    TransactionDate = DateOnly.FromDateTime(stockTransfer.TransactionDateTime)
+                    TransactionDate = stockTransfer.TransactionDateTime
                 }, sqlDataAccessTransaction);
 
                 if (id <= 0)

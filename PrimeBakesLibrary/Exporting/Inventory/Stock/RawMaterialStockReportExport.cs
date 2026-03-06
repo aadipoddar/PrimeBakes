@@ -114,13 +114,14 @@ public static class RawMaterialStockReportExport
 	{
 		var columnSettings = new Dictionary<string, ReportColumnSetting>
 		{
-			[nameof(RawMaterialStockDetailsModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy", Alignment = CellAlignment.Center, IncludeInTotal = false },
+			[nameof(RawMaterialStockDetailsModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm tt", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(RawMaterialStockDetailsModel.TransactionNo)] = new() { DisplayName = "Trans No", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(RawMaterialStockDetailsModel.Type)] = new() { DisplayName = "Trans Type", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(RawMaterialStockDetailsModel.RawMaterialName)] = new() { DisplayName = "Raw Material", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(RawMaterialStockDetailsModel.RawMaterialCode)] = new() { DisplayName = "Code", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(RawMaterialStockDetailsModel.Quantity)] = new() { DisplayName = "Qty", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
-			[nameof(RawMaterialStockDetailsModel.NetRate)] = new() { DisplayName = "Net Rate", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false }
+			[nameof(RawMaterialStockDetailsModel.NetRate)] = new() { DisplayName = "Net Rate", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(RawMaterialStockDetailsModel.Total)] = new() { DisplayName = "Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true }
 		};
 
 		var columnOrder = new List<string>
@@ -131,7 +132,8 @@ public static class RawMaterialStockReportExport
 			nameof(RawMaterialStockDetailsModel.RawMaterialName),
 			nameof(RawMaterialStockDetailsModel.RawMaterialCode),
 			nameof(RawMaterialStockDetailsModel.Quantity),
-			nameof(RawMaterialStockDetailsModel.NetRate)
+			nameof(RawMaterialStockDetailsModel.NetRate),
+			nameof(RawMaterialStockDetailsModel.Total)
 		};
 
 		string fileName = $"RAW_MATERIAL_STOCK_DETAILS";
