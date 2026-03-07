@@ -74,7 +74,7 @@ internal static class ProductStockAdjustmentNotify
                 ["📍 Location"] = locationName,
                 ["📦 Item"] = productName,
                 ["🔢 Quantity"] = stock.Quantity.FormatSmartDecimal(),
-                ["📅 Date"] = stock.TransactionDate.ToString("dd MMM yyyy"),
+                ["📅 Date"] = stock.TransactionDateTime.ToString("dd MMM yyyy HH:mm:ss"),
                 ["👤 Deleted By"] = userName
             },
             Remarks = null
@@ -104,7 +104,7 @@ internal static class ProductStockAdjustmentNotify
             Details = new Dictionary<string, string>
             {
                 ["Transaction Number"] = stock.TransactionNo ?? "N/A",
-                ["Transaction Date"] = stock.TransactionDate.ToString("dd MMM yyyy"),
+                ["Transaction Date"] = stock.TransactionDateTime.ToString("dd MMM yyyy HH:mm:ss"),
                 ["Location"] = locationName,
                 ["Product"] = productName,
                 ["Code"] = productCode,

@@ -157,7 +157,7 @@ public static class KitchenProductionData
                 Type = nameof(StockType.KitchenProduction),
                 TransactionId = kitchenProduction.Id,
                 TransactionNo = kitchenProduction.TransactionNo,
-                TransactionDate = kitchenProduction.TransactionDateTime,
+                TransactionDateTime = kitchenProduction.TransactionDateTime,
                 LocationId = 1, // Main Location
             }, sqlDataAccessTransaction);
 

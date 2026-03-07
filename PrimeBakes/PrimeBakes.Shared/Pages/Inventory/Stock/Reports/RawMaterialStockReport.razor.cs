@@ -100,7 +100,9 @@ public partial class RawMaterialStockReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Loading", "Fetching stock data...", ToastType.Info);
 
-			_stockSummary = await RawMaterialStockData.LoadRawMaterialStockSummaryByDate(_fromDate, _toDate);
+			_stockSummary = await RawMaterialStockData.LoadRawMaterialStockSummaryByDate(
+				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
+				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));
 
 			_stockSummary = [.. _stockSummary.Where(_ => _.OpeningStock != 0 ||
 												  _.PurchaseStock != 0 ||

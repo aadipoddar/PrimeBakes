@@ -12,7 +12,7 @@ public static class ProductStockData
         (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertProductStock, stock, sqlDataAccessTransaction)).FirstOrDefault();
 
     public static async Task<List<ProductStockSummaryModel>> LoadProductStockSummaryByDateLocationId(DateTime FromDate, DateTime ToDate, int LocationId) =>
-        await SqlDataAccess.LoadData<ProductStockSummaryModel, dynamic>(StoredProcedureNames.LoadProductStockSummaryByDateLocationId, new { FromDate = DateOnly.FromDateTime(FromDate), ToDate = DateOnly.FromDateTime(ToDate), LocationId });
+        await SqlDataAccess.LoadData<ProductStockSummaryModel, dynamic>(StoredProcedureNames.LoadProductStockSummaryByDateLocationId, new { FromDate, ToDate, LocationId });
 
     public static async Task DeleteProductStockByTypeTransactionIdLocationId(string Type, int TransactionId, int LocationId, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
         await SqlDataAccess.SaveData(StoredProcedureNames.DeleteProductStockByTypeTransactionIdLocationId, new { Type, TransactionId, LocationId }, sqlDataAccessTransaction);
@@ -23,7 +23,7 @@ public static class ProductStockData
         if (stock is null)
             return;
 
-        await FinancialYearData.ValidateFinancialYear(stock.TransactionDate);
+        await FinancialYearData.ValidateFinancialYear(stock.TransactionDateTime);
         await SqlDataAccess.SaveData(StoredProcedureNames.DeleteProductStockById, new { Id });
         await ProductStockAdjustmentNotify.Notify(stock, userId, NotifyType.Deleted);
     }
@@ -65,7 +65,7 @@ public static class ProductStockData
                         TransactionId = null,
                         Type = nameof(StockType.Adjustment),
                         TransactionNo = transactionNo,
-                        TransactionDate = transactionDateTime,
+                        TransactionDateTime = transactionDateTime,
                         LocationId = locationId
                     }, sqlDataAccessTransaction);
 

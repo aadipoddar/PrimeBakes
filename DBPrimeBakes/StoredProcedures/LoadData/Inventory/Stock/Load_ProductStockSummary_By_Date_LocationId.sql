@@ -1,6 +1,6 @@
 ﻿CREATE PROCEDURE [dbo].[Load_ProductStockSummary_By_Date_LocationId]
-	@FromDate DATE,
-	@ToDate DATE,
+	@FromDate DATETIME,
+	@ToDate DATETIME,
 	@LocationId INT
 AS
 BEGIN
@@ -13,12 +13,12 @@ BEGIN
 			ProductId,
 			Quantity,
 			NetRate,
-			TransactionDate,
+			[TransactionDateTime],
 			CASE WHEN [Type] IN ('Purchase', 'SaleReturn', 'StockTransfer') THEN 1 ELSE 0 END AS IsPurchaseLike,
 			CASE WHEN [Type] IN ('Sale', 'Bill', 'PurchaseReturn', 'StockTransfer') THEN 1 ELSE 0 END AS IsSaleLike
 		FROM [ProductStock] WITH (NOLOCK)
 		WHERE LocationId = @LocationId
-			AND TransactionDate <= @ToDate
+			AND [TransactionDateTime] <= @ToDate
 	),
 	
 	-- Pre-calculate all stock aggregations in a single pass for each product
@@ -26,24 +26,24 @@ BEGIN
 		SELECT 
 			ProductId,
 			-- Opening Stock: sum of all quantities before FromDate
-			SUM(CASE WHEN TransactionDate < @FromDate THEN Quantity ELSE 0 END) AS OpeningStock,
+			SUM(CASE WHEN [TransactionDateTime] < @FromDate THEN Quantity ELSE 0 END) AS OpeningStock,
 			
 			-- Purchase Stock: only purchase-like inflow types in date range
-			SUM(CASE WHEN TransactionDate >= @FromDate AND TransactionDate <= @ToDate AND Quantity > 0 
+			SUM(CASE WHEN [TransactionDateTime] >= @FromDate AND [TransactionDateTime] <= @ToDate AND Quantity > 0 
 				AND IsPurchaseLike = 1
 				THEN Quantity ELSE 0 END) AS PurchaseStock,
 			
 			-- Sale Stock: only sales-like outflow types in date range
-			SUM(CASE WHEN TransactionDate >= @FromDate AND TransactionDate <= @ToDate AND Quantity < 0 
+			SUM(CASE WHEN [TransactionDateTime] >= @FromDate AND [TransactionDateTime] <= @ToDate AND Quantity < 0 
 				AND IsSaleLike = 1
 				THEN Quantity ELSE 0 END) AS SaleStock,
 			
 			-- Monthly Stock: sum of all quantities in date range
-			SUM(CASE WHEN TransactionDate >= @FromDate AND TransactionDate <= @ToDate 
+			SUM(CASE WHEN [TransactionDateTime] >= @FromDate AND [TransactionDateTime] <= @ToDate 
 				THEN Quantity ELSE 0 END) AS MonthlyStock,
 			
 			-- Closing Stock: sum of all quantities up to ToDate
-			SUM(CASE WHEN TransactionDate <= @ToDate THEN Quantity ELSE 0 END) AS ClosingStock
+			SUM(CASE WHEN [TransactionDateTime] <= @ToDate THEN Quantity ELSE 0 END) AS ClosingStock
 		FROM StockBase
 		GROUP BY ProductId
 	),
@@ -53,8 +53,8 @@ BEGIN
 			ProductId,
 			AVG(CASE WHEN Quantity < 0 AND IsSaleLike = 1 THEN NetRate ELSE NULL END) AS AveragePrice
 		FROM StockBase
-		WHERE TransactionDate >= @FromDate 
-			AND TransactionDate <= @ToDate
+		WHERE [TransactionDateTime] >= @FromDate 
+			AND [TransactionDateTime] <= @ToDate
 		GROUP BY ProductId
 	),
 	-- Get last sale price and date for each product in date range
@@ -62,10 +62,10 @@ BEGIN
 		SELECT 
 			ProductId,
 			NetRate AS LastSalePrice,
-			ROW_NUMBER() OVER (PARTITION BY ProductId ORDER BY TransactionDate DESC, Id DESC) AS RowNum
+			ROW_NUMBER() OVER (PARTITION BY ProductId ORDER BY [TransactionDateTime] DESC, Id DESC) AS RowNum
 		FROM StockBase
-		WHERE TransactionDate >= @FromDate 
-			AND TransactionDate <= @ToDate
+		WHERE [TransactionDateTime] >= @FromDate 
+			AND [TransactionDateTime] <= @ToDate
 			AND Quantity < 0
 			AND IsSaleLike = 1
 	),

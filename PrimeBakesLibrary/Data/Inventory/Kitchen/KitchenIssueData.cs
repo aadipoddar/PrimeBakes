@@ -158,7 +158,7 @@ public static class KitchenIssueData
                 Type = nameof(StockType.KitchenIssue),
                 TransactionId = kitchenIssue.Id,
                 TransactionNo = kitchenIssue.TransactionNo,
-                TransactionDate = kitchenIssue.TransactionDateTime
+                TransactionDateTime = kitchenIssue.TransactionDateTime
             }, sqlDataAccessTransaction);
 
             if (id <= 0)

@@ -6,7 +6,7 @@
 	@Type VARCHAR(20), 
 	@TransactionId INT,
 	@TransactionNo VARCHAR(MAX),
-	@TransactionDate DATE
+	@TransactionDateTime DATETIME
 AS
 BEGIN
 	IF @Id = 0
@@ -19,7 +19,7 @@ BEGIN
 			[Type], 
 			[TransactionId],
 			[TransactionNo],
-			[TransactionDate]
+			[TransactionDateTime]
 		)
 		VALUES
 		(
@@ -29,7 +29,7 @@ BEGIN
 			@Type, 
 			@TransactionId,
 			@TransactionNo,
-			@TransactionDate
+			@TransactionDateTime
 		);
 
 		SET @Id = SCOPE_IDENTITY();
@@ -45,7 +45,7 @@ BEGIN
 			[Type] = @Type, 
 			[TransactionId] = @TransactionId,
 			[TransactionNo] = @TransactionNo,
-			[TransactionDate] = @TransactionDate
+			[TransactionDateTime] = @TransactionDateTime
 		WHERE [Id] = @Id;
 	END
 

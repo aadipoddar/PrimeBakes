@@ -186,7 +186,7 @@ public static class PurchaseReturnData
                 TransactionId = purchaseReturn.Id,
                 Type = nameof(StockType.PurchaseReturn),
                 TransactionNo = purchaseReturn.TransactionNo,
-                TransactionDate = purchaseReturn.TransactionDateTime
+                TransactionDateTime = purchaseReturn.TransactionDateTime
             }, sqlDataAccessTransaction);
 
             if (insertedId <= 0)

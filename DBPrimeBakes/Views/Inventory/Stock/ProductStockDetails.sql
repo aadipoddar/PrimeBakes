@@ -11,7 +11,7 @@ SELECT
 	PS.Type,
 	PS.TransactionId,
 	PS.TransactionNo,
-	PS.TransactionDate AS TransactionDateTime,
+	PS.TransactionDateTime,
 	PS.LocationId,
 	L.Name AS LocationName
 

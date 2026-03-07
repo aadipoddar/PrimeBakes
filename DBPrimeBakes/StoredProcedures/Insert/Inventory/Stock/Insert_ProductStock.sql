@@ -6,7 +6,7 @@
 	@Type VARCHAR(20), 
 	@TransactionId INT,
 	@TransactionNo VARCHAR(MAX),
-	@TransactionDate DATE,
+	@TransactionDateTime DATETIME,
 	@LocationId INT
 AS
 BEGIN
@@ -20,7 +20,7 @@ BEGIN
 			[Type], 
 			[TransactionId],
 			[TransactionNo],
-			[TransactionDate], 
+			[TransactionDateTime], 
 			[LocationId]
 		)
 		VALUES
@@ -31,7 +31,7 @@ BEGIN
 			@Type, 
 			@TransactionId,
 			@TransactionNo,
-			@TransactionDate, 
+			@TransactionDateTime, 
 			@LocationId
 		);
 
@@ -48,7 +48,7 @@ BEGIN
 			[Type] = @Type, 
 			[TransactionId] = @TransactionId,
 			[TransactionNo] = @TransactionNo,
-			[TransactionDate] = @TransactionDate, 
+			[TransactionDateTime] = @TransactionDateTime, 
 			[LocationId] = @LocationId
 		WHERE [Id] = @Id;
 	END

@@ -66,7 +66,7 @@ internal static class RawMaterialStockAdjustmentNotify
             {
                 ["📦 Item"] = rawMaterialName,
                 ["🔢 Quantity"] = stock.Quantity.FormatSmartDecimal(),
-                ["📅 Date"] = stock.TransactionDate.ToString("dd MMM yyyy"),
+                ["📅 Date"] = stock.TransactionDateTime.ToString("dd MMM yyyy HH:mm:ss"),
                 ["👤 Deleted By"] = userName
             },
             Remarks = null
@@ -94,7 +94,7 @@ internal static class RawMaterialStockAdjustmentNotify
             Details = new Dictionary<string, string>
             {
                 ["Transaction Number"] = stock.TransactionNo ?? "N/A",
-                ["Transaction Date"] = stock.TransactionDate.ToString("dd MMM yyyy"),
+                ["Transaction Date"] = stock.TransactionDateTime.ToString("dd MMM yyyy HH:mm:ss"),
                 ["Raw Material"] = rawMaterialName,
                 ["Code"] = rawMaterialCode,
                 ["Unit of Measurement"] = uom,

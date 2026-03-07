@@ -208,7 +208,7 @@ public static class SaleReturnData
                 TransactionId = saleReturn.Id,
                 Type = nameof(StockType.SaleReturn),
                 TransactionNo = saleReturn.TransactionNo,
-                TransactionDate = saleReturn.TransactionDateTime,
+                TransactionDateTime = saleReturn.TransactionDateTime,
                 LocationId = saleReturn.LocationId
             }, sqlDataAccessTransaction);
 
@@ -232,7 +232,7 @@ public static class SaleReturnData
                         TransactionId = saleReturn.Id,
                         Type = nameof(StockType.PurchaseReturn),
                         TransactionNo = saleReturn.TransactionNo,
-                        TransactionDate = saleReturn.TransactionDateTime,
+                        TransactionDateTime = saleReturn.TransactionDateTime,
                         LocationId = location.Id
                     }, sqlDataAccessTransaction);
 
@@ -269,7 +269,7 @@ public static class SaleReturnData
                     TransactionId = saleReturn.Id,
                     TransactionNo = saleReturn.TransactionNo,
                     Type = nameof(StockType.SaleReturn),
-                    TransactionDate = saleReturn.TransactionDateTime
+                    TransactionDateTime = saleReturn.TransactionDateTime
                 }, sqlDataAccessTransaction);
 
                 if (id <= 0)

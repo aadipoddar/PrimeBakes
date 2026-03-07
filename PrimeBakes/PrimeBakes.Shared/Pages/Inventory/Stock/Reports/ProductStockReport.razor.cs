@@ -117,7 +117,10 @@ public partial class ProductStockReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Loading", "Fetching stock data...", ToastType.Info);
 
-			_stockSummary = await ProductStockData.LoadProductStockSummaryByDateLocationId(_fromDate, _toDate, _selectedLocation.Id);
+			_stockSummary = await ProductStockData.LoadProductStockSummaryByDateLocationId(
+				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
+				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue),
+				 _selectedLocation.Id);
 
 			_stockSummary = [.. _stockSummary.Where(_ => _.OpeningStock != 0 ||
 												  _.PurchaseStock != 0 ||

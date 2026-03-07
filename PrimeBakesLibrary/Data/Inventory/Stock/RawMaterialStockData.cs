@@ -8,79 +8,79 @@ namespace PrimeBakesLibrary.Data.Inventory.Stock;
 
 public static class RawMaterialStockData
 {
-    public static async Task<int> InsertRawMaterialStock(RawMaterialStockModel stock, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertRawMaterialStock, stock, sqlDataAccessTransaction)).FirstOrDefault();
+	public static async Task<int> InsertRawMaterialStock(RawMaterialStockModel stock, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+		(await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertRawMaterialStock, stock, sqlDataAccessTransaction)).FirstOrDefault();
 
-    public static async Task<List<RawMaterialStockSummaryModel>> LoadRawMaterialStockSummaryByDate(DateTime FromDate, DateTime ToDate) =>
-        await SqlDataAccess.LoadData<RawMaterialStockSummaryModel, dynamic>(StoredProcedureNames.LoadRawMaterialStockSummaryByDate, new { FromDate = DateOnly.FromDateTime(FromDate), ToDate = DateOnly.FromDateTime(ToDate) });
+	public static async Task<List<RawMaterialStockSummaryModel>> LoadRawMaterialStockSummaryByDate(DateTime FromDate, DateTime ToDate) =>
+		await SqlDataAccess.LoadData<RawMaterialStockSummaryModel, dynamic>(StoredProcedureNames.LoadRawMaterialStockSummaryByDate, new { FromDate, ToDate });
 
-    public static async Task DeleteRawMaterialStockByTypeTransactionId(string Type, int TransactionId, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-        await SqlDataAccess.SaveData(StoredProcedureNames.DeleteRawMaterialStockByTypeTransactionId, new { Type, TransactionId }, sqlDataAccessTransaction);
+	public static async Task DeleteRawMaterialStockByTypeTransactionId(string Type, int TransactionId, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+		await SqlDataAccess.SaveData(StoredProcedureNames.DeleteRawMaterialStockByTypeTransactionId, new { Type, TransactionId }, sqlDataAccessTransaction);
 
-    public static async Task DeleteRawMaterialStockById(int Id, int userId)
-    {
-        var stock = await CommonData.LoadTableDataById<RawMaterialStockModel>(TableNames.RawMaterialStock, Id);
-        if (stock is null)
-            return;
+	public static async Task DeleteRawMaterialStockById(int Id, int userId)
+	{
+		var stock = await CommonData.LoadTableDataById<RawMaterialStockModel>(TableNames.RawMaterialStock, Id);
+		if (stock is null)
+			return;
 
-        await FinancialYearData.ValidateFinancialYear(stock.TransactionDate);
-        await SqlDataAccess.SaveData(StoredProcedureNames.DeleteRawMaterialStockById, new { Id });
-        await RawMaterialStockAdjustmentNotify.Notify(stock, userId, NotifyType.Deleted);
-    }
+		await FinancialYearData.ValidateFinancialYear(stock.TransactionDateTime);
+		await SqlDataAccess.SaveData(StoredProcedureNames.DeleteRawMaterialStockById, new { Id });
+		await RawMaterialStockAdjustmentNotify.Notify(stock, userId, NotifyType.Deleted);
+	}
 
-    public static async Task SaveRawMaterialStockAdjustment(DateTime transactionDateTime, List<RawMaterialStockAdjustmentCartModel> cart, int userId)
-    {
-        var transactionNo = await GenerateCodes.GenerateRawMaterialStockAdjustmentTransactionNo(transactionDateTime);
-        var stockSummary = await LoadRawMaterialStockSummaryByDate(transactionDateTime, transactionDateTime);
+	public static async Task SaveRawMaterialStockAdjustment(DateTime transactionDateTime, List<RawMaterialStockAdjustmentCartModel> cart, int userId)
+	{
+		var transactionNo = await GenerateCodes.GenerateRawMaterialStockAdjustmentTransactionNo(transactionDateTime);
+		var stockSummary = await LoadRawMaterialStockSummaryByDate(transactionDateTime, transactionDateTime);
 
-        if (cart is null || cart.Count == 0)
-            throw new InvalidOperationException("Cannot save stock adjustment with no items.");
+		if (cart is null || cart.Count == 0)
+			throw new InvalidOperationException("Cannot save stock adjustment with no items.");
 
-        await FinancialYearData.ValidateFinancialYear(transactionDateTime);
+		await FinancialYearData.ValidateFinancialYear(transactionDateTime);
 
-        using SqlDataAccessTransaction sqlDataAccessTransaction = new();
+		using SqlDataAccessTransaction sqlDataAccessTransaction = new();
 
-        try
-        {
-            sqlDataAccessTransaction.StartTransaction();
+		try
+		{
+			sqlDataAccessTransaction.StartTransaction();
 
-            foreach (var item in cart)
-            {
-                decimal adjustmentQuantity = 0;
-                var existingStock = stockSummary.FirstOrDefault(s => s.RawMaterialId == item.RawMaterialId);
+			foreach (var item in cart)
+			{
+				decimal adjustmentQuantity = 0;
+				var existingStock = stockSummary.FirstOrDefault(s => s.RawMaterialId == item.RawMaterialId);
 
-                if (existingStock is null)
-                    adjustmentQuantity = item.Quantity;
-                else
-                    adjustmentQuantity = item.Quantity - existingStock.ClosingStock;
+				if (existingStock is null)
+					adjustmentQuantity = item.Quantity;
+				else
+					adjustmentQuantity = item.Quantity - existingStock.ClosingStock;
 
-                if (adjustmentQuantity != 0)
-                {
-                    var id = await InsertRawMaterialStock(new()
-                    {
-                        Id = 0,
-                        RawMaterialId = item.RawMaterialId,
-                        Quantity = adjustmentQuantity,
-                        NetRate = item.Rate,
+				if (adjustmentQuantity != 0)
+				{
+					var id = await InsertRawMaterialStock(new()
+					{
+						Id = 0,
+						RawMaterialId = item.RawMaterialId,
+						Quantity = adjustmentQuantity,
+						NetRate = item.Rate,
 						TransactionId = null,
-                        Type = nameof(StockType.Adjustment),
-                        TransactionNo = transactionNo,
-                        TransactionDate = transactionDateTime
-                    }, sqlDataAccessTransaction);
+						Type = nameof(StockType.Adjustment),
+						TransactionNo = transactionNo,
+						TransactionDateTime = transactionDateTime
+					}, sqlDataAccessTransaction);
 
-                    if (id <= 0)
-                        throw new InvalidOperationException($"Failed to insert stock adjustment for raw material ID {item.RawMaterialId}.");
-                }
-            }
+					if (id <= 0)
+						throw new InvalidOperationException($"Failed to insert stock adjustment for raw material ID {item.RawMaterialId}.");
+				}
+			}
 
-            sqlDataAccessTransaction.CommitTransaction();
+			sqlDataAccessTransaction.CommitTransaction();
 
-            await RawMaterialStockAdjustmentNotify.Notify(cart.Count, cart.Sum(c => c.Quantity), userId, NotifyType.Created);
-        }
-        catch
-        {
-            sqlDataAccessTransaction.RollbackTransaction();
-            throw;
-        }
-    }
+			await RawMaterialStockAdjustmentNotify.Notify(cart.Count, cart.Sum(c => c.Quantity), userId, NotifyType.Created);
+		}
+		catch
+		{
+			sqlDataAccessTransaction.RollbackTransaction();
+			throw;
+		}
+	}
 }

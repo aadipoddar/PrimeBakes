@@ -228,7 +228,7 @@ public static class SaleData
 				TransactionId = sale.Id,
 				Type = nameof(StockType.Sale),
 				TransactionNo = sale.TransactionNo,
-				TransactionDate = sale.TransactionDateTime,
+				TransactionDateTime = sale.TransactionDateTime,
 				LocationId = sale.LocationId
 			}, sqlDataAccessTransaction);
 
@@ -251,7 +251,7 @@ public static class SaleData
 						TransactionId = sale.Id,
 						Type = nameof(StockType.Purchase),
 						TransactionNo = sale.TransactionNo,
-						TransactionDate = sale.TransactionDateTime,
+						TransactionDateTime = sale.TransactionDateTime,
 						LocationId = location.Id
 					}, sqlDataAccessTransaction);
 
@@ -288,7 +288,7 @@ public static class SaleData
 					TransactionId = sale.Id,
 					TransactionNo = sale.TransactionNo,
 					Type = nameof(StockType.Sale),
-					TransactionDate = sale.TransactionDateTime
+					TransactionDateTime = sale.TransactionDateTime
 				}, sqlDataAccessTransaction);
 
 				if (id <= 0)

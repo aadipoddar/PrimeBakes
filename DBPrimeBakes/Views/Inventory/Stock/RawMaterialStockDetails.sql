@@ -11,7 +11,7 @@ SELECT
 	RMS.Type,
 	RMS.TransactionId,
 	RMS.TransactionNo,
-	RMS.TransactionDate AS TransactionDateTime
+	RMS.TransactionDateTime
 
 FROM
 	RawMaterialStock AS RMS
