@@ -76,7 +76,7 @@ public partial class Dashboard : IDisposable
 		try
 		{
 			// Check for updates on Android Phone or Windows Desktop
-			var shouldCheckUpdate = (Factor == "Phone" && Platform.Contains("Android")) || Factor.Contains("Desktop");
+			var shouldCheckUpdate = (Platform.Contains("Android")) || Factor.Contains("Desktop");
 
 			if (shouldCheckUpdate)
 			{
@@ -105,7 +105,7 @@ public partial class Dashboard : IDisposable
 		_hotKeysContext = HotKeys.CreateContext()
 			.Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None);
 
-		if (Factor == "Phone" && Platform.Contains("Android"))
+		if (Platform.Contains("Android"))
 			await NotificationService.RegisterDevicePushNotification(_user.Id.ToString());
 	}
 

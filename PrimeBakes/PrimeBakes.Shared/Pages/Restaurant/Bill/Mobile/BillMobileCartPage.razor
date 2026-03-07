@@ -61,12 +61,7 @@ else
                                             <div class="detail-row">
                                                 <span class="detail-row-label">Rate:</span>
                                                 <div class="detail-row-control">
-                                                    <div class="rate-input-wrapper">
-                                                        <SfNumericTextBox TValue="decimal" Value="@item.Rate"
-                                                                          ValueChanged="@((decimal value) => UpdateRate(item, value))" Min="0"
-                                                                          Step="1" type="tel" Format="N2" ShowSpinButton="false" Width="100%"
-                                                                          CssClass="input-field" Enabled="@(!_isProcessing)" />
-                                                    </div>
+                                                    <span class="rate-value">₹@(item.Rate.ToString("N2"))</span>
                                                 </div>
                                             </div>
 
@@ -128,7 +123,7 @@ else
                                             <div class="detail-row remarks-row">
                                                 <span class="detail-row-label">Remarks:</span>
                                                 <span class="readonly-value remarks-text">@(string.IsNullOrWhiteSpace(item.Remarks)
-                                                                                            ? "-" : item.Remarks)</span>
+                                                                                                                                                ? "-" : item.Remarks)</span>
                                                 </div>
 
                                                 <div class="detail-row total-row">
@@ -275,6 +270,12 @@ else
             font-size: 15px;
             font-weight: 700;
             color: var(--primary-color);
+        }
+
+        .rate-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dark);
         }
 
         .quantity-input-wrapper,

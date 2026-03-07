@@ -65,14 +65,6 @@ public partial class SaleMobileCartPage
 
 		await SaveTransactionFile();
 	}
-
-	private async Task UpdateRate(SaleItemCartModel item, decimal newRate)
-	{
-		if (item is null || _isProcessing)
-			return;
-		item.Rate = Math.Max(0, newRate);
-		await SaveTransactionFile();
-	}
 	#endregion
 
 	#region Saving

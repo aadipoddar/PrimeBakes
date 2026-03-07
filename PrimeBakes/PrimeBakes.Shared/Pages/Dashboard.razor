@@ -64,7 +64,7 @@ else
 		<div class="page-container">
 
 			<div class="dashboard-grid">
-				@if (Factor != "Phone")
+				@if (Factor != "Phone" && Factor != "Tablet")
 				{
 					<!-- Accounts -->
 					@if (_user.Accounts)
@@ -149,7 +149,7 @@ else
 				</ButtonCard>
 
 				<!-- Reports -->
-				@if (Factor != "Phone" && _user.Reports)
+				@if (Factor != "Phone" && Factor != "Tablet" && _user.Reports)
 				{
 					<ButtonCard Title="Reports" Description="Access reports dashboard" Color="teal"
 								OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportDashboard)">

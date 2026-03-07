@@ -119,14 +119,6 @@ public partial class SaleMobilePage
         item.Quantity = Math.Max(0, newQuantity);
         await SaveTransactionFile();
     }
-
-    private async Task UpdateRate(SaleItemCartModel item, decimal newRate)
-    {
-        if (item is null)
-            return;
-        item.Rate = Math.Max(0, newRate);
-        await SaveTransactionFile();
-    }
     #endregion
 
     #region Saving

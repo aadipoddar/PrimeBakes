@@ -200,15 +200,6 @@ public partial class BillMobilePage
 		await SaveTransactionFile();
 	}
 
-	private async Task UpdateRate(BillItemCartModel item, decimal newRate)
-	{
-		if (item is null)
-			return;
-
-		item.Rate = Math.Max(0, newRate);
-		await SaveTransactionFile();
-	}
-
 	private async Task UpdateRemarks(BillItemCartModel item, string newRemarks)
 	{
 		if (item is null)

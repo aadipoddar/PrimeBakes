@@ -65,12 +65,7 @@ else
                                             <div class="detail-row">
                                                 <span class="detail-row-label">Rate:</span>
                                                 <div class="detail-row-control">
-                                                    <div class="rate-input-wrapper">
-                                                        <SfNumericTextBox TValue="decimal" Value="@item.Rate"
-                                                                          ValueChanged="@((decimal value) => UpdateRate(item, value))" Min="0"
-                                                                          Step="1" ShowSpinButton="false" type="tel" Format="N2" Width="100%"
-                                                                          CssClass="input-field" />
-                                                    </div>
+                                                    <span class="rate-value">₹@(item.Rate.ToString("N2"))</span>
                                                 </div>
                                             </div>
 
@@ -104,7 +99,8 @@ else
         @if (_cart.Any(c => c.Quantity > 0) || _previousCart.Count > 0)
         {
             <div class="cart-footer">
-                <MobileCartButton Text="Go to Cart" BadgeCount="@(_cart.Count(c => c.Quantity > 0) + _previousCart.Count)" OnClick="GoToCart" />
+                <MobileCartButton Text="Go to Cart" BadgeCount="@(_cart.Count(c => c.Quantity > 0) + _previousCart.Count)"
+                                  OnClick="GoToCart" />
             </div>
         }
 
@@ -194,6 +190,12 @@ else
         font-size: 15px;
         font-weight: 700;
         color: var(--primary-color);
+    }
+
+    .rate-value {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-dark);
     }
 
     /* Add Button */

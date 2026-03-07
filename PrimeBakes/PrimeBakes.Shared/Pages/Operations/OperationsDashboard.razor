@@ -34,7 +34,7 @@ else
                 <div class="section-body">
                     <div class="dashboard-grid">
 
-                        @if (Factor != "Phone" && _user.Reports)
+                        @if (Factor != "Phone" && Factor != "Tablet" && _user.Reports)
                         {
                             <!-- Outlet / Location -->
                             <ButtonCard Title="Outlet / Location" Description="Manage outlet locations" Color="sky"
