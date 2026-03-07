@@ -14,10 +14,10 @@ public class UpdateService : IUpdateService
 #endif
 	}
 
-	public async Task UpdateAppAsync(string githubRepoOwner, string githubRepoName, string setupFileName, IProgress<int> progress = null)
+	public async Task UpdateAppAsync(string githubRepoOwner, string githubRepoName, string setupFileName, IProgress<int> progress = null, bool forceUpdate = false)
 	{
 #if ANDROID || WINDOWS
-		await AadiSoftUpdater.UpdateApp(githubRepoOwner, githubRepoName, setupFileName, progress);
+		await AadiSoftUpdater.UpdateApp(githubRepoOwner, githubRepoName, setupFileName, progress, forceUpdate);
 #else
         await Task.CompletedTask;
 #endif

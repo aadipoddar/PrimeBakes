@@ -27,7 +27,7 @@ public partial class Dashboard : IDisposable
 	#endregion
 
 	#region Updating
-	private async Task StartUpdateProcess()
+	private async Task StartUpdateProcess(bool forceUpdate = false)
 	{
 		_isLoading = false;
 		_isUpdating = true;
@@ -60,10 +60,24 @@ public partial class Dashboard : IDisposable
 			InvokeAsync(StateHasChanged);
 		});
 
-		await UpdateService.UpdateAppAsync("aadipoddar", "PrimeBakes", "PrimeBakes", progress);
+		await UpdateService.UpdateAppAsync("aadipoddar", "PrimeBakes", "PrimeBakes", progress, forceUpdate);
 
 		_isUpdating = false;
 		StateHasChanged();
+	}
+
+	private async Task ForceUpdate()
+	{
+		if (_isLoading || _isUpdating)
+			return;
+
+		if (Factor.Contains("Web"))
+		{
+			NavigationManager.NavigateTo(PageRouteNames.Dashboard, true);
+			return;
+		}
+
+		await StartUpdateProcess(true);
 	}
 	#endregion
 
@@ -76,7 +90,7 @@ public partial class Dashboard : IDisposable
 		try
 		{
 			// Check for updates on Android Phone or Windows Desktop
-			var shouldCheckUpdate = (Platform.Contains("Android")) || Factor.Contains("Desktop");
+			var shouldCheckUpdate = Platform.Contains("Android") || Factor.Contains("Desktop");
 
 			if (shouldCheckUpdate)
 			{

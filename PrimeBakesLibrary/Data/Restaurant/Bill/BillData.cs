@@ -11,6 +11,7 @@ using PrimeBakesLibrary.Models.Inventory.Stock;
 using PrimeBakesLibrary.Models.Operations;
 using PrimeBakesLibrary.Models.Restuarant.Bill;
 using PrimeBakesLibrary.Models.Store.Product;
+using PrimeBakesLibrary.Models.Store.Sale;
 
 namespace PrimeBakesLibrary.Data.Restaurant.Bill;
 
@@ -198,6 +199,7 @@ public static class BillData
 			if (existingBill.FinancialAccountingId is not null)
 				throw new InvalidOperationException("Cannot update a bill with financial accounting.");
 
+			await ValidateDayBillsAccountPosting(existingBill.TransactionDateTime, existingBill.LocationId, sqlDataAccessTransaction);
 			await FinancialYearData.ValidateFinancialYear(existingBill.TransactionDateTime, sqlDataAccessTransaction);
 			bill.TransactionNo = existingBill.TransactionNo;
 			previousRunning = existingBill.Running;
@@ -205,6 +207,7 @@ public static class BillData
 		else
 			bill.TransactionNo = await GenerateCodes.GenerateBillTransactionNo(bill, sqlDataAccessTransaction);
 
+		await ValidateDayBillsAccountPosting(existingBill.TransactionDateTime, bill.LocationId, sqlDataAccessTransaction);
 		await FinancialYearData.ValidateFinancialYear(bill.TransactionDateTime, sqlDataAccessTransaction);
 
 		bill.Id = await InsertBill(bill, sqlDataAccessTransaction);
@@ -414,15 +417,15 @@ public static class BillData
 		await FinancialAccountingData.SaveTransaction(accounting, accountingCart, null, false, sqlDataAccessTransaction);
 	}
 
-	public static async Task BillDayClosing(DateTime fromDate, DateTime toDate, int locationId, int userId, string userPlatform)
+	public static async Task PostDayBills(DateTime postingDate, int locationId, int userId, string userPlatform)
 	{
-		await FinancialYearData.ValidateFinancialYear(fromDate);
-		await FinancialYearData.ValidateFinancialYear(toDate);
+		await ValidateDayBillsAccountPosting(postingDate, locationId);
+		await FinancialYearData.ValidateFinancialYear(postingDate);
 
 		var bills = await CommonData.LoadTableDataByDate<BillOverviewModel>(
 				ViewNames.BillOverview,
-				DateOnly.FromDateTime(fromDate).ToDateTime(TimeOnly.MinValue),
-				DateOnly.FromDateTime(toDate).ToDateTime(TimeOnly.MaxValue));
+				DateOnly.FromDateTime(postingDate).ToDateTime(TimeOnly.MinValue),
+				DateOnly.FromDateTime(postingDate).ToDateTime(TimeOnly.MaxValue));
 
 		bills = [.. bills.Where(b =>
 									b.LocationId == locationId &&
@@ -486,13 +489,13 @@ public static class BillData
 			VoucherId = int.Parse(voucher.Value),
 			ReferenceId = null,
 			ReferenceNo = null,
-			TransactionDateTime = currentDateTime,
+			TransactionDateTime = DateOnly.FromDateTime(postingDate).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second)),
 			FinancialYearId = financialYear.Id,
 			TotalDebitLedgers = accountingCart.Count(a => a.Debit.HasValue),
 			TotalCreditLedgers = accountingCart.Count(a => a.Credit.HasValue),
 			TotalDebitAmount = accountingCart.Sum(a => a.Debit ?? 0),
 			TotalCreditAmount = accountingCart.Sum(a => a.Credit ?? 0),
-			Remarks = $"Bill Day Closing for {fromDate:yyyy-MM-dd} to {toDate:yyyy-MM-dd}",
+			Remarks = $"Bill Day Closing for {postingDate:dd-MMM-yyyy}",
 			CreatedBy = userId,
 			CreatedAt = currentDateTime,
 			CreatedFromPlatform = userPlatform,
@@ -524,8 +527,7 @@ public static class BillData
 
 
 		await BillNotify.NotifyDayClosing(
-			fromDate,
-			toDate,
+			postingDate,
 			locationId,
 			bills.Count,
 			totalAmount,
@@ -542,5 +544,18 @@ public static class BillData
 			bill.FinancialAccountingId = null;
 			await InsertBill(bill, sqlDataAccessTransaction);
 		}
+	}
+
+	private static async Task ValidateDayBillsAccountPosting(DateTime postDate, int locationId, SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	{
+		var bills = await CommonData.LoadTableDataByDate<BillModel>(
+			TableNames.Bill,
+			DateOnly.FromDateTime(postDate).ToDateTime(TimeOnly.MinValue),
+			DateOnly.FromDateTime(postDate).ToDateTime(TimeOnly.MaxValue),
+			sqlDataAccessTransaction);
+
+		bills = [.. bills.Where(b => b.LocationId == locationId && b.FinancialAccountingId is not null && b.Status)];
+		if (bills.Count > 0)
+			throw new InvalidOperationException("Cannot post day bills account entry as there are already posted bills for the day. Please contact administrator.");
 	}
 }

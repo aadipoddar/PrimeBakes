@@ -17,8 +17,7 @@ internal static class SaleNotify
     }
 
     internal static async Task NotifyDayClosing(
-        DateTime fromDate,
-        DateTime toDate,
+        DateTime postingDate,
         int locationId,
         int totalSales,
         decimal totalAmount,
@@ -41,13 +40,13 @@ internal static class SaleNotify
             Details = new Dictionary<string, string>
             {
                 ["📍 Outlet"] = location?.Name ?? "Unknown",
-                ["📅 Period"] = $"{fromDate:dd MMM yyyy} to {toDate:dd MMM yyyy}",
+                ["📅 Date"] = $"{postingDate:dd MMM yyyy}",
                 ["🧾 Sales"] = totalSales.ToString(),
                 ["💰 Total Amount"] = totalAmount.FormatIndianCurrency(),
                 ["🧮 Extra Tax"] = totalExtraTaxAmount.FormatIndianCurrency(),
                 ["👤 By"] = userName
             },
-            Remarks = $"Sale day closing completed for {fromDate:yyyy-MM-dd} to {toDate:yyyy-MM-dd}"
+            Remarks = $"Sale day closing completed for {postingDate:dd-MMM-yyyy}"
         };
 
         await NotificationUtil.SendTransactionNotification(targetUsers, notificationData);

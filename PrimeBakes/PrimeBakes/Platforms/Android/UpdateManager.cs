@@ -65,13 +65,21 @@ public static class AadiSoftUpdater
 		return fileContent.Substring(fileContent.IndexOf(LatestVersionMarker, StringComparison.Ordinal) + LatestVersionMarker.Length, 7);
 	}
 
-	public static async Task UpdateApp(string githubRepoOwner, string githubRepoName, string setupAPKName, IProgress<int> progress = null)
+	public static async Task UpdateApp(string githubRepoOwner, string githubRepoName, string setupAPKName, IProgress<int> progress = null, bool forceUpdate = false)
 	{
-		var latestVersion = await GetLatestVersionFromGithubReadme(githubRepoOwner, githubRepoName);
-		if (string.IsNullOrWhiteSpace(latestVersion))
-			throw new Exception("Latest Version not found in README.");
+		var url = forceUpdate
+			? $"https://github.com/{githubRepoOwner}/{githubRepoName}/releases/latest/download/{setupAPKName}.apk"
+			: string.Empty;
 
-		var url = $"https://github.com/{githubRepoOwner}/{githubRepoName}/releases/download/{latestVersion}/{setupAPKName}.apk";
+		if (!forceUpdate)
+		{
+			var latestVersion = await GetLatestVersionFromGithubReadme(githubRepoOwner, githubRepoName);
+			if (string.IsNullOrWhiteSpace(latestVersion))
+				throw new Exception("Latest Version not found in README.");
+
+			url = $"https://github.com/{githubRepoOwner}/{githubRepoName}/releases/download/{latestVersion}/{setupAPKName}.apk";
+		}
+
 		var filePath = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, $"{setupAPKName}.apk");
 
 		using var client = CreateHttpClient();

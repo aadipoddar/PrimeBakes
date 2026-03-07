@@ -96,10 +96,12 @@ else
                                     </SfAutoComplete>
                                 </div>
 
-                                <div class="filters-actions">
-                                    <SfButton Content="@(_isProcessing ? "Closing Day..." : "Close Day (Post Sales)")"
-                                              CssClass="e-warning" Disabled="_isProcessing" OnClick="HandleSaleDayClosing" />
-                                </div>
+                                @if (_user.Accounts)
+                                {
+                                    <div class="filters-actions">
+                                        <SfButton Content="@(_isProcessing ? "Posting ..." : "Post Daywise Sales")" CssClass="e-warning" Disabled="_isProcessing" OnClick="PostDaywiseSales" />
+                                    </div>
+                                }
                             }
                         </div>
 
@@ -419,14 +421,16 @@ else
                                         <FooterTemplate>
                                             @{
                                                 var aggregate = (context as AggregateTemplateContext);
-                                                <div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong>
+                                                <div class="aggregate-value aggregate-total">
+                                                    <strong>@aggregate.Sum</strong>
                                                 </div>
                                             }
                                         </FooterTemplate>
                                         <GroupFooterTemplate>
                                             @{
                                                 var aggregate = (context as AggregateTemplateContext);
-                                                <div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong>
+                                                <div class="aggregate-value aggregate-total">
+                                                    <strong>@aggregate.Sum</strong>
                                                 </div>
                                             }
                                         </GroupFooterTemplate>

@@ -328,14 +328,14 @@ public partial class BillReport : IAsyncDisposable
 	#endregion
 
 	#region Actions
-	private async Task HandleBillDayClosing()
+	private async Task PostDaywiseBills()
 	{
 		if (_isProcessing)
 			return;
 
 		try
 		{
-			if (_user.LocationId != 1 || _selectedLocation is null || _selectedLocation.Id == 0)
+			if (_user.LocationId != 1 || _selectedLocation is null || _selectedLocation.Id <= 1)
 			{
 				await _toastNotification.ShowAsync("Validation", "Please select a specific location before day closing.", ToastType.Warning);
 				return;
@@ -345,12 +345,12 @@ public partial class BillReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Closing day and posting bill accounting...", ToastType.Info);
 
-			await BillData.BillDayClosing(
-				_fromDate,
-				_toDate,
-				_selectedLocation.Id,
-				_user.Id,
-				FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+			for (var date = _fromDate; date <= _toDate; date = date.AddDays(1))
+				await BillData.PostDayBills(
+					date,
+					_selectedLocation.Id,
+					_user.Id,
+					FormFactor.GetFormFactor() + FormFactor.GetPlatform());
 
 			await _toastNotification.ShowAsync("Success", "Day closing completed successfully.", ToastType.Success);
 		}
@@ -365,7 +365,7 @@ public partial class BillReport : IAsyncDisposable
 			await LoadTransactionOverviews();
 		}
 	}
-	
+
 	private async Task ViewSelectedCartItem()
 	{
 		if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)

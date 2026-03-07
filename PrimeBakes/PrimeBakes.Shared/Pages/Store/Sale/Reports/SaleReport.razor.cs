@@ -501,14 +501,14 @@ public partial class SaleReport : IAsyncDisposable
     #endregion
 
     #region Actions
-    private async Task HandleSaleDayClosing()
+    private async Task PostDaywiseSales()
     {
         if (_isProcessing)
             return;
 
         try
         {
-            if (_user.LocationId != 1 || _selectedLocation is null || _selectedLocation.Id == 0)
+            if (_user.LocationId != 1 || _selectedLocation is null || _selectedLocation.Id <= 1)
             {
                 await _toastNotification.ShowAsync("Validation", "Please select a specific location before day closing.", ToastType.Warning);
                 return;
@@ -518,12 +518,12 @@ public partial class SaleReport : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Closing day and posting sale accounting...", ToastType.Info);
 
-            await SaleData.SaleDayClosing(
-                _fromDate,
-                _toDate,
-                _selectedLocation.Id,
-                _user.Id,
-                FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+            for (var date = _fromDate; date <= _toDate; date = date.AddDays(1))
+                await SaleData.PostDaySales(
+                    date,
+                    _selectedLocation.Id,
+                    _user.Id,
+                    FormFactor.GetFormFactor() + FormFactor.GetPlatform());
 
             await _toastNotification.ShowAsync("Success", "Day closing completed successfully.", ToastType.Success);
         }

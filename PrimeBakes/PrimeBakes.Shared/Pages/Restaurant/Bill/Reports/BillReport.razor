@@ -98,10 +98,12 @@ else
                                     </SfAutoComplete>
                                 </div>
 
-                                <div class="filters-actions">
-                                    <SfButton Content="@(_isProcessing ? "Closing Day..." : "Close Day (Post Bills)")"
-                                              CssClass="e-warning" Disabled="_isProcessing" OnClick="HandleBillDayClosing" />
-                                </div>
+                                @if (_user.Accounts)
+                                {
+                                    <div class="filters-actions">
+                                        <SfButton Content="@(_isProcessing ? "Posting ..." : "Post Daywise Bills")" CssClass="e-warning" Disabled="_isProcessing" OnClick="PostDaywiseBills" />
+                                    </div>
+                                }
                             }
                         </div>
 
