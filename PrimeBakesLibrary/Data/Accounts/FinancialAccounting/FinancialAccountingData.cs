@@ -1,8 +1,12 @@
 ﻿using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Data.Operations;
+using PrimeBakesLibrary.Data.Restaurant.Bill;
+using PrimeBakesLibrary.Data.Store.Sale;
 using PrimeBakesLibrary.Exporting.Accounts.FinancialAccounting;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.FinancialAccounting;
+using PrimeBakesLibrary.Models.Operations;
 
 namespace PrimeBakesLibrary.Data.Accounts.FinancialAccounting;
 
@@ -62,6 +66,14 @@ public static class FinancialAccountingData
 
             accounting.Status = false;
             await InsertFinancialAccounting(accounting, sqlDataAccessTransaction);
+
+            var billDayClosingVoucherId = await SettingsData.LoadSettingsByKey(SettingsKeys.BillDayCloseVoucherId, sqlDataAccessTransaction);
+            if (accounting.VoucherId == int.Parse(billDayClosingVoucherId.Value))
+                await BillData.UpdateBillsFinancialAccountingId(accounting.Id, sqlDataAccessTransaction);
+
+            var saleDayClosingVoucherId = await SettingsData.LoadSettingsByKey(SettingsKeys.SaleDayCloseVoucherId, sqlDataAccessTransaction);
+            if (accounting.VoucherId == int.Parse(saleDayClosingVoucherId.Value))
+                await SaleData.UpdateSalesFinancialAccountingId(accounting.Id, sqlDataAccessTransaction);
         }
         catch
         {

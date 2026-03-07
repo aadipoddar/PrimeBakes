@@ -501,6 +501,44 @@ public partial class SaleReport : IAsyncDisposable
     #endregion
 
     #region Actions
+    private async Task HandleSaleDayClosing()
+    {
+        if (_isProcessing)
+            return;
+
+        try
+        {
+            if (_user.LocationId != 1 || _selectedLocation is null || _selectedLocation.Id == 0)
+            {
+                await _toastNotification.ShowAsync("Validation", "Please select a specific location before day closing.", ToastType.Warning);
+                return;
+            }
+
+            _isProcessing = true;
+            StateHasChanged();
+            await _toastNotification.ShowAsync("Processing", "Closing day and posting sale accounting...", ToastType.Info);
+
+            await SaleData.SaleDayClosing(
+                _fromDate,
+                _toDate,
+                _selectedLocation.Id,
+                _user.Id,
+                FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+
+            await _toastNotification.ShowAsync("Success", "Day closing completed successfully.", ToastType.Success);
+        }
+        catch (Exception ex)
+        {
+            await _toastNotification.ShowAsync("Error", $"Day closing failed: {ex.Message}", ToastType.Error);
+        }
+        finally
+        {
+            _isProcessing = false;
+            StateHasChanged();
+            await LoadTransactionOverviews();
+        }
+    }
+
     private async Task ViewSelectedCartItem()
     {
         if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)

@@ -191,8 +191,7 @@ public partial class ProductLocationPage : IAsyncDisposable
             var productLocation = _productLocations.FirstOrDefault(pl => pl.Id == _deleteProductLocationId);
             if (productLocation != null)
             {
-                productLocation.Status = false;
-                await ProductLocationData.InsertProductLocation(productLocation);
+                await ProductLocationData.DeleteProductLocationById(productLocation.Id);
 
                 await LoadData();
                 await _toastNotification.ShowAsync("Deleted", "Product location deleted successfully", ToastType.Success);

@@ -127,6 +127,7 @@
     <Folder Include="StoredProcedures\LoadData\Restaurant\Bill" />
     <Folder Include="Views\Restaurant" />
     <Folder Include="StoredProcedures\Insert\Restaurant\Dining" />
+    <Folder Include="StoredProcedures\LoadData\Store\Sale\" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="StoredProcedures\Delete\Delete_ProductStock_By_Id.sql" />
@@ -191,6 +192,7 @@
     <Build Include="StoredProcedures\LoadData\Inventory\Stock\Load_ProductStockSummary_By_Date_LocationId.sql" />
     <Build Include="StoredProcedures\LoadData\Inventory\Stock\Load_RawMaterialStockSummary_By_Date.sql" />
     <Build Include="StoredProcedures\LoadData\Store\Order\Load_Order_By_Location_Pending.sql" />
+    <Build Include="StoredProcedures\LoadData\Store\Sale\Load_Sale_By_FinancialAccountingId.sql" />
     <Build Include="Tables\Accounts\FinancialAccounting\FinancialAccounting.sql" />
     <Build Include="Tables\Accounts\FinancialAccounting\FinancialAccountingDetail.sql" />
     <Build Include="Tables\Accounts\Masters\AccountType.sql" />
@@ -272,6 +274,8 @@
     <Build Include="StoredProcedures\Insert\Restaurant\Dining\Insert_DiningTable.sql" />
     <Build Include="Tables\Store\Product\KOTCategory.sql" />
     <Build Include="StoredProcedures\Insert\Store\Product\Insert_KOTCategory.sql" />
+    <Build Include="StoredProcedures\LoadData\Restaurant\Bill\Load_Bill_By_FinancialAccountingId.sql" />
+    <Build Include="StoredProcedures\Delete\Delete_ProductLocation_By_Id.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="PublishLocation\LocalDBPrimeBakes.publish.xml" />

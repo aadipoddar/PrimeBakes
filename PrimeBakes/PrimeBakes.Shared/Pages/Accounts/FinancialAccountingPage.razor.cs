@@ -752,8 +752,8 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 
 			_accounting.Id = await FinancialAccountingData.SaveTransaction(_accounting, _cart);
 
-			var (pdfStream, fileName) = await FinancialAccountingInvoiceExport.ExportInvoice(_accounting.Id, InvoiceExportType.PDF);
-			await SaveAndViewService.SaveAndView(fileName, pdfStream);
+			// var (pdfStream, fileName) = await FinancialAccountingInvoiceExport.ExportInvoice(_accounting.Id, InvoiceExportType.PDF);
+			// await SaveAndViewService.SaveAndView(fileName, pdfStream);
 
 			await ResetPage();
 			await _toastNotification.ShowAsync("Save Transaction", "Transaction saved successfully! Invoice has been generated.", ToastType.Success);

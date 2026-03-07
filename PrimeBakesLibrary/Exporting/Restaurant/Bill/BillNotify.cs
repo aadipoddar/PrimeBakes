@@ -17,6 +17,43 @@ internal static class BillNotify
 			await BillMail(billId, type, previousInvoice);
 	}
 
+	internal static async Task NotifyDayClosing(
+		DateTime fromDate,
+		DateTime toDate,
+		int locationId,
+		int totalBills,
+		decimal totalAmount,
+		decimal totalExtraTaxAmount,
+		int userId,
+		string transactionNo)
+	{
+		var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
+		var location = await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, locationId);
+		var userName = users.FirstOrDefault(u => u.Id == userId)?.Name ?? "Unknown";
+
+		List<UserModel> targetUsers = [.. users.Where(u => (u.Admin || u.Restaurant) && (u.LocationId == locationId || u.LocationId == 1))];
+
+		var notificationData = new NotificationUtil.TransactionNotificationData
+		{
+			TransactionType = "Bill Day Closing",
+			TransactionNo = string.IsNullOrWhiteSpace(transactionNo) ? "N/A" : transactionNo,
+			Action = NotifyType.Created,
+			LocationName = location?.Name ?? "Unknown Outlet",
+			Details = new Dictionary<string, string>
+			{
+				["📍 Outlet"] = location?.Name ?? "Unknown",
+				["📅 Period"] = $"{fromDate:dd MMM yyyy} to {toDate:dd MMM yyyy}",
+				["🧾 Bills"] = totalBills.ToString(),
+				["💰 Total Amount"] = totalAmount.FormatIndianCurrency(),
+				["🧮 Extra Tax"] = totalExtraTaxAmount.FormatIndianCurrency(),
+				["👤 By"] = userName
+			},
+			Remarks = $"Bill day closing completed for {fromDate:yyyy-MM-dd} to {toDate:yyyy-MM-dd}"
+		};
+
+		await NotificationUtil.SendTransactionNotification(targetUsers, notificationData);
+	}
+
 	private static async Task BillNotification(int billId, NotifyType type)
 	{
 		var bill = await CommonData.LoadTableDataById<BillModel>(TableNames.Bill, billId);

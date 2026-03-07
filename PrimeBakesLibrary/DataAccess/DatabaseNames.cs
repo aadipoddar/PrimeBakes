@@ -93,8 +93,10 @@ public static class StoredProcedureNames
 	public static string LoadProductLocationOverviewByProductLocation => "Load_ProductLocation_Overview_By_Product_Location";
 	public static string LoadCustomerByNumber => "Load_Customer_By_Number";
 	public static string LoadOrderByLocationPending => "Load_Order_By_Location_Pending";
+	public static string LoadSaleByFinancialAccountingId => "Load_Sale_By_FinancialAccountingId";
 
 	public static string LoadRunningBillByLocationId => "Load_RunningBill_By_LocationId";
+	public static string LoadBillByFinancialAccountingId => "Load_Bill_By_FinancialAccountingId";
 
 	public static string InsertUser => "Insert_User";
 	public static string ResetSettings => "Reset_Settings";
@@ -157,6 +159,7 @@ public static class StoredProcedureNames
 	public static string InsertBill => "Insert_Bill";
 	public static string InsertBillDetail => "Insert_BillDetail";
 
+	public static string DeleteProductLocationById => "Delete_ProductLocation_By_Id";
 	public static string DeleteProductStockById => "Delete_ProductStock_By_Id";
 	public static string DeleteProductStockByTypeTransactionIdLocationId => "Delete_ProductStock_By_Type_TransactionId_LocationId";
 	public static string DeleteRawMaterialStockById => "Delete_RawMaterialStock_By_Id";

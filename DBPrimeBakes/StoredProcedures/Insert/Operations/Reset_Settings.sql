@@ -34,6 +34,8 @@ BEGIN
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'SaleReturnVoucherId', N'5', N'Voucher type for Sale Return transactions')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'StockTransferVoucherId', N'7', N'Voucher type for Stock Transfer transactions')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'BillVoucherId', N'9', N'Voucher type for Bill transactions')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'BillDayCloseVoucherId', N'10', N'Voucher type for Bill Day Close transactions')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'SaleDayCloseVoucherId', N'11', N'Voucher type for Sale Day Close transactions')
 	
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'PurchaseLedgerId', N'155', N'Ledger account for Purchase entries')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'SaleLedgerId', N'144', N'Ledger account for Sales entries')

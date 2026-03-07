@@ -36,6 +36,7 @@ public static class SaleReportExport
 			[nameof(SaleOverviewModel.LastModifiedByUserName)] = new() { DisplayName = "Modified By", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleOverviewModel.LastModifiedAt)] = new() { DisplayName = "Modified At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(SaleOverviewModel.LastModifiedFromPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(SaleOverviewModel.FinancialAccountingTransactionNo)] = new() { DisplayName = "Accounts Posting", Alignment = CellAlignment.Left, IncludeInTotal = false },
 
 			[nameof(SaleOverviewModel.TotalItems)] = new()
 			{
@@ -268,7 +269,8 @@ public static class SaleReportExport
 				nameof(SaleOverviewModel.CreatedFromPlatform),
 				nameof(SaleOverviewModel.LastModifiedByUserName),
 				nameof(SaleOverviewModel.LastModifiedAt),
-				nameof(SaleOverviewModel.LastModifiedFromPlatform)
+				nameof(SaleOverviewModel.LastModifiedFromPlatform),
+				nameof(SaleOverviewModel.FinancialAccountingTransactionNo)
 			]);
 		}
 		else

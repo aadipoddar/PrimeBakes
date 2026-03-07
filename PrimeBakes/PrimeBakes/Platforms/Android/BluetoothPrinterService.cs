@@ -123,7 +123,7 @@ public class BluetoothPrinterService : IBluetoothPrinterService
 			filter.AddAction(BluetoothAdapter.ActionDiscoveryFinished);
 
 			if (Build.VERSION.SdkInt >= BuildVersionCodes.Tiramisu)
-				activity.RegisterReceiver(_discoveryReceiver, filter, global::Android.Content.ReceiverFlags.Exported);
+				activity.RegisterReceiver(_discoveryReceiver, filter, ReceiverFlags.Exported);
 			else
 				activity.RegisterReceiver(_discoveryReceiver, filter);
 
@@ -197,7 +197,7 @@ public class BluetoothPrinterService : IBluetoothPrinterService
 				var filter = new IntentFilter(BluetoothDevice.ActionBondStateChanged);
 
 				if (Build.VERSION.SdkInt >= BuildVersionCodes.Tiramisu)
-					activity.RegisterReceiver(bondReceiver, filter, global::Android.Content.ReceiverFlags.Exported);
+					activity.RegisterReceiver(bondReceiver, filter, ReceiverFlags.Exported);
 				else
 					activity.RegisterReceiver(bondReceiver, filter);
 

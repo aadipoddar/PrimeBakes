@@ -30,10 +30,11 @@ public class BillModel
 	public decimal UPI { get; set; }
 	public decimal Credit { get; set; }
 	public string? Remarks { get; set; }
+	public bool Running { get; set; }
+	public int? FinancialAccountingId { get; set; }
 	public int CreatedBy { get; set; }
 	public DateTime CreatedAt { get; set; }
 	public string CreatedFromPlatform { get; set; }
-	public bool Running { get; set; }
 	public bool Status { get; set; }
 	public int? LastModifiedBy { get; set; }
 	public DateTime? LastModifiedAt { get; set; }
@@ -148,6 +149,9 @@ public class BillOverviewModel
 
 	public bool Running { get; set; }
 	public bool Status { get; set; }
+
+	public int? FinancialAccountingId { get; set; }
+	public string? FinancialAccountingTransactionNo { get; set; }
 }
 
 public class BillItemOverviewModel

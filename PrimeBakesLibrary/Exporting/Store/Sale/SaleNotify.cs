@@ -16,6 +16,43 @@ internal static class SaleNotify
             await SaleMail(saleId, type, previousInvoice);
     }
 
+    internal static async Task NotifyDayClosing(
+        DateTime fromDate,
+        DateTime toDate,
+        int locationId,
+        int totalSales,
+        decimal totalAmount,
+        decimal totalExtraTaxAmount,
+        int userId,
+        string transactionNo)
+    {
+        var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
+        var location = await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, locationId);
+        var userName = users.FirstOrDefault(u => u.Id == userId)?.Name ?? "Unknown";
+
+        List<UserModel> targetUsers = [.. users.Where(u => (u.Admin || u.Store) && (u.LocationId == locationId || u.LocationId == 1))];
+
+        var notificationData = new NotificationUtil.TransactionNotificationData
+        {
+            TransactionType = "Sale Day Closing",
+            TransactionNo = string.IsNullOrWhiteSpace(transactionNo) ? "N/A" : transactionNo,
+            Action = NotifyType.Created,
+            LocationName = location?.Name ?? "Unknown Outlet",
+            Details = new Dictionary<string, string>
+            {
+                ["📍 Outlet"] = location?.Name ?? "Unknown",
+                ["📅 Period"] = $"{fromDate:dd MMM yyyy} to {toDate:dd MMM yyyy}",
+                ["🧾 Sales"] = totalSales.ToString(),
+                ["💰 Total Amount"] = totalAmount.FormatIndianCurrency(),
+                ["🧮 Extra Tax"] = totalExtraTaxAmount.FormatIndianCurrency(),
+                ["👤 By"] = userName
+            },
+            Remarks = $"Sale day closing completed for {fromDate:yyyy-MM-dd} to {toDate:yyyy-MM-dd}"
+        };
+
+        await NotificationUtil.SendTransactionNotification(targetUsers, notificationData);
+    }
+
     private static async Task SaleNotification(int saleId, NotifyType type)
     {
         var sale = await CommonData.LoadTableDataById<SaleOverviewModel>(ViewNames.SaleOverview, saleId);

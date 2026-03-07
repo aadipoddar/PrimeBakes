@@ -5,14 +5,8 @@ using PrimeBakesLibrary.Models.Restuarant.Bill;
 
 namespace PrimeBakesLibrary.Exporting.Restaurant.Bill;
 
-/// <summary>
-/// Export utilities for Bill Report and Bill Item Report in PDF and Excel formats.
-/// </summary>
 public static class BillReportExport
 {
-	/// <summary>
-	/// Exports the bill transaction report to the specified format (PDF or Excel).
-	/// </summary>
 	public static async Task<(MemoryStream stream, string fileName)> ExportReport(
 		IEnumerable<BillOverviewModel> billData,
 		ReportExportType exportType,
@@ -40,6 +34,7 @@ public static class BillReportExport
 			[nameof(BillOverviewModel.LastModifiedByUserName)] = new() { DisplayName = "Modified By", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(BillOverviewModel.LastModifiedAt)] = new() { DisplayName = "Modified At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(BillOverviewModel.LastModifiedFromPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(BillOverviewModel.FinancialAccountingTransactionNo)] = new() { DisplayName = "Accounts Posting", Alignment = CellAlignment.Left, IncludeInTotal = false },
 
 			[nameof(BillOverviewModel.TotalPeople)] = new()
 			{
@@ -277,7 +272,8 @@ public static class BillReportExport
 				nameof(BillOverviewModel.CreatedFromPlatform),
 				nameof(BillOverviewModel.LastModifiedByUserName),
 				nameof(BillOverviewModel.LastModifiedAt),
-				nameof(BillOverviewModel.LastModifiedFromPlatform)
+				nameof(BillOverviewModel.LastModifiedFromPlatform),
+				nameof(BillOverviewModel.FinancialAccountingTransactionNo),
 			]);
 		}
 		else

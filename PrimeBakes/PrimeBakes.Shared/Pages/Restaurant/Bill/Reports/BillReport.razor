@@ -97,6 +97,11 @@ else
                                         <AutoCompleteFieldSettings Value="Name" />
                                     </SfAutoComplete>
                                 </div>
+
+                                <div class="filters-actions">
+                                    <SfButton Content="@(_isProcessing ? "Closing Day..." : "Close Day (Post Bills)")"
+                                              CssClass="e-warning" Disabled="_isProcessing" OnClick="HandleBillDayClosing" />
+                                </div>
                             }
                         </div>
 
@@ -433,14 +438,16 @@ else
                                         <FooterTemplate>
                                             @{
                                                 var aggregate = (context as AggregateTemplateContext);
-                                                <div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong>
+                                                <div class="aggregate-value aggregate-total">
+                                                    <strong>@aggregate.Sum</strong>
                                                 </div>
                                             }
                                         </FooterTemplate>
                                         <GroupFooterTemplate>
                                             @{
                                                 var aggregate = (context as AggregateTemplateContext);
-                                                <div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong>
+                                                <div class="aggregate-value aggregate-total">
+                                                    <strong>@aggregate.Sum</strong>
                                                 </div>
                                             }
                                         </GroupFooterTemplate>
@@ -726,6 +733,8 @@ else
                                         Visible="@(_showAllColumns && !_showSummary)" />
                             <GridColumn Field="@nameof(BillOverviewModel.LastModifiedFromPlatform)"
                                         HeaderText="Modified Platform" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
+                            <GridColumn Field="@nameof(BillOverviewModel.FinancialAccountingTransactionNo)"
+                                        HeaderText="Accounts Posting" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
                         </GridColumns>
                     </SfGrid>
                 </div>

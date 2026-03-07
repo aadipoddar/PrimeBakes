@@ -28,6 +28,7 @@
     [UPI] MONEY NOT NULL DEFAULT 0, 
     [Credit] MONEY NOT NULL DEFAULT 0,
 	[Remarks] VARCHAR(MAX) NULL,
+	[FinancialAccountingId] INT NULL,
 	[CreatedBy] INT NOT NULL,
 	[CreatedAt] DATETIME NOT NULL DEFAULT (((getdate() AT TIME ZONE 'UTC') AT TIME ZONE 'India Standard Time')),
 	[CreatedFromPlatform] VARCHAR(MAX) NOT NULL,
@@ -41,6 +42,7 @@
     CONSTRAINT [FK_Sale_ToCustomer] FOREIGN KEY (CustomerId) REFERENCES [Customer](Id), 
     CONSTRAINT [FK_Sale_ToOrder] FOREIGN KEY (OrderId) REFERENCES [Order](Id), 
     CONSTRAINT [FK_Sale_ToFinancialYear] FOREIGN KEY ([FinancialYearId]) REFERENCES [dbo].[FinancialYear]([Id]),
+	CONSTRAINT [FK_Sale_ToFinancialAccounting] FOREIGN KEY ([FinancialAccountingId]) REFERENCES [FinancialAccounting]([Id]),
     CONSTRAINT [FK_Sale_ToUser] FOREIGN KEY ([CreatedBy]) REFERENCES [User]([Id]),
 	CONSTRAINT [FK_Sale_LastModifiedBy_ToUser] FOREIGN KEY ([LastModifiedBy]) REFERENCES [User]([Id])
 )

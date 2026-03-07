@@ -404,7 +404,7 @@ public partial class SalePage : IAsyncDisposable
 		AddPaymentFromSale("UPI", _sale.UPI);
 		AddPaymentFromSale("Credit", _sale.Credit);
 
-		_selectedPaymentMethod = _user?.LocationId == 1
+		_selectedPaymentMethod = _selectedLocation?.Id == 1
 			? _paymentMethods.FirstOrDefault(pm => pm.Name == "Credit") ?? _paymentMethods.FirstOrDefault()
 			: _paymentMethods.FirstOrDefault();
 		_paymentAmount = Math.Max(0, _remainingAmount);
@@ -518,6 +518,10 @@ public partial class SalePage : IAsyncDisposable
 			_sale.OrderId = null;
 			await _toastNotification.ShowAsync("Party & Order Cleared", "The party & order has been cleared as the selected location is not the main location.", ToastType.Info);
 		}
+
+		_selectedPaymentMethod = _selectedLocation?.Id == 1
+			? _paymentMethods.FirstOrDefault(pm => pm.Name == "Credit") ?? _paymentMethods.FirstOrDefault()
+			: _paymentMethods.FirstOrDefault();
 
 		await LoadItems();
 		await SaveTransactionFile();

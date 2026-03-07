@@ -40,6 +40,8 @@ public static class SettingsKeys
 	public static string SaleReturnVoucherId => "SaleReturnVoucherId";
 	public static string StockTransferVoucherId => "StockTransferVoucherId";
 	public static string BillVoucherId => "BillVoucherId";
+	public static string BillDayCloseVoucherId => "BillDayCloseVoucherId";
+	public static string SaleDayCloseVoucherId => "SaleDayCloseVoucherId";
 	
 	public static string PurchaseLedgerId => "PurchaseLedgerId";
 	public static string SaleLedgerId => "SaleLedgerId";

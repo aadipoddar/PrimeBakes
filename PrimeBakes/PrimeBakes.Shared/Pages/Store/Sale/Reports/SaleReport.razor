@@ -95,6 +95,11 @@ else
                                         <AutoCompleteFieldSettings Value="Name" />
                                     </SfAutoComplete>
                                 </div>
+
+                                <div class="filters-actions">
+                                    <SfButton Content="@(_isProcessing ? "Closing Day..." : "Close Day (Post Sales)")"
+                                              CssClass="e-warning" Disabled="_isProcessing" OnClick="HandleSaleDayClosing" />
+                                </div>
                             }
                         </div>
 
@@ -696,6 +701,8 @@ else
                                         Visible="@(_showAllColumns && !_showSummary)" />
                             <GridColumn Field="@nameof(SaleOverviewModel.LastModifiedFromPlatform)"
                                         HeaderText="Modified Platform" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
+                            <GridColumn Field="@nameof(SaleOverviewModel.FinancialAccountingTransactionNo)"
+                                        HeaderText="Accounts Posting" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
                         </GridColumns>
                     </SfGrid>
                 </div>

@@ -62,7 +62,10 @@ SELECT
 	[b].[LastModifiedFromPlatform],
 
 	[b].[Running],
-	[b].[Status]
+	[b].[Status],
+
+	[b].[FinancialAccountingId],
+	[fa].[TransactionNo] AS FinancialAccountingTransactionNo
 
 FROM
 	[dbo].[Bill] AS b
@@ -82,3 +85,5 @@ INNER JOIN
 	[dbo].[User] AS u ON b.CreatedBy = u.Id
 LEFT JOIN
 	[dbo].[User] AS lm ON b.LastModifiedBy = lm.Id
+LEFT JOIN
+	[dbo].[FinancialAccounting] AS fa ON b.FinancialAccountingId = fa.Id

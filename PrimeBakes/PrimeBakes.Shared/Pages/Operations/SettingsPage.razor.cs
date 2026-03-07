@@ -61,6 +61,10 @@ public partial class SettingsPage : IAsyncDisposable
     private string _selectedStockTransferVoucherName = string.Empty;
     private string _billVoucherId = string.Empty;
     private string _selectedBillVoucherName = string.Empty;
+    private string _billDayCloseVoucherId = string.Empty;
+    private string _selectedBillDayCloseVoucherName = string.Empty;
+    private string _saleDayCloseVoucherId = string.Empty;
+    private string _selectedSaleDayCloseVoucherName = string.Empty;
     private string _defaultSelectedVoucherId = string.Empty;
     private string _selectedDefaultVoucherName = string.Empty;
     private List<VoucherModel> _vouchers = [];
@@ -204,6 +208,12 @@ public partial class SettingsPage : IAsyncDisposable
         var billVoucherSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.BillVoucherId);
         _billVoucherId = billVoucherSetting?.Value ?? string.Empty;
 
+        var billDayCloseVoucherSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.BillDayCloseVoucherId);
+        _billDayCloseVoucherId = billDayCloseVoucherSetting?.Value ?? string.Empty;
+
+        var saleDayCloseVoucherSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.SaleDayCloseVoucherId);
+        _saleDayCloseVoucherId = saleDayCloseVoucherSetting?.Value ?? string.Empty;
+
         var defaultSelectedVoucherSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.DefaultSelectedVoucherId);
         _defaultSelectedVoucherId = defaultSelectedVoucherSetting?.Value ?? string.Empty;
 
@@ -303,6 +313,18 @@ public partial class SettingsPage : IAsyncDisposable
         {
             var voucher = _vouchers.FirstOrDefault(v => v.Id == billVoucherId);
             _selectedBillVoucherName = voucher?.Name ?? string.Empty;
+        }
+
+        if (!string.IsNullOrEmpty(_billDayCloseVoucherId) && long.TryParse(_billDayCloseVoucherId, out var billDayCloseVoucherId))
+        {
+            var voucher = _vouchers.FirstOrDefault(v => v.Id == billDayCloseVoucherId);
+            _selectedBillDayCloseVoucherName = voucher?.Name ?? string.Empty;
+        }
+
+        if (!string.IsNullOrEmpty(_saleDayCloseVoucherId) && long.TryParse(_saleDayCloseVoucherId, out var saleDayCloseVoucherId))
+        {
+            var voucher = _vouchers.FirstOrDefault(v => v.Id == saleDayCloseVoucherId);
+            _selectedSaleDayCloseVoucherName = voucher?.Name ?? string.Empty;
         }
 
         if (!string.IsNullOrEmpty(_defaultSelectedVoucherId) && long.TryParse(_defaultSelectedVoucherId, out var defaultSelectedVoucherId))
@@ -415,11 +437,27 @@ public partial class SettingsPage : IAsyncDisposable
         }
     }
 
+    private void OnBillDayCloseVoucherChange(ChangeEventArgs<string, VoucherModel> args)
+    {
+        if (args.ItemData != null)
+        {
+            _billDayCloseVoucherId = args.ItemData.Id.ToString();
+        }
+    }
+
     private void OnDefaultSelectedVoucherChange(ChangeEventArgs<string, VoucherModel> args)
     {
         if (args.ItemData != null)
         {
             _defaultSelectedVoucherId = args.ItemData.Id.ToString();
+        }
+    }
+
+    private void OnSaleDayCloseVoucherChange(ChangeEventArgs<string, VoucherModel> args)
+    {
+        if (args.ItemData != null)
+        {
+            _saleDayCloseVoucherId = args.ItemData.Id.ToString();
         }
     }
 
@@ -529,6 +567,8 @@ public partial class SettingsPage : IAsyncDisposable
             await UpdateSetting(SettingsKeys.SaleReturnVoucherId, _saleReturnVoucherId, settings.FirstOrDefault(_ => _.Key == SettingsKeys.SaleReturnVoucherId).Description);
             await UpdateSetting(SettingsKeys.StockTransferVoucherId, _stockTransferVoucherId, settings.FirstOrDefault(_ => _.Key == SettingsKeys.StockTransferVoucherId).Description);
             await UpdateSetting(SettingsKeys.BillVoucherId, _billVoucherId, settings.FirstOrDefault(_ => _.Key == SettingsKeys.BillVoucherId)?.Description ?? string.Empty);
+            await UpdateSetting(SettingsKeys.BillDayCloseVoucherId, _billDayCloseVoucherId, settings.FirstOrDefault(_ => _.Key == SettingsKeys.BillDayCloseVoucherId)?.Description ?? string.Empty);
+            await UpdateSetting(SettingsKeys.SaleDayCloseVoucherId, _saleDayCloseVoucherId, settings.FirstOrDefault(_ => _.Key == SettingsKeys.SaleDayCloseVoucherId)?.Description ?? string.Empty);
             await UpdateSetting(SettingsKeys.DefaultSelectedVoucherId, _defaultSelectedVoucherId, settings.FirstOrDefault(_ => _.Key == SettingsKeys.DefaultSelectedVoucherId)?.Description ?? string.Empty);
             await UpdateSetting(SettingsKeys.PurchaseLedgerId, _purchaseLedgerId, settings.FirstOrDefault(_ => _.Key == SettingsKeys.PurchaseLedgerId).Description);
             await UpdateSetting(SettingsKeys.SaleLedgerId, _saleLedgerId, settings.FirstOrDefault(_ => _.Key == SettingsKeys.SaleLedgerId).Description);

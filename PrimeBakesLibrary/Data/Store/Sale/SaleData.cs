@@ -16,11 +16,14 @@ namespace PrimeBakesLibrary.Data.Store.Sale;
 
 public static class SaleData
 {
-    private static async Task<int> InsertSale(SaleModel sale, SqlDataAccessTransaction? sqlDataAccessTransaction = null) =>
+    private static async Task<int> InsertSale(SaleModel sale, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
         (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertSale, sale, sqlDataAccessTransaction)).FirstOrDefault();
 
-    private static async Task<int> InsertSaleDetail(SaleDetailModel saleDetail, SqlDataAccessTransaction? sqlDataAccessTransaction = null) =>
+    private static async Task<int> InsertSaleDetail(SaleDetailModel saleDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
         (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertSaleDetail, saleDetail, sqlDataAccessTransaction)).FirstOrDefault();
+
+    private static async Task<List<SaleModel>> LoadSaleByFinancialAccountingId(int financialAccountingId, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+        await SqlDataAccess.LoadData<SaleModel, dynamic>(StoredProcedureNames.LoadSaleByFinancialAccountingId, new { FinancialAccountingId = financialAccountingId }, sqlDataAccessTransaction);
 
     private static List<SaleDetailModel> ConvertCartToDetails(List<SaleItemCartModel> cart, int masterId) =>
         [.. cart.Select(item => new SaleDetailModel
@@ -50,6 +53,9 @@ public static class SaleData
 
     public static async Task DeleteTransaction(SaleModel sale)
     {
+        if (sale.FinancialAccountingId is not null)
+            throw new InvalidOperationException("Cannot delete a sale with financial accounting.");
+
         await FinancialYearData.ValidateFinancialYear(sale.TransactionDateTime);
 
         using SqlDataAccessTransaction sqlDataAccessTransaction = new();
@@ -142,6 +148,10 @@ public static class SaleData
         if (update)
         {
             existingSale = await CommonData.LoadTableDataById<SaleModel>(TableNames.Sale, sale.Id, sqlDataAccessTransaction);
+
+            if (existingSale.FinancialAccountingId is not null)
+                throw new InvalidOperationException("Cannot update a sale with financial accounting.");
+
             await FinancialYearData.ValidateFinancialYear(existingSale.TransactionDateTime, sqlDataAccessTransaction);
             sale.TransactionNo = existingSale.TransactionNo;
         }
@@ -156,7 +166,9 @@ public static class SaleData
         await SaveProductStock(sale, saleDetails, existingSale, update, sqlDataAccessTransaction);
         await SaveRawMaterialStockByRecipe(sale, saleDetails, existingSale, update, sqlDataAccessTransaction);
         await UpdateOrder(sale, existingSale, update, sqlDataAccessTransaction);
-        await SaveAccounting(sale, update, sqlDataAccessTransaction);
+
+        if (sale.LocationId == 1)
+            await SaveAccounting(sale, update, sqlDataAccessTransaction);
 
         return sale.Id;
     }
@@ -318,52 +330,32 @@ public static class SaleData
 
         var accountingCart = new List<FinancialAccountingItemCartModel>();
 
-        if (sale.LocationId == 1)
+        if (saleOverview.Cash + saleOverview.UPI + saleOverview.Card > 0)
         {
-            if (saleOverview.Cash + saleOverview.UPI + saleOverview.Card > 0)
+            var cashLedger = await SettingsData.LoadSettingsByKey(SettingsKeys.CashSalesLedgerId, sqlDataAccessTransaction);
+            accountingCart.Add(new()
             {
-                var cashLedger = await SettingsData.LoadSettingsByKey(SettingsKeys.CashSalesLedgerId, sqlDataAccessTransaction);
-                accountingCart.Add(new()
-                {
-                    ReferenceId = saleOverview.Id,
-                    ReferenceType = nameof(ReferenceTypes.Sale),
-                    ReferenceNo = saleOverview.TransactionNo,
-                    LedgerId = int.Parse(cashLedger.Value),
-                    Debit = saleOverview.Cash + saleOverview.UPI + saleOverview.Card,
-                    Credit = null,
-                    Remarks = $"Cash Account Posting For Sale Bill {saleOverview.TransactionNo}",
-                });
-            }
+                ReferenceId = saleOverview.Id,
+                ReferenceType = nameof(ReferenceTypes.Sale),
+                ReferenceNo = saleOverview.TransactionNo,
+                LedgerId = int.Parse(cashLedger.Value),
+                Debit = saleOverview.Cash + saleOverview.UPI + saleOverview.Card,
+                Credit = null,
+                Remarks = $"Cash Account Posting For Sale Bill {saleOverview.TransactionNo}",
+            });
+        }
 
-            if (saleOverview.Credit > 0)
-                accountingCart.Add(new()
-                {
-                    ReferenceId = saleOverview.Id,
-                    ReferenceType = nameof(ReferenceTypes.Sale),
-                    ReferenceNo = saleOverview.TransactionNo,
-                    LedgerId = saleOverview.PartyId.Value,
-                    Debit = saleOverview.Credit,
-                    Credit = null,
-                    Remarks = $"Party Account Posting For Sale Bill {saleOverview.TransactionNo}",
-                });
-        }
-        else
-        {
-            if (saleOverview.Cash + saleOverview.UPI + saleOverview.Card + saleOverview.Credit > 0)
+        if (saleOverview.Credit > 0)
+            accountingCart.Add(new()
             {
-                var ledger = await LedgerData.LoadLedgerByLocationId(sale.LocationId, sqlDataAccessTransaction);
-                accountingCart.Add(new()
-                {
-                    ReferenceId = saleOverview.Id,
-                    ReferenceType = nameof(ReferenceTypes.Sale),
-                    ReferenceNo = saleOverview.TransactionNo,
-                    LedgerId = ledger.Id,
-                    Debit = saleOverview.Cash + saleOverview.UPI + saleOverview.Card + saleOverview.Credit,
-                    Credit = null,
-                    Remarks = $"Location Account Posting For Sale Bill {saleOverview.TransactionNo}",
-                });
-            }
-        }
+                ReferenceId = saleOverview.Id,
+                ReferenceType = nameof(ReferenceTypes.Sale),
+                ReferenceNo = saleOverview.TransactionNo,
+                LedgerId = saleOverview.PartyId.Value,
+                Debit = saleOverview.Credit,
+                Credit = null,
+                Remarks = $"Party Account Posting For Sale Bill {saleOverview.TransactionNo}",
+            });
 
         if (saleOverview.TotalAmount - saleOverview.TotalExtraTaxAmount > 0)
         {
@@ -418,5 +410,133 @@ public static class SaleData
         };
 
         await FinancialAccountingData.SaveTransaction(accounting, accountingCart, null, false, sqlDataAccessTransaction);
+    }
+
+    public static async Task SaleDayClosing(DateTime fromDate, DateTime toDate, int locationId, int userId, string userPlatform)
+    {
+        await FinancialYearData.ValidateFinancialYear(fromDate);
+        await FinancialYearData.ValidateFinancialYear(toDate);
+
+        var sales = await CommonData.LoadTableDataByDate<SaleOverviewModel>(
+            ViewNames.SaleOverview,
+            DateOnly.FromDateTime(fromDate).ToDateTime(TimeOnly.MinValue),
+            DateOnly.FromDateTime(toDate).ToDateTime(TimeOnly.MaxValue));
+
+        sales = [.. sales.Where(s =>
+                                    s.LocationId == locationId &&
+                                    s.FinancialAccountingTransactionNo is null &&
+                                    s.Status)];
+
+        if (sales.Count == 0)
+            return;
+
+        var accountingCart = new List<FinancialAccountingItemCartModel>();
+
+        var totalAmount = sales.Sum(s => s.Cash + s.UPI + s.Card + s.Credit);
+        var totalExtraTaxAmount = sales.Sum(s => s.TotalExtraTaxAmount);
+
+        if (totalAmount <= 0)
+            return;
+
+        var ledger = await LedgerData.LoadLedgerByLocationId(locationId);
+        accountingCart.Add(new()
+        {
+            LedgerId = ledger.Id,
+            Debit = totalAmount,
+            Credit = null,
+            Remarks = "Location Account Posting For Sale Day Closing",
+        });
+
+        if (totalAmount - totalExtraTaxAmount > 0)
+        {
+            var saleLedger = await SettingsData.LoadSettingsByKey(SettingsKeys.SaleLedgerId);
+            accountingCart.Add(new()
+            {
+                LedgerId = int.Parse(saleLedger.Value),
+                Debit = null,
+                Credit = totalAmount - totalExtraTaxAmount,
+                Remarks = "Sale Account Posting For Sale Day Closing",
+            });
+        }
+
+        if (totalExtraTaxAmount > 0)
+        {
+            var gstLedger = await SettingsData.LoadSettingsByKey(SettingsKeys.GSTLedgerId);
+            accountingCart.Add(new()
+            {
+                LedgerId = int.Parse(gstLedger.Value),
+                Debit = null,
+                Credit = totalExtraTaxAmount,
+                Remarks = "GST Account Posting For Sale Day Closing",
+            });
+        }
+
+        var voucher = await SettingsData.LoadSettingsByKey(SettingsKeys.SaleDayCloseVoucherId);
+        var currentDateTime = await CommonData.LoadCurrentDateTime();
+        var financialYear = await FinancialYearData.LoadFinancialYearByDateTime(currentDateTime);
+
+        var accounting = new FinancialAccountingModel
+        {
+            Id = 0,
+            TransactionNo = "",
+            CompanyId = sales.First().CompanyId,
+            VoucherId = int.Parse(voucher.Value),
+            ReferenceId = null,
+            ReferenceNo = null,
+            TransactionDateTime = currentDateTime,
+            FinancialYearId = financialYear.Id,
+            TotalDebitLedgers = accountingCart.Count(a => a.Debit.HasValue),
+            TotalCreditLedgers = accountingCart.Count(a => a.Credit.HasValue),
+            TotalDebitAmount = accountingCart.Sum(a => a.Debit ?? 0),
+            TotalCreditAmount = accountingCart.Sum(a => a.Credit ?? 0),
+            Remarks = $"Sale Day Closing for {fromDate:yyyy-MM-dd} to {toDate:yyyy-MM-dd}",
+            CreatedBy = userId,
+            CreatedAt = currentDateTime,
+            CreatedFromPlatform = userPlatform,
+            Status = true
+        };
+
+        using SqlDataAccessTransaction sqlDataAccessTransaction = new();
+
+        try
+        {
+            sqlDataAccessTransaction.StartTransaction();
+
+            accounting.Id = await FinancialAccountingData.SaveTransaction(accounting, accountingCart, null, false, sqlDataAccessTransaction);
+
+            foreach (var saleOverview in sales)
+            {
+                var sale = await CommonData.LoadTableDataById<SaleModel>(TableNames.Sale, saleOverview.Id, sqlDataAccessTransaction);
+                sale.FinancialAccountingId = accounting.Id;
+                await InsertSale(sale, sqlDataAccessTransaction);
+            }
+
+            sqlDataAccessTransaction.CommitTransaction();
+        }
+        catch
+        {
+            sqlDataAccessTransaction.RollbackTransaction();
+            throw;
+        }
+
+        await SaleNotify.NotifyDayClosing(
+            fromDate,
+            toDate,
+            locationId,
+            sales.Count,
+            totalAmount,
+            totalExtraTaxAmount,
+            userId,
+            accounting.TransactionNo);
+    }
+
+    internal static async Task UpdateSalesFinancialAccountingId(int financialAccountingId, SqlDataAccessTransaction sqlDataAccessTransaction = null)
+    {
+        var sales = await LoadSaleByFinancialAccountingId(financialAccountingId, sqlDataAccessTransaction);
+        foreach (var sale in sales)
+        {
+            sale.FinancialAccountingId = null;
+            await InsertSale(sale, sqlDataAccessTransaction);
+        }
     }
 }

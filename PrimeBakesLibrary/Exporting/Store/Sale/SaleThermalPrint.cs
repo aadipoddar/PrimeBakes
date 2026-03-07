@@ -126,7 +126,7 @@ public static class SaleThermalPrint
             string productName = products.FirstOrDefault(p => p.Id == item.ProductId)?.Name ?? "Unknown";
             var hasExtraTax = !item.InclusiveTax && item.TotalTaxAmount > 0;
             if (hasExtraTax)
-                productName += "*";
+                productName += " *";
 
             rows.Add(
             [

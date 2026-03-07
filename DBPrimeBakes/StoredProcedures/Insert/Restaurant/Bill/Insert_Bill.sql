@@ -27,10 +27,11 @@
 	@UPI MONEY,
 	@Credit MONEY,
 	@Remarks VARCHAR(MAX),
+	@Running BIT,
+	@FinancialAccountingId INT,
 	@CreatedBy INT,
 	@CreatedAt DATETIME,
 	@CreatedFromPlatform VARCHAR(MAX),
-	@Running BIT,
 	@Status BIT,
 	@LastModifiedBy INT,
 	@LastModifiedAt DATETIME,
@@ -68,10 +69,11 @@ BEGIN
 			[UPI],
 			[Credit],
 			[Remarks],
+			[Running],
+			[FinancialAccountingId],
 			[CreatedBy],
 			[CreatedAt],
 			[CreatedFromPlatform],
-			[Running],
 			[Status]
 		)
 		VALUES
@@ -103,10 +105,11 @@ BEGIN
 			@UPI,
 			@Credit,
 			@Remarks,
+			@Running,
+			@FinancialAccountingId,
 			@CreatedBy,
 			@CreatedAt,
 			@CreatedFromPlatform,
-			@Running,
 			@Status
 		)
 		SET @Id = SCOPE_IDENTITY()
@@ -144,6 +147,7 @@ BEGIN
 			[Credit] = @Credit,
 			[Remarks] = @Remarks,
 			[Running] = @Running,
+			[FinancialAccountingId] = @FinancialAccountingId,
 			[Status] = @Status,
 			[LastModifiedBy] = @LastModifiedBy,
 			[LastModifiedAt] = @LastModifiedAt,
