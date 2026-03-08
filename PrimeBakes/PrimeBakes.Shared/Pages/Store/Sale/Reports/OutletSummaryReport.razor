@@ -1,0 +1,122 @@
+﻿@attribute [Route(PageRouteNames.OutletSummaryReport)]
+
+@using PrimeBakesLibrary.Models.Accounts.Masters
+@using PrimeBakesLibrary.Models.Store.Sale
+
+<PageTitle>Outlet Summary Report - Prime Bakes</PageTitle>
+
+@if (_isLoading || _user is null)
+{
+	<AnimatedLoader Visible="true" />
+}
+else
+{
+	<div class="page-shell">
+		<Header Title="Outlet Summary Report" Subtitle="View outlet-wise sales and purchase summary" ShowHome="true"
+				ShowBack="true" ShowLogout="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack"
+				OnLogoutClick="Logout">
+			<RightContent>
+				<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)"
+							Disabled="_isProcessing" OnClick="ExportExcel" />
+				<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)"
+							Disabled="_isProcessing" OnClick="ExportPdf" />
+				<IconButton Icon="IconType.Refresh" Title="Refresh Data (Ctrl + R)" Disabled="_isProcessing"
+							OnClick="RefreshReport" />
+			</RightContent>
+		</Header>
+
+		<div class="page-container">
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+							 stroke-linejoin="round">
+							<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+						</svg>
+						<h2 class="section-title">Filters</h2>
+					</div>
+				</div>
+				<div class="section-body">
+					<div class="filters-container">
+						<div class="filters-grid">
+							<div class="form-field">
+								<label class="field-label">Date Range</label>
+								<SfDateRangePicker CssClass="custom-daterange" StartDate="_fromDate" EndDate="_toDate"
+												   TValue="DateTime" Format="dd/MM/yyyy" AllowEdit="true" Placeholder="Select date range">
+									<DateRangePickerEvents TValue="DateTime" ValueChange="OnDateRangeChanged" />
+								</SfDateRangePicker>
+							</div>
+
+							<div class="form-field">
+								<label class="field-label">Company</label>
+								<SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedCompany"
+												TValue="CompanyModel" TItem="CompanyModel" DataSource="@_companies"
+												Placeholder="All Companies" AllowFiltering="true"
+												FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
+									<AutoCompleteEvents TItem="CompanyModel" TValue="CompanyModel"
+														ValueChange="OnCompanyChanged" />
+									<AutoCompleteFieldSettings Value="Name" />
+								</SfAutoComplete>
+							</div>
+						</div>
+
+						<DateRangeButtons Disabled="_isProcessing" FromDate="_fromDate" ToDate="_toDate"
+										  OnDatesChanged="HandleDatesChanged" ToastNotification="_toastNotification" />
+					</div>
+				</div>
+			</div>
+
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+							 stroke-linejoin="round">
+							<line x1="8" y1="6" x2="21" y2="6" />
+							<line x1="8" y1="12" x2="21" y2="12" />
+							<line x1="8" y1="18" x2="21" y2="18" />
+							<line x1="3" y1="6" x2="3.01" y2="6" />
+							<line x1="3" y1="12" x2="3.01" y2="12" />
+							<line x1="3" y1="18" x2="3.01" y2="18" />
+						</svg>
+						<h2 class="section-title">Outlet Summary</h2>
+					</div>
+				</div>
+				<div class="section-body grid-body">
+					<SfGrid ID="_sfGrid" @ref="_sfGrid" TValue="OutletSummaryModel" DataSource="_outletSummaries"
+							AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+							AllowFiltering="true" AllowGrouping="true" GridLines="GridLine.Horizontal"
+							CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
+
+						<GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
+						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
+						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+						<GridColumns>
+							<GridColumn Field="@nameof(OutletSummaryModel.LocationName)" HeaderText="Outlet" Width="200" />
+							<GridColumn Field="@nameof(OutletSummaryModel.Purchase)" HeaderText="Purchase" Width="140"
+										Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(OutletSummaryModel.PurchaseReturn)" HeaderText="Purchase Return"
+										Width="160" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(OutletSummaryModel.KitchenIssue)" HeaderText="Kitchen Issue" Width="120" Format="N2"
+										TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(OutletSummaryModel.KitchenProduction)" HeaderText="Kitchen Production" Width="140"
+										Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(OutletSummaryModel.Sale)" HeaderText="Sale" Width="140" Format="N2"
+										TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(OutletSummaryModel.SaleReturn)" HeaderText="Sale Return" Width="140"
+										Format="N2" TextAlign="TextAlign.Right" />
+						</GridColumns>
+					</SfGrid>
+				</div>
+			</div>
+		</div>
+
+		<Footer />
+	</div>
+}
+
+<ToastNotification @ref="_toastNotification" />
+
+

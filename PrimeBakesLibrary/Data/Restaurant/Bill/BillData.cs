@@ -11,7 +11,6 @@ using PrimeBakesLibrary.Models.Inventory.Stock;
 using PrimeBakesLibrary.Models.Operations;
 using PrimeBakesLibrary.Models.Restuarant.Bill;
 using PrimeBakesLibrary.Models.Store.Product;
-using PrimeBakesLibrary.Models.Store.Sale;
 
 namespace PrimeBakesLibrary.Data.Restaurant.Bill;
 

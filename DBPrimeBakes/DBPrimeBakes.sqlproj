@@ -276,7 +276,6 @@
     <Build Include="StoredProcedures\Insert\Store\Product\Insert_KOTCategory.sql" />
     <Build Include="StoredProcedures\LoadData\Restaurant\Bill\Load_Bill_By_FinancialAccountingId.sql" />
     <Build Include="StoredProcedures\Delete\Delete_ProductLocation_By_Id.sql" />
-    <Build Include="StoredProcedures\LoadData\Store\Sale\Load_Sale_Summary_By_Date.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="PublishLocation\LocalDBPrimeBakes.publish.xml" />

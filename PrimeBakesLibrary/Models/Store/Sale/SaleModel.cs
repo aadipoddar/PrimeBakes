@@ -197,3 +197,15 @@ public class SaleItemOverviewModel
 
     public string? Remarks { get; set; }
 }
+
+public class OutletSummaryModel
+{
+	public int LocationId { get; set; }
+	public string LocationName { get; set; }
+	public decimal Purchase { get; set; }
+	public decimal PurchaseReturn { get; set; }
+    public decimal KitchenIssue { get; set; }
+    public decimal KitchenProduction { get; set; }
+	public decimal Sale { get; set; }
+    public decimal SaleReturn { get; set; }
+}
