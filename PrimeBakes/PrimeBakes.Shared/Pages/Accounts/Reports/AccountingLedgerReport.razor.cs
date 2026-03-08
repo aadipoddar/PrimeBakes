@@ -214,15 +214,11 @@ public partial class AccountingLedgerReport : IAsyncDisposable
             _isProcessing = true;
             StateHasChanged();
             await _toastNotification.ShowAsync("Exporting", "Generating Excel file...", ToastType.Info);
-
-            DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
-            DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
-
             var (stream, fileName) = await FinancialAccountingReportExport.ExportLedgerReport(
                 _transactionOverviews,
                 ReportExportType.Excel,
-                dateRangeStart,
-                dateRangeEnd,
+                DateOnly.FromDateTime(_fromDate),
+                DateOnly.FromDateTime(_toDate),
                 _showAllColumns,
                 _selectedCompany?.Id > 0 ? _selectedCompany : null,
                 _selectedLedger?.Id > 0 ? _selectedLedger : null,
@@ -253,15 +249,11 @@ public partial class AccountingLedgerReport : IAsyncDisposable
             _isProcessing = true;
             StateHasChanged();
             await _toastNotification.ShowAsync("Exporting", "Generating PDF file...", ToastType.Info);
-
-            DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
-            DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
-
             var (stream, fileName) = await FinancialAccountingReportExport.ExportLedgerReport(
                 _transactionOverviews,
                 ReportExportType.PDF,
-                dateRangeStart,
-                dateRangeEnd,
+                DateOnly.FromDateTime(_fromDate),
+                DateOnly.FromDateTime(_toDate),
                 _showAllColumns,
                 _selectedCompany?.Id > 0 ? _selectedCompany : null,
                 _selectedLedger?.Id > 0 ? _selectedLedger : null,

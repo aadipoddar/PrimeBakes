@@ -241,9 +241,9 @@ else
                                         HeaderText="Date" Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime"
                                         Visible="@(!_showSummary)" />
                             <GridColumn Field="@nameof(KitchenProductionItemOverviewModel.CompanyName)" HeaderText="Company"
-                                        Width="180" Visible="@(_showAllColumns && !_showSummary)" />
+                                        Width="180" Visible="@(_showAllColumns && !_showSummary && _selectedCompany?.Id <= 0)" />
                             <GridColumn Field="@nameof(KitchenProductionItemOverviewModel.KitchenName)" HeaderText="Kitchen"
-                                        Width="200" Visible="@(!_showSummary)" />
+                                        Width="200" Visible="@(!_showSummary && _selectedKitchen?.Id <= 0)" />
                             <GridColumn Field="@nameof(KitchenProductionItemOverviewModel.Quantity)" HeaderText="Qty"
                                         Width="120" Format="N2" TextAlign="TextAlign.Right" />
                             <GridColumn Field="@nameof(KitchenProductionItemOverviewModel.Rate)" HeaderText="Rate"

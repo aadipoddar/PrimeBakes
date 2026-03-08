@@ -209,15 +209,11 @@ public partial class KitchenProductionReport : IAsyncDisposable
             _isProcessing = true;
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating Excel file...", ToastType.Info);
-
-            DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
-            DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
-
             var (stream, fileName) = await KitchenProductionReportExport.ExportReport(
                     _transactionOverviews,
                     ReportExportType.Excel,
-                    dateRangeStart,
-                    dateRangeEnd,
+                    DateOnly.FromDateTime(_fromDate),
+                    DateOnly.FromDateTime(_toDate),
                     _showAllColumns,
                     _showSummary,
                     _selectedKitchen?.Id > 0 ? new KitchenModel { Id = _selectedKitchen.Id, Name = _selectedKitchen.Name } : null,
@@ -249,15 +245,11 @@ public partial class KitchenProductionReport : IAsyncDisposable
             _isProcessing = true;
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating PDF file...", ToastType.Info);
-
-            DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
-            DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
-
             var (stream, fileName) = await KitchenProductionReportExport.ExportReport(
                     _transactionOverviews,
                     ReportExportType.PDF,
-                    dateRangeStart,
-                    dateRangeEnd,
+                    DateOnly.FromDateTime(_fromDate),
+                    DateOnly.FromDateTime(_toDate),
                     _showAllColumns,
                     _showSummary,
                     _selectedKitchen?.Id > 0 ? new KitchenModel { Id = _selectedKitchen.Id, Name = _selectedKitchen.Name } : null,

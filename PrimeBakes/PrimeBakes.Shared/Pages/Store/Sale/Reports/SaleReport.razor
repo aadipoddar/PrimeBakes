@@ -99,7 +99,8 @@ else
                                 @if (_user.Accounts)
                                 {
                                     <div class="filters-actions">
-                                        <SfButton Content="@(_isProcessing ? "Posting ..." : "Post Daywise Sales")" CssClass="e-warning" Disabled="_isProcessing" OnClick="PostDaywiseSales" />
+                                        <SfButton Content="@(_isProcessing ? "Posting ..." : "Post Daywise Sales")"
+                                                  CssClass="e-warning" Disabled="_isProcessing" OnClick="PostDaywiseSales" />
                                     </div>
                                 }
                             }
@@ -591,11 +592,12 @@ else
                                         Visible="@(!_showSummary)" />
                             <GridColumn Field="@nameof(SaleOverviewModel.TransactionDateTime)" HeaderText="Date" Width="150"
                                         Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(!_showSummary)" />
-                            <GridColumn Field="@nameof(SaleOverviewModel.LocationName)" HeaderText="Location" Width="150" />
+                            <GridColumn Field="@nameof(SaleOverviewModel.LocationName)" HeaderText="Location" Width="150"
+                                        Visible="@(_selectedLocation?.Id <= 0)" />
                             <GridColumn Field="@nameof(SaleOverviewModel.CompanyName)" HeaderText="Company" Width="180"
-                                        Visible="@(_showAllColumns && !_showSummary)" />
+                                        Visible="@(_showAllColumns && !_showSummary && _selectedCompany?.Id <= 0)" />
                             <GridColumn Field="@nameof(SaleOverviewModel.PartyName)" HeaderText="Party" Width="200"
-                                        Visible="@(!_showSummary)" />
+                                        Visible="@(!_showSummary && _selectedParty?.Id <= 0)" />
                             <GridColumn Field="@nameof(SaleOverviewModel.CustomerName)" HeaderText="Customer" Width="180"
                                         Visible="@(_showAllColumns && !_showSummary)" />
                             <GridColumn Field="@nameof(SaleOverviewModel.OrderTransactionNo)" HeaderText="Order No"

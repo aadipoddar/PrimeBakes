@@ -279,7 +279,7 @@ public partial class OutletSummaryReport : IAsyncDisposable
 			var (stream, fileName) = await OutletSummaryReportExport.ExportReport(
 				_outletSummaries,
 				ReportExportType.Excel,
-				 DateOnly.FromDateTime(_fromDate),
+				DateOnly.FromDateTime(_fromDate),
 				DateOnly.FromDateTime(_toDate),
 				_selectedCompany?.Id > 0 ? _selectedCompany : null);
 

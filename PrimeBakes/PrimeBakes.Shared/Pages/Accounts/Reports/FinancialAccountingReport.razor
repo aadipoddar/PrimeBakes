@@ -202,8 +202,9 @@ else
                                             }
                                         </GroupCaptionTemplate>
                                     </GridAggregateColumn>
-                                    <GridAggregateColumn Field="@nameof(FinancialAccountingOverviewModel.TotalCreditLedgers)"
-                                                         Type="AggregateType.Sum" Format="N0">
+                                    <GridAggregateColumn
+                                        Field="@nameof(FinancialAccountingOverviewModel.TotalCreditLedgers)"
+                                        Type="AggregateType.Sum" Format="N0">
                                         <FooterTemplate>
                                             @{
                                                 var aggregate = (context as AggregateTemplateContext);
@@ -355,18 +356,18 @@ else
                                     </div>
                                 </Template>
                             </GridColumn>
-                            <GridColumn Field="@nameof(FinancialAccountingOverviewModel.TransactionNo)" HeaderText="Trans No"
-                                        Width="170" />
-                            <GridColumn Field="@nameof(FinancialAccountingOverviewModel.TransactionDateTime)" HeaderText="Date"
-                                        Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+                            <GridColumn Field="@nameof(FinancialAccountingOverviewModel.TransactionNo)"
+                                        HeaderText="Trans No" Width="170" />
+                            <GridColumn Field="@nameof(FinancialAccountingOverviewModel.TransactionDateTime)"
+                                        HeaderText="Date" Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
                             <GridColumn Field="@nameof(FinancialAccountingOverviewModel.CompanyName)" HeaderText="Company"
-                                        Width="180" />
-                            <GridColumn Field="@nameof(FinancialAccountingOverviewModel.VoucherName)" HeaderText="Voucher Type"
-                                        Width="150" />
-                            <GridColumn Field="@nameof(FinancialAccountingOverviewModel.ReferenceNo)" HeaderText="Ref No" Width="150"
-                                        Visible="_showAllColumns" />
-                            <GridColumn Field="@nameof(FinancialAccountingOverviewModel.FinancialYear)" HeaderText="Financial Year"
-                                        Width="130" Visible="_showAllColumns" />
+                                        Width="180" Visible="@(_selectedCompany?.Id <= 0)" />
+                            <GridColumn Field="@nameof(FinancialAccountingOverviewModel.VoucherName)"
+                                        HeaderText="Voucher Type" Width="150" Visible="@(_selectedVoucher?.Id <= 0)" />
+                            <GridColumn Field="@nameof(FinancialAccountingOverviewModel.ReferenceNo)" HeaderText="Ref No"
+                                        Width="150" Visible="_showAllColumns" />
+                            <GridColumn Field="@nameof(FinancialAccountingOverviewModel.FinancialYear)"
+                                        HeaderText="Financial Year" Width="130" Visible="_showAllColumns" />
                             <GridColumn Field="@nameof(FinancialAccountingOverviewModel.TotalLedgers)" HeaderText="Ledgers"
                                         Width="100" TextAlign="TextAlign.Right" />
                             <GridColumn Field="@nameof(FinancialAccountingOverviewModel.TotalDebitLedgers)"
@@ -375,8 +376,8 @@ else
                             <GridColumn Field="@nameof(FinancialAccountingOverviewModel.TotalCreditLedgers)"
                                         HeaderText="Credit Ledgers" Width="130" TextAlign="TextAlign.Right"
                                         Visible="_showAllColumns" />
-                            <GridColumn Field="@nameof(FinancialAccountingOverviewModel.TotalDebitAmount)" HeaderText="Total Debit"
-                                        Width="150" TextAlign="TextAlign.Right">
+                            <GridColumn Field="@nameof(FinancialAccountingOverviewModel.TotalDebitAmount)"
+                                        HeaderText="Total Debit" Width="150" TextAlign="TextAlign.Right">
                                 <Template>
                                     @{
                                         var item = (context as FinancialAccountingOverviewModel);
@@ -384,8 +385,8 @@ else
                                     }
                                 </Template>
                             </GridColumn>
-                            <GridColumn Field="@nameof(FinancialAccountingOverviewModel.TotalCreditAmount)" HeaderText="Total Credit"
-                                        Width="150" TextAlign="TextAlign.Right">
+                            <GridColumn Field="@nameof(FinancialAccountingOverviewModel.TotalCreditAmount)"
+                                        HeaderText="Total Credit" Width="150" TextAlign="TextAlign.Right">
                                 <Template>
                                     @{
                                         var item = (context as FinancialAccountingOverviewModel);
@@ -393,8 +394,8 @@ else
                                     }
                                 </Template>
                             </GridColumn>
-                            <GridColumn Field="@nameof(FinancialAccountingOverviewModel.TotalAmount)" HeaderText="Amount" Width="150"
-                                        TextAlign="TextAlign.Right">
+                            <GridColumn Field="@nameof(FinancialAccountingOverviewModel.TotalAmount)" HeaderText="Amount"
+                                        Width="150" TextAlign="TextAlign.Right">
                                 <Template>
                                     @{
                                         var item = (context as FinancialAccountingOverviewModel);
@@ -402,10 +403,10 @@ else
                                     }
                                 </Template>
                             </GridColumn>
-                            <GridColumn Field="@nameof(FinancialAccountingOverviewModel.Remarks)" HeaderText="Remarks" Width="200"
-                                        Visible="_showAllColumns" />
-                            <GridColumn Field="@nameof(FinancialAccountingOverviewModel.CreatedByName)" HeaderText="Created By"
-                                        Width="150" Visible="_showAllColumns" />
+                            <GridColumn Field="@nameof(FinancialAccountingOverviewModel.Remarks)" HeaderText="Remarks"
+                                        Width="200" Visible="_showAllColumns" />
+                            <GridColumn Field="@nameof(FinancialAccountingOverviewModel.CreatedByName)"
+                                        HeaderText="Created By" Width="150" Visible="_showAllColumns" />
                             <GridColumn Field="@nameof(FinancialAccountingOverviewModel.CreatedAt)" HeaderText="Created At"
                                         Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime"
                                         Visible="_showAllColumns" />
@@ -413,8 +414,8 @@ else
                                         HeaderText="Created Platform" Width="200" Visible="_showAllColumns" />
                             <GridColumn Field="@nameof(FinancialAccountingOverviewModel.LastModifiedByUserName)"
                                         HeaderText="Modified By" Width="150" Visible="_showAllColumns" />
-                            <GridColumn Field="@nameof(FinancialAccountingOverviewModel.LastModifiedAt)" HeaderText="Modified At"
-                                        Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime"
+                            <GridColumn Field="@nameof(FinancialAccountingOverviewModel.LastModifiedAt)"
+                                        HeaderText="Modified At" Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime"
                                         Visible="_showAllColumns" />
                             <GridColumn Field="@nameof(FinancialAccountingOverviewModel.LastModifiedFromPlatform)"
                                         HeaderText="Modified Platform" Width="200" Visible="_showAllColumns" />

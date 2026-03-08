@@ -199,15 +199,11 @@ public partial class ProductStockReport : IAsyncDisposable
 
 			if (_showDetails && (_stockDetails is null || _stockDetails.Count == 0))
 				await LoadStockDetails();
-
-			DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
-			DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
-
 			var (summaryStream, summaryFileName) = await ProductStockReportExport.ExportSummaryReport(
 					_stockSummary,
 					ReportExportType.Excel,
-					dateRangeStart,
-					dateRangeEnd,
+					DateOnly.FromDateTime(_fromDate),
+					DateOnly.FromDateTime(_toDate),
 					_showAllColumns,
 					_selectedLocation?.Id > 0 ? _selectedLocation : null
 				);
@@ -219,8 +215,8 @@ public partial class ProductStockReport : IAsyncDisposable
 				var (detailsStream, detailsFileName) = await ProductStockReportExport.ExportDetailsReport(
 						_showDetails ? _stockDetails : null,
 						ReportExportType.Excel,
-						dateRangeStart,
-						dateRangeEnd,
+						DateOnly.FromDateTime(_fromDate),
+						DateOnly.FromDateTime(_toDate),
 						_selectedLocation?.Id > 0 ? _selectedLocation : null
 				   );
 
@@ -250,15 +246,11 @@ public partial class ProductStockReport : IAsyncDisposable
 			_isProcessing = true;
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating PDF file...", ToastType.Info);
-
-			DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
-			DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
-
 			var (summaryStream, summaryFileName) = await ProductStockReportExport.ExportSummaryReport(
 					_stockSummary,
 					ReportExportType.PDF,
-					dateRangeStart,
-					dateRangeEnd,
+					DateOnly.FromDateTime(_fromDate),
+					DateOnly.FromDateTime(_toDate),
 					_showAllColumns,
 					_selectedLocation?.Id > 0 ? _selectedLocation : null
 				);
@@ -270,8 +262,8 @@ public partial class ProductStockReport : IAsyncDisposable
 				var (detailsStream, detailsFileName) = await ProductStockReportExport.ExportDetailsReport(
 						_showDetails ? _stockDetails : null,
 						ReportExportType.PDF,
-						dateRangeStart,
-						dateRangeEnd,
+						DateOnly.FromDateTime(_fromDate),
+						DateOnly.FromDateTime(_toDate),
 						_selectedLocation?.Id > 0 ? _selectedLocation : null
 				   );
 

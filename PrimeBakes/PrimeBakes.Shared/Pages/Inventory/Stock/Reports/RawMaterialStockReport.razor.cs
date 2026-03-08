@@ -168,15 +168,11 @@ public partial class RawMaterialStockReport : IAsyncDisposable
 			_isProcessing = true;
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating Excel file...", ToastType.Info);
-
-			DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
-			DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
-
 			var (summaryStream, summaryFileName) = await RawMaterialStockReportExport.ExportSummaryReport(
 					_stockSummary,
 					ReportExportType.Excel,
-					dateRangeStart,
-					dateRangeEnd,
+					DateOnly.FromDateTime(_fromDate),
+					DateOnly.FromDateTime(_toDate),
 					_showAllColumns
 				);
 
@@ -187,8 +183,8 @@ public partial class RawMaterialStockReport : IAsyncDisposable
 				var (detailsStream, detailsFileName) = await RawMaterialStockReportExport.ExportDetailsReport(
 						_stockDetails,
 						ReportExportType.Excel,
-						dateRangeStart,
-						dateRangeEnd
+						DateOnly.FromDateTime(_fromDate),
+						DateOnly.FromDateTime(_toDate)
 					);
 
 				await SaveAndViewService.SaveAndView(detailsFileName, detailsStream);
@@ -217,15 +213,11 @@ public partial class RawMaterialStockReport : IAsyncDisposable
 			_isProcessing = true;
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating PDF file...", ToastType.Info);
-
-			DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
-			DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
-
 			var (summaryStream, summaryFileName) = await RawMaterialStockReportExport.ExportSummaryReport(
 					_stockSummary,
 					ReportExportType.PDF,
-					dateRangeStart,
-					dateRangeEnd,
+					DateOnly.FromDateTime(_fromDate),
+					DateOnly.FromDateTime(_toDate),
 					_showAllColumns
 				);
 
@@ -236,8 +228,8 @@ public partial class RawMaterialStockReport : IAsyncDisposable
 				var (detailsStream, detailsFileName) = await RawMaterialStockReportExport.ExportDetailsReport(
 						_stockDetails,
 						ReportExportType.PDF,
-						dateRangeStart,
-						dateRangeEnd
+						DateOnly.FromDateTime(_fromDate),
+						DateOnly.FromDateTime(_toDate)
 					);
 
 				await SaveAndViewService.SaveAndView(detailsFileName, detailsStream);

@@ -14,13 +14,20 @@
 else
 {
     <div class="page-shell">
-        <Header Title="Purchase Item Report" Subtitle="View and analyze purchase item transactions" ShowHome="true" ShowBack="true" ShowLogout="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
+        <Header Title="Purchase Item Report" Subtitle="View and analyze purchase item transactions" ShowHome="true"
+                ShowBack="true" ShowLogout="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack"
+                OnLogoutClick="Logout">
             <RightContent>
-                <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
-                <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
-                <IconButton Icon="IconType.Refresh" Title="Refresh Data (Ctrl + R)" Disabled="_isProcessing" OnClick="LoadTransactionOverviews" />
-                <IconButton Icon="IconType.History" Title="Transaction History Report (Ctrl + H)" Disabled="_isProcessing" OnClick="NavigateToTransactionHistory" />
-                <IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing" OnClick="NavigateToTransactionPage" />
+                <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)"
+                            Disabled="_isProcessing" OnClick="ExportExcel" />
+                <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)"
+                            Disabled="_isProcessing" OnClick="ExportPdf" />
+                <IconButton Icon="IconType.Refresh" Title="Refresh Data (Ctrl + R)" Disabled="_isProcessing"
+                            OnClick="LoadTransactionOverviews" />
+                <IconButton Icon="IconType.History" Title="Transaction History Report (Ctrl + H)" Disabled="_isProcessing"
+                            OnClick="NavigateToTransactionHistory" />
+                <IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing"
+                            OnClick="NavigateToTransactionPage" />
             </RightContent>
         </Header>
 
@@ -31,8 +38,9 @@ else
             <div class="section-card">
                 <div class="section-header">
                     <div class="section-title-wrapper">
-                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round">
                             <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
                         </svg>
                         <h2 class="section-title">Filters</h2>
@@ -53,9 +61,10 @@ else
                             <!-- Company -->
                             <div class="form-field">
                                 <label class="field-label">Company</label>
-                                <SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedCompany" TValue="CompanyModel"
-                                                TItem="CompanyModel" DataSource="@_companies" Placeholder="All Companies"
-                                                AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
+                                <SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedCompany"
+                                                TValue="CompanyModel" TItem="CompanyModel" DataSource="@_companies"
+                                                Placeholder="All Companies" AllowFiltering="true"
+                                                FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
                                     <AutoCompleteEvents TItem="CompanyModel" TValue="CompanyModel"
                                                         ValueChange="OnCompanyChanged" />
                                     <AutoCompleteFieldSettings Value="Name" />
@@ -66,9 +75,10 @@ else
                             <div class="form-field">
                                 <label class="field-label">Party</label>
                                 <SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedParty" TValue="LedgerModel"
-                                                TItem="LedgerModel" DataSource="@_parties" Placeholder="All Parties" AllowFiltering="true"
-                                                FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
-                                    <AutoCompleteEvents TItem="LedgerModel" TValue="LedgerModel" ValueChange="OnPartyChanged" />
+                                                TItem="LedgerModel" DataSource="@_parties" Placeholder="All Parties"
+                                                AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
+                                    <AutoCompleteEvents TItem="LedgerModel" TValue="LedgerModel"
+                                                        ValueChange="OnPartyChanged" />
                                     <AutoCompleteFieldSettings Value="Name" />
                                 </SfAutoComplete>
                             </div>
@@ -85,8 +95,9 @@ else
             <div class="section-card">
                 <div class="section-header">
                     <div class="section-title-wrapper">
-                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round">
                             <line x1="8" y1="6" x2="21" y2="6" />
                             <line x1="8" y1="12" x2="21" y2="12" />
                             <line x1="8" y1="18" x2="21" y2="18" />
@@ -325,19 +336,22 @@ else
                                         <FooterTemplate>
                                             @{
                                                 var aggregate = (context as AggregateTemplateContext);
-                                                <div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
+                                                <div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong>
+                                                </div>
                                             }
                                         </FooterTemplate>
                                         <GroupFooterTemplate>
                                             @{
                                                 var aggregate = (context as AggregateTemplateContext);
-                                                <div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
+                                                <div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong>
+                                                </div>
                                             }
                                         </GroupFooterTemplate>
                                         <GroupCaptionTemplate>
                                             @{
                                                 var aggregate = (context as AggregateTemplateContext);
-                                                <div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
+                                                <div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong>
+                                                </div>
                                             }
                                         </GroupCaptionTemplate>
                                     </GridAggregateColumn>
@@ -346,19 +360,22 @@ else
                                         <FooterTemplate>
                                             @{
                                                 var aggregate = (context as AggregateTemplateContext);
-                                                <div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
+                                                <div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong>
+                                                </div>
                                             }
                                         </FooterTemplate>
                                         <GroupFooterTemplate>
                                             @{
                                                 var aggregate = (context as AggregateTemplateContext);
-                                                <div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
+                                                <div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong>
+                                                </div>
                                             }
                                         </GroupFooterTemplate>
                                         <GroupCaptionTemplate>
                                             @{
                                                 var aggregate = (context as AggregateTemplateContext);
-                                                <div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong></div>
+                                                <div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong>
+                                                </div>
                                             }
                                         </GroupCaptionTemplate>
                                     </GridAggregateColumn>
@@ -367,30 +384,51 @@ else
                         </GridAggregates>
 
                         <GridColumns>
-                            <GridColumn HeaderText="Actions" Width="150" TextAlign="TextAlign.Center" Visible="@(!_showSummary)">
+                            <GridColumn HeaderText="Actions" Width="150" TextAlign="TextAlign.Center"
+                                        Visible="@(!_showSummary)">
                                 <Template>
                                     @{
                                         var item = (context as PurchaseItemOverviewModel);
                                     }
                                     <div class="grid-actions">
-                                        <IconButton Icon="IconType.View" Variant="ButtonVariant.View" Size="ButtonSize.Grid" Title="View Transaction (Ctrl + O)" Disabled="_isProcessing" OnClick="@(() => ViewTransaction(item.MasterId))" />
-                                        <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Size="ButtonSize.Grid" Title="Download Excel Invoice (Alt+E)" Disabled="_isProcessing" OnClick="@(() => DownloadExcelInvoice(item.MasterId))" />
-                                        <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Grid" Title="Download PDF Invoice (Alt+P)" Disabled="_isProcessing" OnClick="@(() => DownloadPdfInvoice(item.MasterId))" />
+                                        <IconButton Icon="IconType.View" Variant="ButtonVariant.View" Size="ButtonSize.Grid"
+                                                    Title="View Transaction (Ctrl + O)" Disabled="_isProcessing"
+                                                    OnClick="@(() => ViewTransaction(item.MasterId))" />
+                                        <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel"
+                                                    Size="ButtonSize.Grid" Title="Download Excel Invoice (Alt+E)"
+                                                    Disabled="_isProcessing"
+                                                    OnClick="@(() => DownloadExcelInvoice(item.MasterId))" />
+                                        <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Grid"
+                                                    Title="Download PDF Invoice (Alt+P)" Disabled="_isProcessing"
+                                                    OnClick="@(() => DownloadPdfInvoice(item.MasterId))" />
                                     </div>
                                 </Template>
                             </GridColumn>
                             <GridColumn Field="@nameof(PurchaseItemOverviewModel.ItemName)" HeaderText="Item" Width="200" />
-                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.ItemCode)" HeaderText="Code" Width="130" Visible="_showAllColumns" />
-                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.ItemCategoryName)" HeaderText="Category" Width="150" Visible="_showAllColumns" />
-                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.TransactionNo)" HeaderText="Trans No" Width="170" Visible="@(!_showSummary)" />
-                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.TransactionDateTime)" HeaderText="Date" Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(!_showSummary)" />
-                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.CompanyName)" HeaderText="Company" Width="180" Visible="@(_showAllColumns && !_showSummary)" />
-                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.PartyName)" HeaderText="Party" Width="200" Visible="@(!_showSummary)" />
-                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.Quantity)" HeaderText="Quantity" Width="120" Format="N2" TextAlign="TextAlign.Right" />
-                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.Rate)" HeaderText="Rate" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="@(!_showSummary)" />
-                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.BaseTotal)" HeaderText="Base Total" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.DiscountPercent)" HeaderText="Disc %" Width="120" Format="N2" TextAlign="TextAlign.Center" Visible="@(_showAllColumns && !_showSummary)" />
-                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.DiscountAmount)" HeaderText="Disc" Width="130" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.ItemCode)" HeaderText="Code" Width="130"
+                                        Visible="_showAllColumns" />
+                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.ItemCategoryName)" HeaderText="Category"
+                                        Width="150" Visible="_showAllColumns" />
+                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.TransactionNo)" HeaderText="Trans No"
+                                        Width="170" Visible="@(!_showSummary)" />
+                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.TransactionDateTime)" HeaderText="Date"
+                                        Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime"
+                                        Visible="@(!_showSummary)" />
+                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.CompanyName)" HeaderText="Company"
+                                        Width="180" Visible="@(_showAllColumns && !_showSummary && _selectedCompany?.Id <= 0)" />
+                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.PartyName)" HeaderText="Party" Width="200"
+                                        Visible="@(!_showSummary && _selectedParty?.Id <= 0)" />
+                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.Quantity)" HeaderText="Quantity"
+                                        Width="120" Format="N2" TextAlign="TextAlign.Right" />
+                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.Rate)" HeaderText="Rate" Width="120"
+                                        Format="N2" TextAlign="TextAlign.Right" Visible="@(!_showSummary)" />
+                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.BaseTotal)" HeaderText="Base Total"
+                                        Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.DiscountPercent)" HeaderText="Disc %"
+                                        Width="120" Format="N2" TextAlign="TextAlign.Center"
+                                        Visible="@(_showAllColumns && !_showSummary)" />
+                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.DiscountAmount)" HeaderText="Disc"
+                                        Width="130" TextAlign="TextAlign.Right" Visible="_showAllColumns">
                                 <Template>
                                     @{
                                         var detailItem = (context as PurchaseItemOverviewModel);
@@ -398,17 +436,31 @@ else
                                     }
                                 </Template>
                             </GridColumn>
-                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.AfterDiscount)" HeaderText="After Disc" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.SGSTPercent)" HeaderText="SGST %" Width="120" Format="N2" TextAlign="TextAlign.Center" Visible="@(_showAllColumns && !_showSummary)" />
-                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.SGSTAmount)" HeaderText="SGST" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.CGSTPercent)" HeaderText="CGST %" Width="120" Format="N2" TextAlign="TextAlign.Center" Visible="@(_showAllColumns && !_showSummary)" />
-                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.CGSTAmount)" HeaderText="CGST" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.IGSTPercent)" HeaderText="IGST %" Width="120" Format="N2" TextAlign="TextAlign.Center" Visible="@(_showAllColumns && !_showSummary)" />
-                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.IGSTAmount)" HeaderText="IGST" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.TotalTaxAmount)" HeaderText="Tax Amt" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.Total)" HeaderText="Total" Width="150" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.NetRate)" HeaderText="Net Rate" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="@(!_showSummary)" />
-                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.NetTotal)" HeaderText="Net Total" Width="150" TextAlign="TextAlign.Right">
+                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.AfterDiscount)" HeaderText="After Disc"
+                                        Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.SGSTPercent)" HeaderText="SGST %"
+                                        Width="120" Format="N2" TextAlign="TextAlign.Center"
+                                        Visible="@(_showAllColumns && !_showSummary)" />
+                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.SGSTAmount)" HeaderText="SGST" Width="120"
+                                        Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.CGSTPercent)" HeaderText="CGST %"
+                                        Width="120" Format="N2" TextAlign="TextAlign.Center"
+                                        Visible="@(_showAllColumns && !_showSummary)" />
+                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.CGSTAmount)" HeaderText="CGST" Width="120"
+                                        Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.IGSTPercent)" HeaderText="IGST %"
+                                        Width="120" Format="N2" TextAlign="TextAlign.Center"
+                                        Visible="@(_showAllColumns && !_showSummary)" />
+                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.IGSTAmount)" HeaderText="IGST" Width="120"
+                                        Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.TotalTaxAmount)" HeaderText="Tax Amt"
+                                        Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.Total)" HeaderText="Total" Width="150"
+                                        TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.NetRate)" HeaderText="Net Rate" Width="130"
+                                        Format="N2" TextAlign="TextAlign.Right" Visible="@(!_showSummary)" />
+                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.NetTotal)" HeaderText="Net Total"
+                                        Width="150" TextAlign="TextAlign.Right">
                                 <Template>
                                     @{
                                         var detailItem = (context as PurchaseItemOverviewModel);
@@ -416,8 +468,10 @@ else
                                     }
                                 </Template>
                             </GridColumn>
-                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.PurchaseRemarks)" HeaderText="Purchase Remarks" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
-                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.Remarks)" HeaderText="Item Remarks" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
+                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.PurchaseRemarks)"
+                                        HeaderText="Purchase Remarks" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
+                            <GridColumn Field="@nameof(PurchaseItemOverviewModel.Remarks)" HeaderText="Item Remarks"
+                                        Width="200" Visible="@(_showAllColumns && !_showSummary)" />
                         </GridColumns>
                     </SfGrid>
                 </div>

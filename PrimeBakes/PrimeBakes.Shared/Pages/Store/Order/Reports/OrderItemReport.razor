@@ -228,9 +228,9 @@ else
                                         Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime"
                                         Visible="@(!_showSummary)" />
                             <GridColumn Field="@nameof(OrderItemOverviewModel.CompanyName)" HeaderText="Company" Width="180"
-                                        Visible="@(_showAllColumns && !_showSummary)" />
+                                        Visible="@(_showAllColumns && !_showSummary && _selectedCompany?.Id <= 0)" />
                             <GridColumn Field="@nameof(OrderItemOverviewModel.LocationName)" HeaderText="Location"
-                                        Width="180" Visible="@(!_showSummary)" />
+                                        Width="180" Visible="@(!_showSummary && _selectedLocation?.Id <= 0)" />
                             <GridColumn Field="@nameof(OrderItemOverviewModel.SaleTransactionNo)" HeaderText="Sale No"
                                         Width="170" Visible="@(!_showSummary)" />
                             <GridColumn Field="@nameof(OrderItemOverviewModel.Quantity)" HeaderText="Quantity" Width="120"
