@@ -126,7 +126,7 @@ public partial class AccountingLedgerReport : IAsyncDisposable
             _transactionOverviews = await CommonData.LoadTableDataByDate<FinancialAccountingLedgerOverviewModel>(
                 ViewNames.FinancialAccountingLedgerOverview,
                 DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-                DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));
+                DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
             if (_selectedCompany?.Id > 0)
                 _transactionOverviews = [.. _transactionOverviews.Where(_ => _.CompanyId == _selectedCompany.Id)];
@@ -154,7 +154,7 @@ public partial class AccountingLedgerReport : IAsyncDisposable
                 var trialBalances = await FinancialAccountingData.LoadTrialBalanceByCompanyDate(
                     _selectedCompany?.Id ?? 0,
                     DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-                    DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));
+                    DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
                 _selectedTrialBalance = trialBalances.FirstOrDefault(tb => tb.LedgerId == _selectedLedger.Id);
             }

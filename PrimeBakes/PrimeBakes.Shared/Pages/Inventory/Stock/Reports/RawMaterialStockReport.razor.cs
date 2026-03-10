@@ -102,7 +102,7 @@ public partial class RawMaterialStockReport : IAsyncDisposable
 
 			_stockSummary = await RawMaterialStockData.LoadRawMaterialStockSummaryByDate(
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));
+				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
 			_stockSummary = [.. _stockSummary.Where(_ => _.OpeningStock != 0 ||
 												  _.PurchaseStock != 0 ||
@@ -135,7 +135,7 @@ public partial class RawMaterialStockReport : IAsyncDisposable
 		_stockDetails = await CommonData.LoadTableDataByDate<RawMaterialStockDetailsModel>(
 				ViewNames.RawMaterialStockDetails,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));
+				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
 		_stockDetails = [.. _stockDetails.OrderBy(_ => _.TransactionDateTime).ThenBy(_ => _.RawMaterialName)];
 	}

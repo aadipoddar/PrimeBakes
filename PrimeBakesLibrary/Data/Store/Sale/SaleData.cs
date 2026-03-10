@@ -1,4 +1,4 @@
-﻿using PrimeBakesLibrary.Data.Accounts.FinancialAccounting;
+using PrimeBakesLibrary.Data.Accounts.FinancialAccounting;
 using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Inventory.Stock;
@@ -422,7 +422,7 @@ public static class SaleData
 		var sales = await CommonData.LoadTableDataByDate<SaleModel>(
 			TableNames.Sale,
 			DateOnly.FromDateTime(postingDate).ToDateTime(TimeOnly.MinValue),
-			DateOnly.FromDateTime(postingDate).ToDateTime(TimeOnly.MaxValue));
+			DateOnly.FromDateTime(postingDate).ToDateTime(TimeOnly.MinValue));
 
 		sales = [.. sales.Where(s =>
 									s.LocationId == locationId &&
@@ -545,7 +545,7 @@ public static class SaleData
 		var sales = await CommonData.LoadTableDataByDate<SaleModel>(
 			TableNames.Sale,
 			DateOnly.FromDateTime(postDate).ToDateTime(TimeOnly.MinValue),
-			DateOnly.FromDateTime(postDate).ToDateTime(TimeOnly.MaxValue),
+			DateOnly.FromDateTime(postDate).ToDateTime(TimeOnly.MinValue),
 			sqlDataAccessTransaction);
 
 		sales = [.. sales.Where(s => s.LocationId == locationId && s.FinancialAccountingId is not null && s.Status)];

@@ -123,7 +123,7 @@ public partial class OrderItemReport : IAsyncDisposable
             _transactionOverviews = await CommonData.LoadTableDataByDate<OrderItemOverviewModel>(
                 ViewNames.OrderItemOverview,
                 DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-                DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));
+                DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
             if (_selectedLocation?.Id > 0)
                 _transactionOverviews = [.. _transactionOverviews.Where(_ => _.LocationId == _selectedLocation.Id)];

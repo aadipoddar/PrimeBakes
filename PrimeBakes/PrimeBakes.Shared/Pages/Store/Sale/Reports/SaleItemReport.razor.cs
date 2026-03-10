@@ -143,7 +143,7 @@ public partial class SaleItemReport : IAsyncDisposable
             _transactionOverviews = await CommonData.LoadTableDataByDate<SaleItemOverviewModel>(
                 ViewNames.SaleItemOverview,
                 DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-                DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));
+                DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
             if (_selectedLocation?.Id > 0)
                 _transactionOverviews = [.. _transactionOverviews.Where(_ => _.LocationId == _selectedLocation.Id)];
@@ -201,7 +201,7 @@ public partial class SaleItemReport : IAsyncDisposable
         _transactionReturnOverviews = await CommonData.LoadTableDataByDate<SaleReturnItemOverviewModel>(
             ViewNames.SaleReturnItemOverview,
             DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-            DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));
+            DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
         if (_selectedLocation?.Id > 0)
             _transactionReturnOverviews = [.. _transactionReturnOverviews.Where(_ => _.LocationId == _selectedLocation.Id)];
@@ -268,7 +268,7 @@ public partial class SaleItemReport : IAsyncDisposable
         _transactionTransferOverviews = await CommonData.LoadTableDataByDate<StockTransferItemOverviewModel>(
             ViewNames.StockTransferItemOverview,
             DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-            DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));
+            DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
         if (_selectedLocation?.Id > 0)
             _transactionTransferOverviews = [.. _transactionTransferOverviews.Where(_ => _.LocationId == _selectedLocation.Id)];

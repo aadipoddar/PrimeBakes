@@ -70,7 +70,7 @@ public partial class DateRangeButtons
                 case DateRangeType.CurrentFinancialYear:
                     var currentFY = await FinancialYearData.LoadFinancialYearByDateTime(today);
                     newFromDate = currentFY.StartDate.ToDateTime(TimeOnly.MinValue);
-                    newToDate = currentFY.EndDate.ToDateTime(TimeOnly.MaxValue);
+                    newToDate = currentFY.EndDate.ToDateTime(TimeOnly.MinValue);
                     break;
 
                 case DateRangeType.PreviousFinancialYear:
@@ -89,7 +89,7 @@ public partial class DateRangeButtons
                     }
 
                     newFromDate = previousFY.StartDate.ToDateTime(TimeOnly.MinValue);
-                    newToDate = previousFY.EndDate.ToDateTime(TimeOnly.MaxValue);
+                    newToDate = previousFY.EndDate.ToDateTime(TimeOnly.MinValue);
                     break;
 
                 case DateRangeType.AllTime:

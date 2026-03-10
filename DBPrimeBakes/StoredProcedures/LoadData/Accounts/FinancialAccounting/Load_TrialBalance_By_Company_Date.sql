@@ -6,6 +6,10 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 
+	-- Normalize date range: strip time, use exclusive upper bound
+	SET @StartDate = CAST(@StartDate AS DATE);
+	SET @EndDate = DATEADD(DAY, 1, CAST(@EndDate AS DATE));
+
 	-- Calculate opening balance (all transactions before @FromDate)
 	WITH OpeningBalance AS (
 		SELECT 
@@ -37,7 +41,7 @@ BEGIN
 		WHERE
 			(@CompanyId = 0 OR a.CompanyId = @CompanyId)
 			AND a.TransactionDateTime >= @StartDate
-			AND a.TransactionDateTime <= @EndDate
+			AND a.TransactionDateTime < @EndDate
 			AND a.Status = 1
 			AND ad.Status = 1
 		GROUP BY 

@@ -106,7 +106,7 @@ public partial class ProfitAndLossPage : IAsyncDisposable
             _trialBalance = await FinancialAccountingData.LoadTrialBalanceByCompanyDate(
                 _selectedCompany?.Id ?? 0,
                 DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-                DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));
+                DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
             _trialBalance = [.. _trialBalance.OrderBy(_ => _.LedgerName)];
 

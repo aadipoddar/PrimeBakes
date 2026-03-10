@@ -134,7 +134,7 @@ public partial class StockTransferReport : IAsyncDisposable
             _transactionOverviews = await CommonData.LoadTableDataByDate<StockTransferOverviewModel>(
                 ViewNames.StockTransferOverview,
                 DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-                DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));
+                DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
             if (!_showDeleted)
                 _transactionOverviews = [.. _transactionOverviews.Where(_ => _.Status)];

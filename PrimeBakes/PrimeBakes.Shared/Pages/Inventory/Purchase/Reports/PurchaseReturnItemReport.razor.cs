@@ -122,7 +122,7 @@ public partial class PurchaseReturnItemReport : IAsyncDisposable
             _transactionOverviews = await CommonData.LoadTableDataByDate<PurchaseReturnItemOverviewModel>(
                 ViewNames.PurchaseReturnItemOverview,
                 DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-                DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue)
+                DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue)
             );
 
             if (_selectedCompany?.Id > 0)

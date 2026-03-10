@@ -133,7 +133,7 @@ public partial class OrderReport : IAsyncDisposable
             _transactionOverviews = await CommonData.LoadTableDataByDate<OrderOverviewModel>(
                 ViewNames.OrderOverview,
                 DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-                DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));
+                DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
             if (!_showDeleted)
                 _transactionOverviews = [.. _transactionOverviews.Where(_ => _.Status)];

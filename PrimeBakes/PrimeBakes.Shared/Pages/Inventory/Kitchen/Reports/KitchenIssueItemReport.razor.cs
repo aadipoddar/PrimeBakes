@@ -120,7 +120,7 @@ public partial class KitchenIssueItemReport : IAsyncDisposable
             _transactionOverviews = await CommonData.LoadTableDataByDate<KitchenIssueItemOverviewModel>(
                 ViewNames.KitchenIssueItemOverview,
                 DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-                DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));
+                DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
             if (_selectedCompany?.Id > 0)
                 _transactionOverviews = [.. _transactionOverviews.Where(_ => _.CompanyId == _selectedCompany.Id)];

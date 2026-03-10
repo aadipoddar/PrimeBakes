@@ -132,42 +132,42 @@ public partial class OutletSummaryReport : IAsyncDisposable
 		_purchases = await CommonData.LoadTableDataByDate<PurchaseOverviewModel>(
 			ViewNames.PurchaseOverview,
 			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));
+			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
 		_purchasesReturns = await CommonData.LoadTableDataByDate<PurchaseReturnOverviewModel>(
 			ViewNames.PurchaseReturnOverview,
 			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));
+			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
 		_kitchenIssue = await CommonData.LoadTableDataByDate<KitchenIssueOverviewModel>(
 			ViewNames.KitchenIssueOverview,
 			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));
+			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
 		_kitchenProduction = await CommonData.LoadTableDataByDate<KitchenProductionOverviewModel>(
 			ViewNames.KitchenProductionOverview,
 			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));
+			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
 		_sales = await CommonData.LoadTableDataByDate<SaleOverviewModel>(
 			ViewNames.SaleOverview,
 			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));
+			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
 		_salereturns = await CommonData.LoadTableDataByDate<SaleReturnOverviewModel>(
 			ViewNames.SaleReturnOverview,
 			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));
+			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
 		_stockTransfers = await CommonData.LoadTableDataByDate<StockTransferOverviewModel>(
 			ViewNames.StockTransferOverview,
 			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));
+			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
 		_bills = await CommonData.LoadTableDataByDate<BillOverviewModel>(
 			ViewNames.BillOverview,
 			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));
+			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
 	}
 

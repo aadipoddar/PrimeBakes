@@ -119,7 +119,7 @@ public partial class ProductStockReport : IAsyncDisposable
 
 			_stockSummary = await ProductStockData.LoadProductStockSummaryByDateLocationId(
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue),
+				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue),
 				 _selectedLocation.Id);
 
 			_stockSummary = [.. _stockSummary.Where(_ => _.OpeningStock != 0 ||
@@ -153,7 +153,7 @@ public partial class ProductStockReport : IAsyncDisposable
 		_stockDetails = await CommonData.LoadTableDataByDate<ProductStockDetailsModel>(
 				ViewNames.ProductStockDetails,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));
+				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
 		_stockDetails = [.. _stockDetails.Where(_ => _.LocationId == _selectedLocation.Id)];
 		_stockDetails = [.. _stockDetails.OrderBy(_ => _.TransactionDateTime).ThenBy(_ => _.ProductName)];

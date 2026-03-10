@@ -133,7 +133,7 @@ public partial class PurchaseReturnReport : IAsyncDisposable
             _transactionOverviews = await CommonData.LoadTableDataByDate<PurchaseReturnOverviewModel>(
                 ViewNames.PurchaseReturnOverview,
                 DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-                DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MaxValue));
+                DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
             if (!_showDeleted)
                 _transactionOverviews = [.. _transactionOverviews.Where(_ => _.Status)];
