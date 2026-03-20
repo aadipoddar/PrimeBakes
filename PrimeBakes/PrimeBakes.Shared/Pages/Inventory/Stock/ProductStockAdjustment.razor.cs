@@ -33,7 +33,7 @@ public partial class ProductStockAdjustment : IAsyncDisposable
 
     private FinancialYearModel _selectedFinancialYear = new();
     private LocationModel _selectedLocation;
-    private ProductLocationOverviewModel? _selectedProduct = new();
+    private ProductLocationOverviewModel? _selectedProduct = null;
     private ProductStockAdjustmentCartModel _selectedCart = new();
 
     private List<LocationModel> _locations = [];
@@ -86,11 +86,6 @@ public partial class ProductStockAdjustment : IAsyncDisposable
             _locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
 
             _locations = [.. _locations.OrderBy(s => s.Name)];
-            _locations.Insert(0, new()
-            {
-                Id = 0,
-                Name = "Create New Location ..."
-            });
 
             _selectedLocation = _locations.FirstOrDefault(_ => _.Id == 1);
             _transactionNo = await GenerateCodes.GenerateProductStockAdjustmentTransactionNo(_transactionDateTime, _selectedLocation.Id);
@@ -121,11 +116,6 @@ public partial class ProductStockAdjustment : IAsyncDisposable
             _products = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _selectedLocation.Id);
 
             _products = [.. _products.OrderBy(s => s.Name)];
-            _products.Add(new()
-            {
-                Id = 0,
-                Name = "Create New Item ..."
-            });
         }
         catch (Exception ex)
         {
@@ -167,14 +157,8 @@ public partial class ProductStockAdjustment : IAsyncDisposable
     {
         args.Value ??= _locations.FirstOrDefault(_ => _.Id == 1);
 
-        if (args.Value.Id == 0)
-        {
-            if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Location, "_blank");
-            else
-                NavigationManager.NavigateTo(PageRouteNames.Location);
+        if (args.Value is null || args.Value.Id == 0)
             return;
-        }
 
         _selectedLocation = args.Value;
         await LoadStock();
@@ -186,18 +170,8 @@ public partial class ProductStockAdjustment : IAsyncDisposable
     #region Cart
     private async Task OnItemChanged(ChangeEventArgs<ProductLocationOverviewModel?, ProductLocationOverviewModel> args)
     {
-        if (args.Value is null)
+        if (args.Value is null || args.Value.Id == 0)
             return;
-
-        if (args.Value.Id == 0)
-        {
-            if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Product, "_blank");
-            else
-                NavigationManager.NavigateTo(PageRouteNames.Product);
-
-            return;
-        }
 
         _selectedProduct = args.Value;
 

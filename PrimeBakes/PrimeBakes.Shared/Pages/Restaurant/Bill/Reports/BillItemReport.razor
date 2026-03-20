@@ -429,9 +429,9 @@ else
                                         Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime"
                                         Visible="@(!_showSummary)" />
                             <GridColumn Field="@nameof(BillItemOverviewModel.CompanyName)" HeaderText="Company" Width="180"
-                                        Visible="@(_showAllColumns && !_showSummary && _selectedCompany?.Id <= 0)" />
+                                        Visible="@(_showAllColumns && !_showSummary && (_selectedCompany is null || _selectedCompany.Id <= 0))" />
                             <GridColumn Field="@nameof(BillItemOverviewModel.LocationName)" HeaderText="Location"
-                                        Width="180" Visible="@(!_showSummary && _selectedLocation?.Id <= 0)" />
+                                        Width="180" Visible="@(!_showSummary && (_selectedLocation is null || _selectedLocation.Id <= 0))" />
                             <GridColumn Field="@nameof(BillItemOverviewModel.DiningTableName)" HeaderText="Table"
                                         Width="130" Visible="@(!_showSummary)" />
                             <GridColumn Field="@nameof(BillItemOverviewModel.DiningAreaName)" HeaderText="Area" Width="130"

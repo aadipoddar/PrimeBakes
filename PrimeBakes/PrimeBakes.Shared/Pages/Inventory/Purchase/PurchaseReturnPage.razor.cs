@@ -38,7 +38,7 @@ public partial class PurchaseReturnPage : IAsyncDisposable
     private CompanyModel _selectedCompany = new();
     private LedgerModel _selectedParty = new();
     private FinancialYearModel _selectedFinancialYear = new();
-    private RawMaterialModel? _selectedRawMaterial = new();
+    private RawMaterialModel? _selectedRawMaterial = null;
     private PurchaseReturnItemCartModel _selectedCart = new();
     private PurchaseReturnModel _purchaseReturn = new();
 
@@ -99,11 +99,6 @@ public partial class PurchaseReturnPage : IAsyncDisposable
         {
             _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
             _companies = [.. _companies.OrderBy(s => s.Name)];
-            _companies.Add(new()
-            {
-                Id = 0,
-                Name = "Create New Company ..."
-            });
 
             var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
             _selectedCompany = _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value) ?? throw new Exception("Main Company Not Found");
@@ -120,11 +115,6 @@ public partial class PurchaseReturnPage : IAsyncDisposable
         {
             _parties = await CommonData.LoadTableDataByStatus<LedgerModel>(TableNames.Ledger);
             _parties = [.. _parties.OrderBy(s => s.Name)];
-            _parties.Add(new()
-            {
-                Id = 0,
-                Name = "Create New Party Ledger..."
-            });
 
             _selectedParty = _parties.FirstOrDefault();
         }
@@ -225,11 +215,6 @@ public partial class PurchaseReturnPage : IAsyncDisposable
             _taxes = await CommonData.LoadTableDataByStatus<TaxModel>(TableNames.Tax);
 
             _rawMaterials = [.. _rawMaterials.OrderBy(s => s.Name)];
-            _rawMaterials.Add(new()
-            {
-                Id = 0,
-                Name = "Create New Item ..."
-            });
         }
         catch (Exception ex)
         {
@@ -300,18 +285,8 @@ public partial class PurchaseReturnPage : IAsyncDisposable
     #region Change Events
     private async Task OnCompanyChanged(ChangeEventArgs<CompanyModel, CompanyModel> args)
     {
-        if (args.Value is null)
+        if (args.Value is null || args.Value.Id == 0)
             return;
-
-        if (args.Value.Id == 0)
-        {
-            if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.CompanyMaster, "_blank");
-            else
-                NavigationManager.NavigateTo(PageRouteNames.CompanyMaster);
-
-            return;
-        }
 
         _selectedCompany = args.Value;
         _purchaseReturn.CompanyId = _selectedCompany.Id;
@@ -321,18 +296,8 @@ public partial class PurchaseReturnPage : IAsyncDisposable
 
     private async Task OnPartyChanged(ChangeEventArgs<LedgerModel, LedgerModel> args)
     {
-        if (args.Value is null)
+        if (args.Value is null || args.Value.Id == 0)
             return;
-
-        if (args.Value.Id == 0)
-        {
-            if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.LedgerMaster, "_blank");
-            else
-                NavigationManager.NavigateTo(PageRouteNames.LedgerMaster);
-
-            return;
-        }
 
         _selectedParty = args.Value;
         _purchaseReturn.PartyId = _selectedParty.Id;
@@ -376,18 +341,8 @@ public partial class PurchaseReturnPage : IAsyncDisposable
     #region Cart
     private async Task OnItemChanged(ChangeEventArgs<RawMaterialModel?, RawMaterialModel> args)
     {
-        if (args.Value is null)
+        if (args.Value is null || args.Value.Id == 0)
             return;
-
-        if (args.Value.Id == 0)
-        {
-            if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.RawMaterial, "_blank");
-            else
-                NavigationManager.NavigateTo(PageRouteNames.RawMaterial);
-
-            return;
-        }
 
         _selectedRawMaterial = args.Value;
 

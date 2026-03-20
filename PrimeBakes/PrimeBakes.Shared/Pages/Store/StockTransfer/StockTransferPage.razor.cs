@@ -39,7 +39,7 @@ public partial class StockTransferPage : IAsyncDisposable
     private LocationModel _selectedLocation = new();
     private LocationModel _selectedToLocation = new();
     private FinancialYearModel _selectedFinancialYear = new();
-    private ProductLocationOverviewModel? _selectedProduct = new();
+    private ProductLocationOverviewModel? _selectedProduct = null;
     private StockTransferItemCartModel _selectedCart = new();
     private StockTransferModel _stockTransfer = new();
 
@@ -103,11 +103,6 @@ public partial class StockTransferPage : IAsyncDisposable
         {
             _locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
             _locations = [.. _locations.OrderBy(s => s.Name)];
-            _locations.Add(new()
-            {
-                Id = 0,
-                Name = "Create New Location ..."
-            });
 
             _selectedLocation = _locations.FirstOrDefault(s => s.Id == _user.LocationId);
             _selectedToLocation = _locations.FirstOrDefault(s => s.Id == _user.LocationId);
@@ -124,11 +119,6 @@ public partial class StockTransferPage : IAsyncDisposable
         {
             _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
             _companies = [.. _companies.OrderBy(s => s.Name)];
-            _companies.Add(new()
-            {
-                Id = 0,
-                Name = "Create New Company ..."
-            });
 
             var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
             _selectedCompany = _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value) ?? throw new Exception("Main Company Not Found");
@@ -226,12 +216,6 @@ public partial class StockTransferPage : IAsyncDisposable
             _taxes = await CommonData.LoadTableDataByStatus<TaxModel>(TableNames.Tax);
 
             _products = [.. _products.OrderBy(s => s.Name)];
-
-            _products.Add(new()
-            {
-                Id = 0,
-                Name = "Create New Item ..."
-            });
         }
         catch (Exception ex)
         {
@@ -308,10 +292,10 @@ public partial class StockTransferPage : IAsyncDisposable
         AddPaymentFromStockTransfer("UPI", _stockTransfer.UPI);
         AddPaymentFromStockTransfer("Credit", _stockTransfer.Credit);
 
-		_selectedPaymentMethod = _user?.LocationId == 1
-			? _paymentMethods.FirstOrDefault(pm => pm.Name == "Credit") ?? _paymentMethods.FirstOrDefault()
-			: _paymentMethods.FirstOrDefault();
-		_paymentAmount = Math.Max(0, _remainingAmount);
+        _selectedPaymentMethod = _user?.LocationId == 1
+            ? _paymentMethods.FirstOrDefault(pm => pm.Name == "Credit") ?? _paymentMethods.FirstOrDefault()
+            : _paymentMethods.FirstOrDefault();
+        _paymentAmount = Math.Max(0, _remainingAmount);
     }
 
     private void AddPaymentFromStockTransfer(string modeName, decimal amount)
@@ -387,18 +371,8 @@ public partial class StockTransferPage : IAsyncDisposable
     #region Change Events
     private async Task OnFromLocationChanged(ChangeEventArgs<LocationModel, LocationModel> args)
     {
-        if (args.Value is null)
+        if (args.Value is null || args.Value.Id == 0)
             return;
-
-        if (args.Value.Id == 0)
-        {
-            if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Location, "_blank");
-            else
-                NavigationManager.NavigateTo(PageRouteNames.Location);
-
-            return;
-        }
 
         _selectedLocation = args.Value;
         _stockTransfer.LocationId = _selectedLocation.Id;
@@ -409,18 +383,8 @@ public partial class StockTransferPage : IAsyncDisposable
 
     private async Task OnToLocationChanged(ChangeEventArgs<LocationModel, LocationModel> args)
     {
-        if (args.Value is null)
+        if (args.Value is null || args.Value.Id == 0)
             return;
-
-        if (args.Value.Id == 0)
-        {
-            if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Location, "_blank");
-            else
-                NavigationManager.NavigateTo(PageRouteNames.Location);
-
-            return;
-        }
 
         _selectedToLocation = args.Value;
         _stockTransfer.ToLocationId = _selectedToLocation.Id;
@@ -431,18 +395,8 @@ public partial class StockTransferPage : IAsyncDisposable
 
     private async Task OnCompanyChanged(ChangeEventArgs<CompanyModel, CompanyModel> args)
     {
-        if (args.Value is null)
+        if (args.Value is null || args.Value.Id == 0)
             return;
-
-        if (args.Value.Id == 0)
-        {
-            if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.CompanyMaster, "_blank");
-            else
-                NavigationManager.NavigateTo(PageRouteNames.CompanyMaster);
-
-            return;
-        }
 
         _selectedCompany = args.Value;
         _stockTransfer.CompanyId = _selectedCompany.Id;
@@ -479,18 +433,8 @@ public partial class StockTransferPage : IAsyncDisposable
     #region Cart
     private async Task OnItemChanged(ChangeEventArgs<ProductLocationOverviewModel?, ProductLocationOverviewModel?> args)
     {
-        if (args.Value is null)
+        if (args.Value is null || args.Value.Id == 0)
             return;
-
-        if (args.Value.Id == 0)
-        {
-            if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Product, "_blank");
-            else
-                NavigationManager.NavigateTo(PageRouteNames.Product);
-
-            return;
-        }
 
         _selectedProduct = args.Value;
 

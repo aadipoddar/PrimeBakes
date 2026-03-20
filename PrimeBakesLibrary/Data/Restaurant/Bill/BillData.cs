@@ -217,9 +217,7 @@ public static class BillData
 		{
 			await SaveProductStock(bill, billDetails, existingBill, update, sqlDataAccessTransaction);
 			await SaveRawMaterialStockByRecipe(bill, billDetails, existingBill, update, sqlDataAccessTransaction);
-
-			if (bill.LocationId == 1)
-				await SaveAccounting(bill, update, sqlDataAccessTransaction);
+			await SaveAccounting(bill, update, sqlDataAccessTransaction);
 		}
 
 		return bill.Id;
@@ -336,6 +334,9 @@ public static class BillData
 				await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
 			}
 		}
+
+		if (bill.LocationId != 1)
+			return;
 
 		var billOverview = await CommonData.LoadTableDataById<BillOverviewModel>(ViewNames.BillOverview, bill.Id, sqlDataAccessTransaction);
 		if (billOverview is null)

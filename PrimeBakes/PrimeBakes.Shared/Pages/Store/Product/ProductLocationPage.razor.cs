@@ -152,8 +152,7 @@ public partial class ProductLocationPage : IAsyncDisposable
             Id = productLocation.Id,
             ProductId = productLocation.ProductId,
             Rate = productLocation.Rate,
-            LocationId = productLocation.LocationId,
-            Status = productLocation.Status
+            LocationId = productLocation.LocationId
         };
 
         // Set autocomplete values
@@ -250,7 +249,6 @@ public partial class ProductLocationPage : IAsyncDisposable
             if (existing != null)
                 _productLocation.Id = existing.Id; // upsert semantics
 
-            _productLocation.Status = true;
             await ProductLocationData.InsertProductLocation(_productLocation);
 
             // Reset form
@@ -291,8 +289,7 @@ public partial class ProductLocationPage : IAsyncDisposable
                 Location = _locations.FirstOrDefault(l => l.Id == pl.LocationId)?.Name ?? "",
                 ProductCode = pl.Code,
                 ProductName = pl.Name,
-                pl.Rate,
-                Status = _productLocations.FirstOrDefault(p => p.Id == pl.Id)?.Status ?? false
+                pl.Rate
             }).ToList();
 
             var (stream, fileName) = await ProductLocationExport.ExportMaster(exportData, ReportExportType.Excel);
@@ -329,8 +326,7 @@ public partial class ProductLocationPage : IAsyncDisposable
                 Location = _locations.FirstOrDefault(l => l.Id == pl.LocationId)?.Name ?? "",
                 ProductCode = pl.Code,
                 ProductName = pl.Name,
-                pl.Rate,
-                Status = _productLocations.FirstOrDefault(p => p.Id == pl.Id)?.Status ?? false
+                pl.Rate
             }).ToList();
 
             var (stream, fileName) = await ProductLocationExport.ExportMaster(exportData, ReportExportType.PDF);
@@ -357,7 +353,7 @@ public partial class ProductLocationPage : IAsyncDisposable
         if (selectedRecords.Count > 0)
         {
             var productLocation = _productLocations.FirstOrDefault(pl => pl.Id == selectedRecords[0].Id);
-            if (productLocation != null)
+            if (productLocation is not null)
                 OnEditProductLocation(productLocation);
         }
     }
@@ -368,7 +364,7 @@ public partial class ProductLocationPage : IAsyncDisposable
         if (selectedRecords.Count > 0)
         {
             var productLocation = _productLocations.FirstOrDefault(pl => pl.Id == selectedRecords[0].Id);
-            if (productLocation is { Status: true })
+            if (productLocation is not null)
                 await ShowDeleteConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
         }
     }

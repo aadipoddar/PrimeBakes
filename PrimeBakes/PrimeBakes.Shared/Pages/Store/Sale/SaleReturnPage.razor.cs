@@ -37,10 +37,10 @@ public partial class SaleReturnPage : IAsyncDisposable
 
     private CompanyModel _selectedCompany = new();
     private LocationModel _selectedLocation = new();
-    private LedgerModel? _selectedParty = new();
+    private LedgerModel? _selectedParty = null;
     private CustomerModel _selectedCustomer = new();
     private FinancialYearModel _selectedFinancialYear = new();
-    private ProductLocationOverviewModel? _selectedProduct = new();
+    private ProductLocationOverviewModel? _selectedProduct = null;
     private SaleReturnItemCartModel _selectedCart = new();
     private SaleReturnModel _saleReturn = new();
 
@@ -106,11 +106,6 @@ public partial class SaleReturnPage : IAsyncDisposable
         {
             _locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
             _locations = [.. _locations.OrderBy(s => s.Name)];
-            _locations.Add(new()
-            {
-                Id = 0,
-                Name = "Create New Location ..."
-            });
 
             _selectedLocation = _locations.FirstOrDefault(s => s.Id == _user.LocationId);
         }
@@ -126,11 +121,6 @@ public partial class SaleReturnPage : IAsyncDisposable
         {
             _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
             _companies = [.. _companies.OrderBy(s => s.Name)];
-            _companies.Add(new()
-            {
-                Id = 0,
-                Name = "Create New Company ..."
-            });
 
             var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
             _selectedCompany = _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value) ?? throw new Exception("Main Company Not Found");
@@ -147,11 +137,6 @@ public partial class SaleReturnPage : IAsyncDisposable
         {
             _parties = await CommonData.LoadTableDataByStatus<LedgerModel>(TableNames.Ledger);
             _parties = [.. _parties.OrderBy(s => s.Name)];
-            _parties.Add(new()
-            {
-                Id = 0,
-                Name = "Create New Party Ledger..."
-            });
 
             _selectedParty = null;
         }
@@ -280,13 +265,6 @@ public partial class SaleReturnPage : IAsyncDisposable
             _taxes = await CommonData.LoadTableDataByStatus<TaxModel>(TableNames.Tax);
 
             _products = [.. _products.OrderBy(s => s.Name)];
-
-            if (_user.LocationId == 1)
-                _products.Add(new()
-                {
-                    Id = 0,
-                    Name = "Create New Item ..."
-                });
         }
         catch (Exception ex)
         {
@@ -450,18 +428,8 @@ public partial class SaleReturnPage : IAsyncDisposable
             return;
         }
 
-        if (args.Value is null)
+        if (args.Value is null || args.Value.Id == 0)
             return;
-
-        if (args.Value.Id == 0)
-        {
-            if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Location, "_blank");
-            else
-                NavigationManager.NavigateTo(PageRouteNames.Location);
-
-            return;
-        }
 
         _selectedLocation = args.Value;
         _saleReturn.LocationId = _selectedLocation.Id;
@@ -488,18 +456,8 @@ public partial class SaleReturnPage : IAsyncDisposable
             return;
         }
 
-        if (args.Value is null)
+        if (args.Value is null || args.Value.Id == 0)
             return;
-
-        if (args.Value.Id == 0)
-        {
-            if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.CompanyMaster, "_blank");
-            else
-                NavigationManager.NavigateTo(PageRouteNames.CompanyMaster);
-
-            return;
-        }
 
         _selectedCompany = args.Value;
         _saleReturn.CompanyId = _selectedCompany.Id;
@@ -517,7 +475,7 @@ public partial class SaleReturnPage : IAsyncDisposable
             return;
         }
 
-        if (args.Value is null)
+        if (args.Value is null || args.Value.Id == 0)
         {
             _selectedParty = null;
             _saleReturn.PartyId = null;
@@ -525,15 +483,6 @@ public partial class SaleReturnPage : IAsyncDisposable
             return;
         }
 
-        if (args.Value.Id == 0)
-        {
-            if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.LedgerMaster, "_blank");
-            else
-                NavigationManager.NavigateTo(PageRouteNames.LedgerMaster);
-
-            return;
-        }
 
         _selectedParty = args.Value;
         _saleReturn.PartyId = _selectedParty.Id;
@@ -610,18 +559,8 @@ public partial class SaleReturnPage : IAsyncDisposable
     #region Cart
     private async Task OnItemChanged(ChangeEventArgs<ProductLocationOverviewModel?, ProductLocationOverviewModel?> args)
     {
-        if (args.Value is null)
+        if (args.Value is null || args.Value.Id == 0)
             return;
-
-        if (args.Value.Id == 0)
-        {
-            if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Product, "_blank");
-            else
-                NavigationManager.NavigateTo(PageRouteNames.Product);
-
-            return;
-        }
 
         _selectedProduct = args.Value;
 

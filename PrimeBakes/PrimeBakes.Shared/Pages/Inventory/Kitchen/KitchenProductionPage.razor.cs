@@ -37,7 +37,7 @@ public partial class KitchenProductionPage : IAsyncDisposable
     private CompanyModel _selectedCompany = new();
     private KitchenModel _selectedKitchen = new();
     private FinancialYearModel _selectedFinancialYear = new();
-    private ProductModel? _selectedProduct = new();
+    private ProductModel? _selectedProduct = null;
     private KitchenProductionProductCartModel _selectedCart = new();
     private KitchenProductionModel _kitchenProduction = new();
 
@@ -94,11 +94,6 @@ public partial class KitchenProductionPage : IAsyncDisposable
         {
             _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
             _companies = [.. _companies.OrderBy(s => s.Name)];
-            _companies.Add(new()
-            {
-                Id = 0,
-                Name = "Create New Company ..."
-            });
 
             var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
             _selectedCompany = _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value) ?? throw new Exception("Main Company Not Found");
@@ -115,11 +110,6 @@ public partial class KitchenProductionPage : IAsyncDisposable
         {
             _kitchens = await CommonData.LoadTableDataByStatus<KitchenModel>(TableNames.Kitchen);
             _kitchens = [.. _kitchens.OrderBy(s => s.Name)];
-            _kitchens.Add(new()
-            {
-                Id = 0,
-                Name = "Create New Kitchen ..."
-            });
 
             _selectedKitchen = _kitchens.FirstOrDefault();
         }
@@ -206,11 +196,6 @@ public partial class KitchenProductionPage : IAsyncDisposable
         {
             _products = await CommonData.LoadTableDataByStatus<ProductModel>(TableNames.Product);
             _products = [.. _products.OrderBy(s => s.Name)];
-            _products.Add(new()
-            {
-                Id = 0,
-                Name = "Create New Product ..."
-            });
         }
         catch (Exception ex)
         {
@@ -268,18 +253,8 @@ public partial class KitchenProductionPage : IAsyncDisposable
     #region Change Events
     private async Task OnCompanyChanged(ChangeEventArgs<CompanyModel, CompanyModel> args)
     {
-        if (args.Value is null)
+        if (args.Value is null || args.Value.Id == 0)
             return;
-
-        if (args.Value.Id == 0)
-        {
-            if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.CompanyMaster, "_blank");
-            else
-                NavigationManager.NavigateTo(PageRouteNames.CompanyMaster);
-
-            return;
-        }
 
         _selectedCompany = args.Value;
         _kitchenProduction.CompanyId = _selectedCompany.Id;
@@ -289,18 +264,8 @@ public partial class KitchenProductionPage : IAsyncDisposable
 
     private async Task OnKitchenChanged(ChangeEventArgs<KitchenModel, KitchenModel> args)
     {
-        if (args.Value is null)
+        if (args.Value is null || args.Value.Id == 0)
             return;
-
-        if (args.Value.Id == 0)
-        {
-            if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Kitchen, "_blank");
-            else
-                NavigationManager.NavigateTo(PageRouteNames.Kitchen);
-
-            return;
-        }
 
         _selectedKitchen = args.Value;
         _kitchenProduction.KitchenId = _selectedKitchen.Id;
@@ -320,18 +285,8 @@ public partial class KitchenProductionPage : IAsyncDisposable
     #region Cart
     private async Task OnItemChanged(ChangeEventArgs<ProductModel?, ProductModel> args)
     {
-        if (args.Value is null)
+        if (args.Value is null || args.Value.Id == 0)
             return;
-
-        if (args.Value.Id == 0)
-        {
-            if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Product, "_blank");
-            else
-                NavigationManager.NavigateTo(PageRouteNames.Product);
-
-            return;
-        }
 
         _selectedProduct = args.Value;
 

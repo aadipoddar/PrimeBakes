@@ -38,7 +38,7 @@ public partial class OrderPage : IAsyncDisposable
     private CompanyModel _selectedCompany = new();
     private LocationModel _selectedLocation = new();
     private FinancialYearModel _selectedFinancialYear = new();
-    private ProductLocationOverviewModel? _selectedProduct = new();
+    private ProductLocationOverviewModel? _selectedProduct = null;
     private OrderItemCartModel _selectedCart = new();
     private OrderModel _order = new();
     private SaleModel _sale = new();
@@ -97,11 +97,6 @@ public partial class OrderPage : IAsyncDisposable
             _locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
             _locations.RemoveAll(s => s.Id == 1);
             _locations = [.. _locations.OrderBy(s => s.Name)];
-            _locations.Add(new()
-            {
-                Id = 0,
-                Name = "Create New Location ..."
-            });
 
             if (_user.LocationId > 1)
                 _selectedLocation = _locations.FirstOrDefault(s => s.Id == _user.LocationId);
@@ -120,11 +115,6 @@ public partial class OrderPage : IAsyncDisposable
         {
             _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
             _companies = [.. _companies.OrderBy(s => s.Name)];
-            _companies.Add(new()
-            {
-                Id = 0,
-                Name = "Create New Company ..."
-            });
 
             var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
             _selectedCompany = _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value) ?? throw new Exception("Main Company Not Found");
@@ -216,13 +206,6 @@ public partial class OrderPage : IAsyncDisposable
         {
             _products = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _order.LocationId);
             _products = [.. _products.OrderBy(s => s.Name)];
-
-            if (_user.LocationId == 1)
-                _products.Add(new()
-                {
-                    Id = 0,
-                    Name = "Create New Item ..."
-                });
         }
         catch (Exception ex)
         {
@@ -285,18 +268,8 @@ public partial class OrderPage : IAsyncDisposable
             return;
         }
 
-        if (args.Value is null)
+        if (args.Value is null || args.Value.Id == 0)
             return;
-
-        if (args.Value.Id == 0)
-        {
-            if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Location, "_blank");
-            else
-                NavigationManager.NavigateTo(PageRouteNames.Location);
-
-            return;
-        }
 
         _selectedLocation = args.Value;
         _order.LocationId = _selectedLocation.Id;
@@ -316,18 +289,8 @@ public partial class OrderPage : IAsyncDisposable
             return;
         }
 
-        if (args.Value is null)
+        if (args.Value is null || args.Value.Id == 0)
             return;
-
-        if (args.Value.Id == 0)
-        {
-            if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.CompanyMaster, "_blank");
-            else
-                NavigationManager.NavigateTo(PageRouteNames.CompanyMaster);
-
-            return;
-        }
 
         _selectedCompany = args.Value;
         _order.CompanyId = _selectedCompany.Id;
@@ -353,18 +316,8 @@ public partial class OrderPage : IAsyncDisposable
     #region Cart
     private async Task OnItemChanged(ChangeEventArgs<ProductLocationOverviewModel?, ProductLocationOverviewModel?> args)
     {
-        if (args.Value is null)
+        if (args.Value is null || args.Value.Id == 0)
             return;
-
-        if (args.Value.Id == 0)
-        {
-            if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Product, "_blank");
-            else
-                NavigationManager.NavigateTo(PageRouteNames.Product);
-
-            return;
-        }
 
         _selectedProduct = args.Value;
 

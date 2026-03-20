@@ -168,9 +168,7 @@ public static class SaleData
 		await SaveProductStock(sale, saleDetails, existingSale, update, sqlDataAccessTransaction);
 		await SaveRawMaterialStockByRecipe(sale, saleDetails, existingSale, update, sqlDataAccessTransaction);
 		await UpdateOrder(sale, existingSale, update, sqlDataAccessTransaction);
-
-		if (sale.LocationId == 1)
-			await SaveAccounting(sale, update, sqlDataAccessTransaction);
+		await SaveAccounting(sale, update, sqlDataAccessTransaction);
 
 		return sale.Id;
 	}
@@ -322,6 +320,9 @@ public static class SaleData
 				await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
 			}
 		}
+
+		if (sale.LocationId != 1)
+			return;
 
 		var saleOverview = await CommonData.LoadTableDataById<SaleOverviewModel>(ViewNames.SaleOverview, sale.Id, sqlDataAccessTransaction);
 		if (saleOverview is null)

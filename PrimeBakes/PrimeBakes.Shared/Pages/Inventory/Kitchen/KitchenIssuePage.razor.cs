@@ -40,7 +40,7 @@ public partial class KitchenIssuePage : IAsyncDisposable
     private CompanyModel _selectedCompany = new();
     private KitchenModel _selectedKitchen = new();
     private FinancialYearModel _selectedFinancialYear = new();
-    private RawMaterialModel? _selectedRawMaterial = new();
+    private RawMaterialModel? _selectedRawMaterial = null;
     private KitchenIssueItemCartModel _selectedCart = new();
     private KitchenIssueModel _kitchenIssue = new();
 
@@ -98,11 +98,6 @@ public partial class KitchenIssuePage : IAsyncDisposable
         {
             _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
             _companies = [.. _companies.OrderBy(s => s.Name)];
-            _companies.Add(new()
-            {
-                Id = 0,
-                Name = "Create New Company ..."
-            });
 
             var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
             _selectedCompany = _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value) ?? throw new Exception("Main Company Not Found");
@@ -119,11 +114,6 @@ public partial class KitchenIssuePage : IAsyncDisposable
         {
             _kitchens = await CommonData.LoadTableDataByStatus<KitchenModel>(TableNames.Kitchen);
             _kitchens = [.. _kitchens.OrderBy(s => s.Name)];
-            _kitchens.Add(new()
-            {
-                Id = 0,
-                Name = "Create New Kitchen ..."
-            });
 
             _selectedKitchen = _kitchens.FirstOrDefault();
         }
@@ -210,11 +200,6 @@ public partial class KitchenIssuePage : IAsyncDisposable
         {
             _rawMaterials = await PurchaseData.LoadRawMaterialByPartyPurchaseDateTime(0, _kitchenIssue.TransactionDateTime);
             _rawMaterials = [.. _rawMaterials.OrderBy(s => s.Name)];
-            _rawMaterials.Add(new()
-            {
-                Id = 0,
-                Name = "Create New Item ..."
-            });
 
             _stockSummary = await RawMaterialStockData.LoadRawMaterialStockSummaryByDate(_kitchenIssue.TransactionDateTime, _kitchenIssue.TransactionDateTime);
         }
@@ -275,18 +260,8 @@ public partial class KitchenIssuePage : IAsyncDisposable
     #region Change Events
     private async Task OnCompanyChanged(ChangeEventArgs<CompanyModel, CompanyModel> args)
     {
-        if (args.Value is null)
+        if (args.Value is null || args.Value.Id == 0)
             return;
-
-        if (args.Value.Id == 0)
-        {
-            if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.CompanyMaster, "_blank");
-            else
-                NavigationManager.NavigateTo(PageRouteNames.CompanyMaster);
-
-            return;
-        }
 
         _selectedCompany = args.Value;
         _kitchenIssue.CompanyId = _selectedCompany.Id;
@@ -296,18 +271,8 @@ public partial class KitchenIssuePage : IAsyncDisposable
 
     private async Task OnKitchenChanged(ChangeEventArgs<KitchenModel, KitchenModel> args)
     {
-        if (args.Value is null)
+        if (args.Value is null || args.Value.Id == 0)
             return;
-
-        if (args.Value.Id == 0)
-        {
-            if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Kitchen, "_blank");
-            else
-                NavigationManager.NavigateTo(PageRouteNames.Kitchen);
-
-            return;
-        }
 
         _selectedKitchen = args.Value;
         _kitchenIssue.KitchenId = _selectedKitchen.Id;
@@ -327,18 +292,8 @@ public partial class KitchenIssuePage : IAsyncDisposable
     #region Cart
     private async Task OnItemChanged(ChangeEventArgs<RawMaterialModel?, RawMaterialModel> args)
     {
-        if (args.Value is null)
+        if (args.Value is null || args.Value.Id == 0)
             return;
-
-        if (args.Value.Id == 0)
-        {
-            if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.RawMaterial, "_blank");
-            else
-                NavigationManager.NavigateTo(PageRouteNames.RawMaterial);
-
-            return;
-        }
 
         _selectedRawMaterial = args.Value;
 

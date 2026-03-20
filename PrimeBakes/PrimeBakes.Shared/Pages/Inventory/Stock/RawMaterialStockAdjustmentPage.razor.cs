@@ -32,7 +32,7 @@ public partial class RawMaterialStockAdjustmentPage : IAsyncDisposable
     private string _transactionNo = string.Empty;
 
     private FinancialYearModel _selectedFinancialYear = new();
-    private RawMaterialModel? _selectedRawMaterial = new();
+    private RawMaterialModel? _selectedRawMaterial = null;
     private RawMaterialStockAdjustmentCartModel _selectedCart = new();
 
     private List<RawMaterialModel> _rawMaterials = [];
@@ -97,11 +97,6 @@ public partial class RawMaterialStockAdjustmentPage : IAsyncDisposable
             _rawMaterials = await PurchaseData.LoadRawMaterialByPartyPurchaseDateTime(0, _transactionDateTime);
 
             _rawMaterials = [.. _rawMaterials.OrderBy(s => s.Name)];
-            _rawMaterials.Add(new()
-            {
-                Id = 0,
-                Name = "Create New Item ..."
-            });
         }
         catch (Exception ex)
         {
@@ -143,18 +138,8 @@ public partial class RawMaterialStockAdjustmentPage : IAsyncDisposable
     #region Cart
     private async Task OnItemChanged(ChangeEventArgs<RawMaterialModel?, RawMaterialModel> args)
     {
-        if (args.Value is null)
+        if (args.Value is null || args.Value.Id == 0)
             return;
-
-        if (args.Value.Id == 0)
-        {
-            if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", PageRouteNames.RawMaterial, "_blank");
-            else
-                NavigationManager.NavigateTo(PageRouteNames.RawMaterial);
-
-            return;
-        }
 
         _selectedRawMaterial = args.Value;
 

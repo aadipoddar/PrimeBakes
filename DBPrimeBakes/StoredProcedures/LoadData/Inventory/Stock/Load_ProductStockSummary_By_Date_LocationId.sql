@@ -81,7 +81,6 @@ BEGIN
 			ROW_NUMBER() OVER (PARTITION BY ProductId ORDER BY Id DESC) AS RowNum
 		FROM dbo.ProductLocation WITH (NOLOCK)
 		WHERE LocationId = @LocationId
-			AND Status = 1
 	)
 	-- Final select combining all pre-calculated data
 	SELECT

@@ -37,8 +37,8 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 	private CompanyModel _selectedCompany = new();
 	private VoucherModel _selectedVoucher = new();
 	private FinancialYearModel _selectedFinancialYear = new();
-	private LedgerModel? _selectedLedger = new();
-	private FinancialAccountingLedgerOverviewModel _selectedAccountingLedger = new();
+	private LedgerModel? _selectedLedger = null;
+	private FinancialAccountingLedgerOverviewModel? _selectedAccountingLedger = null;
 	private FinancialAccountingItemCartModel _selectedCart = new();
 	private FinancialAccountingModel _accounting = new();
 
@@ -99,11 +99,6 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 		{
 			_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
 			_companies = [.. _companies.OrderBy(s => s.Name)];
-			_companies.Add(new()
-			{
-				Id = 0,
-				Name = "Create New Company ..."
-			});
 
 			var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
 			_selectedCompany = _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value) ?? throw new Exception("Main Company Not Found");
@@ -120,11 +115,6 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 		{
 			_vouchers = await CommonData.LoadTableDataByStatus<VoucherModel>(TableNames.Voucher);
 			_vouchers = [.. _vouchers.OrderBy(s => s.Name)];
-			_vouchers.Add(new()
-			{
-				Id = 0,
-				Name = "Create New Voucher ..."
-			});
 
 			var defaultSelectedVoucherId = await SettingsData.LoadSettingsByKey(SettingsKeys.DefaultSelectedVoucherId);
 			_selectedVoucher = _vouchers.FirstOrDefault(v => v.Id.ToString() == defaultSelectedVoucherId.Value) ?? _vouchers.FirstOrDefault();
@@ -218,11 +208,6 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 		{
 			_ledgers = await CommonData.LoadTableDataByStatus<LedgerModel>(TableNames.Ledger);
 			_ledgers = [.. _ledgers.OrderBy(s => s.Name)];
-			_ledgers.Add(new()
-			{
-				Id = 0,
-				Name = "Create New Ledger ..."
-			});
 		}
 		catch (Exception ex)
 		{
@@ -281,18 +266,8 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 	#region Change Events
 	private async Task OnCompanyChanged(ChangeEventArgs<CompanyModel, CompanyModel> args)
 	{
-		if (args.Value is null)
+		if (args.Value is null || args.Value.Id == 0)
 			return;
-
-		if (args.Value.Id == 0)
-		{
-			if (FormFactor.GetFormFactor() == "Web")
-				await JSRuntime.InvokeVoidAsync("open", PageRouteNames.CompanyMaster, "_blank");
-			else
-				NavigationManager.NavigateTo(PageRouteNames.CompanyMaster);
-
-			return;
-		}
 
 		_selectedCompany = args.Value;
 		_accounting.CompanyId = _selectedCompany.Id;
@@ -302,18 +277,8 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 
 	private async Task OnPartyChanged(ChangeEventArgs<VoucherModel, VoucherModel> args)
 	{
-		if (args.Value is null)
+		if (args.Value is null || args.Value.Id == 0)
 			return;
-
-		if (args.Value.Id == 0)
-		{
-			if (FormFactor.GetFormFactor() == "Web")
-				await JSRuntime.InvokeVoidAsync("open", PageRouteNames.VoucherMaster, "_blank");
-			else
-				NavigationManager.NavigateTo(PageRouteNames.VoucherMaster);
-
-			return;
-		}
 
 		_selectedVoucher = args.Value;
 		_accounting.VoucherId = _selectedVoucher.Id;
@@ -331,18 +296,8 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 	#region Cart
 	private async Task OnItemChanged(ChangeEventArgs<LedgerModel?, LedgerModel?> args)
 	{
-		if (args.Value is null)
+		if (args.Value is null || args.Value.Id == 0)
 			return;
-
-		if (args.Value.Id == 0)
-		{
-			if (FormFactor.GetFormFactor() == "Web")
-				await JSRuntime.InvokeVoidAsync("open", PageRouteNames.LedgerMaster, "_blank");
-			else
-				NavigationManager.NavigateTo(PageRouteNames.LedgerMaster);
-
-			return;
-		}
 
 		_selectedLedger = args.Value;
 
@@ -372,7 +327,7 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 	{
 		if (args.Value is null)
 		{
-			_selectedAccountingLedger = new();
+			_selectedAccountingLedger = null;
 			_selectedCart.ReferenceNo = null;
 			_selectedCart.ReferenceId = null;
 			_selectedCart.ReferenceType = null;

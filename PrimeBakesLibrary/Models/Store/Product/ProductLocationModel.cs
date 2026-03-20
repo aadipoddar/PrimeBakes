@@ -6,7 +6,6 @@ public class ProductLocationModel
     public int ProductId { get; set; }
     public decimal Rate { get; set; }
     public int LocationId { get; set; }
-    public bool Status { get; set; }
 }
 
 public class ProductLocationOverviewModel

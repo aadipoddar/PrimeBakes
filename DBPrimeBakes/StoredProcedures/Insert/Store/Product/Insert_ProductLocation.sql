@@ -2,14 +2,13 @@
 	@Id INT OUTPUT,
 	@ProductId INT,
 	@Rate MONEY,
-	@LocationId INT,
-	@Status BIT
+	@LocationId INT
 AS
 BEGIN
 	IF @Id = 0
 	BEGIN
-		INSERT INTO [dbo].[ProductLocation] ([ProductId], [Rate], [LocationId], [Status])
-		VALUES (@ProductId, @Rate, @LocationId, @Status);
+		INSERT INTO [dbo].[ProductLocation] ([ProductId], [Rate], [LocationId])
+		VALUES (@ProductId, @Rate, @LocationId);
 
 		SET @Id = SCOPE_IDENTITY();
 	END
@@ -19,8 +18,7 @@ BEGIN
 		UPDATE [dbo].[ProductLocation]
 		SET [ProductId] = @ProductId, 
 			[Rate] = @Rate, 
-			[LocationId] = @LocationId,
-			[Status] = @Status
+			[LocationId] = @LocationId
 		WHERE [Id] = @Id;
 	END
 

@@ -19,7 +19,6 @@ public static class ProductLocationExport
 			var productCode = props.FirstOrDefault(p => p.Name == "ProductCode")?.GetValue(productLocation)?.ToString();
 			var productName = props.FirstOrDefault(p => p.Name == "ProductName")?.GetValue(productLocation)?.ToString();
 			var rate = props.FirstOrDefault(p => p.Name == "Rate")?.GetValue(productLocation);
-			var status = props.FirstOrDefault(p => p.Name == "Status")?.GetValue(productLocation);
 
 			return new
 			{
@@ -28,7 +27,6 @@ public static class ProductLocationExport
 				ProductCode = productCode,
 				ProductName = productName,
 				Rate = rate is decimal rateVal ? rateVal : 0m,
-				Status = status is bool and true ? "Active" : "Deleted"
 			};
 		});
 
@@ -38,7 +36,6 @@ public static class ProductLocationExport
 			["ProductCode"] = new() { DisplayName = "Product Code", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			["ProductName"] = new() { DisplayName = "Product Name", Alignment = CellAlignment.Left, IsRequired = true },
 			[nameof(ProductLocationModel.Rate)] = new() { DisplayName = "Rate", Alignment = CellAlignment.Right, Format = "0.00", IncludeInTotal = false },
-			[nameof(ProductLocationModel.Status)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false }
 		};
 
 		List<string> columnOrder =
@@ -46,8 +43,7 @@ public static class ProductLocationExport
 			"Location",
 			"ProductCode",
 			"ProductName",
-			nameof(ProductLocationModel.Rate),
-			nameof(ProductLocationModel.Status)
+			nameof(ProductLocationModel.Rate)
 		];
 
 		var currentDateTime = await CommonData.LoadCurrentDateTime();

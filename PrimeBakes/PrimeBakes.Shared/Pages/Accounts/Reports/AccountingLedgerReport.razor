@@ -272,7 +272,7 @@ else
 										HeaderText="Date" Width="130" Format="dd/MM/yyyy" Type="ColumnType.Date" />
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CompanyName)"
 										HeaderText="Company" Width="180"
-										Visible="@(_showAllColumns && _selectedCompany?.Id <= 0)" />
+										Visible="@(_showAllColumns && (_selectedCompany is null || _selectedCompany.Id <= 0))" />
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.ReferenceType)"
 										HeaderText="Ref Type" Width="130" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.ReferenceNo)"

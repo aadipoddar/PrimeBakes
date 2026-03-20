@@ -118,9 +118,6 @@ public partial class BillPage : IAsyncDisposable
 			_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
 			_companies = [.. _companies.OrderBy(s => s.Name)];
 
-			if (_user.LocationId == 1)
-				_companies.Add(new() { Id = 0, Name = "Create New Company ..." });
-
 			var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
 			_primaryCompanyId = int.TryParse(mainCompanyId?.Value, out var id) ? id : 0;
 			_selectedCompany = _companies.FirstOrDefault(s => s.Id == _primaryCompanyId)
@@ -138,9 +135,6 @@ public partial class BillPage : IAsyncDisposable
 		{
 			_locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
 			_locations = [.. _locations.OrderBy(s => s.Name)];
-
-			if (_user.LocationId == 1)
-				_locations.Add(new() { Id = 0, Name = "Create New Location ..." });
 
 			_selectedLocation = _locations.FirstOrDefault(s => s.Id == _user.LocationId);
 		}
@@ -194,9 +188,6 @@ public partial class BillPage : IAsyncDisposable
 			if (_diningTables.Count == 0)
 				await _toastNotification.ShowAsync("No Dining Tables Found", "No dining tables were found for the selected location. Please create dining tables to proceed.", ToastType.Warning);
 
-			if (_user.LocationId == 1)
-				_diningTables.Add(new() { Id = 0, Name = "Create New Dining Table ..." });
-
 			_selectedDiningTable = _bill.DiningTableId > 0 ?
 				_diningTables.FirstOrDefault(s => s.Id == _bill.DiningTableId) ?? new() :
 				new();
@@ -216,9 +207,6 @@ public partial class BillPage : IAsyncDisposable
 			_taxes = await CommonData.LoadTableDataByStatus<TaxModel>(TableNames.Tax);
 			_products = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _bill.LocationId);
 			_products = [.. _products.OrderBy(s => s.Name)];
-
-			if (_user.LocationId == 1)
-				_products.Add(new() { Id = 0, Name = "Create New Item ..." });
 		}
 		catch (Exception ex)
 		{
@@ -561,18 +549,8 @@ public partial class BillPage : IAsyncDisposable
 			return;
 		}
 
-		if (args.Value is null)
+		if (args.Value is null || args.Value.Id == 0)
 			return;
-
-		if (args.Value.Id == 0)
-		{
-			if (FormFactor.GetFormFactor() == "Web")
-				await JSRuntime.InvokeVoidAsync("open", PageRouteNames.CompanyMaster, "_blank");
-			else
-				NavigationManager.NavigateTo(PageRouteNames.CompanyMaster);
-
-			return;
-		}
 
 		_selectedCompany = args.Value;
 		_bill.CompanyId = _selectedCompany.Id;
@@ -589,18 +567,8 @@ public partial class BillPage : IAsyncDisposable
 			return;
 		}
 
-		if (args.Value is null)
+		if (args.Value is null || args.Value.Id == 0)
 			return;
-
-		if (args.Value.Id == 0)
-		{
-			if (FormFactor.GetFormFactor() == "Web")
-				await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Location, "_blank");
-			else
-				NavigationManager.NavigateTo(PageRouteNames.Location);
-
-			return;
-		}
 
 		_selectedLocation = args.Value;
 		_bill.LocationId = _selectedLocation.Id;
@@ -612,18 +580,8 @@ public partial class BillPage : IAsyncDisposable
 
 	private async Task OnDiningTableChanged(ChangeEventArgs<DiningTableModel, DiningTableModel> args)
 	{
-		if (args.Value is null)
+		if (args.Value is null || args.Value.Id == 0)
 			return;
-
-		if (args.Value.Id == 0)
-		{
-			if (FormFactor.GetFormFactor() == "Web")
-				await JSRuntime.InvokeVoidAsync("open", PageRouteNames.DiningTable, "_blank");
-			else
-				NavigationManager.NavigateTo(PageRouteNames.DiningTable);
-
-			return;
-		}
 
 		var diningArea = await CommonData.LoadTableDataById<DiningAreaModel>(TableNames.DiningArea, args.Value.DiningAreaId);
 		if (diningArea.LocationId != _bill.LocationId)
@@ -704,18 +662,8 @@ public partial class BillPage : IAsyncDisposable
 	#region Cart
 	private async Task OnItemChanged(ChangeEventArgs<ProductLocationOverviewModel, ProductLocationOverviewModel> args)
 	{
-		if (args.Value is null)
+		if (args.Value is null || args.Value.Id == 0)
 			return;
-
-		if (args.Value.Id == 0)
-		{
-			if (FormFactor.GetFormFactor() == "Web")
-				await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Product, "_blank");
-			else
-				NavigationManager.NavigateTo(PageRouteNames.Product);
-
-			return;
-		}
 
 		_selectedProduct = args.Value;
 
@@ -1221,7 +1169,7 @@ public partial class BillPage : IAsyncDisposable
 			await ThermalPrintDispatcher.PrintAsync(
 				async () => await KOTThermalPrint.GenerateThermalBill(_bill.Id, kotCategoryId, kotCategoryItems[kotCategoryId]),
 				async () => await KOTThermalPrint.GenerateThermalBillPng(_bill.Id, kotCategoryId, kotCategoryItems[kotCategoryId]));
-		
+
 		await BillData.MarkKOTAsPrinted(_bill.Id);
 	}
 
