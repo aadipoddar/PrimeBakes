@@ -84,9 +84,11 @@ else
 					</div>
 				</div>
 				<div class="section-body grid-body">
+					<SfMediaQuery @bind-ActiveBreakpoint="activeBreakpoint" />
 					<SfGrid ID="_sfGrid" @ref="_sfGrid" TValue="OutletSummaryModel" DataSource="_outletSummaries"
 							AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
 							AllowFiltering="true" AllowGrouping="true" GridLines="GridLine.Horizontal"
+							EnableAdaptiveUI="true" AdaptiveUIMode="AdaptiveMode.Mobile" RowRenderingMode="@(activeBreakpoint == "Small" ? RowDirection.Vertical : RowDirection.Horizontal)"
 							CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
 
 						<GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />

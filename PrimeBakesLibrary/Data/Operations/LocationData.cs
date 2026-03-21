@@ -55,13 +55,18 @@ public static class LocationData
 
 				var copyProductLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(null, copyLocation.Id, sqlDataAccessTransaction);
 				foreach (var copyProductLocation in copyProductLocations)
-					await ProductLocationData.InsertProductLocation(new()
+				{
+					var id = await ProductLocationData.InsertProductLocation(new()
 					{
 						Id = 0,
 						ProductId = copyProductLocation.ProductId,
 						LocationId = location.Id,
 						Rate = copyProductLocation.Rate
 					}, sqlDataAccessTransaction);
+
+					if (id <= 0)
+						throw new InvalidOperationException("Failed to insert product location.");
+				}
 			}
 
 			else if (isNewLocation)
@@ -72,13 +77,18 @@ public static class LocationData
 
 				var products = await CommonData.LoadTableDataByStatus<ProductModel>(TableNames.Product, true, sqlDataAccessTransaction);
 				foreach (var product in products)
-					await ProductLocationData.InsertProductLocation(new()
+				{
+					var id = await ProductLocationData.InsertProductLocation(new()
 					{
 						Id = 0,
 						ProductId = product.Id,
 						LocationId = location.Id,
 						Rate = product.Rate
 					}, sqlDataAccessTransaction);
+
+					if (id <= 0)
+						throw new InvalidOperationException("Failed to insert product location.");
+				}
 			}
 		}
 		catch

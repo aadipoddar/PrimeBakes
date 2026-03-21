@@ -17,23 +17,18 @@ public static class ProductData
 
 	public static async Task<int> SaveProduct(ProductModel product, List<LocationModel> locations)
 	{
-		bool isNewProduct = product.Id == 0;
-
 		using SqlDataAccessTransaction sqlDataAccessTransaction = new();
 
 		try
 		{
 			sqlDataAccessTransaction.StartTransaction();
 
-			if (isNewProduct)
+			if (product.Id == 0)
 				product.Code = await GenerateCodes.GenerateProductCode(sqlDataAccessTransaction);
 
 			product.Id = await InsertProduct(product, sqlDataAccessTransaction);
 
-			if (isNewProduct)
-				await InsertNewProductLocations(product, locations, sqlDataAccessTransaction);
-			else
-				await UpdateProductLocations(product, locations, sqlDataAccessTransaction);
+			await InsertProductLocations(product, locations, sqlDataAccessTransaction);
 
 			sqlDataAccessTransaction.CommitTransaction();
 		}
@@ -46,24 +41,7 @@ public static class ProductData
 		return product.Id;
 	}
 
-	private static async Task InsertNewProductLocations(ProductModel product, List<LocationModel> locations, SqlDataAccessTransaction sqlDataAccessTransaction)
-	{
-		foreach (var location in locations)
-		{
-			var id = await ProductLocationData.InsertProductLocation(new()
-			{
-				Id = 0,
-				Rate = product.Rate,
-				ProductId = product.Id,
-				LocationId = location.Id
-			}, sqlDataAccessTransaction);
-
-			if (id <= 0)
-				throw new InvalidOperationException("Failed to insert product location.");
-		}
-	}
-
-	private static async Task UpdateProductLocations(ProductModel product, List<LocationModel> locations, SqlDataAccessTransaction sqlDataAccessTransaction)
+	private static async Task InsertProductLocations(ProductModel product, List<LocationModel> locations, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
 		var productLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(product.Id, null, sqlDataAccessTransaction);
 		productLocations = [.. productLocations.Where(pl => locations.Any(l => l.Id == pl.LocationId))];

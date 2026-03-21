@@ -14,7 +14,7 @@ using PrimeBakesLibrary.Models.Store.Sale;
 using PrimeBakesLibrary.Models.Store.StockTransfer;
 using Syncfusion.Blazor.Grids;
 
-namespace PrimeBakes.Shared.Pages.Store.Sale.Reports;
+namespace PrimeBakes.Shared.Pages.Operations;
 
 public partial class OutletSummaryReport : IAsyncDisposable
 {
@@ -46,6 +46,7 @@ public partial class OutletSummaryReport : IAsyncDisposable
 	private List<BillOverviewModel> _bills = [];
 
 	private SfGrid<OutletSummaryModel> _sfGrid;
+	private string? activeBreakpoint { get; set; }
 
 	private ToastNotification _toastNotification;
 

@@ -8,6 +8,7 @@ internal static class PageRouteNames
 	public const string OperationsDashboard = "/operations";
 	public const string ReportDashboard = "/report";
 
+	public const string OutletSummaryReport = "/reports/outlet-summary";
 	public const string Location = "/operations/location";
 	public const string User = "/operations/user";
 	public const string Settings = "/operations/settings";
@@ -78,7 +79,6 @@ internal static class PageRouteNames
 	public const string SaleMobileConfirmation = "/store/sale/mobile/sale-confirmation";
 	public const string SaleReport = "/store/sale/reports/sale";
 	public const string SaleItemReport = "/store/sale/reports/sale-item";
-	public const string OutletSummaryReport = "/store/sale/reports/outlet-summary";
 	public const string SaleReturnReport = "/store/sale/reports/sale-return";
 	public const string SaleReturnItemReport = "/store/sale/reports/sale-return-item";
 

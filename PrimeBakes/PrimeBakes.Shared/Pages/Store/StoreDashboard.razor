@@ -183,23 +183,6 @@ else
 						</div>
 						<div class="section-body">
 							<div class="dashboard-grid">
-								@if (_user.LocationId == 1)
-								{
-									<!-- Outlet Summary Report -->
-									<ButtonCard Title="Outlet Summary" Description="View outlet-wise purchase and sale summary"
-												Color="violet" OnClick="() => NavigationManager.NavigateTo(PageRouteNames.OutletSummaryReport)">
-										<IconContent>
-											<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-												 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-												 stroke-linejoin="round">
-												<line x1="18" y1="20" x2="18" y2="10" />
-												<line x1="12" y1="20" x2="12" y2="4" />
-												<line x1="6" y1="20" x2="6" y2="14" />
-											</svg>
-										</IconContent>
-									</ButtonCard>
-								}
-
 								<!-- Order Report -->
 								<ButtonCard Title="Order Report" Description="View order transaction history" Color="cyan"
 											OnClick="() => NavigationManager.NavigateTo(PageRouteNames.OrderReport)">

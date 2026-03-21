@@ -15,7 +15,7 @@ jobs:
     if: needs.version-check.outputs.should-deploy == 'true'
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2

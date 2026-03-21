@@ -92,8 +92,7 @@ else
 							<IconContent>
 								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
 									 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-									<path
-									d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+									<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
 									<polyline points="3.27 6.96 12 12.01 20.73 6.96" />
 									<line x1="12" y1="22.08" x2="12" y2="12" />
 								</svg>
@@ -114,8 +113,7 @@ else
 								<path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
 								<path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" />
 								<path d="M2 7h20" />
-								<path
-								d="M22 7v3a2 2 0 0 1-2 2v0a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12v0a2 2 0 0 1-2-2V7" />
+								<path d="M22 7v3a2 2 0 0 1-2 2v0a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12v0a2 2 0 0 1-2-2V7" />
 							</svg>
 						</IconContent>
 					</ButtonCard>
@@ -138,6 +136,22 @@ else
 					</ButtonCard>
 				}
 
+				@if (_user.LocationId == 1 && _user.Admin)
+				{
+					<!-- Outlet Summary Report -->
+					<ButtonCard Title="Outlet Summary" Description="View outlet-wise purchase and sale summary" Color="violet"
+								OnClick="() => NavigationManager.NavigateTo(PageRouteNames.OutletSummaryReport)">
+						<IconContent>
+							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+								 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<line x1="18" y1="20" x2="18" y2="10" />
+								<line x1="12" y1="20" x2="12" y2="4" />
+								<line x1="6" y1="20" x2="6" y2="14" />
+							</svg>
+						</IconContent>
+					</ButtonCard>
+				}
+
 				<!-- Operations -->
 				<ButtonCard Title="Operations" Description="Access operations dashboard" Color="indigo"
 							OnClick="() => NavigationManager.NavigateTo(PageRouteNames.OperationsDashboard)">
@@ -145,8 +159,7 @@ else
 						<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
 							 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 							<circle cx="12" cy="12" r="3" />
-							<path
-							d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+							<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
 						</svg>
 					</IconContent>
 				</ButtonCard>
@@ -271,16 +284,16 @@ else
 		overflow: hidden;
 	}
 
-	.progress-bar-fill::after {
-		content: '';
-		position: absolute;
-		top: 0;
-		left: 0;
-		bottom: 0;
-		right: 0;
-		background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-		animation: shimmer 1.5s infinite;
-	}
+		.progress-bar-fill::after {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			bottom: 0;
+			right: 0;
+			background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+			animation: shimmer 1.5s infinite;
+		}
 
 	.time-remaining {
 		display: flex;
@@ -291,9 +304,9 @@ else
 		justify-content: center;
 	}
 
-	.time-remaining svg {
-		color: #94a3b8;
-	}
+		.time-remaining svg {
+			color: #94a3b8;
+		}
 
 	.update-status {
 		display: flex;

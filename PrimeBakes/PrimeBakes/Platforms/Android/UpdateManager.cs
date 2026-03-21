@@ -6,14 +6,13 @@ using Application = Android.App.Application;
 
 namespace PrimeBakes.Services;
 
-public static class AadiSoftUpdater
+public static class UpdaterManager
 {
 	private const string LatestVersionMarker = "Latest Version = ";
 
 	public static async Task<bool> CheckForUpdates(string githubRepoOwner, string githubRepoName, string setupFileName, string currentVersion)
 	{
 		var latestVersion = await GetLatestVersionFromGithubReadme(githubRepoOwner, githubRepoName);
-
 		if (string.IsNullOrWhiteSpace(latestVersion) || string.Equals(latestVersion, currentVersion, StringComparison.OrdinalIgnoreCase))
 			return false;
 
@@ -27,7 +26,6 @@ public static class AadiSoftUpdater
 		var expectedAssetName = $"{setupFileName}.apk";
 
 		using var client = CreateHttpClient(withUserAgent: true);
-
 		using var response = await client.GetAsync(releaseApiUrl);
 		if (!response.IsSuccessStatusCode)
 			return false;
