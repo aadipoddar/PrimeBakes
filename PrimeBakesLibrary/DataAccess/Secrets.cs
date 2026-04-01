@@ -40,7 +40,7 @@ public static partial class Secrets
 
 	public static void SetupConfiguration()
 	{
-		Dapper.SqlMapper.Settings.CommandTimeout = 0;
+		Dapper.SqlMapper.Settings.CommandTimeout = 600;
 		Dapper.SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
 		Dapper.SqlMapper.AddTypeHandler(new TimeOnlyTypeHandler());
 		Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(SyncfusionLicense);

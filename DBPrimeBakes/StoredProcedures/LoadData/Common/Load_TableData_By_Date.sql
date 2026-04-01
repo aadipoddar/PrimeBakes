@@ -11,7 +11,7 @@ BEGIN
 	SET @EndDate = DATEADD(DAY, 1, CAST(@EndDate AS DATE));
 
 	DECLARE @SQL nvarchar(MAX)
-	SET @sql = N'SELECT * FROM ' + QUOTENAME(@TableName) + ' WHERE TransactionDateTime >= @StartDate AND TransactionDateTime < @EndDate';
+	SET @sql = N'SELECT * FROM ' + QUOTENAME(@TableName) + ' WHERE TransactionDateTime >= @StartDate AND TransactionDateTime < @EndDate OPTION (RECOMPILE)';
 	EXEC sp_executesql @sql,
 					N'@StartDate DATETIME, @EndDate DATETIME',
 					@StartDate = @StartDate,
