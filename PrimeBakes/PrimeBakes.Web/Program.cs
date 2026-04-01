@@ -12,9 +12,7 @@ using Toolbelt.Blazor.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-Dapper.SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
-Dapper.SqlMapper.AddTypeHandler(new TimeOnlyTypeHandler());
-Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(Secrets.SyncfusionLicense);
+Secrets.SetupConfiguration();
 
 // Add services to the container.
 builder.Services

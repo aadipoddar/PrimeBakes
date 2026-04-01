@@ -336,7 +336,7 @@ public partial class OutletSummaryReport : IAsyncDisposable
 		NavigationManager.NavigateTo(PageRouteNames.Dashboard);
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(PageRouteNames.StoreDashboard);
+		NavigationManager.NavigateTo(PageRouteNames.Dashboard);
 
 	private async Task Logout() =>
 		await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);

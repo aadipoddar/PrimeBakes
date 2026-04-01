@@ -4,6 +4,6 @@ AS
 BEGIN
 	SELECT *
 	FROM FinancialYear
-	WHERE @TransactionDateTime BETWEEN StartDate AND EndDate
+	WHERE CAST(@TransactionDateTime AS DATE) BETWEEN CAST(StartDate AS DATE) AND CAST(EndDate AS DATE)
 	AND Status = 1
 END

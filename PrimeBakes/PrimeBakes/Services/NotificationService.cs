@@ -1,4 +1,5 @@
 ﻿using Plugin.LocalNotification;
+using Plugin.LocalNotification.Core.Models;
 
 namespace PrimeBakes.Services;
 

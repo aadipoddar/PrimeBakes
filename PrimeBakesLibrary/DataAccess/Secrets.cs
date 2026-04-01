@@ -37,4 +37,12 @@ public static partial class Secrets
 			.AddEnvironmentVariables()
 			.Build()
 			.GetSection(key).Value;
+
+	public static void SetupConfiguration()
+	{
+		Dapper.SqlMapper.Settings.CommandTimeout = 0;
+		Dapper.SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
+		Dapper.SqlMapper.AddTypeHandler(new TimeOnlyTypeHandler());
+		Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(SyncfusionLicense);
+	}
 }

@@ -17,11 +17,9 @@ public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
-        Dapper.SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
-        Dapper.SqlMapper.AddTypeHandler(new TimeOnlyTypeHandler());
-        Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(Secrets.SyncfusionLicense);
+		Secrets.SetupConfiguration();
 
-        var builder = MauiApp.CreateBuilder();
+		var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
             .RegisterServices()
