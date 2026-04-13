@@ -89,7 +89,8 @@ public partial class ToggleButton
             builder.AddAttribute(12, "x2", "14");
             builder.AddAttribute(13, "y2", "17");
             builder.CloseElement();
-        },
+        }
+        ,
 
         ToggleVariant.Summary => IsActive
             ? (builder =>
@@ -169,7 +170,38 @@ public partial class ToggleButton
             builder.OpenElement(2, "path");
             builder.AddAttribute(3, "d", "M20 20v-7a4 4 0 0 0-4-4H4");
             builder.CloseElement();
-        },
+        }
+        ,
+
+        ToggleVariant.Bills => builder =>
+        {
+            builder.OpenElement(0, "rect");
+            builder.AddAttribute(1, "x", "4");
+            builder.AddAttribute(2, "y", "2");
+            builder.AddAttribute(3, "width", "16");
+            builder.AddAttribute(4, "height", "20");
+            builder.AddAttribute(5, "rx", "2");
+            builder.CloseElement();
+            builder.OpenElement(6, "line");
+            builder.AddAttribute(7, "x1", "8");
+            builder.AddAttribute(8, "y1", "7");
+            builder.AddAttribute(9, "x2", "16");
+            builder.AddAttribute(10, "y2", "7");
+            builder.CloseElement();
+            builder.OpenElement(11, "line");
+            builder.AddAttribute(12, "x1", "8");
+            builder.AddAttribute(13, "y1", "11");
+            builder.AddAttribute(14, "x2", "16");
+            builder.AddAttribute(15, "y2", "11");
+            builder.CloseElement();
+            builder.OpenElement(16, "line");
+            builder.AddAttribute(17, "x1", "8");
+            builder.AddAttribute(18, "y1", "15");
+            builder.AddAttribute(19, "x2", "13");
+            builder.AddAttribute(20, "y2", "15");
+            builder.CloseElement();
+        }
+        ,
 
         ToggleVariant.Transfers => builder =>
         {
@@ -185,7 +217,8 @@ public partial class ToggleButton
             builder.OpenElement(6, "path");
             builder.AddAttribute(7, "d", "M21 10v2a4 4 0 0 1-4 4H3");
             builder.CloseElement();
-        },
+        }
+        ,
 
         _ => builder => { }
     };
@@ -198,6 +231,7 @@ public partial class ToggleButton
 
         ToggleVariant.Deleted => IsActive ? "Hide Deleted" : "Show Deleted",
         ToggleVariant.Summary => IsActive ? "Show Details" : "Show Summary",
+        ToggleVariant.Bills => IsActive ? "Hide Bills" : "Show Bills",
         ToggleVariant.Returns => IsActive ? "Hide Returns" : "Show Returns",
         ToggleVariant.Transfers => IsActive ? "Hide Transfers" : "Show Transfers",
         _ => ""
@@ -208,6 +242,7 @@ public partial class ToggleButton
         ToggleVariant.Details => IsActive ? "Show Less" : "Show All Details",
         ToggleVariant.Deleted => IsActive ? "Hide Deleted Items" : "Show Deleted Items",
         ToggleVariant.Summary => IsActive ? "Show Detailed Transactions" : "Show Consolidated Summary",
+        ToggleVariant.Bills => IsActive ? "Hide Bills" : "Show Bills",
         ToggleVariant.Returns => IsActive ? "Hide Returns" : "Show Returns",
         ToggleVariant.Transfers => IsActive ? "Hide Transfers" : "Show Transfers",
         _ => ""
@@ -218,6 +253,7 @@ public partial class ToggleButton
         ToggleVariant.Details => "btn-toggle-details",
         ToggleVariant.Deleted => "btn-toggle-deleted",
         ToggleVariant.Summary => "btn-toggle-summary",
+        ToggleVariant.Bills => "btn-toggle-bills",
         ToggleVariant.Returns => "btn-toggle-returns",
         ToggleVariant.Transfers => "btn-toggle-transfers",
         _ => ""
@@ -228,6 +264,7 @@ public partial class ToggleButton
         Details,
         Deleted,
         Summary,
+        Bills,
         Returns,
         Transfers
     }

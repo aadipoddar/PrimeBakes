@@ -13,6 +13,7 @@ using PrimeBakesLibrary.Exporting.Store.StockTransfer;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Models.Restuarant.Bill;
 using PrimeBakesLibrary.Models.Store.Sale;
 using PrimeBakesLibrary.Models.Store.StockTransfer;
 
@@ -32,6 +33,7 @@ public partial class SaleReport : IAsyncDisposable
     private bool _isProcessing = false;
     private bool _showAllColumns = false;
     private bool _showSummary = false;
+    private bool _showBills = false;
     private bool _showSaleReturns = false;
     private bool _showStockTransfers = false;
     private bool _showDeleted = false;
@@ -49,6 +51,7 @@ public partial class SaleReport : IAsyncDisposable
     private List<SaleOverviewModel> _transactionOverviews = [];
     private List<SaleReturnOverviewModel> _transactionReturnOverviews = [];
     private List<StockTransferOverviewModel> _transactionTransferOverviews = [];
+    private List<BillOverviewModel> _transactionBillOverviews = [];
 
     private SfGrid<SaleOverviewModel> _sfGrid;
 
@@ -176,6 +179,9 @@ public partial class SaleReport : IAsyncDisposable
 
             if (_showStockTransfers)
                 await LoadTransactionTransferOverviews();
+
+            if (_showBills)
+                await LoadTransactionBillOverviews();
 
             if (_showSummary)
                 _transactionOverviews = [.. _transactionOverviews
@@ -315,7 +321,7 @@ public partial class SaleReport : IAsyncDisposable
                 _transactionTransferOverviews = [.. _transactionTransferOverviews.Where(_ => _.ToLocationId == location.Id)];
         }
 
-        _transactionReturnOverviews = [.. _transactionReturnOverviews.OrderBy(_ => _.TransactionDateTime)];
+        _transactionTransferOverviews = [.. _transactionTransferOverviews.OrderBy(_ => _.TransactionDateTime)];
 
         MergeTransactionAndTransfers();
     }
@@ -368,6 +374,81 @@ public partial class SaleReport : IAsyncDisposable
             TransactionNo = pr.TransactionNo,
             PaymentModes = pr.PaymentModes,
             OtherChargesPercent = pr.OtherChargesPercent,
+            Status = pr.Status
+        }));
+
+        _transactionOverviews = [.. _transactionOverviews.OrderBy(_ => _.TransactionDateTime)];
+    }
+
+    private async Task LoadTransactionBillOverviews()
+    {
+        _transactionBillOverviews = await CommonData.LoadTableDataByDate<BillOverviewModel>(
+            ViewNames.BillOverview,
+            DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
+            DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
+
+        if (!_showDeleted)
+            _transactionBillOverviews = [.. _transactionBillOverviews.Where(_ => _.Status)];
+
+        if (_selectedLocation?.Id > 0)
+            _transactionBillOverviews = [.. _transactionBillOverviews.Where(_ => _.LocationId == _selectedLocation.Id)];
+
+        if (_selectedCompany?.Id > 0)
+            _transactionBillOverviews = [.. _transactionBillOverviews.Where(_ => _.CompanyId == _selectedCompany.Id)];
+
+        _transactionBillOverviews = [.. _transactionBillOverviews.OrderBy(_ => _.TransactionDateTime)];
+
+        MergeTransactionAndBills();
+    }
+
+    private void MergeTransactionAndBills()
+    {
+        _transactionOverviews.AddRange(_transactionBillOverviews.Select(pr => new SaleOverviewModel
+        {
+            Id = pr.Id, // TODO - apply for Bills
+            CompanyId = pr.CompanyId,
+            CompanyName = pr.CompanyName,
+            PartyId = null,
+            PartyName = null,
+            TransactionDateTime = pr.TransactionDateTime,
+            OtherChargesAmount = pr.ServiceChargeAmount,
+            RoundOffAmount = pr.RoundOffAmount,
+            TotalAmount = pr.TotalAmount,
+            TotalAfterItemDiscount = pr.TotalAfterItemDiscount,
+            TotalExtraTaxAmount = pr.TotalExtraTaxAmount,
+            TotalInclusiveTaxAmount = pr.TotalInclusiveTaxAmount,
+            BaseTotal = pr.BaseTotal,
+            CreatedAt = pr.CreatedAt,
+            CreatedBy = pr.CreatedBy,
+            CreatedByName = pr.CreatedByName,
+            CreatedFromPlatform = pr.CreatedFromPlatform,
+            DiscountAmount = pr.DiscountAmount,
+            DiscountPercent = pr.DiscountPercent,
+            FinancialYear = pr.FinancialYear,
+            FinancialYearId = pr.FinancialYearId,
+            Remarks = pr.Remarks,
+            LastModifiedAt = pr.LastModifiedAt,
+            LastModifiedBy = pr.LastModifiedBy,
+            LastModifiedByUserName = pr.LastModifiedByUserName,
+            LastModifiedFromPlatform = pr.LastModifiedFromPlatform,
+            Card = pr.Card,
+            Credit = pr.Credit,
+            Cash = pr.Cash,
+            UPI = pr.UPI,
+            LocationId = pr.LocationId,
+            LocationName = pr.LocationName,
+            ItemDiscountAmount = pr.ItemDiscountAmount,
+            OrderDateTime = null,
+            OrderId = null,
+            OrderTransactionNo = null,
+            CustomerId = null,
+            CustomerName = null,
+            TotalAfterTax = pr.TotalAfterTax,
+            TotalItems = pr.TotalItems,
+            TotalQuantity = pr.TotalQuantity,
+            TransactionNo = pr.TransactionNo,
+            PaymentModes = pr.PaymentModes,
+            OtherChargesPercent = pr.ServiceChargePercent,
             Status = pr.Status
         }));
 
@@ -796,7 +877,6 @@ public partial class SaleReport : IAsyncDisposable
             return;
         }
 
-        // Update the Status to false (soft delete)
         sale.Status = false;
         sale.LastModifiedBy = _user.Id;
         sale.LastModifiedAt = await CommonData.LoadCurrentDateTime();
@@ -963,6 +1043,12 @@ public partial class SaleReport : IAsyncDisposable
     private async Task ToggleSaleReturns()
     {
         _showSaleReturns = !_showSaleReturns;
+        await LoadTransactionOverviews();
+    }
+
+    private async Task ToggleBills()
+    {
+        _showBills = !_showBills;
         await LoadTransactionOverviews();
     }
 
