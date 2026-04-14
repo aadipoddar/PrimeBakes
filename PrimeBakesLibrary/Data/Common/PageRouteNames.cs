@@ -1,6 +1,6 @@
-﻿namespace PrimeBakes.Shared.Services;
+﻿namespace PrimeBakesLibrary.Data.Common;
 
-internal static class PageRouteNames
+public static class PageRouteNames
 {
 	#region Operations
 	public const string Dashboard = "/";

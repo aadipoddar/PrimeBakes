@@ -401,3 +401,6 @@ FodyWeavers.xsd
 
 /PrimeBakesLibrary/DataAccess/primebakes-7aad6-firebase-adminsdk-fbsvc-468eb53249.json
 /PrimeBakesLibrary/DataAccess/Secrets.local_secrets.cs
+
+*.lscache
+*.csproj.lscache

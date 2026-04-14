@@ -70,6 +70,7 @@ Data/Common/
  CommonData.cs
  GenerateCodes.cs
  Helper.cs
+ PageRouteNames.cs
 Data/Inventory/Kitchen/
  KitchenData.cs
  KitchenIssueData.cs
@@ -224,6 +225,7 @@ Models/Notification/
  DeviceInstallation.cs
  PushDemoAction.cs
 Models/Operations/
+ DecodeTransactionNoModel.cs
  LocationModel.cs
  SettingsModel.cs
  UserModel.cs

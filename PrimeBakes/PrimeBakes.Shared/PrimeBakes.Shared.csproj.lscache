@@ -206,7 +206,6 @@ Services/
  IThermalPrintDispatcher.cs
  IUpdateService.cs
  IVibrationService.cs
- PageRouteNames.cs
 
 [metadataReferences]
 ../../PrimeBakesLibrary/obj/Debug/net10.0/ref/PrimeBakesLibrary.dll
