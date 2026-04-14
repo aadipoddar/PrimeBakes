@@ -38,6 +38,34 @@ public partial class OrderItemReport : IAsyncDisposable
     private List<CompanyModel> _companies = [];
     private List<OrderItemOverviewModel> _transactionOverviews = [];
 
+    private readonly List<ContextMenuItemModel> _gridContextMenuItems =
+    [
+        new() { Text = "View", Id = "view", Target = ".e-content" },
+        new()
+        {
+            Text = "Download",
+            Id = "download",
+            Target = ".e-content",
+            Items =
+            [
+                new() { Text = "PDF", Id = "download-pdf" },
+                new() { Text = "Excel", Id = "download-excel" }
+            ]
+        },
+        new() { Text = "View Sale", Id = "view-sale", Target = ".e-content" },
+        new()
+        {
+            Text = "Download Sales",
+            Id = "download-sales",
+            Target = ".e-content",
+            Items =
+            [
+                new() { Text = "PDF", Id = "download-sale-pdf" },
+                new() { Text = "Excel", Id = "download-sale-excel" }
+            ]
+        }
+    ];
+
     private SfGrid<OrderItemOverviewModel> _sfGrid;
 
     private ToastNotification _toastNotification;
@@ -66,9 +94,9 @@ public partial class OrderItemReport : IAsyncDisposable
             .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
             .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
             .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
-            .Add(ModCode.Ctrl, Code.O, ViewSelectedCartItem, "Open Selected Transaction", Exclude.None)
-            .Add(ModCode.Alt, Code.P, DownloadSelectedCartItemPdfInvoice, "Download Selected Transaction PDF Invoice", Exclude.None)
-            .Add(ModCode.Alt, Code.E, DownloadSelectedCartItemExcelInvoice, "Download Selected Transaction Excel Invoice", Exclude.None);
+            .Add(ModCode.Ctrl, Code.O, ViewSelectedTransaction, "Open Selected Transaction", Exclude.None)
+            .Add(ModCode.Alt, Code.P, DownloadSelectedPdfInvoice, "Download Selected Transaction PDF Invoice", Exclude.None)
+            .Add(ModCode.Alt, Code.E, DownloadSelectedExcelInvoice, "Download Selected Transaction Excel Invoice", Exclude.None);
 
         await LoadDates();
         await LoadLocations();
@@ -273,106 +301,181 @@ public partial class OrderItemReport : IAsyncDisposable
             StateHasChanged();
         }
     }
-    #endregion
 
-    #region Actions
-    private async Task ViewSelectedCartItem()
+	private async Task DownloadSelectedPdfInvoice()
+	{
+		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+			return;
+
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+			await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
+
+			var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
+			await SaveAndViewService.SaveAndView(decodeTransactionNo.PDFStream.fileName, decodeTransactionNo.PDFStream.stream);
+
+			await _toastNotification.ShowAsync("Success", "PDF invoice generated successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"An error occurred while generating invoice: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
+
+	private async Task DownloadSelectedExcelInvoice()
+	{
+		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+			return;
+
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+			await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
+
+			var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
+			await SaveAndViewService.SaveAndView(decodeTransactionNo.ExcelStream.fileName, decodeTransactionNo.ExcelStream.stream);
+
+			await _toastNotification.ShowAsync("Success", "Excel invoice generated successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"An error occurred while generating Excel invoice: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
+
+	private async Task DownloadSelectedSalePdfInvoice()
+	{
+		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0 || string.IsNullOrEmpty(_sfGrid.SelectedRecords.First().SaleTransactionNo))
+			return;
+
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+			await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
+
+			var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().SaleTransactionNo);
+			await SaveAndViewService.SaveAndView(decodeTransactionNo.PDFStream.fileName, decodeTransactionNo.PDFStream.stream);
+
+			await _toastNotification.ShowAsync("Success", "PDF invoice generated successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"An error occurred while generating invoice: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
+
+	private async Task DownloadSelectedSaleExcelInvoice()
+	{
+		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0 || string.IsNullOrEmpty(_sfGrid.SelectedRecords.First().SaleTransactionNo))
+			return;
+
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+			await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
+
+			var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().SaleTransactionNo);
+			await SaveAndViewService.SaveAndView(decodeTransactionNo.ExcelStream.fileName, decodeTransactionNo.ExcelStream.stream);
+
+			await _toastNotification.ShowAsync("Success", "Excel invoice generated successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"An error occurred while generating Excel invoice: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
+	#endregion
+
+	#region Actions
+	private async Task OnGridContextMenuItemClicked(ContextMenuClickEventArgs<OrderItemOverviewModel> args)
     {
-        if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+        if (_showSummary)
             return;
 
-        var selectedCartItem = _sfGrid.SelectedRecords.First();
-        await ViewTransaction(selectedCartItem.MasterId);
-    }
-
-    private async Task ViewTransaction(int transactionId)
-    {
-        try
+        switch (args.Item.Id)
         {
-            if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", $"{PageRouteNames.Order}/{transactionId}", "_blank");
-            else
-                NavigationManager.NavigateTo($"{PageRouteNames.Order}/{transactionId}");
-        }
-        catch (Exception ex)
-        {
-            await _toastNotification.ShowAsync("Error", $"An error occurred while opening transaction: {ex.Message}", ToastType.Error);
-        }
-    }
+            case "view":
+                await ViewSelectedTransaction();
+                break;
 
-    private async Task DownloadSelectedCartItemPdfInvoice()
-    {
-        if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-            return;
+            case "download-pdf":
+                await DownloadSelectedPdfInvoice();
+                break;
 
-        var selectedCartItem = _sfGrid.SelectedRecords.First();
-        await DownloadPdfInvoice(selectedCartItem.MasterId);
-    }
+            case "download-excel":
+                await DownloadSelectedExcelInvoice();
+                break;
 
-    private async Task DownloadSelectedCartItemExcelInvoice()
-    {
-        if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-            return;
+            case "view-sale":
+                await ViewSelectedSaleTransaction();
+                break;
 
-        var selectedCartItem = _sfGrid.SelectedRecords.First();
-        await DownloadExcelInvoice(selectedCartItem.MasterId);
-    }
+            case "download-sale-pdf":
+                await DownloadSelectedSalePdfInvoice();
+                break;
 
-    private async Task DownloadPdfInvoice(int transactionId)
-    {
-        if (_isProcessing)
-            return;
-
-        try
-        {
-            _isProcessing = true;
-            StateHasChanged();
-            await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
-
-            var (pdfStream, fileName) = await OrderInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.PDF);
-            await SaveAndViewService.SaveAndView(fileName, pdfStream);
-            await _toastNotification.ShowAsync("Success", "PDF invoice downloaded successfully.", ToastType.Success);
-        }
-        catch (Exception ex)
-        {
-            await _toastNotification.ShowAsync("Error", $"An error occurred while generating PDF invoice: {ex.Message}", ToastType.Error);
-        }
-        finally
-        {
-            _isProcessing = false;
-            StateHasChanged();
+            case "download-sale-excel":
+                await DownloadSelectedSaleExcelInvoice();
+                break;
         }
     }
 
-    private async Task DownloadExcelInvoice(int transactionId)
-    {
-        if (_isProcessing)
-            return;
+	private async Task ViewSelectedTransaction()
+	{
+		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+			return;
 
-        try
-        {
-            _isProcessing = true;
-            StateHasChanged();
-            await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
+		var selectedCartItem = _sfGrid.SelectedRecords.First();
+		var decodedTransactionNo = await GenerateCodes.DecodeTransactionNo(selectedCartItem.TransactionNo);
 
-            var (excelStream, fileName) = await OrderInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.Excel);
-            await SaveAndViewService.SaveAndView(fileName, excelStream);
-            await _toastNotification.ShowAsync("Success", "Excel invoice downloaded successfully.", ToastType.Success);
-        }
-        catch (Exception ex)
-        {
-            await _toastNotification.ShowAsync("Error", $"An error occurred while generating Excel invoice: {ex.Message}", ToastType.Error);
-        }
-        finally
-        {
-            _isProcessing = false;
-            StateHasChanged();
-        }
-    }
-    #endregion
+		if (FormFactor.GetFormFactor() == "Web")
+			await JSRuntime.InvokeVoidAsync("open", decodedTransactionNo.PageRouteName, "_blank");
+		else
+			NavigationManager.NavigateTo(decodedTransactionNo.PageRouteName);
+	}
 
-    #region Utilities
-    private async Task ToggleDetailsView()
+	private async Task ViewSelectedSaleTransaction()
+	{
+		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0 || string.IsNullOrEmpty(_sfGrid.SelectedRecords.First().SaleTransactionNo))
+			return;
+
+		var selectedCartItem = _sfGrid.SelectedRecords.First();
+		var decodedTransactionNo = await GenerateCodes.DecodeTransactionNo(selectedCartItem.SaleTransactionNo);
+
+		if (FormFactor.GetFormFactor() == "Web")
+			await JSRuntime.InvokeVoidAsync("open", decodedTransactionNo.PageRouteName, "_blank");
+		else
+			NavigationManager.NavigateTo(decodedTransactionNo.PageRouteName);
+	}
+	#endregion
+
+	#region Utilities
+	private async Task ToggleDetailsView()
     {
         _showAllColumns = !_showAllColumns;
         StateHasChanged();
