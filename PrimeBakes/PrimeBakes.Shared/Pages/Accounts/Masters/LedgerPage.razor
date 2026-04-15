@@ -260,8 +260,7 @@ else
 
 <!-- Delete Confirmation Dialog -->
 <DeleteConfirmationDialog @ref="_deleteConfirmationDialog" EntityName="Ledger" IdentifierLabel="Name"
-                          IdentifierValue="@_deleteLedgerName" IsPermanentDelete="false" Disabled="@_isProcessing" OnConfirm="ConfirmDelete"
-                          OnCancel="CancelDelete" />
+                          IdentifierValue="@_deleteLedgerName" Disabled="@_isProcessing" OnConfirm="ConfirmDelete" OnCancel="CancelDelete" />
 
 <!-- Recover Confirmation Dialog -->
 <RecoverConfirmationDialog @ref="_recoverConfirmationDialog" EntityName="Ledger" IdentifierLabel="Name"

@@ -125,26 +125,28 @@ else
 							<h2 class="section-title">Location List</h2>
 						</div>
 						<div class="header-actions">
-							<ToggleButton Disabled="@_isProcessing" Variant="ToggleButton.ToggleVariant.Details" IsActive="false"
-										  OnToggle="@LoadLocations" TextWhenInactive="Show All" />
+							<ToggleButton Disabled="@_isProcessing" Variant="ToggleButton.ToggleVariant.Details"
+										  IsActive="false" OnToggle="@LoadLocations" TextWhenInactive="Show All" />
 							<ToggleButton Disabled="@_isProcessing" Variant="ToggleButton.ToggleVariant.Details" IsActive="true"
 										  OnToggle="@RemoveAllLocations" TextWhenActive="Clear All" />
 						</div>
 					</div>
 					<div class="section-body grid-body">
-						<SfGrid @ref="_sfLocationGrid" DataSource="@_locations" AllowPaging="true" AllowSorting="true" AllowFiltering="true"
-								AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
+						<SfGrid @ref="_sfLocationGrid" DataSource="@_locations" AllowPaging="true" AllowSorting="true"
+								AllowFiltering="true" AllowResizing="true" CssClass="professional-grid"
+								Toolbar="@(new List<string>() { "Search" })">
 							<GridPageSettings PageSize="10" PageSizes="@(new string[] { "10", "20", "50", "All" })" />
 							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 							<GridColumns>
-								<GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center" AllowFiltering="false">
+								<GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center"
+											AllowFiltering="false">
 									<Template>
 										@{
 											var location = (context as LocationModel);
 
 											<div class="grid-actions">
-												<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid"
-															Title="Remove Location" Disabled="_isProcessing"
+												<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete"
+															Size="ButtonSize.Grid" Title="Remove Location" Disabled="_isProcessing"
 															OnClick="@(() => RemoveLocation(location.Id))" />
 											</div>
 										}
@@ -264,8 +266,7 @@ else
 }
 
 <DeleteConfirmationDialog @ref="_deleteConfirmationDialog" EntityName="Product" IdentifierLabel="Name"
-						  IdentifierValue="@_deleteProductName" IsPermanentDelete="false" Disabled="@_isProcessing" OnConfirm="ConfirmDelete"
-						  OnCancel="CancelDelete" />
+						  IdentifierValue="@_deleteProductName" Disabled="@_isProcessing" OnConfirm="ConfirmDelete" OnCancel="CancelDelete" />
 
 <RecoverConfirmationDialog @ref="_recoverConfirmationDialog" EntityName="Product" IdentifierLabel="Name"
 						   IdentifierValue="@_recoverProductName" Disabled="@_isProcessing" OnConfirm="ConfirmRecover"

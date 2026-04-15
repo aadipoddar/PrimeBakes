@@ -39,6 +39,22 @@ public partial class PurchaseItemReport : IAsyncDisposable
     private List<PurchaseItemOverviewModel> _transactionOverviews = [];
     private List<PurchaseReturnItemOverviewModel> _transactionReturnOverviews = [];
 
+    private readonly List<ContextMenuItemModel> _gridContextMenuItems =
+    [
+        new() { Text = "View", Id = "view", Target = ".e-content" },
+        new()
+        {
+            Text = "Download",
+            Id = "download",
+            Target = ".e-content",
+            Items =
+            [
+                new() { Text = "PDF", Id = "download-pdf" },
+                new() { Text = "Excel", Id = "download-excel" }
+            ]
+        }
+    ];
+
     private SfGrid<PurchaseItemOverviewModel> _sfGrid;
 
     private ToastNotification _toastNotification;
@@ -67,9 +83,9 @@ public partial class PurchaseItemReport : IAsyncDisposable
             .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
             .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
             .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
-            .Add(ModCode.Ctrl, Code.O, ViewSelectedCartItem, "Open Selected Transaction", Exclude.None)
-            .Add(ModCode.Alt, Code.P, DownloadSelectedCartItemPdfInvoice, "Download Selected Transaction PDF Invoice", Exclude.None)
-            .Add(ModCode.Alt, Code.E, DownloadSelectedCartItemExcelInvoice, "Download Selected Transaction Excel Invoice", Exclude.None);
+            .Add(ModCode.Ctrl, Code.O, ViewSelectedTransaction, "Open Selected Transaction", Exclude.None)
+            .Add(ModCode.Alt, Code.P, DownloadSelectedPdfInvoice, "Download Selected Transaction PDF Invoice", Exclude.None)
+            .Add(ModCode.Alt, Code.E, DownloadSelectedExcelInvoice, "Download Selected Transaction Excel Invoice", Exclude.None);
 
         await LoadDates();
         await LoadCompanies();
@@ -326,65 +342,10 @@ public partial class PurchaseItemReport : IAsyncDisposable
             StateHasChanged();
         }
     }
-    #endregion
 
-    #region Actions
-    private async Task ViewSelectedCartItem()
+    private async Task DownloadSelectedPdfInvoice()
     {
-        if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-            return;
-
-        var selectedCartItem = _sfGrid.SelectedRecords.First();
-        await ViewTransaction(selectedCartItem.MasterId);
-    }
-
-    private async Task ViewTransaction(int transactionId)
-    {
-        try
-        {
-            if (transactionId < 0)
-            {
-                int actualId = Math.Abs(transactionId);
-                if (FormFactor.GetFormFactor() == "Web")
-                    await JSRuntime.InvokeVoidAsync("open", $"{PageRouteNames.PurchaseReturn}/{actualId}", "_blank");
-                else
-                    NavigationManager.NavigateTo($"{PageRouteNames.PurchaseReturn}/{actualId}");
-            }
-            else
-            {
-                if (FormFactor.GetFormFactor() == "Web")
-                    await JSRuntime.InvokeVoidAsync("open", $"{PageRouteNames.Purchase}/{transactionId}", "_blank");
-                else
-                    NavigationManager.NavigateTo($"{PageRouteNames.Purchase}/{transactionId}");
-            }
-        }
-        catch (Exception ex)
-        {
-            await _toastNotification.ShowAsync("Error", $"An error occurred while opening transaction: {ex.Message}", ToastType.Error);
-        }
-    }
-
-    private async Task DownloadSelectedCartItemPdfInvoice()
-    {
-        if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-            return;
-
-        var selectedCartItem = _sfGrid.SelectedRecords.First();
-        await DownloadPdfInvoice(selectedCartItem.MasterId);
-    }
-
-    private async Task DownloadSelectedCartItemExcelInvoice()
-    {
-        if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-            return;
-
-        var selectedCartItem = _sfGrid.SelectedRecords.First();
-        await DownloadExcelInvoice(selectedCartItem.MasterId);
-    }
-
-    private async Task DownloadPdfInvoice(int transactionId)
-    {
-        if (_isProcessing)
+        if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
             return;
 
         try
@@ -393,19 +354,8 @@ public partial class PurchaseItemReport : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
 
-            bool isPurchaseReturn = transactionId < 0;
-            int actualId = Math.Abs(transactionId);
-
-            if (isPurchaseReturn)
-            {
-                var (pdfStream, fileName) = await PurchaseReturnInvoiceExport.ExportInvoice(actualId, InvoiceExportType.PDF);
-                await SaveAndViewService.SaveAndView(fileName, pdfStream);
-            }
-            else
-            {
-                var (pdfStream, fileName) = await PurchaseInvoiceExport.ExportInvoice(actualId, InvoiceExportType.PDF);
-                await SaveAndViewService.SaveAndView(fileName, pdfStream);
-            }
+            var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
+            await SaveAndViewService.SaveAndView(decodeTransactionNo.PDFStream.fileName, decodeTransactionNo.PDFStream.stream);
 
             await _toastNotification.ShowAsync("Success", "PDF invoice downloaded successfully.", ToastType.Success);
         }
@@ -420,9 +370,9 @@ public partial class PurchaseItemReport : IAsyncDisposable
         }
     }
 
-    private async Task DownloadExcelInvoice(int transactionId)
+    private async Task DownloadSelectedExcelInvoice()
     {
-        if (_isProcessing)
+        if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
             return;
 
         try
@@ -431,19 +381,8 @@ public partial class PurchaseItemReport : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
 
-            bool isPurchaseReturn = transactionId < 0;
-            int actualId = Math.Abs(transactionId);
-
-            if (isPurchaseReturn)
-            {
-                var (excelStream, fileName) = await PurchaseReturnInvoiceExport.ExportInvoice(actualId, InvoiceExportType.Excel);
-                await SaveAndViewService.SaveAndView(fileName, excelStream);
-            }
-            else
-            {
-                var (excelStream, fileName) = await PurchaseInvoiceExport.ExportInvoice(actualId, InvoiceExportType.Excel);
-                await SaveAndViewService.SaveAndView(fileName, excelStream);
-            }
+            var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
+            await SaveAndViewService.SaveAndView(decodeTransactionNo.ExcelStream.fileName, decodeTransactionNo.ExcelStream.stream);
 
             await _toastNotification.ShowAsync("Success", "Excel invoice downloaded successfully.", ToastType.Success);
         }
@@ -456,6 +395,42 @@ public partial class PurchaseItemReport : IAsyncDisposable
             _isProcessing = false;
             StateHasChanged();
         }
+    }
+    #endregion
+
+    #region Actions
+    private async Task OnGridContextMenuItemClicked(ContextMenuClickEventArgs<PurchaseItemOverviewModel> args)
+    {
+        if (_showSummary)
+            return;
+
+        switch (args.Item.Id)
+        {
+            case "view":
+                await ViewSelectedTransaction();
+                break;
+
+            case "download-pdf":
+                await DownloadSelectedPdfInvoice();
+                break;
+
+            case "download-excel":
+                await DownloadSelectedExcelInvoice();
+                break;
+        }
+    }
+
+    private async Task ViewSelectedTransaction()
+    {
+        if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+            return;
+
+        var decodedTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
+
+        if (FormFactor.GetFormFactor() == "Web")
+            await JSRuntime.InvokeVoidAsync("open", decodedTransactionNo.PageRouteName, "_blank");
+        else
+            NavigationManager.NavigateTo(decodedTransactionNo.PageRouteName);
     }
     #endregion
 

@@ -158,8 +158,7 @@ else
 
 <!-- Delete Confirmation Dialog -->
 <DeleteConfirmationDialog @ref="_deleteConfirmationDialog" EntityName="Group" IdentifierLabel="Name"
-                          IdentifierValue="@_deleteGroupName" IsPermanentDelete="false" Disabled="@_isProcessing" OnConfirm="ConfirmDelete"
-                          OnCancel="CancelDelete" />
+                          IdentifierValue="@_deleteGroupName" Disabled="@_isProcessing" OnConfirm="ConfirmDelete" OnCancel="CancelDelete" />
 
 <!-- Recover Confirmation Dialog -->
 <RecoverConfirmationDialog @ref="_recoverConfirmationDialog" EntityName="Group" IdentifierLabel="Name"

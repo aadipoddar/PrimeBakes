@@ -156,8 +156,7 @@ else
 }
 
 <DeleteConfirmationDialog @ref="_deleteConfirmationDialog" EntityName="State/UT" IdentifierLabel="Name"
-                          IdentifierValue="@_deleteStateUTName" IsPermanentDelete="false" Disabled="@_isProcessing" OnConfirm="ConfirmDelete"
-                          OnCancel="CancelDelete" />
+                          IdentifierValue="@_deleteStateUTName" Disabled="@_isProcessing" OnConfirm="ConfirmDelete" OnCancel="CancelDelete" />
 
 <RecoverConfirmationDialog @ref="_recoverConfirmationDialog" EntityName="State/UT" IdentifierLabel="Name"
                            IdentifierValue="@_recoverStateUTName" Disabled="@_isProcessing" OnConfirm="ConfirmRecover"

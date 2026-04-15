@@ -121,8 +121,11 @@ else
                             DataSource="_transactionOverviews" AllowTextWrap="true" AllowPaging="true" AllowSorting="true"
                             AllowResizing="true" AllowFiltering="true" AllowExcelExport="true" AllowPdfExport="true"
                             GridLines="GridLine.Horizontal" CssClass="professional-grid"
-                            Toolbar="@(new List<string>() { "Search" })" AllowGrouping="true">
+                            ContextMenuItems="@_gridContextMenuItems" Toolbar="@(new List<string>() { "Search" })"
+                            AllowGrouping="true">
 
+                        <GridEvents TValue="PurchaseItemOverviewModel"
+                                    ContextMenuItemClicked="OnGridContextMenuItemClicked" />
                         <GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
                         <GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
                         <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
@@ -384,26 +387,6 @@ else
                         </GridAggregates>
 
                         <GridColumns>
-                            <GridColumn HeaderText="Actions" Width="150" TextAlign="TextAlign.Center"
-                                        Visible="@(!_showSummary)">
-                                <Template>
-                                    @{
-                                        var item = (context as PurchaseItemOverviewModel);
-                                    }
-                                    <div class="grid-actions">
-                                        <IconButton Icon="IconType.View" Variant="ButtonVariant.View" Size="ButtonSize.Grid"
-                                                    Title="View Transaction (Ctrl + O)" Disabled="_isProcessing"
-                                                    OnClick="@(() => ViewTransaction(item.MasterId))" />
-                                        <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel"
-                                                    Size="ButtonSize.Grid" Title="Download Excel Invoice (Alt+E)"
-                                                    Disabled="_isProcessing"
-                                                    OnClick="@(() => DownloadExcelInvoice(item.MasterId))" />
-                                        <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Grid"
-                                                    Title="Download PDF Invoice (Alt+P)" Disabled="_isProcessing"
-                                                    OnClick="@(() => DownloadPdfInvoice(item.MasterId))" />
-                                    </div>
-                                </Template>
-                            </GridColumn>
                             <GridColumn Field="@nameof(PurchaseItemOverviewModel.ItemName)" HeaderText="Item" Width="200" />
                             <GridColumn Field="@nameof(PurchaseItemOverviewModel.ItemCode)" HeaderText="Code" Width="130"
                                         Visible="_showAllColumns" />
@@ -415,7 +398,8 @@ else
                                         Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime"
                                         Visible="@(!_showSummary)" />
                             <GridColumn Field="@nameof(PurchaseItemOverviewModel.CompanyName)" HeaderText="Company"
-                                        Width="180" Visible="@(_showAllColumns && !_showSummary && (_selectedCompany is null || _selectedCompany.Id <= 0))" />
+                                        Width="180"
+                                        Visible="@(_showAllColumns && !_showSummary && (_selectedCompany is null || _selectedCompany.Id <= 0))" />
                             <GridColumn Field="@nameof(PurchaseItemOverviewModel.PartyName)" HeaderText="Party" Width="200"
                                         Visible="@(!_showSummary && (_selectedParty is null || _selectedParty.Id <= 0))" />
                             <GridColumn Field="@nameof(PurchaseItemOverviewModel.Quantity)" HeaderText="Quantity"

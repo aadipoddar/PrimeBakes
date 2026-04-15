@@ -197,8 +197,7 @@ else
 }
 
 <DeleteConfirmationDialog @ref="_deleteConfirmationDialog" EntityName="Tax" IdentifierLabel="Tax Code"
-                          IdentifierValue="@_deleteTaxCode" IsPermanentDelete="false" Disabled="@_isProcessing" OnConfirm="ConfirmDelete"
-                          OnCancel="CancelDelete" />
+                          IdentifierValue="@_deleteTaxCode" Disabled="@_isProcessing" OnConfirm="ConfirmDelete" OnCancel="CancelDelete" />
 
 <RecoverConfirmationDialog @ref="_recoverConfirmationDialog" EntityName="Tax" IdentifierLabel="Tax Code"
                            IdentifierValue="@_recoverTaxCode" Disabled="@_isProcessing" OnConfirm="ConfirmRecover" OnCancel="CancelRecover" />

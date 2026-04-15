@@ -179,8 +179,8 @@ else
 }
 
 <DeleteConfirmationDialog @ref="_deleteConfirmationDialog" EntityName="Financial Year" IdentifierLabel="Period"
-                          IdentifierValue="@_deleteFinancialYearName" IsPermanentDelete="false" Disabled="@_isProcessing"
-                          OnConfirm="ConfirmDelete" OnCancel="CancelDelete" />
+                          IdentifierValue="@_deleteFinancialYearName" Disabled="@_isProcessing" OnConfirm="ConfirmDelete"
+                          OnCancel="CancelDelete" />
 
 <RecoverConfirmationDialog @ref="_recoverConfirmationDialog" EntityName="Financial Year" IdentifierLabel="Period"
                            IdentifierValue="@_recoverFinancialYearName" Disabled="@_isProcessing" OnConfirm="ConfirmRecover"

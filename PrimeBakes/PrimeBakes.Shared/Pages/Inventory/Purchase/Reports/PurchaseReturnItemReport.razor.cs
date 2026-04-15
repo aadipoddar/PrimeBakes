@@ -37,6 +37,22 @@ public partial class PurchaseReturnItemReport : IAsyncDisposable
     private List<LedgerModel> _parties = [];
     private List<PurchaseReturnItemOverviewModel> _transactionOverviews = [];
 
+    private readonly List<ContextMenuItemModel> _gridContextMenuItems =
+    [
+        new() { Text = "View", Id = "view", Target = ".e-content" },
+        new()
+        {
+            Text = "Download",
+            Id = "download",
+            Target = ".e-content",
+            Items =
+            [
+                new() { Text = "PDF", Id = "download-pdf" },
+                new() { Text = "Excel", Id = "download-excel" }
+            ]
+        }
+    ];
+
     private SfGrid<PurchaseReturnItemOverviewModel> _sfGrid;
 
     private ToastNotification _toastNotification;
@@ -65,9 +81,9 @@ public partial class PurchaseReturnItemReport : IAsyncDisposable
             .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
             .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
             .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
-            .Add(ModCode.Ctrl, Code.O, ViewSelectedCartItem, "Open Selected Transaction", Exclude.None)
-            .Add(ModCode.Alt, Code.P, DownloadSelectedCartItemPdfInvoice, "Download Selected Transaction PDF Invoice", Exclude.None)
-            .Add(ModCode.Alt, Code.E, DownloadSelectedCartItemExcelInvoice, "Download Selected Transaction Excel Invoice", Exclude.None);
+            .Add(ModCode.Ctrl, Code.O, ViewSelectedTransaction, "Open Selected Transaction", Exclude.None)
+            .Add(ModCode.Alt, Code.P, DownloadSelectedPdfInvoice, "Download Selected Transaction PDF Invoice", Exclude.None)
+            .Add(ModCode.Alt, Code.E, DownloadSelectedExcelInvoice, "Download Selected Transaction Excel Invoice", Exclude.None);
 
         await LoadDates();
         await LoadCompanies();
@@ -266,55 +282,10 @@ public partial class PurchaseReturnItemReport : IAsyncDisposable
             StateHasChanged();
         }
     }
-    #endregion
 
-    #region Actions
-    private async Task ViewSelectedCartItem()
+    private async Task DownloadSelectedPdfInvoice()
     {
-        if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-            return;
-
-        var selectedCartItem = _sfGrid.SelectedRecords.First();
-        await ViewTransaction(selectedCartItem.MasterId);
-    }
-
-
-    private async Task ViewTransaction(int transactionId)
-    {
-        try
-        {
-            if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", $"{PageRouteNames.PurchaseReturn}/{transactionId}", "_blank");
-            else
-                NavigationManager.NavigateTo($"{PageRouteNames.PurchaseReturn}/{transactionId}");
-        }
-        catch (Exception ex)
-        {
-            await _toastNotification.ShowAsync("Error", $"An error occurred while opening transaction: {ex.Message}", ToastType.Error);
-        }
-    }
-
-    private async Task DownloadSelectedCartItemPdfInvoice()
-    {
-        if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-            return;
-
-        var selectedCartItem = _sfGrid.SelectedRecords.First();
-        await DownloadPdfInvoice(selectedCartItem.MasterId);
-    }
-
-    private async Task DownloadSelectedCartItemExcelInvoice()
-    {
-        if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-            return;
-
-        var selectedCartItem = _sfGrid.SelectedRecords.First();
-        await DownloadExcelInvoice(selectedCartItem.MasterId);
-    }
-
-    private async Task DownloadPdfInvoice(int transactionId)
-    {
-        if (_isProcessing)
+        if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
             return;
 
         try
@@ -323,8 +294,8 @@ public partial class PurchaseReturnItemReport : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
 
-            var (pdfStream, fileName) = await PurchaseReturnInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.PDF);
-            await SaveAndViewService.SaveAndView(fileName, pdfStream);
+            var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
+            await SaveAndViewService.SaveAndView(decodeTransactionNo.PDFStream.fileName, decodeTransactionNo.PDFStream.stream);
 
             await _toastNotification.ShowAsync("Success", "PDF invoice downloaded successfully.", ToastType.Success);
         }
@@ -339,9 +310,9 @@ public partial class PurchaseReturnItemReport : IAsyncDisposable
         }
     }
 
-    private async Task DownloadExcelInvoice(int transactionId)
+    private async Task DownloadSelectedExcelInvoice()
     {
-        if (_isProcessing)
+        if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
             return;
 
         try
@@ -350,8 +321,8 @@ public partial class PurchaseReturnItemReport : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
 
-            var (excelStream, fileName) = await PurchaseReturnInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.Excel);
-            await SaveAndViewService.SaveAndView(fileName, excelStream);
+            var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
+            await SaveAndViewService.SaveAndView(decodeTransactionNo.ExcelStream.fileName, decodeTransactionNo.ExcelStream.stream);
 
             await _toastNotification.ShowAsync("Success", "Excel invoice downloaded successfully.", ToastType.Success);
         }
@@ -364,6 +335,42 @@ public partial class PurchaseReturnItemReport : IAsyncDisposable
             _isProcessing = false;
             StateHasChanged();
         }
+    }
+    #endregion
+
+    #region Actions
+    private async Task OnGridContextMenuItemClicked(ContextMenuClickEventArgs<PurchaseReturnItemOverviewModel> args)
+    {
+        if (_showSummary)
+            return;
+
+        switch (args.Item.Id)
+        {
+            case "view":
+                await ViewSelectedTransaction();
+                break;
+
+            case "download-pdf":
+                await DownloadSelectedPdfInvoice();
+                break;
+
+            case "download-excel":
+                await DownloadSelectedExcelInvoice();
+                break;
+        }
+    }
+
+    private async Task ViewSelectedTransaction()
+    {
+        if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+            return;
+
+        var decodedTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
+
+        if (FormFactor.GetFormFactor() == "Web")
+            await JSRuntime.InvokeVoidAsync("open", decodedTransactionNo.PageRouteName, "_blank");
+        else
+            NavigationManager.NavigateTo(decodedTransactionNo.PageRouteName);
     }
     #endregion
 

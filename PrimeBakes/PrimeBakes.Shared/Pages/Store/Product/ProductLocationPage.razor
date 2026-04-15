@@ -151,7 +151,7 @@ else
 }
 
 <DeleteConfirmationDialog @ref="_deleteConfirmationDialog" EntityName="Product Location" IdentifierLabel="Name"
-						  IdentifierValue="@_deleteProductLocationName" IsPermanentDelete="false" Disabled="@_isProcessing"
+						  IdentifierValue="@_deleteProductLocationName" IsPermanentDelete="true" Disabled="@_isProcessing"
 						  OnConfirm="ConfirmDelete" OnCancel="CancelDelete" />
 
 <ToastNotification @ref="_toastNotification" />

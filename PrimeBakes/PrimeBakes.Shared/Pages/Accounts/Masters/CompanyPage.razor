@@ -215,8 +215,7 @@ else
 }
 
 <DeleteConfirmationDialog @ref="_deleteConfirmationDialog" EntityName="Company" IdentifierLabel="Company Name"
-                          IdentifierValue="@_deleteCompanyName" IsPermanentDelete="false" Disabled="@_isProcessing" OnConfirm="ConfirmDelete"
-                          OnCancel="CancelDelete" />
+                          IdentifierValue="@_deleteCompanyName" Disabled="@_isProcessing" OnConfirm="ConfirmDelete" OnCancel="CancelDelete" />
 
 <RecoverConfirmationDialog @ref="_recoverConfirmationDialog" EntityName="Company" IdentifierLabel="Company Name"
                            IdentifierValue="@_recoverCompanyName" Disabled="@_isProcessing" OnConfirm="ConfirmRecover"

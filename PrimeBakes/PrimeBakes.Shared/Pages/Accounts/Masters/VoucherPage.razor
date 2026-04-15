@@ -148,8 +148,7 @@ else
 
 <!-- Delete Confirmation Dialog -->
 <DeleteConfirmationDialog @ref="_deleteConfirmationDialog" EntityName="Voucher" IdentifierLabel="Name"
-                          IdentifierValue="@_deleteVoucherName" IsPermanentDelete="false" Disabled="@_isProcessing" OnConfirm="ConfirmDelete"
-                          OnCancel="CancelDelete" />
+                          IdentifierValue="@_deleteVoucherName" Disabled="@_isProcessing" OnConfirm="ConfirmDelete" OnCancel="CancelDelete" />
 
 <!-- Recover Confirmation Dialog -->
 <RecoverConfirmationDialog @ref="_recoverConfirmationDialog" EntityName="Voucher" IdentifierLabel="Name"

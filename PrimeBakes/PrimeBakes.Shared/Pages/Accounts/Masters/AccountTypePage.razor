@@ -138,8 +138,8 @@ else
 }
 
 <DeleteConfirmationDialog @ref="_deleteConfirmationDialog" EntityName="Account Type" IdentifierLabel="Account Type Name"
-                          IdentifierValue="@_deleteAccountTypeName" IsPermanentDelete="false" Disabled="@_isProcessing"
-                          OnConfirm="ConfirmDelete" OnCancel="CancelDelete" />
+                          IdentifierValue="@_deleteAccountTypeName" Disabled="@_isProcessing" OnConfirm="ConfirmDelete"
+                          OnCancel="CancelDelete" />
 
 <RecoverConfirmationDialog @ref="_recoverConfirmationDialog" EntityName="Account Type"
                            IdentifierLabel="Account Type Name" IdentifierValue="@_recoverAccountTypeName" Disabled="@_isProcessing"
