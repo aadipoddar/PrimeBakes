@@ -274,63 +274,63 @@ public partial class FinancialAccountingReport : IAsyncDisposable
         }
     }
 
-	private async Task DownloadSelectedPdfInvoice()
-	{
-		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-			return;
+    private async Task DownloadSelectedPdfInvoice()
+    {
+        if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+            return;
 
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
+        try
+        {
+            _isProcessing = true;
+            StateHasChanged();
+            await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
 
-			var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
-			await SaveAndViewService.SaveAndView(decodeTransactionNo.PDFStream.fileName, decodeTransactionNo.PDFStream.stream);
+            var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
+            await SaveAndViewService.SaveAndView(decodeTransactionNo.PDFStream.fileName, decodeTransactionNo.PDFStream.stream);
 
-			await _toastNotification.ShowAsync("Success", "PDF invoice downloaded successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"An error occurred while generating PDF invoice: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			StateHasChanged();
-		}
-	}
+            await _toastNotification.ShowAsync("Success", "PDF invoice downloaded successfully.", ToastType.Success);
+        }
+        catch (Exception ex)
+        {
+            await _toastNotification.ShowAsync("Error", $"An error occurred while generating PDF invoice: {ex.Message}", ToastType.Error);
+        }
+        finally
+        {
+            _isProcessing = false;
+            StateHasChanged();
+        }
+    }
 
-	private async Task DownloadSelectedExcelInvoice()
-	{
-		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-			return;
+    private async Task DownloadSelectedExcelInvoice()
+    {
+        if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+            return;
 
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
+        try
+        {
+            _isProcessing = true;
+            StateHasChanged();
+            await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
 
-			var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
-			await SaveAndViewService.SaveAndView(decodeTransactionNo.ExcelStream.fileName, decodeTransactionNo.ExcelStream.stream);
+            var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
+            await SaveAndViewService.SaveAndView(decodeTransactionNo.ExcelStream.fileName, decodeTransactionNo.ExcelStream.stream);
 
-			await _toastNotification.ShowAsync("Success", "Excel invoice downloaded successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"An error occurred while generating Excel invoice: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			StateHasChanged();
-		}
-	}
-	#endregion
+            await _toastNotification.ShowAsync("Success", "Excel invoice downloaded successfully.", ToastType.Success);
+        }
+        catch (Exception ex)
+        {
+            await _toastNotification.ShowAsync("Error", $"An error occurred while generating Excel invoice: {ex.Message}", ToastType.Error);
+        }
+        finally
+        {
+            _isProcessing = false;
+            StateHasChanged();
+        }
+    }
+    #endregion
 
-	#region Actions
-	private async Task OnGridContextMenuItemClicked(ContextMenuClickEventArgs<FinancialAccountingOverviewModel> args)
+    #region Actions
+    private async Task OnGridContextMenuItemClicked(ContextMenuClickEventArgs<FinancialAccountingOverviewModel> args)
     {
         switch (args.Item.Id)
         {
@@ -419,24 +419,24 @@ public partial class FinancialAccountingReport : IAsyncDisposable
         }
     }
 
-	private async Task DeleteTransaction()
-	{
-		var accounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(TableNames.FinancialAccounting, _deleteTransactionId);
-		if (accounting is null)
-		{
-			await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);
-			return;
-		}
+    private async Task DeleteTransaction()
+    {
+        var accounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(TableNames.FinancialAccounting, _deleteTransactionId);
+        if (accounting is null)
+        {
+            await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);
+            return;
+        }
 
-		accounting.Status = false;
-		accounting.LastModifiedBy = _user.Id;
-		accounting.LastModifiedAt = await CommonData.LoadCurrentDateTime();
-		accounting.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
+        accounting.Status = false;
+        accounting.LastModifiedBy = _user.Id;
+        accounting.LastModifiedAt = await CommonData.LoadCurrentDateTime();
+        accounting.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
 
-		await FinancialAccountingData.DeleteTransaction(accounting);
-	}
+        await FinancialAccountingData.DeleteTransaction(accounting);
+    }
 
-	private async Task ConfirmRecover()
+    private async Task ConfirmRecover()
     {
         if (_isProcessing)
             return;
@@ -493,40 +493,40 @@ public partial class FinancialAccountingReport : IAsyncDisposable
 
         await FinancialAccountingData.RecoverTransaction(accounting);
     }
-	#endregion
+    #endregion
 
-	#region Utilities
-	private async Task ShowDeleteConfirmation()
-	{
-		_deleteTransactionId = _sfGrid.SelectedRecords.First().Id;
-		_deleteTransactionNo = _sfGrid.SelectedRecords.First().TransactionNo;
-		StateHasChanged();
-		await _deleteConfirmationDialog.ShowAsync();
-	}
+    #region Utilities
+    private async Task ShowDeleteConfirmation()
+    {
+        _deleteTransactionId = _sfGrid.SelectedRecords.First().Id;
+        _deleteTransactionNo = _sfGrid.SelectedRecords.First().TransactionNo;
+        StateHasChanged();
+        await _deleteConfirmationDialog.ShowAsync();
+    }
 
-	private async Task CancelDelete()
-	{
-		_deleteTransactionId = 0;
-		_deleteTransactionNo = string.Empty;
-		await _deleteConfirmationDialog.HideAsync();
-	}
+    private async Task CancelDelete()
+    {
+        _deleteTransactionId = 0;
+        _deleteTransactionNo = string.Empty;
+        await _deleteConfirmationDialog.HideAsync();
+    }
 
-	private async Task ShowRecoverConfirmation()
-	{
-		_recoverTransactionId = _sfGrid.SelectedRecords.First().Id;
-		_recoverTransactionNo = _sfGrid.SelectedRecords.First().TransactionNo;
-		StateHasChanged();
-		await _recoverConfirmationDialog.ShowAsync();
-	}
+    private async Task ShowRecoverConfirmation()
+    {
+        _recoverTransactionId = _sfGrid.SelectedRecords.First().Id;
+        _recoverTransactionNo = _sfGrid.SelectedRecords.First().TransactionNo;
+        StateHasChanged();
+        await _recoverConfirmationDialog.ShowAsync();
+    }
 
-	private async Task CancelRecover()
-	{
-		_recoverTransactionId = 0;
-		_recoverTransactionNo = string.Empty;
-		await _recoverConfirmationDialog.HideAsync();
-	}
+    private async Task CancelRecover()
+    {
+        _recoverTransactionId = 0;
+        _recoverTransactionNo = string.Empty;
+        await _recoverConfirmationDialog.HideAsync();
+    }
 
-	private async Task ToggleDetailsView()
+    private async Task ToggleDetailsView()
     {
         _showAllColumns = !_showAllColumns;
         StateHasChanged();

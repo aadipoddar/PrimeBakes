@@ -135,8 +135,10 @@ else
                             DataSource="_transactionOverviews" AllowTextWrap="true" AllowPaging="true" AllowSorting="true"
                             AllowResizing="true" AllowFiltering="true" AllowExcelExport="true" AllowPdfExport="true"
                             GridLines="GridLine.Horizontal" CssClass="professional-grid" AllowGrouping="true"
+                            ContextMenuItems="@_gridContextMenuItems"
                             Toolbar="@(new List<string>() { "Search" })">
 
+                        <GridEvents TValue="SaleReturnItemOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
                         <GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
                         <GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
                         <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
@@ -401,26 +403,6 @@ else
                         </GridAggregates>
 
                         <GridColumns>
-                            <GridColumn HeaderText="Actions" Width="150" TextAlign="TextAlign.Center"
-                                        Visible="@(!_showSummary)">
-                                <Template>
-                                    @{
-                                        var item = (context as SaleReturnItemOverviewModel);
-                                    }
-                                    <div class="grid-actions">
-                                        <IconButton Icon="IconType.View" Variant="ButtonVariant.View" Size="ButtonSize.Grid"
-                                                    Title="View Sale Return" Disabled="_isProcessing"
-                                                    OnClick="@(() => ViewTransaction(item.MasterId))" />
-                                        <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel"
-                                                    Size="ButtonSize.Grid" Title="Download Excel Invoice (Alt+E)"
-                                                    Disabled="_isProcessing"
-                                                    OnClick="@(() => DownloadExcelInvoice(item.MasterId))" />
-                                        <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Grid"
-                                                    Title="Download PDF Invoice (Alt+P)" Disabled="_isProcessing"
-                                                    OnClick="@(() => DownloadPdfInvoice(item.MasterId))" />
-                                    </div>
-                                </Template>
-                            </GridColumn>
                             <GridColumn Field="@nameof(SaleReturnItemOverviewModel.ItemName)" HeaderText="Item"
                                         Width="200" />
                             <GridColumn Field="@nameof(SaleReturnItemOverviewModel.ItemCode)" HeaderText="Code" Width="130"

@@ -41,6 +41,23 @@ public partial class SaleReturnReport : IAsyncDisposable
     private List<LedgerModel> _parties = [];
     private List<SaleReturnOverviewModel> _transactionOverviews = [];
 
+    private readonly List<ContextMenuItemModel> _gridContextMenuItems =
+    [
+        new() { Text = "View", Id = "view", Target = ".e-content" },
+        new()
+        {
+            Text = "Download",
+            Id = "download",
+            Target = ".e-content",
+            Items =
+            [
+                new() { Text = "PDF", Id = "download-pdf" },
+                new() { Text = "Excel", Id = "download-excel" }
+            ]
+        },
+        new() { Text = "Delete / Recover", Id = "delete-recover", Target = ".e-content" }
+    ];
+
     private SfGrid<SaleReturnOverviewModel> _sfGrid;
 
     private string _deleteTransactionNo = string.Empty;
@@ -77,10 +94,10 @@ public partial class SaleReturnReport : IAsyncDisposable
             .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
             .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
             .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
-            .Add(ModCode.Ctrl, Code.O, ViewSelectedCartItem, "Open Selected Transaction", Exclude.None)
-            .Add(ModCode.Alt, Code.P, DownloadSelectedCartItemPdfInvoice, "Download Selected Transaction PDF Invoice", Exclude.None)
-            .Add(ModCode.Alt, Code.E, DownloadSelectedCartItemExcelInvoice, "Download Selected Transaction Excel Invoice", Exclude.None)
-            .Add(Code.Delete, DeleteSelectedCartItem, "Delete Selected Transaction", Exclude.None);
+            .Add(ModCode.Ctrl, Code.O, ViewSelectedTransaction, "Open Selected Transaction", Exclude.None)
+            .Add(ModCode.Alt, Code.P, DownloadSelectedPdfInvoice, "Download Selected Transaction PDF Invoice", Exclude.None)
+            .Add(ModCode.Alt, Code.E, DownloadSelectedExcelInvoice, "Download Selected Transaction Excel Invoice", Exclude.None)
+            .Add(Code.Delete, DeleteRecoverSelectedTransaction, "Delete Selected Transaction", Exclude.None);
 
         await LoadDates();
         await LoadLocations();
@@ -317,54 +334,10 @@ public partial class SaleReturnReport : IAsyncDisposable
             StateHasChanged();
         }
     }
-    #endregion
 
-    #region Actions
-    private async Task ViewSelectedCartItem()
+    private async Task DownloadSelectedPdfInvoice()
     {
-        if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-            return;
-
-        var selectedCartItem = _sfGrid.SelectedRecords.First();
-        await ViewTransaction(selectedCartItem.Id);
-    }
-
-    private async Task ViewTransaction(int transactionId)
-    {
-        try
-        {
-            if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", $"{PageRouteNames.SaleReturn}/{transactionId}", "_blank");
-            else
-                NavigationManager.NavigateTo($"{PageRouteNames.SaleReturn}/{transactionId}");
-        }
-        catch (Exception ex)
-        {
-            await _toastNotification.ShowAsync("Error", $"An error occurred while opening transaction: {ex.Message}", ToastType.Error);
-        }
-    }
-
-    private async Task DownloadSelectedCartItemPdfInvoice()
-    {
-        if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-            return;
-
-        var selectedCartItem = _sfGrid.SelectedRecords.First();
-        await DownloadPdfInvoice(selectedCartItem.Id);
-    }
-
-    private async Task DownloadSelectedCartItemExcelInvoice()
-    {
-        if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-            return;
-
-        var selectedCartItem = _sfGrid.SelectedRecords.First();
-        await DownloadExcelInvoice(selectedCartItem.Id);
-    }
-
-    private async Task DownloadPdfInvoice(int transactionId)
-    {
-        if (_isProcessing)
+        if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
             return;
 
         try
@@ -373,8 +346,9 @@ public partial class SaleReturnReport : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
 
-            var (pdfStream, fileName) = await SaleReturnInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.PDF);
-            await SaveAndViewService.SaveAndView(fileName, pdfStream);
+            var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
+            await SaveAndViewService.SaveAndView(decodeTransactionNo.PDFStream.fileName, decodeTransactionNo.PDFStream.stream);
+
             await _toastNotification.ShowAsync("Success", "PDF invoice downloaded successfully.", ToastType.Success);
         }
         catch (Exception ex)
@@ -388,9 +362,9 @@ public partial class SaleReturnReport : IAsyncDisposable
         }
     }
 
-    private async Task DownloadExcelInvoice(int transactionId)
+    private async Task DownloadSelectedExcelInvoice()
     {
-        if (_isProcessing)
+        if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
             return;
 
         try
@@ -399,8 +373,9 @@ public partial class SaleReturnReport : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
 
-            var (excelStream, fileName) = await SaleReturnInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.Excel);
-            await SaveAndViewService.SaveAndView(fileName, excelStream);
+            var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
+            await SaveAndViewService.SaveAndView(decodeTransactionNo.ExcelStream.fileName, decodeTransactionNo.ExcelStream.stream);
+
             await _toastNotification.ShowAsync("Success", "Excel invoice downloaded successfully.", ToastType.Success);
         }
         catch (Exception ex)
@@ -413,18 +388,61 @@ public partial class SaleReturnReport : IAsyncDisposable
             StateHasChanged();
         }
     }
+    #endregion
 
-    private async Task DeleteSelectedCartItem()
+    #region Actions
+    private async Task OnGridContextMenuItemClicked(ContextMenuClickEventArgs<SaleReturnOverviewModel> args)
     {
+        if (_showSummary)
+            return;
+
+        switch (args.Item.Id)
+        {
+            case "view":
+                await ViewSelectedTransaction();
+                break;
+
+            case "download-pdf":
+                await DownloadSelectedPdfInvoice();
+                break;
+
+            case "download-excel":
+                await DownloadSelectedExcelInvoice();
+                break;
+
+            case "delete-recover":
+                await DeleteRecoverSelectedTransaction();
+                break;
+        }
+    }
+
+    private async Task ViewSelectedTransaction()
+    {
+        if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+            return;
+
+        var decodedTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
+
+        if (FormFactor.GetFormFactor() == "Web")
+            await JSRuntime.InvokeVoidAsync("open", decodedTransactionNo.PageRouteName, "_blank");
+        else
+            NavigationManager.NavigateTo(decodedTransactionNo.PageRouteName);
+    }
+
+    private async Task DeleteRecoverSelectedTransaction()
+    {
+        if (!_user.Admin || _user.LocationId > 1)
+            return;
+
         if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
             return;
 
         var selectedCartItem = _sfGrid.SelectedRecords.First();
 
-        if (!selectedCartItem.Status)
-            await ShowRecoverConfirmation(selectedCartItem.Id, selectedCartItem.TransactionNo);
+        if (selectedCartItem.Status)
+            await ShowDeleteConfirmation();
         else
-            await ShowDeleteConfirmation(selectedCartItem.Id, selectedCartItem.TransactionNo);
+            await ShowRecoverConfirmation();
     }
 
     private async Task ConfirmDelete()
@@ -476,7 +494,6 @@ public partial class SaleReturnReport : IAsyncDisposable
             return;
         }
 
-        // Update the Status to false (soft delete)
         saleReturn.Status = false;
         saleReturn.LastModifiedBy = _user.Id;
         saleReturn.LastModifiedAt = await CommonData.LoadCurrentDateTime();
@@ -535,7 +552,6 @@ public partial class SaleReturnReport : IAsyncDisposable
             return;
         }
 
-        // Recover the sale return transaction
         saleReturn.Status = true;
         saleReturn.LastModifiedBy = _user.Id;
         saleReturn.LastModifiedAt = await CommonData.LoadCurrentDateTime();
@@ -546,6 +562,42 @@ public partial class SaleReturnReport : IAsyncDisposable
     #endregion
 
     #region Utilities
+    private async Task ShowDeleteConfirmation()
+    {
+        if (_user.LocationId > 1)
+            return;
+
+        _deleteTransactionId = _sfGrid.SelectedRecords.First().Id;
+        _deleteTransactionNo = _sfGrid.SelectedRecords.First().TransactionNo;
+        StateHasChanged();
+        await _deleteConfirmationDialog.ShowAsync();
+    }
+
+    private async Task CancelDelete()
+    {
+        await _deleteConfirmationDialog.HideAsync();
+        _deleteTransactionId = 0;
+        _deleteTransactionNo = string.Empty;
+    }
+
+    private async Task ShowRecoverConfirmation()
+    {
+        if (_user.LocationId > 1)
+            return;
+
+        _recoverTransactionId = _sfGrid.SelectedRecords.First().Id;
+        _recoverTransactionNo = _sfGrid.SelectedRecords.First().TransactionNo;
+        StateHasChanged();
+        await _recoverConfirmationDialog.ShowAsync();
+    }
+
+    private async Task CancelRecover()
+    {
+        await _recoverConfirmationDialog.HideAsync();
+        _recoverTransactionId = 0;
+        _recoverTransactionNo = string.Empty;
+    }
+
     private async Task ToggleDetailsView()
     {
         _showAllColumns = !_showAllColumns;
@@ -597,40 +649,6 @@ public partial class SaleReturnReport : IAsyncDisposable
 
     private async Task Logout() =>
         await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
-
-    private async Task ShowDeleteConfirmation(int id, string transactionNo)
-    {
-        if (_user.LocationId > 1)
-            return;
-
-        _deleteTransactionId = id;
-        _deleteTransactionNo = transactionNo;
-        await _deleteConfirmationDialog.ShowAsync();
-    }
-
-    private async Task CancelDelete()
-    {
-        await _deleteConfirmationDialog.HideAsync();
-        _deleteTransactionId = 0;
-        _deleteTransactionNo = string.Empty;
-    }
-
-    private async Task ShowRecoverConfirmation(int id, string transactionNo)
-    {
-        if (_user.LocationId > 1)
-            return;
-
-        _recoverTransactionId = id;
-        _recoverTransactionNo = transactionNo;
-        await _recoverConfirmationDialog.ShowAsync();
-    }
-
-    private async Task CancelRecover()
-    {
-        await _recoverConfirmationDialog.HideAsync();
-        _recoverTransactionId = 0;
-        _recoverTransactionNo = string.Empty;
-    }
 
     private async Task StartAutoRefresh()
     {

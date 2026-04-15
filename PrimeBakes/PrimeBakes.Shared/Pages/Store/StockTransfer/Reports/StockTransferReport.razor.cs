@@ -40,6 +40,23 @@ public partial class StockTransferReport : IAsyncDisposable
     private List<CompanyModel> _companies = [];
     private List<StockTransferOverviewModel> _transactionOverviews = [];
 
+    private readonly List<ContextMenuItemModel> _gridContextMenuItems =
+    [
+        new() { Text = "View", Id = "view", Target = ".e-content" },
+        new()
+        {
+            Text = "Download",
+            Id = "download",
+            Target = ".e-content",
+            Items =
+            [
+                new() { Text = "PDF", Id = "download-pdf" },
+                new() { Text = "Excel", Id = "download-excel" }
+            ]
+        },
+        new() { Text = "Delete / Recover", Id = "delete-recover", Target = ".e-content" }
+    ];
+
     private SfGrid<StockTransferOverviewModel> _sfGrid;
 
     private string _deleteTransactionNo = string.Empty;
@@ -75,10 +92,10 @@ public partial class StockTransferReport : IAsyncDisposable
             .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
             .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
             .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
-            .Add(ModCode.Ctrl, Code.O, ViewSelectedCartItem, "Open Selected Transaction", Exclude.None)
-            .Add(ModCode.Alt, Code.P, DownloadSelectedCartItemPdfInvoice, "Download Selected Transaction PDF Invoice", Exclude.None)
-            .Add(ModCode.Alt, Code.E, DownloadSelectedCartItemExcelInvoice, "Download Selected Transaction Excel Invoice", Exclude.None)
-            .Add(Code.Delete, DeleteSelectedCartItem, "Delete Selected Transaction", Exclude.None);
+            .Add(ModCode.Ctrl, Code.O, ViewSelectedTransaction, "Open Selected Transaction", Exclude.None)
+            .Add(ModCode.Alt, Code.P, DownloadSelectedPdfInvoice, "Download Selected Transaction PDF Invoice", Exclude.None)
+            .Add(ModCode.Alt, Code.E, DownloadSelectedExcelInvoice, "Download Selected Transaction Excel Invoice", Exclude.None)
+            .Add(Code.Delete, DeleteRecoverSelectedTransaction, "Delete Selected Transaction", Exclude.None);
 
         await LoadDates();
         await LoadLocations();
@@ -292,54 +309,10 @@ public partial class StockTransferReport : IAsyncDisposable
             StateHasChanged();
         }
     }
-    #endregion
 
-    #region Actions
-    private async Task ViewSelectedCartItem()
+    private async Task DownloadSelectedPdfInvoice()
     {
-        if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-            return;
-
-        var selectedCartItem = _sfGrid.SelectedRecords.First();
-        await ViewTransaction(selectedCartItem.Id);
-    }
-
-    private async Task ViewTransaction(int transactionId)
-    {
-        try
-        {
-            if (FormFactor.GetFormFactor() == "Web")
-                await JSRuntime.InvokeVoidAsync("open", $"{PageRouteNames.StockTransfer}/{transactionId}", "_blank");
-            else
-                NavigationManager.NavigateTo($"{PageRouteNames.StockTransfer}/{transactionId}");
-        }
-        catch (Exception ex)
-        {
-            await _toastNotification.ShowAsync("Error", $"An error occurred while opening transaction: {ex.Message}", ToastType.Error);
-        }
-    }
-
-    private async Task DownloadSelectedCartItemPdfInvoice()
-    {
-        if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-            return;
-
-        var selectedCartItem = _sfGrid.SelectedRecords.First();
-        await DownloadPdfInvoice(selectedCartItem.Id);
-    }
-
-    private async Task DownloadSelectedCartItemExcelInvoice()
-    {
-        if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-            return;
-
-        var selectedCartItem = _sfGrid.SelectedRecords.First();
-        await DownloadExcelInvoice(selectedCartItem.Id);
-    }
-
-    private async Task DownloadPdfInvoice(int transactionId)
-    {
-        if (_isProcessing)
+        if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
             return;
 
         try
@@ -348,8 +321,8 @@ public partial class StockTransferReport : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
 
-            var (pdfStream, fileName) = await StockTransferInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.PDF);
-            await SaveAndViewService.SaveAndView(fileName, pdfStream);
+            var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
+            await SaveAndViewService.SaveAndView(decodeTransactionNo.PDFStream.fileName, decodeTransactionNo.PDFStream.stream);
 
             await _toastNotification.ShowAsync("Success", "PDF invoice generated successfully.", ToastType.Success);
         }
@@ -364,9 +337,9 @@ public partial class StockTransferReport : IAsyncDisposable
         }
     }
 
-    private async Task DownloadExcelInvoice(int transactionId)
+    private async Task DownloadSelectedExcelInvoice()
     {
-        if (_isProcessing)
+        if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
             return;
 
         try
@@ -375,8 +348,8 @@ public partial class StockTransferReport : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
 
-            var (excelStream, fileName) = await StockTransferInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.Excel);
-            await SaveAndViewService.SaveAndView(fileName, excelStream);
+            var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
+            await SaveAndViewService.SaveAndView(decodeTransactionNo.ExcelStream.fileName, decodeTransactionNo.ExcelStream.stream);
 
             await _toastNotification.ShowAsync("Success", "Excel invoice generated successfully.", ToastType.Success);
         }
@@ -390,18 +363,61 @@ public partial class StockTransferReport : IAsyncDisposable
             StateHasChanged();
         }
     }
+    #endregion
 
-    private async Task DeleteSelectedCartItem()
+    #region Actions
+    private async Task OnGridContextMenuItemClicked(ContextMenuClickEventArgs<StockTransferOverviewModel> args)
     {
+        if (_showSummary)
+            return;
+
+        switch (args.Item.Id)
+        {
+            case "view":
+                await ViewSelectedTransaction();
+                break;
+
+            case "download-pdf":
+                await DownloadSelectedPdfInvoice();
+                break;
+
+            case "download-excel":
+                await DownloadSelectedExcelInvoice();
+                break;
+
+            case "delete-recover":
+                await DeleteRecoverSelectedTransaction();
+                break;
+        }
+    }
+
+    private async Task ViewSelectedTransaction()
+    {
+        if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+            return;
+
+        var decodedTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
+
+        if (FormFactor.GetFormFactor() == "Web")
+            await JSRuntime.InvokeVoidAsync("open", decodedTransactionNo.PageRouteName, "_blank");
+        else
+            NavigationManager.NavigateTo(decodedTransactionNo.PageRouteName);
+    }
+
+    private async Task DeleteRecoverSelectedTransaction()
+    {
+        if (!_user.Admin)
+            return;
+
         if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
             return;
 
         var selectedCartItem = _sfGrid.SelectedRecords.First();
 
-        if (!selectedCartItem.Status)
-            await ShowRecoverConfirmation(selectedCartItem.Id, selectedCartItem.TransactionNo);
+        if (selectedCartItem.Status)
+            await ShowDeleteConfirmation();
         else
-            await ShowDeleteConfirmation(selectedCartItem.Id, selectedCartItem.TransactionNo);
+            await ShowRecoverConfirmation();
     }
 
     private async Task ConfirmDelete()
@@ -453,7 +469,6 @@ public partial class StockTransferReport : IAsyncDisposable
             return;
         }
 
-        // Update the Status to false (soft delete)
         stockTransfer.Status = false;
         stockTransfer.LastModifiedBy = _user.Id;
         stockTransfer.LastModifiedAt = await CommonData.LoadCurrentDateTime();
@@ -511,7 +526,6 @@ public partial class StockTransferReport : IAsyncDisposable
             return;
         }
 
-        // Update the Status to true (active)
         stockTransfer.Status = true;
         stockTransfer.LastModifiedBy = _user.Id;
         stockTransfer.LastModifiedAt = await CommonData.LoadCurrentDateTime();
@@ -522,6 +536,36 @@ public partial class StockTransferReport : IAsyncDisposable
     #endregion
 
     #region Utilities
+    private async Task ShowDeleteConfirmation()
+    {
+        _deleteTransactionId = _sfGrid.SelectedRecords.First().Id;
+        _deleteTransactionNo = _sfGrid.SelectedRecords.First().TransactionNo;
+        StateHasChanged();
+        await _deleteConfirmationDialog.ShowAsync();
+    }
+
+    private async Task CancelDelete()
+    {
+        _deleteTransactionId = 0;
+        _deleteTransactionNo = string.Empty;
+        await _deleteConfirmationDialog.HideAsync();
+    }
+
+    private async Task ShowRecoverConfirmation()
+    {
+        _recoverTransactionId = _sfGrid.SelectedRecords.First().Id;
+        _recoverTransactionNo = _sfGrid.SelectedRecords.First().TransactionNo;
+        StateHasChanged();
+        await _recoverConfirmationDialog.ShowAsync();
+    }
+
+    private async Task CancelRecover()
+    {
+        _recoverTransactionId = 0;
+        _recoverTransactionNo = string.Empty;
+        await _recoverConfirmationDialog.HideAsync();
+    }
+
     private async Task ToggleDetailsView()
     {
         _showAllColumns = !_showAllColumns;
@@ -573,34 +617,6 @@ public partial class StockTransferReport : IAsyncDisposable
 
     private async Task Logout() =>
         await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
-
-    private async Task ShowDeleteConfirmation(int id, string transactionNo)
-    {
-        _deleteTransactionId = id;
-        _deleteTransactionNo = transactionNo;
-        await _deleteConfirmationDialog.ShowAsync();
-    }
-
-    private async Task CancelDelete()
-    {
-        _deleteTransactionId = 0;
-        _deleteTransactionNo = string.Empty;
-        await _deleteConfirmationDialog.HideAsync();
-    }
-
-    private async Task ShowRecoverConfirmation(int id, string transactionNo)
-    {
-        _recoverTransactionId = id;
-        _recoverTransactionNo = transactionNo;
-        await _recoverConfirmationDialog.ShowAsync();
-    }
-
-    private async Task CancelRecover()
-    {
-        _recoverTransactionId = 0;
-        _recoverTransactionNo = string.Empty;
-        await _recoverConfirmationDialog.HideAsync();
-    }
 
     private async Task StartAutoRefresh()
     {
