@@ -1,4 +1,4 @@
-﻿@attribute [Route(PageRouteNames.BillMobilePayment)]
+@attribute [Route(PageRouteNames.BillMobilePayment)]
 @attribute [Route($"{PageRouteNames.BillMobilePayment}/table/{{DiningTableId:int}}")]
 
 @using PrimeBakesLibrary.Data.Common
@@ -13,8 +13,12 @@
 else
 {
 	<div class="page-shell">
-		<Header Title="@($"{_diningTable.Name} Settle")" Subtitle="Customer details and payment" ShowBack="true"
-				OnBackClick='() => NavigationManager.NavigateTo($"{PageRouteNames.BillMobileCart}/table/{_diningTable.Id}")' />
+		<Header Title="@($"{_diningTable.Name} Settle")">
+			<RightContent>
+				<IconButton Icon="IconType.Back" Title="Back"
+							OnClick='() => NavigationManager.NavigateTo($"{PageRouteNames.BillMobileCart}/table/{_diningTable.Id}")' />
+			</RightContent>
+		</Header>
 
 		<div class="sale-payment-container">
 			<div class="payment-section-card">
@@ -58,6 +62,14 @@ else
 					</div>
 
 					<div class="form-field form-field-half">
+						<label class="field-label">Service %</label>
+						<SfNumericTextBox TValue="decimal" Value="@_bill.ServiceChargePercent" Min="0" Max="100" Step="1"
+										  type="tel" Format="N2" Placeholder="0.00" CssClass="dialog-input" Enabled="@(!_isProcessing)">
+							<NumericTextBoxEvents TValue="decimal" ValueChange="OnServiceChargePercentChanged" />
+						</SfNumericTextBox>
+					</div>
+
+					<div class="form-field form-field-half">
 						<label class="field-label">Round Off</label>
 						<SfNumericTextBox TValue="decimal" Value="@_bill.RoundOffAmount" Step="1" Format="N2" type="tel"
 										  Placeholder="0.00" CssClass="dialog-input" Enabled="@(!_isProcessing)">
@@ -74,6 +86,10 @@ else
 					<div class="summary-item">
 						<span class="summary-label">Disc:</span>
 						<span class="summary-value">@_bill.DiscountAmount.FormatIndianCurrency()</span>
+					</div>
+					<div class="summary-item">
+						<span class="summary-label">Service:</span>
+						<span class="summary-value">@_bill.ServiceChargeAmount.FormatIndianCurrency()</span>
 					</div>
 					<div class="summary-item">
 						<span class="summary-label">Total:</span>
@@ -129,13 +145,17 @@ else
 			</div>
 		</div>
 
-		<div class="payment-page-footer">
-			<SfButton Content="@(_isProcessing ? "Saving..." : "KOT")" CssClass="dialog-button confirm-button-dialog"
-					  OnClick="async () => await SaveTransaction(kotOnly: true)" Disabled="@(_isProcessing)" />
-			<SfButton Content="@(_isProcessing ? "Saving..." : "Save")" CssClass="dialog-button confirm-button-dialog"
-					  OnClick="async () => await SaveTransaction()" Disabled="@(_isProcessing)" />
-			<SfButton Content="@(_isProcessing ? "Saving..." : "Thermal")" CssClass="dialog-button confirm-button-dialog"
-					  OnClick="async () => await SaveTransaction(thermal: true)" Disabled="@(_isProcessing)" />
+		<div class="cart-footer payment-page-footer">
+			<div class="payment-footer-row payment-footer-row-single">
+				<MobileCartButton Text="@(_isProcessing ? "Saving..." : "KOT")" Disabled="@_isProcessing"
+								  OnClick="async () => await SaveTransaction(kotOnly: true)" />
+			</div>
+			<div class="payment-footer-row">
+				<MobileCartButton Text="@(_isProcessing ? "Saving..." : "Save")" Disabled="@_isProcessing"
+								  OnClick="async () => await SaveTransaction()" />
+				<MobileCartButton Text="@(_isProcessing ? "Saving..." : "Thermal")" Disabled="@_isProcessing"
+								  OnClick="async () => await SaveTransaction(thermal: true)" />
+			</div>
 		</div>
 
 		<Footer ShowVersion="false" />
@@ -354,38 +374,62 @@ else
 		white-space: nowrap;
 	}
 
-	.payment-page-footer {
-		display: flex;
-		gap: 8px;
-		padding: 12px;
-		background: white;
-		border-top: 1px solid var(--border-color);
+	.cart-footer {
 		position: sticky;
 		bottom: 0;
-		z-index: 2;
-	}
-
-	.dialog-button {
-		border-radius: 8px;
-		min-height: 44px;
-		flex: 1;
-	}
-
-	.cancel-button {
 		background: white;
-		color: var(--text-light);
-		border: 2px solid var(--border-color);
+		padding: 15px 20px;
+		box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+		z-index: 100;
+		animation: slideUp 0.3s ease-out;
+		display: flex;
+		justify-content: center;
+		align-items: center;
 	}
 
-	.confirm-button-dialog {
-		background: var(--primary-color);
-		color: white;
+	.payment-page-footer {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		width: 100%;
+		align-items: stretch;
+	}
+
+	.payment-footer-row {
+		display: flex;
+		gap: 8px;
+		width: 100%;
+	}
+
+	.payment-footer-row .animated-cart-btn {
+		flex: 1;
+		max-width: none;
+	}
+
+	.payment-footer-row-single .animated-cart-btn {
+		max-width: none;
+	}
+
+	@@keyframes slideUp {
+		from {
+			transform: translateY(100%);
+			opacity: 0;
+		}
+
+		to {
+			transform: translateY(0);
+			opacity: 1;
+		}
 	}
 
 	@@media (max-width: 576px) {
 		.form-row {
 			flex-direction: column;
 			gap: 8px;
+		}
+
+		.cart-footer {
+			padding: 12px 15px;
 		}
 
 		.disc-roundoff-row {

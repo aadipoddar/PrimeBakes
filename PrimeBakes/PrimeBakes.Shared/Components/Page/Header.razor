@@ -1,35 +1,18 @@
 <div class="page-header">
     <div class="header-left">
         <img src="images/logo.png" alt="PrimeBakes" class="header-logo" />
-        <div class="header-divider"></div>
-        <div class="header-text">
-            <span class="app-name">Prime Bakes</span>
-        </div>
+        @if (LeftContent != null)
+        {
+            @LeftContent
+        }
     </div>
     <div class="header-center">
         <h1 class="page-title">@Title</h1>
-        <p class="page-subtitle">@Subtitle</p>
     </div>
     <div class="header-right">
-        @if (!string.IsNullOrEmpty(UserName))
-        {
-            <span class="user-name">@UserName</span>
-        }
         @if (RightContent != null)
         {
             @RightContent
-        }
-        @if (ShowHome)
-        {
-            <IconButton Icon="IconType.Home" Title="Home (Ctrl + D)" OnClick="OnHomeClick" />
-        }
-        @if (ShowBack)
-        {
-            <IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="OnBackClick" />
-        }
-        @if (ShowLogout)
-        {
-            <IconButton Icon="IconType.Logout" Variant="ButtonVariant.Logout" Title="Logout (Ctrl + L)" OnClick="OnLogoutClick" />
         }
         @if (ShowBtButton)
         {
@@ -38,18 +21,16 @@
                         Title="@(BtIsConnected ? $"Printer: {_btSaved?.Name} (Connected)" : $"Printer: {_btSaved?.Name} (Not Connected)")"
                         OnClick="HandleBtClick" />
         }
+        <div class="header-divider"></div>
+        <span class="user-name">@_user?.Name</span>
     </div>
 </div>
 
 @if (ShowBtButton)
 {
-    <BluetoothReconnectDialog @ref="_btDialog"
-        PrinterName="@(_btSaved?.Name ?? "Unknown")"
-        IsConnected="@BtIsConnected"
-        Disabled="@_isBtReconnecting"
-        OnReconnect="HandleBtReconnect"
-        OnDismiss="HandleBtDismiss"
-        OnDisconnect="HandleBtDisconnect" />
+    <BluetoothReconnectDialog @ref="_btDialog" PrinterName="@(_btSaved?.Name ?? "Unknown")" IsConnected="@BtIsConnected"
+                              Disabled="@_isBtReconnecting" OnReconnect="HandleBtReconnect" OnDismiss="HandleBtDismiss"
+                              OnDisconnect="HandleBtDisconnect" />
 }
 
 <style>
@@ -88,20 +69,6 @@
         flex-shrink: 0;
     }
 
-    .header-text {
-        display: flex;
-        align-items: center;
-        font-size: 14px;
-        color: #0f172a;
-        font-weight: 600;
-    }
-
-    .app-name {
-        color: #0f172a;
-        font-weight: 600;
-        letter-spacing: 0.3px;
-    }
-
     .header-center {
         text-align: center;
     }
@@ -112,13 +79,6 @@
         color: #0f172a;
         margin: 0;
         letter-spacing: -0.2px;
-    }
-
-    .page-subtitle {
-        font-size: 12px;
-        color: #64748b;
-        margin: 2px 0 0 0;
-        font-weight: 400;
     }
 
     .header-right {
@@ -138,38 +98,11 @@
         border: 1px solid #e2e8f0;
     }
 
-    /* Hide title and subtitle on smaller displays (phones) */
     @@media (max-width: 768px) {
-        .page-header {
-            grid-template-columns: auto 1fr auto;
-            gap: 8px;
-            padding: 8px 12px;
-        }
 
-        .header-center {
-            display: block;
-            text-align: center;
-            min-width: 0;
-        }
-
-        .page-title {
-            font-size: 14px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .page-subtitle {
-            display: none;
-        }
-
-        .header-text {
-            display: none;
-        }
-
-        .header-divider {
+        .header-divider,
+        .user-name {
             display: none;
         }
     }
-
 </style>

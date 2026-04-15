@@ -17,9 +17,9 @@
 else
 {
     <div class="page-shell">
-        <Header Title="Create Sale" Subtitle="Create and manage sale transactions" ShowLogout="true" ShowHome="true"
-                ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
-            <RightContent>
+        <Header Title="Create Sale"
+>
+            <LeftContent>
                 <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Transaction (Ctrl + S)"
                             Disabled="_isProcessing" OnClick="SaveTransaction" />
                 <IconButton Icon="IconType.ThermalPrinter" Variant="ButtonVariant.ThermalPrinter"
@@ -37,7 +37,7 @@ else
                             OnClick="NavigateToItemReport" />
                 <IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing"
                             OnClick="ResetPage" />
-            </RightContent>
+            </LeftContent>
         </Header>
 
         <!-- Main Content Container -->

@@ -14,10 +14,10 @@
 else
 {
 	<div class="page-shell">
-		<Header Title="Create Purchase Return" Subtitle="Create and manage purchase return transactions" ShowLogout="true"
-				ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack"
-				OnLogoutClick="Logout">
-			<RightContent>
+		<Header Title="Create Purchase Return"
+
+>
+			<LeftContent>
 				<IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Transaction (Ctrl + S)"
 							Disabled="_isProcessing" OnClick="SaveTransaction" />
 				@if (Id is > 0)
@@ -35,7 +35,7 @@ else
 							OnClick="NavigateToItemReport" />
 				<IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing"
 							OnClick="ResetPage" />
-			</RightContent>
+			</LeftContent>
 		</Header>
 
 		<!-- Main Content Container -->

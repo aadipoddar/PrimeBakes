@@ -1,4 +1,4 @@
-﻿@attribute [Route(PageRouteNames.FinancialAccounting)]
+@attribute [Route(PageRouteNames.FinancialAccounting)]
 @attribute [Route(PageRouteNames.FinancialAccounting + "/{Id:int}")]
 
 @using PrimeBakesLibrary.Models.Accounts.FinancialAccounting
@@ -13,10 +13,10 @@
 else
 {
     <div class="page-shell">
-        <Header Title="Financial Accounting Entry" Subtitle="Create and manage accounting voucher entries" ShowLogout="true"
-                ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack"
-                OnLogoutClick="Logout">
-            <RightContent>
+        <Header Title="Financial Accounting Entry"
+
+>
+            <LeftContent>
                 <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Transaction (Ctrl + S)"
                             Disabled="_isProcessing" OnClick="SaveTransaction" />
                 @if (Id.HasValue && Id.Value > 0)
@@ -38,7 +38,7 @@ else
                             OnClick="NavigateToBalanceSheet" />
                 <IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing"
                             OnClick="ResetPage" />
-            </RightContent>
+            </LeftContent>
         </Header>
 
         <!-- Main Content Container -->

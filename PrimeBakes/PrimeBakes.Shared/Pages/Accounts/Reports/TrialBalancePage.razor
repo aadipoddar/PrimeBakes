@@ -13,9 +13,9 @@
 else
 {
 	<div class="page-shell">
-		<Header Title="Trial Balance" Subtitle="View ledger balances for specified period" ShowHome="true" ShowBack="true"
-				ShowLogout="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
-			<RightContent>
+		<Header Title="Trial Balance"
+>
+			<LeftContent>
 				<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)"
 							Disabled="_isProcessing" OnClick="ExportExcel" />
 				<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)"
@@ -30,7 +30,7 @@ else
 							OnClick="NavigateToBalanceSheet" />
 				<IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing"
 							OnClick="NavigateToTransactionPage" />
-			</RightContent>
+			</LeftContent>
 		</Header>
 
 		<!-- Main Content Container -->

@@ -13,10 +13,10 @@
 else
 {
 	<div class="page-shell">
-		<Header Title="Product Location Management" Subtitle="Manage product rates by location" ShowLogout="true"
-				ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack"
-				OnLogoutClick="Logout">
-			<RightContent>
+		<Header Title="Product Location Management"
+
+>
+			<LeftContent>
 				<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)"
 							Disabled="_isProcessing" OnClick="ExportExcel" />
 				<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)"
@@ -25,7 +25,7 @@ else
 							Disabled="_isProcessing" OnClick="SaveProductLocation" />
 				<IconButton Icon="IconType.New" Title="New Product Location (Ctrl + N)" Disabled="_isProcessing"
 							OnClick="ResetPage" />
-			</RightContent>
+			</LeftContent>
 		</Header>
 
 		<!-- Main Content Container -->

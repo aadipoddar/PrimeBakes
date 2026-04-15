@@ -1,4 +1,4 @@
-﻿@attribute [Route(PageRouteNames.BillMobile)]
+@attribute [Route(PageRouteNames.BillMobile)]
 @attribute [Route($"{PageRouteNames.BillMobile}/table/{{DiningTableId:int}}")]
 
 @using PrimeBakesLibrary.Models.Restuarant.Bill
@@ -12,8 +12,12 @@
 else
 {
     <div class="page-shell">
-        <Header Title="@_diningTable.Name" Subtitle="Mobile bill entry" ShowBack="true"
-                OnBackClick="() => NavigationManager.NavigateTo(PageRouteNames.DiningMobileDashboard)" />
+        <Header Title="@_diningTable.Name">
+            <RightContent>
+                <IconButton Icon="IconType.Back" Title="Back"
+                            OnClick="() => NavigationManager.NavigateTo(PageRouteNames.DiningMobileDashboard)" />
+            </RightContent>
+        </Header>
 
         <!-- Main Content Container -->
         <div class="sale-mobile-container">

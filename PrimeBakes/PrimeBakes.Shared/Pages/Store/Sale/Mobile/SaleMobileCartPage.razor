@@ -1,11 +1,6 @@
 @attribute [Route(PageRouteNames.SaleMobileCart)]
 
 @using PrimeBakesLibrary.Data.Common
-@using PrimeBakesLibrary.Models.Accounts.Masters
-@using PrimeBakesLibrary.Models.Operations
-@using PrimeBakesLibrary.Models.Store
-@using PrimeBakesLibrary.Models.Store.Masters
-@using PrimeBakesLibrary.Models.Store.Product
 @using PrimeBakesLibrary.Models.Store.Sale
 
 <PageTitle>Sale Cart - Prime Bakes</PageTitle>
@@ -17,8 +12,12 @@
 else
 {
 	<div class="page-shell">
-		<Header Title="Sale Cart" Subtitle="Review and submit your sale" ShowBack="true"
-				OnBackClick="() => NavigationManager.NavigateTo(PageRouteNames.SaleMobile)" />
+		<Header Title="Sale Cart">
+			<RightContent>
+				<IconButton Icon="IconType.Back" Title="Back"
+							OnClick="() => NavigationManager.NavigateTo(PageRouteNames.SaleMobile)" />
+			</RightContent>
+		</Header>
 
 		<!-- Main Content Container -->
 		<div class="sale-cart-container">

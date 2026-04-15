@@ -1,4 +1,4 @@
-﻿@attribute [Route(PageRouteNames.LocalSettings)]
+@attribute [Route(PageRouteNames.LocalSettings)]
 
 <PageTitle>Local Device Settings - Prime Bakes</PageTitle>
 
@@ -9,9 +9,13 @@
 else
 {
     <div class="page-shell">
-        <Header Title="Local Device Settings" Subtitle="Configure Bluetooth printer and device preferences"
-                ShowHome="true" ShowBack="true" ShowLogout="true"
-                OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
+        <Header Title="Local Device Settings">
+            <RightContent>
+                <IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="NavigateBack" />
+                <IconButton Icon="IconType.Home" Title="Home (Ctrl + D)" OnClick="NavigateToDashboard" />
+                <IconButton Icon="IconType.Logout" Variant="ButtonVariant.Logout" Title="Logout (Ctrl + L)"
+                            OnClick="Logout" />
+            </RightContent>
         </Header>
 
         <!-- Main Content Container -->
@@ -35,477 +39,482 @@ else
                     {
                         <!-- Unsupported Platform Message -->
                         <div class="bt-unsupported-card">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"
-                                 fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none"
+                                 stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="10" />
                                 <line x1="12" y1="8" x2="12" y2="12" />
                                 <line x1="12" y1="16" x2="12.01" y2="16" />
                             </svg>
                             <p class="bt-unsupported-text">Bluetooth printing is not supported on this platform.</p>
-                            <p class="bt-unsupported-subtext">Use the MAUI app on Android or Windows for Bluetooth thermal printing.</p>
-                        </div>
-                    }
+                            <p class="bt-unsupported-subtext">Use the MAUI app on Android or Windows for Bluetooth thermal
+                                printing.</p>
+                            </div>
+                        }
                     else if (!BluetoothPrinterService.IsEnabled)
-                    {
-                        <!-- Bluetooth Disabled Message -->
-                        <div class="bt-unsupported-card">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"
-                                 fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="6.5 6.5 17.5 17.5 12 23 12 1 17.5 6.5 6.5 17.5" />
-                                <line x1="1" y1="1" x2="23" y2="23" />
-                            </svg>
-                            <p class="bt-unsupported-text">Bluetooth is turned off.</p>
-                            <p class="bt-unsupported-subtext">Please enable Bluetooth in your device settings and return to this page.</p>
-                        </div>
-                    }
-                    else
-                    {
-                        <!-- Connection Status -->
-                        <div class="bt-status-bar @(BluetoothPrinterService.IsConnected ? "bt-connected" : "bt-disconnected")">
-                            <div class="bt-status-indicator">
-                                <div class="bt-status-dot @(BluetoothPrinterService.IsConnected ? "dot-connected" : "dot-disconnected")"></div>
-                                <span class="bt-status-label">
-                                    @if (BluetoothPrinterService.IsConnected)
-                                    {
-                                        <strong>Connected</strong>
-                                        <span> to @BluetoothPrinterService.ConnectedPrinterName</span>
-                                    }
-                                    else
-                                    {
-                                        <span>No printer connected</span>
-                                    }
-                                </span>
-                            </div>
-                            <div class="bt-action-buttons">
-                                <SfButton CssClass="e-outline e-info bt-action-btn" Disabled="_isProcessing || _isTestPrinting"
-                                          @onclick="TestPrint">
-                                    @if (_isTestPrinting)
-                                    {
-                                        <span class="bt-spinner"></span>
-                                        <span>Printing...</span>
-                                    }
-                                    else
-                                    {
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-                                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                             stroke-linejoin="round">
-                                            <polyline points="6 9 6 2 18 2 18 9" />
-                                            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
-                                            <rect x="6" y="14" width="12" height="8" />
-                                        </svg>
-                                        <span>Test Print</span>
-                                    }
-                                </SfButton>
-                                @if (BluetoothPrinterService.IsConnected)
-                                {
-                                    <SfButton CssClass="e-outline e-danger bt-action-btn" Content="Disconnect"
-                                              Disabled="_isProcessing" @onclick="DisconnectPrinter">
-                                    </SfButton>
-                                }
-                            </div>
-                        </div>
-
-                        <!-- Scan and Device List -->
-                        <div class="bt-controls">
-                            <div class="bt-scan-row">
-                                <SfButton CssClass="e-primary bt-scan-btn" Disabled="_isScanning || _isProcessing"
-                                          @onclick="ScanForDevices">
-                                    @if (_isScanning)
-                                    {
-                                        <span class="bt-spinner"></span>
-                                        <span>Scanning...</span>
-                                    }
-                                    else
-                                    {
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                             stroke-linejoin="round">
-                                            <circle cx="11" cy="11" r="8" />
-                                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                                        </svg>
-                                        <span>Scan for Printers</span>
-                                    }
-                                </SfButton>
-                                @if (_isScanning)
-                                {
-                                    <SfButton CssClass="e-outline bt-cancel-btn" @onclick="CancelScan">
-                                        Cancel
-                                    </SfButton>
-                                }
-                            </div>
-                        </div>
-
-                        <!-- Discovered Devices -->
-                        @if (_discoveredDevices.Count > 0)
                         {
-                            <div class="bt-devices-section">
-                                <h3 class="bt-devices-heading">
-                                    Discovered Devices
-                                    <span class="bt-device-count">(@_discoveredDevices.Count)</span>
-                                </h3>
+                            <!-- Bluetooth Disabled Message -->
+                            <div class="bt-unsupported-card">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none"
+                                     stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6.5 6.5 17.5 17.5 12 23 12 1 17.5 6.5 6.5 17.5" />
+                                    <line x1="1" y1="1" x2="23" y2="23" />
+                                </svg>
+                                <p class="bt-unsupported-text">Bluetooth is turned off.</p>
+                                <p class="bt-unsupported-subtext">Please enable Bluetooth in your device settings and return to this
+                                    page.</p>
+                                </div>
+                            }
+                    else
+                            {
+                                <!-- Connection Status -->
+                                <div class="bt-status-bar @(BluetoothPrinterService.IsConnected ? "bt-connected" : "bt-disconnected")">
+                                    <div class="bt-status-indicator">
+                                        <div
+                                            class="bt-status-dot @(BluetoothPrinterService.IsConnected ? "dot-connected" : "dot-disconnected")">
+                                        </div>
+                                        <span class="bt-status-label">
+                                            @if (BluetoothPrinterService.IsConnected)
+                                            {
+                                                <strong>Connected</strong>
+                                                <span> to @BluetoothPrinterService.ConnectedPrinterName</span>
+                                            }
+                                            else
+                                            {
+                                                <span>No printer connected</span>
+                                            }
+                                        </span>
+                                    </div>
+                                    <div class="bt-action-buttons">
+                                        <SfButton CssClass="e-outline e-info bt-action-btn" Disabled="_isProcessing || _isTestPrinting"
+                                                  @onclick="TestPrint">
+                                            @if (_isTestPrinting)
+                                            {
+                                                <span class="bt-spinner"></span>
+                                                <span>Printing...</span>
+                                            }
+                                            else
+                                            {
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                     stroke-linejoin="round">
+                                                    <polyline points="6 9 6 2 18 2 18 9" />
+                                                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                                                    <rect x="6" y="14" width="12" height="8" />
+                                                </svg>
+                                                <span>Test Print</span>
+                                            }
+                                        </SfButton>
+                                        @if (BluetoothPrinterService.IsConnected)
+                                        {
+                                            <SfButton CssClass="e-outline e-danger bt-action-btn" Content="Disconnect"
+                                                      Disabled="_isProcessing" @onclick="DisconnectPrinter">
+                                            </SfButton>
+                                        }
+                                    </div>
+                                </div>
 
-                                <div class="bt-device-list">
-                                    @foreach (var device in _discoveredDevices)
-                                    {
-                                        var isCurrentConnected = BluetoothPrinterService.IsConnected
-                                        && BluetoothPrinterService.ConnectedPrinterAddress == device.Address;
+                                <!-- Scan and Device List -->
+                                <div class="bt-controls">
+                                    <div class="bt-scan-row">
+                                        <SfButton CssClass="e-primary bt-scan-btn" Disabled="_isScanning || _isProcessing"
+                                                  @onclick="ScanForDevices">
+                                            @if (_isScanning)
+                                            {
+                                                <span class="bt-spinner"></span>
+                                                <span>Scanning...</span>
+                                            }
+                                            else
+                                            {
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                     stroke-linejoin="round">
+                                                    <circle cx="11" cy="11" r="8" />
+                                                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                                                </svg>
+                                                <span>Scan for Printers</span>
+                                            }
+                                        </SfButton>
+                                        @if (_isScanning)
+                                        {
+                                            <SfButton CssClass="e-outline bt-cancel-btn" @onclick="CancelScan">
+                                                Cancel
+                                            </SfButton>
+                                        }
+                                    </div>
+                                </div>
 
-                                        <div class="bt-device-card @(isCurrentConnected ? "bt-device-active" : "")"
-                                             @key="device.Address">
-                                            <div class="bt-device-info">
-                                                <div class="bt-device-icon">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                                         viewBox="0 0 24 24" fill="none"
-                                                         stroke="@(device.IsPaired ? "#3b82f6" : "#94a3b8")"
-                                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <polyline points="6.5 6.5 17.5 17.5 12 23 12 1 17.5 6.5 6.5 17.5" />
-                                                    </svg>
-                                                </div>
-                                                <div class="bt-device-details">
-                                                    <span class="bt-device-name">@device.DisplayName</span>
-                                                    <span class="bt-device-address">@device.Address</span>
-                                                    <div class="bt-device-tags">
-                                                        @if (device.IsPaired)
-                                                        {
-                                                            <span class="bt-tag bt-tag-paired">Paired</span>
-                                                        }
-                                                        @if (device.SignalStrength.HasValue)
-                                                        {
-                                                            <span class="bt-tag bt-tag-signal">@device.SignalStrength dBm</span>
-                                                        }
+                                <!-- Discovered Devices -->
+                                @if (_discoveredDevices.Count > 0)
+                                {
+                                    <div class="bt-devices-section">
+                                        <h3 class="bt-devices-heading">
+                                            Discovered Devices
+                                            <span class="bt-device-count">(@_discoveredDevices.Count)</span>
+                                        </h3>
+
+                                        <div class="bt-device-list">
+                                            @foreach (var device in _discoveredDevices)
+                                            {
+                                                var isCurrentConnected = BluetoothPrinterService.IsConnected
+                                                && BluetoothPrinterService.ConnectedPrinterAddress == device.Address;
+
+                                                <div class="bt-device-card @(isCurrentConnected ? "bt-device-active" : "")"
+                                                     @key="device.Address">
+                                                    <div class="bt-device-info">
+                                                        <div class="bt-device-icon">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                                                 fill="none" stroke="@(device.IsPaired ? "#3b82f6" : "#94a3b8")" stroke-width="2"
+                                                                 stroke-linecap="round" stroke-linejoin="round">
+                                                                <polyline points="6.5 6.5 17.5 17.5 12 23 12 1 17.5 6.5 6.5 17.5" />
+                                                            </svg>
+                                                        </div>
+                                                        <div class="bt-device-details">
+                                                            <span class="bt-device-name">@device.DisplayName</span>
+                                                            <span class="bt-device-address">@device.Address</span>
+                                                            <div class="bt-device-tags">
+                                                                @if (device.IsPaired)
+                                                                {
+                                                                    <span class="bt-tag bt-tag-paired">Paired</span>
+                                                                }
+                                                                @if (device.SignalStrength.HasValue)
+                                                                {
+                                                                    <span class="bt-tag bt-tag-signal">@device.SignalStrength dBm</span>
+                                                                }
+                                                                @if (isCurrentConnected)
+                                                                {
+                                                                    <span class="bt-tag bt-tag-connected">Connected</span>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="bt-device-actions">
                                                         @if (isCurrentConnected)
                                                         {
-                                                            <span class="bt-tag bt-tag-connected">Connected</span>
+                                                            <SfButton CssClass="e-outline e-danger e-small" Content="Disconnect"
+                                                                      Disabled="_isProcessing" @onclick="DisconnectPrinter" />
+                                                        }
+                                                        else
+                                                        {
+                                                            <SfButton CssClass="e-primary e-small"
+                                                                      Content="@(_connectingAddress == device.Address ? "Connecting..." : "Connect")"
+                                                                      Disabled="_isProcessing || _isScanning"
+                                                                      @onclick="() => ConnectToDevice(device.Address)" />
                                                         }
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="bt-device-actions">
-                                                @if (isCurrentConnected)
-                                                {
-                                                    <SfButton CssClass="e-outline e-danger e-small" Content="Disconnect"
-                                                              Disabled="_isProcessing" @onclick="DisconnectPrinter" />
-                                                }
-                                                else
-                                                {
-                                                    <SfButton CssClass="e-primary e-small"
-                                                              Content="@(_connectingAddress == device.Address ? "Connecting..." : "Connect")"
-                                                              Disabled="_isProcessing || _isScanning"
-                                                              @onclick="() => ConnectToDevice(device.Address)" />
-                                                }
-                                            </div>
+                                            }
                                         </div>
-                                    }
-                                </div>
-                            </div>
-                        }
-                        else if (_hasScanned && !_isScanning)
-                        {
-                            <div class="bt-empty-state">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                                     fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="6.5 6.5 17.5 17.5 12 23 12 1 17.5 6.5 6.5 17.5" />
-                                </svg>
-                                <p>No Bluetooth devices found nearby.</p>
-                                <p class="bt-empty-hint">Make sure your printer is turned on and in discoverable mode.</p>
-                            </div>
-                        }
-                    }
+                                    </div>
+                                }
+                                else if (_hasScanned && !_isScanning)
+                                {
+                                    <div class="bt-empty-state">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                                             stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="6.5 6.5 17.5 17.5 12 23 12 1 17.5 6.5 6.5 17.5" />
+                                        </svg>
+                                        <p>No Bluetooth devices found nearby.</p>
+                                        <p class="bt-empty-hint">Make sure your printer is turned on and in discoverable mode.</p>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+
                 </div>
+
+                <Footer />
             </div>
-
-        </div>
-
-        <Footer />
-    </div>
-}
-
-<ToastNotification @ref="_toastNotification" />
-
-<style>
-    /* Bluetooth Status Bar */
-    .bt-status-bar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 12px 16px;
-        border-radius: 8px;
-        margin-bottom: 16px;
-    }
-
-    .bt-connected {
-        background: linear-gradient(135deg, #ecfdf5, #d1fae5);
-        border: 1px solid #6ee7b7;
-    }
-
-    .bt-disconnected {
-        background: linear-gradient(135deg, #fef3c7, #fde68a);
-        border: 1px solid #fbbf24;
-    }
-
-    .bt-status-indicator {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .bt-status-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        flex-shrink: 0;
-    }
-
-    .dot-connected {
-        background-color: #10b981;
-        box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
-        animation: pulse-dot 2s infinite;
-    }
-
-    .dot-disconnected {
-        background-color: #f59e0b;
-    }
-
-    .bt-status-label {
-        font-size: 14px;
-        color: #1e293b;
-    }
-
-    .bt-action-buttons {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .bt-action-btn {
-        font-size: 13px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    /* Scan Controls */
-    .bt-controls {
-        margin-bottom: 16px;
-    }
-
-    .bt-scan-row {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .bt-scan-btn {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-weight: 600;
-        padding: 8px 20px;
-    }
-
-    .bt-cancel-btn {
-        font-size: 13px;
-    }
-
-    .bt-spinner {
-        display: inline-block;
-        width: 14px;
-        height: 14px;
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        border-top-color: #ffffff;
-        border-radius: 50%;
-        animation: bt-spin 0.8s linear infinite;
-    }
-
-    @@keyframes bt-spin {
-        to {
-            transform: rotate(360deg);
-        }
-    }
-
-    @@keyframes pulse-dot {
-        0%, 100% {
-            opacity: 1;
         }
 
-        50% {
-            opacity: 0.5;
-        }
-    }
+        <ToastNotification @ref="_toastNotification" />
 
-    /* Devices Section */
-    .bt-devices-section {
-        margin-top: 8px;
-    }
-
-    .bt-devices-heading {
-        font-size: 15px;
-        font-weight: 600;
-        color: #334155;
-        margin-bottom: 12px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    .bt-device-count {
-        font-weight: 400;
-        color: #64748b;
-        font-size: 13px;
-    }
-
-    .bt-device-list {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .bt-device-card {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 12px 16px;
-        border: 1px solid #e2e8f0;
-        border-radius: 8px;
-        background-color: #ffffff;
-        transition: all 0.2s ease;
-    }
-
-        .bt-device-card:hover {
-            border-color: #cbd5e1;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-        }
-
-    .bt-device-active {
-        border-color: #3b82f6;
-        background: linear-gradient(135deg, #eff6ff, #dbeafe);
-    }
-
-    .bt-device-info {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        flex: 1;
-    }
-
-    .bt-device-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 8px;
-        background: #f1f5f9;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-
-    .bt-device-details {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-    }
-
-    .bt-device-name {
-        font-size: 14px;
-        font-weight: 600;
-        color: #1e293b;
-    }
-
-    .bt-device-address {
-        font-size: 12px;
-        color: #64748b;
-        font-family: 'Courier New', monospace;
-    }
-
-    .bt-device-tags {
-        display: flex;
-        gap: 6px;
-        margin-top: 4px;
-    }
-
-    .bt-tag {
-        font-size: 11px;
-        padding: 2px 8px;
-        border-radius: 10px;
-        font-weight: 500;
-    }
-
-    .bt-tag-paired {
-        background-color: #dbeafe;
-        color: #1d4ed8;
-    }
-
-    .bt-tag-signal {
-        background-color: #f1f5f9;
-        color: #475569;
-    }
-
-    .bt-tag-connected {
-        background-color: #d1fae5;
-        color: #047857;
-    }
-
-    .bt-device-actions {
-        flex-shrink: 0;
-        margin-left: 12px;
-    }
-
-    /* Unsupported/Empty States */
-    .bt-unsupported-card {
-        text-align: center;
-        padding: 32px 16px;
-        background: #f8fafc;
-        border-radius: 8px;
-        border: 1px dashed #e2e8f0;
-    }
-
-    .bt-unsupported-text {
-        font-size: 15px;
-        font-weight: 600;
-        color: #475569;
-        margin-top: 12px;
-    }
-
-    .bt-unsupported-subtext {
-        font-size: 13px;
-        color: #94a3b8;
-        margin-top: 4px;
-    }
-
-    .bt-empty-state {
-        text-align: center;
-        padding: 24px 16px;
-        color: #64748b;
-        font-size: 14px;
-    }
-
-    .bt-empty-hint {
-        font-size: 12px;
-        color: #94a3b8;
-        margin-top: 4px;
-    }
-
-    /* Responsive */
-    @@media (max-width: 640px) {
-        .bt-status-bar {
-            flex-direction: column;
-            gap: 10px;
-            align-items: flex-start;
-        }
-
-        .bt-device-card {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 10px;
-        }
-
-        .bt-device-actions {
-            margin-left: 0;
-            width: 100%;
-        }
-
-            .bt-device-actions .e-btn {
-                width: 100%;
+        <style>
+            /* Bluetooth Status Bar */
+            .bt-status-bar {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 12px 16px;
+                border-radius: 8px;
+                margin-bottom: 16px;
             }
-    }
-</style>
+
+            .bt-connected {
+                background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+                border: 1px solid #6ee7b7;
+            }
+
+            .bt-disconnected {
+                background: linear-gradient(135deg, #fef3c7, #fde68a);
+                border: 1px solid #fbbf24;
+            }
+
+            .bt-status-indicator {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .bt-status-dot {
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                flex-shrink: 0;
+            }
+
+            .dot-connected {
+                background-color: #10b981;
+                box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+                animation: pulse-dot 2s infinite;
+            }
+
+            .dot-disconnected {
+                background-color: #f59e0b;
+            }
+
+            .bt-status-label {
+                font-size: 14px;
+                color: #1e293b;
+            }
+
+            .bt-action-buttons {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .bt-action-btn {
+                font-size: 13px;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            /* Scan Controls */
+            .bt-controls {
+                margin-bottom: 16px;
+            }
+
+            .bt-scan-row {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .bt-scan-btn {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-weight: 600;
+                padding: 8px 20px;
+            }
+
+            .bt-cancel-btn {
+                font-size: 13px;
+            }
+
+            .bt-spinner {
+                display: inline-block;
+                width: 14px;
+                height: 14px;
+                border: 2px solid rgba(255, 255, 255, 0.3);
+                border-top-color: #ffffff;
+                border-radius: 50%;
+                animation: bt-spin 0.8s linear infinite;
+            }
+
+            @@keyframes bt-spin {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+
+            @@keyframes pulse-dot {
+
+                0%,
+                100% {
+                    opacity: 1;
+                }
+
+                50% {
+                    opacity: 0.5;
+                }
+            }
+
+            /* Devices Section */
+            .bt-devices-section {
+                margin-top: 8px;
+            }
+
+            .bt-devices-heading {
+                font-size: 15px;
+                font-weight: 600;
+                color: #334155;
+                margin-bottom: 12px;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .bt-device-count {
+                font-weight: 400;
+                color: #64748b;
+                font-size: 13px;
+            }
+
+            .bt-device-list {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .bt-device-card {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 12px 16px;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                background-color: #ffffff;
+                transition: all 0.2s ease;
+            }
+
+            .bt-device-card:hover {
+                border-color: #cbd5e1;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            }
+
+            .bt-device-active {
+                border-color: #3b82f6;
+                background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            }
+
+            .bt-device-info {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                flex: 1;
+            }
+
+            .bt-device-icon {
+                width: 40px;
+                height: 40px;
+                border-radius: 8px;
+                background: #f1f5f9;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+            }
+
+            .bt-device-details {
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+            }
+
+            .bt-device-name {
+                font-size: 14px;
+                font-weight: 600;
+                color: #1e293b;
+            }
+
+            .bt-device-address {
+                font-size: 12px;
+                color: #64748b;
+                font-family: 'Courier New', monospace;
+            }
+
+            .bt-device-tags {
+                display: flex;
+                gap: 6px;
+                margin-top: 4px;
+            }
+
+            .bt-tag {
+                font-size: 11px;
+                padding: 2px 8px;
+                border-radius: 10px;
+                font-weight: 500;
+            }
+
+            .bt-tag-paired {
+                background-color: #dbeafe;
+                color: #1d4ed8;
+            }
+
+            .bt-tag-signal {
+                background-color: #f1f5f9;
+                color: #475569;
+            }
+
+            .bt-tag-connected {
+                background-color: #d1fae5;
+                color: #047857;
+            }
+
+            .bt-device-actions {
+                flex-shrink: 0;
+                margin-left: 12px;
+            }
+
+            /* Unsupported/Empty States */
+            .bt-unsupported-card {
+                text-align: center;
+                padding: 32px 16px;
+                background: #f8fafc;
+                border-radius: 8px;
+                border: 1px dashed #e2e8f0;
+            }
+
+            .bt-unsupported-text {
+                font-size: 15px;
+                font-weight: 600;
+                color: #475569;
+                margin-top: 12px;
+            }
+
+            .bt-unsupported-subtext {
+                font-size: 13px;
+                color: #94a3b8;
+                margin-top: 4px;
+            }
+
+            .bt-empty-state {
+                text-align: center;
+                padding: 24px 16px;
+                color: #64748b;
+                font-size: 14px;
+            }
+
+            .bt-empty-hint {
+                font-size: 12px;
+                color: #94a3b8;
+                margin-top: 4px;
+            }
+
+            /* Responsive */
+            @@media (max-width: 640px) {
+                .bt-status-bar {
+                    flex-direction: column;
+                    gap: 10px;
+                    align-items: flex-start;
+                }
+
+                .bt-device-card {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 10px;
+                }
+
+                .bt-device-actions {
+                    margin-left: 0;
+                    width: 100%;
+                }
+
+                .bt-device-actions .e-btn {
+                    width: 100%;
+                }
+            }
+        </style>

@@ -1,4 +1,4 @@
-﻿@attribute [Route(PageRouteNames.FinancialYearMaster)]
+@attribute [Route(PageRouteNames.FinancialYearMaster)]
 
 @using PrimeBakesLibrary.Models.Accounts.Masters
 
@@ -11,10 +11,10 @@
 else
 {
     <div class="page-shell">
-        <Header Title="Financial Year Management" Subtitle="Manage financial years and periods" ShowLogout="true"
-                ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack"
-                OnLogoutClick="Logout">
-            <RightContent>
+        <Header Title="Financial Year Management"
+
+>
+            <LeftContent>
                 <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)"
                             Disabled="_isProcessing" OnClick="ExportExcel" />
                 <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)"
@@ -25,7 +25,7 @@ else
                             OnClick="AutoGenerateNextYear" />
                 <IconButton Icon="IconType.New" Title="New Financial Year (Ctrl + N)" Disabled="_isProcessing"
                             OnClick="ResetPage" />
-            </RightContent>
+            </LeftContent>
         </Header>
 
         <!-- Main Content Container -->

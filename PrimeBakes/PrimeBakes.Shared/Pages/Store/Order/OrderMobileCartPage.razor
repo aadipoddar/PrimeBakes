@@ -1,7 +1,5 @@
 @attribute [Route(PageRouteNames.OrderMobileCart)]
 
-@using PrimeBakesLibrary.Models.Accounts.Masters
-@using PrimeBakesLibrary.Models.Operations
 @using PrimeBakesLibrary.Models.Store.Order
 
 <PageTitle>Order Cart - Prime Bakes</PageTitle>
@@ -13,8 +11,12 @@
 else
 {
     <div class="page-shell">
-        <Header Title="Order Cart" Subtitle="Review and submit your order" ShowBack="true"
-                OnBackClick="() => NavigationManager.NavigateTo(PageRouteNames.OrderMobile)" />
+        <Header Title="Order Cart">
+            <RightContent>
+                <IconButton Icon="IconType.Back" Title="Back"
+                            OnClick="() => NavigationManager.NavigateTo(PageRouteNames.OrderMobile)" />
+            </RightContent>
+        </Header>
 
         <!-- Main Content Container -->
         <div class="order-cart-container">

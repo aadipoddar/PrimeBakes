@@ -1,7 +1,6 @@
-﻿@attribute [Route(PageRouteNames.DiningMobileDashboard)]
+@attribute [Route(PageRouteNames.DiningMobileDashboard)]
 
 @using PrimeBakesLibrary.Data.Common
-@using PrimeBakesLibrary.Models.Restuarant.Dining
 
 <PageTitle>Dining Dashboard - Prime Bakes</PageTitle>
 
@@ -12,14 +11,14 @@
 else
 {
 	<div class="page-shell">
-		<Header Title="Dining Dashboard"
-				Subtitle="View dining tables by area"
-				ShowLogout="true"
-				ShowHome="true"
-				ShowBack="true"
-				OnLogoutClick="Logout"
-				OnHomeClick="NavigateToDashboard"
-				OnBackClick="NavigateBack" />
+		<Header Title="Dining Dashboard">
+			<RightContent>
+				<IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="NavigateBack" />
+				<IconButton Icon="IconType.Home" Title="Home (Ctrl + D)" OnClick="NavigateToDashboard" />
+				<IconButton Icon="IconType.Logout" Variant="ButtonVariant.Logout" Title="Logout (Ctrl + L)"
+							OnClick="Logout" />
+			</RightContent>
+		</Header>
 
 		<div class="page-container">
 			@if (_diningAreas.Count == 0)
@@ -43,8 +42,9 @@ else
 					<div class="section-card">
 						<div class="section-header">
 							<div class="section-title-wrapper">
-								<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
-									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+									 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
 									<rect x="3" y="3" width="8" height="8" rx="1" />
 									<rect x="13" y="3" width="8" height="8" rx="1" />
 									<rect x="3" y="13" width="8" height="8" rx="1" />
@@ -64,17 +64,16 @@ else
 								<div class="dashboard-grid">
 									@foreach (var table in areaTables)
 									{
-										var runningBill = _runningBills.Where(b => b.DiningTableId == table.Id && b.Running).FirstOrDefault();
+										var runningBill = _runningBills.Where(b => b.DiningTableId == table.Id &&
+					b.Running).FirstOrDefault();
 										var hasRunningBill = runningBill is not null;
 										var cardColor = hasRunningBill ? "running" : "available";
 										var description = hasRunningBill
 										? $"Bill No: {runningBill.TransactionNo}\nItems: {runningBill.TotalItems}\nQty: {runningBill.TotalQuantity.FormatSmartDecimal()}\nAmt: {runningBill.TotalAmount.FormatIndianCurrency()}"
 										: $"Area: {area.Name} • Available";
 
-										<ButtonCard Title="@table.Name"
-													Description="@description"
-													PreserveDescriptionLineBreaks="@hasRunningBill"
-													Color="@cardColor"
+										<ButtonCard Title="@table.Name" Description="@description"
+													PreserveDescriptionLineBreaks="@hasRunningBill" Color="@cardColor"
 													OnClick="() => OpenBillPage(table.Id)">
 											<IconContent>
 												<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"

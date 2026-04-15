@@ -359,6 +359,9 @@ public partial class SaleMobilePaymentPage
 
 			_sale.Id = await SaleData.SaveTransaction(_sale, _cart);
 
+			if (_sale.Id <= 0)
+				throw new Exception("Failed to save the sale transaction. Please try again.");
+
 			await DataStorageService.LocalRemove(StorageFileNames.SaleMobileCartDataFileName);
 			await SendLocalNotification(_sale.Id);
 

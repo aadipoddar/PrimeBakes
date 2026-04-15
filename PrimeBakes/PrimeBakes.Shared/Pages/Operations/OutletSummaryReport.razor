@@ -1,4 +1,4 @@
-﻿@attribute [Route(PageRouteNames.OutletSummaryReport)]
+@attribute [Route(PageRouteNames.OutletSummaryReport)]
 
 @using PrimeBakesLibrary.Models.Accounts.Masters
 @using PrimeBakesLibrary.Models.Store.Sale
@@ -12,17 +12,17 @@
 else
 {
 	<div class="page-shell">
-		<Header Title="Outlet Summary Report" Subtitle="View outlet-wise sales and purchase summary" ShowHome="true"
-				ShowBack="true" ShowLogout="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack"
-				OnLogoutClick="Logout">
-			<RightContent>
+		<Header Title="Outlet Summary Report"
+
+>
+			<LeftContent>
 				<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)"
 							Disabled="_isProcessing" OnClick="ExportExcel" />
 				<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)"
 							Disabled="_isProcessing" OnClick="ExportPdf" />
 				<IconButton Icon="IconType.Refresh" Title="Refresh Data (Ctrl + R)" Disabled="_isProcessing"
 							OnClick="RefreshReport" />
-			</RightContent>
+			</LeftContent>
 		</Header>
 
 		<div class="page-container">

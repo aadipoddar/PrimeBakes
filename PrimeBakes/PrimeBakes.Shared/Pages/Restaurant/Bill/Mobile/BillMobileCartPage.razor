@@ -1,13 +1,8 @@
-﻿@attribute [Route(PageRouteNames.BillMobileCart)]
+@attribute [Route(PageRouteNames.BillMobileCart)]
 @attribute [Route($"{PageRouteNames.BillMobileCart}/table/{{DiningTableId:int}}")]
 
 @using PrimeBakesLibrary.Data.Common
-@using PrimeBakesLibrary.Models.Accounts.Masters
-@using PrimeBakesLibrary.Models.Operations
 @using PrimeBakesLibrary.Models.Restuarant.Bill
-@using PrimeBakesLibrary.Models.Store
-@using PrimeBakesLibrary.Models.Store.Masters
-@using PrimeBakesLibrary.Models.Store.Product
 
 <PageTitle>Bill Cart - Prime Bakes</PageTitle>
 
@@ -18,8 +13,12 @@
 else
 {
     <div class="page-shell">
-        <Header Title="@($"{_diningTable.Name} Cart")" Subtitle="Review and submit your bill" ShowBack="true"
-                OnBackClick='() => NavigationManager.NavigateTo($"{PageRouteNames.BillMobile}/table/{_diningTable.Id}")' />
+        <Header Title="@($"{_diningTable.Name} Cart")">
+            <RightContent>
+                <IconButton Icon="IconType.Back" Title="Back"
+                            OnClick='() => NavigationManager.NavigateTo($"{PageRouteNames.BillMobile}/table/{_diningTable.Id}")' />
+            </RightContent>
+        </Header>
 
         <!-- Main Content Container -->
         <div class="sale-cart-container">
@@ -123,7 +122,7 @@ else
                                             <div class="detail-row remarks-row">
                                                 <span class="detail-row-label">Remarks:</span>
                                                 <span class="readonly-value remarks-text">@(string.IsNullOrWhiteSpace(item.Remarks)
-                                                                                                                                                ? "-" : item.Remarks)</span>
+                                                                                                                                                                                                                                                        ? "-" : item.Remarks)</span>
                                                 </div>
 
                                                 <div class="detail-row total-row">

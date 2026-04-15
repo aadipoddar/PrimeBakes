@@ -12,13 +12,13 @@
 else
 {
     <div class="page-shell">
-        <Header Title="Raw Material Management" Subtitle="Manage raw materials and inventory" ShowLogout="true" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
-            <RightContent>
+        <Header Title="Raw Material Management">
+            <LeftContent>
                 <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
                 <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
                 <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Raw Material (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveRawMaterial" />
                 <IconButton Icon="IconType.New" Title="New Raw Material (Ctrl + N)" Disabled="_isProcessing" OnClick="ResetPage" />
-            </RightContent>
+            </LeftContent>
         </Header>
 
         <!-- Main Content Container -->

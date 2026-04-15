@@ -11,15 +11,15 @@
 else
 {
     <div class="page-shell">
-        <Header Title="System Settings" Subtitle="Configure system-wide parameters and defaults" ShowHome="true"
-                ShowBack="true" ShowLogout="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack"
-                OnLogoutClick="Logout">
-            <RightContent>
+        <Header Title="System Settings"
+
+>
+            <LeftContent>
                 <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Settings (Ctrl + S)"
                             Disabled="_isProcessing" OnClick="SaveSettings" />
                 <IconButton Icon="IconType.Reset" Title="Reset to Defaults" Disabled="_isProcessing"
                             OnClick="ShowResetConfirmation" />
-            </RightContent>
+            </LeftContent>
         </Header>
 
         <!-- Main Content Container -->

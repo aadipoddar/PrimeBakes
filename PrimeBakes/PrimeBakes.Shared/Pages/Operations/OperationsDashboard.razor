@@ -1,7 +1,5 @@
 @attribute [Route(PageRouteNames.OperationsDashboard)]
 
-@using PrimeBakesLibrary.Models.Operations
-
 <PageTitle>Operations - Prime Bakes</PageTitle>
 
 @if (_isLoading)
@@ -11,8 +9,12 @@
 else
 {
     <div class="page-shell">
-        <Header Title="Operations Dashboard" Subtitle="Manage operations, master data, and system configuration"
-                ShowLogout="true" ShowHome="true" OnLogoutClick="Logout" OnHomeClick="NavigateToDashboard" />
+        <Header Title="Operations Dashboard">
+            <RightContent>
+                <IconButton Icon="IconType.Home" Title="Home (Ctrl + D)" OnClick="NavigateToDashboard" />
+                <IconButton Icon="IconType.Logout" Variant="ButtonVariant.Logout" Title="Logout (Ctrl + L)" OnClick="Logout" />
+            </RightContent>
+        </Header>
 
         <!-- Main Content Container -->
         <div class="page-container">

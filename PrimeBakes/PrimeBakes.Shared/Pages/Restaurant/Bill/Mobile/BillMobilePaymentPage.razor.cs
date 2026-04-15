@@ -182,6 +182,12 @@ public partial class BillMobilePaymentPage
 		await UpdateFinancialDetails();
 	}
 
+	private async Task OnServiceChargePercentChanged(ChangeEventArgs<decimal> args)
+	{
+		_bill.ServiceChargePercent = args.Value;
+		await UpdateFinancialDetails();
+	}
+
 	private async Task OnRoundOffAmountChanged(ChangeEventArgs<decimal> args)
 	{
 		_bill.RoundOffAmount = args.Value;
@@ -474,6 +480,9 @@ public partial class BillMobilePaymentPage
 			HandleBillSettlement();
 
 			_bill.Id = await BillData.SaveTransaction(_bill, billDetails: _finalCart);
+			if (_bill.Id <= 0)
+				throw new Exception("Failed to save the bill. Please try again.");
+
 			await DataStorageService.LocalRemove(StorageFileNames.BillMobileCartDataFileName);
 
 			if (kotOnly)

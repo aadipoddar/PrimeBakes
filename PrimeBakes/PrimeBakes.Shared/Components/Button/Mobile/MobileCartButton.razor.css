@@ -23,6 +23,7 @@
     --item-second-detail: var(--primary-color, #e2137b);
     -webkit-tap-highlight-color: transparent;
     -webkit-appearance: none;
+    appearance: none;
     outline: none;
     background: none;
     border: none;
@@ -53,7 +54,38 @@
     --background: var(--background-hover);
 }
 
-.animated-cart-btn > span {
+.animated-cart-btn:disabled {
+    --background-default: #cbd5e1;
+    --background-hover: #cbd5e1;
+    --text-color: #64748b;
+    --cart: #64748b;
+    --cart-tick-color: #94a3b8;
+    --item-color: #94a3b8;
+    --item-detail: #e2e8f0;
+    --item-second-color: #e2e8f0;
+    --item-second-detail: #94a3b8;
+    cursor: not-allowed;
+    opacity: 0.85;
+    filter: saturate(0.5);
+}
+
+.animated-cart-btn:disabled:before {
+    background:
+        repeating-linear-gradient(135deg,
+            rgba(255, 255, 255, 0.18) 0,
+            rgba(255, 255, 255, 0.18) 8px,
+            transparent 8px,
+            transparent 16px),
+        var(--background-default);
+}
+
+.animated-cart-btn:disabled .cupcake svg g path.flame,
+.animated-cart-btn:disabled .cupcake svg g path.flame-sm {
+    animation: none;
+    opacity: 0.35;
+}
+
+.animated-cart-btn>span {
     display: block;
     text-align: center;
     position: relative;
@@ -165,9 +197,20 @@
 }
 
 @keyframes flicker {
-    0%   { transform: scaleX(1)   scaleY(1);   opacity: 1;   }
-    50%  { transform: scaleX(0.85) scaleY(1.12); opacity: 0.9; }
-    100% { transform: scaleX(1.1) scaleY(0.9);  opacity: 1;   }
+    0% {
+        transform: scaleX(1) scaleY(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scaleX(0.85) scaleY(1.12);
+        opacity: 0.9;
+    }
+
+    100% {
+        transform: scaleX(1.1) scaleY(0.9);
+        opacity: 1;
+    }
 }
 
 .animated-cart-btn .cupcake svg g path {
@@ -223,7 +266,7 @@
         padding: 12px 0;
     }
 
-    .animated-cart-btn > span {
+    .animated-cart-btn>span {
         font-size: 14px;
         line-height: 24px;
     }

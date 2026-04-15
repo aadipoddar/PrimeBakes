@@ -1,4 +1,4 @@
-﻿@attribute [Route(PageRouteNames.Bill)]
+@attribute [Route(PageRouteNames.Bill)]
 @attribute [Route($"{PageRouteNames.Bill}/table/{{DiningTableId:int}}")]
 @attribute [Route($"{PageRouteNames.Bill}/{{Id:int}}")]
 
@@ -18,9 +18,9 @@
 else
 {
 	<div class="page-shell">
-		<Header Title="Create Bill" Subtitle="Create and manage restaurant bills" ShowLogout="true" ShowHome="true"
-				ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
-			<RightContent>
+		<Header Title="Create Bill"
+>
+			<LeftContent>
 				@if (NeedsSave)
 				{
 					<IconButton Icon="IconType.KOT" Variant="ButtonVariant.KOT" Title="Print KOT (Alt + K)"
@@ -43,7 +43,7 @@ else
 							OnClick="NavigateToItemReport" />
 				<IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing"
 							OnClick="ResetPage" />
-			</RightContent>
+			</LeftContent>
 		</Header>
 
 		<div class="page-container">

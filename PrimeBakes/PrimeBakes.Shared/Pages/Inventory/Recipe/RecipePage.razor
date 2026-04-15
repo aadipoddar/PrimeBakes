@@ -13,10 +13,10 @@
 else
 {
 	<div class="page-shell">
-		<Header Title="Product Recipe Management" Subtitle="Create and manage product recipes with raw material quantities"
-				ShowLogout="true" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack"
-				OnLogoutClick="Logout">
-			<RightContent>
+		<Header Title="Product Recipe Management"
+
+>
+			<LeftContent>
 				<IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Recipe (Ctrl + S)"
 							Disabled="_isProcessing" OnClick="OnSaveButtonClick" />
 				@if (_recipe is not null && _recipe.Id > 0)
@@ -26,7 +26,7 @@ else
 				}
 				<IconButton Icon="IconType.New" Title="New Recipe (Ctrl + N)" Disabled="_isProcessing"
 							OnClick="ResetPage" />
-			</RightContent>
+			</LeftContent>
 		</Header>
 
 		<!-- Main Content Container -->

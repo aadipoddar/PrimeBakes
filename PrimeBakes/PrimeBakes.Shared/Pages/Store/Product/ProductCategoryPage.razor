@@ -11,13 +11,13 @@
 else
 {
     <div class="page-shell">
-        <Header Title="Product Category Management" Subtitle="Manage product categories and details" ShowLogout="true" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
-            <RightContent>
+        <Header Title="Product Category Management">
+            <LeftContent>
                 <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
                 <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
                 <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Product Category (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveProductCategory" />
                 <IconButton Icon="IconType.New" Title="New Product Category (Ctrl + N)" Disabled="_isProcessing" OnClick="ResetPage" />
-            </RightContent>
+            </LeftContent>
         </Header>
 
         <!-- Main Content Container -->

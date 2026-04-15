@@ -14,17 +14,17 @@
 else
 {
 	<div class="page-shell">
-		<Header Title="Create Product Stock Adjustment" Subtitle="Create and manage product stock adjustments"
-				ShowLogout="true" ShowHome="true" ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack"
-				OnLogoutClick="Logout">
-			<RightContent>
+		<Header Title="Create Product Stock Adjustment"
+
+>
+			<LeftContent>
 				<IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Transaction (Ctrl + S)"
 							Disabled="_isProcessing" OnClick="SaveTransaction" />
 				<IconButton Icon="IconType.History" Title="Transaction History (Ctrl + H)" Disabled="_isProcessing"
 							OnClick="NavigateToTransactionHistoryPage" />
 				<IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing"
 							OnClick="ResetPage" />
-			</RightContent>
+			</LeftContent>
 		</Header>
 
 		<!-- Main Content Container -->

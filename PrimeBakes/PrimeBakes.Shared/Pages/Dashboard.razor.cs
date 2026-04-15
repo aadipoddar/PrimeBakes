@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using PrimeBakesLibrary.Models.Operations;
 
 namespace PrimeBakes.Shared.Pages;

@@ -1,4 +1,4 @@
-﻿@attribute [Route(PageRouteNames.StateUTMaster)]
+@attribute [Route(PageRouteNames.StateUTMaster)]
 
 @using PrimeBakesLibrary.Models.Accounts.Masters
 
@@ -11,9 +11,9 @@
 else
 {
     <div class="page-shell">
-        <Header Title="State/UT Management" Subtitle="Manage states and union territories" ShowLogout="true" ShowHome="true"
-                ShowBack="true" OnHomeClick="NavigateToDashboard" OnBackClick="NavigateBack" OnLogoutClick="Logout">
-            <RightContent>
+        <Header Title="State/UT Management"
+>
+            <LeftContent>
                 <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)"
                             Disabled="_isProcessing" OnClick="ExportExcel" />
                 <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)"
@@ -22,7 +22,7 @@ else
                             Disabled="_isProcessing" OnClick="SaveStateUT" />
                 <IconButton Icon="IconType.New" Title="New State/UT (Ctrl + N)" Disabled="_isProcessing"
                             OnClick="ResetPage" />
-            </RightContent>
+            </LeftContent>
         </Header>
 
         <!-- Main Content Container -->

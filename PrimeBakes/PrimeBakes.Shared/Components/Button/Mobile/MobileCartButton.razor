@@ -2,7 +2,7 @@
 	var buttonId = $"animated-cart-btn-{_instanceId}";
 }
 
-<button id="@buttonId" class="animated-cart-btn" @onclick="OnClickHandler">
+<button id="@buttonId" class="animated-cart-btn" @onclick="OnClickHandler" disabled="@Disabled" aria-disabled="@Disabled">
 	<span>@Text</span>
 	@if (BadgeCount.HasValue)
 	{

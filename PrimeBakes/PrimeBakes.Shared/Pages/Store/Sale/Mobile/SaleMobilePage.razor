@@ -11,8 +11,12 @@
 else
 {
 	<div class="page-shell">
-		<Header Title="Create Sale" Subtitle="Mobile sale entry" ShowBack="true"
-				OnBackClick="() => NavigationManager.NavigateTo(PageRouteNames.StoreDashboard)" />
+		<Header Title="Create Sale">
+			<RightContent>
+				<IconButton Icon="IconType.Home" Title="Home"
+							OnClick="() => NavigationManager.NavigateTo(PageRouteNames.Dashboard)" />
+			</RightContent>
+		</Header>
 
 		<!-- Main Content Container -->
 		<div class="sale-mobile-container">
@@ -193,15 +197,15 @@ else
 		min-width: 80px;
 	}
 
-		.add-button:hover {
-			background: var(--primary-dark);
-			transform: translateY(-1px);
-			box-shadow: var(--shadow-medium);
-		}
+	.add-button:hover {
+		background: var(--primary-dark);
+		transform: translateY(-1px);
+		box-shadow: var(--shadow-medium);
+	}
 
-		.add-button:active {
-			transform: translateY(0);
-		}
+	.add-button:active {
+		transform: translateY(0);
+	}
 
 	.add-text {
 		display: inline;
@@ -219,24 +223,24 @@ else
 		width: 100% !important;
 	}
 
-		.input-field input {
-			text-align: right !important;
-			border: 2px solid var(--border-color);
-			border-radius: 8px;
-			padding: 8px 12px !important;
-			font-weight: 600;
-			font-size: 16px;
-			color: var(--text-dark);
-			transition: all 0.2s ease;
-			height: 40px;
-			box-sizing: border-box;
-		}
+	.input-field input {
+		text-align: right !important;
+		border: 2px solid var(--border-color);
+		border-radius: 8px;
+		padding: 8px 12px !important;
+		font-weight: 600;
+		font-size: 16px;
+		color: var(--text-dark);
+		transition: all 0.2s ease;
+		height: 40px;
+		box-sizing: border-box;
+	}
 
-			.input-field input:focus {
-				border-color: var(--primary-color);
-				box-shadow: 0 0 0 3px rgba(226, 19, 123, 0.1);
-				outline: none;
-			}
+	.input-field input:focus {
+		border-color: var(--primary-color);
+		box-shadow: 0 0 0 3px rgba(226, 19, 123, 0.1);
+		outline: none;
+	}
 
 	/* Cart Footer */
 	.cart-footer {
@@ -261,32 +265,32 @@ else
 		border: none;
 	}
 
-		::deep .e-grid .e-gridheader {
-			background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-		}
+	::deep .e-grid .e-gridheader {
+		background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+	}
 
-		::deep .e-grid .e-headercell {
-			background: transparent;
-			color: white;
-			font-weight: 600;
-			border: none;
-			padding: 15px 12px;
-		}
+	::deep .e-grid .e-headercell {
+		background: transparent;
+		color: white;
+		font-weight: 600;
+		border: none;
+		padding: 15px 12px;
+	}
 
-		::deep .e-grid .e-rowcell {
-			border: none;
-			border-bottom: 1px solid var(--border-color);
-			padding: 12px;
-			vertical-align: middle;
-		}
+	::deep .e-grid .e-rowcell {
+		border: none;
+		border-bottom: 1px solid var(--border-color);
+		padding: 12px;
+		vertical-align: middle;
+	}
 
-		::deep .e-grid .e-row:nth-child(even) {
-			background-color: #fafafa;
-		}
+	::deep .e-grid .e-row:nth-child(even) {
+		background-color: #fafafa;
+	}
 
-		::deep .e-grid .e-row:hover {
-			background-color: var(--primary-light);
-		}
+	::deep .e-grid .e-row:hover {
+		background-color: var(--primary-light);
+	}
 
 	/* Toolbar Styling */
 	::deep .e-toolbar {
@@ -295,17 +299,17 @@ else
 		padding: 10px 15px;
 	}
 
-		::deep .e-toolbar .e-input-group input {
-			border-radius: 25px;
-			border: 2px solid var(--border-color);
-			padding: 10px 15px;
-			font-size: 14px;
-		}
+	::deep .e-toolbar .e-input-group input {
+		border-radius: 25px;
+		border: 2px solid var(--border-color);
+		padding: 10px 15px;
+		font-size: 14px;
+	}
 
-			::deep .e-toolbar .e-input-group input:focus {
-				border-color: var(--primary-color);
-				box-shadow: 0 0 0 3px rgba(226, 19, 123, 0.1);
-			}
+	::deep .e-toolbar .e-input-group input:focus {
+		border-color: var(--primary-color);
+		box-shadow: 0 0 0 3px rgba(226, 19, 123, 0.1);
+	}
 
 	/* Pager Styling */
 	::deep .e-pager {
@@ -314,11 +318,11 @@ else
 		padding: 10px;
 	}
 
-		::deep .e-pager .e-currentitem {
-			background: var(--primary-color);
-			color: white;
-			border-radius: 6px;
-		}
+	::deep .e-pager .e-currentitem {
+		background: var(--primary-color);
+		color: white;
+		border-radius: 6px;
+	}
 
 	/* Animations */
 	@@keyframes slideUp {

@@ -164,6 +164,9 @@ public partial class OrderMobileCartPage
 
             order.Id = await OrderData.SaveTransaction(order, _cart);
 
+            if (order.Id <= 0)
+                throw new Exception("Failed to save order. Please try again.");
+
             await DataStorageService.LocalRemove(StorageFileNames.OrderMobileCartDataFileName);
             await SendLocalNotification(order.Id);
 
