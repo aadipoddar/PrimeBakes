@@ -4,7 +4,7 @@ public class PurchaseModel
 {
 	public int Id { get; set; }
 	public string TransactionNo { get; set; }
-	public string ChallanNo { get; set; }
+	public string? ChallanNo { get; set; }
 	public int CompanyId { get; set; }
 	public int PartyId { get; set; }
 	public DateTime TransactionDateTime { get; set; }
@@ -88,7 +88,7 @@ public class PurchaseOverviewModel
 {
 	public int Id { get; set; }
 	public string TransactionNo { get; set; }
-	public string ChallanNo { get; set; }
+	public string? ChallanNo { get; set; }
 	public int CompanyId { get; set; }
 	public string CompanyName { get; set; }
 	public int PartyId { get; set; }
@@ -136,7 +136,7 @@ public class PurchaseItemOverviewModel
 	public string ItemCategoryName { get; set; }
 	public int MasterId { get; set; }
 	public string TransactionNo { get; set; }
-	public string ChallanNo { get; set; }
+	public string? ChallanNo { get; set; }
 	public DateTime TransactionDateTime { get; set; }
 	public int CompanyId { get; set; }
 	public string CompanyName { get; set; }

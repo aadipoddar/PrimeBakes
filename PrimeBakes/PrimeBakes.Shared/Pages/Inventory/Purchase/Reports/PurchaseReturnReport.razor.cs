@@ -306,7 +306,7 @@ public partial class PurchaseReturnReport : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
 
-            var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().ChallanNo);
+            var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
             await SaveAndViewService.SaveAndView(decodeTransactionNo.PDFStream.fileName, decodeTransactionNo.PDFStream.stream);
 
             await _toastNotification.ShowAsync("Success", "PDF invoice downloaded successfully.", ToastType.Success);
@@ -333,7 +333,7 @@ public partial class PurchaseReturnReport : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
 
-            var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().ChallanNo);
+            var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
             await SaveAndViewService.SaveAndView(decodeTransactionNo.ExcelStream.fileName, decodeTransactionNo.ExcelStream.stream);
 
             await _toastNotification.ShowAsync("Success", "Excel invoice downloaded successfully.", ToastType.Success);
@@ -419,7 +419,7 @@ public partial class PurchaseReturnReport : IAsyncDisposable
         if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
             return;
 
-        var decodedTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().ChallanNo);
+        var decodedTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
 
         if (FormFactor.GetFormFactor() == "Web")
             await JSRuntime.InvokeVoidAsync("open", decodedTransactionNo.PageRouteName, "_blank");
@@ -561,7 +561,7 @@ public partial class PurchaseReturnReport : IAsyncDisposable
     private async Task ShowDeleteConfirmation()
     {
         _deleteTransactionId = _sfGrid.SelectedRecords.First().Id;
-        _deleteTransactionNo = _sfGrid.SelectedRecords.First().ChallanNo;
+        _deleteTransactionNo = _sfGrid.SelectedRecords.First().TransactionNo;
         StateHasChanged();
         await _deleteConfirmationDialog.ShowAsync();
     }
@@ -576,7 +576,7 @@ public partial class PurchaseReturnReport : IAsyncDisposable
     private async Task ShowRecoverConfirmation()
     {
         _recoverTransactionId = _sfGrid.SelectedRecords.First().Id;
-        _recoverTransactionNo = _sfGrid.SelectedRecords.First().ChallanNo;
+        _recoverTransactionNo = _sfGrid.SelectedRecords.First().TransactionNo;
         StateHasChanged();
         await _recoverConfirmationDialog.ShowAsync();
     }

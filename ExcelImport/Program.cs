@@ -1769,4 +1769,17 @@ Console.ReadLine();
 //		Console.WriteLine("Updated Transaction No for Purchase Return Id: " + purchaseReturn.Id);
 //	}
 //}
+
+//static async Task UpdatePurchaseFinancials()
+//{
+//	var accountingDetails = await CommonData.LoadTableDataByStatus<FinancialAccountingDetailModel>(TableNames.FinancialAccountingDetail);
+//	accountingDetails = [.. accountingDetails.Where(a => a.ReferenceType == "PurchaseReturn")];
+
+//	foreach (var accounting in accountingDetails)
+//	{
+//		var purchaseReturn = await CommonData.LoadTableDataById<PurchaseReturnModel>(TableNames.PurchaseReturn, accounting.ReferenceId.Value);
+//		accounting.ReferenceNo = purchaseReturn.TransactionNo;
+//		await FinancialAccountingData.InsertFinancialAccountingDetail(accounting);
+//	}
+//}
 #endregion

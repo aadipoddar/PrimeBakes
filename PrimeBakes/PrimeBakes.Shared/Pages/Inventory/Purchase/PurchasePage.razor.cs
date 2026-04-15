@@ -144,7 +144,8 @@ public partial class PurchasePage : IAsyncDisposable
                 _purchase = new()
                 {
                     Id = 0,
-                    ChallanNo = string.Empty,
+                    TransactionNo = string.Empty,
+                    ChallanNo = null,
                     CompanyId = _selectedCompany.Id,
                     PartyId = _selectedParty.Id,
                     TransactionDateTime = await CommonData.LoadCurrentDateTime(),
