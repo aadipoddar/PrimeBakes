@@ -62,7 +62,7 @@ public static class PurchaseReturnData
             await RawMaterialStockData.DeleteRawMaterialStockByTypeTransactionId(nameof(StockType.PurchaseReturn), purchaseReturn.Id, sqlDataAccessTransaction);
 
             var purchaseReturnVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.PurchaseReturnVoucherId, sqlDataAccessTransaction);
-            var existingAccounting = await FinancialAccountingData.LoadFinancialAccountingByVoucherReference(int.Parse(purchaseReturnVoucher.Value), purchaseReturn.Id, purchaseReturn.TransactionNo, sqlDataAccessTransaction);
+            var existingAccounting = await FinancialAccountingData.LoadFinancialAccountingByVoucherReference(int.Parse(purchaseReturnVoucher.Value), purchaseReturn.Id, purchaseReturn.ChallanNo, sqlDataAccessTransaction);
             if (existingAccounting is not null && existingAccounting.Id > 0)
             {
                 existingAccounting.Status = false;
@@ -185,7 +185,7 @@ public static class PurchaseReturnData
                 NetRate = item.NetRate,
                 TransactionId = purchaseReturn.Id,
                 Type = nameof(StockType.PurchaseReturn),
-                TransactionNo = purchaseReturn.TransactionNo,
+                TransactionNo = purchaseReturn.ChallanNo,
                 TransactionDateTime = purchaseReturn.TransactionDateTime
             }, sqlDataAccessTransaction);
 
@@ -199,7 +199,7 @@ public static class PurchaseReturnData
         if (update)
         {
             var purchaseReturnVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.PurchaseReturnVoucherId, sqlDataAccessTransaction);
-            var existingAccounting = await FinancialAccountingData.LoadFinancialAccountingByVoucherReference(int.Parse(purchaseReturnVoucher.Value), purchaseReturn.Id, purchaseReturn.TransactionNo, sqlDataAccessTransaction);
+            var existingAccounting = await FinancialAccountingData.LoadFinancialAccountingByVoucherReference(int.Parse(purchaseReturnVoucher.Value), purchaseReturn.Id, purchaseReturn.ChallanNo, sqlDataAccessTransaction);
             if (existingAccounting is not null && existingAccounting.Id > 0)
             {
                 existingAccounting.Status = false;
@@ -225,11 +225,11 @@ public static class PurchaseReturnData
             {
                 ReferenceId = purchaseReturnOverview.Id,
                 ReferenceType = nameof(ReferenceTypes.PurchaseReturn),
-                ReferenceNo = purchaseReturnOverview.TransactionNo,
+                ReferenceNo = purchaseReturnOverview.ChallanNo,
                 LedgerId = purchaseReturnOverview.PartyId,
                 Debit = purchaseReturnOverview.TotalAmount,
                 Credit = null,
-                Remarks = $"Party Account Posting For Purchase Return Bill {purchaseReturnOverview.TransactionNo}",
+                Remarks = $"Party Account Posting For Purchase Return Bill {purchaseReturnOverview.ChallanNo}",
             });
 
         if (purchaseReturnOverview.TotalAmount - purchaseReturnOverview.TotalExtraTaxAmount > 0)
@@ -239,11 +239,11 @@ public static class PurchaseReturnData
             {
                 ReferenceId = purchaseReturnOverview.Id,
                 ReferenceType = nameof(ReferenceTypes.PurchaseReturn),
-                ReferenceNo = purchaseReturnOverview.TransactionNo,
+                ReferenceNo = purchaseReturnOverview.ChallanNo,
                 LedgerId = int.Parse(purchaseLedger.Value),
                 Debit = null,
                 Credit = purchaseReturnOverview.TotalAmount - purchaseReturnOverview.TotalExtraTaxAmount,
-                Remarks = $"Purchase Account Posting For Purchase Return Bill {purchaseReturnOverview.TransactionNo}",
+                Remarks = $"Purchase Account Posting For Purchase Return Bill {purchaseReturnOverview.ChallanNo}",
             });
         }
 
@@ -254,11 +254,11 @@ public static class PurchaseReturnData
             {
                 ReferenceId = purchaseReturnOverview.Id,
                 ReferenceType = nameof(ReferenceTypes.PurchaseReturn),
-                ReferenceNo = purchaseReturnOverview.TransactionNo,
+                ReferenceNo = purchaseReturnOverview.ChallanNo,
                 LedgerId = int.Parse(gstLedger.Value),
                 Debit = null,
                 Credit = purchaseReturnOverview.TotalExtraTaxAmount,
-                Remarks = $"GST Account Posting For Purchase Return Bill {purchaseReturnOverview.TransactionNo}",
+                Remarks = $"GST Account Posting For Purchase Return Bill {purchaseReturnOverview.ChallanNo}",
             });
         }
 
@@ -270,7 +270,7 @@ public static class PurchaseReturnData
             CompanyId = purchaseReturnOverview.CompanyId,
             VoucherId = int.Parse(voucher.Value),
             ReferenceId = purchaseReturnOverview.Id,
-            ReferenceNo = purchaseReturnOverview.TransactionNo,
+            ReferenceNo = purchaseReturnOverview.ChallanNo,
             TransactionDateTime = purchaseReturnOverview.TransactionDateTime,
             FinancialYearId = purchaseReturnOverview.FinancialYearId,
             TotalDebitLedgers = accountingCart.Count(a => a.Debit.HasValue),

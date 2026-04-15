@@ -217,7 +217,7 @@ public partial class PurchaseItemReport : IAsyncDisposable
             CompanyName = pr.CompanyName,
             PartyId = pr.PartyId,
             PartyName = pr.PartyName,
-            TransactionNo = pr.TransactionNo,
+            ChallanNo = pr.ChallanNo,
             TransactionDateTime = pr.TransactionDateTime,
             PurchaseRemarks = pr.PurchaseReturnRemarks,
             Quantity = -pr.Quantity,
@@ -354,7 +354,7 @@ public partial class PurchaseItemReport : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
 
-            var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
+            var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().ChallanNo);
             await SaveAndViewService.SaveAndView(decodeTransactionNo.PDFStream.fileName, decodeTransactionNo.PDFStream.stream);
 
             await _toastNotification.ShowAsync("Success", "PDF invoice downloaded successfully.", ToastType.Success);
@@ -381,7 +381,7 @@ public partial class PurchaseItemReport : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
 
-            var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
+            var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().ChallanNo);
             await SaveAndViewService.SaveAndView(decodeTransactionNo.ExcelStream.fileName, decodeTransactionNo.ExcelStream.stream);
 
             await _toastNotification.ShowAsync("Success", "Excel invoice downloaded successfully.", ToastType.Success);
@@ -425,7 +425,7 @@ public partial class PurchaseItemReport : IAsyncDisposable
         if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
             return;
 
-        var decodedTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
+        var decodedTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().ChallanNo);
 
         if (FormFactor.GetFormFactor() == "Web")
             await JSRuntime.InvokeVoidAsync("open", decodedTransactionNo.PageRouteName, "_blank");

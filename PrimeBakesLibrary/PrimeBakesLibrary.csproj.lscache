@@ -253,7 +253,7 @@ obj/Debug/net10.0/
  PrimeBakesLibrary.GlobalUsings.g.cs
 
 [metadataReferences]
-<DOTNET>/packs/Microsoft.NETCore.App.Ref/10.0.5/ref/net10.0/
+<DOTNET>/packs/Microsoft.NETCore.App.Ref/10.0.6/ref/net10.0/
  Microsoft.CSharp.dll
  Microsoft.VisualBasic.Core.dll
  Microsoft.VisualBasic.dll
@@ -433,18 +433,18 @@ obj/Debug/net10.0/
  microsoft.data.sqlclient.extensions.abstractions/1.0.0/lib/netstandard2.0/Microsoft.Data.SqlClient.Extensions.Abstractions.dll
  microsoft.data.sqlclient.internal.logging/1.0.0/lib/netstandard2.0/Microsoft.Data.SqlClient.Internal.Logging.dll
  microsoft.data.sqlclient/7.0.0/ref/net9.0/Microsoft.Data.SqlClient.dll
- microsoft.extensions.configuration.abstractions/10.0.5/lib/net10.0/Microsoft.Extensions.Configuration.Abstractions.dll
- microsoft.extensions.configuration.environmentvariables/10.0.5/lib/net10.0/Microsoft.Extensions.Configuration.EnvironmentVariables.dll
- microsoft.extensions.configuration.fileextensions/10.0.5/lib/net10.0/Microsoft.Extensions.Configuration.FileExtensions.dll
- microsoft.extensions.configuration.json/10.0.5/lib/net10.0/Microsoft.Extensions.Configuration.Json.dll
- microsoft.extensions.configuration.usersecrets/10.0.5/lib/net10.0/Microsoft.Extensions.Configuration.UserSecrets.dll
- microsoft.extensions.configuration/10.0.5/lib/net10.0/Microsoft.Extensions.Configuration.dll
+ microsoft.extensions.configuration.abstractions/10.0.6/lib/net10.0/Microsoft.Extensions.Configuration.Abstractions.dll
+ microsoft.extensions.configuration.environmentvariables/10.0.6/lib/net10.0/Microsoft.Extensions.Configuration.EnvironmentVariables.dll
+ microsoft.extensions.configuration.fileextensions/10.0.6/lib/net10.0/Microsoft.Extensions.Configuration.FileExtensions.dll
+ microsoft.extensions.configuration.json/10.0.6/lib/net10.0/Microsoft.Extensions.Configuration.Json.dll
+ microsoft.extensions.configuration.usersecrets/10.0.6/lib/net10.0/Microsoft.Extensions.Configuration.UserSecrets.dll
+ microsoft.extensions.configuration/10.0.6/lib/net10.0/Microsoft.Extensions.Configuration.dll
  microsoft.extensions.dependencyinjection.abstractions/10.0.0/lib/net10.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll
- microsoft.extensions.fileproviders.abstractions/10.0.5/lib/net10.0/Microsoft.Extensions.FileProviders.Abstractions.dll
- microsoft.extensions.fileproviders.physical/10.0.5/lib/net10.0/Microsoft.Extensions.FileProviders.Physical.dll
- microsoft.extensions.filesystemglobbing/10.0.5/lib/net10.0/Microsoft.Extensions.FileSystemGlobbing.dll
+ microsoft.extensions.fileproviders.abstractions/10.0.6/lib/net10.0/Microsoft.Extensions.FileProviders.Abstractions.dll
+ microsoft.extensions.fileproviders.physical/10.0.6/lib/net10.0/Microsoft.Extensions.FileProviders.Physical.dll
+ microsoft.extensions.filesystemglobbing/10.0.6/lib/net10.0/Microsoft.Extensions.FileSystemGlobbing.dll
  microsoft.extensions.logging.abstractions/10.0.0/lib/net10.0/Microsoft.Extensions.Logging.Abstractions.dll
- microsoft.extensions.primitives/10.0.5/lib/net10.0/Microsoft.Extensions.Primitives.dll
+ microsoft.extensions.primitives/10.0.6/lib/net10.0/Microsoft.Extensions.Primitives.dll
  microsoft.identitymodel.abstractions/8.16.0/lib/net10.0/Microsoft.IdentityModel.Abstractions.dll
  microsoft.identitymodel.jsonwebtokens/8.16.0/lib/net10.0/Microsoft.IdentityModel.JsonWebTokens.dll
  microsoft.identitymodel.logging/8.16.0/lib/net10.0/Microsoft.IdentityModel.Logging.dll
@@ -455,10 +455,10 @@ obj/Debug/net10.0/
  mimekit/4.15.1/lib/net10.0/MimeKit.dll
  numericwordsconversion/2.1.1/lib/netstandard2.1/NumericWordsConversion.dll
  skiasharp/3.119.2/ref/net8.0/SkiaSharp.dll
- syncfusion.compression.net.core/33.1.47/lib/net10.0/Syncfusion.Compression.Portable.dll
- syncfusion.licensing/33.1.47/lib/net10.0/Syncfusion.Licensing.dll
- syncfusion.pdf.net.core/33.1.47/lib/net10.0/Syncfusion.Pdf.Portable.dll
- syncfusion.xlsio.net.core/33.1.47/lib/net10.0/Syncfusion.XlsIO.Portable.dll
+ syncfusion.compression.net.core/33.1.49/lib/net10.0/Syncfusion.Compression.Portable.dll
+ syncfusion.licensing/33.1.49/lib/net10.0/Syncfusion.Licensing.dll
+ syncfusion.pdf.net.core/33.1.49/lib/net10.0/Syncfusion.Pdf.Portable.dll
+ syncfusion.xlsio.net.core/33.1.49/lib/net10.0/Syncfusion.XlsIO.Portable.dll
  system.clientmodel/1.8.0/lib/net9.0/System.ClientModel.dll
  system.identitymodel.tokens.jwt/8.16.0/lib/net10.0/System.IdentityModel.Tokens.Jwt.dll
  system.io.hashing/10.0.1/lib/net10.0/System.IO.Hashing.dll
@@ -466,14 +466,14 @@ obj/Debug/net10.0/
  system.security.cryptography.pkcs/10.0.0/lib/net10.0/System.Security.Cryptography.Pkcs.dll
 
 [analyzerReferences]
-<DOTNET>/packs/Microsoft.NETCore.App.Ref/10.0.5/analyzers/dotnet/cs/
+<DOTNET>/packs/Microsoft.NETCore.App.Ref/10.0.6/analyzers/dotnet/cs/
  Microsoft.Interop.ComInterfaceGenerator.dll
  Microsoft.Interop.JavaScript.JSImportGenerator.dll
  Microsoft.Interop.LibraryImportGenerator.dll
  Microsoft.Interop.SourceGeneration.dll
  System.Text.Json.SourceGeneration.dll
  System.Text.RegularExpressions.Generator.dll
-<DOTNET>/sdk/10.0.201/Sdks/Microsoft.NET.Sdk/analyzers/
+<DOTNET>/sdk/10.0.202/Sdks/Microsoft.NET.Sdk/analyzers/
  Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll
  Microsoft.CodeAnalysis.NetAnalyzers.dll
 <NUGET>/
@@ -482,5 +482,5 @@ obj/Debug/net10.0/
  system.clientmodel/1.8.0/analyzers/dotnet/cs/System.ClientModel.SourceGeneration.dll
 
 [analyzerConfigFiles]
-<DOTNET>/sdk/10.0.201/Sdks/Microsoft.NET.Sdk/analyzers/build/config/analysislevel_10_default.globalconfig
+<DOTNET>/sdk/10.0.202/Sdks/Microsoft.NET.Sdk/analyzers/build/config/analysislevel_10_default.globalconfig
 obj/Debug/net10.0/PrimeBakesLibrary.GeneratedMSBuildEditorConfig.editorconfig

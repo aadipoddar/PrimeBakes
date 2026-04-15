@@ -9,6 +9,7 @@ SELECT
 
 	[p].[Id] AS MasterId,
 	[p].[TransactionNo],
+	[p].[ChallanNo],
 	[p].[TransactionDateTime],
 	[c].[Id] AS CompanyId,
 	[c].[Name] AS CompanyName,

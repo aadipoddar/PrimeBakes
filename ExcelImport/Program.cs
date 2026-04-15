@@ -1,4 +1,8 @@
-﻿//FileInfo fileInfo = new(@"C:\Others\order.xlsx");
+﻿using PrimeBakesLibrary.DataAccess;
+
+Secrets.SetupConfiguration();
+
+//FileInfo fileInfo = new(@"C:\Others\order.xlsx");
 
 //ExcelPackage.License.SetNonCommercialPersonal("AadiSoft");
 
@@ -1752,6 +1756,17 @@ Console.ReadLine();
 //		stock.NetRate = rawMaterial.Rate;
 //		await RawMaterialStockData.InsertRawMaterialStock(stock);
 //		Console.WriteLine("Updated Stock Price for Raw Material Stock Id: " + stock.Id);
+//	}
+//}
+
+//static async Task UpdatePurchasesTransactionNo()
+//{
+//	var purchasesReturns = await CommonData.LoadTableData<PurchaseReturnModel>(TableNames.PurchaseReturn);
+//	foreach (var purchaseReturn in purchasesReturns)
+//	{
+//		purchaseReturn.TransactionNo = await GenerateCodes.GeneratePurchaseReturnTransactionNo(purchaseReturn);
+//		await PurchaseReturnData.InsertPurchaseReturn(purchaseReturn);
+//		Console.WriteLine("Updated Transaction No for Purchase Return Id: " + purchaseReturn.Id);
 //	}
 //}
 #endregion

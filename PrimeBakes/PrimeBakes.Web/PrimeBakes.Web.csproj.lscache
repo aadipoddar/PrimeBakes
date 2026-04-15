@@ -78,7 +78,7 @@ Services/
 ../
  ../PrimeBakesLibrary/obj/Debug/net10.0/ref/PrimeBakesLibrary.dll
  PrimeBakes.Shared/obj/Debug/net10.0/ref/PrimeBakes.Shared.dll
-<DOTNET>/packs/Microsoft.AspNetCore.App.Ref/10.0.5/ref/net10.0/
+<DOTNET>/packs/Microsoft.AspNetCore.App.Ref/10.0.6/ref/net10.0/
  Microsoft.AspNetCore.Antiforgery.dll
  Microsoft.AspNetCore.Authentication.Abstractions.dll
  Microsoft.AspNetCore.Authentication.BearerToken.dll
@@ -219,7 +219,7 @@ Services/
  System.Formats.Cbor.dll
  System.Security.Cryptography.Xml.dll
  System.Threading.RateLimiting.dll
-<DOTNET>/packs/Microsoft.NETCore.App.Ref/10.0.5/ref/net10.0/
+<DOTNET>/packs/Microsoft.NETCore.App.Ref/10.0.6/ref/net10.0/
  Microsoft.CSharp.dll
  Microsoft.VisualBasic.Core.dll
  Microsoft.VisualBasic.dll
@@ -410,26 +410,26 @@ Services/
  mimekit/4.15.1/lib/net10.0/MimeKit.dll
  numericwordsconversion/2.1.1/lib/netstandard2.1/NumericWordsConversion.dll
  skiasharp/3.119.2/ref/net8.0/SkiaSharp.dll
- syncfusion.blazor.buttons/33.1.47/lib/net10.0/Syncfusion.Blazor.Buttons.dll
- syncfusion.blazor.calendars/33.1.47/lib/net10.0/Syncfusion.Blazor.Calendars.dll
- syncfusion.blazor.core/33.1.47/lib/net10.0/Syncfusion.Blazor.Core.dll
- syncfusion.blazor.data/33.1.47/lib/net10.0/Syncfusion.Blazor.Data.dll
- syncfusion.blazor.dropdowns/33.1.47/lib/net10.0/Syncfusion.Blazor.DropDowns.dll
- syncfusion.blazor.grid/33.1.47/lib/net10.0/Syncfusion.Blazor.Grids.dll
- syncfusion.blazor.inputs/33.1.47/lib/net10.0/Syncfusion.Blazor.Inputs.dll
- syncfusion.blazor.lists/33.1.47/lib/net10.0/Syncfusion.Blazor.Lists.dll
- syncfusion.blazor.navigations/33.1.47/lib/net10.0/Syncfusion.Blazor.Navigations.dll
- syncfusion.blazor.notifications/33.1.47/lib/net10.0/Syncfusion.Blazor.Notifications.dll
- syncfusion.blazor.popups/33.1.47/lib/net10.0/Syncfusion.Blazor.Popups.dll
- syncfusion.blazor.spinner/33.1.47/lib/net10.0/Syncfusion.Blazor.Spinner.dll
- syncfusion.blazor.splitbuttons/33.1.47/lib/net10.0/Syncfusion.Blazor.SplitButtons.dll
- syncfusion.blazor.themes/33.1.47/lib/net10.0/Syncfusion.Blazor.Themes.dll
- syncfusion.compression.net.core/33.1.47/lib/net10.0/Syncfusion.Compression.Portable.dll
- syncfusion.excelexport.net.core/33.1.47/lib/net10.0/Syncfusion.ExcelExport.Net.dll
- syncfusion.licensing/33.1.47/lib/net10.0/Syncfusion.Licensing.dll
- syncfusion.pdf.net.core/33.1.47/lib/net10.0/Syncfusion.Pdf.Portable.dll
- syncfusion.pdfexport.net.core/33.1.47/lib/net10.0/Syncfusion.PdfExport.Net.dll
- syncfusion.xlsio.net.core/33.1.47/lib/net10.0/Syncfusion.XlsIO.Portable.dll
+ syncfusion.blazor.buttons/33.1.49/lib/net10.0/Syncfusion.Blazor.Buttons.dll
+ syncfusion.blazor.calendars/33.1.49/lib/net10.0/Syncfusion.Blazor.Calendars.dll
+ syncfusion.blazor.core/33.1.49/lib/net10.0/Syncfusion.Blazor.Core.dll
+ syncfusion.blazor.data/33.1.49/lib/net10.0/Syncfusion.Blazor.Data.dll
+ syncfusion.blazor.dropdowns/33.1.49/lib/net10.0/Syncfusion.Blazor.DropDowns.dll
+ syncfusion.blazor.grid/33.1.49/lib/net10.0/Syncfusion.Blazor.Grids.dll
+ syncfusion.blazor.inputs/33.1.49/lib/net10.0/Syncfusion.Blazor.Inputs.dll
+ syncfusion.blazor.lists/33.1.49/lib/net10.0/Syncfusion.Blazor.Lists.dll
+ syncfusion.blazor.navigations/33.1.49/lib/net10.0/Syncfusion.Blazor.Navigations.dll
+ syncfusion.blazor.notifications/33.1.49/lib/net10.0/Syncfusion.Blazor.Notifications.dll
+ syncfusion.blazor.popups/33.1.49/lib/net10.0/Syncfusion.Blazor.Popups.dll
+ syncfusion.blazor.spinner/33.1.49/lib/net10.0/Syncfusion.Blazor.Spinner.dll
+ syncfusion.blazor.splitbuttons/33.1.49/lib/net10.0/Syncfusion.Blazor.SplitButtons.dll
+ syncfusion.blazor.themes/33.1.49/lib/net10.0/Syncfusion.Blazor.Themes.dll
+ syncfusion.compression.net.core/33.1.49/lib/net10.0/Syncfusion.Compression.Portable.dll
+ syncfusion.excelexport.net.core/33.1.49/lib/net10.0/Syncfusion.ExcelExport.Net.dll
+ syncfusion.licensing/33.1.49/lib/net10.0/Syncfusion.Licensing.dll
+ syncfusion.pdf.net.core/33.1.49/lib/net10.0/Syncfusion.Pdf.Portable.dll
+ syncfusion.pdfexport.net.core/33.1.49/lib/net10.0/Syncfusion.PdfExport.Net.dll
+ syncfusion.xlsio.net.core/33.1.49/lib/net10.0/Syncfusion.XlsIO.Portable.dll
  system.clientmodel/1.8.0/lib/net9.0/System.ClientModel.dll
  system.identitymodel.tokens.jwt/8.16.0/lib/net10.0/System.IdentityModel.Tokens.Jwt.dll
  system.io.hashing/10.0.1/lib/net10.0/System.IO.Hashing.dll
@@ -438,7 +438,7 @@ Services/
  toolbelt.blazor.hotkeys2/6.2.0/lib/net10.0/Toolbelt.Blazor.HotKeys2.dll
 
 [analyzerReferences]
-<DOTNET>/packs/Microsoft.AspNetCore.App.Ref/10.0.5/analyzers/dotnet/cs/
+<DOTNET>/packs/Microsoft.AspNetCore.App.Ref/10.0.6/analyzers/dotnet/cs/
  Microsoft.AspNetCore.App.Analyzers.dll
  Microsoft.AspNetCore.App.CodeFixes.dll
  Microsoft.AspNetCore.App.SourceGenerators.dll
@@ -446,27 +446,27 @@ Services/
  Microsoft.Extensions.Logging.Generators.dll
  Microsoft.Extensions.Options.SourceGeneration.dll
  Microsoft.Extensions.Validation.ValidationsGenerator.dll
-<DOTNET>/packs/Microsoft.NETCore.App.Ref/10.0.5/analyzers/dotnet/cs/
+<DOTNET>/packs/Microsoft.NETCore.App.Ref/10.0.6/analyzers/dotnet/cs/
  Microsoft.Interop.ComInterfaceGenerator.dll
  Microsoft.Interop.JavaScript.JSImportGenerator.dll
  Microsoft.Interop.LibraryImportGenerator.dll
  Microsoft.Interop.SourceGeneration.dll
  System.Text.Json.SourceGeneration.dll
  System.Text.RegularExpressions.Generator.dll
-<DOTNET>/sdk/10.0.201/Sdks/Microsoft.NET.Sdk.Razor/source-generators/
+<DOTNET>/sdk/10.0.202/Sdks/Microsoft.NET.Sdk.Razor/source-generators/
  Microsoft.AspNetCore.Razor.Utilities.Shared.dll
  Microsoft.CodeAnalysis.Razor.Compiler.dll
  Microsoft.Extensions.ObjectPool.dll
-<DOTNET>/sdk/10.0.201/Sdks/Microsoft.NET.Sdk.Web/analyzers/cs/
+<DOTNET>/sdk/10.0.202/Sdks/Microsoft.NET.Sdk.Web/analyzers/cs/
  Microsoft.AspNetCore.Analyzers.dll
  Microsoft.AspNetCore.Mvc.Analyzers.dll
-<DOTNET>/sdk/10.0.201/Sdks/Microsoft.NET.Sdk/analyzers/
+<DOTNET>/sdk/10.0.202/Sdks/Microsoft.NET.Sdk/analyzers/
  Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll
  Microsoft.CodeAnalysis.NetAnalyzers.dll
 <NUGET>/system.clientmodel/1.8.0/analyzers/dotnet/cs/System.ClientModel.SourceGeneration.dll
 
 [analyzerConfigFiles]
-<DOTNET>/sdk/10.0.201/Sdks/Microsoft.NET.Sdk/analyzers/build/config/analysislevel_10_default.globalconfig
+<DOTNET>/sdk/10.0.202/Sdks/Microsoft.NET.Sdk/analyzers/build/config/analysislevel_10_default.globalconfig
 obj/Debug/net10.0/PrimeBakes.Web.GeneratedMSBuildEditorConfig.editorconfig
 
 [additionalFiles]

@@ -116,14 +116,20 @@ else
 									Transaction No <span class="required">*</span>
 								</label>
 								<div class="transaction-no-wrapper">
-									<SfTextBox @bind-Value="_purchase.TransactionNo" Placeholder="Enter Transaction No"
-											   FloatLabelType="FloatLabelType.Never" Readonly="@_autoGenerateTransactionNo"
-											   CssClass="@(_autoGenerateTransactionNo ? "custom-textbox readonly-field" : "custom-textbox")" />
-									<div class="checkbox-wrapper">
-										<SfCheckBox @bind-Checked="_autoGenerateTransactionNo" Label="Auto Generate"
-													TChecked="bool" ValueChange="OnAutoGenerateTransactionNoChecked"
-													CssClass="custom-checkbox" />
-									</div>
+									<SfTextBox @bind-Value="_purchase.TransactionNo" Placeholder="Transaction No"
+											   FloatLabelType="FloatLabelType.Never" Readonly="true"
+											   CssClass="custom-textbox readonly-field" />
+								</div>
+							</div>
+
+							<!-- Challan No -->
+							<div class="form-field">
+								<label class="field-label">
+									Challan No
+								</label>
+								<div class="transaction-no-wrapper">
+									<SfTextBox @bind-Value="_purchase.ChallanNo" Placeholder="Enter Challan No"
+											   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
 								</div>
 							</div>
 

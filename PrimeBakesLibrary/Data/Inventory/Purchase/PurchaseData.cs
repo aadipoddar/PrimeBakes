@@ -66,7 +66,7 @@ public static class PurchaseData
             await RawMaterialStockData.DeleteRawMaterialStockByTypeTransactionId(nameof(StockType.Purchase), purchase.Id, sqlDataAccessTransaction);
 
             var purchaseVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.PurchaseVoucherId, sqlDataAccessTransaction);
-            var existingAccounting = await FinancialAccountingData.LoadFinancialAccountingByVoucherReference(int.Parse(purchaseVoucher.Value), purchase.Id, purchase.TransactionNo, sqlDataAccessTransaction);
+            var existingAccounting = await FinancialAccountingData.LoadFinancialAccountingByVoucherReference(int.Parse(purchaseVoucher.Value), purchase.Id, purchase.ChallanNo, sqlDataAccessTransaction);
 
             if (existingAccounting is not null && existingAccounting.Id > 0)
             {
@@ -191,7 +191,7 @@ public static class PurchaseData
                 NetRate = item.NetRate,
                 Type = nameof(StockType.Purchase),
                 TransactionId = purchase.Id,
-                TransactionNo = purchase.TransactionNo,
+                TransactionNo = purchase.ChallanNo,
                 TransactionDateTime = purchase.TransactionDateTime
             }, sqlDataAccessTransaction);
 
@@ -205,7 +205,7 @@ public static class PurchaseData
         if (update)
         {
             var purchaseVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.PurchaseVoucherId, sqlDataAccessTransaction);
-            var existingAccounting = await FinancialAccountingData.LoadFinancialAccountingByVoucherReference(int.Parse(purchaseVoucher.Value), purchase.Id, purchase.TransactionNo, sqlDataAccessTransaction);
+            var existingAccounting = await FinancialAccountingData.LoadFinancialAccountingByVoucherReference(int.Parse(purchaseVoucher.Value), purchase.Id, purchase.ChallanNo, sqlDataAccessTransaction);
             if (existingAccounting is not null && existingAccounting.Id > 0)
             {
                 existingAccounting.Status = false;
@@ -231,11 +231,11 @@ public static class PurchaseData
             {
                 ReferenceId = purchaseOverview.Id,
                 ReferenceType = nameof(ReferenceTypes.Purchase),
-                ReferenceNo = purchaseOverview.TransactionNo,
+                ReferenceNo = purchaseOverview.ChallanNo,
                 LedgerId = purchaseOverview.PartyId,
                 Debit = null,
                 Credit = purchaseOverview.TotalAmount,
-                Remarks = $"Party Account Posting For Purchase Bill {purchaseOverview.TransactionNo}",
+                Remarks = $"Party Account Posting For Purchase Bill {purchaseOverview.ChallanNo}",
             });
 
         if (purchaseOverview.TotalAmount - purchaseOverview.TotalExtraTaxAmount > 0)
@@ -245,11 +245,11 @@ public static class PurchaseData
             {
                 ReferenceId = purchaseOverview.Id,
                 ReferenceType = nameof(ReferenceTypes.Purchase),
-                ReferenceNo = purchaseOverview.TransactionNo,
+                ReferenceNo = purchaseOverview.ChallanNo,
                 LedgerId = int.Parse(purchaseLedger.Value),
                 Debit = purchaseOverview.TotalAmount - purchaseOverview.TotalExtraTaxAmount,
                 Credit = null,
-                Remarks = $"Purchase Account Posting For Purchase Bill {purchaseOverview.TransactionNo}",
+                Remarks = $"Purchase Account Posting For Purchase Bill {purchaseOverview.ChallanNo}",
             });
         }
 
@@ -260,11 +260,11 @@ public static class PurchaseData
             {
                 ReferenceId = purchaseOverview.Id,
                 ReferenceType = nameof(ReferenceTypes.Purchase),
-                ReferenceNo = purchaseOverview.TransactionNo,
+                ReferenceNo = purchaseOverview.ChallanNo,
                 LedgerId = int.Parse(gstLedger.Value),
                 Debit = purchaseOverview.TotalExtraTaxAmount,
                 Credit = null,
-                Remarks = $"GST Account Posting For Purchase Bill {purchaseOverview.TransactionNo}",
+                Remarks = $"GST Account Posting For Purchase Bill {purchaseOverview.ChallanNo}",
             });
         }
 
@@ -276,7 +276,7 @@ public static class PurchaseData
             CompanyId = purchaseOverview.CompanyId,
             VoucherId = int.Parse(voucher.Value),
             ReferenceId = purchaseOverview.Id,
-            ReferenceNo = purchaseOverview.TransactionNo,
+            ReferenceNo = purchaseOverview.ChallanNo,
             TransactionDateTime = purchaseOverview.TransactionDateTime,
             FinancialYearId = purchaseOverview.FinancialYearId,
             TotalDebitLedgers = accountingCart.Count(a => a.Debit.HasValue),

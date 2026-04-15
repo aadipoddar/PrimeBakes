@@ -404,4 +404,3 @@ FodyWeavers.xsd
 
 *.lscache
 *.csproj.lscache
-/ExcelImport/ExcelImport.csproj.lscache

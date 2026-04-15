@@ -1,6 +1,7 @@
 ﻿CREATE PROCEDURE [dbo].[Insert_Purchase]
 	@Id INT OUTPUT,
 	@TransactionNo VARCHAR(MAX),
+	@ChallanNo VARCHAR(MAX),
 	@CompanyId INT,
 	@PartyId INT,
 	@TransactionDateTime DATETIME,
@@ -35,6 +36,7 @@ BEGIN
 		INSERT INTO [dbo].[Purchase]
 		(
 			[TransactionNo],
+			[ChallanNo],
 			[CompanyId],
 			[PartyId],
 			[TransactionDateTime],
@@ -62,6 +64,7 @@ BEGIN
 		VALUES
 		(
 			@TransactionNo,
+			@ChallanNo,
 			@CompanyId,
 			@PartyId,
 			@TransactionDateTime,
@@ -94,6 +97,7 @@ BEGIN
 		UPDATE [dbo].[Purchase]
 		SET 
 			[TransactionNo] = @TransactionNo,
+			[ChallanNo] = @ChallanNo,
 			[CompanyId] = @CompanyId,
 			[PartyId] = @PartyId,
 			[TransactionDateTime] = @TransactionDateTime,

@@ -1,7 +1,8 @@
 ﻿CREATE TABLE [dbo].[PurchaseReturn]
 (
-	[Id] INT NOT NULL PRIMARY KEY IDENTITY, 
-    [TransactionNo] VARCHAR(MAX) NOT NULL, 
+	[Id] INT NOT NULL PRIMARY KEY IDENTITY,
+	[TransactionNo] VARCHAR(100) NOT NULL UNIQUE,
+    [ChallanNo] VARCHAR(MAX) NULL, 
 	[CompanyId] INT NOT NULL,
 	[PartyId] INT NOT NULL,
 	[TransactionDateTime] DATETIME NOT NULL,

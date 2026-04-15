@@ -31,7 +31,6 @@ public partial class PurchaseReturnPage : IAsyncDisposable
 
     private bool _isLoading = true;
     private bool _isProcessing = false;
-    private bool _autoGenerateTransactionNo = false;
     private bool _isUploadDialogVisible = false;
 
     private CompanyModel _selectedCompany = new();
@@ -145,7 +144,7 @@ public partial class PurchaseReturnPage : IAsyncDisposable
                 _purchaseReturn = new()
                 {
                     Id = 0,
-                    TransactionNo = string.Empty,
+                    ChallanNo = string.Empty,
                     CompanyId = _selectedCompany.Id,
                     PartyId = _selectedParty.Id,
                     TransactionDateTime = await CommonData.LoadCurrentDateTime(),
@@ -309,12 +308,6 @@ public partial class PurchaseReturnPage : IAsyncDisposable
     {
         _purchaseReturn.TransactionDateTime = args.Value;
         await LoadItems();
-        await SaveTransactionFile();
-    }
-
-    private async Task OnAutoGenerateTransactionNoChecked(Syncfusion.Blazor.Buttons.ChangeEventArgs<bool> args)
-    {
-        _autoGenerateTransactionNo = args.Checked;
         await SaveTransactionFile();
     }
 
@@ -639,7 +632,7 @@ public partial class PurchaseReturnPage : IAsyncDisposable
         }
         #endregion
 
-        if (_autoGenerateTransactionNo)
+        if (!Id.HasValue || Id <= 0)
             _purchaseReturn.TransactionNo = await GenerateCodes.GeneratePurchaseReturnTransactionNo(_purchaseReturn);
     }
 

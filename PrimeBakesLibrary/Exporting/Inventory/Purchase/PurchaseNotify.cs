@@ -25,7 +25,7 @@ internal static class PurchaseNotify
         var notificationData = new NotificationUtil.TransactionNotificationData
         {
             TransactionType = "Purchase",
-            TransactionNo = purchase.TransactionNo,
+            TransactionNo = purchase.ChallanNo,
             Action = type,
             LocationName = purchase.PartyName,
             Details = new Dictionary<string, string>
@@ -49,12 +49,12 @@ internal static class PurchaseNotify
         var emailData = new MailingUtil.TransactionEmailData
         {
             TransactionType = "Purchase",
-            TransactionNo = purchase.TransactionNo,
+            TransactionNo = purchase.ChallanNo,
             Action = type,
             LocationName = purchase.PartyName,
             Details = new Dictionary<string, string>
             {
-                ["Transaction Number"] = purchase.TransactionNo,
+                ["Transaction Number"] = purchase.ChallanNo,
                 ["Vendor"] = purchase.PartyName,
                 ["Transaction Date"] = purchase.TransactionDateTime.ToString("dd MMM yyyy, hh:mm tt"),
                 ["Total Items"] = purchase.TotalItems.ToString(),

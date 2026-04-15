@@ -7,7 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace PrimeBakesLibrary.DataAccess;
 
-internal static class SqlDataAccess
+public static class SqlDataAccess
 {
 	public static readonly string _databaseConnection = Secrets.AzureConnectionString;
 

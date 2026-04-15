@@ -19,6 +19,7 @@ public static class PurchaseReturnReportExport
 		var columnSettings = new Dictionary<string, ReportColumnSetting>
 		{
 			[nameof(PurchaseReturnOverviewModel.TransactionNo)] = new() { DisplayName = "Trans No", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(PurchaseReturnOverviewModel.ChallanNo)] = new() { DisplayName = "Challan", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseReturnOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm tt", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(PurchaseReturnOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseReturnOverviewModel.PartyName)] = new() { DisplayName = "Party", Alignment = CellAlignment.Left, IncludeInTotal = false },
@@ -76,6 +77,7 @@ public static class PurchaseReturnReportExport
 			columnOrder =
 			[
 				nameof(PurchaseReturnOverviewModel.TransactionNo),
+				nameof(PurchaseReturnOverviewModel.ChallanNo),
 				nameof(PurchaseReturnOverviewModel.TransactionDateTime),
 				nameof(PurchaseReturnOverviewModel.PartyName),
 				nameof(PurchaseReturnOverviewModel.CompanyName),
@@ -116,6 +118,7 @@ public static class PurchaseReturnReportExport
 			[
 				nameof(PurchaseReturnOverviewModel.PartyName),
 				nameof(PurchaseReturnOverviewModel.TransactionNo),
+				nameof(PurchaseReturnOverviewModel.ChallanNo),
 				nameof(PurchaseReturnOverviewModel.TransactionDateTime),
 				nameof(PurchaseReturnOverviewModel.TotalQuantity),
 				nameof(PurchaseReturnOverviewModel.TotalAfterTax),
@@ -183,6 +186,7 @@ public static class PurchaseReturnReportExport
 			[nameof(PurchaseReturnItemOverviewModel.ItemCode)] = new() { DisplayName = "Code", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseReturnItemOverviewModel.ItemCategoryName)] = new() { DisplayName = "Category", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseReturnItemOverviewModel.TransactionNo)] = new() { DisplayName = "Trans No", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(PurchaseReturnItemOverviewModel.ChallanNo)] = new() { DisplayName = "Challan", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseReturnItemOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(PurchaseReturnItemOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseReturnItemOverviewModel.PartyName)] = new() { DisplayName = "Party", Alignment = CellAlignment.Left, IncludeInTotal = false },
@@ -237,6 +241,7 @@ public static class PurchaseReturnReportExport
 				nameof(PurchaseReturnItemOverviewModel.ItemCode),
 				nameof(PurchaseReturnItemOverviewModel.ItemCategoryName),
 				nameof(PurchaseReturnItemOverviewModel.TransactionNo),
+				nameof(PurchaseReturnItemOverviewModel.ChallanNo),
 				nameof(PurchaseReturnItemOverviewModel.TransactionDateTime),
 				nameof(PurchaseReturnItemOverviewModel.CompanyName),
 				nameof(PurchaseReturnItemOverviewModel.PartyName),
@@ -275,6 +280,7 @@ public static class PurchaseReturnReportExport
 				nameof(PurchaseReturnItemOverviewModel.ItemName),
 				nameof(PurchaseReturnItemOverviewModel.ItemCode),
 				nameof(PurchaseReturnItemOverviewModel.TransactionNo),
+				nameof(PurchaseReturnItemOverviewModel.ChallanNo),
 				nameof(PurchaseReturnItemOverviewModel.TransactionDateTime),
 				nameof(PurchaseReturnItemOverviewModel.PartyName),
 				nameof(PurchaseReturnItemOverviewModel.Quantity),

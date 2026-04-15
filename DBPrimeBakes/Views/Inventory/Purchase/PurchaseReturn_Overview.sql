@@ -3,6 +3,7 @@
 SELECT
 	[p].[Id],
 	[p].[TransactionNo],
+	[p].[ChallanNo],
 	[p].[CompanyId],
 	[c].[Name] AS CompanyName,
 	[p].[PartyId],

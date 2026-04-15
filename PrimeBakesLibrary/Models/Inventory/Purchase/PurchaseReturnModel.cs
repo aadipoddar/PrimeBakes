@@ -3,7 +3,8 @@
 public class PurchaseReturnModel
 {
     public int Id { get; set; }
-    public string TransactionNo { get; set; }
+	public string TransactionNo { get; set; }
+	public string ChallanNo { get; set; }
     public int CompanyId { get; set; }
     public int PartyId { get; set; }
     public DateTime TransactionDateTime { get; set; }
@@ -86,7 +87,8 @@ public class PurchaseReturnItemCartModel
 public class PurchaseReturnOverviewModel
 {
     public int Id { get; set; }
-    public string TransactionNo { get; set; }
+	public string TransactionNo { get; set; }
+	public string ChallanNo { get; set; }
     public int CompanyId { get; set; }
     public string CompanyName { get; set; }
     public int PartyId { get; set; }
@@ -133,7 +135,8 @@ public class PurchaseReturnItemOverviewModel
     public int ItemCategoryId { get; set; }
     public string ItemCategoryName { get; set; }
     public int MasterId { get; set; }
-    public string TransactionNo { get; set; }
+	public string TransactionNo { get; set; }
+	public string ChallanNo { get; set; }
     public DateTime TransactionDateTime { get; set; }
     public int CompanyId { get; set; }
     public string CompanyName { get; set; }

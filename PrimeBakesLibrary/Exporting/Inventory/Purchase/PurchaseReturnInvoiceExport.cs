@@ -51,7 +51,7 @@ public static class PurchaseReturnInvoiceExport
             BillTo = party,
             InvoiceType = "PURCHASE RETURN INVOICE",
             Outlet = party?.Name ?? string.Empty,
-            TransactionNo = transaction.TransactionNo,
+            TransactionNo = transaction.ChallanNo,
             TransactionDateTime = transaction.TransactionDateTime,
             TotalAmount = transaction.TotalAmount,
             Remarks = transaction.Remarks ?? string.Empty,
@@ -83,7 +83,7 @@ public static class PurchaseReturnInvoiceExport
         };
 
         var currentDateTime = await CommonData.LoadCurrentDateTime();
-        string fileName = $"PURCHASE_RETURN_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}";
+        string fileName = $"PURCHASE_RETURN_INVOICE_{transaction.ChallanNo}_{currentDateTime:yyyyMMdd_HHmmss}";
 
         if (exportType == InvoiceExportType.PDF)
         {

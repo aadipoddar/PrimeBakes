@@ -25,7 +25,7 @@ internal static class PurchaseReturnNotify
         var notificationData = new NotificationUtil.TransactionNotificationData
         {
             TransactionType = "Purchase Return",
-            TransactionNo = purchaseReturn.TransactionNo,
+            TransactionNo = purchaseReturn.ChallanNo,
             Action = type,
             LocationName = purchaseReturn.PartyName,
             Details = new Dictionary<string, string>
@@ -49,12 +49,12 @@ internal static class PurchaseReturnNotify
         var emailData = new MailingUtil.TransactionEmailData
         {
             TransactionType = "Purchase Return",
-            TransactionNo = purchaseReturn.TransactionNo,
+            TransactionNo = purchaseReturn.ChallanNo,
             Action = type,
             LocationName = purchaseReturn.PartyName,
             Details = new Dictionary<string, string>
             {
-                ["Transaction Number"] = purchaseReturn.TransactionNo,
+                ["Transaction Number"] = purchaseReturn.ChallanNo,
                 ["Vendor"] = purchaseReturn.PartyName,
                 ["Transaction Date"] = purchaseReturn.TransactionDateTime.ToString("dd MMM yyyy, hh:mm tt"),
                 ["Total Items"] = purchaseReturn.TotalItems.ToString(),
