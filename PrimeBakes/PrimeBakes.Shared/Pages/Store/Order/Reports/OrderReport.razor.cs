@@ -466,8 +466,7 @@ public partial class OrderReport : IAsyncDisposable
 		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
 			return;
 
-		var selectedCartItem = _sfGrid.SelectedRecords.First();
-		var decodedTransactionNo = await GenerateCodes.DecodeTransactionNo(selectedCartItem.TransactionNo);
+		var decodedTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
 
 		if (FormFactor.GetFormFactor() == "Web")
 			await JSRuntime.InvokeVoidAsync("open", decodedTransactionNo.PageRouteName, "_blank");
@@ -480,8 +479,7 @@ public partial class OrderReport : IAsyncDisposable
 		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0 || string.IsNullOrEmpty(_sfGrid.SelectedRecords.First().SaleTransactionNo))
 			return;
 
-		var selectedCartItem = _sfGrid.SelectedRecords.First();
-		var decodedTransactionNo = await GenerateCodes.DecodeTransactionNo(selectedCartItem.SaleTransactionNo);
+		var decodedTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().SaleTransactionNo);
 
 		if (FormFactor.GetFormFactor() == "Web")
 			await JSRuntime.InvokeVoidAsync("open", decodedTransactionNo.PageRouteName, "_blank");
@@ -610,7 +608,6 @@ public partial class OrderReport : IAsyncDisposable
 			return;
 		}
 
-		// Update the Status to true (active)
 		order.Status = true;
 		order.LastModifiedBy = _user.Id;
 		order.LastModifiedAt = await CommonData.LoadCurrentDateTime();
