@@ -22,7 +22,10 @@ public static class PurchaseReturnInvoiceExport
         if (company is null || party is null)
             throw new InvalidOperationException("Company or party information is missing.");
 
-        var allItems = await CommonData.LoadTableData<RawMaterialModel>(TableNames.RawMaterial);
+		if (!string.IsNullOrEmpty(transaction.ChallanNo))
+			party.Address += $"\nChallan: {transaction.ChallanNo}";
+
+		var allItems = await CommonData.LoadTableData<RawMaterialModel>(TableNames.RawMaterial);
 
         var lineItems = transactionDetails.Select(detail =>
         {
@@ -50,8 +53,7 @@ public static class PurchaseReturnInvoiceExport
             Company = company,
             BillTo = party,
             InvoiceType = "PURCHASE RETURN INVOICE",
-            Outlet = party?.Name ?? string.Empty,
-            TransactionNo = transaction.ChallanNo,
+            TransactionNo = transaction.TransactionNo,
             TransactionDateTime = transaction.TransactionDateTime,
             TotalAmount = transaction.TotalAmount,
             Remarks = transaction.Remarks ?? string.Empty,
@@ -83,7 +85,7 @@ public static class PurchaseReturnInvoiceExport
         };
 
         var currentDateTime = await CommonData.LoadCurrentDateTime();
-        string fileName = $"PURCHASE_RETURN_INVOICE_{transaction.ChallanNo}_{currentDateTime:yyyyMMdd_HHmmss}";
+        string fileName = $"PURCHASE_RETURN_INVOICE_{transaction.TransactionNo}_{currentDateTime:yyyyMMdd_HHmmss}";
 
         if (exportType == InvoiceExportType.PDF)
         {
