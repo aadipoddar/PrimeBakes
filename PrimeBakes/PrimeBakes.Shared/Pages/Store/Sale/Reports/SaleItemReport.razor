@@ -138,7 +138,9 @@ else
                             AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
                             AllowFiltering="true" AllowExcelExport="true" AllowPdfExport="true" AllowGrouping="true"
                             GridLines="GridLine.Horizontal" CssClass="professional-grid"
-                            Toolbar="@(new List<string>() { "Search" })">
+                            ContextMenuItems="@_gridContextMenuItems" Toolbar="@(new List<string>() { "Search" })">
+
+                        <GridEvents TValue="SaleItemOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
 
                         <GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
                         <GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
@@ -401,26 +403,6 @@ else
                         </GridAggregates>
 
                         <GridColumns>
-                            <GridColumn HeaderText="Actions" Width="150" TextAlign="TextAlign.Center"
-                                        Visible="@(!_showSummary)">
-                                <Template>
-                                    @{
-                                        var item = (context as SaleItemOverviewModel);
-                                    }
-                                    <div class="grid-actions">
-                                        <IconButton Icon="IconType.View" Variant="ButtonVariant.View" Size="ButtonSize.Grid"
-                                                    Title="View Transaction (Ctrl + O)" Disabled="_isProcessing"
-                                                    OnClick="@(() => ViewTransaction(item.MasterId, item.TransactionNo))" />
-                                        <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel"
-                                                    Size="ButtonSize.Grid" Title="Download Excel Invoice (Alt + E)"
-                                                    Disabled="_isProcessing"
-                                                    OnClick="@(() => DownloadExcelInvoice(item.MasterId, item.TransactionNo))" />
-                                        <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Grid"
-                                                    Title="Download PDF Invoice (Alt + P)" Disabled="_isProcessing"
-                                                    OnClick="@(() => DownloadPdfInvoice(item.MasterId, item.TransactionNo))" />
-                                    </div>
-                                </Template>
-                            </GridColumn>
                             <GridColumn Field="@nameof(SaleItemOverviewModel.ItemName)" HeaderText="Item" Width="200" />
                             <GridColumn Field="@nameof(SaleItemOverviewModel.ItemCode)" HeaderText="Code" Width="130"
                                         Visible="_showAllColumns" />
@@ -434,7 +416,8 @@ else
                             <GridColumn Field="@nameof(SaleItemOverviewModel.CompanyName)" HeaderText="Company" Width="180"
                                         Visible="@(_showAllColumns && !_showSummary && (_selectedCompany is null || _selectedCompany.Id <= 0))" />
                             <GridColumn Field="@nameof(SaleItemOverviewModel.LocationName)" HeaderText="Location"
-                                        Width="180" Visible="@(!_showSummary && (_selectedLocation is null || _selectedLocation.Id <= 0))" />
+                                        Width="180"
+                                        Visible="@(!_showSummary && (_selectedLocation is null || _selectedLocation.Id <= 0))" />
                             <GridColumn Field="@nameof(SaleItemOverviewModel.PartyName)" HeaderText="Party" Width="200"
                                         Visible="@(_user.LocationId == 1 && !_showSummary && (_selectedParty is null || _selectedParty.Id <= 0))" />
                             <GridColumn Field="@nameof(SaleItemOverviewModel.Quantity)" HeaderText="Qty" Width="120"

@@ -148,7 +148,9 @@ else
                             AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
                             AllowFiltering="true" AllowExcelExport="true" AllowPdfExport="true" AllowGrouping="true"
                             GridLines="GridLine.Horizontal" CssClass="professional-grid"
-                            Toolbar="@(new List<string>() { "Search" })">
+                            ContextMenuItems="@_gridContextMenuItems" Toolbar="@(new List<string>() { "Search" })">
+
+                        <GridEvents TValue="BillOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
 
                         <GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
                         <GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
@@ -550,63 +552,6 @@ else
                         </GridAggregates>
 
                         <GridColumns>
-                            <GridColumn HeaderText="Actions" Width="200" TextAlign="TextAlign.Center"
-                                        Visible="@(!_showSummary)">
-                                <Template>
-                                    @{
-                                        var item = (context as BillOverviewModel);
-                                    }
-                                    <div class="grid-actions">
-                                        @if (!item.Status)
-                                        {
-                                            <IconButton Icon="IconType.ThermalPrinter" Variant="ButtonVariant.ThermalPrinter"
-                                                        Size="ButtonSize.Grid" Title="Download Thermal Invoice (Alt + T)"
-                                                        Disabled="_isProcessing"
-                                                        OnClick="@(() => DownloadThermalInvoice(item.Id, item.TransactionNo))" />
-                                            <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel"
-                                                        Size="ButtonSize.Grid" Title="Download Excel Invoice (Alt + E)"
-                                                        Disabled="_isProcessing"
-                                                        OnClick="@(() => DownloadExcelInvoice(item.Id, item.TransactionNo))" />
-                                            <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Grid"
-                                                        Title="Download PDF Invoice (Alt + P)" Disabled="_isProcessing"
-                                                        OnClick="@(() => DownloadPdfInvoice(item.Id, item.TransactionNo))" />
-
-                                            @if (_user.Admin && _user.LocationId == 1)
-                                            {
-                                                <IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover"
-                                                            Size="ButtonSize.Grid" Title="Recover Transaction (Delete)"
-                                                            Disabled="_isProcessing"
-                                                            OnClick="@(() => ShowRecoverConfirmation(item.Id, item.TransactionNo))" />
-                                            }
-                                        }
-                                        else
-                                        {
-                                            <IconButton Icon="IconType.View" Variant="ButtonVariant.View" Size="ButtonSize.Grid"
-                                                        Title="View Transaction (Ctrl + O)" Disabled="_isProcessing"
-                                                        OnClick="@(() => ViewTransaction(item.Id))" />
-                                            <IconButton Icon="IconType.ThermalPrinter" Variant="ButtonVariant.ThermalPrinter"
-                                                        Size="ButtonSize.Grid" Title="Download Thermal Invoice (Alt + T)"
-                                                        Disabled="_isProcessing"
-                                                        OnClick="@(() => DownloadThermalInvoice(item.Id, item.TransactionNo))" />
-                                            <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel"
-                                                        Size="ButtonSize.Grid" Title="Download Excel Invoice (Alt + E)"
-                                                        Disabled="_isProcessing"
-                                                        OnClick="@(() => DownloadExcelInvoice(item.Id, item.TransactionNo))" />
-                                            <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Grid"
-                                                        Title="Download PDF Invoice (Alt + P)" Disabled="_isProcessing"
-                                                        OnClick="@(() => DownloadPdfInvoice(item.Id, item.TransactionNo))" />
-
-                                            @if (_user.Admin && _user.LocationId == 1)
-                                            {
-                                                <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete"
-                                                            Size="ButtonSize.Grid" Title="Delete Transaction (Delete)"
-                                                            Disabled="_isProcessing"
-                                                            OnClick="@(() => ShowDeleteConfirmation(item.Id, item.TransactionNo))" />
-                                            }
-                                        }
-                                    </div>
-                                </Template>
-                            </GridColumn>
                             <GridColumn Field="@nameof(BillOverviewModel.TransactionNo)" HeaderText="Trans No" Width="170"
                                         Visible="@(!_showSummary)" />
                             <GridColumn Field="@nameof(BillOverviewModel.TransactionDateTime)" HeaderText="Date" Width="150"

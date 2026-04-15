@@ -42,6 +42,24 @@ public partial class BillReport : IAsyncDisposable
 	private List<CustomerModel> _customers = [];
 	private List<BillOverviewModel> _transactionOverviews = [];
 
+	private readonly List<ContextMenuItemModel> _gridContextMenuItems =
+	[
+		new() { Text = "View", Id = "view", Target = ".e-content" },
+		new()
+		{
+			Text = "Download",
+			Id = "download",
+			Target = ".e-content",
+			Items =
+			[
+				new() { Text = "Thermal", Id = "download-thermal" },
+				new() { Text = "PDF", Id = "download-pdf" },
+				new() { Text = "Excel", Id = "download-excel" }
+			]
+		},
+		new() { Text = "Delete / Recover", Id = "delete-recover", Target = ".e-content" }
+	];
+
 	private SfGrid<BillOverviewModel> _sfGrid;
 
 	private string _deleteTransactionNo = string.Empty;
@@ -77,11 +95,11 @@ public partial class BillReport : IAsyncDisposable
 			.Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
 			.Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
 			.Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
-			.Add(ModCode.Ctrl, Code.O, ViewSelectedCartItem, "Open Selected Transaction", Exclude.None)
-			.Add(ModCode.Alt, Code.T, DownloadSelectedCartItemThermalInvoice, "Download Selected Transaction Thermal Invoice", Exclude.None)
-			.Add(ModCode.Alt, Code.P, DownloadSelectedCartItemPdfInvoice, "Download Selected Transaction PDF Invoice", Exclude.None)
-			.Add(ModCode.Alt, Code.E, DownloadSelectedCartItemExcelInvoice, "Download Selected Transaction Excel Invoice", Exclude.None)
-			.Add(Code.Delete, DeleteSelectedCartItem, "Delete Selected Transaction", Exclude.None);
+			.Add(ModCode.Ctrl, Code.O, ViewSelectedTransaction, "Open Selected Transaction", Exclude.None)
+			.Add(ModCode.Alt, Code.T, DownloadSelectedThermalInvoice, "Download Selected Transaction Thermal Invoice", Exclude.None)
+			.Add(ModCode.Alt, Code.P, DownloadSelectedPdfInvoice, "Download Selected Transaction PDF Invoice", Exclude.None)
+			.Add(ModCode.Alt, Code.E, DownloadSelectedExcelInvoice, "Download Selected Transaction Excel Invoice", Exclude.None)
+			.Add(Code.Delete, DeleteRecoverSelectedTransaction, "Delete Selected Transaction", Exclude.None);
 
 		await LoadDates();
 		await LoadLocations();
@@ -315,6 +333,88 @@ public partial class BillReport : IAsyncDisposable
 			StateHasChanged();
 		}
 	}
+
+	private async Task DownloadSelectedPdfInvoice()
+	{
+		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+			return;
+
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+			await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
+
+			var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
+			await SaveAndViewService.SaveAndView(decodeTransactionNo.PDFStream.fileName, decodeTransactionNo.PDFStream.stream);
+
+			await _toastNotification.ShowAsync("Success", "PDF invoice generated successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"PDF invoice generation failed: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
+
+	private async Task DownloadSelectedExcelInvoice()
+	{
+		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+			return;
+
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+			await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
+
+			var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
+			await SaveAndViewService.SaveAndView(decodeTransactionNo.ExcelStream.fileName, decodeTransactionNo.ExcelStream.stream);
+
+			await _toastNotification.ShowAsync("Success", "Excel invoice generated successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"Excel invoice generation failed: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
+
+	private async Task DownloadSelectedThermalInvoice()
+	{
+		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+			return;
+
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+			await _toastNotification.ShowAsync("Processing", "Generating thermal invoice...", ToastType.Info);
+
+			await ThermalPrintDispatcher.PrintAsync(
+				() => BillThermalPrint.GenerateThermalBill(_sfGrid.SelectedRecords.First().Id),
+				() => BillThermalPrint.GenerateThermalBillPng(_sfGrid.SelectedRecords.First().Id));
+
+			await _toastNotification.ShowAsync("Success", "Thermal invoice generated successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"Thermal invoice generation failed: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
 	#endregion
 
 	#region Actions
@@ -356,149 +456,62 @@ public partial class BillReport : IAsyncDisposable
 		}
 	}
 
-	private async Task ViewSelectedCartItem()
+	private async Task OnGridContextMenuItemClicked(ContextMenuClickEventArgs<BillOverviewModel> args)
 	{
-		if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+		if (_showSummary)
 			return;
 
-		var selectedCartItem = _sfGrid.SelectedRecords.First();
-		await ViewTransaction(selectedCartItem.Id);
-	}
-
-	private async Task ViewTransaction(int transactionId)
-	{
-		try
+		switch (args.Item.Id)
 		{
-			if (FormFactor.GetFormFactor() == "Web")
-				await JSRuntime.InvokeVoidAsync("open", $"{PageRouteNames.Bill}/{transactionId}", "_blank");
-			else
-				NavigationManager.NavigateTo($"{PageRouteNames.Bill}/{transactionId}");
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"Failed to open transaction: {ex.Message}", ToastType.Error);
-		}
-	}
+			case "view":
+				await ViewSelectedTransaction();
+				break;
 
-	private async Task DownloadSelectedCartItemThermalInvoice()
-	{
-		if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-			return;
+			case "download-thermal":
+				await DownloadSelectedThermalInvoice();
+				break;
 
-		var selectedCartItem = _sfGrid.SelectedRecords.First();
-		await DownloadThermalInvoice(selectedCartItem.Id, selectedCartItem.TransactionNo);
-	}
+			case "download-pdf":
+				await DownloadSelectedPdfInvoice();
+				break;
 
-	private async Task DownloadSelectedCartItemPdfInvoice()
-	{
-		if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-			return;
+			case "download-excel":
+				await DownloadSelectedExcelInvoice();
+				break;
 
-		var selectedCartItem = _sfGrid.SelectedRecords.First();
-		await DownloadPdfInvoice(selectedCartItem.Id, selectedCartItem.TransactionNo);
-	}
-
-	private async Task DownloadSelectedCartItemExcelInvoice()
-	{
-		if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-			return;
-
-		var selectedCartItem = _sfGrid.SelectedRecords.First();
-		await DownloadExcelInvoice(selectedCartItem.Id, selectedCartItem.TransactionNo);
-	}
-
-	private async Task DownloadThermalInvoice(int transactionId, string transactionNo)
-	{
-		if (_isProcessing)
-			return;
-
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating thermal invoice...", ToastType.Info);
-
-			await ThermalPrintDispatcher.PrintAsync(
-				() => BillThermalPrint.GenerateThermalBill(transactionId),
-				() => BillThermalPrint.GenerateThermalBillPng(transactionId));
-			await _toastNotification.ShowAsync("Success", "Thermal invoice generated successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"Thermal invoice generation failed: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			StateHasChanged();
+			case "delete-recover":
+				await DeleteRecoverSelectedTransaction();
+				break;
 		}
 	}
 
-	private async Task DownloadPdfInvoice(int transactionId, string transactionNo)
+	private async Task ViewSelectedTransaction()
 	{
-		if (_isProcessing)
+		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
 			return;
 
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
+		var decodedTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
 
-			var (pdfStream, fileName) = await BillInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.PDF);
-			await SaveAndViewService.SaveAndView(fileName, pdfStream);
-
-			await _toastNotification.ShowAsync("Success", "PDF invoice generated successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"PDF invoice generation failed: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			StateHasChanged();
-		}
-	}
-
-	private async Task DownloadExcelInvoice(int transactionId, string transactionNo)
-	{
-		if (_isProcessing)
-			return;
-
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
-
-			var (excelStream, fileName) = await BillInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.Excel);
-			await SaveAndViewService.SaveAndView(fileName, excelStream);
-
-			await _toastNotification.ShowAsync("Success", "Excel invoice generated successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"Excel invoice generation failed: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			StateHasChanged();
-		}
-	}
-
-	private async Task DeleteSelectedCartItem()
-	{
-		if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-			return;
-
-		var selectedCartItem = _sfGrid.SelectedRecords.First();
-
-		if (!selectedCartItem.Status)
-			await ShowRecoverConfirmation(selectedCartItem.Id, selectedCartItem.TransactionNo);
+		if (FormFactor.GetFormFactor() == "Web")
+			await JSRuntime.InvokeVoidAsync("open", decodedTransactionNo.PageRouteName, "_blank");
 		else
-			await ShowDeleteConfirmation(selectedCartItem.Id, selectedCartItem.TransactionNo);
+			NavigationManager.NavigateTo(decodedTransactionNo.PageRouteName);
+	}
+
+	private async Task DeleteRecoverSelectedTransaction()
+	{
+		if (!_user.Admin || _user.LocationId > 1)
+			return;
+
+		if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+			return;
+
+		var selectedCartItem = _sfGrid.SelectedRecords.First();
+
+		if (selectedCartItem.Status)
+			await ShowDeleteConfirmation();
+		else
+			await ShowRecoverConfirmation();
 	}
 
 	private async Task ConfirmDelete()
@@ -609,6 +622,36 @@ public partial class BillReport : IAsyncDisposable
 	#endregion
 
 	#region Utilities
+	private async Task ShowDeleteConfirmation()
+	{
+		_deleteTransactionId = _sfGrid.SelectedRecords.First().Id;
+		_deleteTransactionNo = _sfGrid.SelectedRecords.First().TransactionNo;
+		StateHasChanged();
+		await _deleteConfirmationDialog.ShowAsync();
+	}
+
+	private async Task CancelDelete()
+	{
+		_deleteTransactionId = 0;
+		_deleteTransactionNo = string.Empty;
+		await _deleteConfirmationDialog.HideAsync();
+	}
+
+	private async Task ShowRecoverConfirmation()
+	{
+		_recoverTransactionId = _sfGrid.SelectedRecords.First().Id;
+		_recoverTransactionNo = _sfGrid.SelectedRecords.First().TransactionNo;
+		StateHasChanged();
+		await _recoverConfirmationDialog.ShowAsync();
+	}
+
+	private async Task CancelRecover()
+	{
+		_recoverTransactionId = 0;
+		_recoverTransactionNo = string.Empty;
+		await _recoverConfirmationDialog.HideAsync();
+	}
+
 	private async Task ToggleDetailsView()
 	{
 		_showAllColumns = !_showAllColumns;
@@ -660,36 +703,6 @@ public partial class BillReport : IAsyncDisposable
 
 	private async Task Logout() =>
 		await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
-
-	private async Task ShowDeleteConfirmation(int id, string transactionNo)
-	{
-		_deleteTransactionId = id;
-		_deleteTransactionNo = transactionNo;
-		StateHasChanged();
-		await _deleteConfirmationDialog.ShowAsync();
-	}
-
-	private async Task CancelDelete()
-	{
-		_deleteTransactionId = 0;
-		_deleteTransactionNo = string.Empty;
-		await _deleteConfirmationDialog.HideAsync();
-	}
-
-	private async Task ShowRecoverConfirmation(int id, string transactionNo)
-	{
-		_recoverTransactionId = id;
-		_recoverTransactionNo = transactionNo;
-		StateHasChanged();
-		await _recoverConfirmationDialog.ShowAsync();
-	}
-
-	private async Task CancelRecover()
-	{
-		_recoverTransactionId = 0;
-		_recoverTransactionNo = string.Empty;
-		await _recoverConfirmationDialog.HideAsync();
-	}
 
 	private async Task StartAutoRefresh()
 	{
