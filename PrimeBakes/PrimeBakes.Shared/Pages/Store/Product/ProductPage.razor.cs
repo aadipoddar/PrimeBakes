@@ -425,21 +425,7 @@ public partial class ProductPage : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Exporting to Excel...", ToastType.Info);
 
-			// Enrich data with category and tax names
-			var enrichedData = _products.Select(p => new
-			{
-				p.Id,
-				p.Name,
-				p.Code,
-				Category = _categories.FirstOrDefault(c => c.Id == p.ProductCategoryId)?.Name ?? "N/A",
-				KOTCategory = _kotCategories.FirstOrDefault(k => k.Id == p.KOTCategoryId)?.Name ?? "N/A",
-				p.Rate,
-				Tax = _taxes.FirstOrDefault(t => t.Id == p.TaxId)?.Code ?? "N/A",
-				p.Remarks,
-				p.Status
-			}).ToList();
-
-			var (stream, fileName) = await ProductExport.ExportMaster(enrichedData, ReportExportType.Excel);
+			var (stream, fileName) = await ProductExport.ExportMaster(_products, ReportExportType.Excel);
 			await SaveAndViewService.SaveAndView(fileName, stream);
 
 			await _toastNotification.ShowAsync("Success", "Product data exported to Excel successfully.", ToastType.Success);
@@ -466,21 +452,7 @@ public partial class ProductPage : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Exporting to PDF...", ToastType.Info);
 
-			// Enrich data with category and tax names
-			var enrichedData = _products.Select(p => new
-			{
-				p.Id,
-				p.Name,
-				p.Code,
-				Category = _categories.FirstOrDefault(c => c.Id == p.ProductCategoryId)?.Name ?? "N/A",
-				KOTCategory = _kotCategories.FirstOrDefault(k => k.Id == p.KOTCategoryId)?.Name ?? "N/A",
-				p.Rate,
-				Tax = _taxes.FirstOrDefault(t => t.Id == p.TaxId)?.Code ?? "N/A",
-				p.Remarks,
-				p.Status
-			}).ToList();
-
-			var (stream, fileName) = await ProductExport.ExportMaster(enrichedData, ReportExportType.PDF);
+			var (stream, fileName) = await ProductExport.ExportMaster(_products, ReportExportType.PDF);
 			await SaveAndViewService.SaveAndView(fileName, stream);
 
 			await _toastNotification.ShowAsync("Success", "Product data exported to PDF successfully.", ToastType.Success);

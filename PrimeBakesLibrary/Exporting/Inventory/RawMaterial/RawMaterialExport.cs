@@ -1,41 +1,31 @@
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Inventory;
+using PrimeBakesLibrary.Models.Store.Product;
 
 namespace PrimeBakesLibrary.Exporting.Inventory.RawMaterial;
 
 public static class RawMaterialExport
 {
-	public static async Task<(MemoryStream stream, string fileName)> ExportMaster<T>(
-		IEnumerable<T> rawMaterialData,
+	public static async Task<(MemoryStream stream, string fileName)> ExportMaster(
+		IEnumerable<RawMaterialModel> rawMaterialData,
 		ReportExportType exportType)
 	{
-		var enrichedData = rawMaterialData.Select(rm =>
-		{
-			var props = typeof(T).GetProperties();
-			var id = props.FirstOrDefault(p => p.Name == "Id")?.GetValue(rm);
-			var name = props.FirstOrDefault(p => p.Name == "Name")?.GetValue(rm)?.ToString();
-			var code = props.FirstOrDefault(p => p.Name == "Code")?.GetValue(rm)?.ToString();
-			var category = props.FirstOrDefault(p => p.Name == "Category")?.GetValue(rm)?.ToString();
-			var rate = props.FirstOrDefault(p => p.Name == "Rate")?.GetValue(rm);
-			var unit = props.FirstOrDefault(p => p.Name == "UnitOfMeasurement")?.GetValue(rm)?.ToString();
-			var tax = props.FirstOrDefault(p => p.Name == "Tax")?.GetValue(rm)?.ToString();
-			var remarks = props.FirstOrDefault(p => p.Name == "Remarks")?.GetValue(rm)?.ToString();
-			var status = props.FirstOrDefault(p => p.Name == "Status")?.GetValue(rm);
+		var categories = await CommonData.LoadTableData<RawMaterialCategoryModel>(TableNames.RawMaterial);
+		var taxes = await CommonData.LoadTableData<TaxModel>(TableNames.Tax);
 
-			return new
-			{
-				Id = id,
-				Name = name,
-				Code = code,
-				Category = category,
-				Rate = rate is decimal rateVal ? rateVal : 0m,
-				UnitOfMeasurement = unit,
-				Tax = tax,
-				Remarks = remarks,
-				Status = status is bool and true ? "Active" : "Deleted"
-			};
-		});
+		var enrichedData = rawMaterialData.Select(rm => new
+		{
+			rm.Id,
+			rm.Name,
+			rm.Code,
+			Category = categories.FirstOrDefault(c => c.Id == rm.RawMaterialCategoryId)?.Name ?? "N/A",
+			rm.Rate,
+			rm.UnitOfMeasurement,
+			Tax = taxes.FirstOrDefault(t => t.Id == rm.TaxId)?.Code ?? "N/A",
+			rm.Remarks,
+			rm.Status
+		}).ToList();
 
 		var columnSettings = new Dictionary<string, ReportColumnSetting>
 		{

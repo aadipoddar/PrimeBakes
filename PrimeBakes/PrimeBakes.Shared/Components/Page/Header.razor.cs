@@ -1,24 +1,23 @@
 using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
-
+using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Models.Operations;
+
+using System.Reflection;
 
 namespace PrimeBakes.Shared.Components.Page;
 
 public partial class Header
 {
+    #region Blueetooth
     private BluetoothReconnectDialog _btDialog;
     private BluetoothDeviceInfo? _btSaved;
     private bool _isBtReconnecting;
-    private UserModel _user;
 
     private bool BtIsConnected => BluetoothPrinterService.IsConnected;
     private bool ShowBtButton => _btSaved is not null;
-
-    protected override async Task OnInitializedAsync() =>
-        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Restaurant]);
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -85,6 +84,131 @@ public partial class Header
             StateHasChanged();
         }
     }
+    #endregion
+
+    #region Search
+    private string _searchText = string.Empty;
+    private List<GlobalSearchItem> _searchItems = [];
+
+    private void LoadRoutes()
+    {
+        _searchItems = [.. typeof(PageRouteNames)
+            .GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
+            .Where(f => f.IsLiteral && !f.IsInitOnly && f.FieldType == typeof(string))
+            .Select(f => new GlobalSearchItem
+            {
+                Name = f.Name,
+                FriendlyName = string.Join(" ", System.Text.RegularExpressions.Regex.Split(f.Name, @"(?<!^)(?=[A-Z])")),
+                Route = f.GetRawConstantValue() as string ?? string.Empty
+            })
+            .Select(x =>
+            {
+                x.DisplayText = x.FriendlyName.Equals(x.Name, StringComparison.Ordinal)
+                    ? $"{x.Name} ({x.Route})"
+                    : $"{x.FriendlyName} ({x.Name}) - {x.Route}";
+                return x;
+            })
+            .OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase)];
+    }
+
+    private async Task NavigateToSearch()
+    {
+        if (string.IsNullOrWhiteSpace(_searchText))
+            return;
+
+        var searchText = _searchText.Trim();
+
+        var matchingRoute = _searchItems.FirstOrDefault(x =>
+            x.Route.Equals(searchText, StringComparison.OrdinalIgnoreCase) ||
+            x.Name.Equals(searchText, StringComparison.OrdinalIgnoreCase) ||
+            x.FriendlyName.Equals(searchText, StringComparison.OrdinalIgnoreCase) ||
+            x.DisplayText.Equals(searchText, StringComparison.OrdinalIgnoreCase))
+            ?? _searchItems.FirstOrDefault(x =>
+                x.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                x.FriendlyName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                x.DisplayText.Contains(searchText, StringComparison.OrdinalIgnoreCase));
+
+        if (matchingRoute is not null)
+        {
+            NavigationManager.NavigateTo(matchingRoute.Route, true);
+            return;
+        }
+
+        if (await TryNavigateToDecodedTransactionAsync(searchText))
+            return;
+
+        NavigationManager.NavigateTo(searchText, true);
+    }
+
+    private async Task<bool> TryNavigateToDecodedTransactionAsync(string searchText)
+    {
+        try
+        {
+            var decodedTransaction = await DecodeSearchTransactionAsync(searchText);
+            if (!string.IsNullOrWhiteSpace(decodedTransaction.PageRouteName))
+            {
+                NavigationManager.NavigateTo(decodedTransaction.PageRouteName, true);
+                return true;
+            }
+        }
+        catch
+        {
+            // Ignore decode failures and use existing fallback navigation.
+        }
+
+        return false;
+    }
+
+    private async Task DownloadPdfFromSearch()
+    {
+        if (string.IsNullOrWhiteSpace(_searchText))
+            return;
+
+        var searchText = _searchText.Trim();
+
+        try
+        {
+            var decodedTransaction = await DecodeSearchTransactionAsync(searchText);
+            if (decodedTransaction.PDFStream.stream is not null && !string.IsNullOrWhiteSpace(decodedTransaction.PDFStream.fileName))
+                await SaveAndViewService.SaveAndView(decodedTransaction.PDFStream.fileName, decodedTransaction.PDFStream.stream);
+        }
+        catch
+        {
+            // Ignore decode/download failures from header action.
+        }
+    }
+
+    private static async Task<DecodeTransactionNoModel> DecodeSearchTransactionAsync(string searchText)
+    {
+        var decodedTransaction = await GenerateCodes.DecodeTransactionNo(searchText);
+        if (!string.IsNullOrWhiteSpace(decodedTransaction.PageRouteName) || decodedTransaction.PDFStream.stream is not null)
+            return decodedTransaction;
+
+        var upperSearchText = searchText.ToUpperInvariant();
+        if (!searchText.Equals(upperSearchText, StringComparison.Ordinal))
+        {
+            var upperDecodedTransaction = await GenerateCodes.DecodeTransactionNo(upperSearchText);
+            if (!string.IsNullOrWhiteSpace(upperDecodedTransaction.PageRouteName) || upperDecodedTransaction.PDFStream.stream is not null)
+                return upperDecodedTransaction;
+        }
+
+        return decodedTransaction;
+    }
+
+    private void OnRouteSelected(Syncfusion.Blazor.DropDowns.SelectEventArgs<GlobalSearchItem> args)
+    {
+        if (args.ItemData is not null)
+            NavigationManager.NavigateTo(args.ItemData.Route);
+    }
+    #endregion
+
+    private UserModel _user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Restaurant]);
+        LoadRoutes();
+    }
 
     [Parameter]
     public string Title { get; set; } = string.Empty;
@@ -94,4 +218,12 @@ public partial class Header
 
     [Parameter]
     public RenderFragment? RightContent { get; set; }
+}
+
+public class GlobalSearchItem
+{
+    public string Name { get; set; } = string.Empty;
+    public string FriendlyName { get; set; } = string.Empty;
+    public string DisplayText { get; set; } = string.Empty;
+    public string Route { get; set; } = string.Empty;
 }

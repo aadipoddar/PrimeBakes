@@ -1,34 +1,26 @@
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Operations;
 using PrimeBakesLibrary.Models.Store.Product;
 
 namespace PrimeBakesLibrary.Exporting.Store.Product;
 
 public static class ProductLocationExport
 {
-	public static async Task<(MemoryStream stream, string fileName)> ExportMaster<T>(
-		IEnumerable<T> productLocationData,
+	public static async Task<(MemoryStream stream, string fileName)> ExportMaster(
+		IEnumerable<ProductLocationOverviewModel> productLocationData,
 		ReportExportType exportType)
 	{
-		var props = typeof(T).GetProperties();
-
-		var enrichedData = productLocationData.Select(productLocation =>
+		var locations = await CommonData.LoadTableData<LocationModel>(TableNames.Location);
+		
+		var enrichedData = productLocationData.Select(pl => new
 		{
-			var id = props.FirstOrDefault(p => p.Name == "Id")?.GetValue(productLocation);
-			var location = props.FirstOrDefault(p => p.Name == "Location")?.GetValue(productLocation)?.ToString();
-			var productCode = props.FirstOrDefault(p => p.Name == "ProductCode")?.GetValue(productLocation)?.ToString();
-			var productName = props.FirstOrDefault(p => p.Name == "ProductName")?.GetValue(productLocation)?.ToString();
-			var rate = props.FirstOrDefault(p => p.Name == "Rate")?.GetValue(productLocation);
-
-			return new
-			{
-				Id = id,
-				Location = location,
-				ProductCode = productCode,
-				ProductName = productName,
-				Rate = rate is decimal rateVal ? rateVal : 0m,
-			};
-		});
+			pl.Id,
+			Location = locations.FirstOrDefault(l => l.Id == pl.LocationId)?.Name ?? "",
+			ProductCode = pl.Code,
+			ProductName = pl.Name,
+			pl.Rate
+		}).ToList();
 
 		var columnSettings = new Dictionary<string, ReportColumnSetting>
 		{

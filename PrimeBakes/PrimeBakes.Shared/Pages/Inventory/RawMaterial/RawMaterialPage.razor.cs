@@ -375,21 +375,7 @@ public partial class RawMaterialPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Exporting to Excel...", ToastType.Info);
 
-            // Enrich data with category and tax names
-            var enrichedData = _rawMaterials.Select(rm => new
-            {
-                rm.Id,
-                rm.Name,
-                rm.Code,
-                Category = _categories.FirstOrDefault(c => c.Id == rm.RawMaterialCategoryId)?.Name ?? "N/A",
-                rm.Rate,
-                rm.UnitOfMeasurement,
-                Tax = _taxes.FirstOrDefault(t => t.Id == rm.TaxId)?.Code ?? "N/A",
-                rm.Remarks,
-                rm.Status
-            }).ToList();
-
-            var (stream, fileName) = await RawMaterialExport.ExportMaster(enrichedData, ReportExportType.Excel);
+            var (stream, fileName) = await RawMaterialExport.ExportMaster(_rawMaterials, ReportExportType.Excel);
             await SaveAndViewService.SaveAndView(fileName, stream);
 
             await _toastNotification.ShowAsync("Success", "Raw material data exported to Excel successfully.", ToastType.Success);
@@ -416,21 +402,7 @@ public partial class RawMaterialPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Exporting to PDF...", ToastType.Info);
 
-            // Enrich data with category and tax names
-            var enrichedData = _rawMaterials.Select(rm => new
-            {
-                rm.Id,
-                rm.Name,
-                rm.Code,
-                Category = _categories.FirstOrDefault(c => c.Id == rm.RawMaterialCategoryId)?.Name ?? "N/A",
-                rm.Rate,
-                rm.UnitOfMeasurement,
-                Tax = _taxes.FirstOrDefault(t => t.Id == rm.TaxId)?.Code ?? "N/A",
-                rm.Remarks,
-                rm.Status
-            }).ToList();
-
-            var (stream, fileName) = await RawMaterialExport.ExportMaster(enrichedData, ReportExportType.PDF);
+            var (stream, fileName) = await RawMaterialExport.ExportMaster(_rawMaterials, ReportExportType.PDF);
             await SaveAndViewService.SaveAndView(fileName, stream);
 
             await _toastNotification.ShowAsync("Success", "Raw material data exported to PDF successfully.", ToastType.Success);

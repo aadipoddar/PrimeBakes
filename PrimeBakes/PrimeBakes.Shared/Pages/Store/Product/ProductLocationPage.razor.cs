@@ -280,19 +280,9 @@ public partial class ProductLocationPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating Excel file...", ToastType.Info);
 
-            // Enrich data with location and product names
-            var exportData = _productLocationOverviews.Select(pl => new
-            {
-                pl.Id,
-                Location = _locations.FirstOrDefault(l => l.Id == pl.LocationId)?.Name ?? "",
-                ProductCode = pl.Code,
-                ProductName = pl.Name,
-                pl.Rate
-            }).ToList();
-
-            var (stream, fileName) = await ProductLocationExport.ExportMaster(exportData, ReportExportType.Excel);
-
+            var (stream, fileName) = await ProductLocationExport.ExportMaster(_productLocationOverviews, ReportExportType.Excel);
             await SaveAndViewService.SaveAndView(fileName, stream);
+            
             await _toastNotification.ShowAsync("Success", "Excel file downloaded successfully.", ToastType.Success);
         }
         catch (Exception ex)
@@ -317,19 +307,9 @@ public partial class ProductLocationPage : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating PDF file...", ToastType.Info);
 
-            // Enrich data with location and product names
-            var exportData = _productLocationOverviews.Select(pl => new
-            {
-                pl.Id,
-                Location = _locations.FirstOrDefault(l => l.Id == pl.LocationId)?.Name ?? "",
-                ProductCode = pl.Code,
-                ProductName = pl.Name,
-                pl.Rate
-            }).ToList();
-
-            var (stream, fileName) = await ProductLocationExport.ExportMaster(exportData, ReportExportType.PDF);
-
+            var (stream, fileName) = await ProductLocationExport.ExportMaster(_productLocationOverviews, ReportExportType.PDF);
             await SaveAndViewService.SaveAndView(fileName, stream);
+            
             await _toastNotification.ShowAsync("Success", "PDF file downloaded successfully.", ToastType.Success);
         }
         catch (Exception ex)

@@ -5,6 +5,17 @@
         {
             @LeftContent
         }
+        <div class="global-search-container">
+            <SfAutoComplete TValue="string" TItem="GlobalSearchItem" DataSource="@_searchItems"
+                            Placeholder="Search Route..." Width="250px" @bind-Value="@_searchText" Autofill="true"
+                            FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
+                <AutoCompleteEvents TItem="GlobalSearchItem" TValue="string" OnValueSelect="OnRouteSelected" />
+                <AutoCompleteFieldSettings Value="DisplayText" Text="DisplayText" />
+            </SfAutoComplete>
+            <IconButton Icon="IconType.View" Variant="ButtonVariant.View" Title="View" OnClick="NavigateToSearch" />
+            <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Print PDF"
+                        OnClick="DownloadPdfFromSearch" />
+        </div>
     </div>
     <div class="header-center">
         <h1 class="page-title">@Title</h1>
@@ -98,10 +109,38 @@
         border: 1px solid #e2e8f0;
     }
 
+    .global-search-container {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-left: 12px;
+        background-color: #f1f5f9;
+        padding: 4px 8px;
+        border-radius: 8px;
+    }
+
+    /* Style for Syncfusion AutoComplete inside header */
+    ::deep .global-search-container .e-input-group {
+        border: none !important;
+        background: transparent !important;
+        border-radius: 0;
+        margin-bottom: 0;
+    }
+
+    ::deep .global-search-container .e-input-group:not(.e-success):not(.e-warning):not(.e-error):not(.e-float-icon-left) {
+        border: none;
+    }
+
+    ::deep .global-search-container .e-input-group input {
+        font-size: 13px;
+        padding-left: 8px;
+    }
+
     @@media (max-width: 768px) {
 
         .header-divider,
-        .user-name {
+        .user-name,
+        .global-search-container {
             display: none;
         }
     }

@@ -6,36 +6,26 @@ namespace PrimeBakesLibrary.Exporting.Store.Product;
 
 public static class ProductExport
 {
-    public static async Task<(MemoryStream stream, string fileName)> ExportMaster<T>(
-        IEnumerable<T> productData,
+    public static async Task<(MemoryStream stream, string fileName)> ExportMaster(
+        IEnumerable<ProductModel> productData,
         ReportExportType exportType)
     {
-        var formattedData = productData.Select(product =>
-        {
-            var props = typeof(T).GetProperties();
-            var id = props.FirstOrDefault(p => p.Name == "Id")?.GetValue(product);
-            var name = props.FirstOrDefault(p => p.Name == "Name")?.GetValue(product)?.ToString();
-            var code = props.FirstOrDefault(p => p.Name == "Code")?.GetValue(product)?.ToString();
-            var category = props.FirstOrDefault(p => p.Name == "Category")?.GetValue(product)?.ToString();
-            var kotCategory = props.FirstOrDefault(p => p.Name == "KOTCategory")?.GetValue(product)?.ToString();
-			var rate = props.FirstOrDefault(p => p.Name == "Rate")?.GetValue(product);
-            var tax = props.FirstOrDefault(p => p.Name == "Tax")?.GetValue(product)?.ToString();
-            var remarks = props.FirstOrDefault(p => p.Name == "Remarks")?.GetValue(product)?.ToString();
-            var status = props.FirstOrDefault(p => p.Name == "Status")?.GetValue(product);
+        var categories = await CommonData.LoadTableData<ProductCategoryModel>(TableNames.ProductCategory);
+        var kotCategories = await CommonData.LoadTableData<KOTCategoryModel>(TableNames.KOTCategory);
+        var taxes = await CommonData.LoadTableData<TaxModel>(TableNames.Tax);
 
-            return new
-            {
-                Id = id,
-                Name = name,
-                Code = code,
-                Category = category,
-                KotCategory = kotCategory,
-                Rate = rate is decimal rateVal ? rateVal : 0m,
-                Tax = tax,
-                Remarks = remarks,
-                Status = status is bool and true ? "Active" : "Deleted"
-            };
-        });
+		var enrichedData = productData.Select(p => new
+		{
+			p.Id,
+			p.Name,
+			p.Code,
+			Category = categories.FirstOrDefault(c => c.Id == p.ProductCategoryId)?.Name ?? "N/A",
+			KOTCategory = kotCategories.FirstOrDefault(k => k.Id == p.KOTCategoryId)?.Name ?? "N/A",
+			p.Rate,
+			Tax = taxes.FirstOrDefault(t => t.Id == p.TaxId)?.Code ?? "N/A",
+			p.Remarks,
+			p.Status
+		}).ToList();
 
         var columnSettings = new Dictionary<string, ReportColumnSetting>
         {
@@ -69,7 +59,7 @@ public static class ProductExport
         if (exportType == ReportExportType.PDF)
         {
             var stream = await PDFReportExportUtil.ExportToPdf(
-                formattedData,
+                enrichedData,
                 "PRODUCT MASTER",
                 null,
                 null,
@@ -84,7 +74,7 @@ public static class ProductExport
         else
         {
             var stream = await ExcelReportExportUtil.ExportToExcel(
-                formattedData,
+				enrichedData,
                 "PRODUCT MASTER",
                 "Product Data",
                 null,
