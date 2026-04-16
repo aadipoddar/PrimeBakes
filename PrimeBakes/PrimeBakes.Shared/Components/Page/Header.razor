@@ -7,7 +7,7 @@
         }
         <div class="global-search-container">
             <SfAutoComplete TValue="string" TItem="GlobalSearchItem" DataSource="@_searchItems"
-                            Placeholder="Search Route..." Width="250px" @bind-Value="@_searchText" Autofill="true"
+                            Placeholder="Search Route or Trans No..." Width="250px" @bind-Value="@_searchText" Autofill="true"
                             FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
                 <AutoCompleteEvents TItem="GlobalSearchItem" TValue="string" OnValueSelect="OnRouteSelected" />
                 <AutoCompleteFieldSettings Value="DisplayText" Text="DisplayText" />

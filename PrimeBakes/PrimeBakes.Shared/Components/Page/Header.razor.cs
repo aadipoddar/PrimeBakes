@@ -206,7 +206,7 @@ public partial class Header
 
     protected override async Task OnInitializedAsync()
     {
-        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Restaurant]);
+        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService);
         LoadRoutes();
     }
 
