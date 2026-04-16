@@ -3,6 +3,7 @@ using Microsoft.JSInterop;
 
 using PrimeBakes.Shared.Components.Dialog;
 
+using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Accounts.FinancialAccounting;
 using PrimeBakesLibrary.Data.Operations;
 using PrimeBakesLibrary.DataAccess;
@@ -41,19 +42,10 @@ public partial class FinancialAccountingReport : IAsyncDisposable
 
     private readonly List<ContextMenuItemModel> _gridContextMenuItems =
     [
-        new() { Text = "View", Id = "view", Target = ".e-content" },
-        new()
-        {
-            Text = "Download",
-            Id = "download",
-            Target = ".e-content",
-            Items =
-            [
-                new() { Text = "PDF", Id = "download-pdf" },
-                new() { Text = "Excel", Id = "download-excel" }
-            ]
-        },
-        new() { Text = "Delete / Recover", Id = "delete-recover", Target = ".e-content" }
+        new() { Text = "View (Alt + O)", Id = "View", IconCss = "e-icons e-eye", Target = ".e-content" },
+        new() { Text = "Export PDF (Alt + P)", Id = "ExportPDF", IconCss = "e-icons e-export-pdf", Target = ".e-content" },
+        new() { Text = "Export Excel (Alt + E)", Id = "ExportExcel", IconCss = "e-icons e-export-excel", Target = ".e-content" },
+        new() { Text = "Delete / Recover (Del)", Id = "DeleteRecover", IconCss = "e-icons e-trash", Target = ".e-content" }
     ];
 
     private SfGrid<FinancialAccountingOverviewModel> _sfGrid;
@@ -81,24 +73,7 @@ public partial class FinancialAccountingReport : IAsyncDisposable
 
     private async Task LoadData()
     {
-        _hotKeysContext = HotKeys.CreateContext()
-            .Add(ModCode.Ctrl, Code.R, LoadTransactionOverviews, "Refresh Data", Exclude.None)
-            .Add(Code.F5, LoadTransactionOverviews, "Refresh Data", Exclude.None)
-            .Add(ModCode.Ctrl, Code.E, ExportExcel, "Export to Excel", Exclude.None)
-            .Add(ModCode.Ctrl, Code.P, ExportPdf, "Export to PDF", Exclude.None)
-            .Add(ModCode.Ctrl, Code.I, NavigateToItemReport, "Open item report", Exclude.None)
-            .Add(ModCode.Ctrl, Code.T, NavigateToTrialBalance, "Open trial balance report", Exclude.None)
-            .Add(ModCode.Alt, Code.F, NavigateToProfitAndLoss, "Open profit and loss report", Exclude.None)
-            .Add(ModCode.Alt, Code.B, NavigateToBalanceSheet, "Open balance sheet report", Exclude.None)
-            .Add(ModCode.Ctrl, Code.N, NavigateToTransactionPage, "New Transaction", Exclude.None)
-            .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
-            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
-            .Add(ModCode.Ctrl, Code.O, ViewSelectedTransaction, "Open Selected Transaction", Exclude.None)
-            .Add(ModCode.Alt, Code.P, DownloadSelectedPdfInvoice, "Download Selected Transaction PDF Invoice", Exclude.None)
-            .Add(ModCode.Alt, Code.E, DownloadSelectedExcelInvoice, "Download Selected Transaction Excel Invoice", Exclude.None)
-            .Add(Code.Delete, DeleteRecoverSelectedTransaction, "Delete Selected Transaction", Exclude.None);
-
+        LoadHotKeys();
         await LoadDates();
         await LoadCompanies();
         await LoadVouchers();
@@ -197,10 +172,9 @@ public partial class FinancialAccountingReport : IAsyncDisposable
         await LoadTransactionOverviews();
     }
 
-    private async Task HandleDatesChanged((DateTime FromDate, DateTime ToDate) dates)
+    private async Task HandleDatesChanged(DateRangeType dateRangeType)
     {
-        _fromDate = dates.FromDate;
-        _toDate = dates.ToDate;
+        (_fromDate, _toDate) = await Helper.ResolveDateRange(dateRangeType, _fromDate, _toDate);
         await LoadTransactionOverviews();
     }
     #endregion
@@ -274,7 +248,7 @@ public partial class FinancialAccountingReport : IAsyncDisposable
         }
     }
 
-    private async Task DownloadSelectedPdfInvoice()
+    private async Task ExportSelectedTransactionPdf()
     {
         if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
             return;
@@ -301,7 +275,7 @@ public partial class FinancialAccountingReport : IAsyncDisposable
         }
     }
 
-    private async Task DownloadSelectedExcelInvoice()
+    private async Task ExportSelectedTransactionExcel()
     {
         if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
             return;
@@ -330,31 +304,9 @@ public partial class FinancialAccountingReport : IAsyncDisposable
     #endregion
 
     #region Actions
-    private async Task OnGridContextMenuItemClicked(ContextMenuClickEventArgs<FinancialAccountingOverviewModel> args)
-    {
-        switch (args.Item.Id)
-        {
-            case "view":
-                await ViewSelectedTransaction();
-                break;
-
-            case "download-pdf":
-                await DownloadSelectedPdfInvoice();
-                break;
-
-            case "download-excel":
-                await DownloadSelectedExcelInvoice();
-                break;
-
-            case "delete-recover":
-                await DeleteRecoverSelectedTransaction();
-                break;
-        }
-    }
-
     private async Task ViewSelectedTransaction()
     {
-        if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+        if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0 || !_sfGrid.SelectedRecords.First().Status)
             return;
 
         var decodedTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
@@ -370,9 +322,7 @@ public partial class FinancialAccountingReport : IAsyncDisposable
         if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
             return;
 
-        var selectedCartItem = _sfGrid.SelectedRecords.First();
-
-        if (selectedCartItem.Status)
+        if (_sfGrid.SelectedRecords.First().Status)
             await ShowDeleteConfirmation();
         else
             await ShowRecoverConfirmation();
@@ -380,27 +330,27 @@ public partial class FinancialAccountingReport : IAsyncDisposable
 
     private async Task ConfirmDelete()
     {
-        if (_isProcessing)
+        if (_isProcessing || _deleteTransactionId == 0)
             return;
 
         try
         {
+            if (!_user.Admin)
+                throw new UnauthorizedAccessException("You do not have permission to delete this transaction.");
+
             await _deleteConfirmationDialog.HideAsync();
             _isProcessing = true;
             StateHasChanged();
 
-            if (!_user.Admin)
-                throw new UnauthorizedAccessException("You do not have permission to delete this transaction.");
-
             await _toastNotification.ShowAsync("Processing", "Deleting transaction...", ToastType.Info);
 
-            if (_deleteTransactionId == 0)
-            {
-                await _toastNotification.ShowAsync("Error", "Invalid transaction selected for deletion.", ToastType.Error);
-                return;
-            }
-
-            await DeleteTransaction();
+            var accounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(TableNames.FinancialAccounting, _deleteTransactionId)
+                ?? throw new Exception("Transaction not found.");
+            accounting.Status = false;
+            accounting.LastModifiedBy = _user.Id;
+            accounting.LastModifiedAt = await CommonData.LoadCurrentDateTime();
+            accounting.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
+            await FinancialAccountingData.DeleteTransaction(accounting);
 
             await _toastNotification.ShowAsync("Success", $"Transaction {_deleteTransactionNo} has been deleted successfully.", ToastType.Success);
 
@@ -419,46 +369,29 @@ public partial class FinancialAccountingReport : IAsyncDisposable
         }
     }
 
-    private async Task DeleteTransaction()
-    {
-        var accounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(TableNames.FinancialAccounting, _deleteTransactionId);
-        if (accounting is null)
-        {
-            await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);
-            return;
-        }
-
-        accounting.Status = false;
-        accounting.LastModifiedBy = _user.Id;
-        accounting.LastModifiedAt = await CommonData.LoadCurrentDateTime();
-        accounting.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
-
-        await FinancialAccountingData.DeleteTransaction(accounting);
-    }
-
     private async Task ConfirmRecover()
     {
-        if (_isProcessing)
+        if (_isProcessing || _recoverTransactionId == 0)
             return;
 
         try
         {
+            if (!_user.Admin)
+                throw new UnauthorizedAccessException("You do not have permission to recover this transaction.");
+
             await _recoverConfirmationDialog.HideAsync();
             _isProcessing = true;
             StateHasChanged();
 
-            if (!_user.Admin)
-                throw new UnauthorizedAccessException("You do not have permission to recover this transaction.");
-
-            if (_recoverTransactionId == 0)
-            {
-                await _toastNotification.ShowAsync("Error", "No transaction selected to recover.", ToastType.Error);
-                return;
-            }
-
             await _toastNotification.ShowAsync("Processing", "Recovering transaction...", ToastType.Info);
 
-            await RecoverTransaction();
+            var accounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(TableNames.FinancialAccounting, _recoverTransactionId)
+                ?? throw new Exception("Transaction not found.");
+            accounting.Status = true;
+            accounting.LastModifiedBy = _user.Id;
+            accounting.LastModifiedAt = await CommonData.LoadCurrentDateTime();
+            accounting.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
+            await FinancialAccountingData.RecoverTransaction(accounting);
 
             await _toastNotification.ShowAsync("Success", $"Transaction {_recoverTransactionNo} has been recovered successfully.", ToastType.Success);
 
@@ -475,23 +408,6 @@ public partial class FinancialAccountingReport : IAsyncDisposable
             StateHasChanged();
             await LoadTransactionOverviews();
         }
-    }
-
-    private async Task RecoverTransaction()
-    {
-        var accounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(TableNames.FinancialAccounting, _recoverTransactionId);
-        if (accounting is null)
-        {
-            await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);
-            return;
-        }
-
-        accounting.Status = true;
-        accounting.LastModifiedBy = _user.Id;
-        accounting.LastModifiedAt = await CommonData.LoadCurrentDateTime();
-        accounting.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
-
-        await FinancialAccountingData.RecoverTransaction(accounting);
     }
     #endregion
 
@@ -525,6 +441,127 @@ public partial class FinancialAccountingReport : IAsyncDisposable
         _recoverTransactionNo = string.Empty;
         await _recoverConfirmationDialog.HideAsync();
     }
+
+    private void LoadHotKeys()
+    {
+        _hotKeysContext = HotKeys.CreateContext()
+            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
+            .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to Dashboard", Exclude.None)
+            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
+            .Add(ModCode.Ctrl, Code.N, NavigateToTransactionPage, "New Transaction", Exclude.None)
+            .Add(ModCode.Ctrl, Code.R, LoadTransactionOverviews, "Refresh Data", Exclude.None)
+            .Add(Code.F5, LoadTransactionOverviews, "Refresh Data", Exclude.None)
+            .Add(ModCode.Ctrl, Code.Q, ToggleDetailsView, "Toggle Details", Exclude.None)
+            .Add(ModCode.Ctrl, Code.Delete, ToggleDeleted, "Show/Hide Deleted", Exclude.None)
+            .Add(ModCode.Ctrl, Code.P, ExportPdf, "Export to PDF", Exclude.None)
+            .Add(ModCode.Ctrl, Code.E, ExportExcel, "Export to Excel", Exclude.None)
+            .Add(ModCode.Alt, Code.O, ViewSelectedTransaction, "Open Selected Transaction", Exclude.None)
+            .Add(ModCode.Alt, Code.P, ExportSelectedTransactionPdf, "Download Selected Transaction PDF Invoice", Exclude.None)
+            .Add(ModCode.Alt, Code.E, ExportSelectedTransactionExcel, "Download Selected Transaction Excel Invoice", Exclude.None)
+            .Add(Code.Delete, DeleteRecoverSelectedTransaction, "Delete Selected Transaction", Exclude.None);
+    }
+
+    private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+    {
+        switch (args.Item.Id)
+        {
+            case "NewTransaction":
+                await NavigateToTransactionPage();
+                break;
+            case "Refresh":
+                await LoadTransactionOverviews();
+                break;
+            case "ToggleDeleted":
+                await ToggleDeleted();
+                break;
+            case "ToggleDetailsView":
+                await ToggleDetailsView();
+                break;
+            case "ExportPdf":
+                await ExportPdf();
+                break;
+            case "ExportExcel":
+                await ExportExcel();
+                break;
+            case "ViewSelected":
+                await ViewSelectedTransaction();
+                break;
+            case "DownloadSelectedPdf":
+                await ExportSelectedTransactionPdf();
+                break;
+            case "DownloadSelectedExcel":
+                await ExportSelectedTransactionExcel();
+                break;
+            case "DeleteRecoverSelected":
+                await DeleteRecoverSelectedTransaction();
+                break;
+            case "ItemReport":
+                await NavigateToItemReport();
+                break;
+            case "TrialBalance":
+                await NavigateToTrialBalance();
+                break;
+            case "ProfitLoss":
+                await NavigateToProfitAndLoss();
+                break;
+            case "BalanceSheet":
+                await NavigateToBalanceSheet();
+                break;
+            case "PeriodToday":
+                await HandleDatesChanged(DateRangeType.Today);
+                break;
+            case "PeriodPreviousDay":
+                await HandleDatesChanged(DateRangeType.Yesterday);
+                break;
+            case "PeriodNextDay":
+                await HandleDatesChanged(DateRangeType.NextDay);
+                break;
+            case "PeriodCurrentMonth":
+                await HandleDatesChanged(DateRangeType.CurrentMonth);
+                break;
+            case "PeriodPreviousMonth":
+                await HandleDatesChanged(DateRangeType.PreviousMonth);
+                break;
+            case "PeriodNextMonth":
+                await HandleDatesChanged(DateRangeType.NextMonth);
+                break;
+            case "PeriodCurrentFinancialYear":
+                await HandleDatesChanged(DateRangeType.CurrentFinancialYear);
+                break;
+            case "PeriodPreviousFinancialYear":
+                await HandleDatesChanged(DateRangeType.PreviousFinancialYear);
+                break;
+            case "PeriodNextFinancialYear":
+                await HandleDatesChanged(DateRangeType.NextFinancialYear);
+                break;
+            case "PeriodAllTime":
+                await HandleDatesChanged(DateRangeType.AllTime);
+                break;
+        }
+    }
+
+    private async Task OnGridContextMenuItemClicked(ContextMenuClickEventArgs<FinancialAccountingOverviewModel> args)
+    {
+        switch (args.Item.Id)
+        {
+            case "View":
+                await ViewSelectedTransaction();
+                break;
+
+            case "ExportPDF":
+                await ExportSelectedTransactionPdf();
+                break;
+
+            case "ExportExcel":
+                await ExportSelectedTransactionExcel();
+                break;
+
+            case "DeleteRecover":
+                await DeleteRecoverSelectedTransaction();
+                break;
+        }
+    }
+
 
     private async Task ToggleDetailsView()
     {

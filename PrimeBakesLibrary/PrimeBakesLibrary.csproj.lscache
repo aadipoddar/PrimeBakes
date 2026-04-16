@@ -427,7 +427,7 @@ obj/Debug/net10.0/
  azure.storage.common/12.26.0/lib/net10.0/Azure.Storage.Common.dll
  bouncycastle.cryptography/2.6.2/lib/net6.0/BouncyCastle.Cryptography.dll
  dapper/2.1.72/lib/net10.0/Dapper.dll
- mailkit/4.15.1/lib/net10.0/MailKit.dll
+ mailkit/4.16.0/lib/net10.0/MailKit.dll
  microsoft.bcl.asyncinterfaces/8.0.0/lib/netstandard2.1/Microsoft.Bcl.AsyncInterfaces.dll
  microsoft.bcl.cryptography/9.0.13/lib/net9.0/Microsoft.Bcl.Cryptography.dll
  microsoft.data.sqlclient.extensions.abstractions/1.0.0/lib/netstandard2.0/Microsoft.Data.SqlClient.Extensions.Abstractions.dll
@@ -452,7 +452,7 @@ obj/Debug/net10.0/
  microsoft.identitymodel.protocols/8.16.0/lib/net10.0/Microsoft.IdentityModel.Protocols.dll
  microsoft.identitymodel.tokens/8.16.0/lib/net10.0/Microsoft.IdentityModel.Tokens.dll
  microsoft.sqlserver.server/1.0.0/lib/netstandard2.0/Microsoft.SqlServer.Server.dll
- mimekit/4.15.1/lib/net10.0/MimeKit.dll
+ mimekit/4.16.0/lib/net10.0/MimeKit.dll
  numericwordsconversion/2.1.1/lib/netstandard2.1/NumericWordsConversion.dll
  skiasharp/3.119.2/ref/net8.0/SkiaSharp.dll
  syncfusion.compression.net.core/33.1.49/lib/net10.0/Syncfusion.Compression.Portable.dll

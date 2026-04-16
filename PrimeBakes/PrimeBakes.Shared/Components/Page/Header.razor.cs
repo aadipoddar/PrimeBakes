@@ -210,6 +210,12 @@ public partial class Header
         LoadRoutes();
     }
 
+    private void NavigateToHome() =>
+        NavigationManager.NavigateTo(PageRouteNames.Dashboard);
+
+    private async Task Logout() =>
+        await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
+
     [Parameter]
     public string Title { get; set; } = string.Empty;
 

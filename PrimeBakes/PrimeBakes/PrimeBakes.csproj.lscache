@@ -42,7 +42,7 @@ TemporaryDependencyNodeTargetIdentifier=net10.0-android
 /errorreport:prompt
 /warn:10
 /doc:bin\Debug\net10.0-android\PrimeBakes.xml
-/define:TRACE;DEBUG;__XAMARIN_ANDROID_v1_0__;__MOBILE__;__ANDROID__;__ANDROID_1__;__ANDROID_2__;__ANDROID_3__;__ANDROID_4__;__ANDROID_5__;__ANDROID_6__;__ANDROID_7__;__ANDROID_8__;__ANDROID_9__;__ANDROID_10__;__ANDROID_11__;__ANDROID_12__;__ANDROID_13__;__ANDROID_14__;__ANDROID_15__;__ANDROID_16__;__ANDROID_17__;__ANDROID_18__;__ANDROID_19__;__ANDROID_20__;__ANDROID_21__;__ANDROID_22__;__ANDROID_23__;__ANDROID_24__;__ANDROID_25__;__ANDROID_26__;__ANDROID_27__;__ANDROID_28__;__ANDROID_29__;__ANDROID_30__;__ANDROID_31__;__ANDROID_32__;__ANDROID_33__;__ANDROID_34__;__ANDROID_35__;__ANDROID_36__;NET;NET10_0;NETCOREAPP;ANDROID;ANDROID36_0;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NET9_0_OR_GREATER;NET10_0_OR_GREATER;NETCOREAPP1_0_OR_GREATER;NETCOREAPP1_1_OR_GREATER;NETCOREAPP2_0_OR_GREATER;NETCOREAPP2_1_OR_GREATER;NETCOREAPP2_2_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER;ANDROID21_0_OR_GREATER;ANDROID22_0_OR_GREATER;ANDROID23_0_OR_GREATER;ANDROID24_0_OR_GREATER;ANDROID25_0_OR_GREATER;ANDROID26_0_OR_GREATER;ANDROID27_0_OR_GREATER;ANDROID28_0_OR_GREATER;ANDROID29_0_OR_GREATER;ANDROID30_0_OR_GREATER;ANDROID31_0_OR_GREATER;ANDROID32_0_OR_GREATER;ANDROID33_0_OR_GREATER;ANDROID34_0_OR_GREATER;ANDROID35_0_OR_GREATER;ANDROID36_0_OR_GREATER
+/define:TRACE;DEBUG;NET;NET10_0;NETCOREAPP;ANDROID;ANDROID36_0;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NET9_0_OR_GREATER;NET10_0_OR_GREATER;NETCOREAPP1_0_OR_GREATER;NETCOREAPP1_1_OR_GREATER;NETCOREAPP2_0_OR_GREATER;NETCOREAPP2_1_OR_GREATER;NETCOREAPP2_2_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER;ANDROID21_0_OR_GREATER;ANDROID22_0_OR_GREATER;ANDROID23_0_OR_GREATER;ANDROID24_0_OR_GREATER;ANDROID25_0_OR_GREATER;ANDROID26_0_OR_GREATER;ANDROID27_0_OR_GREATER;ANDROID28_0_OR_GREATER;ANDROID29_0_OR_GREATER;ANDROID30_0_OR_GREATER;ANDROID31_0_OR_GREATER;ANDROID32_0_OR_GREATER;ANDROID33_0_OR_GREATER;ANDROID34_0_OR_GREATER;ANDROID35_0_OR_GREATER;ANDROID36_0_OR_GREATER;__XAMARIN_ANDROID_v1_0__;__MOBILE__;__ANDROID__;__ANDROID_1__;__ANDROID_2__;__ANDROID_3__;__ANDROID_4__;__ANDROID_5__;__ANDROID_6__;__ANDROID_7__;__ANDROID_8__;__ANDROID_9__;__ANDROID_10__;__ANDROID_11__;__ANDROID_12__;__ANDROID_13__;__ANDROID_14__;__ANDROID_15__;__ANDROID_16__;__ANDROID_17__;__ANDROID_18__;__ANDROID_19__;__ANDROID_20__;__ANDROID_21__;__ANDROID_22__;__ANDROID_23__;__ANDROID_24__;__ANDROID_25__;__ANDROID_26__;__ANDROID_27__;__ANDROID_28__;__ANDROID_29__;__ANDROID_30__;__ANDROID_31__;__ANDROID_32__;__ANDROID_33__;__ANDROID_34__;__ANDROID_35__;__ANDROID_36__
 /highentropyva+
 /nullable:disable
 /features:"InterceptorsNamespaces=;Microsoft.Extensions.Validation.Generated;Microsoft.Maui.Controls.Generated"
@@ -278,7 +278,7 @@ Services/
  bouncycastle.cryptography/2.6.2/lib/net6.0/BouncyCastle.Cryptography.dll
  dapper/2.1.72/lib/net10.0/Dapper.dll
  googlegson/2.13.1.1/lib/net10.0-android36.0/GoogleGson.dll
- mailkit/4.15.1/lib/net10.0/MailKit.dll
+ mailkit/4.16.0/lib/net10.0/MailKit.dll
  microsoft.aspnetcore.authorization/10.0.6/lib/net10.0/Microsoft.AspNetCore.Authorization.dll
  microsoft.aspnetcore.components.forms/10.0.6/lib/net10.0/Microsoft.AspNetCore.Components.Forms.dll
  microsoft.aspnetcore.components.web/10.0.6/lib/net10.0/Microsoft.AspNetCore.Components.Web.dll
@@ -328,7 +328,7 @@ Services/
  microsoft.maui.essentials/10.0.51/lib/net10.0-android36.0/Microsoft.Maui.Essentials.dll
  microsoft.maui.graphics/10.0.51/lib/net10.0-android36.0/Microsoft.Maui.Graphics.dll
  microsoft.sqlserver.server/1.0.0/lib/netstandard2.0/Microsoft.SqlServer.Server.dll
- mimekit/4.15.1/lib/net10.0/MimeKit.dll
+ mimekit/4.16.0/lib/net10.0/MimeKit.dll
  numericwordsconversion/2.1.1/lib/netstandard2.1/NumericWordsConversion.dll
  plugin.localnotification.core/1.1.0/lib/net10.0-android36.0/Plugin.LocalNotification.Core.dll
  plugin.localnotification/14.1.0/lib/net10.0-android36.0/Plugin.LocalNotification.dll
@@ -808,7 +808,7 @@ Services/
  azure.storage.common/12.26.0/lib/net10.0/Azure.Storage.Common.dll
  bouncycastle.cryptography/2.6.2/lib/net6.0/BouncyCastle.Cryptography.dll
  dapper/2.1.72/lib/net10.0/Dapper.dll
- mailkit/4.15.1/lib/net10.0/MailKit.dll
+ mailkit/4.16.0/lib/net10.0/MailKit.dll
  microsoft.aspnetcore.authorization/10.0.6/lib/net10.0/Microsoft.AspNetCore.Authorization.dll
  microsoft.aspnetcore.components.forms/10.0.6/lib/net10.0/Microsoft.AspNetCore.Components.Forms.dll
  microsoft.aspnetcore.components.web/10.0.6/lib/net10.0/Microsoft.AspNetCore.Components.Web.dll
@@ -858,7 +858,7 @@ Services/
  microsoft.maui.essentials/10.0.51/lib/net10.0-ios26.0/Microsoft.Maui.Essentials.dll
  microsoft.maui.graphics/10.0.51/lib/net10.0-ios26.0/Microsoft.Maui.Graphics.dll
  microsoft.sqlserver.server/1.0.0/lib/netstandard2.0/Microsoft.SqlServer.Server.dll
- mimekit/4.15.1/lib/net10.0/MimeKit.dll
+ mimekit/4.16.0/lib/net10.0/MimeKit.dll
  numericwordsconversion/2.1.1/lib/netstandard2.1/NumericWordsConversion.dll
  plugin.localnotification.core/1.1.0/lib/net10.0-ios26.0/Plugin.LocalNotification.Core.dll
  plugin.localnotification/14.1.0/lib/net10.0-ios26.0/Plugin.LocalNotification.dll
@@ -1194,7 +1194,7 @@ Services/
  azure.storage.common/12.26.0/lib/net10.0/Azure.Storage.Common.dll
  bouncycastle.cryptography/2.6.2/lib/net6.0/BouncyCastle.Cryptography.dll
  dapper/2.1.72/lib/net10.0/Dapper.dll
- mailkit/4.15.1/lib/net10.0/MailKit.dll
+ mailkit/4.16.0/lib/net10.0/MailKit.dll
  microsoft.aspnetcore.authorization/10.0.6/lib/net10.0/Microsoft.AspNetCore.Authorization.dll
  microsoft.aspnetcore.components.forms/10.0.6/lib/net10.0/Microsoft.AspNetCore.Components.Forms.dll
  microsoft.aspnetcore.components.web/10.0.6/lib/net10.0/Microsoft.AspNetCore.Components.Web.dll
@@ -1244,7 +1244,7 @@ Services/
  microsoft.maui.essentials/10.0.51/lib/net10.0-maccatalyst26.0/Microsoft.Maui.Essentials.dll
  microsoft.maui.graphics/10.0.51/lib/net10.0-maccatalyst26.0/Microsoft.Maui.Graphics.dll
  microsoft.sqlserver.server/1.0.0/lib/netstandard2.0/Microsoft.SqlServer.Server.dll
- mimekit/4.15.1/lib/net10.0/MimeKit.dll
+ mimekit/4.16.0/lib/net10.0/MimeKit.dll
  numericwordsconversion/2.1.1/lib/netstandard2.1/NumericWordsConversion.dll
  plugin.localnotification.core/1.1.0/lib/net10.0-maccatalyst26.0/Plugin.LocalNotification.Core.dll
  plugin.localnotification/14.1.0/lib/net10.0-maccatalyst26.0/Plugin.LocalNotification.dll
@@ -1583,7 +1583,7 @@ Services/
  azure.storage.common/12.26.0/lib/net10.0/Azure.Storage.Common.dll
  bouncycastle.cryptography/2.6.2/lib/net6.0/BouncyCastle.Cryptography.dll
  dapper/2.1.72/lib/net10.0/Dapper.dll
- mailkit/4.15.1/lib/net10.0/MailKit.dll
+ mailkit/4.16.0/lib/net10.0/MailKit.dll
  microsoft.aspnetcore.authorization/10.0.6/lib/net10.0/Microsoft.AspNetCore.Authorization.dll
  microsoft.aspnetcore.components.forms/10.0.6/lib/net10.0/Microsoft.AspNetCore.Components.Forms.dll
  microsoft.aspnetcore.components.web/10.0.6/lib/net10.0/Microsoft.AspNetCore.Components.Web.dll
@@ -1673,7 +1673,7 @@ Services/
   Microsoft.Windows.AI.MachineLearning.Projection.dll
  microsoft.windowsappsdk.widgets/1.8.251231004/lib/net6.0-windows10.0.17763.0/Microsoft.Windows.Widgets.Projection.dll
  microsoft.windowsappsdk.winui/1.8.260204000/lib/net6.0-windows10.0.17763.0/Microsoft.WinUI.dll
- mimekit/4.15.1/lib/net10.0/MimeKit.dll
+ mimekit/4.16.0/lib/net10.0/MimeKit.dll
  numericwordsconversion/2.1.1/lib/netstandard2.1/NumericWordsConversion.dll
  plugin.localnotification.core/1.1.0/lib/net10.0-windows10.0.19041/Plugin.LocalNotification.Core.dll
  plugin.localnotification/14.1.0/lib/net10.0-windows10.0.19041/Plugin.LocalNotification.dll

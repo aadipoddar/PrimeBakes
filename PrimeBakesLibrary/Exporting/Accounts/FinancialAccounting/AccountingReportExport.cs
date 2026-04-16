@@ -27,6 +27,7 @@ public static class FinancialAccountingReportExport
             [nameof(FinancialAccountingOverviewModel.CreatedFromPlatform)] = new() { DisplayName = "Created Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
             [nameof(FinancialAccountingOverviewModel.LastModifiedByUserName)] = new() { DisplayName = "Modified By", Alignment = CellAlignment.Left, IncludeInTotal = false },
             [nameof(FinancialAccountingOverviewModel.LastModifiedFromPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
+            [nameof(FinancialAccountingOverviewModel.Status)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false },
             [nameof(FinancialAccountingOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm tt", Alignment = CellAlignment.Center, IncludeInTotal = false },
             [nameof(FinancialAccountingOverviewModel.CreatedAt)] = new() { DisplayName = "Created At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
             [nameof(FinancialAccountingOverviewModel.LastModifiedAt)] = new() { DisplayName = "Modified At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
@@ -60,7 +61,8 @@ public static class FinancialAccountingReportExport
                 nameof(FinancialAccountingOverviewModel.CreatedFromPlatform),
                 nameof(FinancialAccountingOverviewModel.LastModifiedByUserName),
                 nameof(FinancialAccountingOverviewModel.LastModifiedAt),
-                nameof(FinancialAccountingOverviewModel.LastModifiedFromPlatform)
+                nameof(FinancialAccountingOverviewModel.LastModifiedFromPlatform),
+                nameof(FinancialAccountingOverviewModel.Status),
             ];
 
             if (company is not null)

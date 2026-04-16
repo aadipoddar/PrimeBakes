@@ -15,9 +15,12 @@ public enum DateRangeType
 {
     Today,
     Yesterday,
+    NextDay,
     CurrentMonth,
     PreviousMonth,
+    NextMonth,
     CurrentFinancialYear,
     PreviousFinancialYear,
+    NextFinancialYear,
     AllTime
 }
