@@ -2,7 +2,6 @@
 
 @using PrimeBakesLibrary.Models.Accounts.FinancialAccounting
 @using PrimeBakesLibrary.Models.Accounts.Masters
-@using PrimeBakesLibrary.Models.Operations
 
 <PageTitle>Financial Ledger Report - Prime Bakes</PageTitle>
 
@@ -13,27 +12,67 @@
 else
 {
 	<div class="page-shell">
-		<Header Title="Financial Ledger Report"
-
->
+		<Header Title="Financial Ledger Report">
 			<LeftContent>
-				<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)"
-							Disabled="_isProcessing" OnClick="ExportExcel" />
-				<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)"
-							Disabled="_isProcessing" OnClick="ExportPdf" />
-				<IconButton Icon="IconType.Refresh" Title="Refresh Data (Ctrl + R)" Disabled="_isProcessing"
-							OnClick="LoadTransactionOverviews" />
-				<IconButton Icon="IconType.Report" Title="Transaction History Report (Ctrl + H)" Disabled="_isProcessing"
-							OnClick="NavigateToTransactionHistory" />
-				<IconButton Icon="IconType.TrialBalance" Title="Trial Balance (Ctrl + T)" Disabled="_isProcessing"
-							OnClick="NavigateToTrialBalance" />
-				<IconButton Icon="IconType.ProfitAndLoss" Title="Profit & Loss (Alt+ F)" Disabled="_isProcessing"
-							OnClick="NavigateToProfitAndLoss" />
-				<IconButton Icon="IconType.BalanceSheet" Title="Balance Sheet (Alt + B)" Disabled="_isProcessing"
-							OnClick="NavigateToBalanceSheet" />
-				<IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing"
-							OnClick="NavigateToTransactionPage" />
+				<SfMenu TValue="Syncfusion.Blazor.Navigations.MenuItem">
+					<MenuAnimationSettings Effect="Syncfusion.Blazor.Navigations.MenuEffect.SlideDown" Duration="300"
+										   Easing="ease" />
+					<MenuEvents TValue="Syncfusion.Blazor.Navigations.MenuItem" ItemSelected="OnMenuSelected"
+								OnOpen='async () => await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0)' />
+					<MenuItems>
+						<MenuItem Text="File" IconCss="e-icons e-folder">
+							<MenuItems>
+								<MenuItem Text="New Transaction (Ctrl + N)" IconCss="e-icons e-plus" Id="NewTransaction"
+										  Disabled="@_isProcessing" />
+								<MenuItem Text="Refresh Data (Ctrl + R / F5)" IconCss="e-icons e-refresh" Id="Refresh"
+										  Disabled="@_isProcessing" />
+								<MenuItem Text="@(_showAllColumns ? "Hide Details (Ctrl + Q)" : "Show Details (Ctrl + Q)")"
+										  IconCss="e-icons e-table" Id="ToggleDetailsView" Disabled="@_isProcessing" />
+								<MenuItem Separator="true" />
+								<MenuItem Text="Export PDF (Ctrl + P)" IconCss="e-icons e-export-pdf" Id="ExportPdf"
+										  Disabled="@_isProcessing" />
+								<MenuItem Text="Export Excel (Ctrl + E)" IconCss="e-icons e-export-excel" Id="ExportExcel"
+										  Disabled="@_isProcessing" />
+							</MenuItems>
+						</MenuItem>
+						<MenuItem Text="Open" IconCss="e-icons e-folder-open">
+							<MenuItems>
+								<MenuItem Text="Transaction History Report" Id="TransactionHistory" Disabled="@_isProcessing" />
+								<MenuItem Text="Trial Balance" Id="TrialBalance" Disabled="@_isProcessing" />
+								<MenuItem Text="Profit & Loss" Id="ProfitLoss" Disabled="@_isProcessing" />
+								<MenuItem Text="Balance Sheet" Id="BalanceSheet" Disabled="@_isProcessing" />
+							</MenuItems>
+						</MenuItem>
+						<MenuItem Text="Periods" IconCss="e-icons e-clock">
+							<MenuItems>
+								<MenuItem Text="Today" Id="PeriodToday" Disabled="@_isProcessing" />
+								<MenuItem Text="Previous Day" Id="PeriodPreviousDay" Disabled="@_isProcessing" />
+								<MenuItem Text="Next Day" Id="PeriodNextDay" Disabled="@_isProcessing" />
+								<MenuItem Text="Current Month" Id="PeriodCurrentMonth" Disabled="@_isProcessing" />
+								<MenuItem Text="Previous Month" Id="PeriodPreviousMonth" Disabled="@_isProcessing" />
+								<MenuItem Text="Next Month" Id="PeriodNextMonth" Disabled="@_isProcessing" />
+								<MenuItem Text="Current FY" Id="PeriodCurrentFinancialYear" Disabled="@_isProcessing" />
+								<MenuItem Text="Previous FY" Id="PeriodPreviousFinancialYear" Disabled="@_isProcessing" />
+								<MenuItem Text="Next FY" Id="PeriodNextFinancialYear" Disabled="@_isProcessing" />
+								<MenuItem Text="All Time" Id="PeriodAllTime" Disabled="@_isProcessing" />
+							</MenuItems>
+						</MenuItem>
+						<MenuItem Text="Transaction" IconCss="e-icons e-chart">
+							<MenuItems>
+								<MenuItem Text="View (Alt + O)" IconCss="e-icons e-eye" Id="ViewSelected"
+										  Disabled="@_isProcessing" />
+								<MenuItem Text="Export PDF (Alt + P)" IconCss="e-icons e-export-pdf" Id="DownloadSelectedPdf"
+										  Disabled="@_isProcessing" />
+								<MenuItem Text="Export Excel (Alt + E)" IconCss="e-icons e-export-excel"
+										  Id="DownloadSelectedExcel" Disabled="@_isProcessing" />
+							</MenuItems>
+						</MenuItem>
+					</MenuItems>
+				</SfMenu>
 			</LeftContent>
+			<RightContent>
+				<IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="NavigateBack" />
+			</RightContent>
 		</Header>
 
 		<!-- Main Content Container -->
@@ -89,9 +128,6 @@ else
 							</div>
 						</div>
 
-						<!-- Date Utility Buttons -->
-						<DateRangeButtons Disabled="_isProcessing" FromDate="_fromDate" ToDate="_toDate"
-										  OnDatesChanged="HandleDatesChanged" ToastNotification="_toastNotification" />
 					</div>
 				</div>
 			</div>
@@ -112,20 +148,16 @@ else
 						</svg>
 						<h2 class="section-title">Ledger Transactions</h2>
 					</div>
-					<div class="header-actions">
-						<ToggleButton Disabled="@_isProcessing" IsActive="@_showAllColumns"
-									  Variant="ToggleButton.ToggleVariant.Details" OnToggle="ToggleDetailsView" />
-					</div>
 				</div>
 				<div class="section-body grid-body">
 					<SfGrid ID="_sfGrid" @ref="_sfGrid" TValue="FinancialAccountingLedgerOverviewModel"
 							DataSource="_transactionOverviews" AllowTextWrap="true" AllowPaging="true" AllowSorting="true"
 							AllowResizing="true" AllowFiltering="true" AllowExcelExport="true" AllowPdfExport="true"
 							GridLines="GridLine.Horizontal" CssClass="professional-grid" AllowGrouping="true"
-							ContextMenuItems="@_gridContextMenuItems"
-							Toolbar="@(new List<string>() { "Search" })">
+							ContextMenuItems="@_gridContextMenuItems" Toolbar="@(new List<string>() { "Search" })">
 
-						<GridEvents TValue="FinancialAccountingLedgerOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+						<GridEvents TValue="FinancialAccountingLedgerOverviewModel"
+									ContextMenuItemClicked="OnGridContextMenuItemClicked" />
 						<GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
 						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
 						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
