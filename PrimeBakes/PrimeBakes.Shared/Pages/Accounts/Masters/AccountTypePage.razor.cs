@@ -22,6 +22,11 @@ public partial class AccountTypePage : IAsyncDisposable
     private AccountTypeModel _accountType = new();
 
     private List<AccountTypeModel> _accountTypes = [];
+    private readonly List<ContextMenuItemModel> _accountTypeGridContextMenuItems =
+    [
+        new() { Text = "Edit (Insert)", Id = "EditAccountType", IconCss = "e-icons e-edit", Target = ".e-content" },
+        new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverAccountType", IconCss = "e-icons e-trash", Target = ".e-content" }
+    ];
 
     private SfGrid<AccountTypeModel> _sfGrid;
     private DeleteConfirmationDialog _deleteConfirmationDialog;
@@ -54,11 +59,10 @@ public partial class AccountTypePage : IAsyncDisposable
             .Add(ModCode.Ctrl, Code.E, ExportExcel, "Export Excel", Exclude.None)
             .Add(ModCode.Ctrl, Code.P, ExportPdf, "Export PDF", Exclude.None)
             .Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
-            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
+            .Add(ModCode.Ctrl, Code.Delete, ToggleDeleted, "Show/Hide Deleted", Exclude.None)
             .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-            .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Dashboard", Exclude.None)
             .Add(Code.Insert, EditSelectedItem, "Edit selected", Exclude.None)
-            .Add(Code.Delete, DeleteSelectedItem, "Delete selected", Exclude.None);
+            .Add(Code.Delete, DeleteSelectedItem, "Delete / Recover selected", Exclude.None);
 
         _accountTypes = await CommonData.LoadTableData<AccountTypeModel>(TableNames.AccountType);
 
@@ -84,20 +88,6 @@ public partial class AccountTypePage : IAsyncDisposable
         StateHasChanged();
     }
 
-    private async Task ShowDeleteConfirmation(int id, string name)
-    {
-        _deleteAccountTypeId = id;
-        _deleteAccountTypeName = name;
-        await _deleteConfirmationDialog.ShowAsync();
-    }
-
-    private async Task CancelDelete()
-    {
-        _deleteAccountTypeId = 0;
-        _deleteAccountTypeName = string.Empty;
-        await _deleteConfirmationDialog.HideAsync();
-    }
-
     private async Task ConfirmDelete()
     {
         try
@@ -106,17 +96,10 @@ public partial class AccountTypePage : IAsyncDisposable
             await _deleteConfirmationDialog.HideAsync();
 
             if (!_user.Admin)
-            {
-                await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
-                return;
-            }
+                throw new Exception("You do not have permission to perform this action.");
 
-            var accountType = _accountTypes.FirstOrDefault(at => at.Id == _deleteAccountTypeId);
-            if (accountType == null)
-            {
-                await _toastNotification.ShowAsync("Error", "Account Type not found.", ToastType.Error);
-                return;
-            }
+            var accountType = _accountTypes.FirstOrDefault(at => at.Id == _deleteAccountTypeId)
+                ?? throw new Exception("Account Type not found.");
 
             accountType.Status = false;
             await AccountTypeData.InsertAccountType(accountType);
@@ -136,27 +119,6 @@ public partial class AccountTypePage : IAsyncDisposable
         }
     }
 
-    private async Task ShowRecoverConfirmation(int id, string name)
-    {
-        _recoverAccountTypeId = id;
-        _recoverAccountTypeName = name;
-        await _recoverConfirmationDialog.ShowAsync();
-    }
-
-    private async Task CancelRecover()
-    {
-        _recoverAccountTypeId = 0;
-        _recoverAccountTypeName = string.Empty;
-        await _recoverConfirmationDialog.HideAsync();
-    }
-
-    private async Task ToggleDeleted()
-    {
-        _showDeleted = !_showDeleted;
-        await LoadData();
-        StateHasChanged();
-    }
-
     private async Task ConfirmRecover()
     {
         try
@@ -165,17 +127,10 @@ public partial class AccountTypePage : IAsyncDisposable
             await _recoverConfirmationDialog.HideAsync();
 
             if (!_user.Admin)
-            {
-                await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
-                return;
-            }
+                throw new Exception("You do not have permission to perform this action.");
 
-            var accountType = _accountTypes.FirstOrDefault(at => at.Id == _recoverAccountTypeId);
-            if (accountType == null)
-            {
-                await _toastNotification.ShowAsync("Error", "Account Type not found.", ToastType.Error);
-                return;
-            }
+            var accountType = _accountTypes.FirstOrDefault(at => at.Id == _recoverAccountTypeId)
+                ?? throw new Exception("Account Type not found.");
 
             accountType.Status = true;
             await AccountTypeData.InsertAccountType(accountType);
@@ -333,6 +288,47 @@ public partial class AccountTypePage : IAsyncDisposable
     #endregion
 
     #region Utilities
+    private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+    {
+        switch (args.Item.Id)
+        {
+            case "NewAccountType":
+                ResetPage();
+                break;
+            case "SaveAccountType":
+                await SaveAccountType();
+                break;
+            case "ToggleDeleted":
+                await ToggleDeleted();
+                break;
+            case "ExportExcel":
+                await ExportExcel();
+                break;
+            case "ExportPdf":
+                await ExportPdf();
+                break;
+            case "EditSelected":
+                await EditSelectedItem();
+                break;
+            case "DeleteRecoverSelected":
+                await DeleteSelectedItem();
+                break;
+        }
+    }
+
+    private async Task OnAccountTypeGridContextMenuItemClicked(ContextMenuClickEventArgs<AccountTypeModel> args)
+    {
+        switch (args.Item.Id)
+        {
+            case "EditAccountType":
+                await EditSelectedItem();
+                break;
+            case "DeleteRecoverAccountType":
+                await DeleteSelectedItem();
+                break;
+        }
+    }
+
     private async Task EditSelectedItem()
     {
         var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
@@ -352,17 +348,46 @@ public partial class AccountTypePage : IAsyncDisposable
         }
     }
 
+    private async Task ShowDeleteConfirmation(int id, string name)
+    {
+        _deleteAccountTypeId = id;
+        _deleteAccountTypeName = name;
+        await _deleteConfirmationDialog.ShowAsync();
+    }
+
+    private async Task CancelDelete()
+    {
+        _deleteAccountTypeId = 0;
+        _deleteAccountTypeName = string.Empty;
+        await _deleteConfirmationDialog.HideAsync();
+    }
+
+    private async Task ShowRecoverConfirmation(int id, string name)
+    {
+        _recoverAccountTypeId = id;
+        _recoverAccountTypeName = name;
+        await _recoverConfirmationDialog.ShowAsync();
+    }
+
+    private async Task CancelRecover()
+    {
+        _recoverAccountTypeId = 0;
+        _recoverAccountTypeName = string.Empty;
+        await _recoverConfirmationDialog.HideAsync();
+    }
+
+    private async Task ToggleDeleted()
+    {
+        _showDeleted = !_showDeleted;
+        await LoadData();
+        StateHasChanged();
+    }
+
     private void ResetPage() =>
         NavigationManager.NavigateTo(PageRouteNames.AccountTypeMaster, true);
 
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
-
-    private void NavigateToDashboard() =>
-        NavigationManager.NavigateTo(PageRouteNames.Dashboard);
-
-    private async Task Logout() =>
-        await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 
     public async ValueTask DisposeAsync()
     {

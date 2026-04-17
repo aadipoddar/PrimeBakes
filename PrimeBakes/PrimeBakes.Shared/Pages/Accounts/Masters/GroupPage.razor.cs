@@ -23,6 +23,11 @@ public partial class GroupPage : IAsyncDisposable
 
     private List<GroupModel> _groups = [];
     private List<NatureModel> _natures = [];
+    private readonly List<ContextMenuItemModel> _groupGridContextMenuItems =
+    [
+        new() { Text = "Edit (Insert)", Id = "EditGroup", IconCss = "e-icons e-edit", Target = ".e-content" },
+        new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverGroup", IconCss = "e-icons e-trash", Target = ".e-content" }
+    ];
 
     private SfGrid<GroupModel> _sfGrid;
     private DeleteConfirmationDialog _deleteConfirmationDialog;
@@ -55,11 +60,10 @@ public partial class GroupPage : IAsyncDisposable
             .Add(ModCode.Ctrl, Code.E, ExportExcel, "Export Excel", Exclude.None)
             .Add(ModCode.Ctrl, Code.P, ExportPdf, "Export PDF", Exclude.None)
             .Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
-            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
+            .Add(ModCode.Ctrl, Code.Delete, ToggleDeleted, "Show/Hide Deleted", Exclude.None)
             .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-            .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Dashboard", Exclude.None)
             .Add(Code.Insert, EditSelectedItem, "Edit selected", Exclude.None)
-            .Add(Code.Delete, DeleteSelectedItem, "Delete selected", Exclude.None);
+            .Add(Code.Delete, DeleteSelectedItem, "Delete / Recover selected", Exclude.None);
 
         _natures = await CommonData.LoadTableDataByStatus<NatureModel>(TableNames.Nature);
         _groups = await CommonData.LoadTableData<GroupModel>(TableNames.Group);
@@ -87,20 +91,6 @@ public partial class GroupPage : IAsyncDisposable
         StateHasChanged();
     }
 
-    private async Task ShowDeleteConfirmation(int id, string name)
-    {
-        _deleteGroupId = id;
-        _deleteGroupName = name;
-        await _deleteConfirmationDialog.ShowAsync();
-    }
-
-    private async Task CancelDelete()
-    {
-        _deleteGroupId = 0;
-        _deleteGroupName = string.Empty;
-        await _deleteConfirmationDialog.HideAsync();
-    }
-
     private async Task ConfirmDelete()
     {
         try
@@ -109,17 +99,10 @@ public partial class GroupPage : IAsyncDisposable
             await _deleteConfirmationDialog.HideAsync();
 
             if (!_user.Admin)
-            {
-                await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
-                return;
-            }
+                throw new Exception("You do not have permission to perform this action.");
 
-            var group = _groups.FirstOrDefault(g => g.Id == _deleteGroupId);
-            if (group == null)
-            {
-                await _toastNotification.ShowAsync("Error", "Group not found.", ToastType.Error);
-                return;
-            }
+            var group = _groups.FirstOrDefault(g => g.Id == _deleteGroupId)
+                ?? throw new Exception("Group not found.");
 
             group.Status = false;
             await GroupData.InsertGroup(group);
@@ -139,27 +122,6 @@ public partial class GroupPage : IAsyncDisposable
         }
     }
 
-    private async Task ShowRecoverConfirmation(int id, string name)
-    {
-        _recoverGroupId = id;
-        _recoverGroupName = name;
-        await _recoverConfirmationDialog.ShowAsync();
-    }
-
-    private async Task CancelRecover()
-    {
-        _recoverGroupId = 0;
-        _recoverGroupName = string.Empty;
-        await _recoverConfirmationDialog.HideAsync();
-    }
-
-    private async Task ToggleDeleted()
-    {
-        _showDeleted = !_showDeleted;
-        await LoadData();
-        StateHasChanged();
-    }
-
     private async Task ConfirmRecover()
     {
         try
@@ -168,17 +130,10 @@ public partial class GroupPage : IAsyncDisposable
             await _recoverConfirmationDialog.HideAsync();
 
             if (!_user.Admin)
-            {
-                await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
-                return;
-            }
+                throw new Exception("You do not have permission to perform this action.");
 
-            var group = _groups.FirstOrDefault(g => g.Id == _recoverGroupId);
-            if (group == null)
-            {
-                await _toastNotification.ShowAsync("Error", "Group not found.", ToastType.Error);
-                return;
-            }
+            var group = _groups.FirstOrDefault(g => g.Id == _recoverGroupId)
+             ?? throw new Exception("Group not found.");
 
             group.Status = true;
             await GroupData.InsertGroup(group);
@@ -299,6 +254,7 @@ public partial class GroupPage : IAsyncDisposable
 
             var (stream, fileName) = await GroupExport.ExportMaster(_groups, ReportExportType.Excel);
             await SaveAndViewService.SaveAndView(fileName, stream);
+
             await _toastNotification.ShowAsync("Success", "Group data exported to Excel successfully.", ToastType.Success);
         }
         catch (Exception ex)
@@ -325,6 +281,7 @@ public partial class GroupPage : IAsyncDisposable
 
             var (stream, fileName) = await GroupExport.ExportMaster(_groups, ReportExportType.PDF);
             await SaveAndViewService.SaveAndView(fileName, stream);
+
             await _toastNotification.ShowAsync("Success", "Group data exported to PDF successfully.", ToastType.Success);
         }
         catch (Exception ex)
@@ -340,6 +297,47 @@ public partial class GroupPage : IAsyncDisposable
     #endregion
 
     #region Utilities
+    private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+    {
+        switch (args.Item.Id)
+        {
+            case "NewGroup":
+                ResetPage();
+                break;
+            case "SaveGroup":
+                await SaveGroup();
+                break;
+            case "ToggleDeleted":
+                await ToggleDeleted();
+                break;
+            case "ExportExcel":
+                await ExportExcel();
+                break;
+            case "ExportPdf":
+                await ExportPdf();
+                break;
+            case "EditSelected":
+                await EditSelectedItem();
+                break;
+            case "DeleteRecoverSelected":
+                await DeleteSelectedItem();
+                break;
+        }
+    }
+
+    private async Task OnGroupGridContextMenuItemClicked(ContextMenuClickEventArgs<GroupModel> args)
+    {
+        switch (args.Item.Id)
+        {
+            case "EditGroup":
+                await EditSelectedItem();
+                break;
+            case "DeleteRecoverGroup":
+                await DeleteSelectedItem();
+                break;
+        }
+    }
+
     private async Task EditSelectedItem()
     {
         var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
@@ -359,17 +357,46 @@ public partial class GroupPage : IAsyncDisposable
         }
     }
 
+    private async Task ShowDeleteConfirmation(int id, string name)
+    {
+        _deleteGroupId = id;
+        _deleteGroupName = name;
+        await _deleteConfirmationDialog.ShowAsync();
+    }
+
+    private async Task CancelDelete()
+    {
+        _deleteGroupId = 0;
+        _deleteGroupName = string.Empty;
+        await _deleteConfirmationDialog.HideAsync();
+    }
+
+    private async Task ShowRecoverConfirmation(int id, string name)
+    {
+        _recoverGroupId = id;
+        _recoverGroupName = name;
+        await _recoverConfirmationDialog.ShowAsync();
+    }
+
+    private async Task CancelRecover()
+    {
+        _recoverGroupId = 0;
+        _recoverGroupName = string.Empty;
+        await _recoverConfirmationDialog.HideAsync();
+    }
+
+    private async Task ToggleDeleted()
+    {
+        _showDeleted = !_showDeleted;
+        await LoadData();
+        StateHasChanged();
+    }
+
     private void ResetPage() =>
         NavigationManager.NavigateTo(PageRouteNames.GroupMaster, true);
 
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
-
-    private void NavigateToDashboard() =>
-        NavigationManager.NavigateTo(PageRouteNames.Dashboard);
-
-    private async Task Logout() =>
-        await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 
     public async ValueTask DisposeAsync()
     {

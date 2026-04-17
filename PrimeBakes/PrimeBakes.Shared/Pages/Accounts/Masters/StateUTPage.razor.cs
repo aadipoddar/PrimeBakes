@@ -22,6 +22,11 @@ public partial class StateUTPage : IAsyncDisposable
     private StateUTModel _stateUT = new();
 
     private List<StateUTModel> _stateUTs = [];
+    private readonly List<ContextMenuItemModel> _stateUTGridContextMenuItems =
+    [
+        new() { Text = "Edit (Insert)", Id = "EditStateUT", IconCss = "e-icons e-edit", Target = ".e-content" },
+        new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverStateUT", IconCss = "e-icons e-trash", Target = ".e-content" }
+    ];
 
     private SfGrid<StateUTModel> _sfGrid;
     private DeleteConfirmationDialog _deleteConfirmationDialog;
@@ -54,11 +59,10 @@ public partial class StateUTPage : IAsyncDisposable
             .Add(ModCode.Ctrl, Code.E, ExportExcel, "Export Excel", Exclude.None)
             .Add(ModCode.Ctrl, Code.P, ExportPdf, "Export PDF", Exclude.None)
             .Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
-            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
+            .Add(ModCode.Ctrl, Code.Delete, ToggleDeleted, "Show/Hide Deleted", Exclude.None)
             .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-            .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Dashboard", Exclude.None)
             .Add(Code.Insert, EditSelectedItem, "Edit selected", Exclude.None)
-            .Add(Code.Delete, DeleteSelectedItem, "Delete selected", Exclude.None);
+            .Add(Code.Delete, DeleteSelectedItem, "Delete / Recover selected", Exclude.None);
 
         _stateUTs = await CommonData.LoadTableData<StateUTModel>(TableNames.StateUT);
 
@@ -84,19 +88,6 @@ public partial class StateUTPage : IAsyncDisposable
 
         StateHasChanged();
     }
-    private async Task ShowDeleteConfirmation(int id, string name)
-    {
-        _deleteStateUTId = id;
-        _deleteStateUTName = name;
-        await _deleteConfirmationDialog.ShowAsync();
-    }
-
-    private async Task CancelDelete()
-    {
-        _deleteStateUTId = 0;
-        _deleteStateUTName = string.Empty;
-        await _deleteConfirmationDialog.HideAsync();
-    }
 
     private async Task ConfirmDelete()
     {
@@ -106,17 +97,10 @@ public partial class StateUTPage : IAsyncDisposable
             await _deleteConfirmationDialog.HideAsync();
 
             if (!_user.Admin)
-            {
-                await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
-                return;
-            }
+                throw new Exception("You do not have permission to perform this action.");
 
-            var stateUT = _stateUTs.FirstOrDefault(g => g.Id == _deleteStateUTId);
-            if (stateUT == null)
-            {
-                await _toastNotification.ShowAsync("Error", "State/UT not found.", ToastType.Error);
-                return;
-            }
+            var stateUT = _stateUTs.FirstOrDefault(g => g.Id == _deleteStateUTId)
+                ?? throw new Exception("State/UT not found.");
 
             stateUT.Status = false;
             await StateUTData.InsertStateUT(stateUT);
@@ -136,27 +120,6 @@ public partial class StateUTPage : IAsyncDisposable
         }
     }
 
-    private async Task ShowRecoverConfirmation(int id, string name)
-    {
-        _recoverStateUTId = id;
-        _recoverStateUTName = name;
-        await _recoverConfirmationDialog.ShowAsync();
-    }
-
-    private async Task CancelRecover()
-    {
-        _recoverStateUTId = 0;
-        _recoverStateUTName = string.Empty;
-        await _recoverConfirmationDialog.HideAsync();
-    }
-
-    private async Task ToggleDeleted()
-    {
-        _showDeleted = !_showDeleted;
-        await LoadData();
-        StateHasChanged();
-    }
-
     private async Task ConfirmRecover()
     {
         try
@@ -165,17 +128,10 @@ public partial class StateUTPage : IAsyncDisposable
             await _recoverConfirmationDialog.HideAsync();
 
             if (!_user.Admin)
-            {
-                await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
-                return;
-            }
+                throw new Exception("You do not have permission to perform this action.");
 
-            var stateUT = _stateUTs.FirstOrDefault(g => g.Id == _recoverStateUTId);
-            if (stateUT == null)
-            {
-                await _toastNotification.ShowAsync("Error", "State/UT not found.", ToastType.Error);
-                return;
-            }
+            var stateUT = _stateUTs.FirstOrDefault(g => g.Id == _recoverStateUTId)
+                ?? throw new Exception("State/UT not found.");
 
             stateUT.Status = true;
             await StateUTData.InsertStateUT(stateUT);
@@ -204,7 +160,7 @@ public partial class StateUTPage : IAsyncDisposable
             await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
             return false;
         }
-        
+
         _stateUT.Name = _stateUT.Name?.Trim() ?? "";
         _stateUT.Name = _stateUT.Name?.ToUpper() ?? "";
 
@@ -331,6 +287,47 @@ public partial class StateUTPage : IAsyncDisposable
     #endregion
 
     #region Utilities
+    private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+    {
+        switch (args.Item.Id)
+        {
+            case "NewStateUT":
+                ResetPage();
+                break;
+            case "SaveStateUT":
+                await SaveStateUT();
+                break;
+            case "ToggleDeleted":
+                await ToggleDeleted();
+                break;
+            case "ExportExcel":
+                await ExportExcel();
+                break;
+            case "ExportPdf":
+                await ExportPdf();
+                break;
+            case "EditSelected":
+                await EditSelectedItem();
+                break;
+            case "DeleteRecoverSelected":
+                await DeleteSelectedItem();
+                break;
+        }
+    }
+
+    private async Task OnStateUTGridContextMenuItemClicked(ContextMenuClickEventArgs<StateUTModel> args)
+    {
+        switch (args.Item.Id)
+        {
+            case "EditStateUT":
+                await EditSelectedItem();
+                break;
+            case "DeleteRecoverStateUT":
+                await DeleteSelectedItem();
+                break;
+        }
+    }
+
     private async Task EditSelectedItem()
     {
         var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
@@ -350,17 +347,46 @@ public partial class StateUTPage : IAsyncDisposable
         }
     }
 
+    private async Task ShowDeleteConfirmation(int id, string name)
+    {
+        _deleteStateUTId = id;
+        _deleteStateUTName = name;
+        await _deleteConfirmationDialog.ShowAsync();
+    }
+
+    private async Task CancelDelete()
+    {
+        _deleteStateUTId = 0;
+        _deleteStateUTName = string.Empty;
+        await _deleteConfirmationDialog.HideAsync();
+    }
+
+    private async Task ShowRecoverConfirmation(int id, string name)
+    {
+        _recoverStateUTId = id;
+        _recoverStateUTName = name;
+        await _recoverConfirmationDialog.ShowAsync();
+    }
+
+    private async Task CancelRecover()
+    {
+        _recoverStateUTId = 0;
+        _recoverStateUTName = string.Empty;
+        await _recoverConfirmationDialog.HideAsync();
+    }
+
+    private async Task ToggleDeleted()
+    {
+        _showDeleted = !_showDeleted;
+        await LoadData();
+        StateHasChanged();
+    }
+
     private void ResetPage() =>
         NavigationManager.NavigateTo(PageRouteNames.StateUTMaster, true);
 
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
-
-    private void NavigateToDashboard() =>
-        NavigationManager.NavigateTo(PageRouteNames.Dashboard);
-
-    private async Task Logout() =>
-        await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 
     public async ValueTask DisposeAsync()
     {

@@ -23,6 +23,11 @@ public partial class CompanyPage : IAsyncDisposable
 
     private List<CompanyModel> _companies = [];
     private List<StateUTModel> _stateUTs = [];
+    private readonly List<ContextMenuItemModel> _companyGridContextMenuItems =
+    [
+        new() { Text = "Edit (Insert)", Id = "EditCompany", IconCss = "e-icons e-edit", Target = ".e-content" },
+        new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverCompany", IconCss = "e-icons e-trash", Target = ".e-content" }
+    ];
 
     private SfGrid<CompanyModel> _sfGrid;
     private DeleteConfirmationDialog _deleteConfirmationDialog;
@@ -55,11 +60,10 @@ public partial class CompanyPage : IAsyncDisposable
             .Add(ModCode.Ctrl, Code.E, ExportExcel, "Export Excel", Exclude.None)
             .Add(ModCode.Ctrl, Code.P, ExportPdf, "Export PDF", Exclude.None)
             .Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
-            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
+            .Add(ModCode.Ctrl, Code.Delete, ToggleDeleted, "Show/Hide Deleted", Exclude.None)
             .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-            .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Dashboard", Exclude.None)
             .Add(Code.Insert, EditSelectedItem, "Edit selected", Exclude.None)
-            .Add(Code.Delete, DeleteSelectedItem, "Delete selected", Exclude.None);
+            .Add(Code.Delete, DeleteSelectedItem, "Delete / Recover selected", Exclude.None);
 
         _companies = await CommonData.LoadTableData<CompanyModel>(TableNames.Company);
         _stateUTs = await CommonData.LoadTableData<StateUTModel>(TableNames.StateUT);
@@ -95,20 +99,6 @@ public partial class CompanyPage : IAsyncDisposable
         StateHasChanged();
     }
 
-    private async Task ShowDeleteConfirmation(int id, string name)
-    {
-        _deleteCompanyId = id;
-        _deleteCompanyName = name;
-        await _deleteConfirmationDialog.ShowAsync();
-    }
-
-    private async Task CancelDelete()
-    {
-        _deleteCompanyId = 0;
-        _deleteCompanyName = string.Empty;
-        await _deleteConfirmationDialog.HideAsync();
-    }
-
     private async Task ConfirmDelete()
     {
         try
@@ -117,17 +107,10 @@ public partial class CompanyPage : IAsyncDisposable
             await _deleteConfirmationDialog.HideAsync();
 
             if (!_user.Admin)
-            {
-                await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
-                return;
-            }
+                throw new Exception("You do not have permission to perform this action.");
 
-            var company = _companies.FirstOrDefault(c => c.Id == _deleteCompanyId);
-            if (company == null)
-            {
-                await _toastNotification.ShowAsync("Error", "Company not found.", ToastType.Error);
-                return;
-            }
+            var company = _companies.FirstOrDefault(c => c.Id == _deleteCompanyId)
+                ?? throw new Exception("Company not found.");
 
             company.Status = false;
             await CompanyData.InsertCompany(company);
@@ -147,27 +130,6 @@ public partial class CompanyPage : IAsyncDisposable
         }
     }
 
-    private async Task ShowRecoverConfirmation(int id, string name)
-    {
-        _recoverCompanyId = id;
-        _recoverCompanyName = name;
-        await _recoverConfirmationDialog.ShowAsync();
-    }
-
-    private async Task CancelRecover()
-    {
-        _recoverCompanyId = 0;
-        _recoverCompanyName = string.Empty;
-        await _recoverConfirmationDialog.HideAsync();
-    }
-
-    private async Task ToggleDeleted()
-    {
-        _showDeleted = !_showDeleted;
-        await LoadData();
-        StateHasChanged();
-    }
-
     private async Task ConfirmRecover()
     {
         try
@@ -176,17 +138,10 @@ public partial class CompanyPage : IAsyncDisposable
             await _recoverConfirmationDialog.HideAsync();
 
             if (!_user.Admin)
-            {
-                await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
-                return;
-            }
+                throw new Exception("You do not have permission to perform this action.");
 
-            var company = _companies.FirstOrDefault(c => c.Id == _recoverCompanyId);
-            if (company == null)
-            {
-                await _toastNotification.ShowAsync("Error", "Company not found.", ToastType.Error);
-                return;
-            }
+            var company = _companies.FirstOrDefault(c => c.Id == _recoverCompanyId)
+                ?? throw new Exception("Company not found.");
 
             company.Status = true;
             await CompanyData.InsertCompany(company);
@@ -215,7 +170,7 @@ public partial class CompanyPage : IAsyncDisposable
             await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
             return false;
         }
-        
+
         _company.Name = _company.Name?.Trim() ?? "";
         _company.Name = _company.Name?.ToUpper() ?? "";
 
@@ -445,6 +400,47 @@ public partial class CompanyPage : IAsyncDisposable
     #endregion
 
     #region Utilities
+    private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+    {
+        switch (args.Item.Id)
+        {
+            case "NewCompany":
+                ResetPage();
+                break;
+            case "SaveCompany":
+                await SaveCompany();
+                break;
+            case "ToggleDeleted":
+                await ToggleDeleted();
+                break;
+            case "ExportExcel":
+                await ExportExcel();
+                break;
+            case "ExportPdf":
+                await ExportPdf();
+                break;
+            case "EditSelected":
+                await EditSelectedItem();
+                break;
+            case "DeleteRecoverSelected":
+                await DeleteSelectedItem();
+                break;
+        }
+    }
+
+    private async Task OnCompanyGridContextMenuItemClicked(ContextMenuClickEventArgs<CompanyModel> args)
+    {
+        switch (args.Item.Id)
+        {
+            case "EditCompany":
+                await EditSelectedItem();
+                break;
+            case "DeleteRecoverCompany":
+                await DeleteSelectedItem();
+                break;
+        }
+    }
+
     private async Task EditSelectedItem()
     {
         var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
@@ -464,17 +460,46 @@ public partial class CompanyPage : IAsyncDisposable
         }
     }
 
+    private async Task ShowDeleteConfirmation(int id, string name)
+    {
+        _deleteCompanyId = id;
+        _deleteCompanyName = name;
+        await _deleteConfirmationDialog.ShowAsync();
+    }
+
+    private async Task CancelDelete()
+    {
+        _deleteCompanyId = 0;
+        _deleteCompanyName = string.Empty;
+        await _deleteConfirmationDialog.HideAsync();
+    }
+
+    private async Task ShowRecoverConfirmation(int id, string name)
+    {
+        _recoverCompanyId = id;
+        _recoverCompanyName = name;
+        await _recoverConfirmationDialog.ShowAsync();
+    }
+
+    private async Task CancelRecover()
+    {
+        _recoverCompanyId = 0;
+        _recoverCompanyName = string.Empty;
+        await _recoverConfirmationDialog.HideAsync();
+    }
+
+    private async Task ToggleDeleted()
+    {
+        _showDeleted = !_showDeleted;
+        await LoadData();
+        StateHasChanged();
+    }
+
     private void ResetPage() =>
         NavigationManager.NavigateTo(PageRouteNames.CompanyMaster, true);
 
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
-
-    private void NavigateToDashboard() =>
-        NavigationManager.NavigateTo(PageRouteNames.Dashboard);
-
-    private async Task Logout() =>
-        await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 
     public async ValueTask DisposeAsync()
     {

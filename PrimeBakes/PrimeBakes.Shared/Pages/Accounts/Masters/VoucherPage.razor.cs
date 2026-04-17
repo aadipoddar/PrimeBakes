@@ -22,6 +22,11 @@ public partial class VoucherPage : IAsyncDisposable
     private VoucherModel _voucher = new();
 
     private List<VoucherModel> _vouchers = [];
+    private readonly List<ContextMenuItemModel> _voucherGridContextMenuItems =
+    [
+        new() { Text = "Edit (Insert)", Id = "EditVoucher", IconCss = "e-icons e-edit", Target = ".e-content" },
+        new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverVoucher", IconCss = "e-icons e-trash", Target = ".e-content" }
+    ];
 
     private SfGrid<VoucherModel> _sfGrid;
     private DeleteConfirmationDialog _deleteConfirmationDialog;
@@ -33,7 +38,7 @@ public partial class VoucherPage : IAsyncDisposable
     private int _recoverVoucherId = 0;
     private string _recoverVoucherName = string.Empty;
 
-    ToastNotification _toastNotification;
+    private ToastNotification _toastNotification;
 
     #region Load Data
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -54,11 +59,10 @@ public partial class VoucherPage : IAsyncDisposable
             .Add(ModCode.Ctrl, Code.E, ExportExcel, "Export Excel", Exclude.None)
             .Add(ModCode.Ctrl, Code.P, ExportPdf, "Export PDF", Exclude.None)
             .Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
-            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
+            .Add(ModCode.Ctrl, Code.Delete, ToggleDeleted, "Show/Hide Deleted", Exclude.None)
             .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-            .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Dashboard", Exclude.None)
             .Add(Code.Insert, EditSelectedItem, "Edit selected", Exclude.None)
-            .Add(Code.Delete, DeleteSelectedItem, "Delete selected", Exclude.None);
+            .Add(Code.Delete, DeleteSelectedItem, "Delete / Recover selected", Exclude.None);
 
         _vouchers = await CommonData.LoadTableData<VoucherModel>(TableNames.Voucher);
 
@@ -85,20 +89,6 @@ public partial class VoucherPage : IAsyncDisposable
         StateHasChanged();
     }
 
-    private async Task ShowDeleteConfirmation(int id, string name)
-    {
-        _deleteVoucherId = id;
-        _deleteVoucherName = name;
-        await _deleteConfirmationDialog.ShowAsync();
-    }
-
-    private async Task CancelDelete()
-    {
-        _deleteVoucherId = 0;
-        _deleteVoucherName = string.Empty;
-        await _deleteConfirmationDialog.HideAsync();
-    }
-
     private async Task ConfirmDelete()
     {
         try
@@ -107,17 +97,10 @@ public partial class VoucherPage : IAsyncDisposable
             await _deleteConfirmationDialog.HideAsync();
 
             if (!_user.Admin)
-            {
-                await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
-                return;
-            }
+                throw new Exception("You do not have permission to perform this action.");
 
-            var voucher = _vouchers.FirstOrDefault(v => v.Id == _deleteVoucherId);
-            if (voucher == null)
-            {
-                await _toastNotification.ShowAsync("Error", "Voucher not found.", ToastType.Error);
-                return;
-            }
+            var voucher = _vouchers.FirstOrDefault(v => v.Id == _deleteVoucherId)
+                ?? throw new Exception("Voucher not found.");
 
             voucher.Status = false;
             await VoucherData.InsertVoucher(voucher);
@@ -137,27 +120,6 @@ public partial class VoucherPage : IAsyncDisposable
         }
     }
 
-    private async Task ShowRecoverConfirmation(int id, string name)
-    {
-        _recoverVoucherId = id;
-        _recoverVoucherName = name;
-        await _recoverConfirmationDialog.ShowAsync();
-    }
-
-    private async Task CancelRecover()
-    {
-        _recoverVoucherId = 0;
-        _recoverVoucherName = string.Empty;
-        await _recoverConfirmationDialog.HideAsync();
-    }
-
-    private async Task ToggleDeleted()
-    {
-        _showDeleted = !_showDeleted;
-        await LoadData();
-        StateHasChanged();
-    }
-
     private async Task ConfirmRecover()
     {
         try
@@ -166,17 +128,10 @@ public partial class VoucherPage : IAsyncDisposable
             await _recoverConfirmationDialog.HideAsync();
 
             if (!_user.Admin)
-            {
-                await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
-                return;
-            }
+                throw new Exception("You do not have permission to perform this action.");
 
-            var voucher = _vouchers.FirstOrDefault(v => v.Id == _recoverVoucherId);
-            if (voucher == null)
-            {
-                await _toastNotification.ShowAsync("Error", "Voucher not found.", ToastType.Error);
-                return;
-            }
+            var voucher = _vouchers.FirstOrDefault(v => v.Id == _recoverVoucherId)
+                ?? throw new Exception("Voucher not found.");
 
             voucher.Status = true;
             await VoucherData.InsertVoucher(voucher);
@@ -205,7 +160,7 @@ public partial class VoucherPage : IAsyncDisposable
             await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
             return false;
         }
-        
+
         _voucher.Name = _voucher.Name?.Trim() ?? "";
         _voucher.Name = _voucher.Name?.ToUpper() ?? "";
 
@@ -355,6 +310,47 @@ public partial class VoucherPage : IAsyncDisposable
     #endregion
 
     #region Utilities
+    private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+    {
+        switch (args.Item.Id)
+        {
+            case "NewVoucher":
+                ResetPage();
+                break;
+            case "SaveVoucher":
+                await SaveVoucher();
+                break;
+            case "ToggleDeleted":
+                await ToggleDeleted();
+                break;
+            case "ExportExcel":
+                await ExportExcel();
+                break;
+            case "ExportPdf":
+                await ExportPdf();
+                break;
+            case "EditSelected":
+                await EditSelectedItem();
+                break;
+            case "DeleteRecoverSelected":
+                await DeleteSelectedItem();
+                break;
+        }
+    }
+
+    private async Task OnVoucherGridContextMenuItemClicked(ContextMenuClickEventArgs<VoucherModel> args)
+    {
+        switch (args.Item.Id)
+        {
+            case "EditVoucher":
+                await EditSelectedItem();
+                break;
+            case "DeleteRecoverVoucher":
+                await DeleteSelectedItem();
+                break;
+        }
+    }
+
     private async Task EditSelectedItem()
     {
         var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
@@ -374,17 +370,46 @@ public partial class VoucherPage : IAsyncDisposable
         }
     }
 
+    private async Task ShowDeleteConfirmation(int id, string name)
+    {
+        _deleteVoucherId = id;
+        _deleteVoucherName = name;
+        await _deleteConfirmationDialog.ShowAsync();
+    }
+
+    private async Task CancelDelete()
+    {
+        _deleteVoucherId = 0;
+        _deleteVoucherName = string.Empty;
+        await _deleteConfirmationDialog.HideAsync();
+    }
+
+    private async Task ShowRecoverConfirmation(int id, string name)
+    {
+        _recoverVoucherId = id;
+        _recoverVoucherName = name;
+        await _recoverConfirmationDialog.ShowAsync();
+    }
+
+    private async Task CancelRecover()
+    {
+        _recoverVoucherId = 0;
+        _recoverVoucherName = string.Empty;
+        await _recoverConfirmationDialog.HideAsync();
+    }
+
+    private async Task ToggleDeleted()
+    {
+        _showDeleted = !_showDeleted;
+        await LoadData();
+        StateHasChanged();
+    }
+
     private void ResetPage() =>
         NavigationManager.NavigateTo(PageRouteNames.VoucherMaster, true);
 
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
-
-    private void NavigateToDashboard() =>
-        NavigationManager.NavigateTo(PageRouteNames.Dashboard);
-
-    private async Task Logout() =>
-        await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 
     public async ValueTask DisposeAsync()
     {

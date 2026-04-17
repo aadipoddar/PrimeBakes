@@ -11,18 +11,42 @@
 else
 {
     <div class="page-shell">
-        <Header Title="Company Management"
->
+        <Header Title="Company Management">
             <LeftContent>
-                <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)"
-                            Disabled="_isProcessing" OnClick="ExportExcel" />
-                <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)"
-                            Disabled="_isProcessing" OnClick="ExportPdf" />
-                <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Company (Ctrl + S)"
-                            Disabled="_isProcessing" OnClick="SaveCompany" />
-                <IconButton Icon="IconType.New" Title="New Company (Ctrl + N)" Disabled="_isProcessing"
-                            OnClick="ResetPage" />
+                <SfMenu TValue="Syncfusion.Blazor.Navigations.MenuItem">
+                    <MenuAnimationSettings Effect="Syncfusion.Blazor.Navigations.MenuEffect.SlideDown" Duration="300"
+                                           Easing="ease" />
+                    <MenuEvents TValue="Syncfusion.Blazor.Navigations.MenuItem" ItemSelected="OnMenuSelected" />
+                    <MenuItems>
+                        <MenuItem Text="File" IconCss="e-icons e-folder">
+                            <MenuItems>
+                                <MenuItem Text="New (Ctrl + N)" IconCss="e-icons e-plus" Id="NewCompany"
+                                          Disabled="@_isProcessing" />
+                                <MenuItem Text="Save (Ctrl + S)" IconCss="e-icons e-save" Id="SaveCompany"
+                                          Disabled="@_isProcessing" />
+                                <MenuItem Text="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" IconCss="e-icons e-trash"
+                                          Id="ToggleDeleted" Disabled="@_isProcessing" />
+                                <MenuItem Separator="true" />
+                                <MenuItem Text="Export Excel (Ctrl + E)" IconCss="e-icons e-export-excel" Id="ExportExcel"
+                                          Disabled="@_isProcessing" />
+                                <MenuItem Text="Export PDF (Ctrl + P)" IconCss="e-icons e-export-pdf" Id="ExportPdf"
+                                          Disabled="@_isProcessing" />
+                            </MenuItems>
+                        </MenuItem>
+                        <MenuItem Text="Transaction" IconCss="e-icons e-chart">
+                            <MenuItems>
+                                <MenuItem Text="Edit (Insert)" IconCss="e-icons e-edit" Id="EditSelected"
+                                          Disabled="@_isProcessing" />
+                                <MenuItem Text="Delete / Recover (Del)" IconCss="e-icons e-trash" Id="DeleteRecoverSelected"
+                                          Disabled="@_isProcessing" />
+                            </MenuItems>
+                        </MenuItem>
+                    </MenuItems>
+                </SfMenu>
             </LeftContent>
+            <RightContent>
+                <IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="NavigateBack" />
+            </RightContent>
         </Header>
 
         <!-- Main Content Container -->
@@ -143,43 +167,15 @@ else
                         </svg>
                         <h2 class="section-title">Companies List</h2>
                     </div>
-                    <div class="header-actions">
-                        <ToggleDeletedButton Disabled="@_isProcessing" ShowDeleted="@_showDeleted"
-                                             OnToggle="ToggleDeleted" />
-                    </div>
                 </div>
                 <div class="section-body grid-body">
                     <SfGrid @ref="_sfGrid" DataSource="@_companies" AllowPaging="true" AllowSorting="true"
                             AllowFiltering="true" AllowResizing="true" CssClass="professional-grid"
-                            Toolbar="@(new List<string>() { "Search" })">
+                            Toolbar="@(new List<string>() { "Search" })" ContextMenuItems="@_companyGridContextMenuItems">
                         <GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+                        <GridEvents TValue="CompanyModel" ContextMenuItemClicked="OnCompanyGridContextMenuItemClicked" />
                         <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
                         <GridColumns>
-                            <GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center"
-                                        AllowFiltering="false">
-                                <Template>
-                                    @{
-                                        var company = (context as CompanyModel);
-
-                                        <div class="grid-actions">
-                                            @if (company.Status)
-                                            {
-                                                <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid"
-                                                            Title="Edit (Insert)" OnClick="@(() => OnEditCompany(company))" />
-                                                <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete"
-                                                            Size="ButtonSize.Grid" Title="Delete (Delete)"
-                                                            OnClick="@(() => ShowDeleteConfirmation(company.Id, company.Name))" />
-                                            }
-                                            else
-                                            {
-                                                <IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover"
-                                                            Size="ButtonSize.Grid" Title="Recover (Delete)"
-                                                            OnClick="@(() => ShowRecoverConfirmation(company.Id, company.Name))" />
-                                            }
-                                        </div>
-                                    }
-                                </Template>
-                            </GridColumn>
                             <GridColumn Field="@nameof(CompanyModel.Id)" HeaderText="ID" Width="80"
                                         TextAlign="TextAlign.Center" />
                             <GridColumn Field="@nameof(CompanyModel.Name)" HeaderText="Company Name" Width="250" />
@@ -192,15 +188,12 @@ else
                             <GridColumn Field="@nameof(CompanyModel.PANNo)" HeaderText="PAN No" Width="150" />
                             <GridColumn Field="@nameof(CompanyModel.Address)" HeaderText="Address" Width="200" />
                             <GridColumn Field="@nameof(CompanyModel.Remarks)" HeaderText="Remarks" Width="200" />
-                            <GridColumn Field="@nameof(CompanyModel.Status)" HeaderText="Status" Width="100"
-                                        TextAlign="TextAlign.Center">
+                            <GridColumn Field="@nameof(CompanyModel.Status)" HeaderText="Status" Width="110"
+                                        TextAlign="TextAlign.Center" Visible="_showDeleted">
                                 <Template>
                                     @{
                                         var company = (context as CompanyModel);
-                                        <div class="grid-checkbox"
-                                             style="@(company.Status ? "color: #10b981; background: #d1fae5;" : "color: #dc2626; background: #fee2e2;")">
-                                            @(company.Status ? "✓" : "✗")
-                                        </div>
+                                        <span class="@(company.Status ? string.Empty : "grid-debit")">@(company.Status ? "Active" : "Deleted")</span>
                                     }
                                 </Template>
                             </GridColumn>

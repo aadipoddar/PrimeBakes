@@ -11,21 +11,44 @@
 else
 {
     <div class="page-shell">
-        <Header Title="Financial Year Management"
-
->
+        <Header Title="Financial Year Management">
             <LeftContent>
-                <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)"
-                            Disabled="_isProcessing" OnClick="ExportExcel" />
-                <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)"
-                            Disabled="_isProcessing" OnClick="ExportPdf" />
-                <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Financial Year (Ctrl + S)"
-                            Disabled="_isProcessing" OnClick="SaveFinancialYear" />
-                <IconButton Icon="IconType.Generate" Title="Auto Generate Next Year" Disabled="_isProcessing"
-                            OnClick="AutoGenerateNextYear" />
-                <IconButton Icon="IconType.New" Title="New Financial Year (Ctrl + N)" Disabled="_isProcessing"
-                            OnClick="ResetPage" />
+                <SfMenu TValue="Syncfusion.Blazor.Navigations.MenuItem">
+                    <MenuAnimationSettings Effect="Syncfusion.Blazor.Navigations.MenuEffect.SlideDown" Duration="300"
+                                           Easing="ease" />
+                    <MenuEvents TValue="Syncfusion.Blazor.Navigations.MenuItem" ItemSelected="OnMenuSelected" />
+                    <MenuItems>
+                        <MenuItem Text="File" IconCss="e-icons e-folder">
+                            <MenuItems>
+                                <MenuItem Text="New (Ctrl + N)" IconCss="e-icons e-plus" Id="NewFinancialYear"
+                                          Disabled="@_isProcessing" />
+                                <MenuItem Text="Save (Ctrl + S)" IconCss="e-icons e-save" Id="SaveFinancialYear"
+                                          Disabled="@_isProcessing" />
+                                <MenuItem Text="Auto Generate Next Year" IconCss="e-icons e-refresh" Id="AutoGenerateNextYear"
+                                          Disabled="@_isProcessing" />
+                                <MenuItem Text="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" IconCss="e-icons e-trash"
+                                          Id="ToggleDeleted" Disabled="@_isProcessing" />
+                                <MenuItem Separator="true" />
+                                <MenuItem Text="Export Excel (Ctrl + E)" IconCss="e-icons e-export-excel" Id="ExportExcel"
+                                          Disabled="@_isProcessing" />
+                                <MenuItem Text="Export PDF (Ctrl + P)" IconCss="e-icons e-export-pdf" Id="ExportPdf"
+                                          Disabled="@_isProcessing" />
+                            </MenuItems>
+                        </MenuItem>
+                        <MenuItem Text="Transaction" IconCss="e-icons e-chart">
+                            <MenuItems>
+                                <MenuItem Text="Edit (Insert)" IconCss="e-icons e-edit" Id="EditSelected"
+                                          Disabled="@_isProcessing" />
+                                <MenuItem Text="Delete / Recover (Del)" IconCss="e-icons e-trash" Id="DeleteRecoverSelected"
+                                          Disabled="@_isProcessing" />
+                            </MenuItems>
+                        </MenuItem>
+                    </MenuItems>
+                </SfMenu>
             </LeftContent>
+            <RightContent>
+                <IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="NavigateBack" />
+            </RightContent>
         </Header>
 
         <!-- Main Content Container -->
@@ -98,43 +121,15 @@ else
                         </svg>
                         <h2 class="section-title">Financial Years List</h2>
                     </div>
-                    <div class="header-actions">
-                        <ToggleButton Disabled="@_isProcessing" IsActive="@_showDeleted"
-                                      Variant="ToggleButton.ToggleVariant.Deleted" OnToggle="ToggleDeleted" />
-                    </div>
                 </div>
                 <div class="section-body grid-body">
                     <SfGrid @ref="_sfGrid" DataSource="@_financialYears" AllowPaging="true" AllowSorting="true"
                             AllowFiltering="true" AllowResizing="true" CssClass="professional-grid"
-                            Toolbar="@(new List<string>() { "Search" })">
+                            Toolbar="@(new List<string>() { "Search" })" ContextMenuItems="@_financialYearGridContextMenuItems">
                         <GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+                        <GridEvents TValue="FinancialYearModel" ContextMenuItemClicked="OnFinancialYearGridContextMenuItemClicked" />
                         <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
                         <GridColumns>
-                            <GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center"
-                                        AllowFiltering="false">
-                                <Template>
-                                    @{
-                                        var financialYear = (context as FinancialYearModel);
-
-                                        <div class="grid-actions">
-                                            @if (financialYear.Status)
-                                            {
-                                                <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid"
-                                                            Title="Edit (Insert)" OnClick="@(() => OnEditFinancialYear(financialYear))" />
-                                                <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete"
-                                                            Size="ButtonSize.Grid" Title="Delete (Delete)"
-                                                            OnClick="@(() => ShowDeleteConfirmation(financialYear.Id, GetFinancialYearName(financialYear)))" />
-                                            }
-                                            else
-                                            {
-                                                <IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover"
-                                                            Size="ButtonSize.Grid" Title="Recover (Delete)"
-                                                            OnClick="@(() => ShowRecoverConfirmation(financialYear.Id, GetFinancialYearName(financialYear)))" />
-                                            }
-                                        </div>
-                                    }
-                                </Template>
-                            </GridColumn>
                             <GridColumn Field="@nameof(FinancialYearModel.Id)" HeaderText="ID" Width="80"
                                         TextAlign="TextAlign.Center" />
                             <GridColumn Field="@nameof(FinancialYearModel.StartDate)" HeaderText="Start Date" Width="150"
@@ -156,15 +151,12 @@ else
                                     }
                                 </Template>
                             </GridColumn>
-                            <GridColumn Field="@nameof(FinancialYearModel.Status)" HeaderText="Status" Width="100"
-                                        TextAlign="TextAlign.Center">
+                            <GridColumn Field="@nameof(FinancialYearModel.Status)" HeaderText="Status" Width="110"
+                                        TextAlign="TextAlign.Center" Visible="_showDeleted">
                                 <Template>
                                     @{
                                         var financialYear = (context as FinancialYearModel);
-                                        <div class="grid-checkbox"
-                                             style="@(financialYear.Status ? "color: #10b981; background: #d1fae5;" : "color: #dc2626; background: #fee2e2;")">
-                                            @(financialYear.Status ? "✓" : "✗")
-                                        </div>
+                                        <span class="@(financialYear.Status ? string.Empty : "grid-debit")">@(financialYear.Status ? "Active" : "Deleted")</span>
                                     }
                                 </Template>
                             </GridColumn>
