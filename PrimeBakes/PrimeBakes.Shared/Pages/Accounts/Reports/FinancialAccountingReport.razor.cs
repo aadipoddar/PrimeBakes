@@ -2,9 +2,8 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 using PrimeBakes.Shared.Components.Dialog;
-
-using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Accounts.FinancialAccounting;
+using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Operations;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Accounts.FinancialAccounting;
@@ -174,7 +173,7 @@ public partial class FinancialAccountingReport : IAsyncDisposable
 
     private async Task HandleDatesChanged(DateRangeType dateRangeType)
     {
-        (_fromDate, _toDate) = await Helper.ResolveDateRange(dateRangeType, _fromDate, _toDate);
+        (_fromDate, _toDate) = await FinancialYearData.GetDateRange(dateRangeType, _fromDate, _toDate);
         await LoadTransactionOverviews();
     }
     #endregion

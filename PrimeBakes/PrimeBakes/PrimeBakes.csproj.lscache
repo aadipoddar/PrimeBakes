@@ -65,11 +65,11 @@ MainPage.xaml.cs
 MauiProgram.cs
 obj/Debug/net10.0-android/
  .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+ designtime/__Microsoft.Android.Resource.Designer.cs
  EmbeddedAttribute.cs
  PrimeBakes.AssemblyInfo.cs
  PrimeBakes.GlobalUsings.g.cs
  ValidatableTypeAttribute.cs
- __Microsoft.Android.Resource.Designer.cs
 Platforms/Android/
  BluetoothPrinterService.cs
  DeviceInstallationService.cs
@@ -501,7 +501,7 @@ Services/
  xamarin.kotlinx.serialization.core/1.9.0.1/lib/net10.0-android36.0/Xamarin.KotlinX.Serialization.Core.dll
  xamarin.kotlinx.serialization.protobuf.jvm/1.9.0.1/lib/net10.0-android36.0/Xamarin.KotlinX.Serialization.Protobuf.Jvm.dll
  xamarin.kotlinx.serialization.protobuf/1.9.0.1/lib/net10.0-android36.0/Xamarin.KotlinX.Serialization.Protobuf.dll
-obj/Debug/net10.0-android/_Microsoft.Android.Resource.Designer.dll
+obj/Debug/net10.0-android/designtime/_Microsoft.Android.Resource.Designer.dll
 
 [analyzerReferences]
 <DOTNET>/packs/

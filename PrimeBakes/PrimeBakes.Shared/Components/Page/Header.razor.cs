@@ -1,16 +1,19 @@
 using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Models.Operations;
+
+using Syncfusion.Blazor.DropDowns;
 
 using System.Reflection;
 
 namespace PrimeBakes.Shared.Components.Page;
 
-public partial class Header
+public partial class Header : IAsyncDisposable
 {
+    private HotKeysContext _hotKeysContext;
+
     #region Blueetooth
     private BluetoothReconnectDialog _btDialog;
     private BluetoothDeviceInfo? _btSaved;
@@ -18,12 +21,6 @@ public partial class Header
 
     private bool BtIsConnected => BluetoothPrinterService.IsConnected;
     private bool ShowBtButton => _btSaved is not null;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!firstRender) return;
-        await LoadBluetoothStatusAsync();
-    }
 
     private async Task LoadBluetoothStatusAsync()
     {
@@ -89,6 +86,21 @@ public partial class Header
     #region Search
     private string _searchText = string.Empty;
     private List<GlobalSearchItem> _searchItems = [];
+    private SfAutoComplete<string, GlobalSearchItem> _sfGlobalSearch;
+
+    private void LoadHotKeys()
+    {
+        _hotKeysContext = HotKeys.CreateContext()
+            .Add(Code.F2, FocusSearchBox, "Focus on search box", Exclude.None);
+    }
+
+    private async Task FocusSearchBox()
+    {
+        if (_sfGlobalSearch is null)
+            return;
+
+        await _sfGlobalSearch.FocusAsync();
+    }
 
     private void LoadRoutes()
     {
@@ -202,20 +214,7 @@ public partial class Header
     }
     #endregion
 
-    private UserModel _user;
-
-    protected override async Task OnInitializedAsync()
-    {
-        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService);
-        LoadRoutes();
-    }
-
-    private void NavigateToHome() =>
-        NavigationManager.NavigateTo(PageRouteNames.Dashboard);
-
-    private async Task Logout() =>
-        await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
-
+    #region Load Data
     [Parameter]
     public string Title { get; set; } = string.Empty;
 
@@ -224,6 +223,44 @@ public partial class Header
 
     [Parameter]
     public RenderFragment? RightContent { get; set; }
+
+    private UserModel _user;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        await LoadBluetoothStatusAsync();
+        LoadHotKeys();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService);
+        LoadRoutes();
+    }
+
+    private string GetMobileUserName()
+    {
+        if (_user is null || string.IsNullOrWhiteSpace(_user.Name))
+            return string.Empty;
+
+        var userName = _user.Name.Trim();
+        return userName.Length > 5 ? $"{userName[..5]}..." : userName;
+    }
+
+    private void NavigateToHome() =>
+            NavigationManager.NavigateTo(PageRouteNames.Dashboard);
+    private async Task Logout() =>
+        await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_hotKeysContext is not null)
+            await _hotKeysContext.DisposeAsync();
+
+        GC.SuppressFinalize(this);
+    }
+    #endregion
 }
 
 public class GlobalSearchItem

@@ -7,8 +7,13 @@
         {
             @LeftContent
         }
+    </div>
+    <div class="header-center">
+        <h1 class="page-title">@Title</h1>
+    </div>
+    <div class="header-right">
         <div class="global-search-container">
-            <SfAutoComplete TValue="string" TItem="GlobalSearchItem" DataSource="@_searchItems"
+            <SfAutoComplete @ref="_sfGlobalSearch" TValue="string" TItem="GlobalSearchItem" DataSource="@_searchItems"
                             Placeholder="Search Route or Trans No..." Width="250px" @bind-Value="@_searchText" Autofill="true"
                             FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
                 <AutoCompleteEvents TItem="GlobalSearchItem" TValue="string" OnValueSelect="OnRouteSelected" />
@@ -18,11 +23,6 @@
             <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Print PDF"
                         OnClick="DownloadPdfFromSearch" />
         </div>
-    </div>
-    <div class="header-center">
-        <h1 class="page-title">@Title</h1>
-    </div>
-    <div class="header-right">
         @if (RightContent != null)
         {
             @RightContent
@@ -35,7 +35,10 @@
                         OnClick="HandleBtClick" />
         }
         <div class="header-divider"></div>
-        <button type="button" class="user-name user-name-button" title="Logout" @onclick="Logout">@_user?.Name</button>
+        <button type="button" class="user-name user-name-button" title="Logout" @onclick="Logout">
+            <span class="user-name-desktop">@_user?.Name</span>
+            <span class="user-name-mobile">@GetMobileUserName()</span>
+        </button>
     </div>
 </div>
 
@@ -126,6 +129,10 @@
         line-height: 1;
     }
 
+    .user-name-mobile {
+        display: none;
+    }
+
     .global-search-container {
         display: flex;
         align-items: center;
@@ -156,9 +163,23 @@
     @@media (max-width: 768px) {
 
         .header-divider,
-        .user-name,
         .global-search-container {
             display: none;
+        }
+
+        .user-name {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 8px;
+            font-size: 12px;
+        }
+
+        .user-name-desktop {
+            display: none;
+        }
+
+        .user-name-mobile {
+            display: inline;
         }
     }
 </style>
