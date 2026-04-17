@@ -54,6 +54,11 @@ public partial class SalePage : IAsyncDisposable
 	private List<ProductLocationOverviewModel> _products = [];
 	private List<TaxModel> _taxes = [];
 	private List<SaleItemCartModel> _cart = [];
+	private readonly List<ContextMenuItemModel> _cartGridContextMenuItems =
+	[
+		new() { Text = "Edit (Insert)", Id = "EditCart", IconCss = "e-icons e-edit" },
+		new() { Text = "Delete (Del)", Id = "DeleteCart", IconCss = "e-icons e-delete" }
+	];
 	private readonly List<PaymentItem> _payments = [];
 	private readonly List<PaymentModeModel> _paymentMethods = PaymentModeData.GetPaymentModes();
 
@@ -80,21 +85,7 @@ public partial class SalePage : IAsyncDisposable
 
 	private async Task LoadData()
 	{
-		_hotKeysContext = HotKeys.CreateContext()
-			.Add(ModCode.Ctrl, Code.Enter, AddItemToCart, "Add item to cart", Exclude.None)
-			.Add(ModCode.Ctrl, Code.E, () => _sfItemAutoComplete.FocusAsync(), "Focus on item input", Exclude.None)
-			.Add(ModCode.Ctrl, Code.S, SaveTransaction, "Save the transaction", Exclude.None)
-			.Add(ModCode.Alt, Code.T, DownloadThermalInvoice, "Download Thermal invoice", Exclude.None)
-			.Add(ModCode.Alt, Code.P, DownloadPdfInvoice, "Download PDF invoice", Exclude.None)
-			.Add(ModCode.Alt, Code.E, DownloadExcelInvoice, "Download Excel invoice", Exclude.None)
-			.Add(ModCode.Ctrl, Code.H, NavigateToTransactionHistoryPage, "Open transaction history", Exclude.None)
-			.Add(ModCode.Ctrl, Code.I, NavigateToItemReport, "Open item report", Exclude.None)
-			.Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
-			.Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
-			.Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-			.Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
-			.Add(Code.Delete, RemoveSelectedCartItem, "Delete selected cart item", Exclude.None)
-			.Add(Code.Insert, EditSelectedCartItem, "Edit selected cart item", Exclude.None);
+		LoadHotKeys();
 
 		await LoadLocations();
 		await LoadCompanies();
@@ -1172,25 +1163,19 @@ public partial class SalePage : IAsyncDisposable
 		return true;
 	}
 
-	private async Task SaveTransaction() =>
-		await SaveTransaction(false);
-
-	private async Task SaveTransaction(bool thermalSave)
+	private async Task SaveTransaction(bool saveThermal = false, bool savePDF = false, bool saveExcel = false)
 	{
 		if (_isProcessing || _isLoading)
 			return;
 
 		try
 		{
-			_isProcessing = true;
-
 			await SaveTransactionFile(true);
 
 			if (!await ValidateForm())
-			{
-				_isProcessing = false;
 				return;
-			}
+
+			_isProcessing = true;
 
 			await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
 
@@ -1205,13 +1190,28 @@ public partial class SalePage : IAsyncDisposable
 
 			_sale.Id = await SaleData.SaveTransaction(_sale, _cart);
 
-			var (pdfStream, fileName) = await SaleInvoiceExport.ExportInvoice(_sale.Id, InvoiceExportType.PDF);
-			await SaveAndViewService.SaveAndView(fileName, pdfStream);
+			if (saveThermal)
+			{
+				await ThermalPrintDispatcher.PrintAsync(
+					() => SaleThermalPrint.GenerateThermalBill(_sale.Id),
+					() => SaleThermalPrint.GenerateThermalBillPng(_sale.Id));
+			}
 
-			if (!thermalSave)
-				await ResetPage();
+			if (savePDF)
+			{
+				var (pdfStream, pdfFileName) = await SaleInvoiceExport.ExportInvoice(_sale.Id, InvoiceExportType.PDF);
+				await SaveAndViewService.SaveAndView(pdfFileName, pdfStream);
+			}
 
-			await _toastNotification.ShowAsync("Save Transaction", "Transaction saved successfully! Invoice has been generated.", ToastType.Success);
+			if (saveExcel)
+			{
+				var (excelStream, excelFileName) = await SaleInvoiceExport.ExportInvoice(_sale.Id, InvoiceExportType.Excel);
+				await SaveAndViewService.SaveAndView(excelFileName, excelStream);
+			}
+
+			await ResetPage();
+
+			await _toastNotification.ShowAsync("Save Transaction", "Transaction saved successfully.", ToastType.Success);
 		}
 		catch (Exception ex)
 		{
@@ -1231,17 +1231,89 @@ public partial class SalePage : IAsyncDisposable
 	#endregion
 
 	#region Utilities
+	private void LoadHotKeys()
+	{
+		_hotKeysContext = HotKeys.CreateContext()
+			.Add(ModCode.Ctrl, Code.Enter, AddItemToCart, "Add item to cart", Exclude.None)
+			.Add(ModCode.Ctrl, Code.F, () => _sfItemAutoComplete.FocusAsync(), "Focus on item input", Exclude.None)
+			.Add(ModCode.Ctrl, Code.S, () => SaveTransaction(), "Save the transaction", Exclude.None)
+			.Add(ModCode.Ctrl, Code.T, () => SaveTransaction(saveThermal: true), "Save and print thermal", Exclude.None)
+			.Add(ModCode.Ctrl, Code.P, () => SaveTransaction(savePDF: true), "Save and export PDF", Exclude.None)
+			.Add(ModCode.Ctrl, Code.E, () => SaveTransaction(saveExcel: true), "Save and export Excel", Exclude.None)
+			.Add(ModCode.Alt, Code.T, DownloadThermalInvoice, "Export Thermal invoice", Exclude.None)
+			.Add(ModCode.Alt, Code.P, DownloadPdfInvoice, "Export PDF invoice", Exclude.None)
+			.Add(ModCode.Alt, Code.E, DownloadExcelInvoice, "Export Excel invoice", Exclude.None)
+			.Add(ModCode.Ctrl, Code.H, NavigateToTransactionHistoryPage, "Open transaction history", Exclude.None)
+			.Add(ModCode.Ctrl, Code.I, NavigateToItemReport, "Open item report", Exclude.None)
+			.Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
+			.Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
+			.Add(Code.Delete, RemoveSelectedCartItem, "Delete selected cart item", Exclude.None)
+			.Add(Code.Insert, EditSelectedCartItem, "Edit selected cart item", Exclude.None);
+	}
+
+	private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+	{
+		switch (args.Item.Id)
+		{
+			case "NewTransaction":
+				await ResetPage();
+				break;
+			case "SaveTransaction":
+				await SaveTransaction();
+				break;
+			case "SaveThermalInvoice":
+				await SaveTransaction(saveThermal: true);
+				break;
+			case "SavePdfInvoice":
+				await SaveTransaction(savePDF: true);
+				break;
+			case "SaveExcelInvoice":
+				await SaveTransaction(saveExcel: true);
+				break;
+			case "ExportThermalInvoice":
+				await DownloadThermalInvoice();
+				break;
+			case "ExportPdfInvoice":
+				await DownloadPdfInvoice();
+				break;
+			case "ExportExcelInvoice":
+				await DownloadExcelInvoice();
+				break;
+			case "TransactionHistory":
+				await NavigateToTransactionHistoryPage();
+				break;
+			case "ItemReport":
+				await NavigateToItemReport();
+				break;
+		}
+	}
+
+	private async Task OnCartGridContextMenuItemClicked(ContextMenuClickEventArgs<SaleItemCartModel> args)
+	{
+		switch (args.Item.Id)
+		{
+			case "EditCart":
+				await EditSelectedCartItem();
+				break;
+			case "DeleteCart":
+				await RemoveSelectedCartItem();
+				break;
+		}
+	}
+
 	private async Task DownloadThermalInvoice()
 	{
+		if (!Id.HasValue || Id.Value <= 0)
+		{
+			await _toastNotification.ShowAsync("No Transaction Selected", "Please save the transaction first before downloading the invoice.", ToastType.Error);
+			return;
+		}
+
 		if (_isProcessing)
 			return;
 
 		try
 		{
-			var isNewSale = _sale.Id <= 0;
-			if (isNewSale)
-				await SaveTransaction(true);
-
 			_isProcessing = true;
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating Thermal invoice...", ToastType.Info);
@@ -1250,9 +1322,6 @@ public partial class SalePage : IAsyncDisposable
 				() => SaleThermalPrint.GenerateThermalBill(_sale.Id),
 				() => SaleThermalPrint.GenerateThermalBillPng(_sale.Id));
 			await _toastNotification.ShowAsync("Print Sent", "Thermal invoice sent to printer.", ToastType.Success);
-
-			if (isNewSale)
-				await ResetPage();
 		}
 		catch (Exception ex)
 		{

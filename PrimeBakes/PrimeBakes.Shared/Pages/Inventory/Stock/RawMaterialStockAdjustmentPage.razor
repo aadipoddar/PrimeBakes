@@ -3,6 +3,7 @@
 @using PrimeBakesLibrary.Models.Accounts.Masters
 @using PrimeBakesLibrary.Models.Operations
 @using PrimeBakesLibrary.Models.Inventory
+@using PrimeBakesLibrary.Models.Inventory.Stock
 
 <PageTitle>Raw Material Stock Adjustment - Prime Bakes</PageTitle>
 
@@ -13,17 +14,35 @@
 else
 {
 	<div class="page-shell">
-		<Header Title="Create Raw Material Stock Adjustment"
-
->
+		<Header Title="Create Raw Material Stock Adjustment">
 			<LeftContent>
-				<IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Transaction (Ctrl + S)"
-							Disabled="_isProcessing" OnClick="SaveTransaction" />
-				<IconButton Icon="IconType.History" Title="Transaction History (Ctrl + H)" Disabled="_isProcessing"
-							OnClick="NavigateToTransactionHistoryPage" />
-				<IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing"
-							OnClick="ResetPage" />
+				<SfMenu TValue="Syncfusion.Blazor.Navigations.MenuItem">
+					<MenuAnimationSettings Effect="Syncfusion.Blazor.Navigations.MenuEffect.SlideDown" Duration="300"
+										   Easing="ease" />
+					<MenuEvents TValue="Syncfusion.Blazor.Navigations.MenuItem" ItemSelected="OnMenuSelected"
+									OnOpen='async () => await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0)' />
+					<MenuItems>
+						<MenuItem Text="File" IconCss="e-icons e-folder">
+							<MenuItems>
+								<MenuItem Text="New Transaction (Ctrl + N)" IconCss="e-icons e-plus" Id="NewTransaction"
+										  Disabled="@_isProcessing" />
+								<MenuItem Separator="true" />
+								<MenuItem Text="Save (Ctrl + S)" IconCss="e-icons e-save" Id="SaveTransaction"
+										  Disabled="@_isProcessing" />
+							</MenuItems>
+						</MenuItem>
+						<MenuItem Text="Open" IconCss="e-icons e-folder-open">
+							<MenuItems>
+								<MenuItem Text="Transaction History Report (Ctrl + H)" Id="TransactionHistory"
+										  Disabled="@_isProcessing" />
+							</MenuItems>
+						</MenuItem>
+					</MenuItems>
+				</SfMenu>
 			</LeftContent>
+			<RightContent>
+				<IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="NavigateBack" />
+			</RightContent>
 		</Header>
 
 		<!-- Main Content Container -->
@@ -102,11 +121,11 @@ else
 						<div class="cart-field cart-field-wide">
 							<label class="field-label">Item Name <span class="required">*</span></label>
 							<SfAutoComplete @ref="_sfItemAutoComplete" Value="@_selectedRawMaterial"
-											TValue="RawMaterialModel?" TItem="RawMaterialModel" DataSource="@_rawMaterials"
-											Placeholder="Select Item (Ctrl + E)" FloatLabelType="FloatLabelType.Never"
+											TValue="RawMaterialModel" TItem="RawMaterialModel" DataSource="@_rawMaterials"
+											Placeholder="Select Item (Ctrl + F)" FloatLabelType="FloatLabelType.Never"
 											AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
 											CssClass="custom-autocomplete">
-								<AutoCompleteEvents TItem="RawMaterialModel" TValue="RawMaterialModel?"
+								<AutoCompleteEvents TItem="RawMaterialModel" TValue="RawMaterialModel"
 													ValueChange="OnItemChanged" />
 								<AutoCompleteFieldSettings Value="Name" />
 							</SfAutoComplete>
@@ -169,7 +188,11 @@ else
 				<div class="section-body grid-body">
 					<SfGrid ID="_sfCartGrid" @ref="_sfCartGrid" DataSource="_cart" AllowTextWrap="true" AllowPaging="false"
 							AllowSorting="true" AllowResizing="true" AllowFiltering="true" GridLines="GridLine.Horizontal"
-							CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
+							CssClass="professional-grid" ContextMenuItems="@_cartGridContextMenuItems"
+							Toolbar="@(new List<string>() { "Search" })">
+
+						<GridEvents TValue="RawMaterialStockAdjustmentCartModel"
+									ContextMenuItemClicked="OnCartGridContextMenuItemClicked" />
 
 						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
@@ -224,20 +247,6 @@ else
 						</GridAggregates>
 
 						<GridColumns>
-							<GridColumn HeaderText="Actions" Width="100" TextAlign="TextAlign.Center">
-								<Template>
-									@{
-										var item = (context as dynamic);
-										<div class="grid-actions">
-											<IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid"
-														Title="Edit Item (Insert)" OnClick="@(() => EditCartItem(item))" />
-											<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete"
-														Size="ButtonSize.Grid" Title="Remove Item (Del)"
-														OnClick="@(() => RemoveItemFromCart(item))" />
-										</div>
-									}
-								</Template>
-							</GridColumn>
 							<GridColumn Field="RawMaterialName" HeaderText="Item Name" Width="250" />
 							<GridColumn Field="Stock" HeaderText="Current Stock" Width="130" TextAlign="TextAlign.Right"
 										Format="N2" />

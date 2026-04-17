@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 using PrimeBakes.Shared.Components.Dialog;
+using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Inventory.Stock;
 using PrimeBakesLibrary.Data.Operations;
 using PrimeBakesLibrary.DataAccess;
@@ -12,6 +13,7 @@ using PrimeBakesLibrary.Exporting.Restaurant.Bill;
 using PrimeBakesLibrary.Exporting.Store.Sale;
 using PrimeBakesLibrary.Exporting.Store.StockTransfer;
 using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Inventory.Stock;
 using PrimeBakesLibrary.Models.Operations;
 
@@ -40,6 +42,13 @@ public partial class ProductStockReport : IAsyncDisposable
 	private List<LocationModel> _locations = [];
 	private List<ProductStockSummaryModel> _stockSummary = [];
 	private List<ProductStockDetailsModel> _stockDetails = [];
+	private readonly List<ContextMenuItemModel> _detailsGridContextMenuItems =
+	[
+		new() { Text = "View (Ctrl + O)", Id = "ViewSelected", IconCss = "e-icons e-eye", Target = ".e-content" },
+		new() { Text = "Export PDF (Alt + P)", Id = "DownloadSelectedPdf", IconCss = "e-icons e-export-pdf", Target = ".e-content" },
+		new() { Text = "Export Excel (Alt + E)", Id = "DownloadSelectedExcel", IconCss = "e-icons e-export-excel", Target = ".e-content" },
+		new() { Text = "Delete (Del)", Id = "DeleteSelected", IconCss = "e-icons e-trash", Target = ".e-content" }
+	];
 
 	private SfGrid<ProductStockSummaryModel> _sfStockGrid;
 	private SfGrid<ProductStockDetailsModel> _sfStockDetailsGrid;
@@ -67,12 +76,12 @@ public partial class ProductStockReport : IAsyncDisposable
 		_hotKeysContext = HotKeys.CreateContext()
 			.Add(ModCode.Ctrl, Code.R, LoadStockData, "Refresh Data", Exclude.None)
 			.Add(Code.F5, LoadStockData, "Refresh Data", Exclude.None)
+			.Add(ModCode.Ctrl, Code.W, ToggleColumnsView, "Toggle all columns", Exclude.None)
+			.Add(ModCode.Ctrl, Code.Q, ToggleDetailsView, "Toggle transaction details", Exclude.None)
 			.Add(ModCode.Ctrl, Code.E, ExportExcel, "Export to Excel", Exclude.None)
 			.Add(ModCode.Ctrl, Code.P, ExportPdf, "Export to PDF", Exclude.None)
 			.Add(ModCode.Ctrl, Code.N, NavigateToTransactionPage, "New Transaction", Exclude.None)
-			.Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
 			.Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-			.Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
 			.Add(Code.Delete, DeleteSelectedCartItem, "Delete Selected Transaction", Exclude.None)
 			.Add(ModCode.Ctrl, Code.O, ViewSelectedCartItem, "Open Selected Transaction", Exclude.None)
 			.Add(ModCode.Alt, Code.P, DownloadSelectedCartItemPdfInvoice, "Download Selected Transaction PDF Invoice", Exclude.None)
@@ -175,10 +184,9 @@ public partial class ProductStockReport : IAsyncDisposable
 		await LoadStockData();
 	}
 
-	private async Task HandleDatesChanged((DateTime FromDate, DateTime ToDate) dates)
+	private async Task HandleDatesChanged(DateRangeType dateRangeType)
 	{
-		_fromDate = dates.FromDate;
-		_toDate = dates.ToDate;
+		(_fromDate, _toDate) = await FinancialYearData.GetDateRange(dateRangeType, _fromDate, _toDate);
 		await LoadStockData();
 	}
 	#endregion
@@ -289,6 +297,13 @@ public partial class ProductStockReport : IAsyncDisposable
 			return;
 
 		var selectedCartItem = _sfStockDetailsGrid.SelectedRecords.First();
+
+		if (!selectedCartItem.TransactionId.HasValue)
+		{
+			await _toastNotification.ShowAsync("Transaction Not Available", "The selected row does not have an associated transaction.", ToastType.Warning);
+			return;
+		}
+
 		await ViewTransaction(selectedCartItem.Type, selectedCartItem.TransactionId.Value);
 	}
 
@@ -336,6 +351,13 @@ public partial class ProductStockReport : IAsyncDisposable
 			return;
 
 		var selectedCartItem = _sfStockDetailsGrid.SelectedRecords.First();
+
+		if (!selectedCartItem.TransactionId.HasValue)
+		{
+			await _toastNotification.ShowAsync("Invoice Not Available", "The selected row does not have an associated transaction invoice.", ToastType.Warning);
+			return;
+		}
+
 		await DownloadPdfInvoice(selectedCartItem.Type, selectedCartItem.TransactionId.Value);
 	}
 
@@ -345,6 +367,13 @@ public partial class ProductStockReport : IAsyncDisposable
 			return;
 
 		var selectedCartItem = _sfStockDetailsGrid.SelectedRecords.First();
+
+		if (!selectedCartItem.TransactionId.HasValue)
+		{
+			await _toastNotification.ShowAsync("Invoice Not Available", "The selected row does not have an associated transaction invoice.", ToastType.Warning);
+			return;
+		}
+
 		await DownloadExcelInvoice(selectedCartItem.Type, selectedCartItem.TransactionId.Value);
 	}
 
@@ -543,6 +572,92 @@ public partial class ProductStockReport : IAsyncDisposable
 	#endregion
 
 	#region Utilities
+	private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+	{
+		switch (args.Item.Id)
+		{
+			case "NewTransaction":
+				await NavigateToTransactionPage();
+				break;
+			case "Refresh":
+				await LoadStockData();
+				break;
+			case "ToggleColumnsView":
+				ToggleColumnsView();
+				break;
+			case "ToggleDetailsView":
+				await ToggleDetailsView();
+				break;
+			case "ExportPdf":
+				await ExportPdf();
+				break;
+			case "ExportExcel":
+				await ExportExcel();
+				break;
+			case "ViewSelected":
+				await ViewSelectedCartItem();
+				break;
+			case "DownloadSelectedPdf":
+				await DownloadSelectedCartItemPdfInvoice();
+				break;
+			case "DownloadSelectedExcel":
+				await DownloadSelectedCartItemExcelInvoice();
+				break;
+			case "DeleteSelected":
+				await DeleteSelectedCartItem();
+				break;
+			case "PeriodToday":
+				await HandleDatesChanged(DateRangeType.Today);
+				break;
+			case "PeriodPreviousDay":
+				await HandleDatesChanged(DateRangeType.Yesterday);
+				break;
+			case "PeriodNextDay":
+				await HandleDatesChanged(DateRangeType.NextDay);
+				break;
+			case "PeriodCurrentMonth":
+				await HandleDatesChanged(DateRangeType.CurrentMonth);
+				break;
+			case "PeriodPreviousMonth":
+				await HandleDatesChanged(DateRangeType.PreviousMonth);
+				break;
+			case "PeriodNextMonth":
+				await HandleDatesChanged(DateRangeType.NextMonth);
+				break;
+			case "PeriodCurrentFinancialYear":
+				await HandleDatesChanged(DateRangeType.CurrentFinancialYear);
+				break;
+			case "PeriodPreviousFinancialYear":
+				await HandleDatesChanged(DateRangeType.PreviousFinancialYear);
+				break;
+			case "PeriodNextFinancialYear":
+				await HandleDatesChanged(DateRangeType.NextFinancialYear);
+				break;
+			case "PeriodAllTime":
+				await HandleDatesChanged(DateRangeType.AllTime);
+				break;
+		}
+	}
+
+	private async Task OnDetailsGridContextMenuItemClicked(ContextMenuClickEventArgs<ProductStockDetailsModel> args)
+	{
+		switch (args.Item.Id)
+		{
+			case "ViewSelected":
+				await ViewSelectedCartItem();
+				break;
+			case "DownloadSelectedPdf":
+				await DownloadSelectedCartItemPdfInvoice();
+				break;
+			case "DownloadSelectedExcel":
+				await DownloadSelectedCartItemExcelInvoice();
+				break;
+			case "DeleteSelected":
+				await DeleteSelectedCartItem();
+				break;
+		}
+	}
+
 	private async Task ToggleDetailsView()
 	{
 		_showDetails = !_showDetails;
@@ -563,9 +678,6 @@ public partial class ProductStockReport : IAsyncDisposable
 			NavigationManager.NavigateTo(PageRouteNames.ProductStockAdjustment);
 	}
 
-	private void NavigateToDashboard() =>
-		NavigationManager.NavigateTo(PageRouteNames.Dashboard);
-
 	private void NavigateBack() =>
 		NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);
 
@@ -583,8 +695,6 @@ public partial class ProductStockReport : IAsyncDisposable
 		_deleteTransactionNo = string.Empty;
 		await _deleteConfirmationDialog.HideAsync();
 	}
-
-	private async Task Logout() => await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 
 	private async Task StartAutoRefresh()
 	{

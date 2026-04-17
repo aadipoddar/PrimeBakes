@@ -821,7 +821,7 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 	{
 		_hotKeysContext = HotKeys.CreateContext()
 			.Add(ModCode.Ctrl, Code.Enter, AddItemToCart, "Add item to cart", Exclude.None)
-			.Add(ModCode.Ctrl, Code.E, () => _sfLedgerAutoComplete.FocusAsync(), "Focus on ledger input", Exclude.None)
+			.Add(ModCode.Ctrl, Code.F, () => _sfLedgerAutoComplete.FocusAsync(), "Focus on ledger input", Exclude.None)
 			.Add(ModCode.Ctrl, Code.S, () => SaveTransaction(), "Save the transaction", Exclude.None)
 			.Add(ModCode.Ctrl, Code.P, () => SaveTransaction(savePDF: true), "Save & PDF", Exclude.None)
 			.Add(ModCode.Ctrl, Code.E, () => SaveTransaction(saveExcel: true), "Save & Excel", Exclude.None)

@@ -39,6 +39,11 @@ public partial class ProductStockAdjustment : IAsyncDisposable
     private List<ProductLocationOverviewModel> _products = [];
     private List<ProductStockAdjustmentCartModel> _cart = [];
     private List<ProductStockSummaryModel> _stockSummary = [];
+    private readonly List<ContextMenuItemModel> _cartGridContextMenuItems =
+    [
+        new() { Text = "Edit (Insert)", Id = "EditCart", IconCss = "e-icons e-edit" },
+        new() { Text = "Delete (Del)", Id = "DeleteCart", IconCss = "e-icons e-delete" }
+    ];
 
     private SfAutoComplete<ProductLocationOverviewModel?, ProductLocationOverviewModel> _sfItemAutoComplete;
     private SfGrid<ProductStockAdjustmentCartModel> _sfCartGrid;
@@ -59,17 +64,7 @@ public partial class ProductStockAdjustment : IAsyncDisposable
 
     private async Task LoadData()
     {
-        _hotKeysContext = HotKeys.CreateContext()
-            .Add(ModCode.Ctrl, Code.Enter, AddItemToCart, "Add item to cart", Exclude.None)
-            .Add(ModCode.Ctrl, Code.E, () => _sfItemAutoComplete.FocusAsync(), "Focus on item input", Exclude.None)
-            .Add(ModCode.Ctrl, Code.S, SaveTransaction, "Save the transaction", Exclude.None)
-            .Add(ModCode.Ctrl, Code.H, NavigateToTransactionHistoryPage, "Open transaction history", Exclude.None)
-            .Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
-            .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
-            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
-            .Add(Code.Delete, RemoveSelectedCartItem, "Delete selected cart item", Exclude.None)
-            .Add(Code.Insert, EditSelectedCartItem, "Edit selected cart item", Exclude.None);
+        LoadHotKeys();
 
         _transactionDateTime = await CommonData.LoadCurrentDateTime();
         await LoadLocations();
@@ -413,6 +408,48 @@ public partial class ProductStockAdjustment : IAsyncDisposable
     #endregion
 
     #region Utilities
+    private void LoadHotKeys()
+    {
+        _hotKeysContext = HotKeys.CreateContext()
+            .Add(ModCode.Ctrl, Code.Enter, AddItemToCart, "Add item to cart", Exclude.None)
+            .Add(ModCode.Ctrl, Code.F, () => _sfItemAutoComplete.FocusAsync(), "Focus on item input", Exclude.None)
+            .Add(ModCode.Ctrl, Code.S, SaveTransaction, "Save the transaction", Exclude.None)
+            .Add(ModCode.Ctrl, Code.H, NavigateToTransactionHistoryPage, "Open transaction history", Exclude.None)
+            .Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
+            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
+            .Add(Code.Delete, RemoveSelectedCartItem, "Delete selected cart item", Exclude.None)
+            .Add(Code.Insert, EditSelectedCartItem, "Edit selected cart item", Exclude.None);
+    }
+
+    private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+    {
+        switch (args.Item.Id)
+        {
+            case "NewTransaction":
+                await ResetPage();
+                break;
+            case "SaveTransaction":
+                await SaveTransaction();
+                break;
+            case "TransactionHistory":
+                await NavigateToTransactionHistoryPage();
+                break;
+        }
+    }
+
+    private async Task OnCartGridContextMenuItemClicked(ContextMenuClickEventArgs<ProductStockAdjustmentCartModel> args)
+    {
+        switch (args.Item.Id)
+        {
+            case "EditCart":
+                await EditSelectedCartItem();
+                break;
+            case "DeleteCart":
+                await RemoveSelectedCartItem();
+                break;
+        }
+    }
+
     private async Task ResetPage()
     {
         await DeleteLocalFiles();

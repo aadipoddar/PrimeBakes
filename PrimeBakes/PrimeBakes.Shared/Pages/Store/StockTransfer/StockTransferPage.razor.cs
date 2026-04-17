@@ -47,6 +47,11 @@ public partial class StockTransferPage : IAsyncDisposable
     private List<ProductLocationOverviewModel> _products = [];
     private List<TaxModel> _taxes = [];
     private List<StockTransferItemCartModel> _cart = [];
+    private readonly List<ContextMenuItemModel> _cartGridContextMenuItems =
+    [
+        new() { Text = "Edit (Insert)", Id = "EditCart", IconCss = "e-icons e-edit" },
+        new() { Text = "Delete (Del)", Id = "DeleteCart", IconCss = "e-icons e-delete" }
+    ];
     private readonly List<PaymentItem> _payments = [];
     private readonly List<PaymentModeModel> _paymentMethods = PaymentModeData.GetPaymentModes();
 
@@ -73,20 +78,7 @@ public partial class StockTransferPage : IAsyncDisposable
 
     private async Task LoadData()
     {
-        _hotKeysContext = HotKeys.CreateContext()
-            .Add(ModCode.Ctrl, Code.Enter, AddItemToCart, "Add item to cart", Exclude.None)
-            .Add(ModCode.Ctrl, Code.E, () => _sfItemAutoComplete.FocusAsync(), "Focus on item input", Exclude.None)
-            .Add(ModCode.Ctrl, Code.S, SaveTransaction, "Save the transaction", Exclude.None)
-            .Add(ModCode.Alt, Code.P, DownloadPdfInvoice, "Download PDF invoice", Exclude.None)
-            .Add(ModCode.Alt, Code.E, DownloadExcelInvoice, "Download Excel invoice", Exclude.None)
-            .Add(ModCode.Ctrl, Code.H, NavigateToTransactionHistoryPage, "Open transaction history", Exclude.None)
-            .Add(ModCode.Ctrl, Code.I, NavigateToItemReport, "Open item report", Exclude.None)
-            .Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
-            .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
-            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
-            .Add(Code.Delete, RemoveSelectedCartItem, "Delete selected cart item", Exclude.None)
-            .Add(Code.Insert, EditSelectedCartItem, "Edit selected cart item", Exclude.None);
+        LoadHotKeys();
 
         await LoadLocations();
         await LoadCompanies();
@@ -871,22 +863,19 @@ public partial class StockTransferPage : IAsyncDisposable
         return true;
     }
 
-    private async Task SaveTransaction()
+    private async Task SaveTransaction(bool savePDF = false, bool saveExcel = false)
     {
         if (_isProcessing || _isLoading)
             return;
 
         try
         {
-            _isProcessing = true;
-
             await SaveTransactionFile(true);
 
             if (!await ValidateForm())
-            {
-                _isProcessing = false;
                 return;
-            }
+
+            _isProcessing = true;
 
             await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
 
@@ -901,11 +890,20 @@ public partial class StockTransferPage : IAsyncDisposable
 
             _stockTransfer.Id = await StockTransferData.SaveTransaction(_stockTransfer, _cart);
 
-            var (pdfStream, fileName) = await StockTransferInvoiceExport.ExportInvoice(_stockTransfer.Id, InvoiceExportType.PDF);
-            await SaveAndViewService.SaveAndView(fileName, pdfStream);
+            if (savePDF)
+            {
+                var (pdfStream, pdfFileName) = await StockTransferInvoiceExport.ExportInvoice(_stockTransfer.Id, InvoiceExportType.PDF);
+                await SaveAndViewService.SaveAndView(pdfFileName, pdfStream);
+            }
+
+            if (saveExcel)
+            {
+                var (excelStream, excelFileName) = await StockTransferInvoiceExport.ExportInvoice(_stockTransfer.Id, InvoiceExportType.Excel);
+                await SaveAndViewService.SaveAndView(excelFileName, excelStream);
+            }
 
             await ResetPage();
-            await _toastNotification.ShowAsync("Save Transaction", "Transaction saved successfully! Invoice has been generated.", ToastType.Success);
+            await _toastNotification.ShowAsync("Save Transaction", "Transaction saved successfully.", ToastType.Success);
         }
         catch (Exception ex)
         {
@@ -925,6 +923,68 @@ public partial class StockTransferPage : IAsyncDisposable
     #endregion
 
     #region Utilities
+    private void LoadHotKeys()
+    {
+        _hotKeysContext = HotKeys.CreateContext()
+            .Add(ModCode.Ctrl, Code.Enter, AddItemToCart, "Add item to cart", Exclude.None)
+            .Add(ModCode.Ctrl, Code.F, () => _sfItemAutoComplete.FocusAsync(), "Focus on item input", Exclude.None)
+            .Add(ModCode.Ctrl, Code.S, () => SaveTransaction(), "Save the transaction", Exclude.None)
+            .Add(ModCode.Ctrl, Code.P, () => SaveTransaction(savePDF: true), "Save and export PDF", Exclude.None)
+            .Add(ModCode.Ctrl, Code.E, () => SaveTransaction(saveExcel: true), "Save and export Excel", Exclude.None)
+            .Add(ModCode.Alt, Code.P, DownloadPdfInvoice, "Export PDF invoice", Exclude.None)
+            .Add(ModCode.Alt, Code.E, DownloadExcelInvoice, "Export Excel invoice", Exclude.None)
+            .Add(ModCode.Ctrl, Code.H, NavigateToTransactionHistoryPage, "Open transaction history", Exclude.None)
+            .Add(ModCode.Ctrl, Code.I, NavigateToItemReport, "Open item report", Exclude.None)
+            .Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
+            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
+            .Add(Code.Delete, RemoveSelectedCartItem, "Delete selected cart item", Exclude.None)
+            .Add(Code.Insert, EditSelectedCartItem, "Edit selected cart item", Exclude.None);
+    }
+
+    private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+    {
+        switch (args.Item.Id)
+        {
+            case "NewTransaction":
+                await ResetPage();
+                break;
+            case "SaveTransaction":
+                await SaveTransaction();
+                break;
+            case "SavePdfInvoice":
+                await SaveTransaction(savePDF: true);
+                break;
+            case "SaveExcelInvoice":
+                await SaveTransaction(saveExcel: true);
+                break;
+            case "ExportPdfInvoice":
+                await DownloadPdfInvoice();
+                break;
+            case "ExportExcelInvoice":
+                await DownloadExcelInvoice();
+                break;
+            case "TransactionHistory":
+                await NavigateToTransactionHistoryPage();
+                break;
+            case "ItemReport":
+                await NavigateToItemReport();
+                break;
+        }
+    }
+
+    private async Task OnCartGridContextMenuItemClicked(ContextMenuClickEventArgs<StockTransferItemCartModel> args)
+    {
+        switch (args.Item.Id)
+        {
+            case "EditCart":
+                await EditSelectedCartItem();
+                break;
+            case "DeleteCart":
+                await RemoveSelectedCartItem();
+                break;
+        }
+    }
+
     private async Task DownloadPdfInvoice()
     {
         if (!Id.HasValue || Id.Value <= 0)

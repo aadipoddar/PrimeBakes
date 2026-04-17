@@ -14,18 +14,68 @@
 else
 {
     <div class="page-shell">
-        <Header Title="Product Stock Report"
->
+        <Header Title="Product Stock Report">
             <LeftContent>
-                <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)"
-                            Disabled="_isProcessing" OnClick="ExportExcel" />
-                <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)"
-                            Disabled="_isProcessing" OnClick="ExportPdf" />
-                <IconButton Icon="IconType.Refresh" Title="Refresh Data (Ctrl + R)" Disabled="_isProcessing"
-                            OnClick="LoadStockData" />
-                <IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing"
-                            OnClick="NavigateToTransactionPage" />
+                <SfMenu TValue="Syncfusion.Blazor.Navigations.MenuItem">
+                    <MenuAnimationSettings Effect="Syncfusion.Blazor.Navigations.MenuEffect.SlideDown" Duration="300"
+                                           Easing="ease" />
+                    <MenuEvents TValue="Syncfusion.Blazor.Navigations.MenuItem" ItemSelected="OnMenuSelected"
+                                OnOpen='async () => await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0)' />
+                    <MenuItems>
+                        <MenuItem Text="File" IconCss="e-icons e-folder">
+                            <MenuItems>
+                                <MenuItem Text="New Transaction (Ctrl + N)" IconCss="e-icons e-plus" Id="NewTransaction"
+                                          Disabled="@_isProcessing" />
+                                <MenuItem Text="Refresh Data (Ctrl + R / F5)" IconCss="e-icons e-refresh" Id="Refresh"
+                                          Disabled="@_isProcessing" />
+                                <MenuItem Separator="true" />
+                                <MenuItem Text="Export PDF (Ctrl + P)" IconCss="e-icons e-export-pdf" Id="ExportPdf"
+                                          Disabled="@_isProcessing" />
+                                <MenuItem Text="Export Excel (Ctrl + E)" IconCss="e-icons e-export-excel" Id="ExportExcel"
+                                          Disabled="@_isProcessing" />
+                            </MenuItems>
+                        </MenuItem>
+                        <MenuItem Text="View" IconCss="e-icons e-table">
+                            <MenuItems>
+                                <MenuItem Text="@(_showAllColumns ? "Show Less (Ctrl + W)" : "All Columns (Ctrl + W)")"
+                                          IconCss="e-icons e-grid-view" Id="ToggleColumnsView" Disabled="@_isProcessing" />
+                                <MenuItem Text="@(_showDetails ? "Hide Details (Ctrl + Q)" : "Transaction Details (Ctrl + Q)")"
+                                          IconCss="e-icons e-chart" Id="ToggleDetailsView" Disabled="@_isProcessing" />
+                            </MenuItems>
+                        </MenuItem>
+                        <MenuItem Text="Periods" IconCss="e-icons e-clock">
+                            <MenuItems>
+                                <MenuItem Text="Today" Id="PeriodToday" Disabled="@_isProcessing" />
+                                <MenuItem Text="Previous Day" Id="PeriodPreviousDay" Disabled="@_isProcessing" />
+                                <MenuItem Text="Next Day" Id="PeriodNextDay" Disabled="@_isProcessing" />
+                                <MenuItem Text="Current Month" Id="PeriodCurrentMonth" Disabled="@_isProcessing" />
+                                <MenuItem Text="Previous Month" Id="PeriodPreviousMonth" Disabled="@_isProcessing" />
+                                <MenuItem Text="Next Month" Id="PeriodNextMonth" Disabled="@_isProcessing" />
+                                <MenuItem Text="Current FY" Id="PeriodCurrentFinancialYear" Disabled="@_isProcessing" />
+                                <MenuItem Text="Previous FY" Id="PeriodPreviousFinancialYear" Disabled="@_isProcessing" />
+                                <MenuItem Text="Next FY" Id="PeriodNextFinancialYear" Disabled="@_isProcessing" />
+                                <MenuItem Text="All Time" Id="PeriodAllTime" Disabled="@_isProcessing" />
+                            </MenuItems>
+                        </MenuItem>
+                        <MenuItem Text="Transaction" IconCss="e-icons e-chart">
+                            <MenuItems>
+                                <MenuItem Text="View (Ctrl + O)" IconCss="e-icons e-eye" Id="ViewSelected"
+                                          Disabled="@_isProcessing" />
+                                <MenuItem Text="Export PDF (Alt + P)" IconCss="e-icons e-export-pdf" Id="DownloadSelectedPdf"
+                                          Disabled="@_isProcessing" />
+                                <MenuItem Text="Export Excel (Alt + E)" IconCss="e-icons e-export-excel"
+                                          Id="DownloadSelectedExcel" Disabled="@_isProcessing" />
+                                <MenuItem Separator="true" />
+                                <MenuItem Text="Delete (Del)" IconCss="e-icons e-trash" Id="DeleteSelected"
+                                          Disabled="@_isProcessing" />
+                            </MenuItems>
+                        </MenuItem>
+                    </MenuItems>
+                </SfMenu>
             </LeftContent>
+            <RightContent>
+                <IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="NavigateBack" />
+            </RightContent>
         </Header>
 
         <!-- Main Content Container -->
@@ -67,10 +117,6 @@ else
                                 </SfAutoComplete>
                             </div>
                         </div>
-
-                        <!-- Date Utility Buttons -->
-                        <DateRangeButtons Disabled="_isProcessing" FromDate="_fromDate" ToDate="_toDate"
-                                          OnDatesChanged="HandleDatesChanged" ToastNotification="_toastNotification" />
                     </div>
                 </div>
             </div>
@@ -90,14 +136,6 @@ else
                             <line x1="3" y1="18" x2="3.01" y2="18" />
                         </svg>
                         <h2 class="section-title">Product Stock Summary</h2>
-                    </div>
-                    <div class="header-actions">
-                        <ToggleButton Disabled="@_isProcessing" IsActive="@_showAllColumns"
-                                      Variant="ToggleButton.ToggleVariant.Details" TextWhenActive="Show Less"
-                                      TextWhenInactive="All Columns" OnToggle="ToggleColumnsView" />
-                        <ToggleButton Disabled="@_isProcessing" IsActive="@_showDetails"
-                                      Variant="ToggleButton.ToggleVariant.Details" TextWhenActive="Hide Details"
-                                      TextWhenInactive="Transaction Details" OnToggle="ToggleDetailsView" />
                     </div>
                 </div>
                 <div class="section-body grid-body">
@@ -390,7 +428,10 @@ else
                                 DataSource="_stockDetails" AllowTextWrap="true" AllowPaging="true" AllowSorting="true"
                                 AllowResizing="true" AllowFiltering="true" AllowExcelExport="true" AllowPdfExport="true"
                                 GridLines="GridLine.Horizontal" CssClass="professional-grid" AllowGrouping="true"
-                                Toolbar="@(new List<string>() { "Search" })">
+                                ContextMenuItems="@_detailsGridContextMenuItems" Toolbar="@(new List<string>() { "Search" })">
+
+                            <GridEvents TValue="ProductStockDetailsModel"
+                                        ContextMenuItemClicked="OnDetailsGridContextMenuItemClicked" />
 
                             <GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
                             <GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
@@ -482,35 +523,6 @@ else
                             </GridAggregates>
 
                             <GridColumns>
-                                <GridColumn HeaderText="Actions" Width="150" TextAlign="TextAlign.Center">
-                                    <Template>
-                                        @{
-                                            var item = (context as ProductStockDetailsModel);
-                                        }
-                                        <div class="grid-actions">
-                                            @if (item.TransactionId is null && item.Type?.ToLower() == "adjustment")
-                                            {
-                                                <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete"
-                                                            Size="ButtonSize.Grid" Title="Delete Transaction (Delete)"
-                                                            Disabled="_isProcessing"
-                                                            OnClick="@(() => ShowDeleteConfirmation(item.Id, item.TransactionNo))" />
-                                            }
-                                            @if (item.TransactionId is not null && item.Type?.ToLower() != "adjustment")
-                                            {
-                                                <IconButton Icon="IconType.View" Variant="ButtonVariant.View" Size="ButtonSize.Grid"
-                                                            Title="View Transaction (Ctrl + O)" Disabled="_isProcessing"
-                                                            OnClick="@(() => ViewTransaction(item.Type, item.TransactionId.Value))" />
-                                                <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel"
-                                                            Size="ButtonSize.Grid" Title="Download Excel Invoice (Alt+E)"
-                                                            Disabled="_isProcessing"
-                                                            OnClick="@(() => DownloadExcelInvoice(item.Type, item.TransactionId.Value))" />
-                                                <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Grid"
-                                                            Title="Download PDF Invoice (Alt+P)" Disabled="_isProcessing"
-                                                            OnClick="@(() => DownloadPdfInvoice(item.Type, item.TransactionId.Value))" />
-                                            }
-                                        </div>
-                                    </Template>
-                                </GridColumn>
                                 <GridColumn Field="@nameof(ProductStockDetailsModel.TransactionDateTime)" HeaderText="Date"
                                             Width="130" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
                                 <GridColumn Field="@nameof(ProductStockDetailsModel.TransactionNo)" HeaderText="Trans No"

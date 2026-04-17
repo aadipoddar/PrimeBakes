@@ -2,6 +2,7 @@
 
 @using PrimeBakesLibrary.Models.Accounts.Masters
 @using PrimeBakesLibrary.Models.Inventory
+@using PrimeBakesLibrary.Models.Inventory.Stock
 @using PrimeBakesLibrary.Models.Operations
 @using PrimeBakesLibrary.Models.Store.Product
 
@@ -14,17 +15,35 @@
 else
 {
 	<div class="page-shell">
-		<Header Title="Create Product Stock Adjustment"
-
->
+		<Header Title="Create Product Stock Adjustment">
 			<LeftContent>
-				<IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Transaction (Ctrl + S)"
-							Disabled="_isProcessing" OnClick="SaveTransaction" />
-				<IconButton Icon="IconType.History" Title="Transaction History (Ctrl + H)" Disabled="_isProcessing"
-							OnClick="NavigateToTransactionHistoryPage" />
-				<IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing"
-							OnClick="ResetPage" />
+				<SfMenu TValue="Syncfusion.Blazor.Navigations.MenuItem">
+					<MenuAnimationSettings Effect="Syncfusion.Blazor.Navigations.MenuEffect.SlideDown" Duration="300"
+										   Easing="ease" />
+					<MenuEvents TValue="Syncfusion.Blazor.Navigations.MenuItem" ItemSelected="OnMenuSelected"
+								OnOpen='async () => await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0)' />
+					<MenuItems>
+						<MenuItem Text="File" IconCss="e-icons e-folder">
+							<MenuItems>
+								<MenuItem Text="New Transaction (Ctrl + N)" IconCss="e-icons e-plus" Id="NewTransaction"
+										  Disabled="@_isProcessing" />
+								<MenuItem Separator="true" />
+								<MenuItem Text="Save (Ctrl + S)" IconCss="e-icons e-save" Id="SaveTransaction"
+										  Disabled="@_isProcessing" />
+							</MenuItems>
+						</MenuItem>
+						<MenuItem Text="Open" IconCss="e-icons e-folder-open">
+							<MenuItems>
+								<MenuItem Text="Transaction History Report (Ctrl + H)" Id="TransactionHistory"
+										  Disabled="@_isProcessing" />
+							</MenuItems>
+						</MenuItem>
+					</MenuItems>
+				</SfMenu>
 			</LeftContent>
+			<RightContent>
+				<IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="NavigateBack" />
+			</RightContent>
 		</Header>
 
 		<!-- Main Content Container -->
@@ -78,7 +97,7 @@ else
 											DataSource="@_locations" Placeholder="Select Outlet" FloatLabelType="FloatLabelType.Never"
 											AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
 											CssClass="custom-autocomplete">
-								<AutoCompleteEvents TItem="LocationModel" TValue="LocationModel?"
+								<AutoCompleteEvents TItem="LocationModel" TValue="LocationModel"
 													ValueChange="OnLocationChanged" />
 								<AutoCompleteFieldSettings Value="Name" />
 							</SfAutoComplete>
@@ -117,12 +136,12 @@ else
 						<div class="cart-field cart-field-wide">
 							<label class="field-label">Item Name <span class="required">*</span></label>
 							<SfAutoComplete @ref="_sfItemAutoComplete" Value="@_selectedProduct"
-											TValue="ProductLocationOverviewModel?" TItem="ProductLocationOverviewModel"
-											DataSource="@_products" Placeholder="Select Item (Ctrl + E)"
+											TValue="ProductLocationOverviewModel" TItem="ProductLocationOverviewModel"
+											DataSource="@_products" Placeholder="Select Item (Ctrl + F)"
 											FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
 											FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
 								<AutoCompleteEvents TItem="ProductLocationOverviewModel"
-													TValue="ProductLocationOverviewModel?" ValueChange="OnItemChanged" />
+													TValue="ProductLocationOverviewModel" ValueChange="OnItemChanged" />
 								<AutoCompleteFieldSettings Value="Name" />
 							</SfAutoComplete>
 						</div>
@@ -184,7 +203,11 @@ else
 				<div class="section-body grid-body">
 					<SfGrid ID="_sfCartGrid" @ref="_sfCartGrid" DataSource="_cart" AllowTextWrap="true" AllowPaging="false"
 							AllowSorting="true" AllowResizing="true" AllowFiltering="true" GridLines="GridLine.Horizontal"
-							CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
+							CssClass="professional-grid" ContextMenuItems="@_cartGridContextMenuItems"
+							Toolbar="@(new List<string>() { "Search" })">
+
+						<GridEvents TValue="ProductStockAdjustmentCartModel"
+									ContextMenuItemClicked="OnCartGridContextMenuItemClicked" />
 
 						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
@@ -239,20 +262,6 @@ else
 						</GridAggregates>
 
 						<GridColumns>
-							<GridColumn HeaderText="Actions" Width="100" TextAlign="TextAlign.Center">
-								<Template>
-									@{
-										var item = (context as dynamic);
-										<div class="grid-actions">
-											<IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid"
-														Title="Edit Item (Insert)" OnClick="@(() => EditCartItem(item))" />
-											<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete"
-														Size="ButtonSize.Grid" Title="Remove Item (Del)"
-														OnClick="@(() => RemoveItemFromCart(item))" />
-										</div>
-									}
-								</Template>
-							</GridColumn>
 							<GridColumn Field="ProductName" HeaderText="Item Name" Width="250" />
 							<GridColumn Field="Stock" HeaderText="Current Stock" Width="130" TextAlign="TextAlign.Right"
 										Format="N2" />
