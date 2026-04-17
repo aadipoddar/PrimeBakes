@@ -23,6 +23,11 @@ public partial class ProductLocationPage : IAsyncDisposable
     private List<ProductLocationOverviewModel> _productLocationOverviews = [];
     private List<LocationModel> _locations = [];
     private List<ProductModel> _products = [];
+    private readonly List<ContextMenuItemModel> _productLocationGridContextMenuItems =
+    [
+        new() { Text = "Edit (Insert)", Id = "EditProductLocation", IconCss = "e-icons e-edit", Target = ".e-content" },
+        new() { Text = "Delete (Del)", Id = "DeleteProductLocation", IconCss = "e-icons e-trash", Target = ".e-content" }
+    ];
 
     private string _selectedLocationName = string.Empty;
     private string _selectedProductName = string.Empty;
@@ -54,9 +59,7 @@ public partial class ProductLocationPage : IAsyncDisposable
             .Add(ModCode.Ctrl, Code.E, ExportExcel, "Export Excel", Exclude.None)
             .Add(ModCode.Ctrl, Code.P, ExportPdf, "Export PDF", Exclude.None)
             .Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
-            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
             .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-            .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Dashboard", Exclude.None)
             .Add(Code.Insert, EditSelectedItem, "Edit selected", Exclude.None)
             .Add(Code.Delete, DeleteSelectedItem, "Delete selected", Exclude.None);
 
@@ -163,20 +166,6 @@ public partial class ProductLocationPage : IAsyncDisposable
         StateHasChanged();
     }
 
-    private async Task ShowDeleteConfirmation(int id, string name)
-    {
-        _deleteProductLocationId = id;
-        _deleteProductLocationName = name;
-        await _deleteConfirmationDialog.ShowAsync();
-    }
-
-    private async Task CancelDelete()
-    {
-        _deleteProductLocationId = 0;
-        _deleteProductLocationName = string.Empty;
-        await _deleteConfirmationDialog.HideAsync();
-    }
-
     private async Task ConfirmDelete()
     {
         _isProcessing = true;
@@ -232,7 +221,7 @@ public partial class ProductLocationPage : IAsyncDisposable
         return true;
     }
 
-    private async void SaveProductLocation()
+    private async Task SaveProductLocation()
     {
         if (!await ValidateForm())
             return;
@@ -282,7 +271,7 @@ public partial class ProductLocationPage : IAsyncDisposable
 
             var (stream, fileName) = await ProductLocationExport.ExportMaster(_productLocationOverviews, ReportExportType.Excel);
             await SaveAndViewService.SaveAndView(fileName, stream);
-            
+
             await _toastNotification.ShowAsync("Success", "Excel file downloaded successfully.", ToastType.Success);
         }
         catch (Exception ex)
@@ -309,7 +298,7 @@ public partial class ProductLocationPage : IAsyncDisposable
 
             var (stream, fileName) = await ProductLocationExport.ExportMaster(_productLocationOverviews, ReportExportType.PDF);
             await SaveAndViewService.SaveAndView(fileName, stream);
-            
+
             await _toastNotification.ShowAsync("Success", "PDF file downloaded successfully.", ToastType.Success);
         }
         catch (Exception ex)
@@ -325,6 +314,44 @@ public partial class ProductLocationPage : IAsyncDisposable
     #endregion
 
     #region Utilities
+    private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+    {
+        switch (args.Item.Id)
+        {
+            case "NewProductLocation":
+                ResetPage();
+                break;
+            case "SaveProductLocation":
+                await SaveProductLocation();
+                break;
+            case "ExportExcel":
+                await ExportExcel();
+                break;
+            case "ExportPdf":
+                await ExportPdf();
+                break;
+            case "EditSelected":
+                await EditSelectedItem();
+                break;
+            case "DeleteSelected":
+                await DeleteSelectedItem();
+                break;
+        }
+    }
+
+    private async Task OnProductLocationGridContextMenuItemClicked(ContextMenuClickEventArgs<ProductLocationOverviewModel> args)
+    {
+        switch (args.Item.Id)
+        {
+            case "EditProductLocation":
+                await EditSelectedItem();
+                break;
+            case "DeleteProductLocation":
+                await DeleteSelectedItem();
+                break;
+        }
+    }
+
     private async Task EditSelectedItem()
     {
         var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
@@ -347,6 +374,20 @@ public partial class ProductLocationPage : IAsyncDisposable
         }
     }
 
+    private async Task ShowDeleteConfirmation(int id, string name)
+    {
+        _deleteProductLocationId = id;
+        _deleteProductLocationName = name;
+        await _deleteConfirmationDialog.ShowAsync();
+    }
+
+    private async Task CancelDelete()
+    {
+        _deleteProductLocationId = 0;
+        _deleteProductLocationName = string.Empty;
+        await _deleteConfirmationDialog.HideAsync();
+    }
+
     private string GetDisplayName(ProductLocationOverviewModel productLocation)
     {
         var locationName = _locations.FirstOrDefault(l => l.Id == productLocation.LocationId)?.Name ?? "Unknown";
@@ -358,12 +399,6 @@ public partial class ProductLocationPage : IAsyncDisposable
 
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.StoreDashboard);
-
-    private void NavigateToDashboard() =>
-        NavigationManager.NavigateTo(PageRouteNames.Dashboard);
-
-    private async Task Logout() =>
-        await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 
     public async ValueTask DisposeAsync()
     {

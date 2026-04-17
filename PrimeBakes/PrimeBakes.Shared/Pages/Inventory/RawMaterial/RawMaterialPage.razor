@@ -14,11 +14,40 @@ else
     <div class="page-shell">
         <Header Title="Raw Material Management">
             <LeftContent>
-                <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
-                <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
-                <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Raw Material (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveRawMaterial" />
-                <IconButton Icon="IconType.New" Title="New Raw Material (Ctrl + N)" Disabled="_isProcessing" OnClick="ResetPage" />
+                <SfMenu TValue="Syncfusion.Blazor.Navigations.MenuItem">
+                    <MenuAnimationSettings Effect="Syncfusion.Blazor.Navigations.MenuEffect.SlideDown" Duration="300"
+                                           Easing="ease" />
+                    <MenuEvents TValue="Syncfusion.Blazor.Navigations.MenuItem" ItemSelected="OnMenuSelected" />
+                    <MenuItems>
+                        <MenuItem Text="File" IconCss="e-icons e-folder">
+                            <MenuItems>
+                                <MenuItem Text="New (Ctrl + N)" IconCss="e-icons e-plus" Id="NewRawMaterial"
+                                          Disabled="@_isProcessing" />
+                                <MenuItem Text="Save (Ctrl + S)" IconCss="e-icons e-save" Id="SaveRawMaterial"
+                                          Disabled="@_isProcessing" />
+                                <MenuItem Text="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" IconCss="e-icons e-trash"
+                                          Id="ToggleDeleted" Disabled="@_isProcessing" />
+                                <MenuItem Separator="true" />
+                                <MenuItem Text="Export Excel (Ctrl + E)" IconCss="e-icons e-export-excel" Id="ExportExcel"
+                                          Disabled="@_isProcessing" />
+                                <MenuItem Text="Export PDF (Ctrl + P)" IconCss="e-icons e-export-pdf" Id="ExportPdf"
+                                          Disabled="@_isProcessing" />
+                            </MenuItems>
+                        </MenuItem>
+                        <MenuItem Text="Transaction" IconCss="e-icons e-chart">
+                            <MenuItems>
+                                <MenuItem Text="Edit (Insert)" IconCss="e-icons e-edit" Id="EditSelected"
+                                          Disabled="@_isProcessing" />
+                                <MenuItem Text="Delete / Recover (Del)" IconCss="e-icons e-trash" Id="DeleteRecoverSelected"
+                                          Disabled="@_isProcessing" />
+                            </MenuItems>
+                        </MenuItem>
+                    </MenuItems>
+                </SfMenu>
             </LeftContent>
+            <RightContent>
+                <IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="NavigateBack" />
+            </RightContent>
         </Header>
 
         <!-- Main Content Container -->
@@ -116,36 +145,14 @@ else
                         </svg>
                         <h2 class="section-title">Raw Material List</h2>
                     </div>
-                    <div class="header-actions">
-                        <ToggleButton Disabled="@_isProcessing" IsActive="@_showDeleted"
-                                      Variant="ToggleButton.ToggleVariant.Deleted" OnToggle="ToggleDeleted" />
-                    </div>
                 </div>
                 <div class="section-body grid-body">
                     <SfGrid @ref="_sfGrid" DataSource="@_rawMaterials" AllowPaging="true" AllowSorting="true" AllowFiltering="true"
-                            AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
+                            AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })" ContextMenuItems="@_rawMaterialGridContextMenuItems">
                         <GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+                        <GridEvents TValue="RawMaterialModel" ContextMenuItemClicked="OnRawMaterialGridContextMenuItemClicked" />
                         <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
                         <GridColumns>
-                            <GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center" AllowFiltering="false">
-                                <Template>
-                                    @{
-                                        var rawMaterial = (context as RawMaterialModel);
-
-                                        <div class="grid-actions">
-                                            @if (rawMaterial.Status)
-                                            {
-                                                <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid" Title="Edit (Insert)" OnClick="@(() => OnEditRawMaterial(rawMaterial))" />
-                                                <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete (Delete)" OnClick="@(() => ShowDeleteConfirmation(rawMaterial.Id, rawMaterial.Name))" />
-                                            }
-                                            else
-                                            {
-                                                <IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover" Size="ButtonSize.Grid" Title="Recover (Delete)" OnClick="@(() => ShowRecoverConfirmation(rawMaterial.Id, rawMaterial.Name))" />
-                                            }
-                                        </div>
-                                    }
-                                </Template>
-                            </GridColumn>
                             <GridColumn Field="@nameof(RawMaterialModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" />
                             <GridColumn Field="@nameof(RawMaterialModel.Name)" HeaderText="Name" Width="200" />
                             <GridColumn Field="@nameof(RawMaterialModel.Code)" HeaderText="Code" Width="120" />
@@ -172,15 +179,12 @@ else
                                 </Template>
                             </GridColumn>
                             <GridColumn Field="@nameof(RawMaterialModel.Remarks)" HeaderText="Remarks" Width="250" />
-                            <GridColumn Field="@nameof(RawMaterialModel.Status)" HeaderText="Status" Width="100"
-                                        TextAlign="TextAlign.Center">
+                            <GridColumn Field="@nameof(RawMaterialModel.Status)" HeaderText="Status" Width="110"
+                                        TextAlign="TextAlign.Center" Visible="_showDeleted">
                                 <Template>
                                     @{
                                         var rawMaterial = (context as RawMaterialModel);
-                                        <div class="grid-checkbox"
-                                             style="@(rawMaterial.Status ? "color: #10b981; background: #d1fae5;" : "color: #dc2626; background: #fee2e2;")">
-                                            @(rawMaterial.Status ? "✓" : "✗")
-                                        </div>
+                                        <span class="@(rawMaterial.Status ? string.Empty : "grid-debit")">@(rawMaterial.Status ? "Active" : "Deleted")</span>
                                     }
                                 </Template>
                             </GridColumn>

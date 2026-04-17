@@ -25,6 +25,15 @@ public partial class ProductPage : IAsyncDisposable
 	private List<KOTCategoryModel> _kotCategories = [];
 	private List<TaxModel> _taxes = [];
 	private List<LocationModel> _locations = [];
+	private readonly List<ContextMenuItemModel> _productGridContextMenuItems =
+	[
+		new() { Text = "Edit (Insert)", Id = "EditProduct", IconCss = "e-icons e-edit", Target = ".e-content" },
+		new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverProduct", IconCss = "e-icons e-trash", Target = ".e-content" }
+	];
+	private readonly List<ContextMenuItemModel> _locationGridContextMenuItems =
+	[
+		new() { Text = "Remove Location (Del)", Id = "RemoveLocation", IconCss = "e-icons e-trash", Target = ".e-content" }
+	];
 
 	private string _selectedCategoryName = string.Empty;
 	private string _selectedKOTCategoryName = string.Empty;
@@ -62,11 +71,10 @@ public partial class ProductPage : IAsyncDisposable
 			.Add(ModCode.Ctrl, Code.E, ExportExcel, "Export Excel", Exclude.None)
 			.Add(ModCode.Ctrl, Code.P, ExportPdf, "Export PDF", Exclude.None)
 			.Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
-			.Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
+			.Add(ModCode.Ctrl, Code.Delete, ToggleDeleted, "Show/Hide Deleted", Exclude.None)
 			.Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-			.Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Dashboard", Exclude.None)
 			.Add(Code.Insert, EditSelectedItem, "Edit selected", Exclude.None)
-			.Add(Code.Delete, DeleteSelectedItem, "Delete selected", Exclude.None);
+			.Add(Code.Delete, DeleteSelectedItem, "Delete / Recover selected", Exclude.None);
 
 		await LoadLocations();
 		_products = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
@@ -173,20 +181,6 @@ public partial class ProductPage : IAsyncDisposable
 		StateHasChanged();
 	}
 
-	private async Task ShowDeleteConfirmation(int id, string name)
-	{
-		_deleteProductId = id;
-		_deleteProductName = name;
-		await _deleteConfirmationDialog.ShowAsync();
-	}
-
-	private async Task CancelDelete()
-	{
-		_deleteProductId = 0;
-		_deleteProductName = string.Empty;
-		await _deleteConfirmationDialog.HideAsync();
-	}
-
 	private async Task ConfirmDelete()
 	{
 		try
@@ -218,27 +212,6 @@ public partial class ProductPage : IAsyncDisposable
 		}
 	}
 
-	private async Task ShowRecoverConfirmation(int id, string name)
-	{
-		_recoverProductId = id;
-		_recoverProductName = name;
-		await _recoverConfirmationDialog.ShowAsync();
-	}
-
-	private async Task CancelRecover()
-	{
-		_recoverProductId = 0;
-		_recoverProductName = string.Empty;
-		await _recoverConfirmationDialog.HideAsync();
-	}
-
-	private async Task ToggleDeleted()
-	{
-		_showDeleted = !_showDeleted;
-		await LoadData();
-		StateHasChanged();
-	}
-
 	private async Task ConfirmRecover()
 	{
 		try
@@ -268,47 +241,6 @@ public partial class ProductPage : IAsyncDisposable
 			_isProcessing = false;
 			_recoverProductId = 0;
 			_recoverProductName = string.Empty;
-		}
-	}
-
-	private async Task RemoveLocation(int locationId)
-	{
-		try
-		{
-			_isProcessing = true;
-
-			_locations.Remove(_locations.FirstOrDefault(l => l.Id == locationId));
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"Failed to remove location: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			if (_sfLocationGrid is not null)
-				await _sfLocationGrid.Refresh();
-
-			_isProcessing = false;
-		}
-	}
-
-	private async Task RemoveAllLocations()
-	{
-		try
-		{
-			_isProcessing = true;
-			_locations.Clear();
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"Failed to remove locations: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			if (_sfLocationGrid is not null)
-				await _sfLocationGrid.Refresh();
-
-			_isProcessing = false;
 		}
 	}
 	#endregion
@@ -470,6 +402,69 @@ public partial class ProductPage : IAsyncDisposable
 	#endregion
 
 	#region Utilities
+	private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+	{
+		switch (args.Item.Id)
+		{
+			case "NewProduct":
+				ResetPage();
+				break;
+			case "SaveProduct":
+				await SaveProduct();
+				break;
+			case "ToggleDeleted":
+				await ToggleDeleted();
+				break;
+			case "ExportExcel":
+				await ExportExcel();
+				break;
+			case "ExportPdf":
+				await ExportPdf();
+				break;
+			case "EditSelected":
+				await EditSelectedItem();
+				break;
+			case "DeleteRecoverSelected":
+				await DeleteSelectedItem();
+				break;
+			case "ShowAllLocations":
+				await LoadLocations();
+				break;
+			case "ClearAllLocations":
+				await RemoveAllLocations();
+				break;
+			case "RemoveSelectedLocation":
+				await RemoveSelectedLocation();
+				break;
+		}
+	}
+
+	private async Task OnProductGridContextMenuItemClicked(ContextMenuClickEventArgs<ProductModel> args)
+	{
+		switch (args.Item.Id)
+		{
+			case "EditProduct":
+				await EditSelectedItem();
+				break;
+			case "DeleteRecoverProduct":
+				await DeleteSelectedItem();
+				break;
+		}
+	}
+
+	private async Task OnLocationGridContextMenuItemClicked(ContextMenuClickEventArgs<LocationModel> args)
+	{
+		if (args.Item.Id == "RemoveLocation")
+			await RemoveSelectedLocation();
+	}
+
+	private async Task RemoveSelectedLocation()
+	{
+		var selectedRecords = await _sfLocationGrid.GetSelectedRecordsAsync();
+		if (selectedRecords.Count > 0)
+			await RemoveLocation(selectedRecords[0].Id);
+	}
+
 	private async Task EditSelectedItem()
 	{
 		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
@@ -489,17 +484,87 @@ public partial class ProductPage : IAsyncDisposable
 		}
 	}
 
+	private async Task ShowDeleteConfirmation(int id, string name)
+	{
+		_deleteProductId = id;
+		_deleteProductName = name;
+		await _deleteConfirmationDialog.ShowAsync();
+	}
+
+	private async Task CancelDelete()
+	{
+		_deleteProductId = 0;
+		_deleteProductName = string.Empty;
+		await _deleteConfirmationDialog.HideAsync();
+	}
+
+	private async Task ShowRecoverConfirmation(int id, string name)
+	{
+		_recoverProductId = id;
+		_recoverProductName = name;
+		await _recoverConfirmationDialog.ShowAsync();
+	}
+
+	private async Task CancelRecover()
+	{
+		_recoverProductId = 0;
+		_recoverProductName = string.Empty;
+		await _recoverConfirmationDialog.HideAsync();
+	}
+
+	private async Task ToggleDeleted()
+	{
+		_showDeleted = !_showDeleted;
+		await LoadData();
+		StateHasChanged();
+	}
+
+	private async Task RemoveLocation(int locationId)
+	{
+		try
+		{
+			_isProcessing = true;
+
+			_locations.Remove(_locations.FirstOrDefault(l => l.Id == locationId));
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"Failed to remove location: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			if (_sfLocationGrid is not null)
+				await _sfLocationGrid.Refresh();
+
+			_isProcessing = false;
+		}
+	}
+
+	private async Task RemoveAllLocations()
+	{
+		try
+		{
+			_isProcessing = true;
+			_locations.Clear();
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"Failed to remove locations: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			if (_sfLocationGrid is not null)
+				await _sfLocationGrid.Refresh();
+
+			_isProcessing = false;
+		}
+	}
+
 	private void ResetPage() =>
 		NavigationManager.NavigateTo(PageRouteNames.Product, true);
 
 	private void NavigateBack() =>
 		NavigationManager.NavigateTo(PageRouteNames.StoreDashboard);
-
-	private void NavigateToDashboard() =>
-		NavigationManager.NavigateTo(PageRouteNames.Dashboard);
-
-	private async Task Logout() =>
-		await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 
 	public async ValueTask DisposeAsync()
 	{

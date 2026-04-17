@@ -27,8 +27,13 @@ public partial class RecipePage : IAsyncDisposable
 	private List<ProductLocationOverviewModel> _products = [];
 	private List<RawMaterialModel> _rawMaterials = [];
 	private readonly List<RecipeItemCartModel> _recipeItems = [];
+	private readonly List<ContextMenuItemModel> _recipeGridContextMenuItems =
+	[
+		new() { Text = "Edit Item (Insert)", Id = "EditRecipeItem", IconCss = "e-icons e-edit", Target = ".e-content" },
+		new() { Text = "Delete Item (Del)", Id = "DeleteRecipeItem", IconCss = "e-icons e-trash", Target = ".e-content" }
+	];
 
-	private SfAutoComplete<RawMaterialModel?, RawMaterialModel> _sfItemAutoComplete;
+	private SfAutoComplete<RawMaterialModel, RawMaterialModel> _sfItemAutoComplete;
 	private SfGrid<RecipeItemCartModel> _sfCartGrid;
 
 	private ToastNotification _toastNotification;
@@ -52,9 +57,7 @@ public partial class RecipePage : IAsyncDisposable
 			.Add(ModCode.Ctrl, Code.E, () => _sfItemAutoComplete.FocusAsync(), "Focus on item input", Exclude.None)
 			.Add(ModCode.Ctrl, Code.S, OnSaveButtonClick, "Save recipe", Exclude.None)
 			.Add(ModCode.Ctrl, Code.N, ResetPage, "New recipe", Exclude.None)
-			.Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
 			.Add(ModCode.Ctrl, Code.B, NavigateBack, "Back to inventory dashboard", Exclude.None)
-			.Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
 			.Add(Code.Delete, RemoveSelectedCartItem, "Delete selected cart item", Exclude.None)
 			.Add(Code.Insert, EditSelectedCartItem, "Edit selected cart item", Exclude.None);
 
@@ -288,17 +291,46 @@ public partial class RecipePage : IAsyncDisposable
 	#endregion
 
 	#region Utilities
+	private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+	{
+		switch (args.Item.Id)
+		{
+			case "NewRecipe":
+				ResetPage();
+				break;
+			case "SaveRecipe":
+				await OnSaveButtonClick();
+				break;
+			case "DeleteRecipe":
+				await DeleteRecipe();
+				break;
+			case "EditSelectedRecipeItem":
+				await EditSelectedCartItem();
+				break;
+			case "DeleteSelectedRecipeItem":
+				await RemoveSelectedCartItem();
+				break;
+		}
+	}
+
+	private async Task OnRecipeGridContextMenuItemClicked(ContextMenuClickEventArgs<RecipeItemCartModel> args)
+	{
+		switch (args.Item.Id)
+		{
+			case "EditRecipeItem":
+				await EditSelectedCartItem();
+				break;
+			case "DeleteRecipeItem":
+				await RemoveSelectedCartItem();
+				break;
+		}
+	}
+
 	private void ResetPage() =>
 		NavigationManager.NavigateTo(PageRouteNames.Recipe, true);
 
-	private void NavigateToDashboard() =>
-		NavigationManager.NavigateTo(PageRouteNames.Dashboard);
-
 	private void NavigateBack() =>
 		NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);
-
-	private async Task Logout() =>
-		await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 
 	public async ValueTask DisposeAsync()
 	{

@@ -28,9 +28,7 @@ public partial class DiningDashbaord : IAsyncDisposable
 		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Restaurant]);
 
 		_hotKeysContext = HotKeys.CreateContext()
-			.Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
-			.Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-			.Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Dashboard", Exclude.None);
+			.Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None);
 
 		await LoadData();
 
@@ -74,17 +72,11 @@ public partial class DiningDashbaord : IAsyncDisposable
 		await LoadDining();
 	}
 
-	private void NavigateToDashboard() =>
-		NavigationManager.NavigateTo(PageRouteNames.Dashboard);
-
 	private void NavigateBack() =>
 		NavigationManager.NavigateTo(PageRouteNames.RestaurantDashboard);
 
 	private void OpenBillPage(int diningTableId) =>
 		NavigationManager.NavigateTo($"{PageRouteNames.Bill}/table/{diningTableId}");
-
-	private async Task Logout() =>
-		await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 
 	public async ValueTask DisposeAsync()
 	{

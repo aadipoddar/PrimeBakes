@@ -13,11 +13,40 @@ else
 	<div class="page-shell">
 		<Header Title="KOT Category Management">
 			<LeftContent>
-				<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)" Disabled="_isProcessing" OnClick="ExportExcel" />
-				<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)" Disabled="_isProcessing" OnClick="ExportPdf" />
-				<IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save KOT Category (Ctrl + S)" Disabled="_isProcessing" OnClick="SaveKOTCategory" />
-				<IconButton Icon="IconType.New" Title="New KOT Category (Ctrl + N)" Disabled="_isProcessing" OnClick="ResetPage" />
+				<SfMenu TValue="Syncfusion.Blazor.Navigations.MenuItem">
+					<MenuAnimationSettings Effect="Syncfusion.Blazor.Navigations.MenuEffect.SlideDown" Duration="300"
+										   Easing="ease" />
+					<MenuEvents TValue="Syncfusion.Blazor.Navigations.MenuItem" ItemSelected="OnMenuSelected" />
+					<MenuItems>
+						<MenuItem Text="File" IconCss="e-icons e-folder">
+							<MenuItems>
+								<MenuItem Text="New (Ctrl + N)" IconCss="e-icons e-plus" Id="NewKOTCategory"
+										  Disabled="@_isProcessing" />
+								<MenuItem Text="Save (Ctrl + S)" IconCss="e-icons e-save" Id="SaveKOTCategory"
+										  Disabled="@_isProcessing" />
+								<MenuItem Text="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" IconCss="e-icons e-trash"
+										  Id="ToggleDeleted" Disabled="@_isProcessing" />
+								<MenuItem Separator="true" />
+								<MenuItem Text="Export Excel (Ctrl + E)" IconCss="e-icons e-export-excel" Id="ExportExcel"
+										  Disabled="@_isProcessing" />
+								<MenuItem Text="Export PDF (Ctrl + P)" IconCss="e-icons e-export-pdf" Id="ExportPdf"
+										  Disabled="@_isProcessing" />
+							</MenuItems>
+						</MenuItem>
+						<MenuItem Text="Transaction" IconCss="e-icons e-chart">
+							<MenuItems>
+								<MenuItem Text="Edit (Insert)" IconCss="e-icons e-edit" Id="EditSelected"
+										  Disabled="@_isProcessing" />
+								<MenuItem Text="Delete / Recover (Del)" IconCss="e-icons e-trash" Id="DeleteRecoverSelected"
+										  Disabled="@_isProcessing" />
+							</MenuItems>
+						</MenuItem>
+					</MenuItems>
+				</SfMenu>
 			</LeftContent>
+			<RightContent>
+				<IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="NavigateBack" />
+			</RightContent>
 		</Header>
 
 		<!-- Main Content Container -->
@@ -66,49 +95,24 @@ else
 						</svg>
 						<h2 class="section-title">KOT Categories List</h2>
 					</div>
-					<div class="header-actions">
-						<ToggleButton Disabled="@_isProcessing" IsActive="@_showDeleted"
-									  Variant="ToggleButton.ToggleVariant.Deleted" OnToggle="ToggleDeleted" />
-					</div>
 				</div>
 				<div class="section-body grid-body">
 					<SfGrid @ref="_sfGrid" DataSource="@_kotCategories" AllowPaging="true" AllowSorting="true" AllowFiltering="true"
-							AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
+							AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })" ContextMenuItems="@_kotCategoryGridContextMenuItems">
 						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+						<GridEvents TValue="KOTCategoryModel" ContextMenuItemClicked="OnKOTCategoryGridContextMenuItemClicked" />
 						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 						<GridColumns>
-							<GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center" AllowFiltering="false">
-								<Template>
-									@{
-										var kotCategory = (context as KOTCategoryModel);
-
-										<div class="grid-actions">
-											@if (kotCategory.Status)
-											{
-												<IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid" Title="Edit (Insert)" OnClick="@(() => OnEditKOTCategory(kotCategory))" />
-												<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Delete (Delete)" OnClick="@(() => ShowDeleteConfirmation(kotCategory.Id, kotCategory.Name))" />
-											}
-											else
-											{
-												<IconButton Icon="IconType.Recover" Variant="ButtonVariant.Recover" Size="ButtonSize.Grid" Title="Recover (Delete)" OnClick="@(() => ShowRecoverConfirmation(kotCategory.Id, kotCategory.Name))" />
-											}
-										</div>
-									}
-								</Template>
-							</GridColumn>
 							<GridColumn Field="@nameof(KOTCategoryModel.Id)" HeaderText="ID" Width="80"
 										TextAlign="TextAlign.Center" />
 							<GridColumn Field="@nameof(KOTCategoryModel.Name)" HeaderText="Category Name" Width="300" />
 							<GridColumn Field="@nameof(KOTCategoryModel.Remarks)" HeaderText="Remarks" Width="400" />
-							<GridColumn Field="@nameof(KOTCategoryModel.Status)" HeaderText="Status" Width="100"
-										TextAlign="TextAlign.Center">
+							<GridColumn Field="@nameof(KOTCategoryModel.Status)" HeaderText="Status" Width="110"
+										TextAlign="TextAlign.Center" Visible="_showDeleted">
 								<Template>
 									@{
 										var kotCategory = (context as KOTCategoryModel);
-										<div class="grid-checkbox"
-											 style="@(kotCategory.Status ? "color: #10b981; background: #d1fae5;" : "color: #dc2626; background: #fee2e2;")">
-											@(kotCategory.Status ? "✓" : "✗")
-										</div>
+										<span class="@(kotCategory.Status ? string.Empty : "grid-debit")">@(kotCategory.Status ? "Active" : "Deleted")</span>
 									}
 								</Template>
 							</GridColumn>

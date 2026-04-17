@@ -111,9 +111,8 @@ public partial class SettingsPage : IAsyncDisposable
     {
         _hotKeysContext = HotKeys.CreateContext()
             .Add(ModCode.Ctrl, Code.S, SaveSettings, "Save", Exclude.None)
-            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
-            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-            .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Dashboard", Exclude.None);
+            .Add(ModCode.Ctrl, Code.R, ShowResetConfirmation, "Reset settings", Exclude.None)
+            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None);
 
         try
         {
@@ -641,14 +640,21 @@ public partial class SettingsPage : IAsyncDisposable
 
     #region Utilities
 
+    private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+    {
+        switch (args.Item.Id)
+        {
+            case "SaveSettings":
+                await SaveSettings();
+                break;
+            case "ResetSettings":
+                await ShowResetConfirmation();
+                break;
+        }
+    }
+
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.OperationsDashboard);
-
-    private void NavigateToDashboard() =>
-        NavigationManager.NavigateTo(PageRouteNames.Dashboard);
-
-    private async Task Logout() =>
-        await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 
     public async ValueTask DisposeAsync()
     {

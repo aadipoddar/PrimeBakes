@@ -23,6 +23,11 @@ public partial class LocationPage : IAsyncDisposable
 
     private List<LocationModel> _locations = [];
     private List<LedgerModel> _ledgers = [];
+    private readonly List<ContextMenuItemModel> _locationGridContextMenuItems =
+    [
+        new() { Text = "Edit (Insert)", Id = "EditLocation", IconCss = "e-icons e-edit", Target = ".e-content" },
+        new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverLocation", IconCss = "e-icons e-trash", Target = ".e-content" }
+    ];
 
     private SfGrid<LocationModel> _sfGrid;
     private DeleteConfirmationDialog _deleteConfirmationDialog;
@@ -55,11 +60,10 @@ public partial class LocationPage : IAsyncDisposable
             .Add(ModCode.Ctrl, Code.E, ExportExcel, "Export Excel", Exclude.None)
             .Add(ModCode.Ctrl, Code.P, ExportPdf, "Export PDF", Exclude.None)
             .Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
-            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
+            .Add(ModCode.Ctrl, Code.Delete, ToggleDeleted, "Show/Hide Deleted", Exclude.None)
             .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-            .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Dashboard", Exclude.None)
             .Add(Code.Insert, EditSelectedItem, "Edit selected", Exclude.None)
-            .Add(Code.Delete, DeleteSelectedItem, "Delete selected", Exclude.None);
+            .Add(Code.Delete, DeleteSelectedItem, "Delete / Recover selected", Exclude.None);
 
         _locations = await CommonData.LoadTableData<LocationModel>(TableNames.Location);
         _ledgers = await CommonData.LoadTableDataByStatus<LedgerModel>(TableNames.Ledger);
@@ -72,7 +76,7 @@ public partial class LocationPage : IAsyncDisposable
     }
     #endregion
 
-    #region Actions
+    #region Change Events
     private void OnLedgerChange(Syncfusion.Blazor.DropDowns.ChangeEventArgs<LedgerModel, LedgerModel> args)
     {
         if (args.ItemData != null)
@@ -80,6 +84,9 @@ public partial class LocationPage : IAsyncDisposable
         else
             _location.LedgerId = 0;
     }
+    #endregion
+
+    #region Actions
 
     private void OnEditLocation(LocationModel location)
     {
@@ -97,20 +104,6 @@ public partial class LocationPage : IAsyncDisposable
         _selectedLedger = _ledgers.FirstOrDefault(l => l.Id == location.LedgerId);
 
         StateHasChanged();
-    }
-
-    private async Task ShowDeleteConfirmation(int id, string name)
-    {
-        _deleteLocationId = id;
-        _deleteLocationName = name;
-        await _deleteConfirmationDialog.ShowAsync();
-    }
-
-    private async Task CancelDelete()
-    {
-        _deleteLocationId = 0;
-        _deleteLocationName = string.Empty;
-        await _deleteConfirmationDialog.HideAsync();
     }
 
     private async Task ConfirmDelete()
@@ -149,27 +142,6 @@ public partial class LocationPage : IAsyncDisposable
             _deleteLocationId = 0;
             _deleteLocationName = string.Empty;
         }
-    }
-
-    private async Task ShowRecoverConfirmation(int id, string name)
-    {
-        _recoverLocationId = id;
-        _recoverLocationName = name;
-        await _recoverConfirmationDialog.ShowAsync();
-    }
-
-    private async Task CancelRecover()
-    {
-        _recoverLocationId = 0;
-        _recoverLocationName = string.Empty;
-        await _recoverConfirmationDialog.HideAsync();
-    }
-
-    private async Task ToggleDeleted()
-    {
-        _showDeleted = !_showDeleted;
-        await LoadData();
-        StateHasChanged();
     }
 
     private async Task ConfirmRecover()
@@ -371,6 +343,47 @@ public partial class LocationPage : IAsyncDisposable
     #endregion
 
     #region Utilities
+    private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+    {
+        switch (args.Item.Id)
+        {
+            case "NewLocation":
+                ResetPage();
+                break;
+            case "SaveLocation":
+                await SaveLocation();
+                break;
+            case "ToggleDeleted":
+                await ToggleDeleted();
+                break;
+            case "ExportExcel":
+                await ExportExcel();
+                break;
+            case "ExportPdf":
+                await ExportPdf();
+                break;
+            case "EditSelected":
+                await EditSelectedItem();
+                break;
+            case "DeleteRecoverSelected":
+                await DeleteSelectedItem();
+                break;
+        }
+    }
+
+    private async Task OnLocationGridContextMenuItemClicked(ContextMenuClickEventArgs<LocationModel> args)
+    {
+        switch (args.Item.Id)
+        {
+            case "EditLocation":
+                await EditSelectedItem();
+                break;
+            case "DeleteRecoverLocation":
+                await DeleteSelectedItem();
+                break;
+        }
+    }
+
     private async Task EditSelectedItem()
     {
         var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
@@ -390,17 +403,46 @@ public partial class LocationPage : IAsyncDisposable
         }
     }
 
+    private async Task ShowDeleteConfirmation(int id, string name)
+    {
+        _deleteLocationId = id;
+        _deleteLocationName = name;
+        await _deleteConfirmationDialog.ShowAsync();
+    }
+
+    private async Task CancelDelete()
+    {
+        _deleteLocationId = 0;
+        _deleteLocationName = string.Empty;
+        await _deleteConfirmationDialog.HideAsync();
+    }
+
+    private async Task ShowRecoverConfirmation(int id, string name)
+    {
+        _recoverLocationId = id;
+        _recoverLocationName = name;
+        await _recoverConfirmationDialog.ShowAsync();
+    }
+
+    private async Task CancelRecover()
+    {
+        _recoverLocationId = 0;
+        _recoverLocationName = string.Empty;
+        await _recoverConfirmationDialog.HideAsync();
+    }
+
+    private async Task ToggleDeleted()
+    {
+        _showDeleted = !_showDeleted;
+        await LoadData();
+        StateHasChanged();
+    }
+
     private void ResetPage() =>
         NavigationManager.NavigateTo(PageRouteNames.Location, true);
 
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.OperationsDashboard);
-
-    private void NavigateToDashboard() =>
-        NavigationManager.NavigateTo(PageRouteNames.Dashboard);
-
-    private async Task Logout() =>
-        await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 
     public async ValueTask DisposeAsync()
     {

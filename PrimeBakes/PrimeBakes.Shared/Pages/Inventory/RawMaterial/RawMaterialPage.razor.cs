@@ -25,6 +25,11 @@ public partial class RawMaterialPage : IAsyncDisposable
     private List<RawMaterialModel> _rawMaterials = [];
     private List<RawMaterialCategoryModel> _categories = [];
     private List<TaxModel> _taxes = [];
+    private readonly List<ContextMenuItemModel> _rawMaterialGridContextMenuItems =
+    [
+        new() { Text = "Edit (Insert)", Id = "EditRawMaterial", IconCss = "e-icons e-edit", Target = ".e-content" },
+        new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverRawMaterial", IconCss = "e-icons e-trash", Target = ".e-content" }
+    ];
 
     private string _selectedCategoryName = string.Empty;
     private string _selectedTaxCode = string.Empty;
@@ -60,11 +65,10 @@ public partial class RawMaterialPage : IAsyncDisposable
             .Add(ModCode.Ctrl, Code.E, ExportExcel, "Export Excel", Exclude.None)
             .Add(ModCode.Ctrl, Code.P, ExportPdf, "Export PDF", Exclude.None)
             .Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
-            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
+            .Add(ModCode.Ctrl, Code.Delete, ToggleDeleted, "Show/Hide Deleted", Exclude.None)
             .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-            .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Dashboard", Exclude.None)
             .Add(Code.Insert, EditSelectedItem, "Edit selected", Exclude.None)
-            .Add(Code.Delete, DeleteSelectedItem, "Delete selected", Exclude.None);
+            .Add(Code.Delete, DeleteSelectedItem, "Delete / Recover selected", Exclude.None);
 
         _rawMaterials = await CommonData.LoadTableData<RawMaterialModel>(TableNames.RawMaterial);
         _categories = await CommonData.LoadTableData<RawMaterialCategoryModel>(TableNames.RawMaterialCategory);
@@ -134,20 +138,6 @@ public partial class RawMaterialPage : IAsyncDisposable
         StateHasChanged();
     }
 
-    private async Task ShowDeleteConfirmation(int id, string name)
-    {
-        _deleteRawMaterialId = id;
-        _deleteRawMaterialName = name;
-        await _deleteConfirmationDialog.ShowAsync();
-    }
-
-    private async Task CancelDelete()
-    {
-        _deleteRawMaterialId = 0;
-        _deleteRawMaterialName = string.Empty;
-        await _deleteConfirmationDialog.HideAsync();
-    }
-
     private async Task ConfirmDelete()
     {
         try
@@ -156,17 +146,10 @@ public partial class RawMaterialPage : IAsyncDisposable
             await _deleteConfirmationDialog.HideAsync();
 
             if (!_user.Admin)
-            {
-                await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
-                return;
-            }
+                throw new Exception("You do not have permission to perform this action.");
 
-            var rawMaterial = _rawMaterials.FirstOrDefault(rm => rm.Id == _deleteRawMaterialId);
-            if (rawMaterial == null)
-            {
-                await _toastNotification.ShowAsync("Error", "Raw material not found.", ToastType.Error);
-                return;
-            }
+            var rawMaterial = _rawMaterials.FirstOrDefault(rm => rm.Id == _deleteRawMaterialId)
+                ?? throw new Exception("Raw material not found.");
 
             rawMaterial.Status = false;
             await RawMaterialData.InsertRawMaterial(rawMaterial);
@@ -186,27 +169,6 @@ public partial class RawMaterialPage : IAsyncDisposable
         }
     }
 
-    private async Task ShowRecoverConfirmation(int id, string name)
-    {
-        _recoverRawMaterialId = id;
-        _recoverRawMaterialName = name;
-        await _recoverConfirmationDialog.ShowAsync();
-    }
-
-    private async Task CancelRecover()
-    {
-        _recoverRawMaterialId = 0;
-        _recoverRawMaterialName = string.Empty;
-        await _recoverConfirmationDialog.HideAsync();
-    }
-
-    private async Task ToggleDeleted()
-    {
-        _showDeleted = !_showDeleted;
-        await LoadData();
-        StateHasChanged();
-    }
-
     private async Task ConfirmRecover()
     {
         try
@@ -215,17 +177,10 @@ public partial class RawMaterialPage : IAsyncDisposable
             await _recoverConfirmationDialog.HideAsync();
 
             if (!_user.Admin)
-            {
-                await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
-                return;
-            }
+                throw new Exception("You do not have permission to perform this action.");
 
-            var rawMaterial = _rawMaterials.FirstOrDefault(rm => rm.Id == _recoverRawMaterialId);
-            if (rawMaterial == null)
-            {
-                await _toastNotification.ShowAsync("Error", "Raw material not found.", ToastType.Error);
-                return;
-            }
+            var rawMaterial = _rawMaterials.FirstOrDefault(rm => rm.Id == _recoverRawMaterialId)
+                ?? throw new Exception("Raw material not found.");
 
             rawMaterial.Status = true;
             await RawMaterialData.InsertRawMaterial(rawMaterial);
@@ -420,6 +375,47 @@ public partial class RawMaterialPage : IAsyncDisposable
     #endregion
 
     #region Utilities
+    private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+    {
+        switch (args.Item.Id)
+        {
+            case "NewRawMaterial":
+                ResetPage();
+                break;
+            case "SaveRawMaterial":
+                await SaveRawMaterial();
+                break;
+            case "ToggleDeleted":
+                await ToggleDeleted();
+                break;
+            case "ExportExcel":
+                await ExportExcel();
+                break;
+            case "ExportPdf":
+                await ExportPdf();
+                break;
+            case "EditSelected":
+                await EditSelectedItem();
+                break;
+            case "DeleteRecoverSelected":
+                await DeleteSelectedItem();
+                break;
+        }
+    }
+
+    private async Task OnRawMaterialGridContextMenuItemClicked(ContextMenuClickEventArgs<RawMaterialModel> args)
+    {
+        switch (args.Item.Id)
+        {
+            case "EditRawMaterial":
+                await EditSelectedItem();
+                break;
+            case "DeleteRecoverRawMaterial":
+                await DeleteSelectedItem();
+                break;
+        }
+    }
+
     private async Task EditSelectedItem()
     {
         var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
@@ -439,17 +435,46 @@ public partial class RawMaterialPage : IAsyncDisposable
         }
     }
 
+    private async Task ShowDeleteConfirmation(int id, string name)
+    {
+        _deleteRawMaterialId = id;
+        _deleteRawMaterialName = name;
+        await _deleteConfirmationDialog.ShowAsync();
+    }
+
+    private async Task CancelDelete()
+    {
+        _deleteRawMaterialId = 0;
+        _deleteRawMaterialName = string.Empty;
+        await _deleteConfirmationDialog.HideAsync();
+    }
+
+    private async Task ShowRecoverConfirmation(int id, string name)
+    {
+        _recoverRawMaterialId = id;
+        _recoverRawMaterialName = name;
+        await _recoverConfirmationDialog.ShowAsync();
+    }
+
+    private async Task CancelRecover()
+    {
+        _recoverRawMaterialId = 0;
+        _recoverRawMaterialName = string.Empty;
+        await _recoverConfirmationDialog.HideAsync();
+    }
+
+    private async Task ToggleDeleted()
+    {
+        _showDeleted = !_showDeleted;
+        await LoadData();
+        StateHasChanged();
+    }
+
     private void ResetPage() =>
         NavigationManager.NavigateTo(PageRouteNames.RawMaterial, true);
 
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);
-
-    private void NavigateToDashboard() =>
-        NavigationManager.NavigateTo(PageRouteNames.Dashboard);
-
-    private async Task Logout() =>
-        await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 
     public async ValueTask DisposeAsync()
     {

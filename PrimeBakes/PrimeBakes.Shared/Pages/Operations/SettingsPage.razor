@@ -11,15 +11,27 @@
 else
 {
     <div class="page-shell">
-        <Header Title="System Settings"
-
->
+        <Header Title="System Settings">
             <LeftContent>
-                <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Settings (Ctrl + S)"
-                            Disabled="_isProcessing" OnClick="SaveSettings" />
-                <IconButton Icon="IconType.Reset" Title="Reset to Defaults" Disabled="_isProcessing"
-                            OnClick="ShowResetConfirmation" />
+                <SfMenu TValue="Syncfusion.Blazor.Navigations.MenuItem">
+                    <MenuAnimationSettings Effect="Syncfusion.Blazor.Navigations.MenuEffect.SlideDown" Duration="300"
+                                           Easing="ease" />
+                    <MenuEvents TValue="Syncfusion.Blazor.Navigations.MenuItem" ItemSelected="OnMenuSelected" />
+                    <MenuItems>
+                        <MenuItem Text="File" IconCss="e-icons e-folder">
+                            <MenuItems>
+                                <MenuItem Text="Save (Ctrl + S)" IconCss="e-icons e-save" Id="SaveSettings"
+                                          Disabled="@_isProcessing" />
+                                <MenuItem Text="Reset to Defaults (Ctrl + R)" IconCss="e-icons e-reset" Id="ResetSettings"
+                                          Disabled="@_isProcessing" />
+                            </MenuItems>
+                        </MenuItem>
+                    </MenuItems>
+                </SfMenu>
             </LeftContent>
+            <RightContent>
+                <IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="NavigateBack" />
+            </RightContent>
         </Header>
 
         <!-- Main Content Container -->

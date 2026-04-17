@@ -13,20 +13,37 @@
 else
 {
 	<div class="page-shell">
-		<Header Title="Product Recipe Management"
-
->
+		<Header Title="Product Recipe Management">
 			<LeftContent>
-				<IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Recipe (Ctrl + S)"
-							Disabled="_isProcessing" OnClick="OnSaveButtonClick" />
-				@if (_recipe is not null && _recipe.Id > 0)
-				{
-					<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Title="Delete Recipe"
-								Disabled="_isProcessing" OnClick="DeleteRecipe" />
-				}
-				<IconButton Icon="IconType.New" Title="New Recipe (Ctrl + N)" Disabled="_isProcessing"
-							OnClick="ResetPage" />
+				<SfMenu TValue="Syncfusion.Blazor.Navigations.MenuItem">
+					<MenuAnimationSettings Effect="Syncfusion.Blazor.Navigations.MenuEffect.SlideDown" Duration="300"
+										   Easing="ease" />
+					<MenuEvents TValue="Syncfusion.Blazor.Navigations.MenuItem" ItemSelected="OnMenuSelected" />
+					<MenuItems>
+						<MenuItem Text="File" IconCss="e-icons e-folder">
+							<MenuItems>
+								<MenuItem Text="New (Ctrl + N)" IconCss="e-icons e-plus" Id="NewRecipe"
+										  Disabled="@_isProcessing" />
+								<MenuItem Text="Save (Ctrl + S)" IconCss="e-icons e-save" Id="SaveRecipe"
+										  Disabled="@_isProcessing" />
+								<MenuItem Text="Delete Recipe" IconCss="e-icons e-trash" Id="DeleteRecipe"
+										  Disabled="@(_isProcessing || _recipe is null || _recipe.Id == 0)" />
+							</MenuItems>
+						</MenuItem>
+						<MenuItem Text="Transaction" IconCss="e-icons e-chart">
+							<MenuItems>
+								<MenuItem Text="Edit Item (Insert)" IconCss="e-icons e-edit" Id="EditSelectedRecipeItem"
+										  Disabled="@_isProcessing" />
+								<MenuItem Text="Delete Item (Del)" IconCss="e-icons e-trash" Id="DeleteSelectedRecipeItem"
+										  Disabled="@_isProcessing" />
+							</MenuItems>
+						</MenuItem>
+					</MenuItems>
+				</SfMenu>
 			</LeftContent>
+			<RightContent>
+				<IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="NavigateBack" />
+			</RightContent>
 		</Header>
 
 		<!-- Main Content Container -->
@@ -86,7 +103,7 @@ else
 						<div class="cart-field cart-field-wide">
 							<label class="cart-label">Raw Material <span class="required">*</span></label>
 							<SfAutoComplete @ref="_sfItemAutoComplete" @bind-Value="@_selectedRawMaterial"
-											TValue="RawMaterialModel?" TItem="RawMaterialModel" DataSource="@_rawMaterials"
+											TValue="RawMaterialModel" TItem="RawMaterialModel" DataSource="@_rawMaterials"
 											Placeholder="Select Raw Material" FloatLabelType="FloatLabelType.Never"
 											AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
 											CssClass="custom-autocomplete">
@@ -127,8 +144,10 @@ else
 					<SfGrid ID="_sfCartGrid" @ref="_sfCartGrid" DataSource="_recipeItems" AllowTextWrap="true"
 							AllowPaging="false" AllowSorting="true" AllowResizing="true" AllowFiltering="true"
 							GridLines="GridLine.Horizontal" CssClass="professional-grid"
-							Toolbar="@(new List<string>() { "Search" })">
+							Toolbar="@(new List<string>() { "Search" })" ContextMenuItems="@_recipeGridContextMenuItems">
 
+						<GridEvents TValue="RecipeItemCartModel"
+									ContextMenuItemClicked="OnRecipeGridContextMenuItemClicked" />
 						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
 						<GridAggregates>
@@ -162,21 +181,6 @@ else
 						</GridAggregates>
 
 						<GridColumns>
-							<GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center">
-								<Template>
-									@{
-										var item = (context as RecipeItemCartModel);
-									}
-									<div class="grid-actions">
-										<IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid"
-													Title="Edit Item" Disabled="@_isProcessing"
-													OnClick="@(() => EditCartItem(item))" />
-										<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete"
-													Size="ButtonSize.Grid" Title="Remove Item" Disabled="@_isProcessing"
-													OnClick="@(() => RemoveItemFromCart(item))" />
-									</div>
-								</Template>
-							</GridColumn>
 							<GridColumn Field="@nameof(RecipeItemCartModel.ItemName)" HeaderText="Raw Material Name"
 										Width="250" />
 							<GridColumn Field="@nameof(RecipeItemCartModel.Quantity)" HeaderText="Quantity" Width="150"

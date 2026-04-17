@@ -20,6 +20,11 @@ public partial class TaxPage : IAsyncDisposable
     private TaxModel _tax = new();
 
     private List<TaxModel> _taxes = [];
+    private readonly List<ContextMenuItemModel> _taxGridContextMenuItems =
+    [
+        new() { Text = "Edit (Insert)", Id = "EditTax", IconCss = "e-icons e-edit", Target = ".e-content" },
+        new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverTax", IconCss = "e-icons e-trash", Target = ".e-content" }
+    ];
 
     private SfGrid<TaxModel> _sfGrid;
     private DeleteConfirmationDialog _deleteConfirmationDialog;
@@ -52,11 +57,10 @@ public partial class TaxPage : IAsyncDisposable
             .Add(ModCode.Ctrl, Code.E, ExportExcel, "Export Excel", Exclude.None)
             .Add(ModCode.Ctrl, Code.P, ExportPdf, "Export PDF", Exclude.None)
             .Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
-            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
+            .Add(ModCode.Ctrl, Code.Delete, ToggleDeleted, "Show/Hide Deleted", Exclude.None)
             .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-            .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Dashboard", Exclude.None)
             .Add(Code.Insert, EditSelectedItem, "Edit selected", Exclude.None)
-            .Add(Code.Delete, DeleteSelectedItem, "Delete selected", Exclude.None);
+            .Add(Code.Delete, DeleteSelectedItem, "Delete / Recover selected", Exclude.None);
 
         _taxes = await CommonData.LoadTableData<TaxModel>(TableNames.Tax);
 
@@ -85,20 +89,6 @@ public partial class TaxPage : IAsyncDisposable
         };
 
         StateHasChanged();
-    }
-
-    private async Task ShowDeleteConfirmation(int id, string code)
-    {
-        _deleteTaxId = id;
-        _deleteTaxCode = code;
-        await _deleteConfirmationDialog.ShowAsync();
-    }
-
-    private async Task CancelDelete()
-    {
-        _deleteTaxId = 0;
-        _deleteTaxCode = string.Empty;
-        await _deleteConfirmationDialog.HideAsync();
     }
 
     private async Task ConfirmDelete()
@@ -131,27 +121,6 @@ public partial class TaxPage : IAsyncDisposable
             _deleteTaxId = 0;
             _deleteTaxCode = string.Empty;
         }
-    }
-
-    private async Task ShowRecoverConfirmation(int id, string code)
-    {
-        _recoverTaxId = id;
-        _recoverTaxCode = code;
-        await _recoverConfirmationDialog.ShowAsync();
-    }
-
-    private async Task CancelRecover()
-    {
-        _recoverTaxId = 0;
-        _recoverTaxCode = string.Empty;
-        await _recoverConfirmationDialog.HideAsync();
-    }
-
-    private async Task ToggleDeleted()
-    {
-        _showDeleted = !_showDeleted;
-        await LoadData();
-        StateHasChanged();
     }
 
     private async Task ConfirmRecover()
@@ -343,6 +312,47 @@ public partial class TaxPage : IAsyncDisposable
     #endregion
 
     #region Utilities
+    private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+    {
+        switch (args.Item.Id)
+        {
+            case "NewTax":
+                ResetPage();
+                break;
+            case "SaveTax":
+                await SaveTax();
+                break;
+            case "ToggleDeleted":
+                await ToggleDeleted();
+                break;
+            case "ExportExcel":
+                await ExportExcel();
+                break;
+            case "ExportPdf":
+                await ExportPdf();
+                break;
+            case "EditSelected":
+                await EditSelectedItem();
+                break;
+            case "DeleteRecoverSelected":
+                await DeleteSelectedItem();
+                break;
+        }
+    }
+
+    private async Task OnTaxGridContextMenuItemClicked(ContextMenuClickEventArgs<TaxModel> args)
+    {
+        switch (args.Item.Id)
+        {
+            case "EditTax":
+                await EditSelectedItem();
+                break;
+            case "DeleteRecoverTax":
+                await DeleteSelectedItem();
+                break;
+        }
+    }
+
     private async Task EditSelectedItem()
     {
         var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
@@ -362,17 +372,46 @@ public partial class TaxPage : IAsyncDisposable
         }
     }
 
+    private async Task ShowDeleteConfirmation(int id, string code)
+    {
+        _deleteTaxId = id;
+        _deleteTaxCode = code;
+        await _deleteConfirmationDialog.ShowAsync();
+    }
+
+    private async Task CancelDelete()
+    {
+        _deleteTaxId = 0;
+        _deleteTaxCode = string.Empty;
+        await _deleteConfirmationDialog.HideAsync();
+    }
+
+    private async Task ShowRecoverConfirmation(int id, string code)
+    {
+        _recoverTaxId = id;
+        _recoverTaxCode = code;
+        await _recoverConfirmationDialog.ShowAsync();
+    }
+
+    private async Task CancelRecover()
+    {
+        _recoverTaxId = 0;
+        _recoverTaxCode = string.Empty;
+        await _recoverConfirmationDialog.HideAsync();
+    }
+
+    private async Task ToggleDeleted()
+    {
+        _showDeleted = !_showDeleted;
+        await LoadData();
+        StateHasChanged();
+    }
+
     private void ResetPage() =>
         NavigationManager.NavigateTo(PageRouteNames.Tax, true);
 
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.StoreDashboard);
-
-    private void NavigateToDashboard() =>
-        NavigationManager.NavigateTo(PageRouteNames.Dashboard);
-
-    private async Task Logout() =>
-        await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 
     public async ValueTask DisposeAsync()
     {
