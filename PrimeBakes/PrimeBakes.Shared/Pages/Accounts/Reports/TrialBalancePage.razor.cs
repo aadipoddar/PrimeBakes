@@ -4,6 +4,7 @@ using Microsoft.JSInterop;
 using PrimeBakes.Shared.Components.Dialog;
 
 using PrimeBakesLibrary.Data.Accounts.FinancialAccounting;
+using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Operations;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Accounts.FinancialAccounting;
@@ -55,19 +56,7 @@ public partial class TrialBalancePage : IAsyncDisposable
 
     private async Task LoadData()
     {
-        _hotKeysContext = HotKeys.CreateContext()
-            .Add(ModCode.Ctrl, Code.R, LoadTrialBalance, "Refresh Data", Exclude.None)
-            .Add(Code.F5, LoadTrialBalance, "Refresh Data", Exclude.None)
-            .Add(ModCode.Ctrl, Code.E, ExportExcel, "Export to Excel", Exclude.None)
-            .Add(ModCode.Ctrl, Code.P, ExportPdf, "Export to PDF", Exclude.None)
-            .Add(ModCode.Ctrl, Code.N, NavigateToTransactionPage, "New Transaction", Exclude.None)
-            .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
-            .Add(ModCode.Ctrl, Code.I, NavigateToLedgerReport, "Ledger Report", Exclude.None)
-            .Add(ModCode.Alt, Code.F, NavigateToProfitAndLoss, "Open profit and loss report", Exclude.None)
-            .Add(ModCode.Alt, Code.B, NavigateToBalanceSheet, "Open balance sheet report", Exclude.None)
-            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None);
-
+        LoadHotKeys();
         await LoadDates();
         await LoadCompanies();
         await LoadGroups();
@@ -184,10 +173,9 @@ public partial class TrialBalancePage : IAsyncDisposable
         await LoadTrialBalance();
     }
 
-    private async Task HandleDatesChanged((DateTime FromDate, DateTime ToDate) dates)
+    private async Task HandleDatesChanged(DateRangeType dateRangeType)
     {
-        _fromDate = dates.FromDate;
-        _toDate = dates.ToDate;
+        (_fromDate, _toDate) = await FinancialYearData.GetDateRange(dateRangeType, _fromDate, _toDate);
         await LoadTrialBalance();
     }
     #endregion
@@ -273,6 +261,84 @@ public partial class TrialBalancePage : IAsyncDisposable
     #endregion
 
     #region Utilities
+    private void LoadHotKeys()
+    {
+        _hotKeysContext = HotKeys.CreateContext()
+            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
+            .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to Dashboard", Exclude.None)
+            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
+            .Add(ModCode.Ctrl, Code.N, NavigateToTransactionPage, "New Transaction", Exclude.None)
+            .Add(ModCode.Ctrl, Code.R, LoadTrialBalance, "Refresh Data", Exclude.None)
+            .Add(Code.F5, LoadTrialBalance, "Refresh Data", Exclude.None)
+            .Add(ModCode.Ctrl, Code.Q, ToggleDetailsView, "Toggle Details", Exclude.None)
+            .Add(ModCode.Ctrl, Code.P, ExportPdf, "Export to PDF", Exclude.None)
+            .Add(ModCode.Ctrl, Code.E, ExportExcel, "Export to Excel", Exclude.None)
+            .Add(ModCode.Ctrl, Code.I, NavigateToLedgerReport, "Ledger Report", Exclude.None)
+            .Add(ModCode.Alt, Code.F, NavigateToProfitAndLoss, "Open profit and loss report", Exclude.None)
+            .Add(ModCode.Alt, Code.B, NavigateToBalanceSheet, "Open balance sheet report", Exclude.None);
+    }
+
+    private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+    {
+        switch (args.Item.Id)
+        {
+            case "NewTransaction":
+                await NavigateToTransactionPage();
+                break;
+            case "Refresh":
+                await LoadTrialBalance();
+                break;
+            case "ToggleDetailsView":
+                await ToggleDetailsView();
+                break;
+            case "ExportPdf":
+                await ExportPdf();
+                break;
+            case "ExportExcel":
+                await ExportExcel();
+                break;
+            case "LedgerReport":
+                await NavigateToLedgerReport();
+                break;
+            case "ProfitLoss":
+                await NavigateToProfitAndLoss();
+                break;
+            case "BalanceSheet":
+                await NavigateToBalanceSheet();
+                break;
+            case "PeriodToday":
+                await HandleDatesChanged(DateRangeType.Today);
+                break;
+            case "PeriodPreviousDay":
+                await HandleDatesChanged(DateRangeType.Yesterday);
+                break;
+            case "PeriodNextDay":
+                await HandleDatesChanged(DateRangeType.NextDay);
+                break;
+            case "PeriodCurrentMonth":
+                await HandleDatesChanged(DateRangeType.CurrentMonth);
+                break;
+            case "PeriodPreviousMonth":
+                await HandleDatesChanged(DateRangeType.PreviousMonth);
+                break;
+            case "PeriodNextMonth":
+                await HandleDatesChanged(DateRangeType.NextMonth);
+                break;
+            case "PeriodCurrentFinancialYear":
+                await HandleDatesChanged(DateRangeType.CurrentFinancialYear);
+                break;
+            case "PeriodPreviousFinancialYear":
+                await HandleDatesChanged(DateRangeType.PreviousFinancialYear);
+                break;
+            case "PeriodNextFinancialYear":
+                await HandleDatesChanged(DateRangeType.NextFinancialYear);
+                break;
+            case "PeriodAllTime":
+                await HandleDatesChanged(DateRangeType.AllTime);
+                break;
+        }
+    }
+
     private async Task ToggleDetailsView()
     {
         _showAllColumns = !_showAllColumns;
