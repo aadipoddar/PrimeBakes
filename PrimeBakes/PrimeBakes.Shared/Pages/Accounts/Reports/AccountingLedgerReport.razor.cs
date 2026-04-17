@@ -339,9 +339,7 @@ public partial class AccountingLedgerReport : IAsyncDisposable
     {
         _hotKeysContext = HotKeys.CreateContext()
             .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-            .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to Dashboard", Exclude.None)
-            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
-            .Add(ModCode.Ctrl, Code.N, NavigateToTransactionPage, "New Transaction", Exclude.None)
+            .Add(ModCode.Ctrl, Code.N, () => AuthenticationService.NavigateToRoute(PageRouteNames.FinancialAccounting, FormFactor, JSRuntime, NavigationManager), "New Transaction", Exclude.None)
             .Add(ModCode.Ctrl, Code.R, LoadTransactionOverviews, "Refresh Data", Exclude.None)
             .Add(Code.F5, LoadTransactionOverviews, "Refresh Data", Exclude.None)
             .Add(ModCode.Ctrl, Code.Q, ToggleDetailsView, "Toggle Details", Exclude.None)
@@ -357,7 +355,7 @@ public partial class AccountingLedgerReport : IAsyncDisposable
         switch (args.Item.Id)
         {
             case "NewTransaction":
-                await NavigateToTransactionPage();
+                await AuthenticationService.NavigateToRoute(PageRouteNames.FinancialAccounting, FormFactor, JSRuntime, NavigationManager);
                 break;
             case "Refresh":
                 await LoadTransactionOverviews();
@@ -381,16 +379,16 @@ public partial class AccountingLedgerReport : IAsyncDisposable
                 await ExportSelectedTransactionExcel();
                 break;
             case "TransactionHistory":
-                await NavigateToTransactionHistory();
+                await AuthenticationService.NavigateToRoute(PageRouteNames.FinancialAccountingReport, FormFactor, JSRuntime, NavigationManager);
                 break;
             case "TrialBalance":
-                await NavigateToTrialBalance();
+                await AuthenticationService.NavigateToRoute(PageRouteNames.TrialBalanceReport, FormFactor, JSRuntime, NavigationManager);
                 break;
             case "ProfitLoss":
-                await NavigateToProfitAndLoss();
+                await AuthenticationService.NavigateToRoute(PageRouteNames.ProfitAndLossReport, FormFactor, JSRuntime, NavigationManager);
                 break;
             case "BalanceSheet":
-                await NavigateToBalanceSheet();
+                await AuthenticationService.NavigateToRoute(PageRouteNames.BalanceSheetReport, FormFactor, JSRuntime, NavigationManager);
                 break;
             case "PeriodToday":
                 await HandleDatesChanged(DateRangeType.Today);
@@ -452,54 +450,8 @@ public partial class AccountingLedgerReport : IAsyncDisposable
             await _sfGrid.Refresh();
     }
 
-    private async Task NavigateToTransactionPage()
-    {
-        if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.FinancialAccounting, "_blank");
-        else
-            NavigationManager.NavigateTo(PageRouteNames.FinancialAccounting);
-    }
-
-    private async Task NavigateToTransactionHistory()
-    {
-        if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.FinancialAccountingReport, "_blank");
-        else
-            NavigationManager.NavigateTo(PageRouteNames.FinancialAccountingReport);
-    }
-
-    private async Task NavigateToTrialBalance()
-    {
-        if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.TrialBalanceReport, "_blank");
-        else
-            NavigationManager.NavigateTo(PageRouteNames.TrialBalanceReport);
-    }
-
-    private async Task NavigateToProfitAndLoss()
-    {
-        if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ProfitAndLossReport, "_blank");
-        else
-            NavigationManager.NavigateTo(PageRouteNames.ProfitAndLossReport);
-    }
-
-    private async Task NavigateToBalanceSheet()
-    {
-        if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.BalanceSheetReport, "_blank");
-        else
-            NavigationManager.NavigateTo(PageRouteNames.BalanceSheetReport);
-    }
-
-    private void NavigateToDashboard() =>
-        NavigationManager.NavigateTo(PageRouteNames.Dashboard);
-
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
-
-    private async Task Logout() =>
-        await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 
     private async Task StartAutoRefresh()
     {

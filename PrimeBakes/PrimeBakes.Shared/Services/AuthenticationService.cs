@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Models.Operations;
 
@@ -55,5 +56,13 @@ public static class AuthenticationService
 		await notificationService.DeregisterDevicePushNotification();
 		vibrationService.VibrateWithTime(500);
 		navigationManager.NavigateTo(PageRouteNames.Login, forceLoad: true);
+	}
+
+	public static async Task NavigateToRoute(string route, IFormFactor FormFactor, IJSRuntime JSRuntime, NavigationManager NavigationManager)
+	{
+		if (FormFactor.GetFormFactor() == "Web")
+			await JSRuntime.InvokeVoidAsync("open", route, "_blank");
+		else
+			NavigationManager.NavigateTo(route);
 	}
 }
