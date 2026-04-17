@@ -46,6 +46,11 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 	private List<LedgerModel> _ledgers = [];
 	private List<FinancialAccountingLedgerOverviewModel> _accountingLedgers = [];
 	private List<FinancialAccountingItemCartModel> _cart = [];
+	private readonly List<ContextMenuItemModel> _cartGridContextMenuItems =
+	[
+		new() { Text = "Edit (Insert)", Id = "EditCart", IconCss = "e-icons e-edit", Target = ".e-content" },
+		new() { Text = "Delete (Del)", Id = "DeleteCart", IconCss = "e-icons e-trash", Target = ".e-content" }
+	];
 
 	private SfAutoComplete<LedgerModel?, LedgerModel> _sfLedgerAutoComplete;
 	private SfGrid<FinancialAccountingItemCartModel> _sfCartGrid;
@@ -66,24 +71,7 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 
 	private async Task LoadData()
 	{
-		_hotKeysContext = HotKeys.CreateContext()
-			.Add(ModCode.Ctrl, Code.Enter, AddItemToCart, "Add item to cart", Exclude.None)
-			.Add(ModCode.Ctrl, Code.E, () => _sfLedgerAutoComplete.FocusAsync(), "Focus on ledger input", Exclude.None)
-			.Add(ModCode.Ctrl, Code.S, SaveTransaction, "Save the transaction", Exclude.None)
-			.Add(ModCode.Alt, Code.P, DownloadPdfInvoice, "Download PDF invoice", Exclude.None)
-			.Add(ModCode.Alt, Code.E, DownloadExcelInvoice, "Download Excel invoice", Exclude.None)
-			.Add(ModCode.Ctrl, Code.H, NavigateToTransactionHistoryPage, "Open transaction history", Exclude.None)
-			.Add(ModCode.Ctrl, Code.I, NavigateToItemReport, "Open item report", Exclude.None)
-			.Add(ModCode.Ctrl, Code.T, NavigateToTrialBalance, "Open trial balance report", Exclude.None)
-			.Add(ModCode.Alt, Code.F, NavigateToProfitAndLoss, "Open profit and loss report", Exclude.None)
-			.Add(ModCode.Alt, Code.B, NavigateToBalanceSheet, "Open balance sheet report", Exclude.None)
-			.Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
-			.Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
-			.Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-			.Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
-			.Add(Code.Delete, RemoveSelectedCartItem, "Delete selected cart item", Exclude.None)
-			.Add(Code.Insert, EditSelectedCartItem, "Edit selected cart item", Exclude.None);
-
+		LoadHotKeys();
 		await LoadCompanies();
 		await LoadVouchers();
 		await LoadExistingTransaction();
@@ -676,7 +664,7 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 		return true;
 	}
 
-	private async Task SaveTransaction()
+	private async Task SaveTransaction(bool savePDF = false, bool saveExcel = false)
 	{
 		if (_isProcessing || _isLoading)
 			return;
@@ -706,11 +694,20 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 
 			_accounting.Id = await FinancialAccountingData.SaveTransaction(_accounting, _cart);
 
-			// var (pdfStream, fileName) = await FinancialAccountingInvoiceExport.ExportInvoice(_accounting.Id, InvoiceExportType.PDF);
-			// await SaveAndViewService.SaveAndView(fileName, pdfStream);
+			if (savePDF)
+			{
+				var (pdfStream, pdfFileName) = await FinancialAccountingInvoiceExport.ExportInvoice(_accounting.Id, InvoiceExportType.PDF);
+				await SaveAndViewService.SaveAndView(pdfFileName, pdfStream);
+			}
+
+			if (saveExcel)
+			{
+				var (excelStream, excelFileName) = await FinancialAccountingInvoiceExport.ExportInvoice(_accounting.Id, InvoiceExportType.Excel);
+				await SaveAndViewService.SaveAndView(excelFileName, excelStream);
+			}
 
 			await ResetPage();
-			await _toastNotification.ShowAsync("Save Transaction", "Transaction saved successfully! Invoice has been generated.", ToastType.Success);
+			await _toastNotification.ShowAsync("Save Transaction", "Transaction saved successfully.", ToastType.Success);
 		}
 		catch (Exception ex)
 		{
@@ -721,16 +718,88 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 			_isProcessing = false;
 		}
 	}
+	#endregion
+
+	#region Utilities
+	private void LoadHotKeys()
+	{
+		_hotKeysContext = HotKeys.CreateContext()
+			.Add(ModCode.Ctrl, Code.Enter, AddItemToCart, "Add item to cart", Exclude.None)
+			.Add(ModCode.Ctrl, Code.E, () => _sfLedgerAutoComplete.FocusAsync(), "Focus on ledger input", Exclude.None)
+			.Add(ModCode.Ctrl, Code.S, () => SaveTransaction(), "Save the transaction", Exclude.None)
+			.Add(ModCode.Ctrl, Code.P, () => SaveTransaction(savePDF: true), "Save & PDF", Exclude.None)
+			.Add(ModCode.Ctrl, Code.E, () => SaveTransaction(saveExcel: true), "Save & Excel", Exclude.None)
+			.Add(ModCode.Alt, Code.P, ExportPdfInvoice, "Export PDF", Exclude.None)
+			.Add(ModCode.Alt, Code.E, ExportExcelInvoice, "Export Excel", Exclude.None)
+			.Add(ModCode.Ctrl, Code.H, NavigateToTransactionHistoryPage, "Open transaction history", Exclude.None)
+			.Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
+			.Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
+			.Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
+			.Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
+			.Add(Code.Delete, RemoveSelectedCartItem, "Delete selected cart item", Exclude.None)
+			.Add(Code.Insert, EditSelectedCartItem, "Edit selected cart item", Exclude.None);
+	}
+
+	private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+	{
+		switch (args.Item.Id)
+		{
+			case "NewTransaction":
+				await ResetPage();
+				break;
+			case "SaveTransaction":
+				await SaveTransaction();
+				break;
+			case "SavePdfInvoice":
+				await SaveTransaction(savePDF: true);
+				break;
+			case "SaveExcelInvoice":
+				await SaveTransaction(saveExcel: true);
+				break;
+			case "ExportPdfInvoice":
+				await ExportPdfInvoice();
+				break;
+			case "ExportExcelInvoice":
+				await ExportExcelInvoice();
+				break;
+			case "TransactionHistory":
+				await NavigateToTransactionHistoryPage();
+				break;
+			case "ItemReport":
+				await NavigateToItemReport();
+				break;
+			case "TrialBalance":
+				await NavigateToTrialBalance();
+				break;
+			case "ProfitLoss":
+				await NavigateToProfitAndLoss();
+				break;
+			case "BalanceSheet":
+				await NavigateToBalanceSheet();
+				break;
+		}
+	}
+
+	private async Task OnCartGridContextMenuItemClicked(ContextMenuClickEventArgs<FinancialAccountingItemCartModel> args)
+	{
+		switch (args.Item.Id)
+		{
+			case "EditCart":
+				await EditSelectedCartItem();
+				break;
+			case "DeleteCart":
+				await RemoveSelectedCartItem();
+				break;
+		}
+	}
 
 	private async Task DeleteLocalFiles()
 	{
 		await DataStorageService.LocalRemove(StorageFileNames.FinancialAccountingDataFileName);
 		await DataStorageService.LocalRemove(StorageFileNames.FinancialAccountingCartDataFileName);
 	}
-	#endregion
 
-	#region Utilities
-	private async Task DownloadPdfInvoice()
+	private async Task ExportPdfInvoice()
 	{
 		if (!Id.HasValue || Id.Value <= 0)
 		{
@@ -745,8 +814,10 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 		{
 			_isProcessing = true;
 			await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
+
 			var (pdfStream, fileName) = await FinancialAccountingInvoiceExport.ExportInvoice(Id.Value, InvoiceExportType.PDF);
 			await SaveAndViewService.SaveAndView(fileName, pdfStream);
+
 			await _toastNotification.ShowAsync("Invoice Downloaded", "The PDF invoice has been downloaded successfully.", ToastType.Success);
 		}
 		catch (Exception ex)
@@ -759,7 +830,7 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 		}
 	}
 
-	private async Task DownloadExcelInvoice()
+	private async Task ExportExcelInvoice()
 	{
 		if (!Id.HasValue || Id.Value <= 0)
 		{
@@ -774,8 +845,10 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 		{
 			_isProcessing = true;
 			await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
+
 			var (excelStream, fileName) = await FinancialAccountingInvoiceExport.ExportInvoice(Id.Value, InvoiceExportType.Excel);
 			await SaveAndViewService.SaveAndView(fileName, excelStream);
+
 			await _toastNotification.ShowAsync("Invoice Downloaded", "The Excel invoice has been downloaded successfully.", ToastType.Success);
 		}
 		catch (Exception ex)

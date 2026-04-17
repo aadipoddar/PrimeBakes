@@ -91,7 +91,9 @@ public partial class Header : IAsyncDisposable
     private void LoadHotKeys()
     {
         _hotKeysContext = HotKeys.CreateContext()
-            .Add(Code.F2, FocusSearchBox, "Focus on search box", Exclude.None);
+            .Add(Code.F2, FocusSearchBox, "Focus on search box", Exclude.None)
+            .Add(ModCode.Ctrl, Code.D, NavigateToHome, "Go to dashboard", Exclude.None)
+            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None);
     }
 
     private async Task FocusSearchBox()
@@ -249,7 +251,7 @@ public partial class Header : IAsyncDisposable
     }
 
     private void NavigateToHome() =>
-            NavigationManager.NavigateTo(PageRouteNames.Dashboard);
+        NavigationManager.NavigateTo(PageRouteNames.Dashboard);
     private async Task Logout() =>
         await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 

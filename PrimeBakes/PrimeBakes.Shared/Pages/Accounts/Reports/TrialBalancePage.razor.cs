@@ -297,6 +297,9 @@ public partial class TrialBalancePage : IAsyncDisposable
             case "ExportExcel":
                 await ExportExcel();
                 break;
+            case "TransactionHistory":
+                await NavigateToTransactionHistory();
+                break;
             case "LedgerReport":
                 await NavigateToLedgerReport();
                 break;
@@ -354,6 +357,14 @@ public partial class TrialBalancePage : IAsyncDisposable
             await JSRuntime.InvokeVoidAsync("open", PageRouteNames.FinancialAccounting, "_blank");
         else
             NavigationManager.NavigateTo(PageRouteNames.FinancialAccounting);
+    }
+
+    private async Task NavigateToTransactionHistory()
+    {
+        if (FormFactor.GetFormFactor() == "Web")
+            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.FinancialAccountingReport, "_blank");
+        else
+            NavigationManager.NavigateTo(PageRouteNames.FinancialAccountingReport);
     }
 
     private async Task NavigateToLedgerReport()

@@ -37,6 +37,7 @@ else
 						</MenuItem>
 						<MenuItem Text="Open" IconCss="e-icons e-folder-open">
 							<MenuItems>
+								<MenuItem Text="Transaction History Report" Id="TransactionHistory" Disabled="@_isProcessing" />
 								<MenuItem Text="Ledger Report (Ctrl + I)" Id="LedgerReport" Disabled="@_isProcessing" />
 								<MenuItem Text="Profit & Loss" Id="ProfitLoss" Disabled="@_isProcessing" />
 								<MenuItem Text="Balance Sheet" Id="BalanceSheet" Disabled="@_isProcessing" />

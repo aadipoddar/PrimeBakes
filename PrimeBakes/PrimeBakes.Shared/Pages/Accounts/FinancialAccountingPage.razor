@@ -13,32 +13,48 @@
 else
 {
     <div class="page-shell">
-        <Header Title="Financial Accounting Entry"
-
->
+        <Header Title="Financial Accounting Entry">
             <LeftContent>
-                <IconButton Icon="IconType.Save" Variant="ButtonVariant.Save" Title="Save Transaction (Ctrl + S)"
-                            Disabled="_isProcessing" OnClick="SaveTransaction" />
-                @if (Id.HasValue && Id.Value > 0)
-                {
-                    <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Download Excel Invoice (Alt+E)"
-                                Disabled="_isProcessing" OnClick="DownloadExcelInvoice" />
-                    <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Download PDF Invoice (Alt+P)"
-                                Disabled="_isProcessing" OnClick="DownloadPdfInvoice" />
-                }
-                <IconButton Icon="IconType.History" Title="Transaction History (Ctrl + H)" Disabled="_isProcessing"
-                            OnClick="NavigateToTransactionHistoryPage" />
-                <IconButton Icon="IconType.Report" Title="Item Report (Ctrl + I)" Disabled="_isProcessing"
-                            OnClick="NavigateToItemReport" />
-                <IconButton Icon="IconType.TrialBalance" Title="Trial Balance (Ctrl + T)" Disabled="_isProcessing"
-                            OnClick="NavigateToTrialBalance" />
-                <IconButton Icon="IconType.ProfitAndLoss" Title="Profit & Loss (Alt+ F)" Disabled="_isProcessing"
-                            OnClick="NavigateToProfitAndLoss" />
-                <IconButton Icon="IconType.BalanceSheet" Title="Balance Sheet (Alt+ B)" Disabled="_isProcessing"
-                            OnClick="NavigateToBalanceSheet" />
-                <IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing"
-                            OnClick="ResetPage" />
+                <SfMenu TValue="Syncfusion.Blazor.Navigations.MenuItem">
+                    <MenuAnimationSettings Effect="Syncfusion.Blazor.Navigations.MenuEffect.SlideDown" Duration="300"
+                                           Easing="ease" />
+                    <MenuEvents TValue="Syncfusion.Blazor.Navigations.MenuItem" ItemSelected="OnMenuSelected"
+                                OnOpen='async () => await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0)' />
+                    <MenuItems>
+                        <MenuItem Text="File" IconCss="e-icons e-folder">
+                            <MenuItems>
+                                <MenuItem Text="New Transaction (Ctrl + N)" IconCss="e-icons e-plus" Id="NewTransaction"
+                                          Disabled="@_isProcessing" />
+                                <MenuItem Separator="true" />
+                                <MenuItem Text="Save (Ctrl + S)" IconCss="e-icons e-save" Id="SaveTransaction"
+                                          Disabled="@_isProcessing" />
+                                <MenuItem Text="Save & PDF (Ctrl + P)" IconCss="e-icons e-export-pdf" Id="SavePdfInvoice"
+                                          Disabled="@_isProcessing" />
+                                <MenuItem Text="Save & Excel (Ctrl + E)" IconCss="e-icons e-export-excel" Id="SaveExcelInvoice"
+                                          Disabled="@_isProcessing" />
+                                <MenuItem Separator="true" />
+                                <MenuItem Text="Export PDF (Alt + P)" IconCss="e-icons e-export-pdf" Id="ExportPdfInvoice"
+                                          Disabled="@(_isProcessing || !Id.HasValue || Id.Value <= 0)" />
+                                <MenuItem Text="Export Excel (Alt + E)" IconCss="e-icons e-export-excel" Id="ExportExcelInvoice"
+                                          Disabled="@(_isProcessing || !Id.HasValue || Id.Value <= 0)" />
+                            </MenuItems>
+                        </MenuItem>
+                        <MenuItem Text="Open" IconCss="e-icons e-folder-open">
+                            <MenuItems>
+                                <MenuItem Text="Transaction History Report (Ctrl + H)" Id="TransactionHistory"
+                                          Disabled="@_isProcessing" />
+                                <MenuItem Text="Item Report" Id="ItemReport" Disabled="@_isProcessing" />
+                                <MenuItem Text="Trial Balance" Id="TrialBalance" Disabled="@_isProcessing" />
+                                <MenuItem Text="Profit & Loss" Id="ProfitLoss" Disabled="@_isProcessing" />
+                                <MenuItem Text="Balance Sheet" Id="BalanceSheet" Disabled="@_isProcessing" />
+                            </MenuItems>
+                        </MenuItem>
+                    </MenuItems>
+                </SfMenu>
             </LeftContent>
+            <RightContent>
+                <IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="NavigateBack" />
+            </RightContent>
         </Header>
 
         <!-- Main Content Container -->
@@ -107,16 +123,17 @@ else
                                                   CssClass="custom-datepicker">
                                         <DatePickerEvents TValue="DateTime" ValueChange="OnTransactionDateChanged" />
                                     </SfDatePicker>
-                                    <SfTextBox Value="@($"{_selectedFinancialYear?.StartDate:yyyy} to {_selectedFinancialYear?.EndDate:yyyy}")"
-                                               Readonly="true" Placeholder="Financial Year" FloatLabelType="FloatLabelType.Never"
-                                               CssClass="custom-textbox readonly-field" />
+                                    <SfTextBox
+                                    Value="@($"{_selectedFinancialYear?.StartDate:yyyy} to {_selectedFinancialYear?.EndDate:yyyy}")"
+                                    Readonly="true" Placeholder="Financial Year" FloatLabelType="FloatLabelType.Never"
+                                    CssClass="custom-textbox readonly-field" />
                                 </div>
                             </div>
 
                             <!-- Transaction No -->
                             <div class="form-field">
                                 <label class="field-label">
-                                       Transaction No <span class="required">*</span>
+                                    Transaction No <span class="required">*</span>
                                 </label>
                                 <SfTextBox @bind-Value="_accounting.TransactionNo" Placeholder="Enter Transaction No"
                                            FloatLabelType="FloatLabelType.Never" Readonly="true"
@@ -137,8 +154,8 @@ else
                                         @if (!string.IsNullOrEmpty(_accounting.ReferenceNo))
                                         {
                                             <div class="reference-actions">
-                                                <IconButton Icon="IconType.View" Variant="ButtonVariant.View" Size="ButtonSize.Small"
-                                                            Title="View Invoice" OnClick="ViewReferenceInvoice" />
+                                                <IconButton Icon="IconType.View" Variant="ButtonVariant.View"
+                                                            Size="ButtonSize.Small" Title="View Invoice" OnClick="ViewReferenceInvoice" />
                                                 <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Small"
                                                             Title="Download PDF Invoice" OnClick="DownloadReferenceInvoice" />
                                             </div>
@@ -222,11 +239,13 @@ else
                         <div class="cart-field cart-field-wide">
                             <label class="cart-label">Ledger <span class="required">*</span></label>
                             <div class="reference-wrapper">
-                                <SfAutoComplete @ref="_sfLedgerAutoComplete" Value="@_selectedLedger" TValue="LedgerModel ?"
+                                <SfAutoComplete @ref="_sfLedgerAutoComplete" Value="@_selectedLedger" TValue="LedgerModel?"
                                                 TItem="LedgerModel" DataSource="@_ledgers" Placeholder="Select Ledger (Ctrl + E)"
                                                 FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
-                                                FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
-                                    <AutoCompleteEvents TItem="LedgerModel" TValue="LedgerModel ?" ValueChange="OnItemChanged" />
+                                                FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
+                                                CssClass="custom-autocomplete">
+                                    <AutoCompleteEvents TItem="LedgerModel" TValue="LedgerModel?"
+                                                        ValueChange="OnItemChanged" />
                                     <AutoCompleteFieldSettings Value="Name" />
                                 </SfAutoComplete>
                                 <IconButton Icon="IconType.Get" Variant="ButtonVariant.Get" Size="ButtonSize.Small"
@@ -237,7 +256,8 @@ else
                         <div class="cart-field cart-field-wide">
                             <label class="cart-label">Ref No</label>
                             <div class="reference-wrapper">
-                                <SfAutoComplete Value="@_selectedAccountingLedger" TValue="FinancialAccountingLedgerOverviewModel"
+                                <SfAutoComplete Value="@_selectedAccountingLedger"
+                                                TValue="FinancialAccountingLedgerOverviewModel"
                                                 TItem="FinancialAccountingLedgerOverviewModel" DataSource="@_accountingLedgers"
                                                 Placeholder="Select Reference" FloatLabelType="FloatLabelType.Never"
                                                 AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
@@ -300,7 +320,11 @@ else
                 <div class="section-body grid-body">
                     <SfGrid @ref="_sfCartGrid" DataSource="_cart" AllowTextWrap="true" AllowPaging="false"
                             AllowSorting="true" AllowResizing="true" AllowFiltering="true" GridLines="GridLine.Horizontal"
-                            CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
+                            CssClass="professional-grid" ContextMenuItems="@_cartGridContextMenuItems"
+                            Toolbar="@(new List<string>() { "Search" })">
+
+                        <GridEvents TValue="FinancialAccountingItemCartModel"
+                                    ContextMenuItemClicked="OnCartGridContextMenuItemClicked" />
 
                         <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
@@ -344,20 +368,6 @@ else
                         </GridAggregates>
 
                         <GridColumns>
-                            <GridColumn HeaderText="Actions" Width="100" TextAlign="TextAlign.Center">
-                                <Template>
-                                    @{
-                                        var item = (context as FinancialAccountingItemCartModel);
-                                        <div class="grid-actions">
-                                            <IconButton Icon="IconType.Edit" Variant="ButtonVariant.Edit" Size="ButtonSize.Grid"
-                                                        Title="Edit Entry (Insert)" OnClick="@(() => EditCartItem(item))" />
-                                            <IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete"
-                                                        Size="ButtonSize.Grid" Title="Remove Entry (Del)"
-                                                        OnClick="@(() => RemoveItemFromCart(item))" />
-                                        </div>
-                                    }
-                                </Template>
-                            </GridColumn>
                             <GridColumn Field="LedgerName" HeaderText="Ledger Name" Width="250" />
                             <GridColumn Field="Debit" HeaderText="Debit" Width="130" TextAlign="TextAlign.Right"
                                         Format="N2">

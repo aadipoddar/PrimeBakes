@@ -1,6 +1,6 @@
 <div class="page-header">
     <div class="header-left">
-        <button type="button" class="header-logo-button" title="Go to Home" @onclick="NavigateToHome">
+        <button type="button" class="header-logo-button" title="Go to Home (Ctrl+D)" @onclick="NavigateToHome">
             <img src="images/logo.png" alt="PrimeBakes" class="header-logo" />
         </button>
         @if (LeftContent != null)
@@ -35,7 +35,7 @@
                         OnClick="HandleBtClick" />
         }
         <div class="header-divider"></div>
-        <button type="button" class="user-name user-name-button" title="Logout" @onclick="Logout">
+        <button type="button" class="user-name user-name-button" title="Logout (Ctrl+L)" @onclick="Logout">
             <span class="user-name-desktop">@_user?.Name</span>
             <span class="user-name-mobile">@GetMobileUserName()</span>
         </button>
