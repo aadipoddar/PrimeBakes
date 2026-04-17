@@ -5,15 +5,6 @@ namespace PrimeBakes.Shared.Pages;
 
 public partial class Dashboard : IDisposable
 {
-	private HotKeysContext _hotKeysContext;
-	private UserModel _user;
-	private bool _isLoading = true;
-	private bool _isUpdating = false;
-	private int _updateProgress = 0;
-	private int _timeRemaining = 0;
-	private string _updateStatus = "Preparing update...";
-	private DateTime _updateStartTime;
-
 	#region Device Info
 	private string Factor =>
 		FormFactor.GetFormFactor();
@@ -26,6 +17,12 @@ public partial class Dashboard : IDisposable
 	#endregion
 
 	#region Updating
+	private bool _isUpdating = false;
+	private int _updateProgress = 0;
+	private int _timeRemaining = 0;
+	private string _updateStatus = "Preparing update...";
+	private DateTime _updateStartTime;
+
 	private async Task StartUpdateProcess(bool forceUpdate = false)
 	{
 		_isLoading = false;
@@ -81,6 +78,9 @@ public partial class Dashboard : IDisposable
 	#endregion
 
 	#region Load Data
+	private UserModel _user;
+	private bool _isLoading = true;
+	
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (!firstRender)
@@ -115,21 +115,12 @@ public partial class Dashboard : IDisposable
 	{
 		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService);
 
-		_hotKeysContext = HotKeys.CreateContext()
-			.Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None);
-
 		if (Platform.Contains("Android"))
 			await NotificationService.RegisterDevicePushNotification(_user.Id.ToString());
 	}
 
 	private async Task Logout() =>
 		await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
-
-	public async ValueTask DisposeAsync()
-	{
-		if (_hotKeysContext is not null)
-			await _hotKeysContext.DisposeAsync();
-	}
 
 	public void Dispose() =>
 		GC.SuppressFinalize(this);
