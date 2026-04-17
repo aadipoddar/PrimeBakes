@@ -12,16 +12,41 @@
 else
 {
 	<div class="page-shell">
-		<Header Title="Outlet Summary Report"
-
->
+		<Header Title="Outlet Summary Report">
 			<LeftContent>
-				<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)"
-							Disabled="_isProcessing" OnClick="ExportExcel" />
-				<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)"
-							Disabled="_isProcessing" OnClick="ExportPdf" />
-				<IconButton Icon="IconType.Refresh" Title="Refresh Data (Ctrl + R)" Disabled="_isProcessing"
-							OnClick="RefreshReport" />
+				<SfMenu TValue="Syncfusion.Blazor.Navigations.MenuItem">
+					<MenuAnimationSettings Effect="Syncfusion.Blazor.Navigations.MenuEffect.SlideDown" Duration="300"
+										   Easing="ease" />
+					<MenuEvents TValue="Syncfusion.Blazor.Navigations.MenuItem" ItemSelected="OnMenuSelected"
+								OnOpen='async () => await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0)' />
+					<MenuItems>
+						<MenuItem Text="File" IconCss="e-icons e-folder">
+							<MenuItems>
+								<MenuItem Text="Refresh Data (Ctrl + R / F5)" IconCss="e-icons e-refresh" Id="Refresh"
+										  Disabled="@_isProcessing" />
+								<MenuItem Separator="true" />
+								<MenuItem Text="Export PDF (Ctrl + P)" IconCss="e-icons e-export-pdf" Id="ExportPdf"
+										  Disabled="@_isProcessing" />
+								<MenuItem Text="Export Excel (Ctrl + E)" IconCss="e-icons e-export-excel" Id="ExportExcel"
+										  Disabled="@_isProcessing" />
+							</MenuItems>
+						</MenuItem>
+						<MenuItem Text="Periods" IconCss="e-icons e-clock">
+							<MenuItems>
+								<MenuItem Text="Today" Id="PeriodToday" Disabled="@_isProcessing" />
+								<MenuItem Text="Previous Day" Id="PeriodPreviousDay" Disabled="@_isProcessing" />
+								<MenuItem Text="Next Day" Id="PeriodNextDay" Disabled="@_isProcessing" />
+								<MenuItem Text="Current Month" Id="PeriodCurrentMonth" Disabled="@_isProcessing" />
+								<MenuItem Text="Previous Month" Id="PeriodPreviousMonth" Disabled="@_isProcessing" />
+								<MenuItem Text="Next Month" Id="PeriodNextMonth" Disabled="@_isProcessing" />
+								<MenuItem Text="Current FY" Id="PeriodCurrentFinancialYear" Disabled="@_isProcessing" />
+								<MenuItem Text="Previous FY" Id="PeriodPreviousFinancialYear" Disabled="@_isProcessing" />
+								<MenuItem Text="Next FY" Id="PeriodNextFinancialYear" Disabled="@_isProcessing" />
+								<MenuItem Text="All Time" Id="PeriodAllTime" Disabled="@_isProcessing" />
+							</MenuItems>
+						</MenuItem>
+					</MenuItems>
+				</SfMenu>
 			</LeftContent>
 		</Header>
 
@@ -60,9 +85,6 @@ else
 								</SfAutoComplete>
 							</div>
 						</div>
-
-						<DateRangeButtons Disabled="_isProcessing" FromDate="_fromDate" ToDate="_toDate"
-										  OnDatesChanged="HandleDatesChanged" ToastNotification="_toastNotification" />
 					</div>
 				</div>
 			</div>
@@ -87,10 +109,13 @@ else
 					<SfMediaQuery @bind-ActiveBreakpoint="activeBreakpoint" />
 					<SfGrid ID="_sfGrid" @ref="_sfGrid" TValue="OutletSummaryModel" DataSource="_outletSummaries"
 							AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
-							AllowFiltering="true" AllowGrouping="true" GridLines="GridLine.Horizontal"
-							EnableAdaptiveUI="true" AdaptiveUIMode="AdaptiveMode.Mobile" RowRenderingMode="@(activeBreakpoint == "Small" ? RowDirection.Vertical : RowDirection.Horizontal)"
-							CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })">
+							AllowFiltering="true" AllowGrouping="true" AllowExcelExport="true" AllowPdfExport="true"
+							GridLines="GridLine.Horizontal" EnableAdaptiveUI="true" AdaptiveUIMode="AdaptiveMode.Mobile"
+							RowRenderingMode="@(activeBreakpoint == "Small" ? RowDirection.Vertical : RowDirection.Horizontal)"
+							CssClass="professional-grid" ContextMenuItems="@_gridContextMenuItems"
+							Toolbar="@(new List<string>() { "Search" })">
 
+						<GridEvents TValue="OutletSummaryModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
 						<GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
 						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
 						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
@@ -101,10 +126,10 @@ else
 										Format="N2" TextAlign="TextAlign.Right" />
 							<GridColumn Field="@nameof(OutletSummaryModel.PurchaseReturn)" HeaderText="Purchase Return"
 										Width="160" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(OutletSummaryModel.KitchenIssue)" HeaderText="Kitchen Issue" Width="120" Format="N2"
-										TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(OutletSummaryModel.KitchenProduction)" HeaderText="Kitchen Production" Width="140"
-										Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(OutletSummaryModel.KitchenIssue)" HeaderText="Kitchen Issue"
+										Width="120" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(OutletSummaryModel.KitchenProduction)"
+										HeaderText="Kitchen Production" Width="140" Format="N2" TextAlign="TextAlign.Right" />
 							<GridColumn Field="@nameof(OutletSummaryModel.Sale)" HeaderText="Sale" Width="140" Format="N2"
 										TextAlign="TextAlign.Right" />
 							<GridColumn Field="@nameof(OutletSummaryModel.SaleReturn)" HeaderText="Sale Return" Width="140"

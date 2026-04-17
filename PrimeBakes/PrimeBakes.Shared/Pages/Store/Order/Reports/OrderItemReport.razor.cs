@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 using PrimeBakes.Shared.Components.Dialog;
+using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Operations;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Store.Order;
@@ -40,30 +41,12 @@ public partial class OrderItemReport : IAsyncDisposable
 
     private readonly List<ContextMenuItemModel> _gridContextMenuItems =
     [
-        new() { Text = "View", Id = "view", Target = ".e-content" },
-        new()
-        {
-            Text = "Download",
-            Id = "download",
-            Target = ".e-content",
-            Items =
-            [
-                new() { Text = "PDF", Id = "download-pdf" },
-                new() { Text = "Excel", Id = "download-excel" }
-            ]
-        },
-        new() { Text = "View Sale", Id = "view-sale", Target = ".e-content" },
-        new()
-        {
-            Text = "Download Sales",
-            Id = "download-sales",
-            Target = ".e-content",
-            Items =
-            [
-                new() { Text = "PDF", Id = "download-sale-pdf" },
-                new() { Text = "Excel", Id = "download-sale-excel" }
-            ]
-        }
+        new() { Text = "View (Ctrl + O)", Id = "View", IconCss = "e-icons e-eye", Target = ".e-content" },
+        new() { Text = "Export PDF (Alt + P)", Id = "ExportPDF", IconCss = "e-icons e-export-pdf", Target = ".e-content" },
+        new() { Text = "Export Excel (Alt + E)", Id = "ExportExcel", IconCss = "e-icons e-export-excel", Target = ".e-content" },
+        new() { Text = "View Sale", Id = "ViewSale", IconCss = "e-icons e-link", Target = ".e-content" },
+        new() { Text = "Export Sale PDF", Id = "ExportSalePDF", IconCss = "e-icons e-export-pdf", Target = ".e-content" },
+        new() { Text = "Export Sale Excel", Id = "ExportSaleExcel", IconCss = "e-icons e-export-excel", Target = ".e-content" }
     ];
 
     private SfGrid<OrderItemOverviewModel> _sfGrid;
@@ -84,19 +67,7 @@ public partial class OrderItemReport : IAsyncDisposable
 
     private async Task LoadData()
     {
-        _hotKeysContext = HotKeys.CreateContext()
-            .Add(ModCode.Ctrl, Code.R, LoadTransactionOverviews, "Refresh Data", Exclude.None)
-            .Add(Code.F5, LoadTransactionOverviews, "Refresh Data", Exclude.None)
-            .Add(ModCode.Ctrl, Code.E, ExportExcel, "Export to Excel", Exclude.None)
-            .Add(ModCode.Ctrl, Code.P, ExportPdf, "Export to PDF", Exclude.None)
-            .Add(ModCode.Ctrl, Code.H, NavigateToTransactionHistory, "Open transaction history", Exclude.None)
-            .Add(ModCode.Ctrl, Code.N, NavigateToTransactionPage, "New Transaction", Exclude.None)
-            .Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
-            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
-            .Add(ModCode.Ctrl, Code.O, ViewSelectedTransaction, "Open Selected Transaction", Exclude.None)
-            .Add(ModCode.Alt, Code.P, DownloadSelectedPdfInvoice, "Download Selected Transaction PDF Invoice", Exclude.None)
-            .Add(ModCode.Alt, Code.E, DownloadSelectedExcelInvoice, "Download Selected Transaction Excel Invoice", Exclude.None);
+        LoadHotKeys();
 
         await LoadDates();
         await LoadLocations();
@@ -223,10 +194,9 @@ public partial class OrderItemReport : IAsyncDisposable
         await LoadTransactionOverviews();
     }
 
-    private async Task HandleDatesChanged((DateTime FromDate, DateTime ToDate) dates)
+    private async Task HandleDatesChanged(DateRangeType dateRangeType)
     {
-        _fromDate = dates.FromDate;
-        _toDate = dates.ToDate;
+        (_fromDate, _toDate) = await FinancialYearData.GetDateRange(dateRangeType, _fromDate, _toDate);
         await LoadTransactionOverviews();
     }
     #endregion
@@ -419,27 +389,27 @@ public partial class OrderItemReport : IAsyncDisposable
 
         switch (args.Item.Id)
         {
-            case "view":
+            case "View":
                 await ViewSelectedTransaction();
                 break;
 
-            case "download-pdf":
+            case "ExportPDF":
                 await DownloadSelectedPdfInvoice();
                 break;
 
-            case "download-excel":
+            case "ExportExcel":
                 await DownloadSelectedExcelInvoice();
                 break;
 
-            case "view-sale":
+            case "ViewSale":
                 await ViewSelectedSaleTransaction();
                 break;
 
-            case "download-sale-pdf":
+            case "ExportSalePDF":
                 await DownloadSelectedSalePdfInvoice();
                 break;
 
-            case "download-sale-excel":
+            case "ExportSaleExcel":
                 await DownloadSelectedSaleExcelInvoice();
                 break;
         }
@@ -474,6 +444,99 @@ public partial class OrderItemReport : IAsyncDisposable
     #endregion
 
     #region Utilities
+    private void LoadHotKeys()
+    {
+        _hotKeysContext = HotKeys.CreateContext()
+            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
+            .Add(ModCode.Ctrl, Code.N, NavigateToTransactionPage, "New Transaction", Exclude.None)
+            .Add(ModCode.Ctrl, Code.R, LoadTransactionOverviews, "Refresh Data", Exclude.None)
+            .Add(Code.F5, LoadTransactionOverviews, "Refresh Data", Exclude.None)
+            .Add(ModCode.Ctrl, Code.W, ToggleSummary, "Show/Hide Summary", Exclude.None)
+            .Add(ModCode.Ctrl, Code.Q, ToggleDetailsView, "Toggle Details", Exclude.None)
+            .Add(ModCode.Ctrl, Code.P, ExportPdf, "Export to PDF", Exclude.None)
+            .Add(ModCode.Ctrl, Code.E, ExportExcel, "Export to Excel", Exclude.None)
+            .Add(ModCode.Ctrl, Code.H, NavigateToTransactionHistory, "Open transaction history", Exclude.None)
+            .Add(ModCode.Ctrl, Code.O, ViewSelectedTransaction, "Open Selected Transaction", Exclude.None)
+            .Add(ModCode.Alt, Code.P, DownloadSelectedPdfInvoice, "Download Selected Transaction PDF Invoice", Exclude.None)
+            .Add(ModCode.Alt, Code.E, DownloadSelectedExcelInvoice, "Download Selected Transaction Excel Invoice", Exclude.None);
+    }
+
+    private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+    {
+        switch (args.Item.Id)
+        {
+            case "NewTransaction":
+                await NavigateToTransactionPage();
+                break;
+            case "Refresh":
+                await LoadTransactionOverviews();
+                break;
+            case "ToggleSummary":
+                await ToggleSummary();
+                break;
+            case "ToggleDetailsView":
+                await ToggleDetailsView();
+                break;
+            case "ExportPdf":
+                await ExportPdf();
+                break;
+            case "ExportExcel":
+                await ExportExcel();
+                break;
+            case "TransactionHistory":
+                await NavigateToTransactionHistory();
+                break;
+            case "ViewSelected":
+                await ViewSelectedTransaction();
+                break;
+            case "DownloadSelectedPdf":
+                await DownloadSelectedPdfInvoice();
+                break;
+            case "DownloadSelectedExcel":
+                await DownloadSelectedExcelInvoice();
+                break;
+            case "ViewSelectedSale":
+                await ViewSelectedSaleTransaction();
+                break;
+            case "DownloadSelectedSalePdf":
+                await DownloadSelectedSalePdfInvoice();
+                break;
+            case "DownloadSelectedSaleExcel":
+                await DownloadSelectedSaleExcelInvoice();
+                break;
+            case "PeriodToday":
+                await HandleDatesChanged(DateRangeType.Today);
+                break;
+            case "PeriodPreviousDay":
+                await HandleDatesChanged(DateRangeType.Yesterday);
+                break;
+            case "PeriodNextDay":
+                await HandleDatesChanged(DateRangeType.NextDay);
+                break;
+            case "PeriodCurrentMonth":
+                await HandleDatesChanged(DateRangeType.CurrentMonth);
+                break;
+            case "PeriodPreviousMonth":
+                await HandleDatesChanged(DateRangeType.PreviousMonth);
+                break;
+            case "PeriodNextMonth":
+                await HandleDatesChanged(DateRangeType.NextMonth);
+                break;
+            case "PeriodCurrentFinancialYear":
+                await HandleDatesChanged(DateRangeType.CurrentFinancialYear);
+                break;
+            case "PeriodPreviousFinancialYear":
+                await HandleDatesChanged(DateRangeType.PreviousFinancialYear);
+                break;
+            case "PeriodNextFinancialYear":
+                await HandleDatesChanged(DateRangeType.NextFinancialYear);
+                break;
+            case "PeriodAllTime":
+                await HandleDatesChanged(DateRangeType.AllTime);
+                break;
+        }
+    }
+
     private async Task ToggleDetailsView()
     {
         _showAllColumns = !_showAllColumns;
@@ -505,14 +568,8 @@ public partial class OrderItemReport : IAsyncDisposable
             NavigationManager.NavigateTo(PageRouteNames.OrderReport);
     }
 
-    private void NavigateToDashboard() =>
-        NavigationManager.NavigateTo(PageRouteNames.Dashboard);
-
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.StoreDashboard);
-
-    private async Task Logout() =>
-        await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 
     private async Task StartAutoRefresh()
     {

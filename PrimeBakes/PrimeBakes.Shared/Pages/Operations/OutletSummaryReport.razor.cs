@@ -43,6 +43,12 @@ public partial class OutletSummaryReport : IAsyncDisposable
 	private List<SaleReturnOverviewModel> _salereturns = [];
 	private List<StockTransferOverviewModel> _stockTransfers = [];
 	private List<BillOverviewModel> _bills = [];
+	private readonly List<ContextMenuItemModel> _gridContextMenuItems =
+	[
+		new() { Text = "Refresh Data (Ctrl + R / F5)", Id = "Refresh", IconCss = "e-icons e-refresh", Target = ".e-content" },
+		new() { Text = "Export PDF (Ctrl + P)", Id = "ExportPDF", IconCss = "e-icons e-export-pdf", Target = ".e-content" },
+		new() { Text = "Export Excel (Ctrl + E)", Id = "ExportExcel", IconCss = "e-icons e-export-excel", Target = ".e-content" }
+	];
 
 	private SfGrid<OutletSummaryModel> _sfGrid;
 	private string? activeBreakpoint { get; set; }
@@ -63,14 +69,7 @@ public partial class OutletSummaryReport : IAsyncDisposable
 
 	private async Task LoadData()
 	{
-		_hotKeysContext = HotKeys.CreateContext()
-			.Add(ModCode.Ctrl, Code.R, RefreshReport, "Refresh Data", Exclude.None)
-			.Add(Code.F5, RefreshReport, "Refresh Data", Exclude.None)
-			.Add(ModCode.Ctrl, Code.E, ExportExcel, "Export to Excel", Exclude.None)
-			.Add(ModCode.Ctrl, Code.P, ExportPdf, "Export to PDF", Exclude.None)
-			.Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Go to dashboard", Exclude.None)
-			.Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-			.Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None);
+		LoadHotKeys();
 
 		await LoadDates();
 		await LoadCompanies();
@@ -256,10 +255,9 @@ public partial class OutletSummaryReport : IAsyncDisposable
 		await RefreshReport();
 	}
 
-	private async Task HandleDatesChanged((DateTime FromDate, DateTime ToDate) dates)
+	private async Task HandleDatesChanged(DateRangeType dateRangeType)
 	{
-		_fromDate = dates.FromDate;
-		_toDate = dates.ToDate;
+		(_fromDate, _toDate) = await FinancialYearData.GetDateRange(dateRangeType, _fromDate, _toDate);
 		await RefreshReport();
 	}
 	#endregion
@@ -331,14 +329,76 @@ public partial class OutletSummaryReport : IAsyncDisposable
 	#endregion
 
 	#region Utilities
-	private void NavigateToDashboard() =>
-		NavigationManager.NavigateTo(PageRouteNames.Dashboard);
+	private void LoadHotKeys()
+	{
+		_hotKeysContext = HotKeys.CreateContext()
+			.Add(ModCode.Ctrl, Code.R, RefreshReport, "Refresh Data", Exclude.None)
+			.Add(Code.F5, RefreshReport, "Refresh Data", Exclude.None)
+			.Add(ModCode.Ctrl, Code.P, ExportPdf, "Export to PDF", Exclude.None)
+			.Add(ModCode.Ctrl, Code.E, ExportExcel, "Export to Excel", Exclude.None);
+	}
 
-	private void NavigateBack() =>
-		NavigationManager.NavigateTo(PageRouteNames.Dashboard);
+	private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+	{
+		switch (args.Item.Id)
+		{
+			case "Refresh":
+				await RefreshReport();
+				break;
+			case "ExportPdf":
+				await ExportPdf();
+				break;
+			case "ExportExcel":
+				await ExportExcel();
+				break;
+			case "PeriodToday":
+				await HandleDatesChanged(DateRangeType.Today);
+				break;
+			case "PeriodPreviousDay":
+				await HandleDatesChanged(DateRangeType.Yesterday);
+				break;
+			case "PeriodNextDay":
+				await HandleDatesChanged(DateRangeType.NextDay);
+				break;
+			case "PeriodCurrentMonth":
+				await HandleDatesChanged(DateRangeType.CurrentMonth);
+				break;
+			case "PeriodPreviousMonth":
+				await HandleDatesChanged(DateRangeType.PreviousMonth);
+				break;
+			case "PeriodNextMonth":
+				await HandleDatesChanged(DateRangeType.NextMonth);
+				break;
+			case "PeriodCurrentFinancialYear":
+				await HandleDatesChanged(DateRangeType.CurrentFinancialYear);
+				break;
+			case "PeriodPreviousFinancialYear":
+				await HandleDatesChanged(DateRangeType.PreviousFinancialYear);
+				break;
+			case "PeriodNextFinancialYear":
+				await HandleDatesChanged(DateRangeType.NextFinancialYear);
+				break;
+			case "PeriodAllTime":
+				await HandleDatesChanged(DateRangeType.AllTime);
+				break;
+		}
+	}
 
-	private async Task Logout() =>
-		await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
+	private async Task OnGridContextMenuItemClicked(ContextMenuClickEventArgs<OutletSummaryModel> args)
+	{
+		switch (args.Item.Id)
+		{
+			case "Refresh":
+				await RefreshReport();
+				break;
+			case "ExportPDF":
+				await ExportPdf();
+				break;
+			case "ExportExcel":
+				await ExportExcel();
+				break;
+		}
+	}
 
 	private async Task StartAutoRefresh()
 	{

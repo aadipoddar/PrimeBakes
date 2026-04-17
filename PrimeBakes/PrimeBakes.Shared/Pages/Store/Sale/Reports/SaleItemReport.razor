@@ -14,20 +14,71 @@
 else
 {
     <div class="page-shell">
-        <Header Title="Sale Item Report"
->
+        <Header Title="Sale Item Report">
             <LeftContent>
-                <IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel" Title="Export to Excel (Ctrl + E)"
-                            Disabled="_isProcessing" OnClick="ExportExcel" />
-                <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Export to PDF (Ctrl + P)"
-                            Disabled="_isProcessing" OnClick="ExportPdf" />
-                <IconButton Icon="IconType.Refresh" Title="Refresh Data (Ctrl + R)" Disabled="_isProcessing"
-                            OnClick="LoadTransactionOverviews" />
-                <IconButton Icon="IconType.History" Title="Transaction History Report (Ctrl + H)" Disabled="_isProcessing"
-                            OnClick="NavigateToTransactionHistory" />
-                <IconButton Icon="IconType.New" Title="New Transaction (Ctrl + N)" Disabled="_isProcessing"
-                            OnClick="NavigateToTransactionPage" />
+                <SfMenu TValue="Syncfusion.Blazor.Navigations.MenuItem">
+                    <MenuAnimationSettings Effect="Syncfusion.Blazor.Navigations.MenuEffect.SlideDown" Duration="300"
+                                           Easing="ease" />
+                    <MenuEvents TValue="Syncfusion.Blazor.Navigations.MenuItem" ItemSelected="OnMenuSelected"
+                                OnOpen='async () => await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0)' />
+                    <MenuItems>
+                        <MenuItem Text="File" IconCss="e-icons e-folder">
+                            <MenuItems>
+                                <MenuItem Text="New Transaction (Ctrl + N)" IconCss="e-icons e-plus" Id="NewTransaction"
+                                          Disabled="@_isProcessing" />
+                                <MenuItem Text="Refresh Data (Ctrl + R / F5)" IconCss="e-icons e-refresh" Id="Refresh"
+                                          Disabled="@_isProcessing" />
+                                <MenuItem Text="@(_showSummary ? "Hide Summary (Ctrl + W)" : "Show Summary (Ctrl + W)")" IconCss="e-icons e-chart"
+                                          Id="ToggleSummary" Disabled="@_isProcessing" />
+                                <MenuItem Text="@(_showSaleReturns ? "Hide Returns (Ctrl + T)" : "Show Returns (Ctrl + T)")" IconCss="e-icons e-undo"
+                                          Id="ToggleSaleReturns" Disabled="@_isProcessing" />
+                                <MenuItem Text="@(_showStockTransfers ? "Hide Transfers (Ctrl + U)" : "Show Transfers (Ctrl + U)")" IconCss="e-icons e-truck"
+                                          Id="ToggleStockTransfers" Disabled="@_isProcessing" />
+                                <MenuItem Text="@(_showAllColumns ? "Hide Details (Ctrl + Q)" : "Show Details (Ctrl + Q)")" IconCss="e-icons e-table"
+                                          Id="ToggleDetailsView" Disabled="@_isProcessing" />
+                                <MenuItem Separator="true" />
+                                <MenuItem Text="Export PDF (Ctrl + P)" IconCss="e-icons e-export-pdf" Id="ExportPdf"
+                                          Disabled="@_isProcessing" />
+                                <MenuItem Text="Export Excel (Ctrl + E)" IconCss="e-icons e-export-excel" Id="ExportExcel"
+                                          Disabled="@_isProcessing" />
+                            </MenuItems>
+                        </MenuItem>
+                        <MenuItem Text="Open" IconCss="e-icons e-folder-open">
+                            <MenuItems>
+                                <MenuItem Text="Transaction History Report (Ctrl + H)" Id="TransactionHistory"
+                                          Disabled="@_isProcessing" />
+                            </MenuItems>
+                        </MenuItem>
+                        <MenuItem Text="Periods" IconCss="e-icons e-clock">
+                            <MenuItems>
+                                <MenuItem Text="Today" Id="PeriodToday" Disabled="@_isProcessing" />
+                                <MenuItem Text="Previous Day" Id="PeriodPreviousDay" Disabled="@_isProcessing" />
+                                <MenuItem Text="Next Day" Id="PeriodNextDay" Disabled="@_isProcessing" />
+                                <MenuItem Text="Current Month" Id="PeriodCurrentMonth" Disabled="@_isProcessing" />
+                                <MenuItem Text="Previous Month" Id="PeriodPreviousMonth" Disabled="@_isProcessing" />
+                                <MenuItem Text="Next Month" Id="PeriodNextMonth" Disabled="@_isProcessing" />
+                                <MenuItem Text="Current FY" Id="PeriodCurrentFinancialYear" Disabled="@_isProcessing" />
+                                <MenuItem Text="Previous FY" Id="PeriodPreviousFinancialYear" Disabled="@_isProcessing" />
+                                <MenuItem Text="Next FY" Id="PeriodNextFinancialYear" Disabled="@_isProcessing" />
+                                <MenuItem Text="All Time" Id="PeriodAllTime" Disabled="@_isProcessing" />
+                            </MenuItems>
+                        </MenuItem>
+                        <MenuItem Text="Transaction" IconCss="e-icons e-chart">
+                            <MenuItems>
+                                <MenuItem Text="View (Ctrl + O)" IconCss="e-icons e-eye" Id="ViewSelected"
+                                          Disabled="@(_isProcessing || _showSummary)" />
+                                <MenuItem Text="Export PDF (Alt + P)" IconCss="e-icons e-export-pdf" Id="DownloadSelectedPdf"
+                                          Disabled="@(_isProcessing || _showSummary)" />
+                                <MenuItem Text="Export Excel (Alt + E)" IconCss="e-icons e-export-excel" Id="DownloadSelectedExcel"
+                                          Disabled="@(_isProcessing || _showSummary)" />
+                            </MenuItems>
+                        </MenuItem>
+                    </MenuItems>
+                </SfMenu>
             </LeftContent>
+            <RightContent>
+                <IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="NavigateBack" />
+            </RightContent>
         </Header>
 
         <!-- Main Content Container -->
@@ -99,9 +150,6 @@ else
                             }
                         </div>
 
-                        <!-- Date Utility Buttons -->
-                        <DateRangeButtons Disabled="_isProcessing" FromDate="_fromDate" ToDate="_toDate"
-                                          OnDatesChanged="HandleDatesChanged" ToastNotification="_toastNotification" />
                     </div>
                 </div>
             </div>
@@ -121,16 +169,6 @@ else
                             <line x1="3" y1="18" x2="3.01" y2="18" />
                         </svg>
                         <h2 class="section-title">Sale Item Transactions</h2>
-                    </div>
-                    <div class="header-actions">
-                        <ToggleButton Disabled="@_isProcessing" IsActive="@_showSummary"
-                                      Variant="ToggleButton.ToggleVariant.Summary" OnToggle="ToggleSummary" />
-                        <ToggleButton Disabled="@_isProcessing" IsActive="@_showSaleReturns"
-                                      Variant="ToggleButton.ToggleVariant.Returns" OnToggle="ToggleSaleReturns" />
-                        <ToggleButton Disabled="@_isProcessing" IsActive="@_showStockTransfers"
-                                      Variant="ToggleButton.ToggleVariant.Transfers" OnToggle="ToggleStockTransfers" />
-                        <ToggleButton Disabled="@_isProcessing" IsActive="@_showAllColumns"
-                                      Variant="ToggleButton.ToggleVariant.Details" OnToggle="ToggleDetailsView" />
                     </div>
                 </div>
                 <div class="section-body grid-body">
