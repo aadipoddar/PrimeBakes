@@ -167,6 +167,20 @@ else
 							<GridEvents TValue="LocationModel" ContextMenuItemClicked="OnLocationGridContextMenuItemClicked" />
 							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 							<GridColumns>
+								<GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center"
+											AllowFiltering="false">
+									<Template>
+										@{
+											var location = (context as LocationModel);
+
+											<div class="grid-actions">
+												<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete"
+															Size="ButtonSize.Grid" Title="Remove Location" Disabled="_isProcessing"
+															OnClick="@(() => RemoveLocation(location.Id))" />
+											</div>
+										}
+									</Template>
+								</GridColumn>
 								<GridColumn Field="Id" HeaderText="ID" Width="90" TextAlign="TextAlign.Center" />
 								<GridColumn Field="Name" HeaderText="Location Name" />
 							</GridColumns>
