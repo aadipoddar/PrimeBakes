@@ -437,12 +437,10 @@ public partial class DiningAreaPage : IAsyncDisposable
 	private void NavigateBack() =>
 		NavigationManager.NavigateTo(PageRouteNames.RestaurantDashboard);
 
-	public async ValueTask DisposeAsync()
+	public ValueTask DisposeAsync()
 	{
-		if (_hotKeysContext is not null)
-			await _hotKeysContext.DisposeAsync();
-
 		GC.SuppressFinalize(this);
+		return ((IAsyncDisposable)HotKeys).DisposeAsync();
 	}
 	#endregion
 }

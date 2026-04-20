@@ -1246,12 +1246,10 @@ public partial class SaleReturnPage : IAsyncDisposable
     private async Task Logout() =>
         await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 
-    public async ValueTask DisposeAsync()
+    public ValueTask DisposeAsync()
     {
-        if (_hotKeysContext is not null)
-            await _hotKeysContext.DisposeAsync();
-
         GC.SuppressFinalize(this);
+        return ((IAsyncDisposable)HotKeys).DisposeAsync();
     }
     #endregion
 }

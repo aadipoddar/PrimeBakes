@@ -505,20 +505,18 @@ public partial class StockTransferItemReport : IAsyncDisposable
         }
     }
 
-    public async ValueTask DisposeAsync()
+    public ValueTask DisposeAsync()
     {
         if (_autoRefreshCts is not null)
         {
-            await _autoRefreshCts.CancelAsync();
+            _autoRefreshCts.CancelAsync();
             _autoRefreshCts.Dispose();
         }
 
         _autoRefreshTimer?.Dispose();
 
-        if (_hotKeysContext is not null)
-            await _hotKeysContext.DisposeAsync();
-
         GC.SuppressFinalize(this);
+        return ((IAsyncDisposable)HotKeys).DisposeAsync();
     }
     #endregion
 }

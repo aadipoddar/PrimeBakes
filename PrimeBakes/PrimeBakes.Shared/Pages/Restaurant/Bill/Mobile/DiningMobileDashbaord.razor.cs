@@ -49,11 +49,9 @@ public partial class DiningMobileDashbaord : IAsyncDisposable
 	private void OpenBillPage(int diningTableId) =>
 		NavigationManager.NavigateTo($"{PageRouteNames.BillMobile}/table/{diningTableId}");
 
-	public async ValueTask DisposeAsync()
+	public ValueTask DisposeAsync()
 	{
-		if (_hotKeysContext is not null)
-			await _hotKeysContext.DisposeAsync();
-
 		GC.SuppressFinalize(this);
+		return ((IAsyncDisposable)HotKeys).DisposeAsync();
 	}
 }
