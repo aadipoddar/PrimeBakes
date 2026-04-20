@@ -71,6 +71,7 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 		if (!await ResolveTransaction())
 			return;
 
+		await LoadSelections();
 		await LoadLedgers();
 		await LoadCart();
 		await SaveTransactionFile();
@@ -114,7 +115,6 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 			return false;
 		}
 
-		await LoadSelections();
 		return true;
 	}
 
@@ -129,7 +129,6 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 			if (_accounting is null)
 				return false;
 
-			await LoadSelections();
 			return true;
 		}
 		catch

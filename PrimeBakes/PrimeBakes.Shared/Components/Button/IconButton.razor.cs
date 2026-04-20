@@ -44,17 +44,12 @@ public partial class IconButton
             // Add variant class
             Variant switch
             {
-                ButtonVariant.Save => "icon-btn-save",
                 ButtonVariant.Excel => "icon-btn-excel",
                 ButtonVariant.Pdf => "icon-btn-pdf",
                 ButtonVariant.View => "icon-btn-view",
-                ButtonVariant.Edit => "icon-btn-edit",
                 ButtonVariant.Delete => "icon-btn-delete",
                 ButtonVariant.Add => "icon-btn-add",
-                ButtonVariant.Recover => "icon-btn-recover",
-                ButtonVariant.Logout => "icon-btn-logout",
                 ButtonVariant.Get => "icon-btn-get",
-                ButtonVariant.KOT => "icon-btn-kot",
                 ButtonVariant.BluetoothConnected => "icon-btn-bt-connected",
                 ButtonVariant.BluetoothDisconnected => "icon-btn-bt-disconnected",
                 _ => string.Empty
@@ -83,56 +78,28 @@ public partial class IconButton
 
 public enum IconType
 {
-    Save,
     Excel,
     Pdf,
     View,
-    History,
-    Report,
-    New,
     Refresh,
-    Edit,
     Delete,
-    Home,
     Back,
-    Logout,
-    Print,
-    Settings,
-    Search,
-    Filter,
-    Download,
     Add,
-    Cart,
-    Upload,
-    TrialBalance,
-    ProfitAndLoss,
-    BalanceSheet,
-    Generate,
-    Reset,
-    Recover,
-    ThermalPrinter,
     Bluetooth,
-    Get,
-    KOT
+    Get
 }
 
 public enum ButtonVariant
 {
     Default,
-    Save,
     Excel,
     Pdf,
     View,
-    Edit,
     Delete,
     Add,
-    Recover,
-    Logout,
-    ThermalPrinter,
     BluetoothConnected,
     BluetoothDisconnected,
-    Get,
-    KOT
+    Get
 }
 
 public enum ButtonSize
