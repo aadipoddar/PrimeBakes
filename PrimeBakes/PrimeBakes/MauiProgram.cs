@@ -1,8 +1,5 @@
 ﻿#if DEBUG
 using Microsoft.Extensions.Logging;
-using MudBlazor.Services;
-
-
 #endif
 
 using PrimeBakes.Services;
@@ -11,6 +8,7 @@ using PrimeBakes.Shared.Services;
 using PrimeBakesLibrary.DataAccess;
 
 using Syncfusion.Blazor;
+using MudBlazor.Services;
 
 namespace PrimeBakes;
 
