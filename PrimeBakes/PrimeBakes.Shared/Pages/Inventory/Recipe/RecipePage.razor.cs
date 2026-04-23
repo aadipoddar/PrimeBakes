@@ -11,10 +11,8 @@ using Syncfusion.Blazor.Grids;
 
 namespace PrimeBakes.Shared.Pages.Inventory.Recipe;
 
-public partial class RecipePage : IAsyncDisposable
+public partial class RecipePage
 {
-	private HotKeysContext _hotKeysContext;
-
 	private bool _isLoading = true;
 	private bool _isProcessing = false;
 
@@ -46,21 +44,10 @@ public partial class RecipePage : IAsyncDisposable
 
 		await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Inventory], true);
 		await LoadData();
-		_isLoading = false;
-		StateHasChanged();
 	}
 
 	private async Task LoadData()
 	{
-		_hotKeysContext = HotKeys.CreateContext()
-			.Add(ModCode.Ctrl, Code.Enter, AddItemToCart, "Add item to cart", Exclude.None)
-			.Add(ModCode.Ctrl, Code.E, () => _sfItemAutoComplete.FocusAsync(), "Focus on item input", Exclude.None)
-			.Add(ModCode.Ctrl, Code.S, OnSaveButtonClick, "Save recipe", Exclude.None)
-			.Add(ModCode.Ctrl, Code.N, ResetPage, "New recipe", Exclude.None)
-			.Add(ModCode.Ctrl, Code.B, NavigateBack, "Back to inventory dashboard", Exclude.None)
-			.Add(Code.Delete, RemoveSelectedCartItem, "Delete selected cart item", Exclude.None)
-			.Add(Code.Insert, EditSelectedCartItem, "Edit selected cart item", Exclude.None);
-
 		try
 		{
 			_products = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: 1);
@@ -70,6 +57,9 @@ public partial class RecipePage : IAsyncDisposable
 		{
 			await _toastNotification.ShowAsync("An Error Occurred While Loading Data", ex.Message, ToastType.Error);
 		}
+
+		_isLoading = false;
+		StateHasChanged();
 	}
 
 	private async Task OnProductChanged(ChangeEventArgs<ProductLocationOverviewModel, ProductLocationOverviewModel> args)
@@ -331,11 +321,5 @@ public partial class RecipePage : IAsyncDisposable
 
 	private void NavigateBack() =>
 		NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);
-
-	public ValueTask DisposeAsync()
-	{
-		GC.SuppressFinalize(this);
-		return ((IAsyncDisposable)HotKeys).DisposeAsync();
-	}
 	#endregion
 }

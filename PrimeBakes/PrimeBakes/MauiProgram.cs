@@ -1,5 +1,8 @@
 ﻿#if DEBUG
 using Microsoft.Extensions.Logging;
+using MudBlazor.Services;
+
+
 #endif
 
 using PrimeBakes.Services;
@@ -8,8 +11,6 @@ using PrimeBakes.Shared.Services;
 using PrimeBakesLibrary.DataAccess;
 
 using Syncfusion.Blazor;
-
-using Toolbelt.Blazor.Extensions.DependencyInjection;
 
 namespace PrimeBakes;
 
@@ -46,12 +47,13 @@ public static class MauiProgram
         builder.Services.AddSingleton<IDirectPrintService, NullDirectPrintService>();
 #endif
 
-        builder.Services.AddMauiBlazorWebView();
-        builder.Services.AddSyncfusionBlazor();
-        builder.Services.AddHotKeys2();
+		builder.Services
+			.AddSyncfusionBlazor()
+			.AddMudServices()
+			.AddMauiBlazorWebView();
 
 #if DEBUG
-        builder.Services.AddBlazorWebViewDeveloperTools();
+		builder.Services.AddBlazorWebViewDeveloperTools();
         builder.Logging.AddDebug();
 #endif
 

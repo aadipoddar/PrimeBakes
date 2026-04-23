@@ -18,7 +18,6 @@ namespace PrimeBakes.Shared.Pages.Restaurant.Bill.Reports;
 
 public partial class BillItemReport : IAsyncDisposable
 {
-	private HotKeysContext _hotKeysContext;
 	private PeriodicTimer _autoRefreshTimer;
 	private CancellationTokenSource _autoRefreshCts;
 
@@ -60,20 +59,18 @@ public partial class BillItemReport : IAsyncDisposable
 
 		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Restaurant, UserRoles.Reports]);
 		await LoadData();
-		_isLoading = false;
-		StateHasChanged();
 	}
 
 	private async Task LoadData()
 	{
-		LoadHotKeys();
-
 		await LoadDates();
 		await LoadLocations();
 		await LoadCompanies();
 		await LoadCustomers();
 		await LoadTransactionOverviews();
 		await StartAutoRefresh();
+		_isLoading = false;
+		StateHasChanged();
 	}
 
 	private async Task LoadDates()
@@ -385,22 +382,7 @@ public partial class BillItemReport : IAsyncDisposable
 	#endregion
 
 	#region Utilities
-	private void LoadHotKeys()
-	{
-		_hotKeysContext = HotKeys.CreateContext()
-			.Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-			.Add(ModCode.Ctrl, Code.N, NavigateToTransactionPage, "New Transaction", Exclude.None)
-			.Add(ModCode.Ctrl, Code.R, LoadTransactionOverviews, "Refresh Data", Exclude.None)
-			.Add(Code.F5, LoadTransactionOverviews, "Refresh Data", Exclude.None)
-			.Add(ModCode.Ctrl, Code.W, ToggleSummary, "Show/Hide Summary", Exclude.None)
-			.Add(ModCode.Ctrl, Code.Q, ToggleDetailsView, "Toggle Details", Exclude.None)
-			.Add(ModCode.Ctrl, Code.P, ExportPdf, "Export to PDF", Exclude.None)
-			.Add(ModCode.Ctrl, Code.E, ExportExcel, "Export to Excel", Exclude.None)
-			.Add(ModCode.Ctrl, Code.H, NavigateToTransactionHistory, "Open transaction history", Exclude.None)
-			.Add(ModCode.Ctrl, Code.O, ViewSelectedTransaction, "Open Selected Transaction", Exclude.None)
-			.Add(ModCode.Alt, Code.P, DownloadSelectedPdfInvoice, "Download Selected Transaction PDF Invoice", Exclude.None)
-			.Add(ModCode.Alt, Code.E, DownloadSelectedExcelInvoice, "Download Selected Transaction Excel Invoice", Exclude.None);
-	}
+
 
 	private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
 	{
@@ -526,18 +508,17 @@ public partial class BillItemReport : IAsyncDisposable
 		}
 	}
 
-	public ValueTask DisposeAsync()
+	async ValueTask IAsyncDisposable.DisposeAsync()
 	{
 		if (_autoRefreshCts is not null)
 		{
-			_autoRefreshCts.CancelAsync();
+			await _autoRefreshCts.CancelAsync();
 			_autoRefreshCts.Dispose();
 		}
 
 		_autoRefreshTimer?.Dispose();
 
 		GC.SuppressFinalize(this);
-		return ((IAsyncDisposable)HotKeys).DisposeAsync();
 	}
 	#endregion
 }

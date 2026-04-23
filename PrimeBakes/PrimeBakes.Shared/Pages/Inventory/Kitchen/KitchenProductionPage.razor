@@ -2,12 +2,24 @@
 @attribute [Route(PageRouteNames.KitchenProduction + "/{Id:int}")]
 
 @using PrimeBakesLibrary.Models.Accounts.Masters
-@using PrimeBakesLibrary.Models.Inventory
 @using PrimeBakesLibrary.Models.Inventory.Kitchen
-@using PrimeBakesLibrary.Models.Operations
 @using PrimeBakesLibrary.Models.Store.Product
 
 <PageTitle>Kitchen Production - Prime Bakes</PageTitle>
+
+<MudBlazor.MudHotkey Key=JsKey.Enter KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="AddItemToCart" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfItemAutoComplete.FocusAsync()" />
+<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction()" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction(savePDF: true)" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction(saveExcel: true)" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="DownloadPdfInvoice" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="DownloadExcelInvoice" />
+<MudBlazor.MudHotkey Key=JsKey.KeyH KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateToTransactionHistoryPage" />
+<MudBlazor.MudHotkey Key=JsKey.KeyI KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateToItemReport" />
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" />
+<MudBlazor.MudHotkey Key=JsKey.KeyB KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateBack" />
+<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="RemoveSelectedCartItem" />
+<MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="EditSelectedCartItem" />
 
 @if (_isLoading || _user is null)
 {
@@ -22,7 +34,7 @@ else
 					<MenuAnimationSettings Effect="Syncfusion.Blazor.Navigations.MenuEffect.SlideDown" Duration="300"
 										   Easing="ease" />
 					<MenuEvents TValue="Syncfusion.Blazor.Navigations.MenuItem" ItemSelected="OnMenuSelected"
-									OnOpen='async () => await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0)' />
+								OnOpen='async () => await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0)' />
 					<MenuItems>
 						<MenuItem Text="File" IconCss="e-icons e-folder">
 							<MenuItems>
@@ -65,8 +77,8 @@ else
 				<div class="section-header">
 					<div class="section-title-wrapper">
 						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-							 stroke-linecap="round" stroke-linejoin="round">
+							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+							 stroke-linejoin="round">
 							<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
 							<polyline points="14 2 14 8 20 8" />
 							<line x1="16" y1="13" x2="8" y2="13" />
@@ -86,8 +98,7 @@ else
 							<SfAutoComplete Value="@_selectedCompany" TValue="CompanyModel" TItem="CompanyModel"
 											DataSource="@_companies" Placeholder="Select a Company"
 											FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
-											FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
-											CssClass="custom-autocomplete">
+											FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
 								<AutoCompleteEvents TItem="CompanyModel" TValue="CompanyModel"
 													ValueChange="OnCompanyChanged" />
 								<AutoCompleteFieldSettings Value="Name" />
@@ -100,9 +111,8 @@ else
 								Kitchen <span class="required">*</span>
 							</label>
 							<SfAutoComplete Value="@_selectedKitchen" TValue="KitchenModel" TItem="KitchenModel"
-											DataSource="@_kitchens" Placeholder="Select a Kitchen"
-											FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
-											FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
+											DataSource="@_kitchens" Placeholder="Select a Kitchen" FloatLabelType="FloatLabelType.Never"
+											AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
 											CssClass="custom-autocomplete">
 								<AutoCompleteEvents TItem="KitchenModel" TValue="KitchenModel"
 													ValueChange="OnKitchenChanged" />
@@ -121,9 +131,10 @@ else
 											  CssClass="custom-datepicker">
 									<DatePickerEvents TValue="DateTime" ValueChange="OnTransactionDateChanged" />
 								</SfDatePicker>
-								<SfTextBox Value="@($"{_selectedFinancialYear?.StartDate:yyyy} to {_selectedFinancialYear?.EndDate:yyyy}")"
-										   Readonly="true" Placeholder="Financial Year" FloatLabelType="FloatLabelType.Never"
-										   CssClass="custom-textbox readonly-field" />
+								<SfTextBox
+								Value="@($"{_selectedFinancialYear?.StartDate:yyyy} to {_selectedFinancialYear?.EndDate:yyyy}")"
+								Readonly="true" Placeholder="Financial Year" FloatLabelType="FloatLabelType.Never"
+								CssClass="custom-textbox readonly-field" />
 							</div>
 						</div>
 
@@ -133,9 +144,9 @@ else
 								Transaction No <span class="required">*</span>
 							</label>
 							<div class="transaction-no-wrapper">
-								<SfTextBox @bind-Value="_kitchenProduction.TransactionNo"
-										   Placeholder="Enter Transaction No" FloatLabelType="FloatLabelType.Never"
-										   Readonly="true" CssClass="custom-textbox readonly-field" />
+								<SfTextBox @bind-Value="_kitchenProduction.TransactionNo" Placeholder="Enter Transaction No"
+										   FloatLabelType="FloatLabelType.Never" Readonly="true"
+										   CssClass="custom-textbox readonly-field" />
 							</div>
 						</div>
 
@@ -171,7 +182,7 @@ else
 					<div class="cart-input-row">
 						<div class="cart-field cart-field-wide">
 							<label class="cart-label">Product <span class="required">*</span></label>
-							<SfAutoComplete @ref="_sfItemAutoComplete" Value="@_selectedProduct" TValue="ProductModel ?"
+							<SfAutoComplete @ref="_sfItemAutoComplete" Value="@_selectedProduct" TValue="ProductModel?"
 											TItem="ProductModel" DataSource="@_products" Placeholder="Select Item (Ctrl + F)"
 											FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
 											FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
@@ -207,8 +218,8 @@ else
 
 						<div class="cart-field">
 							<label class="cart-label">Total</label>
-							<SfNumericTextBox Value="@_selectedCart.Total" TValue="decimal" Readonly="true" ShowSpinButton="false"
-											  Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+							<SfNumericTextBox Value="@_selectedCart.Total" TValue="decimal" Readonly="true"
+											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
 											  CssClass="custom-numeric readonly-field" />
 						</div>
 

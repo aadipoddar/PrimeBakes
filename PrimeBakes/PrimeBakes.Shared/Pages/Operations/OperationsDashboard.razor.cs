@@ -2,9 +2,8 @@ using PrimeBakesLibrary.Models.Operations;
 
 namespace PrimeBakes.Shared.Pages.Operations;
 
-public partial class OperationsDashboard : IAsyncDisposable
+public partial class OperationsDashboard
 {
-	private HotKeysContext _hotKeysContext;
 	private UserModel _user;
 	private bool _isLoading = true;
 
@@ -18,11 +17,6 @@ public partial class OperationsDashboard : IAsyncDisposable
 
 		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService);
 
-		_hotKeysContext = HotKeys.CreateContext()
-			.Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None)
-			.Add(ModCode.Ctrl, Code.B, NavigateToDashboard, "Back", Exclude.None)
-			.Add(ModCode.Ctrl, Code.D, NavigateToDashboard, "Dashboard", Exclude.None);
-
 		_isLoading = false;
 		StateHasChanged();
 	}
@@ -32,10 +26,4 @@ public partial class OperationsDashboard : IAsyncDisposable
 
 	private async Task Logout() =>
 		await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
-
-	public ValueTask DisposeAsync()
-	{
-		GC.SuppressFinalize(this);
-		return ((IAsyncDisposable)HotKeys).DisposeAsync();
-	}
 }

@@ -23,7 +23,6 @@ namespace PrimeBakes.Shared.Pages.Inventory.Stock.Reports;
 
 public partial class ProductStockReport : IAsyncDisposable
 {
-	private HotKeysContext _hotKeysContext;
 	private PeriodicTimer _autoRefreshTimer;
 	private CancellationTokenSource _autoRefreshCts;
 
@@ -67,30 +66,17 @@ public partial class ProductStockReport : IAsyncDisposable
 
 		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Inventory, UserRoles.Reports], true);
 		await LoadData();
-		_isLoading = false;
-		StateHasChanged();
 	}
 
 	private async Task LoadData()
 	{
-		_hotKeysContext = HotKeys.CreateContext()
-			.Add(ModCode.Ctrl, Code.R, LoadStockData, "Refresh Data", Exclude.None)
-			.Add(Code.F5, LoadStockData, "Refresh Data", Exclude.None)
-			.Add(ModCode.Ctrl, Code.W, ToggleColumnsView, "Toggle all columns", Exclude.None)
-			.Add(ModCode.Ctrl, Code.Q, ToggleDetailsView, "Toggle transaction details", Exclude.None)
-			.Add(ModCode.Ctrl, Code.E, ExportExcel, "Export to Excel", Exclude.None)
-			.Add(ModCode.Ctrl, Code.P, ExportPdf, "Export to PDF", Exclude.None)
-			.Add(ModCode.Ctrl, Code.N, NavigateToTransactionPage, "New Transaction", Exclude.None)
-			.Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-			.Add(Code.Delete, DeleteSelectedCartItem, "Delete Selected Transaction", Exclude.None)
-			.Add(ModCode.Ctrl, Code.O, ViewSelectedCartItem, "Open Selected Transaction", Exclude.None)
-			.Add(ModCode.Alt, Code.P, DownloadSelectedCartItemPdfInvoice, "Download Selected Transaction PDF Invoice", Exclude.None)
-			.Add(ModCode.Alt, Code.E, DownloadSelectedCartItemExcelInvoice, "Download Selected Transaction Excel Invoice", Exclude.None);
-
 		await LoadDates();
 		await LoadLocations();
 		await LoadStockData();
 		await StartAutoRefresh();
+
+		_isLoading = false;
+		StateHasChanged();
 	}
 
 	private async Task LoadDates()
@@ -719,10 +705,17 @@ public partial class ProductStockReport : IAsyncDisposable
 		}
 	}
 
-	public ValueTask DisposeAsync()
+	async ValueTask IAsyncDisposable.DisposeAsync()
 	{
+		if (_autoRefreshCts is not null)
+		{
+			await _autoRefreshCts.CancelAsync();
+			_autoRefreshCts.Dispose();
+		}
+
+		_autoRefreshTimer?.Dispose();
+
 		GC.SuppressFinalize(this);
-		return ((IAsyncDisposable)HotKeys).DisposeAsync();
 	}
 	#endregion
 }

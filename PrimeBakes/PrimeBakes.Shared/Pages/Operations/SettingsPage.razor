@@ -4,6 +4,10 @@
 
 <PageTitle>Settings - Prime Bakes</PageTitle>
 
+<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="SaveSettings" />
+<MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ShowResetConfirmation" />
+<MudBlazor.MudHotkey Key=JsKey.KeyB KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateBack" />
+
 @if (_isLoading)
 {
     <AnimatedLoader Visible="true" />

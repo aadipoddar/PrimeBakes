@@ -23,10 +23,8 @@ using Syncfusion.Blazor.Inputs;
 
 namespace PrimeBakes.Shared.Pages.Store.StockTransfer;
 
-public partial class StockTransferPage : IAsyncDisposable
+public partial class StockTransferPage
 {
-    private HotKeysContext _hotKeysContext;
-
     [Parameter] public int? Id { get; set; }
 
     private UserModel _user;
@@ -72,21 +70,20 @@ public partial class StockTransferPage : IAsyncDisposable
 
         _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Store], true);
         await LoadData();
-        _isLoading = false;
-        StateHasChanged();
     }
 
     private async Task LoadData()
     {
-        LoadHotKeys();
-
         await LoadLocations();
         await LoadCompanies();
         await LoadExistingTransaction();
         await LoadItems();
         await LoadExistingCart();
         await SaveTransactionFile();
-    }
+
+		_isLoading = false;
+		StateHasChanged();
+	}
 
     private async Task LoadLocations()
     {
@@ -923,24 +920,6 @@ public partial class StockTransferPage : IAsyncDisposable
     #endregion
 
     #region Utilities
-    private void LoadHotKeys()
-    {
-        _hotKeysContext = HotKeys.CreateContext()
-            .Add(ModCode.Ctrl, Code.Enter, AddItemToCart, "Add item to cart", Exclude.None)
-            .Add(ModCode.Ctrl, Code.F, () => _sfItemAutoComplete.FocusAsync(), "Focus on item input", Exclude.None)
-            .Add(ModCode.Ctrl, Code.S, () => SaveTransaction(), "Save the transaction", Exclude.None)
-            .Add(ModCode.Ctrl, Code.P, () => SaveTransaction(savePDF: true), "Save and export PDF", Exclude.None)
-            .Add(ModCode.Ctrl, Code.E, () => SaveTransaction(saveExcel: true), "Save and export Excel", Exclude.None)
-            .Add(ModCode.Alt, Code.P, DownloadPdfInvoice, "Export PDF invoice", Exclude.None)
-            .Add(ModCode.Alt, Code.E, DownloadExcelInvoice, "Export Excel invoice", Exclude.None)
-            .Add(ModCode.Ctrl, Code.H, NavigateToTransactionHistoryPage, "Open transaction history", Exclude.None)
-            .Add(ModCode.Ctrl, Code.I, NavigateToItemReport, "Open item report", Exclude.None)
-            .Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
-            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-            .Add(Code.Delete, RemoveSelectedCartItem, "Delete selected cart item", Exclude.None)
-            .Add(Code.Insert, EditSelectedCartItem, "Edit selected cart item", Exclude.None);
-    }
-
     private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
     {
         switch (args.Item.Id)
@@ -1079,11 +1058,5 @@ public partial class StockTransferPage : IAsyncDisposable
 
     private async Task Logout() =>
         await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
-
-    public ValueTask DisposeAsync()
-	{
-		GC.SuppressFinalize(this);
-		return ((IAsyncDisposable)HotKeys).DisposeAsync();
-	}
     #endregion
 }

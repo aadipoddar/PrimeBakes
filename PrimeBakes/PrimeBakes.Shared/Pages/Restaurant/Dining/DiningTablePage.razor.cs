@@ -10,9 +10,8 @@ using Syncfusion.Blazor.Grids;
 
 namespace PrimeBakes.Shared.Pages.Restaurant.Dining;
 
-public partial class DiningTablePage : IAsyncDisposable
+public partial class DiningTablePage
 {
-	private HotKeysContext _hotKeysContext;
 	private bool _isLoading = true;
 	private bool _isProcessing = false;
 	private bool _showDeleted = false;
@@ -55,16 +54,6 @@ public partial class DiningTablePage : IAsyncDisposable
 
 	private async Task LoadData()
 	{
-		_hotKeysContext = HotKeys.CreateContext()
-			.Add(ModCode.Ctrl, Code.S, SaveDiningTable, "Save", Exclude.None)
-			.Add(ModCode.Ctrl, Code.E, ExportExcel, "Export Excel", Exclude.None)
-			.Add(ModCode.Ctrl, Code.P, ExportPdf, "Export PDF", Exclude.None)
-			.Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
-			.Add(ModCode.Ctrl, Code.Delete, ToggleDeleted, "Show/Hide Deleted", Exclude.None)
-			.Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-			.Add(Code.Insert, EditSelectedItem, "Edit selected", Exclude.None)
-			.Add(Code.Delete, DeleteSelectedItem, "Delete / Recover selected", Exclude.None);
-
 		_diningAreas = await CommonData.LoadTableDataByStatus<DiningAreaModel>(TableNames.DiningArea);
 		_diningTables = await CommonData.LoadTableData<DiningTableModel>(TableNames.DiningTable);
 
@@ -417,11 +406,5 @@ public partial class DiningTablePage : IAsyncDisposable
 
 	private void NavigateBack() =>
 		NavigationManager.NavigateTo(PageRouteNames.RestaurantDashboard);
-
-	public ValueTask DisposeAsync()
-	{
-		GC.SuppressFinalize(this);
-		return ((IAsyncDisposable)HotKeys).DisposeAsync();
-	}
 	#endregion
 }

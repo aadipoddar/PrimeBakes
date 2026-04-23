@@ -2,6 +2,10 @@
 
 <PageTitle>Reports - Prime Bakes</PageTitle>
 
+<MudBlazor.MudHotkey Key=JsKey.KeyL KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="Logout" />
+<MudBlazor.MudHotkey Key=JsKey.KeyB KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateToDashboard" />
+<MudBlazor.MudHotkey Key=JsKey.KeyD KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateToDashboard" />
+
 @if (_isLoading || _user is null)
 {
     <AnimatedLoader Visible="true" />

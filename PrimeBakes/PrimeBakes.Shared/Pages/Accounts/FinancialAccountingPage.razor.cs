@@ -17,9 +17,8 @@ using Syncfusion.Blazor.Grids;
 
 namespace PrimeBakes.Shared.Pages.Accounts;
 
-public partial class FinancialAccountingPage : IAsyncDisposable
+public partial class FinancialAccountingPage
 {
-	private HotKeysContext _hotKeysContext;
 
 	[Parameter] public int? Id { get; set; }
 
@@ -64,7 +63,6 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 
 	private async Task InitializePage()
 	{
-		LoadHotKeys();
 		await LoadCompanies();
 		await LoadVouchers();
 
@@ -816,22 +814,6 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 	#endregion
 
 	#region Utilities
-	private void LoadHotKeys()
-	{
-		_hotKeysContext = HotKeys.CreateContext()
-			.Add(ModCode.Ctrl, Code.Enter, AddItemToCart, "Add item to cart", Exclude.None)
-			.Add(ModCode.Ctrl, Code.F, () => _sfLedgerAutoComplete.FocusAsync(), "Focus on ledger input", Exclude.None)
-			.Add(ModCode.Ctrl, Code.S, () => SaveTransaction(), "Save the transaction", Exclude.None)
-			.Add(ModCode.Ctrl, Code.P, () => SaveTransaction(savePDF: true), "Save & PDF", Exclude.None)
-			.Add(ModCode.Ctrl, Code.E, () => SaveTransaction(saveExcel: true), "Save & Excel", Exclude.None)
-			.Add(ModCode.Alt, Code.P, ExportPdfInvoice, "Export PDF", Exclude.None)
-			.Add(ModCode.Alt, Code.E, ExportExcelInvoice, "Export Excel", Exclude.None)
-			.Add(ModCode.Ctrl, Code.H, () => AuthenticationService.NavigateToRoute(PageRouteNames.FinancialAccountingReport, FormFactor, JSRuntime, NavigationManager), "Open transaction history", Exclude.None)
-			.Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
-			.Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-			.Add(Code.Delete, RemoveSelectedCartItem, "Delete selected cart item", Exclude.None)
-			.Add(Code.Insert, EditSelectedCartItem, "Edit selected cart item", Exclude.None);
-	}
 
 	private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
 	{
@@ -901,10 +883,5 @@ public partial class FinancialAccountingPage : IAsyncDisposable
 	private void NavigateBack() =>
 		NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
 
-	public ValueTask DisposeAsync()
-	{
-		GC.SuppressFinalize(this);
-		return ((IAsyncDisposable)HotKeys).DisposeAsync();
-	}
 	#endregion
 }

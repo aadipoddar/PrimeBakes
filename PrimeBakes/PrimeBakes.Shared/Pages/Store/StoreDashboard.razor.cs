@@ -4,10 +4,8 @@ using PrimeBakesLibrary.Models.Operations;
 
 namespace PrimeBakes.Shared.Pages.Store;
 
-public partial class StoreDashboard : IAsyncDisposable
+public partial class StoreDashboard
 {
-	private HotKeysContext _hotKeysContext;
-
 	private bool _isLoading = true;
 	private UserModel _user;
 
@@ -21,19 +19,10 @@ public partial class StoreDashboard : IAsyncDisposable
 
 		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Store]);
 
-		_hotKeysContext = HotKeys.CreateContext()
-			.Add(ModCode.Ctrl, Code.B, NavigateToDashboard, "Back", Exclude.None);
-
 		_isLoading = false;
 		StateHasChanged();
 	}
 
 	private void NavigateToDashboard() =>
 		NavigationManager.NavigateTo(PageRouteNames.Dashboard);
-
-	public ValueTask DisposeAsync()
-	{
-		GC.SuppressFinalize(this);
-		return ((IAsyncDisposable)HotKeys).DisposeAsync();
-	}
 }

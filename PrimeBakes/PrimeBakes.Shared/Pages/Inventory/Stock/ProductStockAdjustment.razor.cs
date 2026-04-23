@@ -18,10 +18,8 @@ using Syncfusion.Blazor.Inputs;
 
 namespace PrimeBakes.Shared.Pages.Inventory.Stock;
 
-public partial class ProductStockAdjustment : IAsyncDisposable
+public partial class ProductStockAdjustment
 {
-    private HotKeysContext _hotKeysContext;
-
     private UserModel _user;
 
     private bool _isLoading = true;
@@ -58,20 +56,19 @@ public partial class ProductStockAdjustment : IAsyncDisposable
 
         _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Inventory], true);
         await LoadData();
-        _isLoading = false;
-        StateHasChanged();
     }
 
     private async Task LoadData()
     {
-        LoadHotKeys();
-
         _transactionDateTime = await CommonData.LoadCurrentDateTime();
         await LoadLocations();
         await LoadStock();
         await LoadItems();
         await LoadExistingCart();
-    }
+
+		_isLoading = false;
+		StateHasChanged();
+	}
 
     private async Task LoadLocations()
     {
@@ -408,19 +405,6 @@ public partial class ProductStockAdjustment : IAsyncDisposable
     #endregion
 
     #region Utilities
-    private void LoadHotKeys()
-    {
-        _hotKeysContext = HotKeys.CreateContext()
-            .Add(ModCode.Ctrl, Code.Enter, AddItemToCart, "Add item to cart", Exclude.None)
-            .Add(ModCode.Ctrl, Code.F, () => _sfItemAutoComplete.FocusAsync(), "Focus on item input", Exclude.None)
-            .Add(ModCode.Ctrl, Code.S, SaveTransaction, "Save the transaction", Exclude.None)
-            .Add(ModCode.Ctrl, Code.H, NavigateToTransactionHistoryPage, "Open transaction history", Exclude.None)
-            .Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
-            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-            .Add(Code.Delete, RemoveSelectedCartItem, "Delete selected cart item", Exclude.None)
-            .Add(Code.Insert, EditSelectedCartItem, "Edit selected cart item", Exclude.None);
-    }
-
     private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
     {
         switch (args.Item.Id)
@@ -472,11 +456,5 @@ public partial class ProductStockAdjustment : IAsyncDisposable
 
     private async Task Logout() =>
         await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
-
-    public ValueTask DisposeAsync()
-    {
-        GC.SuppressFinalize(this);
-        return ((IAsyncDisposable)HotKeys).DisposeAsync();
-    }
     #endregion
 }

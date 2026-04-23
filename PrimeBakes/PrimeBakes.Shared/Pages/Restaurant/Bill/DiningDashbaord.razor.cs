@@ -7,9 +7,8 @@ using Syncfusion.Blazor.DropDowns;
 
 namespace PrimeBakes.Shared.Pages.Restaurant.Bill;
 
-public partial class DiningDashbaord : IAsyncDisposable
+public partial class DiningDashbaord
 {
-	private HotKeysContext _hotKeysContext;
 	private UserModel _user;
 	private bool _isLoading = true;
 
@@ -27,9 +26,6 @@ public partial class DiningDashbaord : IAsyncDisposable
 
 		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Restaurant]);
 
-		_hotKeysContext = HotKeys.CreateContext()
-			.Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None);
-
 		await LoadData();
 
 		_isLoading = false;
@@ -41,7 +37,7 @@ public partial class DiningDashbaord : IAsyncDisposable
 		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
 		_locations = [.. _locations.OrderBy(s => s.Name)];
 		_selectedLocation = _locations.FirstOrDefault(_ => _.Id == _user.LocationId);
-		
+
 		await LoadDining();
 	}
 
@@ -77,10 +73,4 @@ public partial class DiningDashbaord : IAsyncDisposable
 
 	private void OpenBillPage(int diningTableId) =>
 		NavigationManager.NavigateTo($"{PageRouteNames.Bill}/table/{diningTableId}");
-
-	public ValueTask DisposeAsync()
-	{
-		GC.SuppressFinalize(this);
-		return ((IAsyncDisposable)HotKeys).DisposeAsync();
-	}
 }

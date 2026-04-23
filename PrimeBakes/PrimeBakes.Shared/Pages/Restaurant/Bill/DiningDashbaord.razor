@@ -6,6 +6,8 @@
 
 <PageTitle>Dining Dashboard - Prime Bakes</PageTitle>
 
+<MudBlazor.MudHotkey Key=JsKey.KeyB KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateBack" />
+
 @if (_isLoading || _user is null)
 {
 	<AnimatedLoader Visible="true" />

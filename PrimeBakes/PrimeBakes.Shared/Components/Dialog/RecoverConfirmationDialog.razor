@@ -1,5 +1,9 @@
 <SfDialog @ref="_dialog" Width="500px" IsModal="true" ShowCloseIcon="true"
           @bind-Visible="_isVisible">
+
+    <MudBlazor.MudHotkey Key=JsKey.Enter OnHotkeyPressed="HandleConfirm" />
+    <MudBlazor.MudHotkey Key=JsKey.Escape OnHotkeyPressed="HandleCancel" />
+
     <DialogTemplates>
         <Header>
             <div style="display: flex; align-items: center; gap: 12px; padding: 4px 0;">

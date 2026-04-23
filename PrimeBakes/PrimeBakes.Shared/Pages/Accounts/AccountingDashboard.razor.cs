@@ -2,10 +2,9 @@ using PrimeBakesLibrary.Models.Operations;
 
 namespace PrimeBakes.Shared.Pages.Accounts;
 
-public partial class AccountingDashboard : IAsyncDisposable
+public partial class AccountingDashboard
 {
     private UserModel _user;
-    private HotKeysContext _hotKeysContext;
     private bool _isLoading = true;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -15,16 +14,10 @@ public partial class AccountingDashboard : IAsyncDisposable
 
         _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Accounts], true);
 
-        _hotKeysContext = HotKeys.CreateContext()
-            .Add(ModCode.Ctrl, Code.B, () => NavigationManager.NavigateTo(PageRouteNames.Dashboard), "Back", Exclude.None);
-
         _isLoading = false;
         StateHasChanged();
     }
 
-    public ValueTask DisposeAsync()
-    {
-        GC.SuppressFinalize(this);
-        return ((IAsyncDisposable)HotKeys).DisposeAsync();
-    }
+    private void NavigateBack() =>
+        NavigationManager.NavigateTo(PageRouteNames.Dashboard);
 }

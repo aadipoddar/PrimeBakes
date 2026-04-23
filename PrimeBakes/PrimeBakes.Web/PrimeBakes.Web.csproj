@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="PrimeBakes.Web.csproj.lscache" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\PrimeBakes.Shared\PrimeBakes.Shared.csproj" />
   </ItemGroup>
 

@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 
 using PrimeBakes.Shared.Components.Dialog;
 
@@ -19,7 +18,6 @@ namespace PrimeBakes.Shared.Pages.Accounts.Reports;
 
 public partial class TrialBalancePage : IAsyncDisposable
 {
-    private HotKeysContext _hotKeysContext;
     private PeriodicTimer _autoRefreshTimer;
     private CancellationTokenSource _autoRefreshCts;
 
@@ -50,19 +48,19 @@ public partial class TrialBalancePage : IAsyncDisposable
 
         await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Accounts, UserRoles.Reports], true);
         await LoadData();
-        _isLoading = false;
-        StateHasChanged();
     }
 
     private async Task LoadData()
     {
-        LoadHotKeys();
         await LoadDates();
         await LoadCompanies();
         await LoadGroups();
         await LoadAccountTypes();
         await LoadTrialBalance();
         await StartAutoRefresh();
+
+        _isLoading = false;
+        StateHasChanged();
     }
 
     private async Task LoadDates()
@@ -261,20 +259,6 @@ public partial class TrialBalancePage : IAsyncDisposable
     #endregion
 
     #region Utilities
-    private void LoadHotKeys()
-    {
-        _hotKeysContext = HotKeys.CreateContext()
-            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-            .Add(ModCode.Ctrl, Code.N, () => AuthenticationService.NavigateToRoute(PageRouteNames.FinancialAccounting, FormFactor, JSRuntime, NavigationManager), "New Transaction", Exclude.None)
-            .Add(ModCode.Ctrl, Code.R, LoadTrialBalance, "Refresh Data", Exclude.None)
-            .Add(Code.F5, LoadTrialBalance, "Refresh Data", Exclude.None)
-            .Add(ModCode.Ctrl, Code.Q, ToggleDetailsView, "Toggle Details", Exclude.None)
-            .Add(ModCode.Ctrl, Code.P, ExportPdf, "Export to PDF", Exclude.None)
-            .Add(ModCode.Ctrl, Code.E, ExportExcel, "Export to Excel", Exclude.None)
-            .Add(ModCode.Ctrl, Code.I, () => AuthenticationService.NavigateToRoute(PageRouteNames.AccountingLedgerReport, FormFactor, JSRuntime, NavigationManager), "Ledger Report", Exclude.None)
-            .Add(ModCode.Alt, Code.F, () => AuthenticationService.NavigateToRoute(PageRouteNames.ProfitAndLossReport, FormFactor, JSRuntime, NavigationManager), "Open profit and loss report", Exclude.None)
-            .Add(ModCode.Alt, Code.B, () => AuthenticationService.NavigateToRoute(PageRouteNames.BalanceSheetReport, FormFactor, JSRuntime, NavigationManager), "Open balance sheet report", Exclude.None);
-    }
 
     private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
     {
@@ -375,18 +359,17 @@ public partial class TrialBalancePage : IAsyncDisposable
         }
     }
 
-    public ValueTask DisposeAsync()
+    async ValueTask IAsyncDisposable.DisposeAsync()
     {
         if (_autoRefreshCts is not null)
         {
-            _autoRefreshCts.CancelAsync();
+            await _autoRefreshCts.CancelAsync();
             _autoRefreshCts.Dispose();
         }
 
         _autoRefreshTimer?.Dispose();
 
         GC.SuppressFinalize(this);
-        return ((IAsyncDisposable)HotKeys).DisposeAsync();
     }
     #endregion
 }

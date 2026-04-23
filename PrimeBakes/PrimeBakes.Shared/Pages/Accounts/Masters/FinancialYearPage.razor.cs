@@ -11,10 +11,9 @@ using Syncfusion.Blazor.Grids;
 
 namespace PrimeBakes.Shared.Pages.Accounts.Masters;
 
-public partial class FinancialYearPage : IAsyncDisposable
+public partial class FinancialYearPage
 {
     private UserModel _user;
-    private HotKeysContext _hotKeysContext;
     private bool _isLoading = true;
     private bool _isProcessing = false;
     private bool _showDeleted = false;
@@ -48,22 +47,10 @@ public partial class FinancialYearPage : IAsyncDisposable
 
         _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Accounts], true);
         await LoadData();
-        _isLoading = false;
-        StateHasChanged();
     }
 
     private async Task LoadData()
     {
-        _hotKeysContext = HotKeys.CreateContext()
-            .Add(ModCode.Ctrl, Code.S, SaveFinancialYear, "Save", Exclude.None)
-            .Add(ModCode.Ctrl, Code.E, ExportExcel, "Export Excel", Exclude.None)
-            .Add(ModCode.Ctrl, Code.P, ExportPdf, "Export PDF", Exclude.None)
-            .Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
-            .Add(ModCode.Ctrl, Code.Delete, ToggleDeleted, "Show/Hide Deleted", Exclude.None)
-            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-            .Add(Code.Insert, EditSelectedItem, "Edit selected", Exclude.None)
-            .Add(Code.Delete, DeleteSelectedItem, "Delete / Recover selected", Exclude.None);
-
         _financialYears = await CommonData.LoadTableData<FinancialYearModel>(TableNames.FinancialYear);
 
         if (!_showDeleted)
@@ -71,6 +58,9 @@ public partial class FinancialYearPage : IAsyncDisposable
 
         if (_sfGrid is not null)
             await _sfGrid.Refresh();
+
+        _isLoading = false;
+        StateHasChanged();
     }
     #endregion
 
@@ -446,11 +436,5 @@ public partial class FinancialYearPage : IAsyncDisposable
 
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
-
-    public ValueTask DisposeAsync()
-    {
-        GC.SuppressFinalize(this);
-        return ((IAsyncDisposable)HotKeys).DisposeAsync();
-    }
     #endregion
 }

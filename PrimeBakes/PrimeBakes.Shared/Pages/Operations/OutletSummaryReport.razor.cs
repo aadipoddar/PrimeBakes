@@ -17,7 +17,6 @@ namespace PrimeBakes.Shared.Pages.Operations;
 
 public partial class OutletSummaryReport : IAsyncDisposable
 {
-	private HotKeysContext _hotKeysContext;
 	private PeriodicTimer _autoRefreshTimer;
 	private CancellationTokenSource _autoRefreshCts;
 
@@ -63,18 +62,17 @@ public partial class OutletSummaryReport : IAsyncDisposable
 
 		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Reports]);
 		await LoadData();
-		_isLoading = false;
-		StateHasChanged();
 	}
 
 	private async Task LoadData()
 	{
-		LoadHotKeys();
-
 		await LoadDates();
 		await LoadCompanies();
 		await RefreshReport();
 		await StartAutoRefresh();
+
+		_isLoading = false;
+		StateHasChanged();
 	}
 
 	private async Task LoadDates()
@@ -329,14 +327,6 @@ public partial class OutletSummaryReport : IAsyncDisposable
 	#endregion
 
 	#region Utilities
-	private void LoadHotKeys()
-	{
-		_hotKeysContext = HotKeys.CreateContext()
-			.Add(ModCode.Ctrl, Code.R, RefreshReport, "Refresh Data", Exclude.None)
-			.Add(Code.F5, RefreshReport, "Refresh Data", Exclude.None)
-			.Add(ModCode.Ctrl, Code.P, ExportPdf, "Export to PDF", Exclude.None)
-			.Add(ModCode.Ctrl, Code.E, ExportExcel, "Export to Excel", Exclude.None);
-	}
 
 	private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
 	{
@@ -423,18 +413,16 @@ public partial class OutletSummaryReport : IAsyncDisposable
 		}
 	}
 
-	public ValueTask DisposeAsync()
+	async ValueTask IAsyncDisposable.DisposeAsync()
 	{
 		if (_autoRefreshCts is not null)
 		{
-			_autoRefreshCts.CancelAsync();
+			await _autoRefreshCts.CancelAsync();
 			_autoRefreshCts.Dispose();
 		}
 
 		_autoRefreshTimer?.Dispose();
-
 		GC.SuppressFinalize(this);
-		return ((IAsyncDisposable)HotKeys).DisposeAsync();
 	}
 	#endregion
 }

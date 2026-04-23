@@ -10,10 +10,8 @@ using System.Reflection;
 
 namespace PrimeBakes.Shared.Components.Page;
 
-public partial class Header : IAsyncDisposable
+public partial class Header
 {
-    private HotKeysContext _hotKeysContext;
-
     #region Blueetooth
     private BluetoothReconnectDialog _btDialog;
     private BluetoothDeviceInfo? _btSaved;
@@ -87,14 +85,6 @@ public partial class Header : IAsyncDisposable
     private string _searchText = string.Empty;
     private List<GlobalSearchItem> _searchItems = [];
     private SfAutoComplete<string, GlobalSearchItem> _sfGlobalSearch;
-
-    private void LoadHotKeys()
-    {
-        _hotKeysContext = HotKeys.CreateContext()
-            .Add(Code.F2, FocusSearchBox, "Focus on search box", Exclude.None)
-            .Add(ModCode.Ctrl, Code.D, NavigateToHome, "Go to dashboard", Exclude.None)
-            .Add(ModCode.Ctrl, Code.L, Logout, "Logout", Exclude.None);
-    }
 
     private async Task FocusSearchBox()
     {
@@ -232,7 +222,6 @@ public partial class Header : IAsyncDisposable
     {
         if (!firstRender) return;
         await LoadBluetoothStatusAsync();
-        LoadHotKeys();
     }
 
     protected override async Task OnInitializedAsync()
@@ -254,12 +243,6 @@ public partial class Header : IAsyncDisposable
         NavigationManager.NavigateTo(PageRouteNames.Dashboard);
     private async Task Logout() =>
         await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
-
-    public ValueTask DisposeAsync()
-    {
-        GC.SuppressFinalize(this);
-        return ((IAsyncDisposable)HotKeys).DisposeAsync();
-    }
     #endregion
 }
 

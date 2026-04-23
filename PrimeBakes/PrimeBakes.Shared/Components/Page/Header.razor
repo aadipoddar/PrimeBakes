@@ -1,185 +1,189 @@
+<MudBlazor.MudHotkey Key=JsKey.KeyD KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateToHome" />
+<MudBlazor.MudHotkey Key=JsKey.KeyL KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="Logout" />
+<MudBlazor.MudHotkey Key=JsKey.F2 OnHotkeyPressed="FocusSearchBox" />
+
 <div class="page-header">
-    <div class="header-left">
-        <button type="button" class="header-logo-button" title="Go to Home (Ctrl+D)" @onclick="NavigateToHome">
-            <img src="images/logo.png" alt="PrimeBakes" class="header-logo" />
-        </button>
-        @if (LeftContent != null)
-        {
-            @LeftContent
-        }
-    </div>
-    <div class="header-center">
-        <h1 class="page-title">@Title</h1>
-    </div>
-    <div class="header-right">
-        <div class="global-search-container">
-            <SfAutoComplete @ref="_sfGlobalSearch" TValue="string" TItem="GlobalSearchItem" DataSource="@_searchItems"
-                            Placeholder="Search Route or Trans No...   (F2)" Width="250px" @bind-Value="@_searchText" Autofill="true"
-                            FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
-                <AutoCompleteEvents TItem="GlobalSearchItem" TValue="string" OnValueSelect="OnRouteSelected" />
-                <AutoCompleteFieldSettings Value="DisplayText" Text="DisplayText" />
-            </SfAutoComplete>
-            <IconButton Icon="IconType.View" Variant="ButtonVariant.View" Title="View" OnClick="NavigateToSearch" />
-            <IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Print PDF"
-                        OnClick="DownloadPdfFromSearch" />
-        </div>
-        @if (RightContent != null)
-        {
-            @RightContent
-        }
-        @if (ShowBtButton)
-        {
-            <IconButton Icon="IconType.Bluetooth"
-                        Variant="@(BtIsConnected ? ButtonVariant.BluetoothConnected : ButtonVariant.BluetoothDisconnected)"
-                        Title="@(BtIsConnected ? $"Printer: {_btSaved?.Name} (Connected)" : $"Printer: {_btSaved?.Name} (Not Connected)")"
-                        OnClick="HandleBtClick" />
-        }
-        <div class="header-divider"></div>
-        <button type="button" class="user-name user-name-button" title="Logout (Ctrl+L)" @onclick="Logout">
-            <span class="user-name-desktop">@_user?.Name</span>
-            <span class="user-name-mobile">@GetMobileUserName()</span>
-        </button>
-    </div>
+	<div class="header-left">
+		<button type="button" class="header-logo-button" title="Go to Home (Ctrl+D)" @onclick="NavigateToHome">
+			<img src="images/logo.png" alt="PrimeBakes" class="header-logo" />
+		</button>
+		@if (LeftContent != null)
+		{
+			@LeftContent
+		}
+	</div>
+	<div class="header-center">
+		<h1 class="page-title">@Title</h1>
+	</div>
+	<div class="header-right">
+		<div class="global-search-container">
+			<SfAutoComplete @ref="_sfGlobalSearch" TValue="string" TItem="GlobalSearchItem" DataSource="@_searchItems"
+							Placeholder="Search Route or Trans No...   (F2)" Width="250px" @bind-Value="@_searchText" Autofill="true"
+							FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
+				<AutoCompleteEvents TItem="GlobalSearchItem" TValue="string" OnValueSelect="OnRouteSelected" />
+				<AutoCompleteFieldSettings Value="DisplayText" Text="DisplayText" />
+			</SfAutoComplete>
+			<IconButton Icon="IconType.View" Variant="ButtonVariant.View" Title="View" OnClick="NavigateToSearch" />
+			<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Print PDF"
+						OnClick="DownloadPdfFromSearch" />
+		</div>
+		@if (RightContent != null)
+		{
+			@RightContent
+		}
+		@if (ShowBtButton)
+		{
+			<IconButton Icon="IconType.Bluetooth"
+						Variant="@(BtIsConnected ? ButtonVariant.BluetoothConnected : ButtonVariant.BluetoothDisconnected)"
+						Title="@(BtIsConnected ? $"Printer: {_btSaved?.Name} (Connected)" : $"Printer: {_btSaved?.Name} (Not Connected)")"
+						OnClick="HandleBtClick" />
+		}
+		<div class="header-divider"></div>
+		<button type="button" class="user-name user-name-button" title="Logout (Ctrl+L)" @onclick="Logout">
+			<span class="user-name-desktop">@_user?.Name</span>
+			<span class="user-name-mobile">@GetMobileUserName()</span>
+		</button>
+	</div>
 </div>
 
 @if (ShowBtButton)
 {
-    <BluetoothReconnectDialog @ref="_btDialog" PrinterName="@(_btSaved?.Name ?? "Unknown")" IsConnected="@BtIsConnected"
-                              Disabled="@_isBtReconnecting" OnReconnect="HandleBtReconnect" OnDismiss="HandleBtDismiss"
-                              OnDisconnect="HandleBtDisconnect" />
+	<BluetoothReconnectDialog @ref="_btDialog" PrinterName="@(_btSaved?.Name ?? "Unknown")" IsConnected="@BtIsConnected"
+							  Disabled="@_isBtReconnecting" OnReconnect="HandleBtReconnect" OnDismiss="HandleBtDismiss"
+							  OnDisconnect="HandleBtDisconnect" />
 }
 
 <style>
-    /* Professional Header Section */
-    .page-header {
-        position: sticky;
-        top: 0;
-        z-index: 1000;
-        background: #ffffff;
-        border-bottom: 1px solid #e2e8f0;
-        padding: 10px 24px;
-        display: grid;
-        grid-template-columns: 1fr auto 1fr;
-        align-items: center;
-        gap: 16px;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
-        min-height: 52px;
-    }
+	/* Professional Header Section */
+	.page-header {
+		position: sticky;
+		top: 0;
+		z-index: 1000;
+		background: #ffffff;
+		border-bottom: 1px solid #e2e8f0;
+		padding: 10px 24px;
+		display: grid;
+		grid-template-columns: 1fr auto 1fr;
+		align-items: center;
+		gap: 16px;
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+		min-height: 52px;
+	}
 
-    .header-left {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
+	.header-left {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+	}
 
-    .header-logo {
-        width: 32px;
-        height: 32px;
-        flex-shrink: 0;
-    }
+	.header-logo {
+		width: 32px;
+		height: 32px;
+		flex-shrink: 0;
+	}
 
-    .header-logo-button {
-        border: none;
-        background: transparent;
-        padding: 0;
-        display: flex;
-        align-items: center;
-        cursor: pointer;
-    }
+	.header-logo-button {
+		border: none;
+		background: transparent;
+		padding: 0;
+		display: flex;
+		align-items: center;
+		cursor: pointer;
+	}
 
-    .header-divider {
-        width: 1px;
-        height: 24px;
-        background: #e2e8f0;
-        flex-shrink: 0;
-    }
+	.header-divider {
+		width: 1px;
+		height: 24px;
+		background: #e2e8f0;
+		flex-shrink: 0;
+	}
 
-    .header-center {
-        text-align: center;
-    }
+	.header-center {
+		text-align: center;
+	}
 
-    .page-title {
-        font-size: 17px;
-        font-weight: 600;
-        color: #0f172a;
-        margin: 0;
-        letter-spacing: -0.2px;
-    }
+	.page-title {
+		font-size: 17px;
+		font-weight: 600;
+		color: #0f172a;
+		margin: 0;
+		letter-spacing: -0.2px;
+	}
 
-    .header-right {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        gap: 6px;
-    }
+	.header-right {
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		gap: 6px;
+	}
 
-    .user-name {
-        font-size: 13px;
-        font-weight: 500;
-        color: #0f172a;
-        padding: 6px 10px;
-        background: #f8fafc;
-        border-radius: 6px;
-        border: 1px solid #e2e8f0;
-    }
+	.user-name {
+		font-size: 13px;
+		font-weight: 500;
+		color: #0f172a;
+		padding: 6px 10px;
+		background: #f8fafc;
+		border-radius: 6px;
+		border: 1px solid #e2e8f0;
+	}
 
-    .user-name-button {
-        cursor: pointer;
-        font-family: inherit;
-        line-height: 1;
-    }
+	.user-name-button {
+		cursor: pointer;
+		font-family: inherit;
+		line-height: 1;
+	}
 
-    .user-name-mobile {
-        display: none;
-    }
+	.user-name-mobile {
+		display: none;
+	}
 
-    .global-search-container {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        margin-left: 12px;
-        background-color: #f1f5f9;
-        padding: 4px 8px;
-        border-radius: 8px;
-    }
+	.global-search-container {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		margin-left: 12px;
+		background-color: #f1f5f9;
+		padding: 4px 8px;
+		border-radius: 8px;
+	}
 
-    /* Style for Syncfusion AutoComplete inside header */
-    ::deep .global-search-container .e-input-group {
-        border: none !important;
-        background: transparent !important;
-        border-radius: 0;
-        margin-bottom: 0;
-    }
+	/* Style for Syncfusion AutoComplete inside header */
+	::deep .global-search-container .e-input-group {
+		border: none !important;
+		background: transparent !important;
+		border-radius: 0;
+		margin-bottom: 0;
+	}
 
-    ::deep .global-search-container .e-input-group:not(.e-success):not(.e-warning):not(.e-error):not(.e-float-icon-left) {
-        border: none;
-    }
+		::deep .global-search-container .e-input-group:not(.e-success):not(.e-warning):not(.e-error):not(.e-float-icon-left) {
+			border: none;
+		}
 
-    ::deep .global-search-container .e-input-group input {
-        font-size: 13px;
-        padding-left: 8px;
-    }
+		::deep .global-search-container .e-input-group input {
+			font-size: 13px;
+			padding-left: 8px;
+		}
 
-    @@media (max-width: 768px) {
+	@@media (max-width: 768px) {
 
-        .header-divider,
-        .global-search-container {
-            display: none;
-        }
+		.header-divider,
+		.global-search-container {
+			display: none;
+		}
 
-        .user-name {
-            display: inline-flex;
-            align-items: center;
-            padding: 6px 8px;
-            font-size: 12px;
-        }
+		.user-name {
+			display: inline-flex;
+			align-items: center;
+			padding: 6px 8px;
+			font-size: 12px;
+		}
 
-        .user-name-desktop {
-            display: none;
-        }
+		.user-name-desktop {
+			display: none;
+		}
 
-        .user-name-mobile {
-            display: inline;
-        }
-    }
+		.user-name-mobile {
+			display: inline;
+		}
+	}
 </style>

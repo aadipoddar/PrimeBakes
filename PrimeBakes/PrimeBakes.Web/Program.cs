@@ -1,5 +1,5 @@
 using Blazor.Bluetooth;
-
+using MudBlazor.Services;
 using PrimeBakes.Shared.Services;
 using PrimeBakes.Web.Components;
 using PrimeBakes.Web.Services;
@@ -8,8 +8,6 @@ using PrimeBakesLibrary.DataAccess;
 
 using Syncfusion.Blazor;
 
-using Toolbelt.Blazor.Extensions.DependencyInjection;
-
 var builder = WebApplication.CreateBuilder(args);
 
 Secrets.SetupConfiguration();
@@ -17,7 +15,7 @@ Secrets.SetupConfiguration();
 // Add services to the container.
 builder.Services
 	.AddSyncfusionBlazor()
-	.AddHotKeys2()
+	.AddMudServices()
 	.AddBluetoothNavigator()
 	.AddRazorComponents()
 	.AddInteractiveServerComponents();

@@ -24,9 +24,8 @@ using Syncfusion.Blazor.Inputs;
 
 namespace PrimeBakes.Shared.Pages.Restaurant.Bill;
 
-public partial class BillPage : IAsyncDisposable
+public partial class BillPage
 {
-	private HotKeysContext _hotKeysContext;
 
 	[Parameter] public int? Id { get; set; }
 	[Parameter] public int? DiningTableId { get; set; }
@@ -78,14 +77,10 @@ public partial class BillPage : IAsyncDisposable
 
 		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Restaurant]);
 		await InitializePage();
-		_isLoading = false;
-		StateHasChanged();
 	}
 
 	private async Task InitializePage()
 	{
-		LoadHotKeys();
-
 		await LoadCompanies();
 		await LoadLocations();
 
@@ -98,6 +93,9 @@ public partial class BillPage : IAsyncDisposable
 		await LoadCart();
 		SyncPaymentsFromBill();
 		await RecalculateAndSave();
+
+		_isLoading = false;
+		StateHasChanged();
 	}
 
 	private async Task LoadCompanies()
@@ -1212,27 +1210,6 @@ public partial class BillPage : IAsyncDisposable
 	#endregion
 
 	#region Utilities
-	private void LoadHotKeys()
-	{
-		_hotKeysContext = HotKeys.CreateContext()
-			.Add(ModCode.Ctrl, Code.Enter, AddItemToCart, "Add item to cart", Exclude.None)
-			.Add(ModCode.Ctrl, Code.F, () => _sfItemAutoComplete.FocusAsync(), "Focus on item input", Exclude.None)
-			.Add(ModCode.Alt, Code.K, PrintKOT, "Save and print KOT", Exclude.None)
-			.Add(ModCode.Ctrl, Code.S, () => SaveTransaction(), "Save the transaction", Exclude.None)
-			.Add(ModCode.Ctrl, Code.T, () => SaveTransaction(saveThermal: true), "Save and print thermal", Exclude.None)
-			.Add(ModCode.Ctrl, Code.P, () => SaveTransaction(savePDF: true), "Save and export PDF", Exclude.None)
-			.Add(ModCode.Ctrl, Code.E, () => SaveTransaction(saveExcel: true), "Save and export Excel", Exclude.None)
-			.Add(ModCode.Alt, Code.T, DownloadThermalInvoice, "Export Thermal invoice", Exclude.None)
-			.Add(ModCode.Alt, Code.P, DownloadPdfInvoice, "Export PDF invoice", Exclude.None)
-			.Add(ModCode.Alt, Code.E, DownloadExcelInvoice, "Export Excel invoice", Exclude.None)
-			.Add(ModCode.Ctrl, Code.H, NavigateToTransactionHistoryPage, "Open transaction history", Exclude.None)
-			.Add(ModCode.Ctrl, Code.I, NavigateToItemReport, "Open item report", Exclude.None)
-			.Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
-			.Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-			.Add(Code.Delete, RemoveSelectedCartItem, "Delete selected cart item", Exclude.None)
-			.Add(Code.Insert, EditSelectedCartItem, "Edit selected cart item", Exclude.None);
-	}
-
 	private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
 	{
 		switch (args.Item.Id)
@@ -1414,11 +1391,5 @@ public partial class BillPage : IAsyncDisposable
 
 	private void NavigateBack() =>
 		NavigationManager.NavigateTo(PageRouteNames.RestaurantDashboard);
-
-	public ValueTask DisposeAsync()
-	{
-		GC.SuppressFinalize(this);
-		return ((IAsyncDisposable)HotKeys).DisposeAsync();
-	}
 	#endregion
 }

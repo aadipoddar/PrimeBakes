@@ -9,8 +9,6 @@ namespace PrimeBakes.Shared.Pages.Operations;
 
 public partial class LocalSettingsPage : IAsyncDisposable
 {
-    private HotKeysContext _hotKeysContext;
-
     #region Fields
 
     // UI State
@@ -38,17 +36,9 @@ public partial class LocalSettingsPage : IAsyncDisposable
             return;
 
         await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService);
-        await LoadData();
         _isLoading = false;
         StateHasChanged();
     }
-
-    private async Task LoadData()
-    {
-        _hotKeysContext = HotKeys.CreateContext()
-            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None);
-    }
-
     #endregion
 
     #region Bluetooth Operations
@@ -372,13 +362,12 @@ public partial class LocalSettingsPage : IAsyncDisposable
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.OperationsDashboard);
 
-    public ValueTask DisposeAsync()
+    async ValueTask IAsyncDisposable.DisposeAsync()
     {
-        _scanCancellationTokenSource?.Cancel();
+        _scanCancellationTokenSource?.CancelAsync();
         _scanCancellationTokenSource?.Dispose();
 
         GC.SuppressFinalize(this);
-        return ((IAsyncDisposable)HotKeys).DisposeAsync();
     }
     #endregion
 }

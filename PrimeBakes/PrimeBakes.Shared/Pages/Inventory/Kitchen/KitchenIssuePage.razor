@@ -8,6 +8,20 @@
 
 <PageTitle>Kitchen Issue - Prime Bakes</PageTitle>
 
+<MudBlazor.MudHotkey Key=JsKey.Enter KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="AddItemToCart" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfItemAutoComplete.FocusAsync()" />
+<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction()" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction(savePDF: true)" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction(saveExcel: true)" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="DownloadPdfInvoice" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="DownloadExcelInvoice" />
+<MudBlazor.MudHotkey Key=JsKey.KeyH KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateToTransactionHistoryPage" />
+<MudBlazor.MudHotkey Key=JsKey.KeyI KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateToItemReport" />
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" />
+<MudBlazor.MudHotkey Key=JsKey.KeyB KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateBack" />
+<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="RemoveSelectedCartItem" />
+<MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="EditSelectedCartItem" />
+
 @if (_isLoading || _user is null)
 {
 	<AnimatedLoader Visible="true" />
@@ -21,7 +35,7 @@ else
 					<MenuAnimationSettings Effect="Syncfusion.Blazor.Navigations.MenuEffect.SlideDown" Duration="300"
 										   Easing="ease" />
 					<MenuEvents TValue="Syncfusion.Blazor.Navigations.MenuItem" ItemSelected="OnMenuSelected"
-									OnOpen='async () => await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0)' />
+								OnOpen='async () => await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0)' />
 					<MenuItems>
 						<MenuItem Text="File" IconCss="e-icons e-folder">
 							<MenuItems>
@@ -118,9 +132,10 @@ else
 											  CssClass="custom-datepicker">
 									<DatePickerEvents TValue="DateTime" ValueChange="OnTransactionDateChanged" />
 								</SfDatePicker>
-								<SfTextBox Value="@($"{_selectedFinancialYear?.StartDate:yyyy} to {_selectedFinancialYear?.EndDate:yyyy}")"
-										   Readonly="true" Placeholder="Financial Year" FloatLabelType="FloatLabelType.Never"
-										   CssClass="custom-textbox readonly-field" />
+								<SfTextBox
+								Value="@($"{_selectedFinancialYear?.StartDate:yyyy} to {_selectedFinancialYear?.EndDate:yyyy}")"
+								Readonly="true" Placeholder="Financial Year" FloatLabelType="FloatLabelType.Never"
+								CssClass="custom-textbox readonly-field" />
 							</div>
 						</div>
 
@@ -152,8 +167,9 @@ else
 			<div class="section-card">
 				<div class="section-header">
 					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+							 stroke-linejoin="round">
 							<circle cx="9" cy="21" r="1" />
 							<circle cx="20" cy="21" r="1" />
 							<path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
@@ -166,10 +182,11 @@ else
 					<div class="cart-input-row">
 						<div class="cart-field cart-field-wide">
 							<label class="cart-label">Item <span class="required">*</span></label>
-							<SfAutoComplete @ref="_sfItemAutoComplete" Value="@_selectedRawMaterial" TValue="RawMaterialModel ?"
-											TItem="RawMaterialModel" DataSource="@_rawMaterials" Placeholder="Select Item (Ctrl + F)"
-											FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
-											FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
+							<SfAutoComplete @ref="_sfItemAutoComplete" Value="@_selectedRawMaterial"
+											TValue="RawMaterialModel?" TItem="RawMaterialModel" DataSource="@_rawMaterials"
+											Placeholder="Select Item (Ctrl + F)" FloatLabelType="FloatLabelType.Never"
+											AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
+											CssClass="custom-autocomplete">
 								<AutoCompleteEvents TItem="RawMaterialModel" TValue="RawMaterialModel?"
 													ValueChange="OnItemChanged" />
 								<AutoCompleteFieldSettings Value="Name" />
@@ -178,16 +195,17 @@ else
 
 						<div class="cart-field">
 							<label class="cart-label">Current Stock</label>
-							<SfNumericTextBox Value="@(_stockSummary.FirstOrDefault(s => s.RawMaterialId == _selectedRawMaterial?.Id)?.ClosingStock ?? 0)"
-											  TValue="decimal" Readonly="true" ShowSpinButton="false" Placeholder="0.00"
-											  FloatLabelType="FloatLabelType.Never" CssClass="custom-numeric readonly-field stock-field"
-											  TabIndex="-1" />
+							<SfNumericTextBox
+							Value="@(_stockSummary.FirstOrDefault(s => s.RawMaterialId == _selectedRawMaterial?.Id)?.ClosingStock ?? 0)"
+							TValue="decimal" Readonly="true" ShowSpinButton="false" Placeholder="0.00"
+							FloatLabelType="FloatLabelType.Never" CssClass="custom-numeric readonly-field stock-field"
+							TabIndex="-1" />
 						</div>
 
 						<div class="cart-field">
 							<label class="cart-label">Qty <span class="required">*</span></label>
-							<SfNumericTextBox Value="@_selectedCart.Quantity" TValue="decimal" Min="0" ShowSpinButton="false"
-											  Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+							<SfNumericTextBox Value="@_selectedCart.Quantity" TValue="decimal" Min="0"
+											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
 											  CssClass="custom-numeric editable-field">
 								<NumericTextBoxEvents TValue="decimal" ValueChange="OnItemQuantityChanged" />
 							</SfNumericTextBox>
@@ -216,14 +234,15 @@ else
 
 						<div class="cart-field">
 							<label class="cart-label">Total</label>
-							<SfNumericTextBox Value="@_selectedCart.Total" TValue="decimal" Readonly="true" ShowSpinButton="false"
-											  Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+							<SfNumericTextBox Value="@_selectedCart.Total" TValue="decimal" Readonly="true"
+											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
 											  CssClass="custom-numeric readonly-field" />
 						</div>
 
 						<div class="cart-field">
 							<label class="cart-label" style="visibility: hidden;">Action</label>
-							<IconButton Icon="IconType.Add" Variant="ButtonVariant.Add" Text="Add" Title="Add to Cart" OnClick="AddItemToCart" />
+							<IconButton Icon="IconType.Add" Variant="ButtonVariant.Add" Text="Add" Title="Add to Cart"
+										OnClick="AddItemToCart" />
 						</div>
 					</div>
 				</div>
@@ -233,8 +252,9 @@ else
 			<div class="section-card">
 				<div class="section-header">
 					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+							 stroke-linejoin="round">
 							<path d="M3 3h7a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3H3V3z" />
 							<path d="M14 3h7v17h-7V3z" />
 						</svg>
@@ -293,10 +313,14 @@ else
 
 						<GridColumns>
 							<GridColumn Field="ItemName" HeaderText="Item Name" Width="200" />
-							<GridColumn Field="UnitOfMeasurement" HeaderText="UOM" Width="80" TextAlign="TextAlign.Center" />
-							<GridColumn Field="Quantity" HeaderText="Qty" Width="100" TextAlign="TextAlign.Right" Format="N2" />
-							<GridColumn Field="Rate" HeaderText="Rate" Width="110" TextAlign="TextAlign.Right" Format="N2" />
-							<GridColumn Field="Total" HeaderText="Total" Width="130" TextAlign="TextAlign.Right" Format="N2">
+							<GridColumn Field="UnitOfMeasurement" HeaderText="UOM" Width="80"
+										TextAlign="TextAlign.Center" />
+							<GridColumn Field="Quantity" HeaderText="Qty" Width="100" TextAlign="TextAlign.Right"
+										Format="N2" />
+							<GridColumn Field="Rate" HeaderText="Rate" Width="110" TextAlign="TextAlign.Right"
+										Format="N2" />
+							<GridColumn Field="Total" HeaderText="Total" Width="130" TextAlign="TextAlign.Right"
+										Format="N2">
 								<Template>
 									@{
 										var item = (context as dynamic);

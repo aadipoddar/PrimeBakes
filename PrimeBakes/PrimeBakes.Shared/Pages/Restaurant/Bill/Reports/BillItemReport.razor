@@ -7,6 +7,24 @@
 
 <PageTitle>Bill Item Report - Prime Bakes</PageTitle>
 
+<MudBlazor.MudHotkey Key=JsKey.KeyB KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateBack" />
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft]
+                     OnHotkeyPressed="NavigateToTransactionPage" />
+<MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft]
+                     OnHotkeyPressed="LoadTransactionOverviews" />
+<MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadTransactionOverviews" />
+<MudBlazor.MudHotkey Key=JsKey.KeyW KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleSummary" />
+<MudBlazor.MudHotkey Key=JsKey.KeyQ KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDetailsView" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ExportPdf" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ExportExcel" />
+<MudBlazor.MudHotkey Key=JsKey.KeyH KeyModifiers=[JsKeyModifier.ControlLeft]
+                     OnHotkeyPressed="NavigateToTransactionHistory" />
+<MudBlazor.MudHotkey Key=JsKey.KeyO KeyModifiers=[JsKeyModifier.ControlLeft]
+                     OnHotkeyPressed="ViewSelectedTransaction" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="DownloadSelectedPdfInvoice" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft]
+                     OnHotkeyPressed="DownloadSelectedExcelInvoice" />
+
 @if (_isLoading || _user is null)
 {
     <AnimatedLoader Visible="true" />
@@ -28,10 +46,10 @@ else
                                           Disabled="@_isProcessing" />
                                 <MenuItem Text="Refresh Data (Ctrl + R / F5)" IconCss="e-icons e-refresh" Id="Refresh"
                                           Disabled="@_isProcessing" />
-                                <MenuItem Text="@(_showSummary ? "Hide Summary (Ctrl + W)" : "Show Summary (Ctrl + W)")" IconCss="e-icons e-chart"
-                                          Id="ToggleSummary" Disabled="@_isProcessing" />
-                                <MenuItem Text="@(_showAllColumns ? "Hide Details (Ctrl + Q)" : "Show Details (Ctrl + Q)")" IconCss="e-icons e-table"
-                                          Id="ToggleDetailsView" Disabled="@_isProcessing" />
+                                <MenuItem Text="@(_showSummary ? "Hide Summary (Ctrl + W)" : "Show Summary (Ctrl + W)")"
+                                          IconCss="e-icons e-chart" Id="ToggleSummary" Disabled="@_isProcessing" />
+                                <MenuItem Text="@(_showAllColumns ? "Hide Details (Ctrl + Q)" : "Show Details (Ctrl + Q)")"
+                                          IconCss="e-icons e-table" Id="ToggleDetailsView" Disabled="@_isProcessing" />
                                 <MenuItem Separator="true" />
                                 <MenuItem Text="Export PDF (Ctrl + P)" IconCss="e-icons e-export-pdf" Id="ExportPdf"
                                           Disabled="@_isProcessing" />
@@ -61,11 +79,12 @@ else
                         </MenuItem>
                         <MenuItem Text="Transaction" IconCss="e-icons e-chart">
                             <MenuItems>
-                                <MenuItem Text="View (Ctrl + O)" IconCss="e-icons e-eye" Id="ViewSelected" Disabled="@(_isProcessing || _showSummary)" />
+                                <MenuItem Text="View (Ctrl + O)" IconCss="e-icons e-eye" Id="ViewSelected"
+                                          Disabled="@(_isProcessing || _showSummary)" />
                                 <MenuItem Text="Export PDF (Alt + P)" IconCss="e-icons e-export-pdf" Id="DownloadSelectedPdf"
                                           Disabled="@(_isProcessing || _showSummary)" />
-                                <MenuItem Text="Export Excel (Alt + E)" IconCss="e-icons e-export-excel" Id="DownloadSelectedExcel"
-                                          Disabled="@(_isProcessing || _showSummary)" />
+                                <MenuItem Text="Export Excel (Alt + E)" IconCss="e-icons e-export-excel"
+                                          Id="DownloadSelectedExcel" Disabled="@(_isProcessing || _showSummary)" />
                             </MenuItems>
                         </MenuItem>
                     </MenuItems>

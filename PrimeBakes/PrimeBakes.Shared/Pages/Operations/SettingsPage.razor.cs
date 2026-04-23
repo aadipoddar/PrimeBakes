@@ -8,10 +8,8 @@ using Syncfusion.Blazor.DropDowns;
 
 namespace PrimeBakes.Shared.Pages.Operations;
 
-public partial class SettingsPage : IAsyncDisposable
+public partial class SettingsPage
 {
-    private HotKeysContext _hotKeysContext;
-
     #region Fields
 
     // UI State
@@ -109,11 +107,6 @@ public partial class SettingsPage : IAsyncDisposable
 
     private async Task LoadData()
     {
-        _hotKeysContext = HotKeys.CreateContext()
-            .Add(ModCode.Ctrl, Code.S, SaveSettings, "Save", Exclude.None)
-            .Add(ModCode.Ctrl, Code.R, ShowResetConfirmation, "Reset settings", Exclude.None)
-            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None);
-
         try
         {
             // Load all settings
@@ -655,11 +648,5 @@ public partial class SettingsPage : IAsyncDisposable
 
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.OperationsDashboard);
-
-    public ValueTask DisposeAsync()
-    {
-        GC.SuppressFinalize(this);
-        return ((IAsyncDisposable)HotKeys).DisposeAsync();
-    }
     #endregion
 }

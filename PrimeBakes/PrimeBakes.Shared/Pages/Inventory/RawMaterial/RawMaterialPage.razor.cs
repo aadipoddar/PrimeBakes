@@ -12,10 +12,9 @@ using Syncfusion.Blazor.Grids;
 
 namespace PrimeBakes.Shared.Pages.Inventory.RawMaterial;
 
-public partial class RawMaterialPage : IAsyncDisposable
+public partial class RawMaterialPage
 {
     private UserModel _user;
-    private HotKeysContext _hotKeysContext;
     private bool _isLoading = true;
     private bool _isProcessing = false;
     private bool _showDeleted = false;
@@ -54,22 +53,10 @@ public partial class RawMaterialPage : IAsyncDisposable
 
         _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Inventory], true);
         await LoadData();
-        _isLoading = false;
-        StateHasChanged();
     }
 
     private async Task LoadData()
     {
-        _hotKeysContext = HotKeys.CreateContext()
-            .Add(ModCode.Ctrl, Code.S, SaveRawMaterial, "Save", Exclude.None)
-            .Add(ModCode.Ctrl, Code.E, ExportExcel, "Export Excel", Exclude.None)
-            .Add(ModCode.Ctrl, Code.P, ExportPdf, "Export PDF", Exclude.None)
-            .Add(ModCode.Ctrl, Code.N, ResetPage, "Reset the page", Exclude.None)
-            .Add(ModCode.Ctrl, Code.Delete, ToggleDeleted, "Show/Hide Deleted", Exclude.None)
-            .Add(ModCode.Ctrl, Code.B, NavigateBack, "Back", Exclude.None)
-            .Add(Code.Insert, EditSelectedItem, "Edit selected", Exclude.None)
-            .Add(Code.Delete, DeleteSelectedItem, "Delete / Recover selected", Exclude.None);
-
         _rawMaterials = await CommonData.LoadTableData<RawMaterialModel>(TableNames.RawMaterial);
         _categories = await CommonData.LoadTableData<RawMaterialCategoryModel>(TableNames.RawMaterialCategory);
         _taxes = await CommonData.LoadTableData<TaxModel>(TableNames.Tax);
@@ -79,6 +66,9 @@ public partial class RawMaterialPage : IAsyncDisposable
 
         if (_sfGrid is not null)
             await _sfGrid.Refresh();
+
+        _isLoading = false;
+        StateHasChanged();
     }
     #endregion
 
@@ -475,11 +465,5 @@ public partial class RawMaterialPage : IAsyncDisposable
 
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);
-
-    public ValueTask DisposeAsync()
-    {
-        GC.SuppressFinalize(this);
-        return ((IAsyncDisposable)HotKeys).DisposeAsync();
-    }
     #endregion
 }

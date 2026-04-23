@@ -4,6 +4,8 @@
 
 <PageTitle>Store - Prime Bakes</PageTitle>
 
+<MudBlazor.MudHotkey Key=JsKey.KeyB KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateToDashboard" />
+
 @if (_isLoading || _user is null)
 {
 	<AnimatedLoader Visible="true" />
