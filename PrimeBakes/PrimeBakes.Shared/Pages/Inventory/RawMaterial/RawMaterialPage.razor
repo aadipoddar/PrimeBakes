@@ -86,22 +86,19 @@ else
                         <div class="form-field">
                             <label class="field-label">Code <span class="required">*</span></label>
                             <SfTextBox @bind-Value="_rawMaterial.Code" Placeholder="Auto-generated"
-                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" Readonly="true" />
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox readonly-field"
+                                       Readonly="true" TabIndex="-1" />
                         </div>
 
                         <!-- Category Autocomplete -->
                         <div class="form-field">
-                            <label class="field-label">Category <span class="required">*</span></label>
-                            <SfAutoComplete TValue="string" TItem="RawMaterialCategoryModel"
-                                            @bind-Value="_selectedCategoryName"
+                            <AutoCompleteWithAdd TValue="string" TItem="RawMaterialCategoryModel"
+                                            Value="_selectedCategoryName"
                                             DataSource="@_categories"
                                             Placeholder="Select category"
-                                            FloatLabelType="FloatLabelType.Never"
-                                            CssClass="custom-textbox">
-                                <AutoCompleteFieldSettings Value="Name" />
-                                <AutoCompleteEvents TValue="string" TItem="RawMaterialCategoryModel"
-                                                    ValueChange="OnCategoryChange" />
-                            </SfAutoComplete>
+                                            Label="Category" ValueChange="OnCategoryChange"
+                                            FieldValue="@nameof(RawMaterialCategoryModel.Name)"
+                                            AddNewRoute="@PageRouteNames.RawMaterialCategory" />
                         </div>
 
                         <!-- Rate -->
@@ -120,17 +117,13 @@ else
 
                         <!-- Tax Autocomplete -->
                         <div class="form-field">
-                            <label class="field-label">Tax <span class="required">*</span></label>
-                            <SfAutoComplete TValue="string" TItem="TaxModel"
-                                            @bind-Value="_selectedTaxCode"
+                            <AutoCompleteWithAdd TValue="string" TItem="TaxModel"
+                                            Value="_selectedTaxCode"
                                             DataSource="@_taxes"
                                             Placeholder="Select tax"
-                                            FloatLabelType="FloatLabelType.Never"
-                                            CssClass="custom-textbox">
-                                <AutoCompleteFieldSettings Value="Code" />
-                                <AutoCompleteEvents TValue="string" TItem="TaxModel"
-                                                    ValueChange="OnTaxChange" />
-                            </SfAutoComplete>
+                                            Label="Tax" ValueChange="OnTaxChange"
+                                            FieldValue="@nameof(TaxModel.Code)"
+                                            AddNewRoute="@PageRouteNames.Tax" />
                         </div>
 
                         <!-- Remarks -->

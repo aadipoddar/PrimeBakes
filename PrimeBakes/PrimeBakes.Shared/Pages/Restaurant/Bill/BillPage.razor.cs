@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 using PrimeBakes.Shared.Components.Dialog;
-
+using PrimeBakes.Shared.Components.Input;
 using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Operations;
 using PrimeBakesLibrary.Data.Restaurant.Bill;
@@ -64,7 +64,7 @@ public partial class BillPage
 	private decimal _paymentAmount = 0;
 	private decimal _remainingAmount => _bill.TotalAmount - _payments.Sum(p => p.Amount);
 
-	private SfAutoComplete<ProductLocationOverviewModel, ProductLocationOverviewModel> _sfItemAutoComplete;
+	private AutoCompleteWithAdd<ProductLocationOverviewModel, ProductLocationOverviewModel> _sfItemAutoComplete;
 	private SfGrid<BillItemCartModel> _sfCartGrid;
 
 	ToastNotification _toastNotification;
@@ -122,7 +122,6 @@ public partial class BillPage
 		{
 			_locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
 			_locations = [.. _locations.OrderBy(s => s.Name)];
-
 			_selectedLocation = _locations.FirstOrDefault(s => s.Id == _user.LocationId);
 		}
 		catch (Exception ex)

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 using PrimeBakes.Shared.Components.Dialog;
+using PrimeBakes.Shared.Components.Input;
 
 using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Inventory.Purchase;
@@ -41,7 +42,7 @@ public partial class RawMaterialStockAdjustmentPage
         new() { Text = "Delete (Del)", Id = "DeleteCart", IconCss = "e-icons e-delete" }
     ];
 
-    private SfAutoComplete<RawMaterialModel, RawMaterialModel> _sfItemAutoComplete;
+    private AutoCompleteWithAdd<RawMaterialModel, RawMaterialModel> _sfItemAutoComplete;
     private SfGrid<RawMaterialStockAdjustmentCartModel> _sfCartGrid;
 
     private ToastNotification _toastNotification;
@@ -64,9 +65,9 @@ public partial class RawMaterialStockAdjustmentPage
         await LoadItems();
         await LoadExistingCart();
 
-		_isLoading = false;
-		StateHasChanged();
-	}
+        _isLoading = false;
+        StateHasChanged();
+    }
 
     private async Task LoadStock()
     {

@@ -32,8 +32,8 @@ public partial class OrderReport : IAsyncDisposable
 	private DateTime _fromDate = DateTime.Now.Date;
 	private DateTime _toDate = DateTime.Now.Date;
 
-	private LocationModel _selectedLocation = new();
-	private CompanyModel _selectedCompany = new();
+	private LocationModel? _selectedLocation = null;
+	private CompanyModel? _selectedCompany = null;
 	private string _selectedOrderStatus = "All";
 
 	private List<LocationModel> _locations = [];
@@ -93,25 +93,14 @@ public partial class OrderReport : IAsyncDisposable
 	private async Task LoadLocations()
 	{
 		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
-		_locations.Add(new()
-		{
-			Id = 0,
-			Name = "All Locations"
-		});
 		_locations = [.. _locations.OrderBy(s => s.Name)];
-		_selectedLocation = _locations.FirstOrDefault(_ => _user.LocationId == 1 ? _.Id == 0 : _.Id == _user.LocationId);
+		_selectedLocation = _locations.FirstOrDefault(_ => _.Id == _user.LocationId);
 	}
 
 	private async Task LoadCompanies()
 	{
 		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
-		_companies.Add(new()
-		{
-			Id = 0,
-			Name = "All Companies"
-		});
 		_companies = [.. _companies.OrderBy(s => s.Name)];
-		_selectedCompany = _companies.FirstOrDefault(_ => _.Id == 0);
 	}
 
 	private async Task LoadTransactionOverviews()

@@ -30,8 +30,8 @@ public partial class KitchenIssueItemReport : IAsyncDisposable
     private DateTime _fromDate = DateTime.Now.Date;
     private DateTime _toDate = DateTime.Now.Date;
 
-    private CompanyModel _selectedCompany = new();
-    private KitchenModel _selectedKitchen = new();
+    private CompanyModel? _selectedCompany = null;
+    private KitchenModel? _selectedKitchen = null;
 
     private List<CompanyModel> _companies = [];
     private List<KitchenModel> _kitchens = [];
@@ -79,25 +79,13 @@ public partial class KitchenIssueItemReport : IAsyncDisposable
     private async Task LoadCompanies()
     {
         _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
-        _companies.Add(new()
-        {
-            Id = 0,
-            Name = "All Companies"
-        });
         _companies = [.. _companies.OrderBy(s => s.Name)];
-        _selectedCompany = _companies.FirstOrDefault(_ => _.Id == 0);
     }
 
     private async Task LoadKitchens()
     {
         _kitchens = await CommonData.LoadTableDataByStatus<KitchenModel>(TableNames.Kitchen);
-        _kitchens.Add(new()
-        {
-            Id = 0,
-            Name = "All Kitchens"
-        });
         _kitchens = [.. _kitchens.OrderBy(s => s.Name)];
-        _selectedKitchen = _kitchens.FirstOrDefault(_ => _.Id == 0);
     }
 
     private async Task LoadTransactionOverviews()

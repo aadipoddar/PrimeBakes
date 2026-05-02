@@ -119,27 +119,26 @@ else
 
                             <!-- Company -->
                             <div class="form-field">
-                                <label class="field-label">Company</label>
-                                <SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedCompany"
-                                                TValue="CompanyModel" TItem="CompanyModel" DataSource="@_companies"
-                                                Placeholder="All Companies" AllowFiltering="true"
-                                                FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
-                                    <AutoCompleteEvents TItem="CompanyModel" TValue="CompanyModel"
-                                                        ValueChange="OnCompanyChanged" />
-                                    <AutoCompleteFieldSettings Value="Name" />
-                                </SfAutoComplete>
+                                <AutoCompleteWithAdd TItem="CompanyModel" TValue="CompanyModel"
+                                                Value="@_selectedCompany"
+                                                DataSource="@_companies"
+                                                Placeholder="All Companies"
+                                                Label="Company" Required="false"
+                                                ValueChange="OnCompanyChanged"
+                                                FieldValue="@nameof(CompanyModel.Name)"
+                                                AddNewRoute="@PageRouteNames.CompanyMaster" />
                             </div>
 
                             <!-- Party -->
                             <div class="form-field">
-                                <label class="field-label">Party</label>
-                                <SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedParty" TValue="LedgerModel"
-                                                TItem="LedgerModel" DataSource="@_parties" Placeholder="All Parties"
-                                                AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
-                                    <AutoCompleteEvents TItem="LedgerModel" TValue="LedgerModel"
-                                                        ValueChange="OnPartyChanged" />
-                                    <AutoCompleteFieldSettings Value="Name" />
-                                </SfAutoComplete>
+                                <AutoCompleteWithAdd TItem="LedgerModel" TValue="LedgerModel"
+                                                Value="@_selectedParty"
+                                                DataSource="@_parties"
+                                                Placeholder="All Parties"
+                                                Label="Party" Required="false"
+                                                ValueChange="OnPartyChanged"
+                                                FieldValue="@nameof(LedgerModel.Name)"
+                                                AddNewRoute="@PageRouteNames.LedgerMaster" />
                             </div>
                         </div>
                     </div>

@@ -676,3 +676,53 @@ h1:focus {
 	.dashboard-grid:last-child {
 		margin-bottom: 0;
 	}
+
+
+/* ================================================================
+   15. INPUT COMPONENTS
+   ================================================================ */
+
+.mac-field {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	align-items: center;
+	row-gap: 4px;
+}
+
+	/* row 1, col 1 */
+	.mac-field > .field-label {
+		grid-column: 1;
+		grid-row: 1;
+		margin-bottom: 0;
+	}
+
+/* row 2, spans both columns — comes after label in DOM so tab hits autocomplete before button */
+.mac-input {
+	grid-column: 1 / -1;
+	grid-row: 2;
+}
+
+/* row 1, col 2 — last in DOM so tabbed to after autocomplete */
+.mac-add-new {
+	grid-column: 2;
+	grid-row: 1;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 0;
+	background: none;
+	border: none;
+	cursor: pointer;
+	font-size: 11px;
+	font-weight: 500;
+	color: var(--primary-blue);
+	opacity: 0.7;
+	transition: opacity 0.15s ease, color 0.15s ease;
+	user-select: none;
+}
+
+	.mac-add-new:hover {
+		opacity: 1;
+		color: var(--dark-blue);
+		text-decoration: underline;
+	}

@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 using PrimeBakes.Shared.Components.Dialog;
-
+using PrimeBakes.Shared.Components.Input;
 using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Operations;
 using PrimeBakesLibrary.Data.Store.Masters;
@@ -64,7 +64,7 @@ public partial class SalePage
 	private decimal _paymentAmount = 0;
 	private decimal _remainingAmount => _sale.TotalAmount - _payments.Sum(p => p.Amount);
 
-	private SfAutoComplete<ProductLocationOverviewModel?, ProductLocationOverviewModel> _sfItemAutoComplete;
+	private AutoCompleteWithAdd<ProductLocationOverviewModel?, ProductLocationOverviewModel> _sfItemAutoComplete;
 	private SfGrid<SaleItemCartModel> _sfCartGrid;
 
 	ToastNotification _toastNotification;

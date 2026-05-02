@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
-
+using PrimeBakes.Shared.Components.Input;
 using PrimeBakesLibrary.Data.Accounts.FinancialAccounting;
 using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Operations;
@@ -27,9 +27,9 @@ public partial class FinancialAccountingPage
 	private bool _isLoading = true;
 	private bool _isProcessing = false;
 
-	private CompanyModel _selectedCompany = new();
-	private VoucherModel _selectedVoucher = new();
-	private FinancialYearModel _selectedFinancialYear = new();
+	private CompanyModel? _selectedCompany = null;
+	private VoucherModel? _selectedVoucher = null;
+	private FinancialYearModel? _selectedFinancialYear = null;
 	private LedgerModel? _selectedLedger = null;
 	private FinancialAccountingLedgerOverviewModel? _selectedAccountingLedger = null;
 	private FinancialAccountingItemCartModel _selectedCart = new();
@@ -46,7 +46,7 @@ public partial class FinancialAccountingPage
 		new() { Text = "Delete (Del)", Id = "DeleteCart", IconCss = "e-icons e-trash", Target = ".e-content" }
 	];
 
-	private SfAutoComplete<LedgerModel?, LedgerModel> _sfLedgerAutoComplete;
+	private AutoCompleteWithAdd<LedgerModel?, LedgerModel> _sfLedgerAutoComplete;
 	private SfGrid<FinancialAccountingItemCartModel> _sfCartGrid;
 
 	private ToastNotification _toastNotification;

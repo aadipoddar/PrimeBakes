@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 using PrimeBakes.Shared.Components.Dialog;
+using PrimeBakes.Shared.Components.Input;
 
 using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Inventory.Kitchen;
@@ -25,7 +26,6 @@ namespace PrimeBakes.Shared.Pages.Inventory.Kitchen;
 
 public partial class KitchenIssuePage
 {
-
     [Parameter] public int? Id { get; set; }
 
     private UserModel _user;
@@ -53,7 +53,7 @@ public partial class KitchenIssuePage
         new() { Text = "Delete (Del)", Id = "DeleteCart", IconCss = "e-icons e-trash", Target = ".e-content" }
     ];
 
-    private SfAutoComplete<RawMaterialModel?, RawMaterialModel> _sfItemAutoComplete;
+    private AutoCompleteWithAdd<RawMaterialModel?, RawMaterialModel> _sfItemAutoComplete;
     private SfGrid<KitchenIssueItemCartModel> _sfCartGrid;
 
     private ToastNotification _toastNotification;

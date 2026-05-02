@@ -95,66 +95,43 @@ else
 					</div>
 					<div class="section-body">
 						<div class="form-grid">
+
 							<!-- Company -->
 							<div class="form-field">
-								<label class="field-label">
-									Company <span class="required">*</span>
-								</label>
-								<SfAutoComplete Value="@_selectedCompany" TValue="CompanyModel" TItem="CompanyModel"
-												DataSource="@_companies" Placeholder="Select a Company"
-												FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
-												FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
-												CssClass="custom-autocomplete">
-									<AutoCompleteEvents TItem="CompanyModel" TValue="CompanyModel"
-														ValueChange="OnCompanyChanged" />
-									<AutoCompleteFieldSettings Value="Name" />
-								</SfAutoComplete>
+								<AutoCompleteWithAdd TItem="CompanyModel" TValue="CompanyModel"
+													 Value="_selectedCompany"
+													 DataSource="@_companies"
+													 Placeholder="Select a Company"
+													 Label="Company" ValueChange="OnCompanyChanged"
+													 FieldValue="@nameof(CompanyModel.Name)"
+													 AddNewRoute="@PageRouteNames.CompanyMaster" />
 							</div>
 
 							<!-- Party -->
 							<div class="form-field">
-								<label class="field-label">
-									Party <span class="required">*</span>
-								</label>
-								<SfAutoComplete Value="@_selectedParty" TValue="LedgerModel" TItem="LedgerModel"
-												DataSource="@_parties" Placeholder="Select a Party"
-												FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
-												FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
-												CssClass="custom-autocomplete">
-									<AutoCompleteEvents TItem="LedgerModel" TValue="LedgerModel"
-														ValueChange="OnPartyChanged" />
-									<AutoCompleteFieldSettings Value="Name" />
-								</SfAutoComplete>
+								<AutoCompleteWithAdd TItem="LedgerModel" TValue="LedgerModel"
+													 Value="_selectedParty"
+													 DataSource="@_parties"
+													 Placeholder="Select a Party"
+													 Label="Party" ValueChange="OnPartyChanged"
+													 FieldValue="@nameof(LedgerModel.Name)"
+													 AddNewRoute="@PageRouteNames.LedgerMaster" />
 							</div>
 
-							<!-- Transaction Date and Financial Year -->
+							<!-- Transaction Date -->
 							<div class="form-field">
-								<label class="field-label">
-									Transaction Date <span class="required">*</span> / Financial Year
-								</label>
-								<div class="date-year-wrapper">
-									<SfDatePicker Value="@_purchase.TransactionDateTime" TValue="DateTime" Format="dd/MM/yy"
-												  Placeholder="Select Date" FloatLabelType="FloatLabelType.Never"
-												  CssClass="custom-datepicker">
-										<DatePickerEvents TValue="DateTime" ValueChange="OnTransactionDateChanged" />
-									</SfDatePicker>
-									<SfTextBox
-									Value="@($"{_selectedFinancialYear?.StartDate:yyyy} to {_selectedFinancialYear?.EndDate:yyyy}")"
-									Readonly="true" Placeholder="Financial Year" FloatLabelType="FloatLabelType.Never"
-									CssClass="custom-textbox readonly-field" />
-								</div>
+								<DatePickerWithAdd @bind-Value="_purchase.TransactionDateTime"
+												   FinancialYear="@_selectedFinancialYear" />
 							</div>
 
-							<!-- Transaction No with Auto-generate -->
+							<!-- Transaction No -->
 							<div class="form-field">
 								<label class="field-label">
 									Transaction No <span class="required">*</span>
 								</label>
-								<div class="transaction-no-wrapper">
-									<SfTextBox @bind-Value="_purchase.TransactionNo" Placeholder="Transaction No"
-											   FloatLabelType="FloatLabelType.Never" Readonly="true"
-											   CssClass="custom-textbox readonly-field" />
-								</div>
+								<SfTextBox @bind-Value="_purchase.TransactionNo" Placeholder="Transaction No"
+										   FloatLabelType="FloatLabelType.Never" Readonly="true" TabIndex="-1"
+										   CssClass="custom-textbox readonly-field" />
 							</div>
 
 							<!-- Challan No -->
@@ -162,10 +139,8 @@ else
 								<label class="field-label">
 									Challan No
 								</label>
-								<div class="transaction-no-wrapper">
-									<SfTextBox @bind-Value="_purchase.ChallanNo" Placeholder="Enter Challan No"
-											   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-								</div>
+								<SfTextBox @bind-Value="_purchase.ChallanNo" Placeholder="Enter Challan No"
+										   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
 							</div>
 
 							<!-- Remarks -->
@@ -176,6 +151,7 @@ else
 								<SfTextBox @bind-Value="_purchase.Remarks" Multiline="true" Placeholder="Enter remarks..."
 										   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox textarea-field-small" />
 							</div>
+
 						</div>
 					</div>
 				</div>
@@ -198,7 +174,7 @@ else
 							<!-- Sub Total -->
 							<div class="financial-row">
 								<label class="financial-label">Sub Total</label>
-								<SfNumericTextBox Value="@_purchase.TotalAfterTax" Readonly="true" TValue="decimal"
+								<SfNumericTextBox Value="@_purchase.TotalAfterTax" Readonly="true" TValue="decimal" TabIndex="-1"
 												  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
 												  CssClass="custom-numeric readonly-field" />
 							</div>
@@ -248,7 +224,7 @@ else
 							<!-- Total Amount -->
 							<div class="financial-row total-row">
 								<label class="financial-label-total">Total Amount</label>
-								<SfNumericTextBox Value="@_purchase.TotalAmount" Readonly="true" TValue="decimal"
+								<SfNumericTextBox Value="@_purchase.TotalAmount" Readonly="true" TValue="decimal" TabIndex="-1"
 												  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
 												  CssClass="custom-numeric total-field" />
 							</div>
@@ -274,17 +250,15 @@ else
 				<div class="section-body">
 					<!-- First Row: Item Selection and Basic Info -->
 					<div class="cart-input-row">
+
+						<!-- Item -->
 						<div class="cart-field cart-field-wide">
-							<label class="cart-label">Item <span class="required">*</span></label>
-							<SfAutoComplete @ref="_sfItemAutoComplete" Value="@_selectedRawMaterial"
-											TValue="RawMaterialModel?" TItem="RawMaterialModel" DataSource="@_rawMaterials"
-											Placeholder="Select Item (Ctrl + F)" FloatLabelType="FloatLabelType.Never"
-											AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
-											CssClass="custom-autocomplete">
-								<AutoCompleteEvents TItem="RawMaterialModel" TValue="RawMaterialModel?"
-													ValueChange="OnItemChanged" />
-								<AutoCompleteFieldSettings Value="Name" />
-							</SfAutoComplete>
+							<AutoCompleteWithAdd @ref="_sfItemAutoComplete" Value="@_selectedRawMaterial"
+												 TValue="RawMaterialModel?" TItem="RawMaterialModel" DataSource="@_rawMaterials"
+												 Placeholder="Select Item (Ctrl + F)"
+												 Label="Item" ValueChange="OnItemChanged"
+												 FieldValue="@nameof(RawMaterialModel.Name)"
+												 AddNewRoute="@PageRouteNames.RawMaterial" />
 						</div>
 
 						<div class="cart-field cart-field-small">
@@ -371,7 +345,7 @@ else
 						<div class="cart-field">
 							<label class="cart-label">Base</label>
 							<SfNumericTextBox Value="@_selectedCart.BaseTotal" TValue="decimal" Readonly="true"
-											  ShowSpinButton="false" FloatLabelType="FloatLabelType.Never"
+											  ShowSpinButton="false" FloatLabelType="FloatLabelType.Never" TabIndex="-1"
 											  CssClass="custom-numeric readonly-field" Format="N2" />
 						</div>
 
@@ -379,7 +353,7 @@ else
 						<div class="cart-field">
 							<label class="cart-label">Disc Amt</label>
 							<SfNumericTextBox Value="@_selectedCart.DiscountAmount" TValue="decimal" Readonly="true"
-											  ShowSpinButton="false" FloatLabelType="FloatLabelType.Never"
+											  ShowSpinButton="false" FloatLabelType="FloatLabelType.Never" TabIndex="-1"
 											  CssClass="custom-numeric readonly-field" Format="N2" />
 						</div>
 
@@ -387,7 +361,7 @@ else
 						<div class="cart-field">
 							<label class="cart-label">CGST Amt</label>
 							<SfNumericTextBox Value="@_selectedCart.CGSTAmount" TValue="decimal" Readonly="true"
-											  ShowSpinButton="false" FloatLabelType="FloatLabelType.Never"
+											  ShowSpinButton="false" FloatLabelType="FloatLabelType.Never" TabIndex="-1"
 											  CssClass="custom-numeric readonly-field" Format="N2" />
 						</div>
 
@@ -395,7 +369,7 @@ else
 						<div class="cart-field">
 							<label class="cart-label">SGST Amt</label>
 							<SfNumericTextBox Value="@_selectedCart.SGSTAmount" TValue="decimal" Readonly="true"
-											  ShowSpinButton="false" FloatLabelType="FloatLabelType.Never"
+											  ShowSpinButton="false" FloatLabelType="FloatLabelType.Never" TabIndex="-1"
 											  CssClass="custom-numeric readonly-field" Format="N2" />
 						</div>
 
@@ -403,7 +377,7 @@ else
 						<div class="cart-field">
 							<label class="cart-label">IGST Amt</label>
 							<SfNumericTextBox Value="@_selectedCart.IGSTAmount" TValue="decimal" Readonly="true"
-											  ShowSpinButton="false" FloatLabelType="FloatLabelType.Never"
+											  ShowSpinButton="false" FloatLabelType="FloatLabelType.Never" TabIndex="-1"
 											  CssClass="custom-numeric readonly-field" Format="N2" />
 						</div>
 
@@ -411,7 +385,7 @@ else
 						<div class="cart-field">
 							<label class="cart-label">Total</label>
 							<SfNumericTextBox Value="@_selectedCart.Total" TValue="decimal" Readonly="true"
-											  ShowSpinButton="false" FloatLabelType="FloatLabelType.Never"
+											  ShowSpinButton="false" FloatLabelType="FloatLabelType.Never" TabIndex="-1"
 											  CssClass="custom-numeric readonly-field" Format="N2" />
 						</div>
 
@@ -443,8 +417,7 @@ else
 							CssClass="professional-grid" ContextMenuItems="@_cartGridContextMenuItems"
 							Toolbar="@(new List<string>() { "Search" })">
 
-						<GridEvents TValue="PurchaseItemCartModel"
-									ContextMenuItemClicked="OnCartGridContextMenuItemClicked" />
+						<GridEvents TValue="PurchaseItemCartModel" ContextMenuItemClicked="OnCartGridContextMenuItemClicked" />
 
 						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 

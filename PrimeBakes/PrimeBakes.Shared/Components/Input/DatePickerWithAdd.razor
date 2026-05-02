@@ -1,0 +1,54 @@
+@if (_isFocused && AddNewRoute is not null)
+{
+	<MudBlazor.MudHotkey Key="JsKey.F12" OnHotkeyPressed="NavigateToAddNew" />
+}
+
+<div class="mac-field">
+	@if (Label is not null)
+	{
+		<label class="field-label">
+			@Label
+			@if (Required)
+			{
+				<span class="required">*</span>
+			}
+			@if (FinancialYear is not null)
+			{
+				<text> / Financial Year</text>
+			}
+		</label>
+	}
+
+	<div class="mac-input">
+		<div class="date-year-wrapper">
+			<SfDatePicker @ref="_sfDatePicker" TValue="DateTime" Value="@Value"
+						  EnableMask="true" Format="dd/MM/yy"
+						  Placeholder="@Placeholder"
+						  FloatLabelType="FloatLabelType.Never"
+						  Enabled="@(!Disabled)"
+						  CssClass="custom-datepicker">
+				<DatePickerEvents TValue="DateTime" ValueChange="@OnValueChangeInternal" Focus="@OnFocus" Blur="@OnBlur" />
+			</SfDatePicker>
+			@if (FinancialYear is not null)
+			{
+				<SfTextBox Value="@($"{FinancialYear.StartDate:yyyy} to {FinancialYear.EndDate:yyyy}")"
+						   Readonly="true" Placeholder="Financial Year"
+						   FloatLabelType="FloatLabelType.Never"
+						   TabIndex="-1" CssClass="custom-textbox readonly-field" />
+			}
+		</div>
+	</div>
+
+	@if (Label is not null && AddNewRoute is not null && !Disabled)
+	{
+		<button class="mac-add-new" tabindex="-1" @onclick="NavigateToAddNew" title="@AddNewLabel">
+			<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24"
+				 fill="none" stroke="currentColor" stroke-width="2.5"
+				 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+				<line x1="12" y1="5" x2="12" y2="19" />
+				<line x1="5" y1="12" x2="19" y2="12" />
+			</svg>
+			@AddNewLabel
+		</button>
+	}
+</div>

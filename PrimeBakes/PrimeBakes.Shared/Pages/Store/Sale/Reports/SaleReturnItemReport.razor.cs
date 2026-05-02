@@ -30,9 +30,9 @@ public partial class SaleReturnItemReport : IAsyncDisposable
     private DateTime _fromDate = DateTime.Now.Date;
     private DateTime _toDate = DateTime.Now.Date;
 
-    private CompanyModel _selectedCompany = new();
-    private LocationModel _selectedLocation = new();
-    private LedgerModel _selectedParty = new();
+    private CompanyModel? _selectedCompany = null;
+    private LocationModel? _selectedLocation = null;
+    private LedgerModel? _selectedParty = null;
 
     private List<CompanyModel> _companies = [];
     private List<LocationModel> _locations = [];
@@ -82,11 +82,6 @@ public partial class SaleReturnItemReport : IAsyncDisposable
     private async Task LoadLocations()
     {
         _locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
-        _locations.Add(new()
-        {
-            Id = 0,
-            Name = "All Locations"
-        });
         _locations = [.. _locations.OrderBy(s => s.Name)];
         _selectedLocation = _locations.FirstOrDefault(_ => _.Id == _user.LocationId);
     }
@@ -94,25 +89,13 @@ public partial class SaleReturnItemReport : IAsyncDisposable
     private async Task LoadCompanies()
     {
         _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
-        _companies.Add(new()
-        {
-            Id = 0,
-            Name = "All Companies"
-        });
         _companies = [.. _companies.OrderBy(s => s.Name)];
-        _selectedCompany = _companies.FirstOrDefault(_ => _.Id == 0);
     }
 
     private async Task LoadParties()
     {
         _parties = await CommonData.LoadTableDataByStatus<LedgerModel>(TableNames.Ledger);
-        _parties.Add(new()
-        {
-            Id = 0,
-            Name = "All Parties"
-        });
         _parties = [.. _parties.OrderBy(s => s.Name)];
-        _selectedParty = _parties.FirstOrDefault(_ => _.Id == 0);
     }
 
     private async Task LoadTransactionOverviews()

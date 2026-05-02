@@ -77,24 +77,9 @@ else
 					<div class="form-grid">
 						<!-- Transaction Date and Financial Year -->
 						<div class="form-field">
-							<label class="field-label">
-								Transaction Date <span class="required">*</span>
-							</label>
-							<SfDatePicker Value="@_transactionDateTime" TValue="DateTime" Format="dd/MM/yy"
-										  Placeholder="Select Date" FloatLabelType="FloatLabelType.Never"
-										  CssClass="custom-datepicker">
-								<DatePickerEvents TValue="DateTime" ValueChange="OnTransactionDateChanged" />
-							</SfDatePicker>
-						</div>
-
-						<div class="form-field">
-							<label class="field-label">
-								Financial Year
-							</label>
-							<SfTextBox
-							Value="@($"{_selectedFinancialYear?.StartDate:yyyy} to {_selectedFinancialYear?.EndDate:yyyy}")"
-							Readonly="true" Placeholder="Financial Year" FloatLabelType="FloatLabelType.Never"
-							CssClass="custom-textbox readonly-field" />
+							<DatePickerWithAdd @bind-Value="_transactionDateTime"
+											  FinancialYear="@_selectedFinancialYear"
+											  ValueChange="OnTransactionDateChanged" />
 						</div>
 
 						<!-- Transaction No -->
@@ -103,7 +88,7 @@ else
 								Transaction No <span class="required">*</span>
 							</label>
 							<SfTextBox @bind-Value="_transactionNo" Placeholder="Enter Transaction No"
-									   FloatLabelType="FloatLabelType.Never" Readonly=true
+								   FloatLabelType="FloatLabelType.Never" Readonly="true" TabIndex="-1"
 									   CssClass="custom-textbox readonly-field" />
 						</div>
 					</div>
@@ -128,23 +113,20 @@ else
 					<div class="cart-input-row">
 						<!-- Item Selection -->
 						<div class="cart-field cart-field-wide">
-							<label class="field-label">Item Name <span class="required">*</span></label>
-							<SfAutoComplete @ref="_sfItemAutoComplete" Value="@_selectedRawMaterial"
+							<AutoCompleteWithAdd @ref="_sfItemAutoComplete" Value="@_selectedRawMaterial"
 											TValue="RawMaterialModel" TItem="RawMaterialModel" DataSource="@_rawMaterials"
-											Placeholder="Select Item (Ctrl + F)" FloatLabelType="FloatLabelType.Never"
-											AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
-											CssClass="custom-autocomplete">
-								<AutoCompleteEvents TItem="RawMaterialModel" TValue="RawMaterialModel"
-													ValueChange="OnItemChanged" />
-								<AutoCompleteFieldSettings Value="Name" />
-							</SfAutoComplete>
+											Placeholder="Select Item (Ctrl + F)"
+											Label="Item Name" ValueChange="OnItemChanged"
+											FieldValue="@nameof(RawMaterialModel.Name)"
+											AddNewRoute="@PageRouteNames.RawMaterial" />
 						</div>
 
 						<!-- Current Stock -->
 						<div class="cart-field">
 							<label class="field-label">Current Stock</label>
 							<SfNumericTextBox Value="@_selectedCart.Stock" TValue="decimal" ShowSpinButton="false"
-											  Readonly="true" FloatLabelType="FloatLabelType.Never" CssClass="custom-numeric" />
+										  Readonly="true" FloatLabelType="FloatLabelType.Never"
+										  CssClass="custom-numeric readonly-field" TabIndex="-1" />
 						</div>
 
 						<!-- New Quantity -->
@@ -161,14 +143,16 @@ else
 						<div class="cart-field">
 							<label class="field-label">Rate</label>
 							<SfNumericTextBox Value="@_selectedCart.Rate" TValue="decimal" ShowSpinButton="false"
-											  Readonly="true" FloatLabelType="FloatLabelType.Never" CssClass="custom-numeric" />
+										  Readonly="true" FloatLabelType="FloatLabelType.Never"
+										  CssClass="custom-numeric readonly-field" TabIndex="-1" />
 						</div>
 
 						<!-- Total -->
 						<div class="form-field">
 							<label class="field-label">Total Amount</label>
 							<SfNumericTextBox Value="@_selectedCart.Total" TValue="decimal" ShowSpinButton="false"
-											  Readonly="true" FloatLabelType="FloatLabelType.Never" CssClass="custom-numeric" />
+										  Readonly="true" FloatLabelType="FloatLabelType.Never"
+										  CssClass="custom-numeric readonly-field" TabIndex="-1" />
 						</div>
 
 						<!-- Add Button -->

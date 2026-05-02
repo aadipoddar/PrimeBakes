@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 using PrimeBakes.Shared.Components.Dialog;
+using PrimeBakes.Shared.Components.Input;
 
 using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Inventory.Stock;
@@ -43,7 +44,7 @@ public partial class ProductStockAdjustment
         new() { Text = "Delete (Del)", Id = "DeleteCart", IconCss = "e-icons e-delete" }
     ];
 
-    private SfAutoComplete<ProductLocationOverviewModel?, ProductLocationOverviewModel> _sfItemAutoComplete;
+    private AutoCompleteWithAdd<ProductLocationOverviewModel?, ProductLocationOverviewModel> _sfItemAutoComplete;
     private SfGrid<ProductStockAdjustmentCartModel> _sfCartGrid;
 
     private ToastNotification _toastNotification;
@@ -66,9 +67,9 @@ public partial class ProductStockAdjustment
         await LoadItems();
         await LoadExistingCart();
 
-		_isLoading = false;
-		StateHasChanged();
-	}
+        _isLoading = false;
+        StateHasChanged();
+    }
 
     private async Task LoadLocations()
     {

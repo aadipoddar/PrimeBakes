@@ -119,15 +119,14 @@ else
                             </div>
 
                             <div class="form-field">
-                                <label class="field-label">Outlet</label>
-                                <SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedLocation"
-                                                TValue="LocationModel" TItem="LocationModel" DataSource="@_locations"
-                                                Placeholder="Select an Outlet" AllowFiltering="true"
-                                                FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
-                                    <AutoCompleteEvents TItem="LocationModel" TValue="LocationModel"
-                                                        ValueChange="OnLocationChanged" />
-                                    <AutoCompleteFieldSettings Value="Name" />
-                                </SfAutoComplete>
+                                <AutoCompleteWithAdd TItem="LocationModel" TValue="LocationModel"
+                                                Value="@_selectedLocation"
+                                                DataSource="@_locations"
+                                                Placeholder="Select an Outlet"
+                                                Label="Outlet" Required="false"
+                                                ValueChange="OnLocationChanged"
+                                                FieldValue="@nameof(LocationModel.Name)"
+                                                AddNewRoute="@PageRouteNames.Location" />
                             </div>
                         </div>
                     </div>

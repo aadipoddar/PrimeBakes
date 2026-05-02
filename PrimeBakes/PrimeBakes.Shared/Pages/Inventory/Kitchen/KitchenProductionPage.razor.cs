@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 using PrimeBakes.Shared.Components.Dialog;
+using PrimeBakes.Shared.Components.Input;
 
 using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Inventory.Kitchen;
@@ -49,7 +50,7 @@ public partial class KitchenProductionPage
         new() { Text = "Delete (Del)", Id = "DeleteCart", IconCss = "e-icons e-trash", Target = ".e-content" }
     ];
 
-    private SfAutoComplete<ProductModel?, ProductModel> _sfItemAutoComplete;
+    private AutoCompleteWithAdd<ProductModel?, ProductModel> _sfItemAutoComplete;
     private SfGrid<KitchenProductionProductCartModel> _sfCartGrid;
 
     private ToastNotification _toastNotification;

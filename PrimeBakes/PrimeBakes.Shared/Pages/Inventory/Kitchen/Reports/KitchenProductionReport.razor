@@ -123,28 +123,26 @@ else
 
 							<!-- Company -->
 							<div class="form-field">
-								<label class="field-label">Company</label>
-								<SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedCompany"
-												TValue="CompanyModel" TItem="CompanyModel" DataSource="@_companies"
-												Placeholder="All Companies" AllowFiltering="true"
-												FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
-									<AutoCompleteEvents TItem="CompanyModel" TValue="CompanyModel"
-														ValueChange="OnCompanyChanged" />
-									<AutoCompleteFieldSettings Value="Name" />
-								</SfAutoComplete>
+								<AutoCompleteWithAdd TItem="CompanyModel" TValue="CompanyModel"
+												Value="@_selectedCompany"
+												DataSource="@_companies"
+												Placeholder="All Companies"
+												Label="Company" Required="false"
+												ValueChange="OnCompanyChanged"
+												FieldValue="@nameof(CompanyModel.Name)"
+												AddNewRoute="@PageRouteNames.CompanyMaster" />
 							</div>
 
 							<!-- Kitchen -->
 							<div class="form-field">
-								<label class="field-label">Kitchen</label>
-								<SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedKitchen"
-												TValue="LocationModel" TItem="LocationModel" DataSource="@_kitchens"
-												Placeholder="All Kitchens" AllowFiltering="true"
-												FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
-									<AutoCompleteEvents TItem="LocationModel" TValue="LocationModel"
-														ValueChange="OnKitchenChanged" />
-									<AutoCompleteFieldSettings Value="Name" />
-								</SfAutoComplete>
+								<AutoCompleteWithAdd TItem="KitchenModel" TValue="KitchenModel"
+												Value="@_selectedKitchen"
+												DataSource="@_kitchens"
+												Placeholder="All Kitchens"
+												Label="Kitchen" Required="false"
+												ValueChange="OnKitchenChanged"
+												FieldValue="@nameof(KitchenModel.Name)"
+												AddNewRoute="@PageRouteNames.Kitchen" />
 							</div>
 						</div>
 

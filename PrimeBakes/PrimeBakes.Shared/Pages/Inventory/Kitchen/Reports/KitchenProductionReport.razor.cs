@@ -32,11 +32,11 @@ public partial class KitchenProductionReport : IAsyncDisposable
     private DateTime _fromDate = DateTime.Now.Date;
     private DateTime _toDate = DateTime.Now.Date;
 
-    private CompanyModel _selectedCompany = new();
-    private LocationModel _selectedKitchen = new();
+    private CompanyModel? _selectedCompany = null;
+    private KitchenModel? _selectedKitchen = null;
 
     private List<CompanyModel> _companies = [];
-    private List<LocationModel> _kitchens = [];
+    private List<KitchenModel> _kitchens = [];
     private List<KitchenProductionOverviewModel> _transactionOverviews = [];
 
     private readonly List<ContextMenuItemModel> _gridContextMenuItems =
@@ -89,25 +89,13 @@ public partial class KitchenProductionReport : IAsyncDisposable
     private async Task LoadCompanies()
     {
         _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
-        _companies.Add(new()
-        {
-            Id = 0,
-            Name = "All Companies"
-        });
         _companies = [.. _companies.OrderBy(s => s.Name)];
-        _selectedCompany = _companies.FirstOrDefault(_ => _.Id == 0);
     }
 
     private async Task LoadKitchens()
     {
-        _kitchens = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
-        _kitchens.Add(new()
-        {
-            Id = 0,
-            Name = "All Kitchens"
-        });
+        _kitchens = await CommonData.LoadTableDataByStatus<KitchenModel>(TableNames.Kitchen);
         _kitchens = [.. _kitchens.OrderBy(s => s.Name)];
-        _selectedKitchen = _kitchens.FirstOrDefault(_ => _.Id == 0);
     }
 
     private async Task LoadTransactionOverviews()
@@ -176,7 +164,7 @@ public partial class KitchenProductionReport : IAsyncDisposable
         await LoadTransactionOverviews();
     }
 
-    private async Task OnKitchenChanged(Syncfusion.Blazor.DropDowns.ChangeEventArgs<LocationModel, LocationModel> args)
+    private async Task OnKitchenChanged(Syncfusion.Blazor.DropDowns.ChangeEventArgs<KitchenModel, KitchenModel> args)
     {
         _selectedKitchen = args.Value;
         await LoadTransactionOverviews();

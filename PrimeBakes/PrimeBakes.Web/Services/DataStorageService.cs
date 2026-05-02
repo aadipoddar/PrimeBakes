@@ -10,14 +10,26 @@ public class DataStorageService(ProtectedLocalStorage protectedLocalStorage) : I
 {
 	private readonly ProtectedLocalStorage _protectedLocalStorage = protectedLocalStorage;
 
-	public async Task SecureSaveAsync(string key, string value) =>
-		await _protectedLocalStorage.SetAsync(key, value);
+	public async Task SecureSaveAsync(string key, string value)
+	{
+		try
+		{
+			await _protectedLocalStorage.SetAsync(key, value);
+		}
+		catch { }
+	}
 
 	public async Task<string?> SecureGetAsync(string key) =>
 		(await _protectedLocalStorage.GetAsync<string>(key)).Value;
 
-	public async Task SecureRemove(string key) =>
-		await _protectedLocalStorage.DeleteAsync(key);
+	public async Task SecureRemove(string key)
+	{
+		try
+		{
+			await _protectedLocalStorage.DeleteAsync(key);
+		}
+		catch { }
+	}
 
 	public async Task SecureRemoveAll()
 	{

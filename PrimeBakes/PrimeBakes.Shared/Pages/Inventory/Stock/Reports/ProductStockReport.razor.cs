@@ -163,10 +163,10 @@ public partial class ProductStockReport : IAsyncDisposable
 
 	private async Task OnLocationChanged(Syncfusion.Blazor.DropDowns.ChangeEventArgs<LocationModel, LocationModel> args)
 	{
-		if (args.Value is null)
+		if (args.Value is null || args.Value.Id <= 0)
 			_selectedLocation = _locations.FirstOrDefault(l => l.Id == _user.LocationId);
-
-		_selectedLocation = args.Value;
+		else
+			_selectedLocation = args.Value;
 		await LoadStockData();
 	}
 

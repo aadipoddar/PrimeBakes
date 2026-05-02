@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 using PrimeBakes.Shared.Components.Dialog;
-
+using PrimeBakes.Shared.Components.Input;
 using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Inventory.Purchase;
 using PrimeBakesLibrary.Data.Operations;
@@ -49,7 +49,7 @@ public partial class PurchasePage
         new() { Text = "Delete (Del)", Id = "DeleteCart", IconCss = "e-icons e-trash", Target = ".e-content" }
     ];
 
-    private SfAutoComplete<RawMaterialModel?, RawMaterialModel> _sfItemAutoComplete;
+    private AutoCompleteWithAdd<RawMaterialModel?, RawMaterialModel> _sfItemAutoComplete;
     private SfGrid<PurchaseItemCartModel> _sfCartGrid;
     private DocumentUploadDialog _documentUploadDialog;
     private SfUploader _sfDocumentUploader;

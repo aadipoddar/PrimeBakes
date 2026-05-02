@@ -41,17 +41,18 @@ else
 					<div class="section-body">
 						<div class="filters-container">
 							<div class="filters-grid">
+
+								<!-- Location -->
 								<div class="form-field">
-									<label class="field-label">Location</label>
-									<SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedLocation"
-													TValue="LocationModel" TItem="LocationModel" DataSource="@_locations"
-													Placeholder="All Locations" AllowFiltering="true"
-													FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
-										<AutoCompleteEvents TItem="LocationModel" TValue="LocationModel"
-															ValueChange="OnLocationChanged" />
-										<AutoCompleteFieldSettings Value="Name" />
-									</SfAutoComplete>
+									<AutoCompleteWithAdd TItem="LocationModel" TValue="LocationModel"
+														 Value="_selectedLocation"
+														 DataSource="@_locations"
+														 Placeholder="All Locations"
+														 Label="Location" ValueChange="OnLocationChanged"
+														 FieldValue="@nameof(LocationModel.Name)"
+														 AddNewRoute="@PageRouteNames.Location" />
 								</div>
+
 							</div>
 						</div>
 					</div>

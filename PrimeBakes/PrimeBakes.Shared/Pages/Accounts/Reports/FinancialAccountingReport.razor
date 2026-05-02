@@ -119,28 +119,24 @@ else
 
                             <!-- Company -->
                             <div class="form-field">
-                                <label class="field-label">Company</label>
-                                <SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedCompany"
-                                                TValue="CompanyModel" TItem="CompanyModel" DataSource="@_companies"
-                                                Placeholder="All Companies" AllowFiltering="true"
-                                                FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
-                                    <AutoCompleteEvents TItem="CompanyModel" TValue="CompanyModel"
-                                                        ValueChange="OnCompanyChanged" />
-                                    <AutoCompleteFieldSettings Value="Name" />
-                                </SfAutoComplete>
+                                <AutoCompleteWithAdd TItem="CompanyModel" TValue="CompanyModel"
+                                                     Value="@_selectedCompany"
+                                                     DataSource="@_companies"
+                                                     Placeholder="All Companies"
+                                                     Label="Company" ValueChange="OnCompanyChanged"
+                                                     FieldValue="@nameof(CompanyModel.Name)"
+                                                     AddNewRoute="@PageRouteNames.CompanyMaster" />
                             </div>
 
                             <!-- Voucher -->
                             <div class="form-field">
-                                <label class="field-label">Voucher Type</label>
-                                <SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedVoucher"
-                                                TValue="VoucherModel" TItem="VoucherModel" DataSource="@_vouchers"
-                                                Placeholder="All Vouchers" AllowFiltering="true"
-                                                FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
-                                    <AutoCompleteEvents TItem="VoucherModel" TValue="VoucherModel"
-                                                        ValueChange="OnPartyChanged" />
-                                    <AutoCompleteFieldSettings Value="Name" />
-                                </SfAutoComplete>
+                                <AutoCompleteWithAdd TItem="VoucherModel" TValue="VoucherModel"
+                                                     Value="@_selectedVoucher"
+                                                     DataSource="@_vouchers"
+                                                     Placeholder="All Vouchers"
+                                                     Label="Voucher Type" ValueChange="OnPartyChanged"
+                                                     FieldValue="@nameof(VoucherModel.Name)"
+                                                     AddNewRoute="@PageRouteNames.VoucherMaster" />
                             </div>
                         </div>
                     </div>

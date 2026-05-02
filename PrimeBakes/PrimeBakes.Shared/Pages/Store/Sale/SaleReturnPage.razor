@@ -36,7 +36,7 @@ else
 					<MenuAnimationSettings Effect="Syncfusion.Blazor.Navigations.MenuEffect.SlideDown" Duration="300"
 										   Easing="ease" />
 					<MenuEvents TValue="Syncfusion.Blazor.Navigations.MenuItem" ItemSelected="OnMenuSelected"
-									OnOpen='async () => await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0)' />
+								OnOpen='async () => await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0)' />
 					<MenuItems>
 						<MenuItem Text="File" IconCss="e-icons e-folder">
 							<MenuItems>
@@ -94,89 +94,63 @@ else
 					</div>
 					<div class="section-body">
 						<div class="form-grid">
-							<!-- Location -->
 							@if (_user.LocationId == 1)
 							{
+								<!-- Location -->
 								<div class="form-field">
-									<label class="field-label">
-										Location <span class="required">*</span>
-									</label>
-									<SfAutoComplete Value="@_selectedLocation" TValue="LocationModel" TItem="LocationModel"
-													DataSource="@_locations" Placeholder="Select a Location"
-													FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
-													FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
-													CssClass="custom-autocomplete">
-										<AutoCompleteEvents TItem="LocationModel" TValue="LocationModel"
-															ValueChange="OnLocationChanged" />
-										<AutoCompleteFieldSettings Value="Name" />
-									</SfAutoComplete>
+									<AutoCompleteWithAdd TItem="LocationModel" TValue="LocationModel"
+														 Value="_selectedLocation"
+														 DataSource="@_locations"
+														 Placeholder="Select a Location"
+														 Label="Location" ValueChange="OnLocationChanged"
+														 FieldValue="@nameof(LocationModel.Name)"
+														 AddNewRoute="@PageRouteNames.Location" />
 								</div>
 
 								<!-- Company -->
 								<div class="form-field">
-									<label class="field-label">
-										Company <span class="required">*</span>
-									</label>
-									<SfAutoComplete Value="@_selectedCompany" TValue="CompanyModel" TItem="CompanyModel"
-													DataSource="@_companies" Placeholder="Select a Company"
-													FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
-													FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
-													CssClass="custom-autocomplete">
-										<AutoCompleteEvents TItem="CompanyModel" TValue="CompanyModel"
-															ValueChange="OnCompanyChanged" />
-										<AutoCompleteFieldSettings Value="Name" />
-									</SfAutoComplete>
+									<AutoCompleteWithAdd TItem="CompanyModel" TValue="CompanyModel"
+														 Value="_selectedCompany"
+														 DataSource="@_companies"
+														 Placeholder="Select a Company"
+														 Label="Company" ValueChange="OnCompanyChanged"
+														 FieldValue="@nameof(CompanyModel.Name)"
+														 AddNewRoute="@PageRouteNames.CompanyMaster" />
 								</div>
 
 								<!-- Transaction Date -->
 								<div class="form-field">
-									<label class="field-label">
-										Transaction Date <span class="required">*</span> / Financial Year
-									</label>
-									<div class="date-year-wrapper">
-										<SfDatePicker Value="@_saleReturn.TransactionDateTime" TValue="DateTime" Format="dd/MM/yy"
-												  Placeholder="Select Date" FloatLabelType="FloatLabelType.Never"
-												  CssClass="custom-datepicker">
-											<DatePickerEvents TValue="DateTime" ValueChange="OnTransactionDateChanged" />
-										</SfDatePicker>
-										<SfTextBox
-										Value="@($"{_selectedFinancialYear?.StartDate:yyyy} to {_selectedFinancialYear?.EndDate:yyyy}")"
-										Readonly="true" Placeholder="Financial Year" FloatLabelType="FloatLabelType.Never"
-										CssClass="custom-textbox readonly-field" />
-									</div>
+									<DatePickerWithAdd @bind-Value="_saleReturn.TransactionDateTime"
+													   FinancialYear="@_selectedFinancialYear" />
 								</div>
 							}
 
 							<!-- Party -->
 							@if (_selectedLocation?.Id == 1)
 							{
+								<!-- Party -->
 								<div class="form-field">
-									<label class="field-label">
-										Party
-									</label>
-									<SfAutoComplete Value="@_selectedParty" TValue="LedgerModel" TItem="LedgerModel"
-													DataSource="@_parties" Placeholder="Select a Party"
-													FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
-													FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
-													CssClass="custom-autocomplete">
-										<AutoCompleteEvents TItem="LedgerModel" TValue="LedgerModel"
-															ValueChange="OnPartyChanged" />
-										<AutoCompleteFieldSettings Value="Name" />
-									</SfAutoComplete>
+									<AutoCompleteWithAdd TItem="LedgerModel" TValue="LedgerModel"
+														 Value="_selectedParty"
+														 DataSource="@_parties"
+														 Placeholder="Select a Party"
+														 Label="Party" ValueChange="OnPartyChanged"
+														 FieldValue="@nameof(LedgerModel.Name)"
+														 AddNewRoute="@PageRouteNames.LedgerMaster" />
 								</div>
 							}
 
-								<!-- Transaction No -->
-								<div class="form-field">
-									<label class="field-label">
-										Transaction No <span class="required">*</span>
-									</label>
-									<div class="transaction-no-wrapper">
-										<SfTextBox @bind-Value="_saleReturn.TransactionNo" Placeholder="Transaction No"
-												   FloatLabelType="FloatLabelType.Never" Readonly="true"
-												   CssClass="custom-textbox readonly-field" />
-									</div>
+							<!-- Transaction No -->
+							<div class="form-field">
+								<label class="field-label">
+									Transaction No <span class="required">*</span>
+								</label>
+								<div class="transaction-no-wrapper">
+									<SfTextBox @bind-Value="_saleReturn.TransactionNo" Placeholder="Transaction No"
+											   FloatLabelType="FloatLabelType.Never" Readonly="true" TabIndex="-1"
+											   CssClass="custom-textbox readonly-field" />
 								</div>
+							</div>
 
 							<!-- Customer Number -->
 							<div class="form-field">
@@ -227,7 +201,7 @@ else
 							<!-- Sub Total -->
 							<div class="financial-row">
 								<label class="financial-label">Sub Total</label>
-								<SfNumericTextBox Value="@_saleReturn.TotalAfterTax" Readonly="true" TValue="decimal"
+								<SfNumericTextBox Value="@_saleReturn.TotalAfterTax" Readonly="true" TValue="decimal" TabIndex="-1"
 												  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
 												  CssClass="custom-numeric readonly-field" />
 							</div>
@@ -244,7 +218,7 @@ else
 															  ValueChange="OnOtherDiscountPercentChanged" />
 									</SfNumericTextBox>
 									<SfNumericTextBox Value="@_saleReturn.OtherChargesAmount" Readonly="true"
-													  TValue="decimal" ShowSpinButton="false" Placeholder="0.00"
+													  TValue="decimal" ShowSpinButton="false" Placeholder="0.00" TabIndex="-1"
 													  FloatLabelType="FloatLabelType.Never" CssClass="custom-numeric readonly-field" />
 								</div>
 							</div>
@@ -259,7 +233,7 @@ else
 													  CssClass="custom-numeric editable-field small-input">
 										<NumericTextBoxEvents TValue="decimal" ValueChange="OnDiscountPercentChanged" />
 									</SfNumericTextBox>
-									<SfNumericTextBox Value="@_saleReturn.DiscountAmount" Readonly="true" TValue="decimal"
+									<SfNumericTextBox Value="@_saleReturn.DiscountAmount" Readonly="true" TValue="decimal" TabIndex="-1"
 													  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
 													  CssClass="custom-numeric readonly-field discount-field" />
 								</div>
@@ -277,7 +251,7 @@ else
 							<!-- Total Amount -->
 							<div class="financial-row total-row">
 								<label class="financial-label-total">Total Amount</label>
-								<SfNumericTextBox Value="@_saleReturn.TotalAmount" Readonly="true" TValue="decimal"
+								<SfNumericTextBox Value="@_saleReturn.TotalAmount" Readonly="true" TValue="decimal" TabIndex="-1"
 												  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
 												  CssClass="custom-numeric total-field" />
 							</div>
@@ -286,16 +260,16 @@ else
 
 							<div class="financial-row-dual">
 								<SfDropDownList TValue="PaymentModeModel" TItem="PaymentModeModel"
-											@bind-Value="_selectedPaymentMethod" DataSource="@_paymentMethods"
-											Placeholder="Mode" CssClass="custom-autocomplete small-input"
-											FloatLabelType="FloatLabelType.Never">
+												@bind-Value="_selectedPaymentMethod" DataSource="@_paymentMethods"
+												Placeholder="Mode" CssClass="custom-autocomplete small-input"
+												FloatLabelType="FloatLabelType.Never">
 									<DropDownListFieldSettings Text="Name" />
 								</SfDropDownList>
 								<div class="dual-inputs">
 									<SfNumericTextBox @bind-Value="_paymentAmount" TValue="decimal" Min="0"
-												  ShowSpinButton="false" Placeholder="Pay Amt"
-												  FloatLabelType="FloatLabelType.Never"
-												  CssClass="custom-numeric editable-field small-input" />
+													  ShowSpinButton="false" Placeholder="Pay Amt"
+													  FloatLabelType="FloatLabelType.Never"
+													  CssClass="custom-numeric editable-field small-input" />
 									<IconButton Icon="IconType.Add" Variant="ButtonVariant.Add" Text="Add"
 												Title="Add Payment" Disabled="@(_isProcessing || _paymentAmount <= 0 || _selectedPaymentMethod is null || _selectedPaymentMethod.Id <= 0)"
 												OnClick="AddPayment" />
@@ -311,9 +285,9 @@ else
 										<label class="financial-label">@payment.Method</label>
 										<div class="dual-inputs">
 											<SfNumericTextBox Value="@payment.Amount" TValue="decimal" Readonly="true"
-													  ShowSpinButton="false" Placeholder="0.00"
-													  FloatLabelType="FloatLabelType.Never"
-													  CssClass="custom-numeric readonly-field small-input" />
+															  ShowSpinButton="false" Placeholder="0.00" TabIndex="-1"
+															  FloatLabelType="FloatLabelType.Never"
+															  CssClass="custom-numeric readonly-field small-input" />
 											<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid"
 														Title="Remove Payment" Disabled="@_isProcessing"
 														OnClick="() => RemovePayment(payment)" />
@@ -342,17 +316,17 @@ else
 				</div>
 				<div class="section-body">
 					<div class="cart-input-row">
+
+						<!-- Item -->
 						<div class="cart-field cart-field-wide">
-							<label class="cart-label">Item <span class="required">*</span></label>
-							<SfAutoComplete @ref="_sfItemAutoComplete" Value="@_selectedProduct"
-											TValue="ProductLocationOverviewModel" TItem="ProductLocationOverviewModel"
-														DataSource="@_products" Placeholder="Select Item (Ctrl + F)"
-											FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
-											FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
-								<AutoCompleteEvents TItem="ProductLocationOverviewModel"
-													TValue="ProductLocationOverviewModel" ValueChange="OnItemChanged" />
-								<AutoCompleteFieldSettings Value="Name" />
-							</SfAutoComplete>
+							<AutoCompleteWithAdd TItem="ProductLocationOverviewModel" TValue="ProductLocationOverviewModel"
+												 @ref="_sfItemAutoComplete"
+												 Value="_selectedProduct"
+												 DataSource="@_products"
+												 Placeholder="Select a Product (Ctrl + F)"
+												 Label="Product" ValueChange="OnItemChanged"
+												 FieldValue="@nameof(ProductLocationOverviewModel.Name)"
+												 AddNewRoute="@PageRouteNames.Product" />
 						</div>
 
 						<div class="cart-field">
@@ -430,44 +404,44 @@ else
 
 						<div class="cart-field">
 							<label class="cart-label">Base</label>
-							<SfNumericTextBox Value="@_selectedCart.BaseTotal" Readonly="true" TValue="decimal"
-										  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
-										  CssClass="custom-numeric readonly-field" />
+							<SfNumericTextBox Value="@_selectedCart.BaseTotal" Readonly="true" TValue="decimal" TabIndex="-1"
+											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+											  CssClass="custom-numeric readonly-field" />
 						</div>
 
 						<div class="cart-field">
 							<label class="cart-label">Disc Amt</label>
-							<SfNumericTextBox Value="@_selectedCart.DiscountAmount" Readonly="true" TValue="decimal"
-										  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
-										  CssClass="custom-numeric readonly-field" />
+							<SfNumericTextBox Value="@_selectedCart.DiscountAmount" Readonly="true" TValue="decimal" TabIndex="-1"
+											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+											  CssClass="custom-numeric readonly-field" />
 						</div>
 
 						<div class="cart-field">
 							<label class="cart-label">CGST Amt</label>
-							<SfNumericTextBox Value="@_selectedCart.CGSTAmount" Readonly="true" TValue="decimal"
-										  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
-										  CssClass="custom-numeric readonly-field" />
+							<SfNumericTextBox Value="@_selectedCart.CGSTAmount" Readonly="true" TValue="decimal" TabIndex="-1"
+											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+											  CssClass="custom-numeric readonly-field" />
 						</div>
 
 						<div class="cart-field">
 							<label class="cart-label">SGST Amt</label>
-							<SfNumericTextBox Value="@_selectedCart.SGSTAmount" Readonly="true" TValue="decimal"
-										  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
-										  CssClass="custom-numeric readonly-field" />
+							<SfNumericTextBox Value="@_selectedCart.SGSTAmount" Readonly="true" TValue="decimal" TabIndex="-1"
+											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+											  CssClass="custom-numeric readonly-field" />
 						</div>
 
 						<div class="cart-field">
 							<label class="cart-label">IGST Amt</label>
-							<SfNumericTextBox Value="@_selectedCart.IGSTAmount" Readonly="true" TValue="decimal"
-										  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
-										  CssClass="custom-numeric readonly-field" />
+							<SfNumericTextBox Value="@_selectedCart.IGSTAmount" Readonly="true" TValue="decimal" TabIndex="-1"
+											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+											  CssClass="custom-numeric readonly-field" />
 						</div>
 
 						<div class="cart-field">
 							<label class="cart-label">Total</label>
-							<SfNumericTextBox Value="@_selectedCart.Total" Readonly="true" TValue="decimal"
-										  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
-										  CssClass="custom-numeric readonly-field" />
+							<SfNumericTextBox Value="@_selectedCart.Total" Readonly="true" TValue="decimal" TabIndex="-1"
+											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+											  CssClass="custom-numeric readonly-field" />
 						</div>
 
 						<div class="cart-field">

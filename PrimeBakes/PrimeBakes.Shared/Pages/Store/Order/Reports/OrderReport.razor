@@ -129,7 +129,6 @@ else
                                 </SfDateRangePicker>
                             </div>
 
-                            <!-- Location (if admin) -->
                             <!-- Order Status -->
                             <div class="form-field">
                                 <label class="field-label">Order Status</label>
@@ -142,29 +141,27 @@ else
 
                             @if (_user.LocationId == 1)
                             {
+                                <!-- Location -->
                                 <div class="form-field">
-                                    <label class="field-label">Location</label>
-                                    <SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedLocation"
-                                                    TValue="LocationModel" TItem="LocationModel" DataSource="@_locations"
-                                                    Placeholder="All Locations" AllowFiltering="true"
-                                                    FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
-                                        <AutoCompleteEvents TItem="LocationModel" TValue="LocationModel"
-                                                            ValueChange="OnLocationChanged" />
-                                        <AutoCompleteFieldSettings Value="Name" />
-                                    </SfAutoComplete>
+                                    <AutoCompleteWithAdd TItem="LocationModel" TValue="LocationModel"
+                                                         Value="_selectedLocation"
+                                                         DataSource="@_locations"
+                                                         Placeholder="All Locations"
+                                                         Label="Location" ValueChange="OnLocationChanged"
+                                                         FieldValue="@nameof(LocationModel.Name)"
+                                                         AddNewRoute="@PageRouteNames.Location" />
                                 </div>
 
                                 <!-- Company -->
                                 <div class="form-field">
-                                    <label class="field-label">Company</label>
-                                    <SfAutoComplete CssClass="custom-autocomplete" Value="@_selectedCompany"
-                                                    TValue="CompanyModel" TItem="CompanyModel" DataSource="@_companies"
-                                                    Placeholder="All Companies" AllowFiltering="true"
-                                                    FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
-                                        <AutoCompleteEvents TItem="CompanyModel" TValue="CompanyModel"
-                                                            ValueChange="OnCompanyChanged" />
-                                        <AutoCompleteFieldSettings Value="Name" />
-                                    </SfAutoComplete>
+                                    <AutoCompleteWithAdd TItem="CompanyModel" TValue="CompanyModel"
+                                                         Value="@_selectedCompany"
+                                                         DataSource="@_companies"
+                                                         Placeholder="All Companies"
+                                                         Label="Company" Required="false"
+                                                         ValueChange="OnCompanyChanged"
+                                                         FieldValue="@nameof(CompanyModel.Name)"
+                                                         AddNewRoute="@PageRouteNames.CompanyMaster" />
                                 </div>
                             }
                         </div>

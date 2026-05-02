@@ -1,0 +1,50 @@
+@typeparam TValue
+@typeparam TItem
+
+@if (_isFocused && AddNewRoute is not null)
+{
+	<MudBlazor.MudHotkey Key="JsKey.F12" OnHotkeyPressed="NavigateToAddNew" />
+}
+
+<div class="mac-field">
+	@if (Label is not null)
+	{
+		<label class="field-label">
+			@Label
+			@if (Required)
+			{
+				<span class="required">*</span>
+			}
+		</label>
+	}
+
+	<div class="mac-input">
+		<SfAutoComplete @ref="_sfAutoComplete" TValue="TValue" TItem="TItem"
+						Value="@Value"
+						DataSource="@DataSource"
+						Placeholder="@Placeholder"
+						FloatLabelType="FloatLabelType.Never"
+						AllowFiltering="true"
+						Autofill="true"
+						AllowCustom="false"
+						Enabled="@(!Disabled)"
+						FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
+						CssClass="custom-autocomplete">
+			<AutoCompleteEvents TItem="TItem" TValue="TValue" ValueChange="@OnValueChangeInternal" Focus="@OnFocus" Blur="@OnBlur" />
+			<AutoCompleteFieldSettings Value="@FieldValue" />
+		</SfAutoComplete>
+	</div>
+
+	@if (Label is not null && AddNewRoute is not null && !Disabled)
+	{
+		<button class="mac-add-new" tabindex="-1" @onclick="NavigateToAddNew" title="@AddNewLabel">
+			<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24"
+				 fill="none" stroke="currentColor" stroke-width="2.5"
+				 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+				<line x1="12" y1="5" x2="12" y2="19" />
+				<line x1="5" y1="12" x2="19" y2="12" />
+			</svg>
+			@AddNewLabel
+		</button>
+	}
+</div>

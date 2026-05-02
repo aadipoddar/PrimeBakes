@@ -33,10 +33,10 @@ public partial class PurchaseReport : IAsyncDisposable
     private DateTime _fromDate = DateTime.Now.Date;
     private DateTime _toDate = DateTime.Now.Date;
 
-    private CompanyModel _selectedCompany = new();
-    private LedgerModel _selectedParty = new();
+	private CompanyModel? _selectedCompany = null;
+	private LedgerModel? _selectedParty = null;
 
-    private List<CompanyModel> _companies = [];
+	private List<CompanyModel> _companies = [];
     private List<LedgerModel> _parties = [];
     private List<PurchaseOverviewModel> _transactionOverviews = [];
     private List<PurchaseReturnOverviewModel> _transactionReturnOverviews = [];
@@ -92,25 +92,13 @@ public partial class PurchaseReport : IAsyncDisposable
     private async Task LoadCompanies()
     {
         _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
-        _companies.Add(new()
-        {
-            Id = 0,
-            Name = "All Companies"
-        });
         _companies = [.. _companies.OrderBy(s => s.Name)];
-        _selectedCompany = _companies.FirstOrDefault(_ => _.Id == 0);
     }
 
     private async Task LoadParties()
     {
         _parties = await CommonData.LoadTableDataByStatus<LedgerModel>(TableNames.Ledger);
-        _parties.Add(new()
-        {
-            Id = 0,
-            Name = "All Parties"
-        });
         _parties = [.. _parties.OrderBy(s => s.Name)];
-        _selectedParty = _parties.FirstOrDefault(_ => _.Id == 0);
     }
 
     private async Task LoadTransactionOverviews()

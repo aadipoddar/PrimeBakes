@@ -1,4 +1,5 @@
 using PrimeBakes.Shared.Components.Dialog;
+using PrimeBakes.Shared.Components.Input;
 using PrimeBakesLibrary.Data.Inventory;
 using PrimeBakesLibrary.Data.Store.Product;
 using PrimeBakesLibrary.DataAccess;
@@ -31,7 +32,7 @@ public partial class RecipePage
 		new() { Text = "Delete Item (Del)", Id = "DeleteRecipeItem", IconCss = "e-icons e-trash", Target = ".e-content" }
 	];
 
-	private SfAutoComplete<RawMaterialModel, RawMaterialModel> _sfItemAutoComplete;
+	private AutoCompleteWithAdd<RawMaterialModel, RawMaterialModel> _sfItemAutoComplete;
 	private SfGrid<RecipeItemCartModel> _sfCartGrid;
 
 	private ToastNotification _toastNotification;

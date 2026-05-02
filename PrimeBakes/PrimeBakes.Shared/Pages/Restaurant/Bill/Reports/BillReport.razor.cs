@@ -33,9 +33,9 @@ public partial class BillReport : IAsyncDisposable
 	private DateTime _fromDate = DateTime.Now.Date;
 	private DateTime _toDate = DateTime.Now.Date;
 
-	private LocationModel _selectedLocation = new();
-	private CompanyModel _selectedCompany = new();
-	private CustomerModel _selectedCustomer = new();
+	private LocationModel? _selectedLocation = null;
+	private CompanyModel? _selectedCompany = null;
+	private CustomerModel? _selectedCustomer = null;
 
 	private List<LocationModel> _locations = [];
 	private List<CompanyModel> _companies = [];
@@ -93,11 +93,6 @@ public partial class BillReport : IAsyncDisposable
 	private async Task LoadLocations()
 	{
 		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
-		_locations.Add(new()
-		{
-			Id = 0,
-			Name = "All Locations"
-		});
 		_locations = [.. _locations.OrderBy(s => s.Name)];
 		_selectedLocation = _locations.FirstOrDefault(_ => _.Id == _user.LocationId);
 	}
@@ -105,25 +100,13 @@ public partial class BillReport : IAsyncDisposable
 	private async Task LoadCompanies()
 	{
 		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
-		_companies.Add(new()
-		{
-			Id = 0,
-			Name = "All Companies"
-		});
 		_companies = [.. _companies.OrderBy(s => s.Name)];
-		_selectedCompany = _companies.FirstOrDefault(_ => _.Id == 0);
 	}
 
 	private async Task LoadCustomers()
 	{
 		_customers = await CommonData.LoadTableData<CustomerModel>(TableNames.Customer);
-		_customers.Add(new()
-		{
-			Id = 0,
-			Name = "All Customers"
-		});
 		_customers = [.. _customers.OrderBy(s => s.Name)];
-		_selectedCustomer = _customers.FirstOrDefault(_ => _.Id == 0);
 	}
 
 	private async Task LoadTransactionOverviews()
