@@ -9,6 +9,8 @@
 <MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" />
 <MudBlazor.MudHotkey Key=JsKey.KeyB KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateBack" />
 <MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="OnSaveButtonClick" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="DownloadPdfInvoice" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="DownloadExcelInvoice" />
 <MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfItemAutoComplete.FocusAsync()" />
 <MudBlazor.MudHotkey Key=JsKey.Enter KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="AddItemToCart" />
 <MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="RemoveSelectedCartItem" />
@@ -32,6 +34,9 @@ else
 								<MenuItem Text="New (Ctrl + N)" IconCss="e-icons e-plus" Id="NewRecipe" Disabled="@_isProcessing" />
 								<MenuItem Text="Save (Ctrl + S)" IconCss="e-icons e-save" Id="SaveRecipe" Disabled="@_isProcessing" />
 								<MenuItem Text="Delete Recipe" IconCss="e-icons e-trash" Id="DeleteRecipe" Disabled="@(_isProcessing || _recipe is null || _recipe.Id == 0)" />
+								<MenuItem Separator="true" />
+								<MenuItem Text="Export PDF (Alt + P)" IconCss="e-icons e-export-pdf" Id="ExportPdfInvoice" Disabled="@(_isProcessing || _recipe is null || _recipe.Id == 0)" />
+								<MenuItem Text="Export Excel (Alt + E)" IconCss="e-icons e-export-excel" Id="ExportExcelInvoice" Disabled="@(_isProcessing || _recipe is null || _recipe.Id == 0)" />
 							</MenuItems>
 						</MenuItem>
 						<MenuItem Text="Transaction" IconCss="e-icons e-chart">
@@ -65,9 +70,34 @@ else
 				</div>
 				<div class="section-body">
 					<div class="form-grid">
+						<!-- Product -->
 						<div class="form-field">
-							<AutoCompleteWithAdd TItem="ProductLocationOverviewModel" TValue="ProductLocationOverviewModel" Value="@_selectedProduct" DataSource="@_products" Placeholder="Select a Product" Label="Product" ValueChange="OnProductChanged"
+							<AutoCompleteWithAdd TItem="ProductLocationOverviewModel" TValue="ProductLocationOverviewModel"
+												 Value="@_selectedProduct" DataSource="@_products" Placeholder="Select a Product"
+												 Label="Product" ValueChange="OnProductChanged"
 												 FieldValue="@nameof(ProductLocationOverviewModel.Name)" AddNewRoute="@PageRouteNames.Product" />
+						</div>
+
+						<!-- Quantity -->
+						<div class="form-field">
+							<label class="field-label">
+								Quantity <span class="required">*</span>
+							</label>
+							<SfNumericTextBox @bind-Value="_recipe.Quantity" Placeholder="Enter Quantity" Min="0"
+											  FloatLabelType="FloatLabelType.Never" CssClass="custom-numeric" />
+						</div>
+
+						<!-- Deduct -->
+						<div class="form-field">
+							<label class="field-label">Deduct on Sale</label>
+							<div class="checkbox-wrapper">
+								<SfCheckBox @bind-Checked="_recipe.Deduct" Label="Deduct" CssClass="custom-checkbox" />
+							</div>
+						</div>
+
+						<!-- Recipe Date -->
+						<div class="form-field">
+							<DatePickerWithAdd @bind-Value="_recipeDateTime" Label="Recipe Date" ValueChange="OnRecipeDateChanged" />
 						</div>
 					</div>
 				</div>
@@ -95,7 +125,23 @@ else
 
 						<div class="cart-field">
 							<label class="cart-label">Quantity <span class="required">*</span></label>
-							<SfNumericTextBox @bind-Value="_selectedRawMaterialQuantity" TValue="decimal" Min="0" ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never" CssClass="custom-numeric editable-field" />
+							<SfNumericTextBox @bind-Value="_selectedCart.Quantity" TValue="decimal" Min="0" ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never" CssClass="custom-numeric editable-field" />
+						</div>
+
+						<div class="cart-field">
+							<label class="cart-label">Rate <span class="required">*</span></label>
+							<SfNumericTextBox Value="@(_rawMaterials.FirstOrDefault(r => r.Id == _selectedRawMaterial?.Id)?.Rate ?? 0)"
+											  TValue="decimal" Readonly="true"
+											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+											  CssClass="custom-numeric readonly-field" TabIndex="-1" />
+						</div>
+
+						<div class="cart-field">
+							<label class="cart-label">Amount <span class="required">*</span></label>
+							<SfNumericTextBox Value="@(_selectedCart.Quantity * (_rawMaterials.FirstOrDefault(r => r.Id == _selectedRawMaterial?.Id)?.Rate ?? 0))"
+											  TValue="decimal" Readonly="true"
+											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+											  CssClass="custom-numeric readonly-field" TabIndex="-1" />
 						</div>
 
 						<div class="cart-field">
@@ -148,6 +194,17 @@ else
 											</div>
 										</FooterTemplate>
 									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(RecipeItemCartModel.Amount)" Type="AggregateType.Sum">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
+											}
+											<div class="aggregate-value aggregate-total">
+												<strong>@sum.ToString("N2")</strong>
+											</div>
+										</FooterTemplate>
+									</GridAggregateColumn>
 								</GridAggregateColumns>
 							</GridAggregate>
 						</GridAggregates>
@@ -155,6 +212,8 @@ else
 						<GridColumns>
 							<GridColumn Field="@nameof(RecipeItemCartModel.ItemName)" HeaderText="Raw Material Name" Width="250" />
 							<GridColumn Field="@nameof(RecipeItemCartModel.Quantity)" HeaderText="Quantity" Width="150" TextAlign="TextAlign.Right" Format="N2" />
+							<GridColumn Field="@nameof(RecipeItemCartModel.Rate)" HeaderText="Rate" Width="150" TextAlign="TextAlign.Right" Format="N2" />
+							<GridColumn Field="@nameof(RecipeItemCartModel.Amount)" HeaderText="Amount" Width="150" TextAlign="TextAlign.Right" Format="N2" />
 						</GridColumns>
 					</SfGrid>
 				</div>

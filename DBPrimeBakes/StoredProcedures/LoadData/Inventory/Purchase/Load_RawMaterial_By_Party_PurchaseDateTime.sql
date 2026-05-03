@@ -13,44 +13,32 @@ BEGIN
 		ISNULL(
 			CASE 
 				WHEN @PartyId > 0 THEN
-					(SELECT TOP 1 Rate FROM PurchaseDetail pd
-					 INNER JOIN Purchase p ON pd.[MasterId] = p.Id
-					 WHERE pd.RawMaterialId = r.[Id]
-					   AND p.PartyId = @PartyId
-					   AND p.Status = 1
-					   AND pd.Status = 1
-					   AND p.TransactionDateTime <= @PurchaseDateTime
+					(SELECT TOP 1 Rate FROM Purchase_Item_Overview pd
+					 WHERE pd.Id = r.[Id]
+					   AND pd.PartyId = @PartyId
+					   AND pd.TransactionDateTime <= @PurchaseDateTime
 					 ORDER BY pd.Id DESC)
 				ELSE
-					(SELECT TOP 1 Rate FROM PurchaseDetail pd
-					 INNER JOIN Purchase p ON pd.[MasterId] = p.Id
-					 WHERE pd.RawMaterialId = r.[Id]
-					   AND p.Status = 1
-					   AND pd.Status = 1
-					   AND p.TransactionDateTime <= @PurchaseDateTime
+					(SELECT TOP 1 Rate FROM Purchase_Item_Overview pd
+					 WHERE pd.Id = r.[Id]
+					   AND pd.TransactionDateTime <= @PurchaseDateTime
 					 ORDER BY pd.Id DESC)
 			END, r.[Rate]) AS [Rate],
 
 		ISNULL(
 			CASE 
 				WHEN @PartyId > 0 THEN
-					(SELECT TOP 1 UnitOfMeasurement FROM PurchaseDetail pd
-					 INNER JOIN Purchase p ON pd.[MasterId] = p.Id
-					 WHERE pd.RawMaterialId = r.[Id]
-					   AND p.PartyId = @PartyId
-					   AND p.Status = 1
-					   AND pd.Status = 1
-					   AND p.TransactionDateTime <= @PurchaseDateTime
+					(SELECT TOP 1 UnitOfMeasurement FROM Purchase_Item_Overview pd
+					 WHERE pd.Id = r.[Id]
+					   AND pd.PartyId = @PartyId
+					   AND pd.TransactionDateTime <= @PurchaseDateTime
 					   ORDER BY pd.Id DESC)
 				ELSE
-					(SELECT TOP 1 UnitOfMeasurement FROM PurchaseDetail pd
-					 INNER JOIN Purchase p ON pd.[MasterId] = p.Id
-					 WHERE pd.RawMaterialId= r.[Id]
-					   AND p.Status = 1
-					   AND pd.Status = 1
-					   AND p.TransactionDateTime <= @PurchaseDateTime
+					(SELECT TOP 1 UnitOfMeasurement FROM Purchase_Item_Overview pd
+					 WHERE pd.Id = r.[Id]
+					   AND pd.TransactionDateTime <= @PurchaseDateTime
 					   ORDER BY pd.Id DESC)
-		END, r.[UnitOfMeasurement]) AS [UnitOfMeasurement],
+			END, r.[UnitOfMeasurement]) AS [UnitOfMeasurement],
 
 		r.[TaxId],
 		r.[Status]

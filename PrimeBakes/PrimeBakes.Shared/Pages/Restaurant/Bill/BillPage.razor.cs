@@ -26,7 +26,6 @@ namespace PrimeBakes.Shared.Pages.Restaurant.Bill;
 
 public partial class BillPage
 {
-
 	[Parameter] public int? Id { get; set; }
 	[Parameter] public int? DiningTableId { get; set; }
 

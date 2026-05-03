@@ -339,7 +339,7 @@ public partial class PurchaseReport : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
 
-            var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
+            var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
             await SaveAndViewService.SaveAndView(decodeTransactionNo.PDFStream.fileName, decodeTransactionNo.PDFStream.stream);
 
             await _toastNotification.ShowAsync("Success", "PDF invoice generated successfully.", ToastType.Success);
@@ -366,7 +366,7 @@ public partial class PurchaseReport : IAsyncDisposable
             StateHasChanged();
             await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
 
-            var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
+            var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
             await SaveAndViewService.SaveAndView(decodeTransactionNo.ExcelStream.fileName, decodeTransactionNo.ExcelStream.stream);
 
             await _toastNotification.ShowAsync("Success", "Excel invoice generated successfully.", ToastType.Success);
@@ -450,7 +450,7 @@ public partial class PurchaseReport : IAsyncDisposable
         if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
             return;
 
-        var decodedTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
+        var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
 
         if (FormFactor.GetFormFactor() == "Web")
             await JSRuntime.InvokeVoidAsync("open", decodedTransactionNo.PageRouteName, "_blank");
@@ -493,7 +493,7 @@ public partial class PurchaseReport : IAsyncDisposable
                 return;
             }
 
-            var decodedTransactionNo = await GenerateCodes.DecodeTransactionNo(_deleteTransactionNo);
+            var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(_deleteTransactionNo);
 
             if (decodedTransactionNo.CodeType == CodeType.PurchaseReturn)
                 await DeleteReturnTransaction();
@@ -573,7 +573,7 @@ public partial class PurchaseReport : IAsyncDisposable
                 return;
             }
 
-            var decodedTransactionNo = await GenerateCodes.DecodeTransactionNo(_recoverTransactionNo);
+            var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(_recoverTransactionNo);
             if (decodedTransactionNo.CodeType == CodeType.PurchaseReturn)
                 await RecoverReturnTransaction();
             else

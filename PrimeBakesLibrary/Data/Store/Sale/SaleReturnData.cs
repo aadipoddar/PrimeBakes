@@ -251,7 +251,8 @@ public static class SaleReturnData
             return;
 
         var recipes = await CommonData.LoadTableDataByStatus<RecipeModel>(TableNames.Recipe, true, sqlDataAccessTransaction);
-        var recipeDetails = await CommonData.LoadTableDataByStatus<RecipeDetailModel>(TableNames.RecipeDetail, true, sqlDataAccessTransaction);
+		recipes = [.. recipes.Where(r => r.Deduct)];
+		var recipeDetails = await CommonData.LoadTableDataByStatus<RecipeDetailModel>(TableNames.RecipeDetail, true, sqlDataAccessTransaction);
 
         foreach (var product in saleReturnDetails)
         {
@@ -264,7 +265,7 @@ public static class SaleReturnData
                 {
                     Id = 0,
                     RawMaterialId = recipeItem.RawMaterialId,
-                    Quantity = recipeItem.Quantity * product.Quantity,
+                    Quantity = -recipeItem.Quantity * (product.Quantity / recipe.Quantity),
                     NetRate = product.NetRate / recipeItem.Quantity,
                     TransactionId = saleReturn.Id,
                     TransactionNo = saleReturn.TransactionNo,

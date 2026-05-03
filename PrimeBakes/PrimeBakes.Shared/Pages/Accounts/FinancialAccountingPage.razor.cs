@@ -306,12 +306,6 @@ public partial class FinancialAccountingPage
 
 		await SaveTransactionFile();
 	}
-
-	private async Task OnTransactionDateChanged(Syncfusion.Blazor.Calendars.ChangedEventArgs<DateTime> args)
-	{
-		_accounting.TransactionDateTime = args.Value;
-		await SaveTransactionFile();
-	}
 	#endregion
 
 	#region Cart
@@ -680,7 +674,7 @@ public partial class FinancialAccountingPage
 			_isProcessing = true;
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_accounting.TransactionNo);
+			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_accounting.TransactionNo, CodeType.Accounting);
 			await SaveAndViewService.SaveAndView(decodeTransactionNo.PDFStream.fileName, decodeTransactionNo.PDFStream.stream);
 
 			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
@@ -711,7 +705,7 @@ public partial class FinancialAccountingPage
 			_isProcessing = true;
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_accounting.TransactionNo);
+			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_accounting.TransactionNo, CodeType.Accounting);
 			await SaveAndViewService.SaveAndView(decodeTransactionNo.ExcelStream.fileName, decodeTransactionNo.ExcelStream.stream);
 
 			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
@@ -742,7 +736,7 @@ public partial class FinancialAccountingPage
 			_isProcessing = true;
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_accounting.ReferenceNo);
+			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_accounting.ReferenceNo);
 			await SaveAndViewService.SaveAndView(decodeTransactionNo.PDFStream.fileName, decodeTransactionNo.PDFStream.stream);
 
 			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
@@ -773,7 +767,7 @@ public partial class FinancialAccountingPage
 			_isProcessing = true;
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_selectedAccountingLedger.ReferenceNo);
+			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_selectedAccountingLedger.ReferenceNo);
 			await SaveAndViewService.SaveAndView(decodeTransactionNo.PDFStream.fileName, decodeTransactionNo.PDFStream.stream);
 
 			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
@@ -796,7 +790,7 @@ public partial class FinancialAccountingPage
 			return;
 		}
 
-		var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_accounting.ReferenceNo);
+		var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_accounting.ReferenceNo);
 		await AuthenticationService.NavigateToRoute(decodeTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
 	}
 
@@ -808,7 +802,7 @@ public partial class FinancialAccountingPage
 			return;
 		}
 
-		var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_selectedAccountingLedger.ReferenceNo);
+		var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_selectedAccountingLedger.ReferenceNo);
 		await AuthenticationService.NavigateToRoute(decodeTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
 	}
 	#endregion

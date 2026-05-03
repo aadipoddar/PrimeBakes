@@ -184,14 +184,14 @@ public partial class Header
 
     private static async Task<DecodeTransactionNoModel> DecodeSearchTransactionAsync(string searchText)
     {
-        var decodedTransaction = await GenerateCodes.DecodeTransactionNo(searchText);
+        var decodedTransaction = await DecodeCode.DecodeTransactionNo(searchText);
         if (!string.IsNullOrWhiteSpace(decodedTransaction.PageRouteName) || decodedTransaction.PDFStream.stream is not null)
             return decodedTransaction;
 
         var upperSearchText = searchText.ToUpperInvariant();
         if (!searchText.Equals(upperSearchText, StringComparison.Ordinal))
         {
-            var upperDecodedTransaction = await GenerateCodes.DecodeTransactionNo(upperSearchText);
+            var upperDecodedTransaction = await DecodeCode.DecodeTransactionNo(upperSearchText);
             if (!string.IsNullOrWhiteSpace(upperDecodedTransaction.PageRouteName) || upperDecodedTransaction.PDFStream.stream is not null)
                 return upperDecodedTransaction;
         }

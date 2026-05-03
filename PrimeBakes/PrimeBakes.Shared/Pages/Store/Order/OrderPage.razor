@@ -118,8 +118,9 @@ else
 
 							<!-- Transaction Date -->
 							<div class="form-field">
-								<DatePickerWithAdd @bind-Value="_order.TransactionDateTime"
-												   FinancialYear="@_selectedFinancialYear" />
+								<DatePickerWithAdd Value="_order.TransactionDateTime"
+												   FinancialYear="@_selectedFinancialYear"
+												   ValueChange="OnTransactionDateChanged" />
 							</div>
 						}
 

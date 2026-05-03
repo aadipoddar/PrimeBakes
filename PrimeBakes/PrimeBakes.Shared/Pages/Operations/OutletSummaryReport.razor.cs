@@ -28,7 +28,7 @@ public partial class OutletSummaryReport : IAsyncDisposable
 	private DateTime _fromDate = DateTime.Now.Date;
 	private DateTime _toDate = DateTime.Now.Date;
 
-	private CompanyModel _selectedCompany = new();
+	private CompanyModel? _selectedCompany = null;
 
 	private List<CompanyModel> _companies = [];
 
@@ -84,13 +84,7 @@ public partial class OutletSummaryReport : IAsyncDisposable
 	private async Task LoadCompanies()
 	{
 		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
-		_companies.Add(new()
-		{
-			Id = 0,
-			Name = "All Companies"
-		});
 		_companies = [.. _companies.OrderBy(s => s.Name)];
-		_selectedCompany = _companies.FirstOrDefault(_ => _.Id == 0);
 	}
 
 	private async Task RefreshReport()

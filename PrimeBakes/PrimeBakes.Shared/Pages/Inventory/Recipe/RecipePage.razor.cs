@@ -1,8 +1,12 @@
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 using PrimeBakesLibrary.Data.Inventory;
+using PrimeBakesLibrary.Data.Inventory.Purchase;
 using PrimeBakesLibrary.Data.Store.Product;
 using PrimeBakesLibrary.DataAccess;
+using PrimeBakesLibrary.Exporting.Inventory.Recipe;
+using PrimeBakesLibrary.Exporting.Store.Sale;
+using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Inventory;
 using PrimeBakesLibrary.Models.Operations;
 using PrimeBakesLibrary.Models.Store.Product;
@@ -17,11 +21,11 @@ public partial class RecipePage
 	private bool _isLoading = true;
 	private bool _isProcessing = false;
 
-	private decimal _selectedRawMaterialQuantity;
-
 	private ProductLocationOverviewModel _selectedProduct;
 	private RawMaterialModel _selectedRawMaterial;
-	private RecipeModel _recipe;
+	private RecipeItemCartModel _selectedCart = new();
+	private RecipeModel _recipe = new();
+	private DateTime _recipeDateTime = DateTime.Now;
 
 	private List<ProductLocationOverviewModel> _products = [];
 	private List<RawMaterialModel> _rawMaterials = [];
@@ -51,8 +55,9 @@ public partial class RecipePage
 	{
 		try
 		{
+			_recipeDateTime = await CommonData.LoadCurrentDateTime();
 			_products = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: 1);
-			_rawMaterials = await CommonData.LoadTableData<RawMaterialModel>(TableNames.RawMaterial);
+			_rawMaterials = await PurchaseData.LoadRawMaterialByPartyPurchaseDateTime(0, _recipeDateTime);
 		}
 		catch (Exception ex)
 		{
@@ -95,8 +100,7 @@ public partial class RecipePage
 				await _sfCartGrid?.Refresh();
 
 			_recipe = await RecipeData.LoadRecipeByProduct(_selectedProduct.ProductId);
-			if (_recipe is null)
-				return;
+			_recipe ??= new() { ProductId = _selectedProduct.ProductId, Deduct = true };
 
 			var recipeDetails = await CommonData.LoadTableDataByMasterId<RecipeDetailModel>(TableNames.RecipeDetail, _recipe.Id);
 			if (recipeDetails is null || recipeDetails.Count == 0)
@@ -106,13 +110,15 @@ public partial class RecipePage
 
 			foreach (var detail in recipeDetails)
 			{
-				var rawMaterial = await CommonData.LoadTableDataById<RawMaterialModel>(TableNames.RawMaterial, detail.RawMaterialId);
+				var rawMaterial = _rawMaterials.FirstOrDefault(r => r.Id == detail.RawMaterialId);
 
 				_recipeItems.Add(new()
 				{
 					ItemId = detail.RawMaterialId,
 					ItemName = rawMaterial.Name,
-					Quantity = detail.Quantity
+					Quantity = detail.Quantity,
+					Rate = rawMaterial.Rate,
+					Amount = detail.Quantity * rawMaterial.Rate
 				});
 			}
 
@@ -134,24 +140,40 @@ public partial class RecipePage
 	#endregion
 
 	#region Cart
+	private async Task OnRecipeDateChanged(Syncfusion.Blazor.Calendars.ChangedEventArgs<DateTime> args)
+	{
+		_rawMaterials = await PurchaseData.LoadRawMaterialByPartyPurchaseDateTime(0, _recipeDateTime);
+
+		foreach (var rawMaterial in _recipeItems)
+		{
+			rawMaterial.Rate = _rawMaterials.FirstOrDefault(r => r.Id == rawMaterial.ItemId)?.Rate ?? rawMaterial.Rate;
+			rawMaterial.Amount = rawMaterial.Quantity * rawMaterial.Rate;
+		}
+
+		if (_sfCartGrid is not null)
+			await _sfCartGrid.Refresh();
+	}
+
 	private async Task AddItemToCart()
 	{
-		if (_selectedRawMaterial is null || _selectedRawMaterial.Id == 0 || _selectedRawMaterialQuantity <= 0)
+		if (_selectedRawMaterial is null || _selectedRawMaterial.Id == 0 || _selectedCart.Quantity <= 0)
 			return;
 
 		var existingRecipe = _recipeItems.FirstOrDefault(r => r.ItemId == _selectedRawMaterial.Id);
 		if (existingRecipe is not null)
-			existingRecipe.Quantity += _selectedRawMaterialQuantity;
+			existingRecipe.Quantity += _selectedCart.Quantity;
 		else
 			_recipeItems.Add(new()
 			{
 				ItemId = _selectedRawMaterial.Id,
 				ItemName = _selectedRawMaterial.Name,
-				Quantity = _selectedRawMaterialQuantity,
+				Quantity = _selectedCart.Quantity,
+				Rate = _selectedRawMaterial.Rate,
+				Amount = _selectedCart.Quantity * _selectedRawMaterial.Rate
 			});
 
 		_selectedRawMaterial = null;
-		_selectedRawMaterialQuantity = 0;
+		_selectedCart = new();
 
 		_sfItemAutoComplete?.FocusAsync();
 
@@ -173,7 +195,14 @@ public partial class RecipePage
 	private async Task EditCartItem(RecipeItemCartModel cartItem)
 	{
 		_selectedRawMaterial = _rawMaterials.FirstOrDefault(r => r.Id == cartItem.ItemId);
-		_selectedRawMaterialQuantity = cartItem.Quantity;
+		_selectedCart = new()
+		{
+			ItemId = cartItem.ItemId,
+			ItemName = cartItem.ItemName,
+			Quantity = cartItem.Quantity,
+			Rate = cartItem.Rate,
+			Amount = cartItem.Amount
+		};
 		_recipeItems.Remove(cartItem);
 
 		_sfItemAutoComplete?.FocusAsync();
@@ -242,16 +271,13 @@ public partial class RecipePage
 			StateHasChanged();
 
 			if (_selectedProduct is null || _selectedProduct.Id == 0)
-			{
-				await _toastNotification.ShowAsync("No Product Selected", "Please select a product to save the recipe for", ToastType.Warning);
-				return;
-			}
+				throw new Exception("No product selected. Please select a product before saving the recipe.");
 
 			if (_recipeItems.Count == 0)
-			{
-				await _toastNotification.ShowAsync("No Raw Materials Added", "Please add at least one raw material to the recipe", ToastType.Warning);
-				return;
-			}
+				throw new Exception("Please add at least one raw material to the recipe before saving");
+
+			if (_recipe.Quantity <= 0)
+				throw new Exception("Quantity must be greater than zero");
 
 			await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
 
@@ -259,6 +285,8 @@ public partial class RecipePage
 			{
 				Id = _recipe?.Id ?? 0,
 				ProductId = _selectedProduct.ProductId,
+				Quantity = _recipe?.Quantity ?? 0,
+				Deduct = _recipe?.Deduct ?? true,
 				Status = true,
 			}, _recipeItems);
 
@@ -281,6 +309,72 @@ public partial class RecipePage
 	}
 	#endregion
 
+	#region Export
+	private async Task DownloadPdfInvoice()
+	{
+		if (_recipe is null || _recipe.Id == 0)
+		{
+			await _toastNotification.ShowAsync("No Transaction Selected", "Please save the transaction first before downloading the invoice.", ToastType.Error);
+			return;
+		}
+
+		if (_isProcessing)
+			return;
+
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+			await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
+
+			var (pdfStream, fileName) = await RecipeInvoiceExport.ExportInvoice(_recipe.Id, InvoiceExportType.PDF, _recipeDateTime);
+			await SaveAndViewService.SaveAndView(fileName, pdfStream);
+
+			await _toastNotification.ShowAsync("Invoice Downloaded", "The PDF invoice has been downloaded successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("An Error Occurred While Downloading Invoice", ex.Message, ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+		}
+	}
+
+	private async Task DownloadExcelInvoice()
+	{
+		if (_recipe is null || _recipe.Id == 0)
+		{
+			await _toastNotification.ShowAsync("No Transaction Selected", "Please save the transaction first before downloading the invoice.", ToastType.Error);
+			return;
+		}
+
+		if (_isProcessing)
+			return;
+
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+			await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
+
+			var (excelStream, fileName) = await RecipeInvoiceExport.ExportInvoice(_recipe.Id, InvoiceExportType.Excel, _recipeDateTime);
+			await SaveAndViewService.SaveAndView(fileName, excelStream);
+
+			await _toastNotification.ShowAsync("Invoice Downloaded", "The Excel invoice has been downloaded successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("An Error Occurred While Downloading Invoice", ex.Message, ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+		}
+	}
+	#endregion
+
 	#region Utilities
 	private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
 	{
@@ -291,6 +385,12 @@ public partial class RecipePage
 				break;
 			case "SaveRecipe":
 				await OnSaveButtonClick();
+				break;
+			case "ExportPdfInvoice":
+				await DownloadPdfInvoice();
+				break;
+			case "ExportExcelInvoice":
+				await DownloadExcelInvoice();
 				break;
 			case "DeleteRecipe":
 				await DeleteRecipe();

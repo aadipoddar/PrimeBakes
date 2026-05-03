@@ -4,7 +4,9 @@ public class RecipeModel
 {
     public int Id { get; set; }
     public int ProductId { get; set; }
-    public bool Status { get; set; }
+	public decimal Quantity { get; set; }
+	public bool Deduct { get; set; }
+	public bool Status { get; set; }
 }
 
 public class RecipeDetailModel
@@ -21,4 +23,6 @@ public class RecipeItemCartModel
     public int ItemId { get; set; }
     public string ItemName { get; set; }
     public decimal Quantity { get; set; }
+    public decimal Rate { get; set; }
+    public decimal Amount { get; set; }
 }

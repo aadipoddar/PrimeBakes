@@ -270,7 +270,7 @@ public partial class OrderItemReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
 
-			var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
+			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo, CodeType.Order);
 			await SaveAndViewService.SaveAndView(decodeTransactionNo.PDFStream.fileName, decodeTransactionNo.PDFStream.stream);
 
 			await _toastNotification.ShowAsync("Success", "PDF invoice generated successfully.", ToastType.Success);
@@ -297,7 +297,7 @@ public partial class OrderItemReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
 
-			var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
+			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo, CodeType.Order);
 			await SaveAndViewService.SaveAndView(decodeTransactionNo.ExcelStream.fileName, decodeTransactionNo.ExcelStream.stream);
 
 			await _toastNotification.ShowAsync("Success", "Excel invoice generated successfully.", ToastType.Success);
@@ -324,7 +324,7 @@ public partial class OrderItemReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
 
-			var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().SaleTransactionNo);
+			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().SaleTransactionNo, CodeType.Sale);
 			await SaveAndViewService.SaveAndView(decodeTransactionNo.PDFStream.fileName, decodeTransactionNo.PDFStream.stream);
 
 			await _toastNotification.ShowAsync("Success", "PDF invoice generated successfully.", ToastType.Success);
@@ -351,7 +351,7 @@ public partial class OrderItemReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
 
-			var decodeTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().SaleTransactionNo);
+			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().SaleTransactionNo, CodeType.Sale);
 			await SaveAndViewService.SaveAndView(decodeTransactionNo.ExcelStream.fileName, decodeTransactionNo.ExcelStream.stream);
 
 			await _toastNotification.ShowAsync("Success", "Excel invoice generated successfully.", ToastType.Success);
@@ -407,7 +407,7 @@ public partial class OrderItemReport : IAsyncDisposable
 		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
 			return;
 
-		var decodedTransactionNo = await GenerateCodes.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
+		var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo, CodeType.Order);
 
 		if (FormFactor.GetFormFactor() == "Web")
 			await JSRuntime.InvokeVoidAsync("open", decodedTransactionNo.PageRouteName, "_blank");
@@ -421,7 +421,7 @@ public partial class OrderItemReport : IAsyncDisposable
 			return;
 
 		var selectedCartItem = _sfGrid.SelectedRecords.First();
-		var decodedTransactionNo = await GenerateCodes.DecodeTransactionNo(selectedCartItem.SaleTransactionNo);
+		var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(selectedCartItem.SaleTransactionNo, CodeType.Sale);
 
 		if (FormFactor.GetFormFactor() == "Web")
 			await JSRuntime.InvokeVoidAsync("open", decodedTransactionNo.PageRouteName, "_blank");
