@@ -341,11 +341,7 @@ public partial class StockTransferItemReport : IAsyncDisposable
             return;
 
         var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo, false, false, CodeType.StockTransfer);
-
-        if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", decodedTransactionNo.PageRouteName, "_blank");
-        else
-            NavigationManager.NavigateTo(decodedTransactionNo.PageRouteName);
+        await AuthenticationService.NavigateToRoute(decodedTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
     }
     #endregion
 
@@ -432,21 +428,11 @@ public partial class StockTransferItemReport : IAsyncDisposable
         await LoadTransactionOverviews();
     }
 
-    private async Task NavigateToTransactionPage()
-    {
-        if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.StockTransfer, "_blank");
-        else
-            NavigationManager.NavigateTo(PageRouteNames.StockTransfer);
-    }
+    private async Task NavigateToTransactionPage() =>
+        await AuthenticationService.NavigateToRoute(PageRouteNames.StockTransfer, FormFactor, JSRuntime, NavigationManager);
 
-    private async Task NavigateToTransactionHistory()
-    {
-        if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.StockTransferReport, "_blank");
-        else
-            NavigationManager.NavigateTo(PageRouteNames.StockTransferReport);
-    }
+    private async Task NavigateToTransactionHistory() =>
+        await AuthenticationService.NavigateToRoute(PageRouteNames.StockTransferReport, FormFactor, JSRuntime, NavigationManager);
 
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.StoreDashboard);

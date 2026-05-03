@@ -672,21 +672,11 @@ public partial class KitchenProductionPage
         NavigationManager.NavigateTo(PageRouteNames.KitchenProduction, true);
     }
 
-    private async Task NavigateToTransactionHistoryPage()
-    {
-        if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.KitchenProductionReport, "_blank");
-        else
-            NavigationManager.NavigateTo(PageRouteNames.KitchenProductionReport);
-    }
+    private async Task NavigateToTransactionHistoryPage() =>
+        await AuthenticationService.NavigateToRoute(PageRouteNames.KitchenProductionReport, FormFactor, JSRuntime, NavigationManager);
 
-    private async Task NavigateToItemReport()
-    {
-        if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.KitchenProductionItemReport, "_blank");
-        else
-            NavigationManager.NavigateTo(PageRouteNames.KitchenProductionItemReport);
-    }
+    private async Task NavigateToItemReport() =>
+        await AuthenticationService.NavigateToRoute(PageRouteNames.KitchenProductionItemReport, FormFactor, JSRuntime, NavigationManager);
 
     private async Task DownloadPdfInvoice()
     {

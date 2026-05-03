@@ -409,13 +409,8 @@ public partial class RawMaterialStockAdjustmentPage
         NavigationManager.NavigateTo(PageRouteNames.RawMaterialStockAdjustment, true);
     }
 
-    private async Task NavigateToTransactionHistoryPage()
-    {
-        if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.RawMaterialStockReport, "_blank");
-        else
-            NavigationManager.NavigateTo(PageRouteNames.RawMaterialStockReport);
-    }
+    private async Task NavigateToTransactionHistoryPage() =>
+        await AuthenticationService.NavigateToRoute(PageRouteNames.RawMaterialStockReport, FormFactor, JSRuntime, NavigationManager);
 
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);

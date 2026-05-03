@@ -290,45 +290,8 @@ public partial class ProductStockReport : IAsyncDisposable
 			return;
 		}
 
-		await ViewTransaction(selectedCartItem.Type, selectedCartItem.TransactionId.Value);
-	}
-
-	private async Task ViewTransaction(string type, int transactionId)
-	{
-		if (_isProcessing)
-			return;
-
-		try
-		{
-			var url = type?.ToLower() switch
-			{
-				"purchase" => $"{PageRouteNames.Sale}/{transactionId}",
-				"purchasereturn" => $"{PageRouteNames.SaleReturn}/{transactionId}",
-				"kitchenissue" => $"{PageRouteNames.KitchenIssue}/{transactionId}",
-				"kitchenproduction" => $"{PageRouteNames.KitchenProduction}/{transactionId}",
-				"sale" => $"{PageRouteNames.Sale}/{transactionId}",
-				"salereturn" => $"{PageRouteNames.SaleReturn}/{transactionId}",
-				"stocktransfer" => $"{PageRouteNames.StockTransfer}/{transactionId}",
-				"bill" => $"{PageRouteNames.Bill}/{transactionId}",
-
-				_ => null
-			};
-
-			if (string.IsNullOrEmpty(url))
-			{
-				await _toastNotification.ShowAsync("Error", "Unknown transaction type.", ToastType.Error);
-				return;
-			}
-
-			if (FormFactor.GetFormFactor() == "Web")
-				await JSRuntime.InvokeVoidAsync("open", url, "_blank");
-			else
-				NavigationManager.NavigateTo(url);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"An error occurred while opening transaction: {ex.Message}", ToastType.Error);
-		}
+		var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(selectedCartItem.TransactionNo, false, false);
+		await AuthenticationService.NavigateToRoute(decodedTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
 	}
 
 	private async Task DownloadSelectedCartItemPdfInvoice()
@@ -344,7 +307,8 @@ public partial class ProductStockReport : IAsyncDisposable
 			return;
 		}
 
-		await DownloadPdfInvoice(selectedCartItem.Type, selectedCartItem.TransactionId.Value);
+		var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(selectedCartItem.TransactionNo, true, false);
+		await SaveAndViewService.SaveAndView(decodedTransactionNo.PDFStream.fileName, decodedTransactionNo.PDFStream.stream);
 	}
 
 	private async Task DownloadSelectedCartItemExcelInvoice()
@@ -360,137 +324,8 @@ public partial class ProductStockReport : IAsyncDisposable
 			return;
 		}
 
-		await DownloadExcelInvoice(selectedCartItem.Type, selectedCartItem.TransactionId.Value);
-	}
-
-	private async Task DownloadPdfInvoice(string type, int transactionId)
-	{
-		if (_isProcessing)
-			return;
-
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
-
-			if (type.Equals("purchase", StringComparison.CurrentCultureIgnoreCase))
-			{
-				var (pdfStream, fileName) = await SaleInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.PDF);
-				await SaveAndViewService.SaveAndView(fileName, pdfStream);
-			}
-			else if (type.Equals("purchasereturn", StringComparison.CurrentCultureIgnoreCase))
-			{
-				var (pdfStream, fileName) = await PurchaseReturnInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.PDF);
-				await SaveAndViewService.SaveAndView(fileName, pdfStream);
-			}
-			else if (type.Equals("kitchenissue", StringComparison.CurrentCultureIgnoreCase))
-			{
-				var (pdfStream, fileName) = await KitchenIssueInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.PDF);
-				await SaveAndViewService.SaveAndView(fileName, pdfStream);
-			}
-			else if (type.Equals("kitchenproduction", StringComparison.CurrentCultureIgnoreCase))
-			{
-				var (pdfStream, fileName) = await KitchenProductionInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.PDF);
-				await SaveAndViewService.SaveAndView(fileName, pdfStream);
-			}
-			else if (type.Equals("sale", StringComparison.CurrentCultureIgnoreCase))
-			{
-				var (pdfStream, fileName) = await SaleInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.PDF);
-				await SaveAndViewService.SaveAndView(fileName, pdfStream);
-			}
-			else if (type.Equals("salereturn", StringComparison.CurrentCultureIgnoreCase))
-			{
-				var (pdfStream, fileName) = await SaleReturnInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.PDF);
-				await SaveAndViewService.SaveAndView(fileName, pdfStream);
-			}
-			else if (type.Equals("stocktransfer", StringComparison.CurrentCultureIgnoreCase))
-			{
-				var (pdfStream, fileName) = await StockTransferInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.PDF);
-				await SaveAndViewService.SaveAndView(fileName, pdfStream);
-			}
-			else if (type.Equals("bill", StringComparison.CurrentCultureIgnoreCase))
-			{
-				var (pdfStream, fileName) = await BillInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.PDF);
-				await SaveAndViewService.SaveAndView(fileName, pdfStream);
-			}
-
-			await _toastNotification.ShowAsync("Success", "PDF invoice downloaded successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"An error occurred while downloading PDF invoice: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			StateHasChanged();
-		}
-	}
-
-	private async Task DownloadExcelInvoice(string type, int transactionId)
-	{
-		if (_isProcessing)
-			return;
-
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
-
-			if (type.Equals("purchase", StringComparison.CurrentCultureIgnoreCase))
-			{
-				var (excelStream, fileName) = await PurchaseInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.Excel);
-				await SaveAndViewService.SaveAndView(fileName, excelStream);
-			}
-			else if (type.Equals("purchasereturn", StringComparison.CurrentCultureIgnoreCase))
-			{
-				var (excelStream, fileName) = await PurchaseReturnInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.Excel);
-				await SaveAndViewService.SaveAndView(fileName, excelStream);
-			}
-			else if (type.Equals("kitchenissue", StringComparison.CurrentCultureIgnoreCase))
-			{
-				var (excelStream, fileName) = await KitchenIssueInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.Excel);
-				await SaveAndViewService.SaveAndView(fileName, excelStream);
-			}
-			else if (type.Equals("kitchenproduction", StringComparison.CurrentCultureIgnoreCase))
-			{
-				var (excelStream, fileName) = await KitchenProductionInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.Excel);
-				await SaveAndViewService.SaveAndView(fileName, excelStream);
-			}
-			else if (type.Equals("sale", StringComparison.CurrentCultureIgnoreCase))
-			{
-				var (excelStream, fileName) = await SaleInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.Excel);
-				await SaveAndViewService.SaveAndView(fileName, excelStream);
-			}
-			else if (type.Equals("salereturn", StringComparison.CurrentCultureIgnoreCase))
-			{
-				var (excelStream, fileName) = await SaleReturnInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.Excel);
-				await SaveAndViewService.SaveAndView(fileName, excelStream);
-			}
-			else if (type.Equals("stocktransfer", StringComparison.CurrentCultureIgnoreCase))
-			{
-				var (excelStream, fileName) = await StockTransferInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.Excel);
-				await SaveAndViewService.SaveAndView(fileName, excelStream);
-			}
-			else if (type.Equals("bill", StringComparison.CurrentCultureIgnoreCase))
-			{
-				var (excelStream, fileName) = await BillInvoiceExport.ExportInvoice(transactionId, InvoiceExportType.Excel);
-				await SaveAndViewService.SaveAndView(fileName, excelStream);
-			}
-
-			await _toastNotification.ShowAsync("Success", "Excel invoice downloaded successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"An error occurred while downloading Excel invoice: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			StateHasChanged();
-		}
+		var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(selectedCartItem.TransactionNo, false, true);
+		await SaveAndViewService.SaveAndView(decodedTransactionNo.ExcelStream.fileName, decodedTransactionNo.ExcelStream.stream);
 	}
 
 	private async Task DeleteSelectedCartItem()
@@ -656,13 +491,8 @@ public partial class ProductStockReport : IAsyncDisposable
 		StateHasChanged();
 	}
 
-	private async Task NavigateToTransactionPage()
-	{
-		if (FormFactor.GetFormFactor() == "Web")
-			await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ProductStockAdjustment, "_blank");
-		else
-			NavigationManager.NavigateTo(PageRouteNames.ProductStockAdjustment);
-	}
+	private async Task NavigateToTransactionPage() =>
+		await AuthenticationService.NavigateToRoute(PageRouteNames.ProductStockAdjustment, FormFactor, JSRuntime, NavigationManager);
 
 	private void NavigateBack() =>
 		NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);

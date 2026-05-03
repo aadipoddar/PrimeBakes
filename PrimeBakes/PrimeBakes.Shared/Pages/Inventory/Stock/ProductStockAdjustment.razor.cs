@@ -441,13 +441,8 @@ public partial class ProductStockAdjustment
         NavigationManager.NavigateTo(PageRouteNames.ProductStockAdjustment, true);
     }
 
-    private async Task NavigateToTransactionHistoryPage()
-    {
-        if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ProductStockReport, "_blank");
-        else
-            NavigationManager.NavigateTo(PageRouteNames.ProductStockReport);
-    }
+    private async Task NavigateToTransactionHistoryPage() =>
+        await AuthenticationService.NavigateToRoute(PageRouteNames.ProductStockReport, FormFactor, JSRuntime, NavigationManager);
 
     private void NavigateToDashboard() =>
         NavigationManager.NavigateTo(PageRouteNames.Dashboard);

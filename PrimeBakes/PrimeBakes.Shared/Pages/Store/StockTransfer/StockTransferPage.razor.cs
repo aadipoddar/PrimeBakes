@@ -1034,21 +1034,11 @@ public partial class StockTransferPage
         NavigationManager.NavigateTo(PageRouteNames.StockTransfer, true);
     }
 
-    private async Task NavigateToTransactionHistoryPage()
-    {
-        if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.StockTransferReport, "_blank");
-        else
-            NavigationManager.NavigateTo(PageRouteNames.StockTransferReport);
-    }
+    private async Task NavigateToTransactionHistoryPage() =>
+        await AuthenticationService.NavigateToRoute(PageRouteNames.StockTransferReport, FormFactor, JSRuntime, NavigationManager);
 
-    private async Task NavigateToItemReport()
-    {
-        if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.StockTransferItemReport, "_blank");
-        else
-            NavigationManager.NavigateTo(PageRouteNames.StockTransferItemReport);
-    }
+    private async Task NavigateToItemReport() =>
+        await AuthenticationService.NavigateToRoute(PageRouteNames.StockTransferItemReport, FormFactor, JSRuntime, NavigationManager);
 
     private void NavigateToDashboard() =>
         NavigationManager.NavigateTo(PageRouteNames.Dashboard);

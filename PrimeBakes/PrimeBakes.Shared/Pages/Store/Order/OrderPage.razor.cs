@@ -770,21 +770,11 @@ public partial class OrderPage
         NavigationManager.NavigateTo(PageRouteNames.Order, true);
     }
 
-    private async Task NavigateToTransactionHistoryPage()
-    {
-        if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.OrderReport, "_blank");
-        else
-            NavigationManager.NavigateTo(PageRouteNames.OrderReport);
-    }
+    private async Task NavigateToTransactionHistoryPage() =>
+        await AuthenticationService.NavigateToRoute(PageRouteNames.OrderReport, FormFactor, JSRuntime, NavigationManager);
 
-    private async Task NavigateToItemReport()
-    {
-        if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.ReportOrderItem, "_blank");
-        else
-            NavigationManager.NavigateTo(PageRouteNames.ReportOrderItem);
-    }
+    private async Task NavigateToItemReport() =>
+        await AuthenticationService.NavigateToRoute(PageRouteNames.ReportOrderItem, FormFactor, JSRuntime, NavigationManager);
 
     private async Task NavigateToSelectedSalePage()
     {
@@ -794,10 +784,8 @@ public partial class OrderPage
             return;
 
         }
-        if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", $"{PageRouteNames.Sale}/{_order.SaleId}", "_blank");
-        else
-            NavigationManager.NavigateTo($"{PageRouteNames.Sale}/{_order.SaleId}");
+
+        await AuthenticationService.NavigateToRoute($"{PageRouteNames.Sale}/{_order.SaleId}", FormFactor, JSRuntime, NavigationManager);
     }
 
     private async Task DownloadSelectedSalePdf()

@@ -1371,21 +1371,11 @@ public partial class BillPage
 		NavigationManager.NavigateTo(PageRouteNames.DiningDashboard, true);
 	}
 
-	private async Task NavigateToTransactionHistoryPage()
-	{
-		if (FormFactor.GetFormFactor() == "Web")
-			await JSRuntime.InvokeVoidAsync("open", PageRouteNames.BillReport, "_blank");
-		else
-			NavigationManager.NavigateTo(PageRouteNames.BillReport);
-	}
+	private async Task NavigateToTransactionHistoryPage() =>
+		await AuthenticationService.NavigateToRoute(PageRouteNames.BillReport, FormFactor, JSRuntime, NavigationManager);
 
-	private async Task NavigateToItemReport()
-	{
-		if (FormFactor.GetFormFactor() == "Web")
-			await JSRuntime.InvokeVoidAsync("open", PageRouteNames.BillItemReport, "_blank");
-		else
-			NavigationManager.NavigateTo(PageRouteNames.BillItemReport);
-	}
+	private async Task NavigateToItemReport() =>
+		await AuthenticationService.NavigateToRoute(PageRouteNames.BillItemReport, FormFactor, JSRuntime, NavigationManager);
 
 	private void NavigateBack() =>
 		NavigationManager.NavigateTo(PageRouteNames.RestaurantDashboard);

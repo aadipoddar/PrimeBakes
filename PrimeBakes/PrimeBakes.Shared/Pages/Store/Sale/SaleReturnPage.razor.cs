@@ -1200,21 +1200,11 @@ public partial class SaleReturnPage
         NavigationManager.NavigateTo(PageRouteNames.SaleReturn, true);
     }
 
-    private async Task NavigateToTransactionHistoryPage()
-    {
-        if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.SaleReturnReport, "_blank");
-        else
-            NavigationManager.NavigateTo(PageRouteNames.SaleReturnReport);
-    }
+    private async Task NavigateToTransactionHistoryPage() =>
+        await AuthenticationService.NavigateToRoute(PageRouteNames.SaleReturnReport, FormFactor, JSRuntime, NavigationManager);
 
-    private async Task NavigateToItemReport()
-    {
-        if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.SaleItemReport, "_blank");
-        else
-            NavigationManager.NavigateTo(PageRouteNames.SaleItemReport);
-    }
+    private async Task NavigateToItemReport() =>
+        await AuthenticationService.NavigateToRoute(PageRouteNames.SaleReturnItemReport, FormFactor, JSRuntime, NavigationManager);
 
     private void NavigateToDashboard() =>
         NavigationManager.NavigateTo(PageRouteNames.Dashboard);

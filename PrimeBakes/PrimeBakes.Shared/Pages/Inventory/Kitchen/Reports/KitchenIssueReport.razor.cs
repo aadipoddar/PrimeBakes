@@ -337,11 +337,7 @@ public partial class KitchenIssueReport : IAsyncDisposable
             return;
 
         var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo, false, false, CodeType.KitchenIssue);
-
-        if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", decodedTransactionNo.PageRouteName, "_blank");
-        else
-            NavigationManager.NavigateTo(decodedTransactionNo.PageRouteName);
+        await AuthenticationService.NavigateToRoute(decodedTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
     }
 
     private async Task DeleteRecoverSelectedTransaction()
@@ -600,21 +596,11 @@ public partial class KitchenIssueReport : IAsyncDisposable
         await LoadTransactionOverviews();
     }
 
-    private async Task NavigateToTransactionPage()
-    {
-        if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.KitchenIssue, "_blank");
-        else
-            NavigationManager.NavigateTo(PageRouteNames.KitchenIssue);
-    }
+    private async Task NavigateToTransactionPage() =>
+        await AuthenticationService.NavigateToRoute(PageRouteNames.KitchenIssue, FormFactor, JSRuntime, NavigationManager);
 
-    private async Task NavigateToItemReport()
-    {
-        if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.KitchenIssueItemReport, "_blank");
-        else
-            NavigationManager.NavigateTo(PageRouteNames.KitchenIssueItemReport);
-    }
+    private async Task NavigateToItemReport() =>
+        await AuthenticationService.NavigateToRoute(PageRouteNames.KitchenIssueItemReport, FormFactor, JSRuntime, NavigationManager);
 
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);

@@ -381,11 +381,7 @@ public partial class SaleReturnReport : IAsyncDisposable
             return;
 
         var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo, false, false);
-
-        if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", decodedTransactionNo.PageRouteName, "_blank");
-        else
-            NavigationManager.NavigateTo(decodedTransactionNo.PageRouteName);
+        await AuthenticationService.NavigateToRoute(decodedTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
     }
 
     private async Task DeleteRecoverSelectedTransaction()
@@ -657,21 +653,11 @@ public partial class SaleReturnReport : IAsyncDisposable
         await LoadTransactionOverviews();
     }
 
-    private async Task NavigateToTransactionPage()
-    {
-        if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.SaleReturn, "_blank");
-        else
-            NavigationManager.NavigateTo(PageRouteNames.SaleReturn);
-    }
+    private async Task NavigateToTransactionPage() =>
+        await AuthenticationService.NavigateToRoute(PageRouteNames.SaleReturn, FormFactor, JSRuntime, NavigationManager);
 
-    private async Task NavigateToItemReport()
-    {
-        if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.SaleReturnItemReport, "_blank");
-        else
-            NavigationManager.NavigateTo(PageRouteNames.SaleReturnItemReport);
-    }
+    private async Task NavigateToItemReport() =>
+        await AuthenticationService.NavigateToRoute(PageRouteNames.SaleReturnItemReport, FormFactor, JSRuntime, NavigationManager);
 
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.StoreDashboard);

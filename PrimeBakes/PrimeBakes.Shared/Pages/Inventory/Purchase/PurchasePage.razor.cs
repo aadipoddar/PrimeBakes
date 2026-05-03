@@ -1011,21 +1011,11 @@ public partial class PurchasePage
         NavigationManager.NavigateTo(PageRouteNames.Purchase, true);
     }
 
-    private async Task NavigateToTransactionHistoryPage()
-    {
-        if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.PurchaseReport, "_blank");
-        else
-            NavigationManager.NavigateTo(PageRouteNames.PurchaseReport);
-    }
+    private async Task NavigateToTransactionHistoryPage() =>
+        await AuthenticationService.NavigateToRoute(PageRouteNames.PurchaseReport, FormFactor, JSRuntime, NavigationManager);
 
-    private async Task NavigateToItemReport()
-    {
-        if (FormFactor.GetFormFactor() == "Web")
-            await JSRuntime.InvokeVoidAsync("open", PageRouteNames.PurchaseItemReport, "_blank");
-        else
-            NavigationManager.NavigateTo(PageRouteNames.PurchaseItemReport);
-    }
+    private async Task NavigateToItemReport() =>
+         await AuthenticationService.NavigateToRoute(PageRouteNames.PurchaseItemReport, FormFactor, JSRuntime, NavigationManager);
 
     private void NavigateBack() =>
         NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);

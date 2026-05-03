@@ -448,11 +448,7 @@ public partial class BillReport : IAsyncDisposable
 			return;
 
 		var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo, false, false, CodeType.Bill);
-
-		if (FormFactor.GetFormFactor() == "Web")
-			await JSRuntime.InvokeVoidAsync("open", decodedTransactionNo.PageRouteName, "_blank");
-		else
-			NavigationManager.NavigateTo(decodedTransactionNo.PageRouteName);
+		await AuthenticationService.NavigateToRoute(decodedTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
 	}
 
 	private async Task DeleteRecoverSelectedTransaction()
@@ -717,21 +713,11 @@ public partial class BillReport : IAsyncDisposable
 		await LoadTransactionOverviews();
 	}
 
-	private async Task NavigateToTransactionPage()
-	{
-		if (FormFactor.GetFormFactor() == "Web")
-			await JSRuntime.InvokeVoidAsync("open", PageRouteNames.Bill, "_blank");
-		else
-			NavigationManager.NavigateTo(PageRouteNames.Bill);
-	}
+	private async Task NavigateToTransactionPage() =>
+		await AuthenticationService.NavigateToRoute(PageRouteNames.Bill, FormFactor, JSRuntime, NavigationManager);
 
-	private async Task NavigateToItemReport()
-	{
-		if (FormFactor.GetFormFactor() == "Web")
-			await JSRuntime.InvokeVoidAsync("open", PageRouteNames.BillItemReport, "_blank");
-		else
-			NavigationManager.NavigateTo(PageRouteNames.BillItemReport);
-	}
+	private async Task NavigateToItemReport() =>
+		await AuthenticationService.NavigateToRoute(PageRouteNames.BillItemReport, FormFactor, JSRuntime, NavigationManager);
 
 	private void NavigateBack() =>
 		NavigationManager.NavigateTo(PageRouteNames.RestaurantDashboard);
