@@ -674,7 +674,7 @@ public partial class FinancialAccountingPage
 			_isProcessing = true;
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_accounting.TransactionNo, CodeType.Accounting);
+			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_accounting.TransactionNo, true, false, CodeType.Accounting);
 			await SaveAndViewService.SaveAndView(decodeTransactionNo.PDFStream.fileName, decodeTransactionNo.PDFStream.stream);
 
 			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
@@ -705,7 +705,7 @@ public partial class FinancialAccountingPage
 			_isProcessing = true;
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_accounting.TransactionNo, CodeType.Accounting);
+			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_accounting.TransactionNo, false, true, CodeType.Accounting);
 			await SaveAndViewService.SaveAndView(decodeTransactionNo.ExcelStream.fileName, decodeTransactionNo.ExcelStream.stream);
 
 			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
@@ -736,7 +736,7 @@ public partial class FinancialAccountingPage
 			_isProcessing = true;
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_accounting.ReferenceNo);
+			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_accounting.ReferenceNo, true, false);
 			await SaveAndViewService.SaveAndView(decodeTransactionNo.PDFStream.fileName, decodeTransactionNo.PDFStream.stream);
 
 			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
@@ -767,7 +767,7 @@ public partial class FinancialAccountingPage
 			_isProcessing = true;
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_selectedAccountingLedger.ReferenceNo);
+			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_selectedAccountingLedger.ReferenceNo, true, false);
 			await SaveAndViewService.SaveAndView(decodeTransactionNo.PDFStream.fileName, decodeTransactionNo.PDFStream.stream);
 
 			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
@@ -790,7 +790,7 @@ public partial class FinancialAccountingPage
 			return;
 		}
 
-		var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_accounting.ReferenceNo);
+		var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_accounting.ReferenceNo, false, false);
 		await AuthenticationService.NavigateToRoute(decodeTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
 	}
 
@@ -802,7 +802,7 @@ public partial class FinancialAccountingPage
 			return;
 		}
 
-		var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_selectedAccountingLedger.ReferenceNo);
+		var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_selectedAccountingLedger.ReferenceNo, false, false);
 		await AuthenticationService.NavigateToRoute(decodeTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
 	}
 	#endregion

@@ -17,12 +17,12 @@ BEGIN
 					 WHERE pd.Id = r.[Id]
 					   AND pd.PartyId = @PartyId
 					   AND pd.TransactionDateTime <= @PurchaseDateTime
-					 ORDER BY pd.Id DESC)
+					 ORDER BY pd.TransactionDateTime DESC)
 				ELSE
 					(SELECT TOP 1 Rate FROM Purchase_Item_Overview pd
 					 WHERE pd.Id = r.[Id]
 					   AND pd.TransactionDateTime <= @PurchaseDateTime
-					 ORDER BY pd.Id DESC)
+					 ORDER BY pd.TransactionDateTime DESC)
 			END, r.[Rate]) AS [Rate],
 
 		ISNULL(
@@ -32,12 +32,12 @@ BEGIN
 					 WHERE pd.Id = r.[Id]
 					   AND pd.PartyId = @PartyId
 					   AND pd.TransactionDateTime <= @PurchaseDateTime
-					   ORDER BY pd.Id DESC)
+					   ORDER BY pd.TransactionDateTime DESC)
 				ELSE
 					(SELECT TOP 1 UnitOfMeasurement FROM Purchase_Item_Overview pd
 					 WHERE pd.Id = r.[Id]
 					   AND pd.TransactionDateTime <= @PurchaseDateTime
-					   ORDER BY pd.Id DESC)
+					   ORDER BY pd.TransactionDateTime DESC)
 			END, r.[UnitOfMeasurement]) AS [UnitOfMeasurement],
 
 		r.[TaxId],

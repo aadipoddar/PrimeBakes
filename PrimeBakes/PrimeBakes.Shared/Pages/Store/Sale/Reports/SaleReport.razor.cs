@@ -201,8 +201,7 @@ public partial class SaleReport : IAsyncDisposable
 			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
-		if (!_showDeleted)
-			_transactionReturnOverviews = [.. _transactionReturnOverviews.Where(_ => _.Status)];
+		_transactionReturnOverviews = [.. _transactionReturnOverviews.Where(_ => _.Status)];
 
 		if (_selectedLocation?.Id > 0)
 			_transactionReturnOverviews = [.. _transactionReturnOverviews.Where(_ => _.LocationId == _selectedLocation.Id)];
@@ -279,8 +278,7 @@ public partial class SaleReport : IAsyncDisposable
 			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
-		if (!_showDeleted)
-			_transactionTransferOverviews = [.. _transactionTransferOverviews.Where(_ => _.Status)];
+		_transactionTransferOverviews = [.. _transactionTransferOverviews.Where(_ => _.Status)];
 
 		if (_selectedLocation?.Id > 0)
 			_transactionTransferOverviews = [.. _transactionTransferOverviews.Where(_ => _.LocationId == _selectedLocation.Id)];
@@ -361,8 +359,7 @@ public partial class SaleReport : IAsyncDisposable
 			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
-		if (!_showDeleted)
-			_transactionBillOverviews = [.. _transactionBillOverviews.Where(_ => _.Status)];
+		_transactionBillOverviews = [.. _transactionBillOverviews.Where(_ => _.Status)];
 
 		if (_selectedLocation?.Id > 0)
 			_transactionBillOverviews = [.. _transactionBillOverviews.Where(_ => _.LocationId == _selectedLocation.Id)];
@@ -556,7 +553,7 @@ public partial class SaleReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
 
-			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
+			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo, true, false);
 			await SaveAndViewService.SaveAndView(decodeTransactionNo.PDFStream.fileName, decodeTransactionNo.PDFStream.stream);
 
 			await _toastNotification.ShowAsync("Success", "PDF invoice generated successfully.", ToastType.Success);
@@ -583,7 +580,7 @@ public partial class SaleReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
 
-			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
+			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo, false, true);
 			await SaveAndViewService.SaveAndView(decodeTransactionNo.ExcelStream.fileName, decodeTransactionNo.ExcelStream.stream);
 
 			await _toastNotification.ShowAsync("Success", "Excel invoice generated successfully.", ToastType.Success);
@@ -703,7 +700,7 @@ public partial class SaleReport : IAsyncDisposable
 
 		try
 		{
-			var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo);
+			var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo, false, false);
 
 			if (FormFactor.GetFormFactor() == "Web")
 				await JSRuntime.InvokeVoidAsync("open", decodedTransactionNo.PageRouteName, "_blank");
@@ -773,7 +770,7 @@ public partial class SaleReport : IAsyncDisposable
 	{
 		await _toastNotification.ShowAsync("Processing", "Deleting transaction...", ToastType.Info);
 
-		var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(_deleteTransactionNo);
+		var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(_deleteTransactionNo, false, false);
 
 		if (decodedTransactionNo.CodeType == CodeType.StockTransfer)
 			await DeleteStockTransferTransaction(_deleteTransactionId);
@@ -828,7 +825,6 @@ public partial class SaleReport : IAsyncDisposable
 			return;
 		}
 
-		// Update the Status to false (soft delete)
 		stockTransfer.Status = false;
 		stockTransfer.LastModifiedBy = _user.Id;
 		stockTransfer.LastModifiedAt = await CommonData.LoadCurrentDateTime();
