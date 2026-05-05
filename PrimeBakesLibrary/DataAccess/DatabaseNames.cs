@@ -185,6 +185,8 @@ public static class ViewNames
 	public static string RawMaterialStockDetails => "RawMaterialStockDetails";
 	public static string ProductStockDetails => "ProductStockDetails";
 
+	public static string RecipeOverview => "Recipe_Overview";
+
 	public static string ProductLocationOverview => "ProductLocation_Overview";
 
 	public static string OrderOverview => "Order_Overview";

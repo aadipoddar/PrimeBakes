@@ -5,7 +5,6 @@ using PrimeBakesLibrary.Data.Inventory.Purchase;
 using PrimeBakesLibrary.Data.Store.Product;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Inventory.Recipe;
-using PrimeBakesLibrary.Exporting.Store.Sale;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Inventory;
 using PrimeBakesLibrary.Models.Operations;
@@ -112,13 +111,15 @@ public partial class RecipePage
 			{
 				var rawMaterial = _rawMaterials.FirstOrDefault(r => r.Id == detail.RawMaterialId);
 
+				var amount = detail.Quantity * rawMaterial.Rate;
 				_recipeItems.Add(new()
 				{
 					ItemId = detail.RawMaterialId,
 					ItemName = rawMaterial.Name,
 					Quantity = detail.Quantity,
 					Rate = rawMaterial.Rate,
-					Amount = detail.Quantity * rawMaterial.Rate
+					Amount = amount,
+					PerUnit = _recipe.Quantity > 0 ? amount / _recipe.Quantity : 0m
 				});
 			}
 
@@ -148,6 +149,7 @@ public partial class RecipePage
 		{
 			rawMaterial.Rate = _rawMaterials.FirstOrDefault(r => r.Id == rawMaterial.ItemId)?.Rate ?? rawMaterial.Rate;
 			rawMaterial.Amount = rawMaterial.Quantity * rawMaterial.Rate;
+			rawMaterial.PerUnit = _recipe.Quantity > 0 ? rawMaterial.Amount / _recipe.Quantity : 0m;
 		}
 
 		if (_sfCartGrid is not null)
@@ -161,16 +163,24 @@ public partial class RecipePage
 
 		var existingRecipe = _recipeItems.FirstOrDefault(r => r.ItemId == _selectedRawMaterial.Id);
 		if (existingRecipe is not null)
+		{
 			existingRecipe.Quantity += _selectedCart.Quantity;
+			existingRecipe.Amount = existingRecipe.Quantity * existingRecipe.Rate;
+			existingRecipe.PerUnit = _recipe.Quantity > 0 ? existingRecipe.Amount / _recipe.Quantity : 0m;
+		}
 		else
+		{
+			var amount = _selectedCart.Quantity * _selectedRawMaterial.Rate;
 			_recipeItems.Add(new()
 			{
 				ItemId = _selectedRawMaterial.Id,
 				ItemName = _selectedRawMaterial.Name,
 				Quantity = _selectedCart.Quantity,
 				Rate = _selectedRawMaterial.Rate,
-				Amount = _selectedCart.Quantity * _selectedRawMaterial.Rate
+				Amount = amount,
+				PerUnit = _recipe.Quantity > 0 ? amount / _recipe.Quantity : 0m
 			});
+		}
 
 		_selectedRawMaterial = null;
 		_selectedCart = new();

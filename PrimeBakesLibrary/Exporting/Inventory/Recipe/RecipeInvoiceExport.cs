@@ -1,13 +1,8 @@
 ﻿using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Inventory.Purchase;
 using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Inventory;
-using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Store.Masters;
-using PrimeBakesLibrary.Models.Store.Order;
 using PrimeBakesLibrary.Models.Store.Product;
-using PrimeBakesLibrary.Models.Store.Sale;
 
 namespace PrimeBakesLibrary.Exporting.Inventory.Recipe;
 
@@ -65,7 +60,7 @@ public static class RecipeInvoiceExport
 			new(nameof(RecipeItemCartModel.Quantity), "Qty", exportType, CellAlignment.Right, 40, 10, "#,##0.00"),
 			new(nameof(RecipeItemCartModel.Rate), "Rate", exportType, CellAlignment.Right, 50, 12, "#,##0.00"),
 			new(nameof(RecipeItemCartModel.Amount), "Amount", exportType, CellAlignment.Right, 55, 15, "#,##0.00"),
-			new("PerUnit", "Per Unit", exportType, CellAlignment.Right, 55, 15, "#,##0.00")
+			new(nameof(RecipeItemCartModel.PerUnit), "Per Unit", exportType, CellAlignment.Right, 55, 15, "#,##0.00")
 		};
 
 		var currentDateTime = await CommonData.LoadCurrentDateTime();

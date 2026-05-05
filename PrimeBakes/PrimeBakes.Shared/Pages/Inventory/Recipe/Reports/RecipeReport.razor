@@ -1,0 +1,114 @@
+@attribute [Route(PageRouteNames.RecipeReport)]
+
+@using PrimeBakesLibrary.Models.Inventory;
+
+<PageTitle>Recipe Report - Prime Bakes</PageTitle>
+
+<MudBlazor.MudHotkey Key=JsKey.KeyB KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateBack" />
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateToRecipePage" />
+<MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadData" />
+<MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadData" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ExportPdf" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ExportExcel" />
+<MudBlazor.MudHotkey Key=JsKey.KeyO KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="OpenSelectedRecipe" />
+
+@if (_isLoading)
+{
+	<AnimatedLoader Visible="true" />
+}
+else
+{
+	<div class="page-shell">
+		<Header Title="Recipe Report">
+			<LeftContent>
+				<SfMenu TValue="Syncfusion.Blazor.Navigations.MenuItem">
+					<MenuAnimationSettings Effect="Syncfusion.Blazor.Navigations.MenuEffect.SlideDown" Duration="300" Easing="ease" />
+					<MenuEvents TValue="Syncfusion.Blazor.Navigations.MenuItem" ItemSelected="OnMenuSelected" />
+					<MenuItems>
+						<MenuItem Text="File" IconCss="e-icons e-folder">
+							<MenuItems>
+								<MenuItem Text="New Recipe (Ctrl + N)" IconCss="e-icons e-plus" Id="NewRecipe" Disabled="@_isProcessing" />
+								<MenuItem Text="Refresh (Ctrl + R / F5)" IconCss="e-icons e-refresh" Id="Refresh" Disabled="@_isProcessing" />
+								<MenuItem Separator="true" />
+								<MenuItem Text="Export PDF (Ctrl + P)" IconCss="e-icons e-export-pdf" Id="ExportPdf" Disabled="@_isProcessing" />
+								<MenuItem Text="Export Excel (Ctrl + E)" IconCss="e-icons e-export-excel" Id="ExportExcel" Disabled="@_isProcessing" />
+							</MenuItems>
+						</MenuItem>
+					</MenuItems>
+				</SfMenu>
+			</LeftContent>
+			<RightContent>
+				<IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="NavigateBack" />
+			</RightContent>
+		</Header>
+
+		<div class="page-container">
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+							<path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+						</svg>
+						<h2 class="section-title">All Product Recipes</h2>
+					</div>
+				</div>
+				<div class="section-body grid-body">
+					<SfGrid ID="_sfGrid" @ref="_sfGrid" DataSource="_recipeOverviews" AllowTextWrap="true" AllowPaging="true"
+							AllowSorting="true" AllowResizing="true" AllowFiltering="true" GridLines="GridLine.Horizontal"
+							CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })"
+							ContextMenuItems="@_gridContextMenuItems">
+
+						<GridEvents TValue="RecipeOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
+						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+						<GridAggregates>
+							<GridAggregate>
+								<GridAggregateColumns>
+									<GridAggregateColumn Field="@nameof(RecipeOverviewModel.ProductName)" Type="AggregateType.Count">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+											}
+											<div class="aggregate-label"><strong>Total: @aggregate.Count</strong></div>
+										</FooterTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(RecipeOverviewModel.TotalCost)" Type="AggregateType.Sum">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
+											}
+											<div class="aggregate-value aggregate-total"><strong>@sum.ToString("N2")</strong></div>
+										</FooterTemplate>
+									</GridAggregateColumn>
+								</GridAggregateColumns>
+							</GridAggregate>
+						</GridAggregates>
+
+						<GridColumns>
+							<GridColumn Field="@nameof(RecipeOverviewModel.ProductName)" HeaderText="Product" Width="250" />
+							<GridColumn Field="@nameof(RecipeOverviewModel.Quantity)" HeaderText="Recipe Qty" Width="140" TextAlign="TextAlign.Right" Format="N2" />
+							<GridColumn Field="@nameof(RecipeOverviewModel.Deduct)" HeaderText="Deduct on Sale" Width="160" TextAlign="TextAlign.Center">
+								<Template>
+									@{
+										var item = context as RecipeOverviewModel;
+									}
+									@(item.Deduct ? "Yes" : "No")
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(RecipeOverviewModel.ItemCount)" HeaderText="Ingredients" Width="130" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(RecipeOverviewModel.TotalCost)" HeaderText="Total Cost" Width="150" TextAlign="TextAlign.Right" Format="N2" />
+							<GridColumn Field="@nameof(RecipeOverviewModel.PerUnitCost)" HeaderText="Per Unit Cost" Width="150" TextAlign="TextAlign.Right" Format="N2" />
+						</GridColumns>
+					</SfGrid>
+				</div>
+			</div>
+		</div>
+
+		<Footer />
+	</div>
+}
+
+<ToastNotification @ref="_toastNotification" />

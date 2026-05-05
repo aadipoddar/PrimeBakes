@@ -59,6 +59,7 @@ public static class PageRouteNames
 	public const string RawMaterial = "/inventory/raw-material/raw-material";
 	public const string RawMaterialCategory = "/inventory/raw-material/raw-material-category";
 	public const string Recipe = "/inventory/recipe/recipe";
+	public const string RecipeReport = "/inventory/recipe/reports/recipe";
 	#endregion
 
 	#region Store

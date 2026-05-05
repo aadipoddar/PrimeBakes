@@ -128,6 +128,7 @@
     <Folder Include="Views\Restaurant" />
     <Folder Include="StoredProcedures\Insert\Restaurant\Dining" />
     <Folder Include="StoredProcedures\LoadData\Store\Sale\" />
+    <Folder Include="Views\Inventory\Recipe" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="StoredProcedures\Delete\Delete_ProductStock_By_Id.sql" />
@@ -276,6 +277,7 @@
     <Build Include="StoredProcedures\Insert\Store\Product\Insert_KOTCategory.sql" />
     <Build Include="StoredProcedures\LoadData\Restaurant\Bill\Load_Bill_By_FinancialAccountingId.sql" />
     <Build Include="StoredProcedures\Delete\Delete_ProductLocation_By_Id.sql" />
+    <Build Include="Views\Inventory\Recipe\Recipe_Overview.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="PublishLocation\LocalDBPrimeBakes.publish.xml" />

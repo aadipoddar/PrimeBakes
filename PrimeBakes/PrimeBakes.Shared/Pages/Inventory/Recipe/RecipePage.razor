@@ -145,6 +145,14 @@ else
 						</div>
 
 						<div class="cart-field">
+							<label class="cart-label">Per Unit</label>
+							<SfNumericTextBox Value="@(_recipe.Quantity > 0 ? (_selectedCart.Quantity * (_rawMaterials.FirstOrDefault(r => r.Id == _selectedRawMaterial?.Id)?.Rate ?? 0)) / _recipe.Quantity : 0m)"
+											  TValue="decimal" Readonly="true"
+											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+											  CssClass="custom-numeric readonly-field" TabIndex="-1" />
+						</div>
+
+						<div class="cart-field">
 							<label class="cart-label" style="visibility: hidden;">Action</label>
 							<IconButton Icon="IconType.Add" Variant="ButtonVariant.Add" Text="Add" Title="Add to Cart" Disabled="_isProcessing" OnClick="AddItemToCart" />
 						</div>
@@ -205,7 +213,7 @@ else
 											</div>
 										</FooterTemplate>
 									</GridAggregateColumn>
-									<GridAggregateColumn Field="PerUnit" Type="AggregateType.Sum">
+									<GridAggregateColumn Field="@nameof(RecipeItemCartModel.PerUnit)" Type="AggregateType.Sum">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
@@ -225,15 +233,7 @@ else
 							<GridColumn Field="@nameof(RecipeItemCartModel.Quantity)" HeaderText="Quantity" Width="150" TextAlign="TextAlign.Right" Format="N2" />
 							<GridColumn Field="@nameof(RecipeItemCartModel.Rate)" HeaderText="Rate" Width="150" TextAlign="TextAlign.Right" Format="N2" />
 							<GridColumn Field="@nameof(RecipeItemCartModel.Amount)" HeaderText="Amount" Width="150" TextAlign="TextAlign.Right" Format="N2" />
-							<GridColumn HeaderText="Per Unit" Width="150" TextAlign="TextAlign.Right">
-								<Template>
-									@{
-										var item = context as RecipeItemCartModel;
-										var perUnit = _recipe.Quantity > 0 ? item.Amount / _recipe.Quantity : 0m;
-									}
-									@perUnit.ToString("N2")
-								</Template>
-							</GridColumn>
+							<GridColumn Field="@nameof(RecipeItemCartModel.PerUnit)" HeaderText="Per Unit" Width="150" TextAlign="TextAlign.Right" Format="N2" />
 						</GridColumns>
 					</SfGrid>
 				</div>

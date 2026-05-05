@@ -25,4 +25,17 @@ public class RecipeItemCartModel
     public decimal Quantity { get; set; }
     public decimal Rate { get; set; }
     public decimal Amount { get; set; }
+    public decimal PerUnit { get; set; }
+}
+
+public class RecipeOverviewModel
+{
+    public int Id { get; set; }
+    public int ProductId { get; set; }
+    public string ProductName { get; set; }
+    public decimal Quantity { get; set; }
+    public bool Deduct { get; set; }
+    public int ItemCount { get; set; }
+    public decimal TotalCost { get; set; }
+    public decimal PerUnitCost { get; set; }
 }
