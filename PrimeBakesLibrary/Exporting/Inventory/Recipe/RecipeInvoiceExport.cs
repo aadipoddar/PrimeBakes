@@ -30,13 +30,15 @@ public static class RecipeInvoiceExport
 		var lineItems = transactionDetails.Select(detail =>
 		{
 			var rawMaterial = rawMaterials.FirstOrDefault(r => r.Id == detail.RawMaterialId);
+			var amount = detail.Quantity * (rawMaterial?.Rate ?? 0);
 			return new
 			{
 				ItemId = detail.RawMaterialId,
 				ItemName = rawMaterial?.Name ?? $"Raw Material #{detail.RawMaterialId}",
 				detail.Quantity,
 				Rate = rawMaterial?.Rate ?? 0,
-				Amount = detail.Quantity * (rawMaterial?.Rate ?? 0)
+				Amount = amount,
+				PerUnit = transaction.Quantity > 0 ? amount / transaction.Quantity : 0m
 			};
 		}).ToList();
 
@@ -52,6 +54,7 @@ public static class RecipeInvoiceExport
 		var summaryFields = new Dictionary<string, string>
 		{
 			["Quantity"] = lineItems.Count.ToString(),
+			["Per Unit Total"] = lineItems.Sum(i => i.PerUnit).FormatIndianCurrency(),
 			["Grand Total"] = lineItems.Sum(i => i.Amount).FormatIndianCurrency()
 		};
 
@@ -61,7 +64,8 @@ public static class RecipeInvoiceExport
 			new(nameof(RecipeItemCartModel.ItemName), "Item", exportType, CellAlignment.Left, 0, 30),
 			new(nameof(RecipeItemCartModel.Quantity), "Qty", exportType, CellAlignment.Right, 40, 10, "#,##0.00"),
 			new(nameof(RecipeItemCartModel.Rate), "Rate", exportType, CellAlignment.Right, 50, 12, "#,##0.00"),
-			new(nameof(RecipeItemCartModel.Amount), "Amount", exportType, CellAlignment.Right, 55, 15, "#,##0.00")
+			new(nameof(RecipeItemCartModel.Amount), "Amount", exportType, CellAlignment.Right, 55, 15, "#,##0.00"),
+			new("PerUnit", "Per Unit", exportType, CellAlignment.Right, 55, 15, "#,##0.00")
 		};
 
 		var currentDateTime = await CommonData.LoadCurrentDateTime();

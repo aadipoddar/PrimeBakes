@@ -205,6 +205,17 @@ else
 											</div>
 										</FooterTemplate>
 									</GridAggregateColumn>
+									<GridAggregateColumn Field="PerUnit" Type="AggregateType.Sum">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
+											}
+											<div class="aggregate-value aggregate-total">
+												<strong>@sum.ToString("N2")</strong>
+											</div>
+										</FooterTemplate>
+									</GridAggregateColumn>
 								</GridAggregateColumns>
 							</GridAggregate>
 						</GridAggregates>
@@ -214,6 +225,15 @@ else
 							<GridColumn Field="@nameof(RecipeItemCartModel.Quantity)" HeaderText="Quantity" Width="150" TextAlign="TextAlign.Right" Format="N2" />
 							<GridColumn Field="@nameof(RecipeItemCartModel.Rate)" HeaderText="Rate" Width="150" TextAlign="TextAlign.Right" Format="N2" />
 							<GridColumn Field="@nameof(RecipeItemCartModel.Amount)" HeaderText="Amount" Width="150" TextAlign="TextAlign.Right" Format="N2" />
+							<GridColumn HeaderText="Per Unit" Width="150" TextAlign="TextAlign.Right">
+								<Template>
+									@{
+										var item = context as RecipeItemCartModel;
+										var perUnit = _recipe.Quantity > 0 ? item.Amount / _recipe.Quantity : 0m;
+									}
+									@perUnit.ToString("N2")
+								</Template>
+							</GridColumn>
 						</GridColumns>
 					</SfGrid>
 				</div>
