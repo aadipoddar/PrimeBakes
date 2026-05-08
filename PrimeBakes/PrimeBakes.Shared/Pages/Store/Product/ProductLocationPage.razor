@@ -11,7 +11,7 @@
 <MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ExportExcel" />
 <MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ExportPdf" />
 <MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="EditSelectedItem" />
-<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="DeleteSelectedItem" />
+<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="() => DeleteSelectedItem()" />
 
 @if (_isLoading)
 {
@@ -131,6 +131,20 @@ else
 						<GridEvents TValue="ProductLocationOverviewModel" ContextMenuItemClicked="OnProductLocationGridContextMenuItemClicked" />
 						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 						<GridColumns>
+							<GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center" AllowFiltering="false">
+								<Template>
+									@{
+										var productLocation = (context as ProductLocationOverviewModel);
+
+										<div class="grid-actions">
+											<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete"
+														Size="ButtonSize.Grid" Title="Remove Location" Disabled="_isProcessing"
+														OnClick="@(() => DeleteSelectedItem(productLocation.Id))" />
+										</div>
+									}
+								</Template>
+							</GridColumn>
+
 							<GridColumn Field="@nameof(ProductLocationOverviewModel.Id)" HeaderText="ID" Width="80"
 										TextAlign="TextAlign.Center" />
 							<GridColumn HeaderText="Location" Width="150">
