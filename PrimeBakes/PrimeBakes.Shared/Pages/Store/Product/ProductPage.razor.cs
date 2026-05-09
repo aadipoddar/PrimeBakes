@@ -143,7 +143,7 @@ public partial class ProductPage
 	#endregion
 
 	#region Actions
-	private void OnEditProduct(ProductModel product)
+	private async Task OnEditProduct(ProductModel product)
 	{
 		_product = new()
 		{
@@ -167,6 +167,10 @@ public partial class ProductPage
 
 		var tax = _taxes.FirstOrDefault(t => t.Id == product.TaxId);
 		_selectedTaxCode = tax?.Code ?? string.Empty;
+
+		var productLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(_product.Id);
+		_locations = [.. _locations.Where(l => productLocations.Any(pl => pl.LocationId == l.Id))];
+
 
 		StateHasChanged();
 	}
@@ -459,7 +463,7 @@ public partial class ProductPage
 	{
 		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
 		if (selectedRecords.Count > 0)
-			OnEditProduct(selectedRecords[0]);
+			await OnEditProduct(selectedRecords[0]);
 	}
 
 	private async Task DeleteSelectedItem()
