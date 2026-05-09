@@ -171,7 +171,9 @@ public partial class ProductPage
 		var productLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(_product.Id);
 		_locations = [.. _locations.Where(l => productLocations.Any(pl => pl.LocationId == l.Id))];
 
-
+		if (_sfLocationGrid is not null)
+			await _sfLocationGrid.Refresh();
+			
 		StateHasChanged();
 	}
 
