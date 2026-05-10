@@ -1,5 +1,6 @@
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakesLibrary.Data.Operations;
+using PrimeBakesLibrary.Data.Store.Product;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Operations;
 using PrimeBakesLibrary.Exporting.Utils;
@@ -119,7 +120,11 @@ public partial class LocationPage
             location.Status = false;
             await LocationData.InsertLocation(location);
 
-            await _toastNotification.ShowAsync("Deleted", $"Location '{location.Name}' removed successfully.", ToastType.Success);
+            var productLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(null, location.Id);
+            foreach (var productLocation in productLocations)
+                await ProductLocationData.DeleteProductLocationById(productLocation.Id);
+
+			await _toastNotification.ShowAsync("Deleted", $"Location '{location.Name}' removed successfully.", ToastType.Success);
             NavigationManager.NavigateTo(PageRouteNames.Location, true);
         }
         catch (Exception ex)
