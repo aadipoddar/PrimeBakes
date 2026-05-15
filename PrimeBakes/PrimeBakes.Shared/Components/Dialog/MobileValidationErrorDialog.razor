@@ -1,44 +1,272 @@
-<SfDialog Width="500px" Height="auto" AllowDragging="false" EnableResize="false" IsModal="true" @bind-Visible="Visible">
-    <DialogPositionData X="Center" Y="Center" />
-    <DialogTemplates>
-        <Header>
-            <div class="dialog-header error-header">
-                <span class="error-icon">❌</span>
-                <span>Validation Errors</span>
-            </div>
-        </Header>
-        <Content>
-            <div class="dialog-content error-content">
-                <div class="error-message">
-                    <h3>Please fix the following errors before proceeding:</h3>
-                    <p>Review and correct the issues listed below to continue with your @ContextLabel.</p>
-                </div>
+@if (Visible)
+{
+	<div class="pb-validation-overlay" @onclick="Close">
+		<div class="pb-validation" @onclick:stopPropagation="true">
+			<div class="pb-validation__header">
+				<div class="pb-validation__glyph">
+					<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M12 9v4" />
+						<path d="M12 17h.01" />
+						<path d="M10.3 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.7 3.86a2 2 0 00-3.4 0z" />
+					</svg>
+				</div>
+				<h2 class="pb-validation__title">A few things <em>to fix</em></h2>
+				<p class="pb-validation__sub">Review the items below to place this @ContextLabel.</p>
+			</div>
 
-                <div class="error-list">
-                    @foreach (var error in Errors)
-                    {
-                        <div class="error-item">
-                            <div class="error-item-icon">⚠️</div>
-                            <div class="error-item-content">
-                                <div class="error-item-title">@error.Field</div>
-                                <div class="error-item-message">@error.Message</div>
-                            </div>
-                        </div>
-                    }
-                </div>
+			<div class="pb-validation__list">
+				@for (int i = 0; i < Errors.Count; i++)
+				{
+					var error = Errors[i];
+					var index = i + 1;
+					<div class="pb-validation__row @(i == 0 ? "is-first" : "")">
+						<div class="pb-validation__num">@index</div>
+						<div class="pb-validation__row-body">
+							<div class="pb-validation__field">@error.Field</div>
+							<div class="pb-validation__message">@error.Message</div>
+						</div>
+					</div>
+				}
+			</div>
 
-                @if (Errors.Count > 1)
-                {
-                    <div class="error-summary">
-                        <span class="error-count">@Errors.Count errors found</span>
-                    </div>
-                }
-            </div>
-        </Content>
-        <FooterTemplate>
-            <div class="dialog-footer error-footer">
-                <SfButton Content="Fix Issues" OnClick="Close" CssClass="dialog-button error-fix-button" />
-            </div>
-        </FooterTemplate>
-    </DialogTemplates>
-</SfDialog>
+			<div class="pb-validation__footer">
+				<div class="pb-validation__count">
+					<span class="pb-validation__count-num">@Errors.Count</span>
+					@(Errors.Count == 1 ? "item" : "items") need attention
+				</div>
+				<button type="button" class="pb-validation__cta" @onclick="Close">
+					Fix issues
+					<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M5 12h14" />
+						<path d="M13 5l7 7-7 7" />
+					</svg>
+				</button>
+			</div>
+		</div>
+	</div>
+}
+
+<style>
+	.pb-validation-overlay {
+		--surface: #ffffff;
+		--surface-2: #faf5ec;
+		--ink-1: #1d1813;
+		--ink-2: #5a5147;
+		--ink-3: #9a8f7f;
+		--line-1: #ece4d3;
+		--rouge: #b13a5e;
+		--rouge-dark: #8a2748;
+		--butter: #c89343;
+		--butter-soft: #f6e9cd;
+		--ff-sans: "Plus Jakarta Sans", -apple-system, system-ui, sans-serif;
+		position: fixed;
+		inset: 0;
+		z-index: 10000;
+		background: rgba(29, 24, 19, 0.42);
+		backdrop-filter: blur(2px);
+		-webkit-backdrop-filter: blur(2px);
+		display: flex;
+		align-items: flex-end;
+		justify-content: center;
+		padding: 16px;
+		padding-bottom: max(16px, env(safe-area-inset-bottom));
+		animation: pb-val-fade 0.2s ease-out;
+		font-family: var(--ff-sans);
+	}
+
+	.pb-validation {
+		width: 100%;
+		max-width: 460px;
+		background: var(--surface);
+		border-radius: 26px;
+		border: 1px solid var(--line-1);
+		box-shadow: 0 24px 60px -10px rgba(29, 24, 19, 0.35);
+		overflow: hidden;
+		animation: pb-val-rise 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.05);
+		font-family: var(--ff-sans);
+		color: var(--ink-1);
+		-webkit-font-smoothing: antialiased;
+		letter-spacing: -0.005em;
+	}
+
+		.pb-validation *,
+		.pb-validation *::before,
+		.pb-validation *::after {
+			box-sizing: border-box;
+		}
+
+	.pb-validation__header {
+		padding: 20px 22px 14px;
+		background: linear-gradient(180deg, var(--butter-soft) 0%, transparent 100%);
+		position: relative;
+	}
+
+	.pb-validation__glyph {
+		width: 44px;
+		height: 44px;
+		border-radius: 14px;
+		background: var(--butter);
+		color: #fff;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		box-shadow: 0 4px 12px -2px rgba(200, 147, 67, 0.5);
+		margin-bottom: 14px;
+	}
+
+	.pb-validation__title {
+		font-family: var(--ff-sans);
+		font-weight: 700;
+		font-size: 24px;
+		line-height: 1.15;
+		letter-spacing: -0.025em;
+		margin: 0;
+		color: var(--ink-1);
+	}
+
+		.pb-validation__title em {
+			font-style: italic;
+			font-weight: 700;
+			color: var(--rouge);
+		}
+
+	.pb-validation__sub {
+		margin: 10px 0 0;
+		font-size: 14px;
+		color: var(--ink-2);
+		letter-spacing: -0.005em;
+		line-height: 1.45;
+		max-width: 280px;
+	}
+
+	.pb-validation__list {
+		padding: 6px 8px 8px;
+	}
+
+	.pb-validation__row {
+		display: flex;
+		gap: 12px;
+		padding: 12px 14px;
+		border-top: 1px solid var(--line-1);
+	}
+
+		.pb-validation__row.is-first {
+			border-top: 0;
+		}
+
+	.pb-validation__num {
+		width: 28px;
+		height: 28px;
+		border-radius: 999px;
+		background: var(--surface-2);
+		color: var(--butter);
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		font-family: var(--ff-sans);
+		font-size: 13px;
+		font-weight: 700;
+		flex-shrink: 0;
+		margin-top: 2px;
+		border: 1px solid var(--line-1);
+		font-variant-numeric: tabular-nums;
+	}
+
+	.pb-validation__row-body {
+		flex: 1;
+		min-width: 0;
+	}
+
+	.pb-validation__field {
+		font-size: 11px;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		color: var(--ink-3);
+		font-weight: 600;
+		margin-bottom: 3px;
+	}
+
+	.pb-validation__message {
+		font-size: 14px;
+		font-weight: 500;
+		color: var(--ink-1);
+		line-height: 1.4;
+		letter-spacing: -0.005em;
+	}
+
+	.pb-validation__footer {
+		padding: 10px 16px 16px;
+		border-top: 1px solid var(--line-1);
+		background: var(--surface-2);
+		display: flex;
+		gap: 10px;
+		align-items: center;
+	}
+
+	.pb-validation__count {
+		flex: 1;
+		font-size: 12px;
+		color: var(--ink-3);
+		letter-spacing: 0.02em;
+	}
+
+	.pb-validation__count-num {
+		font-variant-numeric: tabular-nums;
+		font-weight: 600;
+		color: var(--ink-2);
+	}
+
+	.pb-validation__cta {
+		background: var(--ink-1);
+		color: #fff;
+		border: 0;
+		padding: 12px 18px;
+		border-radius: 14px;
+		font-size: 14px;
+		font-weight: 600;
+		font-family: var(--ff-sans);
+		letter-spacing: -0.005em;
+		cursor: pointer;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 8px;
+	}
+
+		.pb-validation__cta:hover {
+			background: #000;
+		}
+
+		.pb-validation__cta:active {
+			transform: scale(0.98);
+		}
+
+	@@keyframes pb-val-fade {
+		from {
+			opacity: 0;
+		}
+
+		to {
+			opacity: 1;
+		}
+	}
+
+	@@keyframes pb-val-rise {
+		from {
+			opacity: 0;
+			transform: translateY(24px);
+		}
+
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@@media (prefers-reduced-motion: reduce) {
+		.pb-validation-overlay,
+		.pb-validation {
+			animation: none;
+		}
+	}
+</style>

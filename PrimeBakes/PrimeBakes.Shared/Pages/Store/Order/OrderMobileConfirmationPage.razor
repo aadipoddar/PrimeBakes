@@ -3,139 +3,386 @@
 <PageTitle>Order Confirmed - Prime Bakes</PageTitle>
 
 <HeadContent>
-	<script src="https://unpkg.com/@@lottiefiles/dotlottie-wc@@0.8.11/dist/dotlottie-wc.js" type="module"></script>
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@@400;500;600;700;800&family=JetBrains+Mono:wght@@400;500&display=swap" rel="stylesheet" />
 </HeadContent>
 
-<div class="order-confirmed-container">
-	<div class="success-content">
-		<div class="success-animation">
-			<dotlottie-wc src="https://lottie.host/cda968a0-4173-4006-9fa9-9a2a725f4b8e/TBpJqpO4ML.lottie" class="success-gif" autoplay loop></dotlottie-wc>
-		</div>
+<div class="pb-screen">
+	<div class="pb-topbar">
+		<button type="button" class="pb-icon-btn" @onclick="GoHome" aria-label="Home">
+			<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M3 11l9-8 9 8" />
+				<path d="M5 10v10h5v-6h4v6h5V10" />
+			</svg>
+		</button>
+	</div>
 
-		<div class="success-message">
-			<h1 class="success-title">Order Confirmed!</h1>
-			<p class="success-subtitle">Your order has been placed successfully</p>
-			<div class="success-icon">✅</div>
-		</div>
-
-		<div class="loading-indicator">
-			<div class="progress-bar">
-				<div class="progress-fill"></div>
+	<div class="pb-scroll">
+		<div class="pb-success">
+			<div class="pb-success__icon">
+				<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M4 12l5 5 11-11" />
+				</svg>
 			</div>
-			<p class="redirect-text">Redirecting to home page...</p>
+			<h1 class="pb-success__title">Order placed.</h1>
+			<p class="pb-success__sub">
+				@if (!string.IsNullOrEmpty(_order?.LocationName))
+				{
+					<text>Sent to @_order.LocationName for production.</text>
+				}
+				else
+				{
+					<text>Sent to the kitchen for production.</text>
+				}
+			</p>
+		</div>
+
+		@if (_order is not null)
+		{
+			<div class="pb-receipt">
+				<div class="pb-receipt__head">
+					<div>
+						<div class="pb-receipt__label">Order no.</div>
+						<div class="pb-receipt__value pb-receipt__value--mono">@_order.TransactionNo</div>
+					</div>
+					<div class="pb-receipt__head-right">
+						<div class="pb-receipt__label">Placed</div>
+						<div class="pb-receipt__value pb-receipt__value--mono">@_order.CreatedAt.ToString("h:mm tt").ToLower()</div>
+					</div>
+				</div>
+
+				<div class="pb-receipt__lines">
+					@foreach (var cart in _cart)
+					{
+						<div class="pb-receipt__line">
+							<span class="pb-receipt__line-name">@cart.ItemName</span>
+							<span class="pb-receipt__line-qty">× @cart.Quantity</span>
+						</div>
+					}
+				</div>
+
+				<div class="pb-receipt__total">
+					<span class="pb-receipt__total-label">Total units</span>
+					<span class="pb-receipt__total-value">@_order.TotalQuantity.ToString("N0")</span>
+				</div>
+
+				@if (!string.IsNullOrWhiteSpace(_order.Remarks))
+				{
+					<div class="pb-receipt__remarks">
+						<div class="pb-receipt__label">Remarks</div>
+						<div class="pb-receipt__remarks-text">@_order.Remarks</div>
+					</div>
+				}
+			</div>
+		}
+
+		<div class="pb-scroll__bottom-pad"></div>
+	</div>
+
+	<div class="pb-cta-bar">
+		<div class="pb-cta-row">
+			<button type="button" class="pb-cta pb-cta--outline" @onclick="PrintInvoice" disabled="@(_order is null || _isPrinting)">
+				<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M6 9V3h12v6" />
+					<rect x="3" y="9" width="18" height="9" rx="2" />
+					<rect x="7" y="14" width="10" height="6" rx="1" />
+				</svg>
+				@(_isPrinting ? "Preparing…" : "Print")
+			</button>
+			<button type="button" class="pb-cta pb-cta--primary" @onclick="StartNewOrder">
+				New order
+				<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M5 12h14" />
+					<path d="M13 5l7 7-7 7" />
+				</svg>
+			</button>
 		</div>
 	</div>
 </div>
 
 <style>
-	:root {
-		--success-green: #22c55e;
-		--success-green-light: #86efac;
-		--success-green-dark: #16a34a;
-		--white: #ffffff;
-		--shadow: rgba(0, 0, 0, 0.1);
+	.pb-screen {
+		--bg-app: #f7f2ea;
+		--surface: #ffffff;
+		--surface-2: #faf5ec;
+		--surface-3: #f1ebdf;
+		--ink-1: #1d1813;
+		--ink-2: #5a5147;
+		--ink-3: #9a8f7f;
+		--line-1: #ece4d3;
+		--line-2: #ddd2bd;
+		--moss: #4f7a5a;
+		--moss-soft: #e3ecdd;
+		--r-lg: 22px;
+		--ff-sans: "Plus Jakarta Sans", -apple-system, system-ui, sans-serif;
+		--ff-mono: "JetBrains Mono", ui-monospace, monospace;
+		position: fixed;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		background: var(--bg-app);
+		color: var(--ink-1);
+		font-family: var(--ff-sans);
+		font-size: 15px;
+		line-height: 1.4;
+		letter-spacing: -0.005em;
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+		-webkit-font-smoothing: antialiased;
+		text-rendering: optimizeLegibility;
+		z-index: 1;
 	}
 
-	.order-confirmed-container {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100vw;
-		height: 100vh;
-		background: linear-gradient(135deg, var(--success-green) 0%, var(--success-green-dark) 100%);
+		.pb-screen *,
+		.pb-screen *::before,
+		.pb-screen *::after {
+			box-sizing: border-box;
+		}
+
+	.pb-topbar {
 		display: flex;
+		justify-content: flex-end;
+		align-items: center;
+		padding: 14px 18px 0;
+		padding-top: max(14px, env(safe-area-inset-top));
+		flex-shrink: 0;
+	}
+
+	.pb-icon-btn {
+		width: 38px;
+		height: 38px;
+		border-radius: 999px;
+		background: var(--surface);
+		border: 1px solid var(--line-1);
+		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		z-index: 9999;
-		overflow: hidden;
+		color: var(--ink-2);
+		cursor: pointer;
+		padding: 0;
 	}
 
-	.success-content {
+		.pb-icon-btn:active {
+			transform: scale(0.96);
+		}
+
+	.pb-scroll {
+		flex: 1;
+		overflow-y: auto;
+		overflow-x: hidden;
+		scrollbar-width: none;
+		-webkit-overflow-scrolling: touch;
+	}
+
+		.pb-scroll::-webkit-scrollbar {
+			display: none;
+		}
+
+	.pb-scroll__bottom-pad {
+		height: 16px;
+	}
+
+	/* Success block */
+	.pb-success {
+		padding: 32px 24px 12px;
 		text-align: center;
-		color: var(--white);
-		animation: fadeInUp 0.8s ease-out;
+		animation: pb-fadeUp 0.6s ease-out;
 	}
 
-	.success-animation {
-		margin-bottom: 30px;
-		animation: bounceIn 1s ease-out;
+	.pb-success__icon {
+		width: 64px;
+		height: 64px;
+		border-radius: 999px;
+		background: var(--moss-soft);
+		color: var(--moss);
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		margin: 0 auto 22px;
+		animation: pb-pop 0.6s cubic-bezier(0.18, 1.2, 0.4, 1.1) 0.1s both;
 	}
 
-	.success-gif {
-		width: 200px;
-		height: 200px;
-		display: block;
-		margin: 0 auto;
-		border-radius: 50%;
-		box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-		border: 8px solid var(--white);
-		background-color: var(--white);
-		padding: 10px;
-		animation: pulse 2s infinite;
-	}
-
-	.success-message {
-		margin-bottom: 40px;
-	}
-
-	.success-title {
-		font-size: 3.5rem;
-		font-weight: 800;
-		margin: 0 0 15px 0;
-		text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-		animation: slideInFromTop 0.8s ease-out 0.3s both;
-	}
-
-	.success-subtitle {
-		font-size: 1.5rem;
-		font-weight: 500;
-		margin: 0 0 20px 0;
-		opacity: 0.9;
-		animation: slideInFromTop 0.8s ease-out 0.5s both;
-	}
-
-	.success-icon {
-		font-size: 4rem;
-		margin: 20px 0;
-		animation: bounceIn 1s ease-out 0.7s both;
-		filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
-	}
-
-	.loading-indicator {
-		animation: fadeIn 1s ease-out 1s both;
-	}
-
-	.progress-bar {
-		width: 300px;
-		height: 8px;
-		background-color: rgba(255, 255, 255, 0.3);
-		border-radius: 20px;
-		margin: 0 auto 20px auto;
-		overflow: hidden;
-		box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-	}
-
-	.progress-fill {
-		height: 100%;
-		background: linear-gradient(90deg, var(--white), var(--success-green-light));
-		border-radius: 20px;
-		animation: progressLoad 2s ease-out;
-		box-shadow: 0 2px 8px rgba(255, 255, 255, 0.5);
-	}
-
-	.redirect-text {
-		font-size: 1.1rem;
-		font-weight: 500;
+	.pb-success__title {
+		font-family: var(--ff-sans);
+		font-weight: 700;
+		font-size: 32px;
+		letter-spacing: -0.025em;
+		line-height: 1.15;
 		margin: 0;
-		opacity: 0.8;
-		animation: pulse 2s infinite;
+		color: var(--ink-1);
 	}
 
-	/* Animations */
-	@@keyframes fadeInUp {
+	.pb-success__sub {
+		font-size: 14.5px;
+		color: var(--ink-2);
+		margin: 10px 0 0;
+		letter-spacing: -0.005em;
+	}
+
+	/* Receipt card */
+	.pb-receipt {
+		margin: 16px 18px 0;
+		background: var(--surface);
+		border: 1px solid var(--line-1);
+		border-radius: var(--r-lg);
+		padding: 16px 18px;
+		animation: pb-fadeUp 0.6s ease-out 0.15s both;
+	}
+
+	.pb-receipt__head {
+		display: flex;
+		justify-content: space-between;
+		margin-bottom: 14px;
+		gap: 12px;
+	}
+
+	.pb-receipt__head-right {
+		text-align: right;
+	}
+
+	.pb-receipt__label {
+		font-size: 11px;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		color: var(--ink-3);
+		font-weight: 600;
+	}
+
+	.pb-receipt__value {
+		font-size: 15px;
+		margin-top: 4px;
+		color: var(--ink-1);
+		font-variant-numeric: tabular-nums;
+	}
+
+	.pb-receipt__value--mono {
+		font-family: var(--ff-mono);
+	}
+
+	.pb-receipt__lines {
+		border-top: 1px dashed var(--line-2);
+		padding-top: 14px;
+	}
+
+	.pb-receipt__line {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		font-size: 13.5px;
+		padding: 6px 0;
+		color: var(--ink-2);
+		gap: 12px;
+	}
+
+	.pb-receipt__line-name {
+		flex: 1;
+		min-width: 0;
+		white-space: normal;
+		word-break: break-word;
+		overflow-wrap: anywhere;
+		line-height: 1.4;
+	}
+
+	.pb-receipt__line-qty {
+		font-variant-numeric: tabular-nums;
+		color: var(--ink-1);
+		font-weight: 600;
+	}
+
+	.pb-receipt__total {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		padding-top: 14px;
+		margin-top: 6px;
+		border-top: 1px dashed var(--line-2);
+	}
+
+	.pb-receipt__total-label {
+		font-size: 13px;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: var(--ink-3);
+		font-weight: 600;
+	}
+
+	.pb-receipt__total-value {
+		font-size: 24px;
+		font-weight: 700;
+		letter-spacing: -0.02em;
+		font-variant-numeric: tabular-nums;
+		color: var(--ink-1);
+	}
+
+	.pb-receipt__remarks {
+		margin-top: 14px;
+		padding-top: 14px;
+		border-top: 1px dashed var(--line-2);
+	}
+
+	.pb-receipt__remarks-text {
+		margin-top: 4px;
+		font-size: 13.5px;
+		color: var(--ink-2);
+		line-height: 1.5;
+	}
+
+	/* CTA */
+	.pb-cta-bar {
+		flex-shrink: 0;
+		padding: 12px 18px 14px;
+		padding-bottom: max(14px, env(safe-area-inset-bottom));
+		background: linear-gradient(to top, var(--bg-app) 60%, rgba(247, 242, 234, 0));
+	}
+
+	.pb-cta-row {
+		display: flex;
+		gap: 10px;
+	}
+
+	.pb-cta {
+		border: 0;
+		border-radius: 18px;
+		padding: 16px;
+		font-size: 14.5px;
+		font-weight: 600;
+		font-family: var(--ff-sans);
+		cursor: pointer;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 8px;
+		letter-spacing: -0.005em;
+	}
+
+	.pb-cta--outline {
+		flex: 1;
+		background: var(--surface);
+		color: var(--ink-1);
+		border: 1px solid var(--line-1);
+	}
+
+	.pb-cta--primary {
+		flex: 2;
+		background: var(--ink-1);
+		color: #fff;
+	}
+
+	.pb-cta:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+
+	.pb-cta:active {
+		transform: scale(0.99);
+	}
+
+	@@keyframes pb-fadeUp {
 		from {
 			opacity: 0;
-			transform: translateY(30px);
+			transform: translateY(12px);
 		}
 
 		to {
@@ -144,19 +391,14 @@
 		}
 	}
 
-	@@keyframes bounceIn {
+	@@keyframes pb-pop {
 		0% {
 			opacity: 0;
-			transform: scale(0.3);
-		}
-
-		50% {
-			opacity: 1;
-			transform: scale(1.1);
+			transform: scale(0.6);
 		}
 
 		70% {
-			transform: scale(0.9);
+			transform: scale(1.06);
 		}
 
 		100% {
@@ -165,125 +407,9 @@
 		}
 	}
 
-	@@keyframes slideInFromTop {
-		from {
-			opacity: 0;
-			transform: translateY(-50px);
-		}
-
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
-	}
-
-	@@keyframes fadeIn {
-		from {
-			opacity: 0;
-		}
-
-		to {
-			opacity: 1;
-		}
-	}
-
-	@@keyframes progressLoad {
-		from {
-			width: 0%;
-		}
-
-		to {
-			width: 100%;
-		}
-	}
-
-	@@keyframes pulse {
-		0%, 100% {
-			transform: scale(1);
-			opacity: 1;
-		}
-
-		50% {
-			transform: scale(1.05);
-			opacity: 0.8;
-		}
-	}
-
-	/* Responsive Design */
-	@@media (max-width: 768px) {
-		.success-gif {
-			width: 150px;
-			height: 150px;
-		}
-
-		.success-title {
-			font-size: 2.5rem;
-		}
-
-		.success-subtitle {
-			font-size: 1.2rem;
-		}
-
-		.success-icon {
-			font-size: 3rem;
-		}
-
-		.progress-bar {
-			width: 250px;
-		}
-
-		.redirect-text {
-			font-size: 1rem;
-		}
-	}
-
-	@@media (max-width: 480px) {
-		.success-gif {
-			width: 120px;
-			height: 120px;
-		}
-
-		.success-title {
-			font-size: 2rem;
-		}
-
-		.success-subtitle {
-			font-size: 1rem;
-		}
-
-		.success-icon {
-			font-size: 2.5rem;
-		}
-
-		.progress-bar {
-			width: 200px;
-		}
-	}
-
-	/* Accessibility */
 	@@media (prefers-reduced-motion: reduce) {
-		.success-gif, .success-content, .success-title, .success-subtitle, .success-icon, .loading-indicator, .progress-fill, .redirect-text {
+		.pb-success, .pb-success__icon, .pb-receipt {
 			animation: none;
-		}
-
-		.progress-fill {
-			width: 100%;
-		}
-	}
-
-	/* Print styles */
-	@@media print {
-		.order-confirmed-container {
-			background: var(--white);
-			color: var(--success-green);
-		}
-
-		.success-gif {
-			display: none;
-		}
-
-		.loading-indicator {
-			display: none;
 		}
 	}
 </style>
