@@ -8,6 +8,7 @@ using PrimeBakesLibrary.Exporting.Store.Sale;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Models.Restuarant.Bill;
 using PrimeBakesLibrary.Models.Store.Sale;
 using PrimeBakesLibrary.Models.Store.StockTransfer;
 
@@ -27,6 +28,7 @@ public partial class SaleItemReport : IAsyncDisposable
     private bool _showAllColumns = false;
     private bool _showSaleReturns = false;
     private bool _showStockTransfers = false;
+    private bool _showBills = false;
     private bool _showSummary = false;
 
     private DateTime _fromDate = DateTime.Now.Date;
@@ -42,6 +44,7 @@ public partial class SaleItemReport : IAsyncDisposable
     private List<SaleItemOverviewModel> _transactionOverviews = [];
     private List<SaleReturnItemOverviewModel> _transactionReturnOverviews = [];
     private List<StockTransferItemOverviewModel> _transactionTransferOverviews = [];
+    private List<BillItemOverviewModel> _transactionBillOverviews = [];
 
     private readonly List<ContextMenuItemModel> _gridContextMenuItems =
     [
@@ -134,6 +137,9 @@ public partial class SaleItemReport : IAsyncDisposable
 
             if (_showStockTransfers)
                 await LoadTransactionTransferOverviews();
+
+            if (_showBills)
+                await LoadTransactionBillOverviews();
 
             if (_showSummary)
                 _transactionOverviews = [.. _transactionOverviews
@@ -282,6 +288,70 @@ public partial class SaleItemReport : IAsyncDisposable
             CompanyName = pr.CompanyName,
             PartyId = _locations.FirstOrDefault(l => l.LedgerId == pr.ToLocationId)?.Id,
             PartyName = _locations.FirstOrDefault(l => l.LedgerId == pr.ToLocationId)?.Name,
+            TransactionNo = pr.TransactionNo,
+            TransactionDateTime = pr.TransactionDateTime,
+            Quantity = pr.Quantity,
+            Rate = pr.Rate,
+            BaseTotal = pr.BaseTotal,
+            DiscountPercent = pr.DiscountPercent,
+            DiscountAmount = pr.DiscountAmount,
+            AfterDiscount = pr.AfterDiscount,
+            CGSTPercent = pr.CGSTPercent,
+            CGSTAmount = pr.CGSTAmount,
+            SGSTPercent = pr.SGSTPercent,
+            SGSTAmount = pr.SGSTAmount,
+            IGSTPercent = pr.IGSTPercent,
+            IGSTAmount = pr.IGSTAmount,
+            TotalTaxAmount = pr.TotalTaxAmount,
+            InclusiveTax = pr.InclusiveTax,
+            Total = pr.Total,
+            NetRate = pr.NetRate,
+            NetTotal = pr.NetTotal,
+            Remarks = pr.Remarks
+        }));
+
+        _transactionOverviews = [.. _transactionOverviews.OrderBy(_ => _.TransactionDateTime)];
+    }
+
+    private async Task LoadTransactionBillOverviews()
+    {
+        _transactionBillOverviews = await CommonData.LoadTableDataByDate<BillItemOverviewModel>(
+            ViewNames.BillItemOverview,
+            DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
+            DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
+
+        if (_selectedLocation?.Id > 0)
+            _transactionBillOverviews = [.. _transactionBillOverviews.Where(_ => _.LocationId == _selectedLocation.Id)];
+
+        if (_selectedCompany?.Id > 0)
+            _transactionBillOverviews = [.. _transactionBillOverviews.Where(_ => _.CompanyId == _selectedCompany.Id)];
+
+        _transactionBillOverviews = [.. _transactionBillOverviews.OrderBy(_ => _.TransactionDateTime)];
+
+        MergeTransactionAndBills();
+    }
+
+    private void MergeTransactionAndBills()
+    {
+        _transactionOverviews.AddRange(_transactionBillOverviews.Select(pr => new SaleItemOverviewModel
+        {
+            Id = 0,
+            MasterId = 0,
+            OrderTransactionNo = null,
+            CustomerId = pr.CustomerId,
+            CustomerName = pr.CustomerName,
+            LocationId = pr.LocationId,
+            LocationName = pr.LocationName,
+            OrderId = null,
+            SaleRemarks = pr.BillRemarks,
+            ItemName = pr.ItemName,
+            ItemCode = pr.ItemCode,
+            ItemCategoryId = pr.ItemCategoryId,
+            ItemCategoryName = pr.ItemCategoryName,
+            CompanyId = pr.CompanyId,
+            CompanyName = pr.CompanyName,
+            PartyId = null,
+            PartyName = null,
             TransactionNo = pr.TransactionNo,
             TransactionDateTime = pr.TransactionDateTime,
             Quantity = pr.Quantity,
@@ -531,6 +601,9 @@ public partial class SaleItemReport : IAsyncDisposable
             case "ToggleSummary":
                 await ToggleSummary();
                 break;
+            case "ToggleBills":
+                await ToggleBills();
+                break;
             case "ToggleSaleReturns":
                 await ToggleSaleReturns();
                 break;
@@ -609,6 +682,12 @@ public partial class SaleItemReport : IAsyncDisposable
     private async Task ToggleStockTransfers()
     {
         _showStockTransfers = !_showStockTransfers;
+        await LoadTransactionOverviews();
+    }
+
+    private async Task ToggleBills()
+    {
+        _showBills = !_showBills;
         await LoadTransactionOverviews();
     }
 
