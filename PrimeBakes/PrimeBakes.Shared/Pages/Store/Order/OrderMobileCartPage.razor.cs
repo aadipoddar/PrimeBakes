@@ -1,4 +1,4 @@
-using PrimeBakesLibrary.Data.Accounts.Masters;
+using PrimeBakesLibrary.Accounts.Masters.Data;
 using PrimeBakesLibrary.Data.Operations;
 using PrimeBakesLibrary.Data.Store.Order;
 using PrimeBakesLibrary.DataAccess;

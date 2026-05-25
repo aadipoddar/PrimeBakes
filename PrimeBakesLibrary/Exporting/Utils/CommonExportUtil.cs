@@ -1,4 +1,4 @@
-﻿using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Accounts.Masters.Models;
 using Syncfusion.Drawing;
 
 namespace PrimeBakesLibrary.Exporting.Utils;

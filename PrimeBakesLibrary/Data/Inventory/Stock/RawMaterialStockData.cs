@@ -1,4 +1,4 @@
-﻿using PrimeBakesLibrary.Data.Accounts.Masters;
+using PrimeBakesLibrary.Accounts.Masters.Data;
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Exporting.Inventory.Stock;
 using PrimeBakesLibrary.Exporting.Utils;
