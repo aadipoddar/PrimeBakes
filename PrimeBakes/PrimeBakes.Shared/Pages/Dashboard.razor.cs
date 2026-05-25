@@ -1,19 +1,16 @@
-using System.Reflection;
+using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Models.Operations;
+
+using System.Reflection;
 
 namespace PrimeBakes.Shared.Pages;
 
-public partial class Dashboard : IDisposable
+public partial class Dashboard
 {
 	#region Device Info
-	private string Factor =>
-		FormFactor.GetFormFactor();
-
-	private string Platform =>
-		FormFactor.GetPlatform();
-
-	private static string AppVersion =>
-		Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "1.0.0.0";
+	private string Factor => FormFactor.GetFormFactor();
+	private string Platform => FormFactor.GetPlatform();
+	private static string AppVersion => Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "1.0.0.0";
 	#endregion
 
 	#region Updating
@@ -56,7 +53,7 @@ public partial class Dashboard : IDisposable
 			InvokeAsync(StateHasChanged);
 		});
 
-		await UpdateService.UpdateAppAsync("aadipoddar", "PrimeBakes", "PrimeBakes", progress, forceUpdate);
+		await UpdateService.UpdateAppAsync("aadipoddar", Secrets.DatabaseName, Secrets.DatabaseName, progress, forceUpdate);
 
 		_isUpdating = false;
 		StateHasChanged();
@@ -68,19 +65,16 @@ public partial class Dashboard : IDisposable
 			return;
 
 		if (Factor.Contains("Web"))
-		{
 			NavigationManager.NavigateTo(PageRouteNames.Dashboard, true);
-			return;
-		}
-
-		await StartUpdateProcess(true);
+		else
+			await StartUpdateProcess(true);
 	}
 	#endregion
 
 	#region Load Data
 	private UserModel _user;
 	private bool _isLoading = true;
-	
+
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (!firstRender)
@@ -98,11 +92,14 @@ public partial class Dashboard : IDisposable
 					await StartUpdateProcess();
 			}
 
-			await LoadData();
+			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService);
+
+			if (Platform.Contains("Android"))
+				await NotificationService.RegisterDevicePushNotification(_user.Id.ToString());
 		}
-		catch (Exception)
+		catch
 		{
-			await Logout();
+			await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 		}
 		finally
 		{
@@ -110,19 +107,5 @@ public partial class Dashboard : IDisposable
 			StateHasChanged();
 		}
 	}
-
-	private async Task LoadData()
-	{
-		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService);
-
-		if (Platform.Contains("Android"))
-			await NotificationService.RegisterDevicePushNotification(_user.Id.ToString());
-	}
-
-	private async Task Logout() =>
-		await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
-
-	public void Dispose() =>
-		GC.SuppressFinalize(this);
 	#endregion
 }
