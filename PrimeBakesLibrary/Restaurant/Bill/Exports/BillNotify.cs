@@ -3,7 +3,7 @@ using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Operations.Models;
 using PrimeBakesLibrary.Restaurant.Bill.Models;
 using PrimeBakesLibrary.Restaurant.Dining.Models;
-using PrimeBakesLibrary.Models.Store.Masters;
+using PrimeBakesLibrary.Store.Masters.Models;
 
 namespace PrimeBakesLibrary.Restaurant.Bill.Exports;
 

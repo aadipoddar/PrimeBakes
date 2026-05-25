@@ -1,14 +1,14 @@
 using PrimeBakesLibrary.Accounts.Masters.Data;
 using PrimeBakesLibrary.Operations.Data;
-using PrimeBakesLibrary.Data.Store.Masters;
-using PrimeBakesLibrary.Data.Store.Sale;
+using PrimeBakesLibrary.Store.Masters.Data;
+using PrimeBakesLibrary.Store.Sale.Data;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Store.Sale;
+using PrimeBakesLibrary.Store.Sale.Exports;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Operations.Models;
-using PrimeBakesLibrary.Models.Store.Masters;
-using PrimeBakesLibrary.Models.Store.Product;
-using PrimeBakesLibrary.Models.Store.Sale;
+using PrimeBakesLibrary.Store.Masters.Models;
+using PrimeBakesLibrary.Store.Product.Models;
+using PrimeBakesLibrary.Store.Sale.Models;
 
 using Syncfusion.Blazor.Inputs;
 

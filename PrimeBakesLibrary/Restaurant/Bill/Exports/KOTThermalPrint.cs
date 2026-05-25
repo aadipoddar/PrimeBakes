@@ -4,7 +4,7 @@ using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Operations.Models;
 using PrimeBakesLibrary.Restaurant.Bill.Models;
 using PrimeBakesLibrary.Restaurant.Dining.Models;
-using PrimeBakesLibrary.Models.Store.Product;
+using PrimeBakesLibrary.Store.Product.Models;
 
 using SkiaSharp;
 

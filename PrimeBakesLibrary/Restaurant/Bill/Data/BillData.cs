@@ -10,7 +10,7 @@ using PrimeBakesLibrary.Models.Inventory;
 using PrimeBakesLibrary.Models.Inventory.Stock;
 using PrimeBakesLibrary.Operations.Models;
 using PrimeBakesLibrary.Restaurant.Bill.Models;
-using PrimeBakesLibrary.Models.Store.Product;
+using PrimeBakesLibrary.Store.Product.Models;
 
 namespace PrimeBakesLibrary.Restaurant.Bill.Data;
 

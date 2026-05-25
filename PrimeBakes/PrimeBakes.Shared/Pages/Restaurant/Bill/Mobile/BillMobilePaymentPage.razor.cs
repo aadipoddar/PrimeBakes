@@ -3,15 +3,15 @@ using Microsoft.AspNetCore.Components;
 using PrimeBakesLibrary.Accounts.Masters.Data;
 using PrimeBakesLibrary.Operations.Data;
 using PrimeBakesLibrary.Restaurant.Bill.Data;
-using PrimeBakesLibrary.Data.Store.Masters;
+using PrimeBakesLibrary.Store.Masters.Data;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Restaurant.Bill.Exports;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Operations.Models;
 using PrimeBakesLibrary.Restaurant.Bill.Models;
 using PrimeBakesLibrary.Restaurant.Dining.Models;
-using PrimeBakesLibrary.Models.Store.Masters;
-using PrimeBakesLibrary.Models.Store.Product;
+using PrimeBakesLibrary.Store.Masters.Models;
+using PrimeBakesLibrary.Store.Product.Models;
 
 using Syncfusion.Blazor.Inputs;
 

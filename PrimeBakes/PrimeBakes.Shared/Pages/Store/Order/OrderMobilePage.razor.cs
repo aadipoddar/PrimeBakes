@@ -1,8 +1,8 @@
-using PrimeBakesLibrary.Data.Store.Product;
+using PrimeBakesLibrary.Store.Product.Data;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Operations.Models;
-using PrimeBakesLibrary.Models.Store.Order;
-using PrimeBakesLibrary.Models.Store.Product;
+using PrimeBakesLibrary.Store.Order.Models;
+using PrimeBakesLibrary.Store.Product.Models;
 
 namespace PrimeBakes.Shared.Pages.Store.Order;
 

@@ -7,10 +7,10 @@ using PrimeBakesLibrary.Models.Inventory.Kitchen;
 using PrimeBakesLibrary.Models.Inventory.Purchase;
 using PrimeBakesLibrary.Operations.Models;
 using PrimeBakesLibrary.Restaurant.Bill.Models;
-using PrimeBakesLibrary.Models.Store.Order;
-using PrimeBakesLibrary.Models.Store.Product;
-using PrimeBakesLibrary.Models.Store.Sale;
-using PrimeBakesLibrary.Models.Store.StockTransfer;
+using PrimeBakesLibrary.Store.Order.Models;
+using PrimeBakesLibrary.Store.Product.Models;
+using PrimeBakesLibrary.Store.Sale.Models;
+using PrimeBakesLibrary.Store.StockTransfer.Models;
 
 namespace PrimeBakesLibrary.Common;
 

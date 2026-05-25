@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
-using PrimeBakesLibrary.Models.Store.Product;
+using PrimeBakesLibrary.Store.Product.Models;
 
 namespace PrimeBakes.Shared.Components.Page;
 

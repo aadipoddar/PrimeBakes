@@ -1,7 +1,7 @@
 using PrimeBakesLibrary.Common;
-using PrimeBakesLibrary.Data.Store.Product;
+using PrimeBakesLibrary.Store.Product.Data;
 using PrimeBakesLibrary.Operations.Models;
-using PrimeBakesLibrary.Models.Store.Product;
+using PrimeBakesLibrary.Store.Product.Models;
 
 namespace PrimeBakesLibrary.Operations.Data;
 

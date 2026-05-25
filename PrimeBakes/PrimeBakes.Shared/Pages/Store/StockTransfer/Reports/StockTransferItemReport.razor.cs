@@ -4,11 +4,11 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakesLibrary.Accounts.Masters.Data;
 using PrimeBakesLibrary.Operations.Data;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Store.StockTransfer;
+using PrimeBakesLibrary.Store.StockTransfer.Exports;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Operations.Models;
-using PrimeBakesLibrary.Models.Store.StockTransfer;
+using PrimeBakesLibrary.Store.StockTransfer.Models;
 
 using Syncfusion.Blazor.Grids;
 

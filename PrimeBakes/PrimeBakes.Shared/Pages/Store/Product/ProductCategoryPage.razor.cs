@@ -1,10 +1,10 @@
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Data.Store.Product;
+using PrimeBakesLibrary.Store.Product.Data;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Store.Product;
+using PrimeBakesLibrary.Store.Product.Exports;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Operations.Models;
-using PrimeBakesLibrary.Models.Store.Product;
+using PrimeBakesLibrary.Store.Product.Models;
 
 using Syncfusion.Blazor.Grids;
 

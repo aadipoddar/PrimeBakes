@@ -1,7 +1,7 @@
 using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Inventory;
-using PrimeBakesLibrary.Models.Store.Product;
+using PrimeBakesLibrary.Store.Product.Models;
 
 namespace PrimeBakesLibrary.Exporting.Inventory.RawMaterial;
 

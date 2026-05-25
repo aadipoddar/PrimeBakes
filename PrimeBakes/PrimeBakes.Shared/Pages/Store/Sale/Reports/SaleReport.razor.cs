@@ -3,16 +3,16 @@ using Microsoft.AspNetCore.Components;
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakesLibrary.Accounts.Masters.Data;
 using PrimeBakesLibrary.Operations.Data;
-using PrimeBakesLibrary.Data.Store.Sale;
-using PrimeBakesLibrary.Data.Store.StockTransfer;
+using PrimeBakesLibrary.Store.Sale.Data;
+using PrimeBakesLibrary.Store.StockTransfer.Data;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Store.Sale;
+using PrimeBakesLibrary.Store.Sale.Exports;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Operations.Models;
 using PrimeBakesLibrary.Restaurant.Bill.Models;
-using PrimeBakesLibrary.Models.Store.Sale;
-using PrimeBakesLibrary.Models.Store.StockTransfer;
+using PrimeBakesLibrary.Store.Sale.Models;
+using PrimeBakesLibrary.Store.StockTransfer.Models;
 
 using Syncfusion.Blazor.Grids;
 

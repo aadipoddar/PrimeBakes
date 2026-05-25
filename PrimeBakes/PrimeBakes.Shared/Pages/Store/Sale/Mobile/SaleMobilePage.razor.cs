@@ -1,8 +1,8 @@
-using PrimeBakesLibrary.Data.Store.Product;
+using PrimeBakesLibrary.Store.Product.Data;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Operations.Models;
-using PrimeBakesLibrary.Models.Store.Product;
-using PrimeBakesLibrary.Models.Store.Sale;
+using PrimeBakesLibrary.Store.Product.Models;
+using PrimeBakesLibrary.Store.Sale.Models;
 
 using Syncfusion.Blazor.Grids;
 

@@ -2,7 +2,7 @@ using PrimeBakesLibrary.Accounts.Masters.Data;
 using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Operations.Data;
 using PrimeBakesLibrary.Restaurant.Bill.Data;
-using PrimeBakesLibrary.Data.Store.Sale;
+using PrimeBakesLibrary.Store.Sale.Data;
 using PrimeBakesLibrary.Accounts.FinancialAccounting.Exports;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Accounts.FinancialAccounting.Models;

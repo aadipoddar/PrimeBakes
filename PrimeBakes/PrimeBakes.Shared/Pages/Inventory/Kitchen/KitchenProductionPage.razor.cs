@@ -12,7 +12,7 @@ using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Models.Inventory.Kitchen;
 using PrimeBakesLibrary.Operations.Models;
-using PrimeBakesLibrary.Models.Store.Product;
+using PrimeBakesLibrary.Store.Product.Models;
 
 using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;

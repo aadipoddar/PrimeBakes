@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Components;
 using PrimeBakesLibrary.Restaurant.Bill.Data;
-using PrimeBakesLibrary.Data.Store.Product;
+using PrimeBakesLibrary.Store.Product.Data;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Operations.Models;
 using PrimeBakesLibrary.Restaurant.Bill.Models;
 using PrimeBakesLibrary.Restaurant.Dining.Models;
-using PrimeBakesLibrary.Models.Store.Product;
+using PrimeBakesLibrary.Store.Product.Models;
 
 using Syncfusion.Blazor.Grids;
 

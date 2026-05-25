@@ -1,7 +1,7 @@
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Store.Order;
+using PrimeBakesLibrary.Store.Order.Exports;
 using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Store.Order;
+using PrimeBakesLibrary.Store.Order.Models;
 
 namespace PrimeBakes.Shared.Pages.Store.Order;
 

@@ -5,7 +5,7 @@ using PrimeBakesLibrary.Exporting.Inventory.RawMaterial;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Inventory;
 using PrimeBakesLibrary.Operations.Models;
-using PrimeBakesLibrary.Models.Store.Product;
+using PrimeBakesLibrary.Store.Product.Models;
 
 using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;

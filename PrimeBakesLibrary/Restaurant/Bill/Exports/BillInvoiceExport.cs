@@ -4,8 +4,8 @@ using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Operations.Models;
 using PrimeBakesLibrary.Restaurant.Bill.Models;
 using PrimeBakesLibrary.Restaurant.Dining.Models;
-using PrimeBakesLibrary.Models.Store.Masters;
-using PrimeBakesLibrary.Models.Store.Product;
+using PrimeBakesLibrary.Store.Masters.Models;
+using PrimeBakesLibrary.Store.Product.Models;
 
 namespace PrimeBakesLibrary.Restaurant.Bill.Exports;
 
