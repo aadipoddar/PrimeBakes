@@ -2,7 +2,7 @@
 
 using PrimeBakesLibrary.DataAccess;
 
-Secrets.SetupConfiguration();
+SqlDataAccess.SetupConfiguration();
 
 FileInfo fileInfo = new(@"C:\Others\product.xlsx");
 
