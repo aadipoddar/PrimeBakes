@@ -13,369 +13,319 @@ namespace PrimeBakes.Shared.Pages.Accounts.Masters;
 
 public partial class StateUTPage
 {
-    private UserModel _user;
-    private bool _isLoading = true;
-    private bool _isProcessing = false;
-    private bool _showDeleted = false;
+	private UserModel _user;
+	private bool _isLoading = true;
+	private bool _isProcessing = false;
+	private bool _showDeleted = false;
 
-    private StateUTModel _stateUT = new();
+	private StateUTModel _stateUT = new();
 
-    private List<StateUTModel> _stateUTs = [];
-    private readonly List<ContextMenuItemModel> _stateUTGridContextMenuItems =
-    [
-        new() { Text = "Edit (Insert)", Id = "EditStateUT", IconCss = "e-icons e-edit", Target = ".e-content" },
-        new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverStateUT", IconCss = "e-icons e-trash", Target = ".e-content" }
-    ];
+	private List<StateUTModel> _stateUTs = [];
+	private readonly List<ContextMenuItemModel> _stateUTGridContextMenuItems =
+	[
+		new() { Text = "Edit (Insert)", Id = "EditStateUT", IconCss = "e-icons e-edit", Target = ".e-content" },
+		new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverStateUT", IconCss = "e-icons e-trash", Target = ".e-content" }
+	];
 
-    private SfGrid<StateUTModel> _sfGrid;
-    private DeleteConfirmationDialog _deleteConfirmationDialog;
-    private RecoverConfirmationDialog _recoverConfirmationDialog;
+	private SfGrid<StateUTModel> _sfGrid;
+	private DeleteConfirmationDialog _deleteConfirmationDialog;
+	private RecoverConfirmationDialog _recoverConfirmationDialog;
 
-    private int _deleteStateUTId = 0;
-    private string _deleteStateUTName = string.Empty;
+	private int _deleteStateUTId = 0;
+	private string _deleteStateUTName = string.Empty;
 
-    private int _recoverStateUTId = 0;
-    private string _recoverStateUTName = string.Empty;
+	private int _recoverStateUTId = 0;
+	private string _recoverStateUTName = string.Empty;
 
-    private ToastNotification _toastNotification;
+	private ToastNotification _toastNotification;
 
-    #region Load Data
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!firstRender)
-            return;
+	#region Load Data
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (!firstRender)
+			return;
 
-        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Accounts], true);
-        await LoadData();
-    }
+		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Accounts], true);
+		await LoadData();
+	}
 
-    private async Task LoadData()
-    {
-        _stateUTs = await CommonData.LoadTableData<StateUTModel>(AccountNames.StateUT);
+	private async Task LoadData()
+	{
+		_stateUTs = await CommonData.LoadTableData<StateUTModel>(AccountNames.StateUT);
 
-        if (!_showDeleted)
-            _stateUTs = [.. _stateUTs.Where(g => g.Status)];
+		if (!_showDeleted)
+			_stateUTs = [.. _stateUTs.Where(g => g.Status)];
 
-        if (_sfGrid is not null)
-            await _sfGrid.Refresh();
+		if (_sfGrid is not null)
+			await _sfGrid.Refresh();
 
-        _isLoading = false;
-        StateHasChanged();
-    }
-    #endregion
+		_isLoading = false;
+		StateHasChanged();
+	}
+	#endregion
 
-    #region Actions
-    private void OnEditStateUT(StateUTModel stateUT)
-    {
-        _stateUT = new()
-        {
-            Id = stateUT.Id,
-            Name = stateUT.Name,
-            Remarks = stateUT.Remarks,
-            UnionTerritory = stateUT.UnionTerritory,
-            Status = stateUT.Status
-        };
+	#region Actions
+	private void OnEditStateUT(StateUTModel stateUT)
+	{
+		_stateUT = new()
+		{
+			Id = stateUT.Id,
+			Name = stateUT.Name,
+			Remarks = stateUT.Remarks,
+			UnionTerritory = stateUT.UnionTerritory,
+			Status = stateUT.Status
+		};
 
-        StateHasChanged();
-    }
+		StateHasChanged();
+	}
 
-    private async Task ConfirmDelete()
-    {
-        try
-        {
-            _isProcessing = true;
-            await _deleteConfirmationDialog.HideAsync();
+	private async Task ConfirmDelete()
+	{
+		try
+		{
+			_isProcessing = true;
+			await _deleteConfirmationDialog.HideAsync();
 
-            if (!_user.Admin)
-                throw new Exception("You do not have permission to perform this action.");
+			if (!_user.Admin)
+				throw new Exception("You do not have permission to perform this action.");
 
-            var stateUT = _stateUTs.FirstOrDefault(g => g.Id == _deleteStateUTId)
-                ?? throw new Exception("State/UT not found.");
+			var stateUT = _stateUTs.FirstOrDefault(g => g.Id == _deleteStateUTId)
+				?? throw new Exception("State/UT not found.");
 
-            stateUT.Status = false;
-            await StateUTData.InsertStateUT(stateUT);
+			await StateUTData.DeleteTransaction(stateUT, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
 
-            await _toastNotification.ShowAsync("Success", $"State/UT '{stateUT.Name}' has been deleted successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.StateUTMaster, true);
-        }
-        catch (Exception ex)
-        {
-            await _toastNotification.ShowAsync("Error", $"Failed to delete State/UT: {ex.Message}", ToastType.Error);
-        }
-        finally
-        {
-            _isProcessing = false;
-            _deleteStateUTId = 0;
-            _deleteStateUTName = string.Empty;
-        }
-    }
+			await _toastNotification.ShowAsync("Success", $"State/UT '{stateUT.Name}' has been deleted successfully.", ToastType.Success);
+			NavigationManager.NavigateTo(PageRouteNames.StateUTMaster, true);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"Failed to delete State/UT: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			_deleteStateUTId = 0;
+			_deleteStateUTName = string.Empty;
+		}
+	}
 
-    private async Task ConfirmRecover()
-    {
-        try
-        {
-            _isProcessing = true;
-            await _recoverConfirmationDialog.HideAsync();
+	private async Task ConfirmRecover()
+	{
+		try
+		{
+			_isProcessing = true;
+			await _recoverConfirmationDialog.HideAsync();
 
-            if (!_user.Admin)
-                throw new Exception("You do not have permission to perform this action.");
+			if (!_user.Admin)
+				throw new Exception("You do not have permission to perform this action.");
 
-            var stateUT = _stateUTs.FirstOrDefault(g => g.Id == _recoverStateUTId)
-                ?? throw new Exception("State/UT not found.");
+			var stateUT = _stateUTs.FirstOrDefault(g => g.Id == _recoverStateUTId)
+				?? throw new Exception("State/UT not found.");
 
-            stateUT.Status = true;
-            await StateUTData.InsertStateUT(stateUT);
+			await StateUTData.RecoverTransaction(stateUT, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
 
-            await _toastNotification.ShowAsync("Success", $"State/UT '{stateUT.Name}' has been recovered successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.StateUTMaster, true);
-        }
-        catch (Exception ex)
-        {
-            await _toastNotification.ShowAsync("Error", $"Failed to recover State/UT: {ex.Message}", ToastType.Error);
-        }
-        finally
-        {
-            _isProcessing = false;
-            _recoverStateUTId = 0;
-            _recoverStateUTName = string.Empty;
-        }
-    }
-    #endregion
+			await _toastNotification.ShowAsync("Success", $"State/UT '{stateUT.Name}' has been recovered successfully.", ToastType.Success);
+			NavigationManager.NavigateTo(PageRouteNames.StateUTMaster, true);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"Failed to recover State/UT: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			_recoverStateUTId = 0;
+			_recoverStateUTName = string.Empty;
+		}
+	}
+	#endregion
 
-    #region Saving
-    private async Task<bool> ValidateForm()
-    {
-        if (!_user.Admin)
-        {
-            await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
-            return false;
-        }
+	#region Saving
+	private async Task SaveStateUT()
+	{
+		if (_isProcessing)
+			return;
 
-        _stateUT.Name = _stateUT.Name?.Trim() ?? "";
-        _stateUT.Name = _stateUT.Name?.ToUpper() ?? "";
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
 
-        _stateUT.Remarks = _stateUT.Remarks?.Trim() ?? "";
-        _stateUT.Status = true;
+			if (!_user.Admin)
+				throw new Exception("You do not have permission to perform this action.");
 
-        if (string.IsNullOrWhiteSpace(_stateUT.Name))
-        {
-            await _toastNotification.ShowAsync("Error", "State/UT name is required. Please enter a valid state/UT name.", ToastType.Error);
-            return false;
-        }
+			await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
 
-        if (string.IsNullOrWhiteSpace(_stateUT.Remarks))
-            _stateUT.Remarks = null;
+			await StateUTData.SaveTransaction(_stateUT, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
 
-        if (_stateUT.Id > 0)
-        {
-            var existingStateUT = _stateUTs.FirstOrDefault(_ => _.Id != _stateUT.Id && _.Name.Equals(_stateUT.Name, StringComparison.OrdinalIgnoreCase));
-            if (existingStateUT is not null)
-            {
-                await _toastNotification.ShowAsync("Error", $"State/UT name '{_stateUT.Name}' already exists. Please choose a different name.", ToastType.Error);
-                return false;
-            }
-        }
-        else
-        {
-            var existingStateUT = _stateUTs.FirstOrDefault(_ => _.Name.Equals(_stateUT.Name, StringComparison.OrdinalIgnoreCase));
-            if (existingStateUT is not null)
-            {
-                await _toastNotification.ShowAsync("Error", $"State/UT name '{_stateUT.Name}' already exists. Please choose a different name.", ToastType.Error);
-                return false;
-            }
-        }
+			await _toastNotification.ShowAsync("Success", $"State/UT '{_stateUT.Name}' has been saved successfully.", ToastType.Success);
+			NavigationManager.NavigateTo(PageRouteNames.StateUTMaster, true);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"Failed to save State/UT: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+		}
+	}
+	#endregion
 
-        return true;
-    }
+	#region Exporting
+	private async Task ExportExcel()
+	{
+		if (_isProcessing)
+			return;
 
-    private async Task SaveStateUT()
-    {
-        if (_isProcessing)
-            return;
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+			await _toastNotification.ShowAsync("Processing", "Exporting to Excel...", ToastType.Info);
 
-        try
-        {
-            _isProcessing = true;
-            StateHasChanged();
+			var (stream, fileName) = await StateUTExport.ExportMaster(_stateUTs, ReportExportType.Excel);
+			await SaveAndViewService.SaveAndView(fileName, stream);
+			await _toastNotification.ShowAsync("Success", "State/UT data exported to Excel successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"An error occurred while exporting to Excel: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
 
-            if (!await ValidateForm())
-            {
-                _isProcessing = false;
-                return;
-            }
+	private async Task ExportPdf()
+	{
+		if (_isProcessing)
+			return;
 
-            await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+			await _toastNotification.ShowAsync("Processing", "Exporting to PDF...", ToastType.Info);
 
-            await StateUTData.InsertStateUT(_stateUT);
+			var (stream, fileName) = await StateUTExport.ExportMaster(_stateUTs, ReportExportType.PDF);
+			await SaveAndViewService.SaveAndView(fileName, stream);
+			await _toastNotification.ShowAsync("Success", "State/UT data exported to PDF successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"An error occurred while exporting to PDF: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
+	#endregion
 
-            await _toastNotification.ShowAsync("Success", $"State/UT '{_stateUT.Name}' has been saved successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.StateUTMaster, true);
-        }
-        catch (Exception ex)
-        {
-            await _toastNotification.ShowAsync("Error", $"Failed to save State/UT: {ex.Message}", ToastType.Error);
-        }
-        finally
-        {
-            _isProcessing = false;
-        }
-    }
-    #endregion
+	#region Utilities
+	private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+	{
+		switch (args.Item.Id)
+		{
+			case "NewStateUT":
+				ResetPage();
+				break;
+			case "SaveStateUT":
+				await SaveStateUT();
+				break;
+			case "ToggleDeleted":
+				await ToggleDeleted();
+				break;
+			case "ExportExcel":
+				await ExportExcel();
+				break;
+			case "ExportPdf":
+				await ExportPdf();
+				break;
+			case "EditSelected":
+				await EditSelectedItem();
+				break;
+			case "DeleteRecoverSelected":
+				await DeleteSelectedItem();
+				break;
+		}
+	}
 
-    #region Exporting
-    private async Task ExportExcel()
-    {
-        if (_isProcessing)
-            return;
+	private async Task OnStateUTGridContextMenuItemClicked(ContextMenuClickEventArgs<StateUTModel> args)
+	{
+		switch (args.Item.Id)
+		{
+			case "EditStateUT":
+				await EditSelectedItem();
+				break;
+			case "DeleteRecoverStateUT":
+				await DeleteSelectedItem();
+				break;
+		}
+	}
 
-        try
-        {
-            _isProcessing = true;
-            StateHasChanged();
-            await _toastNotification.ShowAsync("Processing", "Exporting to Excel...", ToastType.Info);
+	private async Task EditSelectedItem()
+	{
+		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
+		if (selectedRecords.Count > 0)
+			OnEditStateUT(selectedRecords[0]);
+	}
 
-            var (stream, fileName) = await StateUTExport.ExportMaster(_stateUTs, ReportExportType.Excel);
-            await SaveAndViewService.SaveAndView(fileName, stream);
-            await _toastNotification.ShowAsync("Success", "State/UT data exported to Excel successfully.", ToastType.Success);
-        }
-        catch (Exception ex)
-        {
-            await _toastNotification.ShowAsync("Error", $"An error occurred while exporting to Excel: {ex.Message}", ToastType.Error);
-        }
-        finally
-        {
-            _isProcessing = false;
-            StateHasChanged();
-        }
-    }
+	private async Task DeleteSelectedItem()
+	{
+		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
+		if (selectedRecords.Count > 0)
+		{
+			if (selectedRecords[0].Status)
+				await ShowDeleteConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
+			else
+				await ShowRecoverConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
+		}
+	}
 
-    private async Task ExportPdf()
-    {
-        if (_isProcessing)
-            return;
+	private async Task ShowDeleteConfirmation(int id, string name)
+	{
+		_deleteStateUTId = id;
+		_deleteStateUTName = name;
+		await _deleteConfirmationDialog.ShowAsync();
+	}
 
-        try
-        {
-            _isProcessing = true;
-            StateHasChanged();
-            await _toastNotification.ShowAsync("Processing", "Exporting to PDF...", ToastType.Info);
+	private async Task CancelDelete()
+	{
+		_deleteStateUTId = 0;
+		_deleteStateUTName = string.Empty;
+		await _deleteConfirmationDialog.HideAsync();
+	}
 
-            var (stream, fileName) = await StateUTExport.ExportMaster(_stateUTs, ReportExportType.PDF);
-            await SaveAndViewService.SaveAndView(fileName, stream);
-            await _toastNotification.ShowAsync("Success", "State/UT data exported to PDF successfully.", ToastType.Success);
-        }
-        catch (Exception ex)
-        {
-            await _toastNotification.ShowAsync("Error", $"An error occurred while exporting to PDF: {ex.Message}", ToastType.Error);
-        }
-        finally
-        {
-            _isProcessing = false;
-            StateHasChanged();
-        }
-    }
-    #endregion
+	private async Task ShowRecoverConfirmation(int id, string name)
+	{
+		_recoverStateUTId = id;
+		_recoverStateUTName = name;
+		await _recoverConfirmationDialog.ShowAsync();
+	}
 
-    #region Utilities
-    private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
-    {
-        switch (args.Item.Id)
-        {
-            case "NewStateUT":
-                ResetPage();
-                break;
-            case "SaveStateUT":
-                await SaveStateUT();
-                break;
-            case "ToggleDeleted":
-                await ToggleDeleted();
-                break;
-            case "ExportExcel":
-                await ExportExcel();
-                break;
-            case "ExportPdf":
-                await ExportPdf();
-                break;
-            case "EditSelected":
-                await EditSelectedItem();
-                break;
-            case "DeleteRecoverSelected":
-                await DeleteSelectedItem();
-                break;
-        }
-    }
+	private async Task CancelRecover()
+	{
+		_recoverStateUTId = 0;
+		_recoverStateUTName = string.Empty;
+		await _recoverConfirmationDialog.HideAsync();
+	}
 
-    private async Task OnStateUTGridContextMenuItemClicked(ContextMenuClickEventArgs<StateUTModel> args)
-    {
-        switch (args.Item.Id)
-        {
-            case "EditStateUT":
-                await EditSelectedItem();
-                break;
-            case "DeleteRecoverStateUT":
-                await DeleteSelectedItem();
-                break;
-        }
-    }
+	private async Task ToggleDeleted()
+	{
+		_showDeleted = !_showDeleted;
+		await LoadData();
+		StateHasChanged();
+	}
 
-    private async Task EditSelectedItem()
-    {
-        var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
-        if (selectedRecords.Count > 0)
-            OnEditStateUT(selectedRecords[0]);
-    }
+	private void ResetPage() =>
+		NavigationManager.NavigateTo(PageRouteNames.StateUTMaster, true);
 
-    private async Task DeleteSelectedItem()
-    {
-        var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
-        if (selectedRecords.Count > 0)
-        {
-            if (selectedRecords[0].Status)
-                await ShowDeleteConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
-            else
-                await ShowRecoverConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
-        }
-    }
-
-    private async Task ShowDeleteConfirmation(int id, string name)
-    {
-        _deleteStateUTId = id;
-        _deleteStateUTName = name;
-        await _deleteConfirmationDialog.ShowAsync();
-    }
-
-    private async Task CancelDelete()
-    {
-        _deleteStateUTId = 0;
-        _deleteStateUTName = string.Empty;
-        await _deleteConfirmationDialog.HideAsync();
-    }
-
-    private async Task ShowRecoverConfirmation(int id, string name)
-    {
-        _recoverStateUTId = id;
-        _recoverStateUTName = name;
-        await _recoverConfirmationDialog.ShowAsync();
-    }
-
-    private async Task CancelRecover()
-    {
-        _recoverStateUTId = 0;
-        _recoverStateUTName = string.Empty;
-        await _recoverConfirmationDialog.HideAsync();
-    }
-
-    private async Task ToggleDeleted()
-    {
-        _showDeleted = !_showDeleted;
-        await LoadData();
-        StateHasChanged();
-    }
-
-    private void ResetPage() =>
-        NavigationManager.NavigateTo(PageRouteNames.StateUTMaster, true);
-
-    private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
-    #endregion
+	private void NavigateBack() =>
+		NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
+	#endregion
 }

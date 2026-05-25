@@ -13,392 +13,319 @@ namespace PrimeBakes.Shared.Pages.Accounts.Masters;
 
 public partial class VoucherPage
 {
-    private UserModel _user;
-    private bool _isLoading = true;
-    private bool _isProcessing = false;
-    private bool _showDeleted = false;
+	private UserModel _user;
+	private bool _isLoading = true;
+	private bool _isProcessing = false;
+	private bool _showDeleted = false;
 
-    private VoucherModel _voucher = new();
+	private VoucherModel _voucher = new();
 
-    private List<VoucherModel> _vouchers = [];
-    private readonly List<ContextMenuItemModel> _voucherGridContextMenuItems =
-    [
-        new() { Text = "Edit (Insert)", Id = "EditVoucher", IconCss = "e-icons e-edit", Target = ".e-content" },
-        new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverVoucher", IconCss = "e-icons e-trash", Target = ".e-content" }
-    ];
+	private List<VoucherModel> _vouchers = [];
+	private readonly List<ContextMenuItemModel> _voucherGridContextMenuItems =
+	[
+		new() { Text = "Edit (Insert)", Id = "EditVoucher", IconCss = "e-icons e-edit", Target = ".e-content" },
+		new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverVoucher", IconCss = "e-icons e-trash", Target = ".e-content" }
+	];
 
-    private SfGrid<VoucherModel> _sfGrid;
-    private DeleteConfirmationDialog _deleteConfirmationDialog;
-    private RecoverConfirmationDialog _recoverConfirmationDialog;
+	private SfGrid<VoucherModel> _sfGrid;
+	private DeleteConfirmationDialog _deleteConfirmationDialog;
+	private RecoverConfirmationDialog _recoverConfirmationDialog;
 
-    private int _deleteVoucherId = 0;
-    private string _deleteVoucherName = string.Empty;
+	private int _deleteVoucherId = 0;
+	private string _deleteVoucherName = string.Empty;
 
-    private int _recoverVoucherId = 0;
-    private string _recoverVoucherName = string.Empty;
+	private int _recoverVoucherId = 0;
+	private string _recoverVoucherName = string.Empty;
 
-    private ToastNotification _toastNotification;
+	private ToastNotification _toastNotification;
 
-    #region Load Data
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!firstRender)
-            return;
+	#region Load Data
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (!firstRender)
+			return;
 
-        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Accounts], true);
-        await LoadData();
-    }
+		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Accounts], true);
+		await LoadData();
+	}
 
-    private async Task LoadData()
-    {
-        _vouchers = await CommonData.LoadTableData<VoucherModel>(AccountNames.Voucher);
+	private async Task LoadData()
+	{
+		_vouchers = await CommonData.LoadTableData<VoucherModel>(AccountNames.Voucher);
 
-        if (!_showDeleted)
-            _vouchers = [.. _vouchers.Where(v => v.Status)];
+		if (!_showDeleted)
+			_vouchers = [.. _vouchers.Where(v => v.Status)];
 
-        if (_sfGrid is not null)
-            await _sfGrid.Refresh();
+		if (_sfGrid is not null)
+			await _sfGrid.Refresh();
 
-        _isLoading = false;
-        StateHasChanged();
-    }
-    #endregion
+		_isLoading = false;
+		StateHasChanged();
+	}
+	#endregion
 
-    #region Actions
-    private void OnEditVoucher(VoucherModel voucher)
-    {
-        _voucher = new()
-        {
-            Id = voucher.Id,
-            Name = voucher.Name,
-            Code = voucher.Code,
-            Remarks = voucher.Remarks,
-            Status = voucher.Status
-        };
+	#region Actions
+	private void OnEditVoucher(VoucherModel voucher)
+	{
+		_voucher = new()
+		{
+			Id = voucher.Id,
+			Name = voucher.Name,
+			Code = voucher.Code,
+			Remarks = voucher.Remarks,
+			Status = voucher.Status
+		};
 
-        StateHasChanged();
-    }
+		StateHasChanged();
+	}
 
-    private async Task ConfirmDelete()
-    {
-        try
-        {
-            _isProcessing = true;
-            await _deleteConfirmationDialog.HideAsync();
+	private async Task ConfirmDelete()
+	{
+		try
+		{
+			_isProcessing = true;
+			await _deleteConfirmationDialog.HideAsync();
 
-            if (!_user.Admin)
-                throw new Exception("You do not have permission to perform this action.");
+			if (!_user.Admin)
+				throw new Exception("You do not have permission to perform this action.");
 
-            var voucher = _vouchers.FirstOrDefault(v => v.Id == _deleteVoucherId)
-                ?? throw new Exception("Voucher not found.");
+			var voucher = _vouchers.FirstOrDefault(v => v.Id == _deleteVoucherId)
+				?? throw new Exception("Voucher not found.");
 
-            voucher.Status = false;
-            await VoucherData.InsertVoucher(voucher);
+			await VoucherData.DeleteTransaction(voucher, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
 
-            await _toastNotification.ShowAsync("Success", $"Voucher '{voucher.Name}' has been deleted successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.VoucherMaster, true);
-        }
-        catch (Exception ex)
-        {
-            await _toastNotification.ShowAsync("Error", $"Failed to delete Voucher: {ex.Message}", ToastType.Error);
-        }
-        finally
-        {
-            _isProcessing = false;
-            _deleteVoucherId = 0;
-            _deleteVoucherName = string.Empty;
-        }
-    }
+			await _toastNotification.ShowAsync("Success", $"Voucher '{voucher.Name}' has been deleted successfully.", ToastType.Success);
+			NavigationManager.NavigateTo(PageRouteNames.VoucherMaster, true);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"Failed to delete Voucher: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			_deleteVoucherId = 0;
+			_deleteVoucherName = string.Empty;
+		}
+	}
 
-    private async Task ConfirmRecover()
-    {
-        try
-        {
-            _isProcessing = true;
-            await _recoverConfirmationDialog.HideAsync();
+	private async Task ConfirmRecover()
+	{
+		try
+		{
+			_isProcessing = true;
+			await _recoverConfirmationDialog.HideAsync();
 
-            if (!_user.Admin)
-                throw new Exception("You do not have permission to perform this action.");
+			if (!_user.Admin)
+				throw new Exception("You do not have permission to perform this action.");
 
-            var voucher = _vouchers.FirstOrDefault(v => v.Id == _recoverVoucherId)
-                ?? throw new Exception("Voucher not found.");
+			var voucher = _vouchers.FirstOrDefault(v => v.Id == _recoverVoucherId)
+				?? throw new Exception("Voucher not found.");
 
-            voucher.Status = true;
-            await VoucherData.InsertVoucher(voucher);
+			await VoucherData.RecoverTransaction(voucher, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
 
-            await _toastNotification.ShowAsync("Success", $"Voucher '{voucher.Name}' has been recovered successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.VoucherMaster, true);
-        }
-        catch (Exception ex)
-        {
-            await _toastNotification.ShowAsync("Error", $"Failed to recover Voucher: {ex.Message}", ToastType.Error);
-        }
-        finally
-        {
-            _isProcessing = false;
-            _recoverVoucherId = 0;
-            _recoverVoucherName = string.Empty;
-        }
-    }
-    #endregion
+			await _toastNotification.ShowAsync("Success", $"Voucher '{voucher.Name}' has been recovered successfully.", ToastType.Success);
+			NavigationManager.NavigateTo(PageRouteNames.VoucherMaster, true);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"Failed to recover Voucher: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			_recoverVoucherId = 0;
+			_recoverVoucherName = string.Empty;
+		}
+	}
+	#endregion
 
-    #region Saving
-    private async Task<bool> ValidateForm()
-    {
-        if (!_user.Admin)
-        {
-            await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
-            return false;
-        }
+	#region Saving
+	private async Task SaveVoucher()
+	{
+		if (_isProcessing)
+			return;
 
-        _voucher.Name = _voucher.Name?.Trim() ?? "";
-        _voucher.Name = _voucher.Name?.ToUpper() ?? "";
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
 
-        _voucher.Code = _voucher.Code?.Trim() ?? "";
-        _voucher.Code = _voucher.Code?.ToUpper() ?? "";
+			if (!_user.Admin)
+				throw new Exception("You do not have permission to perform this action.");
 
-        _voucher.Remarks = _voucher.Remarks?.Trim() ?? "";
-        _voucher.Status = true;
+			await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
 
-        if (string.IsNullOrWhiteSpace(_voucher.Name))
-        {
-            await _toastNotification.ShowAsync("Validation", "Voucher name is required. Please enter a valid voucher name.", ToastType.Error);
-            return false;
-        }
+			await VoucherData.SaveTransaction(_voucher, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
 
-        if (string.IsNullOrWhiteSpace(_voucher.Code))
-        {
-            await _toastNotification.ShowAsync("Validation", "Code is required. Please enter a valid code.", ToastType.Error);
-            return false;
-        }
+			await _toastNotification.ShowAsync("Saved", $"Voucher '{_voucher.Name}' has been saved successfully.", ToastType.Success);
+			NavigationManager.NavigateTo(PageRouteNames.VoucherMaster, true);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"Failed to save Voucher: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+		}
+	}
+	#endregion
 
-        if (string.IsNullOrWhiteSpace(_voucher.Remarks))
-            _voucher.Remarks = null;
+	#region Exporting
+	private async Task ExportExcel()
+	{
+		if (_isProcessing)
+			return;
 
-        if (_voucher.Id > 0)
-        {
-            var existingVoucher = _vouchers.FirstOrDefault(_ => _.Id != _voucher.Id && _.Name.Equals(_voucher.Name, StringComparison.OrdinalIgnoreCase));
-            if (existingVoucher is not null)
-            {
-                await _toastNotification.ShowAsync("Duplicate", $"Voucher name '{_voucher.Name}' already exists. Please choose a different name.", ToastType.Error);
-                return false;
-            }
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+			await _toastNotification.ShowAsync("Processing", "Exporting to Excel...", ToastType.Info);
 
-            var existingCode = _vouchers.FirstOrDefault(_ => _.Id != _voucher.Id && _.Code.Equals(_voucher.Code, StringComparison.OrdinalIgnoreCase));
-            if (existingCode is not null)
-            {
-                await _toastNotification.ShowAsync("Duplicate", $"Code '{_voucher.Code}' already exists. Please choose a different code.", ToastType.Error);
-                return false;
-            }
-        }
-        else
-        {
-            var existingVoucher = _vouchers.FirstOrDefault(_ => _.Name.Equals(_voucher.Name, StringComparison.OrdinalIgnoreCase));
-            if (existingVoucher is not null)
-            {
-                await _toastNotification.ShowAsync("Duplicate", $"Voucher name '{_voucher.Name}' already exists. Please choose a different name.", ToastType.Error);
-                return false;
-            }
+			var (stream, fileName) = await VoucherExport.ExportMaster(_vouchers, ReportExportType.Excel);
+			await SaveAndViewService.SaveAndView(fileName, stream);
+			await _toastNotification.ShowAsync("Success", "Voucher data exported to Excel successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"An error occurred while exporting to Excel: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
 
-            var existingCode = _vouchers.FirstOrDefault(_ => _.Code.Equals(_voucher.Code, StringComparison.OrdinalIgnoreCase));
-            if (existingCode is not null)
-            {
-                await _toastNotification.ShowAsync("Duplicate", $"Code '{_voucher.Code}' already exists. Please choose a different code.", ToastType.Error);
-                return false;
-            }
-        }
+	private async Task ExportPdf()
+	{
+		if (_isProcessing)
+			return;
 
-        return true;
-    }
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+			await _toastNotification.ShowAsync("Processing", "Exporting to PDF...", ToastType.Info);
 
-    private async Task SaveVoucher()
-    {
-        if (_isProcessing)
-            return;
+			var (stream, fileName) = await VoucherExport.ExportMaster(_vouchers, ReportExportType.PDF);
+			await SaveAndViewService.SaveAndView(fileName, stream);
+			await _toastNotification.ShowAsync("Success", "Voucher data exported to PDF successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"An error occurred while exporting to PDF: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
+	#endregion
 
-        try
-        {
-            _isProcessing = true;
-            StateHasChanged();
+	#region Utilities
+	private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+	{
+		switch (args.Item.Id)
+		{
+			case "NewVoucher":
+				ResetPage();
+				break;
+			case "SaveVoucher":
+				await SaveVoucher();
+				break;
+			case "ToggleDeleted":
+				await ToggleDeleted();
+				break;
+			case "ExportExcel":
+				await ExportExcel();
+				break;
+			case "ExportPdf":
+				await ExportPdf();
+				break;
+			case "EditSelected":
+				await EditSelectedItem();
+				break;
+			case "DeleteRecoverSelected":
+				await DeleteSelectedItem();
+				break;
+		}
+	}
 
-            if (!await ValidateForm())
-            {
-                _isProcessing = false;
-                return;
-            }
+	private async Task OnVoucherGridContextMenuItemClicked(ContextMenuClickEventArgs<VoucherModel> args)
+	{
+		switch (args.Item.Id)
+		{
+			case "EditVoucher":
+				await EditSelectedItem();
+				break;
+			case "DeleteRecoverVoucher":
+				await DeleteSelectedItem();
+				break;
+		}
+	}
 
-            await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
+	private async Task EditSelectedItem()
+	{
+		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
+		if (selectedRecords.Count > 0)
+			OnEditVoucher(selectedRecords[0]);
+	}
 
-            await VoucherData.InsertVoucher(_voucher);
+	private async Task DeleteSelectedItem()
+	{
+		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
+		if (selectedRecords.Count > 0)
+		{
+			if (selectedRecords[0].Status)
+				await ShowDeleteConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
+			else
+				await ShowRecoverConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
+		}
+	}
 
-            await _toastNotification.ShowAsync("Saved", $"Voucher '{_voucher.Name}' has been saved successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.VoucherMaster, true);
-        }
-        catch (Exception ex)
-        {
-            await _toastNotification.ShowAsync("Error", $"Failed to save Voucher: {ex.Message}", ToastType.Error);
-        }
-        finally
-        {
-            _isProcessing = false;
-        }
-    }
-    #endregion
+	private async Task ShowDeleteConfirmation(int id, string name)
+	{
+		_deleteVoucherId = id;
+		_deleteVoucherName = name;
+		await _deleteConfirmationDialog.ShowAsync();
+	}
 
-    #region Exporting
-    private async Task ExportExcel()
-    {
-        if (_isProcessing)
-            return;
+	private async Task CancelDelete()
+	{
+		_deleteVoucherId = 0;
+		_deleteVoucherName = string.Empty;
+		await _deleteConfirmationDialog.HideAsync();
+	}
 
-        try
-        {
-            _isProcessing = true;
-            StateHasChanged();
-            await _toastNotification.ShowAsync("Processing", "Exporting to Excel...", ToastType.Info);
+	private async Task ShowRecoverConfirmation(int id, string name)
+	{
+		_recoverVoucherId = id;
+		_recoverVoucherName = name;
+		await _recoverConfirmationDialog.ShowAsync();
+	}
 
-            var (stream, fileName) = await VoucherExport.ExportMaster(_vouchers, ReportExportType.Excel);
-            await SaveAndViewService.SaveAndView(fileName, stream);
-            await _toastNotification.ShowAsync("Success", "Voucher data exported to Excel successfully.", ToastType.Success);
-        }
-        catch (Exception ex)
-        {
-            await _toastNotification.ShowAsync("Error", $"An error occurred while exporting to Excel: {ex.Message}", ToastType.Error);
-        }
-        finally
-        {
-            _isProcessing = false;
-            StateHasChanged();
-        }
-    }
+	private async Task CancelRecover()
+	{
+		_recoverVoucherId = 0;
+		_recoverVoucherName = string.Empty;
+		await _recoverConfirmationDialog.HideAsync();
+	}
 
-    private async Task ExportPdf()
-    {
-        if (_isProcessing)
-            return;
+	private async Task ToggleDeleted()
+	{
+		_showDeleted = !_showDeleted;
+		await LoadData();
+		StateHasChanged();
+	}
 
-        try
-        {
-            _isProcessing = true;
-            StateHasChanged();
-            await _toastNotification.ShowAsync("Processing", "Exporting to PDF...", ToastType.Info);
+	private void ResetPage() =>
+		NavigationManager.NavigateTo(PageRouteNames.VoucherMaster, true);
 
-            var (stream, fileName) = await VoucherExport.ExportMaster(_vouchers, ReportExportType.PDF);
-            await SaveAndViewService.SaveAndView(fileName, stream);
-            await _toastNotification.ShowAsync("Success", "Voucher data exported to PDF successfully.", ToastType.Success);
-        }
-        catch (Exception ex)
-        {
-            await _toastNotification.ShowAsync("Error", $"An error occurred while exporting to PDF: {ex.Message}", ToastType.Error);
-        }
-        finally
-        {
-            _isProcessing = false;
-            StateHasChanged();
-        }
-    }
-    #endregion
-
-    #region Utilities
-    private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
-    {
-        switch (args.Item.Id)
-        {
-            case "NewVoucher":
-                ResetPage();
-                break;
-            case "SaveVoucher":
-                await SaveVoucher();
-                break;
-            case "ToggleDeleted":
-                await ToggleDeleted();
-                break;
-            case "ExportExcel":
-                await ExportExcel();
-                break;
-            case "ExportPdf":
-                await ExportPdf();
-                break;
-            case "EditSelected":
-                await EditSelectedItem();
-                break;
-            case "DeleteRecoverSelected":
-                await DeleteSelectedItem();
-                break;
-        }
-    }
-
-    private async Task OnVoucherGridContextMenuItemClicked(ContextMenuClickEventArgs<VoucherModel> args)
-    {
-        switch (args.Item.Id)
-        {
-            case "EditVoucher":
-                await EditSelectedItem();
-                break;
-            case "DeleteRecoverVoucher":
-                await DeleteSelectedItem();
-                break;
-        }
-    }
-
-    private async Task EditSelectedItem()
-    {
-        var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
-        if (selectedRecords.Count > 0)
-            OnEditVoucher(selectedRecords[0]);
-    }
-
-    private async Task DeleteSelectedItem()
-    {
-        var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
-        if (selectedRecords.Count > 0)
-        {
-            if (selectedRecords[0].Status)
-                await ShowDeleteConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
-            else
-                await ShowRecoverConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
-        }
-    }
-
-    private async Task ShowDeleteConfirmation(int id, string name)
-    {
-        _deleteVoucherId = id;
-        _deleteVoucherName = name;
-        await _deleteConfirmationDialog.ShowAsync();
-    }
-
-    private async Task CancelDelete()
-    {
-        _deleteVoucherId = 0;
-        _deleteVoucherName = string.Empty;
-        await _deleteConfirmationDialog.HideAsync();
-    }
-
-    private async Task ShowRecoverConfirmation(int id, string name)
-    {
-        _recoverVoucherId = id;
-        _recoverVoucherName = name;
-        await _recoverConfirmationDialog.ShowAsync();
-    }
-
-    private async Task CancelRecover()
-    {
-        _recoverVoucherId = 0;
-        _recoverVoucherName = string.Empty;
-        await _recoverConfirmationDialog.HideAsync();
-    }
-
-    private async Task ToggleDeleted()
-    {
-        _showDeleted = !_showDeleted;
-        await LoadData();
-        StateHasChanged();
-    }
-
-    private void ResetPage() =>
-        NavigationManager.NavigateTo(PageRouteNames.VoucherMaster, true);
-
-    private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
-    #endregion
+	private void NavigateBack() =>
+		NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
+	#endregion
 }
