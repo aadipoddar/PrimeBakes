@@ -1,6 +1,6 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
-namespace PrimeBakesLibrary.Models.Notification;
+namespace PrimeBakesLibrary.Notification.Models;
 
 public class DeviceInstallation
 {

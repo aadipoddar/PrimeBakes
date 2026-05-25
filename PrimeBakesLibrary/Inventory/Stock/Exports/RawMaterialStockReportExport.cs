@@ -1,4 +1,4 @@
-using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Utils.ExportUtils;
 using PrimeBakesLibrary.Inventory.Stock.Models;
 
 namespace PrimeBakesLibrary.Inventory.Stock.Exports;

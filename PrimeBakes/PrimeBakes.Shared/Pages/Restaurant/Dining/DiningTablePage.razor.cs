@@ -2,7 +2,7 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakesLibrary.Restaurant.Dining.Data;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Restaurant.Dining.Exports;
-using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Utils.ExportUtils;
 using PrimeBakesLibrary.Operations.User.Models;
 using PrimeBakesLibrary.Restaurant.Dining.Models;
 

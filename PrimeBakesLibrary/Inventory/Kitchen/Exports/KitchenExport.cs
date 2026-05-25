@@ -1,5 +1,5 @@
 using PrimeBakesLibrary.Common;
-using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Utils.ExportUtils;
 using PrimeBakesLibrary.Inventory.Kitchen.Models;
 
 namespace PrimeBakesLibrary.Inventory.Kitchen.Exports;

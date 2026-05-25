@@ -1,4 +1,4 @@
-﻿namespace PrimeBakesLibrary.Models.Notification;
+namespace PrimeBakesLibrary.Notification.Models;
 
 public enum PushDemoAction
 {

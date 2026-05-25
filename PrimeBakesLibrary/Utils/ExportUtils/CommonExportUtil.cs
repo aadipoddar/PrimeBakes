@@ -1,7 +1,7 @@
 using PrimeBakesLibrary.Accounts.Masters.Models;
 using Syncfusion.Drawing;
 
-namespace PrimeBakesLibrary.Exporting.Utils;
+namespace PrimeBakesLibrary.Utils.ExportUtils;
 
 public enum InvoiceExportType
 {

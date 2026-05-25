@@ -6,7 +6,7 @@ using PrimeBakesLibrary.Inventory.Stock.Data;
 using PrimeBakesLibrary.Operations.Settings.Data;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Inventory.Stock.Exports;
-using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Utils.ExportUtils;
 using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Inventory.Stock.Models;
 using PrimeBakesLibrary.Operations.User.Models;

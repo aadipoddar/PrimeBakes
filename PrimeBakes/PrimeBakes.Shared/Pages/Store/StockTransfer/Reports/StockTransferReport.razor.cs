@@ -6,7 +6,7 @@ using PrimeBakesLibrary.Operations.Settings.Data;
 using PrimeBakesLibrary.Store.StockTransfer.Data;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Store.StockTransfer.Exports;
-using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Utils.ExportUtils;
 using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Operations.User.Models;
 using PrimeBakesLibrary.Operations.Location.Models;

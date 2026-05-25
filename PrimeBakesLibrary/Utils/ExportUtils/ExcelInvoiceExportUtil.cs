@@ -9,7 +9,7 @@ using PrimeBakesLibrary.Accounts.Masters.Models;
 using Syncfusion.Drawing;
 using Syncfusion.XlsIO;
 
-namespace PrimeBakesLibrary.Exporting.Utils;
+namespace PrimeBakesLibrary.Utils.ExportUtils;
 
 public static class ExcelInvoiceExportUtil
 {
@@ -126,7 +126,7 @@ public static class ExcelInvoiceExportUtil
         // Try to load and insert logo from embedded resources
         try
         {
-            const string logoResourceName = "PrimeBakesLibrary.Exporting.Resources.logo_full.png";
+            const string logoResourceName = "PrimeBakesLibrary.Utils.Resources.logo_full.png";
             using Stream imageStream = typeof(ExcelInvoiceExportUtil).Assembly.GetManifestResourceStream(logoResourceName);
 
             if (imageStream is not null)

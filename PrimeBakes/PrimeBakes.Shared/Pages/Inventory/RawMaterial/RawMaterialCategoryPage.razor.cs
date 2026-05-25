@@ -2,7 +2,7 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakesLibrary.Inventory.RawMaterial.Data;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Inventory.RawMaterial.Exports;
-using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Utils.ExportUtils;
 using PrimeBakesLibrary.Inventory.RawMaterial.Models;
 using PrimeBakesLibrary.Operations.User.Models;
 

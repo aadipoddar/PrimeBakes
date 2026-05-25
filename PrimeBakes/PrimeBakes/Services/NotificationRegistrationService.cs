@@ -1,7 +1,7 @@
-﻿using System.Text;
+using System.Text;
 using System.Text.Json;
 
-using PrimeBakesLibrary.Models.Notification;
+using PrimeBakesLibrary.Notification.Models;
 
 namespace PrimeBakes.Services;
 

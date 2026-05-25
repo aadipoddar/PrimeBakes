@@ -1,5 +1,5 @@
 using PrimeBakesLibrary.Common;
-using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Utils.ExportUtils;
 using PrimeBakesLibrary.Inventory.RawMaterial.Models;
 
 namespace PrimeBakesLibrary.Inventory.RawMaterial.Exports;

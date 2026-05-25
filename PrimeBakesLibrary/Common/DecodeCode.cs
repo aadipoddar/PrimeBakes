@@ -8,7 +8,7 @@ using PrimeBakesLibrary.Store.Order.Exports;
 using PrimeBakesLibrary.Store.Product.Exports;
 using PrimeBakesLibrary.Store.Sale.Exports;
 using PrimeBakesLibrary.Store.StockTransfer.Exports;
-using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Utils.ExportUtils;
 using PrimeBakesLibrary.Accounts.FinancialAccounting.Models;
 using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Inventory.RawMaterial.Models;

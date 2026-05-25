@@ -11,7 +11,7 @@ using Syncfusion.Pdf;
 using Syncfusion.Pdf.Graphics;
 using Syncfusion.Pdf.Grid;
 
-namespace PrimeBakesLibrary.Exporting.Utils;
+namespace PrimeBakesLibrary.Utils.ExportUtils;
 
 public static class PDFInvoiceExportUtil
 {
@@ -156,7 +156,7 @@ public static class PDFInvoiceExportUtil
         // Try to load logo from embedded resources
         try
         {
-            const string logoResourceName = "PrimeBakesLibrary.Exporting.Resources.logo_full.png";
+            const string logoResourceName = "PrimeBakesLibrary.Utils.Resources.logo_full.png";
             using Stream imageStream = typeof(PDFInvoiceExportUtil).Assembly.GetManifestResourceStream(logoResourceName);
 
             if (imageStream is not null)

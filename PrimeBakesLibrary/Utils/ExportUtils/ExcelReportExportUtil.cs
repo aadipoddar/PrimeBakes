@@ -6,7 +6,7 @@ using PrimeBakesLibrary.Common;
 using Syncfusion.Drawing;
 using Syncfusion.XlsIO;
 
-namespace PrimeBakesLibrary.Exporting.Utils;
+namespace PrimeBakesLibrary.Utils.ExportUtils;
 
 public static class ExcelReportExportUtil
 {

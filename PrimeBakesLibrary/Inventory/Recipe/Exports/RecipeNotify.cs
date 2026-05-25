@@ -1,5 +1,6 @@
 using PrimeBakesLibrary.Common;
-using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Utils.MailUtils;
+using PrimeBakesLibrary.Utils.NotificationUtils;
 using PrimeBakesLibrary.Inventory.RawMaterial.Models;
 using PrimeBakesLibrary.Inventory.Recipe.Models;
 using PrimeBakesLibrary.Operations.User.Models;

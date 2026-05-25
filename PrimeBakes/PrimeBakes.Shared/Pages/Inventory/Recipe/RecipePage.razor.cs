@@ -6,7 +6,7 @@ using PrimeBakesLibrary.Inventory.Purchase.Data;
 using PrimeBakesLibrary.Store.Product.Data;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Inventory.Recipe.Exports;
-using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Utils.ExportUtils;
 using PrimeBakesLibrary.Inventory.RawMaterial.Models;
 using PrimeBakesLibrary.Inventory.Recipe.Models;
 using PrimeBakesLibrary.Operations.User.Models;

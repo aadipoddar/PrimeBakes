@@ -2,7 +2,7 @@ using System.Text.Json;
 
 using PrimeBakesLibrary.Operations.User.Models;
 
-namespace PrimeBakesLibrary.Exporting.Utils;
+namespace PrimeBakesLibrary.Utils.NotificationUtils;
 
 internal static class NotificationUtil
 {

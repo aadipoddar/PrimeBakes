@@ -2,7 +2,7 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakesLibrary.Operations.User.Data;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Operations.User.Exports;
-using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Utils.ExportUtils;
 using PrimeBakesLibrary.Operations.User.Models;
 using PrimeBakesLibrary.Operations.Location.Models;
 

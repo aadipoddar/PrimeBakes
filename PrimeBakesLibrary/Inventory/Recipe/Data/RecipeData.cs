@@ -1,6 +1,6 @@
 using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Inventory.Recipe.Exports;
-using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Utils.NotificationUtils;
 using PrimeBakesLibrary.Inventory.Recipe.Models;
 
 namespace PrimeBakesLibrary.Inventory.Recipe.Data;

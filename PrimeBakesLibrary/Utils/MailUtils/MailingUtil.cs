@@ -1,8 +1,10 @@
-﻿using MailKit.Net.Smtp;
+using MailKit.Net.Smtp;
 
 using MimeKit;
 
-namespace PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Utils.NotificationUtils;
+
+namespace PrimeBakesLibrary.Utils.MailUtils;
 
 internal static class MailingUtil
 {

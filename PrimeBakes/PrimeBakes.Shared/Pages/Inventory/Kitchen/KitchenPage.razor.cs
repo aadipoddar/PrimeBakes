@@ -2,7 +2,7 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakesLibrary.Inventory.Kitchen.Data;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Inventory.Kitchen.Exports;
-using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Utils.ExportUtils;
 using PrimeBakesLibrary.Inventory.Kitchen.Models;
 using PrimeBakesLibrary.Operations.User.Models;
 

@@ -2,7 +2,7 @@ using PrimeBakesLibrary.Accounts.Masters.Models;
 
 using SkiaSharp;
 
-namespace PrimeBakesLibrary.Exporting.Utils;
+namespace PrimeBakesLibrary.Utils.PrintUtils;
 
 /// <summary>Unified utility for rendering thermal receipts as SkiaSharp raster images and converting to ESC/POS bytes.</summary>
 public static class ThermalPrintUtil
@@ -14,7 +14,7 @@ public static class ThermalPrintUtil
 	public const int Margin = 20;
 	public const int LineGap = 1;
 	public const int SectionGap = 12;
-	public const string LogoResourceName = "PrimeBakesLibrary.Exporting.Resources.logo_full.png";
+	public const string LogoResourceName = "PrimeBakesLibrary.Utils.Resources.logo_full.png";
 
 	public const float FontSizeTitle = 40f;
 	public const float FontSizeHeader = 30f;
