@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -88,11 +88,11 @@
     <Folder Include="Restaurant\Bill\Table" />
     <Folder Include="Restaurant\Dining\Table" />
     <Folder Include="Restaurant\Dining\Insert" />
-    <Folder Include="Accounts\FinanacialAccounting" />
+    <Folder Include="Accounts\FinancialAccounting" />
     <Folder Include="Accounts\Masters" />
-    <Folder Include="Accounts\FinanacialAccounting\Insert" />
-    <Folder Include="Accounts\FinanacialAccounting\Load" />
-    <Folder Include="Accounts\FinanacialAccounting\Table" />
+    <Folder Include="Accounts\FinancialAccounting\Insert" />
+    <Folder Include="Accounts\FinancialAccounting\Load" />
+    <Folder Include="Accounts\FinancialAccounting\Table" />
     <Folder Include="Accounts\Masters\Table" />
     <Folder Include="Accounts\Masters\Insert" />
     <Folder Include="Accounts\Masters\Load" />
@@ -169,12 +169,12 @@
     <Build Include="Restaurant\Dining\Table\DiningArea.sql" />
     <Build Include="Restaurant\Dining\Table\DiningTable.sql" />
     <Build Include="Accounts\Masters\Load\Load_FinancialYear_By_DateTime.sql" />
-    <Build Include="Accounts\FinanacialAccounting\Load\Load_FinancialAccounting_By_Voucher_Reference.sql" />
-    <Build Include="Accounts\FinanacialAccounting\Load\Load_TrialBalance_By_Company_Date.sql" />
-    <Build Include="Accounts\FinanacialAccounting\Load\FinancialAccounting_Ledger_Overview.sql" />
-    <Build Include="Accounts\FinanacialAccounting\Load\FinancialAccounting_Overview.sql" />
-    <Build Include="Accounts\FinanacialAccounting\Insert\Insert_FinancialAccounting.sql" />
-    <Build Include="Accounts\FinanacialAccounting\Insert\Insert_FinancialAccountingDetail.sql" />
+    <Build Include="Accounts\FinancialAccounting\Load\Load_FinancialAccounting_By_Voucher_Reference.sql" />
+    <Build Include="Accounts\FinancialAccounting\Load\Load_TrialBalance_By_Company_Date.sql" />
+    <Build Include="Accounts\FinancialAccounting\Load\FinancialAccounting_Ledger_Overview.sql" />
+    <Build Include="Accounts\FinancialAccounting\Load\FinancialAccounting_Overview.sql" />
+    <Build Include="Accounts\FinancialAccounting\Insert\Insert_FinancialAccounting.sql" />
+    <Build Include="Accounts\FinancialAccounting\Insert\Insert_FinancialAccountingDetail.sql" />
     <Build Include="Accounts\Masters\Insert\Insert_AccountType.sql" />
     <Build Include="Accounts\Masters\Insert\Insert_Company.sql" />
     <Build Include="Accounts\Masters\Insert\Insert_FinancialYear.sql" />
@@ -182,8 +182,8 @@
     <Build Include="Accounts\Masters\Insert\Insert_Ledger.sql" />
     <Build Include="Accounts\Masters\Insert\Insert_StateUT.sql" />
     <Build Include="Accounts\Masters\Insert\Insert_Voucher.sql" />
-    <Build Include="Accounts\FinanacialAccounting\Table\FinancialAccounting.sql" />
-    <Build Include="Accounts\FinanacialAccounting\Table\FinancialAccountingDetail.sql" />
+    <Build Include="Accounts\FinancialAccounting\Table\FinancialAccounting.sql" />
+    <Build Include="Accounts\FinancialAccounting\Table\FinancialAccountingDetail.sql" />
     <Build Include="Accounts\Masters\Table\AccountType.sql" />
     <Build Include="Accounts\Masters\Table\Company.sql" />
     <Build Include="Accounts\Masters\Table\FinancialYear.sql" />
