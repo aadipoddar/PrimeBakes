@@ -1,6 +1,6 @@
 using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Operations.Models;
+using PrimeBakesLibrary.Operations.User.Models;
 using PrimeBakesLibrary.Store.Order.Models;
 
 namespace PrimeBakesLibrary.Store.Order.Exports;

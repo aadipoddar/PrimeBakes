@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Components;
 using PrimeBakesLibrary.Restaurant.Bill.Data;
 using PrimeBakesLibrary.Store.Product.Data;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Operations.Models;
+using PrimeBakesLibrary.Operations.User.Models;
 using PrimeBakesLibrary.Restaurant.Bill.Models;
 using PrimeBakesLibrary.Restaurant.Dining.Models;
 using PrimeBakesLibrary.Store.Product.Models;

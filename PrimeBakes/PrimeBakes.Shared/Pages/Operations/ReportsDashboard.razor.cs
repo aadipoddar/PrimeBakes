@@ -1,4 +1,4 @@
-using PrimeBakesLibrary.Operations.Models;
+using PrimeBakesLibrary.Operations.User.Models;
 
 namespace PrimeBakes.Shared.Pages.Operations;
 

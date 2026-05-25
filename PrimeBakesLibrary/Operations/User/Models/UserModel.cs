@@ -1,4 +1,4 @@
-namespace PrimeBakesLibrary.Operations.Models;
+namespace PrimeBakesLibrary.Operations.User.Models;
 
 public class UserModel
 {

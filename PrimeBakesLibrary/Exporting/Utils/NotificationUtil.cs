@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-using PrimeBakesLibrary.Operations.Models;
+using PrimeBakesLibrary.Operations.User.Models;
 
 namespace PrimeBakesLibrary.Exporting.Utils;
 

@@ -4,7 +4,7 @@ using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Inventory.Kitchen.Exports;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Inventory.Kitchen.Models;
-using PrimeBakesLibrary.Operations.Models;
+using PrimeBakesLibrary.Operations.User.Models;
 
 using Syncfusion.Blazor.Grids;
 

@@ -1,6 +1,6 @@
 using PrimeBakesLibrary.Store.Product.Data;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Operations.Models;
+using PrimeBakesLibrary.Operations.User.Models;
 using PrimeBakesLibrary.Store.Product.Models;
 using PrimeBakesLibrary.Store.Sale.Models;
 

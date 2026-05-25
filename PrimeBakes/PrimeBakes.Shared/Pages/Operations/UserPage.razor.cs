@@ -1,9 +1,10 @@
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Operations.Data;
+using PrimeBakesLibrary.Operations.User.Data;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Operations.Exports;
+using PrimeBakesLibrary.Operations.User.Exports;
 using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Operations.Models;
+using PrimeBakesLibrary.Operations.User.Models;
+using PrimeBakesLibrary.Operations.Location.Models;
 
 using Syncfusion.Blazor.Grids;
 

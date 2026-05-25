@@ -1,7 +1,7 @@
 using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Accounts.FinancialAccounting.Models;
-using PrimeBakesLibrary.Operations.Models;
+using PrimeBakesLibrary.Operations.User.Models;
 
 namespace PrimeBakesLibrary.Accounts.FinancialAccounting.Exports;
 

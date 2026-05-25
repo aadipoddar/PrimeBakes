@@ -1,4 +1,4 @@
-namespace PrimeBakesLibrary.Operations.Models;
+namespace PrimeBakesLibrary.Operations.Location.Models;
 
 public class LocationModel
 {

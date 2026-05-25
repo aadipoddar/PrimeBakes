@@ -10,7 +10,7 @@ using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Inventory.RawMaterial.Models;
 using PrimeBakesLibrary.Inventory.Stock.Models;
-using PrimeBakesLibrary.Operations.Models;
+using PrimeBakesLibrary.Operations.User.Models;
 
 using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;

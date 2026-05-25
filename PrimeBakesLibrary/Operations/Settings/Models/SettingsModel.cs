@@ -1,4 +1,4 @@
-namespace PrimeBakesLibrary.Operations.Models;
+namespace PrimeBakesLibrary.Operations.Settings.Models;
 
 public class SettingsModel
 {

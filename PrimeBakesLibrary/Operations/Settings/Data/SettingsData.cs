@@ -1,6 +1,6 @@
-using PrimeBakesLibrary.Operations.Models;
+using PrimeBakesLibrary.Operations.Settings.Models;
 
-namespace PrimeBakesLibrary.Operations.Data;
+namespace PrimeBakesLibrary.Operations.Settings.Data;
 
 public static class SettingsData
 {

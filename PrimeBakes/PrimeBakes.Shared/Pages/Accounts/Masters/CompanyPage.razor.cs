@@ -5,7 +5,7 @@ using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Accounts.Masters.Exports;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Accounts.Masters.Models;
-using PrimeBakesLibrary.Operations.Models;
+using PrimeBakesLibrary.Operations.User.Models;
 
 using Syncfusion.Blazor.Grids;
 

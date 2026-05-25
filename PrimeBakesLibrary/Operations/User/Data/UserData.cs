@@ -1,6 +1,6 @@
-using PrimeBakesLibrary.Operations.Models;
+using PrimeBakesLibrary.Operations.User.Models;
 
-namespace PrimeBakesLibrary.Operations.Data;
+namespace PrimeBakesLibrary.Operations.User.Data;
 
 public static class UserData
 {

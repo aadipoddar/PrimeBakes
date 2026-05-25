@@ -1,9 +1,9 @@
 using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Accounts.Masters.Models;
-using PrimeBakesLibrary.Operations.Models;
+using PrimeBakesLibrary.Operations.Location.Models;
 
-namespace PrimeBakesLibrary.Operations.Exports;
+namespace PrimeBakesLibrary.Operations.Location.Exports;
 
 public static class LocationExport
 {

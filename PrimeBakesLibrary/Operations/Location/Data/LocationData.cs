@@ -1,9 +1,9 @@
 using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Store.Product.Data;
-using PrimeBakesLibrary.Operations.Models;
+using PrimeBakesLibrary.Operations.Location.Models;
 using PrimeBakesLibrary.Store.Product.Models;
 
-namespace PrimeBakesLibrary.Operations.Data;
+namespace PrimeBakesLibrary.Operations.Location.Data;
 
 public static class LocationData
 {

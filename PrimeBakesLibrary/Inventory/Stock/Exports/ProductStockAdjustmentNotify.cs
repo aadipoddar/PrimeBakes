@@ -1,7 +1,8 @@
 using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Inventory.Stock.Models;
-using PrimeBakesLibrary.Operations.Models;
+using PrimeBakesLibrary.Operations.User.Models;
+using PrimeBakesLibrary.Operations.Location.Models;
 using PrimeBakesLibrary.Store.Product.Models;
 
 namespace PrimeBakesLibrary.Inventory.Stock.Exports;

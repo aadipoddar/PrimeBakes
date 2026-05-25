@@ -2,7 +2,7 @@ using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Inventory.RawMaterial.Models;
 using PrimeBakesLibrary.Inventory.Recipe.Models;
-using PrimeBakesLibrary.Operations.Models;
+using PrimeBakesLibrary.Operations.User.Models;
 using PrimeBakesLibrary.Store.Product.Models;
 
 namespace PrimeBakesLibrary.Inventory.Recipe.Exports;
