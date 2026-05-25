@@ -5,6 +5,7 @@ public static class TableNames
 	public static string User => "User";
 	public static string Location => "Location";
 	public static string Settings => "Settings";
+	public static string AuditTrail => "AuditTrail";
 
 	public static string Company => "Company";
 	public static string StateUT => "StateUT";
@@ -102,6 +103,7 @@ public static class StoredProcedureNames
 	public static string ResetSettings => "Reset_Settings";
 	public static string UpdateSettings => "Update_Settings";
 	public static string InsertLocation => "Insert_Location";
+	public static string InsertAuditTrail => "Insert_AuditTrail";
 
 	public static string InsertStateUT => "Insert_StateUT";
 	public static string InsertCompany => "Insert_Company";

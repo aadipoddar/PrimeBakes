@@ -121,6 +121,7 @@
     <Folder Include="Operations\Settings" />
     <Folder Include="Operations\User" />
     <Folder Include="Operations\Location" />
+    <Folder Include="Operations\AuditTrail" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Inventory\Purchase\Table\Purchase.sql" />
@@ -267,6 +268,8 @@
     <Build Include="Operations\Location\Location.sql" />
     <Build Include="Operations\Settings\Settings.sql" />
     <Build Include="Operations\User\User.sql" />
+    <Build Include="Operations\AuditTrail\AuditTrail.sql" />
+    <Build Include="Operations\AuditTrail\Insert_AuditTrail.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="PublishLocation\LocalDBPrimeBakes.publish.xml" />

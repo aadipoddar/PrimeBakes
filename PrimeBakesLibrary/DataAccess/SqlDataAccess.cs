@@ -93,6 +93,26 @@ public class SqlDataAccessTransaction : IDisposable
 
 		GC.SuppressFinalize(this);
 	}
+
+	public static async Task<T> Run<T>(Func<SqlDataAccessTransaction, Task<T>> body)
+	{
+		using SqlDataAccessTransaction transaction = new();
+		try
+		{
+			transaction.StartTransaction();
+			var result = await body(transaction);
+			transaction.CommitTransaction();
+			return result;
+		}
+		catch
+		{
+			transaction.RollbackTransaction();
+			throw;
+		}
+	}
+
+	public static Task Run(Func<SqlDataAccessTransaction, Task> body) =>
+		Run<object>(async transaction => { await body(transaction); return null; });
 }
 
 public class DateOnlyTypeHandler : SqlMapper.TypeHandler<DateOnly>
