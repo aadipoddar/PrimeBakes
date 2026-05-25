@@ -14,14 +14,14 @@ using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Models.Inventory;
 using PrimeBakesLibrary.Models.Inventory.Kitchen;
 using PrimeBakesLibrary.Models.Inventory.Purchase;
-using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Operations.Models;
 using PrimeBakesLibrary.Restaurant.Bill.Models;
 using PrimeBakesLibrary.Models.Store.Order;
 using PrimeBakesLibrary.Models.Store.Product;
 using PrimeBakesLibrary.Models.Store.Sale;
 using PrimeBakesLibrary.Models.Store.StockTransfer;
 
-namespace PrimeBakesLibrary.Data.Common;
+namespace PrimeBakesLibrary.Common;
 
 public static class DecodeCode
 {

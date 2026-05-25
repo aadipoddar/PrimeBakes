@@ -1,4 +1,4 @@
-using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Accounts.Masters.Models;
 
 namespace PrimeBakesLibrary.Accounts.Masters.Data;

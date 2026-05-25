@@ -3,7 +3,7 @@ using PrimeBakesLibrary.Restaurant.Dining.Data;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Restaurant.Dining.Exports;
 using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Operations.Models;
 using PrimeBakesLibrary.Restaurant.Dining.Models;
 
 using Syncfusion.Blazor.Grids;

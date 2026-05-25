@@ -1,12 +1,12 @@
 using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.Data.Common;
-using PrimeBakesLibrary.Data.Operations;
+using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Operations.Data;
 using PrimeBakesLibrary.Restaurant.Bill.Data;
 using PrimeBakesLibrary.Data.Store.Sale;
 using PrimeBakesLibrary.Accounts.FinancialAccounting.Exports;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Accounts.FinancialAccounting.Models;
-using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Operations.Models;
 
 namespace PrimeBakesLibrary.Accounts.FinancialAccounting.Data;
 

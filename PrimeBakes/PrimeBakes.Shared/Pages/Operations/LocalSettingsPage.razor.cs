@@ -1,9 +1,9 @@
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Data.Operations;
+using PrimeBakesLibrary.Operations.Data;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Accounts.Masters.Models;
-using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Operations.Models;
 
 namespace PrimeBakes.Shared.Pages.Operations;
 

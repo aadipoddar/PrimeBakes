@@ -1,4 +1,4 @@
-﻿namespace PrimeBakesLibrary.Models.Operations;
+namespace PrimeBakesLibrary.Operations.Models;
 
 public enum CodeType
 {

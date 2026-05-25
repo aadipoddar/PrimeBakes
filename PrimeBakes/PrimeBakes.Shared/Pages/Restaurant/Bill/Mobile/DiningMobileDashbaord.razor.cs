@@ -1,6 +1,6 @@
 using PrimeBakesLibrary.Restaurant.Bill.Data;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Operations.Models;
 using PrimeBakesLibrary.Restaurant.Bill.Models;
 using PrimeBakesLibrary.Restaurant.Dining.Models;
 

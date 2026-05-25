@@ -1,4 +1,4 @@
-using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Inventory;
 using PrimeBakesLibrary.Models.Store.Product;

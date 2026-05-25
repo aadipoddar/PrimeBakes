@@ -1,4 +1,4 @@
-using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Operations.Models;
 
 namespace PrimeBakes.Shared.Pages.Restaurant;
 

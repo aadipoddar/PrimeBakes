@@ -1,4 +1,4 @@
-﻿namespace PrimeBakesLibrary.Data.Common;
+namespace PrimeBakesLibrary.Common;
 
 public static class CommonData
 {

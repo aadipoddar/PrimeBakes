@@ -1,11 +1,11 @@
 using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.Data.Operations;
+using PrimeBakesLibrary.Operations.Data;
 using PrimeBakesLibrary.Data.Store.Masters;
 using PrimeBakesLibrary.Data.Store.Sale;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Store.Sale;
 using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Operations.Models;
 using PrimeBakesLibrary.Models.Store.Masters;
 using PrimeBakesLibrary.Models.Store.Product;
 using PrimeBakesLibrary.Models.Store.Sale;

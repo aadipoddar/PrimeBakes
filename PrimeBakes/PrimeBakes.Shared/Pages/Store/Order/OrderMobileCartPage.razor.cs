@@ -1,8 +1,8 @@
 using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.Data.Operations;
+using PrimeBakesLibrary.Operations.Data;
 using PrimeBakesLibrary.Data.Store.Order;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Operations.Models;
 using PrimeBakesLibrary.Models.Store.Order;
 
 namespace PrimeBakes.Shared.Pages.Store.Order;

@@ -1,6 +1,6 @@
-using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Operations.Models;
 using PrimeBakesLibrary.Restaurant.Bill.Models;
 using PrimeBakesLibrary.Restaurant.Dining.Models;
 using PrimeBakesLibrary.Models.Store.Masters;

@@ -1,10 +1,10 @@
 using NumericWordsConversion;
 
-using PrimeBakesLibrary.Data.Common;
-using PrimeBakesLibrary.Data.Operations;
+using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Operations.Data;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Accounts.Masters.Models;
-using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Operations.Models;
 using PrimeBakesLibrary.Models.Store.Masters;
 using PrimeBakesLibrary.Models.Store.Product;
 using PrimeBakesLibrary.Models.Store.Sale;

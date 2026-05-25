@@ -35,7 +35,7 @@
   <ItemGroup>
     <Using Include="PrimeBakes.Shared.Components" />
     <Using Include="PrimeBakes.Shared.Services" />
-    <Using Include="PrimeBakesLibrary.Data.Common" />
+    <Using Include="PrimeBakesLibrary.Common" />
   </ItemGroup>
 
 </Project>

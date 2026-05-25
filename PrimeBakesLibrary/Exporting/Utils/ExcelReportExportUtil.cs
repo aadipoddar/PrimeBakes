@@ -1,7 +1,7 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
-using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Common;
 
 using Syncfusion.Drawing;
 using Syncfusion.XlsIO;

@@ -1,9 +1,9 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 using NumericWordsConversion;
 
-using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Common;
 
 using Syncfusion.Drawing;
 using Syncfusion.Pdf;
