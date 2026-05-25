@@ -3,14 +3,14 @@ using Microsoft.AspNetCore.Components;
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.Data.Inventory.Purchase;
+using PrimeBakesLibrary.Inventory.Purchase.Data;
 using PrimeBakesLibrary.Operations.Data;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Inventory.Purchase;
+using PrimeBakesLibrary.Inventory.Purchase.Exports;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Accounts.Masters.Models;
-using PrimeBakesLibrary.Models.Inventory;
-using PrimeBakesLibrary.Models.Inventory.Purchase;
+using PrimeBakesLibrary.Inventory.RawMaterial.Models;
+using PrimeBakesLibrary.Inventory.Purchase.Models;
 using PrimeBakesLibrary.Operations.Models;
 using PrimeBakesLibrary.Store.Product.Models;
 

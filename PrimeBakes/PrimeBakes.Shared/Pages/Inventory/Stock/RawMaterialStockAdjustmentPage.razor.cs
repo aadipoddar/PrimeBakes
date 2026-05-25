@@ -4,12 +4,12 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
 using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.Data.Inventory.Purchase;
-using PrimeBakesLibrary.Data.Inventory.Stock;
+using PrimeBakesLibrary.Inventory.Purchase.Data;
+using PrimeBakesLibrary.Inventory.Stock.Data;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Accounts.Masters.Models;
-using PrimeBakesLibrary.Models.Inventory;
-using PrimeBakesLibrary.Models.Inventory.Stock;
+using PrimeBakesLibrary.Inventory.RawMaterial.Models;
+using PrimeBakesLibrary.Inventory.Stock.Models;
 using PrimeBakesLibrary.Operations.Models;
 
 using Syncfusion.Blazor.DropDowns;

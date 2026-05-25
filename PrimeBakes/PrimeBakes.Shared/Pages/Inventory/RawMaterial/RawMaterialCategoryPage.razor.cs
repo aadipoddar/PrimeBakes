@@ -1,9 +1,9 @@
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Data.Inventory;
+using PrimeBakesLibrary.Inventory.RawMaterial.Data;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Inventory.RawMaterial;
+using PrimeBakesLibrary.Inventory.RawMaterial.Exports;
 using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Inventory;
+using PrimeBakesLibrary.Inventory.RawMaterial.Models;
 using PrimeBakesLibrary.Operations.Models;
 
 using Syncfusion.Blazor.Grids;

@@ -1,12 +1,14 @@
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
-using PrimeBakesLibrary.Data.Inventory;
-using PrimeBakesLibrary.Data.Inventory.Purchase;
+using PrimeBakesLibrary.Inventory.RawMaterial.Data;
+using PrimeBakesLibrary.Inventory.Recipe.Data;
+using PrimeBakesLibrary.Inventory.Purchase.Data;
 using PrimeBakesLibrary.Store.Product.Data;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Inventory.Recipe;
+using PrimeBakesLibrary.Inventory.Recipe.Exports;
 using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Inventory;
+using PrimeBakesLibrary.Inventory.RawMaterial.Models;
+using PrimeBakesLibrary.Inventory.Recipe.Models;
 using PrimeBakesLibrary.Operations.Models;
 using PrimeBakesLibrary.Store.Product.Models;
 

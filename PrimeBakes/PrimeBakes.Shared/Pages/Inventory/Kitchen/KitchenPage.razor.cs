@@ -1,9 +1,9 @@
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Data.Inventory.Kitchen;
+using PrimeBakesLibrary.Inventory.Kitchen.Data;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Inventory.Kitchen;
+using PrimeBakesLibrary.Inventory.Kitchen.Exports;
 using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Inventory.Kitchen;
+using PrimeBakesLibrary.Inventory.Kitchen.Models;
 using PrimeBakesLibrary.Operations.Models;
 
 using Syncfusion.Blazor.Grids;

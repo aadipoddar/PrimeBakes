@@ -2,13 +2,13 @@ using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.Data.Inventory.Stock;
+using PrimeBakesLibrary.Inventory.Stock.Data;
 using PrimeBakesLibrary.Operations.Data;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Inventory.Stock;
+using PrimeBakesLibrary.Inventory.Stock.Exports;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Accounts.Masters.Models;
-using PrimeBakesLibrary.Models.Inventory.Stock;
+using PrimeBakesLibrary.Inventory.Stock.Models;
 using PrimeBakesLibrary.Operations.Models;
 
 using Syncfusion.Blazor.Grids;

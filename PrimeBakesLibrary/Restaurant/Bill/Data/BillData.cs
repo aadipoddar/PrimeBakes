@@ -1,13 +1,13 @@
 using PrimeBakesLibrary.Accounts.FinancialAccounting.Data;
 using PrimeBakesLibrary.Accounts.Masters.Data;
 using PrimeBakesLibrary.Common;
-using PrimeBakesLibrary.Data.Inventory.Stock;
+using PrimeBakesLibrary.Inventory.Stock.Data;
 using PrimeBakesLibrary.Operations.Data;
 using PrimeBakesLibrary.Restaurant.Bill.Exports;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Accounts.FinancialAccounting.Models;
-using PrimeBakesLibrary.Models.Inventory;
-using PrimeBakesLibrary.Models.Inventory.Stock;
+using PrimeBakesLibrary.Inventory.Recipe.Models;
+using PrimeBakesLibrary.Inventory.Stock.Models;
 using PrimeBakesLibrary.Operations.Models;
 using PrimeBakesLibrary.Restaurant.Bill.Models;
 using PrimeBakesLibrary.Store.Product.Models;
