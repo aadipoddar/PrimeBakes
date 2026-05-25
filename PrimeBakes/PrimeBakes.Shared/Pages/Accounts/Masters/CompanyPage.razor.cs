@@ -102,8 +102,7 @@ public partial class CompanyPage
             var company = _companies.FirstOrDefault(c => c.Id == _deleteCompanyId)
                 ?? throw new Exception("Company not found.");
 
-            company.Status = false;
-            await CompanyData.InsertCompany(company);
+            await CompanyData.DeleteTransaction(company, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
 
             await _toastNotification.ShowAsync("Success", $"Company '{company.Name}' has been deleted successfully.", ToastType.Success);
             NavigationManager.NavigateTo(PageRouteNames.CompanyMaster, true);
@@ -133,8 +132,7 @@ public partial class CompanyPage
             var company = _companies.FirstOrDefault(c => c.Id == _recoverCompanyId)
                 ?? throw new Exception("Company not found.");
 
-            company.Status = true;
-            await CompanyData.InsertCompany(company);
+            await CompanyData.RecoverTransaction(company, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
 
             await _toastNotification.ShowAsync("Success", $"Company '{company.Name}' has been recovered successfully.", ToastType.Success);
             NavigationManager.NavigateTo(PageRouteNames.CompanyMaster, true);
@@ -319,7 +317,7 @@ public partial class CompanyPage
 
             await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
 
-            await CompanyData.InsertCompany(_company);
+            await CompanyData.SaveTransaction(_company, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
 
             await _toastNotification.ShowAsync("Success", $"Company '{_company.Name}' has been saved successfully.", ToastType.Success);
             NavigationManager.NavigateTo(PageRouteNames.CompanyMaster, true);
