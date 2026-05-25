@@ -8,13 +8,13 @@ namespace PrimeBakesLibrary.Inventory.Recipe.Data;
 public static class RecipeData
 {
     private static async Task<int> InsertRecipe(RecipeModel recipeModel, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertRecipe, recipeModel, sqlDataAccessTransaction)).FirstOrDefault();
+        (await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertRecipe, recipeModel, sqlDataAccessTransaction)).FirstOrDefault();
 
     private static async Task<int> InsertRecipeDetail(RecipeDetailModel recipeDetailModel, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertRecipeDetail, recipeDetailModel, sqlDataAccessTransaction)).FirstOrDefault();
+        (await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertRecipeDetail, recipeDetailModel, sqlDataAccessTransaction)).FirstOrDefault();
 
     public static async Task<RecipeModel> LoadRecipeByProduct(int ProductId, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-        (await SqlDataAccess.LoadData<RecipeModel, dynamic>(StoredProcedureNames.LoadRecipeByProduct, new { ProductId }, sqlDataAccessTransaction)).FirstOrDefault();
+        (await SqlDataAccess.LoadData<RecipeModel, dynamic>(InventoryNames.LoadRecipeByProduct, new { ProductId }, sqlDataAccessTransaction)).FirstOrDefault();
 
     private static List<RecipeDetailModel> ConvertCartToDetails(List<RecipeItemCartModel> cart, int recipeId) =>
         [.. cart.Select(item => new RecipeDetailModel
@@ -50,7 +50,7 @@ public static class RecipeData
 
             if (update)
             {
-                var existingDetails = await CommonData.LoadTableDataByMasterId<RecipeDetailModel>(TableNames.RecipeDetail, recipe.Id, sqlDataAccessTransaction);
+                var existingDetails = await CommonData.LoadTableDataByMasterId<RecipeDetailModel>(InventoryNames.RecipeDetail, recipe.Id, sqlDataAccessTransaction);
                 foreach (var detail in existingDetails)
                 {
                     detail.Status = false;

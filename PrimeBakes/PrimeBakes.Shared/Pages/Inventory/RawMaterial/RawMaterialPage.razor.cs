@@ -57,9 +57,9 @@ public partial class RawMaterialPage
 
     private async Task LoadData()
     {
-        _rawMaterials = await CommonData.LoadTableData<RawMaterialModel>(TableNames.RawMaterial);
-        _categories = await CommonData.LoadTableData<RawMaterialCategoryModel>(TableNames.RawMaterialCategory);
-        _taxes = await CommonData.LoadTableData<TaxModel>(TableNames.Tax);
+        _rawMaterials = await CommonData.LoadTableData<RawMaterialModel>(InventoryNames.RawMaterial);
+        _categories = await CommonData.LoadTableData<RawMaterialCategoryModel>(InventoryNames.RawMaterialCategory);
+        _taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
 
         if (!_showDeleted)
             _rawMaterials = [.. _rawMaterials.Where(rm => rm.Status)];

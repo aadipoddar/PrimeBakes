@@ -209,7 +209,7 @@ public partial class OrderMobileCartPage
 
 	private async Task NotificationNavigate(int orderId)
 	{
-		var overview = await CommonData.LoadTableDataById<OrderOverviewModel>(ViewNames.OrderOverview, orderId);
+		var overview = await CommonData.LoadTableDataById<OrderOverviewModel>(StoreNames.OrderOverview, orderId);
 
 		await DataStorageService.LocalSaveAsync(StorageFileNames.OrderMobileCartDataFileName, System.Text.Json.JsonSerializer.Serialize(_cart.Where(_ => _.Quantity > 0)));
 		await DataStorageService.LocalSaveAsync(StorageFileNames.OrderMobileDataFileName, System.Text.Json.JsonSerializer.Serialize(overview));

@@ -90,7 +90,7 @@ public partial class StockTransferPage
     {
         try
         {
-            _locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
+            _locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
             _locations = [.. _locations.OrderBy(s => s.Name)];
 
             _selectedLocation = _locations.FirstOrDefault(s => s.Id == _user.LocationId);
@@ -106,7 +106,7 @@ public partial class StockTransferPage
     {
         try
         {
-            _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
+            _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
             _companies = [.. _companies.OrderBy(s => s.Name)];
 
             var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
@@ -124,7 +124,7 @@ public partial class StockTransferPage
         {
             if (Id.HasValue)
             {
-                _stockTransfer = await CommonData.LoadTableDataById<StockTransferModel>(TableNames.StockTransfer, Id.Value);
+                _stockTransfer = await CommonData.LoadTableDataById<StockTransferModel>(StoreNames.StockTransfer, Id.Value);
                 if (_stockTransfer is null || _stockTransfer.Id == 0)
                 {
                     await _toastNotification.ShowAsync("Transaction Not Found", "The requested transaction could not be found.", ToastType.Error);
@@ -183,7 +183,7 @@ public partial class StockTransferPage
             if (Id is null)
                 _stockTransfer.DiscountPercent = _selectedToLocation.Discount;
 
-            _selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, _stockTransfer.FinancialYearId);
+            _selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, _stockTransfer.FinancialYearId);
             SyncPaymentsFromStockTransfer();
         }
         catch (Exception ex)
@@ -202,7 +202,7 @@ public partial class StockTransferPage
         try
         {
             _products = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _stockTransfer.LocationId);
-            _taxes = await CommonData.LoadTableDataByStatus<TaxModel>(TableNames.Tax);
+            _taxes = await CommonData.LoadTableDataByStatus<TaxModel>(StoreNames.Tax);
 
             _products = [.. _products.OrderBy(s => s.Name)];
         }
@@ -220,13 +220,13 @@ public partial class StockTransferPage
 
             if (_stockTransfer.Id > 0)
             {
-                var existingCart = await CommonData.LoadTableDataByMasterId<StockTransferDetailModel>(TableNames.StockTransferDetail, _stockTransfer.Id);
+                var existingCart = await CommonData.LoadTableDataByMasterId<StockTransferDetailModel>(StoreNames.StockTransferDetail, _stockTransfer.Id);
 
                 foreach (var item in existingCart)
                 {
                     if (_products.FirstOrDefault(s => s.ProductId == item.ProductId) is null)
                     {
-                        var product = await CommonData.LoadTableDataById<ProductModel>(TableNames.Product, item.ProductId);
+                        var product = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, item.ProductId);
                         await _toastNotification.ShowAsync("Item Not Found", $"The item {product?.Name} (ID: {item.ProductId}) in the existing transaction cart was not found in the available items list. It may have been deleted or is inaccessible.", ToastType.Error);
                         continue;
                     }
@@ -830,7 +830,7 @@ public partial class StockTransferPage
 
         if (_stockTransfer.Id > 0)
         {
-            var existingTransfer = await CommonData.LoadTableDataById<StockTransferModel>(TableNames.StockTransfer, _stockTransfer.Id);
+            var existingTransfer = await CommonData.LoadTableDataById<StockTransferModel>(StoreNames.StockTransfer, _stockTransfer.Id);
             await FinancialYearData.ValidateFinancialYear(existingTransfer.TransactionDateTime);
 
             if (!_user.Admin)

@@ -75,7 +75,7 @@ public partial class ProductStockAdjustment
     {
         try
         {
-            _locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
+            _locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
 
             _locations = [.. _locations.OrderBy(s => s.Name)];
 

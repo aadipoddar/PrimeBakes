@@ -12,10 +12,10 @@ namespace PrimeBakesLibrary.Inventory.Kitchen.Data;
 public static class KitchenIssueData
 {
     private static async Task<int> InsertKitchenIssue(KitchenIssueModel kitchenIssue, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertKitchenIssue, kitchenIssue, sqlDataAccessTransaction)).FirstOrDefault();
+        (await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertKitchenIssue, kitchenIssue, sqlDataAccessTransaction)).FirstOrDefault();
 
     private static async Task<int> InsertKitchenIssueDetail(KitchenIssueDetailModel kitchenIssueDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertKitchenIssueDetail, kitchenIssueDetail, sqlDataAccessTransaction)).FirstOrDefault();
+        (await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertKitchenIssueDetail, kitchenIssueDetail, sqlDataAccessTransaction)).FirstOrDefault();
 
     public static List<KitchenIssueDetailModel> ConvertCartToDetails(List<KitchenIssueItemCartModel> cart, int kitchenIssueId) =>
         [.. cart.Select(item => new KitchenIssueDetailModel
@@ -59,7 +59,7 @@ public static class KitchenIssueData
     public static async Task RecoverTransaction(KitchenIssueModel kitchenIssue)
     {
         kitchenIssue.Status = true;
-        var kitchenIssueDetails = await CommonData.LoadTableDataByMasterId<KitchenIssueDetailModel>(TableNames.KitchenIssueDetail, kitchenIssue.Id);
+        var kitchenIssueDetails = await CommonData.LoadTableDataByMasterId<KitchenIssueDetailModel>(InventoryNames.KitchenIssueDetail, kitchenIssue.Id);
 
         await SaveTransaction(kitchenIssue, null, kitchenIssueDetails, false);
 
@@ -98,7 +98,7 @@ public static class KitchenIssueData
 
         if (update)
         {
-            var existingKitchenIssue = await CommonData.LoadTableDataById<KitchenIssueModel>(TableNames.KitchenIssue, kitchenIssue.Id, sqlDataAccessTransaction);
+            var existingKitchenIssue = await CommonData.LoadTableDataById<KitchenIssueModel>(InventoryNames.KitchenIssue, kitchenIssue.Id, sqlDataAccessTransaction);
             await FinancialYearData.ValidateFinancialYear(existingKitchenIssue.TransactionDateTime, sqlDataAccessTransaction);
             kitchenIssue.TransactionNo = existingKitchenIssue.TransactionNo;
         }
@@ -125,7 +125,7 @@ public static class KitchenIssueData
 
         if (update)
         {
-            var existingKitchenIssueDetails = await CommonData.LoadTableDataByMasterId<KitchenIssueDetailModel>(TableNames.KitchenIssueDetail, kitchenIssue.Id, sqlDataAccessTransaction);
+            var existingKitchenIssueDetails = await CommonData.LoadTableDataByMasterId<KitchenIssueDetailModel>(InventoryNames.KitchenIssueDetail, kitchenIssue.Id, sqlDataAccessTransaction);
             foreach (var item in existingKitchenIssueDetails)
             {
                 item.Status = false;

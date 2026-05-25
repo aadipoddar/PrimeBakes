@@ -10,9 +10,9 @@ public static class ProductExport
         IEnumerable<ProductModel> productData,
         ReportExportType exportType)
     {
-        var categories = await CommonData.LoadTableData<ProductCategoryModel>(TableNames.ProductCategory);
-        var kotCategories = await CommonData.LoadTableData<KOTCategoryModel>(TableNames.KOTCategory);
-        var taxes = await CommonData.LoadTableData<TaxModel>(TableNames.Tax);
+        var categories = await CommonData.LoadTableData<ProductCategoryModel>(StoreNames.ProductCategory);
+        var kotCategories = await CommonData.LoadTableData<KOTCategoryModel>(StoreNames.KOTCategory);
+        var taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
 
 		var enrichedData = productData.Select(p => new
 		{

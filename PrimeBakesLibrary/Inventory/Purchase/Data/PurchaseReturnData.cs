@@ -16,10 +16,10 @@ namespace PrimeBakesLibrary.Inventory.Purchase.Data;
 public static class PurchaseReturnData
 {
     private static async Task<int> InsertPurchaseReturn(PurchaseReturnModel purchaseReturn, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertPurchaseReturn, purchaseReturn, sqlDataAccessTransaction)).FirstOrDefault();
+        (await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertPurchaseReturn, purchaseReturn, sqlDataAccessTransaction)).FirstOrDefault();
 
     private static async Task<int> InsertPurchaseReturnDetail(PurchaseReturnDetailModel purchaseReturnDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertPurchaseReturnDetail, purchaseReturnDetail, sqlDataAccessTransaction)).FirstOrDefault();
+        (await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertPurchaseReturnDetail, purchaseReturnDetail, sqlDataAccessTransaction)).FirstOrDefault();
 
     private static List<PurchaseReturnDetailModel> ConvertCartToDetails(List<PurchaseReturnItemCartModel> cart, int masterId) =>
         [.. cart.Select(item => new PurchaseReturnDetailModel
@@ -89,7 +89,7 @@ public static class PurchaseReturnData
     public static async Task RecoverTransaction(PurchaseReturnModel purchaseReturn)
     {
         purchaseReturn.Status = true;
-        var transactionDetails = await CommonData.LoadTableDataByMasterId<PurchaseReturnDetailModel>(TableNames.PurchaseReturnDetail, purchaseReturn.Id);
+        var transactionDetails = await CommonData.LoadTableDataByMasterId<PurchaseReturnDetailModel>(InventoryNames.PurchaseReturnDetail, purchaseReturn.Id);
 
         await SaveTransaction(purchaseReturn, null, transactionDetails, false);
 
@@ -128,7 +128,7 @@ public static class PurchaseReturnData
 
         if (update)
         {
-            var existingPurchaseReturn = await CommonData.LoadTableDataById<PurchaseReturnModel>(TableNames.PurchaseReturn, purchaseReturn.Id, sqlDataAccessTransaction);
+            var existingPurchaseReturn = await CommonData.LoadTableDataById<PurchaseReturnModel>(InventoryNames.PurchaseReturn, purchaseReturn.Id, sqlDataAccessTransaction);
             await FinancialYearData.ValidateFinancialYear(existingPurchaseReturn.TransactionDateTime, sqlDataAccessTransaction);
         }
 
@@ -153,7 +153,7 @@ public static class PurchaseReturnData
 
         if (update)
         {
-            var existingPurchaseDetails = await CommonData.LoadTableDataByMasterId<PurchaseReturnDetailModel>(TableNames.PurchaseReturnDetail, purchaseReturn.Id, sqlDataAccessTransaction);
+            var existingPurchaseDetails = await CommonData.LoadTableDataByMasterId<PurchaseReturnDetailModel>(InventoryNames.PurchaseReturnDetail, purchaseReturn.Id, sqlDataAccessTransaction);
             foreach (var item in existingPurchaseDetails)
             {
                 item.Status = false;
@@ -212,7 +212,7 @@ public static class PurchaseReturnData
             }
         }
 
-        var purchaseReturnOverview = await CommonData.LoadTableDataById<PurchaseReturnOverviewModel>(ViewNames.PurchaseReturnOverview, purchaseReturn.Id, sqlDataAccessTransaction);
+        var purchaseReturnOverview = await CommonData.LoadTableDataById<PurchaseReturnOverviewModel>(InventoryNames.PurchaseReturnOverview, purchaseReturn.Id, sqlDataAccessTransaction);
         if (purchaseReturnOverview is null)
             return;
 

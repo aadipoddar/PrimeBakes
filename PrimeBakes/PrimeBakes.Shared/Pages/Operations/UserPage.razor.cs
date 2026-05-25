@@ -51,8 +51,8 @@ public partial class UserPage
 
 	private async Task LoadData()
 	{
-		_locations = await CommonData.LoadTableData<LocationModel>(TableNames.Location);
-		_users = await CommonData.LoadTableData<UserModel>(TableNames.User);
+		_locations = await CommonData.LoadTableData<LocationModel>(OperationNames.Location);
+		_users = await CommonData.LoadTableData<UserModel>(OperationNames.User);
 
 		if (!_showDeleted)
 			_users = [.. _users.Where(u => u.Status)];

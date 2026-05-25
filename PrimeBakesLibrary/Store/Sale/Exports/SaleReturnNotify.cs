@@ -20,8 +20,8 @@ internal static class SaleReturnNotify
 
     private static async Task SaleReturnNotification(int saleReturnId, NotifyType type)
     {
-        var saleReturn = await CommonData.LoadTableDataById<SaleReturnOverviewModel>(ViewNames.SaleReturnOverview, saleReturnId);
-        var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
+        var saleReturn = await CommonData.LoadTableDataById<SaleReturnOverviewModel>(StoreNames.SaleReturnOverview, saleReturnId);
+        var users = await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User);
 
         List<UserModel> targetUsers = [];
 
@@ -31,7 +31,7 @@ internal static class SaleReturnNotify
         {
             if (saleReturn.PartyId != null && saleReturn.PartyId > 0)
             {
-                var location = await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, saleReturn.PartyId.Value);
+                var location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, saleReturn.PartyId.Value);
 
                 if (location is not null)
                     targetUsers = [.. users.Where(u =>
@@ -69,7 +69,7 @@ internal static class SaleReturnNotify
 
     private static async Task SaleReturnMail(int saleReturnId, NotifyType type, (MemoryStream, string)? previousInvoice = null)
     {
-        var saleReturn = await CommonData.LoadTableDataById<SaleReturnOverviewModel>(ViewNames.SaleReturnOverview, saleReturnId);
+        var saleReturn = await CommonData.LoadTableDataById<SaleReturnOverviewModel>(StoreNames.SaleReturnOverview, saleReturnId);
 
         var emailData = new MailingUtil.TransactionEmailData
         {

@@ -9,22 +9,22 @@ namespace PrimeBakesLibrary.Inventory.Stock.Data;
 public static class ProductStockData
 {
     public static async Task<int> InsertProductStock(ProductStockModel stock, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertProductStock, stock, sqlDataAccessTransaction)).FirstOrDefault();
+        (await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertProductStock, stock, sqlDataAccessTransaction)).FirstOrDefault();
 
     public static async Task<List<ProductStockSummaryModel>> LoadProductStockSummaryByDateLocationId(DateTime FromDate, DateTime ToDate, int LocationId) =>
-        await SqlDataAccess.LoadData<ProductStockSummaryModel, dynamic>(StoredProcedureNames.LoadProductStockSummaryByDateLocationId, new { FromDate, ToDate, LocationId });
+        await SqlDataAccess.LoadData<ProductStockSummaryModel, dynamic>(InventoryNames.LoadProductStockSummaryByDateLocationId, new { FromDate, ToDate, LocationId });
 
     public static async Task DeleteProductStockByTypeTransactionIdLocationId(string Type, int TransactionId, int LocationId, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-        await SqlDataAccess.SaveData(StoredProcedureNames.DeleteProductStockByTypeTransactionIdLocationId, new { Type, TransactionId, LocationId }, sqlDataAccessTransaction);
+        await SqlDataAccess.SaveData(InventoryNames.DeleteProductStockByTypeTransactionIdLocationId, new { Type, TransactionId, LocationId }, sqlDataAccessTransaction);
 
     public static async Task DeleteProductStockById(int Id, int userId)
     {
-        var stock = await CommonData.LoadTableDataById<ProductStockModel>(TableNames.ProductStock, Id);
+        var stock = await CommonData.LoadTableDataById<ProductStockModel>(InventoryNames.ProductStock, Id);
         if (stock is null)
             return;
 
         await FinancialYearData.ValidateFinancialYear(stock.TransactionDateTime);
-        await SqlDataAccess.SaveData(StoredProcedureNames.DeleteProductStockById, new { Id });
+        await SqlDataAccess.SaveData(InventoryNames.DeleteProductStockById, new { Id });
         await ProductStockAdjustmentNotify.Notify(stock, userId, NotifyType.Deleted);
     }
 

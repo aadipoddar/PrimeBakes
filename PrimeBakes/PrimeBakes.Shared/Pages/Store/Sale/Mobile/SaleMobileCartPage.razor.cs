@@ -69,8 +69,8 @@ public partial class SaleMobileCartPage
 	#region Saving
 	private async Task UpdateFinancialDetails()
 	{
-		var taxes = await CommonData.LoadTableData<TaxModel>(TableNames.Tax);
-		var items = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
+		var taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
+		var items = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
 
 		foreach (var item in _cart.Where(_ => _.Quantity > 0))
 		{

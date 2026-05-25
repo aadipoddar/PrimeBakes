@@ -102,7 +102,7 @@ public partial class BillPage
 	{
 		try
 		{
-			_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
+			_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
 			_companies = [.. _companies.OrderBy(s => s.Name)];
 
 			var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
@@ -120,7 +120,7 @@ public partial class BillPage
 	{
 		try
 		{
-			_locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
+			_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
 			_locations = [.. _locations.OrderBy(s => s.Name)];
 			_selectedLocation = _locations.FirstOrDefault(s => s.Id == _user.LocationId);
 		}
@@ -150,7 +150,7 @@ public partial class BillPage
 		}
 
 		if (_bill.CustomerId is not null && _bill.CustomerId > 0)
-			_selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(TableNames.Customer, _bill.CustomerId.Value);
+			_selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(StoreNames.Customer, _bill.CustomerId.Value);
 		else
 		{
 			_selectedCustomer = new();
@@ -158,17 +158,17 @@ public partial class BillPage
 		}
 
 		if (_bill.FinancialYearId > 0)
-			_selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, _bill.FinancialYearId);
+			_selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, _bill.FinancialYearId);
 	}
 
 	private async Task LoadDiningTables()
 	{
 		try
 		{
-			var diningAreas = await CommonData.LoadTableDataByStatus<DiningAreaModel>(TableNames.DiningArea);
+			var diningAreas = await CommonData.LoadTableDataByStatus<DiningAreaModel>(RestaurantNames.DiningArea);
 			diningAreas = [.. diningAreas.Where(d => d.LocationId == _bill.LocationId)];
 
-			_diningTables = await CommonData.LoadTableDataByStatus<DiningTableModel>(TableNames.DiningTable);
+			_diningTables = await CommonData.LoadTableDataByStatus<DiningTableModel>(RestaurantNames.DiningTable);
 			_diningTables = [.. _diningTables.Where(dt => diningAreas.Any(da => da.Id == dt.DiningAreaId)).OrderBy(s => s.Name)];
 
 			if (_diningTables.Count == 0)
@@ -190,7 +190,7 @@ public partial class BillPage
 	{
 		try
 		{
-			_taxes = await CommonData.LoadTableDataByStatus<TaxModel>(TableNames.Tax);
+			_taxes = await CommonData.LoadTableDataByStatus<TaxModel>(StoreNames.Tax);
 			_products = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _bill.LocationId);
 			_products = [.. _products.OrderBy(s => s.Name)];
 		}
@@ -208,13 +208,13 @@ public partial class BillPage
 
 			if (_bill.Id > 0)
 			{
-				var existingDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(TableNames.BillDetail, _bill.Id);
+				var existingDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, _bill.Id);
 				foreach (var item in existingDetails)
 				{
 					var product = _products.FirstOrDefault(s => s.ProductId == item.ProductId);
 					if (product is null)
 					{
-						var productInfo = await CommonData.LoadTableDataById<ProductModel>(TableNames.Product, item.ProductId);
+						var productInfo = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, item.ProductId);
 						await _toastNotification.ShowAsync("Item Not Found", $"The item {productInfo?.Name} (ID: {item.ProductId}) was not found in available items. It may have been deleted.", ToastType.Error);
 						continue;
 					}
@@ -305,7 +305,7 @@ public partial class BillPage
 	/// </summary>
 	private async Task<bool> LoadExistingBill(int billId)
 	{
-		_bill = await CommonData.LoadTableDataById<BillModel>(TableNames.Bill, billId);
+		_bill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, billId);
 
 		if (_bill is null || _bill.Id == 0)
 		{
@@ -340,7 +340,7 @@ public partial class BillPage
 	/// </summary>
 	private async Task<bool> ResolveTableBill(int diningTableId)
 	{
-		var diningTable = await CommonData.LoadTableDataById<DiningTableModel>(TableNames.DiningTable, diningTableId);
+		var diningTable = await CommonData.LoadTableDataById<DiningTableModel>(RestaurantNames.DiningTable, diningTableId);
 		if (diningTable is null)
 		{
 			await _toastNotification.ShowAsync("Dining Table Not Found", "The selected dining table could not be found.", ToastType.Error);
@@ -348,7 +348,7 @@ public partial class BillPage
 			return false;
 		}
 
-		var diningArea = await CommonData.LoadTableDataById<DiningAreaModel>(TableNames.DiningArea, diningTable.DiningAreaId);
+		var diningArea = await CommonData.LoadTableDataById<DiningAreaModel>(RestaurantNames.DiningArea, diningTable.DiningAreaId);
 
 		// Non-head-office users cannot create bills on tables from other locations
 		if (_user.LocationId != 1 && diningArea.LocationId != _user.LocationId)
@@ -569,7 +569,7 @@ public partial class BillPage
 		if (args.Value is null || args.Value.Id == 0)
 			return;
 
-		var diningArea = await CommonData.LoadTableDataById<DiningAreaModel>(TableNames.DiningArea, args.Value.DiningAreaId);
+		var diningArea = await CommonData.LoadTableDataById<DiningAreaModel>(RestaurantNames.DiningArea, args.Value.DiningAreaId);
 		if (diningArea.LocationId != _bill.LocationId)
 		{
 			await _toastNotification.ShowAsync("Invalid Dining Table", "The selected dining table does not belong to the selected location.", ToastType.Error);
@@ -1007,7 +1007,7 @@ public partial class BillPage
 
 		if (_bill.Id > 0)
 		{
-			var existingBill = await CommonData.LoadTableDataById<BillModel>(TableNames.Bill, _bill.Id);
+			var existingBill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, _bill.Id);
 			await FinancialYearData.ValidateFinancialYear(existingBill.TransactionDateTime);
 
 			if (!existingBill.Running && !(_user.Admin && _user.LocationId == 1))
@@ -1037,8 +1037,8 @@ public partial class BillPage
 
 		if (_bill.DiningTableId > 0)
 		{
-			var diningTable = await CommonData.LoadTableDataById<DiningTableModel>(TableNames.DiningTable, _bill.DiningTableId);
-			var diningArea = await CommonData.LoadTableDataById<DiningAreaModel>(TableNames.DiningArea, diningTable.DiningAreaId);
+			var diningTable = await CommonData.LoadTableDataById<DiningTableModel>(RestaurantNames.DiningTable, _bill.DiningTableId);
+			var diningArea = await CommonData.LoadTableDataById<DiningAreaModel>(RestaurantNames.DiningArea, diningTable.DiningAreaId);
 			if (diningArea.LocationId != _bill.LocationId)
 			{
 				await _toastNotification.ShowAsync("Invalid Dining Table", "The selected dining table does not belong to the selected location.", ToastType.Error);
@@ -1054,7 +1054,7 @@ public partial class BillPage
 	{
 		if (_selectedCustomer.Id > 0)
 		{
-			_selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(TableNames.Customer, _selectedCustomer.Id);
+			_selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(StoreNames.Customer, _selectedCustomer.Id);
 			_bill.CustomerId = _selectedCustomer.Id;
 		}
 		else if (!string.IsNullOrWhiteSpace(_selectedCustomer.Number))

@@ -79,13 +79,13 @@ public partial class AccountingLedgerReport : IAsyncDisposable
 
 	private async Task LoadCompanies()
 	{
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
+		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
 		_companies = [.. _companies.OrderBy(s => s.Name)];
 	}
 
 	private async Task LoadLedgers()
 	{
-		_ledgers = await CommonData.LoadTableDataByStatus<LedgerModel>(TableNames.Ledger);
+		_ledgers = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
 		_ledgers = [.. _ledgers.OrderBy(s => s.Name)];
 	}
 
@@ -101,7 +101,7 @@ public partial class AccountingLedgerReport : IAsyncDisposable
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
 			_transactionOverviews = await CommonData.LoadTableDataByDate<FinancialAccountingLedgerOverviewModel>(
-				ViewNames.FinancialAccountingLedgerOverview,
+				AccountNames.FinancialAccountingLedgerOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 

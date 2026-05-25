@@ -93,20 +93,20 @@ public partial class BillReport : IAsyncDisposable
 
 	private async Task LoadLocations()
 	{
-		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
+		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
 		_locations = [.. _locations.OrderBy(s => s.Name)];
 		_selectedLocation = _locations.FirstOrDefault(_ => _.Id == _user.LocationId);
 	}
 
 	private async Task LoadCompanies()
 	{
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
+		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
 		_companies = [.. _companies.OrderBy(s => s.Name)];
 	}
 
 	private async Task LoadCustomers()
 	{
-		_customers = await CommonData.LoadTableData<CustomerModel>(TableNames.Customer);
+		_customers = await CommonData.LoadTableData<CustomerModel>(StoreNames.Customer);
 		_customers = [.. _customers.OrderBy(s => s.Name)];
 	}
 
@@ -122,7 +122,7 @@ public partial class BillReport : IAsyncDisposable
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
 			_transactionOverviews = await CommonData.LoadTableDataByDate<BillOverviewModel>(
-				ViewNames.BillOverview,
+				RestaurantNames.BillOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
@@ -490,7 +490,7 @@ public partial class BillReport : IAsyncDisposable
 
 			await _toastNotification.ShowAsync("Processing", "Deleting transaction...", ToastType.Info);
 
-			var bill = await CommonData.LoadTableDataById<BillModel>(TableNames.Bill, _deleteTransactionId);
+			var bill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, _deleteTransactionId);
 			if (bill is null)
 			{
 				await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);
@@ -543,7 +543,7 @@ public partial class BillReport : IAsyncDisposable
 
 			await _toastNotification.ShowAsync("Processing", "Recovering transaction...", ToastType.Info);
 
-			var bill = await CommonData.LoadTableDataById<BillModel>(TableNames.Bill, _recoverTransactionId);
+			var bill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, _recoverTransactionId);
 			if (bill is null)
 			{
 				await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);

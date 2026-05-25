@@ -20,11 +20,11 @@ internal static class RecipeNotify
 
     private static async Task RecipeNotification(int recipeId, NotifyType type)
     {
-        var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
+        var users = await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User);
         users = [.. users.Where(u => u.Admin && u.LocationId == 1 || u.Inventory && u.LocationId == 1)];
 
-        var recipe = await CommonData.LoadTableDataById<RecipeModel>(TableNames.Recipe, recipeId);
-        var product = await CommonData.LoadTableDataById<ProductModel>(TableNames.Product, recipe.ProductId);
+        var recipe = await CommonData.LoadTableDataById<RecipeModel>(InventoryNames.Recipe, recipeId);
+        var product = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, recipe.ProductId);
         var recipeDetails = await LoadRecipeDetails(recipeId);
 
         var notificationData = new NotificationUtil.TransactionNotificationData
@@ -47,8 +47,8 @@ internal static class RecipeNotify
 
     private static async Task RecipeMail(int recipeId, NotifyType type)
     {
-        var recipe = await CommonData.LoadTableDataById<RecipeModel>(TableNames.Recipe, recipeId);
-        var product = await CommonData.LoadTableDataById<ProductModel>(TableNames.Product, recipe.ProductId);
+        var recipe = await CommonData.LoadTableDataById<RecipeModel>(InventoryNames.Recipe, recipeId);
+        var product = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, recipe.ProductId);
         var recipeDetails = await LoadRecipeDetails(recipeId);
 
         var emailData = new MailingUtil.TransactionEmailData
@@ -73,8 +73,8 @@ internal static class RecipeNotify
 
     private static async Task<List<RecipeItemCartModel>> LoadRecipeDetails(int recipeId)
     {
-        var details = await CommonData.LoadTableDataByMasterId<RecipeDetailModel>(TableNames.RecipeDetail, recipeId);
-        var rawMaterials = await CommonData.LoadTableData<RawMaterialModel>(TableNames.RawMaterial);
+        var details = await CommonData.LoadTableDataByMasterId<RecipeDetailModel>(InventoryNames.RecipeDetail, recipeId);
+        var rawMaterials = await CommonData.LoadTableData<RawMaterialModel>(InventoryNames.RawMaterial);
 
         return [.. details.Select(detail => new RecipeItemCartModel
         {

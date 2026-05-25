@@ -19,13 +19,13 @@ namespace PrimeBakesLibrary.Store.Sale.Data;
 public static class SaleData
 {
 	private static async Task<int> InsertSale(SaleModel sale, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertSale, sale, sqlDataAccessTransaction)).FirstOrDefault();
+		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertSale, sale, sqlDataAccessTransaction)).FirstOrDefault();
 
 	private static async Task<int> InsertSaleDetail(SaleDetailModel saleDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertSaleDetail, saleDetail, sqlDataAccessTransaction)).FirstOrDefault();
+		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertSaleDetail, saleDetail, sqlDataAccessTransaction)).FirstOrDefault();
 
 	private static async Task<List<SaleModel>> LoadSaleByFinancialAccountingId(int financialAccountingId, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		await SqlDataAccess.LoadData<SaleModel, dynamic>(StoredProcedureNames.LoadSaleByFinancialAccountingId, new { FinancialAccountingId = financialAccountingId }, sqlDataAccessTransaction);
+		await SqlDataAccess.LoadData<SaleModel, dynamic>(StoreNames.LoadSaleByFinancialAccountingId, new { FinancialAccountingId = financialAccountingId }, sqlDataAccessTransaction);
 
 	private static List<SaleDetailModel> ConvertCartToDetails(List<SaleItemCartModel> cart, int masterId) =>
 		[.. cart.Select(item => new SaleDetailModel
@@ -109,7 +109,7 @@ public static class SaleData
 	public static async Task RecoverTransaction(SaleModel sale)
 	{
 		sale.Status = true;
-		var transactionDetails = await CommonData.LoadTableDataByMasterId<SaleDetailModel>(TableNames.SaleDetail, sale.Id);
+		var transactionDetails = await CommonData.LoadTableDataByMasterId<SaleDetailModel>(StoreNames.SaleDetail, sale.Id);
 
 		await SaveTransaction(sale, null, transactionDetails, false);
 		await SaleNotify.Notify(sale.Id, NotifyType.Recovered);
@@ -149,7 +149,7 @@ public static class SaleData
 
 		if (update)
 		{
-			existingSale = await CommonData.LoadTableDataById<SaleModel>(TableNames.Sale, sale.Id, sqlDataAccessTransaction);
+			existingSale = await CommonData.LoadTableDataById<SaleModel>(StoreNames.Sale, sale.Id, sqlDataAccessTransaction);
 
 			if (existingSale.FinancialAccountingId is not null)
 				throw new InvalidOperationException("Cannot update a sale with financial accounting.");
@@ -185,7 +185,7 @@ public static class SaleData
 
 		if (update)
 		{
-			var existingSaleDetails = await CommonData.LoadTableDataByMasterId<SaleDetailModel>(TableNames.SaleDetail, sale.Id, sqlDataAccessTransaction);
+			var existingSaleDetails = await CommonData.LoadTableDataByMasterId<SaleDetailModel>(StoreNames.SaleDetail, sale.Id, sqlDataAccessTransaction);
 			foreach (var item in existingSaleDetails)
 			{
 				item.Status = false;
@@ -269,9 +269,9 @@ public static class SaleData
 		if (sale.LocationId != 1)
 			return;
 
-		var recipes = await CommonData.LoadTableDataByStatus<RecipeModel>(TableNames.Recipe, true, sqlDataAccessTransaction);
+		var recipes = await CommonData.LoadTableDataByStatus<RecipeModel>(InventoryNames.Recipe, true, sqlDataAccessTransaction);
 		recipes = [.. recipes.Where(r => r.Deduct)];
-		var recipeDetails = await CommonData.LoadTableDataByStatus<RecipeDetailModel>(TableNames.RecipeDetail, true, sqlDataAccessTransaction);
+		var recipeDetails = await CommonData.LoadTableDataByStatus<RecipeDetailModel>(InventoryNames.RecipeDetail, true, sqlDataAccessTransaction);
 
 		foreach (var product in saleDetails)
 		{
@@ -327,7 +327,7 @@ public static class SaleData
 		if (sale.LocationId != 1)
 			return;
 
-		var saleOverview = await CommonData.LoadTableDataById<SaleOverviewModel>(ViewNames.SaleOverview, sale.Id, sqlDataAccessTransaction);
+		var saleOverview = await CommonData.LoadTableDataById<SaleOverviewModel>(StoreNames.SaleOverview, sale.Id, sqlDataAccessTransaction);
 		if (saleOverview is null)
 			return;
 
@@ -424,7 +424,7 @@ public static class SaleData
 		await FinancialYearData.ValidateFinancialYear(postingDate);
 
 		var sales = await CommonData.LoadTableDataByDate<SaleModel>(
-			TableNames.Sale,
+			StoreNames.Sale,
 			DateOnly.FromDateTime(postingDate).ToDateTime(TimeOnly.MinValue),
 			DateOnly.FromDateTime(postingDate).ToDateTime(TimeOnly.MinValue));
 
@@ -547,7 +547,7 @@ public static class SaleData
 	private static async Task ValidateDaySalesAccountPosting(DateTime postDate, int locationId, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		var sales = await CommonData.LoadTableDataByDate<SaleModel>(
-			TableNames.Sale,
+			StoreNames.Sale,
 			DateOnly.FromDateTime(postDate).ToDateTime(TimeOnly.MinValue),
 			DateOnly.FromDateTime(postDate).ToDateTime(TimeOnly.MinValue),
 			sqlDataAccessTransaction);

@@ -10,16 +10,16 @@ public static class RecipeInvoiceExport
 {
 	public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId, InvoiceExportType exportType, DateTime? recipeDateTime = null)
 	{
-		var transaction = await CommonData.LoadTableDataById<RecipeModel>(TableNames.Recipe, transactionId) ??
+		var transaction = await CommonData.LoadTableDataById<RecipeModel>(InventoryNames.Recipe, transactionId) ??
 			throw new InvalidOperationException("Transaction not found.");
 
-		var transactionDetails = await CommonData.LoadTableDataByMasterId<RecipeDetailModel>(TableNames.RecipeDetail, transaction.Id);
+		var transactionDetails = await CommonData.LoadTableDataByMasterId<RecipeDetailModel>(InventoryNames.RecipeDetail, transaction.Id);
 		if (transactionDetails is null || transactionDetails.Count == 0)
 			throw new InvalidOperationException("No transaction details found for the transaction.");
 
 		recipeDateTime ??= await CommonData.LoadCurrentDateTime();
 
-		var product = await CommonData.LoadTableDataById<ProductModel>(TableNames.Product, transaction.ProductId);
+		var product = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, transaction.ProductId);
 		var rawMaterials = await PurchaseData.LoadRawMaterialByPartyPurchaseDateTime(0, recipeDateTime.Value);
 
 		var lineItems = transactionDetails.Select(detail =>

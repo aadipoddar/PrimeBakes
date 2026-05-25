@@ -6,10 +6,10 @@ namespace PrimeBakesLibrary.Accounts.Masters.Data;
 public static class FinancialYearData
 {
     public static async Task<int> InsertFinancialYear(FinancialYearModel financialYear) =>
-        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertFinancialYear, financialYear)).FirstOrDefault();
+        (await SqlDataAccess.LoadData<int, dynamic>(AccountNames.InsertFinancialYear, financialYear)).FirstOrDefault();
 
     public static async Task<FinancialYearModel> LoadFinancialYearByDateTime(DateTime TransactionDateTime, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-        (await SqlDataAccess.LoadData<FinancialYearModel, dynamic>(StoredProcedureNames.LoadFinancialYearByDateTime, new { TransactionDateTime }, sqlDataAccessTransaction)).FirstOrDefault();
+        (await SqlDataAccess.LoadData<FinancialYearModel, dynamic>(AccountNames.LoadFinancialYearByDateTime, new { TransactionDateTime }, sqlDataAccessTransaction)).FirstOrDefault();
 
     public static async Task ValidateFinancialYear(DateTime TransactionDateTime, SqlDataAccessTransaction sqlDataAccessTransaction = null)
     {
@@ -75,7 +75,7 @@ public static class FinancialYearData
 				if (currentFY2 is null)
 					return (referenceFromDate, referenceToDate);
 
-				var financialYears = await CommonData.LoadTableDataByStatus<FinancialYearModel>(TableNames.FinancialYear);
+				var financialYears = await CommonData.LoadTableDataByStatus<FinancialYearModel>(AccountNames.FinancialYear);
 				var previousFY = financialYears
 					.Where(fy => fy.EndDate < currentFY2.StartDate)
 					.OrderByDescending(fy => fy.StartDate)
@@ -93,7 +93,7 @@ public static class FinancialYearData
 				if (currentFY3 is null)
 					return (referenceFromDate, referenceToDate);
 
-				var financialYears2 = await CommonData.LoadTableDataByStatus<FinancialYearModel>(TableNames.FinancialYear);
+				var financialYears2 = await CommonData.LoadTableDataByStatus<FinancialYearModel>(AccountNames.FinancialYear);
 				var nextFY = financialYears2
 					.Where(fy => fy.StartDate > currentFY3.EndDate)
 					.OrderBy(fy => fy.StartDate)

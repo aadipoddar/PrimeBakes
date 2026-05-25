@@ -9,16 +9,16 @@ public static class FinancialAccountingInvoiceExport
 {
     public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId, InvoiceExportType exportType)
     {
-        var transaction = await CommonData.LoadTableDataById<FinancialAccountingModel>(TableNames.FinancialAccounting, transactionId) ??
+        var transaction = await CommonData.LoadTableDataById<FinancialAccountingModel>(AccountNames.FinancialAccounting, transactionId) ??
             throw new InvalidOperationException("Transaction not found.");
 
-        var transactionDetails = await CommonData.LoadTableDataByMasterId<FinancialAccountingDetailModel>(TableNames.FinancialAccountingDetail, transaction.Id);
+        var transactionDetails = await CommonData.LoadTableDataByMasterId<FinancialAccountingDetailModel>(AccountNames.FinancialAccountingDetail, transaction.Id);
         if (transactionDetails is null || transactionDetails.Count == 0)
             throw new InvalidOperationException("No transaction details found for the transaction.");
 
-        var company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, transaction.CompanyId) ?? throw new InvalidOperationException("Company information is missing.");
-        var voucher = await CommonData.LoadTableDataById<VoucherModel>(TableNames.Voucher, transaction.VoucherId);
-        var allLedgers = await CommonData.LoadTableData<LedgerModel>(TableNames.Ledger);
+        var company = await CommonData.LoadTableDataById<CompanyModel>(AccountNames.Company, transaction.CompanyId) ?? throw new InvalidOperationException("Company information is missing.");
+        var voucher = await CommonData.LoadTableDataById<VoucherModel>(AccountNames.Voucher, transaction.VoucherId);
+        var allLedgers = await CommonData.LoadTableData<LedgerModel>(AccountNames.Ledger);
 
         var cartItems = transactionDetails.Select(detail =>
         {

@@ -80,13 +80,13 @@ public partial class PurchaseItemReport : IAsyncDisposable
 
     private async Task LoadCompanies()
     {
-        _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
+        _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
         _companies = [.. _companies.OrderBy(s => s.Name)];
     }
 
     private async Task LoadParties()
     {
-        _parties = await CommonData.LoadTableDataByStatus<LedgerModel>(TableNames.Ledger);
+        _parties = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
         _parties = [.. _parties.OrderBy(s => s.Name)];
     }
 
@@ -102,7 +102,7 @@ public partial class PurchaseItemReport : IAsyncDisposable
             await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
             _transactionOverviews = await CommonData.LoadTableDataByDate<PurchaseItemOverviewModel>(
-                ViewNames.PurchaseItemOverview,
+                InventoryNames.PurchaseItemOverview,
                 DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
                 DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
@@ -154,7 +154,7 @@ public partial class PurchaseItemReport : IAsyncDisposable
     private async Task LoadTransactionReturnOverviews()
     {
         _transactionReturnOverviews = await CommonData.LoadTableDataByDate<PurchaseReturnItemOverviewModel>(
-            ViewNames.PurchaseReturnItemOverview,
+            InventoryNames.PurchaseReturnItemOverview,
             DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
             DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 

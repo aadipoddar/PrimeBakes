@@ -120,7 +120,7 @@ public partial class RawMaterialStockReport : IAsyncDisposable
 	private async Task LoadStockDetails()
 	{
 		_stockDetails = await CommonData.LoadTableDataByDate<RawMaterialStockDetailsModel>(
-				ViewNames.RawMaterialStockDetails,
+				InventoryNames.RawMaterialStockDetails,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 

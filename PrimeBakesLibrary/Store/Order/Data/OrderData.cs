@@ -11,13 +11,13 @@ namespace PrimeBakesLibrary.Store.Order.Data;
 public static class OrderData
 {
     private static async Task<int> InsertOrder(OrderModel order, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertOrder, order, sqlDataAccessTransaction)).FirstOrDefault();
+        (await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertOrder, order, sqlDataAccessTransaction)).FirstOrDefault();
 
     private static async Task<int> InsertOrderDetail(OrderDetailModel orderDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertOrderDetail, orderDetail, sqlDataAccessTransaction)).FirstOrDefault();
+        (await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertOrderDetail, orderDetail, sqlDataAccessTransaction)).FirstOrDefault();
 
     public static async Task<List<OrderModel>> LoadOrderByLocationPending(int LocationId, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-        await SqlDataAccess.LoadData<OrderModel, dynamic>(StoredProcedureNames.LoadOrderByLocationPending, new { LocationId }, sqlDataAccessTransaction);
+        await SqlDataAccess.LoadData<OrderModel, dynamic>(StoreNames.LoadOrderByLocationPending, new { LocationId }, sqlDataAccessTransaction);
 
     public static List<OrderDetailModel> ConvertCartToDetails(List<OrderItemCartModel> cart, int orderId) =>
         [.. cart.Select(item => new OrderDetailModel
@@ -35,7 +35,7 @@ public static class OrderData
         if (sale.OrderId is null or <= 0)
             return;
 
-        var order = await CommonData.LoadTableDataById<OrderModel>(TableNames.Order, sale.OrderId.Value, sqlDataAccessTransaction);
+        var order = await CommonData.LoadTableDataById<OrderModel>(StoreNames.Order, sale.OrderId.Value, sqlDataAccessTransaction);
         if (order is null || order.Id <= 0)
             throw new InvalidOperationException("Order not found or is inactive.");
 
@@ -48,7 +48,7 @@ public static class OrderData
         if (sale.OrderId is null or <= 0)
             return;
 
-        var order = await CommonData.LoadTableDataById<OrderModel>(TableNames.Order, sale.OrderId.Value, sqlDataAccessTransaction);
+        var order = await CommonData.LoadTableDataById<OrderModel>(StoreNames.Order, sale.OrderId.Value, sqlDataAccessTransaction);
         if (order is null || order.Id <= 0 || !order.Status)
             throw new InvalidOperationException("Order not found or is inactive.");
 
@@ -89,7 +89,7 @@ public static class OrderData
     public static async Task RecoverTransaction(OrderModel order)
     {
         order.Status = true;
-        var transactionDetails = await CommonData.LoadTableDataByMasterId<OrderDetailModel>(TableNames.OrderDetail, order.Id);
+        var transactionDetails = await CommonData.LoadTableDataByMasterId<OrderDetailModel>(StoreNames.OrderDetail, order.Id);
 
         await SaveTransaction(order, null, transactionDetails, false);
         await OrderNotify.Notify(order.Id, NotifyType.Recovered);
@@ -127,7 +127,7 @@ public static class OrderData
 
         if (update)
         {
-            var existingOrder = await CommonData.LoadTableDataById<OrderModel>(TableNames.Order, order.Id, sqlDataAccessTransaction);
+            var existingOrder = await CommonData.LoadTableDataById<OrderModel>(StoreNames.Order, order.Id, sqlDataAccessTransaction);
             await FinancialYearData.ValidateFinancialYear(existingOrder.TransactionDateTime, sqlDataAccessTransaction);
 
             if (existingOrder.SaleId is not null && existingOrder.SaleId > 0)
@@ -157,7 +157,7 @@ public static class OrderData
 
         if (update)
         {
-            var existingOrderDetails = await CommonData.LoadTableDataByMasterId<OrderDetailModel>(TableNames.OrderDetail, order.Id, sqlDataAccessTransaction);
+            var existingOrderDetails = await CommonData.LoadTableDataByMasterId<OrderDetailModel>(StoreNames.OrderDetail, order.Id, sqlDataAccessTransaction);
             foreach (var item in existingOrderDetails)
             {
                 item.Status = false;

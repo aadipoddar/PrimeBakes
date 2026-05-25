@@ -83,14 +83,14 @@ public partial class OrderItemReport : IAsyncDisposable
 
 	private async Task LoadLocations()
 	{
-		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
+		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
 		_locations = [.. _locations.OrderBy(s => s.Name)];
 		_selectedLocation = _locations.FirstOrDefault(_ => _.Id == _user.LocationId);
 	}
 
 	private async Task LoadCompanies()
 	{
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
+		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
 		_companies = [.. _companies.OrderBy(s => s.Name)];
 	}
 
@@ -106,7 +106,7 @@ public partial class OrderItemReport : IAsyncDisposable
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
 			_transactionOverviews = await CommonData.LoadTableDataByDate<OrderItemOverviewModel>(
-				ViewNames.OrderItemOverview,
+				StoreNames.OrderItemOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 

@@ -18,29 +18,29 @@ namespace PrimeBakesLibrary.Restaurant.Bill.Data;
 public static class BillData
 {
 	private static async Task<int> InsertBill(BillModel bill, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertBill, bill, sqlDataAccessTransaction)).FirstOrDefault();
+		(await SqlDataAccess.LoadData<int, dynamic>(RestaurantNames.InsertBill, bill, sqlDataAccessTransaction)).FirstOrDefault();
 
 	private static async Task<int> InsertBillDetail(BillDetailModel billDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertBillDetail, billDetail, sqlDataAccessTransaction)).FirstOrDefault();
+		(await SqlDataAccess.LoadData<int, dynamic>(RestaurantNames.InsertBillDetail, billDetail, sqlDataAccessTransaction)).FirstOrDefault();
 
 	private static async Task DeleteBillDetailById(int Id, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		await SqlDataAccess.SaveData(StoredProcedureNames.DeleteBillDetailById, new { Id }, sqlDataAccessTransaction);
+		await SqlDataAccess.SaveData(RestaurantNames.DeleteBillDetailById, new { Id }, sqlDataAccessTransaction);
 
 	public static async Task<List<BillModel>> LoadRunningBillByLocationId(int LocationId, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		await SqlDataAccess.LoadData<BillModel, dynamic>(StoredProcedureNames.LoadRunningBillByLocationId, new { LocationId }, sqlDataAccessTransaction);
+		await SqlDataAccess.LoadData<BillModel, dynamic>(RestaurantNames.LoadRunningBillByLocationId, new { LocationId }, sqlDataAccessTransaction);
 
 	private static async Task<List<BillModel>> LoadBillByFinancialAccountingId(int FinancialAccountingId, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		await SqlDataAccess.LoadData<BillModel, dynamic>(StoredProcedureNames.LoadBillByFinancialAccountingId, new { FinancialAccountingId }, sqlDataAccessTransaction);
+		await SqlDataAccess.LoadData<BillModel, dynamic>(RestaurantNames.LoadBillByFinancialAccountingId, new { FinancialAccountingId }, sqlDataAccessTransaction);
 
 	public static async Task<Dictionary<int, List<BillItemCartModel>>> KOTCategoryItemsFromBill(int billId)
 	{
-		var billDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(TableNames.BillDetail, billId);
+		var billDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, billId);
 		var kotItems = billDetails.Where(item => item.KOTPrint).ToList();
 
 		if (kotItems.Count == 0)
 			return [];
 
-		var allProducts = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
+		var allProducts = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
 		var kotProducts = allProducts.Where(p => kotItems.Any(ki => ki.ProductId == p.Id)).ToList();
 		var kotCategoryIds = kotProducts.Select(p => p.KOTCategoryId).Distinct().ToList();
 
@@ -72,7 +72,7 @@ public static class BillData
 
 	public static async Task MarkKOTAsPrinted(int billId)
 	{
-		var billDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(TableNames.BillDetail, billId);
+		var billDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, billId);
 
 		foreach (var detail in billDetails.Where(d => d.KOTPrint))
 		{
@@ -153,7 +153,7 @@ public static class BillData
 	public static async Task RecoverTransaction(BillModel bill)
 	{
 		bill.Status = true;
-		var transactionDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(TableNames.BillDetail, bill.Id);
+		var transactionDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, bill.Id);
 
 		await SaveTransaction(bill, null, transactionDetails, false);
 		await BillNotify.Notify(bill.Id, NotifyType.Recovered);
@@ -194,7 +194,7 @@ public static class BillData
 
 		if (update)
 		{
-			existingBill = await CommonData.LoadTableDataById<BillModel>(TableNames.Bill, bill.Id, sqlDataAccessTransaction);
+			existingBill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, bill.Id, sqlDataAccessTransaction);
 
 			if (existingBill.FinancialAccountingId is not null)
 				throw new InvalidOperationException("Cannot update a bill with financial accounting.");
@@ -234,7 +234,7 @@ public static class BillData
 
 		if (update)
 		{
-			var existingBillDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(TableNames.BillDetail, bill.Id, sqlDataAccessTransaction);
+			var existingBillDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, bill.Id, sqlDataAccessTransaction);
 			foreach (var item in existingBillDetails)
 			{
 				if (bill.Running || previousRunning)
@@ -291,9 +291,9 @@ public static class BillData
 		if (bill.LocationId != 1)
 			return;
 
-		var recipes = await CommonData.LoadTableDataByStatus<RecipeModel>(TableNames.Recipe, true, sqlDataAccessTransaction);
+		var recipes = await CommonData.LoadTableDataByStatus<RecipeModel>(InventoryNames.Recipe, true, sqlDataAccessTransaction);
 		recipes = [.. recipes.Where(r => r.Deduct)];
-		var recipeDetails = await CommonData.LoadTableDataByStatus<RecipeDetailModel>(TableNames.RecipeDetail, true, sqlDataAccessTransaction);
+		var recipeDetails = await CommonData.LoadTableDataByStatus<RecipeDetailModel>(InventoryNames.RecipeDetail, true, sqlDataAccessTransaction);
 
 		foreach (var product in billDetails)
 		{
@@ -340,7 +340,7 @@ public static class BillData
 		if (bill.LocationId != 1)
 			return;
 
-		var billOverview = await CommonData.LoadTableDataById<BillOverviewModel>(ViewNames.BillOverview, bill.Id, sqlDataAccessTransaction);
+		var billOverview = await CommonData.LoadTableDataById<BillOverviewModel>(RestaurantNames.BillOverview, bill.Id, sqlDataAccessTransaction);
 		if (billOverview is null)
 			return;
 
@@ -425,7 +425,7 @@ public static class BillData
 		await FinancialYearData.ValidateFinancialYear(postingDate);
 
 		var bills = await CommonData.LoadTableDataByDate<BillOverviewModel>(
-				ViewNames.BillOverview,
+				RestaurantNames.BillOverview,
 				DateOnly.FromDateTime(postingDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(postingDate).ToDateTime(TimeOnly.MinValue));
 
@@ -514,7 +514,7 @@ public static class BillData
 
 			foreach (var billOverview in bills)
 			{
-				var bill = await CommonData.LoadTableDataById<BillModel>(TableNames.Bill, billOverview.Id, sqlDataAccessTransaction);
+				var bill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, billOverview.Id, sqlDataAccessTransaction);
 				bill.FinancialAccountingId = accounting.Id;
 				await InsertBill(bill, sqlDataAccessTransaction);
 			}
@@ -551,7 +551,7 @@ public static class BillData
 	private static async Task ValidateDayBillsAccountPosting(DateTime postDate, int locationId, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		var bills = await CommonData.LoadTableDataByDate<BillModel>(
-			TableNames.Bill,
+			RestaurantNames.Bill,
 			DateOnly.FromDateTime(postDate).ToDateTime(TimeOnly.MinValue),
 			DateOnly.FromDateTime(postDate).ToDateTime(TimeOnly.MinValue),
 			sqlDataAccessTransaction);

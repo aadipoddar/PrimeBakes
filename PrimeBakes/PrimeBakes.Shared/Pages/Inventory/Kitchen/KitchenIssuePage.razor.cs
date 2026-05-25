@@ -85,7 +85,7 @@ public partial class KitchenIssuePage
     {
         try
         {
-            _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
+            _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
             _companies = [.. _companies.OrderBy(s => s.Name)];
 
             var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
@@ -101,7 +101,7 @@ public partial class KitchenIssuePage
     {
         try
         {
-            _kitchens = await CommonData.LoadTableDataByStatus<KitchenModel>(TableNames.Kitchen);
+            _kitchens = await CommonData.LoadTableDataByStatus<KitchenModel>(InventoryNames.Kitchen);
             _kitchens = [.. _kitchens.OrderBy(s => s.Name)];
 
             _selectedKitchen = _kitchens.FirstOrDefault();
@@ -118,7 +118,7 @@ public partial class KitchenIssuePage
         {
             if (Id.HasValue)
             {
-                _kitchenIssue = await CommonData.LoadTableDataById<KitchenIssueModel>(TableNames.KitchenIssue, Id.Value);
+                _kitchenIssue = await CommonData.LoadTableDataById<KitchenIssueModel>(InventoryNames.KitchenIssue, Id.Value);
                 if (_kitchenIssue is null)
                 {
                     await _toastNotification.ShowAsync("Transaction Not Found", "The requested transaction could not be found.", ToastType.Error);
@@ -170,7 +170,7 @@ public partial class KitchenIssuePage
                 _kitchenIssue.KitchenId = _selectedKitchen.Id;
             }
 
-            _selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, _kitchenIssue.FinancialYearId);
+            _selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, _kitchenIssue.FinancialYearId);
         }
         catch (Exception ex)
         {
@@ -206,13 +206,13 @@ public partial class KitchenIssuePage
 
             if (_kitchenIssue.Id > 0)
             {
-                var existingCart = await CommonData.LoadTableDataByMasterId<KitchenIssueDetailModel>(TableNames.KitchenIssueDetail, _kitchenIssue.Id);
+                var existingCart = await CommonData.LoadTableDataByMasterId<KitchenIssueDetailModel>(InventoryNames.KitchenIssueDetail, _kitchenIssue.Id);
 
                 foreach (var item in existingCart)
                 {
                     if (_rawMaterials.FirstOrDefault(s => s.Id == item.RawMaterialId) is null)
                     {
-                        var rawMaterial = await CommonData.LoadTableDataById<RawMaterialModel>(TableNames.RawMaterial, item.RawMaterialId);
+                        var rawMaterial = await CommonData.LoadTableDataById<RawMaterialModel>(InventoryNames.RawMaterial, item.RawMaterialId);
 
                         await _toastNotification.ShowAsync("Item Not Found", $"The item {rawMaterial?.Name} (ID: {item.RawMaterialId}) in the existing transaction cart was not found in the available items list. It may have been deleted or is inaccessible.", ToastType.Error);
                         continue;
@@ -558,7 +558,7 @@ public partial class KitchenIssuePage
 
         if (_kitchenIssue.Id > 0)
         {
-            var existingKitchenIssue = await CommonData.LoadTableDataById<KitchenIssueModel>(TableNames.KitchenIssue, _kitchenIssue.Id);
+            var existingKitchenIssue = await CommonData.LoadTableDataById<KitchenIssueModel>(InventoryNames.KitchenIssue, _kitchenIssue.Id);
             await FinancialYearData.ValidateFinancialYear(existingKitchenIssue.TransactionDateTime);
 
             if (!_user.Admin)

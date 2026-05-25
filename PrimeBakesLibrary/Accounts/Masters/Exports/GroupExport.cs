@@ -10,7 +10,7 @@ public static class GroupExport
         IEnumerable<GroupModel> groupData,
         ReportExportType exportType)
     {
-        var natures = await CommonData.LoadTableData<NatureModel>(TableNames.Nature);
+        var natures = await CommonData.LoadTableData<NatureModel>(AccountNames.Nature);
 
         var enrichedData = groupData.Select(group => new
         {

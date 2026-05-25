@@ -54,9 +54,9 @@ public partial class ProductLocationPage
 	{
 		try
 		{
-			_productLocations = await CommonData.LoadTableData<ProductLocationModel>(TableNames.ProductLocation);
-			_locations = await CommonData.LoadTableData<LocationModel>(TableNames.Location);
-			_products = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
+			_productLocations = await CommonData.LoadTableData<ProductLocationModel>(StoreNames.ProductLocation);
+			_locations = await CommonData.LoadTableData<LocationModel>(OperationNames.Location);
+			_products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
 
 			// Filter active locations and products only
 			_locations = [.. _locations.Where(l => l.Status)];
@@ -66,7 +66,7 @@ public partial class ProductLocationPage
 			if (_productLocation.LocationId > 0)
 				_productLocationOverviews = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _productLocation.LocationId);
 			else
-				_productLocationOverviews = await CommonData.LoadTableData<ProductLocationOverviewModel>(ViewNames.ProductLocationOverview);
+				_productLocationOverviews = await CommonData.LoadTableData<ProductLocationOverviewModel>(StoreNames.ProductLocationOverview);
 
 			if (_sfGrid is not null)
 				await _sfGrid.Refresh();

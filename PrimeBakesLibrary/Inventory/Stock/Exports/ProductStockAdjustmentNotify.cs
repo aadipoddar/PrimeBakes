@@ -23,13 +23,13 @@ internal static class ProductStockAdjustmentNotify
 
     private static async Task ProductStockAdjustmentNotification(int items, decimal quantity, int userId, int locationId, NotifyType type)
     {
-        var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
+        var users = await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User);
         users = [.. users.Where(u => u.Admin && u.LocationId == 1 || u.Inventory && u.LocationId == 1)];
 
         var user = users.FirstOrDefault(_ => _.Id == userId);
         var userName = user?.Name ?? "Unknown User";
 
-        var location = await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, locationId);
+        var location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, locationId);
         var locationName = location?.Name ?? "Unknown Location";
 
         var notificationData = new NotificationUtil.TransactionNotificationData
@@ -53,16 +53,16 @@ internal static class ProductStockAdjustmentNotify
 
     private static async Task ProductStockAdjustmentNotification(ProductStockModel stock, int userId, NotifyType type)
     {
-        var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
+        var users = await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User);
         users = [.. users.Where(u => u.Admin && u.LocationId == 1 || u.Inventory && u.LocationId == 1)];
 
         var user = users.FirstOrDefault(_ => _.Id == userId);
         var userName = user?.Name ?? "Unknown User";
 
-        var location = await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, stock.LocationId);
+        var location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, stock.LocationId);
         var locationName = location?.Name ?? "Unknown Location";
 
-        var product = await CommonData.LoadTableDataById<ProductModel>(TableNames.Product, stock.ProductId);
+        var product = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, stock.ProductId);
         var productName = product?.Name ?? "Unknown Product";
 
         var notificationData = new NotificationUtil.TransactionNotificationData
@@ -87,13 +87,13 @@ internal static class ProductStockAdjustmentNotify
 
     private static async Task ProductStockAdjustmentMail(ProductStockModel stock, int userId)
     {
-        var user = await CommonData.LoadTableDataById<UserModel>(TableNames.User, userId);
+        var user = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, userId);
         var userName = user?.Name ?? "Unknown User";
 
-        var location = await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, stock.LocationId);
+        var location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, stock.LocationId);
         var locationName = location?.Name ?? "Unknown Location";
 
-        var product = await CommonData.LoadTableDataById<ProductModel>(TableNames.Product, stock.ProductId);
+        var product = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, stock.ProductId);
         var productName = product?.Name ?? "Unknown Product";
         var productCode = product?.Code ?? "N/A";
 

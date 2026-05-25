@@ -78,13 +78,13 @@ public partial class KitchenIssueItemReport : IAsyncDisposable
 
 	private async Task LoadCompanies()
 	{
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
+		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
 		_companies = [.. _companies.OrderBy(s => s.Name)];
 	}
 
 	private async Task LoadKitchens()
 	{
-		_kitchens = await CommonData.LoadTableDataByStatus<KitchenModel>(TableNames.Kitchen);
+		_kitchens = await CommonData.LoadTableDataByStatus<KitchenModel>(InventoryNames.Kitchen);
 		_kitchens = [.. _kitchens.OrderBy(s => s.Name)];
 	}
 
@@ -100,7 +100,7 @@ public partial class KitchenIssueItemReport : IAsyncDisposable
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
 			_transactionOverviews = await CommonData.LoadTableDataByDate<KitchenIssueItemOverviewModel>(
-				ViewNames.KitchenIssueItemOverview,
+				InventoryNames.KitchenIssueItemOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 

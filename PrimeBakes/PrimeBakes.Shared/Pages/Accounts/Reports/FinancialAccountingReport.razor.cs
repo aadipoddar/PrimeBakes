@@ -87,13 +87,13 @@ public partial class FinancialAccountingReport : IAsyncDisposable
 
     private async Task LoadCompanies()
     {
-        _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
+        _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
         _companies = [.. _companies.OrderBy(s => s.Name)];
     }
 
     private async Task LoadVouchers()
     {
-        _vouchers = await CommonData.LoadTableDataByStatus<VoucherModel>(TableNames.Voucher);
+        _vouchers = await CommonData.LoadTableDataByStatus<VoucherModel>(AccountNames.Voucher);
         _vouchers = [.. _vouchers.OrderBy(s => s.Name)];
     }
 
@@ -109,7 +109,7 @@ public partial class FinancialAccountingReport : IAsyncDisposable
             await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
             _transactionOverviews = await CommonData.LoadTableDataByDate<FinancialAccountingOverviewModel>(
-                ViewNames.FinancialAccountingOverview,
+                AccountNames.FinancialAccountingOverview,
                 DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
                 DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
@@ -326,7 +326,7 @@ public partial class FinancialAccountingReport : IAsyncDisposable
 
             await _toastNotification.ShowAsync("Processing", "Deleting transaction...", ToastType.Info);
 
-            var accounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(TableNames.FinancialAccounting, _deleteTransactionId)
+            var accounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(AccountNames.FinancialAccounting, _deleteTransactionId)
                 ?? throw new Exception("Transaction not found.");
             accounting.Status = false;
             accounting.LastModifiedBy = _user.Id;
@@ -367,7 +367,7 @@ public partial class FinancialAccountingReport : IAsyncDisposable
 
             await _toastNotification.ShowAsync("Processing", "Recovering transaction...", ToastType.Info);
 
-            var accounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(TableNames.FinancialAccounting, _recoverTransactionId)
+            var accounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(AccountNames.FinancialAccounting, _recoverTransactionId)
                 ?? throw new Exception("Transaction not found.");
             accounting.Status = true;
             accounting.LastModifiedBy = _user.Id;

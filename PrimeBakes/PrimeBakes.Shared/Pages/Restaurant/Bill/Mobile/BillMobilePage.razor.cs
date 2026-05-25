@@ -66,14 +66,14 @@ public partial class BillMobilePage
 
 		try
 		{
-			var diningTable = await CommonData.LoadTableDataById<DiningTableModel>(TableNames.DiningTable, DiningTableId.Value);
+			var diningTable = await CommonData.LoadTableDataById<DiningTableModel>(RestaurantNames.DiningTable, DiningTableId.Value);
 			if (diningTable is null)
 			{
 				NavigationManager.NavigateTo(PageRouteNames.DiningMobileDashboard, true);
 				return false;
 			}
 
-			var diningArea = await CommonData.LoadTableDataById<DiningAreaModel>(TableNames.DiningArea, diningTable.DiningAreaId);
+			var diningArea = await CommonData.LoadTableDataById<DiningAreaModel>(RestaurantNames.DiningArea, diningTable.DiningAreaId);
 			if (diningArea is null)
 			{
 				NavigationManager.NavigateTo(PageRouteNames.DiningMobileDashboard, true);
@@ -100,7 +100,7 @@ public partial class BillMobilePage
 		try
 		{
 			if (DiningTableId.HasValue)
-				_diningTable = await CommonData.LoadTableDataById<DiningTableModel>(TableNames.DiningTable, DiningTableId.Value);
+				_diningTable = await CommonData.LoadTableDataById<DiningTableModel>(RestaurantNames.DiningTable, DiningTableId.Value);
 		}
 		catch (Exception)
 		{
@@ -113,7 +113,7 @@ public partial class BillMobilePage
 	{
 		try
 		{
-			_productCategories = await CommonData.LoadTableDataByStatus<ProductCategoryModel>(TableNames.ProductCategory);
+			_productCategories = await CommonData.LoadTableDataByStatus<ProductCategoryModel>(StoreNames.ProductCategory);
 			_productCategories.Add(new()
 			{
 				Id = 0,
@@ -165,7 +165,7 @@ public partial class BillMobilePage
 			var runningBill = runningBills.FirstOrDefault(b => b.DiningTableId == DiningTableId);
 
 			if (runningBill is not null)
-				_previousCart = await CommonData.LoadTableDataByMasterId<BillDetailModel>(TableNames.BillDetail, runningBill.Id);
+				_previousCart = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, runningBill.Id);
 		}
 		catch (Exception)
 		{
@@ -211,8 +211,8 @@ public partial class BillMobilePage
 	#region Saving
 	private async Task UpdateFinancialDetails()
 	{
-		var taxes = await CommonData.LoadTableData<TaxModel>(TableNames.Tax);
-		var items = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
+		var taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
+		var items = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
 
 		foreach (var item in _cart.Where(_ => _.Quantity > 0))
 		{

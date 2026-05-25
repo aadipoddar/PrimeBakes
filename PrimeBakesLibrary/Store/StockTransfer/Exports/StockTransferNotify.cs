@@ -19,8 +19,8 @@ internal static class StockTransferNotify
 
     private static async Task StockTransferNotification(int stockTransferId, NotifyType type)
     {
-        var stockTransfer = await CommonData.LoadTableDataById<StockTransferOverviewModel>(ViewNames.StockTransferOverview, stockTransferId);
-        var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
+        var stockTransfer = await CommonData.LoadTableDataById<StockTransferOverviewModel>(StoreNames.StockTransferOverview, stockTransferId);
+        var users = await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User);
 
         List<UserModel> targetUsers = [];
 
@@ -52,7 +52,7 @@ internal static class StockTransferNotify
 
     private static async Task StockTransferMail(int stockTransferId, NotifyType type, (MemoryStream, string)? previousInvoice = null)
     {
-        var stockTransfer = await CommonData.LoadTableDataById<StockTransferOverviewModel>(ViewNames.StockTransferOverview, stockTransferId);
+        var stockTransfer = await CommonData.LoadTableDataById<StockTransferOverviewModel>(StoreNames.StockTransferOverview, stockTransferId);
 
         var emailData = new MailingUtil.TransactionEmailData
         {

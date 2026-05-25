@@ -17,10 +17,10 @@ namespace PrimeBakesLibrary.Store.StockTransfer.Data;
 public static class StockTransferData
 {
     private static async Task<int> InsertStockTransfer(StockTransferModel stockTransfer, SqlDataAccessTransaction sqlDataAccessTransaction) =>
-        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertStockTransfer, stockTransfer, sqlDataAccessTransaction)).FirstOrDefault();
+        (await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertStockTransfer, stockTransfer, sqlDataAccessTransaction)).FirstOrDefault();
 
     private static async Task<int> InsertStockTransferDetail(StockTransferDetailModel stockTransferDetail, SqlDataAccessTransaction sqlDataAccessTransaction) =>
-        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertStockTransferDetail, stockTransferDetail, sqlDataAccessTransaction)).FirstOrDefault();
+        (await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertStockTransferDetail, stockTransferDetail, sqlDataAccessTransaction)).FirstOrDefault();
 
     private static List<StockTransferDetailModel> ConvertCartToDetails(List<StockTransferItemCartModel> cart, int masterId) =>
         [.. cart.Select(item => new StockTransferDetailModel
@@ -91,7 +91,7 @@ public static class StockTransferData
     public static async Task RecoverTransaction(StockTransferModel stockTransfer)
     {
         stockTransfer.Status = true;
-        var transactionDetails = await CommonData.LoadTableDataByMasterId<StockTransferDetailModel>(TableNames.StockTransferDetail, stockTransfer.Id);
+        var transactionDetails = await CommonData.LoadTableDataByMasterId<StockTransferDetailModel>(StoreNames.StockTransferDetail, stockTransfer.Id);
 
         await SaveTransaction(stockTransfer, null, transactionDetails, false);
         await StockTransferNotify.Notify(stockTransfer.Id, NotifyType.Recovered);
@@ -131,7 +131,7 @@ public static class StockTransferData
 
         if (update)
         {
-            existingStockTransfer = await CommonData.LoadTableDataById<StockTransferModel>(TableNames.StockTransfer, stockTransfer.Id, sqlDataAccessTransaction);
+            existingStockTransfer = await CommonData.LoadTableDataById<StockTransferModel>(StoreNames.StockTransfer, stockTransfer.Id, sqlDataAccessTransaction);
             await FinancialYearData.ValidateFinancialYear(existingStockTransfer.TransactionDateTime, sqlDataAccessTransaction);
             stockTransfer.TransactionNo = existingStockTransfer.TransactionNo;
         }
@@ -160,7 +160,7 @@ public static class StockTransferData
 
         if (update)
         {
-            var existingStockTransferDetails = await CommonData.LoadTableDataByMasterId<StockTransferDetailModel>(TableNames.StockTransferDetail, stockTransfer.Id, sqlDataAccessTransaction);
+            var existingStockTransferDetails = await CommonData.LoadTableDataByMasterId<StockTransferDetailModel>(StoreNames.StockTransferDetail, stockTransfer.Id, sqlDataAccessTransaction);
             foreach (var item in existingStockTransferDetails)
             {
                 item.Status = false;
@@ -235,9 +235,9 @@ public static class StockTransferData
         if (stockTransfer.LocationId != 1 && stockTransfer.ToLocationId != 1)
             return;
 
-        var recipes = await CommonData.LoadTableDataByStatus<RecipeModel>(TableNames.Recipe, true, sqlDataAccessTransaction);
+        var recipes = await CommonData.LoadTableDataByStatus<RecipeModel>(InventoryNames.Recipe, true, sqlDataAccessTransaction);
         recipes = [.. recipes.Where(r => r.Deduct)];
-        var recipeDetails = await CommonData.LoadTableDataByStatus<RecipeDetailModel>(TableNames.RecipeDetail, true, sqlDataAccessTransaction);
+        var recipeDetails = await CommonData.LoadTableDataByStatus<RecipeDetailModel>(InventoryNames.RecipeDetail, true, sqlDataAccessTransaction);
 
         foreach (var product in stockTransferDetails)
         {
@@ -284,7 +284,7 @@ public static class StockTransferData
         if (stockTransfer.LocationId != 1 && stockTransfer.ToLocationId != 1)
             return;
 
-        var stockTransferOverview = await CommonData.LoadTableDataById<StockTransferOverviewModel>(ViewNames.StockTransferOverview, stockTransfer.Id, sqlDataAccessTransaction);
+        var stockTransferOverview = await CommonData.LoadTableDataById<StockTransferOverviewModel>(StoreNames.StockTransferOverview, stockTransfer.Id, sqlDataAccessTransaction);
         if (stockTransferOverview is null)
             return;
 

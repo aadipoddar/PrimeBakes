@@ -22,7 +22,7 @@ internal static class RawMaterialStockAdjustmentNotify
 
     private static async Task RawMaterialStockAdjustmentNotification(int items, decimal quantity, int userId, NotifyType type)
     {
-        var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
+        var users = await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User);
         users = [.. users.Where(u => u.Admin && u.LocationId == 1 || u.Inventory && u.LocationId == 1)];
 
         var user = users.FirstOrDefault(_ => _.Id == userId);
@@ -48,13 +48,13 @@ internal static class RawMaterialStockAdjustmentNotify
 
     private static async Task RawMaterialStockAdjustmentNotification(RawMaterialStockModel stock, int userId, NotifyType type)
     {
-        var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
+        var users = await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User);
         users = [.. users.Where(u => u.Admin && u.LocationId == 1 || u.Inventory && u.LocationId == 1)];
 
         var user = users.FirstOrDefault(_ => _.Id == userId);
         var userName = user?.Name ?? "Unknown User";
 
-        var rawMaterial = await CommonData.LoadTableDataById<RawMaterialModel>(TableNames.RawMaterial, stock.RawMaterialId);
+        var rawMaterial = await CommonData.LoadTableDataById<RawMaterialModel>(InventoryNames.RawMaterial, stock.RawMaterialId);
         var rawMaterialName = rawMaterial?.Name ?? "Unknown Material";
 
         var notificationData = new NotificationUtil.TransactionNotificationData
@@ -78,10 +78,10 @@ internal static class RawMaterialStockAdjustmentNotify
 
     private static async Task RawMaterialStockAdjustmentMail(RawMaterialStockModel stock, int userId)
     {
-        var user = await CommonData.LoadTableDataById<UserModel>(TableNames.User, userId);
+        var user = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, userId);
         var userName = user?.Name ?? "Unknown User";
 
-        var rawMaterial = await CommonData.LoadTableDataById<RawMaterialModel>(TableNames.RawMaterial, stock.RawMaterialId);
+        var rawMaterial = await CommonData.LoadTableDataById<RawMaterialModel>(InventoryNames.RawMaterial, stock.RawMaterialId);
         var rawMaterialName = rawMaterial?.Name ?? "Unknown Material";
         var rawMaterialCode = rawMaterial?.Code ?? "N/A";
         var uom = rawMaterial?.UnitOfMeasurement ?? "N/A";

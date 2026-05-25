@@ -49,7 +49,7 @@ public partial class TaxPage
 
     private async Task LoadData()
     {
-        _taxes = await CommonData.LoadTableData<TaxModel>(TableNames.Tax);
+        _taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
 
         if (!_showDeleted)
             _taxes = [.. _taxes.Where(t => t.Status)];

@@ -11,12 +11,12 @@ namespace PrimeBakesLibrary.Operations.AuditTrail.Data;
 public static class AuditTrailData
 {
 	private static async Task<int> InsertAuditTrail(AuditTrailModel auditTrail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertAuditTrail, auditTrail, sqlDataAccessTransaction)).FirstOrDefault()
+		(await SqlDataAccess.LoadData<int, dynamic>(OperationNames.InsertAuditTrail, auditTrail, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Audit Trail.");
 
 	public static async Task SaveAuditTrail(AuditTrailModel auditTrail, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
-		var user = await CommonData.LoadTableDataById<UserModel>(TableNames.User, auditTrail.CreatedBy, sqlDataAccessTransaction);
+		var user = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, auditTrail.CreatedBy, sqlDataAccessTransaction);
 		auditTrail.CreatedByName = user.Name;
 		await InsertAuditTrail(auditTrail, sqlDataAccessTransaction);
 	}

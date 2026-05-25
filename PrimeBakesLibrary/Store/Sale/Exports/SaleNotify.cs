@@ -28,8 +28,8 @@ internal static class SaleNotify
         int userId,
         string transactionNo)
     {
-        var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
-        var location = await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, locationId);
+        var users = await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User);
+        var location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, locationId);
         var userName = users.FirstOrDefault(u => u.Id == userId)?.Name ?? "Unknown";
 
         List<UserModel> targetUsers = [.. users.Where(u => (u.Admin || u.Store) && (u.LocationId == locationId || u.LocationId == 1))];
@@ -57,8 +57,8 @@ internal static class SaleNotify
 
     private static async Task SaleNotification(int saleId, NotifyType type)
     {
-        var sale = await CommonData.LoadTableDataById<SaleOverviewModel>(ViewNames.SaleOverview, saleId);
-        var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
+        var sale = await CommonData.LoadTableDataById<SaleOverviewModel>(StoreNames.SaleOverview, saleId);
+        var users = await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User);
 
         List<UserModel> targetUsers = [];
 
@@ -126,7 +126,7 @@ internal static class SaleNotify
 
     private static async Task SaleMail(int saleId, NotifyType type, (MemoryStream, string)? previousInvoice = null)
     {
-        var sale = await CommonData.LoadTableDataById<SaleOverviewModel>(ViewNames.SaleOverview, saleId);
+        var sale = await CommonData.LoadTableDataById<SaleOverviewModel>(StoreNames.SaleOverview, saleId);
 
         var emailData = new MailingUtil.TransactionEmailData
         {

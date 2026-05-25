@@ -52,8 +52,8 @@ public partial class GroupPage
 
     private async Task LoadData()
     {
-        _natures = await CommonData.LoadTableDataByStatus<NatureModel>(TableNames.Nature);
-        _groups = await CommonData.LoadTableData<GroupModel>(TableNames.Group);
+        _natures = await CommonData.LoadTableDataByStatus<NatureModel>(AccountNames.Nature);
+        _groups = await CommonData.LoadTableData<GroupModel>(AccountNames.Group);
 
         if (!_showDeleted)
             _groups = [.. _groups.Where(g => g.Status)];

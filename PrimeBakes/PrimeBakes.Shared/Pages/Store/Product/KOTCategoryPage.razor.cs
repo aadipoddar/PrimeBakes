@@ -49,7 +49,7 @@ public partial class KOTCategoryPage
 
 	private async Task LoadData()
 	{
-		_kotCategories = await CommonData.LoadTableData<KOTCategoryModel>(TableNames.KOTCategory);
+		_kotCategories = await CommonData.LoadTableData<KOTCategoryModel>(StoreNames.KOTCategory);
 
 		if (!_showDeleted)
 			_kotCategories = [.. _kotCategories.Where(pc => pc.Status)];

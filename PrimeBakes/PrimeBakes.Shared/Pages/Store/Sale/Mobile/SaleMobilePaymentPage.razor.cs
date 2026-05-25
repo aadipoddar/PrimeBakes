@@ -155,8 +155,8 @@ public partial class SaleMobilePaymentPage
 	#region Saving
 	private async Task UpdateFinancialDetails(bool customRoundOff = false)
 	{
-		var taxes = await CommonData.LoadTableData<TaxModel>(TableNames.Tax);
-		var items = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
+		var taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
+		var items = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
 
 		foreach (var item in _cart.Where(_ => _.Quantity > 0))
 		{
@@ -295,7 +295,7 @@ public partial class SaleMobilePaymentPage
 
 		if (_selectedCustomer.Id > 0)
 		{
-			_selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(TableNames.Customer, _selectedCustomer.Id);
+			_selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(StoreNames.Customer, _selectedCustomer.Id);
 			_sale.CustomerId = _selectedCustomer.Id;
 		}
 		else if (!string.IsNullOrWhiteSpace(_selectedCustomer.Number) && _selectedCustomer.Id == 0)
@@ -393,7 +393,7 @@ public partial class SaleMobilePaymentPage
 	#region Utilities
 	private async Task SendLocalNotification(int saleId)
 	{
-		var sale = await CommonData.LoadTableDataById<SaleOverviewModel>(ViewNames.SaleOverview, saleId);
+		var sale = await CommonData.LoadTableDataById<SaleOverviewModel>(StoreNames.SaleOverview, saleId);
 		await NotificationService.ShowLocalNotification(
 			sale.Id,
 			"Sale Placed",

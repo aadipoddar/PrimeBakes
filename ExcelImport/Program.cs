@@ -1,4 +1,4 @@
-﻿using OfficeOpenXml;
+using OfficeOpenXml;
 
 using PrimeBakesLibrary.DataAccess;
 
@@ -84,7 +84,7 @@ Console.ReadLine();
 
 //static async Task UpdateProducts()
 //{
-//	var products = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
+//	var products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
 //	int row = 1;
 
 //	foreach (var product in products)
@@ -228,8 +228,8 @@ Console.ReadLine();
 
 //static async Task InsertProductLocations()
 //{
-//	var products = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
-//	var locations = await CommonData.LoadTableData<LocationModel>(TableNames.Location);
+//	var products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
+//	var locations = await CommonData.LoadTableData<LocationModel>(OperationNames.Location);
 
 //	foreach (var product in products)
 //		foreach (var location in locations)
@@ -352,7 +352,7 @@ Console.ReadLine();
 //			id = saleReturn?.Id;
 //		}
 //		else if (accounting.GeneratedModule == "Purchase")
-//			id = (await CommonData.LoadTableData<PurchaseModelOld>(TableNames.Purchase)).Where(p => p.BillNo == accounting.TransactionNo).FirstOrDefault()?.Id ?? 0;
+//			id = (await CommonData.LoadTableData<PurchaseModelOld>(InventoryNames.Purchase)).Where(p => p.BillNo == accounting.TransactionNo).FirstOrDefault()?.Id ?? 0;
 
 //		Console.WriteLine("Inserting Accounting Voucher: " + accounting.TransactionNo + " and voucherId " + accounting.VoucherId);
 
@@ -383,7 +383,7 @@ Console.ReadLine();
 
 //static async Task RecalculateBills()
 //{
-//	var allSales = await CommonData.LoadTableDataByStatus<SaleModel>(TableNames.Sale);
+//	var allSales = await CommonData.LoadTableDataByStatus<SaleModel>(StoreNames.Sale);
 //	foreach (var sale in allSales)
 //	{
 //		var saleDetails = await SaleData.LoadSaleDetailBySale(sale.Id);
@@ -444,7 +444,7 @@ Console.ReadLine();
 
 //static async Task RecalculateReturnBills()
 //{
-//	var allSales = await CommonData.LoadTableDataByStatus<SaleReturnModel>(TableNames.SaleReturn);
+//	var allSales = await CommonData.LoadTableDataByStatus<SaleReturnModel>(StoreNames.SaleReturn);
 //	foreach (var sale in allSales)
 //	{
 //		var saleDetails = await SaleReturnData.LoadSaleReturnDetailBySaleReturn(sale.Id);
@@ -505,7 +505,7 @@ Console.ReadLine();
 
 //static async Task UpdateProductLocation()
 //{
-//	var products = await CommonData.LoadTableDataByStatus<ProductModel>(TableNames.Product);
+//	var products = await CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product);
 //	foreach (var product in products)
 //		await ProductData.InsertProductLocation(new()
 //		{
@@ -688,7 +688,7 @@ Console.ReadLine();
 //{
 //	Dapper.SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
 
-//	var purchases = await CommonData.LoadTableDataByStatus<PurchaseOverviewModel>(ViewNames.PurchaseOverview);
+//	var purchases = await CommonData.LoadTableDataByStatus<PurchaseOverviewModel>(InventoryNames.PurchaseOverview);
 //	foreach (var purchase in purchases)
 //	{
 //		Console.WriteLine("Updating RM Stock Purchase Issue for Purchase Id: " + purchase.Id);
@@ -713,7 +713,7 @@ Console.ReadLine();
 //		}
 //	}
 
-//	var issues = await CommonData.LoadTableDataByStatus<KitchenIssueModel>(TableNames.KitchenIssue);
+//	var issues = await CommonData.LoadTableDataByStatus<KitchenIssueModel>(InventoryNames.KitchenIssue);
 //	foreach (var issue in issues)
 //	{
 //		Console.WriteLine("Updating RM Stock Kitchen Issue for Kitchen Issue Id: " + issue.Id);
@@ -742,7 +742,7 @@ Console.ReadLine();
 //{
 //	Dapper.SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
 
-//	var sales = await CommonData.LoadTableDataByStatus<SaleModel>(TableNames.Sale);
+//	var sales = await CommonData.LoadTableDataByStatus<SaleModel>(StoreNames.Sale);
 //	foreach (var sale in sales)
 //	{
 //		Console.WriteLine("Updating Stock for Sale Id: " + sale.Id);
@@ -766,7 +766,7 @@ Console.ReadLine();
 //		if (sale.PartyId is null || sale.PartyId <= 0)
 //			continue;
 
-//		var supplier = await CommonData.LoadTableDataById<LedgerModel>(TableNames.Ledger, sale.PartyId.Value);
+//		var supplier = await CommonData.LoadTableDataById<LedgerModel>(AccountNames.Ledger, sale.PartyId.Value);
 //		if (supplier.LocationId.HasValue && supplier.LocationId.Value > 0)
 //			foreach (var product in saleDetails)
 //				await ProductStockData.InsertProductStock(new()
@@ -783,7 +783,7 @@ Console.ReadLine();
 //				});
 //	}
 
-//	var saleReturns = await CommonData.LoadTableDataByStatus<SaleReturnModel>(TableNames.SaleReturn);
+//	var saleReturns = await CommonData.LoadTableDataByStatus<SaleReturnModel>(StoreNames.SaleReturn);
 //	foreach (var saleReturn in saleReturns)
 //	{
 //		Console.WriteLine("Updating RM Stock Kitchen Issue for Kitchen Issue Id: " + saleReturn.Id);
@@ -807,7 +807,7 @@ Console.ReadLine();
 //		if (saleReturn.PartyId is null || saleReturn.PartyId <= 0)
 //			continue;
 
-//		var supplier = await CommonData.LoadTableDataById<LedgerModel>(TableNames.Ledger, saleReturn.PartyId.Value);
+//		var supplier = await CommonData.LoadTableDataById<LedgerModel>(AccountNames.Ledger, saleReturn.PartyId.Value);
 //		if (supplier.LocationId.HasValue && supplier.LocationId.Value > 0)
 //			foreach (var product in saleDetails)
 //				await ProductStockData.InsertProductStock(new()
@@ -945,28 +945,28 @@ Console.ReadLine();
 //{
 //	Dapper.SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
 
-//	var sale = await CommonData.LoadTableDataByStatus<SaleModel>(TableNames.Sale);
+//	var sale = await CommonData.LoadTableDataByStatus<SaleModel>(StoreNames.Sale);
 //	foreach (var s in sale)
 //	{
 //		Console.WriteLine("Updating Accounts for Sale Id: " + s.Id);
 //		await SaleData.SaveAccounting(s, false);
 //	}
 
-//	var saleReturn = await CommonData.LoadTableDataByStatus<SaleReturnModel>(TableNames.SaleReturn);
+//	var saleReturn = await CommonData.LoadTableDataByStatus<SaleReturnModel>(StoreNames.SaleReturn);
 //	foreach (var sr in saleReturn)
 //	{
 //		Console.WriteLine("Updating Accounts for Sale Return Id: " + sr.Id);
 //		await SaleReturnData.SaveAccounting(sr, false);
 //	}
 
-//	var purchase = await CommonData.LoadTableDataByStatus<PurchaseModel>(TableNames.Purchase);
+//	var purchase = await CommonData.LoadTableDataByStatus<PurchaseModel>(InventoryNames.Purchase);
 //	foreach (var p in purchase)
 //	{
 //		Console.WriteLine("Updating Accounts for Purchase Id: " + p.Id);
 //		await PurchaseData.SaveAccounting(p, false);
 //	}
 
-//	var purchaseReturn = await CommonData.LoadTableDataByStatus<PurchaseReturnModel>(TableNames.PurchaseReturn);
+//	var purchaseReturn = await CommonData.LoadTableDataByStatus<PurchaseReturnModel>(InventoryNames.PurchaseReturn);
 //	foreach (var pr in purchaseReturn)
 //	{
 //		Console.WriteLine("Updating Accounts for Purchase Return Id: " + pr.Id);
@@ -1442,7 +1442,7 @@ Console.ReadLine();
 
 //		if (finalIssue.SaleId is not null && finalIssue.SaleId > 0)
 //		{
-//			var sale = await CommonData.LoadTableDataById<SaleModel>(TableNames.Sale, finalIssue.SaleId.Value);
+//			var sale = await CommonData.LoadTableDataById<SaleModel>(StoreNames.Sale, finalIssue.SaleId.Value);
 //			if (sale is not null)
 //			{
 //				sale.OrderId = finalIssue.Id;
@@ -1456,7 +1456,7 @@ Console.ReadLine();
 
 //static async Task FixMasterNames()
 //{
-//	var products = await CommonData.LoadTableData<LedgerModel>(TableNames.Ledger);
+//	var products = await CommonData.LoadTableData<LedgerModel>(AccountNames.Ledger);
 
 //	products = products.Where(p => p.Name.EndsWith("&#X20;")).ToList();
 
@@ -1469,7 +1469,7 @@ Console.ReadLine();
 
 //static async Task FixLedgers()
 //{
-//	var ledgers = await CommonData.LoadTableData<LedgerModel>(TableNames.Ledger);
+//	var ledgers = await CommonData.LoadTableData<LedgerModel>(AccountNames.Ledger);
 
 //	foreach (var ledger in ledgers)
 //	{
@@ -1525,14 +1525,14 @@ Console.ReadLine();
 //static async Task InsertSaleAccounting()
 //{
 //	Dapper.SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
-//	var sales = await CommonData.LoadTableDataByStatus<SaleOverviewModel>(ViewNames.SaleOverview);
+//	var sales = await CommonData.LoadTableDataByStatus<SaleOverviewModel>(StoreNames.SaleOverview);
 //	sales = [.. sales.Where(s => s.LocationId != 1)];
 
 //	foreach (var sale in sales)
 //	{
 //		Console.WriteLine("Inserting Accounting for Sale Id: " + sale.Id);
 
-//		var s = await CommonData.LoadTableDataById<SaleModel>(TableNames.Sale, sale.Id);
+//		var s = await CommonData.LoadTableDataById<SaleModel>(StoreNames.Sale, sale.Id);
 //		await SaleData.SaveAccounting(s, false);
 //	}
 //}
@@ -1552,7 +1552,7 @@ Console.ReadLine();
 //    foreach (var rawMaterialId in rawMaterialIds)
 //    {
 //        Console.WriteLine("Deleting Raw Material Id: " + rawMaterialId);
-//        var rawMaterial = await CommonData.LoadTableDataById<RawMaterialModel>(TableNames.RawMaterial, rawMaterialId);
+//        var rawMaterial = await CommonData.LoadTableDataById<RawMaterialModel>(InventoryNames.RawMaterial, rawMaterialId);
 //        rawMaterial.Status = false;
 //        await RawMaterialData.InsertRawMaterial(rawMaterial);
 //    }
@@ -1731,12 +1731,12 @@ Console.ReadLine();
 
 //static async Task UpdatePrices()
 //{
-//    var productLocations = await CommonData.LoadTableDataByStatus<ProductLocationModel>(TableNames.ProductLocation);
+//    var productLocations = await CommonData.LoadTableDataByStatus<ProductLocationModel>(StoreNames.ProductLocation);
 //    productLocations = [.. productLocations.Where(pl => pl.LocationId == 34)];
 
 //    foreach (var pl in productLocations)
 //    {
-//        var product = await CommonData.LoadTableDataById<ProductModel>(TableNames.Product, pl.ProductId);
+//        var product = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, pl.ProductId);
 //        pl.Rate = product.Rate;
 //        await ProductData.InsertProductLocation(pl);
 //    }
@@ -1744,8 +1744,8 @@ Console.ReadLine();
 
 //static async Task UpdateLocations()
 //{
-//    var ledgers = await CommonData.LoadTableData<LedgerModel>(TableNames.Ledger);
-//    var locations = await CommonData.LoadTableData<LocationModel>(TableNames.Location);
+//    var ledgers = await CommonData.LoadTableData<LedgerModel>(AccountNames.Ledger);
+//    var locations = await CommonData.LoadTableData<LocationModel>(OperationNames.Location);
 
 //    ledgers = [.. ledgers.Where(l => l.LocationId is not null)];
 
@@ -1758,12 +1758,12 @@ Console.ReadLine();
 
 //static async Task UpdateStockPrices()
 //{
-//	var rawMaterialStocks = await CommonData.LoadTableData<RawMaterialStockModel>(TableNames.RawMaterialStock);
+//	var rawMaterialStocks = await CommonData.LoadTableData<RawMaterialStockModel>(InventoryNames.RawMaterialStock);
 //	rawMaterialStocks = [.. rawMaterialStocks.Where(rms => rms.NetRate is null)];
 
 //	foreach (var stock in rawMaterialStocks)
 //	{
-//		var rawMaterial = await CommonData.LoadTableDataById<RawMaterialModel>(TableNames.RawMaterial, stock.RawMaterialId);
+//		var rawMaterial = await CommonData.LoadTableDataById<RawMaterialModel>(InventoryNames.RawMaterial, stock.RawMaterialId);
 //		stock.NetRate = rawMaterial.Rate;
 //		await RawMaterialStockData.InsertRawMaterialStock(stock);
 //		Console.WriteLine("Updated Stock Price for Raw Material Stock Id: " + stock.Id);
@@ -1772,7 +1772,7 @@ Console.ReadLine();
 
 //static async Task UpdatePurchasesTransactionNo()
 //{
-//	var purchasesReturns = await CommonData.LoadTableData<PurchaseReturnModel>(TableNames.PurchaseReturn);
+//	var purchasesReturns = await CommonData.LoadTableData<PurchaseReturnModel>(InventoryNames.PurchaseReturn);
 //	foreach (var purchaseReturn in purchasesReturns)
 //	{
 //		purchaseReturn.TransactionNo = await GenerateCodes.GeneratePurchaseReturnTransactionNo(purchaseReturn);
@@ -1783,12 +1783,12 @@ Console.ReadLine();
 
 //static async Task UpdatePurchaseFinancials()
 //{
-//	var accountingDetails = await CommonData.LoadTableDataByStatus<FinancialAccountingDetailModel>(TableNames.FinancialAccountingDetail);
+//	var accountingDetails = await CommonData.LoadTableDataByStatus<FinancialAccountingDetailModel>(AccountNames.FinancialAccountingDetail);
 //	accountingDetails = [.. accountingDetails.Where(a => a.ReferenceType == "PurchaseReturn")];
 
 //	foreach (var accounting in accountingDetails)
 //	{
-//		var purchaseReturn = await CommonData.LoadTableDataById<PurchaseReturnModel>(TableNames.PurchaseReturn, accounting.ReferenceId.Value);
+//		var purchaseReturn = await CommonData.LoadTableDataById<PurchaseReturnModel>(InventoryNames.PurchaseReturn, accounting.ReferenceId.Value);
 //		accounting.ReferenceNo = purchaseReturn.TransactionNo;
 //		await FinancialAccountingData.InsertFinancialAccountingDetail(accounting);
 //	}
@@ -1796,8 +1796,8 @@ Console.ReadLine();
 
 //static async Task DeleteProductLocations(ExcelWorksheet worksheet)
 //{
-//	var productLocations = await CommonData.LoadTableData<ProductLocationModel>(TableNames.ProductLocation);
-//	var products = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
+//	var productLocations = await CommonData.LoadTableData<ProductLocationModel>(StoreNames.ProductLocation);
+//	var products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
 
 //	var row = 1;
 //	while (worksheet.Cells[row, 1].Value != null)
@@ -1824,8 +1824,8 @@ Console.ReadLine();
 
 //static async Task InsertProductLocations(ExcelWorksheet worksheet)
 //{
-//	var products = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
-//	var locations = await CommonData.LoadTableData<LocationModel>(TableNames.Location);
+//	var products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
+//	var locations = await CommonData.LoadTableData<LocationModel>(OperationNames.Location);
 
 //	var row = 2;
 //	while (worksheet.Cells[row, 1].Value != null)
@@ -1867,8 +1867,8 @@ Console.ReadLine();
 
 //static async Task DeleteProductLocations(ExcelWorksheet worksheet)
 //{
-//	var productLocations = await CommonData.LoadTableData<ProductLocationModel>(TableNames.ProductLocation);
-//	var products = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
+//	var productLocations = await CommonData.LoadTableData<ProductLocationModel>(StoreNames.ProductLocation);
+//	var products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
 
 //	var row = 1;
 //	while (worksheet.Cells[row, 1].Value != null)
@@ -1895,9 +1895,9 @@ Console.ReadLine();
 
 //static async Task UpdateProductLocation(ExcelWorksheet worksheet1, ExcelWorksheet worksheet2)
 //{
-//	var locations = await CommonData.LoadTableData<LocationModel>(TableNames.Location);
-//	var products = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
-//	var productLocations = await CommonData.LoadTableData<ProductLocationModel>(TableNames.ProductLocation);
+//	var locations = await CommonData.LoadTableData<LocationModel>(OperationNames.Location);
+//	var products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
+//	var productLocations = await CommonData.LoadTableData<ProductLocationModel>(StoreNames.ProductLocation);
 
 //	var row = 2;
 

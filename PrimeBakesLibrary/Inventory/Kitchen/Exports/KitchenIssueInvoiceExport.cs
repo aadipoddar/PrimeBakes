@@ -11,19 +11,19 @@ public static class KitchenIssueInvoiceExport
 {
     public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId, InvoiceExportType exportType)
     {
-        var transaction = await CommonData.LoadTableDataById<KitchenIssueModel>(TableNames.KitchenIssue, transactionId) ??
+        var transaction = await CommonData.LoadTableDataById<KitchenIssueModel>(InventoryNames.KitchenIssue, transactionId) ??
             throw new InvalidOperationException("Transaction not found.");
 
-        var transactionDetails = await CommonData.LoadTableDataByMasterId<KitchenIssueDetailModel>(TableNames.KitchenIssueDetail, transaction.Id);
+        var transactionDetails = await CommonData.LoadTableDataByMasterId<KitchenIssueDetailModel>(InventoryNames.KitchenIssueDetail, transaction.Id);
         if (transactionDetails is null || transactionDetails.Count == 0)
             throw new InvalidOperationException("No transaction details found for the transaction.");
 
-        var company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, transaction.CompanyId);
-        var kitchen = await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, transaction.KitchenId);
+        var company = await CommonData.LoadTableDataById<CompanyModel>(AccountNames.Company, transaction.CompanyId);
+        var kitchen = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, transaction.KitchenId);
         if (company is null || kitchen is null)
             throw new InvalidOperationException("Company or kitchen information is missing.");
 
-        var allItems = await CommonData.LoadTableData<RawMaterialModel>(TableNames.RawMaterial);
+        var allItems = await CommonData.LoadTableData<RawMaterialModel>(InventoryNames.RawMaterial);
 
         var lineItems = transactionDetails.Select(detail =>
         {

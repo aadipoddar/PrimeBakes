@@ -20,10 +20,10 @@ internal static class FinancialAccountingNotify
 
     private static async Task FinancialAccountingNotification(int accountingId, NotifyType type)
     {
-        var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
+        var users = await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User);
         users = [.. users.Where(u => u.Admin && u.LocationId == 1 || u.Accounts && u.LocationId == 1)];
 
-        var accounting = await CommonData.LoadTableDataById<FinancialAccountingOverviewModel>(ViewNames.FinancialAccountingOverview, accountingId);
+        var accounting = await CommonData.LoadTableDataById<FinancialAccountingOverviewModel>(AccountNames.FinancialAccountingOverview, accountingId);
 
         var notificationData = new NotificationUtil.TransactionNotificationData
         {
@@ -47,7 +47,7 @@ internal static class FinancialAccountingNotify
 
     private static async Task AccountingMail(int accountingId, NotifyType type, (MemoryStream, string)? previousInvoice = null)
     {
-        var accounting = await CommonData.LoadTableDataById<FinancialAccountingOverviewModel>(ViewNames.FinancialAccountingOverview, accountingId);
+        var accounting = await CommonData.LoadTableDataById<FinancialAccountingOverviewModel>(AccountNames.FinancialAccountingOverview, accountingId);
 
         var emailData = new MailingUtil.TransactionEmailData
         {

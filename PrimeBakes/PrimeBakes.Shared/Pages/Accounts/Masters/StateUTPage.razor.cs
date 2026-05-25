@@ -51,7 +51,7 @@ public partial class StateUTPage
 
     private async Task LoadData()
     {
-        _stateUTs = await CommonData.LoadTableData<StateUTModel>(TableNames.StateUT);
+        _stateUTs = await CommonData.LoadTableData<StateUTModel>(AccountNames.StateUT);
 
         if (!_showDeleted)
             _stateUTs = [.. _stateUTs.Where(g => g.Status)];

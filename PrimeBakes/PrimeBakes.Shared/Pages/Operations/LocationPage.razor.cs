@@ -54,8 +54,8 @@ public partial class LocationPage
 
     private async Task LoadData()
     {
-        _locations = await CommonData.LoadTableData<LocationModel>(TableNames.Location);
-        _ledgers = await CommonData.LoadTableDataByStatus<LedgerModel>(TableNames.Ledger);
+        _locations = await CommonData.LoadTableData<LocationModel>(OperationNames.Location);
+        _ledgers = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
 
         if (!_showDeleted)
             _locations = [.. _locations.Where(l => l.Status)];

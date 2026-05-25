@@ -50,7 +50,7 @@ public partial class RawMaterialCategoryPage
 
 	private async Task LoadData()
 	{
-		_rawMaterialCategories = await CommonData.LoadTableData<RawMaterialCategoryModel>(TableNames.RawMaterialCategory);
+		_rawMaterialCategories = await CommonData.LoadTableData<RawMaterialCategoryModel>(InventoryNames.RawMaterialCategory);
 
 		if (!_showDeleted)
 			_rawMaterialCategories = [.. _rawMaterialCategories.Where(rmc => rmc.Status)];

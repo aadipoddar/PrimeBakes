@@ -15,16 +15,16 @@ namespace PrimeBakesLibrary.Accounts.FinancialAccounting.Data;
 public static class FinancialAccountingData
 {
 	private static async Task<int> InsertFinancialAccounting(FinancialAccountingModel accounting, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertFinancialAccounting, accounting, sqlDataAccessTransaction)).FirstOrDefault();
+		(await SqlDataAccess.LoadData<int, dynamic>(AccountNames.InsertFinancialAccounting, accounting, sqlDataAccessTransaction)).FirstOrDefault();
 
 	private static async Task<int> InsertFinancialAccountingDetail(FinancialAccountingDetailModel accountingDetails, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertFinancialAccountingDetail, accountingDetails, sqlDataAccessTransaction)).FirstOrDefault();
+		(await SqlDataAccess.LoadData<int, dynamic>(AccountNames.InsertFinancialAccountingDetail, accountingDetails, sqlDataAccessTransaction)).FirstOrDefault();
 
 	public static async Task<FinancialAccountingModel> LoadFinancialAccountingByVoucherReference(int VoucherId, int ReferenceId, string ReferenceNo, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<FinancialAccountingModel, dynamic>(StoredProcedureNames.LoadFinancialAccountingByVoucherReference, new { VoucherId, ReferenceId, ReferenceNo }, sqlDataAccessTransaction)).FirstOrDefault();
+		(await SqlDataAccess.LoadData<FinancialAccountingModel, dynamic>(AccountNames.LoadFinancialAccountingByVoucherReference, new { VoucherId, ReferenceId, ReferenceNo }, sqlDataAccessTransaction)).FirstOrDefault();
 
 	public static async Task<List<TrialBalanceModel>> LoadTrialBalanceByCompanyDate(int CompanyId, DateTime StartDate, DateTime EndDate) =>
-		await SqlDataAccess.LoadData<TrialBalanceModel, dynamic>(StoredProcedureNames.LoadTrialBalanceByCompanyDate, new { CompanyId, StartDate, EndDate });
+		await SqlDataAccess.LoadData<TrialBalanceModel, dynamic>(AccountNames.LoadTrialBalanceByCompanyDate, new { CompanyId, StartDate, EndDate });
 
 	public static List<FinancialAccountingDetailModel> ConvertCartToDetails(List<FinancialAccountingItemCartModel> cart, int accountingId) =>
 		[.. cart.Select(item => new FinancialAccountingDetailModel
@@ -87,7 +87,7 @@ public static class FinancialAccountingData
 	public static async Task RecoverTransaction(FinancialAccountingModel accounting)
 	{
 		accounting.Status = true;
-		var accountingDetails = await CommonData.LoadTableDataByMasterId<FinancialAccountingDetailModel>(TableNames.FinancialAccountingDetail, accounting.Id);
+		var accountingDetails = await CommonData.LoadTableDataByMasterId<FinancialAccountingDetailModel>(AccountNames.FinancialAccountingDetail, accounting.Id);
 
 		await SaveTransaction(accounting, null, accountingDetails, false);
 
@@ -116,12 +116,12 @@ public static class FinancialAccountingData
 
 		if (update)
 		{
-			var existingAccounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(TableNames.FinancialAccounting, accounting.Id, sqlDataAccessTransaction)
+			var existingAccounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(AccountNames.FinancialAccounting, accounting.Id, sqlDataAccessTransaction)
 				?? throw new InvalidOperationException("The transaction to be updated does not exist.");
 
 			await FinancialYearData.ValidateFinancialYear(existingAccounting.TransactionDateTime, sqlDataAccessTransaction);
 
-			var user = await CommonData.LoadTableDataById<UserModel>(TableNames.User, accounting.LastModifiedBy.Value, sqlDataAccessTransaction);
+			var user = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, accounting.LastModifiedBy.Value, sqlDataAccessTransaction);
 			if (!user.Admin)
 				throw new InvalidOperationException("Only admin users are allowed to modify transactions.");
 
@@ -192,7 +192,7 @@ public static class FinancialAccountingData
 	{
 		if (update)
 		{
-			var existingAccountingDetails = await CommonData.LoadTableDataByMasterId<FinancialAccountingDetailModel>(TableNames.FinancialAccountingDetail, accounting.Id, sqlDataAccessTransaction);
+			var existingAccountingDetails = await CommonData.LoadTableDataByMasterId<FinancialAccountingDetailModel>(AccountNames.FinancialAccountingDetail, accounting.Id, sqlDataAccessTransaction);
 			foreach (var item in existingAccountingDetails)
 			{
 				item.Status = false;

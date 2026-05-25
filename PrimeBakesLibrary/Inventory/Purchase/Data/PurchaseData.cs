@@ -18,13 +18,13 @@ namespace PrimeBakesLibrary.Inventory.Purchase.Data;
 public static class PurchaseData
 {
     private static async Task<int> InsertPurchase(PurchaseModel purchase, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertPurchase, purchase, sqlDataAccessTransaction)).FirstOrDefault();
+        (await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertPurchase, purchase, sqlDataAccessTransaction)).FirstOrDefault();
 
     private static async Task<int> InsertPurchaseDetail(PurchaseDetailModel purchaseDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertPurchaseDetail, purchaseDetail, sqlDataAccessTransaction)).FirstOrDefault();
+        (await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertPurchaseDetail, purchaseDetail, sqlDataAccessTransaction)).FirstOrDefault();
 
     public static async Task<List<RawMaterialModel>> LoadRawMaterialByPartyPurchaseDateTime(int PartyId, DateTime PurchaseDateTime, bool OnlyActive = true) =>
-        await SqlDataAccess.LoadData<RawMaterialModel, dynamic>(StoredProcedureNames.LoadRawMaterialByPartyPurchaseDateTime, new { PartyId, PurchaseDateTime, OnlyActive });
+        await SqlDataAccess.LoadData<RawMaterialModel, dynamic>(InventoryNames.LoadRawMaterialByPartyPurchaseDateTime, new { PartyId, PurchaseDateTime, OnlyActive });
 
     public static List<PurchaseDetailModel> ConvertCartToDetails(List<PurchaseItemCartModel> cart, int purchaseId) =>
         [.. cart.Select(item => new PurchaseDetailModel
@@ -95,7 +95,7 @@ public static class PurchaseData
     public static async Task RecoverTransaction(PurchaseModel purchase)
     {
         purchase.Status = true;
-        var purchaseDetails = await CommonData.LoadTableDataByMasterId<PurchaseDetailModel>(TableNames.PurchaseDetail, purchase.Id);
+        var purchaseDetails = await CommonData.LoadTableDataByMasterId<PurchaseDetailModel>(InventoryNames.PurchaseDetail, purchase.Id);
 
         await SaveTransaction(purchase, null, purchaseDetails, false);
 
@@ -134,7 +134,7 @@ public static class PurchaseData
 
         if (update)
         {
-            var existingPurchase = await CommonData.LoadTableDataById<PurchaseModel>(TableNames.Purchase, purchase.Id, sqlDataAccessTransaction);
+            var existingPurchase = await CommonData.LoadTableDataById<PurchaseModel>(InventoryNames.Purchase, purchase.Id, sqlDataAccessTransaction);
             await FinancialYearData.ValidateFinancialYear(existingPurchase.TransactionDateTime, sqlDataAccessTransaction);
         }
 
@@ -160,7 +160,7 @@ public static class PurchaseData
 
         if (update)
         {
-            var existingPurchaseDetails = await CommonData.LoadTableDataByMasterId<PurchaseDetailModel>(TableNames.PurchaseDetail, purchase.Id, sqlDataAccessTransaction);
+            var existingPurchaseDetails = await CommonData.LoadTableDataByMasterId<PurchaseDetailModel>(InventoryNames.PurchaseDetail, purchase.Id, sqlDataAccessTransaction);
             foreach (var item in existingPurchaseDetails)
             {
                 item.Status = false;
@@ -219,7 +219,7 @@ public static class PurchaseData
             }
         }
 
-        var purchaseOverview = await CommonData.LoadTableDataById<PurchaseOverviewModel>(ViewNames.PurchaseOverview, purchase.Id, sqlDataAccessTransaction);
+        var purchaseOverview = await CommonData.LoadTableDataById<PurchaseOverviewModel>(InventoryNames.PurchaseOverview, purchase.Id, sqlDataAccessTransaction);
         if (purchaseOverview is null)
             return;
 
@@ -303,7 +303,7 @@ public static class PurchaseData
         if (!isUpdateItemRateOnPurchaseEnabled && !isUpdateItemUOMOnPurchaseEnabled)
             return;
 
-        var rawMaterials = await CommonData.LoadTableData<RawMaterialModel>(TableNames.RawMaterial);
+        var rawMaterials = await CommonData.LoadTableData<RawMaterialModel>(InventoryNames.RawMaterial);
 
         foreach (var purchaseItem in purchaseDetails)
         {

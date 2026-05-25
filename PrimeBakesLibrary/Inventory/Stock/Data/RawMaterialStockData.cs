@@ -9,22 +9,22 @@ namespace PrimeBakesLibrary.Inventory.Stock.Data;
 public static class RawMaterialStockData
 {
 	public static async Task<int> InsertRawMaterialStock(RawMaterialStockModel stock, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertRawMaterialStock, stock, sqlDataAccessTransaction)).FirstOrDefault();
+		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertRawMaterialStock, stock, sqlDataAccessTransaction)).FirstOrDefault();
 
 	public static async Task<List<RawMaterialStockSummaryModel>> LoadRawMaterialStockSummaryByDate(DateTime FromDate, DateTime ToDate) =>
-		await SqlDataAccess.LoadData<RawMaterialStockSummaryModel, dynamic>(StoredProcedureNames.LoadRawMaterialStockSummaryByDate, new { FromDate, ToDate });
+		await SqlDataAccess.LoadData<RawMaterialStockSummaryModel, dynamic>(InventoryNames.LoadRawMaterialStockSummaryByDate, new { FromDate, ToDate });
 
 	public static async Task DeleteRawMaterialStockByTypeTransactionId(string Type, int TransactionId, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		await SqlDataAccess.SaveData(StoredProcedureNames.DeleteRawMaterialStockByTypeTransactionId, new { Type, TransactionId }, sqlDataAccessTransaction);
+		await SqlDataAccess.SaveData(InventoryNames.DeleteRawMaterialStockByTypeTransactionId, new { Type, TransactionId }, sqlDataAccessTransaction);
 
 	public static async Task DeleteRawMaterialStockById(int Id, int userId)
 	{
-		var stock = await CommonData.LoadTableDataById<RawMaterialStockModel>(TableNames.RawMaterialStock, Id);
+		var stock = await CommonData.LoadTableDataById<RawMaterialStockModel>(InventoryNames.RawMaterialStock, Id);
 		if (stock is null)
 			return;
 
 		await FinancialYearData.ValidateFinancialYear(stock.TransactionDateTime);
-		await SqlDataAccess.SaveData(StoredProcedureNames.DeleteRawMaterialStockById, new { Id });
+		await SqlDataAccess.SaveData(InventoryNames.DeleteRawMaterialStockById, new { Id });
 		await RawMaterialStockAdjustmentNotify.Notify(stock, userId, NotifyType.Deleted);
 	}
 

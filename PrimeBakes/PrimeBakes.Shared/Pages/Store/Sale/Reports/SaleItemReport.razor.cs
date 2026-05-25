@@ -90,20 +90,20 @@ public partial class SaleItemReport : IAsyncDisposable
 
     private async Task LoadLocations()
     {
-        _locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
+        _locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
         _locations = [.. _locations.OrderBy(s => s.Name)];
         _selectedLocation = _locations.FirstOrDefault(_ => _.Id == _user.LocationId);
     }
 
     private async Task LoadCompanies()
     {
-        _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
+        _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
         _companies = [.. _companies.OrderBy(s => s.Name)];
     }
 
     private async Task LoadParties()
     {
-        _parties = await CommonData.LoadTableDataByStatus<LedgerModel>(TableNames.Ledger);
+        _parties = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
         _parties = [.. _parties.OrderBy(s => s.Name)];
     }
 
@@ -119,7 +119,7 @@ public partial class SaleItemReport : IAsyncDisposable
             await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
             _transactionOverviews = await CommonData.LoadTableDataByDate<SaleItemOverviewModel>(
-                ViewNames.SaleItemOverview,
+                StoreNames.SaleItemOverview,
                 DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
                 DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
@@ -180,7 +180,7 @@ public partial class SaleItemReport : IAsyncDisposable
     private async Task LoadTransactionReturnOverviews()
     {
         _transactionReturnOverviews = await CommonData.LoadTableDataByDate<SaleReturnItemOverviewModel>(
-            ViewNames.SaleReturnItemOverview,
+            StoreNames.SaleReturnItemOverview,
             DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
             DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
@@ -247,7 +247,7 @@ public partial class SaleItemReport : IAsyncDisposable
     private async Task LoadTransactionTransferOverviews()
     {
         _transactionTransferOverviews = await CommonData.LoadTableDataByDate<StockTransferItemOverviewModel>(
-            ViewNames.StockTransferItemOverview,
+            StoreNames.StockTransferItemOverview,
             DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
             DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
@@ -318,7 +318,7 @@ public partial class SaleItemReport : IAsyncDisposable
     private async Task LoadTransactionBillOverviews()
     {
         _transactionBillOverviews = await CommonData.LoadTableDataByDate<BillItemOverviewModel>(
-            ViewNames.BillItemOverview,
+            RestaurantNames.BillItemOverview,
             DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
             DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 

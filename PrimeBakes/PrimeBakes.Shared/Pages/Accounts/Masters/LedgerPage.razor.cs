@@ -56,10 +56,10 @@ public partial class LedgerPage
 
     private async Task LoadData()
     {
-        _ledgers = await CommonData.LoadTableData<LedgerModel>(TableNames.Ledger);
-        _groups = await CommonData.LoadTableData<GroupModel>(TableNames.Group);
-        _accountTypes = await CommonData.LoadTableData<AccountTypeModel>(TableNames.AccountType);
-        _stateUTs = await CommonData.LoadTableData<StateUTModel>(TableNames.StateUT);
+        _ledgers = await CommonData.LoadTableData<LedgerModel>(AccountNames.Ledger);
+        _groups = await CommonData.LoadTableData<GroupModel>(AccountNames.Group);
+        _accountTypes = await CommonData.LoadTableData<AccountTypeModel>(AccountNames.AccountType);
+        _stateUTs = await CommonData.LoadTableData<StateUTModel>(AccountNames.StateUT);
 
         if (!_showDeleted)
             _ledgers = [.. _ledgers.Where(l => l.Status)];

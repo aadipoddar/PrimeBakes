@@ -11,7 +11,7 @@ public static class UserExport
         IEnumerable<UserModel> userData,
         ReportExportType exportType)
     {
-        var locations = await CommonData.LoadTableData<LocationModel>(TableNames.Location);
+        var locations = await CommonData.LoadTableData<LocationModel>(OperationNames.Location);
 
         var enrichedData = userData.Select(user => new
         {

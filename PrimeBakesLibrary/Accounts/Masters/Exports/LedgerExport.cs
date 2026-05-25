@@ -10,9 +10,9 @@ public static class LedgerExport
 		IEnumerable<LedgerModel> ledgerData,
 		ReportExportType exportType)
 	{
-		var groups = await CommonData.LoadTableData<GroupModel>(TableNames.Group);
-		var accountTypes = await CommonData.LoadTableData<AccountTypeModel>(TableNames.AccountType);
-		var stateUTs = await CommonData.LoadTableData<StateUTModel>(TableNames.StateUT);
+		var groups = await CommonData.LoadTableData<GroupModel>(AccountNames.Group);
+		var accountTypes = await CommonData.LoadTableData<AccountTypeModel>(AccountNames.AccountType);
+		var stateUTs = await CommonData.LoadTableData<StateUTModel>(AccountNames.StateUT);
 
 		var enrichedData = ledgerData.Select(ledger => new
 		{

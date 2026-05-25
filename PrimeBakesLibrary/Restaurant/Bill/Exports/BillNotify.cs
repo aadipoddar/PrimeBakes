@@ -29,8 +29,8 @@ internal static class BillNotify
 		int userId,
 		string transactionNo)
 	{
-		var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
-		var location = await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, locationId);
+		var users = await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User);
+		var location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, locationId);
 		var userName = users.FirstOrDefault(u => u.Id == userId)?.Name ?? "Unknown";
 
 		List<UserModel> targetUsers = [.. users.Where(u => (u.Admin || u.Restaurant) && (u.LocationId == locationId || u.LocationId == 1))];
@@ -58,14 +58,14 @@ internal static class BillNotify
 
 	private static async Task BillNotification(int billId, NotifyType type)
 	{
-		var bill = await CommonData.LoadTableDataById<BillModel>(TableNames.Bill, billId);
-		var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
-		var location = await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, bill.LocationId);
-		var table = await CommonData.LoadTableDataById<DiningTableModel>(TableNames.DiningTable, bill.DiningTableId);
+		var bill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, billId);
+		var users = await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User);
+		var location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, bill.LocationId);
+		var table = await CommonData.LoadTableDataById<DiningTableModel>(RestaurantNames.DiningTable, bill.DiningTableId);
 
 		CustomerModel customer = null;
 		if (bill.CustomerId.HasValue && bill.CustomerId.Value > 0)
-			customer = await CommonData.LoadTableDataById<CustomerModel>(TableNames.Customer, bill.CustomerId.Value);
+			customer = await CommonData.LoadTableDataById<CustomerModel>(StoreNames.Customer, bill.CustomerId.Value);
 
 		var createdBy = users.FirstOrDefault(u => u.Id == bill.CreatedBy)?.Name ?? "Unknown";
 		var modifiedBy = bill.LastModifiedBy.HasValue
@@ -109,14 +109,14 @@ internal static class BillNotify
 
 	private static async Task BillMail(int billId, NotifyType type, (MemoryStream, string)? previousInvoice = null)
 	{
-		var bill = await CommonData.LoadTableDataById<BillModel>(TableNames.Bill, billId);
-		var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
-		var location = await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, bill.LocationId);
-		var table = await CommonData.LoadTableDataById<DiningTableModel>(TableNames.DiningTable, bill.DiningTableId);
+		var bill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, billId);
+		var users = await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User);
+		var location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, bill.LocationId);
+		var table = await CommonData.LoadTableDataById<DiningTableModel>(RestaurantNames.DiningTable, bill.DiningTableId);
 
 		CustomerModel customer = null;
 		if (bill.CustomerId.HasValue && bill.CustomerId.Value > 0)
-			customer = await CommonData.LoadTableDataById<CustomerModel>(TableNames.Customer, bill.CustomerId.Value);
+			customer = await CommonData.LoadTableDataById<CustomerModel>(StoreNames.Customer, bill.CustomerId.Value);
 
 		var createdBy = users.FirstOrDefault(u => u.Id == bill.CreatedBy)?.Name ?? "Unknown";
 		var modifiedBy = bill.LastModifiedBy.HasValue

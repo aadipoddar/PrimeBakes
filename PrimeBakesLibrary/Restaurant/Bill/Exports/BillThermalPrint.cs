@@ -31,7 +31,7 @@ public static class BillThermalPrint
 
 	private static async Task<SKBitmap> RenderReceipt(int billId)
 	{
-		var bill = await CommonData.LoadTableDataById<BillModel>(TableNames.Bill, billId);
+		var bill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, billId);
 
 		int width = ThermalPrintUtil.PaperDots80mm;
 		int maxHeight = 3000;
@@ -58,7 +58,7 @@ public static class BillThermalPrint
 		y = ThermalPrintUtil.DrawLogo(canvas, width, y);
 
 		var primaryCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
-		var company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, int.Parse(primaryCompanyId.Value));
+		var company = await CommonData.LoadTableDataById<CompanyModel>(AccountNames.Company, int.Parse(primaryCompanyId.Value));
 
 		if (company is not null)
 			y = ThermalPrintUtil.DrawCompanyHeader(canvas, company, width, y);
@@ -74,8 +74,8 @@ public static class BillThermalPrint
 
 	private static async Task<float> DrawBillDetails(SKCanvas canvas, BillModel bill, int width, float y)
 	{
-		var location = await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, bill.LocationId);
-		var table = await CommonData.LoadTableDataById<DiningTableModel>(TableNames.DiningTable, bill.DiningTableId);
+		var location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, bill.LocationId);
+		var table = await CommonData.LoadTableDataById<DiningTableModel>(RestaurantNames.DiningTable, bill.DiningTableId);
 
 		var pairs = new List<(string Label, string Value)>
 		{
@@ -98,8 +98,8 @@ public static class BillThermalPrint
 
 	private static async Task<float> DrawItemDetails(SKCanvas canvas, BillModel bill, int width, float y)
 	{
-		var billDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(TableNames.BillDetail, bill.Id);
-		var products = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
+		var billDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, bill.Id);
+		var products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
 
 		string[] headers = ["Item", "Qty", "Rate", "Amt"];
 		SKTextAlign[] alignments = [SKTextAlign.Left, SKTextAlign.Center, SKTextAlign.Right, SKTextAlign.Right];
@@ -129,7 +129,7 @@ public static class BillThermalPrint
 
 	private static async Task<float> DrawTotalDetails(SKCanvas canvas, BillModel bill, int width, float y)
 	{
-		var billDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(TableNames.BillDetail, bill.Id);
+		var billDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, bill.Id);
 
 		float[] columnPercents = [0.44f, 0.14f, 0.20f, 0.22f];
 		SKTextAlign[] alignments = [SKTextAlign.Left, SKTextAlign.Center, SKTextAlign.Right, SKTextAlign.Right];
@@ -214,7 +214,7 @@ public static class BillThermalPrint
 
 	private static async Task<float> DrawFooter(SKCanvas canvas, BillModel bill, int width, float y)
 	{
-		var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
+		var users = await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User);
 		var currentDateTime = await CommonData.LoadCurrentDateTime();
 
 		string printedBy = users.FirstOrDefault(u => u.Id == bill.CreatedBy)?.Name ?? "Unknown";

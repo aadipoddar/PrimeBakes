@@ -69,7 +69,7 @@ public partial class BalanceSheetPage : IAsyncDisposable
 
     private async Task LoadCompanies()
     {
-        _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
+        _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
         _companies = [.. _companies.OrderBy(s => s.Name)];
     }
 

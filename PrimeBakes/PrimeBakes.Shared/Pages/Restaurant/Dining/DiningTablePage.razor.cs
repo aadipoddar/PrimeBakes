@@ -54,8 +54,8 @@ public partial class DiningTablePage
 
 	private async Task LoadData()
 	{
-		_diningAreas = await CommonData.LoadTableDataByStatus<DiningAreaModel>(TableNames.DiningArea);
-		_diningTables = await CommonData.LoadTableData<DiningTableModel>(TableNames.DiningTable);
+		_diningAreas = await CommonData.LoadTableDataByStatus<DiningAreaModel>(RestaurantNames.DiningArea);
+		_diningTables = await CommonData.LoadTableData<DiningTableModel>(RestaurantNames.DiningTable);
 
 		if (!_showDeleted)
 			_diningTables = [.. _diningTables.Where(dt => dt.Status)];
@@ -187,7 +187,7 @@ public partial class DiningTablePage
 		if (string.IsNullOrWhiteSpace(_diningTable.Remarks))
 			_diningTable.Remarks = null;
 
-		var allDiningTables = await CommonData.LoadTableData<DiningTableModel>(TableNames.DiningTable);
+		var allDiningTables = await CommonData.LoadTableData<DiningTableModel>(RestaurantNames.DiningTable);
 
 		if (_diningTable.Id > 0)
 		{

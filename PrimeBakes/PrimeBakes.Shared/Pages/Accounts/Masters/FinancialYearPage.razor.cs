@@ -51,7 +51,7 @@ public partial class FinancialYearPage
 
     private async Task LoadData()
     {
-        _financialYears = await CommonData.LoadTableData<FinancialYearModel>(TableNames.FinancialYear);
+        _financialYears = await CommonData.LoadTableData<FinancialYearModel>(AccountNames.FinancialYear);
 
         if (!_showDeleted)
             _financialYears = [.. _financialYears.Where(g => g.Status)];

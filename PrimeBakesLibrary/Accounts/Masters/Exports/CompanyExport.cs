@@ -10,7 +10,7 @@ public static class CompanyExport
 		IEnumerable<CompanyModel> companyData,
 		ReportExportType exportType)
 	{
-		var stateUTs = await CommonData.LoadTableData<StateUTModel>(TableNames.StateUT);
+		var stateUTs = await CommonData.LoadTableData<StateUTModel>(AccountNames.StateUT);
 
 		var enrichedData = companyData.Select(company => new
 		{

@@ -10,22 +10,22 @@ public static class PurchaseInvoiceExport
 {
 	public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId, InvoiceExportType exportType)
 	{
-		var transaction = await CommonData.LoadTableDataById<PurchaseModel>(TableNames.Purchase, transactionId) ??
+		var transaction = await CommonData.LoadTableDataById<PurchaseModel>(InventoryNames.Purchase, transactionId) ??
 			throw new InvalidOperationException("Transaction not found.");
 
-		var transactionDetails = await CommonData.LoadTableDataByMasterId<PurchaseDetailModel>(TableNames.PurchaseDetail, transaction.Id);
+		var transactionDetails = await CommonData.LoadTableDataByMasterId<PurchaseDetailModel>(InventoryNames.PurchaseDetail, transaction.Id);
 		if (transactionDetails is null || transactionDetails.Count == 0)
 			throw new InvalidOperationException("No transaction details found for the transaction.");
 
-		var company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, transaction.CompanyId);
-		var party = await CommonData.LoadTableDataById<LedgerModel>(TableNames.Ledger, transaction.PartyId);
+		var company = await CommonData.LoadTableDataById<CompanyModel>(AccountNames.Company, transaction.CompanyId);
+		var party = await CommonData.LoadTableDataById<LedgerModel>(AccountNames.Ledger, transaction.PartyId);
 		if (company is null || party is null)
 			throw new InvalidOperationException("Company or party information is missing.");
 
 		if (!string.IsNullOrEmpty(transaction.ChallanNo))
 			party.Address += $"\nChallan: {transaction.ChallanNo}";
 
-		var allItems = await CommonData.LoadTableData<RawMaterialModel>(TableNames.RawMaterial);
+		var allItems = await CommonData.LoadTableData<RawMaterialModel>(InventoryNames.RawMaterial);
 
 		var lineItems = transactionDetails.Select(detail =>
 		{

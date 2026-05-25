@@ -51,7 +51,7 @@ public partial class AccountTypePage
 
     private async Task LoadData()
     {
-        _accountTypes = await CommonData.LoadTableData<AccountTypeModel>(TableNames.AccountType);
+        _accountTypes = await CommonData.LoadTableData<AccountTypeModel>(AccountNames.AccountType);
 
         if (!_showDeleted)
             _accountTypes = [.. _accountTypes.Where(at => at.Status)];

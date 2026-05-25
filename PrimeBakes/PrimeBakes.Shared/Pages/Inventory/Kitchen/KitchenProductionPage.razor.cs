@@ -82,7 +82,7 @@ public partial class KitchenProductionPage
     {
         try
         {
-            _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
+            _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
             _companies = [.. _companies.OrderBy(s => s.Name)];
 
             var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
@@ -98,7 +98,7 @@ public partial class KitchenProductionPage
     {
         try
         {
-            _kitchens = await CommonData.LoadTableDataByStatus<KitchenModel>(TableNames.Kitchen);
+            _kitchens = await CommonData.LoadTableDataByStatus<KitchenModel>(InventoryNames.Kitchen);
             _kitchens = [.. _kitchens.OrderBy(s => s.Name)];
 
             _selectedKitchen = _kitchens.FirstOrDefault();
@@ -115,7 +115,7 @@ public partial class KitchenProductionPage
         {
             if (Id.HasValue)
             {
-                _kitchenProduction = await CommonData.LoadTableDataById<KitchenProductionModel>(TableNames.KitchenProduction, Id.Value);
+                _kitchenProduction = await CommonData.LoadTableDataById<KitchenProductionModel>(InventoryNames.KitchenProduction, Id.Value);
                 if (_kitchenProduction is null)
                 {
                     await _toastNotification.ShowAsync("Transaction Not Found", "The requested transaction could not be found.", ToastType.Error);
@@ -167,7 +167,7 @@ public partial class KitchenProductionPage
                 _kitchenProduction.KitchenId = _selectedKitchen.Id;
             }
 
-            _selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, _kitchenProduction.FinancialYearId);
+            _selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, _kitchenProduction.FinancialYearId);
         }
         catch (Exception ex)
         {
@@ -184,7 +184,7 @@ public partial class KitchenProductionPage
     {
         try
         {
-            _products = await CommonData.LoadTableDataByStatus<ProductModel>(TableNames.Product);
+            _products = await CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product);
             _products = [.. _products.OrderBy(s => s.Name)];
         }
         catch (Exception ex)
@@ -201,13 +201,13 @@ public partial class KitchenProductionPage
 
             if (_kitchenProduction.Id > 0)
             {
-                var existingCart = await CommonData.LoadTableDataByMasterId<KitchenProductionProductCartModel>(TableNames.KitchenProductionDetail, _kitchenProduction.Id);
+                var existingCart = await CommonData.LoadTableDataByMasterId<KitchenProductionProductCartModel>(InventoryNames.KitchenProductionDetail, _kitchenProduction.Id);
 
                 foreach (var item in existingCart)
                 {
                     if (_products.FirstOrDefault(s => s.Id == item.ProductId) is null)
                     {
-                        var product = await CommonData.LoadTableDataById<ProductModel>(TableNames.Product, item.ProductId);
+                        var product = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, item.ProductId);
 
                         await _toastNotification.ShowAsync("Product Not Found", $"The product {product?.Name} (ID: {item.ProductId}) in the existing transaction cart was not found in the available products list. It may have been deleted or is inaccessible.", ToastType.Error);
                         continue;
@@ -545,7 +545,7 @@ public partial class KitchenProductionPage
 
         if (_kitchenProduction.Id > 0)
         {
-            var existingKitchenProduction = await CommonData.LoadTableDataById<KitchenProductionModel>(TableNames.KitchenProduction, _kitchenProduction.Id);
+            var existingKitchenProduction = await CommonData.LoadTableDataById<KitchenProductionModel>(InventoryNames.KitchenProduction, _kitchenProduction.Id);
             await FinancialYearData.ValidateFinancialYear(existingKitchenProduction.TransactionDateTime);
 
             if (!_user.Admin)

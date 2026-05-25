@@ -103,7 +103,7 @@ public partial class RecipePage
 			_recipe = await RecipeData.LoadRecipeByProduct(_selectedProduct.ProductId);
 			_recipe ??= new() { ProductId = _selectedProduct.ProductId, Deduct = true };
 
-			var recipeDetails = await CommonData.LoadTableDataByMasterId<RecipeDetailModel>(TableNames.RecipeDetail, _recipe.Id);
+			var recipeDetails = await CommonData.LoadTableDataByMasterId<RecipeDetailModel>(InventoryNames.RecipeDetail, _recipe.Id);
 			if (recipeDetails is null || recipeDetails.Count == 0)
 				return;
 

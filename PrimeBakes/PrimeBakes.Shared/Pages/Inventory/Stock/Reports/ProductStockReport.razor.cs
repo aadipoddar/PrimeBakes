@@ -85,7 +85,7 @@ public partial class ProductStockReport : IAsyncDisposable
 	{
 		try
 		{
-			_locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
+			_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
 			_locations = [.. _locations.OrderBy(s => s.Name)];
 			_selectedLocation = _locations.FirstOrDefault(_ => _.Id == 1);
 		}
@@ -140,7 +140,7 @@ public partial class ProductStockReport : IAsyncDisposable
 	private async Task LoadStockDetails()
 	{
 		_stockDetails = await CommonData.LoadTableDataByDate<ProductStockDetailsModel>(
-				ViewNames.ProductStockDetails,
+				InventoryNames.ProductStockDetails,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 

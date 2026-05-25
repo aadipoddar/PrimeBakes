@@ -65,10 +65,10 @@ public partial class ProductPage
 	private async Task LoadData()
 	{
 		await LoadLocations();
-		_products = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
-		_categories = await CommonData.LoadTableData<ProductCategoryModel>(TableNames.ProductCategory);
-		_kotCategories = await CommonData.LoadTableData<KOTCategoryModel>(TableNames.KOTCategory);
-		_taxes = await CommonData.LoadTableData<TaxModel>(TableNames.Tax);
+		_products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
+		_categories = await CommonData.LoadTableData<ProductCategoryModel>(StoreNames.ProductCategory);
+		_kotCategories = await CommonData.LoadTableData<KOTCategoryModel>(StoreNames.KOTCategory);
+		_taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
 
 		if (!_showDeleted)
 			_products = [.. _products.Where(p => p.Status)];
@@ -84,7 +84,7 @@ public partial class ProductPage
 	{
 		try
 		{
-			_locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
+			_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
 			_locations = [.. _locations.OrderBy(s => s.Name)];
 		}
 		catch (Exception ex)

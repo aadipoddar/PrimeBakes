@@ -49,7 +49,7 @@ public partial class ProductCategoryPage
 
     private async Task LoadData()
     {
-        _productCategories = await CommonData.LoadTableData<ProductCategoryModel>(TableNames.ProductCategory);
+        _productCategories = await CommonData.LoadTableData<ProductCategoryModel>(StoreNames.ProductCategory);
 
         if (!_showDeleted)
             _productCategories = [.. _productCategories.Where(pc => pc.Status)];

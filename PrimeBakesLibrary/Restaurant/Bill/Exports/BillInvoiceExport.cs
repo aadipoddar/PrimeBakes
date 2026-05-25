@@ -13,23 +13,23 @@ public static class BillInvoiceExport
 {
 	public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId, InvoiceExportType exportType)
 	{
-		var transaction = await CommonData.LoadTableDataById<BillModel>(TableNames.Bill, transactionId)
+		var transaction = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, transactionId)
 			?? throw new InvalidOperationException("Transaction not found.");
 
-		var transactionDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(TableNames.BillDetail, transaction.Id);
+		var transactionDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, transaction.Id);
 		if (transactionDetails is null || transactionDetails.Count == 0)
 			throw new InvalidOperationException("No transaction details found for the transaction.");
 
-		var company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, transaction.CompanyId)
+		var company = await CommonData.LoadTableDataById<CompanyModel>(AccountNames.Company, transaction.CompanyId)
 			?? throw new InvalidOperationException("Company information is missing.");
 
-		var location = await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, transaction.LocationId);
-		var table = await CommonData.LoadTableDataById<DiningTableModel>(TableNames.DiningTable, transaction.DiningTableId);
+		var location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, transaction.LocationId);
+		var table = await CommonData.LoadTableDataById<DiningTableModel>(RestaurantNames.DiningTable, transaction.DiningTableId);
 
 		LedgerModel customerLedger = null;
 		if (transaction.CustomerId.HasValue && transaction.CustomerId.Value > 0)
 		{
-			var customer = await CommonData.LoadTableDataById<CustomerModel>(TableNames.Customer, transaction.CustomerId.Value);
+			var customer = await CommonData.LoadTableDataById<CustomerModel>(StoreNames.Customer, transaction.CustomerId.Value);
 			if (customer is not null)
 				customerLedger = new LedgerModel
 				{
@@ -38,7 +38,7 @@ public static class BillInvoiceExport
 				};
 		}
 
-		var allProducts = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
+		var allProducts = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
 
 		var lineItems = transactionDetails.Select(detail =>
 		{

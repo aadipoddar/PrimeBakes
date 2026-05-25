@@ -88,13 +88,13 @@ public partial class KitchenIssueReport : IAsyncDisposable
 
     private async Task LoadCompanies()
     {
-        _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
+        _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
         _companies = [.. _companies.OrderBy(s => s.Name)];
     }
 
     private async Task LoadKitchens()
     {
-        _kitchens = await CommonData.LoadTableDataByStatus<KitchenModel>(TableNames.Kitchen);
+        _kitchens = await CommonData.LoadTableDataByStatus<KitchenModel>(InventoryNames.Kitchen);
         _kitchens = [.. _kitchens.OrderBy(s => s.Name)];
     }
 
@@ -110,7 +110,7 @@ public partial class KitchenIssueReport : IAsyncDisposable
             await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
             _transactionOverviews = await CommonData.LoadTableDataByDate<KitchenIssueOverviewModel>(
-                ViewNames.KitchenIssueOverview,
+                InventoryNames.KitchenIssueOverview,
                 DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
                 DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
@@ -396,7 +396,7 @@ public partial class KitchenIssueReport : IAsyncDisposable
 
     private async Task DeleteTransaction()
     {
-        var kitchenIssue = await CommonData.LoadTableDataById<KitchenIssueModel>(TableNames.KitchenIssue, _deleteTransactionId);
+        var kitchenIssue = await CommonData.LoadTableDataById<KitchenIssueModel>(InventoryNames.KitchenIssue, _deleteTransactionId);
         if (kitchenIssue is null)
         {
             await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);
@@ -454,7 +454,7 @@ public partial class KitchenIssueReport : IAsyncDisposable
 
     private async Task RecoverTransaction()
     {
-        var kitchenIssue = await CommonData.LoadTableDataById<KitchenIssueModel>(TableNames.KitchenIssue, _recoverTransactionId);
+        var kitchenIssue = await CommonData.LoadTableDataById<KitchenIssueModel>(InventoryNames.KitchenIssue, _recoverTransactionId);
         if (kitchenIssue is null)
         {
             await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);

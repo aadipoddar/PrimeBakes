@@ -8,11 +8,11 @@ namespace PrimeBakesLibrary.Operations.Location.Data;
 public static class LocationData
 {
 	public static async Task<int> InsertLocation(LocationModel location, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertLocation, location, sqlDataAccessTransaction)).FirstOrDefault();
+		(await SqlDataAccess.LoadData<int, dynamic>(OperationNames.InsertLocation, location, sqlDataAccessTransaction)).FirstOrDefault();
 
 	public static async Task<LocationModel?> LoadLocationByLedgerId(int ledgerId, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
-		var locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location, true, sqlDataAccessTransaction);
+		var locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location, true, sqlDataAccessTransaction);
 		return locations.FirstOrDefault(l => l.LedgerId == ledgerId);
 	}
 
@@ -75,7 +75,7 @@ public static class LocationData
 				foreach (var existingProductLocation in existingProductLocations)
 					await ProductLocationData.DeleteProductLocationById(existingProductLocation.Id, sqlDataAccessTransaction);
 
-				var products = await CommonData.LoadTableDataByStatus<ProductModel>(TableNames.Product, true, sqlDataAccessTransaction);
+				var products = await CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product, true, sqlDataAccessTransaction);
 				foreach (var product in products)
 				{
 					var id = await ProductLocationData.InsertProductLocation(new()

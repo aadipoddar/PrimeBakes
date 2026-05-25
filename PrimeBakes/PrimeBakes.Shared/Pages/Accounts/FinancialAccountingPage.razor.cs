@@ -106,7 +106,7 @@ public partial class FinancialAccountingPage
 		if (!Id.HasValue)
 			return false;
 
-		_accounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(TableNames.FinancialAccounting, Id.Value);
+		_accounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(AccountNames.FinancialAccounting, Id.Value);
 		if (_accounting is null || _accounting.Id == 0)
 		{
 			await _toastNotification.ShowAsync("Transaction Not Found", "The requested transaction could not be found.", ToastType.Error);
@@ -187,7 +187,7 @@ public partial class FinancialAccountingPage
 		_accounting.VoucherId = _selectedVoucher.Id;
 
 		if (_accounting.FinancialYearId > 0)
-			_selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, _accounting.FinancialYearId);
+			_selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, _accounting.FinancialYearId);
 
 		if (_selectedFinancialYear is null || _selectedFinancialYear.Id <= 0)
 			_selectedFinancialYear = await FinancialYearData.LoadFinancialYearByDateTime(_accounting.TransactionDateTime);
@@ -204,13 +204,13 @@ public partial class FinancialAccountingPage
 
 			if (_accounting.Id > 0)
 			{
-				var existingCart = await CommonData.LoadTableDataByMasterId<FinancialAccountingDetailModel>(TableNames.FinancialAccountingDetail, _accounting.Id);
+				var existingCart = await CommonData.LoadTableDataByMasterId<FinancialAccountingDetailModel>(AccountNames.FinancialAccountingDetail, _accounting.Id);
 
 				foreach (var item in existingCart)
 				{
 					if (_ledgers.FirstOrDefault(s => s.Id == item.LedgerId) is null)
 					{
-						var ledger = await CommonData.LoadTableDataById<LedgerModel>(TableNames.Ledger, item.LedgerId);
+						var ledger = await CommonData.LoadTableDataById<LedgerModel>(AccountNames.Ledger, item.LedgerId);
 						await _toastNotification.ShowAsync("Ledger Not Found", $"The ledger {ledger?.Name} (ID: {item.LedgerId}) in the existing transaction cart was not found in the available ledgers list. It may have been deleted or is inaccessible.", ToastType.Error);
 						continue;
 					}
@@ -243,7 +243,7 @@ public partial class FinancialAccountingPage
 	{
 		try
 		{
-			_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
+			_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
 			_companies = [.. _companies.OrderBy(s => s.Name)];
 
 			var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
@@ -259,7 +259,7 @@ public partial class FinancialAccountingPage
 	{
 		try
 		{
-			_vouchers = await CommonData.LoadTableDataByStatus<VoucherModel>(TableNames.Voucher);
+			_vouchers = await CommonData.LoadTableDataByStatus<VoucherModel>(AccountNames.Voucher);
 			_vouchers = [.. _vouchers.OrderBy(s => s.Name)];
 
 			var defaultSelectedVoucherId = await SettingsData.LoadSettingsByKey(SettingsKeys.DefaultSelectedVoucherId);
@@ -275,7 +275,7 @@ public partial class FinancialAccountingPage
 	{
 		try
 		{
-			_ledgers = await CommonData.LoadTableDataByStatus<LedgerModel>(TableNames.Ledger);
+			_ledgers = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
 			_ledgers = [.. _ledgers.OrderBy(s => s.Name)];
 		}
 		catch (Exception ex)
@@ -457,7 +457,7 @@ public partial class FinancialAccountingPage
 
 			// Load all accounting ledger transactions for the selected ledger within the financial year
 			var allLedgerTransactions = await CommonData.LoadTableDataByDate<FinancialAccountingLedgerOverviewModel>(
-				ViewNames.FinancialAccountingLedgerOverview,
+				AccountNames.FinancialAccountingLedgerOverview,
 				_selectedFinancialYear.StartDate.ToDateTime(TimeOnly.MinValue),
 				_accounting.TransactionDateTime);
 

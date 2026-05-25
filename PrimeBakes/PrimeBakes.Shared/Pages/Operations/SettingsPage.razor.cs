@@ -244,19 +244,19 @@ public partial class SettingsPage
 
     private async Task LoadCompanies()
     {
-        var result = await CommonData.LoadTableData<CompanyModel>(TableNames.Company);
+        var result = await CommonData.LoadTableData<CompanyModel>(AccountNames.Company);
         _companies = result ?? [];
     }
 
     private async Task LoadVouchers()
     {
-        var result = await CommonData.LoadTableData<VoucherModel>(TableNames.Voucher);
+        var result = await CommonData.LoadTableData<VoucherModel>(AccountNames.Voucher);
         _vouchers = result ?? [];
     }
 
     private async Task LoadLedgers()
     {
-        var result = await CommonData.LoadTableData<LedgerModel>(TableNames.Ledger);
+        var result = await CommonData.LoadTableData<LedgerModel>(AccountNames.Ledger);
         _ledgers = result ?? [];
     }
 
@@ -530,7 +530,7 @@ public partial class SettingsPage
             await _toastNotification.ShowAsync("Saving", "Processing settings...", ToastType.Info);
 
             // Save all settings
-            var settings = await CommonData.LoadTableData<SettingsModel>(TableNames.Settings);
+            var settings = await CommonData.LoadTableData<SettingsModel>(OperationNames.Settings);
 
             await UpdateSetting(SettingsKeys.RawMaterialCodePrefix, _rawMaterialCodePrefix, settings.FirstOrDefault(_ => _.Key == SettingsKeys.RawMaterialCodePrefix).Description);
             await UpdateSetting(SettingsKeys.FinishedProductCodePrefix, _finishedProductCodePrefix, settings.FirstOrDefault(_ => _.Key == SettingsKeys.FinishedProductCodePrefix).Description);

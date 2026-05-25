@@ -85,7 +85,7 @@ public partial class OutletSummaryReport : IAsyncDisposable
 
 	private async Task LoadCompanies()
 	{
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
+		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
 		_companies = [.. _companies.OrderBy(s => s.Name)];
 	}
 
@@ -120,45 +120,45 @@ public partial class OutletSummaryReport : IAsyncDisposable
 
 	private async Task LoadTransactionOverviews()
 	{
-		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
+		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
 
 		_purchases = await CommonData.LoadTableDataByDate<PurchaseOverviewModel>(
-			ViewNames.PurchaseOverview,
+			InventoryNames.PurchaseOverview,
 			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
 		_purchasesReturns = await CommonData.LoadTableDataByDate<PurchaseReturnOverviewModel>(
-			ViewNames.PurchaseReturnOverview,
+			InventoryNames.PurchaseReturnOverview,
 			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
 		_kitchenIssue = await CommonData.LoadTableDataByDate<KitchenIssueOverviewModel>(
-			ViewNames.KitchenIssueOverview,
+			InventoryNames.KitchenIssueOverview,
 			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
 		_kitchenProduction = await CommonData.LoadTableDataByDate<KitchenProductionOverviewModel>(
-			ViewNames.KitchenProductionOverview,
+			InventoryNames.KitchenProductionOverview,
 			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
 		_sales = await CommonData.LoadTableDataByDate<SaleOverviewModel>(
-			ViewNames.SaleOverview,
+			StoreNames.SaleOverview,
 			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
 		_salereturns = await CommonData.LoadTableDataByDate<SaleReturnOverviewModel>(
-			ViewNames.SaleReturnOverview,
+			StoreNames.SaleReturnOverview,
 			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
 		_stockTransfers = await CommonData.LoadTableDataByDate<StockTransferOverviewModel>(
-			ViewNames.StockTransferOverview,
+			StoreNames.StockTransferOverview,
 			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
 		_bills = await CommonData.LoadTableDataByDate<BillOverviewModel>(
-			ViewNames.BillOverview,
+			RestaurantNames.BillOverview,
 			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 

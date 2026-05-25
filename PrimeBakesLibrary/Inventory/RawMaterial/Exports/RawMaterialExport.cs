@@ -11,8 +11,8 @@ public static class RawMaterialExport
 		IEnumerable<RawMaterialModel> rawMaterialData,
 		ReportExportType exportType)
 	{
-		var categories = await CommonData.LoadTableData<RawMaterialCategoryModel>(TableNames.RawMaterial);
-		var taxes = await CommonData.LoadTableData<TaxModel>(TableNames.Tax);
+		var categories = await CommonData.LoadTableData<RawMaterialCategoryModel>(InventoryNames.RawMaterial);
+		var taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
 
 		var enrichedData = rawMaterialData.Select(rm => new
 		{

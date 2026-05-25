@@ -11,7 +11,7 @@ public static class ProductLocationExport
 		IEnumerable<ProductLocationOverviewModel> productLocationData,
 		ReportExportType exportType)
 	{
-		var locations = await CommonData.LoadTableData<LocationModel>(TableNames.Location);
+		var locations = await CommonData.LoadTableData<LocationModel>(OperationNames.Location);
 		
 		var enrichedData = productLocationData.Select(pl => new
 		{

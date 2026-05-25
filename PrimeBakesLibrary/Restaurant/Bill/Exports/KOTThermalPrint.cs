@@ -26,7 +26,7 @@ public static class KOTThermalPrint
 
 	private static async Task<SKBitmap?> RenderReceipt(int billId, int kotCategoryId, List<BillItemCartModel> kotItems)
 	{
-		var bill = await CommonData.LoadTableDataById<BillModel>(TableNames.Bill, billId);
+		var bill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, billId);
 
 		if (kotItems.Count == 0)
 			return null;
@@ -60,9 +60,9 @@ public static class KOTThermalPrint
 
 	private static async Task<float> DrawBillDetails(SKCanvas canvas, BillModel bill, int kotCategoryId, int width, float y)
 	{
-		var location = await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, bill.LocationId);
-		var table = await CommonData.LoadTableDataById<DiningTableModel>(TableNames.DiningTable, bill.DiningTableId);
-		var kotCategory = await CommonData.LoadTableDataById<KOTCategoryModel>(TableNames.KOTCategory, kotCategoryId);
+		var location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, bill.LocationId);
+		var table = await CommonData.LoadTableDataById<DiningTableModel>(RestaurantNames.DiningTable, bill.DiningTableId);
+		var kotCategory = await CommonData.LoadTableDataById<KOTCategoryModel>(StoreNames.KOTCategory, kotCategoryId);
 
 		var pairs = new List<(string Label, string Value)>
 		{
@@ -80,7 +80,7 @@ public static class KOTThermalPrint
 
 	private static async Task<float> DrawItems(SKCanvas canvas, List<BillItemCartModel> kotItems, int width, float y)
 	{
-		var products = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
+		var products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
 
 		bool hasNotes = kotItems.Any(i => !string.IsNullOrWhiteSpace(i.Remarks));
 
@@ -117,7 +117,7 @@ public static class KOTThermalPrint
 
 	private static async Task<float> DrawFooter(SKCanvas canvas, BillModel bill, int width, float y)
 	{
-		var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
+		var users = await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User);
 		var currentDateTime = await CommonData.LoadCurrentDateTime();
 
 		string printedBy = users.FirstOrDefault(u => u.Id == bill.CreatedBy)?.Name ?? "Unknown";

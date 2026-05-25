@@ -26,55 +26,55 @@ public static class GenerateCodes
 			switch (type)
 			{
 				case CodeType.Accounting:
-					var accounting = await CommonData.LoadTableDataByTransactionNo<FinancialAccountingModel>(TableNames.FinancialAccounting, code, sqlDataAccessTransaction);
+					var accounting = await CommonData.LoadTableDataByTransactionNo<FinancialAccountingModel>(AccountNames.FinancialAccounting, code, sqlDataAccessTransaction);
 					isDuplicate = accounting is not null;
 					break;
 				case CodeType.Ledger:
-					var ledger = await CommonData.LoadTableDataByCode<LedgerModel>(TableNames.Ledger, code, sqlDataAccessTransaction);
+					var ledger = await CommonData.LoadTableDataByCode<LedgerModel>(AccountNames.Ledger, code, sqlDataAccessTransaction);
 					isDuplicate = ledger is not null;
 					break;
 				case CodeType.Purchase:
-					var purchase = await CommonData.LoadTableDataByTransactionNo<PurchaseModel>(TableNames.Purchase, code, sqlDataAccessTransaction);
+					var purchase = await CommonData.LoadTableDataByTransactionNo<PurchaseModel>(InventoryNames.Purchase, code, sqlDataAccessTransaction);
 					isDuplicate = purchase is not null;
 					break;
 				case CodeType.PurchaseReturn:
-					var purchaseReturn = await CommonData.LoadTableDataByTransactionNo<PurchaseReturnModel>(TableNames.PurchaseReturn, code, sqlDataAccessTransaction);
+					var purchaseReturn = await CommonData.LoadTableDataByTransactionNo<PurchaseReturnModel>(InventoryNames.PurchaseReturn, code, sqlDataAccessTransaction);
 					isDuplicate = purchaseReturn is not null;
 					break;
 				case CodeType.KitchenIssue:
-					var kitchenIssue = await CommonData.LoadTableDataByTransactionNo<KitchenIssueModel>(TableNames.KitchenIssue, code, sqlDataAccessTransaction);
+					var kitchenIssue = await CommonData.LoadTableDataByTransactionNo<KitchenIssueModel>(InventoryNames.KitchenIssue, code, sqlDataAccessTransaction);
 					isDuplicate = kitchenIssue is not null;
 					break;
 				case CodeType.KitchenProduction:
-					var kitchenProduction = await CommonData.LoadTableDataByTransactionNo<KitchenProductionModel>(TableNames.KitchenProduction, code, sqlDataAccessTransaction);
+					var kitchenProduction = await CommonData.LoadTableDataByTransactionNo<KitchenProductionModel>(InventoryNames.KitchenProduction, code, sqlDataAccessTransaction);
 					isDuplicate = kitchenProduction is not null;
 					break;
 				case CodeType.RawMaterial:
-					var rawMaterial = await CommonData.LoadTableDataByCode<RawMaterialModel>(TableNames.RawMaterial, code, sqlDataAccessTransaction);
+					var rawMaterial = await CommonData.LoadTableDataByCode<RawMaterialModel>(InventoryNames.RawMaterial, code, sqlDataAccessTransaction);
 					isDuplicate = rawMaterial is not null;
 					break;
 				case CodeType.FinishedProduct:
-					var product = await CommonData.LoadTableDataByCode<ProductModel>(TableNames.Product, code, sqlDataAccessTransaction);
+					var product = await CommonData.LoadTableDataByCode<ProductModel>(StoreNames.Product, code, sqlDataAccessTransaction);
 					isDuplicate = product is not null;
 					break;
 				case CodeType.Order:
-					var order = await CommonData.LoadTableDataByTransactionNo<OrderModel>(TableNames.Order, code, sqlDataAccessTransaction);
+					var order = await CommonData.LoadTableDataByTransactionNo<OrderModel>(StoreNames.Order, code, sqlDataAccessTransaction);
 					isDuplicate = order is not null;
 					break;
 				case CodeType.Sale:
-					var sale = await CommonData.LoadTableDataByTransactionNo<SaleModel>(TableNames.Sale, code, sqlDataAccessTransaction);
+					var sale = await CommonData.LoadTableDataByTransactionNo<SaleModel>(StoreNames.Sale, code, sqlDataAccessTransaction);
 					isDuplicate = sale is not null;
 					break;
 				case CodeType.SaleReturn:
-					var saleReturn = await CommonData.LoadTableDataByTransactionNo<SaleReturnModel>(TableNames.SaleReturn, code, sqlDataAccessTransaction);
+					var saleReturn = await CommonData.LoadTableDataByTransactionNo<SaleReturnModel>(StoreNames.SaleReturn, code, sqlDataAccessTransaction);
 					isDuplicate = saleReturn is not null;
 					break;
 				case CodeType.StockTransfer:
-					var stockTransfer = await CommonData.LoadTableDataByTransactionNo<StockTransferModel>(TableNames.StockTransfer, code, sqlDataAccessTransaction);
+					var stockTransfer = await CommonData.LoadTableDataByTransactionNo<StockTransferModel>(StoreNames.StockTransfer, code, sqlDataAccessTransaction);
 					isDuplicate = stockTransfer is not null;
 					break;
 				case CodeType.Bill:
-					var bill = await CommonData.LoadTableDataByTransactionNo<BillModel>(TableNames.Bill, code, sqlDataAccessTransaction);
+					var bill = await CommonData.LoadTableDataByTransactionNo<BillModel>(RestaurantNames.Bill, code, sqlDataAccessTransaction);
 					isDuplicate = bill is not null;
 					break;
 			}
@@ -97,11 +97,11 @@ public static class GenerateCodes
 
 	public static async Task<string> GenerateAccountingTransactionNo(FinancialAccountingModel accounting, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
-		var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, accounting.FinancialYearId, sqlDataAccessTransaction);
-		var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, 1, sqlDataAccessTransaction)).Code;
+		var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, accounting.FinancialYearId, sqlDataAccessTransaction);
+		var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, 1, sqlDataAccessTransaction)).Code;
 		var accountingPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.AccountingTransactionPrefix, sqlDataAccessTransaction)).Value;
 
-		var lastAccounting = await CommonData.LoadLastTableDataByFinancialYear<FinancialAccountingModel>(TableNames.FinancialAccounting, accounting.FinancialYearId, sqlDataAccessTransaction);
+		var lastAccounting = await CommonData.LoadLastTableDataByFinancialYear<FinancialAccountingModel>(AccountNames.FinancialAccounting, accounting.FinancialYearId, sqlDataAccessTransaction);
 		if (lastAccounting is not null)
 		{
 			var lastTransactionNo = lastAccounting.TransactionNo;
@@ -121,11 +121,11 @@ public static class GenerateCodes
 
 	public static async Task<string> GeneratePurchaseTransactionNo(PurchaseModel purchase, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
-		var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, purchase.FinancialYearId, sqlDataAccessTransaction);
-		var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, 1, sqlDataAccessTransaction)).Code;
+		var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, purchase.FinancialYearId, sqlDataAccessTransaction);
+		var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, 1, sqlDataAccessTransaction)).Code;
 		var purchasePrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.PurchaseTransactionPrefix, sqlDataAccessTransaction)).Value;
 
-		var lastPurchase = await CommonData.LoadLastTableDataByFinancialYear<PurchaseModel>(TableNames.Purchase, purchase.FinancialYearId, sqlDataAccessTransaction);
+		var lastPurchase = await CommonData.LoadLastTableDataByFinancialYear<PurchaseModel>(InventoryNames.Purchase, purchase.FinancialYearId, sqlDataAccessTransaction);
 		if (lastPurchase is not null)
 		{
 			var lastTransactionNo = lastPurchase.TransactionNo;
@@ -145,11 +145,11 @@ public static class GenerateCodes
 
 	public static async Task<string> GeneratePurchaseReturnTransactionNo(PurchaseReturnModel purchaseReturn, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
-		var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, purchaseReturn.FinancialYearId, sqlDataAccessTransaction);
-		var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, 1, sqlDataAccessTransaction)).Code;
+		var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, purchaseReturn.FinancialYearId, sqlDataAccessTransaction);
+		var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, 1, sqlDataAccessTransaction)).Code;
 		var purchaseReturnPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.PurchaseReturnTransactionPrefix, sqlDataAccessTransaction)).Value;
 
-		var lastPurchase = await CommonData.LoadLastTableDataByFinancialYear<PurchaseReturnModel>(TableNames.PurchaseReturn, purchaseReturn.FinancialYearId);
+		var lastPurchase = await CommonData.LoadLastTableDataByFinancialYear<PurchaseReturnModel>(InventoryNames.PurchaseReturn, purchaseReturn.FinancialYearId);
 		if (lastPurchase is not null)
 		{
 			var lastTransactionNo = lastPurchase.TransactionNo;
@@ -169,11 +169,11 @@ public static class GenerateCodes
 
 	public static async Task<string> GenerateKitchenIssueTransactionNo(KitchenIssueModel kitchenIssue, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
-		var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, kitchenIssue.FinancialYearId, sqlDataAccessTransaction);
-		var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, 1, sqlDataAccessTransaction)).Code;
+		var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, kitchenIssue.FinancialYearId, sqlDataAccessTransaction);
+		var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, 1, sqlDataAccessTransaction)).Code;
 		var kitchenIssuePrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.KitchenIssueTransactionPrefix, sqlDataAccessTransaction)).Value;
 
-		var lastKitchenIssue = await CommonData.LoadLastTableDataByFinancialYear<KitchenIssueModel>(TableNames.KitchenIssue, kitchenIssue.FinancialYearId, sqlDataAccessTransaction);
+		var lastKitchenIssue = await CommonData.LoadLastTableDataByFinancialYear<KitchenIssueModel>(InventoryNames.KitchenIssue, kitchenIssue.FinancialYearId, sqlDataAccessTransaction);
 		if (lastKitchenIssue is not null)
 		{
 			var lastTransactionNo = lastKitchenIssue.TransactionNo;
@@ -193,11 +193,11 @@ public static class GenerateCodes
 
 	public static async Task<string> GenerateKitchenProductionTransactionNo(KitchenProductionModel kitchenProduction, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
-		var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, kitchenProduction.FinancialYearId, sqlDataAccessTransaction);
-		var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, 1, sqlDataAccessTransaction)).Code;
+		var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, kitchenProduction.FinancialYearId, sqlDataAccessTransaction);
+		var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, 1, sqlDataAccessTransaction)).Code;
 		var kitchenProductionPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.KitchenProductionTransactionPrefix, sqlDataAccessTransaction)).Value;
 
-		var lastKitchenProduction = await CommonData.LoadLastTableDataByFinancialYear<KitchenProductionModel>(TableNames.KitchenProduction, kitchenProduction.FinancialYearId, sqlDataAccessTransaction);
+		var lastKitchenProduction = await CommonData.LoadLastTableDataByFinancialYear<KitchenProductionModel>(InventoryNames.KitchenProduction, kitchenProduction.FinancialYearId, sqlDataAccessTransaction);
 		if (lastKitchenProduction is not null)
 		{
 			var lastTransactionNo = lastKitchenProduction.TransactionNo;
@@ -218,7 +218,7 @@ public static class GenerateCodes
 	public static async Task<string> GenerateProductStockAdjustmentTransactionNo(DateTime transactionDateTime, int locationId, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		var financialYear = await FinancialYearData.LoadFinancialYearByDateTime(transactionDateTime, sqlDataAccessTransaction);
-		var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, locationId, sqlDataAccessTransaction)).Code;
+		var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, locationId, sqlDataAccessTransaction)).Code;
 		var adjustmentPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.ProductStockAdjustmentTransactionPrefix, sqlDataAccessTransaction)).Value;
 		var currentDateTime = await CommonData.LoadCurrentDateTime();
 
@@ -228,7 +228,7 @@ public static class GenerateCodes
 	public static async Task<string> GenerateRawMaterialStockAdjustmentTransactionNo(DateTime transactionDateTime, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		var financialYear = await FinancialYearData.LoadFinancialYearByDateTime(transactionDateTime, sqlDataAccessTransaction);
-		var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, 1, sqlDataAccessTransaction)).Code;
+		var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, 1, sqlDataAccessTransaction)).Code;
 		var adjustmentPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.RawMaterialStockAdjustmentTransactionPrefix, sqlDataAccessTransaction)).Value;
 		var currentDateTime = await CommonData.LoadCurrentDateTime();
 
@@ -237,11 +237,11 @@ public static class GenerateCodes
 
 	public static async Task<string> GenerateOrderTransactionNo(OrderModel order, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
-		var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, order.FinancialYearId, sqlDataAccessTransaction);
-		var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, order.LocationId, sqlDataAccessTransaction)).Code;
+		var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, order.FinancialYearId, sqlDataAccessTransaction);
+		var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, order.LocationId, sqlDataAccessTransaction)).Code;
 		var orderPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.OrderTransactionPrefix, sqlDataAccessTransaction)).Value;
 
-		var lastOrder = await CommonData.LoadLastTableDataByLocationFinancialYear<OrderModel>(TableNames.Order, order.LocationId, order.FinancialYearId, sqlDataAccessTransaction);
+		var lastOrder = await CommonData.LoadLastTableDataByLocationFinancialYear<OrderModel>(StoreNames.Order, order.LocationId, order.FinancialYearId, sqlDataAccessTransaction);
 		if (lastOrder is not null)
 		{
 			var lastTransactionNo = lastOrder.TransactionNo;
@@ -261,11 +261,11 @@ public static class GenerateCodes
 
 	public static async Task<string> GenerateSaleTransactionNo(SaleModel sale, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
-		var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, sale.FinancialYearId, sqlDataAccessTransaction);
-		var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, sale.LocationId, sqlDataAccessTransaction)).Code;
+		var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, sale.FinancialYearId, sqlDataAccessTransaction);
+		var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, sale.LocationId, sqlDataAccessTransaction)).Code;
 		var salePrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.SaleTransactionPrefix, sqlDataAccessTransaction)).Value;
 
-		var lastSale = await CommonData.LoadLastTableDataByLocationFinancialYear<SaleModel>(TableNames.Sale, sale.LocationId, sale.FinancialYearId);
+		var lastSale = await CommonData.LoadLastTableDataByLocationFinancialYear<SaleModel>(StoreNames.Sale, sale.LocationId, sale.FinancialYearId);
 		if (lastSale is not null)
 		{
 			var lastTransactionNo = lastSale.TransactionNo;
@@ -285,11 +285,11 @@ public static class GenerateCodes
 
 	public static async Task<string> GenerateSaleReturnTransactionNo(SaleReturnModel saleReturn, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
-		var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, saleReturn.FinancialYearId, sqlDataAccessTransaction);
-		var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, saleReturn.LocationId, sqlDataAccessTransaction)).Code;
+		var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, saleReturn.FinancialYearId, sqlDataAccessTransaction);
+		var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, saleReturn.LocationId, sqlDataAccessTransaction)).Code;
 		var saleReturnPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.SaleReturnTransactionPrefix, sqlDataAccessTransaction)).Value;
 
-		var lastSaleReturn = await CommonData.LoadLastTableDataByLocationFinancialYear<SaleReturnModel>(TableNames.SaleReturn, saleReturn.LocationId, saleReturn.FinancialYearId);
+		var lastSaleReturn = await CommonData.LoadLastTableDataByLocationFinancialYear<SaleReturnModel>(StoreNames.SaleReturn, saleReturn.LocationId, saleReturn.FinancialYearId);
 		if (lastSaleReturn is not null)
 		{
 			var lastTransactionNo = lastSaleReturn.TransactionNo;
@@ -309,11 +309,11 @@ public static class GenerateCodes
 
 	public static async Task<string> GenerateStockTransferTransactionNo(StockTransferModel stockTransfer, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
-		var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, stockTransfer.FinancialYearId, sqlDataAccessTransaction);
-		var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, stockTransfer.LocationId, sqlDataAccessTransaction)).Code;
+		var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, stockTransfer.FinancialYearId, sqlDataAccessTransaction);
+		var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, stockTransfer.LocationId, sqlDataAccessTransaction)).Code;
 		var stockTransferPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.StockTransferTransactionPrefix, sqlDataAccessTransaction)).Value;
 
-		var lastStockTransfer = await CommonData.LoadLastTableDataByLocationFinancialYear<StockTransferModel>(TableNames.StockTransfer, stockTransfer.LocationId, stockTransfer.FinancialYearId);
+		var lastStockTransfer = await CommonData.LoadLastTableDataByLocationFinancialYear<StockTransferModel>(StoreNames.StockTransfer, stockTransfer.LocationId, stockTransfer.FinancialYearId);
 		if (lastStockTransfer is not null)
 		{
 			var lastTransactionNo = lastStockTransfer.TransactionNo;
@@ -333,10 +333,10 @@ public static class GenerateCodes
 
 	public static async Task<string> GenerateBillTransactionNo(BillModel bill, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
-		var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, bill.FinancialYearId, sqlDataAccessTransaction);
-		var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, bill.LocationId, sqlDataAccessTransaction)).Code;
+		var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, bill.FinancialYearId, sqlDataAccessTransaction);
+		var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, bill.LocationId, sqlDataAccessTransaction)).Code;
 		var billPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.BillTransactionPrefix, sqlDataAccessTransaction)).Value;
-		var lastBill = await CommonData.LoadLastTableDataByLocationFinancialYear<BillModel>(TableNames.Bill, bill.LocationId, bill.FinancialYearId);
+		var lastBill = await CommonData.LoadLastTableDataByLocationFinancialYear<BillModel>(RestaurantNames.Bill, bill.LocationId, bill.FinancialYearId);
 		if (lastBill is not null)
 		{
 			var lastTransactionNo = lastBill.TransactionNo;
@@ -355,7 +355,7 @@ public static class GenerateCodes
 
 	public static async Task<string> GenerateRawMaterialCode()
 	{
-		var rawMaterials = await CommonData.LoadTableData<RawMaterialModel>(TableNames.RawMaterial);
+		var rawMaterials = await CommonData.LoadTableData<RawMaterialModel>(InventoryNames.RawMaterial);
 		var rawMaterialPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.RawMaterialCodePrefix)).Value;
 
 		var lastRawMaterial = rawMaterials.OrderByDescending(r => r.Id).FirstOrDefault();
@@ -378,7 +378,7 @@ public static class GenerateCodes
 
 	public static async Task<string> GenerateProductCode(SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
-		var products = await CommonData.LoadTableData<ProductModel>(TableNames.Product, sqlDataAccessTransaction);
+		var products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product, sqlDataAccessTransaction);
 		var productPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.FinishedProductCodePrefix, sqlDataAccessTransaction)).Value;
 
 		var lastProduct = products.OrderByDescending(p => p.Id).FirstOrDefault();
@@ -401,7 +401,7 @@ public static class GenerateCodes
 
 	public static async Task<string> GenerateLedgerCode(SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
-		var ledgers = await CommonData.LoadTableData<LedgerModel>(TableNames.Ledger, sqlDataAccessTransaction);
+		var ledgers = await CommonData.LoadTableData<LedgerModel>(AccountNames.Ledger, sqlDataAccessTransaction);
 		var ledgerPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.LedgerCodePrefix, sqlDataAccessTransaction)).Value;
 
 		var lastLedger = ledgers.OrderByDescending(l => l.Id).FirstOrDefault();

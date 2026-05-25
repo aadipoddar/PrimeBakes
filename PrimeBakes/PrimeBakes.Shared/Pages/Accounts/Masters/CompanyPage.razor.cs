@@ -52,8 +52,8 @@ public partial class CompanyPage
 
     private async Task LoadData()
     {
-        _companies = await CommonData.LoadTableData<CompanyModel>(TableNames.Company);
-        _stateUTs = await CommonData.LoadTableData<StateUTModel>(TableNames.StateUT);
+        _companies = await CommonData.LoadTableData<CompanyModel>(AccountNames.Company);
+        _stateUTs = await CommonData.LoadTableData<StateUTModel>(AccountNames.StateUT);
 
         if (!_showDeleted)
             _companies = [.. _companies.Where(c => c.Status)];

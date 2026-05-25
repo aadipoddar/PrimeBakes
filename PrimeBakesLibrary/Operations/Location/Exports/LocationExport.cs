@@ -11,7 +11,7 @@ public static class LocationExport
         IEnumerable<LocationModel> locationData,
         ReportExportType exportType)
     {
-        var ledgers = await CommonData.LoadTableData<LedgerModel>(TableNames.Ledger);
+        var ledgers = await CommonData.LoadTableData<LedgerModel>(AccountNames.Ledger);
 
         var enrichedData = locationData.Select(location => new
         {

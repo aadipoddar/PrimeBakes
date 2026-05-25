@@ -29,7 +29,7 @@ public static class SaleThermalPrint
 
     private static async Task<SKBitmap> RenderReceipt(int saleId)
     {
-        var sale = await CommonData.LoadTableDataById<SaleOverviewModel>(ViewNames.SaleOverview, saleId);
+        var sale = await CommonData.LoadTableDataById<SaleOverviewModel>(StoreNames.SaleOverview, saleId);
 
         int width = ThermalPrintUtil.PaperDots80mm;
         int maxHeight = 3000;
@@ -56,7 +56,7 @@ public static class SaleThermalPrint
         y = ThermalPrintUtil.DrawLogo(canvas, width, y);
 
         var primaryCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
-        var company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, int.Parse(primaryCompanyId.Value));
+        var company = await CommonData.LoadTableDataById<CompanyModel>(AccountNames.Company, int.Parse(primaryCompanyId.Value));
 
         if (company is not null)
             y = ThermalPrintUtil.DrawCompanyHeader(canvas, company, width, y);
@@ -89,14 +89,14 @@ public static class SaleThermalPrint
 
         if (sale.PartyId.HasValue && sale.PartyId.Value > 0)
         {
-            var party = await CommonData.LoadTableDataById<LedgerModel>(TableNames.Ledger, sale.PartyId.Value);
+            var party = await CommonData.LoadTableDataById<LedgerModel>(AccountNames.Ledger, sale.PartyId.Value);
             if (party is not null)
                 pairs.Add(("Party", party.Name));
         }
 
         if (sale.CustomerId.HasValue && sale.CustomerId.Value > 0)
         {
-            var customer = await CommonData.LoadTableDataById<CustomerModel>(TableNames.Customer, sale.CustomerId.Value);
+            var customer = await CommonData.LoadTableDataById<CustomerModel>(StoreNames.Customer, sale.CustomerId.Value);
             if (customer is not null)
             {
                 pairs.Add(("Cust. Name", customer.Name));
@@ -113,8 +113,8 @@ public static class SaleThermalPrint
 
     private static async Task<float> DrawItemDetails(SKCanvas canvas, SaleOverviewModel sale, int width, float y)
     {
-        var saleDetails = await CommonData.LoadTableDataByMasterId<SaleDetailModel>(TableNames.SaleDetail, sale.Id);
-        var products = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
+        var saleDetails = await CommonData.LoadTableDataByMasterId<SaleDetailModel>(StoreNames.SaleDetail, sale.Id);
+        var products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
 
         string[] headers = ["Item", "Qty", "Rate", "Amt"];
         SKTextAlign[] alignments = [SKTextAlign.Left, SKTextAlign.Center, SKTextAlign.Right, SKTextAlign.Right];
@@ -150,7 +150,7 @@ public static class SaleThermalPrint
     /// </summary>
     private static async Task<float> DrawTotalDetails(SKCanvas canvas, SaleOverviewModel sale, int width, float y)
     {
-        var saleDetails = await CommonData.LoadTableDataByMasterId<SaleDetailModel>(TableNames.SaleDetail, sale.Id);
+        var saleDetails = await CommonData.LoadTableDataByMasterId<SaleDetailModel>(StoreNames.SaleDetail, sale.Id);
 
         // Must match the column layout in DrawItemDetails
         float[] columnPercents = [0.44f, 0.14f, 0.20f, 0.22f];

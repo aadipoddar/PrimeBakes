@@ -18,10 +18,10 @@ namespace PrimeBakesLibrary.Store.Sale.Data;
 public static class SaleReturnData
 {
     private static async Task<int> InsertSaleReturn(SaleReturnModel saleReturn, SqlDataAccessTransaction sqlDataAccessTransaction) =>
-        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertSaleReturn, saleReturn, sqlDataAccessTransaction)).FirstOrDefault();
+        (await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertSaleReturn, saleReturn, sqlDataAccessTransaction)).FirstOrDefault();
 
     private static async Task<int> InsertSaleReturnDetail(SaleReturnDetailModel saleReturnDetail, SqlDataAccessTransaction sqlDataAccessTransaction) =>
-        (await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertSaleReturnDetail, saleReturnDetail, sqlDataAccessTransaction)).FirstOrDefault();
+        (await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertSaleReturnDetail, saleReturnDetail, sqlDataAccessTransaction)).FirstOrDefault();
 
     private static List<SaleReturnDetailModel> ConvertCartToDetails(List<SaleReturnItemCartModel> cart, int masterId) =>
         [.. cart.Select(item => new SaleReturnDetailModel
@@ -97,7 +97,7 @@ public static class SaleReturnData
     public static async Task RecoverTransaction(SaleReturnModel saleReturn)
     {
         saleReturn.Status = true;
-        var transactionDetails = await CommonData.LoadTableDataByMasterId<SaleReturnDetailModel>(TableNames.SaleReturnDetail, saleReturn.Id);
+        var transactionDetails = await CommonData.LoadTableDataByMasterId<SaleReturnDetailModel>(StoreNames.SaleReturnDetail, saleReturn.Id);
 
         await SaveTransaction(saleReturn, null, transactionDetails, false);
         await SaleReturnNotify.Notify(saleReturn.Id, NotifyType.Recovered);
@@ -137,7 +137,7 @@ public static class SaleReturnData
 
         if (update)
         {
-            existingSaleReturn = await CommonData.LoadTableDataById<SaleReturnModel>(TableNames.SaleReturn, saleReturn.Id, sqlDataAccessTransaction);
+            existingSaleReturn = await CommonData.LoadTableDataById<SaleReturnModel>(StoreNames.SaleReturn, saleReturn.Id, sqlDataAccessTransaction);
             await FinancialYearData.ValidateFinancialYear(existingSaleReturn.TransactionDateTime, sqlDataAccessTransaction);
             saleReturn.TransactionNo = existingSaleReturn.TransactionNo;
         }
@@ -166,7 +166,7 @@ public static class SaleReturnData
 
         if (update)
         {
-            var existingTransactionDetails = await CommonData.LoadTableDataByMasterId<SaleReturnDetailModel>(TableNames.SaleReturnDetail, saleReturn.Id, sqlDataAccessTransaction);
+            var existingTransactionDetails = await CommonData.LoadTableDataByMasterId<SaleReturnDetailModel>(StoreNames.SaleReturnDetail, saleReturn.Id, sqlDataAccessTransaction);
             foreach (var item in existingTransactionDetails)
             {
                 item.Status = false;
@@ -252,9 +252,9 @@ public static class SaleReturnData
         if (saleReturn.LocationId != 1)
             return;
 
-        var recipes = await CommonData.LoadTableDataByStatus<RecipeModel>(TableNames.Recipe, true, sqlDataAccessTransaction);
+        var recipes = await CommonData.LoadTableDataByStatus<RecipeModel>(InventoryNames.Recipe, true, sqlDataAccessTransaction);
 		recipes = [.. recipes.Where(r => r.Deduct)];
-		var recipeDetails = await CommonData.LoadTableDataByStatus<RecipeDetailModel>(TableNames.RecipeDetail, true, sqlDataAccessTransaction);
+		var recipeDetails = await CommonData.LoadTableDataByStatus<RecipeDetailModel>(InventoryNames.RecipeDetail, true, sqlDataAccessTransaction);
 
         foreach (var product in saleReturnDetails)
         {
@@ -298,7 +298,7 @@ public static class SaleReturnData
             }
         }
 
-        var saleReturnOverview = await CommonData.LoadTableDataById<SaleReturnOverviewModel>(ViewNames.SaleReturnOverview, saleReturn.Id, sqlDataAccessTransaction);
+        var saleReturnOverview = await CommonData.LoadTableDataById<SaleReturnOverviewModel>(StoreNames.SaleReturnOverview, saleReturn.Id, sqlDataAccessTransaction);
         if (saleReturnOverview is null)
             return;
 

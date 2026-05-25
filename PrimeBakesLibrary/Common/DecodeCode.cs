@@ -41,82 +41,82 @@ public static class DecodeCode
 		switch (decodeTransactionNoModel.CodeType)
 		{
 			case CodeType.Accounting:
-				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByTransactionNo<FinancialAccountingModel>(TableNames.FinancialAccounting, transactionNo);
+				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByTransactionNo<FinancialAccountingModel>(AccountNames.FinancialAccounting, transactionNo);
 				decodeTransactionNoModel.PageRouteName = $"{PageRouteNames.FinancialAccounting}/{(decodeTransactionNoModel.TransactionModel as FinancialAccountingModel).Id}";
 				if (pdf) decodeTransactionNoModel.PDFStream = await FinancialAccountingInvoiceExport.ExportInvoice((decodeTransactionNoModel.TransactionModel as FinancialAccountingModel).Id, InvoiceExportType.PDF);
 				if (excel) decodeTransactionNoModel.ExcelStream = await FinancialAccountingInvoiceExport.ExportInvoice((decodeTransactionNoModel.TransactionModel as FinancialAccountingModel).Id, InvoiceExportType.Excel);
 				break;
 			case CodeType.Ledger:
-				var ledgers = await CommonData.LoadTableData<LedgerModel>(TableNames.Ledger);
-				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByTransactionNo<LedgerModel>(TableNames.Ledger, transactionNo);
+				var ledgers = await CommonData.LoadTableData<LedgerModel>(AccountNames.Ledger);
+				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByTransactionNo<LedgerModel>(AccountNames.Ledger, transactionNo);
 				decodeTransactionNoModel.PageRouteName = $"{PageRouteNames.LedgerMaster}";
 				if (pdf) decodeTransactionNoModel.PDFStream = await LedgerExport.ExportMaster(ledgers, ReportExportType.PDF);
 				if (excel) decodeTransactionNoModel.ExcelStream = await LedgerExport.ExportMaster(ledgers, ReportExportType.Excel);
 				break;
 			case CodeType.Purchase:
-				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByTransactionNo<PurchaseModel>(TableNames.Purchase, transactionNo);
+				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByTransactionNo<PurchaseModel>(InventoryNames.Purchase, transactionNo);
 				decodeTransactionNoModel.PageRouteName = $"{PageRouteNames.Purchase}/{(decodeTransactionNoModel.TransactionModel as PurchaseModel).Id}";
 				if (pdf) decodeTransactionNoModel.PDFStream = await PurchaseInvoiceExport.ExportInvoice((decodeTransactionNoModel.TransactionModel as PurchaseModel).Id, InvoiceExportType.PDF);
 				if (excel) decodeTransactionNoModel.ExcelStream = await PurchaseInvoiceExport.ExportInvoice((decodeTransactionNoModel.TransactionModel as PurchaseModel).Id, InvoiceExportType.Excel);
 				break;
 			case CodeType.PurchaseReturn:
-				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByTransactionNo<PurchaseReturnModel>(TableNames.PurchaseReturn, transactionNo);
+				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByTransactionNo<PurchaseReturnModel>(InventoryNames.PurchaseReturn, transactionNo);
 				decodeTransactionNoModel.PageRouteName = $"{PageRouteNames.PurchaseReturn}/{(decodeTransactionNoModel.TransactionModel as PurchaseReturnModel).Id}";
 				if (pdf) decodeTransactionNoModel.PDFStream = await PurchaseReturnInvoiceExport.ExportInvoice((decodeTransactionNoModel.TransactionModel as PurchaseReturnModel).Id, InvoiceExportType.PDF);
 				if (excel) decodeTransactionNoModel.ExcelStream = await PurchaseReturnInvoiceExport.ExportInvoice((decodeTransactionNoModel.TransactionModel as PurchaseReturnModel).Id, InvoiceExportType.Excel);
 				break;
 			case CodeType.KitchenIssue:
-				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByTransactionNo<KitchenIssueModel>(TableNames.KitchenIssue, transactionNo);
+				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByTransactionNo<KitchenIssueModel>(InventoryNames.KitchenIssue, transactionNo);
 				decodeTransactionNoModel.PageRouteName = $"{PageRouteNames.KitchenIssue}/{(decodeTransactionNoModel.TransactionModel as KitchenIssueModel).Id}";
 				if (pdf) decodeTransactionNoModel.PDFStream = await KitchenIssueInvoiceExport.ExportInvoice((decodeTransactionNoModel.TransactionModel as KitchenIssueModel).Id, InvoiceExportType.PDF);
 				if (excel) decodeTransactionNoModel.ExcelStream = await KitchenIssueInvoiceExport.ExportInvoice((decodeTransactionNoModel.TransactionModel as KitchenIssueModel).Id, InvoiceExportType.Excel);
 				break;
 			case CodeType.KitchenProduction:
-				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByTransactionNo<KitchenProductionModel>(TableNames.KitchenProduction, transactionNo);
+				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByTransactionNo<KitchenProductionModel>(InventoryNames.KitchenProduction, transactionNo);
 				decodeTransactionNoModel.PageRouteName = $"{PageRouteNames.KitchenProduction}/{(decodeTransactionNoModel.TransactionModel as KitchenProductionModel).Id}";
 				if (pdf) decodeTransactionNoModel.PDFStream = await KitchenProductionInvoiceExport.ExportInvoice((decodeTransactionNoModel.TransactionModel as KitchenProductionModel).Id, InvoiceExportType.PDF);
 				if (excel) decodeTransactionNoModel.ExcelStream = await KitchenProductionInvoiceExport.ExportInvoice((decodeTransactionNoModel.TransactionModel as KitchenProductionModel).Id, InvoiceExportType.Excel);
 				break;
 			case CodeType.RawMaterial:
-				var rawMaterials = await CommonData.LoadTableData<RawMaterialModel>(TableNames.RawMaterial);
-				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByCode<RawMaterialModel>(TableNames.RawMaterial, transactionNo);
+				var rawMaterials = await CommonData.LoadTableData<RawMaterialModel>(InventoryNames.RawMaterial);
+				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByCode<RawMaterialModel>(InventoryNames.RawMaterial, transactionNo);
 				decodeTransactionNoModel.PageRouteName = $"{PageRouteNames.RawMaterial}";
 				if (pdf) decodeTransactionNoModel.PDFStream = await RawMaterialExport.ExportMaster(rawMaterials, ReportExportType.PDF);
 				if (excel) decodeTransactionNoModel.ExcelStream = await RawMaterialExport.ExportMaster(rawMaterials, ReportExportType.Excel);
 				break;
 			case CodeType.FinishedProduct:
-				var products = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
-				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByCode<ProductModel>(TableNames.Product, transactionNo);
+				var products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
+				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByCode<ProductModel>(StoreNames.Product, transactionNo);
 				decodeTransactionNoModel.PageRouteName = $"{PageRouteNames.Product}";
 				if (pdf) decodeTransactionNoModel.PDFStream = await ProductExport.ExportMaster(products, ReportExportType.PDF);
 				if (excel) decodeTransactionNoModel.ExcelStream = await ProductExport.ExportMaster(products, ReportExportType.Excel);
 				break;
 			case CodeType.Order:
-				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByTransactionNo<OrderModel>(TableNames.Order, transactionNo);
+				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByTransactionNo<OrderModel>(StoreNames.Order, transactionNo);
 				decodeTransactionNoModel.PageRouteName = $"{PageRouteNames.Order}/{(decodeTransactionNoModel.TransactionModel as OrderModel).Id}";
 				if (pdf) decodeTransactionNoModel.PDFStream = await OrderInvoiceExport.ExportInvoice((decodeTransactionNoModel.TransactionModel as OrderModel).Id, InvoiceExportType.PDF);
 				if (excel) decodeTransactionNoModel.ExcelStream = await OrderInvoiceExport.ExportInvoice((decodeTransactionNoModel.TransactionModel as OrderModel).Id, InvoiceExportType.Excel);
 				break;
 			case CodeType.Sale:
-				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByTransactionNo<SaleModel>(TableNames.Sale, transactionNo);
+				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByTransactionNo<SaleModel>(StoreNames.Sale, transactionNo);
 				decodeTransactionNoModel.PageRouteName = $"{PageRouteNames.Sale}/{(decodeTransactionNoModel.TransactionModel as SaleModel).Id}";
 				if (pdf) decodeTransactionNoModel.PDFStream = await SaleInvoiceExport.ExportInvoice((decodeTransactionNoModel.TransactionModel as SaleModel).Id, InvoiceExportType.PDF);
 				if (excel) decodeTransactionNoModel.ExcelStream = await SaleInvoiceExport.ExportInvoice((decodeTransactionNoModel.TransactionModel as SaleModel).Id, InvoiceExportType.Excel);
 				break;
 			case CodeType.SaleReturn:
-				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByTransactionNo<SaleReturnModel>(TableNames.SaleReturn, transactionNo);
+				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByTransactionNo<SaleReturnModel>(StoreNames.SaleReturn, transactionNo);
 				decodeTransactionNoModel.PageRouteName = $"{PageRouteNames.SaleReturn}/{(decodeTransactionNoModel.TransactionModel as SaleReturnModel).Id}";
 				if (pdf) decodeTransactionNoModel.PDFStream = await SaleReturnInvoiceExport.ExportInvoice((decodeTransactionNoModel.TransactionModel as SaleReturnModel).Id, InvoiceExportType.PDF);
 				if (excel) decodeTransactionNoModel.ExcelStream = await SaleReturnInvoiceExport.ExportInvoice((decodeTransactionNoModel.TransactionModel as SaleReturnModel).Id, InvoiceExportType.Excel);
 				break;
 			case CodeType.StockTransfer:
-				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByTransactionNo<StockTransferModel>(TableNames.StockTransfer, transactionNo);
+				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByTransactionNo<StockTransferModel>(StoreNames.StockTransfer, transactionNo);
 				decodeTransactionNoModel.PageRouteName = $"{PageRouteNames.StockTransfer}/{(decodeTransactionNoModel.TransactionModel as StockTransferModel).Id}";
 				if (pdf) decodeTransactionNoModel.PDFStream = await StockTransferInvoiceExport.ExportInvoice((decodeTransactionNoModel.TransactionModel as StockTransferModel).Id, InvoiceExportType.PDF);
 				if (excel) decodeTransactionNoModel.ExcelStream = await StockTransferInvoiceExport.ExportInvoice((decodeTransactionNoModel.TransactionModel as StockTransferModel).Id, InvoiceExportType.Excel);
 				break;
 			case CodeType.Bill:
-				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByTransactionNo<BillModel>(TableNames.Bill, transactionNo);
+				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByTransactionNo<BillModel>(RestaurantNames.Bill, transactionNo);
 				decodeTransactionNoModel.PageRouteName = $"{PageRouteNames.Bill}/{(decodeTransactionNoModel.TransactionModel as BillModel).Id}";
 				if (pdf) decodeTransactionNoModel.PDFStream = await BillInvoiceExport.ExportInvoice((decodeTransactionNoModel.TransactionModel as BillModel).Id, InvoiceExportType.PDF);
 				if (excel) decodeTransactionNoModel.ExcelStream = await BillInvoiceExport.ExportInvoice((decodeTransactionNoModel.TransactionModel as BillModel).Id, InvoiceExportType.Excel);
@@ -153,7 +153,7 @@ public static class DecodeCode
 				break;
 		}
 
-		var settings = await CommonData.LoadTableData<SettingsModel>(TableNames.Settings);
+		var settings = await CommonData.LoadTableData<SettingsModel>(OperationNames.Settings);
 
 		if (string.IsNullOrWhiteSpace(codeTypePart))
 		{

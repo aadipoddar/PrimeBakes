@@ -72,19 +72,19 @@ public partial class TrialBalancePage : IAsyncDisposable
 
     private async Task LoadCompanies()
     {
-        _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
+        _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
         _companies = [.. _companies.OrderBy(s => s.Name)];
     }
 
     private async Task LoadGroups()
     {
-        _groups = await CommonData.LoadTableDataByStatus<GroupModel>(TableNames.Group);
+        _groups = await CommonData.LoadTableDataByStatus<GroupModel>(AccountNames.Group);
         _groups = [.. _groups.OrderBy(s => s.Name)];
     }
 
     private async Task LoadAccountTypes()
     {
-        _accountTypes = await CommonData.LoadTableDataByStatus<AccountTypeModel>(TableNames.AccountType);
+        _accountTypes = await CommonData.LoadTableDataByStatus<AccountTypeModel>(AccountNames.AccountType);
         _accountTypes = [.. _accountTypes.OrderBy(s => s.Name)];
     }
 

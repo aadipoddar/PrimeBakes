@@ -44,7 +44,7 @@ public partial class RecipeReport
 			_isProcessing = true;
 			StateHasChanged();
 
-			_recipeOverviews = await CommonData.LoadTableDataByStatus<RecipeOverviewModel>(ViewNames.RecipeOverview);
+			_recipeOverviews = await CommonData.LoadTableDataByStatus<RecipeOverviewModel>(InventoryNames.RecipeOverview);
 			_recipeOverviews = [.. _recipeOverviews.OrderBy(r => r.ProductName)];
 		}
 		catch (Exception ex)

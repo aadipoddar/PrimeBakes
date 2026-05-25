@@ -19,10 +19,10 @@ internal static class OrderNotify
 
     private static async Task OrderNotification(int orderId, NotifyType type)
     {
-        var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
+        var users = await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User);
         users = [.. users.Where(u => u.Admin && u.LocationId == 1 || u.Store && u.LocationId == 1)];
 
-        var order = await CommonData.LoadTableDataById<OrderOverviewModel>(ViewNames.OrderOverview, orderId);
+        var order = await CommonData.LoadTableDataById<OrderOverviewModel>(StoreNames.OrderOverview, orderId);
 
         var notificationData = new NotificationUtil.TransactionNotificationData
         {
@@ -45,7 +45,7 @@ internal static class OrderNotify
 
     private static async Task OrderMail(int orderId, NotifyType type, (MemoryStream, string)? previousInvoice = null)
     {
-        var order = await CommonData.LoadTableDataById<OrderOverviewModel>(ViewNames.OrderOverview, orderId);
+        var order = await CommonData.LoadTableDataById<OrderOverviewModel>(StoreNames.OrderOverview, orderId);
 
         var emailData = new MailingUtil.TransactionEmailData
         {

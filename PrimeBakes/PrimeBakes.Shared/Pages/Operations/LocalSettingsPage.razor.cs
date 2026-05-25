@@ -192,7 +192,7 @@ public partial class LocalSettingsPage : IAsyncDisposable
             {
                 var companySetting = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
                 if (companySetting is not null && int.TryParse(companySetting.Value, out var companyId))
-                    company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, companyId);
+                    company = await CommonData.LoadTableDataById<CompanyModel>(AccountNames.Company, companyId);
             }
             catch
             {

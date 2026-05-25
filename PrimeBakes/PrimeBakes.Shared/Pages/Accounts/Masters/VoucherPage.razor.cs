@@ -51,7 +51,7 @@ public partial class VoucherPage
 
     private async Task LoadData()
     {
-        _vouchers = await CommonData.LoadTableData<VoucherModel>(TableNames.Voucher);
+        _vouchers = await CommonData.LoadTableData<VoucherModel>(AccountNames.Voucher);
 
         if (!_showDeleted)
             _vouchers = [.. _vouchers.Where(v => v.Status)];

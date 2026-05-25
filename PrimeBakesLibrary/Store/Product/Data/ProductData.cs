@@ -7,13 +7,13 @@ namespace PrimeBakesLibrary.Store.Product.Data;
 public static class ProductData
 {
 	public static async Task<int> InsertProduct(ProductModel product, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertProduct, product, sqlDataAccessTransaction)).FirstOrDefault();
+		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertProduct, product, sqlDataAccessTransaction)).FirstOrDefault();
 
 	public static async Task<int> InsertProductCategory(ProductCategoryModel productCategory) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertProductCategory, productCategory)).FirstOrDefault();
+		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertProductCategory, productCategory)).FirstOrDefault();
 
 	public static async Task<int> InsertKOTCategory(KOTCategoryModel kotCategory) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(StoredProcedureNames.InsertKOTCategory, kotCategory)).FirstOrDefault();
+		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertKOTCategory, kotCategory)).FirstOrDefault();
 
 	public static async Task<int> SaveProduct(ProductModel product, List<LocationModel> locations)
 	{

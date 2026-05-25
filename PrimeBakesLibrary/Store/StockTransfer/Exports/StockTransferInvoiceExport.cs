@@ -12,20 +12,20 @@ public static class StockTransferInvoiceExport
 {
     public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId, InvoiceExportType exportType)
     {
-        var transaction = await CommonData.LoadTableDataById<StockTransferModel>(TableNames.StockTransfer, transactionId) ??
+        var transaction = await CommonData.LoadTableDataById<StockTransferModel>(StoreNames.StockTransfer, transactionId) ??
             throw new InvalidOperationException("Transaction not found.");
 
-        var transactionDetails = await CommonData.LoadTableDataByMasterId<StockTransferDetailModel>(TableNames.StockTransferDetail, transaction.Id);
+        var transactionDetails = await CommonData.LoadTableDataByMasterId<StockTransferDetailModel>(StoreNames.StockTransferDetail, transaction.Id);
         if (transactionDetails is null || transactionDetails.Count == 0)
             throw new InvalidOperationException("No transaction details found for the transaction.");
 
-        var company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, transaction.CompanyId) ??
+        var company = await CommonData.LoadTableDataById<CompanyModel>(AccountNames.Company, transaction.CompanyId) ??
             throw new InvalidOperationException("Company information is missing.");
 
-        var fromLocation = await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, transaction.LocationId);
+        var fromLocation = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, transaction.LocationId);
         var toLocationLedger = await LedgerData.LoadLedgerByLocationId(transaction.ToLocationId);
 
-        var allItems = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
+        var allItems = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
 
         var cartItems = transactionDetails.Select(detail =>
         {

@@ -19,10 +19,10 @@ internal static class KitchenIssueNotify
 
     private static async Task KitchenIssueNotification(int kitchenIssueId, NotifyType type)
     {
-        var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
+        var users = await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User);
         users = [.. users.Where(u => u.Admin && u.LocationId == 1 || u.Inventory && u.LocationId == 1)];
 
-        var kitchenIssue = await CommonData.LoadTableDataById<KitchenIssueOverviewModel>(ViewNames.KitchenIssueOverview, kitchenIssueId);
+        var kitchenIssue = await CommonData.LoadTableDataById<KitchenIssueOverviewModel>(InventoryNames.KitchenIssueOverview, kitchenIssueId);
 
         var notificationData = new NotificationUtil.TransactionNotificationData
         {
@@ -46,7 +46,7 @@ internal static class KitchenIssueNotify
 
     private static async Task KitchenIssueMail(int kitchenIssueId, NotifyType type, (MemoryStream, string)? previousInvoice = null)
     {
-        var kitchenIssue = await CommonData.LoadTableDataById<KitchenIssueOverviewModel>(ViewNames.KitchenIssueOverview, kitchenIssueId);
+        var kitchenIssue = await CommonData.LoadTableDataById<KitchenIssueOverviewModel>(InventoryNames.KitchenIssueOverview, kitchenIssueId);
 
         var emailData = new MailingUtil.TransactionEmailData
         {

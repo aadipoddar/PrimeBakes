@@ -19,10 +19,10 @@ internal static class PurchaseReturnNotify
 
     private static async Task PurchaseReturnNotification(int purchaseReturnId, NotifyType type)
     {
-        var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
+        var users = await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User);
         users = [.. users.Where(u => u.Admin && u.LocationId == 1 || u.Inventory && u.LocationId == 1)];
 
-        var purchaseReturn = await CommonData.LoadTableDataById<PurchaseReturnOverviewModel>(ViewNames.PurchaseReturnOverview, purchaseReturnId);
+        var purchaseReturn = await CommonData.LoadTableDataById<PurchaseReturnOverviewModel>(InventoryNames.PurchaseReturnOverview, purchaseReturnId);
 
         var notificationData = new NotificationUtil.TransactionNotificationData
         {
@@ -46,7 +46,7 @@ internal static class PurchaseReturnNotify
 
     private static async Task PurchaseReturnMail(int purchaseReturnId, NotifyType type, (MemoryStream, string)? previousInvoice = null)
     {
-        var purchaseReturn = await CommonData.LoadTableDataById<PurchaseReturnOverviewModel>(ViewNames.PurchaseReturnOverview, purchaseReturnId);
+        var purchaseReturn = await CommonData.LoadTableDataById<PurchaseReturnOverviewModel>(InventoryNames.PurchaseReturnOverview, purchaseReturnId);
 
         var emailData = new MailingUtil.TransactionEmailData
         {

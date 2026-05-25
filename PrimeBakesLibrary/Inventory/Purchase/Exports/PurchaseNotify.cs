@@ -19,10 +19,10 @@ internal static class PurchaseNotify
 
     private static async Task PurchaseNotification(int purchaseId, NotifyType type)
     {
-        var users = await CommonData.LoadTableDataByStatus<UserModel>(TableNames.User);
+        var users = await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User);
         users = [.. users.Where(u => u.Admin && u.LocationId == 1 || u.Inventory && u.LocationId == 1)];
 
-        var purchase = await CommonData.LoadTableDataById<PurchaseOverviewModel>(ViewNames.PurchaseOverview, purchaseId);
+        var purchase = await CommonData.LoadTableDataById<PurchaseOverviewModel>(InventoryNames.PurchaseOverview, purchaseId);
 
         var notificationData = new NotificationUtil.TransactionNotificationData
         {
@@ -46,7 +46,7 @@ internal static class PurchaseNotify
 
     private static async Task PurchaseMail(int purchaseId, NotifyType type, (MemoryStream, string)? previousInvoice = null)
     {
-        var purchase = await CommonData.LoadTableDataById<PurchaseOverviewModel>(ViewNames.PurchaseOverview, purchaseId);
+        var purchase = await CommonData.LoadTableDataById<PurchaseOverviewModel>(InventoryNames.PurchaseOverview, purchaseId);
 
         var emailData = new MailingUtil.TransactionEmailData
         {

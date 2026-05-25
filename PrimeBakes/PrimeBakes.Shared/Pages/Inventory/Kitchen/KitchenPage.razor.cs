@@ -50,7 +50,7 @@ public partial class KitchenPage
 
     private async Task LoadData()
     {
-        _kitchens = await CommonData.LoadTableData<KitchenModel>(TableNames.Kitchen);
+        _kitchens = await CommonData.LoadTableData<KitchenModel>(InventoryNames.Kitchen);
 
         if (!_showDeleted)
             _kitchens = [.. _kitchens.Where(k => k.Status)];
