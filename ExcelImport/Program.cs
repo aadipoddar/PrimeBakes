@@ -1,9 +1,6 @@
 ﻿using OfficeOpenXml;
-using PrimeBakesLibrary.Data.Common;
-using PrimeBakesLibrary.Data.Store.Product;
+
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Store.Product;
 
 Secrets.SetupConfiguration();
 
@@ -16,9 +13,8 @@ using var package = new ExcelPackage(fileInfo);
 await package.LoadAsync(fileInfo);
 
 var worksheet1 = package.Workbook.Worksheets[0];
-//var worksheet2 = package.Workbook.Worksheets[1];
+var worksheet2 = package.Workbook.Worksheets[1];
 
-await DeleteProductLocations(worksheet1);
 
 Console.WriteLine("Finished importing Items.");
 Console.ReadLine();
@@ -81,6 +77,10 @@ Console.ReadLine();
 // await DeleteProductLocations(worksheet1);
 
 // await InsertProductLocations(worksheet1);
+
+// await DeleteProductLocations(worksheet1);
+
+// await UpdateProductLocation(worksheet1, worksheet2);
 
 //static async Task UpdateProducts()
 //{
@@ -1864,32 +1864,113 @@ Console.ReadLine();
 //		row++;
 //	}
 //}
+
+//static async Task DeleteProductLocations(ExcelWorksheet worksheet)
+//{
+//	var productLocations = await CommonData.LoadTableData<ProductLocationModel>(TableNames.ProductLocation);
+//	var products = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
+
+//	var row = 1;
+//	while (worksheet.Cells[row, 1].Value != null)
+//	{
+//		var name = worksheet.Cells[row, 1].Value.ToString();
+
+//		if (string.IsNullOrWhiteSpace(name))
+//		{
+//			Console.WriteLine("Not Inserted Row = " + row);
+//			continue;
+//		}
+
+//		var product = products.FirstOrDefault(p => p.Name.Trim() == name);
+//		var productLocation = productLocations.Where(pl => pl.ProductId == product.Id).ToList();
+
+//		foreach (var pl in productLocation)
+//		{
+//			Console.WriteLine("Deleting Product Location Id: " + pl.Id + " for Product: " + name);
+//			await ProductLocationData.DeleteProductLocationById(pl.Id);
+//		}
+//		row++;
+//	}
+//}
+
+//static async Task UpdateProductLocation(ExcelWorksheet worksheet1, ExcelWorksheet worksheet2)
+//{
+//	var locations = await CommonData.LoadTableData<LocationModel>(TableNames.Location);
+//	var products = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
+//	var productLocations = await CommonData.LoadTableData<ProductLocationModel>(TableNames.ProductLocation);
+
+//	var row = 2;
+
+//	while (worksheet1.Cells[row, 1].Value != null)
+//	{
+//		var productName = worksheet1.Cells[row, 1].Value.ToString();
+//		var rate = worksheet1.Cells[row, 2].Value.ToString();
+
+//		var product = products.FirstOrDefault(p => string.Compare(p.Name.Trim(), productName.Trim(), true) == 0);
+
+//		if (product is not null)
+//		{
+//			product.Rate = decimal.Parse(rate);
+//			await ProductData.InsertProduct(product);
+//		}
+
+//		else
+//			Console.WriteLine("product not found for name: " + productName);
+
+//		row++;
+//	}
+
+//	return;
+
+//	row = 2;
+
+//	List<LocationModel> toChangeLocations = [];
+//	while (worksheet2.Cells[row, 1].Value != null)
+//	{
+//		var locationName = worksheet2.Cells[row, 1].Value.ToString();
+//		var location = locations.FirstOrDefault(l => string.Compare(l.Name.Trim(), locationName.Trim(), true) == 0);
+//		if (location is not null)
+//			toChangeLocations.Add(location);
+//		else
+//			Console.WriteLine("Location not found for name: " + locationName);
+
+//		row++;
+//	}
+
+//	row = 2;
+
+//	while (worksheet1.Cells[row, 1].Value != null)
+//	{
+//		var productName = worksheet1.Cells[row, 1].Value.ToString();
+//		var rate = worksheet1.Cells[row, 2].Value.ToString();
+//		var breakLoop = false;
+
+//		foreach (var location in toChangeLocations)
+//		{
+//			if (breakLoop)
+//				continue;
+
+//			var product = products.FirstOrDefault(p => string.Compare(p.Name.Trim(), productName.Trim(), true) == 0);
+//			if (product is not null)
+//			{
+//				var productLocation = productLocations.FirstOrDefault(pl => pl.LocationId == location.Id && pl.ProductId == product.Id);
+//				if (productLocation is not null)
+//				{
+//					productLocation.Rate = decimal.Parse(rate);
+//					await ProductLocationData.InsertProductLocation(productLocation);
+//					// Console.WriteLine("Updated Product Location for Product: " + productName + " at Location: " + location.Name);
+//				}
+//				else
+//					Console.WriteLine("Product Location not found for Product: " + productName + " at Location: " + location.Name);
+//			}
+//			else
+//			{
+//				Console.WriteLine("Product not found for name: " + productName);
+//				breakLoop = true;
+//			}
+//		}
+
+//		row++;
+//	}
+//}
 #endregion
-
-static async Task DeleteProductLocations(ExcelWorksheet worksheet)
-{
-	var productLocations = await CommonData.LoadTableData<ProductLocationModel>(TableNames.ProductLocation);
-	var products = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
-
-	var row = 1;
-	while (worksheet.Cells[row, 1].Value != null)
-	{
-		var name = worksheet.Cells[row, 1].Value.ToString();
-
-		if (string.IsNullOrWhiteSpace(name))
-		{
-			Console.WriteLine("Not Inserted Row = " + row);
-			continue;
-		}
-
-		var product = products.FirstOrDefault(p => p.Name.Trim() == name);
-		var productLocation = productLocations.Where(pl => pl.ProductId == product.Id).ToList();
-
-		foreach (var pl in productLocation)
-		{
-			Console.WriteLine("Deleting Product Location Id: " + pl.Id + " for Product: " + name);
-			await ProductLocationData.DeleteProductLocationById(pl.Id);
-		}
-		row++;
-	}
-}

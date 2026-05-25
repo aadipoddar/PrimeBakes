@@ -9,7 +9,7 @@ namespace PrimeBakesLibrary.DataAccess;
 
 public static class SqlDataAccess
 {
-	public static readonly string _databaseConnection = Secrets.AzureConnectionString;
+	public static readonly string _databaseConnection = Secrets.LocalConnectionString;
 
 	public static async Task<List<T>> LoadData<T, U>(string storedProcedure, U parameters, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
@@ -42,6 +42,14 @@ public static class SqlDataAccess
 
 		using IDbConnection connection = new SqlConnection(_databaseConnection);
 		await connection.ExecuteAsync(storedProcedure, commandType: CommandType.StoredProcedure);
+	}
+
+	public static void SetupConfiguration()
+	{
+		SqlMapper.Settings.CommandTimeout = 600;
+		SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
+		SqlMapper.AddTypeHandler(new TimeOnlyTypeHandler());
+		Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(Secrets.SyncfusionLicense);
 	}
 }
 

@@ -65,13 +65,13 @@ public static class FinancialYearData
 				break;
 
 			case DateRangeType.CurrentFinancialYear:
-				var currentFY = await FinancialYearData.LoadFinancialYearByDateTime(today);
+				var currentFY = await LoadFinancialYearByDateTime(today);
 				newFromDate = currentFY.StartDate.ToDateTime(TimeOnly.MinValue);
 				newToDate = currentFY.EndDate.ToDateTime(TimeOnly.MinValue);
 				break;
 
 			case DateRangeType.PreviousFinancialYear:
-				var currentFY2 = await FinancialYearData.LoadFinancialYearByDateTime(newFromDate);
+				var currentFY2 = await LoadFinancialYearByDateTime(newFromDate);
 				if (currentFY2 is null)
 					return (referenceFromDate, referenceToDate);
 
@@ -89,7 +89,7 @@ public static class FinancialYearData
 				break;
 
 			case DateRangeType.NextFinancialYear:
-				var currentFY3 = await FinancialYearData.LoadFinancialYearByDateTime(newFromDate);
+				var currentFY3 = await LoadFinancialYearByDateTime(newFromDate);
 				if (currentFY3 is null)
 					return (referenceFromDate, referenceToDate);
 
