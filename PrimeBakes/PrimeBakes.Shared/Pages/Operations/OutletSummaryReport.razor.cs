@@ -8,7 +8,7 @@ using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Inventory.Kitchen;
 using PrimeBakesLibrary.Models.Inventory.Purchase;
 using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Restuarant.Bill;
+using PrimeBakesLibrary.Restaurant.Bill.Models;
 using PrimeBakesLibrary.Models.Store.Sale;
 using PrimeBakesLibrary.Models.Store.StockTransfer;
 using Syncfusion.Blazor.Grids;

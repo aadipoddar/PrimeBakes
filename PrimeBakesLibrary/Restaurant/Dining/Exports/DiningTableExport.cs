@@ -1,8 +1,8 @@
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Restuarant.Dining;
+using PrimeBakesLibrary.Restaurant.Dining.Models;
 
-namespace PrimeBakesLibrary.Exporting.Restaurant.Dining;
+namespace PrimeBakesLibrary.Restaurant.Dining.Exports;
 
 public static class DiningTableExport
 {

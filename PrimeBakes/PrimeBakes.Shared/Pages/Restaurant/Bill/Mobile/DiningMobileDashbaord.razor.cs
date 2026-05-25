@@ -1,8 +1,8 @@
-using PrimeBakesLibrary.Data.Restaurant.Bill;
+using PrimeBakesLibrary.Restaurant.Bill.Data;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Restuarant.Bill;
-using PrimeBakesLibrary.Models.Restuarant.Dining;
+using PrimeBakesLibrary.Restaurant.Bill.Models;
+using PrimeBakesLibrary.Restaurant.Dining.Models;
 
 namespace PrimeBakes.Shared.Pages.Restaurant.Bill.Mobile;
 

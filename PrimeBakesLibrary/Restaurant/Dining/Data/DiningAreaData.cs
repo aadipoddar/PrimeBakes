@@ -1,6 +1,6 @@
-using PrimeBakesLibrary.Models.Restuarant.Dining;
+using PrimeBakesLibrary.Restaurant.Dining.Models;
 
-namespace PrimeBakesLibrary.Data.Restaurant.Dining;
+namespace PrimeBakesLibrary.Restaurant.Dining.Data;
 
 public static class DiningAreaData
 {

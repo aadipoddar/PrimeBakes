@@ -1,10 +1,10 @@
-﻿namespace PrimeBakesLibrary.Models.Restuarant.Dining;
+namespace PrimeBakesLibrary.Restaurant.Dining.Models;
 
-public class DiningAreaModel
+public class DiningTableModel
 {
 	public int Id { get; set; }
 	public string Name { get; set; }
-	public int LocationId { get; set; }
+	public int DiningAreaId { get; set; }
 	public string? Remarks { get; set; }
 	public bool Status { get; set; }
 }

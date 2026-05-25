@@ -1,4 +1,4 @@
-﻿using PrimeBakesLibrary.Data.Accounts.Masters;
+using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Operations;
 using PrimeBakesLibrary.Models.Accounts.FinancialAccounting;
 using PrimeBakesLibrary.Models.Accounts.Masters;
@@ -6,7 +6,7 @@ using PrimeBakesLibrary.Models.Inventory;
 using PrimeBakesLibrary.Models.Inventory.Kitchen;
 using PrimeBakesLibrary.Models.Inventory.Purchase;
 using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Restuarant.Bill;
+using PrimeBakesLibrary.Restaurant.Bill.Models;
 using PrimeBakesLibrary.Models.Store.Order;
 using PrimeBakesLibrary.Models.Store.Product;
 using PrimeBakesLibrary.Models.Store.Sale;

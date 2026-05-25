@@ -1,4 +1,4 @@
-﻿namespace PrimeBakesLibrary.Models.Restuarant.Bill;
+namespace PrimeBakesLibrary.Restaurant.Bill.Models;
 
 public class BillModel
 {

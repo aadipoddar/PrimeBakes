@@ -2,14 +2,14 @@ using Microsoft.AspNetCore.Components;
 
 using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Operations;
-using PrimeBakesLibrary.Data.Restaurant.Bill;
+using PrimeBakesLibrary.Restaurant.Bill.Data;
 using PrimeBakesLibrary.Data.Store.Masters;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Restaurant.Bill;
+using PrimeBakesLibrary.Restaurant.Bill.Exports;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Restuarant.Bill;
-using PrimeBakesLibrary.Models.Restuarant.Dining;
+using PrimeBakesLibrary.Restaurant.Bill.Models;
+using PrimeBakesLibrary.Restaurant.Dining.Models;
 using PrimeBakesLibrary.Models.Store.Masters;
 using PrimeBakesLibrary.Models.Store.Product;
 

@@ -1,10 +1,10 @@
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Data.Restaurant.Dining;
+using PrimeBakesLibrary.Restaurant.Dining.Data;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Restaurant.Dining;
+using PrimeBakesLibrary.Restaurant.Dining.Exports;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Restuarant.Dining;
+using PrimeBakesLibrary.Restaurant.Dining.Models;
 
 using Syncfusion.Blazor.Grids;
 

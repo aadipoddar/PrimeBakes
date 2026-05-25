@@ -5,13 +5,13 @@ using PrimeBakesLibrary.Data.Operations;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Restuarant.Bill;
-using PrimeBakesLibrary.Models.Restuarant.Dining;
+using PrimeBakesLibrary.Restaurant.Bill.Models;
+using PrimeBakesLibrary.Restaurant.Dining.Models;
 using PrimeBakesLibrary.Models.Store.Product;
 
 using SkiaSharp;
 
-namespace PrimeBakesLibrary.Exporting.Restaurant.Bill;
+namespace PrimeBakesLibrary.Restaurant.Bill.Exports;
 
 public static class BillThermalPrint
 {

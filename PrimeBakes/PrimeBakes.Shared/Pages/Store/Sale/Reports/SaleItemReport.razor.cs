@@ -8,7 +8,7 @@ using PrimeBakesLibrary.Exporting.Store.Sale;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Restuarant.Bill;
+using PrimeBakesLibrary.Restaurant.Bill.Models;
 using PrimeBakesLibrary.Models.Store.Sale;
 using PrimeBakesLibrary.Models.Store.StockTransfer;
 

@@ -4,11 +4,11 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Operations;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Restaurant.Bill;
+using PrimeBakesLibrary.Restaurant.Bill.Exports;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Restuarant.Bill;
+using PrimeBakesLibrary.Restaurant.Bill.Models;
 using PrimeBakesLibrary.Models.Store.Masters;
 
 using Syncfusion.Blazor.Grids;

@@ -1,13 +1,13 @@
-﻿using PrimeBakesLibrary.Data.Common;
+using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Restuarant.Bill;
-using PrimeBakesLibrary.Models.Restuarant.Dining;
+using PrimeBakesLibrary.Restaurant.Bill.Models;
+using PrimeBakesLibrary.Restaurant.Dining.Models;
 using PrimeBakesLibrary.Models.Store.Masters;
 using PrimeBakesLibrary.Models.Store.Product;
 
-namespace PrimeBakesLibrary.Exporting.Restaurant.Bill;
+namespace PrimeBakesLibrary.Restaurant.Bill.Exports;
 
 public static class BillInvoiceExport
 {

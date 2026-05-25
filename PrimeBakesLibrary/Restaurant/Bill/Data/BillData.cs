@@ -3,16 +3,16 @@ using PrimeBakesLibrary.Data.Accounts.Masters;
 using PrimeBakesLibrary.Data.Common;
 using PrimeBakesLibrary.Data.Inventory.Stock;
 using PrimeBakesLibrary.Data.Operations;
-using PrimeBakesLibrary.Exporting.Restaurant.Bill;
+using PrimeBakesLibrary.Restaurant.Bill.Exports;
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.FinancialAccounting;
 using PrimeBakesLibrary.Models.Inventory;
 using PrimeBakesLibrary.Models.Inventory.Stock;
 using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Restuarant.Bill;
+using PrimeBakesLibrary.Restaurant.Bill.Models;
 using PrimeBakesLibrary.Models.Store.Product;
 
-namespace PrimeBakesLibrary.Data.Restaurant.Bill;
+namespace PrimeBakesLibrary.Restaurant.Bill.Data;
 
 public static class BillData
 {

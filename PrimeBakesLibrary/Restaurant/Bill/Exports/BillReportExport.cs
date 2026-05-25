@@ -1,9 +1,9 @@
 using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Restuarant.Bill;
+using PrimeBakesLibrary.Restaurant.Bill.Models;
 
-namespace PrimeBakesLibrary.Exporting.Restaurant.Bill;
+namespace PrimeBakesLibrary.Restaurant.Bill.Exports;
 
 public static class BillReportExport
 {
