@@ -219,13 +219,13 @@ public static class PurchaseReturnData
         if (purchaseReturnOverview.TotalAmount == 0)
             return;
 
-        var accountingCart = new List<FinancialAccountingItemCartModel>();
+        var accountingCart = new List<FinancialAccountingLedgerCartModel>();
 
         if (purchaseReturnOverview.TotalAmount > 0)
             accountingCart.Add(new()
             {
                 ReferenceId = purchaseReturnOverview.Id,
-                ReferenceType = nameof(ReferenceTypes.PurchaseReturn),
+                ReferenceType = nameof(AccountingReferenceTypes.PurchaseReturn),
                 ReferenceNo = purchaseReturnOverview.TransactionNo,
                 LedgerId = purchaseReturnOverview.PartyId,
                 Debit = purchaseReturnOverview.TotalAmount,
@@ -239,7 +239,7 @@ public static class PurchaseReturnData
             accountingCart.Add(new()
             {
                 ReferenceId = purchaseReturnOverview.Id,
-                ReferenceType = nameof(ReferenceTypes.PurchaseReturn),
+                ReferenceType = nameof(AccountingReferenceTypes.PurchaseReturn),
                 ReferenceNo = purchaseReturnOverview.TransactionNo,
                 LedgerId = int.Parse(purchaseLedger.Value),
                 Debit = null,
@@ -254,7 +254,7 @@ public static class PurchaseReturnData
             accountingCart.Add(new()
             {
                 ReferenceId = purchaseReturnOverview.Id,
-                ReferenceType = nameof(ReferenceTypes.PurchaseReturn),
+                ReferenceType = nameof(AccountingReferenceTypes.PurchaseReturn),
                 ReferenceNo = purchaseReturnOverview.TransactionNo,
                 LedgerId = int.Parse(gstLedger.Value),
                 Debit = null,
@@ -285,6 +285,6 @@ public static class PurchaseReturnData
             Status = true
         };
 
-        await FinancialAccountingData.SaveTransaction(accounting, accountingCart, null, false, sqlDataAccessTransaction);
+        await FinancialAccountingData.SaveTransaction(accounting, FinancialAccountingData.ConvertCartToDetails(accountingCart), false, sqlDataAccessTransaction);
     }
 }

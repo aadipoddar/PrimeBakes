@@ -71,7 +71,7 @@ internal static class SaleReturnNotify
     {
         var saleReturn = await CommonData.LoadTableDataById<SaleReturnOverviewModel>(StoreNames.SaleReturnOverview, saleReturnId);
 
-        var emailData = new MailingUtil.TransactionEmailData
+        var emailData = new TransactionMailing.TransactionEmailData
         {
             TransactionType = "Sale Return",
             TransactionNo = saleReturn.TransactionNo,
@@ -108,6 +108,6 @@ internal static class SaleReturnNotify
             emailData.Attachments = new Dictionary<MemoryStream, string> { { pdfStream, pdfFileName } };
         }
 
-        await MailingUtil.SendTransactionEmail(emailData);
+        await TransactionMailing.SendTransactionEmail(emailData);
     }
 }

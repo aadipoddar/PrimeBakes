@@ -47,7 +47,7 @@ internal static class OrderNotify
     {
         var order = await CommonData.LoadTableDataById<OrderOverviewModel>(StoreNames.OrderOverview, orderId);
 
-        var emailData = new MailingUtil.TransactionEmailData
+        var emailData = new TransactionMailing.TransactionEmailData
         {
             TransactionType = "Order",
             TransactionNo = order.TransactionNo,
@@ -84,6 +84,6 @@ internal static class OrderNotify
             emailData.Attachments = new Dictionary<MemoryStream, string> { { pdfStream, pdfFileName } };
         }
 
-        await MailingUtil.SendTransactionEmail(emailData);
+        await TransactionMailing.SendTransactionEmail(emailData);
     }
 }

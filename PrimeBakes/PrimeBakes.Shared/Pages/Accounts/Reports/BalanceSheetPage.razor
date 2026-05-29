@@ -1,24 +1,22 @@
-@attribute [Route(PageRouteNames.BalanceSheetReport)]
-
+﻿@using PrimeBakes.Shared.Components.Card
 @using PrimeBakesLibrary.Accounts.FinancialAccounting.Models
 @using PrimeBakesLibrary.Accounts.Masters.Models
 
-<PageTitle>Balance Sheet - Prime Bakes</PageTitle>
+@attribute [Route(PageRouteNames.BalanceSheetReport)]
 
-<MudBlazor.MudHotkey Key=JsKey.KeyB KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateBack" />
-<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft]
-					 OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(PageRouteNames.FinancialAccounting, FormFactor, JSRuntime, NavigationManager)" />
-<MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadBalanceSheet" />
-<MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadBalanceSheet" />
-<MudBlazor.MudHotkey Key=JsKey.KeyQ KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDetailsView" />
-<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ExportPdf" />
-<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ExportExcel" />
-<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.AltLeft]
-					 OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(PageRouteNames.ProfitAndLossReport, FormFactor, JSRuntime, NavigationManager)" />
+<PageTitle>Balance Sheet - PrimeBakes</PageTitle>
+
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(PageRouteNames.FinancialAccounting, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfFirstFocus.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadBalanceSheet" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadBalanceSheet" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyQ KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDetailsView" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ExportExcel" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ExportPdf" Disabled="@_isProcessing" />
 
 @if (_isLoading)
 {
-	<LoadingScreen Visible="true" />
+	<LoadingScreen />
 }
 else
 {
@@ -26,24 +24,18 @@ else
 		<Header Title="Balance Sheet">
 			<LeftContent>
 				<SfMenu TValue="Syncfusion.Blazor.Navigations.MenuItem">
-					<MenuAnimationSettings Effect="Syncfusion.Blazor.Navigations.MenuEffect.SlideDown" Duration="300"
-										   Easing="ease" />
+					<MenuAnimationSettings Effect="Syncfusion.Blazor.Navigations.MenuEffect.SlideDown" Duration="300" Easing="ease" />
 					<MenuEvents TValue="Syncfusion.Blazor.Navigations.MenuItem" ItemSelected="OnMenuSelected"
 								OnOpen='async () => await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0)' />
 					<MenuItems>
 						<MenuItem Text="File" IconCss="e-icons e-folder">
 							<MenuItems>
-								<MenuItem Text="New Transaction (Ctrl + N)" IconCss="e-icons e-plus" Id="NewTransaction"
-										  Disabled="@_isProcessing" />
-								<MenuItem Text="Refresh Data (Ctrl + R / F5)" IconCss="e-icons e-refresh" Id="Refresh"
-										  Disabled="@_isProcessing" />
-								<MenuItem Text="@(_showAllColumns ? "Hide Details (Ctrl + Q)" : "Show Details (Ctrl + Q)")"
-										  IconCss="e-icons e-table" Id="ToggleDetailsView" Disabled="@_isProcessing" />
+								<MenuItem Text="New Transaction (Ctrl + N)" IconCss="e-icons e-plus" Id="NewTransaction" Disabled="@_isProcessing" />
+								<MenuItem Text="Refresh Data (Ctrl + R / F5)" IconCss="e-icons e-refresh" Id="Refresh" Disabled="@_isProcessing" />
+								<MenuItem Text="@(_showAllColumns ? "Hide Details (Ctrl + Q)" : "Show Details (Ctrl + Q)")" IconCss="e-icons e-table" Id="ToggleDetailsView" Disabled="@_isProcessing" />
 								<MenuItem Separator="true" />
-								<MenuItem Text="Export PDF (Ctrl + P)" IconCss="e-icons e-export-pdf" Id="ExportPdf"
-										  Disabled="@_isProcessing" />
-								<MenuItem Text="Export Excel (Ctrl + E)" IconCss="e-icons e-export-excel" Id="ExportExcel"
-										  Disabled="@_isProcessing" />
+								<MenuItem Text="Export PDF (Ctrl + P)" IconCss="e-icons e-export-pdf" Id="ExportPdf" Disabled="@_isProcessing" />
+								<MenuItem Text="Export Excel (Ctrl + E)" IconCss="e-icons e-export-excel" Id="ExportExcel" Disabled="@_isProcessing" />
 							</MenuItems>
 						</MenuItem>
 						<MenuItem Text="Open" IconCss="e-icons e-folder-open">
@@ -71,9 +63,6 @@ else
 					</MenuItems>
 				</SfMenu>
 			</LeftContent>
-			<RightContent>
-				<IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="NavigateBack" />
-			</RightContent>
 		</Header>
 
 		<!-- Main Content Container -->
@@ -92,30 +81,28 @@ else
 					</div>
 				</div>
 				<div class="section-body">
-					<div class="filters-container">
-						<div class="filters-grid">
-							<!-- Date Range -->
-							<div class="form-field">
-								<label class="field-label">Date Range</label>
-								<SfDateRangePicker CssClass="custom-daterange" StartDate="_fromDate" EndDate="_toDate"
-												   TValue="DateTime" Format="dd/MM/yyyy" AllowEdit="true" Placeholder="Select date range">
-									<DateRangePickerEvents TValue="DateTime" ValueChange="OnDateRangeChanged" />
-								</SfDateRangePicker>
-							</div>
-
-							<!-- Company -->
-							<div class="form-field">
-								<AutoCompleteWithAdd TItem="CompanyModel" TValue="CompanyModel"
-													Value="@_selectedCompany"
-													DataSource="@_companies"
-													Placeholder="All Companies"
-													Label="Company" ValueChange="OnCompanyChanged"
-													FieldValue="@nameof(CompanyModel.Name)"
-													AddNewRoute="@PageRouteNames.CompanyMaster" />
-							</div>
+					<div class="filters-grid">
+						<!-- Date Range -->
+						<div class="form-field">
+							<CustomDateRangePicker @ref="_sfFirstFocus" Value="@(new MudBlazor.DateRange(_fromDate, _toDate))"
+												   ValueChanged="OnDateRangeChanged"
+												   Label="Date Range (Ctrl + F)"
+												   Required="false" />
 						</div>
 
+						<!-- Company -->
+						<div class="form-field">
+							<CustomAutoComplete T="CompanyModel"
+												Value="_selectedCompany"
+												DataSource="@_companies"
+												Placeholder="All Companies"
+												Label="Company" Required="false"
+												FieldValue="@nameof(CompanyModel.Name)"
+												ValueChanged="OnCompanyChanged"
+												AddNewRoute="@PageRouteNames.CompanyMaster" />
+						</div>
 					</div>
+
 				</div>
 			</div>
 
@@ -155,15 +142,13 @@ else
 									Toolbar="@(new List<string>() { "Search" })">
 
 								<GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
-								<GridPageSettings PageSize="20"
-												  PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
+								<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
 								<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
 								<GridAggregates>
 									<GridAggregate>
 										<GridAggregateColumns>
-											<GridAggregateColumn Field="@nameof(TrialBalanceModel.LedgerName)"
-																 Type="AggregateType.Count">
+											<GridAggregateColumn Field="@nameof(TrialBalanceModel.LedgerName)" Type="AggregateType.Count">
 												<FooterTemplate>
 													@{
 														var aggregate = (context as AggregateTemplateContext);
@@ -173,8 +158,7 @@ else
 													</div>
 												</FooterTemplate>
 											</GridAggregateColumn>
-											<GridAggregateColumn Field="@nameof(TrialBalanceModel.OpeningBalance)"
-																 Type="AggregateType.Sum" Format="N2">
+											<GridAggregateColumn Field="@nameof(TrialBalanceModel.OpeningBalance)" Type="AggregateType.Sum" Format="N2">
 												<FooterTemplate>
 													@{
 														var aggregate = (context as AggregateTemplateContext);
@@ -184,8 +168,7 @@ else
 													}
 												</FooterTemplate>
 											</GridAggregateColumn>
-											<GridAggregateColumn Field="@nameof(TrialBalanceModel.Debit)"
-																 Type="AggregateType.Sum" Format="N2">
+											<GridAggregateColumn Field="@nameof(TrialBalanceModel.Debit)" Type="AggregateType.Sum" Format="N2">
 												<FooterTemplate>
 													@{
 														var aggregate = (context as AggregateTemplateContext);
@@ -195,8 +178,7 @@ else
 													}
 												</FooterTemplate>
 											</GridAggregateColumn>
-											<GridAggregateColumn Field="@nameof(TrialBalanceModel.ClosingBalance)"
-																 Type="AggregateType.Sum" Format="N2">
+											<GridAggregateColumn Field="@nameof(TrialBalanceModel.ClosingBalance)" Type="AggregateType.Sum" Format="N2">
 												<FooterTemplate>
 													@{
 														var aggregate = (context as AggregateTemplateContext);
@@ -211,13 +193,9 @@ else
 								</GridAggregates>
 
 								<GridColumns>
-									<GridColumn Field="@nameof(TrialBalanceModel.LedgerName)" HeaderText="Ledger Name"
-												Width="250" />
-									<GridColumn Field="@nameof(TrialBalanceModel.GroupName)" HeaderText="Group" Width="150"
-												Visible="_showAllColumns" />
-									<GridColumn Field="@nameof(TrialBalanceModel.OpeningBalance)"
-												HeaderText="Opening Balance" Width="140" TextAlign="TextAlign.Right"
-												Visible="_showAllColumns">
+									<GridColumn Field="@nameof(TrialBalanceModel.LedgerName)" HeaderText="Ledger Name" Width="250" />
+									<GridColumn Field="@nameof(TrialBalanceModel.GroupName)" HeaderText="Group" Width="150" Visible="_showAllColumns" />
+									<GridColumn Field="@nameof(TrialBalanceModel.OpeningBalance)" HeaderText="Opening Balance" Width="140" TextAlign="TextAlign.Right" Visible="_showAllColumns">
 										<Template>
 											@{
 												var item = (context as TrialBalanceModel);
@@ -225,8 +203,7 @@ else
 											}
 										</Template>
 									</GridColumn>
-									<GridColumn Field="@nameof(TrialBalanceModel.Debit)" HeaderText="Period Debit"
-												Width="140" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+									<GridColumn Field="@nameof(TrialBalanceModel.Debit)" HeaderText="Period Debit" Width="140" TextAlign="TextAlign.Right" Visible="_showAllColumns">
 										<Template>
 											@{
 												var item = (context as TrialBalanceModel);
@@ -234,8 +211,7 @@ else
 											}
 										</Template>
 									</GridColumn>
-									<GridColumn Field="@nameof(TrialBalanceModel.ClosingBalance)"
-												HeaderText="Closing Balance" Width="140" TextAlign="TextAlign.Right">
+									<GridColumn Field="@nameof(TrialBalanceModel.ClosingBalance)" HeaderText="Closing Balance" Width="140" TextAlign="TextAlign.Right">
 										<Template>
 											@{
 												var item = (context as TrialBalanceModel);
@@ -253,8 +229,7 @@ else
 								<svg class="grid-section-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
 									 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
 									 stroke-linecap="round" stroke-linejoin="round">
-									<path
-									d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+									<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
 									<polyline points="7.5 4.21 12 6.81 16.5 4.21" />
 									<polyline points="7.5 19.79 7.5 14.6 3 12" />
 									<polyline points="21 12 16.5 14.6 16.5 19.79" />
@@ -271,15 +246,13 @@ else
 									Toolbar="@(new List<string>() { "Search" })">
 
 								<GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
-								<GridPageSettings PageSize="20"
-												  PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
+								<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
 								<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
 								<GridAggregates>
 									<GridAggregate>
 										<GridAggregateColumns>
-											<GridAggregateColumn Field="@nameof(TrialBalanceModel.LedgerName)"
-																 Type="AggregateType.Count">
+											<GridAggregateColumn Field="@nameof(TrialBalanceModel.LedgerName)" Type="AggregateType.Count">
 												<FooterTemplate>
 													@{
 														var aggregate = (context as AggregateTemplateContext);
@@ -289,8 +262,7 @@ else
 													</div>
 												</FooterTemplate>
 											</GridAggregateColumn>
-											<GridAggregateColumn Field="@nameof(TrialBalanceModel.OpeningBalance)"
-																 Type="AggregateType.Sum" Format="N2">
+											<GridAggregateColumn Field="@nameof(TrialBalanceModel.OpeningBalance)" Type="AggregateType.Sum" Format="N2">
 												<FooterTemplate>
 													@{
 														var aggregate = (context as AggregateTemplateContext);
@@ -300,8 +272,7 @@ else
 													}
 												</FooterTemplate>
 											</GridAggregateColumn>
-											<GridAggregateColumn Field="@nameof(TrialBalanceModel.Credit)"
-																 Type="AggregateType.Sum" Format="N2">
+											<GridAggregateColumn Field="@nameof(TrialBalanceModel.Credit)" Type="AggregateType.Sum" Format="N2">
 												<FooterTemplate>
 													@{
 														var aggregate = (context as AggregateTemplateContext);
@@ -311,8 +282,7 @@ else
 													}
 												</FooterTemplate>
 											</GridAggregateColumn>
-											<GridAggregateColumn Field="@nameof(TrialBalanceModel.ClosingBalance)"
-																 Type="AggregateType.Sum" Format="N2">
+											<GridAggregateColumn Field="@nameof(TrialBalanceModel.ClosingBalance)" Type="AggregateType.Sum" Format="N2">
 												<FooterTemplate>
 													@{
 														var aggregate = (context as AggregateTemplateContext);
@@ -327,13 +297,9 @@ else
 								</GridAggregates>
 
 								<GridColumns>
-									<GridColumn Field="@nameof(TrialBalanceModel.LedgerName)" HeaderText="Ledger Name"
-												Width="250" />
-									<GridColumn Field="@nameof(TrialBalanceModel.GroupName)" HeaderText="Group" Width="150"
-												Visible="_showAllColumns" />
-									<GridColumn Field="@nameof(TrialBalanceModel.OpeningBalance)"
-												HeaderText="Opening Balance" Width="140" TextAlign="TextAlign.Right"
-												Visible="_showAllColumns">
+									<GridColumn Field="@nameof(TrialBalanceModel.LedgerName)" HeaderText="Ledger Name" Width="250" />
+									<GridColumn Field="@nameof(TrialBalanceModel.GroupName)" HeaderText="Group" Width="150" Visible="_showAllColumns" />
+									<GridColumn Field="@nameof(TrialBalanceModel.OpeningBalance)" HeaderText="Opening Balance" Width="140" TextAlign="TextAlign.Right" Visible="_showAllColumns">
 										<Template>
 											@{
 												var item = (context as TrialBalanceModel);
@@ -341,8 +307,7 @@ else
 											}
 										</Template>
 									</GridColumn>
-									<GridColumn Field="@nameof(TrialBalanceModel.Credit)" HeaderText="Period Credit"
-												Width="140" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+									<GridColumn Field="@nameof(TrialBalanceModel.Credit)" HeaderText="Period Credit" Width="140" TextAlign="TextAlign.Right" Visible="_showAllColumns">
 										<Template>
 											@{
 												var item = (context as TrialBalanceModel);
@@ -350,8 +315,7 @@ else
 											}
 										</Template>
 									</GridColumn>
-									<GridColumn Field="@nameof(TrialBalanceModel.ClosingBalance)"
-												HeaderText="Closing Balance" Width="140" TextAlign="TextAlign.Right">
+									<GridColumn Field="@nameof(TrialBalanceModel.ClosingBalance)" HeaderText="Closing Balance" Width="140" TextAlign="TextAlign.Right">
 										<Template>
 											@{
 												var item = (context as TrialBalanceModel);
@@ -415,8 +379,7 @@ else
 								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
 									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
 									 stroke-linejoin="round">
-									<path
-									d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+									<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
 								</svg>
 							</Icon>
 						</BalanceInfoCard>
@@ -458,6 +421,8 @@ else
 }
 
 <ToastNotification @ref="_toastNotification" />
+
+<NavigationLock ConfirmExternalNavigation="@_isProcessing" />
 
 <style>
 	.dual-grid-container {

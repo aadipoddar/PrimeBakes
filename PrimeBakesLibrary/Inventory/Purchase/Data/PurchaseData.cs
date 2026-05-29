@@ -226,13 +226,13 @@ public static class PurchaseData
         if (purchaseOverview.TotalAmount == 0)
             return;
 
-        var accountingCart = new List<FinancialAccountingItemCartModel>();
+        var accountingCart = new List<FinancialAccountingLedgerCartModel>();
 
         if (purchaseOverview.TotalAmount > 0)
             accountingCart.Add(new()
             {
                 ReferenceId = purchaseOverview.Id,
-                ReferenceType = nameof(ReferenceTypes.Purchase),
+                ReferenceType = nameof(AccountingReferenceTypes.Purchase),
                 ReferenceNo = purchaseOverview.TransactionNo,
                 LedgerId = purchaseOverview.PartyId,
                 Debit = null,
@@ -246,7 +246,7 @@ public static class PurchaseData
             accountingCart.Add(new()
             {
                 ReferenceId = purchaseOverview.Id,
-                ReferenceType = nameof(ReferenceTypes.Purchase),
+                ReferenceType = nameof(AccountingReferenceTypes.Purchase),
                 ReferenceNo = purchaseOverview.TransactionNo,
                 LedgerId = int.Parse(purchaseLedger.Value),
                 Debit = purchaseOverview.TotalAmount - purchaseOverview.TotalExtraTaxAmount,
@@ -261,7 +261,7 @@ public static class PurchaseData
             accountingCart.Add(new()
             {
                 ReferenceId = purchaseOverview.Id,
-                ReferenceType = nameof(ReferenceTypes.Purchase),
+                ReferenceType = nameof(AccountingReferenceTypes.Purchase),
                 ReferenceNo = purchaseOverview.TransactionNo,
                 LedgerId = int.Parse(gstLedger.Value),
                 Debit = purchaseOverview.TotalExtraTaxAmount,
@@ -292,7 +292,7 @@ public static class PurchaseData
             Status = true
         };
 
-        await FinancialAccountingData.SaveTransaction(accounting, accountingCart, null, false, sqlDataAccessTransaction);
+        await FinancialAccountingData.SaveTransaction(accounting, FinancialAccountingData.ConvertCartToDetails(accountingCart), false, sqlDataAccessTransaction);
     }
 
     private static async Task UpdateRawMaterialRateAndUOMOnPurchase(List<PurchaseDetailModel> purchaseDetails, SqlDataAccessTransaction sqlDataAccessTransaction)

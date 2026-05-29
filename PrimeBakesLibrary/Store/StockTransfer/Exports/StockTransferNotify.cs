@@ -54,7 +54,7 @@ internal static class StockTransferNotify
     {
         var stockTransfer = await CommonData.LoadTableDataById<StockTransferOverviewModel>(StoreNames.StockTransferOverview, stockTransferId);
 
-        var emailData = new MailingUtil.TransactionEmailData
+        var emailData = new TransactionMailing.TransactionEmailData
         {
             TransactionType = "Stock Transfer",
             TransactionNo = stockTransfer.TransactionNo,
@@ -91,6 +91,6 @@ internal static class StockTransferNotify
             emailData.Attachments = new Dictionary<MemoryStream, string> { { pdfStream, pdfFileName } };
         }
 
-        await MailingUtil.SendTransactionEmail(emailData);
+        await TransactionMailing.SendTransactionEmail(emailData);
     }
 }

@@ -1,0 +1,76 @@
+﻿/* SfDialog renders its own chrome (.e-dlg-*) which is outside this
+   component's scope, so reach it through the .cd-scope wrapper with ::deep. */
+::deep .confirm-dialog .e-dlg-header-content {
+	padding: 12px 16px;
+	border-bottom: 1px solid #e2e8f0;
+}
+
+::deep .confirm-dialog .e-dlg-content {
+	padding: 0;
+}
+
+.cd-header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 14px;
+	font-weight: 600;
+	color: #0f172a;
+}
+
+.cd-body {
+	padding: 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.cd-note {
+	margin: 0;
+	font-size: 13px;
+	line-height: 1.5;
+	color: #475569;
+}
+
+.cd-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	margin-top: 4px;
+}
+
+.cd-btn {
+	padding: 7px 16px;
+	border-radius: 6px;
+	font-size: 13px;
+	font-weight: 500;
+	cursor: pointer;
+	border: 1px solid transparent;
+	transition: background-color 0.15s ease, border-color 0.15s ease;
+	min-width: 80px;
+}
+
+	.cd-btn:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+
+.cd-btn-cancel {
+	background: #ffffff;
+	color: #475569;
+	border-color: #cbd5e1;
+}
+
+	.cd-btn-cancel:hover:not(:disabled) {
+		background: #f1f5f9;
+		border-color: #94a3b8;
+	}
+
+.cd-btn-confirm {
+	background: var(--primary-blue, #2563eb);
+	color: #ffffff;
+}
+
+	.cd-btn-confirm:hover:not(:disabled) {
+		filter: brightness(0.93);
+	}

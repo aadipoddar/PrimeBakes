@@ -1,4 +1,4 @@
-namespace PrimeBakesLibrary.Accounts.Masters.Models;
+﻿namespace PrimeBakesLibrary.Accounts.Masters.Models;
 
 public class NatureModel
 {

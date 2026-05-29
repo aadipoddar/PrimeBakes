@@ -48,7 +48,7 @@ internal static class PurchaseReturnNotify
     {
         var purchaseReturn = await CommonData.LoadTableDataById<PurchaseReturnOverviewModel>(InventoryNames.PurchaseReturnOverview, purchaseReturnId);
 
-        var emailData = new MailingUtil.TransactionEmailData
+        var emailData = new TransactionMailing.TransactionEmailData
         {
             TransactionType = "Purchase Return",
             TransactionNo = purchaseReturn.ChallanNo,
@@ -87,6 +87,6 @@ internal static class PurchaseReturnNotify
             emailData.Attachments = new Dictionary<MemoryStream, string> { { pdfStream, pdfFileName } };
         }
 
-        await MailingUtil.SendTransactionEmail(emailData);
+        await TransactionMailing.SendTransactionEmail(emailData);
     }
 }

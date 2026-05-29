@@ -25,22 +25,22 @@ BEGIN
 	BEGIN
 		INSERT INTO [dbo].[FinancialAccounting]
 		(
-			TransactionNo,
-			CompanyId,
-			VoucherId,
-			ReferenceId,
-			ReferenceNo,
-			TransactionDateTime,
-			FinancialYearId,
-			TotalDebitLedgers,
-			TotalCreditLedgers,
-			TotalDebitAmount,
-			TotalCreditAmount,
-			Remarks,
-			CreatedBy,
-			CreatedAt,
-			CreatedFromPlatform,
-			Status
+			[TransactionNo],
+			[CompanyId],
+			[VoucherId],
+			[ReferenceId],
+			[ReferenceNo],
+			[TransactionDateTime],
+			[FinancialYearId],
+			[TotalDebitLedgers],
+			[TotalCreditLedgers],
+			[TotalDebitAmount],
+			[TotalCreditAmount],
+			[Remarks],
+			[CreatedBy],
+			[CreatedAt],
+			[CreatedFromPlatform],
+			[Status]
 		) VALUES
 		(
 			@TransactionNo,
@@ -68,23 +68,24 @@ BEGIN
 	BEGIN
 		UPDATE [dbo].[FinancialAccounting]
 		SET
-			TransactionNo = @TransactionNo,
-			CompanyId = @CompanyId,
-			VoucherId = @VoucherId,
-			ReferenceId = @ReferenceId,
-			ReferenceNo = @ReferenceNo,
-			TransactionDateTime = @TransactionDateTime,
-			FinancialYearId = @FinancialYearId,
-			TotalDebitLedgers = @TotalDebitLedgers,
-			TotalCreditLedgers = @TotalCreditLedgers,
-			TotalDebitAmount = @TotalDebitAmount,
-			TotalCreditAmount = @TotalCreditAmount,
-			Remarks = @Remarks,
-			Status = @Status,
-			LastModifiedBy = @LastModifiedBy,
-			LastModifiedAt = @LastModifiedAt,
-			LastModifiedFromPlatform = @LastModifiedFromPlatform
-		WHERE Id = @Id
+			[TransactionNo] = @TransactionNo,
+			[CompanyId] = @CompanyId,
+			[VoucherId] = @VoucherId,
+			[ReferenceId] = @ReferenceId,
+			[ReferenceNo] = @ReferenceNo,
+			[TransactionDateTime] = @TransactionDateTime,
+			[FinancialYearId] = @FinancialYearId,
+			[TotalDebitLedgers] = @TotalDebitLedgers,
+			[TotalCreditLedgers] = @TotalCreditLedgers,
+			[TotalDebitAmount] = @TotalDebitAmount,
+			[TotalCreditAmount] = @TotalCreditAmount,
+			[Remarks] = @Remarks,
+			[Status] = @Status,
+			[LastModifiedBy] = @LastModifiedBy,
+			[LastModifiedAt] = @LastModifiedAt,
+			[LastModifiedFromPlatform] = @LastModifiedFromPlatform
+		WHERE
+			[Id] = @Id
 	END
 
 	SELECT @Id AS Id

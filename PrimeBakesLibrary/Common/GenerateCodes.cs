@@ -1,13 +1,12 @@
-using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.Operations.Settings.Data;
 using PrimeBakesLibrary.Accounts.FinancialAccounting.Models;
+using PrimeBakesLibrary.Accounts.Masters.Data;
 using PrimeBakesLibrary.Accounts.Masters.Models;
-using PrimeBakesLibrary.Inventory.RawMaterial.Models;
 using PrimeBakesLibrary.Inventory.Kitchen.Models;
 using PrimeBakesLibrary.Inventory.Purchase.Models;
+using PrimeBakesLibrary.Inventory.RawMaterial.Models;
 using PrimeBakesLibrary.Operations.Location.Models;
+using PrimeBakesLibrary.Operations.Settings.Data;
 using PrimeBakesLibrary.Operations.Settings.Models;
-using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Restaurant.Bill.Models;
 using PrimeBakesLibrary.Store.Order.Models;
 using PrimeBakesLibrary.Store.Product.Models;
@@ -95,7 +94,7 @@ public static class GenerateCodes
 		return code;
 	}
 
-	public static async Task<string> GenerateAccountingTransactionNo(FinancialAccountingModel accounting, SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	public static async Task<string> GenerateFinancialAccountingTransactionNo(FinancialAccountingModel accounting, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, accounting.FinancialYearId, sqlDataAccessTransaction);
 		var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, 1, sqlDataAccessTransaction)).Code;

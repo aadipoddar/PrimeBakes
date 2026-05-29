@@ -123,7 +123,7 @@ internal static class BillNotify
 			? users.FirstOrDefault(u => u.Id == bill.LastModifiedBy.Value)?.Name
 			: null;
 
-		var emailData = new MailingUtil.TransactionEmailData
+		var emailData = new TransactionMailing.TransactionEmailData
 		{
 			TransactionType = "Bill",
 			TransactionNo = bill.TransactionNo,
@@ -161,6 +161,6 @@ internal static class BillNotify
 			emailData.Attachments = new Dictionary<MemoryStream, string> { { pdfStream, pdfFileName } };
 		}
 
-		await MailingUtil.SendTransactionEmail(emailData);
+		await TransactionMailing.SendTransactionEmail(emailData);
 	}
 }

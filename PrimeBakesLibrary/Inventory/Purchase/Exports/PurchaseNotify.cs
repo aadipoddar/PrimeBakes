@@ -48,7 +48,7 @@ internal static class PurchaseNotify
     {
         var purchase = await CommonData.LoadTableDataById<PurchaseOverviewModel>(InventoryNames.PurchaseOverview, purchaseId);
 
-        var emailData = new MailingUtil.TransactionEmailData
+        var emailData = new TransactionMailing.TransactionEmailData
         {
             TransactionType = "Purchase",
             TransactionNo = purchase.ChallanNo,
@@ -87,6 +87,6 @@ internal static class PurchaseNotify
             emailData.Attachments = new Dictionary<MemoryStream, string> { { pdfStream, pdfFileName } };
         }
 
-        await MailingUtil.SendTransactionEmail(emailData);
+        await TransactionMailing.SendTransactionEmail(emailData);
     }
 }

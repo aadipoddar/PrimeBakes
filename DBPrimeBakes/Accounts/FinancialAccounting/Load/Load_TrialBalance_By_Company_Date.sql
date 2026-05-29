@@ -17,7 +17,7 @@ BEGIN
 			SUM(ISNULL(ad.Debit, 0)) AS OpeningDebit,
 			SUM(ISNULL(ad.Credit, 0)) AS OpeningCredit
 		FROM 
-			[FinancialAccountingDetail] ad
+			[FinancialAccountingLedger] ad
 		INNER JOIN 
 			[FinancialAccounting] a ON ad.[MasterId] = a.Id
 		WHERE 
@@ -35,7 +35,7 @@ BEGIN
 			SUM(ISNULL(ad.Debit, 0)) AS PeriodDebit,
 			SUM(ISNULL(ad.Credit, 0)) AS PeriodCredit
 		FROM 
-			[FinancialAccountingDetail] ad
+			[FinancialAccountingLedger] ad
 		INNER JOIN 
 			[FinancialAccounting] a ON ad.[MasterId] = a.Id
 		WHERE

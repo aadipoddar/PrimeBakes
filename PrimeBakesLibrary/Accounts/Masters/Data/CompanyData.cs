@@ -1,6 +1,5 @@
 using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Common;
-using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Operations.AuditTrail.Data;
 using PrimeBakesLibrary.Operations.AuditTrail.Models;
 
@@ -80,20 +79,6 @@ public static class CompanyData
 		var existingByCode = allCompanies.FirstOrDefault(x => x.Id != item.Id && x.Code.Equals(item.Code, StringComparison.OrdinalIgnoreCase));
 		if (existingByCode is not null)
 			throw new Exception($"Company code '{item.Code}' already exists. Please choose a different code.");
-
-		if (!string.IsNullOrWhiteSpace(item.Phone))
-		{
-			var duplicatePhone = allCompanies.FirstOrDefault(x => x.Id != item.Id && x.Phone != null && x.Phone.Equals(item.Phone, StringComparison.OrdinalIgnoreCase));
-			if (duplicatePhone is not null)
-				throw new Exception($"Phone number '{item.Phone}' is already associated with another company. Please use a different phone number.");
-		}
-
-		if (!string.IsNullOrWhiteSpace(item.Email))
-		{
-			var duplicateEmail = allCompanies.FirstOrDefault(x => x.Id != item.Id && x.Email != null && x.Email.Equals(item.Email, StringComparison.OrdinalIgnoreCase));
-			if (duplicateEmail is not null)
-				throw new Exception($"Email '{item.Email}' is already associated with another company. Please use a different email address.");
-		}
 	}
 
 	public static async Task<int> SaveTransaction(CompanyModel company, int userId, string platform)

@@ -1,6 +1,5 @@
 using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Common;
-using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Operations.AuditTrail.Data;
 using PrimeBakesLibrary.Operations.AuditTrail.Models;
 using PrimeBakesLibrary.Operations.Location.Models;
@@ -13,10 +12,10 @@ public static class LedgerData
 		(await SqlDataAccess.LoadData<int, dynamic>(AccountNames.InsertLedger, ledger, transaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Ledger.");
 
-	public static async Task<LedgerModel> LoadLedgerByLocationId(int locationId, SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	public static async Task<LedgerModel> LoadLedgerByLocationId(int locationId, SqlDataAccessTransaction transaction = null)
 	{
-		var location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, locationId, sqlDataAccessTransaction);
-		return await CommonData.LoadTableDataById<LedgerModel>(AccountNames.Ledger, location.LedgerId, sqlDataAccessTransaction);
+		var location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, locationId, transaction);
+		return await CommonData.LoadTableDataById<LedgerModel>(AccountNames.Ledger, location.LedgerId, transaction);
 	}
 
 	public static async Task DeleteTransaction(LedgerModel ledger, int userId, string platform) =>

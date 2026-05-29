@@ -48,7 +48,7 @@ internal static class KitchenIssueNotify
     {
         var kitchenIssue = await CommonData.LoadTableDataById<KitchenIssueOverviewModel>(InventoryNames.KitchenIssueOverview, kitchenIssueId);
 
-        var emailData = new MailingUtil.TransactionEmailData
+        var emailData = new TransactionMailing.TransactionEmailData
         {
             TransactionType = "Kitchen Issue",
             TransactionNo = kitchenIssue.TransactionNo,
@@ -86,6 +86,6 @@ internal static class KitchenIssueNotify
             emailData.Attachments = new Dictionary<MemoryStream, string> { { pdfStream, pdfFileName } };
         }
 
-        await MailingUtil.SendTransactionEmail(emailData);
+        await TransactionMailing.SendTransactionEmail(emailData);
     }
 }

@@ -1,7 +1,7 @@
 ﻿CREATE TABLE [dbo].[Ledger]
 (
 	[Id] INT NOT NULL PRIMARY KEY IDENTITY, 
-    [Name] VARCHAR(500) NOT NULL, 
+    [Name] VARCHAR(250) NOT NULL, 
     [GroupId] INT NOT NULL, 
     [AccountTypeId] INT NOT NULL, 
     [Code] VARCHAR(10) NOT NULL UNIQUE, 
@@ -10,7 +10,7 @@
     [PANNo] VARCHAR(MAX) NULL,
     [CINNo] VARCHAR(MAX) NULL,
     [Alias] VARCHAR(MAX) NULL, 
-    [Phone] VARCHAR(20) NULL, 
+    [Phone] VARCHAR(10) NULL, 
     [Email] VARCHAR(MAX) NULL, 
     [Address] VARCHAR(MAX) NULL, 
     [Remarks] VARCHAR(MAX) NULL, 

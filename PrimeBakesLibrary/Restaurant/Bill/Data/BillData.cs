@@ -347,7 +347,7 @@ public static class BillData
 		if (billOverview.TotalAmount == 0)
 			return;
 
-		var accountingCart = new List<FinancialAccountingItemCartModel>();
+		var accountingCart = new List<FinancialAccountingLedgerCartModel>();
 
 		if (billOverview.Cash + billOverview.UPI + billOverview.Card + billOverview.Credit > 0)
 		{
@@ -355,7 +355,7 @@ public static class BillData
 			accountingCart.Add(new()
 			{
 				ReferenceId = billOverview.Id,
-				ReferenceType = nameof(ReferenceTypes.Bill),
+				ReferenceType = nameof(AccountingReferenceTypes.Bill),
 				ReferenceNo = billOverview.TransactionNo,
 				LedgerId = int.Parse(cashLedger.Value),
 				Debit = billOverview.Cash + billOverview.UPI + billOverview.Card + billOverview.Credit,
@@ -370,7 +370,7 @@ public static class BillData
 			accountingCart.Add(new()
 			{
 				ReferenceId = billOverview.Id,
-				ReferenceType = nameof(ReferenceTypes.Bill),
+				ReferenceType = nameof(AccountingReferenceTypes.Bill),
 				ReferenceNo = billOverview.TransactionNo,
 				LedgerId = int.Parse(billLedger.Value),
 				Debit = null,
@@ -385,7 +385,7 @@ public static class BillData
 			accountingCart.Add(new()
 			{
 				ReferenceId = billOverview.Id,
-				ReferenceType = nameof(ReferenceTypes.Bill),
+				ReferenceType = nameof(AccountingReferenceTypes.Bill),
 				ReferenceNo = billOverview.TransactionNo,
 				LedgerId = int.Parse(gstLedger.Value),
 				Debit = null,
@@ -416,7 +416,7 @@ public static class BillData
 			Status = true
 		};
 
-		await FinancialAccountingData.SaveTransaction(accounting, accountingCart, null, false, sqlDataAccessTransaction);
+		await FinancialAccountingData.SaveTransaction(accounting, FinancialAccountingData.ConvertCartToDetails(accountingCart), false, sqlDataAccessTransaction);
 	}
 
 	public static async Task PostDayBills(DateTime postingDate, int locationId, int userId, string userPlatform)
@@ -438,7 +438,7 @@ public static class BillData
 		if (bills.Count == 0)
 			return;
 
-		var accountingCart = new List<FinancialAccountingItemCartModel>();
+		var accountingCart = new List<FinancialAccountingLedgerCartModel>();
 
 		var totalAmount = bills.Sum(b => b.Cash + b.UPI + b.Card + b.Credit);
 		var totalExtraTaxAmount = bills.Sum(b => b.TotalExtraTaxAmount);
@@ -510,7 +510,7 @@ public static class BillData
 		{
 			sqlDataAccessTransaction.StartTransaction();
 
-			accounting.Id = await FinancialAccountingData.SaveTransaction(accounting, accountingCart, null, false, sqlDataAccessTransaction);
+			accounting.Id = await FinancialAccountingData.SaveTransaction(accounting, FinancialAccountingData.ConvertCartToDetails(accountingCart), false, sqlDataAccessTransaction);
 
 			foreach (var billOverview in bills)
 			{

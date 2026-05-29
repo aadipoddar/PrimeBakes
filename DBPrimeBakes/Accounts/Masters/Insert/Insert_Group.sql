@@ -1,6 +1,6 @@
 ﻿CREATE PROCEDURE [dbo].[Insert_Group]
 	@Id INT OUTPUT,
-	@Name VARCHAR(500),
+	@Name VARCHAR(250),
 	@NatureId INT,
 	@Remarks VARCHAR(MAX),
 	@Status BIT
@@ -33,7 +33,8 @@ BEGIN
 			[NatureId] = @NatureId,
 			[Remarks] = @Remarks,
 			[Status] = @Status
-		WHERE [Id] = @Id;
+		WHERE
+			[Id] = @Id;
 	END
 
 	SELECT @Id AS Id;

@@ -1,0 +1,17 @@
+﻿@using MudBlazor
+
+<div class="ccb-root" @onfocusin="OnFocusIn" @onfocusout="OnFocusOut">
+	<MudCheckBox T="bool"
+				 Value="Value"
+				 ValueChanged="OnValueChangedInternal"
+				 Label="@Label"
+				 AriaLabel="@(string.IsNullOrWhiteSpace(AriaLabel) ? Label : AriaLabel)"
+				 Color="@Color"
+				 Size="@Size"
+				 Dense="@Dense"
+				 Disabled="@Disabled"
+				 ReadOnly="@ReadOnly"
+				 Required="@Required"
+				 RequiredError=""
+				 Class="@(ReadOnly ? "ccb-readonly" : null)" />
+</div>

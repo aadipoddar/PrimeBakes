@@ -1,4 +1,4 @@
-﻿CREATE TABLE [dbo].[FinancialAccountingDetail]
+﻿CREATE TABLE [dbo].[FinancialAccountingLedger]
 (
 	[Id] INT NOT NULL PRIMARY KEY IDENTITY, 
     [MasterId] INT NOT NULL,
@@ -10,7 +10,7 @@
     [Credit] MONEY NULL, 
     [Remarks] VARCHAR(MAX) NULL, 
     [Status] BIT NOT NULL DEFAULT 1, 
-    CONSTRAINT [FK_FinancialAccountingDetails_ToAccounting] FOREIGN KEY ([MasterId]) REFERENCES [FinancialAccounting](Id), 
-    CONSTRAINT [FK_FinancialAccountingDetails_ToLedger] FOREIGN KEY (LedgerId) REFERENCES [Ledger](Id)
+    CONSTRAINT [FK_FinancialAccountingLedger_ToAccounting] FOREIGN KEY ([MasterId]) REFERENCES [FinancialAccounting]([Id]), 
+    CONSTRAINT [FK_FinancialAccountingLedger_ToLedger] FOREIGN KEY ([LedgerId]) REFERENCES [Ledger]([Id])
 
 )

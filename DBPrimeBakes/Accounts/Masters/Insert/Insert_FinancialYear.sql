@@ -41,7 +41,8 @@ BEGIN
 			[Remarks] = @Remarks,
 			[Locked] = @Locked,
 			[Status] = @Status
-		WHERE [Id] = @Id;
+		WHERE
+			[Id] = @Id;
 	END
 
 	SELECT @Id AS Id;

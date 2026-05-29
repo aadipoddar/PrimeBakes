@@ -334,7 +334,7 @@ public static class SaleData
 		if (saleOverview.TotalAmount == 0)
 			return;
 
-		var accountingCart = new List<FinancialAccountingItemCartModel>();
+		var accountingCart = new List<FinancialAccountingLedgerCartModel>();
 
 		if (saleOverview.Cash + saleOverview.UPI + saleOverview.Card > 0)
 		{
@@ -342,7 +342,7 @@ public static class SaleData
 			accountingCart.Add(new()
 			{
 				ReferenceId = saleOverview.Id,
-				ReferenceType = nameof(ReferenceTypes.Sale),
+				ReferenceType = nameof(AccountingReferenceTypes.Sale),
 				ReferenceNo = saleOverview.TransactionNo,
 				LedgerId = int.Parse(cashLedger.Value),
 				Debit = saleOverview.Cash + saleOverview.UPI + saleOverview.Card,
@@ -355,7 +355,7 @@ public static class SaleData
 			accountingCart.Add(new()
 			{
 				ReferenceId = saleOverview.Id,
-				ReferenceType = nameof(ReferenceTypes.Sale),
+				ReferenceType = nameof(AccountingReferenceTypes.Sale),
 				ReferenceNo = saleOverview.TransactionNo,
 				LedgerId = saleOverview.PartyId.Value,
 				Debit = saleOverview.Credit,
@@ -369,7 +369,7 @@ public static class SaleData
 			accountingCart.Add(new()
 			{
 				ReferenceId = saleOverview.Id,
-				ReferenceType = nameof(ReferenceTypes.Sale),
+				ReferenceType = nameof(AccountingReferenceTypes.Sale),
 				ReferenceNo = saleOverview.TransactionNo,
 				LedgerId = int.Parse(saleLedger.Value),
 				Debit = null,
@@ -384,7 +384,7 @@ public static class SaleData
 			accountingCart.Add(new()
 			{
 				ReferenceId = saleOverview.Id,
-				ReferenceType = nameof(ReferenceTypes.Sale),
+				ReferenceType = nameof(AccountingReferenceTypes.Sale),
 				ReferenceNo = saleOverview.TransactionNo,
 				LedgerId = int.Parse(gstLedger.Value),
 				Debit = null,
@@ -415,7 +415,7 @@ public static class SaleData
 			Status = true
 		};
 
-		await FinancialAccountingData.SaveTransaction(accounting, accountingCart, null, false, sqlDataAccessTransaction);
+		await FinancialAccountingData.SaveTransaction(accounting, FinancialAccountingData.ConvertCartToDetails(accountingCart), false, sqlDataAccessTransaction);
 	}
 
 	public static async Task PostDaySales(DateTime postingDate, int locationId, int userId, string userPlatform)
@@ -436,7 +436,7 @@ public static class SaleData
 		if (sales.Count == 0)
 			return;
 
-		var accountingCart = new List<FinancialAccountingItemCartModel>();
+		var accountingCart = new List<FinancialAccountingLedgerCartModel>();
 
 		var totalAmount = sales.Sum(s => s.Cash + s.UPI + s.Card + s.Credit);
 		var totalExtraTaxAmount = sales.Sum(s => s.TotalExtraTaxAmount);
@@ -508,7 +508,7 @@ public static class SaleData
 		{
 			sqlDataAccessTransaction.StartTransaction();
 
-			accounting.Id = await FinancialAccountingData.SaveTransaction(accounting, accountingCart, null, false, sqlDataAccessTransaction);
+			accounting.Id = await FinancialAccountingData.SaveTransaction(accounting, FinancialAccountingData.ConvertCartToDetails(accountingCart), false, sqlDataAccessTransaction);
 
 			foreach (var sale in sales)
 			{

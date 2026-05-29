@@ -1,0 +1,39 @@
+﻿@using MudBlazor
+@typeparam T
+
+@if (_isFocused && AddNewRoute is not null && !Disabled)
+{
+	<MudHotkey Key="JsKey.F12" OnHotkeyPressed="NavigateToAddNew" />
+}
+
+<div @onfocusin="OnFocusIn" @onfocusout="OnFocusOut">
+	<MudAutocomplete T="T"
+					 @ref="_autocomplete"
+					 Value="Value"
+					 ValueChanged="OnValueChangedInternal"
+					 SearchFunc="SearchAsync"
+					 ToStringFunc="DisplayText"
+					 Label="@Label"
+					 Placeholder="@Placeholder"
+					 Required="@Required"
+					 RequiredError=""
+					 ErrorText=""
+					 Disabled="@Disabled"
+					 Margin="MudBlazor.Margin.Dense"
+					 Dense="true"
+					 Variant="MudBlazor.Variant.Outlined"
+					 SelectValueOnTab="true"
+					 OpenOnFocus="OpenOnFocus"
+					 ResetValueOnEmptyText="Required"
+					 CoerceText="true"
+					 Clearable="!Required"
+					 MaxItems="20"
+					 ShowProgressIndicator="true"
+					 DebounceInterval="100"
+					 Adornment="@(ShowAddNew ? Adornment.End : Adornment.None)"
+					 AdornmentIcon="@(ShowAddNew ? Icons.Material.Filled.Add: null)"
+					 AdornmentColor="Color.Primary"
+					 IconSize="Size.Small"
+					 OnAdornmentClick="NavigateToAddNew"
+					 AdornmentAriaLabel="@AddNewLabel" />
+</div>

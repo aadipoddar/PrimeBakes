@@ -305,7 +305,7 @@ public static class SaleReturnData
         if (saleReturnOverview.TotalAmount == 0)
             return;
 
-        var accountingCart = new List<FinancialAccountingItemCartModel>();
+        var accountingCart = new List<FinancialAccountingLedgerCartModel>();
 
         if (saleReturn.LocationId == 1)
         {
@@ -315,7 +315,7 @@ public static class SaleReturnData
                 accountingCart.Add(new()
                 {
                     ReferenceId = saleReturnOverview.Id,
-                    ReferenceType = nameof(ReferenceTypes.SaleReturn),
+                    ReferenceType = nameof(AccountingReferenceTypes.SaleReturn),
                     ReferenceNo = saleReturnOverview.TransactionNo,
                     LedgerId = int.Parse(cashLedger.Value),
                     Debit = null,
@@ -328,7 +328,7 @@ public static class SaleReturnData
                 accountingCart.Add(new()
                 {
                     ReferenceId = saleReturnOverview.Id,
-                    ReferenceType = nameof(ReferenceTypes.SaleReturn),
+                    ReferenceType = nameof(AccountingReferenceTypes.SaleReturn),
                     ReferenceNo = saleReturnOverview.TransactionNo,
                     LedgerId = saleReturnOverview.PartyId.Value,
                     Debit = null,
@@ -344,7 +344,7 @@ public static class SaleReturnData
                 accountingCart.Add(new()
                 {
                     ReferenceId = saleReturnOverview.Id,
-                    ReferenceType = nameof(ReferenceTypes.SaleReturn),
+                    ReferenceType = nameof(AccountingReferenceTypes.SaleReturn),
                     ReferenceNo = saleReturnOverview.TransactionNo,
                     LedgerId = ledger.Id,
                     Debit = null,
@@ -360,7 +360,7 @@ public static class SaleReturnData
             accountingCart.Add(new()
             {
                 ReferenceId = saleReturnOverview.Id,
-                ReferenceType = nameof(ReferenceTypes.SaleReturn),
+                ReferenceType = nameof(AccountingReferenceTypes.SaleReturn),
                 ReferenceNo = saleReturnOverview.TransactionNo,
                 LedgerId = int.Parse(saleLedger.Value),
                 Debit = saleReturnOverview.TotalAmount - saleReturnOverview.TotalExtraTaxAmount,
@@ -375,7 +375,7 @@ public static class SaleReturnData
             accountingCart.Add(new()
             {
                 ReferenceId = saleReturnOverview.Id,
-                ReferenceType = nameof(ReferenceTypes.SaleReturn),
+                ReferenceType = nameof(AccountingReferenceTypes.SaleReturn),
                 ReferenceNo = saleReturnOverview.TransactionNo,
                 LedgerId = int.Parse(gstLedger.Value),
                 Debit = saleReturnOverview.TotalExtraTaxAmount,
@@ -406,6 +406,6 @@ public static class SaleReturnData
             Status = true
         };
 
-        await FinancialAccountingData.SaveTransaction(accounting, accountingCart, null, false, sqlDataAccessTransaction);
+        await FinancialAccountingData.SaveTransaction(accounting, FinancialAccountingData.ConvertCartToDetails(accountingCart), false, sqlDataAccessTransaction);
     }
 }

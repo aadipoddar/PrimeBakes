@@ -86,7 +86,7 @@ internal static class RawMaterialStockAdjustmentNotify
         var rawMaterialCode = rawMaterial?.Code ?? "N/A";
         var uom = rawMaterial?.UnitOfMeasurement ?? "N/A";
 
-        var emailData = new MailingUtil.TransactionEmailData
+        var emailData = new TransactionMailing.TransactionEmailData
         {
             TransactionType = "Raw Material Stock Adjustment",
             TransactionNo = stock.TransactionNo,
@@ -105,6 +105,6 @@ internal static class RawMaterialStockAdjustmentNotify
             Remarks = null
         };
 
-        await MailingUtil.SendTransactionEmail(emailData);
+        await TransactionMailing.SendTransactionEmail(emailData);
     }
 }

@@ -6,125 +6,125 @@ using PrimeBakesLibrary.Utils.NotificationUtils;
 
 namespace PrimeBakesLibrary.Utils.MailUtils;
 
-internal static class MailingUtil
+internal static class TransactionMailing
 {
-    private static async Task SendEmail(string subject, string htmlBody, Dictionary<MemoryStream, string>? attachments = null)
-    {
-        if (SqlDataAccess._databaseConnection != Secrets.AzureConnectionString)
-            return; // Do not send emails in local/dev environment
+	private static async Task SendEmail(string subject, string htmlBody, Dictionary<MemoryStream, string>? attachments = null)
+	{
+		if (SqlDataAccess._databaseConnection != Secrets.AzureConnectionString)
+			return; // Do not send emails in local/dev environment
 
-        var message = new MimeMessage();
-        message.From.Add(new MailboxAddress("AadiSoft", Secrets.Email));
-        message.To.Add(new MailboxAddress(Secrets.ToName, Secrets.ToEmail));
-        message.Subject = subject;
+		var message = new MimeMessage();
+		message.From.Add(new MailboxAddress("AadiSoft", Secrets.Email));
+		message.To.Add(new MailboxAddress(Secrets.ToName, Secrets.ToEmail));
+		message.Subject = subject;
 
-        var bodyBuilder = new BodyBuilder
-        {
-            HtmlBody = htmlBody
-        };
+		var bodyBuilder = new BodyBuilder
+		{
+			HtmlBody = htmlBody
+		};
 
-        if (attachments is not null)
-            foreach (var attachment in attachments)
-            {
-                attachment.Key.Position = 0;
-                bodyBuilder.Attachments.Add(attachment.Value, attachment.Key, ContentType.Parse("application/pdf"));
-            }
+		if (attachments is not null)
+			foreach (var attachment in attachments)
+			{
+				attachment.Key.Position = 0;
+				bodyBuilder.Attachments.Add(attachment.Value, attachment.Key, ContentType.Parse("application/pdf"));
+			}
 
-        message.Body = bodyBuilder.ToMessageBody();
+		message.Body = bodyBuilder.ToMessageBody();
 
-        using var client = new SmtpClient();
-        await client.ConnectAsync("smtp.gmail.com", 465, true);
-        await client.AuthenticateAsync(Secrets.Email, Secrets.EmailPassword);
-        await client.SendAsync(message);
-        await client.DisconnectAsync(true);
-    }
+		using var client = new SmtpClient();
+		await client.ConnectAsync("smtp.gmail.com", 465, true);
+		await client.AuthenticateAsync(Secrets.Email, Secrets.EmailPassword);
+		await client.SendAsync(message);
+		await client.DisconnectAsync(true);
+	}
 
-    /// <summary>
-    /// Transaction email data for sending emails about transaction actions (create, update, delete, recover).
-    /// For UPDATE actions, use BeforeAttachment and AfterAttachment to provide comparison invoices.
-    /// For other actions, use Attachments dictionary.
-    /// </summary>
-    internal class TransactionEmailData
-    {
-        public string TransactionType { get; set; } // "Order", "Sale", "Purchase", etc.
-        public string TransactionNo { get; set; }
-        public NotifyType Action { get; set; }
-        public string LocationName { get; set; }
-        public Dictionary<string, string> Details { get; set; } // Key-value pairs for transaction details
-        public string Remarks { get; set; }
-        public Dictionary<MemoryStream, string> Attachments { get; set; } // PDF attachments (for non-update actions)
-        public (MemoryStream stream, string fileName)? BeforeAttachment { get; set; } // For update emails - before state
-        public (MemoryStream stream, string fileName)? AfterAttachment { get; set; } // For update emails - after state
-    }
+	/// <summary>
+	/// Transaction email data for sending emails about transaction actions (create, update, delete, recover).
+	/// For UPDATE actions, use BeforeAttachment and AfterAttachment to provide comparison invoices.
+	/// For other actions, use Attachments dictionary.
+	/// </summary>
+	internal class TransactionEmailData
+	{
+		public string TransactionType { get; set; } // "Order", "Sale", "Purchase", etc.
+		public string TransactionNo { get; set; }
+		public NotifyType Action { get; set; }
+		public string LocationName { get; set; }
+		public Dictionary<string, string> Details { get; set; } // Key-value pairs for transaction details
+		public string Remarks { get; set; }
+		public Dictionary<MemoryStream, string> Attachments { get; set; } // PDF attachments (for non-update actions)
+		public (MemoryStream stream, string fileName)? BeforeAttachment { get; set; } // For update emails - before state
+		public (MemoryStream stream, string fileName)? AfterAttachment { get; set; } // For update emails - after state
+	}
 
-    internal static async Task SendTransactionEmail(TransactionEmailData emailData)
-    {
-        var actionText = emailData.Action switch
-        {
-            NotifyType.Created => "Created",
-            NotifyType.Updated => "Updated",
-            NotifyType.Deleted => "Deleted",
-            NotifyType.Recovered => "Recovered",
-            _ => "Modified"
-        };
+	internal static async Task SendTransactionEmail(TransactionEmailData emailData)
+	{
+		var actionText = emailData.Action switch
+		{
+			NotifyType.Created => "Created",
+			NotifyType.Updated => "Updated",
+			NotifyType.Deleted => "Deleted",
+			NotifyType.Recovered => "Recovered",
+			_ => "Modified"
+		};
 
-        var subject = $"{emailData.TransactionType} {actionText}: {emailData.TransactionNo} | {emailData.LocationName}";
-        var htmlBody = GenerateTransactionEmailHtml(emailData);
+		var subject = $"{emailData.TransactionType} {actionText}: {emailData.TransactionNo} | {emailData.LocationName}";
+		var htmlBody = GenerateTransactionEmailHtml(emailData);
 
-        // Handle before/after attachments for update emails
-        Dictionary<MemoryStream, string> attachments;
-        if (emailData.Action == NotifyType.Updated && emailData.BeforeAttachment.HasValue && emailData.AfterAttachment.HasValue)
-            attachments = new Dictionary<MemoryStream, string>
-            {
-                { emailData.BeforeAttachment.Value.stream, emailData.BeforeAttachment.Value.fileName },
-                { emailData.AfterAttachment.Value.stream, emailData.AfterAttachment.Value.fileName }
-            };
-        else
-            attachments = emailData.Attachments;
+		// Handle before/after attachments for update emails
+		Dictionary<MemoryStream, string> attachments;
+		if (emailData.Action == NotifyType.Updated && emailData.BeforeAttachment.HasValue && emailData.AfterAttachment.HasValue)
+			attachments = new Dictionary<MemoryStream, string>
+			{
+				{ emailData.BeforeAttachment.Value.stream, emailData.BeforeAttachment.Value.fileName },
+				{ emailData.AfterAttachment.Value.stream, emailData.AfterAttachment.Value.fileName }
+			};
+		else
+			attachments = emailData.Attachments;
 
-        await SendEmail(subject, htmlBody, attachments);
-    }
+		await SendEmail(subject, htmlBody, attachments);
+	}
 
-    private static string GenerateTransactionEmailHtml(TransactionEmailData data)
-    {
-        var actionText = data.Action switch
-        {
-            NotifyType.Created => "CREATED",
-            NotifyType.Updated => "UPDATED",
-            NotifyType.Deleted => "DELETED",
-            NotifyType.Recovered => "RECOVERED",
-            _ => "MODIFIED"
-        };
+	private static string GenerateTransactionEmailHtml(TransactionEmailData data)
+	{
+		var actionText = data.Action switch
+		{
+			NotifyType.Created => "CREATED",
+			NotifyType.Updated => "UPDATED",
+			NotifyType.Deleted => "DELETED",
+			NotifyType.Recovered => "RECOVERED",
+			_ => "MODIFIED"
+		};
 
-        var actionColor = data.Action switch
-        {
-            NotifyType.Created => "#28a745",
-            NotifyType.Updated => "#ffc107",
-            NotifyType.Deleted => "#dc3545",
-            NotifyType.Recovered => "#17a2b8",
-            _ => "#6c757d"
-        };
+		var actionColor = data.Action switch
+		{
+			NotifyType.Created => "#28a745",
+			NotifyType.Updated => "#ffc107",
+			NotifyType.Deleted => "#dc3545",
+			NotifyType.Recovered => "#17a2b8",
+			_ => "#6c757d"
+		};
 
-        var actionEmoji = data.Action switch
-        {
-            NotifyType.Created => "✅",
-            NotifyType.Updated => "✏️",
-            NotifyType.Deleted => "⚠️",
-            NotifyType.Recovered => "♻️",
-            _ => "ℹ️"
-        };
+		var actionEmoji = data.Action switch
+		{
+			NotifyType.Created => "✅",
+			NotifyType.Updated => "✏️",
+			NotifyType.Deleted => "⚠️",
+			NotifyType.Recovered => "♻️",
+			_ => "ℹ️"
+		};
 
-        var actionMessage = data.Action switch
-        {
-            NotifyType.Created => $"A new {data.TransactionType.ToLower()} has been created in the system. Please review the details below:",
-            NotifyType.Updated => $"A {data.TransactionType.ToLower()} has been updated in the system. Please review the details below and compare the attached before/after invoices:",
-            NotifyType.Deleted => $"A {data.TransactionType.ToLower()} has been deleted from the system. Please review the details below:",
-            NotifyType.Recovered => $"A {data.TransactionType.ToLower()} has been recovered in the system. Please review the details below:",
-            _ => $"A {data.TransactionType.ToLower()} has been modified. Please review the details below:"
-        };
+		var actionMessage = data.Action switch
+		{
+			NotifyType.Created => $"A new {data.TransactionType.ToLower()} has been created in the system. Please review the details below:",
+			NotifyType.Updated => $"A {data.TransactionType.ToLower()} has been updated in the system. Please review the details below and compare the attached before/after invoices:",
+			NotifyType.Deleted => $"A {data.TransactionType.ToLower()} has been deleted from the system. Please review the details below:",
+			NotifyType.Recovered => $"A {data.TransactionType.ToLower()} has been recovered in the system. Please review the details below:",
+			_ => $"A {data.TransactionType.ToLower()} has been modified. Please review the details below:"
+		};
 
-        // Generate detail rows
-        var detailRows = string.Join("\n", data.Details.Select(detail => $@"
+		// Generate detail rows
+		var detailRows = string.Join("\n", data.Details.Select(detail => $@"
                                             <tr class=""detail-row"">
                                                 <td class=""detail-label"" style=""padding: 10px 0; border-bottom: 1px solid #fce4ec;"">
                                                     <span style=""color: #666666; font-size: 14px;"">{detail.Key}</span>
@@ -134,19 +134,19 @@ internal static class MailingUtil
                                                 </td>
                                             </tr>"));
 
-        // Fix the last row border
-        var lastDetailKey = data.Details.Last().Key;
-        detailRows = detailRows.Replace(
-            $@"<span style=""color: #666666; font-size: 14px;"">{lastDetailKey}</span>
+		// Fix the last row border
+		var lastDetailKey = data.Details.Last().Key;
+		detailRows = detailRows.Replace(
+			$@"<span style=""color: #666666; font-size: 14px;"">{lastDetailKey}</span>
                                                 </td>
                                                 <td class=""detail-value"" style=""padding: 10px 0; border-bottom: 1px solid #fce4ec;",
-            $@"<span style=""color: #666666; font-size: 14px;"">{lastDetailKey}</span>
+			$@"<span style=""color: #666666; font-size: 14px;"">{lastDetailKey}</span>
                                                 </td>
                                                 <td class=""detail-value"" style=""padding: 10px 0;"
-        );
+		);
 
-        // Generate remarks section (if any)
-        var remarksSection = string.IsNullOrWhiteSpace(data.Remarks) ? "" : $@"
+		// Generate remarks section (if any)
+		var remarksSection = string.IsNullOrWhiteSpace(data.Remarks) ? "" : $@"
                             <!-- Remarks Section -->
                             <table role=""presentation"" style=""width: 100%; border-collapse: collapse; margin: 20px 0;"">
                                 <tr>
@@ -158,13 +158,13 @@ internal static class MailingUtil
                                 </tr>
                             </table>";
 
-        // Generate attachment notice (only if attachments exist)
-        var hasAttachments = (data.Action == NotifyType.Updated && data.BeforeAttachment.HasValue && data.AfterAttachment.HasValue) ||
-                            (data.Attachments != null && data.Attachments.Count > 0);
+		// Generate attachment notice (only if attachments exist)
+		var hasAttachments = (data.Action == NotifyType.Updated && data.BeforeAttachment.HasValue && data.AfterAttachment.HasValue) ||
+							(data.Attachments != null && data.Attachments.Count > 0);
 
-        var attachmentNotice = !hasAttachments ? "" : $@"<strong>📎 Attachment:</strong> {(data.Action == NotifyType.Updated ? "Before/After comparison invoices are" : "The " + data.TransactionType.ToLower() + " invoice PDF is")} attached to this email for your records.<br>";
+		var attachmentNotice = !hasAttachments ? "" : $@"<strong>📎 Attachment:</strong> {(data.Action == NotifyType.Updated ? "Before/After comparison invoices are" : "The " + data.TransactionType.ToLower() + " invoice PDF is")} attached to this email for your records.<br>";
 
-        var websiteLinkSection = $@"
+		var websiteLinkSection = $@"
                             <!-- Website Link Notice -->
                             <table role=""presentation"" style=""width: 100%; border-collapse: collapse; margin: 25px 0;"">
                                 <tr>
@@ -177,7 +177,7 @@ internal static class MailingUtil
                                 </tr>
                             </table>";
 
-        return $@"
+		return $@"
 <!DOCTYPE html>
 <html lang=""en"">
 <head>
@@ -309,5 +309,5 @@ internal static class MailingUtil
     </table>
 </body>
 </html>";
-    }
+	}
 }

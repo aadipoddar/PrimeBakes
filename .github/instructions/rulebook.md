@@ -52,7 +52,7 @@ actual project/namespace/constant names.
 2. [Solution layout & where things go](#2-solution-layout--where-things-go)
 3. [Cross-cutting conventions (every page)](#3-cross-cutting-conventions)
 4. [Reusable components](#4-reusable-components)
-5. [Page type: Dashboard](#5-page-type-dashboard)
+5. [Page type: Launchpad (tabbed dashboard)](#5-page-type-launchpad-tabbed-dashboard)
 6. [Page type: Master / CRUD](#6-page-type-master--crud)
 7. [Page type: Report](#7-page-type-report)
 8. [Page type: Transaction — cart-based](#8-page-type-transaction--cart-based)
@@ -132,7 +132,7 @@ A feature folder in `<App>Library` is always three parts:
  
 **Order you touch things for a new feature:** DB (table + procs) → `DatabaseNames`
 constants → `<App>Library/<Domain>/<Feature>/{Models,Data,Exports}` → `PageRouteNames`
-→ `<App>.Shared/Pages/...` page → dashboard link.
+→ `<App>.Shared/Pages/...` page → launchpad tile.
  
 **Platform-capability services** (file save/view, secure storage, notifications,
 update, vibration, sound, form-factor): declare the interface in `<App>.Shared` and
@@ -163,7 +163,7 @@ In this order, omitting any that don't apply:
 #region Actions        // delete / recover / accept / reject
 #region Exporting
 #region Uploading <X>  // only if the page uploads a blob/file
-#region Utilities      // menu handler, context-menu handler, toggles, ResetPage, NavigateBack, auto-refresh
+#region Utilities      // menu handler, context-menu handler, toggles, ResetPage, auto-refresh
 ```
  
 Method order within a region matches the canonical sibling. Keep `ToggleDeleted` /
@@ -191,7 +191,7 @@ whether the page has a cart/draft:
 - **Cart-based transaction pages** ([§8](#8-page-type-transaction--cart-based)) →
   `catch { await ResetPage(); }`. A failed init is most likely a corrupt
   local-storage draft; `ResetPage()` clears it and reloads fresh, fixing the cause.
-- **Every other page** → `catch { NavigateBack(); }`. No draft to recover, so leave
+- **Every other page** → `catch { NavigationManager.NavigateTo(PageRouteNames.Dashboard); }`. No draft to recover, so leave
   rather than reload the failed URL (which risks an auth loop).
 ```csharp
 protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -204,7 +204,7 @@ protected override async Task OnAfterRenderAsync(bool firstRender)
 		_user = await AuthenticationService.ValidateUser(/* services */, [UserRoles.<Area>]);
 		await InitializePage();   // or LoadData() for simple pages
 	}
-	catch { NavigateBack(); }     // cart-based pages: catch { await ResetPage(); }
+	catch { NavigationManager.NavigateTo(PageRouteNames.Dashboard); }     // cart-based pages: catch { await ResetPage(); }
 }
 ```
  
@@ -248,18 +248,21 @@ All user feedback via the page's `ToastNotification`. Conventional titles:
 (Success); `Error While Saving`/`Error While Exporting`/`Error` (Error); warnings
 like `Cannot View` (Warning). Keep wording identical across pages.
  
-### 3.7 `NavigateBack()` — return to the OWNING dashboard
+### 3.7 Auth-failure escape hatch
  
-`NavigateBack()` points to the dashboard whose tile launches the page — not just its
-area. Master pages return to the masters dashboard, transactions to the transactions
-dashboard, reports to the reports dashboard. **Getting this wrong is an easy
-copy-paste bug — verify it matches the linking dashboard.**
+There is no visible Back button, no Ctrl+B hotkey, and no `NavigateBack()` helper. Every feature page hangs off the single launchpad ([§5](#5-page-type-launchpad-tabbed-dashboard)). Non-cart pages handle a failed init by navigating directly to the launchpad inline:
+ 
+```csharp
+catch { NavigationManager.NavigateTo(PageRouteNames.Dashboard); }
+```
+ 
+Cart pages catch with `catch { await ResetPage(); }` instead, which clears the local-storage draft before reloading ([§3.4](#34-auth--first-thing-on-first-render)).
  
 ### 3.8 Hotkeys
  
 Keep bindings consistent and spell the shortcut out in the menu item text
 ("Export PDF (Ctrl + P)", "Show Deleted (Ctrl + Delete)" — exact same wording
-everywhere). Typical set: `Ctrl+N` new, `Ctrl+S` save, `Ctrl+B` back, `Ctrl+F`
+everywhere). Typical set: `Ctrl+N` new, `Ctrl+S` save, `Ctrl+F`
 focus first input, `Ctrl+R`/`F5` refresh, `Ctrl+Q` toggle detail columns,
 `Ctrl+Delete` toggle show-deleted, `Delete` delete/recover row, `Ctrl+E`/`Ctrl+P`
 export Excel/PDF, `Alt+O`/`Alt+E`/`Alt+P` view/export-Excel/export-PDF selected row.
@@ -276,7 +279,6 @@ else
 	<div class="page-shell">
 		<Header Title="…">
 			<LeftContent>  …SfMenu… </LeftContent>
-			<RightContent> <IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="NavigateBack" /> </RightContent>
 		</Header>
 		<div class="page-container">
 			<div class="section-card">
@@ -303,13 +305,12 @@ Reach for the repo's wrappers before raw Syncfusion/MudBlazor/HTML. The standard
 | Component | Use for |
 |---|---|
 | `Header` (`LeftContent`/`RightContent`), `Footer`, `LoadingScreen` | Page chrome |
-| `IconButton` | Back button & toolbar icons |
-| `FileCard` / `FolderCard` | Dashboard navigation tiles |
-| `BalanceInfoCard` (or similar) | Summary tiles |
+| `IconButton` | Toolbar icons (Excel/PDF export, refresh, view, delete, add) |
+| `FioriTile` | Launchpad navigation tiles (one per feature page) |
+| `BalanceInfoCard` (or similar) | Summary tiles on report pages |
 | `CustomTextField`, `CustomNumericField<T>`, `CustomAutoComplete<T>`, `CustomDatePicker`, `CustomDateRangePicker`, `CustomCheckBox` | Form inputs |
-| `DeleteConfirmationDialog` / `RecoverConfirmationDialog` | Soft delete / recover |
+| `ConfirmationDialog` | All confirmations (delete, recover, reset, discard) — set `Title`/`Message` + `OnConfirm`/`OnCancel` per action |
 | `AcceptConfirmationDialog` / `RejectConfirmationDialog` | Approval workflows |
-| `ResetConfirmationDialog` | Confirm discard of a draft |
 | `DocumentUploadDialog` | Blob/file upload-download-remove |
 | `ToastNotification` | All feedback |
  
@@ -319,18 +320,59 @@ internally; pass data + callbacks, don't hold a parent uploader reference.
  
 ---
  
-## 5. Page type: Dashboard
- 
-**Purpose:** a grid of `FileCard`/`FolderCard` tiles that navigate to feature pages.
-No mutation.
- 
-- Route from `PageRouteNames`; `Ctrl+B` back to the parent dashboard (or root).
-- `_isLoading`/`_user` guard + `LoadingScreen`; validate the area role.
-- Layout: `page-shell` → `Header` → `page-container` with one `section-card` per
-  group → a grid of `FileCard`s → `Footer`. Each card has `Title`, `Description`, an
-  icon, and `OnClick` navigating via a `PageRouteNames` constant.
-- Every feature page is linked from exactly one dashboard, and that page's
-  `NavigateBack()` returns there.
+## 5. Page type: Launchpad (tabbed dashboard)
+
+**Purpose:** the single root navigation surface. Inspired by SAP Fiori — one page,
+one tab per functional area, role-gated tabs, each tab is a vertical stack of
+labelled sections holding a grid of `FioriTile`s that navigate to feature pages.
+There is **no other dashboard**. The legacy per-area dashboard pages
+(`AccountsDashboard`, `OperationsDashboard`, `Fleet*Dashboard`, etc.) are deprecated;
+delete them when porting an older app and point every back-style navigation at this page.
+
+### 5.1 Shape
+
+- One route, mounted at `PageRouteNames.Dashboard` (typically `"/"`).
+- Standard `_isLoading`/`_user` guard + `LoadingScreen`. Validate the user (no role
+  filter — every authenticated user lands here; role gating happens per tab).
+- Layout: `page-shell` → `Header` → `page-container.launchpad` →
+  `MudBlazor.MudTabs` → one `MudTabPanel` per area, each with
+  `Visible="_user.<Role>"` (and combined flags for cross-cutting tabs like
+  `Reports && Fleet`) → inside each panel, one or more `<div class="launchpad-section">`
+  blocks containing `<h2 class="launchpad-section-title">…</h2>` + a
+  `<div class="dashboard-grid">` of `FioriTile`s → `Footer`.
+- The first tab is **Analysis / Overview** — KPI tiles (active count, pending
+  count, monthly totals). Tiles here may be non-clickable placeholders until live
+  data is wired; that's fine.
+- Subsequent tabs mirror the role areas, each grouped into sections (e.g.
+  *Entry Pages*, *Reports*, *Master Data* / *Routes & Drivers*, *OMC*, *Documents*,
+  *Vehicle Masters*).
+
+### 5.2 Tile
+
+```razor
+<FioriTile Title="Trip"
+           Subtitle="Record a new trip with route, driver and trip expenses"
+           OnClick="() => NavigationManager.NavigateTo(PageRouteNames.Trip)">
+	<IconContent>
+		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+		     stroke="currentColor" stroke-width="2" stroke-linecap="round"
+		     stroke-linejoin="round">
+			<!-- icon paths -->
+		</svg>
+	</IconContent>
+</FioriTile>
+```
+
+Use inline SVG icons (no icon font), 24x24 viewbox, `stroke="currentColor"` so the
+tile theme controls the colour. Pick a distinct icon per feature — reuse the same
+icon across the report-list and the per-row export so users learn the symbol.
+
+### 5.3 Rules
+
+- **Every feature page is reachable from exactly one tile** on this page; that
+  tile's `OnClick` uses a `PageRouteNames` constant. No orphan routes.
+- Wrap every panel with `Visible="_user.<Role>"`; never branch with `@if` around the
+  whole `MudTabPanel` (Razor compile errors if the wrapper has no body).
 ---
  
 ## 6. Page type: Master / CRUD
@@ -350,10 +392,10 @@ private readonly List<ContextMenuItemModel> _gridContextMenuItems =
 	new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverSelectedItem", IconCss = "e-icons e-trash", Target = ".e-content" }
 ];
 private <FirstInput> _sfFirstFocus;
-private DeleteConfirmationDialog _deleteConfirmationDialog;
-private RecoverConfirmationDialog _recoverConfirmationDialog;
-private int _deleteTransactionId = 0;     private string _deleteTransactionName = string.Empty;
-private int _recoverTransactionId = 0;     private string _recoverTransactionName = string.Empty;
+private ConfirmationDialog _confirmationDialog;
+private string _confirmTitle = string.Empty;
+private string _confirmMessage = string.Empty;
+private Func<Task> _confirmAction;   // the pending operation to run on confirm
 ```
  
 ### 6.2 Methods by region
@@ -365,15 +407,16 @@ private int _recoverTransactionId = 0;     private string _recoverTransactionNam
 - **Saving:** `SaveTransaction()` — guard `_isProcessing`; admin check; map
   `_selectedXxx?.Id ?? 0` onto the model; call
   `XxxData.SaveTransaction(_model, _user.Id, platform)`; toast; `ResetPage()`.
-- **Actions:** `ConfirmDelete()`/`ConfirmRecover()` (load fresh by id, set audit
-  fields, call `XxxData.Delete/RecoverTransaction`), `EditSelectedItem()`,
-  `DeleteRecoverSelectedItem()` (branch on `Status`), `Show*Confirmation(id, name)`,
-  `Cancel*`.
+- **Actions:** `DeleteTransaction(id)`/`RecoverTransaction(id)` (load fresh by id, set
+  audit fields, call `XxxData.Delete/RecoverTransaction`), `EditSelectedItem()`,
+  `DeleteRecoverSelectedItem()` (branch on `Status`, calls
+  `ShowConfirmation(title, message, action)`), and the shared confirm trio
+  `ShowConfirmation` / `OnConfirmed` (hide → invoke `_confirmAction`) / `OnCancelled`.
 - **Exporting:** `ExportExcel()`/`ExportPdf()` → `XxxExport.ExportMaster(_items, type)`
   → `SaveAndViewService.SaveAndView`.
 - **Utilities:** `OnMenuSelected`/`OnGridContextMenuItemClicked` switches,
   `ToggleDeleted()` (`_showDeleted = !_showDeleted; await LoadData();`),
-  `ResetPage() => PageRefresh.Request();`, `NavigateBack()`.
+  `ResetPage() => PageRefresh.Request();`.
 `platform` = `FormFactor.GetFormFactor() + FormFactor.GetPlatform()` (or repo
 equivalent).
  
@@ -400,7 +443,7 @@ entity dropdowns), aggregates, column show/hide, period presets, row actions, an
   per-row export/view (decode transaction no, navigate).
 - **Actions:** admin-gated delete/recover keyed by the overview row id.
 - **Utilities:** menu/context handlers, `ToggleDetailsView()` (flip `_showAllColumns`,
-  refresh grid), `ToggleDeleted()`, `NavigateBack()`, and the auto-refresh trio.
+  refresh grid), `ToggleDeleted()`, and the auto-refresh trio.
 ### 7.2 Auto-refresh + dispose (verbatim)
  
 ```csharp
@@ -467,7 +510,7 @@ persistence and invoice export.
   `SaveTransaction(bool savePDF=false, bool saveExcel=false)` (persist via
   `XxxData.SaveTransaction(header, lines)`, optional invoice, `ResetPage`).
 - **Utilities:** menu/context handlers, `DeleteLocalFiles()`,
-  `ResetPage()` = `await DeleteLocalFiles(); PageRefresh.Request();`, `NavigateBack()`.
+  `ResetPage()` = `await DeleteLocalFiles(); PageRefresh.Request();`.
 Both save methods guard `_isProcessing || _isLoading`. The `OnAfterRenderAsync`
 `catch` calls `await ResetPage()` here (clears the draft) — this is the defining
 difference from non-cart pages (see [§3.4](#34-auth--first-thing-on-first-render)).
@@ -482,8 +525,7 @@ master-style grid+form with edit-in-place.
  
 - Use the master template ([§6](#6-page-type-master--crud)) for grid+form
   edit-in-place; use the dedicated-form shape for a per-record form.
-- `NavigateBack()` returns to the **transactions** dashboard for pages launched from
-  it; pages that live under the masters dashboard return there.
+- On a failed init, navigate to the launchpad inline ([§3.7](#37-auth-failure-escape-hatch)) — same as every other feature page.
 - Soft delete + recover unless the table is a deliberate hard-delete table
   ([§10.4](#104-exception-hard-delete-tables)).
 - On save, stamp `Status`, `CreatedBy/At`, `LastModifiedBy/At`, and the platform
@@ -682,13 +724,13 @@ Adding a soft-deletable master "Widget", in order:
 - [ ] **Export** `…/Widget/Exports/WidgetExport.cs` (`ExportMaster`).
 - [ ] **Route** in `PageRouteNames`.
 - [ ] **Page** `<App>.Shared/Pages/<Domain>/WidgetPage.razor` + `.razor.cs` (copy the
-      canonical master page; set role, `NavigateBack` target, menu, grid columns, form
+      canonical master page; set role, menu, grid columns, form
       inputs, the two confirm dialogs + toast).
-- [ ] **Dashboard link** + matching `NavigateBack()`.
+- [ ] **Launchpad tile** in the right tab + section.
 - [ ] **Build** library, shared, web host, and SQL project; fix all errors.
 > **Reports** add: `*_Overview` view/proc, `WidgetOverviewModel`, `ExportReport`, an
 > `IAsyncDisposable` report page with filters + aggregates + auto-refresh, a `Reports`
-> role, and a Reports-dashboard link.
+> role, and a Reports-tab tile on the launchpad.
 > **Cart transactions** add: line table + `Insert_WidgetLine`, `WidgetLineModel` +
 > `WidgetCartModel`, `ConvertCartToLines`, `SaveTransaction(header, lines)`,
 > `WidgetInvoiceExport`, draft storage keys, and the cart page shape from

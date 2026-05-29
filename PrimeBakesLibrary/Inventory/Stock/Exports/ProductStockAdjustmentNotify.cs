@@ -97,7 +97,7 @@ internal static class ProductStockAdjustmentNotify
         var productName = product?.Name ?? "Unknown Product";
         var productCode = product?.Code ?? "N/A";
 
-        var emailData = new MailingUtil.TransactionEmailData
+        var emailData = new TransactionMailing.TransactionEmailData
         {
             TransactionType = "Product Stock Adjustment",
             TransactionNo = stock.TransactionNo,
@@ -116,6 +116,6 @@ internal static class ProductStockAdjustmentNotify
             Remarks = null
         };
 
-        await MailingUtil.SendTransactionEmail(emailData);
+        await TransactionMailing.SendTransactionEmail(emailData);
     }
 }

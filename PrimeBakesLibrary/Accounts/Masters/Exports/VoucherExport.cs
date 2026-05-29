@@ -1,6 +1,6 @@
+using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Utils.ExportUtils;
-using PrimeBakesLibrary.Accounts.Masters.Models;
 
 namespace PrimeBakesLibrary.Accounts.Masters.Exports;
 
@@ -14,7 +14,6 @@ public static class VoucherExport
 		{
 			voucher.Id,
 			voucher.Name,
-			voucher.Code,
 			voucher.Remarks,
 			Status = voucher.Status ? "Active" : "Deleted"
 		});
@@ -23,7 +22,6 @@ public static class VoucherExport
 		{
 			[nameof(VoucherModel.Id)] = new() { DisplayName = "ID", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(VoucherModel.Name)] = new() { DisplayName = "Voucher Name", Alignment = CellAlignment.Left, IsRequired = true },
-			[nameof(VoucherModel.Code)] = new() { DisplayName = "Code", Alignment = CellAlignment.Left, IsRequired = true },
 			[nameof(VoucherModel.Remarks)] = new() { DisplayName = "Remarks", Alignment = CellAlignment.Left },
 			[nameof(VoucherModel.Status)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false }
 		};
@@ -32,7 +30,6 @@ public static class VoucherExport
 		[
 			nameof(VoucherModel.Id),
 			nameof(VoucherModel.Name),
-			nameof(VoucherModel.Code),
 			nameof(VoucherModel.Remarks),
 			nameof(VoucherModel.Status)
 		];

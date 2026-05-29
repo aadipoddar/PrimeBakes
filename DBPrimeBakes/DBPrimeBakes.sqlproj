@@ -175,7 +175,7 @@
     <Build Include="Accounts\FinancialAccounting\Load\FinancialAccounting_Ledger_Overview.sql" />
     <Build Include="Accounts\FinancialAccounting\Load\FinancialAccounting_Overview.sql" />
     <Build Include="Accounts\FinancialAccounting\Insert\Insert_FinancialAccounting.sql" />
-    <Build Include="Accounts\FinancialAccounting\Insert\Insert_FinancialAccountingDetail.sql" />
+    <Build Include="Accounts\FinancialAccounting\Insert\Insert_FinancialAccountingLedger.sql" />
     <Build Include="Accounts\Masters\Insert\Insert_AccountType.sql" />
     <Build Include="Accounts\Masters\Insert\Insert_Company.sql" />
     <Build Include="Accounts\Masters\Insert\Insert_FinancialYear.sql" />
@@ -184,7 +184,7 @@
     <Build Include="Accounts\Masters\Insert\Insert_StateUT.sql" />
     <Build Include="Accounts\Masters\Insert\Insert_Voucher.sql" />
     <Build Include="Accounts\FinancialAccounting\Table\FinancialAccounting.sql" />
-    <Build Include="Accounts\FinancialAccounting\Table\FinancialAccountingDetail.sql" />
+    <Build Include="Accounts\FinancialAccounting\Table\FinancialAccountingLedger.sql" />
     <Build Include="Accounts\Masters\Table\AccountType.sql" />
     <Build Include="Accounts\Masters\Table\Company.sql" />
     <Build Include="Accounts\Masters\Table\FinancialYear.sql" />
@@ -250,6 +250,7 @@
     <Build Include="Store\Sale\Load\SaleReturn_Item_Overview.sql" />
     <Build Include="Store\Sale\Load\SaleReturn_Overview.sql" />
     <Build Include="Operations\Common\Load_CurrentDateTime.sql" />
+    <Build Include="Operations\Common\Load_LastTableData.sql" />
     <Build Include="Operations\Common\Load_LastTableData_By_FinancialYear.sql" />
     <Build Include="Operations\Common\Load_LastTableData_By_Location_FinancialYear.sql" />
     <Build Include="Operations\Common\Load_TableData.sql" />
@@ -280,5 +281,8 @@
     <Build Include="Inventory\Stock\Delete\Delete_ProductStock_By_Type_TransactionId_LocationId.sql" />
     <Build Include="Inventory\Stock\Delete\Delete_RawMaterialStock_By_Id.sql" />
     <Build Include="Inventory\Stock\Delete\Delete_RawMaterialStock_By_Type_TransactionId.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="DBPrimeBakes.refactorlog" />
   </ItemGroup>
 </Project>

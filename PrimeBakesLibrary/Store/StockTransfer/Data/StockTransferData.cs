@@ -291,7 +291,7 @@ public static class StockTransferData
         if (stockTransferOverview.TotalAmount == 0)
             return;
 
-        var accountingCart = new List<FinancialAccountingItemCartModel>();
+        var accountingCart = new List<FinancialAccountingLedgerCartModel>();
 
         if (stockTransferOverview.Cash + stockTransferOverview.UPI + stockTransferOverview.Card > 0)
         {
@@ -299,7 +299,7 @@ public static class StockTransferData
             accountingCart.Add(new()
             {
                 ReferenceId = stockTransferOverview.Id,
-                ReferenceType = nameof(ReferenceTypes.StockTransfer),
+                ReferenceType = nameof(AccountingReferenceTypes.StockTransfer),
                 ReferenceNo = stockTransferOverview.TransactionNo,
                 LedgerId = int.Parse(cashLedger.Value),
                 Debit = stockTransferOverview.LocationId == 1 ? stockTransferOverview.Cash + stockTransferOverview.UPI + stockTransferOverview.Card : null,
@@ -314,7 +314,7 @@ public static class StockTransferData
             accountingCart.Add(new()
             {
                 ReferenceId = stockTransferOverview.Id,
-                ReferenceType = nameof(ReferenceTypes.StockTransfer),
+                ReferenceType = nameof(AccountingReferenceTypes.StockTransfer),
                 ReferenceNo = stockTransferOverview.TransactionNo,
                 LedgerId = ledger.Id,
                 Debit = stockTransferOverview.LocationId == 1 ? stockTransferOverview.Credit : null,
@@ -329,7 +329,7 @@ public static class StockTransferData
             accountingCart.Add(new()
             {
                 ReferenceId = stockTransferOverview.Id,
-                ReferenceType = nameof(ReferenceTypes.StockTransfer),
+                ReferenceType = nameof(AccountingReferenceTypes.StockTransfer),
                 ReferenceNo = stockTransferOverview.TransactionNo,
                 LedgerId = int.Parse(stockTransferLedger.Value),
                 Debit = stockTransferOverview.ToLocationId == 1 ? stockTransferOverview.TotalAmount - stockTransferOverview.TotalExtraTaxAmount : null,
@@ -344,7 +344,7 @@ public static class StockTransferData
             accountingCart.Add(new()
             {
                 ReferenceId = stockTransferOverview.Id,
-                ReferenceType = nameof(ReferenceTypes.StockTransfer),
+                ReferenceType = nameof(AccountingReferenceTypes.StockTransfer),
                 ReferenceNo = stockTransferOverview.TransactionNo,
                 LedgerId = int.Parse(gstLedger.Value),
                 Debit = stockTransferOverview.ToLocationId == 1 ? stockTransferOverview.TotalExtraTaxAmount : null,
@@ -375,6 +375,6 @@ public static class StockTransferData
             Status = true
         };
 
-        await FinancialAccountingData.SaveTransaction(accounting, accountingCart, null, false, sqlDataAccessTransaction);
+        await FinancialAccountingData.SaveTransaction(accounting, FinancialAccountingData.ConvertCartToDetails(accountingCart), false, sqlDataAccessTransaction);
     }
 }

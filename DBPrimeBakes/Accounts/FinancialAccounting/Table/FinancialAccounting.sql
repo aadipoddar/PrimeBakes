@@ -21,9 +21,8 @@
 	[LastModifiedAt] DATETIME NULL, 
 	[LastModifiedFromPlatform] VARCHAR(MAX) NULL, 
 	CONSTRAINT [FK_FinancialAccounting_ToCompany] FOREIGN KEY ([CompanyId]) REFERENCES [Company]([Id]),
-    CONSTRAINT [FK_FinancialAccounting_ToVoucher] FOREIGN KEY (VoucherId) REFERENCES [Voucher](Id), 
-    CONSTRAINT [FK_FinancialAccounting_ToFinancialYear] FOREIGN KEY (FinancialYearId) REFERENCES [FinancialYear](Id), 
-    CONSTRAINT [FK_FinancialAccounting_ToUser] FOREIGN KEY ([CreatedBy]) REFERENCES [User]([Id]),
+    CONSTRAINT [FK_FinancialAccounting_ToVoucher] FOREIGN KEY ([VoucherId]) REFERENCES [Voucher]([Id]), 
+    CONSTRAINT [FK_FinancialAccounting_ToFinancialYear] FOREIGN KEY ([FinancialYearId]) REFERENCES [FinancialYear]([Id]), 
+    CONSTRAINT [FK_FinancialAccounting_CreatedBy_ToUser] FOREIGN KEY ([CreatedBy]) REFERENCES [User]([Id]),
 	CONSTRAINT [FK_FinancialAccounting_LastModifiedBy_ToUser] FOREIGN KEY ([LastModifiedBy]) REFERENCES [User]([Id])
-
 )

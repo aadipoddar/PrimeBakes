@@ -1,6 +1,6 @@
 ﻿CREATE PROCEDURE [dbo].[Insert_AccountType]
 	@Id INT OUTPUT,
-	@Name VARCHAR(500),
+	@Name VARCHAR(250),
 	@Remarks VARCHAR(MAX),
 	@Status BIT
 AS
@@ -29,7 +29,8 @@ BEGIN
 			[Name] = @Name,
 			[Remarks] = @Remarks,
 			[Status] = @Status
-		WHERE [Id] = @Id;
+		WHERE
+			[Id] = @Id;
 	END
 
 	SELECT @Id AS Id;

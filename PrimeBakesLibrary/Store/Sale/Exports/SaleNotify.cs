@@ -128,7 +128,7 @@ internal static class SaleNotify
     {
         var sale = await CommonData.LoadTableDataById<SaleOverviewModel>(StoreNames.SaleOverview, saleId);
 
-        var emailData = new MailingUtil.TransactionEmailData
+        var emailData = new TransactionMailing.TransactionEmailData
         {
             TransactionType = "Sale",
             TransactionNo = sale.TransactionNo,
@@ -165,6 +165,6 @@ internal static class SaleNotify
             emailData.Attachments = new Dictionary<MemoryStream, string> { { pdfStream, pdfFileName } };
         }
 
-        await MailingUtil.SendTransactionEmail(emailData);
+        await TransactionMailing.SendTransactionEmail(emailData);
     }
 }

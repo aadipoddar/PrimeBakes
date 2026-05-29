@@ -1,14 +1,14 @@
+﻿using Syncfusion.Blazor.Grids;
+
 using PrimeBakes.Shared.Components.Dialog;
+using PrimeBakes.Shared.Components.Input;
 
 using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Accounts.Masters.Exports;
-using PrimeBakesLibrary.Utils.ExportUtils;
 using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Operations.User.Models;
-using PrimeBakesLibrary.Operations.Location.Models;
-
-using Syncfusion.Blazor.Grids;
+using PrimeBakesLibrary.Operations.Settings.Models;
+using PrimeBakesLibrary.Utils.ExportUtils;
 
 namespace PrimeBakes.Shared.Pages.Accounts.Masters;
 
@@ -20,29 +20,28 @@ public partial class LedgerPage
 	private bool _showDeleted = false;
 
 	private LedgerModel _ledger = new();
+	private GroupModel _selectedGroup;
+	private AccountTypeModel _selectedAccountType;
+	private StateUTModel _selectedStateUT;
 
 	private List<LedgerModel> _ledgers = [];
 	private List<GroupModel> _groups = [];
 	private List<AccountTypeModel> _accountTypes = [];
 	private List<StateUTModel> _stateUTs = [];
-	private List<LocationModel> _locations = [];
-	private readonly List<ContextMenuItemModel> _ledgerGridContextMenuItems =
+	private readonly List<ContextMenuItemModel> _gridContextMenuItems =
 	[
-		new() { Text = "Edit (Insert)", Id = "EditLedger", IconCss = "e-icons e-edit", Target = ".e-content" },
-		new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverLedger", IconCss = "e-icons e-trash", Target = ".e-content" }
+		new() { Text = "Edit (Insert)", Id = "EditSelectedItem", IconCss = "e-icons e-edit", Target = ".e-content" },
+		new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverSelectedItem", IconCss = "e-icons e-trash", Target = ".e-content" }
 	];
 
 	private SfGrid<LedgerModel> _sfGrid;
-	private DeleteConfirmationDialog _deleteConfirmationDialog;
-	private RecoverConfirmationDialog _recoverConfirmationDialog;
-
-	private int _deleteLedgerId = 0;
-	private string _deleteLedgerName = string.Empty;
-
-	private int _recoverLedgerId = 0;
-	private string _recoverLedgerName = string.Empty;
-
+	private CustomTextField _sfFirstFocus;
 	private ToastNotification _toastNotification;
+	private ConfirmationDialog _confirmationDialog;
+
+	private string _confirmTitle = string.Empty;
+	private string _confirmMessage = string.Empty;
+	private Func<Task> _confirmAction;
 
 	#region Load Data
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -50,8 +49,12 @@ public partial class LedgerPage
 		if (!firstRender)
 			return;
 
-		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Accounts], true);
-		await LoadData();
+		try
+		{
+			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Accounts]);
+			await LoadData();
+		}
+		catch { NavigationManager.NavigateTo(PageRouteNames.Dashboard); }
 	}
 
 	private async Task LoadData()
@@ -61,6 +64,14 @@ public partial class LedgerPage
 		_accountTypes = await CommonData.LoadTableData<AccountTypeModel>(AccountNames.AccountType);
 		_stateUTs = await CommonData.LoadTableData<StateUTModel>(AccountNames.StateUT);
 
+		_groups = [.. _groups.OrderBy(g => g.Name)];
+		_accountTypes = [.. _accountTypes.OrderBy(a => a.Name)];
+		_stateUTs = [.. _stateUTs.OrderBy(s => s.Name)];
+
+		_selectedGroup = _groups.FirstOrDefault(g => g.Id == _ledger.GroupId);
+		_selectedAccountType = _accountTypes.FirstOrDefault(a => a.Id == _ledger.AccountTypeId);
+		_selectedStateUT = _stateUTs.FirstOrDefault(s => s.Id == _ledger.StateUTId);
+
 		if (!_showDeleted)
 			_ledgers = [.. _ledgers.Where(l => l.Status)];
 
@@ -69,97 +80,14 @@ public partial class LedgerPage
 
 		_isLoading = false;
 		StateHasChanged();
-	}
-	#endregion
 
-	#region Actions
-	private void OnEditLedger(LedgerModel ledger)
-	{
-		_ledger = new()
-		{
-			Id = ledger.Id,
-			Name = ledger.Name,
-			Code = ledger.Code,
-			GroupId = ledger.GroupId,
-			AccountTypeId = ledger.AccountTypeId,
-			StateUTId = ledger.StateUTId,
-			GSTNo = ledger.GSTNo,
-			PANNo = ledger.PANNo,
-			CINNo = ledger.CINNo,
-			Alias = ledger.Alias,
-			Phone = ledger.Phone,
-			Email = ledger.Email,
-			Address = ledger.Address,
-			Remarks = ledger.Remarks,
-			Status = ledger.Status
-		};
-
-		StateHasChanged();
-	}
-
-	private async Task ConfirmDelete()
-	{
-		try
-		{
-			_isProcessing = true;
-			await _deleteConfirmationDialog.HideAsync();
-
-			if (!_user.Admin)
-				throw new Exception("You do not have permission to perform this action.");
-
-			var ledger = _ledgers.FirstOrDefault(l => l.Id == _deleteLedgerId)
-				?? throw new Exception("Ledger not found.");
-
-			await LedgerData.DeleteTransaction(ledger, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
-
-			await _toastNotification.ShowAsync("Success", $"Ledger '{ledger.Name}' has been deleted successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(PageRouteNames.LedgerMaster, true);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"Failed to delete Ledger: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			_deleteLedgerId = 0;
-			_deleteLedgerName = string.Empty;
-		}
-	}
-
-	private async Task ConfirmRecover()
-	{
-		try
-		{
-			_isProcessing = true;
-			await _recoverConfirmationDialog.HideAsync();
-
-			if (!_user.Admin)
-				throw new Exception("You do not have permission to perform this action.");
-
-			var ledger = _ledgers.FirstOrDefault(l => l.Id == _recoverLedgerId)
-			 ?? throw new Exception("Ledger not found.");
-
-			await LedgerData.RecoverTransaction(ledger, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
-
-			await _toastNotification.ShowAsync("Success", $"Ledger '{ledger.Name}' has been recovered successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(PageRouteNames.LedgerMaster, true);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"Failed to recover Ledger: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			_recoverLedgerId = 0;
-			_recoverLedgerName = string.Empty;
-		}
+		if (_sfFirstFocus is not null)
+			await _sfFirstFocus.FocusAsync();
 	}
 	#endregion
 
 	#region Saving
-	private async Task SaveLedger()
+	private async Task SaveTransaction()
 	{
 		if (_isProcessing)
 			return;
@@ -172,16 +100,75 @@ public partial class LedgerPage
 			if (!_user.Admin)
 				throw new Exception("You do not have permission to perform this action.");
 
-			await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
+			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
 
+			_ledger.GroupId = _selectedGroup?.Id ?? 0;
+			_ledger.AccountTypeId = _selectedAccountType?.Id ?? 0;
+			_ledger.StateUTId = _selectedStateUT?.Id ?? 0;
 			await LedgerData.SaveTransaction(_ledger, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
 
-			await _toastNotification.ShowAsync("Success", $"Ledger '{_ledger.Name}' has been saved successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(PageRouteNames.LedgerMaster, true);
+			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
+			ResetPage();
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("Error", $"Failed to save Ledger: {ex.Message}", ToastType.Error);
+			await _toastNotification.ShowAsync("Error While Saving", ex.Message, ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+		}
+	}
+	#endregion
+
+	#region Actions
+	private async Task DeleteTransaction(int id)
+	{
+		try
+		{
+			_isProcessing = true;
+
+			if (!_user.Admin)
+				throw new Exception("You do not have permission to perform this action.");
+
+			var ledger = await CommonData.LoadTableDataById<LedgerModel>(AccountNames.Ledger, id)
+				?? throw new Exception("Transaction not found.");
+
+			await LedgerData.DeleteTransaction(ledger, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+
+			await _toastNotification.ShowAsync("Deleted", "Transaction has been deleted successfully.", ToastType.Success);
+			ResetPage();
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error While Deleting", ex.Message, ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+		}
+	}
+
+	private async Task RecoverTransaction(int id)
+	{
+		try
+		{
+			_isProcessing = true;
+
+			if (!_user.Admin)
+				throw new Exception("You do not have permission to perform this action.");
+
+			var ledger = await CommonData.LoadTableDataById<LedgerModel>(AccountNames.Ledger, id)
+				?? throw new Exception("Transaction not found.");
+
+			await LedgerData.RecoverTransaction(ledger, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+
+			await _toastNotification.ShowAsync("Recovered", "Transaction has been recovered successfully.", ToastType.Success);
+			ResetPage();
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error While Recovering", ex.Message, ToastType.Error);
 		}
 		finally
 		{
@@ -200,15 +187,16 @@ public partial class LedgerPage
 		{
 			_isProcessing = true;
 			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Exporting to Excel...", ToastType.Info);
+			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
 			var (stream, fileName) = await LedgerExport.ExportMaster(_ledgers, ReportExportType.Excel);
 			await SaveAndViewService.SaveAndView(fileName, stream);
-			await _toastNotification.ShowAsync("Success", "Ledger data exported to Excel successfully.", ToastType.Success);
+
+			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("Error", $"An error occurred while exporting to Excel: {ex.Message}", ToastType.Error);
+			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
 		}
 		finally
 		{
@@ -226,15 +214,16 @@ public partial class LedgerPage
 		{
 			_isProcessing = true;
 			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Exporting to PDF...", ToastType.Info);
+			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
 			var (stream, fileName) = await LedgerExport.ExportMaster(_ledgers, ReportExportType.PDF);
 			await SaveAndViewService.SaveAndView(fileName, stream);
-			await _toastNotification.ShowAsync("Success", "Ledger data exported to PDF successfully.", ToastType.Success);
+
+			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("Error", $"An error occurred while exporting to PDF: {ex.Message}", ToastType.Error);
+			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
 		}
 		finally
 		{
@@ -249,101 +238,88 @@ public partial class LedgerPage
 	{
 		switch (args.Item.Id)
 		{
-			case "NewLedger":
-				ResetPage();
-				break;
-			case "SaveLedger":
-				await SaveLedger();
-				break;
-			case "ToggleDeleted":
-				await ToggleDeleted();
-				break;
-			case "ExportExcel":
-				await ExportExcel();
-				break;
-			case "ExportPdf":
-				await ExportPdf();
-				break;
-			case "EditSelected":
-				await EditSelectedItem();
-				break;
-			case "DeleteRecoverSelected":
-				await DeleteSelectedItem();
-				break;
+			case "NewTransaction": ResetPage(); break;
+			case "SaveTransaction": await SaveTransaction(); break;
+			case "ToggleDeleted": await ToggleDeleted(); break;
+			case "ExportExcel": await ExportExcel(); break;
+			case "ExportPdf": await ExportPdf(); break;
+			case "EditSelectedItem": await EditSelectedItem(); break;
+			case "DeleteRecoverSelectedItem": await DeleteRecoverSelectedItem(); break;
 		}
 	}
 
-	private async Task OnLedgerGridContextMenuItemClicked(ContextMenuClickEventArgs<LedgerModel> args)
+	private async Task OnGridContextMenuItemClicked(ContextMenuClickEventArgs<LedgerModel> args)
 	{
 		switch (args.Item.Id)
 		{
-			case "EditLedger":
-				await EditSelectedItem();
-				break;
-			case "DeleteRecoverLedger":
-				await DeleteSelectedItem();
-				break;
+			case "EditSelectedItem": await EditSelectedItem(); break;
+			case "DeleteRecoverSelectedItem": await DeleteRecoverSelectedItem(); break;
 		}
-	}
-
-	private async Task ShowDeleteConfirmation(int id, string name)
-	{
-		_deleteLedgerId = id;
-		_deleteLedgerName = name;
-		await _deleteConfirmationDialog.ShowAsync();
-	}
-
-	private async Task CancelDelete()
-	{
-		_deleteLedgerId = 0;
-		_deleteLedgerName = string.Empty;
-		await _deleteConfirmationDialog.HideAsync();
 	}
 
 	private async Task EditSelectedItem()
 	{
 		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
-		if (selectedRecords.Count > 0)
-			OnEditLedger(selectedRecords[0]);
+		if (selectedRecords.Count == 0)
+			return;
+
+		_ledger = await CommonData.LoadTableDataById<LedgerModel>(AccountNames.Ledger, selectedRecords[0].Id);
+		if (_ledger is null)
+		{
+			await _toastNotification.ShowAsync("Error while Editing", "Transaction Not Found.", ToastType.Error);
+			return;
+		}
+
+		_selectedGroup = _groups.FirstOrDefault(g => g.Id == _ledger.GroupId);
+		_selectedAccountType = _accountTypes.FirstOrDefault(a => a.Id == _ledger.AccountTypeId);
+		_selectedStateUT = _stateUTs.FirstOrDefault(s => s.Id == _ledger.StateUTId);
+		StateHasChanged();
+		await _sfFirstFocus.FocusAsync();
 	}
 
-	private async Task DeleteSelectedItem()
+	private async Task DeleteRecoverSelectedItem()
 	{
 		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
-		if (selectedRecords.Count > 0)
-		{
-			if (selectedRecords[0].Status)
-				await ShowDeleteConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
-			else
-				await ShowRecoverConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
-		}
+		if (selectedRecords.Count == 0)
+			return;
+
+		var record = selectedRecords[0];
+
+		if (record.Status)
+			await ShowConfirmation("Delete", $"Are you sure you want to delete {record.Name}", () => DeleteTransaction(record.Id));
+		else
+			await ShowConfirmation("Recover", $"Are you sure you want to recover {record.Name}", () => RecoverTransaction(record.Id));
 	}
 
-	private async Task ShowRecoverConfirmation(int id, string name)
+	private async Task ShowConfirmation(string title, string message, Func<Task> action)
 	{
-		_recoverLedgerId = id;
-		_recoverLedgerName = name;
-		await _recoverConfirmationDialog.ShowAsync();
+		_confirmTitle = title;
+		_confirmMessage = message;
+		_confirmAction = action;
+		StateHasChanged();
+		await _confirmationDialog.ShowAsync();
 	}
 
-	private async Task CancelRecover()
+	private async Task OnConfirmed()
 	{
-		_recoverLedgerId = 0;
-		_recoverLedgerName = string.Empty;
-		await _recoverConfirmationDialog.HideAsync();
+		await _confirmationDialog.HideAsync();
+		if (_confirmAction is not null)
+			await _confirmAction();
+		_confirmAction = null;
+	}
+
+	private async Task OnCancelled()
+	{
+		_confirmAction = null;
+		await _confirmationDialog.HideAsync();
 	}
 
 	private async Task ToggleDeleted()
 	{
 		_showDeleted = !_showDeleted;
 		await LoadData();
-		StateHasChanged();
 	}
 
-	private void ResetPage() =>
-		NavigationManager.NavigateTo(PageRouteNames.LedgerMaster, true);
-
-	private void NavigateBack() =>
-		NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
+	private void ResetPage() => PageRefresh.Request();
 	#endregion
 }

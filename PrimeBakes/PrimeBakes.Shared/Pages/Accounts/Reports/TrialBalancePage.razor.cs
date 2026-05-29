@@ -1,356 +1,300 @@
-using Microsoft.AspNetCore.Components;
+﻿using Syncfusion.Blazor.Grids;
 
 using PrimeBakes.Shared.Components.Dialog;
+using PrimeBakes.Shared.Components.Input;
 
 using PrimeBakesLibrary.Accounts.FinancialAccounting.Data;
-using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.Operations.Settings.Data;
-using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Accounts.FinancialAccounting.Exports;
-using PrimeBakesLibrary.Utils.ExportUtils;
 using PrimeBakesLibrary.Accounts.FinancialAccounting.Models;
+using PrimeBakesLibrary.Accounts.Masters.Data;
 using PrimeBakesLibrary.Accounts.Masters.Models;
+using PrimeBakesLibrary.Operations.User.Data;
+using PrimeBakesLibrary.Operations.Settings.Data;
 using PrimeBakesLibrary.Operations.User.Models;
 using PrimeBakesLibrary.Operations.Settings.Models;
-
-using Syncfusion.Blazor.Grids;
+using PrimeBakesLibrary.Utils.ExportUtils;
 
 namespace PrimeBakes.Shared.Pages.Accounts.Reports;
 
 public partial class TrialBalancePage : IAsyncDisposable
 {
-    private PeriodicTimer _autoRefreshTimer;
-    private CancellationTokenSource _autoRefreshCts;
+	private PeriodicTimer _autoRefreshTimer;
+	private CancellationTokenSource _autoRefreshCts;
 
-    private bool _isLoading = true;
-    private bool _isProcessing = false;
-    private bool _showAllColumns = false;
+	private bool _isLoading = true;
+	private bool _isProcessing = false;
+	private bool _showAllColumns = false;
 
-    private DateTime _fromDate = DateTime.Now.Date;
-    private DateTime _toDate = DateTime.Now.Date;
+	private DateTime _fromDate = DateTime.Now.Date;
+	private DateTime _toDate = DateTime.Now.Date;
 
-    private CompanyModel? _selectedCompany = null;
-    private GroupModel? _selectedGroup = null;
-    private AccountTypeModel? _selectedAccountType = null;
+	private CompanyModel? _selectedCompany = null;
+	private GroupModel? _selectedGroup = null;
+	private AccountTypeModel? _selectedAccountType = null;
 
-    private List<CompanyModel> _companies = [];
-    private List<GroupModel> _groups = [];
-    private List<AccountTypeModel> _accountTypes = [];
-    private List<TrialBalanceModel> _trialBalance = [];
+	private List<CompanyModel> _companies = [];
+	private List<GroupModel> _groups = [];
+	private List<AccountTypeModel> _accountTypes = [];
+	private List<TrialBalanceModel> _trialBalance = [];
 
-    private SfGrid<TrialBalanceModel> _sfGrid;
-    private ToastNotification _toastNotification;
+	private SfGrid<TrialBalanceModel> _sfGrid;
+	private CustomDateRangePicker _sfFirstFocus;
+	private ToastNotification _toastNotification;
 
-    #region Load Data
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!firstRender)
-            return;
+	#region Load Data
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (!firstRender)
+			return;
 
-        await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Accounts, UserRoles.Reports], true);
-        await LoadData();
-    }
+		try
+		{
+			await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Accounts, UserRoles.Reports]);
+			await InitializePage();
+		}
+		catch { NavigationManager.NavigateTo(PageRouteNames.Dashboard); }
+	}
 
-    private async Task LoadData()
-    {
-        await LoadDates();
-        await LoadCompanies();
-        await LoadGroups();
-        await LoadAccountTypes();
-        await LoadTrialBalance();
-        await StartAutoRefresh();
+	private async Task InitializePage()
+	{
+		await LoadData();
+		await LoadTrialBalance();
+		await StartAutoRefresh();
 
-        _isLoading = false;
-        StateHasChanged();
-    }
+		_isLoading = false;
+		StateHasChanged();
 
-    private async Task LoadDates()
-    {
-        _fromDate = await CommonData.LoadCurrentDateTime();
-        _toDate = _fromDate;
-    }
+		if (_sfFirstFocus is not null)
+			await _sfFirstFocus.FocusAsync();
+	}
 
-    private async Task LoadCompanies()
-    {
-        _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-        _companies = [.. _companies.OrderBy(s => s.Name)];
-    }
+	private async Task LoadData()
+	{
+		_fromDate = await CommonData.LoadCurrentDateTime();
+		_toDate = _fromDate;
 
-    private async Task LoadGroups()
-    {
-        _groups = await CommonData.LoadTableDataByStatus<GroupModel>(AccountNames.Group);
-        _groups = [.. _groups.OrderBy(s => s.Name)];
-    }
+		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+		_groups = await CommonData.LoadTableDataByStatus<GroupModel>(AccountNames.Group);
+		_accountTypes = await CommonData.LoadTableDataByStatus<AccountTypeModel>(AccountNames.AccountType);
 
-    private async Task LoadAccountTypes()
-    {
-        _accountTypes = await CommonData.LoadTableDataByStatus<AccountTypeModel>(AccountNames.AccountType);
-        _accountTypes = [.. _accountTypes.OrderBy(s => s.Name)];
-    }
+		_companies = [.. _companies.OrderBy(s => s.Name)];
+		_groups = [.. _groups.OrderBy(s => s.Name)];
+		_accountTypes = [.. _accountTypes.OrderBy(s => s.Name)];
+	}
 
-    private async Task LoadTrialBalance()
-    {
-        if (_isProcessing)
-            return;
+	private async Task LoadTrialBalance()
+	{
+		if (_isProcessing)
+			return;
 
-        try
-        {
-            _isProcessing = true;
-            StateHasChanged();
-            await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
-            _trialBalance = await FinancialAccountingData.LoadTrialBalanceByCompanyDate(
-                _selectedCompany?.Id ?? 0,
-                DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-                DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
+			_trialBalance = await FinancialAccountingData.LoadTrialBalanceByCompanyDate(
+				_selectedCompany?.Id ?? 0,
+				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
+				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
-            if (_selectedGroup?.Id > 0)
-                _trialBalance = [.. _trialBalance.Where(_ => _.GroupId == _selectedGroup.Id)];
+			if (_selectedGroup?.Id > 0)
+				_trialBalance = [.. _trialBalance.Where(_ => _.GroupId == _selectedGroup.Id)];
 
-            if (_selectedAccountType?.Id > 0)
-                _trialBalance = [.. _trialBalance.Where(_ => _.AccountTypeId == _selectedAccountType.Id)];
+			if (_selectedAccountType?.Id > 0)
+				_trialBalance = [.. _trialBalance.Where(_ => _.AccountTypeId == _selectedAccountType.Id)];
 
-            _trialBalance = [.. _trialBalance.OrderBy(_ => _.LedgerName)];
-        }
-        catch (Exception ex)
-        {
-            await _toastNotification.ShowAsync("Error", $"Failed to load transactions: {ex.Message}", ToastType.Error);
-        }
-        finally
-        {
-            if (_sfGrid is not null)
-                await _sfGrid.Refresh();
-            _isProcessing = false;
-            StateHasChanged();
-        }
-    }
-    #endregion
+			_trialBalance = [.. _trialBalance.OrderBy(_ => _.LedgerName)];
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"Failed to load transactions: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			if (_sfGrid is not null)
+				await _sfGrid.Refresh();
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
+	#endregion
 
-    #region Change Events
-    private async Task OnDateRangeChanged(Syncfusion.Blazor.Calendars.RangePickerEventArgs<DateTime> args)
-    {
-        _fromDate = args.StartDate;
-        _toDate = args.EndDate;
-        await LoadTrialBalance();
-    }
+	#region Changed Events
+	private async Task OnDateRangeChanged(MudBlazor.DateRange range)
+	{
+		_fromDate = range?.Start ?? _fromDate;
+		_toDate = range?.End ?? _toDate;
+		await LoadTrialBalance();
+	}
 
-    private async Task OnCompanyChanged(Syncfusion.Blazor.DropDowns.ChangeEventArgs<CompanyModel, CompanyModel> args)
-    {
-        _selectedCompany = args.Value;
-        await LoadTrialBalance();
-    }
+	private async Task OnCompanyChanged(CompanyModel value)
+	{
+		_selectedCompany = value;
+		await LoadTrialBalance();
+	}
 
-    private async Task OnAccountTypeChanged(Syncfusion.Blazor.DropDowns.ChangeEventArgs<AccountTypeModel, AccountTypeModel> args)
-    {
-        _selectedAccountType = args.Value;
-        await LoadTrialBalance();
-    }
+	private async Task OnAccountTypeChanged(AccountTypeModel value)
+	{
+		_selectedAccountType = value;
+		await LoadTrialBalance();
+	}
 
-    private async Task OnGroupChanged(Syncfusion.Blazor.DropDowns.ChangeEventArgs<GroupModel, GroupModel> args)
-    {
-        _selectedGroup = args.Value;
-        await LoadTrialBalance();
-    }
+	private async Task OnGroupChanged(GroupModel value)
+	{
+		_selectedGroup = value;
+		await LoadTrialBalance();
+	}
 
-    private async Task HandleDatesChanged(DateRangeType dateRangeType)
-    {
-        (_fromDate, _toDate) = await FinancialYearData.GetDateRange(dateRangeType, _fromDate, _toDate);
-        await LoadTrialBalance();
-    }
-    #endregion
+	private async Task HandleDatesChanged(DateRangeType dateRangeType)
+	{
+		(_fromDate, _toDate) = await FinancialYearData.GetDateRange(dateRangeType, _fromDate, _toDate);
+		await LoadTrialBalance();
+	}
+	#endregion
 
-    #region Exporting
-    private async Task ExportExcel()
-    {
-        if (_isProcessing)
-            return;
+	#region Exporting
+	private async Task ExportExcel()
+	{
+		if (_isProcessing)
+			return;
 
-        try
-        {
-            _isProcessing = true;
-            StateHasChanged();
-            await _toastNotification.ShowAsync("Processing", "Generating Excel file...", ToastType.Info);
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-            DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
-            DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
+			var (stream, fileName) = await TrialBalanceReportExport.ExportReport(
+					_trialBalance,
+					ReportExportType.Excel,
+					DateOnly.FromDateTime(_fromDate),
+					DateOnly.FromDateTime(_toDate),
+					_showAllColumns,
+					_selectedCompany?.Id > 0 ? _selectedCompany : null,
+					_selectedGroup?.Id > 0 ? _selectedGroup : null,
+					_selectedAccountType?.Id > 0 ? _selectedAccountType : null
+				);
+			await SaveAndViewService.SaveAndView(fileName, stream);
 
-            var (stream, fileName) = await TrialBalanceReportExport.ExportReport(
-                    _trialBalance,
-                    ReportExportType.Excel,
-                    dateRangeStart,
-                    dateRangeEnd,
-                    _showAllColumns,
-                    _selectedCompany?.Id > 0 ? _selectedCompany : null,
-                    _selectedGroup?.Id > 0 ? _selectedGroup : null,
-                    _selectedAccountType?.Id > 0 ? _selectedAccountType : null
-                );
+			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
 
-            await SaveAndViewService.SaveAndView(fileName, stream);
-            await _toastNotification.ShowAsync("Success", "Excel file downloaded successfully.", ToastType.Success);
-        }
-        catch (Exception ex)
-        {
-            await _toastNotification.ShowAsync("Error", $"Excel export failed: {ex.Message}", ToastType.Error);
-        }
-        finally
-        {
-            _isProcessing = false;
-            StateHasChanged();
-        }
-    }
+	private async Task ExportPdf()
+	{
+		if (_isProcessing)
+			return;
 
-    private async Task ExportPdf()
-    {
-        if (_isProcessing)
-            return;
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-        try
-        {
-            _isProcessing = true;
-            StateHasChanged();
-            await _toastNotification.ShowAsync("Processing", "Generating PDF file...", ToastType.Info);
+			var (stream, fileName) = await TrialBalanceReportExport.ExportReport(
+					_trialBalance,
+					ReportExportType.PDF,
+					DateOnly.FromDateTime(_fromDate),
+				 DateOnly.FromDateTime(_toDate),
+					_showAllColumns,
+					_selectedCompany?.Id > 0 ? _selectedCompany : null,
+					_selectedGroup?.Id > 0 ? _selectedGroup : null,
+					_selectedAccountType?.Id > 0 ? _selectedAccountType : null
+				);
+			await SaveAndViewService.SaveAndView(fileName, stream);
 
-            DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
-            DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
+			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
+	#endregion
 
-            var (stream, fileName) = await TrialBalanceReportExport.ExportReport(
-                    _trialBalance,
-                    ReportExportType.PDF,
-                    dateRangeStart,
-                    dateRangeEnd,
-                    _showAllColumns,
-                    _selectedCompany?.Id > 0 ? _selectedCompany : null,
-                    _selectedGroup?.Id > 0 ? _selectedGroup : null,
-                    _selectedAccountType?.Id > 0 ? _selectedAccountType : null
-                );
+	#region Utilities
+	private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+	{
+		switch (args.Item.Id)
+		{
+			case "NewTransaction": await AuthenticationService.NavigateToRoute(PageRouteNames.FinancialAccounting, FormFactor, JSRuntime, NavigationManager); break;
+			case "Refresh": await LoadTrialBalance(); break;
+			case "ToggleDetailsView": await ToggleDetailsView(); break;
+			case "ExportPdf": await ExportPdf(); break;
+			case "ExportExcel": await ExportExcel(); break;
+			case "TransactionHistory": await AuthenticationService.NavigateToRoute(PageRouteNames.FinancialAccountingReport, FormFactor, JSRuntime, NavigationManager); break;
+			case "LedgerReport": await AuthenticationService.NavigateToRoute(PageRouteNames.AccountingLedgerReport, FormFactor, JSRuntime, NavigationManager); break;
+			case "ProfitLoss": await AuthenticationService.NavigateToRoute(PageRouteNames.ProfitAndLossReport, FormFactor, JSRuntime, NavigationManager); break;
+			case "BalanceSheet": await AuthenticationService.NavigateToRoute(PageRouteNames.BalanceSheetReport, FormFactor, JSRuntime, NavigationManager); break;
+			case "PeriodToday": await HandleDatesChanged(DateRangeType.Today); break;
+			case "PeriodPreviousDay": await HandleDatesChanged(DateRangeType.Yesterday); break;
+			case "PeriodNextDay": await HandleDatesChanged(DateRangeType.NextDay); break;
+			case "PeriodCurrentMonth": await HandleDatesChanged(DateRangeType.CurrentMonth); break;
+			case "PeriodPreviousMonth": await HandleDatesChanged(DateRangeType.PreviousMonth); break;
+			case "PeriodNextMonth": await HandleDatesChanged(DateRangeType.NextMonth); break;
+			case "PeriodCurrentFinancialYear": await HandleDatesChanged(DateRangeType.CurrentFinancialYear); break;
+			case "PeriodPreviousFinancialYear": await HandleDatesChanged(DateRangeType.PreviousFinancialYear); break;
+			case "PeriodNextFinancialYear": await HandleDatesChanged(DateRangeType.NextFinancialYear); break;
+			case "PeriodAllTime": await HandleDatesChanged(DateRangeType.AllTime); break;
+		}
+	}
 
-            await SaveAndViewService.SaveAndView(fileName, stream);
-            await _toastNotification.ShowAsync("Success", "PDF file downloaded successfully.", ToastType.Success);
-        }
-        catch (Exception ex)
-        {
-            await _toastNotification.ShowAsync("Error", $"PDF export failed: {ex.Message}", ToastType.Error);
-        }
-        finally
-        {
-            _isProcessing = false;
-            StateHasChanged();
-        }
-    }
-    #endregion
+	private async Task ToggleDetailsView()
+	{
+		_showAllColumns = !_showAllColumns;
+		StateHasChanged();
 
-    #region Utilities
+		if (_sfGrid is not null)
+			await _sfGrid.Refresh();
+	}
+	private async Task StartAutoRefresh()
+	{
+		var timerSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.AutoRefreshReportTimer);
+		var refreshMinutes = int.TryParse(timerSetting?.Value, out var minutes) ? minutes : 5;
 
-    private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
-    {
-        switch (args.Item.Id)
-        {
-            case "NewTransaction":
-                await AuthenticationService.NavigateToRoute(PageRouteNames.FinancialAccounting, FormFactor, JSRuntime, NavigationManager);
-                break;
-            case "Refresh":
-                await LoadTrialBalance();
-                break;
-            case "ToggleDetailsView":
-                await ToggleDetailsView();
-                break;
-            case "ExportPdf":
-                await ExportPdf();
-                break;
-            case "ExportExcel":
-                await ExportExcel();
-                break;
-            case "TransactionHistory":
-                await AuthenticationService.NavigateToRoute(PageRouteNames.FinancialAccountingReport, FormFactor, JSRuntime, NavigationManager);
-                break;
-            case "LedgerReport":
-                await AuthenticationService.NavigateToRoute(PageRouteNames.AccountingLedgerReport, FormFactor, JSRuntime, NavigationManager);
-                break;
-            case "ProfitLoss":
-                await AuthenticationService.NavigateToRoute(PageRouteNames.ProfitAndLossReport, FormFactor, JSRuntime, NavigationManager);
-                break;
-            case "BalanceSheet":
-                await AuthenticationService.NavigateToRoute(PageRouteNames.BalanceSheetReport, FormFactor, JSRuntime, NavigationManager);
-                break;
-            case "PeriodToday":
-                await HandleDatesChanged(DateRangeType.Today);
-                break;
-            case "PeriodPreviousDay":
-                await HandleDatesChanged(DateRangeType.Yesterday);
-                break;
-            case "PeriodNextDay":
-                await HandleDatesChanged(DateRangeType.NextDay);
-                break;
-            case "PeriodCurrentMonth":
-                await HandleDatesChanged(DateRangeType.CurrentMonth);
-                break;
-            case "PeriodPreviousMonth":
-                await HandleDatesChanged(DateRangeType.PreviousMonth);
-                break;
-            case "PeriodNextMonth":
-                await HandleDatesChanged(DateRangeType.NextMonth);
-                break;
-            case "PeriodCurrentFinancialYear":
-                await HandleDatesChanged(DateRangeType.CurrentFinancialYear);
-                break;
-            case "PeriodPreviousFinancialYear":
-                await HandleDatesChanged(DateRangeType.PreviousFinancialYear);
-                break;
-            case "PeriodNextFinancialYear":
-                await HandleDatesChanged(DateRangeType.NextFinancialYear);
-                break;
-            case "PeriodAllTime":
-                await HandleDatesChanged(DateRangeType.AllTime);
-                break;
-        }
-    }
+		_autoRefreshCts = new CancellationTokenSource();
+		_autoRefreshTimer = new PeriodicTimer(TimeSpan.FromMinutes(refreshMinutes));
+		_ = AutoRefreshLoop(_autoRefreshCts.Token);
+	}
 
-    private async Task ToggleDetailsView()
-    {
-        _showAllColumns = !_showAllColumns;
-        StateHasChanged();
+	private async Task AutoRefreshLoop(CancellationToken cancellationToken)
+	{
+		try
+		{
+			while (await _autoRefreshTimer.WaitForNextTickAsync(cancellationToken))
+				await LoadTrialBalance();
+		}
+		catch (OperationCanceledException)
+		{
+			// Timer was cancelled, expected on dispose
+		}
+	}
 
-        if (_sfGrid is not null)
-            await _sfGrid.Refresh();
-    }
+	async ValueTask IAsyncDisposable.DisposeAsync()
+	{
+		if (_autoRefreshCts is not null)
+		{
+			await _autoRefreshCts.CancelAsync();
+			_autoRefreshCts.Dispose();
+		}
 
-    private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
-
-    private async Task StartAutoRefresh()
-    {
-        var timerSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.AutoRefreshReportTimer);
-        var refreshMinutes = int.TryParse(timerSetting?.Value, out var minutes) ? minutes : 5;
-
-        _autoRefreshCts = new CancellationTokenSource();
-        _autoRefreshTimer = new PeriodicTimer(TimeSpan.FromMinutes(refreshMinutes));
-        _ = AutoRefreshLoop(_autoRefreshCts.Token);
-    }
-
-    private async Task AutoRefreshLoop(CancellationToken cancellationToken)
-    {
-        try
-        {
-            while (await _autoRefreshTimer.WaitForNextTickAsync(cancellationToken))
-                await LoadTrialBalance();
-        }
-        catch (OperationCanceledException)
-        {
-            // Timer was cancelled, expected on dispose
-        }
-    }
-
-    async ValueTask IAsyncDisposable.DisposeAsync()
-    {
-        if (_autoRefreshCts is not null)
-        {
-            await _autoRefreshCts.CancelAsync();
-            _autoRefreshCts.Dispose();
-        }
-
-        _autoRefreshTimer?.Dispose();
-
-        GC.SuppressFinalize(this);
-    }
-    #endregion
+		_autoRefreshTimer?.Dispose();
+		GC.SuppressFinalize(this);
+	}
+	#endregion
 }

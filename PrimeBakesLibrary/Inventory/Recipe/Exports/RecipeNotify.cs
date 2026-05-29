@@ -51,7 +51,7 @@ internal static class RecipeNotify
         var product = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, recipe.ProductId);
         var recipeDetails = await LoadRecipeDetails(recipeId);
 
-        var emailData = new MailingUtil.TransactionEmailData
+        var emailData = new TransactionMailing.TransactionEmailData
         {
             TransactionType = "Recipe",
             TransactionNo = null,
@@ -68,7 +68,7 @@ internal static class RecipeNotify
             Remarks = null
         };
 
-        await MailingUtil.SendTransactionEmail(emailData);
+        await TransactionMailing.SendTransactionEmail(emailData);
     }
 
     private static async Task<List<RecipeItemCartModel>> LoadRecipeDetails(int recipeId)
