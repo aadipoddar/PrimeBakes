@@ -842,6 +842,9 @@ public partial class BillPage
 	#region Financial Calculations
 	private void CalculateItemFinancials(BillItemCartModel item)
 	{
+		if (_user.LocationId != 1)
+			item.DiscountPercent = 0;
+
 		item.BaseTotal = item.Rate * item.Quantity;
 		item.DiscountAmount = item.BaseTotal * (item.DiscountPercent / 100);
 		item.AfterDiscount = item.BaseTotal - item.DiscountAmount;

@@ -351,7 +351,7 @@ else
 							<label class="cart-label">Disc %</label>
 							<SfNumericTextBox Value="@_selectedCart.DiscountPercent" TValue="decimal" Decimals="2" Min="0"
 											  Max="100" ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
-											  CssClass="custom-numeric editable-field">
+											  CssClass="custom-numeric editable-field" Readonly="@(_user.LocationId != 1)">
 								<NumericTextBoxEvents TValue="decimal" ValueChange="OnItemDiscountPercentChanged" />
 							</SfNumericTextBox>
 						</div>
