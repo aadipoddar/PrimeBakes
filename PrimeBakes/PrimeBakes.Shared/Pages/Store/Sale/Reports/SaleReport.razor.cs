@@ -1,20 +1,18 @@
 using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.Operations.Settings.Data;
-using PrimeBakesLibrary.Store.Sale.Data;
-using PrimeBakesLibrary.Store.StockTransfer.Data;
+using PrimeBakesLibrary.Data.Accounts.Masters;
+using PrimeBakesLibrary.Data.Operations;
+using PrimeBakesLibrary.Data.Store.Sale;
+using PrimeBakesLibrary.Data.Store.StockTransfer;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Store.Sale.Exports;
-using PrimeBakesLibrary.Utils.ExportUtils;
-using PrimeBakesLibrary.Accounts.Masters.Models;
-using PrimeBakesLibrary.Operations.User.Models;
-using PrimeBakesLibrary.Operations.Location.Models;
-using PrimeBakesLibrary.Operations.Settings.Models;
-using PrimeBakesLibrary.Restaurant.Bill.Models;
-using PrimeBakesLibrary.Store.Sale.Models;
-using PrimeBakesLibrary.Store.StockTransfer.Models;
+using PrimeBakesLibrary.Exporting.Store.Sale;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Models.Restuarant.Bill;
+using PrimeBakesLibrary.Models.Store.Sale;
+using PrimeBakesLibrary.Models.Store.StockTransfer;
 
 using Syncfusion.Blazor.Grids;
 
@@ -102,20 +100,20 @@ public partial class SaleReport : IAsyncDisposable
 
 	private async Task LoadLocations()
 	{
-		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
+		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
 		_locations = [.. _locations.OrderBy(s => s.Name)];
 		_selectedLocation = _locations.FirstOrDefault(_ => _.Id == _user.LocationId);
 	}
 
 	private async Task LoadCompanies()
 	{
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
 		_companies = [.. _companies.OrderBy(s => s.Name)];
 	}
 
 	private async Task LoadParties()
 	{
-		_parties = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
+		_parties = await CommonData.LoadTableDataByStatus<LedgerModel>(TableNames.Ledger);
 		_parties = [.. _parties.OrderBy(s => s.Name)];
 	}
 
@@ -131,7 +129,7 @@ public partial class SaleReport : IAsyncDisposable
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
 			_transactionOverviews = await CommonData.LoadTableDataByDate<SaleOverviewModel>(
-				StoreNames.SaleOverview,
+				ViewNames.SaleOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
@@ -198,7 +196,7 @@ public partial class SaleReport : IAsyncDisposable
 	private async Task LoadTransactionReturnOverviews()
 	{
 		_transactionReturnOverviews = await CommonData.LoadTableDataByDate<SaleReturnOverviewModel>(
-			StoreNames.SaleReturnOverview,
+			ViewNames.SaleReturnOverview,
 			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
@@ -275,7 +273,7 @@ public partial class SaleReport : IAsyncDisposable
 	private async Task LoadTransactionTransferOverviews()
 	{
 		_transactionTransferOverviews = await CommonData.LoadTableDataByDate<StockTransferOverviewModel>(
-			StoreNames.StockTransferOverview,
+			ViewNames.StockTransferOverview,
 			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
@@ -356,7 +354,7 @@ public partial class SaleReport : IAsyncDisposable
 	private async Task LoadTransactionBillOverviews()
 	{
 		_transactionBillOverviews = await CommonData.LoadTableDataByDate<BillOverviewModel>(
-			RestaurantNames.BillOverview,
+			ViewNames.BillOverview,
 			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
@@ -781,7 +779,7 @@ public partial class SaleReport : IAsyncDisposable
 
 	private async Task DeleteSaleTransaction(int transactionId)
 	{
-		var sale = await CommonData.LoadTableDataById<SaleModel>(StoreNames.Sale, transactionId);
+		var sale = await CommonData.LoadTableDataById<SaleModel>(TableNames.Sale, transactionId);
 		if (sale is null)
 		{
 			await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);
@@ -798,7 +796,7 @@ public partial class SaleReport : IAsyncDisposable
 
 	private async Task DeleteSaleReturnTransaction(int transactionId)
 	{
-		var saleReturn = await CommonData.LoadTableDataById<SaleReturnModel>(StoreNames.SaleReturn, transactionId);
+		var saleReturn = await CommonData.LoadTableDataById<SaleReturnModel>(TableNames.SaleReturn, transactionId);
 		if (saleReturn is null)
 		{
 			await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);
@@ -815,7 +813,7 @@ public partial class SaleReport : IAsyncDisposable
 
 	private async Task DeleteStockTransferTransaction(int transactionId)
 	{
-		var stockTransfer = await CommonData.LoadTableDataById<StockTransferModel>(StoreNames.StockTransfer, transactionId);
+		var stockTransfer = await CommonData.LoadTableDataById<StockTransferModel>(TableNames.StockTransfer, transactionId);
 		if (stockTransfer is null)
 		{
 			await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);
@@ -886,7 +884,7 @@ public partial class SaleReport : IAsyncDisposable
 
 	private async Task RecoverSaleTransaction(int recoverTransactionId)
 	{
-		var sale = await CommonData.LoadTableDataById<SaleModel>(StoreNames.Sale, recoverTransactionId);
+		var sale = await CommonData.LoadTableDataById<SaleModel>(TableNames.Sale, recoverTransactionId);
 		if (sale is null)
 		{
 			await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);
@@ -904,7 +902,7 @@ public partial class SaleReport : IAsyncDisposable
 
 	private async Task RecoverSaleReturnTransaction(int recoverTransactionId)
 	{
-		var saleReturn = await CommonData.LoadTableDataById<SaleReturnModel>(StoreNames.SaleReturn, recoverTransactionId);
+		var saleReturn = await CommonData.LoadTableDataById<SaleReturnModel>(TableNames.SaleReturn, recoverTransactionId);
 		if (saleReturn is null)
 		{
 			await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);
@@ -922,7 +920,7 @@ public partial class SaleReport : IAsyncDisposable
 
 	private async Task RecoverStockTransferTransaction(int recoverTransactionId)
 	{
-		var stockTransfer = await CommonData.LoadTableDataById<StockTransferModel>(StoreNames.StockTransfer, recoverTransactionId);
+		var stockTransfer = await CommonData.LoadTableDataById<StockTransferModel>(TableNames.StockTransfer, recoverTransactionId);
 		if (stockTransfer is null)
 		{
 			await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);

@@ -1,15 +1,14 @@
-using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.Operations.Settings.Data;
-using PrimeBakesLibrary.Store.Masters.Data;
-using PrimeBakesLibrary.Store.Sale.Data;
+using PrimeBakesLibrary.Data.Accounts.Masters;
+using PrimeBakesLibrary.Data.Operations;
+using PrimeBakesLibrary.Data.Store.Masters;
+using PrimeBakesLibrary.Data.Store.Sale;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Store.Sale.Exports;
-using PrimeBakesLibrary.Utils.ExportUtils;
-using PrimeBakesLibrary.Operations.User.Models;
-using PrimeBakesLibrary.Operations.Settings.Models;
-using PrimeBakesLibrary.Store.Masters.Models;
-using PrimeBakesLibrary.Store.Product.Models;
-using PrimeBakesLibrary.Store.Sale.Models;
+using PrimeBakesLibrary.Exporting.Store.Sale;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Models.Store.Masters;
+using PrimeBakesLibrary.Models.Store.Product;
+using PrimeBakesLibrary.Models.Store.Sale;
 
 using Syncfusion.Blazor.Inputs;
 
@@ -155,8 +154,8 @@ public partial class SaleMobilePaymentPage
 	#region Saving
 	private async Task UpdateFinancialDetails(bool customRoundOff = false)
 	{
-		var taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
-		var items = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
+		var taxes = await CommonData.LoadTableData<TaxModel>(TableNames.Tax);
+		var items = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
 
 		foreach (var item in _cart.Where(_ => _.Quantity > 0))
 		{
@@ -295,7 +294,7 @@ public partial class SaleMobilePaymentPage
 
 		if (_selectedCustomer.Id > 0)
 		{
-			_selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(StoreNames.Customer, _selectedCustomer.Id);
+			_selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(TableNames.Customer, _selectedCustomer.Id);
 			_sale.CustomerId = _selectedCustomer.Id;
 		}
 		else if (!string.IsNullOrWhiteSpace(_selectedCustomer.Number) && _selectedCustomer.Id == 0)
@@ -393,7 +392,7 @@ public partial class SaleMobilePaymentPage
 	#region Utilities
 	private async Task SendLocalNotification(int saleId)
 	{
-		var sale = await CommonData.LoadTableDataById<SaleOverviewModel>(StoreNames.SaleOverview, saleId);
+		var sale = await CommonData.LoadTableDataById<SaleOverviewModel>(ViewNames.SaleOverview, saleId);
 		await NotificationService.ShowLocalNotification(
 			sale.Id,
 			"Sale Placed",

@@ -1,16 +1,15 @@
 using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.Inventory.Purchase.Data;
-using PrimeBakesLibrary.Operations.Settings.Data;
+using PrimeBakesLibrary.Data.Accounts.Masters;
+using PrimeBakesLibrary.Data.Inventory.Purchase;
+using PrimeBakesLibrary.Data.Operations;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Inventory.Purchase.Exports;
-using PrimeBakesLibrary.Utils.ExportUtils;
-using PrimeBakesLibrary.Accounts.Masters.Models;
-using PrimeBakesLibrary.Inventory.Purchase.Models;
-using PrimeBakesLibrary.Operations.User.Models;
-using PrimeBakesLibrary.Operations.Settings.Models;
+using PrimeBakesLibrary.Exporting.Inventory.Purchase;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Models.Inventory.Purchase;
+using PrimeBakesLibrary.Models.Operations;
 
 using Syncfusion.Blazor.Grids;
 
@@ -91,13 +90,13 @@ public partial class PurchaseReport : IAsyncDisposable
 
     private async Task LoadCompanies()
     {
-        _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+        _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
         _companies = [.. _companies.OrderBy(s => s.Name)];
     }
 
     private async Task LoadParties()
     {
-        _parties = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
+        _parties = await CommonData.LoadTableDataByStatus<LedgerModel>(TableNames.Ledger);
         _parties = [.. _parties.OrderBy(s => s.Name)];
     }
 
@@ -113,7 +112,7 @@ public partial class PurchaseReport : IAsyncDisposable
             await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
             _transactionOverviews = await CommonData.LoadTableDataByDate<PurchaseOverviewModel>(
-                InventoryNames.PurchaseOverview,
+                ViewNames.PurchaseOverview,
                 DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
                 DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
@@ -167,7 +166,7 @@ public partial class PurchaseReport : IAsyncDisposable
     private async Task LoadTransactionReturnOverviews()
     {
         _transactionReturnOverviews = await CommonData.LoadTableDataByDate<PurchaseReturnOverviewModel>(
-            InventoryNames.PurchaseReturnOverview,
+            ViewNames.PurchaseReturnOverview,
             DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
             DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
@@ -515,7 +514,7 @@ public partial class PurchaseReport : IAsyncDisposable
 
     private async Task DeleteTransaction()
     {
-        var purchase = await CommonData.LoadTableDataById<PurchaseModel>(InventoryNames.Purchase, _deleteTransactionId);
+        var purchase = await CommonData.LoadTableDataById<PurchaseModel>(TableNames.Purchase, _deleteTransactionId);
         if (purchase is null)
         {
             await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);
@@ -532,7 +531,7 @@ public partial class PurchaseReport : IAsyncDisposable
 
     private async Task DeleteReturnTransaction()
     {
-        var purchaseReturn = await CommonData.LoadTableDataById<PurchaseReturnModel>(InventoryNames.PurchaseReturn, _deleteTransactionId);
+        var purchaseReturn = await CommonData.LoadTableDataById<PurchaseReturnModel>(TableNames.PurchaseReturn, _deleteTransactionId);
         if (purchaseReturn is null)
         {
             await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);
@@ -594,7 +593,7 @@ public partial class PurchaseReport : IAsyncDisposable
 
     private async Task RecoverTransaction()
     {
-        var purchase = await CommonData.LoadTableDataById<PurchaseModel>(InventoryNames.Purchase, _recoverTransactionId);
+        var purchase = await CommonData.LoadTableDataById<PurchaseModel>(TableNames.Purchase, _recoverTransactionId);
         if (purchase is null)
         {
             await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);
@@ -611,7 +610,7 @@ public partial class PurchaseReport : IAsyncDisposable
 
     private async Task RecoverReturnTransaction()
     {
-        var purchaseReturn = await CommonData.LoadTableDataById<PurchaseReturnModel>(InventoryNames.PurchaseReturn, _recoverTransactionId);
+        var purchaseReturn = await CommonData.LoadTableDataById<PurchaseReturnModel>(TableNames.PurchaseReturn, _recoverTransactionId);
         if (purchaseReturn is null)
         {
             await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);

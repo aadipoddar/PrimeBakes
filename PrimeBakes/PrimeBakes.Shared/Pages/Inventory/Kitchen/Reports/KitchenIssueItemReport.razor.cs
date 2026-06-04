@@ -1,15 +1,14 @@
 using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.Operations.Settings.Data;
+using PrimeBakesLibrary.Data.Accounts.Masters;
+using PrimeBakesLibrary.Data.Operations;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Inventory.Kitchen.Exports;
-using PrimeBakesLibrary.Utils.ExportUtils;
-using PrimeBakesLibrary.Accounts.Masters.Models;
-using PrimeBakesLibrary.Inventory.Kitchen.Models;
-using PrimeBakesLibrary.Operations.User.Models;
-using PrimeBakesLibrary.Operations.Settings.Models;
+using PrimeBakesLibrary.Exporting.Inventory.Kitchen;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Models.Inventory.Kitchen;
+using PrimeBakesLibrary.Models.Operations;
 
 using Syncfusion.Blazor.Grids;
 
@@ -78,13 +77,13 @@ public partial class KitchenIssueItemReport : IAsyncDisposable
 
 	private async Task LoadCompanies()
 	{
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
 		_companies = [.. _companies.OrderBy(s => s.Name)];
 	}
 
 	private async Task LoadKitchens()
 	{
-		_kitchens = await CommonData.LoadTableDataByStatus<KitchenModel>(InventoryNames.Kitchen);
+		_kitchens = await CommonData.LoadTableDataByStatus<KitchenModel>(TableNames.Kitchen);
 		_kitchens = [.. _kitchens.OrderBy(s => s.Name)];
 	}
 
@@ -100,7 +99,7 @@ public partial class KitchenIssueItemReport : IAsyncDisposable
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
 			_transactionOverviews = await CommonData.LoadTableDataByDate<KitchenIssueItemOverviewModel>(
-				InventoryNames.KitchenIssueItemOverview,
+				ViewNames.KitchenIssueItemOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 

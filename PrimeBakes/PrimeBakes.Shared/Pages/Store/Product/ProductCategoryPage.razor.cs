@@ -1,10 +1,10 @@
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Store.Product.Data;
+using PrimeBakesLibrary.Data.Store.Product;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Store.Product.Exports;
-using PrimeBakesLibrary.Utils.ExportUtils;
-using PrimeBakesLibrary.Operations.User.Models;
-using PrimeBakesLibrary.Store.Product.Models;
+using PrimeBakesLibrary.Exporting.Store.Product;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Models.Store.Product;
 
 using Syncfusion.Blazor.Grids;
 
@@ -49,7 +49,7 @@ public partial class ProductCategoryPage
 
     private async Task LoadData()
     {
-        _productCategories = await CommonData.LoadTableData<ProductCategoryModel>(StoreNames.ProductCategory);
+        _productCategories = await CommonData.LoadTableData<ProductCategoryModel>(TableNames.ProductCategory);
 
         if (!_showDeleted)
             _productCategories = [.. _productCategories.Where(pc => pc.Status)];

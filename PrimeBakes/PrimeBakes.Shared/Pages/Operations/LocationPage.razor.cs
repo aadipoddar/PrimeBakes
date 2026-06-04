@@ -1,12 +1,11 @@
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Operations.Location.Data;
-using PrimeBakesLibrary.Store.Product.Data;
+using PrimeBakesLibrary.Data.Operations;
+using PrimeBakesLibrary.Data.Store.Product;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Operations.Location.Exports;
-using PrimeBakesLibrary.Utils.ExportUtils;
-using PrimeBakesLibrary.Accounts.Masters.Models;
-using PrimeBakesLibrary.Operations.User.Models;
-using PrimeBakesLibrary.Operations.Location.Models;
+using PrimeBakesLibrary.Exporting.Operations;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Models.Operations;
 
 using Syncfusion.Blazor.Grids;
 
@@ -54,8 +53,8 @@ public partial class LocationPage
 
     private async Task LoadData()
     {
-        _locations = await CommonData.LoadTableData<LocationModel>(OperationNames.Location);
-        _ledgers = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
+        _locations = await CommonData.LoadTableData<LocationModel>(TableNames.Location);
+        _ledgers = await CommonData.LoadTableDataByStatus<LedgerModel>(TableNames.Ledger);
 
         if (!_showDeleted)
             _locations = [.. _locations.Where(l => l.Status)];

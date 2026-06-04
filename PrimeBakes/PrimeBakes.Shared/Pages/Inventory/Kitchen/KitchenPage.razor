@@ -1,6 +1,6 @@
 @attribute [Route(PageRouteNames.Kitchen)]
 
-@using PrimeBakesLibrary.Inventory.Kitchen.Models
+@using PrimeBakesLibrary.Models.Inventory.Kitchen
 
 <PageTitle>Kitchen Management - Prime Bakes</PageTitle>
 
@@ -15,7 +15,7 @@
 
 @if (_isLoading || _user is null)
 {
-	<LoadingScreen Visible="true" />
+	<AnimatedLoader Visible="true" />
 }
 else
 {

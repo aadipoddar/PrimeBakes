@@ -2,21 +2,19 @@ using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
-using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.Operations.Settings.Data;
-using PrimeBakesLibrary.Store.Masters.Data;
-using PrimeBakesLibrary.Store.Product.Data;
-using PrimeBakesLibrary.Store.Sale.Data;
+using PrimeBakesLibrary.Data.Accounts.Masters;
+using PrimeBakesLibrary.Data.Operations;
+using PrimeBakesLibrary.Data.Store.Masters;
+using PrimeBakesLibrary.Data.Store.Product;
+using PrimeBakesLibrary.Data.Store.Sale;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Store.Sale.Exports;
-using PrimeBakesLibrary.Utils.ExportUtils;
-using PrimeBakesLibrary.Accounts.Masters.Models;
-using PrimeBakesLibrary.Operations.User.Models;
-using PrimeBakesLibrary.Operations.Location.Models;
-using PrimeBakesLibrary.Operations.Settings.Models;
-using PrimeBakesLibrary.Store.Masters.Models;
-using PrimeBakesLibrary.Store.Product.Models;
-using PrimeBakesLibrary.Store.Sale.Models;
+using PrimeBakesLibrary.Exporting.Store.Sale;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Models.Store.Masters;
+using PrimeBakesLibrary.Models.Store.Product;
+using PrimeBakesLibrary.Models.Store.Sale;
 
 using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;
@@ -93,7 +91,7 @@ public partial class SaleReturnPage
     {
         try
         {
-            _locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
+            _locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
             _locations = [.. _locations.OrderBy(s => s.Name)];
 
             _selectedLocation = _locations.FirstOrDefault(s => s.Id == _user.LocationId);
@@ -108,7 +106,7 @@ public partial class SaleReturnPage
     {
         try
         {
-            _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+            _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
             _companies = [.. _companies.OrderBy(s => s.Name)];
 
             var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
@@ -124,7 +122,7 @@ public partial class SaleReturnPage
     {
         try
         {
-            _parties = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
+            _parties = await CommonData.LoadTableDataByStatus<LedgerModel>(TableNames.Ledger);
             _parties = [.. _parties.OrderBy(s => s.Name)];
 
             _selectedParty = null;
@@ -141,7 +139,7 @@ public partial class SaleReturnPage
         {
             if (Id.HasValue)
             {
-                _saleReturn = await CommonData.LoadTableDataById<SaleReturnModel>(StoreNames.SaleReturn, Id.Value);
+                _saleReturn = await CommonData.LoadTableDataById<SaleReturnModel>(TableNames.SaleReturn, Id.Value);
                 if (_saleReturn is null || _saleReturn.Id == 0 || _user.LocationId > 1)
                 {
                     await _toastNotification.ShowAsync("Transaction Not Found", "The requested transaction could not be found.", ToastType.Error);
@@ -225,14 +223,14 @@ public partial class SaleReturnPage
             }
 
             if (_saleReturn.CustomerId is not null && _saleReturn.CustomerId > 0)
-                _selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(StoreNames.Customer, _saleReturn.CustomerId.Value);
+                _selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(TableNames.Customer, _saleReturn.CustomerId.Value);
             else
             {
                 _selectedCustomer = new();
                 _saleReturn.CustomerId = null;
             }
 
-            _selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, _saleReturn.FinancialYearId);
+            _selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, _saleReturn.FinancialYearId);
             SyncPaymentsFromSaleReturn();
         }
         catch (Exception ex)
@@ -251,7 +249,7 @@ public partial class SaleReturnPage
         try
         {
             _products = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _saleReturn.LocationId);
-            _taxes = await CommonData.LoadTableDataByStatus<TaxModel>(StoreNames.Tax);
+            _taxes = await CommonData.LoadTableDataByStatus<TaxModel>(TableNames.Tax);
 
             _products = [.. _products.OrderBy(s => s.Name)];
         }
@@ -269,13 +267,13 @@ public partial class SaleReturnPage
 
             if (_saleReturn.Id > 0)
             {
-                var existingCart = await CommonData.LoadTableDataByMasterId<SaleReturnDetailModel>(StoreNames.SaleReturnDetail, _saleReturn.Id);
+                var existingCart = await CommonData.LoadTableDataByMasterId<SaleReturnDetailModel>(TableNames.SaleReturnDetail, _saleReturn.Id);
 
                 foreach (var item in existingCart)
                 {
                     if (_products.FirstOrDefault(s => s.ProductId == item.ProductId) is null)
                     {
-                        var product = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, item.ProductId);
+                        var product = await CommonData.LoadTableDataById<ProductModel>(TableNames.Product, item.ProductId);
                         await _toastNotification.ShowAsync("Item Not Found", $"The item {product?.Name} (ID: {item.ProductId}) in the existing transaction cart was not found in the available items list. It may have been deleted or is inaccessible.", ToastType.Error);
                         continue;
                     }
@@ -968,7 +966,7 @@ public partial class SaleReturnPage
 
         if (_saleReturn.Id > 0)
         {
-            var existingSaleReturn = await CommonData.LoadTableDataById<SaleReturnModel>(StoreNames.SaleReturn, _saleReturn.Id);
+            var existingSaleReturn = await CommonData.LoadTableDataById<SaleReturnModel>(TableNames.SaleReturn, _saleReturn.Id);
             await FinancialYearData.ValidateFinancialYear(existingSaleReturn.TransactionDateTime);
 
             if (!_user.Admin || _user.LocationId > 1)
@@ -992,7 +990,7 @@ public partial class SaleReturnPage
 
         if (_selectedCustomer.Id > 0)
         {
-            _selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(StoreNames.Customer, _selectedCustomer.Id);
+            _selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(TableNames.Customer, _selectedCustomer.Id);
             _saleReturn.CustomerId = _selectedCustomer.Id;
         }
         else if (!string.IsNullOrWhiteSpace(_selectedCustomer.Number) && _selectedCustomer.Id == 0)

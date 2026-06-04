@@ -1,10 +1,9 @@
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Operations.User.Data;
+using PrimeBakesLibrary.Data.Operations;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Operations.User.Exports;
-using PrimeBakesLibrary.Utils.ExportUtils;
-using PrimeBakesLibrary.Operations.User.Models;
-using PrimeBakesLibrary.Operations.Location.Models;
+using PrimeBakesLibrary.Exporting.Operations;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Operations;
 
 using Syncfusion.Blazor.Grids;
 
@@ -51,8 +50,8 @@ public partial class UserPage
 
 	private async Task LoadData()
 	{
-		_locations = await CommonData.LoadTableData<LocationModel>(OperationNames.Location);
-		_users = await CommonData.LoadTableData<UserModel>(OperationNames.User);
+		_locations = await CommonData.LoadTableData<LocationModel>(TableNames.Location);
+		_users = await CommonData.LoadTableData<UserModel>(TableNames.User);
 
 		if (!_showDeleted)
 			_users = [.. _users.Where(u => u.Status)];

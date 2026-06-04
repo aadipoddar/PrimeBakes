@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Operations.User.Models;
+using PrimeBakesLibrary.Models.Operations;
 
 namespace PrimeBakes.Shared.Services;
 
@@ -17,7 +17,7 @@ public static class AuthenticationService
 		if (user is null)
 			await Logout(dataStorageService, navigationManager, notificationService, vibrationService);
 
-		var serverUser = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, user.Id);
+		var serverUser = await CommonData.LoadTableDataById<UserModel>(TableNames.User, user.Id);
 		if (serverUser is null)
 			await Logout(dataStorageService, navigationManager, notificationService, vibrationService);
 

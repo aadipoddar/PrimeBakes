@@ -1,53 +1,53 @@
-﻿using Microsoft.AspNetCore.Components;
-
-using Syncfusion.Blazor.Grids;
+using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
+using PrimeBakesLibrary.Data.Accounts.FinancialAccounting;
+using PrimeBakesLibrary.Data.Accounts.Masters;
+using PrimeBakesLibrary.Data.Operations;
+using PrimeBakesLibrary.DataAccess;
+using PrimeBakesLibrary.Exporting.Accounts.FinancialAccounting;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Accounts.FinancialAccounting;
+using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Models.Operations;
 
-using PrimeBakesLibrary.Accounts.FinancialAccounting.Data;
-using PrimeBakesLibrary.Accounts.FinancialAccounting.Exports;
-using PrimeBakesLibrary.Accounts.FinancialAccounting.Models;
-using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.Accounts.Masters.Models;
-using PrimeBakesLibrary.Operations.User.Data;
-using PrimeBakesLibrary.Operations.Settings.Data;
-using PrimeBakesLibrary.Operations.User.Models;
-using PrimeBakesLibrary.Operations.Settings.Models;
-using PrimeBakesLibrary.Utils.ExportUtils;
+using Syncfusion.Blazor.DropDowns;
+using Syncfusion.Blazor.Grids;
 
 namespace PrimeBakes.Shared.Pages.Accounts;
 
 public partial class FinancialAccountingPage
 {
+
 	[Parameter] public int? Id { get; set; }
 
 	private UserModel _user;
+
 	private bool _isLoading = true;
 	private bool _isProcessing = false;
 
-	private CompanyModel _selectedCompany = new();
-	private VoucherModel _selectedVoucher = new();
-	private FinancialYearModel _selectedFinancialYear = new();
+	private CompanyModel? _selectedCompany = null;
+	private VoucherModel? _selectedVoucher = null;
+	private FinancialYearModel? _selectedFinancialYear = null;
 	private LedgerModel? _selectedLedger = null;
 	private FinancialAccountingLedgerOverviewModel? _selectedAccountingLedger = null;
-	private FinancialAccountingLedgerCartModel _selectedCart = new();
+	private FinancialAccountingItemCartModel _selectedCart = new();
 	private FinancialAccountingModel _accounting = new();
 
 	private List<CompanyModel> _companies = [];
 	private List<VoucherModel> _vouchers = [];
 	private List<LedgerModel> _ledgers = [];
 	private List<FinancialAccountingLedgerOverviewModel> _accountingLedgers = [];
-	private List<FinancialAccountingLedgerCartModel> _cart = [];
+	private List<FinancialAccountingItemCartModel> _cart = [];
 	private readonly List<ContextMenuItemModel> _cartGridContextMenuItems =
 	[
 		new() { Text = "Edit (Insert)", Id = "EditCart", IconCss = "e-icons e-edit", Target = ".e-content" },
 		new() { Text = "Delete (Del)", Id = "DeleteCart", IconCss = "e-icons e-trash", Target = ".e-content" }
 	];
 
-	private CustomAutoComplete<CompanyModel> _sfFirstFocus;
-	private CustomAutoComplete<LedgerModel> _sfLedgerAutoComplete;
-	private SfGrid<FinancialAccountingLedgerCartModel> _sfCartGrid;
+	private AutoCompleteWithAdd<LedgerModel?, LedgerModel> _sfLedgerAutoComplete;
+	private SfGrid<FinancialAccountingItemCartModel> _sfCartGrid;
 
 	private ToastNotification _toastNotification;
 
@@ -57,48 +57,46 @@ public partial class FinancialAccountingPage
 		if (!firstRender)
 			return;
 
-		try
-		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Accounts]);
-			await InitializePage();
-		}
-		catch { await ResetPage(); }
+		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Accounts], true);
+		await InitializePage();
 	}
 
 	private async Task InitializePage()
 	{
 		await LoadCompanies();
 		await LoadVouchers();
-		await ResolveTransaction();
+
+		if (!await ResolveTransaction())
+			return;
+
 		await LoadSelections();
 		await LoadLedgers();
 		await LoadCart();
+		await SaveTransactionFile();
 
 		_isLoading = false;
 		StateHasChanged();
-
-		await SaveTransactionFile();
-
-		if (_sfFirstFocus is not null)
-			await _sfFirstFocus.FocusAsync();
 	}
 
-	private async Task ResolveTransaction()
+	private async Task<bool> ResolveTransaction()
 	{
 		try
 		{
 			if (await LoadExistingTransaction())
-				return;
+				return true;
 
 			if (await TryRestoreFromLocalStorage())
-				return;
+				return true;
 
 			await CreateNewTransaction();
+			return true;
 		}
 		catch (Exception ex)
 		{
 			await _toastNotification.ShowAsync("An Error Occurred While Loading Transaction Data", ex.Message, ToastType.Error);
-			await ResetPage();
+			await DeleteLocalFiles();
+			await CreateNewTransaction();
+			return true;
 		}
 	}
 
@@ -107,11 +105,12 @@ public partial class FinancialAccountingPage
 		if (!Id.HasValue)
 			return false;
 
-		_accounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(AccountNames.FinancialAccounting, Id.Value);
+		_accounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(TableNames.FinancialAccounting, Id.Value);
 		if (_accounting is null || _accounting.Id == 0)
 		{
 			await _toastNotification.ShowAsync("Transaction Not Found", "The requested transaction could not be found.", ToastType.Error);
 			NavigationManager.NavigateTo(PageRouteNames.FinancialAccounting, true);
+			return false;
 		}
 
 		return true;
@@ -187,20 +186,13 @@ public partial class FinancialAccountingPage
 		_accounting.VoucherId = _selectedVoucher.Id;
 
 		if (_accounting.FinancialYearId > 0)
-			_selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, _accounting.FinancialYearId);
+			_selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, _accounting.FinancialYearId);
 
 		if (_selectedFinancialYear is null || _selectedFinancialYear.Id <= 0)
 			_selectedFinancialYear = await FinancialYearData.LoadFinancialYearByDateTime(_accounting.TransactionDateTime);
 
 		if (_selectedFinancialYear is not null)
 			_accounting.FinancialYearId = _selectedFinancialYear.Id;
-
-		if (_accounting.Id == 0)
-		{
-			var lastTransaction = await CommonData.LoadLastTableData<FinancialAccountingModel>(AccountNames.FinancialAccounting);
-			if (lastTransaction is not null)
-				_accounting.TransactionDateTime = lastTransaction.TransactionDateTime;
-		}
 	}
 
 	private async Task LoadCart()
@@ -211,13 +203,13 @@ public partial class FinancialAccountingPage
 
 			if (_accounting.Id > 0)
 			{
-				var existingCart = await CommonData.LoadTableDataByMasterId<FinancialAccountingLedgerModel>(AccountNames.FinancialAccountingLedger, _accounting.Id);
+				var existingCart = await CommonData.LoadTableDataByMasterId<FinancialAccountingDetailModel>(TableNames.FinancialAccountingDetail, _accounting.Id);
 
 				foreach (var item in existingCart)
 				{
 					if (_ledgers.FirstOrDefault(s => s.Id == item.LedgerId) is null)
 					{
-						var ledger = await CommonData.LoadTableDataById<LedgerModel>(AccountNames.Ledger, item.LedgerId);
+						var ledger = await CommonData.LoadTableDataById<LedgerModel>(TableNames.Ledger, item.LedgerId);
 						await _toastNotification.ShowAsync("Ledger Not Found", $"The ledger {ledger?.Name} (ID: {item.LedgerId}) in the existing transaction cart was not found in the available ledgers list. It may have been deleted or is inaccessible.", ToastType.Error);
 						continue;
 					}
@@ -237,13 +229,12 @@ public partial class FinancialAccountingPage
 			}
 
 			else if (await DataStorageService.LocalExists(StorageFileNames.FinancialAccountingCartDataFileName))
-				_cart = System.Text.Json.JsonSerializer.Deserialize<List<FinancialAccountingLedgerCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.FinancialAccountingCartDataFileName));
+				_cart = System.Text.Json.JsonSerializer.Deserialize<List<FinancialAccountingItemCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.FinancialAccountingCartDataFileName));
 		}
 		catch (Exception ex)
 		{
 			await _toastNotification.ShowAsync("An Error Occurred While Loading Existing Cart", ex.Message, ToastType.Error);
 			await DeleteLocalFiles();
-			await ResetPage();
 		}
 	}
 
@@ -251,7 +242,7 @@ public partial class FinancialAccountingPage
 	{
 		try
 		{
-			_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+			_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
 			_companies = [.. _companies.OrderBy(s => s.Name)];
 
 			var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
@@ -267,7 +258,7 @@ public partial class FinancialAccountingPage
 	{
 		try
 		{
-			_vouchers = await CommonData.LoadTableDataByStatus<VoucherModel>(AccountNames.Voucher);
+			_vouchers = await CommonData.LoadTableDataByStatus<VoucherModel>(TableNames.Voucher);
 			_vouchers = [.. _vouchers.OrderBy(s => s.Name)];
 
 			var defaultSelectedVoucherId = await SettingsData.LoadSettingsByKey(SettingsKeys.DefaultSelectedVoucherId);
@@ -283,7 +274,7 @@ public partial class FinancialAccountingPage
 	{
 		try
 		{
-			_ledgers = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
+			_ledgers = await CommonData.LoadTableDataByStatus<LedgerModel>(TableNames.Ledger);
 			_ledgers = [.. _ledgers.OrderBy(s => s.Name)];
 		}
 		catch (Exception ex)
@@ -293,54 +284,63 @@ public partial class FinancialAccountingPage
 	}
 	#endregion
 
-	#region Changed Events
-	private async Task OnCompanyChanged(CompanyModel value)
+	#region Change Events
+	private async Task OnCompanyChanged(ChangeEventArgs<CompanyModel, CompanyModel> args)
 	{
-		if (value is null || value.Id == 0)
+		if (args.Value is null || args.Value.Id == 0)
 			return;
 
-		_selectedCompany = value;
-		_accounting.CompanyId = value.Id;
+		_selectedCompany = args.Value;
+		_accounting.CompanyId = _selectedCompany.Id;
 
 		await SaveTransactionFile();
 	}
 
-	private async Task OnVoucherChanged(VoucherModel value)
+	private async Task OnPartyChanged(ChangeEventArgs<VoucherModel, VoucherModel> args)
 	{
-		if (value is null || value.Id == 0)
+		if (args.Value is null || args.Value.Id == 0)
 			return;
 
-		_selectedVoucher = value;
-		_accounting.VoucherId = value.Id;
+		_selectedVoucher = args.Value;
+		_accounting.VoucherId = _selectedVoucher.Id;
 
 		await SaveTransactionFile();
 	}
 	#endregion
 
 	#region Cart
-	private void OnItemChanged(LedgerModel value)
+	private async Task OnItemChanged(ChangeEventArgs<LedgerModel?, LedgerModel?> args)
 	{
-		if (value is null || value.Id == 0)
-		{
-			_selectedLedger = null;
-			_selectedCart = new();
+		if (args.Value is null || args.Value.Id == 0)
 			return;
+
+		_selectedLedger = args.Value;
+
+		if (_selectedLedger is null)
+			_selectedCart = new()
+			{
+				LedgerId = 0,
+				LedgerName = string.Empty,
+				Credit = null,
+				Debit = null,
+				ReferenceId = null,
+				ReferenceNo = null,
+				ReferenceType = null,
+				Remarks = string.Empty
+			};
+
+		else
+		{
+			_selectedCart.LedgerId = _selectedLedger.Id;
+			_selectedCart.LedgerName = _selectedLedger.Name;
+			_selectedCart.Credit = null;
+			_selectedCart.Debit = null;
 		}
-
-		_selectedLedger = value;
-
-		_selectedCart.LedgerId = _selectedLedger.Id;
-		_selectedCart.LedgerName = _selectedLedger.Name;
-		_selectedCart.Credit = null;
-		_selectedCart.Debit = null;
-		_selectedCart.ReferenceId = null;
-		_selectedCart.ReferenceNo = null;
-		_selectedCart.ReferenceType = null;
 	}
 
-	private void OnReferenceChanged(FinancialAccountingLedgerOverviewModel value)
+	private void OnReferenceChanged(ChangeEventArgs<FinancialAccountingLedgerOverviewModel, FinancialAccountingLedgerOverviewModel> args)
 	{
-		if (value is null)
+		if (args.Value is null)
 		{
 			_selectedAccountingLedger = null;
 			_selectedCart.ReferenceNo = null;
@@ -349,10 +349,10 @@ public partial class FinancialAccountingPage
 			return;
 		}
 
-		_selectedAccountingLedger = value;
-		_selectedCart.ReferenceNo = value.LedgerReferenceNo;
-		_selectedCart.ReferenceId = value.LedgerReferenceId;
-		_selectedCart.ReferenceType = value.LedgerReferenceType;
+		_selectedAccountingLedger = args.Value;
+		_selectedCart.ReferenceNo = args.Value.ReferenceNo;
+		_selectedCart.ReferenceId = args.Value.ReferenceId;
+		_selectedCart.ReferenceType = args.Value.ReferenceType;
 
 		if ((_selectedAccountingLedger.Debit ?? 0) > (_selectedAccountingLedger.Credit ?? 0))
 			_selectedCart.Credit = (_selectedAccountingLedger.Debit ?? 0) - (_selectedAccountingLedger.Credit ?? 0);
@@ -392,17 +392,17 @@ public partial class FinancialAccountingPage
 		await SaveTransactionFile();
 	}
 
-	private async Task EditSelectedCartItem(FinancialAccountingLedgerCartModel cartItem = null)
+	private async Task EditSelectedCartItem()
 	{
-		if (cartItem is null)
-		{
-			if (_sfCartGrid is null || _sfCartGrid.SelectedRecords is null || _sfCartGrid.SelectedRecords.Count == 0)
-				return;
-
-			await EditSelectedCartItem(_sfCartGrid.SelectedRecords.First());
+		if (_sfCartGrid is null || _sfCartGrid.SelectedRecords is null || _sfCartGrid.SelectedRecords.Count == 0)
 			return;
-		}
 
+		var selectedCartItem = _sfCartGrid.SelectedRecords.First();
+		await EditCartItem(selectedCartItem);
+	}
+
+	private async Task EditCartItem(FinancialAccountingItemCartModel cartItem)
+	{
 		_selectedLedger = _ledgers.FirstOrDefault(s => s.Id == cartItem.LedgerId);
 
 		if (_selectedLedger is null)
@@ -421,19 +421,20 @@ public partial class FinancialAccountingPage
 		};
 
 		await _sfLedgerAutoComplete.FocusAsync();
-		await RemoveSelectedCartItem(cartItem);
+		await RemoveItemFromCart(cartItem);
 	}
 
-	private async Task RemoveSelectedCartItem(FinancialAccountingLedgerCartModel cartItem = null)
+	private async Task RemoveSelectedCartItem()
 	{
-		if (cartItem is null)
-		{
-			if (_sfCartGrid is null || _sfCartGrid.SelectedRecords is null || _sfCartGrid.SelectedRecords.Count == 0)
-				return;
+		if (_sfCartGrid is null || _sfCartGrid.SelectedRecords is null || _sfCartGrid.SelectedRecords.Count == 0)
+			return;
 
-			cartItem = _sfCartGrid.SelectedRecords.First();
-		}
+		var selectedCartItem = _sfCartGrid.SelectedRecords.First();
+		await RemoveItemFromCart(selectedCartItem);
+	}
 
+	private async Task RemoveItemFromCart(FinancialAccountingItemCartModel cartItem)
+	{
 		_cart.Remove(cartItem);
 		await SaveTransactionFile();
 	}
@@ -455,7 +456,7 @@ public partial class FinancialAccountingPage
 
 			// Load all accounting ledger transactions for the selected ledger within the financial year
 			var allLedgerTransactions = await CommonData.LoadTableDataByDate<FinancialAccountingLedgerOverviewModel>(
-				AccountNames.FinancialAccountingLedgerOverview,
+				ViewNames.FinancialAccountingLedgerOverview,
 				_selectedFinancialYear.StartDate.ToDateTime(TimeOnly.MinValue),
 				_accounting.TransactionDateTime);
 
@@ -463,14 +464,17 @@ public partial class FinancialAccountingPage
 			var ledgerTransactions = allLedgerTransactions.Where(x => x.Id == _selectedLedger.Id).ToList();
 
 			if (ledgerTransactions.Count == 0)
-				throw new Exception("No reference transactions found for the selected ledger within the financial year.");
+			{
+				await _toastNotification.ShowAsync("No References Found", "No reference transactions found for the selected ledger within the financial year.", ToastType.Info);
+				return;
+			}
 
 			// Group by ReferenceNo, ReferenceType, and ReferenceId to consolidate transactions
 			var ledgerGroups = new Dictionary<(string ReferenceNo, string ReferenceType, int? ReferenceId), FinancialAccountingLedgerOverviewModel>();
 
 			foreach (var item in ledgerTransactions)
 			{
-				var key = (item.LedgerReferenceNo, item.LedgerReferenceType, item.LedgerReferenceId);
+				var key = (item.ReferenceNo, item.ReferenceType, item.ReferenceId);
 
 				if (ledgerGroups.TryGetValue(key, out var existingLedger))
 				{
@@ -479,24 +483,29 @@ public partial class FinancialAccountingPage
 					existingLedger.Credit = (existingLedger.Credit ?? 0) + (item.Credit ?? 0);
 				}
 				else
+				{
 					ledgerGroups[key] = item;
+				}
 			}
 
 			// Filter out balanced entries (where Debit == Credit) and entries without reference information
 			_accountingLedgers = [.. ledgerGroups.Values
 				.Where(x => (x.Debit ?? 0) != (x.Credit ?? 0) &&
-							x.LedgerReferenceId is not null &&
-							!string.IsNullOrWhiteSpace(x.LedgerReferenceNo))
-				.OrderByDescending(x => x.LedgerReferenceDateTime)];
+							x.ReferenceId is not null &&
+							!string.IsNullOrEmpty(x.ReferenceNo))
+				.OrderByDescending(x => x.ReferenceDateTime)];
 
 			if (_accountingLedgers.Count == 0)
-				throw new Exception("No outstanding references found for the selected ledger. All references are fully balanced.");
+			{
+				await _toastNotification.ShowAsync("No Outstanding References", "All references for this ledger are fully balanced.", ToastType.Info);
+				return;
+			}
 
 			await _toastNotification.ShowAsync("References Loaded", $"Found {_accountingLedgers.Count} outstanding reference(s) for the selected ledger.", ToastType.Success);
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("Error Fetching References", ex.Message, ToastType.Error);
+			await _toastNotification.ShowAsync("An Error Occurred While Fetching References", ex.Message, ToastType.Error);
 		}
 		finally
 		{
@@ -535,6 +544,10 @@ public partial class FinancialAccountingPage
 				item.ReferenceNo = null;
 				item.ReferenceType = null;
 			}
+
+			item.Remarks = item.Remarks?.Trim();
+			if (string.IsNullOrWhiteSpace(item.Remarks))
+				item.Remarks = null;
 		}
 
 		_accounting.TotalCreditAmount = _cart.Sum(x => x.Credit ?? 0);
@@ -551,16 +564,24 @@ public partial class FinancialAccountingPage
 		if (_selectedFinancialYear is not null && !_selectedFinancialYear.Locked)
 			_accounting.FinancialYearId = _selectedFinancialYear.Id;
 		else
+		{
 			await _toastNotification.ShowAsync("Invalid Transaction Date", "The selected transaction date does not fall within an active financial year.", ToastType.Error);
+			_accounting.TransactionDateTime = await CommonData.LoadCurrentDateTime();
+			_selectedFinancialYear = await FinancialYearData.LoadFinancialYearByDateTime(_accounting.TransactionDateTime);
+			_accounting.FinancialYearId = _selectedFinancialYear.Id;
+		}
 		#endregion
 
 		if (Id is null)
-			_accounting.TransactionNo = await GenerateCodes.GenerateFinancialAccountingTransactionNo(_accounting);
+			_accounting.TransactionNo = await GenerateCodes.GenerateAccountingTransactionNo(_accounting);
+
+		_accounting.Remarks = _accounting.Remarks?.Trim();
+		if (string.IsNullOrWhiteSpace(_accounting.Remarks))
+			_accounting.Remarks = null;
 
 		var currentDateTime = await CommonData.LoadCurrentDateTime();
 		_accounting.Status = true;
 		_accounting.TransactionDateTime = DateOnly.FromDateTime(_accounting.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
-		_accounting.CreatedAt = currentDateTime;
 		_accounting.LastModifiedAt = currentDateTime;
 		_accounting.CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
 		_accounting.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
@@ -579,18 +600,12 @@ public partial class FinancialAccountingPage
 
 			await UpdateFinancialDetails();
 
-			if (_cart.Count == 0 || _accounting.Id > 0)
-			{
-				await DeleteLocalFiles();
-				return;
-			}
-
 			await DataStorageService.LocalSaveAsync(StorageFileNames.FinancialAccountingDataFileName, System.Text.Json.JsonSerializer.Serialize(_accounting));
 			await DataStorageService.LocalSaveAsync(StorageFileNames.FinancialAccountingCartDataFileName, System.Text.Json.JsonSerializer.Serialize(_cart));
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("Error Saving Transaction Data", ex.Message, ToastType.Error);
+			await _toastNotification.ShowAsync("An Error Occurred While Saving Transaction Data", ex.Message, ToastType.Error);
 		}
 		finally
 		{
@@ -611,12 +626,10 @@ public partial class FinancialAccountingPage
 		{
 			await SaveTransactionFile();
 			_isProcessing = true;
-			StateHasChanged();
 
 			await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			var ledgers = FinancialAccountingData.ConvertCartToDetails(_cart, _accounting.Id);
-			_accounting.Id = await FinancialAccountingData.SaveTransaction(_accounting, ledgers);
+			_accounting.Id = await FinancialAccountingData.SaveTransaction(_accounting, _cart);
 
 			if (savePDF)
 			{
@@ -635,7 +648,7 @@ public partial class FinancialAccountingPage
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("Error While Saving Transaction", ex.Message, ToastType.Error);
+			await _toastNotification.ShowAsync("An Error Occurred While Saving Transaction", ex.Message, ToastType.Error);
 		}
 		finally
 		{
@@ -661,14 +674,14 @@ public partial class FinancialAccountingPage
 			_isProcessing = true;
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_accounting.TransactionNo, true, false);
+			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_accounting.TransactionNo, true, false, CodeType.Accounting);
 			await SaveAndViewService.SaveAndView(decodeTransactionNo.PDFStream.fileName, decodeTransactionNo.PDFStream.stream);
 
 			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
+			await _toastNotification.ShowAsync("An Error Occurred While Exporting", ex.Message, ToastType.Error);
 		}
 		finally
 		{
@@ -692,14 +705,14 @@ public partial class FinancialAccountingPage
 			_isProcessing = true;
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_accounting.TransactionNo, false, true);
+			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_accounting.TransactionNo, false, true, CodeType.Accounting);
 			await SaveAndViewService.SaveAndView(decodeTransactionNo.ExcelStream.fileName, decodeTransactionNo.ExcelStream.stream);
 
 			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
+			await _toastNotification.ShowAsync("An Error Occurred While Downloading Invoice", ex.Message, ToastType.Error);
 		}
 		finally
 		{
@@ -707,7 +720,7 @@ public partial class FinancialAccountingPage
 		}
 	}
 
-	private async Task ExportReferencePDF()
+	private async Task ExportReferenceInvoice()
 	{
 		if (_accounting.ReferenceId is null or <= 0)
 		{
@@ -730,7 +743,7 @@ public partial class FinancialAccountingPage
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
+			await _toastNotification.ShowAsync("An Error Occurred While Downloading Invoice", ex.Message, ToastType.Error);
 		}
 		finally
 		{
@@ -738,9 +751,9 @@ public partial class FinancialAccountingPage
 		}
 	}
 
-	private async Task ExportCartReferencePDF()
+	private async Task ExportCartReferenceInvoice()
 	{
-		if (_selectedAccountingLedger is null || _selectedAccountingLedger.LedgerReferenceId is null || _selectedAccountingLedger.LedgerReferenceId <= 0)
+		if (_selectedAccountingLedger is null || _selectedAccountingLedger.ReferenceId is null || _selectedAccountingLedger.ReferenceId <= 0)
 		{
 			await _toastNotification.ShowAsync("Invalid Reference", "No reference transaction found.", ToastType.Error);
 			return;
@@ -754,14 +767,14 @@ public partial class FinancialAccountingPage
 			_isProcessing = true;
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_selectedAccountingLedger.LedgerReferenceNo, true, false);
+			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_selectedAccountingLedger.ReferenceNo, true, false);
 			await SaveAndViewService.SaveAndView(decodeTransactionNo.PDFStream.fileName, decodeTransactionNo.PDFStream.stream);
 
 			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
+			await _toastNotification.ShowAsync("An Error Occurred While Downloading Invoice", ex.Message, ToastType.Error);
 		}
 		finally
 		{
@@ -769,7 +782,7 @@ public partial class FinancialAccountingPage
 		}
 	}
 
-	private async Task ViewReferenceTransaction()
+	private async Task ViewReferenceInvoice()
 	{
 		if (_accounting.ReferenceId is null || _accounting.ReferenceId <= 0)
 		{
@@ -781,44 +794,71 @@ public partial class FinancialAccountingPage
 		await AuthenticationService.NavigateToRoute(decodeTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
 	}
 
-	private async Task ViewCartReferenceTransaction()
+	private async Task ViewCartReferenceInvoice()
 	{
-		if (_selectedAccountingLedger is null || _selectedAccountingLedger.LedgerReferenceId is null || _selectedAccountingLedger.LedgerReferenceId <= 0)
+		if (_selectedAccountingLedger is null || _selectedAccountingLedger.ReferenceId is null || _selectedAccountingLedger.ReferenceId <= 0)
 		{
 			await _toastNotification.ShowAsync("Invalid Reference", "No reference transaction found.", ToastType.Error);
 			return;
 		}
 
-		var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_selectedAccountingLedger.LedgerReferenceNo, false, false);
+		var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_selectedAccountingLedger.ReferenceNo, false, false);
 		await AuthenticationService.NavigateToRoute(decodeTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
 	}
 	#endregion
 
 	#region Utilities
+
 	private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
 	{
 		switch (args.Item.Id)
 		{
-			case "NewTransaction": await ResetPage(); break;
-			case "SaveTransaction": await SaveTransaction(); break;
-			case "SavePdfInvoice": await SaveTransaction(savePDF: true); break;
-			case "SaveExcelInvoice": await SaveTransaction(saveExcel: true); break;
-			case "ExportPdfInvoice": await ExportPdfInvoice(); break;
-			case "ExportExcelInvoice": await ExportExcelInvoice(); break;
-			case "TransactionHistory": await AuthenticationService.NavigateToRoute(PageRouteNames.FinancialAccountingReport, FormFactor, JSRuntime, NavigationManager); break;
-			case "ItemReport": await AuthenticationService.NavigateToRoute(PageRouteNames.AccountingLedgerReport, FormFactor, JSRuntime, NavigationManager); break;
-			case "TrialBalance": await AuthenticationService.NavigateToRoute(PageRouteNames.TrialBalanceReport, FormFactor, JSRuntime, NavigationManager); break;
-			case "ProfitLoss": await AuthenticationService.NavigateToRoute(PageRouteNames.ProfitAndLossReport, FormFactor, JSRuntime, NavigationManager); break;
-			case "BalanceSheet": await AuthenticationService.NavigateToRoute(PageRouteNames.BalanceSheetReport, FormFactor, JSRuntime, NavigationManager); break;
+			case "NewTransaction":
+				await ResetPage();
+				break;
+			case "SaveTransaction":
+				await SaveTransaction();
+				break;
+			case "SavePdfInvoice":
+				await SaveTransaction(savePDF: true);
+				break;
+			case "SaveExcelInvoice":
+				await SaveTransaction(saveExcel: true);
+				break;
+			case "ExportPdfInvoice":
+				await ExportPdfInvoice();
+				break;
+			case "ExportExcelInvoice":
+				await ExportExcelInvoice();
+				break;
+			case "TransactionHistory":
+				await AuthenticationService.NavigateToRoute(PageRouteNames.FinancialAccountingReport, FormFactor, JSRuntime, NavigationManager);
+				break;
+			case "ItemReport":
+				await AuthenticationService.NavigateToRoute(PageRouteNames.AccountingLedgerReport, FormFactor, JSRuntime, NavigationManager);
+				break;
+			case "TrialBalance":
+				await AuthenticationService.NavigateToRoute(PageRouteNames.TrialBalanceReport, FormFactor, JSRuntime, NavigationManager);
+				break;
+			case "ProfitLoss":
+				await AuthenticationService.NavigateToRoute(PageRouteNames.ProfitAndLossReport, FormFactor, JSRuntime, NavigationManager);
+				break;
+			case "BalanceSheet":
+				await AuthenticationService.NavigateToRoute(PageRouteNames.BalanceSheetReport, FormFactor, JSRuntime, NavigationManager);
+				break;
 		}
 	}
 
-	private async Task OnCartGridContextMenuItemClicked(ContextMenuClickEventArgs<FinancialAccountingLedgerCartModel> args)
+	private async Task OnCartGridContextMenuItemClicked(ContextMenuClickEventArgs<FinancialAccountingItemCartModel> args)
 	{
 		switch (args.Item.Id)
 		{
-			case "EditCart": await EditSelectedCartItem(); break;
-			case "DeleteCart": await RemoveSelectedCartItem(); break;
+			case "EditCart":
+				await EditSelectedCartItem();
+				break;
+			case "DeleteCart":
+				await RemoveSelectedCartItem();
+				break;
 		}
 	}
 
@@ -831,7 +871,11 @@ public partial class FinancialAccountingPage
 	private async Task ResetPage()
 	{
 		await DeleteLocalFiles();
-		PageRefresh.Request();
+		NavigationManager.NavigateTo(PageRouteNames.FinancialAccounting, true);
 	}
+
+	private void NavigateBack() =>
+		NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
+
 	#endregion
 }

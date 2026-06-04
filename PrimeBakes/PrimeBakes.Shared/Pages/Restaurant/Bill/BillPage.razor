@@ -2,12 +2,12 @@
 @attribute [Route($"{PageRouteNames.Bill}/table/{{DiningTableId:int}}")]
 @attribute [Route($"{PageRouteNames.Bill}/{{Id:int}}")]
 
-@using PrimeBakesLibrary.Accounts.Masters.Models
-@using PrimeBakesLibrary.Operations.Location.Models
-@using PrimeBakesLibrary.Restaurant.Bill.Models
-@using PrimeBakesLibrary.Restaurant.Dining.Models
-@using PrimeBakesLibrary.Store.Masters.Models
-@using PrimeBakesLibrary.Store.Product.Models
+@using PrimeBakesLibrary.Models.Accounts.Masters
+@using PrimeBakesLibrary.Models.Operations
+@using PrimeBakesLibrary.Models.Restuarant.Bill
+@using PrimeBakesLibrary.Models.Restuarant.Dining
+@using PrimeBakesLibrary.Models.Store.Masters
+@using PrimeBakesLibrary.Models.Store.Product
 
 <PageTitle>Bill - Prime Bakes</PageTitle>
 
@@ -36,7 +36,7 @@
 
 @if (_isLoading || _user is null)
 {
-	<LoadingScreen Visible="true" />
+	<AnimatedLoader Visible="true" />
 }
 else
 {
@@ -210,20 +210,23 @@ else
 												  CssClass="custom-numeric readonly-field" TabIndex="-1" />
 							</div>
 
-							<div class="financial-row-dual">
-								<label class="financial-label">Discount</label>
-								<div class="dual-inputs">
-									<SfNumericTextBox Value="@_bill.DiscountPercent" TValue="decimal" Max="100" Min="0"
-													  Decimals="2" ShowSpinButton="false" Placeholder="%"
-													  FloatLabelType="FloatLabelType.Never"
-													  CssClass="custom-numeric editable-field small-input">
-										<NumericTextBoxEvents TValue="decimal" ValueChange="OnDiscountPercentChanged" />
-									</SfNumericTextBox>
-									<SfNumericTextBox Value="@_bill.DiscountAmount" Readonly="true" TValue="decimal"
-													  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
-													  CssClass="custom-numeric readonly-field discount-field" TabIndex="-1" />
+							@if (_user.LocationId == 1)
+							{
+								<div class="financial-row-dual">
+									<label class="financial-label">Discount</label>
+									<div class="dual-inputs">
+										<SfNumericTextBox Value="@_bill.DiscountPercent" TValue="decimal" Max="100" Min="0"
+														  Decimals="2" ShowSpinButton="false" Placeholder="%"
+														  FloatLabelType="FloatLabelType.Never"
+														  CssClass="custom-numeric editable-field small-input">
+											<NumericTextBoxEvents TValue="decimal" ValueChange="OnDiscountPercentChanged" />
+										</SfNumericTextBox>
+										<SfNumericTextBox Value="@_bill.DiscountAmount" Readonly="true" TValue="decimal"
+														  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+														  CssClass="custom-numeric readonly-field discount-field" TabIndex="-1" />
+									</div>
 								</div>
-							</div>
+							}
 
 							<div class="financial-row-dual">
 								<label class="financial-label">Service Charge</label>

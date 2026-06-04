@@ -1,349 +1,440 @@
-﻿using Syncfusion.Blazor.Grids;
-
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakes.Shared.Components.Input;
 
-using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.Accounts.Masters.Exports;
-using PrimeBakesLibrary.Accounts.Masters.Models;
-using PrimeBakesLibrary.Operations.User.Models;
-using PrimeBakesLibrary.Operations.Settings.Models;
-using PrimeBakesLibrary.Utils.ExportUtils;
+using PrimeBakesLibrary.Data.Accounts.Masters;
+using PrimeBakesLibrary.DataAccess;
+using PrimeBakesLibrary.Exporting.Accounts.Masters;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Models.Operations;
+
+using Syncfusion.Blazor.Grids;
 
 namespace PrimeBakes.Shared.Pages.Accounts.Masters;
 
 public partial class FinancialYearPage
 {
-	private UserModel _user;
-	private bool _isLoading = true;
-	private bool _isProcessing = false;
-	private bool _showDeleted = false;
+    private UserModel _user;
+    private bool _isLoading = true;
+    private bool _isProcessing = false;
+    private bool _showDeleted = false;
 
-	private FinancialYearModel _financialYear = new();
+    private FinancialYearModel _financialYear = new();
 
-	private List<FinancialYearModel> _financialYears = [];
-	private readonly List<ContextMenuItemModel> _gridContextMenuItems =
-	[
-		new() { Text = "Edit (Insert)", Id = "EditSelectedItem", IconCss = "e-icons e-edit", Target = ".e-content" },
-		new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverSelectedItem", IconCss = "e-icons e-trash", Target = ".e-content" }
-	];
+    private List<FinancialYearModel> _financialYears = [];
+    private readonly List<ContextMenuItemModel> _financialYearGridContextMenuItems =
+    [
+        new() { Text = "Edit (Insert)", Id = "EditFinancialYear", IconCss = "e-icons e-edit", Target = ".e-content" },
+        new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverFinancialYear", IconCss = "e-icons e-trash", Target = ".e-content" }
+    ];
 
-	private SfGrid<FinancialYearModel> _sfGrid;
-	private CustomDatePicker _sfFirstFocus;
-	private ToastNotification _toastNotification;
-	private ConfirmationDialog _confirmationDialog;
+    private SfGrid<FinancialYearModel> _sfGrid;
+    private DeleteConfirmationDialog _deleteConfirmationDialog;
+    private RecoverConfirmationDialog _recoverConfirmationDialog;
 
-	private string _confirmTitle = string.Empty;
-	private string _confirmMessage = string.Empty;
-	private Func<Task> _confirmAction;
+    private int _deleteFinancialYearId = 0;
+    private string _deleteFinancialYearName = string.Empty;
 
-	#region Load Data
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		if (!firstRender)
-			return;
+    private int _recoverFinancialYearId = 0;
+    private string _recoverFinancialYearName = string.Empty;
 
-		try
-		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Accounts]);
-			await LoadData();
-		}
-		catch { NavigationManager.NavigateTo(PageRouteNames.Dashboard); }
-	}
+    private ToastNotification _toastNotification;
 
-	private async Task LoadData()
-	{
-		_financialYears = await CommonData.LoadTableData<FinancialYearModel>(AccountNames.FinancialYear);
+    #region Load Data
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
 
-		if (!_showDeleted)
-			_financialYears = [.. _financialYears.Where(fy => fy.Status)];
+        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Accounts], true);
+        await LoadData();
+    }
 
-		if (_sfGrid is not null)
-			await _sfGrid.Refresh();
+    private async Task LoadData()
+    {
+        _financialYears = await CommonData.LoadTableData<FinancialYearModel>(TableNames.FinancialYear);
 
-		_isLoading = false;
-		StateHasChanged();
+        if (!_showDeleted)
+            _financialYears = [.. _financialYears.Where(g => g.Status)];
 
-		if (_sfFirstFocus is not null)
-			await _sfFirstFocus.FocusAsync();
-	}
-	#endregion
+        if (_sfGrid is not null)
+            await _sfGrid.Refresh();
 
-	#region Changed Events
-	private DateTime StartDateTime => _financialYear.StartDate == default ? default : _financialYear.StartDate.ToDateTime(TimeOnly.MinValue);
-	private DateTime EndDateTime => _financialYear.EndDate == default ? default : _financialYear.EndDate.ToDateTime(TimeOnly.MinValue);
+        _isLoading = false;
+        StateHasChanged();
+    }
+    #endregion
 
-	private void OnStartDateChanged(DateTime value) => _financialYear.StartDate = DateOnly.FromDateTime(value);
-	private void OnEndDateChanged(DateTime value) => _financialYear.EndDate = DateOnly.FromDateTime(value);
-	#endregion
+    #region Actions
+    private void OnEditFinancialYear(FinancialYearModel financialYear)
+    {
+        _financialYear = new()
+        {
+            Id = financialYear.Id,
+            StartDate = financialYear.StartDate,
+            EndDate = financialYear.EndDate,
+            YearNo = financialYear.YearNo,
+            Remarks = financialYear.Remarks,
+            Locked = financialYear.Locked,
+            Status = financialYear.Status
+        };
 
-	#region Saving
-	private async Task SaveTransaction()
-	{
-		if (_isProcessing)
-			return;
+        StateHasChanged();
+    }
 
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
+    private static string GetFinancialYearName(FinancialYearModel fy) =>
+        $"{fy.StartDate:dd-MMM-yyyy} to {fy.EndDate:dd-MMM-yyyy}";
 
-			if (!_user.Admin)
-				throw new Exception("You do not have permission to perform this action.");
+    private void AutoGenerateNextYear()
+    {
+        if (_financialYears.Count == 0)
+        {
+            // No existing financial years, start with a default
+            _financialYear.StartDate = new DateOnly(DateTime.Now.Year, 4, 1);
+            _financialYear.EndDate = new DateOnly(DateTime.Now.Year + 1, 3, 31);
+            _financialYear.YearNo = 1;
+        }
+        else
+        {
+            // Find the latest financial year by end date
+            var latestYear = _financialYears
+                .Where(fy => fy.Status)
+                .OrderByDescending(fy => fy.EndDate)
+                .FirstOrDefault();
 
-			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
+            if (latestYear != null)
+            {
+                // Generate next year based on latest
+                _financialYear.StartDate = latestYear.EndDate.AddDays(1);
+                _financialYear.EndDate = latestYear.EndDate.AddYears(1);
+                _financialYear.YearNo = latestYear.YearNo + 1;
+            }
+            else
+            {
+                // Fallback if no active years exist
+                _financialYear.StartDate = new DateOnly(DateTime.Now.Year, 4, 1);
+                _financialYear.EndDate = new DateOnly(DateTime.Now.Year + 1, 3, 31);
+                _financialYear.YearNo = 1;
+            }
+        }
 
-			await FinancialYearData.SaveTransaction(_financialYear, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+        _financialYear.Locked = false;
+        _financialYear.Remarks = string.Empty;
+        _financialYear.Id = 0;
+        _financialYear.Status = true;
 
-			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
-			ResetPage();
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error While Saving", ex.Message, ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-		}
-	}
-	#endregion
+        StateHasChanged();
+    }
 
-	#region Actions
-	private void AutoGenerateNextYear()
-	{
-		if (_financialYears.Count == 0)
-		{
-			_financialYear.StartDate = new DateOnly(DateTime.Now.Year, 4, 1);
-			_financialYear.EndDate = new DateOnly(DateTime.Now.Year + 1, 3, 31);
-			_financialYear.YearNo = 1;
-		}
-		else
-		{
-			var latestYear = _financialYears
-				.Where(fy => fy.Status)
-				.OrderByDescending(fy => fy.EndDate)
-				.FirstOrDefault();
+    private async Task ConfirmDelete()
+    {
+        try
+        {
+            _isProcessing = true;
+            await _deleteConfirmationDialog.HideAsync();
 
-			if (latestYear != null)
-			{
-				_financialYear.StartDate = latestYear.EndDate.AddDays(1);
-				_financialYear.EndDate = latestYear.EndDate.AddYears(1);
-				_financialYear.YearNo = latestYear.YearNo + 1;
-			}
-			else
-			{
-				_financialYear.StartDate = new DateOnly(DateTime.Now.Year, 4, 1);
-				_financialYear.EndDate = new DateOnly(DateTime.Now.Year + 1, 3, 31);
-				_financialYear.YearNo = 1;
-			}
-		}
+            if (!_user.Admin)
+                throw new Exception("You do not have permission to perform this action.");
 
-		_financialYear.Id = 0;
-		_financialYear.Remarks = $"Auto-generated based on {(_financialYears.Count == 0 ? "current date" : "latest financial year")}";
-		_financialYear.Locked = false;
-		_financialYear.Status = true;
+            var financialYear = _financialYears.FirstOrDefault(g => g.Id == _deleteFinancialYearId)
+                ?? throw new Exception("Financial Year not found.");
 
-		StateHasChanged();
-	}
+            financialYear.Status = false;
+            await FinancialYearData.InsertFinancialYear(financialYear);
 
-	private async Task DeleteTransaction(int id)
-	{
-		try
-		{
-			_isProcessing = true;
+            await _toastNotification.ShowAsync("Success", $"Financial Year '{_deleteFinancialYearName}' has been deleted successfully.", ToastType.Success);
+            NavigationManager.NavigateTo(PageRouteNames.FinancialYearMaster, true);
+        }
+        catch (Exception ex)
+        {
+            await _toastNotification.ShowAsync("Error", $"Failed to delete Financial Year: {ex.Message}", ToastType.Error);
+        }
+        finally
+        {
+            _isProcessing = false;
+            _deleteFinancialYearId = 0;
+            _deleteFinancialYearName = string.Empty;
+        }
+    }
 
-			if (!_user.Admin)
-				throw new Exception("You do not have permission to perform this action.");
+    private async Task ConfirmRecover()
+    {
+        try
+        {
+            _isProcessing = true;
+            await _recoverConfirmationDialog.HideAsync();
 
-			var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, id)
-				?? throw new Exception("Transaction not found.");
+            if (!_user.Admin)
+                throw new Exception("You do not have permission to perform this action.");
 
-			await FinancialYearData.DeleteTransaction(financialYear, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+            var financialYear = _financialYears.FirstOrDefault(g => g.Id == _recoverFinancialYearId)
+                ?? throw new Exception("Financial Year not found.");
 
-			await _toastNotification.ShowAsync("Deleted", "Transaction has been deleted successfully.", ToastType.Success);
-			ResetPage();
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error While Deleting", ex.Message, ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-		}
-	}
+            financialYear.Status = true;
+            await FinancialYearData.InsertFinancialYear(financialYear);
 
-	private async Task RecoverTransaction(int id)
-	{
-		try
-		{
-			_isProcessing = true;
+            await _toastNotification.ShowAsync("Success", $"Financial Year '{_recoverFinancialYearName}' has been recovered successfully.", ToastType.Success);
+            NavigationManager.NavigateTo(PageRouteNames.FinancialYearMaster, true);
+        }
+        catch (Exception ex)
+        {
+            await _toastNotification.ShowAsync("Error", $"Failed to recover Financial Year: {ex.Message}", ToastType.Error);
+        }
+        finally
+        {
+            _isProcessing = false;
+            _recoverFinancialYearId = 0;
+            _recoverFinancialYearName = string.Empty;
+        }
+    }
+    #endregion
 
-			if (!_user.Admin)
-				throw new Exception("You do not have permission to perform this action.");
+    #region Saving
+    private async Task<bool> ValidateForm()
+    {
+        if (!_user.Admin)
+        {
+            await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
+            return false;
+        }
 
-			var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, id)
-				?? throw new Exception("Transaction not found.");
+        _financialYear.Remarks = _financialYear.Remarks?.Trim() ?? "";
+        _financialYear.Status = true;
 
-			await FinancialYearData.RecoverTransaction(financialYear, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+        if (_financialYear.StartDate == default)
+        {
+            await _toastNotification.ShowAsync("Error", "Start date is required. Please select a valid start date.", ToastType.Error);
+            return false;
+        }
 
-			await _toastNotification.ShowAsync("Recovered", "Transaction has been recovered successfully.", ToastType.Success);
-			ResetPage();
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error While Recovering", ex.Message, ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-		}
-	}
-	#endregion
+        if (_financialYear.EndDate == default)
+        {
+            await _toastNotification.ShowAsync("Error", "End date is required. Please select a valid end date.", ToastType.Error);
+            return false;
+        }
 
-	#region Exporting
-	private async Task ExportExcel()
-	{
-		if (_isProcessing)
-			return;
+        if (_financialYear.EndDate <= _financialYear.StartDate)
+        {
+            await _toastNotification.ShowAsync("Error", "End date must be after start date.", ToastType.Error);
+            return false;
+        }
 
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
+        if (_financialYear.YearNo <= 0)
+        {
+            await _toastNotification.ShowAsync("Error", "Year number must be greater than 0.", ToastType.Error);
+            return false;
+        }
 
-			var (stream, fileName) = await FinancialYearExport.ExportMaster(_financialYears, ReportExportType.Excel);
-			await SaveAndViewService.SaveAndView(fileName, stream);
+        if (string.IsNullOrWhiteSpace(_financialYear.Remarks))
+            _financialYear.Remarks = null;
 
-			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			StateHasChanged();
-		}
-	}
+        // Check for overlapping date ranges
+        var overlapping = _financialYears.FirstOrDefault(fy =>
+            fy.Id != _financialYear.Id &&
+            fy.Status &&
+            ((fy.StartDate <= _financialYear.StartDate && fy.EndDate >= _financialYear.StartDate) ||
+             (fy.StartDate <= _financialYear.EndDate && fy.EndDate >= _financialYear.EndDate) ||
+             (_financialYear.StartDate <= fy.StartDate && _financialYear.EndDate >= fy.EndDate)));
 
-	private async Task ExportPdf()
-	{
-		if (_isProcessing)
-			return;
+        if (overlapping is not null)
+        {
+            await _toastNotification.ShowAsync("Error", $"Date range overlaps with existing financial year ({overlapping.StartDate:dd-MMM-yyyy} to {overlapping.EndDate:dd-MMM-yyyy}).", ToastType.Error);
+            return false;
+        }
 
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
+        return true;
+    }
 
-			var (stream, fileName) = await FinancialYearExport.ExportMaster(_financialYears, ReportExportType.PDF);
-			await SaveAndViewService.SaveAndView(fileName, stream);
+    private async Task SaveFinancialYear()
+    {
+        if (_isProcessing)
+            return;
 
-			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			StateHasChanged();
-		}
-	}
-	#endregion
+        try
+        {
+            _isProcessing = true;
+            StateHasChanged();
 
-	#region Utilities
-	private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
-	{
-		switch (args.Item.Id)
-		{
-			case "NewTransaction": ResetPage(); break;
-			case "SaveTransaction": await SaveTransaction(); break;
-			case "AutoGenerateNextYear": AutoGenerateNextYear(); break;
-			case "ToggleDeleted": await ToggleDeleted(); break;
-			case "ExportExcel": await ExportExcel(); break;
-			case "ExportPdf": await ExportPdf(); break;
-			case "EditSelectedItem": await EditSelectedItem(); break;
-			case "DeleteRecoverSelectedItem": await DeleteRecoverSelectedItem(); break;
-		}
-	}
+            if (!await ValidateForm())
+            {
+                _isProcessing = false;
+                return;
+            }
 
-	private async Task OnGridContextMenuItemClicked(ContextMenuClickEventArgs<FinancialYearModel> args)
-	{
-		switch (args.Item.Id)
-		{
-			case "EditSelectedItem": await EditSelectedItem(); break;
-			case "DeleteRecoverSelectedItem": await DeleteRecoverSelectedItem(); break;
-		}
-	}
+            await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
 
-	private async Task EditSelectedItem()
-	{
-		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
-		if (selectedRecords.Count == 0)
-			return;
+            await FinancialYearData.InsertFinancialYear(_financialYear);
 
-		_financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, selectedRecords[0].Id);
-		if (_financialYear is null)
-		{
-			await _toastNotification.ShowAsync("Error while Editing", "Transaction Not Found.", ToastType.Error);
-			return;
-		}
+            await _toastNotification.ShowAsync("Success", $"Financial Year '{_financialYear.StartDate:dd-MMM-yyyy} to {_financialYear.EndDate:dd-MMM-yyyy}' has been saved successfully.", ToastType.Success);
+            NavigationManager.NavigateTo(PageRouteNames.FinancialYearMaster, true);
+        }
+        catch (Exception ex)
+        {
+            await _toastNotification.ShowAsync("Error", $"Failed to save Financial Year: {ex.Message}", ToastType.Error);
+        }
+        finally
+        {
+            _isProcessing = false;
+        }
+    }
+    #endregion
 
-		StateHasChanged();
-		await _sfFirstFocus.FocusAsync();
-	}
+    #region Exporting
+    private async Task ExportExcel()
+    {
+        if (_isProcessing)
+            return;
 
-	private async Task DeleteRecoverSelectedItem()
-	{
-		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
-		if (selectedRecords.Count == 0)
-			return;
+        try
+        {
+            _isProcessing = true;
+            StateHasChanged();
+            await _toastNotification.ShowAsync("Processing", "Exporting to Excel...", ToastType.Info);
 
-		var record = selectedRecords[0];
-		var identifier = $"{record.StartDate:dd-MMM-yyyy} to {record.EndDate:dd-MMM-yyyy}";
+            var (stream, fileName) = await FinancialYearExport.ExportMaster(_financialYears, ReportExportType.Excel);
+            await SaveAndViewService.SaveAndView(fileName, stream);
+            await _toastNotification.ShowAsync("Success", "Financial Year data exported to Excel successfully.", ToastType.Success);
+        }
+        catch (Exception ex)
+        {
+            await _toastNotification.ShowAsync("Error", $"An error occurred while exporting to Excel: {ex.Message}", ToastType.Error);
+        }
+        finally
+        {
+            _isProcessing = false;
+            StateHasChanged();
+        }
+    }
 
-		if (record.Status)
-			await ShowConfirmation("Delete", $"Are you sure you want to delete {identifier}", () => DeleteTransaction(record.Id));
-		else
-			await ShowConfirmation("Recover", $"Are you sure you want to recover {identifier}", () => RecoverTransaction(record.Id));
-	}
+    private async Task ExportPdf()
+    {
+        if (_isProcessing)
+            return;
 
-	private async Task ShowConfirmation(string title, string message, Func<Task> action)
-	{
-		_confirmTitle = title;
-		_confirmMessage = message;
-		_confirmAction = action;
-		StateHasChanged();
-		await _confirmationDialog.ShowAsync();
-	}
+        try
+        {
+            _isProcessing = true;
+            StateHasChanged();
+            await _toastNotification.ShowAsync("Processing", "Exporting to PDF...", ToastType.Info);
 
-	private async Task OnConfirmed()
-	{
-		await _confirmationDialog.HideAsync();
-		if (_confirmAction is not null)
-			await _confirmAction();
-		_confirmAction = null;
-	}
+            var (stream, fileName) = await FinancialYearExport.ExportMaster(_financialYears, ReportExportType.PDF);
+            await SaveAndViewService.SaveAndView(fileName, stream);
+            await _toastNotification.ShowAsync("Success", "Financial Year data exported to PDF successfully.", ToastType.Success);
+        }
+        catch (Exception ex)
+        {
+            await _toastNotification.ShowAsync("Error", $"An error occurred while exporting to PDF: {ex.Message}", ToastType.Error);
+        }
+        finally
+        {
+            _isProcessing = false;
+            StateHasChanged();
+        }
+    }
+    #endregion
 
-	private async Task OnCancelled()
-	{
-		_confirmAction = null;
-		await _confirmationDialog.HideAsync();
-	}
+    #region Utilities
+    private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+    {
+        switch (args.Item.Id)
+        {
+            case "NewFinancialYear":
+                ResetPage();
+                break;
+            case "SaveFinancialYear":
+                await SaveFinancialYear();
+                break;
+            case "AutoGenerateNextYear":
+                AutoGenerateNextYear();
+                break;
+            case "ToggleDeleted":
+                await ToggleDeleted();
+                break;
+            case "ExportExcel":
+                await ExportExcel();
+                break;
+            case "ExportPdf":
+                await ExportPdf();
+                break;
+            case "EditSelected":
+                await EditSelectedItem();
+                break;
+            case "DeleteRecoverSelected":
+                await DeleteSelectedItem();
+                break;
+        }
+    }
 
-	private async Task ToggleDeleted()
-	{
-		_showDeleted = !_showDeleted;
-		await LoadData();
-	}
+    private async Task OnFinancialYearGridContextMenuItemClicked(ContextMenuClickEventArgs<FinancialYearModel> args)
+    {
+        switch (args.Item.Id)
+        {
+            case "EditFinancialYear":
+                await EditSelectedItem();
+                break;
+            case "DeleteRecoverFinancialYear":
+                await DeleteSelectedItem();
+                break;
+        }
+    }
 
-	private void ResetPage() => PageRefresh.Request();
-	#endregion
+    private async Task EditSelectedItem()
+    {
+        var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
+        if (selectedRecords.Count > 0)
+            OnEditFinancialYear(selectedRecords[0]);
+    }
+
+    private async Task DeleteSelectedItem()
+    {
+        var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
+        if (selectedRecords.Count > 0)
+        {
+            if (selectedRecords[0].Status)
+                await ShowDeleteConfirmation(selectedRecords[0].Id, GetFinancialYearName(selectedRecords[0]));
+            else
+                await ShowRecoverConfirmation(selectedRecords[0].Id, GetFinancialYearName(selectedRecords[0]));
+        }
+    }
+
+    private async Task ShowDeleteConfirmation(int id, string name)
+    {
+        _deleteFinancialYearId = id;
+        _deleteFinancialYearName = name;
+        await _deleteConfirmationDialog.ShowAsync();
+    }
+
+    private async Task CancelDelete()
+    {
+        _deleteFinancialYearId = 0;
+        _deleteFinancialYearName = string.Empty;
+        await _deleteConfirmationDialog.HideAsync();
+    }
+
+    private async Task ShowRecoverConfirmation(int id, string name)
+    {
+        _recoverFinancialYearId = id;
+        _recoverFinancialYearName = name;
+        await _recoverConfirmationDialog.ShowAsync();
+    }
+
+    private async Task CancelRecover()
+    {
+        _recoverFinancialYearId = 0;
+        _recoverFinancialYearName = string.Empty;
+        await _recoverConfirmationDialog.HideAsync();
+    }
+
+    private async Task ToggleDeleted()
+    {
+        _showDeleted = !_showDeleted;
+        await LoadData();
+        StateHasChanged();
+    }
+
+    private void ResetPage() =>
+        NavigationManager.NavigateTo(PageRouteNames.FinancialYearMaster, true);
+
+    private void NavigateBack() =>
+        NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
+    #endregion
 }

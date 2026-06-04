@@ -1,14 +1,14 @@
 @attribute [Route(PageRouteNames.BillMobileCart)]
 @attribute [Route($"{PageRouteNames.BillMobileCart}/table/{{DiningTableId:int}}")]
 
-@using PrimeBakesLibrary.Common
-@using PrimeBakesLibrary.Restaurant.Bill.Models
+@using PrimeBakesLibrary.Data.Common
+@using PrimeBakesLibrary.Models.Restuarant.Bill
 
 <PageTitle>Bill Cart - Prime Bakes</PageTitle>
 
 @if (_isLoading || _user is null)
 {
-    <LoadingScreen Visible="true" />
+    <AnimatedLoader Visible="true" />
 }
 else
 {

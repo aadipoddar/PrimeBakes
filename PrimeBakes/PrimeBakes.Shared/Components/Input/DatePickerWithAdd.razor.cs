@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Components;
-using PrimeBakesLibrary.Accounts.Masters.Models;
+using PrimeBakesLibrary.Models.Accounts.Masters;
 using Syncfusion.Blazor.Calendars;
 
 namespace PrimeBakes.Shared.Components.Input;

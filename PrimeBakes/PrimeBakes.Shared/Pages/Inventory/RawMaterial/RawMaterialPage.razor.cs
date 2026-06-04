@@ -1,11 +1,11 @@
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Inventory.RawMaterial.Data;
+using PrimeBakesLibrary.Data.Inventory;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Inventory.RawMaterial.Exports;
-using PrimeBakesLibrary.Utils.ExportUtils;
-using PrimeBakesLibrary.Inventory.RawMaterial.Models;
-using PrimeBakesLibrary.Operations.User.Models;
-using PrimeBakesLibrary.Store.Product.Models;
+using PrimeBakesLibrary.Exporting.Inventory.RawMaterial;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Inventory;
+using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Models.Store.Product;
 
 using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;
@@ -57,9 +57,9 @@ public partial class RawMaterialPage
 
     private async Task LoadData()
     {
-        _rawMaterials = await CommonData.LoadTableData<RawMaterialModel>(InventoryNames.RawMaterial);
-        _categories = await CommonData.LoadTableData<RawMaterialCategoryModel>(InventoryNames.RawMaterialCategory);
-        _taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
+        _rawMaterials = await CommonData.LoadTableData<RawMaterialModel>(TableNames.RawMaterial);
+        _categories = await CommonData.LoadTableData<RawMaterialCategoryModel>(TableNames.RawMaterialCategory);
+        _taxes = await CommonData.LoadTableData<TaxModel>(TableNames.Tax);
 
         if (!_showDeleted)
             _rawMaterials = [.. _rawMaterials.Where(rm => rm.Status)];

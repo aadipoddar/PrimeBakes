@@ -1,5 +1,6 @@
 @attribute [Route(PageRouteNames.StoreDashboard)]
 
+@using PrimeBakesLibrary.Models.Operations
 
 <PageTitle>Store - Prime Bakes</PageTitle>
 
@@ -7,7 +8,7 @@
 
 @if (_isLoading || _user is null)
 {
-	<LoadingScreen Visible="true" />
+	<AnimatedLoader Visible="true" />
 }
 else
 {

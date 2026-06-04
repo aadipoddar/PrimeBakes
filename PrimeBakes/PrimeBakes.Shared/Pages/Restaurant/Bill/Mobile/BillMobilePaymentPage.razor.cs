@@ -1,18 +1,17 @@
 using Microsoft.AspNetCore.Components;
 
-using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.Operations.Settings.Data;
-using PrimeBakesLibrary.Restaurant.Bill.Data;
-using PrimeBakesLibrary.Store.Masters.Data;
+using PrimeBakesLibrary.Data.Accounts.Masters;
+using PrimeBakesLibrary.Data.Operations;
+using PrimeBakesLibrary.Data.Restaurant.Bill;
+using PrimeBakesLibrary.Data.Store.Masters;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Restaurant.Bill.Exports;
-using PrimeBakesLibrary.Utils.ExportUtils;
-using PrimeBakesLibrary.Operations.User.Models;
-using PrimeBakesLibrary.Operations.Settings.Models;
-using PrimeBakesLibrary.Restaurant.Bill.Models;
-using PrimeBakesLibrary.Restaurant.Dining.Models;
-using PrimeBakesLibrary.Store.Masters.Models;
-using PrimeBakesLibrary.Store.Product.Models;
+using PrimeBakesLibrary.Exporting.Restaurant.Bill;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Models.Restuarant.Bill;
+using PrimeBakesLibrary.Models.Restuarant.Dining;
+using PrimeBakesLibrary.Models.Store.Masters;
+using PrimeBakesLibrary.Models.Store.Product;
 
 using Syncfusion.Blazor.Inputs;
 
@@ -78,14 +77,14 @@ public partial class BillMobilePaymentPage
 
 		try
 		{
-			var diningTable = await CommonData.LoadTableDataById<DiningTableModel>(RestaurantNames.DiningTable, DiningTableId.Value);
+			var diningTable = await CommonData.LoadTableDataById<DiningTableModel>(TableNames.DiningTable, DiningTableId.Value);
 			if (diningTable is null)
 			{
 				NavigationManager.NavigateTo(PageRouteNames.DiningMobileDashboard, true);
 				return false;
 			}
 
-			var diningArea = await CommonData.LoadTableDataById<DiningAreaModel>(RestaurantNames.DiningArea, diningTable.DiningAreaId);
+			var diningArea = await CommonData.LoadTableDataById<DiningAreaModel>(TableNames.DiningArea, diningTable.DiningAreaId);
 			if (diningArea is null)
 			{
 				NavigationManager.NavigateTo(PageRouteNames.DiningMobileDashboard, true);
@@ -112,7 +111,7 @@ public partial class BillMobilePaymentPage
 		if (!DiningTableId.HasValue)
 			return;
 
-		_diningTable = await CommonData.LoadTableDataById<DiningTableModel>(RestaurantNames.DiningTable, DiningTableId.Value);
+		_diningTable = await CommonData.LoadTableDataById<DiningTableModel>(TableNames.DiningTable, DiningTableId.Value);
 		_bill.DiningTableId = _diningTable?.Id ?? 0;
 	}
 
@@ -127,10 +126,10 @@ public partial class BillMobilePaymentPage
 
 		_bill = runningBill;
 
-		_previousCart = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, runningBill.Id);
+		_previousCart = await CommonData.LoadTableDataByMasterId<BillDetailModel>(TableNames.BillDetail, runningBill.Id);
 
 		if (_bill.CustomerId.HasValue)
-			_selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(StoreNames.Customer, _bill.CustomerId.Value);
+			_selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(TableNames.Customer, _bill.CustomerId.Value);
 	}
 
 	private async Task LoadCart()
@@ -251,12 +250,15 @@ public partial class BillMobilePaymentPage
 		{
 			_isProcessing = true;
 
+			if (_user.LocationId != 1)
+				_bill.DiscountPercent = 0;
+
 			_finalCart.Clear();
 			_finalCart = BillData.ConvertCartToDetails(_cart, _bill.Id);
 			_finalCart.AddRange(_previousCart);
 
-			var taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
-			var items = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
+			var taxes = await CommonData.LoadTableData<TaxModel>(TableNames.Tax);
+			var items = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
 
 			foreach (var item in _finalCart.Where(_ => _.Quantity > 0))
 			{
@@ -384,7 +386,7 @@ public partial class BillMobilePaymentPage
 
 		if (_selectedCustomer.Id > 0)
 		{
-			_selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(StoreNames.Customer, _selectedCustomer.Id);
+			_selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(TableNames.Customer, _selectedCustomer.Id);
 			_bill.CustomerId = _selectedCustomer.Id;
 		}
 		else if (!string.IsNullOrWhiteSpace(_selectedCustomer.Number) && _selectedCustomer.Id == 0)
@@ -525,7 +527,7 @@ public partial class BillMobilePaymentPage
 	#region Utilities
 	private async Task SendLocalNotification(int billId)
 	{
-		var bill = await CommonData.LoadTableDataById<BillOverviewModel>(RestaurantNames.BillOverview, billId);
+		var bill = await CommonData.LoadTableDataById<BillOverviewModel>(ViewNames.BillOverview, billId);
 		await NotificationService.ShowLocalNotification(
 			bill.Id,
 			"Bill Placed",

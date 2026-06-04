@@ -1,317 +1,391 @@
-﻿using Syncfusion.Blazor.Grids;
-
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakes.Shared.Components.Input;
 
-using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.Accounts.Masters.Exports;
-using PrimeBakesLibrary.Accounts.Masters.Models;
-using PrimeBakesLibrary.Operations.User.Models;
-using PrimeBakesLibrary.Operations.Settings.Models;
-using PrimeBakesLibrary.Utils.ExportUtils;
+using PrimeBakesLibrary.Data.Accounts.Masters;
+using PrimeBakesLibrary.DataAccess;
+using PrimeBakesLibrary.Exporting.Accounts.Masters;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Models.Operations;
+
+using Syncfusion.Blazor.Grids;
 
 namespace PrimeBakes.Shared.Pages.Accounts.Masters;
 
 public partial class GroupPage
 {
-	private UserModel _user;
-	private bool _isLoading = true;
-	private bool _isProcessing = false;
-	private bool _showDeleted = false;
+    private UserModel _user;
+    private bool _isLoading = true;
+    private bool _isProcessing = false;
+    private bool _showDeleted = false;
 
-	private GroupModel _group = new();
-	private NatureModel _selectedNature;
+    private GroupModel _group = new();
 
-	private List<GroupModel> _groups = [];
-	private List<NatureModel> _natures = [];
-	private readonly List<ContextMenuItemModel> _gridContextMenuItems =
-	[
-		new() { Text = "Edit (Insert)", Id = "EditSelectedItem", IconCss = "e-icons e-edit", Target = ".e-content" },
-		new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverSelectedItem", IconCss = "e-icons e-trash", Target = ".e-content" }
-	];
+    private List<GroupModel> _groups = [];
+    private List<NatureModel> _natures = [];
+    private readonly List<ContextMenuItemModel> _groupGridContextMenuItems =
+    [
+        new() { Text = "Edit (Insert)", Id = "EditGroup", IconCss = "e-icons e-edit", Target = ".e-content" },
+        new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverGroup", IconCss = "e-icons e-trash", Target = ".e-content" }
+    ];
 
-	private SfGrid<GroupModel> _sfGrid;
-	private CustomTextField _sfFirstFocus;
-	private ToastNotification _toastNotification;
-	private ConfirmationDialog _confirmationDialog;
+    private SfGrid<GroupModel> _sfGrid;
+    private DeleteConfirmationDialog _deleteConfirmationDialog;
+    private RecoverConfirmationDialog _recoverConfirmationDialog;
 
-	private string _confirmTitle = string.Empty;
-	private string _confirmMessage = string.Empty;
-	private Func<Task> _confirmAction;
+    private int _deleteGroupId = 0;
+    private string _deleteGroupName = string.Empty;
 
-	#region Load Data
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		if (!firstRender)
-			return;
+    private int _recoverGroupId = 0;
+    private string _recoverGroupName = string.Empty;
 
-		try
-		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Accounts]);
-			await LoadData();
-		}
-		catch { NavigationManager.NavigateTo(PageRouteNames.Dashboard); }
-	}
+    private ToastNotification _toastNotification;
 
-	private async Task LoadData()
-	{
-		_natures = await CommonData.LoadTableDataByStatus<NatureModel>(AccountNames.Nature);
-		_groups = await CommonData.LoadTableData<GroupModel>(AccountNames.Group);
+    #region Load Data
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
 
-		_natures = [.. _natures.OrderBy(n => n.Name)];
-		_selectedNature = _natures.FirstOrDefault(n => n.Id == _group.NatureId);
+        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Accounts], true);
+        await LoadData();
+    }
 
-		if (!_showDeleted)
-			_groups = [.. _groups.Where(g => g.Status)];
+    private async Task LoadData()
+    {
+        _natures = await CommonData.LoadTableDataByStatus<NatureModel>(TableNames.Nature);
+        _groups = await CommonData.LoadTableData<GroupModel>(TableNames.Group);
 
-		if (_sfGrid is not null)
-			await _sfGrid.Refresh();
+        if (!_showDeleted)
+            _groups = [.. _groups.Where(g => g.Status)];
 
-		_isLoading = false;
-		StateHasChanged();
+        if (_sfGrid is not null)
+            await _sfGrid.Refresh();
 
-		if (_sfFirstFocus is not null)
-			await _sfFirstFocus.FocusAsync();
-	}
-	#endregion
+        _isLoading = false;
+        StateHasChanged();
+    }
+    #endregion
 
-	#region Changed Events
-	private void OnNatureChanged(NatureModel value)
-	{
-		_selectedNature = value;
-		_group.NatureId = value?.Id ?? 0;
-	}
-	#endregion
+    #region Actions
+    private void OnEditGroup(GroupModel group)
+    {
+        _group = new()
+        {
+            Id = group.Id,
+            Name = group.Name,
+            NatureId = group.NatureId,
+            Remarks = group.Remarks,
+            Status = group.Status
+        };
 
-	#region Saving
-	private async Task SaveTransaction()
-	{
-		if (_isProcessing)
-			return;
+        StateHasChanged();
+    }
 
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
+    private async Task ConfirmDelete()
+    {
+        try
+        {
+            _isProcessing = true;
+            await _deleteConfirmationDialog.HideAsync();
 
-			if (!_user.Admin)
-				throw new Exception("You do not have permission to perform this action.");
+            if (!_user.Admin)
+                throw new Exception("You do not have permission to perform this action.");
 
-			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
+            var group = _groups.FirstOrDefault(g => g.Id == _deleteGroupId)
+                ?? throw new Exception("Group not found.");
 
-			await GroupData.SaveTransaction(_group, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+            group.Status = false;
+            await GroupData.InsertGroup(group);
 
-			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
-			ResetPage();
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error While Saving", ex.Message, ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-		}
-	}
-	#endregion
+            await _toastNotification.ShowAsync("Success", $"Group '{group.Name}' has been deleted successfully.", ToastType.Success);
+            NavigationManager.NavigateTo(PageRouteNames.GroupMaster, true);
+        }
+        catch (Exception ex)
+        {
+            await _toastNotification.ShowAsync("Error", $"Failed to delete Group: {ex.Message}", ToastType.Error);
+        }
+        finally
+        {
+            _isProcessing = false;
+            _deleteGroupId = 0;
+            _deleteGroupName = string.Empty;
+        }
+    }
 
-	#region Actions
-	private async Task DeleteTransaction(int id)
-	{
-		try
-		{
-			_isProcessing = true;
+    private async Task ConfirmRecover()
+    {
+        try
+        {
+            _isProcessing = true;
+            await _recoverConfirmationDialog.HideAsync();
 
-			if (!_user.Admin)
-				throw new Exception("You do not have permission to perform this action.");
+            if (!_user.Admin)
+                throw new Exception("You do not have permission to perform this action.");
 
-			var group = await CommonData.LoadTableDataById<GroupModel>(AccountNames.Group, id)
-				?? throw new Exception("Transaction not found.");
+            var group = _groups.FirstOrDefault(g => g.Id == _recoverGroupId)
+             ?? throw new Exception("Group not found.");
 
-			await GroupData.DeleteTransaction(group, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+            group.Status = true;
+            await GroupData.InsertGroup(group);
 
-			await _toastNotification.ShowAsync("Deleted", "Transaction has been deleted successfully.", ToastType.Success);
-			ResetPage();
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error While Deleting", ex.Message, ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-		}
-	}
+            await _toastNotification.ShowAsync("Success", $"Group '{group.Name}' has been recovered successfully.", ToastType.Success);
+            NavigationManager.NavigateTo(PageRouteNames.GroupMaster, true);
+        }
+        catch (Exception ex)
+        {
+            await _toastNotification.ShowAsync("Error", $"Failed to recover Group: {ex.Message}", ToastType.Error);
+        }
+        finally
+        {
+            _isProcessing = false;
+            _recoverGroupId = 0;
+            _recoverGroupName = string.Empty;
+        }
+    }
+    #endregion
 
-	private async Task RecoverTransaction(int id)
-	{
-		try
-		{
-			_isProcessing = true;
+    #region Saving
+    private async Task<bool> ValidateForm()
+    {
+        if (!_user.Admin)
+        {
+            await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
+            return false;
+        }
 
-			if (!_user.Admin)
-				throw new Exception("You do not have permission to perform this action.");
+        _group.Name = _group.Name?.Trim() ?? "";
+        _group.Name = _group.Name?.ToUpper() ?? "";
 
-			var group = await CommonData.LoadTableDataById<GroupModel>(AccountNames.Group, id)
-				?? throw new Exception("Transaction not found.");
+        _group.Remarks = _group.Remarks?.Trim() ?? "";
+        _group.Status = true;
 
-			await GroupData.RecoverTransaction(group, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+        if (string.IsNullOrWhiteSpace(_group.Name))
+        {
+            await _toastNotification.ShowAsync("Error", "Group name is required. Please enter a valid group name.", ToastType.Error);
+            return false;
+        }
 
-			await _toastNotification.ShowAsync("Recovered", "Transaction has been recovered successfully.", ToastType.Success);
-			ResetPage();
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error While Recovering", ex.Message, ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-		}
-	}
-	#endregion
+        if (_group.NatureId <= 0)
+        {
+            await _toastNotification.ShowAsync("Error", "Nature is required. Please select a nature.", ToastType.Error);
+            return false;
+        }
 
-	#region Exporting
-	private async Task ExportExcel()
-	{
-		if (_isProcessing)
-			return;
+        if (string.IsNullOrWhiteSpace(_group.Remarks))
+            _group.Remarks = null;
 
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
+        if (_group.Id > 0)
+        {
+            var existingGroup = _groups.FirstOrDefault(_ => _.Id != _group.Id && _.Name.Equals(_group.Name, StringComparison.OrdinalIgnoreCase));
+            if (existingGroup is not null)
+            {
+                await _toastNotification.ShowAsync("Error", $"Group name '{_group.Name}' already exists. Please choose a different name.", ToastType.Error);
+                return false;
+            }
+        }
+        else
+        {
+            var existingGroup = _groups.FirstOrDefault(_ => _.Name.Equals(_group.Name, StringComparison.OrdinalIgnoreCase));
+            if (existingGroup is not null)
+            {
+                await _toastNotification.ShowAsync("Error", $"Group name '{_group.Name}' already exists. Please choose a different name.", ToastType.Error);
+                return false;
+            }
+        }
 
-			var (stream, fileName) = await GroupExport.ExportMaster(_groups, ReportExportType.Excel);
-			await SaveAndViewService.SaveAndView(fileName, stream);
+        return true;
+    }
 
-			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			StateHasChanged();
-		}
-	}
+    private async Task SaveGroup()
+    {
+        if (_isProcessing)
+            return;
 
-	private async Task ExportPdf()
-	{
-		if (_isProcessing)
-			return;
+        try
+        {
+            _isProcessing = true;
+            StateHasChanged();
 
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
+            if (!await ValidateForm())
+            {
+                _isProcessing = false;
+                return;
+            }
 
-			var (stream, fileName) = await GroupExport.ExportMaster(_groups, ReportExportType.PDF);
-			await SaveAndViewService.SaveAndView(fileName, stream);
+            await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			StateHasChanged();
-		}
-	}
-	#endregion
+            await GroupData.InsertGroup(_group);
 
-	#region Utilities
-	private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
-	{
-		switch (args.Item.Id)
-		{
-			case "NewTransaction": ResetPage(); break;
-			case "SaveTransaction": await SaveTransaction(); break;
-			case "ToggleDeleted": await ToggleDeleted(); break;
-			case "ExportExcel": await ExportExcel(); break;
-			case "ExportPdf": await ExportPdf(); break;
-			case "EditSelectedItem": await EditSelectedItem(); break;
-			case "DeleteRecoverSelectedItem": await DeleteRecoverSelectedItem(); break;
-		}
-	}
+            await _toastNotification.ShowAsync("Success", $"Group '{_group.Name}' has been saved successfully.", ToastType.Success);
+            NavigationManager.NavigateTo(PageRouteNames.GroupMaster, true);
+        }
+        catch (Exception ex)
+        {
+            await _toastNotification.ShowAsync("Error", $"Failed to save Group: {ex.Message}", ToastType.Error);
+        }
+        finally
+        {
+            _isProcessing = false;
+        }
+    }
+    #endregion
 
-	private async Task OnGridContextMenuItemClicked(ContextMenuClickEventArgs<GroupModel> args)
-	{
-		switch (args.Item.Id)
-		{
-			case "EditSelectedItem": await EditSelectedItem(); break;
-			case "DeleteRecoverSelectedItem": await DeleteRecoverSelectedItem(); break;
-		}
-	}
+    #region Exporting
+    private async Task ExportExcel()
+    {
+        if (_isProcessing)
+            return;
 
-	private async Task EditSelectedItem()
-	{
-		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
-		if (selectedRecords.Count == 0)
-			return;
+        try
+        {
+            _isProcessing = true;
+            StateHasChanged();
+            await _toastNotification.ShowAsync("Processing", "Exporting to Excel...", ToastType.Info);
 
-		_group = await CommonData.LoadTableDataById<GroupModel>(AccountNames.Group, selectedRecords[0].Id);
-		if (_group is null)
-		{
-			await _toastNotification.ShowAsync("Error while Editing", "Transaction Not Found.", ToastType.Error);
-			return;
-		}
+            var (stream, fileName) = await GroupExport.ExportMaster(_groups, ReportExportType.Excel);
+            await SaveAndViewService.SaveAndView(fileName, stream);
 
-		_selectedNature = _natures.FirstOrDefault(n => n.Id == _group.NatureId);
-		StateHasChanged();
-		await _sfFirstFocus.FocusAsync();
-	}
+            await _toastNotification.ShowAsync("Success", "Group data exported to Excel successfully.", ToastType.Success);
+        }
+        catch (Exception ex)
+        {
+            await _toastNotification.ShowAsync("Error", $"An error occurred while exporting to Excel: {ex.Message}", ToastType.Error);
+        }
+        finally
+        {
+            _isProcessing = false;
+            StateHasChanged();
+        }
+    }
 
-	private async Task DeleteRecoverSelectedItem()
-	{
-		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
-		if (selectedRecords.Count == 0)
-			return;
+    private async Task ExportPdf()
+    {
+        if (_isProcessing)
+            return;
 
-		var record = selectedRecords[0];
+        try
+        {
+            _isProcessing = true;
+            StateHasChanged();
+            await _toastNotification.ShowAsync("Processing", "Exporting to PDF...", ToastType.Info);
 
-		if (record.Status)
-			await ShowConfirmation("Delete", $"Are you sure you want to delete {record.Name}", () => DeleteTransaction(record.Id));
-		else
-			await ShowConfirmation("Recover", $"Are you sure you want to recover {record.Name}", () => RecoverTransaction(record.Id));
-	}
+            var (stream, fileName) = await GroupExport.ExportMaster(_groups, ReportExportType.PDF);
+            await SaveAndViewService.SaveAndView(fileName, stream);
 
-	private async Task ShowConfirmation(string title, string message, Func<Task> action)
-	{
-		_confirmTitle = title;
-		_confirmMessage = message;
-		_confirmAction = action;
-		StateHasChanged();
-		await _confirmationDialog.ShowAsync();
-	}
+            await _toastNotification.ShowAsync("Success", "Group data exported to PDF successfully.", ToastType.Success);
+        }
+        catch (Exception ex)
+        {
+            await _toastNotification.ShowAsync("Error", $"An error occurred while exporting to PDF: {ex.Message}", ToastType.Error);
+        }
+        finally
+        {
+            _isProcessing = false;
+            StateHasChanged();
+        }
+    }
+    #endregion
 
-	private async Task OnConfirmed()
-	{
-		await _confirmationDialog.HideAsync();
-		if (_confirmAction is not null)
-			await _confirmAction();
-		_confirmAction = null;
-	}
+    #region Utilities
+    private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+    {
+        switch (args.Item.Id)
+        {
+            case "NewGroup":
+                ResetPage();
+                break;
+            case "SaveGroup":
+                await SaveGroup();
+                break;
+            case "ToggleDeleted":
+                await ToggleDeleted();
+                break;
+            case "ExportExcel":
+                await ExportExcel();
+                break;
+            case "ExportPdf":
+                await ExportPdf();
+                break;
+            case "EditSelected":
+                await EditSelectedItem();
+                break;
+            case "DeleteRecoverSelected":
+                await DeleteSelectedItem();
+                break;
+        }
+    }
 
-	private async Task OnCancelled()
-	{
-		_confirmAction = null;
-		await _confirmationDialog.HideAsync();
-	}
+    private async Task OnGroupGridContextMenuItemClicked(ContextMenuClickEventArgs<GroupModel> args)
+    {
+        switch (args.Item.Id)
+        {
+            case "EditGroup":
+                await EditSelectedItem();
+                break;
+            case "DeleteRecoverGroup":
+                await DeleteSelectedItem();
+                break;
+        }
+    }
 
-	private async Task ToggleDeleted()
-	{
-		_showDeleted = !_showDeleted;
-		await LoadData();
-	}
+    private async Task EditSelectedItem()
+    {
+        var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
+        if (selectedRecords.Count > 0)
+            OnEditGroup(selectedRecords[0]);
+    }
 
-	private void ResetPage() => PageRefresh.Request();
-	#endregion
+    private async Task DeleteSelectedItem()
+    {
+        var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
+        if (selectedRecords.Count > 0)
+        {
+            if (selectedRecords[0].Status)
+                await ShowDeleteConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
+            else
+                await ShowRecoverConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
+        }
+    }
+
+    private async Task ShowDeleteConfirmation(int id, string name)
+    {
+        _deleteGroupId = id;
+        _deleteGroupName = name;
+        await _deleteConfirmationDialog.ShowAsync();
+    }
+
+    private async Task CancelDelete()
+    {
+        _deleteGroupId = 0;
+        _deleteGroupName = string.Empty;
+        await _deleteConfirmationDialog.HideAsync();
+    }
+
+    private async Task ShowRecoverConfirmation(int id, string name)
+    {
+        _recoverGroupId = id;
+        _recoverGroupName = name;
+        await _recoverConfirmationDialog.ShowAsync();
+    }
+
+    private async Task CancelRecover()
+    {
+        _recoverGroupId = 0;
+        _recoverGroupName = string.Empty;
+        await _recoverConfirmationDialog.HideAsync();
+    }
+
+    private async Task ToggleDeleted()
+    {
+        _showDeleted = !_showDeleted;
+        await LoadData();
+        StateHasChanged();
+    }
+
+    private void ResetPage() =>
+        NavigationManager.NavigateTo(PageRouteNames.GroupMaster, true);
+
+    private void NavigateBack() =>
+        NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
+    #endregion
 }

@@ -402,10 +402,6 @@ FodyWeavers.xsd
 /PrimeBakesLibrary/DataAccess/primebakes-7aad6-firebase-adminsdk-fbsvc-468eb53249.json
 
 *.local_secrets.cs
-
-*.csproj.lscache
 *.lscache
-
+*.csproj.lscache
 .claude
-AGENTS.md
-CLAUDE.md

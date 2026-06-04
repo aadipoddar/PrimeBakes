@@ -1,13 +1,13 @@
 @attribute [Route(PageRouteNames.SaleMobilePayment)]
 
-@using PrimeBakesLibrary.Common
-@using PrimeBakesLibrary.Store.Masters.Models
+@using PrimeBakesLibrary.Data.Common
+@using PrimeBakesLibrary.Models.Store.Masters
 
 <PageTitle>Sale Payment - Prime Bakes</PageTitle>
 
 @if (_isLoading || _user is null)
 {
-	<LoadingScreen Visible="true" />
+	<AnimatedLoader Visible="true" />
 }
 else
 {

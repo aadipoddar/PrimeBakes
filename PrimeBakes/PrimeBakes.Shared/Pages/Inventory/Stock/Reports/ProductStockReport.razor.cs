@@ -1,17 +1,15 @@
 using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.Inventory.Stock.Data;
-using PrimeBakesLibrary.Operations.Settings.Data;
+using PrimeBakesLibrary.Data.Accounts.Masters;
+using PrimeBakesLibrary.Data.Inventory.Stock;
+using PrimeBakesLibrary.Data.Operations;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Inventory.Stock.Exports;
-using PrimeBakesLibrary.Utils.ExportUtils;
-using PrimeBakesLibrary.Accounts.Masters.Models;
-using PrimeBakesLibrary.Inventory.Stock.Models;
-using PrimeBakesLibrary.Operations.User.Models;
-using PrimeBakesLibrary.Operations.Location.Models;
-using PrimeBakesLibrary.Operations.Settings.Models;
+using PrimeBakesLibrary.Exporting.Inventory.Stock;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Models.Inventory.Stock;
+using PrimeBakesLibrary.Models.Operations;
 
 using Syncfusion.Blazor.Grids;
 
@@ -85,7 +83,7 @@ public partial class ProductStockReport : IAsyncDisposable
 	{
 		try
 		{
-			_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
+			_locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
 			_locations = [.. _locations.OrderBy(s => s.Name)];
 			_selectedLocation = _locations.FirstOrDefault(_ => _.Id == 1);
 		}
@@ -140,7 +138,7 @@ public partial class ProductStockReport : IAsyncDisposable
 	private async Task LoadStockDetails()
 	{
 		_stockDetails = await CommonData.LoadTableDataByDate<ProductStockDetailsModel>(
-				InventoryNames.ProductStockDetails,
+				ViewNames.ProductStockDetails,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 

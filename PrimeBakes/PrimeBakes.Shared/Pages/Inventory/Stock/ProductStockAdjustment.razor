@@ -1,9 +1,10 @@
 @attribute [Route(PageRouteNames.ProductStockAdjustment)]
 
-@using PrimeBakesLibrary.Accounts.Masters.Models
-@using PrimeBakesLibrary.Inventory.Stock.Models
-@using PrimeBakesLibrary.Operations.Location.Models
-@using PrimeBakesLibrary.Store.Product.Models
+@using PrimeBakesLibrary.Models.Accounts.Masters
+@using PrimeBakesLibrary.Models.Inventory
+@using PrimeBakesLibrary.Models.Inventory.Stock
+@using PrimeBakesLibrary.Models.Operations
+@using PrimeBakesLibrary.Models.Store.Product
 
 <PageTitle>Product Stock Adjustment - Prime Bakes</PageTitle>
 
@@ -18,7 +19,7 @@
 
 @if (_isLoading || _user is null)
 {
-	<LoadingScreen Visible="true" />
+	<AnimatedLoader Visible="true" />
 }
 else
 {

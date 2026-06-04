@@ -1,18 +1,16 @@
 using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.Operations.Settings.Data;
-using PrimeBakesLibrary.Restaurant.Bill.Data;
+using PrimeBakesLibrary.Data.Accounts.Masters;
+using PrimeBakesLibrary.Data.Operations;
+using PrimeBakesLibrary.Data.Restaurant.Bill;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Restaurant.Bill.Exports;
-using PrimeBakesLibrary.Utils.ExportUtils;
-using PrimeBakesLibrary.Accounts.Masters.Models;
-using PrimeBakesLibrary.Operations.User.Models;
-using PrimeBakesLibrary.Operations.Location.Models;
-using PrimeBakesLibrary.Operations.Settings.Models;
-using PrimeBakesLibrary.Restaurant.Bill.Models;
-using PrimeBakesLibrary.Store.Masters.Models;
+using PrimeBakesLibrary.Exporting.Restaurant.Bill;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Models.Restuarant.Bill;
+using PrimeBakesLibrary.Models.Store.Masters;
 
 using Syncfusion.Blazor.Grids;
 
@@ -93,20 +91,20 @@ public partial class BillReport : IAsyncDisposable
 
 	private async Task LoadLocations()
 	{
-		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
+		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
 		_locations = [.. _locations.OrderBy(s => s.Name)];
 		_selectedLocation = _locations.FirstOrDefault(_ => _.Id == _user.LocationId);
 	}
 
 	private async Task LoadCompanies()
 	{
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
 		_companies = [.. _companies.OrderBy(s => s.Name)];
 	}
 
 	private async Task LoadCustomers()
 	{
-		_customers = await CommonData.LoadTableData<CustomerModel>(StoreNames.Customer);
+		_customers = await CommonData.LoadTableData<CustomerModel>(TableNames.Customer);
 		_customers = [.. _customers.OrderBy(s => s.Name)];
 	}
 
@@ -122,7 +120,7 @@ public partial class BillReport : IAsyncDisposable
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
 			_transactionOverviews = await CommonData.LoadTableDataByDate<BillOverviewModel>(
-				RestaurantNames.BillOverview,
+				ViewNames.BillOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
@@ -490,7 +488,7 @@ public partial class BillReport : IAsyncDisposable
 
 			await _toastNotification.ShowAsync("Processing", "Deleting transaction...", ToastType.Info);
 
-			var bill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, _deleteTransactionId);
+			var bill = await CommonData.LoadTableDataById<BillModel>(TableNames.Bill, _deleteTransactionId);
 			if (bill is null)
 			{
 				await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);
@@ -543,7 +541,7 @@ public partial class BillReport : IAsyncDisposable
 
 			await _toastNotification.ShowAsync("Processing", "Recovering transaction...", ToastType.Info);
 
-			var bill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, _recoverTransactionId);
+			var bill = await CommonData.LoadTableDataById<BillModel>(TableNames.Bill, _recoverTransactionId);
 			if (bill is null)
 			{
 				await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);

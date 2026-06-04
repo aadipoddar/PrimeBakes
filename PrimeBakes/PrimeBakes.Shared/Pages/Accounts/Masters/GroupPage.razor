@@ -1,156 +1,171 @@
-﻿@using PrimeBakesLibrary.Accounts.Masters.Models
-
 @attribute [Route(PageRouteNames.GroupMaster)]
 
-<PageTitle>Group Management - PrimeBakes</PageTitle>
+@using PrimeBakesLibrary.Models.Accounts.Masters
 
-<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfFirstFocus.FocusAsync()" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="SaveTransaction" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ExportExcel" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ExportPdf" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="EditSelectedItem" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="DeleteRecoverSelectedItem" Disabled="@_isProcessing" />
+<PageTitle>Group Management - Prime Bakes</PageTitle>
+
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" />
+<MudBlazor.MudHotkey Key=JsKey.KeyB KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateBack" />
+<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="SaveGroup" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ExportExcel" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ExportPdf" />
+<MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" />
+<MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="EditSelectedItem" />
+<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="DeleteSelectedItem" />
 
 @if (_isLoading || _user is null)
 {
-	<LoadingScreen />
+    <AnimatedLoader Visible="true" />
 }
 else
 {
-	<div class="page-shell">
-		<Header Title="Group Management">
-			<LeftContent>
-				<SfMenu TValue="Syncfusion.Blazor.Navigations.MenuItem">
-					<MenuAnimationSettings Effect="Syncfusion.Blazor.Navigations.MenuEffect.SlideDown" Duration="300" Easing="ease" />
-					<MenuEvents TValue="Syncfusion.Blazor.Navigations.MenuItem" ItemSelected="OnMenuSelected" />
-					<MenuItems>
-						<MenuItem Text="File" IconCss="e-icons e-folder">
-							<MenuItems>
-								<MenuItem Text="New (Ctrl + N)" IconCss="e-icons e-plus" Id="NewTransaction" Disabled="@_isProcessing" />
-								<MenuItem Text="Save (Ctrl + S)" IconCss="e-icons e-save" Id="SaveTransaction" Disabled="@_isProcessing" />
-								<MenuItem Text="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" IconCss="e-icons e-trash" Id="ToggleDeleted" Disabled="@_isProcessing" />
-								<MenuItem Separator="true" />
-								<MenuItem Text="Export Excel (Ctrl + E)" IconCss="e-icons e-export-excel" Id="ExportExcel" Disabled="@_isProcessing" />
-								<MenuItem Text="Export PDF (Ctrl + P)" IconCss="e-icons e-export-pdf" Id="ExportPdf" Disabled="@_isProcessing" />
-							</MenuItems>
-						</MenuItem>
-						<MenuItem Text="Transaction" IconCss="e-icons e-chart">
-							<MenuItems>
-								<MenuItem Text="Edit (Insert)" IconCss="e-icons e-edit" Id="EditSelectedItem" Disabled="@_isProcessing" />
-								<MenuItem Text="Delete / Recover (Del)" IconCss="e-icons e-trash" Id="DeleteRecoverSelectedItem" Disabled="@_isProcessing" />
-							</MenuItems>
-						</MenuItem>
-					</MenuItems>
-				</SfMenu>
-			</LeftContent>
-		</Header>
+    <div class="page-shell">
+        <Header Title="Group Management">
+            <LeftContent>
+                <SfMenu TValue="Syncfusion.Blazor.Navigations.MenuItem">
+                    <MenuAnimationSettings Effect="Syncfusion.Blazor.Navigations.MenuEffect.SlideDown" Duration="300"
+                                           Easing="ease" />
+                    <MenuEvents TValue="Syncfusion.Blazor.Navigations.MenuItem" ItemSelected="OnMenuSelected" />
+                    <MenuItems>
+                        <MenuItem Text="File" IconCss="e-icons e-folder">
+                            <MenuItems>
+                                <MenuItem Text="New (Ctrl + N)" IconCss="e-icons e-plus" Id="NewGroup"
+                                          Disabled="@_isProcessing" />
+                                <MenuItem Text="Save (Ctrl + S)" IconCss="e-icons e-save" Id="SaveGroup"
+                                          Disabled="@_isProcessing" />
+                                <MenuItem Text="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" IconCss="e-icons e-trash"
+                                          Id="ToggleDeleted" Disabled="@_isProcessing" />
+                                <MenuItem Separator="true" />
+                                <MenuItem Text="Export Excel (Ctrl + E)" IconCss="e-icons e-export-excel" Id="ExportExcel"
+                                          Disabled="@_isProcessing" />
+                                <MenuItem Text="Export PDF (Ctrl + P)" IconCss="e-icons e-export-pdf" Id="ExportPdf"
+                                          Disabled="@_isProcessing" />
+                            </MenuItems>
+                        </MenuItem>
+                        <MenuItem Text="Transaction" IconCss="e-icons e-chart">
+                            <MenuItems>
+                                <MenuItem Text="Edit (Insert)" IconCss="e-icons e-edit" Id="EditSelected"
+                                          Disabled="@_isProcessing" />
+                                <MenuItem Text="Delete / Recover (Del)" IconCss="e-icons e-trash" Id="DeleteRecoverSelected"
+                                          Disabled="@_isProcessing" />
+                            </MenuItems>
+                        </MenuItem>
+                    </MenuItems>
+                </SfMenu>
+            </LeftContent>
+            <RightContent>
+                <IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="NavigateBack" />
+            </RightContent>
+        </Header>
 
-		<!-- Main Content Container -->
-		<div class="page-container">
+        <!-- Main Content Container -->
+        <div class="page-container">
 
-			<!-- Group Entry Section -->
-			<div class="section-card">
-				<div class="section-header">
-					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-							 stroke-linejoin="round">
-							<path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
-						</svg>
-						<h2 class="section-title">Group Details</h2>
-					</div>
-				</div>
-				<div class="section-body">
-					<div class="form-grid">
-						<!-- Group Name -->
-						<div class="form-field">
-							<CustomTextField @ref="_sfFirstFocus"
-											 @bind-Value="_group.Name"
-											 Label="Name (Ctrl + F)"
-											 Placeholder="Enter Group Name" />
-						</div>
+            <!-- Group Entry Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round">
+                            <path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
+                        </svg>
+                        <h2 class="section-title">Group Details</h2>
+                    </div>
+                </div>
+                <div class="section-body">
+                    <div class="form-grid">
+                        <!-- Group Name -->
+                        <div class="form-field">
+                            <label class="field-label">
+                                Group Name <span class="required">*</span>
+                            </label>
+                            <SfTextBox @bind-Value="_group.Name" Placeholder="Enter group name"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
 
-						<!-- Nature -->
-						<div class="form-field">
-							<CustomAutoComplete T="NatureModel"
-												Value="_selectedNature"
-												DataSource="@_natures"
-												Placeholder="Select Nature"
-												Label="Nature"
-												ValueChanged="OnNatureChanged"
-												FieldValue="@nameof(NatureModel.Name)" />
-						</div>
+                        <!-- Nature -->
+                        <div class="form-field">
+                            <label class="field-label">
+                                Nature <span class="required">*</span>
+                            </label>
+                            <SfDropDownList TValue="int" TItem="NatureModel" Placeholder="Select Nature"
+                                            DataSource="@_natures" @bind-Value="_group.NatureId" FloatLabelType="FloatLabelType.Never"
+                                            CssClass="custom-textbox">
+                                <DropDownListFieldSettings Text="Name" Value="Id" />
+                            </SfDropDownList>
+                        </div>
 
-						<!-- Remarks -->
-						<div class="form-field">
-							<CustomTextField @bind-Value="_group.Remarks"
-											 Label="Remarks"
-											 Placeholder="Enter remarks (optional)"
-											 Required="false"
-											 Lines="2" />
-						</div>
-					</div>
-				</div>
-			</div>
+                        <!-- Remarks -->
+                        <div class="form-field">
+                            <label class="field-label">Remarks</label>
+                            <SfTextBox @bind-Value="_group.Remarks" Placeholder="Enter remarks (optional)" Multiline="true"
+                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-			<!-- Groups List Section -->
-			<div class="section-card">
-				<div class="section-header">
-					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-							 stroke-linejoin="round">
-							<path d="M9 11l3 3L22 4" />
-							<path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-						</svg>
-						<h2 class="section-title">Groups List</h2>
-					</div>
-				</div>
-				<div class="section-body grid-body">
-					<SfGrid @ref="_sfGrid" DataSource="@_groups" AllowPaging="true" AllowSorting="true"
-							AllowFiltering="true" AllowResizing="true" CssClass="professional-grid"
-							Toolbar="@(new List<string>() { "Search" })" ContextMenuItems="@_gridContextMenuItems">
-						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
-						<GridEvents TValue="GroupModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
-						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
-						<GridColumns>
-							<GridColumn Field="@nameof(GroupModel.Id)" HeaderText="ID" Width="80"
-										TextAlign="TextAlign.Center" />
-							<GridColumn Field="@nameof(GroupModel.Name)" HeaderText="Group Name" Width="250" />
-							<GridColumn HeaderText="Nature" Width="200">
-								<Template>
-									@{
-										var item = (context as GroupModel);
-										var nature = _natures.FirstOrDefault(n => n.Id == item.NatureId);
-										<span>@(nature?.Name ?? "N/A")</span>
-									}
-								</Template>
-							</GridColumn>
-							<GridColumn Field="@nameof(GroupModel.Remarks)" HeaderText="Remarks" Width="350" />
-							<GridColumn Field="@nameof(GroupModel.Status)" HeaderText="Status" Width="110"
-										TextAlign="TextAlign.Center" Visible="_showDeleted">
-								<Template>
-									@{
-										var item = (context as GroupModel);
-										<span class="@(item.Status ? string.Empty : "grid-debit")">@(item.Status ? "Active" : "Deleted")</span>
-									}
-								</Template>
-							</GridColumn>
-						</GridColumns>
-					</SfGrid>
-				</div>
-			</div>
-		</div>
+            <!-- Groups List Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round">
+                            <path d="M9 11l3 3L22 4" />
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                        </svg>
+                        <h2 class="section-title">Groups List</h2>
+                    </div>
+                </div>
+                <div class="section-body grid-body">
+                    <SfGrid @ref="_sfGrid" DataSource="@_groups" AllowPaging="true" AllowSorting="true"
+                            AllowFiltering="true" AllowResizing="true" CssClass="professional-grid"
+                            Toolbar="@(new List<string>() { "Search" })" ContextMenuItems="@_groupGridContextMenuItems">
+                        <GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+                        <GridEvents TValue="GroupModel" ContextMenuItemClicked="OnGroupGridContextMenuItemClicked" />
+                        <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+                        <GridColumns>
+                            <GridColumn Field="@nameof(GroupModel.Id)" HeaderText="ID" Width="80"
+                                        TextAlign="TextAlign.Center" />
+                            <GridColumn Field="@nameof(GroupModel.Name)" HeaderText="Group Name" Width="250" />
+                            <GridColumn HeaderText="Nature" Width="200">
+                                <Template>
+                                    @{
+                                        var group = (context as GroupModel);
+                                        var nature = _natures.FirstOrDefault(n => n.Id == group.NatureId);
+                                        <span>@(nature?.Name ?? "N/A")</span>
+                                    }
+                                </Template>
+                            </GridColumn>
+                            <GridColumn Field="@nameof(GroupModel.Remarks)" HeaderText="Remarks" Width="350" />
+                            <GridColumn Field="@nameof(GroupModel.Status)" HeaderText="Status" Width="110"
+                                        TextAlign="TextAlign.Center" Visible="_showDeleted">
+                                <Template>
+                                    @{
+                                        var group = (context as GroupModel);
+                                        <span class="@(group.Status ? string.Empty : "grid-debit")">@(group.Status ? "Active" : "Deleted")</span>
+                                    }
+                                </Template>
+                            </GridColumn>
+                        </GridColumns>
+                    </SfGrid>
+                </div>
+            </div>
+        </div>
 
-		<Footer />
-	</div>
+        <Footer />
+    </div>
 }
 
-<ConfirmationDialog @ref="_confirmationDialog" Title="@_confirmTitle" Message="@_confirmMessage"
-					OnConfirm="OnConfirmed" OnCancel="OnCancelled" />
+<!-- Delete Confirmation Dialog -->
+<DeleteConfirmationDialog @ref="_deleteConfirmationDialog" EntityName="Group" IdentifierLabel="Name"
+                          IdentifierValue="@_deleteGroupName" Disabled="@_isProcessing" OnConfirm="ConfirmDelete" OnCancel="CancelDelete" />
+
+<!-- Recover Confirmation Dialog -->
+<RecoverConfirmationDialog @ref="_recoverConfirmationDialog" EntityName="Group" IdentifierLabel="Name"
+                           IdentifierValue="@_recoverGroupName" Disabled="@_isProcessing" OnConfirm="ConfirmRecover"
+                           OnCancel="CancelRecover" />
 
 <ToastNotification @ref="_toastNotification" />
-
-<NavigationLock ConfirmExternalNavigation="@_isProcessing" />

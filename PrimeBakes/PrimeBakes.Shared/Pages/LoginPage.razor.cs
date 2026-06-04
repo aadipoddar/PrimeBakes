@@ -1,4 +1,6 @@
-using PrimeBakesLibrary.Operations.User.Data;
+using Microsoft.AspNetCore.Components;
+
+using PrimeBakesLibrary.Data.Operations;
 using PrimeBakesLibrary.DataAccess;
 
 using Syncfusion.Blazor.Inputs;
@@ -7,37 +9,39 @@ namespace PrimeBakes.Shared.Pages;
 
 public partial class LoginPage
 {
-	private string _passcode = "";
-	private bool _isVerifying = false;
+    [Inject] public NavigationManager NavManager { get; set; }
 
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		if (!firstRender)
-			return;
+    private string _passcode = "";
+    private bool _isVerifying = false;
 
-		await DataStorageService.SecureRemoveAll();
-	}
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
 
-	private async Task CheckPasscode(OtpInputEventArgs e)
-	{
-		_passcode = e.Value?.ToString() ?? string.Empty;
-		if (_passcode.Length != 4 || _isVerifying)
-			return;
+        await DataStorageService.SecureRemoveAll();
+    }
 
-		_isVerifying = true;
-		StateHasChanged();
+    private async Task CheckPasscode(OtpInputEventArgs e)
+    {
+        _passcode = e.Value?.ToString() ?? string.Empty;
+        if (_passcode.Length != 4 || _isVerifying)
+            return;
 
-		var user = await UserData.LoadUserByPasscode(int.Parse(_passcode));
+        _isVerifying = true;
+        StateHasChanged();
 
-		if (user is null || !user.Status)
-		{
-			_isVerifying = false;
-			StateHasChanged();
-			return;
-		}
+        var user = await UserData.LoadUserByPasscode(int.Parse(_passcode));
 
-		await DataStorageService.SecureSaveAsync(StorageFileNames.UserDataFileName, System.Text.Json.JsonSerializer.Serialize(user));
-		VibrationService.VibrateWithTime(500);
-		NavigationManager.NavigateTo(PageRouteNames.Dashboard);
-	}
+        if (user is null || !user.Status)
+        {
+            _isVerifying = false;
+            StateHasChanged();
+            return;
+        }
+
+        await DataStorageService.SecureSaveAsync(StorageFileNames.UserDataFileName, System.Text.Json.JsonSerializer.Serialize(user));
+        VibrationService.VibrateWithTime(500);
+        NavManager.NavigateTo(PageRouteNames.Dashboard);
+    }
 }

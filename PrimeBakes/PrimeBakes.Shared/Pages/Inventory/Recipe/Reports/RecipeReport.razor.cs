@@ -1,9 +1,9 @@
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Inventory.Recipe.Exports;
-using PrimeBakesLibrary.Utils.ExportUtils;
-using PrimeBakesLibrary.Inventory.Recipe.Models;
-using PrimeBakesLibrary.Operations.User.Models;
+using PrimeBakesLibrary.Exporting.Inventory.Recipe;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Inventory;
+using PrimeBakesLibrary.Models.Operations;
 
 using Syncfusion.Blazor.Grids;
 
@@ -44,7 +44,7 @@ public partial class RecipeReport
 			_isProcessing = true;
 			StateHasChanged();
 
-			_recipeOverviews = await CommonData.LoadTableDataByStatus<RecipeOverviewModel>(InventoryNames.RecipeOverview);
+			_recipeOverviews = await CommonData.LoadTableDataByStatus<RecipeOverviewModel>(ViewNames.RecipeOverview);
 			_recipeOverviews = [.. _recipeOverviews.OrderBy(r => r.ProductName)];
 		}
 		catch (Exception ex)

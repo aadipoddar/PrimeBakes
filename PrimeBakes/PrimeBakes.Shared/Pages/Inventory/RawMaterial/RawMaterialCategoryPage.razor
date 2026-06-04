@@ -1,6 +1,6 @@
 @attribute [Route(PageRouteNames.RawMaterialCategory)]
 
-@using PrimeBakesLibrary.Inventory.RawMaterial.Models
+@using PrimeBakesLibrary.Models.Inventory
 
 <PageTitle>Raw Material Management - Prime Bakes</PageTitle>
 
@@ -15,7 +15,7 @@
 
 @if (_isLoading || _user is null)
 {
-    <LoadingScreen Visible="true" />
+    <AnimatedLoader Visible="true" />
 }
 else
 {

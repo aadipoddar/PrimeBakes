@@ -1,9 +1,8 @@
-using PrimeBakesLibrary.Restaurant.Bill.Data;
+using PrimeBakesLibrary.Data.Restaurant.Bill;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Operations.User.Models;
-using PrimeBakesLibrary.Operations.Location.Models;
-using PrimeBakesLibrary.Restaurant.Bill.Models;
-using PrimeBakesLibrary.Restaurant.Dining.Models;
+using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Models.Restuarant.Bill;
+using PrimeBakesLibrary.Models.Restuarant.Dining;
 using Syncfusion.Blazor.DropDowns;
 
 namespace PrimeBakes.Shared.Pages.Restaurant.Bill;
@@ -35,7 +34,7 @@ public partial class DiningDashbaord
 
 	private async Task LoadData()
 	{
-		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
+		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
 		_locations = [.. _locations.OrderBy(s => s.Name)];
 		_selectedLocation = _locations.FirstOrDefault(_ => _.Id == _user.LocationId);
 
@@ -44,10 +43,10 @@ public partial class DiningDashbaord
 
 	private async Task LoadDining()
 	{
-		_diningAreas = await CommonData.LoadTableDataByStatus<DiningAreaModel>(RestaurantNames.DiningArea);
+		_diningAreas = await CommonData.LoadTableDataByStatus<DiningAreaModel>(TableNames.DiningArea);
 		_diningAreas = [.. _diningAreas.Where(area => area.LocationId == _selectedLocation.Id).OrderBy(area => area.Name)];
 
-		_diningTables = await CommonData.LoadTableDataByStatus<DiningTableModel>(RestaurantNames.DiningTable);
+		_diningTables = await CommonData.LoadTableDataByStatus<DiningTableModel>(TableNames.DiningTable);
 		_diningTables = [.. _diningTables.Where(dt => _diningAreas.Any(area => area.Id == dt.DiningAreaId)).OrderBy(dt => dt.Name)];
 
 		_runningBills = await BillData.LoadRunningBillByLocationId(_selectedLocation.Id);

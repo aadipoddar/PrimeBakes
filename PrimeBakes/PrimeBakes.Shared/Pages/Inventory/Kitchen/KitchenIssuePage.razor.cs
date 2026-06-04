@@ -3,20 +3,19 @@ using Microsoft.AspNetCore.Components;
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
-using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.Inventory.Kitchen.Data;
-using PrimeBakesLibrary.Inventory.Purchase.Data;
-using PrimeBakesLibrary.Inventory.Stock.Data;
-using PrimeBakesLibrary.Operations.Settings.Data;
+using PrimeBakesLibrary.Data.Accounts.Masters;
+using PrimeBakesLibrary.Data.Inventory.Kitchen;
+using PrimeBakesLibrary.Data.Inventory.Purchase;
+using PrimeBakesLibrary.Data.Inventory.Stock;
+using PrimeBakesLibrary.Data.Operations;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Inventory.Kitchen.Exports;
-using PrimeBakesLibrary.Utils.ExportUtils;
-using PrimeBakesLibrary.Accounts.Masters.Models;
-using PrimeBakesLibrary.Inventory.RawMaterial.Models;
-using PrimeBakesLibrary.Inventory.Kitchen.Models;
-using PrimeBakesLibrary.Inventory.Stock.Models;
-using PrimeBakesLibrary.Operations.User.Models;
-using PrimeBakesLibrary.Operations.Settings.Models;
+using PrimeBakesLibrary.Exporting.Inventory.Kitchen;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Models.Inventory;
+using PrimeBakesLibrary.Models.Inventory.Kitchen;
+using PrimeBakesLibrary.Models.Inventory.Stock;
+using PrimeBakesLibrary.Models.Operations;
 
 using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;
@@ -85,7 +84,7 @@ public partial class KitchenIssuePage
     {
         try
         {
-            _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+            _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
             _companies = [.. _companies.OrderBy(s => s.Name)];
 
             var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
@@ -101,7 +100,7 @@ public partial class KitchenIssuePage
     {
         try
         {
-            _kitchens = await CommonData.LoadTableDataByStatus<KitchenModel>(InventoryNames.Kitchen);
+            _kitchens = await CommonData.LoadTableDataByStatus<KitchenModel>(TableNames.Kitchen);
             _kitchens = [.. _kitchens.OrderBy(s => s.Name)];
 
             _selectedKitchen = _kitchens.FirstOrDefault();
@@ -118,7 +117,7 @@ public partial class KitchenIssuePage
         {
             if (Id.HasValue)
             {
-                _kitchenIssue = await CommonData.LoadTableDataById<KitchenIssueModel>(InventoryNames.KitchenIssue, Id.Value);
+                _kitchenIssue = await CommonData.LoadTableDataById<KitchenIssueModel>(TableNames.KitchenIssue, Id.Value);
                 if (_kitchenIssue is null)
                 {
                     await _toastNotification.ShowAsync("Transaction Not Found", "The requested transaction could not be found.", ToastType.Error);
@@ -170,7 +169,7 @@ public partial class KitchenIssuePage
                 _kitchenIssue.KitchenId = _selectedKitchen.Id;
             }
 
-            _selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, _kitchenIssue.FinancialYearId);
+            _selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, _kitchenIssue.FinancialYearId);
         }
         catch (Exception ex)
         {
@@ -206,13 +205,13 @@ public partial class KitchenIssuePage
 
             if (_kitchenIssue.Id > 0)
             {
-                var existingCart = await CommonData.LoadTableDataByMasterId<KitchenIssueDetailModel>(InventoryNames.KitchenIssueDetail, _kitchenIssue.Id);
+                var existingCart = await CommonData.LoadTableDataByMasterId<KitchenIssueDetailModel>(TableNames.KitchenIssueDetail, _kitchenIssue.Id);
 
                 foreach (var item in existingCart)
                 {
                     if (_rawMaterials.FirstOrDefault(s => s.Id == item.RawMaterialId) is null)
                     {
-                        var rawMaterial = await CommonData.LoadTableDataById<RawMaterialModel>(InventoryNames.RawMaterial, item.RawMaterialId);
+                        var rawMaterial = await CommonData.LoadTableDataById<RawMaterialModel>(TableNames.RawMaterial, item.RawMaterialId);
 
                         await _toastNotification.ShowAsync("Item Not Found", $"The item {rawMaterial?.Name} (ID: {item.RawMaterialId}) in the existing transaction cart was not found in the available items list. It may have been deleted or is inaccessible.", ToastType.Error);
                         continue;
@@ -558,7 +557,7 @@ public partial class KitchenIssuePage
 
         if (_kitchenIssue.Id > 0)
         {
-            var existingKitchenIssue = await CommonData.LoadTableDataById<KitchenIssueModel>(InventoryNames.KitchenIssue, _kitchenIssue.Id);
+            var existingKitchenIssue = await CommonData.LoadTableDataById<KitchenIssueModel>(TableNames.KitchenIssue, _kitchenIssue.Id);
             await FinancialYearData.ValidateFinancialYear(existingKitchenIssue.TransactionDateTime);
 
             if (!_user.Admin)

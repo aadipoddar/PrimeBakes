@@ -1,14 +1,14 @@
 @attribute [Route(PageRouteNames.BillMobilePayment)]
 @attribute [Route($"{PageRouteNames.BillMobilePayment}/table/{{DiningTableId:int}}")]
 
-@using PrimeBakesLibrary.Common
-@using PrimeBakesLibrary.Store.Masters.Models
+@using PrimeBakesLibrary.Data.Common
+@using PrimeBakesLibrary.Models.Store.Masters
 
 <PageTitle>Bill Payment - Prime Bakes</PageTitle>
 
 @if (_isLoading || _user is null)
 {
-	<LoadingScreen Visible="true" />
+	<AnimatedLoader Visible="true" />
 }
 else
 {
@@ -53,13 +53,17 @@ else
 				<div class="section-title">Bill Details & Payment</div>
 
 				<div class="form-row disc-roundoff-row">
-					<div class="form-field form-field-half">
-						<label class="field-label">Disc %</label>
-						<SfNumericTextBox TValue="decimal" Value="@_bill.DiscountPercent" Min="0" Max="100" Step="1"
-										  type="tel" Format="N2" Placeholder="0.00" CssClass="dialog-input" Enabled="@(!_isProcessing)">
-							<NumericTextBoxEvents TValue="decimal" ValueChange="OnDiscountPercentChanged" />
-						</SfNumericTextBox>
-					</div>
+
+					@if (_user.LocationId == 1)
+					{
+						<div class="form-field form-field-half">
+							<label class="field-label">Disc %</label>
+							<SfNumericTextBox TValue="decimal" Value="@_bill.DiscountPercent" Min="0" Max="100" Step="1"
+											  type="tel" Format="N2" Placeholder="0.00" CssClass="dialog-input" Enabled="@(!_isProcessing)">
+								<NumericTextBoxEvents TValue="decimal" ValueChange="OnDiscountPercentChanged" />
+							</SfNumericTextBox>
+						</div>
+					}
 
 					<div class="form-field form-field-half">
 						<label class="field-label">Service %</label>
@@ -242,25 +246,25 @@ else
 		width: 100%;
 	}
 
-	.dialog-input input,
-	.dialog-input textarea,
-	.remarks-input textarea {
-		width: 100% !important;
-		border: 2px solid var(--border-color);
-		border-radius: 8px;
-		padding: 10px;
-		font-size: 14px;
-		color: var(--text-dark);
-		transition: all 0.2s ease;
-	}
+		.dialog-input input,
+		.dialog-input textarea,
+		.remarks-input textarea {
+			width: 100% !important;
+			border: 2px solid var(--border-color);
+			border-radius: 8px;
+			padding: 10px;
+			font-size: 14px;
+			color: var(--text-dark);
+			transition: all 0.2s ease;
+		}
 
-	.dialog-input input:focus,
-	.dialog-input textarea:focus,
-	.remarks-input textarea:focus {
-		border-color: var(--primary-color);
-		box-shadow: 0 0 0 3px rgba(226, 19, 123, 0.1);
-		outline: none;
-	}
+			.dialog-input input:focus,
+			.dialog-input textarea:focus,
+			.remarks-input textarea:focus {
+				border-color: var(--primary-color);
+				box-shadow: 0 0 0 3px rgba(226, 19, 123, 0.1);
+				outline: none;
+			}
 
 	.sale-summary,
 	.payment-info,
@@ -283,10 +287,10 @@ else
 		margin-bottom: 6px;
 	}
 
-	.summary-item:last-child,
-	.info-row:last-child {
-		margin-bottom: 0;
-	}
+		.summary-item:last-child,
+		.info-row:last-child {
+			margin-bottom: 0;
+		}
 
 	.summary-label,
 	.info-label {
@@ -352,9 +356,9 @@ else
 		margin-bottom: 0;
 	}
 
-	.payment-item:last-child {
-		border-bottom: none;
-	}
+		.payment-item:last-child {
+			border-bottom: none;
+		}
 
 	.payment-item-details {
 		flex: 1;
@@ -401,10 +405,10 @@ else
 		width: 100%;
 	}
 
-	.payment-footer-row .animated-cart-btn {
-		flex: 1;
-		max-width: none;
-	}
+		.payment-footer-row .animated-cart-btn {
+			flex: 1;
+			max-width: none;
+		}
 
 	.payment-footer-row-single .animated-cart-btn {
 		max-width: none;
@@ -437,19 +441,19 @@ else
 			gap: 10px;
 		}
 
-		.disc-roundoff-row .form-field-half {
-			flex: 1;
-			min-width: 0;
-		}
+			.disc-roundoff-row .form-field-half {
+				flex: 1;
+				min-width: 0;
+			}
 
 		.payment-entry-row {
 			flex-direction: row;
 			gap: 10px;
 		}
 
-		.payment-entry-row .form-field-half {
-			flex: 1;
-			min-width: 0;
-		}
+			.payment-entry-row .form-field-half {
+				flex: 1;
+				min-width: 0;
+			}
 	}
 </style>

@@ -1,11 +1,11 @@
 @attribute [Route(PageRouteNames.StockTransfer)]
 @attribute [Route(PageRouteNames.StockTransfer + "/{Id:int}")]
 
-@using PrimeBakesLibrary.Accounts.Masters.Models
-@using PrimeBakesLibrary.Operations.Location.Models
-@using PrimeBakesLibrary.Store.Masters.Models
-@using PrimeBakesLibrary.Store.Product.Models
-@using PrimeBakesLibrary.Store.StockTransfer.Models
+@using PrimeBakesLibrary.Models.Accounts.Masters
+@using PrimeBakesLibrary.Models.Operations
+@using PrimeBakesLibrary.Models.Store.Masters
+@using PrimeBakesLibrary.Models.Store.Product
+@using PrimeBakesLibrary.Models.Store.StockTransfer
 
 <PageTitle>Stock Transfer - Prime Bakes</PageTitle>
 
@@ -25,7 +25,7 @@
 
 @if (_isLoading || _user is null)
 {
-	<LoadingScreen Visible="true" />
+	<AnimatedLoader Visible="true" />
 }
 else
 {

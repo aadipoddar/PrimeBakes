@@ -1,10 +1,10 @@
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Inventory.Kitchen.Data;
+using PrimeBakesLibrary.Data.Inventory.Kitchen;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Inventory.Kitchen.Exports;
-using PrimeBakesLibrary.Utils.ExportUtils;
-using PrimeBakesLibrary.Inventory.Kitchen.Models;
-using PrimeBakesLibrary.Operations.User.Models;
+using PrimeBakesLibrary.Exporting.Inventory.Kitchen;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Inventory.Kitchen;
+using PrimeBakesLibrary.Models.Operations;
 
 using Syncfusion.Blazor.Grids;
 
@@ -50,7 +50,7 @@ public partial class KitchenPage
 
     private async Task LoadData()
     {
-        _kitchens = await CommonData.LoadTableData<KitchenModel>(InventoryNames.Kitchen);
+        _kitchens = await CommonData.LoadTableData<KitchenModel>(TableNames.Kitchen);
 
         if (!_showDeleted)
             _kitchens = [.. _kitchens.Where(k => k.Status)];

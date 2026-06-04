@@ -1,10 +1,10 @@
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Restaurant.Dining.Data;
+using PrimeBakesLibrary.Data.Restaurant.Dining;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Restaurant.Dining.Exports;
-using PrimeBakesLibrary.Utils.ExportUtils;
-using PrimeBakesLibrary.Operations.User.Models;
-using PrimeBakesLibrary.Restaurant.Dining.Models;
+using PrimeBakesLibrary.Exporting.Restaurant.Dining;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Models.Restuarant.Dining;
 
 using Syncfusion.Blazor.Grids;
 
@@ -54,8 +54,8 @@ public partial class DiningTablePage
 
 	private async Task LoadData()
 	{
-		_diningAreas = await CommonData.LoadTableDataByStatus<DiningAreaModel>(RestaurantNames.DiningArea);
-		_diningTables = await CommonData.LoadTableData<DiningTableModel>(RestaurantNames.DiningTable);
+		_diningAreas = await CommonData.LoadTableDataByStatus<DiningAreaModel>(TableNames.DiningArea);
+		_diningTables = await CommonData.LoadTableData<DiningTableModel>(TableNames.DiningTable);
 
 		if (!_showDeleted)
 			_diningTables = [.. _diningTables.Where(dt => dt.Status)];
@@ -187,7 +187,7 @@ public partial class DiningTablePage
 		if (string.IsNullOrWhiteSpace(_diningTable.Remarks))
 			_diningTable.Remarks = null;
 
-		var allDiningTables = await CommonData.LoadTableData<DiningTableModel>(RestaurantNames.DiningTable);
+		var allDiningTables = await CommonData.LoadTableData<DiningTableModel>(TableNames.DiningTable);
 
 		if (_diningTable.Id > 0)
 		{

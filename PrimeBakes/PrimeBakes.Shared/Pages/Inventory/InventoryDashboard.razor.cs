@@ -1,4 +1,4 @@
-using PrimeBakesLibrary.Operations.User.Models;
+using PrimeBakesLibrary.Models.Operations;
 
 namespace PrimeBakes.Shared.Pages.Inventory;
 

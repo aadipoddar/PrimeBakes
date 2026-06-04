@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Operations.User.Models;
+using PrimeBakesLibrary.Models.Operations;
 
 using Syncfusion.Blazor.DropDowns;
 using System.Reflection;

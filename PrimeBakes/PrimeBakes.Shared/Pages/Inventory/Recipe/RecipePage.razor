@@ -1,8 +1,8 @@
 @attribute [Route(PageRouteNames.Recipe)]
 
-@using PrimeBakesLibrary.Inventory.RawMaterial.Models;
-@using PrimeBakesLibrary.Inventory.Recipe.Models;
-@using PrimeBakesLibrary.Store.Product.Models;
+@using PrimeBakesLibrary.Models.Inventory;
+@using PrimeBakesLibrary.Models.Operations;
+@using PrimeBakesLibrary.Models.Store.Product;
 
 <PageTitle>Recipe - Prime Bakes</PageTitle>
 
@@ -18,7 +18,7 @@
 
 @if (_isLoading)
 {
-	<LoadingScreen Visible="true" />
+	<AnimatedLoader Visible="true" />
 }
 else
 {

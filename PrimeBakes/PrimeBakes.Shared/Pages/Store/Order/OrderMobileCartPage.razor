@@ -1,6 +1,6 @@
 @attribute [Route(PageRouteNames.OrderMobileCart)]
 
-@using PrimeBakesLibrary.Store.Order.Models
+@using PrimeBakesLibrary.Models.Store.Order
 
 <PageTitle>Order Cart - Prime Bakes</PageTitle>
 
@@ -12,7 +12,7 @@
 
 @if (_isLoading || _user is null)
 {
-	<LoadingScreen Visible="true" />
+	<AnimatedLoader Visible="true" />
 }
 else
 {

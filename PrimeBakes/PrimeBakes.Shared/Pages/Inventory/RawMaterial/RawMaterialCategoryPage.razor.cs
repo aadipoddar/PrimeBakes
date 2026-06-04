@@ -1,10 +1,10 @@
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Inventory.RawMaterial.Data;
+using PrimeBakesLibrary.Data.Inventory;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Inventory.RawMaterial.Exports;
-using PrimeBakesLibrary.Utils.ExportUtils;
-using PrimeBakesLibrary.Inventory.RawMaterial.Models;
-using PrimeBakesLibrary.Operations.User.Models;
+using PrimeBakesLibrary.Exporting.Inventory.RawMaterial;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Inventory;
+using PrimeBakesLibrary.Models.Operations;
 
 using Syncfusion.Blazor.Grids;
 
@@ -50,7 +50,7 @@ public partial class RawMaterialCategoryPage
 
 	private async Task LoadData()
 	{
-		_rawMaterialCategories = await CommonData.LoadTableData<RawMaterialCategoryModel>(InventoryNames.RawMaterialCategory);
+		_rawMaterialCategories = await CommonData.LoadTableData<RawMaterialCategoryModel>(TableNames.RawMaterialCategory);
 
 		if (!_showDeleted)
 			_rawMaterialCategories = [.. _rawMaterialCategories.Where(rmc => rmc.Status)];

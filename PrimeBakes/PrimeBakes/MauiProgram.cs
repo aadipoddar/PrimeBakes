@@ -8,43 +8,41 @@ using PrimeBakes.Shared.Services;
 using PrimeBakesLibrary.DataAccess;
 
 using Syncfusion.Blazor;
-
 using MudBlazor.Services;
 
 namespace PrimeBakes;
 
 public static class MauiProgram
 {
-	public static MauiApp CreateMauiApp()
-	{
-		SqlDataAccess.SetupConfiguration();
+    public static MauiApp CreateMauiApp()
+    {
+		Secrets.SetupConfiguration();
 
 		var builder = MauiApp.CreateBuilder();
-		builder
-			.UseMauiApp<App>()
-			.RegisterServices()
-			.RegisterViews()
-			.ConfigureFonts(fonts =>
-			{
-				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-			});
+        builder
+            .UseMauiApp<App>()
+            .RegisterServices()
+            .RegisterViews()
+            .ConfigureFonts(fonts =>
+            {
+                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+            });
 
-		// Add device-specific services used by the PrimeBakes.Shared project
-		builder.Services.AddSingleton<IFormFactor, FormFactor>();
-		builder.Services.AddSingleton<ISaveAndViewService, SaveAndViewService>();
-		builder.Services.AddSingleton<IUpdateService, UpdateService>();
-		builder.Services.AddSingleton<IDataStorageService, DataStorageService>();
-		builder.Services.AddSingleton<IVibrationService, VibrationService>();
-		builder.Services.AddSingleton<ISoundService, SoundService>();
-		builder.Services.AddSingleton<IBluetoothPrinterService, BluetoothPrinterService>();
-		builder.Services.AddScoped<INotificationService, NotificationService>();
-		builder.Services.AddScoped<IThermalPrintDispatcher, ThermalPrintDispatcher>();
-		builder.Services.AddScoped<PageRefreshState>();
+        // Add device-specific services used by the PrimeBakes.Shared project
+        builder.Services.AddSingleton<IFormFactor, FormFactor>();
+        builder.Services.AddSingleton<ISaveAndViewService, SaveAndViewService>();
+        builder.Services.AddSingleton<IUpdateService, UpdateService>();
+        builder.Services.AddSingleton<IDataStorageService, DataStorageService>();
+        builder.Services.AddSingleton<IVibrationService, VibrationService>();
+        builder.Services.AddSingleton<ISoundService, SoundService>();
+        builder.Services.AddSingleton<IBluetoothPrinterService, BluetoothPrinterService>();
+        builder.Services.AddScoped<INotificationService, NotificationService>();
+        builder.Services.AddScoped<IThermalPrintDispatcher, ThermalPrintDispatcher>();
 
 #if WINDOWS
         builder.Services.AddSingleton<IDirectPrintService, Platforms.Windows.WindowsDirectPrintService>();
 #else
-		builder.Services.AddSingleton<IDirectPrintService, NullDirectPrintService>();
+        builder.Services.AddSingleton<IDirectPrintService, NullDirectPrintService>();
 #endif
 
 		builder.Services
@@ -54,27 +52,27 @@ public static class MauiProgram
 
 #if DEBUG
 		builder.Services.AddBlazorWebViewDeveloperTools();
-		builder.Logging.AddDebug();
+        builder.Logging.AddDebug();
 #endif
 
-		return builder.Build();
-	}
+        return builder.Build();
+    }
 
-	public static MauiAppBuilder RegisterServices(this MauiAppBuilder builder)
-	{
+    public static MauiAppBuilder RegisterServices(this MauiAppBuilder builder)
+    {
 #if ANDROID
-		builder.Services.AddSingleton<IDeviceInstallationService, Platforms.Android.DeviceInstallationService>();
+        builder.Services.AddSingleton<IDeviceInstallationService, Platforms.Android.DeviceInstallationService>();
 #endif
 
-		builder.Services.AddSingleton<IPushDemoNotificationActionService, PushDemoNotificationActionService>();
-		builder.Services.AddSingleton<INotificationRegistrationService>(new NotificationRegistrationService(Secrets.NotificationBackendServiceEndpoint, Secrets.NotificationAPIKey));
+        builder.Services.AddSingleton<IPushDemoNotificationActionService, PushDemoNotificationActionService>();
+        builder.Services.AddSingleton<INotificationRegistrationService>(new NotificationRegistrationService(Secrets.NotificationBackendServiceEndpoint, Secrets.NotificationAPIKey));
 
-		return builder;
-	}
+        return builder;
+    }
 
-	public static MauiAppBuilder RegisterViews(this MauiAppBuilder builder)
-	{
-		builder.Services.AddSingleton<MainPage>();
-		return builder;
-	}
+    public static MauiAppBuilder RegisterViews(this MauiAppBuilder builder)
+    {
+        builder.Services.AddSingleton<MainPage>();
+        return builder;
+    }
 }

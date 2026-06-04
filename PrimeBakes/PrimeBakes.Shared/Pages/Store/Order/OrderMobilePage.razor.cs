@@ -1,9 +1,8 @@
-using PrimeBakesLibrary.Store.Product.Data;
+using PrimeBakesLibrary.Data.Store.Product;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Operations.User.Models;
-using PrimeBakesLibrary.Operations.Location.Models;
-using PrimeBakesLibrary.Store.Order.Models;
-using PrimeBakesLibrary.Store.Product.Models;
+using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Models.Store.Order;
+using PrimeBakesLibrary.Models.Store.Product;
 
 namespace PrimeBakes.Shared.Pages.Store.Order;
 
@@ -45,7 +44,7 @@ public partial class OrderMobilePage
 	{
 		try
 		{
-			_productCategories = await CommonData.LoadTableDataByStatus<ProductCategoryModel>(StoreNames.ProductCategory);
+			_productCategories = await CommonData.LoadTableDataByStatus<ProductCategoryModel>(TableNames.ProductCategory);
 			_productCategories.Add(new()
 			{
 				Id = 0,
@@ -54,7 +53,7 @@ public partial class OrderMobilePage
 			_productCategories = [.. _productCategories.OrderBy(s => s.Id == 0 ? 0 : 1).ThenBy(s => s.Name)];
 			_selectedCategory = _productCategories.FirstOrDefault(s => s.Id == 0);
 
-			_location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, _user.LocationId);
+			_location = await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, _user.LocationId);
 
 			var mainLocationProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: 1);
 			var orderLocationProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _user.LocationId);

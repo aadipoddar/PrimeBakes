@@ -2,21 +2,19 @@ using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
-using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.Operations.Settings.Data;
-using PrimeBakesLibrary.Store.Order.Data;
-using PrimeBakesLibrary.Store.Product.Data;
+using PrimeBakesLibrary.Data.Accounts.Masters;
+using PrimeBakesLibrary.Data.Operations;
+using PrimeBakesLibrary.Data.Store.Order;
+using PrimeBakesLibrary.Data.Store.Product;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Store.Order.Exports;
-using PrimeBakesLibrary.Store.Sale.Exports;
-using PrimeBakesLibrary.Utils.ExportUtils;
-using PrimeBakesLibrary.Accounts.Masters.Models;
-using PrimeBakesLibrary.Operations.User.Models;
-using PrimeBakesLibrary.Operations.Location.Models;
-using PrimeBakesLibrary.Operations.Settings.Models;
-using PrimeBakesLibrary.Store.Order.Models;
-using PrimeBakesLibrary.Store.Product.Models;
-using PrimeBakesLibrary.Store.Sale.Models;
+using PrimeBakesLibrary.Exporting.Store.Order;
+using PrimeBakesLibrary.Exporting.Store.Sale;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Models.Store.Order;
+using PrimeBakesLibrary.Models.Store.Product;
+using PrimeBakesLibrary.Models.Store.Sale;
 
 using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;
@@ -83,7 +81,7 @@ public partial class OrderPage
     {
         try
         {
-            _locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
+            _locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
             _locations.RemoveAll(s => s.Id == 1);
             _locations = [.. _locations.OrderBy(s => s.Name)];
 
@@ -102,7 +100,7 @@ public partial class OrderPage
     {
         try
         {
-            _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+            _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
             _companies = [.. _companies.OrderBy(s => s.Name)];
 
             var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
@@ -120,7 +118,7 @@ public partial class OrderPage
         {
             if (Id.HasValue)
             {
-                _order = await CommonData.LoadTableDataById<OrderModel>(StoreNames.Order, Id.Value);
+                _order = await CommonData.LoadTableDataById<OrderModel>(TableNames.Order, Id.Value);
                 if (_order is null || _order.Id == 0 || _user.LocationId > 1)
                 {
                     await _toastNotification.ShowAsync("Transaction Not Found", "The requested transaction could not be found.", ToastType.Error);
@@ -174,9 +172,9 @@ public partial class OrderPage
             }
 
             if (_order.SaleId is not null && _order.SaleId > 0)
-                _sale = await CommonData.LoadTableDataById<SaleModel>(StoreNames.Sale, _order.SaleId.Value);
+                _sale = await CommonData.LoadTableDataById<SaleModel>(TableNames.Sale, _order.SaleId.Value);
 
-            _selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, _order.FinancialYearId);
+            _selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, _order.FinancialYearId);
         }
         catch (Exception ex)
         {
@@ -210,13 +208,13 @@ public partial class OrderPage
 
             if (_order.Id > 0)
             {
-                var existingCart = await CommonData.LoadTableDataByMasterId<OrderDetailModel>(StoreNames.OrderDetail, _order.Id);
+                var existingCart = await CommonData.LoadTableDataByMasterId<OrderDetailModel>(TableNames.OrderDetail, _order.Id);
 
                 foreach (var item in existingCart)
                 {
                     if (_products.FirstOrDefault(s => s.ProductId == item.ProductId) is null)
                     {
-                        var product = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, item.ProductId);
+                        var product = await CommonData.LoadTableDataById<ProductModel>(TableNames.Product, item.ProductId);
                         await _toastNotification.ShowAsync("Item Not Found", $"The item {product?.Name} (ID: {item.ProductId}) in the existing transaction cart was not found in the available items list. It may have been deleted or is inaccessible.", ToastType.Error);
                         continue;
                     }
@@ -465,7 +463,7 @@ public partial class OrderPage
             _order.TransactionNo = await GenerateCodes.GenerateOrderTransactionNo(_order);
 
         if (_order.SaleId is not null && _order.SaleId > 0)
-            _sale = await CommonData.LoadTableDataById<SaleModel>(StoreNames.Sale, _order.SaleId.Value);
+            _sale = await CommonData.LoadTableDataById<SaleModel>(TableNames.Sale, _order.SaleId.Value);
     }
 
     private async Task SaveOrderFile()
@@ -572,7 +570,7 @@ public partial class OrderPage
 
         if (_order.Id > 0)
         {
-            var existingOrder = await CommonData.LoadTableDataById<OrderModel>(StoreNames.Order, _order.Id);
+            var existingOrder = await CommonData.LoadTableDataById<OrderModel>(TableNames.Order, _order.Id);
             await FinancialYearData.ValidateFinancialYear(existingOrder.TransactionDateTime);
 
             if (existingOrder.SaleId is not null && existingOrder.SaleId > 0)

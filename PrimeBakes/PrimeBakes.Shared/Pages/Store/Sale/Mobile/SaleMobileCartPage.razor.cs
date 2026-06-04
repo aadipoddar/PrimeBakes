@@ -1,7 +1,7 @@
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Operations.User.Models;
-using PrimeBakesLibrary.Store.Product.Models;
-using PrimeBakesLibrary.Store.Sale.Models;
+using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Models.Store.Product;
+using PrimeBakesLibrary.Models.Store.Sale;
 
 using Syncfusion.Blazor.Grids;
 
@@ -69,8 +69,8 @@ public partial class SaleMobileCartPage
 	#region Saving
 	private async Task UpdateFinancialDetails()
 	{
-		var taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
-		var items = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
+		var taxes = await CommonData.LoadTableData<TaxModel>(TableNames.Tax);
+		var items = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
 
 		foreach (var item in _cart.Where(_ => _.Quantity > 0))
 		{

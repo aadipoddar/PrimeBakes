@@ -3,15 +3,14 @@ using Microsoft.AspNetCore.Components;
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
-using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.Inventory.Stock.Data;
-using PrimeBakesLibrary.Store.Product.Data;
+using PrimeBakesLibrary.Data.Accounts.Masters;
+using PrimeBakesLibrary.Data.Inventory.Stock;
+using PrimeBakesLibrary.Data.Store.Product;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Accounts.Masters.Models;
-using PrimeBakesLibrary.Inventory.Stock.Models;
-using PrimeBakesLibrary.Operations.User.Models;
-using PrimeBakesLibrary.Operations.Location.Models;
-using PrimeBakesLibrary.Store.Product.Models;
+using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Models.Inventory.Stock;
+using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Models.Store.Product;
 
 using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;
@@ -75,7 +74,7 @@ public partial class ProductStockAdjustment
     {
         try
         {
-            _locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
+            _locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
 
             _locations = [.. _locations.OrderBy(s => s.Name)];
 

@@ -1,9 +1,8 @@
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Operations.Settings.Data;
+using PrimeBakesLibrary.Data.Operations;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Accounts.Masters.Models;
-using PrimeBakesLibrary.Operations.User.Models;
-using PrimeBakesLibrary.Operations.Settings.Models;
+using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Models.Operations;
 
 using Syncfusion.Blazor.DropDowns;
 
@@ -244,19 +243,19 @@ public partial class SettingsPage
 
     private async Task LoadCompanies()
     {
-        var result = await CommonData.LoadTableData<CompanyModel>(AccountNames.Company);
+        var result = await CommonData.LoadTableData<CompanyModel>(TableNames.Company);
         _companies = result ?? [];
     }
 
     private async Task LoadVouchers()
     {
-        var result = await CommonData.LoadTableData<VoucherModel>(AccountNames.Voucher);
+        var result = await CommonData.LoadTableData<VoucherModel>(TableNames.Voucher);
         _vouchers = result ?? [];
     }
 
     private async Task LoadLedgers()
     {
-        var result = await CommonData.LoadTableData<LedgerModel>(AccountNames.Ledger);
+        var result = await CommonData.LoadTableData<LedgerModel>(TableNames.Ledger);
         _ledgers = result ?? [];
     }
 
@@ -530,7 +529,7 @@ public partial class SettingsPage
             await _toastNotification.ShowAsync("Saving", "Processing settings...", ToastType.Info);
 
             // Save all settings
-            var settings = await CommonData.LoadTableData<SettingsModel>(OperationNames.Settings);
+            var settings = await CommonData.LoadTableData<SettingsModel>(TableNames.Settings);
 
             await UpdateSetting(SettingsKeys.RawMaterialCodePrefix, _rawMaterialCodePrefix, settings.FirstOrDefault(_ => _.Key == SettingsKeys.RawMaterialCodePrefix).Description);
             await UpdateSetting(SettingsKeys.FinishedProductCodePrefix, _finishedProductCodePrefix, settings.FirstOrDefault(_ => _.Key == SettingsKeys.FinishedProductCodePrefix).Description);

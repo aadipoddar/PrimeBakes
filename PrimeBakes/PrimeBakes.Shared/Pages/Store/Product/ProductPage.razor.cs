@@ -1,11 +1,10 @@
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Store.Product.Data;
+using PrimeBakesLibrary.Data.Store.Product;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Store.Product.Exports;
-using PrimeBakesLibrary.Utils.ExportUtils;
-using PrimeBakesLibrary.Operations.User.Models;
-using PrimeBakesLibrary.Operations.Location.Models;
-using PrimeBakesLibrary.Store.Product.Models;
+using PrimeBakesLibrary.Exporting.Store.Product;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Models.Store.Product;
 
 using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;
@@ -65,10 +64,10 @@ public partial class ProductPage
 	private async Task LoadData()
 	{
 		await LoadLocations();
-		_products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
-		_categories = await CommonData.LoadTableData<ProductCategoryModel>(StoreNames.ProductCategory);
-		_kotCategories = await CommonData.LoadTableData<KOTCategoryModel>(StoreNames.KOTCategory);
-		_taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
+		_products = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
+		_categories = await CommonData.LoadTableData<ProductCategoryModel>(TableNames.ProductCategory);
+		_kotCategories = await CommonData.LoadTableData<KOTCategoryModel>(TableNames.KOTCategory);
+		_taxes = await CommonData.LoadTableData<TaxModel>(TableNames.Tax);
 
 		if (!_showDeleted)
 			_products = [.. _products.Where(p => p.Status)];
@@ -84,7 +83,7 @@ public partial class ProductPage
 	{
 		try
 		{
-			_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
+			_locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
 			_locations = [.. _locations.OrderBy(s => s.Name)];
 		}
 		catch (Exception ex)

@@ -1,11 +1,11 @@
 @attribute [Route(PageRouteNames.Order)]
 @attribute [Route(PageRouteNames.Order + "/{Id:int}")]
 
-@using PrimeBakesLibrary.Accounts.Masters.Models
-@using PrimeBakesLibrary.Operations.Location.Models
-@using PrimeBakesLibrary.Store.Product.Models
-@using PrimeBakesLibrary.Store.Order.Models
-@using PrimeBakesLibrary.Store.Sale.Models
+@using PrimeBakesLibrary.Models.Accounts.Masters
+@using PrimeBakesLibrary.Models.Operations
+@using PrimeBakesLibrary.Models.Store.Product
+@using PrimeBakesLibrary.Models.Store.Order
+@using PrimeBakesLibrary.Models.Store.Sale
 
 <PageTitle>Order - Prime Bakes</PageTitle>
 
@@ -25,7 +25,7 @@
 
 @if (_isLoading || _user is null)
 {
-	<LoadingScreen Visible="true" />
+	<AnimatedLoader Visible="true" />
 }
 else
 {

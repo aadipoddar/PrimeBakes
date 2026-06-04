@@ -1,16 +1,14 @@
 using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.Operations.Settings.Data;
+using PrimeBakesLibrary.Data.Accounts.Masters;
+using PrimeBakesLibrary.Data.Operations;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Store.StockTransfer.Exports;
-using PrimeBakesLibrary.Utils.ExportUtils;
-using PrimeBakesLibrary.Accounts.Masters.Models;
-using PrimeBakesLibrary.Operations.User.Models;
-using PrimeBakesLibrary.Operations.Location.Models;
-using PrimeBakesLibrary.Operations.Settings.Models;
-using PrimeBakesLibrary.Store.StockTransfer.Models;
+using PrimeBakesLibrary.Exporting.Store.StockTransfer;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Models.Store.StockTransfer;
 
 using Syncfusion.Blazor.Grids;
 
@@ -80,14 +78,14 @@ public partial class StockTransferItemReport : IAsyncDisposable
 
     private async Task LoadLocations()
     {
-        _locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
+        _locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
         _locations = [.. _locations.OrderBy(s => s.Name)];
         _selectedLocation = _locations.FirstOrDefault(_ => _.Id == _user.LocationId);
     }
 
     private async Task LoadCompanies()
     {
-        _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+        _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
         _companies = [.. _companies.OrderBy(s => s.Name)];
     }
 
@@ -103,7 +101,7 @@ public partial class StockTransferItemReport : IAsyncDisposable
             await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
             _transactionOverviews = await CommonData.LoadTableDataByDate<StockTransferItemOverviewModel>(
-                StoreNames.StockTransferItemOverview,
+                ViewNames.StockTransferItemOverview,
                 DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
                 DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 

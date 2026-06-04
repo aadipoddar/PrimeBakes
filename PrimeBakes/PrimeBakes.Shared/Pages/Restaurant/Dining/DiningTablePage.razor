@@ -1,6 +1,6 @@
 @attribute [Route(PageRouteNames.DiningTable)]
 
-@using PrimeBakesLibrary.Restaurant.Dining.Models
+@using PrimeBakesLibrary.Models.Restuarant.Dining
 
 <PageTitle>Dining Table Management - Prime Bakes</PageTitle>
 
@@ -15,7 +15,7 @@
 
 @if (_isLoading)
 {
-	<LoadingScreen Visible="true" />
+	<AnimatedLoader Visible="true" />
 }
 else
 {

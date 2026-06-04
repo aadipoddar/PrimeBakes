@@ -1,10 +1,9 @@
-using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.Operations.Settings.Data;
-using PrimeBakesLibrary.Store.Order.Data;
+using PrimeBakesLibrary.Data.Accounts.Masters;
+using PrimeBakesLibrary.Data.Operations;
+using PrimeBakesLibrary.Data.Store.Order;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Operations.User.Models;
-using PrimeBakesLibrary.Operations.Settings.Models;
-using PrimeBakesLibrary.Store.Order.Models;
+using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Models.Store.Order;
 
 namespace PrimeBakes.Shared.Pages.Store.Order;
 
@@ -209,7 +208,7 @@ public partial class OrderMobileCartPage
 
 	private async Task NotificationNavigate(int orderId)
 	{
-		var overview = await CommonData.LoadTableDataById<OrderOverviewModel>(StoreNames.OrderOverview, orderId);
+		var overview = await CommonData.LoadTableDataById<OrderOverviewModel>(ViewNames.OrderOverview, orderId);
 
 		await DataStorageService.LocalSaveAsync(StorageFileNames.OrderMobileCartDataFileName, System.Text.Json.JsonSerializer.Serialize(_cart.Where(_ => _.Quantity > 0)));
 		await DataStorageService.LocalSaveAsync(StorageFileNames.OrderMobileDataFileName, System.Text.Json.JsonSerializer.Serialize(overview));

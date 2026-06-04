@@ -1,12 +1,12 @@
 @attribute [Route(PageRouteNames.SaleMobile)]
 
-@using PrimeBakesLibrary.Store.Sale.Models
+@using PrimeBakesLibrary.Models.Store.Sale
 
 <PageTitle>Sale - Prime Bakes</PageTitle>
 
 @if (_isLoading || _user is null)
 {
-	<LoadingScreen Visible="true" />
+	<AnimatedLoader Visible="true" />
 }
 else
 {

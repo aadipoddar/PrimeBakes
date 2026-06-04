@@ -1,7 +1,5 @@
 using Blazor.Bluetooth;
-
 using MudBlazor.Services;
-
 using PrimeBakes.Shared.Services;
 using PrimeBakes.Web.Components;
 using PrimeBakes.Web.Services;
@@ -12,7 +10,7 @@ using Syncfusion.Blazor;
 
 var builder = WebApplication.CreateBuilder(args);
 
-SqlDataAccess.SetupConfiguration();
+Secrets.SetupConfiguration();
 
 // Add services to the container.
 builder.Services
@@ -34,7 +32,6 @@ builder.Services.AddScoped<IDataStorageService, DataStorageService>();
 builder.Services.AddScoped<IBluetoothPrinterService, BluetoothPrinterService>();
 builder.Services.AddScoped<IThermalPrintDispatcher, ThermalPrintDispatcher>();
 builder.Services.AddSingleton<IDirectPrintService, NullDirectPrintService>();
-builder.Services.AddScoped<PageRefreshState>();
 
 var app = builder.Build();
 

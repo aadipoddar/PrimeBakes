@@ -1,9 +1,9 @@
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Operations.Settings.Data;
+using PrimeBakesLibrary.Data.Operations;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Utils.PrintUtils;
-using PrimeBakesLibrary.Accounts.Masters.Models;
-using PrimeBakesLibrary.Operations.Settings.Models;
+using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Models.Operations;
 
 namespace PrimeBakes.Shared.Pages.Operations;
 
@@ -192,7 +192,7 @@ public partial class LocalSettingsPage : IAsyncDisposable
             {
                 var companySetting = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
                 if (companySetting is not null && int.TryParse(companySetting.Value, out var companyId))
-                    company = await CommonData.LoadTableDataById<CompanyModel>(AccountNames.Company, companyId);
+                    company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, companyId);
             }
             catch
             {

@@ -1,6 +1,6 @@
 @attribute [Route(PageRouteNames.Tax)]
 
-@using PrimeBakesLibrary.Store.Product.Models
+@using PrimeBakesLibrary.Models.Store.Product
 
 <PageTitle>Tax Management - Prime Bakes</PageTitle>
 
@@ -15,7 +15,7 @@
 
 @if (_isLoading)
 {
-    <LoadingScreen Visible="true" />
+    <AnimatedLoader Visible="true" />
 }
 else
 {

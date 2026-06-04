@@ -1,7 +1,8 @@
 @attribute [Route(PageRouteNames.KitchenProductionReport)]
 
-@using PrimeBakesLibrary.Accounts.Masters.Models
-@using PrimeBakesLibrary.Inventory.Kitchen.Models
+@using PrimeBakesLibrary.Models.Accounts.Masters
+@using PrimeBakesLibrary.Models.Operations
+@using PrimeBakesLibrary.Models.Inventory.Kitchen
 
 <PageTitle>Kitchen Production Report - Prime Bakes</PageTitle>
 
@@ -22,7 +23,7 @@
 
 @if (_isLoading || _user is null)
 {
-	<LoadingScreen Visible="true" />
+	<AnimatedLoader Visible="true" />
 }
 else
 {
