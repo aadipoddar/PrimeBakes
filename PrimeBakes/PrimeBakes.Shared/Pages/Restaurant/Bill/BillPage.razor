@@ -341,7 +341,7 @@ else
 						<div class="cart-field">
 							<label class="cart-label">Rate <span class="required">*</span></label>
 							<SfNumericTextBox Value="@_selectedCart.Rate" TValue="decimal" Min="0" ShowSpinButton="false"
-											  Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
+											  Placeholder="0.00" FloatLabelType="FloatLabelType.Never" Readonly="@(_user.LocationId != 1)"
 											  CssClass="custom-numeric editable-field">
 								<NumericTextBoxEvents TValue="decimal" ValueChange="OnItemRateChanged" />
 							</SfNumericTextBox>
@@ -360,7 +360,7 @@ else
 							<label class="cart-label">CGST %</label>
 							<SfNumericTextBox Value="@_selectedCart.CGSTPercent" TValue="decimal" Decimals="2" Min="0"
 											  Max="100" ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
-											  CssClass="custom-numeric editable-field">
+											  CssClass="custom-numeric editable-field" Readonly="@(_user.LocationId != 1)">
 								<NumericTextBoxEvents TValue="decimal" ValueChange="OnItemCGSTPercentChanged" />
 							</SfNumericTextBox>
 						</div>
@@ -369,7 +369,7 @@ else
 							<label class="cart-label">SGST %</label>
 							<SfNumericTextBox Value="@_selectedCart.SGSTPercent" TValue="decimal" Decimals="2" Min="0"
 											  Max="100" ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
-											  CssClass="custom-numeric editable-field">
+											  CssClass="custom-numeric editable-field" Readonly="@(_user.LocationId != 1)">
 								<NumericTextBoxEvents TValue="decimal" ValueChange="OnItemSGSTPercentChanged" />
 							</SfNumericTextBox>
 						</div>
@@ -378,7 +378,7 @@ else
 							<label class="cart-label">IGST %</label>
 							<SfNumericTextBox Value="@_selectedCart.IGSTPercent" TValue="decimal" Decimals="2" Min="0"
 											  Max="100" ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
-											  CssClass="custom-numeric editable-field">
+											  CssClass="custom-numeric editable-field" Readonly="@(_user.LocationId != 1)">
 								<NumericTextBoxEvents TValue="decimal" ValueChange="OnItemIGSTPercentChanged" />
 							</SfNumericTextBox>
 						</div>
