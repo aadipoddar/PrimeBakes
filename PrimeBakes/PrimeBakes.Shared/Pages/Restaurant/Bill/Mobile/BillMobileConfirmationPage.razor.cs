@@ -1,3 +1,5 @@
+using PrimeBakesLibrary.Common;
+
 namespace PrimeBakes.Shared.Pages.Restaurant.Bill.Mobile;
 
 public partial class BillMobileConfirmationPage
@@ -12,6 +14,6 @@ public partial class BillMobileConfirmationPage
 
 		// Wait for 2 seconds then navigate to home
 		await Task.Delay(2000);
-		NavigationManager.NavigateTo(PageRouteNames.DiningMobileDashboard, forceLoad: true);
+		NavigationManager.NavigateTo(StoreRouteNames.DiningMobileDashboard, forceLoad: true);
 	}
 }

@@ -1,8 +1,9 @@
-using PrimeBakesLibrary.Data.Store.Product;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Store.Order;
-using PrimeBakesLibrary.Models.Store.Product;
+using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Operations.Location;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Store.Order.Models;
+using PrimeBakesLibrary.Store.Product.Data;
+using PrimeBakesLibrary.Store.Product.Models;
 
 namespace PrimeBakes.Shared.Pages.Store.Order;
 
@@ -44,7 +45,7 @@ public partial class OrderMobilePage
 	{
 		try
 		{
-			_productCategories = await CommonData.LoadTableDataByStatus<ProductCategoryModel>(TableNames.ProductCategory);
+			_productCategories = await CommonData.LoadTableDataByStatus<ProductCategoryModel>(StoreNames.ProductCategory);
 			_productCategories.Add(new()
 			{
 				Id = 0,
@@ -53,7 +54,7 @@ public partial class OrderMobilePage
 			_productCategories = [.. _productCategories.OrderBy(s => s.Id == 0 ? 0 : 1).ThenBy(s => s.Name)];
 			_selectedCategory = _productCategories.FirstOrDefault(s => s.Id == 0);
 
-			_location = await CommonData.LoadTableDataById<LocationModel>(TableNames.Location, _user.LocationId);
+			_location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, _user.LocationId);
 
 			var mainLocationProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: 1);
 			var orderLocationProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _user.LocationId);
@@ -71,7 +72,7 @@ public partial class OrderMobilePage
 		}
 		catch (Exception)
 		{
-			NavigationManager.NavigateTo(PageRouteNames.Dashboard);
+			NavigationManager.NavigateTo(StoreRouteNames.Dashboard);
 		}
 	}
 
@@ -88,7 +89,7 @@ public partial class OrderMobilePage
 		}
 		catch (Exception)
 		{
-			NavigationManager.NavigateTo(PageRouteNames.OrderMobile, true);
+			NavigationManager.NavigateTo(StoreRouteNames.OrderMobile, true);
 			await DataStorageService.LocalRemove(StorageFileNames.OrderMobileCartDataFileName);
 		}
 		finally
@@ -181,7 +182,7 @@ public partial class OrderMobilePage
 		}
 		catch (Exception)
 		{
-			NavigationManager.NavigateTo(PageRouteNames.OrderMobile, true);
+			NavigationManager.NavigateTo(StoreRouteNames.OrderMobile, true);
 		}
 		finally
 		{
@@ -200,7 +201,7 @@ public partial class OrderMobilePage
 		VibrationService.VibrateWithTime(500);
 		_cart.Clear();
 
-		NavigationManager.NavigateTo(PageRouteNames.OrderMobileCart);
+		NavigationManager.NavigateTo(StoreRouteNames.OrderMobileCart);
 	}
 	#endregion
 }

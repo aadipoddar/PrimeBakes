@@ -1,11 +1,11 @@
 using PrimeBakes.Shared.Components.Dialog;
 
+using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Data.Accounts.Masters;
-using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Accounts.Masters;
-using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.Grids;
 
@@ -96,7 +96,7 @@ public partial class VoucherPage
             await VoucherData.InsertVoucher(voucher);
 
             await _toastNotification.ShowAsync("Success", $"Voucher '{voucher.Name}' has been deleted successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.VoucherMaster, true);
+            NavigationManager.NavigateTo(StoreRouteNames.VoucherMaster, true);
         }
         catch (Exception ex)
         {
@@ -127,7 +127,7 @@ public partial class VoucherPage
             await VoucherData.InsertVoucher(voucher);
 
             await _toastNotification.ShowAsync("Success", $"Voucher '{voucher.Name}' has been recovered successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.VoucherMaster, true);
+            NavigationManager.NavigateTo(StoreRouteNames.VoucherMaster, true);
         }
         catch (Exception ex)
         {
@@ -232,7 +232,7 @@ public partial class VoucherPage
             await VoucherData.InsertVoucher(_voucher);
 
             await _toastNotification.ShowAsync("Saved", $"Voucher '{_voucher.Name}' has been saved successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.VoucherMaster, true);
+            NavigationManager.NavigateTo(StoreRouteNames.VoucherMaster, true);
         }
         catch (Exception ex)
         {
@@ -396,9 +396,9 @@ public partial class VoucherPage
     }
 
     private void ResetPage() =>
-        NavigationManager.NavigateTo(PageRouteNames.VoucherMaster, true);
+        NavigationManager.NavigateTo(StoreRouteNames.VoucherMaster, true);
 
     private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
+        NavigationManager.NavigateTo(StoreRouteNames.AccountsDashboard);
     #endregion
 }

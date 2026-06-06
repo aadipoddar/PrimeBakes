@@ -2,22 +2,24 @@ using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
+
+using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Data.Accounts.Masters;
-using PrimeBakesLibrary.Data.Operations;
-using PrimeBakesLibrary.Data.Store.Masters;
-using PrimeBakesLibrary.Data.Store.Order;
-using PrimeBakesLibrary.Data.Store.Product;
-using PrimeBakesLibrary.Data.Store.Sale;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Store.Order;
-using PrimeBakesLibrary.Exporting.Store.Sale;
-using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Store.Masters;
-using PrimeBakesLibrary.Models.Store.Order;
-using PrimeBakesLibrary.Models.Store.Product;
-using PrimeBakesLibrary.Models.Store.Sale;
+using PrimeBakesLibrary.Operations.Location;
+using PrimeBakesLibrary.Operations.Settings;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Store.Customer;
+using PrimeBakesLibrary.Store.Order.Data;
+using PrimeBakesLibrary.Store.Order.Exports;
+using PrimeBakesLibrary.Store.Order.Models;
+using PrimeBakesLibrary.Store.PaymentMode;
+using PrimeBakesLibrary.Store.Product.Data;
+using PrimeBakesLibrary.Store.Product.Models;
+using PrimeBakesLibrary.Store.Sale.Data;
+using PrimeBakesLibrary.Store.Sale.Exports;
+using PrimeBakesLibrary.Store.Sale.Models;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;
@@ -96,7 +98,7 @@ public partial class SalePage
 	{
 		try
 		{
-			_locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
+			_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
 			_locations = [.. _locations.OrderBy(s => s.Name)];
 			_selectedLocation = _locations.FirstOrDefault(s => s.Id == _user.LocationId);
 		}
@@ -110,7 +112,7 @@ public partial class SalePage
 	{
 		try
 		{
-			_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
+			_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
 			_companies = [.. _companies.OrderBy(s => s.Name)];
 
 			var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
@@ -126,7 +128,7 @@ public partial class SalePage
 	{
 		try
 		{
-			_parties = await CommonData.LoadTableDataByStatus<LedgerModel>(TableNames.Ledger);
+			_parties = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
 			_parties = [.. _parties.OrderBy(s => s.Name)];
 
 			_selectedParty = null;
@@ -143,11 +145,11 @@ public partial class SalePage
 		{
 			if (Id.HasValue)
 			{
-				_sale = await CommonData.LoadTableDataById<SaleModel>(TableNames.Sale, Id.Value);
+				_sale = await CommonData.LoadTableDataById<SaleModel>(StoreNames.Sale, Id.Value);
 				if (_sale is null || _sale.Id == 0 || _user.LocationId > 1)
 				{
 					await _toastNotification.ShowAsync("Transaction Not Found", "The requested transaction could not be found.", ToastType.Error);
-					NavigationManager.NavigateTo(PageRouteNames.Sale, true);
+					NavigationManager.NavigateTo(StoreRouteNames.Sale, true);
 				}
 			}
 
@@ -223,7 +225,7 @@ public partial class SalePage
 			}
 
 			if (_sale.CustomerId is not null && _sale.CustomerId > 0)
-				_selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(TableNames.Customer, _sale.CustomerId.Value);
+				_selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(StoreNames.Customer, _sale.CustomerId.Value);
 			else
 			{
 				_selectedCustomer = new();
@@ -245,7 +247,7 @@ public partial class SalePage
 					{
 						if (Id > 0)
 						{
-							var order = await CommonData.LoadTableDataById<OrderModel>(TableNames.Order, _sale.OrderId.Value);
+							var order = await CommonData.LoadTableDataById<OrderModel>(StoreNames.Order, _sale.OrderId.Value);
 							if (order is not null && location.Id == order.LocationId)
 							{
 								if (_orders.FirstOrDefault(s => s.Id == order.Id) is null)
@@ -269,7 +271,7 @@ public partial class SalePage
 				_sale.OrderId = null;
 			}
 
-			_selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, _sale.FinancialYearId);
+			_selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, _sale.FinancialYearId);
 			SyncPaymentsFromSale();
 		}
 		catch (Exception ex)
@@ -288,7 +290,7 @@ public partial class SalePage
 		try
 		{
 			_products = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _sale.LocationId);
-			_taxes = await CommonData.LoadTableDataByStatus<TaxModel>(TableNames.Tax);
+			_taxes = await CommonData.LoadTableDataByStatus<TaxModel>(StoreNames.Tax);
 
 			_products = [.. _products.OrderBy(s => s.Name)];
 		}
@@ -306,13 +308,13 @@ public partial class SalePage
 
 			if (_sale.Id > 0)
 			{
-				var existingCart = await CommonData.LoadTableDataByMasterId<SaleDetailModel>(TableNames.SaleDetail, _sale.Id);
+				var existingCart = await CommonData.LoadTableDataByMasterId<SaleDetailModel>(StoreNames.SaleDetail, _sale.Id);
 
 				foreach (var item in existingCart)
 				{
 					if (_products.FirstOrDefault(s => s.ProductId == item.ProductId) is null)
 					{
-						var product = await CommonData.LoadTableDataById<ProductModel>(TableNames.Product, item.ProductId);
+						var product = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, item.ProductId);
 						await _toastNotification.ShowAsync("Item Not Found", $"The item {product?.Name} (ID: {item.ProductId}) in the existing transaction cart was not found in the available items list. It may have been deleted or is inaccessible.", ToastType.Error);
 						continue;
 					}
@@ -539,7 +541,7 @@ public partial class SalePage
 
 			if (Id > 0 && _sale.OrderId is not null && _sale.OrderId > 0)
 			{
-				var order = await CommonData.LoadTableDataById<OrderModel>(TableNames.Order, _sale.OrderId.Value);
+				var order = await CommonData.LoadTableDataById<OrderModel>(StoreNames.Order, _sale.OrderId.Value);
 				if (order is not null && location.Id == order.LocationId)
 				{
 					if (_orders.FirstOrDefault(s => s.Id == order.Id) is null)
@@ -573,12 +575,12 @@ public partial class SalePage
 		_sale.OrderId = _selectedOrder.Id;
 		_cart.Clear();
 
-		var orderItems = await CommonData.LoadTableDataByMasterId<OrderDetailModel>(TableNames.OrderDetail, _selectedOrder.Id);
+		var orderItems = await CommonData.LoadTableDataByMasterId<OrderDetailModel>(StoreNames.OrderDetail, _selectedOrder.Id);
 		foreach (var item in orderItems)
 		{
 			if (_products.FirstOrDefault(s => s.ProductId == item.ProductId) is null)
 			{
-				var product = await CommonData.LoadTableDataById<ProductModel>(TableNames.Product, item.ProductId);
+				var product = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, item.ProductId);
 				await _toastNotification.ShowAsync("Item Not Found", $"The item {product?.Name} (ID: {item.ProductId}) in the selected order was not found in the available items list. It may have been deleted or is inaccessible.", ToastType.Error);
 				continue;
 			}
@@ -1082,14 +1084,14 @@ public partial class SalePage
 
 		if (_sale.Id > 0)
 		{
-			var existingSale = await CommonData.LoadTableDataById<SaleModel>(TableNames.Sale, _sale.Id);
+			var existingSale = await CommonData.LoadTableDataById<SaleModel>(StoreNames.Sale, _sale.Id);
 			await FinancialYearData.ValidateFinancialYear(existingSale.TransactionDateTime);
 
 			if (!_user.Admin || _user.LocationId > 1)
 			{
 				await _toastNotification.ShowAsync("Insufficient Permissions", "You do not have the necessary permissions to modify this transaction.", ToastType.Error);
 				await DeleteLocalFiles();
-				NavigationManager.NavigateTo(PageRouteNames.Sale, true);
+				NavigationManager.NavigateTo(StoreRouteNames.Sale, true);
 				return false;
 			}
 		}
@@ -1106,7 +1108,7 @@ public partial class SalePage
 
 		if (_selectedCustomer.Id > 0)
 		{
-			_selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(TableNames.Customer, _selectedCustomer.Id);
+			_selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(StoreNames.Customer, _selectedCustomer.Id);
 			_sale.CustomerId = _selectedCustomer.Id;
 		}
 		else if (!string.IsNullOrWhiteSpace(_selectedCustomer.Number) && _selectedCustomer.Id == 0)
@@ -1376,14 +1378,14 @@ public partial class SalePage
 	private async Task ResetPage()
 	{
 		await DeleteLocalFiles();
-		NavigationManager.NavigateTo(PageRouteNames.Sale, true);
+		NavigationManager.NavigateTo(StoreRouteNames.Sale, true);
 	}
 
 	private async Task NavigateToTransactionHistoryPage() =>
-		await AuthenticationService.NavigateToRoute(PageRouteNames.SaleReport, FormFactor, JSRuntime, NavigationManager);
+		await AuthenticationService.NavigateToRoute(StoreRouteNames.SaleReport, FormFactor, JSRuntime, NavigationManager);
 
 	private async Task NavigateToItemReport() =>
-		await AuthenticationService.NavigateToRoute(PageRouteNames.SaleItemReport, FormFactor, JSRuntime, NavigationManager);
+		await AuthenticationService.NavigateToRoute(StoreRouteNames.SaleItemReport, FormFactor, JSRuntime, NavigationManager);
 
 	private async Task NavigateToSelectedOrderPage()
 	{
@@ -1393,7 +1395,7 @@ public partial class SalePage
 			return;
 		}
 
-		await AuthenticationService.NavigateToRoute($"{PageRouteNames.Order}/{_selectedOrder.Id}", FormFactor, JSRuntime, NavigationManager);
+		await AuthenticationService.NavigateToRoute($"{StoreRouteNames.Order}/{_selectedOrder.Id}", FormFactor, JSRuntime, NavigationManager);
 	}
 
 	private async Task DownloadSelectedOrderPdf()
@@ -1461,10 +1463,10 @@ public partial class SalePage
 	}
 
 	private void NavigateToDashboard() =>
-		NavigationManager.NavigateTo(PageRouteNames.Dashboard);
+		NavigationManager.NavigateTo(StoreRouteNames.Dashboard);
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(PageRouteNames.StoreDashboard);
+		NavigationManager.NavigateTo(StoreRouteNames.StoreDashboard);
 
 	private async Task Logout() =>
 		await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);

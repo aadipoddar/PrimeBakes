@@ -314,7 +314,7 @@ else
 							CssClass="professional-grid" ContextMenuItems="@_cartGridContextMenuItems"
 							Toolbar="@(new List<string>() { "Search" })">
 
-						<GridEvents TValue="FinancialAccountingItemCartModel"
+						<GridEvents TValue="FinancialAccountingLedgerCartModel"
 									ContextMenuItemClicked="OnCartGridContextMenuItemClicked" />
 
 						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
@@ -364,7 +364,7 @@ else
 										Format="N2">
 								<Template>
 									@{
-										var item = (context as FinancialAccountingItemCartModel);
+										var item = (context as FinancialAccountingLedgerCartModel);
 										<span class="@((item.Debit ?? 0) > 0 ? "grid-debit" : "")">
 											@(item.Debit?.ToString("N2") ??
 																				"-")
@@ -376,7 +376,7 @@ else
 										Format="N2">
 								<Template>
 									@{
-										var item = (context as FinancialAccountingItemCartModel);
+										var item = (context as FinancialAccountingLedgerCartModel);
 										<span class="@((item.Credit ?? 0) > 0 ? "grid-credit" : "")">
 											@(item.Credit?.ToString("N2") ??
 																				"-")

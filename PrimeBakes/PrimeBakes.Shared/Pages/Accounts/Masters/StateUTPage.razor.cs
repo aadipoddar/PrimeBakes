@@ -1,11 +1,11 @@
 using PrimeBakes.Shared.Components.Dialog;
 
+using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Data.Accounts.Masters;
-using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Accounts.Masters;
-using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.Grids;
 
@@ -96,7 +96,7 @@ public partial class StateUTPage
             await StateUTData.InsertStateUT(stateUT);
 
             await _toastNotification.ShowAsync("Success", $"State/UT '{stateUT.Name}' has been deleted successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.StateUTMaster, true);
+            NavigationManager.NavigateTo(StoreRouteNames.StateUTMaster, true);
         }
         catch (Exception ex)
         {
@@ -127,7 +127,7 @@ public partial class StateUTPage
             await StateUTData.InsertStateUT(stateUT);
 
             await _toastNotification.ShowAsync("Success", $"State/UT '{stateUT.Name}' has been recovered successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.StateUTMaster, true);
+            NavigationManager.NavigateTo(StoreRouteNames.StateUTMaster, true);
         }
         catch (Exception ex)
         {
@@ -209,7 +209,7 @@ public partial class StateUTPage
             await StateUTData.InsertStateUT(_stateUT);
 
             await _toastNotification.ShowAsync("Success", $"State/UT '{_stateUT.Name}' has been saved successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.StateUTMaster, true);
+            NavigationManager.NavigateTo(StoreRouteNames.StateUTMaster, true);
         }
         catch (Exception ex)
         {
@@ -373,9 +373,9 @@ public partial class StateUTPage
     }
 
     private void ResetPage() =>
-        NavigationManager.NavigateTo(PageRouteNames.StateUTMaster, true);
+        NavigationManager.NavigateTo(StoreRouteNames.StateUTMaster, true);
 
     private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
+        NavigationManager.NavigateTo(StoreRouteNames.AccountsDashboard);
     #endregion
 }

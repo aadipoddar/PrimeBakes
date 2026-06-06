@@ -1,16 +1,19 @@
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Data.Accounts.Masters;
-using PrimeBakesLibrary.Data.Operations;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Store.Sale;
-using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Inventory.Kitchen;
-using PrimeBakesLibrary.Models.Inventory.Purchase;
-using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Restuarant.Bill;
-using PrimeBakesLibrary.Models.Store.Sale;
-using PrimeBakesLibrary.Models.Store.StockTransfer;
+
+using PrimeBakesLibrary.Accounts.Masters.Data;
+using PrimeBakesLibrary.Accounts.Masters.Models;
+using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Inventory.Kitchen.Models;
+using PrimeBakesLibrary.Inventory.Purchase.Models;
+using PrimeBakesLibrary.Operations.Location;
+using PrimeBakesLibrary.Operations.Settings;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Restaurant.Bill.Models;
+using PrimeBakesLibrary.Store.Sale.Exports;
+using PrimeBakesLibrary.Store.Sale.Models;
+using PrimeBakesLibrary.Store.StockTransfer.Models;
+using PrimeBakesLibrary.Utils.Exports;
+
 using Syncfusion.Blazor.Grids;
 
 namespace PrimeBakes.Shared.Pages.Operations;
@@ -83,7 +86,7 @@ public partial class OutletSummaryReport : IAsyncDisposable
 
 	private async Task LoadCompanies()
 	{
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
+		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
 		_companies = [.. _companies.OrderBy(s => s.Name)];
 	}
 
@@ -118,45 +121,45 @@ public partial class OutletSummaryReport : IAsyncDisposable
 
 	private async Task LoadTransactionOverviews()
 	{
-		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
+		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
 
 		_purchases = await CommonData.LoadTableDataByDate<PurchaseOverviewModel>(
-			ViewNames.PurchaseOverview,
+			InventoryNames.PurchaseOverview,
 			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
 		_purchasesReturns = await CommonData.LoadTableDataByDate<PurchaseReturnOverviewModel>(
-			ViewNames.PurchaseReturnOverview,
+			InventoryNames.PurchaseReturnOverview,
 			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
 		_kitchenIssue = await CommonData.LoadTableDataByDate<KitchenIssueOverviewModel>(
-			ViewNames.KitchenIssueOverview,
+			InventoryNames.KitchenIssueOverview,
 			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
 		_kitchenProduction = await CommonData.LoadTableDataByDate<KitchenProductionOverviewModel>(
-			ViewNames.KitchenProductionOverview,
+			InventoryNames.KitchenProductionOverview,
 			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
 		_sales = await CommonData.LoadTableDataByDate<SaleOverviewModel>(
-			ViewNames.SaleOverview,
+			StoreNames.SaleOverview,
 			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
 		_salereturns = await CommonData.LoadTableDataByDate<SaleReturnOverviewModel>(
-			ViewNames.SaleReturnOverview,
+			StoreNames.SaleReturnOverview,
 			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
 		_stockTransfers = await CommonData.LoadTableDataByDate<StockTransferOverviewModel>(
-			ViewNames.StockTransferOverview,
+			StoreNames.StockTransferOverview,
 			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
 		_bills = await CommonData.LoadTableDataByDate<BillOverviewModel>(
-			ViewNames.BillOverview,
+			RestaurantNames.BillOverview,
 			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
@@ -213,7 +216,7 @@ public partial class OutletSummaryReport : IAsyncDisposable
 
 			else
 			{
-				var ledgerLocation = await LedgerData.LoadLedgerByLocationId(outlet.LocationId);
+				var ledgerLocation = await LocationData.LoadLedgerByLocationId(outlet.LocationId);
 
 				outlet.Purchase =
 					_sales.Where(_ => _.PartyId == ledgerLocation.Id).Sum(_ => _.TotalAmount) +

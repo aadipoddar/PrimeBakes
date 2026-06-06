@@ -2,7 +2,7 @@
 
 using PrimeBakes.Shared.Services;
 
-using PrimeBakesLibrary.DataAccess;
+using PrimeBakesLibrary.Common;
 
 namespace PrimeBakes.Web.Services;
 

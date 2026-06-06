@@ -1,15 +1,16 @@
 using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
+
+using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Data.Accounts.Masters;
-using PrimeBakesLibrary.Data.Inventory.Kitchen;
-using PrimeBakesLibrary.Data.Operations;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Inventory.Kitchen;
-using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Inventory.Kitchen.Data;
+using PrimeBakesLibrary.Inventory.Kitchen.Exports;
+using PrimeBakesLibrary.Inventory.Kitchen.Models;
 using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Inventory.Kitchen;
-using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Operations.Settings;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.Grids;
 
@@ -87,7 +88,7 @@ public partial class KitchenProductionReport : IAsyncDisposable
 
 	private async Task LoadCompanies()
 	{
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
+		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
 		_companies = [.. _companies.OrderBy(s => s.Name)];
 	}
 
@@ -109,7 +110,7 @@ public partial class KitchenProductionReport : IAsyncDisposable
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
 			_transactionOverviews = await CommonData.LoadTableDataByDate<KitchenProductionOverviewModel>(
-				ViewNames.KitchenProductionOverview,
+				InventoryNames.KitchenProductionOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
@@ -395,7 +396,7 @@ public partial class KitchenProductionReport : IAsyncDisposable
 
 	private async Task DeleteTransaction()
 	{
-		var kitchenProduction = await CommonData.LoadTableDataById<KitchenProductionModel>(TableNames.KitchenProduction, _deleteTransactionId);
+		var kitchenProduction = await CommonData.LoadTableDataById<KitchenProductionModel>(InventoryNames.KitchenProduction, _deleteTransactionId);
 		if (kitchenProduction is null)
 		{
 			await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);
@@ -453,7 +454,7 @@ public partial class KitchenProductionReport : IAsyncDisposable
 
 	private async Task RecoverTransaction()
 	{
-		var kitchenProduction = await CommonData.LoadTableDataById<KitchenProductionModel>(TableNames.KitchenProduction, _recoverTransactionId);
+		var kitchenProduction = await CommonData.LoadTableDataById<KitchenProductionModel>(InventoryNames.KitchenProduction, _recoverTransactionId);
 		if (kitchenProduction is null)
 		{
 			await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);
@@ -596,13 +597,13 @@ public partial class KitchenProductionReport : IAsyncDisposable
 	}
 
 	private async Task NavigateToTransactionPage() =>
-		 await AuthenticationService.NavigateToRoute(PageRouteNames.KitchenProduction, FormFactor, JSRuntime, NavigationManager);
+		 await AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenProduction, FormFactor, JSRuntime, NavigationManager);
 
 	private async Task NavigateToItemReport() =>
-		 await AuthenticationService.NavigateToRoute(PageRouteNames.KitchenProductionItemReport, FormFactor, JSRuntime, NavigationManager);
+		 await AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenProductionItemReport, FormFactor, JSRuntime, NavigationManager);
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);
+		NavigationManager.NavigateTo(StoreRouteNames.InventoryDashboard);
 
 	private async Task StartAutoRefresh()
 	{

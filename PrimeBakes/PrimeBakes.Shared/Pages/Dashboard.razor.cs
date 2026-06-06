@@ -1,5 +1,7 @@
 using System.Reflection;
-using PrimeBakesLibrary.Models.Operations;
+
+using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Operations.User;
 
 namespace PrimeBakes.Shared.Pages;
 
@@ -69,7 +71,7 @@ public partial class Dashboard : IDisposable
 
 		if (Factor.Contains("Web"))
 		{
-			NavigationManager.NavigateTo(PageRouteNames.Dashboard, true);
+			NavigationManager.NavigateTo(StoreRouteNames.Dashboard, true);
 			return;
 		}
 

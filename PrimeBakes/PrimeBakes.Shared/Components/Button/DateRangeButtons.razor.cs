@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
 
+using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Data.Accounts.Masters;
-using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 
 namespace PrimeBakes.Shared.Components.Button;
@@ -74,7 +74,7 @@ public partial class DateRangeButtons
 
                 case DateRangeType.PreviousFinancialYear:
                     var currentFY2 = await FinancialYearData.LoadFinancialYearByDateTime(newFromDate);
-                    var financialYears = await CommonData.LoadTableDataByStatus<FinancialYearModel>(TableNames.FinancialYear);
+                    var financialYears = await CommonData.LoadTableDataByStatus<FinancialYearModel>(AccountNames.FinancialYear);
                     var previousFY = financialYears
                         .Where(fy => fy.Id != currentFY2?.Id)
                         .OrderByDescending(fy => fy.StartDate)

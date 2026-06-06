@@ -3,20 +3,19 @@ using Microsoft.AspNetCore.Components;
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
-using PrimeBakesLibrary.Data.Accounts.Masters;
-using PrimeBakesLibrary.Data.Operations;
-using PrimeBakesLibrary.Data.Restaurant.Bill;
-using PrimeBakesLibrary.Data.Store.Masters;
-using PrimeBakesLibrary.Data.Store.Product;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Restaurant.Bill;
-using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Restuarant.Bill;
-using PrimeBakesLibrary.Models.Restuarant.Dining;
-using PrimeBakesLibrary.Models.Store.Masters;
-using PrimeBakesLibrary.Models.Store.Product;
+using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Operations.Location;
+using PrimeBakesLibrary.Operations.Settings;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Restaurant.Bill.Data;
+using PrimeBakesLibrary.Restaurant.Bill.Exports;
+using PrimeBakesLibrary.Restaurant.Bill.Models;
+using PrimeBakesLibrary.Restaurant.Dining.Models;
+using PrimeBakesLibrary.Store.Customer;
+using PrimeBakesLibrary.Store.PaymentMode;
+using PrimeBakesLibrary.Store.Product.Data;
+using PrimeBakesLibrary.Store.Product.Models;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;
@@ -101,7 +100,7 @@ public partial class BillPage
 	{
 		try
 		{
-			_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
+			_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
 			_companies = [.. _companies.OrderBy(s => s.Name)];
 
 			var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
@@ -119,7 +118,7 @@ public partial class BillPage
 	{
 		try
 		{
-			_locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
+			_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
 			_locations = [.. _locations.OrderBy(s => s.Name)];
 			_selectedLocation = _locations.FirstOrDefault(s => s.Id == _user.LocationId);
 		}
@@ -149,7 +148,7 @@ public partial class BillPage
 		}
 
 		if (_bill.CustomerId is not null && _bill.CustomerId > 0)
-			_selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(TableNames.Customer, _bill.CustomerId.Value);
+			_selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(StoreNames.Customer, _bill.CustomerId.Value);
 		else
 		{
 			_selectedCustomer = new();
@@ -157,7 +156,7 @@ public partial class BillPage
 		}
 
 		if (_bill.FinancialYearId > 0)
-			_selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, _bill.FinancialYearId);
+			_selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, _bill.FinancialYearId);
 	}
 
 	private async Task LoadDiningTables()
@@ -167,7 +166,7 @@ public partial class BillPage
 			var diningAreas = await CommonData.LoadTableDataByStatus<DiningAreaModel>(TableNames.DiningArea);
 			diningAreas = [.. diningAreas.Where(d => d.LocationId == _bill.LocationId)];
 
-			_diningTables = await CommonData.LoadTableDataByStatus<DiningTableModel>(TableNames.DiningTable);
+			_diningTables = await CommonData.LoadTableDataByStatus<DiningTableModel>(RestaurantNames.DiningTable);
 			_diningTables = [.. _diningTables.Where(dt => diningAreas.Any(da => da.Id == dt.DiningAreaId)).OrderBy(s => s.Name)];
 
 			if (_diningTables.Count == 0)
@@ -189,7 +188,7 @@ public partial class BillPage
 	{
 		try
 		{
-			_taxes = await CommonData.LoadTableDataByStatus<TaxModel>(TableNames.Tax);
+			_taxes = await CommonData.LoadTableDataByStatus<TaxModel>(StoreNames.Tax);
 			_products = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _bill.LocationId);
 			_products = [.. _products.OrderBy(s => s.Name)];
 		}
@@ -207,13 +206,13 @@ public partial class BillPage
 
 			if (_bill.Id > 0)
 			{
-				var existingDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(TableNames.BillDetail, _bill.Id);
+				var existingDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, _bill.Id);
 				foreach (var item in existingDetails)
 				{
 					var product = _products.FirstOrDefault(s => s.ProductId == item.ProductId);
 					if (product is null)
 					{
-						var productInfo = await CommonData.LoadTableDataById<ProductModel>(TableNames.Product, item.ProductId);
+						var productInfo = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, item.ProductId);
 						await _toastNotification.ShowAsync("Item Not Found", $"The item {productInfo?.Name} (ID: {item.ProductId}) was not found in available items. It may have been deleted.", ToastType.Error);
 						continue;
 					}
@@ -304,12 +303,12 @@ public partial class BillPage
 	/// </summary>
 	private async Task<bool> LoadExistingBill(int billId)
 	{
-		_bill = await CommonData.LoadTableDataById<BillModel>(TableNames.Bill, billId);
+		_bill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, billId);
 
 		if (_bill is null || _bill.Id == 0)
 		{
 			await _toastNotification.ShowAsync("Transaction Not Found", "The requested transaction could not be found.", ToastType.Error);
-			NavigationManager.NavigateTo(PageRouteNames.Bill, true);
+			NavigationManager.NavigateTo(RestaurnatRouteNames.Bill, true);
 			return false;
 		}
 
@@ -317,7 +316,7 @@ public partial class BillPage
 		if (_user.LocationId != 1 && _bill.LocationId != _user.LocationId)
 		{
 			await _toastNotification.ShowAsync("Access Denied", "You do not have permission to view this bill.", ToastType.Error);
-			NavigationManager.NavigateTo(PageRouteNames.Bill, true);
+			NavigationManager.NavigateTo(RestaurnatRouteNames.Bill, true);
 			return false;
 		}
 
@@ -325,7 +324,7 @@ public partial class BillPage
 		if (!_bill.Running && !(_user.Admin && _user.LocationId == 1))
 		{
 			await _toastNotification.ShowAsync("Access Denied", "Only admin users can edit settled bills.", ToastType.Error);
-			NavigationManager.NavigateTo(PageRouteNames.Bill, true);
+			NavigationManager.NavigateTo(RestaurnatRouteNames.Bill, true);
 			return false;
 		}
 
@@ -339,11 +338,11 @@ public partial class BillPage
 	/// </summary>
 	private async Task<bool> ResolveTableBill(int diningTableId)
 	{
-		var diningTable = await CommonData.LoadTableDataById<DiningTableModel>(TableNames.DiningTable, diningTableId);
+		var diningTable = await CommonData.LoadTableDataById<DiningTableModel>(RestaurantNames.DiningTable, diningTableId);
 		if (diningTable is null)
 		{
 			await _toastNotification.ShowAsync("Dining Table Not Found", "The selected dining table could not be found.", ToastType.Error);
-			NavigationManager.NavigateTo(PageRouteNames.Bill, true);
+			NavigationManager.NavigateTo(RestaurnatRouteNames.Bill, true);
 			return false;
 		}
 
@@ -353,7 +352,7 @@ public partial class BillPage
 		if (_user.LocationId != 1 && diningArea.LocationId != _user.LocationId)
 		{
 			await _toastNotification.ShowAsync("Access Denied", "This dining table does not belong to your location.", ToastType.Error);
-			NavigationManager.NavigateTo(PageRouteNames.Bill, true);
+			NavigationManager.NavigateTo(RestaurnatRouteNames.Bill, true);
 			return false;
 		}
 
@@ -367,7 +366,7 @@ public partial class BillPage
 			if (Id.HasValue && Id.Value == existingBill.Id)
 				return await LoadExistingBill(existingBill.Id);
 
-			NavigationManager.NavigateTo($"{PageRouteNames.Bill}/{existingBill.Id}", true);
+			NavigationManager.NavigateTo($"{RestaurnatRouteNames.Bill}/{existingBill.Id}", true);
 			return false;
 		}
 
@@ -579,7 +578,7 @@ public partial class BillPage
 		var existingRunningBill = runningBills.FirstOrDefault(b => b.DiningTableId == args.Value.Id);
 		if (existingRunningBill is not null)
 		{
-			NavigationManager.NavigateTo($"{PageRouteNames.Bill}/{existingRunningBill.Id}", true);
+			NavigationManager.NavigateTo($"{RestaurnatRouteNames.Bill}/{existingRunningBill.Id}", true);
 			return;
 		}
 
@@ -1012,7 +1011,7 @@ public partial class BillPage
 
 		if (_bill.Id > 0)
 		{
-			var existingBill = await CommonData.LoadTableDataById<BillModel>(TableNames.Bill, _bill.Id);
+			var existingBill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, _bill.Id);
 			await FinancialYearData.ValidateFinancialYear(existingBill.TransactionDateTime);
 
 			if (!existingBill.Running && !(_user.Admin && _user.LocationId == 1))
@@ -1042,7 +1041,7 @@ public partial class BillPage
 
 		if (_bill.DiningTableId > 0)
 		{
-			var diningTable = await CommonData.LoadTableDataById<DiningTableModel>(TableNames.DiningTable, _bill.DiningTableId);
+			var diningTable = await CommonData.LoadTableDataById<DiningTableModel>(RestaurantNames.DiningTable, _bill.DiningTableId);
 			var diningArea = await CommonData.LoadTableDataById<DiningAreaModel>(TableNames.DiningArea, diningTable.DiningAreaId);
 			if (diningArea.LocationId != _bill.LocationId)
 			{
@@ -1059,7 +1058,7 @@ public partial class BillPage
 	{
 		if (_selectedCustomer.Id > 0)
 		{
-			_selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(TableNames.Customer, _selectedCustomer.Id);
+			_selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(StoreNames.Customer, _selectedCustomer.Id);
 			_bill.CustomerId = _selectedCustomer.Id;
 		}
 		else if (!string.IsNullOrWhiteSpace(_selectedCustomer.Number))
@@ -1200,7 +1199,7 @@ public partial class BillPage
 			await _toastNotification.ShowAsync("KOT Printed", "Kitchen order ticket sent to printer.", ToastType.Success);
 
 			await DeleteLocalFiles();
-			NavigationManager.NavigateTo($"{PageRouteNames.Bill}/{_bill.Id}", true);
+			NavigationManager.NavigateTo($"{RestaurnatRouteNames.Bill}/{_bill.Id}", true);
 		}
 		catch (Exception ex)
 		{
@@ -1374,16 +1373,16 @@ public partial class BillPage
 	private async Task ResetPage()
 	{
 		await DeleteLocalFiles();
-		NavigationManager.NavigateTo(PageRouteNames.DiningDashboard, true);
+		NavigationManager.NavigateTo(StoreRouteNames.DiningDashboard, true);
 	}
 
 	private async Task NavigateToTransactionHistoryPage() =>
-		await AuthenticationService.NavigateToRoute(PageRouteNames.BillReport, FormFactor, JSRuntime, NavigationManager);
+		await AuthenticationService.NavigateToRoute(RestaurnatRouteNames.BillReport, FormFactor, JSRuntime, NavigationManager);
 
 	private async Task NavigateToItemReport() =>
-		await AuthenticationService.NavigateToRoute(PageRouteNames.BillItemReport, FormFactor, JSRuntime, NavigationManager);
+		await AuthenticationService.NavigateToRoute(RestaurnatRouteNames.BillItemReport, FormFactor, JSRuntime, NavigationManager);
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(PageRouteNames.RestaurantDashboard);
+		NavigationManager.NavigateTo(StoreRouteNames.RestaurantDashboard);
 	#endregion
 }

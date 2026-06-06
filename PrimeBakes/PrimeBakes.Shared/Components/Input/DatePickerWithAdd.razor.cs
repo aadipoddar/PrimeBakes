@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Components;
+
+using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Models.Accounts.Masters;
 using Syncfusion.Blazor.Calendars;
 
@@ -23,7 +25,7 @@ public partial class DatePickerWithAdd
 
 	[Parameter] public string? Label { get; set; } = "Transaction Date";
 	[Parameter] public bool Required { get; set; } = true;
-	[Parameter] public string? AddNewRoute { get; set; } = PageRouteNames.FinancialYearMaster;
+	[Parameter] public string? AddNewRoute { get; set; } = StoreRouteNames.FinancialYearMaster;
 	[Parameter] public string AddNewLabel { get; set; } = "New";
 
 	public Task FocusAsync() => _sfDatePicker.FocusAsync();

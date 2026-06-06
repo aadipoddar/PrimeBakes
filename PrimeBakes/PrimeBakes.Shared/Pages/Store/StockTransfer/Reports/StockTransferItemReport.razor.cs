@@ -1,14 +1,16 @@
 using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
+
+using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Data.Accounts.Masters;
-using PrimeBakesLibrary.Data.Operations;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Store.StockTransfer;
-using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Store.StockTransfer;
+using PrimeBakesLibrary.Operations.Location;
+using PrimeBakesLibrary.Operations.Settings;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Store.StockTransfer.Exports;
+using PrimeBakesLibrary.Store.StockTransfer.Models;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.Grids;
 
@@ -78,14 +80,14 @@ public partial class StockTransferItemReport : IAsyncDisposable
 
     private async Task LoadLocations()
     {
-        _locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
+        _locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
         _locations = [.. _locations.OrderBy(s => s.Name)];
         _selectedLocation = _locations.FirstOrDefault(_ => _.Id == _user.LocationId);
     }
 
     private async Task LoadCompanies()
     {
-        _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
+        _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
         _companies = [.. _companies.OrderBy(s => s.Name)];
     }
 
@@ -101,7 +103,7 @@ public partial class StockTransferItemReport : IAsyncDisposable
             await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
             _transactionOverviews = await CommonData.LoadTableDataByDate<StockTransferItemOverviewModel>(
-                ViewNames.StockTransferItemOverview,
+                StoreNames.StockTransferItemOverview,
                 DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
                 DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
@@ -428,13 +430,13 @@ public partial class StockTransferItemReport : IAsyncDisposable
     }
 
     private async Task NavigateToTransactionPage() =>
-        await AuthenticationService.NavigateToRoute(PageRouteNames.StockTransfer, FormFactor, JSRuntime, NavigationManager);
+        await AuthenticationService.NavigateToRoute(StoreRouteNames.StockTransfer, FormFactor, JSRuntime, NavigationManager);
 
     private async Task NavigateToTransactionHistory() =>
-        await AuthenticationService.NavigateToRoute(PageRouteNames.StockTransferReport, FormFactor, JSRuntime, NavigationManager);
+        await AuthenticationService.NavigateToRoute(StoreRouteNames.StockTransferReport, FormFactor, JSRuntime, NavigationManager);
 
     private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.StoreDashboard);
+        NavigationManager.NavigateTo(StoreRouteNames.StoreDashboard);
 
     private async Task StartAutoRefresh()
     {

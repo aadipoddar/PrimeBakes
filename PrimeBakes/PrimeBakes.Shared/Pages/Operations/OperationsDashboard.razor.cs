@@ -1,4 +1,5 @@
-using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Operations.User;
 
 namespace PrimeBakes.Shared.Pages.Operations;
 
@@ -22,7 +23,7 @@ public partial class OperationsDashboard
 	}
 
 	private void NavigateToDashboard() =>
-		NavigationManager.NavigateTo(PageRouteNames.Dashboard);
+		NavigationManager.NavigateTo(StoreRouteNames.Dashboard);
 
 	private async Task Logout() =>
 		await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);

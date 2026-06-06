@@ -1,17 +1,16 @@
 using Microsoft.AspNetCore.Components;
 
-using PrimeBakesLibrary.Data.Accounts.Masters;
-using PrimeBakesLibrary.Data.Operations;
-using PrimeBakesLibrary.Data.Restaurant.Bill;
-using PrimeBakesLibrary.Data.Store.Masters;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Restaurant.Bill;
-using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Restuarant.Bill;
-using PrimeBakesLibrary.Models.Restuarant.Dining;
-using PrimeBakesLibrary.Models.Store.Masters;
-using PrimeBakesLibrary.Models.Store.Product;
+using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Operations.Settings;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Restaurant.Bill.Data;
+using PrimeBakesLibrary.Restaurant.Bill.Exports;
+using PrimeBakesLibrary.Restaurant.Bill.Models;
+using PrimeBakesLibrary.Restaurant.Dining.Models;
+using PrimeBakesLibrary.Store.Customer;
+using PrimeBakesLibrary.Store.PaymentMode;
+using PrimeBakesLibrary.Store.Product.Models;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.Inputs;
 
@@ -71,29 +70,29 @@ public partial class BillMobilePaymentPage
 	{
 		if (!DiningTableId.HasValue)
 		{
-			NavigationManager.NavigateTo(PageRouteNames.DiningMobileDashboard, true);
+			NavigationManager.NavigateTo(StoreRouteNames.DiningMobileDashboard, true);
 			return false;
 		}
 
 		try
 		{
-			var diningTable = await CommonData.LoadTableDataById<DiningTableModel>(TableNames.DiningTable, DiningTableId.Value);
+			var diningTable = await CommonData.LoadTableDataById<DiningTableModel>(RestaurantNames.DiningTable, DiningTableId.Value);
 			if (diningTable is null)
 			{
-				NavigationManager.NavigateTo(PageRouteNames.DiningMobileDashboard, true);
+				NavigationManager.NavigateTo(StoreRouteNames.DiningMobileDashboard, true);
 				return false;
 			}
 
 			var diningArea = await CommonData.LoadTableDataById<DiningAreaModel>(TableNames.DiningArea, diningTable.DiningAreaId);
 			if (diningArea is null)
 			{
-				NavigationManager.NavigateTo(PageRouteNames.DiningMobileDashboard, true);
+				NavigationManager.NavigateTo(StoreRouteNames.DiningMobileDashboard, true);
 				return false;
 			}
 
 			if (_user.LocationId != 1 && diningArea.LocationId != _user.LocationId)
 			{
-				NavigationManager.NavigateTo(PageRouteNames.DiningMobileDashboard, true);
+				NavigationManager.NavigateTo(StoreRouteNames.DiningMobileDashboard, true);
 				return false;
 			}
 
@@ -101,7 +100,7 @@ public partial class BillMobilePaymentPage
 		}
 		catch (Exception)
 		{
-			NavigationManager.NavigateTo(PageRouteNames.DiningMobileDashboard, true);
+			NavigationManager.NavigateTo(StoreRouteNames.DiningMobileDashboard, true);
 			return false;
 		}
 	}
@@ -111,7 +110,7 @@ public partial class BillMobilePaymentPage
 		if (!DiningTableId.HasValue)
 			return;
 
-		_diningTable = await CommonData.LoadTableDataById<DiningTableModel>(TableNames.DiningTable, DiningTableId.Value);
+		_diningTable = await CommonData.LoadTableDataById<DiningTableModel>(RestaurantNames.DiningTable, DiningTableId.Value);
 		_bill.DiningTableId = _diningTable?.Id ?? 0;
 	}
 
@@ -126,10 +125,10 @@ public partial class BillMobilePaymentPage
 
 		_bill = runningBill;
 
-		_previousCart = await CommonData.LoadTableDataByMasterId<BillDetailModel>(TableNames.BillDetail, runningBill.Id);
+		_previousCart = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, runningBill.Id);
 
 		if (_bill.CustomerId.HasValue)
-			_selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(TableNames.Customer, _bill.CustomerId.Value);
+			_selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(StoreNames.Customer, _bill.CustomerId.Value);
 	}
 
 	private async Task LoadCart()
@@ -257,8 +256,8 @@ public partial class BillMobilePaymentPage
 			_finalCart = BillData.ConvertCartToDetails(_cart, _bill.Id);
 			_finalCart.AddRange(_previousCart);
 
-			var taxes = await CommonData.LoadTableData<TaxModel>(TableNames.Tax);
-			var items = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
+			var taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
+			var items = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
 
 			foreach (var item in _finalCart.Where(_ => _.Quantity > 0))
 			{
@@ -386,7 +385,7 @@ public partial class BillMobilePaymentPage
 
 		if (_selectedCustomer.Id > 0)
 		{
-			_selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(TableNames.Customer, _selectedCustomer.Id);
+			_selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(StoreNames.Customer, _selectedCustomer.Id);
 			_bill.CustomerId = _selectedCustomer.Id;
 		}
 		else if (!string.IsNullOrWhiteSpace(_selectedCustomer.Number) && _selectedCustomer.Id == 0)
@@ -491,7 +490,7 @@ public partial class BillMobilePaymentPage
 			if (kotOnly)
 			{
 				await HandleKOTPrint();
-				NavigationManager.NavigateTo(PageRouteNames.DiningMobileDashboard, true);
+				NavigationManager.NavigateTo(StoreRouteNames.DiningMobileDashboard, true);
 				return;
 			}
 
@@ -509,9 +508,9 @@ public partial class BillMobilePaymentPage
 			}
 
 			if (_bill.Running)
-				NavigationManager.NavigateTo(PageRouteNames.DiningMobileDashboard, true);
+				NavigationManager.NavigateTo(StoreRouteNames.DiningMobileDashboard, true);
 			else
-				NavigationManager.NavigateTo(PageRouteNames.BillMobileConfirmation, true);
+				NavigationManager.NavigateTo(RestaurnatRouteNames.BillMobileConfirmation, true);
 		}
 		catch (Exception ex)
 		{
@@ -527,7 +526,7 @@ public partial class BillMobilePaymentPage
 	#region Utilities
 	private async Task SendLocalNotification(int billId)
 	{
-		var bill = await CommonData.LoadTableDataById<BillOverviewModel>(ViewNames.BillOverview, billId);
+		var bill = await CommonData.LoadTableDataById<BillOverviewModel>(RestaurantNames.BillOverview, billId);
 		await NotificationService.ShowLocalNotification(
 			bill.Id,
 			"Bill Placed",

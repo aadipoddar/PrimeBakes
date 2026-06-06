@@ -274,6 +274,7 @@
     <Build Include="Operations\User\Insert_User.sql" />
     <Build Include="Operations\User\Load_User_By_Passcode.sql" />
     <Build Include="Operations\Location\Location.sql" />
+    <Build Include="Common\Load_LastTableData_By_Location_FinancialYear.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="PublishLocation\LocalDBPrimeBakes.publish.xml" />

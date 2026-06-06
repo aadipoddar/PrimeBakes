@@ -1,11 +1,11 @@
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Data.Operations;
-using PrimeBakesLibrary.Data.Store.Product;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Operations;
-using PrimeBakesLibrary.Exporting.Utils;
+
+using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Operations.Location;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Store.Product.Data;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.Grids;
 
@@ -53,8 +53,8 @@ public partial class LocationPage
 
     private async Task LoadData()
     {
-        _locations = await CommonData.LoadTableData<LocationModel>(TableNames.Location);
-        _ledgers = await CommonData.LoadTableDataByStatus<LedgerModel>(TableNames.Ledger);
+        _locations = await CommonData.LoadTableData<LocationModel>(OperationNames.Location);
+        _ledgers = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
 
         if (!_showDeleted)
             _locations = [.. _locations.Where(l => l.Status)];
@@ -125,7 +125,7 @@ public partial class LocationPage
                 await ProductLocationData.DeleteProductLocationById(productLocation.Id);
 
 			await _toastNotification.ShowAsync("Deleted", $"Location '{location.Name}' removed successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.Location, true);
+            NavigationManager.NavigateTo(StoreRouteNames.Location, true);
         }
         catch (Exception ex)
         {
@@ -157,7 +157,7 @@ public partial class LocationPage
             await LocationData.InsertLocation(location);
 
             await _toastNotification.ShowAsync("Recovered", $"Location '{location.Name}' restored successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.Location, true);
+            NavigationManager.NavigateTo(StoreRouteNames.Location, true);
         }
         catch (Exception ex)
         {
@@ -268,7 +268,7 @@ public partial class LocationPage
             _location.Id = await LocationData.SaveTransaction(_location, _copyLocation);
 
             await _toastNotification.ShowAsync("Saved", $"Location '{_location.Name}' saved successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.Location, true);
+            NavigationManager.NavigateTo(StoreRouteNames.Location, true);
         }
         catch (Exception ex)
         {
@@ -434,9 +434,9 @@ public partial class LocationPage
     }
 
     private void ResetPage() =>
-        NavigationManager.NavigateTo(PageRouteNames.Location, true);
+        NavigationManager.NavigateTo(StoreRouteNames.Location, true);
 
     private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.OperationsDashboard);
+        NavigationManager.NavigateTo(StoreRouteNames.OperationsDashboard);
     #endregion
 }

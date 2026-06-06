@@ -1,11 +1,12 @@
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Data.Inventory;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Inventory.RawMaterial;
-using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Inventory;
-using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Store.Product;
+
+using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Inventory.RawMaterial.Data;
+using PrimeBakesLibrary.Inventory.RawMaterial.Exports;
+using PrimeBakesLibrary.Inventory.RawMaterial.Models;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Store.Product.Models;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;
@@ -57,9 +58,9 @@ public partial class RawMaterialPage
 
     private async Task LoadData()
     {
-        _rawMaterials = await CommonData.LoadTableData<RawMaterialModel>(TableNames.RawMaterial);
-        _categories = await CommonData.LoadTableData<RawMaterialCategoryModel>(TableNames.RawMaterialCategory);
-        _taxes = await CommonData.LoadTableData<TaxModel>(TableNames.Tax);
+        _rawMaterials = await CommonData.LoadTableData<RawMaterialModel>(InventoryNames.RawMaterial);
+        _categories = await CommonData.LoadTableData<RawMaterialCategoryModel>(InventoryNames.RawMaterialCategory);
+        _taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
 
         if (!_showDeleted)
             _rawMaterials = [.. _rawMaterials.Where(rm => rm.Status)];
@@ -145,7 +146,7 @@ public partial class RawMaterialPage
             await RawMaterialData.InsertRawMaterial(rawMaterial);
 
             await _toastNotification.ShowAsync("Deleted", $"Raw material '{rawMaterial.Name}' has been deleted successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.RawMaterial, true);
+            NavigationManager.NavigateTo(InventoryRouteNames.RawMaterial, true);
         }
         catch (Exception ex)
         {
@@ -176,7 +177,7 @@ public partial class RawMaterialPage
             await RawMaterialData.InsertRawMaterial(rawMaterial);
 
             await _toastNotification.ShowAsync("Recovered", $"Raw material '{rawMaterial.Name}' has been recovered successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.RawMaterial, true);
+            NavigationManager.NavigateTo(InventoryRouteNames.RawMaterial, true);
         }
         catch (Exception ex)
         {
@@ -295,7 +296,7 @@ public partial class RawMaterialPage
             await RawMaterialData.InsertRawMaterial(_rawMaterial);
 
             await _toastNotification.ShowAsync("Saved", $"Raw material '{_rawMaterial.Name}' has been saved successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.RawMaterial, true);
+            NavigationManager.NavigateTo(InventoryRouteNames.RawMaterial, true);
         }
         catch (Exception ex)
         {
@@ -461,9 +462,9 @@ public partial class RawMaterialPage
     }
 
     private void ResetPage() =>
-        NavigationManager.NavigateTo(PageRouteNames.RawMaterial, true);
+        NavigationManager.NavigateTo(InventoryRouteNames.RawMaterial, true);
 
     private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);
+        NavigationManager.NavigateTo(StoreRouteNames.InventoryDashboard);
     #endregion
 }

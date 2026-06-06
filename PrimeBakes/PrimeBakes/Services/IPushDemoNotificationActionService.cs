@@ -1,4 +1,4 @@
-﻿using PrimeBakesLibrary.Models.Notification;
+﻿using PrimeBakesLibrary.Utils.Notification;
 
 namespace PrimeBakes.Services;
 

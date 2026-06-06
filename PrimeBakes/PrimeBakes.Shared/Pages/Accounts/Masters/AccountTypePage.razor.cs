@@ -1,11 +1,11 @@
 using PrimeBakes.Shared.Components.Dialog;
 
+using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Data.Accounts.Masters;
-using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Accounts.Masters;
-using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.Grids;
 
@@ -95,7 +95,7 @@ public partial class AccountTypePage
             await AccountTypeData.InsertAccountType(accountType);
 
             await _toastNotification.ShowAsync("Success", $"Account Type '{accountType.Name}' has been deleted successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AccountTypeMaster, true);
+            NavigationManager.NavigateTo(StoreRouteNames.AccountTypeMaster, true);
         }
         catch (Exception ex)
         {
@@ -126,7 +126,7 @@ public partial class AccountTypePage
             await AccountTypeData.InsertAccountType(accountType);
 
             await _toastNotification.ShowAsync("Success", $"Account Type '{accountType.Name}' has been recovered successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AccountTypeMaster, true);
+            NavigationManager.NavigateTo(StoreRouteNames.AccountTypeMaster, true);
         }
         catch (Exception ex)
         {
@@ -208,7 +208,7 @@ public partial class AccountTypePage
             await AccountTypeData.InsertAccountType(_accountType);
 
             await _toastNotification.ShowAsync("Success", $"Account Type '{_accountType.Name}' has been saved successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.AccountTypeMaster, true);
+            NavigationManager.NavigateTo(StoreRouteNames.AccountTypeMaster, true);
         }
         catch (Exception ex)
         {
@@ -374,9 +374,9 @@ public partial class AccountTypePage
     }
 
     private void ResetPage() =>
-        NavigationManager.NavigateTo(PageRouteNames.AccountTypeMaster, true);
+        NavigationManager.NavigateTo(StoreRouteNames.AccountTypeMaster, true);
 
     private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
+        NavigationManager.NavigateTo(StoreRouteNames.AccountsDashboard);
     #endregion
 }

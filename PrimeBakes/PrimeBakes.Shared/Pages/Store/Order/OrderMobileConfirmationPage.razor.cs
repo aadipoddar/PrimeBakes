@@ -1,7 +1,7 @@
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Store.Order;
-using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Store.Order;
+using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Store.Order.Exports;
+using PrimeBakesLibrary.Store.Order.Models;
+using PrimeBakesLibrary.Utils.Exports;
 
 namespace PrimeBakes.Shared.Pages.Store.Order;
 
@@ -53,7 +53,7 @@ public partial class OrderMobileConfirmationPage
 		await DataStorageService.LocalRemove(StorageFileNames.OrderMobileDataFileName);
 		await DataStorageService.LocalRemove(StorageFileNames.OrderMobileCartDataFileName);
 
-		NavigationManager.NavigateTo(PageRouteNames.OrderMobile, true);
+		NavigationManager.NavigateTo(StoreRouteNames.OrderMobile, true);
 	}
 
 	private async Task GoHome()
@@ -61,6 +61,6 @@ public partial class OrderMobileConfirmationPage
 		await DataStorageService.LocalRemove(StorageFileNames.OrderMobileDataFileName);
 		await DataStorageService.LocalRemove(StorageFileNames.OrderMobileCartDataFileName);
 
-		NavigationManager.NavigateTo(PageRouteNames.Dashboard, true);
+		NavigationManager.NavigateTo(StoreRouteNames.Dashboard, true);
 	}
 }

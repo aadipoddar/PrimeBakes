@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 
-using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Operations.User;
 
 namespace PrimeBakes.Shared.Pages.Store;
 
@@ -24,5 +25,5 @@ public partial class StoreDashboard
 	}
 
 	private void NavigateToDashboard() =>
-		NavigationManager.NavigateTo(PageRouteNames.Dashboard);
+		NavigationManager.NavigateTo(StoreRouteNames.Dashboard);
 }

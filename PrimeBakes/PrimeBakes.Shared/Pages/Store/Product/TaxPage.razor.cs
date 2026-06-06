@@ -1,10 +1,11 @@
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Data.Store.Product;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Store.Product;
-using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Store.Product;
+
+using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Store.Product.Data;
+using PrimeBakesLibrary.Store.Product.Exports;
+using PrimeBakesLibrary.Store.Product.Models;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.Grids;
 
@@ -49,7 +50,7 @@ public partial class TaxPage
 
     private async Task LoadData()
     {
-        _taxes = await CommonData.LoadTableData<TaxModel>(TableNames.Tax);
+        _taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
 
         if (!_showDeleted)
             _taxes = [.. _taxes.Where(t => t.Status)];
@@ -99,7 +100,7 @@ public partial class TaxPage
             await TaxData.InsertTax(tax);
 
             await _toastNotification.ShowAsync("Deleted", $"Tax '{tax.Code}' has been deleted successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.Tax, true);
+            NavigationManager.NavigateTo(StoreRouteNames.Tax, true);
         }
         catch (Exception ex)
         {
@@ -131,7 +132,7 @@ public partial class TaxPage
             await TaxData.InsertTax(tax);
 
             await _toastNotification.ShowAsync("Recovered", $"Tax '{tax.Code}' has been recovered successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.Tax, true);
+            NavigationManager.NavigateTo(StoreRouteNames.Tax, true);
         }
         catch (Exception ex)
         {
@@ -232,7 +233,7 @@ public partial class TaxPage
             await TaxData.InsertTax(_tax);
 
             await _toastNotification.ShowAsync("Saved", $"Tax '{_tax.Code}' has been saved successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.Tax, true);
+            NavigationManager.NavigateTo(StoreRouteNames.Tax, true);
         }
         catch (Exception ex)
         {
@@ -398,9 +399,9 @@ public partial class TaxPage
     }
 
     private void ResetPage() =>
-        NavigationManager.NavigateTo(PageRouteNames.Tax, true);
+        NavigationManager.NavigateTo(StoreRouteNames.Tax, true);
 
     private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.StoreDashboard);
+        NavigationManager.NavigateTo(StoreRouteNames.StoreDashboard);
     #endregion
 }

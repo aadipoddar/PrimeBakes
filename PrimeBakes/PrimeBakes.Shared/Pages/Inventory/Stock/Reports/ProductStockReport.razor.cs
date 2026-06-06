@@ -1,15 +1,17 @@
 using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
+
+using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Data.Accounts.Masters;
-using PrimeBakesLibrary.Data.Inventory.Stock;
-using PrimeBakesLibrary.Data.Operations;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Inventory.Stock;
-using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Inventory.Stock.Data;
+using PrimeBakesLibrary.Inventory.Stock.Exports;
+using PrimeBakesLibrary.Inventory.Stock.Models;
 using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Inventory.Stock;
-using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Operations.Location;
+using PrimeBakesLibrary.Operations.Settings;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.Grids;
 
@@ -83,7 +85,7 @@ public partial class ProductStockReport : IAsyncDisposable
 	{
 		try
 		{
-			_locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
+			_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
 			_locations = [.. _locations.OrderBy(s => s.Name)];
 			_selectedLocation = _locations.FirstOrDefault(_ => _.Id == 1);
 		}
@@ -486,10 +488,10 @@ public partial class ProductStockReport : IAsyncDisposable
 	}
 
 	private async Task NavigateToTransactionPage() =>
-		await AuthenticationService.NavigateToRoute(PageRouteNames.ProductStockAdjustment, FormFactor, JSRuntime, NavigationManager);
+		await AuthenticationService.NavigateToRoute(StoreRouteNames.ProductStockAdjustment, FormFactor, JSRuntime, NavigationManager);
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);
+		NavigationManager.NavigateTo(StoreRouteNames.InventoryDashboard);
 
 	private async Task ShowDeleteConfirmation(int id, string transactionNo)
 	{

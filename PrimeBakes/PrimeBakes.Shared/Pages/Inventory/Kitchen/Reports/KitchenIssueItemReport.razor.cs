@@ -1,14 +1,15 @@
 using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
+
+using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Data.Accounts.Masters;
-using PrimeBakesLibrary.Data.Operations;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Inventory.Kitchen;
-using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Inventory.Kitchen.Exports;
+using PrimeBakesLibrary.Inventory.Kitchen.Models;
 using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Inventory.Kitchen;
-using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Operations.Settings;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.Grids;
 
@@ -77,7 +78,7 @@ public partial class KitchenIssueItemReport : IAsyncDisposable
 
 	private async Task LoadCompanies()
 	{
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
+		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
 		_companies = [.. _companies.OrderBy(s => s.Name)];
 	}
 
@@ -99,7 +100,7 @@ public partial class KitchenIssueItemReport : IAsyncDisposable
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
 			_transactionOverviews = await CommonData.LoadTableDataByDate<KitchenIssueItemOverviewModel>(
-				ViewNames.KitchenIssueItemOverview,
+				InventoryNames.KitchenIssueItemOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
@@ -409,13 +410,13 @@ public partial class KitchenIssueItemReport : IAsyncDisposable
 	}
 
 	private async Task NavigateToTransactionPage() =>
-		await AuthenticationService.NavigateToRoute(PageRouteNames.KitchenIssue, FormFactor, JSRuntime, NavigationManager);
+		await AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssue, FormFactor, JSRuntime, NavigationManager);
 
 	private async Task NavigateToTransactionHistory() =>
-		await AuthenticationService.NavigateToRoute(PageRouteNames.KitchenIssueReport, FormFactor, JSRuntime, NavigationManager);
+		await AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssueReport, FormFactor, JSRuntime, NavigationManager);
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);
+		NavigationManager.NavigateTo(StoreRouteNames.InventoryDashboard);
 
 	private async Task StartAutoRefresh()
 	{

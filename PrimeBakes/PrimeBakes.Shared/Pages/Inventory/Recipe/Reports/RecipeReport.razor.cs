@@ -1,9 +1,10 @@
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Inventory.Recipe;
-using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Inventory;
-using PrimeBakesLibrary.Models.Operations;
+
+using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Inventory.Recipe.Exports;
+using PrimeBakesLibrary.Inventory.Recipe.Models;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.Grids;
 
@@ -138,7 +139,7 @@ public partial class RecipeReport
 		if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
 			return;
 
-		await AuthenticationService.NavigateToRoute(PageRouteNames.Recipe, FormFactor, JSRuntime, NavigationManager);
+		await AuthenticationService.NavigateToRoute(StoreRouteNames.Recipe, FormFactor, JSRuntime, NavigationManager);
 	}
 
 	private async Task ExportSelectedPdf(RecipeOverviewModel item)
@@ -219,9 +220,9 @@ public partial class RecipeReport
 	}
 
 	private async Task NavigateToRecipePage() =>
-		await AuthenticationService.NavigateToRoute(PageRouteNames.Recipe, FormFactor, JSRuntime, NavigationManager);
+		await AuthenticationService.NavigateToRoute(StoreRouteNames.Recipe, FormFactor, JSRuntime, NavigationManager);
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);
+		NavigationManager.NavigateTo(StoreRouteNames.InventoryDashboard);
 	#endregion
 }

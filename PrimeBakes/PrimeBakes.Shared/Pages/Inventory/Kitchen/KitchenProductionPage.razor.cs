@@ -3,16 +3,16 @@ using Microsoft.AspNetCore.Components;
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
+using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Data.Accounts.Masters;
-using PrimeBakesLibrary.Data.Inventory.Kitchen;
-using PrimeBakesLibrary.Data.Operations;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Inventory.Kitchen;
-using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Inventory.Kitchen.Data;
+using PrimeBakesLibrary.Inventory.Kitchen.Exports;
+using PrimeBakesLibrary.Inventory.Kitchen.Models;
 using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Inventory.Kitchen;
-using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Store.Product;
+using PrimeBakesLibrary.Operations.Settings;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Store.Product.Models;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;
@@ -81,7 +81,7 @@ public partial class KitchenProductionPage
     {
         try
         {
-            _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
+            _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
             _companies = [.. _companies.OrderBy(s => s.Name)];
 
             var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
@@ -114,11 +114,11 @@ public partial class KitchenProductionPage
         {
             if (Id.HasValue)
             {
-                _kitchenProduction = await CommonData.LoadTableDataById<KitchenProductionModel>(TableNames.KitchenProduction, Id.Value);
+                _kitchenProduction = await CommonData.LoadTableDataById<KitchenProductionModel>(InventoryNames.KitchenProduction, Id.Value);
                 if (_kitchenProduction is null)
                 {
                     await _toastNotification.ShowAsync("Transaction Not Found", "The requested transaction could not be found.", ToastType.Error);
-                    NavigationManager.NavigateTo(PageRouteNames.KitchenProduction, true);
+                    NavigationManager.NavigateTo(InventoryRouteNames.KitchenProduction, true);
                 }
             }
 
@@ -166,7 +166,7 @@ public partial class KitchenProductionPage
                 _kitchenProduction.KitchenId = _selectedKitchen.Id;
             }
 
-            _selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, _kitchenProduction.FinancialYearId);
+            _selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, _kitchenProduction.FinancialYearId);
         }
         catch (Exception ex)
         {
@@ -183,7 +183,7 @@ public partial class KitchenProductionPage
     {
         try
         {
-            _products = await CommonData.LoadTableDataByStatus<ProductModel>(TableNames.Product);
+            _products = await CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product);
             _products = [.. _products.OrderBy(s => s.Name)];
         }
         catch (Exception ex)
@@ -200,13 +200,13 @@ public partial class KitchenProductionPage
 
             if (_kitchenProduction.Id > 0)
             {
-                var existingCart = await CommonData.LoadTableDataByMasterId<KitchenProductionProductCartModel>(TableNames.KitchenProductionDetail, _kitchenProduction.Id);
+                var existingCart = await CommonData.LoadTableDataByMasterId<KitchenProductionProductCartModel>(InventoryNames.KitchenProductionDetail, _kitchenProduction.Id);
 
                 foreach (var item in existingCart)
                 {
                     if (_products.FirstOrDefault(s => s.Id == item.ProductId) is null)
                     {
-                        var product = await CommonData.LoadTableDataById<ProductModel>(TableNames.Product, item.ProductId);
+                        var product = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, item.ProductId);
 
                         await _toastNotification.ShowAsync("Product Not Found", $"The product {product?.Name} (ID: {item.ProductId}) in the existing transaction cart was not found in the available products list. It may have been deleted or is inaccessible.", ToastType.Error);
                         continue;
@@ -544,7 +544,7 @@ public partial class KitchenProductionPage
 
         if (_kitchenProduction.Id > 0)
         {
-            var existingKitchenProduction = await CommonData.LoadTableDataById<KitchenProductionModel>(TableNames.KitchenProduction, _kitchenProduction.Id);
+            var existingKitchenProduction = await CommonData.LoadTableDataById<KitchenProductionModel>(InventoryNames.KitchenProduction, _kitchenProduction.Id);
             await FinancialYearData.ValidateFinancialYear(existingKitchenProduction.TransactionDateTime);
 
             if (!_user.Admin)
@@ -668,14 +668,14 @@ public partial class KitchenProductionPage
     private async Task ResetPage()
     {
         await DeleteLocalFiles();
-        NavigationManager.NavigateTo(PageRouteNames.KitchenProduction, true);
+        NavigationManager.NavigateTo(InventoryRouteNames.KitchenProduction, true);
     }
 
     private async Task NavigateToTransactionHistoryPage() =>
-        await AuthenticationService.NavigateToRoute(PageRouteNames.KitchenProductionReport, FormFactor, JSRuntime, NavigationManager);
+        await AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenProductionReport, FormFactor, JSRuntime, NavigationManager);
 
     private async Task NavigateToItemReport() =>
-        await AuthenticationService.NavigateToRoute(PageRouteNames.KitchenProductionItemReport, FormFactor, JSRuntime, NavigationManager);
+        await AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenProductionItemReport, FormFactor, JSRuntime, NavigationManager);
 
     private async Task DownloadPdfInvoice()
     {
@@ -742,7 +742,7 @@ public partial class KitchenProductionPage
     }
 
     private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);
+        NavigationManager.NavigateTo(StoreRouteNames.InventoryDashboard);
 
     #endregion
 }

@@ -1,15 +1,15 @@
 using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Data.Accounts.Masters;
-using PrimeBakesLibrary.Data.Operations;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Restaurant.Bill;
-using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Restuarant.Bill;
-using PrimeBakesLibrary.Models.Store.Masters;
+
+using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Operations.Location;
+using PrimeBakesLibrary.Operations.Settings;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Restaurant.Bill.Exports;
+using PrimeBakesLibrary.Restaurant.Bill.Models;
+using PrimeBakesLibrary.Store.Customer;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.Grids;
 
@@ -80,20 +80,20 @@ public partial class BillItemReport : IAsyncDisposable
 
 	private async Task LoadLocations()
 	{
-		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
+		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
 		_locations = [.. _locations.OrderBy(s => s.Name)];
 		_selectedLocation = _locations.FirstOrDefault(_ => _.Id == _user.LocationId);
 	}
 
 	private async Task LoadCompanies()
 	{
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
+		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
 		_companies = [.. _companies.OrderBy(s => s.Name)];
 	}
 
 	private async Task LoadCustomers()
 	{
-		_customers = await CommonData.LoadTableData<CustomerModel>(TableNames.Customer);
+		_customers = await CommonData.LoadTableData<CustomerModel>(StoreNames.Customer);
 		_customers = [.. _customers.OrderBy(s => s.Name)];
 	}
 
@@ -445,13 +445,13 @@ public partial class BillItemReport : IAsyncDisposable
 	}
 
 	private async Task NavigateToTransactionPage() =>
-		await AuthenticationService.NavigateToRoute(PageRouteNames.Bill, FormFactor, JSRuntime, NavigationManager);
+		await AuthenticationService.NavigateToRoute(RestaurnatRouteNames.Bill, FormFactor, JSRuntime, NavigationManager);
 
 	private async Task NavigateToTransactionHistory() =>
-		 await AuthenticationService.NavigateToRoute(PageRouteNames.BillReport, FormFactor, JSRuntime, NavigationManager);
+		 await AuthenticationService.NavigateToRoute(RestaurnatRouteNames.BillReport, FormFactor, JSRuntime, NavigationManager);
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(PageRouteNames.RestaurantDashboard);
+		NavigationManager.NavigateTo(StoreRouteNames.RestaurantDashboard);
 
 	private async Task StartAutoRefresh()
 	{

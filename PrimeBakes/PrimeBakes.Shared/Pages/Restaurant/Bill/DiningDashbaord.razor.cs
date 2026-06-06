@@ -1,8 +1,10 @@
-using PrimeBakesLibrary.Data.Restaurant.Bill;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Restuarant.Bill;
-using PrimeBakesLibrary.Models.Restuarant.Dining;
+using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Operations.Location;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Restaurant.Bill.Data;
+using PrimeBakesLibrary.Restaurant.Bill.Models;
+using PrimeBakesLibrary.Restaurant.Dining.Models;
+
 using Syncfusion.Blazor.DropDowns;
 
 namespace PrimeBakes.Shared.Pages.Restaurant.Bill;
@@ -34,7 +36,7 @@ public partial class DiningDashbaord
 
 	private async Task LoadData()
 	{
-		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
+		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
 		_locations = [.. _locations.OrderBy(s => s.Name)];
 		_selectedLocation = _locations.FirstOrDefault(_ => _.Id == _user.LocationId);
 
@@ -46,7 +48,7 @@ public partial class DiningDashbaord
 		_diningAreas = await CommonData.LoadTableDataByStatus<DiningAreaModel>(TableNames.DiningArea);
 		_diningAreas = [.. _diningAreas.Where(area => area.LocationId == _selectedLocation.Id).OrderBy(area => area.Name)];
 
-		_diningTables = await CommonData.LoadTableDataByStatus<DiningTableModel>(TableNames.DiningTable);
+		_diningTables = await CommonData.LoadTableDataByStatus<DiningTableModel>(RestaurantNames.DiningTable);
 		_diningTables = [.. _diningTables.Where(dt => _diningAreas.Any(area => area.Id == dt.DiningAreaId)).OrderBy(dt => dt.Name)];
 
 		_runningBills = await BillData.LoadRunningBillByLocationId(_selectedLocation.Id);
@@ -69,8 +71,8 @@ public partial class DiningDashbaord
 	}
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(PageRouteNames.RestaurantDashboard);
+		NavigationManager.NavigateTo(StoreRouteNames.RestaurantDashboard);
 
 	private void OpenBillPage(int diningTableId) =>
-		NavigationManager.NavigateTo($"{PageRouteNames.Bill}/table/{diningTableId}");
+		NavigationManager.NavigateTo($"{RestaurnatRouteNames.Bill}/table/{diningTableId}");
 }

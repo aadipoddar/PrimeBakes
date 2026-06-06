@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Models.Operations;
+
+using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Operations.User;
 
 using Syncfusion.Blazor.DropDowns;
+
 using System.Reflection;
 
 namespace PrimeBakes.Shared.Components.Page;
@@ -95,7 +97,7 @@ public partial class Header
 
 	private void LoadRoutes()
 	{
-		_searchItems = [.. typeof(PageRouteNames)
+		_searchItems = [.. typeof(StoreRouteNames)
 			.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
 			.Where(f => f.IsLiteral && !f.IsInitOnly && f.FieldType == typeof(string))
 			.Select(f => new GlobalSearchItem
@@ -239,7 +241,7 @@ public partial class Header
 	}
 
 	private void NavigateToHome() =>
-		NavigationManager.NavigateTo(PageRouteNames.Dashboard);
+		NavigationManager.NavigateTo(StoreRouteNames.Dashboard);
 	private async Task Logout() =>
 		await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 	#endregion

@@ -1,9 +1,9 @@
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Data.Operations;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Utils;
+
+using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Operations.Settings;
+using PrimeBakesLibrary.Utils.Exports;
 
 namespace PrimeBakes.Shared.Pages.Operations;
 
@@ -192,7 +192,7 @@ public partial class LocalSettingsPage : IAsyncDisposable
             {
                 var companySetting = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
                 if (companySetting is not null && int.TryParse(companySetting.Value, out var companyId))
-                    company = await CommonData.LoadTableDataById<CompanyModel>(TableNames.Company, companyId);
+                    company = await CommonData.LoadTableDataById<CompanyModel>(AccountNames.Company, companyId);
             }
             catch
             {
@@ -360,7 +360,7 @@ public partial class LocalSettingsPage : IAsyncDisposable
     #region Utilities
 
     private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.OperationsDashboard);
+        NavigationManager.NavigateTo(StoreRouteNames.OperationsDashboard);
 
     async ValueTask IAsyncDisposable.DisposeAsync()
     {

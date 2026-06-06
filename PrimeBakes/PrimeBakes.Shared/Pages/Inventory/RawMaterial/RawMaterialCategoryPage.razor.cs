@@ -1,10 +1,11 @@
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Data.Inventory;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Inventory.RawMaterial;
-using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Inventory;
-using PrimeBakesLibrary.Models.Operations;
+
+using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Inventory.RawMaterial.Data;
+using PrimeBakesLibrary.Inventory.RawMaterial.Exports;
+using PrimeBakesLibrary.Inventory.RawMaterial.Models;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.Grids;
 
@@ -50,7 +51,7 @@ public partial class RawMaterialCategoryPage
 
 	private async Task LoadData()
 	{
-		_rawMaterialCategories = await CommonData.LoadTableData<RawMaterialCategoryModel>(TableNames.RawMaterialCategory);
+		_rawMaterialCategories = await CommonData.LoadTableData<RawMaterialCategoryModel>(InventoryNames.RawMaterialCategory);
 
 		if (!_showDeleted)
 			_rawMaterialCategories = [.. _rawMaterialCategories.Where(rmc => rmc.Status)];
@@ -94,7 +95,7 @@ public partial class RawMaterialCategoryPage
 			await RawMaterialData.InsertRawMaterialCategory(rawMaterialCategory);
 
 			await _toastNotification.ShowAsync("Deleted", $"Raw Material Category '{rawMaterialCategory.Name}' has been deleted successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(PageRouteNames.RawMaterialCategory, true);
+			NavigationManager.NavigateTo(InventoryRouteNames.RawMaterialCategory, true);
 		}
 		catch (Exception ex)
 		{
@@ -125,7 +126,7 @@ public partial class RawMaterialCategoryPage
 			await RawMaterialData.InsertRawMaterialCategory(rawMaterialCategory);
 
 			await _toastNotification.ShowAsync("Recovered", $"Raw Material Category '{rawMaterialCategory.Name}' has been recovered successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(PageRouteNames.RawMaterialCategory, true);
+			NavigationManager.NavigateTo(InventoryRouteNames.RawMaterialCategory, true);
 		}
 		catch (Exception ex)
 		{
@@ -207,7 +208,7 @@ public partial class RawMaterialCategoryPage
 			await RawMaterialData.InsertRawMaterialCategory(_rawMaterialCategory);
 
 			await _toastNotification.ShowAsync("Saved", $"Raw Material Category '{_rawMaterialCategory.Name}' has been saved successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(PageRouteNames.RawMaterialCategory, true);
+			NavigationManager.NavigateTo(InventoryRouteNames.RawMaterialCategory, true);
 		}
 		catch (Exception ex)
 		{
@@ -373,10 +374,10 @@ public partial class RawMaterialCategoryPage
 	}
 
 	private void ResetPage() =>
-		NavigationManager.NavigateTo(PageRouteNames.RawMaterialCategory, true);
+		NavigationManager.NavigateTo(InventoryRouteNames.RawMaterialCategory, true);
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);
+		NavigationManager.NavigateTo(StoreRouteNames.InventoryDashboard);
 
 	#endregion
 }

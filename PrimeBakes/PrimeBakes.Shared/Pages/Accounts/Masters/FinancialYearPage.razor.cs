@@ -1,11 +1,11 @@
 using PrimeBakes.Shared.Components.Dialog;
 
+using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Data.Accounts.Masters;
-using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Accounts.Masters;
-using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.Grids;
 
@@ -51,7 +51,7 @@ public partial class FinancialYearPage
 
     private async Task LoadData()
     {
-        _financialYears = await CommonData.LoadTableData<FinancialYearModel>(TableNames.FinancialYear);
+        _financialYears = await CommonData.LoadTableData<FinancialYearModel>(AccountNames.FinancialYear);
 
         if (!_showDeleted)
             _financialYears = [.. _financialYears.Where(g => g.Status)];
@@ -142,7 +142,7 @@ public partial class FinancialYearPage
             await FinancialYearData.InsertFinancialYear(financialYear);
 
             await _toastNotification.ShowAsync("Success", $"Financial Year '{_deleteFinancialYearName}' has been deleted successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.FinancialYearMaster, true);
+            NavigationManager.NavigateTo(StoreRouteNames.FinancialYearMaster, true);
         }
         catch (Exception ex)
         {
@@ -173,7 +173,7 @@ public partial class FinancialYearPage
             await FinancialYearData.InsertFinancialYear(financialYear);
 
             await _toastNotification.ShowAsync("Success", $"Financial Year '{_recoverFinancialYearName}' has been recovered successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.FinancialYearMaster, true);
+            NavigationManager.NavigateTo(StoreRouteNames.FinancialYearMaster, true);
         }
         catch (Exception ex)
         {
@@ -265,7 +265,7 @@ public partial class FinancialYearPage
             await FinancialYearData.InsertFinancialYear(_financialYear);
 
             await _toastNotification.ShowAsync("Success", $"Financial Year '{_financialYear.StartDate:dd-MMM-yyyy} to {_financialYear.EndDate:dd-MMM-yyyy}' has been saved successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.FinancialYearMaster, true);
+            NavigationManager.NavigateTo(StoreRouteNames.FinancialYearMaster, true);
         }
         catch (Exception ex)
         {
@@ -432,9 +432,9 @@ public partial class FinancialYearPage
     }
 
     private void ResetPage() =>
-        NavigationManager.NavigateTo(PageRouteNames.FinancialYearMaster, true);
+        NavigationManager.NavigateTo(StoreRouteNames.FinancialYearMaster, true);
 
     private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
+        NavigationManager.NavigateTo(StoreRouteNames.AccountsDashboard);
     #endregion
 }

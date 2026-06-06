@@ -1,10 +1,12 @@
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Data.Store.Product;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Store.Product;
-using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Store.Product;
+
+using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Operations.Location;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Store.Product.Data;
+using PrimeBakesLibrary.Store.Product.Exports;
+using PrimeBakesLibrary.Store.Product.Models;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;
@@ -53,9 +55,9 @@ public partial class ProductLocationPage
 	{
 		try
 		{
-			_productLocations = await CommonData.LoadTableData<ProductLocationModel>(TableNames.ProductLocation);
-			_locations = await CommonData.LoadTableData<LocationModel>(TableNames.Location);
-			_products = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
+			_productLocations = await CommonData.LoadTableData<ProductLocationModel>(StoreNames.ProductLocation);
+			_locations = await CommonData.LoadTableData<LocationModel>(OperationNames.Location);
+			_products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
 
 			// Filter active locations and products only
 			_locations = [.. _locations.Where(l => l.Status)];
@@ -396,9 +398,9 @@ public partial class ProductLocationPage
 	}
 
 	private void ResetPage() =>
-		 NavigationManager.NavigateTo(PageRouteNames.ProductLocation, true);
+		 NavigationManager.NavigateTo(StoreRouteNames.ProductLocation, true);
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(PageRouteNames.StoreDashboard);
+		NavigationManager.NavigateTo(StoreRouteNames.StoreDashboard);
 	#endregion
 }

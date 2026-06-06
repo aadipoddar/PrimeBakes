@@ -1,11 +1,11 @@
 using PrimeBakes.Shared.Components.Dialog;
 
+using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Data.Accounts.Masters;
-using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Accounts.Masters;
-using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.Grids;
 
@@ -98,7 +98,7 @@ public partial class GroupPage
             await GroupData.InsertGroup(group);
 
             await _toastNotification.ShowAsync("Success", $"Group '{group.Name}' has been deleted successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.GroupMaster, true);
+            NavigationManager.NavigateTo(StoreRouteNames.GroupMaster, true);
         }
         catch (Exception ex)
         {
@@ -129,7 +129,7 @@ public partial class GroupPage
             await GroupData.InsertGroup(group);
 
             await _toastNotification.ShowAsync("Success", $"Group '{group.Name}' has been recovered successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.GroupMaster, true);
+            NavigationManager.NavigateTo(StoreRouteNames.GroupMaster, true);
         }
         catch (Exception ex)
         {
@@ -217,7 +217,7 @@ public partial class GroupPage
             await GroupData.InsertGroup(_group);
 
             await _toastNotification.ShowAsync("Success", $"Group '{_group.Name}' has been saved successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.GroupMaster, true);
+            NavigationManager.NavigateTo(StoreRouteNames.GroupMaster, true);
         }
         catch (Exception ex)
         {
@@ -383,9 +383,9 @@ public partial class GroupPage
     }
 
     private void ResetPage() =>
-        NavigationManager.NavigateTo(PageRouteNames.GroupMaster, true);
+        NavigationManager.NavigateTo(StoreRouteNames.GroupMaster, true);
 
     private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
+        NavigationManager.NavigateTo(StoreRouteNames.AccountsDashboard);
     #endregion
 }

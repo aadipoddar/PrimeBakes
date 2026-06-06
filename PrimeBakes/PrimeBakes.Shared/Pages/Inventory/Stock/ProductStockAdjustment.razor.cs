@@ -3,14 +3,15 @@ using Microsoft.AspNetCore.Components;
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
+using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Data.Accounts.Masters;
-using PrimeBakesLibrary.Data.Inventory.Stock;
-using PrimeBakesLibrary.Data.Store.Product;
-using PrimeBakesLibrary.DataAccess;
+using PrimeBakesLibrary.Inventory.Stock.Data;
+using PrimeBakesLibrary.Inventory.Stock.Models;
 using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Inventory.Stock;
-using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Store.Product;
+using PrimeBakesLibrary.Operations.Location;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Store.Product.Data;
+using PrimeBakesLibrary.Store.Product.Models;
 
 using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;
@@ -74,7 +75,7 @@ public partial class ProductStockAdjustment
     {
         try
         {
-            _locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
+            _locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
 
             _locations = [.. _locations.OrderBy(s => s.Name)];
 
@@ -437,17 +438,17 @@ public partial class ProductStockAdjustment
     private async Task ResetPage()
     {
         await DeleteLocalFiles();
-        NavigationManager.NavigateTo(PageRouteNames.ProductStockAdjustment, true);
+        NavigationManager.NavigateTo(StoreRouteNames.ProductStockAdjustment, true);
     }
 
     private async Task NavigateToTransactionHistoryPage() =>
-        await AuthenticationService.NavigateToRoute(PageRouteNames.ProductStockReport, FormFactor, JSRuntime, NavigationManager);
+        await AuthenticationService.NavigateToRoute(StoreRouteNames.ProductStockReport, FormFactor, JSRuntime, NavigationManager);
 
     private void NavigateToDashboard() =>
-        NavigationManager.NavigateTo(PageRouteNames.Dashboard);
+        NavigationManager.NavigateTo(StoreRouteNames.Dashboard);
 
     private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);
+        NavigationManager.NavigateTo(StoreRouteNames.InventoryDashboard);
 
     private async Task Logout() =>
         await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);

@@ -1,14 +1,14 @@
 using PrimeBakes.Shared.Components.Dialog;
 
+using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Data.Accounts.FinancialAccounting;
 using PrimeBakesLibrary.Data.Accounts.Masters;
-using PrimeBakesLibrary.Data.Operations;
-using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Accounts.FinancialAccounting;
-using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.FinancialAccounting;
 using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Operations.Settings;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.Grids;
 
@@ -66,7 +66,7 @@ public partial class ProfitAndLossPage : IAsyncDisposable
 
     private async Task LoadCompanies()
     {
-        _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
+        _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
         _companies = [.. _companies.OrderBy(s => s.Name)];
     }
 
@@ -239,7 +239,7 @@ public partial class ProfitAndLossPage : IAsyncDisposable
         switch (args.Item.Id)
         {
             case "NewTransaction":
-                await AuthenticationService.NavigateToRoute(PageRouteNames.FinancialAccounting, FormFactor, JSRuntime, NavigationManager);
+                await AuthenticationService.NavigateToRoute(AccountsRouteNames.FinancialAccounting, FormFactor, JSRuntime, NavigationManager);
                 break;
             case "Refresh":
                 await LoadProfitAndLoss();
@@ -254,16 +254,16 @@ public partial class ProfitAndLossPage : IAsyncDisposable
                 await ExportExcel();
                 break;
             case "TransactionHistory":
-                await AuthenticationService.NavigateToRoute(PageRouteNames.FinancialAccountingReport, FormFactor, JSRuntime, NavigationManager);
+                await AuthenticationService.NavigateToRoute(AccountsRouteNames.FinancialAccountingReport, FormFactor, JSRuntime, NavigationManager);
                 break;
             case "LedgerReport":
-                await AuthenticationService.NavigateToRoute(PageRouteNames.AccountingLedgerReport, FormFactor, JSRuntime, NavigationManager);
+                await AuthenticationService.NavigateToRoute(StoreRouteNames.AccountingLedgerReport, FormFactor, JSRuntime, NavigationManager);
                 break;
             case "TrialBalance":
-                await AuthenticationService.NavigateToRoute(PageRouteNames.TrialBalanceReport, FormFactor, JSRuntime, NavigationManager);
+                await AuthenticationService.NavigateToRoute(StoreRouteNames.TrialBalanceReport, FormFactor, JSRuntime, NavigationManager);
                 break;
             case "BalanceSheet":
-                await AuthenticationService.NavigateToRoute(PageRouteNames.BalanceSheetReport, FormFactor, JSRuntime, NavigationManager);
+                await AuthenticationService.NavigateToRoute(StoreRouteNames.BalanceSheetReport, FormFactor, JSRuntime, NavigationManager);
                 break;
             case "PeriodToday":
                 await HandleDatesChanged(DateRangeType.Today);
@@ -310,7 +310,7 @@ public partial class ProfitAndLossPage : IAsyncDisposable
     }
 
     private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
+        NavigationManager.NavigateTo(StoreRouteNames.AccountsDashboard);
 
     private async Task StartAutoRefresh()
     {

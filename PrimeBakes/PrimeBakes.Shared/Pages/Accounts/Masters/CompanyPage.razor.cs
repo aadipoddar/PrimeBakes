@@ -1,11 +1,11 @@
 using PrimeBakes.Shared.Components.Dialog;
 
+using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Data.Accounts.Masters;
-using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Exporting.Accounts.Masters;
-using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.Grids;
 
@@ -52,7 +52,7 @@ public partial class CompanyPage
 
     private async Task LoadData()
     {
-        _companies = await CommonData.LoadTableData<CompanyModel>(TableNames.Company);
+        _companies = await CommonData.LoadTableData<CompanyModel>(AccountNames.Company);
         _stateUTs = await CommonData.LoadTableData<StateUTModel>(TableNames.StateUT);
 
         if (!_showDeleted)
@@ -106,7 +106,7 @@ public partial class CompanyPage
             await CompanyData.InsertCompany(company);
 
             await _toastNotification.ShowAsync("Success", $"Company '{company.Name}' has been deleted successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.CompanyMaster, true);
+            NavigationManager.NavigateTo(StoreRouteNames.CompanyMaster, true);
         }
         catch (Exception ex)
         {
@@ -137,7 +137,7 @@ public partial class CompanyPage
             await CompanyData.InsertCompany(company);
 
             await _toastNotification.ShowAsync("Success", $"Company '{company.Name}' has been recovered successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.CompanyMaster, true);
+            NavigationManager.NavigateTo(StoreRouteNames.CompanyMaster, true);
         }
         catch (Exception ex)
         {
@@ -322,7 +322,7 @@ public partial class CompanyPage
             await CompanyData.InsertCompany(_company);
 
             await _toastNotification.ShowAsync("Success", $"Company '{_company.Name}' has been saved successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.CompanyMaster, true);
+            NavigationManager.NavigateTo(StoreRouteNames.CompanyMaster, true);
         }
         catch (Exception ex)
         {
@@ -486,9 +486,9 @@ public partial class CompanyPage
     }
 
     private void ResetPage() =>
-        NavigationManager.NavigateTo(PageRouteNames.CompanyMaster, true);
+        NavigationManager.NavigateTo(StoreRouteNames.CompanyMaster, true);
 
     private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
+        NavigationManager.NavigateTo(StoreRouteNames.AccountsDashboard);
     #endregion
 }

@@ -1,10 +1,11 @@
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Data.Store.Product;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Store.Product;
-using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Store.Product;
+
+using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Store.Product.Data;
+using PrimeBakesLibrary.Store.Product.Exports;
+using PrimeBakesLibrary.Store.Product.Models;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.Grids;
 
@@ -49,7 +50,7 @@ public partial class ProductCategoryPage
 
     private async Task LoadData()
     {
-        _productCategories = await CommonData.LoadTableData<ProductCategoryModel>(TableNames.ProductCategory);
+        _productCategories = await CommonData.LoadTableData<ProductCategoryModel>(StoreNames.ProductCategory);
 
         if (!_showDeleted)
             _productCategories = [.. _productCategories.Where(pc => pc.Status)];
@@ -94,7 +95,7 @@ public partial class ProductCategoryPage
             await ProductData.InsertProductCategory(productCategory);
 
             await _toastNotification.ShowAsync("Deleted", $"Category '{productCategory.Name}' removed successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.ProductCategory, true);
+            NavigationManager.NavigateTo(StoreRouteNames.ProductCategory, true);
         }
         catch (Exception ex)
         {
@@ -126,7 +127,7 @@ public partial class ProductCategoryPage
             await ProductData.InsertProductCategory(productCategory);
 
             await _toastNotification.ShowAsync("Recovered", $"Category '{productCategory.Name}' restored successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.ProductCategory, true);
+            NavigationManager.NavigateTo(StoreRouteNames.ProductCategory, true);
         }
         catch (Exception ex)
         {
@@ -202,7 +203,7 @@ public partial class ProductCategoryPage
             await ProductData.InsertProductCategory(_productCategory);
 
             await _toastNotification.ShowAsync("Saved", $"Category '{_productCategory.Name}' saved successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.ProductCategory, true);
+            NavigationManager.NavigateTo(StoreRouteNames.ProductCategory, true);
         }
         catch (Exception ex)
         {
@@ -368,9 +369,9 @@ public partial class ProductCategoryPage
     }
 
     private void ResetPage() =>
-        NavigationManager.NavigateTo(PageRouteNames.ProductCategory, true);
+        NavigationManager.NavigateTo(StoreRouteNames.ProductCategory, true);
 
     private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.StoreDashboard);
+        NavigationManager.NavigateTo(StoreRouteNames.StoreDashboard);
     #endregion
 }

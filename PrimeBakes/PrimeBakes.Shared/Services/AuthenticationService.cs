@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Models.Operations;
+
+using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Operations.User;
 
 namespace PrimeBakes.Shared.Services;
 
@@ -17,7 +18,7 @@ public static class AuthenticationService
 		if (user is null)
 			await Logout(dataStorageService, navigationManager, notificationService, vibrationService);
 
-		var serverUser = await CommonData.LoadTableDataById<UserModel>(TableNames.User, user.Id);
+		var serverUser = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, user.Id);
 		if (serverUser is null)
 			await Logout(dataStorageService, navigationManager, notificationService, vibrationService);
 
@@ -55,7 +56,7 @@ public static class AuthenticationService
 		await dataStorageService.SecureRemoveAll();
 		await notificationService.DeregisterDevicePushNotification();
 		vibrationService.VibrateWithTime(500);
-		navigationManager.NavigateTo(PageRouteNames.Login, forceLoad: true);
+		navigationManager.NavigateTo(OperationNames.Login, forceLoad: true);
 	}
 
 	public static async Task NavigateToRoute(string route, IFormFactor FormFactor, IJSRuntime JSRuntime, NavigationManager NavigationManager)

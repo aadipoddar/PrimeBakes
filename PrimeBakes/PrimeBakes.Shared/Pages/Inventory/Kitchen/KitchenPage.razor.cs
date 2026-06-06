@@ -1,10 +1,11 @@
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Data.Inventory.Kitchen;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Inventory.Kitchen;
-using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Inventory.Kitchen;
-using PrimeBakesLibrary.Models.Operations;
+
+using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Inventory.Kitchen.Data;
+using PrimeBakesLibrary.Inventory.Kitchen.Exports;
+using PrimeBakesLibrary.Inventory.Kitchen.Models;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.Grids;
 
@@ -94,7 +95,7 @@ public partial class KitchenPage
             await KitchenData.InsertKitchen(kitchen);
 
             await _toastNotification.ShowAsync("Deleted", $"Kitchen '{kitchen.Name}' has been deleted successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.Kitchen, true);
+            NavigationManager.NavigateTo(InventoryRouteNames.Kitchen, true);
         }
         catch (Exception ex)
         {
@@ -125,7 +126,7 @@ public partial class KitchenPage
             await KitchenData.InsertKitchen(kitchen);
 
             await _toastNotification.ShowAsync("Recovered", $"Kitchen '{kitchen.Name}' has been recovered successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.Kitchen, true);
+            NavigationManager.NavigateTo(InventoryRouteNames.Kitchen, true);
         }
         catch (Exception ex)
         {
@@ -201,7 +202,7 @@ public partial class KitchenPage
             await KitchenData.InsertKitchen(_kitchen);
 
             await _toastNotification.ShowAsync("Saved", $"Kitchen '{_kitchen.Name}' has been saved successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(PageRouteNames.Kitchen, true);
+            NavigationManager.NavigateTo(InventoryRouteNames.Kitchen, true);
         }
         catch (Exception ex)
         {
@@ -367,9 +368,9 @@ public partial class KitchenPage
     }
 
     private void ResetPage() =>
-        NavigationManager.NavigateTo(PageRouteNames.Kitchen, true);
+        NavigationManager.NavigateTo(InventoryRouteNames.Kitchen, true);
 
     private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);
+        NavigationManager.NavigateTo(StoreRouteNames.InventoryDashboard);
     #endregion
 }

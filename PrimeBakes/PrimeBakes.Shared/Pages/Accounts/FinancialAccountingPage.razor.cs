@@ -2,15 +2,11 @@ using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
-using PrimeBakesLibrary.Data.Accounts.FinancialAccounting;
-using PrimeBakesLibrary.Data.Accounts.Masters;
-using PrimeBakesLibrary.Data.Operations;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Accounts.FinancialAccounting;
-using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Accounts.FinancialAccounting;
-using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Operations;
+
+using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Operations.Settings;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;
@@ -32,14 +28,14 @@ public partial class FinancialAccountingPage
 	private FinancialYearModel? _selectedFinancialYear = null;
 	private LedgerModel? _selectedLedger = null;
 	private FinancialAccountingLedgerOverviewModel? _selectedAccountingLedger = null;
-	private FinancialAccountingItemCartModel _selectedCart = new();
+	private FinancialAccountingLedgerCartModel _selectedCart = new();
 	private FinancialAccountingModel _accounting = new();
 
 	private List<CompanyModel> _companies = [];
 	private List<VoucherModel> _vouchers = [];
 	private List<LedgerModel> _ledgers = [];
 	private List<FinancialAccountingLedgerOverviewModel> _accountingLedgers = [];
-	private List<FinancialAccountingItemCartModel> _cart = [];
+	private List<FinancialAccountingLedgerCartModel> _cart = [];
 	private readonly List<ContextMenuItemModel> _cartGridContextMenuItems =
 	[
 		new() { Text = "Edit (Insert)", Id = "EditCart", IconCss = "e-icons e-edit", Target = ".e-content" },
@@ -47,7 +43,7 @@ public partial class FinancialAccountingPage
 	];
 
 	private AutoCompleteWithAdd<LedgerModel?, LedgerModel> _sfLedgerAutoComplete;
-	private SfGrid<FinancialAccountingItemCartModel> _sfCartGrid;
+	private SfGrid<FinancialAccountingLedgerCartModel> _sfCartGrid;
 
 	private ToastNotification _toastNotification;
 
@@ -105,11 +101,11 @@ public partial class FinancialAccountingPage
 		if (!Id.HasValue)
 			return false;
 
-		_accounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(TableNames.FinancialAccounting, Id.Value);
+		_accounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(AccountNames.FinancialAccounting, Id.Value);
 		if (_accounting is null || _accounting.Id == 0)
 		{
 			await _toastNotification.ShowAsync("Transaction Not Found", "The requested transaction could not be found.", ToastType.Error);
-			NavigationManager.NavigateTo(PageRouteNames.FinancialAccounting, true);
+			NavigationManager.NavigateTo(AccountsRouteNames.FinancialAccounting, true);
 			return false;
 		}
 
@@ -186,7 +182,7 @@ public partial class FinancialAccountingPage
 		_accounting.VoucherId = _selectedVoucher.Id;
 
 		if (_accounting.FinancialYearId > 0)
-			_selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, _accounting.FinancialYearId);
+			_selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, _accounting.FinancialYearId);
 
 		if (_selectedFinancialYear is null || _selectedFinancialYear.Id <= 0)
 			_selectedFinancialYear = await FinancialYearData.LoadFinancialYearByDateTime(_accounting.TransactionDateTime);
@@ -203,13 +199,13 @@ public partial class FinancialAccountingPage
 
 			if (_accounting.Id > 0)
 			{
-				var existingCart = await CommonData.LoadTableDataByMasterId<FinancialAccountingDetailModel>(TableNames.FinancialAccountingDetail, _accounting.Id);
+				var existingCart = await CommonData.LoadTableDataByMasterId<FinancialAccountingDetailModel>(AccountNames.FinancialAccountingDetail, _accounting.Id);
 
 				foreach (var item in existingCart)
 				{
 					if (_ledgers.FirstOrDefault(s => s.Id == item.LedgerId) is null)
 					{
-						var ledger = await CommonData.LoadTableDataById<LedgerModel>(TableNames.Ledger, item.LedgerId);
+						var ledger = await CommonData.LoadTableDataById<LedgerModel>(AccountNames.Ledger, item.LedgerId);
 						await _toastNotification.ShowAsync("Ledger Not Found", $"The ledger {ledger?.Name} (ID: {item.LedgerId}) in the existing transaction cart was not found in the available ledgers list. It may have been deleted or is inaccessible.", ToastType.Error);
 						continue;
 					}
@@ -229,7 +225,7 @@ public partial class FinancialAccountingPage
 			}
 
 			else if (await DataStorageService.LocalExists(StorageFileNames.FinancialAccountingCartDataFileName))
-				_cart = System.Text.Json.JsonSerializer.Deserialize<List<FinancialAccountingItemCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.FinancialAccountingCartDataFileName));
+				_cart = System.Text.Json.JsonSerializer.Deserialize<List<FinancialAccountingLedgerCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.FinancialAccountingCartDataFileName));
 		}
 		catch (Exception ex)
 		{
@@ -242,7 +238,7 @@ public partial class FinancialAccountingPage
 	{
 		try
 		{
-			_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
+			_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
 			_companies = [.. _companies.OrderBy(s => s.Name)];
 
 			var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
@@ -274,7 +270,7 @@ public partial class FinancialAccountingPage
 	{
 		try
 		{
-			_ledgers = await CommonData.LoadTableDataByStatus<LedgerModel>(TableNames.Ledger);
+			_ledgers = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
 			_ledgers = [.. _ledgers.OrderBy(s => s.Name)];
 		}
 		catch (Exception ex)
@@ -401,7 +397,7 @@ public partial class FinancialAccountingPage
 		await EditCartItem(selectedCartItem);
 	}
 
-	private async Task EditCartItem(FinancialAccountingItemCartModel cartItem)
+	private async Task EditCartItem(FinancialAccountingLedgerCartModel cartItem)
 	{
 		_selectedLedger = _ledgers.FirstOrDefault(s => s.Id == cartItem.LedgerId);
 
@@ -433,7 +429,7 @@ public partial class FinancialAccountingPage
 		await RemoveItemFromCart(selectedCartItem);
 	}
 
-	private async Task RemoveItemFromCart(FinancialAccountingItemCartModel cartItem)
+	private async Task RemoveItemFromCart(FinancialAccountingLedgerCartModel cartItem)
 	{
 		_cart.Remove(cartItem);
 		await SaveTransactionFile();
@@ -832,24 +828,24 @@ public partial class FinancialAccountingPage
 				await ExportExcelInvoice();
 				break;
 			case "TransactionHistory":
-				await AuthenticationService.NavigateToRoute(PageRouteNames.FinancialAccountingReport, FormFactor, JSRuntime, NavigationManager);
+				await AuthenticationService.NavigateToRoute(AccountsRouteNames.FinancialAccountingReport, FormFactor, JSRuntime, NavigationManager);
 				break;
 			case "ItemReport":
-				await AuthenticationService.NavigateToRoute(PageRouteNames.AccountingLedgerReport, FormFactor, JSRuntime, NavigationManager);
+				await AuthenticationService.NavigateToRoute(StoreRouteNames.AccountingLedgerReport, FormFactor, JSRuntime, NavigationManager);
 				break;
 			case "TrialBalance":
-				await AuthenticationService.NavigateToRoute(PageRouteNames.TrialBalanceReport, FormFactor, JSRuntime, NavigationManager);
+				await AuthenticationService.NavigateToRoute(StoreRouteNames.TrialBalanceReport, FormFactor, JSRuntime, NavigationManager);
 				break;
 			case "ProfitLoss":
-				await AuthenticationService.NavigateToRoute(PageRouteNames.ProfitAndLossReport, FormFactor, JSRuntime, NavigationManager);
+				await AuthenticationService.NavigateToRoute(StoreRouteNames.ProfitAndLossReport, FormFactor, JSRuntime, NavigationManager);
 				break;
 			case "BalanceSheet":
-				await AuthenticationService.NavigateToRoute(PageRouteNames.BalanceSheetReport, FormFactor, JSRuntime, NavigationManager);
+				await AuthenticationService.NavigateToRoute(StoreRouteNames.BalanceSheetReport, FormFactor, JSRuntime, NavigationManager);
 				break;
 		}
 	}
 
-	private async Task OnCartGridContextMenuItemClicked(ContextMenuClickEventArgs<FinancialAccountingItemCartModel> args)
+	private async Task OnCartGridContextMenuItemClicked(ContextMenuClickEventArgs<FinancialAccountingLedgerCartModel> args)
 	{
 		switch (args.Item.Id)
 		{
@@ -871,11 +867,11 @@ public partial class FinancialAccountingPage
 	private async Task ResetPage()
 	{
 		await DeleteLocalFiles();
-		NavigationManager.NavigateTo(PageRouteNames.FinancialAccounting, true);
+		NavigationManager.NavigateTo(AccountsRouteNames.FinancialAccounting, true);
 	}
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard);
+		NavigationManager.NavigateTo(StoreRouteNames.AccountsDashboard);
 
 	#endregion
 }

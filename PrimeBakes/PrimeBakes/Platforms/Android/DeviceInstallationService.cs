@@ -2,7 +2,7 @@
 
 using PrimeBakes.Services;
 
-using PrimeBakesLibrary.Models.Notification;
+using PrimeBakesLibrary.Utils.Notification;
 
 using static Android.Provider.Settings;
 

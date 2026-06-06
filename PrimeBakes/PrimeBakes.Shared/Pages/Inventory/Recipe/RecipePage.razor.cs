@@ -1,14 +1,16 @@
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
-using PrimeBakesLibrary.Data.Inventory;
-using PrimeBakesLibrary.Data.Inventory.Purchase;
-using PrimeBakesLibrary.Data.Store.Product;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Inventory.Recipe;
-using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Inventory;
-using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Store.Product;
+
+using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Inventory.Purchase.Data;
+using PrimeBakesLibrary.Inventory.RawMaterial.Models;
+using PrimeBakesLibrary.Inventory.Recipe.Data;
+using PrimeBakesLibrary.Inventory.Recipe.Exports;
+using PrimeBakesLibrary.Inventory.Recipe.Models;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Store.Product.Data;
+using PrimeBakesLibrary.Store.Product.Models;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;
@@ -101,7 +103,7 @@ public partial class RecipePage
 			_recipe = await RecipeData.LoadRecipeByProduct(_selectedProduct.ProductId);
 			_recipe ??= new() { ProductId = _selectedProduct.ProductId, Deduct = true };
 
-			var recipeDetails = await CommonData.LoadTableDataByMasterId<RecipeDetailModel>(TableNames.RecipeDetail, _recipe.Id);
+			var recipeDetails = await CommonData.LoadTableDataByMasterId<RecipeDetailModel>(InventoryNames.RecipeDetail, _recipe.Id);
 			if (recipeDetails is null || recipeDetails.Count == 0)
 				return;
 
@@ -428,9 +430,9 @@ public partial class RecipePage
 	}
 
 	private void ResetPage() =>
-		NavigationManager.NavigateTo(PageRouteNames.Recipe, true);
+		NavigationManager.NavigateTo(StoreRouteNames.Recipe, true);
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);
+		NavigationManager.NavigateTo(StoreRouteNames.InventoryDashboard);
 	#endregion
 }

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
 
-using PrimeBakesLibrary.Data.Operations;
-using PrimeBakesLibrary.DataAccess;
+using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Operations.User;
 
 using Syncfusion.Blazor.Inputs;
 
@@ -42,6 +42,6 @@ public partial class LoginPage
 
         await DataStorageService.SecureSaveAsync(StorageFileNames.UserDataFileName, System.Text.Json.JsonSerializer.Serialize(user));
         VibrationService.VibrateWithTime(500);
-        NavManager.NavigateTo(PageRouteNames.Dashboard);
+        NavManager.NavigateTo(StoreRouteNames.Dashboard);
     }
 }

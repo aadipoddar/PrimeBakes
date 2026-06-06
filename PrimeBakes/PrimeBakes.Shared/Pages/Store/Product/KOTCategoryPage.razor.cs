@@ -1,10 +1,11 @@
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Data.Store.Product;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Store.Product;
-using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Store.Product;
+
+using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Store.Product.Data;
+using PrimeBakesLibrary.Store.Product.Exports;
+using PrimeBakesLibrary.Store.Product.Models;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.Grids;
 
@@ -49,7 +50,7 @@ public partial class KOTCategoryPage
 
 	private async Task LoadData()
 	{
-		_kotCategories = await CommonData.LoadTableData<KOTCategoryModel>(TableNames.KOTCategory);
+		_kotCategories = await CommonData.LoadTableData<KOTCategoryModel>(StoreNames.KOTCategory);
 
 		if (!_showDeleted)
 			_kotCategories = [.. _kotCategories.Where(pc => pc.Status)];
@@ -94,7 +95,7 @@ public partial class KOTCategoryPage
 			await ProductData.InsertKOTCategory(kotCategory);
 
 			await _toastNotification.ShowAsync("Deleted", $"Category '{kotCategory.Name}' removed successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(PageRouteNames.KOTCategory, true);
+			NavigationManager.NavigateTo(StoreRouteNames.KOTCategory, true);
 		}
 		catch (Exception ex)
 		{
@@ -126,7 +127,7 @@ public partial class KOTCategoryPage
 			await ProductData.InsertKOTCategory(kotCategory);
 
 			await _toastNotification.ShowAsync("Recovered", $"Category '{kotCategory.Name}' restored successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(PageRouteNames.KOTCategory, true);
+			NavigationManager.NavigateTo(StoreRouteNames.KOTCategory, true);
 		}
 		catch (Exception ex)
 		{
@@ -202,7 +203,7 @@ public partial class KOTCategoryPage
 			await ProductData.InsertKOTCategory(_kotCategory);
 
 			await _toastNotification.ShowAsync("Saved", $"Category '{_kotCategory.Name}' saved successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(PageRouteNames.KOTCategory, true);
+			NavigationManager.NavigateTo(StoreRouteNames.KOTCategory, true);
 		}
 		catch (Exception ex)
 		{
@@ -368,9 +369,9 @@ public partial class KOTCategoryPage
 	}
 
 	private void ResetPage() =>
-		NavigationManager.NavigateTo(PageRouteNames.KOTCategory, true);
+		NavigationManager.NavigateTo(StoreRouteNames.KOTCategory, true);
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(PageRouteNames.StoreDashboard);
+		NavigationManager.NavigateTo(StoreRouteNames.StoreDashboard);
 	#endregion
 }

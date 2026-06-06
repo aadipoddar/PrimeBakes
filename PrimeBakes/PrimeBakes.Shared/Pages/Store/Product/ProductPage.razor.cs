@@ -1,10 +1,12 @@
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Data.Store.Product;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Store.Product;
-using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Store.Product;
+
+using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Operations.Location;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Store.Product.Data;
+using PrimeBakesLibrary.Store.Product.Exports;
+using PrimeBakesLibrary.Store.Product.Models;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;
@@ -64,10 +66,10 @@ public partial class ProductPage
 	private async Task LoadData()
 	{
 		await LoadLocations();
-		_products = await CommonData.LoadTableData<ProductModel>(TableNames.Product);
-		_categories = await CommonData.LoadTableData<ProductCategoryModel>(TableNames.ProductCategory);
-		_kotCategories = await CommonData.LoadTableData<KOTCategoryModel>(TableNames.KOTCategory);
-		_taxes = await CommonData.LoadTableData<TaxModel>(TableNames.Tax);
+		_products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
+		_categories = await CommonData.LoadTableData<ProductCategoryModel>(StoreNames.ProductCategory);
+		_kotCategories = await CommonData.LoadTableData<KOTCategoryModel>(StoreNames.KOTCategory);
+		_taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
 
 		if (!_showDeleted)
 			_products = [.. _products.Where(p => p.Status)];
@@ -83,7 +85,7 @@ public partial class ProductPage
 	{
 		try
 		{
-			_locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
+			_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
 			_locations = [.. _locations.OrderBy(s => s.Name)];
 		}
 		catch (Exception ex)
@@ -194,7 +196,7 @@ public partial class ProductPage
 			await ProductData.DeleteProduct(product);
 
 			await _toastNotification.ShowAsync("Deleted", $"Product '{product.Name}' removed successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(PageRouteNames.Product, true);
+			NavigationManager.NavigateTo(StoreRouteNames.Product, true);
 		}
 		catch (Exception ex)
 		{
@@ -226,7 +228,7 @@ public partial class ProductPage
 			await ProductData.InsertProduct(product);
 
 			await _toastNotification.ShowAsync("Recovered", $"Product '{product.Name}' restored successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(PageRouteNames.Product, true);
+			NavigationManager.NavigateTo(StoreRouteNames.Product, true);
 		}
 		catch (Exception ex)
 		{
@@ -328,7 +330,7 @@ public partial class ProductPage
 			_product.Id = await ProductData.SaveProduct(_product, _locations);
 
 			await _toastNotification.ShowAsync("Saved", $"Product '{_product.Name}' saved successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(PageRouteNames.Product, true);
+			NavigationManager.NavigateTo(StoreRouteNames.Product, true);
 		}
 		catch (Exception ex)
 		{
@@ -557,9 +559,9 @@ public partial class ProductPage
 	}
 
 	private void ResetPage() =>
-		NavigationManager.NavigateTo(PageRouteNames.Product, true);
+		NavigationManager.NavigateTo(StoreRouteNames.Product, true);
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(PageRouteNames.StoreDashboard);
+		NavigationManager.NavigateTo(StoreRouteNames.StoreDashboard);
 	#endregion
 }

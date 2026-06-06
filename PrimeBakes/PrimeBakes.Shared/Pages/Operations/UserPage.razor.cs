@@ -1,9 +1,9 @@
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Data.Operations;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Operations;
-using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Operations;
+
+using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Operations.Location;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.Grids;
 
@@ -50,8 +50,8 @@ public partial class UserPage
 
 	private async Task LoadData()
 	{
-		_locations = await CommonData.LoadTableData<LocationModel>(TableNames.Location);
-		_users = await CommonData.LoadTableData<UserModel>(TableNames.User);
+		_locations = await CommonData.LoadTableData<LocationModel>(OperationNames.Location);
+		_users = await CommonData.LoadTableData<UserModel>(OperationNames.User);
 
 		if (!_showDeleted)
 			_users = [.. _users.Where(u => u.Status)];
@@ -105,7 +105,7 @@ public partial class UserPage
 			await UserData.InsertUser(user);
 
 			await _toastNotification.ShowAsync("Deleted", $"User '{user.Name}' removed successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(PageRouteNames.User, true);
+			NavigationManager.NavigateTo(StoreRouteNames.User, true);
 		}
 		catch (Exception ex)
 		{
@@ -137,7 +137,7 @@ public partial class UserPage
 			await UserData.InsertUser(user);
 
 			await _toastNotification.ShowAsync("Recovered", $"User '{user.Name}' restored successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(PageRouteNames.User, true);
+			NavigationManager.NavigateTo(StoreRouteNames.User, true);
 		}
 		catch (Exception ex)
 		{
@@ -257,7 +257,7 @@ public partial class UserPage
 			await UserData.InsertUser(_user);
 
 			await _toastNotification.ShowAsync("Saved", $"User '{_user.Name}' saved successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(PageRouteNames.User, true);
+			NavigationManager.NavigateTo(StoreRouteNames.User, true);
 		}
 		catch (Exception ex)
 		{
@@ -423,9 +423,9 @@ public partial class UserPage
 	}
 
 	private void ResetPage() =>
-		NavigationManager.NavigateTo(PageRouteNames.User, true);
+		NavigationManager.NavigateTo(StoreRouteNames.User, true);
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(PageRouteNames.OperationsDashboard);
+		NavigationManager.NavigateTo(StoreRouteNames.OperationsDashboard);
 	#endregion
 }

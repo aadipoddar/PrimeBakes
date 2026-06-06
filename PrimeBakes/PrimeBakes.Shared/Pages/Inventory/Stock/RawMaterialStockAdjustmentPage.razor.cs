@@ -3,14 +3,14 @@ using Microsoft.AspNetCore.Components;
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
+using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Data.Accounts.Masters;
-using PrimeBakesLibrary.Data.Inventory.Purchase;
-using PrimeBakesLibrary.Data.Inventory.Stock;
-using PrimeBakesLibrary.DataAccess;
+using PrimeBakesLibrary.Inventory.Purchase.Data;
+using PrimeBakesLibrary.Inventory.RawMaterial.Models;
+using PrimeBakesLibrary.Inventory.Stock.Data;
+using PrimeBakesLibrary.Inventory.Stock.Models;
 using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Inventory;
-using PrimeBakesLibrary.Models.Inventory.Stock;
-using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Operations.User;
 
 using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;
@@ -405,13 +405,13 @@ public partial class RawMaterialStockAdjustmentPage
     private async Task ResetPage()
     {
         await DeleteLocalFiles();
-        NavigationManager.NavigateTo(PageRouteNames.RawMaterialStockAdjustment, true);
+        NavigationManager.NavigateTo(InventoryRouteNames.RawMaterialStockAdjustment, true);
     }
 
     private async Task NavigateToTransactionHistoryPage() =>
-        await AuthenticationService.NavigateToRoute(PageRouteNames.RawMaterialStockReport, FormFactor, JSRuntime, NavigationManager);
+        await AuthenticationService.NavigateToRoute(InventoryRouteNames.RawMaterialStockReport, FormFactor, JSRuntime, NavigationManager);
 
     private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);
+        NavigationManager.NavigateTo(StoreRouteNames.InventoryDashboard);
     #endregion
 }

@@ -1,16 +1,18 @@
 using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
+
+using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Data.Accounts.Masters;
-using PrimeBakesLibrary.Data.Operations;
-using PrimeBakesLibrary.Data.Restaurant.Bill;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Restaurant.Bill;
-using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Restuarant.Bill;
-using PrimeBakesLibrary.Models.Store.Masters;
+using PrimeBakesLibrary.Operations.Location;
+using PrimeBakesLibrary.Operations.Settings;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Restaurant.Bill.Data;
+using PrimeBakesLibrary.Restaurant.Bill.Exports;
+using PrimeBakesLibrary.Restaurant.Bill.Models;
+using PrimeBakesLibrary.Store.Customer;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.Grids;
 
@@ -91,20 +93,20 @@ public partial class BillReport : IAsyncDisposable
 
 	private async Task LoadLocations()
 	{
-		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
+		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
 		_locations = [.. _locations.OrderBy(s => s.Name)];
 		_selectedLocation = _locations.FirstOrDefault(_ => _.Id == _user.LocationId);
 	}
 
 	private async Task LoadCompanies()
 	{
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
+		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
 		_companies = [.. _companies.OrderBy(s => s.Name)];
 	}
 
 	private async Task LoadCustomers()
 	{
-		_customers = await CommonData.LoadTableData<CustomerModel>(TableNames.Customer);
+		_customers = await CommonData.LoadTableData<CustomerModel>(StoreNames.Customer);
 		_customers = [.. _customers.OrderBy(s => s.Name)];
 	}
 
@@ -120,7 +122,7 @@ public partial class BillReport : IAsyncDisposable
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
 			_transactionOverviews = await CommonData.LoadTableDataByDate<BillOverviewModel>(
-				ViewNames.BillOverview,
+				RestaurantNames.BillOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
@@ -488,7 +490,7 @@ public partial class BillReport : IAsyncDisposable
 
 			await _toastNotification.ShowAsync("Processing", "Deleting transaction...", ToastType.Info);
 
-			var bill = await CommonData.LoadTableDataById<BillModel>(TableNames.Bill, _deleteTransactionId);
+			var bill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, _deleteTransactionId);
 			if (bill is null)
 			{
 				await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);
@@ -541,7 +543,7 @@ public partial class BillReport : IAsyncDisposable
 
 			await _toastNotification.ShowAsync("Processing", "Recovering transaction...", ToastType.Info);
 
-			var bill = await CommonData.LoadTableDataById<BillModel>(TableNames.Bill, _recoverTransactionId);
+			var bill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, _recoverTransactionId);
 			if (bill is null)
 			{
 				await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);
@@ -713,13 +715,13 @@ public partial class BillReport : IAsyncDisposable
 	}
 
 	private async Task NavigateToTransactionPage() =>
-		await AuthenticationService.NavigateToRoute(PageRouteNames.Bill, FormFactor, JSRuntime, NavigationManager);
+		await AuthenticationService.NavigateToRoute(RestaurnatRouteNames.Bill, FormFactor, JSRuntime, NavigationManager);
 
 	private async Task NavigateToItemReport() =>
-		await AuthenticationService.NavigateToRoute(PageRouteNames.BillItemReport, FormFactor, JSRuntime, NavigationManager);
+		await AuthenticationService.NavigateToRoute(RestaurnatRouteNames.BillItemReport, FormFactor, JSRuntime, NavigationManager);
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(PageRouteNames.RestaurantDashboard);
+		NavigationManager.NavigateTo(StoreRouteNames.RestaurantDashboard);
 
 	private async Task StartAutoRefresh()
 	{

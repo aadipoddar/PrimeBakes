@@ -24,7 +24,6 @@ public static partial class Secrets
 	public static string Email => "softaadi@gmail.com";
 	public static string EmailPassword = GetSecret(nameof(EmailPassword));
 
-	public static string ToEmail = GetSecret(nameof(ToEmail));
 	public static string ToName => "Prime Bakes";
 
 	public static string OnlineFullLogoPath => "https://raw.githubusercontent.com/aadipoddar/PrimeBakes/refs/heads/main/PrimeBakes/PrimeBakes.Web/wwwroot/images/logo_full.png";
@@ -37,12 +36,4 @@ public static partial class Secrets
 			.AddEnvironmentVariables()
 			.Build()
 			.GetSection(key).Value;
-
-	public static void SetupConfiguration()
-	{
-		Dapper.SqlMapper.Settings.CommandTimeout = 600;
-		Dapper.SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
-		Dapper.SqlMapper.AddTypeHandler(new TimeOnlyTypeHandler());
-		Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(SyncfusionLicense);
-	}
 }

@@ -1,15 +1,16 @@
 using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
+
+using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Data.Accounts.Masters;
-using PrimeBakesLibrary.Data.Inventory.Stock;
-using PrimeBakesLibrary.Data.Operations;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Inventory.Stock;
-using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Inventory.Stock.Data;
+using PrimeBakesLibrary.Inventory.Stock.Exports;
+using PrimeBakesLibrary.Inventory.Stock.Models;
 using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Inventory.Stock;
-using PrimeBakesLibrary.Models.Operations;
+using PrimeBakesLibrary.Operations.Settings;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.Grids;
 
@@ -450,10 +451,10 @@ public partial class RawMaterialStockReport : IAsyncDisposable
 	}
 
 	private async Task NavigateToTransactionPage() =>
-		 await AuthenticationService.NavigateToRoute(PageRouteNames.RawMaterialStockAdjustment, FormFactor, JSRuntime, NavigationManager);
+		 await AuthenticationService.NavigateToRoute(InventoryRouteNames.RawMaterialStockAdjustment, FormFactor, JSRuntime, NavigationManager);
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);
+		NavigationManager.NavigateTo(StoreRouteNames.InventoryDashboard);
 
 	private async Task ShowDeleteConfirmation(int id, string transactionNo)
 	{

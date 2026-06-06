@@ -1,3 +1,5 @@
+using PrimeBakesLibrary.Common;
+
 namespace PrimeBakes.Shared.Pages.Store.Sale.Mobile;
 
 public partial class SaleMobileConfirmationPage
@@ -12,6 +14,6 @@ public partial class SaleMobileConfirmationPage
 
         // Wait for 2 seconds then navigate to home
         await Task.Delay(2000);
-        NavigationManager.NavigateTo(PageRouteNames.SaleMobile, forceLoad: true);
+        NavigationManager.NavigateTo(StoreRouteNames.SaleMobile, forceLoad: true);
     }
 }

@@ -1,15 +1,17 @@
 using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
+
+using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Data.Accounts.Masters;
-using PrimeBakesLibrary.Data.Operations;
-using PrimeBakesLibrary.Data.Store.Sale;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Store.Sale;
-using PrimeBakesLibrary.Exporting.Utils;
 using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Store.Sale;
+using PrimeBakesLibrary.Operations.Location;
+using PrimeBakesLibrary.Operations.Settings;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Store.Sale.Data;
+using PrimeBakesLibrary.Store.Sale.Exports;
+using PrimeBakesLibrary.Store.Sale.Models;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.Grids;
 
@@ -91,20 +93,20 @@ public partial class SaleReturnReport : IAsyncDisposable
 
     private async Task LoadLocations()
     {
-        _locations = await CommonData.LoadTableDataByStatus<LocationModel>(TableNames.Location);
+        _locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
         _locations = [.. _locations.OrderBy(s => s.Name)];
         _selectedLocation = _locations.FirstOrDefault(_ => _.Id == _user.LocationId);
     }
 
     private async Task LoadCompanies()
     {
-        _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
+        _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
         _companies = [.. _companies.OrderBy(s => s.Name)];
     }
 
     private async Task LoadParties()
     {
-        _parties = await CommonData.LoadTableDataByStatus<LedgerModel>(TableNames.Ledger);
+        _parties = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
         _parties = [.. _parties.OrderBy(s => s.Name)];
     }
 
@@ -120,7 +122,7 @@ public partial class SaleReturnReport : IAsyncDisposable
             await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
             _transactionOverviews = await CommonData.LoadTableDataByDate<SaleReturnOverviewModel>(
-                ViewNames.SaleReturnOverview,
+                StoreNames.SaleReturnOverview,
                 DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
                 DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
@@ -441,7 +443,7 @@ public partial class SaleReturnReport : IAsyncDisposable
 
     private async Task DeleteTransaction()
     {
-        var saleReturn = await CommonData.LoadTableDataById<SaleReturnModel>(TableNames.SaleReturn, _deleteTransactionId);
+        var saleReturn = await CommonData.LoadTableDataById<SaleReturnModel>(StoreNames.SaleReturn, _deleteTransactionId);
         if (saleReturn is null)
         {
             await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);
@@ -499,7 +501,7 @@ public partial class SaleReturnReport : IAsyncDisposable
 
     private async Task RecoverTransaction()
     {
-        var saleReturn = await CommonData.LoadTableDataById<SaleReturnModel>(TableNames.SaleReturn, _recoverTransactionId);
+        var saleReturn = await CommonData.LoadTableDataById<SaleReturnModel>(StoreNames.SaleReturn, _recoverTransactionId);
         if (saleReturn is null)
         {
             await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);
@@ -653,13 +655,13 @@ public partial class SaleReturnReport : IAsyncDisposable
     }
 
     private async Task NavigateToTransactionPage() =>
-        await AuthenticationService.NavigateToRoute(PageRouteNames.SaleReturn, FormFactor, JSRuntime, NavigationManager);
+        await AuthenticationService.NavigateToRoute(StoreRouteNames.SaleReturn, FormFactor, JSRuntime, NavigationManager);
 
     private async Task NavigateToItemReport() =>
-        await AuthenticationService.NavigateToRoute(PageRouteNames.SaleReturnItemReport, FormFactor, JSRuntime, NavigationManager);
+        await AuthenticationService.NavigateToRoute(StoreRouteNames.SaleReturnItemReport, FormFactor, JSRuntime, NavigationManager);
 
     private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.StoreDashboard);
+        NavigationManager.NavigateTo(StoreRouteNames.StoreDashboard);
 
     private async Task StartAutoRefresh()
     {

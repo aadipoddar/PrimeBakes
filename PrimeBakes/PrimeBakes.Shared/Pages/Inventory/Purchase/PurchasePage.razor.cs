@@ -2,17 +2,19 @@ using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
+
+using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Data.Accounts.Masters;
-using PrimeBakesLibrary.Data.Inventory.Purchase;
-using PrimeBakesLibrary.Data.Operations;
 using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Inventory.Purchase;
-using PrimeBakesLibrary.Exporting.Utils;
+using PrimeBakesLibrary.Inventory.Purchase.Data;
+using PrimeBakesLibrary.Inventory.Purchase.Exports;
+using PrimeBakesLibrary.Inventory.Purchase.Models;
+using PrimeBakesLibrary.Inventory.RawMaterial.Models;
 using PrimeBakesLibrary.Models.Accounts.Masters;
-using PrimeBakesLibrary.Models.Inventory;
-using PrimeBakesLibrary.Models.Inventory.Purchase;
-using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Store.Product;
+using PrimeBakesLibrary.Operations.Settings;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Store.Product.Models;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;
@@ -82,7 +84,7 @@ public partial class PurchasePage
     {
         try
         {
-            _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(TableNames.Company);
+            _companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
             _companies = [.. _companies.OrderBy(s => s.Name)];
 
             var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
@@ -98,7 +100,7 @@ public partial class PurchasePage
     {
         try
         {
-            _parties = await CommonData.LoadTableDataByStatus<LedgerModel>(TableNames.Ledger);
+            _parties = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
             _parties = [.. _parties.OrderBy(s => s.Name)];
 
             _selectedParty = _parties.FirstOrDefault();
@@ -115,11 +117,11 @@ public partial class PurchasePage
         {
             if (Id.HasValue)
             {
-                _purchase = await CommonData.LoadTableDataById<PurchaseModel>(TableNames.Purchase, Id.Value);
+                _purchase = await CommonData.LoadTableDataById<PurchaseModel>(InventoryNames.Purchase, Id.Value);
                 if (_purchase is null)
                 {
                     await _toastNotification.ShowAsync("Transaction Not Found", "The requested transaction could not be found.", ToastType.Error);
-                    NavigationManager.NavigateTo(PageRouteNames.Purchase, true);
+                    NavigationManager.NavigateTo(InventoryRouteNames.Purchase, true);
                 }
             }
 
@@ -180,7 +182,7 @@ public partial class PurchasePage
                 _purchase.PartyId = _selectedParty.Id;
             }
 
-            _selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(TableNames.FinancialYear, _purchase.FinancialYearId);
+            _selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, _purchase.FinancialYearId);
         }
         catch (Exception ex)
         {
@@ -198,7 +200,7 @@ public partial class PurchasePage
         try
         {
             _rawMaterials = await PurchaseData.LoadRawMaterialByPartyPurchaseDateTime(_purchase.PartyId, _purchase.TransactionDateTime);
-            _taxes = await CommonData.LoadTableDataByStatus<TaxModel>(TableNames.Tax);
+            _taxes = await CommonData.LoadTableDataByStatus<TaxModel>(StoreNames.Tax);
 
             _rawMaterials = [.. _rawMaterials.OrderBy(s => s.Name)];
         }
@@ -216,13 +218,13 @@ public partial class PurchasePage
 
             if (_purchase.Id > 0)
             {
-                var existingCart = await CommonData.LoadTableDataByMasterId<PurchaseDetailModel>(TableNames.PurchaseDetail, _purchase.Id);
+                var existingCart = await CommonData.LoadTableDataByMasterId<PurchaseDetailModel>(InventoryNames.PurchaseDetail, _purchase.Id);
 
                 foreach (var item in existingCart)
                 {
                     if (_rawMaterials.FirstOrDefault(s => s.Id == item.RawMaterialId) is null)
                     {
-                        var rawMaterial = await CommonData.LoadTableDataById<RawMaterialModel>(TableNames.RawMaterial, item.RawMaterialId);
+                        var rawMaterial = await CommonData.LoadTableDataById<RawMaterialModel>(InventoryNames.RawMaterial, item.RawMaterialId);
                         await _toastNotification.ShowAsync("Item Not Found", $"The item {rawMaterial?.Name} (ID: {item.RawMaterialId}) in the existing transaction cart was not found in the available items list. It may have been deleted or is inaccessible.", ToastType.Error);
                         continue;
                     }
@@ -722,7 +724,7 @@ public partial class PurchasePage
 
         if (_purchase.Id > 0)
         {
-            var existingPurchase = await CommonData.LoadTableDataById<PurchaseModel>(TableNames.Purchase, _purchase.Id);
+            var existingPurchase = await CommonData.LoadTableDataById<PurchaseModel>(InventoryNames.Purchase, _purchase.Id);
             await FinancialYearData.ValidateFinancialYear(existingPurchase.TransactionDateTime);
 
             if (!_user.Admin)
@@ -1007,16 +1009,16 @@ public partial class PurchasePage
     private async Task ResetPage()
     {
         await DeleteLocalFiles();
-        NavigationManager.NavigateTo(PageRouteNames.Purchase, true);
+        NavigationManager.NavigateTo(InventoryRouteNames.Purchase, true);
     }
 
     private async Task NavigateToTransactionHistoryPage() =>
-        await AuthenticationService.NavigateToRoute(PageRouteNames.PurchaseReport, FormFactor, JSRuntime, NavigationManager);
+        await AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseReport, FormFactor, JSRuntime, NavigationManager);
 
     private async Task NavigateToItemReport() =>
-         await AuthenticationService.NavigateToRoute(PageRouteNames.PurchaseItemReport, FormFactor, JSRuntime, NavigationManager);
+         await AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseItemReport, FormFactor, JSRuntime, NavigationManager);
 
     private void NavigateBack() =>
-        NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard);
+        NavigationManager.NavigateTo(StoreRouteNames.InventoryDashboard);
     #endregion
 }

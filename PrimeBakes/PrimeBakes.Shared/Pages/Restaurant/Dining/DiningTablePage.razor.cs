@@ -1,10 +1,11 @@
 using PrimeBakes.Shared.Components.Dialog;
-using PrimeBakesLibrary.Data.Restaurant.Dining;
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Exporting.Restaurant.Dining;
-using PrimeBakesLibrary.Exporting.Utils;
-using PrimeBakesLibrary.Models.Operations;
-using PrimeBakesLibrary.Models.Restuarant.Dining;
+
+using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Restaurant.Dining.Data;
+using PrimeBakesLibrary.Restaurant.Dining.Exports;
+using PrimeBakesLibrary.Restaurant.Dining.Models;
+using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.Grids;
 
@@ -55,7 +56,7 @@ public partial class DiningTablePage
 	private async Task LoadData()
 	{
 		_diningAreas = await CommonData.LoadTableDataByStatus<DiningAreaModel>(TableNames.DiningArea);
-		_diningTables = await CommonData.LoadTableData<DiningTableModel>(TableNames.DiningTable);
+		_diningTables = await CommonData.LoadTableData<DiningTableModel>(RestaurantNames.DiningTable);
 
 		if (!_showDeleted)
 			_diningTables = [.. _diningTables.Where(dt => dt.Status)];
@@ -117,7 +118,7 @@ public partial class DiningTablePage
 			await DiningTableData.InsertDiningTable(diningTable);
 
 			await _toastNotification.ShowAsync("Deleted", $"Dining table '{diningTable.Name}' has been deleted successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(PageRouteNames.DiningTable, true);
+			NavigationManager.NavigateTo(StoreRouteNames.DiningTable, true);
 		}
 		catch (Exception ex)
 		{
@@ -149,7 +150,7 @@ public partial class DiningTablePage
 			await DiningTableData.InsertDiningTable(diningTable);
 
 			await _toastNotification.ShowAsync("Recovered", $"Dining table '{diningTable.Name}' has been recovered successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(PageRouteNames.DiningTable, true);
+			NavigationManager.NavigateTo(StoreRouteNames.DiningTable, true);
 		}
 		catch (Exception ex)
 		{
@@ -187,7 +188,7 @@ public partial class DiningTablePage
 		if (string.IsNullOrWhiteSpace(_diningTable.Remarks))
 			_diningTable.Remarks = null;
 
-		var allDiningTables = await CommonData.LoadTableData<DiningTableModel>(TableNames.DiningTable);
+		var allDiningTables = await CommonData.LoadTableData<DiningTableModel>(RestaurantNames.DiningTable);
 
 		if (_diningTable.Id > 0)
 		{
@@ -232,7 +233,7 @@ public partial class DiningTablePage
 			await DiningTableData.InsertDiningTable(_diningTable);
 
 			await _toastNotification.ShowAsync("Saved", $"Dining table '{_diningTable.Name}' saved successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(PageRouteNames.DiningTable, true);
+			NavigationManager.NavigateTo(StoreRouteNames.DiningTable, true);
 		}
 		catch (Exception ex)
 		{
@@ -402,9 +403,9 @@ public partial class DiningTablePage
 	}
 
 	private void ResetPage() =>
-		NavigationManager.NavigateTo(PageRouteNames.DiningTable, true);
+		NavigationManager.NavigateTo(StoreRouteNames.DiningTable, true);
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(PageRouteNames.RestaurantDashboard);
+		NavigationManager.NavigateTo(StoreRouteNames.RestaurantDashboard);
 	#endregion
 }
