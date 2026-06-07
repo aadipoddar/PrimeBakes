@@ -2,12 +2,11 @@ using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
 
-using PrimeBakesLibrary.Common;
-using PrimeBakesLibrary.Data.Accounts.Masters;
+using PrimeBakesLibrary.Accounts.Masters.Data;
+using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Inventory.Stock.Data;
 using PrimeBakesLibrary.Inventory.Stock.Exports;
 using PrimeBakesLibrary.Inventory.Stock.Models;
-using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Operations.Settings;
 using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Utils.Exports;
@@ -120,7 +119,7 @@ public partial class RawMaterialStockReport : IAsyncDisposable
 	private async Task LoadStockDetails()
 	{
 		_stockDetails = await CommonData.LoadTableDataByDate<RawMaterialStockDetailsModel>(
-				ViewNames.RawMaterialStockDetails,
+				InventoryNames.RawMaterialStockDetails,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
@@ -252,7 +251,7 @@ public partial class RawMaterialStockReport : IAsyncDisposable
 		var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(selectedCartItem.TransactionNo, false, false);
 		await AuthenticationService.NavigateToRoute(decodedTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
 	}
-	
+
 	private async Task DownloadSelectedCartItemPdfInvoice()
 	{
 		if (_sfStockDetailsGrid is null || _sfStockDetailsGrid.SelectedRecords is null || _sfStockDetailsGrid.SelectedRecords.Count == 0)
@@ -454,7 +453,7 @@ public partial class RawMaterialStockReport : IAsyncDisposable
 		 await AuthenticationService.NavigateToRoute(InventoryRouteNames.RawMaterialStockAdjustment, FormFactor, JSRuntime, NavigationManager);
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(StoreRouteNames.InventoryDashboard);
+		NavigationManager.NavigateTo(OperationRouteNames.InventoryDashboard);
 
 	private async Task ShowDeleteConfirmation(int id, string transactionNo)
 	{

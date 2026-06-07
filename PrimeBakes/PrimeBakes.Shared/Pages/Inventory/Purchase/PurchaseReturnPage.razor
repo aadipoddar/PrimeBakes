@@ -1,10 +1,9 @@
-@attribute [Route(PageRouteNames.PurchaseReturn)]
-@attribute [Route(PageRouteNames.PurchaseReturn + "/{Id:int}")]
+@using PrimeBakesLibrary.Accounts.Masters.Models
+@using PrimeBakesLibrary.Inventory.Purchase.Models
+@using PrimeBakesLibrary.Inventory.RawMaterial.Models
 
-@using PrimeBakesLibrary.Models.Accounts.Masters
-@using PrimeBakesLibrary.Models.Operations
-@using PrimeBakesLibrary.Models.Inventory
-@using PrimeBakesLibrary.Models.Inventory.Purchase
+@attribute [Route(InventoryRouteNames.PurchaseReturn)]
+@attribute [Route(InventoryRouteNames.PurchaseReturn + "/{Id:int}")]
 
 <PageTitle>Purchase Return - Prime Bakes</PageTitle>
 
@@ -25,7 +24,7 @@
 
 @if (_isLoading || _user is null)
 {
-	<AnimatedLoader Visible="true" />
+	<LoadingScreen Visible="true" />
 }
 else
 {
@@ -105,7 +104,7 @@ else
 													 Placeholder="Select a Company"
 													 Label="Company" ValueChange="OnCompanyChanged"
 													 FieldValue="@nameof(CompanyModel.Name)"
-													 AddNewRoute="@PageRouteNames.CompanyMaster" />
+													 AddNewRoute="@AccountsRouteNames.CompanyMaster" />
 							</div>
 
 							<!-- Party -->
@@ -116,7 +115,7 @@ else
 													 Placeholder="Select a Party"
 													 Label="Party" ValueChange="OnPartyChanged"
 													 FieldValue="@nameof(LedgerModel.Name)"
-													 AddNewRoute="@PageRouteNames.LedgerMaster" />
+													 AddNewRoute="@AccountsRouteNames.LedgerMaster" />
 							</div>
 
 							<!-- Transaction Date -->
@@ -261,7 +260,7 @@ else
 												 Placeholder="Select Item (Ctrl + F)"
 												 Label="Item" ValueChange="OnItemChanged"
 												 FieldValue="@nameof(RawMaterialModel.Name)"
-												 AddNewRoute="@PageRouteNames.RawMaterial" />
+												 AddNewRoute="@InventoryRouteNames.RawMaterial" />
 						</div>
 						
 						<div class="cart-field cart-field-small">

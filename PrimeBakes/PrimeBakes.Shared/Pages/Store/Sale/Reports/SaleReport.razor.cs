@@ -2,9 +2,8 @@ using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
 
-using PrimeBakesLibrary.Common;
-using PrimeBakesLibrary.Data.Accounts.Masters;
-using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Accounts.Masters.Data;
+using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Operations.Settings;
 using PrimeBakesLibrary.Operations.User;

@@ -1,4 +1,4 @@
-@attribute [Route(PageRouteNames.InventoryDashboard)]
+@attribute [Route(InventoryRouteNames.InventoryDashboard)]
 
 <PageTitle>Inventory - Prime Bakes</PageTitle>
 
@@ -6,7 +6,7 @@
 
 @if (_isLoading || _user is null)
 {
-    <AnimatedLoader Visible="true" />
+    <LoadingScreen Visible="true" />
 }
 else
 {
@@ -34,7 +34,7 @@ else
                 <div class="section-body">
                     <div class="dashboard-grid">
                         <ButtonCard Title="Purchase" Description="Manage purchase transactions" Color="blue"
-                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.Purchase)">
+                                    OnClick="() => NavigationManager.NavigateTo(InventoryRouteNames.Purchase)">
                             <IconContent>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -47,7 +47,7 @@ else
                         </ButtonCard>
 
                         <ButtonCard Title="Purchase Return" Description="Process purchase returns" Color="rose"
-                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.PurchaseReturn)">
+                                    OnClick="() => NavigationManager.NavigateTo(InventoryRouteNames.PurchaseReturn)">
                             <IconContent>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -82,7 +82,7 @@ else
                     <div class="section-body">
                         <div class="dashboard-grid">
                             <ButtonCard Title="Purchase Report" Description="View purchase transaction history" Color="cyan"
-                                        OnClick="() => NavigationManager.NavigateTo(PageRouteNames.PurchaseReport)">
+                                        OnClick="() => NavigationManager.NavigateTo(InventoryRouteNames.PurchaseReport)">
                                 <IconContent>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                                          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -93,7 +93,7 @@ else
                             </ButtonCard>
 
                             <ButtonCard Title="Purchase Item Report" Description="View detailed purchase items" Color="sky"
-                                        OnClick="() => NavigationManager.NavigateTo(PageRouteNames.PurchaseItemReport)">
+                                        OnClick="() => NavigationManager.NavigateTo(InventoryRouteNames.PurchaseItemReport)">
                                 <IconContent>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                                          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -108,7 +108,7 @@ else
                             </ButtonCard>
 
                             <ButtonCard Title="Purchase Return Report" Description="View purchase return records" Color="rose"
-                                        OnClick="() => NavigationManager.NavigateTo(PageRouteNames.PurchaseReturnReport)">
+                                        OnClick="() => NavigationManager.NavigateTo(InventoryRouteNames.PurchaseReturnReport)">
                                 <IconContent>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                                          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -121,7 +121,7 @@ else
 
                             <ButtonCard Title="Purchase Return Item Report" Description="View detailed purchase return items"
                                         Color="amber"
-                                        OnClick="() => NavigationManager.NavigateTo(PageRouteNames.PurchaseReturnItemReport)">
+                                        OnClick="() => NavigationManager.NavigateTo(InventoryRouteNames.PurchaseReturnItemReport)">
                                 <IconContent>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                                          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -156,7 +156,7 @@ else
                 <div class="section-body">
                     <div class="dashboard-grid">
                         <ButtonCard Title="Kitchen" Description="Manage kitchen locations" Color="orange"
-                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.Kitchen)">
+                                    OnClick="() => NavigationManager.NavigateTo(InventoryRouteNames.Kitchen)">
                             <IconContent>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -169,7 +169,7 @@ else
                         </ButtonCard>
 
                         <ButtonCard Title="Kitchen Issue" Description="Issue raw materials to kitchen" Color="orange"
-                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.KitchenIssue)">
+                                    OnClick="() => NavigationManager.NavigateTo(InventoryRouteNames.KitchenIssue)">
                             <IconContent>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -182,7 +182,7 @@ else
                         </ButtonCard>
 
                         <ButtonCard Title="Kitchen Production" Description="Record production and finished goods"
-                                    Color="green" OnClick="() => NavigationManager.NavigateTo(PageRouteNames.KitchenProduction)">
+                                    Color="green" OnClick="() => NavigationManager.NavigateTo(InventoryRouteNames.KitchenProduction)">
                             <IconContent>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -218,7 +218,7 @@ else
                     <div class="section-body">
                         <div class="dashboard-grid">
                             <ButtonCard Title="Kitchen Issue Report" Description="View material issue history" Color="emerald"
-                                        OnClick="() => NavigationManager.NavigateTo(PageRouteNames.KitchenIssueReport)">
+                                        OnClick="() => NavigationManager.NavigateTo(InventoryRouteNames.KitchenIssueReport)">
                                 <IconContent>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                                          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -231,7 +231,7 @@ else
 
                             <ButtonCard Title="Kitchen Issue Item Report" Description="View detailed kitchen issue items"
                                         Color="teal"
-                                        OnClick="() => NavigationManager.NavigateTo(PageRouteNames.KitchenIssueItemReport)">
+                                        OnClick="() => NavigationManager.NavigateTo(InventoryRouteNames.KitchenIssueItemReport)">
                                 <IconContent>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                                          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -248,7 +248,7 @@ else
 
                             <ButtonCard Title="Kitchen Production Report" Description="View kitchen production records"
                                         Color="violet"
-                                        OnClick="() => NavigationManager.NavigateTo(PageRouteNames.KitchenProductionReport)">
+                                        OnClick="() => NavigationManager.NavigateTo(InventoryRouteNames.KitchenProductionReport)">
                                 <IconContent>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                                          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -261,7 +261,7 @@ else
 
                             <ButtonCard Title="Kitchen Production Item Report" Description="View detailed production items"
                                         Color="green"
-                                        OnClick="() => NavigationManager.NavigateTo(PageRouteNames.KitchenProductionItemReport)">
+                                        OnClick="() => NavigationManager.NavigateTo(InventoryRouteNames.KitchenProductionItemReport)">
                                 <IconContent>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                                          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -295,7 +295,7 @@ else
                     <div class="dashboard-grid">
                         <ButtonCard Title="Raw Material Adjustment" Description="Adjust raw material stock levels"
                                     Color="purple"
-                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.RawMaterialStockAdjustment)">
+                                    OnClick="() => NavigationManager.NavigateTo(InventoryRouteNames.RawMaterialStockAdjustment)">
                             <IconContent>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -311,7 +311,7 @@ else
 
                         <ButtonCard Title="Finished Product Adjustment" Description="Adjust finished product stock levels"
                                     Color="indigo"
-                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ProductStockAdjustment)">
+                                    OnClick="() => NavigationManager.NavigateTo(InventoryRouteNames.ProductStockAdjustment)">
                             <IconContent>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -327,7 +327,7 @@ else
                         {
                             <ButtonCard Title="Raw Material Stock" Description="View current raw material stock levels"
                                         Color="blue"
-                                        OnClick="() => NavigationManager.NavigateTo(PageRouteNames.RawMaterialStockReport)">
+                                        OnClick="() => NavigationManager.NavigateTo(InventoryRouteNames.RawMaterialStockReport)">
                                 <IconContent>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                                          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -340,7 +340,7 @@ else
                             </ButtonCard>
 
                             <ButtonCard Title="Finished Product Stock" Description="View current product stock levels"
-                                        Color="indigo" OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ProductStockReport)">
+                                        Color="indigo" OnClick="() => NavigationManager.NavigateTo(InventoryRouteNames.ProductStockReport)">
                                 <IconContent>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                                          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -375,7 +375,7 @@ else
                 <div class="section-body">
                     <div class="dashboard-grid">
                         <ButtonCard Title="Raw Material" Description="Manage raw materials inventory" Color="blue"
-                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.RawMaterial)">
+                                    OnClick="() => NavigationManager.NavigateTo(InventoryRouteNames.RawMaterial)">
                             <IconContent>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -389,7 +389,7 @@ else
                         </ButtonCard>
 
                         <ButtonCard Title="Raw Material Category" Description="Manage raw material categories" Color="cyan"
-                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.RawMaterialCategory)">
+                                    OnClick="() => NavigationManager.NavigateTo(InventoryRouteNames.RawMaterialCategory)">
                             <IconContent>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -403,7 +403,7 @@ else
                         </ButtonCard>
 
                         <ButtonCard Title="Recipe" Description="Manage finished product recipes" Color="rose"
-                                    OnClick="() => NavigationManager.NavigateTo(PageRouteNames.Recipe)">
+                                    OnClick="() => NavigationManager.NavigateTo(InventoryRouteNames.Recipe)">
                             <IconContent>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -417,7 +417,7 @@ else
                         @if (_user.Reports)
                         {
                             <ButtonCard Title="Recipe Report" Description="View all product recipes and costs" Color="amber"
-                                        OnClick="() => NavigationManager.NavigateTo(PageRouteNames.RecipeReport)">
+                                        OnClick="() => NavigationManager.NavigateTo(InventoryRouteNames.RecipeReport)">
                                 <IconContent>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
                                          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"

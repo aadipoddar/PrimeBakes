@@ -1,7 +1,7 @@
-@attribute [Route(PageRouteNames.DiningArea)]
+﻿@attribute [Route(RestaurantRouteNames.DiningArea)]
 
-@using PrimeBakesLibrary.Models.Operations
-@using PrimeBakesLibrary.Models.Restuarant.Dining
+@using PrimeBakesLibrary.Operations.Location
+@using PrimeBakesLibrary.Restaurant.Dining.Models
 
 <PageTitle>Dining Area Management - Prime Bakes</PageTitle>
 
@@ -16,7 +16,7 @@
 
 @if (_isLoading)
 {
-	<AnimatedLoader Visible="true" />
+	<LoadingScreen Visible="true" />
 }
 else
 {

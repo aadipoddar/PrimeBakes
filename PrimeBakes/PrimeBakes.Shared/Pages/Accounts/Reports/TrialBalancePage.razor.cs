@@ -1,8 +1,11 @@
-using Microsoft.AspNetCore.Components;
-
 using PrimeBakes.Shared.Components.Dialog;
+using PrimeBakes.Shared.Components.Input;
 
-using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Accounts.FinancialAccounting.Data;
+using PrimeBakesLibrary.Accounts.FinancialAccounting.Exports;
+using PrimeBakesLibrary.Accounts.FinancialAccounting.Models;
+using PrimeBakesLibrary.Accounts.Masters.Data;
+using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Operations.Settings;
 using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Utils.Exports;
@@ -31,8 +34,10 @@ public partial class TrialBalancePage : IAsyncDisposable
 	private List<GroupModel> _groups = [];
 	private List<AccountTypeModel> _accountTypes = [];
 	private List<TrialBalanceModel> _trialBalance = [];
+	private List<TrialBalanceModel> _allTrialBalance = [];
 
 	private SfGrid<TrialBalanceModel> _sfGrid;
+	private CustomDateRangePicker _sfFirstFocus;
 	private ToastNotification _toastNotification;
 
 	#region Load Data
@@ -41,44 +46,38 @@ public partial class TrialBalancePage : IAsyncDisposable
 		if (!firstRender)
 			return;
 
-		await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Accounts, UserRoles.Reports], true);
-		await LoadData();
+		try
+		{
+			await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Accounts, UserRoles.Reports]);
+			await InitializePage();
+		}
+		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
 	}
 
-	private async Task LoadData()
+	private async Task InitializePage()
 	{
-		await LoadDates();
-		await LoadCompanies();
-		await LoadGroups();
-		await LoadAccountTypes();
+		await LoadData();
 		await LoadTrialBalance();
 		await StartAutoRefresh();
 
 		_isLoading = false;
 		StateHasChanged();
+
+		if (_sfFirstFocus is not null)
+			await _sfFirstFocus.FocusAsync();
 	}
 
-	private async Task LoadDates()
+	private async Task LoadData()
 	{
 		_fromDate = await CommonData.LoadCurrentDateTime();
 		_toDate = _fromDate;
-	}
 
-	private async Task LoadCompanies()
-	{
 		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+		_groups = await CommonData.LoadTableDataByStatus<GroupModel>(AccountNames.Group);
+		_accountTypes = await CommonData.LoadTableDataByStatus<AccountTypeModel>(AccountNames.AccountType);
+
 		_companies = [.. _companies.OrderBy(s => s.Name)];
-	}
-
-	private async Task LoadGroups()
-	{
-		_groups = await CommonData.LoadTableDataByStatus<GroupModel>(TableNames.Group);
 		_groups = [.. _groups.OrderBy(s => s.Name)];
-	}
-
-	private async Task LoadAccountTypes()
-	{
-		_accountTypes = await CommonData.LoadTableDataByStatus<AccountTypeModel>(TableNames.AccountType);
 		_accountTypes = [.. _accountTypes.OrderBy(s => s.Name)];
 	}
 
@@ -93,18 +92,12 @@ public partial class TrialBalancePage : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
-			_trialBalance = await FinancialAccountingData.LoadTrialBalanceByCompanyDate(
+			_allTrialBalance = await FinancialAccountingData.LoadTrialBalanceByCompanyDate(
 				_selectedCompany?.Id ?? 0,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
-			if (_selectedGroup?.Id > 0)
-				_trialBalance = [.. _trialBalance.Where(_ => _.GroupId == _selectedGroup.Id)];
-
-			if (_selectedAccountType?.Id > 0)
-				_trialBalance = [.. _trialBalance.Where(_ => _.AccountTypeId == _selectedAccountType.Id)];
-
-			_trialBalance = [.. _trialBalance.OrderBy(_ => _.LedgerName)];
+			await ApplyFilters();
 		}
 		catch (Exception ex)
 		{
@@ -112,37 +105,31 @@ public partial class TrialBalancePage : IAsyncDisposable
 		}
 		finally
 		{
-			if (_sfGrid is not null)
-				await _sfGrid.Refresh();
 			_isProcessing = false;
 			StateHasChanged();
 		}
 	}
+
+	private async Task ApplyFilters()
+	{
+		var query = _allTrialBalance.AsEnumerable();
+
+		if (_selectedGroup?.Id > 0) query = query.Where(t => t.GroupId == _selectedGroup.Id);
+		if (_selectedAccountType?.Id > 0) query = query.Where(t => t.AccountTypeId == _selectedAccountType.Id);
+
+		_trialBalance = [.. query.OrderBy(t => t.LedgerName)];
+
+		if (_sfGrid is not null)
+			await _sfGrid.Refresh();
+		StateHasChanged();
+	}
 	#endregion
 
-	#region Change Events
-	private async Task OnDateRangeChanged(Syncfusion.Blazor.Calendars.RangePickerEventArgs<DateTime> args)
+	#region Changed Events
+	private async Task OnDateRangeChanged(MudBlazor.DateRange range)
 	{
-		_fromDate = args.StartDate;
-		_toDate = args.EndDate;
-		await LoadTrialBalance();
-	}
-
-	private async Task OnCompanyChanged(Syncfusion.Blazor.DropDowns.ChangeEventArgs<CompanyModel, CompanyModel> args)
-	{
-		_selectedCompany = args.Value;
-		await LoadTrialBalance();
-	}
-
-	private async Task OnAccountTypeChanged(Syncfusion.Blazor.DropDowns.ChangeEventArgs<AccountTypeModel, AccountTypeModel> args)
-	{
-		_selectedAccountType = args.Value;
-		await LoadTrialBalance();
-	}
-
-	private async Task OnGroupChanged(Syncfusion.Blazor.DropDowns.ChangeEventArgs<GroupModel, GroupModel> args)
-	{
-		_selectedGroup = args.Value;
+		_fromDate = range?.Start ?? _fromDate;
+		_toDate = range?.End ?? _toDate;
 		await LoadTrialBalance();
 	}
 
@@ -151,10 +138,28 @@ public partial class TrialBalancePage : IAsyncDisposable
 		(_fromDate, _toDate) = await FinancialYearData.GetDateRange(dateRangeType, _fromDate, _toDate);
 		await LoadTrialBalance();
 	}
+
+	private async Task OnCompanyChanged(CompanyModel value)
+	{
+		_selectedCompany = value;
+		await LoadTrialBalance();
+	}
+
+	private async Task OnGroupChanged(GroupModel value)
+	{
+		_selectedGroup = value;
+		await ApplyFilters();
+	}
+
+	private async Task OnAccountTypeChanged(AccountTypeModel value)
+	{
+		_selectedAccountType = value;
+		await ApplyFilters();
+	}
 	#endregion
 
 	#region Exporting
-	private async Task ExportExcel()
+	private async Task ExportReport(bool isExcel = false)
 	{
 		if (_isProcessing)
 			return;
@@ -163,67 +168,25 @@ public partial class TrialBalancePage : IAsyncDisposable
 		{
 			_isProcessing = true;
 			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating Excel file...", ToastType.Info);
-
-			DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
-			DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
+			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
 			var (stream, fileName) = await TrialBalanceReportExport.ExportReport(
-					_trialBalance,
-					ReportExportType.Excel,
-					dateRangeStart,
-					dateRangeEnd,
-					_showAllColumns,
-					_selectedCompany?.Id > 0 ? _selectedCompany : null,
-					_selectedGroup?.Id > 0 ? _selectedGroup : null,
-					_selectedAccountType?.Id > 0 ? _selectedAccountType : null
-				);
-
+				_trialBalance,
+				isExcel ? ReportExportType.Excel : ReportExportType.PDF,
+				DateOnly.FromDateTime(_fromDate),
+				DateOnly.FromDateTime(_toDate),
+				_showAllColumns,
+				_selectedCompany?.Id > 0 ? _selectedCompany : null,
+				_selectedGroup?.Id > 0 ? _selectedGroup : null,
+				_selectedAccountType?.Id > 0 ? _selectedAccountType : null
+			);
 			await SaveAndViewService.SaveAndView(fileName, stream);
-			await _toastNotification.ShowAsync("Success", "Excel file downloaded successfully.", ToastType.Success);
+
+			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("Error", $"Excel export failed: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			StateHasChanged();
-		}
-	}
-
-	private async Task ExportPdf()
-	{
-		if (_isProcessing)
-			return;
-
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating PDF file...", ToastType.Info);
-
-			DateOnly? dateRangeStart = _fromDate != default ? DateOnly.FromDateTime(_fromDate) : null;
-			DateOnly? dateRangeEnd = _toDate != default ? DateOnly.FromDateTime(_toDate) : null;
-
-			var (stream, fileName) = await TrialBalanceReportExport.ExportReport(
-					_trialBalance,
-					ReportExportType.PDF,
-					dateRangeStart,
-					dateRangeEnd,
-					_showAllColumns,
-					_selectedCompany?.Id > 0 ? _selectedCompany : null,
-					_selectedGroup?.Id > 0 ? _selectedGroup : null,
-					_selectedAccountType?.Id > 0 ? _selectedAccountType : null
-				);
-
-			await SaveAndViewService.SaveAndView(fileName, stream);
-			await _toastNotification.ShowAsync("Success", "PDF file downloaded successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"PDF export failed: {ex.Message}", ToastType.Error);
+			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
 		}
 		finally
 		{
@@ -234,71 +197,6 @@ public partial class TrialBalancePage : IAsyncDisposable
 	#endregion
 
 	#region Utilities
-
-	private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
-	{
-		switch (args.Item.Id)
-		{
-			case "NewTransaction":
-				await AuthenticationService.NavigateToRoute(AccountsRouteNames.FinancialAccounting, FormFactor, JSRuntime, NavigationManager);
-				break;
-			case "Refresh":
-				await LoadTrialBalance();
-				break;
-			case "ToggleDetailsView":
-				await ToggleDetailsView();
-				break;
-			case "ExportPdf":
-				await ExportPdf();
-				break;
-			case "ExportExcel":
-				await ExportExcel();
-				break;
-			case "TransactionHistory":
-				await AuthenticationService.NavigateToRoute(AccountsRouteNames.FinancialAccountingReport, FormFactor, JSRuntime, NavigationManager);
-				break;
-			case "LedgerReport":
-				await AuthenticationService.NavigateToRoute(StoreRouteNames.AccountingLedgerReport, FormFactor, JSRuntime, NavigationManager);
-				break;
-			case "ProfitLoss":
-				await AuthenticationService.NavigateToRoute(StoreRouteNames.ProfitAndLossReport, FormFactor, JSRuntime, NavigationManager);
-				break;
-			case "BalanceSheet":
-				await AuthenticationService.NavigateToRoute(StoreRouteNames.BalanceSheetReport, FormFactor, JSRuntime, NavigationManager);
-				break;
-			case "PeriodToday":
-				await HandleDatesChanged(DateRangeType.Today);
-				break;
-			case "PeriodPreviousDay":
-				await HandleDatesChanged(DateRangeType.Yesterday);
-				break;
-			case "PeriodNextDay":
-				await HandleDatesChanged(DateRangeType.NextDay);
-				break;
-			case "PeriodCurrentMonth":
-				await HandleDatesChanged(DateRangeType.CurrentMonth);
-				break;
-			case "PeriodPreviousMonth":
-				await HandleDatesChanged(DateRangeType.PreviousMonth);
-				break;
-			case "PeriodNextMonth":
-				await HandleDatesChanged(DateRangeType.NextMonth);
-				break;
-			case "PeriodCurrentFinancialYear":
-				await HandleDatesChanged(DateRangeType.CurrentFinancialYear);
-				break;
-			case "PeriodPreviousFinancialYear":
-				await HandleDatesChanged(DateRangeType.PreviousFinancialYear);
-				break;
-			case "PeriodNextFinancialYear":
-				await HandleDatesChanged(DateRangeType.NextFinancialYear);
-				break;
-			case "PeriodAllTime":
-				await HandleDatesChanged(DateRangeType.AllTime);
-				break;
-		}
-	}
-
 	private async Task ToggleDetailsView()
 	{
 		_showAllColumns = !_showAllColumns;
@@ -307,9 +205,6 @@ public partial class TrialBalancePage : IAsyncDisposable
 		if (_sfGrid is not null)
 			await _sfGrid.Refresh();
 	}
-
-	private void NavigateBack() =>
-		NavigationManager.NavigateTo(StoreRouteNames.AccountsDashboard);
 
 	private async Task StartAutoRefresh()
 	{
@@ -343,7 +238,6 @@ public partial class TrialBalancePage : IAsyncDisposable
 		}
 
 		_autoRefreshTimer?.Dispose();
-
 		GC.SuppressFinalize(this);
 	}
 	#endregion

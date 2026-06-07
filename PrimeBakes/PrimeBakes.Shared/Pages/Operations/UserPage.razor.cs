@@ -1,6 +1,5 @@
 using PrimeBakes.Shared.Components.Dialog;
 
-using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Utils.Exports;
@@ -105,7 +104,7 @@ public partial class UserPage
 			await UserData.InsertUser(user);
 
 			await _toastNotification.ShowAsync("Deleted", $"User '{user.Name}' removed successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(StoreRouteNames.User, true);
+			NavigationManager.NavigateTo(OperationRouteNames.User, true);
 		}
 		catch (Exception ex)
 		{
@@ -137,7 +136,7 @@ public partial class UserPage
 			await UserData.InsertUser(user);
 
 			await _toastNotification.ShowAsync("Recovered", $"User '{user.Name}' restored successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(StoreRouteNames.User, true);
+			NavigationManager.NavigateTo(OperationRouteNames.User, true);
 		}
 		catch (Exception ex)
 		{
@@ -257,7 +256,7 @@ public partial class UserPage
 			await UserData.InsertUser(_user);
 
 			await _toastNotification.ShowAsync("Saved", $"User '{_user.Name}' saved successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(StoreRouteNames.User, true);
+			NavigationManager.NavigateTo(OperationRouteNames.User, true);
 		}
 		catch (Exception ex)
 		{
@@ -423,9 +422,9 @@ public partial class UserPage
 	}
 
 	private void ResetPage() =>
-		NavigationManager.NavigateTo(StoreRouteNames.User, true);
+		NavigationManager.NavigateTo(OperationRouteNames.User, true);
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(StoreRouteNames.OperationsDashboard);
+		NavigationManager.NavigateTo(OperationRouteNames.OperationsDashboard);
 	#endregion
 }

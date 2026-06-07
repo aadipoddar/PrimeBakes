@@ -1,5 +1,5 @@
 /* ================================================================
-   PRIME BAKES APPLICATION STYLESHEET
+   APPLICATION STYLESHEET
    ================================================================ */
 
 :root {
@@ -27,6 +27,9 @@
 	--bg-light: #fafbfc;
 	--bg-blue-light: #eff6ff;
 	--bg-summary: #deecf9;
+	/* Shared application background — used by .page-container and the
+	   authentication pages. Change here to restyle the whole app. */
+	--app-bg: linear-gradient(135deg, #ffeef5 0%, #fff5f9 100%);
 	/* Spacing */
 	--border-radius: 6px;
 	--border-radius-lg: 12px;
@@ -40,18 +43,9 @@ body {
 	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
-a,
-.btn-link {
+a {
 	color: #006bb7;
 }
-
-	.btn:focus,
-	.btn:active:focus,
-	.btn-link.nav-link:focus,
-	.form-control:focus,
-	.form-check-input:focus {
-		box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-	}
 
 h1:focus {
 	outline: none;
@@ -89,7 +83,7 @@ h1:focus {
 	padding: 16px 32px;
 	width: 100%;
 	margin: 0 auto;
-	background: linear-gradient(135deg, #ffeef5 0%, #fff5f9 100%);
+	background: var(--app-bg);
 	flex: 1;
 }
 
@@ -97,22 +91,6 @@ h1:focus {
 	display: flex;
 	flex-direction: column;
 	min-height: 100vh;
-}
-
-/* Grid Action Buttons Container - used in all grids */
-.grid-actions {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	justify-content: center;
-	gap: 8px;
-}
-
-/* Header Actions Container */
-.header-actions {
-	display: flex;
-	gap: 12px;
-	align-items: center;
 }
 
 /* ================================================================
@@ -199,10 +177,16 @@ h1:focus {
 	letter-spacing: 0.3px;
 }
 
-.required {
-	color: var(--bright-red);
-	font-weight: 700;
-	margin-left: 2px;
+/* Full-width separator — drop inside a form-grid (e.g. above a total
+   field). Spans all columns in a grid layout and stretches the full
+   width in a flex column. */
+.form-divider {
+	grid-column: 1 / -1;
+	width: 100%;
+	height: 1px;
+	background: var(--gray-800);
+	border: none;
+	margin: 1px 0;
 }
 
 /* ================================================================
@@ -210,116 +194,13 @@ h1:focus {
    ================================================================ */
 .form-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(min(330px, 100%), 1fr));
 	gap: 16px 20px;
 	align-items: start;
 }
 
 /* ================================================================
-   7. SYNCFUSION INPUT COMPONENTS
-   ================================================================ */
-.custom-numeric .e-input {
-	text-align: right;
-}
-
-.custom-numeric {
-	padding-right: 16px;
-}
-
-.custom-autocomplete,
-.custom-datepicker,
-.custom-textbox,
-.custom-numeric,
-.custom-daterange {
-	width: 100%;
-}
-
-	.custom-autocomplete .e-input-group,
-	.custom-datepicker .e-input-group,
-	.custom-textbox .e-input-group,
-	.custom-numeric .e-input-group,
-	.custom-daterange .e-input-group {
-		border: 1px solid var(--gray-300);
-		border-radius: var(--border-radius);
-		background: var(--bg-white);
-		transition: all 0.2s ease;
-		height: 40px;
-	}
-
-		.custom-autocomplete .e-input-group:hover,
-		.custom-datepicker .e-input-group:hover,
-		.custom-textbox .e-input-group:hover,
-		.custom-numeric .e-input-group:not(.e-disabled):hover,
-		.custom-daterange .e-input-group:hover {
-			border-color: var(--gray-400);
-		}
-
-		.custom-autocomplete .e-input-group.e-input-focus,
-		.custom-datepicker .e-input-group.e-input-focus,
-		.custom-textbox .e-input-group.e-input-focus,
-		.custom-numeric .e-input-group.e-input-focus,
-		.custom-daterange .e-input-group.e-input-focus {
-			border-color: var(--primary-blue);
-			box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-		}
-
-		.custom-autocomplete .e-input-group input,
-		.custom-datepicker .e-input-group input,
-		.custom-textbox .e-input-group input,
-		.custom-textbox .e-input-group textarea,
-		.custom-numeric .e-input-group input,
-		.custom-daterange .e-input-group input {
-			font-size: 14px;
-			color: var(--gray-800);
-			padding: 8px 12px;
-		}
-
-		.custom-numeric .e-input-group input {
-			text-align: right;
-		}
-
-			.custom-autocomplete .e-input-group input::placeholder,
-			.custom-datepicker .e-input-group input::placeholder,
-			.custom-textbox .e-input-group input::placeholder,
-			.custom-textbox .e-input-group textarea::placeholder,
-			.custom-numeric .e-input-group input::placeholder,
-			.custom-daterange .e-input-group input::placeholder {
-				color: var(--gray-400);
-			}
-
-.readonly-field .e-input-group {
-	background: var(--gray-50);
-	cursor: not-allowed;
-}
-
-	.readonly-field .e-input-group input {
-		color: var(--gray-500);
-		font-weight: 500;
-	}
-
-/* ================================================================
-   8. SYNCFUSION DROPDOWNS & AUTOCOMPLETE
-   ================================================================ */
-.e-popup .e-dropdownbase .e-list-item.e-item-focus,
-.e-popup .e-dropdownbase .e-list-item.e-active,
-.e-popup .e-dropdownbase .e-list-item.e-active.e-hover,
-.e-popup .e-dropdownbase .e-list-item.e-hover,
-.e-dropdownbase .e-list-item.e-item-focus,
-.e-dropdownbase .e-list-item.e-active,
-.e-dropdownbase .e-list-item.e-active.e-hover,
-.e-dropdownbase .e-list-item.e-hover,
-.e-ddl.e-popup .e-list-item.e-item-focus,
-.e-ddl.e-popup .e-list-item.e-active,
-.e-ddl.e-popup .e-list-item.e-hover,
-.e-autocomplete.e-popup .e-list-item.e-item-focus,
-.e-autocomplete.e-popup .e-list-item.e-active,
-.e-autocomplete.e-popup .e-list-item.e-hover {
-	background-color: var(--primary-blue) !important;
-	color: var(--bg-white) !important;
-}
-
-/* ================================================================
-   9. SYNCFUSION GRID (PROFESSIONAL GRID)
+   7. SYNCFUSION GRID (PROFESSIONAL GRID)
    ================================================================ */
 .professional-grid {
 	border: none;
@@ -402,10 +283,9 @@ h1:focus {
 	}
 
 /* ================================================================
-   10. GRID CELL VALUES & AGGREGATES
+   8. GRID CELL VALUES & AGGREGATES
    ================================================================ */
 /* Cell Value Colors */
-.grid-discount,
 .grid-debit {
 	color: var(--red);
 	font-weight: 600;
@@ -451,7 +331,6 @@ h1:focus {
 	color: var(--gray-800);
 }
 
-	.aggregate-value.aggregate-discount,
 	.aggregate-value.aggregate-debit {
 		color: var(--red);
 	}
@@ -470,14 +349,8 @@ h1:focus {
 		}
 
 /* ================================================================
-   11. FILTERS & REPORT LAYOUTS
+   9. FILTERS & REPORT LAYOUTS
    ================================================================ */
-.filters-container {
-	display: flex;
-	flex-direction: column;
-	gap: 16px;
-}
-
 .filters-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(180px, 250px));
@@ -520,7 +393,7 @@ h1:focus {
 }
 
 /* ================================================================
-   12. TRANSACTION PAGE LAYOUTS
+   10. TRANSACTION PAGE LAYOUTS
    ================================================================ */
 /* Two Column Layout (75-25 split) */
 .two-column-layout {
@@ -537,66 +410,64 @@ h1:focus {
 		flex: 0 0 calc(25% - 16px);
 	}
 
-/* Transaction Number with Auto-generate Checkbox */
-.transaction-no-wrapper {
+/* Two Column Layout (25-75 split) */
+.two-column-layout-reverse {
 	display: flex;
-	gap: 12px;
-	align-items: stretch;
+	gap: 16px;
+	margin-bottom: 16px;
 }
 
-	.transaction-no-wrapper > :first-child {
-		flex: 1;
+	.two-column-layout-reverse > :first-child {
+		flex: 0 0 calc(25% - 16px);
 	}
 
-/* Financial Grid Layout */
-.financial-grid {
+	.two-column-layout-reverse > :last-child {
+		flex: 0 0 75%;
+	}
+
+/* Two Column Layout (equal 50-50 split) */
+.two-column-layout-equal {
 	display: flex;
-	flex-direction: column;
-	gap: 6px;
+	gap: 16px;
+	margin-bottom: 16px;
 }
 
-.financial-row,
-.financial-row-dual {
-	display: grid;
-	grid-template-columns: 100px 1fr;
-	align-items: center;
-	gap: 10px;
+	.two-column-layout-equal > * {
+		flex: 1 1 0;
+		min-width: 0;
+	}
+
+/* Three Column Layout (50-25-25 split) */
+.three-column-layout {
+	display: flex;
+	gap: 16px;
+	margin-bottom: 16px;
 }
 
-.dual-inputs {
-	display: grid;
-	grid-template-columns: 1.5fr 1.5fr;
-	gap: 8px;
-	align-items: center;
+	.three-column-layout > * {
+		min-width: 0;
+	}
+
+	.three-column-layout > :first-child {
+		flex: 0 0 calc(50% - 16px);
+	}
+
+	.three-column-layout > :nth-child(2),
+	.three-column-layout > :nth-child(3) {
+		flex: 0 0 calc(25% - 8px);
+	}
+
+/* Four Column Layout (equal 25-25-25-25 split) */
+.four-column-layout {
+	display: flex;
+	gap: 16px;
+	margin-bottom: 16px;
 }
 
-.financial-divider {
-	height: 1px;
-	background: var(--gray-200);
-	margin: 8px 0;
-}
-
-.financial-row.total-row {
-	margin-top: 4px;
-	padding-top: 8px;
-	border-top: 2px solid var(--gray-200);
-}
-
-.financial-label {
-	font-size: 13px;
-	font-weight: 500;
-	color: var(--gray-600);
-	text-align: right;
-	white-space: nowrap;
-}
-
-.financial-label-total {
-	font-size: 14px;
-	font-weight: 700;
-	color: var(--gray-900);
-	text-align: right;
-	white-space: nowrap;
-}
+	.four-column-layout > * {
+		flex: 1 1 0;
+		min-width: 0;
+	}
 
 /* Transaction Date and Financial Year Wrapper */
 .date-year-wrapper {
@@ -638,13 +509,8 @@ h1:focus {
 	white-space: nowrap;
 }
 
-	.checkbox-wrapper .custom-checkbox {
-		font-size: 13px;
-		font-weight: 500;
-	}
-
 /* ================================================================
-   13. CART INPUT SECTION
+   11. CART INPUT SECTION
    ================================================================ */
 .cart-input-row {
 	display: grid;
@@ -663,7 +529,7 @@ h1:focus {
 }
 
 /* ================================================================
-   14. DASHBOARD GRID
+   12. DASHBOARD GRID
    ================================================================ */
 .dashboard-grid {
 	display: flex;
@@ -677,52 +543,37 @@ h1:focus {
 		margin-bottom: 0;
 	}
 
-
-/* ================================================================
-   15. INPUT COMPONENTS
-   ================================================================ */
-
-.mac-field {
-	display: grid;
-	grid-template-columns: 1fr auto;
-	align-items: center;
-	row-gap: 4px;
+/* Section group — plain label + tiles directly on the background (launchpad tabs & analysis) */
+.launchpad-section {
+	margin-bottom: 28px;
 }
 
-	/* row 1, col 1 */
-	.mac-field > .field-label {
-		grid-column: 1;
-		grid-row: 1;
+	.launchpad-section:last-child {
 		margin-bottom: 0;
 	}
 
-/* row 2, spans both columns — comes after label in DOM so tab hits autocomplete before button */
-.mac-input {
-	grid-column: 1 / -1;
-	grid-row: 2;
+.launchpad-section-title {
+	font-size: 16px;
+	font-weight: 600;
+	color: var(--gray-700, #334155);
+	margin: 0 0 14px 0;
+	letter-spacing: -0.2px;
 }
 
-/* row 1, col 2 — last in DOM so tabbed to after autocomplete */
-.mac-add-new {
-	grid-column: 2;
-	grid-row: 1;
-	display: inline-flex;
-	align-items: center;
-	gap: 4px;
-	padding: 0;
-	background: none;
-	border: none;
-	cursor: pointer;
-	font-size: 11px;
-	font-weight: 500;
-	color: var(--primary-blue);
-	opacity: 0.7;
-	transition: opacity 0.15s ease, color 0.15s ease;
-	user-select: none;
-}
-
-	.mac-add-new:hover {
-		opacity: 1;
-		color: var(--dark-blue);
-		text-decoration: underline;
+/* ================================================================
+   MOBILE: PREVENT AUTO-ZOOM ON FORM FIELD FOCUS
+   ----------------------------------------------------------------
+   iOS Safari (and some Android browsers) zoom into any input whose
+   font-size is < 16px when it gets focus, forcing the user to pinch
+   back out. Forcing >= 16px on touch devices stops that, while
+   keeping manual pinch-zoom working (we never set user-scalable=no).
+   Applies app-wide; !important overrides Syncfusion / MudBlazor /
+   component-scoped font sizes.
+   ================================================================ */
+@media (pointer: coarse) {
+	input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+	select,
+	textarea {
+		font-size: 16px !important;
 	}
+}

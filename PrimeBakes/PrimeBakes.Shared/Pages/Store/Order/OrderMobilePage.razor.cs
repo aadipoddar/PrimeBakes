@@ -1,4 +1,3 @@
-using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Store.Order.Models;
@@ -72,7 +71,7 @@ public partial class OrderMobilePage
 		}
 		catch (Exception)
 		{
-			NavigationManager.NavigateTo(StoreRouteNames.Dashboard);
+			NavigationManager.NavigateTo(OperationRouteNames.Dashboard);
 		}
 	}
 

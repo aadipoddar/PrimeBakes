@@ -1,14 +1,14 @@
-@attribute [Route(PageRouteNames.BillMobilePayment)]
-@attribute [Route($"{PageRouteNames.BillMobilePayment}/table/{{DiningTableId:int}}")]
+﻿@attribute [Route(RestaurantRouteNames.BillMobilePayment)]
+@attribute [Route($"{RestaurantRouteNames.BillMobilePayment}/table/{{DiningTableId:int}}")]
 
-@using PrimeBakesLibrary.Data.Common
-@using PrimeBakesLibrary.Models.Store.Masters
+@using PrimeBakesLibrary.Common
+@using PrimeBakesLibrary.Store.PaymentMode
 
 <PageTitle>Bill Payment - Prime Bakes</PageTitle>
 
 @if (_isLoading || _user is null)
 {
-	<AnimatedLoader Visible="true" />
+	<LoadingScreen Visible="true" />
 }
 else
 {
@@ -16,7 +16,7 @@ else
 		<Header Title="@($"{_diningTable.Name} Settle")">
 			<RightContent>
 				<IconButton Icon="IconType.Back" Title="Back"
-							OnClick='() => NavigationManager.NavigateTo($"{PageRouteNames.BillMobileCart}/table/{_diningTable.Id}")' />
+							OnClick='() => NavigationManager.NavigateTo($"{RestaurantRouteNames.BillMobileCart}/table/{_diningTable.Id}")' />
 			</RightContent>
 		</Header>
 

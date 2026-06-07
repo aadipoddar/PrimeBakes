@@ -1,14 +1,14 @@
-@attribute [Route(PageRouteNames.BillMobileCart)]
-@attribute [Route($"{PageRouteNames.BillMobileCart}/table/{{DiningTableId:int}}")]
+﻿@attribute [Route(RestaurantRouteNames.BillMobileCart)]
+@attribute [Route($"{RestaurantRouteNames.BillMobileCart}/table/{{DiningTableId:int}}")]
 
-@using PrimeBakesLibrary.Data.Common
-@using PrimeBakesLibrary.Models.Restuarant.Bill
+@using PrimeBakesLibrary.Common
+@using PrimeBakesLibrary.Restaurant.Bill.Models
 
 <PageTitle>Bill Cart - Prime Bakes</PageTitle>
 
 @if (_isLoading || _user is null)
 {
-    <AnimatedLoader Visible="true" />
+    <LoadingScreen Visible="true" />
 }
 else
 {
@@ -16,7 +16,7 @@ else
         <Header Title="@($"{_diningTable.Name} Cart")">
             <RightContent>
                 <IconButton Icon="IconType.Back" Title="Back"
-                            OnClick='() => NavigationManager.NavigateTo($"{PageRouteNames.BillMobile}/table/{_diningTable.Id}")' />
+                            OnClick='() => NavigationManager.NavigateTo($"{RestaurantRouteNames.BillMobile}/table/{_diningTable.Id}")' />
             </RightContent>
         </Header>
 
@@ -140,7 +140,7 @@ else
 
                 @if (!_cart.Any() && !_previousCart.Any())
                 {
-                    <MobileEmptyCartState NavigateTo="@PageRouteNames.DiningMobileDashboard" Disabled="@_isProcessing" />
+                    <MobileEmptyCartState NavigateTo="@RestaurantRouteNames.DiningMobileDashboard" Disabled="@_isProcessing" />
                 }
 
             </div>

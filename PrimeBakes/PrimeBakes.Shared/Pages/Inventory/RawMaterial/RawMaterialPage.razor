@@ -1,7 +1,7 @@
-@attribute [Route(PageRouteNames.RawMaterial)]
+@using PrimeBakesLibrary.Inventory.RawMaterial.Models
+@using PrimeBakesLibrary.Store.Product.Models
 
-@using PrimeBakesLibrary.Models.Inventory
-@using PrimeBakesLibrary.Models.Store.Product
+@attribute [Route(InventoryRouteNames.RawMaterial)]
 
 <PageTitle>Raw Material Management - Prime Bakes</PageTitle>
 
@@ -16,7 +16,7 @@
 
 @if (_isLoading || _user is null)
 {
-    <AnimatedLoader Visible="true" />
+    <LoadingScreen Visible="true" />
 }
 else
 {
@@ -98,7 +98,7 @@ else
                                             Placeholder="Select category"
                                             Label="Category" ValueChange="OnCategoryChange"
                                             FieldValue="@nameof(RawMaterialCategoryModel.Name)"
-                                            AddNewRoute="@PageRouteNames.RawMaterialCategory" />
+                                            AddNewRoute="@InventoryRouteNames.RawMaterialCategory" />
                         </div>
 
                         <!-- Rate -->
@@ -123,7 +123,7 @@ else
                                             Placeholder="Select tax"
                                             Label="Tax" ValueChange="OnTaxChange"
                                             FieldValue="@nameof(TaxModel.Code)"
-                                            AddNewRoute="@PageRouteNames.Tax" />
+                                            AddNewRoute="@StoreRouteNames.Tax" />
                         </div>
 
                         <!-- Remarks -->

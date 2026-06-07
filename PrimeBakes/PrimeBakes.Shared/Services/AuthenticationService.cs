@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
-using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Operations.User;
 
 namespace PrimeBakes.Shared.Services;
@@ -59,11 +58,23 @@ public static class AuthenticationService
 		navigationManager.NavigateTo(OperationNames.Login, forceLoad: true);
 	}
 
+	public static Func<string, bool> OpenRouteInNewWindow { get; set; }
 	public static async Task NavigateToRoute(string route, IFormFactor FormFactor, IJSRuntime JSRuntime, NavigationManager NavigationManager)
 	{
 		if (FormFactor.GetFormFactor() == "Web")
 			await JSRuntime.InvokeVoidAsync("open", route, "_blank");
+		else if (OpenRouteInNewWindow is not null && OpenRouteInNewWindow(route))
+			return;
 		else
 			NavigationManager.NavigateTo(route);
+	}
+
+	public static Func<bool> CloseCurrentWindow { get; set; }
+	public static async Task CloseWindowOrTab(IFormFactor FormFactor, IJSRuntime JSRuntime)
+	{
+		if (FormFactor.GetFormFactor() == "Web")
+			await JSRuntime.InvokeVoidAsync("pageCloseGuard.close");
+		else
+			CloseCurrentWindow?.Invoke();
 	}
 }

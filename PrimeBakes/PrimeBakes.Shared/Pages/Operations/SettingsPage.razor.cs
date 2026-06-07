@@ -1,6 +1,6 @@
 using PrimeBakes.Shared.Components.Dialog;
 
-using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Operations.Settings;
 using PrimeBakesLibrary.Operations.User;
 
@@ -249,7 +249,7 @@ public partial class SettingsPage
 
 	private async Task LoadVouchers()
 	{
-		var result = await CommonData.LoadTableData<VoucherModel>(TableNames.Voucher);
+		var result = await CommonData.LoadTableData<VoucherModel>(AccountNames.Voucher);
 		_vouchers = result ?? [];
 	}
 
@@ -647,6 +647,6 @@ public partial class SettingsPage
 	}
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(StoreRouteNames.OperationsDashboard);
+		NavigationManager.NavigateTo(OperationRouteNames.OperationsDashboard);
 	#endregion
 }

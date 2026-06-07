@@ -26,8 +26,7 @@ public partial class ToastNotification : ComponentBase
 	/// <summary>
 	/// Event callback that fires after a toast is shown, allowing parent to update UI
 	/// </summary>
-	[Parameter]
-	public EventCallback OnToastShown { get; set; }
+	[Parameter] public EventCallback OnToastShown { get; set; }
 
 	/// <summary>
 	/// Shows a toast notification with the specified type

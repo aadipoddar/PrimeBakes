@@ -1,9 +1,10 @@
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
-using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Accounts.Masters.Data;
+using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Operations.Settings;
 using PrimeBakesLibrary.Operations.User;
@@ -163,7 +164,7 @@ public partial class BillPage
 	{
 		try
 		{
-			var diningAreas = await CommonData.LoadTableDataByStatus<DiningAreaModel>(TableNames.DiningArea);
+			var diningAreas = await CommonData.LoadTableDataByStatus<DiningAreaModel>(RestaurantNames.DiningArea);
 			diningAreas = [.. diningAreas.Where(d => d.LocationId == _bill.LocationId)];
 
 			_diningTables = await CommonData.LoadTableDataByStatus<DiningTableModel>(RestaurantNames.DiningTable);
@@ -308,7 +309,7 @@ public partial class BillPage
 		if (_bill is null || _bill.Id == 0)
 		{
 			await _toastNotification.ShowAsync("Transaction Not Found", "The requested transaction could not be found.", ToastType.Error);
-			NavigationManager.NavigateTo(RestaurnatRouteNames.Bill, true);
+			NavigationManager.NavigateTo(RestaurantRouteNames.Bill, true);
 			return false;
 		}
 
@@ -316,7 +317,7 @@ public partial class BillPage
 		if (_user.LocationId != 1 && _bill.LocationId != _user.LocationId)
 		{
 			await _toastNotification.ShowAsync("Access Denied", "You do not have permission to view this bill.", ToastType.Error);
-			NavigationManager.NavigateTo(RestaurnatRouteNames.Bill, true);
+			NavigationManager.NavigateTo(RestaurantRouteNames.Bill, true);
 			return false;
 		}
 
@@ -324,7 +325,7 @@ public partial class BillPage
 		if (!_bill.Running && !(_user.Admin && _user.LocationId == 1))
 		{
 			await _toastNotification.ShowAsync("Access Denied", "Only admin users can edit settled bills.", ToastType.Error);
-			NavigationManager.NavigateTo(RestaurnatRouteNames.Bill, true);
+			NavigationManager.NavigateTo(RestaurantRouteNames.Bill, true);
 			return false;
 		}
 
@@ -342,17 +343,17 @@ public partial class BillPage
 		if (diningTable is null)
 		{
 			await _toastNotification.ShowAsync("Dining Table Not Found", "The selected dining table could not be found.", ToastType.Error);
-			NavigationManager.NavigateTo(RestaurnatRouteNames.Bill, true);
+			NavigationManager.NavigateTo(RestaurantRouteNames.Bill, true);
 			return false;
 		}
 
-		var diningArea = await CommonData.LoadTableDataById<DiningAreaModel>(TableNames.DiningArea, diningTable.DiningAreaId);
+		var diningArea = await CommonData.LoadTableDataById<DiningAreaModel>(RestaurantNames.DiningArea, diningTable.DiningAreaId);
 
 		// Non-head-office users cannot create bills on tables from other locations
 		if (_user.LocationId != 1 && diningArea.LocationId != _user.LocationId)
 		{
 			await _toastNotification.ShowAsync("Access Denied", "This dining table does not belong to your location.", ToastType.Error);
-			NavigationManager.NavigateTo(RestaurnatRouteNames.Bill, true);
+			NavigationManager.NavigateTo(RestaurantRouteNames.Bill, true);
 			return false;
 		}
 
@@ -366,7 +367,7 @@ public partial class BillPage
 			if (Id.HasValue && Id.Value == existingBill.Id)
 				return await LoadExistingBill(existingBill.Id);
 
-			NavigationManager.NavigateTo($"{RestaurnatRouteNames.Bill}/{existingBill.Id}", true);
+			NavigationManager.NavigateTo($"{RestaurantRouteNames.Bill}/{existingBill.Id}", true);
 			return false;
 		}
 
@@ -567,7 +568,7 @@ public partial class BillPage
 		if (args.Value is null || args.Value.Id == 0)
 			return;
 
-		var diningArea = await CommonData.LoadTableDataById<DiningAreaModel>(TableNames.DiningArea, args.Value.DiningAreaId);
+		var diningArea = await CommonData.LoadTableDataById<DiningAreaModel>(RestaurantNames.DiningArea, args.Value.DiningAreaId);
 		if (diningArea.LocationId != _bill.LocationId)
 		{
 			await _toastNotification.ShowAsync("Invalid Dining Table", "The selected dining table does not belong to the selected location.", ToastType.Error);
@@ -578,7 +579,7 @@ public partial class BillPage
 		var existingRunningBill = runningBills.FirstOrDefault(b => b.DiningTableId == args.Value.Id);
 		if (existingRunningBill is not null)
 		{
-			NavigationManager.NavigateTo($"{RestaurnatRouteNames.Bill}/{existingRunningBill.Id}", true);
+			NavigationManager.NavigateTo($"{RestaurantRouteNames.Bill}/{existingRunningBill.Id}", true);
 			return;
 		}
 
@@ -1042,7 +1043,7 @@ public partial class BillPage
 		if (_bill.DiningTableId > 0)
 		{
 			var diningTable = await CommonData.LoadTableDataById<DiningTableModel>(RestaurantNames.DiningTable, _bill.DiningTableId);
-			var diningArea = await CommonData.LoadTableDataById<DiningAreaModel>(TableNames.DiningArea, diningTable.DiningAreaId);
+			var diningArea = await CommonData.LoadTableDataById<DiningAreaModel>(RestaurantNames.DiningArea, diningTable.DiningAreaId);
 			if (diningArea.LocationId != _bill.LocationId)
 			{
 				await _toastNotification.ShowAsync("Invalid Dining Table", "The selected dining table does not belong to the selected location.", ToastType.Error);
@@ -1199,7 +1200,7 @@ public partial class BillPage
 			await _toastNotification.ShowAsync("KOT Printed", "Kitchen order ticket sent to printer.", ToastType.Success);
 
 			await DeleteLocalFiles();
-			NavigationManager.NavigateTo($"{RestaurnatRouteNames.Bill}/{_bill.Id}", true);
+			NavigationManager.NavigateTo($"{RestaurantRouteNames.Bill}/{_bill.Id}", true);
 		}
 		catch (Exception ex)
 		{
@@ -1373,16 +1374,16 @@ public partial class BillPage
 	private async Task ResetPage()
 	{
 		await DeleteLocalFiles();
-		NavigationManager.NavigateTo(StoreRouteNames.DiningDashboard, true);
+		NavigationManager.NavigateTo(RestaurantRouteNames.DiningDashboard, true);
 	}
 
 	private async Task NavigateToTransactionHistoryPage() =>
-		await AuthenticationService.NavigateToRoute(RestaurnatRouteNames.BillReport, FormFactor, JSRuntime, NavigationManager);
+		await AuthenticationService.NavigateToRoute(RestaurantRouteNames.BillReport, FormFactor, JSRuntime, NavigationManager);
 
 	private async Task NavigateToItemReport() =>
-		await AuthenticationService.NavigateToRoute(RestaurnatRouteNames.BillItemReport, FormFactor, JSRuntime, NavigationManager);
+		await AuthenticationService.NavigateToRoute(RestaurantRouteNames.BillItemReport, FormFactor, JSRuntime, NavigationManager);
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(StoreRouteNames.RestaurantDashboard);
+		NavigationManager.NavigateTo(RestaurantRouteNames.RestaurantDashboard);
 	#endregion
 }

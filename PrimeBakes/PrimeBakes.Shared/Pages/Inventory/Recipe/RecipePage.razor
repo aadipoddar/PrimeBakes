@@ -1,8 +1,8 @@
-@attribute [Route(PageRouteNames.Recipe)]
+@using PrimeBakesLibrary.Inventory.RawMaterial.Models
+@using PrimeBakesLibrary.Inventory.Recipe.Models
+@using PrimeBakesLibrary.Store.Product.Models
 
-@using PrimeBakesLibrary.Models.Inventory;
-@using PrimeBakesLibrary.Models.Operations;
-@using PrimeBakesLibrary.Models.Store.Product;
+@attribute [Route(InventoryRouteNames.Recipe)]
 
 <PageTitle>Recipe - Prime Bakes</PageTitle>
 
@@ -18,7 +18,7 @@
 
 @if (_isLoading)
 {
-	<AnimatedLoader Visible="true" />
+	<LoadingScreen Visible="true" />
 }
 else
 {
@@ -75,7 +75,7 @@ else
 							<AutoCompleteWithAdd TItem="ProductLocationOverviewModel" TValue="ProductLocationOverviewModel"
 												 Value="@_selectedProduct" DataSource="@_products" Placeholder="Select a Product"
 												 Label="Product" ValueChange="OnProductChanged"
-												 FieldValue="@nameof(ProductLocationOverviewModel.Name)" AddNewRoute="@PageRouteNames.Product" />
+												 FieldValue="@nameof(ProductLocationOverviewModel.Name)" AddNewRoute="@StoreRouteNames.Product" />
 						</div>
 
 						<!-- Quantity -->
@@ -120,7 +120,7 @@ else
 					<div class="cart-input-row">
 						<div class="cart-field cart-field-wide">
 							<AutoCompleteWithAdd @ref="_sfItemAutoComplete" @bind-Value="_selectedRawMaterial" TValue="RawMaterialModel" TItem="RawMaterialModel" DataSource="@_rawMaterials" Placeholder="Select Raw Material" Label="Raw Material"
-												 FieldValue="@nameof(RawMaterialModel.Name)" AddNewRoute="@PageRouteNames.RawMaterial" />
+												 FieldValue="@nameof(RawMaterialModel.Name)" AddNewRoute="@InventoryRouteNames.RawMaterial" />
 						</div>
 
 						<div class="cart-field">

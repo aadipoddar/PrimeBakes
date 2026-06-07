@@ -1,27 +1,26 @@
-using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Operations.User;
 
 namespace PrimeBakes.Shared.Pages.Operations;
 
 public partial class ReportsDashboard
 {
-    private bool _isLoading = true;
-    private UserModel _user;
+	private bool _isLoading = true;
+	private UserModel _user;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!firstRender)
-            return;
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (!firstRender)
+			return;
 
-        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Reports]);
+		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Reports]);
 
-        _isLoading = false;
-        StateHasChanged();
-    }
+		_isLoading = false;
+		StateHasChanged();
+	}
 
-    private void NavigateToDashboard() =>
-        NavigationManager.NavigateTo(StoreRouteNames.Dashboard);
+	private void NavigateToDashboard() =>
+		NavigationManager.NavigateTo(OperationRouteNames.Dashboard);
 
-    private async Task Logout() =>
-        await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
+	private async Task Logout() =>
+		await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 }

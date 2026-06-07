@@ -1,12 +1,12 @@
-@attribute [Route(PageRouteNames.Sale)]
-@attribute [Route(PageRouteNames.Sale + "/{Id:int}")]
+@using PrimeBakesLibrary.Accounts.Masters.Models
+@using PrimeBakesLibrary.Operations.Location
+@using PrimeBakesLibrary.Store.Order.Models
+@using PrimeBakesLibrary.Store.PaymentMode
+@using PrimeBakesLibrary.Store.Product.Models
+@using PrimeBakesLibrary.Store.Sale.Models
 
-@using PrimeBakesLibrary.Models.Accounts.Masters
-@using PrimeBakesLibrary.Models.Operations
-@using PrimeBakesLibrary.Models.Store.Product
-@using PrimeBakesLibrary.Models.Store.Order
-@using PrimeBakesLibrary.Models.Store.Masters
-@using PrimeBakesLibrary.Models.Store.Sale
+@attribute [Route(StoreRouteNames.Sale)]
+@attribute [Route(StoreRouteNames.Sale + "/{Id:int}")]
 
 <PageTitle>Sale - Prime Bakes</PageTitle>
 
@@ -28,7 +28,7 @@
 
 @if (_isLoading || _user is null)
 {
-	<AnimatedLoader Visible="true" />
+	<LoadingScreen Visible="true" />
 }
 else
 {
@@ -112,7 +112,7 @@ else
 														 Placeholder="Select a Location"
 														 Label="Location" ValueChange="OnLocationChanged"
 														 FieldValue="@nameof(LocationModel.Name)"
-														 AddNewRoute="@PageRouteNames.Location" />
+														 AddNewRoute="@OperationRouteNames.Location" />
 								</div>
 
 								<!-- Company -->
@@ -123,7 +123,7 @@ else
 														 Placeholder="Select a Company"
 														 Label="Company" ValueChange="OnCompanyChanged"
 														 FieldValue="@nameof(CompanyModel.Name)"
-														 AddNewRoute="@PageRouteNames.CompanyMaster" />
+														 AddNewRoute="@AccountsRouteNames.CompanyMaster" />
 								</div>
 
 								<!-- Transaction Date -->
@@ -144,7 +144,7 @@ else
 														 Placeholder="Select a Party"
 														 Label="Party" ValueChange="OnPartyChanged"
 														 FieldValue="@nameof(LedgerModel.Name)"
-														 AddNewRoute="@PageRouteNames.LedgerMaster" />
+														 AddNewRoute="@AccountsRouteNames.LedgerMaster" />
 								</div>
 
 								<!-- Order -->
@@ -156,7 +156,7 @@ else
 															 Placeholder="Select an Order"
 															 Label="Order" ValueChange="OnOrderChanged"
 															 FieldValue="@nameof(OrderModel.TransactionNo)"
-															 AddNewRoute="@PageRouteNames.Order" />
+															 AddNewRoute="@StoreRouteNames.Order" />
 										@if (_sale.OrderId is not null && _sale.OrderId > 0 && _selectedOrder is not null && _selectedOrder.Id > 0)
 										{
 											<div class="reference-actions">
@@ -358,7 +358,7 @@ else
 												 Placeholder="Select a Product (Ctrl + F)"
 												 Label="Product" ValueChange="OnItemChanged"
 												 FieldValue="@nameof(ProductLocationOverviewModel.Name)"
-												 AddNewRoute="@PageRouteNames.Product" />
+												 AddNewRoute="@StoreRouteNames.Product" />
 						</div>
 
 						<div class="cart-field">

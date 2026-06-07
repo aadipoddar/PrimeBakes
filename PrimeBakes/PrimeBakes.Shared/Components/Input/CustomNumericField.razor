@@ -1,0 +1,32 @@
+@using MudBlazor
+@typeparam T
+
+<div class="cnf-root" @onfocusin="OnFocusIn" @onfocusout="OnFocusOut">
+	<MudNumericField T="T"
+					 @ref="_numericField"
+					 Value="Value"
+					 ValueChanged="OnValueChangedInternal"
+					 Label="@Label"
+					 Placeholder="@Placeholder"
+					 Required="@Required"
+					 RequiredError=""
+					 ErrorText=""
+					 ReadOnly="@ReadOnly"
+					 Class="@(ReadOnly ? "cnf-readonly" : null)"
+					 @attributes="_rangeAttributes"
+					 Format="@Format"
+					 Culture="@Culture"
+					 HideSpinButtons="@HideSpinButtons"
+					 Tabindex="@TabIndex"
+					 Immediate="@Immediate"
+					 Clearable="!Required && !ReadOnly"
+					 Adornment="@(string.IsNullOrEmpty(AdornmentText) && string.IsNullOrEmpty(AdornmentIcon) ? Adornment.None : Adornment.End)"
+					 AdornmentText="@AdornmentText"
+					 AdornmentIcon="@AdornmentIcon"
+					 AdornmentColor="Color.Primary"
+					 OnAdornmentClick="OnAdornmentClick"
+					 AdornmentAriaLabel="@AdornmentAriaLabel"
+					 Margin="MudBlazor.Margin.Dense"
+					 Variant="MudBlazor.Variant.Outlined"
+					 IconSize="Size.Small" />
+</div>

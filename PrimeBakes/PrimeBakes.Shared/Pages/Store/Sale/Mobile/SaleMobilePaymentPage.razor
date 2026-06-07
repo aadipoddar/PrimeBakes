@@ -1,13 +1,12 @@
-@attribute [Route(PageRouteNames.SaleMobilePayment)]
+@using PrimeBakesLibrary.Store.PaymentMode
 
-@using PrimeBakesLibrary.Data.Common
-@using PrimeBakesLibrary.Models.Store.Masters
+@attribute [Route(StoreRouteNames.SaleMobilePayment)]
 
 <PageTitle>Sale Payment - Prime Bakes</PageTitle>
 
 @if (_isLoading || _user is null)
 {
-	<AnimatedLoader Visible="true" />
+	<LoadingScreen Visible="true" />
 }
 else
 {
@@ -15,7 +14,7 @@ else
 		<Header Title="Sale Payment">
 			<RightContent>
 				<IconButton Icon="IconType.Back" Title="Back"
-							OnClick="() => NavigationManager.NavigateTo(PageRouteNames.SaleMobileCart)" />
+							OnClick="() => NavigationManager.NavigateTo(StoreRouteNames.SaleMobileCart)" />
 			</RightContent>
 		</Header>
 

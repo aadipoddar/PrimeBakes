@@ -1,5 +1,4 @@
-using PrimeBakesLibrary.Common;
-using PrimeBakesLibrary.Data.Accounts.Masters;
+using PrimeBakesLibrary.Accounts.Masters.Data;
 using PrimeBakesLibrary.Operations.Settings;
 using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Store.Customer;

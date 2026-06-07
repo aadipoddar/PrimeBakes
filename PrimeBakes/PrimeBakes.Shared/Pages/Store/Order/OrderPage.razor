@@ -1,11 +1,10 @@
-@attribute [Route(PageRouteNames.Order)]
-@attribute [Route(PageRouteNames.Order + "/{Id:int}")]
+@using PrimeBakesLibrary.Accounts.Masters.Models
+@using PrimeBakesLibrary.Operations.Location
+@using PrimeBakesLibrary.Store.Order.Models
+@using PrimeBakesLibrary.Store.Product.Models
 
-@using PrimeBakesLibrary.Models.Accounts.Masters
-@using PrimeBakesLibrary.Models.Operations
-@using PrimeBakesLibrary.Models.Store.Product
-@using PrimeBakesLibrary.Models.Store.Order
-@using PrimeBakesLibrary.Models.Store.Sale
+@attribute [Route(StoreRouteNames.Order)]
+@attribute [Route(StoreRouteNames.Order + "/{Id:int}")]
 
 <PageTitle>Order - Prime Bakes</PageTitle>
 
@@ -25,7 +24,7 @@
 
 @if (_isLoading || _user is null)
 {
-	<AnimatedLoader Visible="true" />
+	<LoadingScreen Visible="true" />
 }
 else
 {
@@ -102,7 +101,7 @@ else
 													 Placeholder="Select a Location"
 													 Label="Location" ValueChange="OnLocationChanged"
 													 FieldValue="@nameof(LocationModel.Name)"
-													 AddNewRoute="@PageRouteNames.Location" />
+													 AddNewRoute="@OperationRouteNames.Location" />
 							</div>
 
 							<!-- Company -->
@@ -113,7 +112,7 @@ else
 													 Placeholder="Select a Company"
 													 Label="Company" ValueChange="OnCompanyChanged"
 													 FieldValue="@nameof(CompanyModel.Name)"
-													 AddNewRoute="@PageRouteNames.CompanyMaster" />
+													 AddNewRoute="@AccountsRouteNames.CompanyMaster" />
 							</div>
 
 							<!-- Transaction Date -->
@@ -193,7 +192,7 @@ else
 												 Placeholder="Select a Product (Ctrl + F)"
 												 Label="Product" ValueChange="OnItemChanged"
 												 FieldValue="@nameof(ProductLocationOverviewModel.Name)"
-												 AddNewRoute="@PageRouteNames.Product" />
+												 AddNewRoute="@StoreRouteNames.Product" />
 						</div>
 
 						<div class="cart-field">

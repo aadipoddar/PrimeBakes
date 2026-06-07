@@ -1,7 +1,7 @@
-@attribute [Route(PageRouteNames.ProductLocation)]
+@using PrimeBakesLibrary.Operations.Location
+@using PrimeBakesLibrary.Store.Product.Models
 
-@using PrimeBakesLibrary.Models.Operations
-@using PrimeBakesLibrary.Models.Store.Product
+@attribute [Route(StoreRouteNames.ProductLocation)]
 
 <PageTitle>Product Location Management - Prime Bakes</PageTitle>
 
@@ -15,7 +15,7 @@
 
 @if (_isLoading)
 {
-	<AnimatedLoader Visible="true" />
+	<LoadingScreen Visible="true" />
 }
 else
 {

@@ -53,6 +53,9 @@ public static class SettingsKeys
 
 	public static string DefaultSelectedVoucherId => "DefaultSelectedVoucherId";
 
+	// Bank Reconciliation
+	public static string BankAccountTypeId => "BankAccountTypeId";
+
 	// Report Settings
 	public static string AutoRefreshReportTimer => "AutoRefreshReportTimer";
 	public static string ReportWarningDays => "ReportWarningDays";

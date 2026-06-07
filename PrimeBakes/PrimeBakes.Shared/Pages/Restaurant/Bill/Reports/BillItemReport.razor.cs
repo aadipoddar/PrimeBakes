@@ -1,8 +1,9 @@
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
 
-using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Accounts.Masters.Data;
+using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Operations.Settings;
 using PrimeBakesLibrary.Operations.User;
@@ -109,7 +110,7 @@ public partial class BillItemReport : IAsyncDisposable
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
 			_transactionOverviews = await CommonData.LoadTableDataByDate<BillItemOverviewModel>(
-				ViewNames.BillItemOverview,
+				RestaurantNames.BillItemOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
@@ -445,13 +446,13 @@ public partial class BillItemReport : IAsyncDisposable
 	}
 
 	private async Task NavigateToTransactionPage() =>
-		await AuthenticationService.NavigateToRoute(RestaurnatRouteNames.Bill, FormFactor, JSRuntime, NavigationManager);
+		await AuthenticationService.NavigateToRoute(RestaurantRouteNames.Bill, FormFactor, JSRuntime, NavigationManager);
 
 	private async Task NavigateToTransactionHistory() =>
-		 await AuthenticationService.NavigateToRoute(RestaurnatRouteNames.BillReport, FormFactor, JSRuntime, NavigationManager);
+		 await AuthenticationService.NavigateToRoute(RestaurantRouteNames.BillReport, FormFactor, JSRuntime, NavigationManager);
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(StoreRouteNames.RestaurantDashboard);
+		NavigationManager.NavigateTo(RestaurantRouteNames.RestaurantDashboard);
 
 	private async Task StartAutoRefresh()
 	{

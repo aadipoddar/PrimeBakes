@@ -1,73 +1,53 @@
-@attribute [Route(PageRouteNames.FinancialAccounting)]
-@attribute [Route(PageRouteNames.FinancialAccounting + "/{Id:int}")]
+@using PrimeBakesLibrary.Accounts.FinancialAccounting.Models
+@using PrimeBakesLibrary.Accounts.Masters.Models
 
-@using PrimeBakesLibrary.Models.Accounts.FinancialAccounting
-@using PrimeBakesLibrary.Models.Accounts.Masters
+@attribute [Route(AccountsRouteNames.FinancialAccounting)]
+@attribute [Route(AccountsRouteNames.FinancialAccounting + "/{Id:int}")]
 
 <PageTitle>Financial Accounting - Prime Bakes</PageTitle>
 
-<MudBlazor.MudHotkey Key=JsKey.Enter KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="AddItemToCart" />
-<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfLedgerAutoComplete.FocusAsync()" />
-<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction()" />
-<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction(savePDF: true)" />
-<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction(saveExcel: true)" />
-<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="ExportPdfInvoice" />
-<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="ExportExcelInvoice" />
-<MudBlazor.MudHotkey Key=JsKey.KeyH KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(PageRouteNames.FinancialAccountingReport, FormFactor, JSRuntime, NavigationManager)" />
-<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" />
-<MudBlazor.MudHotkey Key=JsKey.KeyB KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateBack" />
-<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="RemoveSelectedCartItem" />
-<MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="EditSelectedCartItem" />
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfFirstFocus.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyG KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfLedgerAutoComplete.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Enter KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="AddItemToCart" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction(savePDF: true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction(saveExcel: true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyH KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(AccountsRouteNames.FinancialAccountingReport, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="() => EditSelectedCartItem()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="() => RemoveSelectedCartItem()" Disabled="@_isProcessing" />
 
 @if (_isLoading || _user is null)
 {
-	<AnimatedLoader Visible="true" />
+	<LoadingScreen />
 }
 else
 {
 	<div class="page-shell">
-		<Header Title="Financial Accounting Entry">
+		<Header Title="@(_accounting.Id > 0 ? $"Edit Financial Accounting {_accounting.TransactionNo}" : "Create Financial Accounting")">
 			<LeftContent>
-				<SfMenu TValue="Syncfusion.Blazor.Navigations.MenuItem">
-					<MenuAnimationSettings Effect="Syncfusion.Blazor.Navigations.MenuEffect.SlideDown" Duration="300"
-										   Easing="ease" />
-					<MenuEvents TValue="Syncfusion.Blazor.Navigations.MenuItem" ItemSelected="OnMenuSelected"
-								OnOpen='async () => await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0)' />
-					<MenuItems>
-						<MenuItem Text="File" IconCss="e-icons e-folder">
-							<MenuItems>
-								<MenuItem Text="New Transaction (Ctrl + N)" IconCss="e-icons e-plus" Id="NewTransaction"
-										  Disabled="@_isProcessing" />
-								<MenuItem Separator="true" />
-								<MenuItem Text="Save (Ctrl + S)" IconCss="e-icons e-save" Id="SaveTransaction"
-										  Disabled="@_isProcessing" />
-								<MenuItem Text="Save & PDF (Ctrl + P)" IconCss="e-icons e-export-pdf" Id="SavePdfInvoice"
-										  Disabled="@_isProcessing" />
-								<MenuItem Text="Save & Excel (Ctrl + E)" IconCss="e-icons e-export-excel" Id="SaveExcelInvoice"
-										  Disabled="@_isProcessing" />
-								<MenuItem Separator="true" />
-								<MenuItem Text="Export PDF (Alt + P)" IconCss="e-icons e-export-pdf" Id="ExportPdfInvoice"
-										  Disabled="@(_isProcessing || !Id.HasValue || Id.Value <= 0)" />
-								<MenuItem Text="Export Excel (Alt + E)" IconCss="e-icons e-export-excel" Id="ExportExcelInvoice"
-										  Disabled="@(_isProcessing || !Id.HasValue || Id.Value <= 0)" />
-							</MenuItems>
-						</MenuItem>
-						<MenuItem Text="Open" IconCss="e-icons e-folder-open">
-							<MenuItems>
-								<MenuItem Text="Transaction History Report (Ctrl + H)" Id="TransactionHistory"
-										  Disabled="@_isProcessing" />
-								<MenuItem Text="Item Report" Id="ItemReport" Disabled="@_isProcessing" />
-								<MenuItem Text="Trial Balance" Id="TrialBalance" Disabled="@_isProcessing" />
-								<MenuItem Text="Profit & Loss" Id="ProfitLoss" Disabled="@_isProcessing" />
-								<MenuItem Text="Balance Sheet" Id="BalanceSheet" Disabled="@_isProcessing" />
-							</MenuItems>
-						</MenuItem>
-					</MenuItems>
-				</SfMenu>
+				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="New Transaction (Ctrl + N)" OnClick="ResetPage" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Save (Ctrl + S)" OnClick="() => SaveTransaction()" />
+					<MudBlazor.MudMenuItem Label="Save & PDF (Ctrl + P)" OnClick="() => SaveTransaction(savePDF: true)" />
+					<MudBlazor.MudMenuItem Label="Save & Excel (Ctrl + E)" OnClick="() => SaveTransaction(saveExcel: true)" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Export PDF (Alt + P)" OnClick="() => ExportSelectedTransaction()" Disabled="@(_isProcessing || !Id.HasValue || Id.Value <= 0)" />
+					<MudBlazor.MudMenuItem Label="Export Excel (Alt + E)" OnClick="() => ExportSelectedTransaction(true)" Disabled="@(_isProcessing || !Id.HasValue || Id.Value <= 0)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Open" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Accounting Report (Ctrl + H)" OnClick="() => AuthenticationService.NavigateToRoute(AccountsRouteNames.FinancialAccountingReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Ledger Report" OnClick="() => AuthenticationService.NavigateToRoute(AccountsRouteNames.AccountingLedgerReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Bank Reconciliation" OnClick="() => AuthenticationService.NavigateToRoute(AccountsRouteNames.BankReconciliation, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Trial Balance" OnClick="() => AuthenticationService.NavigateToRoute(AccountsRouteNames.TrialBalanceReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Profit & Loss" OnClick="() => AuthenticationService.NavigateToRoute(AccountsRouteNames.ProfitAndLossReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Balance Sheet" OnClick="() => AuthenticationService.NavigateToRoute(AccountsRouteNames.BalanceSheetReport, FormFactor, JSRuntime, NavigationManager)" />
+				</MudBlazor.MudMenu>
 			</LeftContent>
-			<RightContent>
-				<IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="NavigateBack" />
-			</RightContent>
 		</Header>
 
 		<!-- Main Content Container -->
@@ -79,9 +59,7 @@ else
 				<div class="section-card">
 					<div class="section-header">
 						<div class="section-title-wrapper">
-							<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-								 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-								 stroke-linecap="round" stroke-linejoin="round">
+							<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 								<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
 								<polyline points="14 2 14 8 20 8" />
 								<line x1="16" y1="13" x2="8" y2="13" />
@@ -95,60 +73,58 @@ else
 						<div class="form-grid">
 							<!-- Company -->
 							<div class="form-field">
-								<AutoCompleteWithAdd TItem="CompanyModel" TValue="CompanyModel"
-													 Value="_selectedCompany"
-													 DataSource="@_companies"
-													 Placeholder="Select a Company"
-													 Label="Company" ValueChange="OnCompanyChanged"
-													 FieldValue="@nameof(CompanyModel.Name)"
-													 AddNewRoute="@PageRouteNames.CompanyMaster" />
+								<CustomAutoComplete @ref="_sfFirstFocus" T="CompanyModel"
+													Value="_selectedCompany"
+													DataSource="@_companies"
+													Placeholder="Select Company"
+													Label="Company (Ctrl + F)"
+													ValueChanged="OnCompanyChanged"
+													FieldValue="@nameof(CompanyModel.Name)"
+													AddNewRoute="@AccountsRouteNames.CompanyMaster" />
 							</div>
 
 							<!-- Voucher -->
 							<div class="form-field">
-								<AutoCompleteWithAdd TItem="VoucherModel" TValue="VoucherModel"
-													 Value="_selectedVoucher"
-													 DataSource="@_vouchers"
-													 Placeholder="Select a Voucher"
-													 Label="Voucher" ValueChange="OnPartyChanged"
-													 FieldValue="@nameof(VoucherModel.Name)"
-													 AddNewRoute="@PageRouteNames.VoucherMaster" />
+								<CustomAutoComplete T="VoucherModel"
+													Value="_selectedVoucher"
+													DataSource="@_vouchers"
+													Placeholder="Select Voucher"
+													Label="Voucher"
+													ValueChanged="OnVoucherChanged"
+													FieldValue="@nameof(VoucherModel.Name)"
+													AddNewRoute="@AccountsRouteNames.VoucherMaster" />
 							</div>
 
 							<!-- Transaction Date -->
 							<div class="form-field">
-								<DatePickerWithAdd @bind-Value="_accounting.TransactionDateTime"
-												   FinancialYear="@_selectedFinancialYear" />
+								<CustomDatePicker @bind-Value="_accounting.TransactionDateTime"
+												  FinancialYear="@_selectedFinancialYear" />
 							</div>
 
 							<!-- Transaction No -->
 							<div class="form-field">
-								<label class="field-label">
-									Transaction No <span class="required">*</span>
-								</label>
-								<SfTextBox @bind-Value="_accounting.TransactionNo" Placeholder="Enter Transaction No"
-										   FloatLabelType="FloatLabelType.Never" Readonly="true"
-										   CssClass="custom-textbox readonly-field" TabIndex="-1" />
+								<CustomTextField @bind-Value="_accounting.TransactionNo"
+												 Label="Transaction No"
+												 Placeholder="Enter Transaction No"
+												 ReadOnly="true"
+												 TabIndex="-1" />
 							</div>
 
 							@if (_accounting.Id > 0 && _accounting.ReferenceId is not null && _accounting.ReferenceId > 0)
 							{
 								<!-- Reference No -->
 								<div class="form-field">
-									<label class="field-label">
-										Reference No
-									</label>
 									<div class="reference-wrapper">
-										<SfTextBox @bind-Value="_accounting.ReferenceNo" Placeholder="Enter Reference No"
-												   FloatLabelType="FloatLabelType.Never" Readonly="true"
-												   CssClass="custom-textbox readonly-field" TabIndex="-1" />
-										@if (!string.IsNullOrEmpty(_accounting.ReferenceNo))
+										<CustomTextField @bind-Value="_accounting.ReferenceNo"
+														 Label="Reference No"
+														 Placeholder="Enter Reference No"
+														 ReadOnly="true" />
+										@if (!string.IsNullOrWhiteSpace(_accounting.ReferenceNo))
 										{
 											<div class="reference-actions">
 												<IconButton Icon="IconType.View" Variant="ButtonVariant.View"
-															Size="ButtonSize.Small" Title="View Invoice" OnClick="ViewReferenceInvoice" />
-												<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Small"
-															Title="Export PDF Invoice" OnClick="ExportReferenceInvoice" />
+															Size="ButtonSize.Small" Title="View Transaction"
+															OnClick="ViewReferenceTransaction" />
 											</div>
 										}
 									</div>
@@ -157,11 +133,11 @@ else
 
 							<!-- Remarks -->
 							<div class="form-field">
-								<label class="field-label">
-									Remarks / Narration
-								</label>
-								<SfTextBox @bind-Value="_accounting.Remarks" Multiline="true" Placeholder="Enter remarks..."
-										   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+								<CustomTextField @bind-Value="_accounting.Remarks"
+												 Label="Remarks / Narration"
+												 Placeholder="Enter remarks..."
+												 Required="false"
+												 Lines="2" />
 							</div>
 						</div>
 					</div>
@@ -171,9 +147,7 @@ else
 				<div class="section-card">
 					<div class="section-header">
 						<div class="section-title-wrapper">
-							<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-								 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-								 stroke-linecap="round" stroke-linejoin="round">
+							<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 								<line x1="12" y1="1" x2="12" y2="23" />
 								<path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
 							</svg>
@@ -181,29 +155,40 @@ else
 						</div>
 					</div>
 					<div class="section-body">
-						<div class="financial-grid">
+						<div class="form-grid">
 							<!-- Total Credit -->
-							<div class="financial-row">
-								<label class="financial-label">Total Credit:</label>
-								<SfNumericTextBox Value="@_accounting.TotalCreditAmount" TValue="decimal" Readonly="true"
-												  ShowSpinButton="false" Format="N2" Placeholder="0.00"
-												  FloatLabelType="FloatLabelType.Never" CssClass="custom-numeric readonly-field" TabIndex="-1" />
+							<div class="form-field">
+								<CustomNumericField T="decimal"
+													Value="_accounting.TotalCreditAmount"
+													Placeholder="0.00"
+													Label="Total Credit"
+													ReadOnly="true"
+													Required="false"
+													TabIndex="-1" />
 							</div>
 
 							<!-- Total Debit -->
-							<div class="financial-row">
-								<label class="financial-label">Total Debit:</label>
-								<SfNumericTextBox Value="@_accounting.TotalDebitAmount" TValue="decimal" Readonly="true"
-												  ShowSpinButton="false" Format="N2" Placeholder="0.00"
-												  FloatLabelType="FloatLabelType.Never" CssClass="custom-numeric readonly-field" TabIndex="-1" />
+							<div class="form-field">
+								<CustomNumericField T="decimal"
+													Value="_accounting.TotalDebitAmount"
+													Placeholder="0.00"
+													Label="Total Debit"
+													ReadOnly="true"
+													Required="false"
+													TabIndex="-1" />
 							</div>
 
+							<hr class="form-divider" />
+
 							<!-- Difference -->
-							<div class="financial-row total-row">
-								<label class="financial-label-total">Difference:</label>
-								<SfNumericTextBox Value="@(_accounting.TotalDebitAmount - _accounting.TotalCreditAmount)"
-												  TValue="decimal" Readonly="true" ShowSpinButton="false" Format="N2" Placeholder="0.00"
-												  FloatLabelType="FloatLabelType.Never" CssClass="custom-numeric readonly-field" TabIndex="-1" />
+							<div class="form-field">
+								<CustomNumericField T="decimal"
+													Value="@(_accounting.TotalDebitAmount - _accounting.TotalCreditAmount)"
+													Placeholder="0.00"
+													Label="Difference"
+													ReadOnly="true"
+													Required="false"
+													TabIndex="-1" />
 							</div>
 						</div>
 					</div>
@@ -229,14 +214,14 @@ else
 					<div class="cart-input-row">
 						<div class="cart-field cart-field-wide">
 							<div class="reference-wrapper">
-								<AutoCompleteWithAdd @ref="_sfLedgerAutoComplete" TItem="LedgerModel" TValue="LedgerModel"
-													 Value="_selectedLedger"
-													 DataSource="@_ledgers"
-													 Placeholder="Select Ledger (Ctrl + F)"
-													 Label="Ledger" Required="true"
-													 ValueChange="OnItemChanged"
-													 FieldValue="@nameof(LedgerModel.Name)"
-													 AddNewRoute="@PageRouteNames.LedgerMaster" />
+								<CustomAutoComplete @ref="_sfLedgerAutoComplete" T="LedgerModel"
+													Value="_selectedLedger"
+													DataSource="@_ledgers"
+													Placeholder="Select Ledger"
+													Label="Ledger (Ctrl + G)"
+													ValueChanged="OnItemChanged" OpenOnFocus="false"
+													FieldValue="@nameof(LedgerModel.Name)"
+													AddNewRoute="@AccountsRouteNames.LedgerMaster" />
 
 								<div class="reference-actions">
 									<IconButton Icon="IconType.Get" Variant="ButtonVariant.Get" Size="ButtonSize.Small"
@@ -246,45 +231,59 @@ else
 						</div>
 
 						<div class="cart-field cart-field-wide">
-							<label class="cart-label">Ref No</label>
 							<div class="reference-wrapper">
-								<SfAutoComplete Value="@_selectedAccountingLedger"
-												TValue="FinancialAccountingLedgerOverviewModel"
-												TItem="FinancialAccountingLedgerOverviewModel" DataSource="@_accountingLedgers"
-												Placeholder="Select Reference" FloatLabelType="FloatLabelType.Never"
-												AllowFiltering="true" FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains"
-												CssClass="custom-autocomplete">
-									<AutoCompleteEvents TItem="FinancialAccountingLedgerOverviewModel" TValue="FinancialAccountingLedgerOverviewModel" ValueChange="OnReferenceChanged" />
-									<AutoCompleteFieldSettings Value="ReferenceNo" />
-								</SfAutoComplete>
+								<CustomAutoComplete T="FinancialAccountingLedgerOverviewModel"
+													Value="_selectedAccountingLedger"
+													DataSource="@_accountingLedgers"
+													Placeholder="Select Reference"
+													Label="Reference No" Required="false"
+													ValueChanged="OnReferenceChanged"
+													FieldValue="@nameof(FinancialAccountingLedgerOverviewModel.LedgerReferenceNo)" />
 								<div class="reference-actions">
 									<IconButton Icon="IconType.View" Variant="ButtonVariant.View" Size="ButtonSize.Small"
-												Title="View Invoice" OnClick="ViewCartReferenceInvoice" />
-									<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Small"
-												Title="Export PDF Invoice" OnClick="ExportCartReferenceInvoice" />
+												Title="View Transaction" OnClick="ViewCartReferenceTransaction" />
 								</div>
 							</div>
 						</div>
 
 						<div class="cart-field">
-							<label class="cart-label">Debit</label>
-							<SfNumericTextBox @bind-Value="_selectedCart.Debit" TValue="decimal?" Min="0"
-											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never" Format="N2"
-											  CssClass="custom-numeric editable-field" />
+							<CustomNumericField T="decimal?"
+												@bind-Value="_selectedCart.Debit"
+												Min="0"
+												Label="Debit"
+												Placeholder="0.00"
+												Required="false" />
 						</div>
 
 						<div class="cart-field">
-							<label class="cart-label">Credit</label>
-							<SfNumericTextBox @bind-Value="_selectedCart.Credit" TValue="decimal?" Min="0"
-											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never" Format="N2"
-											  CssClass="custom-numeric editable-field" />
+							<CustomNumericField T="decimal?"
+												@bind-Value="_selectedCart.Credit"
+												Min="0"
+												Label="Credit"
+												Placeholder="0.00"
+												Required="false" />
+						</div>
+
+						<div class="cart-field">
+							<CustomTextField @bind-Value="_selectedCart.InstrumentNo"
+											 Label="Instrument No"
+											 Placeholder="Cheque / UTR no..."
+											 Required="false" />
+						</div>
+
+						<div class="cart-field">
+							<CustomDatePicker @bind-NullableValue="_selectedCart.InstrumentDate"
+											  Label="Instrument Date"
+											  Required="false"
+											  ShowFinancialYear="false" />
 						</div>
 
 
 						<div class="cart-field cart-field-wide">
-							<label class="cart-label">Remarks</label>
-							<SfTextBox @bind-Value="_selectedCart.Remarks" Placeholder="Entry narration..."
-									   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+							<CustomTextField @bind-Value="_selectedCart.Remarks"
+											 Label="Remarks"
+											 Placeholder="Entry narration..."
+											 Required="false" />
 						</div>
 
 						<div class="cart-field">
@@ -299,9 +298,7 @@ else
 			<div class="section-card">
 				<div class="section-header">
 					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-							 stroke-linejoin="round">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 							<path d="M3 3h7a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3H3V3z" />
 							<path d="M14 3h7v17h-7V3z" />
 						</svg>
@@ -314,8 +311,7 @@ else
 							CssClass="professional-grid" ContextMenuItems="@_cartGridContextMenuItems"
 							Toolbar="@(new List<string>() { "Search" })">
 
-						<GridEvents TValue="FinancialAccountingLedgerCartModel"
-									ContextMenuItemClicked="OnCartGridContextMenuItemClicked" />
+						<GridEvents TValue="FinancialAccountingLedgerCartModel" ContextMenuItemClicked="OnCartGridContextMenuItemClicked" />
 
 						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
@@ -386,6 +382,8 @@ else
 							</GridColumn>
 							<GridColumn Field="ReferenceType" HeaderText="Ref Type" Width="120" />
 							<GridColumn Field="ReferenceNo" HeaderText="Ref No" Width="120" />
+							<GridColumn Field="InstrumentNo" HeaderText="Instrument No" Width="140" />
+							<GridColumn Field="InstrumentDate" HeaderText="Instrument Date" Width="150" Format="dd/MM/yy" Type="ColumnType.DateTime" />
 							<GridColumn Field="Remarks" HeaderText="Remarks" Width="500" />
 						</GridColumns>
 					</SfGrid>
@@ -398,3 +396,5 @@ else
 }
 
 <ToastNotification @ref="_toastNotification" />
+
+<CloseGuard Block="_isProcessing" />

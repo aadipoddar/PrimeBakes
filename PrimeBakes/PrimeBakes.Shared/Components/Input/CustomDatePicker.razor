@@ -1,0 +1,39 @@
+@using MudBlazor
+
+@if (_isFocused && AddNewRoute is not null)
+{
+	<MudHotkey Key="JsKey.F12" OnHotkeyPressed="NavigateToAddNew" />
+}
+
+<div @onfocusin="OnFocusIn" @onfocusout="OnFocusOut">
+
+	<div class="date-year-wrapper">
+		<MudDatePicker @ref="_datePicker"
+					   Date="@DateValue"
+					   DateChanged="OnDateChangedInternal"
+					   DateFormat="dd/MM/yy"
+					   Mask="@(new DateMask("dd/MM/yy"))"
+					   Placeholder="DD/MM/YY"
+					   Label="@Label"
+					   Required="@Required"
+					   RequiredError=""
+					   ErrorText=""
+					   AutoClose="true"
+					   Editable="true"
+					   Margin="MudBlazor.Margin.Dense"
+					   Variant="MudBlazor.Variant.Outlined"
+					   IconSize="Size.Small" />
+		@if (ShowFinancialYear)
+		{
+			<CustomTextField Value="@(FinancialYear is null ? "Select FY" : $"{FinancialYear.StartDate:yyyy} to {FinancialYear.EndDate:yyyy}")"
+							 Placeholder="Financial Year"
+							 Label="Financial Year"
+							 ReadOnly="true"
+							 Required="false"
+							 TabIndex="-1"
+							 AdornmentIcon="@(AddNewRoute is not null ? Icons.Material.Filled.Add : null)"
+							 OnAdornmentClick="NavigateToAddNew"
+							 AdornmentAriaLabel="New" />
+		}
+	</div>
+</div>

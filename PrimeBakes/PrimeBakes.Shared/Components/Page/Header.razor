@@ -5,7 +5,7 @@
 <div class="page-header">
 	<div class="header-left">
 		<button type="button" class="header-logo-button" title="Go to Home (Ctrl+D)" @onclick="NavigateToHome">
-			<img src="images/logo.png" alt="PrimeBakes" class="header-logo" />
+			<img src="images/logo.png" alt="Strada" class="header-logo" />
 		</button>
 		@if (LeftContent != null)
 		{
@@ -17,41 +17,38 @@
 	</div>
 	<div class="header-right">
 		<div class="global-search-container">
-			<SfAutoComplete @ref="_sfGlobalSearch" TValue="string" TItem="GlobalSearchItem" DataSource="@_searchItems"
-							Placeholder="Search Route or Trans No...   (F2)" Width="250px" @bind-Value="@_searchText" Autofill="true"
-							FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
-				<AutoCompleteEvents TItem="GlobalSearchItem" TValue="string" OnValueSelect="OnRouteSelected" />
-				<AutoCompleteFieldSettings Value="DisplayText" Text="DisplayText" />
-			</SfAutoComplete>
-			<IconButton Icon="IconType.View" Variant="ButtonVariant.View" Title="View" OnClick="NavigateToSearch" />
-			<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Print PDF"
-						OnClick="DownloadPdfFromSearch" />
+			<div class="global-search-box">
+				<div class="global-search-input">
+					<CustomAutoComplete @ref="_globalSearch" T="GlobalSearchItem"
+										Value="_selectedSearchItem"
+										ValueChanged="OnRouteSelected"
+										SearchFunction="HeaderSearch"
+										FieldValue="@nameof(GlobalSearchItem.DisplayText)"
+										Placeholder="Search Route, Code, Trans (F2)"
+										Required="false" />
+				</div>
+				<IconButton Icon="IconType.View" Variant="ButtonVariant.View" Title="View" OnClick="NavigateToSearch" />
+				<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Title="Print PDF" OnClick="DownloadPdfFromSearch" />
+			</div>
+
+			<div class="header-divider"></div>
+			@if (RightContent != null)
+			{
+				@RightContent
+			}
+			<button type="button" class="user-badge" title="Logout (Ctrl+L)" @onclick="Logout">
+				<span class="user-name-text">@_user?.Name</span>
+				<span class="user-name-mobile">@GetMobileUserName()</span>
+				<span class="logout-power-button">
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
+						<line x1="12" y1="2" x2="12" y2="12" />
+					</svg>
+				</span>
+			</button>
 		</div>
-		@if (RightContent != null)
-		{
-			@RightContent
-		}
-		@if (ShowBtButton)
-		{
-			<IconButton Icon="IconType.Bluetooth"
-						Variant="@(BtIsConnected ? ButtonVariant.BluetoothConnected : ButtonVariant.BluetoothDisconnected)"
-						Title="@(BtIsConnected ? $"Printer: {_btSaved?.Name} (Connected)" : $"Printer: {_btSaved?.Name} (Not Connected)")"
-						OnClick="HandleBtClick" />
-		}
-		<div class="header-divider"></div>
-		<button type="button" class="user-name user-name-button" title="Logout (Ctrl+L)" @onclick="Logout">
-			<span class="user-name-desktop">@_user?.Name</span>
-			<span class="user-name-mobile">@GetMobileUserName()</span>
-		</button>
 	</div>
 </div>
-
-@if (ShowBtButton)
-{
-	<BluetoothReconnectDialog @ref="_btDialog" PrinterName="@(_btSaved?.Name ?? "Unknown")" IsConnected="@BtIsConnected"
-							  Disabled="@_isBtReconnecting" OnReconnect="HandleBtReconnect" OnDismiss="HandleBtDismiss"
-							  OnDisconnect="HandleBtDisconnect" />
-}
 
 <style>
 	/* Professional Header Section */
@@ -117,24 +114,58 @@
 		gap: 6px;
 	}
 
-	.user-name {
+	/* User badge — the whole pill is the logout button */
+	.user-badge {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		padding: 3px 4px 3px 12px;
+		background: #f8fafc;
+		border: 1px solid #e2e8f0;
+		border-radius: 999px;
+		cursor: pointer;
+		font-family: inherit;
+		transition: all 0.15s ease;
+	}
+
+		.user-badge:hover {
+			background: #fef2f2;
+			border-color: #fecaca;
+		}
+
+		.user-badge:active {
+			transform: scale(0.98);
+		}
+
+	.user-name-text {
 		font-size: 13px;
 		font-weight: 500;
 		color: #0f172a;
-		padding: 6px 10px;
-		background: #f8fafc;
-		border-radius: 6px;
-		border: 1px solid #e2e8f0;
-	}
-
-	.user-name-button {
-		cursor: pointer;
-		font-family: inherit;
 		line-height: 1;
 	}
 
-	.user-name-mobile {
-		display: none;
+	/* Power glyph inside the badge */
+	.logout-power-button {
+		width: 26px;
+		height: 26px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		border-radius: 50%;
+		background: #ffffff;
+		color: #64748b;
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+		transition: all 0.15s ease;
+	}
+
+		.logout-power-button svg {
+			width: 15px;
+			height: 15px;
+		}
+
+	.user-badge:hover .logout-power-button {
+		color: #ef4444;
 	}
 
 	.global-search-container {
@@ -147,43 +178,62 @@
 		border-radius: 8px;
 	}
 
-	/* Style for Syncfusion AutoComplete inside header */
-	::deep .global-search-container .e-input-group {
-		border: none !important;
-		background: transparent !important;
-		border-radius: 0;
-		margin-bottom: 0;
+	.global-search-box {
+		display: flex;
+		align-items: center;
+		gap: 6px;
 	}
 
-		::deep .global-search-container .e-input-group:not(.e-success):not(.e-warning):not(.e-error):not(.e-float-icon-left) {
-			border: none;
-		}
+	.global-search-input {
+		width: 250px;
+	}
 
-		::deep .global-search-container .e-input-group input {
+	.user-name-mobile {
+		display: none;
+	}
+
+	/* Keep the MudBlazor AutoComplete compact so it fits the header height */
+	::deep .global-search-input .mud-input-control {
+		margin: 0;
+	}
+
+	::deep .global-search-input .mud-input-control-helper-container {
+		display: none;
+	}
+
+	::deep .global-search-input .mud-input.mud-input-outlined {
+		background: #ffffff;
+	}
+
+		::deep .global-search-input .mud-input.mud-input-outlined input {
 			font-size: 13px;
-			padding-left: 8px;
+			padding-top: 6px;
+			padding-bottom: 6px;
 		}
 
 	@@media (max-width: 768px) {
 
-		.header-divider,
-		.global-search-container {
+		.global-search-box,
+		.header-divider {
 			display: none;
 		}
 
-		.user-name {
-			display: inline-flex;
-			align-items: center;
-			padding: 6px 8px;
-			font-size: 12px;
+		.global-search-container {
+			margin-left: 0;
+			background-color: transparent;
+			padding: 0;
 		}
 
-		.user-name-desktop {
+		.user-name-text {
 			display: none;
 		}
 
 		.user-name-mobile {
 			display: inline;
+		}
+
+		.user-badge {
+			padding: 3px 8px;
 		}
 	}
 </style>

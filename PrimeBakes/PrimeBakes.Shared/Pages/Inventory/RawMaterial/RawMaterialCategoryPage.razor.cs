@@ -1,6 +1,5 @@
 using PrimeBakes.Shared.Components.Dialog;
 
-using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Inventory.RawMaterial.Data;
 using PrimeBakesLibrary.Inventory.RawMaterial.Exports;
 using PrimeBakesLibrary.Inventory.RawMaterial.Models;
@@ -377,7 +376,7 @@ public partial class RawMaterialCategoryPage
 		NavigationManager.NavigateTo(InventoryRouteNames.RawMaterialCategory, true);
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(StoreRouteNames.InventoryDashboard);
+		NavigationManager.NavigateTo(OperationRouteNames.InventoryDashboard);
 
 	#endregion
 }

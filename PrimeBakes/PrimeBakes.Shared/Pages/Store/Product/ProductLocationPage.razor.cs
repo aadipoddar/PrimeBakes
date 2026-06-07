@@ -1,6 +1,5 @@
 using PrimeBakes.Shared.Components.Dialog;
 
-using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Store.Product.Data;
@@ -67,7 +66,7 @@ public partial class ProductLocationPage
 			if (_productLocation.LocationId > 0)
 				_productLocationOverviews = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _productLocation.LocationId);
 			else
-				_productLocationOverviews = await CommonData.LoadTableData<ProductLocationOverviewModel>(ViewNames.ProductLocationOverview);
+				_productLocationOverviews = await CommonData.LoadTableData<ProductLocationOverviewModel>(StoreNames.ProductLocationOverview);
 
 			if (_sfGrid is not null)
 				await _sfGrid.Refresh();

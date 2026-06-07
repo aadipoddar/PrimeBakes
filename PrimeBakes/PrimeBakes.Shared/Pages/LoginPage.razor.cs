@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Components;
 
-using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Operations.User;
 
 using Syncfusion.Blazor.Inputs;
@@ -9,39 +8,39 @@ namespace PrimeBakes.Shared.Pages;
 
 public partial class LoginPage
 {
-    [Inject] public NavigationManager NavManager { get; set; }
+	[Inject] public NavigationManager NavManager { get; set; }
 
-    private string _passcode = "";
-    private bool _isVerifying = false;
+	private string _passcode = "";
+	private bool _isVerifying = false;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!firstRender)
-            return;
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (!firstRender)
+			return;
 
-        await DataStorageService.SecureRemoveAll();
-    }
+		await DataStorageService.SecureRemoveAll();
+	}
 
-    private async Task CheckPasscode(OtpInputEventArgs e)
-    {
-        _passcode = e.Value?.ToString() ?? string.Empty;
-        if (_passcode.Length != 4 || _isVerifying)
-            return;
+	private async Task CheckPasscode(OtpInputEventArgs e)
+	{
+		_passcode = e.Value?.ToString() ?? string.Empty;
+		if (_passcode.Length != 4 || _isVerifying)
+			return;
 
-        _isVerifying = true;
-        StateHasChanged();
+		_isVerifying = true;
+		StateHasChanged();
 
-        var user = await UserData.LoadUserByPasscode(int.Parse(_passcode));
+		var user = await UserData.LoadUserByPasscode(int.Parse(_passcode));
 
-        if (user is null || !user.Status)
-        {
-            _isVerifying = false;
-            StateHasChanged();
-            return;
-        }
+		if (user is null || !user.Status)
+		{
+			_isVerifying = false;
+			StateHasChanged();
+			return;
+		}
 
-        await DataStorageService.SecureSaveAsync(StorageFileNames.UserDataFileName, System.Text.Json.JsonSerializer.Serialize(user));
-        VibrationService.VibrateWithTime(500);
-        NavManager.NavigateTo(StoreRouteNames.Dashboard);
-    }
+		await DataStorageService.SecureSaveAsync(StorageFileNames.UserDataFileName, System.Text.Json.JsonSerializer.Serialize(user));
+		VibrationService.VibrateWithTime(500);
+		NavManager.NavigateTo(OperationRouteNames.Dashboard);
+	}
 }

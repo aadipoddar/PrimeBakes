@@ -126,7 +126,7 @@ public static class DecodeCode
 			#region Restuarant
 			case CodeType.Bill:
 				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByTransactionNo<BillModel>(RestaurantNames.Bill, transactionNo);
-				decodeTransactionNoModel.PageRouteName = $"{RestaurnatRouteNames.Bill}/{(decodeTransactionNoModel.TransactionModel as BillModel).Id}";
+				decodeTransactionNoModel.PageRouteName = $"{RestaurantRouteNames.Bill}/{(decodeTransactionNoModel.TransactionModel as BillModel).Id}";
 				if (pdf) decodeTransactionNoModel.PDFStream = await BillInvoiceExport.ExportInvoice((decodeTransactionNoModel.TransactionModel as BillModel).Id, InvoiceExportType.PDF);
 				if (excel) decodeTransactionNoModel.ExcelStream = await BillInvoiceExport.ExportInvoice((decodeTransactionNoModel.TransactionModel as BillModel).Id, InvoiceExportType.Excel);
 				break;

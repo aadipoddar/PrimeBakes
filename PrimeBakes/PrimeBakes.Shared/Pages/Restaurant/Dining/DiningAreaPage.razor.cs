@@ -1,6 +1,5 @@
-using PrimeBakes.Shared.Components.Dialog;
+﻿using PrimeBakes.Shared.Components.Dialog;
 
-using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Restaurant.Dining.Data;
@@ -57,7 +56,7 @@ public partial class DiningAreaPage
 	private async Task LoadData()
 	{
 		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
-		_diningAreas = await CommonData.LoadTableData<DiningAreaModel>(TableNames.DiningArea);
+		_diningAreas = await CommonData.LoadTableData<DiningAreaModel>(RestaurantNames.DiningArea);
 
 		if (!_showDeleted)
 			_diningAreas = [.. _diningAreas.Where(da => da.Status)];
@@ -119,7 +118,7 @@ public partial class DiningAreaPage
 			await DiningAreaData.InsertDiningArea(diningArea);
 
 			await _toastNotification.ShowAsync("Deleted", $"Dining area '{diningArea.Name}' has been deleted successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(StoreRouteNames.DiningArea, true);
+			NavigationManager.NavigateTo(RestaurantRouteNames.DiningArea, true);
 		}
 		catch (Exception ex)
 		{
@@ -151,7 +150,7 @@ public partial class DiningAreaPage
 			await DiningAreaData.InsertDiningArea(diningArea);
 
 			await _toastNotification.ShowAsync("Recovered", $"Dining area '{diningArea.Name}' has been recovered successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(StoreRouteNames.DiningArea, true);
+			NavigationManager.NavigateTo(RestaurantRouteNames.DiningArea, true);
 		}
 		catch (Exception ex)
 		{
@@ -189,7 +188,7 @@ public partial class DiningAreaPage
 		if (string.IsNullOrWhiteSpace(_diningArea.Remarks))
 			_diningArea.Remarks = null;
 
-		var allDiningAreas = await CommonData.LoadTableData<DiningAreaModel>(TableNames.DiningArea);
+		var allDiningAreas = await CommonData.LoadTableData<DiningAreaModel>(RestaurantNames.DiningArea);
 
 		if (_diningArea.Id > 0)
 		{
@@ -234,7 +233,7 @@ public partial class DiningAreaPage
 			await DiningAreaData.InsertDiningArea(_diningArea);
 
 			await _toastNotification.ShowAsync("Saved", $"Dining area '{_diningArea.Name}' saved successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(StoreRouteNames.DiningArea, true);
+			NavigationManager.NavigateTo(RestaurantRouteNames.DiningArea, true);
 		}
 		catch (Exception ex)
 		{
@@ -423,9 +422,9 @@ public partial class DiningAreaPage
 	}
 
 	private void ResetPage() =>
-		NavigationManager.NavigateTo(StoreRouteNames.DiningArea, true);
+		NavigationManager.NavigateTo(RestaurantRouteNames.DiningArea, true);
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(StoreRouteNames.RestaurantDashboard);
+		NavigationManager.NavigateTo(RestaurantRouteNames.RestaurantDashboard);
 	#endregion
 }

@@ -1,10 +1,9 @@
-@attribute [Route(PageRouteNames.KitchenIssue)]
-@attribute [Route(PageRouteNames.KitchenIssue + "/{Id:int}")]
+@using PrimeBakesLibrary.Accounts.Masters.Models
+@using PrimeBakesLibrary.Inventory.Kitchen.Models
+@using PrimeBakesLibrary.Inventory.RawMaterial.Models
 
-@using PrimeBakesLibrary.Models.Accounts.Masters
-@using PrimeBakesLibrary.Models.Operations
-@using PrimeBakesLibrary.Models.Inventory
-@using PrimeBakesLibrary.Models.Inventory.Kitchen
+@attribute [Route(InventoryRouteNames.KitchenIssue)]
+@attribute [Route(InventoryRouteNames.KitchenIssue + "/{Id:int}")]
 
 <PageTitle>Kitchen Issue - Prime Bakes</PageTitle>
 
@@ -24,7 +23,7 @@
 
 @if (_isLoading || _user is null)
 {
-	<AnimatedLoader Visible="true" />
+	<LoadingScreen Visible="true" />
 }
 else
 {
@@ -99,7 +98,7 @@ else
 												 Placeholder="Select a Company"
 												 Label="Company" ValueChange="OnCompanyChanged"
 												 FieldValue="@nameof(CompanyModel.Name)"
-												 AddNewRoute="@PageRouteNames.CompanyMaster" />
+												 AddNewRoute="@AccountsRouteNames.CompanyMaster" />
 						</div>
 
 						<!-- Kitchen -->
@@ -110,7 +109,7 @@ else
 												 Placeholder="Select a Kitchen"
 												 Label="Kitchen" ValueChange="OnKitchenChanged"
 												 FieldValue="@nameof(KitchenModel.Name)"
-												 AddNewRoute="@PageRouteNames.Kitchen" />
+												 AddNewRoute="@InventoryRouteNames.Kitchen" />
 						</div>
 
 						<!-- Transaction Date  -->
@@ -165,7 +164,7 @@ else
 												 Placeholder="Select Item (Ctrl + F)"
 												 Label="Item" ValueChange="OnItemChanged"
 												 FieldValue="@nameof(RawMaterialModel.Name)"
-												 AddNewRoute="@PageRouteNames.RawMaterial" />
+												 AddNewRoute="@InventoryRouteNames.RawMaterial" />
 						</div>
 
 						<div class="cart-field">

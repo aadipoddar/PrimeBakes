@@ -1,6 +1,5 @@
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 
-using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Restaurant.Bill.Data;
 using PrimeBakesLibrary.Restaurant.Bill.Models;
@@ -61,7 +60,7 @@ public partial class BillMobilePage
 	{
 		if (!DiningTableId.HasValue)
 		{
-			NavigationManager.NavigateTo(StoreRouteNames.DiningMobileDashboard, true);
+			NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
 			return false;
 		}
 
@@ -70,20 +69,20 @@ public partial class BillMobilePage
 			var diningTable = await CommonData.LoadTableDataById<DiningTableModel>(RestaurantNames.DiningTable, DiningTableId.Value);
 			if (diningTable is null)
 			{
-				NavigationManager.NavigateTo(StoreRouteNames.DiningMobileDashboard, true);
+				NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
 				return false;
 			}
 
-			var diningArea = await CommonData.LoadTableDataById<DiningAreaModel>(TableNames.DiningArea, diningTable.DiningAreaId);
+			var diningArea = await CommonData.LoadTableDataById<DiningAreaModel>(RestaurantNames.DiningArea, diningTable.DiningAreaId);
 			if (diningArea is null)
 			{
-				NavigationManager.NavigateTo(StoreRouteNames.DiningMobileDashboard, true);
+				NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
 				return false;
 			}
 
 			if (_user.LocationId != 1 && diningArea.LocationId != _user.LocationId)
 			{
-				NavigationManager.NavigateTo(StoreRouteNames.DiningMobileDashboard, true);
+				NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
 				return false;
 			}
 
@@ -91,7 +90,7 @@ public partial class BillMobilePage
 		}
 		catch (Exception)
 		{
-			NavigationManager.NavigateTo(StoreRouteNames.DiningMobileDashboard, true);
+			NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
 			return false;
 		}
 	}
@@ -105,7 +104,7 @@ public partial class BillMobilePage
 		}
 		catch (Exception)
 		{
-			NavigationManager.NavigateTo(StoreRouteNames.DiningMobileDashboard, true);
+			NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
 			return;
 		}
 	}
@@ -139,7 +138,7 @@ public partial class BillMobilePage
 		}
 		catch (Exception)
 		{
-			NavigationManager.NavigateTo(StoreRouteNames.Dashboard);
+			NavigationManager.NavigateTo(OperationRouteNames.Dashboard);
 		}
 	}
 
@@ -170,7 +169,7 @@ public partial class BillMobilePage
 		}
 		catch (Exception)
 		{
-			NavigationManager.NavigateTo(StoreRouteNames.DiningMobileDashboard, true);
+			NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
 			await DataStorageService.LocalRemove(StorageFileNames.BillMobileCartDataFileName);
 		}
 		finally
@@ -274,7 +273,7 @@ public partial class BillMobilePage
 		}
 		catch (Exception)
 		{
-			NavigationManager.NavigateTo(StoreRouteNames.DiningMobileDashboard, true);
+			NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
 		}
 		finally
 		{
@@ -297,7 +296,7 @@ public partial class BillMobilePage
 		VibrationService.VibrateWithTime(500);
 		_cart.Clear();
 
-		NavigationManager.NavigateTo($"{RestaurnatRouteNames.BillMobileCart}/table/{_diningTable.Id}");
+		NavigationManager.NavigateTo($"{RestaurantRouteNames.BillMobileCart}/table/{_diningTable.Id}");
 	}
 	#endregion
 }

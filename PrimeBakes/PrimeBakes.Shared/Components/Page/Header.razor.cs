@@ -1,11 +1,8 @@
 using Microsoft.AspNetCore.Components;
 
-using PrimeBakes.Shared.Components.Dialog;
+using PrimeBakes.Shared.Components.Input;
 
-using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Operations.User;
-
-using Syncfusion.Blazor.DropDowns;
 
 using System.Reflection;
 
@@ -13,91 +10,37 @@ namespace PrimeBakes.Shared.Components.Page;
 
 public partial class Header
 {
-	#region Blueetooth
-	private BluetoothReconnectDialog _btDialog;
-	private BluetoothDeviceInfo? _btSaved;
-	private bool _isBtReconnecting;
-
-	private bool BtIsConnected => BluetoothPrinterService.IsConnected;
-	private bool ShowBtButton => _btSaved is not null;
-
-	private async Task LoadBluetoothStatusAsync()
-	{
-		var json = await DataStorageService.LocalGetAsync(StorageFileNames.BluetoothPrinterDataFileName);
-		_btSaved = string.IsNullOrEmpty(json)
-			? null
-			: System.Text.Json.JsonSerializer.Deserialize<BluetoothDeviceInfo>(json);
-		StateHasChanged();
-	}
-
-	private async Task HandleBtClick() =>
-		await _btDialog.ShowAsync();
-
-	private async Task HandleBtReconnect()
-	{
-		try
-		{
-			_isBtReconnecting = true;
-			StateHasChanged();
-
-			var connected = await BluetoothPrinterService.ConnectAsync(_btSaved?.Address ?? string.Empty);
-			var info = new BluetoothDeviceInfo
-			{
-				Name = connected ? BluetoothPrinterService.ConnectedPrinterName : (_btSaved?.Name ?? string.Empty),
-				Address = _btSaved?.Address ?? string.Empty,
-				IsPaired = true,
-				IsConnected = connected
-			};
-			await DataStorageService.LocalSaveAsync(StorageFileNames.BluetoothPrinterDataFileName, System.Text.Json.JsonSerializer.Serialize(info));
-			_btSaved = info;
-			await _btDialog.HideAsync();
-		}
-		catch
-		{
-			await _btDialog.HideAsync();
-		}
-		finally
-		{
-			_isBtReconnecting = false;
-			StateHasChanged();
-		}
-	}
-
-	private async Task HandleBtDismiss() =>
-		await _btDialog.HideAsync();
-
-	private async Task HandleBtDisconnect()
-	{
-		try
-		{
-			await BluetoothPrinterService.DisconnectAsync();
-			await DataStorageService.LocalRemove(StorageFileNames.BluetoothPrinterDataFileName);
-			_btSaved = null;
-		}
-		catch { }
-		finally
-		{
-			StateHasChanged();
-		}
-	}
-	#endregion
-
 	#region Search
 	private string _searchText = string.Empty;
 	private List<GlobalSearchItem> _searchItems = [];
-	private SfAutoComplete<string, GlobalSearchItem> _sfGlobalSearch;
+	private GlobalSearchItem _selectedSearchItem;
+	private CustomAutoComplete<GlobalSearchItem> _globalSearch;
 
 	private async Task FocusSearchBox()
 	{
-		if (_sfGlobalSearch is null)
+		if (_globalSearch is null)
 			return;
 
-		await _sfGlobalSearch.FocusAsync();
+		await _globalSearch.FocusAsync();
 	}
 
-	private void LoadRoutes()
+	// Captures the typed text (used by the View/PDF transaction actions) and filters the route list.
+	private Task<IEnumerable<GlobalSearchItem>> HeaderSearch(string searchText)
 	{
-		_searchItems = [.. typeof(StoreRouteNames)
+		_searchText = searchText ?? string.Empty;
+
+		if (string.IsNullOrWhiteSpace(searchText))
+			return Task.FromResult<IEnumerable<GlobalSearchItem>>(_searchItems);
+
+		return Task.FromResult(_searchItems.Where(x =>
+			x.DisplayText.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+			x.FriendlyName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+			x.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase)));
+	}
+
+
+	// TODO - Make all classes
+	private void LoadRoutes() => _searchItems = [.. typeof(AccountsRouteNames)
 			.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
 			.Where(f => f.IsLiteral && !f.IsInitOnly && f.FieldType == typeof(string))
 			.Select(f => new GlobalSearchItem
@@ -114,7 +57,6 @@ public partial class Header
 				return x;
 			})
 			.OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase)];
-	}
 
 	private async Task NavigateToSearch()
 	{
@@ -152,7 +94,7 @@ public partial class Header
 			var decodedTransaction = await DecodeSearchTransactionAsync(searchText, false);
 			if (!string.IsNullOrWhiteSpace(decodedTransaction.PageRouteName))
 			{
-				NavigationManager.NavigateTo(decodedTransaction.PageRouteName, true);
+				NavigationManager.NavigateTo(decodedTransaction.PageRouteName);
 				return true;
 			}
 		}
@@ -173,7 +115,7 @@ public partial class Header
 
 		try
 		{
-			var decodedTransaction = await DecodeSearchTransactionAsync(searchText,true);
+			var decodedTransaction = await DecodeSearchTransactionAsync(searchText, true);
 			if (decodedTransaction.PDFStream.stream is not null && !string.IsNullOrWhiteSpace(decodedTransaction.PDFStream.fileName))
 				await SaveAndViewService.SaveAndView(decodedTransaction.PDFStream.fileName, decodedTransaction.PDFStream.stream);
 		}
@@ -200,10 +142,12 @@ public partial class Header
 		return decodedTransaction;
 	}
 
-	private void OnRouteSelected(Syncfusion.Blazor.DropDowns.SelectEventArgs<GlobalSearchItem> args)
+	private void OnRouteSelected(GlobalSearchItem item)
 	{
-		if (args.ItemData is not null)
-			NavigationManager.NavigateTo(args.ItemData.Route);
+		_selectedSearchItem = item;
+
+		if (item is not null)
+			NavigationManager.NavigateTo(item.Route);
 	}
 	#endregion
 
@@ -219,14 +163,9 @@ public partial class Header
 
 	private UserModel _user;
 
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		if (!firstRender) return;
-		await LoadBluetoothStatusAsync();
-	}
-
 	protected override async Task OnInitializedAsync()
 	{
+		_user = new UserModel { Name = "aa", Id = 1 };
 		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService);
 		LoadRoutes();
 	}
@@ -241,7 +180,8 @@ public partial class Header
 	}
 
 	private void NavigateToHome() =>
-		NavigationManager.NavigateTo(StoreRouteNames.Dashboard);
+		NavigationManager.NavigateTo(OperationNames.Dashboard);
+
 	private async Task Logout() =>
 		await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 	#endregion

@@ -1,5 +1,4 @@
-using PrimeBakesLibrary.Common;
-using PrimeBakesLibrary.Operations.User;
+﻿using PrimeBakesLibrary.Operations.User;
 
 namespace PrimeBakes.Shared.Pages.Restaurant;
 
@@ -23,5 +22,5 @@ public partial class RestaurantDashboard
 	}
 
 	private void NavigateToDashboard() =>
-		NavigationManager.NavigateTo(StoreRouteNames.Dashboard);
+		NavigationManager.NavigateTo(OperationRouteNames.Dashboard);
 }

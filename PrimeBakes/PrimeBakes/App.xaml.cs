@@ -2,10 +2,13 @@
 
 public partial class App : Application
 {
-    public App()
-    {
-        InitializeComponent();
-    }
+	public App()
+	{
+		InitializeComponent();
+		ConfigurePlatform();
+	}
 
-    protected override Window CreateWindow(IActivationState? activationState) => new(new MainPage()) { Title = "PrimeBakes" };
+	protected override Window CreateWindow(IActivationState? activationState) => new(new MainPage()) { Title = "PrimeBakes" };
+
+	partial void ConfigurePlatform();
 }

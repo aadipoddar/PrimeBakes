@@ -1,0 +1,21 @@
+@using MudBlazor
+
+<div class="cdrp-root" @onfocusin="OnFocusIn" @onfocusout="OnFocusOut">
+	<MudDateRangePicker @ref="_dateRangePicker"
+						DateRange="DateRangeValue"
+						DateRangeChanged="OnDateRangeChangedInternal"
+						DateFormat="dd/MM/yy"
+						PlaceholderStart="DD/MM/YY"
+						PlaceholderEnd="DD/MM/YY"
+						Label="@Label"
+						Required="@Required"
+						RequiredError=""
+						ErrorText=""
+						ReadOnly="@ReadOnly"
+						Class="@(ReadOnly ? "cdrp-readonly" : null)"
+						AutoClose="true"
+						Editable="true"
+						Margin="MudBlazor.Margin.Dense"
+						Variant="MudBlazor.Variant.Outlined"
+						IconSize="Size.Small" />
+</div>

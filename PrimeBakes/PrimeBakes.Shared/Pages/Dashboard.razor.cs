@@ -1,7 +1,6 @@
-using System.Reflection;
-
-using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Operations.User;
+
+using System.Reflection;
 
 namespace PrimeBakes.Shared.Pages;
 
@@ -71,7 +70,7 @@ public partial class Dashboard : IDisposable
 
 		if (Factor.Contains("Web"))
 		{
-			NavigationManager.NavigateTo(StoreRouteNames.Dashboard, true);
+			NavigationManager.NavigateTo(OperationRouteNames.Dashboard, true);
 			return;
 		}
 
@@ -82,7 +81,7 @@ public partial class Dashboard : IDisposable
 	#region Load Data
 	private UserModel _user;
 	private bool _isLoading = true;
-	
+
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (!firstRender)

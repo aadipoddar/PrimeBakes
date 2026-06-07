@@ -1,10 +1,9 @@
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
 
-using PrimeBakesLibrary.Common;
-using PrimeBakesLibrary.Data.Accounts.Masters;
-using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Accounts.Masters.Data;
+using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Operations.Settings;
 using PrimeBakesLibrary.Operations.User;
@@ -715,13 +714,13 @@ public partial class BillReport : IAsyncDisposable
 	}
 
 	private async Task NavigateToTransactionPage() =>
-		await AuthenticationService.NavigateToRoute(RestaurnatRouteNames.Bill, FormFactor, JSRuntime, NavigationManager);
+		await AuthenticationService.NavigateToRoute(RestaurantRouteNames.Bill, FormFactor, JSRuntime, NavigationManager);
 
 	private async Task NavigateToItemReport() =>
-		await AuthenticationService.NavigateToRoute(RestaurnatRouteNames.BillItemReport, FormFactor, JSRuntime, NavigationManager);
+		await AuthenticationService.NavigateToRoute(RestaurantRouteNames.BillItemReport, FormFactor, JSRuntime, NavigationManager);
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(StoreRouteNames.RestaurantDashboard);
+		NavigationManager.NavigateTo(RestaurantRouteNames.RestaurantDashboard);
 
 	private async Task StartAutoRefresh()
 	{

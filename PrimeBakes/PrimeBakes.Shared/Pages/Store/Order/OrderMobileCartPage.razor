@@ -1,6 +1,4 @@
-@attribute [Route(PageRouteNames.OrderMobileCart)]
-
-@using PrimeBakesLibrary.Models.Store.Order
+@attribute [Route(StoreRouteNames.OrderMobileCart)]
 
 <PageTitle>Order Cart - Prime Bakes</PageTitle>
 
@@ -12,7 +10,7 @@
 
 @if (_isLoading || _user is null)
 {
-	<AnimatedLoader Visible="true" />
+	<LoadingScreen Visible="true" />
 }
 else
 {
@@ -32,12 +30,12 @@ else
 			</div>
 			<div class="pb-header__actions">
 				<button type="button" class="pb-icon-btn"
-						@onclick="@(() => NavigationManager.NavigateTo(PageRouteNames.OrderMobile))"
+						@onclick="@(() => NavigationManager.NavigateTo(StoreRouteNames.OrderMobile))"
 						aria-label="Back to catalog">
 					<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6" /></svg>
 				</button>
 				<button type="button" class="pb-icon-btn"
-						@onclick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))"
+						@onclick="@(() => NavigationManager.NavigateTo(OperationRouteNames.Dashboard))"
 						aria-label="Home">
 					<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M3 11l9-8 9 8" />
@@ -60,7 +58,7 @@ else
 					<h2 class="pb-empty__title">Cart is empty</h2>
 					<p class="pb-empty__sub">Add products from the catalog to get started.</p>
 					<button type="button" class="pb-add-btn pb-empty__cta"
-							@onclick="@(() => NavigationManager.NavigateTo(PageRouteNames.OrderMobile))"
+							@onclick="@(() => NavigationManager.NavigateTo(StoreRouteNames.OrderMobile))"
 							disabled="@_isProcessing">
 						Back to catalog
 					</button>

@@ -1,6 +1,7 @@
-@attribute [Route(PageRouteNames.User)]
+@using PrimeBakesLibrary.Operations.Location
+@using PrimeBakesLibrary.Operations.User
 
-@using PrimeBakesLibrary.Models.Operations
+@attribute [Route(OperationRouteNames.User)]
 
 <PageTitle>User Management - Prime Bakes</PageTitle>
 
@@ -15,7 +16,7 @@
 
 @if (_isLoading || _user is null)
 {
-    <AnimatedLoader Visible="true" />
+    <LoadingScreen Visible="true" />
 }
 else
 {

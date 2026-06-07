@@ -1,6 +1,5 @@
 using PrimeBakes.Shared.Components.Dialog;
 
-using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Store.Product.Data;
@@ -175,7 +174,7 @@ public partial class ProductPage
 
 		if (_sfLocationGrid is not null)
 			await _sfLocationGrid.Refresh();
-			
+
 		StateHasChanged();
 	}
 

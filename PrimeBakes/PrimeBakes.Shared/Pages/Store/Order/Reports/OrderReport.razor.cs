@@ -2,9 +2,8 @@ using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
 
-using PrimeBakesLibrary.Common;
-using PrimeBakesLibrary.Data.Accounts.Masters;
-using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Accounts.Masters.Data;
+using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Operations.Settings;
 using PrimeBakesLibrary.Operations.User;
@@ -713,7 +712,7 @@ public partial class OrderReport : IAsyncDisposable
 		await AuthenticationService.NavigateToRoute(StoreRouteNames.Order, FormFactor, JSRuntime, NavigationManager);
 
 	private async Task NavigateToItemReport() =>
-		await AuthenticationService.NavigateToRoute(StoreRouteNames.ReportOrderItem, FormFactor, JSRuntime, NavigationManager);
+		await AuthenticationService.NavigateToRoute(StoreRouteNames.OrderItemReport, FormFactor, JSRuntime, NavigationManager);
 
 	private void NavigateBack() =>
 		NavigationManager.NavigateTo(StoreRouteNames.StoreDashboard);

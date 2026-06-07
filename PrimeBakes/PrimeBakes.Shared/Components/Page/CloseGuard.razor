@@ -1,0 +1,39 @@
+@implements IAsyncDisposable
+
+@code {
+	[Parameter] public bool Block { get; set; }
+	[Parameter] public string Message { get; set; } = "A task is still running. Close anyway?";
+
+	private bool _isWeb;
+	private bool? _appliedWebBlock;
+
+	protected override void OnInitialized() => _isWeb = FormFactor.GetFormFactor() == "Web";
+
+	protected override void OnParametersSet()
+	{
+		// MAUI: the native window-close handler reads this synchronously.
+		if (!_isWeb)
+			WindowCloseGuard.Set(this, Block, Message);
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		// Web: manage our own beforeunload guard so an intentional close (CloseWindowOrTab)
+		// can drop it and close in one synchronous JS call with no prompt.
+		if (!_isWeb || _appliedWebBlock == Block)
+			return;
+
+		_appliedWebBlock = Block;
+		await JSRuntime.InvokeVoidAsync(Block ? "pageCloseGuard.block" : "pageCloseGuard.unblock");
+	}
+
+	public async ValueTask DisposeAsync()
+	{
+		if (_isWeb)
+		{
+			try { await JSRuntime.InvokeVoidAsync("pageCloseGuard.unblock"); } catch { }
+		}
+		else
+			WindowCloseGuard.Clear(this);
+	}
+}

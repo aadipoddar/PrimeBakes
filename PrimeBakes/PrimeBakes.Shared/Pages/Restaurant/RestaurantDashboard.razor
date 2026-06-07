@@ -1,6 +1,6 @@
-@attribute [Route(PageRouteNames.RestaurantDashboard)]
+﻿@attribute [Route(RestaurantRouteNames.RestaurantDashboard)]
 
-@using PrimeBakesLibrary.Models.Operations
+@using PrimeBakesLibrary.Operations.Location
 
 <PageTitle>Restaurant - Prime Bakes</PageTitle>
 
@@ -8,7 +8,7 @@
 
 @if (_isLoading)
 {
-	<AnimatedLoader Visible="true" />
+	<LoadingScreen Visible="true" />
 }
 else
 {
@@ -36,7 +36,7 @@ else
 						<div class="dashboard-grid">
 							<ButtonCard Title="Dining Mobile Dashboard"
 										Description="Access mobile dining tables and running bills" Color="blue"
-										OnClick="() => NavigationManager.NavigateTo(PageRouteNames.DiningMobileDashboard)">
+										OnClick="() => NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard)">
 								<IconContent>
 									<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
 										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -73,7 +73,7 @@ else
 					<div class="section-body">
 						<div class="dashboard-grid">
 							<ButtonCard Title="Dining Dashboard" Description="Access dining operations" Color="blue"
-										OnClick="() => NavigationManager.NavigateTo(PageRouteNames.DiningDashboard)">
+										OnClick="() => NavigationManager.NavigateTo(RestaurantRouteNames.DiningDashboard)">
 								<IconContent>
 									<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
 										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -87,7 +87,7 @@ else
 							</ButtonCard>
 
 							<ButtonCard Title="Bill" Description="Create and manage restaurant bills" Color="green"
-										OnClick="() => NavigationManager.NavigateTo(PageRouteNames.Bill)">
+										OnClick="() => NavigationManager.NavigateTo(RestaurantRouteNames.Bill)">
 								<IconContent>
 									<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
 										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -123,7 +123,7 @@ else
 						<div class="section-body">
 							<div class="dashboard-grid">
 								<ButtonCard Title="Bill Report" Description="View bill transaction reports" Color="cyan"
-											OnClick="() => NavigationManager.NavigateTo(PageRouteNames.BillReport)">
+											OnClick="() => NavigationManager.NavigateTo(RestaurantRouteNames.BillReport)">
 									<IconContent>
 										<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
 											 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -137,7 +137,7 @@ else
 								</ButtonCard>
 
 								<ButtonCard Title="Bill Item Report" Description="View bill item-wise reports" Color="sky"
-											OnClick="() => NavigationManager.NavigateTo(PageRouteNames.BillItemReport)">
+											OnClick="() => NavigationManager.NavigateTo(RestaurantRouteNames.BillItemReport)">
 									<IconContent>
 										<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
 											 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -174,7 +174,7 @@ else
 						<div class="section-body">
 							<div class="dashboard-grid">
 								<ButtonCard Title="Dining Table" Description="Manage dining table master" Color="teal"
-											OnClick="() => NavigationManager.NavigateTo(PageRouteNames.DiningTable)">
+											OnClick="() => NavigationManager.NavigateTo(RestaurantRouteNames.DiningTable)">
 									<IconContent>
 										<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
 											 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -187,7 +187,7 @@ else
 								</ButtonCard>
 
 								<ButtonCard Title="Dining Area" Description="Manage dining area master" Color="indigo"
-											OnClick="() => NavigationManager.NavigateTo(PageRouteNames.DiningArea)">
+											OnClick="() => NavigationManager.NavigateTo(RestaurantRouteNames.DiningArea)">
 									<IconContent>
 										<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
 											 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"

@@ -1,8 +1,7 @@
-@attribute [Route(PageRouteNames.DiningDashboard)]
+﻿@attribute [Route(RestaurantRouteNames.DiningDashboard)]
 
-@using PrimeBakesLibrary.Data.Common
-@using PrimeBakesLibrary.Models.Operations
-@using PrimeBakesLibrary.Models.Restuarant.Dining
+@using PrimeBakesLibrary.Common
+@using PrimeBakesLibrary.Operations.Location
 
 <PageTitle>Dining Dashboard - Prime Bakes</PageTitle>
 
@@ -10,7 +9,7 @@
 
 @if (_isLoading || _user is null)
 {
-	<AnimatedLoader Visible="true" />
+	<LoadingScreen Visible="true" />
 }
 else
 {
@@ -50,7 +49,7 @@ else
 														 Placeholder="All Locations"
 														 Label="Location" ValueChange="OnLocationChanged"
 														 FieldValue="@nameof(LocationModel.Name)"
-														 AddNewRoute="@PageRouteNames.Location" />
+														 AddNewRoute="@OperationRouteNames.Location" />
 								</div>
 
 							</div>

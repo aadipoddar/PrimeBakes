@@ -8,7 +8,7 @@ namespace PrimeBakes.Services;
 
 public static class UpdaterManager
 {
-	private const string LatestVersionMarker = "Latest Version = ";
+	private const string _latestVersionMarker = "Latest Version = ";
 
 	public static async Task<bool> CheckForUpdates(string githubRepoOwner, string githubRepoName, string setupFileName, string currentVersion)
 	{
@@ -57,10 +57,10 @@ public static class UpdaterManager
 		using var client = CreateHttpClient();
 		var fileContent = await client.GetStringAsync(requestUrl);
 
-		if (!fileContent.Contains(LatestVersionMarker, StringComparison.Ordinal))
+		if (!fileContent.Contains(_latestVersionMarker, StringComparison.Ordinal))
 			return string.Empty;
 
-		return fileContent.Substring(fileContent.IndexOf(LatestVersionMarker, StringComparison.Ordinal) + LatestVersionMarker.Length, 7);
+		return fileContent.Substring(fileContent.IndexOf(_latestVersionMarker, StringComparison.Ordinal) + _latestVersionMarker.Length, 7);
 	}
 
 	public static async Task UpdateApp(string githubRepoOwner, string githubRepoName, string setupAPKName, IProgress<int> progress = null, bool forceUpdate = false)

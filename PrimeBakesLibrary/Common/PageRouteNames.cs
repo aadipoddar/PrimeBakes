@@ -82,7 +82,7 @@ public static class StoreRouteNames
 	public const string OrderMobileCart = "/store/order-cart-mobile";
 	public const string OrderMobileConfirmation = "/store/order-confirmation-mobile";
 	public const string OrderReport = "/store/order-report";
-	public const string ReportOrderItem = "/store/order-item-report";
+	public const string OrderItemReport = "/store/order-item-report";
 
 	public const string Sale = "/store/sale";
 	public const string SaleReturn = "/store/sale-return";
@@ -106,7 +106,7 @@ public static class StoreRouteNames
 	public const string Tax = "/store/tax";
 }
 
-public static class RestaurnatRouteNames
+public static class RestaurantRouteNames
 {
 	public const string RestaurantDashboard = "/restaurant";
 	public const string DiningDashboard = "/restaurant/dining-dashboard";

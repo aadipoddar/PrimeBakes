@@ -3,9 +3,8 @@ using Microsoft.AspNetCore.Components;
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
-using PrimeBakesLibrary.Common;
-using PrimeBakesLibrary.Data.Accounts.Masters;
-using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Accounts.Masters.Data;
+using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Operations.Settings;
 using PrimeBakesLibrary.Operations.User;
@@ -1463,7 +1462,7 @@ public partial class SalePage
 	}
 
 	private void NavigateToDashboard() =>
-		NavigationManager.NavigateTo(StoreRouteNames.Dashboard);
+		NavigationManager.NavigateTo(OperationRouteNames.Dashboard);
 
 	private void NavigateBack() =>
 		NavigationManager.NavigateTo(StoreRouteNames.StoreDashboard);

@@ -1,6 +1,5 @@
-using PrimeBakes.Shared.Components.Dialog;
+﻿using PrimeBakes.Shared.Components.Dialog;
 
-using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Restaurant.Dining.Data;
 using PrimeBakesLibrary.Restaurant.Dining.Exports;
@@ -55,7 +54,7 @@ public partial class DiningTablePage
 
 	private async Task LoadData()
 	{
-		_diningAreas = await CommonData.LoadTableDataByStatus<DiningAreaModel>(TableNames.DiningArea);
+		_diningAreas = await CommonData.LoadTableDataByStatus<DiningAreaModel>(RestaurantNames.DiningArea);
 		_diningTables = await CommonData.LoadTableData<DiningTableModel>(RestaurantNames.DiningTable);
 
 		if (!_showDeleted)
@@ -118,7 +117,7 @@ public partial class DiningTablePage
 			await DiningTableData.InsertDiningTable(diningTable);
 
 			await _toastNotification.ShowAsync("Deleted", $"Dining table '{diningTable.Name}' has been deleted successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(StoreRouteNames.DiningTable, true);
+			NavigationManager.NavigateTo(RestaurantRouteNames.DiningTable, true);
 		}
 		catch (Exception ex)
 		{
@@ -150,7 +149,7 @@ public partial class DiningTablePage
 			await DiningTableData.InsertDiningTable(diningTable);
 
 			await _toastNotification.ShowAsync("Recovered", $"Dining table '{diningTable.Name}' has been recovered successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(StoreRouteNames.DiningTable, true);
+			NavigationManager.NavigateTo(RestaurantRouteNames.DiningTable, true);
 		}
 		catch (Exception ex)
 		{
@@ -233,7 +232,7 @@ public partial class DiningTablePage
 			await DiningTableData.InsertDiningTable(_diningTable);
 
 			await _toastNotification.ShowAsync("Saved", $"Dining table '{_diningTable.Name}' saved successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(StoreRouteNames.DiningTable, true);
+			NavigationManager.NavigateTo(RestaurantRouteNames.DiningTable, true);
 		}
 		catch (Exception ex)
 		{
@@ -403,9 +402,9 @@ public partial class DiningTablePage
 	}
 
 	private void ResetPage() =>
-		NavigationManager.NavigateTo(StoreRouteNames.DiningTable, true);
+		NavigationManager.NavigateTo(RestaurantRouteNames.DiningTable, true);
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(StoreRouteNames.RestaurantDashboard);
+		NavigationManager.NavigateTo(RestaurantRouteNames.RestaurantDashboard);
 	#endregion
 }

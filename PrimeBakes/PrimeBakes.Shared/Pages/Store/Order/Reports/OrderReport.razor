@@ -1,9 +1,8 @@
-@attribute [Route(PageRouteNames.OrderReport)]
+@using PrimeBakesLibrary.Accounts.Masters.Models
+@using PrimeBakesLibrary.Operations.Location
+@using PrimeBakesLibrary.Store.Order.Models
 
-@using PrimeBakesLibrary.Data.Common
-@using PrimeBakesLibrary.Models.Accounts.Masters
-@using PrimeBakesLibrary.Models.Operations
-@using PrimeBakesLibrary.Models.Store.Order
+@attribute [Route(StoreRouteNames.OrderReport)]
 
 <PageTitle>Order Report - Prime Bakes</PageTitle>
 
@@ -24,7 +23,7 @@
 
 @if (_isLoading || _user is null)
 {
-    <AnimatedLoader Visible="true" />
+    <LoadingScreen Visible="true" />
 }
 else
 {
@@ -149,7 +148,7 @@ else
                                                          Placeholder="All Locations"
                                                          Label="Location" ValueChange="OnLocationChanged"
                                                          FieldValue="@nameof(LocationModel.Name)"
-                                                         AddNewRoute="@PageRouteNames.Location" />
+                                                         AddNewRoute="@OperationRouteNames.Location" />
                                 </div>
 
                                 <!-- Company -->
@@ -161,7 +160,7 @@ else
                                                          Label="Company" Required="false"
                                                          ValueChange="OnCompanyChanged"
                                                          FieldValue="@nameof(CompanyModel.Name)"
-                                                         AddNewRoute="@PageRouteNames.CompanyMaster" />
+                                                         AddNewRoute="@AccountsRouteNames.CompanyMaster" />
                                 </div>
                             }
                         </div>

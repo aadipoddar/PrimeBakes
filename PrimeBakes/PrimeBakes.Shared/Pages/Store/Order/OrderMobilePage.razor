@@ -1,4 +1,4 @@
-@attribute [Route(PageRouteNames.OrderMobile)]
+@attribute [Route(StoreRouteNames.OrderMobile)]
 
 <PageTitle>Order - Prime Bakes</PageTitle>
 
@@ -10,7 +10,7 @@
 
 @if (_isLoading || _user is null)
 {
-	<AnimatedLoader Visible="true" />
+	<LoadingScreen Visible="true" />
 }
 else
 {
@@ -28,7 +28,7 @@ else
 				<h1 class="pb-header__title">Catalog</h1>
 			</div>
 			<div class="pb-header__actions">
-				<button type="button" class="pb-icon-btn" @onclick="@(() => NavigationManager.NavigateTo(PageRouteNames.Dashboard))" aria-label="Home">
+				<button type="button" class="pb-icon-btn" @onclick="@(() => NavigationManager.NavigateTo(OperationRouteNames.Dashboard))" aria-label="Home">
 					<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M3 11l9-8 9 8" />
 						<path d="M5 10v10h5v-6h4v6h5V10" />

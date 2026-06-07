@@ -1,4 +1,4 @@
-@attribute [Route(PageRouteNames.LocalSettings)]
+@attribute [Route(OperationRouteNames.LocalSettings)]
 
 <PageTitle>Local Device Settings - Prime Bakes</PageTitle>
 
@@ -6,7 +6,7 @@
 
 @if (_isLoading)
 {
-    <AnimatedLoader Visible="true" />
+    <LoadingScreen Visible="true" />
 }
 else
 {

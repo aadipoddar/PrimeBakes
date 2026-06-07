@@ -1,7 +1,9 @@
+// TODO - Remove
+
 using Microsoft.AspNetCore.Components;
 
-using PrimeBakesLibrary.Common;
-using PrimeBakesLibrary.Models.Accounts.Masters;
+using PrimeBakesLibrary.Accounts.Masters.Models;
+
 using Syncfusion.Blazor.Calendars;
 
 namespace PrimeBakes.Shared.Components.Input;
@@ -25,7 +27,7 @@ public partial class DatePickerWithAdd
 
 	[Parameter] public string? Label { get; set; } = "Transaction Date";
 	[Parameter] public bool Required { get; set; } = true;
-	[Parameter] public string? AddNewRoute { get; set; } = StoreRouteNames.FinancialYearMaster;
+	[Parameter] public string? AddNewRoute { get; set; } = AccountsRouteNames.FinancialYearMaster;
 	[Parameter] public string AddNewLabel { get; set; } = "New";
 
 	public Task FocusAsync() => _sfDatePicker.FocusAsync();

@@ -1,12 +1,10 @@
-@attribute [Route(PageRouteNames.Dashboard)]
-
-@using PrimeBakesLibrary.Models.Operations
+@attribute [Route(OperationRouteNames.Dashboard)]
 
 <PageTitle>Dashboard - Prime Bakes</PageTitle>
 
 @if (!_isUpdating && (_isLoading || _user == null))
 {
-	<AnimatedLoader Visible="true" />
+	<LoadingScreen Visible="true" />
 }
 else if (_isUpdating)
 {
@@ -74,7 +72,7 @@ else
 					@if (_user.Accounts)
 					{
 						<ButtonCard Title="Accounts" Description="Access accounting dashboard" Color="purple"
-									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.AccountsDashboard)">
+									OnClick="() => NavigationManager.NavigateTo(AccountsRouteNames.AccountsDashboard)">
 							<IconContent>
 								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
 									 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -89,7 +87,7 @@ else
 					@if (_user.Inventory)
 					{
 						<ButtonCard Title="Inventory" Description="Access inventory dashboard" Color="orange"
-									OnClick="() => NavigationManager.NavigateTo(PageRouteNames.InventoryDashboard)">
+									OnClick="() => NavigationManager.NavigateTo(InventoryRouteNames.InventoryDashboard)">
 							<IconContent>
 								<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
 									 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -107,7 +105,7 @@ else
 				@if (_user.Store)
 				{
 					<ButtonCard Title="Store" Description="Access store dashboard" Color="green"
-								OnClick="() => NavigationManager.NavigateTo(PageRouteNames.StoreDashboard)">
+								OnClick="() => NavigationManager.NavigateTo(StoreRouteNames.StoreDashboard)">
 						<IconContent>
 							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
 								 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -126,7 +124,7 @@ else
 				@if (_user.Restaurant)
 				{
 					<ButtonCard Title="Restaurant" Description="Access restaurant dashboard" Color="red"
-								OnClick="() => NavigationManager.NavigateTo(PageRouteNames.RestaurantDashboard)">
+								OnClick="() => NavigationManager.NavigateTo(RestaurantRouteNames.RestaurantDashboard)">
 						<IconContent>
 							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
 								 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -143,7 +141,7 @@ else
 				{
 					<!-- Outlet Summary Report -->
 					<ButtonCard Title="Outlet Summary" Description="View outlet-wise purchase and sale summary" Color="violet"
-								OnClick="() => NavigationManager.NavigateTo(PageRouteNames.OutletSummaryReport)">
+								OnClick="() => NavigationManager.NavigateTo(OperationRouteNames.OutletSummaryReport)">
 						<IconContent>
 							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
 								 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -157,7 +155,7 @@ else
 
 				<!-- Operations -->
 				<ButtonCard Title="Operations" Description="Access operations dashboard" Color="indigo"
-							OnClick="() => NavigationManager.NavigateTo(PageRouteNames.OperationsDashboard)">
+							OnClick="() => NavigationManager.NavigateTo(OperationRouteNames.OperationsDashboard)">
 					<IconContent>
 						<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
 							 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -172,7 +170,7 @@ else
 				@if (Factor != "Phone" && Factor != "Tablet" && _user.Reports)
 				{
 					<ButtonCard Title="Reports" Description="Access reports dashboard" Color="teal"
-								OnClick="() => NavigationManager.NavigateTo(PageRouteNames.ReportDashboard)">
+								OnClick="() => NavigationManager.NavigateTo(OperationRouteNames.ReportDashboard)">
 						<IconContent>
 							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
 								 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

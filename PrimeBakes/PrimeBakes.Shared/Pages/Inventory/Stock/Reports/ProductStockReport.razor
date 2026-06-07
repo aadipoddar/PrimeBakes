@@ -1,9 +1,7 @@
-@attribute [Route(PageRouteNames.ProductStockReport)]
+@using PrimeBakesLibrary.Inventory.Stock.Models
+@using PrimeBakesLibrary.Operations.Location
 
-@using PrimeBakesLibrary.Models.Accounts.Masters
-@using PrimeBakesLibrary.Models.Operations
-@using PrimeBakesLibrary.Models.Inventory
-@using PrimeBakesLibrary.Models.Inventory.Stock
+@attribute [Route(InventoryRouteNames.ProductStockReport)]
 
 <PageTitle>Product Stock Report - Prime Bakes</PageTitle>
 
@@ -22,7 +20,7 @@
 
 @if (_isLoading || _user is null)
 {
-    <AnimatedLoader Visible="true" />
+    <LoadingScreen Visible="true" />
 }
 else
 {
@@ -126,7 +124,7 @@ else
                                                 Label="Outlet" Required="false"
                                                 ValueChange="OnLocationChanged"
                                                 FieldValue="@nameof(LocationModel.Name)"
-                                                AddNewRoute="@PageRouteNames.Location" />
+                                                AddNewRoute="@OperationRouteNames.Location" />
                             </div>
                         </div>
                     </div>

@@ -1,4 +1,3 @@
-using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Operations.User;
 
 namespace PrimeBakes.Shared.Pages.Inventory;
@@ -20,5 +19,5 @@ public partial class InventoryDashboard
 	}
 
 	private void NavigateToDashboard() =>
-		NavigationManager.NavigateTo(StoreRouteNames.Dashboard);
+		NavigationManager.NavigateTo(OperationRouteNames.Dashboard);
 }

@@ -1,9 +1,6 @@
-@attribute [Route(PageRouteNames.RawMaterialStockReport)]
+@using PrimeBakesLibrary.Inventory.Stock.Models
 
-@using PrimeBakesLibrary.Models.Accounts.Masters
-@using PrimeBakesLibrary.Models.Operations
-@using PrimeBakesLibrary.Models.Inventory
-@using PrimeBakesLibrary.Models.Inventory.Stock
+@attribute [Route(InventoryRouteNames.RawMaterialStockReport)]
 
 <PageTitle>Raw Material Stock Report - Prime Bakes</PageTitle>
 
@@ -22,7 +19,7 @@
 
 @if (_isLoading || _user is null)
 {
-	<AnimatedLoader Visible="true" />
+	<LoadingScreen Visible="true" />
 }
 else
 {
@@ -381,8 +378,7 @@ else
 								<Template>
 									@{
 										var item = (context as RawMaterialStockSummaryModel);
-										<span
-										class="@(item.ClosingStock < 0 ? "grid-debit" : "")">@item.ClosingStock.ToString("N2")</span>
+										<span class="@(item.ClosingStock < 0 ? "grid-debit" : "")">@item.ClosingStock.ToString("N2")</span>
 									}
 								</Template>
 							</GridColumn>
@@ -503,8 +499,8 @@ else
 												@{
 													var aggregate = (context as AggregateTemplateContext);
 													var total = aggregate?.Sum is null ? 0 : Convert.ToDecimal(aggregate.Sum);
-													<div><strong
-														class="@(total < 0 ? "grid-debit" : "grid-credit")">@total.ToString("N2")</strong>
+													<div>
+														<strong class="@(total < 0 ? "grid-debit" : "grid-credit")">@total.ToString("N2")</strong>
 													</div>
 												}
 											</FooterTemplate>
@@ -512,8 +508,8 @@ else
 												@{
 													var aggregate = (context as AggregateTemplateContext);
 													var total = aggregate?.Sum is null ? 0 : Convert.ToDecimal(aggregate.Sum);
-													<div><strong
-														class="@(total < 0 ? "grid-debit" : "grid-credit")">@total.ToString("N2")</strong>
+													<div>
+														<strong class="@(total < 0 ? "grid-debit" : "grid-credit")">@total.ToString("N2")</strong>
 													</div>
 												}
 											</GroupFooterTemplate>
@@ -521,8 +517,8 @@ else
 												@{
 													var aggregate = (context as AggregateTemplateContext);
 													var total = aggregate?.Sum is null ? 0 : Convert.ToDecimal(aggregate.Sum);
-													<div><strong
-														class="@(total < 0 ? "grid-debit" : "grid-credit")">@total.ToString("N2")</strong>
+													<div>
+														<strong class="@(total < 0 ? "grid-debit" : "grid-credit")">@total.ToString("N2")</strong>
 													</div>
 												}
 											</GroupCaptionTemplate>

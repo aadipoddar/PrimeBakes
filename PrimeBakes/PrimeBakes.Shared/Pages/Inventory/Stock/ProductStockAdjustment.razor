@@ -1,10 +1,8 @@
-@attribute [Route(PageRouteNames.ProductStockAdjustment)]
+@using PrimeBakesLibrary.Inventory.Stock.Models
+@using PrimeBakesLibrary.Operations.Location
+@using PrimeBakesLibrary.Store.Product.Models
 
-@using PrimeBakesLibrary.Models.Accounts.Masters
-@using PrimeBakesLibrary.Models.Inventory
-@using PrimeBakesLibrary.Models.Inventory.Stock
-@using PrimeBakesLibrary.Models.Operations
-@using PrimeBakesLibrary.Models.Store.Product
+@attribute [Route(InventoryRouteNames.ProductStockAdjustment)]
 
 <PageTitle>Product Stock Adjustment - Prime Bakes</PageTitle>
 
@@ -19,7 +17,7 @@
 
 @if (_isLoading || _user is null)
 {
-	<AnimatedLoader Visible="true" />
+	<LoadingScreen Visible="true" />
 }
 else
 {
@@ -90,7 +88,7 @@ else
 											Placeholder="Select Outlet"
 											Label="Outlet / Location" ValueChange="OnLocationChanged"
 											FieldValue="@nameof(LocationModel.Name)"
-											AddNewRoute="@PageRouteNames.Location" />
+											AddNewRoute="@OperationRouteNames.Location" />
 						</div>
 
 						<!-- Transaction No -->
@@ -129,7 +127,7 @@ else
 											DataSource="@_products" Placeholder="Select Item (Ctrl + F)"
 											Label="Item Name" ValueChange="OnItemChanged"
 											FieldValue="@nameof(ProductLocationOverviewModel.Name)"
-											AddNewRoute="@PageRouteNames.Product" />
+											AddNewRoute="@StoreRouteNames.Product" />
 						</div>
 
 						<!-- Current Stock -->

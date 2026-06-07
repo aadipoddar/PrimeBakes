@@ -1,0 +1,36 @@
+/* The component wrapper must not introduce its own box, otherwise it (not the
+   inner field) becomes the flex item in layouts and the field collapses to
+   content width. `display: contents` lets the MudNumericField participate
+   directly in the parent layout. */
+.cnf-root {
+	display: contents;
+}
+
+/* Numeric values read right-aligned (digits line up on the decimal). */
+::deep input {
+	text-align: right;
+}
+
+/* Read-only state: MudBlazor only sets the native `readonly` attribute and
+   does not grey the field out (that is reserved for `mud-disabled`).
+   The `cnf-readonly` class is applied to the .mud-input root when ReadOnly. */
+
+::deep .cnf-readonly {
+	background-color: #f1f5f9;
+	border-radius: 4px;
+}
+
+	::deep .cnf-readonly input {
+		color: #64748b;
+	}
+
+	/* Outlined variant border + label muted so it clearly reads as locked. */
+	::deep .cnf-readonly .mud-input-outlined-border {
+		border-style: dashed !important;
+		border-color: #cbd5e1 !important;
+	}
+
+::deep .cnf-readonly + .mud-input-label,
+::deep .cnf-readonly ~ .mud-input-label {
+	color: #94a3b8;
+}

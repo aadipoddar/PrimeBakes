@@ -1,7 +1,7 @@
-@attribute [Route(PageRouteNames.PurchaseItemReport)]
+@using PrimeBakesLibrary.Accounts.Masters.Models
+@using PrimeBakesLibrary.Inventory.Purchase.Models
 
-@using PrimeBakesLibrary.Models.Accounts.Masters
-@using PrimeBakesLibrary.Models.Inventory.Purchase
+@attribute [Route(InventoryRouteNames.PurchaseItemReport)]
 
 <PageTitle>Purchase Item Report - Prime Bakes</PageTitle>
 
@@ -21,7 +21,7 @@
 
 @if (_isLoading || _user is null)
 {
-    <AnimatedLoader Visible="true" />
+    <LoadingScreen Visible="true" />
 }
 else
 {
@@ -126,7 +126,7 @@ else
                                                 Label="Company" Required="false"
                                                 ValueChange="OnCompanyChanged"
                                                 FieldValue="@nameof(CompanyModel.Name)"
-                                                AddNewRoute="@PageRouteNames.CompanyMaster" />
+                                                AddNewRoute="@AccountsRouteNames.CompanyMaster" />
                             </div>
 
                             <!-- Party -->
@@ -138,7 +138,7 @@ else
                                                 Label="Party" Required="false"
                                                 ValueChange="OnPartyChanged"
                                                 FieldValue="@nameof(LedgerModel.Name)"
-                                                AddNewRoute="@PageRouteNames.LedgerMaster" />
+                                                AddNewRoute="@AccountsRouteNames.LedgerMaster" />
                             </div>
                         </div>
                     </div>

@@ -2,12 +2,11 @@ using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
 
-using PrimeBakesLibrary.Common;
-using PrimeBakesLibrary.Data.Accounts.Masters;
+using PrimeBakesLibrary.Accounts.Masters.Data;
+using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Inventory.Stock.Data;
 using PrimeBakesLibrary.Inventory.Stock.Exports;
 using PrimeBakesLibrary.Inventory.Stock.Models;
-using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Operations.Settings;
 using PrimeBakesLibrary.Operations.User;
@@ -140,7 +139,7 @@ public partial class ProductStockReport : IAsyncDisposable
 	private async Task LoadStockDetails()
 	{
 		_stockDetails = await CommonData.LoadTableDataByDate<ProductStockDetailsModel>(
-				ViewNames.ProductStockDetails,
+				InventoryNames.ProductStockDetails,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
@@ -488,10 +487,10 @@ public partial class ProductStockReport : IAsyncDisposable
 	}
 
 	private async Task NavigateToTransactionPage() =>
-		await AuthenticationService.NavigateToRoute(StoreRouteNames.ProductStockAdjustment, FormFactor, JSRuntime, NavigationManager);
+		await AuthenticationService.NavigateToRoute(InventoryRouteNames.ProductStockAdjustment, FormFactor, JSRuntime, NavigationManager);
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(StoreRouteNames.InventoryDashboard);
+		NavigationManager.NavigateTo(OperationRouteNames.InventoryDashboard);
 
 	private async Task ShowDeleteConfirmation(int id, string transactionNo)
 	{

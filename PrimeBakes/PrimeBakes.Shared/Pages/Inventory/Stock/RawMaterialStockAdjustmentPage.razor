@@ -1,9 +1,7 @@
-@attribute [Route(PageRouteNames.RawMaterialStockAdjustment)]
+@using PrimeBakesLibrary.Inventory.RawMaterial.Models
+@using PrimeBakesLibrary.Inventory.Stock.Models
 
-@using PrimeBakesLibrary.Models.Accounts.Masters
-@using PrimeBakesLibrary.Models.Operations
-@using PrimeBakesLibrary.Models.Inventory
-@using PrimeBakesLibrary.Models.Inventory.Stock
+@attribute [Route(InventoryRouteNames.RawMaterialStockAdjustment)]
 
 <PageTitle>Raw Material Stock Adjustment - Prime Bakes</PageTitle>
 
@@ -18,7 +16,7 @@
 
 @if (_isLoading || _user is null)
 {
-	<AnimatedLoader Visible="true" />
+	<LoadingScreen Visible="true" />
 }
 else
 {
@@ -118,7 +116,7 @@ else
 											Placeholder="Select Item (Ctrl + F)"
 											Label="Item Name" ValueChange="OnItemChanged"
 											FieldValue="@nameof(RawMaterialModel.Name)"
-											AddNewRoute="@PageRouteNames.RawMaterial" />
+											AddNewRoute="@InventoryRouteNames.RawMaterial" />
 						</div>
 
 						<!-- Current Stock -->

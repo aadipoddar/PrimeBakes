@@ -2,12 +2,11 @@ using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Dialog;
 
-using PrimeBakesLibrary.Common;
-using PrimeBakesLibrary.Data.Accounts.Masters;
+using PrimeBakesLibrary.Accounts.Masters.Data;
+using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Inventory.Kitchen.Data;
 using PrimeBakesLibrary.Inventory.Kitchen.Exports;
 using PrimeBakesLibrary.Inventory.Kitchen.Models;
-using PrimeBakesLibrary.Models.Accounts.Masters;
 using PrimeBakesLibrary.Operations.Settings;
 using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Utils.Exports;
@@ -94,7 +93,7 @@ public partial class KitchenProductionReport : IAsyncDisposable
 
 	private async Task LoadKitchens()
 	{
-		_kitchens = await CommonData.LoadTableDataByStatus<KitchenModel>(TableNames.Kitchen);
+		_kitchens = await CommonData.LoadTableDataByStatus<KitchenModel>(InventoryNames.Kitchen);
 		_kitchens = [.. _kitchens.OrderBy(s => s.Name)];
 	}
 
@@ -603,7 +602,7 @@ public partial class KitchenProductionReport : IAsyncDisposable
 		 await AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenProductionItemReport, FormFactor, JSRuntime, NavigationManager);
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(StoreRouteNames.InventoryDashboard);
+		NavigationManager.NavigateTo(OperationRouteNames.InventoryDashboard);
 
 	private async Task StartAutoRefresh()
 	{

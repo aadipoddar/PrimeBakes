@@ -1,6 +1,6 @@
-@attribute [Route(PageRouteNames.DiningMobileDashboard)]
+﻿@attribute [Route(RestaurantRouteNames.DiningMobileDashboard)]
 
-@using PrimeBakesLibrary.Data.Common
+@using PrimeBakesLibrary.Common
 
 <PageTitle>Dining Dashboard - Prime Bakes</PageTitle>
 
@@ -8,7 +8,7 @@
 
 @if (_isLoading || _user is null)
 {
-	<AnimatedLoader Visible="true" />
+	<LoadingScreen Visible="true" />
 }
 else
 {

@@ -1,0 +1,244 @@
+@using PrimeBakesLibrary.Accounts.FinancialAccounting.Models
+@using PrimeBakesLibrary.Accounts.Masters.Models
+
+@attribute [Route(AccountsRouteNames.BankReconciliation)]
+
+<PageTitle>Bank Reconciliation - Prime Bakes</PageTitle>
+
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(AccountsRouteNames.FinancialAccounting, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfFirstFocus.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="SaveReconciliation" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyQ KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDetailsView" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyO KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="ViewSelectedTransaction" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="DeleteRecoverSelectedTransaction" Disabled="@_isProcessing" />
+
+@if (_isLoading || _user is null)
+{
+	<LoadingScreen />
+}
+else
+{
+	<div class="page-shell">
+		<Header Title="Bank Reconciliation">
+			<LeftContent>
+				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="New Transaction (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(AccountsRouteNames.FinancialAccounting, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Save (Ctrl + S)" OnClick="() => SaveReconciliation()" />
+					<MudBlazor.MudMenuItem Label="Refresh Data (Ctrl + R / F5)" OnClick="LoadTransactionOverviews" />
+					<MudBlazor.MudMenuItem Label="@(_showAllColumns ? "Hide Details (Ctrl + Q)" : "Show Details (Ctrl + Q)")" OnClick="() => ToggleDetailsView()" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportReport()" />
+					<MudBlazor.MudMenuItem Label="Export Excel (Ctrl + E)" OnClick="() => ExportReport(true)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Open" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Accounting Report (Ctrl + H)" OnClick="() => AuthenticationService.NavigateToRoute(AccountsRouteNames.FinancialAccountingReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Ledger Report" OnClick="() => AuthenticationService.NavigateToRoute(AccountsRouteNames.AccountingLedgerReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Trial Balance" OnClick="() => AuthenticationService.NavigateToRoute(AccountsRouteNames.TrialBalanceReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Profit & Loss" OnClick="() => AuthenticationService.NavigateToRoute(AccountsRouteNames.ProfitAndLossReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Balance Sheet" OnClick="() => AuthenticationService.NavigateToRoute(AccountsRouteNames.BalanceSheetReport, FormFactor, JSRuntime, NavigationManager)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Periods" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Today" OnClick="() => HandleDatesChanged(DateRangeType.Today)" />
+					<MudBlazor.MudMenuItem Label="Previous Day" OnClick="() => HandleDatesChanged(DateRangeType.Yesterday)" />
+					<MudBlazor.MudMenuItem Label="Next Day" OnClick="() => HandleDatesChanged(DateRangeType.NextDay)" />
+					<MudBlazor.MudMenuItem Label="Current Month" OnClick="() => HandleDatesChanged(DateRangeType.CurrentMonth)" />
+					<MudBlazor.MudMenuItem Label="Previous Month" OnClick="() => HandleDatesChanged(DateRangeType.PreviousMonth)" />
+					<MudBlazor.MudMenuItem Label="Next Month" OnClick="() => HandleDatesChanged(DateRangeType.NextMonth)" />
+					<MudBlazor.MudMenuItem Label="Current FY" OnClick="() => HandleDatesChanged(DateRangeType.CurrentFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="Previous FY" OnClick="() => HandleDatesChanged(DateRangeType.PreviousFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="Next FY" OnClick="() => HandleDatesChanged(DateRangeType.NextFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="All Time" OnClick="() => HandleDatesChanged(DateRangeType.AllTime)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Transaction" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="View (Alt + O)" OnClick="ViewSelectedTransaction" />
+					<MudBlazor.MudMenuItem Label="Export PDF (Alt + P)" OnClick="() => ExportSelectedTransaction()" />
+					<MudBlazor.MudMenuItem Label="Export Excel (Alt + E)" OnClick="() => ExportSelectedTransaction(true)" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Delete / Recover (Del)" OnClick="DeleteRecoverSelectedTransaction" />
+				</MudBlazor.MudMenu>
+			</LeftContent>
+		</Header>
+
+		<div class="page-container">
+
+			<!-- Filters Section -->
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+						</svg>
+						<h2 class="section-title">Filters</h2>
+					</div>
+				</div>
+				<div class="section-body">
+					<div class="filters-grid">
+						<div class="form-field">
+							<CustomDateRangePicker @ref="_sfFirstFocus" Value="@(new MudBlazor.DateRange(_fromDate, _toDate))"
+												   ValueChanged="OnDateRangeChanged"
+												   Label="Date Range (Ctrl + F)"
+												   Required="false" />
+						</div>
+
+						<div class="form-field">
+							<CustomAutoComplete T="CompanyModel"
+												Value="_selectedCompany"
+												DataSource="@_companies"
+												Placeholder="All Companies"
+												Label="Company" Required="false"
+												FieldValue="@nameof(CompanyModel.Name)"
+												ValueChanged="OnCompanyChanged"
+												AddNewRoute="@AccountsRouteNames.CompanyMaster" />
+						</div>
+
+						<div class="form-field">
+							<CustomAutoComplete T="AccountTypeModel"
+												Value="_selectedAccountType"
+												DataSource="@_accountTypes"
+												Placeholder="All Types"
+												Label="Type" Required="false"
+												FieldValue="@nameof(AccountTypeModel.Name)"
+												ValueChanged="OnAccountTypeChanged"
+												AddNewRoute="@AccountsRouteNames.AccountTypeMaster" />
+						</div>
+
+						<div class="form-field">
+							<CustomAutoComplete T="LedgerModel"
+												Value="_selectedLedger"
+												DataSource="@_ledgers"
+												Placeholder="All Ledgers"
+												Label="Ledger" Required="false"
+												FieldValue="@nameof(LedgerModel.Name)"
+												ValueChanged="OnLedgerChanged"
+												AddNewRoute="@AccountsRouteNames.LedgerMaster" />
+						</div>
+
+						<div class="form-field">
+							<CustomAutoComplete T="YesNoFilterOption"
+												Value="_selectedReconciledFilter"
+												DataSource="@YesNoFilterOptions.YesNo"
+												Placeholder="All"
+												Label="Reconciled" Required="false"
+												ValueChanged="OnReconciledFilterChanged"
+												FieldValue="@nameof(YesNoFilterOption.Name)" />
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Reconcile Grid Section -->
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<line x1="8" y1="6" x2="21" y2="6" />
+							<line x1="8" y1="12" x2="21" y2="12" />
+							<line x1="8" y1="18" x2="21" y2="18" />
+							<line x1="3" y1="6" x2="3.01" y2="6" />
+							<line x1="3" y1="12" x2="3.01" y2="12" />
+							<line x1="3" y1="18" x2="3.01" y2="18" />
+						</svg>
+						<h2 class="section-title">Ledger Lines</h2>
+					</div>
+				</div>
+				<div class="section-body grid-body">
+					<SfGrid @ref="_sfGrid" TValue="FinancialAccountingLedgerOverviewModel"
+							DataSource="_transactionOverviews" AllowTextWrap="true" AllowPaging="true" AllowSorting="true"
+							AllowResizing="true" AllowFiltering="true"
+							GridLines="GridLine.Horizontal" CssClass="professional-grid"
+							ContextMenuItems="@_gridContextMenuItems" Toolbar="@(new List<string>() { "Search" })">
+
+						<GridEvents TValue="FinancialAccountingLedgerOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
+						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+						<GridColumns>
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.Id)" IsPrimaryKey="true" Visible="false" />
+
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TransactionDateTime)" HeaderText="Date" Width="120" Format="dd/MM/yy" Type="ColumnType.DateTime" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TransactionNo)" HeaderText="Trans No" Width="160" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerName)" HeaderText="Ledger" Width="220" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerCode)" HeaderText="Code" Width="120" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.AccountTypeName)" HeaderText="Account Type" Width="150" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.GroupName)" HeaderText="Group" Width="150" Visible="_showAllColumns" />
+
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.InstrumentNo)" HeaderText="Instrument No" Width="150" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.InstrumentDate)" HeaderText="Instrument Date" Width="150" Format="dd/MM/yy" Type="ColumnType.DateTime" />
+
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.Debit)" HeaderText="Debit" Width="130" TextAlign="TextAlign.Right">
+								<Template>
+									@{
+										var line = (context as FinancialAccountingLedgerOverviewModel);
+										<span class="grid-debit">@(line.Debit?.ToString("N2") ?? "-")</span>
+									}
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.Credit)" HeaderText="Credit" Width="130" TextAlign="TextAlign.Right">
+								<Template>
+									@{
+										var line = (context as FinancialAccountingLedgerOverviewModel);
+										<span class="grid-credit">@(line.Credit?.ToString("N2") ?? "-")</span>
+									}
+								</Template>
+							</GridColumn>
+
+							<GridColumn HeaderText="Clearing Date" Width="200" AllowFiltering="false" AllowSorting="false">
+								<Template>
+									@{
+										var line = (context as FinancialAccountingLedgerOverviewModel);
+									}
+									<CustomDatePicker NullableValue="line.ClearingDate"
+													  NullableValueChanged="(d) => OnClearingDateChanged(line, d)"
+													  Required="false"
+													  ShowFinancialYear="false"
+													  Label="" />
+								</Template>
+							</GridColumn>
+
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.Reconciled)" HeaderText="Reconciled" Width="120" TextAlign="TextAlign.Center">
+								<Template>
+									@{
+										var line = (context as FinancialAccountingLedgerOverviewModel);
+										if (line.Reconciled is not null)
+										{
+											<span class="@(line.Reconciled.Value ? "grid-credit" : "grid-debit")">
+												@(line.Reconciled.Value ? "Reconciled" : "Unreconciled")
+											</span>
+										}
+									}
+								</Template>
+							</GridColumn>
+
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerRemarks)" HeaderText="Remarks" Width="200" />
+
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CompanyName)" HeaderText="Company" Width="180" Visible="@(_showAllColumns && (_selectedCompany is null || _selectedCompany.Id <= 0))" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.VoucherName)" HeaderText="Voucher Type" Width="150" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.FinancialYear)" HeaderText="Financial Year" Width="130" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CreatedByName)" HeaderText="Created By" Width="150" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CreatedAt)" HeaderText="Created At" Width="160" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="_showAllColumns" />
+						</GridColumns>
+					</SfGrid>
+				</div>
+			</div>
+
+		</div>
+
+		<Footer />
+	</div>
+}
+
+<ConfirmationDialog @ref="_confirmationDialog" Title="@_confirmTitle" Message="@_confirmMessage"
+					OnConfirm="OnConfirmed" OnCancel="OnCancelled" />
+
+<ToastNotification @ref="_toastNotification" />
+
+<CloseGuard Block="@(_isProcessing || _dirtyLineIds.Count > 0)" />

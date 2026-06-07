@@ -1,5 +1,4 @@
-using PrimeBakesLibrary.Common;
-using PrimeBakesLibrary.Operations.User;
+﻿using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Restaurant.Bill.Data;
 using PrimeBakesLibrary.Restaurant.Bill.Models;
 using PrimeBakesLibrary.Restaurant.Dining.Models;
@@ -30,7 +29,7 @@ public partial class DiningMobileDashbaord
 
 	private async Task LoadData()
 	{
-		_diningAreas = await CommonData.LoadTableDataByStatus<DiningAreaModel>(TableNames.DiningArea);
+		_diningAreas = await CommonData.LoadTableDataByStatus<DiningAreaModel>(RestaurantNames.DiningArea);
 		_diningAreas = [.. _diningAreas.Where(area => area.LocationId == _user.LocationId).OrderBy(area => area.Name)];
 
 		_diningTables = await CommonData.LoadTableDataByStatus<DiningTableModel>(RestaurantNames.DiningTable);
@@ -40,8 +39,8 @@ public partial class DiningMobileDashbaord
 	}
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(StoreRouteNames.RestaurantDashboard);
+		NavigationManager.NavigateTo(RestaurantRouteNames.RestaurantDashboard);
 
 	private void OpenBillPage(int diningTableId) =>
-		NavigationManager.NavigateTo($"{RestaurnatRouteNames.BillMobile}/table/{diningTableId}");
+		NavigationManager.NavigateTo($"{RestaurantRouteNames.BillMobile}/table/{diningTableId}");
 }

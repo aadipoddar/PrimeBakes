@@ -1,0 +1,23 @@
+<div class="cd-scope">
+	<SfDialog @ref="_dialog" Width="420px" IsModal="true" ShowCloseIcon="true" @bind-Visible="_isVisible" CssClass="confirm-dialog">
+
+		<MudBlazor.MudHotkey Key=JsKey.Enter OnHotkeyPressed="HandleConfirm" />
+		<MudBlazor.MudHotkey Key=JsKey.Escape OnHotkeyPressed="HandleCancel" />
+
+		<DialogTemplates>
+			<Header>
+				<div class="cd-header">
+					<span class="e-icons e-circle-info cd-header-icon"></span>
+					<span class="cd-header-title">@Title</span>
+				</div>
+			</Header>
+			<Content>
+				<p class="cd-message">@Message</p>
+			</Content>
+			<FooterTemplate>
+				<SfButton Content="Cancel" OnClick="HandleCancel" CssClass="cd-btn cd-btn-cancel" />
+				<SfButton Content="@(string.IsNullOrWhiteSpace(ConfirmText) ? Title : ConfirmText)" IsPrimary="true" OnClick="HandleConfirm" CssClass="cd-btn cd-btn-confirm" />
+			</FooterTemplate>
+		</DialogTemplates>
+	</SfDialog>
+</div>

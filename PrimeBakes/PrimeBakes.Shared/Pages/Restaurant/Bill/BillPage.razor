@@ -1,13 +1,13 @@
-@attribute [Route(PageRouteNames.Bill)]
-@attribute [Route($"{PageRouteNames.Bill}/table/{{DiningTableId:int}}")]
-@attribute [Route($"{PageRouteNames.Bill}/{{Id:int}}")]
+﻿@attribute [Route(RestaurantRouteNames.Bill)]
+@attribute [Route($"{RestaurantRouteNames.Bill}/table/{{DiningTableId:int}}")]
+@attribute [Route($"{RestaurantRouteNames.Bill}/{{Id:int}}")]
 
-@using PrimeBakesLibrary.Models.Accounts.Masters
-@using PrimeBakesLibrary.Models.Operations
-@using PrimeBakesLibrary.Models.Restuarant.Bill
-@using PrimeBakesLibrary.Models.Restuarant.Dining
-@using PrimeBakesLibrary.Models.Store.Masters
-@using PrimeBakesLibrary.Models.Store.Product
+@using PrimeBakesLibrary.Accounts.Masters.Models
+@using PrimeBakesLibrary.Operations.Location
+@using PrimeBakesLibrary.Restaurant.Bill.Models
+@using PrimeBakesLibrary.Restaurant.Dining.Models
+@using PrimeBakesLibrary.Store.PaymentMode
+@using PrimeBakesLibrary.Store.Product.Models
 
 <PageTitle>Bill - Prime Bakes</PageTitle>
 
@@ -36,7 +36,7 @@
 
 @if (_isLoading || _user is null)
 {
-	<AnimatedLoader Visible="true" />
+	<LoadingScreen Visible="true" />
 }
 else
 {
@@ -117,7 +117,7 @@ else
 														 Placeholder="Select a Location"
 														 Label="Location" ValueChange="OnLocationChanged"
 														 FieldValue="@nameof(LocationModel.Name)"
-														 AddNewRoute="@PageRouteNames.Location" />
+														 AddNewRoute="@OperationRouteNames.Location" />
 								</div>
 
 								<!-- Company -->
@@ -128,7 +128,7 @@ else
 														 Placeholder="Select a Company"
 														 Label="Company" ValueChange="OnCompanyChanged"
 														 FieldValue="@nameof(CompanyModel.Name)"
-														 AddNewRoute="@PageRouteNames.CompanyMaster" />
+														 AddNewRoute="@AccountsRouteNames.CompanyMaster" />
 								</div>
 
 								<div class="form-field">
@@ -146,7 +146,7 @@ else
 													 Placeholder="Select a Dining Table"
 													 Label="Dining Table" ValueChange="OnDiningTableChanged"
 													 FieldValue="@nameof(DiningTableModel.Name)"
-													 AddNewRoute="@PageRouteNames.DiningTable" />
+													 AddNewRoute="@RestaurantRouteNames.DiningTable" />
 							</div>
 
 							<div class="form-field">
@@ -326,7 +326,7 @@ else
 												 Placeholder="Select a Product (Ctrl + F)"
 												 Label="Product" ValueChange="OnItemChanged"
 												 FieldValue="@nameof(ProductLocationOverviewModel.Name)"
-												 AddNewRoute="@PageRouteNames.Product" />
+												 AddNewRoute="@StoreRouteNames.Product" />
 						</div>
 
 						<div class="cart-field">

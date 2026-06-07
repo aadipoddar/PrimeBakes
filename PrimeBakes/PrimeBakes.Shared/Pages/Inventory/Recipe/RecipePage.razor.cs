@@ -1,7 +1,6 @@
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
-using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Inventory.Purchase.Data;
 using PrimeBakesLibrary.Inventory.RawMaterial.Models;
 using PrimeBakesLibrary.Inventory.Recipe.Data;
@@ -430,9 +429,9 @@ public partial class RecipePage
 	}
 
 	private void ResetPage() =>
-		NavigationManager.NavigateTo(StoreRouteNames.Recipe, true);
+		NavigationManager.NavigateTo(InventoryRouteNames.Recipe, true);
 
 	private void NavigateBack() =>
-		NavigationManager.NavigateTo(StoreRouteNames.InventoryDashboard);
+		NavigationManager.NavigateTo(OperationRouteNames.InventoryDashboard);
 	#endregion
 }
