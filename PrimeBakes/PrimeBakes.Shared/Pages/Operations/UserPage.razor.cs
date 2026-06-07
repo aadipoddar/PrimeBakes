@@ -1,4 +1,5 @@
 using PrimeBakes.Shared.Components.Dialog;
+using PrimeBakes.Shared.Components.Input;
 
 using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Operations.User;
@@ -10,32 +11,30 @@ namespace PrimeBakes.Shared.Pages.Operations;
 
 public partial class UserPage
 {
+	private UserModel _user;
 	private bool _isLoading = true;
 	private bool _isProcessing = false;
 	private bool _showDeleted = false;
 
-	private UserModel _user = new();
-	private LocationModel _location = new();
+	private UserModel _userModel = new();
+	private LocationModel _selectedLocation;
 
 	private List<UserModel> _users = [];
 	private List<LocationModel> _locations = [];
-	private readonly List<ContextMenuItemModel> _userGridContextMenuItems =
+	private readonly List<ContextMenuItemModel> _gridContextMenuItems =
 	[
-		new() { Text = "Edit (Insert)", Id = "EditUser", IconCss = "e-icons e-edit", Target = ".e-content" },
-		new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverUser", IconCss = "e-icons e-trash", Target = ".e-content" }
+		new() { Text = "Edit (Insert)", Id = "EditSelectedItem", IconCss = "e-icons e-edit", Target = ".e-content" },
+		new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverSelectedItem", IconCss = "e-icons e-trash", Target = ".e-content" }
 	];
 
 	private SfGrid<UserModel> _sfGrid;
-	private DeleteConfirmationDialog _deleteConfirmationDialog;
-	private RecoverConfirmationDialog _recoverConfirmationDialog;
-
-	private int _deleteUserId = 0;
-	private string _deleteUserName = string.Empty;
-
-	private int _recoverUserId = 0;
-	private string _recoverUserName = string.Empty;
-
+	private CustomTextField _sfFirstFocus;
 	private ToastNotification _toastNotification;
+	private ConfirmationDialog _confirmationDialog;
+
+	private string _confirmTitle = string.Empty;
+	private string _confirmMessage = string.Empty;
+	private Func<Task> _confirmAction;
 
 	#region Load Data
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -43,14 +42,21 @@ public partial class UserPage
 		if (!firstRender)
 			return;
 
-		await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Admin], true);
-		await LoadData();
+		try
+		{
+			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Admin], true);
+			await LoadData();
+		}
+		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
 	}
 
 	private async Task LoadData()
 	{
-		_locations = await CommonData.LoadTableData<LocationModel>(OperationNames.Location);
 		_users = await CommonData.LoadTableData<UserModel>(OperationNames.User);
+		_locations = await CommonData.LoadTableData<LocationModel>(OperationNames.Location);
+
+		_locations = [.. _locations.OrderBy(l => l.Name)];
+		_selectedLocation = _locations.FirstOrDefault(l => l.Id == _userModel.LocationId);
 
 		if (!_showDeleted)
 			_users = [.. _users.Where(u => u.Status)];
@@ -60,182 +66,14 @@ public partial class UserPage
 
 		_isLoading = false;
 		StateHasChanged();
-	}
-	#endregion
 
-	#region Actions
-	private void OnEditUser(UserModel user)
-	{
-		_user = new()
-		{
-			Id = user.Id,
-			Name = user.Name,
-			LocationId = user.LocationId,
-			Passcode = user.Passcode,
-			Accounts = user.Accounts,
-			Inventory = user.Inventory,
-			Store = user.Store,
-			Restaurant = user.Restaurant,
-			Reports = user.Reports,
-			Admin = user.Admin,
-			Status = user.Status
-		};
-
-		_location = _locations.FirstOrDefault(l => l.Id == user.LocationId) ?? new LocationModel();
-
-		StateHasChanged();
-	}
-
-	private async Task ConfirmDelete()
-	{
-		try
-		{
-			_isProcessing = true;
-			await _deleteConfirmationDialog.HideAsync();
-
-			var user = _users.FirstOrDefault(u => u.Id == _deleteUserId);
-			if (user == null)
-			{
-				await _toastNotification.ShowAsync("Error", "User not found.", ToastType.Error);
-				return;
-			}
-
-			user.Status = false;
-			await UserData.InsertUser(user);
-
-			await _toastNotification.ShowAsync("Deleted", $"User '{user.Name}' removed successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(OperationRouteNames.User, true);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"Failed to delete user: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			_deleteUserId = 0;
-			_deleteUserName = string.Empty;
-		}
-	}
-
-	private async Task ConfirmRecover()
-	{
-		try
-		{
-			_isProcessing = true;
-			await _recoverConfirmationDialog.HideAsync();
-
-			var user = _users.FirstOrDefault(u => u.Id == _recoverUserId);
-			if (user == null)
-			{
-				await _toastNotification.ShowAsync("Error", "User not found.", ToastType.Error);
-				return;
-			}
-
-			user.Status = true;
-			await UserData.InsertUser(user);
-
-			await _toastNotification.ShowAsync("Recovered", $"User '{user.Name}' restored successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(OperationRouteNames.User, true);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"Failed to recover user: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			_recoverUserId = 0;
-			_recoverUserName = string.Empty;
-		}
+		if (_sfFirstFocus is not null)
+			await _sfFirstFocus.FocusAsync();
 	}
 	#endregion
 
 	#region Saving
-	private async Task<bool> ValidateForm()
-	{
-		_user.Name = _user.Name?.Trim() ?? "";
-		_user.Remarks = _user.Remarks?.Trim() ?? "";
-
-		_user.Name = _user.Name?.ToUpper() ?? "";
-		_user.Status = true;
-
-		if (string.IsNullOrWhiteSpace(_user.Name))
-		{
-			await _toastNotification.ShowAsync("Validation", "User name is required.", ToastType.Warning);
-			return false;
-		}
-
-		if (_user.Passcode.ToString().Length != 4)
-		{
-			await _toastNotification.ShowAsync("Validation", "Passcode must be a 4-digit number.", ToastType.Warning);
-			return false;
-		}
-
-		if (_location is null || _location.Id <= 0)
-		{
-			await _toastNotification.ShowAsync("Validation", "Please select a valid location.", ToastType.Warning);
-			return false;
-		}
-		_user.LocationId = _location.Id;
-
-		if (_user.LocationId <= 0)
-		{
-			await _toastNotification.ShowAsync("Validation", "Please select a location.", ToastType.Warning);
-			return false;
-		}
-
-		if (!_user.Admin &&
-		 	!_user.Inventory &&
-			!_user.Accounts &&
-			!_user.Store &&
-			!_user.Restaurant &&
-			!_user.Reports)
-		{
-			await _toastNotification.ShowAsync("Validation", "At least one role must be assigned.", ToastType.Warning);
-			return false;
-		}
-
-		if (string.IsNullOrWhiteSpace(_user.Remarks))
-			_user.Remarks = null;
-
-		if (_user.Id > 0)
-		{
-			var existingUser = _users.FirstOrDefault(_ => _.Id != _user.Id && _.Passcode == _user.Passcode);
-			if (existingUser is not null)
-			{
-				await _toastNotification.ShowAsync("Validation", $"Passcode '{_user.Passcode}' already exists.", ToastType.Warning);
-				return false;
-			}
-
-			existingUser = _users.FirstOrDefault(_ => _.Id != _user.Id && _.Name.Equals(_user.Name, StringComparison.OrdinalIgnoreCase));
-			if (existingUser is not null)
-			{
-				await _toastNotification.ShowAsync("Validation", $"User name '{_user.Name}' already exists.", ToastType.Warning);
-				return false;
-			}
-		}
-		else
-		{
-			var existingUser = _users.FirstOrDefault(_ => _.Passcode == _user.Passcode);
-			if (existingUser is not null)
-			{
-				await _toastNotification.ShowAsync("Validation", $"Passcode '{_user.Passcode}' already exists.", ToastType.Warning);
-				return false;
-			}
-
-			existingUser = _users.FirstOrDefault(_ => _.Name.Equals(_user.Name, StringComparison.OrdinalIgnoreCase));
-			if (existingUser is not null)
-			{
-				await _toastNotification.ShowAsync("Validation", $"User name '{_user.Name}' already exists.", ToastType.Warning);
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	private async Task SaveUser()
+	private async Task SaveTransaction()
 	{
 		if (_isProcessing)
 			return;
@@ -245,22 +83,20 @@ public partial class UserPage
 			_isProcessing = true;
 			StateHasChanged();
 
-			if (!await ValidateForm())
-			{
-				_isProcessing = false;
-				return;
-			}
+			if (!_user.Admin)
+				throw new Exception("You do not have permission to perform this action.");
 
-			await _toastNotification.ShowAsync("Saving", "Processing user...", ToastType.Info);
+			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			await UserData.InsertUser(_user);
+			_userModel.LocationId = _selectedLocation?.Id ?? 0;
+			await UserData.SaveTransaction(_userModel, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
 
-			await _toastNotification.ShowAsync("Saved", $"User '{_user.Name}' saved successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(OperationRouteNames.User, true);
+			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
+			ResetPage();
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("Error", $"Failed to save user: {ex.Message}", ToastType.Error);
+			await _toastNotification.ShowAsync("Error While Saving", ex.Message, ToastType.Error);
 		}
 		finally
 		{
@@ -269,26 +105,49 @@ public partial class UserPage
 	}
 	#endregion
 
-	#region Exporting
-	private async Task ExportExcel()
+	#region Actions
+	private async Task EditSelectedItem()
 	{
-		if (_isProcessing)
+		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
+		if (selectedRecords.Count == 0)
 			return;
 
+		_userModel = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, selectedRecords[0].Id);
+		if (_userModel is null)
+		{
+			await _toastNotification.ShowAsync("Error while Editing", "Transaction Not Found.", ToastType.Error);
+			return;
+		}
+
+		_selectedLocation = _locations.FirstOrDefault(l => l.Id == _userModel.LocationId);
+		StateHasChanged();
+		await _sfFirstFocus.FocusAsync();
+	}
+
+	private async Task DeleteRecoverTransaction(int id, bool isRecover)
+	{
 		try
 		{
+			if (!_user.Admin)
+				throw new Exception("You do not have permission to perform this action.");
+
 			_isProcessing = true;
 			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Exporting to Excel...", ToastType.Info);
 
-			var (stream, fileName) = await UserExport.ExportMaster(_users, ReportExportType.Excel);
-			await SaveAndViewService.SaveAndView(fileName, stream);
+			await _toastNotification.ShowAsync("Processing", $"{(isRecover ? "Recovering" : "Deleting")} transaction...", ToastType.Info);
 
-			await _toastNotification.ShowAsync("Success", "User data exported to Excel successfully.", ToastType.Success);
+			var user = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, id)
+				?? throw new Exception("Transaction not found.");
+
+			if (isRecover) await UserData.RecoverTransaction(user, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+			else await UserData.DeleteTransaction(user, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+
+			await _toastNotification.ShowAsync("Success", $"Transaction {user.Name} has been {(isRecover ? "recovered" : "deleted")} successfully.", ToastType.Success);
+			ResetPage();
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("Error", $"Excel export failed: {ex.Message}", ToastType.Error);
+			await _toastNotification.ShowAsync("Error", $"An error occurred while {(isRecover ? "recovering" : "deleting")} transaction: {ex.Message}", ToastType.Error);
 		}
 		finally
 		{
@@ -297,7 +156,45 @@ public partial class UserPage
 		}
 	}
 
-	private async Task ExportPdf()
+	private async Task DeleteRecoverSelectedItem()
+	{
+		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
+		if (selectedRecords.Count == 0)
+			return;
+
+		var record = selectedRecords[0];
+
+		await ShowConfirmation(record.Status ? "Delete" : "Recover",
+			$"Are you sure you want to {(record.Status ? "delete" : "recover")} transaction {record.Name}",
+			() => DeleteRecoverTransaction(record.Id, !record.Status));
+	}
+
+	private async Task ShowConfirmation(string title, string message, Func<Task> action)
+	{
+		_confirmTitle = title;
+		_confirmMessage = message;
+		_confirmAction = action;
+		StateHasChanged();
+		await _confirmationDialog.ShowAsync();
+	}
+
+	private async Task OnConfirmed()
+	{
+		await _confirmationDialog.HideAsync();
+		if (_confirmAction is not null)
+			await _confirmAction();
+		_confirmAction = null;
+	}
+
+	private async Task OnCancelled()
+	{
+		_confirmAction = null;
+		await _confirmationDialog.HideAsync();
+	}
+	#endregion
+
+	#region Exporting
+	private async Task ExportMaster(bool isExcel = false)
 	{
 		if (_isProcessing)
 			return;
@@ -306,16 +203,16 @@ public partial class UserPage
 		{
 			_isProcessing = true;
 			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Exporting to PDF...", ToastType.Info);
+			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var (stream, fileName) = await UserExport.ExportMaster(_users, ReportExportType.PDF);
+			var (stream, fileName) = await UserExport.ExportMaster(_users, isExcel ? ReportExportType.Excel : ReportExportType.PDF);
 			await SaveAndViewService.SaveAndView(fileName, stream);
 
-			await _toastNotification.ShowAsync("Success", "User data exported to PDF successfully.", ToastType.Success);
+			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("Error", $"PDF export failed: {ex.Message}", ToastType.Error);
+			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
 		}
 		finally
 		{
@@ -326,105 +223,21 @@ public partial class UserPage
 	#endregion
 
 	#region Utilities
-	private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+	private async Task OnGridContextMenuItemClicked(ContextMenuClickEventArgs<UserModel> args)
 	{
 		switch (args.Item.Id)
 		{
-			case "NewUser":
-				ResetPage();
-				break;
-			case "SaveUser":
-				await SaveUser();
-				break;
-			case "ToggleDeleted":
-				await ToggleDeleted();
-				break;
-			case "ExportExcel":
-				await ExportExcel();
-				break;
-			case "ExportPdf":
-				await ExportPdf();
-				break;
-			case "EditSelected":
-				await EditSelectedItem();
-				break;
-			case "DeleteRecoverSelected":
-				await DeleteSelectedItem();
-				break;
+			case "EditSelectedItem": await EditSelectedItem(); break;
+			case "DeleteRecoverSelectedItem": await DeleteRecoverSelectedItem(); break;
 		}
-	}
-
-	private async Task OnUserGridContextMenuItemClicked(ContextMenuClickEventArgs<UserModel> args)
-	{
-		switch (args.Item.Id)
-		{
-			case "EditUser":
-				await EditSelectedItem();
-				break;
-			case "DeleteRecoverUser":
-				await DeleteSelectedItem();
-				break;
-		}
-	}
-
-	private async Task EditSelectedItem()
-	{
-		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
-		if (selectedRecords.Count > 0)
-			OnEditUser(selectedRecords[0]);
-	}
-
-	private async Task DeleteSelectedItem()
-	{
-		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
-		if (selectedRecords.Count > 0)
-		{
-			if (selectedRecords[0].Status)
-				await ShowDeleteConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
-			else
-				await ShowRecoverConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
-		}
-	}
-
-	private async Task ShowDeleteConfirmation(int id, string name)
-	{
-		_deleteUserId = id;
-		_deleteUserName = name;
-		await _deleteConfirmationDialog.ShowAsync();
-	}
-
-	private async Task CancelDelete()
-	{
-		_deleteUserId = 0;
-		_deleteUserName = string.Empty;
-		await _deleteConfirmationDialog.HideAsync();
-	}
-
-	private async Task ShowRecoverConfirmation(int id, string name)
-	{
-		_recoverUserId = id;
-		_recoverUserName = name;
-		await _recoverConfirmationDialog.ShowAsync();
-	}
-
-	private async Task CancelRecover()
-	{
-		_recoverUserId = 0;
-		_recoverUserName = string.Empty;
-		await _recoverConfirmationDialog.HideAsync();
 	}
 
 	private async Task ToggleDeleted()
 	{
 		_showDeleted = !_showDeleted;
 		await LoadData();
-		StateHasChanged();
 	}
 
-	private void ResetPage() =>
-		NavigationManager.NavigateTo(OperationRouteNames.User, true);
-
-	private void NavigateBack() =>
-		NavigationManager.NavigateTo(OperationRouteNames.OperationsDashboard);
+	private void ResetPage() => PageRefresh.Request();
 	#endregion
 }

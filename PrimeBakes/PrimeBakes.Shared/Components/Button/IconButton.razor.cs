@@ -65,14 +65,14 @@ public partial class IconButton
         };
 
         // Add text class if text is provided
-        if (!string.IsNullOrEmpty(Text))
+        if (!string.IsNullOrWhiteSpace(Text))
             classes.Add("icon-btn-with-text");
 
         // Add custom CSS class
-        if (!string.IsNullOrEmpty(CssClass))
+        if (!string.IsNullOrWhiteSpace(CssClass))
             classes.Add(CssClass);
 
-        return string.Join(" ", classes.Where(c => !string.IsNullOrEmpty(c)));
+        return string.Join(" ", classes.Where(c => !string.IsNullOrWhiteSpace(c)));
     }
 }
 

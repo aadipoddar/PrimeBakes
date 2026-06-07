@@ -34,7 +34,7 @@ public class MainActivity : MauiAppCompatActivity, Android.Gms.Tasks.IOnSuccessL
             {
                 var action = intent.GetStringExtra("action");
 
-                if (!string.IsNullOrEmpty(action))
+                if (!string.IsNullOrWhiteSpace(action))
                     NotificationActionService.TriggerAction(action);
             }
         }

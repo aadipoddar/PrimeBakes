@@ -301,7 +301,7 @@ public class BluetoothPrinterService : IBluetoothPrinterService
 	/// <inheritdoc />
 	public async Task<bool> PrintTextAsync(string text)
 	{
-		if (string.IsNullOrEmpty(text))
+		if (string.IsNullOrWhiteSpace(text))
 			return false;
 
 		// ESC/POS: Initialize printer + text + line feed + cut
@@ -348,7 +348,7 @@ public class BluetoothDeviceDiscoveryReceiver : BroadcastReceiver
 		// Pre-populate seen addresses from paired devices
 		foreach (var d in devices)
 		{
-			if (!string.IsNullOrEmpty(d.Address))
+			if (!string.IsNullOrWhiteSpace(d.Address))
 				_seenAddresses.Add(d.Address);
 		}
 	}
@@ -364,7 +364,7 @@ public class BluetoothDeviceDiscoveryReceiver : BroadcastReceiver
 				? intent.GetParcelableExtra(BluetoothDevice.ExtraDevice, Java.Lang.Class.FromType(typeof(BluetoothDevice))) as BluetoothDevice
 				: intent.GetParcelableExtra(BluetoothDevice.ExtraDevice) as BluetoothDevice;
 
-			if (device is not null && !string.IsNullOrEmpty(device.Address) && _seenAddresses.Add(device.Address))
+			if (device is not null && !string.IsNullOrWhiteSpace(device.Address) && _seenAddresses.Add(device.Address))
 			{
 				var rssi = intent.GetShortExtra(BluetoothDevice.ExtraRssi, short.MinValue);
 

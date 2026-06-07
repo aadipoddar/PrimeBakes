@@ -336,7 +336,7 @@ public class BluetoothPrinterService(IBluetoothNavigator bluetoothNavigator) : I
     /// <inheritdoc />
     public async Task<bool> PrintTextAsync(string text)
     {
-        if (string.IsNullOrEmpty(text))
+        if (string.IsNullOrWhiteSpace(text))
             return false;
 
         // ESC/POS: Initialize printer + text + line feed + cut

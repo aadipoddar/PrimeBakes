@@ -10,7 +10,7 @@
 
 @if (_isLoading || _user is null)
 {
-	<LoadingScreen Visible="true" />
+	<LoadingScreen />
 }
 else
 {
@@ -75,7 +75,7 @@ else
 							</svg>
 							<input placeholder="Search cart…" value="@_query"
 								   @oninput="@(e => OnQueryChange(e.Value?.ToString()))" />
-							@if (!string.IsNullOrEmpty(_query))
+							@if (!string.IsNullOrWhiteSpace(_query))
 							{
 								<button type="button" class="pb-grid__search-clear" @onclick="() => OnQueryChange(null)" aria-label="Clear search">
 									<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18" /></svg>

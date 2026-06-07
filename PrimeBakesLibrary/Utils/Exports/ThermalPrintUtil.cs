@@ -357,14 +357,14 @@ public static class ThermalPrintUtil
 	public static List<string> WrapText(string text, SKFont font, float maxWidth)
 	{
 		var lines = new List<string>();
-		if (string.IsNullOrEmpty(text)) { lines.Add(string.Empty); return lines; }
+		if (string.IsNullOrWhiteSpace(text)) { lines.Add(string.Empty); return lines; }
 
 		string currentLine = string.Empty;
 		foreach (var word in text.Split(' '))
 		{
 			if (font.MeasureText(word) > maxWidth)
 			{
-				if (!string.IsNullOrEmpty(currentLine)) { lines.Add(currentLine); currentLine = string.Empty; }
+				if (!string.IsNullOrWhiteSpace(currentLine)) { lines.Add(currentLine); currentLine = string.Empty; }
 				string chunk = string.Empty;
 				foreach (char c in word)
 				{
@@ -375,12 +375,12 @@ public static class ThermalPrintUtil
 				currentLine = chunk;
 				continue;
 			}
-			string tryLine = string.IsNullOrEmpty(currentLine) ? word : $"{currentLine} {word}";
-			if (font.MeasureText(tryLine) > maxWidth && !string.IsNullOrEmpty(currentLine))
+			string tryLine = string.IsNullOrWhiteSpace(currentLine) ? word : $"{currentLine} {word}";
+			if (font.MeasureText(tryLine) > maxWidth && !string.IsNullOrWhiteSpace(currentLine))
 			{ lines.Add(currentLine); currentLine = word; }
 			else currentLine = tryLine;
 		}
-		if (!string.IsNullOrEmpty(currentLine)) lines.Add(currentLine);
+		if (!string.IsNullOrWhiteSpace(currentLine)) lines.Add(currentLine);
 		if (lines.Count == 0) lines.Add(string.Empty);
 		return lines;
 	}

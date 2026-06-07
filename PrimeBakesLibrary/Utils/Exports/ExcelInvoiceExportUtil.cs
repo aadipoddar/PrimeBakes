@@ -263,7 +263,7 @@ public static class ExcelInvoiceExportUtil
 		}
 
 		// Company Address (Left)
-		if (!string.IsNullOrEmpty(company?.Address))
+		if (!string.IsNullOrWhiteSpace(company?.Address))
 		{
 			worksheet.Range[leftRow, 1, leftRow, 4].Merge();
 			worksheet.Range[leftRow, 1].Text = company.Address;
@@ -280,7 +280,7 @@ public static class ExcelInvoiceExportUtil
 		}
 
 		// Bill To Address (Right)
-		if (billTo != null && !string.IsNullOrEmpty(billTo.Address))
+		if (billTo != null && !string.IsNullOrWhiteSpace(billTo.Address))
 		{
 			worksheet.Range[rightRow, 6, rightRow, 10].Merge();
 			worksheet.Range[rightRow, 6].Text = billTo.Address;
@@ -296,7 +296,7 @@ public static class ExcelInvoiceExportUtil
 		}
 
 		// Company Phone (Left)
-		if (!string.IsNullOrEmpty(company?.Phone))
+		if (!string.IsNullOrWhiteSpace(company?.Phone))
 		{
 			worksheet.Range[leftRow, 1, leftRow, 4].Merge();
 			worksheet.Range[leftRow, 1].Text = $"Phone: {company.Phone}";
@@ -304,7 +304,7 @@ public static class ExcelInvoiceExportUtil
 		}
 
 		// Bill To Phone (Right)
-		if (billTo != null && !string.IsNullOrEmpty(billTo.Phone))
+		if (billTo != null && !string.IsNullOrWhiteSpace(billTo.Phone))
 		{
 			worksheet.Range[rightRow, 6, rightRow, 10].Merge();
 			worksheet.Range[rightRow, 6].Text = $"Phone: {billTo.Phone}";
@@ -312,7 +312,7 @@ public static class ExcelInvoiceExportUtil
 		}
 
 		// Company Email (Left)
-		if (!string.IsNullOrEmpty(company?.Email))
+		if (!string.IsNullOrWhiteSpace(company?.Email))
 		{
 			worksheet.Range[leftRow, 1, leftRow, 4].Merge();
 			worksheet.Range[leftRow, 1].Text = $"Email: {company.Email}";
@@ -320,7 +320,7 @@ public static class ExcelInvoiceExportUtil
 		}
 
 		// Bill To Email (Right)
-		if (billTo != null && !string.IsNullOrEmpty(billTo.Email))
+		if (billTo != null && !string.IsNullOrWhiteSpace(billTo.Email))
 		{
 			worksheet.Range[rightRow, 6, rightRow, 10].Merge();
 			worksheet.Range[rightRow, 6].Text = $"Email: {billTo.Email}";
@@ -328,7 +328,7 @@ public static class ExcelInvoiceExportUtil
 		}
 
 		// Company GST (Left)
-		if (!string.IsNullOrEmpty(company?.GSTNo))
+		if (!string.IsNullOrWhiteSpace(company?.GSTNo))
 		{
 			worksheet.Range[leftRow, 1, leftRow, 4].Merge();
 			worksheet.Range[leftRow, 1].Text = $"GSTIN: {company.GSTNo}";
@@ -336,7 +336,7 @@ public static class ExcelInvoiceExportUtil
 		}
 
 		// Bill To GST (Right)
-		if (billTo != null && !string.IsNullOrEmpty(billTo.GSTNo))
+		if (billTo != null && !string.IsNullOrWhiteSpace(billTo.GSTNo))
 		{
 			worksheet.Range[rightRow, 6, rightRow, 10].Merge();
 			worksheet.Range[rightRow, 6].Text = $"GSTIN: {billTo.GSTNo}";

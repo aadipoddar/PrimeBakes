@@ -262,105 +262,105 @@ public partial class SettingsPage
 	private void MapSelections()
 	{
 		// Map Company
-		if (!string.IsNullOrEmpty(_primaryCompanyLinkingId) && long.TryParse(_primaryCompanyLinkingId, out var companyId))
+		if (!string.IsNullOrWhiteSpace(_primaryCompanyLinkingId) && long.TryParse(_primaryCompanyLinkingId, out var companyId))
 		{
 			var company = _companies.FirstOrDefault(c => c.Id == companyId);
 			_selectedCompanyName = company?.Name ?? string.Empty;
 		}
 
 		// Map Vouchers
-		if (!string.IsNullOrEmpty(_purchaseVoucherId) && long.TryParse(_purchaseVoucherId, out var purchaseVoucherId))
+		if (!string.IsNullOrWhiteSpace(_purchaseVoucherId) && long.TryParse(_purchaseVoucherId, out var purchaseVoucherId))
 		{
 			var voucher = _vouchers.FirstOrDefault(v => v.Id == purchaseVoucherId);
 			_selectedPurchaseVoucherName = voucher?.Name ?? string.Empty;
 		}
 
-		if (!string.IsNullOrEmpty(_purchaseReturnVoucherId) && long.TryParse(_purchaseReturnVoucherId, out var purchaseReturnVoucherId))
+		if (!string.IsNullOrWhiteSpace(_purchaseReturnVoucherId) && long.TryParse(_purchaseReturnVoucherId, out var purchaseReturnVoucherId))
 		{
 			var voucher = _vouchers.FirstOrDefault(v => v.Id == purchaseReturnVoucherId);
 			_selectedPurchaseReturnVoucherName = voucher?.Name ?? string.Empty;
 		}
 
-		if (!string.IsNullOrEmpty(_saleVoucherId) && long.TryParse(_saleVoucherId, out var saleVoucherId))
+		if (!string.IsNullOrWhiteSpace(_saleVoucherId) && long.TryParse(_saleVoucherId, out var saleVoucherId))
 		{
 			var voucher = _vouchers.FirstOrDefault(v => v.Id == saleVoucherId);
 			_selectedSaleVoucherName = voucher?.Name ?? string.Empty;
 		}
 
-		if (!string.IsNullOrEmpty(_saleReturnVoucherId) && long.TryParse(_saleReturnVoucherId, out var saleReturnVoucherId))
+		if (!string.IsNullOrWhiteSpace(_saleReturnVoucherId) && long.TryParse(_saleReturnVoucherId, out var saleReturnVoucherId))
 		{
 			var voucher = _vouchers.FirstOrDefault(v => v.Id == saleReturnVoucherId);
 			_selectedSaleReturnVoucherName = voucher?.Name ?? string.Empty;
 		}
 
-		if (!string.IsNullOrEmpty(_stockTransferVoucherId) && long.TryParse(_stockTransferVoucherId, out var stockTransferVoucherId))
+		if (!string.IsNullOrWhiteSpace(_stockTransferVoucherId) && long.TryParse(_stockTransferVoucherId, out var stockTransferVoucherId))
 		{
 			var voucher = _vouchers.FirstOrDefault(v => v.Id == stockTransferVoucherId);
 			_selectedStockTransferVoucherName = voucher?.Name ?? string.Empty;
 		}
 
-		if (!string.IsNullOrEmpty(_billVoucherId) && long.TryParse(_billVoucherId, out var billVoucherId))
+		if (!string.IsNullOrWhiteSpace(_billVoucherId) && long.TryParse(_billVoucherId, out var billVoucherId))
 		{
 			var voucher = _vouchers.FirstOrDefault(v => v.Id == billVoucherId);
 			_selectedBillVoucherName = voucher?.Name ?? string.Empty;
 		}
 
-		if (!string.IsNullOrEmpty(_billDayCloseVoucherId) && long.TryParse(_billDayCloseVoucherId, out var billDayCloseVoucherId))
+		if (!string.IsNullOrWhiteSpace(_billDayCloseVoucherId) && long.TryParse(_billDayCloseVoucherId, out var billDayCloseVoucherId))
 		{
 			var voucher = _vouchers.FirstOrDefault(v => v.Id == billDayCloseVoucherId);
 			_selectedBillDayCloseVoucherName = voucher?.Name ?? string.Empty;
 		}
 
-		if (!string.IsNullOrEmpty(_saleDayCloseVoucherId) && long.TryParse(_saleDayCloseVoucherId, out var saleDayCloseVoucherId))
+		if (!string.IsNullOrWhiteSpace(_saleDayCloseVoucherId) && long.TryParse(_saleDayCloseVoucherId, out var saleDayCloseVoucherId))
 		{
 			var voucher = _vouchers.FirstOrDefault(v => v.Id == saleDayCloseVoucherId);
 			_selectedSaleDayCloseVoucherName = voucher?.Name ?? string.Empty;
 		}
 
-		if (!string.IsNullOrEmpty(_defaultSelectedVoucherId) && long.TryParse(_defaultSelectedVoucherId, out var defaultSelectedVoucherId))
+		if (!string.IsNullOrWhiteSpace(_defaultSelectedVoucherId) && long.TryParse(_defaultSelectedVoucherId, out var defaultSelectedVoucherId))
 		{
 			var voucher = _vouchers.FirstOrDefault(v => v.Id == defaultSelectedVoucherId);
 			_selectedDefaultVoucherName = voucher?.Name ?? string.Empty;
 		}
 
 		// Map Ledgers
-		if (!string.IsNullOrEmpty(_purchaseLedgerId) && long.TryParse(_purchaseLedgerId, out var purchaseLedgerId))
+		if (!string.IsNullOrWhiteSpace(_purchaseLedgerId) && long.TryParse(_purchaseLedgerId, out var purchaseLedgerId))
 		{
 			var ledger = _ledgers.FirstOrDefault(l => l.Id == purchaseLedgerId);
 			_selectedPurchaseLedgerName = ledger?.Name ?? string.Empty;
 		}
 
-		if (!string.IsNullOrEmpty(_saleLedgerId) && long.TryParse(_saleLedgerId, out var saleLedgerId))
+		if (!string.IsNullOrWhiteSpace(_saleLedgerId) && long.TryParse(_saleLedgerId, out var saleLedgerId))
 		{
 			var ledger = _ledgers.FirstOrDefault(l => l.Id == saleLedgerId);
 			_selectedSaleLedgerName = ledger?.Name ?? string.Empty;
 		}
 
-		if (!string.IsNullOrEmpty(_stockTransferLedgerId) && long.TryParse(_stockTransferLedgerId, out var stockTransferLedgerId))
+		if (!string.IsNullOrWhiteSpace(_stockTransferLedgerId) && long.TryParse(_stockTransferLedgerId, out var stockTransferLedgerId))
 		{
 			var ledger = _ledgers.FirstOrDefault(l => l.Id == stockTransferLedgerId);
 			_selectedStockTransferLedgerName = ledger?.Name ?? string.Empty;
 		}
 
-		if (!string.IsNullOrEmpty(_billLedgerId) && long.TryParse(_billLedgerId, out var billLedgerId))
+		if (!string.IsNullOrWhiteSpace(_billLedgerId) && long.TryParse(_billLedgerId, out var billLedgerId))
 		{
 			var ledger = _ledgers.FirstOrDefault(l => l.Id == billLedgerId);
 			_selectedBillLedgerName = ledger?.Name ?? string.Empty;
 		}
 
-		if (!string.IsNullOrEmpty(_cashLedgerId) && long.TryParse(_cashLedgerId, out var cashLedgerId))
+		if (!string.IsNullOrWhiteSpace(_cashLedgerId) && long.TryParse(_cashLedgerId, out var cashLedgerId))
 		{
 			var ledger = _ledgers.FirstOrDefault(l => l.Id == cashLedgerId);
 			_selectedCashLedgerName = ledger?.Name ?? string.Empty;
 		}
 
-		if (!string.IsNullOrEmpty(_cashSalesLedgerId) && long.TryParse(_cashSalesLedgerId, out var cashSalesLedgerId))
+		if (!string.IsNullOrWhiteSpace(_cashSalesLedgerId) && long.TryParse(_cashSalesLedgerId, out var cashSalesLedgerId))
 		{
 			var ledger = _ledgers.FirstOrDefault(l => l.Id == cashSalesLedgerId);
 			_selectedCashSalesLedgerName = ledger?.Name ?? string.Empty;
 		}
 
-		if (!string.IsNullOrEmpty(_gstLedgerId) && long.TryParse(_gstLedgerId, out var gstLedgerId))
+		if (!string.IsNullOrWhiteSpace(_gstLedgerId) && long.TryParse(_gstLedgerId, out var gstLedgerId))
 		{
 			var ledger = _ledgers.FirstOrDefault(l => l.Id == gstLedgerId);
 			_selectedGSTLedgerName = ledger?.Name ?? string.Empty;

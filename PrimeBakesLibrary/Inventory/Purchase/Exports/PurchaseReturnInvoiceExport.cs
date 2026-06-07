@@ -22,7 +22,7 @@ public static class PurchaseReturnInvoiceExport
 		if (company is null || party is null)
 			throw new InvalidOperationException("Company or party information is missing.");
 
-		if (!string.IsNullOrEmpty(transaction.ChallanNo))
+		if (!string.IsNullOrWhiteSpace(transaction.ChallanNo))
 			party.Address += $"\nChallan: {transaction.ChallanNo}";
 
 		var allItems = await CommonData.LoadTableData<RawMaterialModel>(InventoryNames.RawMaterial);

@@ -441,7 +441,7 @@ public partial class PurchaseReturnPage
 
 	private async Task AddItemToCart()
 	{
-		if (_selectedRawMaterial is null || _selectedRawMaterial.Id <= 0 || _selectedCart.Quantity <= 0 || _selectedCart.Rate < 0 || _selectedCart.DiscountPercent < 0 || _selectedCart.CGSTPercent < 0 || _selectedCart.SGSTPercent < 0 || _selectedCart.IGSTPercent < 0 || _selectedCart.Total < 0 || string.IsNullOrEmpty(_selectedCart.UnitOfMeasurement))
+		if (_selectedRawMaterial is null || _selectedRawMaterial.Id <= 0 || _selectedCart.Quantity <= 0 || _selectedCart.Rate < 0 || _selectedCart.DiscountPercent < 0 || _selectedCart.CGSTPercent < 0 || _selectedCart.SGSTPercent < 0 || _selectedCart.IGSTPercent < 0 || _selectedCart.Total < 0 || string.IsNullOrWhiteSpace(_selectedCart.UnitOfMeasurement))
 		{
 			await _toastNotification.ShowAsync("Invalid Item Details", "Please ensure all item details are correctly filled before adding to the cart.", ToastType.Error);
 			return;
@@ -817,7 +817,7 @@ public partial class PurchaseReturnPage
 	{
 		try
 		{
-			if (string.IsNullOrEmpty(_purchaseReturn.DocumentUrl))
+			if (string.IsNullOrWhiteSpace(_purchaseReturn.DocumentUrl))
 				return;
 
 			var fileName = _purchaseReturn.DocumentUrl.Split('/').Last();
@@ -837,7 +837,7 @@ public partial class PurchaseReturnPage
 	{
 		try
 		{
-			if (string.IsNullOrEmpty(_purchaseReturn.DocumentUrl))
+			if (string.IsNullOrWhiteSpace(_purchaseReturn.DocumentUrl))
 				return;
 
 			var (fileStream, contentType) = await BlobStorageAccess.DownloadFileFromBlobStorage(_purchaseReturn.DocumentUrl, BlobStorageContainers.purchasereturn);
@@ -864,7 +864,7 @@ public partial class PurchaseReturnPage
 
 			if (uploadedFiles is not null && uploadedFiles.Count == 1)
 			{
-				if (!string.IsNullOrEmpty(_purchaseReturn.DocumentUrl))
+				if (!string.IsNullOrWhiteSpace(_purchaseReturn.DocumentUrl))
 					await RemoveExistingDocument();
 
 				await using var file = uploadedFiles[0].File.OpenReadStream(maxAllowedSize: 52428800); // 50 MB

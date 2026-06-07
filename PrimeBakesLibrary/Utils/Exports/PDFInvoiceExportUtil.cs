@@ -295,7 +295,7 @@ public static class PDFInvoiceExportUtil
 			graphics.DrawString(company.Name ?? string.Empty, valueFont, valueBrush, new PointF(leftMargin + padding, leftTextY));
 			leftTextY += 9;
 
-			if (!string.IsNullOrEmpty(company.Address))
+			if (!string.IsNullOrWhiteSpace(company.Address))
 			{
 				// Measure actual text height needed for the address
 				PdfStringFormat format = new()
@@ -313,19 +313,19 @@ public static class PDFInvoiceExportUtil
 				leftTextY += addressHeight + 2;
 			}
 
-			if (!string.IsNullOrEmpty(company.Phone))
+			if (!string.IsNullOrWhiteSpace(company.Phone))
 			{
 				graphics.DrawString($"Phone: {company.Phone}", valueFont, valueBrush, new PointF(leftMargin + padding, leftTextY));
 				leftTextY += 9;
 			}
 
-			if (!string.IsNullOrEmpty(company.Email))
+			if (!string.IsNullOrWhiteSpace(company.Email))
 			{
 				graphics.DrawString($"Email: {company.Email}", valueFont, valueBrush, new PointF(leftMargin + padding, leftTextY));
 				leftTextY += 9;
 			}
 
-			if (!string.IsNullOrEmpty(company.GSTNo))
+			if (!string.IsNullOrWhiteSpace(company.GSTNo))
 			{
 				graphics.DrawString($"GSTIN: {company.GSTNo}", valueFont, valueBrush, new PointF(leftMargin + padding, leftTextY));
 				leftTextY += 9;
@@ -341,7 +341,7 @@ public static class PDFInvoiceExportUtil
 			graphics.DrawString(billTo.Name, valueFont, valueBrush, new PointF(rightColumnX + padding, rightTextY));
 			rightTextY += 9;
 
-			if (!string.IsNullOrEmpty(billTo.Address))
+			if (!string.IsNullOrWhiteSpace(billTo.Address))
 			{
 				// Measure actual text height needed for the address
 				PdfStringFormat format = new()
@@ -359,19 +359,19 @@ public static class PDFInvoiceExportUtil
 				rightTextY += addressHeight + 2;
 			}
 
-			if (!string.IsNullOrEmpty(billTo.Phone))
+			if (!string.IsNullOrWhiteSpace(billTo.Phone))
 			{
 				graphics.DrawString($"Phone: {billTo.Phone}", valueFont, valueBrush, new PointF(rightColumnX + padding, rightTextY));
 				rightTextY += 9;
 			}
 
-			if (!string.IsNullOrEmpty(billTo.Email))
+			if (!string.IsNullOrWhiteSpace(billTo.Email))
 			{
 				graphics.DrawString($"Email: {billTo.Email}", valueFont, valueBrush, new PointF(rightColumnX + padding, rightTextY));
 				rightTextY += 9;
 			}
 
-			if (!string.IsNullOrEmpty(billTo.GSTNo))
+			if (!string.IsNullOrWhiteSpace(billTo.GSTNo))
 			{
 				graphics.DrawString($"GSTIN: {billTo.GSTNo}", valueFont, valueBrush, new PointF(rightColumnX + padding, rightTextY));
 				rightTextY += 9;
@@ -757,7 +757,7 @@ public static class PDFInvoiceExportUtil
 	/// </summary>
 	private static void DrawWrappedText(PdfGraphics graphics, string text, PdfFont font, PdfBrush brush, RectangleF bounds)
 	{
-		if (string.IsNullOrEmpty(text))
+		if (string.IsNullOrWhiteSpace(text))
 			return;
 
 		PdfStringFormat format = new()

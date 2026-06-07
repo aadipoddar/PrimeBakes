@@ -200,7 +200,7 @@ public static class SaleThermalPrint
 		});
 
 		string amountInWords = numericWords.ToWords(Math.Round(sale.TotalAmount));
-		if (string.IsNullOrEmpty(amountInWords))
+		if (string.IsNullOrWhiteSpace(amountInWords))
 			amountInWords = "Zero";
 
 		amountInWords += " Rupees Only";

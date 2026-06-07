@@ -20,7 +20,7 @@
 				  Tabindex="@TabIndex"
 				  Immediate="true"
 				  Clearable="!Required && !ReadOnly"
-				  Adornment="@(string.IsNullOrEmpty(AdornmentIcon) ? Adornment.None : Adornment.End)"
+				  Adornment="@(string.IsNullOrWhiteSpace(AdornmentIcon) ? Adornment.None : Adornment.End)"
 				  AdornmentIcon="@AdornmentIcon"
 				  AdornmentColor="Color.Primary"
 				  OnAdornmentClick="OnAdornmentClick"

@@ -315,7 +315,7 @@ public partial class OrderItemReport : IAsyncDisposable
 
 	private async Task DownloadSelectedSalePdfInvoice()
 	{
-		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0 || string.IsNullOrEmpty(_sfGrid.SelectedRecords.First().SaleTransactionNo))
+		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0 || string.IsNullOrWhiteSpace(_sfGrid.SelectedRecords.First().SaleTransactionNo))
 			return;
 
 		try
@@ -342,7 +342,7 @@ public partial class OrderItemReport : IAsyncDisposable
 
 	private async Task DownloadSelectedSaleExcelInvoice()
 	{
-		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0 || string.IsNullOrEmpty(_sfGrid.SelectedRecords.First().SaleTransactionNo))
+		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0 || string.IsNullOrWhiteSpace(_sfGrid.SelectedRecords.First().SaleTransactionNo))
 			return;
 
 		try
@@ -413,7 +413,7 @@ public partial class OrderItemReport : IAsyncDisposable
 
 	private async Task ViewSelectedSaleTransaction()
 	{
-		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0 || string.IsNullOrEmpty(_sfGrid.SelectedRecords.First().SaleTransactionNo))
+		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0 || string.IsNullOrWhiteSpace(_sfGrid.SelectedRecords.First().SaleTransactionNo))
 			return;
 
 		var selectedCartItem = _sfGrid.SelectedRecords.First();

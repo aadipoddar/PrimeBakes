@@ -17,7 +17,7 @@ public static class ExcelReportExportUtil
 	/// </summary>
 	private static string ConvertToExcelFormat(string csharpFormat)
 	{
-		if (string.IsNullOrEmpty(csharpFormat))
+		if (string.IsNullOrWhiteSpace(csharpFormat))
 			return csharpFormat;
 
 		// Replace C# AM/PM indicator with Excel AM/PM literal
@@ -367,7 +367,7 @@ public static class ExcelReportExportUtil
 		int currentRow = 2;
 
 		// Row 2: Date range if available
-		if (!string.IsNullOrEmpty(dateRangeText))
+		if (!string.IsNullOrWhiteSpace(dateRangeText))
 		{
 			IRange dateRange = worksheet.Range[$"A{currentRow}:{colLetter}{currentRow}"];
 			dateRange.Merge();
@@ -385,7 +385,7 @@ public static class ExcelReportExportUtil
 		{
 			foreach (var metadata in headerMetadata)
 			{
-				if (!string.IsNullOrEmpty(metadata.Value))
+				if (!string.IsNullOrWhiteSpace(metadata.Value))
 				{
 					IRange metadataRange = worksheet.Range[$"A{currentRow}:{colLetter}{currentRow}"];
 					metadataRange.Merge();
@@ -491,7 +491,7 @@ public static class ExcelReportExportUtil
 					else if (value is decimal decimalValue)
 					{
 						cell.Number = (double)decimalValue;
-						if (!string.IsNullOrEmpty(setting.Format))
+						if (!string.IsNullOrWhiteSpace(setting.Format))
 							cell.CellStyle.NumberFormat = ConvertToExcelFormat(setting.Format);
 
 						// Track this column for totals
@@ -508,7 +508,7 @@ public static class ExcelReportExportUtil
 					else if (value is double doubleValue)
 					{
 						cell.Number = doubleValue;
-						if (!string.IsNullOrEmpty(setting.Format))
+						if (!string.IsNullOrWhiteSpace(setting.Format))
 							cell.CellStyle.NumberFormat = ConvertToExcelFormat(setting.Format);
 
 						if (setting.IncludeInTotal)
@@ -517,7 +517,7 @@ public static class ExcelReportExportUtil
 					else if (value is float floatValue)
 					{
 						cell.Number = floatValue;
-						if (!string.IsNullOrEmpty(setting.Format))
+						if (!string.IsNullOrWhiteSpace(setting.Format))
 							cell.CellStyle.NumberFormat = ConvertToExcelFormat(setting.Format);
 
 						if (setting.IncludeInTotal)
@@ -526,7 +526,7 @@ public static class ExcelReportExportUtil
 					else if (value is int intValue)
 					{
 						cell.Number = intValue;
-						if (!string.IsNullOrEmpty(setting.Format))
+						if (!string.IsNullOrWhiteSpace(setting.Format))
 							cell.CellStyle.NumberFormat = ConvertToExcelFormat(setting.Format);
 
 						if (setting.IncludeInTotal)
@@ -535,7 +535,7 @@ public static class ExcelReportExportUtil
 					else if (value is long longValue)
 					{
 						cell.Number = longValue;
-						if (!string.IsNullOrEmpty(setting.Format))
+						if (!string.IsNullOrWhiteSpace(setting.Format))
 							cell.CellStyle.NumberFormat = ConvertToExcelFormat(setting.Format);
 
 						if (setting.IncludeInTotal)
@@ -544,7 +544,7 @@ public static class ExcelReportExportUtil
 					else if (value is short shortValue)
 					{
 						cell.Number = shortValue;
-						if (!string.IsNullOrEmpty(setting.Format))
+						if (!string.IsNullOrWhiteSpace(setting.Format))
 							cell.CellStyle.NumberFormat = ConvertToExcelFormat(setting.Format);
 
 						if (setting.IncludeInTotal)
@@ -586,7 +586,7 @@ public static class ExcelReportExportUtil
 							if (formatInfo.Bold)
 								cell.CellStyle.Font.Bold = true;
 
-							if (!string.IsNullOrEmpty(formatInfo.FormattedText))
+							if (!string.IsNullOrWhiteSpace(formatInfo.FormattedText))
 								cell.Text = formatInfo.FormattedText;
 						}
 					}
@@ -833,7 +833,7 @@ public static class ExcelReportExportUtil
 	/// </summary>
 	private static string SplitCamelCase(string input)
 	{
-		if (string.IsNullOrEmpty(input))
+		if (string.IsNullOrWhiteSpace(input))
 			return input;
 
 		// Handle special cases

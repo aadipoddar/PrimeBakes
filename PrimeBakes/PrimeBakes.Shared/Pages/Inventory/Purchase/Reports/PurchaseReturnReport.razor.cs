@@ -322,7 +322,7 @@ public partial class PurchaseReturnReport : IAsyncDisposable
 		{
 			var documentUrl = _sfGrid.SelectedRecords.First().DocumentUrl;
 
-			if (string.IsNullOrEmpty(documentUrl))
+			if (string.IsNullOrWhiteSpace(documentUrl))
 			{
 				await _toastNotification.ShowAsync("Warning", "No original document available for this purchase return.", ToastType.Warning);
 				return;

@@ -20,7 +20,7 @@ public partial class MainLayout
 	/// </summary>
 	private async Task MarkSavedPrinterConnectedAsync()
 	{
-		if (string.IsNullOrEmpty(_savedPrinterAddress))
+		if (string.IsNullOrWhiteSpace(_savedPrinterAddress))
 			return;
 
 		var info = new BluetoothDeviceInfo
@@ -40,7 +40,7 @@ public partial class MainLayout
 	/// </summary>
 	private async Task MarkSavedPrinterDisconnectedAsync()
 	{
-		if (string.IsNullOrEmpty(_savedPrinterAddress))
+		if (string.IsNullOrWhiteSpace(_savedPrinterAddress))
 			return;
 
 		var info = new BluetoothDeviceInfo
@@ -73,11 +73,11 @@ public partial class MainLayout
 				return;
 
 			var json = await DataStorageService.LocalGetAsync(StorageFileNames.BluetoothPrinterDataFileName);
-			if (string.IsNullOrEmpty(json))
+			if (string.IsNullOrWhiteSpace(json))
 				return;
 
 			var saved = System.Text.Json.JsonSerializer.Deserialize<BluetoothDeviceInfo>(json);
-			if (saved is null || string.IsNullOrEmpty(saved.Address))
+			if (saved is null || string.IsNullOrWhiteSpace(saved.Address))
 			{
 				await DataStorageService.LocalRemove(StorageFileNames.BluetoothPrinterDataFileName);
 				return;

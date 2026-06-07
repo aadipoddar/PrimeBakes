@@ -27,7 +27,7 @@
 			</div>
 			<h1 class="pb-success__title">Order placed.</h1>
 			<p class="pb-success__sub">
-				@if (!string.IsNullOrEmpty(_order?.LocationName))
+				@if (!string.IsNullOrWhiteSpace(_order?.LocationName))
 				{
 					<text>Sent to @_order.LocationName for production.</text>
 				}

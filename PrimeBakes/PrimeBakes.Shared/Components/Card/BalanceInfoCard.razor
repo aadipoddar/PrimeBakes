@@ -7,7 +7,7 @@
         <div class="card-value @GetAmountClass()">
             @Value
         </div>
-        @if (!string.IsNullOrEmpty(Breakdown))
+        @if (!string.IsNullOrWhiteSpace(Breakdown))
         {
             <div class="card-breakdown">
                 <span class="breakdown-item">@Breakdown</span>

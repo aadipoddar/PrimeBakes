@@ -106,7 +106,7 @@ public partial class LocalSettingsPage : IAsyncDisposable
 	/// <param name="address">The MAC address of the target Bluetooth device.</param>
 	private async Task ConnectToDevice(string address)
 	{
-		if (_isProcessing || string.IsNullOrEmpty(address))
+		if (_isProcessing || string.IsNullOrWhiteSpace(address))
 			return;
 
 		try

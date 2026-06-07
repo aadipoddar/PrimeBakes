@@ -1,84 +1,76 @@
-@if (Visible)
-{
-    <div class="animated-loader-overlay">
-        <div class="animated-loader-container">
-            <dotlottie-wc src="https://lottie.host/da7a2b78-8df0-4487-afff-bdf8ea25d265/GbGhV1dQoP.lottie" 
-                          style="width: 300px; height: 300px" 
-                          autoplay 
-                          loop>
-            </dotlottie-wc>
-        </div>
-    </div>
-}
+<div class="animated-loader-overlay">
+	<div class="animated-loader-container">
+		<dotlottie-wc src="https://lottie.host/da7a2b78-8df0-4487-afff-bdf8ea25d265/GbGhV1dQoP.lottie"
+					  style="width: 300px; height: 300px"
+					  autoplay
+					  loop>
+		</dotlottie-wc>
+	</div>
+</div>
 
 <style>
-    .animated-loader-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 9999;
-        animation: fadeIn 0.3s ease;
-    }
+	.animated-loader-overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 9999;
+		animation: fadeIn 0.3s ease;
+	}
 
-    .animated-loader-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 24px;
-    }
+	.animated-loader-container {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 24px;
+	}
 
-    .animated-loader-label {
-        color: #f8fafc;
-        font-size: 16px;
-        font-weight: 500;
-        text-align: center;
-        letter-spacing: 0.5px;
-        animation: pulse 2s ease-in-out infinite;
-    }
+	.animated-loader-label {
+		color: #f8fafc;
+		font-size: 16px;
+		font-weight: 500;
+		text-align: center;
+		letter-spacing: 0.5px;
+		animation: pulse 2s ease-in-out infinite;
+	}
 
-    @@keyframes fadeIn {
-        from {
-            opacity: 0;
-        }
+	@@keyframes fadeIn {
+		from {
+			opacity: 0;
+		}
 
-        to {
-            opacity: 1;
-        }
-    }
+		to {
+			opacity: 1;
+		}
+	}
 
-    @@keyframes pulse {
-        0%,
-        100% {
-            opacity: 1;
-        }
+	@@keyframes pulse {
+		0%,
+		100% {
+			opacity: 1;
+		}
 
-        50% {
-            opacity: 0.6;
-        }
-    }
+		50% {
+			opacity: 0.6;
+		}
+	}
 
-    /* Responsive */
-    @@media (max-width: 576px) {
-        dotlottie-wc {
-            width: 200px !important;
-            height: 200px !important;
-        }
+	/* Responsive */
+	@@media (max-width: 576px) {
+		dotlottie-wc {
+			width: 200px !important;
+			height: 200px !important;
+		}
 
-        .animated-loader-label {
-            font-size: 14px;
-        }
-    }
+		.animated-loader-label {
+			font-size: 14px;
+		}
+	}
 </style>
 
 <script src="https://unpkg.com/@@lottiefiles/dotlottie-wc@@0.8.11/dist/dotlottie-wc.js" type="module"></script>
-
-@code {
-    [Parameter]
-    public bool Visible { get; set; }
-}

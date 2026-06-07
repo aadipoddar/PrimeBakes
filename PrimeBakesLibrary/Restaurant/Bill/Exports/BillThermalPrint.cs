@@ -179,7 +179,7 @@ public static class BillThermalPrint
 		});
 
 		string amountInWords = numericWords.ToWords(Math.Round(bill.TotalAmount));
-		if (string.IsNullOrEmpty(amountInWords))
+		if (string.IsNullOrWhiteSpace(amountInWords))
 			amountInWords = "Zero";
 		amountInWords += " Rupees Only";
 

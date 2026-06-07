@@ -88,12 +88,12 @@ public partial class OrderMobileCartPage
 		if (item is null || _isProcessing)
 			return;
 
-		var digits = string.IsNullOrEmpty(raw)
+		var digits = string.IsNullOrWhiteSpace(raw)
 			? string.Empty
 			: new string(raw.Where(char.IsDigit).ToArray());
 
 		decimal value = 0;
-		if (!string.IsNullOrEmpty(digits) && decimal.TryParse(digits, out var parsed))
+		if (!string.IsNullOrWhiteSpace(digits) && decimal.TryParse(digits, out var parsed))
 			value = Math.Min(9999, parsed);
 
 		item.Quantity = value;

@@ -10,7 +10,7 @@ public static class AuthenticationService
 	public static async Task<UserModel> ValidateUser(IDataStorageService dataStorageService, NavigationManager navigationManager, INotificationService notificationService, IVibrationService vibrationService, List<UserRoles> userRoles = null, bool primaryLocationRequirement = false)
 	{
 		var userData = await dataStorageService.SecureGetAsync(StorageFileNames.UserDataFileName);
-		if (string.IsNullOrEmpty(userData))
+		if (string.IsNullOrWhiteSpace(userData))
 			await Logout(dataStorageService, navigationManager, notificationService, vibrationService);
 
 		var user = System.Text.Json.JsonSerializer.Deserialize<UserModel>(userData);

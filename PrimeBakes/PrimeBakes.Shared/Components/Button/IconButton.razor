@@ -88,7 +88,7 @@
         default:
             break;
     }
-    @if (!string.IsNullOrEmpty(Text))
+    @if (!string.IsNullOrWhiteSpace(Text))
     {
         <span>@Text</span>
     }

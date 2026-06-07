@@ -22,7 +22,7 @@ public class WindowsDirectPrintService : IDirectPrintService
 		return Task.Run(() =>
 		{
 			string printerName = GetDefaultPrinterName();
-			if (string.IsNullOrEmpty(printerName))
+			if (string.IsNullOrWhiteSpace(printerName))
 				throw new InvalidOperationException("No default printer is configured on this machine.");
 
 			SendBytesToPrinter(printerName, data);

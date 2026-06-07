@@ -42,7 +42,7 @@ public partial class CustomAutoComplete<T>
 		if (item is null)
 			return string.Empty;
 
-		if (string.IsNullOrEmpty(FieldValue))
+		if (string.IsNullOrWhiteSpace(FieldValue))
 			return item.ToString();
 
 		if (_cachedType != typeof(T))
@@ -75,7 +75,7 @@ public partial class CustomAutoComplete<T>
 		return DataSource.Where(item =>
 		{
 			var display = DisplayText(item);
-			return !string.IsNullOrEmpty(display) &&
+			return !string.IsNullOrWhiteSpace(display) &&
 				   display.Contains(searchText, StringComparison.OrdinalIgnoreCase);
 		});
 	}
