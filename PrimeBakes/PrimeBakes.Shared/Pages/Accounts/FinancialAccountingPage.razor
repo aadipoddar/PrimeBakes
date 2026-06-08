@@ -318,7 +318,7 @@ else
 						<GridAggregates>
 							<GridAggregate>
 								<GridAggregateColumns>
-									<GridAggregateColumn Field="LedgerName" Type="AggregateType.Count">
+									<GridAggregateColumn Field="@nameof(FinancialAccountingLedgerCartModel.LedgerName)" Type="AggregateType.Count">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
@@ -328,7 +328,7 @@ else
 											</div>
 										</FooterTemplate>
 									</GridAggregateColumn>
-									<GridAggregateColumn Field="Debit" Type="AggregateType.Sum">
+									<GridAggregateColumn Field="@nameof(FinancialAccountingLedgerCartModel.Debit)" Type="AggregateType.Sum">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
@@ -339,7 +339,7 @@ else
 											</div>
 										</FooterTemplate>
 									</GridAggregateColumn>
-									<GridAggregateColumn Field="Credit" Type="AggregateType.Sum">
+									<GridAggregateColumn Field="@nameof(FinancialAccountingLedgerCartModel.Credit)" Type="AggregateType.Sum">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
@@ -355,36 +355,32 @@ else
 						</GridAggregates>
 
 						<GridColumns>
-							<GridColumn Field="LedgerName" HeaderText="Ledger Name" Width="250" />
-							<GridColumn Field="Debit" HeaderText="Debit" Width="130" TextAlign="TextAlign.Right"
-										Format="N2">
+							<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.LedgerName)" HeaderText="Ledger Name" Width="250" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.Debit)" HeaderText="Debit" Width="130" TextAlign="TextAlign.Right" Format="N2">
 								<Template>
 									@{
 										var item = (context as FinancialAccountingLedgerCartModel);
 										<span class="@((item.Debit ?? 0) > 0 ? "grid-debit" : "")">
-											@(item.Debit?.ToString("N2") ??
-																				"-")
+											@(item.Debit?.ToString("N2") ?? "-")
 										</span>
 									}
 								</Template>
 							</GridColumn>
-							<GridColumn Field="Credit" HeaderText="Credit" Width="130" TextAlign="TextAlign.Right"
-										Format="N2">
+							<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.Credit)" HeaderText="Credit" Width="130" TextAlign="TextAlign.Right" Format="N2">
 								<Template>
 									@{
 										var item = (context as FinancialAccountingLedgerCartModel);
 										<span class="@((item.Credit ?? 0) > 0 ? "grid-credit" : "")">
-											@(item.Credit?.ToString("N2") ??
-																				"-")
+											@(item.Credit?.ToString("N2") ?? "-")
 										</span>
 									}
 								</Template>
 							</GridColumn>
-							<GridColumn Field="ReferenceType" HeaderText="Ref Type" Width="120" />
-							<GridColumn Field="ReferenceNo" HeaderText="Ref No" Width="120" />
-							<GridColumn Field="InstrumentNo" HeaderText="Instrument No" Width="140" />
-							<GridColumn Field="InstrumentDate" HeaderText="Instrument Date" Width="150" Format="dd/MM/yy" Type="ColumnType.DateTime" />
-							<GridColumn Field="Remarks" HeaderText="Remarks" Width="500" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.ReferenceType)" HeaderText="Ref Type" Width="120" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.ReferenceNo)" HeaderText="Ref No" Width="120" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.InstrumentNo)" HeaderText="Instrument No" Width="140" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.InstrumentDate)" HeaderText="Instrument Date" Width="150" Format="dd/MM/yy" Type="ColumnType.DateTime" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.Remarks)" HeaderText="Remarks" Width="500" />
 						</GridColumns>
 					</SfGrid>
 				</div>

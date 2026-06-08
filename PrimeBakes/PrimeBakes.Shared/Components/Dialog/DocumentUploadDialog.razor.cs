@@ -9,19 +9,15 @@ public partial class DocumentUploadDialog
 {
 	private SfDialog _dialog;
 
-	[Parameter] public string Title { get; set; } = "Upload Original Document";
-	[Parameter] public string InfoMessage { get; set; } = "Upload the original document for record keeping and future reference.";
+	[Parameter] public string Title { get; set; } = "Upload Document";
+	[Parameter] public string InfoMessage { get; set; } = "Upload the Document for record keeping and future reference.";
 	[Parameter] public string ExistingDocumentUrl { get; set; }
-	[Parameter] public string PendingDocumentFileName { get; set; }
-	[Parameter] public bool ShowInterpretButton { get; set; } = false;
 	[Parameter] public bool IsVisible { get; set; } = false;
 	[Parameter] public EventCallback<bool> IsVisibleChanged { get; set; }
-	[Parameter] public SfUploader UploaderReference { get; set; }
 
 	[Parameter] public EventCallback<UploadChangeEventArgs> OnFileChange { get; set; }
 	[Parameter] public EventCallback<RemovingEventArgs> OnFileRemove { get; set; }
 	[Parameter] public EventCallback OnDownloadClick { get; set; }
-	[Parameter] public EventCallback OnInterpretClick { get; set; }
 	[Parameter] public EventCallback OnRemoveClick { get; set; }
 	[Parameter] public EventCallback OnClose { get; set; }
 
@@ -31,6 +27,21 @@ public partial class DocumentUploadDialog
 		await IsVisibleChanged.InvokeAsync(IsVisible);
 		if (OnClose.HasDelegate)
 			await OnClose.InvokeAsync();
+	}
+
+	private async Task HandleClose() =>
+		await HandleDialogClose(null);
+
+	private async Task HandleDownload()
+	{
+		if (!string.IsNullOrEmpty(ExistingDocumentUrl) && OnDownloadClick.HasDelegate)
+			await OnDownloadClick.InvokeAsync();
+	}
+
+	private async Task HandleRemove()
+	{
+		if (!string.IsNullOrEmpty(ExistingDocumentUrl) && OnRemoveClick.HasDelegate)
+			await OnRemoveClick.InvokeAsync();
 	}
 
 	public async Task ShowAsync()

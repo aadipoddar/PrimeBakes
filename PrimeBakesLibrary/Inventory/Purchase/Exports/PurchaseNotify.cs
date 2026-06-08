@@ -1,5 +1,6 @@
 ﻿using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Inventory.Purchase.Models;
+using PrimeBakesLibrary.Operations.AuditTrail;
 using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Utils.Exports;
 using PrimeBakesLibrary.Utils.Mail;
@@ -51,12 +52,13 @@ internal static class PurchaseNotify
 		var emailData = new TransactionMailing.TransactionEmailData
 		{
 			TransactionType = "Purchase",
-			TransactionNo = purchase.ChallanNo,
+			TransactionNo = purchase.TransactionNo,
 			Action = type,
 			LocationName = purchase.PartyName,
 			Details = new Dictionary<string, string>
 			{
-				["Transaction Number"] = purchase.ChallanNo,
+				["Transaction Number"] = purchase.TransactionNo,
+				["Challan Number"] = purchase.ChallanNo,
 				["Vendor"] = purchase.PartyName,
 				["Transaction Date"] = purchase.TransactionDateTime.ToString("dd MMM yyyy, hh:mm tt"),
 				["Total Items"] = purchase.TotalItems.ToString(),
@@ -65,7 +67,8 @@ internal static class PurchaseNotify
 				["Total Amount"] = purchase.TotalAmount.FormatIndianCurrency(),
 				[type == NotifyType.Deleted ? "Deleted By" : type == NotifyType.Updated ? "Updated By" : "Modified By"] = purchase.LastModifiedByUserName ?? purchase.CreatedByName
 			},
-			Remarks = purchase.Remarks
+			Remarks = purchase.Remarks,
+			Differences = type == NotifyType.Updated ? (await AuditTrailData.LoadLastAuditTrailByTableRecord(InventoryNames.Purchase, purchase.TransactionNo)).RecordValue : null
 		};
 
 		// For update emails, include before and after invoices

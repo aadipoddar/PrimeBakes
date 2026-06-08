@@ -263,7 +263,7 @@ else
 												 AddNewRoute="@InventoryRouteNames.RawMaterial" />
 						</div>
 						
-						<div class="cart-field cart-field-small">
+						<div class="cart-field">
 							<label class="cart-label">Qty<span class="required">*</span></label>
 							<SfNumericTextBox Value="@_selectedCart.Quantity" TValue="decimal" Min="0"
 											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
@@ -272,7 +272,7 @@ else
 							</SfNumericTextBox>
 						</div>
 
-						<div class="cart-field cart-field-small">
+						<div class="cart-field">
 							<label class="cart-label">Rate<span class="required">*</span></label>
 							<SfNumericTextBox Value="@_selectedCart.Rate" TValue="decimal" Min="0" ShowSpinButton="false"
 											  Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
@@ -281,7 +281,7 @@ else
 							</SfNumericTextBox>
 						</div>
 
-						<div class="cart-field cart-field-small">
+						<div class="cart-field">
 							<label class="cart-label">Disc %</label>
 							<SfNumericTextBox Value="@_selectedCart.DiscountPercent" TValue="decimal" Decimals="2" Min="0"
 											  Max="100" ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
@@ -290,7 +290,7 @@ else
 							</SfNumericTextBox>
 						</div>
 
-						<div class="cart-field cart-field-small">
+						<div class="cart-field">
 							<label class="cart-label">CGST %</label>
 							<SfNumericTextBox Value="@_selectedCart.CGSTPercent" TValue="decimal" Decimals="2" Min="0"
 											  Max="100" ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
@@ -299,7 +299,7 @@ else
 							</SfNumericTextBox>
 						</div>
 
-						<div class="cart-field cart-field-small">
+						<div class="cart-field">
 							<label class="cart-label">SGST %</label>
 							<SfNumericTextBox Value="@_selectedCart.SGSTPercent" TValue="decimal" Decimals="2" Min="0"
 											  Max="100" ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
@@ -308,7 +308,7 @@ else
 							</SfNumericTextBox>
 						</div>
 
-						<div class="cart-field cart-field-small">
+						<div class="cart-field">
 							<label class="cart-label">IGST %</label>
 							<SfNumericTextBox Value="@_selectedCart.IGSTPercent" TValue="decimal" Decimals="2" Min="0"
 											  Max="100" ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
@@ -465,7 +465,7 @@ else
 												var aggregate = (context as AggregateTemplateContext);
 												var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
 											}
-											<div class="aggregate-value aggregate-discount">
+											<div class="aggregate-value aggregate-debit">
 												<strong>@sum.ToString("N2")</strong>
 											</div>
 										</FooterTemplate>

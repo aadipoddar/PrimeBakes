@@ -161,22 +161,6 @@ h1:focus {
 	min-width: 0;
 }
 
-.field-label,
-.cart-label {
-	font-size: 12px;
-	font-weight: 600;
-	color: var(--gray-600);
-	letter-spacing: 0.1px;
-	display: flex;
-	align-items: center;
-	gap: 4px;
-}
-
-.cart-label {
-	text-transform: uppercase;
-	letter-spacing: 0.3px;
-}
-
 /* Full-width separator — drop inside a form-grid (e.g. above a total
    field). Spans all columns in a grid layout and stretches the full
    width in a flex column. */
@@ -516,7 +500,7 @@ h1:focus {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
 	gap: 12px;
-	align-items: end;
+	align-items: center;
 	margin-bottom: 12px;
 }
 

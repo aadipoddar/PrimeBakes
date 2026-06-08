@@ -2,6 +2,7 @@ using PrimeBakesLibrary.Accounts.FinancialAccounting.Exports;
 using PrimeBakesLibrary.Accounts.FinancialAccounting.Models;
 using PrimeBakesLibrary.Accounts.Masters.Data;
 using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Inventory.Purchase.Data;
 using PrimeBakesLibrary.Operations.AuditTrail;
 using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Utils.Exports;
@@ -70,9 +71,7 @@ public static class FinancialAccountingData
 
 	private static async Task DeletePostings(int id, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
-		// TODO
-		// await BillData.UpdateFinancialAccountingId(id, null, sqlDataAccessTransaction);
-		// await OMCCardMoneyTransferData.UpdateFinancialAccountingId(id, null, sqlDataAccessTransaction);
+		await PurchaseData.UpdateFinancialAccountingId(id, null, sqlDataAccessTransaction);
 	}
 
 	public static async Task RecoverTransaction(FinancialAccountingModel accounting)
