@@ -5,197 +5,168 @@
 
 <PageTitle>Location Management - Prime Bakes</PageTitle>
 
-<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" />
-<MudBlazor.MudHotkey Key=JsKey.KeyB KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateBack" />
-<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="SaveLocation" />
-<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ExportExcel" />
-<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ExportPdf" />
-<MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" />
-<MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="EditSelectedItem" />
-<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="DeleteSelectedItem" />
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfFirstFocus.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="SaveTransaction" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportMaster(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportMaster()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="EditSelectedItem" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="DeleteRecoverSelectedItem" Disabled="@_isProcessing" />
 
-@if (_isLoading)
+@if (_isLoading || _user is null)
 {
-    <LoadingScreen />
+	<LoadingScreen />
 }
 else
 {
-    <div class="page-shell">
-        <Header Title="Location Management">
-            <LeftContent>
-                <SfMenu TValue="Syncfusion.Blazor.Navigations.MenuItem">
-                    <MenuAnimationSettings Effect="Syncfusion.Blazor.Navigations.MenuEffect.SlideDown" Duration="300"
-                                           Easing="ease" />
-                    <MenuEvents TValue="Syncfusion.Blazor.Navigations.MenuItem" ItemSelected="OnMenuSelected" />
-                    <MenuItems>
-                        <MenuItem Text="File" IconCss="e-icons e-folder">
-                            <MenuItems>
-                                <MenuItem Text="New (Ctrl + N)" IconCss="e-icons e-plus" Id="NewLocation"
-                                          Disabled="@_isProcessing" />
-                                <MenuItem Text="Save (Ctrl + S)" IconCss="e-icons e-save" Id="SaveLocation"
-                                          Disabled="@_isProcessing" />
-                                <MenuItem Text="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" IconCss="e-icons e-trash"
-                                          Id="ToggleDeleted" Disabled="@_isProcessing" />
-                                <MenuItem Separator="true" />
-                                <MenuItem Text="Export Excel (Ctrl + E)" IconCss="e-icons e-export-excel" Id="ExportExcel"
-                                          Disabled="@_isProcessing" />
-                                <MenuItem Text="Export PDF (Ctrl + P)" IconCss="e-icons e-export-pdf" Id="ExportPdf"
-                                          Disabled="@_isProcessing" />
-                            </MenuItems>
-                        </MenuItem>
-                        <MenuItem Text="Transaction" IconCss="e-icons e-chart">
-                            <MenuItems>
-                                <MenuItem Text="Edit (Insert)" IconCss="e-icons e-edit" Id="EditSelected"
-                                          Disabled="@_isProcessing" />
-                                <MenuItem Text="Delete / Recover (Del)" IconCss="e-icons e-trash" Id="DeleteRecoverSelected"
-                                          Disabled="@_isProcessing" />
-                            </MenuItems>
-                        </MenuItem>
-                    </MenuItems>
-                </SfMenu>
-            </LeftContent>
-            <RightContent>
-                <IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="NavigateBack" />
-            </RightContent>
-        </Header>
+	<div class="page-shell">
+		<Header Title="Location Management">
+			<LeftContent>
+				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="New (Ctrl + N)" OnClick="ResetPage" />
+					<MudBlazor.MudMenuItem Label="Save (Ctrl + S)" OnClick="SaveTransaction" />
+					<MudBlazor.MudMenuItem Label="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" OnClick="ToggleDeleted" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Export Excel (Ctrl + E)" OnClick="() => ExportMaster(true)" />
+					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportMaster()" />
+				</MudBlazor.MudMenu>
 
-        <!-- Main Content Container -->
-        <div class="page-container">
+				<MudBlazor.MudMenu Label="Transaction" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Edit (Insert)" OnClick="EditSelectedItem" />
+					<MudBlazor.MudMenuItem Label="Delete / Recover (Del)" OnClick="DeleteRecoverSelectedItem" />
+				</MudBlazor.MudMenu>
+			</LeftContent>
+		</Header>
 
-            <!-- Location Entry Section -->
-            <div class="section-card">
-                <div class="section-header">
-                    <div class="section-title-wrapper">
-                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                             stroke-linejoin="round">
-                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                            <circle cx="12" cy="10" r="3" />
-                        </svg>
-                        <h2 class="section-title">Location Details</h2>
-                    </div>
-                </div>
-                <div class="section-body">
-                    <div class="form-grid">
-                        <!-- Location Name -->
-                        <div class="form-field">
-                            <label class="field-label">
-                                Location Name <span class="required">*</span>
-                            </label>
-                            <SfTextBox @bind-Value="_location.Name" Placeholder="Enter location name"
-                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                        </div>
+		<div class="page-container">
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+							 stroke-linejoin="round">
+							<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+							<circle cx="12" cy="10" r="3" />
+						</svg>
+						<h2 class="section-title">Location Details</h2>
+					</div>
+				</div>
+				<div class="section-body">
+					<div class="form-grid">
+						<div class="form-field">
+							<CustomTextField @ref="_sfFirstFocus"
+											 @bind-Value="_location.Name"
+											 Label="Location Name (Ctrl + F)"
+											 Placeholder="Enter location name" />
+						</div>
 
-                        <!-- Code -->
-                        <div class="form-field">
-                            <label class="field-label">
-                                Code <span class="required">*</span>
-                            </label>
-                            <SfTextBox @bind-Value="_location.Code" Placeholder="Enter prefix code"
-                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                        </div>
+						<div class="form-field">
+							<CustomTextField @bind-Value="_location.Code"
+											 Label="Code"
+											 Placeholder="Enter prefix code" />
+						</div>
 
-                        <!-- Discount -->
-                        <div class="form-field">
-                            <label class="field-label">
-                                Discount (%)
-                            </label>
-                            <SfNumericTextBox TValue="decimal" @bind-Value="_location.Discount"
-                                              Placeholder="Enter discount percentage" FloatLabelType="FloatLabelType.Never"
-                                              CssClass="custom-textbox" Format="N2" Min="0" Max="100" Step="0.01m" />
-                        </div>
+						<div class="form-field">
+							<CustomNumericField T="decimal"
+												@bind-Value="_location.Discount"
+												Label="Discount (%)"
+												Placeholder="Enter discount percentage"
+												Format="N2"
+												Min="0"
+												Max="100"
+												Step="0.01m"
+												AdornmentText="%"
+												Required="false" />
+						</div>
 
-                        <!-- Ledger -->
-                        <div class="form-field">
-                            <label class="field-label">
-                                Ledger <span class="required">*</span>
-                            </label>
-                            <SfAutoComplete @bind-Value="_selectedLedger" TValue="LedgerModel" TItem="LedgerModel"
-                                            DataSource="@_ledgers" Placeholder="Select ledger"
-                                            FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
-                                            FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
-                                <AutoCompleteEvents TValue="LedgerModel" TItem="LedgerModel" ValueChange="OnLedgerChange" />
-                                <AutoCompleteFieldSettings Value="Name" />
-                            </SfAutoComplete>
-                        </div>
+						<div class="form-field">
+							<CustomAutoComplete T="LedgerModel"
+												@bind-Value="_selectedLedger"
+												DataSource="@_ledgers"
+												Placeholder="Select ledger"
+												Label="Ledger"
+												FieldValue="@nameof(LedgerModel.Name)"
+												AddNewRoute="@AccountsRouteNames.LedgerMaster" />
+						</div>
 
-                        <!-- Copy Products From Location -->
-                        <div class="form-field">
-                            <label class="field-label">
-                                Copy Products From Location
-                            </label>
-                            <SfAutoComplete @bind-Value="_copyLocation" TValue="LocationModel" TItem="LocationModel"
-                                            DataSource="@_locations" Placeholder="Select location to copy products (optional)"
-                                            FloatLabelType="FloatLabelType.Never" AllowFiltering="true"
-                                            FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains" CssClass="custom-autocomplete">
-                                <AutoCompleteFieldSettings Value="Name" />
-                            </SfAutoComplete>
-                        </div>
+						<div class="form-field">
+							<CustomAutoComplete T="LocationModel"
+												@bind-Value="_copyLocation"
+												DataSource="@_locations"
+												Placeholder="Select location to copy products (optional)"
+												Label="Copy Products From Location"
+												FieldValue="@nameof(LocationModel.Name)"
+												Required="false" />
+						</div>
 
-                        <!-- Remarks (Spanning 2 columns) -->
-                        <div class="form-field">
-                            <label class="field-label">
-                                Remarks
-                            </label>
-                            <SfTextBox @bind-Value="_location.Remarks" Placeholder="Enter remarks (optional)"
-                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" Multiline="true" />
-                        </div>
-                    </div>
-                </div>
-            </div>
+						<div class="form-field">
+							<CustomTextField @bind-Value="_location.Remarks"
+											 Label="Remarks"
+											 Placeholder="Enter remarks (optional)"
+											 Required="false"
+											 Lines="2" />
+						</div>
+					</div>
+				</div>
+			</div>
 
-            <!-- Locations Data Grid Section -->
-            <div class="section-card">
-                <div class="section-header">
-                    <div class="section-title-wrapper">
-                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                             stroke-linejoin="round">
-                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                            <polyline points="9 22 9 12 15 12 15 22" />
-                        </svg>
-                        <h2 class="section-title">Locations List</h2>
-                    </div>
-                </div>
-                <div class="section-body grid-body">
-                    <SfGrid @ref="_sfGrid" DataSource="@_locations" AllowPaging="true" AllowSorting="true"
-                            AllowFiltering="true" AllowResizing="true" CssClass="professional-grid"
-                            Toolbar="@(new List<string>() { "Search" })" ContextMenuItems="@_locationGridContextMenuItems">
-                        <GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
-                        <GridEvents TValue="LocationModel" ContextMenuItemClicked="OnLocationGridContextMenuItemClicked" />
-                        <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
-                        <GridColumns>
-                            <GridColumn Field="@nameof(LocationModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" />
-                            <GridColumn Field="@nameof(LocationModel.Name)" HeaderText="Location Name" Width="200" />
-                            <GridColumn Field="@nameof(LocationModel.Code)" HeaderText="Code" Width="150" TextAlign="TextAlign.Center" />
-                            <GridColumn Field="@nameof(LocationModel.Discount)" HeaderText="Discount (%)" Width="120" Format="N2" TextAlign="TextAlign.Right" />
-                            <GridColumn Field="@nameof(LocationModel.LedgerId)" HeaderText="Ledger" Width="200" />
-                            <GridColumn Field="@nameof(LocationModel.Remarks)" HeaderText="Remarks" Width="250" />
-                            <GridColumn Field="@nameof(LocationModel.Status)" HeaderText="Status" Width="110"
-                                        TextAlign="TextAlign.Center" Visible="_showDeleted">
-                                <Template>
-                                    @{
-                                        var location = (context as LocationModel);
-                                        <span class="@(location.Status ? string.Empty : "grid-debit")">@(location.Status ? "Active" : "Deleted")</span>
-                                    }
-                                </Template>
-                            </GridColumn>
-                        </GridColumns>
-                    </SfGrid>
-                </div>
-            </div>
-        </div>
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+							 stroke-linejoin="round">
+							<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+							<polyline points="9 22 9 12 15 12 15 22" />
+						</svg>
+						<h2 class="section-title">Locations List</h2>
+					</div>
+				</div>
+				<div class="section-body grid-body">
+					<SfGrid @ref="_sfGrid" DataSource="@_locations" AllowPaging="true" AllowSorting="true"
+							AllowFiltering="true" AllowResizing="true" CssClass="professional-grid"
+							Toolbar="@(new List<string>() { "Search" })" ContextMenuItems="@_gridContextMenuItems">
+						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+						<GridEvents TValue="LocationModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+						<GridColumns>
+							<GridColumn Field="@nameof(LocationModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" />
+							<GridColumn Field="@nameof(LocationModel.Name)" HeaderText="Location Name" Width="200" />
+							<GridColumn Field="@nameof(LocationModel.Code)" HeaderText="Code" Width="150" TextAlign="TextAlign.Center" />
+							<GridColumn Field="@nameof(LocationModel.Discount)" HeaderText="Discount (%)" Width="120" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(LocationModel.LedgerId)" HeaderText="Ledger" Width="200">
+								<Template>
+									@{
+										var location = (context as LocationModel);
+										var ledger = _ledgers.FirstOrDefault(l => l.Id == location.LedgerId);
+										<span>@(ledger?.Name ?? "N/A")</span>
+									}
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(LocationModel.Remarks)" HeaderText="Remarks" Width="250" />
+							<GridColumn Field="@nameof(LocationModel.Status)" HeaderText="Status" Width="110"
+										TextAlign="TextAlign.Center" Visible="_showDeleted">
+								<Template>
+									@{
+										var location = (context as LocationModel);
+										<span class="@(location.Status ? string.Empty : "grid-debit")">@(location.Status ? "Active" : "Deleted")</span>
+									}
+								</Template>
+							</GridColumn>
+						</GridColumns>
+					</SfGrid>
+				</div>
+			</div>
+		</div>
 
-        <Footer />
-    </div>
+		<Footer />
+	</div>
 }
 
-<DeleteConfirmationDialog @ref="_deleteConfirmationDialog" EntityName="Location" IdentifierLabel="Location Name"
-                          IdentifierValue="@_deleteLocationName"  Disabled="@_isProcessing" OnConfirm="ConfirmDelete"
-                          OnCancel="CancelDelete" />
-
-<RecoverConfirmationDialog @ref="_recoverConfirmationDialog" EntityName="Location" IdentifierLabel="Location Name"
-                           IdentifierValue="@_recoverLocationName" Disabled="@_isProcessing" OnConfirm="ConfirmRecover"
-                           OnCancel="CancelRecover" />
+<ConfirmationDialog @ref="_confirmationDialog" Title="@_confirmTitle" Message="@_confirmMessage"
+					OnConfirm="OnConfirmed" OnCancel="OnCancelled" />
 
 <ToastNotification @ref="_toastNotification" />
+
+<CloseGuard Block="_isProcessing" />

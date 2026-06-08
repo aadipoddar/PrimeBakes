@@ -2,6 +2,7 @@
 	@Id INT
 AS
 BEGIN
-	DELETE FROM [dbo].[ProductLocation]
-	WHERE Id = @Id
+	DELETE FROM [dbo].[ProductLocation]	WHERE Id = @Id
+
+	SELECT 1 AS Success;
 END

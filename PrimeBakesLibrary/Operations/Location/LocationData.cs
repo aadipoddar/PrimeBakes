@@ -1,5 +1,6 @@
-﻿using PrimeBakesLibrary.Accounts.Masters.Models;
+using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Operations.AuditTrail;
 using PrimeBakesLibrary.Store.Product.Data;
 using PrimeBakesLibrary.Store.Product.Models;
 
@@ -7,8 +8,9 @@ namespace PrimeBakesLibrary.Operations.Location;
 
 public static class LocationData
 {
-	public static async Task<int> InsertLocation(LocationModel location, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(OperationNames.InsertLocation, location, sqlDataAccessTransaction)).FirstOrDefault();
+	private static async Task<int> InsertLocation(LocationModel location, SqlDataAccessTransaction transaction = null) =>
+		(await SqlDataAccess.LoadData<int, dynamic>(OperationNames.InsertLocation, location, transaction)).FirstOrDefault()
+			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Location.");
 
 	public static async Task<LocationModel?> LoadLocationByLedgerId(int ledgerId, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
@@ -22,84 +24,144 @@ public static class LocationData
 		return await CommonData.LoadTableDataById<LedgerModel>(AccountNames.Ledger, location.LedgerId, sqlDataAccessTransaction);
 	}
 
-	public static async Task<int> SaveTransaction(LocationModel location, LocationModel copyLocation)
+	public static async Task DeleteTransaction(LocationModel location, int userId, string platform)
 	{
-		bool isNewLocation = location.Id == 0;
+		if (location.Id == 1)
+			throw new Exception("Cannot delete the main location.");
 
-		using SqlDataAccessTransaction sqlDataAccessTransaction = new();
-
-		try
+		await SqlDataAccessTransaction.Run(async transaction =>
 		{
-			sqlDataAccessTransaction.StartTransaction();
+			location.Status = false;
+			await InsertLocation(location, transaction);
 
-			location.Id = await InsertLocation(location, sqlDataAccessTransaction);
-			await InsertProducts(location, copyLocation, isNewLocation, sqlDataAccessTransaction);
+			var productLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(null, location.Id, transaction);
+			foreach (var productLocation in productLocations)
+				await ProductLocationData.DeleteProductLocationById(productLocation.Id, transaction);
 
-			sqlDataAccessTransaction.CommitTransaction();
-		}
-		catch
+			await AuditTrailData.SaveAuditTrail(new()
+			{
+				Action = AuditTrailActionTypes.Delete.ToString(),
+				TableName = OperationNames.Location,
+				RecordNo = location.Name,
+				CreatedBy = userId,
+				CreatedFromPlatform = platform
+			}, transaction);
+		});
+	}
+
+	public static async Task RecoverTransaction(LocationModel location, int userId, string platform) =>
+		await SqlDataAccessTransaction.Run(async transaction =>
 		{
-			sqlDataAccessTransaction.RollbackTransaction();
-			throw;
-		}
+			location.Status = true;
+			await InsertLocation(location, transaction);
+			await AuditTrailData.SaveAuditTrail(new()
+			{
+				Action = AuditTrailActionTypes.Recover.ToString(),
+				TableName = OperationNames.Location,
+				RecordNo = location.Name,
+				CreatedBy = userId,
+				CreatedFromPlatform = platform
+			}, transaction);
+		});
 
-		return location.Id;
+	private static async Task ValidateTransaction(LocationModel item)
+	{
+		item.Name = item.Name?.Trim().ToUpper() ?? string.Empty;
+		item.Code = item.Code?.Trim().ToUpper().RemoveSpace() ?? string.Empty;
+		item.Remarks = string.IsNullOrWhiteSpace(item.Remarks) ? null : item.Remarks.Trim();
+		item.Status = true;
+
+		if (string.IsNullOrWhiteSpace(item.Name))
+			throw new Exception("Location name is required. Please enter a valid location name.");
+
+		if (string.IsNullOrWhiteSpace(item.Code))
+			throw new Exception("Location code is required. Please enter a valid location code.");
+
+		if (item.LedgerId <= 0)
+			throw new Exception("Ledger is required. Please select a valid ledger.");
+
+		if (item.Discount is < 0 or > 100)
+			throw new Exception("Discount must be between 0% and 100%. Please enter a valid discount.");
+
+		var allLocations = await CommonData.LoadTableData<LocationModel>(OperationNames.Location);
+
+		var existingByName = allLocations.FirstOrDefault(x => x.Id != item.Id && x.Name.Equals(item.Name, StringComparison.OrdinalIgnoreCase));
+		if (existingByName is not null)
+			throw new Exception($"Location name '{item.Name}' already exists. Please choose a different name.");
+
+		var existingByCode = allLocations.FirstOrDefault(x => x.Id != item.Id && x.Code.Equals(item.Code, StringComparison.OrdinalIgnoreCase));
+		if (existingByCode is not null)
+			throw new Exception($"Location code '{item.Code}' already exists. Please choose a different code.");
+	}
+
+	public static async Task<int> SaveTransaction(LocationModel location, LocationModel copyLocation, int userId, string platform)
+	{
+		await ValidateTransaction(location);
+
+		var isUpdate = location.Id > 0;
+		var previous = isUpdate
+			? await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, location.Id)
+			: null;
+
+		return await SqlDataAccessTransaction.Run(async transaction =>
+		{
+			bool isNewLocation = location.Id == 0;
+
+			location.Id = await InsertLocation(location, transaction);
+			await InsertProducts(location, copyLocation, isNewLocation, transaction);
+
+			var diff = AuditTrailData.GetDifference(previous, location);
+			await AuditTrailData.SaveAuditTrail(new()
+			{
+				Action = isUpdate ? AuditTrailActionTypes.Update.ToString() : AuditTrailActionTypes.Insert.ToString(),
+				TableName = OperationNames.Location,
+				RecordNo = location.Name,
+				RecordValue = diff,
+				CreatedBy = userId,
+				CreatedFromPlatform = platform
+			}, transaction);
+
+			return location.Id;
+		});
 	}
 
 	private static async Task InsertProducts(LocationModel location, LocationModel copyLocation, bool isNewLocation, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
-		try
+		if (copyLocation is not null && copyLocation.Id > 0)
 		{
-			if (copyLocation is not null && copyLocation.Id > 0)
-			{
-				if (copyLocation.Id == location.Id)
-					return;
+			if (copyLocation.Id == location.Id)
+				return;
 
-				var existingProductLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(null, location.Id, sqlDataAccessTransaction);
-				foreach (var existingProductLocation in existingProductLocations)
-					await ProductLocationData.DeleteProductLocationById(existingProductLocation.Id, sqlDataAccessTransaction);
+			var existingProductLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(null, location.Id, sqlDataAccessTransaction);
+			foreach (var existingProductLocation in existingProductLocations)
+				await ProductLocationData.DeleteProductLocationById(existingProductLocation.Id, sqlDataAccessTransaction);
 
-				var copyProductLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(null, copyLocation.Id, sqlDataAccessTransaction);
-				foreach (var copyProductLocation in copyProductLocations)
+			var copyProductLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(null, copyLocation.Id, sqlDataAccessTransaction);
+			foreach (var copyProductLocation in copyProductLocations)
+				await ProductLocationData.InsertProductLocation(new()
 				{
-					var id = await ProductLocationData.InsertProductLocation(new()
-					{
-						Id = 0,
-						ProductId = copyProductLocation.ProductId,
-						LocationId = location.Id,
-						Rate = copyProductLocation.Rate
-					}, sqlDataAccessTransaction);
-
-					if (id <= 0)
-						throw new InvalidOperationException("Failed to insert product location.");
-				}
-			}
-
-			else if (isNewLocation)
-			{
-				var existingProductLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(null, location.Id, sqlDataAccessTransaction);
-				foreach (var existingProductLocation in existingProductLocations)
-					await ProductLocationData.DeleteProductLocationById(existingProductLocation.Id, sqlDataAccessTransaction);
-
-				var products = await CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product, true, sqlDataAccessTransaction);
-				foreach (var product in products)
-				{
-					var id = await ProductLocationData.InsertProductLocation(new()
-					{
-						Id = 0,
-						ProductId = product.Id,
-						LocationId = location.Id,
-						Rate = product.Rate
-					}, sqlDataAccessTransaction);
-
-					if (id <= 0)
-						throw new InvalidOperationException("Failed to insert product location.");
-				}
-			}
+					Id = 0,
+					ProductId = copyProductLocation.ProductId,
+					LocationId = location.Id,
+					Rate = copyProductLocation.Rate
+				}, sqlDataAccessTransaction);
 		}
-		catch
+
+		else if (isNewLocation)
 		{
-			throw;
+			var existingProductLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(null, location.Id, sqlDataAccessTransaction);
+			foreach (var existingProductLocation in existingProductLocations)
+				await ProductLocationData.DeleteProductLocationById(existingProductLocation.Id, sqlDataAccessTransaction);
+
+			var products = await CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product, true, sqlDataAccessTransaction);
+			foreach (var product in products)
+				await ProductLocationData.InsertProductLocation(new()
+				{
+					Id = 0,
+					ProductId = product.Id,
+					LocationId = location.Id,
+					Rate = product.Rate
+				}, sqlDataAccessTransaction);
 		}
 	}
 }

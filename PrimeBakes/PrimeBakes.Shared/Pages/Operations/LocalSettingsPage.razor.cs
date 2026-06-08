@@ -34,9 +34,13 @@ public partial class LocalSettingsPage : IAsyncDisposable
 		if (!firstRender)
 			return;
 
-		await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService);
-		_isLoading = false;
-		StateHasChanged();
+		try
+		{
+			await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService);
+			_isLoading = false;
+			StateHasChanged();
+		}
+		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
 	}
 	#endregion
 
@@ -357,9 +361,6 @@ public partial class LocalSettingsPage : IAsyncDisposable
 	#endregion
 
 	#region Utilities
-
-	private void NavigateBack() =>
-		NavigationManager.NavigateTo(OperationRouteNames.OperationsDashboard);
 
 	async ValueTask IAsyncDisposable.DisposeAsync()
 	{
