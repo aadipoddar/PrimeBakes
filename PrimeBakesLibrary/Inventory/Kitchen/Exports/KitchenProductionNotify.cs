@@ -1,5 +1,6 @@
 using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Inventory.Kitchen.Models;
+using PrimeBakesLibrary.Operations.AuditTrail;
 using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Utils.Exports;
 using PrimeBakesLibrary.Utils.Mail;
@@ -64,7 +65,8 @@ internal static class KitchenProductionNotify
 				["Total Amount"] = kitchenProduction.TotalAmount.FormatIndianCurrency(),
 				[type == NotifyType.Deleted ? "Deleted By" : type == NotifyType.Updated ? "Updated By" : "Modified By"] = kitchenProduction.LastModifiedByUserName ?? kitchenProduction.CreatedByName
 			},
-			Remarks = kitchenProduction.Remarks
+			Remarks = kitchenProduction.Remarks,
+			Differences = type == NotifyType.Updated ? (await AuditTrailData.LoadLastAuditTrailByTableRecord(InventoryNames.KitchenProduction, kitchenProduction.TransactionNo)).RecordValue : null
 		};
 
 		// For update emails, include before and after invoices

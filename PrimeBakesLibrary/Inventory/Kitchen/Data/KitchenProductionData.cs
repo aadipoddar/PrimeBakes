@@ -1,9 +1,11 @@
-﻿using PrimeBakesLibrary.Accounts.Masters.Data;
+using PrimeBakesLibrary.Accounts.Masters.Data;
 using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Inventory.Kitchen.Exports;
 using PrimeBakesLibrary.Inventory.Kitchen.Models;
 using PrimeBakesLibrary.Inventory.Stock.Data;
 using PrimeBakesLibrary.Inventory.Stock.Models;
+using PrimeBakesLibrary.Operations.AuditTrail;
+using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Utils.Exports;
 using PrimeBakesLibrary.Utils.Mail;
 
@@ -12,16 +14,18 @@ namespace PrimeBakesLibrary.Inventory.Kitchen.Data;
 public static class KitchenProductionData
 {
 	private static async Task<int> InsertKitchenProduction(KitchenProductionModel kitchenProduction, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertKitchenProduction, kitchenProduction, sqlDataAccessTransaction)).FirstOrDefault();
+		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertKitchenProduction, kitchenProduction, sqlDataAccessTransaction)).FirstOrDefault()
+			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Kitchen Production.");
 
 	private static async Task<int> InsertKitchenProductionDetail(KitchenProductionDetailModel kitchenProductionDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertKitchenProductionDetail, kitchenProductionDetail, sqlDataAccessTransaction)).FirstOrDefault();
+		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertKitchenProductionDetail, kitchenProductionDetail, sqlDataAccessTransaction)).FirstOrDefault()
+			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Kitchen Production Detail.");
 
-	public static List<KitchenProductionDetailModel> ConvertCartToDetails(List<KitchenProductionProductCartModel> cart, int kitchenProductionId) =>
+	public static List<KitchenProductionDetailModel> ConvertCartToDetails(List<KitchenProductionProductCartModel> cart, int masterId = 0) =>
 		[.. cart.Select(item => new KitchenProductionDetailModel
 		{
 			Id = 0,
-			MasterId = kitchenProductionId,
+			MasterId = masterId,
 			ProductId = item.ProductId,
 			Quantity = item.Quantity,
 			Rate = item.Rate,
@@ -30,98 +34,135 @@ public static class KitchenProductionData
 			Status = true
 		})];
 
-	public static async Task DeleteTransaction(KitchenProductionModel kitchenProduction)
+	#region Delete
+	public static async Task DeleteTransaction(KitchenProductionModel kitchenProduction, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
-		using SqlDataAccessTransaction sqlDataAccessTransaction = new();
-
-		try
+		if (sqlDataAccessTransaction is null)
 		{
-			sqlDataAccessTransaction.StartTransaction();
-
-			await FinancialYearData.ValidateFinancialYear(kitchenProduction.TransactionDateTime, sqlDataAccessTransaction);
-
-			kitchenProduction.Status = false;
-			await InsertKitchenProduction(kitchenProduction, sqlDataAccessTransaction);
-			await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.KitchenProduction), kitchenProduction.Id, 1, sqlDataAccessTransaction);
-
-			sqlDataAccessTransaction.CommitTransaction();
-
+			await SqlDataAccessTransaction.Run(transaction => DeleteTransaction(kitchenProduction, transaction));
 			await KitchenProductionNotify.Notify(kitchenProduction.Id, NotifyType.Deleted);
+			return;
 		}
-		catch
+
+		await FinancialYearData.ValidateFinancialYear(kitchenProduction.TransactionDateTime, sqlDataAccessTransaction);
+
+		kitchenProduction.Status = false;
+		await InsertKitchenProduction(kitchenProduction, sqlDataAccessTransaction);
+		await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.KitchenProduction), kitchenProduction.Id, 1, sqlDataAccessTransaction);
+
+		await AuditTrailData.SaveAuditTrail(new()
 		{
-			sqlDataAccessTransaction.RollbackTransaction();
-			throw;
-		}
+			Action = AuditTrailActionTypes.Delete.ToString(),
+			TableName = InventoryNames.KitchenProduction,
+			RecordNo = kitchenProduction.TransactionNo,
+			CreatedBy = kitchenProduction.LastModifiedBy.Value,
+			CreatedFromPlatform = kitchenProduction.LastModifiedFromPlatform
+		}, sqlDataAccessTransaction);
 	}
+	#endregion
 
 	public static async Task RecoverTransaction(KitchenProductionModel kitchenProduction)
 	{
 		kitchenProduction.Status = true;
 		var kitchenProductionDetails = await CommonData.LoadTableDataByMasterId<KitchenProductionDetailModel>(InventoryNames.KitchenProductionDetail, kitchenProduction.Id);
-
-		await SaveTransaction(kitchenProduction, null, kitchenProductionDetails, false);
+		await SaveTransaction(kitchenProduction, kitchenProductionDetails, true);
 
 		await KitchenProductionNotify.Notify(kitchenProduction.Id, NotifyType.Recovered);
 	}
 
-	public static async Task<int> SaveTransaction(KitchenProductionModel kitchenProduction, List<KitchenProductionProductCartModel> cart, List<KitchenProductionDetailModel> kitchenProductionDetails = null, bool showNotification = true, SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	#region Save
+	private static async Task<KitchenProductionModel> ValidateTransaction(KitchenProductionModel kitchenProduction, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
+	{
+		kitchenProduction.Remarks = string.IsNullOrWhiteSpace(kitchenProduction.Remarks) ? null : kitchenProduction.Remarks.Trim();
+
+		if (kitchenProduction.CompanyId <= 0)
+			throw new InvalidOperationException("Please select a company for the transaction.");
+
+		if (kitchenProduction.KitchenId <= 0)
+			throw new InvalidOperationException("Please select a kitchen for the transaction.");
+
+		if (kitchenProduction.TotalItems <= 0)
+			throw new InvalidOperationException("The total number of items in the transaction must be greater than zero.");
+
+		if (kitchenProduction.TotalQuantity <= 0)
+			throw new InvalidOperationException("The total quantity of items in the transaction must be greater than zero.");
+
+		if (kitchenProduction.TotalAmount < 0)
+			throw new InvalidOperationException("The total amount of the transaction cannot be negative.");
+
+		if (!update)
+			kitchenProduction.TransactionNo = await GenerateCodes.GenerateKitchenProductionTransactionNo(kitchenProduction, sqlDataAccessTransaction);
+
+		await FinancialYearData.ValidateFinancialYear(kitchenProduction.TransactionDateTime, sqlDataAccessTransaction);
+
+		if (update)
+		{
+			var existingKitchenProduction = await CommonData.LoadTableDataById<KitchenProductionModel>(InventoryNames.KitchenProduction, kitchenProduction.Id, sqlDataAccessTransaction)
+				?? throw new InvalidOperationException("The kitchen production transaction does not exist.");
+
+			await FinancialYearData.ValidateFinancialYear(existingKitchenProduction.TransactionDateTime, sqlDataAccessTransaction);
+
+			var user = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, kitchenProduction.LastModifiedBy.Value, sqlDataAccessTransaction);
+			if (!user.Admin)
+				throw new InvalidOperationException("Only admin users can update a kitchen production transaction.");
+
+			kitchenProduction.TransactionNo = existingKitchenProduction.TransactionNo;
+		}
+
+		return kitchenProduction;
+	}
+
+	private static void ValidateItemDetails(KitchenProductionModel kitchenProduction, List<KitchenProductionDetailModel> kitchenProductionDetails)
+	{
+		if (kitchenProductionDetails is null || kitchenProductionDetails.Count == 0)
+			throw new InvalidOperationException("Please add at least one item detail for the transaction.");
+
+		if (kitchenProductionDetails.Count != kitchenProduction.TotalItems)
+			throw new InvalidOperationException("Total items must be equal to the number of item details.");
+
+		if (kitchenProductionDetails.Sum(ed => ed.Quantity) != kitchenProduction.TotalQuantity)
+			throw new InvalidOperationException("Total quantity must be equal to the sum of item quantities.");
+
+		foreach (var item in kitchenProductionDetails)
+			item.Remarks = string.IsNullOrWhiteSpace(item.Remarks) ? null : item.Remarks.Trim();
+	}
+
+	public static async Task<int> SaveTransaction(
+		KitchenProductionModel kitchenProduction,
+		List<KitchenProductionDetailModel> kitchenProductionDetails,
+		bool recover = false,
+		SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		bool update = kitchenProduction.Id > 0;
 
 		if (sqlDataAccessTransaction is null)
 		{
-			(MemoryStream, string)? previousInvoice = null;
-			if (update)
-				previousInvoice = await KitchenProductionInvoiceExport.ExportInvoice(kitchenProduction.Id, InvoiceExportType.PDF);
+			(MemoryStream, string)? previousInvoice = update && !recover ? await KitchenProductionInvoiceExport.ExportInvoice(kitchenProduction.Id, InvoiceExportType.PDF) : null;
 
-			using SqlDataAccessTransaction newSqlDataAccessTransaction = new();
+			kitchenProduction.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(kitchenProduction, kitchenProductionDetails, recover, transaction));
 
-			try
-			{
-				newSqlDataAccessTransaction.StartTransaction();
-				kitchenProduction.Id = await SaveTransaction(kitchenProduction, cart, kitchenProductionDetails, showNotification, newSqlDataAccessTransaction);
-				newSqlDataAccessTransaction.CommitTransaction();
-			}
-			catch
-			{
-				newSqlDataAccessTransaction.RollbackTransaction();
-				throw;
-			}
-
-			if (showNotification)
+			if (!recover)
 				await KitchenProductionNotify.Notify(kitchenProduction.Id, update ? NotifyType.Updated : NotifyType.Created, previousInvoice);
 
 			return kitchenProduction.Id;
 		}
 
-		if (update)
-		{
-			var existingKitchenProduction = await CommonData.LoadTableDataById<KitchenProductionModel>(InventoryNames.KitchenProduction, kitchenProduction.Id, sqlDataAccessTransaction);
-			await FinancialYearData.ValidateFinancialYear(existingKitchenProduction.TransactionDateTime, sqlDataAccessTransaction);
-			kitchenProduction.TransactionNo = existingKitchenProduction.TransactionNo;
-		}
-		else
-			kitchenProduction.TransactionNo = await GenerateCodes.GenerateKitchenProductionTransactionNo(kitchenProduction, sqlDataAccessTransaction);
+		kitchenProduction = await ValidateTransaction(kitchenProduction, update, sqlDataAccessTransaction);
+		ValidateItemDetails(kitchenProduction, kitchenProductionDetails);
 
-		await FinancialYearData.ValidateFinancialYear(kitchenProduction.TransactionDateTime, sqlDataAccessTransaction);
+		var previousKitchenProduction = update && !recover ? await CommonData.LoadTableDataById<KitchenProductionOverviewModel>(InventoryNames.KitchenProductionOverview, kitchenProduction.Id, sqlDataAccessTransaction) : null;
+		var previousKitchenProductionDetails = update && !recover ? await CommonData.LoadTableDataByMasterId<KitchenProductionItemOverviewModel>(InventoryNames.KitchenProductionItemOverview, kitchenProduction.Id, sqlDataAccessTransaction) : null;
 
 		kitchenProduction.Id = await InsertKitchenProduction(kitchenProduction, sqlDataAccessTransaction);
-		kitchenProductionDetails ??= ConvertCartToDetails(cart, kitchenProduction.Id);
 		await SaveTransactionDetail(kitchenProduction, kitchenProductionDetails, update, sqlDataAccessTransaction);
 		await SaveProductStock(kitchenProduction, kitchenProductionDetails, update, sqlDataAccessTransaction);
+		await SaveAuditTrail(kitchenProduction, update, recover, previousKitchenProduction, previousKitchenProductionDetails, sqlDataAccessTransaction);
 
 		return kitchenProduction.Id;
 	}
 
 	private static async Task SaveTransactionDetail(KitchenProductionModel kitchenProduction, List<KitchenProductionDetailModel> kitchenProductionDetails, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
-		if (kitchenProductionDetails is null || kitchenProductionDetails.Count != kitchenProduction.TotalItems || kitchenProductionDetails.Sum(d => d.Quantity) != kitchenProduction.TotalQuantity)
-			throw new InvalidOperationException("Kitchen production details do not match the transaction summary.");
-
-		if (kitchenProductionDetails.Any(d => !d.Status))
-			throw new InvalidOperationException("Kitchen production detail items must be active.");
-
 		if (update)
 		{
 			var existingKitchenProductionDetails = await CommonData.LoadTableDataByMasterId<KitchenProductionDetailModel>(InventoryNames.KitchenProductionDetail, kitchenProduction.Id, sqlDataAccessTransaction);
@@ -135,10 +176,7 @@ public static class KitchenProductionData
 		foreach (var item in kitchenProductionDetails)
 		{
 			item.MasterId = kitchenProduction.Id;
-			var id = await InsertKitchenProductionDetail(item, sqlDataAccessTransaction);
-
-			if (id <= 0)
-				throw new InvalidOperationException("Failed to save kitchen production detail item.");
+			await InsertKitchenProductionDetail(item, sqlDataAccessTransaction);
 		}
 	}
 
@@ -148,8 +186,7 @@ public static class KitchenProductionData
 			await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.KitchenProduction), kitchenProduction.Id, 1, sqlDataAccessTransaction);
 
 		foreach (var item in kitchenProductionDetails)
-		{
-			var id = await ProductStockData.InsertProductStock(new()
+			await ProductStockData.InsertProductStock(new()
 			{
 				Id = 0,
 				ProductId = item.ProductId,
@@ -161,9 +198,40 @@ public static class KitchenProductionData
 				TransactionDateTime = kitchenProduction.TransactionDateTime,
 				LocationId = 1, // Main Location
 			}, sqlDataAccessTransaction);
-
-			if (id <= 0)
-				throw new InvalidOperationException("Failed to save product stock entry.");
-		}
 	}
+
+	private static async Task SaveAuditTrail(
+		KitchenProductionModel kitchenProduction,
+		bool update,
+		bool recover,
+		KitchenProductionOverviewModel previousKitchenProduction = null,
+		List<KitchenProductionItemOverviewModel> previousKitchenProductionDetails = null,
+		SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	{
+		string difference = null;
+
+		if (update && !recover)
+		{
+			var currentKitchenProduction = await CommonData.LoadTableDataById<KitchenProductionOverviewModel>(InventoryNames.KitchenProductionOverview, kitchenProduction.Id, sqlDataAccessTransaction);
+			var currentKitchenProductionDetails = await CommonData.LoadTableDataByMasterId<KitchenProductionItemOverviewModel>(InventoryNames.KitchenProductionItemOverview, kitchenProduction.Id, sqlDataAccessTransaction);
+
+			var headerDiff = AuditTrailData.GetDifference(previousKitchenProduction, currentKitchenProduction);
+			var detailsDiff = AuditTrailData.GetDifference(previousKitchenProductionDetails, currentKitchenProductionDetails, typeof(KitchenProductionOverviewModel));
+
+			difference = AuditTrailData.CombineDifferences(
+				(null, headerDiff),
+				("Items", detailsDiff));
+		}
+
+		await AuditTrailData.SaveAuditTrail(new()
+		{
+			Action = recover ? AuditTrailActionTypes.Recover.ToString() : update ? AuditTrailActionTypes.Update.ToString() : AuditTrailActionTypes.Insert.ToString(),
+			TableName = InventoryNames.KitchenProduction,
+			RecordNo = kitchenProduction.TransactionNo,
+			RecordValue = difference,
+			CreatedBy = update ? kitchenProduction.LastModifiedBy.Value : kitchenProduction.CreatedBy,
+			CreatedFromPlatform = update ? kitchenProduction.LastModifiedFromPlatform : kitchenProduction.CreatedFromPlatform
+		}, sqlDataAccessTransaction);
+	}
+	#endregion
 }

@@ -18,6 +18,7 @@ SELECT
 	[p].[Remarks] AS PurchaseReturnRemarks,
 
 	[pd].[Quantity],
+	[pd].[UnitOfMeasurement],
 	[pd].[Rate],
 	[pd].[BaseTotal],
 

@@ -215,7 +215,7 @@ public partial class PurchasePage
 	private async Task LoadItems()
 	{
 		_rawMaterials = await PurchaseData.LoadRawMaterialByPartyPurchaseDateTime(_purchase.PartyId, _purchase.TransactionDateTime);
-		_taxes = await CommonData.LoadTableDataByStatus<TaxModel>(StoreNames.Tax);
+		_taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
 
 		_rawMaterials = [.. _rawMaterials.OrderBy(s => s.Name)];
 	}

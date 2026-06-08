@@ -31,6 +31,8 @@ SELECT
 
 	[p].[Remarks],
 	[p].[DocumentUrl],
+	[p].[FinancialAccountingId],
+	[fa].[TransactionNo] AS FinancialAccountingTransactionNo,
 	[p].[CreatedBy],
 	[u].[Name] AS CreatedByName,
 	[p].[CreatedAt],
@@ -50,6 +52,8 @@ INNER JOIN
 	[dbo].[Ledger] AS l ON p.PartyId = l.Id
 INNER JOIN
 	[dbo].[FinancialYear] AS fy ON p.FinancialYearId = fy.Id
+LEFT JOIN
+	[dbo].[FinancialAccounting] AS fa ON p.FinancialAccountingId = fa.Id
 INNER JOIN
 	[dbo].[User] AS u ON p.[CreatedBy] = u.Id
 LEFT JOIN

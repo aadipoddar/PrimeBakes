@@ -72,6 +72,7 @@ public static class FinancialAccountingData
 	private static async Task DeletePostings(int id, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
 		await PurchaseData.UpdateFinancialAccountingId(id, null, sqlDataAccessTransaction);
+		await PurchaseReturnData.UpdateFinancialAccountingId(id, null, sqlDataAccessTransaction);
 	}
 
 	public static async Task RecoverTransaction(FinancialAccountingModel accounting)

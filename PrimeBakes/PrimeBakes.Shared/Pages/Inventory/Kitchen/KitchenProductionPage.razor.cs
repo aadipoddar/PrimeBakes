@@ -13,9 +13,9 @@ using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Store.Product.Models;
 using PrimeBakesLibrary.Utils.Exports;
 
-using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;
-using Syncfusion.Blazor.Inputs;
+
+using System.Text.Json;
 
 namespace PrimeBakes.Shared.Pages.Inventory.Kitchen;
 
@@ -28,12 +28,10 @@ public partial class KitchenProductionPage
 	private bool _isLoading = true;
 	private bool _isProcessing = false;
 
-	private decimal _itemAfterTaxTotal = 0;
-
 	private CompanyModel _selectedCompany = new();
 	private KitchenModel _selectedKitchen = new();
 	private FinancialYearModel _selectedFinancialYear = new();
-	private ProductModel? _selectedProduct = null;
+	private ProductModel _selectedProduct = null;
 	private KitchenProductionProductCartModel _selectedCart = new();
 	private KitchenProductionModel _kitchenProduction = new();
 
@@ -47,7 +45,8 @@ public partial class KitchenProductionPage
 		new() { Text = "Delete (Del)", Id = "DeleteCart", IconCss = "e-icons e-trash", Target = ".e-content" }
 	];
 
-	private AutoCompleteWithAdd<ProductModel?, ProductModel> _sfItemAutoComplete;
+	private CustomAutoComplete<CompanyModel> _sfFirstFocus;
+	private CustomAutoComplete<ProductModel> _sfItemAutoComplete;
 	private SfGrid<KitchenProductionProductCartModel> _sfCartGrid;
 
 	private ToastNotification _toastNotification;
@@ -58,254 +57,251 @@ public partial class KitchenProductionPage
 		if (!firstRender)
 			return;
 
-		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Inventory], true);
+		try
+		{
+			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Inventory], true);
+			await InitializePage();
+		}
+		catch { await ResetPage(); }
+	}
+
+	private async Task InitializePage()
+	{
 		await LoadData();
+		await ResolveTransaction();
+		await LoadSelections();
+		await LoadItems();
+		await ResolveCart();
+
+		_isLoading = false;
+		StateHasChanged();
+
+		await SaveTransactionFile();
+
+		if (_sfFirstFocus is not null)
+			await _sfFirstFocus.FocusAsync();
 	}
 
 	private async Task LoadData()
 	{
-		await LoadCompanies();
-		await LoadKitchens();
-		await LoadExistingTransaction();
-		await LoadItems();
-		await LoadExistingCart();
-		await SaveTransactionFile();
+		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+		_kitchens = await CommonData.LoadTableDataByStatus<KitchenModel>(InventoryNames.Kitchen);
 
-		_isLoading = false;
-		StateHasChanged();
+		_companies = [.. _companies.OrderBy(s => s.Name)];
+		_kitchens = [.. _kitchens.OrderBy(s => s.Name)];
+
+		var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
+		_selectedCompany = _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value) ?? _companies.FirstOrDefault();
+		_selectedKitchen = _kitchens.FirstOrDefault();
 	}
 
-	private async Task LoadCompanies()
+	private async Task ResolveTransaction()
 	{
 		try
 		{
-			_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-			_companies = [.. _companies.OrderBy(s => s.Name)];
+			if (await LoadExistingTransaction())
+				return;
 
-			var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
-			_selectedCompany = _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value) ?? throw new Exception("Main Company Not Found");
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("An Error Occurred While Loading Companies", ex.Message, ToastType.Error);
-		}
-	}
+			if (await TryRestoreFromLocalStorage())
+				return;
 
-	private async Task LoadKitchens()
-	{
-		try
-		{
-			_kitchens = await CommonData.LoadTableDataByStatus<KitchenModel>(InventoryNames.Kitchen);
-			_kitchens = [.. _kitchens.OrderBy(s => s.Name)];
-
-			_selectedKitchen = _kitchens.FirstOrDefault();
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("An Error Occurred While Loading Kitchens", ex.Message, ToastType.Error);
-		}
-	}
-
-	private async Task LoadExistingTransaction()
-	{
-		try
-		{
-			if (Id.HasValue)
-			{
-				_kitchenProduction = await CommonData.LoadTableDataById<KitchenProductionModel>(InventoryNames.KitchenProduction, Id.Value);
-				if (_kitchenProduction is null)
-				{
-					await _toastNotification.ShowAsync("Transaction Not Found", "The requested transaction could not be found.", ToastType.Error);
-					NavigationManager.NavigateTo(InventoryRouteNames.KitchenProduction, true);
-				}
-			}
-
-			else if (await DataStorageService.LocalExists(StorageFileNames.KitchenProductionDataFileName))
-				_kitchenProduction = System.Text.Json.JsonSerializer.Deserialize<KitchenProductionModel>(await DataStorageService.LocalGetAsync(StorageFileNames.KitchenProductionDataFileName));
-
-			else
-			{
-				_kitchenProduction = new()
-				{
-					Id = 0,
-					TransactionNo = string.Empty,
-					CompanyId = _selectedCompany.Id,
-					KitchenId = _selectedKitchen.Id,
-					TransactionDateTime = await CommonData.LoadCurrentDateTime(),
-					FinancialYearId = (await FinancialYearData.LoadFinancialYearByDateTime(await CommonData.LoadCurrentDateTime())).Id,
-					CreatedBy = _user.Id,
-					TotalItems = 0,
-					TotalQuantity = 0,
-					TotalAmount = 0,
-					Remarks = "",
-					CreatedAt = DateTime.Now,
-					CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform(),
-					Status = true,
-					LastModifiedAt = null,
-					LastModifiedBy = null,
-					LastModifiedFromPlatform = null
-				};
-				await DeleteLocalFiles();
-			}
-
-			if (_kitchenProduction.CompanyId > 0)
-				_selectedCompany = _companies.FirstOrDefault(s => s.Id == _kitchenProduction.CompanyId);
-			else
-			{
-				_selectedCompany = _companies.FirstOrDefault();
-				_kitchenProduction.CompanyId = _selectedCompany.Id;
-			}
-
-			if (_kitchenProduction.KitchenId > 0)
-				_selectedKitchen = _kitchens.FirstOrDefault(s => s.Id == _kitchenProduction.KitchenId);
-			else
-			{
-				_selectedKitchen = _kitchens.FirstOrDefault();
-				_kitchenProduction.KitchenId = _selectedKitchen.Id;
-			}
-
-			_selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, _kitchenProduction.FinancialYearId);
+			await CreateNewTransaction();
 		}
 		catch (Exception ex)
 		{
 			await _toastNotification.ShowAsync("An Error Occurred While Loading Transaction Data", ex.Message, ToastType.Error);
-			await DeleteLocalFiles();
+			await ResetPage();
 		}
-		finally
+	}
+
+	private async Task<bool> LoadExistingTransaction()
+	{
+		if (!Id.HasValue)
+			return false;
+
+		_kitchenProduction = await CommonData.LoadTableDataById<KitchenProductionModel>(InventoryNames.KitchenProduction, Id.Value);
+		if (_kitchenProduction is null || _kitchenProduction.Id == 0)
 		{
-			await SaveTransactionFile();
+			await _toastNotification.ShowAsync("Transaction Not Found", "The requested transaction could not be found.", ToastType.Error);
+			NavigationManager.NavigateTo(InventoryRouteNames.KitchenProduction, true);
 		}
+
+		return true;
+	}
+
+	private async Task<bool> TryRestoreFromLocalStorage()
+	{
+		if (!await DataStorageService.LocalExists(StorageFileNames.KitchenProductionDataFileName))
+			return false;
+
+		try
+		{
+			_kitchenProduction = JsonSerializer.Deserialize<KitchenProductionModel>(await DataStorageService.LocalGetAsync(StorageFileNames.KitchenProductionDataFileName));
+			return _kitchenProduction is not null;
+		}
+		catch
+		{
+			await DeleteLocalFiles();
+			return false;
+		}
+	}
+
+	private async Task CreateNewTransaction()
+	{
+		var currentDateTime = await CommonData.LoadCurrentDateTime();
+		var financialYear = await FinancialYearData.LoadFinancialYearByDateTime(currentDateTime);
+
+		_kitchenProduction = new()
+		{
+			Id = 0,
+			TransactionNo = string.Empty,
+			CompanyId = _selectedCompany.Id,
+			KitchenId = _selectedKitchen.Id,
+			TransactionDateTime = currentDateTime,
+			FinancialYearId = financialYear is null ? 0 : financialYear.Id,
+			CreatedBy = _user.Id,
+			TotalItems = 0,
+			TotalQuantity = 0,
+			TotalAmount = 0,
+			Remarks = null,
+			CreatedAt = DateTime.Now,
+			CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform(),
+			Status = true,
+			LastModifiedAt = null,
+			LastModifiedBy = null,
+			LastModifiedFromPlatform = null
+		};
+
+		await DeleteLocalFiles();
+	}
+
+	private async Task LoadSelections()
+	{
+		if (_kitchenProduction.CompanyId > 0)
+			_selectedCompany = _companies.FirstOrDefault(s => s.Id == _kitchenProduction.CompanyId) ?? _companies.FirstOrDefault();
+		else
+			_selectedCompany = _companies.FirstOrDefault();
+
+		if (_kitchenProduction.KitchenId > 0)
+			_selectedKitchen = _kitchens.FirstOrDefault(s => s.Id == _kitchenProduction.KitchenId) ?? _kitchens.FirstOrDefault();
+		else
+			_selectedKitchen = _kitchens.FirstOrDefault();
+
+		_kitchenProduction.CompanyId = _selectedCompany.Id;
+		_kitchenProduction.KitchenId = _selectedKitchen.Id;
+
+		_selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, _kitchenProduction.FinancialYearId);
 	}
 
 	private async Task LoadItems()
 	{
-		try
-		{
-			_products = await CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product);
-			_products = [.. _products.OrderBy(s => s.Name)];
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("An Error Occurred While Loading Products", ex.Message, ToastType.Error);
-		}
+		_products = await CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product);
+		_products = [.. _products.OrderBy(s => s.Name)];
 	}
 
-	private async Task LoadExistingCart()
+	private async Task ResolveCart()
 	{
 		try
 		{
 			_cart.Clear();
 
-			if (_kitchenProduction.Id > 0)
-			{
-				var existingCart = await CommonData.LoadTableDataByMasterId<KitchenProductionProductCartModel>(InventoryNames.KitchenProductionDetail, _kitchenProduction.Id);
+			if (await LoadExistingCart())
+				return;
 
-				foreach (var item in existingCart)
-				{
-					if (_products.FirstOrDefault(s => s.Id == item.ProductId) is null)
-					{
-						var product = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, item.ProductId);
-
-						await _toastNotification.ShowAsync("Product Not Found", $"The product {product?.Name} (ID: {item.ProductId}) in the existing transaction cart was not found in the available products list. It may have been deleted or is inaccessible.", ToastType.Error);
-						continue;
-					}
-
-					_cart.Add(new()
-					{
-						ProductId = item.ProductId,
-						ProductName = _products.FirstOrDefault(s => s.Id == item.ProductId)?.Name ?? "",
-						Quantity = item.Quantity,
-						Rate = item.Rate,
-						Total = item.Total,
-						Remarks = item.Remarks
-					});
-				}
-			}
-
-			else if (await DataStorageService.LocalExists(StorageFileNames.KitchenProductionCartDataFileName))
-				_cart = System.Text.Json.JsonSerializer.Deserialize<List<KitchenProductionProductCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.KitchenProductionCartDataFileName));
+			if (await DataStorageService.LocalExists(StorageFileNames.KitchenProductionCartDataFileName))
+				_cart = JsonSerializer.Deserialize<List<KitchenProductionProductCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.KitchenProductionCartDataFileName));
 		}
 		catch (Exception ex)
 		{
 			await _toastNotification.ShowAsync("An Error Occurred While Loading Existing Cart", ex.Message, ToastType.Error);
-			await DeleteLocalFiles();
+			await ResetPage();
 		}
-		finally
+	}
+
+	private async Task<bool> LoadExistingCart()
+	{
+		if (_kitchenProduction.Id <= 0)
+			return false;
+
+		var existingCart = await CommonData.LoadTableDataByMasterId<KitchenProductionDetailModel>(InventoryNames.KitchenProductionDetail, _kitchenProduction.Id);
+
+		foreach (var item in existingCart)
 		{
-			await SaveTransactionFile();
+			if (_products.FirstOrDefault(s => s.Id == item.ProductId) is null)
+			{
+				var product = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, item.ProductId);
+				await _toastNotification.ShowAsync("Product Not Found", $"The product {product?.Name} (ID: {item.ProductId}) in the existing transaction cart was not found in the available products list. It may have been deleted or is inaccessible.", ToastType.Error);
+				continue;
+			}
+
+			_cart.Add(new()
+			{
+				ProductId = item.ProductId,
+				ProductName = _products.FirstOrDefault(s => s.Id == item.ProductId)?.Name ?? "",
+				Quantity = item.Quantity,
+				Rate = item.Rate,
+				Total = item.Total,
+				Remarks = item.Remarks
+			});
 		}
+
+		return true;
 	}
 	#endregion
 
-	#region Change Events
-	private async Task OnCompanyChanged(ChangeEventArgs<CompanyModel, CompanyModel> args)
+	#region Changed Events
+	private async Task OnCompanyChanged(CompanyModel value)
 	{
-		if (args.Value is null || args.Value.Id == 0)
+		if (value is null || value.Id == 0)
 			return;
 
-		_selectedCompany = args.Value;
-		_kitchenProduction.CompanyId = _selectedCompany.Id;
-
+		_selectedCompany = value;
 		await SaveTransactionFile();
 	}
 
-	private async Task OnKitchenChanged(ChangeEventArgs<KitchenModel, KitchenModel> args)
+	private async Task OnKitchenChanged(KitchenModel value)
 	{
-		if (args.Value is null || args.Value.Id == 0)
+		if (value is null || value.Id == 0)
 			return;
 
-		_selectedKitchen = args.Value;
-		_kitchenProduction.KitchenId = _selectedKitchen.Id;
-
-		await LoadItems();
+		_selectedKitchen = value;
 		await SaveTransactionFile();
+		await LoadItems();
 	}
 
-	private async Task OnTransactionDateChanged(Syncfusion.Blazor.Calendars.ChangedEventArgs<DateTime> args)
+	private async Task OnTransactionDateChanged(DateTime value)
 	{
-		_kitchenProduction.TransactionDateTime = args.Value;
-		await LoadItems();
+		_kitchenProduction.TransactionDateTime = value;
 		await SaveTransactionFile();
+		await LoadItems();
 	}
 	#endregion
 
 	#region Cart
-	private async Task OnItemChanged(ChangeEventArgs<ProductModel?, ProductModel> args)
+	private void OnItemChanged(ProductModel value)
 	{
-		if (args.Value is null || args.Value.Id == 0)
+		if (value is null || value.Id == 0)
 			return;
 
-		_selectedProduct = args.Value;
+		_selectedProduct = value;
 
-		if (_selectedProduct is null)
-			_selectedCart = new()
-			{
-				ProductId = 0,
-				ProductName = "",
-				Quantity = 0,
-				Rate = 0
-			};
-
-		else
-		{
-			_selectedCart.ProductId = _selectedProduct.Id;
-			_selectedCart.ProductName = _selectedProduct.Name;
-			_selectedCart.Quantity = 1;
-			_selectedCart.Rate = _selectedProduct.Rate;
-		}
+		_selectedCart.ProductId = _selectedProduct.Id;
+		_selectedCart.ProductName = _selectedProduct.Name;
+		_selectedCart.Quantity = 0;
+		_selectedCart.Rate = _selectedProduct.Rate;
 
 		UpdateSelectedItemFinancialDetails();
 	}
 
-	private void OnItemQuantityChanged(ChangeEventArgs<decimal> args)
+	private void OnItemQuantityChanged(decimal value)
 	{
-		_selectedCart.Quantity = args.Value;
+		_selectedCart.Quantity = value;
 		UpdateSelectedItemFinancialDetails();
 	}
 
-	private void OnItemRateChanged(ChangeEventArgs<decimal> args)
+	private void OnItemRateChanged(decimal value)
 	{
-		_selectedCart.Rate = args.Value;
+		_selectedCart.Rate = value;
 		UpdateSelectedItemFinancialDetails();
 	}
 
@@ -319,7 +315,7 @@ public partial class KitchenProductionPage
 
 		_selectedCart.ProductId = _selectedProduct.Id;
 		_selectedCart.ProductName = _selectedProduct.Name;
-		_selectedCart.Total = _selectedProduct.Rate * _selectedCart.Quantity;
+		_selectedCart.Total = _selectedCart.Rate * _selectedCart.Quantity;
 
 		StateHasChanged();
 	}
@@ -406,42 +402,43 @@ public partial class KitchenProductionPage
 	#region Saving
 	private async Task UpdateFinancialDetails()
 	{
-		foreach (var item in _cart)
+		foreach (var item in _cart.ToList())
 		{
-			if (item.Quantity == 0)
+			if (item.Quantity <= 0)
+			{
 				_cart.Remove(item);
+				continue;
+			}
 
 			item.Total = item.Rate * item.Quantity;
-
-			item.Remarks = item.Remarks?.Trim();
-			if (string.IsNullOrWhiteSpace(item.Remarks))
-				item.Remarks = null;
+			item.Remarks = string.IsNullOrWhiteSpace(item.Remarks) ? null : item.Remarks.Trim();
 		}
-
-		_kitchenProduction.TotalItems = _cart.Count;
-		_kitchenProduction.TotalQuantity = _cart.Sum(x => x.Quantity);
-		_kitchenProduction.TotalAmount = _cart.Sum(x => x.Total);
-		_itemAfterTaxTotal = _cart.Sum(x => x.Total);
 
 		_kitchenProduction.CompanyId = _selectedCompany.Id;
 		_kitchenProduction.KitchenId = _selectedKitchen.Id;
-		_kitchenProduction.CreatedBy = _user.Id;
+		_kitchenProduction.TotalItems = _cart.Count;
+		_kitchenProduction.TotalQuantity = _cart.Sum(x => x.Quantity);
+		_kitchenProduction.TotalAmount = _cart.Sum(x => x.Total);
 
 		#region Financial Year
 		_selectedFinancialYear = await FinancialYearData.LoadFinancialYearByDateTime(_kitchenProduction.TransactionDateTime);
 		if (_selectedFinancialYear is not null && !_selectedFinancialYear.Locked)
 			_kitchenProduction.FinancialYearId = _selectedFinancialYear.Id;
 		else
-		{
 			await _toastNotification.ShowAsync("Invalid Transaction Date", "The selected transaction date does not fall within an active financial year.", ToastType.Error);
-			_kitchenProduction.TransactionDateTime = await CommonData.LoadCurrentDateTime();
-			_selectedFinancialYear = await FinancialYearData.LoadFinancialYearByDateTime(_kitchenProduction.TransactionDateTime);
-			_kitchenProduction.FinancialYearId = _selectedFinancialYear.Id;
-		}
 		#endregion
 
 		if (Id is null)
 			_kitchenProduction.TransactionNo = await GenerateCodes.GenerateKitchenProductionTransactionNo(_kitchenProduction);
+
+		var currentDateTime = await CommonData.LoadCurrentDateTime();
+		_kitchenProduction.Status = true;
+		_kitchenProduction.TransactionDateTime = DateOnly.FromDateTime(_kitchenProduction.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
+		_kitchenProduction.LastModifiedAt = currentDateTime;
+		_kitchenProduction.CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
+		_kitchenProduction.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
+		_kitchenProduction.CreatedBy = _user.Id;
+		_kitchenProduction.LastModifiedBy = _user.Id;
 	}
 
 	private async Task SaveTransactionFile()
@@ -455,8 +452,14 @@ public partial class KitchenProductionPage
 
 			await UpdateFinancialDetails();
 
-			await DataStorageService.LocalSaveAsync(StorageFileNames.KitchenProductionDataFileName, System.Text.Json.JsonSerializer.Serialize(_kitchenProduction));
-			await DataStorageService.LocalSaveAsync(StorageFileNames.KitchenProductionCartDataFileName, System.Text.Json.JsonSerializer.Serialize(_cart));
+			if (_cart.Count == 0 || _kitchenProduction.Id > 0)
+			{
+				await DeleteLocalFiles();
+				return;
+			}
+
+			await DataStorageService.LocalSaveAsync(StorageFileNames.KitchenProductionDataFileName, JsonSerializer.Serialize(_kitchenProduction));
+			await DataStorageService.LocalSaveAsync(StorageFileNames.KitchenProductionCartDataFileName, JsonSerializer.Serialize(_cart));
 		}
 		catch (Exception ex)
 		{
@@ -465,98 +468,11 @@ public partial class KitchenProductionPage
 		finally
 		{
 			if (_sfCartGrid is not null)
-				await _sfCartGrid?.Refresh();
+				await _sfCartGrid.Refresh();
 
 			_isProcessing = false;
 			StateHasChanged();
 		}
-	}
-
-	private async Task<bool> ValidateForm()
-	{
-		if (_selectedCompany is null || _kitchenProduction.CompanyId <= 0)
-		{
-			await _toastNotification.ShowAsync("Company Not Selected", "Please select a company for the transaction.", ToastType.Warning);
-			return false;
-		}
-
-		if (_selectedKitchen is null || _kitchenProduction.KitchenId <= 0)
-		{
-			await _toastNotification.ShowAsync("Kitchen Not Selected", "Please select a kitchen for the transaction.", ToastType.Warning);
-			return false;
-		}
-
-		if (string.IsNullOrWhiteSpace(_kitchenProduction.TransactionNo))
-		{
-			await _toastNotification.ShowAsync("Transaction Number Missing", "Please enter a transaction number for the transaction.", ToastType.Warning);
-			return false;
-		}
-
-		if (_kitchenProduction.TransactionDateTime == default)
-		{
-			await _toastNotification.ShowAsync("Transaction Date Missing", "Please select a valid transaction date for the transaction.", ToastType.Warning);
-			return false;
-		}
-
-		if (_selectedFinancialYear is null || _kitchenProduction.FinancialYearId <= 0)
-		{
-			await _toastNotification.ShowAsync("Financial Year Not Found", "The transaction date does not fall within any financial year. Please check the date and try again.", ToastType.Error);
-			return false;
-		}
-
-		if (_selectedFinancialYear.Locked)
-		{
-			await _toastNotification.ShowAsync("Financial Year Locked", "The financial year for the selected transaction date is locked. Please select a different date.", ToastType.Error);
-			return false;
-		}
-
-		if (!_selectedFinancialYear.Status)
-		{
-			await _toastNotification.ShowAsync("Financial Year Inactive", "The financial year for the selected transaction date is inactive. Please select a different date.", ToastType.Error);
-			return false;
-		}
-
-		if (_kitchenProduction.TotalItems <= 0)
-		{
-			await _toastNotification.ShowAsync("No Items in Cart", "The transaction must contain at least one item in the cart.", ToastType.Warning);
-			return false;
-		}
-
-		if (_kitchenProduction.TotalQuantity <= 0)
-		{
-			await _toastNotification.ShowAsync("Invalid Total Quantity", "The total quantity of the transaction must be greater than zero.", ToastType.Error);
-			return false;
-		}
-
-		if (_kitchenProduction.TotalAmount < 0)
-		{
-			await _toastNotification.ShowAsync("Invalid Total Amount", "The total amount of the transaction must be greater than zero.", ToastType.Error);
-			return false;
-		}
-
-		if (_cart.Any(item => item.Quantity <= 0))
-		{
-			await _toastNotification.ShowAsync("Invalid Product Quantity", "One or more products in the cart have a quantity less than or equal to zero. Please correct the quantities before saving.", ToastType.Error);
-			return false;
-		}
-
-		if (_kitchenProduction.Id > 0)
-		{
-			var existingKitchenProduction = await CommonData.LoadTableDataById<KitchenProductionModel>(InventoryNames.KitchenProduction, _kitchenProduction.Id);
-			await FinancialYearData.ValidateFinancialYear(existingKitchenProduction.TransactionDateTime);
-
-			if (!_user.Admin)
-			{
-				await _toastNotification.ShowAsync("Insufficient Permissions", "You do not have the necessary permissions to modify this transaction.", ToastType.Error);
-				return false;
-			}
-		}
-
-		_kitchenProduction.Remarks = _kitchenProduction.Remarks?.Trim();
-		if (string.IsNullOrWhiteSpace(_kitchenProduction.Remarks))
-			_kitchenProduction.Remarks = null;
-
-		return true;
 	}
 
 	private async Task SaveTransaction(bool savePDF = false, bool saveExcel = false)
@@ -567,47 +483,75 @@ public partial class KitchenProductionPage
 		try
 		{
 			await SaveTransactionFile();
-
-			if (!await ValidateForm())
-				return;
-
 			_isProcessing = true;
+			StateHasChanged();
 
 			await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			_kitchenProduction.Status = true;
-			var currentDateTime = await CommonData.LoadCurrentDateTime();
-			_kitchenProduction.TransactionDateTime = DateOnly.FromDateTime(_kitchenProduction.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
-			_kitchenProduction.LastModifiedAt = currentDateTime;
-			_kitchenProduction.CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
-			_kitchenProduction.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
-			_kitchenProduction.CreatedBy = _user.Id;
-			_kitchenProduction.LastModifiedBy = _user.Id;
+			var items = KitchenProductionData.ConvertCartToDetails(_cart);
+			_kitchenProduction.Id = await KitchenProductionData.SaveTransaction(_kitchenProduction, items);
+			_kitchenProduction = await CommonData.LoadTableDataById<KitchenProductionModel>(InventoryNames.KitchenProduction, _kitchenProduction.Id);
 
-			_kitchenProduction.Id = await KitchenProductionData.SaveTransaction(_kitchenProduction, _cart);
+			if (savePDF) await ExportSelectedTransaction(false, true);
+			if (saveExcel) await ExportSelectedTransaction(true, true);
 
-			if (savePDF)
-			{
-				var (pdfStream, pdfFileName) = await KitchenProductionInvoiceExport.ExportInvoice(_kitchenProduction.Id, InvoiceExportType.PDF);
-				await SaveAndViewService.SaveAndView(pdfFileName, pdfStream);
-			}
-
-			if (saveExcel)
-			{
-				var (excelStream, excelFileName) = await KitchenProductionInvoiceExport.ExportInvoice(_kitchenProduction.Id, InvoiceExportType.Excel);
-				await SaveAndViewService.SaveAndView(excelFileName, excelStream);
-			}
-
-			await ResetPage();
 			await _toastNotification.ShowAsync("Save Transaction", "Transaction saved successfully.", ToastType.Success);
+
+			if (Id.HasValue && Id.Value > 0)
+				await AuthenticationService.CloseWindowOrTab(FormFactor, JSRuntime);
+			await ResetPage();
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("An Error Occurred While Saving Transaction", ex.Message, ToastType.Error);
+			await _toastNotification.ShowAsync("Error While Saving Transaction", ex.Message, ToastType.Error);
 		}
 		finally
 		{
 			_isProcessing = false;
+		}
+	}
+	#endregion
+
+	#region Exporting
+	private async Task ExportSelectedTransaction(bool isExcel = false, bool force = false)
+	{
+		if (_kitchenProduction.Id <= 0 || (_isProcessing && !force))
+			return;
+
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
+
+			var (stream, fileName) = await KitchenProductionInvoiceExport.ExportInvoice(_kitchenProduction.Id, isExcel ? InvoiceExportType.Excel : InvoiceExportType.PDF);
+			await SaveAndViewService.SaveAndView(fileName, stream);
+
+			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_kitchenProduction.TransactionNo, !isExcel, isExcel, CodeType.KitchenProduction);
+			await SaveAndViewService.SaveAndView(isExcel ? decodeTransactionNo.ExcelStream.fileName : decodeTransactionNo.PDFStream.fileName,
+				isExcel ? decodeTransactionNo.ExcelStream.stream : decodeTransactionNo.PDFStream.stream);
+
+			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
+	#endregion
+
+	#region Utilities
+	private async Task OnCartGridContextMenuItemClicked(ContextMenuClickEventArgs<KitchenProductionProductCartModel> args)
+	{
+		switch (args.Item.Id)
+		{
+			case "EditCart": await EditSelectedCartItem(); break;
+			case "DeleteCart": await RemoveSelectedCartItem(); break;
 		}
 	}
 
@@ -616,131 +560,11 @@ public partial class KitchenProductionPage
 		await DataStorageService.LocalRemove(StorageFileNames.KitchenProductionDataFileName);
 		await DataStorageService.LocalRemove(StorageFileNames.KitchenProductionCartDataFileName);
 	}
-	#endregion
-
-	#region Utilities
-	private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
-	{
-		switch (args.Item.Id)
-		{
-			case "NewTransaction":
-				await ResetPage();
-				break;
-			case "SaveTransaction":
-				await SaveTransaction();
-				break;
-			case "SavePdfInvoice":
-				await SaveTransaction(savePDF: true);
-				break;
-			case "SaveExcelInvoice":
-				await SaveTransaction(saveExcel: true);
-				break;
-			case "ExportPdfInvoice":
-				await DownloadPdfInvoice();
-				break;
-			case "ExportExcelInvoice":
-				await DownloadExcelInvoice();
-				break;
-			case "TransactionHistory":
-				await NavigateToTransactionHistoryPage();
-				break;
-			case "ItemReport":
-				await NavigateToItemReport();
-				break;
-		}
-	}
-
-	private async Task OnCartGridContextMenuItemClicked(ContextMenuClickEventArgs<KitchenProductionProductCartModel> args)
-	{
-		switch (args.Item.Id)
-		{
-			case "EditCart":
-				await EditSelectedCartItem();
-				break;
-			case "DeleteCart":
-				await RemoveSelectedCartItem();
-				break;
-		}
-	}
 
 	private async Task ResetPage()
 	{
 		await DeleteLocalFiles();
-		NavigationManager.NavigateTo(InventoryRouteNames.KitchenProduction, true);
+		PageRefresh.Request();
 	}
-
-	private async Task NavigateToTransactionHistoryPage() =>
-		await AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenProductionReport, FormFactor, JSRuntime, NavigationManager);
-
-	private async Task NavigateToItemReport() =>
-		await AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenProductionItemReport, FormFactor, JSRuntime, NavigationManager);
-
-	private async Task DownloadPdfInvoice()
-	{
-		if (!Id.HasValue || Id.Value <= 0)
-		{
-			await _toastNotification.ShowAsync("No Transaction Selected", "Please save the transaction first before downloading the invoice.", ToastType.Warning);
-			return;
-		}
-
-		if (_isProcessing)
-			return;
-
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
-
-			var (pdfStream, fileName) = await KitchenProductionInvoiceExport.ExportInvoice(Id.Value, InvoiceExportType.PDF);
-			await SaveAndViewService.SaveAndView(fileName, pdfStream);
-
-			await _toastNotification.ShowAsync("Invoice Downloaded", "The PDF invoice has been downloaded successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("An Error Occurred While Downloading Invoice", ex.Message, ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-		}
-	}
-
-	private async Task DownloadExcelInvoice()
-	{
-		if (!Id.HasValue || Id.Value <= 0)
-		{
-			await _toastNotification.ShowAsync("No Transaction Selected", "Please save the transaction first before downloading the invoice.", ToastType.Warning);
-			return;
-		}
-
-		if (_isProcessing)
-			return;
-
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
-
-			var (excelStream, fileName) = await KitchenProductionInvoiceExport.ExportInvoice(Id.Value, InvoiceExportType.Excel);
-			await SaveAndViewService.SaveAndView(fileName, excelStream);
-
-			await _toastNotification.ShowAsync("Invoice Downloaded", "The Excel invoice has been downloaded successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("An Error Occurred While Downloading Invoice", ex.Message, ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-		}
-	}
-
-	private void NavigateBack() =>
-		NavigationManager.NavigateTo(OperationRouteNames.InventoryDashboard);
-
 	#endregion
 }

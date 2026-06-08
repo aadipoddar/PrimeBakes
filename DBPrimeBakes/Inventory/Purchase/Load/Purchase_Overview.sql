@@ -1,60 +1,62 @@
-﻿CREATE VIEW [dbo].[Purchase_Overview]
-	AS
+CREATE VIEW [dbo].[Purchase_Overview]
+AS
 SELECT
-	[p].[Id],
-	[p].[TransactionNo],
-	[p].[ChallanNo],
-	[p].[CompanyId],
-	[c].[Name] AS CompanyName,
-	[p].[PartyId],
-	[l].[Name] AS PartyName,
-	[p].[TransactionDateTime],
-	[p].[FinancialYearId],
+    [t].[Id],
+    [t].[TransactionNo],
+    [t].[CompanyId],
+    [c].[Name] AS CompanyName,
+
+    [t].[TransactionDateTime],
+    [t].[FinancialYearId],
 	CONVERT(VARCHAR(10), fy.StartDate, 103) + ' to ' + CONVERT(VARCHAR(10), fy.EndDate, 103) AS FinancialYear,
 
-	[p].[TotalItems],
-	[p].[TotalQuantity],
-	[p].[BaseTotal],
-	[p].[ItemDiscountAmount],
-	[p].[TotalAfterItemDiscount],
-	[p].[TotalInclusiveTaxAmount],
-	[p].[TotalExtraTaxAmount],
-	[p].[TotalAfterTax],
+	[t].[ChallanNo],
+	[t].[PartyId],
+	[l].[Name] AS PartyName,
 
-	[p].[OtherChargesPercent],
-	[p].[OtherChargesAmount],
-	[p].[CashDiscountPercent],
-	[p].[CashDiscountAmount],
+	[t].[TotalItems],
+	[t].[TotalQuantity],
+	[t].[BaseTotal],
+	[t].[ItemDiscountAmount],
+	[t].[TotalAfterItemDiscount],
+	[t].[TotalInclusiveTaxAmount],
+	[t].[TotalExtraTaxAmount],
+	[t].[TotalAfterTax],
 
-	[p].[RoundOffAmount],
-	[p].[TotalAmount],
+	[t].[OtherChargesPercent],
+	[t].[OtherChargesAmount],
+	[t].[CashDiscountPercent],
+	[t].[CashDiscountAmount],
 
-	[p].[Remarks],
-	[p].[DocumentUrl],
-	[p].[FinancialAccountingId],
+	[t].[RoundOffAmount],
+	[t].[TotalAmount],
+
+    [t].[Remarks],
+	[t].[DocumentUrl],
+	[t].[FinancialAccountingId],
 	[fa].[TransactionNo] AS FinancialAccountingTransactionNo,
-	[p].[CreatedBy],
+	[t].[CreatedBy],
 	[u].[Name] AS CreatedByName,
-	[p].[CreatedAt],
-	[p].[CreatedFromPlatform],
-	[p].[LastModifiedBy],
+	[t].[CreatedAt],
+	[t].[CreatedFromPlatform],
+	[t].[LastModifiedBy],
 	[lm].[Name] AS LastModifiedByUserName,
-	[p].[LastModifiedAt],
-	[p].[LastModifiedFromPlatform],
+	[t].[LastModifiedAt],
+	[t].[LastModifiedFromPlatform],
 
-	[p].[Status]
+	[t].[Status]
 
 FROM
-	[dbo].[Purchase] AS p
+    [dbo].[Purchase] t
 INNER JOIN
-	[dbo].[Company] AS c ON p.CompanyId = c.Id
+    [dbo].[Company] c ON t.CompanyId = c.Id
 INNER JOIN
-	[dbo].[Ledger] AS l ON p.PartyId = l.Id
+    [dbo].[FinancialYear] fy ON t.FinancialYearId = fy.Id
 INNER JOIN
-	[dbo].[FinancialYear] AS fy ON p.FinancialYearId = fy.Id
+	[dbo].[Ledger] l ON t.PartyId = l.Id
 LEFT JOIN
-	[dbo].[FinancialAccounting] AS fa ON p.FinancialAccountingId = fa.Id
+	[dbo].[FinancialAccounting] fa ON t.FinancialAccountingId = fa.Id
 INNER JOIN
-	[dbo].[User] AS u ON p.[CreatedBy] = u.Id
+	[dbo].[User] AS u ON t.CreatedBy = u.Id
 LEFT JOIN
-	[dbo].[User] AS lm ON p.LastModifiedBy = lm.Id
+	[dbo].[User] AS lm ON t.LastModifiedBy = lm.Id

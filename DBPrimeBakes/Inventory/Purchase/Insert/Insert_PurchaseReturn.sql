@@ -22,6 +22,7 @@
 	@TotalAmount MONEY,
 	@Remarks VARCHAR(MAX),
 	@DocumentUrl VARCHAR(MAX) = NULL,
+	@FinancialAccountingId INT = NULL,
 	@CreatedBy INT,
 	@CreatedAt DATETIME,
 	@CreatedFromPlatform VARCHAR(MAX),
@@ -57,6 +58,7 @@ BEGIN
 			[TotalAmount],
 			[Remarks],
 			[DocumentUrl],
+			[FinancialAccountingId],
 			[CreatedBy],
 			[CreatedFromPlatform],
 			[Status]
@@ -85,6 +87,7 @@ BEGIN
 			@TotalAmount,
 			@Remarks,
 			@DocumentUrl,
+			@FinancialAccountingId,
 			@CreatedBy,
 			@CreatedFromPlatform,
 			@Status
@@ -118,6 +121,7 @@ BEGIN
 			[TotalAmount] = @TotalAmount,
 			[Remarks] = @Remarks,
 			[DocumentUrl] = @DocumentUrl,
+			[FinancialAccountingId] = @FinancialAccountingId,
 			[Status] = @Status,
 			[LastModifiedBy] = @LastModifiedBy,
 			[LastModifiedAt] = @LastModifiedAt,

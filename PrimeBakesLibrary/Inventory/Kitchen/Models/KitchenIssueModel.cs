@@ -89,6 +89,7 @@ public class KitchenIssueItemOverviewModel
     public string? KitchenIssueRemarks { get; set; }
 
     public decimal Quantity { get; set; }
+    public string UnitOfMeasurement { get; set; }
     public decimal Rate { get; set; }
     public decimal Total { get; set; }
 

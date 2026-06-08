@@ -1,7 +1,6 @@
 using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Inventory.Kitchen.Models;
-using PrimeBakesLibrary.Store.Product.Models;
 using PrimeBakesLibrary.Utils.Exports;
 
 namespace PrimeBakesLibrary.Inventory.Kitchen.Exports;
@@ -10,10 +9,10 @@ public static class KitchenProductionInvoiceExport
 {
 	public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId, InvoiceExportType exportType)
 	{
-		var transaction = await CommonData.LoadTableDataById<KitchenProductionModel>(InventoryNames.KitchenProduction, transactionId) ??
+		var transaction = await CommonData.LoadTableDataById<KitchenProductionOverviewModel>(InventoryNames.KitchenProductionOverview, transactionId) ??
 			throw new InvalidOperationException("Transaction not found.");
 
-		var transactionDetails = await CommonData.LoadTableDataByMasterId<KitchenProductionDetailModel>(InventoryNames.KitchenProductionDetail, transaction.Id);
+		var transactionDetails = await CommonData.LoadTableDataByMasterId<KitchenProductionItemOverviewModel>(InventoryNames.KitchenProductionItemOverview, transaction.Id);
 		if (transactionDetails is null || transactionDetails.Count == 0)
 			throw new InvalidOperationException("No transaction details found for the transaction.");
 
@@ -22,20 +21,12 @@ public static class KitchenProductionInvoiceExport
 		if (company is null || kitchen is null)
 			throw new InvalidOperationException("Company or kitchen information is missing.");
 
-		var allProducts = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
-
-		var lineItems = transactionDetails.Select(detail =>
+		var lineItems = transactionDetails.Select(detail => new
 		{
-			var product = allProducts.FirstOrDefault(p => p.Id == detail.ProductId);
-			return new KitchenProductionProductCartModel
-			{
-				ProductId = detail.ProductId,
-				ProductName = product?.Name ?? $"Product #{detail.ProductId}",
-				Quantity = detail.Quantity,
-				Rate = detail.Rate,
-				Total = detail.Total,
-				Remarks = detail.Remarks
-			};
+			detail.ItemName,
+			detail.Quantity,
+			detail.Rate,
+			detail.Total
 		}).ToList();
 
 		// Convert LocationModel to LedgerModel for display
@@ -66,10 +57,10 @@ public static class KitchenProductionInvoiceExport
 		var columnSettings = new List<InvoiceColumnSetting>
 		{
 			new("#", "#", exportType, CellAlignment.Center, 25, 5),
-			new(nameof(KitchenProductionProductCartModel.ProductName), "Item", exportType, CellAlignment.Left, 0, 40),
-			new(nameof(KitchenProductionProductCartModel.Quantity), "Qty", exportType, CellAlignment.Right, 50, 12, "#,##0.00"),
-			new(nameof(KitchenProductionProductCartModel.Rate), "Rate", exportType, CellAlignment.Right, 60, 12, "#,##0.00"),
-			new(nameof(KitchenProductionProductCartModel.Total), "Total", exportType, CellAlignment.Right, 60, 15, "#,##0.00")
+			new(nameof(KitchenProductionItemOverviewModel.ItemName), "Item", exportType, CellAlignment.Left, 0, 40),
+			new(nameof(KitchenProductionItemOverviewModel.Quantity), "Qty", exportType, CellAlignment.Right, 50, 12, "#,##0.00"),
+			new(nameof(KitchenProductionItemOverviewModel.Rate), "Rate", exportType, CellAlignment.Right, 60, 12, "#,##0.00"),
+			new(nameof(KitchenProductionItemOverviewModel.Total), "Total", exportType, CellAlignment.Right, 60, 15, "#,##0.00")
 		};
 
 		var currentDateTime = await CommonData.LoadCurrentDateTime();

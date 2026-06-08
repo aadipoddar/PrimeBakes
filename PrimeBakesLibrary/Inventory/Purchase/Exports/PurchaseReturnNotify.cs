@@ -1,5 +1,6 @@
 using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Inventory.Purchase.Models;
+using PrimeBakesLibrary.Operations.AuditTrail;
 using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Utils.Exports;
 using PrimeBakesLibrary.Utils.Mail;
@@ -51,12 +52,13 @@ internal static class PurchaseReturnNotify
 		var emailData = new TransactionMailing.TransactionEmailData
 		{
 			TransactionType = "Purchase Return",
-			TransactionNo = purchaseReturn.ChallanNo,
+			TransactionNo = purchaseReturn.TransactionNo,
 			Action = type,
 			LocationName = purchaseReturn.PartyName,
 			Details = new Dictionary<string, string>
 			{
-				["Transaction Number"] = purchaseReturn.ChallanNo,
+				["Transaction Number"] = purchaseReturn.TransactionNo,
+				["Challan Number"] = purchaseReturn.ChallanNo,
 				["Vendor"] = purchaseReturn.PartyName,
 				["Transaction Date"] = purchaseReturn.TransactionDateTime.ToString("dd MMM yyyy, hh:mm tt"),
 				["Total Items"] = purchaseReturn.TotalItems.ToString(),
@@ -65,7 +67,8 @@ internal static class PurchaseReturnNotify
 				["Total Amount"] = purchaseReturn.TotalAmount.FormatIndianCurrency(),
 				[type == NotifyType.Deleted ? "Deleted By" : type == NotifyType.Updated ? "Updated By" : "Modified By"] = purchaseReturn.LastModifiedByUserName ?? purchaseReturn.CreatedByName
 			},
-			Remarks = purchaseReturn.Remarks
+			Remarks = purchaseReturn.Remarks,
+			Differences = type == NotifyType.Updated ? (await AuditTrailData.LoadLastAuditTrailByTableRecord(InventoryNames.PurchaseReturn, purchaseReturn.TransactionNo)).RecordValue : null
 		};
 
 		// For update emails, include before and after invoices

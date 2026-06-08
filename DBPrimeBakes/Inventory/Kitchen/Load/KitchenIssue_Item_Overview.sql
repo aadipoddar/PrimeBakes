@@ -17,6 +17,7 @@ SELECT
 	[ki].[Remarks] AS KitchenIssueRemarks,
 
 	[kid].[Quantity],
+	[kid].[UnitOfMeasurement],
 	[kid].[Rate],
 	[kid].[Total],
 

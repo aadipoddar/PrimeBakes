@@ -23,6 +23,7 @@
 	[TotalAmount] MONEY NOT NULL DEFAULT 0,
 	[Remarks] VARCHAR(MAX) NULL,
 	[DocumentUrl] VARCHAR(MAX) NULL,
+	[FinancialAccountingId] INT NULL,
 	[CreatedBy] INT NOT NULL,
 	[CreatedAt] DATETIME NOT NULL DEFAULT (((getdate() AT TIME ZONE 'UTC') AT TIME ZONE 'India Standard Time')),
 	[CreatedFromPlatform] VARCHAR(MAX) NOT NULL,
@@ -33,6 +34,7 @@
     CONSTRAINT [FK_PurchaseReturn_ToCompany] FOREIGN KEY ([CompanyId]) REFERENCES [Company]([Id]),
     CONSTRAINT [FK_PurchaseReturn_ToLedger] FOREIGN KEY ([PartyId]) REFERENCES [Ledger]([Id]), 
     CONSTRAINT [FK_PurchaseReturn_ToFinancialYear] FOREIGN KEY ([FinancialYearId]) REFERENCES [dbo].[FinancialYear]([Id]),
+    CONSTRAINT [FK_PurchaseReturn_ToFinancialAccounting] FOREIGN KEY ([FinancialAccountingId]) REFERENCES [FinancialAccounting]([Id]),
     CONSTRAINT [FK_PurchaseReturn_ToUser] FOREIGN KEY ([CreatedBy]) REFERENCES [User]([Id]),
 	CONSTRAINT [FK_PurchaseReturn_LastModifiedBy_ToUser] FOREIGN KEY ([LastModifiedBy]) REFERENCES [User]([Id])
 )

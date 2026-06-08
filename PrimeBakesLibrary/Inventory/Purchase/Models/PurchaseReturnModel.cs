@@ -25,6 +25,7 @@ public class PurchaseReturnModel
     public decimal TotalAmount { get; set; }
     public string? Remarks { get; set; }
     public string? DocumentUrl { get; set; }
+    public int? FinancialAccountingId { get; set; }
     public int CreatedBy { get; set; }
     public DateTime CreatedAt { get; set; }
     public string CreatedFromPlatform { get; set; }
@@ -116,6 +117,8 @@ public class PurchaseReturnOverviewModel
 
     public string? Remarks { get; set; }
     public string? DocumentUrl { get; set; }
+    public int? FinancialAccountingId { get; set; }
+    public string? FinancialAccountingTransactionNo { get; set; }
     public int CreatedBy { get; set; }
     public string CreatedByName { get; set; }
     public DateTime CreatedAt { get; set; }
@@ -144,6 +147,7 @@ public class PurchaseReturnItemOverviewModel
     public string PartyName { get; set; }
     public string? PurchaseReturnRemarks { get; set; }
     public decimal Quantity { get; set; }
+    public string UnitOfMeasurement { get; set; }
     public decimal Rate { get; set; }
     public decimal BaseTotal { get; set; }
     public decimal DiscountPercent { get; set; }
