@@ -1,4 +1,5 @@
 using PrimeBakes.Shared.Components.Dialog;
+using PrimeBakes.Shared.Components.Input;
 
 using PrimeBakesLibrary.Inventory.Kitchen.Data;
 using PrimeBakesLibrary.Inventory.Kitchen.Exports;
@@ -20,23 +21,20 @@ public partial class KitchenPage
 	private KitchenModel _kitchen = new();
 
 	private List<KitchenModel> _kitchens = [];
-	private readonly List<ContextMenuItemModel> _kitchenGridContextMenuItems =
+	private readonly List<ContextMenuItemModel> _gridContextMenuItems =
 	[
-		new() { Text = "Edit (Insert)", Id = "EditKitchen", IconCss = "e-icons e-edit", Target = ".e-content" },
-		new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverKitchen", IconCss = "e-icons e-trash", Target = ".e-content" }
+		new() { Text = "Edit (Insert)", Id = "EditSelectedItem", IconCss = "e-icons e-edit", Target = ".e-content" },
+		new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverSelectedItem", IconCss = "e-icons e-trash", Target = ".e-content" }
 	];
 
 	private SfGrid<KitchenModel> _sfGrid;
-	private DeleteConfirmationDialog _deleteConfirmationDialog;
-	private RecoverConfirmationDialog _recoverConfirmationDialog;
-
-	private int _deleteKitchenId = 0;
-	private string _deleteKitchenName = string.Empty;
-
-	private int _recoverKitchenId = 0;
-	private string _recoverKitchenName = string.Empty;
-
+	private CustomTextField _sfFirstFocus;
 	private ToastNotification _toastNotification;
+	private ConfirmationDialog _confirmationDialog;
+
+	private string _confirmTitle = string.Empty;
+	private string _confirmMessage = string.Empty;
+	private Func<Task> _confirmAction;
 
 	#region Load Data
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -44,8 +42,12 @@ public partial class KitchenPage
 		if (!firstRender)
 			return;
 
-		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Inventory], true);
-		await LoadData();
+		try
+		{
+			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Inventory], true);
+			await LoadData();
+		}
+		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
 	}
 
 	private async Task LoadData()
@@ -60,127 +62,14 @@ public partial class KitchenPage
 
 		_isLoading = false;
 		StateHasChanged();
-	}
-	#endregion
 
-	#region Actions
-	private void OnEditKitchen(KitchenModel kitchen)
-	{
-		_kitchen = new()
-		{
-			Id = kitchen.Id,
-			Name = kitchen.Name,
-			Remarks = kitchen.Remarks,
-			Status = kitchen.Status
-		};
-
-		StateHasChanged();
-	}
-
-	private async Task ConfirmDelete()
-	{
-		try
-		{
-			_isProcessing = true;
-			await _deleteConfirmationDialog.HideAsync();
-
-			if (!_user.Admin)
-				throw new Exception("You do not have permission to perform this action.");
-
-			var kitchen = _kitchens.FirstOrDefault(k => k.Id == _deleteKitchenId)
-				?? throw new Exception("Kitchen not found.");
-
-			kitchen.Status = false;
-			await KitchenData.InsertKitchen(kitchen);
-
-			await _toastNotification.ShowAsync("Deleted", $"Kitchen '{kitchen.Name}' has been deleted successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(InventoryRouteNames.Kitchen, true);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"Failed to delete kitchen: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			_deleteKitchenId = 0;
-			_deleteKitchenName = string.Empty;
-		}
-	}
-
-	private async Task ConfirmRecover()
-	{
-		try
-		{
-			_isProcessing = true;
-			await _recoverConfirmationDialog.HideAsync();
-
-			if (!_user.Admin)
-				throw new Exception("You do not have permission to perform this action.");
-
-			var kitchen = _kitchens.FirstOrDefault(k => k.Id == _recoverKitchenId)
-				?? throw new Exception("Kitchen not found.");
-
-			kitchen.Status = true;
-			await KitchenData.InsertKitchen(kitchen);
-
-			await _toastNotification.ShowAsync("Recovered", $"Kitchen '{kitchen.Name}' has been recovered successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(InventoryRouteNames.Kitchen, true);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"Failed to recover kitchen: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			_recoverKitchenId = 0;
-			_recoverKitchenName = string.Empty;
-		}
+		if (_sfFirstFocus is not null)
+			await _sfFirstFocus.FocusAsync();
 	}
 	#endregion
 
 	#region Saving
-	private async Task<bool> ValidateForm()
-	{
-		_kitchen.Name = _kitchen.Name?.Trim() ?? "";
-		_kitchen.Remarks = _kitchen.Remarks?.Trim() ?? "";
-
-		_kitchen.Name = _kitchen.Name?.ToUpper() ?? "";
-		_kitchen.Status = true;
-
-		if (string.IsNullOrWhiteSpace(_kitchen.Name))
-		{
-			await _toastNotification.ShowAsync("Validation", "Kitchen name is required. Please enter a valid kitchen name.", ToastType.Warning);
-			return false;
-		}
-
-		if (string.IsNullOrWhiteSpace(_kitchen.Remarks))
-			_kitchen.Remarks = null;
-
-		if (_kitchen.Id > 0)
-		{
-			var existingKitchen = _kitchens.FirstOrDefault(_ => _.Id != _kitchen.Id && _.Name.Equals(_kitchen.Name, StringComparison.OrdinalIgnoreCase));
-			if (existingKitchen is not null)
-			{
-				await _toastNotification.ShowAsync("Duplicate", $"Kitchen name '{_kitchen.Name}' already exists. Please choose a different name.", ToastType.Warning);
-				return false;
-			}
-		}
-		else
-		{
-			var existingKitchen = _kitchens.FirstOrDefault(_ => _.Name.Equals(_kitchen.Name, StringComparison.OrdinalIgnoreCase));
-			if (existingKitchen is not null)
-			{
-				await _toastNotification.ShowAsync("Duplicate", $"Kitchen name '{_kitchen.Name}' already exists. Please choose a different name.", ToastType.Warning);
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	private async Task SaveKitchen()
+	private async Task SaveTransaction()
 	{
 		if (_isProcessing)
 			return;
@@ -190,22 +79,19 @@ public partial class KitchenPage
 			_isProcessing = true;
 			StateHasChanged();
 
-			if (!await ValidateForm())
-			{
-				_isProcessing = false;
-				return;
-			}
+			if (!_user.Admin)
+				throw new Exception("You do not have permission to perform this action.");
 
-			await _toastNotification.ShowAsync("Processing", "Please wait while the kitchen is being saved...", ToastType.Info);
+			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			await KitchenData.InsertKitchen(_kitchen);
+			await KitchenData.SaveTransaction(_kitchen, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
 
-			await _toastNotification.ShowAsync("Saved", $"Kitchen '{_kitchen.Name}' has been saved successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(InventoryRouteNames.Kitchen, true);
+			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
+			ResetPage();
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("Error", $"Failed to save kitchen: {ex.Message}", ToastType.Error);
+			await _toastNotification.ShowAsync("Error While Saving", ex.Message, ToastType.Error);
 		}
 		finally
 		{
@@ -214,26 +100,48 @@ public partial class KitchenPage
 	}
 	#endregion
 
-	#region Exporting
-	private async Task ExportExcel()
+	#region Actions
+	private async Task EditSelectedItem()
 	{
-		if (_isProcessing)
+		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
+		if (selectedRecords.Count == 0)
 			return;
 
+		_kitchen = await CommonData.LoadTableDataById<KitchenModel>(InventoryNames.Kitchen, selectedRecords[0].Id);
+		if (_kitchen is null)
+		{
+			await _toastNotification.ShowAsync("Error while Editing", "Transaction Not Found.", ToastType.Error);
+			return;
+		}
+
+		StateHasChanged();
+		await _sfFirstFocus.FocusAsync();
+	}
+
+	private async Task DeleteRecoverTransaction(int id, bool isRecover)
+	{
 		try
 		{
+			if (!_user.Admin)
+				throw new Exception("You do not have permission to perform this action.");
+
 			_isProcessing = true;
 			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Exporting to Excel...", ToastType.Info);
 
-			var (stream, fileName) = await KitchenExport.ExportMaster(_kitchens, ReportExportType.Excel);
-			await SaveAndViewService.SaveAndView(fileName, stream);
+			await _toastNotification.ShowAsync("Processing", $"{(isRecover ? "Recovering" : "Deleting")} transaction...", ToastType.Info);
 
-			await _toastNotification.ShowAsync("Success", "Kitchen data exported to Excel successfully.", ToastType.Success);
+			var kitchen = await CommonData.LoadTableDataById<KitchenModel>(InventoryNames.Kitchen, id)
+				?? throw new Exception("Transaction not found.");
+
+			if (isRecover) await KitchenData.RecoverTransaction(kitchen, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+			else await KitchenData.DeleteTransaction(kitchen, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+
+			await _toastNotification.ShowAsync("Success", $"Transaction {kitchen.Name} has been {(isRecover ? "recovered" : "deleted")} successfully.", ToastType.Success);
+			ResetPage();
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("Error", $"An error occurred while exporting to Excel: {ex.Message}", ToastType.Error);
+			await _toastNotification.ShowAsync("Error", $"An error occurred while {(isRecover ? "recovering" : "deleting")} transaction: {ex.Message}", ToastType.Error);
 		}
 		finally
 		{
@@ -242,7 +150,45 @@ public partial class KitchenPage
 		}
 	}
 
-	private async Task ExportPdf()
+	private async Task DeleteRecoverSelectedItem()
+	{
+		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
+		if (selectedRecords.Count == 0)
+			return;
+
+		var record = selectedRecords[0];
+
+		await ShowConfirmation(record.Status ? "Delete" : "Recover",
+			$"Are you sure you want to {(record.Status ? "delete" : "recover")} transaction {record.Name}",
+			() => DeleteRecoverTransaction(record.Id, !record.Status));
+	}
+
+	private async Task ShowConfirmation(string title, string message, Func<Task> action)
+	{
+		_confirmTitle = title;
+		_confirmMessage = message;
+		_confirmAction = action;
+		StateHasChanged();
+		await _confirmationDialog.ShowAsync();
+	}
+
+	private async Task OnConfirmed()
+	{
+		await _confirmationDialog.HideAsync();
+		if (_confirmAction is not null)
+			await _confirmAction();
+		_confirmAction = null;
+	}
+
+	private async Task OnCancelled()
+	{
+		_confirmAction = null;
+		await _confirmationDialog.HideAsync();
+	}
+	#endregion
+
+	#region Exporting
+	private async Task ExportMaster(bool isExcel = false)
 	{
 		if (_isProcessing)
 			return;
@@ -251,16 +197,16 @@ public partial class KitchenPage
 		{
 			_isProcessing = true;
 			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Exporting to PDF...", ToastType.Info);
+			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var (stream, fileName) = await KitchenExport.ExportMaster(_kitchens, ReportExportType.PDF);
+			var (stream, fileName) = await KitchenExport.ExportMaster(_kitchens, isExcel ? ReportExportType.Excel : ReportExportType.PDF);
 			await SaveAndViewService.SaveAndView(fileName, stream);
 
-			await _toastNotification.ShowAsync("Success", "Kitchen data exported to PDF successfully.", ToastType.Success);
+			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("Error", $"An error occurred while exporting to PDF: {ex.Message}", ToastType.Error);
+			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
 		}
 		finally
 		{
@@ -271,105 +217,21 @@ public partial class KitchenPage
 	#endregion
 
 	#region Utilities
-	private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+	private async Task OnGridContextMenuItemClicked(ContextMenuClickEventArgs<KitchenModel> args)
 	{
 		switch (args.Item.Id)
 		{
-			case "NewKitchen":
-				ResetPage();
-				break;
-			case "SaveKitchen":
-				await SaveKitchen();
-				break;
-			case "ToggleDeleted":
-				await ToggleDeleted();
-				break;
-			case "ExportExcel":
-				await ExportExcel();
-				break;
-			case "ExportPdf":
-				await ExportPdf();
-				break;
-			case "EditSelected":
-				await EditSelectedItem();
-				break;
-			case "DeleteRecoverSelected":
-				await DeleteSelectedItem();
-				break;
+			case "EditSelectedItem": await EditSelectedItem(); break;
+			case "DeleteRecoverSelectedItem": await DeleteRecoverSelectedItem(); break;
 		}
-	}
-
-	private async Task OnKitchenGridContextMenuItemClicked(ContextMenuClickEventArgs<KitchenModel> args)
-	{
-		switch (args.Item.Id)
-		{
-			case "EditKitchen":
-				await EditSelectedItem();
-				break;
-			case "DeleteRecoverKitchen":
-				await DeleteSelectedItem();
-				break;
-		}
-	}
-
-	private async Task EditSelectedItem()
-	{
-		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
-		if (selectedRecords.Count > 0)
-			OnEditKitchen(selectedRecords[0]);
-	}
-
-	private async Task DeleteSelectedItem()
-	{
-		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
-		if (selectedRecords.Count > 0)
-		{
-			if (selectedRecords[0].Status)
-				await ShowDeleteConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
-			else
-				await ShowRecoverConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
-		}
-	}
-
-	private async Task ShowDeleteConfirmation(int id, string name)
-	{
-		_deleteKitchenId = id;
-		_deleteKitchenName = name;
-		await _deleteConfirmationDialog.ShowAsync();
-	}
-
-	private async Task CancelDelete()
-	{
-		_deleteKitchenId = 0;
-		_deleteKitchenName = string.Empty;
-		await _deleteConfirmationDialog.HideAsync();
-	}
-
-	private async Task ShowRecoverConfirmation(int id, string name)
-	{
-		_recoverKitchenId = id;
-		_recoverKitchenName = name;
-		await _recoverConfirmationDialog.ShowAsync();
-	}
-
-	private async Task CancelRecover()
-	{
-		_recoverKitchenId = 0;
-		_recoverKitchenName = string.Empty;
-		await _recoverConfirmationDialog.HideAsync();
 	}
 
 	private async Task ToggleDeleted()
 	{
 		_showDeleted = !_showDeleted;
 		await LoadData();
-		StateHasChanged();
 	}
 
-	private void ResetPage() =>
-		NavigationManager.NavigateTo(InventoryRouteNames.Kitchen, true);
-
-	private void NavigateBack() =>
-		NavigationManager.NavigateTo(OperationRouteNames.InventoryDashboard);
+	private void ResetPage() => PageRefresh.Request();
 	#endregion
 }

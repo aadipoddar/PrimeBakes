@@ -1,4 +1,5 @@
 using PrimeBakes.Shared.Components.Dialog;
+using PrimeBakes.Shared.Components.Input;
 
 using PrimeBakesLibrary.Inventory.RawMaterial.Data;
 using PrimeBakesLibrary.Inventory.RawMaterial.Exports;
@@ -7,463 +8,247 @@ using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Store.Product.Models;
 using PrimeBakesLibrary.Utils.Exports;
 
-using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;
 
 namespace PrimeBakes.Shared.Pages.Inventory.RawMaterial;
 
 public partial class RawMaterialPage
 {
-    private UserModel _user;
-    private bool _isLoading = true;
-    private bool _isProcessing = false;
-    private bool _showDeleted = false;
-
-    private RawMaterialModel _rawMaterial = new();
-
-    private List<RawMaterialModel> _rawMaterials = [];
-    private List<RawMaterialCategoryModel> _categories = [];
-    private List<TaxModel> _taxes = [];
-    private readonly List<ContextMenuItemModel> _rawMaterialGridContextMenuItems =
-    [
-        new() { Text = "Edit (Insert)", Id = "EditRawMaterial", IconCss = "e-icons e-edit", Target = ".e-content" },
-        new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverRawMaterial", IconCss = "e-icons e-trash", Target = ".e-content" }
-    ];
-
-    private string _selectedCategoryName = string.Empty;
-    private string _selectedTaxCode = string.Empty;
-
-    private SfGrid<RawMaterialModel> _sfGrid;
-    private DeleteConfirmationDialog _deleteConfirmationDialog;
-    private RecoverConfirmationDialog _recoverConfirmationDialog;
-
-    private int _deleteRawMaterialId = 0;
-    private string _deleteRawMaterialName = string.Empty;
-
-    private int _recoverRawMaterialId = 0;
-    private string _recoverRawMaterialName = string.Empty;
-
-    private ToastNotification _toastNotification;
-
-    #region Load Data
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!firstRender)
-            return;
-
-        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Inventory], true);
-        await LoadData();
-    }
-
-    private async Task LoadData()
-    {
-        _rawMaterials = await CommonData.LoadTableData<RawMaterialModel>(InventoryNames.RawMaterial);
-        _categories = await CommonData.LoadTableData<RawMaterialCategoryModel>(InventoryNames.RawMaterialCategory);
-        _taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
-
-        if (!_showDeleted)
-            _rawMaterials = [.. _rawMaterials.Where(rm => rm.Status)];
-
-        if (_sfGrid is not null)
-            await _sfGrid.Refresh();
-
-        _isLoading = false;
-        StateHasChanged();
-    }
-    #endregion
-
-    #region Autocomplete Events
-    private void OnCategoryChange(ChangeEventArgs<string, RawMaterialCategoryModel> args)
-    {
-        if (args.ItemData != null)
-        {
-            _rawMaterial.RawMaterialCategoryId = args.ItemData.Id;
-            _selectedCategoryName = args.ItemData.Name;
-        }
-        else
-        {
-            _rawMaterial.RawMaterialCategoryId = 0;
-            _selectedCategoryName = string.Empty;
-        }
-    }
-
-    private void OnTaxChange(ChangeEventArgs<string, TaxModel> args)
-    {
-        if (args.ItemData != null)
-        {
-            _rawMaterial.TaxId = args.ItemData.Id;
-            _selectedTaxCode = args.ItemData.Code;
-        }
-        else
-        {
-            _rawMaterial.TaxId = 0;
-            _selectedTaxCode = string.Empty;
-        }
-    }
-    #endregion
-
-    #region Actions
-    private void OnEditRawMaterial(RawMaterialModel rawMaterial)
-    {
-        _rawMaterial = new()
-        {
-            Id = rawMaterial.Id,
-            Name = rawMaterial.Name,
-            Code = rawMaterial.Code,
-            RawMaterialCategoryId = rawMaterial.RawMaterialCategoryId,
-            Rate = rawMaterial.Rate,
-            UnitOfMeasurement = rawMaterial.UnitOfMeasurement,
-            TaxId = rawMaterial.TaxId,
-            Remarks = rawMaterial.Remarks,
-            Status = rawMaterial.Status
-        };
-
-        // Set autocomplete values
-        var category = _categories.FirstOrDefault(c => c.Id == rawMaterial.RawMaterialCategoryId);
-        _selectedCategoryName = category?.Name ?? string.Empty;
-
-        var tax = _taxes.FirstOrDefault(t => t.Id == rawMaterial.TaxId);
-        _selectedTaxCode = tax?.Code ?? string.Empty;
-
-        StateHasChanged();
-    }
-
-    private async Task ConfirmDelete()
-    {
-        try
-        {
-            _isProcessing = true;
-            await _deleteConfirmationDialog.HideAsync();
-
-            if (!_user.Admin)
-                throw new Exception("You do not have permission to perform this action.");
-
-            var rawMaterial = _rawMaterials.FirstOrDefault(rm => rm.Id == _deleteRawMaterialId)
-                ?? throw new Exception("Raw material not found.");
-
-            rawMaterial.Status = false;
-            await RawMaterialData.InsertRawMaterial(rawMaterial);
-
-            await _toastNotification.ShowAsync("Deleted", $"Raw material '{rawMaterial.Name}' has been deleted successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(InventoryRouteNames.RawMaterial, true);
-        }
-        catch (Exception ex)
-        {
-            await _toastNotification.ShowAsync("Error", $"Failed to delete raw material: {ex.Message}", ToastType.Error);
-        }
-        finally
-        {
-            _isProcessing = false;
-            _deleteRawMaterialId = 0;
-            _deleteRawMaterialName = string.Empty;
-        }
-    }
-
-    private async Task ConfirmRecover()
-    {
-        try
-        {
-            _isProcessing = true;
-            await _recoverConfirmationDialog.HideAsync();
-
-            if (!_user.Admin)
-                throw new Exception("You do not have permission to perform this action.");
-
-            var rawMaterial = _rawMaterials.FirstOrDefault(rm => rm.Id == _recoverRawMaterialId)
-                ?? throw new Exception("Raw material not found.");
-
-            rawMaterial.Status = true;
-            await RawMaterialData.InsertRawMaterial(rawMaterial);
-
-            await _toastNotification.ShowAsync("Recovered", $"Raw material '{rawMaterial.Name}' has been recovered successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(InventoryRouteNames.RawMaterial, true);
-        }
-        catch (Exception ex)
-        {
-            await _toastNotification.ShowAsync("Error", $"Failed to recover raw material: {ex.Message}", ToastType.Error);
-        }
-        finally
-        {
-            _isProcessing = false;
-            _recoverRawMaterialId = 0;
-            _recoverRawMaterialName = string.Empty;
-        }
-    }
-    #endregion
-
-    #region Saving
-    private async Task<bool> ValidateForm()
-    {
-        if (!_user.Admin)
-        {
-            await _toastNotification.ShowAsync("Unauthorized", "You do not have permission to perform this action.", ToastType.Error);
-            return false;
-        }
-
-        _rawMaterial.Name = _rawMaterial.Name?.Trim() ?? "";
-        _rawMaterial.Code = _rawMaterial.Code?.Trim() ?? "";
-        _rawMaterial.UnitOfMeasurement = _rawMaterial.UnitOfMeasurement?.Trim() ?? "";
-        _rawMaterial.Remarks = _rawMaterial.Remarks?.Trim() ?? "";
-
-        _rawMaterial.Code = _rawMaterial.Code?.ToUpper() ?? "";
-        _rawMaterial.UnitOfMeasurement = _rawMaterial.UnitOfMeasurement?.ToUpper() ?? "";
-
-        _rawMaterial.Status = true;
-
-        if (string.IsNullOrWhiteSpace(_rawMaterial.Name))
-        {
-            await _toastNotification.ShowAsync("Validation", "Raw material name is required. Please enter a valid name.", ToastType.Warning);
-            return false;
-        }
-
-        // Code is auto-generated, no need to validate
-
-        if (_rawMaterial.RawMaterialCategoryId <= 0)
-        {
-            await _toastNotification.ShowAsync("Validation", "Category is required. Please select a category.", ToastType.Warning);
-            return false;
-        }
-
-        if (_rawMaterial.Rate < 0)
-        {
-            await _toastNotification.ShowAsync("Validation", "Rate must be greater than or equal to 0.", ToastType.Warning);
-            return false;
-        }
-
-        if (string.IsNullOrWhiteSpace(_rawMaterial.UnitOfMeasurement))
-        {
-            await _toastNotification.ShowAsync("Validation", "Unit of measurement is required. Please enter a valid unit.", ToastType.Warning);
-            return false;
-        }
-
-        if (_rawMaterial.TaxId <= 0)
-        {
-            await _toastNotification.ShowAsync("Validation", "Tax is required. Please select a tax.", ToastType.Warning);
-            return false;
-        }
-
-        if (string.IsNullOrWhiteSpace(_rawMaterial.Remarks))
-            _rawMaterial.Remarks = null;
-
-        if (_rawMaterial.Id > 0)
-        {
-            var existingByName = _rawMaterials.FirstOrDefault(rm => rm.Id != _rawMaterial.Id && rm.Name.Equals(_rawMaterial.Name, StringComparison.OrdinalIgnoreCase));
-            if (existingByName is not null)
-            {
-                await _toastNotification.ShowAsync("Duplicate", $"Raw material name '{_rawMaterial.Name}' already exists. Please choose a different name.", ToastType.Warning);
-                return false;
-            }
-
-            // Code is preserved when editing, no need to check for duplicates
-        }
-        else
-        {
-            var existingByName = _rawMaterials.FirstOrDefault(rm => rm.Name.Equals(_rawMaterial.Name, StringComparison.OrdinalIgnoreCase));
-            if (existingByName is not null)
-            {
-                await _toastNotification.ShowAsync("Duplicate", $"Raw material name '{_rawMaterial.Name}' already exists. Please choose a different name.", ToastType.Warning);
-                return false;
-            }
-
-            // Code is auto-generated and unique, no need to check for duplicates
-        }
-
-        return true;
-    }
-
-    private async Task SaveRawMaterial()
-    {
-        if (_isProcessing)
-            return;
-
-        try
-        {
-            _isProcessing = true;
-            StateHasChanged();
-
-            if (!await ValidateForm())
-            {
-                _isProcessing = false;
-                return;
-            }
-
-            await _toastNotification.ShowAsync("Processing", "Please wait while the raw material is being saved...", ToastType.Info);
-
-            if (_rawMaterial.Id == 0)
-                _rawMaterial.Code = await GenerateCodes.GenerateRawMaterialCode();
-
-            await RawMaterialData.InsertRawMaterial(_rawMaterial);
-
-            await _toastNotification.ShowAsync("Saved", $"Raw material '{_rawMaterial.Name}' has been saved successfully.", ToastType.Success);
-            NavigationManager.NavigateTo(InventoryRouteNames.RawMaterial, true);
-        }
-        catch (Exception ex)
-        {
-            await _toastNotification.ShowAsync("Error", $"Failed to save raw material: {ex.Message}", ToastType.Error);
-        }
-        finally
-        {
-            _isProcessing = false;
-        }
-    }
-    #endregion
-
-    #region Exporting
-    private async Task ExportExcel()
-    {
-        if (_isProcessing)
-            return;
-
-        try
-        {
-            _isProcessing = true;
-            StateHasChanged();
-            await _toastNotification.ShowAsync("Processing", "Exporting to Excel...", ToastType.Info);
-
-            var (stream, fileName) = await RawMaterialExport.ExportMaster(_rawMaterials, ReportExportType.Excel);
-            await SaveAndViewService.SaveAndView(fileName, stream);
-
-            await _toastNotification.ShowAsync("Success", "Raw material data exported to Excel successfully.", ToastType.Success);
-        }
-        catch (Exception ex)
-        {
-            await _toastNotification.ShowAsync("Error", $"An error occurred while exporting to Excel: {ex.Message}", ToastType.Error);
-        }
-        finally
-        {
-            _isProcessing = false;
-            StateHasChanged();
-        }
-    }
-
-    private async Task ExportPdf()
-    {
-        if (_isProcessing)
-            return;
-
-        try
-        {
-            _isProcessing = true;
-            StateHasChanged();
-            await _toastNotification.ShowAsync("Processing", "Exporting to PDF...", ToastType.Info);
-
-            var (stream, fileName) = await RawMaterialExport.ExportMaster(_rawMaterials, ReportExportType.PDF);
-            await SaveAndViewService.SaveAndView(fileName, stream);
-
-            await _toastNotification.ShowAsync("Success", "Raw material data exported to PDF successfully.", ToastType.Success);
-        }
-        catch (Exception ex)
-        {
-            await _toastNotification.ShowAsync("Error", $"An error occurred while exporting to PDF: {ex.Message}", ToastType.Error);
-        }
-        finally
-        {
-            _isProcessing = false;
-            StateHasChanged();
-        }
-    }
-    #endregion
-
-    #region Utilities
-    private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
-    {
-        switch (args.Item.Id)
-        {
-            case "NewRawMaterial":
-                ResetPage();
-                break;
-            case "SaveRawMaterial":
-                await SaveRawMaterial();
-                break;
-            case "ToggleDeleted":
-                await ToggleDeleted();
-                break;
-            case "ExportExcel":
-                await ExportExcel();
-                break;
-            case "ExportPdf":
-                await ExportPdf();
-                break;
-            case "EditSelected":
-                await EditSelectedItem();
-                break;
-            case "DeleteRecoverSelected":
-                await DeleteSelectedItem();
-                break;
-        }
-    }
-
-    private async Task OnRawMaterialGridContextMenuItemClicked(ContextMenuClickEventArgs<RawMaterialModel> args)
-    {
-        switch (args.Item.Id)
-        {
-            case "EditRawMaterial":
-                await EditSelectedItem();
-                break;
-            case "DeleteRecoverRawMaterial":
-                await DeleteSelectedItem();
-                break;
-        }
-    }
-
-    private async Task EditSelectedItem()
-    {
-        var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
-        if (selectedRecords.Count > 0)
-            OnEditRawMaterial(selectedRecords[0]);
-    }
-
-    private async Task DeleteSelectedItem()
-    {
-        var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
-        if (selectedRecords.Count > 0)
-        {
-            if (selectedRecords[0].Status)
-                await ShowDeleteConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
-            else
-                await ShowRecoverConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
-        }
-    }
-
-    private async Task ShowDeleteConfirmation(int id, string name)
-    {
-        _deleteRawMaterialId = id;
-        _deleteRawMaterialName = name;
-        await _deleteConfirmationDialog.ShowAsync();
-    }
-
-    private async Task CancelDelete()
-    {
-        _deleteRawMaterialId = 0;
-        _deleteRawMaterialName = string.Empty;
-        await _deleteConfirmationDialog.HideAsync();
-    }
-
-    private async Task ShowRecoverConfirmation(int id, string name)
-    {
-        _recoverRawMaterialId = id;
-        _recoverRawMaterialName = name;
-        await _recoverConfirmationDialog.ShowAsync();
-    }
-
-    private async Task CancelRecover()
-    {
-        _recoverRawMaterialId = 0;
-        _recoverRawMaterialName = string.Empty;
-        await _recoverConfirmationDialog.HideAsync();
-    }
-
-    private async Task ToggleDeleted()
-    {
-        _showDeleted = !_showDeleted;
-        await LoadData();
-        StateHasChanged();
-    }
-
-    private void ResetPage() =>
-        NavigationManager.NavigateTo(InventoryRouteNames.RawMaterial, true);
-
-    private void NavigateBack() =>
-        NavigationManager.NavigateTo(OperationRouteNames.InventoryDashboard);
-    #endregion
+	private UserModel _user;
+	private bool _isLoading = true;
+	private bool _isProcessing = false;
+	private bool _showDeleted = false;
+
+	private RawMaterialModel _rawMaterial = new();
+	private RawMaterialCategoryModel _selectedCategory;
+	private TaxModel _selectedTax;
+
+	private List<RawMaterialModel> _rawMaterials = [];
+	private List<RawMaterialCategoryModel> _categories = [];
+	private List<TaxModel> _taxes = [];
+	private readonly List<ContextMenuItemModel> _gridContextMenuItems =
+	[
+		new() { Text = "Edit (Insert)", Id = "EditSelectedItem", IconCss = "e-icons e-edit", Target = ".e-content" },
+		new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverSelectedItem", IconCss = "e-icons e-trash", Target = ".e-content" }
+	];
+
+	private SfGrid<RawMaterialModel> _sfGrid;
+	private CustomTextField _sfFirstFocus;
+	private ToastNotification _toastNotification;
+	private ConfirmationDialog _confirmationDialog;
+
+	private string _confirmTitle = string.Empty;
+	private string _confirmMessage = string.Empty;
+	private Func<Task> _confirmAction;
+
+	#region Load Data
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (!firstRender)
+			return;
+
+		try
+		{
+			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Inventory], true);
+			await LoadData();
+		}
+		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
+	}
+
+	private async Task LoadData()
+	{
+		_rawMaterials = await CommonData.LoadTableData<RawMaterialModel>(InventoryNames.RawMaterial);
+		_categories = await CommonData.LoadTableDataByStatus<RawMaterialCategoryModel>(InventoryNames.RawMaterialCategory);
+		_taxes = await CommonData.LoadTableDataByStatus<TaxModel>(StoreNames.Tax);
+
+		_categories = [.. _categories.OrderBy(c => c.Name)];
+		_taxes = [.. _taxes.OrderBy(t => t.Code)];
+
+		_selectedCategory = _categories.FirstOrDefault(c => c.Id == _rawMaterial.RawMaterialCategoryId);
+		_selectedTax = _taxes.FirstOrDefault(t => t.Id == _rawMaterial.TaxId);
+
+		if (!_showDeleted)
+			_rawMaterials = [.. _rawMaterials.Where(rm => rm.Status)];
+
+		if (_sfGrid is not null)
+			await _sfGrid.Refresh();
+
+		_isLoading = false;
+		StateHasChanged();
+
+		if (_sfFirstFocus is not null)
+			await _sfFirstFocus.FocusAsync();
+	}
+	#endregion
+
+	#region Saving
+	private async Task SaveTransaction()
+	{
+		if (_isProcessing)
+			return;
+
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+
+			if (!_user.Admin)
+				throw new Exception("You do not have permission to perform this action.");
+
+			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
+
+			_rawMaterial.RawMaterialCategoryId = _selectedCategory?.Id ?? 0;
+			_rawMaterial.TaxId = _selectedTax?.Id ?? 0;
+			await RawMaterialData.SaveTransaction(_rawMaterial, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+
+			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
+			ResetPage();
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error While Saving", ex.Message, ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+		}
+	}
+	#endregion
+
+	#region Actions
+	private async Task EditSelectedItem()
+	{
+		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
+		if (selectedRecords.Count == 0)
+			return;
+
+		_rawMaterial = await CommonData.LoadTableDataById<RawMaterialModel>(InventoryNames.RawMaterial, selectedRecords[0].Id);
+		if (_rawMaterial is null)
+		{
+			await _toastNotification.ShowAsync("Error while Editing", "Transaction Not Found.", ToastType.Error);
+			return;
+		}
+
+		_selectedCategory = _categories.FirstOrDefault(c => c.Id == _rawMaterial.RawMaterialCategoryId);
+		_selectedTax = _taxes.FirstOrDefault(t => t.Id == _rawMaterial.TaxId);
+		StateHasChanged();
+		await _sfFirstFocus.FocusAsync();
+	}
+
+	private async Task DeleteRecoverTransaction(int id, bool isRecover)
+	{
+		try
+		{
+			if (!_user.Admin)
+				throw new Exception("You do not have permission to perform this action.");
+
+			_isProcessing = true;
+			StateHasChanged();
+
+			await _toastNotification.ShowAsync("Processing", $"{(isRecover ? "Recovering" : "Deleting")} transaction...", ToastType.Info);
+
+			var rawMaterial = await CommonData.LoadTableDataById<RawMaterialModel>(InventoryNames.RawMaterial, id)
+				?? throw new Exception("Transaction not found.");
+
+			if (isRecover) await RawMaterialData.RecoverTransaction(rawMaterial, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+			else await RawMaterialData.DeleteTransaction(rawMaterial, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+
+			await _toastNotification.ShowAsync("Success", $"Transaction {rawMaterial.Name} has been {(isRecover ? "recovered" : "deleted")} successfully.", ToastType.Success);
+			ResetPage();
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"An error occurred while {(isRecover ? "recovering" : "deleting")} transaction: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
+
+	private async Task DeleteRecoverSelectedItem()
+	{
+		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
+		if (selectedRecords.Count == 0)
+			return;
+
+		var record = selectedRecords[0];
+
+		await ShowConfirmation(record.Status ? "Delete" : "Recover",
+			$"Are you sure you want to {(record.Status ? "delete" : "recover")} transaction {record.Name}",
+			() => DeleteRecoverTransaction(record.Id, !record.Status));
+	}
+
+	private async Task ShowConfirmation(string title, string message, Func<Task> action)
+	{
+		_confirmTitle = title;
+		_confirmMessage = message;
+		_confirmAction = action;
+		StateHasChanged();
+		await _confirmationDialog.ShowAsync();
+	}
+
+	private async Task OnConfirmed()
+	{
+		await _confirmationDialog.HideAsync();
+		if (_confirmAction is not null)
+			await _confirmAction();
+		_confirmAction = null;
+	}
+
+	private async Task OnCancelled()
+	{
+		_confirmAction = null;
+		await _confirmationDialog.HideAsync();
+	}
+	#endregion
+
+	#region Exporting
+	private async Task ExportMaster(bool isExcel = false)
+	{
+		if (_isProcessing)
+			return;
+
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
+
+			var (stream, fileName) = await RawMaterialExport.ExportMaster(_rawMaterials, isExcel ? ReportExportType.Excel : ReportExportType.PDF);
+			await SaveAndViewService.SaveAndView(fileName, stream);
+
+			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
+	#endregion
+
+	#region Utilities
+	private async Task OnGridContextMenuItemClicked(ContextMenuClickEventArgs<RawMaterialModel> args)
+	{
+		switch (args.Item.Id)
+		{
+			case "EditSelectedItem": await EditSelectedItem(); break;
+			case "DeleteRecoverSelectedItem": await DeleteRecoverSelectedItem(); break;
+		}
+	}
+
+	private async Task ToggleDeleted()
+	{
+		_showDeleted = !_showDeleted;
+		await LoadData();
+	}
+
+	private void ResetPage() => PageRefresh.Request();
+	#endregion
 }

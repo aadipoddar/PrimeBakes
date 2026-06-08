@@ -5,216 +5,178 @@
 
 <PageTitle>Raw Material Management - Prime Bakes</PageTitle>
 
-<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" />
-<MudBlazor.MudHotkey Key=JsKey.KeyB KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateBack" />
-<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="SaveRawMaterial" />
-<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ExportExcel" />
-<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ExportPdf" />
-<MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" />
-<MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="EditSelectedItem" />
-<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="DeleteSelectedItem" />
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfFirstFocus.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="SaveTransaction" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportMaster(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportMaster()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="EditSelectedItem" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="DeleteRecoverSelectedItem" Disabled="@_isProcessing" />
 
 @if (_isLoading || _user is null)
 {
-    <LoadingScreen />
+	<LoadingScreen />
 }
 else
 {
-    <div class="page-shell">
-        <Header Title="Raw Material Management">
-            <LeftContent>
-                <SfMenu TValue="Syncfusion.Blazor.Navigations.MenuItem">
-                    <MenuAnimationSettings Effect="Syncfusion.Blazor.Navigations.MenuEffect.SlideDown" Duration="300"
-                                           Easing="ease" />
-                    <MenuEvents TValue="Syncfusion.Blazor.Navigations.MenuItem" ItemSelected="OnMenuSelected" />
-                    <MenuItems>
-                        <MenuItem Text="File" IconCss="e-icons e-folder">
-                            <MenuItems>
-                                <MenuItem Text="New (Ctrl + N)" IconCss="e-icons e-plus" Id="NewRawMaterial"
-                                          Disabled="@_isProcessing" />
-                                <MenuItem Text="Save (Ctrl + S)" IconCss="e-icons e-save" Id="SaveRawMaterial"
-                                          Disabled="@_isProcessing" />
-                                <MenuItem Text="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" IconCss="e-icons e-trash"
-                                          Id="ToggleDeleted" Disabled="@_isProcessing" />
-                                <MenuItem Separator="true" />
-                                <MenuItem Text="Export Excel (Ctrl + E)" IconCss="e-icons e-export-excel" Id="ExportExcel"
-                                          Disabled="@_isProcessing" />
-                                <MenuItem Text="Export PDF (Ctrl + P)" IconCss="e-icons e-export-pdf" Id="ExportPdf"
-                                          Disabled="@_isProcessing" />
-                            </MenuItems>
-                        </MenuItem>
-                        <MenuItem Text="Transaction" IconCss="e-icons e-chart">
-                            <MenuItems>
-                                <MenuItem Text="Edit (Insert)" IconCss="e-icons e-edit" Id="EditSelected"
-                                          Disabled="@_isProcessing" />
-                                <MenuItem Text="Delete / Recover (Del)" IconCss="e-icons e-trash" Id="DeleteRecoverSelected"
-                                          Disabled="@_isProcessing" />
-                            </MenuItems>
-                        </MenuItem>
-                    </MenuItems>
-                </SfMenu>
-            </LeftContent>
-            <RightContent>
-                <IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="NavigateBack" />
-            </RightContent>
-        </Header>
+	<div class="page-shell">
+		<Header Title="Raw Material Management">
+			<LeftContent>
+				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="New (Ctrl + N)" OnClick="ResetPage" />
+					<MudBlazor.MudMenuItem Label="Save (Ctrl + S)" OnClick="SaveTransaction" />
+					<MudBlazor.MudMenuItem Label="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" OnClick="ToggleDeleted" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Export Excel (Ctrl + E)" OnClick="() => ExportMaster(true)" />
+					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportMaster()" />
+				</MudBlazor.MudMenu>
 
-        <!-- Main Content Container -->
-        <div class="page-container">
+				<MudBlazor.MudMenu Label="Transaction" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Edit (Insert)" OnClick="EditSelectedItem" />
+					<MudBlazor.MudMenuItem Label="Delete / Recover (Del)" OnClick="DeleteRecoverSelectedItem" />
+				</MudBlazor.MudMenu>
+			</LeftContent>
+		</Header>
 
-            <!-- Raw Material Entry Section -->
-            <div class="section-card">
-                <div class="section-header">
-                    <div class="section-title-wrapper">
-                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
-                        </svg>
-                        <h2 class="section-title">Raw Material Details</h2>
-                    </div>
-                </div>
-                <div class="section-body">
-                    <div class="form-grid">
-                        <!-- Raw Material Name -->
-                        <div class="form-field">
-                            <label class="field-label">Name <span class="required">*</span></label>
-                            <SfTextBox @bind-Value="_rawMaterial.Name" Placeholder="Enter raw material name"
-                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                        </div>
+		<div class="page-container">
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
+						</svg>
+						<h2 class="section-title">Raw Material Details</h2>
+					</div>
+				</div>
+				<div class="section-body">
+					<div class="form-grid">
+						<div class="form-field">
+							<CustomTextField @ref="_sfFirstFocus"
+											 @bind-Value="_rawMaterial.Name"
+											 Label="Name (Ctrl + F)"
+											 Placeholder="Enter raw material name" />
+						</div>
 
-                        <!-- Raw Material Code -->
-                        <div class="form-field">
-                            <label class="field-label">Code <span class="required">*</span></label>
-                            <SfTextBox @bind-Value="_rawMaterial.Code" Placeholder="Auto-generated"
-                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox readonly-field"
-                                       Readonly="true" TabIndex="-1" />
-                        </div>
+						<div class="form-field">
+							<CustomTextField @bind-Value="_rawMaterial.Code"
+											 Label="Code"
+											 Placeholder="Auto-generated"
+											 Required="false"
+											 ReadOnly="true"
+											 TabIndex="-1" />
+						</div>
 
-                        <!-- Category Autocomplete -->
-                        <div class="form-field">
-                            <AutoCompleteWithAdd TValue="string" TItem="RawMaterialCategoryModel"
-                                            Value="_selectedCategoryName"
-                                            DataSource="@_categories"
-                                            Placeholder="Select category"
-                                            Label="Category" ValueChange="OnCategoryChange"
-                                            FieldValue="@nameof(RawMaterialCategoryModel.Name)"
-                                            AddNewRoute="@InventoryRouteNames.RawMaterialCategory" />
-                        </div>
+						<div class="form-field">
+							<CustomAutoComplete T="RawMaterialCategoryModel"
+												@bind-Value="_selectedCategory"
+												DataSource="@_categories"
+												Placeholder="Select category"
+												Label="Category"
+												FieldValue="@nameof(RawMaterialCategoryModel.Name)"
+												AddNewRoute="@InventoryRouteNames.RawMaterialCategory" />
+						</div>
 
-                        <!-- Rate -->
-                        <div class="form-field">
-                            <label class="field-label">Rate <span class="required">*</span></label>
-                            <SfNumericTextBox @bind-Value="_rawMaterial.Rate" Placeholder="Enter rate"
-                                              FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" Format="N2" Decimals="2" Min="0" />
-                        </div>
+						<div class="form-field">
+							<CustomNumericField T="decimal"
+												@bind-Value="_rawMaterial.Rate"
+												Label="Rate"
+												Placeholder="Enter rate"
+												Format="N2"
+												Min="0" />
+						</div>
 
-                        <!-- Unit of Measurement -->
-                        <div class="form-field">
-                            <label class="field-label">Unit <span class="required">*</span></label>
-                            <SfTextBox @bind-Value="_rawMaterial.UnitOfMeasurement" Placeholder="Enter unit (kg, ltr, etc.)"
-                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                        </div>
+						<div class="form-field">
+							<CustomTextField @bind-Value="_rawMaterial.UnitOfMeasurement"
+											 Label="Unit"
+											 Placeholder="Enter unit (kg, ltr, etc.)" />
+						</div>
 
-                        <!-- Tax Autocomplete -->
-                        <div class="form-field">
-                            <AutoCompleteWithAdd TValue="string" TItem="TaxModel"
-                                            Value="_selectedTaxCode"
-                                            DataSource="@_taxes"
-                                            Placeholder="Select tax"
-                                            Label="Tax" ValueChange="OnTaxChange"
-                                            FieldValue="@nameof(TaxModel.Code)"
-                                            AddNewRoute="@StoreRouteNames.Tax" />
-                        </div>
+						<div class="form-field">
+							<CustomAutoComplete T="TaxModel"
+												@bind-Value="_selectedTax"
+												DataSource="@_taxes"
+												Placeholder="Select tax"
+												Label="Tax"
+												FieldValue="@nameof(TaxModel.Code)"
+												AddNewRoute="@StoreRouteNames.Tax" />
+						</div>
 
-                        <!-- Remarks -->
-                        <div class="form-field">
-                            <label class="field-label">Remarks</label>
-                            <SfTextBox @bind-Value="_rawMaterial.Remarks" Placeholder="Enter remarks (optional)" Multiline="true"
-                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                        </div>
-                    </div>
-                </div>
-            </div>
+						<div class="form-field">
+							<CustomTextField @bind-Value="_rawMaterial.Remarks"
+											 Label="Remarks"
+											 Placeholder="Enter remarks (optional)"
+											 Required="false"
+											 Lines="2" />
+						</div>
+					</div>
+				</div>
+			</div>
 
-            <!-- Raw Material List Section -->
-            <div class="section-card">
-                <div class="section-header">
-                    <div class="section-title-wrapper">
-                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M9 11l3 3L22 4" />
-                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-                        </svg>
-                        <h2 class="section-title">Raw Material List</h2>
-                    </div>
-                </div>
-                <div class="section-body grid-body">
-                    <SfGrid @ref="_sfGrid" DataSource="@_rawMaterials" AllowPaging="true" AllowSorting="true" AllowFiltering="true"
-                            AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })" ContextMenuItems="@_rawMaterialGridContextMenuItems">
-                        <GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
-                        <GridEvents TValue="RawMaterialModel" ContextMenuItemClicked="OnRawMaterialGridContextMenuItemClicked" />
-                        <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
-                        <GridColumns>
-                            <GridColumn Field="@nameof(RawMaterialModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" />
-                            <GridColumn Field="@nameof(RawMaterialModel.Name)" HeaderText="Name" Width="200" />
-                            <GridColumn Field="@nameof(RawMaterialModel.Code)" HeaderText="Code" Width="120" />
-                            <GridColumn HeaderText="Category" Width="150">
-                                <Template>
-                                    @{
-                                        var rawMaterial = (context as RawMaterialModel);
-                                        var category = _categories.FirstOrDefault(c => c.Id == rawMaterial.RawMaterialCategoryId);
-                                        <span>@(category?.Name ?? "N/A")</span>
-                                    }
-                                </Template>
-                            </GridColumn>
-                            <GridColumn Field="@nameof(RawMaterialModel.Rate)" HeaderText="Rate" Width="120"
-                                        TextAlign="TextAlign.Right" Format="N2" />
-                            <GridColumn Field="@nameof(RawMaterialModel.UnitOfMeasurement)" HeaderText="Unit" Width="100"
-                                        TextAlign="TextAlign.Center" />
-                            <GridColumn HeaderText="Tax" Width="120">
-                                <Template>
-                                    @{
-                                        var rawMaterial = (context as RawMaterialModel);
-                                        var tax = _taxes.FirstOrDefault(t => t.Id == rawMaterial.TaxId);
-                                        <span>@(tax?.Code ?? "N/A")</span>
-                                    }
-                                </Template>
-                            </GridColumn>
-                            <GridColumn Field="@nameof(RawMaterialModel.Remarks)" HeaderText="Remarks" Width="250" />
-                            <GridColumn Field="@nameof(RawMaterialModel.Status)" HeaderText="Status" Width="110"
-                                        TextAlign="TextAlign.Center" Visible="_showDeleted">
-                                <Template>
-                                    @{
-                                        var rawMaterial = (context as RawMaterialModel);
-                                        <span class="@(rawMaterial.Status ? string.Empty : "grid-debit")">@(rawMaterial.Status ? "Active" : "Deleted")</span>
-                                    }
-                                </Template>
-                            </GridColumn>
-                        </GridColumns>
-                    </SfGrid>
-                </div>
-            </div>
-        </div>
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M9 11l3 3L22 4" />
+							<path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+						</svg>
+						<h2 class="section-title">Raw Material List</h2>
+					</div>
+				</div>
+				<div class="section-body grid-body">
+					<SfGrid @ref="_sfGrid" DataSource="@_rawMaterials" AllowPaging="true" AllowSorting="true" AllowFiltering="true"
+							AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })" ContextMenuItems="@_gridContextMenuItems">
+						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+						<GridEvents TValue="RawMaterialModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+						<GridColumns>
+							<GridColumn Field="@nameof(RawMaterialModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" />
+							<GridColumn Field="@nameof(RawMaterialModel.Name)" HeaderText="Name" Width="200" />
+							<GridColumn Field="@nameof(RawMaterialModel.Code)" HeaderText="Code" Width="120" />
+							<GridColumn HeaderText="Category" Width="150">
+								<Template>
+									@{
+										var rawMaterial = (context as RawMaterialModel);
+										var category = _categories.FirstOrDefault(c => c.Id == rawMaterial.RawMaterialCategoryId);
+										<span>@(category?.Name ?? "N/A")</span>
+									}
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(RawMaterialModel.Rate)" HeaderText="Rate" Width="120" TextAlign="TextAlign.Right" Format="N2" />
+							<GridColumn Field="@nameof(RawMaterialModel.UnitOfMeasurement)" HeaderText="Unit" Width="100" TextAlign="TextAlign.Center" />
+							<GridColumn HeaderText="Tax" Width="120">
+								<Template>
+									@{
+										var rawMaterial = (context as RawMaterialModel);
+										var tax = _taxes.FirstOrDefault(t => t.Id == rawMaterial.TaxId);
+										<span>@(tax?.Code ?? "N/A")</span>
+									}
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(RawMaterialModel.Remarks)" HeaderText="Remarks" Width="250" />
+							<GridColumn Field="@nameof(RawMaterialModel.Status)" HeaderText="Status" Width="110" TextAlign="TextAlign.Center" Visible="_showDeleted">
+								<Template>
+									@{
+										var rawMaterial = (context as RawMaterialModel);
+										<span class="@(rawMaterial.Status ? string.Empty : "grid-debit")">@(rawMaterial.Status ? "Active" : "Deleted")</span>
+									}
+								</Template>
+							</GridColumn>
+						</GridColumns>
+					</SfGrid>
+				</div>
+			</div>
+		</div>
 
-        <Footer />
-    </div>
+		<Footer />
+	</div>
 }
 
-<DeleteConfirmationDialog @ref="_deleteConfirmationDialog"
-                          EntityName="Raw Material"
-                          IdentifierLabel="Name"
-                          IdentifierValue="@_deleteRawMaterialName"
-                          
-                          Disabled="@_isProcessing"
-                          OnConfirm="ConfirmDelete"
-                          OnCancel="CancelDelete" />
-
-<RecoverConfirmationDialog @ref="_recoverConfirmationDialog"
-                           EntityName="Raw Material"
-                           IdentifierLabel="Name"
-                           IdentifierValue="@_recoverRawMaterialName"
-                           Disabled="@_isProcessing"
-                           OnConfirm="ConfirmRecover"
-                           OnCancel="CancelRecover" />
+<ConfirmationDialog @ref="_confirmationDialog" Title="@_confirmTitle" Message="@_confirmMessage"
+					OnConfirm="OnConfirmed" OnCancel="OnCancelled" />
 
 <ToastNotification @ref="_toastNotification" />
+
+<CloseGuard Block="_isProcessing" />
