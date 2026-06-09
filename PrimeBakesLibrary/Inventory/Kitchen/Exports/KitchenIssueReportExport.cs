@@ -1,5 +1,6 @@
 using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Inventory.Kitchen.Models;
+using PrimeBakesLibrary.Inventory.RawMaterial.Models;
 using PrimeBakesLibrary.Utils.Exports;
 
 namespace PrimeBakesLibrary.Inventory.Kitchen.Exports;
@@ -12,6 +13,7 @@ public static class KitchenIssueReportExport
 		DateOnly? dateRangeStart = null,
 		DateOnly? dateRangeEnd = null,
 		bool showAllColumns = true,
+		bool showDeleted = false,
 		bool showSummary = false,
 		KitchenModel kitchen = null,
 		CompanyModel company = null)
@@ -19,10 +21,13 @@ public static class KitchenIssueReportExport
 		var columnSettings = new Dictionary<string, ReportColumnSetting>
 		{
 			[nameof(KitchenIssueOverviewModel.TransactionNo)] = new() { DisplayName = "Trans No", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(KitchenIssueOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm tt", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(KitchenIssueOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(KitchenIssueOverviewModel.KitchenName)] = new() { DisplayName = "Kitchen", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(KitchenIssueOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm tt", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(KitchenIssueOverviewModel.FinancialYear)] = new() { DisplayName = "Financial Year", Alignment = CellAlignment.Center, IncludeInTotal = false },
+			[nameof(KitchenIssueOverviewModel.KitchenName)] = new() { DisplayName = "Kitchen", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(KitchenIssueOverviewModel.TotalItems)] = new() { DisplayName = "Items", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = true },
+			[nameof(KitchenIssueOverviewModel.TotalQuantity)] = new() { DisplayName = "Qty", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
+			[nameof(KitchenIssueOverviewModel.TotalAmount)] = new() { DisplayName = "Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
 			[nameof(KitchenIssueOverviewModel.Remarks)] = new() { DisplayName = "Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(KitchenIssueOverviewModel.CreatedByName)] = new() { DisplayName = "Created By", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(KitchenIssueOverviewModel.CreatedAt)] = new() { DisplayName = "Created At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
@@ -30,9 +35,7 @@ public static class KitchenIssueReportExport
 			[nameof(KitchenIssueOverviewModel.LastModifiedByUserName)] = new() { DisplayName = "Modified By", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(KitchenIssueOverviewModel.LastModifiedAt)] = new() { DisplayName = "Modified At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(KitchenIssueOverviewModel.LastModifiedFromPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Center, IncludeInTotal = false },
-			[nameof(KitchenIssueOverviewModel.TotalItems)] = new() { DisplayName = "Items", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = true },
-			[nameof(KitchenIssueOverviewModel.TotalQuantity)] = new() { DisplayName = "Qty", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
-			[nameof(KitchenIssueOverviewModel.TotalAmount)] = new() { DisplayName = "Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true }
+			[nameof(KitchenIssueOverviewModel.Status)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false },
 		};
 
 		List<string> columnOrder;
@@ -56,10 +59,10 @@ public static class KitchenIssueReportExport
 			columnOrder =
 			[
 				nameof(KitchenIssueOverviewModel.TransactionNo),
-				nameof(KitchenIssueOverviewModel.TransactionDateTime),
 				nameof(KitchenIssueOverviewModel.CompanyName),
-				nameof(KitchenIssueOverviewModel.KitchenName),
+				nameof(KitchenIssueOverviewModel.TransactionDateTime),
 				nameof(KitchenIssueOverviewModel.FinancialYear),
+				nameof(KitchenIssueOverviewModel.KitchenName),
 				nameof(KitchenIssueOverviewModel.TotalItems),
 				nameof(KitchenIssueOverviewModel.TotalQuantity),
 				nameof(KitchenIssueOverviewModel.TotalAmount),
@@ -69,14 +72,12 @@ public static class KitchenIssueReportExport
 				nameof(KitchenIssueOverviewModel.CreatedFromPlatform),
 				nameof(KitchenIssueOverviewModel.LastModifiedByUserName),
 				nameof(KitchenIssueOverviewModel.LastModifiedAt),
-				nameof(KitchenIssueOverviewModel.LastModifiedFromPlatform)
+				nameof(KitchenIssueOverviewModel.LastModifiedFromPlatform),
+				nameof(KitchenIssueOverviewModel.Status)
 			];
 
-			if (kitchen is not null)
-				columnOrder.Remove(nameof(KitchenIssueOverviewModel.KitchenName));
-
-			if (company is not null)
-				columnOrder.Remove(nameof(KitchenIssueOverviewModel.CompanyName));
+			if (!showDeleted)
+				columnOrder.Remove(nameof(KitchenIssueOverviewModel.Status));
 		}
 
 		else
@@ -87,11 +88,15 @@ public static class KitchenIssueReportExport
 				nameof(KitchenIssueOverviewModel.TransactionDateTime),
 				nameof(KitchenIssueOverviewModel.KitchenName),
 				nameof(KitchenIssueOverviewModel.TotalQuantity),
-				nameof(KitchenIssueOverviewModel.TotalAmount)
+				nameof(KitchenIssueOverviewModel.TotalAmount),
+				nameof(KitchenIssueOverviewModel.Status)
 			];
 
 			if (kitchen is not null)
 				columnOrder.Remove(nameof(KitchenIssueOverviewModel.KitchenName));
+
+			if (!showDeleted)
+				columnOrder.Remove(nameof(KitchenIssueOverviewModel.Status));
 		}
 
 		string fileName = $"KITCHEN_ISSUE_REPORT";
@@ -108,12 +113,11 @@ public static class KitchenIssueReportExport
 				columnSettings,
 				columnOrder,
 				useBuiltInStyle: false,
-				useLandscape: showAllColumns && !showSummary,
+				useLandscape: showAllColumns || showSummary,
 				new() { ["Company"] = company?.Name ?? null, ["Kitchen"] = kitchen?.Name ?? null }
 			);
 
-			fileName += ".pdf";
-			return (stream, fileName);
+			return (stream, fileName + ".pdf");
 		}
 		else
 		{
@@ -128,8 +132,7 @@ public static class KitchenIssueReportExport
 				new() { ["Company"] = company?.Name ?? null, ["Kitchen"] = kitchen?.Name ?? null }
 			);
 
-			fileName += ".xlsx";
-			return (stream, fileName);
+			return (stream, fileName + ".xlsx");
 		}
 	}
 
@@ -139,30 +142,44 @@ public static class KitchenIssueReportExport
 		DateOnly? dateRangeStart = null,
 		DateOnly? dateRangeEnd = null,
 		bool showAllColumns = true,
+		bool showDeleted = false,
 		bool showSummary = false,
+		RawMaterialModel rawMaterial = null,
+		RawMaterialCategoryModel rawMaterialCategory = null,
 		KitchenModel kitchen = null,
 		CompanyModel company = null)
 	{
 		var columnSettings = new Dictionary<string, ReportColumnSetting>
 		{
-			[nameof(KitchenIssueItemOverviewModel.ItemName)] = new() { DisplayName = "Item", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(KitchenIssueItemOverviewModel.ItemName)] = new() { DisplayName = "Raw Material", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(KitchenIssueItemOverviewModel.ItemCode)] = new() { DisplayName = "Code", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(KitchenIssueItemOverviewModel.ItemCategoryName)] = new() { DisplayName = "Category", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(KitchenIssueItemOverviewModel.Quantity)] = new() { DisplayName = "Qty", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(KitchenIssueItemOverviewModel.UnitOfMeasurement)] = new() { DisplayName = "UoM", Alignment = CellAlignment.Center, IncludeInTotal = false },
+			[nameof(KitchenIssueItemOverviewModel.Rate)] = new() { DisplayName = "Rate", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(KitchenIssueItemOverviewModel.Total)] = new() { DisplayName = "Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(KitchenIssueItemOverviewModel.ItemRemarks)] = new() { DisplayName = "Item Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(KitchenIssueItemOverviewModel.TransactionNo)] = new() { DisplayName = "Trans No", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(KitchenIssueItemOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(KitchenIssueItemOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(KitchenIssueItemOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm tt", Alignment = CellAlignment.Center, IncludeInTotal = false },
+			[nameof(KitchenIssueItemOverviewModel.FinancialYear)] = new() { DisplayName = "Financial Year", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(KitchenIssueItemOverviewModel.KitchenName)] = new() { DisplayName = "Kitchen", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(KitchenIssueItemOverviewModel.KitchenIssueRemarks)] = new() { DisplayName = "Kitchen Issue Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(KitchenIssueItemOverviewModel.Remarks)] = new() { DisplayName = "Item Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(KitchenIssueItemOverviewModel.Quantity)] = new() { DisplayName = "Qty", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
-			[nameof(KitchenIssueItemOverviewModel.Rate)] = new() { DisplayName = "Rate", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false },
-			[nameof(KitchenIssueItemOverviewModel.Total)] = new() { DisplayName = "Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true }
+			[nameof(KitchenIssueItemOverviewModel.KitchenIssueRemarks)] = new() { DisplayName = "Issue Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(KitchenIssueItemOverviewModel.TotalItems)] = new() { DisplayName = "Master Items", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(KitchenIssueItemOverviewModel.TotalQuantity)] = new() { DisplayName = "Master Qty", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(KitchenIssueItemOverviewModel.TotalAmount)] = new() { DisplayName = "Master Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(KitchenIssueItemOverviewModel.CreatedByName)] = new() { DisplayName = "Created By", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(KitchenIssueItemOverviewModel.CreatedAt)] = new() { DisplayName = "Created At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
+			[nameof(KitchenIssueItemOverviewModel.CreatedFromPlatform)] = new() { DisplayName = "Created Platform", Alignment = CellAlignment.Center, IncludeInTotal = false },
+			[nameof(KitchenIssueItemOverviewModel.LastModifiedByUserName)] = new() { DisplayName = "Modified By", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(KitchenIssueItemOverviewModel.LastModifiedAt)] = new() { DisplayName = "Modified At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
+			[nameof(KitchenIssueItemOverviewModel.LastModifiedFromPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Center, IncludeInTotal = false },
+			[nameof(KitchenIssueItemOverviewModel.MasterStatus)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false },
 		};
 
 		List<string> columnOrder;
 
 		if (showSummary)
-		{
 			columnOrder =
 			[
 				nameof(KitchenIssueItemOverviewModel.ItemName),
@@ -171,7 +188,6 @@ public static class KitchenIssueReportExport
 				nameof(KitchenIssueItemOverviewModel.Quantity),
 				nameof(KitchenIssueItemOverviewModel.Total)
 			];
-		}
 
 		else if (showAllColumns)
 		{
@@ -183,19 +199,28 @@ public static class KitchenIssueReportExport
 				nameof(KitchenIssueItemOverviewModel.TransactionNo),
 				nameof(KitchenIssueItemOverviewModel.TransactionDateTime),
 				nameof(KitchenIssueItemOverviewModel.CompanyName),
+				nameof(KitchenIssueItemOverviewModel.FinancialYear),
 				nameof(KitchenIssueItemOverviewModel.KitchenName),
 				nameof(KitchenIssueItemOverviewModel.Quantity),
+				nameof(KitchenIssueItemOverviewModel.UnitOfMeasurement),
 				nameof(KitchenIssueItemOverviewModel.Rate),
 				nameof(KitchenIssueItemOverviewModel.Total),
+				nameof(KitchenIssueItemOverviewModel.ItemRemarks),
 				nameof(KitchenIssueItemOverviewModel.KitchenIssueRemarks),
-				nameof(KitchenIssueItemOverviewModel.Remarks)
+				nameof(KitchenIssueItemOverviewModel.TotalItems),
+				nameof(KitchenIssueItemOverviewModel.TotalQuantity),
+				nameof(KitchenIssueItemOverviewModel.TotalAmount),
+				nameof(KitchenIssueItemOverviewModel.CreatedByName),
+				nameof(KitchenIssueItemOverviewModel.CreatedAt),
+				nameof(KitchenIssueItemOverviewModel.CreatedFromPlatform),
+				nameof(KitchenIssueItemOverviewModel.LastModifiedByUserName),
+				nameof(KitchenIssueItemOverviewModel.LastModifiedAt),
+				nameof(KitchenIssueItemOverviewModel.LastModifiedFromPlatform),
+				nameof(KitchenIssueItemOverviewModel.MasterStatus)
 			];
 
-			if (kitchen is not null)
-				columnOrder.Remove(nameof(KitchenIssueItemOverviewModel.KitchenName));
-
-			if (company is not null)
-				columnOrder.Remove(nameof(KitchenIssueItemOverviewModel.CompanyName));
+			if (!showDeleted)
+				columnOrder.Remove(nameof(KitchenIssueItemOverviewModel.MasterStatus));
 		}
 
 		else
@@ -204,13 +229,16 @@ public static class KitchenIssueReportExport
 			[
 				nameof(KitchenIssueItemOverviewModel.ItemName),
 				nameof(KitchenIssueItemOverviewModel.ItemCode),
-				nameof(KitchenIssueItemOverviewModel.TransactionNo),
-				nameof(KitchenIssueItemOverviewModel.TransactionDateTime),
-				nameof(KitchenIssueItemOverviewModel.KitchenName),
 				nameof(KitchenIssueItemOverviewModel.Quantity),
 				nameof(KitchenIssueItemOverviewModel.Rate),
-				nameof(KitchenIssueItemOverviewModel.Total)
+				nameof(KitchenIssueItemOverviewModel.Total),
+				nameof(KitchenIssueItemOverviewModel.TransactionNo),
+				nameof(KitchenIssueItemOverviewModel.TransactionDateTime),
+				nameof(KitchenIssueItemOverviewModel.KitchenName)
 			];
+
+			if (rawMaterial is not null)
+				columnOrder.Remove(nameof(KitchenIssueItemOverviewModel.ItemName));
 
 			if (kitchen is not null)
 				columnOrder.Remove(nameof(KitchenIssueItemOverviewModel.KitchenName));
@@ -230,12 +258,17 @@ public static class KitchenIssueReportExport
 				columnSettings,
 				columnOrder,
 				useBuiltInStyle: false,
-				useLandscape: showAllColumns && !showSummary,
-				new() { ["Company"] = company?.Name ?? null, ["Kitchen"] = kitchen?.Name ?? null }
+				useLandscape: showAllColumns || showSummary,
+				new()
+				{
+					["Raw Material"] = rawMaterial?.Name ?? null,
+					["Raw Material Category"] = rawMaterialCategory?.Name ?? null,
+					["Company"] = company?.Name ?? null,
+					["Kitchen"] = kitchen?.Name ?? null
+				}
 			);
 
-			fileName += ".pdf";
-			return (stream, fileName);
+			return (stream, fileName + ".pdf");
 		}
 		else
 		{
@@ -247,11 +280,16 @@ public static class KitchenIssueReportExport
 				dateRangeEnd,
 				columnSettings,
 				columnOrder,
-				new() { ["Company"] = company?.Name ?? null, ["Kitchen"] = kitchen?.Name ?? null }
+				new()
+				{
+					["Raw Material"] = rawMaterial?.Name ?? null,
+					["Raw Material Category"] = rawMaterialCategory?.Name ?? null,
+					["Company"] = company?.Name ?? null,
+					["Kitchen"] = kitchen?.Name ?? null
+				}
 			);
 
-			fileName += ".xlsx";
-			return (stream, fileName);
+			return (stream, fileName + ".xlsx");
 		}
 	}
 }

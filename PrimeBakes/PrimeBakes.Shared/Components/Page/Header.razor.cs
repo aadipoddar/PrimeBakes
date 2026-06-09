@@ -39,9 +39,17 @@ public partial class Header
 	}
 
 
-	// TODO - Make all classes
-	private void LoadRoutes() => _searchItems = [.. typeof(AccountsRouteNames)
-			.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
+	private static readonly Type[] _routeNameTypes =
+	[
+		typeof(OperationRouteNames),
+		typeof(AccountsRouteNames),
+		typeof(InventoryRouteNames),
+		typeof(StoreRouteNames),
+		typeof(RestaurantRouteNames)
+	];
+
+	private void LoadRoutes() => _searchItems = [.. _routeNameTypes
+			.SelectMany(t => t.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy))
 			.Where(f => f.IsLiteral && !f.IsInitOnly && f.FieldType == typeof(string))
 			.Select(f => new GlobalSearchItem
 			{
@@ -49,6 +57,7 @@ public partial class Header
 				FriendlyName = string.Join(" ", System.Text.RegularExpressions.Regex.Split(f.Name, @"(?<!^)(?=[A-Z])")),
 				Route = f.GetRawConstantValue() as string ?? string.Empty
 			})
+			.DistinctBy(x => x.Route)
 			.Select(x =>
 			{
 				x.DisplayText = x.FriendlyName.Equals(x.Name, StringComparison.Ordinal)

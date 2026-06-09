@@ -1,42 +1,66 @@
-﻿CREATE VIEW [dbo].[KitchenIssue_Item_Overview]
-	AS
+CREATE VIEW [dbo].[KitchenIssue_Item_Overview]
+AS
 SELECT
-	[r].[Id],
-	[r].[Name] AS ItemName,
-	[r].[Code] AS ItemCode,
-	[rc].[Id] AS ItemCategoryId,
-	[rc].[Name] AS ItemCategoryName,
+    [kid].[Id],
+    [kid].[RawMaterialId] AS ItemId,
+    [rm].[Name] AS ItemName,
+    [rm].[Code] AS ItemCode,
+    [rm].[RawMaterialCategoryId] AS ItemCategoryId,
+    [rc].[Name] AS ItemCategoryName,
 
-	[ki].[Id] AS MasterId,
-	[ki].[TransactionNo],
-	[ki].[TransactionDateTime],
-	[c].[Id] AS CompanyId,
-	[c].[Name] AS CompanyName,
-	[k].[Id] AS KitchenId,
-	[k].[Name] AS KitchenName,
-	[ki].[Remarks] AS KitchenIssueRemarks,
+    [kid].[Quantity],
+    [kid].[UnitOfMeasurement],
+    [kid].[Rate],
+    [kid].[Total],
 
-	[kid].[Quantity],
-	[kid].[UnitOfMeasurement],
-	[kid].[Rate],
-	[kid].[Total],
+    [kid].[Remarks] AS ItemRemarks,
 
-	[kid].[Remarks] AS Remarks
+    [kid].[MasterId],
+    [ki].[TransactionNo],
+    [ki].[CompanyId],
+    [c].[Name] AS CompanyName,
+
+    [ki].[TransactionDateTime],
+    [ki].[FinancialYearId],
+    CONVERT(VARCHAR(10), fy.StartDate, 103) + ' to ' + CONVERT(VARCHAR(10), fy.EndDate, 103) AS FinancialYear,
+
+    [ki].[KitchenId],
+    [k].[Name] AS KitchenName,
+    [ki].[Remarks] AS KitchenIssueRemarks,
+
+    [ki].[TotalItems],
+    [ki].[TotalQuantity],
+    [ki].[TotalAmount],
+
+    [ki].[CreatedBy],
+    [u].[Name] AS CreatedByName,
+    [ki].[CreatedAt],
+    [ki].[CreatedFromPlatform],
+    [ki].[LastModifiedBy],
+    [lm].[Name] AS LastModifiedByUserName,
+    [ki].[LastModifiedAt],
+    [ki].[LastModifiedFromPlatform],
+
+    [ki].[Status] AS MasterStatus
 
 FROM
-	[dbo].[KitchenIssueDetail] kid
-
+    [dbo].[KitchenIssueDetail] kid
 INNER JOIN
-	[dbo].[KitchenIssue] ki ON kid.[MasterId] = ki.Id
+    [dbo].[KitchenIssue] ki ON kid.MasterId = ki.Id
 INNER JOIN
-	[dbo].[RawMaterial] r ON kid.RawMaterialId = r.Id
+    [dbo].[RawMaterial] rm ON kid.RawMaterialId = rm.Id
 INNER JOIN
-	[dbo].[RawMaterialCategory] rc ON r.RawMaterialCategoryId = rc.Id
+    [dbo].[RawMaterialCategory] rc ON rm.RawMaterialCategoryId = rc.Id
 INNER JOIN
-	[dbo].[Company] c ON ki.CompanyId = c.Id
+    [dbo].[Company] c ON ki.CompanyId = c.Id
 INNER JOIN
-	[dbo].[Kitchen] k ON ki.KitchenId = k.Id
+    [dbo].[FinancialYear] fy ON ki.FinancialYearId = fy.Id
+INNER JOIN
+    [dbo].[Kitchen] k ON ki.KitchenId = k.Id
+INNER JOIN
+    [dbo].[User] u ON ki.CreatedBy = u.Id
+LEFT JOIN
+    [dbo].[User] lm ON ki.LastModifiedBy = lm.Id
 
 WHERE
-	[ki].[Status] = 1 AND
-	[kid].[Status] = 1;
+    [kid].[Status] = 1;

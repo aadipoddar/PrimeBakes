@@ -45,8 +45,12 @@ else
 				</MudBlazor.MudMenu>
 
 				<MudBlazor.MudMenu Label="Open" Dense="true" Disabled="_isProcessing">
-					<MudBlazor.MudMenuItem Label="Transaction History Report (Ctrl + H)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseReturnReport, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Item Report (Ctrl + I)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseReturnItemReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Purchase Return (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseReturn, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Purchase Return Report (Ctrl + H)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseReturnReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Purchase Return Item Report (Ctrl + I)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseReturnItemReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Purchase" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.Purchase, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Purchase Report" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Purchase Item Report" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseItemReport, FormFactor, JSRuntime, NavigationManager)" />
 				</MudBlazor.MudMenu>
 			</LeftContent>
 		</Header>

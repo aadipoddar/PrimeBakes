@@ -44,7 +44,12 @@ else
 				</MudBlazor.MudMenu>
 
 				<MudBlazor.MudMenu Label="Open" Dense="true" Disabled="_isProcessing">
-					<MudBlazor.MudMenuItem Label="Item Report (Ctrl + I)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseItemReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Purchase (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.Purchase, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Purchase Report" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Purchase Item Report (Ctrl + I)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseItemReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Purchase Return" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseReturn, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Purchase Return Report" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseReturnReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Purchase Return Item Report" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseReturnItemReport, FormFactor, JSRuntime, NavigationManager)" />
 				</MudBlazor.MudMenu>
 
 				<MudBlazor.MudMenu Label="Periods" Dense="true" Disabled="_isProcessing">
@@ -448,11 +453,11 @@ else
 
 						<GridColumns>
 							<GridColumn Field="@nameof(PurchaseOverviewModel.TransactionNo)" HeaderText="Trans No" Width="170" Visible="@(!_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseOverviewModel.CompanyName)" HeaderText="Company" Width="180" Visible="@(_showAllColumns && !_showSummary && (_selectedCompany is null || _selectedCompany.Id <= 0))" />
+							<GridColumn Field="@nameof(PurchaseOverviewModel.CompanyName)" HeaderText="Company" Width="180" Visible="@(!_showSummary && (_showAllColumns || _selectedCompany is null || _selectedCompany.Id <= 0))" />
 							<GridColumn Field="@nameof(PurchaseOverviewModel.TransactionDateTime)" HeaderText="Date" Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(!_showSummary)" />
 							<GridColumn Field="@nameof(PurchaseOverviewModel.FinancialYear)" HeaderText="Financial Year" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
 							<GridColumn Field="@nameof(PurchaseOverviewModel.ChallanNo)" HeaderText="Challan No" Width="170" Visible="@(!_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseOverviewModel.PartyName)" HeaderText="Party" Width="200" Visible="@(_selectedParty is null || _selectedParty.Id <= 0)" />
+							<GridColumn Field="@nameof(PurchaseOverviewModel.PartyName)" HeaderText="Party" Width="200" Visible="@(_showAllColumns || _selectedParty is null || _selectedParty.Id <= 0)" />
 
 							<GridColumn Field="@nameof(PurchaseOverviewModel.TotalItems)" HeaderText="Items" Width="100" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(PurchaseOverviewModel.TotalQuantity)" HeaderText="Quantity" Width="120" Format="N2" TextAlign="TextAlign.Right" />

@@ -1,41 +1,65 @@
-﻿CREATE VIEW [dbo].[KitchenProduction_Item_Overview]
-	AS
+CREATE VIEW [dbo].[KitchenProduction_Item_Overview]
+AS
 SELECT
-	[p].[Id],
-	[p].[Name] AS ItemName,
-	[p].[Code] AS ItemCode,
-	[pc].[Id] AS ItemCategoryId,
-	[pc].[Name] AS ItemCategoryName,
+    [kpd].[Id],
+    [kpd].[ProductId] AS ItemId,
+    [p].[Name] AS ItemName,
+    [p].[Code] AS ItemCode,
+    [p].[ProductCategoryId] AS ItemCategoryId,
+    [pc].[Name] AS ItemCategoryName,
 
-	[kp].[Id] AS MasterId,
-	[kp].[TransactionNo],
-	[kp].[TransactionDateTime],
-	[c].[Id] AS CompanyId,
-	[c].[Name] AS CompanyName,
-	[k].[Id] AS KitchenId,
-	[k].[Name] AS KitchenName,
-	[kp].[Remarks] AS KitchenProductionRemarks,
+    [kpd].[Quantity],
+    [kpd].[Rate],
+    [kpd].[Total],
 
-	[kpd].[Quantity],
-	[kpd].[Rate],
-	[kpd].[Total],
+    [kpd].[Remarks] AS ItemRemarks,
 
-	[kpd].[Remarks] AS Remarks
+    [kpd].[MasterId],
+    [kp].[TransactionNo],
+    [kp].[CompanyId],
+    [c].[Name] AS CompanyName,
+
+    [kp].[TransactionDateTime],
+    [kp].[FinancialYearId],
+    CONVERT(VARCHAR(10), fy.StartDate, 103) + ' to ' + CONVERT(VARCHAR(10), fy.EndDate, 103) AS FinancialYear,
+
+    [kp].[KitchenId],
+    [k].[Name] AS KitchenName,
+    [kp].[Remarks] AS KitchenProductionRemarks,
+
+    [kp].[TotalItems],
+    [kp].[TotalQuantity],
+    [kp].[TotalAmount],
+
+    [kp].[CreatedBy],
+    [u].[Name] AS CreatedByName,
+    [kp].[CreatedAt],
+    [kp].[CreatedFromPlatform],
+    [kp].[LastModifiedBy],
+    [lm].[Name] AS LastModifiedByUserName,
+    [kp].[LastModifiedAt],
+    [kp].[LastModifiedFromPlatform],
+
+    [kp].[Status] AS MasterStatus
 
 FROM
-	[dbo].[KitchenProductionDetail] kpd
-
+    [dbo].[KitchenProductionDetail] kpd
 INNER JOIN
-	[dbo].[KitchenProduction] kp ON kpd.[MasterId] = kp.Id
+    [dbo].[KitchenProduction] kp ON kpd.MasterId = kp.Id
 INNER JOIN
-	[dbo].[Product] p ON kpd.ProductId = p.Id
+    [dbo].[Product] p ON kpd.ProductId = p.Id
 INNER JOIN
-	[dbo].[ProductCategory] pc ON p.ProductCategoryId = pc.Id
+    [dbo].[ProductCategory] pc ON p.ProductCategoryId = pc.Id
 INNER JOIN
-	[dbo].[Company] c ON kp.CompanyId = c.Id
+    [dbo].[Company] c ON kp.CompanyId = c.Id
 INNER JOIN
-	[dbo].[Kitchen] k ON kp.KitchenId = k.Id
+    [dbo].[FinancialYear] fy ON kp.FinancialYearId = fy.Id
+INNER JOIN
+    [dbo].[Kitchen] k ON kp.KitchenId = k.Id
+INNER JOIN
+    [dbo].[User] u ON kp.CreatedBy = u.Id
+LEFT JOIN
+    [dbo].[User] lm ON kp.LastModifiedBy = lm.Id
 
 WHERE
-	[kp].[Status] = 1 AND
-	[kpd].[Status] = 1;
+    [kpd].[Status] = 1;

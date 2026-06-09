@@ -42,8 +42,13 @@ else
 				</MudBlazor.MudMenu>
 
 				<MudBlazor.MudMenu Label="Open" Dense="true" Disabled="_isProcessing">
-					<MudBlazor.MudMenuItem Label="Transaction History Report (Ctrl + H)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenProductionReport, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Item Report (Ctrl + I)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenProductionItemReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Production (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenProduction, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Production Report (Ctrl + H)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenProductionReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Production Item Report (Ctrl + I)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenProductionItemReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Issue" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssue, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Issue Report" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssueReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Issue Item Report" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssueItemReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Kitchen" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.Kitchen, FormFactor, JSRuntime, NavigationManager)" />
 				</MudBlazor.MudMenu>
 			</LeftContent>
 		</Header>
