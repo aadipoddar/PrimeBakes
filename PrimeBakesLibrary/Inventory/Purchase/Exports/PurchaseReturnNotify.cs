@@ -28,7 +28,7 @@ internal static class PurchaseReturnNotify
 		var notificationData = new NotificationUtil.TransactionNotificationData
 		{
 			TransactionType = "Purchase Return",
-			TransactionNo = purchaseReturn.ChallanNo,
+			TransactionNo = purchaseReturn.TransactionNo,
 			Action = type,
 			LocationName = purchaseReturn.PartyName,
 			Details = new Dictionary<string, string>

@@ -5,21 +5,21 @@
 
 <PageTitle>Purchase Return Report - Prime Bakes</PageTitle>
 
-<MudBlazor.MudHotkey Key=JsKey.KeyB KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateBack" />
-<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateToTransactionPage" />
-<MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadTransactionOverviews" />
-<MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadTransactionOverviews" />
-<MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" />
-<MudBlazor.MudHotkey Key=JsKey.KeyW KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleSummary" />
-<MudBlazor.MudHotkey Key=JsKey.KeyQ KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDetailsView" />
-<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ExportPdf" />
-<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ExportExcel" />
-<MudBlazor.MudHotkey Key=JsKey.KeyI KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateToItemReport" />
-<MudBlazor.MudHotkey Key=JsKey.KeyO KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ViewSelectedTransaction" />
-<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="DownloadSelectedPdfInvoice" />
-<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="DownloadSelectedExcelInvoice" />
-<MudBlazor.MudHotkey Key=JsKey.KeyL KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="DownloadSelectedOriginalInvoice" />
-<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="DeleteRecoverSelectedTransaction" />
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseReturn, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfFirstFocus.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyQ KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDetailsView" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyW KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleSummary" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyI KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseReturnItemReport, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyO KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="ViewSelectedTransaction" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyL KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="DownloadSelectedOriginalInvoice" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="DeleteRecoverSelectedTransaction" Disabled="@_isProcessing" />
 
 @if (_isLoading || _user is null)
 {
@@ -28,72 +28,46 @@
 else
 {
 	<div class="page-shell">
-		<Header Title="Purchase Return Report">
+		<Header Title="Purchase Report">
 			<LeftContent>
-				<SfMenu TValue="Syncfusion.Blazor.Navigations.MenuItem">
-					<MenuAnimationSettings Effect="Syncfusion.Blazor.Navigations.MenuEffect.SlideDown" Duration="300"
-										   Easing="ease" />
-					<MenuEvents TValue="Syncfusion.Blazor.Navigations.MenuItem" ItemSelected="OnMenuSelected"
-									OnOpen='async () => await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0)' />
-					<MenuItems>
-						<MenuItem Text="File" IconCss="e-icons e-folder">
-							<MenuItems>
-								<MenuItem Text="New Transaction (Ctrl + N)" IconCss="e-icons e-plus" Id="NewTransaction"
-										  Disabled="@_isProcessing" />
-								<MenuItem Text="Refresh Data (Ctrl + R / F5)" IconCss="e-icons e-refresh" Id="Refresh"
-										  Disabled="@_isProcessing" />
-								<MenuItem Text="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" IconCss="e-icons e-trash"
-										  Id="ToggleDeleted" Disabled="@_isProcessing" />
-								<MenuItem Text="@(_showSummary ? "Hide Summary (Ctrl + W)" : "Show Summary (Ctrl + W)")" IconCss="e-icons e-chart"
-										  Id="ToggleSummary" Disabled="@_isProcessing" />
-								<MenuItem Text="@(_showAllColumns ? "Hide Details (Ctrl + Q)" : "Show Details (Ctrl + Q)")" IconCss="e-icons e-table"
-										  Id="ToggleDetailsView" Disabled="@_isProcessing" />
-								<MenuItem Separator="true" />
-								<MenuItem Text="Export PDF (Ctrl + P)" IconCss="e-icons e-export-pdf" Id="ExportPdf"
-										  Disabled="@_isProcessing" />
-								<MenuItem Text="Export Excel (Ctrl + E)" IconCss="e-icons e-export-excel" Id="ExportExcel"
-										  Disabled="@_isProcessing" />
-							</MenuItems>
-						</MenuItem>
-						<MenuItem Text="Open" IconCss="e-icons e-folder-open">
-							<MenuItems>
-								<MenuItem Text="Item Report (Ctrl + I)" Id="ItemReport" Disabled="@_isProcessing" />
-							</MenuItems>
-						</MenuItem>
-						<MenuItem Text="Periods" IconCss="e-icons e-clock">
-							<MenuItems>
-								<MenuItem Text="Today" Id="PeriodToday" Disabled="@_isProcessing" />
-								<MenuItem Text="Previous Day" Id="PeriodPreviousDay" Disabled="@_isProcessing" />
-								<MenuItem Text="Next Day" Id="PeriodNextDay" Disabled="@_isProcessing" />
-								<MenuItem Text="Current Month" Id="PeriodCurrentMonth" Disabled="@_isProcessing" />
-								<MenuItem Text="Previous Month" Id="PeriodPreviousMonth" Disabled="@_isProcessing" />
-								<MenuItem Text="Next Month" Id="PeriodNextMonth" Disabled="@_isProcessing" />
-								<MenuItem Text="Current FY" Id="PeriodCurrentFinancialYear" Disabled="@_isProcessing" />
-								<MenuItem Text="Previous FY" Id="PeriodPreviousFinancialYear" Disabled="@_isProcessing" />
-								<MenuItem Text="Next FY" Id="PeriodNextFinancialYear" Disabled="@_isProcessing" />
-								<MenuItem Text="All Time" Id="PeriodAllTime" Disabled="@_isProcessing" />
-							</MenuItems>
-						</MenuItem>
-						<MenuItem Text="Transaction" IconCss="e-icons e-chart">
-							<MenuItems>
-								<MenuItem Text="View (Ctrl + O)" IconCss="e-icons e-eye" Id="ViewSelected" Disabled="@(_isProcessing || _showSummary)" />
-								<MenuItem Text="Export PDF (Alt + P)" IconCss="e-icons e-export-pdf" Id="DownloadSelectedPdf"
-										  Disabled="@(_isProcessing || _showSummary)" />
-								<MenuItem Text="Export Excel (Alt + E)" IconCss="e-icons e-export-excel" Id="DownloadSelectedExcel"
-										  Disabled="@(_isProcessing || _showSummary)" />
-								<MenuItem Text="Export Original (Alt + L)" IconCss="e-icons e-download" Id="DownloadSelectedOriginal"
-										  Disabled="@(_isProcessing || _showSummary)" />
-								<MenuItem Separator="true" />
-								<MenuItem Text="Delete / Recover (Del)" IconCss="e-icons e-trash" Id="DeleteRecoverSelected"
-										  Disabled="@(_isProcessing || _showSummary)" />
-							</MenuItems>
-						</MenuItem>
-					</MenuItems>
-				</SfMenu>
+				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="New Transaction (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseReturn, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Refresh Data (Ctrl + R / F5)" OnClick="LoadTransactionOverviews" />
+					<MudBlazor.MudMenuItem Label="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" OnClick="ToggleDeleted" />
+					<MudBlazor.MudMenuItem Label="@(_showSummary ? "Hide Summary (Ctrl + W)" : "Show Summary (Ctrl + W)")" OnClick="ToggleSummary" />
+					<MudBlazor.MudMenuItem Label="@(_showAllColumns ? "Hide Details (Ctrl + Q)" : "Show Details (Ctrl + Q)")" OnClick="ToggleDetailsView" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportReport()" />
+					<MudBlazor.MudMenuItem Label="Export Excel (Ctrl + E)" OnClick="() => ExportReport(true)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Open" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Item Report (Ctrl + I)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseReturnItemReport, FormFactor, JSRuntime, NavigationManager)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Periods" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Today" OnClick="() => HandleDatesChanged(DateRangeType.Today)" />
+					<MudBlazor.MudMenuItem Label="Previous Day" OnClick="() => HandleDatesChanged(DateRangeType.Yesterday)" />
+					<MudBlazor.MudMenuItem Label="Next Day" OnClick="() => HandleDatesChanged(DateRangeType.NextDay)" />
+					<MudBlazor.MudMenuItem Label="Current Month" OnClick="() => HandleDatesChanged(DateRangeType.CurrentMonth)" />
+					<MudBlazor.MudMenuItem Label="Previous Month" OnClick="() => HandleDatesChanged(DateRangeType.PreviousMonth)" />
+					<MudBlazor.MudMenuItem Label="Next Month" OnClick="() => HandleDatesChanged(DateRangeType.NextMonth)" />
+					<MudBlazor.MudMenuItem Label="Current FY" OnClick="() => HandleDatesChanged(DateRangeType.CurrentFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="Previous FY" OnClick="() => HandleDatesChanged(DateRangeType.PreviousFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="Next FY" OnClick="() => HandleDatesChanged(DateRangeType.NextFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="All Time" OnClick="() => HandleDatesChanged(DateRangeType.AllTime)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Transaction" Dense="true" Disabled="_isProcessing || _showSummary">
+					<MudBlazor.MudMenuItem Label="View (Alt + O)" OnClick="ViewSelectedTransaction" />
+					<MudBlazor.MudMenuItem Label="Open Accounting Posting" OnClick="OpenFinancialAccountingPosting" />
+					<MudBlazor.MudMenuItem Label="Export PDF (Alt + P)" OnClick="() => ExportSelectedTransaction()" />
+					<MudBlazor.MudMenuItem Label="Export Excel (Alt + E)" OnClick="() => ExportSelectedTransaction(true)" />
+					<MudBlazor.MudMenuItem Label="Export Original (Alt + L)" OnClick="DownloadSelectedOriginalInvoice" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Delete / Recover (Del)" OnClick="DeleteRecoverSelectedTransaction" />
+				</MudBlazor.MudMenu>
 			</LeftContent>
-			<RightContent>
-				<IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="NavigateBack" />
-			</RightContent>
 		</Header>
 
 		<!-- Main Content Container -->
@@ -112,42 +86,38 @@ else
 					</div>
 				</div>
 				<div class="section-body">
-					<div class="filters-container">
-						<div class="filters-grid">
-							<!-- Date Range -->
-							<div class="form-field">
-								<label class="field-label">Date Range</label>
-								<SfDateRangePicker CssClass="custom-daterange" StartDate="_fromDate" EndDate="_toDate"
-												   TValue="DateTime" Format="dd/MM/yyyy" AllowEdit="true" Placeholder="Select date range">
-									<DateRangePickerEvents TValue="DateTime" ValueChange="OnDateRangeChanged" />
-								</SfDateRangePicker>
-							</div>
+					<div class="filters-grid">
+						<!-- Date Range -->
+						<div class="form-field">
+							<CustomDateRangePicker @ref="_sfFirstFocus" Value="@(new MudBlazor.DateRange(_fromDate, _toDate))"
+												   ValueChanged="OnDateRangeChanged"
+												   Label="Date Range (Ctrl + F)"
+												   Required="false" />
+						</div>
 
-							<!-- Company -->
-							<div class="form-field">
-								<AutoCompleteWithAdd TItem="CompanyModel" TValue="CompanyModel"
-												Value="@_selectedCompany"
+						<!-- Company -->
+						<div class="form-field">
+							<CustomAutoComplete T="CompanyModel"
+												Value="_selectedCompany"
 												DataSource="@_companies"
 												Placeholder="All Companies"
 												Label="Company" Required="false"
-												ValueChange="OnCompanyChanged"
+												ValueChanged="OnCompanyChanged"
 												FieldValue="@nameof(CompanyModel.Name)"
 												AddNewRoute="@AccountsRouteNames.CompanyMaster" />
-							</div>
+						</div>
 
-							<!-- Party -->
-							<div class="form-field">
-								<AutoCompleteWithAdd TItem="LedgerModel" TValue="LedgerModel"
-												Value="@_selectedParty"
+						<!-- Party -->
+						<div class="form-field">
+							<CustomAutoComplete T="LedgerModel"
+												Value="_selectedParty"
 												DataSource="@_parties"
 												Placeholder="All Parties"
 												Label="Party" Required="false"
-												ValueChange="OnPartyChanged"
+												ValueChanged="OnPartyChanged"
 												FieldValue="@nameof(LedgerModel.Name)"
 												AddNewRoute="@AccountsRouteNames.LedgerMaster" />
-							</div>
 						</div>
-
 					</div>
 				</div>
 			</div>
@@ -170,14 +140,13 @@ else
 					</div>
 				</div>
 				<div class="section-body grid-body">
-					<SfGrid ID="_sfGrid" @ref="_sfGrid" TValue="PurchaseReturnOverviewModel"
-							DataSource="_transactionOverviews" AllowTextWrap="true" AllowPaging="true" AllowSorting="true"
-							AllowResizing="true" AllowFiltering="true" AllowExcelExport="true" AllowPdfExport="true"
-							GridLines="GridLine.Horizontal" CssClass="professional-grid" AllowGrouping="true"
-							ContextMenuItems="@_gridContextMenuItems" Toolbar="@(new List<string>() { "Search" })">
+					<SfGrid @ref="_sfGrid" TValue="PurchaseReturnOverviewModel" DataSource="_transactionOverviews"
+							AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+							AllowFiltering="true" AllowExcelExport="true" AllowPdfExport="true" GridLines="GridLine.Horizontal"
+							CssClass="professional-grid" AllowGrouping="true" ContextMenuItems="@_gridContextMenuItems"
+							Toolbar="@(new List<string>() { "Search" })">
 
 						<GridEvents TValue="PurchaseReturnOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
-
 						<GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
 						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
 						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
@@ -185,8 +154,7 @@ else
 						<GridAggregates>
 							<GridAggregate>
 								<GridAggregateColumns>
-									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TransactionNo)"
-														 Type="AggregateType.Count">
+									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TransactionNo)" Type="AggregateType.Count">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
@@ -212,8 +180,7 @@ else
 											</div>
 										</GroupCaptionTemplate>
 									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalItems)"
-														 Type="AggregateType.Sum" Format="N0">
+									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalItems)" Type="AggregateType.Sum" Format="N0">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
@@ -233,8 +200,7 @@ else
 											}
 										</GroupCaptionTemplate>
 									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalQuantity)"
-														 Type="AggregateType.Sum" Format="N2">
+									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalQuantity)" Type="AggregateType.Sum" Format="N2">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
@@ -254,8 +220,7 @@ else
 											}
 										</GroupCaptionTemplate>
 									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.BaseTotal)"
-														 Type="AggregateType.Sum" Format="N2">
+									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.BaseTotal)" Type="AggregateType.Sum" Format="N2">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
@@ -275,8 +240,7 @@ else
 											}
 										</GroupCaptionTemplate>
 									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.ItemDiscountAmount)"
-														 Type="AggregateType.Sum" Format="N2">
+									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.ItemDiscountAmount)" Type="AggregateType.Sum" Format="N2">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
@@ -302,8 +266,7 @@ else
 											}
 										</GroupCaptionTemplate>
 									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAfterItemDiscount)"
-														 Type="AggregateType.Sum" Format="N2">
+									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAfterItemDiscount)" Type="AggregateType.Sum" Format="N2">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
@@ -323,9 +286,7 @@ else
 											}
 										</GroupCaptionTemplate>
 									</GridAggregateColumn>
-									<GridAggregateColumn
-										Field="@nameof(PurchaseReturnOverviewModel.TotalInclusiveTaxAmount)"
-										Type="AggregateType.Sum" Format="N2">
+									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalInclusiveTaxAmount)" Type="AggregateType.Sum" Format="N2">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
@@ -345,8 +306,7 @@ else
 											}
 										</GroupCaptionTemplate>
 									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalExtraTaxAmount)"
-														 Type="AggregateType.Sum" Format="N2">
+									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalExtraTaxAmount)" Type="AggregateType.Sum" Format="N2">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
@@ -387,8 +347,7 @@ else
 											}
 										</GroupCaptionTemplate>
 									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.OtherChargesAmount)"
-														 Type="AggregateType.Sum" Format="N2">
+									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.OtherChargesAmount)" Type="AggregateType.Sum" Format="N2">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
@@ -408,8 +367,7 @@ else
 											}
 										</GroupCaptionTemplate>
 									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.CashDiscountAmount)"
-														 Type="AggregateType.Sum" Format="N2">
+									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.CashDiscountAmount)" Type="AggregateType.Sum" Format="N2">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
@@ -435,8 +393,7 @@ else
 											}
 										</GroupCaptionTemplate>
 									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.RoundOffAmount)"
-														 Type="AggregateType.Sum" Format="N2">
+									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.RoundOffAmount)" Type="AggregateType.Sum" Format="N2">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
@@ -456,26 +413,28 @@ else
 											}
 										</GroupCaptionTemplate>
 									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAmount)"
-														 Type="AggregateType.Sum" Format="N2">
+									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAmount)" Type="AggregateType.Sum" Format="N2">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong>
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
 												</div>
 											}
 										</FooterTemplate>
 										<GroupFooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong>
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
 												</div>
 											}
 										</GroupFooterTemplate>
 										<GroupCaptionTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong>
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
 												</div>
 											}
 										</GroupCaptionTemplate>
@@ -485,99 +444,70 @@ else
 						</GridAggregates>
 
 						<GridColumns>
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TransactionNo)" HeaderText="Trans No"
-										Width="170" Visible="@(!_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.ChallanNo)" HeaderText="Challan No"
-										Width="170" Visible="@(!_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TransactionDateTime)" HeaderText="Date"
-										Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime"
-										Visible="@(!_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CompanyName)" HeaderText="Company"
-										Width="180" Visible="@(_showAllColumns && !_showSummary && (_selectedCompany is null || _selectedCompany.Id <= 0))" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.PartyName)" HeaderText="Party"
-										Width="200" Visible="@(_selectedParty is null || _selectedParty.Id <= 0)" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.FinancialYear)"
-										HeaderText="Financial Year" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalItems)" HeaderText="Items"
-										Width="100" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalQuantity)" HeaderText="Quantity"
-										Width="120" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.BaseTotal)" HeaderText="Base Total"
-										Width="130" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.ItemDiscountAmount)" HeaderText="Disc"
-										Width="130" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TransactionNo)" HeaderText="Trans No" Width="170" Visible="@(!_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CompanyName)" HeaderText="Company" Width="180" Visible="@(_showAllColumns && !_showSummary && (_selectedCompany is null || _selectedCompany.Id <= 0))" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TransactionDateTime)" HeaderText="Date" Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(!_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.FinancialYear)" HeaderText="Financial Year" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.ChallanNo)" HeaderText="Challan No" Width="170" Visible="@(!_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.PartyName)" HeaderText="Party" Width="200" Visible="@(_selectedParty is null || _selectedParty.Id <= 0)" />
+
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalItems)" HeaderText="Items" Width="100" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalQuantity)" HeaderText="Quantity" Width="120" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.BaseTotal)" HeaderText="Base Total" Width="130" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.ItemDiscountAmount)" HeaderText="Disc" Width="130" TextAlign="TextAlign.Right" Visible="_showAllColumns">
 								<Template>
 									@{
-										var item = (context as PurchaseReturnOverviewModel);
+										var item = (context as dynamic);
 										<span class="grid-discount">@item.ItemDiscountAmount.ToString("N2")</span>
 									}
 								</Template>
 							</GridColumn>
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAfterItemDiscount)"
-										HeaderText="After Disc" Width="140" Format="N2" TextAlign="TextAlign.Right"
-										Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalInclusiveTaxAmount)"
-										HeaderText="Incl. Tax" Width="120" Format="N2" TextAlign="TextAlign.Center"
-										Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalExtraTaxAmount)"
-										HeaderText="Extra Tax" Width="120" Format="N2" TextAlign="TextAlign.Right"
-										Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAfterTax)" HeaderText="Sub Total"
-										Width="150" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.OtherChargesPercent)"
-										HeaderText="Other Charges %" Width="150" Format="N2" TextAlign="TextAlign.Center"
-										Visible="@(!_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.OtherChargesAmount)"
-										HeaderText="Other Charges" Width="140" Format="N2" TextAlign="TextAlign.Right"
-										Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CashDiscountPercent)"
-										HeaderText="Cash Disc %" Width="150" Format="N2" TextAlign="TextAlign.Center"
-										Visible="@(!_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CashDiscountAmount)"
-										HeaderText="Cash Disc" Width="140" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAfterItemDiscount)" HeaderText="After Disc" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalInclusiveTaxAmount)" HeaderText="Incl. Tax" Width="120" Format="N2" TextAlign="TextAlign.Center" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalExtraTaxAmount)" HeaderText="Extra Tax" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAfterTax)" HeaderText="Sub Total" Width="150" Format="N2" TextAlign="TextAlign.Right" />
+
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.OtherChargesPercent)" HeaderText="Other Charges %" Width="150" Format="N2" TextAlign="TextAlign.Center" Visible="@(!_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.OtherChargesAmount)" HeaderText="Other Charges" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CashDiscountPercent)" HeaderText="Cash Disc %" Width="150" Format="N2" TextAlign="TextAlign.Center" Visible="@(!_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CashDiscountAmount)" HeaderText="Cash Disc" Width="140" TextAlign="TextAlign.Right" Visible="_showAllColumns">
 								<Template>
 									@{
-										var item = (context as PurchaseReturnOverviewModel);
+										var item = (context as dynamic);
 										<span class="grid-discount">@item.CashDiscountAmount.ToString("N2")</span>
 									}
 								</Template>
 							</GridColumn>
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.RoundOffAmount)" HeaderText="Round Off"
-										Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAmount)" HeaderText="Total"
-										Width="150" TextAlign="TextAlign.Right">
+
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.RoundOffAmount)" HeaderText="Round Off" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAmount)" HeaderText="Total" Width="150" TextAlign="TextAlign.Right">
 								<Template>
 									@{
-										var item = (context as PurchaseReturnOverviewModel);
+										var item = (context as dynamic);
 										<span class="grid-total">@item.TotalAmount.ToString("N2")</span>
 									}
 								</Template>
 							</GridColumn>
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.Status)" HeaderText="Status" Width="110"
-										Visible="@(_showDeleted && !_showSummary)" TextAlign="TextAlign.Center">
+
+
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.Remarks)" HeaderText="Remarks" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.Status)" HeaderText="Status" Width="110" Visible="@(_showDeleted && !_showSummary)" TextAlign="TextAlign.Center">
 								<Template>
 									@{
-										var item = (context as PurchaseReturnOverviewModel);
+										var item = (context as dynamic);
 										<span class="@(item.Status ? string.Empty : "grid-debit")">@(item.Status ? "Active" : "Deleted")</span>
 									}
 								</Template>
 							</GridColumn>
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.Remarks)" HeaderText="Remarks"
-										Width="200" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CreatedByName)" HeaderText="Created By"
-										Width="150" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CreatedAt)" HeaderText="Created At"
-										Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime"
-										Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CreatedFromPlatform)"
-										HeaderText="Created Platform" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.LastModifiedByUserName)"
-										HeaderText="Modified By" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.LastModifiedAt)" HeaderText="Modified At"
-										Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime"
-										Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.LastModifiedFromPlatform)"
-										HeaderText="Modified Platform" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
+
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Trans No" Width="180" Visible="@(_showAllColumns && !_showSummary)" />
+
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CreatedByName)" HeaderText="Created By" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CreatedAt)" HeaderText="Created At" Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CreatedFromPlatform)" HeaderText="Created Platform" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.LastModifiedAt)" HeaderText="Modified At" Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.LastModifiedFromPlatform)" HeaderText="Modified Platform" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
 						</GridColumns>
 					</SfGrid>
 				</div>
@@ -588,12 +518,9 @@ else
 	</div>
 }
 
-<DeleteConfirmationDialog @ref="_deleteConfirmationDialog" EntityName="Purchase Return Transaction"
-						  IdentifierLabel="Transaction No" IdentifierValue="@_deleteTransactionNo"
-						  Disabled="@_isProcessing" OnConfirm="ConfirmDelete" OnCancel="CancelDelete" />
-
-<RecoverConfirmationDialog @ref="_recoverConfirmationDialog" EntityName="Purchase Return Transaction"
-						   IdentifierLabel="Transaction No" IdentifierValue="@_recoverTransactionNo" Disabled="@_isProcessing"
-						   OnConfirm="ConfirmRecover" OnCancel="CancelRecover" />
+<ConfirmationDialog @ref="_confirmationDialog" Title="@_confirmTitle" Message="@_confirmMessage"
+					OnConfirm="OnConfirmed" OnCancel="OnCancelled" />
 
 <ToastNotification @ref="_toastNotification" />
+
+<CloseGuard Block="_isProcessing" />

@@ -28,7 +28,7 @@ internal static class PurchaseNotify
 		var notificationData = new NotificationUtil.TransactionNotificationData
 		{
 			TransactionType = "Purchase",
-			TransactionNo = purchase.ChallanNo,
+			TransactionNo = purchase.TransactionNo,
 			Action = type,
 			LocationName = purchase.PartyName,
 			Details = new Dictionary<string, string>

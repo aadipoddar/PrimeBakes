@@ -338,7 +338,7 @@ public static class PurchaseReportExport
 			];
 
 			if (!showDeleted)
-				columnOrder.Remove(nameof(PurchaseOverviewModel.Status));
+				columnOrder.Remove(nameof(PurchaseItemOverviewModel.MasterStatus));
 		}
 
 		else
