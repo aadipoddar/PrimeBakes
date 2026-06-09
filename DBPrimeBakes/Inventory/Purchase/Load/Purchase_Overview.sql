@@ -1,62 +1,62 @@
 CREATE VIEW [dbo].[Purchase_Overview]
 AS
 SELECT
-    [t].[Id],
-    [t].[TransactionNo],
-    [t].[CompanyId],
+    [p].[Id],
+    [p].[TransactionNo],
+    [p].[CompanyId],
     [c].[Name] AS CompanyName,
 
-    [t].[TransactionDateTime],
-    [t].[FinancialYearId],
+    [p].[TransactionDateTime],
+    [p].[FinancialYearId],
 	CONVERT(VARCHAR(10), fy.StartDate, 103) + ' to ' + CONVERT(VARCHAR(10), fy.EndDate, 103) AS FinancialYear,
 
-	[t].[ChallanNo],
-	[t].[PartyId],
+	[p].[ChallanNo],
+	[p].[PartyId],
 	[l].[Name] AS PartyName,
 
-	[t].[TotalItems],
-	[t].[TotalQuantity],
-	[t].[BaseTotal],
-	[t].[ItemDiscountAmount],
-	[t].[TotalAfterItemDiscount],
-	[t].[TotalInclusiveTaxAmount],
-	[t].[TotalExtraTaxAmount],
-	[t].[TotalAfterTax],
+	[p].[TotalItems],
+	[p].[TotalQuantity],
+	[p].[BaseTotal],
+	[p].[ItemDiscountAmount],
+	[p].[TotalAfterItemDiscount],
+	[p].[TotalInclusiveTaxAmount],
+	[p].[TotalExtraTaxAmount],
+	[p].[TotalAfterTax],
 
-	[t].[OtherChargesPercent],
-	[t].[OtherChargesAmount],
-	[t].[CashDiscountPercent],
-	[t].[CashDiscountAmount],
+	[p].[OtherChargesPercent],
+	[p].[OtherChargesAmount],
+	[p].[CashDiscountPercent],
+	[p].[CashDiscountAmount],
 
-	[t].[RoundOffAmount],
-	[t].[TotalAmount],
+	[p].[RoundOffAmount],
+	[p].[TotalAmount],
 
-    [t].[Remarks],
-	[t].[DocumentUrl],
-	[t].[FinancialAccountingId],
+    [p].[Remarks],
+	[p].[DocumentUrl],
+	[p].[FinancialAccountingId],
 	[fa].[TransactionNo] AS FinancialAccountingTransactionNo,
-	[t].[CreatedBy],
+	[p].[CreatedBy],
 	[u].[Name] AS CreatedByName,
-	[t].[CreatedAt],
-	[t].[CreatedFromPlatform],
-	[t].[LastModifiedBy],
+	[p].[CreatedAt],
+	[p].[CreatedFromPlatform],
+	[p].[LastModifiedBy],
 	[lm].[Name] AS LastModifiedByUserName,
-	[t].[LastModifiedAt],
-	[t].[LastModifiedFromPlatform],
+	[p].[LastModifiedAt],
+	[p].[LastModifiedFromPlatform],
 
-	[t].[Status]
+	[p].[Status]
 
 FROM
-    [dbo].[Purchase] t
+    [dbo].[Purchase] p
 INNER JOIN
-    [dbo].[Company] c ON t.CompanyId = c.Id
+    [dbo].[Company] c ON p.CompanyId = c.Id
 INNER JOIN
-    [dbo].[FinancialYear] fy ON t.FinancialYearId = fy.Id
+    [dbo].[FinancialYear] fy ON p.FinancialYearId = fy.Id
 INNER JOIN
-	[dbo].[Ledger] l ON t.PartyId = l.Id
+	[dbo].[Ledger] l ON p.PartyId = l.Id
 LEFT JOIN
-	[dbo].[FinancialAccounting] fa ON t.FinancialAccountingId = fa.Id
+	[dbo].[FinancialAccounting] fa ON p.FinancialAccountingId = fa.Id
 INNER JOIN
-	[dbo].[User] AS u ON t.CreatedBy = u.Id
+	[dbo].[User] AS u ON p.CreatedBy = u.Id
 LEFT JOIN
-	[dbo].[User] AS lm ON t.LastModifiedBy = lm.Id
+	[dbo].[User] AS lm ON p.LastModifiedBy = lm.Id

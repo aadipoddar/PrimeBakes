@@ -175,9 +175,6 @@ public static class PurchaseData
 		if (purchaseDetails.Sum(ed => ed.Quantity) != purchase.TotalQuantity)
 			throw new InvalidOperationException("Total quantity must be equal to the sum of item quantities.");
 
-		if (purchaseDetails.Sum(ed => ed.Total) != purchase.TotalAmount)
-			throw new InvalidOperationException("Total item amount must be equal to total amount of the transaction.");
-
 		foreach (var item in purchaseDetails)
 			item.Remarks = string.IsNullOrWhiteSpace(item.Remarks) ? null : item.Remarks.Trim();
 	}

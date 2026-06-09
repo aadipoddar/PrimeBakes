@@ -102,7 +102,7 @@ public static class FinancialYearData
 				Action = isUpdate ? AuditTrailActionTypes.Update.ToString() : AuditTrailActionTypes.Insert.ToString(),
 				TableName = AccountNames.FinancialYear,
 				RecordNo = $"FY{financialYear.YearNo}",
-				RecordValue = diff,
+				RecordValue = isUpdate ? diff : null,
 				CreatedBy = userId,
 				CreatedFromPlatform = platform
 			}, transaction);

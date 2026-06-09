@@ -1,6 +1,23 @@
+@inject PrimeBakes.Shared.Services.PageRefreshState PageRefresh
+@implements IDisposable
+
 <Router AppAssembly="typeof(Layout.MainLayout).Assembly" NotFoundPage="typeof(Pages.NotFound)">
     <Found Context="routeData">
-        <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
+        <RouteView @key="_refreshKey" RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
         <FocusOnNavigate RouteData="routeData" Selector="h1" />
     </Found>
 </Router>
+
+@code {
+    private int _refreshKey;
+
+    protected override void OnInitialized() => PageRefresh.Requested += OnRefreshRequested;
+
+    private void OnRefreshRequested()
+    {
+        _refreshKey++;
+        StateHasChanged();
+    }
+
+    public void Dispose() => PageRefresh.Requested -= OnRefreshRequested;
+}

@@ -671,7 +671,7 @@ public static class XxxData
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = isUpdate ? AuditTrailActionTypes.Update.ToString() : AuditTrailActionTypes.Insert.ToString(),
-				TableName = Names.Xxx, RecordNo = x.Name, RecordValue = diff,
+				TableName = Names.Xxx, RecordNo = x.Name, RecordValue = isUpdate ? diff : null,
 				CreatedBy = userId, CreatedFromPlatform = platform
 			}, transaction);
 			return id;

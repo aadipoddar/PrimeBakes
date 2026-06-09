@@ -170,9 +170,6 @@ public static class PurchaseReturnData
 		if (purchaseReturnDetails.Sum(ed => ed.Quantity) != purchaseReturn.TotalQuantity)
 			throw new InvalidOperationException("Total quantity must be equal to the sum of item quantities.");
 
-		if (purchaseReturnDetails.Sum(ed => ed.Total) != purchaseReturn.TotalAmount)
-			throw new InvalidOperationException("Total item amount must be equal to total amount of the transaction.");
-
 		foreach (var item in purchaseReturnDetails)
 			item.Remarks = string.IsNullOrWhiteSpace(item.Remarks) ? null : item.Remarks.Trim();
 	}

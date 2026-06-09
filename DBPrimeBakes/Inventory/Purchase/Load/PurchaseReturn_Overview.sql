@@ -2,15 +2,17 @@
 	AS
 SELECT
 	[p].[Id],
-	[p].[TransactionNo],
+    [p].[TransactionNo],
+    [p].[CompanyId],
+    [c].[Name] AS CompanyName,
+
+    [p].[TransactionDateTime],
+    [p].[FinancialYearId],
+	CONVERT(VARCHAR(10), fy.StartDate, 103) + ' to ' + CONVERT(VARCHAR(10), fy.EndDate, 103) AS FinancialYear,
+
 	[p].[ChallanNo],
-	[p].[CompanyId],
-	[c].[Name] AS CompanyName,
 	[p].[PartyId],
 	[l].[Name] AS PartyName,
-	[p].[TransactionDateTime],
-	[p].[FinancialYearId],
-	CONVERT(VARCHAR(10), fy.StartDate, 103) + ' to ' + CONVERT(VARCHAR(10), fy.EndDate, 103) AS FinancialYear,
 
 	[p].[TotalItems],
 	[p].[TotalQuantity],
@@ -29,7 +31,7 @@ SELECT
 	[p].[RoundOffAmount],
 	[p].[TotalAmount],
 
-	[p].[Remarks],
+    [p].[Remarks],
 	[p].[DocumentUrl],
 	[p].[FinancialAccountingId],
 	[fa].[TransactionNo] AS FinancialAccountingTransactionNo,
@@ -45,16 +47,16 @@ SELECT
 	[p].[Status]
 
 FROM
-	[dbo].[PurchaseReturn] AS p
+    [dbo].[PurchaseReturn] p
 INNER JOIN
-	[dbo].[Company] AS c ON p.CompanyId = c.Id
+    [dbo].[Company] c ON p.CompanyId = c.Id
 INNER JOIN
-	[dbo].[Ledger] AS l ON p.PartyId = l.Id
+    [dbo].[FinancialYear] fy ON p.FinancialYearId = fy.Id
 INNER JOIN
-	[dbo].[FinancialYear] AS fy ON p.FinancialYearId = fy.Id
+	[dbo].[Ledger] l ON p.PartyId = l.Id
 LEFT JOIN
-	[dbo].[FinancialAccounting] AS fa ON p.FinancialAccountingId = fa.Id
+	[dbo].[FinancialAccounting] fa ON p.FinancialAccountingId = fa.Id
 INNER JOIN
-	[dbo].[User] AS u ON p.[CreatedBy] = u.Id
+	[dbo].[User] AS u ON p.CreatedBy = u.Id
 LEFT JOIN
 	[dbo].[User] AS lm ON p.LastModifiedBy = lm.Id

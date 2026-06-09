@@ -9,6 +9,7 @@ public class PurchaseModel
 	public int PartyId { get; set; }
 	public DateTime TransactionDateTime { get; set; }
 	public int FinancialYearId { get; set; }
+
 	public int TotalItems { get; set; }
 	public decimal TotalQuantity { get; set; }
 	public decimal BaseTotal { get; set; }
@@ -23,6 +24,7 @@ public class PurchaseModel
 	public decimal CashDiscountAmount { get; set; }
 	public decimal RoundOffAmount { get; set; }
 	public decimal TotalAmount { get; set; }
+
 	public string? Remarks { get; set; }
 	public string? DocumentUrl { get; set; }
 	public int? FinancialAccountingId { get; set; }
@@ -33,56 +35,6 @@ public class PurchaseModel
 	public int? LastModifiedBy { get; set; }
 	public DateTime? LastModifiedAt { get; set; }
 	public string? LastModifiedFromPlatform { get; set; }
-}
-
-public class PurchaseDetailModel
-{
-	public int Id { get; set; }
-	public int MasterId { get; set; }
-	public int RawMaterialId { get; set; }
-	public decimal Quantity { get; set; }
-	public string UnitOfMeasurement { get; set; }
-	public decimal Rate { get; set; }
-	public decimal BaseTotal { get; set; }
-	public decimal DiscountPercent { get; set; }
-	public decimal DiscountAmount { get; set; }
-	public decimal AfterDiscount { get; set; }
-	public decimal CGSTPercent { get; set; }
-	public decimal CGSTAmount { get; set; }
-	public decimal SGSTPercent { get; set; }
-	public decimal SGSTAmount { get; set; }
-	public decimal IGSTPercent { get; set; }
-	public decimal IGSTAmount { get; set; }
-	public decimal TotalTaxAmount { get; set; }
-	public bool InclusiveTax { get; set; }
-	public decimal Total { get; set; }
-	public decimal NetRate { get; set; }
-	public string? Remarks { get; set; }
-	public bool Status { get; set; }
-}
-
-public class PurchaseItemCartModel
-{
-	public int ItemId { get; set; }
-	public string ItemName { get; set; }
-	public decimal Quantity { get; set; }
-	public string UnitOfMeasurement { get; set; }
-	public decimal Rate { get; set; }
-	public decimal BaseTotal { get; set; }
-	public decimal DiscountPercent { get; set; }
-	public decimal DiscountAmount { get; set; }
-	public decimal AfterDiscount { get; set; }
-	public decimal CGSTPercent { get; set; }
-	public decimal CGSTAmount { get; set; }
-	public decimal SGSTPercent { get; set; }
-	public decimal SGSTAmount { get; set; }
-	public decimal IGSTPercent { get; set; }
-	public decimal IGSTAmount { get; set; }
-	public decimal TotalTaxAmount { get; set; }
-	public bool InclusiveTax { get; set; }
-	public decimal Total { get; set; }
-	public decimal NetRate { get; set; }
-	public string? Remarks { get; set; }
 }
 
 public class PurchaseOverviewModel
@@ -128,41 +80,4 @@ public class PurchaseOverviewModel
 	public DateTime? LastModifiedAt { get; set; }
 	public string? LastModifiedFromPlatform { get; set; }
 	public bool Status { get; set; }
-}
-
-public class PurchaseItemOverviewModel
-{
-	public int Id { get; set; }
-	public string ItemName { get; set; }
-	public string ItemCode { get; set; }
-	public int ItemCategoryId { get; set; }
-	public string ItemCategoryName { get; set; }
-	public int MasterId { get; set; }
-	public string TransactionNo { get; set; }
-	public string? ChallanNo { get; set; }
-	public DateTime TransactionDateTime { get; set; }
-	public int CompanyId { get; set; }
-	public string CompanyName { get; set; }
-	public int PartyId { get; set; }
-	public string PartyName { get; set; }
-	public string? PurchaseRemarks { get; set; }
-	public decimal Quantity { get; set; }
-	public string UnitOfMeasurement { get; set; }
-	public decimal Rate { get; set; }
-	public decimal BaseTotal { get; set; }
-	public decimal DiscountPercent { get; set; }
-	public decimal DiscountAmount { get; set; }
-	public decimal AfterDiscount { get; set; }
-	public decimal CGSTPercent { get; set; }
-	public decimal CGSTAmount { get; set; }
-	public decimal SGSTPercent { get; set; }
-	public decimal SGSTAmount { get; set; }
-	public decimal IGSTPercent { get; set; }
-	public decimal IGSTAmount { get; set; }
-	public decimal TotalTaxAmount { get; set; }
-	public bool InclusiveTax { get; set; }
-	public decimal Total { get; set; }
-	public decimal NetRate { get; set; }
-	public decimal NetTotal { get; set; }
-	public string? Remarks { get; set; }
 }

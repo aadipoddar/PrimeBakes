@@ -190,8 +190,8 @@ public static class PurchaseReturnReportExport
 			[nameof(PurchaseReturnItemOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(PurchaseReturnItemOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseReturnItemOverviewModel.PartyName)] = new() { DisplayName = "Party", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(PurchaseReturnItemOverviewModel.PurchaseReturnRemarks)] = new() { DisplayName = "Purchase Return Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(PurchaseReturnItemOverviewModel.Remarks)] = new() { DisplayName = "Item Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(PurchaseReturnItemOverviewModel.Remarks)] = new() { DisplayName = "Purchase Return Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(PurchaseReturnItemOverviewModel.ItemRemarks)] = new() { DisplayName = "Item Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseReturnItemOverviewModel.InclusiveTax)] = new() { DisplayName = "Incl Tax", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(PurchaseReturnItemOverviewModel.Quantity)] = new() { DisplayName = "Qty", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
 			[nameof(PurchaseReturnItemOverviewModel.Rate)] = new() { DisplayName = "Rate", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false },
@@ -262,8 +262,8 @@ public static class PurchaseReturnReportExport
 				nameof(PurchaseReturnItemOverviewModel.Total),
 				nameof(PurchaseReturnItemOverviewModel.NetRate),
 				nameof(PurchaseReturnItemOverviewModel.NetTotal),
-				nameof(PurchaseReturnItemOverviewModel.PurchaseReturnRemarks),
-				nameof(PurchaseReturnItemOverviewModel.Remarks)
+				nameof(PurchaseReturnItemOverviewModel.Remarks),
+				nameof(PurchaseReturnItemOverviewModel.ItemRemarks)
 			];
 
 			if (party is not null)

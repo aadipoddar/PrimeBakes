@@ -500,10 +500,10 @@ else
                                     }
                                 </Template>
                             </GridColumn>
-                            <GridColumn Field="@nameof(PurchaseReturnItemOverviewModel.PurchaseReturnRemarks)"
+                            <GridColumn Field="@nameof(PurchaseReturnItemOverviewModel.Remarks)"
                                         HeaderText="Purchase Return Remarks" Width="200"
                                         Visible="@(_showAllColumns && !_showSummary)" />
-                            <GridColumn Field="@nameof(PurchaseReturnItemOverviewModel.Remarks)" HeaderText="Item Remarks"
+                            <GridColumn Field="@nameof(PurchaseReturnItemOverviewModel.ItemRemarks)" HeaderText="Item Remarks"
                                         Width="200" Visible="@(_showAllColumns && !_showSummary)" />
                         </GridColumns>
                     </SfGrid>
