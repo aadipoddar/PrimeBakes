@@ -193,8 +193,7 @@
     <Build Include="Inventory\Stock\Delete\Delete_ProductStock_By_Type_TransactionId_LocationId.sql" />
     <Build Include="Inventory\Stock\Delete\Delete_RawMaterialStock_By_Id.sql" />
     <Build Include="Inventory\Stock\Delete\Delete_RawMaterialStock_By_Type_TransactionId.sql" />
-    <Build Include="Inventory\Stock\Load\Load_ProductStockSummary_By_Date_LocationId.sql" />
-    <Build Include="Inventory\Stock\Load\Load_RawMaterialStockSummary_By_Date.sql" />
+    <Build Include="Inventory\Stock\Load\Load_Product_OpeningStock_By_Date_LocationId.sql" />
     <Build Include="Inventory\Stock\Table\ProductStock.sql" />
     <Build Include="Inventory\Stock\Table\RawMaterialStock.sql" />
     <Build Include="Inventory\Kitchen\Load\KitchenProduction_Overview.sql" />
@@ -275,6 +274,7 @@
     <Build Include="Operations\User\Load_User_By_Passcode.sql" />
     <Build Include="Operations\Location\Location.sql" />
     <Build Include="Common\Load_LastTableData_By_Location_FinancialYear.sql" />
+    <Build Include="Inventory\Stock\Load\Load_RawMaterial_OpeningStock_By_Date.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="PublishLocation\LocalDBPrimeBakes.publish.xml" />

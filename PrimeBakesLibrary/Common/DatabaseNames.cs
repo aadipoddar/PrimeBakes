@@ -138,8 +138,8 @@ public static class InventoryNames
 	public static string RawMaterialStockDetails => "RawMaterialStockDetails";
 	public static string ProductStockDetails => "ProductStockDetails";
 
-	public static string LoadRawMaterialStockSummaryByDate => "Load_RawMaterialStockSummary_By_Date";
-	public static string LoadProductStockSummaryByDateLocationId => "Load_ProductStockSummary_By_Date_LocationId";
+	public static string LoadRawMaterialOpeningStockByDate => "Load_RawMaterial_OpeningStock_By_Date";
+	public static string LoadProductOpeningStockByDateLocationId => "Load_Product_OpeningStock_By_Date_LocationId";
 
 	public static string DeleteProductStockById => "Delete_ProductStock_By_Id";
 	public static string DeleteProductStockByTypeTransactionIdLocationId => "Delete_ProductStock_By_Type_TransactionId_LocationId";
