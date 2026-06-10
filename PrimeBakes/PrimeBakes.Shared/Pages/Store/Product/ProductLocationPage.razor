@@ -5,15 +5,15 @@
 
 <PageTitle>Product Location Management - Prime Bakes</PageTitle>
 
-<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" />
-<MudBlazor.MudHotkey Key=JsKey.KeyB KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateBack" />
-<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="SaveProductLocation" />
-<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ExportExcel" />
-<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ExportPdf" />
-<MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="EditSelectedItem" />
-<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="() => DeleteSelectedItem()" />
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfFirstFocus.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="SaveTransaction" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportMaster(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportMaster()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="EditSelectedItem" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="DeleteSelectedItem" Disabled="@_isProcessing" />
 
-@if (_isLoading)
+@if (_isLoading || _user is null)
 {
 	<LoadingScreen />
 }
@@ -22,50 +22,27 @@ else
 	<div class="page-shell">
 		<Header Title="Product Location Management">
 			<LeftContent>
-				<SfMenu TValue="Syncfusion.Blazor.Navigations.MenuItem">
-					<MenuAnimationSettings Effect="Syncfusion.Blazor.Navigations.MenuEffect.SlideDown" Duration="300"
-										   Easing="ease" />
-					<MenuEvents TValue="Syncfusion.Blazor.Navigations.MenuItem" ItemSelected="OnMenuSelected" />
-					<MenuItems>
-						<MenuItem Text="File" IconCss="e-icons e-folder">
-							<MenuItems>
-								<MenuItem Text="New (Ctrl + N)" IconCss="e-icons e-plus" Id="NewProductLocation"
-										  Disabled="@_isProcessing" />
-								<MenuItem Text="Save (Ctrl + S)" IconCss="e-icons e-save" Id="SaveProductLocation"
-										  Disabled="@_isProcessing" />
-								<MenuItem Separator="true" />
-								<MenuItem Text="Export Excel (Ctrl + E)" IconCss="e-icons e-export-excel" Id="ExportExcel"
-										  Disabled="@_isProcessing" />
-								<MenuItem Text="Export PDF (Ctrl + P)" IconCss="e-icons e-export-pdf" Id="ExportPdf"
-										  Disabled="@_isProcessing" />
-							</MenuItems>
-						</MenuItem>
-						<MenuItem Text="Transaction" IconCss="e-icons e-chart">
-							<MenuItems>
-								<MenuItem Text="Edit (Insert)" IconCss="e-icons e-edit" Id="EditSelected"
-										  Disabled="@_isProcessing" />
-								<MenuItem Text="Delete (Del)" IconCss="e-icons e-trash" Id="DeleteSelected"
-										  Disabled="@_isProcessing" />
-							</MenuItems>
-						</MenuItem>
-					</MenuItems>
-				</SfMenu>
+				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="New (Ctrl + N)" OnClick="ResetPage" />
+					<MudBlazor.MudMenuItem Label="Save (Ctrl + S)" OnClick="SaveTransaction" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Export Excel (Ctrl + E)" OnClick="() => ExportMaster(true)" />
+					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportMaster()" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Transaction" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Edit (Insert)" OnClick="EditSelectedItem" />
+					<MudBlazor.MudMenuItem Label="Delete (Del)" OnClick="DeleteSelectedItem" />
+				</MudBlazor.MudMenu>
 			</LeftContent>
-			<RightContent>
-				<IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="NavigateBack" />
-			</RightContent>
 		</Header>
 
-		<!-- Main Content Container -->
 		<div class="page-container">
-
-			<!-- Product Location Entry Section -->
 			<div class="section-card">
 				<div class="section-header">
 					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-							 stroke-linejoin="round">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 							<path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
 						</svg>
 						<h2 class="section-title">Product Location Details</h2>
@@ -73,50 +50,45 @@ else
 				</div>
 				<div class="section-body">
 					<div class="form-grid">
-						<!-- Location -->
 						<div class="form-field">
-							<label class="field-label">Location <span class="required">*</span></label>
-							<SfAutoComplete @bind-Value="_selectedLocationName" TValue="string" TItem="LocationModel"
-											Placeholder="Select location" DataSource="@_locations" PopupHeight="300px"
-											CssClass="custom-autocomplete" AllowFiltering="true"
-											FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
-								<AutoCompleteFieldSettings Value="Name"></AutoCompleteFieldSettings>
-								<AutoCompleteEvents TValue="string" TItem="LocationModel" ValueChange="OnLocationChange">
-								</AutoCompleteEvents>
-							</SfAutoComplete>
+							<CustomAutoComplete @ref="_sfFirstFocus"
+												T="LocationModel"
+												@bind-Value="_selectedLocation"
+												@bind-Value:after="OnLocationChanged"
+												DataSource="@_locations"
+												Placeholder="Select location"
+												Label="Location (Ctrl + F)"
+												FieldValue="@nameof(LocationModel.Name)" />
 						</div>
 
-						<!-- Product -->
 						<div class="form-field">
-							<label class="field-label">Product <span class="required">*</span></label>
-							<SfAutoComplete @bind-Value="_selectedProductName" TValue="string" TItem="ProductModel"
-											Placeholder="Select product" DataSource="@_products" PopupHeight="300px"
-											CssClass="custom-autocomplete" AllowFiltering="true"
-											FilterType="Syncfusion.Blazor.DropDowns.FilterType.Contains">
-								<AutoCompleteFieldSettings Value="Name"></AutoCompleteFieldSettings>
-								<AutoCompleteEvents TValue="string" TItem="ProductModel" ValueChange="OnProductChange">
-								</AutoCompleteEvents>
-							</SfAutoComplete>
+							<CustomAutoComplete T="ProductModel"
+												@bind-Value="_selectedProduct"
+												@bind-Value:after="OnProductChanged"
+												DataSource="@_products"
+												Placeholder="Select product"
+												Label="Product"
+												FieldValue="@nameof(ProductModel.Name)"
+												AddNewRoute="@StoreRouteNames.Product" />
 						</div>
 
-						<!-- Rate -->
 						<div class="form-field">
-							<label class="field-label">Rate <span class="required">*</span></label>
-							<SfNumericTextBox @bind-Value="_productLocation.Rate" TValue="decimal" Placeholder="0.00"
-											  CssClass="custom-textbox" Format="N2" Decimals="2" Min="0" ShowSpinButton="false">
-							</SfNumericTextBox>
+							<CustomNumericField T="decimal"
+												@bind-Value="_productLocation.Rate"
+												Label="Rate"
+												Placeholder="Enter rate"
+												Format="N2"
+												Min="0" />
 						</div>
 					</div>
 				</div>
 			</div>
 
-			<!-- Product Location List Section -->
 			<div class="section-card">
 				<div class="section-header">
 					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-							 stroke-linejoin="round">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 							<path d="M9 11l3 3L22 4" />
 							<path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
 						</svg>
@@ -124,29 +96,13 @@ else
 					</div>
 				</div>
 				<div class="section-body grid-body">
-					<SfGrid @ref="_sfGrid" DataSource="@_productLocationOverviews" AllowPaging="true" AllowSorting="true"
-							AllowFiltering="true" AllowResizing="true" CssClass="professional-grid"
-							Toolbar="@(new List<string>() { "Search" })" ContextMenuItems="@_productLocationGridContextMenuItems">
+					<SfGrid @ref="_sfGrid" DataSource="@_productLocationOverviews" AllowPaging="true" AllowSorting="true" AllowFiltering="true"
+							AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })" ContextMenuItems="@_gridContextMenuItems">
 						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
-						<GridEvents TValue="ProductLocationOverviewModel" ContextMenuItemClicked="OnProductLocationGridContextMenuItemClicked" />
+						<GridEvents TValue="ProductLocationOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
 						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 						<GridColumns>
-							<GridColumn HeaderText="Actions" Width="120" TextAlign="TextAlign.Center" AllowFiltering="false">
-								<Template>
-									@{
-										var productLocation = (context as ProductLocationOverviewModel);
-
-										<div class="grid-actions">
-											<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete"
-														Size="ButtonSize.Grid" Title="Remove Location" Disabled="_isProcessing"
-														OnClick="@(() => DeleteSelectedItem(productLocation.Id))" />
-										</div>
-									}
-								</Template>
-							</GridColumn>
-
-							<GridColumn Field="@nameof(ProductLocationOverviewModel.Id)" HeaderText="ID" Width="80"
-										TextAlign="TextAlign.Center" />
+							<GridColumn Field="@nameof(ProductLocationOverviewModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" />
 							<GridColumn HeaderText="Location" Width="150">
 								<Template>
 									@{
@@ -156,12 +112,9 @@ else
 									}
 								</Template>
 							</GridColumn>
-							<GridColumn Field="@nameof(ProductLocationOverviewModel.Code)" HeaderText="Product Code"
-										Width="150" />
-							<GridColumn Field="@nameof(ProductLocationOverviewModel.Name)" HeaderText="Product Name"
-										Width="200" />
-							<GridColumn Field="@nameof(ProductLocationOverviewModel.Rate)" HeaderText="Rate" Width="120"
-										TextAlign="TextAlign.Right" Format="N2" />
+							<GridColumn Field="@nameof(ProductLocationOverviewModel.Code)" HeaderText="Product Code" Width="150" />
+							<GridColumn Field="@nameof(ProductLocationOverviewModel.Name)" HeaderText="Product Name" Width="200" />
+							<GridColumn Field="@nameof(ProductLocationOverviewModel.Rate)" HeaderText="Rate" Width="120" TextAlign="TextAlign.Right" Format="N2" />
 						</GridColumns>
 					</SfGrid>
 				</div>
@@ -172,8 +125,9 @@ else
 	</div>
 }
 
-<DeleteConfirmationDialog @ref="_deleteConfirmationDialog" EntityName="Product Location" IdentifierLabel="Name"
-						  IdentifierValue="@_deleteProductLocationName" IsPermanentDelete="true" Disabled="@_isProcessing"
-						  OnConfirm="ConfirmDelete" OnCancel="CancelDelete" />
+<ConfirmationDialog @ref="_confirmationDialog" Title="@_confirmTitle" Message="@_confirmMessage"
+					OnConfirm="OnConfirmed" OnCancel="OnCancelled" />
 
 <ToastNotification @ref="_toastNotification" />
+
+<CloseGuard Block="_isProcessing" />

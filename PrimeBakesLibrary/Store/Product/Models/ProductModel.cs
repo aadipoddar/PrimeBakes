@@ -1,30 +1,14 @@
-﻿namespace PrimeBakesLibrary.Store.Product.Models;
+namespace PrimeBakesLibrary.Store.Product.Models;
 
 public class ProductModel
 {
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public string Code { get; set; }
-    public int ProductCategoryId { get; set; }
-    public int KOTCategoryId { get; set; }
-    public decimal Rate { get; set; }
-    public int TaxId { get; set; }
-    public string? Remarks { get; set; }
-    public bool Status { get; set; }
-}
-
-public class ProductCategoryModel
-{
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public string? Remarks { get; set; }
-    public bool Status { get; set; }
-}
-
-public class KOTCategoryModel
-{
 	public int Id { get; set; }
 	public string Name { get; set; }
+	public string Code { get; set; }
+	public int ProductCategoryId { get; set; }
+	public int KOTCategoryId { get; set; }
+	public decimal Rate { get; set; }
+	public int TaxId { get; set; }
 	public string? Remarks { get; set; }
 	public bool Status { get; set; }
 }

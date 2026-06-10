@@ -4,205 +4,164 @@
 
 <PageTitle>Tax Management - Prime Bakes</PageTitle>
 
-<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" />
-<MudBlazor.MudHotkey Key=JsKey.KeyB KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateBack" />
-<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="SaveTax" />
-<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ExportExcel" />
-<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ExportPdf" />
-<MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" />
-<MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="EditSelectedItem" />
-<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="DeleteSelectedItem" />
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfFirstFocus.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="SaveTransaction" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportMaster(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportMaster()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="EditSelectedItem" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="DeleteRecoverSelectedItem" Disabled="@_isProcessing" />
 
-@if (_isLoading)
+@if (_isLoading || _user is null)
 {
-    <LoadingScreen />
+	<LoadingScreen />
 }
 else
 {
-    <div class="page-shell">
-        <Header Title="Tax Management">
-            <LeftContent>
-                <SfMenu TValue="Syncfusion.Blazor.Navigations.MenuItem">
-                    <MenuAnimationSettings Effect="Syncfusion.Blazor.Navigations.MenuEffect.SlideDown" Duration="300"
-                                           Easing="ease" />
-                    <MenuEvents TValue="Syncfusion.Blazor.Navigations.MenuItem" ItemSelected="OnMenuSelected" />
-                    <MenuItems>
-                        <MenuItem Text="File" IconCss="e-icons e-folder">
-                            <MenuItems>
-                                <MenuItem Text="New (Ctrl + N)" IconCss="e-icons e-plus" Id="NewTax"
-                                          Disabled="@_isProcessing" />
-                                <MenuItem Text="Save (Ctrl + S)" IconCss="e-icons e-save" Id="SaveTax"
-                                          Disabled="@_isProcessing" />
-                                <MenuItem Text="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" IconCss="e-icons e-trash"
-                                          Id="ToggleDeleted" Disabled="@_isProcessing" />
-                                <MenuItem Separator="true" />
-                                <MenuItem Text="Export Excel (Ctrl + E)" IconCss="e-icons e-export-excel" Id="ExportExcel"
-                                          Disabled="@_isProcessing" />
-                                <MenuItem Text="Export PDF (Ctrl + P)" IconCss="e-icons e-export-pdf" Id="ExportPdf"
-                                          Disabled="@_isProcessing" />
-                            </MenuItems>
-                        </MenuItem>
-                        <MenuItem Text="Transaction" IconCss="e-icons e-chart">
-                            <MenuItems>
-                                <MenuItem Text="Edit (Insert)" IconCss="e-icons e-edit" Id="EditSelected"
-                                          Disabled="@_isProcessing" />
-                                <MenuItem Text="Delete / Recover (Del)" IconCss="e-icons e-trash" Id="DeleteRecoverSelected"
-                                          Disabled="@_isProcessing" />
-                            </MenuItems>
-                        </MenuItem>
-                    </MenuItems>
-                </SfMenu>
-            </LeftContent>
-            <RightContent>
-                <IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="NavigateBack" />
-            </RightContent>
-        </Header>
+	<div class="page-shell">
+		<Header Title="Tax Management">
+			<LeftContent>
+				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="New (Ctrl + N)" OnClick="ResetPage" />
+					<MudBlazor.MudMenuItem Label="Save (Ctrl + S)" OnClick="SaveTransaction" />
+					<MudBlazor.MudMenuItem Label="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" OnClick="ToggleDeleted" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Export Excel (Ctrl + E)" OnClick="() => ExportMaster(true)" />
+					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportMaster()" />
+				</MudBlazor.MudMenu>
 
-        <!-- Main Content Container -->
-        <div class="page-container">
+				<MudBlazor.MudMenu Label="Transaction" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Edit (Insert)" OnClick="EditSelectedItem" />
+					<MudBlazor.MudMenuItem Label="Delete / Recover (Del)" OnClick="DeleteRecoverSelectedItem" />
+				</MudBlazor.MudMenu>
+			</LeftContent>
+		</Header>
 
-            <!-- Tax Entry Section -->
-            <div class="section-card">
-                <div class="section-header">
-                    <div class="section-title-wrapper">
-                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                             stroke-linejoin="round">
-                            <path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
-                        </svg>
-                        <h2 class="section-title">Tax Details</h2>
-                    </div>
-                </div>
-                <div class="section-body">
-                    <div class="form-grid">
-                        <div class="form-field">
-                            <label class="field-label">
-                                Tax Code <span class="required">*</span>
-                            </label>
-                            <SfTextBox @bind-Value="_tax.Code" Placeholder="Enter tax code"
-                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                        </div>
+		<div class="page-container">
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
+						</svg>
+						<h2 class="section-title">Tax Details</h2>
+					</div>
+				</div>
+				<div class="section-body">
+					<div class="form-grid">
+						<div class="form-field">
+							<CustomTextField @ref="_sfFirstFocus"
+											 @bind-Value="_tax.Code"
+											 Label="Tax Code (Ctrl + F)"
+											 Placeholder="Enter tax code" />
+						</div>
 
-                        <div class="form-field">
-                            <label class="field-label">Tax Type (Select one only)</label>
-                            <div class="d-flex gap-2">
-                                <div class="checkbox-wrapper">
-                                    <SfCheckBox @bind-Checked="_tax.Inclusive" Label="Inclusive"
-                                                CssClass="custom-checkbox" />
-                                </div>
-                                <div class="checkbox-wrapper">
-                                    <SfCheckBox @bind-Checked="_tax.Extra" Label="Extra" CssClass="custom-checkbox" />
-                                </div>
-                            </div>
-                        </div>
+						<div class="form-field">
+							<div class="checkbox-wrapper">
+								<CustomCheckBox @bind-Value="_tax.Inclusive"
+												Label="Inclusive"
+												AriaLabel="Tax is inclusive" />
+							</div>
+						</div>
 
-                        <div class="form-field">
-                            <label class="field-label">CGST %</label>
-                            <SfNumericTextBox @bind-Value="_tax.CGST" Placeholder="Enter CGST percentage" Format="N2"
-                                              FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" TValue="decimal" Min="0"
-                                              Max="100" />
-                        </div>
+						<div class="form-field">
+							<div class="checkbox-wrapper">
+								<CustomCheckBox @bind-Value="_tax.Extra"
+												Label="Extra"
+												AriaLabel="Tax is extra" />
+							</div>
+						</div>
 
-                        <div class="form-field">
-                            <label class="field-label">SGST %</label>
-                            <SfNumericTextBox @bind-Value="_tax.SGST" Placeholder="Enter SGST percentage" Format="N2"
-                                              FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" TValue="decimal" Min="0"
-                                              Max="100" />
-                        </div>
+						<div class="form-field">
+							<CustomNumericField T="decimal"
+												@bind-Value="_tax.CGST"
+												Label="CGST %"
+												Placeholder="Enter CGST percentage"
+												Format="N2"
+												Min="0"
+												Max="100" />
+						</div>
 
-                        <div class="form-field">
-                            <label class="field-label">IGST %</label>
-                            <SfNumericTextBox @bind-Value="_tax.IGST" Placeholder="Enter IGST percentage" Format="N2"
-                                              FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" TValue="decimal" Min="0"
-                                              Max="100" />
-                        </div>
+						<div class="form-field">
+							<CustomNumericField T="decimal"
+												@bind-Value="_tax.SGST"
+												Label="SGST %"
+												Placeholder="Enter SGST percentage"
+												Format="N2"
+												Min="0"
+												Max="100" />
+						</div>
 
-                        <div class="form-field">
-                            <label class="field-label">Remarks</label>
-                            <SfTextBox @bind-Value="_tax.Remarks" Placeholder="Enter remarks (optional)" Multiline="true"
-                                       FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
-                        </div>
-                    </div>
-                </div>
-            </div>
+						<div class="form-field">
+							<CustomNumericField T="decimal"
+												@bind-Value="_tax.IGST"
+												Label="IGST %"
+												Placeholder="Enter IGST percentage"
+												Format="N2"
+												Min="0"
+												Max="100" />
+						</div>
 
-            <!-- Tax List Section -->
-            <div class="section-card">
-                <div class="section-header">
-                    <div class="section-title-wrapper">
-                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                             stroke-linejoin="round">
-                            <path d="M9 11l3 3L22 4" />
-                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-                        </svg>
-                        <h2 class="section-title">Taxes List</h2>
-                    </div>
-                </div>
-                <div class="section-body grid-body">
-                    <SfGrid @ref="_sfGrid" DataSource="@_taxes" AllowPaging="true" AllowSorting="true" AllowFiltering="true"
-                            AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })" ContextMenuItems="@_taxGridContextMenuItems">
-                        <GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
-                        <GridEvents TValue="TaxModel" ContextMenuItemClicked="OnTaxGridContextMenuItemClicked" />
-                        <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
-                        <GridColumns>
-                            <GridColumn Field="@nameof(TaxModel.Id)" HeaderText="ID" Width="80"
-                                        TextAlign="TextAlign.Center" />
-                            <GridColumn Field="@nameof(TaxModel.Code)" HeaderText="Tax Code" Width="150" />
-                            <GridColumn Field="@nameof(TaxModel.CGST)" HeaderText="CGST %" Width="100"
-                                        TextAlign="TextAlign.Right" Format="N2" />
-                            <GridColumn Field="@nameof(TaxModel.SGST)" HeaderText="SGST %" Width="100"
-                                        TextAlign="TextAlign.Right" Format="N2" />
-                            <GridColumn Field="@nameof(TaxModel.IGST)" HeaderText="IGST %" Width="100"
-                                        TextAlign="TextAlign.Right" Format="N2" />
-                            <GridColumn Field="@nameof(TaxModel.Inclusive)" HeaderText="Inclusive" Width="120"
-                                        TextAlign="TextAlign.Center">
-                                <Template>
-                                    @{
-                                        var tax = (context as TaxModel);
-                                        <div class="grid-checkbox"
-                                             style="@(tax.Inclusive ? "color: #10b981; background: #d1fae5;" : "color: #64748b; background: #f1f5f9;")">
-                                            @(tax.Inclusive ? "✓" : "✗")
-                                        </div>
-                                    }
-                                </Template>
-                            </GridColumn>
-                            <GridColumn Field="@nameof(TaxModel.Extra)" HeaderText="Extra" Width="100"
-                                        TextAlign="TextAlign.Center">
-                                <Template>
-                                    @{
-                                        var tax = (context as TaxModel);
-                                        <div class="grid-checkbox"
-                                             style="@(tax.Extra ? "color: #10b981; background: #d1fae5;" : "color: #64748b; background: #f1f5f9;")">
-                                            @(tax.Extra ? "✓" : "✗")
-                                        </div>
-                                    }
-                                </Template>
-                            </GridColumn>
-                            <GridColumn Field="@nameof(TaxModel.Remarks)" HeaderText="Remarks" Width="250" />
-                            <GridColumn Field="@nameof(TaxModel.Status)" HeaderText="Status" Width="110"
-                                        TextAlign="TextAlign.Center" Visible="_showDeleted">
-                                <Template>
-                                    @{
-                                        var tax = (context as TaxModel);
-                                        <span class="@(tax.Status ? string.Empty : "grid-debit")">@(tax.Status ? "Active" : "Deleted")</span>
-                                    }
-                                </Template>
-                            </GridColumn>
-                        </GridColumns>
-                    </SfGrid>
-                </div>
-            </div>
-        </div>
+						<div class="form-field">
+							<CustomTextField @bind-Value="_tax.Remarks"
+											 Label="Remarks"
+											 Placeholder="Enter remarks (optional)"
+											 Required="false"
+											 Lines="2" />
+						</div>
+					</div>
+				</div>
+			</div>
 
-        <Footer />
-    </div>
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M9 11l3 3L22 4" />
+							<path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+						</svg>
+						<h2 class="section-title">Taxes List</h2>
+					</div>
+				</div>
+				<div class="section-body grid-body">
+					<SfGrid @ref="_sfGrid" DataSource="@_taxes" AllowPaging="true" AllowSorting="true" AllowFiltering="true"
+							AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })" ContextMenuItems="@_gridContextMenuItems">
+						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+						<GridEvents TValue="TaxModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+						<GridColumns>
+							<GridColumn Field="@nameof(TaxModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" />
+							<GridColumn Field="@nameof(TaxModel.Code)" HeaderText="Tax Code" Width="150" />
+							<GridColumn Field="@nameof(TaxModel.CGST)" HeaderText="CGST %" Width="100" TextAlign="TextAlign.Right" Format="N2" />
+							<GridColumn Field="@nameof(TaxModel.SGST)" HeaderText="SGST %" Width="100" TextAlign="TextAlign.Right" Format="N2" />
+							<GridColumn Field="@nameof(TaxModel.IGST)" HeaderText="IGST %" Width="100" TextAlign="TextAlign.Right" Format="N2" />
+							<GridColumn Field="@nameof(TaxModel.Inclusive)" HeaderText="Inclusive" Width="120" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
+							<GridColumn Field="@nameof(TaxModel.Extra)" HeaderText="Extra" Width="100" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
+							<GridColumn Field="@nameof(TaxModel.Remarks)" HeaderText="Remarks" Width="250" />
+							<GridColumn Field="@nameof(TaxModel.Status)" HeaderText="Status" Width="110" TextAlign="TextAlign.Center" Visible="_showDeleted">
+								<Template>
+									@{
+										var tax = (context as TaxModel);
+										<span class="@(tax.Status ? string.Empty : "grid-debit")">@(tax.Status ? "Active" : "Deleted")</span>
+									}
+								</Template>
+							</GridColumn>
+						</GridColumns>
+					</SfGrid>
+				</div>
+			</div>
+		</div>
+
+		<Footer />
+	</div>
 }
 
-<DeleteConfirmationDialog @ref="_deleteConfirmationDialog" EntityName="Tax" IdentifierLabel="Tax Code"
-                          IdentifierValue="@_deleteTaxCode" Disabled="@_isProcessing" OnConfirm="ConfirmDelete" OnCancel="CancelDelete" />
-
-<RecoverConfirmationDialog @ref="_recoverConfirmationDialog" EntityName="Tax" IdentifierLabel="Tax Code"
-                           IdentifierValue="@_recoverTaxCode" Disabled="@_isProcessing" OnConfirm="ConfirmRecover" OnCancel="CancelRecover" />
+<ConfirmationDialog @ref="_confirmationDialog" Title="@_confirmTitle" Message="@_confirmMessage"
+					OnConfirm="OnConfirmed" OnCancel="OnCancelled" />
 
 <ToastNotification @ref="_toastNotification" />
+
+<CloseGuard Block="_isProcessing" />

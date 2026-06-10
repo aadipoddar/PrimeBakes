@@ -1,4 +1,5 @@
 using PrimeBakes.Shared.Components.Dialog;
+using PrimeBakes.Shared.Components.Input;
 
 using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Operations.User;
@@ -7,50 +8,46 @@ using PrimeBakesLibrary.Store.Product.Exports;
 using PrimeBakesLibrary.Store.Product.Models;
 using PrimeBakesLibrary.Utils.Exports;
 
-using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;
 
 namespace PrimeBakes.Shared.Pages.Store.Product;
 
 public partial class ProductPage
 {
+	private UserModel _user;
 	private bool _isLoading = true;
 	private bool _isProcessing = false;
 	private bool _showDeleted = false;
 
 	private ProductModel _product = new();
+	private ProductCategoryModel _selectedCategory;
+	private KOTCategoryModel _selectedKOTCategory;
+	private TaxModel _selectedTax;
 
 	private List<ProductModel> _products = [];
 	private List<ProductCategoryModel> _categories = [];
 	private List<KOTCategoryModel> _kotCategories = [];
 	private List<TaxModel> _taxes = [];
 	private List<LocationModel> _locations = [];
-	private readonly List<ContextMenuItemModel> _productGridContextMenuItems =
+	private readonly List<ContextMenuItemModel> _gridContextMenuItems =
 	[
-		new() { Text = "Edit (Insert)", Id = "EditProduct", IconCss = "e-icons e-edit", Target = ".e-content" },
-		new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverProduct", IconCss = "e-icons e-trash", Target = ".e-content" }
+		new() { Text = "Edit (Insert)", Id = "EditSelectedItem", IconCss = "e-icons e-edit", Target = ".e-content" },
+		new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverSelectedItem", IconCss = "e-icons e-trash", Target = ".e-content" }
 	];
 	private readonly List<ContextMenuItemModel> _locationGridContextMenuItems =
 	[
 		new() { Text = "Remove Location (Del)", Id = "RemoveLocation", IconCss = "e-icons e-trash", Target = ".e-content" }
 	];
 
-	private string _selectedCategoryName = string.Empty;
-	private string _selectedKOTCategoryName = string.Empty;
-	private string _selectedTaxCode = string.Empty;
-
 	private SfGrid<ProductModel> _sfGrid;
 	private SfGrid<LocationModel> _sfLocationGrid;
-	private DeleteConfirmationDialog _deleteConfirmationDialog;
-	private RecoverConfirmationDialog _recoverConfirmationDialog;
-
-	private int _deleteProductId = 0;
-	private string _deleteProductName = string.Empty;
-
-	private int _recoverProductId = 0;
-	private string _recoverProductName = string.Empty;
-
+	private CustomTextField _sfFirstFocus;
 	private ToastNotification _toastNotification;
+	private ConfirmationDialog _confirmationDialog;
+
+	private string _confirmTitle = string.Empty;
+	private string _confirmMessage = string.Empty;
+	private Func<Task> _confirmAction;
 
 	#region Load Data
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -58,17 +55,30 @@ public partial class ProductPage
 		if (!firstRender)
 			return;
 
-		await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Admin], true);
-		await LoadData();
+		try
+		{
+			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Store], true);
+			await LoadData();
+		}
+		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
 	}
 
 	private async Task LoadData()
 	{
 		await LoadLocations();
+
 		_products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
-		_categories = await CommonData.LoadTableData<ProductCategoryModel>(StoreNames.ProductCategory);
-		_kotCategories = await CommonData.LoadTableData<KOTCategoryModel>(StoreNames.KOTCategory);
-		_taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
+		_categories = await CommonData.LoadTableDataByStatus<ProductCategoryModel>(StoreNames.ProductCategory);
+		_kotCategories = await CommonData.LoadTableDataByStatus<KOTCategoryModel>(StoreNames.KOTCategory);
+		_taxes = await CommonData.LoadTableDataByStatus<TaxModel>(StoreNames.Tax);
+
+		_categories = [.. _categories.OrderBy(c => c.Name)];
+		_kotCategories = [.. _kotCategories.OrderBy(k => k.Name)];
+		_taxes = [.. _taxes.OrderBy(t => t.Code)];
+
+		_selectedCategory = _categories.FirstOrDefault(c => c.Id == _product.ProductCategoryId);
+		_selectedKOTCategory = _kotCategories.FirstOrDefault(k => k.Id == _product.KOTCategoryId);
+		_selectedTax = _taxes.FirstOrDefault(t => t.Id == _product.TaxId);
 
 		if (!_showDeleted)
 			_products = [.. _products.Where(p => p.Status)];
@@ -78,97 +88,75 @@ public partial class ProductPage
 
 		_isLoading = false;
 		StateHasChanged();
+
+		if (_sfFirstFocus is not null)
+			await _sfFirstFocus.FocusAsync();
 	}
 
 	private async Task LoadLocations()
 	{
-		try
-		{
-			_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
-			_locations = [.. _locations.OrderBy(s => s.Name)];
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("An Error Occurred While Loading Locations", ex.Message, ToastType.Error);
-		}
-		finally
-		{
-			if (_sfLocationGrid is not null)
-				await _sfLocationGrid.Refresh();
-		}
+		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
+		_locations = [.. _locations.OrderBy(l => l.Name)];
+
+		if (_sfLocationGrid is not null)
+			await _sfLocationGrid.Refresh();
 	}
 	#endregion
 
-	#region Changed Events
-	private void OnCategoryChange(ChangeEventArgs<string, ProductCategoryModel> args)
+	#region Saving
+	private async Task SaveTransaction()
 	{
-		if (args.ItemData != null)
-		{
-			_product.ProductCategoryId = args.ItemData.Id;
-			_selectedCategoryName = args.ItemData.Name;
-		}
-		else
-		{
-			_product.ProductCategoryId = 0;
-			_selectedCategoryName = string.Empty;
-		}
-	}
+		if (_isProcessing)
+			return;
 
-	private void OnKOTCategoryChange(ChangeEventArgs<string, KOTCategoryModel> args)
-	{
-		if (args.ItemData != null)
+		try
 		{
-			_product.KOTCategoryId = args.ItemData.Id;
-			_selectedKOTCategoryName = args.ItemData.Name;
-		}
-		else
-		{
-			_product.KOTCategoryId = 0;
-			_selectedKOTCategoryName = string.Empty;
-		}
-	}
+			_isProcessing = true;
+			StateHasChanged();
 
-	private void OnTaxChange(ChangeEventArgs<string, TaxModel> args)
-	{
-		if (args.ItemData != null)
-		{
-			_product.TaxId = args.ItemData.Id;
-			_selectedTaxCode = args.ItemData.Code;
+			if (!_user.Admin)
+				throw new Exception("You do not have permission to perform this action.");
+
+			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
+
+			_product.ProductCategoryId = _selectedCategory?.Id ?? 0;
+			_product.KOTCategoryId = _selectedKOTCategory?.Id ?? 0;
+			_product.TaxId = _selectedTax?.Id ?? 0;
+			await ProductData.SaveTransaction(_product, _locations, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+
+			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
+			ResetPage();
 		}
-		else
+		catch (Exception ex)
 		{
-			_product.TaxId = 0;
-			_selectedTaxCode = string.Empty;
+			await _toastNotification.ShowAsync("Error While Saving", ex.Message, ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
 		}
 	}
 	#endregion
 
 	#region Actions
-	private async Task OnEditProduct(ProductModel product)
+	private async Task EditSelectedItem()
 	{
-		_product = new()
+		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
+		if (selectedRecords.Count == 0)
+			return;
+
+		_product = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, selectedRecords[0].Id);
+		if (_product is null)
 		{
-			Id = product.Id,
-			Name = product.Name,
-			Code = product.Code,
-			ProductCategoryId = product.ProductCategoryId,
-			KOTCategoryId = product.KOTCategoryId,
-			Rate = product.Rate,
-			TaxId = product.TaxId,
-			Remarks = product.Remarks,
-			Status = product.Status
-		};
+			await _toastNotification.ShowAsync("Error while Editing", "Transaction Not Found.", ToastType.Error);
+			return;
+		}
 
-		// Set autocomplete values
-		var category = _categories.FirstOrDefault(c => c.Id == product.ProductCategoryId);
-		_selectedCategoryName = category?.Name ?? string.Empty;
+		_selectedCategory = _categories.FirstOrDefault(c => c.Id == _product.ProductCategoryId);
+		_selectedKOTCategory = _kotCategories.FirstOrDefault(k => k.Id == _product.KOTCategoryId);
+		_selectedTax = _taxes.FirstOrDefault(t => t.Id == _product.TaxId);
 
-		var kotCategory = _kotCategories.FirstOrDefault(k => k.Id == product.KOTCategoryId);
-		_selectedKOTCategoryName = kotCategory?.Name ?? string.Empty;
-
-		var tax = _taxes.FirstOrDefault(t => t.Id == product.TaxId);
-		_selectedTaxCode = tax?.Code ?? string.Empty;
-
+		await LoadLocations();
 		var productLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(_product.Id);
 		_locations = [.. _locations.Where(l => productLocations.Any(pl => pl.LocationId == l.Id))];
 
@@ -176,174 +164,80 @@ public partial class ProductPage
 			await _sfLocationGrid.Refresh();
 
 		StateHasChanged();
+		await _sfFirstFocus.FocusAsync();
 	}
 
-	private async Task ConfirmDelete()
+	private async Task DeleteRecoverTransaction(int id, bool isRecover)
 	{
 		try
 		{
-			_isProcessing = true;
-			await _deleteConfirmationDialog.HideAsync();
+			if (!_user.Admin)
+				throw new Exception("You do not have permission to perform this action.");
 
-			var product = _products.FirstOrDefault(p => p.Id == _deleteProductId);
-			if (product == null)
-			{
-				await _toastNotification.ShowAsync("Error", "Product not found.", ToastType.Error);
-				return;
-			}
-
-			await ProductData.DeleteProduct(product);
-
-			await _toastNotification.ShowAsync("Deleted", $"Product '{product.Name}' removed successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(StoreRouteNames.Product, true);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"Failed to delete product: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			_deleteProductId = 0;
-			_deleteProductName = string.Empty;
-		}
-	}
-
-	private async Task ConfirmRecover()
-	{
-		try
-		{
-			_isProcessing = true;
-			await _recoverConfirmationDialog.HideAsync();
-
-			var product = _products.FirstOrDefault(p => p.Id == _recoverProductId);
-			if (product == null)
-			{
-				await _toastNotification.ShowAsync("Error", "Product not found.", ToastType.Error);
-				return;
-			}
-
-			product.Status = true;
-			await ProductData.InsertProduct(product);
-
-			await _toastNotification.ShowAsync("Recovered", $"Product '{product.Name}' restored successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(StoreRouteNames.Product, true);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"Failed to recover product: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			_recoverProductId = 0;
-			_recoverProductName = string.Empty;
-		}
-	}
-	#endregion
-
-	#region Saving
-	private async Task<bool> ValidateForm()
-	{
-		_product.Name = _product.Name?.Trim() ?? "";
-		_product.Code = _product.Code?.Trim() ?? "";
-		_product.Remarks = _product.Remarks?.Trim() ?? "";
-
-		_product.Code = _product.Code?.ToUpper() ?? "";
-
-		_product.Status = true;
-
-		if (string.IsNullOrWhiteSpace(_product.Name))
-		{
-			await _toastNotification.ShowAsync("Validation", "Product name is required.", ToastType.Warning);
-			return false;
-		}
-
-		if (_product.ProductCategoryId <= 0)
-		{
-			await _toastNotification.ShowAsync("Validation", "Please select a category.", ToastType.Warning);
-			return false;
-		}
-
-		if (_product.KOTCategoryId <= 0)
-		{
-			await _toastNotification.ShowAsync("Validation", "Please select a KOT category.", ToastType.Warning);
-			return false;
-		}
-
-		if (_product.Rate < 0)
-		{
-			await _toastNotification.ShowAsync("Validation", "Rate must be 0 or greater.", ToastType.Warning);
-			return false;
-		}
-
-		if (_product.TaxId <= 0)
-		{
-			await _toastNotification.ShowAsync("Validation", "Please select a tax.", ToastType.Warning);
-			return false;
-		}
-
-		if (string.IsNullOrWhiteSpace(_product.Remarks))
-			_product.Remarks = null;
-
-		if (_product.Id > 0)
-		{
-			var existingByName = _products.FirstOrDefault(p => p.Id != _product.Id && p.Name.Equals(_product.Name, StringComparison.OrdinalIgnoreCase));
-			if (existingByName is not null)
-			{
-				await _toastNotification.ShowAsync("Validation", $"Product name '{_product.Name}' already exists.", ToastType.Warning);
-				return false;
-			}
-		}
-		else
-		{
-			var existingByName = _products.FirstOrDefault(p => p.Name.Equals(_product.Name, StringComparison.OrdinalIgnoreCase));
-			if (existingByName is not null)
-			{
-				await _toastNotification.ShowAsync("Validation", $"Product name '{_product.Name}' already exists.", ToastType.Warning);
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	private async Task SaveProduct()
-	{
-		if (_isProcessing)
-			return;
-
-		try
-		{
 			_isProcessing = true;
 			StateHasChanged();
 
-			if (!await ValidateForm())
-			{
-				_isProcessing = false;
-				return;
-			}
+			await _toastNotification.ShowAsync("Processing", $"{(isRecover ? "Recovering" : "Deleting")} transaction...", ToastType.Info);
 
-			await _toastNotification.ShowAsync("Saving", "Processing product...", ToastType.Info);
+			var product = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, id)
+				?? throw new Exception("Transaction not found.");
 
-			_product.Id = await ProductData.SaveProduct(_product, _locations);
+			if (isRecover) await ProductData.RecoverTransaction(product, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+			else await ProductData.DeleteTransaction(product, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
 
-			await _toastNotification.ShowAsync("Saved", $"Product '{_product.Name}' saved successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(StoreRouteNames.Product, true);
+			await _toastNotification.ShowAsync("Success", $"Transaction {product.Name} has been {(isRecover ? "recovered" : "deleted")} successfully.", ToastType.Success);
+			ResetPage();
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("Error", $"Failed to save product: {ex.Message}", ToastType.Error);
+			await _toastNotification.ShowAsync("Error", $"An error occurred while {(isRecover ? "recovering" : "deleting")} transaction: {ex.Message}", ToastType.Error);
 		}
 		finally
 		{
 			_isProcessing = false;
+			StateHasChanged();
 		}
+	}
+
+	private async Task DeleteRecoverSelectedItem()
+	{
+		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
+		if (selectedRecords.Count == 0)
+			return;
+
+		var record = selectedRecords[0];
+
+		await ShowConfirmation(record.Status ? "Delete" : "Recover",
+			$"Are you sure you want to {(record.Status ? "delete" : "recover")} transaction {record.Name}",
+			() => DeleteRecoverTransaction(record.Id, !record.Status));
+	}
+
+	private async Task ShowConfirmation(string title, string message, Func<Task> action)
+	{
+		_confirmTitle = title;
+		_confirmMessage = message;
+		_confirmAction = action;
+		StateHasChanged();
+		await _confirmationDialog.ShowAsync();
+	}
+
+	private async Task OnConfirmed()
+	{
+		await _confirmationDialog.HideAsync();
+		if (_confirmAction is not null)
+			await _confirmAction();
+		_confirmAction = null;
+	}
+
+	private async Task OnCancelled()
+	{
+		_confirmAction = null;
+		await _confirmationDialog.HideAsync();
 	}
 	#endregion
 
 	#region Exporting
-	private async Task ExportExcel()
+	private async Task ExportMaster(bool isExcel = false)
 	{
 		if (_isProcessing)
 			return;
@@ -352,43 +246,16 @@ public partial class ProductPage
 		{
 			_isProcessing = true;
 			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Exporting to Excel...", ToastType.Info);
+			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var (stream, fileName) = await ProductExport.ExportMaster(_products, ReportExportType.Excel);
+			var (stream, fileName) = await ProductExport.ExportMaster(_products, isExcel ? ReportExportType.Excel : ReportExportType.PDF);
 			await SaveAndViewService.SaveAndView(fileName, stream);
 
-			await _toastNotification.ShowAsync("Success", "Product data exported to Excel successfully.", ToastType.Success);
+			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("Error", $"Excel export failed: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			StateHasChanged();
-		}
-	}
-
-	private async Task ExportPdf()
-	{
-		if (_isProcessing)
-			return;
-
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Exporting to PDF...", ToastType.Info);
-
-			var (stream, fileName) = await ProductExport.ExportMaster(_products, ReportExportType.PDF);
-			await SaveAndViewService.SaveAndView(fileName, stream);
-
-			await _toastNotification.ShowAsync("Success", "Product data exported to PDF successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"PDF export failed: {ex.Message}", ToastType.Error);
+			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
 		}
 		finally
 		{
@@ -398,169 +265,38 @@ public partial class ProductPage
 	}
 	#endregion
 
+	#region Locations
+	private async Task ClearAllLocations()
+	{
+		_locations = [];
+		if (_sfLocationGrid is not null)
+			await _sfLocationGrid.Refresh();
+	}
+
+	private async Task RemoveLocation(LocationModel location)
+	{
+		_locations.Remove(_locations.FirstOrDefault(l => l.Id == location.Id));
+		if (_sfLocationGrid is not null)
+			await _sfLocationGrid.Refresh();
+	}
+	#endregion
+
 	#region Utilities
-	private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+	private async Task OnGridContextMenuItemClicked(ContextMenuClickEventArgs<ProductModel> args)
 	{
 		switch (args.Item.Id)
 		{
-			case "NewProduct":
-				ResetPage();
-				break;
-			case "SaveProduct":
-				await SaveProduct();
-				break;
-			case "ToggleDeleted":
-				await ToggleDeleted();
-				break;
-			case "ExportExcel":
-				await ExportExcel();
-				break;
-			case "ExportPdf":
-				await ExportPdf();
-				break;
-			case "EditSelected":
-				await EditSelectedItem();
-				break;
-			case "DeleteRecoverSelected":
-				await DeleteSelectedItem();
-				break;
-			case "ShowAllLocations":
-				await LoadLocations();
-				break;
-			case "ClearAllLocations":
-				await RemoveAllLocations();
-				break;
-			case "RemoveSelectedLocation":
-				await RemoveSelectedLocation();
-				break;
+			case "EditSelectedItem": await EditSelectedItem(); break;
+			case "DeleteRecoverSelectedItem": await DeleteRecoverSelectedItem(); break;
 		}
-	}
-
-	private async Task OnProductGridContextMenuItemClicked(ContextMenuClickEventArgs<ProductModel> args)
-	{
-		switch (args.Item.Id)
-		{
-			case "EditProduct":
-				await EditSelectedItem();
-				break;
-			case "DeleteRecoverProduct":
-				await DeleteSelectedItem();
-				break;
-		}
-	}
-
-	private async Task OnLocationGridContextMenuItemClicked(ContextMenuClickEventArgs<LocationModel> args)
-	{
-		if (args.Item.Id == "RemoveLocation")
-			await RemoveSelectedLocation();
-	}
-
-	private async Task RemoveSelectedLocation()
-	{
-		var selectedRecords = await _sfLocationGrid.GetSelectedRecordsAsync();
-		if (selectedRecords.Count > 0)
-			await RemoveLocation(selectedRecords[0].Id);
-	}
-
-	private async Task EditSelectedItem()
-	{
-		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
-		if (selectedRecords.Count > 0)
-			await OnEditProduct(selectedRecords[0]);
-	}
-
-	private async Task DeleteSelectedItem()
-	{
-		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
-		if (selectedRecords.Count > 0)
-		{
-			if (selectedRecords[0].Status)
-				await ShowDeleteConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
-			else
-				await ShowRecoverConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
-		}
-	}
-
-	private async Task ShowDeleteConfirmation(int id, string name)
-	{
-		_deleteProductId = id;
-		_deleteProductName = name;
-		await _deleteConfirmationDialog.ShowAsync();
-	}
-
-	private async Task CancelDelete()
-	{
-		_deleteProductId = 0;
-		_deleteProductName = string.Empty;
-		await _deleteConfirmationDialog.HideAsync();
-	}
-
-	private async Task ShowRecoverConfirmation(int id, string name)
-	{
-		_recoverProductId = id;
-		_recoverProductName = name;
-		await _recoverConfirmationDialog.ShowAsync();
-	}
-
-	private async Task CancelRecover()
-	{
-		_recoverProductId = 0;
-		_recoverProductName = string.Empty;
-		await _recoverConfirmationDialog.HideAsync();
 	}
 
 	private async Task ToggleDeleted()
 	{
 		_showDeleted = !_showDeleted;
 		await LoadData();
-		StateHasChanged();
 	}
 
-	private async Task RemoveLocation(int locationId)
-	{
-		try
-		{
-			_isProcessing = true;
-
-			_locations.Remove(_locations.FirstOrDefault(l => l.Id == locationId));
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"Failed to remove location: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			if (_sfLocationGrid is not null)
-				await _sfLocationGrid.Refresh();
-
-			_isProcessing = false;
-		}
-	}
-
-	private async Task RemoveAllLocations()
-	{
-		try
-		{
-			_isProcessing = true;
-			_locations.Clear();
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"Failed to remove locations: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			if (_sfLocationGrid is not null)
-				await _sfLocationGrid.Refresh();
-
-			_isProcessing = false;
-		}
-	}
-
-	private void ResetPage() =>
-		NavigationManager.NavigateTo(StoreRouteNames.Product, true);
-
-	private void NavigateBack() =>
-		NavigationManager.NavigateTo(StoreRouteNames.StoreDashboard);
+	private void ResetPage() => PageRefresh.Request();
 	#endregion
 }

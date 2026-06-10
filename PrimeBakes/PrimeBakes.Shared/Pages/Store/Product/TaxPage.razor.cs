@@ -1,4 +1,5 @@
 using PrimeBakes.Shared.Components.Dialog;
+using PrimeBakes.Shared.Components.Input;
 
 using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Store.Product.Data;
@@ -12,6 +13,7 @@ namespace PrimeBakes.Shared.Pages.Store.Product;
 
 public partial class TaxPage
 {
+	private UserModel _user;
 	private bool _isLoading = true;
 	private bool _isProcessing = false;
 	private bool _showDeleted = false;
@@ -19,23 +21,20 @@ public partial class TaxPage
 	private TaxModel _tax = new();
 
 	private List<TaxModel> _taxes = [];
-	private readonly List<ContextMenuItemModel> _taxGridContextMenuItems =
+	private readonly List<ContextMenuItemModel> _gridContextMenuItems =
 	[
-		new() { Text = "Edit (Insert)", Id = "EditTax", IconCss = "e-icons e-edit", Target = ".e-content" },
-		new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverTax", IconCss = "e-icons e-trash", Target = ".e-content" }
+		new() { Text = "Edit (Insert)", Id = "EditSelectedItem", IconCss = "e-icons e-edit", Target = ".e-content" },
+		new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverSelectedItem", IconCss = "e-icons e-trash", Target = ".e-content" }
 	];
 
 	private SfGrid<TaxModel> _sfGrid;
-	private DeleteConfirmationDialog _deleteConfirmationDialog;
-	private RecoverConfirmationDialog _recoverConfirmationDialog;
-
-	private int _deleteTaxId = 0;
-	private string _deleteTaxCode = string.Empty;
-
-	private int _recoverTaxId = 0;
-	private string _recoverTaxCode = string.Empty;
-
+	private CustomTextField _sfFirstFocus;
 	private ToastNotification _toastNotification;
+	private ConfirmationDialog _confirmationDialog;
+
+	private string _confirmTitle = string.Empty;
+	private string _confirmMessage = string.Empty;
+	private Func<Task> _confirmAction;
 
 	#region Load Data
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -43,8 +42,12 @@ public partial class TaxPage
 		if (!firstRender)
 			return;
 
-		await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Admin], true);
-		await LoadData();
+		try
+		{
+			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Store], true);
+			await LoadData();
+		}
+		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
 	}
 
 	private async Task LoadData()
@@ -59,159 +62,14 @@ public partial class TaxPage
 
 		_isLoading = false;
 		StateHasChanged();
-	}
-	#endregion
 
-	#region Actions
-	private void OnEditTax(TaxModel tax)
-	{
-		_tax = new()
-		{
-			Id = tax.Id,
-			Code = tax.Code,
-			CGST = tax.CGST,
-			SGST = tax.SGST,
-			IGST = tax.IGST,
-			Inclusive = tax.Inclusive,
-			Extra = tax.Extra,
-			Remarks = tax.Remarks,
-			Status = tax.Status
-		};
-
-		StateHasChanged();
-	}
-
-	private async Task ConfirmDelete()
-	{
-		try
-		{
-			_isProcessing = true;
-			await _deleteConfirmationDialog.HideAsync();
-
-			var tax = _taxes.FirstOrDefault(t => t.Id == _deleteTaxId);
-			if (tax == null)
-			{
-				await _toastNotification.ShowAsync("Error", "Tax not found.", ToastType.Error);
-				return;
-			}
-
-			tax.Status = false;
-			await TaxData.InsertTax(tax);
-
-			await _toastNotification.ShowAsync("Deleted", $"Tax '{tax.Code}' has been deleted successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(StoreRouteNames.Tax, true);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"Failed to delete tax: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			_deleteTaxId = 0;
-			_deleteTaxCode = string.Empty;
-		}
-	}
-
-	private async Task ConfirmRecover()
-	{
-		try
-		{
-			_isProcessing = true;
-			await _recoverConfirmationDialog.HideAsync();
-
-			var tax = _taxes.FirstOrDefault(t => t.Id == _recoverTaxId);
-			if (tax == null)
-			{
-				await _toastNotification.ShowAsync("Error", "Tax not found.", ToastType.Error);
-				return;
-			}
-
-			tax.Status = true;
-			await TaxData.InsertTax(tax);
-
-			await _toastNotification.ShowAsync("Recovered", $"Tax '{tax.Code}' has been recovered successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(StoreRouteNames.Tax, true);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"Failed to recover tax: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			_recoverTaxId = 0;
-			_recoverTaxCode = string.Empty;
-		}
+		if (_sfFirstFocus is not null)
+			await _sfFirstFocus.FocusAsync();
 	}
 	#endregion
 
 	#region Saving
-	private async Task<bool> ValidateForm()
-	{
-		_tax.Code = _tax.Code?.Trim() ?? "";
-		_tax.Code = _tax.Code?.ToUpper() ?? "";
-
-		_tax.Remarks = _tax.Remarks?.Trim() ?? "";
-		_tax.Status = true;
-
-		if (string.IsNullOrWhiteSpace(_tax.Code))
-		{
-			await _toastNotification.ShowAsync("Validation", "Tax code is required. Please enter a valid tax code.", ToastType.Warning);
-			return false;
-		}
-
-		if (_tax.CGST is < 0 or > 100)
-		{
-			await _toastNotification.ShowAsync("Validation", "CGST must be between 0 and 100.", ToastType.Warning);
-			return false;
-		}
-
-		if (_tax.SGST is < 0 or > 100)
-		{
-			await _toastNotification.ShowAsync("Validation", "SGST must be between 0 and 100.", ToastType.Warning);
-			return false;
-		}
-
-		if (_tax.IGST is < 0 or > 100)
-		{
-			await _toastNotification.ShowAsync("Validation", "IGST must be between 0 and 100.", ToastType.Warning);
-			return false;
-		}
-
-		// Tax must be either Inclusive or Extra, not both, and not both false
-		if (_tax.Inclusive == _tax.Extra)
-		{
-			await _toastNotification.ShowAsync("Validation", "Tax must be either Inclusive or Extra, but not both and not neither.", ToastType.Warning);
-			return false;
-		}
-
-		if (string.IsNullOrWhiteSpace(_tax.Remarks))
-			_tax.Remarks = null;
-
-		if (_tax.Id > 0)
-		{
-			var existingTax = _taxes.FirstOrDefault(t => t.Id != _tax.Id && t.Code.Equals(_tax.Code, StringComparison.OrdinalIgnoreCase));
-			if (existingTax is not null)
-			{
-				await _toastNotification.ShowAsync("Duplicate", $"Tax code '{_tax.Code}' already exists. Please choose a different code.", ToastType.Warning);
-				return false;
-			}
-		}
-		else
-		{
-			var existingTax = _taxes.FirstOrDefault(t => t.Code.Equals(_tax.Code, StringComparison.OrdinalIgnoreCase));
-			if (existingTax is not null)
-			{
-				await _toastNotification.ShowAsync("Duplicate", $"Tax code '{_tax.Code}' already exists. Please choose a different code.", ToastType.Warning);
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	private async Task SaveTax()
+	private async Task SaveTransaction()
 	{
 		if (_isProcessing)
 			return;
@@ -221,22 +79,19 @@ public partial class TaxPage
 			_isProcessing = true;
 			StateHasChanged();
 
-			if (!await ValidateForm())
-			{
-				_isProcessing = false;
-				return;
-			}
+			if (!_user.Admin)
+				throw new Exception("You do not have permission to perform this action.");
 
-			await _toastNotification.ShowAsync("Processing", "Please wait while the tax is being saved...", ToastType.Info);
+			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			await TaxData.InsertTax(_tax);
+			await TaxData.SaveTransaction(_tax, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
 
-			await _toastNotification.ShowAsync("Saved", $"Tax '{_tax.Code}' has been saved successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(StoreRouteNames.Tax, true);
+			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
+			ResetPage();
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("Error", $"Failed to save tax: {ex.Message}", ToastType.Error);
+			await _toastNotification.ShowAsync("Error While Saving", ex.Message, ToastType.Error);
 		}
 		finally
 		{
@@ -245,26 +100,48 @@ public partial class TaxPage
 	}
 	#endregion
 
-	#region Exporting
-	private async Task ExportExcel()
+	#region Actions
+	private async Task EditSelectedItem()
 	{
-		if (_isProcessing)
+		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
+		if (selectedRecords.Count == 0)
 			return;
 
+		_tax = await CommonData.LoadTableDataById<TaxModel>(StoreNames.Tax, selectedRecords[0].Id);
+		if (_tax is null)
+		{
+			await _toastNotification.ShowAsync("Error while Editing", "Transaction Not Found.", ToastType.Error);
+			return;
+		}
+
+		StateHasChanged();
+		await _sfFirstFocus.FocusAsync();
+	}
+
+	private async Task DeleteRecoverTransaction(int id, bool isRecover)
+	{
 		try
 		{
+			if (!_user.Admin)
+				throw new Exception("You do not have permission to perform this action.");
+
 			_isProcessing = true;
 			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Exporting to Excel...", ToastType.Info);
 
-			var (stream, fileName) = await TaxExport.ExportMaster(_taxes, ReportExportType.Excel);
-			await SaveAndViewService.SaveAndView(fileName, stream);
+			await _toastNotification.ShowAsync("Processing", $"{(isRecover ? "Recovering" : "Deleting")} transaction...", ToastType.Info);
 
-			await _toastNotification.ShowAsync("Success", "Tax data exported to Excel successfully.", ToastType.Success);
+			var tax = await CommonData.LoadTableDataById<TaxModel>(StoreNames.Tax, id)
+				?? throw new Exception("Transaction not found.");
+
+			if (isRecover) await TaxData.RecoverTransaction(tax, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+			else await TaxData.DeleteTransaction(tax, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+
+			await _toastNotification.ShowAsync("Success", $"Transaction {tax.Code} has been {(isRecover ? "recovered" : "deleted")} successfully.", ToastType.Success);
+			ResetPage();
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("Error", $"An error occurred while exporting to Excel: {ex.Message}", ToastType.Error);
+			await _toastNotification.ShowAsync("Error", $"An error occurred while {(isRecover ? "recovering" : "deleting")} transaction: {ex.Message}", ToastType.Error);
 		}
 		finally
 		{
@@ -273,7 +150,45 @@ public partial class TaxPage
 		}
 	}
 
-	private async Task ExportPdf()
+	private async Task DeleteRecoverSelectedItem()
+	{
+		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
+		if (selectedRecords.Count == 0)
+			return;
+
+		var record = selectedRecords[0];
+
+		await ShowConfirmation(record.Status ? "Delete" : "Recover",
+			$"Are you sure you want to {(record.Status ? "delete" : "recover")} transaction {record.Code}",
+			() => DeleteRecoverTransaction(record.Id, !record.Status));
+	}
+
+	private async Task ShowConfirmation(string title, string message, Func<Task> action)
+	{
+		_confirmTitle = title;
+		_confirmMessage = message;
+		_confirmAction = action;
+		StateHasChanged();
+		await _confirmationDialog.ShowAsync();
+	}
+
+	private async Task OnConfirmed()
+	{
+		await _confirmationDialog.HideAsync();
+		if (_confirmAction is not null)
+			await _confirmAction();
+		_confirmAction = null;
+	}
+
+	private async Task OnCancelled()
+	{
+		_confirmAction = null;
+		await _confirmationDialog.HideAsync();
+	}
+	#endregion
+
+	#region Exporting
+	private async Task ExportMaster(bool isExcel = false)
 	{
 		if (_isProcessing)
 			return;
@@ -282,16 +197,16 @@ public partial class TaxPage
 		{
 			_isProcessing = true;
 			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Exporting to PDF...", ToastType.Info);
+			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var (stream, fileName) = await TaxExport.ExportMaster(_taxes, ReportExportType.PDF);
+			var (stream, fileName) = await TaxExport.ExportMaster(_taxes, isExcel ? ReportExportType.Excel : ReportExportType.PDF);
 			await SaveAndViewService.SaveAndView(fileName, stream);
 
-			await _toastNotification.ShowAsync("Success", "Tax data exported to PDF successfully.", ToastType.Success);
+			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("Error", $"An error occurred while exporting to PDF: {ex.Message}", ToastType.Error);
+			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
 		}
 		finally
 		{
@@ -302,105 +217,21 @@ public partial class TaxPage
 	#endregion
 
 	#region Utilities
-	private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+	private async Task OnGridContextMenuItemClicked(ContextMenuClickEventArgs<TaxModel> args)
 	{
 		switch (args.Item.Id)
 		{
-			case "NewTax":
-				ResetPage();
-				break;
-			case "SaveTax":
-				await SaveTax();
-				break;
-			case "ToggleDeleted":
-				await ToggleDeleted();
-				break;
-			case "ExportExcel":
-				await ExportExcel();
-				break;
-			case "ExportPdf":
-				await ExportPdf();
-				break;
-			case "EditSelected":
-				await EditSelectedItem();
-				break;
-			case "DeleteRecoverSelected":
-				await DeleteSelectedItem();
-				break;
+			case "EditSelectedItem": await EditSelectedItem(); break;
+			case "DeleteRecoverSelectedItem": await DeleteRecoverSelectedItem(); break;
 		}
-	}
-
-	private async Task OnTaxGridContextMenuItemClicked(ContextMenuClickEventArgs<TaxModel> args)
-	{
-		switch (args.Item.Id)
-		{
-			case "EditTax":
-				await EditSelectedItem();
-				break;
-			case "DeleteRecoverTax":
-				await DeleteSelectedItem();
-				break;
-		}
-	}
-
-	private async Task EditSelectedItem()
-	{
-		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
-		if (selectedRecords.Count > 0)
-			OnEditTax(selectedRecords[0]);
-	}
-
-	private async Task DeleteSelectedItem()
-	{
-		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
-		if (selectedRecords.Count > 0)
-		{
-			if (selectedRecords[0].Status)
-				await ShowDeleteConfirmation(selectedRecords[0].Id, selectedRecords[0].Code);
-			else
-				await ShowRecoverConfirmation(selectedRecords[0].Id, selectedRecords[0].Code);
-		}
-	}
-
-	private async Task ShowDeleteConfirmation(int id, string code)
-	{
-		_deleteTaxId = id;
-		_deleteTaxCode = code;
-		await _deleteConfirmationDialog.ShowAsync();
-	}
-
-	private async Task CancelDelete()
-	{
-		_deleteTaxId = 0;
-		_deleteTaxCode = string.Empty;
-		await _deleteConfirmationDialog.HideAsync();
-	}
-
-	private async Task ShowRecoverConfirmation(int id, string code)
-	{
-		_recoverTaxId = id;
-		_recoverTaxCode = code;
-		await _recoverConfirmationDialog.ShowAsync();
-	}
-
-	private async Task CancelRecover()
-	{
-		_recoverTaxId = 0;
-		_recoverTaxCode = string.Empty;
-		await _recoverConfirmationDialog.HideAsync();
 	}
 
 	private async Task ToggleDeleted()
 	{
 		_showDeleted = !_showDeleted;
 		await LoadData();
-		StateHasChanged();
 	}
 
-	private void ResetPage() =>
-		NavigationManager.NavigateTo(StoreRouteNames.Tax, true);
-
-	private void NavigateBack() =>
-		NavigationManager.NavigateTo(StoreRouteNames.StoreDashboard);
+	private void ResetPage() => PageRefresh.Request();
 	#endregion
 }

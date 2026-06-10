@@ -592,14 +592,7 @@ else
 							<GridColumn Field="@nameof(PurchaseReturnItemCartModel.IGSTPercent)" HeaderText="IGST %" Width="140" TextAlign="TextAlign.Right" Format="N2" />
 							<GridColumn Field="@nameof(PurchaseReturnItemCartModel.IGSTAmount)" HeaderText="IGST Amt" Width="150" TextAlign="TextAlign.Right" Format="N2" />
 							<GridColumn Field="@nameof(PurchaseReturnItemCartModel.TotalTaxAmount)" HeaderText="Tax Total" Width="150" TextAlign="TextAlign.Right" Format="N2" />
-							<GridColumn Field="@nameof(PurchaseReturnItemCartModel.InclusiveTax)" HeaderText="Tax Incl." Width="150" TextAlign="TextAlign.Center">
-								<Template>
-									@{
-										var item = (context as dynamic);
-										<span class="grid-checkbox">@(item.InclusiveTax ? "✓" : "–")</span>
-									}
-								</Template>
-							</GridColumn>
+							<GridColumn Field="@nameof(PurchaseReturnItemCartModel.InclusiveTax)" HeaderText="Tax Incl." Width="150" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
 							<GridColumn Field="@nameof(PurchaseReturnItemCartModel.Total)" HeaderText="Total" Width="130" TextAlign="TextAlign.Right" Format="N2">
 								<Template>
 									@{

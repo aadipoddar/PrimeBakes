@@ -1,4 +1,5 @@
-﻿using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Operations.AuditTrail;
 using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Store.Product.Models;
 
@@ -7,84 +8,119 @@ namespace PrimeBakesLibrary.Store.Product.Data;
 public static class ProductData
 {
 	public static async Task<int> InsertProduct(ProductModel product, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertProduct, product, sqlDataAccessTransaction)).FirstOrDefault();
+		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertProduct, product, sqlDataAccessTransaction)).FirstOrDefault()
+			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Product.");
 
-	public static async Task<int> InsertProductCategory(ProductCategoryModel productCategory) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertProductCategory, productCategory)).FirstOrDefault();
-
-	public static async Task<int> InsertKOTCategory(KOTCategoryModel kotCategory) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertKOTCategory, kotCategory)).FirstOrDefault();
-
-	public static async Task<int> SaveProduct(ProductModel product, List<LocationModel> locations)
+	private static async Task SyncProductLocations(ProductModel product, List<LocationModel> locations, SqlDataAccessTransaction transaction)
 	{
-		using SqlDataAccessTransaction sqlDataAccessTransaction = new();
-
-		try
-		{
-			sqlDataAccessTransaction.StartTransaction();
-
-			if (product.Id == 0)
-				product.Code = await GenerateCodes.GenerateProductCode(sqlDataAccessTransaction);
-
-			product.Id = await InsertProduct(product, sqlDataAccessTransaction);
-
-			await InsertProductLocations(product, locations, sqlDataAccessTransaction);
-
-			sqlDataAccessTransaction.CommitTransaction();
-		}
-		catch
-		{
-			sqlDataAccessTransaction.RollbackTransaction();
-			throw;
-		}
-
-		return product.Id;
-	}
-
-	private static async Task InsertProductLocations(ProductModel product, List<LocationModel> locations, SqlDataAccessTransaction sqlDataAccessTransaction)
-	{
-		var productLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(product.Id, null, sqlDataAccessTransaction);
+		var productLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(product.Id, null, transaction);
 		productLocations = [.. productLocations.Where(pl => locations.Any(l => l.Id == pl.LocationId))];
 
 		foreach (var location in productLocations)
-			await ProductLocationData.DeleteProductLocationById(location.Id, sqlDataAccessTransaction);
+			await ProductLocationData.DeleteProductLocationById(location.Id, transaction);
 
-		foreach (var productLocation in locations)
-		{
-			var id = await ProductLocationData.InsertProductLocation(new()
+		foreach (var location in locations)
+			await ProductLocationData.InsertProductLocation(new()
 			{
 				Id = 0,
 				Rate = product.Rate,
 				ProductId = product.Id,
-				LocationId = productLocation.Id
-			}, sqlDataAccessTransaction);
-
-			if (id <= 0)
-				throw new InvalidOperationException("Failed to insert product location.");
-		}
+				LocationId = location.Id
+			}, transaction);
 	}
 
-	public static async Task DeleteProduct(ProductModel product)
-	{
-		using SqlDataAccessTransaction sqlDataAccessTransaction = new();
-
-		try
+	public static async Task DeleteTransaction(ProductModel product, int userId, string platform) =>
+		await SqlDataAccessTransaction.Run(async transaction =>
 		{
-			sqlDataAccessTransaction.StartTransaction();
-
 			product.Status = false;
-			await InsertProduct(product, sqlDataAccessTransaction);
+			await InsertProduct(product, transaction);
 
-			var productLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(product.Id, null, sqlDataAccessTransaction);
+			var productLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(product.Id, null, transaction);
 			foreach (var pl in productLocations)
-				await ProductLocationData.DeleteProductLocationById(pl.Id, sqlDataAccessTransaction);
+				await ProductLocationData.DeleteProductLocationById(pl.Id, transaction);
 
-			sqlDataAccessTransaction.CommitTransaction();
-		}
-		catch
+			await AuditTrailData.SaveAuditTrail(new()
+			{
+				Action = AuditTrailActionTypes.Delete.ToString(),
+				TableName = StoreNames.Product,
+				RecordNo = product.Name,
+				CreatedBy = userId,
+				CreatedFromPlatform = platform
+			}, transaction);
+		});
+
+	public static async Task RecoverTransaction(ProductModel product, int userId, string platform) =>
+		await SqlDataAccessTransaction.Run(async transaction =>
 		{
-			sqlDataAccessTransaction.RollbackTransaction();
-			throw;
-		}
+			product.Status = true;
+			await InsertProduct(product, transaction);
+			await AuditTrailData.SaveAuditTrail(new()
+			{
+				Action = AuditTrailActionTypes.Recover.ToString(),
+				TableName = StoreNames.Product,
+				RecordNo = product.Name,
+				CreatedBy = userId,
+				CreatedFromPlatform = platform
+			}, transaction);
+		});
+
+	private static async Task ValidateTransaction(ProductModel item)
+	{
+		item.Name = item.Name?.Trim().ToUpper() ?? string.Empty;
+		item.Code = item.Code?.Trim().ToUpper() ?? string.Empty;
+		item.Remarks = string.IsNullOrWhiteSpace(item.Remarks) ? null : item.Remarks.Trim();
+		item.Status = true;
+
+		if (string.IsNullOrWhiteSpace(item.Name))
+			throw new Exception("Product name is required. Please enter a valid name.");
+
+		if (item.ProductCategoryId <= 0)
+			throw new Exception("Category is required. Please select a category.");
+
+		if (item.KOTCategoryId <= 0)
+			throw new Exception("KOT category is required. Please select a KOT category.");
+
+		if (item.Rate < 0)
+			throw new Exception("Rate must be greater than or equal to 0.");
+
+		if (item.TaxId <= 0)
+			throw new Exception("Tax is required. Please select a tax.");
+
+		var allProducts = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
+
+		var existingByName = allProducts.FirstOrDefault(x => x.Id != item.Id && x.Name.Equals(item.Name, StringComparison.OrdinalIgnoreCase));
+		if (existingByName is not null)
+			throw new Exception($"Product name '{item.Name}' already exists. Please choose a different name.");
+	}
+
+	public static async Task<int> SaveTransaction(ProductModel product, List<LocationModel> locations, int userId, string platform)
+	{
+		await ValidateTransaction(product);
+
+		var isUpdate = product.Id > 0;
+		var previous = isUpdate
+			? await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, product.Id)
+			: null;
+
+		return await SqlDataAccessTransaction.Run(async transaction =>
+		{
+			if (!isUpdate)
+				product.Code = await GenerateCodes.GenerateProductCode(transaction);
+
+			product.Id = await InsertProduct(product, transaction);
+			await SyncProductLocations(product, locations, transaction);
+
+			var diff = AuditTrailData.GetDifference(previous, product);
+			await AuditTrailData.SaveAuditTrail(new()
+			{
+				Action = isUpdate ? AuditTrailActionTypes.Update.ToString() : AuditTrailActionTypes.Insert.ToString(),
+				TableName = StoreNames.Product,
+				RecordNo = product.Name,
+				RecordValue = isUpdate ? diff : null,
+				CreatedBy = userId,
+				CreatedFromPlatform = platform
+			}, transaction);
+			return product.Id;
+		});
 	}
 }

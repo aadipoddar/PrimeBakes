@@ -1,4 +1,5 @@
 using PrimeBakes.Shared.Components.Dialog;
+using PrimeBakes.Shared.Components.Input;
 
 using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Operations.User;
@@ -7,38 +8,38 @@ using PrimeBakesLibrary.Store.Product.Exports;
 using PrimeBakesLibrary.Store.Product.Models;
 using PrimeBakesLibrary.Utils.Exports;
 
-using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;
 
 namespace PrimeBakes.Shared.Pages.Store.Product;
 
 public partial class ProductLocationPage
 {
+	private UserModel _user;
 	private bool _isLoading = true;
 	private bool _isProcessing = false;
 
 	private ProductLocationModel _productLocation = new();
+	private LocationModel _selectedLocation;
+	private ProductModel _selectedProduct;
 
 	private List<ProductLocationModel> _productLocations = [];
 	private List<ProductLocationOverviewModel> _productLocationOverviews = [];
 	private List<LocationModel> _locations = [];
 	private List<ProductModel> _products = [];
-	private readonly List<ContextMenuItemModel> _productLocationGridContextMenuItems =
+	private readonly List<ContextMenuItemModel> _gridContextMenuItems =
 	[
-		new() { Text = "Edit (Insert)", Id = "EditProductLocation", IconCss = "e-icons e-edit", Target = ".e-content" },
-		new() { Text = "Delete (Del)", Id = "DeleteProductLocation", IconCss = "e-icons e-trash", Target = ".e-content" }
+		new() { Text = "Edit (Insert)", Id = "EditSelectedItem", IconCss = "e-icons e-edit", Target = ".e-content" },
+		new() { Text = "Delete (Del)", Id = "DeleteSelectedItem", IconCss = "e-icons e-trash", Target = ".e-content" }
 	];
 
-	private string _selectedLocationName = string.Empty;
-	private string _selectedProductName = string.Empty;
-
 	private SfGrid<ProductLocationOverviewModel> _sfGrid;
-	private DeleteConfirmationDialog _deleteConfirmationDialog;
-
-	private int _deleteProductLocationId = 0;
-	private string _deleteProductLocationName = string.Empty;
-
+	private CustomAutoComplete<LocationModel> _sfFirstFocus;
 	private ToastNotification _toastNotification;
+	private ConfirmationDialog _confirmationDialog;
+
+	private string _confirmTitle = string.Empty;
+	private string _confirmMessage = string.Empty;
+	private Func<Task> _confirmAction;
 
 	#region Load Data
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -46,102 +47,120 @@ public partial class ProductLocationPage
 		if (!firstRender)
 			return;
 
-		await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Admin], true);
-		await LoadData();
+		try
+		{
+			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Store], true);
+			await LoadData();
+		}
+		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
 	}
 
 	private async Task LoadData()
 	{
-		try
-		{
-			_productLocations = await CommonData.LoadTableData<ProductLocationModel>(StoreNames.ProductLocation);
-			_locations = await CommonData.LoadTableData<LocationModel>(OperationNames.Location);
-			_products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
+		_productLocations = await CommonData.LoadTableData<ProductLocationModel>(StoreNames.ProductLocation);
+		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
+		_products = await CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product);
 
-			// Filter active locations and products only
-			_locations = [.. _locations.Where(l => l.Status)];
-			_products = [.. _products.Where(p => p.Status)];
+		_locations = [.. _locations.OrderBy(l => l.Name)];
+		_products = [.. _products.OrderBy(p => p.Name)];
 
-			// If a location is selected, load products for that location
-			if (_productLocation.LocationId > 0)
-				_productLocationOverviews = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _productLocation.LocationId);
-			else
-				_productLocationOverviews = await CommonData.LoadTableData<ProductLocationOverviewModel>(StoreNames.ProductLocationOverview);
+		await LoadOverviews();
 
-			if (_sfGrid is not null)
-				await _sfGrid.Refresh();
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"Failed to load data: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isLoading = false;
-			StateHasChanged();
-		}
+		_isLoading = false;
+		StateHasChanged();
+
+		if (_sfFirstFocus is not null)
+			await _sfFirstFocus.FocusAsync();
+	}
+
+	private async Task LoadOverviews()
+	{
+		if (_productLocation.LocationId > 0)
+			_productLocationOverviews = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _productLocation.LocationId);
+		else
+			_productLocationOverviews = await CommonData.LoadTableData<ProductLocationOverviewModel>(StoreNames.ProductLocationOverview);
+
+		if (_sfGrid is not null)
+			await _sfGrid.Refresh();
 	}
 	#endregion
 
-	#region Change Events
-	private async Task OnLocationChange(ChangeEventArgs<string, LocationModel> args)
+	#region Changed Events
+	private async Task OnLocationChanged()
 	{
-		if (args.ItemData != null)
-		{
-			_productLocation.LocationId = args.ItemData.Id;
-			_selectedLocationName = args.ItemData.Name;
-
-			// Load products for the selected location
-			await LoadData();
-			StateHasChanged();
-		}
-		else
-		{
-			_productLocation.LocationId = 0;
-			_selectedLocationName = string.Empty;
-			_productLocationOverviews = [];
-
-			if (_sfGrid is not null)
-				await _sfGrid.Refresh();
-
-			StateHasChanged();
-		}
+		_productLocation.LocationId = _selectedLocation?.Id ?? 0;
+		await LoadOverviews();
+		StateHasChanged();
 	}
 
-	private void OnProductChange(ChangeEventArgs<string, ProductModel> args)
+	private void OnProductChanged()
 	{
-		if (args.ItemData != null)
+		_productLocation.ProductId = _selectedProduct?.Id ?? 0;
+		if (_selectedProduct is null)
+			return;
+
+		if (_productLocation.LocationId <= 0)
+			return;
+
+		var existing = _productLocations.FirstOrDefault(pl => pl.LocationId == _productLocation.LocationId && pl.ProductId == _productLocation.ProductId);
+		if (existing is not null)
 		{
-			_productLocation.ProductId = args.ItemData.Id;
-			_selectedProductName = args.ItemData.Name;
-			// If a product-location already exists for this location & product, use its stored rate
-			if (_productLocation.LocationId > 0)
-			{
-				var existing = _productLocations.FirstOrDefault(pl => pl.LocationId == _productLocation.LocationId && pl.ProductId == _productLocation.ProductId);
-				if (existing != null)
-				{
-					_productLocation.Id = existing.Id; // prepare for update instead of insert
-					_productLocation.Rate = existing.Rate; // take current persisted rate
-				}
-				else
-				{
-					// No existing row: keep any user-entered rate; if none (0) fall back to product's base rate
-					if (_productLocation.Rate == 0)
-						_productLocation.Rate = args.ItemData.Rate;
-				}
-			}
+			_productLocation.Id = existing.Id;
+			_productLocation.Rate = existing.Rate;
 		}
-		else
+		else if (_productLocation.Rate == 0)
+			_productLocation.Rate = _selectedProduct.Rate;
+	}
+	#endregion
+
+	#region Saving
+	private async Task SaveTransaction()
+	{
+		if (_isProcessing)
+			return;
+
+		try
 		{
-			_productLocation.ProductId = 0;
-			_selectedProductName = string.Empty;
+			_isProcessing = true;
+			StateHasChanged();
+
+			if (!_user.Admin)
+				throw new Exception("You do not have permission to perform this action.");
+
+			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
+
+			_productLocation.LocationId = _selectedLocation?.Id ?? 0;
+			_productLocation.ProductId = _selectedProduct?.Id ?? 0;
+			await ProductLocationData.SaveTransaction(_productLocation, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+
+			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
+			ResetPage();
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error While Saving", ex.Message, ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
 		}
 	}
 	#endregion
 
 	#region Actions
-	private void OnEditProductLocation(ProductLocationModel productLocation)
+	private async Task EditSelectedItem()
 	{
+		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
+		if (selectedRecords.Count == 0)
+			return;
+
+		var productLocation = _productLocations.FirstOrDefault(pl => pl.Id == selectedRecords[0].Id);
+		if (productLocation is null)
+		{
+			await _toastNotification.ShowAsync("Error while Editing", "Transaction Not Found.", ToastType.Error);
+			return;
+		}
+
 		_productLocation = new()
 		{
 			Id = productLocation.Id,
@@ -150,109 +169,80 @@ public partial class ProductLocationPage
 			LocationId = productLocation.LocationId
 		};
 
-		// Set autocomplete values
-		var location = _locations.FirstOrDefault(l => l.Id == productLocation.LocationId);
-		_selectedLocationName = location?.Name ?? string.Empty;
-
-		var product = _products.FirstOrDefault(p => p.Id == productLocation.ProductId);
-		_selectedProductName = product?.Name ?? string.Empty;
+		_selectedLocation = _locations.FirstOrDefault(l => l.Id == productLocation.LocationId);
+		_selectedProduct = _products.FirstOrDefault(p => p.Id == productLocation.ProductId);
 
 		StateHasChanged();
+		await _sfFirstFocus.FocusAsync();
 	}
 
-	private async Task ConfirmDelete()
+	private async Task DeleteTransaction(ProductLocationOverviewModel productLocation)
 	{
-		_isProcessing = true;
-		await _deleteConfirmationDialog.HideAsync();
-		StateHasChanged();
-
 		try
 		{
-			var productLocation = _productLocations.FirstOrDefault(pl => pl.Id == _deleteProductLocationId);
-			if (productLocation != null)
-			{
-				await ProductLocationData.DeleteProductLocationById(productLocation.Id);
+			if (!_user.Admin)
+				throw new Exception("You do not have permission to perform this action.");
 
-				await LoadData();
-				await _toastNotification.ShowAsync("Deleted", "Product location deleted successfully", ToastType.Success);
-			}
+			_isProcessing = true;
+			StateHasChanged();
+
+			await _toastNotification.ShowAsync("Processing", "Deleting transaction...", ToastType.Info);
+
+			await ProductLocationData.DeleteTransaction(productLocation, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+
+			await _toastNotification.ShowAsync("Success", $"Transaction {productLocation.Name} has been deleted successfully.", ToastType.Success);
+			ResetPage();
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("Error", $"Failed to delete product location: {ex.Message}", ToastType.Error);
+			await _toastNotification.ShowAsync("Error", $"An error occurred while deleting transaction: {ex.Message}", ToastType.Error);
 		}
 		finally
 		{
-			_deleteProductLocationId = 0;
-			_deleteProductLocationName = string.Empty;
 			_isProcessing = false;
 			StateHasChanged();
 		}
 	}
-	#endregion
 
-	#region Save
-	private async Task<bool> ValidateForm()
+	private async Task DeleteSelectedItem()
 	{
-		if (_productLocation.LocationId == 0)
-		{
-			await _toastNotification.ShowAsync("Validation", "Please select a location", ToastType.Warning);
-			return false;
-		}
-
-		if (_productLocation.ProductId == 0)
-		{
-			await _toastNotification.ShowAsync("Validation", "Please select a product", ToastType.Warning);
-			return false;
-		}
-
-		if (_productLocation.Rate < 0)
-		{
-			await _toastNotification.ShowAsync("Validation", "Rate must be greater than or equal to 0", ToastType.Warning);
-			return false;
-		}
-
-		return true;
-	}
-
-	private async Task SaveProductLocation()
-	{
-		if (!await ValidateForm())
+		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
+		if (selectedRecords.Count == 0)
 			return;
 
-		_isProcessing = true;
+		var record = selectedRecords[0];
+
+		await ShowConfirmation("Delete",
+			$"Are you sure you want to delete product location {record.Name}",
+			() => DeleteTransaction(record));
+	}
+
+	private async Task ShowConfirmation(string title, string message, Func<Task> action)
+	{
+		_confirmTitle = title;
+		_confirmMessage = message;
+		_confirmAction = action;
 		StateHasChanged();
+		await _confirmationDialog.ShowAsync();
+	}
 
-		try
-		{
-			// If an existing product-location row already exists for this location & product, update it instead of creating a duplicate
-			var existing = _productLocations.FirstOrDefault(pl => pl.LocationId == _productLocation.LocationId && pl.ProductId == _productLocation.ProductId);
-			if (existing != null)
-				_productLocation.Id = existing.Id; // upsert semantics
+	private async Task OnConfirmed()
+	{
+		await _confirmationDialog.HideAsync();
+		if (_confirmAction is not null)
+			await _confirmAction();
+		_confirmAction = null;
+	}
 
-			await ProductLocationData.InsertProductLocation(_productLocation);
-
-			// Reset form
-			_productLocation = new() { LocationId = _productLocation.LocationId };
-			_selectedProductName = string.Empty;
-
-			await LoadData();
-			await _toastNotification.ShowAsync("Saved", "Product location saved successfully", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"Failed to save product location: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			StateHasChanged();
-		}
+	private async Task OnCancelled()
+	{
+		_confirmAction = null;
+		await _confirmationDialog.HideAsync();
 	}
 	#endregion
 
-	#region Export
-	private async Task ExportExcel()
+	#region Exporting
+	private async Task ExportMaster(bool isExcel = false)
 	{
 		if (_isProcessing)
 			return;
@@ -261,43 +251,16 @@ public partial class ProductLocationPage
 		{
 			_isProcessing = true;
 			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating Excel file...", ToastType.Info);
+			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var (stream, fileName) = await ProductLocationExport.ExportMaster(_productLocationOverviews, ReportExportType.Excel);
+			var (stream, fileName) = await ProductLocationExport.ExportMaster(_productLocationOverviews, isExcel ? ReportExportType.Excel : ReportExportType.PDF);
 			await SaveAndViewService.SaveAndView(fileName, stream);
 
-			await _toastNotification.ShowAsync("Success", "Excel file downloaded successfully.", ToastType.Success);
+			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("Error", $"Failed to export to Excel: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			StateHasChanged();
-		}
-	}
-
-	private async Task ExportPdf()
-	{
-		if (_isProcessing)
-			return;
-
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating PDF file...", ToastType.Info);
-
-			var (stream, fileName) = await ProductLocationExport.ExportMaster(_productLocationOverviews, ReportExportType.PDF);
-			await SaveAndViewService.SaveAndView(fileName, stream);
-
-			await _toastNotification.ShowAsync("Success", "PDF file downloaded successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"Failed to export to PDF: {ex.Message}", ToastType.Error);
+			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
 		}
 		finally
 		{
@@ -308,98 +271,15 @@ public partial class ProductLocationPage
 	#endregion
 
 	#region Utilities
-	private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+	private async Task OnGridContextMenuItemClicked(ContextMenuClickEventArgs<ProductLocationOverviewModel> args)
 	{
 		switch (args.Item.Id)
 		{
-			case "NewProductLocation":
-				ResetPage();
-				break;
-			case "SaveProductLocation":
-				await SaveProductLocation();
-				break;
-			case "ExportExcel":
-				await ExportExcel();
-				break;
-			case "ExportPdf":
-				await ExportPdf();
-				break;
-			case "EditSelected":
-				await EditSelectedItem();
-				break;
-			case "DeleteSelected":
-				await DeleteSelectedItem();
-				break;
+			case "EditSelectedItem": await EditSelectedItem(); break;
+			case "DeleteSelectedItem": await DeleteSelectedItem(); break;
 		}
 	}
 
-	private async Task OnProductLocationGridContextMenuItemClicked(ContextMenuClickEventArgs<ProductLocationOverviewModel> args)
-	{
-		switch (args.Item.Id)
-		{
-			case "EditProductLocation":
-				await EditSelectedItem();
-				break;
-			case "DeleteProductLocation":
-				await DeleteSelectedItem();
-				break;
-		}
-	}
-
-	private async Task EditSelectedItem()
-	{
-		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
-		if (selectedRecords.Count > 0)
-		{
-			var productLocation = _productLocations.FirstOrDefault(pl => pl.Id == selectedRecords[0].Id);
-			if (productLocation is not null)
-				OnEditProductLocation(productLocation);
-		}
-	}
-
-	private async Task DeleteSelectedItem(int productLocationId = 0)
-	{
-		if (productLocationId > 0)
-		{
-			var productLocation = _productLocationOverviews.FirstOrDefault(pl => pl.Id == productLocationId);
-			if (productLocation is not null)
-				await ShowDeleteConfirmation(productLocation.Id, productLocation.Name);
-			return;
-		}
-
-		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
-		if (selectedRecords.Count > 0)
-		{
-			var productLocation = _productLocationOverviews.FirstOrDefault(pl => pl.Id == selectedRecords[0].Id);
-			if (productLocation is not null)
-				await ShowDeleteConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
-		}
-	}
-
-	private async Task ShowDeleteConfirmation(int id, string name)
-	{
-		_deleteProductLocationId = id;
-		_deleteProductLocationName = name;
-		await _deleteConfirmationDialog.ShowAsync();
-	}
-
-	private async Task CancelDelete()
-	{
-		_deleteProductLocationId = 0;
-		_deleteProductLocationName = string.Empty;
-		await _deleteConfirmationDialog.HideAsync();
-	}
-
-	private string GetDisplayName(ProductLocationOverviewModel productLocation)
-	{
-		var locationName = _locations.FirstOrDefault(l => l.Id == productLocation.LocationId)?.Name ?? "Unknown";
-		return $"{locationName} - {productLocation.Name}";
-	}
-
-	private void ResetPage() =>
-		 NavigationManager.NavigateTo(StoreRouteNames.ProductLocation, true);
-
-	private void NavigateBack() =>
-		NavigationManager.NavigateTo(StoreRouteNames.StoreDashboard);
+	private void ResetPage() => PageRefresh.Request();
 	#endregion
 }

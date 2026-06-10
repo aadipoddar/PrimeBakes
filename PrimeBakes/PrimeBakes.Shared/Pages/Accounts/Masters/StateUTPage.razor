@@ -98,16 +98,7 @@ else
 							<GridColumn Field="@nameof(StateUTModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" />
 							<GridColumn Field="@nameof(StateUTModel.Name)" HeaderText="State/UT Name" Width="250" />
 							<GridColumn Field="@nameof(StateUTModel.Remarks)" HeaderText="Remarks" Width="300" />
-							<GridColumn Field="@nameof(StateUTModel.UnionTerritory)" HeaderText="Union Territory" Width="150" TextAlign="TextAlign.Center">
-								<Template>
-									@{
-										var item = (context as StateUTModel);
-										<div class="grid-checkbox" style="@(item.UnionTerritory ? "color: #10b981; background: #d1fae5;" : "color: #64748b; background: #f1f5f9;")">
-											@(item.UnionTerritory ? "✓" : "✗")
-										</div>
-									}
-								</Template>
-							</GridColumn>
+							<GridColumn Field="@nameof(StateUTModel.UnionTerritory)" HeaderText="Union Territory" Width="150" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
 							<GridColumn Field="@nameof(StateUTModel.Status)" HeaderText="Status" Width="110" TextAlign="TextAlign.Center" Visible="_showDeleted">
 								<Template>
 									@{

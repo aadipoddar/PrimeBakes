@@ -121,19 +121,8 @@ else
 							<GridColumn Field="@nameof(FinancialYearModel.EndDate)" HeaderText="End Date" Width="150" TextAlign="TextAlign.Center" Format="dd-MMM-yyyy" />
 							<GridColumn Field="@nameof(FinancialYearModel.YearNo)" HeaderText="Year No" Width="100" TextAlign="TextAlign.Center" />
 							<GridColumn Field="@nameof(FinancialYearModel.Remarks)" HeaderText="Remarks" Width="250" />
-							<GridColumn Field="@nameof(FinancialYearModel.Locked)" HeaderText="Locked" Width="100" TextAlign="TextAlign.Center">
-								<Template>
-									@{
-										var item = (context as FinancialYearModel);
-										<div class="grid-checkbox"
-											 style="@(item.Locked ? "color: #f59e0b; background: #fef3c7;" : "color: #64748b; background: #f1f5f9;")">
-											@(item.Locked ? "🔒" : "🔓")
-										</div>
-									}
-								</Template>
-							</GridColumn>
-							<GridColumn Field="@nameof(FinancialYearModel.Status)" HeaderText="Status" Width="110"
-										TextAlign="TextAlign.Center" Visible="_showDeleted">
+							<GridColumn Field="@nameof(FinancialYearModel.Locked)" HeaderText="Locked" Width="100" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
+							<GridColumn Field="@nameof(FinancialYearModel.Status)" HeaderText="Status" Width="110" TextAlign="TextAlign.Center" Visible="_showDeleted">
 								<Template>
 									@{
 										var item = (context as FinancialYearModel);

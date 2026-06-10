@@ -160,21 +160,12 @@ else
 									}
 								</Template>
 							</GridColumn>
-							<GridColumn HeaderText="Permissions" Width="250" AllowFiltering="false">
-								<Template>
-									@{
-										var user = (context as UserModel);
-										var permissions = new List<string>();
-										if (user.Accounts) permissions.Add("Accounts");
-										if (user.Inventory) permissions.Add("Inventory");
-										if (user.Store) permissions.Add("Store");
-										if (user.Restaurant) permissions.Add("Restaurant");
-										if (user.Reports) permissions.Add("Reports");
-										if (user.Admin) permissions.Add("Admin");
-										<span>@string.Join(", ", permissions)</span>
-									}
-								</Template>
-							</GridColumn>
+							<GridColumn Field="@nameof(UserModel.Accounts)" HeaderText="Accounts" Width="100" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
+							<GridColumn Field="@nameof(UserModel.Inventory)" HeaderText="Inventory" Width="100" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
+							<GridColumn Field="@nameof(UserModel.Store)" HeaderText="Store" Width="100" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
+							<GridColumn Field="@nameof(UserModel.Restaurant)" HeaderText="Restaurant" Width="100" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
+							<GridColumn Field="@nameof(UserModel.Reports)" HeaderText="Reports" Width="100" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
+							<GridColumn Field="@nameof(UserModel.Admin)" HeaderText="Admin" Width="100" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
 							<GridColumn Field="@nameof(UserModel.Remarks)" HeaderText="Remarks" Width="250" />
 							<GridColumn Field="@nameof(UserModel.Status)" HeaderText="Status" Width="110" TextAlign="TextAlign.Center" Visible="_showDeleted">
 								<Template>

@@ -606,14 +606,7 @@ else
 							<GridColumn Field="TotalTaxAmount" HeaderText="Tax Total" Width="150"
 										TextAlign="TextAlign.Right" Format="N2" />
 							<GridColumn Field="InclusiveTax" HeaderText="Tax Incl." Width="100"
-										TextAlign="TextAlign.Center">
-								<Template>
-									@{
-										var item = (context as dynamic);
-										<span class="grid-checkbox">@(item.InclusiveTax ? "✓" : "–")</span>
-									}
-								</Template>
-							</GridColumn>
+										TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
 							<GridColumn Field="Total" HeaderText="Total" Width="130" TextAlign="TextAlign.Right"
 										Format="N2">
 								<Template>

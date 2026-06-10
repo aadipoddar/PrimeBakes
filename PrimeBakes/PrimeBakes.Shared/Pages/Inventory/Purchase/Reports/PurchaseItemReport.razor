@@ -462,14 +462,7 @@ else
 							<GridColumn Field="@nameof(PurchaseItemOverviewModel.IGSTPercent)" HeaderText="IGST %" Width="120" Format="N2" TextAlign="TextAlign.Center" Visible="@(_showAllColumns && !_showSummary)" />
 							<GridColumn Field="@nameof(PurchaseItemOverviewModel.IGSTAmount)" HeaderText="IGST" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(PurchaseItemOverviewModel.TotalTaxAmount)" HeaderText="Tax Amt" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(PurchaseItemOverviewModel.InclusiveTax)" HeaderText="Tax Incl." Width="150" TextAlign="TextAlign.Center" Visible="@(_showAllColumns && !_showSummary)">
-								<Template>
-									@{
-										var item = (context as dynamic);
-										<span class="grid-checkbox">@(item.InclusiveTax ? "✓" : "–")</span>
-									}
-								</Template>
-							</GridColumn>
+							<GridColumn Field="@nameof(PurchaseItemOverviewModel.InclusiveTax)" HeaderText="Tax Incl." Width="150" TextAlign="TextAlign.Center" Visible="@(_showAllColumns && !_showSummary)" DisplayAsCheckBox="true" />
 
 							<GridColumn Field="@nameof(PurchaseItemOverviewModel.Total)" HeaderText="Total" Width="150" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(PurchaseItemOverviewModel.NetRate)" HeaderText="Net Rate" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="@(!_showSummary)" />
