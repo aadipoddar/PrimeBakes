@@ -1,4 +1,5 @@
 using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Restaurant.Dining.Models;
 using PrimeBakesLibrary.Utils.Exports;
 
@@ -7,24 +8,25 @@ namespace PrimeBakesLibrary.Restaurant.Dining.Exports;
 public static class DiningAreaExport
 {
 	public static async Task<(MemoryStream stream, string fileName)> ExportMaster(
-		IEnumerable<DiningAreaModel> data,
-		ReportExportType exportType,
-		string locationName = null)
+		IEnumerable<DiningAreaModel> diningAreaData,
+		ReportExportType exportType)
 	{
-		var enrichedData = data.Select(item => new
+		var locations = await CommonData.LoadTableData<LocationModel>(OperationNames.Location);
+
+		var enrichedData = diningAreaData.Select(da => new
 		{
-			item.Id,
-			item.Name,
-			LocationName = locationName ?? "",
-			item.Remarks,
-			Status = item.Status ? "Active" : "Deleted"
-		});
+			da.Id,
+			da.Name,
+			Location = locations.FirstOrDefault(l => l.Id == da.LocationId)?.Name ?? "N/A",
+			da.Remarks,
+			Status = da.Status ? "Active" : "Deleted"
+		}).ToList();
 
 		var columnSettings = new Dictionary<string, ReportColumnSetting>
 		{
 			[nameof(DiningAreaModel.Id)] = new() { DisplayName = "ID", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(DiningAreaModel.Name)] = new() { DisplayName = "Dining Area Name", Alignment = CellAlignment.Left, IsRequired = true },
-			["LocationName"] = new() { DisplayName = "Location", Alignment = CellAlignment.Left },
+			["Location"] = new() { DisplayName = "Location", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(DiningAreaModel.Remarks)] = new() { DisplayName = "Remarks", Alignment = CellAlignment.Left },
 			[nameof(DiningAreaModel.Status)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false }
 		};
@@ -33,7 +35,7 @@ public static class DiningAreaExport
 		[
 			nameof(DiningAreaModel.Id),
 			nameof(DiningAreaModel.Name),
-			"LocationName",
+			"Location",
 			nameof(DiningAreaModel.Remarks),
 			nameof(DiningAreaModel.Status)
 		];
@@ -60,7 +62,7 @@ public static class DiningAreaExport
 		{
 			var stream = await ExcelReportExportUtil.ExportToExcel(
 				enrichedData,
-				"DINING AREA",
+				"DINING AREA MASTER",
 				"Dining Area Data",
 				null,
 				null,

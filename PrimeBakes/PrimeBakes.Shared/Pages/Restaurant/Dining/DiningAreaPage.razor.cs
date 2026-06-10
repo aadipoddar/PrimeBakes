@@ -1,4 +1,5 @@
-﻿using PrimeBakes.Shared.Components.Dialog;
+using PrimeBakes.Shared.Components.Dialog;
+using PrimeBakes.Shared.Components.Input;
 
 using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Operations.User;
@@ -13,33 +14,30 @@ namespace PrimeBakes.Shared.Pages.Restaurant.Dining;
 
 public partial class DiningAreaPage
 {
+	private UserModel _user;
 	private bool _isLoading = true;
 	private bool _isProcessing = false;
 	private bool _showDeleted = false;
 
 	private DiningAreaModel _diningArea = new();
+	private LocationModel _selectedLocation;
 
 	private List<DiningAreaModel> _diningAreas = [];
 	private List<LocationModel> _locations = [];
-	private readonly List<ContextMenuItemModel> _diningAreaGridContextMenuItems =
+	private readonly List<ContextMenuItemModel> _gridContextMenuItems =
 	[
-		new() { Text = "Edit (Insert)", Id = "EditDiningArea", IconCss = "e-icons e-edit", Target = ".e-content" },
-		new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverDiningArea", IconCss = "e-icons e-trash", Target = ".e-content" }
+		new() { Text = "Edit (Insert)", Id = "EditSelectedItem", IconCss = "e-icons e-edit", Target = ".e-content" },
+		new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverSelectedItem", IconCss = "e-icons e-trash", Target = ".e-content" }
 	];
 
-	private string _selectedLocationName = string.Empty;
-
 	private SfGrid<DiningAreaModel> _sfGrid;
-	private DeleteConfirmationDialog _deleteConfirmationDialog;
-	private RecoverConfirmationDialog _recoverConfirmationDialog;
-
-	private int _deleteDiningAreaId = 0;
-	private string _deleteDiningAreaName = string.Empty;
-
-	private int _recoverDiningAreaId = 0;
-	private string _recoverDiningAreaName = string.Empty;
-
+	private CustomTextField _sfFirstFocus;
 	private ToastNotification _toastNotification;
+	private ConfirmationDialog _confirmationDialog;
+
+	private string _confirmTitle = string.Empty;
+	private string _confirmMessage = string.Empty;
+	private Func<Task> _confirmAction;
 
 	#region Load Data
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -47,207 +45,160 @@ public partial class DiningAreaPage
 		if (!firstRender)
 			return;
 
-		await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Admin], true);
-		await LoadData();
-		_isLoading = false;
-		StateHasChanged();
+		try
+		{
+			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Restaurant], true);
+			await LoadData();
+		}
+		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
 	}
 
 	private async Task LoadData()
 	{
-		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
 		_diningAreas = await CommonData.LoadTableData<DiningAreaModel>(RestaurantNames.DiningArea);
+		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
+
+		_locations = [.. _locations.OrderBy(l => l.Name)];
+
+		_selectedLocation = _locations.FirstOrDefault(l => l.Id == _diningArea.LocationId);
 
 		if (!_showDeleted)
 			_diningAreas = [.. _diningAreas.Where(da => da.Status)];
 
 		if (_sfGrid is not null)
 			await _sfGrid.Refresh();
+
+		_isLoading = false;
+		StateHasChanged();
+
+		if (_sfFirstFocus is not null)
+			await _sfFirstFocus.FocusAsync();
 	}
 	#endregion
 
-	#region Change Events
-	private void OnLocationChange(Syncfusion.Blazor.DropDowns.ChangeEventArgs<string, LocationModel> args)
+	#region Saving
+	private async Task SaveTransaction()
 	{
-		if (args.ItemData is not null)
+		if (_isProcessing)
+			return;
+
+		try
 		{
-			_diningArea.LocationId = args.ItemData.Id;
-			_selectedLocationName = args.ItemData.Name;
+			_isProcessing = true;
+			StateHasChanged();
+
+			if (!_user.Admin)
+				throw new Exception("You do not have permission to perform this action.");
+
+			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
+
+			_diningArea.LocationId = _selectedLocation?.Id ?? 0;
+			await DiningAreaData.SaveTransaction(_diningArea, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+
+			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
+			ResetPage();
 		}
-		else
+		catch (Exception ex)
 		{
-			_diningArea.LocationId = 0;
-			_selectedLocationName = string.Empty;
+			await _toastNotification.ShowAsync("Error While Saving", ex.Message, ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
 		}
 	}
 	#endregion
 
 	#region Actions
-	private void OnEditDiningArea(DiningAreaModel diningArea)
+	private async Task EditSelectedItem()
 	{
-		_diningArea = new()
-		{
-			Id = diningArea.Id,
-			Name = diningArea.Name,
-			LocationId = diningArea.LocationId,
-			Remarks = diningArea.Remarks,
-			Status = diningArea.Status
-		};
-
-		var location = _locations.FirstOrDefault(l => l.Id == diningArea.LocationId);
-		_selectedLocationName = location?.Name ?? string.Empty;
-
-		StateHasChanged();
-	}
-
-	private async Task ConfirmDelete()
-	{
-		try
-		{
-			_isProcessing = true;
-			await _deleteConfirmationDialog.HideAsync();
-
-			var diningArea = _diningAreas.FirstOrDefault(da => da.Id == _deleteDiningAreaId);
-			if (diningArea is null)
-			{
-				await _toastNotification.ShowAsync("Error", "Dining area not found.", ToastType.Error);
-				return;
-			}
-
-			diningArea.Status = false;
-			await DiningAreaData.InsertDiningArea(diningArea);
-
-			await _toastNotification.ShowAsync("Deleted", $"Dining area '{diningArea.Name}' has been deleted successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(RestaurantRouteNames.DiningArea, true);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"Failed to delete dining area: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			_deleteDiningAreaId = 0;
-			_deleteDiningAreaName = string.Empty;
-		}
-	}
-
-	private async Task ConfirmRecover()
-	{
-		try
-		{
-			_isProcessing = true;
-			await _recoverConfirmationDialog.HideAsync();
-
-			var diningArea = _diningAreas.FirstOrDefault(da => da.Id == _recoverDiningAreaId);
-			if (diningArea is null)
-			{
-				await _toastNotification.ShowAsync("Error", "Dining area not found.", ToastType.Error);
-				return;
-			}
-
-			diningArea.Status = true;
-			await DiningAreaData.InsertDiningArea(diningArea);
-
-			await _toastNotification.ShowAsync("Recovered", $"Dining area '{diningArea.Name}' has been recovered successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(RestaurantRouteNames.DiningArea, true);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"Failed to recover dining area: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			_recoverDiningAreaId = 0;
-			_recoverDiningAreaName = string.Empty;
-		}
-	}
-	#endregion
-
-	#region Saving
-	private async Task<bool> ValidateForm()
-	{
-		_diningArea.Name = _diningArea.Name?.Trim() ?? "";
-		_diningArea.Name = _diningArea.Name?.ToUpper() ?? "";
-		_diningArea.Remarks = _diningArea.Remarks?.Trim() ?? "";
-		_diningArea.Status = true;
-
-		if (string.IsNullOrWhiteSpace(_diningArea.Name))
-		{
-			await _toastNotification.ShowAsync("Validation", "Dining area name is required.", ToastType.Warning);
-			return false;
-		}
-
-		if (_diningArea.LocationId <= 0)
-		{
-			await _toastNotification.ShowAsync("Validation", "Please select a location.", ToastType.Warning);
-			return false;
-		}
-
-		if (string.IsNullOrWhiteSpace(_diningArea.Remarks))
-			_diningArea.Remarks = null;
-
-		var allDiningAreas = await CommonData.LoadTableData<DiningAreaModel>(RestaurantNames.DiningArea);
-
-		if (_diningArea.Id > 0)
-		{
-			var existing = allDiningAreas.FirstOrDefault(_ => _.Id != _diningArea.Id && _.Name.Equals(_diningArea.Name, StringComparison.OrdinalIgnoreCase));
-			if (existing is not null)
-			{
-				await _toastNotification.ShowAsync("Duplicate", $"Dining area '{_diningArea.Name}' already exists.", ToastType.Warning);
-				return false;
-			}
-		}
-		else
-		{
-			var existing = allDiningAreas.FirstOrDefault(_ => _.Name.Equals(_diningArea.Name, StringComparison.OrdinalIgnoreCase));
-			if (existing is not null)
-			{
-				await _toastNotification.ShowAsync("Duplicate", $"Dining area '{_diningArea.Name}' already exists.", ToastType.Warning);
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	private async Task SaveDiningArea()
-	{
-		if (_isProcessing)
+		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
+		if (selectedRecords.Count == 0)
 			return;
 
+		_diningArea = await CommonData.LoadTableDataById<DiningAreaModel>(RestaurantNames.DiningArea, selectedRecords[0].Id);
+		if (_diningArea is null)
+		{
+			await _toastNotification.ShowAsync("Error while Editing", "Transaction Not Found.", ToastType.Error);
+			return;
+		}
+
+		_selectedLocation = _locations.FirstOrDefault(l => l.Id == _diningArea.LocationId);
+		StateHasChanged();
+		await _sfFirstFocus.FocusAsync();
+	}
+
+	private async Task DeleteRecoverTransaction(int id, bool isRecover)
+	{
 		try
 		{
+			if (!_user.Admin)
+				throw new Exception("You do not have permission to perform this action.");
+
 			_isProcessing = true;
 			StateHasChanged();
 
-			if (!await ValidateForm())
-			{
-				_isProcessing = false;
-				return;
-			}
+			await _toastNotification.ShowAsync("Processing", $"{(isRecover ? "Recovering" : "Deleting")} transaction...", ToastType.Info);
 
-			await _toastNotification.ShowAsync("Processing", "Saving dining area...", ToastType.Info);
+			var diningArea = await CommonData.LoadTableDataById<DiningAreaModel>(RestaurantNames.DiningArea, id)
+				?? throw new Exception("Transaction not found.");
 
-			await DiningAreaData.InsertDiningArea(_diningArea);
+			if (isRecover) await DiningAreaData.RecoverTransaction(diningArea, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+			else await DiningAreaData.DeleteTransaction(diningArea, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
 
-			await _toastNotification.ShowAsync("Saved", $"Dining area '{_diningArea.Name}' saved successfully.", ToastType.Success);
-			NavigationManager.NavigateTo(RestaurantRouteNames.DiningArea, true);
+			await _toastNotification.ShowAsync("Success", $"Transaction {diningArea.Name} has been {(isRecover ? "recovered" : "deleted")} successfully.", ToastType.Success);
+			ResetPage();
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("Error", $"Failed to save dining area: {ex.Message}", ToastType.Error);
+			await _toastNotification.ShowAsync("Error", $"An error occurred while {(isRecover ? "recovering" : "deleting")} transaction: {ex.Message}", ToastType.Error);
 		}
 		finally
 		{
 			_isProcessing = false;
+			StateHasChanged();
 		}
+	}
+
+	private async Task DeleteRecoverSelectedItem()
+	{
+		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
+		if (selectedRecords.Count == 0)
+			return;
+
+		var record = selectedRecords[0];
+
+		await ShowConfirmation(record.Status ? "Delete" : "Recover",
+			$"Are you sure you want to {(record.Status ? "delete" : "recover")} transaction {record.Name}",
+			() => DeleteRecoverTransaction(record.Id, !record.Status));
+	}
+
+	private async Task ShowConfirmation(string title, string message, Func<Task> action)
+	{
+		_confirmTitle = title;
+		_confirmMessage = message;
+		_confirmAction = action;
+		StateHasChanged();
+		await _confirmationDialog.ShowAsync();
+	}
+
+	private async Task OnConfirmed()
+	{
+		await _confirmationDialog.HideAsync();
+		if (_confirmAction is not null)
+			await _confirmAction();
+		_confirmAction = null;
+	}
+
+	private async Task OnCancelled()
+	{
+		_confirmAction = null;
+		await _confirmationDialog.HideAsync();
 	}
 	#endregion
 
 	#region Exporting
-	private async Task ExportExcel()
+	private async Task ExportMaster(bool isExcel = false)
 	{
 		if (_isProcessing)
 			return;
@@ -256,66 +207,16 @@ public partial class DiningAreaPage
 		{
 			_isProcessing = true;
 			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Exporting to Excel...", ToastType.Info);
+			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var exportData = _diningAreas.Select(da =>
-			{
-				var location = _locations.FirstOrDefault(l => l.Id == da.LocationId);
-				return new
-				{
-					da.Id,
-					da.Name,
-					LocationName = location?.Name ?? "",
-					da.Remarks,
-					da.Status
-				};
-			});
-
-			var enrichedModels = exportData.Select(d => new DiningAreaModel
-			{
-				Id = d.Id,
-				Name = d.Name,
-				Remarks = d.Remarks,
-				Status = d.Status
-			}).ToList();
-
-			var (stream, fileName) = await DiningAreaExport.ExportMaster(enrichedModels, ReportExportType.Excel);
+			var (stream, fileName) = await DiningAreaExport.ExportMaster(_diningAreas, isExcel ? ReportExportType.Excel : ReportExportType.PDF);
 			await SaveAndViewService.SaveAndView(fileName, stream);
 
-			await _toastNotification.ShowAsync("Success", "Dining area data exported to Excel successfully.", ToastType.Success);
+			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("Error", $"Excel export failed: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			StateHasChanged();
-		}
-	}
-
-	private async Task ExportPdf()
-	{
-		if (_isProcessing)
-			return;
-
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Exporting to PDF...", ToastType.Info);
-
-			var enrichedModels = _diningAreas.ToList();
-
-			var (stream, fileName) = await DiningAreaExport.ExportMaster(enrichedModels, ReportExportType.PDF);
-			await SaveAndViewService.SaveAndView(fileName, stream);
-
-			await _toastNotification.ShowAsync("Success", "Dining area data exported to PDF successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"PDF export failed: {ex.Message}", ToastType.Error);
+			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
 		}
 		finally
 		{
@@ -326,105 +227,21 @@ public partial class DiningAreaPage
 	#endregion
 
 	#region Utilities
-	private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+	private async Task OnGridContextMenuItemClicked(ContextMenuClickEventArgs<DiningAreaModel> args)
 	{
 		switch (args.Item.Id)
 		{
-			case "NewDiningArea":
-				ResetPage();
-				break;
-			case "SaveDiningArea":
-				await SaveDiningArea();
-				break;
-			case "ToggleDeleted":
-				await ToggleDeleted();
-				break;
-			case "ExportExcel":
-				await ExportExcel();
-				break;
-			case "ExportPdf":
-				await ExportPdf();
-				break;
-			case "EditSelected":
-				await EditSelectedItem();
-				break;
-			case "DeleteRecoverSelected":
-				await DeleteSelectedItem();
-				break;
+			case "EditSelectedItem": await EditSelectedItem(); break;
+			case "DeleteRecoverSelectedItem": await DeleteRecoverSelectedItem(); break;
 		}
-	}
-
-	private async Task OnDiningAreaGridContextMenuItemClicked(ContextMenuClickEventArgs<DiningAreaModel> args)
-	{
-		switch (args.Item.Id)
-		{
-			case "EditDiningArea":
-				await EditSelectedItem();
-				break;
-			case "DeleteRecoverDiningArea":
-				await DeleteSelectedItem();
-				break;
-		}
-	}
-
-	private async Task EditSelectedItem()
-	{
-		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
-		if (selectedRecords.Count > 0)
-			OnEditDiningArea(selectedRecords[0]);
-	}
-
-	private async Task DeleteSelectedItem()
-	{
-		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
-		if (selectedRecords.Count > 0)
-		{
-			if (selectedRecords[0].Status)
-				await ShowDeleteConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
-			else
-				await ShowRecoverConfirmation(selectedRecords[0].Id, selectedRecords[0].Name);
-		}
-	}
-
-	private async Task ShowDeleteConfirmation(int id, string name)
-	{
-		_deleteDiningAreaId = id;
-		_deleteDiningAreaName = name;
-		await _deleteConfirmationDialog.ShowAsync();
-	}
-
-	private async Task CancelDelete()
-	{
-		_deleteDiningAreaId = 0;
-		_deleteDiningAreaName = string.Empty;
-		await _deleteConfirmationDialog.HideAsync();
-	}
-
-	private async Task ShowRecoverConfirmation(int id, string name)
-	{
-		_recoverDiningAreaId = id;
-		_recoverDiningAreaName = name;
-		await _recoverConfirmationDialog.ShowAsync();
-	}
-
-	private async Task CancelRecover()
-	{
-		_recoverDiningAreaId = 0;
-		_recoverDiningAreaName = string.Empty;
-		await _recoverConfirmationDialog.HideAsync();
 	}
 
 	private async Task ToggleDeleted()
 	{
 		_showDeleted = !_showDeleted;
 		await LoadData();
-		StateHasChanged();
 	}
 
-	private void ResetPage() =>
-		NavigationManager.NavigateTo(RestaurantRouteNames.DiningArea, true);
-
-	private void NavigateBack() =>
-		NavigationManager.NavigateTo(RestaurantRouteNames.RestaurantDashboard);
+	private void ResetPage() => PageRefresh.Request();
 	#endregion
 }

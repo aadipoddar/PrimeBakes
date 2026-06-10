@@ -7,24 +7,25 @@ namespace PrimeBakesLibrary.Restaurant.Dining.Exports;
 public static class DiningTableExport
 {
 	public static async Task<(MemoryStream stream, string fileName)> ExportMaster(
-		IEnumerable<DiningTableModel> data,
-		ReportExportType exportType,
-		string diningAreaName = null)
+		IEnumerable<DiningTableModel> diningTableData,
+		ReportExportType exportType)
 	{
-		var enrichedData = data.Select(item => new
+		var diningAreas = await CommonData.LoadTableData<DiningAreaModel>(RestaurantNames.DiningArea);
+
+		var enrichedData = diningTableData.Select(dt => new
 		{
-			item.Id,
-			item.Name,
-			DiningAreaName = diningAreaName ?? "",
-			item.Remarks,
-			Status = item.Status ? "Active" : "Deleted"
-		});
+			dt.Id,
+			dt.Name,
+			DiningArea = diningAreas.FirstOrDefault(da => da.Id == dt.DiningAreaId)?.Name ?? "N/A",
+			dt.Remarks,
+			Status = dt.Status ? "Active" : "Deleted"
+		}).ToList();
 
 		var columnSettings = new Dictionary<string, ReportColumnSetting>
 		{
 			[nameof(DiningTableModel.Id)] = new() { DisplayName = "ID", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(DiningTableModel.Name)] = new() { DisplayName = "Table Name", Alignment = CellAlignment.Left, IsRequired = true },
-			["DiningAreaName"] = new() { DisplayName = "Dining Area", Alignment = CellAlignment.Left },
+			["DiningArea"] = new() { DisplayName = "Dining Area", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(DiningTableModel.Remarks)] = new() { DisplayName = "Remarks", Alignment = CellAlignment.Left },
 			[nameof(DiningTableModel.Status)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false }
 		};
@@ -33,7 +34,7 @@ public static class DiningTableExport
 		[
 			nameof(DiningTableModel.Id),
 			nameof(DiningTableModel.Name),
-			"DiningAreaName",
+			"DiningArea",
 			nameof(DiningTableModel.Remarks),
 			nameof(DiningTableModel.Status)
 		];
@@ -60,7 +61,7 @@ public static class DiningTableExport
 		{
 			var stream = await ExcelReportExportUtil.ExportToExcel(
 				enrichedData,
-				"DINING TABLE",
+				"DINING TABLE MASTER",
 				"Dining Table Data",
 				null,
 				null,
