@@ -52,4 +52,58 @@ public static class RecipeReportExport
 			return (stream, fileName + ".xlsx");
 		}
 	}
+
+	public static async Task<(MemoryStream stream, string fileName)> ExportItemReport(
+		IEnumerable<RecipeItemOverviewModel> data,
+		ReportExportType exportType)
+	{
+		var columnSettings = new Dictionary<string, ReportColumnSetting>
+		{
+			[nameof(RecipeItemOverviewModel.ItemName)] = new() { DisplayName = "Raw Material", Alignment = CellAlignment.Left, IncludeInTotal = false, ExcelWidth = 30 },
+			[nameof(RecipeItemOverviewModel.ItemCode)] = new() { DisplayName = "Code", Alignment = CellAlignment.Center, IncludeInTotal = false },
+			[nameof(RecipeItemOverviewModel.ItemCategoryName)] = new() { DisplayName = "Category", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(RecipeItemOverviewModel.ProductName)] = new() { DisplayName = "Recipe (Product)", Alignment = CellAlignment.Left, IncludeInTotal = false, ExcelWidth = 30 },
+			[nameof(RecipeItemOverviewModel.UnitOfMeasurement)] = new() { DisplayName = "UOM", Alignment = CellAlignment.Center, IncludeInTotal = false },
+			[nameof(RecipeItemOverviewModel.Quantity)] = new() { DisplayName = "Quantity", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
+			[nameof(RecipeItemOverviewModel.Rate)] = new() { DisplayName = "Rate", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(RecipeItemOverviewModel.Amount)] = new() { DisplayName = "Amount", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, IsGrandTotal = true },
+			[nameof(RecipeItemOverviewModel.PerUnit)] = new() { DisplayName = "Per Unit", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false },
+		};
+
+		List<string> columnOrder =
+		[
+			nameof(RecipeItemOverviewModel.ItemName),
+			nameof(RecipeItemOverviewModel.ItemCode),
+			nameof(RecipeItemOverviewModel.ItemCategoryName),
+			nameof(RecipeItemOverviewModel.ProductName),
+			nameof(RecipeItemOverviewModel.UnitOfMeasurement),
+			nameof(RecipeItemOverviewModel.Quantity),
+			nameof(RecipeItemOverviewModel.Rate),
+			nameof(RecipeItemOverviewModel.Amount),
+			nameof(RecipeItemOverviewModel.PerUnit),
+		];
+
+		string fileName = $"RECIPE_ITEM_REPORT_{DateTime.Now:yyyyMMdd_HHmmss}";
+
+		if (exportType == ReportExportType.PDF)
+		{
+			var stream = await PDFReportExportUtil.ExportToPdf(
+				data,
+				"Recipe Item Report",
+				columnSettings: columnSettings,
+				columnOrder: columnOrder,
+				useLandscape: true);
+			return (stream, fileName + ".pdf");
+		}
+		else
+		{
+			var stream = await ExcelReportExportUtil.ExportToExcel(
+				data,
+				"Recipe Item Report",
+				"Recipe Items",
+				columnSettings: columnSettings,
+				columnOrder: columnOrder);
+			return (stream, fileName + ".xlsx");
+		}
+	}
 }

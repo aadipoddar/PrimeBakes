@@ -1,12 +1,15 @@
+@using PrimeBakesLibrary.Inventory.RawMaterial.Models
 @using PrimeBakesLibrary.Inventory.Recipe.Models
+@using PrimeBakesLibrary.Store.Product.Models
 
-@attribute [Route(InventoryRouteNames.RecipeReport)]
+@attribute [Route(InventoryRouteNames.RecipeItemReport)]
 
-<PageTitle>Recipe Report - Prime Bakes</PageTitle>
+<PageTitle>Recipe Item Report - Prime Bakes</PageTitle>
 
 <MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.Recipe, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfFirstFocus.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadItemOverviews" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadItemOverviews" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport(true)" Disabled="@_isProcessing" />
@@ -22,11 +25,11 @@
 else
 {
 	<div class="page-shell">
-		<Header Title="Recipe Report">
+		<Header Title="Recipe Item Report">
 			<LeftContent>
 				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
 					<MudBlazor.MudMenuItem Label="New Recipe (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.Recipe, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Refresh Data (Ctrl + R / F5)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.Recipe, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Refresh Data (Ctrl + R / F5)" OnClick="LoadItemOverviews" />
 					<MudBlazor.MudMenuItem Label="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" OnClick="ToggleDeleted" />
 					<MudBlazor.MudDivider />
 					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportReport()" />
@@ -57,6 +60,64 @@ else
 						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
 							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
 							 stroke-linejoin="round">
+							<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+						</svg>
+						<h2 class="section-title">Filters</h2>
+					</div>
+				</div>
+				<div class="section-body">
+					<div class="filters-grid">
+						<div class="form-field">
+							<CustomDatePicker @ref="_sfFirstFocus"
+											  Value="_recipeDateTime"
+											  Label="Cost As On Date (Ctrl + F)"
+											  ShowFinancialYear="false"
+											  AddNewRoute="@null"
+											  ValueChanged="OnRecipeDateChanged" />
+						</div>
+
+						<div class="form-field">
+							<CustomAutoComplete T="RawMaterialModel"
+												Value="_selectedRawMaterial"
+												DataSource="@_rawMaterials"
+												Placeholder="All Raw Materials"
+												Label="Raw Material" Required="false"
+												ValueChanged="OnRawMaterialChanged"
+												FieldValue="@nameof(RawMaterialModel.Name)"
+												AddNewRoute="@InventoryRouteNames.RawMaterial" />
+						</div>
+
+						<div class="form-field">
+							<CustomAutoComplete T="RawMaterialCategoryModel"
+												Value="_selectedRawMaterialCategory"
+												DataSource="@_rawMaterialCategories"
+												Placeholder="All Categories"
+												Label="Category" Required="false"
+												ValueChanged="OnRawMaterialCategoryChanged"
+												FieldValue="@nameof(RawMaterialCategoryModel.Name)"
+												AddNewRoute="@InventoryRouteNames.RawMaterialCategory" />
+						</div>
+
+						<div class="form-field">
+							<CustomAutoComplete T="ProductModel"
+												Value="_selectedProduct"
+												DataSource="@_products"
+												Placeholder="All Products"
+												Label="Recipe (Product)" Required="false"
+												ValueChanged="OnProductChanged"
+												FieldValue="@nameof(ProductModel.Name)"
+												AddNewRoute="@StoreRouteNames.Product" />
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+							 stroke-linejoin="round">
 							<line x1="8" y1="6" x2="21" y2="6" />
 							<line x1="8" y1="12" x2="21" y2="12" />
 							<line x1="8" y1="18" x2="21" y2="18" />
@@ -64,17 +125,17 @@ else
 							<line x1="3" y1="12" x2="3.01" y2="12" />
 							<line x1="3" y1="18" x2="3.01" y2="18" />
 						</svg>
-						<h2 class="section-title">All Product Recipes</h2>
+						<h2 class="section-title">Recipe Ingredients</h2>
 					</div>
 				</div>
 				<div class="section-body grid-body">
-					<SfGrid @ref="_sfGrid" TValue="RecipeOverviewModel" DataSource="_recipeOverviews"
+					<SfGrid @ref="_sfGrid" TValue="RecipeItemOverviewModel" DataSource="_itemOverviews"
 							AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
 							AllowFiltering="true" AllowExcelExport="true" AllowPdfExport="true" GridLines="GridLine.Horizontal"
 							CssClass="professional-grid" AllowGrouping="true" ContextMenuItems="@_gridContextMenuItems"
 							Toolbar="@(new List<string>() { "Search" })">
 
-						<GridEvents TValue="RecipeOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+						<GridEvents TValue="RecipeItemOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
 						<GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
 						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
 						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
@@ -82,13 +143,13 @@ else
 						<GridAggregates>
 							<GridAggregate>
 								<GridAggregateColumns>
-									<GridAggregateColumn Field="@nameof(RecipeOverviewModel.ProductName)" Type="AggregateType.Count">
+									<GridAggregateColumn Field="@nameof(RecipeItemOverviewModel.ItemName)" Type="AggregateType.Count">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
 											}
 											<div class="aggregate-label">
-												<strong>Total Recipes: @aggregate.Count</strong>
+												<strong>Total Lines: @aggregate.Count</strong>
 											</div>
 										</FooterTemplate>
 										<GroupFooterTemplate>
@@ -96,7 +157,7 @@ else
 												var aggregate = (context as AggregateTemplateContext);
 											}
 											<div class="aggregate-label">
-												<strong>Total Recipes: @aggregate.Count</strong>
+												<strong>Total Lines: @aggregate.Count</strong>
 											</div>
 										</GroupFooterTemplate>
 										<GroupCaptionTemplate>
@@ -104,11 +165,11 @@ else
 												var aggregate = (context as AggregateTemplateContext);
 											}
 											<div class="aggregate-label">
-												<strong>Total Recipes: @aggregate.Count</strong>
+												<strong>Total Lines: @aggregate.Count</strong>
 											</div>
 										</GroupCaptionTemplate>
 									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(RecipeOverviewModel.TotalCost)" Type="AggregateType.Sum" Format="N2">
+									<GridAggregateColumn Field="@nameof(RecipeItemOverviewModel.Amount)" Type="AggregateType.Sum" Format="N2">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
@@ -139,31 +200,28 @@ else
 						</GridAggregates>
 
 						<GridColumns>
-							<GridColumn Field="@nameof(RecipeOverviewModel.ProductName)" HeaderText="Product" Width="250" />
-							<GridColumn Field="@nameof(RecipeOverviewModel.Quantity)" HeaderText="Recipe Qty" Width="140" TextAlign="TextAlign.Right" Format="N2" />
-							<GridColumn Field="@nameof(RecipeOverviewModel.Deduct)" HeaderText="Deduct on Sale" Width="160" TextAlign="TextAlign.Center">
-								<Template>
-									@{
-										var item = (context as RecipeOverviewModel);
-										<span>@(item.Deduct ? "Yes" : "No")</span>
-									}
-								</Template>
-							</GridColumn>
-							<GridColumn Field="@nameof(RecipeOverviewModel.ItemCount)" HeaderText="Ingredients" Width="130" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(RecipeOverviewModel.TotalCost)" HeaderText="Total Cost" Width="150" TextAlign="TextAlign.Right">
+							<GridColumn Field="@nameof(RecipeItemOverviewModel.ItemName)" HeaderText="Raw Material" Width="220" />
+							<GridColumn Field="@nameof(RecipeItemOverviewModel.ItemCode)" HeaderText="Code" Width="120" />
+							<GridColumn Field="@nameof(RecipeItemOverviewModel.ItemCategoryName)" HeaderText="Category" Width="170" />
+							<GridColumn Field="@nameof(RecipeItemOverviewModel.ProductName)" HeaderText="Recipe (Product)" Width="220" />
+							<GridColumn Field="@nameof(RecipeItemOverviewModel.UnitOfMeasurement)" HeaderText="UOM" Width="90" TextAlign="TextAlign.Center" />
+							<GridColumn Field="@nameof(RecipeItemOverviewModel.Quantity)" HeaderText="Quantity" Width="130" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(RecipeItemOverviewModel.Rate)" HeaderText="Rate" Width="120" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(RecipeItemOverviewModel.Amount)" HeaderText="Amount" Width="140" TextAlign="TextAlign.Right">
 								<Template>
 									@{
 										var item = (context as dynamic);
-										<span class="grid-total">@item.TotalCost.ToString("N2")</span>
+										<span class="grid-total">@item.Amount.ToString("N2")</span>
 									}
 								</Template>
 							</GridColumn>
-							<GridColumn Field="@nameof(RecipeOverviewModel.PerUnitCost)" HeaderText="Per Unit Cost" Width="150" TextAlign="TextAlign.Right" Format="N2" />
-							<GridColumn Field="@nameof(RecipeOverviewModel.Status)" HeaderText="Status" Width="110" Visible="@_showDeleted" TextAlign="TextAlign.Center">
+							<GridColumn Field="@nameof(RecipeItemOverviewModel.PerUnit)" HeaderText="Per Unit" Width="130" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(RecipeItemOverviewModel.RecipeQuantity)" HeaderText="Recipe Qty" Width="130" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(RecipeItemOverviewModel.MasterStatus)" HeaderText="Status" Width="110" Visible="@_showDeleted" TextAlign="TextAlign.Center">
 								<Template>
 									@{
 										var item = (context as dynamic);
-										<span class="@(item.Status ? string.Empty : "grid-debit")">@(item.Status ? "Active" : "Deleted")</span>
+										<span class="@(item.MasterStatus ? string.Empty : "grid-debit")">@(item.MasterStatus ? "Active" : "Deleted")</span>
 									}
 								</Template>
 							</GridColumn>

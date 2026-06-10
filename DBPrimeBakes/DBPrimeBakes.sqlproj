@@ -207,6 +207,7 @@
     <Build Include="Inventory\Stock\Load\ProductStockDetails.sql" />
     <Build Include="Inventory\Stock\Load\RawMaterialStockDetails.sql" />
     <Build Include="Inventory\Recipe\Load\Recipe_Overview.sql" />
+    <Build Include="Inventory\Recipe\Load\Recipe_Item_Overview.sql" />
     <Build Include="Store\Customer\Insert_Customer.sql" />
     <Build Include="Store\Order\Insert\Insert_Order.sql" />
     <Build Include="Store\Order\Insert\Insert_OrderDetail.sql" />

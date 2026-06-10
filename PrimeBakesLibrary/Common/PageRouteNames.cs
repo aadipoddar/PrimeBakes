@@ -70,6 +70,7 @@ public static class InventoryRouteNames
 
 	public const string Recipe = "/inventory/recipe";
 	public const string RecipeReport = "/inventory/recipe-report";
+	public const string RecipeItemReport = "/inventory/recipe-item-report";
 
 	public const string RawMaterial = "/inventory/raw-material";
 	public const string RawMaterialCategory = "/inventory/raw-material-category";
