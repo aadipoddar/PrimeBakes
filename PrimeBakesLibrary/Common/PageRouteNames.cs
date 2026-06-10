@@ -65,6 +65,8 @@ public static class InventoryRouteNames
 	public const string RawMaterialStockAdjustment = "/inventory/raw-material-stock-adjustment";
 	public const string RawMaterialStockReport = "/inventory/raw-material-stock-report";
 	public const string ProductStockReport = "/inventory/product-stock-report";
+	public const string RawMaterialStockDetailReport = "/inventory/raw-material-stock-detail-report";
+	public const string ProductStockDetailReport = "/inventory/product-stock-detail-report";
 
 	public const string Recipe = "/inventory/recipe";
 	public const string RecipeReport = "/inventory/recipe-report";
