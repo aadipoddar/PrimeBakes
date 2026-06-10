@@ -71,7 +71,7 @@ public partial class KitchenIssueItemReport : IAsyncDisposable
 			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Inventory, UserRoles.Reports], true);
 			await InitializePage();
 		}
-		catch { NavigationManager.NavigateTo(OperationRouteNames.InventoryDashboard); }
+		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
 	}
 
 	private async Task InitializePage()

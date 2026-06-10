@@ -345,7 +345,7 @@ public partial class RawMaterialStockReport : IAsyncDisposable
 			return;
 		}
 
-		await RawMaterialStockData.DeleteRawMaterialStockById(_deleteAdjustmentId, _user.Id);
+		await RawMaterialStockData.DeleteRawMaterialStockById(_deleteAdjustmentId, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
 		await _toastNotification.ShowAsync("Success", $"Transaction {_deleteTransactionNo} has been deleted successfully.", ToastType.Success);
 	}
 	#endregion
@@ -486,10 +486,7 @@ public partial class RawMaterialStockReport : IAsyncDisposable
 			while (await _autoRefreshTimer.WaitForNextTickAsync(cancellationToken))
 				await LoadStockData();
 		}
-		catch (OperationCanceledException)
-		{
-			// Timer was cancelled, expected on dispose
-		}
+		catch (OperationCanceledException) { }
 	}
 
 	async ValueTask IAsyncDisposable.DisposeAsync()

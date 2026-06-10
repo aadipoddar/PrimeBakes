@@ -9,18 +9,18 @@ namespace PrimeBakesLibrary.Inventory.Stock.Exports;
 
 internal static class RawMaterialStockAdjustmentNotify
 {
-	internal static async Task Notify(RawMaterialStockModel stock, int userId, NotifyType type)
+	internal static async Task NotifyDeleted(RawMaterialStockModel stock, int userId, NotifyType type)
 	{
-		await RawMaterialStockAdjustmentNotification(stock, userId, type);
+		await RawMaterialStockDeletedNotification(stock, userId, type);
 
-		if (type == NotifyType.Deleted)
+		if (type != NotifyType.Created)
 			await RawMaterialStockAdjustmentMail(stock, userId);
 	}
 
-	internal static async Task Notify(int items, decimal quantity, int userId, NotifyType type) =>
-		await RawMaterialStockAdjustmentNotification(items, quantity, userId, type);
+	internal static async Task NotifyCreated(int items, decimal quantity, string transactionNo, int userId, NotifyType type) =>
+		await RawMaterialStockCreatedNotification(items, quantity, transactionNo, userId, type);
 
-	private static async Task RawMaterialStockAdjustmentNotification(int items, decimal quantity, int userId, NotifyType type)
+	private static async Task RawMaterialStockCreatedNotification(int items, decimal quantity, string transactionNo, int userId, NotifyType type)
 	{
 		var users = await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User);
 		users = [.. users.Where(u => u.Admin && u.LocationId == 1 || u.Inventory && u.LocationId == 1)];
@@ -31,14 +31,13 @@ internal static class RawMaterialStockAdjustmentNotify
 		var notificationData = new NotificationUtil.TransactionNotificationData
 		{
 			TransactionType = "Raw Material Stock Adjustment",
-			TransactionNo = null,
+			TransactionNo = transactionNo,
 			Action = type,
 			LocationName = "Main Location",
 			Details = new Dictionary<string, string>
 			{
-				["📦 Items"] = items.ToString(),
-				["🔢 Quantity"] = quantity.FormatSmartDecimal(),
-				["👤 " + (type == NotifyType.Deleted ? "Deleted By" : "Adjusted By")] = userName
+				["📦 Items"] = $"{items} | Qty: {quantity.FormatSmartDecimal()}",
+				["👤 " + (type == NotifyType.Deleted ? "Deleted By" : "By")] = userName
 			},
 			Remarks = null
 		};
@@ -46,7 +45,7 @@ internal static class RawMaterialStockAdjustmentNotify
 		await NotificationUtil.SendTransactionNotification(users, notificationData);
 	}
 
-	private static async Task RawMaterialStockAdjustmentNotification(RawMaterialStockModel stock, int userId, NotifyType type)
+	private static async Task RawMaterialStockDeletedNotification(RawMaterialStockModel stock, int userId, NotifyType type)
 	{
 		var users = await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User);
 		users = [.. users.Where(u => u.Admin && u.LocationId == 1 || u.Inventory && u.LocationId == 1)];
@@ -67,7 +66,7 @@ internal static class RawMaterialStockAdjustmentNotify
 			{
 				["📦 Item"] = rawMaterialName,
 				["🔢 Quantity"] = stock.Quantity.FormatSmartDecimal(),
-				["📅 Date"] = stock.TransactionDateTime.ToString("dd MMM yyyy HH:mm:ss"),
+				["📅 Date"] = stock.TransactionDateTime.ToString("dd MMM yyyy, hh:mm tt"),
 				["👤 Deleted By"] = userName
 			},
 			Remarks = null
@@ -95,7 +94,7 @@ internal static class RawMaterialStockAdjustmentNotify
 			Details = new Dictionary<string, string>
 			{
 				["Transaction Number"] = stock.TransactionNo ?? "N/A",
-				["Transaction Date"] = stock.TransactionDateTime.ToString("dd MMM yyyy HH:mm:ss"),
+				["Transaction Date"] = stock.TransactionDateTime.ToString("dd MMM yyyy, hh:mm tt"),
 				["Raw Material"] = rawMaterialName,
 				["Code"] = rawMaterialCode,
 				["Unit of Measurement"] = uom,

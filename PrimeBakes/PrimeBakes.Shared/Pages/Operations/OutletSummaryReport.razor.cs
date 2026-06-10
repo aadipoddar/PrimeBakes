@@ -333,10 +333,7 @@ public partial class OutletSummaryReport : IAsyncDisposable
 			while (await _autoRefreshTimer.WaitForNextTickAsync(cancellationToken))
 				await RefreshReport();
 		}
-		catch (OperationCanceledException)
-		{
-			// Timer was cancelled, expected on dispose
-		}
+		catch (OperationCanceledException) { }
 	}
 
 	async ValueTask IAsyncDisposable.DisposeAsync()

@@ -1,10 +1,6 @@
-using Microsoft.AspNetCore.Components;
-
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
-using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Inventory.Stock.Data;
 using PrimeBakesLibrary.Inventory.Stock.Models;
 using PrimeBakesLibrary.Operations.Location;
@@ -12,9 +8,9 @@ using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Store.Product.Data;
 using PrimeBakesLibrary.Store.Product.Models;
 
-using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;
-using Syncfusion.Blazor.Inputs;
+
+using System.Text.Json;
 
 namespace PrimeBakes.Shared.Pages.Inventory.Stock;
 
@@ -28,9 +24,8 @@ public partial class ProductStockAdjustment
 	private DateTime _transactionDateTime = DateTime.Now;
 	private string _transactionNo = string.Empty;
 
-	private FinancialYearModel _selectedFinancialYear = new();
 	private LocationModel _selectedLocation;
-	private ProductLocationOverviewModel? _selectedProduct = null;
+	private ProductLocationOverviewModel _selectedProduct = null;
 	private ProductStockAdjustmentCartModel _selectedCart = new();
 
 	private List<LocationModel> _locations = [];
@@ -39,11 +34,12 @@ public partial class ProductStockAdjustment
 	private List<ProductStockSummaryModel> _stockSummary = [];
 	private readonly List<ContextMenuItemModel> _cartGridContextMenuItems =
 	[
-		new() { Text = "Edit (Insert)", Id = "EditCart", IconCss = "e-icons e-edit" },
-		new() { Text = "Delete (Del)", Id = "DeleteCart", IconCss = "e-icons e-delete" }
+		new() { Text = "Edit (Insert)", Id = "EditCart", IconCss = "e-icons e-edit", Target = ".e-content" },
+		new() { Text = "Delete (Del)", Id = "DeleteCart", IconCss = "e-icons e-trash", Target = ".e-content" }
 	];
 
-	private AutoCompleteWithAdd<ProductLocationOverviewModel?, ProductLocationOverviewModel> _sfItemAutoComplete;
+	private CustomDatePicker _sfFirstFocus;
+	private CustomAutoComplete<ProductLocationOverviewModel> _sfItemAutoComplete;
 	private SfGrid<ProductStockAdjustmentCartModel> _sfCartGrid;
 
 	private ToastNotification _toastNotification;
@@ -54,13 +50,18 @@ public partial class ProductStockAdjustment
 		if (!firstRender)
 			return;
 
-		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Inventory], true);
-		await LoadData();
+		try
+		{
+			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Inventory], true);
+			await LoadData();
+		}
+		catch { await ResetPage(); }
 	}
 
 	private async Task LoadData()
 	{
 		_transactionDateTime = await CommonData.LoadCurrentDateTime();
+
 		await LoadLocations();
 		await LoadStock();
 		await LoadItems();
@@ -68,50 +69,29 @@ public partial class ProductStockAdjustment
 
 		_isLoading = false;
 		StateHasChanged();
+
+		await SaveTransactionFile();
+
+		if (_sfFirstFocus is not null)
+			await _sfFirstFocus.FocusAsync();
 	}
 
 	private async Task LoadLocations()
 	{
-		try
-		{
-			_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
+		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
+		_locations = [.. _locations.OrderBy(s => s.Name)];
 
-			_locations = [.. _locations.OrderBy(s => s.Name)];
-
-			_selectedLocation = _locations.FirstOrDefault(_ => _.Id == 1);
-			_transactionNo = await GenerateCodes.GenerateProductStockAdjustmentTransactionNo(_transactionDateTime, _selectedLocation.Id);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("An Error Occurred While Loading Locations", ex.Message, ToastType.Error);
-		}
+		_selectedLocation = _locations.FirstOrDefault(s => s.Id == 1);
+		_transactionNo = await GenerateCodes.GenerateProductStockAdjustmentTransactionNo(_transactionDateTime, _selectedLocation.Id);
 	}
 
-	private async Task LoadStock()
-	{
-		try
-		{
-			_selectedFinancialYear = await FinancialYearData.LoadFinancialYearByDateTime(_transactionDateTime);
-			_stockSummary = await ProductStockData.LoadProductStockSummaryByDateLocationId(_transactionDateTime, _transactionDateTime, _selectedLocation.Id);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("An Error Occurred While Loading Stock Data", ex.Message, ToastType.Error);
-		}
-	}
+	private async Task LoadStock() =>
+		_stockSummary = await ProductStockData.LoadProductStockSummaryByDateLocationId(_transactionDateTime, _transactionDateTime, _selectedLocation.Id);
 
 	private async Task LoadItems()
 	{
-		try
-		{
-			_products = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _selectedLocation.Id);
-
-			_products = [.. _products.OrderBy(s => s.Name)];
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("An Error Occurred While Loading Items", ex.Message, ToastType.Error);
-		}
+		_products = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _selectedLocation.Id);
+		_products = [.. _products.OrderBy(s => s.Name)];
 	}
 
 	private async Task LoadExistingCart()
@@ -121,37 +101,32 @@ public partial class ProductStockAdjustment
 			_cart.Clear();
 
 			if (await DataStorageService.LocalExists(StorageFileNames.ProductStockAdjustmentCartDataFileName))
-				_cart = System.Text.Json.JsonSerializer.Deserialize<List<ProductStockAdjustmentCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.ProductStockAdjustmentCartDataFileName));
+				_cart = JsonSerializer.Deserialize<List<ProductStockAdjustmentCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.ProductStockAdjustmentCartDataFileName));
 		}
 		catch (Exception ex)
 		{
 			await _toastNotification.ShowAsync("An Error Occurred While Loading Existing Cart", ex.Message, ToastType.Error);
 			await DeleteLocalFiles();
 		}
-		finally
-		{
-			await SaveTransactionFile();
-		}
 	}
 	#endregion
 
-	#region Change Events
-	private async Task OnTransactionDateChanged(Syncfusion.Blazor.Calendars.ChangedEventArgs<DateTime> args)
+	#region Changed Events
+	private async Task OnTransactionDateChanged(DateTime value)
 	{
-		_transactionDateTime = args.Value;
+		_transactionDateTime = value;
 		await LoadStock();
 		await LoadItems();
 		await SaveTransactionFile();
 	}
 
-	private async Task OnLocationChanged(ChangeEventArgs<LocationModel, LocationModel> args)
+	private async Task OnLocationChanged(LocationModel value)
 	{
-		args.Value ??= _locations.FirstOrDefault(_ => _.Id == 1);
+		_selectedLocation = value ?? _locations.FirstOrDefault(s => s.Id == 1);
 
-		if (args.Value is null || args.Value.Id == 0)
+		if (_selectedLocation is null || _selectedLocation.Id == 0)
 			return;
 
-		_selectedLocation = args.Value;
 		await LoadStock();
 		await LoadItems();
 		await SaveTransactionFile();
@@ -159,38 +134,23 @@ public partial class ProductStockAdjustment
 	#endregion
 
 	#region Cart
-	private async Task OnItemChanged(ChangeEventArgs<ProductLocationOverviewModel?, ProductLocationOverviewModel> args)
+	private void OnItemChanged(ProductLocationOverviewModel value)
 	{
-		if (args.Value is null || args.Value.Id == 0)
+		if (value is null || value.Id == 0)
 			return;
 
-		_selectedProduct = args.Value;
+		_selectedProduct = value;
 
-		if (_selectedProduct is null)
-			_selectedCart = new()
-			{
-				ProductId = 0,
-				ProductName = "",
-				Stock = 0,
-				Quantity = 0,
-				Total = 0,
-				Rate = 0,
-			};
-
-		else
-		{
-			_selectedCart.Stock = _stockSummary.FirstOrDefault(s => s.ProductId == _selectedProduct.ProductId)?.ClosingStock ?? 0;
-			_selectedCart.Quantity = _stockSummary.FirstOrDefault(s => s.ProductId == _selectedProduct.ProductId)?.ClosingStock ?? 0;
-			_selectedCart.Rate = _selectedProduct.Rate;
-			_selectedCart.Total = _selectedCart.Rate * _selectedCart.Quantity;
-		}
+		_selectedCart.Stock = _stockSummary.FirstOrDefault(s => s.ProductId == _selectedProduct.ProductId)?.ClosingStock ?? 0;
+		_selectedCart.Quantity = _selectedCart.Stock;
+		_selectedCart.Rate = _selectedProduct.Rate;
 
 		UpdateSelectedItemFinancialDetails();
 	}
 
-	private void OnItemQuantityChanged(ChangeEventArgs<decimal> args)
+	private void OnItemQuantityChanged(decimal value)
 	{
-		_selectedCart.Quantity = args.Value;
+		_selectedCart.Quantity = value;
 		UpdateSelectedItemFinancialDetails();
 	}
 
@@ -223,6 +183,7 @@ public partial class ProductStockAdjustment
 		{
 			existingItem.Quantity = _selectedCart.Quantity;
 			existingItem.Rate = _selectedCart.Rate;
+			existingItem.Total = _selectedCart.Total;
 		}
 		else
 			_cart.Add(new()
@@ -238,7 +199,9 @@ public partial class ProductStockAdjustment
 		_selectedProduct = null;
 		_selectedCart = new();
 
-		await _sfItemAutoComplete.FocusAsync();
+		if (_sfItemAutoComplete is not null)
+			await _sfItemAutoComplete.FocusAsync();
+
 		await SaveTransactionFile();
 	}
 
@@ -247,8 +210,7 @@ public partial class ProductStockAdjustment
 		if (_sfCartGrid is null || _sfCartGrid.SelectedRecords is null || _sfCartGrid.SelectedRecords.Count == 0)
 			return;
 
-		var selectedCartItem = _sfCartGrid.SelectedRecords.First();
-		await EditCartItem(selectedCartItem);
+		await EditCartItem(_sfCartGrid.SelectedRecords.First());
 	}
 
 	private async Task EditCartItem(ProductStockAdjustmentCartModel cartItem)
@@ -268,9 +230,11 @@ public partial class ProductStockAdjustment
 			Total = cartItem.Total
 		};
 
-		await _sfItemAutoComplete.FocusAsync();
 		UpdateSelectedItemFinancialDetails();
 		await RemoveItemFromCart(cartItem);
+
+		if (_sfItemAutoComplete is not null)
+			await _sfItemAutoComplete.FocusAsync();
 	}
 
 	private async Task RemoveSelectedCartItem()
@@ -278,8 +242,7 @@ public partial class ProductStockAdjustment
 		if (_sfCartGrid is null || _sfCartGrid.SelectedRecords is null || _sfCartGrid.SelectedRecords.Count == 0)
 			return;
 
-		var selectedCartItem = _sfCartGrid.SelectedRecords.First();
-		await RemoveItemFromCart(selectedCartItem);
+		await RemoveItemFromCart(_sfCartGrid.SelectedRecords.First());
 	}
 
 	private async Task RemoveItemFromCart(ProductStockAdjustmentCartModel cartItem)
@@ -295,20 +258,8 @@ public partial class ProductStockAdjustment
 		foreach (var item in _cart)
 		{
 			item.Stock = _stockSummary.FirstOrDefault(s => s.ProductId == item.ProductId)?.ClosingStock ?? 0;
-			item.Quantity = item.Quantity;
 			item.Total = item.Rate * item.Quantity;
 		}
-
-		#region Financial Year
-		_selectedFinancialYear = await FinancialYearData.LoadFinancialYearByDateTime(_transactionDateTime);
-		if (_selectedFinancialYear is null || _selectedFinancialYear.Locked || !_selectedFinancialYear.Status)
-		{
-			await _toastNotification.ShowAsync("Invalid Transaction Date", "The selected transaction date does not fall within an active financial year.", ToastType.Error);
-			_transactionDateTime = await CommonData.LoadCurrentDateTime();
-			_selectedFinancialYear = await FinancialYearData.LoadFinancialYearByDateTime(_transactionDateTime);
-			_stockSummary = await ProductStockData.LoadProductStockSummaryByDateLocationId(_transactionDateTime, _transactionDateTime, _selectedLocation.Id);
-		}
-		#endregion
 
 		_transactionNo = await GenerateCodes.GenerateProductStockAdjustmentTransactionNo(_transactionDateTime, _selectedLocation.Id);
 	}
@@ -324,7 +275,7 @@ public partial class ProductStockAdjustment
 
 			await UpdateFinancialDetails();
 
-			await DataStorageService.LocalSaveAsync(StorageFileNames.ProductStockAdjustmentCartDataFileName, System.Text.Json.JsonSerializer.Serialize(_cart));
+			await DataStorageService.LocalSaveAsync(StorageFileNames.ProductStockAdjustmentCartDataFileName, JsonSerializer.Serialize(_cart));
 		}
 		catch (Exception ex)
 		{
@@ -333,36 +284,11 @@ public partial class ProductStockAdjustment
 		finally
 		{
 			if (_sfCartGrid is not null)
-				await _sfCartGrid?.Refresh();
+				await _sfCartGrid.Refresh();
 
 			_isProcessing = false;
 			StateHasChanged();
 		}
-	}
-
-	private async Task<bool> ValidateForm()
-	{
-		await FinancialYearData.ValidateFinancialYear(_transactionDateTime);
-
-		if (_cart.Count == 0)
-		{
-			await _toastNotification.ShowAsync("Cart is Empty", "Please add at least one item to the cart before saving the transaction.", ToastType.Warning);
-			return false;
-		}
-
-		if (string.IsNullOrWhiteSpace(_transactionNo))
-		{
-			await _toastNotification.ShowAsync("Transaction Number Missing", "Transaction number is missing for the adjustment.", ToastType.Warning);
-			return false;
-		}
-
-		if (_transactionDateTime == default)
-		{
-			await _toastNotification.ShowAsync("Transaction Date Missing", "Please select a valid transaction date for the adjustment.", ToastType.Warning);
-			return false;
-		}
-
-		return true;
 	}
 
 	private async Task SaveTransaction()
@@ -372,23 +298,16 @@ public partial class ProductStockAdjustment
 
 		try
 		{
+			await SaveTransactionFile();
 			_isProcessing = true;
 			StateHasChanged();
 
-			await SaveTransactionFile();
-
-			if (!await ValidateForm())
-			{
-				_isProcessing = false;
-				return;
-			}
-
 			await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			await ProductStockData.SaveProductStockAdjustment(_transactionDateTime, _selectedLocation.Id, _cart, _user.Id);
+			await ProductStockData.SaveProductStockAdjustment(_transactionDateTime, _selectedLocation.Id, _cart, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
 
+			await _toastNotification.ShowAsync("Save Transaction", "Transaction saved successfully.", ToastType.Success);
 			await ResetPage();
-			await _toastNotification.ShowAsync("Save Transaction", "Transaction saved successfully!", ToastType.Success);
 		}
 		catch (Exception ex)
 		{
@@ -399,57 +318,25 @@ public partial class ProductStockAdjustment
 			_isProcessing = false;
 		}
 	}
-
-	private async Task DeleteLocalFiles() =>
-		await DataStorageService.LocalRemove(StorageFileNames.ProductStockAdjustmentCartDataFileName);
 	#endregion
 
 	#region Utilities
-	private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
-	{
-		switch (args.Item.Id)
-		{
-			case "NewTransaction":
-				await ResetPage();
-				break;
-			case "SaveTransaction":
-				await SaveTransaction();
-				break;
-			case "TransactionHistory":
-				await NavigateToTransactionHistoryPage();
-				break;
-		}
-	}
-
 	private async Task OnCartGridContextMenuItemClicked(ContextMenuClickEventArgs<ProductStockAdjustmentCartModel> args)
 	{
 		switch (args.Item.Id)
 		{
-			case "EditCart":
-				await EditSelectedCartItem();
-				break;
-			case "DeleteCart":
-				await RemoveSelectedCartItem();
-				break;
+			case "EditCart": await EditSelectedCartItem(); break;
+			case "DeleteCart": await RemoveSelectedCartItem(); break;
 		}
 	}
+
+	private async Task DeleteLocalFiles() =>
+		await DataStorageService.LocalRemove(StorageFileNames.ProductStockAdjustmentCartDataFileName);
 
 	private async Task ResetPage()
 	{
 		await DeleteLocalFiles();
-		NavigationManager.NavigateTo(InventoryRouteNames.ProductStockAdjustment, true);
+		PageRefresh.Request();
 	}
-
-	private async Task NavigateToTransactionHistoryPage() =>
-		await AuthenticationService.NavigateToRoute(InventoryRouteNames.ProductStockReport, FormFactor, JSRuntime, NavigationManager);
-
-	private void NavigateToDashboard() =>
-		NavigationManager.NavigateTo(OperationRouteNames.Dashboard);
-
-	private void NavigateBack() =>
-		NavigationManager.NavigateTo(OperationRouteNames.InventoryDashboard);
-
-	private async Task Logout() =>
-		await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 	#endregion
 }

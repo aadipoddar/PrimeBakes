@@ -2,6 +2,7 @@
 	@Id INT
 AS
 BEGIN
-	DELETE FROM [dbo].[RawMaterialStock]
-	WHERE [Id] = @Id
+	DELETE FROM [dbo].[RawMaterialStock] WHERE [Id] = @Id;
+
+	SELECT 1 AS Success;
 END

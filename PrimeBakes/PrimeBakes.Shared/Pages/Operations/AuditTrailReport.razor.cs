@@ -223,10 +223,7 @@ public partial class AuditTrailReport : IAsyncDisposable
 			while (await _autoRefreshTimer.WaitForNextTickAsync(cancellationToken))
 				await LoadAuditTrails();
 		}
-		catch (OperationCanceledException)
-		{
-			// Timer was cancelled, expected on dispose
-		}
+		catch (OperationCanceledException) { }
 	}
 
 	async ValueTask IAsyncDisposable.DisposeAsync()

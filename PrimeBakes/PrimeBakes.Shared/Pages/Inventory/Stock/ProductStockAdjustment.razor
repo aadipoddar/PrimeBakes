@@ -6,14 +6,14 @@
 
 <PageTitle>Product Stock Adjustment - Prime Bakes</PageTitle>
 
-<MudBlazor.MudHotkey Key=JsKey.Enter KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="AddItemToCart" />
-<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfItemAutoComplete.FocusAsync()" />
-<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="SaveTransaction" />
-<MudBlazor.MudHotkey Key=JsKey.KeyH KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateToTransactionHistoryPage" />
-<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" />
-<MudBlazor.MudHotkey Key=JsKey.KeyB KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateBack" />
-<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="RemoveSelectedCartItem" />
-<MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="EditSelectedCartItem" />
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfFirstFocus.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyG KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfItemAutoComplete.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Enter KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="AddItemToCart" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="SaveTransaction" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyH KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.ProductStockReport, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="RemoveSelectedCartItem" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="EditSelectedCartItem" Disabled="@_isProcessing" />
 
 @if (_isLoading || _user is null)
 {
@@ -24,33 +24,17 @@ else
 	<div class="page-shell">
 		<Header Title="Create Product Stock Adjustment">
 			<LeftContent>
-				<SfMenu TValue="Syncfusion.Blazor.Navigations.MenuItem">
-					<MenuAnimationSettings Effect="Syncfusion.Blazor.Navigations.MenuEffect.SlideDown" Duration="300"
-										   Easing="ease" />
-					<MenuEvents TValue="Syncfusion.Blazor.Navigations.MenuItem" ItemSelected="OnMenuSelected"
-								OnOpen='async () => await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0)' />
-					<MenuItems>
-						<MenuItem Text="File" IconCss="e-icons e-folder">
-							<MenuItems>
-								<MenuItem Text="New Transaction (Ctrl + N)" IconCss="e-icons e-plus" Id="NewTransaction"
-										  Disabled="@_isProcessing" />
-								<MenuItem Separator="true" />
-								<MenuItem Text="Save (Ctrl + S)" IconCss="e-icons e-save" Id="SaveTransaction"
-										  Disabled="@_isProcessing" />
-							</MenuItems>
-						</MenuItem>
-						<MenuItem Text="Open" IconCss="e-icons e-folder-open">
-							<MenuItems>
-								<MenuItem Text="Transaction History Report (Ctrl + H)" Id="TransactionHistory"
-										  Disabled="@_isProcessing" />
-							</MenuItems>
-						</MenuItem>
-					</MenuItems>
-				</SfMenu>
+				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="New Transaction (Ctrl + N)" OnClick="ResetPage" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Save (Ctrl + S)" OnClick="SaveTransaction" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Open" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Product Stock Adjustment (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.ProductStockAdjustment, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Product Stock Report (Ctrl + H)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.ProductStockReport, FormFactor, JSRuntime, NavigationManager)" />
+				</MudBlazor.MudMenu>
 			</LeftContent>
-			<RightContent>
-				<IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="NavigateBack" />
-			</RightContent>
 		</Header>
 
 		<!-- Main Content Container -->
@@ -76,29 +60,31 @@ else
 					<div class="form-grid">
 						<!-- Transaction Date and Financial Year -->
 						<div class="form-field">
-							<DatePickerWithAdd Value="_transactionDateTime"
-											  FinancialYear="@_selectedFinancialYear"
-											  ValueChange="OnTransactionDateChanged" />
+							<CustomDatePicker @ref="_sfFirstFocus"
+											  Value="_transactionDateTime"
+											  ShowFinancialYear="false"
+											  ValueChanged="OnTransactionDateChanged" />
 						</div>
 
+						<!-- Outlet / Location -->
 						<div class="form-field">
-							<AutoCompleteWithAdd TItem="LocationModel" TValue="LocationModel"
-											Value="_selectedLocation"
-											DataSource="@_locations"
-											Placeholder="Select Outlet"
-											Label="Outlet / Location" ValueChange="OnLocationChanged"
-											FieldValue="@nameof(LocationModel.Name)"
-											AddNewRoute="@OperationRouteNames.Location" />
+							<CustomAutoComplete T="LocationModel"
+												Value="_selectedLocation"
+												DataSource="@_locations"
+												Placeholder="Select Outlet"
+												Label="Outlet / Location"
+												ValueChanged="OnLocationChanged"
+												FieldValue="@nameof(LocationModel.Name)"
+												AddNewRoute="@OperationRouteNames.Location" />
 						</div>
 
 						<!-- Transaction No -->
 						<div class="form-field">
-							<label class="field-label">
-								Transaction No <span class="required">*</span>
-							</label>
-							<SfTextBox @bind-Value="_transactionNo" Placeholder="Enter Transaction No"
-								   FloatLabelType="FloatLabelType.Never" Readonly="true" TabIndex="-1"
-									   CssClass="custom-textbox readonly-field" />
+							<CustomTextField @bind-Value="_transactionNo"
+											 Label="Transaction No"
+											 Placeholder="Transaction No"
+											 ReadOnly="true"
+											 TabIndex="-1" />
 						</div>
 					</div>
 				</div>
@@ -122,53 +108,59 @@ else
 					<div class="cart-input-row">
 						<!-- Item Selection -->
 						<div class="cart-field cart-field-wide">
-							<AutoCompleteWithAdd @ref="_sfItemAutoComplete" Value="@_selectedProduct"
-											TValue="ProductLocationOverviewModel?" TItem="ProductLocationOverviewModel"
-											DataSource="@_products" Placeholder="Select Item (Ctrl + F)"
-											Label="Item Name" ValueChange="OnItemChanged"
-											FieldValue="@nameof(ProductLocationOverviewModel.Name)"
-											AddNewRoute="@StoreRouteNames.Product" />
+							<CustomAutoComplete @ref="_sfItemAutoComplete" T="ProductLocationOverviewModel"
+												Value="_selectedProduct"
+												DataSource="@_products"
+												Placeholder="Select Item"
+												Label="Item Name (Ctrl + G)"
+												ValueChanged="OnItemChanged"
+												FieldValue="@nameof(ProductLocationOverviewModel.Name)"
+												AddNewRoute="@StoreRouteNames.Product"
+												OpenOnFocus="false" />
 						</div>
 
 						<!-- Current Stock -->
 						<div class="cart-field">
-							<label class="field-label">Current Stock</label>
-							<SfNumericTextBox Value="@_selectedCart.Stock" TValue="decimal" ShowSpinButton="false"
-										  Readonly="true" FloatLabelType="FloatLabelType.Never"
-										  CssClass="custom-numeric readonly-field" TabIndex="-1" />
+							<CustomNumericField T="decimal"
+												Value="_selectedCart.Stock"
+												Label="Current Stock"
+												ReadOnly="true"
+												Required="false"
+												TabIndex="-1" />
 						</div>
 
 						<!-- New Quantity -->
 						<div class="cart-field">
-							<label class="field-label">New Quantity <span class="required">*</span></label>
-							<SfNumericTextBox Value="@_selectedCart.Quantity" TValue="decimal" ShowSpinButton="false"
-											  Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
-											  CssClass="custom-numeric editable-field">
-								<NumericTextBoxEvents TValue="decimal" ValueChange="OnItemQuantityChanged" />
-							</SfNumericTextBox>
+							<CustomNumericField T="decimal"
+												Value="_selectedCart.Quantity"
+												ValueChanged="OnItemQuantityChanged"
+												Label="New Qty"
+												Placeholder="0.00" />
 						</div>
 
 						<!-- Rate -->
 						<div class="cart-field">
-							<label class="field-label">Rate</label>
-							<SfNumericTextBox Value="@_selectedCart.Rate" TValue="decimal" ShowSpinButton="false"
-										  Readonly="true" FloatLabelType="FloatLabelType.Never"
-										  CssClass="custom-numeric readonly-field" TabIndex="-1" />
+							<CustomNumericField T="decimal"
+												Value="_selectedCart.Rate"
+												Label="Rate"
+												ReadOnly="true"
+												Required="false"
+												TabIndex="-1" />
 						</div>
 
 						<!-- Total -->
-						<div class="form-field">
-							<label class="field-label">Total Amount</label>
-							<SfNumericTextBox Value="@_selectedCart.Total" TValue="decimal" ShowSpinButton="false"
-										  Readonly="true" FloatLabelType="FloatLabelType.Never"
-										  CssClass="custom-numeric readonly-field" TabIndex="-1" />
+						<div class="cart-field">
+							<CustomNumericField T="decimal"
+												Value="_selectedCart.Total"
+												Label="Total"
+												ReadOnly="true"
+												Required="false"
+												TabIndex="-1" />
 						</div>
 
 						<!-- Add Button -->
-						<div class="form-field form-field-button">
-							<label class="field-label">&nbsp;</label>
-							<IconButton Icon="IconType.Add" Variant="ButtonVariant.Add" Text="Add to Cart"
-										Title="Add to Cart" OnClick="AddItemToCart" />
+						<div class="cart-field cart-field-action">
+							<IconButton Icon="IconType.Add" Variant="ButtonVariant.Add" Text="Add" Title="Add to Cart" OnClick="AddItemToCart" />
 						</div>
 					</div>
 				</div>
@@ -188,20 +180,18 @@ else
 					</div>
 				</div>
 				<div class="section-body grid-body">
-					<SfGrid ID="_sfCartGrid" @ref="_sfCartGrid" DataSource="_cart" AllowTextWrap="true" AllowPaging="false"
+					<SfGrid @ref="_sfCartGrid" DataSource="_cart" AllowTextWrap="true" AllowPaging="false"
 							AllowSorting="true" AllowResizing="true" AllowFiltering="true" GridLines="GridLine.Horizontal"
 							CssClass="professional-grid" ContextMenuItems="@_cartGridContextMenuItems"
 							Toolbar="@(new List<string>() { "Search" })">
 
-						<GridEvents TValue="ProductStockAdjustmentCartModel"
-									ContextMenuItemClicked="OnCartGridContextMenuItemClicked" />
-
+						<GridEvents TValue="ProductStockAdjustmentCartModel" ContextMenuItemClicked="OnCartGridContextMenuItemClicked" />
 						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
 						<GridAggregates>
 							<GridAggregate>
 								<GridAggregateColumns>
-									<GridAggregateColumn Field="ProductName" Type="AggregateType.Count">
+									<GridAggregateColumn Field="@nameof(ProductStockAdjustmentCartModel.ProductName)" Type="AggregateType.Count">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
@@ -211,7 +201,7 @@ else
 											</div>
 										</FooterTemplate>
 									</GridAggregateColumn>
-									<GridAggregateColumn Field="Stock" Type="AggregateType.Sum">
+									<GridAggregateColumn Field="@nameof(ProductStockAdjustmentCartModel.Stock)" Type="AggregateType.Sum">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
@@ -222,7 +212,7 @@ else
 											</div>
 										</FooterTemplate>
 									</GridAggregateColumn>
-									<GridAggregateColumn Field="Quantity" Type="AggregateType.Sum">
+									<GridAggregateColumn Field="@nameof(ProductStockAdjustmentCartModel.Quantity)" Type="AggregateType.Sum">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
@@ -233,7 +223,7 @@ else
 											</div>
 										</FooterTemplate>
 									</GridAggregateColumn>
-									<GridAggregateColumn Field="Total" Type="AggregateType.Sum">
+									<GridAggregateColumn Field="@nameof(ProductStockAdjustmentCartModel.Total)" Type="AggregateType.Sum">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
@@ -249,15 +239,11 @@ else
 						</GridAggregates>
 
 						<GridColumns>
-							<GridColumn Field="ProductName" HeaderText="Item Name" Width="250" />
-							<GridColumn Field="Stock" HeaderText="Current Stock" Width="130" TextAlign="TextAlign.Right"
-										Format="N2" />
-							<GridColumn Field="Quantity" HeaderText="New Qty" Width="120" TextAlign="TextAlign.Right"
-										Format="N2" />
-							<GridColumn Field="Rate" HeaderText="Rate" Width="110" TextAlign="TextAlign.Right"
-										Format="N2" />
-							<GridColumn Field="Total" HeaderText="Total" Width="150" TextAlign="TextAlign.Right"
-										Format="N2">
+							<GridColumn Field="@nameof(ProductStockAdjustmentCartModel.ProductName)" HeaderText="Item Name" Width="250" />
+							<GridColumn Field="@nameof(ProductStockAdjustmentCartModel.Stock)" HeaderText="Current Stock" Width="130" TextAlign="TextAlign.Right" Format="N2" />
+							<GridColumn Field="@nameof(ProductStockAdjustmentCartModel.Quantity)" HeaderText="New Qty" Width="120" TextAlign="TextAlign.Right" Format="N2" />
+							<GridColumn Field="@nameof(ProductStockAdjustmentCartModel.Rate)" HeaderText="Rate" Width="110" TextAlign="TextAlign.Right" Format="N2" />
+							<GridColumn Field="@nameof(ProductStockAdjustmentCartModel.Total)" HeaderText="Total" Width="150" TextAlign="TextAlign.Right" Format="N2">
 								<Template>
 									@{
 										var item = (context as dynamic);
@@ -276,3 +262,5 @@ else
 }
 
 <ToastNotification @ref="_toastNotification" />
+
+<CloseGuard Block="_isProcessing" />

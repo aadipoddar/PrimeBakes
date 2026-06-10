@@ -6,51 +6,44 @@
 
 <PageTitle>Recipe - Prime Bakes</PageTitle>
 
-<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" />
-<MudBlazor.MudHotkey Key=JsKey.KeyB KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateBack" />
-<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="OnSaveButtonClick" />
-<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="DownloadPdfInvoice" />
-<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="DownloadExcelInvoice" />
-<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfItemAutoComplete.FocusAsync()" />
-<MudBlazor.MudHotkey Key=JsKey.Enter KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="AddItemToCart" />
-<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="RemoveSelectedCartItem" />
-<MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="EditSelectedCartItem" />
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyH KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.RecipeReport, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfFirstFocus.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyG KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfItemAutoComplete.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Enter KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="AddItemToCart" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction(savePDF: true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction(saveExcel: true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="RemoveSelectedCartItem" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="EditSelectedCartItem" Disabled="@_isProcessing" />
 
-@if (_isLoading)
+@if (_isLoading || _user is null)
 {
 	<LoadingScreen />
 }
 else
 {
 	<div class="page-shell">
-		<Header Title="Product Recipe Management">
+		<Header Title="@($"Recipe{(_selectedProduct is null ? "" : $" - {_selectedProduct.Name}")}")">
 			<LeftContent>
-				<SfMenu TValue="Syncfusion.Blazor.Navigations.MenuItem">
-					<MenuAnimationSettings Effect="Syncfusion.Blazor.Navigations.MenuEffect.SlideDown" Duration="300" Easing="ease" />
-					<MenuEvents TValue="Syncfusion.Blazor.Navigations.MenuItem" ItemSelected="OnMenuSelected" />
-					<MenuItems>
-						<MenuItem Text="File" IconCss="e-icons e-folder">
-							<MenuItems>
-								<MenuItem Text="New (Ctrl + N)" IconCss="e-icons e-plus" Id="NewRecipe" Disabled="@_isProcessing" />
-								<MenuItem Text="Save (Ctrl + S)" IconCss="e-icons e-save" Id="SaveRecipe" Disabled="@_isProcessing" />
-								<MenuItem Text="Delete Recipe" IconCss="e-icons e-trash" Id="DeleteRecipe" Disabled="@(_isProcessing || _recipe is null || _recipe.Id == 0)" />
-								<MenuItem Separator="true" />
-								<MenuItem Text="Export PDF (Alt + P)" IconCss="e-icons e-export-pdf" Id="ExportPdfInvoice" Disabled="@(_isProcessing || _recipe is null || _recipe.Id == 0)" />
-								<MenuItem Text="Export Excel (Alt + E)" IconCss="e-icons e-export-excel" Id="ExportExcelInvoice" Disabled="@(_isProcessing || _recipe is null || _recipe.Id == 0)" />
-							</MenuItems>
-						</MenuItem>
-						<MenuItem Text="Transaction" IconCss="e-icons e-chart">
-							<MenuItems>
-								<MenuItem Text="Edit Item (Insert)" IconCss="e-icons e-edit" Id="EditSelectedRecipeItem" Disabled="@_isProcessing" />
-								<MenuItem Text="Delete Item (Del)" IconCss="e-icons e-trash" Id="DeleteSelectedRecipeItem" Disabled="@_isProcessing" />
-							</MenuItems>
-						</MenuItem>
-					</MenuItems>
-				</SfMenu>
+				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="New Recipe (Ctrl + N)" OnClick="ResetPage" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Save (Ctrl + S)" OnClick="() => SaveTransaction()" />
+					<MudBlazor.MudMenuItem Label="Save & PDF (Ctrl + P)" OnClick="() => SaveTransaction(savePDF: true)" />
+					<MudBlazor.MudMenuItem Label="Save & Excel (Ctrl + E)" OnClick="() => SaveTransaction(saveExcel: true)" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Export PDF (Alt + P)" OnClick="() => ExportSelectedTransaction()" Disabled="@(_isProcessing || _recipe is null || _recipe.Id == 0)" />
+					<MudBlazor.MudMenuItem Label="Export Excel (Alt + E)" OnClick="() => ExportSelectedTransaction(true)" Disabled="@(_isProcessing || _recipe is null || _recipe.Id == 0)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Open" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Recipe (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.Recipe, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Recipe Report (Ctrl + H)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.RecipeReport, FormFactor, JSRuntime, NavigationManager)" />
+				</MudBlazor.MudMenu>
 			</LeftContent>
-			<RightContent>
-				<IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="NavigateBack" />
-			</RightContent>
 		</Header>
 
 		<!-- Main Content Container -->
@@ -72,32 +65,41 @@ else
 					<div class="form-grid">
 						<!-- Product -->
 						<div class="form-field">
-							<AutoCompleteWithAdd TItem="ProductLocationOverviewModel" TValue="ProductLocationOverviewModel"
-												 Value="@_selectedProduct" DataSource="@_products" Placeholder="Select a Product"
-												 Label="Product" ValueChange="OnProductChanged"
-												 FieldValue="@nameof(ProductLocationOverviewModel.Name)" AddNewRoute="@StoreRouteNames.Product" />
+							<CustomAutoComplete @ref="_sfFirstFocus" T="ProductLocationOverviewModel"
+												Value="_selectedProduct"
+												DataSource="@_products"
+												Placeholder="Select a Product"
+												Label="Product (Ctrl + F)"
+												ValueChanged="OnProductChanged"
+												FieldValue="@nameof(ProductLocationOverviewModel.Name)"
+												AddNewRoute="@StoreRouteNames.Product" />
 						</div>
 
 						<!-- Quantity -->
 						<div class="form-field">
-							<label class="field-label">
-								Quantity <span class="required">*</span>
-							</label>
-							<SfNumericTextBox @bind-Value="_recipe.Quantity" Placeholder="Enter Quantity" Min="0"
-											  FloatLabelType="FloatLabelType.Never" CssClass="custom-numeric" />
+							<CustomNumericField T="decimal"
+												Value="_recipe.Quantity"
+												ValueChanged="OnRecipeQuantityChanged"
+												Label="Quantity"
+												Placeholder="Enter Quantity"
+												Min="0" />
 						</div>
 
 						<!-- Deduct -->
 						<div class="form-field">
-							<label class="field-label">Deduct on Sale</label>
 							<div class="checkbox-wrapper">
-								<SfCheckBox @bind-Checked="_recipe.Deduct" Label="Deduct" CssClass="custom-checkbox" />
+								<CustomCheckBox @bind-Value="_recipe.Deduct"
+												Label="Deduct on Sale" />
 							</div>
 						</div>
 
 						<!-- Recipe Date -->
 						<div class="form-field">
-							<DatePickerWithAdd @bind-Value="_recipeDateTime" Label="Recipe Date" ValueChange="OnRecipeDateChanged" />
+							<CustomDatePicker Value="_recipeDateTime"
+											  Label="Recipe Date"
+											  ShowFinancialYear="false"
+											  AddNewRoute="@null"
+											  ValueChanged="OnRecipeDateChanged" />
 						</div>
 					</div>
 				</div>
@@ -119,42 +121,56 @@ else
 					<!-- Single Row: Raw Material and Quantity -->
 					<div class="cart-input-row">
 						<div class="cart-field cart-field-wide">
-							<AutoCompleteWithAdd @ref="_sfItemAutoComplete" @bind-Value="_selectedRawMaterial" TValue="RawMaterialModel" TItem="RawMaterialModel" DataSource="@_rawMaterials" Placeholder="Select Raw Material" Label="Raw Material"
-												 FieldValue="@nameof(RawMaterialModel.Name)" AddNewRoute="@InventoryRouteNames.RawMaterial" />
+							<CustomAutoComplete @ref="_sfItemAutoComplete" T="RawMaterialModel"
+												@bind-Value="_selectedRawMaterial"
+												DataSource="@_rawMaterials"
+												Placeholder="Select Raw Material"
+												Label="Raw Material (Ctrl + G)"
+												FieldValue="@nameof(RawMaterialModel.Name)"
+												AddNewRoute="@InventoryRouteNames.RawMaterial"
+												OpenOnFocus="false" />
 						</div>
 
 						<div class="cart-field">
-							<label class="cart-label">Quantity <span class="required">*</span></label>
-							<SfNumericTextBox @bind-Value="_selectedCart.Quantity" TValue="decimal" Min="0" ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never" CssClass="custom-numeric editable-field" />
+							<CustomNumericField T="decimal"
+												@bind-Value="_selectedCart.Quantity"
+												Label="Quantity"
+												Placeholder="0.00"
+												Min="0" />
 						</div>
 
 						<div class="cart-field">
-							<label class="cart-label">Rate <span class="required">*</span></label>
-							<SfNumericTextBox Value="@(_rawMaterials.FirstOrDefault(r => r.Id == _selectedRawMaterial?.Id)?.Rate ?? 0)"
-											  TValue="decimal" Readonly="true"
-											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
-											  CssClass="custom-numeric readonly-field" TabIndex="-1" />
+							<CustomNumericField T="decimal"
+												Value="@(_selectedRawMaterial?.Rate ?? 0)"
+												Label="Rate"
+												Placeholder="0.00"
+												ReadOnly="true"
+												Required="false"
+												TabIndex="-1" />
 						</div>
 
 						<div class="cart-field">
-							<label class="cart-label">Amount <span class="required">*</span></label>
-							<SfNumericTextBox Value="@(_selectedCart.Quantity * (_rawMaterials.FirstOrDefault(r => r.Id == _selectedRawMaterial?.Id)?.Rate ?? 0))"
-											  TValue="decimal" Readonly="true"
-											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
-											  CssClass="custom-numeric readonly-field" TabIndex="-1" />
+							<CustomNumericField T="decimal"
+												Value="@(_selectedCart.Quantity * (_selectedRawMaterial?.Rate ?? 0))"
+												Label="Amount"
+												Placeholder="0.00"
+												ReadOnly="true"
+												Required="false"
+												TabIndex="-1" />
 						</div>
 
 						<div class="cart-field">
-							<label class="cart-label">Per Unit</label>
-							<SfNumericTextBox Value="@(_recipe.Quantity > 0 ? (_selectedCart.Quantity * (_rawMaterials.FirstOrDefault(r => r.Id == _selectedRawMaterial?.Id)?.Rate ?? 0)) / _recipe.Quantity : 0m)"
-											  TValue="decimal" Readonly="true"
-											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
-											  CssClass="custom-numeric readonly-field" TabIndex="-1" />
+							<CustomNumericField T="decimal"
+												Value="@(_recipe.Quantity > 0 ? _selectedCart.Quantity * (_selectedRawMaterial?.Rate ?? 0) / _recipe.Quantity : 0m)"
+												Label="Per Unit"
+												Placeholder="0.00"
+												ReadOnly="true"
+												Required="false"
+												TabIndex="-1" />
 						</div>
 
-						<div class="cart-field">
-							<label class="cart-label" style="visibility: hidden;">Action</label>
-							<IconButton Icon="IconType.Add" Variant="ButtonVariant.Add" Text="Add" Title="Add to Cart" Disabled="_isProcessing" OnClick="AddItemToCart" />
+						<div class="cart-field cart-field-action">
+							<IconButton Icon="IconType.Add" Variant="ButtonVariant.Add" Text="Add" Title="Add to Cart" OnClick="AddItemToCart" />
 						</div>
 					</div>
 				</div>
@@ -172,7 +188,7 @@ else
 					</div>
 				</div>
 				<div class="section-body grid-body">
-					<SfGrid ID="_sfCartGrid" @ref="_sfCartGrid" DataSource="_recipeItems" AllowTextWrap="true" AllowPaging="false" AllowSorting="true" AllowResizing="true" AllowFiltering="true" GridLines="GridLine.Horizontal" CssClass="professional-grid"
+					<SfGrid @ref="_sfCartGrid" DataSource="_recipeItems" AllowTextWrap="true" AllowPaging="false" AllowSorting="true" AllowResizing="true" AllowFiltering="true" GridLines="GridLine.Horizontal" CssClass="professional-grid"
 							Toolbar="@(new List<string>() { "Search" })" ContextMenuItems="@_recipeGridContextMenuItems">
 
 						<GridEvents TValue="RecipeItemCartModel" ContextMenuItemClicked="OnRecipeGridContextMenuItemClicked" />
@@ -245,3 +261,5 @@ else
 }
 
 <ToastNotification @ref="_toastNotification" />
+
+<CloseGuard Block="_isProcessing" />

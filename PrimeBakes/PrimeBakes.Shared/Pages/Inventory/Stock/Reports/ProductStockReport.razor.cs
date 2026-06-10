@@ -382,7 +382,7 @@ public partial class ProductStockReport : IAsyncDisposable
 			return;
 		}
 
-		await ProductStockData.DeleteProductStockById(_deleteAdjustmentId, _user.Id);
+		await ProductStockData.DeleteProductStockById(_deleteAdjustmentId, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
 		await _toastNotification.ShowAsync("Success", $"Transaction {_deleteTransactionNo} has been deleted successfully.", ToastType.Success);
 	}
 	#endregion
@@ -524,10 +524,7 @@ public partial class ProductStockReport : IAsyncDisposable
 			while (await _autoRefreshTimer.WaitForNextTickAsync(cancellationToken))
 				await LoadStockData();
 		}
-		catch (OperationCanceledException)
-		{
-			// Timer was cancelled, expected on dispose
-		}
+		catch (OperationCanceledException) { }
 	}
 
 	async ValueTask IAsyncDisposable.DisposeAsync()

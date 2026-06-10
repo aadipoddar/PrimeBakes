@@ -252,7 +252,7 @@ else
 						</GridAggregates>
 
 						<GridColumns>
-							<GridColumn Field="@nameof(KitchenProductionItemOverviewModel.ItemName)" HeaderText="Product" Width="200" Visible="@(_showAllColumns || _selectedRawMaterial is null || _selectedRawMaterial.Id <= 0)" />
+							<GridColumn Field="@nameof(KitchenProductionItemOverviewModel.ItemName)" HeaderText="Product" Width="200" Visible="@(_showAllColumns || _selectedProduct is null || _selectedProduct.Id <= 0)" />
 							<GridColumn Field="@nameof(KitchenProductionItemOverviewModel.ItemCode)" HeaderText="Code" Width="130" Visible="@_showAllColumns" />
 							<GridColumn Field="@nameof(KitchenProductionItemOverviewModel.ItemCategoryName)" HeaderText="Category" Width="160" Visible="@(_showAllColumns || _selectedProductCategory is null || _selectedProductCategory.Id <= 0)" />
 							<GridColumn Field="@nameof(KitchenProductionItemOverviewModel.Quantity)" HeaderText="Quantity" Width="120" Format="N2" TextAlign="TextAlign.Right" />

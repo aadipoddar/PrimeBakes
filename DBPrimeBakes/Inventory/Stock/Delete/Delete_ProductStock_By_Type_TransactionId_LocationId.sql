@@ -1,4 +1,4 @@
-﻿CREATE PROCEDURE [dbo].[Delete_ProductStock_By_Type_TransactionId_LocationId]
+CREATE PROCEDURE [dbo].[Delete_ProductStock_By_Type_TransactionId_LocationId]
 	@Type VARCHAR(20),
 	@TransactionId INT,
 	@LocationId INT
@@ -7,5 +7,7 @@ BEGIN
 	DELETE FROM [dbo].[ProductStock]
 	WHERE [Type] = @Type
 	  AND [TransactionId] = @TransactionId
-	  AND [LocationId] = @LocationId
+	  AND [LocationId] = @LocationId;
+
+	SELECT 1 AS Success;
 END

@@ -179,8 +179,8 @@ h1:focus {
 .form-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(min(330px, 100%), 1fr));
-	gap: 16px 20px;
-	align-items: start;
+	gap: 10px 20px;
+	align-items: center;
 }
 
 /* ================================================================

@@ -33,12 +33,22 @@ public static class RecipeReportExport
 
 		if (exportType == ReportExportType.PDF)
 		{
-			var stream = await PDFReportExportUtil.ExportToPdf(data, "Recipe Report", columnSettings: columnSettings, columnOrder: columnOrder, useLandscape: true);
+			var stream = await PDFReportExportUtil.ExportToPdf(
+				data,
+				"Recipe Report",
+				columnSettings: columnSettings,
+				columnOrder: columnOrder,
+				useLandscape: true);
 			return (stream, fileName + ".pdf");
 		}
 		else
 		{
-			var stream = await ExcelReportExportUtil.ExportToExcel(data, "Recipe Report", "Recipes", columnSettings: columnSettings, columnOrder: columnOrder);
+			var stream = await ExcelReportExportUtil.ExportToExcel(
+				data,
+				"Recipe Report",
+				"Recipes",
+				columnSettings: columnSettings,
+				columnOrder: columnOrder);
 			return (stream, fileName + ".xlsx");
 		}
 	}
