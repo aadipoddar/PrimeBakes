@@ -37,7 +37,7 @@ public partial class RecipePage
 		new() { Text = "Delete (Del)", Id = "DeleteCart", IconCss = "e-icons e-trash", Target = ".e-content" }
 	];
 
-	private CustomAutoComplete<ProductLocationOverviewModel> _sfFirstFocus;
+	private CustomAutoComplete<ProductLocationOverviewModel> _firstFocus;
 	private CustomAutoComplete<RawMaterialModel> _sfItemAutoComplete;
 	private SfGrid<RecipeItemCartModel> _sfCartGrid;
 
@@ -69,8 +69,8 @@ public partial class RecipePage
 		_isLoading = false;
 		StateHasChanged();
 
-		if (_sfFirstFocus is not null)
-			await _sfFirstFocus.FocusAsync();
+		if (_firstFocus is not null)
+			await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadRecipe()

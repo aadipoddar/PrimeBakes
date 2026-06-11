@@ -8,7 +8,7 @@
 
 <MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyH KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.RecipeReport, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfFirstFocus.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus.FocusAsync()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyG KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfItemAutoComplete.FocusAsync()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.Enter KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="AddItemToCart" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction()" Disabled="@_isProcessing" />
@@ -65,41 +65,25 @@ else
 					<div class="form-grid">
 						<!-- Product -->
 						<div class="form-field">
-							<CustomAutoComplete @ref="_sfFirstFocus" T="ProductLocationOverviewModel"
-												Value="_selectedProduct"
-												DataSource="@_products"
-												Placeholder="Select a Product"
-												Label="Product (Ctrl + F)"
-												ValueChanged="OnProductChanged"
-												FieldValue="@nameof(ProductLocationOverviewModel.Name)"
-												AddNewRoute="@StoreRouteNames.Product" />
+							<CustomAutoComplete @ref="_firstFocus" T="ProductLocationOverviewModel" Value="_selectedProduct" DataSource="@_products" Placeholder="Select a Product" Label="Product (Ctrl + F)" ValueChanged="OnProductChanged"
+												FieldValue="@nameof(ProductLocationOverviewModel.Name)" AddNewRoute="@StoreRouteNames.Product" />
 						</div>
 
 						<!-- Quantity -->
 						<div class="form-field">
-							<CustomNumericField T="decimal"
-												Value="_recipe.Quantity"
-												ValueChanged="OnRecipeQuantityChanged"
-												Label="Quantity"
-												Placeholder="Enter Quantity"
-												Min="0" />
+							<CustomNumericField T="decimal" Value="_recipe.Quantity" ValueChanged="OnRecipeQuantityChanged" Label="Quantity" Placeholder="Enter Quantity" Min="0" />
 						</div>
 
 						<!-- Deduct -->
 						<div class="form-field">
 							<div class="checkbox-wrapper">
-								<CustomCheckBox @bind-Value="_recipe.Deduct"
-												Label="Deduct on Sale" />
+								<CustomCheckBox @bind-Value="_recipe.Deduct" Label="Deduct on Sale" />
 							</div>
 						</div>
 
 						<!-- Recipe Date -->
 						<div class="form-field">
-							<CustomDatePicker Value="_recipeDateTime"
-											  Label="Recipe Date"
-											  ShowFinancialYear="false"
-											  AddNewRoute="@null"
-											  ValueChanged="OnRecipeDateChanged" />
+							<CustomDatePicker Value="_recipeDateTime" Label="Recipe Date" ShowFinancialYear="false" AddNewRoute="@null" ValueChanged="OnRecipeDateChanged" />
 						</div>
 					</div>
 				</div>
@@ -121,51 +105,24 @@ else
 					<!-- Single Row: Raw Material and Quantity -->
 					<div class="cart-input-row">
 						<div class="cart-field cart-field-wide">
-							<CustomAutoComplete @ref="_sfItemAutoComplete" T="RawMaterialModel"
-												@bind-Value="_selectedRawMaterial"
-												DataSource="@_rawMaterials"
-												Placeholder="Select Raw Material"
-												Label="Raw Material (Ctrl + G)"
-												FieldValue="@nameof(RawMaterialModel.Name)"
-												AddNewRoute="@InventoryRouteNames.RawMaterial"
-												OpenOnFocus="false" />
+							<CustomAutoComplete @ref="_sfItemAutoComplete" T="RawMaterialModel" @bind-Value="_selectedRawMaterial" DataSource="@_rawMaterials" Placeholder="Select Raw Material" Label="Raw Material (Ctrl + G)"
+												FieldValue="@nameof(RawMaterialModel.Name)" AddNewRoute="@InventoryRouteNames.RawMaterial" OpenOnFocus="false" />
 						</div>
 
 						<div class="cart-field">
-							<CustomNumericField T="decimal"
-												@bind-Value="_selectedCart.Quantity"
-												Label="Quantity"
-												Placeholder="0.00"
-												Min="0" />
+							<CustomNumericField T="decimal" @bind-Value="_selectedCart.Quantity" Label="Quantity" Placeholder="0.00" Min="0" />
 						</div>
 
 						<div class="cart-field">
-							<CustomNumericField T="decimal"
-												Value="@(_selectedRawMaterial?.Rate ?? 0)"
-												Label="Rate"
-												Placeholder="0.00"
-												ReadOnly="true"
-												Required="false"
-												TabIndex="-1" />
+							<CustomNumericField T="decimal" Value="@(_selectedRawMaterial?.Rate ?? 0)" Label="Rate" Placeholder="0.00" ReadOnly="true" Required="false" TabIndex="-1" />
 						</div>
 
 						<div class="cart-field">
-							<CustomNumericField T="decimal"
-												Value="@(_selectedCart.Quantity * (_selectedRawMaterial?.Rate ?? 0))"
-												Label="Amount"
-												Placeholder="0.00"
-												ReadOnly="true"
-												Required="false"
-												TabIndex="-1" />
+							<CustomNumericField T="decimal" Value="@(_selectedCart.Quantity * (_selectedRawMaterial?.Rate ?? 0))" Label="Amount" Placeholder="0.00" ReadOnly="true" Required="false" TabIndex="-1" />
 						</div>
 
 						<div class="cart-field">
-							<CustomNumericField T="decimal"
-												Value="@(_recipe.Quantity > 0 ? _selectedCart.Quantity * (_selectedRawMaterial?.Rate ?? 0) / _recipe.Quantity : 0m)"
-												Label="Per Unit"
-												Placeholder="0.00"
-												ReadOnly="true"
-												Required="false"
+							<CustomNumericField T="decimal" Value="@(_recipe.Quantity > 0 ? _selectedCart.Quantity * (_selectedRawMaterial?.Rate ?? 0) / _recipe.Quantity : 0m)" Label="Per Unit" Placeholder="0.00" ReadOnly="true" Required="false"
 												TabIndex="-1" />
 						</div>
 

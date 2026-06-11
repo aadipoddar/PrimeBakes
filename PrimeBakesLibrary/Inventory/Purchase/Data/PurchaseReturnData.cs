@@ -197,8 +197,8 @@ public static class PurchaseReturnData
 		purchaseReturn = await ValidateTransaction(purchaseReturn, update, sqlDataAccessTransaction);
 		ValidateItemDetails(purchaseReturn, purchaseReturnDetails);
 
-		var previousPurchaseReturn = update && !recover ? await CommonData.LoadTableDataById<PurchaseReturnOverviewModel>(InventoryNames.PurchaseReturnOverview, purchaseReturn.Id, sqlDataAccessTransaction) : null;
-		var previousPurchaseReturnDetails = update && !recover ? await CommonData.LoadTableDataByMasterId<PurchaseReturnItemOverviewModel>(InventoryNames.PurchaseReturnItemOverview, purchaseReturn.Id, sqlDataAccessTransaction) : null;
+		var previousPurchaseReturn = update && !recover ? await CommonData.LoadTableDataById<PurchaseReturnOverviewModel>(InventoryNames.PurchaseReturnOverview, purchaseReturn.Id, sqlDataAccessTransaction) : new();
+		var previousPurchaseReturnDetails = update && !recover ? await CommonData.LoadTableDataByMasterId<PurchaseReturnItemOverviewModel>(InventoryNames.PurchaseReturnItemOverview, purchaseReturn.Id, sqlDataAccessTransaction) : [];
 
 		purchaseReturn.Id = await InsertPurchaseReturn(purchaseReturn, sqlDataAccessTransaction);
 		await SaveTransactionDetail(purchaseReturn, purchaseReturnDetails, update, sqlDataAccessTransaction);

@@ -36,7 +36,7 @@ public partial class RawMaterialStockReport : IAsyncDisposable
 	private List<RawMaterialStockSummaryModel> _allStockSummary = [];
 
 	private SfGrid<RawMaterialStockSummaryModel> _sfGrid;
-	private CustomDateRangePicker _sfFirstFocus;
+	private CustomDateRangePicker _firstFocus;
 	private ToastNotification _toastNotification;
 
 	#region Load Data
@@ -62,8 +62,8 @@ public partial class RawMaterialStockReport : IAsyncDisposable
 		_isLoading = false;
 		StateHasChanged();
 
-		if (_sfFirstFocus is not null)
-			await _sfFirstFocus.FocusAsync();
+		if (_firstFocus is not null)
+			await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadData()
@@ -100,6 +100,7 @@ public partial class RawMaterialStockReport : IAsyncDisposable
 		{
 			_isProcessing = false;
 			StateHasChanged();
+			await _toastNotification.HideAllInfoAsync();
 		}
 	}
 

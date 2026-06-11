@@ -39,7 +39,7 @@ public partial class ProductStockReport : IAsyncDisposable
 	private List<ProductStockSummaryModel> _allStockSummary = [];
 
 	private SfGrid<ProductStockSummaryModel> _sfGrid;
-	private CustomDateRangePicker _sfFirstFocus;
+	private CustomDateRangePicker _firstFocus;
 	private ToastNotification _toastNotification;
 
 	#region Load Data
@@ -65,8 +65,8 @@ public partial class ProductStockReport : IAsyncDisposable
 		_isLoading = false;
 		StateHasChanged();
 
-		if (_sfFirstFocus is not null)
-			await _sfFirstFocus.FocusAsync();
+		if (_firstFocus is not null)
+			await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadData()
@@ -99,7 +99,6 @@ public partial class ProductStockReport : IAsyncDisposable
 				_selectedLocation.Id);
 
 			await ApplyFilters();
-			await _toastNotification.HideAllAsync();
 		}
 		catch (Exception ex)
 		{
@@ -109,6 +108,7 @@ public partial class ProductStockReport : IAsyncDisposable
 		{
 			_isProcessing = false;
 			StateHasChanged();
+			await _toastNotification.HideAllInfoAsync();
 		}
 	}
 

@@ -6,7 +6,7 @@
 <PageTitle>Product Management - Prime Bakes</PageTitle>
 
 <MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfFirstFocus.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus.FocusAsync()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="SaveTransaction" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportMaster(true)" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportMaster()" Disabled="@_isProcessing" />
@@ -52,8 +52,7 @@ else
 				<div class="section-card">
 					<div class="section-header">
 						<div class="section-title-wrapper">
-							<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-								 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 								<path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
 							</svg>
 							<h2 class="section-title">Product Details</h2>
@@ -62,66 +61,33 @@ else
 					<div class="section-body">
 						<div class="form-grid">
 							<div class="form-field">
-								<CustomTextField @ref="_sfFirstFocus"
-												 @bind-Value="_product.Name"
-												 Label="Name (Ctrl + F)"
-												 Placeholder="Enter product name" />
+								<CustomTextField @ref="_firstFocus" @bind-Value="_product.Name" Label="Name (Ctrl + F)" Placeholder="Enter product name" />
 							</div>
 
 							<div class="form-field">
-								<CustomTextField @bind-Value="_product.Code"
-												 Label="Code"
-												 Placeholder="Auto-generated"
-												 Required="false"
-												 ReadOnly="true"
-												 TabIndex="-1" />
+								<CustomTextField @bind-Value="_product.Code" Label="Code" Placeholder="Auto-generated" Required="false" ReadOnly="true" TabIndex="-1" />
 							</div>
 
 							<div class="form-field">
-								<CustomAutoComplete T="ProductCategoryModel"
-													@bind-Value="_selectedCategory"
-													DataSource="@_categories"
-													Placeholder="Select category"
-													Label="Category"
-													FieldValue="@nameof(ProductCategoryModel.Name)"
+								<CustomAutoComplete T="ProductCategoryModel" @bind-Value="_selectedCategory" DataSource="@_categories" Placeholder="Select category" Label="Category" FieldValue="@nameof(ProductCategoryModel.Name)"
 													AddNewRoute="@StoreRouteNames.ProductCategory" />
 							</div>
 
 							<div class="form-field">
-								<CustomAutoComplete T="KOTCategoryModel"
-													@bind-Value="_selectedKOTCategory"
-													DataSource="@_kotCategories"
-													Placeholder="Select KOT category"
-													Label="KOT Category"
-													FieldValue="@nameof(KOTCategoryModel.Name)"
+								<CustomAutoComplete T="KOTCategoryModel" @bind-Value="_selectedKOTCategory" DataSource="@_kotCategories" Placeholder="Select KOT category" Label="KOT Category" FieldValue="@nameof(KOTCategoryModel.Name)"
 													AddNewRoute="@StoreRouteNames.KOTCategory" />
 							</div>
 
 							<div class="form-field">
-								<CustomNumericField T="decimal"
-													@bind-Value="_product.Rate"
-													Label="Rate"
-													Placeholder="Enter rate"
-													Format="N2"
-													Min="0" />
+								<CustomNumericField T="decimal" @bind-Value="_product.Rate" Label="Rate" Placeholder="Enter rate" Format="N2" Min="0" />
 							</div>
 
 							<div class="form-field">
-								<CustomAutoComplete T="TaxModel"
-													@bind-Value="_selectedTax"
-													DataSource="@_taxes"
-													Placeholder="Select tax"
-													Label="Tax"
-													FieldValue="@nameof(TaxModel.Code)"
-													AddNewRoute="@StoreRouteNames.Tax" />
+								<CustomAutoComplete T="TaxModel" @bind-Value="_selectedTax" DataSource="@_taxes" Placeholder="Select tax" Label="Tax" FieldValue="@nameof(TaxModel.Code)" AddNewRoute="@StoreRouteNames.Tax" />
 							</div>
 
 							<div class="form-field">
-								<CustomTextField @bind-Value="_product.Remarks"
-												 Label="Remarks"
-												 Placeholder="Enter remarks (optional)"
-												 Required="false"
-												 Lines="2" />
+								<CustomTextField @bind-Value="_product.Remarks" Label="Remarks" Placeholder="Enter remarks (optional)" Required="false" Lines="2" />
 							</div>
 						</div>
 					</div>
@@ -131,8 +97,7 @@ else
 				<div class="section-card">
 					<div class="section-header">
 						<div class="section-title-wrapper">
-							<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-								 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 								<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z" />
 								<circle cx="12" cy="10" r="3" />
 							</svg>
@@ -140,8 +105,8 @@ else
 						</div>
 					</div>
 					<div class="section-body grid-body">
-						<SfGrid @ref="_sfLocationGrid" DataSource="@_locations" AllowPaging="true" AllowSorting="true" AllowFiltering="true"
-								AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })" ContextMenuItems="@_locationGridContextMenuItems">
+						<SfGrid @ref="_sfLocationGrid" DataSource="@_locations" AllowPaging="true" AllowSorting="true" AllowFiltering="true" AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })"
+								ContextMenuItems="@_locationGridContextMenuItems">
 							<GridPageSettings PageSize="10" PageSizes="@(new string[] { "10", "20", "50", "All" })" />
 							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 							<GridColumns>
@@ -152,9 +117,7 @@ else
 											var location = (context as dynamic);
 
 											<div class="grid-actions">
-												<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete"
-															Size="ButtonSize.Grid" Title="Remove Location" Disabled="_isProcessing"
-															OnClick="@(() => RemoveLocation(location))" />
+												<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Remove Location" Disabled="_isProcessing" OnClick="@(() => RemoveLocation(location))" />
 											</div>
 										}
 									</Template>
@@ -171,8 +134,7 @@ else
 			<div class="section-card">
 				<div class="section-header">
 					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-							 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 							<path d="M9 11l3 3L22 4" />
 							<path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
 						</svg>
@@ -180,8 +142,8 @@ else
 					</div>
 				</div>
 				<div class="section-body grid-body">
-					<SfGrid @ref="_sfGrid" DataSource="@_products" AllowPaging="true" AllowSorting="true" AllowFiltering="true"
-							AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })" ContextMenuItems="@_gridContextMenuItems">
+					<SfGrid @ref="_sfGrid" DataSource="@_products" AllowPaging="true" AllowSorting="true" AllowFiltering="true" AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })"
+							ContextMenuItems="@_gridContextMenuItems">
 						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
 						<GridEvents TValue="ProductModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
 						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
@@ -236,8 +198,7 @@ else
 	</div>
 }
 
-<ConfirmationDialog @ref="_confirmationDialog" Title="@_confirmTitle" Message="@_confirmMessage"
-					OnConfirm="OnConfirmed" OnCancel="OnCancelled" />
+<ConfirmationDialog @ref="_confirmationDialog" Title="@_confirmTitle" Message="@_confirmMessage" OnConfirm="OnConfirmed" OnCancel="OnCancelled" />
 
 <ToastNotification @ref="_toastNotification" />
 

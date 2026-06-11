@@ -35,7 +35,7 @@ public partial class BalanceSheetPage : IAsyncDisposable
 
 	private SfGrid<TrialBalanceModel> _assetsGrid;
 	private SfGrid<TrialBalanceModel> _liabilitiesGrid;
-	private CustomDateRangePicker _sfFirstFocus;
+	private CustomDateRangePicker _firstFocus;
 	private ToastNotification _toastNotification;
 
 	#region Load Data
@@ -61,8 +61,8 @@ public partial class BalanceSheetPage : IAsyncDisposable
 		_isLoading = false;
 		StateHasChanged();
 
-		if (_sfFirstFocus is not null)
-			await _sfFirstFocus.FocusAsync();
+		if (_firstFocus is not null)
+			await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadData()
@@ -105,6 +105,7 @@ public partial class BalanceSheetPage : IAsyncDisposable
 			if (_liabilitiesGrid is not null) await _liabilitiesGrid.Refresh();
 			_isProcessing = false;
 			StateHasChanged();
+			await _toastNotification.HideAllInfoAsync();
 		}
 	}
 	#endregion

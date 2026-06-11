@@ -38,7 +38,7 @@ public partial class ProductStockAdjustment
 		new() { Text = "Delete (Del)", Id = "DeleteCart", IconCss = "e-icons e-trash", Target = ".e-content" }
 	];
 
-	private CustomDatePicker _sfFirstFocus;
+	private CustomDatePicker _firstFocus;
 	private CustomAutoComplete<ProductLocationOverviewModel> _sfItemAutoComplete;
 	private SfGrid<ProductStockAdjustmentCartModel> _sfCartGrid;
 
@@ -72,8 +72,8 @@ public partial class ProductStockAdjustment
 
 		await SaveTransactionFile();
 
-		if (_sfFirstFocus is not null)
-			await _sfFirstFocus.FocusAsync();
+		if (_firstFocus is not null)
+			await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadLocations()

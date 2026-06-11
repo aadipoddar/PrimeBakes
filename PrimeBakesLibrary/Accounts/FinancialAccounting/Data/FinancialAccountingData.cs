@@ -173,8 +173,8 @@ public static class FinancialAccountingData
 		accounting = await ValidateTransaction(accounting, update, sqlDataAccessTransaction);
 		ValidateTransactionLedgers(accounting, ledgers);
 
-		var previousAccounting = update && !recover ? await CommonData.LoadTableDataById<FinancialAccountingOverviewModel>(AccountNames.FinancialAccountingOverview, accounting.Id, sqlDataAccessTransaction) : null;
-		var previousLedgers = update && !recover ? await CommonData.LoadTableDataByMasterId<FinancialAccountingLedgerOverviewModel>(AccountNames.FinancialAccountingLedgerOverview, accounting.Id, sqlDataAccessTransaction) : null;
+		var previousAccounting = update && !recover ? await CommonData.LoadTableDataById<FinancialAccountingOverviewModel>(AccountNames.FinancialAccountingOverview, accounting.Id, sqlDataAccessTransaction) : new();
+		var previousLedgers = update && !recover ? await CommonData.LoadTableDataByMasterId<FinancialAccountingLedgerOverviewModel>(AccountNames.FinancialAccountingLedgerOverview, accounting.Id, sqlDataAccessTransaction) : [];
 
 		accounting.Id = await InsertFinancialAccounting(accounting, sqlDataAccessTransaction);
 		await SaveTransactionLedgerDetails(accounting, ledgers, update, sqlDataAccessTransaction);

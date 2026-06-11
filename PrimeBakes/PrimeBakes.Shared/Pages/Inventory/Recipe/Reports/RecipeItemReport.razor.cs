@@ -47,7 +47,7 @@ public partial class RecipeItemReport : IAsyncDisposable
 	];
 
 	private SfGrid<RecipeItemOverviewModel> _sfGrid;
-	private CustomDatePicker _sfFirstFocus;
+	private CustomDatePicker _firstFocus;
 	private ToastNotification _toastNotification;
 	private ConfirmationDialog _confirmationDialog;
 
@@ -78,8 +78,8 @@ public partial class RecipeItemReport : IAsyncDisposable
 		_isLoading = false;
 		StateHasChanged();
 
-		if (_sfFirstFocus is not null)
-			await _sfFirstFocus.FocusAsync();
+		if (_firstFocus is not null)
+			await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadData()
@@ -118,6 +118,7 @@ public partial class RecipeItemReport : IAsyncDisposable
 		{
 			_isProcessing = false;
 			StateHasChanged();
+			await _toastNotification.HideAllInfoAsync();
 		}
 	}
 	private async Task ApplyFilters()

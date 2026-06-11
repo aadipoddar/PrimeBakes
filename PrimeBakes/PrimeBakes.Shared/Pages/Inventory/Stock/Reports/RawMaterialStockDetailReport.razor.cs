@@ -36,8 +36,8 @@ public partial class RawMaterialStockDetailReport : IAsyncDisposable
 		new() { Text = "Delete (Del)", Id = "DeleteSelected", IconCss = "e-icons e-trash", Target = ".e-content" }
 	];
 
-	private SfGrid<RawMaterialStockDetailsModel> _sfStockDetailsGrid;
-	private CustomDateRangePicker _sfFirstFocus;
+	private SfGrid<RawMaterialStockDetailsModel> _sfGrid;
+	private CustomDateRangePicker _firstFocus;
 
 	private int _deleteAdjustmentId = 0;
 	private string _deleteTransactionNo = string.Empty;
@@ -70,8 +70,8 @@ public partial class RawMaterialStockDetailReport : IAsyncDisposable
 		_isLoading = false;
 		StateHasChanged();
 
-		if (_sfFirstFocus is not null)
-			await _sfFirstFocus.FocusAsync();
+		if (_firstFocus is not null)
+			await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadStockDetails()
@@ -91,10 +91,6 @@ public partial class RawMaterialStockDetailReport : IAsyncDisposable
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
 			_stockDetails = [.. _stockDetails.OrderBy(d => d.TransactionDateTime).ThenBy(d => d.RawMaterialName)];
-
-			if (_sfStockDetailsGrid is not null)
-				await _sfStockDetailsGrid.Refresh();
-			await _toastNotification.HideAllAsync();
 		}
 		catch (Exception ex)
 		{
@@ -102,8 +98,11 @@ public partial class RawMaterialStockDetailReport : IAsyncDisposable
 		}
 		finally
 		{
+			if (_sfGrid is not null)
+				await _sfGrid.Refresh();
 			_isProcessing = false;
 			StateHasChanged();
+			await _toastNotification.HideAllInfoAsync();
 		}
 	}
 	#endregion
@@ -159,10 +158,10 @@ public partial class RawMaterialStockDetailReport : IAsyncDisposable
 	#region Actions
 	private async Task ViewSelectedCartItem()
 	{
-		if (_sfStockDetailsGrid is null || _sfStockDetailsGrid.SelectedRecords is null || _sfStockDetailsGrid.SelectedRecords.Count == 0)
+		if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
 			return;
 
-		var selectedCartItem = _sfStockDetailsGrid.SelectedRecords.First();
+		var selectedCartItem = _sfGrid.SelectedRecords.First();
 
 		if (!selectedCartItem.TransactionId.HasValue)
 		{
@@ -176,10 +175,10 @@ public partial class RawMaterialStockDetailReport : IAsyncDisposable
 
 	private async Task DownloadSelectedCartItemPdfInvoice()
 	{
-		if (_sfStockDetailsGrid is null || _sfStockDetailsGrid.SelectedRecords is null || _sfStockDetailsGrid.SelectedRecords.Count == 0)
+		if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
 			return;
 
-		var selectedCartItem = _sfStockDetailsGrid.SelectedRecords.First();
+		var selectedCartItem = _sfGrid.SelectedRecords.First();
 
 		if (!selectedCartItem.TransactionId.HasValue)
 		{
@@ -193,10 +192,10 @@ public partial class RawMaterialStockDetailReport : IAsyncDisposable
 
 	private async Task DownloadSelectedCartItemExcelInvoice()
 	{
-		if (_sfStockDetailsGrid is null || _sfStockDetailsGrid.SelectedRecords is null || _sfStockDetailsGrid.SelectedRecords.Count == 0)
+		if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
 			return;
 
-		var selectedCartItem = _sfStockDetailsGrid.SelectedRecords.First();
+		var selectedCartItem = _sfGrid.SelectedRecords.First();
 
 		if (!selectedCartItem.TransactionId.HasValue)
 		{
@@ -210,10 +209,10 @@ public partial class RawMaterialStockDetailReport : IAsyncDisposable
 
 	private async Task DeleteSelectedCartItem()
 	{
-		if (_sfStockDetailsGrid is null || _sfStockDetailsGrid.SelectedRecords is null || _sfStockDetailsGrid.SelectedRecords.Count == 0)
+		if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
 			return;
 
-		var selectedCartItem = _sfStockDetailsGrid.SelectedRecords.First();
+		var selectedCartItem = _sfGrid.SelectedRecords.First();
 
 		if (selectedCartItem.Type.Equals("adjustment", StringComparison.CurrentCultureIgnoreCase))
 			await ShowDeleteConfirmation(selectedCartItem.Id, selectedCartItem.TransactionNo);

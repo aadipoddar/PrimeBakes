@@ -34,7 +34,7 @@ public partial class LedgerPage
 	];
 
 	private SfGrid<LedgerModel> _sfGrid;
-	private CustomTextField _sfFirstFocus;
+	private CustomTextField _firstFocus;
 	private ToastNotification _toastNotification;
 	private ConfirmationDialog _confirmationDialog;
 
@@ -80,8 +80,8 @@ public partial class LedgerPage
 		_isLoading = false;
 		StateHasChanged();
 
-		if (_sfFirstFocus is not null)
-			await _sfFirstFocus.FocusAsync();
+		if (_firstFocus is not null)
+			await _firstFocus.FocusAsync();
 	}
 	#endregion
 
@@ -138,7 +138,7 @@ public partial class LedgerPage
 		_selectedAccountType = _accountTypes.FirstOrDefault(a => a.Id == _ledger.AccountTypeId);
 		_selectedStateUT = _stateUTs.FirstOrDefault(s => s.Id == _ledger.StateUTId);
 		StateHasChanged();
-		await _sfFirstFocus.FocusAsync();
+		await _firstFocus.FocusAsync();
 	}
 
 	private async Task DeleteRecoverTransaction(int id, bool isRecover)

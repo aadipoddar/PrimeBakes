@@ -45,7 +45,7 @@ public partial class KitchenProductionPage
 		new() { Text = "Delete (Del)", Id = "DeleteCart", IconCss = "e-icons e-trash", Target = ".e-content" }
 	];
 
-	private CustomAutoComplete<CompanyModel> _sfFirstFocus;
+	private CustomAutoComplete<CompanyModel> _firstFocus;
 	private CustomAutoComplete<ProductModel> _sfItemAutoComplete;
 	private SfGrid<KitchenProductionProductCartModel> _sfCartGrid;
 
@@ -78,8 +78,8 @@ public partial class KitchenProductionPage
 
 		await SaveTransactionFile();
 
-		if (_sfFirstFocus is not null)
-			await _sfFirstFocus.FocusAsync();
+		if (_firstFocus is not null)
+			await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadData()

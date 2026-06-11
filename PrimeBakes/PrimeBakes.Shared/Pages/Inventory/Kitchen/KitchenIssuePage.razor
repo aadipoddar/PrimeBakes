@@ -8,7 +8,7 @@
 <PageTitle>Kitchen Issue - Prime Bakes</PageTitle>
 
 <MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfFirstFocus.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus.FocusAsync()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyG KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfItemAutoComplete.FocusAsync()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.Enter KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="AddItemToCart" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction()" Disabled="@_isProcessing" />
@@ -76,7 +76,7 @@ else
 					<div class="form-grid">
 						<!-- Company -->
 						<div class="form-field">
-							<CustomAutoComplete @ref="_sfFirstFocus" T="CompanyModel"
+							<CustomAutoComplete @ref="_firstFocus" T="CompanyModel"
 												Value="_selectedCompany"
 												DataSource="@_companies"
 												Placeholder="Select a Company"

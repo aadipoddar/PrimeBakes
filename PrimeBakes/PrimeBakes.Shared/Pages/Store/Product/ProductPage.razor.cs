@@ -41,7 +41,7 @@ public partial class ProductPage
 
 	private SfGrid<ProductModel> _sfGrid;
 	private SfGrid<LocationModel> _sfLocationGrid;
-	private CustomTextField _sfFirstFocus;
+	private CustomTextField _firstFocus;
 	private ToastNotification _toastNotification;
 	private ConfirmationDialog _confirmationDialog;
 
@@ -89,8 +89,8 @@ public partial class ProductPage
 		_isLoading = false;
 		StateHasChanged();
 
-		if (_sfFirstFocus is not null)
-			await _sfFirstFocus.FocusAsync();
+		if (_firstFocus is not null)
+			await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadLocations()
@@ -164,7 +164,7 @@ public partial class ProductPage
 			await _sfLocationGrid.Refresh();
 
 		StateHasChanged();
-		await _sfFirstFocus.FocusAsync();
+		await _firstFocus.FocusAsync();
 	}
 
 	private async Task DeleteRecoverTransaction(int id, bool isRecover)

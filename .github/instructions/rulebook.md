@@ -181,7 +181,7 @@ private bool _showAllColumns = false;  // report pages
  
 private ToastNotification _toastNotification;
 private SfGrid<TModel> _sfGrid;
-private <FirstInput> _sfFirstFocus;     // first focusable control
+private <FirstInput> _firstFocus;     // first focusable control
  
 // One generic confirmation dialog per page (§3.9), not per-action dialogs:
 private ConfirmationDialog _confirmationDialog;
@@ -278,7 +278,7 @@ the menu item calls:
  
 ```razor
 <MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="SaveTransaction" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfFirstFocus.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus.FocusAsync()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="EditSelectedItem" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="DeleteRecoverSelectedItem" Disabled="@_isProcessing" />
 ```
@@ -460,7 +460,7 @@ private readonly List<ContextMenuItemModel> _gridContextMenuItems =
 	new() { Text = "Edit (Insert)", Id = "EditSelectedItem", IconCss = "e-icons e-edit", Target = ".e-content" },
 	new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverSelectedItem", IconCss = "e-icons e-trash", Target = ".e-content" }
 ];
-private <FirstInput> _sfFirstFocus;
+private <FirstInput> _firstFocus;
 private ConfirmationDialog _confirmationDialog;
 private string _confirmTitle = string.Empty;
 private string _confirmMessage = string.Empty;
@@ -472,7 +472,7 @@ private Func<Task> _confirmAction;   // the pending operation to run on confirm
 - **Load Data:** `OnAfterRenderAsync` → `LoadData()`. Load the list via
   `CommonData.LoadTableData<T>(Names.X)`, load related lists, order them, resolve
   `_selectedXxx` from `_model`, filter `Status` when `!_showDeleted`, refresh grid,
-  clear `_isLoading`, focus `_sfFirstFocus`.
+  clear `_isLoading`, focus `_firstFocus`.
 - **Saving:** `SaveTransaction()` — guard `_isProcessing`; admin check; map
   `_selectedXxx?.Id ?? 0` onto the model; call
   `XxxData.SaveTransaction(_model, _user.Id, platform)`; toast; `ResetPage()`.

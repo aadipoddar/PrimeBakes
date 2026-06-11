@@ -6,28 +6,22 @@ namespace PrimeBakes.Shared.Components.Dialog;
 
 public enum ToastType
 {
-	/// <summary>Success toast (green) - for successful operations</summary>
 	Success,
-	/// <summary>Error toast (red) - for errors and failures</summary>
 	Error,
-	/// <summary>Warning toast (amber) - for warnings</summary>
 	Warning,
-	/// <summary>Info toast (blue) - for informational messages</summary>
 	Info
 }
 
 public partial class ToastNotification : ComponentBase
 {
 	private SfToast _sfToast = null!;
+	private SfToast _sfInfoToast = null!;
 
-	/// <summary>
-	/// Event callback that fires after a toast is shown, allowing parent to update UI
-	/// </summary>
 	[Parameter] public EventCallback OnToastShown { get; set; }
 
-	public async Task ShowAsync(string title, string message, ToastType type, int? timeOut = null)
+	public async Task ShowAsync(string title, string message, ToastType type, int? timeout = null)
 	{
-		await HideAllAsync();
+		await HideAllInfoAsync();
 
 		var cssClass = type switch
 		{
@@ -38,13 +32,23 @@ public partial class ToastNotification : ComponentBase
 			_ => "e-toast-success"
 		};
 
-		await _sfToast.ShowAsync(new()
-		{
-			Title = title,
-			Content = message,
-			CssClass = cssClass,
-			Timeout = timeOut ?? 5000
-		});
+		if (type == ToastType.Info)
+			await _sfInfoToast.ShowAsync(new()
+			{
+				Title = title,
+				Content = message,
+				CssClass = cssClass,
+				Timeout = timeout ?? 0
+			});
+
+		else
+			await _sfToast.ShowAsync(new()
+			{
+				Title = title,
+				Content = message,
+				CssClass = cssClass,
+				Timeout = timeout ?? 5000
+			});
 
 		StateHasChanged();
 
@@ -52,10 +56,6 @@ public partial class ToastNotification : ComponentBase
 			await OnToastShown.InvokeAsync();
 	}
 
-	public async Task ShowSuccessAsync(string title, string message) => await ShowAsync(title, message, ToastType.Success);
-	public async Task ShowErrorAsync(string title, string message) => await ShowAsync(title, message, ToastType.Error);
-	public async Task ShowWarningAsync(string title, string message) => await ShowAsync(title, message, ToastType.Warning);
-	public async Task ShowInfoAsync(string title, string message) => await ShowAsync(title, message, ToastType.Info);
-
 	public async Task HideAllAsync() => await _sfToast.HideAsync("All");
+	public async Task HideAllInfoAsync() => await _sfInfoToast?.HideAsync("All");
 }

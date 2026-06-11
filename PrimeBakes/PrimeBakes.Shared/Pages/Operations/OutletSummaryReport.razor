@@ -5,7 +5,7 @@
 
 <PageTitle>Outlet Summary Report - Prime Bakes</PageTitle>
 
-<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfFirstFocus.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus.FocusAsync()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="RefreshReport" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="RefreshReport" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport()" Disabled="@_isProcessing" />
@@ -58,7 +58,7 @@ else
 					<div class="filters-grid">
 						<!-- Date Range -->
 						<div class="form-field">
-							<CustomDateRangePicker @ref="_sfFirstFocus" Value="@(new MudBlazor.DateRange(_fromDate, _toDate))"
+							<CustomDateRangePicker @ref="_firstFocus" Value="@(new MudBlazor.DateRange(_fromDate, _toDate))"
 												   ValueChanged="OnDateRangeChanged"
 												   Label="Date Range (Ctrl + F)"
 												   Required="false" />

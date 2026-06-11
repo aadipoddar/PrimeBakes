@@ -49,7 +49,7 @@ public partial class AccountingLedgerReport : IAsyncDisposable
 	];
 
 	private SfGrid<FinancialAccountingLedgerOverviewModel> _sfGrid;
-	private CustomDateRangePicker _sfFirstFocus;
+	private CustomDateRangePicker _firstFocus;
 	private ToastNotification _toastNotification;
 	private ConfirmationDialog _confirmationDialog;
 
@@ -80,8 +80,8 @@ public partial class AccountingLedgerReport : IAsyncDisposable
 		_isLoading = false;
 		StateHasChanged();
 
-		if (_sfFirstFocus is not null)
-			await _sfFirstFocus.FocusAsync();
+		if (_firstFocus is not null)
+			await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadData()
@@ -124,6 +124,7 @@ public partial class AccountingLedgerReport : IAsyncDisposable
 		{
 			_isProcessing = false;
 			StateHasChanged();
+			await _toastNotification.HideAllInfoAsync();
 		}
 	}
 

@@ -37,7 +37,7 @@ public partial class TrialBalancePage : IAsyncDisposable
 	private List<TrialBalanceModel> _allTrialBalance = [];
 
 	private SfGrid<TrialBalanceModel> _sfGrid;
-	private CustomDateRangePicker _sfFirstFocus;
+	private CustomDateRangePicker _firstFocus;
 	private ToastNotification _toastNotification;
 
 	#region Load Data
@@ -63,8 +63,8 @@ public partial class TrialBalancePage : IAsyncDisposable
 		_isLoading = false;
 		StateHasChanged();
 
-		if (_sfFirstFocus is not null)
-			await _sfFirstFocus.FocusAsync();
+		if (_firstFocus is not null)
+			await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadData()
@@ -107,6 +107,7 @@ public partial class TrialBalancePage : IAsyncDisposable
 		{
 			_isProcessing = false;
 			StateHasChanged();
+			await _toastNotification.HideAllInfoAsync();
 		}
 	}
 

@@ -41,7 +41,7 @@ public partial class FinancialAccountingPage
 		new() { Text = "Delete (Del)", Id = "DeleteCart", IconCss = "e-icons e-trash", Target = ".e-content" }
 	];
 
-	private CustomAutoComplete<CompanyModel> _sfFirstFocus;
+	private CustomAutoComplete<CompanyModel> _firstFocus;
 	private CustomAutoComplete<LedgerModel> _sfLedgerAutoComplete;
 	private SfGrid<FinancialAccountingLedgerCartModel> _sfCartGrid;
 
@@ -75,8 +75,8 @@ public partial class FinancialAccountingPage
 
 		await SaveTransactionFile();
 
-		if (_sfFirstFocus is not null)
-			await _sfFirstFocus.FocusAsync();
+		if (_firstFocus is not null)
+			await _firstFocus.FocusAsync();
 	}
 
 	private async Task ResolveTransaction()
@@ -650,68 +650,6 @@ public partial class FinancialAccountingPage
 			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_accounting.TransactionNo, !isExcel, isExcel, CodeType.Accounting);
 			await SaveAndViewService.SaveAndView(isExcel ? decodeTransactionNo.ExcelStream.fileName : decodeTransactionNo.PDFStream.fileName,
 				isExcel ? decodeTransactionNo.ExcelStream.stream : decodeTransactionNo.PDFStream.stream);
-
-			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-		}
-	}
-
-	private async Task ExportReferencePDF()
-	{
-		if (_accounting.ReferenceId is null or <= 0)
-		{
-			await _toastNotification.ShowAsync("Invalid Reference", "No reference transaction found.", ToastType.Error);
-			return;
-		}
-
-		if (_isProcessing)
-			return;
-
-		try
-		{
-			_isProcessing = true;
-			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
-
-			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_accounting.ReferenceNo, true, false);
-			await SaveAndViewService.SaveAndView(decodeTransactionNo.PDFStream.fileName, decodeTransactionNo.PDFStream.stream);
-
-			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-		}
-	}
-
-	private async Task ExportCartReferencePDF()
-	{
-		if (_selectedAccountingLedger is null || _selectedAccountingLedger.LedgerReferenceId is null || _selectedAccountingLedger.LedgerReferenceId <= 0)
-		{
-			await _toastNotification.ShowAsync("Invalid Reference", "No reference transaction found.", ToastType.Error);
-			return;
-		}
-
-		if (_isProcessing)
-			return;
-
-		try
-		{
-			_isProcessing = true;
-			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
-
-			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_selectedAccountingLedger.LedgerReferenceNo, true, false);
-			await SaveAndViewService.SaveAndView(decodeTransactionNo.PDFStream.fileName, decodeTransactionNo.PDFStream.stream);
 
 			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
 		}

@@ -6,7 +6,7 @@
 <PageTitle>Bank Reconciliation - Prime Bakes</PageTitle>
 
 <MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(AccountsRouteNames.FinancialAccounting, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfFirstFocus.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus.FocusAsync()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="SaveReconciliation" Disabled="@_isProcessing" />
@@ -83,52 +83,26 @@ else
 				<div class="section-body">
 					<div class="filters-grid">
 						<div class="form-field">
-							<CustomDateRangePicker @ref="_sfFirstFocus" Value="@(new MudBlazor.DateRange(_fromDate, _toDate))"
-												   ValueChanged="OnDateRangeChanged"
-												   Label="Date Range (Ctrl + F)"
-												   Required="false" />
+							<CustomDateRangePicker @ref="_firstFocus" Value="@(new MudBlazor.DateRange(_fromDate, _toDate))" ValueChanged="OnDateRangeChanged" Label="Date Range (Ctrl + F)" Required="false" />
 						</div>
 
 						<div class="form-field">
-							<CustomAutoComplete T="CompanyModel"
-												Value="_selectedCompany"
-												DataSource="@_companies"
-												Placeholder="All Companies"
-												Label="Company" Required="false"
-												FieldValue="@nameof(CompanyModel.Name)"
-												ValueChanged="OnCompanyChanged"
+							<CustomAutoComplete T="CompanyModel" Value="_selectedCompany" DataSource="@_companies" Placeholder="All Companies" Label="Company" Required="false" FieldValue="@nameof(CompanyModel.Name)" ValueChanged="OnCompanyChanged"
 												AddNewRoute="@AccountsRouteNames.CompanyMaster" />
 						</div>
 
 						<div class="form-field">
-							<CustomAutoComplete T="AccountTypeModel"
-												Value="_selectedAccountType"
-												DataSource="@_accountTypes"
-												Placeholder="All Types"
-												Label="Type" Required="false"
-												FieldValue="@nameof(AccountTypeModel.Name)"
-												ValueChanged="OnAccountTypeChanged"
-												AddNewRoute="@AccountsRouteNames.AccountTypeMaster" />
+							<CustomAutoComplete T="AccountTypeModel" Value="_selectedAccountType" DataSource="@_accountTypes" Placeholder="All Types" Label="Type" Required="false" FieldValue="@nameof(AccountTypeModel.Name)"
+												ValueChanged="OnAccountTypeChanged" AddNewRoute="@AccountsRouteNames.AccountTypeMaster" />
 						</div>
 
 						<div class="form-field">
-							<CustomAutoComplete T="LedgerModel"
-												Value="_selectedLedger"
-												DataSource="@_ledgers"
-												Placeholder="All Ledgers"
-												Label="Ledger" Required="false"
-												FieldValue="@nameof(LedgerModel.Name)"
-												ValueChanged="OnLedgerChanged"
+							<CustomAutoComplete T="LedgerModel" Value="_selectedLedger" DataSource="@_ledgers" Placeholder="All Ledgers" Label="Ledger" Required="false" FieldValue="@nameof(LedgerModel.Name)" ValueChanged="OnLedgerChanged"
 												AddNewRoute="@AccountsRouteNames.LedgerMaster" />
 						</div>
 
 						<div class="form-field">
-							<CustomAutoComplete T="YesNoFilterOption"
-												Value="_selectedReconciledFilter"
-												DataSource="@YesNoFilterOptions.YesNo"
-												Placeholder="All"
-												Label="Reconciled" Required="false"
-												ValueChanged="OnReconciledFilterChanged"
+							<CustomAutoComplete T="YesNoFilterOption" Value="_selectedReconciledFilter" DataSource="@YesNoFilterOptions.YesNo" Placeholder="All" Label="Reconciled" Required="false" ValueChanged="OnReconciledFilterChanged"
 												FieldValue="@nameof(YesNoFilterOption.Name)" />
 						</div>
 					</div>
@@ -151,11 +125,8 @@ else
 					</div>
 				</div>
 				<div class="section-body grid-body">
-					<SfGrid @ref="_sfGrid" TValue="FinancialAccountingLedgerOverviewModel"
-							DataSource="_transactionOverviews" AllowTextWrap="true" AllowPaging="true" AllowSorting="true"
-							AllowResizing="true" AllowFiltering="true"
-							GridLines="GridLine.Horizontal" CssClass="professional-grid"
-							ContextMenuItems="@_gridContextMenuItems" Toolbar="@(new List<string>() { "Search" })">
+					<SfGrid @ref="_sfGrid" TValue="FinancialAccountingLedgerOverviewModel" DataSource="_transactionOverviews" AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true" AllowFiltering="true"
+							GridLines="GridLine.Horizontal" CssClass="professional-grid" ContextMenuItems="@_gridContextMenuItems" Toolbar="@(new List<string>() { "Search" })">
 
 						<GridEvents TValue="FinancialAccountingLedgerOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
 						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
@@ -196,11 +167,7 @@ else
 									@{
 										var line = (context as FinancialAccountingLedgerOverviewModel);
 									}
-									<CustomDatePicker NullableValue="line.ClearingDate"
-													  NullableValueChanged="(d) => OnClearingDateChanged(line, d)"
-													  Required="false"
-													  ShowFinancialYear="false"
-													  Label="" />
+									<CustomDatePicker NullableValue="line.ClearingDate" NullableValueChanged="(d) => OnClearingDateChanged(line, d)" Required="false" ShowFinancialYear="false" Label="" />
 								</Template>
 							</GridColumn>
 
@@ -236,8 +203,7 @@ else
 	</div>
 }
 
-<ConfirmationDialog @ref="_confirmationDialog" Title="@_confirmTitle" Message="@_confirmMessage"
-					OnConfirm="OnConfirmed" OnCancel="OnCancelled" />
+<ConfirmationDialog @ref="_confirmationDialog" Title="@_confirmTitle" Message="@_confirmMessage" OnConfirm="OnConfirmed" OnCancel="OnCancelled" />
 
 <ToastNotification @ref="_toastNotification" />
 

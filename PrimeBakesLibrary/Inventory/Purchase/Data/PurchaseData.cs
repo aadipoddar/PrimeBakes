@@ -202,8 +202,8 @@ public static class PurchaseData
 		purchase = await ValidateTransaction(purchase, update, sqlDataAccessTransaction);
 		ValidateItemDetails(purchase, purchaseDetails);
 
-		var previousPurchase = update && !recover ? await CommonData.LoadTableDataById<PurchaseOverviewModel>(InventoryNames.PurchaseOverview, purchase.Id, sqlDataAccessTransaction) : null;
-		var previousPurchaseDetails = update && !recover ? await CommonData.LoadTableDataByMasterId<PurchaseItemOverviewModel>(InventoryNames.PurchaseItemOverview, purchase.Id, sqlDataAccessTransaction) : null;
+		var previousPurchase = update && !recover ? await CommonData.LoadTableDataById<PurchaseOverviewModel>(InventoryNames.PurchaseOverview, purchase.Id, sqlDataAccessTransaction) : new();
+		var previousPurchaseDetails = update && !recover ? await CommonData.LoadTableDataByMasterId<PurchaseItemOverviewModel>(InventoryNames.PurchaseItemOverview, purchase.Id, sqlDataAccessTransaction) : [];
 
 		purchase.Id = await InsertPurchase(purchase, sqlDataAccessTransaction);
 		await SaveTransactionDetail(purchase, purchaseDetails, update, sqlDataAccessTransaction);

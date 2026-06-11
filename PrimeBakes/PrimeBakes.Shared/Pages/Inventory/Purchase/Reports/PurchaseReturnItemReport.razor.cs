@@ -55,7 +55,7 @@ public partial class PurchaseReturnItemReport : IAsyncDisposable
 	];
 
 	private SfGrid<PurchaseReturnItemOverviewModel> _sfGrid;
-	private CustomDateRangePicker _sfFirstFocus;
+	private CustomDateRangePicker _firstFocus;
 	private ToastNotification _toastNotification;
 	private ConfirmationDialog _confirmationDialog;
 
@@ -86,8 +86,8 @@ public partial class PurchaseReturnItemReport : IAsyncDisposable
 		_isLoading = false;
 		StateHasChanged();
 
-		if (_sfFirstFocus is not null)
-			await _sfFirstFocus.FocusAsync();
+		if (_firstFocus is not null)
+			await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadData()
@@ -100,6 +100,8 @@ public partial class PurchaseReturnItemReport : IAsyncDisposable
 		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
 		_parties = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
 
+		_rawMaterials = [.. _rawMaterials.OrderBy(s => s.Name)];
+		_rawMaterialCategories = [.. _rawMaterialCategories.OrderBy(s => s.Name)];
 		_companies = [.. _companies.OrderBy(s => s.Name)];
 		_parties = [.. _parties.OrderBy(s => s.Name)];
 	}
@@ -130,6 +132,7 @@ public partial class PurchaseReturnItemReport : IAsyncDisposable
 		{
 			_isProcessing = false;
 			StateHasChanged();
+			await _toastNotification.HideAllInfoAsync();
 		}
 	}
 

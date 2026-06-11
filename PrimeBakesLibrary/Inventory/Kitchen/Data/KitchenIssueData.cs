@@ -151,8 +151,8 @@ public static class KitchenIssueData
 		kitchenIssue = await ValidateTransaction(kitchenIssue, update, sqlDataAccessTransaction);
 		ValidateItemDetails(kitchenIssue, kitchenIssueDetails);
 
-		var previousKitchenIssue = update && !recover ? await CommonData.LoadTableDataById<KitchenIssueOverviewModel>(InventoryNames.KitchenIssueOverview, kitchenIssue.Id, sqlDataAccessTransaction) : null;
-		var previousKitchenIssueDetails = update && !recover ? await CommonData.LoadTableDataByMasterId<KitchenIssueItemOverviewModel>(InventoryNames.KitchenIssueItemOverview, kitchenIssue.Id, sqlDataAccessTransaction) : null;
+		var previousKitchenIssue = update && !recover ? await CommonData.LoadTableDataById<KitchenIssueOverviewModel>(InventoryNames.KitchenIssueOverview, kitchenIssue.Id, sqlDataAccessTransaction) : new();
+		var previousKitchenIssueDetails = update && !recover ? await CommonData.LoadTableDataByMasterId<KitchenIssueItemOverviewModel>(InventoryNames.KitchenIssueItemOverview, kitchenIssue.Id, sqlDataAccessTransaction) : [];
 
 		kitchenIssue.Id = await InsertKitchenIssue(kitchenIssue, sqlDataAccessTransaction);
 		await SaveTransactionDetail(kitchenIssue, kitchenIssueDetails, update, sqlDataAccessTransaction);

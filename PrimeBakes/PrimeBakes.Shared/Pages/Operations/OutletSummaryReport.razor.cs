@@ -53,7 +53,7 @@ public partial class OutletSummaryReport : IAsyncDisposable
 	];
 
 	private SfGrid<OutletSummaryModel> _sfGrid;
-	private CustomDateRangePicker _sfFirstFocus;
+	private CustomDateRangePicker _firstFocus;
 	private string? activeBreakpoint { get; set; }
 
 	private ToastNotification _toastNotification;
@@ -82,8 +82,8 @@ public partial class OutletSummaryReport : IAsyncDisposable
 		_isLoading = false;
 		StateHasChanged();
 
-		if (_sfFirstFocus is not null)
-			await _sfFirstFocus.FocusAsync();
+		if (_firstFocus is not null)
+			await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadDates()

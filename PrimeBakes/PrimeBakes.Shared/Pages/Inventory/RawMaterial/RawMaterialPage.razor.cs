@@ -33,7 +33,7 @@ public partial class RawMaterialPage
 	];
 
 	private SfGrid<RawMaterialModel> _sfGrid;
-	private CustomTextField _sfFirstFocus;
+	private CustomTextField _firstFocus;
 	private ToastNotification _toastNotification;
 	private ConfirmationDialog _confirmationDialog;
 
@@ -76,8 +76,8 @@ public partial class RawMaterialPage
 		_isLoading = false;
 		StateHasChanged();
 
-		if (_sfFirstFocus is not null)
-			await _sfFirstFocus.FocusAsync();
+		if (_firstFocus is not null)
+			await _firstFocus.FocusAsync();
 	}
 	#endregion
 
@@ -132,7 +132,7 @@ public partial class RawMaterialPage
 		_selectedCategory = _categories.FirstOrDefault(c => c.Id == _rawMaterial.RawMaterialCategoryId);
 		_selectedTax = _taxes.FirstOrDefault(t => t.Id == _rawMaterial.TaxId);
 		StateHasChanged();
-		await _sfFirstFocus.FocusAsync();
+		await _firstFocus.FocusAsync();
 	}
 
 	private async Task DeleteRecoverTransaction(int id, bool isRecover)

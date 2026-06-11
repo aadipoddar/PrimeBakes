@@ -30,7 +30,7 @@ public partial class LocationPage
 	];
 
 	private SfGrid<LocationModel> _sfGrid;
-	private CustomTextField _sfFirstFocus;
+	private CustomTextField _firstFocus;
 	private ToastNotification _toastNotification;
 	private ConfirmationDialog _confirmationDialog;
 
@@ -69,8 +69,8 @@ public partial class LocationPage
 		_isLoading = false;
 		StateHasChanged();
 
-		if (_sfFirstFocus is not null)
-			await _sfFirstFocus.FocusAsync();
+		if (_firstFocus is not null)
+			await _firstFocus.FocusAsync();
 	}
 	#endregion
 
@@ -124,7 +124,7 @@ public partial class LocationPage
 		_copyLocation = null;
 		_selectedLedger = _ledgers.FirstOrDefault(l => l.Id == _location.LedgerId);
 		StateHasChanged();
-		await _sfFirstFocus.FocusAsync();
+		await _firstFocus.FocusAsync();
 	}
 
 	private async Task DeleteRecoverTransaction(int id, bool isRecover)

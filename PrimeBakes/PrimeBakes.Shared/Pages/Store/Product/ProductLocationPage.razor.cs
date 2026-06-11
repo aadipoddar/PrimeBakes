@@ -33,7 +33,7 @@ public partial class ProductLocationPage
 	];
 
 	private SfGrid<ProductLocationOverviewModel> _sfGrid;
-	private CustomAutoComplete<LocationModel> _sfFirstFocus;
+	private CustomAutoComplete<LocationModel> _firstFocus;
 	private ToastNotification _toastNotification;
 	private ConfirmationDialog _confirmationDialog;
 
@@ -69,8 +69,8 @@ public partial class ProductLocationPage
 		_isLoading = false;
 		StateHasChanged();
 
-		if (_sfFirstFocus is not null)
-			await _sfFirstFocus.FocusAsync();
+		if (_firstFocus is not null)
+			await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadOverviews()
@@ -173,7 +173,7 @@ public partial class ProductLocationPage
 		_selectedProduct = _products.FirstOrDefault(p => p.Id == productLocation.ProductId);
 
 		StateHasChanged();
-		await _sfFirstFocus.FocusAsync();
+		await _firstFocus.FocusAsync();
 	}
 
 	private async Task DeleteTransaction(ProductLocationOverviewModel productLocation)

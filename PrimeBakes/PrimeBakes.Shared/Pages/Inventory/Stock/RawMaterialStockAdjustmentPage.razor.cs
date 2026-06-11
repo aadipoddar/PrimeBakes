@@ -35,7 +35,7 @@ public partial class RawMaterialStockAdjustmentPage
 		new() { Text = "Delete (Del)", Id = "DeleteCart", IconCss = "e-icons e-trash", Target = ".e-content" }
 	];
 
-	private CustomDatePicker _sfFirstFocus;
+	private CustomDatePicker _firstFocus;
 	private CustomAutoComplete<RawMaterialModel> _sfItemAutoComplete;
 	private SfGrid<RawMaterialStockAdjustmentCartModel> _sfCartGrid;
 
@@ -68,8 +68,8 @@ public partial class RawMaterialStockAdjustmentPage
 
 		await SaveTransactionFile();
 
-		if (_sfFirstFocus is not null)
-			await _sfFirstFocus.FocusAsync();
+		if (_firstFocus is not null)
+			await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadStock()
