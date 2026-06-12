@@ -7,13 +7,11 @@ using PrimeBakesLibrary.Accounts.Masters.Data;
 using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Inventory.Purchase.Data;
-using PrimeBakesLibrary.Inventory.Purchase.Exports;
 using PrimeBakesLibrary.Inventory.Purchase.Models;
 using PrimeBakesLibrary.Inventory.RawMaterial.Models;
 using PrimeBakesLibrary.Operations.Settings;
 using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Store.Product.Models;
-using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.Grids;
 using Syncfusion.Blazor.Inputs;
@@ -130,7 +128,7 @@ public partial class PurchaseReturnPage
 		if (_purchaseReturn is null || _purchaseReturn.Id == 0)
 		{
 			await _toastNotification.ShowAsync("Transaction Not Found", "The requested transaction could not be found.", ToastType.Error);
-			NavigationManager.NavigateTo(InventoryRouteNames.PurchaseReturn, true);
+			await ResetPage();
 		}
 
 		return true;
@@ -704,9 +702,6 @@ public partial class PurchaseReturnPage
 			_isProcessing = true;
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
-
-			var (stream, fileName) = await PurchaseReturnInvoiceExport.ExportInvoice(_purchaseReturn.Id, isExcel ? InvoiceExportType.Excel : InvoiceExportType.PDF);
-			await SaveAndViewService.SaveAndView(fileName, stream);
 
 			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_purchaseReturn.TransactionNo, !isExcel, isExcel, CodeType.PurchaseReturn);
 			await SaveAndViewService.SaveAndView(isExcel ? decodeTransactionNo.ExcelStream.fileName : decodeTransactionNo.PDFStream.fileName,

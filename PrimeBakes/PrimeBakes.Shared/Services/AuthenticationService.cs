@@ -55,7 +55,7 @@ public static class AuthenticationService
 		await dataStorageService.SecureRemoveAll();
 		await notificationService.DeregisterDevicePushNotification();
 		vibrationService.VibrateWithTime(500);
-		navigationManager.NavigateTo(OperationNames.Login, forceLoad: true);
+		navigationManager.NavigateTo(OperationNames.Login);
 	}
 
 	public static Func<string, bool> OpenRouteInNewWindow { get; set; }

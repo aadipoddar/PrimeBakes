@@ -6,7 +6,6 @@ using PrimeBakes.Shared.Components.Input;
 using PrimeBakesLibrary.Accounts.Masters.Data;
 using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Inventory.Kitchen.Data;
-using PrimeBakesLibrary.Inventory.Kitchen.Exports;
 using PrimeBakesLibrary.Inventory.Kitchen.Models;
 using PrimeBakesLibrary.Inventory.Purchase.Data;
 using PrimeBakesLibrary.Inventory.RawMaterial.Models;
@@ -14,7 +13,6 @@ using PrimeBakesLibrary.Inventory.Stock.Data;
 using PrimeBakesLibrary.Inventory.Stock.Models;
 using PrimeBakesLibrary.Operations.Settings;
 using PrimeBakesLibrary.Operations.User;
-using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.Grids;
 
@@ -127,7 +125,7 @@ public partial class KitchenIssuePage
 		if (_kitchenIssue is null || _kitchenIssue.Id == 0)
 		{
 			await _toastNotification.ShowAsync("Transaction Not Found", "The requested transaction could not be found.", ToastType.Error);
-			NavigationManager.NavigateTo(InventoryRouteNames.KitchenIssue, true);
+			await ResetPage();
 		}
 
 		return true;
@@ -536,9 +534,6 @@ public partial class KitchenIssuePage
 			_isProcessing = true;
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
-
-			var (stream, fileName) = await KitchenIssueInvoiceExport.ExportInvoice(_kitchenIssue.Id, isExcel ? InvoiceExportType.Excel : InvoiceExportType.PDF);
-			await SaveAndViewService.SaveAndView(fileName, stream);
 
 			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_kitchenIssue.TransactionNo, !isExcel, isExcel, CodeType.KitchenIssue);
 			await SaveAndViewService.SaveAndView(isExcel ? decodeTransactionNo.ExcelStream.fileName : decodeTransactionNo.PDFStream.fileName,

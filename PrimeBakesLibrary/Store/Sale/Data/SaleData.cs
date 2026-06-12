@@ -66,7 +66,7 @@ public static class SaleData
 			sqlDataAccessTransaction.StartTransaction();
 
 			if (sale.OrderId is not null && sale.OrderId > 0)
-				await OrderData.UnlinkOrderFromSale(sale, sqlDataAccessTransaction);
+				await OrderData.LinkOrderToSale(sale, true, sqlDataAccessTransaction);
 
 			sale.OrderId = null;
 			sale.Status = false;
@@ -300,10 +300,10 @@ public static class SaleData
 	private static async Task UpdateOrder(SaleModel sale, SaleModel previousSale, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
 		if (update)
-			await OrderData.UnlinkOrderFromSale(previousSale, sqlDataAccessTransaction);
+			await OrderData.LinkOrderToSale(previousSale, true, sqlDataAccessTransaction);
 
 		if (sale.OrderId is not null)
-			await OrderData.LinkOrderToSale(sale, sqlDataAccessTransaction);
+			await OrderData.LinkOrderToSale(sale, false, sqlDataAccessTransaction);
 	}
 
 	private static async Task SaveAccounting(SaleModel sale, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)

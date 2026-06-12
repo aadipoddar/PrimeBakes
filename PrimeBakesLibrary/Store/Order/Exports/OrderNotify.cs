@@ -1,4 +1,5 @@
 using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Operations.AuditTrail;
 using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Store.Order.Models;
 using PrimeBakesLibrary.Utils.Exports;
@@ -62,7 +63,8 @@ internal static class OrderNotify
 				["Total Quantity"] = order.TotalQuantity.FormatSmartDecimal(),
 				[type == NotifyType.Deleted ? "Deleted By" : type == NotifyType.Updated ? "Updated By" : "Modified By"] = order.LastModifiedByUserName ?? order.CreatedByName
 			},
-			Remarks = order.Remarks
+			Remarks = order.Remarks,
+			Differences = type == NotifyType.Updated ? (await AuditTrailData.LoadLastAuditTrailByTableRecord(StoreNames.Order, order.TransactionNo)).RecordValue : null
 		};
 
 		// For update emails, include before and after invoices

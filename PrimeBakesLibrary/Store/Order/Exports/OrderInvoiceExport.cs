@@ -1,9 +1,7 @@
-﻿using PrimeBakesLibrary.Accounts.Masters.Models;
+using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Store.Order.Models;
-using PrimeBakesLibrary.Store.Product.Models;
-using PrimeBakesLibrary.Store.Sale.Models;
 using PrimeBakesLibrary.Utils.Exports;
 
 namespace PrimeBakesLibrary.Store.Order.Exports;
@@ -12,10 +10,10 @@ public static class OrderInvoiceExport
 {
 	public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId, InvoiceExportType exportType)
 	{
-		var transaction = await CommonData.LoadTableDataById<OrderModel>(StoreNames.Order, transactionId) ??
+		var transaction = await CommonData.LoadTableDataById<OrderOverviewModel>(StoreNames.OrderOverview, transactionId) ??
 			throw new InvalidOperationException("Transaction not found.");
 
-		var transactionDetails = await CommonData.LoadTableDataByMasterId<OrderDetailModel>(StoreNames.OrderDetail, transaction.Id);
+		var transactionDetails = await CommonData.LoadTableDataByMasterId<OrderItemOverviewModel>(StoreNames.OrderItemOverview, transaction.Id);
 		if (transactionDetails is null || transactionDetails.Count == 0)
 			throw new InvalidOperationException("No transaction details found for the transaction.");
 
@@ -24,23 +22,10 @@ public static class OrderInvoiceExport
 		if (company is null || locationLedger is null)
 			throw new InvalidOperationException("Company or location information is missing.");
 
-		SaleModel? sale = null;
-		if (transaction.SaleId.HasValue)
-			sale = await CommonData.LoadTableDataById<SaleModel>(StoreNames.Sale, transaction.SaleId.Value);
-
-		var allProducts = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
-
-		var lineItems = transactionDetails.Select(detail =>
+		var lineItems = transactionDetails.Select(detail => new
 		{
-			var product = allProducts.FirstOrDefault(p => p.Id == detail.ProductId);
-			return new OrderItemCartModel
-			{
-				ItemCategoryId = 0,
-				ItemId = detail.ProductId,
-				ItemName = product?.Name ?? $"Product #{detail.ProductId}",
-				Quantity = detail.Quantity,
-				Remarks = detail.Remarks
-			};
+			detail.ItemName,
+			detail.Quantity
 		}).ToList();
 
 		var invoiceData = new InvoiceData
@@ -50,8 +35,8 @@ public static class OrderInvoiceExport
 			InvoiceType = "ORDER INVOICE",
 			TransactionNo = transaction.TransactionNo,
 			TransactionDateTime = transaction.TransactionDateTime,
-			ReferenceTransactionNo = sale?.TransactionNo ?? string.Empty,
-			ReferenceDateTime = sale?.TransactionDateTime,
+			ReferenceTransactionNo = transaction.SaleTransactionNo ?? string.Empty,
+			ReferenceDateTime = transaction.SaleDateTime,
 			TotalAmount = 0, // Orders don't have amounts
 			Remarks = transaction.Remarks ?? string.Empty,
 			Status = transaction.Status,
@@ -66,9 +51,9 @@ public static class OrderInvoiceExport
 
 		var columnSettings = new List<InvoiceColumnSetting>
 		{
-			new("#", "#", exportType,CellAlignment.Center,25,5),
-			new(nameof(OrderItemCartModel.ItemName), "Item", exportType,CellAlignment.Left,0, 50),
-			new(nameof(OrderItemCartModel.Quantity), "Qty", exportType,CellAlignment.Right,60, 15, "#,##0.00")
+			new("#", "#", exportType, CellAlignment.Center, 25, 5),
+			new(nameof(OrderItemOverviewModel.ItemName), "Item", exportType, CellAlignment.Left, 0, 50),
+			new(nameof(OrderItemOverviewModel.Quantity), "Qty", exportType, CellAlignment.Right, 60, 15, "#,##0.00")
 		};
 
 		var currentDateTime = await CommonData.LoadCurrentDateTime();

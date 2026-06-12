@@ -4,7 +4,7 @@ using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Store.Order.Data;
 using PrimeBakesLibrary.Store.Order.Models;
 
-namespace PrimeBakes.Shared.Pages.Store.Order;
+namespace PrimeBakes.Shared.Pages.Store.Order.Mobile;
 
 public partial class OrderMobileCartPage
 {
@@ -133,40 +133,12 @@ public partial class OrderMobileCartPage
 		}
 	}
 
-	private bool ValidateForm()
-	{
-		_validationErrors.Clear();
-
-		if (_cart.Count == 0)
-		{
-			ShowError("Cart", "The cart is empty. Please add items to the cart before placing the order.");
-			return false;
-		}
-
-		if (_cart.Any(item => item.Quantity <= 0))
-		{
-			ShowError("Quantity", "All items in the cart must have a quantity greater than zero.");
-			return false;
-		}
-
-		if (_user.LocationId <= 1)
-		{
-			ShowError("Location", "Please select a valid location for the order.");
-			return false;
-		}
-
-		return true;
-	}
-
 	private async Task OnPlaceOrderClick()
 	{
 		if (_isProcessing || _isLoading)
 			return;
 
 		await SaveOrderFile();
-
-		if (!ValidateForm())
-			return;
 
 		try
 		{
@@ -190,7 +162,7 @@ public partial class OrderMobileCartPage
 				Status = true,
 			};
 
-			order.Id = await OrderData.SaveTransaction(order, _cart);
+			order.Id = await OrderData.SaveTransaction(order, OrderData.ConvertCartToDetails(_cart));
 
 			if (order.Id <= 0)
 				throw new Exception("Failed to save order. Please try again.");
@@ -233,6 +205,7 @@ public partial class OrderMobileCartPage
 
 	private void ShowError(string title, string message)
 	{
+		_validationErrors.Clear();
 		_validationErrors.Add((title, message));
 		_showValidationDialog = true;
 		StateHasChanged();

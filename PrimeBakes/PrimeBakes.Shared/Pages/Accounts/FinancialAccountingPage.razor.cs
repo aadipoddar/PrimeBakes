@@ -107,7 +107,7 @@ public partial class FinancialAccountingPage
 		if (_accounting is null || _accounting.Id == 0)
 		{
 			await _toastNotification.ShowAsync("Transaction Not Found", "The requested transaction could not be found.", ToastType.Error);
-			NavigationManager.NavigateTo(AccountsRouteNames.FinancialAccounting, true);
+			await ResetPage();
 		}
 
 		return true;

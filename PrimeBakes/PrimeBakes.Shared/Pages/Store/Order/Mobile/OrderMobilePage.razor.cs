@@ -4,7 +4,7 @@ using PrimeBakesLibrary.Store.Order.Models;
 using PrimeBakesLibrary.Store.Product.Data;
 using PrimeBakesLibrary.Store.Product.Models;
 
-namespace PrimeBakes.Shared.Pages.Store.Order;
+namespace PrimeBakes.Shared.Pages.Store.Order.Mobile;
 
 public partial class OrderMobilePage
 {
@@ -36,6 +36,7 @@ public partial class OrderMobilePage
 		await LoadData();
 		await LoadExistingCart();
 		await SaveOrderFile();
+
 		_isLoading = false;
 		StateHasChanged();
 	}
@@ -88,8 +89,8 @@ public partial class OrderMobilePage
 		}
 		catch (Exception)
 		{
-			NavigationManager.NavigateTo(StoreRouteNames.OrderMobile, true);
 			await DataStorageService.LocalRemove(StorageFileNames.OrderMobileCartDataFileName);
+			NavigationManager.NavigateTo(StoreRouteNames.OrderMobile);
 		}
 		finally
 		{
@@ -181,7 +182,8 @@ public partial class OrderMobilePage
 		}
 		catch (Exception)
 		{
-			NavigationManager.NavigateTo(StoreRouteNames.OrderMobile, true);
+			await DataStorageService.LocalRemove(StorageFileNames.OrderMobileCartDataFileName);
+			NavigationManager.NavigateTo(StoreRouteNames.OrderMobile);
 		}
 		finally
 		{

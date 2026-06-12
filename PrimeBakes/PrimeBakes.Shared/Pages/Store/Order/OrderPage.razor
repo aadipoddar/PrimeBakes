@@ -8,19 +8,18 @@
 
 <PageTitle>Order - Prime Bakes</PageTitle>
 
-<MudBlazor.MudHotkey Key=JsKey.Enter KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="AddItemToCart" />
-<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfItemAutoComplete.FocusAsync()" />
-<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction()" />
-<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction(savePDF: true)" />
-<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction(saveExcel: true)" />
-<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="DownloadPdfInvoice" />
-<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="DownloadExcelInvoice" />
-<MudBlazor.MudHotkey Key=JsKey.KeyH KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateToTransactionHistoryPage" />
-<MudBlazor.MudHotkey Key=JsKey.KeyI KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateToItemReport" />
-<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" />
-<MudBlazor.MudHotkey Key=JsKey.KeyB KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateBack" />
-<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="RemoveSelectedCartItem" />
-<MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="EditSelectedCartItem" />
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfItemAutoComplete.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Enter KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="AddItemToCart" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction(savePDF: true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction(saveExcel: true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyH KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(StoreRouteNames.OrderReport, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyI KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(StoreRouteNames.OrderItemReport, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="RemoveSelectedCartItem" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="EditSelectedCartItem" Disabled="@_isProcessing" />
 
 @if (_isLoading || _user is null)
 {
@@ -29,45 +28,25 @@
 else
 {
 	<div class="page-shell">
-		<Header Title="Create Order">
+		<Header Title="@(_order.Id > 0 ? $"Edit Order {_order.TransactionNo}" : "Create Order")">
 			<LeftContent>
-				<SfMenu TValue="Syncfusion.Blazor.Navigations.MenuItem">
-					<MenuAnimationSettings Effect="Syncfusion.Blazor.Navigations.MenuEffect.SlideDown" Duration="300"
-										   Easing="ease" />
-					<MenuEvents TValue="Syncfusion.Blazor.Navigations.MenuItem" ItemSelected="OnMenuSelected"
-								OnOpen='async () => await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0)' />
-					<MenuItems>
-						<MenuItem Text="File" IconCss="e-icons e-folder">
-							<MenuItems>
-								<MenuItem Text="New Transaction (Ctrl + N)" IconCss="e-icons e-plus" Id="NewTransaction"
-										  Disabled="@_isProcessing" />
-								<MenuItem Separator="true" />
-								<MenuItem Text="Save (Ctrl + S)" IconCss="e-icons e-save" Id="SaveTransaction"
-										  Disabled="@_isProcessing" />
-								<MenuItem Text="Save & PDF (Ctrl + P)" IconCss="e-icons e-export-pdf" Id="SavePdfInvoice"
-										  Disabled="@_isProcessing" />
-								<MenuItem Text="Save & Excel (Ctrl + E)" IconCss="e-icons e-export-excel" Id="SaveExcelInvoice"
-										  Disabled="@_isProcessing" />
-								<MenuItem Separator="true" />
-								<MenuItem Text="Export PDF (Alt + P)" IconCss="e-icons e-export-pdf" Id="ExportPdfInvoice"
-										  Disabled="@(_isProcessing || !Id.HasValue || Id.Value <= 0)" />
-								<MenuItem Text="Export Excel (Alt + E)" IconCss="e-icons e-export-excel" Id="ExportExcelInvoice"
-										  Disabled="@(_isProcessing || !Id.HasValue || Id.Value <= 0)" />
-							</MenuItems>
-						</MenuItem>
-						<MenuItem Text="Open" IconCss="e-icons e-folder-open">
-							<MenuItems>
-								<MenuItem Text="Transaction History Report (Ctrl + H)" Id="TransactionHistory"
-										  Disabled="@_isProcessing" />
-								<MenuItem Text="Item Report (Ctrl + I)" Id="ItemReport" Disabled="@_isProcessing" />
-							</MenuItems>
-						</MenuItem>
-					</MenuItems>
-				</SfMenu>
+				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="New Transaction (Ctrl + N)" OnClick="ResetPage" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Save (Ctrl + S)" OnClick="() => SaveTransaction()" />
+					<MudBlazor.MudMenuItem Label="Save & PDF (Ctrl + P)" OnClick="() => SaveTransaction(savePDF: true)" />
+					<MudBlazor.MudMenuItem Label="Save & Excel (Ctrl + E)" OnClick="() => SaveTransaction(saveExcel: true)" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Export PDF (Alt + P)" OnClick="() => ExportSelectedTransaction()" Disabled="@(_isProcessing || !Id.HasValue || Id.Value <= 0)" />
+					<MudBlazor.MudMenuItem Label="Export Excel (Alt + E)" OnClick="() => ExportSelectedTransaction(true)" Disabled="@(_isProcessing || !Id.HasValue || Id.Value <= 0)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Open" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Order (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.Order, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Order Report (Ctrl + H)" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.OrderReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Order Item Report (Ctrl + I)" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.OrderItemReport, FormFactor, JSRuntime, NavigationManager)" />
+				</MudBlazor.MudMenu>
 			</LeftContent>
-			<RightContent>
-				<IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="NavigateBack" />
-			</RightContent>
 		</Header>
 
 		<!-- Main Content Container -->
@@ -95,73 +74,72 @@ else
 						{
 							<!-- Location -->
 							<div class="form-field">
-								<AutoCompleteWithAdd TItem="LocationModel" TValue="LocationModel"
-													 Value="_selectedLocation"
-													 DataSource="@_locations"
-													 Placeholder="Select a Location"
-													 Label="Location" ValueChange="OnLocationChanged"
-													 FieldValue="@nameof(LocationModel.Name)"
-													 AddNewRoute="@OperationRouteNames.Location" />
+								<CustomAutoComplete T="LocationModel"
+													Value="_selectedLocation"
+													DataSource="@_locations"
+													Placeholder="Select a Location"
+													Label="Location"
+													ValueChanged="OnLocationChanged"
+													FieldValue="@nameof(LocationModel.Name)"
+													AddNewRoute="@OperationRouteNames.Location" />
 							</div>
 
 							<!-- Company -->
 							<div class="form-field">
-								<AutoCompleteWithAdd TItem="CompanyModel" TValue="CompanyModel"
-													 Value="_selectedCompany"
-													 DataSource="@_companies"
-													 Placeholder="Select a Company"
-													 Label="Company" ValueChange="OnCompanyChanged"
-													 FieldValue="@nameof(CompanyModel.Name)"
-													 AddNewRoute="@AccountsRouteNames.CompanyMaster" />
+								<CustomAutoComplete T="CompanyModel"
+													Value="_selectedCompany"
+													DataSource="@_companies"
+													Placeholder="Select a Company"
+													Label="Company"
+													ValueChanged="OnCompanyChanged"
+													FieldValue="@nameof(CompanyModel.Name)"
+													AddNewRoute="@AccountsRouteNames.CompanyMaster" />
 							</div>
 
 							<!-- Transaction Date -->
 							<div class="form-field">
-								<DatePickerWithAdd Value="_order.TransactionDateTime"
-												   FinancialYear="@_selectedFinancialYear"
-												   ValueChange="OnTransactionDateChanged" />
+								<CustomDatePicker Value="_order.TransactionDateTime"
+												  FinancialYear="@_selectedFinancialYear"
+												  ValueChanged="OnTransactionDateChanged" />
 							</div>
 						}
 
+						<!-- Transaction No -->
 						<div class="form-field">
-							<label class="field-label">
-								Transaction No <span class="required">*</span>
-							</label>
-							<SfTextBox @bind-Value="_order.TransactionNo" Placeholder="Transaction No"
-									   FloatLabelType="FloatLabelType.Never" Readonly="true"
-									   CssClass="custom-textbox readonly-field" />
+							<CustomTextField @bind-Value="_order.TransactionNo"
+											 Label="Transaction No"
+											 Placeholder="Transaction No"
+											 ReadOnly="true"
+											 TabIndex="-1" />
 						</div>
 
 						@if (_sale?.Id > 0)
 						{
+							<!-- Linked Sale -->
 							<div class="form-field">
-								<label class="field-label">
-									Linked Sale
-								</label>
+								<label class="field-label">Linked Sale</label>
 								<div class="reference-wrapper">
-									<SfTextBox Value="@_sale.TransactionNo" Readonly="true" Placeholder="No Sale Linked"
-											   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox readonly-field" />
+									<CustomTextField Value="@_sale.TransactionNo"
+													 Placeholder="No Sale Linked"
+													 ReadOnly="true"
+													 TabIndex="-1" />
 									<div class="reference-actions">
-										<IconButton Icon="IconType.View" Variant="ButtonVariant.View"
-													Size="ButtonSize.Small" Title="View Sale"
-													OnClick="NavigateToSelectedSalePage" />
-										<IconButton Icon="IconType.Excel" Variant="ButtonVariant.Excel"
-													Size="ButtonSize.Small" Title="Download Excel Invoice"
-													OnClick="DownloadSelectedSaleExcel" />
-										<IconButton Icon="IconType.Pdf" Variant="ButtonVariant.Pdf" Size="ButtonSize.Small"
-													Title="Download PDF Invoice" OnClick="DownloadSelectedSalePdf" />
+										<IconButton Icon="IconType.View" Variant="ButtonVariant.View" Size="ButtonSize.Small"
+													Title="View Sale" OnClick="ViewSelectedSale" />
 									</div>
 								</div>
 							</div>
 						}
 
-						<div class="form-field">
-							<label class="field-label">
-								Remarks / Narration
-							</label>
-							<SfTextBox @bind-Value="_order.Remarks" Multiline="true" Placeholder="Enter remarks..."
-									   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+						<!-- Remarks -->
+						<div class="form-field form-field-full">
+							<CustomTextField @bind-Value="_order.Remarks"
+											 Label="Remarks / Narration"
+											 Placeholder="Enter remarks..."
+											 Required="false"
+											 Lines="2" />
 						</div>
+
 					</div>
 				</div>
 			</div>
@@ -185,35 +163,37 @@ else
 
 						<!-- Item -->
 						<div class="cart-field cart-field-wide">
-							<AutoCompleteWithAdd TItem="ProductLocationOverviewModel" TValue="ProductLocationOverviewModel"
-												 @ref="_sfItemAutoComplete"
-												 Value="_selectedProduct"
-												 DataSource="@_products"
-												 Placeholder="Select a Product (Ctrl + F)"
-												 Label="Product" ValueChange="OnItemChanged"
-												 FieldValue="@nameof(ProductLocationOverviewModel.Name)"
-												 AddNewRoute="@StoreRouteNames.Product" />
+							<CustomAutoComplete T="ProductLocationOverviewModel"
+												@ref="_sfItemAutoComplete"
+												Value="_selectedProduct"
+												DataSource="@_products"
+												Placeholder="Select a Product (Ctrl + F)"
+												Label="Product"
+												ValueChanged="OnItemChanged"
+												FieldValue="@nameof(ProductLocationOverviewModel.Name)"
+												AddNewRoute="@StoreRouteNames.Product"
+												OpenOnFocus="false" />
 						</div>
 
 						<div class="cart-field">
-							<label class="cart-label">Qty <span class="required">*</span></label>
-							<SfNumericTextBox Value="@_selectedCart.Quantity" TValue="decimal" Min="0"
-											  ShowSpinButton="false" Placeholder="0.00" FloatLabelType="FloatLabelType.Never"
-											  CssClass="custom-numeric">
-								<NumericTextBoxEvents TValue="decimal" ValueChange="OnItemQuantityChanged" />
-							</SfNumericTextBox>
+							<CustomNumericField T="decimal"
+												Value="_selectedCart.Quantity"
+												ValueChanged="OnItemQuantityChanged"
+												Label="Qty"
+												Placeholder="0.00"
+												Min="0" />
 						</div>
 
 						<div class="cart-field cart-field-wide">
-							<label class="cart-label">Remarks</label>
-							<SfTextBox @bind-Value="_selectedCart.Remarks" Placeholder="Item Narration..."
-									   FloatLabelType="FloatLabelType.Never" CssClass="custom-textbox" />
+							<CustomTextField @bind-Value="_selectedCart.Remarks"
+											 Label="Remarks"
+											 Placeholder="Item Narration..."
+											 Required="false" />
 						</div>
 
-						<div class="cart-field">
-							<label class="cart-label">&nbsp;</label>
-							<IconButton Icon="IconType.Add" Variant="ButtonVariant.Add" Text="Add" Title="Add to Cart"
-										OnClick="AddItemToCart" />
+						<!-- Add Button -->
+						<div class="cart-field cart-field-action">
+							<IconButton Icon="IconType.Add" Variant="ButtonVariant.Add" Text="Add" Title="Add to Cart" OnClick="AddItemToCart" />
 						</div>
 					</div>
 				</div>
@@ -233,20 +213,18 @@ else
 					</div>
 				</div>
 				<div class="section-body grid-body">
-					<SfGrid ID="_sfCartGrid" @ref="_sfCartGrid" DataSource="_cart" AllowTextWrap="true" AllowPaging="false"
+					<SfGrid @ref="_sfCartGrid" DataSource="_cart" AllowTextWrap="true" AllowPaging="false"
 							AllowSorting="true" AllowResizing="true" AllowFiltering="true" GridLines="GridLine.Horizontal"
 							CssClass="professional-grid" ContextMenuItems="@_cartGridContextMenuItems"
 							Toolbar="@(new List<string>() { "Search" })">
 
-						<GridEvents TValue="OrderItemCartModel"
-									ContextMenuItemClicked="OnCartGridContextMenuItemClicked" />
-
+						<GridEvents TValue="OrderItemCartModel" ContextMenuItemClicked="OnCartGridContextMenuItemClicked" />
 						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
 						<GridAggregates>
 							<GridAggregate>
 								<GridAggregateColumns>
-									<GridAggregateColumn Field="ItemName" Type="AggregateType.Count">
+									<GridAggregateColumn Field="@nameof(OrderItemCartModel.ItemName)" Type="AggregateType.Count">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
@@ -256,7 +234,7 @@ else
 											</div>
 										</FooterTemplate>
 									</GridAggregateColumn>
-									<GridAggregateColumn Field="Quantity" Type="AggregateType.Sum">
+									<GridAggregateColumn Field="@nameof(OrderItemCartModel.Quantity)" Type="AggregateType.Sum">
 										<FooterTemplate>
 											@{
 												var aggregate = (context as AggregateTemplateContext);
@@ -272,10 +250,9 @@ else
 						</GridAggregates>
 
 						<GridColumns>
-							<GridColumn Field="ItemName" HeaderText="Item Name" Width="300" />
-							<GridColumn Field="Quantity" HeaderText="Qty" Width="150" TextAlign="TextAlign.Right"
-										Format="N2" />
-							<GridColumn Field="Remarks" HeaderText="Remarks" Width="200" />
+							<GridColumn Field="@nameof(OrderItemCartModel.ItemName)" HeaderText="Item Name" Width="300" />
+							<GridColumn Field="@nameof(OrderItemCartModel.Quantity)" HeaderText="Qty" Width="150" TextAlign="TextAlign.Right" Format="N2" />
+							<GridColumn Field="@nameof(OrderItemCartModel.Remarks)" HeaderText="Remarks" Width="200" />
 						</GridColumns>
 					</SfGrid>
 				</div>
@@ -287,3 +264,5 @@ else
 }
 
 <ToastNotification @ref="_toastNotification" />
+
+<CloseGuard Block="_isProcessing" />
