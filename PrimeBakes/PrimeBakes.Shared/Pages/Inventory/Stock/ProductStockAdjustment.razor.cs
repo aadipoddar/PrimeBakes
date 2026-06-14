@@ -39,7 +39,7 @@ public partial class ProductStockAdjustment
 	];
 
 	private CustomDatePicker _firstFocus;
-	private CustomAutoComplete<ProductLocationOverviewModel> _sfItemAutoComplete;
+	private CustomAutoComplete<ProductLocationOverviewModel> _itemAutoComplete;
 	private SfGrid<ProductStockAdjustmentCartModel> _sfCartGrid;
 
 	private ToastNotification _toastNotification;
@@ -199,8 +199,8 @@ public partial class ProductStockAdjustment
 		_selectedProduct = null;
 		_selectedCart = new();
 
-		if (_sfItemAutoComplete is not null)
-			await _sfItemAutoComplete.FocusAsync();
+		if (_itemAutoComplete is not null)
+			await _itemAutoComplete.FocusAsync();
 
 		await SaveTransactionFile();
 	}
@@ -233,8 +233,8 @@ public partial class ProductStockAdjustment
 		UpdateSelectedItemFinancialDetails();
 		await RemoveItemFromCart(cartItem);
 
-		if (_sfItemAutoComplete is not null)
-			await _sfItemAutoComplete.FocusAsync();
+		if (_itemAutoComplete is not null)
+			await _itemAutoComplete.FocusAsync();
 	}
 
 	private async Task RemoveSelectedCartItem()

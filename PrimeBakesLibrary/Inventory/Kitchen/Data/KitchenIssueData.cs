@@ -49,7 +49,7 @@ public static class KitchenIssueData
 
 		kitchenIssue.Status = false;
 		await InsertKitchenIssue(kitchenIssue, sqlDataAccessTransaction);
-		await RawMaterialStockData.DeleteRawMaterialStockByTypeTransactionId(nameof(StockType.KitchenIssue), kitchenIssue.Id, sqlDataAccessTransaction);
+		await RawMaterialStockData.DeleteRawMaterialStockByTransactionNo(kitchenIssue.TransactionNo, sqlDataAccessTransaction);
 
 		await AuditTrailData.SaveAuditTrail(new()
 		{
@@ -156,7 +156,7 @@ public static class KitchenIssueData
 
 		kitchenIssue.Id = await InsertKitchenIssue(kitchenIssue, sqlDataAccessTransaction);
 		await SaveTransactionDetail(kitchenIssue, kitchenIssueDetails, update, sqlDataAccessTransaction);
-		await SaveRawMaterialStock(kitchenIssue, kitchenIssueDetails, update, sqlDataAccessTransaction);
+		await SaveRawMaterialStock(kitchenIssue, kitchenIssueDetails, sqlDataAccessTransaction);
 		await SaveAuditTrail(kitchenIssue, update, recover, previousKitchenIssue, previousKitchenIssueDetails, sqlDataAccessTransaction);
 
 		return kitchenIssue.Id;
@@ -181,10 +181,9 @@ public static class KitchenIssueData
 		}
 	}
 
-	private static async Task SaveRawMaterialStock(KitchenIssueModel kitchenIssue, List<KitchenIssueDetailModel> kitchenIssueDetails, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
+	private static async Task SaveRawMaterialStock(KitchenIssueModel kitchenIssue, List<KitchenIssueDetailModel> kitchenIssueDetails, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
-		if (update)
-			await RawMaterialStockData.DeleteRawMaterialStockByTypeTransactionId(nameof(StockType.KitchenIssue), kitchenIssue.Id, sqlDataAccessTransaction);
+		await RawMaterialStockData.DeleteRawMaterialStockByTransactionNo(kitchenIssue.TransactionNo, sqlDataAccessTransaction);
 
 		foreach (var item in kitchenIssueDetails)
 			await RawMaterialStockData.InsertRawMaterialStock(new()

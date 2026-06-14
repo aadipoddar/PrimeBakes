@@ -188,7 +188,7 @@ public partial class BillReport : IAsyncDisposable
 
 	private async Task OnLocationChanged(Syncfusion.Blazor.DropDowns.ChangeEventArgs<LocationModel, LocationModel> args)
 	{
-		if (_user.LocationId > 1)
+		if (_user.LocationId != 1)
 			return;
 
 		_selectedLocation = args.Value;
@@ -197,7 +197,7 @@ public partial class BillReport : IAsyncDisposable
 
 	private async Task OnCompanyChanged(Syncfusion.Blazor.DropDowns.ChangeEventArgs<CompanyModel, CompanyModel> args)
 	{
-		if (_user.LocationId > 1)
+		if (_user.LocationId != 1)
 			return;
 
 		_selectedCompany = args.Value;
@@ -206,7 +206,7 @@ public partial class BillReport : IAsyncDisposable
 
 	private async Task OnCustomerChanged(Syncfusion.Blazor.DropDowns.ChangeEventArgs<CustomerModel, CustomerModel> args)
 	{
-		if (_user.LocationId > 1)
+		if (_user.LocationId != 1)
 			return;
 
 		_selectedCustomer = args.Value;
@@ -453,7 +453,7 @@ public partial class BillReport : IAsyncDisposable
 
 	private async Task DeleteRecoverSelectedTransaction()
 	{
-		if (!_user.Admin || _user.LocationId > 1)
+		if (!_user.Admin || _user.LocationId != 1)
 			return;
 
 		if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
@@ -484,7 +484,7 @@ public partial class BillReport : IAsyncDisposable
 				return;
 			}
 
-			if (!_user.Admin || _user.LocationId > 1)
+			if (!_user.Admin || _user.LocationId != 1)
 				throw new UnauthorizedAccessException("You do not have permission to delete this transaction.");
 
 			await _toastNotification.ShowAsync("Processing", "Deleting transaction...", ToastType.Info);
@@ -537,7 +537,7 @@ public partial class BillReport : IAsyncDisposable
 				return;
 			}
 
-			if (!_user.Admin || _user.LocationId > 1)
+			if (!_user.Admin || _user.LocationId != 1)
 				throw new UnauthorizedAccessException("You do not have permission to recover this transaction.");
 
 			await _toastNotification.ShowAsync("Processing", "Recovering transaction...", ToastType.Info);
@@ -697,7 +697,7 @@ public partial class BillReport : IAsyncDisposable
 
 	private async Task ToggleDeleted()
 	{
-		if (_user.LocationId > 1)
+		if (_user.LocationId != 1)
 			return;
 
 		_showDeleted = !_showDeleted;
@@ -706,7 +706,7 @@ public partial class BillReport : IAsyncDisposable
 
 	private async Task ToggleSummary()
 	{
-		if (_user.LocationId > 1)
+		if (_user.LocationId != 1)
 			return;
 
 		_showSummary = !_showSummary;

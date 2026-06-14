@@ -170,7 +170,7 @@ public partial class BillItemReport : IAsyncDisposable
 
 	private async Task OnLocationChanged(Syncfusion.Blazor.DropDowns.ChangeEventArgs<LocationModel, LocationModel> args)
 	{
-		if (_user.LocationId > 1)
+		if (_user.LocationId != 1)
 			return;
 
 		_selectedLocation = args.Value;
@@ -179,7 +179,7 @@ public partial class BillItemReport : IAsyncDisposable
 
 	private async Task OnCompanyChanged(Syncfusion.Blazor.DropDowns.ChangeEventArgs<CompanyModel, CompanyModel> args)
 	{
-		if (_user.LocationId > 1)
+		if (_user.LocationId != 1)
 			return;
 
 		_selectedCompany = args.Value;
@@ -188,7 +188,7 @@ public partial class BillItemReport : IAsyncDisposable
 
 	private async Task OnCustomerChanged(Syncfusion.Blazor.DropDowns.ChangeEventArgs<CustomerModel, CustomerModel> args)
 	{
-		if (_user.LocationId > 1)
+		if (_user.LocationId != 1)
 			return;
 
 		_selectedCustomer = args.Value;

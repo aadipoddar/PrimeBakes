@@ -48,7 +48,8 @@ public partial class OrderPage
 		new() { Text = "Delete (Del)", Id = "DeleteCart", IconCss = "e-icons e-trash", Target = ".e-content" }
 	];
 
-	private CustomAutoComplete<ProductLocationOverviewModel> _sfItemAutoComplete;
+	private CustomAutoComplete<CompanyModel> _firstFocus;
+	private CustomAutoComplete<ProductLocationOverviewModel> _itemAutoComplete;
 	private SfGrid<OrderItemCartModel> _sfCartGrid;
 
 	private ToastNotification _toastNotification;
@@ -80,8 +81,8 @@ public partial class OrderPage
 
 		await SaveTransactionFile();
 
-		if (_sfItemAutoComplete is not null)
-			await _sfItemAutoComplete.FocusAsync();
+		if (_firstFocus is not null)
+			await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadData()
@@ -348,7 +349,7 @@ public partial class OrderPage
 		_selectedProduct = null;
 		_selectedCart = new();
 
-		await _sfItemAutoComplete.FocusAsync();
+		await _itemAutoComplete.FocusAsync();
 		await SaveTransactionFile();
 	}
 
@@ -377,7 +378,7 @@ public partial class OrderPage
 			Remarks = cartItem.Remarks
 		};
 
-		await _sfItemAutoComplete.FocusAsync();
+		await _itemAutoComplete.FocusAsync();
 		UpdateSelectedItemFinancialDetails();
 		await RemoveItemFromCart(cartItem);
 	}

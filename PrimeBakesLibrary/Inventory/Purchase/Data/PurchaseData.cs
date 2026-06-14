@@ -29,6 +29,16 @@ public static class PurchaseData
 	public static async Task<List<RawMaterialModel>> LoadRawMaterialByPartyPurchaseDateTime(int PartyId, DateTime PurchaseDateTime, bool OnlyActive = true) =>
 		await SqlDataAccess.LoadData<RawMaterialModel, dynamic>(InventoryNames.LoadRawMaterialByPartyPurchaseDateTime, new { PartyId, PurchaseDateTime, OnlyActive });
 
+	internal static async Task UpdateFinancialAccountingId(int financialAccountingId, int? newFinancialAccountingId, SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	{
+		var purchases = await CommonData.LoadTableDataByFinancialAccountingId<PurchaseModel>(InventoryNames.Purchase, financialAccountingId, sqlDataAccessTransaction);
+		foreach (var purchase in purchases)
+		{
+			purchase.FinancialAccountingId = newFinancialAccountingId;
+			await InsertPurchase(purchase, sqlDataAccessTransaction);
+		}
+	}
+
 	public static List<PurchaseDetailModel> ConvertCartToDetails(List<PurchaseItemCartModel> cart, int masterId = 0) =>
 		[.. cart.Select(item => new PurchaseDetailModel
 		{
@@ -56,16 +66,6 @@ public static class PurchaseData
 			Status = true
 		})];
 
-	internal static async Task UpdateFinancialAccountingId(int financialAccountingId, int? newFinancialAccountingId, SqlDataAccessTransaction sqlDataAccessTransaction = null)
-	{
-		var purchases = await CommonData.LoadTableDataByFinancialAccountingId<PurchaseModel>(InventoryNames.Purchase, financialAccountingId, sqlDataAccessTransaction);
-		foreach (var purchase in purchases)
-		{
-			purchase.FinancialAccountingId = newFinancialAccountingId;
-			await InsertPurchase(purchase, sqlDataAccessTransaction);
-		}
-	}
-
 	#region Delete
 	public static async Task DeleteTransaction(PurchaseModel purchase, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
@@ -82,7 +82,7 @@ public static class PurchaseData
 		await InsertPurchase(purchase, sqlDataAccessTransaction);
 
 		await DeleteAccounting(purchase, sqlDataAccessTransaction);
-		await RawMaterialStockData.DeleteRawMaterialStockByTypeTransactionId(nameof(StockType.Purchase), purchase.Id, sqlDataAccessTransaction);
+		await RawMaterialStockData.DeleteRawMaterialStockByTransactionNo(purchase.TransactionNo, sqlDataAccessTransaction);
 
 		await AuditTrailData.SaveAuditTrail(new()
 		{
@@ -207,7 +207,7 @@ public static class PurchaseData
 
 		purchase.Id = await InsertPurchase(purchase, sqlDataAccessTransaction);
 		await SaveTransactionDetail(purchase, purchaseDetails, update, sqlDataAccessTransaction);
-		await SaveRawMaterialStock(purchase, purchaseDetails, update, sqlDataAccessTransaction);
+		await SaveRawMaterialStock(purchase, purchaseDetails, sqlDataAccessTransaction);
 		await SaveAccounting(purchase, update, sqlDataAccessTransaction);
 		await UpdateRawMaterialRateAndUOMOnPurchase(purchaseDetails, sqlDataAccessTransaction);
 		await SaveAuditTrail(purchase, update, recover, previousPurchase, previousPurchaseDetails, sqlDataAccessTransaction);
@@ -234,10 +234,9 @@ public static class PurchaseData
 		}
 	}
 
-	private static async Task SaveRawMaterialStock(PurchaseModel purchase, List<PurchaseDetailModel> purchaseDetails, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
+	private static async Task SaveRawMaterialStock(PurchaseModel purchase, List<PurchaseDetailModel> purchaseDetails, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
-		if (update)
-			await RawMaterialStockData.DeleteRawMaterialStockByTypeTransactionId(nameof(StockType.Purchase), purchase.Id, sqlDataAccessTransaction);
+		await RawMaterialStockData.DeleteRawMaterialStockByTransactionNo(purchase.TransactionNo, sqlDataAccessTransaction);
 
 		foreach (var item in purchaseDetails)
 			await RawMaterialStockData.InsertRawMaterialStock(new()

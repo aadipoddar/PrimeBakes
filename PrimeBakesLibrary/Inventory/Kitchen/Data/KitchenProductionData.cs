@@ -48,7 +48,7 @@ public static class KitchenProductionData
 
 		kitchenProduction.Status = false;
 		await InsertKitchenProduction(kitchenProduction, sqlDataAccessTransaction);
-		await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.KitchenProduction), kitchenProduction.Id, 1, sqlDataAccessTransaction);
+		await ProductStockData.DeleteProductStockByTransactionNo(kitchenProduction.TransactionNo, sqlDataAccessTransaction);
 
 		await AuditTrailData.SaveAuditTrail(new()
 		{
@@ -155,7 +155,7 @@ public static class KitchenProductionData
 
 		kitchenProduction.Id = await InsertKitchenProduction(kitchenProduction, sqlDataAccessTransaction);
 		await SaveTransactionDetail(kitchenProduction, kitchenProductionDetails, update, sqlDataAccessTransaction);
-		await SaveProductStock(kitchenProduction, kitchenProductionDetails, update, sqlDataAccessTransaction);
+		await SaveProductStock(kitchenProduction, kitchenProductionDetails, sqlDataAccessTransaction);
 		await SaveAuditTrail(kitchenProduction, update, recover, previousKitchenProduction, previousKitchenProductionDetails, sqlDataAccessTransaction);
 
 		return kitchenProduction.Id;
@@ -180,10 +180,9 @@ public static class KitchenProductionData
 		}
 	}
 
-	private static async Task SaveProductStock(KitchenProductionModel kitchenProduction, List<KitchenProductionDetailModel> kitchenProductionDetails, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
+	private static async Task SaveProductStock(KitchenProductionModel kitchenProduction, List<KitchenProductionDetailModel> kitchenProductionDetails, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
-		if (update)
-			await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.KitchenProduction), kitchenProduction.Id, 1, sqlDataAccessTransaction);
+		await ProductStockData.DeleteProductStockByTransactionNo(kitchenProduction.TransactionNo, sqlDataAccessTransaction);
 
 		foreach (var item in kitchenProductionDetails)
 			await ProductStockData.InsertProductStock(new()

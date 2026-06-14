@@ -4,7 +4,6 @@ using PrimeBakesLibrary.Operations.AuditTrail;
 using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Store.Order.Exports;
 using PrimeBakesLibrary.Store.Order.Models;
-using PrimeBakesLibrary.Store.Sale.Models;
 using PrimeBakesLibrary.Utils.Exports;
 using PrimeBakesLibrary.Utils.Mail;
 
@@ -34,19 +33,19 @@ public static class OrderData
 			Status = true
 		})];
 
-	public static async Task LinkOrderToSale(SaleModel sale, bool unlink = false, SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	public static async Task LinkOrderToSale(int? orderId = null, int? saleId = null, bool unlink = false, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
-		if (sale.OrderId is null or <= 0)
+		if (orderId is null or <= 0)
 			return;
 
-		var order = await CommonData.LoadTableDataById<OrderModel>(StoreNames.Order, sale.OrderId.Value, sqlDataAccessTransaction);
+		var order = await CommonData.LoadTableDataById<OrderModel>(StoreNames.Order, orderId.Value, sqlDataAccessTransaction);
 		if (order is null || order.Id <= 0 || !order.Status)
 			throw new InvalidOperationException("Order not found or is inactive.");
 
-		if (!unlink && order.SaleId is not null && order.SaleId != sale.Id)
+		if (!unlink && order.SaleId is not null && order.SaleId != saleId)
 			throw new InvalidOperationException("Order is already linked to another sale.");
 
-		order.SaleId = unlink ? null : sale.Id;
+		order.SaleId = unlink ? null : saleId;
 		await InsertOrder(order, sqlDataAccessTransaction);
 	}
 

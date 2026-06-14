@@ -38,7 +38,7 @@ public partial class RecipePage
 	];
 
 	private CustomAutoComplete<ProductLocationOverviewModel> _firstFocus;
-	private CustomAutoComplete<RawMaterialModel> _sfItemAutoComplete;
+	private CustomAutoComplete<RawMaterialModel> _itemAutoComplete;
 	private SfGrid<RecipeItemCartModel> _sfCartGrid;
 
 	private ToastNotification _toastNotification;
@@ -191,8 +191,8 @@ public partial class RecipePage
 		_selectedRawMaterial = null;
 		_selectedCart = new();
 
-		if (_sfItemAutoComplete is not null)
-			await _sfItemAutoComplete.FocusAsync();
+		if (_itemAutoComplete is not null)
+			await _itemAutoComplete.FocusAsync();
 
 		if (_sfCartGrid is not null)
 			await _sfCartGrid.Refresh();
@@ -222,8 +222,8 @@ public partial class RecipePage
 
 		await RemoveItemFromCart(cartItem);
 
-		if (_sfItemAutoComplete is not null)
-			await _sfItemAutoComplete.FocusAsync();
+		if (_itemAutoComplete is not null)
+			await _itemAutoComplete.FocusAsync();
 		StateHasChanged();
 	}
 

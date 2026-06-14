@@ -163,15 +163,14 @@ public partial class OrderMobileCartPage
 			};
 
 			order.Id = await OrderData.SaveTransaction(order, OrderData.ConvertCartToDetails(_cart));
-
-			if (order.Id <= 0)
-				throw new Exception("Failed to save order. Please try again.");
-
 			await NotificationNavigate(order.Id);
 		}
 		catch (Exception ex)
 		{
 			ShowError("An error occurred while placing the order", ex.Message);
+		}
+		finally
+		{
 			_isProcessing = false;
 			StateHasChanged();
 		}
@@ -191,17 +190,12 @@ public partial class OrderMobileCartPage
 	#endregion
 
 	#region Utilities
-	private async Task SendLocalNotification(OrderOverviewModel order)
-	{
-		if (order is null)
-			return;
-
+	private async Task SendLocalNotification(OrderOverviewModel order) =>
 		await NotificationService.ShowLocalNotification(
 			order.Id,
 			"Order Placed",
 			$"{order.TransactionNo}",
 			$"Your order #{order.TransactionNo} has been successfully placed | Total Items: {order.TotalItems} | Total Qty: {order.TotalQuantity} | Date: {order.TransactionDateTime:dd/MM/yy hh:mm tt} | Remarks: {order.Remarks}");
-	}
 
 	private void ShowError(string title, string message)
 	{

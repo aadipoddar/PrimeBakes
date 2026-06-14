@@ -14,8 +14,8 @@ public static class RawMaterialStockData
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertRawMaterialStock, stock, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Raw Material Stock.");
 
-	public static async Task<int> DeleteRawMaterialStockByTypeTransactionId(string Type, int TransactionId, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.DeleteRawMaterialStockByTypeTransactionId, new { Type, TransactionId }, sqlDataAccessTransaction)).FirstOrDefault()
+	public static async Task<int> DeleteRawMaterialStockByTransactionNo(string TransactionNo, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.DeleteRawMaterialStockByTransactionNo, new { TransactionNo }, sqlDataAccessTransaction)).FirstOrDefault()
 			is var result and > 0 ? result : throw new InvalidOperationException("Failed to Delete Raw Material Stock.");
 
 	public static async Task<List<RawMaterialStockModel>> LoadRawMaterialOpeningStockByDate(DateTime FromDate) =>

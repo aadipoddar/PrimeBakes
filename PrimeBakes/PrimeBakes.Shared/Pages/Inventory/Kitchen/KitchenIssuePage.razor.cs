@@ -48,7 +48,7 @@ public partial class KitchenIssuePage
 	];
 
 	private CustomAutoComplete<CompanyModel> _firstFocus;
-	private CustomAutoComplete<RawMaterialModel> _sfItemAutoComplete;
+	private CustomAutoComplete<RawMaterialModel> _itemAutoComplete;
 	private SfGrid<KitchenIssueItemCartModel> _sfCartGrid;
 
 	private ToastNotification _toastNotification;
@@ -359,7 +359,7 @@ public partial class KitchenIssuePage
 		_selectedRawMaterial = null;
 		_selectedCart = new();
 
-		await _sfItemAutoComplete.FocusAsync();
+		await _itemAutoComplete.FocusAsync();
 		await SaveTransactionFile();
 	}
 
@@ -389,7 +389,7 @@ public partial class KitchenIssuePage
 			Remarks = cartItem.Remarks
 		};
 
-		await _sfItemAutoComplete.FocusAsync();
+		await _itemAutoComplete.FocusAsync();
 		UpdateSelectedItemFinancialDetails();
 		await RemoveItemFromCart(cartItem);
 	}

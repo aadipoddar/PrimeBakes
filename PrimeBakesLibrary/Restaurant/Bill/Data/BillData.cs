@@ -124,8 +124,8 @@ public static class BillData
 			bill.Status = false;
 			await InsertBill(bill, sqlDataAccessTransaction);
 
-			await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.Bill), bill.Id, bill.LocationId, sqlDataAccessTransaction);
-			await RawMaterialStockData.DeleteRawMaterialStockByTypeTransactionId(nameof(StockType.Bill), bill.Id, sqlDataAccessTransaction);
+			await ProductStockData.DeleteProductStockByTransactionNo(bill.TransactionNo, sqlDataAccessTransaction);
+			await RawMaterialStockData.DeleteRawMaterialStockByTransactionNo(bill.TransactionNo, sqlDataAccessTransaction);
 
 			var billVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.BillVoucherId, sqlDataAccessTransaction);
 			var existingAccounting = await FinancialAccountingData.LoadFinancialAccountingByVoucherReference(int.Parse(billVoucher.Value), bill.Id, bill.TransactionNo, sqlDataAccessTransaction);
@@ -261,7 +261,7 @@ public static class BillData
 	private static async Task SaveProductStock(BillModel bill, List<BillDetailModel> billDetails, BillModel existingBill, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
 		if (update)
-			await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.Bill), existingBill.Id, existingBill.LocationId, sqlDataAccessTransaction);
+			await ProductStockData.DeleteProductStockByTransactionNo(existingBill.TransactionNo, sqlDataAccessTransaction);
 
 		foreach (var item in billDetails)
 		{
@@ -286,7 +286,7 @@ public static class BillData
 	private static async Task SaveRawMaterialStockByRecipe(BillModel bill, List<BillDetailModel> billDetails, BillModel existingBill, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
 		if (update)
-			await RawMaterialStockData.DeleteRawMaterialStockByTypeTransactionId(nameof(StockType.Bill), existingBill.Id, sqlDataAccessTransaction);
+			await RawMaterialStockData.DeleteRawMaterialStockByTransactionNo(existingBill.TransactionNo, sqlDataAccessTransaction);
 
 		if (bill.LocationId != 1)
 			return;

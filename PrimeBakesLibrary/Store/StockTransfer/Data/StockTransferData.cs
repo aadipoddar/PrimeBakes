@@ -61,9 +61,8 @@ public static class StockTransferData
 			stockTransfer.Status = false;
 			await InsertStockTransfer(stockTransfer, sqlDataAccessTransaction);
 
-			await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.StockTransfer), stockTransfer.Id, stockTransfer.LocationId, sqlDataAccessTransaction);
-			await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.StockTransfer), stockTransfer.Id, stockTransfer.ToLocationId, sqlDataAccessTransaction);
-			await RawMaterialStockData.DeleteRawMaterialStockByTypeTransactionId(nameof(StockType.StockTransfer), stockTransfer.Id, sqlDataAccessTransaction);
+			await ProductStockData.DeleteProductStockByTransactionNo(stockTransfer.TransactionNo, sqlDataAccessTransaction);
+			await RawMaterialStockData.DeleteRawMaterialStockByTransactionNo(stockTransfer.TransactionNo, sqlDataAccessTransaction);
 
 			var stockTransferVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.StockTransferVoucherId, sqlDataAccessTransaction);
 			var existingAccounting = await FinancialAccountingData.LoadFinancialAccountingByVoucherReference(int.Parse(stockTransferVoucher.Value), stockTransfer.Id, stockTransfer.TransactionNo, sqlDataAccessTransaction);
@@ -182,8 +181,7 @@ public static class StockTransferData
 	{
 		if (update)
 		{
-			await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.StockTransfer), existingStockTransfer.Id, existingStockTransfer.ToLocationId, sqlDataAccessTransaction);
-			await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.StockTransfer), existingStockTransfer.Id, existingStockTransfer.LocationId, sqlDataAccessTransaction);
+			await ProductStockData.DeleteProductStockByTransactionNo(existingStockTransfer.TransactionNo, sqlDataAccessTransaction);
 		}
 
 		// From Location Stock Update (negative quantity - stock leaves)
@@ -230,7 +228,7 @@ public static class StockTransferData
 	private static async Task SaveRawMaterialStockByRecipe(StockTransferModel stockTransfer, List<StockTransferDetailModel> stockTransferDetails, StockTransferModel existingStockTransfer, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
 		if (update)
-			await RawMaterialStockData.DeleteRawMaterialStockByTypeTransactionId(nameof(StockType.StockTransfer), existingStockTransfer.Id, sqlDataAccessTransaction);
+			await RawMaterialStockData.DeleteRawMaterialStockByTransactionNo(existingStockTransfer.TransactionNo, sqlDataAccessTransaction);
 
 		if (stockTransfer.LocationId != 1 && stockTransfer.ToLocationId != 1)
 			return;

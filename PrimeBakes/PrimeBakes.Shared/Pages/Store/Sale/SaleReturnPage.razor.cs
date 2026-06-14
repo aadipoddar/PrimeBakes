@@ -59,7 +59,7 @@ public partial class SaleReturnPage
 	private decimal _paymentAmount = 0;
 	private decimal _remainingAmount => _saleReturn.TotalAmount - _payments.Sum(p => p.Amount);
 
-	private AutoCompleteWithAdd<ProductLocationOverviewModel?, ProductLocationOverviewModel> _sfItemAutoComplete;
+	private AutoCompleteWithAdd<ProductLocationOverviewModel?, ProductLocationOverviewModel> _itemAutoComplete;
 	private SfGrid<SaleReturnItemCartModel> _sfCartGrid;
 
 	ToastNotification _toastNotification;
@@ -709,7 +709,7 @@ public partial class SaleReturnPage
 		_selectedProduct = null;
 		_selectedCart = new();
 
-		await _sfItemAutoComplete.FocusAsync();
+		await _itemAutoComplete.FocusAsync();
 		await SaveTransactionFile();
 	}
 
@@ -743,7 +743,7 @@ public partial class SaleReturnPage
 			Remarks = cartItem.Remarks
 		};
 
-		await _sfItemAutoComplete.FocusAsync();
+		await _itemAutoComplete.FocusAsync();
 		UpdateSelectedItemFinancialDetails();
 		await RemoveItemFromCart(cartItem);
 	}

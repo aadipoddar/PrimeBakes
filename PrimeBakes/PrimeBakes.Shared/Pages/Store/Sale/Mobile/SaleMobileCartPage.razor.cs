@@ -1,8 +1,7 @@
 using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Store.Product.Models;
+using PrimeBakesLibrary.Store.Sale.Data;
 using PrimeBakesLibrary.Store.Sale.Models;
-
-using Syncfusion.Blazor.Grids;
 
 namespace PrimeBakes.Shared.Pages.Store.Sale.Mobile;
 
@@ -13,9 +12,12 @@ public partial class SaleMobileCartPage
 	private bool _isLoading = true;
 	private bool _isProcessing = false;
 
-	private List<SaleItemCartModel> _cart = [];
+	private string _query = string.Empty;
+	private int _page = 0;
 
-	private SfGrid<SaleItemCartModel> _sfCartGrid;
+	private List<ProductModel> _products = [];
+	private List<TaxModel> _taxes = [];
+	private List<SaleItemCartModel> _cart = [];
 
 	#region Load Data
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -25,13 +27,13 @@ public partial class SaleMobileCartPage
 
 		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Store]);
 		await LoadData();
-		_isLoading = false;
-		await SaveTransactionFile();
-		StateHasChanged();
 	}
 
 	private async Task LoadData()
 	{
+		_products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
+		_taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
+
 		_cart.Clear();
 
 		if (await DataStorageService.LocalExists(StorageFileNames.SaleMobileCartDataFileName))
@@ -43,10 +45,29 @@ public partial class SaleMobileCartPage
 
 		_cart = [.. _cart.OrderBy(x => x.ItemName)];
 
-		if (_sfCartGrid is not null)
-			await _sfCartGrid.Refresh();
-
+		_isLoading = false;
+		await SaveTransactionFile();
 		StateHasChanged();
+	}
+	#endregion
+
+	#region Filter / Page
+	private List<SaleItemCartModel> GetFilteredCart()
+	{
+		IEnumerable<SaleItemCartModel> query = _cart;
+
+		if (!string.IsNullOrWhiteSpace(_query))
+			query = query.Where(x =>
+			x.ItemName is not null &&
+			x.ItemName.Contains(_query.Trim(), StringComparison.OrdinalIgnoreCase));
+
+		return [.. query];
+	}
+
+	private void OnQueryChange(string value)
+	{
+		_query = value ?? string.Empty;
+		_page = 0;
 	}
 	#endregion
 
@@ -63,52 +84,30 @@ public partial class SaleMobileCartPage
 
 		await SaveTransactionFile();
 	}
+
+	private async Task OnQuantityInput(SaleItemCartModel item, string raw)
+	{
+		if (item is null || _isProcessing)
+			return;
+
+		var digits = string.IsNullOrWhiteSpace(raw)
+			? string.Empty
+			: new string([.. raw.Where(char.IsDigit)]);
+
+		decimal value = 0;
+		if (!string.IsNullOrWhiteSpace(digits) && decimal.TryParse(digits, out var parsed))
+			value = Math.Min(9999, parsed);
+
+		item.Quantity = value;
+
+		if (item.Quantity == 0)
+			_cart.Remove(item);
+
+		await SaveTransactionFile();
+	}
 	#endregion
 
 	#region Saving
-	private async Task UpdateFinancialDetails()
-	{
-		var taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
-		var items = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
-
-		foreach (var item in _cart.Where(_ => _.Quantity > 0))
-		{
-			item.DiscountPercent = 0;
-			item.DiscountAmount = 0;
-
-			item.BaseTotal = item.Rate * item.Quantity;
-			item.AfterDiscount = item.BaseTotal - item.DiscountAmount;
-
-			var selectedItem = items.FirstOrDefault(s => s.Id == item.ItemId);
-			var tax = taxes.FirstOrDefault(s => s.Id == selectedItem.TaxId);
-
-			item.CGSTPercent = tax?.CGST ?? 0;
-			item.SGSTPercent = tax?.SGST ?? 0;
-			item.IGSTPercent = 0;
-			item.InclusiveTax = tax?.Inclusive ?? false;
-
-			if (item.InclusiveTax)
-			{
-				item.CGSTAmount = item.AfterDiscount * (item.CGSTPercent / (100 + item.CGSTPercent));
-				item.SGSTAmount = item.AfterDiscount * (item.SGSTPercent / (100 + item.SGSTPercent));
-				item.IGSTAmount = item.AfterDiscount * (item.IGSTPercent / (100 + item.IGSTPercent));
-				item.TotalTaxAmount = item.CGSTAmount + item.SGSTAmount + item.IGSTAmount;
-				item.Total = item.AfterDiscount;
-			}
-			else
-			{
-				item.CGSTAmount = item.AfterDiscount * (item.CGSTPercent / 100);
-				item.SGSTAmount = item.AfterDiscount * (item.SGSTPercent / 100);
-				item.IGSTAmount = item.AfterDiscount * (item.IGSTPercent / 100);
-				item.TotalTaxAmount = item.CGSTAmount + item.SGSTAmount + item.IGSTAmount;
-				item.Total = item.AfterDiscount + item.TotalTaxAmount;
-			}
-
-			item.NetRate = item.Total / item.Quantity;
-			item.Remarks = null;
-		}
-	}
-
 	private async Task SaveTransactionFile()
 	{
 		if (_isProcessing || _isLoading)
@@ -118,7 +117,7 @@ public partial class SaleMobileCartPage
 		{
 			_isProcessing = true;
 
-			await UpdateFinancialDetails();
+			await SaleData.ApplyItemFinancialDetails(_cart, _products, _taxes);
 
 			if (!_cart.Any(x => x.Quantity > 0) && await DataStorageService.LocalExists(StorageFileNames.SaleMobileCartDataFileName))
 				await DataStorageService.LocalRemove(StorageFileNames.SaleMobileCartDataFileName);
@@ -133,9 +132,6 @@ public partial class SaleMobileCartPage
 		}
 		finally
 		{
-			if (_sfCartGrid is not null)
-				await _sfCartGrid?.Refresh();
-
 			_isProcessing = false;
 			StateHasChanged();
 		}

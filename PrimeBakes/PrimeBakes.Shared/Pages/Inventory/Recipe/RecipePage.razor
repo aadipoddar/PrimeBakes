@@ -9,7 +9,7 @@
 <MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyH KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.RecipeReport, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus.FocusAsync()" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyG KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfItemAutoComplete.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyG KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _itemAutoComplete.FocusAsync()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.Enter KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="AddItemToCart" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction(savePDF: true)" Disabled="@_isProcessing" />
@@ -105,7 +105,7 @@ else
 					<!-- Single Row: Raw Material and Quantity -->
 					<div class="cart-input-row">
 						<div class="cart-field cart-field-wide">
-							<CustomAutoComplete @ref="_sfItemAutoComplete" T="RawMaterialModel" @bind-Value="_selectedRawMaterial" DataSource="@_rawMaterials" Placeholder="Select Raw Material" Label="Raw Material (Ctrl + G)"
+							<CustomAutoComplete @ref="_itemAutoComplete" T="RawMaterialModel" @bind-Value="_selectedRawMaterial" DataSource="@_rawMaterials" Placeholder="Select Raw Material" Label="Raw Material (Ctrl + G)"
 												FieldValue="@nameof(RawMaterialModel.Name)" AddNewRoute="@InventoryRouteNames.RawMaterial" OpenOnFocus="false" />
 						</div>
 

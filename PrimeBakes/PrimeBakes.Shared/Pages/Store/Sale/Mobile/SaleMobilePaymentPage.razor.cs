@@ -5,11 +5,9 @@ using PrimeBakesLibrary.Store.Customer;
 using PrimeBakesLibrary.Store.PaymentMode;
 using PrimeBakesLibrary.Store.Product.Models;
 using PrimeBakesLibrary.Store.Sale.Data;
-using PrimeBakesLibrary.Store.Sale.Exports;
 using PrimeBakesLibrary.Store.Sale.Models;
-using PrimeBakesLibrary.Utils.Exports;
 
-using Syncfusion.Blazor.Inputs;
+using System.Text.Json;
 
 namespace PrimeBakes.Shared.Pages.Store.Sale.Mobile;
 
@@ -24,10 +22,12 @@ public partial class SaleMobilePaymentPage
 	private CustomerModel _selectedCustomer = new();
 	private readonly SaleModel _sale = new();
 
+	private List<ProductModel> _products = [];
+	private List<TaxModel> _taxes = [];
 	private List<SaleItemCartModel> _cart = [];
 	private readonly List<(string Field, string Message)> _validationErrors = [];
 	private readonly List<PaymentItem> _payments = [];
-	private readonly List<PaymentModeModel> _paymentMethods = PaymentModeData.GetPaymentModes();
+	private readonly List<PaymentModeModel> _paymentMethods = [.. PaymentModeData.GetPaymentModes().Where(m => m.Name != "Credit")];
 
 	private PaymentModeModel _selectedPaymentMethod = new();
 	private decimal _paymentAmount = 0;
@@ -41,26 +41,34 @@ public partial class SaleMobilePaymentPage
 
 		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Store]);
 		await LoadData();
-		_isLoading = false;
-		await SaveTransactionFile();
-		StateHasChanged();
 	}
 
 	private async Task LoadData()
 	{
+		_products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
+		_taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
+
 		_cart.Clear();
 
 		if (await DataStorageService.LocalExists(StorageFileNames.SaleMobileCartDataFileName))
 		{
-			var items = System.Text.Json.JsonSerializer.Deserialize<List<SaleItemCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.SaleMobileCartDataFileName)) ?? [];
+			var items = JsonSerializer.Deserialize<List<SaleItemCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.SaleMobileCartDataFileName)) ?? [];
 			foreach (var item in items)
 				_cart.Add(item);
+		}
+
+		if (_cart.Count == 0)
+		{
+			NavigationManager.NavigateTo(StoreRouteNames.SaleMobile, true);
+			return;
 		}
 
 		_cart = [.. _cart.OrderBy(x => x.ItemName)];
 
 		_selectedPaymentMethod = _paymentMethods.FirstOrDefault();
 
+		_isLoading = false;
+		await SaveTransactionFile();
 		StateHasChanged();
 	}
 	#endregion
@@ -80,6 +88,9 @@ public partial class SaleMobilePaymentPage
 		if (args.Any(c => !char.IsDigit(c)))
 			args = new string([.. args.Where(char.IsDigit)]);
 
+		if (args.Length > 10)
+			args = args[..10];
+
 		_selectedCustomer = await CustomerData.LoadCustomerByNumber(args);
 		_selectedCustomer ??= new()
 		{
@@ -92,23 +103,73 @@ public partial class SaleMobilePaymentPage
 		await SaveTransactionFile();
 	}
 
-	private async Task OnDiscountPercentChanged(ChangeEventArgs<decimal> args)
+	private async Task OnDiscountPercentChanged(string raw)
 	{
-		_sale.DiscountPercent = args.Value;
+		var value = ParseDecimal(raw, allowNegative: false);
+		_sale.DiscountPercent = Math.Clamp(value, 0, 100);
 		await SaveTransactionFile();
 	}
 
-	private async Task OnRoundOffAmountChanged(ChangeEventArgs<decimal> args)
+	private async Task AdjustDiscountPercent(decimal delta)
 	{
-		_sale.RoundOffAmount = args.Value;
+		_sale.DiscountPercent = Math.Clamp(_sale.DiscountPercent + delta, 0, 100);
+		await SaveTransactionFile();
+	}
+
+	private async Task OnRoundOffAmountChanged(string raw)
+	{
+		_sale.RoundOffAmount = ParseDecimal(raw, allowNegative: true);
 		await SaveTransactionFile(true);
+	}
+
+	private async Task AdjustRoundOff(decimal delta)
+	{
+		_sale.RoundOffAmount += delta;
+		await SaveTransactionFile(true);
+	}
+
+	private static decimal ParseDecimal(string raw, bool allowNegative)
+	{
+		if (string.IsNullOrWhiteSpace(raw))
+			return 0;
+
+		var allowed = allowNegative ? "0123456789.-" : "0123456789.";
+		var cleaned = new string([.. raw.Where(c => allowed.Contains(c))]);
+		var negative = allowNegative && cleaned.StartsWith('-');
+		cleaned = cleaned.Replace("-", "");
+
+		if (!decimal.TryParse(cleaned, out var value))
+			return 0;
+
+		return negative ? -value : value;
 	}
 	#endregion
 
 	#region Payment
+	private void SelectPaymentMethod(PaymentModeModel method)
+	{
+		if (method is null || _isProcessing)
+			return;
+
+		_selectedPaymentMethod = method;
+	}
+
+	private void FillRemaining()
+	{
+		if (_remainingAmount <= 0)
+			return;
+
+		_paymentAmount = _remainingAmount;
+	}
+
+	private void OnPaymentAmountChanged(string raw)
+	{
+		_paymentAmount = ParseDecimal(raw, allowNegative: false);
+	}
+
 	private void AddPayment()
 	{
-		if (_paymentAmount <= 0 || _selectedPaymentMethod == null || _selectedPaymentMethod.Id <= 0)
+		if (_paymentAmount <= 0 || _selectedPaymentMethod is null || _selectedPaymentMethod.Id <= 0)
 			return;
 
 		if (_paymentAmount > _remainingAmount)
@@ -130,7 +191,7 @@ public partial class SaleMobilePaymentPage
 
 		// Reset for next payment
 		_paymentAmount = _remainingAmount;
-		_selectedPaymentMethod = _paymentMethods.FirstOrDefault(_ => _.Id != _selectedPaymentMethod.Id);
+		_selectedPaymentMethod = _paymentMethods.FirstOrDefault(_ => _.Id != _selectedPaymentMethod.Id) ?? _selectedPaymentMethod;
 		StateHasChanged();
 	}
 
@@ -153,45 +214,7 @@ public partial class SaleMobilePaymentPage
 	#region Saving
 	private async Task UpdateFinancialDetails(bool customRoundOff = false)
 	{
-		var taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
-		var items = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
-
-		foreach (var item in _cart.Where(_ => _.Quantity > 0))
-		{
-			item.DiscountPercent = 0;
-			item.DiscountAmount = 0;
-
-			item.BaseTotal = item.Rate * item.Quantity;
-			item.AfterDiscount = item.BaseTotal - item.DiscountAmount;
-
-			var selectedItem = items.FirstOrDefault(s => s.Id == item.ItemId);
-			var tax = taxes.FirstOrDefault(s => s.Id == selectedItem.TaxId);
-
-			item.CGSTPercent = tax?.CGST ?? 0;
-			item.SGSTPercent = tax?.SGST ?? 0;
-			item.IGSTPercent = 0;
-			item.InclusiveTax = tax?.Inclusive ?? false;
-
-			if (item.InclusiveTax)
-			{
-				item.CGSTAmount = item.AfterDiscount * (item.CGSTPercent / (100 + item.CGSTPercent));
-				item.SGSTAmount = item.AfterDiscount * (item.SGSTPercent / (100 + item.SGSTPercent));
-				item.IGSTAmount = item.AfterDiscount * (item.IGSTPercent / (100 + item.IGSTPercent));
-				item.TotalTaxAmount = item.CGSTAmount + item.SGSTAmount + item.IGSTAmount;
-				item.Total = item.AfterDiscount;
-			}
-			else
-			{
-				item.CGSTAmount = item.AfterDiscount * (item.CGSTPercent / 100);
-				item.SGSTAmount = item.AfterDiscount * (item.SGSTPercent / 100);
-				item.IGSTAmount = item.AfterDiscount * (item.IGSTPercent / 100);
-				item.TotalTaxAmount = item.CGSTAmount + item.SGSTAmount + item.IGSTAmount;
-				item.Total = item.AfterDiscount + item.TotalTaxAmount;
-			}
-
-			item.NetRate = item.Total / item.Quantity;
-			item.Remarks = null;
-		}
+		await SaleData.ApplyItemFinancialDetails(_cart, _products, _taxes);
 
 		_sale.TotalItems = _cart.Count;
 		_sale.TotalQuantity = _cart.Sum(x => x.Quantity);
@@ -229,7 +252,7 @@ public partial class SaleMobilePaymentPage
 			if (!_cart.Any(x => x.Quantity > 0) && await DataStorageService.LocalExists(StorageFileNames.SaleMobileCartDataFileName))
 				await DataStorageService.LocalRemove(StorageFileNames.SaleMobileCartDataFileName);
 			else
-				await DataStorageService.LocalSaveAsync(StorageFileNames.SaleMobileCartDataFileName, System.Text.Json.JsonSerializer.Serialize(_cart.Where(_ => _.Quantity > 0)));
+				await DataStorageService.LocalSaveAsync(StorageFileNames.SaleMobileCartDataFileName, JsonSerializer.Serialize(_cart.Where(_ => _.Quantity > 0)));
 
 			VibrationService.VibrateHapticClick();
 		}
@@ -239,105 +262,15 @@ public partial class SaleMobilePaymentPage
 		}
 		finally
 		{
-			_paymentAmount = Math.Max(0, _remainingAmount);
+			if (_paymentAmount <= 0)
+				_paymentAmount = Math.Max(0, _remainingAmount);
+
 			_isProcessing = false;
 			StateHasChanged();
 		}
 	}
 
-	private async Task<bool> ValidateForm()
-	{
-		_validationErrors.Clear();
-
-		if (_cart.Count == 0)
-		{
-			ShowError("Cart", "The cart is empty. Please add items to the cart before saving the order.");
-			return false;
-		}
-
-		if (_cart.Any(item => item.Quantity <= 0))
-		{
-			ShowError("Quantity", "All items in the cart must have a quantity greater than zero.");
-			return false;
-		}
-
-		if (_sale.TotalItems <= 0)
-		{
-			ShowError("Total Items", "The total number of items in the cart must be greater than zero.");
-			return false;
-		}
-
-		if (_sale.TotalQuantity <= 0)
-		{
-			ShowError("Total Quantity", "The total quantity of items in the cart must be greater than zero.");
-			return false;
-		}
-
-		if (_sale.TotalAmount < 0)
-		{
-			ShowError("Total Amount", "The total amount of the transaction cannot be negative.");
-			return false;
-		}
-
-		if (_user.LocationId <= 0)
-		{
-			ShowError("Location", "Please select a valid location for the sale.");
-			return false;
-		}
-
-		if (string.IsNullOrWhiteSpace(_selectedCustomer.Name) && !string.IsNullOrWhiteSpace(_selectedCustomer.Number))
-		{
-			ShowError("Customer Name Missing", "Please enter a name for the new customer or clear the customer field.");
-			return false;
-		}
-
-		if (_selectedCustomer.Id > 0)
-		{
-			_selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(StoreNames.Customer, _selectedCustomer.Id);
-			_sale.CustomerId = _selectedCustomer.Id;
-		}
-		else if (!string.IsNullOrWhiteSpace(_selectedCustomer.Number) && _selectedCustomer.Id == 0)
-		{
-			_selectedCustomer.Id = await CustomerData.InsertCustomer(_selectedCustomer);
-			_sale.CustomerId = _selectedCustomer.Id;
-		}
-		else
-		{
-			_selectedCustomer = new();
-			_sale.CustomerId = null;
-		}
-
-		if (_sale.Cash < 0 || _sale.Card < 0 || _sale.Credit < 0 || _sale.UPI < 0)
-		{
-			ShowError("Payment Amounts", "Payment amounts (Cash, Card, Credit, UPI) cannot be negative. Please correct the amounts before saving.");
-			return false;
-		}
-
-		if (_sale.Cash + _sale.Card + _sale.Credit + _sale.UPI != _sale.TotalAmount)
-		{
-			ShowError("Payment Amount Mismatch", "The sum of payment amounts (Cash, Card, Credit, UPI) must equal the total amount of the transaction. Please correct the amounts before saving.");
-			return false;
-		}
-
-		_sale.Remarks = _sale.Remarks?.Trim();
-		if (string.IsNullOrWhiteSpace(_sale.Remarks))
-			_sale.Remarks = null;
-
-		_sale.Status = true;
-		_sale.OrderId = null;
-		_sale.LocationId = _user.LocationId;
-		_sale.CreatedBy = _user.Id;
-		_sale.CompanyId = int.Parse((await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId)).Value);
-		_sale.TransactionDateTime = await CommonData.LoadCurrentDateTime();
-		_sale.FinancialYearId = (await FinancialYearData.LoadFinancialYearByDateTime(_sale.TransactionDateTime)).Id;
-		_sale.CreatedAt = await CommonData.LoadCurrentDateTime();
-		_sale.CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
-		_sale.TransactionNo = await GenerateCodes.GenerateSaleTransactionNo(_sale);
-
-		return true;
-	}
-
-	private async Task SaveTransaction(bool thermal = false)
+	private async Task SaveTransaction()
 	{
 		if (_isProcessing || _isLoading)
 			return;
@@ -350,32 +283,19 @@ public partial class SaleMobilePaymentPage
 			await SaveTransactionFile(true);
 			ConfirmPayment();
 
-			if (!await ValidateForm())
-			{
-				_isProcessing = false;
-				return;
-			}
+			_sale.Status = true;
+			_sale.OrderId = null;
+			_sale.LocationId = _user.LocationId;
+			_sale.CreatedBy = _user.Id;
+			_sale.CompanyId = int.Parse((await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId)).Value);
+			_sale.TransactionDateTime = await CommonData.LoadCurrentDateTime();
+			_sale.FinancialYearId = (await FinancialYearData.LoadFinancialYearByDateTime(_sale.TransactionDateTime)).Id;
+			_sale.CreatedAt = await CommonData.LoadCurrentDateTime();
+			_sale.CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
+			_sale.TransactionNo = await GenerateCodes.GenerateSaleTransactionNo(_sale);
 
-			_sale.Id = await SaleData.SaveTransaction(_sale, _cart);
-
-			if (_sale.Id <= 0)
-				throw new Exception("Failed to save the sale transaction. Please try again.");
-
-			await DataStorageService.LocalRemove(StorageFileNames.SaleMobileCartDataFileName);
-			await SendLocalNotification(_sale.Id);
-
-			if (thermal)
-				await ThermalPrintDispatcher.PrintAsync(
-					() => SaleThermalPrint.GenerateThermalBill(_sale.Id),
-					() => SaleThermalPrint.GenerateThermalBillPng(_sale.Id));
-
-			else
-			{
-				var (pdfStream, fileName) = await SaleInvoiceExport.ExportInvoice(_sale.Id, InvoiceExportType.PDF);
-				await SaveAndViewService.SaveAndView(fileName, pdfStream);
-			}
-
-			NavigationManager.NavigateTo(StoreRouteNames.SaleMobileConfirmation, true);
+			_sale.Id = await SaleData.SaveTransaction(_sale, SaleData.ConvertCartToDetails(_cart), _selectedCustomer);
+			await NotificationNavigate(_sale.Id);
 		}
 		catch (Exception ex)
 		{
@@ -384,23 +304,33 @@ public partial class SaleMobilePaymentPage
 		finally
 		{
 			_isProcessing = false;
+			StateHasChanged();
 		}
+	}
+
+	private async Task NotificationNavigate(int saleId)
+	{
+		var overview = await CommonData.LoadTableDataById<SaleOverviewModel>(StoreNames.SaleOverview, saleId);
+		await DataStorageService.LocalSaveAsync(StorageFileNames.SaleMobileDataFileName, JsonSerializer.Serialize(overview));
+		await DataStorageService.LocalSaveAsync(StorageFileNames.SaleMobileCartDataFileName, JsonSerializer.Serialize(_cart.Where(_ => _.Quantity > 0)));
+
+		await SendLocalNotification(overview);
+		VibrationService.VibrateWithTime(500);
+		NavigationManager.NavigateTo(StoreRouteNames.SaleMobileConfirmation, true);
 	}
 	#endregion
 
 	#region Utilities
-	private async Task SendLocalNotification(int saleId)
-	{
-		var sale = await CommonData.LoadTableDataById<SaleOverviewModel>(StoreNames.SaleOverview, saleId);
+	private async Task SendLocalNotification(SaleOverviewModel sale) =>
 		await NotificationService.ShowLocalNotification(
 			sale.Id,
 			"Sale Placed",
 			$"{sale.TransactionNo}",
 			$"Your sale #{sale.TransactionNo} has been successfully placed | Total Items: {sale.TotalItems} | Total Qty: {sale.TotalQuantity} | Date: {sale.TransactionDateTime:dd/MM/yy hh:mm tt} | Remarks: {sale.Remarks}");
-	}
 
 	private void ShowError(string title, string message)
 	{
+		_validationErrors.Clear();
 		_validationErrors.Add((title, message));
 		_showValidationDialog = true;
 		StateHasChanged();

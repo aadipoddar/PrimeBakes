@@ -63,7 +63,7 @@ public partial class BillPage
 	private decimal _paymentAmount = 0;
 	private decimal _remainingAmount => _bill.TotalAmount - _payments.Sum(p => p.Amount);
 
-	private AutoCompleteWithAdd<ProductLocationOverviewModel, ProductLocationOverviewModel> _sfItemAutoComplete;
+	private AutoCompleteWithAdd<ProductLocationOverviewModel, ProductLocationOverviewModel> _itemAutoComplete;
 	private SfGrid<BillItemCartModel> _sfCartGrid;
 
 	ToastNotification _toastNotification;
@@ -786,7 +786,7 @@ public partial class BillPage
 		_selectedProduct = null;
 		_selectedCart = new();
 
-		await _sfItemAutoComplete.FocusAsync();
+		await _itemAutoComplete.FocusAsync();
 		await RecalculateAndSave();
 	}
 
@@ -819,7 +819,7 @@ public partial class BillPage
 			Remarks = cartItem.Remarks
 		};
 
-		await _sfItemAutoComplete.FocusAsync();
+		await _itemAutoComplete.FocusAsync();
 		RecalculateSelectedItem();
 		await RemoveItemFromCart(cartItem);
 	}

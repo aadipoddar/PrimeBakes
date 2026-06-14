@@ -15,8 +15,38 @@ public static class ProductStockData
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertProductStock, stock, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Product Stock.");
 
+	public static async Task<int> DeleteProductStockByTransactionNo(string TransactionNo, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.DeleteProductStockByTransactionNo, new { TransactionNo }, sqlDataAccessTransaction)).FirstOrDefault()
+			is var result and > 0 ? result : throw new InvalidOperationException("Failed to Delete Product Stock.");
+
 	public static async Task<List<ProductStockModel>> LoadProductOpeningStockByDateLocationId(DateTime FromDate, int LocationId) =>
 		await SqlDataAccess.LoadData<ProductStockModel, dynamic>(InventoryNames.LoadProductOpeningStockByDateLocationId, new { FromDate, LocationId });
+
+	public static async Task DeleteProductStockById(int Id, int userId, string platform)
+	{
+		var stock = await CommonData.LoadTableDataById<ProductStockModel>(InventoryNames.ProductStock, Id);
+		if (stock is null)
+			return;
+
+		await FinancialYearData.ValidateFinancialYear(stock.TransactionDateTime);
+
+		await SqlDataAccessTransaction.Run(async transaction =>
+		{
+			if ((await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.DeleteProductStockById, new { Id }, transaction)).FirstOrDefault() is not > 0)
+				throw new InvalidOperationException("Failed to Delete Product Stock.");
+
+			await AuditTrailData.SaveAuditTrail(new()
+			{
+				Action = AuditTrailActionTypes.Delete.ToString(),
+				TableName = InventoryNames.ProductStock,
+				RecordNo = stock.TransactionNo,
+				CreatedBy = userId,
+				CreatedFromPlatform = platform
+			}, transaction);
+		});
+
+		await ProductStockAdjustmentNotify.NotifyDeleted(stock, userId, NotifyType.Deleted);
+	}
 
 	#region Summary
 	private static decimal AverageNetRate(IEnumerable<ProductStockModel> stock) =>
@@ -137,36 +167,6 @@ public static class ProductStockData
 		return summary;
 	}
 	#endregion
-
-	public static async Task<int> DeleteProductStockByTypeTransactionIdLocationId(string Type, int TransactionId, int LocationId, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.DeleteProductStockByTypeTransactionIdLocationId, new { Type, TransactionId, LocationId }, sqlDataAccessTransaction)).FirstOrDefault()
-			is var result and > 0 ? result : throw new InvalidOperationException("Failed to Delete Product Stock.");
-
-	public static async Task DeleteProductStockById(int Id, int userId, string platform)
-	{
-		var stock = await CommonData.LoadTableDataById<ProductStockModel>(InventoryNames.ProductStock, Id);
-		if (stock is null)
-			return;
-
-		await FinancialYearData.ValidateFinancialYear(stock.TransactionDateTime);
-
-		await SqlDataAccessTransaction.Run(async transaction =>
-		{
-			if ((await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.DeleteProductStockById, new { Id }, transaction)).FirstOrDefault() is not > 0)
-				throw new InvalidOperationException("Failed to Delete Product Stock.");
-
-			await AuditTrailData.SaveAuditTrail(new()
-			{
-				Action = AuditTrailActionTypes.Delete.ToString(),
-				TableName = InventoryNames.ProductStock,
-				RecordNo = stock.TransactionNo,
-				CreatedBy = userId,
-				CreatedFromPlatform = platform
-			}, transaction);
-		});
-
-		await ProductStockAdjustmentNotify.NotifyDeleted(stock, userId, NotifyType.Deleted);
-	}
 
 	#region Save
 	private static void ValidateTransaction(DateTime transactionDateTime, int locationId, string transactionNo, List<ProductStockAdjustmentCartModel> cart)

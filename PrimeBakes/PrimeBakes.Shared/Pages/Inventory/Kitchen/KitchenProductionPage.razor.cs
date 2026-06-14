@@ -44,7 +44,7 @@ public partial class KitchenProductionPage
 	];
 
 	private CustomAutoComplete<CompanyModel> _firstFocus;
-	private CustomAutoComplete<ProductModel> _sfItemAutoComplete;
+	private CustomAutoComplete<ProductModel> _itemAutoComplete;
 	private SfGrid<KitchenProductionProductCartModel> _sfCartGrid;
 
 	private ToastNotification _toastNotification;
@@ -347,7 +347,7 @@ public partial class KitchenProductionPage
 		_selectedProduct = null;
 		_selectedCart = new();
 
-		await _sfItemAutoComplete.FocusAsync();
+		await _itemAutoComplete.FocusAsync();
 		await SaveTransactionFile();
 	}
 
@@ -376,7 +376,7 @@ public partial class KitchenProductionPage
 			Remarks = cartItem.Remarks
 		};
 
-		await _sfItemAutoComplete.FocusAsync();
+		await _itemAutoComplete.FocusAsync();
 		UpdateSelectedItemFinancialDetails();
 		await RemoveItemFromCart(cartItem);
 	}

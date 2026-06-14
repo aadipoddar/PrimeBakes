@@ -1,211 +1,217 @@
+using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Store.Product.Data;
 using PrimeBakesLibrary.Store.Product.Models;
+using PrimeBakesLibrary.Store.Sale.Data;
 using PrimeBakesLibrary.Store.Sale.Models;
-
-using Syncfusion.Blazor.Grids;
 
 namespace PrimeBakes.Shared.Pages.Store.Sale.Mobile;
 
 public partial class SaleMobilePage
 {
-    private UserModel _user;
+	private UserModel _user;
 
-    private bool _isLoading = true;
-    private bool _isProcessing = false;
+	private bool _isLoading = true;
+	private bool _isProcessing = false;
 
-    private ProductCategoryModel _selectedCategory;
+	private ProductCategoryModel _selectedCategory;
+	private LocationModel _location;
+	private string _query = string.Empty;
+	private int _page = 0;
 
-    private List<ProductCategoryModel> _productCategories = [];
-    private List<SaleItemCartModel> _cart = [];
+	private List<ProductModel> _products = [];
+	private List<TaxModel> _taxes = [];
+	private List<ProductCategoryModel> _productCategories = [];
+	private List<SaleItemCartModel> _cart = [];
 
-    private SfGrid<SaleItemCartModel> _sfCartGrid;
+	#region Load Data
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (!firstRender)
+			return;
 
-    #region Load Data
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!firstRender)
-            return;
+		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Store]);
+		await InitializePage();
+	}
 
-        _user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Store]);
-        await LoadData();
-        _isLoading = false;
-        await SaveTransactionFile();
-        StateHasChanged();
-    }
+	private async Task InitializePage()
+	{
+		await LoadData();
+		await LoadExistingCart();
+		await SaveTransactionFile();
 
-    private async Task LoadData()
-    {
-        await LoadItems();
-        await LoadExistingCart();
+		_isLoading = false;
+		StateHasChanged();
+	}
 
-        if (_sfCartGrid is not null)
-            await _sfCartGrid?.Refresh();
-    }
+	private async Task LoadData()
+	{
+		try
+		{
+			_products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
+			_taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
 
-    private async Task LoadItems()
-    {
-        try
-        {
-            _productCategories = await CommonData.LoadTableDataByStatus<ProductCategoryModel>(StoreNames.ProductCategory);
-            _productCategories.Add(new()
-            {
-                Id = 0,
-                Name = "All Categories"
-            });
-            _productCategories = [.. _productCategories.OrderBy(s => s.Name)];
-            _selectedCategory = _productCategories.FirstOrDefault(s => s.Id == 0);
+			_productCategories = await CommonData.LoadTableDataByStatus<ProductCategoryModel>(StoreNames.ProductCategory);
+			_productCategories.Add(new()
+			{
+				Id = 0,
+				Name = "All"
+			});
+			_productCategories = [.. _productCategories.OrderBy(s => s.Id == 0 ? 0 : 1).ThenBy(s => s.Name)];
+			_selectedCategory = _productCategories.FirstOrDefault(s => s.Id == 0);
 
-            var allProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _user.LocationId);
+			_location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, _user.LocationId);
 
-            foreach (var product in allProducts)
-                _cart.Add(new()
-                {
-                    ItemCategoryId = product.ProductCategoryId,
-                    ItemId = product.ProductId,
-                    ItemName = product.Name,
-                    Quantity = 0,
-                    Rate = product.Rate,
-                    Remarks = null,
-                });
-            _cart = [.. _cart.OrderBy(s => s.ItemName)];
-        }
-        catch (Exception)
-        {
-            NavigationManager.NavigateTo(OperationRouteNames.Dashboard);
-        }
-    }
+			var allProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _user.LocationId);
+			foreach (var product in allProducts)
+				_cart.Add(new()
+				{
+					ItemCategoryId = product.ProductCategoryId,
+					ItemId = product.ProductId,
+					ItemName = product.Name,
+					Quantity = 0,
+					Rate = product.Rate,
+					Remarks = null,
+				});
+			_cart = [.. _cart.OrderBy(s => s.ItemName)];
+		}
+		catch (Exception)
+		{
+			NavigationManager.NavigateTo(OperationRouteNames.Dashboard);
+		}
+	}
 
-    private async Task LoadExistingCart()
-    {
-        try
-        {
-            if (await DataStorageService.LocalExists(StorageFileNames.SaleMobileCartDataFileName))
-            {
-                var existingCart = System.Text.Json.JsonSerializer.Deserialize<List<SaleItemCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.SaleMobileCartDataFileName));
-                foreach (var item in existingCart)
-                    _cart.FirstOrDefault(p => p.ItemId == item.ItemId).Quantity = item.Quantity;
-            }
-        }
-        catch (Exception)
-        {
-            NavigationManager.NavigateTo(StoreRouteNames.SaleMobile, true);
-            await DataStorageService.LocalRemove(StorageFileNames.SaleMobileCartDataFileName);
-        }
-        finally
-        {
-            await SaveTransactionFile();
-        }
-    }
-    #endregion
+	private async Task LoadExistingCart()
+	{
+		try
+		{
+			if (await DataStorageService.LocalExists(StorageFileNames.SaleMobileCartDataFileName))
+			{
+				var existingCart = System.Text.Json.JsonSerializer.Deserialize<List<SaleItemCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.SaleMobileCartDataFileName));
+				foreach (var item in existingCart)
+					_cart.FirstOrDefault(p => p.ItemId == item.ItemId)?.Quantity = item.Quantity;
+			}
+		}
+		catch (Exception)
+		{
+			await DataStorageService.LocalRemove(StorageFileNames.SaleMobileCartDataFileName);
+			NavigationManager.NavigateTo(StoreRouteNames.SaleMobile);
+		}
+		finally
+		{
+			await SaveTransactionFile();
+		}
+	}
+	#endregion
 
-    #region Cart
-    private async Task AddToCart(SaleItemCartModel item)
-    {
-        if (item is null)
-            return;
+	#region Filter / Page
+	private List<SaleItemCartModel> GetFilteredProducts()
+	{
+		IEnumerable<SaleItemCartModel> query = _cart;
 
-        item.Quantity = 1;
-        await SaveTransactionFile();
-    }
+		if (_selectedCategory is not null && _selectedCategory.Id != 0)
+			query = query.Where(x => x.ItemCategoryId == _selectedCategory.Id);
 
-    private async Task UpdateQuantity(SaleItemCartModel item, decimal newQuantity)
-    {
-        if (item is null)
-            return;
+		if (!string.IsNullOrWhiteSpace(_query))
+			query = query.Where(x =>
+			x.ItemName is not null &&
+			x.ItemName.Contains(_query.Trim(), StringComparison.OrdinalIgnoreCase));
 
-        item.Quantity = Math.Max(0, newQuantity);
-        await SaveTransactionFile();
-    }
-    #endregion
+		return [.. query];
+	}
 
-    #region Saving
-    private async Task UpdateFinancialDetails()
-    {
-        var taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
-        var items = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
+	private void OnQueryChange(string value)
+	{
+		_query = value ?? string.Empty;
+		_page = 0;
+	}
 
-        foreach (var item in _cart.Where(_ => _.Quantity > 0))
-        {
-            item.DiscountPercent = 0;
-            item.DiscountAmount = 0;
+	private void SelectCategory(ProductCategoryModel category)
+	{
+		_selectedCategory = category;
+		_page = 0;
+	}
+	#endregion
 
-            item.BaseTotal = item.Rate * item.Quantity;
-            item.AfterDiscount = item.BaseTotal - item.DiscountAmount;
+	#region Cart
+	private async Task AddToCart(SaleItemCartModel item)
+	{
+		if (item is null)
+			return;
 
-            var selectedItem = items.FirstOrDefault(s => s.Id == item.ItemId);
-            var tax = taxes.FirstOrDefault(s => s.Id == selectedItem.TaxId);
+		item.Quantity = 1;
+		await SaveTransactionFile();
+	}
 
-            item.CGSTPercent = tax?.CGST ?? 0;
-            item.SGSTPercent = tax?.SGST ?? 0;
-            item.IGSTPercent = 0;
-            item.InclusiveTax = tax?.Inclusive ?? false;
+	private async Task UpdateQuantity(SaleItemCartModel item, decimal newQuantity)
+	{
+		if (item is null)
+			return;
 
-            if (item.InclusiveTax)
-            {
-                item.CGSTAmount = item.AfterDiscount * (item.CGSTPercent / (100 + item.CGSTPercent));
-                item.SGSTAmount = item.AfterDiscount * (item.SGSTPercent / (100 + item.SGSTPercent));
-                item.IGSTAmount = item.AfterDiscount * (item.IGSTPercent / (100 + item.IGSTPercent));
-                item.TotalTaxAmount = item.CGSTAmount + item.SGSTAmount + item.IGSTAmount;
-                item.Total = item.AfterDiscount;
-            }
-            else
-            {
-                item.CGSTAmount = item.AfterDiscount * (item.CGSTPercent / 100);
-                item.SGSTAmount = item.AfterDiscount * (item.SGSTPercent / 100);
-                item.IGSTAmount = item.AfterDiscount * (item.IGSTPercent / 100);
-                item.TotalTaxAmount = item.CGSTAmount + item.SGSTAmount + item.IGSTAmount;
-                item.Total = item.AfterDiscount + item.TotalTaxAmount;
-            }
+		item.Quantity = Math.Max(0, newQuantity);
+		await SaveTransactionFile();
+	}
 
-            item.NetRate = item.Total / item.Quantity;
-            item.Remarks = null;
-        }
-    }
+	private async Task OnQuantityInput(SaleItemCartModel item, string raw)
+	{
+		if (item is null)
+			return;
 
-    private async Task SaveTransactionFile()
-    {
-        if (_isProcessing || _isLoading)
-            return;
+		var digits = string.IsNullOrWhiteSpace(raw)
+			? string.Empty
+			: new string([.. raw.Where(char.IsDigit)]);
 
-        try
-        {
-            _isProcessing = true;
+		decimal value = 0;
+		if (!string.IsNullOrWhiteSpace(digits) && decimal.TryParse(digits, out var parsed))
+			value = Math.Min(9999, parsed);
 
-            await UpdateFinancialDetails();
+		item.Quantity = value;
+		await SaveTransactionFile();
+	}
+	#endregion
 
-            if (!_cart.Any(x => x.Quantity > 0) && await DataStorageService.LocalExists(StorageFileNames.SaleMobileCartDataFileName))
-                await DataStorageService.LocalRemove(StorageFileNames.SaleMobileCartDataFileName);
-            else
-                await DataStorageService.LocalSaveAsync(StorageFileNames.SaleMobileCartDataFileName, System.Text.Json.JsonSerializer.Serialize(_cart.Where(_ => _.Quantity > 0)));
+	#region Saving
+	private async Task SaveTransactionFile()
+	{
+		if (_isProcessing || _isLoading)
+			return;
 
-            VibrationService.VibrateHapticClick();
-        }
-        catch (Exception)
-        {
-            NavigationManager.NavigateTo(StoreRouteNames.SaleMobile, true);
-        }
-        finally
-        {
-            if (_sfCartGrid is not null)
-                await _sfCartGrid?.Refresh();
+		try
+		{
+			_isProcessing = true;
 
-            _isProcessing = false;
-            StateHasChanged();
-        }
-    }
+			await SaleData.ApplyItemFinancialDetails(_cart, _products, _taxes);
 
-    private async Task GoToCart()
-    {
-        await SaveTransactionFile();
+			if (!_cart.Any(x => x.Quantity > 0) && await DataStorageService.LocalExists(StorageFileNames.SaleMobileCartDataFileName))
+				await DataStorageService.LocalRemove(StorageFileNames.SaleMobileCartDataFileName);
+			else
+				await DataStorageService.LocalSaveAsync(StorageFileNames.SaleMobileCartDataFileName, System.Text.Json.JsonSerializer.Serialize(_cart.Where(_ => _.Quantity > 0)));
 
-        if (_cart.Sum(x => x.Quantity) <= 0 || !await DataStorageService.LocalExists(StorageFileNames.SaleMobileCartDataFileName))
-            return;
+			VibrationService.VibrateHapticClick();
+		}
+		catch (Exception)
+		{
+			await DataStorageService.LocalRemove(StorageFileNames.SaleMobileCartDataFileName);
+			NavigationManager.NavigateTo(StoreRouteNames.SaleMobile);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
 
-        VibrationService.VibrateWithTime(500);
-        _cart.Clear();
+	private async Task GoToCart()
+	{
+		await SaveTransactionFile();
 
-        NavigationManager.NavigateTo(StoreRouteNames.SaleMobileCart);
-    }
-    #endregion
+		if (_cart.Sum(x => x.Quantity) <= 0 || !await DataStorageService.LocalExists(StorageFileNames.SaleMobileCartDataFileName))
+			return;
+
+		VibrationService.VibrateWithTime(500);
+		_cart.Clear();
+
+		NavigationManager.NavigateTo(StoreRouteNames.SaleMobileCart);
+	}
+	#endregion
 }

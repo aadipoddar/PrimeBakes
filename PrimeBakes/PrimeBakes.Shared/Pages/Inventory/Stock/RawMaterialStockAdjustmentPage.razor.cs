@@ -36,7 +36,7 @@ public partial class RawMaterialStockAdjustmentPage
 	];
 
 	private CustomDatePicker _firstFocus;
-	private CustomAutoComplete<RawMaterialModel> _sfItemAutoComplete;
+	private CustomAutoComplete<RawMaterialModel> _itemAutoComplete;
 	private SfGrid<RawMaterialStockAdjustmentCartModel> _sfCartGrid;
 
 	private ToastNotification _toastNotification;
@@ -172,8 +172,8 @@ public partial class RawMaterialStockAdjustmentPage
 		_selectedRawMaterial = null;
 		_selectedCart = new();
 
-		if (_sfItemAutoComplete is not null)
-			await _sfItemAutoComplete.FocusAsync();
+		if (_itemAutoComplete is not null)
+			await _itemAutoComplete.FocusAsync();
 
 		await SaveTransactionFile();
 	}
@@ -206,8 +206,8 @@ public partial class RawMaterialStockAdjustmentPage
 		UpdateSelectedItemFinancialDetails();
 		await RemoveItemFromCart(cartItem);
 
-		if (_sfItemAutoComplete is not null)
-			await _sfItemAutoComplete.FocusAsync();
+		if (_itemAutoComplete is not null)
+			await _itemAutoComplete.FocusAsync();
 	}
 
 	private async Task RemoveSelectedCartItem()

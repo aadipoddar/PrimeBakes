@@ -10,7 +10,6 @@ using PrimeBakesLibrary.Operations.Settings;
 using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Store.Customer;
 using PrimeBakesLibrary.Store.Order.Data;
-using PrimeBakesLibrary.Store.Order.Exports;
 using PrimeBakesLibrary.Store.Order.Models;
 using PrimeBakesLibrary.Store.PaymentMode;
 using PrimeBakesLibrary.Store.Product.Data;
@@ -18,11 +17,10 @@ using PrimeBakesLibrary.Store.Product.Models;
 using PrimeBakesLibrary.Store.Sale.Data;
 using PrimeBakesLibrary.Store.Sale.Exports;
 using PrimeBakesLibrary.Store.Sale.Models;
-using PrimeBakesLibrary.Utils.Exports;
 
-using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;
-using Syncfusion.Blazor.Inputs;
+
+using System.Text.Json;
 
 namespace PrimeBakes.Shared.Pages.Store.Sale;
 
@@ -37,11 +35,11 @@ public partial class SalePage
 
 	private CompanyModel _selectedCompany = new();
 	private LocationModel _selectedLocation = new();
-	private LedgerModel? _selectedParty = null;
+	private LedgerModel _selectedParty = null;
 	private CustomerModel _selectedCustomer = new();
-	private OrderModel? _selectedOrder = null;
+	private OrderModel _selectedOrder = null;
 	private FinancialYearModel _selectedFinancialYear = new();
-	private ProductLocationOverviewModel? _selectedProduct = null;
+	private ProductLocationOverviewModel _selectedProduct = null;
 	private SaleItemCartModel _selectedCart = new();
 	private SaleModel _sale = new();
 
@@ -54,20 +52,30 @@ public partial class SalePage
 	private List<SaleItemCartModel> _cart = [];
 	private readonly List<ContextMenuItemModel> _cartGridContextMenuItems =
 	[
-		new() { Text = "Edit (Insert)", Id = "EditCart", IconCss = "e-icons e-edit" },
-		new() { Text = "Delete (Del)", Id = "DeleteCart", IconCss = "e-icons e-delete" }
+		new() { Text = "Edit (Insert)", Id = "EditCart", IconCss = "e-icons e-edit", Target = ".e-content" },
+		new() { Text = "Delete (Del)", Id = "DeleteCart", IconCss = "e-icons e-trash", Target = ".e-content" }
 	];
-	private readonly List<PaymentItem> _payments = [];
+
+	private readonly List<PaymentItem> _paymentsCart = [];
 	private readonly List<PaymentModeModel> _paymentMethods = PaymentModeData.GetPaymentModes();
-
 	private PaymentModeModel _selectedPaymentMethod = new();
-	private decimal _paymentAmount = 0;
-	private decimal _remainingAmount => _sale.TotalAmount - _payments.Sum(p => p.Amount);
+	private PaymentItem _selectedPaymentCart = new();
+	private decimal _remainingAmount => _sale.TotalAmount - _paymentsCart.Sum(p => p.Amount);
 
-	private AutoCompleteWithAdd<ProductLocationOverviewModel?, ProductLocationOverviewModel> _sfItemAutoComplete;
+	private readonly List<ContextMenuItemModel> _paymentsCartGridContextMenuItems =
+	[
+		new() { Text = "Edit (Insert)", Id = "EditCart", IconCss = "e-icons e-edit", Target = ".e-content" },
+		new() { Text = "Delete (Del)", Id = "DeleteCart", IconCss = "e-icons e-trash", Target = ".e-content" }
+	];
+
+	private CustomAutoComplete<CompanyModel> _firstFocus;
+	private CustomAutoComplete<ProductLocationOverviewModel> _itemAutoComplete;
+	private CustomNumericField<decimal> _otherChargesPercent;
+	private CustomAutoComplete<PaymentModeModel> _paymentModeAutoComplete;
 	private SfGrid<SaleItemCartModel> _sfCartGrid;
+	private SfGrid<PaymentItem> _sfPaymentsCartGrid;
 
-	ToastNotification _toastNotification;
+	private ToastNotification _toastNotification;
 
 	#region Load Data
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -75,293 +83,295 @@ public partial class SalePage
 		if (!firstRender)
 			return;
 
-		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Store]);
+		try
+		{
+			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Store]);
+			await InitializePage();
+		}
+		catch { await ResetPage(); }
+	}
+
+	private async Task InitializePage()
+	{
 		await LoadData();
+		await ResolveTransaction();
+		await LoadSelections();
+		await LoadItems();
+		await ResolveCart();
+
+		_isLoading = false;
+		StateHasChanged();
+
+		await SaveTransactionFile();
+
+		if (_firstFocus is not null)
+			await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadData()
 	{
-		await LoadLocations();
-		await LoadCompanies();
-		await LoadLedgers();
-		await LoadExistingTransaction();
-		await LoadItems();
-		await LoadExistingCart();
-		await SaveTransactionFile();
+		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
+		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+		_parties = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
 
-		_isLoading = false;
-		StateHasChanged();
+		_locations = [.. _locations.OrderBy(s => s.Name)];
+		_companies = [.. _companies.OrderBy(s => s.Name)];
+		_parties = [.. _parties.OrderBy(s => s.Name)];
+
+		var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
+		_selectedCompany = _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value) ?? _companies.FirstOrDefault();
+		_selectedLocation = _locations.FirstOrDefault(s => s.Id == _user.LocationId);
 	}
 
-	private async Task LoadLocations()
+	private async Task ResolveTransaction()
 	{
 		try
 		{
-			_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
-			_locations = [.. _locations.OrderBy(s => s.Name)];
-			_selectedLocation = _locations.FirstOrDefault(s => s.Id == _user.LocationId);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("An Error Occurred While Loading Locations", ex.Message, ToastType.Error);
-		}
-	}
+			if (await LoadExistingTransaction())
+				return;
 
-	private async Task LoadCompanies()
-	{
-		try
-		{
-			_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-			_companies = [.. _companies.OrderBy(s => s.Name)];
+			if (await TryRestoreFromLocalStorage())
+				return;
 
-			var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
-			_selectedCompany = _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value) ?? throw new Exception("Main Company Not Found");
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("An Error Occurred While Loading Companies", ex.Message, ToastType.Error);
-		}
-	}
-
-	private async Task LoadLedgers()
-	{
-		try
-		{
-			_parties = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
-			_parties = [.. _parties.OrderBy(s => s.Name)];
-
-			_selectedParty = null;
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("An Error Occurred While Loading Ledgers", ex.Message, ToastType.Error);
-		}
-	}
-
-	private async Task LoadExistingTransaction()
-	{
-		try
-		{
-			if (Id.HasValue)
-			{
-				_sale = await CommonData.LoadTableDataById<SaleModel>(StoreNames.Sale, Id.Value);
-				if (_sale is null || _sale.Id == 0 || _user.LocationId > 1)
-				{
-					await _toastNotification.ShowAsync("Transaction Not Found", "The requested transaction could not be found.", ToastType.Error);
-					NavigationManager.NavigateTo(StoreRouteNames.Sale, true);
-				}
-			}
-
-			else if (await DataStorageService.LocalExists(StorageFileNames.SaleDataFileName))
-				_sale = System.Text.Json.JsonSerializer.Deserialize<SaleModel>(await DataStorageService.LocalGetAsync(StorageFileNames.SaleDataFileName));
-
-			else
-			{
-				_sale = new()
-				{
-					Id = 0,
-					TransactionNo = string.Empty,
-					CompanyId = _selectedCompany.Id,
-					LocationId = _user.LocationId,
-					PartyId = null,
-					CustomerId = null,
-					OrderId = null,
-					TransactionDateTime = await CommonData.LoadCurrentDateTime(),
-					FinancialYearId = (await FinancialYearData.LoadFinancialYearByDateTime(await CommonData.LoadCurrentDateTime())).Id,
-					CreatedBy = _user.Id,
-					TotalItems = 0,
-					ItemDiscountAmount = 0,
-					TotalAfterItemDiscount = 0,
-					TotalInclusiveTaxAmount = 0,
-					TotalExtraTaxAmount = 0,
-					TotalAfterTax = 0,
-					DiscountPercent = 0,
-					DiscountAmount = 0,
-					OtherChargesPercent = 0,
-					OtherChargesAmount = 0,
-					RoundOffAmount = 0,
-					TotalAmount = 0,
-					Card = 0,
-					Cash = 0,
-					Credit = 0,
-					UPI = 0,
-					Remarks = "",
-					CreatedAt = DateTime.Now,
-					CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform(),
-					Status = true,
-					LastModifiedAt = null,
-					LastModifiedBy = null,
-					LastModifiedFromPlatform = null
-				};
-				await DeleteLocalFiles();
-			}
-
-			if (_user.LocationId == 1)
-				_selectedLocation = _locations.FirstOrDefault(s => s.Id == _sale.LocationId);
-			else
-			{
-				_selectedLocation = _locations.FirstOrDefault(s => s.Id == _user.LocationId);
-				_sale.LocationId = _selectedLocation.Id;
-
-				_sale.TransactionDateTime = await CommonData.LoadCurrentDateTime();
-			}
-
-			if (_sale.CompanyId > 0 && _user.LocationId == 1)
-				_selectedCompany = _companies.FirstOrDefault(s => s.Id == _sale.CompanyId);
-			else
-			{
-				var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
-				_selectedCompany = _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value);
-				_sale.CompanyId = _selectedCompany.Id;
-			}
-
-			if (_sale.PartyId is not null && _sale.LocationId == 1 && _sale.PartyId > 0)
-				_selectedParty = _parties.FirstOrDefault(s => s.Id == _sale.PartyId);
-			else
-			{
-				_selectedParty = null;
-				_sale.PartyId = null;
-			}
-
-			if (_sale.CustomerId is not null && _sale.CustomerId > 0)
-				_selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(StoreNames.Customer, _sale.CustomerId.Value);
-			else
-			{
-				_selectedCustomer = new();
-				_sale.CustomerId = null;
-			}
-
-			if (_selectedParty is not null)
-			{
-				var location = _locations.FirstOrDefault(s => s.LedgerId == _selectedParty.Id);
-				if (location is not null)
-				{
-					if (Id is null)
-						_sale.DiscountPercent = location.Discount;
-
-					_orders = await OrderData.LoadOrderByLocationPending(location.Id);
-					_orders = [.. _orders.OrderByDescending(s => s.TransactionDateTime)];
-
-					if (_sale.OrderId is not null && _sale.OrderId > 0)
-					{
-						if (Id > 0)
-						{
-							var order = await CommonData.LoadTableDataById<OrderModel>(StoreNames.Order, _sale.OrderId.Value);
-							if (order is not null && location.Id == order.LocationId)
-							{
-								if (_orders.FirstOrDefault(s => s.Id == order.Id) is null)
-									_orders.Insert(0, order);
-							}
-						}
-
-						_selectedOrder = _orders.FirstOrDefault(s => s.Id == _sale.OrderId);
-					}
-
-					else
-					{
-						_selectedOrder = null;
-						_sale.OrderId = null;
-					}
-				}
-			}
-			else
-			{
-				_selectedOrder = null;
-				_sale.OrderId = null;
-			}
-
-			_selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, _sale.FinancialYearId);
-			SyncPaymentsFromSale();
+			await CreateNewTransaction();
 		}
 		catch (Exception ex)
 		{
 			await _toastNotification.ShowAsync("An Error Occurred While Loading Transaction Data", ex.Message, ToastType.Error);
-			await DeleteLocalFiles();
+			await ResetPage();
 		}
-		finally
+	}
+
+	private async Task<bool> LoadExistingTransaction()
+	{
+		if (!Id.HasValue)
+			return false;
+
+		_sale = await CommonData.LoadTableDataById<SaleModel>(StoreNames.Sale, Id.Value);
+		if (_sale is null || _sale.Id == 0 || _user.LocationId != 1)
 		{
-			await SaveTransactionFile();
+			await _toastNotification.ShowAsync("Transaction Not Found", "The requested transaction could not be found.", ToastType.Error);
+			await ResetPage();
+		}
+
+		return true;
+	}
+
+	private async Task<bool> TryRestoreFromLocalStorage()
+	{
+		if (!await DataStorageService.LocalExists(StorageFileNames.SaleDataFileName))
+			return false;
+
+		try
+		{
+			_sale = JsonSerializer.Deserialize<SaleModel>(await DataStorageService.LocalGetAsync(StorageFileNames.SaleDataFileName));
+			return _sale is not null;
+		}
+		catch
+		{
+			await DeleteLocalFiles();
+			return false;
+		}
+	}
+
+	private async Task CreateNewTransaction()
+	{
+		var currentDateTime = await CommonData.LoadCurrentDateTime();
+		var financialYear = await FinancialYearData.LoadFinancialYearByDateTime(currentDateTime);
+
+		_sale = new()
+		{
+			Id = 0,
+			TransactionNo = string.Empty,
+			CompanyId = _selectedCompany.Id,
+			LocationId = _user.LocationId,
+			PartyId = null,
+			CustomerId = null,
+			OrderId = null,
+			TransactionDateTime = currentDateTime,
+			FinancialYearId = financialYear is null ? 0 : financialYear.Id,
+			CreatedBy = _user.Id,
+			TotalItems = 0,
+			ItemDiscountAmount = 0,
+			TotalAfterItemDiscount = 0,
+			TotalInclusiveTaxAmount = 0,
+			TotalExtraTaxAmount = 0,
+			TotalAfterTax = 0,
+			DiscountPercent = 0,
+			DiscountAmount = 0,
+			OtherChargesPercent = 0,
+			OtherChargesAmount = 0,
+			RoundOffAmount = 0,
+			TotalAmount = 0,
+			Card = 0,
+			Cash = 0,
+			Credit = 0,
+			UPI = 0,
+			Remarks = null,
+			CreatedAt = DateTime.Now,
+			CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform(),
+			Status = true,
+			LastModifiedAt = null,
+			LastModifiedBy = null,
+			LastModifiedFromPlatform = null
+		};
+
+		await DeleteLocalFiles();
+	}
+
+	private async Task LoadSelections()
+	{
+		_selectedLocation = _user.LocationId == 1
+			? _locations.FirstOrDefault(s => s.Id == _sale.LocationId) ?? _locations.FirstOrDefault()
+			: _locations.FirstOrDefault(s => s.Id == _user.LocationId);
+		_sale.LocationId = _selectedLocation?.Id ?? 0;
+
+		var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
+		_selectedCompany = _user.LocationId == 1 && _sale.CompanyId > 0
+			? _companies.FirstOrDefault(s => s.Id == _sale.CompanyId) ?? _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value)
+			: _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value);
+		_sale.CompanyId = _selectedCompany?.Id ?? 0;
+
+		if (_sale.PartyId is not null && _sale.LocationId == 1 && _sale.PartyId > 0)
+			_selectedParty = _parties.FirstOrDefault(s => s.Id == _sale.PartyId);
+		else
+		{
+			_selectedParty = null;
+			_sale.PartyId = null;
+		}
+
+		if (_sale.CustomerId is not null && _sale.CustomerId > 0)
+			_selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(StoreNames.Customer, _sale.CustomerId.Value);
+		else
+		{
+			_selectedCustomer = new();
+			_sale.CustomerId = null;
+		}
+
+		await LoadOrdersForParty();
+
+		_selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, _sale.FinancialYearId);
+		SyncPaymentsFromSale();
+	}
+
+	private async Task LoadOrdersForParty()
+	{
+		_orders.Clear();
+		_selectedOrder = null;
+
+		if (_selectedParty is null)
+		{
+			_sale.OrderId = null;
+			return;
+		}
+
+		var location = _locations.FirstOrDefault(s => s.LedgerId == _selectedParty.Id);
+		if (location is null)
+		{
+			_sale.OrderId = null;
+			return;
+		}
+
+		if (Id is null)
+			_sale.DiscountPercent = location.Discount;
+
+		_orders = await OrderData.LoadOrderByLocationPending(location.Id);
+		_orders = [.. _orders.OrderByDescending(s => s.TransactionDateTime)];
+
+		if (_sale.OrderId is not null && _sale.OrderId > 0)
+		{
+			if (Id > 0)
+			{
+				var order = await CommonData.LoadTableDataById<OrderModel>(StoreNames.Order, _sale.OrderId.Value);
+				if (order is not null && location.Id == order.LocationId && _orders.FirstOrDefault(s => s.Id == order.Id) is null)
+					_orders.Insert(0, order);
+			}
+
+			_selectedOrder = _orders.FirstOrDefault(s => s.Id == _sale.OrderId);
+		}
+		else
+		{
+			_selectedOrder = null;
+			_sale.OrderId = null;
 		}
 	}
 
 	private async Task LoadItems()
 	{
-		try
-		{
-			_products = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _sale.LocationId);
-			_taxes = await CommonData.LoadTableDataByStatus<TaxModel>(StoreNames.Tax);
+		_products = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _sale.LocationId);
+		_taxes = await CommonData.LoadTableDataByStatus<TaxModel>(StoreNames.Tax);
 
-			_products = [.. _products.OrderBy(s => s.Name)];
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("An Error Occurred While Loading Items", ex.Message, ToastType.Error);
-		}
+		_products = [.. _products.OrderBy(s => s.Name)];
 	}
 
-	private async Task LoadExistingCart()
+	private async Task ResolveCart()
 	{
 		try
 		{
 			_cart.Clear();
 
-			if (_sale.Id > 0)
-			{
-				var existingCart = await CommonData.LoadTableDataByMasterId<SaleDetailModel>(StoreNames.SaleDetail, _sale.Id);
+			if (await LoadExistingCart())
+				return;
 
-				foreach (var item in existingCart)
-				{
-					if (_products.FirstOrDefault(s => s.ProductId == item.ProductId) is null)
-					{
-						var product = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, item.ProductId);
-						await _toastNotification.ShowAsync("Item Not Found", $"The item {product?.Name} (ID: {item.ProductId}) in the existing transaction cart was not found in the available items list. It may have been deleted or is inaccessible.", ToastType.Error);
-						continue;
-					}
-
-					_cart.Add(new()
-					{
-						ItemId = item.ProductId,
-						ItemName = _products.FirstOrDefault(s => s.ProductId == item.ProductId)?.Name ?? "",
-						Quantity = item.Quantity,
-						Rate = item.Rate,
-						BaseTotal = item.BaseTotal,
-						DiscountPercent = item.DiscountPercent,
-						DiscountAmount = item.DiscountAmount,
-						AfterDiscount = item.AfterDiscount,
-						CGSTPercent = item.CGSTPercent,
-						CGSTAmount = item.CGSTAmount,
-						SGSTPercent = item.SGSTPercent,
-						SGSTAmount = item.SGSTAmount,
-						IGSTPercent = item.IGSTPercent,
-						IGSTAmount = item.IGSTAmount,
-						TotalTaxAmount = item.TotalTaxAmount,
-						Total = item.Total,
-						InclusiveTax = item.InclusiveTax,
-						NetRate = item.NetRate,
-						Remarks = item.Remarks
-					});
-				}
-			}
-
-			else if (await DataStorageService.LocalExists(StorageFileNames.SaleCartDataFileName))
-				_cart = System.Text.Json.JsonSerializer.Deserialize<List<SaleItemCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.SaleCartDataFileName));
+			if (await DataStorageService.LocalExists(StorageFileNames.SaleCartDataFileName))
+				_cart = JsonSerializer.Deserialize<List<SaleItemCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.SaleCartDataFileName));
 		}
 		catch (Exception ex)
 		{
 			await _toastNotification.ShowAsync("An Error Occurred While Loading Existing Cart", ex.Message, ToastType.Error);
-			await DeleteLocalFiles();
+			await ResetPage();
 		}
-		finally
+	}
+
+	private async Task<bool> LoadExistingCart()
+	{
+		if (_sale.Id <= 0)
+			return false;
+
+		var existingCart = await CommonData.LoadTableDataByMasterId<SaleDetailModel>(StoreNames.SaleDetail, _sale.Id);
+
+		foreach (var item in existingCart)
 		{
-			await SaveTransactionFile();
+			var product = _products.FirstOrDefault(s => s.ProductId == item.ProductId);
+			if (product is null)
+			{
+				var missing = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, item.ProductId);
+				await _toastNotification.ShowAsync("Item Not Found", $"The item {missing?.Name} (ID: {item.ProductId}) in the existing transaction cart was not found in the available items list. It may have been deleted or is inaccessible.", ToastType.Error);
+				continue;
+			}
+
+			_cart.Add(new()
+			{
+				ItemId = item.ProductId,
+				ItemName = product.Name,
+				Quantity = item.Quantity,
+				Rate = item.Rate,
+				BaseTotal = item.BaseTotal,
+				DiscountPercent = item.DiscountPercent,
+				DiscountAmount = item.DiscountAmount,
+				AfterDiscount = item.AfterDiscount,
+				CGSTPercent = item.CGSTPercent,
+				CGSTAmount = item.CGSTAmount,
+				SGSTPercent = item.SGSTPercent,
+				SGSTAmount = item.SGSTAmount,
+				IGSTPercent = item.IGSTPercent,
+				IGSTAmount = item.IGSTAmount,
+				TotalTaxAmount = item.TotalTaxAmount,
+				Total = item.Total,
+				InclusiveTax = item.InclusiveTax,
+				NetRate = item.NetRate,
+				Remarks = item.Remarks
+			});
 		}
+
+		return true;
 	}
 	#endregion
 
 	#region Payment
 	private void SyncPaymentsFromSale()
 	{
-		_payments.Clear();
+		_paymentsCart.Clear();
 
 		AddPaymentFromSale("Cash", _sale.Cash);
 		AddPaymentFromSale("Card", _sale.Card);
@@ -371,7 +381,7 @@ public partial class SalePage
 		_selectedPaymentMethod = _selectedLocation?.Id == 1
 			? _paymentMethods.FirstOrDefault(pm => pm.Name == "Credit") ?? _paymentMethods.FirstOrDefault()
 			: _paymentMethods.FirstOrDefault();
-		_paymentAmount = Math.Max(0, _remainingAmount);
+		_selectedPaymentCart = new() { Amount = Math.Max(0, _remainingAmount) };
 	}
 
 	private void AddPaymentFromSale(string modeName, decimal amount)
@@ -383,7 +393,7 @@ public partial class SalePage
 		if (mode is null)
 			return;
 
-		_payments.Add(new()
+		_paymentsCart.Add(new()
 		{
 			Id = mode.Id,
 			Method = mode.Name,
@@ -393,75 +403,124 @@ public partial class SalePage
 
 	private void ApplyPaymentsToSale()
 	{
-		_sale.Cash = _payments.FirstOrDefault(p => p.Method == "Cash")?.Amount ?? 0;
-		_sale.Card = _payments.FirstOrDefault(p => p.Method == "Card")?.Amount ?? 0;
-		_sale.UPI = _payments.FirstOrDefault(p => p.Method == "UPI")?.Amount ?? 0;
-		_sale.Credit = _payments.FirstOrDefault(p => p.Method == "Credit")?.Amount ?? 0;
+		_sale.Cash = _paymentsCart.FirstOrDefault(p => p.Method == "Cash")?.Amount ?? 0;
+		_sale.Card = _paymentsCart.FirstOrDefault(p => p.Method == "Card")?.Amount ?? 0;
+		_sale.UPI = _paymentsCart.FirstOrDefault(p => p.Method == "UPI")?.Amount ?? 0;
+		_sale.Credit = _paymentsCart.FirstOrDefault(p => p.Method == "Credit")?.Amount ?? 0;
 	}
 
-	private async Task AddPayment()
+	private void OnPaymentMethodChanged(PaymentModeModel value)
 	{
-		if (_isProcessing || _paymentAmount <= 0 || _selectedPaymentMethod is null || _selectedPaymentMethod.Id <= 0)
-			return;
-
-		if (_paymentAmount > _remainingAmount)
+		if (value is null || value.Id == 0)
 		{
-			await _toastNotification.ShowAsync("Invalid Payment Amount", $"Payment amount cannot exceed remaining amount of ₹{_remainingAmount:N2}", ToastType.Error);
+			_selectedPaymentMethod = new();
+			_selectedPaymentCart = new();
 			return;
 		}
 
-		var existingPayment = _payments.FirstOrDefault(p => p.Id == _selectedPaymentMethod.Id);
-		if (existingPayment is not null)
-			existingPayment.Amount += _paymentAmount;
+		_selectedPaymentMethod = value;
+
+		_selectedPaymentCart.Id = value.Id;
+		_selectedPaymentCart.Method = value.Name;
+		_selectedPaymentCart.Amount = Math.Max(0, _sale.TotalAmount - _paymentsCart.Where(p => p.Id != value.Id).Sum(p => p.Amount));
+	}
+
+	private async Task AddPaymentToCart()
+	{
+		if (_selectedPaymentMethod is null || _selectedPaymentMethod.Id <= 0 || _selectedPaymentCart.Amount <= 0)
+		{
+			await _toastNotification.ShowAsync("Invalid Payment Details", "Please ensure all payment details are correctly filled before adding to the cart.", ToastType.Error);
+			return;
+		}
+
+		if (_paymentsCart.Where(p => p.Id != _selectedPaymentMethod.Id).Sum(p => p.Amount) + _selectedPaymentCart.Amount > _sale.TotalAmount)
+		{
+			await _toastNotification.ShowAsync("Payment Amount Exceeds Total", $"The total payment amount cannot exceed the total amount of ₹{_sale.TotalAmount:N2}.", ToastType.Error);
+			return;
+		}
+
+		if (_selectedPaymentMethod.Name == "Credit" && _selectedLocation?.Id != 1)
+		{
+			await _toastNotification.ShowAsync("Invalid Payment Method for Location", "Credit payment method can only be used at the main location.", ToastType.Error);
+			return;
+		}
+
+		var existingItem = _paymentsCart.FirstOrDefault(p => p.Id == _selectedPaymentMethod.Id);
+		if (existingItem is not null)
+			existingItem.Amount += _selectedPaymentCart.Amount;
 		else
-			_payments.Add(new()
+			_paymentsCart.Add(new()
 			{
 				Id = _selectedPaymentMethod.Id,
 				Method = _selectedPaymentMethod.Name,
-				Amount = _paymentAmount
+				Amount = _selectedPaymentCart.Amount
 			});
 
 		ApplyPaymentsToSale();
-		_paymentAmount = Math.Max(0, _remainingAmount);
-		_selectedPaymentMethod = _paymentMethods.FirstOrDefault(pm => pm.Id != _selectedPaymentMethod.Id)
-								 ?? _paymentMethods.FirstOrDefault()
-								 ?? new();
 
+		_selectedPaymentMethod = new();
+		_selectedPaymentCart = new();
+
+		if (_paymentModeAutoComplete is not null)
+			await _paymentModeAutoComplete.FocusAsync();
 		await SaveTransactionFile(true);
 	}
 
-	private async Task RemovePayment(PaymentItem payment)
+	private async Task EditSelectedPaymentCartItem()
 	{
-		if (_isProcessing || payment is null)
+		if (_sfPaymentsCartGrid is null || _sfPaymentsCartGrid.SelectedRecords is null || _sfPaymentsCartGrid.SelectedRecords.Count == 0)
 			return;
 
-		_payments.Remove(payment);
-		ApplyPaymentsToSale();
+		var selectedCartItem = _sfPaymentsCartGrid.SelectedRecords.First();
 
-		_selectedPaymentMethod = _paymentMethods.FirstOrDefault(); ;
-		_paymentAmount = Math.Max(0, _remainingAmount);
+		_selectedPaymentMethod = _paymentMethods.FirstOrDefault(pm => pm.Id == selectedCartItem.Id);
+		if (_selectedPaymentMethod is null)
+			return;
+
+		_selectedPaymentCart = new()
+		{
+			Id = selectedCartItem.Id,
+			Method = selectedCartItem.Method,
+			Amount = selectedCartItem.Amount
+		};
+
+		if (_paymentModeAutoComplete is not null)
+			await _paymentModeAutoComplete.FocusAsync();
+		await RemoveSelectedPaymentCartItem();
+	}
+
+	private async Task RemoveSelectedPaymentCartItem()
+	{
+		if (_sfPaymentsCartGrid is null || _sfPaymentsCartGrid.SelectedRecords is null || _sfPaymentsCartGrid.SelectedRecords.Count == 0)
+			return;
+
+		var selectedCartItem = _sfPaymentsCartGrid.SelectedRecords.First();
+		_paymentsCart.Remove(selectedCartItem);
+		ApplyPaymentsToSale();
 		await SaveTransactionFile(true);
 	}
 	#endregion
 
-	#region Change Events
-	private async Task OnLocationChanged(ChangeEventArgs<LocationModel, LocationModel> args)
+	#region Changed Events
+	private async Task OnCompanyChanged(CompanyModel value)
 	{
-		if (_user.LocationId > 1)
-		{
-			_selectedLocation = _locations.FirstOrDefault(s => s.Id == _user.LocationId);
-			_sale.LocationId = _selectedLocation.Id;
-			await _toastNotification.ShowAsync("Location Change Not Allowed", "You are not allowed to change the location.", ToastType.Error);
-			return;
-		}
-
-		if (args.Value is null || args.Value.Id == 0)
+		if (value is null || value.Id == 0)
 			return;
 
-		_selectedLocation = args.Value;
-		_sale.LocationId = _selectedLocation.Id;
+		_selectedCompany = value;
+		_sale.CompanyId = value.Id;
+		await SaveTransactionFile();
+	}
 
-		if (_sale.LocationId > 1)
+	private async Task OnLocationChanged(LocationModel value)
+	{
+		if (value is null || value.Id == 0)
+			return;
+
+		_selectedLocation = value;
+		_sale.LocationId = value.Id;
+
+		if (_sale.LocationId != 1)
 		{
 			_selectedParty = null;
 			_sale.PartyId = null;
@@ -470,7 +529,7 @@ public partial class SalePage
 			_cart.Clear();
 			_selectedOrder = null;
 			_sale.OrderId = null;
-			await _toastNotification.ShowAsync("Party & Order Cleared", "The party & order has been cleared as the selected location is not the main location.", ToastType.Info);
+			await _toastNotification.ShowAsync("Party & Order Cleared", "The party & order has been cleared as the selected location is not the main location.", ToastType.Warning);
 		}
 
 		_selectedPaymentMethod = _selectedLocation?.Id == 1
@@ -481,37 +540,9 @@ public partial class SalePage
 		await SaveTransactionFile();
 	}
 
-	private async Task OnCompanyChanged(ChangeEventArgs<CompanyModel, CompanyModel> args)
+	private async Task OnPartyChanged(LedgerModel value)
 	{
-		if (_user.LocationId > 1)
-		{
-			var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
-			_selectedCompany = _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value);
-			_sale.CompanyId = _selectedCompany.Id;
-			await _toastNotification.ShowAsync("Company Change Not Allowed", "You are not allowed to change the company.", ToastType.Error);
-			return;
-		}
-
-		if (args.Value is null || args.Value.Id == 0)
-			return;
-
-		_selectedCompany = args.Value;
-		_sale.CompanyId = _selectedCompany.Id;
-
-		await SaveTransactionFile();
-	}
-
-	private async Task OnPartyChanged(ChangeEventArgs<LedgerModel?, LedgerModel?> args)
-	{
-		if (_user.LocationId > 1 || _sale.LocationId > 1)
-		{
-			_selectedParty = null;
-			_sale.PartyId = null;
-			await _toastNotification.ShowAsync("Party Change Not Allowed", "You are not allowed to change the party.", ToastType.Error);
-			return;
-		}
-
-		if (args.Value is null || args.Value.Id == 0)
+		if (value is null || value.Id == 0)
 		{
 			_selectedParty = null;
 			_sale.PartyId = null;
@@ -520,11 +551,12 @@ public partial class SalePage
 			_selectedOrder = null;
 			_sale.OrderId = null;
 
+			await SaveTransactionFile();
 			return;
 		}
 
-		_selectedParty = args.Value;
-		_sale.PartyId = _selectedParty.Id;
+		_selectedParty = value;
+		_sale.PartyId = value.Id;
 
 		_orders.Clear();
 		_selectedOrder = null;
@@ -537,92 +569,71 @@ public partial class SalePage
 
 			_orders = await OrderData.LoadOrderByLocationPending(location.Id);
 			_orders = [.. _orders.OrderByDescending(s => s.TransactionDateTime)];
-
-			if (Id > 0 && _sale.OrderId is not null && _sale.OrderId > 0)
-			{
-				var order = await CommonData.LoadTableDataById<OrderModel>(StoreNames.Order, _sale.OrderId.Value);
-				if (order is not null && location.Id == order.LocationId)
-				{
-					if (_orders.FirstOrDefault(s => s.Id == order.Id) is null)
-						_orders.Insert(0, order);
-				}
-			}
 		}
 
 		await LoadItems();
 		await SaveTransactionFile();
 	}
 
-	private async Task OnOrderChanged(ChangeEventArgs<OrderModel?, OrderModel?> args)
+	private async Task OnOrderChanged(OrderModel value)
 	{
-		if (_user.LocationId > 1 || _sale.LocationId > 1)
+		if (value is null || value.Id == 0)
 		{
 			_selectedOrder = null;
 			_sale.OrderId = null;
-			await _toastNotification.ShowAsync("Order Change Not Allowed", "You are not allowed to change the order.", ToastType.Error);
+			await SaveTransactionFile();
 			return;
 		}
 
-		if (args.Value is null)
-		{
-			_selectedOrder = null;
-			_sale.OrderId = null;
-			return;
-		}
-
-		_selectedOrder = args.Value;
-		_sale.OrderId = _selectedOrder.Id;
+		_selectedOrder = value;
+		_sale.OrderId = value.Id;
 		_cart.Clear();
 
 		var orderItems = await CommonData.LoadTableDataByMasterId<OrderDetailModel>(StoreNames.OrderDetail, _selectedOrder.Id);
 		foreach (var item in orderItems)
 		{
-			if (_products.FirstOrDefault(s => s.ProductId == item.ProductId) is null)
+			var product = _products.FirstOrDefault(s => s.ProductId == item.ProductId);
+			if (product is null)
 			{
-				var product = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, item.ProductId);
-				await _toastNotification.ShowAsync("Item Not Found", $"The item {product?.Name} (ID: {item.ProductId}) in the selected order was not found in the available items list. It may have been deleted or is inaccessible.", ToastType.Error);
+				var missing = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, item.ProductId);
+				await _toastNotification.ShowAsync("Item Not Found", $"The item {missing?.Name} (ID: {item.ProductId}) in the selected order was not found in the available items list. It may have been deleted or is inaccessible.", ToastType.Error);
 				continue;
 			}
 
 			var isSameState = _selectedParty is null || _selectedParty.StateUTId == _selectedCompany.StateUTId;
+			var tax = _taxes.FirstOrDefault(s => s.Id == product.TaxId);
 
 			_cart.Add(new()
 			{
 				ItemId = item.ProductId,
-				ItemName = _products.FirstOrDefault(s => s.ProductId == item.ProductId)?.Name ?? "",
+				ItemName = product.Name,
 				Quantity = item.Quantity,
-				Rate = _products.FirstOrDefault(s => s.ProductId == item.ProductId)?.Rate ?? 0,
+				Rate = product.Rate,
 				DiscountPercent = 0,
-				CGSTPercent = _taxes.FirstOrDefault(s => s.Id == _products.FirstOrDefault(p => p.ProductId == item.ProductId)?.TaxId).CGST,
-				SGSTPercent = isSameState ? _taxes.FirstOrDefault(s => s.Id == _products.FirstOrDefault(p => p.ProductId == item.ProductId)?.TaxId).SGST : 0,
-				IGSTPercent = isSameState ? 0 : _taxes.FirstOrDefault(s => s.Id == _products.FirstOrDefault(p => p.ProductId == item.ProductId)?.TaxId).IGST,
-				InclusiveTax = _taxes.FirstOrDefault(s => s.Id == _products.FirstOrDefault(p => p.ProductId == item.ProductId)?.TaxId).Inclusive
+				CGSTPercent = tax.CGST,
+				SGSTPercent = isSameState ? tax.SGST : 0,
+				IGSTPercent = isSameState ? 0 : tax.IGST,
+				InclusiveTax = tax.Inclusive
 			});
 		}
 
 		await SaveTransactionFile();
 	}
 
-	private async Task OnTransactionDateChanged(Syncfusion.Blazor.Calendars.ChangedEventArgs<DateTime> args)
+	private async Task OnTransactionDateChanged(DateTime value)
 	{
-		if (_user.LocationId > 1)
-		{
-			_sale.TransactionDateTime = await CommonData.LoadCurrentDateTime();
-			await _toastNotification.ShowAsync("Transaction Date Change Not Allowed", "You are not allowed to change the transaction date.", ToastType.Error);
-			return;
-		}
-
-		_sale.TransactionDateTime = args.Value;
+		_sale.TransactionDateTime = value;
 		await LoadItems();
 		await SaveTransactionFile();
 	}
 
-	private async Task OnCustomerNumberChanged(string args)
+	private async Task OnCustomerNumberChanged(string value)
 	{
-		if (args.Any(c => !char.IsDigit(c)))
-			args = new string([.. args.Where(char.IsDigit)]);
+		value ??= string.Empty;
+		if (value.Any(c => !char.IsDigit(c)))
+			value = new string([.. value.Where(char.IsDigit)]);
 
-		if (string.IsNullOrWhiteSpace(args))
+		if (string.IsNullOrWhiteSpace(value))
 		{
 			_selectedCustomer = new();
 			_sale.CustomerId = null;
@@ -630,116 +641,101 @@ public partial class SalePage
 			return;
 		}
 
-		args = args.Trim();
-		_selectedCustomer = await CustomerData.LoadCustomerByNumber(args);
+		value = value.Trim();
+		_selectedCustomer = await CustomerData.LoadCustomerByNumber(value);
 		_selectedCustomer ??= new()
 		{
 			Id = 0,
 			Name = "",
-			Number = args
+			Number = value
 		};
 
-		_sale.CustomerId = _selectedCustomer.Id;
+		_sale.CustomerId = _selectedCustomer.Id > 0 ? _selectedCustomer.Id : null;
 		await SaveTransactionFile();
 	}
 
-	private async Task OnDiscountPercentChanged(ChangeEventArgs<decimal> args)
+	private async Task OnDiscountPercentChanged(decimal value)
 	{
-		_sale.DiscountPercent = args.Value;
+		_sale.DiscountPercent = value;
 		await SaveTransactionFile();
 	}
 
-	private async Task OnOtherDiscountPercentChanged(ChangeEventArgs<decimal> args)
+	private async Task OnOtherChargesPercentChanged(decimal value)
 	{
-		_sale.OtherChargesPercent = args.Value;
+		_sale.OtherChargesPercent = value;
 		await SaveTransactionFile();
 	}
 
-	private async Task OnRoundOffAmountChanged(ChangeEventArgs<decimal> args)
+	private async Task OnRoundOffAmountChanged(decimal value)
 	{
-		_sale.RoundOffAmount = args.Value;
+		_sale.RoundOffAmount = value;
 		await SaveTransactionFile(true);
 	}
 	#endregion
 
 	#region Cart
-	private async Task OnItemChanged(ChangeEventArgs<ProductLocationOverviewModel?, ProductLocationOverviewModel?> args)
+	private void OnItemChanged(ProductLocationOverviewModel value)
 	{
-		if (args.Value is null || args.Value.Id == 0)
+		if (value is null || value.ProductId <= 0)
 			return;
 
-		_selectedProduct = args.Value;
+		_selectedProduct = value;
 
-		if (_selectedProduct is null)
-			_selectedCart = new()
-			{
-				ItemId = 0,
-				ItemName = "",
-				Quantity = 0,
-				Rate = 0,
-				DiscountPercent = 0,
-				CGSTPercent = 0,
-				SGSTPercent = 0,
-				IGSTPercent = 0
-			};
+		var isSameState = _selectedParty is null || _selectedParty.StateUTId == _selectedCompany.StateUTId;
+		var tax = _taxes.FirstOrDefault(s => s.Id == _selectedProduct.TaxId);
 
-		else
-		{
-			var isSameState = _selectedParty is null || _selectedParty.StateUTId == _selectedCompany.StateUTId;
-
-			_selectedCart.ItemId = _selectedProduct.ProductId;
-			_selectedCart.ItemName = _selectedProduct.Name;
-			_selectedCart.Quantity = 0;
-			_selectedCart.Rate = _selectedProduct.Rate;
-			_selectedCart.DiscountPercent = 0;
-			_selectedCart.CGSTPercent = _taxes.FirstOrDefault(s => s.Id == _selectedProduct.TaxId).CGST;
-			_selectedCart.SGSTPercent = isSameState ? _taxes.FirstOrDefault(s => s.Id == _selectedProduct.TaxId).SGST : 0;
-			_selectedCart.IGSTPercent = isSameState ? 0 : _taxes.FirstOrDefault(s => s.Id == _selectedProduct.TaxId).IGST;
-			_selectedCart.InclusiveTax = _taxes.FirstOrDefault(s => s.Id == _selectedProduct.TaxId).Inclusive;
-		}
+		_selectedCart.ItemId = _selectedProduct.ProductId;
+		_selectedCart.ItemName = _selectedProduct.Name;
+		_selectedCart.Quantity = 0;
+		_selectedCart.Rate = _selectedProduct.Rate;
+		_selectedCart.DiscountPercent = 0;
+		_selectedCart.CGSTPercent = tax.CGST;
+		_selectedCart.SGSTPercent = isSameState ? tax.SGST : 0;
+		_selectedCart.IGSTPercent = isSameState ? 0 : tax.IGST;
+		_selectedCart.InclusiveTax = tax.Inclusive;
 
 		UpdateSelectedItemFinancialDetails();
 	}
 
-	private void OnItemQuantityChanged(ChangeEventArgs<decimal> args)
+	private void OnItemQuantityChanged(decimal value)
 	{
-		_selectedCart.Quantity = args.Value;
+		_selectedCart.Quantity = value;
 		UpdateSelectedItemFinancialDetails();
 	}
 
-	private void OnItemRateChanged(ChangeEventArgs<decimal> args)
+	private void OnItemRateChanged(decimal value)
 	{
-		_selectedCart.Rate = args.Value;
+		_selectedCart.Rate = value;
 		UpdateSelectedItemFinancialDetails();
 	}
 
-	private void OnItemDiscountPercentChanged(ChangeEventArgs<decimal> args)
+	private void OnItemDiscountPercentChanged(decimal value)
 	{
-		_selectedCart.DiscountPercent = args.Value;
+		_selectedCart.DiscountPercent = value;
 		UpdateSelectedItemFinancialDetails();
 	}
 
-	private void OnItemCGSTPercentChanged(ChangeEventArgs<decimal> args)
+	private void OnItemCGSTPercentChanged(decimal value)
 	{
-		_selectedCart.CGSTPercent = args.Value;
+		_selectedCart.CGSTPercent = value;
 		UpdateSelectedItemFinancialDetails();
 	}
 
-	private void OnItemSGSTPercentChanged(ChangeEventArgs<decimal> args)
+	private void OnItemSGSTPercentChanged(decimal value)
 	{
-		_selectedCart.SGSTPercent = args.Value;
+		_selectedCart.SGSTPercent = value;
 		UpdateSelectedItemFinancialDetails();
 	}
 
-	private void OnItemIGSTPercentChanged(ChangeEventArgs<decimal> args)
+	private void OnItemIGSTPercentChanged(decimal value)
 	{
-		_selectedCart.IGSTPercent = args.Value;
+		_selectedCart.IGSTPercent = value;
 		UpdateSelectedItemFinancialDetails();
 	}
 
-	private void OnItemInclusiveTaxChanged(Syncfusion.Blazor.Buttons.ChangeEventArgs<bool> args)
+	private void OnItemInclusiveTaxChanged(bool value)
 	{
-		_selectedCart.InclusiveTax = args.Checked;
+		_selectedCart.InclusiveTax = value;
 		UpdateSelectedItemFinancialDetails();
 	}
 
@@ -785,7 +781,6 @@ public partial class SalePage
 			return;
 		}
 
-		// Validate that all three taxes cannot be applied together
 		int taxCount = 0;
 		if (_selectedCart.CGSTPercent > 0) taxCount++;
 		if (_selectedCart.SGSTPercent > 0) taxCount++;
@@ -827,7 +822,7 @@ public partial class SalePage
 		_selectedProduct = null;
 		_selectedCart = new();
 
-		await _sfItemAutoComplete.FocusAsync();
+		await _itemAutoComplete.FocusAsync();
 		await SaveTransactionFile();
 	}
 
@@ -861,7 +856,7 @@ public partial class SalePage
 			Remarks = cartItem.Remarks
 		};
 
-		await _sfItemAutoComplete.FocusAsync();
+		await _itemAutoComplete.FocusAsync();
 		UpdateSelectedItemFinancialDetails();
 		await RemoveItemFromCart(cartItem);
 	}
@@ -885,10 +880,45 @@ public partial class SalePage
 	#region Saving
 	private async Task UpdateFinancialDetails(bool customRoundOff = false)
 	{
-		foreach (var item in _cart)
+		if (_user.LocationId != 1)
 		{
-			if (item.Quantity == 0)
+			_sale.DiscountPercent = 0;
+			_sale.OtherChargesPercent = 0;
+			customRoundOff = false;
+
+			var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
+			_selectedCompany = _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value);
+			_selectedLocation = _locations.FirstOrDefault(s => s.Id == _user.LocationId);
+			_sale.TransactionDateTime = await CommonData.LoadCurrentDateTime();
+		}
+
+		if (_sale.LocationId != 1)
+		{
+			_selectedParty = null;
+			_selectedOrder = null;
+			_orders.Clear();
+		}
+
+		foreach (var item in _cart.ToList())
+		{
+			if (item.Quantity <= 0)
+			{
 				_cart.Remove(item);
+				continue;
+			}
+
+			if (_sale.LocationId != 1)
+				item.IGSTPercent = 0;
+
+			if (_user.LocationId != 1)
+			{
+				item.Rate = _products.FirstOrDefault(p => p.ProductId == item.ItemId)?.Rate ?? item.Rate;
+				item.DiscountPercent = 0;
+				item.CGSTPercent = _taxes.FirstOrDefault(t => t.Id == _products.FirstOrDefault(p => p.ProductId == item.ItemId)?.TaxId)?.CGST ?? 0;
+				item.SGSTPercent = _taxes.FirstOrDefault(t => t.Id == _products.FirstOrDefault(p => p.ProductId == item.ItemId)?.TaxId)?.SGST ?? 0;
+				item.IGSTPercent = 0;
+				item.InclusiveTax = _taxes.FirstOrDefault(t => t.Id == _products.FirstOrDefault(p => p.ProductId == item.ItemId)?.TaxId)?.Inclusive ?? false;
+			}
 
 			item.BaseTotal = item.Rate * item.Quantity;
 			item.DiscountAmount = item.BaseTotal * (item.DiscountPercent / 100);
@@ -915,9 +945,7 @@ public partial class SalePage
 			var withOtherCharges = perUnitCost * (1 + _sale.OtherChargesPercent / 100);
 			item.NetRate = withOtherCharges * (1 - _sale.DiscountPercent / 100);
 
-			item.Remarks = item.Remarks?.Trim();
-			if (string.IsNullOrWhiteSpace(item.Remarks))
-				item.Remarks = null;
+			item.Remarks = string.IsNullOrWhiteSpace(item.Remarks) ? null : item.Remarks.Trim();
 		}
 
 		_sale.TotalItems = _cart.Count;
@@ -940,31 +968,35 @@ public partial class SalePage
 
 		_sale.TotalAmount = totalAfterDiscount + _sale.RoundOffAmount;
 
-		var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
-		_sale.CompanyId = _user.LocationId == 1 ? _selectedCompany.Id : _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value).Id;
-		_sale.LocationId = _user.LocationId == 1 ? _selectedLocation.Id : _user.LocationId;
-		_sale.PartyId = _sale.LocationId == 1 ? _selectedParty?.Id : null;
-		_sale.CustomerId = _selectedCustomer?.Id;
+		_sale.CompanyId = _selectedCompany.Id;
+		_sale.LocationId = _selectedLocation.Id;
+		_sale.PartyId = _selectedParty?.Id;
+		_sale.OrderId = _selectedOrder?.Id;
+		_sale.CustomerId = _selectedCustomer is { Id: > 0 } ? _selectedCustomer.Id : null;
 		_sale.CreatedBy = _user.Id;
-		_sale.TransactionDateTime = _user.LocationId == 1 ? _sale.TransactionDateTime : await CommonData.LoadCurrentDateTime();
 
 		#region Financial Year
 		_selectedFinancialYear = await FinancialYearData.LoadFinancialYearByDateTime(_sale.TransactionDateTime);
 		if (_selectedFinancialYear is not null && !_selectedFinancialYear.Locked)
 			_sale.FinancialYearId = _selectedFinancialYear.Id;
 		else
-		{
 			await _toastNotification.ShowAsync("Invalid Transaction Date", "The selected transaction date does not fall within an active financial year.", ToastType.Error);
-			_sale.TransactionDateTime = await CommonData.LoadCurrentDateTime();
-			_selectedFinancialYear = await FinancialYearData.LoadFinancialYearByDateTime(_sale.TransactionDateTime);
-			_sale.FinancialYearId = _selectedFinancialYear.Id;
-		}
 		#endregion
 
 		if (Id is null)
 			_sale.TransactionNo = await GenerateCodes.GenerateSaleTransactionNo(_sale);
 
+		SyncPaymentsFromSale();
 		ApplyPaymentsToSale();
+
+		var currentDateTime = await CommonData.LoadCurrentDateTime();
+		_sale.Status = true;
+		_sale.TransactionDateTime = DateOnly.FromDateTime(_sale.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
+		_sale.LastModifiedAt = currentDateTime;
+		_sale.CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
+		_sale.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
+		_sale.CreatedBy = _user.Id;
+		_sale.LastModifiedBy = _user.Id;
 	}
 
 	private async Task SaveTransactionFile(bool customRoundOff = false)
@@ -978,8 +1010,14 @@ public partial class SalePage
 
 			await UpdateFinancialDetails(customRoundOff);
 
-			await DataStorageService.LocalSaveAsync(StorageFileNames.SaleDataFileName, System.Text.Json.JsonSerializer.Serialize(_sale));
-			await DataStorageService.LocalSaveAsync(StorageFileNames.SaleCartDataFileName, System.Text.Json.JsonSerializer.Serialize(_cart));
+			if (_cart.Count == 0 || _sale.Id > 0)
+			{
+				await DeleteLocalFiles();
+				return;
+			}
+
+			await DataStorageService.LocalSaveAsync(StorageFileNames.SaleDataFileName, JsonSerializer.Serialize(_sale));
+			await DataStorageService.LocalSaveAsync(StorageFileNames.SaleCartDataFileName, JsonSerializer.Serialize(_cart));
 		}
 		catch (Exception ex)
 		{
@@ -988,176 +1026,14 @@ public partial class SalePage
 		finally
 		{
 			if (_sfCartGrid is not null)
-				await _sfCartGrid?.Refresh();
+				await _sfCartGrid.Refresh();
 
-			_paymentAmount = Math.Max(0, _remainingAmount);
+			if (_sfPaymentsCartGrid is not null)
+				await _sfPaymentsCartGrid.Refresh();
 
 			_isProcessing = false;
 			StateHasChanged();
 		}
-	}
-
-	private async Task<bool> ValidateForm()
-	{
-		if (_user.LocationId > 1 || _sale.LocationId > 1)
-		{
-			_sale.PartyId = null;
-			_selectedParty = null;
-
-			_orders.Clear();
-			_selectedOrder = null;
-			_sale.OrderId = null;
-		}
-
-		if (_user.LocationId > 1)
-		{
-			_sale.LocationId = _user.LocationId;
-			_selectedLocation = _locations.FirstOrDefault(s => s.Id == _user.LocationId);
-
-			var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
-			_sale.CompanyId = _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value).Id;
-			_selectedCompany = _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value);
-
-			_sale.TransactionDateTime = await CommonData.LoadCurrentDateTime();
-		}
-
-		if (_selectedCompany is null || _sale.CompanyId <= 0)
-		{
-			await _toastNotification.ShowAsync("Company Not Selected", "Please select a company for the transaction.", ToastType.Error);
-			return false;
-		}
-
-		if (string.IsNullOrWhiteSpace(_sale.TransactionNo))
-		{
-			await _toastNotification.ShowAsync("Transaction Number Missing", "Please enter a transaction number for the transaction.", ToastType.Error);
-			return false;
-		}
-
-		if (_sale.TransactionDateTime == default)
-		{
-			await _toastNotification.ShowAsync("Transaction Date Missing", "Please select a valid transaction date for the transaction.", ToastType.Error);
-			return false;
-		}
-
-		if (_selectedFinancialYear is null || _sale.FinancialYearId <= 0)
-		{
-			await _toastNotification.ShowAsync("Financial Year Not Found", "The transaction date does not fall within any financial year. Please check the date and try again.", ToastType.Error);
-			return false;
-		}
-
-		if (_selectedFinancialYear.Locked)
-		{
-			await _toastNotification.ShowAsync("Financial Year Locked", "The financial year for the selected transaction date is locked. Please select a different date.", ToastType.Error);
-			return false;
-		}
-
-		if (!_selectedFinancialYear.Status)
-		{
-			await _toastNotification.ShowAsync("Financial Year Inactive", "The financial year for the selected transaction date is inactive. Please select a different date.", ToastType.Error);
-			return false;
-		}
-
-		if (_sale.TotalItems <= 0)
-		{
-			await _toastNotification.ShowAsync("Cart is Empty", "Please add at least one item to the cart before saving the transaction.", ToastType.Error);
-			return false;
-		}
-
-		if (_sale.TotalQuantity <= 0)
-		{
-			await _toastNotification.ShowAsync("Invalid Total Quantity", "The total quantity of items in the cart must be greater than zero.", ToastType.Error);
-			return false;
-		}
-
-		if (_sale.TotalAmount < 0)
-		{
-			await _toastNotification.ShowAsync("Invalid Total Amount", "The total amount of the transaction must be greater than zero.", ToastType.Error);
-			return false;
-		}
-
-		if (_cart.Any(item => item.Quantity <= 0))
-		{
-			await _toastNotification.ShowAsync("Invalid Item Quantity", "One or more items in the cart have a quantity less than or equal to zero. Please correct the quantities before saving.", ToastType.Error);
-			return false;
-		}
-
-		if (_sale.Id > 0)
-		{
-			var existingSale = await CommonData.LoadTableDataById<SaleModel>(StoreNames.Sale, _sale.Id);
-			await FinancialYearData.ValidateFinancialYear(existingSale.TransactionDateTime);
-
-			if (!_user.Admin || _user.LocationId > 1)
-			{
-				await _toastNotification.ShowAsync("Insufficient Permissions", "You do not have the necessary permissions to modify this transaction.", ToastType.Error);
-				await DeleteLocalFiles();
-				NavigationManager.NavigateTo(StoreRouteNames.Sale, true);
-				return false;
-			}
-		}
-
-		_sale.Remarks = _sale.Remarks?.Trim();
-		if (string.IsNullOrWhiteSpace(_sale.Remarks))
-			_sale.Remarks = null;
-
-		if (string.IsNullOrWhiteSpace(_selectedCustomer.Name) && !string.IsNullOrWhiteSpace(_selectedCustomer.Number))
-		{
-			await _toastNotification.ShowAsync("Customer Name Missing", "Please enter a name for the new customer or clear the customer field.", ToastType.Error);
-			return false;
-		}
-
-		if (_selectedCustomer.Id > 0)
-		{
-			_selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(StoreNames.Customer, _selectedCustomer.Id);
-			_sale.CustomerId = _selectedCustomer.Id;
-		}
-		else if (!string.IsNullOrWhiteSpace(_selectedCustomer.Number) && _selectedCustomer.Id == 0)
-		{
-			_selectedCustomer.Id = await CustomerData.InsertCustomer(_selectedCustomer);
-			_sale.CustomerId = _selectedCustomer.Id;
-		}
-		else
-		{
-			_selectedCustomer = new();
-			_sale.CustomerId = null;
-		}
-
-		if (_sale.Cash < 0 || _sale.Card < 0 || _sale.Credit < 0 || _sale.UPI < 0)
-		{
-			await _toastNotification.ShowAsync("Invalid Payment Amounts", "Payment amounts cannot be negative. Please correct the amounts before saving.", ToastType.Error);
-			return false;
-		}
-
-		if (_sale.Cash + _sale.Card + _sale.Credit + _sale.UPI != _sale.TotalAmount)
-		{
-			await _toastNotification.ShowAsync("Payment Amount Mismatch", "The sum of all payments must equal the total amount of the transaction. Please correct the payments before saving.", ToastType.Error);
-			return false;
-		}
-
-		if (_sale.Credit > 0 && (_selectedParty is null || _sale.PartyId is null || _sale.PartyId <= 0))
-		{
-			await _toastNotification.ShowAsync("Party Not Selected for Credit Payment", "Please select a party ledger for credit payment method.", ToastType.Error);
-			return false;
-		}
-
-		if (_selectedOrder is null)
-			_sale.OrderId = null;
-
-		var location = _locations.FirstOrDefault(s => s.LedgerId == _sale.PartyId);
-		if (location is null)
-		{
-			_selectedOrder = null;
-			_sale.OrderId = null;
-		}
-
-		if (_selectedOrder is not null && _selectedOrder.LocationId != location.Id)
-		{
-			await _toastNotification.ShowAsync("Order Location Mismatch", "The selected order does not belong to the selected party's location. Please select a valid order.", ToastType.Error);
-			return false;
-		}
-		else if (_selectedOrder is not null)
-			_sale.OrderId = _selectedOrder.Id;
-
-		return true;
 	}
 
 	private async Task SaveTransaction(bool saveThermal = false, bool savePDF = false, bool saveExcel = false)
@@ -1168,125 +1044,68 @@ public partial class SalePage
 		try
 		{
 			await SaveTransactionFile(true);
-
-			if (!await ValidateForm())
-				return;
-
 			_isProcessing = true;
+			StateHasChanged();
 
 			await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			_sale.Status = true;
-			var currentDateTime = await CommonData.LoadCurrentDateTime();
-			_sale.TransactionDateTime = DateOnly.FromDateTime(_sale.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
-			_sale.LastModifiedAt = currentDateTime;
-			_sale.CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
-			_sale.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
-			_sale.CreatedBy = _user.Id;
-			_sale.LastModifiedBy = _user.Id;
+			var saleDetails = SaleData.ConvertCartToDetails(_cart);
+			_sale.Id = await SaleData.SaveTransaction(_sale, saleDetails, _selectedCustomer);
+			_sale = await CommonData.LoadTableDataById<SaleModel>(StoreNames.Sale, _sale.Id);
 
-			_sale.Id = await SaleData.SaveTransaction(_sale, _cart);
-
-			if (saveThermal)
-			{
-				await ThermalPrintDispatcher.PrintAsync(
-					() => SaleThermalPrint.GenerateThermalBill(_sale.Id),
-					() => SaleThermalPrint.GenerateThermalBillPng(_sale.Id));
-			}
-
-			if (savePDF)
-			{
-				var (pdfStream, pdfFileName) = await SaleInvoiceExport.ExportInvoice(_sale.Id, InvoiceExportType.PDF);
-				await SaveAndViewService.SaveAndView(pdfFileName, pdfStream);
-			}
-
-			if (saveExcel)
-			{
-				var (excelStream, excelFileName) = await SaleInvoiceExport.ExportInvoice(_sale.Id, InvoiceExportType.Excel);
-				await SaveAndViewService.SaveAndView(excelFileName, excelStream);
-			}
-
-			await ResetPage();
+			if (saveThermal) await PrintThermalInvoice(true);
+			if (savePDF) await ExportSelectedTransaction(false, true);
+			if (saveExcel) await ExportSelectedTransaction(true, true);
 
 			await _toastNotification.ShowAsync("Save Transaction", "Transaction saved successfully.", ToastType.Success);
+
+			if (Id.HasValue && Id.Value > 0)
+				await AuthenticationService.CloseWindowOrTab(FormFactor, JSRuntime);
+			await ResetPage();
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("An Error Occurred While Saving Transaction", ex.Message, ToastType.Error);
+			await _toastNotification.ShowAsync("Error While Saving Transaction", ex.Message, ToastType.Error);
 		}
 		finally
 		{
 			_isProcessing = false;
 		}
 	}
-
-	private async Task DeleteLocalFiles()
-	{
-		await DataStorageService.LocalRemove(StorageFileNames.SaleDataFileName);
-		await DataStorageService.LocalRemove(StorageFileNames.SaleCartDataFileName);
-	}
 	#endregion
 
-	#region Utilities
-	private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
+	#region Exporting
+	private async Task ExportSelectedTransaction(bool isExcel = false, bool force = false)
 	{
-		switch (args.Item.Id)
-		{
-			case "NewTransaction":
-				await ResetPage();
-				break;
-			case "SaveTransaction":
-				await SaveTransaction();
-				break;
-			case "SaveThermalInvoice":
-				await SaveTransaction(saveThermal: true);
-				break;
-			case "SavePdfInvoice":
-				await SaveTransaction(savePDF: true);
-				break;
-			case "SaveExcelInvoice":
-				await SaveTransaction(saveExcel: true);
-				break;
-			case "ExportThermalInvoice":
-				await DownloadThermalInvoice();
-				break;
-			case "ExportPdfInvoice":
-				await DownloadPdfInvoice();
-				break;
-			case "ExportExcelInvoice":
-				await DownloadExcelInvoice();
-				break;
-			case "TransactionHistory":
-				await NavigateToTransactionHistoryPage();
-				break;
-			case "ItemReport":
-				await NavigateToItemReport();
-				break;
-		}
-	}
-
-	private async Task OnCartGridContextMenuItemClicked(ContextMenuClickEventArgs<SaleItemCartModel> args)
-	{
-		switch (args.Item.Id)
-		{
-			case "EditCart":
-				await EditSelectedCartItem();
-				break;
-			case "DeleteCart":
-				await RemoveSelectedCartItem();
-				break;
-		}
-	}
-
-	private async Task DownloadThermalInvoice()
-	{
-		if (!Id.HasValue || Id.Value <= 0)
-		{
-			await _toastNotification.ShowAsync("No Transaction Selected", "Please save the transaction first before downloading the invoice.", ToastType.Error);
+		if (_sale.Id <= 0 || (_isProcessing && !force))
 			return;
-		}
 
-		if (_isProcessing)
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
+
+			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_sale.TransactionNo, !isExcel, isExcel, CodeType.Sale);
+			await SaveAndViewService.SaveAndView(isExcel ? decodeTransactionNo.ExcelStream.fileName : decodeTransactionNo.PDFStream.fileName,
+				isExcel ? decodeTransactionNo.ExcelStream.stream : decodeTransactionNo.PDFStream.stream);
+
+			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
+
+	private async Task PrintThermalInvoice(bool force = false)
+	{
+		if (_sale.Id <= 0 || (_isProcessing && !force))
 			return;
 
 		try
@@ -1298,95 +1117,21 @@ public partial class SalePage
 			await ThermalPrintDispatcher.PrintAsync(
 				() => SaleThermalPrint.GenerateThermalBill(_sale.Id),
 				() => SaleThermalPrint.GenerateThermalBillPng(_sale.Id));
+
 			await _toastNotification.ShowAsync("Print Sent", "Thermal invoice sent to printer.", ToastType.Success);
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("An Error Occurred While Downloading Invoice", ex.Message, ToastType.Error);
+			await _toastNotification.ShowAsync("Error While Printing", ex.Message, ToastType.Error);
 		}
 		finally
 		{
 			_isProcessing = false;
-		}
-	}
-
-	private async Task DownloadPdfInvoice()
-	{
-		if (!Id.HasValue || Id.Value <= 0)
-		{
-			await _toastNotification.ShowAsync("No Transaction Selected", "Please save the transaction first before downloading the invoice.", ToastType.Error);
-			return;
-		}
-
-		if (_isProcessing)
-			return;
-
-		try
-		{
-			_isProcessing = true;
 			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
-
-			var (pdfStream, fileName) = await SaleInvoiceExport.ExportInvoice(Id.Value, InvoiceExportType.PDF);
-			await SaveAndViewService.SaveAndView(fileName, pdfStream);
-
-			await _toastNotification.ShowAsync("Invoice Downloaded", "The PDF invoice has been downloaded successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("An Error Occurred While Downloading Invoice", ex.Message, ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
 		}
 	}
 
-	private async Task DownloadExcelInvoice()
-	{
-		if (!Id.HasValue || Id.Value <= 0)
-		{
-			await _toastNotification.ShowAsync("No Transaction Selected", "Please save the transaction first before downloading the invoice.", ToastType.Error);
-			return;
-		}
-
-		if (_isProcessing)
-			return;
-
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
-
-			var (excelStream, fileName) = await SaleInvoiceExport.ExportInvoice(Id.Value, InvoiceExportType.Excel);
-			await SaveAndViewService.SaveAndView(fileName, excelStream);
-
-			await _toastNotification.ShowAsync("Invoice Downloaded", "The Excel invoice has been downloaded successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("An Error Occurred While Downloading Invoice", ex.Message, ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-		}
-	}
-
-	private async Task ResetPage()
-	{
-		await DeleteLocalFiles();
-		NavigationManager.NavigateTo(StoreRouteNames.Sale, true);
-	}
-
-	private async Task NavigateToTransactionHistoryPage() =>
-		await AuthenticationService.NavigateToRoute(StoreRouteNames.SaleReport, FormFactor, JSRuntime, NavigationManager);
-
-	private async Task NavigateToItemReport() =>
-		await AuthenticationService.NavigateToRoute(StoreRouteNames.SaleItemReport, FormFactor, JSRuntime, NavigationManager);
-
-	private async Task NavigateToSelectedOrderPage()
+	private async Task ViewSelectedOrder()
 	{
 		if (_selectedOrder is null)
 		{
@@ -1394,80 +1139,40 @@ public partial class SalePage
 			return;
 		}
 
-		await AuthenticationService.NavigateToRoute($"{StoreRouteNames.Order}/{_selectedOrder.Id}", FormFactor, JSRuntime, NavigationManager);
+		var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_selectedOrder.TransactionNo, false, false, CodeType.Order);
+		await AuthenticationService.NavigateToRoute(decodeTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
 	}
+	#endregion
 
-	private async Task DownloadSelectedOrderPdf()
+	#region Utilities
+	private async Task OnCartGridContextMenuItemClicked(ContextMenuClickEventArgs<SaleItemCartModel> args)
 	{
-		if (_selectedOrder is null)
+		switch (args.Item.Id)
 		{
-			await _toastNotification.ShowAsync("No Order Selected", "Please select an order to download its invoice.", ToastType.Error);
-			return;
-		}
-
-		if (_isProcessing)
-			return;
-
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
-
-			var (pdfStream, fileName) = await OrderInvoiceExport.ExportInvoice(_selectedOrder.Id, InvoiceExportType.PDF);
-			await SaveAndViewService.SaveAndView(fileName, pdfStream);
-
-			await _toastNotification.ShowAsync("Invoice Downloaded", "The PDF invoice has been downloaded successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("An Error Occurred While Downloading Invoice", ex.Message, ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
+			case "EditCart": await EditSelectedCartItem(); break;
+			case "DeleteCart": await RemoveSelectedCartItem(); break;
 		}
 	}
 
-	private async Task DownloadSelectedOrderExcel()
+	private async Task OnPaymentsCartGridContextMenuItemClicked(ContextMenuClickEventArgs<PaymentItem> args)
 	{
-		if (_selectedOrder is null)
+		switch (args.Item.Id)
 		{
-			await _toastNotification.ShowAsync("No Order Selected", "Please select an order to download its invoice.", ToastType.Error);
-			return;
-		}
-
-		if (_isProcessing)
-			return;
-
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
-
-			var (excelStream, fileName) = await OrderInvoiceExport.ExportInvoice(_selectedOrder.Id, InvoiceExportType.Excel);
-			await SaveAndViewService.SaveAndView(fileName, excelStream);
-
-			await _toastNotification.ShowAsync("Invoice Downloaded", "The Excel invoice has been downloaded successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("An Error Occurred While Downloading Invoice", ex.Message, ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
+			case "EditCart": await EditSelectedPaymentCartItem(); break;
+			case "DeleteCart": await RemoveSelectedPaymentCartItem(); break;
 		}
 	}
 
-	private void NavigateToDashboard() =>
-		NavigationManager.NavigateTo(OperationRouteNames.Dashboard);
+	private async Task DeleteLocalFiles()
+	{
+		await DataStorageService.LocalRemove(StorageFileNames.SaleDataFileName);
+		await DataStorageService.LocalRemove(StorageFileNames.SaleCartDataFileName);
+	}
 
-	private void NavigateBack() =>
-		NavigationManager.NavigateTo(StoreRouteNames.StoreDashboard);
-
-	private async Task Logout() =>
-		await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
+	private async Task ResetPage()
+	{
+		await DeleteLocalFiles();
+		PageRefresh.Request();
+	}
 	#endregion
 }

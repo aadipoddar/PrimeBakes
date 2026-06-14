@@ -28,6 +28,7 @@ public static class StorageFileNames
 
 	public static string SaleDataFileName => "sale_data.json";
 	public static string SaleCartDataFileName => "sale_cart_data.json";
+	public static string SaleMobileDataFileName => "sale_mobile_data.json";
 	public static string SaleMobileCartDataFileName => "sale_mobile_cart_data.json";
 
 	public static string SaleReturnDataFileName => "sale_return_data.json";

@@ -1,8 +1,12 @@
-@using PrimeBakesLibrary.Store.Sale.Models
-
 @attribute [Route(StoreRouteNames.SaleMobile)]
 
 <PageTitle>Sale - Prime Bakes</PageTitle>
+
+<HeadContent>
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@@400;500;600;700;800&family=JetBrains+Mono:wght@@400;500&display=swap" rel="stylesheet" />
+</HeadContent>
 
 @if (_isLoading || _user is null)
 {
@@ -10,405 +14,657 @@
 }
 else
 {
-	<div class="page-shell">
-		<Header Title="Create Sale" />
+	var pageSize = 10;
+	var visibleProducts = GetFilteredProducts();
+	var pageCount = Math.Max(1, (int)Math.Ceiling(visibleProducts.Count / (double)pageSize));
+	var safePage = Math.Max(0, Math.Min(_page, pageCount - 1));
+	var paged = visibleProducts.Skip(safePage * pageSize).Take(pageSize).ToList();
+	var cartItems = _cart.Where(c => c.Quantity > 0).ToList();
+	var cartTotal = cartItems.Sum(c => c.Rate * c.Quantity);
 
-		<!-- Main Content Container -->
-		<div class="sale-mobile-container">
-
-			<MobileCategoryChipsFilter Categories="_productCategories" @bind-SelectedCategory="_selectedCategory" />
-
-			<!-- Grid Container -->
-			<div class="grid-container">
-				<SfGrid @ref="_sfCartGrid" EnableAdaptiveUI="true"
-						DataSource="@(_selectedCategory.Id == 0 ? _cart : _cart.Where(x => x.ItemCategoryId == _selectedCategory.Id))"
-						AllowPaging="true" AllowSorting="false" AllowTextWrap="true"
-						Toolbar="@(new List<string>() { "Search" })">
-
-					<GridPageSettings PageSize="10" />
-
-					<GridColumns>
-						<GridColumn Field="@nameof(SaleItemCartModel.ItemName)" HeaderText="Product" Width="40%" />
-						<GridColumn HeaderText="Details" Width="60%" TextAlign="TextAlign.Right">
-							<Template>
-								@{
-									var item = (context as SaleItemCartModel);
-								}
-								@if (item is not null)
-								{
-									<div class="item-details-section">
-										<!-- Quantity Section -->
-										<div class="detail-row">
-											<span class="detail-row-label">Qty:</span>
-											<div class="detail-row-control">
-												@if (item.Quantity == 0)
-												{
-													<MobileActionButton CssClass="add-button" Text="Add" TextCssClass="add-text"
-																		OnClick="() => AddToCart(item)" StopPropagation="true" />
-												}
-												else
-												{
-													<div class="quantity-input-wrapper">
-														<SfNumericTextBox TValue="decimal" Value="@item.Quantity"
-																		  ValueChanged="@((decimal value) => UpdateQuantity(item, value))" Min="0"
-																		  Step="1" type="tel" Format="N0" Width="100%" CssClass="input-field" />
-													</div>
-												}
-											</div>
-										</div>
-
-										@if (item.Quantity > 0)
-										{
-											<!-- Rate Section -->
-											<div class="detail-row">
-												<span class="detail-row-label">Rate:</span>
-												<div class="detail-row-control">
-													<span class="rate-value">₹@(item.Rate.ToString("N2"))</span>
-												</div>
-											</div>
-
-											<!-- Total Display (only when quantity > 0) -->
-											<div class="detail-row total-row">
-												<span class="detail-row-label">Total:</span>
-												<span class="total-value">₹@(item.Total.ToString("N2"))</span>
-											</div>
-										}
-									</div>
-								}
-							</Template>
-						</GridColumn>
-					</GridColumns>
-				</SfGrid>
+	<div class="pb-screen">
+		<div class="pb-header">
+			<div class="pb-header__main">
+				<div class="pb-header__sub">New sale@(string.IsNullOrWhiteSpace(_location?.Name) ? "" : " · " + _location.Name)</div>
+				<h1 class="pb-header__title">Sale</h1>
 			</div>
-
+			<div class="pb-header__actions">
+				<button type="button" class="pb-icon-btn" @onclick="@(() => NavigationManager.NavigateTo(OperationRouteNames.Dashboard))" aria-label="Home">
+					<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M3 11l9-8 9 8" />
+						<path d="M5 10v10h5v-6h4v6h5V10" />
+					</svg>
+				</button>
+			</div>
 		</div>
 
-		@if (_cart.Any(c => c.Quantity > 0))
+		<div class="pb-chips">
+			@foreach (var c in _productCategories)
+			{
+				<button type="button" class="pb-chip @(c.Id == _selectedCategory?.Id ? "is-active" : "")"
+						@onclick="@(() => SelectCategory(c))">
+					@c.Name
+				</button>
+			}
+		</div>
+
+		<div class="pb-scroll">
+			<div class="pb-grid">
+				<div class="pb-grid__toolbar">
+					<div class="pb-grid__search">
+						<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+							<circle cx="11" cy="11" r="7" />
+							<path d="M20 20l-3.5-3.5" />
+						</svg>
+						<input placeholder="Search products…" value="@_query"
+							   @oninput="@(e => OnQueryChange(e.Value?.ToString()))" />
+						@if (!string.IsNullOrWhiteSpace(_query))
+						{
+							<button type="button" class="pb-grid__search-clear" @onclick="() => OnQueryChange(null)" aria-label="Clear search">
+								<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+							</button>
+						}
+					</div>
+				</div>
+
+				<div class="pb-grid__head">
+					<span class="pb-grid__head--product">Product</span>
+					<span class="pb-grid__head--rate">Rate</span>
+					<span class="pb-grid__head--qty">Quantity</span>
+				</div>
+
+				@if (paged.Count == 0)
+				{
+					<div class="pb-grid__empty">
+						@if (!string.IsNullOrWhiteSpace(_query))
+						{
+							<text>No products match &ldquo;@_query&rdquo;.</text>
+						}
+						else
+						{
+							<text>No products available.</text>
+						}
+					</div>
+				}
+				else
+				{
+					@foreach (var item in paged)
+					{
+						<div class="pb-grid__row" @key="item.ItemId">
+							<div class="pb-grid__row-info">
+								<p class="pb-product__name">@item.ItemName</p>
+								@{
+									var catName = _productCategories.FirstOrDefault(c => c.Id == item.ItemCategoryId)?.Name;
+								}
+								@if (!string.IsNullOrWhiteSpace(catName))
+								{
+									<div class="pb-product__meta">@catName</div>
+								}
+							</div>
+							<div class="pb-grid__row-rate @(item.Quantity > 0 ? "is-active" : "")">₹@item.Rate.ToString("N0")</div>
+							<div class="pb-grid__row-actions">
+								@if (item.Quantity == 0)
+								{
+									<button type="button" class="pb-add-btn" @onclick="@(() => AddToCart(item))">
+										<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg>
+										Add
+									</button>
+								}
+								else
+								{
+									<div class="pb-qty">
+										<button type="button" class="pb-qty__btn" disabled="@(item.Quantity <= 0)"
+												@onclick="@(() => UpdateQuantity(item, item.Quantity - 1))" aria-label="Decrease">
+											<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /></svg>
+										</button>
+										<input type="tel" inputmode="numeric" pattern="[0-9]*" class="pb-qty__input"
+											   value="@((int)item.Quantity)"
+											   @onchange="@(e => OnQuantityInput(item, e.Value?.ToString()))" />
+										<button type="button" class="pb-qty__btn"
+												@onclick="@(() => UpdateQuantity(item, item.Quantity + 1))" aria-label="Increase">
+											<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg>
+										</button>
+									</div>
+								}
+							</div>
+						</div>
+					}
+				}
+
+				<div class="pb-grid__pager">
+					<div class="pb-grid__pager-nav">
+						<button type="button" class="pb-pgbtn" disabled="@(safePage == 0)"
+								@onclick="() => _page = Math.Max(0, _page - 1)" aria-label="Previous">
+							<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6" /></svg>
+						</button>
+						<span class="pb-grid__pager-count">
+							@(safePage + 1) <span class="pb-grid__pager-of">of @pageCount</span>
+						</span>
+						<button type="button" class="pb-pgbtn" disabled="@(safePage >= pageCount - 1)"
+								@onclick="() => _page++" aria-label="Next">
+							<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6" /></svg>
+						</button>
+					</div>
+					<div class="pb-grid__pager-total">@visibleProducts.Count @(visibleProducts.Count == 1 ? "item" : "items")</div>
+				</div>
+			</div>
+			<div class="pb-scroll__bottom-pad"></div>
+		</div>
+
+		@if (cartItems.Count > 0)
 		{
-			<div class="cart-footer">
-				<MobileCartButton Text="Go to Cart" BadgeCount="@_cart.Count(c => c.Quantity > 0)" OnClick="GoToCart" />
+			<div class="pb-cta-bar">
+				<button type="button" class="pb-cta" @onclick="GoToCart" disabled="@_isProcessing">
+					<span class="pb-cta__side">
+						View cart
+					</span>
+					<span class="pb-cta__side">
+						<span class="pb-cta__price">₹@cartTotal.ToString("N0")</span>
+						<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M5 12h14" />
+							<path d="M13 5l7 7-7 7" />
+						</svg>
+					</span>
+				</button>
 			</div>
 		}
-
-		<Footer ShowVersion="false" />
 	</div>
 }
 
 <style>
-	:root {
-		--primary-color: #e2137b;
-		--primary-dark: #c71068;
-		--primary-light: #f5c2d3;
-		--text-dark: #2c3e50;
-		--text-light: #7f8c8d;
-		--bg-light: #f8f9fa;
-		--border-color: #e9ecef;
-		--shadow-light: 0 2px 8px rgba(0, 0, 0, 0.1);
-		--shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.15);
-	}
-
-	.sale-mobile-container {
-		background: linear-gradient(135deg, #ffeef5 0%, #fff5f9 100%);
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-		overflow: hidden;
-	}
-
-	/* Grid Container */
-	.grid-container {
-		flex: 1;
-		padding: 15px;
-		overflow: hidden;
-	}
-
-	/* Item Details Section */
-	.item-details-section {
-		display: flex;
-		flex-direction: column;
-		gap: 10px;
-		padding: 4px 0;
+	.pb-screen {
+		--bg-app: #f7f2ea;
+		--surface: #ffffff;
+		--surface-2: #faf5ec;
+		--surface-3: #f1ebdf;
+		--ink-1: #1d1813;
+		--ink-2: #5a5147;
+		--ink-3: #9a8f7f;
+		--line-1: #ece4d3;
+		--line-2: #ddd2bd;
+		--rouge: #b13a5e;
+		--rouge-dark: #8a2748;
+		--rouge-soft: #f7e4ec;
+		--rouge-tint: #fdf6f8;
+		--moss: #4f7a5a;
+		--moss-soft: #e3ecdd;
+		--r-sm: 12px;
+		--r-md: 16px;
+		--r-lg: 22px;
+		--r-pill: 999px;
+		--ff-sans: "Plus Jakarta Sans", -apple-system, system-ui, sans-serif;
+		--ff-mono: "JetBrains Mono", ui-monospace, monospace;
+		position: fixed;
+		inset: 0;
 		width: 100%;
+		height: 100%;
+		background: var(--bg-app);
+		color: var(--ink-1);
+		font-family: var(--ff-sans);
+		font-size: 15px;
+		line-height: 1.4;
+		letter-spacing: -0.005em;
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+		-webkit-font-smoothing: antialiased;
+		text-rendering: optimizeLegibility;
+		z-index: 1;
 	}
 
-	.detail-row {
+		.pb-screen *,
+		.pb-screen *::before,
+		.pb-screen *::after {
+			box-sizing: border-box;
+		}
+
+	/* Header */
+	.pb-header {
+		padding: 14px 22px 14px;
+		display: flex;
+		align-items: flex-end;
+		justify-content: space-between;
+		gap: 12px;
+		flex-shrink: 0;
+		padding-top: max(14px, env(safe-area-inset-top));
+	}
+
+	.pb-header__main {
+		min-width: 0;
+	}
+
+	.pb-header__sub {
+		font-size: 12.5px;
+		color: var(--ink-3);
+		margin-bottom: 6px;
+		letter-spacing: 0.02em;
+		text-transform: uppercase;
+		font-weight: 500;
+	}
+
+	.pb-header__title {
+		font-family: var(--ff-sans);
+		font-weight: 700;
+		font-size: 26px;
+		letter-spacing: -0.025em;
+		line-height: 1.15;
+		margin: 0;
+		color: var(--ink-1);
+	}
+
+	.pb-header__actions {
+		display: flex;
+		gap: 8px;
+		align-items: center;
+	}
+
+	.pb-icon-btn {
+		width: 38px;
+		height: 38px;
+		border-radius: var(--r-pill);
+		background: var(--surface);
+		border: 1px solid var(--line-1);
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--ink-2);
+		cursor: pointer;
+		flex-shrink: 0;
+		padding: 0;
+	}
+
+		.pb-icon-btn:active {
+			transform: scale(0.96);
+		}
+
+	/* Chips */
+	.pb-chips {
+		display: flex;
+		gap: 8px;
+		overflow-x: auto;
+		overflow-y: hidden;
+		padding: 4px 18px 14px;
+		scrollbar-width: none;
+		flex-shrink: 0;
+	}
+
+		.pb-chips::-webkit-scrollbar {
+			display: none;
+		}
+
+	.pb-chip {
+		flex-shrink: 0;
+		padding: 8px 14px;
+		border-radius: var(--r-pill);
+		font-size: 13.5px;
+		font-weight: 500;
+		letter-spacing: -0.005em;
+		background: var(--surface);
+		color: var(--ink-2);
+		border: 1px solid var(--line-1);
+		white-space: nowrap;
+		cursor: pointer;
+		font-family: var(--ff-sans);
+		line-height: 1.2;
+	}
+
+		.pb-chip.is-active {
+			background: var(--ink-1);
+			color: #fff;
+			border-color: var(--ink-1);
+		}
+
+	/* Scroll */
+	.pb-scroll {
+		flex: 1;
+		overflow-y: auto;
+		overflow-x: hidden;
+		scrollbar-width: none;
+		-webkit-overflow-scrolling: touch;
+	}
+
+		.pb-scroll::-webkit-scrollbar {
+			display: none;
+		}
+
+	.pb-scroll__bottom-pad {
+		height: 8px;
+	}
+
+	/* Grid card */
+	.pb-grid {
+		margin: 0 18px 14px;
+		background: var(--surface);
+		border: 1px solid var(--line-1);
+		border-radius: var(--r-lg);
+		overflow: hidden;
+	}
+
+	.pb-grid__toolbar {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		padding: 10px 14px;
+		background: var(--surface);
+		border-bottom: 1px solid var(--line-1);
+	}
+
+	.pb-grid__search {
+		flex: 1;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		background: var(--surface-2);
+		border: 1px solid var(--line-1);
+		border-radius: 10px;
+		padding: 9px 12px;
+		color: var(--ink-3);
+	}
+
+		.pb-grid__search input {
+			flex: 1;
+			border: 0;
+			background: transparent;
+			outline: none;
+			font: 500 14px var(--ff-sans);
+			color: var(--ink-1);
+			padding: 0;
+			min-width: 0;
+		}
+
+			.pb-grid__search input::placeholder {
+				color: var(--ink-3);
+				font-weight: 400;
+			}
+
+	.pb-grid__search-clear {
+		background: transparent;
+		border: 0;
+		color: var(--ink-3);
+		cursor: pointer;
+		padding: 2px;
+		display: inline-flex;
+	}
+
+	.pb-grid__head {
+		display: flex;
+		align-items: center;
+		padding: 8px 18px;
+		background: var(--surface-3);
+		border-bottom: 1px solid var(--line-1);
+		font-size: 10.5px;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.09em;
+		color: var(--ink-3);
+	}
+
+	.pb-grid__head--product {
+		flex: 1;
+	}
+
+	.pb-grid__head--rate {
+		width: 70px;
+		text-align: right;
+	}
+
+	.pb-grid__head--qty {
+		width: 130px;
+		text-align: right;
+	}
+
+	.pb-grid__row {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		padding: 12px 18px;
+		border-bottom: 1px solid var(--line-1);
+		min-height: 56px;
+	}
+
+		.pb-grid__row:last-of-type {
+			border-bottom: 0;
+		}
+
+	.pb-grid__row-info {
+		flex: 1;
+		min-width: 0;
+		align-self: center;
+	}
+
+	.pb-grid__row-rate {
+		width: 70px;
+		text-align: right;
+		font-variant-numeric: tabular-nums;
+		font-weight: 600;
+		font-size: 14px;
+		color: var(--ink-2);
+	}
+
+		.pb-grid__row-rate.is-active {
+			color: var(--ink-1);
+		}
+
+	.pb-product__name {
+		font-size: 14.5px;
+		font-weight: 500;
+		letter-spacing: -0.01em;
+		margin: 0;
+		color: var(--ink-1);
+		white-space: normal;
+		word-break: break-word;
+		overflow-wrap: anywhere;
+		line-height: 1.35;
+	}
+
+	.pb-product__meta {
+		font-size: 12px;
+		color: var(--ink-3);
+		margin-top: 1px;
+		letter-spacing: 0.01em;
+	}
+
+	.pb-grid__row-actions {
+		width: 130px;
+		display: flex;
+		justify-content: flex-end;
+		align-items: center;
+	}
+
+	.pb-grid__empty {
+		padding: 36px 18px;
+		text-align: center;
+		color: var(--ink-3);
+		font-size: 13.5px;
+	}
+
+	/* Qty control */
+	.pb-qty {
+		display: inline-flex;
+		align-items: stretch;
+		background: var(--surface);
+		border: 1px solid var(--line-2);
+		border-radius: 12px;
+		overflow: hidden;
+		height: 36px;
+	}
+
+	.pb-qty__btn {
+		width: 34px;
+		background: var(--surface-2);
+		border: 0;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--ink-1);
+		cursor: pointer;
+		font-size: 16px;
+		transition: background 0.12s ease;
+		padding: 0;
+	}
+
+		.pb-qty__btn:active {
+			background: var(--surface-3);
+		}
+
+		.pb-qty__btn:disabled {
+			color: var(--ink-3);
+			cursor: not-allowed;
+			opacity: 0.5;
+		}
+
+	.pb-qty__input {
+		width: 52px;
+		border: 0;
+		border-left: 1px solid var(--line-1);
+		border-right: 1px solid var(--line-1);
+		background: var(--surface);
+		font-family: var(--ff-sans);
+		font-size: 14.5px;
+		font-weight: 700;
+		color: var(--ink-1);
+		text-align: center;
+		font-variant-numeric: tabular-nums;
+		padding: 0 4px;
+		outline: none;
+		-moz-appearance: textfield;
+		appearance: textfield;
+	}
+
+		.pb-qty__input::-webkit-outer-spin-button,
+		.pb-qty__input::-webkit-inner-spin-button {
+			-webkit-appearance: none;
+			margin: 0;
+		}
+
+		.pb-qty__input:focus {
+			background: var(--rouge-tint);
+			color: var(--rouge-dark);
+		}
+
+	/* Add button */
+	.pb-add-btn {
+		background: var(--ink-1);
+		color: #fff;
+		border: 0;
+		border-radius: 12px;
+		padding: 0 18px;
+		height: 36px;
+		font-family: var(--ff-sans);
+		font-size: 13.5px;
+		font-weight: 600;
+		letter-spacing: -0.005em;
+		cursor: pointer;
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+	}
+
+		.pb-add-btn:active {
+			transform: scale(0.97);
+		}
+
+	/* Pager */
+	.pb-grid__pager {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: 10px;
-		width: 100%;
+		padding: 10px 14px;
+		background: var(--surface-2);
+		border-top: 1px solid var(--line-1);
+		font-size: 12.5px;
+		color: var(--ink-3);
 	}
 
-	.detail-row-label {
-		font-size: 13px;
-		font-weight: 500;
-		color: var(--text-light);
-		white-space: nowrap;
-		min-width: 65px;
-	}
-
-	.detail-row-control {
-		flex: 1;
-		display: flex;
-		justify-content: flex-end;
-		max-width: 140px;
-	}
-
-	.total-row {
-		padding-top: 6px;
-		border-top: 1px solid var(--border-color);
-		margin-top: 4px;
-	}
-
-	.total-value {
-		font-size: 15px;
-		font-weight: 700;
-		color: var(--primary-color);
-	}
-
-	.rate-value {
-		font-size: 14px;
-		font-weight: 600;
-		color: var(--text-dark);
-	}
-
-	/* Add Button */
-	.add-button {
-		background: var(--primary-color);
-		color: white;
-		border: none;
-		border-radius: 25px;
-		padding: 10px 20px;
+	.pb-grid__pager-nav {
 		display: flex;
 		align-items: center;
+		gap: 4px;
+	}
+
+	.pb-grid__pager-count {
+		padding: 0 8px;
+		color: var(--ink-2);
+		font-weight: 600;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.pb-grid__pager-of {
+		color: var(--ink-3);
+		font-weight: 400;
+	}
+
+	.pb-grid__pager-total {
+		font-variant-numeric: tabular-nums;
+	}
+
+	.pb-pgbtn {
+		width: 32px;
+		height: 32px;
+		border-radius: 10px;
+		background: var(--surface);
+		border: 1px solid var(--line-1);
+		display: inline-flex;
+		align-items: center;
 		justify-content: center;
-		gap: 8px;
+		color: var(--ink-1);
 		cursor: pointer;
-		transition: all 0.2s ease;
-		font-weight: 500;
-		font-size: 14px;
-		box-shadow: var(--shadow-light);
-		min-height: 40px;
-		min-width: 80px;
+		padding: 0;
 	}
 
-	.add-button:hover {
-		background: var(--primary-dark);
-		transform: translateY(-1px);
-		box-shadow: var(--shadow-medium);
+		.pb-pgbtn:disabled {
+			color: var(--ink-3);
+			opacity: 0.4;
+			cursor: not-allowed;
+		}
+
+	/* CTA */
+	.pb-cta-bar {
+		flex-shrink: 0;
+		padding: 12px 18px 14px;
+		padding-bottom: max(14px, env(safe-area-inset-bottom));
+		background: linear-gradient(to top, var(--bg-app) 60%, rgba(247, 242, 234, 0));
+		position: relative;
 	}
 
-	.add-button:active {
-		transform: translateY(0);
-	}
-
-	.add-text {
-		display: inline;
-		margin-left: 4px;
-		font-weight: 600;
-	}
-
-	.quantity-input-wrapper,
-	.rate-input-wrapper {
-		flex: 1;
+	.pb-cta {
 		width: 100%;
-	}
-
-	.input-field {
-		width: 100% !important;
-	}
-
-	.input-field input {
-		text-align: right !important;
-		border: 2px solid var(--border-color);
-		border-radius: 8px;
-		padding: 8px 12px !important;
-		font-weight: 600;
-		font-size: 16px;
-		color: var(--text-dark);
-		transition: all 0.2s ease;
-		height: 40px;
-		box-sizing: border-box;
-	}
-
-	.input-field input:focus {
-		border-color: var(--primary-color);
-		box-shadow: 0 0 0 3px rgba(226, 19, 123, 0.1);
-		outline: none;
-	}
-
-	/* Cart Footer */
-	.cart-footer {
-		position: sticky;
-		bottom: 0;
-		background: white;
-		padding: 15px 20px;
-		box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-		z-index: 100;
-		animation: slideUp 0.3s ease-out;
+		background: var(--ink-1);
+		color: #fff;
+		border: 0;
+		border-radius: 18px;
+		padding: 16px 20px;
 		display: flex;
-		justify-content: center;
 		align-items: center;
+		justify-content: space-between;
+		gap: 12px;
+		font-size: 15px;
+		font-weight: 500;
+		cursor: pointer;
+		letter-spacing: -0.005em;
+		font-family: var(--ff-sans);
 	}
 
-	/* Grid Styling */
-	::deep .e-grid {
-		border-radius: 12px;
-		overflow: hidden;
-		background: white;
-		box-shadow: var(--shadow-light);
-		border: none;
-	}
-
-	::deep .e-grid .e-gridheader {
-		background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-	}
-
-	::deep .e-grid .e-headercell {
-		background: transparent;
-		color: white;
-		font-weight: 600;
-		border: none;
-		padding: 15px 12px;
-	}
-
-	::deep .e-grid .e-rowcell {
-		border: none;
-		border-bottom: 1px solid var(--border-color);
-		padding: 12px;
-		vertical-align: middle;
-	}
-
-	::deep .e-grid .e-row:nth-child(even) {
-		background-color: #fafafa;
-	}
-
-	::deep .e-grid .e-row:hover {
-		background-color: var(--primary-light);
-	}
-
-	/* Toolbar Styling */
-	::deep .e-toolbar {
-		background: white;
-		border-bottom: 1px solid var(--border-color);
-		padding: 10px 15px;
-	}
-
-	::deep .e-toolbar .e-input-group input {
-		border-radius: 25px;
-		border: 2px solid var(--border-color);
-		padding: 10px 15px;
-		font-size: 14px;
-	}
-
-	::deep .e-toolbar .e-input-group input:focus {
-		border-color: var(--primary-color);
-		box-shadow: 0 0 0 3px rgba(226, 19, 123, 0.1);
-	}
-
-	/* Pager Styling */
-	::deep .e-pager {
-		background: white;
-		border-top: 1px solid var(--border-color);
-		padding: 10px;
-	}
-
-	::deep .e-pager .e-currentitem {
-		background: var(--primary-color);
-		color: white;
-		border-radius: 6px;
-	}
-
-	/* Animations */
-	@@keyframes slideUp {
-		from {
-			transform: translateY(100%);
-			opacity: 0;
+		.pb-cta:active:not(:disabled) {
+			transform: scale(0.99);
 		}
 
-		to {
-			transform: translateY(0);
-			opacity: 1;
+		.pb-cta:disabled {
+			opacity: 0.6;
+			cursor: not-allowed;
 		}
+
+	.pb-cta__side {
+		display: flex;
+		align-items: center;
+		gap: 10px;
 	}
 
-	/* Mobile Responsiveness */
-	@@media (max-width: 576px) {
-		.detail-row-control {
-			max-width: 120px;
-		}
-
-		.grid-container {
-			padding: 10px;
-		}
-
-		.add-button {
-			padding: 8px 16px;
-			font-size: 13px;
-			min-height: 36px;
-			min-width: 70px;
-			border-radius: 20px;
-		}
-
-		.add-text {
-			display: inline !important;
-			font-size: 12px;
-		}
-
-		.cart-footer {
-			padding: 12px 15px;
-		}
-
-		::deep .e-grid .e-headercell {
-			padding: 12px 8px;
-			font-size: 14px;
-		}
-
-		::deep .e-grid .e-rowcell {
-			padding: 8px;
-			font-size: 14px;
-		}
-	}
-
-	@@media (max-width: 400px) {
-		.add-button {
-			padding: 6px 12px;
-			font-size: 12px;
-			min-height: 32px;
-			min-width: 60px;
-			gap: 4px;
-		}
-
-		.add-text {
-			display: inline !important;
-			font-size: 11px;
-			margin-left: 2px;
-		}
-	}
-
-	/* Improved touch targets for mobile */
-	@@media (hover: none) and (pointer: coarse) {
-		.add-button {
-			min-height: 44px;
-			padding: 10px 20px;
-			min-width: 80px;
-		}
-	}
-
-	/* Extra small screens */
-	@@media (max-width: 320px) {
-		.add-button {
-			padding: 6px 10px;
-			font-size: 11px;
-			min-height: 30px;
-			min-width: 55px;
-			gap: 3px;
-		}
-
-		.add-text {
-			display: inline !important;
-			font-size: 10px;
-			margin-left: 1px;
-		}
+	.pb-cta__price {
+		font-family: var(--ff-sans);
+		font-weight: 700;
+		font-size: 17px;
+		letter-spacing: -0.015em;
+		font-variant-numeric: tabular-nums;
 	}
 </style>

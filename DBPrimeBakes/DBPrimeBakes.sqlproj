@@ -190,9 +190,9 @@
     <Build Include="Inventory\Recipe\Table\Recipe.sql" />
     <Build Include="Inventory\Recipe\Table\RecipeDetail.sql" />
     <Build Include="Inventory\Stock\Delete\Delete_ProductStock_By_Id.sql" />
-    <Build Include="Inventory\Stock\Delete\Delete_ProductStock_By_Type_TransactionId_LocationId.sql" />
+    <Build Include="Inventory\Stock\Delete\Delete_ProductStock_By_TransactionNo.sql" />
     <Build Include="Inventory\Stock\Delete\Delete_RawMaterialStock_By_Id.sql" />
-    <Build Include="Inventory\Stock\Delete\Delete_RawMaterialStock_By_Type_TransactionId.sql" />
+    <Build Include="Inventory\Stock\Delete\Delete_RawMaterialStock_By_TransactionNo.sql" />
     <Build Include="Inventory\Stock\Load\Load_Product_OpeningStock_By_Date_LocationId.sql" />
     <Build Include="Inventory\Stock\Table\ProductStock.sql" />
     <Build Include="Inventory\Stock\Table\RawMaterialStock.sql" />
@@ -226,7 +226,6 @@
     <Build Include="Store\Customer\Load_Customer_By_Number.sql" />
     <Build Include="Store\Order\Load\Load_Order_By_Location_Pending.sql" />
     <Build Include="Store\Product\Load\Load_ProductLocation_Overview_By_Product_Location.sql" />
-    <Build Include="Store\Sale\Load\Load_Sale_By_FinancialAccountingId.sql" />
     <Build Include="Store\Customer\Customer.sql" />
     <Build Include="Store\Order\Table\Order.sql" />
     <Build Include="Store\Order\Table\OrderDetail.sql" />

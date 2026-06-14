@@ -142,9 +142,9 @@ public static class InventoryNames
 	public static string LoadProductOpeningStockByDateLocationId => "Load_Product_OpeningStock_By_Date_LocationId";
 
 	public static string DeleteProductStockById => "Delete_ProductStock_By_Id";
-	public static string DeleteProductStockByTypeTransactionIdLocationId => "Delete_ProductStock_By_Type_TransactionId_LocationId";
+	public static string DeleteProductStockByTransactionNo => "Delete_ProductStock_By_TransactionNo";
 	public static string DeleteRawMaterialStockById => "Delete_RawMaterialStock_By_Id";
-	public static string DeleteRawMaterialStockByTypeTransactionId => "Delete_RawMaterialStock_By_Type_TransactionId";
+	public static string DeleteRawMaterialStockByTransactionNo => "Delete_RawMaterialStock_By_TransactionNo";
 	#endregion
 
 	#region Recipe
@@ -201,8 +201,6 @@ public static class StoreNames
 	public static string SaleItemOverview => "Sale_Item_Overview";
 	public static string SaleReturnOverview => "SaleReturn_Overview";
 	public static string SaleReturnItemOverview => "SaleReturn_Item_Overview";
-
-	public static string LoadSaleByFinancialAccountingId => "Load_Sale_By_FinancialAccountingId";
 	#endregion
 
 	#region Stock Transfer

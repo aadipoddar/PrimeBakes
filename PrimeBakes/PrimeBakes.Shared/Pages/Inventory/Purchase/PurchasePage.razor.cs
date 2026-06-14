@@ -49,8 +49,8 @@ public partial class PurchasePage
 	];
 
 	private CustomAutoComplete<CompanyModel> _firstFocus;
-	private CustomAutoComplete<RawMaterialModel> _sfItemAutoComplete;
-	private CustomNumericField<decimal> _sfOtherChargesPercent;
+	private CustomAutoComplete<RawMaterialModel> _itemAutoComplete;
+	private CustomNumericField<decimal> _otherChargesPercent;
 	private SfGrid<PurchaseItemCartModel> _sfCartGrid;
 	private SfUploader _sfDocumentUploader;
 
@@ -484,7 +484,7 @@ public partial class PurchasePage
 		_selectedRawMaterial = null;
 		_selectedCart = new();
 
-		await _sfItemAutoComplete.FocusAsync();
+		await _itemAutoComplete.FocusAsync();
 		await SaveTransactionFile();
 	}
 
@@ -519,7 +519,7 @@ public partial class PurchasePage
 			Remarks = cartItem.Remarks
 		};
 
-		await _sfItemAutoComplete.FocusAsync();
+		await _itemAutoComplete.FocusAsync();
 		UpdateSelectedItemFinancialDetails();
 		await RemoveItemFromCart(cartItem);
 	}

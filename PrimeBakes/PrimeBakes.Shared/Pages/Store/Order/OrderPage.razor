@@ -9,7 +9,8 @@
 <PageTitle>Order - Prime Bakes</PageTitle>
 
 <MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _sfItemAutoComplete.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyG KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _itemAutoComplete.FocusAsync()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.Enter KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="AddItemToCart" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction(savePDF: true)" Disabled="@_isProcessing" />
@@ -72,6 +73,18 @@ else
 					<div class="form-grid">
 						@if (_user.LocationId == 1)
 						{
+							<!-- Company -->
+							<div class="form-field">
+								<CustomAutoComplete @ref="_firstFocus" T="CompanyModel"
+													Value="_selectedCompany"
+													DataSource="@_companies"
+													Placeholder="Select a Company"
+													Label="Company (Ctrl + F)"
+													ValueChanged="OnCompanyChanged"
+													FieldValue="@nameof(CompanyModel.Name)"
+													AddNewRoute="@AccountsRouteNames.CompanyMaster" />
+							</div>
+
 							<!-- Location -->
 							<div class="form-field">
 								<CustomAutoComplete T="LocationModel"
@@ -82,18 +95,6 @@ else
 													ValueChanged="OnLocationChanged"
 													FieldValue="@nameof(LocationModel.Name)"
 													AddNewRoute="@OperationRouteNames.Location" />
-							</div>
-
-							<!-- Company -->
-							<div class="form-field">
-								<CustomAutoComplete T="CompanyModel"
-													Value="_selectedCompany"
-													DataSource="@_companies"
-													Placeholder="Select a Company"
-													Label="Company"
-													ValueChanged="OnCompanyChanged"
-													FieldValue="@nameof(CompanyModel.Name)"
-													AddNewRoute="@AccountsRouteNames.CompanyMaster" />
 							</div>
 
 							<!-- Transaction Date -->
@@ -117,9 +118,9 @@ else
 						{
 							<!-- Linked Sale -->
 							<div class="form-field">
-								<label class="field-label">Linked Sale</label>
 								<div class="reference-wrapper">
 									<CustomTextField Value="@_sale.TransactionNo"
+													 Label="Linked Sale"
 													 Placeholder="No Sale Linked"
 													 ReadOnly="true"
 													 TabIndex="-1" />
@@ -164,11 +165,11 @@ else
 						<!-- Item -->
 						<div class="cart-field cart-field-wide">
 							<CustomAutoComplete T="ProductLocationOverviewModel"
-												@ref="_sfItemAutoComplete"
+												@ref="_itemAutoComplete"
 												Value="_selectedProduct"
 												DataSource="@_products"
-												Placeholder="Select a Product (Ctrl + F)"
-												Label="Product"
+												Placeholder="Select a Product"
+												Label="Product (Ctrl + G)"
 												ValueChanged="OnItemChanged"
 												FieldValue="@nameof(ProductLocationOverviewModel.Name)"
 												AddNewRoute="@StoreRouteNames.Product"

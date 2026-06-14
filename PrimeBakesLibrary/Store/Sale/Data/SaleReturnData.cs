@@ -60,15 +60,8 @@ public static class SaleReturnData
 			saleReturn.Status = false;
 			await InsertSaleReturn(saleReturn, sqlDataAccessTransaction);
 
-			await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.SaleReturn), saleReturn.Id, saleReturn.LocationId, sqlDataAccessTransaction);
-			await RawMaterialStockData.DeleteRawMaterialStockByTypeTransactionId(nameof(StockType.SaleReturn), saleReturn.Id, sqlDataAccessTransaction);
-
-			if (saleReturn.PartyId is not null and > 0)
-			{
-				var location = await LocationData.LoadLocationByLedgerId(saleReturn.PartyId.Value, sqlDataAccessTransaction);
-				if (location is not null)
-					await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.PurchaseReturn), saleReturn.Id, location.Id, sqlDataAccessTransaction);
-			}
+			await ProductStockData.DeleteProductStockByTransactionNo(saleReturn.TransactionNo, sqlDataAccessTransaction);
+			await RawMaterialStockData.DeleteRawMaterialStockByTransactionNo(saleReturn.TransactionNo, sqlDataAccessTransaction);
 
 			var saleReturnVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.SaleReturnVoucherId, sqlDataAccessTransaction);
 			var existingAccounting = await FinancialAccountingData.LoadFinancialAccountingByVoucherReference(int.Parse(saleReturnVoucher.Value), saleReturn.Id, saleReturn.TransactionNo, sqlDataAccessTransaction);
@@ -186,16 +179,7 @@ public static class SaleReturnData
 	private static async Task SaveProductStock(SaleReturnModel saleReturn, List<SaleReturnDetailModel> saleReturnDetails, SaleReturnModel existingSaleReturn, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
 		if (update)
-		{
-			await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.SaleReturn), existingSaleReturn.Id, existingSaleReturn.LocationId, sqlDataAccessTransaction);
-
-			if (existingSaleReturn.PartyId is not null and > 0)
-			{
-				var location = await LocationData.LoadLocationByLedgerId(existingSaleReturn.PartyId.Value, sqlDataAccessTransaction);
-				if (location is not null)
-					await ProductStockData.DeleteProductStockByTypeTransactionIdLocationId(nameof(StockType.PurchaseReturn), existingSaleReturn.Id, location.Id, sqlDataAccessTransaction);
-			}
-		}
+			await ProductStockData.DeleteProductStockByTransactionNo(existingSaleReturn.TransactionNo, sqlDataAccessTransaction);
 
 		// Location Stock Update (positive quantity - product returns to location)
 		foreach (var item in saleReturnDetails)
@@ -246,7 +230,7 @@ public static class SaleReturnData
 	private static async Task SaveRawMaterialStockByRecipe(SaleReturnModel saleReturn, List<SaleReturnDetailModel> saleReturnDetails, SaleReturnModel existingSaleReturn, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
 		if (update)
-			await RawMaterialStockData.DeleteRawMaterialStockByTypeTransactionId(nameof(StockType.SaleReturn), existingSaleReturn.Id, sqlDataAccessTransaction);
+			await RawMaterialStockData.DeleteRawMaterialStockByTransactionNo(existingSaleReturn.TransactionNo, sqlDataAccessTransaction);
 
 		if (saleReturn.LocationId != 1)
 			return;

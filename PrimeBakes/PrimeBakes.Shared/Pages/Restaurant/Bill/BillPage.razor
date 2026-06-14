@@ -13,7 +13,7 @@
 
 <MudBlazor.MudHotkey Key=JsKey.Enter KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="AddItemToCart" />
 <MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft]
-					 OnHotkeyPressed="() => _sfItemAutoComplete.FocusAsync()" />
+					 OnHotkeyPressed="() => _itemAutoComplete.FocusAsync()" />
 <MudBlazor.MudHotkey Key=JsKey.KeyK KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="PrintKOT" />
 <MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft]
 					 OnHotkeyPressed="() => SaveTransaction()" />
@@ -320,7 +320,7 @@ else
 						<!-- Item -->
 						<div class="cart-field cart-field-wide">
 							<AutoCompleteWithAdd TItem="ProductLocationOverviewModel" TValue="ProductLocationOverviewModel"
-												 @ref="_sfItemAutoComplete"
+												 @ref="_itemAutoComplete"
 												 Value="_selectedProduct"
 												 DataSource="@_products"
 												 Placeholder="Select a Product (Ctrl + F)"

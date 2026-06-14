@@ -24,6 +24,16 @@ public static class PurchaseReturnData
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertPurchaseReturnDetail, purchaseReturnDetail, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Purchase Return Detail.");
 
+	internal static async Task UpdateFinancialAccountingId(int financialAccountingId, int? newFinancialAccountingId, SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	{
+		var purchaseReturns = await CommonData.LoadTableDataByFinancialAccountingId<PurchaseReturnModel>(InventoryNames.PurchaseReturn, financialAccountingId, sqlDataAccessTransaction);
+		foreach (var purchaseReturn in purchaseReturns)
+		{
+			purchaseReturn.FinancialAccountingId = newFinancialAccountingId;
+			await InsertPurchaseReturn(purchaseReturn, sqlDataAccessTransaction);
+		}
+	}
+
 	public static List<PurchaseReturnDetailModel> ConvertCartToDetails(List<PurchaseReturnItemCartModel> cart, int masterId = 0) =>
 		[.. cart.Select(item => new PurchaseReturnDetailModel
 		{
@@ -51,16 +61,6 @@ public static class PurchaseReturnData
 			Status = true
 		})];
 
-	internal static async Task UpdateFinancialAccountingId(int financialAccountingId, int? newFinancialAccountingId, SqlDataAccessTransaction sqlDataAccessTransaction = null)
-	{
-		var purchaseReturns = await CommonData.LoadTableDataByFinancialAccountingId<PurchaseReturnModel>(InventoryNames.PurchaseReturn, financialAccountingId, sqlDataAccessTransaction);
-		foreach (var purchaseReturn in purchaseReturns)
-		{
-			purchaseReturn.FinancialAccountingId = newFinancialAccountingId;
-			await InsertPurchaseReturn(purchaseReturn, sqlDataAccessTransaction);
-		}
-	}
-
 	#region Delete
 	public static async Task DeleteTransaction(PurchaseReturnModel purchaseReturn, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
@@ -77,7 +77,7 @@ public static class PurchaseReturnData
 		await InsertPurchaseReturn(purchaseReturn, sqlDataAccessTransaction);
 
 		await DeleteAccounting(purchaseReturn, sqlDataAccessTransaction);
-		await RawMaterialStockData.DeleteRawMaterialStockByTypeTransactionId(nameof(StockType.PurchaseReturn), purchaseReturn.Id, sqlDataAccessTransaction);
+		await RawMaterialStockData.DeleteRawMaterialStockByTransactionNo(purchaseReturn.TransactionNo, sqlDataAccessTransaction);
 
 		await AuditTrailData.SaveAuditTrail(new()
 		{
@@ -202,7 +202,7 @@ public static class PurchaseReturnData
 
 		purchaseReturn.Id = await InsertPurchaseReturn(purchaseReturn, sqlDataAccessTransaction);
 		await SaveTransactionDetail(purchaseReturn, purchaseReturnDetails, update, sqlDataAccessTransaction);
-		await SaveRawMaterialStock(purchaseReturn, purchaseReturnDetails, update, sqlDataAccessTransaction);
+		await SaveRawMaterialStock(purchaseReturn, purchaseReturnDetails, sqlDataAccessTransaction);
 		await SaveAccounting(purchaseReturn, update, sqlDataAccessTransaction);
 		await SaveAuditTrail(purchaseReturn, update, recover, previousPurchaseReturn, previousPurchaseReturnDetails, sqlDataAccessTransaction);
 
@@ -228,10 +228,9 @@ public static class PurchaseReturnData
 		}
 	}
 
-	private static async Task SaveRawMaterialStock(PurchaseReturnModel purchaseReturn, List<PurchaseReturnDetailModel> purchaseReturnDetails, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
+	private static async Task SaveRawMaterialStock(PurchaseReturnModel purchaseReturn, List<PurchaseReturnDetailModel> purchaseReturnDetails, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
-		if (update)
-			await RawMaterialStockData.DeleteRawMaterialStockByTypeTransactionId(nameof(StockType.PurchaseReturn), purchaseReturn.Id, sqlDataAccessTransaction);
+		await RawMaterialStockData.DeleteRawMaterialStockByTransactionNo(purchaseReturn.TransactionNo, sqlDataAccessTransaction);
 
 		foreach (var item in purchaseReturnDetails)
 			await RawMaterialStockData.InsertRawMaterialStock(new()
