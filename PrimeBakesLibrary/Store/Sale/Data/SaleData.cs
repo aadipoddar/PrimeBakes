@@ -40,32 +40,6 @@ public static class SaleData
 		}
 	}
 
-	public static List<SaleDetailModel> ConvertCartToDetails(List<SaleItemCartModel> cart, int masterId = 0) =>
-		[.. cart.Select(item => new SaleDetailModel
-		{
-			Id = 0,
-			MasterId = masterId,
-			ProductId = item.ItemId,
-			Quantity = item.Quantity,
-			Rate = item.Rate,
-			BaseTotal = item.BaseTotal,
-			DiscountPercent = item.DiscountPercent,
-			DiscountAmount = item.DiscountAmount,
-			AfterDiscount = item.AfterDiscount,
-			CGSTPercent = item.CGSTPercent,
-			CGSTAmount = item.CGSTAmount,
-			SGSTPercent = item.SGSTPercent,
-			SGSTAmount = item.SGSTAmount,
-			IGSTPercent = item.IGSTPercent,
-			IGSTAmount = item.IGSTAmount,
-			TotalTaxAmount = item.TotalTaxAmount,
-			InclusiveTax = item.InclusiveTax,
-			NetRate = item.NetRate,
-			Total = item.Total,
-			Remarks = item.Remarks,
-			Status = true
-		})];
-
 	public static async Task ApplyItemFinancialDetails(List<SaleItemCartModel> cart, List<ProductModel> products, List<TaxModel> taxes)
 	{
 		foreach (var item in cart.Where(i => i.Quantity > 0))
@@ -106,6 +80,32 @@ public static class SaleData
 		}
 	}
 
+	public static List<SaleDetailModel> ConvertCartToDetails(List<SaleItemCartModel> cart, int masterId = 0) =>
+		[.. cart.Select(item => new SaleDetailModel
+		{
+			Id = 0,
+			MasterId = masterId,
+			ProductId = item.ItemId,
+			Quantity = item.Quantity,
+			Rate = item.Rate,
+			BaseTotal = item.BaseTotal,
+			DiscountPercent = item.DiscountPercent,
+			DiscountAmount = item.DiscountAmount,
+			AfterDiscount = item.AfterDiscount,
+			CGSTPercent = item.CGSTPercent,
+			CGSTAmount = item.CGSTAmount,
+			SGSTPercent = item.SGSTPercent,
+			SGSTAmount = item.SGSTAmount,
+			IGSTPercent = item.IGSTPercent,
+			IGSTAmount = item.IGSTAmount,
+			TotalTaxAmount = item.TotalTaxAmount,
+			InclusiveTax = item.InclusiveTax,
+			NetRate = item.NetRate,
+			Total = item.Total,
+			Remarks = item.Remarks,
+			Status = true
+		})];
+
 	#region Delete
 	public static async Task DeleteTransaction(SaleModel sale, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
@@ -116,9 +116,7 @@ public static class SaleData
 			return;
 		}
 
-		if (sale.FinancialAccountingId is not null)
-			throw new InvalidOperationException("Cannot delete a sale with financial accounting.");
-
+		await ValidateDaySalesAccountPosting(sale.TransactionDateTime, sale.LocationId, sqlDataAccessTransaction);
 		await FinancialYearData.ValidateFinancialYear(sale.TransactionDateTime, sqlDataAccessTransaction);
 
 		if (sale.OrderId is not null && sale.OrderId > 0)
@@ -144,6 +142,9 @@ public static class SaleData
 
 	private static async Task DeleteAccounting(SaleModel sale, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
+		if (sale.FinancialAccountingId is null)
+			return;
+
 		var existingAccounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(AccountNames.FinancialAccounting, sale.FinancialAccountingId ?? 0, sqlDataAccessTransaction)
 			?? throw new InvalidOperationException("The associated financial accounting transaction for the transaction does not exist.");
 

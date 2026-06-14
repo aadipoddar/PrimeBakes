@@ -2,7 +2,6 @@ using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Store.Customer;
-using PrimeBakesLibrary.Store.Product.Models;
 using PrimeBakesLibrary.Store.Sale.Models;
 using PrimeBakesLibrary.Utils.Exports;
 
@@ -12,16 +11,14 @@ public static class SaleReturnInvoiceExport
 {
 	public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId, InvoiceExportType exportType)
 	{
-		var transaction = await CommonData.LoadTableDataById<SaleReturnModel>(StoreNames.SaleReturn, transactionId) ??
+		var transaction = await CommonData.LoadTableDataById<SaleReturnOverviewModel>(StoreNames.SaleReturnOverview, transactionId) ??
 			throw new InvalidOperationException("Transaction not found.");
 
-		var transactionDetails = await CommonData.LoadTableDataByMasterId<SaleReturnDetailModel>(StoreNames.SaleReturnDetail, transaction.Id);
+		var transactionDetails = await CommonData.LoadTableDataByMasterId<SaleReturnItemOverviewModel>(StoreNames.SaleReturnItemOverview, transaction.Id);
 		if (transactionDetails is null || transactionDetails.Count == 0)
 			throw new InvalidOperationException("No transaction details found for the transaction.");
 
-		var company = await CommonData.LoadTableDataById<CompanyModel>(AccountNames.Company, transaction.CompanyId) ??
-			throw new InvalidOperationException("Company information is missing.");
-
+		var company = await CommonData.LoadTableDataById<CompanyModel>(AccountNames.Company, transaction.CompanyId);
 		var location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, transaction.LocationId);
 
 		LedgerModel? party = null;
@@ -40,35 +37,19 @@ public static class SaleReturnInvoiceExport
 				};
 		}
 
-		var allProducts = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
-
-		var lineItems = transactionDetails.Select(detail =>
+		var lineItems = transactionDetails.Select(detail => new
 		{
-			var product = allProducts.FirstOrDefault(p => p.Id == detail.ProductId);
-			return new
-			{
-				ItemCategoryId = 0,
-				ItemId = detail.ProductId,
-				ItemName = product?.Name ?? $"Product #{detail.ProductId}",
-				detail.Quantity,
-				detail.Rate,
-				detail.BaseTotal,
-				detail.DiscountPercent,
-				detail.DiscountAmount,
-				AfterDiscount = detail.DiscountPercent == 0 ? 0 : detail.AfterDiscount,
-				CGSTPercent = detail.InclusiveTax ? 0 : detail.CGSTPercent,
-				CGSTAmount = detail.InclusiveTax ? 0 : detail.CGSTAmount,
-				SGSTPercent = detail.InclusiveTax ? 0 : detail.SGSTPercent,
-				SGSTAmount = detail.InclusiveTax ? 0 : detail.SGSTAmount,
-				IGSTPercent = detail.InclusiveTax ? 0 : detail.IGSTPercent,
-				IGSTAmount = detail.InclusiveTax ? 0 : detail.IGSTAmount,
-				TaxPercent = detail.InclusiveTax ? 0 : detail.CGSTPercent + detail.SGSTPercent + detail.IGSTPercent,
-				TotalTaxAmount = detail.InclusiveTax ? 0 : detail.TotalTaxAmount,
-				detail.InclusiveTax,
-				detail.Total,
-				detail.NetRate,
-				detail.Remarks
-			};
+			detail.ItemName,
+			detail.Quantity,
+			detail.Rate,
+			detail.DiscountPercent,
+			AfterDiscount = detail.DiscountPercent == 0 ? 0 : detail.AfterDiscount,
+			CGSTPercent = detail.InclusiveTax ? 0 : detail.CGSTPercent,
+			SGSTPercent = detail.InclusiveTax ? 0 : detail.SGSTPercent,
+			IGSTPercent = detail.InclusiveTax ? 0 : detail.IGSTPercent,
+			TaxPercent = detail.InclusiveTax ? 0 : detail.CGSTPercent + detail.SGSTPercent + detail.IGSTPercent,
+			TotalTaxAmount = detail.InclusiveTax ? 0 : detail.TotalTaxAmount,
+			detail.Total
 		}).ToList();
 
 		var paymentModes = new Dictionary<string, decimal>();
@@ -95,7 +76,7 @@ public static class SaleReturnInvoiceExport
 
 		var summaryFields = new Dictionary<string, string>
 		{
-			["Items Total"] = transaction.TotalAfterTax.FormatIndianCurrency(),
+			["Sub Total"] = transaction.TotalAfterTax.FormatIndianCurrency(),
 			[$"Other Charges ({transaction.OtherChargesPercent:0.00}%)"] = transaction.OtherChargesAmount.FormatIndianCurrency(),
 			[$"Discount ({transaction.DiscountPercent:0.00}%)"] = transaction.DiscountAmount.FormatIndianCurrency(),
 			["Round Off"] = transaction.RoundOffAmount.FormatIndianCurrency(),
@@ -105,14 +86,14 @@ public static class SaleReturnInvoiceExport
 		var columnSettings = new List<InvoiceColumnSetting>
 		{
 			new("#", "#", exportType, CellAlignment.Center, 25, 5),
-			new(nameof(SaleReturnItemCartModel.ItemName), "Item", exportType, CellAlignment.Left, 0, 30),
-			new(nameof(SaleReturnItemCartModel.Quantity), "Qty", exportType, CellAlignment.Right, 40, 10, "#,##0.00"),
-			new(nameof(SaleReturnItemCartModel.Rate), "Rate", exportType, CellAlignment.Right, 50, 12, "#,##0.00"),
-			new(nameof(SaleReturnItemCartModel.DiscountPercent), "Disc %", exportType, CellAlignment.Right, 45, 8, "#,##0.00"),
-			new(nameof(SaleReturnItemCartModel.AfterDiscount), "Taxable", exportType, CellAlignment.Right, 55, 12, "#,##0.00"),
+			new(nameof(SaleReturnItemOverviewModel.ItemName), "Item", exportType, CellAlignment.Left, 0, 30),
+			new(nameof(SaleReturnItemOverviewModel.Quantity), "Qty", exportType, CellAlignment.Right, 40, 10, "#,##0.00"),
+			new(nameof(SaleReturnItemOverviewModel.Rate), "Rate", exportType, CellAlignment.Right, 50, 12, "#,##0.00"),
+			new(nameof(SaleReturnItemOverviewModel.DiscountPercent), "Disc %", exportType, CellAlignment.Right, 45, 8, "#,##0.00"),
+			new(nameof(SaleReturnItemOverviewModel.AfterDiscount), "Taxable", exportType, CellAlignment.Right, 55, 12, "#,##0.00"),
 			new("TaxPercent","Tax %", exportType, CellAlignment.Right, 45, 8, "#,##0.00"),
-			new(nameof(SaleReturnItemCartModel.TotalTaxAmount), "Tax", exportType, CellAlignment.Right, 50, 12, "#,##0.00"),
-			new(nameof(SaleReturnItemCartModel.Total), "Total", exportType, CellAlignment.Right, 55, 15, "#,##0.00")
+			new(nameof(SaleReturnItemOverviewModel.TotalTaxAmount), "Tax", exportType, CellAlignment.Right, 50, 12, "#,##0.00"),
+			new(nameof(SaleReturnItemOverviewModel.Total), "Total", exportType, CellAlignment.Right, 55, 15, "#,##0.00")
 		};
 
 		var currentDateTime = await CommonData.LoadCurrentDateTime();

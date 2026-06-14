@@ -75,6 +75,7 @@ public static class FinancialAccountingData
 		await PurchaseData.UpdateFinancialAccountingId(id, null, sqlDataAccessTransaction);
 		await PurchaseReturnData.UpdateFinancialAccountingId(id, null, sqlDataAccessTransaction);
 		await SaleData.UpdateFinancialAccountingId(id, null, sqlDataAccessTransaction);
+		await SaleReturnData.UpdateFinancialAccountingId(id, null, sqlDataAccessTransaction);
 	}
 
 	public static async Task RecoverTransaction(FinancialAccountingModel accounting)

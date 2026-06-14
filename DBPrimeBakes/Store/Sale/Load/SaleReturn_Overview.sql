@@ -57,7 +57,9 @@ SELECT
 	[sr].[LastModifiedAt],
 	[sr].[LastModifiedFromPlatform],
 
-	[sr].[Status]
+	[sr].[Status],
+	[sr].[FinancialAccountingId],
+	[fa].[TransactionNo] AS FinancialAccountingTransactionNo
 
 FROM
 	[dbo].[SaleReturn] AS sr
@@ -75,3 +77,5 @@ INNER JOIN
 	[dbo].[User] AS u ON sr.CreatedBy = u.Id
 LEFT JOIN
 	[dbo].[User] AS lm ON sr.LastModifiedBy = lm.Id
+LEFT JOIN
+	[dbo].[FinancialAccounting] AS fa ON sr.FinancialAccountingId = fa.Id

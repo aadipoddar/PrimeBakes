@@ -29,6 +29,7 @@ public class SaleReturnModel
     public decimal UPI { get; set; }
     public decimal Credit { get; set; }
     public string? Remarks { get; set; }
+    public int? FinancialAccountingId { get; set; }
     public int CreatedBy { get; set; }
     public DateTime CreatedAt { get; set; }
     public string CreatedFromPlatform { get; set; }
@@ -137,6 +138,9 @@ public class SaleReturnOverviewModel
     public DateTime? LastModifiedAt { get; set; }
     public string? LastModifiedFromPlatform { get; set; }
     public bool Status { get; set; }
+
+    public int? FinancialAccountingId { get; set; }
+    public string? FinancialAccountingTransactionNo { get; set; }
 }
 
 public class SaleReturnItemOverviewModel

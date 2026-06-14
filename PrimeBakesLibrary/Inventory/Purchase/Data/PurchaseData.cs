@@ -96,6 +96,9 @@ public static class PurchaseData
 
 	private static async Task DeleteAccounting(PurchaseModel purchase, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
+		if (purchase.FinancialAccountingId is null)
+			return;
+
 		var existingAccounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(AccountNames.FinancialAccounting, purchase.FinancialAccountingId ?? 0, sqlDataAccessTransaction)
 			?? throw new InvalidOperationException("The associated financial accounting transaction for the transaction does not exist.");
 

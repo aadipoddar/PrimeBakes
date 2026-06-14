@@ -1,12 +1,16 @@
-﻿using PrimeBakesLibrary.Accounts.FinancialAccounting.Data;
+using PrimeBakesLibrary.Accounts.FinancialAccounting.Data;
 using PrimeBakesLibrary.Accounts.FinancialAccounting.Models;
 using PrimeBakesLibrary.Accounts.Masters.Data;
 using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Inventory.Recipe.Models;
 using PrimeBakesLibrary.Inventory.Stock.Data;
 using PrimeBakesLibrary.Inventory.Stock.Models;
+using PrimeBakesLibrary.Operations.AuditTrail;
 using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Operations.Settings;
+using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Store.Customer;
+using PrimeBakesLibrary.Store.Product.Models;
 using PrimeBakesLibrary.Store.Sale.Exports;
 using PrimeBakesLibrary.Store.Sale.Models;
 using PrimeBakesLibrary.Utils.Exports;
@@ -16,13 +20,25 @@ namespace PrimeBakesLibrary.Store.Sale.Data;
 
 public static class SaleReturnData
 {
-	private static async Task<int> InsertSaleReturn(SaleReturnModel saleReturn, SqlDataAccessTransaction sqlDataAccessTransaction) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertSaleReturn, saleReturn, sqlDataAccessTransaction)).FirstOrDefault();
+	private static async Task<int> InsertSaleReturn(SaleReturnModel saleReturn, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertSaleReturn, saleReturn, sqlDataAccessTransaction)).FirstOrDefault()
+			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Sale Return.");
 
-	private static async Task<int> InsertSaleReturnDetail(SaleReturnDetailModel saleReturnDetail, SqlDataAccessTransaction sqlDataAccessTransaction) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertSaleReturnDetail, saleReturnDetail, sqlDataAccessTransaction)).FirstOrDefault();
+	private static async Task<int> InsertSaleReturnDetail(SaleReturnDetailModel saleReturnDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertSaleReturnDetail, saleReturnDetail, sqlDataAccessTransaction)).FirstOrDefault()
+			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Sale Return Detail.");
 
-	private static List<SaleReturnDetailModel> ConvertCartToDetails(List<SaleReturnItemCartModel> cart, int masterId) =>
+	internal static async Task UpdateFinancialAccountingId(int financialAccountingId, int? newFinancialAccountingId, SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	{
+		var saleReturns = await CommonData.LoadTableDataByFinancialAccountingId<SaleReturnModel>(StoreNames.SaleReturn, financialAccountingId, sqlDataAccessTransaction);
+		foreach (var saleReturn in saleReturns)
+		{
+			saleReturn.FinancialAccountingId = newFinancialAccountingId;
+			await InsertSaleReturn(saleReturn, sqlDataAccessTransaction);
+		}
+	}
+
+	public static List<SaleReturnDetailModel> ConvertCartToDetails(List<SaleReturnItemCartModel> cart, int masterId = 0) =>
 		[.. cart.Select(item => new SaleReturnDetailModel
 		{
 			Id = 0,
@@ -48,89 +64,154 @@ public static class SaleReturnData
 			Status = true
 		})];
 
-	public static async Task DeleteTransaction(SaleReturnModel saleReturn)
+	#region Delete
+	public static async Task DeleteTransaction(SaleReturnModel saleReturn, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
-		await FinancialYearData.ValidateFinancialYear(saleReturn.TransactionDateTime);
-
-		using SqlDataAccessTransaction sqlDataAccessTransaction = new();
-		try
+		if (sqlDataAccessTransaction is null)
 		{
-			sqlDataAccessTransaction.StartTransaction();
-
-			saleReturn.Status = false;
-			await InsertSaleReturn(saleReturn, sqlDataAccessTransaction);
-
-			await ProductStockData.DeleteProductStockByTransactionNo(saleReturn.TransactionNo, sqlDataAccessTransaction);
-			await RawMaterialStockData.DeleteRawMaterialStockByTransactionNo(saleReturn.TransactionNo, sqlDataAccessTransaction);
-
-			var saleReturnVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.SaleReturnVoucherId, sqlDataAccessTransaction);
-			var existingAccounting = await FinancialAccountingData.LoadFinancialAccountingByVoucherReference(int.Parse(saleReturnVoucher.Value), saleReturn.Id, saleReturn.TransactionNo, sqlDataAccessTransaction);
-			if (existingAccounting is not null && existingAccounting.Id > 0)
-			{
-				existingAccounting.Status = false;
-				existingAccounting.LastModifiedBy = saleReturn.LastModifiedBy;
-				existingAccounting.LastModifiedAt = saleReturn.LastModifiedAt;
-				existingAccounting.LastModifiedFromPlatform = saleReturn.LastModifiedFromPlatform;
-
-				await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
-			}
-
-			sqlDataAccessTransaction.CommitTransaction();
-
+			await SqlDataAccessTransaction.Run(transaction => DeleteTransaction(saleReturn, transaction));
 			await SaleReturnNotify.Notify(saleReturn.Id, NotifyType.Deleted);
+			return;
 		}
-		catch
+
+		await FinancialYearData.ValidateFinancialYear(saleReturn.TransactionDateTime, sqlDataAccessTransaction);
+
+		saleReturn.Status = false;
+		await InsertSaleReturn(saleReturn, sqlDataAccessTransaction);
+
+		await ProductStockData.DeleteProductStockByTransactionNo(saleReturn.TransactionNo, sqlDataAccessTransaction);
+		await RawMaterialStockData.DeleteRawMaterialStockByTransactionNo(saleReturn.TransactionNo, sqlDataAccessTransaction);
+		await DeleteAccounting(saleReturn, sqlDataAccessTransaction);
+
+		await AuditTrailData.SaveAuditTrail(new()
 		{
-			sqlDataAccessTransaction.RollbackTransaction();
-			throw;
-		}
+			Action = AuditTrailActionTypes.Delete.ToString(),
+			TableName = StoreNames.SaleReturn,
+			RecordNo = saleReturn.TransactionNo,
+			CreatedBy = saleReturn.LastModifiedBy.Value,
+			CreatedFromPlatform = saleReturn.LastModifiedFromPlatform
+		}, sqlDataAccessTransaction);
 	}
+
+	private static async Task DeleteAccounting(SaleReturnModel saleReturn, SqlDataAccessTransaction sqlDataAccessTransaction)
+	{
+		if (saleReturn.FinancialAccountingId is null)
+			return;
+
+		var existingAccounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(AccountNames.FinancialAccounting, saleReturn.FinancialAccountingId.Value, sqlDataAccessTransaction)
+			?? throw new InvalidOperationException("The associated financial accounting transaction for the transaction does not exist.");
+
+		existingAccounting.Status = false;
+		existingAccounting.LastModifiedBy = saleReturn.LastModifiedBy;
+		existingAccounting.LastModifiedAt = saleReturn.LastModifiedAt;
+		existingAccounting.LastModifiedFromPlatform = saleReturn.LastModifiedFromPlatform;
+
+		await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
+	}
+	#endregion
 
 	public static async Task RecoverTransaction(SaleReturnModel saleReturn)
 	{
 		saleReturn.Status = true;
-		var transactionDetails = await CommonData.LoadTableDataByMasterId<SaleReturnDetailModel>(StoreNames.SaleReturnDetail, saleReturn.Id);
+		var saleReturnDetails = await CommonData.LoadTableDataByMasterId<SaleReturnDetailModel>(StoreNames.SaleReturnDetail, saleReturn.Id);
+		await SaveTransaction(saleReturn, saleReturnDetails, null, true);
 
-		await SaveTransaction(saleReturn, null, transactionDetails, false);
 		await SaleReturnNotify.Notify(saleReturn.Id, NotifyType.Recovered);
 	}
 
-	public static async Task<int> SaveTransaction(SaleReturnModel saleReturn, List<SaleReturnItemCartModel> cart, List<SaleReturnDetailModel> saleReturnDetails = null, bool showNotification = true, SqlDataAccessTransaction? sqlDataAccessTransaction = null)
+	#region Save
+	private static async Task<int?> ResolveCustomer(CustomerModel customer, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
-		bool update = saleReturn.Id > 0;
+		if (customer is null || customer.Id > 0)
+			return customer?.Id is > 0 ? customer.Id : null;
 
-		if (sqlDataAccessTransaction is null)
+		customer.Number = string.IsNullOrWhiteSpace(customer.Number) ? null : customer.Number.Trim();
+		customer.Name = string.IsNullOrWhiteSpace(customer.Name) ? null : customer.Name.Trim();
+
+		if (customer.Number is null)
+			return null;
+
+		if (customer.Name is null)
+			throw new InvalidOperationException("Please enter a name for the new customer or clear the customer field.");
+
+		if (!Helper.ValidatePhoneNumber(customer.Number))
+			throw new InvalidOperationException("Please enter a valid phone number for the new customer.");
+
+		return await CustomerData.InsertCustomer(customer, sqlDataAccessTransaction);
+	}
+
+	private static async Task<SaleReturnModel> ValidateTransaction(SaleReturnModel saleReturn, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
+	{
+		saleReturn.Remarks = string.IsNullOrWhiteSpace(saleReturn.Remarks) ? null : saleReturn.Remarks.Trim();
+
+		if (saleReturn.CompanyId <= 0)
+			throw new InvalidOperationException("Please select a company for the transaction.");
+
+		if (saleReturn.LocationId <= 0)
+			throw new InvalidOperationException("Please select a location for the transaction.");
+
+		if (saleReturn.TotalItems <= 0)
+			throw new InvalidOperationException("The total number of items in the transaction must be greater than zero.");
+
+		if (saleReturn.TotalQuantity <= 0)
+			throw new InvalidOperationException("The total quantity of items in the transaction must be greater than zero.");
+
+		if (saleReturn.TotalAmount < 0)
+			throw new InvalidOperationException("The total amount of the transaction cannot be negative.");
+
+		if (saleReturn.Cash < 0 || saleReturn.Card < 0 || saleReturn.Credit < 0 || saleReturn.UPI < 0)
+			throw new InvalidOperationException("Payment amounts cannot be negative.");
+
+		if (saleReturn.Cash + saleReturn.Card + saleReturn.Credit + saleReturn.UPI != saleReturn.TotalAmount)
+			throw new InvalidOperationException("The sum of all payments must equal the total amount of the transaction.");
+
+		if (saleReturn.Credit > 0 && (saleReturn.PartyId is null || saleReturn.PartyId <= 0))
+			throw new InvalidOperationException("Please select a party ledger for credit payment.");
+
+		var userId = update ? saleReturn.LastModifiedBy : saleReturn.CreatedBy;
+		var saleReturnUser = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, userId.Value, sqlDataAccessTransaction);
+
+		if (saleReturnUser.LocationId != 1)
 		{
-			(MemoryStream, string)? previousInvoice = null;
-			if (update)
-				previousInvoice = await SaleReturnInvoiceExport.ExportInvoice(saleReturn.Id, InvoiceExportType.PDF);
+			var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
+			if (saleReturn.CompanyId != int.Parse(mainCompanyId.Value))
+				throw new InvalidOperationException("You can only create transactions for the primary company.");
 
-			using SqlDataAccessTransaction newTransaction = new();
+			if (saleReturn.LocationId != saleReturnUser.LocationId)
+				throw new InvalidOperationException("You can only create transactions for your assigned location.");
 
-			try
-			{
-				newTransaction.StartTransaction();
-				saleReturn.Id = await SaveTransaction(saleReturn, cart, saleReturnDetails, showNotification, newTransaction);
-				newTransaction.CommitTransaction();
-			}
-			catch
-			{
-				newTransaction.RollbackTransaction();
-				throw;
-			}
+			if (saleReturn.ItemDiscountAmount != 0)
+				throw new InvalidOperationException("Item discount cannot be applied for non-primary location transactions.");
 
-			if (showNotification)
-				await SaleReturnNotify.Notify(saleReturn.Id, update ? NotifyType.Updated : NotifyType.Created, previousInvoice);
+			if (saleReturn.OtherChargesPercent != 0 || saleReturn.OtherChargesAmount != 0)
+				throw new InvalidOperationException("Other charges cannot be applied for non-primary location transactions.");
 
-			return saleReturn.Id;
+			if (saleReturn.DiscountPercent != 0 || saleReturn.DiscountAmount != 0)
+				throw new InvalidOperationException("Discount amount cannot be applied for non-primary location transactions.");
+
+			saleReturn.TransactionDateTime = await CommonData.LoadCurrentDateTime();
 		}
 
-		var existingSaleReturn = saleReturn;
+		if (saleReturn.LocationId != 1)
+		{
+			if (saleReturn.PartyId is not null)
+				throw new InvalidOperationException("Party cannot be selected for non-primary location transactions.");
+
+			if (saleReturn.Credit != 0)
+				throw new InvalidOperationException("Credit payment is not allowed for non-primary location transactions.");
+		}
 
 		if (update)
 		{
-			existingSaleReturn = await CommonData.LoadTableDataById<SaleReturnModel>(StoreNames.SaleReturn, saleReturn.Id, sqlDataAccessTransaction);
+			var existingSaleReturn = await CommonData.LoadTableDataById<SaleReturnModel>(StoreNames.SaleReturn, saleReturn.Id, sqlDataAccessTransaction)
+				?? throw new InvalidOperationException("The sale return transaction does not exist.");
+
 			await FinancialYearData.ValidateFinancialYear(existingSaleReturn.TransactionDateTime, sqlDataAccessTransaction);
+
+			var user = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, saleReturn.LastModifiedBy.Value, sqlDataAccessTransaction);
+			if (!user.Admin)
+				throw new InvalidOperationException("Only admin users can update a sale return transaction.");
+
 			saleReturn.TransactionNo = existingSaleReturn.TransactionNo;
 		}
 		else
@@ -138,28 +219,120 @@ public static class SaleReturnData
 
 		await FinancialYearData.ValidateFinancialYear(saleReturn.TransactionDateTime, sqlDataAccessTransaction);
 
+		return saleReturn;
+	}
+
+	private static async Task ValidateItemDetails(SaleReturnModel saleReturn, List<SaleReturnDetailModel> saleReturnDetails, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
+	{
+		foreach (var item in saleReturnDetails)
+			item.Remarks = string.IsNullOrWhiteSpace(item.Remarks) ? null : item.Remarks.Trim();
+
+		if (saleReturnDetails is null || saleReturnDetails.Count == 0)
+			throw new InvalidOperationException("Please add at least one item detail for the transaction.");
+
+		if (saleReturnDetails.Any(ed => ed.Quantity <= 0))
+			throw new InvalidOperationException("Item quantity must be greater than zero.");
+
+		if (saleReturnDetails.Any(ed => !ed.Status))
+			throw new InvalidOperationException("Sale return detail items must be active.");
+
+		if (saleReturnDetails.Count != saleReturn.TotalItems)
+			throw new InvalidOperationException("Total items must be equal to the number of item details.");
+
+		if (saleReturnDetails.Sum(ed => ed.Quantity) != saleReturn.TotalQuantity)
+			throw new InvalidOperationException("Total quantity must be equal to the sum of item quantities.");
+
+		if (saleReturnDetails.Sum(ed => ed.BaseTotal) != saleReturn.BaseTotal)
+			throw new InvalidOperationException("Base total must be equal to the sum of item base totals.");
+
+		if (saleReturnDetails.Sum(ed => ed.DiscountAmount) != saleReturn.ItemDiscountAmount)
+			throw new InvalidOperationException("Item discount amount must be equal to the sum of item discount amounts.");
+
+		if (saleReturnDetails.Sum(ed => ed.AfterDiscount) != saleReturn.TotalAfterItemDiscount)
+			throw new InvalidOperationException("Total after item discount must be equal to the sum of item totals after discount.");
+
+		if (saleReturnDetails.Sum(ed => ed.TotalTaxAmount) != saleReturn.TotalInclusiveTaxAmount + saleReturn.TotalExtraTaxAmount)
+			throw new InvalidOperationException("Total tax amount must be equal to the sum of inclusive and extra tax amounts.");
+
+		if (saleReturnDetails.Sum(ed => ed.Total) != saleReturn.TotalAfterTax)
+			throw new InvalidOperationException("Total after tax must be equal to the sum of item totals.");
+
+		if (saleReturn.LocationId != 1)
+		{
+			if (saleReturnDetails.Any(ed => ed.IGSTAmount != 0 || ed.IGSTPercent != 0))
+				throw new InvalidOperationException("IGST cannot be applied for non-primary location transactions.");
+		}
+
+		var userId = update ? saleReturn.LastModifiedBy : saleReturn.CreatedBy;
+		var saleReturnUser = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, userId.Value, sqlDataAccessTransaction);
+		if (saleReturnUser.LocationId != 1)
+		{
+			if (saleReturnDetails.Any(ed => ed.DiscountAmount != 0 || ed.DiscountPercent != 0))
+				throw new InvalidOperationException("Item discount cannot be applied for non-primary location transactions.");
+
+			foreach (var item in saleReturnDetails)
+			{
+				var product = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, item.ProductId, sqlDataAccessTransaction);
+				var tax = await CommonData.LoadTableDataById<TaxModel>(StoreNames.Tax, product.TaxId, sqlDataAccessTransaction);
+
+				if (item.Rate != product.Rate)
+					throw new InvalidOperationException($"Item rate for product '{product.Name}' cannot be changed for non-primary location transactions.");
+
+				if (item.CGSTPercent != tax.CGST || item.SGSTPercent != tax.SGST)
+					throw new InvalidOperationException($"Item tax for product '{product.Name}' cannot be changed for non-primary location transactions.");
+
+				if (item.InclusiveTax != tax.Inclusive)
+					throw new InvalidOperationException($"Item tax inclusion for product '{product.Name}' cannot be changed for non-primary location transactions.");
+			}
+		}
+	}
+
+	public static async Task<int> SaveTransaction(
+		SaleReturnModel saleReturn,
+		List<SaleReturnDetailModel> saleReturnDetails,
+		CustomerModel customer = null,
+		bool recover = false,
+		SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	{
+		bool update = saleReturn.Id > 0;
+
+		if (sqlDataAccessTransaction is null)
+		{
+			(MemoryStream, string)? previousInvoice = update && !recover ? await SaleReturnInvoiceExport.ExportInvoice(saleReturn.Id, InvoiceExportType.PDF) : null;
+
+			saleReturn.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(saleReturn, saleReturnDetails, customer, recover, transaction));
+
+			if (!recover)
+				await SaleReturnNotify.Notify(saleReturn.Id, update ? NotifyType.Updated : NotifyType.Created, previousInvoice);
+
+			return saleReturn.Id;
+		}
+
+		if (!recover && customer is not null)
+			saleReturn.CustomerId = await ResolveCustomer(customer, sqlDataAccessTransaction);
+
+		saleReturn = await ValidateTransaction(saleReturn, update, sqlDataAccessTransaction);
+		await ValidateItemDetails(saleReturn, saleReturnDetails, update, sqlDataAccessTransaction);
+
+		var previousSaleReturn = update && !recover ? await CommonData.LoadTableDataById<SaleReturnOverviewModel>(StoreNames.SaleReturnOverview, saleReturn.Id, sqlDataAccessTransaction) : new();
+		var previousSaleReturnDetails = update && !recover ? await CommonData.LoadTableDataByMasterId<SaleReturnItemOverviewModel>(StoreNames.SaleReturnItemOverview, saleReturn.Id, sqlDataAccessTransaction) : [];
+
 		saleReturn.Id = await InsertSaleReturn(saleReturn, sqlDataAccessTransaction);
-		saleReturnDetails ??= ConvertCartToDetails(cart, saleReturn.Id);
 		await SaveTransactionDetail(saleReturn, saleReturnDetails, update, sqlDataAccessTransaction);
-		await SaveProductStock(saleReturn, saleReturnDetails, existingSaleReturn, update, sqlDataAccessTransaction);
-		await SaveRawMaterialStockByRecipe(saleReturn, saleReturnDetails, existingSaleReturn, update, sqlDataAccessTransaction);
+		await SaveProductStock(saleReturn, saleReturnDetails, sqlDataAccessTransaction);
+		await SaveRawMaterialStockByRecipe(saleReturn, saleReturnDetails, sqlDataAccessTransaction);
 		await SaveAccounting(saleReturn, update, sqlDataAccessTransaction);
+		await SaveAuditTrail(saleReturn, update, recover, previousSaleReturn, previousSaleReturnDetails, sqlDataAccessTransaction);
 
 		return saleReturn.Id;
 	}
 
 	private static async Task SaveTransactionDetail(SaleReturnModel saleReturn, List<SaleReturnDetailModel> saleReturnDetails, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
-		if (saleReturnDetails is null || saleReturnDetails.Count != saleReturn.TotalItems || saleReturnDetails.Sum(d => d.Quantity) != saleReturn.TotalQuantity)
-			throw new InvalidOperationException("Sale return details do not match the transaction summary.");
-
-		if (saleReturnDetails.Any(d => !d.Status))
-			throw new InvalidOperationException("Sale return detail items must be active.");
-
 		if (update)
 		{
-			var existingTransactionDetails = await CommonData.LoadTableDataByMasterId<SaleReturnDetailModel>(StoreNames.SaleReturnDetail, saleReturn.Id, sqlDataAccessTransaction);
-			foreach (var item in existingTransactionDetails)
+			var existingSaleReturnDetails = await CommonData.LoadTableDataByMasterId<SaleReturnDetailModel>(StoreNames.SaleReturnDetail, saleReturn.Id, sqlDataAccessTransaction);
+			foreach (var item in existingSaleReturnDetails)
 			{
 				item.Status = false;
 				await InsertSaleReturnDetail(item, sqlDataAccessTransaction);
@@ -169,22 +342,17 @@ public static class SaleReturnData
 		foreach (var item in saleReturnDetails)
 		{
 			item.MasterId = saleReturn.Id;
-			var id = await InsertSaleReturnDetail(item, sqlDataAccessTransaction);
-
-			if (id <= 0)
-				throw new InvalidOperationException("Failed to save sale return detail.");
+			await InsertSaleReturnDetail(item, sqlDataAccessTransaction);
 		}
 	}
 
-	private static async Task SaveProductStock(SaleReturnModel saleReturn, List<SaleReturnDetailModel> saleReturnDetails, SaleReturnModel existingSaleReturn, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
+	private static async Task SaveProductStock(SaleReturnModel saleReturn, List<SaleReturnDetailModel> saleReturnDetails, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
-		if (update)
-			await ProductStockData.DeleteProductStockByTransactionNo(existingSaleReturn.TransactionNo, sqlDataAccessTransaction);
+		await ProductStockData.DeleteProductStockByTransactionNo(saleReturn.TransactionNo, sqlDataAccessTransaction);
 
 		// Location Stock Update (positive quantity - product returns to location)
 		foreach (var item in saleReturnDetails)
-		{
-			var id = await ProductStockData.InsertProductStock(new()
+			await ProductStockData.InsertProductStock(new()
 			{
 				Id = 0,
 				ProductId = item.ProductId,
@@ -197,18 +365,13 @@ public static class SaleReturnData
 				LocationId = saleReturn.LocationId
 			}, sqlDataAccessTransaction);
 
-			if (id <= 0)
-				throw new InvalidOperationException("Failed to save product stock for sale return location.");
-		}
-
 		// Party Location Stock Update (negative quantity - product leaves party's location)
 		if (saleReturn.PartyId is not null and > 0)
 		{
 			var location = await LocationData.LoadLocationByLedgerId(saleReturn.PartyId.Value, sqlDataAccessTransaction);
 			if (location is not null)
 				foreach (var item in saleReturnDetails)
-				{
-					var id = await ProductStockData.InsertProductStock(new()
+					await ProductStockData.InsertProductStock(new()
 					{
 						Id = 0,
 						ProductId = item.ProductId,
@@ -220,17 +383,12 @@ public static class SaleReturnData
 						TransactionDateTime = saleReturn.TransactionDateTime,
 						LocationId = location.Id
 					}, sqlDataAccessTransaction);
-
-					if (id <= 0)
-						throw new InvalidOperationException("Failed to save product stock for party location.");
-				}
 		}
 	}
 
-	private static async Task SaveRawMaterialStockByRecipe(SaleReturnModel saleReturn, List<SaleReturnDetailModel> saleReturnDetails, SaleReturnModel existingSaleReturn, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
+	private static async Task SaveRawMaterialStockByRecipe(SaleReturnModel saleReturn, List<SaleReturnDetailModel> saleReturnDetails, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
-		if (update)
-			await RawMaterialStockData.DeleteRawMaterialStockByTransactionNo(existingSaleReturn.TransactionNo, sqlDataAccessTransaction);
+		await RawMaterialStockData.DeleteRawMaterialStockByTransactionNo(saleReturn.TransactionNo, sqlDataAccessTransaction);
 
 		if (saleReturn.LocationId != 1)
 			return;
@@ -245,8 +403,7 @@ public static class SaleReturnData
 			var recipeItems = recipe is null ? [] : recipeDetails.Where(_ => _.MasterId == recipe.Id).ToList();
 
 			foreach (var recipeItem in recipeItems)
-			{
-				var id = await RawMaterialStockData.InsertRawMaterialStock(new()
+				await RawMaterialStockData.InsertRawMaterialStock(new()
 				{
 					Id = 0,
 					RawMaterialId = recipeItem.RawMaterialId,
@@ -257,10 +414,6 @@ public static class SaleReturnData
 					Type = nameof(StockType.SaleReturn),
 					TransactionDateTime = saleReturn.TransactionDateTime
 				}, sqlDataAccessTransaction);
-
-				if (id <= 0)
-					throw new InvalidOperationException("Failed to save raw material stock for sale return.");
-			}
 		}
 	}
 
@@ -282,10 +435,7 @@ public static class SaleReturnData
 		}
 
 		var saleReturnOverview = await CommonData.LoadTableDataById<SaleReturnOverviewModel>(StoreNames.SaleReturnOverview, saleReturn.Id, sqlDataAccessTransaction);
-		if (saleReturnOverview is null)
-			return;
-
-		if (saleReturnOverview.TotalAmount == 0)
+		if (saleReturnOverview is null || saleReturnOverview.TotalAmount == 0)
 			return;
 
 		var accountingCart = new List<FinancialAccountingLedgerCartModel>();
@@ -390,6 +540,44 @@ public static class SaleReturnData
 		};
 
 		var ledgers = FinancialAccountingData.ConvertCartToDetails(accountingCart, accounting.Id);
-		await FinancialAccountingData.SaveTransaction(accounting, ledgers, false, sqlDataAccessTransaction);
+		accounting.Id = await FinancialAccountingData.SaveTransaction(accounting, ledgers, false, sqlDataAccessTransaction);
+
+		saleReturn.FinancialAccountingId = accounting.Id;
+		await InsertSaleReturn(saleReturn, sqlDataAccessTransaction);
 	}
+
+	private static async Task SaveAuditTrail(
+		SaleReturnModel saleReturn,
+		bool update,
+		bool recover,
+		SaleReturnOverviewModel previousSaleReturn = null,
+		List<SaleReturnItemOverviewModel> previousSaleReturnDetails = null,
+		SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	{
+		string difference = null;
+
+		if (update && !recover)
+		{
+			var currentSaleReturn = await CommonData.LoadTableDataById<SaleReturnOverviewModel>(StoreNames.SaleReturnOverview, saleReturn.Id, sqlDataAccessTransaction);
+			var currentSaleReturnDetails = await CommonData.LoadTableDataByMasterId<SaleReturnItemOverviewModel>(StoreNames.SaleReturnItemOverview, saleReturn.Id, sqlDataAccessTransaction);
+
+			var headerDiff = AuditTrailData.GetDifference(previousSaleReturn, currentSaleReturn);
+			var detailsDiff = AuditTrailData.GetDifference(previousSaleReturnDetails, currentSaleReturnDetails, typeof(SaleReturnOverviewModel));
+
+			difference = AuditTrailData.CombineDifferences(
+				(null, headerDiff),
+				("Items", detailsDiff));
+		}
+
+		await AuditTrailData.SaveAuditTrail(new()
+		{
+			Action = recover ? AuditTrailActionTypes.Recover.ToString() : update ? AuditTrailActionTypes.Update.ToString() : AuditTrailActionTypes.Insert.ToString(),
+			TableName = StoreNames.SaleReturn,
+			RecordNo = saleReturn.TransactionNo,
+			RecordValue = difference,
+			CreatedBy = update ? saleReturn.LastModifiedBy.Value : saleReturn.CreatedBy,
+			CreatedFromPlatform = update ? saleReturn.LastModifiedFromPlatform : saleReturn.CreatedFromPlatform
+		}, sqlDataAccessTransaction);
+	}
+	#endregion
 }

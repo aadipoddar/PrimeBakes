@@ -31,7 +31,7 @@ internal static class SaleReturnNotify
 		{
 			if (saleReturn.PartyId != null && saleReturn.PartyId > 0)
 			{
-				var location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, saleReturn.PartyId.Value);
+				var location = await LocationData.LoadLocationByLedgerId(saleReturn.PartyId.Value);
 
 				if (location is not null)
 					targetUsers = [.. users.Where(u =>
