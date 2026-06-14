@@ -1,6 +1,7 @@
 using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Store.Order.Models;
+using PrimeBakesLibrary.Store.Product.Models;
 using PrimeBakesLibrary.Utils.Exports;
 
 namespace PrimeBakesLibrary.Store.Order.Exports;
@@ -13,6 +14,7 @@ public static class OrderReportExport
 		DateOnly? dateRangeStart = null,
 		DateOnly? dateRangeEnd = null,
 		bool showAllColumns = true,
+		bool showDeleted = false,
 		bool showSummary = false,
 		CompanyModel company = null,
 		LocationModel location = null)
@@ -34,7 +36,8 @@ public static class OrderReportExport
 			[nameof(OrderOverviewModel.LastModifiedAt)] = new() { DisplayName = "Modified At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(OrderOverviewModel.LastModifiedFromPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(OrderOverviewModel.TotalItems)] = new() { DisplayName = "Items", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = true },
-			[nameof(OrderOverviewModel.TotalQuantity)] = new() { DisplayName = "Qty", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true }
+			[nameof(OrderOverviewModel.TotalQuantity)] = new() { DisplayName = "Qty", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
+			[nameof(OrderOverviewModel.Status)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false }
 		};
 
 		List<string> columnOrder;
@@ -65,8 +68,12 @@ public static class OrderReportExport
 				nameof(OrderOverviewModel.CreatedFromPlatform),
 				nameof(OrderOverviewModel.LastModifiedByUserName),
 				nameof(OrderOverviewModel.LastModifiedAt),
-				nameof(OrderOverviewModel.LastModifiedFromPlatform)
+				nameof(OrderOverviewModel.LastModifiedFromPlatform),
+				nameof(OrderOverviewModel.Status)
 			];
+
+			if (!showDeleted)
+				columnOrder.Remove(nameof(OrderOverviewModel.Status));
 		}
 		else
 		{
@@ -77,15 +84,16 @@ public static class OrderReportExport
 				nameof(OrderOverviewModel.LocationName),
 				nameof(OrderOverviewModel.TransactionDateTime),
 				nameof(OrderOverviewModel.TotalItems),
-				nameof(OrderOverviewModel.TotalQuantity)
+				nameof(OrderOverviewModel.TotalQuantity),
+				nameof(OrderOverviewModel.Status)
 			];
+
+			if (location is not null)
+				columnOrder.Remove(nameof(OrderOverviewModel.LocationName));
+
+			if (!showDeleted)
+				columnOrder.Remove(nameof(OrderOverviewModel.Status));
 		}
-
-		if (company is not null)
-			columnOrder.Remove(nameof(OrderOverviewModel.CompanyName));
-
-		if (location is not null)
-			columnOrder.Remove(nameof(OrderOverviewModel.LocationName));
 
 		string fileName = "ORDER_REPORT";
 		if (dateRangeStart.HasValue || dateRangeEnd.HasValue)
@@ -118,7 +126,11 @@ public static class OrderReportExport
 				dateRangeEnd,
 				columnSettings,
 				columnOrder,
-				new() { ["Company"] = company?.Name ?? null, ["Location"] = location?.Name ?? null }
+				new()
+				{
+					["Company"] = company?.Name ?? null,
+					["Location"] = location?.Name ?? null
+				}
 			);
 
 			fileName += ".xlsx";
@@ -132,7 +144,10 @@ public static class OrderReportExport
 		DateOnly? dateRangeStart = null,
 		DateOnly? dateRangeEnd = null,
 		bool showAllColumns = true,
+		bool showDeleted = false,
 		bool showSummary = false,
+		ProductModel product = null,
+		ProductCategoryModel productCategory = null,
 		CompanyModel company = null,
 		LocationModel location = null)
 	{
@@ -141,20 +156,35 @@ public static class OrderReportExport
 			[nameof(OrderItemOverviewModel.ItemName)] = new() { DisplayName = "Item", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(OrderItemOverviewModel.ItemCode)] = new() { DisplayName = "Code", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(OrderItemOverviewModel.ItemCategoryName)] = new() { DisplayName = "Category", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(OrderItemOverviewModel.ItemRemarks)] = new() { DisplayName = "Item Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
+
+			[nameof(OrderItemOverviewModel.Quantity)] = new() { DisplayName = "Qty", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
+
 			[nameof(OrderItemOverviewModel.TransactionNo)] = new() { DisplayName = "Trans No", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(OrderItemOverviewModel.SaleTransactionNo)] = new() { DisplayName = "Sale Trans No", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(OrderItemOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm tt", Alignment = CellAlignment.Center, IncludeInTotal = false },
+			[nameof(OrderItemOverviewModel.SaleDateTime)] = new() { DisplayName = "Sale Date", Format = "dd-MMM-yyyy hh:mm tt", Alignment = CellAlignment.Center, IncludeInTotal = false },
+			[nameof(OrderItemOverviewModel.FinancialYear)] = new() { DisplayName = "Financial Year", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(OrderItemOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(OrderItemOverviewModel.LocationName)] = new() { DisplayName = "Location", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(OrderItemOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm tt", Alignment = CellAlignment.Center, IncludeInTotal = false },
-			[nameof(OrderItemOverviewModel.OrderRemarks)] = new() { DisplayName = "Order Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(OrderItemOverviewModel.Remarks)] = new() { DisplayName = "Item Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(OrderItemOverviewModel.Quantity)] = new() { DisplayName = "Qty", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true }
+
+			[nameof(OrderItemOverviewModel.TotalItems)] = new() { DisplayName = "Order Items", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(OrderItemOverviewModel.TotalQuantity)] = new() { DisplayName = "Order Qty", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false },
+
+			[nameof(OrderItemOverviewModel.Remarks)] = new() { DisplayName = "Order Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(OrderItemOverviewModel.CreatedByName)] = new() { DisplayName = "Created By", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(OrderItemOverviewModel.CreatedAt)] = new() { DisplayName = "Created At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
+			[nameof(OrderItemOverviewModel.CreatedFromPlatform)] = new() { DisplayName = "Created Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(OrderItemOverviewModel.LastModifiedByUserName)] = new() { DisplayName = "Modified By", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(OrderItemOverviewModel.LastModifiedAt)] = new() { DisplayName = "Modified At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
+			[nameof(OrderItemOverviewModel.LastModifiedFromPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
+
+			[nameof(OrderItemOverviewModel.MasterStatus)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false }
 		};
 
 		List<string> columnOrder;
 
 		if (showSummary)
-		{
 			columnOrder =
 			[
 				nameof(OrderItemOverviewModel.ItemName),
@@ -162,7 +192,7 @@ public static class OrderReportExport
 				nameof(OrderItemOverviewModel.ItemCategoryName),
 				nameof(OrderItemOverviewModel.Quantity)
 			];
-		}
+
 		else if (showAllColumns)
 		{
 			columnOrder =
@@ -171,15 +201,30 @@ public static class OrderReportExport
 				nameof(OrderItemOverviewModel.ItemCode),
 				nameof(OrderItemOverviewModel.ItemCategoryName),
 				nameof(OrderItemOverviewModel.TransactionNo),
+				nameof(OrderItemOverviewModel.SaleTransactionNo),
 				nameof(OrderItemOverviewModel.TransactionDateTime),
+				nameof(OrderItemOverviewModel.SaleDateTime),
 				nameof(OrderItemOverviewModel.CompanyName),
 				nameof(OrderItemOverviewModel.LocationName),
-				nameof(OrderItemOverviewModel.SaleTransactionNo),
+				nameof(OrderItemOverviewModel.FinancialYear),
 				nameof(OrderItemOverviewModel.Quantity),
-				nameof(OrderItemOverviewModel.OrderRemarks),
-				nameof(OrderItemOverviewModel.Remarks)
+				nameof(OrderItemOverviewModel.ItemRemarks),
+				nameof(OrderItemOverviewModel.Remarks),
+				nameof(OrderItemOverviewModel.TotalItems),
+				nameof(OrderItemOverviewModel.TotalQuantity),
+				nameof(OrderItemOverviewModel.CreatedByName),
+				nameof(OrderItemOverviewModel.CreatedAt),
+				nameof(OrderItemOverviewModel.CreatedFromPlatform),
+				nameof(OrderItemOverviewModel.LastModifiedByUserName),
+				nameof(OrderItemOverviewModel.LastModifiedAt),
+				nameof(OrderItemOverviewModel.LastModifiedFromPlatform),
+				nameof(OrderItemOverviewModel.MasterStatus)
 			];
+
+			if (!showDeleted)
+				columnOrder.Remove(nameof(OrderItemOverviewModel.MasterStatus));
 		}
+
 		else
 		{
 			columnOrder =
@@ -190,15 +235,19 @@ public static class OrderReportExport
 				nameof(OrderItemOverviewModel.TransactionDateTime),
 				nameof(OrderItemOverviewModel.LocationName),
 				nameof(OrderItemOverviewModel.SaleTransactionNo),
-				nameof(OrderItemOverviewModel.Quantity)
+				nameof(OrderItemOverviewModel.Quantity),
+				nameof(OrderItemOverviewModel.MasterStatus)
 			];
+
+			if (product is not null)
+				columnOrder.Remove(nameof(OrderItemOverviewModel.ItemName));
+
+			if (location is not null)
+				columnOrder.Remove(nameof(OrderItemOverviewModel.LocationName));
+
+			if (!showDeleted)
+				columnOrder.Remove(nameof(OrderItemOverviewModel.MasterStatus));
 		}
-
-		if (company is not null)
-			columnOrder.Remove(nameof(OrderItemOverviewModel.CompanyName));
-
-		if (location is not null)
-			columnOrder.Remove(nameof(OrderItemOverviewModel.LocationName));
 
 		string fileName = "ORDER_ITEM_REPORT";
 		if (dateRangeStart.HasValue || dateRangeEnd.HasValue)
@@ -214,12 +263,17 @@ public static class OrderReportExport
 				columnSettings,
 				columnOrder,
 				useBuiltInStyle: false,
-				useLandscape: showAllColumns && !showSummary,
-				new() { ["Company"] = company?.Name ?? null, ["Location"] = location?.Name ?? null }
+				useLandscape: showAllColumns || showSummary,
+				new()
+				{
+					["Item"] = product?.Name ?? null,
+					["Item Category"] = productCategory?.Name ?? null,
+					["Company"] = company?.Name ?? null,
+					["Location"] = location?.Name ?? null
+				}
 			);
 
-			fileName += ".pdf";
-			return (stream, fileName);
+			return (stream, fileName + ".pdf");
 		}
 		else
 		{
@@ -231,11 +285,16 @@ public static class OrderReportExport
 				dateRangeEnd,
 				columnSettings,
 				columnOrder,
-				new() { ["Company"] = company?.Name ?? null, ["Location"] = location?.Name ?? null }
+				new()
+				{
+					["Item"] = product?.Name ?? null,
+					["Item Category"] = productCategory?.Name ?? null,
+					["Company"] = company?.Name ?? null,
+					["Location"] = location?.Name ?? null
+				}
 			);
 
-			fileName += ".xlsx";
-			return (stream, fileName);
+			return (stream, fileName + ".xlsx");
 		}
 	}
 }
