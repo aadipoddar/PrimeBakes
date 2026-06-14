@@ -12,6 +12,7 @@ using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Store.Customer;
 using PrimeBakesLibrary.Store.Order.Data;
 using PrimeBakesLibrary.Store.Order.Models;
+using PrimeBakesLibrary.Store.Product.Data;
 using PrimeBakesLibrary.Store.Product.Models;
 using PrimeBakesLibrary.Store.Sale.Exports;
 using PrimeBakesLibrary.Store.Sale.Models;
@@ -155,7 +156,6 @@ public static class SaleData
 
 		await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
 	}
-	#endregion
 
 	public static async Task RecoverTransaction(SaleModel sale)
 	{
@@ -165,6 +165,7 @@ public static class SaleData
 
 		await SaleNotify.Notify(sale.Id, NotifyType.Recovered);
 	}
+	#endregion
 
 	#region Save
 	private static async Task<int?> ResolveCustomer(CustomerModel customer, SqlDataAccessTransaction sqlDataAccessTransaction)
@@ -227,16 +228,19 @@ public static class SaleData
 			if (sale.LocationId != saleUser.LocationId)
 				throw new InvalidOperationException("You can only create transactions for your assigned location.");
 
+			sale.TransactionDateTime = await CommonData.LoadCurrentDateTime();
+		}
+
+		if (!saleUser.ChangeProductFinancial)
+		{
 			if (sale.ItemDiscountAmount != 0)
-				throw new InvalidOperationException("Item discount cannot be applied for non-primary location transactions.");
+				throw new InvalidOperationException("You are not allowed to apply item discount.");
 
 			if (sale.OtherChargesPercent != 0 || sale.OtherChargesAmount != 0)
-				throw new InvalidOperationException("Other charges cannot be applied for non-primary location transactions.");
+				throw new InvalidOperationException("You are not allowed to apply other charges.");
 
 			if (sale.DiscountPercent != 0 || sale.DiscountAmount != 0)
-				throw new InvalidOperationException("Discount amount cannot be applied for non-primary location transactions.");
-
-			sale.TransactionDateTime = await CommonData.LoadCurrentDateTime();
+				throw new InvalidOperationException("You are not allowed to apply discount.");
 		}
 
 		if (sale.LocationId != 1)
@@ -331,24 +335,30 @@ public static class SaleData
 
 		var userId = update ? sale.LastModifiedBy : sale.CreatedBy;
 		var saleUser = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, userId.Value, sqlDataAccessTransaction);
-		if (saleUser.LocationId != 1)
+		if (!saleUser.ChangeProductFinancial)
 		{
 			if (saleDetails.Any(ed => ed.DiscountAmount != 0 || ed.DiscountPercent != 0))
-				throw new InvalidOperationException("Item discount cannot be applied for non-primary location transactions.");
+				throw new InvalidOperationException("You are not allowed to apply item discount.");
+
+			var productLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: sale.LocationId, sqlDataAccessTransaction: sqlDataAccessTransaction);
+			var taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax, sqlDataAccessTransaction);
 
 			foreach (var item in saleDetails)
 			{
-				var product = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, item.ProductId, sqlDataAccessTransaction);
-				var tax = await CommonData.LoadTableDataById<TaxModel>(StoreNames.Tax, product.TaxId, sqlDataAccessTransaction);
+				var product = productLocations.FirstOrDefault(pl => pl.ProductId == item.ProductId)
+					?? throw new InvalidOperationException($"Product with ID '{item.ProductId}' is not available in the selected location.");
+
+				var tax = taxes.FirstOrDefault(t => t.Id == product.TaxId)
+					?? throw new InvalidOperationException($"Tax information for product '{product.Name}' is not available.");
 
 				if (item.Rate != product.Rate)
-					throw new InvalidOperationException($"Item rate for product '{product.Name}' cannot be changed for non-primary location transactions.");
+					throw new InvalidOperationException($"You are not allowed to change the rate for product '{product.Name}'.");
 
 				if (item.CGSTPercent != tax.CGST || item.SGSTPercent != tax.SGST)
-					throw new InvalidOperationException($"Item tax for product '{product.Name}' cannot be changed for non-primary location transactions.");
+					throw new InvalidOperationException($"You are not allowed to change the tax for product '{product.Name}'.");
 
 				if (item.InclusiveTax != tax.Inclusive)
-					throw new InvalidOperationException($"Item tax inclusion for product '{product.Name}' cannot be changed for non-primary location transactions.");
+					throw new InvalidOperationException($"You are not allowed to change the tax inclusion for product '{product.Name}'.");
 			}
 		}
 	}

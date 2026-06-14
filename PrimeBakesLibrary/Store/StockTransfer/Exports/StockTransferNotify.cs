@@ -1,4 +1,5 @@
 using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Operations.AuditTrail;
 using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Store.StockTransfer.Models;
 using PrimeBakesLibrary.Utils.Exports;
@@ -72,7 +73,8 @@ internal static class StockTransferNotify
 				["Total Amount"] = stockTransfer.TotalAmount.FormatIndianCurrency(),
 				[type == NotifyType.Deleted ? "Deleted By" : type == NotifyType.Updated ? "Updated By" : "Modified By"] = stockTransfer.LastModifiedByUserName ?? stockTransfer.CreatedByName
 			},
-			Remarks = stockTransfer.Remarks
+			Remarks = stockTransfer.Remarks,
+			Differences = type == NotifyType.Updated ? (await AuditTrailData.LoadLastAuditTrailByTableRecord(StoreNames.StockTransfer, stockTransfer.TransactionNo)).RecordValue : null
 		};
 
 		if (type == NotifyType.Updated && previousInvoice.HasValue)

@@ -6,6 +6,7 @@ using PrimeBakesLibrary.Inventory.Purchase.Data;
 using PrimeBakesLibrary.Operations.AuditTrail;
 using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Store.Sale.Data;
+using PrimeBakesLibrary.Store.StockTransfer.Data;
 using PrimeBakesLibrary.Utils.Exports;
 using PrimeBakesLibrary.Utils.Mail;
 
@@ -76,6 +77,7 @@ public static class FinancialAccountingData
 		await PurchaseReturnData.UpdateFinancialAccountingId(id, null, sqlDataAccessTransaction);
 		await SaleData.UpdateFinancialAccountingId(id, null, sqlDataAccessTransaction);
 		await SaleReturnData.UpdateFinancialAccountingId(id, null, sqlDataAccessTransaction);
+		await StockTransferData.UpdateFinancialAccountingId(id, null, sqlDataAccessTransaction);
 	}
 
 	public static async Task RecoverTransaction(FinancialAccountingModel accounting)

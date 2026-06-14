@@ -10,6 +10,7 @@ using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Operations.Settings;
 using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Store.Customer;
+using PrimeBakesLibrary.Store.Product.Data;
 using PrimeBakesLibrary.Store.Product.Models;
 using PrimeBakesLibrary.Store.Sale.Exports;
 using PrimeBakesLibrary.Store.Sale.Models;
@@ -108,7 +109,6 @@ public static class SaleReturnData
 
 		await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
 	}
-	#endregion
 
 	public static async Task RecoverTransaction(SaleReturnModel saleReturn)
 	{
@@ -118,6 +118,7 @@ public static class SaleReturnData
 
 		await SaleReturnNotify.Notify(saleReturn.Id, NotifyType.Recovered);
 	}
+	#endregion
 
 	#region Save
 	private static async Task<int?> ResolveCustomer(CustomerModel customer, SqlDataAccessTransaction sqlDataAccessTransaction)
@@ -180,16 +181,19 @@ public static class SaleReturnData
 			if (saleReturn.LocationId != saleReturnUser.LocationId)
 				throw new InvalidOperationException("You can only create transactions for your assigned location.");
 
+			saleReturn.TransactionDateTime = await CommonData.LoadCurrentDateTime();
+		}
+
+		if (!saleReturnUser.ChangeProductFinancial)
+		{
 			if (saleReturn.ItemDiscountAmount != 0)
-				throw new InvalidOperationException("Item discount cannot be applied for non-primary location transactions.");
+				throw new InvalidOperationException("You are not allowed to apply item discount.");
 
 			if (saleReturn.OtherChargesPercent != 0 || saleReturn.OtherChargesAmount != 0)
-				throw new InvalidOperationException("Other charges cannot be applied for non-primary location transactions.");
+				throw new InvalidOperationException("You are not allowed to apply other charges.");
 
 			if (saleReturn.DiscountPercent != 0 || saleReturn.DiscountAmount != 0)
-				throw new InvalidOperationException("Discount amount cannot be applied for non-primary location transactions.");
-
-			saleReturn.TransactionDateTime = await CommonData.LoadCurrentDateTime();
+				throw new InvalidOperationException("You are not allowed to apply discount.");
 		}
 
 		if (saleReturn.LocationId != 1)
@@ -265,24 +269,30 @@ public static class SaleReturnData
 
 		var userId = update ? saleReturn.LastModifiedBy : saleReturn.CreatedBy;
 		var saleReturnUser = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, userId.Value, sqlDataAccessTransaction);
-		if (saleReturnUser.LocationId != 1)
+		if (!saleReturnUser.ChangeProductFinancial)
 		{
 			if (saleReturnDetails.Any(ed => ed.DiscountAmount != 0 || ed.DiscountPercent != 0))
-				throw new InvalidOperationException("Item discount cannot be applied for non-primary location transactions.");
+				throw new InvalidOperationException("You are not allowed to apply item discount.");
+
+			var productLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: saleReturn.LocationId, sqlDataAccessTransaction: sqlDataAccessTransaction);
+			var taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax, sqlDataAccessTransaction);
 
 			foreach (var item in saleReturnDetails)
 			{
-				var product = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, item.ProductId, sqlDataAccessTransaction);
-				var tax = await CommonData.LoadTableDataById<TaxModel>(StoreNames.Tax, product.TaxId, sqlDataAccessTransaction);
+				var product = productLocations.FirstOrDefault(pl => pl.ProductId == item.ProductId)
+					?? throw new InvalidOperationException($"Product with ID '{item.ProductId}' is not available in the selected location.");
+
+				var tax = taxes.FirstOrDefault(t => t.Id == product.TaxId)
+					?? throw new InvalidOperationException($"Tax information for product '{product.Name}' is not available.");
 
 				if (item.Rate != product.Rate)
-					throw new InvalidOperationException($"Item rate for product '{product.Name}' cannot be changed for non-primary location transactions.");
+					throw new InvalidOperationException($"You are not allowed to change the rate for product '{product.Name}'.");
 
 				if (item.CGSTPercent != tax.CGST || item.SGSTPercent != tax.SGST)
-					throw new InvalidOperationException($"Item tax for product '{product.Name}' cannot be changed for non-primary location transactions.");
+					throw new InvalidOperationException($"You are not allowed to change the tax for product '{product.Name}'.");
 
 				if (item.InclusiveTax != tax.Inclusive)
-					throw new InvalidOperationException($"Item tax inclusion for product '{product.Name}' cannot be changed for non-primary location transactions.");
+					throw new InvalidOperationException($"You are not allowed to change the tax inclusion for product '{product.Name}'.");
 			}
 		}
 	}
@@ -438,13 +448,15 @@ public static class SaleReturnData
 		if (saleReturnOverview is null || saleReturnOverview.TotalAmount == 0)
 			return;
 
+		var ledger = await LocationData.LoadLedgerByLocationId(saleReturnOverview.LocationId, sqlDataAccessTransaction);
+		var cashLedger = await SettingsData.LoadSettingsByKey(SettingsKeys.CashSalesLedgerId, sqlDataAccessTransaction);
+		var saleLedger = await SettingsData.LoadSettingsByKey(SettingsKeys.SaleLedgerId, sqlDataAccessTransaction);
+		var gstLedger = await SettingsData.LoadSettingsByKey(SettingsKeys.GSTLedgerId, sqlDataAccessTransaction);
 		var accountingCart = new List<FinancialAccountingLedgerCartModel>();
 
 		if (saleReturn.LocationId == 1)
 		{
 			if (saleReturnOverview.Cash + saleReturnOverview.UPI + saleReturnOverview.Card > 0)
-			{
-				var cashLedger = await SettingsData.LoadSettingsByKey(SettingsKeys.CashSalesLedgerId, sqlDataAccessTransaction);
 				accountingCart.Add(new()
 				{
 					ReferenceId = saleReturnOverview.Id,
@@ -455,7 +467,6 @@ public static class SaleReturnData
 					Credit = saleReturnOverview.Cash + saleReturnOverview.UPI + saleReturnOverview.Card,
 					Remarks = $"Cash Account Posting For Sale Return Bill {saleReturnOverview.TransactionNo}",
 				});
-			}
 
 			if (saleReturnOverview.Credit > 0)
 				accountingCart.Add(new()
@@ -469,11 +480,8 @@ public static class SaleReturnData
 					Remarks = $"Party Account Posting For Sale Return Bill {saleReturnOverview.TransactionNo}",
 				});
 		}
-		else
-		{
+		else if (saleReturn.LocationId != 1)
 			if (saleReturnOverview.Cash + saleReturnOverview.UPI + saleReturnOverview.Card + saleReturnOverview.Credit > 0)
-			{
-				var ledger = await LocationData.LoadLedgerByLocationId(saleReturnOverview.LocationId, sqlDataAccessTransaction);
 				accountingCart.Add(new()
 				{
 					ReferenceId = saleReturnOverview.Id,
@@ -484,12 +492,8 @@ public static class SaleReturnData
 					Credit = saleReturnOverview.Cash + saleReturnOverview.UPI + saleReturnOverview.Card + saleReturnOverview.Credit,
 					Remarks = $"Location Account Posting For Sale Return Bill {saleReturnOverview.TransactionNo}",
 				});
-			}
-		}
 
 		if (saleReturnOverview.TotalAmount - saleReturnOverview.TotalExtraTaxAmount > 0)
-		{
-			var saleLedger = await SettingsData.LoadSettingsByKey(SettingsKeys.SaleLedgerId, sqlDataAccessTransaction);
 			accountingCart.Add(new()
 			{
 				ReferenceId = saleReturnOverview.Id,
@@ -500,11 +504,8 @@ public static class SaleReturnData
 				Credit = null,
 				Remarks = $"Sale Return Account Posting For Sale Return Bill {saleReturnOverview.TransactionNo}",
 			});
-		}
 
 		if (saleReturnOverview.TotalExtraTaxAmount > 0)
-		{
-			var gstLedger = await SettingsData.LoadSettingsByKey(SettingsKeys.GSTLedgerId, sqlDataAccessTransaction);
 			accountingCart.Add(new()
 			{
 				ReferenceId = saleReturnOverview.Id,
@@ -515,7 +516,6 @@ public static class SaleReturnData
 				Credit = null,
 				Remarks = $"GST Account Posting For Sale Return Bill {saleReturnOverview.TransactionNo}",
 			});
-		}
 
 		var voucher = await SettingsData.LoadSettingsByKey(SettingsKeys.SaleReturnVoucherId, sqlDataAccessTransaction);
 		var accounting = new FinancialAccountingModel

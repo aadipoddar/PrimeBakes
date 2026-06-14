@@ -12,13 +12,11 @@ using PrimeBakesLibrary.Store.PaymentMode;
 using PrimeBakesLibrary.Store.Product.Data;
 using PrimeBakesLibrary.Store.Product.Models;
 using PrimeBakesLibrary.Store.StockTransfer.Data;
-using PrimeBakesLibrary.Store.StockTransfer.Exports;
 using PrimeBakesLibrary.Store.StockTransfer.Models;
-using PrimeBakesLibrary.Utils.Exports;
 
-using Syncfusion.Blazor.DropDowns;
 using Syncfusion.Blazor.Grids;
-using Syncfusion.Blazor.Inputs;
+
+using System.Text.Json;
 
 namespace PrimeBakes.Shared.Pages.Store.StockTransfer;
 
@@ -30,12 +28,13 @@ public partial class StockTransferPage
 
 	private bool _isLoading = true;
 	private bool _isProcessing = false;
+	private bool _isSameState = true;
 
 	private CompanyModel _selectedCompany = new();
 	private LocationModel _selectedLocation = new();
 	private LocationModel _selectedToLocation = new();
 	private FinancialYearModel _selectedFinancialYear = new();
-	private ProductLocationOverviewModel? _selectedProduct = null;
+	private ProductLocationOverviewModel _selectedProduct = null;
 	private StockTransferItemCartModel _selectedCart = new();
 	private StockTransferModel _stockTransfer = new();
 
@@ -46,18 +45,28 @@ public partial class StockTransferPage
 	private List<StockTransferItemCartModel> _cart = [];
 	private readonly List<ContextMenuItemModel> _cartGridContextMenuItems =
 	[
-		new() { Text = "Edit (Insert)", Id = "EditCart", IconCss = "e-icons e-edit" },
-		new() { Text = "Delete (Del)", Id = "DeleteCart", IconCss = "e-icons e-delete" }
+		new() { Text = "Edit (Insert)", Id = "EditCart", IconCss = "e-icons e-edit", Target = ".e-content" },
+		new() { Text = "Delete (Del)", Id = "DeleteCart", IconCss = "e-icons e-trash", Target = ".e-content" }
 	];
-	private readonly List<PaymentItem> _payments = [];
+
+	private readonly List<PaymentItem> _paymentsCart = [];
 	private readonly List<PaymentModeModel> _paymentMethods = PaymentModeData.GetPaymentModes();
-
 	private PaymentModeModel _selectedPaymentMethod = new();
-	private decimal _paymentAmount = 0;
-	private decimal _remainingAmount => _stockTransfer.TotalAmount - _payments.Sum(p => p.Amount);
+	private PaymentItem _selectedPaymentCart = new();
+	private decimal _remainingAmount => _stockTransfer.TotalAmount - _paymentsCart.Sum(p => p.Amount);
 
-	private AutoCompleteWithAdd<ProductLocationOverviewModel?, ProductLocationOverviewModel> _itemAutoComplete;
+	private readonly List<ContextMenuItemModel> _paymentsCartGridContextMenuItems =
+	[
+		new() { Text = "Edit (Insert)", Id = "EditCart", IconCss = "e-icons e-edit", Target = ".e-content" },
+		new() { Text = "Delete (Del)", Id = "DeleteCart", IconCss = "e-icons e-trash", Target = ".e-content" }
+	];
+
+	private CustomAutoComplete<CompanyModel> _firstFocus;
+	private CustomAutoComplete<ProductLocationOverviewModel> _itemAutoComplete;
+	private CustomNumericField<decimal> _otherChargesPercent;
+	private CustomAutoComplete<PaymentModeModel> _paymentModeAutoComplete;
 	private SfGrid<StockTransferItemCartModel> _sfCartGrid;
+	private SfGrid<PaymentItem> _sfPaymentsCartGrid;
 
 	private ToastNotification _toastNotification;
 
@@ -67,222 +76,256 @@ public partial class StockTransferPage
 		if (!firstRender)
 			return;
 
-		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Store], true);
+		try
+		{
+			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Store], true);
+			await InitializePage();
+		}
+		catch { await ResetPage(); }
+	}
+
+	private async Task InitializePage()
+	{
 		await LoadData();
+		await ResolveTransaction();
+		await LoadSelections();
+		await LoadItems();
+		await ResolveCart();
+
+		_isLoading = false;
+		StateHasChanged();
+
+		await SaveTransactionFile();
+
+		if (_firstFocus is not null)
+			await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadData()
 	{
-		await LoadLocations();
-		await LoadCompanies();
-		await LoadExistingTransaction();
-		await LoadItems();
-		await LoadExistingCart();
-		await SaveTransactionFile();
+		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
+		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
 
-		_isLoading = false;
-		StateHasChanged();
+		_locations = [.. _locations.OrderBy(s => s.Name)];
+		_companies = [.. _companies.OrderBy(s => s.Name)];
+
+		var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
+		_selectedCompany = _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value) ?? _companies.FirstOrDefault();
+		_selectedLocation = _locations.FirstOrDefault(s => s.Id == _user.LocationId);
+		_selectedToLocation = _locations.FirstOrDefault(s => s.Id == _user.LocationId);
 	}
 
-	private async Task LoadLocations()
+	private async Task ResolveTransaction()
 	{
 		try
 		{
-			_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
-			_locations = [.. _locations.OrderBy(s => s.Name)];
+			if (await LoadExistingTransaction())
+				return;
 
-			_selectedLocation = _locations.FirstOrDefault(s => s.Id == _user.LocationId);
-			_selectedToLocation = _locations.FirstOrDefault(s => s.Id == _user.LocationId);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("An Error Occurred While Loading Locations", ex.Message, ToastType.Error);
-		}
-	}
+			if (await TryRestoreFromLocalStorage())
+				return;
 
-	private async Task LoadCompanies()
-	{
-		try
-		{
-			_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-			_companies = [.. _companies.OrderBy(s => s.Name)];
-
-			var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
-			_selectedCompany = _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value) ?? throw new Exception("Main Company Not Found");
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("An Error Occurred While Loading Companies", ex.Message, ToastType.Error);
-		}
-	}
-
-	private async Task LoadExistingTransaction()
-	{
-		try
-		{
-			if (Id.HasValue)
-			{
-				_stockTransfer = await CommonData.LoadTableDataById<StockTransferModel>(StoreNames.StockTransfer, Id.Value);
-				if (_stockTransfer is null || _stockTransfer.Id == 0)
-				{
-					await _toastNotification.ShowAsync("Transaction Not Found", "The requested transaction could not be found.", ToastType.Error);
-					NavigationManager.NavigateTo(StoreRouteNames.StockTransfer, true);
-				}
-			}
-
-			else if (await DataStorageService.LocalExists(StorageFileNames.StockTransferDataFileName))
-				_stockTransfer = System.Text.Json.JsonSerializer.Deserialize<StockTransferModel>(await DataStorageService.LocalGetAsync(StorageFileNames.StockTransferDataFileName));
-
-			else
-			{
-				_stockTransfer = new()
-				{
-					Id = 0,
-					TransactionNo = string.Empty,
-					CompanyId = _selectedCompany.Id,
-					LocationId = _user.LocationId,
-					ToLocationId = _user.LocationId,
-					BaseTotal = 0,
-					TotalQuantity = 0,
-					TransactionDateTime = await CommonData.LoadCurrentDateTime(),
-					FinancialYearId = (await FinancialYearData.LoadFinancialYearByDateTime(await CommonData.LoadCurrentDateTime())).Id,
-					CreatedBy = _user.Id,
-					TotalItems = 0,
-					ItemDiscountAmount = 0,
-					TotalAfterItemDiscount = 0,
-					TotalInclusiveTaxAmount = 0,
-					TotalExtraTaxAmount = 0,
-					TotalAfterTax = 0,
-					DiscountPercent = _locations.FirstOrDefault(s => s.Id == _user.LocationId).Discount,
-					DiscountAmount = 0,
-					OtherChargesPercent = 0,
-					OtherChargesAmount = 0,
-					RoundOffAmount = 0,
-					TotalAmount = 0,
-					Card = 0,
-					Cash = 0,
-					Credit = 0,
-					UPI = 0,
-					Remarks = "",
-					CreatedAt = DateTime.Now,
-					CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform(),
-					Status = true,
-					LastModifiedAt = null,
-					LastModifiedBy = null,
-					LastModifiedFromPlatform = null
-				};
-				await DeleteLocalFiles();
-			}
-
-			_selectedLocation = _locations.FirstOrDefault(s => s.Id == _stockTransfer.LocationId);
-			_selectedToLocation = _locations.FirstOrDefault(s => s.Id == _stockTransfer.ToLocationId);
-			_selectedCompany = _companies.FirstOrDefault(s => s.Id == _stockTransfer.CompanyId);
-
-			if (Id is null)
-				_stockTransfer.DiscountPercent = _selectedToLocation.Discount;
-
-			_selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, _stockTransfer.FinancialYearId);
-			SyncPaymentsFromStockTransfer();
+			await CreateNewTransaction();
 		}
 		catch (Exception ex)
 		{
 			await _toastNotification.ShowAsync("An Error Occurred While Loading Transaction Data", ex.Message, ToastType.Error);
-			await DeleteLocalFiles();
+			await ResetPage();
 		}
-		finally
+	}
+
+	private async Task<bool> LoadExistingTransaction()
+	{
+		if (!Id.HasValue)
+			return false;
+
+		_stockTransfer = await CommonData.LoadTableDataById<StockTransferModel>(StoreNames.StockTransfer, Id.Value);
+		if (_stockTransfer is null || _stockTransfer.Id == 0)
 		{
-			await SaveTransactionFile();
+			await _toastNotification.ShowAsync("Transaction Not Found", "The requested transaction could not be found.", ToastType.Error);
+			await ResetPage();
 		}
+
+		return true;
+	}
+
+	private async Task<bool> TryRestoreFromLocalStorage()
+	{
+		if (!await DataStorageService.LocalExists(StorageFileNames.StockTransferDataFileName))
+			return false;
+
+		try
+		{
+			_stockTransfer = JsonSerializer.Deserialize<StockTransferModel>(await DataStorageService.LocalGetAsync(StorageFileNames.StockTransferDataFileName));
+			return _stockTransfer is not null;
+		}
+		catch
+		{
+			await DeleteLocalFiles();
+			return false;
+		}
+	}
+
+	private async Task CreateNewTransaction()
+	{
+		var currentDateTime = await CommonData.LoadCurrentDateTime();
+		var financialYear = await FinancialYearData.LoadFinancialYearByDateTime(currentDateTime);
+
+		_stockTransfer = new()
+		{
+			Id = 0,
+			TransactionNo = string.Empty,
+			CompanyId = _selectedCompany.Id,
+			LocationId = _user.LocationId,
+			ToLocationId = _user.LocationId,
+			TransactionDateTime = currentDateTime,
+			FinancialYearId = financialYear is null ? 0 : financialYear.Id,
+			CreatedBy = _user.Id,
+			TotalItems = 0,
+			TotalQuantity = 0,
+			BaseTotal = 0,
+			ItemDiscountAmount = 0,
+			TotalAfterItemDiscount = 0,
+			TotalInclusiveTaxAmount = 0,
+			TotalExtraTaxAmount = 0,
+			TotalAfterTax = 0,
+			DiscountPercent = _locations.FirstOrDefault(s => s.Id == _user.LocationId)?.Discount ?? 0,
+			DiscountAmount = 0,
+			OtherChargesPercent = 0,
+			OtherChargesAmount = 0,
+			RoundOffAmount = 0,
+			TotalAmount = 0,
+			Card = 0,
+			Cash = 0,
+			Credit = 0,
+			UPI = 0,
+			Remarks = null,
+			FinancialAccountingId = null,
+			CreatedAt = DateTime.Now,
+			CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform(),
+			Status = true,
+			LastModifiedAt = null,
+			LastModifiedBy = null,
+			LastModifiedFromPlatform = null
+		};
+
+		await DeleteLocalFiles();
+	}
+
+	private async Task LoadSelections()
+	{
+		_selectedLocation = _locations.FirstOrDefault(s => s.Id == _stockTransfer.LocationId) ?? _locations.FirstOrDefault();
+		_stockTransfer.LocationId = _selectedLocation?.Id ?? 0;
+
+		_selectedToLocation = _locations.FirstOrDefault(s => s.Id == _stockTransfer.ToLocationId) ?? _locations.FirstOrDefault();
+		_stockTransfer.ToLocationId = _selectedToLocation?.Id ?? 0;
+
+		var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
+		_selectedCompany = _stockTransfer.CompanyId > 0
+			? _companies.FirstOrDefault(s => s.Id == _stockTransfer.CompanyId) ?? _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value)
+			: _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value);
+		_stockTransfer.CompanyId = _selectedCompany?.Id ?? 0;
+
+		if (Id is null)
+			_stockTransfer.DiscountPercent = _selectedToLocation?.Discount ?? 0;
+
+		_selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, _stockTransfer.FinancialYearId);
+		SyncPaymentsFromStockTransfer();
 	}
 
 	private async Task LoadItems()
 	{
-		try
-		{
-			_products = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _stockTransfer.LocationId);
-			_taxes = await CommonData.LoadTableDataByStatus<TaxModel>(StoreNames.Tax);
+		_products = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _stockTransfer.LocationId);
+		_taxes = await CommonData.LoadTableDataByStatus<TaxModel>(StoreNames.Tax);
 
-			_products = [.. _products.OrderBy(s => s.Name)];
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("An Error Occurred While Loading Items", ex.Message, ToastType.Error);
-		}
+		_products = [.. _products.OrderBy(s => s.Name)];
+
+		await LoadTaxState();
 	}
 
-	private async Task LoadExistingCart()
+	private async Task LoadTaxState()
+	{
+		var fromLedger = await LocationData.LoadLedgerByLocationId(_stockTransfer.LocationId);
+		var toLedger = await LocationData.LoadLedgerByLocationId(_stockTransfer.ToLocationId);
+		_isSameState = fromLedger is null || toLedger is null || fromLedger.StateUTId == toLedger.StateUTId;
+	}
+
+	private async Task ResolveCart()
 	{
 		try
 		{
 			_cart.Clear();
 
-			if (_stockTransfer.Id > 0)
-			{
-				var existingCart = await CommonData.LoadTableDataByMasterId<StockTransferDetailModel>(StoreNames.StockTransferDetail, _stockTransfer.Id);
+			if (await LoadExistingCart())
+				return;
 
-				foreach (var item in existingCart)
-				{
-					if (_products.FirstOrDefault(s => s.ProductId == item.ProductId) is null)
-					{
-						var product = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, item.ProductId);
-						await _toastNotification.ShowAsync("Item Not Found", $"The item {product?.Name} (ID: {item.ProductId}) in the existing transaction cart was not found in the available items list. It may have been deleted or is inaccessible.", ToastType.Error);
-						continue;
-					}
-
-					_cart.Add(new()
-					{
-						ItemId = item.ProductId,
-						ItemName = _products.FirstOrDefault(s => s.ProductId == item.ProductId)?.Name ?? "",
-						Quantity = item.Quantity,
-						Rate = item.Rate,
-						BaseTotal = item.BaseTotal,
-						DiscountPercent = item.DiscountPercent,
-						DiscountAmount = item.DiscountAmount,
-						AfterDiscount = item.AfterDiscount,
-						CGSTPercent = item.CGSTPercent,
-						CGSTAmount = item.CGSTAmount,
-						SGSTPercent = item.SGSTPercent,
-						SGSTAmount = item.SGSTAmount,
-						IGSTPercent = item.IGSTPercent,
-						IGSTAmount = item.IGSTAmount,
-						TotalTaxAmount = item.TotalTaxAmount,
-						Total = item.Total,
-						InclusiveTax = item.InclusiveTax,
-						NetRate = item.NetRate,
-						Remarks = item.Remarks
-					});
-				}
-			}
-
-			else if (await DataStorageService.LocalExists(StorageFileNames.StockTransferCartDataFileName))
-				_cart = System.Text.Json.JsonSerializer.Deserialize<List<StockTransferItemCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.StockTransferCartDataFileName));
+			if (await DataStorageService.LocalExists(StorageFileNames.StockTransferCartDataFileName))
+				_cart = JsonSerializer.Deserialize<List<StockTransferItemCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.StockTransferCartDataFileName));
 		}
 		catch (Exception ex)
 		{
 			await _toastNotification.ShowAsync("An Error Occurred While Loading Existing Cart", ex.Message, ToastType.Error);
-			await DeleteLocalFiles();
+			await ResetPage();
 		}
-		finally
+	}
+
+	private async Task<bool> LoadExistingCart()
+	{
+		if (_stockTransfer.Id <= 0)
+			return false;
+
+		var existingCart = await CommonData.LoadTableDataByMasterId<StockTransferDetailModel>(StoreNames.StockTransferDetail, _stockTransfer.Id);
+
+		foreach (var item in existingCart)
 		{
-			await SaveTransactionFile();
+			var product = _products.FirstOrDefault(s => s.ProductId == item.ProductId);
+			if (product is null)
+			{
+				var missing = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, item.ProductId);
+				await _toastNotification.ShowAsync("Item Not Found", $"The item {missing?.Name} (ID: {item.ProductId}) in the existing transaction cart was not found in the available items list. It may have been deleted or is inaccessible.", ToastType.Error);
+				continue;
+			}
+
+			_cart.Add(new()
+			{
+				ItemId = item.ProductId,
+				ItemName = product.Name,
+				Quantity = item.Quantity,
+				Rate = item.Rate,
+				BaseTotal = item.BaseTotal,
+				DiscountPercent = item.DiscountPercent,
+				DiscountAmount = item.DiscountAmount,
+				AfterDiscount = item.AfterDiscount,
+				CGSTPercent = item.CGSTPercent,
+				CGSTAmount = item.CGSTAmount,
+				SGSTPercent = item.SGSTPercent,
+				SGSTAmount = item.SGSTAmount,
+				IGSTPercent = item.IGSTPercent,
+				IGSTAmount = item.IGSTAmount,
+				TotalTaxAmount = item.TotalTaxAmount,
+				Total = item.Total,
+				InclusiveTax = item.InclusiveTax,
+				NetRate = item.NetRate,
+				Remarks = item.Remarks
+			});
 		}
+
+		return true;
 	}
 	#endregion
 
 	#region Payment
 	private void SyncPaymentsFromStockTransfer()
 	{
-		_payments.Clear();
+		_paymentsCart.Clear();
 
 		AddPaymentFromStockTransfer("Cash", _stockTransfer.Cash);
 		AddPaymentFromStockTransfer("Card", _stockTransfer.Card);
 		AddPaymentFromStockTransfer("UPI", _stockTransfer.UPI);
 		AddPaymentFromStockTransfer("Credit", _stockTransfer.Credit);
 
-		_selectedPaymentMethod = _user?.LocationId == 1
-			? _paymentMethods.FirstOrDefault(pm => pm.Name == "Credit") ?? _paymentMethods.FirstOrDefault()
-			: _paymentMethods.FirstOrDefault();
-		_paymentAmount = Math.Max(0, _remainingAmount);
+		_selectedPaymentMethod = _paymentMethods.FirstOrDefault();
+		_selectedPaymentCart = new() { Amount = Math.Max(0, _remainingAmount) };
 	}
 
 	private void AddPaymentFromStockTransfer(string modeName, decimal amount)
@@ -294,7 +337,7 @@ public partial class StockTransferPage
 		if (mode is null)
 			return;
 
-		_payments.Add(new()
+		_paymentsCart.Add(new()
 		{
 			Id = mode.Id,
 			Method = mode.Name,
@@ -304,200 +347,223 @@ public partial class StockTransferPage
 
 	private void ApplyPaymentsToStockTransfer()
 	{
-		_stockTransfer.Cash = _payments.FirstOrDefault(p => p.Method == "Cash")?.Amount ?? 0;
-		_stockTransfer.Card = _payments.FirstOrDefault(p => p.Method == "Card")?.Amount ?? 0;
-		_stockTransfer.UPI = _payments.FirstOrDefault(p => p.Method == "UPI")?.Amount ?? 0;
-		_stockTransfer.Credit = _payments.FirstOrDefault(p => p.Method == "Credit")?.Amount ?? 0;
+		_stockTransfer.Cash = _paymentsCart.FirstOrDefault(p => p.Method == "Cash")?.Amount ?? 0;
+		_stockTransfer.Card = _paymentsCart.FirstOrDefault(p => p.Method == "Card")?.Amount ?? 0;
+		_stockTransfer.UPI = _paymentsCart.FirstOrDefault(p => p.Method == "UPI")?.Amount ?? 0;
+		_stockTransfer.Credit = _paymentsCart.FirstOrDefault(p => p.Method == "Credit")?.Amount ?? 0;
 	}
 
-	private async Task AddPayment()
+	private void OnPaymentMethodChanged(PaymentModeModel value)
 	{
-		if (_isProcessing || _paymentAmount <= 0 || _selectedPaymentMethod is null || _selectedPaymentMethod.Id <= 0)
-			return;
-
-		if (_paymentAmount > _remainingAmount)
+		if (value is null || value.Id == 0)
 		{
-			await _toastNotification.ShowAsync("Invalid Payment Amount", $"Payment amount cannot exceed remaining amount of ₹{_remainingAmount:N2}", ToastType.Error);
+			_selectedPaymentMethod = new();
+			_selectedPaymentCart = new();
 			return;
 		}
 
-		var existingPayment = _payments.FirstOrDefault(p => p.Id == _selectedPaymentMethod.Id);
-		if (existingPayment is not null)
-			existingPayment.Amount += _paymentAmount;
+		_selectedPaymentMethod = value;
+
+		_selectedPaymentCart.Id = value.Id;
+		_selectedPaymentCart.Method = value.Name;
+		_selectedPaymentCart.Amount = Math.Max(0, _stockTransfer.TotalAmount - _paymentsCart.Where(p => p.Id != value.Id).Sum(p => p.Amount));
+	}
+
+	private async Task AddPaymentToCart()
+	{
+		if (_selectedPaymentMethod is null || _selectedPaymentMethod.Id <= 0 || _selectedPaymentCart.Amount <= 0)
+		{
+			await _toastNotification.ShowAsync("Invalid Payment Details", "Please ensure all payment details are correctly filled before adding to the cart.", ToastType.Error);
+			return;
+		}
+
+		if (_paymentsCart.Where(p => p.Id != _selectedPaymentMethod.Id).Sum(p => p.Amount) + _selectedPaymentCart.Amount > _stockTransfer.TotalAmount)
+		{
+			await _toastNotification.ShowAsync("Payment Amount Exceeds Total", $"The total payment amount cannot exceed the total amount of ₹{_stockTransfer.TotalAmount:N2}.", ToastType.Error);
+			return;
+		}
+
+		var existingItem = _paymentsCart.FirstOrDefault(p => p.Id == _selectedPaymentMethod.Id);
+		if (existingItem is not null)
+			existingItem.Amount += _selectedPaymentCart.Amount;
 		else
-			_payments.Add(new()
+			_paymentsCart.Add(new()
 			{
 				Id = _selectedPaymentMethod.Id,
 				Method = _selectedPaymentMethod.Name,
-				Amount = _paymentAmount
+				Amount = _selectedPaymentCart.Amount
 			});
 
 		ApplyPaymentsToStockTransfer();
-		_paymentAmount = Math.Max(0, _remainingAmount);
-		_selectedPaymentMethod = _paymentMethods.FirstOrDefault(pm => pm.Id != _selectedPaymentMethod.Id)
-								 ?? _paymentMethods.FirstOrDefault()
-								 ?? new();
 
+		_selectedPaymentMethod = new();
+		_selectedPaymentCart = new();
+
+		if (_paymentModeAutoComplete is not null)
+			await _paymentModeAutoComplete.FocusAsync();
 		await SaveTransactionFile(true);
 	}
 
-	private async Task RemovePayment(PaymentItem payment)
+	private async Task EditSelectedPaymentCartItem()
 	{
-		if (_isProcessing || payment is null)
+		if (_sfPaymentsCartGrid is null || _sfPaymentsCartGrid.SelectedRecords is null || _sfPaymentsCartGrid.SelectedRecords.Count == 0)
 			return;
 
-		_payments.Remove(payment);
-		ApplyPaymentsToStockTransfer();
+		var selectedCartItem = _sfPaymentsCartGrid.SelectedRecords.First();
 
-		_selectedPaymentMethod = _paymentMethods.FirstOrDefault();
-		_paymentAmount = Math.Max(0, _remainingAmount);
+		_selectedPaymentMethod = _paymentMethods.FirstOrDefault(pm => pm.Id == selectedCartItem.Id);
+		if (_selectedPaymentMethod is null)
+			return;
+
+		_selectedPaymentCart = new()
+		{
+			Id = selectedCartItem.Id,
+			Method = selectedCartItem.Method,
+			Amount = selectedCartItem.Amount
+		};
+
+		if (_paymentModeAutoComplete is not null)
+			await _paymentModeAutoComplete.FocusAsync();
+		await RemoveSelectedPaymentCartItem();
+	}
+
+	private async Task RemoveSelectedPaymentCartItem()
+	{
+		if (_sfPaymentsCartGrid is null || _sfPaymentsCartGrid.SelectedRecords is null || _sfPaymentsCartGrid.SelectedRecords.Count == 0)
+			return;
+
+		var selectedCartItem = _sfPaymentsCartGrid.SelectedRecords.First();
+		_paymentsCart.Remove(selectedCartItem);
+		ApplyPaymentsToStockTransfer();
 		await SaveTransactionFile(true);
 	}
 	#endregion
 
-	#region Change Events
-	private async Task OnFromLocationChanged(ChangeEventArgs<LocationModel, LocationModel> args)
+	#region Changed Events
+	private async Task OnCompanyChanged(CompanyModel value)
 	{
-		if (args.Value is null || args.Value.Id == 0)
+		if (value is null || value.Id == 0)
 			return;
 
-		_selectedLocation = args.Value;
-		_stockTransfer.LocationId = _selectedLocation.Id;
+		_selectedCompany = value;
+		_stockTransfer.CompanyId = value.Id;
+		await SaveTransactionFile();
+	}
+
+	private async Task OnFromLocationChanged(LocationModel value)
+	{
+		if (value is null || value.Id == 0)
+			return;
+
+		_selectedLocation = value;
+		_stockTransfer.LocationId = value.Id;
+		_cart.Clear();
 
 		await LoadItems();
 		await SaveTransactionFile();
 	}
 
-	private async Task OnToLocationChanged(ChangeEventArgs<LocationModel, LocationModel> args)
+	private async Task OnToLocationChanged(LocationModel value)
 	{
-		if (args.Value is null || args.Value.Id == 0)
+		if (value is null || value.Id == 0)
 			return;
 
-		_selectedToLocation = args.Value;
-		_stockTransfer.ToLocationId = _selectedToLocation.Id;
-		_stockTransfer.DiscountPercent = _selectedToLocation.Discount;
+		_selectedToLocation = value;
+		_stockTransfer.ToLocationId = value.Id;
+		_stockTransfer.DiscountPercent = value.Discount;
 
+		await LoadTaxState();
 		await SaveTransactionFile();
 	}
 
-	private async Task OnCompanyChanged(ChangeEventArgs<CompanyModel, CompanyModel> args)
+	private async Task OnTransactionDateChanged(DateTime value)
 	{
-		if (args.Value is null || args.Value.Id == 0)
-			return;
-
-		_selectedCompany = args.Value;
-		_stockTransfer.CompanyId = _selectedCompany.Id;
-
-		await SaveTransactionFile();
-	}
-
-	private async Task OnTransactionDateChanged(Syncfusion.Blazor.Calendars.ChangedEventArgs<DateTime> args)
-	{
-		_stockTransfer.TransactionDateTime = args.Value;
+		_stockTransfer.TransactionDateTime = value;
 		await LoadItems();
 		await SaveTransactionFile();
 	}
 
-	private async Task OnDiscountPercentChanged(ChangeEventArgs<decimal> args)
+	private async Task OnDiscountPercentChanged(decimal value)
 	{
-		_stockTransfer.DiscountPercent = args.Value;
+		_stockTransfer.DiscountPercent = value;
 		await SaveTransactionFile();
 	}
 
-	private async Task OnOtherDiscountPercentChanged(ChangeEventArgs<decimal> args)
+	private async Task OnOtherChargesPercentChanged(decimal value)
 	{
-		_stockTransfer.OtherChargesPercent = args.Value;
+		_stockTransfer.OtherChargesPercent = value;
 		await SaveTransactionFile();
 	}
 
-	private async Task OnRoundOffAmountChanged(ChangeEventArgs<decimal> args)
+	private async Task OnRoundOffAmountChanged(decimal value)
 	{
-		_stockTransfer.RoundOffAmount = args.Value;
+		_stockTransfer.RoundOffAmount = value;
 		await SaveTransactionFile(true);
 	}
 	#endregion
 
 	#region Cart
-	private async Task OnItemChanged(ChangeEventArgs<ProductLocationOverviewModel?, ProductLocationOverviewModel?> args)
+	private void OnItemChanged(ProductLocationOverviewModel value)
 	{
-		if (args.Value is null || args.Value.Id == 0)
+		if (value is null || value.ProductId <= 0)
 			return;
 
-		_selectedProduct = args.Value;
+		_selectedProduct = value;
 
-		if (_selectedProduct is null)
-			_selectedCart = new()
-			{
-				ItemId = 0,
-				ItemName = "",
-				Quantity = 0,
-				Rate = 0,
-				DiscountPercent = 0,
-				CGSTPercent = 0,
-				SGSTPercent = 0,
-				IGSTPercent = 0
-			};
+		var tax = _taxes.FirstOrDefault(s => s.Id == _selectedProduct.TaxId);
 
-		else
-		{
-			var fromLedger = await LocationData.LoadLedgerByLocationId(_stockTransfer.LocationId);
-			var toLedger = await LocationData.LoadLedgerByLocationId(_stockTransfer.ToLocationId);
-
-			var isSameState = fromLedger.StateUTId == toLedger.StateUTId;
-
-			_selectedCart.ItemId = _selectedProduct.ProductId;
-			_selectedCart.ItemName = _selectedProduct.Name;
-			_selectedCart.Quantity = 0;
-			_selectedCart.Rate = _selectedProduct.Rate;
-			_selectedCart.DiscountPercent = 0;
-			_selectedCart.CGSTPercent = _taxes.FirstOrDefault(s => s.Id == _selectedProduct.TaxId).CGST;
-			_selectedCart.SGSTPercent = isSameState ? _taxes.FirstOrDefault(s => s.Id == _selectedProduct.TaxId).SGST : 0;
-			_selectedCart.IGSTPercent = isSameState ? 0 : _taxes.FirstOrDefault(s => s.Id == _selectedProduct.TaxId).IGST;
-			_selectedCart.InclusiveTax = _taxes.FirstOrDefault(s => s.Id == _selectedProduct.TaxId).Inclusive;
-		}
+		_selectedCart.ItemId = _selectedProduct.ProductId;
+		_selectedCart.ItemName = _selectedProduct.Name;
+		_selectedCart.Quantity = 0;
+		_selectedCart.Rate = _selectedProduct.Rate;
+		_selectedCart.DiscountPercent = 0;
+		_selectedCart.CGSTPercent = tax.CGST;
+		_selectedCart.SGSTPercent = _isSameState ? tax.SGST : 0;
+		_selectedCart.IGSTPercent = _isSameState ? 0 : tax.IGST;
+		_selectedCart.InclusiveTax = tax.Inclusive;
 
 		UpdateSelectedItemFinancialDetails();
 	}
 
-	private void OnItemQuantityChanged(ChangeEventArgs<decimal> args)
+	private void OnItemQuantityChanged(decimal value)
 	{
-		_selectedCart.Quantity = args.Value;
+		_selectedCart.Quantity = value;
 		UpdateSelectedItemFinancialDetails();
 	}
 
-	private void OnItemRateChanged(ChangeEventArgs<decimal> args)
+	private void OnItemRateChanged(decimal value)
 	{
-		_selectedCart.Rate = args.Value;
+		_selectedCart.Rate = value;
 		UpdateSelectedItemFinancialDetails();
 	}
 
-	private void OnItemDiscountPercentChanged(ChangeEventArgs<decimal> args)
+	private void OnItemDiscountPercentChanged(decimal value)
 	{
-		_selectedCart.DiscountPercent = args.Value;
+		_selectedCart.DiscountPercent = value;
 		UpdateSelectedItemFinancialDetails();
 	}
 
-	private void OnItemCGSTPercentChanged(ChangeEventArgs<decimal> args)
+	private void OnItemCGSTPercentChanged(decimal value)
 	{
-		_selectedCart.CGSTPercent = args.Value;
+		_selectedCart.CGSTPercent = value;
 		UpdateSelectedItemFinancialDetails();
 	}
 
-	private void OnItemSGSTPercentChanged(ChangeEventArgs<decimal> args)
+	private void OnItemSGSTPercentChanged(decimal value)
 	{
-		_selectedCart.SGSTPercent = args.Value;
+		_selectedCart.SGSTPercent = value;
 		UpdateSelectedItemFinancialDetails();
 	}
 
-	private void OnItemIGSTPercentChanged(ChangeEventArgs<decimal> args)
+	private void OnItemIGSTPercentChanged(decimal value)
 	{
-		_selectedCart.IGSTPercent = args.Value;
+		_selectedCart.IGSTPercent = value;
 		UpdateSelectedItemFinancialDetails();
 	}
 
-	private void OnItemInclusiveTaxChanged(Syncfusion.Blazor.Buttons.ChangeEventArgs<bool> args)
+	private void OnItemInclusiveTaxChanged(bool value)
 	{
-		_selectedCart.InclusiveTax = args.Checked;
+		_selectedCart.InclusiveTax = value;
 		UpdateSelectedItemFinancialDetails();
 	}
 
@@ -543,7 +609,6 @@ public partial class StockTransferPage
 			return;
 		}
 
-		// Validate that all three taxes cannot be applied together
 		int taxCount = 0;
 		if (_selectedCart.CGSTPercent > 0) taxCount++;
 		if (_selectedCart.SGSTPercent > 0) taxCount++;
@@ -643,10 +708,30 @@ public partial class StockTransferPage
 	#region Saving
 	private async Task UpdateFinancialDetails(bool customRoundOff = false)
 	{
-		foreach (var item in _cart)
+		if (!_user.ChangeProductFinancial)
 		{
-			if (item.Quantity == 0)
+			_stockTransfer.DiscountPercent = 0;
+			_stockTransfer.OtherChargesPercent = 0;
+			customRoundOff = false;
+		}
+
+		foreach (var item in _cart.ToList())
+		{
+			if (item.Quantity <= 0)
+			{
 				_cart.Remove(item);
+				continue;
+			}
+
+			if (!_user.ChangeProductFinancial)
+			{
+				item.Rate = _products.FirstOrDefault(p => p.ProductId == item.ItemId)?.Rate ?? item.Rate;
+				item.DiscountPercent = 0;
+				item.CGSTPercent = _taxes.FirstOrDefault(t => t.Id == _products.FirstOrDefault(p => p.ProductId == item.ItemId)?.TaxId)?.CGST ?? 0;
+				item.SGSTPercent = _taxes.FirstOrDefault(t => t.Id == _products.FirstOrDefault(p => p.ProductId == item.ItemId)?.TaxId)?.SGST ?? 0;
+				item.IGSTPercent = 0;
+				item.InclusiveTax = _taxes.FirstOrDefault(t => t.Id == _products.FirstOrDefault(p => p.ProductId == item.ItemId)?.TaxId)?.Inclusive ?? false;
+			}
 
 			item.BaseTotal = item.Rate * item.Quantity;
 			item.DiscountAmount = item.BaseTotal * (item.DiscountPercent / 100);
@@ -673,9 +758,7 @@ public partial class StockTransferPage
 			var withOtherCharges = perUnitCost * (1 + _stockTransfer.OtherChargesPercent / 100);
 			item.NetRate = withOtherCharges * (1 - _stockTransfer.DiscountPercent / 100);
 
-			item.Remarks = item.Remarks?.Trim();
-			if (string.IsNullOrWhiteSpace(item.Remarks))
-				item.Remarks = null;
+			item.Remarks = string.IsNullOrWhiteSpace(item.Remarks) ? null : item.Remarks.Trim();
 		}
 
 		_stockTransfer.TotalItems = _cart.Count;
@@ -708,18 +791,23 @@ public partial class StockTransferPage
 		if (_selectedFinancialYear is not null && !_selectedFinancialYear.Locked)
 			_stockTransfer.FinancialYearId = _selectedFinancialYear.Id;
 		else
-		{
 			await _toastNotification.ShowAsync("Invalid Transaction Date", "The selected transaction date does not fall within an active financial year.", ToastType.Error);
-			_stockTransfer.TransactionDateTime = await CommonData.LoadCurrentDateTime();
-			_selectedFinancialYear = await FinancialYearData.LoadFinancialYearByDateTime(_stockTransfer.TransactionDateTime);
-			_stockTransfer.FinancialYearId = _selectedFinancialYear.Id;
-		}
 		#endregion
 
 		if (Id is null)
 			_stockTransfer.TransactionNo = await GenerateCodes.GenerateStockTransferTransactionNo(_stockTransfer);
 
+		SyncPaymentsFromStockTransfer();
 		ApplyPaymentsToStockTransfer();
+
+		var currentDateTime = await CommonData.LoadCurrentDateTime();
+		_stockTransfer.Status = true;
+		_stockTransfer.TransactionDateTime = DateOnly.FromDateTime(_stockTransfer.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
+		_stockTransfer.LastModifiedAt = currentDateTime;
+		_stockTransfer.CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
+		_stockTransfer.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
+		_stockTransfer.CreatedBy = _user.Id;
+		_stockTransfer.LastModifiedBy = _user.Id;
 	}
 
 	private async Task SaveTransactionFile(bool customRoundOff = false)
@@ -733,8 +821,14 @@ public partial class StockTransferPage
 
 			await UpdateFinancialDetails(customRoundOff);
 
-			await DataStorageService.LocalSaveAsync(StorageFileNames.StockTransferDataFileName, System.Text.Json.JsonSerializer.Serialize(_stockTransfer));
-			await DataStorageService.LocalSaveAsync(StorageFileNames.StockTransferCartDataFileName, System.Text.Json.JsonSerializer.Serialize(_cart));
+			if (_cart.Count == 0 || _stockTransfer.Id > 0)
+			{
+				await DeleteLocalFiles();
+				return;
+			}
+
+			await DataStorageService.LocalSaveAsync(StorageFileNames.StockTransferDataFileName, JsonSerializer.Serialize(_stockTransfer));
+			await DataStorageService.LocalSaveAsync(StorageFileNames.StockTransferCartDataFileName, JsonSerializer.Serialize(_cart));
 		}
 		catch (Exception ex)
 		{
@@ -743,120 +837,14 @@ public partial class StockTransferPage
 		finally
 		{
 			if (_sfCartGrid is not null)
-				await _sfCartGrid?.Refresh();
+				await _sfCartGrid.Refresh();
 
-			_paymentAmount = Math.Max(0, _remainingAmount);
+			if (_sfPaymentsCartGrid is not null)
+				await _sfPaymentsCartGrid.Refresh();
 
 			_isProcessing = false;
 			StateHasChanged();
 		}
-	}
-
-	private async Task<bool> ValidateForm()
-	{
-		if (_cart.Count == 0)
-		{
-			await _toastNotification.ShowAsync("Cart is Empty", "Please add at least one item to the cart before saving the transaction.", ToastType.Error);
-			return false;
-		}
-
-		if (_selectedCompany is null || _stockTransfer.CompanyId <= 0)
-		{
-			await _toastNotification.ShowAsync("Company Not Selected", "Please select a company for the transaction.", ToastType.Error);
-			return false;
-		}
-
-		if (string.IsNullOrWhiteSpace(_stockTransfer.TransactionNo))
-		{
-			await _toastNotification.ShowAsync("Transaction Number Missing", "Please enter a transaction number for the transaction.", ToastType.Error);
-			return false;
-		}
-
-		if (_stockTransfer.TransactionDateTime == default)
-		{
-			await _toastNotification.ShowAsync("Transaction Date Missing", "Please select a valid transaction date for the transaction.", ToastType.Error);
-			return false;
-		}
-
-		if (_selectedFinancialYear is null || _stockTransfer.FinancialYearId <= 0)
-		{
-			await _toastNotification.ShowAsync("Financial Year Not Found", "The transaction date does not fall within any financial year. Please check the date and try again.", ToastType.Error);
-			return false;
-		}
-
-		if (_selectedFinancialYear.Locked)
-		{
-			await _toastNotification.ShowAsync("Financial Year Locked", "The financial year for the selected transaction date is locked. Please select a different date.", ToastType.Error);
-			return false;
-		}
-
-		if (!_selectedFinancialYear.Status)
-		{
-			await _toastNotification.ShowAsync("Financial Year Inactive", "The financial year for the selected transaction date is inactive. Please select a different date.", ToastType.Error);
-			return false;
-		}
-
-		if (_stockTransfer.TotalItems <= 0)
-		{
-			await _toastNotification.ShowAsync("Cart is Empty", "Please add at least one item to the cart before saving the transaction.", ToastType.Error);
-			return false;
-		}
-
-		if (_stockTransfer.TotalQuantity <= 0)
-		{
-			await _toastNotification.ShowAsync("Invalid Total Quantity", "The total quantity of items in the cart must be greater than zero.", ToastType.Error);
-			return false;
-		}
-
-		if (_stockTransfer.TotalAmount < 0)
-		{
-			await _toastNotification.ShowAsync("Invalid Total Amount", "The total amount of the transaction must be greater than zero.", ToastType.Error);
-			return false;
-		}
-
-		if (_cart.Any(item => item.Quantity <= 0))
-		{
-			await _toastNotification.ShowAsync("Invalid Item Quantity", "One or more items in the cart have a quantity less than or equal to zero. Please correct the quantities before saving.", ToastType.Error);
-			return false;
-		}
-
-		if (_stockTransfer.LocationId == _stockTransfer.ToLocationId)
-		{
-			await _toastNotification.ShowAsync("Invalid Locations", "The 'From' and 'To' locations cannot be the same. Please select different locations.", ToastType.Error);
-			return false;
-		}
-
-		if (_stockTransfer.Id > 0)
-		{
-			var existingTransfer = await CommonData.LoadTableDataById<StockTransferModel>(StoreNames.StockTransfer, _stockTransfer.Id);
-			await FinancialYearData.ValidateFinancialYear(existingTransfer.TransactionDateTime);
-
-			if (!_user.Admin)
-			{
-				await _toastNotification.ShowAsync("Insufficient Permissions", "You do not have the necessary permissions to modify this transaction.", ToastType.Error);
-				await DeleteLocalFiles();
-				NavigationManager.NavigateTo(StoreRouteNames.StockTransfer, true);
-				return false;
-			}
-		}
-
-		_stockTransfer.Remarks = _stockTransfer.Remarks?.Trim();
-		if (string.IsNullOrWhiteSpace(_stockTransfer.Remarks))
-			_stockTransfer.Remarks = null;
-
-		if (_stockTransfer.Cash < 0 || _stockTransfer.Card < 0 || _stockTransfer.Credit < 0 || _stockTransfer.UPI < 0)
-		{
-			await _toastNotification.ShowAsync("Invalid Payment Amounts", "Payment amounts (Cash, Card, Credit, UPI) cannot be negative. Please correct the amounts before saving.", ToastType.Error);
-			return false;
-		}
-
-		if (_stockTransfer.Cash + _stockTransfer.Card + _stockTransfer.Credit + _stockTransfer.UPI != _stockTransfer.TotalAmount)
-		{
-			await _toastNotification.ShowAsync("Payment Amount Mismatch", "The sum of payment amounts (Cash, Card, Credit, UPI) must equal the total amount of the transaction. Please correct the amounts before saving.", ToastType.Error);
-			return false;
-		}
-
-		return true;
 	}
 
 	private async Task SaveTransaction(bool savePDF = false, bool saveExcel = false)
@@ -867,47 +855,81 @@ public partial class StockTransferPage
 		try
 		{
 			await SaveTransactionFile(true);
-
-			if (!await ValidateForm())
-				return;
-
 			_isProcessing = true;
+			StateHasChanged();
 
 			await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			_stockTransfer.Status = true;
-			var currentDateTime = await CommonData.LoadCurrentDateTime();
-			_stockTransfer.TransactionDateTime = DateOnly.FromDateTime(_stockTransfer.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
-			_stockTransfer.LastModifiedAt = currentDateTime;
-			_stockTransfer.CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
-			_stockTransfer.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
-			_stockTransfer.CreatedBy = _user.Id;
-			_stockTransfer.LastModifiedBy = _user.Id;
+			var stockTransferDetails = StockTransferData.ConvertCartToDetails(_cart);
+			_stockTransfer.Id = await StockTransferData.SaveTransaction(_stockTransfer, stockTransferDetails);
+			_stockTransfer = await CommonData.LoadTableDataById<StockTransferModel>(StoreNames.StockTransfer, _stockTransfer.Id);
 
-			_stockTransfer.Id = await StockTransferData.SaveTransaction(_stockTransfer, _cart);
+			if (savePDF) await ExportSelectedTransaction(false, true);
+			if (saveExcel) await ExportSelectedTransaction(true, true);
 
-			if (savePDF)
-			{
-				var (pdfStream, pdfFileName) = await StockTransferInvoiceExport.ExportInvoice(_stockTransfer.Id, InvoiceExportType.PDF);
-				await SaveAndViewService.SaveAndView(pdfFileName, pdfStream);
-			}
-
-			if (saveExcel)
-			{
-				var (excelStream, excelFileName) = await StockTransferInvoiceExport.ExportInvoice(_stockTransfer.Id, InvoiceExportType.Excel);
-				await SaveAndViewService.SaveAndView(excelFileName, excelStream);
-			}
-
-			await ResetPage();
 			await _toastNotification.ShowAsync("Save Transaction", "Transaction saved successfully.", ToastType.Success);
+
+			if (Id.HasValue && Id.Value > 0)
+				await AuthenticationService.CloseWindowOrTab(FormFactor, JSRuntime);
+			await ResetPage();
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("An Error Occurred While Saving Transaction", ex.Message, ToastType.Error);
+			await _toastNotification.ShowAsync("Error While Saving Transaction", ex.Message, ToastType.Error);
 		}
 		finally
 		{
 			_isProcessing = false;
+		}
+	}
+	#endregion
+
+	#region Exporting
+	private async Task ExportSelectedTransaction(bool isExcel = false, bool force = false)
+	{
+		if (_stockTransfer.Id <= 0 || (_isProcessing && !force))
+			return;
+
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
+
+			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_stockTransfer.TransactionNo, !isExcel, isExcel, CodeType.StockTransfer);
+			await SaveAndViewService.SaveAndView(isExcel ? decodeTransactionNo.ExcelStream.fileName : decodeTransactionNo.PDFStream.fileName,
+				isExcel ? decodeTransactionNo.ExcelStream.stream : decodeTransactionNo.PDFStream.stream);
+
+			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
+	#endregion
+
+	#region Utilities
+	private async Task OnCartGridContextMenuItemClicked(ContextMenuClickEventArgs<StockTransferItemCartModel> args)
+	{
+		switch (args.Item.Id)
+		{
+			case "EditCart": await EditSelectedCartItem(); break;
+			case "DeleteCart": await RemoveSelectedCartItem(); break;
+		}
+	}
+
+	private async Task OnPaymentsCartGridContextMenuItemClicked(ContextMenuClickEventArgs<PaymentItem> args)
+	{
+		switch (args.Item.Id)
+		{
+			case "EditCart": await EditSelectedPaymentCartItem(); break;
+			case "DeleteCart": await RemoveSelectedPaymentCartItem(); break;
 		}
 	}
 
@@ -916,136 +938,11 @@ public partial class StockTransferPage
 		await DataStorageService.LocalRemove(StorageFileNames.StockTransferDataFileName);
 		await DataStorageService.LocalRemove(StorageFileNames.StockTransferCartDataFileName);
 	}
-	#endregion
-
-	#region Utilities
-	private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
-	{
-		switch (args.Item.Id)
-		{
-			case "NewTransaction":
-				await ResetPage();
-				break;
-			case "SaveTransaction":
-				await SaveTransaction();
-				break;
-			case "SavePdfInvoice":
-				await SaveTransaction(savePDF: true);
-				break;
-			case "SaveExcelInvoice":
-				await SaveTransaction(saveExcel: true);
-				break;
-			case "ExportPdfInvoice":
-				await DownloadPdfInvoice();
-				break;
-			case "ExportExcelInvoice":
-				await DownloadExcelInvoice();
-				break;
-			case "TransactionHistory":
-				await NavigateToTransactionHistoryPage();
-				break;
-			case "ItemReport":
-				await NavigateToItemReport();
-				break;
-		}
-	}
-
-	private async Task OnCartGridContextMenuItemClicked(ContextMenuClickEventArgs<StockTransferItemCartModel> args)
-	{
-		switch (args.Item.Id)
-		{
-			case "EditCart":
-				await EditSelectedCartItem();
-				break;
-			case "DeleteCart":
-				await RemoveSelectedCartItem();
-				break;
-		}
-	}
-
-	private async Task DownloadPdfInvoice()
-	{
-		if (!Id.HasValue || Id.Value <= 0)
-		{
-			await _toastNotification.ShowAsync("No Transaction Selected", "Please save the transaction first before downloading the invoice.", ToastType.Error);
-			return;
-		}
-
-		if (_isProcessing)
-			return;
-
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
-
-			var (pdfStream, fileName) = await StockTransferInvoiceExport.ExportInvoice(Id.Value, InvoiceExportType.PDF);
-			await SaveAndViewService.SaveAndView(fileName, pdfStream);
-
-			await _toastNotification.ShowAsync("Invoice Downloaded", "The PDF invoice has been downloaded successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("An Error Occurred While Downloading Invoice", ex.Message, ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-		}
-	}
-
-	private async Task DownloadExcelInvoice()
-	{
-		if (!Id.HasValue || Id.Value <= 0)
-		{
-			await _toastNotification.ShowAsync("No Transaction Selected", "Please save the transaction first before downloading the invoice.", ToastType.Error);
-			return;
-		}
-
-		if (_isProcessing)
-			return;
-
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
-
-			var (excelStream, fileName) = await StockTransferInvoiceExport.ExportInvoice(Id.Value, InvoiceExportType.Excel);
-			await SaveAndViewService.SaveAndView(fileName, excelStream);
-
-			await _toastNotification.ShowAsync("Invoice Downloaded", "The Excel invoice has been downloaded successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("An Error Occurred While Downloading Invoice", ex.Message, ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-		}
-	}
 
 	private async Task ResetPage()
 	{
 		await DeleteLocalFiles();
-		NavigationManager.NavigateTo(StoreRouteNames.StockTransfer, true);
+		PageRefresh.Request();
 	}
-
-	private async Task NavigateToTransactionHistoryPage() =>
-		await AuthenticationService.NavigateToRoute(StoreRouteNames.StockTransferReport, FormFactor, JSRuntime, NavigationManager);
-
-	private async Task NavigateToItemReport() =>
-		await AuthenticationService.NavigateToRoute(StoreRouteNames.StockTransferItemReport, FormFactor, JSRuntime, NavigationManager);
-
-	private void NavigateToDashboard() =>
-		NavigationManager.NavigateTo(OperationRouteNames.Dashboard);
-
-	private void NavigateBack() =>
-		NavigationManager.NavigateTo(StoreRouteNames.StoreDashboard);
-
-	private async Task Logout() =>
-		await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 	#endregion
 }

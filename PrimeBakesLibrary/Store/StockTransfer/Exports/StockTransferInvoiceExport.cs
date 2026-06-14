@@ -1,7 +1,6 @@
 using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Operations.Location;
-using PrimeBakesLibrary.Store.Product.Models;
 using PrimeBakesLibrary.Store.StockTransfer.Models;
 using PrimeBakesLibrary.Utils.Exports;
 
@@ -11,45 +10,29 @@ public static class StockTransferInvoiceExport
 {
 	public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId, InvoiceExportType exportType)
 	{
-		var transaction = await CommonData.LoadTableDataById<StockTransferModel>(StoreNames.StockTransfer, transactionId) ??
+		var transaction = await CommonData.LoadTableDataById<StockTransferOverviewModel>(StoreNames.StockTransferOverview, transactionId) ??
 			throw new InvalidOperationException("Transaction not found.");
 
-		var transactionDetails = await CommonData.LoadTableDataByMasterId<StockTransferDetailModel>(StoreNames.StockTransferDetail, transaction.Id);
+		var transactionDetails = await CommonData.LoadTableDataByMasterId<StockTransferItemOverviewModel>(StoreNames.StockTransferItemOverview, transaction.Id);
 		if (transactionDetails is null || transactionDetails.Count == 0)
 			throw new InvalidOperationException("No transaction details found for the transaction.");
 
-		var company = await CommonData.LoadTableDataById<CompanyModel>(AccountNames.Company, transaction.CompanyId) ??
-			throw new InvalidOperationException("Company information is missing.");
-
-		var fromLocation = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, transaction.LocationId);
+		var company = await CommonData.LoadTableDataById<CompanyModel>(AccountNames.Company, transaction.CompanyId);
 		var toLocationLedger = await LocationData.LoadLedgerByLocationId(transaction.ToLocationId);
 
-		var allItems = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
-
-		var cartItems = transactionDetails.Select(detail =>
+		var lineItems = transactionDetails.Select(detail => new
 		{
-			var item = allItems.FirstOrDefault(i => i.Id == detail.ProductId);
-			return new
-			{
-				ItemId = detail.ProductId,
-				ItemName = item?.Name ?? $"Item #{detail.ProductId}",
-				detail.Quantity,
-				detail.Rate,
-				detail.BaseTotal,
-				detail.DiscountPercent,
-				detail.DiscountAmount,
-				AfterDiscount = detail.DiscountPercent == 0 ? 0 : detail.AfterDiscount,
-				CGSTPercent = detail.InclusiveTax ? 0 : detail.CGSTPercent,
-				CGSTAmount = detail.InclusiveTax ? 0 : detail.CGSTAmount,
-				SGSTPercent = detail.InclusiveTax ? 0 : detail.SGSTPercent,
-				SGSTAmount = detail.InclusiveTax ? 0 : detail.SGSTAmount,
-				IGSTPercent = detail.InclusiveTax ? 0 : detail.IGSTPercent,
-				IGSTAmount = detail.InclusiveTax ? 0 : detail.IGSTAmount,
-				TaxPercent = detail.InclusiveTax ? 0 : detail.CGSTPercent + detail.SGSTPercent + detail.IGSTPercent,
-				TotalTaxAmount = detail.InclusiveTax ? 0 : detail.TotalTaxAmount,
-				detail.InclusiveTax,
-				detail.Total
-			};
+			detail.ItemName,
+			detail.Quantity,
+			detail.Rate,
+			detail.DiscountPercent,
+			AfterDiscount = detail.DiscountPercent == 0 ? 0 : detail.AfterDiscount,
+			CGSTPercent = detail.InclusiveTax ? 0 : detail.CGSTPercent,
+			SGSTPercent = detail.InclusiveTax ? 0 : detail.SGSTPercent,
+			IGSTPercent = detail.InclusiveTax ? 0 : detail.IGSTPercent,
+			TaxPercent = detail.InclusiveTax ? 0 : detail.CGSTPercent + detail.SGSTPercent + detail.IGSTPercent,
+			TotalTaxAmount = detail.InclusiveTax ? 0 : detail.TotalTaxAmount,
+			detail.Total
 		}).ToList();
 
 		var paymentModes = new Dictionary<string, decimal>();
@@ -63,11 +46,13 @@ public static class StockTransferInvoiceExport
 			Company = company,
 			BillTo = toLocationLedger,
 			InvoiceType = "STOCK TRANSFER INVOICE",
-			Outlet = fromLocation?.Name,
+			Outlet = transaction.LocationName,
 			TransactionNo = transaction.TransactionNo,
 			TransactionDateTime = transaction.TransactionDateTime,
+			ReferenceTransactionNo = string.Empty,
+			ReferenceDateTime = null,
 			TotalAmount = transaction.TotalAmount,
-			Remarks = transaction.Remarks,
+			Remarks = transaction.Remarks ?? string.Empty,
 			Status = transaction.Status,
 			PaymentModes = paymentModes
 		};
@@ -83,17 +68,15 @@ public static class StockTransferInvoiceExport
 
 		var columnSettings = new List<InvoiceColumnSetting>
 		{
-			new("#", "#", exportType, CellAlignment.Center, 30, 5),
-			new(nameof(StockTransferItemCartModel.ItemName), "Item", exportType, CellAlignment.Left, 150, 25),
-			new(nameof(StockTransferItemCartModel.Quantity), "Qty", exportType, CellAlignment.Right, 50, 10, "#,##0.00"),
-			new(nameof(StockTransferItemCartModel.Rate), "Rate", exportType, CellAlignment.Right, 60, 12, "#,##0.00"),
-			new(nameof(StockTransferItemCartModel.BaseTotal), "Amount", exportType, CellAlignment.Right, 60, 12, "#,##0.00"),
-			new(nameof(StockTransferItemCartModel.DiscountPercent), "Disc %", exportType, CellAlignment.Right, 45, 8, "#,##0.00"),
-			new(nameof(StockTransferItemCartModel.DiscountAmount), exportType == InvoiceExportType.PDF ? "Disc Amt" : "Disc Amt", exportType, CellAlignment.Right, 0, 12, "#,##0.00", true),
-			new(nameof(StockTransferItemCartModel.AfterDiscount), "Taxable", exportType, CellAlignment.Right, 60, 12, "#,##0.00"),
+			new("#", "#", exportType, CellAlignment.Center, 25, 5),
+			new(nameof(StockTransferItemOverviewModel.ItemName), "Item", exportType, CellAlignment.Left, 0, 30),
+			new(nameof(StockTransferItemOverviewModel.Quantity), "Qty", exportType, CellAlignment.Right, 40, 10, "#,##0.00"),
+			new(nameof(StockTransferItemOverviewModel.Rate), "Rate", exportType, CellAlignment.Right, 50, 12, "#,##0.00"),
+			new(nameof(StockTransferItemOverviewModel.DiscountPercent), "Disc %", exportType, CellAlignment.Right, 45, 8, "#,##0.00"),
+			new(nameof(StockTransferItemOverviewModel.AfterDiscount), "Taxable", exportType, CellAlignment.Right, 55, 12, "#,##0.00"),
 			new("TaxPercent","Tax %", exportType, CellAlignment.Right, 45, 8, "#,##0.00"),
-			new(nameof(StockTransferItemCartModel.TotalTaxAmount), "Tax", exportType, CellAlignment.Right, 60, 12, "#,##0.00"),
-			new(nameof(StockTransferItemCartModel.Total), "Total", exportType, CellAlignment.Right, 80, 15, "#,##0.00")
+			new(nameof(StockTransferItemOverviewModel.TotalTaxAmount), "Tax", exportType, CellAlignment.Right, 50, 12, "#,##0.00"),
+			new(nameof(StockTransferItemOverviewModel.Total), "Total", exportType, CellAlignment.Right, 55, 15, "#,##0.00")
 		};
 
 		var currentDateTime = await CommonData.LoadCurrentDateTime();
@@ -103,7 +86,7 @@ public static class StockTransferInvoiceExport
 		{
 			var stream = await PDFInvoiceExportUtil.ExportInvoiceToPdf(
 				invoiceData,
-				cartItems,
+				lineItems,
 				columnSettings,
 				null,
 				summaryFields
@@ -116,7 +99,7 @@ public static class StockTransferInvoiceExport
 		{
 			var stream = await ExcelInvoiceExportUtil.ExportInvoiceToExcel(
 				invoiceData,
-				cartItems,
+				lineItems,
 				columnSettings,
 				null,
 				summaryFields

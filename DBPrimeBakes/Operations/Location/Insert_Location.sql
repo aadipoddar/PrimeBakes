@@ -10,8 +10,25 @@ AS
 BEGIN
 	IF @Id = 0
 	BEGIN
-		INSERT INTO [dbo].[Location] (Name, [Code], Discount, LedgerId, Remarks, Status)
-		VALUES (@Name, @Code, @Discount, @LedgerId, @Remarks, @Status);
+		INSERT INTO [dbo].[Location]
+		(
+			[Name],
+			[Code],
+			[Discount],
+			[LedgerId],
+			[Remarks],
+			[Status]
+		)
+		VALUES
+		(
+			@Name,
+			@Code,
+			@Discount,
+			@LedgerId,
+			@Remarks,
+			@Status
+		);
+
 		SET @Id = SCOPE_IDENTITY();
 	END
 
@@ -19,12 +36,12 @@ BEGIN
 	BEGIN
 		UPDATE [dbo].[Location]
 		SET
-			Name = @Name,
+			[Name] = @Name,
 			[Code] = @Code,
-			Discount = @Discount,
-			LedgerId = @LedgerId,
-			Remarks = @Remarks,
-			Status = @Status
+			[Discount] = @Discount,
+			[LedgerId] = @LedgerId,
+			[Remarks] = @Remarks,
+			[Status] = @Status
 		WHERE Id = @Id;
 	END
 

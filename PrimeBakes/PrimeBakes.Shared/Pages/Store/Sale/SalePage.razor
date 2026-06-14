@@ -220,7 +220,7 @@ else
 													TabIndex="-1" />
 							</div>
 
-							@if (_user.LocationId == 1)
+							@if (_user.ChangeProductFinancial)
 							{
 								<!-- Other Charges -->
 								<div class="form-field">
@@ -231,7 +231,7 @@ else
 															Label="Other Charges % (Ctrl + Shift + F)"
 															Placeholder="0.00"
 															Required="false"
-															ReadOnly="@(_user.LocationId != 1)"
+															ReadOnly="@(!_user.ChangeProductFinancial)"
 															Min="0"
 															Max="100" />
 
@@ -254,7 +254,7 @@ else
 															Label="Discount %"
 															Placeholder="0.00"
 															Required="false"
-															ReadOnly="@(_user.LocationId != 1)"
+															ReadOnly="@(!_user.ChangeProductFinancial)"
 															Min="0"
 															Max="100" />
 
@@ -276,7 +276,7 @@ else
 													ValueChanged="OnRoundOffAmountChanged"
 													Label="Round Off"
 													Placeholder="0.00"
-													ReadOnly="@(_user.LocationId != 1)"
+													ReadOnly="@(!_user.ChangeProductFinancial)"
 													Required="false" />
 							</div>
 
@@ -438,7 +438,7 @@ else
 												ValueChanged="OnItemRateChanged"
 												Label="Rate"
 												Placeholder="0.00"
-												ReadOnly="@(_user.LocationId != 1)"
+												ReadOnly="@(!_user.ChangeProductFinancial)"
 												Min="0" />
 						</div>
 
@@ -448,7 +448,7 @@ else
 												ValueChanged="OnItemDiscountPercentChanged"
 												Label="Disc %"
 												Placeholder="0.00"
-												ReadOnly="@(_user.LocationId != 1)"
+												ReadOnly="@(!_user.ChangeProductFinancial)"
 												Required="false"
 												Min="0"
 												Max="100" />
@@ -460,7 +460,7 @@ else
 												ValueChanged="OnItemCGSTPercentChanged"
 												Label="CGST %"
 												Placeholder="0.00"
-												ReadOnly="@(_user.LocationId != 1)"
+												ReadOnly="@(!_user.ChangeProductFinancial)"
 												Required="false"
 												Min="0"
 												Max="100" />
@@ -472,7 +472,7 @@ else
 												ValueChanged="OnItemSGSTPercentChanged"
 												Label="SGST %"
 												Placeholder="0.00"
-												ReadOnly="@(_user.LocationId != 1)"
+												ReadOnly="@(!_user.ChangeProductFinancial)"
 												Required="false"
 												Min="0"
 												Max="100" />
@@ -484,7 +484,7 @@ else
 												ValueChanged="OnItemIGSTPercentChanged"
 												Label="IGST %"
 												Placeholder="0.00"
-												ReadOnly="@(_user.LocationId != 1)"
+												ReadOnly="@(!_user.ChangeProductFinancial)"
 												Required="false"
 												Min="0"
 												Max="100" />
@@ -493,7 +493,7 @@ else
 						<div class="cart-field">
 							<div class="checkbox-wrapper">
 								<CustomCheckBox Value="_selectedCart.InclusiveTax"
-												ReadOnly="@(_user.LocationId != 1)"
+												ReadOnly="@(!_user.ChangeProductFinancial)"
 												ValueChanged="OnItemInclusiveTaxChanged"
 												Label="Tax Incl." />
 							</div>

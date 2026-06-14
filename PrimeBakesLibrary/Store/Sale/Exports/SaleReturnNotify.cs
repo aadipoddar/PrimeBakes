@@ -1,4 +1,5 @@
 using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Operations.AuditTrail;
 using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Store.Sale.Models;
@@ -89,7 +90,8 @@ internal static class SaleReturnNotify
 				["Total Amount"] = saleReturn.TotalAmount.FormatIndianCurrency(),
 				[type == NotifyType.Deleted ? "Deleted By" : type == NotifyType.Updated ? "Updated By" : "Modified By"] = saleReturn.LastModifiedByUserName ?? saleReturn.CreatedByName
 			},
-			Remarks = saleReturn.Remarks
+			Remarks = saleReturn.Remarks,
+			Differences = type == NotifyType.Updated ? (await AuditTrailData.LoadLastAuditTrailByTableRecord(StoreNames.SaleReturn, saleReturn.TransactionNo)).RecordValue : null
 		};
 
 		if (type == NotifyType.Updated && previousInvoice.HasValue)

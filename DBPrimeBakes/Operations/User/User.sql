@@ -4,6 +4,7 @@
     [Name] VARCHAR(500) NOT NULL UNIQUE, 
     [Passcode] SMALLINT NOT NULL UNIQUE, 
     [LocationId] INT NOT NULL, 
+    [ChangeProductFinancial] BIT NOT NULL DEFAULT 0,
     [Accounts] BIT NOT NULL DEFAULT 0, 
     [Inventory] BIT NOT NULL DEFAULT 0, 
     [Store] BIT NOT NULL DEFAULT 0, 

@@ -82,6 +82,12 @@ else
 
 						<div class="form-field">
 							<div class="checkbox-wrapper">
+								<CustomCheckBox @bind-Value="_userModel.ChangeProductFinancial" Label="Product Financials (Rate, Discount, etc.)" />
+							</div>
+						</div>
+
+						<div class="form-field">
+							<div class="checkbox-wrapper">
 								<CustomCheckBox @bind-Value="_userModel.Accounts" Label="Accounts" />
 							</div>
 						</div>
@@ -160,6 +166,7 @@ else
 									}
 								</Template>
 							</GridColumn>
+							<GridColumn Field="@nameof(UserModel.ChangeProductFinancial)" HeaderText="Change Product Financials" Width="150" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
 							<GridColumn Field="@nameof(UserModel.Accounts)" HeaderText="Accounts" Width="100" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
 							<GridColumn Field="@nameof(UserModel.Inventory)" HeaderText="Inventory" Width="100" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
 							<GridColumn Field="@nameof(UserModel.Store)" HeaderText="Store" Width="100" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />

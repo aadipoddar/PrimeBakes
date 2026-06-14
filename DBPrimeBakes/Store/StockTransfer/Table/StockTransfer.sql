@@ -26,6 +26,7 @@
     [UPI] MONEY NOT NULL DEFAULT 0, 
     [Credit] MONEY NOT NULL DEFAULT 0,
 	[Remarks] VARCHAR(MAX) NULL,
+	[FinancialAccountingId] INT NULL,
 	[CreatedBy] INT NOT NULL,
 	[CreatedAt] DATETIME NOT NULL DEFAULT (((getdate() AT TIME ZONE 'UTC') AT TIME ZONE 'India Standard Time')),
 	[CreatedFromPlatform] VARCHAR(MAX) NOT NULL,
@@ -37,6 +38,7 @@
     CONSTRAINT [FK_StockTransfer_ToLocation] FOREIGN KEY ([LocationId]) REFERENCES [Location]([Id]),
     CONSTRAINT [FK_StockTransfer_FromLocation] FOREIGN KEY ([ToLocationId]) REFERENCES [Location]([Id]),
     CONSTRAINT [FK_StockTransfer_ToFinancialYear] FOREIGN KEY ([FinancialYearId]) REFERENCES [dbo].[FinancialYear]([Id]),
+	CONSTRAINT [FK_StockTransfer_ToFinancialAccounting] FOREIGN KEY ([FinancialAccountingId]) REFERENCES [FinancialAccounting]([Id]),
     CONSTRAINT [FK_StockTransfer_ToUser] FOREIGN KEY ([CreatedBy]) REFERENCES [User]([Id]),
 	CONSTRAINT [FK_StockTransfer_LastModifiedBy_ToUser] FOREIGN KEY ([LastModifiedBy]) REFERENCES [User]([Id])
 )

@@ -25,6 +25,7 @@
 	@UPI MONEY,
 	@Credit MONEY,
 	@Remarks VARCHAR(MAX),
+	@FinancialAccountingId INT,
 	@CreatedBy INT,
 	@CreatedAt DATETIME,
 	@CreatedFromPlatform VARCHAR(MAX),
@@ -63,6 +64,7 @@ BEGIN
 			[UPI],
 			[Credit],
 			[Remarks],
+			[FinancialAccountingId],
 			[CreatedBy],
 			[CreatedFromPlatform],
 			[Status]
@@ -94,6 +96,7 @@ BEGIN
 			@UPI,
 			@Credit,
 			@Remarks,
+			@FinancialAccountingId,
 			@CreatedBy,
 			@CreatedFromPlatform,
 			@Status
@@ -130,6 +133,7 @@ BEGIN
 			[UPI] = @UPI,
 			[Credit] = @Credit,
 			[Remarks] = @Remarks,
+			[FinancialAccountingId] = @FinancialAccountingId,
 			[Status] = @Status,
 			[LastModifiedBy] = @LastModifiedBy,
 			[LastModifiedAt] = @LastModifiedAt,

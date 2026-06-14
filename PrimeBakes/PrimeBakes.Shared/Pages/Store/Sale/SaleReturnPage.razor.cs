@@ -143,7 +143,7 @@ public partial class SaleReturnPage
 			return false;
 
 		_saleReturn = await CommonData.LoadTableDataById<SaleReturnModel>(StoreNames.SaleReturn, Id.Value);
-		if (_saleReturn is null || _saleReturn.Id == 0 || _user.LocationId != 1)
+		if (_saleReturn is null || _saleReturn.Id == 0)
 		{
 			await _toastNotification.ShowAsync("Transaction Not Found", "The requested transaction could not be found.", ToastType.Error);
 			await ResetPage();
@@ -774,12 +774,15 @@ public partial class SaleReturnPage
 	#region Saving
 	private async Task UpdateFinancialDetails(bool customRoundOff = false)
 	{
-		if (_user.LocationId != 1)
+		if (!_user.ChangeProductFinancial)
 		{
 			_saleReturn.DiscountPercent = 0;
 			_saleReturn.OtherChargesPercent = 0;
 			customRoundOff = false;
+		}
 
+		if (_user.LocationId != 1)
+		{
 			var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
 			_selectedCompany = _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value);
 			_selectedLocation = _locations.FirstOrDefault(s => s.Id == _user.LocationId);
@@ -800,7 +803,7 @@ public partial class SaleReturnPage
 			if (_saleReturn.LocationId != 1)
 				item.IGSTPercent = 0;
 
-			if (_user.LocationId != 1)
+			if (!_user.ChangeProductFinancial)
 			{
 				item.Rate = _products.FirstOrDefault(p => p.ProductId == item.ItemId)?.Rate ?? item.Rate;
 				item.DiscountPercent = 0;

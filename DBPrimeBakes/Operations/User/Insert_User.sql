@@ -3,6 +3,7 @@
 	@Name VARCHAR(500),
 	@Passcode SMALLINT,
 	@LocationId INT,
+	@ChangeProductFinancial BIT,
 	@Accounts BIT,
 	@Inventory BIT,
 	@Store BIT,
@@ -17,23 +18,25 @@ BEGIN
 	BEGIN
 		INSERT INTO [dbo].[User]
 		(
-			Name,
-			Passcode,
-			LocationId,
-			Accounts,
-			Inventory,
-			Store,
-			Restaurant,
-			Reports,
-			Admin,
-			Remarks,
-			Status
+			[Name],
+			[Passcode],
+			[LocationId],
+			[ChangeProductFinancial],
+			[Accounts],
+			[Inventory],
+			[Store],
+			[Restaurant],
+			[Reports],
+			[Admin],
+			[Remarks],
+			[Status]
 		)
 		VALUES
 		(
 			@Name,
 			@Passcode,
 			@LocationId,
+			@ChangeProductFinancial,
 			@Accounts, 
 			@Inventory, 
 			@Store, 
@@ -50,17 +53,18 @@ BEGIN
 	ELSE
 	BEGIN
 		UPDATE [dbo].[User]
-		SET Name = @Name,
-			Passcode = @Passcode,
-			LocationId = @LocationId,
-			Accounts = @Accounts,
-			Inventory = @Inventory,
-			Store = @Store,
-			Restaurant = @Restaurant,
-			Reports = @Reports,
-			Admin = @Admin,
-			Remarks = @Remarks,
-			Status = @Status
+		SET [Name] = @Name,
+			[Passcode] = @Passcode,
+			[LocationId] = @LocationId,
+			[ChangeProductFinancial] = @ChangeProductFinancial,
+			[Accounts] = @Accounts,
+			[Inventory] = @Inventory,
+			[Store] = @Store,
+			[Restaurant] = @Restaurant,
+			[Reports] = @Reports,
+			[Admin] = @Admin,
+			[Remarks] = @Remarks,
+			[Status] = @Status
 		WHERE Id = @Id;
 	END
 

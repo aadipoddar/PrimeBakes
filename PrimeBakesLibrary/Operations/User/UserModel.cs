@@ -6,6 +6,7 @@ public class UserModel
 	public string Name { get; set; }
 	public int Passcode { get; set; }
 	public int LocationId { get; set; }
+	public bool ChangeProductFinancial { get; set; }
 	public bool Accounts { get; set; }
 	public bool Inventory { get; set; }
 	public bool Store { get; set; }
