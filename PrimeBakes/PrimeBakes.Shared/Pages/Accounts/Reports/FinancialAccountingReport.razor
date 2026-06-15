@@ -144,8 +144,7 @@ else
 							AllowGrouping="true" CssClass="professional-grid" ContextMenuItems="@_gridContextMenuItems"
 							Toolbar="@(new List<string>() { "Search" })">
 
-						<GridEvents TValue="FinancialAccountingOverviewModel"
-									ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+						<GridEvents TValue="FinancialAccountingOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
 						<GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
 						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
 						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
@@ -322,15 +321,15 @@ else
 						</GridAggregates>
 
 						<GridColumns>
-							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.TransactionNo)" HeaderText="Trans No" Width="170" />
+							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.TransactionNo)" HeaderText="Trans No" Width="200" />
 							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.TransactionDateTime)" HeaderText="Date" Width="150" Format="dd/MM/yy" Type="ColumnType.DateTime" />
-							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.CompanyName)" HeaderText="Company" Width="180" Visible="@(_showAllColumns || _selectedCompany is null || _selectedCompany.Id <= 0)" />
-							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.VoucherName)" HeaderText="Voucher Type" Width="150" Visible="@(_showAllColumns || _selectedVoucher is null || _selectedVoucher.Id <= 0)" />
-							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.ReferenceNo)" HeaderText="Ref No" Width="150" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.FinancialYear)" HeaderText="Financial Year" Width="130" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.TotalLedgers)" HeaderText="Ledgers" Width="100" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.TotalDebitLedgers)" HeaderText="Debit Ledgers" Width="130" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.TotalCreditLedgers)" HeaderText="Credit Ledgers" Width="130" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.CompanyName)" HeaderText="Company" Width="200" Visible="@(_showAllColumns || _selectedCompany is null || _selectedCompany.Id <= 0)" />
+							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.VoucherName)" HeaderText="Voucher Type" Width="200" Visible="@(_showAllColumns || _selectedVoucher is null || _selectedVoucher.Id <= 0)" />
+							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.ReferenceNo)" HeaderText="Ref No" Width="200" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.FinancialYear)" HeaderText="Financial Year" Width="200" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.TotalLedgers)" HeaderText="Ledgers" Width="150" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.TotalDebitLedgers)" HeaderText="Debit Ledgers" Width="200" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.TotalCreditLedgers)" HeaderText="Credit Ledgers" Width="200" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.TotalDebitAmount)" HeaderText="Total Debit" Width="150" TextAlign="TextAlign.Right">
 								<Template>
 									@{
@@ -359,10 +358,10 @@ else
 							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.Remarks)" HeaderText="Remarks" Width="200" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.CreatedByName)" HeaderText="Created By" Width="150" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.CreatedAt)" HeaderText="Created At" Width="160" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.CreatedFromPlatform)" HeaderText="Created Platform" Width="200" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.CreatedFromPlatform)" HeaderText="Created Platform" Width="300" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Width="150" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.LastModifiedAt)" HeaderText="Modified At" Width="160" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.LastModifiedFromPlatform)" HeaderText="Modified Platform" Width="200" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.LastModifiedFromPlatform)" HeaderText="Modified Platform" Width="300" Visible="_showAllColumns" />
 
 							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.Status)" HeaderText="Status" Width="110" TextAlign="TextAlign.Center" Visible="_showDeleted">
 								<Template>

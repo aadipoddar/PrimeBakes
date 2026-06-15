@@ -1,6 +1,5 @@
-using Microsoft.AspNetCore.Components;
-
 using PrimeBakes.Shared.Components.Dialog;
+using PrimeBakes.Shared.Components.Input;
 
 using PrimeBakesLibrary.Accounts.Masters.Data;
 using PrimeBakesLibrary.Accounts.Masters.Models;
@@ -39,25 +38,24 @@ public partial class StockTransferReport : IAsyncDisposable
 	private List<LocationModel> _locations = [];
 	private List<CompanyModel> _companies = [];
 	private List<StockTransferOverviewModel> _transactionOverviews = [];
+	private List<StockTransferOverviewModel> _allTransactionOverviews = [];
 
 	private readonly List<ContextMenuItemModel> _gridContextMenuItems =
 	[
-		new() { Text = "View (Ctrl + O)", Id = "View", IconCss = "e-icons e-eye", Target = ".e-content" },
+		new() { Text = "View (Alt + O)", Id = "View", IconCss = "e-icons e-eye", Target = ".e-content" },
 		new() { Text = "Export PDF (Alt + P)", Id = "ExportPDF", IconCss = "e-icons e-export-pdf", Target = ".e-content" },
 		new() { Text = "Export Excel (Alt + E)", Id = "ExportExcel", IconCss = "e-icons e-export-excel", Target = ".e-content" },
 		new() { Text = "Delete / Recover (Del)", Id = "DeleteRecover", IconCss = "e-icons e-trash", Target = ".e-content" }
 	];
 
 	private SfGrid<StockTransferOverviewModel> _sfGrid;
-
-	private string _deleteTransactionNo = string.Empty;
-	private int _deleteTransactionId = 0;
-	private string _recoverTransactionNo = string.Empty;
-	private int _recoverTransactionId = 0;
-
+	private CustomDateRangePicker _firstFocus;
 	private ToastNotification _toastNotification;
-	private DeleteConfirmationDialog _deleteConfirmationDialog;
-	private RecoverConfirmationDialog _recoverConfirmationDialog;
+	private ConfirmationDialog _confirmationDialog;
+
+	private string _confirmTitle = string.Empty;
+	private string _confirmMessage = string.Empty;
+	private Func<Task> _confirmAction;
 
 	#region Load Data
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -65,39 +63,39 @@ public partial class StockTransferReport : IAsyncDisposable
 		if (!firstRender)
 			return;
 
-		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Store, UserRoles.Reports], true);
-		await LoadData();
+		try
+		{
+			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Store, UserRoles.Reports], true);
+			await InitializePage();
+		}
+		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
 	}
 
-	private async Task LoadData()
+	private async Task InitializePage()
 	{
-		await LoadDates();
-		await LoadLocations();
-		await LoadCompanies();
+		await LoadData();
 		await LoadTransactionOverviews();
 		await StartAutoRefresh();
 
 		_isLoading = false;
 		StateHasChanged();
+
+		if (_firstFocus is not null)
+			await _firstFocus.FocusAsync();
 	}
 
-	private async Task LoadDates()
+	private async Task LoadData()
 	{
 		_fromDate = await CommonData.LoadCurrentDateTime();
 		_toDate = _fromDate;
-	}
 
-	private async Task LoadLocations()
-	{
 		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
-		_locations = [.. _locations.OrderBy(s => s.Name)];
-		_selectedLocation = _locations.FirstOrDefault(_ => _.Id == _user.LocationId);
-	}
-
-	private async Task LoadCompanies()
-	{
 		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+
+		_locations = [.. _locations.OrderBy(s => s.Name)];
 		_companies = [.. _companies.OrderBy(s => s.Name)];
+
+		_selectedLocation = _user.LocationId != 1 ? _locations.FirstOrDefault(s => s.Id == _user.LocationId) : null;
 	}
 
 	private async Task LoadTransactionOverviews()
@@ -111,48 +109,12 @@ public partial class StockTransferReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
-			_transactionOverviews = await CommonData.LoadTableDataByDate<StockTransferOverviewModel>(
+			_allTransactionOverviews = await CommonData.LoadTableDataByDate<StockTransferOverviewModel>(
 				StoreNames.StockTransferOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
-			if (!_showDeleted)
-				_transactionOverviews = [.. _transactionOverviews.Where(_ => _.Status)];
-
-			if (_selectedLocation?.Id > 0)
-				_transactionOverviews = [.. _transactionOverviews.Where(_ => _.LocationId == _selectedLocation.Id)];
-
-			if (_selectedToLocation?.Id > 0)
-				_transactionOverviews = [.. _transactionOverviews.Where(_ => _.ToLocationId == _selectedToLocation.Id)];
-
-			if (_selectedCompany?.Id > 0)
-				_transactionOverviews = [.. _transactionOverviews.Where(_ => _.CompanyId == _selectedCompany.Id)];
-
-			_transactionOverviews = [.. _transactionOverviews.OrderBy(_ => _.TransactionDateTime)];
-
-			if (_showSummary)
-				_transactionOverviews = [.. _transactionOverviews
-					.GroupBy(t => t.ToLocationName)
-					.Select(g => new StockTransferOverviewModel
-					{
-						ToLocationName = g.Key,
-						TotalItems = g.Sum(t => t.TotalItems),
-						TotalQuantity = g.Sum(t => t.TotalQuantity),
-						BaseTotal = g.Sum(t => t.BaseTotal),
-						ItemDiscountAmount = g.Sum(t => t.ItemDiscountAmount),
-						TotalAfterItemDiscount = g.Sum(t => t.TotalAfterItemDiscount),
-						TotalInclusiveTaxAmount = g.Sum(t => t.TotalInclusiveTaxAmount),
-						TotalExtraTaxAmount = g.Sum(t => t.TotalExtraTaxAmount),
-						TotalAfterTax = g.Sum(t => t.TotalAfterTax),
-						OtherChargesAmount = g.Sum(t => t.OtherChargesAmount),
-						DiscountAmount = g.Sum(t => t.DiscountAmount),
-						RoundOffAmount = g.Sum(t => t.RoundOffAmount),
-						TotalAmount = g.Sum(t => t.TotalAmount),
-						Cash = g.Sum(t => t.Cash),
-						Card = g.Sum(t => t.Card),
-						UPI = g.Sum(t => t.UPI),
-						Credit = g.Sum(t => t.Credit)
-					})];
+			await ApplyFilters();
 		}
 		catch (Exception ex)
 		{
@@ -160,37 +122,57 @@ public partial class StockTransferReport : IAsyncDisposable
 		}
 		finally
 		{
-			if (_sfGrid is not null)
-				await _sfGrid.Refresh();
 			_isProcessing = false;
 			StateHasChanged();
+			await _toastNotification.HideAllInfoAsync();
 		}
+	}
+
+	private async Task ApplyFilters()
+	{
+		_transactionOverviews = [.. _allTransactionOverviews.Where(t =>
+				(_showDeleted || t.Status) &&
+				(_selectedLocation is null || _selectedLocation.Id == 0 || t.LocationId == _selectedLocation.Id) &&
+				(_selectedToLocation is null || _selectedToLocation.Id == 0 || t.ToLocationId == _selectedToLocation.Id) &&
+				(_selectedCompany is null || _selectedCompany.Id == 0 || t.CompanyId == _selectedCompany.Id))
+			.OrderBy(t => t.TransactionDateTime)];
+
+		if (_showSummary)
+			_transactionOverviews = [.. _transactionOverviews
+				.GroupBy(t => t.ToLocationName)
+				.Select(g => new StockTransferOverviewModel
+				{
+					ToLocationName = g.Key,
+					TotalItems = g.Sum(t => t.TotalItems),
+					TotalQuantity = g.Sum(t => t.TotalQuantity),
+					BaseTotal = g.Sum(t => t.BaseTotal),
+					ItemDiscountAmount = g.Sum(t => t.ItemDiscountAmount),
+					TotalAfterItemDiscount = g.Sum(t => t.TotalAfterItemDiscount),
+					TotalInclusiveTaxAmount = g.Sum(t => t.TotalInclusiveTaxAmount),
+					TotalExtraTaxAmount = g.Sum(t => t.TotalExtraTaxAmount),
+					TotalAfterTax = g.Sum(t => t.TotalAfterTax),
+					OtherChargesAmount = g.Sum(t => t.OtherChargesAmount),
+					DiscountAmount = g.Sum(t => t.DiscountAmount),
+					RoundOffAmount = g.Sum(t => t.RoundOffAmount),
+					TotalAmount = g.Sum(t => t.TotalAmount),
+					Cash = g.Sum(t => t.Cash),
+					Card = g.Sum(t => t.Card),
+					UPI = g.Sum(t => t.UPI),
+					Credit = g.Sum(t => t.Credit)
+				})
+				.OrderBy(t => t.ToLocationName)];
+
+		if (_sfGrid is not null)
+			await _sfGrid.Refresh();
+		StateHasChanged();
 	}
 	#endregion
 
 	#region Changed Events
-	private async Task OnDateRangeChanged(Syncfusion.Blazor.Calendars.RangePickerEventArgs<DateTime> args)
+	private async Task OnDateRangeChanged(MudBlazor.DateRange range)
 	{
-		_fromDate = args.StartDate;
-		_toDate = args.EndDate;
-		await LoadTransactionOverviews();
-	}
-
-	private async Task OnLocationChanged(Syncfusion.Blazor.DropDowns.ChangeEventArgs<LocationModel, LocationModel> args)
-	{
-		_selectedLocation = args.Value;
-		await LoadTransactionOverviews();
-	}
-
-	private async Task OnToLocationChanged(Syncfusion.Blazor.DropDowns.ChangeEventArgs<LocationModel, LocationModel> args)
-	{
-		_selectedToLocation = args.Value;
-		await LoadTransactionOverviews();
-	}
-
-	private async Task OnCompanyChanged(Syncfusion.Blazor.DropDowns.ChangeEventArgs<CompanyModel, CompanyModel> args)
-	{
-		_selectedCompany = args.Value;
+		_fromDate = range?.Start ?? _fromDate;
+		_toDate = range?.End ?? _toDate;
 		await LoadTransactionOverviews();
 	}
 
@@ -199,137 +181,188 @@ public partial class StockTransferReport : IAsyncDisposable
 		(_fromDate, _toDate) = await FinancialYearData.GetDateRange(dateRangeType, _fromDate, _toDate);
 		await LoadTransactionOverviews();
 	}
-	#endregion
 
-	#region Exporting
-	private async Task ExportExcel()
+	private async Task OnCompanyChanged(CompanyModel value)
 	{
-		if (_isProcessing)
-			return;
-
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating Excel file...", ToastType.Info);
-			var (stream, fileName) = await StockTransferReportExport.ExportReport(
-					_transactionOverviews,
-					ReportExportType.Excel,
-					DateOnly.FromDateTime(_fromDate),
-					DateOnly.FromDateTime(_toDate),
-					_showAllColumns,
-					_showSummary,
-					_selectedCompany?.Id > 0 ? _selectedCompany : null,
-					_selectedLocation?.Id > 0 ? _selectedLocation : null,
-					_selectedToLocation?.Id > 0 ? _selectedToLocation : null
-				);
-
-			await SaveAndViewService.SaveAndView(fileName, stream);
-			await _toastNotification.ShowAsync("Success", "Excel file downloaded successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"Excel export failed: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			StateHasChanged();
-		}
+		_selectedCompany = value;
+		await ApplyFilters();
 	}
 
-	private async Task ExportPdf()
+	private async Task OnLocationChanged(LocationModel value)
 	{
-		if (_isProcessing)
-			return;
-
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating PDF file...", ToastType.Info);
-			var (stream, fileName) = await StockTransferReportExport.ExportReport(
-					_transactionOverviews,
-					ReportExportType.PDF,
-					DateOnly.FromDateTime(_fromDate),
-					DateOnly.FromDateTime(_toDate),
-					_showAllColumns,
-					_showSummary,
-					_selectedCompany?.Id > 0 ? _selectedCompany : null,
-					_selectedLocation?.Id > 0 ? _selectedLocation : null,
-					_selectedToLocation?.Id > 0 ? _selectedToLocation : null
-				);
-
-			await SaveAndViewService.SaveAndView(fileName, stream);
-			await _toastNotification.ShowAsync("Success", "PDF file downloaded successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"PDF export failed: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			StateHasChanged();
-		}
+		_selectedLocation = value;
+		await ApplyFilters();
 	}
 
-	private async Task DownloadSelectedPdfInvoice()
+	private async Task OnToLocationChanged(LocationModel value)
 	{
-		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-			return;
-
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
-
-			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo, true, false, CodeType.StockTransfer);
-			await SaveAndViewService.SaveAndView(decodeTransactionNo.PDFStream.fileName, decodeTransactionNo.PDFStream.stream);
-
-			await _toastNotification.ShowAsync("Success", "PDF invoice generated successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"PDF invoice generation failed: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			StateHasChanged();
-		}
-	}
-
-	private async Task DownloadSelectedExcelInvoice()
-	{
-		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-			return;
-
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
-
-			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo, false, true, CodeType.StockTransfer);
-			await SaveAndViewService.SaveAndView(decodeTransactionNo.ExcelStream.fileName, decodeTransactionNo.ExcelStream.stream);
-
-			await _toastNotification.ShowAsync("Success", "Excel invoice generated successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"Excel invoice generation failed: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			StateHasChanged();
-		}
+		_selectedToLocation = value;
+		await ApplyFilters();
 	}
 	#endregion
 
 	#region Actions
+	private async Task ViewSelectedTransaction()
+	{
+		if (_isProcessing || _showSummary || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+			return;
+
+		if (!_sfGrid.SelectedRecords.First().Status)
+		{
+			await _toastNotification.ShowAsync("Cannot View", "The selected transaction is deleted. Please recover it or download invoice.", ToastType.Warning);
+			return;
+		}
+
+		var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo, false, false, CodeType.StockTransfer);
+		await AuthenticationService.NavigateToRoute(decodedTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
+	}
+
+	private async Task DeleteRecoverTransaction(int id, string transactionNo, bool isRecover)
+	{
+		if (_isProcessing || id == 0)
+			return;
+
+		try
+		{
+			if (!_user.Admin)
+				throw new UnauthorizedAccessException("You do not have permission for the action.");
+
+			_isProcessing = true;
+			StateHasChanged();
+
+			await _toastNotification.ShowAsync("Processing", $"{(isRecover ? "Recovering" : "Deleting")} transaction...", ToastType.Info);
+
+			var stockTransfer = await CommonData.LoadTableDataById<StockTransferModel>(StoreNames.StockTransfer, id)
+				?? throw new Exception("Transaction not found.");
+			stockTransfer.Status = isRecover;
+			stockTransfer.LastModifiedBy = _user.Id;
+			stockTransfer.LastModifiedAt = await CommonData.LoadCurrentDateTime();
+			stockTransfer.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
+
+			if (isRecover)
+				await StockTransferData.RecoverTransaction(stockTransfer);
+			else
+				await StockTransferData.DeleteTransaction(stockTransfer);
+
+			await _toastNotification.ShowAsync("Success", $"Transaction {transactionNo} has been {(isRecover ? "recovered" : "deleted")} successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"An error occurred while {(isRecover ? "recovering" : "deleting")} transaction: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+			await LoadTransactionOverviews();
+		}
+	}
+
+	private async Task DeleteRecoverSelectedTransaction()
+	{
+		if (_showSummary || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+			return;
+
+		var record = _sfGrid.SelectedRecords.First();
+
+		await ShowConfirmation(record.Status ? "Delete" : "Recover",
+			$"Are you sure you want to {(record.Status ? "delete" : "recover")} transaction {record.TransactionNo}",
+			() => DeleteRecoverTransaction(record.Id, record.TransactionNo, !record.Status));
+	}
+
+	private async Task ShowConfirmation(string title, string message, Func<Task> action)
+	{
+		_confirmTitle = title;
+		_confirmMessage = message;
+		_confirmAction = action;
+		StateHasChanged();
+		await _confirmationDialog.ShowAsync();
+	}
+
+	private async Task OnConfirmed()
+	{
+		await _confirmationDialog.HideAsync();
+		if (_confirmAction is not null)
+			await _confirmAction();
+		_confirmAction = null;
+	}
+
+	private async Task OnCancelled()
+	{
+		_confirmAction = null;
+		await _confirmationDialog.HideAsync();
+	}
+	#endregion
+
+	#region Exporting
+	private async Task ExportReport(bool isExcel = false)
+	{
+		if (_isProcessing)
+			return;
+
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
+
+			var (stream, fileName) = await StockTransferReportExport.ExportReport(
+				_transactionOverviews,
+				isExcel ? ReportExportType.Excel : ReportExportType.PDF,
+				DateOnly.FromDateTime(_fromDate),
+				DateOnly.FromDateTime(_toDate),
+				_showAllColumns,
+				_showDeleted,
+				_showSummary,
+				_selectedCompany?.Id > 0 ? _selectedCompany : null,
+				_selectedLocation?.Id > 0 ? _selectedLocation : null,
+				_selectedToLocation?.Id > 0 ? _selectedToLocation : null
+			);
+			await SaveAndViewService.SaveAndView(fileName, stream);
+
+			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
+
+	private async Task ExportSelectedTransaction(bool isExcel = false)
+	{
+		if (_isProcessing || _showSummary || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+			return;
+
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
+
+			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo, !isExcel, isExcel, CodeType.StockTransfer);
+			await SaveAndViewService.SaveAndView(isExcel ? decodeTransactionNo.ExcelStream.fileName : decodeTransactionNo.PDFStream.fileName,
+				isExcel ? decodeTransactionNo.ExcelStream.stream : decodeTransactionNo.PDFStream.stream);
+
+			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
+	#endregion
+
+	#region Utilities
 	private async Task OnGridContextMenuItemClicked(ContextMenuClickEventArgs<StockTransferOverviewModel> args)
 	{
 		if (_showSummary)
@@ -337,266 +370,11 @@ public partial class StockTransferReport : IAsyncDisposable
 
 		switch (args.Item.Id)
 		{
-			case "View":
-				await ViewSelectedTransaction();
-				break;
-
-			case "ExportPDF":
-				await DownloadSelectedPdfInvoice();
-				break;
-
-			case "ExportExcel":
-				await DownloadSelectedExcelInvoice();
-				break;
-
-			case "DeleteRecover":
-				await DeleteRecoverSelectedTransaction();
-				break;
+			case "View": await ViewSelectedTransaction(); break;
+			case "ExportPDF": await ExportSelectedTransaction(); break;
+			case "ExportExcel": await ExportSelectedTransaction(true); break;
+			case "DeleteRecover": await DeleteRecoverSelectedTransaction(); break;
 		}
-	}
-
-	private async Task ViewSelectedTransaction()
-	{
-		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-			return;
-
-		var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo, false, false, CodeType.StockTransfer);
-		await AuthenticationService.NavigateToRoute(decodedTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
-	}
-
-	private async Task DeleteRecoverSelectedTransaction()
-	{
-		if (!_user.Admin)
-			return;
-
-		if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-			return;
-
-		var selectedCartItem = _sfGrid.SelectedRecords.First();
-
-		if (selectedCartItem.Status)
-			await ShowDeleteConfirmation();
-		else
-			await ShowRecoverConfirmation();
-	}
-
-	private async Task ConfirmDelete()
-	{
-		if (_isProcessing)
-			return;
-
-		try
-		{
-			await _deleteConfirmationDialog.HideAsync();
-			_isProcessing = true;
-			StateHasChanged();
-
-			if (!_user.Admin)
-				throw new UnauthorizedAccessException("You do not have permission to delete this transaction.");
-
-			if (_deleteTransactionId == 0)
-			{
-				await _toastNotification.ShowAsync("Error", "No transaction selected to delete.", ToastType.Error);
-				return;
-			}
-
-			await _toastNotification.ShowAsync("Processing", "Deleting transaction...", ToastType.Info);
-
-			await DeleteTransaction();
-
-			await _toastNotification.ShowAsync("Success", $"Transaction {_deleteTransactionNo} has been deleted successfully.", ToastType.Success);
-			_deleteTransactionId = 0;
-			_deleteTransactionNo = string.Empty;
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"An error occurred while deleting transaction: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			StateHasChanged();
-			await LoadTransactionOverviews();
-		}
-	}
-
-	private async Task DeleteTransaction()
-	{
-		var stockTransfer = await CommonData.LoadTableDataById<StockTransferModel>(StoreNames.StockTransfer, _deleteTransactionId);
-		if (stockTransfer is null)
-		{
-			await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);
-			return;
-		}
-
-		stockTransfer.Status = false;
-		stockTransfer.LastModifiedBy = _user.Id;
-		stockTransfer.LastModifiedAt = await CommonData.LoadCurrentDateTime();
-		stockTransfer.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
-
-		await StockTransferData.DeleteTransaction(stockTransfer);
-	}
-
-	private async Task ConfirmRecover()
-	{
-		if (_isProcessing)
-			return;
-
-		try
-		{
-			await _recoverConfirmationDialog.HideAsync();
-			_isProcessing = true;
-			StateHasChanged();
-
-			if (!_user.Admin)
-				throw new UnauthorizedAccessException("You do not have permission to recover this transaction.");
-
-			if (_recoverTransactionId == 0)
-			{
-				await _toastNotification.ShowAsync("Error", "No transaction selected to recover.", ToastType.Error);
-				return;
-			}
-
-			await _toastNotification.ShowAsync("Processing", "Recovering transaction...", ToastType.Info);
-
-			await RecoverTransaction();
-
-			await _toastNotification.ShowAsync("Success", $"Transaction {_recoverTransactionNo} has been recovered successfully.", ToastType.Success);
-			_recoverTransactionId = 0;
-			_recoverTransactionNo = string.Empty;
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"An error occurred while recovering transaction: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			StateHasChanged();
-			await LoadTransactionOverviews();
-		}
-	}
-
-	private async Task RecoverTransaction()
-	{
-		var stockTransfer = await CommonData.LoadTableDataById<StockTransferModel>(StoreNames.StockTransfer, _recoverTransactionId);
-		if (stockTransfer is null)
-		{
-			await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);
-			return;
-		}
-
-		stockTransfer.Status = true;
-		stockTransfer.LastModifiedBy = _user.Id;
-		stockTransfer.LastModifiedAt = await CommonData.LoadCurrentDateTime();
-		stockTransfer.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
-
-		await StockTransferData.RecoverTransaction(stockTransfer);
-	}
-	#endregion
-
-	#region Utilities
-	private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
-	{
-		switch (args.Item.Id)
-		{
-			case "NewTransaction":
-				await NavigateToTransactionPage();
-				break;
-			case "Refresh":
-				await LoadTransactionOverviews();
-				break;
-			case "ToggleDeleted":
-				await ToggleDeleted();
-				break;
-			case "ToggleSummary":
-				await ToggleSummary();
-				break;
-			case "ToggleDetailsView":
-				await ToggleDetailsView();
-				break;
-			case "ExportPdf":
-				await ExportPdf();
-				break;
-			case "ExportExcel":
-				await ExportExcel();
-				break;
-			case "ItemReport":
-				await NavigateToItemReport();
-				break;
-			case "ViewSelected":
-				await ViewSelectedTransaction();
-				break;
-			case "DownloadSelectedPdf":
-				await DownloadSelectedPdfInvoice();
-				break;
-			case "DownloadSelectedExcel":
-				await DownloadSelectedExcelInvoice();
-				break;
-			case "DeleteRecoverSelected":
-				await DeleteRecoverSelectedTransaction();
-				break;
-			case "PeriodToday":
-				await HandleDatesChanged(DateRangeType.Today);
-				break;
-			case "PeriodPreviousDay":
-				await HandleDatesChanged(DateRangeType.Yesterday);
-				break;
-			case "PeriodNextDay":
-				await HandleDatesChanged(DateRangeType.NextDay);
-				break;
-			case "PeriodCurrentMonth":
-				await HandleDatesChanged(DateRangeType.CurrentMonth);
-				break;
-			case "PeriodPreviousMonth":
-				await HandleDatesChanged(DateRangeType.PreviousMonth);
-				break;
-			case "PeriodNextMonth":
-				await HandleDatesChanged(DateRangeType.NextMonth);
-				break;
-			case "PeriodCurrentFinancialYear":
-				await HandleDatesChanged(DateRangeType.CurrentFinancialYear);
-				break;
-			case "PeriodPreviousFinancialYear":
-				await HandleDatesChanged(DateRangeType.PreviousFinancialYear);
-				break;
-			case "PeriodNextFinancialYear":
-				await HandleDatesChanged(DateRangeType.NextFinancialYear);
-				break;
-			case "PeriodAllTime":
-				await HandleDatesChanged(DateRangeType.AllTime);
-				break;
-		}
-	}
-
-	private async Task ShowDeleteConfirmation()
-	{
-		_deleteTransactionId = _sfGrid.SelectedRecords.First().Id;
-		_deleteTransactionNo = _sfGrid.SelectedRecords.First().TransactionNo;
-		StateHasChanged();
-		await _deleteConfirmationDialog.ShowAsync();
-	}
-
-	private async Task CancelDelete()
-	{
-		_deleteTransactionId = 0;
-		_deleteTransactionNo = string.Empty;
-		await _deleteConfirmationDialog.HideAsync();
-	}
-
-	private async Task ShowRecoverConfirmation()
-	{
-		_recoverTransactionId = _sfGrid.SelectedRecords.First().Id;
-		_recoverTransactionNo = _sfGrid.SelectedRecords.First().TransactionNo;
-		StateHasChanged();
-		await _recoverConfirmationDialog.ShowAsync();
-	}
-
-	private async Task CancelRecover()
-	{
-		_recoverTransactionId = 0;
-		_recoverTransactionNo = string.Empty;
-		await _recoverConfirmationDialog.HideAsync();
 	}
 
 	private async Task ToggleDetailsView()
@@ -610,30 +388,15 @@ public partial class StockTransferReport : IAsyncDisposable
 
 	private async Task ToggleDeleted()
 	{
-		if (_user.LocationId > 1)
-			return;
-
 		_showDeleted = !_showDeleted;
-		await LoadTransactionOverviews();
+		await ApplyFilters();
 	}
 
 	private async Task ToggleSummary()
 	{
-		if (_user.LocationId > 1)
-			return;
-
 		_showSummary = !_showSummary;
-		await LoadTransactionOverviews();
+		await ApplyFilters();
 	}
-
-	private async Task NavigateToTransactionPage() =>
-		await AuthenticationService.NavigateToRoute(StoreRouteNames.StockTransfer, FormFactor, JSRuntime, NavigationManager);
-
-	private async Task NavigateToItemReport() =>
-		await AuthenticationService.NavigateToRoute(StoreRouteNames.StockTransferItemReport, FormFactor, JSRuntime, NavigationManager);
-
-	private void NavigateBack() =>
-		NavigationManager.NavigateTo(StoreRouteNames.StoreDashboard);
 
 	private async Task StartAutoRefresh()
 	{
@@ -664,7 +427,6 @@ public partial class StockTransferReport : IAsyncDisposable
 		}
 
 		_autoRefreshTimer?.Dispose();
-
 		GC.SuppressFinalize(this);
 	}
 	#endregion

@@ -252,15 +252,15 @@ else
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerName)" HeaderText="Ledger" Width="350" />
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerCode)" HeaderText="Code" Width="120" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.AccountTypeName)" HeaderText="Account Type" Width="150" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.GroupName)" HeaderText="Group" Width="150" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.GroupName)" HeaderText="Group" Width="200" Visible="_showAllColumns" />
 
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerReferenceType)" HeaderText="Ref Type" Width="130" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerReferenceNo)" HeaderText="Ref No" Width="150" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerReferenceNo)" HeaderText="Ref No" Width="200" />
 
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.InstrumentNo)" HeaderText="Instrument No" Width="150" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.InstrumentDate)" HeaderText="Instrument Date" Width="150" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.InstrumentDate)" HeaderText="Instrument Date" Width="200" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.ClearingDate)" HeaderText="Clearing Date" Width="150" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.Reconciled)" HeaderText="Reconciled" Width="120" TextAlign="TextAlign.Center" Visible="_showAllColumns">
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.Reconciled)" HeaderText="Reconciled" Width="150" TextAlign="TextAlign.Center" Visible="_showAllColumns">
 								<Template>
 									@{
 										var line = (context as FinancialAccountingLedgerOverviewModel);
@@ -293,15 +293,15 @@ else
 
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerRemarks)" HeaderText="Ledger Remarks" Width="200" Visible="_showAllColumns" />
 
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TransactionNo)" HeaderText="Trans No" Width="170" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TransactionNo)" HeaderText="Trans No" Width="200" />
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TransactionDateTime)" HeaderText="Date" Width="150" Format="dd/MM/yy" Type="ColumnType.DateTime" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CompanyName)" HeaderText="Company" Width="180" Visible="@(_showAllColumns && (_selectedCompany is null || _selectedCompany.Id <= 0))" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.VoucherName)" HeaderText="Voucher Type" Width="150" Visible="@(_showAllColumns && (_selectedVoucher is null || _selectedVoucher.Id <= 0))" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.ReferenceNo)" HeaderText="Ref No" Width="150" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.FinancialYear)" HeaderText="Financial Year" Width="130" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TotalLedgers)" HeaderText="Ledgers" Width="100" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TotalDebitLedgers)" HeaderText="Debit Ledgers" Width="130" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TotalCreditLedgers)" HeaderText="Credit Ledgers" Width="130" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CompanyName)" HeaderText="Company" Width="200" Visible="@(_showAllColumns && (_selectedCompany is null || _selectedCompany.Id <= 0))" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.VoucherName)" HeaderText="Voucher Type" Width="200" Visible="@(_showAllColumns && (_selectedVoucher is null || _selectedVoucher.Id <= 0))" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.ReferenceNo)" HeaderText="Ref No" Width="200" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.FinancialYear)" HeaderText="Financial Year" Width="200" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TotalLedgers)" HeaderText="Ledgers" Width="150" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TotalDebitLedgers)" HeaderText="Debit Ledgers" Width="150" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TotalCreditLedgers)" HeaderText="Credit Ledgers" Width="200" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TotalDebitAmount)" HeaderText="Total Debit" Width="150" TextAlign="TextAlign.Right" Visible="_showAllColumns">
 								<Template>
 									@{
@@ -330,10 +330,10 @@ else
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.Remarks)" HeaderText="Remarks" Width="200" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CreatedByName)" HeaderText="Created By" Width="150" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CreatedAt)" HeaderText="Created At" Width="160" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CreatedFromPlatform)" HeaderText="Created Platform" Width="200" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CreatedFromPlatform)" HeaderText="Created Platform" Width="300" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Width="150" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LastModifiedAt)" HeaderText="Modified At" Width="160" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LastModifiedFromPlatform)" HeaderText="Modified Platform" Width="200" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LastModifiedFromPlatform)" HeaderText="Modified Platform" Width="300" Visible="_showAllColumns" />
 
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.MasterStatus)" HeaderText="Status" Width="110" TextAlign="TextAlign.Center" Visible="_showDeleted">
 								<Template>
@@ -390,8 +390,7 @@ else
 								</Icon>
 							</BalanceInfoCard>
 
-							<BalanceInfoCard Label="Period Debit" Value="@($"₹{_selectedTrialBalance.Debit:N2}")"
-											 Variant="BalanceInfoCard.CardVariant.Debit">
+							<BalanceInfoCard Label="Period Debit" Value="@($"₹{_selectedTrialBalance.Debit:N2}")" Variant="BalanceInfoCard.CardVariant.Debit">
 								<Icon>
 									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
 										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -402,8 +401,7 @@ else
 								</Icon>
 							</BalanceInfoCard>
 
-							<BalanceInfoCard Label="Period Credit" Value="@($"₹{_selectedTrialBalance.Credit:N2}")"
-											 Variant="BalanceInfoCard.CardVariant.Credit">
+							<BalanceInfoCard Label="Period Credit" Value="@($"₹{_selectedTrialBalance.Credit:N2}")" Variant="BalanceInfoCard.CardVariant.Credit">
 								<Icon>
 									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
 										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"

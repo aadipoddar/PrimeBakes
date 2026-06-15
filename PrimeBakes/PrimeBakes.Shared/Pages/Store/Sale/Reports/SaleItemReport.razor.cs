@@ -151,7 +151,7 @@ public partial class SaleItemReport : IAsyncDisposable
 						ItemCode = g.First().ItemCode,
 						ItemCategoryName = g.First().ItemCategoryName,
 						Quantity = g.Sum(t => t.Quantity),
-						BaseTotal = g.Sum(t => t.BaseTotal),
+						ItemBaseTotal = g.Sum(t => t.ItemBaseTotal),
 						DiscountAmount = g.Sum(t => t.DiscountAmount),
 						AfterDiscount = g.Sum(t => t.AfterDiscount),
 						SGSTAmount = g.Sum(t => t.SGSTAmount),
@@ -209,7 +209,7 @@ public partial class SaleItemReport : IAsyncDisposable
 			LocationId = pr.LocationId,
 			LocationName = pr.LocationName,
 			OrderId = null,
-			SaleRemarks = pr.SaleReturnRemarks,
+			Remarks = pr.Remarks,
 			ItemName = pr.ItemName,
 			ItemCode = pr.ItemCode,
 			ItemCategoryId = pr.ItemCategoryId,
@@ -222,7 +222,7 @@ public partial class SaleItemReport : IAsyncDisposable
 			TransactionDateTime = pr.TransactionDateTime,
 			Quantity = -pr.Quantity,
 			Rate = pr.Rate,
-			BaseTotal = -pr.BaseTotal,
+			ItemBaseTotal = -pr.BaseTotal,
 			DiscountPercent = pr.DiscountPercent,
 			DiscountAmount = -pr.DiscountAmount,
 			AfterDiscount = -pr.AfterDiscount,
@@ -237,7 +237,7 @@ public partial class SaleItemReport : IAsyncDisposable
 			Total = -pr.Total,
 			NetRate = pr.NetRate,
 			NetTotal = -pr.NetTotal,
-			Remarks = pr.Remarks
+			ItemRemarks = pr.Remarks
 		}));
 
 		_transactionOverviews = [.. _transactionOverviews.OrderBy(_ => _.TransactionDateTime)];
@@ -280,7 +280,7 @@ public partial class SaleItemReport : IAsyncDisposable
 			LocationId = pr.LocationId,
 			LocationName = pr.LocationName,
 			OrderId = null,
-			SaleRemarks = pr.StockTransferRemarks,
+			Remarks = pr.StockTransferRemarks,
 			ItemName = pr.ItemName,
 			ItemCode = pr.ItemCode,
 			ItemCategoryId = pr.ItemCategoryId,
@@ -293,7 +293,7 @@ public partial class SaleItemReport : IAsyncDisposable
 			TransactionDateTime = pr.TransactionDateTime,
 			Quantity = pr.Quantity,
 			Rate = pr.Rate,
-			BaseTotal = pr.BaseTotal,
+			ItemBaseTotal = pr.BaseTotal,
 			DiscountPercent = pr.DiscountPercent,
 			DiscountAmount = pr.DiscountAmount,
 			AfterDiscount = pr.AfterDiscount,
@@ -308,7 +308,7 @@ public partial class SaleItemReport : IAsyncDisposable
 			Total = pr.Total,
 			NetRate = pr.NetRate,
 			NetTotal = pr.NetTotal,
-			Remarks = pr.Remarks
+			ItemRemarks = pr.ItemRemarks
 		}));
 
 		_transactionOverviews = [.. _transactionOverviews.OrderBy(_ => _.TransactionDateTime)];
@@ -344,7 +344,7 @@ public partial class SaleItemReport : IAsyncDisposable
 			LocationId = pr.LocationId,
 			LocationName = pr.LocationName,
 			OrderId = null,
-			SaleRemarks = pr.BillRemarks,
+			Remarks = pr.BillRemarks,
 			ItemName = pr.ItemName,
 			ItemCode = pr.ItemCode,
 			ItemCategoryId = pr.ItemCategoryId,
@@ -357,7 +357,7 @@ public partial class SaleItemReport : IAsyncDisposable
 			TransactionDateTime = pr.TransactionDateTime,
 			Quantity = pr.Quantity,
 			Rate = pr.Rate,
-			BaseTotal = pr.BaseTotal,
+			ItemBaseTotal = pr.BaseTotal,
 			DiscountPercent = pr.DiscountPercent,
 			DiscountAmount = pr.DiscountAmount,
 			AfterDiscount = pr.AfterDiscount,
@@ -372,7 +372,7 @@ public partial class SaleItemReport : IAsyncDisposable
 			Total = pr.Total,
 			NetRate = pr.NetRate,
 			NetTotal = pr.NetTotal,
-			Remarks = pr.Remarks
+			ItemRemarks = pr.Remarks
 		}));
 
 		_transactionOverviews = [.. _transactionOverviews.OrderBy(_ => _.TransactionDateTime)];

@@ -1,5 +1,6 @@
 using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Operations.Location;
+using PrimeBakesLibrary.Store.Product.Models;
 using PrimeBakesLibrary.Store.Sale.Models;
 using PrimeBakesLibrary.Utils.Exports;
 
@@ -13,6 +14,7 @@ public static class SaleReturnReportExport
 		DateOnly? dateRangeStart = null,
 		DateOnly? dateRangeEnd = null,
 		bool showAllColumns = true,
+		bool showDeleted = false,
 		bool showSummary = false,
 		LedgerModel party = null,
 		CompanyModel company = null,
@@ -20,14 +22,39 @@ public static class SaleReturnReportExport
 	{
 		var columnSettings = new Dictionary<string, ReportColumnSetting>
 		{
-			[nameof(SaleReturnOverviewModel.TransactionNo)] = new() { DisplayName = "Trans No", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(SaleReturnOverviewModel.TransactionNo)] = new() { DisplayName = "Transa No", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnOverviewModel.LocationName)] = new() { DisplayName = "Location", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnOverviewModel.PartyName)] = new() { DisplayName = "Party", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnOverviewModel.CustomerName)] = new() { DisplayName = "Customer", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm tt", Alignment = CellAlignment.Center, IncludeInTotal = false },
-			[nameof(SaleReturnOverviewModel.FinancialYear)] = new() { DisplayName = "Financial Year", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(SaleReturnOverviewModel.FinancialYear)] = new() { DisplayName = "Financial Year", Alignment = CellAlignment.Center, IncludeInTotal = false },
+
+			[nameof(SaleReturnOverviewModel.TotalItems)] = new() { DisplayName = "Items", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(SaleReturnOverviewModel.TotalQuantity)] = new() { DisplayName = "Qty", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(SaleReturnOverviewModel.BaseTotal)] = new() { DisplayName = "Base Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(SaleReturnOverviewModel.ItemDiscountAmount)] = new() { DisplayName = "Item Disc Amt", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(SaleReturnOverviewModel.TotalAfterItemDiscount)] = new() { DisplayName = "After Disc", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(SaleReturnOverviewModel.TotalInclusiveTaxAmount)] = new() { DisplayName = "Incl Tax", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(SaleReturnOverviewModel.TotalExtraTaxAmount)] = new() { DisplayName = "Extra Tax", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(SaleReturnOverviewModel.TotalAfterTax)] = new() { DisplayName = "Sub Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+
+			[nameof(SaleReturnOverviewModel.OtherChargesPercent)] = new() { DisplayName = "Other Charges %", Format = "#,##0.00", Alignment = CellAlignment.Center, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(SaleReturnOverviewModel.OtherChargesAmount)] = new() { DisplayName = "Other Charges Amt", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(SaleReturnOverviewModel.DiscountPercent)] = new() { DisplayName = "Disc %", Format = "#,##0.00", Alignment = CellAlignment.Center, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(SaleReturnOverviewModel.DiscountAmount)] = new() { DisplayName = "Disc Amt", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+
+			[nameof(SaleReturnOverviewModel.RoundOffAmount)] = new() { DisplayName = "Round Off", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(SaleReturnOverviewModel.TotalAmount)] = new() { DisplayName = "Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, IsRequired = true, IsGrandTotal = true, HighlightNegative = true },
+
+			[nameof(SaleReturnOverviewModel.Cash)] = new() { DisplayName = "Cash", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(SaleReturnOverviewModel.Card)] = new() { DisplayName = "Card", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(SaleReturnOverviewModel.UPI)] = new() { DisplayName = "UPI", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(SaleReturnOverviewModel.Credit)] = new() { DisplayName = "Credit", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(SaleReturnOverviewModel.PaymentModes)] = new() { DisplayName = "Payment Modes", Alignment = CellAlignment.Left, IncludeInTotal = false },
+
 			[nameof(SaleReturnOverviewModel.Remarks)] = new() { DisplayName = "Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(SaleReturnOverviewModel.FinancialAccountingTransactionNo)] = new() { DisplayName = "Accounting Trans No", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnOverviewModel.CreatedByName)] = new() { DisplayName = "Created By", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnOverviewModel.CreatedAt)] = new() { DisplayName = "Created At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(SaleReturnOverviewModel.CreatedFromPlatform)] = new() { DisplayName = "Created Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
@@ -35,167 +62,11 @@ public static class SaleReturnReportExport
 			[nameof(SaleReturnOverviewModel.LastModifiedAt)] = new() { DisplayName = "Modified At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(SaleReturnOverviewModel.LastModifiedFromPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
 
-			[nameof(SaleReturnOverviewModel.TotalItems)] = new()
-			{
-				DisplayName = "Items",
-				Format = "#,##0",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true
-			},
-
-			[nameof(SaleReturnOverviewModel.TotalQuantity)] = new()
-			{
-				DisplayName = "Qty",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true
-			},
-
-			[nameof(SaleReturnOverviewModel.BaseTotal)] = new()
-			{
-				DisplayName = "Base Total",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true
-			},
-
-			[nameof(SaleReturnOverviewModel.ItemDiscountAmount)] = new()
-			{
-				DisplayName = "Item Discount Amount",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true
-			},
-
-			[nameof(SaleReturnOverviewModel.TotalAfterItemDiscount)] = new()
-			{
-				DisplayName = "After Disc",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true,
-				HighlightNegative = true
-			},
-
-			[nameof(SaleReturnOverviewModel.TotalInclusiveTaxAmount)] = new()
-			{
-				DisplayName = "Incl Tax",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true,
-				HighlightNegative = true
-			},
-
-			[nameof(SaleReturnOverviewModel.TotalExtraTaxAmount)] = new()
-			{
-				DisplayName = "Extra Tax",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true,
-				HighlightNegative = true
-			},
-
-			[nameof(SaleReturnOverviewModel.TotalAfterTax)] = new()
-			{
-				DisplayName = "Sub Total",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true
-			},
-
-			[nameof(SaleReturnOverviewModel.OtherChargesPercent)] = new()
-			{
-				DisplayName = "Other Charges %",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Center,
-				IncludeInTotal = false
-			},
-
-			[nameof(SaleReturnOverviewModel.OtherChargesAmount)] = new()
-			{
-				DisplayName = "Other Charges",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true
-			},
-
-			[nameof(SaleReturnOverviewModel.DiscountPercent)] = new()
-			{
-				DisplayName = "Disc %",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Center,
-				IncludeInTotal = false
-			},
-
-			[nameof(SaleReturnOverviewModel.DiscountAmount)] = new()
-			{
-				DisplayName = "Disc Amt",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true
-			},
-
-			[nameof(SaleReturnOverviewModel.RoundOffAmount)] = new()
-			{
-				DisplayName = "Round Off",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true
-			},
-
-			[nameof(SaleReturnOverviewModel.TotalAmount)] = new()
-			{
-				DisplayName = "Total",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true,
-				IsRequired = true,
-				IsGrandTotal = true
-			},
-
-			[nameof(SaleReturnOverviewModel.Cash)] = new()
-			{
-				DisplayName = "Cash",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true
-			},
-
-			[nameof(SaleReturnOverviewModel.Card)] = new()
-			{
-				DisplayName = "Card",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true
-			},
-
-			[nameof(SaleReturnOverviewModel.UPI)] = new()
-			{
-				DisplayName = "UPI",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true
-			},
-
-			[nameof(SaleReturnOverviewModel.Credit)] = new()
-			{
-				DisplayName = "Credit",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true
-			},
-
-			[nameof(SaleReturnOverviewModel.PaymentModes)] = new()
-			{
-				DisplayName = "Payment Modes",
-				Alignment = CellAlignment.Left,
-				IncludeInTotal = false
-			}
+			[nameof(SaleReturnOverviewModel.Status)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false },
 		};
 
-		// Define column order based on visibility setting
 		List<string> columnOrder;
 
-		// Summary view - grouped by party with totals
 		if (showSummary)
 			columnOrder =
 			[
@@ -220,7 +91,6 @@ public static class SaleReturnReportExport
 
 		else if (showAllColumns)
 		{
-			// All columns - detailed view
 			columnOrder =
 			[
 				nameof(SaleReturnOverviewModel.TransactionNo),
@@ -250,17 +120,22 @@ public static class SaleReturnReportExport
 				nameof(SaleReturnOverviewModel.Credit),
 				nameof(SaleReturnOverviewModel.PaymentModes),
 				nameof(SaleReturnOverviewModel.Remarks),
+				nameof(SaleReturnOverviewModel.FinancialAccountingTransactionNo),
 				nameof(SaleReturnOverviewModel.CreatedByName),
 				nameof(SaleReturnOverviewModel.CreatedAt),
 				nameof(SaleReturnOverviewModel.CreatedFromPlatform),
 				nameof(SaleReturnOverviewModel.LastModifiedByUserName),
 				nameof(SaleReturnOverviewModel.LastModifiedAt),
-				nameof(SaleReturnOverviewModel.LastModifiedFromPlatform)
+				nameof(SaleReturnOverviewModel.LastModifiedFromPlatform),
+				nameof(SaleReturnOverviewModel.Status)
 			];
+
+			if (!showDeleted)
+				columnOrder.Remove(nameof(SaleReturnOverviewModel.Status));
 		}
+
 		else
 		{
-			// Summary columns - key fields only
 			columnOrder =
 			[
 				nameof(SaleReturnOverviewModel.TransactionNo),
@@ -272,20 +147,21 @@ public static class SaleReturnReportExport
 				nameof(SaleReturnOverviewModel.DiscountPercent),
 				nameof(SaleReturnOverviewModel.DiscountAmount),
 				nameof(SaleReturnOverviewModel.TotalAmount),
-				nameof(SaleReturnOverviewModel.PaymentModes)
+				nameof(SaleReturnOverviewModel.PaymentModes),
+				nameof(SaleReturnOverviewModel.Status)
 			];
+
+			if (location is not null)
+				columnOrder.Remove(nameof(SaleReturnOverviewModel.LocationName));
+
+			if (party is not null)
+				columnOrder.Remove(nameof(SaleReturnOverviewModel.PartyName));
+
+			if (!showDeleted)
+				columnOrder.Remove(nameof(SaleReturnOverviewModel.Status));
 		}
 
-		if (company is not null)
-			columnOrder.Remove(nameof(SaleReturnOverviewModel.CompanyName));
-
-		if (location is not null)
-			columnOrder.Remove(nameof(SaleReturnOverviewModel.LocationName));
-
-		if (party is not null)
-			columnOrder.Remove(nameof(SaleReturnOverviewModel.PartyName));
-
-		string fileName = "SALE_RETURN_REPORT";
+		string fileName = $"SALE_RETURN_REPORT";
 		if (dateRangeStart.HasValue || dateRangeEnd.HasValue)
 			fileName += $"_{dateRangeStart?.ToString("yyyyMMdd") ?? "START"}_to_{dateRangeEnd?.ToString("yyyyMMdd") ?? "END"}";
 
@@ -300,7 +176,12 @@ public static class SaleReturnReportExport
 				columnOrder,
 				useBuiltInStyle: false,
 				useLandscape: showAllColumns || showSummary,
-				new() { ["Company"] = company?.Name ?? null, ["Location"] = location?.Name ?? null, ["Party"] = party?.Name ?? null }
+				new()
+				{
+					["Company"] = company?.Name ?? null,
+					["Location"] = location?.Name ?? null,
+					["Party"] = party?.Name ?? null
+				}
 			);
 
 			return (stream, fileName + ".pdf");
@@ -315,7 +196,12 @@ public static class SaleReturnReportExport
 				dateRangeEnd,
 				columnSettings,
 				columnOrder,
-				new() { ["Company"] = company?.Name ?? null, ["Location"] = location?.Name ?? null, ["Party"] = party?.Name ?? null }
+				new()
+				{
+					["Company"] = company?.Name ?? null,
+					["Location"] = location?.Name ?? null,
+					["Party"] = party?.Name ?? null
+				}
 			);
 
 			return (stream, fileName + ".xlsx");
@@ -328,162 +214,80 @@ public static class SaleReturnReportExport
 		DateOnly? dateRangeStart = null,
 		DateOnly? dateRangeEnd = null,
 		bool showAllColumns = true,
+		bool showDeleted = false,
 		bool showSummary = false,
-		LedgerModel party = null,
+		ProductModel product = null,
+		ProductCategoryModel productCategory = null,
 		CompanyModel company = null,
-		LocationModel location = null)
+		LocationModel location = null,
+		LedgerModel party = null)
 	{
 		var columnSettings = new Dictionary<string, ReportColumnSetting>
 		{
 			[nameof(SaleReturnItemOverviewModel.ItemName)] = new() { DisplayName = "Item", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnItemOverviewModel.ItemCode)] = new() { DisplayName = "Code", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnItemOverviewModel.ItemCategoryName)] = new() { DisplayName = "Category", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(SaleReturnItemOverviewModel.TransactionNo)] = new() { DisplayName = "Trans No", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(SaleReturnItemOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
+			[nameof(SaleReturnItemOverviewModel.ItemRemarks)] = new() { DisplayName = "Item Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
+
+			[nameof(SaleReturnItemOverviewModel.Quantity)] = new() { DisplayName = "Qty", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(SaleReturnItemOverviewModel.Rate)] = new() { DisplayName = "Rate", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(SaleReturnItemOverviewModel.NetRate)] = new() { DisplayName = "Net Rate", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(SaleReturnItemOverviewModel.ItemBaseTotal)] = new() { DisplayName = "Base Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(SaleReturnItemOverviewModel.DiscountPercent)] = new() { DisplayName = "Disc %", Format = "#,##0.00", Alignment = CellAlignment.Center, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(SaleReturnItemOverviewModel.DiscountAmount)] = new() { DisplayName = "Disc Amt", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(SaleReturnItemOverviewModel.AfterDiscount)] = new() { DisplayName = "After Disc", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(SaleReturnItemOverviewModel.SGSTPercent)] = new() { DisplayName = "SGST %", Format = "#,##0.00", Alignment = CellAlignment.Center, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(SaleReturnItemOverviewModel.SGSTAmount)] = new() { DisplayName = "SGST Amt", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(SaleReturnItemOverviewModel.CGSTPercent)] = new() { DisplayName = "CGST %", Format = "#,##0.00", Alignment = CellAlignment.Center, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(SaleReturnItemOverviewModel.CGSTAmount)] = new() { DisplayName = "CGST Amt", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(SaleReturnItemOverviewModel.IGSTPercent)] = new() { DisplayName = "IGST %", Format = "#,##0.00", Alignment = CellAlignment.Center, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(SaleReturnItemOverviewModel.IGSTAmount)] = new() { DisplayName = "IGST Amt", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(SaleReturnItemOverviewModel.TotalTaxAmount)] = new() { DisplayName = "Tax Amt", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(SaleReturnItemOverviewModel.InclusiveTax)] = new() { DisplayName = "Incl. Tax", Alignment = CellAlignment.Center, IncludeInTotal = false },
+			[nameof(SaleReturnItemOverviewModel.Total)] = new() { DisplayName = "Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(SaleReturnItemOverviewModel.NetTotal)] = new() { DisplayName = "Net Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+
+			[nameof(SaleReturnItemOverviewModel.TransactionNo)] = new() { DisplayName = "Transa No", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnItemOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnItemOverviewModel.LocationName)] = new() { DisplayName = "Location", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnItemOverviewModel.PartyName)] = new() { DisplayName = "Party", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(SaleReturnItemOverviewModel.SaleReturnRemarks)] = new() { DisplayName = "Sale Return Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(SaleReturnItemOverviewModel.Remarks)] = new() { DisplayName = "Item Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(SaleReturnItemOverviewModel.InclusiveTax)] = new() { DisplayName = "Incl Tax", Alignment = CellAlignment.Center, IncludeInTotal = false },
+			[nameof(SaleReturnItemOverviewModel.CustomerName)] = new() { DisplayName = "Customer", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(SaleReturnItemOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm tt", Alignment = CellAlignment.Center, IncludeInTotal = false },
+			[nameof(SaleReturnItemOverviewModel.FinancialYear)] = new() { DisplayName = "Financial Year", Alignment = CellAlignment.Center, IncludeInTotal = false },
 
-			[nameof(SaleReturnItemOverviewModel.Quantity)] = new()
-			{
-				DisplayName = "Qty",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true,
-				HighlightNegative = true
-			},
+			[nameof(SaleReturnItemOverviewModel.TotalItems)] = new() { DisplayName = "Items", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(SaleReturnItemOverviewModel.TotalQuantity)] = new() { DisplayName = "Qty", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(SaleReturnItemOverviewModel.BaseTotal)] = new() { DisplayName = "Base Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(SaleReturnItemOverviewModel.ItemDiscountAmount)] = new() { DisplayName = "Item Disc Amt", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(SaleReturnItemOverviewModel.TotalAfterItemDiscount)] = new() { DisplayName = "After Disc", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(SaleReturnItemOverviewModel.TotalInclusiveTaxAmount)] = new() { DisplayName = "Incl Tax", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(SaleReturnItemOverviewModel.TotalExtraTaxAmount)] = new() { DisplayName = "Extra Tax", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(SaleReturnItemOverviewModel.TotalAfterTax)] = new() { DisplayName = "Sub Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
 
-			[nameof(SaleReturnItemOverviewModel.Rate)] = new()
-			{
-				DisplayName = "Rate",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = false
-			},
+			[nameof(SaleReturnItemOverviewModel.OtherChargesPercent)] = new() { DisplayName = "Other Charges %", Format = "#,##0.00", Alignment = CellAlignment.Center, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(SaleReturnItemOverviewModel.OtherChargesAmount)] = new() { DisplayName = "Other Charges Amt", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(SaleReturnItemOverviewModel.SaleReturnDiscountPercent)] = new() { DisplayName = "Bill Disc %", Format = "#,##0.00", Alignment = CellAlignment.Center, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(SaleReturnItemOverviewModel.SaleReturnDiscountAmount)] = new() { DisplayName = "Bill Disc Amt", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
 
-			[nameof(SaleReturnItemOverviewModel.NetRate)] = new()
-			{
-				DisplayName = "Net Rate",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = false
-			},
+			[nameof(SaleReturnItemOverviewModel.RoundOffAmount)] = new() { DisplayName = "Round Off", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(SaleReturnItemOverviewModel.TotalAmount)] = new() { DisplayName = "Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
 
-			[nameof(SaleReturnItemOverviewModel.BaseTotal)] = new()
-			{
-				DisplayName = "Base Total",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true,
-				HighlightNegative = true
-			},
+			[nameof(SaleReturnItemOverviewModel.Cash)] = new() { DisplayName = "Cash", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(SaleReturnItemOverviewModel.Card)] = new() { DisplayName = "Card", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(SaleReturnItemOverviewModel.UPI)] = new() { DisplayName = "UPI", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(SaleReturnItemOverviewModel.Credit)] = new() { DisplayName = "Credit", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(SaleReturnItemOverviewModel.PaymentModes)] = new() { DisplayName = "Payment Modes", Alignment = CellAlignment.Left, IncludeInTotal = false },
 
-			[nameof(SaleReturnItemOverviewModel.DiscountPercent)] = new()
-			{
-				DisplayName = "Disc %",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Center,
-				IncludeInTotal = false
-			},
+			[nameof(SaleReturnItemOverviewModel.Remarks)] = new() { DisplayName = "Sale Return Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(SaleReturnItemOverviewModel.FinancialAccountingTransactionNo)] = new() { DisplayName = "Accounting Trans No", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(SaleReturnItemOverviewModel.CreatedByName)] = new() { DisplayName = "Created By", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(SaleReturnItemOverviewModel.CreatedAt)] = new() { DisplayName = "Created At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
+			[nameof(SaleReturnItemOverviewModel.CreatedFromPlatform)] = new() { DisplayName = "Created Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(SaleReturnItemOverviewModel.LastModifiedByUserName)] = new() { DisplayName = "Modified By", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(SaleReturnItemOverviewModel.LastModifiedAt)] = new() { DisplayName = "Modified At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
+			[nameof(SaleReturnItemOverviewModel.LastModifiedFromPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
 
-			[nameof(SaleReturnItemOverviewModel.DiscountAmount)] = new()
-			{
-				DisplayName = "Discount Amt",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true,
-				HighlightNegative = true
-			},
-
-			[nameof(SaleReturnItemOverviewModel.AfterDiscount)] = new()
-			{
-				DisplayName = "After Disc",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true,
-				HighlightNegative = true
-			},
-
-			[nameof(SaleReturnItemOverviewModel.SGSTPercent)] = new()
-			{
-				DisplayName = "SGST %",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Center,
-				IncludeInTotal = false
-			},
-
-			[nameof(SaleReturnItemOverviewModel.SGSTAmount)] = new()
-			{
-				DisplayName = "SGST Amt",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true,
-				HighlightNegative = true
-			},
-
-			[nameof(SaleReturnItemOverviewModel.CGSTPercent)] = new()
-			{
-				DisplayName = "CGST %",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Center,
-				IncludeInTotal = false
-			},
-
-			[nameof(SaleReturnItemOverviewModel.CGSTAmount)] = new()
-			{
-				DisplayName = "CGST Amt",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true,
-				HighlightNegative = true
-			},
-
-			[nameof(SaleReturnItemOverviewModel.IGSTPercent)] = new()
-			{
-				DisplayName = "IGST %",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Center,
-				IncludeInTotal = false
-			},
-
-			[nameof(SaleReturnItemOverviewModel.IGSTAmount)] = new()
-			{
-				DisplayName = "IGST Amt",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true,
-				HighlightNegative = true
-			},
-
-			[nameof(SaleReturnItemOverviewModel.TotalTaxAmount)] = new()
-			{
-				DisplayName = "Tax",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true,
-				HighlightNegative = true
-			},
-
-			[nameof(SaleReturnItemOverviewModel.Total)] = new()
-			{
-				DisplayName = "Total",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true,
-				HighlightNegative = true
-			},
-
-			[nameof(SaleReturnItemOverviewModel.NetTotal)] = new()
-			{
-				DisplayName = "Net Total",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true,
-				HighlightNegative = true
-			}
+			[nameof(SaleReturnItemOverviewModel.MasterStatus)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false },
 		};
 
 		List<string> columnOrder;
@@ -495,7 +299,7 @@ public static class SaleReturnReportExport
 				nameof(SaleReturnItemOverviewModel.ItemCode),
 				nameof(SaleReturnItemOverviewModel.ItemCategoryName),
 				nameof(SaleReturnItemOverviewModel.Quantity),
-				nameof(SaleReturnItemOverviewModel.BaseTotal),
+				nameof(SaleReturnItemOverviewModel.ItemBaseTotal),
 				nameof(SaleReturnItemOverviewModel.DiscountAmount),
 				nameof(SaleReturnItemOverviewModel.AfterDiscount),
 				nameof(SaleReturnItemOverviewModel.SGSTAmount),
@@ -508,25 +312,21 @@ public static class SaleReturnReportExport
 
 		else if (showAllColumns)
 		{
-			// All columns - detailed view
-			List<string> columns =
+			columnOrder =
 			[
 				nameof(SaleReturnItemOverviewModel.ItemName),
 				nameof(SaleReturnItemOverviewModel.ItemCode),
 				nameof(SaleReturnItemOverviewModel.ItemCategoryName),
 				nameof(SaleReturnItemOverviewModel.TransactionNo),
 				nameof(SaleReturnItemOverviewModel.TransactionDateTime),
-				nameof(SaleReturnItemOverviewModel.CompanyName)
-			];
-
-			if (location is null)
-				columns.Add(nameof(SaleReturnItemOverviewModel.LocationName));
-
-			columns.AddRange([
+				nameof(SaleReturnItemOverviewModel.CompanyName),
+				nameof(SaleReturnItemOverviewModel.LocationName),
 				nameof(SaleReturnItemOverviewModel.PartyName),
+				nameof(SaleReturnItemOverviewModel.CustomerName),
+				nameof(SaleReturnItemOverviewModel.FinancialYear),
 				nameof(SaleReturnItemOverviewModel.Quantity),
 				nameof(SaleReturnItemOverviewModel.Rate),
-				nameof(SaleReturnItemOverviewModel.BaseTotal),
+				nameof(SaleReturnItemOverviewModel.ItemBaseTotal),
 				nameof(SaleReturnItemOverviewModel.DiscountPercent),
 				nameof(SaleReturnItemOverviewModel.DiscountAmount),
 				nameof(SaleReturnItemOverviewModel.AfterDiscount),
@@ -541,28 +341,67 @@ public static class SaleReturnReportExport
 				nameof(SaleReturnItemOverviewModel.Total),
 				nameof(SaleReturnItemOverviewModel.NetRate),
 				nameof(SaleReturnItemOverviewModel.NetTotal),
-				nameof(SaleReturnItemOverviewModel.SaleReturnRemarks),
-				nameof(SaleReturnItemOverviewModel.Remarks)
-			]);
+				nameof(SaleReturnItemOverviewModel.TotalItems),
+				nameof(SaleReturnItemOverviewModel.TotalQuantity),
+				nameof(SaleReturnItemOverviewModel.BaseTotal),
+				nameof(SaleReturnItemOverviewModel.ItemDiscountAmount),
+				nameof(SaleReturnItemOverviewModel.TotalAfterItemDiscount),
+				nameof(SaleReturnItemOverviewModel.TotalInclusiveTaxAmount),
+				nameof(SaleReturnItemOverviewModel.TotalExtraTaxAmount),
+				nameof(SaleReturnItemOverviewModel.TotalAfterTax),
+				nameof(SaleReturnItemOverviewModel.OtherChargesPercent),
+				nameof(SaleReturnItemOverviewModel.OtherChargesAmount),
+				nameof(SaleReturnItemOverviewModel.SaleReturnDiscountPercent),
+				nameof(SaleReturnItemOverviewModel.SaleReturnDiscountAmount),
+				nameof(SaleReturnItemOverviewModel.RoundOffAmount),
+				nameof(SaleReturnItemOverviewModel.TotalAmount),
+				nameof(SaleReturnItemOverviewModel.Cash),
+				nameof(SaleReturnItemOverviewModel.Card),
+				nameof(SaleReturnItemOverviewModel.UPI),
+				nameof(SaleReturnItemOverviewModel.Credit),
+				nameof(SaleReturnItemOverviewModel.PaymentModes),
+				nameof(SaleReturnItemOverviewModel.Remarks),
+				nameof(SaleReturnItemOverviewModel.ItemRemarks),
+				nameof(SaleReturnItemOverviewModel.FinancialAccountingTransactionNo),
+				nameof(SaleReturnItemOverviewModel.CreatedByName),
+				nameof(SaleReturnItemOverviewModel.CreatedAt),
+				nameof(SaleReturnItemOverviewModel.CreatedFromPlatform),
+				nameof(SaleReturnItemOverviewModel.LastModifiedByUserName),
+				nameof(SaleReturnItemOverviewModel.LastModifiedAt),
+				nameof(SaleReturnItemOverviewModel.LastModifiedFromPlatform),
+				nameof(SaleReturnItemOverviewModel.MasterStatus)
+			];
 
-			columnOrder = columns;
+			if (!showDeleted)
+				columnOrder.Remove(nameof(SaleReturnItemOverviewModel.MasterStatus));
 		}
-		// Summary columns - key fields only
+
 		else
+		{
 			columnOrder =
 			[
 				nameof(SaleReturnItemOverviewModel.ItemName),
-				nameof(SaleReturnItemOverviewModel.ItemCode),
+				nameof(SaleReturnItemOverviewModel.Quantity),
+				nameof(SaleReturnItemOverviewModel.Rate),
+				nameof(SaleReturnItemOverviewModel.NetRate),
+				nameof(SaleReturnItemOverviewModel.NetTotal),
 				nameof(SaleReturnItemOverviewModel.TransactionNo),
 				nameof(SaleReturnItemOverviewModel.TransactionDateTime),
 				nameof(SaleReturnItemOverviewModel.LocationName),
-				nameof(SaleReturnItemOverviewModel.PartyName),
-				nameof(SaleReturnItemOverviewModel.Quantity),
-				nameof(SaleReturnItemOverviewModel.NetRate),
-				nameof(SaleReturnItemOverviewModel.NetTotal)
+				nameof(SaleReturnItemOverviewModel.PartyName)
 			];
 
-		string fileName = "SALE_RETURN_ITEM_REPORT";
+			if (product is not null)
+				columnOrder.Remove(nameof(SaleReturnItemOverviewModel.ItemName));
+
+			if (location is not null)
+				columnOrder.Remove(nameof(SaleReturnItemOverviewModel.LocationName));
+
+			if (party is not null)
+				columnOrder.Remove(nameof(SaleReturnItemOverviewModel.PartyName));
+		}
+
+		string fileName = $"SALE_RETURN_ITEM_REPORT";
 		if (dateRangeStart.HasValue || dateRangeEnd.HasValue)
 			fileName += $"_{dateRangeStart?.ToString("yyyyMMdd") ?? "START"}_to_{dateRangeEnd?.ToString("yyyyMMdd") ?? "END"}";
 
@@ -577,7 +416,14 @@ public static class SaleReturnReportExport
 				columnOrder,
 				useBuiltInStyle: false,
 				useLandscape: showAllColumns || showSummary,
-				new() { ["Company"] = company?.Name ?? null, ["Location"] = location?.Name ?? null, ["Party"] = party?.Name ?? null }
+				new()
+				{
+					["Item"] = product?.Name ?? null,
+					["Category"] = productCategory?.Name ?? null,
+					["Company"] = company?.Name ?? null,
+					["Location"] = location?.Name ?? null,
+					["Party"] = party?.Name ?? null
+				}
 			);
 
 			return (stream, fileName + ".pdf");
@@ -592,7 +438,14 @@ public static class SaleReturnReportExport
 				dateRangeEnd,
 				columnSettings,
 				columnOrder,
-				new() { ["Company"] = company?.Name ?? null, ["Location"] = location?.Name ?? null, ["Party"] = party?.Name ?? null }
+				new()
+				{
+					["Item"] = product?.Name ?? null,
+					["Category"] = productCategory?.Name ?? null,
+					["Company"] = company?.Name ?? null,
+					["Location"] = location?.Name ?? null,
+					["Party"] = party?.Name ?? null
+				}
 			);
 
 			return (stream, fileName + ".xlsx");

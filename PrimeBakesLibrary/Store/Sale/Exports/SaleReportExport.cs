@@ -366,8 +366,8 @@ public static class SaleReportExport
 			[nameof(SaleItemOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleItemOverviewModel.LocationName)] = new() { DisplayName = "Location", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleItemOverviewModel.PartyName)] = new() { DisplayName = "Party", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(SaleItemOverviewModel.SaleRemarks)] = new() { DisplayName = "Sale Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(SaleItemOverviewModel.Remarks)] = new() { DisplayName = "Item Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(SaleItemOverviewModel.Remarks)] = new() { DisplayName = "Sale Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(SaleItemOverviewModel.ItemRemarks)] = new() { DisplayName = "Item Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleItemOverviewModel.InclusiveTax)] = new() { DisplayName = "Incl Tax", Alignment = CellAlignment.Center, IncludeInTotal = false },
 
 			[nameof(SaleItemOverviewModel.Quantity)] = new()
@@ -395,7 +395,7 @@ public static class SaleReportExport
 				IncludeInTotal = false
 			},
 
-			[nameof(SaleItemOverviewModel.BaseTotal)] = new()
+			[nameof(SaleItemOverviewModel.ItemBaseTotal)] = new()
 			{
 				DisplayName = "Base Total",
 				Format = "#,##0.00",
@@ -518,7 +518,7 @@ public static class SaleReportExport
 				nameof(SaleItemOverviewModel.ItemCode),
 				nameof(SaleItemOverviewModel.ItemCategoryName),
 				nameof(SaleItemOverviewModel.Quantity),
-				nameof(SaleItemOverviewModel.BaseTotal),
+				nameof(SaleItemOverviewModel.ItemBaseTotal),
 				nameof(SaleItemOverviewModel.DiscountAmount),
 				nameof(SaleItemOverviewModel.AfterDiscount),
 				nameof(SaleItemOverviewModel.SGSTAmount),
@@ -549,7 +549,7 @@ public static class SaleReportExport
 				nameof(SaleItemOverviewModel.PartyName),
 				nameof(SaleItemOverviewModel.Quantity),
 				nameof(SaleItemOverviewModel.Rate),
-				nameof(SaleItemOverviewModel.BaseTotal),
+				nameof(SaleItemOverviewModel.ItemBaseTotal),
 				nameof(SaleItemOverviewModel.DiscountPercent),
 				nameof(SaleItemOverviewModel.DiscountAmount),
 				nameof(SaleItemOverviewModel.AfterDiscount),
@@ -564,8 +564,8 @@ public static class SaleReportExport
 				nameof(SaleItemOverviewModel.Total),
 				nameof(SaleItemOverviewModel.NetRate),
 				nameof(SaleItemOverviewModel.NetTotal),
-				nameof(SaleItemOverviewModel.SaleRemarks),
-				nameof(SaleItemOverviewModel.Remarks)
+				nameof(SaleItemOverviewModel.Remarks),
+				nameof(SaleItemOverviewModel.ItemRemarks)
 			]);
 
 			columnOrder = columns;

@@ -1,29 +1,16 @@
-﻿CREATE VIEW [dbo].[SaleReturn_Item_Overview]
+CREATE VIEW [dbo].[SaleReturn_Item_Overview]
 	AS
 SELECT
-	[pr].[Id],
+	[sd].[Id],
+	[sd].[ProductId] AS ItemId,
 	[pr].[Name] AS ItemName,
 	[pr].[Code] AS ItemCode,
 	[pc].[Id] AS ItemCategoryId,
 	[pc].[Name] AS ItemCategoryName,
 
-	[sr].[Id] AS MasterId,
-	[sr].[TransactionNo],
-	[sr].[TransactionDateTime],
-	[c].[Id] AS CompanyId,
-	[c].[Name] AS CompanyName,
-	[l].[Id] AS LocationId,
-	[l].[Name] AS LocationName,
-
-	[p].[Id] AS PartyId,
-	[p].[Name] AS PartyName,
-	[cust].[Id] AS CustomerId,
-	[cust].[Name] AS CustomerName,
-	[sr].[Remarks] AS SaleReturnRemarks,
-
 	[sd].[Quantity],
 	[sd].[Rate],
-	[sd].[BaseTotal],
+	[sd].[BaseTotal] AS ItemBaseTotal,
 
 	[sd].[DiscountPercent],
 	[sd].[DiscountAmount],
@@ -41,8 +28,68 @@ SELECT
 	[sd].[Total],
 	[sd].[NetRate],
 	[sd].[NetRate] * [sd].[Quantity] AS NetTotal,
+	[sd].[Remarks] AS ItemRemarks,
 
-	[sd].[Remarks] AS Remarks
+	[sr].[Id] AS MasterId,
+	[sr].[TransactionNo],
+	[sr].[CompanyId],
+	[c].[Name] AS CompanyName,
+	[sr].[LocationId],
+	[l].[Name] AS LocationName,
+
+	[sr].[PartyId],
+	[p].[Name] AS PartyName,
+	[sr].[CustomerId],
+	[cust].[Name] AS CustomerName,
+
+	[sr].[TransactionDateTime],
+	[sr].[FinancialYearId],
+	CONVERT(VARCHAR(10), fy.StartDate, 103) + ' to ' + CONVERT(VARCHAR(10), fy.EndDate, 103) AS FinancialYear,
+
+	[sr].[TotalItems],
+	[sr].[TotalQuantity],
+	[sr].[BaseTotal],
+	[sr].[ItemDiscountAmount],
+	[sr].[TotalAfterItemDiscount],
+	[sr].[TotalInclusiveTaxAmount],
+	[sr].[TotalExtraTaxAmount],
+	[sr].[TotalAfterTax],
+
+	[sr].[OtherChargesPercent],
+	[sr].[OtherChargesAmount],
+	[sr].[DiscountPercent] AS SaleReturnDiscountPercent,
+	[sr].[DiscountAmount] AS SaleReturnDiscountAmount,
+
+	[sr].[RoundOffAmount],
+	[sr].[TotalAmount],
+
+	[sr].[Cash],
+	[sr].[Card],
+	[sr].[UPI],
+	[sr].[Credit],
+
+	STUFF(
+		CONCAT(
+			CASE WHEN [sr].[Cash] > 0 THEN ',Cash' ELSE '' END,
+			CASE WHEN [sr].[Card] > 0 THEN ',Card' ELSE '' END,
+			CASE WHEN [sr].[UPI] > 0 THEN ',UPI' ELSE '' END,
+			CASE WHEN [sr].[Credit] > 0 THEN ',Credit' ELSE '' END
+		), 1, 1, ''
+	) AS PaymentModes,
+
+	[sr].[Remarks],
+	[sr].[FinancialAccountingId],
+	[fa].[TransactionNo] AS FinancialAccountingTransactionNo,
+	[sr].[CreatedBy],
+	[u].[Name] AS CreatedByName,
+	[sr].[CreatedAt],
+	[sr].[CreatedFromPlatform],
+	[sr].[LastModifiedBy],
+	[lm].[Name] AS LastModifiedByUserName,
+	[sr].[LastModifiedAt],
+	[sr].[LastModifiedFromPlatform],
+
+	[sr].[Status] AS MasterStatus
 
 FROM
 	[dbo].[SaleReturnDetail] sd
@@ -61,7 +108,14 @@ LEFT JOIN
 	[dbo].[Ledger] p ON sr.PartyId = p.Id
 LEFT JOIN
 	[dbo].[Customer] cust ON sr.CustomerId = cust.Id
+INNER JOIN
+	[dbo].[FinancialYear] AS fy ON sr.FinancialYearId = fy.Id
+INNER JOIN
+	[dbo].[User] AS u ON sr.CreatedBy = u.Id
+LEFT JOIN
+	[dbo].[User] AS lm ON sr.LastModifiedBy = lm.Id
+LEFT JOIN
+	[dbo].[FinancialAccounting] AS fa ON sr.FinancialAccountingId = fa.Id
 
 WHERE
-	[sr].[Status] = 1 AND
 	[sd].[Status] = 1;

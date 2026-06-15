@@ -587,13 +587,13 @@ else
                         </GridAggregates>
 
                         <GridColumns>
-                            <GridColumn Field="@nameof(SaleOverviewModel.TransactionNo)" HeaderText="Trans No" Width="170"
+                            <GridColumn Field="@nameof(SaleOverviewModel.TransactionNo)" HeaderText="Trans No" Width="200"
                                         Visible="@(!_showSummary)" />
                             <GridColumn Field="@nameof(SaleOverviewModel.TransactionDateTime)" HeaderText="Date" Width="150"
                                         Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(!_showSummary)" />
                             <GridColumn Field="@nameof(SaleOverviewModel.LocationName)" HeaderText="Location" Width="150"
                                         Visible="@(_selectedLocation is null || _selectedLocation.Id <= 0)" />
-                            <GridColumn Field="@nameof(SaleOverviewModel.CompanyName)" HeaderText="Company" Width="180"
+                            <GridColumn Field="@nameof(SaleOverviewModel.CompanyName)" HeaderText="Company" Width="200"
                                         Visible="@(_showAllColumns && !_showSummary && (_selectedCompany is null || _selectedCompany.Id <= 0))" />
                             <GridColumn Field="@nameof(SaleOverviewModel.PartyName)" HeaderText="Party" Width="200"
                                         Visible="@(!_showSummary)" />
@@ -714,7 +714,7 @@ else
                                         Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime"
                                         Visible="@(_showAllColumns && !_showSummary)" />
                             <GridColumn Field="@nameof(SaleOverviewModel.LastModifiedFromPlatform)"
-                                        HeaderText="Modified Platform" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
+                                        HeaderText="Modified Platform" Width="300" Visible="@(_showAllColumns && !_showSummary)" />
                             <GridColumn Field="@nameof(SaleOverviewModel.FinancialAccountingTransactionNo)"
                                         HeaderText="Accounts Posting" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
                         </GridColumns>

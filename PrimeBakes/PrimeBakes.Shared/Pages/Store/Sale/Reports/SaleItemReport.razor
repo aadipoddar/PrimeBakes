@@ -249,7 +249,7 @@ else
                                             }
                                         </GroupCaptionTemplate>
                                     </GridAggregateColumn>
-                                    <GridAggregateColumn Field="@nameof(SaleItemOverviewModel.BaseTotal)"
+                                    <GridAggregateColumn Field="@nameof(SaleItemOverviewModel.ItemBaseTotal)"
                                                          Type="AggregateType.Sum" Format="N2">
                                         <FooterTemplate>
                                             @{
@@ -465,7 +465,7 @@ else
                             <GridColumn Field="@nameof(SaleItemOverviewModel.TransactionDateTime)" HeaderText="Date"
                                         Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime"
                                         Visible="@(!_showSummary)" />
-                            <GridColumn Field="@nameof(SaleItemOverviewModel.CompanyName)" HeaderText="Company" Width="180"
+                            <GridColumn Field="@nameof(SaleItemOverviewModel.CompanyName)" HeaderText="Company" Width="200"
                                         Visible="@(_showAllColumns && !_showSummary && (_selectedCompany is null || _selectedCompany.Id <= 0))" />
                             <GridColumn Field="@nameof(SaleItemOverviewModel.LocationName)" HeaderText="Location"
                                         Width="180"
@@ -476,7 +476,7 @@ else
                                         Format="N2" TextAlign="TextAlign.Right" />
                             <GridColumn Field="@nameof(SaleItemOverviewModel.Rate)" HeaderText="Rate" Width="120"
                                         Format="N2" TextAlign="TextAlign.Right" Visible="@(!_showSummary)" />
-                            <GridColumn Field="@nameof(SaleItemOverviewModel.BaseTotal)" HeaderText="Base Total" Width="130"
+                            <GridColumn Field="@nameof(SaleItemOverviewModel.ItemBaseTotal)" HeaderText="Base Total" Width="130"
                                         Format="N2" TextAlign="TextAlign.Right" Visible="@_showAllColumns" />
                             <GridColumn Field="@nameof(SaleItemOverviewModel.DiscountPercent)" HeaderText="Disc %"
                                         Width="120" Format="N2" TextAlign="TextAlign.Center"
@@ -519,9 +519,9 @@ else
                                     }
                                 </Template>
                             </GridColumn>
-                            <GridColumn Field="@nameof(SaleItemOverviewModel.SaleRemarks)" HeaderText="Sale Remarks"
+                            <GridColumn Field="@nameof(SaleItemOverviewModel.Remarks)" HeaderText="Sale Remarks"
                                         Width="200" Visible="@(_showAllColumns && !_showSummary)" />
-                            <GridColumn Field="@nameof(SaleItemOverviewModel.Remarks)" HeaderText="Item Remarks" Width="200"
+                            <GridColumn Field="@nameof(SaleItemOverviewModel.ItemRemarks)" HeaderText="Item Remarks" Width="200"
                                         Visible="@(_showAllColumns && !_showSummary)" />
                         </GridColumns>
                     </SfGrid>

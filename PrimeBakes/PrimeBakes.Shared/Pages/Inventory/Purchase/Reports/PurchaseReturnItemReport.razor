@@ -475,10 +475,10 @@ else
 
 							<GridColumn Field="@nameof(PurchaseReturnItemOverviewModel.ItemRemarks)" HeaderText="Item Remarks" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
 
-							<GridColumn Field="@nameof(PurchaseReturnItemOverviewModel.TransactionNo)" HeaderText="Trans No" Width="170" Visible="@(!_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseReturnItemOverviewModel.CompanyName)" HeaderText="Company" Width="180" Visible="@(!_showSummary && (_showAllColumns || _selectedCompany is null || _selectedCompany.Id <= 0))" />
+							<GridColumn Field="@nameof(PurchaseReturnItemOverviewModel.TransactionNo)" HeaderText="Trans No" Width="200" Visible="@(!_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnItemOverviewModel.CompanyName)" HeaderText="Company" Width="200" Visible="@(!_showSummary && (_showAllColumns || _selectedCompany is null || _selectedCompany.Id <= 0))" />
 							<GridColumn Field="@nameof(PurchaseReturnItemOverviewModel.TransactionDateTime)" HeaderText="Date" Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(!_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseReturnItemOverviewModel.FinancialYear)" HeaderText="Financial Year" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnItemOverviewModel.FinancialYear)" HeaderText="Financial Year" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
 							<GridColumn Field="@nameof(PurchaseReturnItemOverviewModel.ChallanNo)" HeaderText="Challan No" Width="170" Visible="@(!_showSummary)" />
 							<GridColumn Field="@nameof(PurchaseReturnItemOverviewModel.PartyName)" HeaderText="Party" Width="200" Visible="@(!_showSummary && (_showAllColumns || _selectedParty is null || _selectedParty.Id <= 0))" />
 
@@ -499,7 +499,7 @@ else
 							<GridColumn Field="@nameof(PurchaseReturnItemOverviewModel.TotalAfterTax)" HeaderText="Sub Total" Width="150" Format="N2" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
 
 							<GridColumn Field="@nameof(PurchaseReturnItemOverviewModel.OtherChargesPercent)" HeaderText="Other Charges %" Width="170" Format="N2" TextAlign="TextAlign.Center" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseReturnItemOverviewModel.OtherChargesAmount)" HeaderText="Other Charges" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnItemOverviewModel.OtherChargesAmount)" HeaderText="Other Charges" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
 							<GridColumn Field="@nameof(PurchaseReturnItemOverviewModel.CashDiscountPercent)" HeaderText="Cash Disc %" Width="150" Format="N2" TextAlign="TextAlign.Center" Visible="@(_showAllColumns && !_showSummary)" />
 							<GridColumn Field="@nameof(PurchaseReturnItemOverviewModel.CashDiscountAmount)" HeaderText="Cash Disc" Width="140" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)">
 								<Template>
@@ -530,14 +530,14 @@ else
 								</Template>
 							</GridColumn>
 
-							<GridColumn Field="@nameof(PurchaseReturnItemOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Trans No" Width="180" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnItemOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Trans No" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
 
 							<GridColumn Field="@nameof(PurchaseReturnItemOverviewModel.CreatedByName)" HeaderText="Created By" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
 							<GridColumn Field="@nameof(PurchaseReturnItemOverviewModel.CreatedAt)" HeaderText="Created At" Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseReturnItemOverviewModel.CreatedFromPlatform)" HeaderText="Created Platform" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnItemOverviewModel.CreatedFromPlatform)" HeaderText="Created Platform" Width="300" Visible="@(_showAllColumns && !_showSummary)" />
 							<GridColumn Field="@nameof(PurchaseReturnItemOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
 							<GridColumn Field="@nameof(PurchaseReturnItemOverviewModel.LastModifiedAt)" HeaderText="Modified At" Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseReturnItemOverviewModel.LastModifiedFromPlatform)" HeaderText="Modified Platform" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnItemOverviewModel.LastModifiedFromPlatform)" HeaderText="Modified Platform" Width="300" Visible="@(_showAllColumns && !_showSummary)" />
 						</GridColumns>
 					</SfGrid>
 				</div>

@@ -136,14 +136,14 @@ else
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.Id)" IsPrimaryKey="true" Visible="false" />
 
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TransactionDateTime)" HeaderText="Date" Width="120" Format="dd/MM/yy" Type="ColumnType.DateTime" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TransactionNo)" HeaderText="Trans No" Width="160" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TransactionNo)" HeaderText="Trans No" Width="200" />
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerName)" HeaderText="Ledger" Width="220" />
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerCode)" HeaderText="Code" Width="120" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.AccountTypeName)" HeaderText="Account Type" Width="150" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.GroupName)" HeaderText="Group" Width="150" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.GroupName)" HeaderText="Group" Width="200" Visible="_showAllColumns" />
 
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.InstrumentNo)" HeaderText="Instrument No" Width="150" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.InstrumentDate)" HeaderText="Instrument Date" Width="150" Format="dd/MM/yy" Type="ColumnType.DateTime" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.InstrumentDate)" HeaderText="Instrument Date" Width="200" Format="dd/MM/yy" Type="ColumnType.DateTime" />
 
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.Debit)" HeaderText="Debit" Width="130" TextAlign="TextAlign.Right">
 								<Template>
@@ -171,7 +171,7 @@ else
 								</Template>
 							</GridColumn>
 
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.Reconciled)" HeaderText="Reconciled" Width="120" TextAlign="TextAlign.Center">
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.Reconciled)" HeaderText="Reconciled" Width="150" TextAlign="TextAlign.Center">
 								<Template>
 									@{
 										var line = (context as FinancialAccountingLedgerOverviewModel);
@@ -187,9 +187,9 @@ else
 
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerRemarks)" HeaderText="Remarks" Width="200" />
 
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CompanyName)" HeaderText="Company" Width="180" Visible="@(_showAllColumns && (_selectedCompany is null || _selectedCompany.Id <= 0))" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.VoucherName)" HeaderText="Voucher Type" Width="150" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.FinancialYear)" HeaderText="Financial Year" Width="130" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CompanyName)" HeaderText="Company" Width="200" Visible="@(_showAllColumns && (_selectedCompany is null || _selectedCompany.Id <= 0))" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.VoucherName)" HeaderText="Voucher Type" Width="200" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.FinancialYear)" HeaderText="Financial Year" Width="200" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CreatedByName)" HeaderText="Created By" Width="150" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CreatedAt)" HeaderText="Created At" Width="160" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="_showAllColumns" />
 						</GridColumns>

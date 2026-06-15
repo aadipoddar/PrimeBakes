@@ -132,15 +132,13 @@ else
 									Toolbar="@(new List<string>() { "Search" })">
 
 								<GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
-								<GridPageSettings PageSize="20"
-												  PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
+								<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
 								<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
 								<GridAggregates>
 									<GridAggregate>
 										<GridAggregateColumns>
-											<GridAggregateColumn Field="@nameof(TrialBalanceModel.LedgerName)"
-																 Type="AggregateType.Count">
+											<GridAggregateColumn Field="@nameof(TrialBalanceModel.LedgerName)" Type="AggregateType.Count">
 												<FooterTemplate>
 													@{
 														var aggregate = (context as AggregateTemplateContext);
@@ -150,8 +148,7 @@ else
 													</div>
 												</FooterTemplate>
 											</GridAggregateColumn>
-											<GridAggregateColumn Field="@nameof(TrialBalanceModel.OpeningBalance)"
-																 Type="AggregateType.Sum" Format="N2">
+											<GridAggregateColumn Field="@nameof(TrialBalanceModel.OpeningBalance)" Type="AggregateType.Sum" Format="N2">
 												<FooterTemplate>
 													@{
 														var aggregate = (context as AggregateTemplateContext);
@@ -161,8 +158,7 @@ else
 													}
 												</FooterTemplate>
 											</GridAggregateColumn>
-											<GridAggregateColumn Field="@nameof(TrialBalanceModel.Debit)"
-																 Type="AggregateType.Sum" Format="N2">
+											<GridAggregateColumn Field="@nameof(TrialBalanceModel.Debit)" Type="AggregateType.Sum" Format="N2">
 												<FooterTemplate>
 													@{
 														var aggregate = (context as AggregateTemplateContext);
@@ -172,8 +168,7 @@ else
 													}
 												</FooterTemplate>
 											</GridAggregateColumn>
-											<GridAggregateColumn Field="@nameof(TrialBalanceModel.ClosingBalance)"
-																 Type="AggregateType.Sum" Format="N2">
+											<GridAggregateColumn Field="@nameof(TrialBalanceModel.ClosingBalance)" Type="AggregateType.Sum" Format="N2">
 												<FooterTemplate>
 													@{
 														var aggregate = (context as AggregateTemplateContext);
@@ -188,13 +183,9 @@ else
 								</GridAggregates>
 
 								<GridColumns>
-									<GridColumn Field="@nameof(TrialBalanceModel.LedgerName)" HeaderText="Ledger Name"
-												Width="250" />
-									<GridColumn Field="@nameof(TrialBalanceModel.GroupName)" HeaderText="Group" Width="150"
-												Visible="_showAllColumns" />
-									<GridColumn Field="@nameof(TrialBalanceModel.OpeningBalance)"
-												HeaderText="Opening Balance" Width="140" TextAlign="TextAlign.Right"
-												Visible="_showAllColumns">
+									<GridColumn Field="@nameof(TrialBalanceModel.LedgerName)" HeaderText="Ledger Name" Width="250" />
+									<GridColumn Field="@nameof(TrialBalanceModel.GroupName)" HeaderText="Group" Width="150" Visible="_showAllColumns" />
+									<GridColumn Field="@nameof(TrialBalanceModel.OpeningBalance)" HeaderText="Opening Balance" Width="200" TextAlign="TextAlign.Right" Visible="_showAllColumns">
 										<Template>
 											@{
 												var item = (context as TrialBalanceModel);
@@ -202,8 +193,7 @@ else
 											}
 										</Template>
 									</GridColumn>
-									<GridColumn Field="@nameof(TrialBalanceModel.Debit)" HeaderText="Period Debit"
-												Width="140" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+									<GridColumn Field="@nameof(TrialBalanceModel.Debit)" HeaderText="Period Debit" Width="140" TextAlign="TextAlign.Right" Visible="_showAllColumns">
 										<Template>
 											@{
 												var item = (context as TrialBalanceModel);
@@ -211,8 +201,7 @@ else
 											}
 										</Template>
 									</GridColumn>
-									<GridColumn Field="@nameof(TrialBalanceModel.ClosingBalance)"
-												HeaderText="Closing Balance" Width="140" TextAlign="TextAlign.Right">
+									<GridColumn Field="@nameof(TrialBalanceModel.ClosingBalance)" HeaderText="Closing Balance" Width="200" TextAlign="TextAlign.Right">
 										<Template>
 											@{
 												var item = (context as TrialBalanceModel);
@@ -247,15 +236,13 @@ else
 									Toolbar="@(new List<string>() { "Search" })">
 
 								<GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
-								<GridPageSettings PageSize="20"
-												  PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
+								<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
 								<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
 								<GridAggregates>
 									<GridAggregate>
 										<GridAggregateColumns>
-											<GridAggregateColumn Field="@nameof(TrialBalanceModel.LedgerName)"
-																 Type="AggregateType.Count">
+											<GridAggregateColumn Field="@nameof(TrialBalanceModel.LedgerName)" Type="AggregateType.Count">
 												<FooterTemplate>
 													@{
 														var aggregate = (context as AggregateTemplateContext);
@@ -265,8 +252,7 @@ else
 													</div>
 												</FooterTemplate>
 											</GridAggregateColumn>
-											<GridAggregateColumn Field="@nameof(TrialBalanceModel.OpeningBalance)"
-																 Type="AggregateType.Sum" Format="N2">
+											<GridAggregateColumn Field="@nameof(TrialBalanceModel.OpeningBalance)" Type="AggregateType.Sum" Format="N2">
 												<FooterTemplate>
 													@{
 														var aggregate = (context as AggregateTemplateContext);
@@ -276,8 +262,7 @@ else
 													}
 												</FooterTemplate>
 											</GridAggregateColumn>
-											<GridAggregateColumn Field="@nameof(TrialBalanceModel.Credit)"
-																 Type="AggregateType.Sum" Format="N2">
+											<GridAggregateColumn Field="@nameof(TrialBalanceModel.Credit)" Type="AggregateType.Sum" Format="N2">
 												<FooterTemplate>
 													@{
 														var aggregate = (context as AggregateTemplateContext);
@@ -287,8 +272,7 @@ else
 													}
 												</FooterTemplate>
 											</GridAggregateColumn>
-											<GridAggregateColumn Field="@nameof(TrialBalanceModel.ClosingBalance)"
-																 Type="AggregateType.Sum" Format="N2">
+											<GridAggregateColumn Field="@nameof(TrialBalanceModel.ClosingBalance)" Type="AggregateType.Sum" Format="N2">
 												<FooterTemplate>
 													@{
 														var aggregate = (context as AggregateTemplateContext);
@@ -303,13 +287,9 @@ else
 								</GridAggregates>
 
 								<GridColumns>
-									<GridColumn Field="@nameof(TrialBalanceModel.LedgerName)" HeaderText="Ledger Name"
-												Width="250" />
-									<GridColumn Field="@nameof(TrialBalanceModel.GroupName)" HeaderText="Group" Width="150"
-												Visible="_showAllColumns" />
-									<GridColumn Field="@nameof(TrialBalanceModel.OpeningBalance)"
-												HeaderText="Opening Balance" Width="140" TextAlign="TextAlign.Right"
-												Visible="_showAllColumns">
+									<GridColumn Field="@nameof(TrialBalanceModel.LedgerName)" HeaderText="Ledger Name" Width="250" />
+									<GridColumn Field="@nameof(TrialBalanceModel.GroupName)" HeaderText="Group" Width="150" Visible="_showAllColumns" />
+									<GridColumn Field="@nameof(TrialBalanceModel.OpeningBalance)" HeaderText="Opening Balance" Width="200" TextAlign="TextAlign.Right" Visible="_showAllColumns">
 										<Template>
 											@{
 												var item = (context as TrialBalanceModel);
@@ -317,8 +297,7 @@ else
 											}
 										</Template>
 									</GridColumn>
-									<GridColumn Field="@nameof(TrialBalanceModel.Credit)" HeaderText="Period Credit"
-												Width="140" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+									<GridColumn Field="@nameof(TrialBalanceModel.Credit)" HeaderText="Period Credit" Width="140" TextAlign="TextAlign.Right" Visible="_showAllColumns">
 										<Template>
 											@{
 												var item = (context as TrialBalanceModel);
@@ -326,8 +305,7 @@ else
 											}
 										</Template>
 									</GridColumn>
-									<GridColumn Field="@nameof(TrialBalanceModel.ClosingBalance)"
-												HeaderText="Closing Balance" Width="140" TextAlign="TextAlign.Right">
+									<GridColumn Field="@nameof(TrialBalanceModel.ClosingBalance)" HeaderText="Closing Balance" Width="200" TextAlign="TextAlign.Right">
 										<Template>
 											@{
 												var item = (context as TrialBalanceModel);
