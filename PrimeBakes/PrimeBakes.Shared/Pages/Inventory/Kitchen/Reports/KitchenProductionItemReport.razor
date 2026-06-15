@@ -272,9 +272,9 @@ else
 							<GridColumn Field="@nameof(KitchenProductionItemOverviewModel.FinancialYear)" HeaderText="Financial Year" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
 							<GridColumn Field="@nameof(KitchenProductionItemOverviewModel.KitchenName)" HeaderText="Kitchen" Width="180" Visible="@(!_showSummary && (_showAllColumns || _selectedKitchen is null || _selectedKitchen.Id <= 0))" />
 							<GridColumn Field="@nameof(KitchenProductionItemOverviewModel.KitchenProductionRemarks)" HeaderText="Production Remarks" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(KitchenProductionItemOverviewModel.TotalItems)" HeaderText="Master Items" Width="120" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(KitchenProductionItemOverviewModel.TotalQuantity)" HeaderText="Master Qty" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(KitchenProductionItemOverviewModel.TotalAmount)" HeaderText="Master Total" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(KitchenProductionItemOverviewModel.TotalItems)" HeaderText="Total Items" Width="200" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(KitchenProductionItemOverviewModel.TotalQuantity)" HeaderText="Total Qty" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(KitchenProductionItemOverviewModel.TotalAmount)" HeaderText="Total Amount" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
 							<GridColumn Field="@nameof(KitchenProductionItemOverviewModel.MasterStatus)" HeaderText="Status" Width="110" Visible="@(_showDeleted && !_showSummary)" TextAlign="TextAlign.Center">
 								<Template>
 									@{

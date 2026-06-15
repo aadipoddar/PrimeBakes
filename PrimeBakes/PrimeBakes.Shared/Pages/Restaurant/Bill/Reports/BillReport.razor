@@ -603,7 +603,7 @@ else
                                         Visible="@(!_showSummary)" />
                             <GridColumn Field="@nameof(BillOverviewModel.TransactionDateTime)" HeaderText="Date" Width="150"
                                         Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(!_showSummary)" />
-                            <GridColumn Field="@nameof(BillOverviewModel.LocationName)" HeaderText="Location" Width="150"
+                            <GridColumn Field="@nameof(BillOverviewModel.LocationName)" HeaderText="Location" Width="200"
                                         Visible="@(_selectedLocation is null || _selectedLocation.Id <= 0)" />
                             <GridColumn Field="@nameof(BillOverviewModel.CompanyName)" HeaderText="Company" Width="200"
                                         Visible="@(_showAllColumns && !_showSummary && (_selectedCompany is null || _selectedCompany.Id <= 0))" />

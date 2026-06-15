@@ -157,7 +157,7 @@ else
 							<GridColumn Field="@nameof(UserModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" />
 							<GridColumn Field="@nameof(UserModel.Name)" HeaderText="User Name" Width="200" />
 							<GridColumn Field="@nameof(UserModel.Passcode)" HeaderText="Passcode" Width="120" Format="0000" TextAlign="TextAlign.Center" />
-							<GridColumn Field="@nameof(UserModel.LocationId)" HeaderText="Location" Width="150">
+							<GridColumn Field="@nameof(UserModel.LocationId)" HeaderText="Location" Width="200">
 								<Template>
 									@{
 										var user = (context as UserModel);

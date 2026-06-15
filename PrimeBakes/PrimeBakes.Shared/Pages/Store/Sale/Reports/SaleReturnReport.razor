@@ -45,6 +45,12 @@ else
 					<MudBlazor.MudMenuItem Label="Sale Return (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.SaleReturn, FormFactor, JSRuntime, NavigationManager)" />
 					<MudBlazor.MudMenuItem Label="Sale Return Report" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.SaleReturnReport, FormFactor, JSRuntime, NavigationManager)" />
 					<MudBlazor.MudMenuItem Label="Sale Return Item Report (Ctrl + I)" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.SaleReturnItemReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Sale" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.Sale, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Sale Report" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.SaleReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Sale Item Report" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.SaleItemReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Stock Transfer" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.StockTransfer, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Stock Transfer Report" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.StockTransferReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Stock Transfer Item Report" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.StockTransferItemReport, FormFactor, JSRuntime, NavigationManager)" />
 				</MudBlazor.MudMenu>
 
 				<MudBlazor.MudMenu Label="Periods" Dense="true" Disabled="_isProcessing">
@@ -543,7 +549,7 @@ else
 							<GridColumn Field="@nameof(SaleReturnOverviewModel.TotalInclusiveTaxAmount)" HeaderText="Incl Tax" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(SaleReturnOverviewModel.TotalExtraTaxAmount)" HeaderText="Extra Tax" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(SaleReturnOverviewModel.TotalAfterTax)" HeaderText="Sub Total" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(SaleReturnOverviewModel.OtherChargesPercent)" HeaderText="Other Charges %" Width="150" Format="N2" TextAlign="TextAlign.Center" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(SaleReturnOverviewModel.OtherChargesPercent)" HeaderText="Other Charges %" Width="200" Format="N2" TextAlign="TextAlign.Center" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(SaleReturnOverviewModel.OtherChargesAmount)" HeaderText="Other Charges" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(SaleReturnOverviewModel.DiscountPercent)" HeaderText="Disc %" Width="130" Format="N2" TextAlign="TextAlign.Center" Visible="@(!_showSummary)" />
 							<GridColumn Field="@nameof(SaleReturnOverviewModel.DiscountAmount)" HeaderText="Disc" Width="130" TextAlign="TextAlign.Right">
@@ -605,7 +611,7 @@ else
 							</GridColumn>
 							<GridColumn Field="@nameof(SaleReturnOverviewModel.PaymentModes)" HeaderText="Payment Modes" Width="180" Visible="@(!_showSummary)" />
 							<GridColumn Field="@nameof(SaleReturnOverviewModel.Remarks)" HeaderText="Remarks" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(SaleReturnOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Transaction No" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(SaleReturnOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Transaction No" Width="250" Visible="@(_showAllColumns && !_showSummary)" />
 							<GridColumn Field="@nameof(SaleReturnOverviewModel.CreatedByName)" HeaderText="Created By" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
 							<GridColumn Field="@nameof(SaleReturnOverviewModel.CreatedAt)" HeaderText="Created At" Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
 							<GridColumn Field="@nameof(SaleReturnOverviewModel.CreatedFromPlatform)" HeaderText="Created Platform" Width="300" Visible="@(_showAllColumns && !_showSummary)" />

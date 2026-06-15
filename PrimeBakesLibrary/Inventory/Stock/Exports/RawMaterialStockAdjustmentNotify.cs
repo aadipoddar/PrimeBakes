@@ -83,7 +83,7 @@ internal static class RawMaterialStockAdjustmentNotify
 		var rawMaterial = await CommonData.LoadTableDataById<RawMaterialModel>(InventoryNames.RawMaterial, stock.RawMaterialId);
 		var rawMaterialName = rawMaterial?.Name ?? "Unknown Material";
 		var rawMaterialCode = rawMaterial?.Code ?? "N/A";
-		var uom = rawMaterial?.UnitOfMeasurement ?? "N/A";
+		var UOM = rawMaterial?.UnitOfMeasurement ?? "N/A";
 
 		var emailData = new TransactionMailing.TransactionEmailData
 		{
@@ -97,7 +97,7 @@ internal static class RawMaterialStockAdjustmentNotify
 				["Transaction Date"] = stock.TransactionDateTime.ToString("dd MMM yyyy, hh:mm tt"),
 				["Raw Material"] = rawMaterialName,
 				["Code"] = rawMaterialCode,
-				["Unit of Measurement"] = uom,
+				["Unit of Measurement"] = UOM,
 				["Quantity Deleted"] = stock.Quantity.FormatSmartDecimal(),
 				["Deleted By"] = userName
 			},

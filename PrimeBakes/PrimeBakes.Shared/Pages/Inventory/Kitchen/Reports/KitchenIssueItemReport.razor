@@ -256,7 +256,7 @@ else
 							<GridColumn Field="@nameof(KitchenIssueItemOverviewModel.ItemCode)" HeaderText="Code" Width="130" Visible="@_showAllColumns" />
 							<GridColumn Field="@nameof(KitchenIssueItemOverviewModel.ItemCategoryName)" HeaderText="Category" Width="160" Visible="@(_showAllColumns || _selectedRawMaterialCategory is null || _selectedRawMaterialCategory.Id <= 0)" />
 							<GridColumn Field="@nameof(KitchenIssueItemOverviewModel.Quantity)" HeaderText="Quantity" Width="120" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(KitchenIssueItemOverviewModel.UnitOfMeasurement)" HeaderText="UoM" Width="90" TextAlign="TextAlign.Center" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(KitchenIssueItemOverviewModel.UnitOfMeasurement)" HeaderText="UOM" Width="90" TextAlign="TextAlign.Center" Visible="@(_showAllColumns && !_showSummary)" />
 							<GridColumn Field="@nameof(KitchenIssueItemOverviewModel.Rate)" HeaderText="Rate" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="@(!_showSummary)" />
 							<GridColumn Field="@nameof(KitchenIssueItemOverviewModel.Total)" HeaderText="Total" Width="150" TextAlign="TextAlign.Right">
 								<Template>
@@ -273,9 +273,9 @@ else
 							<GridColumn Field="@nameof(KitchenIssueItemOverviewModel.FinancialYear)" HeaderText="Financial Year" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
 							<GridColumn Field="@nameof(KitchenIssueItemOverviewModel.KitchenName)" HeaderText="Kitchen" Width="180" Visible="@(!_showSummary && (_showAllColumns || _selectedKitchen is null || _selectedKitchen.Id <= 0))" />
 							<GridColumn Field="@nameof(KitchenIssueItemOverviewModel.KitchenIssueRemarks)" HeaderText="Issue Remarks" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(KitchenIssueItemOverviewModel.TotalItems)" HeaderText="Master Items" Width="120" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(KitchenIssueItemOverviewModel.TotalQuantity)" HeaderText="Master Qty" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(KitchenIssueItemOverviewModel.TotalAmount)" HeaderText="Master Total" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(KitchenIssueItemOverviewModel.TotalItems)" HeaderText="Total Items" Width="200" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(KitchenIssueItemOverviewModel.TotalQuantity)" HeaderText="Total Qty" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(KitchenIssueItemOverviewModel.TotalAmount)" HeaderText="Total Amount" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
 							<GridColumn Field="@nameof(KitchenIssueItemOverviewModel.MasterStatus)" HeaderText="Status" Width="110" Visible="@(_showDeleted && !_showSummary)" TextAlign="TextAlign.Center">
 								<Template>
 									@{

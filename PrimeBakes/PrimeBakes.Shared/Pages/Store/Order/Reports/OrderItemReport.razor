@@ -254,10 +254,10 @@ else
 							<GridColumn Field="@nameof(OrderItemOverviewModel.ItemCategoryName)" HeaderText="Category" Width="160" Visible="@(_selectedProductCategory is null || _selectedProductCategory.Id <= 0)" />
 
 							<GridColumn Field="@nameof(OrderItemOverviewModel.TransactionNo)" HeaderText="Transaction No" Width="200" Visible="@(!_showSummary)" />
-							<GridColumn Field="@nameof(OrderItemOverviewModel.SaleTransactionNo)" HeaderText="Sale No" Width="150" Visible="@(!_showSummary)" />
+							<GridColumn Field="@nameof(OrderItemOverviewModel.SaleTransactionNo)" HeaderText="Sale No" Width="200" Visible="@(!_showSummary)" />
 							<GridColumn Field="@nameof(OrderItemOverviewModel.TransactionDateTime)" HeaderText="Date" Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(!_showSummary)" />
 							<GridColumn Field="@nameof(OrderItemOverviewModel.SaleDateTime)" HeaderText="Sale Date" Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(OrderItemOverviewModel.LocationName)" HeaderText="Location" Width="150" Visible="@(!_showSummary && (_selectedLocation is null || _selectedLocation.Id <= 0))" />
+							<GridColumn Field="@nameof(OrderItemOverviewModel.LocationName)" HeaderText="Location" Width="200" Visible="@(!_showSummary && (_selectedLocation is null || _selectedLocation.Id <= 0))" />
 							<GridColumn Field="@nameof(OrderItemOverviewModel.CompanyName)" HeaderText="Company" Width="200" Visible="@(_showAllColumns && !_showSummary && (_selectedCompany is null || _selectedCompany.Id <= 0))" />
 							<GridColumn Field="@nameof(OrderItemOverviewModel.FinancialYear)" HeaderText="Financial Year" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
 

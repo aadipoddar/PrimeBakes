@@ -183,24 +183,24 @@ else
 							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.RawMaterialCategoryName)" HeaderText="Category" Width="170" Visible="@(_showAllColumns || _selectedCategory is null || _selectedCategory.Id <= 0)" />
 							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.UnitOfMeasurement)" HeaderText="UOM" Width="90" TextAlign="TextAlign.Center" />
 
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.OpeningStock)" HeaderText="Opening" Width="120" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.InStock)" HeaderText="Stock In" Width="120" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.OutStock)" HeaderText="Stock Out" Width="120" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.ClosingStock)" HeaderText="Closing" Width="120" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.OpeningStock)" HeaderText="Opening" Width="200" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.InStock)" HeaderText="Stock In" Width="200" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.OutStock)" HeaderText="Stock Out" Width="200" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.ClosingStock)" HeaderText="Closing" Width="200" Format="N2" TextAlign="TextAlign.Right" />
 
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.MonthlyStock)" HeaderText="Net Movement" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.PurchaseStock)" HeaderText="Purchase" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.PurchaseReturnStock)" HeaderText="Purchase Return" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.KitchenIssueStock)" HeaderText="Kitchen Issue" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.KitchenProductionStock)" HeaderText="Kitchen Production" Width="150" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.SaleStock)" HeaderText="Sale" Width="110" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.SaleReturnStock)" HeaderText="Sale Return" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.StockTransferStock)" HeaderText="Stock Transfer" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.BillStock)" HeaderText="Bill" Width="110" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.AdjustmentStock)" HeaderText="Adjustment" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.MonthlyStock)" HeaderText="Net Movement" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.PurchaseStock)" HeaderText="Purchase" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.PurchaseReturnStock)" HeaderText="Purchase Return" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.KitchenIssueStock)" HeaderText="Kitchen Issue" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.KitchenProductionStock)" HeaderText="Kitchen Production" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.SaleStock)" HeaderText="Sale" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.SaleReturnStock)" HeaderText="Sale Return" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.StockTransferStock)" HeaderText="Stock Transfer" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.BillStock)" HeaderText="Bill" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.AdjustmentStock)" HeaderText="Adjustment" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
 
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.Rate)" HeaderText="Rate" Width="110" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.ClosingValueByRate)" HeaderText="Closing Value" Width="150" TextAlign="TextAlign.Right">
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.Rate)" HeaderText="Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.ClosingValueByRate)" HeaderText="Closing Value" Width="200" TextAlign="TextAlign.Right">
 								<Template>
 									@{
 										var item = (context as dynamic);
@@ -208,51 +208,51 @@ else
 									}
 								</Template>
 							</GridColumn>
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.AverageInRate)" HeaderText="Avg In Rate" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.ClosingValueByAverageInRate)" HeaderText="Value at Avg In" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.AverageOutRate)" HeaderText="Avg Out Rate" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.ClosingValueByAverageOutRate)" HeaderText="Value at Avg Out" Width="150" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.RateVariance)" HeaderText="Rate Variance" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.AverageInRate)" HeaderText="Avg In Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.ClosingValueByAverageInRate)" HeaderText="Value at Avg In" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.AverageOutRate)" HeaderText="Avg Out Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.ClosingValueByAverageOutRate)" HeaderText="Value at Avg Out" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.RateVariance)" HeaderText="Rate Variance" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
 
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.OpeningValue)" HeaderText="Opening Value" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.TotalInValue)" HeaderText="Total In Value" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.TotalOutValue)" HeaderText="Total Out Value" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.PurchaseValue)" HeaderText="Purchase Value" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.PurchaseReturnValue)" HeaderText="Purchase Return Value" Width="170" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.KitchenIssueValue)" HeaderText="Kitchen Issue Value" Width="160" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.KitchenProductionValue)" HeaderText="Kitchen Production Value" Width="180" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.SaleValue)" HeaderText="Sale Value" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.SaleReturnValue)" HeaderText="Sale Return Value" Width="150" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.StockTransferValue)" HeaderText="Stock Transfer Value" Width="170" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.BillValue)" HeaderText="Bill Value" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.AdjustmentValue)" HeaderText="Adjustment Value" Width="150" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.OpeningValue)" HeaderText="Opening Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.TotalInValue)" HeaderText="Total In Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.TotalOutValue)" HeaderText="Total Out Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.PurchaseValue)" HeaderText="Purchase Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.PurchaseReturnValue)" HeaderText="Purchase Return Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.KitchenIssueValue)" HeaderText="Kitchen Issue Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.KitchenProductionValue)" HeaderText="Kitchen Production Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.SaleValue)" HeaderText="Sale Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.SaleReturnValue)" HeaderText="Sale Return Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.StockTransferValue)" HeaderText="Stock Transfer Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.BillValue)" HeaderText="Bill Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.AdjustmentValue)" HeaderText="Adjustment Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
 
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.LastPurchaseRate)" HeaderText="Last Purchase Rate" Width="160" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.AveragePurchaseRate)" HeaderText="Avg Purchase Rate" Width="150" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.LastPurchaseReturnRate)" HeaderText="Last Purchase Return Rate" Width="190" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.AveragePurchaseReturnRate)" HeaderText="Avg Purchase Return Rate" Width="190" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.LastKitchenIssueRate)" HeaderText="Last Kitchen Issue Rate" Width="180" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.AverageKitchenIssueRate)" HeaderText="Avg Kitchen Issue Rate" Width="180" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.LastPurchaseRate)" HeaderText="Last Purchase Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.AveragePurchaseRate)" HeaderText="Avg Purchase Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.LastPurchaseReturnRate)" HeaderText="Last Purchase Return Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.AveragePurchaseReturnRate)" HeaderText="Avg Purchase Return Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.LastKitchenIssueRate)" HeaderText="Last Kitchen Issue Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.AverageKitchenIssueRate)" HeaderText="Avg Kitchen Issue Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.LastKitchenProductionRate)" HeaderText="Last Kitchen Production Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.AverageKitchenProductionRate)" HeaderText="Avg Kitchen Production Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.LastSaleRate)" HeaderText="Last Sale Rate" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.AverageSaleRate)" HeaderText="Avg Sale Rate" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.LastSaleReturnRate)" HeaderText="Last Sale Return Rate" Width="170" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.AverageSaleReturnRate)" HeaderText="Avg Sale Return Rate" Width="170" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.LastStockTransferRate)" HeaderText="Last Stock Transfer Rate" Width="190" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.AverageStockTransferRate)" HeaderText="Avg Stock Transfer Rate" Width="190" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.LastBillRate)" HeaderText="Last Bill Rate" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.AverageBillRate)" HeaderText="Avg Bill Rate" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.LastAdjustmentRate)" HeaderText="Last Adjustment Rate" Width="170" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.AverageAdjustmentRate)" HeaderText="Avg Adjustment Rate" Width="170" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.LastSaleRate)" HeaderText="Last Sale Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.AverageSaleRate)" HeaderText="Avg Sale Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.LastSaleReturnRate)" HeaderText="Last Sale Return Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.AverageSaleReturnRate)" HeaderText="Avg Sale Return Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.LastStockTransferRate)" HeaderText="Last Stock Transfer Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.AverageStockTransferRate)" HeaderText="Avg Stock Transfer Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.LastBillRate)" HeaderText="Last Bill Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.AverageBillRate)" HeaderText="Avg Bill Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.LastAdjustmentRate)" HeaderText="Last Adjustment Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.AverageAdjustmentRate)" HeaderText="Avg Adjustment Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
 
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.AverageDailyConsumption)" HeaderText="Avg Daily Use" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.DaysOnHand)" HeaderText="Days On Hand" Width="140" Format="N1" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.StockTurnoverRatio)" HeaderText="Turnover" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.TransactionCount)" HeaderText="Txns" Width="100" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.LastPurchaseDate)" HeaderText="Last Purchase" Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.LastTransactionDate)" HeaderText="Last Transaction" Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.IsNegativeStock)" HeaderText="Negative?" Width="110" TextAlign="TextAlign.Center" Visible="_showAllColumns">
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.AverageDailyConsumption)" HeaderText="Avg Daily Use" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.DaysOnHand)" HeaderText="Days On Hand" Width="200" Format="N1" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.StockTurnoverRatio)" HeaderText="Turnover" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.TransactionCount)" HeaderText="Txns" Width="200" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.LastPurchaseDate)" HeaderText="Last Purchase" Width="200" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.LastTransactionDate)" HeaderText="Last Transaction" Width="200" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(RawMaterialStockSummaryModel.IsNegativeStock)" HeaderText="Negative?" Width="200" TextAlign="TextAlign.Center" Visible="_showAllColumns">
 								<Template>
 									@{
 										var item = (context as dynamic);

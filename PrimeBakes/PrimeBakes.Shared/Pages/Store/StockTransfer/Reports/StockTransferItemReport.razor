@@ -46,6 +46,12 @@ else
 					<MudBlazor.MudMenuItem Label="Stock Transfer (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.StockTransfer, FormFactor, JSRuntime, NavigationManager)" />
 					<MudBlazor.MudMenuItem Label="Stock Transfer Report (Ctrl + H)" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.StockTransferReport, FormFactor, JSRuntime, NavigationManager)" />
 					<MudBlazor.MudMenuItem Label="Stock Transfer Item Report" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.StockTransferItemReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Sale" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.Sale, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Sale Report" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.SaleReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Sale Item Report" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.SaleItemReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Sale Return" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.SaleReturn, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Sale Return Report" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.SaleReturnReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Sale Return Item Report" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.SaleReturnItemReport, FormFactor, JSRuntime, NavigationManager)" />
 				</MudBlazor.MudMenu>
 
 				<MudBlazor.MudMenu Label="Periods" Dense="true" Disabled="_isProcessing">
@@ -428,7 +434,7 @@ else
 						<GridColumns>
 							<GridColumn Field="@nameof(StockTransferItemOverviewModel.ItemName)" HeaderText="Item" Width="200" Visible="@(_showAllColumns || _selectedProduct is null || _selectedProduct.Id <= 0)" />
 							<GridColumn Field="@nameof(StockTransferItemOverviewModel.ItemCode)" HeaderText="Code" Width="130" Visible="@_showAllColumns" />
-							<GridColumn Field="@nameof(StockTransferItemOverviewModel.ItemCategoryName)" HeaderText="Category" Width="150" Visible="@(_selectedProductCategory is null || _selectedProductCategory.Id <= 0)" />
+							<GridColumn Field="@nameof(StockTransferItemOverviewModel.ItemCategoryName)" HeaderText="Category" Width="200" Visible="@(_selectedProductCategory is null || _selectedProductCategory.Id <= 0)" />
 
 							<GridColumn Field="@nameof(StockTransferItemOverviewModel.Quantity)" HeaderText="Qty" Width="120" Format="N2" TextAlign="TextAlign.Right" />
 							<GridColumn Field="@nameof(StockTransferItemOverviewModel.Rate)" HeaderText="Rate" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="@(!_showSummary)" />
@@ -466,8 +472,8 @@ else
 							<GridColumn Field="@nameof(StockTransferItemOverviewModel.TransactionNo)" HeaderText="Transaction No" Width="200" Visible="@(!_showSummary)" />
 							<GridColumn Field="@nameof(StockTransferItemOverviewModel.TransactionDateTime)" HeaderText="Date" Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(!_showSummary)" />
 							<GridColumn Field="@nameof(StockTransferItemOverviewModel.CompanyName)" HeaderText="Company" Width="200" Visible="@(_showAllColumns && !_showSummary && (_selectedCompany is null || _selectedCompany.Id <= 0))" />
-							<GridColumn Field="@nameof(StockTransferItemOverviewModel.LocationName)" HeaderText="From Location" Width="180" Visible="@(!_showSummary && (_selectedLocation is null || _selectedLocation.Id <= 0))" />
-							<GridColumn Field="@nameof(StockTransferItemOverviewModel.ToLocationName)" HeaderText="To Location" Width="180" Visible="@(!_showSummary && (_selectedToLocation is null || _selectedToLocation.Id <= 0))" />
+							<GridColumn Field="@nameof(StockTransferItemOverviewModel.LocationName)" HeaderText="From Location" Width="200" Visible="@(!_showSummary && (_selectedLocation is null || _selectedLocation.Id <= 0))" />
+							<GridColumn Field="@nameof(StockTransferItemOverviewModel.ToLocationName)" HeaderText="To Location" Width="200" Visible="@(!_showSummary && (_selectedToLocation is null || _selectedToLocation.Id <= 0))" />
 							<GridColumn Field="@nameof(StockTransferItemOverviewModel.FinancialYear)" HeaderText="Financial Year" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
 
 							<GridColumn Field="@nameof(StockTransferItemOverviewModel.MasterStatus)" HeaderText="Status" Width="110" Visible="@(_showDeleted && !_showSummary)" TextAlign="TextAlign.Center">
@@ -480,7 +486,7 @@ else
 							</GridColumn>
 
 							<GridColumn Field="@nameof(StockTransferItemOverviewModel.Remarks)" HeaderText="Transfer Remarks" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(StockTransferItemOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Transaction No" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(StockTransferItemOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Transaction No" Width="250" Visible="@(_showAllColumns && !_showSummary)" />
 							<GridColumn Field="@nameof(StockTransferItemOverviewModel.CreatedByName)" HeaderText="Created By" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
 							<GridColumn Field="@nameof(StockTransferItemOverviewModel.CreatedAt)" HeaderText="Created At" Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
 							<GridColumn Field="@nameof(StockTransferItemOverviewModel.CreatedFromPlatform)" HeaderText="Created Platform" Width="300" Visible="@(_showAllColumns && !_showSummary)" />

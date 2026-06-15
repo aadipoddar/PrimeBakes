@@ -438,7 +438,7 @@ else
 						<GridColumns>
 							<GridColumn Field="@nameof(PurchaseItemOverviewModel.ItemName)" HeaderText="Item" Width="200" Visible="@(_showAllColumns || _selectedRawMaterial is null || _selectedRawMaterial.Id <= 0)" />
 							<GridColumn Field="@nameof(PurchaseItemOverviewModel.ItemCode)" HeaderText="Code" Width="130" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(PurchaseItemOverviewModel.ItemCategoryName)" HeaderText="Category" Width="150" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(PurchaseItemOverviewModel.ItemCategoryName)" HeaderText="Category" Width="200" Visible="_showAllColumns" />
 
 							<GridColumn Field="@nameof(PurchaseItemOverviewModel.Quantity)" HeaderText="Qty" Width="100" />
 							<GridColumn Field="@nameof(PurchaseItemOverviewModel.UnitOfMeasurement)" HeaderText="UOM" Width="100" TextAlign="TextAlign.Center" Visible="@(_showAllColumns && !_showSummary)" />
@@ -532,7 +532,7 @@ else
 								</Template>
 							</GridColumn>
 
-							<GridColumn Field="@nameof(PurchaseItemOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Transaction No" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseItemOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Transaction No" Width="250" Visible="@(_showAllColumns && !_showSummary)" />
 
 							<GridColumn Field="@nameof(PurchaseItemOverviewModel.CreatedByName)" HeaderText="Created By" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
 							<GridColumn Field="@nameof(PurchaseItemOverviewModel.CreatedAt)" HeaderText="Created At" Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />

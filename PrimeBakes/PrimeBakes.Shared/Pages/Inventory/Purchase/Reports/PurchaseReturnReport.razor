@@ -472,7 +472,7 @@ else
 							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalExtraTaxAmount)" HeaderText="Extra Tax" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAfterTax)" HeaderText="Sub Total" Width="150" Format="N2" TextAlign="TextAlign.Right" />
 
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.OtherChargesPercent)" HeaderText="Other Charges %" Width="150" Format="N2" TextAlign="TextAlign.Center" Visible="@(!_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.OtherChargesPercent)" HeaderText="Other Charges %" Width="200" Format="N2" TextAlign="TextAlign.Center" Visible="@(!_showSummary)" />
 							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.OtherChargesAmount)" HeaderText="Other Charges" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CashDiscountPercent)" HeaderText="Cash Disc %" Width="150" Format="N2" TextAlign="TextAlign.Center" Visible="@(!_showSummary)" />
 							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CashDiscountAmount)" HeaderText="Cash Disc" Width="140" TextAlign="TextAlign.Right" Visible="_showAllColumns">
@@ -505,7 +505,7 @@ else
 								</Template>
 							</GridColumn>
 
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Transaction No" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Transaction No" Width="250" Visible="@(_showAllColumns && !_showSummary)" />
 
 							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CreatedByName)" HeaderText="Created By" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
 							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CreatedAt)" HeaderText="Created At" Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
