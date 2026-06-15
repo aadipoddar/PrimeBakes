@@ -34,12 +34,12 @@ SELECT
 	[s].[TransactionNo],
 	[s].[CompanyId],
 	[c].[Name] AS CompanyName,
+
 	[s].[LocationId],
 	[fl].[Name] AS LocationName,
 
 	[s].[ToLocationId],
 	[tl].[Name] AS ToLocationName,
-	[s].[Remarks] AS StockTransferRemarks,
 
 	[s].[TransactionDateTime],
 	[s].[FinancialYearId],
@@ -76,6 +76,7 @@ SELECT
 		), 1, 1, ''
 	) AS PaymentModes,
 
+	[s].[Remarks],
 	[s].[FinancialAccountingId],
 	[fa].[TransactionNo] AS FinancialAccountingTransactionNo,
 	[s].[CreatedBy],

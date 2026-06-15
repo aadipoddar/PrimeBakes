@@ -162,10 +162,7 @@ public partial class SaleMobilePaymentPage
 		_paymentAmount = _remainingAmount;
 	}
 
-	private void OnPaymentAmountChanged(string raw)
-	{
-		_paymentAmount = ParseDecimal(raw, allowNegative: false);
-	}
+	private void OnPaymentAmountChanged(string raw) => _paymentAmount = ParseDecimal(raw, allowNegative: false);
 
 	private void AddPayment()
 	{

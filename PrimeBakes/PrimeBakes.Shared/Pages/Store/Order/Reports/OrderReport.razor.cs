@@ -248,10 +248,8 @@ public partial class OrderReport : IAsyncDisposable
 			order.LastModifiedAt = await CommonData.LoadCurrentDateTime();
 			order.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
 
-			if (isRecover)
-				await OrderData.RecoverTransaction(order);
-			else
-				await OrderData.DeleteTransaction(order);
+			if (isRecover) await OrderData.RecoverTransaction(order);
+			else await OrderData.DeleteTransaction(order);
 
 			await _toastNotification.ShowAsync("Success", $"Transaction {transactionNo} has been {(isRecover ? "recovered" : "deleted")} successfully.", ToastType.Success);
 		}

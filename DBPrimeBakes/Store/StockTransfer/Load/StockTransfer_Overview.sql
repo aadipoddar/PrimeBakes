@@ -48,6 +48,8 @@ SELECT
 	) AS PaymentModes,
 
 	[s].[Remarks],
+	[s].[FinancialAccountingId],
+	[fa].[TransactionNo] AS FinancialAccountingTransactionNo,
 	[s].[CreatedBy],
 	[u].[Name] AS CreatedByName,
 	[s].[CreatedAt],
@@ -57,9 +59,7 @@ SELECT
 	[s].[LastModifiedAt],
 	[s].[LastModifiedFromPlatform],
 
-	[s].[Status],
-	[s].[FinancialAccountingId],
-	[fa].[TransactionNo] AS FinancialAccountingTransactionNo
+	[s].[Status]
 
 FROM
 	[dbo].[StockTransfer] AS s

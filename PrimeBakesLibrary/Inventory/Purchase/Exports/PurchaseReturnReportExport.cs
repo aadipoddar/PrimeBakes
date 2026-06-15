@@ -20,7 +20,7 @@ public static class PurchaseReturnReportExport
 	{
 		var columnSettings = new Dictionary<string, ReportColumnSetting>
 		{
-			[nameof(PurchaseReturnOverviewModel.TransactionNo)] = new() { DisplayName = "Transa No", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(PurchaseReturnOverviewModel.TransactionNo)] = new() { DisplayName = "Transaction No", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseReturnOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseReturnOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm tt", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(PurchaseReturnOverviewModel.FinancialYear)] = new() { DisplayName = "Financial Year", Alignment = CellAlignment.Center, IncludeInTotal = false },
@@ -46,7 +46,7 @@ public static class PurchaseReturnReportExport
 			[nameof(PurchaseReturnOverviewModel.TotalAmount)] = new() { DisplayName = "Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
 
 			[nameof(PurchaseReturnOverviewModel.Remarks)] = new() { DisplayName = "Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(PurchaseReturnOverviewModel.FinancialAccountingTransactionNo)] = new() { DisplayName = "Accounting Trans No", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(PurchaseReturnOverviewModel.FinancialAccountingTransactionNo)] = new() { DisplayName = "Accounting Transaction No", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseReturnOverviewModel.CreatedAt)] = new() { DisplayName = "Created At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(PurchaseReturnOverviewModel.CreatedByName)] = new() { DisplayName = "Created By", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseReturnOverviewModel.CreatedFromPlatform)] = new() { DisplayName = "Created Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
@@ -224,7 +224,7 @@ public static class PurchaseReturnReportExport
 			[nameof(PurchaseReturnItemOverviewModel.Total)] = new() { DisplayName = "Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
 			[nameof(PurchaseReturnItemOverviewModel.NetTotal)] = new() { DisplayName = "Net Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
 
-			[nameof(PurchaseReturnItemOverviewModel.TransactionNo)] = new() { DisplayName = "Transa No", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(PurchaseReturnItemOverviewModel.TransactionNo)] = new() { DisplayName = "Transaction No", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseReturnItemOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseReturnItemOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm tt", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(PurchaseReturnItemOverviewModel.FinancialYear)] = new() { DisplayName = "Financial Year", Alignment = CellAlignment.Center, IncludeInTotal = false },
@@ -250,7 +250,7 @@ public static class PurchaseReturnReportExport
 			[nameof(PurchaseReturnItemOverviewModel.TotalAmount)] = new() { DisplayName = "Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
 
 			[nameof(PurchaseReturnItemOverviewModel.Remarks)] = new() { DisplayName = "Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(PurchaseReturnItemOverviewModel.FinancialAccountingTransactionNo)] = new() { DisplayName = "Accounting Trans No", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(PurchaseReturnItemOverviewModel.FinancialAccountingTransactionNo)] = new() { DisplayName = "Accounting Transaction No", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseReturnItemOverviewModel.CreatedAt)] = new() { DisplayName = "Created At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(PurchaseReturnItemOverviewModel.CreatedByName)] = new() { DisplayName = "Created By", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseReturnItemOverviewModel.CreatedFromPlatform)] = new() { DisplayName = "Created Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
@@ -288,14 +288,13 @@ public static class PurchaseReturnReportExport
 				nameof(PurchaseReturnItemOverviewModel.ItemName),
 				nameof(PurchaseReturnItemOverviewModel.ItemCode),
 				nameof(PurchaseReturnItemOverviewModel.ItemCategoryName),
-				nameof(PurchaseReturnItemOverviewModel.TransactionNo),
-				nameof(PurchaseReturnItemOverviewModel.ChallanNo),
-				nameof(PurchaseReturnItemOverviewModel.TransactionDateTime),
-				nameof(PurchaseReturnItemOverviewModel.CompanyName),
-				nameof(PurchaseReturnItemOverviewModel.PartyName),
-				nameof(PurchaseReturnItemOverviewModel.FinancialYear),
+
+				nameof(PurchaseReturnItemOverviewModel.UnitOfMeasurement),
+				nameof(PurchaseReturnItemOverviewModel.ItemRemarks),
+
 				nameof(PurchaseReturnItemOverviewModel.Quantity),
 				nameof(PurchaseReturnItemOverviewModel.Rate),
+				nameof(PurchaseReturnItemOverviewModel.NetRate),
 				nameof(PurchaseReturnItemOverviewModel.ItemBaseTotal),
 				nameof(PurchaseReturnItemOverviewModel.DiscountPercent),
 				nameof(PurchaseReturnItemOverviewModel.DiscountAmount),
@@ -309,8 +308,16 @@ public static class PurchaseReturnReportExport
 				nameof(PurchaseReturnItemOverviewModel.TotalTaxAmount),
 				nameof(PurchaseReturnItemOverviewModel.InclusiveTax),
 				nameof(PurchaseReturnItemOverviewModel.Total),
-				nameof(PurchaseReturnItemOverviewModel.NetRate),
 				nameof(PurchaseReturnItemOverviewModel.NetTotal),
+
+				nameof(PurchaseReturnItemOverviewModel.TransactionNo),
+				nameof(PurchaseReturnItemOverviewModel.CompanyName),
+				nameof(PurchaseReturnItemOverviewModel.TransactionDateTime),
+				nameof(PurchaseReturnItemOverviewModel.FinancialYear),
+
+				nameof(PurchaseReturnItemOverviewModel.ChallanNo),
+				nameof(PurchaseReturnItemOverviewModel.PartyName),
+
 				nameof(PurchaseReturnItemOverviewModel.TotalItems),
 				nameof(PurchaseReturnItemOverviewModel.TotalQuantity),
 				nameof(PurchaseReturnItemOverviewModel.BaseTotal),
@@ -319,21 +326,24 @@ public static class PurchaseReturnReportExport
 				nameof(PurchaseReturnItemOverviewModel.TotalInclusiveTaxAmount),
 				nameof(PurchaseReturnItemOverviewModel.TotalExtraTaxAmount),
 				nameof(PurchaseReturnItemOverviewModel.TotalAfterTax),
+
 				nameof(PurchaseReturnItemOverviewModel.OtherChargesPercent),
 				nameof(PurchaseReturnItemOverviewModel.OtherChargesAmount),
 				nameof(PurchaseReturnItemOverviewModel.CashDiscountPercent),
 				nameof(PurchaseReturnItemOverviewModel.CashDiscountAmount),
+
 				nameof(PurchaseReturnItemOverviewModel.RoundOffAmount),
 				nameof(PurchaseReturnItemOverviewModel.TotalAmount),
+
 				nameof(PurchaseReturnItemOverviewModel.Remarks),
 				nameof(PurchaseReturnItemOverviewModel.FinancialAccountingTransactionNo),
-				nameof(PurchaseReturnItemOverviewModel.ItemRemarks),
-				nameof(PurchaseReturnItemOverviewModel.CreatedByName),
 				nameof(PurchaseReturnItemOverviewModel.CreatedAt),
+				nameof(PurchaseReturnItemOverviewModel.CreatedByName),
 				nameof(PurchaseReturnItemOverviewModel.CreatedFromPlatform),
-				nameof(PurchaseReturnItemOverviewModel.LastModifiedByUserName),
 				nameof(PurchaseReturnItemOverviewModel.LastModifiedAt),
+				nameof(PurchaseReturnItemOverviewModel.LastModifiedByUserName),
 				nameof(PurchaseReturnItemOverviewModel.LastModifiedFromPlatform),
+
 				nameof(PurchaseReturnItemOverviewModel.MasterStatus)
 			];
 

@@ -62,6 +62,7 @@ else
 
 				<MudBlazor.MudMenu Label="Transaction" Dense="true" Disabled="_isProcessing || _showSummary">
 					<MudBlazor.MudMenuItem Label="View (Alt + O)" OnClick="ViewSelectedTransaction" />
+					<MudBlazor.MudMenuItem Label="View Accounting Posting" OnClick="ViewFinancialAccountingPosting" />
 					<MudBlazor.MudMenuItem Label="Export PDF (Alt + P)" OnClick="() => ExportSelectedTransaction()" />
 					<MudBlazor.MudMenuItem Label="Export Excel (Alt + E)" OnClick="() => ExportSelectedTransaction(true)" />
 					<MudBlazor.MudDivider />
@@ -320,7 +321,7 @@ else
 						</GridAggregates>
 
 						<GridColumns>
-							<GridColumn Field="@nameof(StockTransferOverviewModel.TransactionNo)" HeaderText="Trans No" Width="200" Visible="@(!_showSummary)" />
+							<GridColumn Field="@nameof(StockTransferOverviewModel.TransactionNo)" HeaderText="Transaction No" Width="200" Visible="@(!_showSummary)" />
 							<GridColumn Field="@nameof(StockTransferOverviewModel.TransactionDateTime)" HeaderText="Date" Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(!_showSummary)" />
 							<GridColumn Field="@nameof(StockTransferOverviewModel.LocationName)" HeaderText="From Location" Width="160" Visible="@(!_showSummary && (_selectedLocation is null || _selectedLocation.Id <= 0))" />
 							<GridColumn Field="@nameof(StockTransferOverviewModel.ToLocationName)" HeaderText="To Location" Width="160" Visible="@(_selectedToLocation is null || _selectedToLocation.Id <= 0)" />
@@ -403,7 +404,7 @@ else
 							</GridColumn>
 							<GridColumn Field="@nameof(StockTransferOverviewModel.PaymentModes)" HeaderText="Payment Modes" Width="180" Visible="@(!_showSummary)" />
 							<GridColumn Field="@nameof(StockTransferOverviewModel.Remarks)" HeaderText="Remarks" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(StockTransferOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounts Posting" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(StockTransferOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Transaction No" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
 							<GridColumn Field="@nameof(StockTransferOverviewModel.CreatedByName)" HeaderText="Created By" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
 							<GridColumn Field="@nameof(StockTransferOverviewModel.CreatedAt)" HeaderText="Created At" Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
 							<GridColumn Field="@nameof(StockTransferOverviewModel.CreatedFromPlatform)" HeaderText="Created Platform" Width="300" Visible="@(_showAllColumns && !_showSummary)" />

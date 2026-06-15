@@ -321,7 +321,7 @@ else
 						</GridAggregates>
 
 						<GridColumns>
-							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.TransactionNo)" HeaderText="Trans No" Width="200" />
+							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.TransactionNo)" HeaderText="Transaction No" Width="200" />
 							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.TransactionDateTime)" HeaderText="Date" Width="150" Format="dd/MM/yy" Type="ColumnType.DateTime" />
 							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.CompanyName)" HeaderText="Company" Width="200" Visible="@(_showAllColumns || _selectedCompany is null || _selectedCompany.Id <= 0)" />
 							<GridColumn Field="@nameof(FinancialAccountingOverviewModel.VoucherName)" HeaderText="Voucher Type" Width="200" Visible="@(_showAllColumns || _selectedVoucher is null || _selectedVoucher.Id <= 0)" />

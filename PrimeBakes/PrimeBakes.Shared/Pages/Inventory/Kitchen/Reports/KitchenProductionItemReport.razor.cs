@@ -242,10 +242,8 @@ public partial class KitchenProductionItemReport : IAsyncDisposable
 			kitchenProduction.LastModifiedAt = currentDateTime;
 			kitchenProduction.LastModifiedFromPlatform = platform;
 
-			if (isRecover)
-				await KitchenProductionData.RecoverTransaction(kitchenProduction);
-			else
-				await KitchenProductionData.DeleteTransaction(kitchenProduction);
+			if (isRecover) await KitchenProductionData.RecoverTransaction(kitchenProduction);
+			else await KitchenProductionData.DeleteTransaction(kitchenProduction);
 
 			await _toastNotification.ShowAsync("Success", $"Transaction {transactionNo} has been {(isRecover ? "recovered" : "deleted")} successfully.", ToastType.Success);
 		}

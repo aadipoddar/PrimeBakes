@@ -22,7 +22,7 @@ public static class SaleReturnReportExport
 	{
 		var columnSettings = new Dictionary<string, ReportColumnSetting>
 		{
-			[nameof(SaleReturnOverviewModel.TransactionNo)] = new() { DisplayName = "Transa No", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(SaleReturnOverviewModel.TransactionNo)] = new() { DisplayName = "Transaction No", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnOverviewModel.LocationName)] = new() { DisplayName = "Location", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnOverviewModel.PartyName)] = new() { DisplayName = "Party", Alignment = CellAlignment.Left, IncludeInTotal = false },
@@ -54,7 +54,7 @@ public static class SaleReturnReportExport
 			[nameof(SaleReturnOverviewModel.PaymentModes)] = new() { DisplayName = "Payment Modes", Alignment = CellAlignment.Left, IncludeInTotal = false },
 
 			[nameof(SaleReturnOverviewModel.Remarks)] = new() { DisplayName = "Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(SaleReturnOverviewModel.FinancialAccountingTransactionNo)] = new() { DisplayName = "Accounting Trans No", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(SaleReturnOverviewModel.FinancialAccountingTransactionNo)] = new() { DisplayName = "Accounting Transaction No", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnOverviewModel.CreatedByName)] = new() { DisplayName = "Created By", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnOverviewModel.CreatedAt)] = new() { DisplayName = "Created At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(SaleReturnOverviewModel.CreatedFromPlatform)] = new() { DisplayName = "Created Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
@@ -247,7 +247,7 @@ public static class SaleReturnReportExport
 			[nameof(SaleReturnItemOverviewModel.Total)] = new() { DisplayName = "Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
 			[nameof(SaleReturnItemOverviewModel.NetTotal)] = new() { DisplayName = "Net Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
 
-			[nameof(SaleReturnItemOverviewModel.TransactionNo)] = new() { DisplayName = "Transa No", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(SaleReturnItemOverviewModel.TransactionNo)] = new() { DisplayName = "Transaction No", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnItemOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnItemOverviewModel.LocationName)] = new() { DisplayName = "Location", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnItemOverviewModel.PartyName)] = new() { DisplayName = "Party", Alignment = CellAlignment.Left, IncludeInTotal = false },
@@ -279,7 +279,7 @@ public static class SaleReturnReportExport
 			[nameof(SaleReturnItemOverviewModel.PaymentModes)] = new() { DisplayName = "Payment Modes", Alignment = CellAlignment.Left, IncludeInTotal = false },
 
 			[nameof(SaleReturnItemOverviewModel.Remarks)] = new() { DisplayName = "Sale Return Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(SaleReturnItemOverviewModel.FinancialAccountingTransactionNo)] = new() { DisplayName = "Accounting Trans No", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(SaleReturnItemOverviewModel.FinancialAccountingTransactionNo)] = new() { DisplayName = "Accounting Transaction No", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnItemOverviewModel.CreatedByName)] = new() { DisplayName = "Created By", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnItemOverviewModel.CreatedAt)] = new() { DisplayName = "Created At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(SaleReturnItemOverviewModel.CreatedFromPlatform)] = new() { DisplayName = "Created Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
@@ -317,15 +317,11 @@ public static class SaleReturnReportExport
 				nameof(SaleReturnItemOverviewModel.ItemName),
 				nameof(SaleReturnItemOverviewModel.ItemCode),
 				nameof(SaleReturnItemOverviewModel.ItemCategoryName),
-				nameof(SaleReturnItemOverviewModel.TransactionNo),
-				nameof(SaleReturnItemOverviewModel.TransactionDateTime),
-				nameof(SaleReturnItemOverviewModel.CompanyName),
-				nameof(SaleReturnItemOverviewModel.LocationName),
-				nameof(SaleReturnItemOverviewModel.PartyName),
-				nameof(SaleReturnItemOverviewModel.CustomerName),
-				nameof(SaleReturnItemOverviewModel.FinancialYear),
+				nameof(SaleReturnItemOverviewModel.ItemRemarks),
+
 				nameof(SaleReturnItemOverviewModel.Quantity),
 				nameof(SaleReturnItemOverviewModel.Rate),
+				nameof(SaleReturnItemOverviewModel.NetRate),
 				nameof(SaleReturnItemOverviewModel.ItemBaseTotal),
 				nameof(SaleReturnItemOverviewModel.DiscountPercent),
 				nameof(SaleReturnItemOverviewModel.DiscountAmount),
@@ -339,8 +335,16 @@ public static class SaleReturnReportExport
 				nameof(SaleReturnItemOverviewModel.TotalTaxAmount),
 				nameof(SaleReturnItemOverviewModel.InclusiveTax),
 				nameof(SaleReturnItemOverviewModel.Total),
-				nameof(SaleReturnItemOverviewModel.NetRate),
 				nameof(SaleReturnItemOverviewModel.NetTotal),
+
+				nameof(SaleReturnItemOverviewModel.TransactionNo),
+				nameof(SaleReturnItemOverviewModel.CompanyName),
+				nameof(SaleReturnItemOverviewModel.LocationName),
+				nameof(SaleReturnItemOverviewModel.PartyName),
+				nameof(SaleReturnItemOverviewModel.CustomerName),
+				nameof(SaleReturnItemOverviewModel.TransactionDateTime),
+				nameof(SaleReturnItemOverviewModel.FinancialYear),
+
 				nameof(SaleReturnItemOverviewModel.TotalItems),
 				nameof(SaleReturnItemOverviewModel.TotalQuantity),
 				nameof(SaleReturnItemOverviewModel.BaseTotal),
@@ -349,19 +353,22 @@ public static class SaleReturnReportExport
 				nameof(SaleReturnItemOverviewModel.TotalInclusiveTaxAmount),
 				nameof(SaleReturnItemOverviewModel.TotalExtraTaxAmount),
 				nameof(SaleReturnItemOverviewModel.TotalAfterTax),
+
 				nameof(SaleReturnItemOverviewModel.OtherChargesPercent),
 				nameof(SaleReturnItemOverviewModel.OtherChargesAmount),
 				nameof(SaleReturnItemOverviewModel.SaleReturnDiscountPercent),
 				nameof(SaleReturnItemOverviewModel.SaleReturnDiscountAmount),
+
 				nameof(SaleReturnItemOverviewModel.RoundOffAmount),
 				nameof(SaleReturnItemOverviewModel.TotalAmount),
+
 				nameof(SaleReturnItemOverviewModel.Cash),
 				nameof(SaleReturnItemOverviewModel.Card),
 				nameof(SaleReturnItemOverviewModel.UPI),
 				nameof(SaleReturnItemOverviewModel.Credit),
 				nameof(SaleReturnItemOverviewModel.PaymentModes),
+
 				nameof(SaleReturnItemOverviewModel.Remarks),
-				nameof(SaleReturnItemOverviewModel.ItemRemarks),
 				nameof(SaleReturnItemOverviewModel.FinancialAccountingTransactionNo),
 				nameof(SaleReturnItemOverviewModel.CreatedByName),
 				nameof(SaleReturnItemOverviewModel.CreatedAt),
@@ -369,6 +376,7 @@ public static class SaleReturnReportExport
 				nameof(SaleReturnItemOverviewModel.LastModifiedByUserName),
 				nameof(SaleReturnItemOverviewModel.LastModifiedAt),
 				nameof(SaleReturnItemOverviewModel.LastModifiedFromPlatform),
+
 				nameof(SaleReturnItemOverviewModel.MasterStatus)
 			];
 

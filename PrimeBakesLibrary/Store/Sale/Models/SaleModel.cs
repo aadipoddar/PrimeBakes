@@ -87,6 +87,8 @@ public class SaleOverviewModel
 	public string? PaymentModes { get; set; }
 
 	public string? Remarks { get; set; }
+	public int? FinancialAccountingId { get; set; }
+	public string? FinancialAccountingTransactionNo { get; set; }
 	public int CreatedBy { get; set; }
 	public string CreatedByName { get; set; }
 	public DateTime CreatedAt { get; set; }
@@ -95,10 +97,8 @@ public class SaleOverviewModel
 	public string? LastModifiedByUserName { get; set; }
 	public DateTime? LastModifiedAt { get; set; }
 	public string? LastModifiedFromPlatform { get; set; }
-	public bool Status { get; set; }
 
-	public int? FinancialAccountingId { get; set; }
-	public string? FinancialAccountingTransactionNo { get; set; }
+	public bool Status { get; set; }
 }
 
 public class OutletSummaryModel

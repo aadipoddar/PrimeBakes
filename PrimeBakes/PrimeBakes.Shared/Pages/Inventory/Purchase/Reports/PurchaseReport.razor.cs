@@ -44,7 +44,7 @@ public partial class PurchaseReport : IAsyncDisposable
 	private readonly List<ContextMenuItemModel> _gridContextMenuItems =
 	[
 		new() { Text = "View (Alt + O)", Id = "View", IconCss = "e-icons e-eye", Target = ".e-content" },
-		new() { Text = "Open Accounting Posting", Id = "OpenAccountingPosting", IconCss = "e-icons e-link", Target = ".e-content" },
+		new() { Text = "View Accounting Posting", Id = "ViewAccountingPosting", IconCss = "e-icons e-link", Target = ".e-content" },
 		new() { Text = "Export PDF (Alt + P)", Id = "ExportPDF", IconCss = "e-icons e-export-pdf", Target = ".e-content" },
 		new() { Text = "Export Excel (Alt + E)", Id = "ExportExcel", IconCss = "e-icons e-export-excel", Target = ".e-content" },
 		new() { Text = "Export Original (Alt + L)", Id = "ExportOriginal", IconCss = "e-icons e-download", Target = ".e-content" },
@@ -259,7 +259,7 @@ public partial class PurchaseReport : IAsyncDisposable
 		await AuthenticationService.NavigateToRoute(decodedTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
 	}
 
-	private async Task OpenFinancialAccountingPosting()
+	private async Task ViewFinancialAccountingPosting()
 	{
 		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
 			return;
@@ -303,10 +303,8 @@ public partial class PurchaseReport : IAsyncDisposable
 				purchaseReturn.LastModifiedAt = currentDateTime;
 				purchaseReturn.LastModifiedFromPlatform = platform;
 
-				if (isRecover)
-					await PurchaseReturnData.RecoverTransaction(purchaseReturn);
-				else
-					await PurchaseReturnData.DeleteTransaction(purchaseReturn);
+				if (isRecover) await PurchaseReturnData.RecoverTransaction(purchaseReturn);
+				else await PurchaseReturnData.DeleteTransaction(purchaseReturn);
 			}
 			else
 			{
@@ -317,10 +315,8 @@ public partial class PurchaseReport : IAsyncDisposable
 				purchase.LastModifiedAt = currentDateTime;
 				purchase.LastModifiedFromPlatform = platform;
 
-				if (isRecover)
-					await PurchaseData.RecoverTransaction(purchase);
-				else
-					await PurchaseData.DeleteTransaction(purchase);
+				if (isRecover) await PurchaseData.RecoverTransaction(purchase);
+				else await PurchaseData.DeleteTransaction(purchase);
 			}
 
 			await _toastNotification.ShowAsync("Success", $"Transaction {transactionNo} has been {(isRecover ? "recovered" : "deleted")} successfully.", ToastType.Success);
@@ -482,7 +478,7 @@ public partial class PurchaseReport : IAsyncDisposable
 		switch (args.Item.Id)
 		{
 			case "View": await ViewSelectedTransaction(); break;
-			case "OpenAccountingPosting": await OpenFinancialAccountingPosting(); break;
+			case "ViewAccountingPosting": await ViewFinancialAccountingPosting(); break;
 			case "ExportPDF": await ExportSelectedTransaction(); break;
 			case "ExportExcel": await ExportSelectedTransaction(true); break;
 			case "ExportOriginal": await DownloadSelectedOriginalInvoice(); break;

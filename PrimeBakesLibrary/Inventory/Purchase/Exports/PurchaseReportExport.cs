@@ -20,7 +20,7 @@ public static class PurchaseReportExport
 	{
 		var columnSettings = new Dictionary<string, ReportColumnSetting>
 		{
-			[nameof(PurchaseOverviewModel.TransactionNo)] = new() { DisplayName = "Transa No", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(PurchaseOverviewModel.TransactionNo)] = new() { DisplayName = "Transaction No", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm tt", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(PurchaseOverviewModel.FinancialYear)] = new() { DisplayName = "Financial Year", Alignment = CellAlignment.Center, IncludeInTotal = false },
@@ -46,7 +46,7 @@ public static class PurchaseReportExport
 			[nameof(PurchaseOverviewModel.TotalAmount)] = new() { DisplayName = "Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
 
 			[nameof(PurchaseOverviewModel.Remarks)] = new() { DisplayName = "Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(PurchaseOverviewModel.FinancialAccountingTransactionNo)] = new() { DisplayName = "Accounting Trans No", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(PurchaseOverviewModel.FinancialAccountingTransactionNo)] = new() { DisplayName = "Accounting Transaction No", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseOverviewModel.CreatedAt)] = new() { DisplayName = "Created At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(PurchaseOverviewModel.CreatedByName)] = new() { DisplayName = "Created By", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseOverviewModel.CreatedFromPlatform)] = new() { DisplayName = "Created Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
@@ -224,7 +224,7 @@ public static class PurchaseReportExport
 			[nameof(PurchaseItemOverviewModel.Total)] = new() { DisplayName = "Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
 			[nameof(PurchaseItemOverviewModel.NetTotal)] = new() { DisplayName = "Net Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
 
-			[nameof(PurchaseItemOverviewModel.TransactionNo)] = new() { DisplayName = "Transa No", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(PurchaseItemOverviewModel.TransactionNo)] = new() { DisplayName = "Transaction No", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseItemOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseItemOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm tt", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(PurchaseItemOverviewModel.FinancialYear)] = new() { DisplayName = "Financial Year", Alignment = CellAlignment.Center, IncludeInTotal = false },
@@ -250,7 +250,7 @@ public static class PurchaseReportExport
 			[nameof(PurchaseItemOverviewModel.TotalAmount)] = new() { DisplayName = "Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
 
 			[nameof(PurchaseItemOverviewModel.Remarks)] = new() { DisplayName = "Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(PurchaseItemOverviewModel.FinancialAccountingTransactionNo)] = new() { DisplayName = "Accounting Trans No", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(PurchaseItemOverviewModel.FinancialAccountingTransactionNo)] = new() { DisplayName = "Accounting Transaction No", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseItemOverviewModel.CreatedAt)] = new() { DisplayName = "Created At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(PurchaseItemOverviewModel.CreatedByName)] = new() { DisplayName = "Created By", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseItemOverviewModel.CreatedFromPlatform)] = new() { DisplayName = "Created Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
@@ -288,14 +288,13 @@ public static class PurchaseReportExport
 				nameof(PurchaseItemOverviewModel.ItemName),
 				nameof(PurchaseItemOverviewModel.ItemCode),
 				nameof(PurchaseItemOverviewModel.ItemCategoryName),
-				nameof(PurchaseItemOverviewModel.TransactionNo),
-				nameof(PurchaseItemOverviewModel.ChallanNo),
-				nameof(PurchaseItemOverviewModel.TransactionDateTime),
-				nameof(PurchaseItemOverviewModel.CompanyName),
-				nameof(PurchaseItemOverviewModel.PartyName),
-				nameof(PurchaseItemOverviewModel.FinancialYear),
+
+				nameof(PurchaseItemOverviewModel.UnitOfMeasurement),
+				nameof(PurchaseItemOverviewModel.ItemRemarks),
+
 				nameof(PurchaseItemOverviewModel.Quantity),
 				nameof(PurchaseItemOverviewModel.Rate),
+				nameof(PurchaseItemOverviewModel.NetRate),
 				nameof(PurchaseItemOverviewModel.ItemBaseTotal),
 				nameof(PurchaseItemOverviewModel.DiscountPercent),
 				nameof(PurchaseItemOverviewModel.DiscountAmount),
@@ -309,8 +308,16 @@ public static class PurchaseReportExport
 				nameof(PurchaseItemOverviewModel.TotalTaxAmount),
 				nameof(PurchaseItemOverviewModel.InclusiveTax),
 				nameof(PurchaseItemOverviewModel.Total),
-				nameof(PurchaseItemOverviewModel.NetRate),
 				nameof(PurchaseItemOverviewModel.NetTotal),
+
+				nameof(PurchaseItemOverviewModel.TransactionNo),
+				nameof(PurchaseItemOverviewModel.CompanyName),
+				nameof(PurchaseItemOverviewModel.TransactionDateTime),
+				nameof(PurchaseItemOverviewModel.FinancialYear),
+
+				nameof(PurchaseItemOverviewModel.ChallanNo),
+				nameof(PurchaseItemOverviewModel.PartyName),
+
 				nameof(PurchaseItemOverviewModel.TotalItems),
 				nameof(PurchaseItemOverviewModel.TotalQuantity),
 				nameof(PurchaseItemOverviewModel.BaseTotal),
@@ -319,21 +326,24 @@ public static class PurchaseReportExport
 				nameof(PurchaseItemOverviewModel.TotalInclusiveTaxAmount),
 				nameof(PurchaseItemOverviewModel.TotalExtraTaxAmount),
 				nameof(PurchaseItemOverviewModel.TotalAfterTax),
+
 				nameof(PurchaseItemOverviewModel.OtherChargesPercent),
 				nameof(PurchaseItemOverviewModel.OtherChargesAmount),
 				nameof(PurchaseItemOverviewModel.CashDiscountPercent),
 				nameof(PurchaseItemOverviewModel.CashDiscountAmount),
+
 				nameof(PurchaseItemOverviewModel.RoundOffAmount),
 				nameof(PurchaseItemOverviewModel.TotalAmount),
+
 				nameof(PurchaseItemOverviewModel.Remarks),
 				nameof(PurchaseItemOverviewModel.FinancialAccountingTransactionNo),
-				nameof(PurchaseItemOverviewModel.ItemRemarks),
-				nameof(PurchaseItemOverviewModel.CreatedByName),
 				nameof(PurchaseItemOverviewModel.CreatedAt),
+				nameof(PurchaseItemOverviewModel.CreatedByName),
 				nameof(PurchaseItemOverviewModel.CreatedFromPlatform),
-				nameof(PurchaseItemOverviewModel.LastModifiedByUserName),
 				nameof(PurchaseItemOverviewModel.LastModifiedAt),
+				nameof(PurchaseItemOverviewModel.LastModifiedByUserName),
 				nameof(PurchaseItemOverviewModel.LastModifiedFromPlatform),
+
 				nameof(PurchaseItemOverviewModel.MasterStatus)
 			];
 

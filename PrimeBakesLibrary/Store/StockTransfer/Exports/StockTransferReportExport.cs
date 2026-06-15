@@ -22,7 +22,7 @@ public static class StockTransferReportExport
 	{
 		var columnSettings = new Dictionary<string, ReportColumnSetting>
 		{
-			[nameof(StockTransferOverviewModel.TransactionNo)] = new() { DisplayName = "Trans No", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(StockTransferOverviewModel.TransactionNo)] = new() { DisplayName = "Transaction No", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(StockTransferOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(StockTransferOverviewModel.LocationName)] = new() { DisplayName = "From Location", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(StockTransferOverviewModel.ToLocationName)] = new() { DisplayName = "To Location", Alignment = CellAlignment.Left, IncludeInTotal = false },
@@ -53,7 +53,7 @@ public static class StockTransferReportExport
 			[nameof(StockTransferOverviewModel.PaymentModes)] = new() { DisplayName = "Payment Modes", Alignment = CellAlignment.Left, IncludeInTotal = false },
 
 			[nameof(StockTransferOverviewModel.Remarks)] = new() { DisplayName = "Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(StockTransferOverviewModel.FinancialAccountingTransactionNo)] = new() { DisplayName = "Accounting Trans No", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(StockTransferOverviewModel.FinancialAccountingTransactionNo)] = new() { DisplayName = "Accounting Transaction No", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(StockTransferOverviewModel.CreatedByName)] = new() { DisplayName = "Created By", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(StockTransferOverviewModel.CreatedAt)] = new() { DisplayName = "Created At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(StockTransferOverviewModel.CreatedFromPlatform)] = new() { DisplayName = "Created Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
@@ -235,7 +235,7 @@ public static class StockTransferReportExport
 			[nameof(StockTransferItemOverviewModel.Total)] = new() { DisplayName = "Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
 			[nameof(StockTransferItemOverviewModel.NetTotal)] = new() { DisplayName = "Net Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
 
-			[nameof(StockTransferItemOverviewModel.TransactionNo)] = new() { DisplayName = "Trans No", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(StockTransferItemOverviewModel.TransactionNo)] = new() { DisplayName = "Transaction No", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(StockTransferItemOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(StockTransferItemOverviewModel.LocationName)] = new() { DisplayName = "From Location", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(StockTransferItemOverviewModel.ToLocationName)] = new() { DisplayName = "To Location", Alignment = CellAlignment.Left, IncludeInTotal = false },
@@ -265,8 +265,8 @@ public static class StockTransferReportExport
 			[nameof(StockTransferItemOverviewModel.Credit)] = new() { DisplayName = "Credit", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
 			[nameof(StockTransferItemOverviewModel.PaymentModes)] = new() { DisplayName = "Payment Modes", Alignment = CellAlignment.Left, IncludeInTotal = false },
 
-			[nameof(StockTransferItemOverviewModel.StockTransferRemarks)] = new() { DisplayName = "Transfer Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(StockTransferItemOverviewModel.FinancialAccountingTransactionNo)] = new() { DisplayName = "Accounting Trans No", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(StockTransferItemOverviewModel.Remarks)] = new() { DisplayName = "Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(StockTransferItemOverviewModel.FinancialAccountingTransactionNo)] = new() { DisplayName = "Accounting Transaction No", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(StockTransferItemOverviewModel.CreatedByName)] = new() { DisplayName = "Created By", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(StockTransferItemOverviewModel.CreatedAt)] = new() { DisplayName = "Created At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(StockTransferItemOverviewModel.CreatedFromPlatform)] = new() { DisplayName = "Created Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
@@ -304,14 +304,11 @@ public static class StockTransferReportExport
 				nameof(StockTransferItemOverviewModel.ItemName),
 				nameof(StockTransferItemOverviewModel.ItemCode),
 				nameof(StockTransferItemOverviewModel.ItemCategoryName),
-				nameof(StockTransferItemOverviewModel.TransactionNo),
-				nameof(StockTransferItemOverviewModel.TransactionDateTime),
-				nameof(StockTransferItemOverviewModel.CompanyName),
-				nameof(StockTransferItemOverviewModel.LocationName),
-				nameof(StockTransferItemOverviewModel.ToLocationName),
-				nameof(StockTransferItemOverviewModel.FinancialYear),
+				nameof(StockTransferItemOverviewModel.ItemRemarks),
+
 				nameof(StockTransferItemOverviewModel.Quantity),
 				nameof(StockTransferItemOverviewModel.Rate),
+				nameof(StockTransferItemOverviewModel.NetRate),
 				nameof(StockTransferItemOverviewModel.ItemBaseTotal),
 				nameof(StockTransferItemOverviewModel.DiscountPercent),
 				nameof(StockTransferItemOverviewModel.DiscountAmount),
@@ -325,8 +322,15 @@ public static class StockTransferReportExport
 				nameof(StockTransferItemOverviewModel.TotalTaxAmount),
 				nameof(StockTransferItemOverviewModel.InclusiveTax),
 				nameof(StockTransferItemOverviewModel.Total),
-				nameof(StockTransferItemOverviewModel.NetRate),
 				nameof(StockTransferItemOverviewModel.NetTotal),
+
+				nameof(StockTransferItemOverviewModel.TransactionNo),
+				nameof(StockTransferItemOverviewModel.CompanyName),
+				nameof(StockTransferItemOverviewModel.LocationName),
+				nameof(StockTransferItemOverviewModel.ToLocationName),
+				nameof(StockTransferItemOverviewModel.TransactionDateTime),
+				nameof(StockTransferItemOverviewModel.FinancialYear),
+
 				nameof(StockTransferItemOverviewModel.TotalItems),
 				nameof(StockTransferItemOverviewModel.TotalQuantity),
 				nameof(StockTransferItemOverviewModel.BaseTotal),
@@ -335,19 +339,22 @@ public static class StockTransferReportExport
 				nameof(StockTransferItemOverviewModel.TotalInclusiveTaxAmount),
 				nameof(StockTransferItemOverviewModel.TotalExtraTaxAmount),
 				nameof(StockTransferItemOverviewModel.TotalAfterTax),
+
 				nameof(StockTransferItemOverviewModel.OtherChargesPercent),
 				nameof(StockTransferItemOverviewModel.OtherChargesAmount),
 				nameof(StockTransferItemOverviewModel.StockTransferDiscountPercent),
 				nameof(StockTransferItemOverviewModel.StockTransferDiscountAmount),
+
 				nameof(StockTransferItemOverviewModel.RoundOffAmount),
 				nameof(StockTransferItemOverviewModel.TotalAmount),
+
 				nameof(StockTransferItemOverviewModel.Cash),
 				nameof(StockTransferItemOverviewModel.Card),
 				nameof(StockTransferItemOverviewModel.UPI),
 				nameof(StockTransferItemOverviewModel.Credit),
 				nameof(StockTransferItemOverviewModel.PaymentModes),
-				nameof(StockTransferItemOverviewModel.StockTransferRemarks),
-				nameof(StockTransferItemOverviewModel.ItemRemarks),
+
+				nameof(StockTransferItemOverviewModel.Remarks),
 				nameof(StockTransferItemOverviewModel.FinancialAccountingTransactionNo),
 				nameof(StockTransferItemOverviewModel.CreatedByName),
 				nameof(StockTransferItemOverviewModel.CreatedAt),
@@ -355,6 +362,7 @@ public static class StockTransferReportExport
 				nameof(StockTransferItemOverviewModel.LastModifiedByUserName),
 				nameof(StockTransferItemOverviewModel.LastModifiedAt),
 				nameof(StockTransferItemOverviewModel.LastModifiedFromPlatform),
+
 				nameof(StockTransferItemOverviewModel.MasterStatus)
 			];
 

@@ -89,7 +89,6 @@ public class StockTransferItemOverviewModel
 
 	public int ToLocationId { get; set; }
 	public string ToLocationName { get; set; }
-	public string? StockTransferRemarks { get; set; }
 
 	public DateTime TransactionDateTime { get; set; }
 	public int FinancialYearId { get; set; }
@@ -118,6 +117,7 @@ public class StockTransferItemOverviewModel
 	public decimal Credit { get; set; }
 	public string? PaymentModes { get; set; }
 
+	public string? Remarks { get; set; }
 	public int? FinancialAccountingId { get; set; }
 	public string? FinancialAccountingTransactionNo { get; set; }
 	public int CreatedBy { get; set; }

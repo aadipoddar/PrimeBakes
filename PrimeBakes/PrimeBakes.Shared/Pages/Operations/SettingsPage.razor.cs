@@ -490,15 +490,12 @@ public partial class SettingsPage
 		}
 	}
 
-	private static async Task UpdateSetting(string key, string value, string description)
+	private static async Task UpdateSetting(string key, string value, string description) => await SettingsData.UpdateSettings(new SettingsModel
 	{
-		await SettingsData.UpdateSettings(new SettingsModel
-		{
-			Key = key,
-			Value = value ?? string.Empty,
-			Description = description
-		});
-	}
+		Key = key,
+		Value = value ?? string.Empty,
+		Description = description
+	});
 
 	#endregion
 
