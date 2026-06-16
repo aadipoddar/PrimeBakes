@@ -1,6 +1,7 @@
 using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Restaurant.Bill.Models;
+using PrimeBakesLibrary.Store.Product.Models;
 using PrimeBakesLibrary.Utils.Exports;
 
 namespace PrimeBakesLibrary.Restaurant.Bill.Exports;
@@ -13,6 +14,7 @@ public static class BillReportExport
 		DateOnly? dateRangeStart = null,
 		DateOnly? dateRangeEnd = null,
 		bool showAllColumns = true,
+		bool showDeleted = false,
 		bool showSummary = false,
 		CompanyModel company = null,
 		LocationModel location = null)
@@ -26,184 +28,47 @@ public static class BillReportExport
 			[nameof(BillOverviewModel.DiningAreaName)] = new() { DisplayName = "Area", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(BillOverviewModel.CustomerName)] = new() { DisplayName = "Customer", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(BillOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm tt", Alignment = CellAlignment.Center, IncludeInTotal = false },
-			[nameof(BillOverviewModel.FinancialYear)] = new() { DisplayName = "Financial Year", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(BillOverviewModel.FinancialYear)] = new() { DisplayName = "Financial Year", Alignment = CellAlignment.Center, IncludeInTotal = false },
+
+			[nameof(BillOverviewModel.TotalPeople)] = new() { DisplayName = "People", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(BillOverviewModel.TotalItems)] = new() { DisplayName = "Items", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(BillOverviewModel.TotalQuantity)] = new() { DisplayName = "Qty", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(BillOverviewModel.BaseTotal)] = new() { DisplayName = "Base Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(BillOverviewModel.ItemDiscountAmount)] = new() { DisplayName = "Item Disc Amt", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(BillOverviewModel.TotalAfterItemDiscount)] = new() { DisplayName = "After Disc", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(BillOverviewModel.TotalInclusiveTaxAmount)] = new() { DisplayName = "Incl Tax", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(BillOverviewModel.TotalExtraTaxAmount)] = new() { DisplayName = "Extra Tax", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(BillOverviewModel.TotalAfterTax)] = new() { DisplayName = "Sub Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+
+			[nameof(BillOverviewModel.ServiceChargePercent)] = new() { DisplayName = "Service Charge %", Format = "#,##0.00", Alignment = CellAlignment.Center, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(BillOverviewModel.ServiceChargeAmount)] = new() { DisplayName = "Service Charge Amt", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(BillOverviewModel.DiscountPercent)] = new() { DisplayName = "Disc %", Format = "#,##0.00", Alignment = CellAlignment.Center, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(BillOverviewModel.DiscountAmount)] = new() { DisplayName = "Disc Amt", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+
+			[nameof(BillOverviewModel.RoundOffAmount)] = new() { DisplayName = "Round Off", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(BillOverviewModel.TotalAmount)] = new() { DisplayName = "Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, IsRequired = true, IsGrandTotal = true, HighlightNegative = true },
+
+			[nameof(BillOverviewModel.Cash)] = new() { DisplayName = "Cash", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(BillOverviewModel.Card)] = new() { DisplayName = "Card", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(BillOverviewModel.UPI)] = new() { DisplayName = "UPI", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(BillOverviewModel.Credit)] = new() { DisplayName = "Credit", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(BillOverviewModel.PaymentModes)] = new() { DisplayName = "Payment Modes", Alignment = CellAlignment.Left, IncludeInTotal = false },
+
 			[nameof(BillOverviewModel.Remarks)] = new() { DisplayName = "Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(BillOverviewModel.FinancialAccountingTransactionNo)] = new() { DisplayName = "Accounting Transaction No", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(BillOverviewModel.CreatedByName)] = new() { DisplayName = "Created By", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(BillOverviewModel.CreatedAt)] = new() { DisplayName = "Created At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(BillOverviewModel.CreatedFromPlatform)] = new() { DisplayName = "Created Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(BillOverviewModel.LastModifiedByUserName)] = new() { DisplayName = "Modified By", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(BillOverviewModel.LastModifiedAt)] = new() { DisplayName = "Modified At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(BillOverviewModel.LastModifiedFromPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(BillOverviewModel.FinancialAccountingTransactionNo)] = new() { DisplayName = "Accounts Posting", Alignment = CellAlignment.Left, IncludeInTotal = false },
 
-			[nameof(BillOverviewModel.TotalPeople)] = new()
-			{
-				DisplayName = "People",
-				Format = "#,##0",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true
-			},
-
-			[nameof(BillOverviewModel.TotalItems)] = new()
-			{
-				DisplayName = "Items",
-				Format = "#,##0",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true
-			},
-
-			[nameof(BillOverviewModel.TotalQuantity)] = new()
-			{
-				DisplayName = "Qty",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true
-			},
-
-			[nameof(BillOverviewModel.BaseTotal)] = new()
-			{
-				DisplayName = "Base Total",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true
-			},
-
-			[nameof(BillOverviewModel.ItemDiscountAmount)] = new()
-			{
-				DisplayName = "Item Discount Amount",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true
-			},
-
-			[nameof(BillOverviewModel.TotalAfterItemDiscount)] = new()
-			{
-				DisplayName = "After Disc",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true,
-				HighlightNegative = true
-			},
-
-			[nameof(BillOverviewModel.TotalInclusiveTaxAmount)] = new()
-			{
-				DisplayName = "Incl Tax",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true,
-				HighlightNegative = true
-			},
-
-			[nameof(BillOverviewModel.TotalExtraTaxAmount)] = new()
-			{
-				DisplayName = "Extra Tax",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true,
-				HighlightNegative = true
-			},
-
-			[nameof(BillOverviewModel.TotalAfterTax)] = new()
-			{
-				DisplayName = "Sub Total",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true
-			},
-
-			[nameof(BillOverviewModel.DiscountPercent)] = new()
-			{
-				DisplayName = "Disc %",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Center,
-				IncludeInTotal = false
-			},
-
-			[nameof(BillOverviewModel.DiscountAmount)] = new()
-			{
-				DisplayName = "Disc Amt",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true
-			},
-
-			[nameof(BillOverviewModel.ServiceChargePercent)] = new()
-			{
-				DisplayName = "Service %",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Center,
-				IncludeInTotal = false
-			},
-
-			[nameof(BillOverviewModel.ServiceChargeAmount)] = new()
-			{
-				DisplayName = "Service Charge",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true
-			},
-
-			[nameof(BillOverviewModel.RoundOffAmount)] = new()
-			{
-				DisplayName = "Round Off",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true
-			},
-
-			[nameof(BillOverviewModel.TotalAmount)] = new()
-			{
-				DisplayName = "Total",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true,
-				IsRequired = true,
-				IsGrandTotal = true
-			},
-
-			[nameof(BillOverviewModel.Cash)] = new()
-			{
-				DisplayName = "Cash",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true
-			},
-
-			[nameof(BillOverviewModel.Card)] = new()
-			{
-				DisplayName = "Card",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true
-			},
-
-			[nameof(BillOverviewModel.UPI)] = new()
-			{
-				DisplayName = "UPI",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true
-			},
-
-			[nameof(BillOverviewModel.Credit)] = new()
-			{
-				DisplayName = "Credit",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true
-			},
-
-			[nameof(BillOverviewModel.PaymentModes)] = new()
-			{
-				DisplayName = "Payment Modes",
-				Alignment = CellAlignment.Left,
-				IncludeInTotal = false
-			}
+			[nameof(BillOverviewModel.Running)] = new() { DisplayName = "Running", Alignment = CellAlignment.Center, IncludeInTotal = false },
+			[nameof(BillOverviewModel.Status)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false },
 		};
 
 		List<string> columnOrder;
 
-		// Summary view - grouped by location with totals
 		if (showSummary)
 			columnOrder =
 			[
@@ -217,8 +82,8 @@ public static class BillReportExport
 				nameof(BillOverviewModel.TotalInclusiveTaxAmount),
 				nameof(BillOverviewModel.TotalExtraTaxAmount),
 				nameof(BillOverviewModel.TotalAfterTax),
-				nameof(BillOverviewModel.DiscountAmount),
 				nameof(BillOverviewModel.ServiceChargeAmount),
+				nameof(BillOverviewModel.DiscountAmount),
 				nameof(BillOverviewModel.RoundOffAmount),
 				nameof(BillOverviewModel.TotalAmount),
 				nameof(BillOverviewModel.Cash),
@@ -229,18 +94,11 @@ public static class BillReportExport
 
 		else if (showAllColumns)
 		{
-			// All columns - detailed view
 			columnOrder =
 			[
 				nameof(BillOverviewModel.TransactionNo),
-				nameof(BillOverviewModel.CompanyName)
-			];
-
-			if (location is null)
-				columnOrder.Add(nameof(BillOverviewModel.LocationName));
-
-			columnOrder.AddRange(
-			[
+				nameof(BillOverviewModel.CompanyName),
+				nameof(BillOverviewModel.LocationName),
 				nameof(BillOverviewModel.DiningTableName),
 				nameof(BillOverviewModel.DiningAreaName),
 				nameof(BillOverviewModel.CustomerName),
@@ -255,10 +113,10 @@ public static class BillReportExport
 				nameof(BillOverviewModel.TotalInclusiveTaxAmount),
 				nameof(BillOverviewModel.TotalExtraTaxAmount),
 				nameof(BillOverviewModel.TotalAfterTax),
-				nameof(BillOverviewModel.DiscountPercent),
-				nameof(BillOverviewModel.DiscountAmount),
 				nameof(BillOverviewModel.ServiceChargePercent),
 				nameof(BillOverviewModel.ServiceChargeAmount),
+				nameof(BillOverviewModel.DiscountPercent),
+				nameof(BillOverviewModel.DiscountAmount),
 				nameof(BillOverviewModel.RoundOffAmount),
 				nameof(BillOverviewModel.TotalAmount),
 				nameof(BillOverviewModel.Cash),
@@ -267,21 +125,27 @@ public static class BillReportExport
 				nameof(BillOverviewModel.Credit),
 				nameof(BillOverviewModel.PaymentModes),
 				nameof(BillOverviewModel.Remarks),
+				nameof(BillOverviewModel.FinancialAccountingTransactionNo),
 				nameof(BillOverviewModel.CreatedByName),
 				nameof(BillOverviewModel.CreatedAt),
 				nameof(BillOverviewModel.CreatedFromPlatform),
 				nameof(BillOverviewModel.LastModifiedByUserName),
 				nameof(BillOverviewModel.LastModifiedAt),
 				nameof(BillOverviewModel.LastModifiedFromPlatform),
-				nameof(BillOverviewModel.FinancialAccountingTransactionNo),
-			]);
+				nameof(BillOverviewModel.Running),
+				nameof(BillOverviewModel.Status)
+			];
+
+			if (!showDeleted)
+				columnOrder.Remove(nameof(BillOverviewModel.Status));
 		}
+
 		else
 		{
-			// Summary columns - key fields only
 			columnOrder =
 			[
 				nameof(BillOverviewModel.TransactionNo),
+				nameof(BillOverviewModel.LocationName),
 				nameof(BillOverviewModel.DiningTableName),
 				nameof(BillOverviewModel.TransactionDateTime),
 				nameof(BillOverviewModel.TotalQuantity),
@@ -290,20 +154,18 @@ public static class BillReportExport
 				nameof(BillOverviewModel.DiscountAmount),
 				nameof(BillOverviewModel.ServiceChargeAmount),
 				nameof(BillOverviewModel.TotalAmount),
-				nameof(BillOverviewModel.PaymentModes)
+				nameof(BillOverviewModel.PaymentModes),
+				nameof(BillOverviewModel.Status)
 			];
 
-			if (location is null)
-				columnOrder.Insert(2, nameof(BillOverviewModel.LocationName));
+			if (location is not null)
+				columnOrder.Remove(nameof(BillOverviewModel.LocationName));
+
+			if (!showDeleted)
+				columnOrder.Remove(nameof(BillOverviewModel.Status));
 		}
 
-		if (company is not null)
-			columnOrder.Remove(nameof(BillOverviewModel.CompanyName));
-
-		if (location is not null)
-			columnOrder.Remove(nameof(BillOverviewModel.LocationName));
-
-		string fileName = "BILL_REPORT";
+		string fileName = $"BILL_REPORT";
 		if (dateRangeStart.HasValue || dateRangeEnd.HasValue)
 			fileName += $"_{dateRangeStart?.ToString("yyyyMMdd") ?? "START"}_to_{dateRangeEnd?.ToString("yyyyMMdd") ?? "END"}";
 
@@ -318,7 +180,11 @@ public static class BillReportExport
 				columnOrder,
 				useBuiltInStyle: false,
 				useLandscape: showAllColumns || showSummary,
-				new() { ["Company"] = company?.Name ?? null, ["Location"] = location?.Name ?? null }
+				new()
+				{
+					["Company"] = company?.Name ?? null,
+					["Location"] = location?.Name ?? null
+				}
 			);
 
 			return (stream, fileName + ".pdf");
@@ -333,23 +199,27 @@ public static class BillReportExport
 				dateRangeEnd,
 				columnSettings,
 				columnOrder,
-				new() { ["Company"] = company?.Name ?? null, ["Location"] = location?.Name ?? null }
+				new()
+				{
+					["Company"] = company?.Name ?? null,
+					["Location"] = location?.Name ?? null
+				}
 			);
 
 			return (stream, fileName + ".xlsx");
 		}
 	}
 
-	/// <summary>
-	/// Exports the bill item report to the specified format (PDF or Excel).
-	/// </summary>
 	public static async Task<(MemoryStream stream, string fileName)> ExportItemReport(
 		IEnumerable<BillItemOverviewModel> billItemData,
 		ReportExportType exportType,
 		DateOnly? dateRangeStart = null,
 		DateOnly? dateRangeEnd = null,
 		bool showAllColumns = true,
+		bool showDeleted = false,
 		bool showSummary = false,
+		ProductModel product = null,
+		ProductCategoryModel productCategory = null,
 		CompanyModel company = null,
 		LocationModel location = null)
 	{
@@ -358,154 +228,73 @@ public static class BillReportExport
 			[nameof(BillItemOverviewModel.ItemName)] = new() { DisplayName = "Item", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(BillItemOverviewModel.ItemCode)] = new() { DisplayName = "Code", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(BillItemOverviewModel.ItemCategoryName)] = new() { DisplayName = "Category", Alignment = CellAlignment.Left, IncludeInTotal = false },
+
+			[nameof(BillItemOverviewModel.Quantity)] = new() { DisplayName = "Qty", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(BillItemOverviewModel.Rate)] = new() { DisplayName = "Rate", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(BillItemOverviewModel.ItemBaseTotal)] = new() { DisplayName = "Base Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(BillItemOverviewModel.DiscountPercent)] = new() { DisplayName = "Disc %", Format = "#,##0.00", Alignment = CellAlignment.Center, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(BillItemOverviewModel.DiscountAmount)] = new() { DisplayName = "Disc Amt", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(BillItemOverviewModel.AfterDiscount)] = new() { DisplayName = "After Disc", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+
+			[nameof(BillItemOverviewModel.CGSTPercent)] = new() { DisplayName = "CGST %", Format = "#,##0.00", Alignment = CellAlignment.Center, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(BillItemOverviewModel.CGSTAmount)] = new() { DisplayName = "CGST Amt", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(BillItemOverviewModel.SGSTPercent)] = new() { DisplayName = "SGST %", Format = "#,##0.00", Alignment = CellAlignment.Center, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(BillItemOverviewModel.SGSTAmount)] = new() { DisplayName = "SGST Amt", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(BillItemOverviewModel.IGSTPercent)] = new() { DisplayName = "IGST %", Format = "#,##0.00", Alignment = CellAlignment.Center, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(BillItemOverviewModel.IGSTAmount)] = new() { DisplayName = "IGST Amt", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(BillItemOverviewModel.TotalTaxAmount)] = new() { DisplayName = "Tax Amt", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(BillItemOverviewModel.InclusiveTax)] = new() { DisplayName = "Incl. Tax", Alignment = CellAlignment.Center, IncludeInTotal = false },
+
+			[nameof(BillItemOverviewModel.Total)] = new() { DisplayName = "Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+			[nameof(BillItemOverviewModel.NetRate)] = new() { DisplayName = "Net Rate", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(BillItemOverviewModel.NetTotal)] = new() { DisplayName = "Net Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
+
+			[nameof(BillItemOverviewModel.ItemRemarks)] = new() { DisplayName = "Item Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
+
 			[nameof(BillItemOverviewModel.TransactionNo)] = new() { DisplayName = "Transaction No", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(BillItemOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(BillItemOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(BillItemOverviewModel.LocationName)] = new() { DisplayName = "Location", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(BillItemOverviewModel.DiningTableName)] = new() { DisplayName = "Table", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(BillItemOverviewModel.DiningAreaName)] = new() { DisplayName = "Area", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(BillItemOverviewModel.CustomerName)] = new() { DisplayName = "Customer", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(BillItemOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm tt", Alignment = CellAlignment.Center, IncludeInTotal = false },
+			[nameof(BillItemOverviewModel.FinancialYear)] = new() { DisplayName = "Financial Year", Alignment = CellAlignment.Center, IncludeInTotal = false },
+
+			[nameof(BillItemOverviewModel.TotalPeople)] = new() { DisplayName = "People", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(BillItemOverviewModel.TotalItems)] = new() { DisplayName = "Items", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(BillItemOverviewModel.TotalQuantity)] = new() { DisplayName = "Qty", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(BillItemOverviewModel.BaseTotal)] = new() { DisplayName = "Base Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(BillItemOverviewModel.ItemDiscountAmount)] = new() { DisplayName = "Item Disc Amt", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(BillItemOverviewModel.TotalAfterItemDiscount)] = new() { DisplayName = "After Disc", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(BillItemOverviewModel.TotalInclusiveTaxAmount)] = new() { DisplayName = "Incl Tax", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(BillItemOverviewModel.TotalExtraTaxAmount)] = new() { DisplayName = "Extra Tax", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(BillItemOverviewModel.TotalAfterTax)] = new() { DisplayName = "Sub Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
+
+			[nameof(BillItemOverviewModel.ServiceChargePercent)] = new() { DisplayName = "Service Charge %", Format = "#,##0.00", Alignment = CellAlignment.Center, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(BillItemOverviewModel.ServiceChargeAmount)] = new() { DisplayName = "Service Charge Amt", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(BillItemOverviewModel.BillDiscountPercent)] = new() { DisplayName = "Bill Disc %", Format = "#,##0.00", Alignment = CellAlignment.Center, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(BillItemOverviewModel.BillDiscountAmount)] = new() { DisplayName = "Bill Disc Amt", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
+
+			[nameof(BillItemOverviewModel.RoundOffAmount)] = new() { DisplayName = "Round Off", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(BillItemOverviewModel.TotalAmount)] = new() { DisplayName = "Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
+
+			[nameof(BillItemOverviewModel.Cash)] = new() { DisplayName = "Cash", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(BillItemOverviewModel.Card)] = new() { DisplayName = "Card", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(BillItemOverviewModel.UPI)] = new() { DisplayName = "UPI", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(BillItemOverviewModel.Credit)] = new() { DisplayName = "Credit", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
+			[nameof(BillItemOverviewModel.PaymentModes)] = new() { DisplayName = "Payment Modes", Alignment = CellAlignment.Left, IncludeInTotal = false },
+
 			[nameof(BillItemOverviewModel.Remarks)] = new() { DisplayName = "Bill Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(BillItemOverviewModel.ItemRemarks)] = new() { DisplayName = "Item Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(BillItemOverviewModel.InclusiveTax)] = new() { DisplayName = "Incl Tax", Alignment = CellAlignment.Center, IncludeInTotal = false },
+			[nameof(BillItemOverviewModel.FinancialAccountingTransactionNo)] = new() { DisplayName = "Accounting Transaction No", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(BillItemOverviewModel.CreatedByName)] = new() { DisplayName = "Created By", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(BillItemOverviewModel.CreatedAt)] = new() { DisplayName = "Created At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
+			[nameof(BillItemOverviewModel.CreatedFromPlatform)] = new() { DisplayName = "Created Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(BillItemOverviewModel.LastModifiedByUserName)] = new() { DisplayName = "Modified By", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(BillItemOverviewModel.LastModifiedAt)] = new() { DisplayName = "Modified At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
+			[nameof(BillItemOverviewModel.LastModifiedFromPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
 
-			[nameof(BillItemOverviewModel.Quantity)] = new()
-			{
-				DisplayName = "Qty",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true,
-				HighlightNegative = true
-			},
-
-			[nameof(BillItemOverviewModel.Rate)] = new()
-			{
-				DisplayName = "Rate",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = false
-			},
-
-			[nameof(BillItemOverviewModel.NetRate)] = new()
-			{
-				DisplayName = "Net Rate",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = false
-			},
-
-			[nameof(BillItemOverviewModel.BaseTotal)] = new()
-			{
-				DisplayName = "Base Total",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true,
-				HighlightNegative = true
-			},
-
-			[nameof(BillItemOverviewModel.DiscountPercent)] = new()
-			{
-				DisplayName = "Disc %",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Center,
-				IncludeInTotal = false
-			},
-
-			[nameof(BillItemOverviewModel.DiscountAmount)] = new()
-			{
-				DisplayName = "Discount Amt",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true,
-				HighlightNegative = true
-			},
-
-			[nameof(BillItemOverviewModel.AfterDiscount)] = new()
-			{
-				DisplayName = "After Disc",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true,
-				HighlightNegative = true
-			},
-
-			[nameof(BillItemOverviewModel.SGSTPercent)] = new()
-			{
-				DisplayName = "SGST %",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Center,
-				IncludeInTotal = false
-			},
-
-			[nameof(BillItemOverviewModel.SGSTAmount)] = new()
-			{
-				DisplayName = "SGST Amt",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true,
-				HighlightNegative = true
-			},
-
-			[nameof(BillItemOverviewModel.CGSTPercent)] = new()
-			{
-				DisplayName = "CGST %",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Center,
-				IncludeInTotal = false
-			},
-
-			[nameof(BillItemOverviewModel.CGSTAmount)] = new()
-			{
-				DisplayName = "CGST Amt",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true,
-				HighlightNegative = true
-			},
-
-			[nameof(BillItemOverviewModel.IGSTPercent)] = new()
-			{
-				DisplayName = "IGST %",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Center,
-				IncludeInTotal = false
-			},
-
-			[nameof(BillItemOverviewModel.IGSTAmount)] = new()
-			{
-				DisplayName = "IGST Amt",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true,
-				HighlightNegative = true
-			},
-
-			[nameof(BillItemOverviewModel.TotalTaxAmount)] = new()
-			{
-				DisplayName = "Tax",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true,
-				HighlightNegative = true
-			},
-
-			[nameof(BillItemOverviewModel.Total)] = new()
-			{
-				DisplayName = "Total",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true,
-				HighlightNegative = true
-			},
-
-			[nameof(BillItemOverviewModel.NetTotal)] = new()
-			{
-				DisplayName = "Net Total",
-				Format = "#,##0.00",
-				Alignment = CellAlignment.Right,
-				IncludeInTotal = true,
-				HighlightNegative = true
-			}
+			[nameof(BillItemOverviewModel.Running)] = new() { DisplayName = "Running", Alignment = CellAlignment.Center, IncludeInTotal = false },
+			[nameof(BillItemOverviewModel.MasterStatus)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false },
 		};
 
 		List<string> columnOrder;
@@ -517,7 +306,7 @@ public static class BillReportExport
 				nameof(BillItemOverviewModel.ItemCode),
 				nameof(BillItemOverviewModel.ItemCategoryName),
 				nameof(BillItemOverviewModel.Quantity),
-				nameof(BillItemOverviewModel.BaseTotal),
+				nameof(BillItemOverviewModel.ItemBaseTotal),
 				nameof(BillItemOverviewModel.DiscountAmount),
 				nameof(BillItemOverviewModel.AfterDiscount),
 				nameof(BillItemOverviewModel.SGSTAmount),
@@ -530,61 +319,109 @@ public static class BillReportExport
 
 		else if (showAllColumns)
 		{
-			List<string> columns =
-			[
-				nameof(BillItemOverviewModel.ItemName),
-				nameof(BillItemOverviewModel.ItemCode),
-				nameof(BillItemOverviewModel.ItemCategoryName),
-				nameof(BillItemOverviewModel.TransactionNo),
-				nameof(BillItemOverviewModel.TransactionDateTime),
-				nameof(BillItemOverviewModel.CompanyName)
-			];
-
-			if (location is null)
-				columns.Add(nameof(BillItemOverviewModel.LocationName));
-
-			columns.AddRange([
-				nameof(BillItemOverviewModel.DiningTableName),
-				nameof(BillItemOverviewModel.DiningAreaName),
-				nameof(BillItemOverviewModel.CustomerName),
-				nameof(BillItemOverviewModel.Quantity),
-				nameof(BillItemOverviewModel.Rate),
-				nameof(BillItemOverviewModel.BaseTotal),
-				nameof(BillItemOverviewModel.DiscountPercent),
-				nameof(BillItemOverviewModel.DiscountAmount),
-				nameof(BillItemOverviewModel.AfterDiscount),
-				nameof(BillItemOverviewModel.SGSTPercent),
-				nameof(BillItemOverviewModel.SGSTAmount),
-				nameof(BillItemOverviewModel.CGSTPercent),
-				nameof(BillItemOverviewModel.CGSTAmount),
-				nameof(BillItemOverviewModel.IGSTPercent),
-				nameof(BillItemOverviewModel.IGSTAmount),
-				nameof(BillItemOverviewModel.TotalTaxAmount),
-				nameof(BillItemOverviewModel.InclusiveTax),
-				nameof(BillItemOverviewModel.Total),
-				nameof(BillItemOverviewModel.NetRate),
-				nameof(BillItemOverviewModel.NetTotal),
-				nameof(BillItemOverviewModel.Remarks),
-				nameof(BillItemOverviewModel.ItemRemarks)
-			]);
-
-			columnOrder = columns;
-		}
-		else
 			columnOrder =
 			[
 				nameof(BillItemOverviewModel.ItemName),
 				nameof(BillItemOverviewModel.ItemCode),
+				nameof(BillItemOverviewModel.ItemCategoryName),
+
+				nameof(BillItemOverviewModel.Quantity),
+				nameof(BillItemOverviewModel.Rate),
+				nameof(BillItemOverviewModel.ItemBaseTotal),
+				nameof(BillItemOverviewModel.DiscountPercent),
+				nameof(BillItemOverviewModel.DiscountAmount),
+				nameof(BillItemOverviewModel.AfterDiscount),
+
+				nameof(BillItemOverviewModel.CGSTPercent),
+				nameof(BillItemOverviewModel.CGSTAmount),
+				nameof(BillItemOverviewModel.SGSTPercent),
+				nameof(BillItemOverviewModel.SGSTAmount),
+				nameof(BillItemOverviewModel.IGSTPercent),
+				nameof(BillItemOverviewModel.IGSTAmount),
+				nameof(BillItemOverviewModel.TotalTaxAmount),
+				nameof(BillItemOverviewModel.InclusiveTax),
+
+				nameof(BillItemOverviewModel.Total),
+				nameof(BillItemOverviewModel.NetRate),
+				nameof(BillItemOverviewModel.NetTotal),
+
+				nameof(BillItemOverviewModel.ItemRemarks),
+
+				nameof(BillItemOverviewModel.TransactionNo),
+				nameof(BillItemOverviewModel.CompanyName),
+				nameof(BillItemOverviewModel.LocationName),
+				nameof(BillItemOverviewModel.DiningTableName),
+				nameof(BillItemOverviewModel.DiningAreaName),
+				nameof(BillItemOverviewModel.CustomerName),
+				nameof(BillItemOverviewModel.TransactionDateTime),
+				nameof(BillItemOverviewModel.FinancialYear),
+
+				nameof(BillItemOverviewModel.TotalPeople),
+				nameof(BillItemOverviewModel.TotalItems),
+				nameof(BillItemOverviewModel.TotalQuantity),
+				nameof(BillItemOverviewModel.BaseTotal),
+				nameof(BillItemOverviewModel.ItemDiscountAmount),
+				nameof(BillItemOverviewModel.TotalAfterItemDiscount),
+				nameof(BillItemOverviewModel.TotalInclusiveTaxAmount),
+				nameof(BillItemOverviewModel.TotalExtraTaxAmount),
+				nameof(BillItemOverviewModel.TotalAfterTax),
+
+				nameof(BillItemOverviewModel.ServiceChargePercent),
+				nameof(BillItemOverviewModel.ServiceChargeAmount),
+				nameof(BillItemOverviewModel.BillDiscountPercent),
+				nameof(BillItemOverviewModel.BillDiscountAmount),
+
+				nameof(BillItemOverviewModel.RoundOffAmount),
+				nameof(BillItemOverviewModel.TotalAmount),
+
+				nameof(BillItemOverviewModel.Cash),
+				nameof(BillItemOverviewModel.Card),
+				nameof(BillItemOverviewModel.UPI),
+				nameof(BillItemOverviewModel.Credit),
+				nameof(BillItemOverviewModel.PaymentModes),
+
+				nameof(BillItemOverviewModel.Remarks),
+				nameof(BillItemOverviewModel.FinancialAccountingTransactionNo),
+				nameof(BillItemOverviewModel.CreatedByName),
+				nameof(BillItemOverviewModel.CreatedAt),
+				nameof(BillItemOverviewModel.CreatedFromPlatform),
+				nameof(BillItemOverviewModel.LastModifiedByUserName),
+				nameof(BillItemOverviewModel.LastModifiedAt),
+				nameof(BillItemOverviewModel.LastModifiedFromPlatform),
+
+				nameof(BillItemOverviewModel.Running),
+				nameof(BillItemOverviewModel.MasterStatus)
+			];
+
+			if (!showDeleted)
+				columnOrder.Remove(nameof(BillItemOverviewModel.MasterStatus));
+		}
+
+		else
+		{
+			columnOrder =
+			[
+				nameof(BillItemOverviewModel.ItemName),
+				nameof(BillItemOverviewModel.Quantity),
+				nameof(BillItemOverviewModel.Rate),
+				nameof(BillItemOverviewModel.NetRate),
+				nameof(BillItemOverviewModel.NetTotal),
 				nameof(BillItemOverviewModel.TransactionNo),
 				nameof(BillItemOverviewModel.TransactionDateTime),
 				nameof(BillItemOverviewModel.LocationName),
 				nameof(BillItemOverviewModel.DiningTableName),
-				nameof(BillItemOverviewModel.Quantity),
-				nameof(BillItemOverviewModel.NetRate),
-				nameof(BillItemOverviewModel.NetTotal)
+				nameof(BillItemOverviewModel.Total),
+				nameof(BillItemOverviewModel.PaymentModes)
 			];
 
-		string fileName = "BILL_ITEM_REPORT";
+			if (product is not null)
+				columnOrder.Remove(nameof(BillItemOverviewModel.ItemName));
+
+			if (location is not null)
+				columnOrder.Remove(nameof(BillItemOverviewModel.LocationName));
+		}
+
+		string fileName = $"BILL_ITEM_REPORT";
 		if (dateRangeStart.HasValue || dateRangeEnd.HasValue)
 			fileName += $"_{dateRangeStart?.ToString("yyyyMMdd") ?? "START"}_to_{dateRangeEnd?.ToString("yyyyMMdd") ?? "END"}";
 
@@ -599,7 +436,13 @@ public static class BillReportExport
 				columnOrder,
 				useBuiltInStyle: false,
 				useLandscape: showAllColumns || showSummary,
-				new() { ["Company"] = company?.Name ?? null, ["Location"] = location?.Name ?? null }
+				new()
+				{
+					["Item"] = product?.Name ?? null,
+					["Category"] = productCategory?.Name ?? null,
+					["Company"] = company?.Name ?? null,
+					["Location"] = location?.Name ?? null
+				}
 			);
 
 			return (stream, fileName + ".pdf");
@@ -614,7 +457,13 @@ public static class BillReportExport
 				dateRangeEnd,
 				columnSettings,
 				columnOrder,
-				new() { ["Company"] = company?.Name ?? null, ["Location"] = location?.Name ?? null }
+				new()
+				{
+					["Item"] = product?.Name ?? null,
+					["Category"] = productCategory?.Name ?? null,
+					["Company"] = company?.Name ?? null,
+					["Location"] = location?.Name ?? null
+				}
 			);
 
 			return (stream, fileName + ".xlsx");

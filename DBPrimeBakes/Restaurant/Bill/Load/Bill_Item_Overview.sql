@@ -82,7 +82,6 @@ SELECT
 	) AS PaymentModes,
 
 	[b].[Remarks],
-	[b].[Running],
 	[b].[FinancialAccountingId],
 	[fa].[TransactionNo] AS FinancialAccountingTransactionNo,
 	[b].[CreatedBy],
@@ -94,6 +93,7 @@ SELECT
 	[b].[LastModifiedAt],
 	[b].[LastModifiedFromPlatform],
 
+	[b].[Running],
 	[b].[Status] AS MasterStatus
 
 FROM

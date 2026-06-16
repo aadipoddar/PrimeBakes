@@ -2,11 +2,8 @@ using NumericWordsConversion;
 
 using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Common;
-using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Operations.Settings;
-using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Restaurant.Bill.Models;
-using PrimeBakesLibrary.Restaurant.Dining.Models;
 using PrimeBakesLibrary.Store.Product.Models;
 using PrimeBakesLibrary.Utils.Exports;
 
@@ -30,7 +27,7 @@ public static class BillThermalPrint
 
 	private static async Task<SKBitmap> RenderReceipt(int billId)
 	{
-		var bill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, billId);
+		var bill = await CommonData.LoadTableDataById<BillOverviewModel>(RestaurantNames.BillOverview, billId);
 
 		int width = ThermalPrintUtil.PaperDots80mm;
 		int maxHeight = 3000;
@@ -41,7 +38,7 @@ public static class BillThermalPrint
 		float y = ThermalPrintUtil.Margin;
 
 		y = await DrawCompanyHeader(canvas, width, y);
-		y = await DrawBillDetails(canvas, bill, width, y);
+		y = DrawBillDetails(canvas, bill, width, y);
 		y = await DrawItemDetails(canvas, bill, width, y);
 		y = await DrawTotalDetails(canvas, bill, width, y);
 		y = DrawPaymentModes(canvas, bill, width, y);
@@ -71,23 +68,23 @@ public static class BillThermalPrint
 		return y;
 	}
 
-	private static async Task<float> DrawBillDetails(SKCanvas canvas, BillModel bill, int width, float y)
+	private static float DrawBillDetails(SKCanvas canvas, BillOverviewModel bill, int width, float y)
 	{
-		var location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, bill.LocationId);
-		var table = await CommonData.LoadTableDataById<DiningTableModel>(RestaurantNames.DiningTable, bill.DiningTableId);
-
 		var pairs = new List<(string Label, string Value)>
 		{
-			("Outlet",  location?.Name ?? "N/A"),
+			("Outlet",  bill.LocationName),
 			("Bill No", bill.TransactionNo),
 			("Date",    bill.TransactionDateTime.ToString("dd/MMM/yy hh:mm tt"))
 		};
+
+		if (bill.CustomerId.HasValue && bill.CustomerId.Value > 0 && !string.IsNullOrWhiteSpace(bill.CustomerName))
+			pairs.Add(("Customer", bill.CustomerName));
 
 		y = ThermalPrintUtil.DrawLabelValueBlock(canvas, pairs, width, y);
 
 		// Table and Pax on the same line
 		y = ThermalPrintUtil.DrawSplitRow(canvas,
-			"Table", table?.Name ?? "N/A",
+			"Table", bill.DiningTableName,
 			"Pax", bill.TotalPeople.ToString(),
 			width, y);
 
@@ -95,7 +92,7 @@ public static class BillThermalPrint
 		return y;
 	}
 
-	private static async Task<float> DrawItemDetails(SKCanvas canvas, BillModel bill, int width, float y)
+	private static async Task<float> DrawItemDetails(SKCanvas canvas, BillOverviewModel bill, int width, float y)
 	{
 		var billDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, bill.Id);
 		var products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
@@ -126,7 +123,7 @@ public static class BillThermalPrint
 		return y;
 	}
 
-	private static async Task<float> DrawTotalDetails(SKCanvas canvas, BillModel bill, int width, float y)
+	private static async Task<float> DrawTotalDetails(SKCanvas canvas, BillOverviewModel bill, int width, float y)
 	{
 		var billDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, bill.Id);
 
@@ -156,12 +153,10 @@ public static class BillThermalPrint
 		if (bill.RoundOffAmount != 0)
 			detailRows.Add(("Round Off", bill.RoundOffAmount.FormatDecimalWithTwoDigits()));
 
-		var totalQty = billDetails.Sum(s => s.Quantity);
-
 		y = ThermalPrintUtil.DrawTableTotals(
 			canvas, columnPercents, alignments, width, y,
 			leftLabel: "Total Qty:",
-			columnValue: totalQty.FormatSmartDecimal(),
+			columnValue: bill.TotalQuantity.FormatSmartDecimal(),
 			columnIndex: 1,
 			rightPair: ("Sub Total", bill.TotalAfterTax.FormatDecimalWithTwoDigits()),
 			additionalRightRows: detailRows);
@@ -190,7 +185,7 @@ public static class BillThermalPrint
 		return y;
 	}
 
-	private static float DrawPaymentModes(SKCanvas canvas, BillModel bill, int width, float y)
+	private static float DrawPaymentModes(SKCanvas canvas, BillOverviewModel bill, int width, float y)
 	{
 		var paymentPairs = new List<(string Label, string Value)>();
 
@@ -211,13 +206,10 @@ public static class BillThermalPrint
 		return y;
 	}
 
-	private static async Task<float> DrawFooter(SKCanvas canvas, BillModel bill, int width, float y)
+	private static async Task<float> DrawFooter(SKCanvas canvas, BillOverviewModel bill, int width, float y)
 	{
-		var users = await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User);
 		var currentDateTime = await CommonData.LoadCurrentDateTime();
-
-		string printedBy = users.FirstOrDefault(u => u.Id == bill.CreatedBy)?.Name ?? "Unknown";
-		y = ThermalPrintUtil.DrawCenteredText(canvas, $"Printed By: {printedBy} | On: {currentDateTime:dd/MMM/yy hh:mm tt}", width, y, ThermalPrintUtil.FontSizeSmall, bold: false);
+		y = ThermalPrintUtil.DrawCenteredText(canvas, $"Printed By: {bill.CreatedByName} | On: {currentDateTime:dd/MMM/yy hh:mm tt}", width, y, ThermalPrintUtil.FontSizeSmall, bold: false);
 		y = ThermalPrintUtil.DrawCenteredText(canvas, "Thanks. Visit Again", width, y, ThermalPrintUtil.FontSizeNormal, bold: false);
 		y = ThermalPrintUtil.DrawCenteredText(canvas, "A Product of aadisoft.vercel.app", width, y, ThermalPrintUtil.FontSizeSmall, bold: true);
 		return y;

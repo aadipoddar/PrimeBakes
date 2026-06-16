@@ -127,7 +127,6 @@ public class BillItemOverviewModel
 	public string? PaymentModes { get; set; }
 
 	public string? Remarks { get; set; }
-	public bool Running { get; set; }
 	public int? FinancialAccountingId { get; set; }
 	public string? FinancialAccountingTransactionNo { get; set; }
 	public int CreatedBy { get; set; }
@@ -139,5 +138,6 @@ public class BillItemOverviewModel
 	public DateTime? LastModifiedAt { get; set; }
 	public string? LastModifiedFromPlatform { get; set; }
 
+	public bool Running { get; set; }
 	public bool MasterStatus { get; set; }
 }

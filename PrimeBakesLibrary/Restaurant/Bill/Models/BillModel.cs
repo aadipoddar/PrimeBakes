@@ -87,6 +87,8 @@ public class BillOverviewModel
 	public string? PaymentModes { get; set; }
 
 	public string? Remarks { get; set; }
+	public int? FinancialAccountingId { get; set; }
+	public string? FinancialAccountingTransactionNo { get; set; }
 	public int CreatedBy { get; set; }
 	public string CreatedByName { get; set; }
 	public DateTime CreatedAt { get; set; }
@@ -98,7 +100,4 @@ public class BillOverviewModel
 
 	public bool Running { get; set; }
 	public bool Status { get; set; }
-
-	public int? FinancialAccountingId { get; set; }
-	public string? FinancialAccountingTransactionNo { get; set; }
 }

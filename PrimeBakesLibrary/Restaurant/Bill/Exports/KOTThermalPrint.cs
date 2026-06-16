@@ -1,9 +1,6 @@
-﻿using PrimeBakesLibrary.Common;
-using PrimeBakesLibrary.Operations.Location;
-using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Restaurant.Bill.Data;
 using PrimeBakesLibrary.Restaurant.Bill.Models;
-using PrimeBakesLibrary.Restaurant.Dining.Models;
 using PrimeBakesLibrary.Store.Product.Models;
 using PrimeBakesLibrary.Utils.Exports;
 
@@ -26,7 +23,7 @@ public static class KOTThermalPrint
 
 	private static async Task<SKBitmap?> RenderReceipt(int billId, int kotCategoryId, List<BillItemCartModel> kotItems)
 	{
-		var bill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, billId);
+		var bill = await CommonData.LoadTableDataById<BillOverviewModel>(RestaurantNames.BillOverview, billId);
 
 		if (kotItems.Count == 0)
 			return null;
@@ -41,7 +38,7 @@ public static class KOTThermalPrint
 
 		y = DrawHeader(canvas, width, y);
 		y = await DrawBillDetails(canvas, bill, kotCategoryId, width, y);
-		y = await DrawItems(canvas, kotItems, width, y);
+		y = DrawItems(canvas, kotItems, width, y);
 		y = await DrawFooter(canvas, bill, width, y);
 
 		y += ThermalPrintUtil.Margin;
@@ -58,18 +55,16 @@ public static class KOTThermalPrint
 		return y;
 	}
 
-	private static async Task<float> DrawBillDetails(SKCanvas canvas, BillModel bill, int kotCategoryId, int width, float y)
+	private static async Task<float> DrawBillDetails(SKCanvas canvas, BillOverviewModel bill, int kotCategoryId, int width, float y)
 	{
-		var location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, bill.LocationId);
-		var table = await CommonData.LoadTableDataById<DiningTableModel>(RestaurantNames.DiningTable, bill.DiningTableId);
 		var kotCategory = await CommonData.LoadTableDataById<KOTCategoryModel>(StoreNames.KOTCategory, kotCategoryId);
 
 		var pairs = new List<(string Label, string Value)>
 		{
-			("Outlet",   location?.Name ?? "N/A"),
+			("Outlet",   bill.LocationName),
 			("Bill No",  bill.TransactionNo),
 			("Date",     bill.TransactionDateTime.ToString("dd/MMM/yy hh:mm tt")),
-			("Table No", table?.Name ?? "N/A"),
+			("Table No", bill.DiningTableName),
 			("KOT Category", kotCategory?.Name ?? "N/A")
 		};
 
@@ -78,10 +73,8 @@ public static class KOTThermalPrint
 		return y;
 	}
 
-	private static async Task<float> DrawItems(SKCanvas canvas, List<BillItemCartModel> kotItems, int width, float y)
+	private static float DrawItems(SKCanvas canvas, List<BillItemCartModel> kotItems, int width, float y)
 	{
-		var products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
-
 		bool hasNotes = kotItems.Any(i => !string.IsNullOrWhiteSpace(i.Remarks));
 
 		string[] headers;
@@ -104,10 +97,9 @@ public static class KOTThermalPrint
 		var rows = new List<string[]>();
 		foreach (var item in kotItems)
 		{
-			string productName = products.FirstOrDefault(p => p.Id == item.ItemId)?.Name ?? "Unknown";
 			rows.Add(hasNotes
-				? [productName, item.Quantity.FormatSmartDecimal(), item.Remarks ?? string.Empty]
-				: [productName, item.Quantity.FormatSmartDecimal()]);
+				? [item.ItemName, item.Quantity.FormatSmartDecimal(), item.Remarks ?? string.Empty]
+				: [item.ItemName, item.Quantity.FormatSmartDecimal()]);
 		}
 
 		y = ThermalPrintUtil.DrawTable(canvas, headers, alignments, columnPercents, rows, width, y);
@@ -115,13 +107,10 @@ public static class KOTThermalPrint
 		return y;
 	}
 
-	private static async Task<float> DrawFooter(SKCanvas canvas, BillModel bill, int width, float y)
+	private static async Task<float> DrawFooter(SKCanvas canvas, BillOverviewModel bill, int width, float y)
 	{
-		var users = await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User);
 		var currentDateTime = await CommonData.LoadCurrentDateTime();
-
-		string printedBy = users.FirstOrDefault(u => u.Id == bill.CreatedBy)?.Name ?? "Unknown";
-		y = ThermalPrintUtil.DrawCenteredText(canvas, $"Printed By: {printedBy} | On: {currentDateTime:dd/MMM/yy hh:mm tt}", width, y, ThermalPrintUtil.FontSizeSmall, bold: false);
+		y = ThermalPrintUtil.DrawCenteredText(canvas, $"Printed By: {bill.CreatedByName} | On: {currentDateTime:dd/MMM/yy hh:mm tt}", width, y, ThermalPrintUtil.FontSizeSmall, bold: false);
 		y = ThermalPrintUtil.DrawCenteredText(canvas, "A Product of aadisoft.vercel.app", width, y, ThermalPrintUtil.FontSizeSmall, bold: true);
 		return y;
 	}

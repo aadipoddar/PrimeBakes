@@ -1,6 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
-
 using PrimeBakes.Shared.Components.Dialog;
+using PrimeBakes.Shared.Components.Input;
 
 using PrimeBakesLibrary.Accounts.Masters.Data;
 using PrimeBakesLibrary.Accounts.Masters.Models;
@@ -37,14 +36,19 @@ public partial class BillReport : IAsyncDisposable
 	private CompanyModel? _selectedCompany = null;
 	private CustomerModel? _selectedCustomer = null;
 
+	private int _runningFilter = YesNoFilterOptions.All;
+	private YesNoFilterOption _selectedRunning;
+
 	private List<LocationModel> _locations = [];
 	private List<CompanyModel> _companies = [];
 	private List<CustomerModel> _customers = [];
 	private List<BillOverviewModel> _transactionOverviews = [];
+	private List<BillOverviewModel> _allTransactionOverviews = [];
 
 	private readonly List<ContextMenuItemModel> _gridContextMenuItems =
 	[
-		new() { Text = "View (Ctrl + O)", Id = "View", IconCss = "e-icons e-eye", Target = ".e-content" },
+		new() { Text = "View (Alt + O)", Id = "View", IconCss = "e-icons e-eye", Target = ".e-content" },
+		new() { Text = "View Accounting Posting", Id = "ViewAccountingPosting", IconCss = "e-icons e-link", Target = ".e-content" },
 		new() { Text = "Export Thermal (Alt + T)", Id = "ExportThermal", IconCss = "e-icons e-print", Target = ".e-content" },
 		new() { Text = "Export PDF (Alt + P)", Id = "ExportPDF", IconCss = "e-icons e-export-pdf", Target = ".e-content" },
 		new() { Text = "Export Excel (Alt + E)", Id = "ExportExcel", IconCss = "e-icons e-export-excel", Target = ".e-content" },
@@ -52,15 +56,13 @@ public partial class BillReport : IAsyncDisposable
 	];
 
 	private SfGrid<BillOverviewModel> _sfGrid;
-
-	private string _deleteTransactionNo = string.Empty;
-	private int _deleteTransactionId = 0;
-	private string _recoverTransactionNo = string.Empty;
-	private int _recoverTransactionId = 0;
-
+	private CustomDateRangePicker _firstFocus;
 	private ToastNotification _toastNotification;
-	private DeleteConfirmationDialog _deleteConfirmationDialog;
-	private RecoverConfirmationDialog _recoverConfirmationDialog;
+	private ConfirmationDialog _confirmationDialog;
+
+	private string _confirmTitle = string.Empty;
+	private string _confirmMessage = string.Empty;
+	private Func<Task> _confirmAction;
 
 	#region Load Data
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -68,45 +70,41 @@ public partial class BillReport : IAsyncDisposable
 		if (!firstRender)
 			return;
 
-		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Restaurant, UserRoles.Reports]);
+		try
+		{
+			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Restaurant, UserRoles.Reports], true);
+			await InitializePage();
+		}
+		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
+	}
+
+	private async Task InitializePage()
+	{
 		await LoadData();
+		await LoadTransactionOverviews();
+		await StartAutoRefresh();
+
+		_isLoading = false;
+		StateHasChanged();
+
+		if (_firstFocus is not null)
+			await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadData()
 	{
-		await LoadDates();
-		await LoadLocations();
-		await LoadCompanies();
-		await LoadCustomers();
-		await LoadTransactionOverviews();
-		await StartAutoRefresh();
-		_isLoading = false;
-		StateHasChanged();
-	}
-
-	private async Task LoadDates()
-	{
 		_fromDate = await CommonData.LoadCurrentDateTime();
 		_toDate = _fromDate;
-	}
 
-	private async Task LoadLocations()
-	{
 		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
-		_locations = [.. _locations.OrderBy(s => s.Name)];
-		_selectedLocation = _locations.FirstOrDefault(_ => _.Id == _user.LocationId);
-	}
-
-	private async Task LoadCompanies()
-	{
 		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-		_companies = [.. _companies.OrderBy(s => s.Name)];
-	}
-
-	private async Task LoadCustomers()
-	{
 		_customers = await CommonData.LoadTableData<CustomerModel>(StoreNames.Customer);
+
+		_locations = [.. _locations.OrderBy(s => s.Name)];
+		_companies = [.. _companies.OrderBy(s => s.Name)];
 		_customers = [.. _customers.OrderBy(s => s.Name)];
+
+		_selectedLocation = _user.LocationId != 1 ? _locations.FirstOrDefault(s => s.Id == _user.LocationId) : null;
 	}
 
 	private async Task LoadTransactionOverviews()
@@ -120,49 +118,12 @@ public partial class BillReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
-			_transactionOverviews = await CommonData.LoadTableDataByDate<BillOverviewModel>(
-				RestaurantNames.BillOverview,
-				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
+			var fromDate = DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue);
+			var toDate = DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue);
 
-			if (!_showDeleted)
-				_transactionOverviews = [.. _transactionOverviews.Where(_ => _.Status)];
+			_allTransactionOverviews = await CommonData.LoadTableDataByDate<BillOverviewModel>(RestaurantNames.BillOverview, fromDate, toDate);
 
-			if (_selectedLocation?.Id > 0)
-				_transactionOverviews = [.. _transactionOverviews.Where(_ => _.LocationId == _selectedLocation.Id)];
-
-			if (_selectedCompany?.Id > 0)
-				_transactionOverviews = [.. _transactionOverviews.Where(_ => _.CompanyId == _selectedCompany.Id)];
-
-			if (_selectedCustomer?.Id > 0)
-				_transactionOverviews = [.. _transactionOverviews.Where(_ => _.CustomerId == _selectedCustomer.Id)];
-
-			_transactionOverviews = [.. _transactionOverviews.OrderBy(_ => _.TransactionDateTime)];
-
-			if (_showSummary)
-				_transactionOverviews = [.. _transactionOverviews
-					.GroupBy(t => t.LocationName)
-					.Select(g => new BillOverviewModel
-					{
-						LocationName = g.Key,
-						TotalAmount = g.Sum(t => t.TotalAmount),
-						TotalAfterItemDiscount = g.Sum(t => t.TotalAfterItemDiscount),
-						TotalAfterTax = g.Sum(t => t.TotalAfterTax),
-						BaseTotal = g.Sum(t => t.BaseTotal),
-						TotalInclusiveTaxAmount = g.Sum(t => t.TotalInclusiveTaxAmount),
-						TotalExtraTaxAmount = g.Sum(t => t.TotalExtraTaxAmount),
-						DiscountAmount = g.Sum(t => t.DiscountAmount),
-						ItemDiscountAmount = g.Sum(t => t.ItemDiscountAmount),
-						ServiceChargeAmount = g.Sum(t => t.ServiceChargeAmount),
-						RoundOffAmount = g.Sum(t => t.RoundOffAmount),
-						Card = g.Sum(t => t.Card),
-						Credit = g.Sum(t => t.Credit),
-						Cash = g.Sum(t => t.Cash),
-						UPI = g.Sum(t => t.UPI),
-						TotalQuantity = g.Sum(t => t.TotalQuantity),
-						TotalItems = g.Sum(t => t.TotalItems),
-						TotalPeople = g.Sum(t => t.TotalPeople)
-					})];
+			await ApplyFilters();
 		}
 		catch (Exception ex)
 		{
@@ -170,46 +131,61 @@ public partial class BillReport : IAsyncDisposable
 		}
 		finally
 		{
-			if (_sfGrid is not null)
-				await _sfGrid.Refresh();
 			_isProcessing = false;
 			StateHasChanged();
+			await _toastNotification.HideAllInfoAsync();
 		}
+	}
+
+	private async Task ApplyFilters()
+	{
+		_transactionOverviews = [.. _allTransactionOverviews.Where(t =>
+				(_showDeleted || t.Status) &&
+				(_selectedLocation is null || _selectedLocation.Id == 0 || t.LocationId == _selectedLocation.Id) &&
+				(_selectedCompany is null || _selectedCompany.Id == 0 || t.CompanyId == _selectedCompany.Id) &&
+				(_selectedCustomer is null || _selectedCustomer.Id == 0 || t.CustomerId == _selectedCustomer.Id) &&
+				(_runningFilter == YesNoFilterOptions.All ||
+					(_runningFilter == YesNoFilterOptions.Yes && t.Running) ||
+					(_runningFilter == YesNoFilterOptions.No && !t.Running)))
+			.OrderBy(t => t.TransactionDateTime)];
+
+		if (_showSummary)
+			_transactionOverviews = [.. _transactionOverviews
+				.GroupBy(t => t.LocationName)
+				.Select(g => new BillOverviewModel
+				{
+					LocationName = g.Key,
+					TotalAmount = g.Sum(t => t.TotalAmount),
+					TotalAfterItemDiscount = g.Sum(t => t.TotalAfterItemDiscount),
+					TotalAfterTax = g.Sum(t => t.TotalAfterTax),
+					BaseTotal = g.Sum(t => t.BaseTotal),
+					TotalInclusiveTaxAmount = g.Sum(t => t.TotalInclusiveTaxAmount),
+					TotalExtraTaxAmount = g.Sum(t => t.TotalExtraTaxAmount),
+					DiscountAmount = g.Sum(t => t.DiscountAmount),
+					ItemDiscountAmount = g.Sum(t => t.ItemDiscountAmount),
+					ServiceChargeAmount = g.Sum(t => t.ServiceChargeAmount),
+					RoundOffAmount = g.Sum(t => t.RoundOffAmount),
+					Card = g.Sum(t => t.Card),
+					Credit = g.Sum(t => t.Credit),
+					Cash = g.Sum(t => t.Cash),
+					UPI = g.Sum(t => t.UPI),
+					TotalQuantity = g.Sum(t => t.TotalQuantity),
+					TotalItems = g.Sum(t => t.TotalItems),
+					TotalPeople = g.Sum(t => t.TotalPeople)
+				})
+				.OrderBy(t => t.LocationName)];
+
+		if (_sfGrid is not null)
+			await _sfGrid.Refresh();
+		StateHasChanged();
 	}
 	#endregion
 
 	#region Changed Events
-	private async Task OnDateRangeChanged(Syncfusion.Blazor.Calendars.RangePickerEventArgs<DateTime> args)
+	private async Task OnDateRangeChanged(MudBlazor.DateRange range)
 	{
-		_fromDate = args.StartDate;
-		_toDate = args.EndDate;
-		await LoadTransactionOverviews();
-	}
-
-	private async Task OnLocationChanged(Syncfusion.Blazor.DropDowns.ChangeEventArgs<LocationModel, LocationModel> args)
-	{
-		if (_user.LocationId != 1)
-			return;
-
-		_selectedLocation = args.Value;
-		await LoadTransactionOverviews();
-	}
-
-	private async Task OnCompanyChanged(Syncfusion.Blazor.DropDowns.ChangeEventArgs<CompanyModel, CompanyModel> args)
-	{
-		if (_user.LocationId != 1)
-			return;
-
-		_selectedCompany = args.Value;
-		await LoadTransactionOverviews();
-	}
-
-	private async Task OnCustomerChanged(Syncfusion.Blazor.DropDowns.ChangeEventArgs<CustomerModel, CustomerModel> args)
-	{
-		if (_user.LocationId != 1)
-			return;
-
-		_selectedCustomer = args.Value;
+		_fromDate = range?.Start ?? _fromDate;
+		_toDate = range?.End ?? _toDate;
 		await LoadTransactionOverviews();
 	}
 
@@ -218,10 +194,190 @@ public partial class BillReport : IAsyncDisposable
 		(_fromDate, _toDate) = await FinancialYearData.GetDateRange(dateRangeType, _fromDate, _toDate);
 		await LoadTransactionOverviews();
 	}
+
+	private async Task OnLocationChanged(LocationModel value)
+	{
+		_selectedLocation = value;
+		await ApplyFilters();
+	}
+
+	private async Task OnCompanyChanged(CompanyModel value)
+	{
+		_selectedCompany = value;
+		await ApplyFilters();
+	}
+
+	private async Task OnCustomerChanged(CustomerModel value)
+	{
+		_selectedCustomer = value;
+		await ApplyFilters();
+	}
+
+	private async Task OnRunningChanged(YesNoFilterOption value)
+	{
+		_selectedRunning = value;
+		_runningFilter = value?.Id ?? YesNoFilterOptions.All;
+		await ApplyFilters();
+	}
+	#endregion
+
+	#region Actions
+	private async Task PostDaywiseBills()
+	{
+		if (_isProcessing)
+			return;
+
+		if (_user.LocationId != 1 || _selectedLocation is null || _selectedLocation.Id <= 1)
+		{
+			await _toastNotification.ShowAsync("Validation", "Please select a specific location before day closing.", ToastType.Warning);
+			return;
+		}
+
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+			await _toastNotification.ShowAsync("Processing", "Closing day and posting bill accounting...", ToastType.Info);
+
+			for (var date = _fromDate; date <= _toDate; date = date.AddDays(1))
+				await BillData.PostDayBills(
+					date,
+					_selectedLocation.Id,
+					_user.Id,
+					FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+
+			await _toastNotification.ShowAsync("Success", "Day closing completed successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"Day closing failed: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+			await LoadTransactionOverviews();
+		}
+	}
+
+	private async Task ViewSelectedTransaction()
+	{
+		if (_isProcessing || _showSummary || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+			return;
+
+		if (!_sfGrid.SelectedRecords.First().Status)
+		{
+			await _toastNotification.ShowAsync("Cannot View", "The selected transaction is deleted. Please recover it or download invoice.", ToastType.Warning);
+			return;
+		}
+
+		try
+		{
+			var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo, false, false, CodeType.Bill);
+			await AuthenticationService.NavigateToRoute(decodedTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"An error occurred while opening transaction: {ex.Message}", ToastType.Error);
+		}
+	}
+
+	private async Task ViewFinancialAccountingPosting()
+	{
+		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+			return;
+
+		var record = _sfGrid.SelectedRecords.First();
+		if (string.IsNullOrWhiteSpace(record.FinancialAccountingTransactionNo))
+		{
+			await _toastNotification.ShowAsync("No Posting", "This transaction has no linked accounting posting.", ToastType.Warning);
+			return;
+		}
+
+		var decoded = await DecodeCode.DecodeTransactionNo(record.FinancialAccountingTransactionNo, false, false, CodeType.Accounting);
+		await AuthenticationService.NavigateToRoute(decoded.PageRouteName, FormFactor, JSRuntime, NavigationManager);
+	}
+
+	private async Task DeleteRecoverTransaction(BillOverviewModel record, bool isRecover)
+	{
+		if (_isProcessing || record is null || record.Id == 0)
+			return;
+
+		try
+		{
+			if (!_user.Admin || _user.LocationId > 1)
+				throw new UnauthorizedAccessException("You do not have permission for the action.");
+
+			_isProcessing = true;
+			StateHasChanged();
+
+			await _toastNotification.ShowAsync("Processing", $"{(isRecover ? "Recovering" : "Deleting")} transaction...", ToastType.Info);
+
+			var platform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
+			var currentDateTime = await CommonData.LoadCurrentDateTime();
+
+			var bill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, record.Id)
+				?? throw new Exception("Transaction not found.");
+			bill.Status = isRecover;
+			bill.LastModifiedBy = _user.Id;
+			bill.LastModifiedAt = currentDateTime;
+			bill.LastModifiedFromPlatform = platform;
+
+			if (isRecover) await BillData.RecoverTransaction(bill);
+			else await BillData.DeleteTransaction(bill);
+
+			await _toastNotification.ShowAsync("Success", $"Transaction {record.TransactionNo} has been {(isRecover ? "recovered" : "deleted")} successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"An error occurred while {(isRecover ? "recovering" : "deleting")} transaction: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+			await LoadTransactionOverviews();
+		}
+	}
+
+	private async Task DeleteRecoverSelectedTransaction()
+	{
+		if (_showSummary || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+			return;
+
+		var record = _sfGrid.SelectedRecords.First();
+
+		await ShowConfirmation(record.Status ? "Delete" : "Recover",
+			$"Are you sure you want to {(record.Status ? "delete" : "recover")} transaction {record.TransactionNo}",
+			() => DeleteRecoverTransaction(record, !record.Status));
+	}
+
+	private async Task ShowConfirmation(string title, string message, Func<Task> action)
+	{
+		_confirmTitle = title;
+		_confirmMessage = message;
+		_confirmAction = action;
+		StateHasChanged();
+		await _confirmationDialog.ShowAsync();
+	}
+
+	private async Task OnConfirmed()
+	{
+		await _confirmationDialog.HideAsync();
+		if (_confirmAction is not null)
+			await _confirmAction();
+		_confirmAction = null;
+	}
+
+	private async Task OnCancelled()
+	{
+		_confirmAction = null;
+		await _confirmationDialog.HideAsync();
+	}
 	#endregion
 
 	#region Exporting
-	private async Task ExportExcel()
+	private async Task ExportReport(bool isExcel = false)
 	{
 		if (_isProcessing)
 			return;
@@ -230,24 +386,26 @@ public partial class BillReport : IAsyncDisposable
 		{
 			_isProcessing = true;
 			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating Excel file...", ToastType.Info);
+			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
+
 			var (stream, fileName) = await BillReportExport.ExportReport(
-					_transactionOverviews,
-					ReportExportType.Excel,
-					DateOnly.FromDateTime(_fromDate),
-					DateOnly.FromDateTime(_toDate),
-					_showAllColumns,
-					_showSummary,
-					_selectedCompany?.Id > 0 ? _selectedCompany : null,
-					_selectedLocation?.Id > 0 ? _selectedLocation : null
-				);
-
+				_transactionOverviews,
+				isExcel ? ReportExportType.Excel : ReportExportType.PDF,
+				DateOnly.FromDateTime(_fromDate),
+				DateOnly.FromDateTime(_toDate),
+				_showAllColumns,
+				_showDeleted,
+				_showSummary,
+				_selectedCompany?.Id > 0 ? _selectedCompany : null,
+				_selectedLocation?.Id > 0 ? _selectedLocation : null
+			);
 			await SaveAndViewService.SaveAndView(fileName, stream);
-			await _toastNotification.ShowAsync("Success", "Excel file downloaded successfully.", ToastType.Success);
+
+			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("Error", $"Excel export failed: {ex.Message}", ToastType.Error);
+			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
 		}
 		finally
 		{
@@ -256,33 +414,26 @@ public partial class BillReport : IAsyncDisposable
 		}
 	}
 
-	private async Task ExportPdf()
+	private async Task ExportSelectedTransaction(bool isExcel = false)
 	{
-		if (_isProcessing)
+		if (_isProcessing || _showSummary || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0 || string.IsNullOrWhiteSpace(_sfGrid.SelectedRecords.First().TransactionNo))
 			return;
 
 		try
 		{
 			_isProcessing = true;
 			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating PDF file...", ToastType.Info);
-			var (stream, fileName) = await BillReportExport.ExportReport(
-					_transactionOverviews,
-					ReportExportType.PDF,
-					DateOnly.FromDateTime(_fromDate),
-					DateOnly.FromDateTime(_toDate),
-					_showAllColumns,
-					_showSummary,
-					_selectedCompany?.Id > 0 ? _selectedCompany : null,
-					_selectedLocation?.Id > 0 ? _selectedLocation : null
-				);
+			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			await SaveAndViewService.SaveAndView(fileName, stream);
-			await _toastNotification.ShowAsync("Success", "PDF file downloaded successfully.", ToastType.Success);
+			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo, !isExcel, isExcel, CodeType.Bill);
+			await SaveAndViewService.SaveAndView(isExcel ? decodeTransactionNo.ExcelStream.fileName : decodeTransactionNo.PDFStream.fileName,
+				isExcel ? decodeTransactionNo.ExcelStream.stream : decodeTransactionNo.PDFStream.stream);
+
+			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("Error", $"PDF export failed: {ex.Message}", ToastType.Error);
+			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
 		}
 		finally
 		{
@@ -291,63 +442,9 @@ public partial class BillReport : IAsyncDisposable
 		}
 	}
 
-	private async Task DownloadSelectedPdfInvoice()
+	private async Task ExportSelectedThermal()
 	{
-		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-			return;
-
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating PDF invoice...", ToastType.Info);
-
-			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo, true, false, CodeType.Bill);
-			await SaveAndViewService.SaveAndView(decodeTransactionNo.PDFStream.fileName, decodeTransactionNo.PDFStream.stream);
-
-			await _toastNotification.ShowAsync("Success", "PDF invoice generated successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"PDF invoice generation failed: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			StateHasChanged();
-		}
-	}
-
-	private async Task DownloadSelectedExcelInvoice()
-	{
-		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-			return;
-
-		try
-		{
-			_isProcessing = true;
-			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating Excel invoice...", ToastType.Info);
-
-			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo, false, true, CodeType.Bill);
-			await SaveAndViewService.SaveAndView(decodeTransactionNo.ExcelStream.fileName, decodeTransactionNo.ExcelStream.stream);
-
-			await _toastNotification.ShowAsync("Success", "Excel invoice generated successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"Excel invoice generation failed: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			StateHasChanged();
-		}
-	}
-
-	private async Task DownloadSelectedThermalInvoice()
-	{
-		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+		if (_isProcessing || _showSummary || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
 			return;
 
 		try
@@ -374,45 +471,7 @@ public partial class BillReport : IAsyncDisposable
 	}
 	#endregion
 
-	#region Actions
-	private async Task PostDaywiseBills()
-	{
-		if (_isProcessing)
-			return;
-
-		try
-		{
-			if (_user.LocationId != 1 || _selectedLocation is null || _selectedLocation.Id <= 1)
-			{
-				await _toastNotification.ShowAsync("Validation", "Please select a specific location before day closing.", ToastType.Warning);
-				return;
-			}
-
-			_isProcessing = true;
-			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Closing day and posting bill accounting...", ToastType.Info);
-
-			for (var date = _fromDate; date <= _toDate; date = date.AddDays(1))
-				await BillData.PostDayBills(
-					date,
-					_selectedLocation.Id,
-					_user.Id,
-					FormFactor.GetFormFactor() + FormFactor.GetPlatform());
-
-			await _toastNotification.ShowAsync("Success", "Day closing completed successfully.", ToastType.Success);
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"Day closing failed: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			StateHasChanged();
-			await LoadTransactionOverviews();
-		}
-	}
-
+	#region Utilities
 	private async Task OnGridContextMenuItemClicked(ContextMenuClickEventArgs<BillOverviewModel> args)
 	{
 		if (_showSummary)
@@ -420,270 +479,13 @@ public partial class BillReport : IAsyncDisposable
 
 		switch (args.Item.Id)
 		{
-			case "View":
-				await ViewSelectedTransaction();
-				break;
-
-			case "ExportThermal":
-				await DownloadSelectedThermalInvoice();
-				break;
-
-			case "ExportPDF":
-				await DownloadSelectedPdfInvoice();
-				break;
-
-			case "ExportExcel":
-				await DownloadSelectedExcelInvoice();
-				break;
-
-			case "DeleteRecover":
-				await DeleteRecoverSelectedTransaction();
-				break;
+			case "View": await ViewSelectedTransaction(); break;
+			case "ViewAccountingPosting": await ViewFinancialAccountingPosting(); break;
+			case "ExportThermal": await ExportSelectedThermal(); break;
+			case "ExportPDF": await ExportSelectedTransaction(); break;
+			case "ExportExcel": await ExportSelectedTransaction(true); break;
+			case "DeleteRecover": await DeleteRecoverSelectedTransaction(); break;
 		}
-	}
-
-	private async Task ViewSelectedTransaction()
-	{
-		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-			return;
-
-		var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo, false, false, CodeType.Bill);
-		await AuthenticationService.NavigateToRoute(decodedTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
-	}
-
-	private async Task DeleteRecoverSelectedTransaction()
-	{
-		if (!_user.Admin || _user.LocationId != 1)
-			return;
-
-		if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-			return;
-
-		var selectedCartItem = _sfGrid.SelectedRecords.First();
-
-		if (selectedCartItem.Status)
-			await ShowDeleteConfirmation();
-		else
-			await ShowRecoverConfirmation();
-	}
-
-	private async Task ConfirmDelete()
-	{
-		if (_isProcessing)
-			return;
-
-		try
-		{
-			await _deleteConfirmationDialog.HideAsync();
-			_isProcessing = true;
-			StateHasChanged();
-
-			if (_deleteTransactionId <= 0 && string.IsNullOrWhiteSpace(_deleteTransactionNo))
-			{
-				await _toastNotification.ShowAsync("Error", "No transaction selected to delete.", ToastType.Error);
-				return;
-			}
-
-			if (!_user.Admin || _user.LocationId != 1)
-				throw new UnauthorizedAccessException("You do not have permission to delete this transaction.");
-
-			await _toastNotification.ShowAsync("Processing", "Deleting transaction...", ToastType.Info);
-
-			var bill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, _deleteTransactionId);
-			if (bill is null)
-			{
-				await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);
-				return;
-			}
-
-			bill.Status = false;
-			bill.LastModifiedBy = _user.Id;
-			bill.LastModifiedAt = await CommonData.LoadCurrentDateTime();
-			bill.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
-
-			await BillData.DeleteTransaction(bill);
-
-			await _toastNotification.ShowAsync("Success", $"Transaction {_deleteTransactionNo} has been deleted successfully.", ToastType.Success);
-
-			_deleteTransactionId = 0;
-			_deleteTransactionNo = string.Empty;
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"Failed to delete transaction: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			StateHasChanged();
-			await LoadTransactionOverviews();
-		}
-	}
-
-	private async Task ConfirmRecover()
-	{
-		if (_isProcessing)
-			return;
-
-		try
-		{
-			await _recoverConfirmationDialog.HideAsync();
-			_isProcessing = true;
-			StateHasChanged();
-
-			if (_recoverTransactionId <= 0 && string.IsNullOrWhiteSpace(_recoverTransactionNo))
-			{
-				await _toastNotification.ShowAsync("Error", "No transaction selected to recover.", ToastType.Error);
-				return;
-			}
-
-			if (!_user.Admin || _user.LocationId != 1)
-				throw new UnauthorizedAccessException("You do not have permission to recover this transaction.");
-
-			await _toastNotification.ShowAsync("Processing", "Recovering transaction...", ToastType.Info);
-
-			var bill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, _recoverTransactionId);
-			if (bill is null)
-			{
-				await _toastNotification.ShowAsync("Error", "Transaction not found.", ToastType.Error);
-				return;
-			}
-
-			bill.Status = true;
-			bill.LastModifiedBy = _user.Id;
-			bill.LastModifiedAt = await CommonData.LoadCurrentDateTime();
-			bill.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
-
-			await BillData.RecoverTransaction(bill);
-
-			await _toastNotification.ShowAsync("Success", $"Transaction {_recoverTransactionNo} has been recovered successfully.", ToastType.Success);
-
-			_recoverTransactionId = 0;
-			_recoverTransactionNo = string.Empty;
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error", $"Failed to recover transaction: {ex.Message}", ToastType.Error);
-		}
-		finally
-		{
-			_isProcessing = false;
-			StateHasChanged();
-			await LoadTransactionOverviews();
-		}
-	}
-	#endregion
-
-	#region Utilities
-
-
-	private async Task OnMenuSelected(Syncfusion.Blazor.Navigations.MenuEventArgs<Syncfusion.Blazor.Navigations.MenuItem> args)
-	{
-		switch (args.Item.Id)
-		{
-			case "NewTransaction":
-				await NavigateToTransactionPage();
-				break;
-			case "Refresh":
-				await LoadTransactionOverviews();
-				break;
-			case "ToggleDeleted":
-				await ToggleDeleted();
-				break;
-			case "ToggleSummary":
-				await ToggleSummary();
-				break;
-			case "ToggleDetailsView":
-				await ToggleDetailsView();
-				break;
-			case "PostDaywiseBills":
-				await PostDaywiseBills();
-				break;
-			case "ExportPdf":
-				await ExportPdf();
-				break;
-			case "ExportExcel":
-				await ExportExcel();
-				break;
-			case "ItemReport":
-				await NavigateToItemReport();
-				break;
-			case "ViewSelected":
-				await ViewSelectedTransaction();
-				break;
-			case "DownloadSelectedThermal":
-				await DownloadSelectedThermalInvoice();
-				break;
-			case "DownloadSelectedPdf":
-				await DownloadSelectedPdfInvoice();
-				break;
-			case "DownloadSelectedExcel":
-				await DownloadSelectedExcelInvoice();
-				break;
-			case "DeleteRecoverSelected":
-				await DeleteRecoverSelectedTransaction();
-				break;
-			case "PeriodToday":
-				await HandleDatesChanged(DateRangeType.Today);
-				break;
-			case "PeriodPreviousDay":
-				await HandleDatesChanged(DateRangeType.Yesterday);
-				break;
-			case "PeriodNextDay":
-				await HandleDatesChanged(DateRangeType.NextDay);
-				break;
-			case "PeriodCurrentMonth":
-				await HandleDatesChanged(DateRangeType.CurrentMonth);
-				break;
-			case "PeriodPreviousMonth":
-				await HandleDatesChanged(DateRangeType.PreviousMonth);
-				break;
-			case "PeriodNextMonth":
-				await HandleDatesChanged(DateRangeType.NextMonth);
-				break;
-			case "PeriodCurrentFinancialYear":
-				await HandleDatesChanged(DateRangeType.CurrentFinancialYear);
-				break;
-			case "PeriodPreviousFinancialYear":
-				await HandleDatesChanged(DateRangeType.PreviousFinancialYear);
-				break;
-			case "PeriodNextFinancialYear":
-				await HandleDatesChanged(DateRangeType.NextFinancialYear);
-				break;
-			case "PeriodAllTime":
-				await HandleDatesChanged(DateRangeType.AllTime);
-				break;
-		}
-	}
-
-	private async Task ShowDeleteConfirmation()
-	{
-		_deleteTransactionId = _sfGrid.SelectedRecords.First().Id;
-		_deleteTransactionNo = _sfGrid.SelectedRecords.First().TransactionNo;
-		StateHasChanged();
-		await _deleteConfirmationDialog.ShowAsync();
-	}
-
-	private async Task CancelDelete()
-	{
-		_deleteTransactionId = 0;
-		_deleteTransactionNo = string.Empty;
-		await _deleteConfirmationDialog.HideAsync();
-	}
-
-	private async Task ShowRecoverConfirmation()
-	{
-		_recoverTransactionId = _sfGrid.SelectedRecords.First().Id;
-		_recoverTransactionNo = _sfGrid.SelectedRecords.First().TransactionNo;
-		StateHasChanged();
-		await _recoverConfirmationDialog.ShowAsync();
-	}
-
-	private async Task CancelRecover()
-	{
-		_recoverTransactionId = 0;
-		_recoverTransactionNo = string.Empty;
-		await _recoverConfirmationDialog.HideAsync();
 	}
 
 	private async Task ToggleDetailsView()
@@ -697,30 +499,15 @@ public partial class BillReport : IAsyncDisposable
 
 	private async Task ToggleDeleted()
 	{
-		if (_user.LocationId != 1)
-			return;
-
 		_showDeleted = !_showDeleted;
-		await LoadTransactionOverviews();
+		await ApplyFilters();
 	}
 
 	private async Task ToggleSummary()
 	{
-		if (_user.LocationId != 1)
-			return;
-
 		_showSummary = !_showSummary;
-		await LoadTransactionOverviews();
+		await ApplyFilters();
 	}
-
-	private async Task NavigateToTransactionPage() =>
-		await AuthenticationService.NavigateToRoute(RestaurantRouteNames.Bill, FormFactor, JSRuntime, NavigationManager);
-
-	private async Task NavigateToItemReport() =>
-		await AuthenticationService.NavigateToRoute(RestaurantRouteNames.BillItemReport, FormFactor, JSRuntime, NavigationManager);
-
-	private void NavigateBack() =>
-		NavigationManager.NavigateTo(RestaurantRouteNames.RestaurantDashboard);
 
 	private async Task StartAutoRefresh()
 	{
@@ -751,7 +538,6 @@ public partial class BillReport : IAsyncDisposable
 		}
 
 		_autoRefreshTimer?.Dispose();
-
 		GC.SuppressFinalize(this);
 	}
 	#endregion

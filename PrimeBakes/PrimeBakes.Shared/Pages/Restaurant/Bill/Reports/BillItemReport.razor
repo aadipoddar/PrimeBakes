@@ -1,534 +1,615 @@
-﻿@attribute [Route(RestaurantRouteNames.BillItemReport)]
-
 @using PrimeBakesLibrary.Accounts.Masters.Models
 @using PrimeBakesLibrary.Operations.Location
 @using PrimeBakesLibrary.Restaurant.Bill.Models
 @using PrimeBakesLibrary.Store.Customer
+@using PrimeBakesLibrary.Store.Product.Models
+
+@attribute [Route(RestaurantRouteNames.BillItemReport)]
 
 <PageTitle>Bill Item Report - Prime Bakes</PageTitle>
 
-<MudBlazor.MudHotkey Key=JsKey.KeyB KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateBack" />
-<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft]
-                     OnHotkeyPressed="NavigateToTransactionPage" />
-<MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft]
-                     OnHotkeyPressed="LoadTransactionOverviews" />
-<MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadTransactionOverviews" />
-<MudBlazor.MudHotkey Key=JsKey.KeyW KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleSummary" />
-<MudBlazor.MudHotkey Key=JsKey.KeyQ KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDetailsView" />
-<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ExportPdf" />
-<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ExportExcel" />
-<MudBlazor.MudHotkey Key=JsKey.KeyH KeyModifiers=[JsKeyModifier.ControlLeft]
-                     OnHotkeyPressed="NavigateToTransactionHistory" />
-<MudBlazor.MudHotkey Key=JsKey.KeyO KeyModifiers=[JsKeyModifier.ControlLeft]
-                     OnHotkeyPressed="ViewSelectedTransaction" />
-<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="DownloadSelectedPdfInvoice" />
-<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft]
-                     OnHotkeyPressed="DownloadSelectedExcelInvoice" />
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(RestaurantRouteNames.Bill, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyW KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleSummary" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyQ KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDetailsView" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyH KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(RestaurantRouteNames.BillReport, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyO KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="ViewSelectedTransaction" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="DeleteRecoverSelectedTransaction" Disabled="@_isProcessing" />
 
 @if (_isLoading || _user is null)
 {
-    <LoadingScreen />
+	<LoadingScreen />
 }
 else
 {
-    <div class="page-shell">
-        <Header Title="Bill Item Report">
-            <LeftContent>
-                <SfMenu TValue="Syncfusion.Blazor.Navigations.MenuItem">
-                    <MenuAnimationSettings Effect="Syncfusion.Blazor.Navigations.MenuEffect.SlideDown" Duration="300"
-                                           Easing="ease" />
-                    <MenuEvents TValue="Syncfusion.Blazor.Navigations.MenuItem" ItemSelected="OnMenuSelected"
-                                OnOpen='async () => await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0)' />
-                    <MenuItems>
-                        <MenuItem Text="File" IconCss="e-icons e-folder">
-                            <MenuItems>
-                                <MenuItem Text="New Transaction (Ctrl + N)" IconCss="e-icons e-plus" Id="NewTransaction"
-                                          Disabled="@_isProcessing" />
-                                <MenuItem Text="Refresh Data (Ctrl + R / F5)" IconCss="e-icons e-refresh" Id="Refresh"
-                                          Disabled="@_isProcessing" />
-                                <MenuItem Text="@(_showSummary ? "Hide Summary (Ctrl + W)" : "Show Summary (Ctrl + W)")"
-                                          IconCss="e-icons e-chart" Id="ToggleSummary" Disabled="@_isProcessing" />
-                                <MenuItem Text="@(_showAllColumns ? "Hide Details (Ctrl + Q)" : "Show Details (Ctrl + Q)")"
-                                          IconCss="e-icons e-table" Id="ToggleDetailsView" Disabled="@_isProcessing" />
-                                <MenuItem Separator="true" />
-                                <MenuItem Text="Export PDF (Ctrl + P)" IconCss="e-icons e-export-pdf" Id="ExportPdf"
-                                          Disabled="@_isProcessing" />
-                                <MenuItem Text="Export Excel (Ctrl + E)" IconCss="e-icons e-export-excel" Id="ExportExcel"
-                                          Disabled="@_isProcessing" />
-                            </MenuItems>
-                        </MenuItem>
-                        <MenuItem Text="Open" IconCss="e-icons e-folder-open">
-                            <MenuItems>
-                                <MenuItem Text="Transaction History Report (Ctrl + H)" Id="TransactionHistory"
-                                          Disabled="@_isProcessing" />
-                            </MenuItems>
-                        </MenuItem>
-                        <MenuItem Text="Periods" IconCss="e-icons e-clock">
-                            <MenuItems>
-                                <MenuItem Text="Today" Id="PeriodToday" Disabled="@_isProcessing" />
-                                <MenuItem Text="Previous Day" Id="PeriodPreviousDay" Disabled="@_isProcessing" />
-                                <MenuItem Text="Next Day" Id="PeriodNextDay" Disabled="@_isProcessing" />
-                                <MenuItem Text="Current Month" Id="PeriodCurrentMonth" Disabled="@_isProcessing" />
-                                <MenuItem Text="Previous Month" Id="PeriodPreviousMonth" Disabled="@_isProcessing" />
-                                <MenuItem Text="Next Month" Id="PeriodNextMonth" Disabled="@_isProcessing" />
-                                <MenuItem Text="Current FY" Id="PeriodCurrentFinancialYear" Disabled="@_isProcessing" />
-                                <MenuItem Text="Previous FY" Id="PeriodPreviousFinancialYear" Disabled="@_isProcessing" />
-                                <MenuItem Text="Next FY" Id="PeriodNextFinancialYear" Disabled="@_isProcessing" />
-                                <MenuItem Text="All Time" Id="PeriodAllTime" Disabled="@_isProcessing" />
-                            </MenuItems>
-                        </MenuItem>
-                        <MenuItem Text="Transaction" IconCss="e-icons e-chart">
-                            <MenuItems>
-                                <MenuItem Text="View (Ctrl + O)" IconCss="e-icons e-eye" Id="ViewSelected"
-                                          Disabled="@(_isProcessing || _showSummary)" />
-                                <MenuItem Text="Export PDF (Alt + P)" IconCss="e-icons e-export-pdf" Id="DownloadSelectedPdf"
-                                          Disabled="@(_isProcessing || _showSummary)" />
-                                <MenuItem Text="Export Excel (Alt + E)" IconCss="e-icons e-export-excel"
-                                          Id="DownloadSelectedExcel" Disabled="@(_isProcessing || _showSummary)" />
-                            </MenuItems>
-                        </MenuItem>
-                    </MenuItems>
-                </SfMenu>
-            </LeftContent>
-            <RightContent>
-                <IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="NavigateBack" />
-            </RightContent>
-        </Header>
+	<div class="page-shell">
+		<Header Title="Bill Item Report">
+			<LeftContent>
+				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="New Transaction (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(RestaurantRouteNames.Bill, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Refresh Data (Ctrl + R / F5)" OnClick="LoadTransactionOverviews" />
+					<MudBlazor.MudMenuItem Label="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" OnClick="ToggleDeleted" />
+					<MudBlazor.MudMenuItem Label="@(_showSummary ? "Hide Summary (Ctrl + W)" : "Show Summary (Ctrl + W)")" OnClick="ToggleSummary" />
+					<MudBlazor.MudMenuItem Label="@(_showAllColumns ? "Hide Details (Ctrl + Q)" : "Show Details (Ctrl + Q)")" OnClick="ToggleDetailsView" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportReport()" />
+					<MudBlazor.MudMenuItem Label="Export Excel (Ctrl + E)" OnClick="() => ExportReport(true)" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Post Daywise Bills" OnClick="PostDaywiseBills" Disabled="!_user.Accounts" />
+				</MudBlazor.MudMenu>
 
-        <!-- Main Content Container -->
-        <div class="page-container">
+				<MudBlazor.MudMenu Label="Open" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Bill (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(RestaurantRouteNames.Bill, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Bill Report (Ctrl + H)" OnClick="() => AuthenticationService.NavigateToRoute(RestaurantRouteNames.BillReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Bill Item Report" OnClick="() => AuthenticationService.NavigateToRoute(RestaurantRouteNames.BillItemReport, FormFactor, JSRuntime, NavigationManager)" />
+				</MudBlazor.MudMenu>
 
-            <!-- Filters Section -->
-            <div class="section-card">
-                <div class="section-header">
-                    <div class="section-title-wrapper">
-                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                             stroke-linejoin="round">
-                            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-                        </svg>
-                        <h2 class="section-title">Filters</h2>
-                    </div>
-                </div>
-                <div class="section-body">
-                    <div class="filters-container">
-                        <div class="filters-grid">
-                            <!-- Date Range -->
-                            <div class="form-field">
-                                <label class="field-label">Date Range</label>
-                                <SfDateRangePicker CssClass="custom-daterange" StartDate="_fromDate" EndDate="_toDate"
-                                                   TValue="DateTime" Format="dd/MM/yyyy" AllowEdit="true" Placeholder="Select date range">
-                                    <DateRangePickerEvents TValue="DateTime" ValueChange="OnDateRangeChanged" />
-                                </SfDateRangePicker>
-                            </div>
+				<MudBlazor.MudMenu Label="Periods" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Today" OnClick="() => HandleDatesChanged(DateRangeType.Today)" />
+					<MudBlazor.MudMenuItem Label="Previous Day" OnClick="() => HandleDatesChanged(DateRangeType.Yesterday)" />
+					<MudBlazor.MudMenuItem Label="Next Day" OnClick="() => HandleDatesChanged(DateRangeType.NextDay)" />
+					<MudBlazor.MudMenuItem Label="Current Month" OnClick="() => HandleDatesChanged(DateRangeType.CurrentMonth)" />
+					<MudBlazor.MudMenuItem Label="Previous Month" OnClick="() => HandleDatesChanged(DateRangeType.PreviousMonth)" />
+					<MudBlazor.MudMenuItem Label="Next Month" OnClick="() => HandleDatesChanged(DateRangeType.NextMonth)" />
+					<MudBlazor.MudMenuItem Label="Current FY" OnClick="() => HandleDatesChanged(DateRangeType.CurrentFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="Previous FY" OnClick="() => HandleDatesChanged(DateRangeType.PreviousFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="Next FY" OnClick="() => HandleDatesChanged(DateRangeType.NextFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="All Time" OnClick="() => HandleDatesChanged(DateRangeType.AllTime)" />
+				</MudBlazor.MudMenu>
 
-                            @if (_user.LocationId == 1)
-                            {
-                                <!-- Location -->
-                                <div class="form-field">
-                                    <AutoCompleteWithAdd TItem="LocationModel" TValue="LocationModel"
-                                                         Value="_selectedLocation"
-                                                         DataSource="@_locations"
-                                                         Placeholder="All Locations"
-                                                         Label="Location" ValueChange="OnLocationChanged"
-                                                         FieldValue="@nameof(LocationModel.Name)"
-                                                         AddNewRoute="@OperationRouteNames.Location" />
-                                </div>
+				<MudBlazor.MudMenu Label="Transaction" Dense="true" Disabled="_isProcessing || _showSummary">
+					<MudBlazor.MudMenuItem Label="View (Alt + O)" OnClick="ViewSelectedTransaction" />
+					<MudBlazor.MudMenuItem Label="View Accounting Posting" OnClick="ViewFinancialAccountingPosting" />
+					<MudBlazor.MudMenuItem Label="Export PDF (Alt + P)" OnClick="() => ExportSelectedTransaction()" />
+					<MudBlazor.MudMenuItem Label="Export Excel (Alt + E)" OnClick="() => ExportSelectedTransaction(true)" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Delete / Recover (Del)" OnClick="DeleteRecoverSelectedTransaction" />
+				</MudBlazor.MudMenu>
+			</LeftContent>
+		</Header>
 
-                                <!-- Company -->
-                                <div class="form-field">
-                                    <AutoCompleteWithAdd TItem="CompanyModel" TValue="CompanyModel"
-                                                         Value="@_selectedCompany"
-                                                         DataSource="@_companies"
-                                                         Placeholder="All Companies"
-                                                         Label="Company" Required="false"
-                                                         ValueChange="OnCompanyChanged"
-                                                         FieldValue="@nameof(CompanyModel.Name)"
-                                                         AddNewRoute="@AccountsRouteNames.CompanyMaster" />
-                                </div>
+		<!-- Main Content Container -->
+		<div class="page-container">
 
-                                <!-- Customer -->
-                                <div class="form-field">
-                                    <AutoCompleteWithAdd TItem="CustomerModel" TValue="CustomerModel"
-                                                         Value="@_selectedCustomer"
-                                                         DataSource="@_customers"
-                                                         Placeholder="All Customers"
-                                                         Label="Customer" Required="false"
-                                                         ValueChange="OnCustomerChanged"
-                                                         FieldValue="@nameof(CustomerModel.Name)"
-                                                         AddNewRoute="@RestaurantRouteNames.Bill" />
-                                </div>
-                            }
-                        </div>
-                    </div>
-                </div>
-            </div>
+			<!-- Filters Section -->
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+							 stroke-linejoin="round">
+							<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+						</svg>
+						<h2 class="section-title">Filters</h2>
+					</div>
+				</div>
+				<div class="section-body">
+					<div class="filters-grid">
+						<!-- Date Range -->
+						<div class="form-field">
+							<CustomDateRangePicker @ref="_firstFocus" Value="@(new MudBlazor.DateRange(_fromDate, _toDate))"
+												   ValueChanged="OnDateRangeChanged"
+												   Label="Date Range (Ctrl + F)"
+												   Required="false" />
+						</div>
 
-            <!-- Report Grid Section -->
-            <div class="section-card">
-                <div class="section-header">
-                    <div class="section-title-wrapper">
-                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                             stroke-linejoin="round">
-                            <line x1="8" y1="6" x2="21" y2="6" />
-                            <line x1="8" y1="12" x2="21" y2="12" />
-                            <line x1="8" y1="18" x2="21" y2="18" />
-                            <line x1="3" y1="6" x2="3.01" y2="6" />
-                            <line x1="3" y1="12" x2="3.01" y2="12" />
-                            <line x1="3" y1="18" x2="3.01" y2="18" />
-                        </svg>
-                        <h2 class="section-title">Bill Item Transactions</h2>
-                    </div>
-                </div>
-                <div class="section-body grid-body">
-                    <SfGrid ID="_sfGrid" @ref="_sfGrid" TValue="BillItemOverviewModel" DataSource="_transactionOverviews"
-                            AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
-                            AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
-                            GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems" CssClass="professional-grid"
-                            Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+						<!-- Item -->
+						<div class="form-field">
+							<CustomAutoComplete T="ProductModel"
+												Value="_selectedProduct"
+												DataSource="@_products"
+												Placeholder="All Items"
+												Label="Item" Required="false"
+												ValueChanged="OnProductChanged"
+												FieldValue="@nameof(ProductModel.Name)"
+												AddNewRoute="@StoreRouteNames.Product" />
+						</div>
 
-                        <GridEvents TValue="BillItemOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
-                        <GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
-                        <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+						<!-- Item Category -->
+						<div class="form-field">
+							<CustomAutoComplete T="ProductCategoryModel"
+												Value="_selectedProductCategory"
+												DataSource="@_productCategories"
+												Placeholder="All Categories"
+												Label="Category" Required="false"
+												ValueChanged="OnProductCategoryChanged"
+												FieldValue="@nameof(ProductCategoryModel.Name)"
+												AddNewRoute="@StoreRouteNames.ProductCategory" />
+						</div>
 
-                        <GridAggregates>
-                            <GridAggregate>
-                                <GridAggregateColumns>
-                                    <GridAggregateColumn Field="@nameof(BillItemOverviewModel.ItemName)"
-                                                         Type="AggregateType.Count">
-                                        <FooterTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                            }
-                                            <div class="aggregate-label">
-                                                <strong>Total Items: @aggregate.Count</strong>
-                                            </div>
-                                        </FooterTemplate>
-                                        <GroupFooterTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                            }
-                                            <div class="aggregate-label">
-                                                <strong>Total Items: @aggregate.Count</strong>
-                                            </div>
-                                        </GroupFooterTemplate>
-                                        <GroupCaptionTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                            }
-                                            <div class="aggregate-label">
-                                                <strong>Total Items: @aggregate.Count</strong>
-                                            </div>
-                                        </GroupCaptionTemplate>
-                                    </GridAggregateColumn>
-                                    <GridAggregateColumn Field="@nameof(BillItemOverviewModel.Quantity)"
-                                                         Type="AggregateType.Sum" Format="N2">
-                                        <FooterTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                                <div><strong>@aggregate.Sum</strong></div>
-                                            }
-                                        </FooterTemplate>
-                                        <GroupFooterTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                                <div><strong>@aggregate.Sum</strong></div>
-                                            }
-                                        </GroupFooterTemplate>
-                                        <GroupCaptionTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                                <div><strong>@aggregate.Sum</strong></div>
-                                            }
-                                        </GroupCaptionTemplate>
-                                    </GridAggregateColumn>
-                                    <GridAggregateColumn Field="@nameof(BillItemOverviewModel.BaseTotal)"
-                                                         Type="AggregateType.Sum" Format="N2">
-                                        <FooterTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                                <div><strong>@aggregate.Sum</strong></div>
-                                            }
-                                        </FooterTemplate>
-                                        <GroupFooterTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                                <div><strong>@aggregate.Sum</strong></div>
-                                            }
-                                        </GroupFooterTemplate>
-                                        <GroupCaptionTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                                <div><strong>@aggregate.Sum</strong></div>
-                                            }
-                                        </GroupCaptionTemplate>
-                                    </GridAggregateColumn>
-                                    <GridAggregateColumn Field="@nameof(BillItemOverviewModel.DiscountAmount)"
-                                                         Type="AggregateType.Sum" Format="N2">
-                                        <FooterTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                                <div class="aggregate-value aggregate-debit">
-                                                    <strong>@aggregate.Sum</strong>
-                                                </div>
-                                            }
-                                        </FooterTemplate>
-                                        <GroupFooterTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                                <div class="aggregate-value aggregate-debit">
-                                                    <strong>@aggregate.Sum</strong>
-                                                </div>
-                                            }
-                                        </GroupFooterTemplate>
-                                        <GroupCaptionTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                                <div class="aggregate-value aggregate-debit">
-                                                    <strong>@aggregate.Sum</strong>
-                                                </div>
-                                            }
-                                        </GroupCaptionTemplate>
-                                    </GridAggregateColumn>
-                                    <GridAggregateColumn Field="@nameof(BillItemOverviewModel.AfterDiscount)"
-                                                         Type="AggregateType.Sum" Format="N2">
-                                        <FooterTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                                <div><strong>@aggregate.Sum</strong></div>
-                                            }
-                                        </FooterTemplate>
-                                        <GroupFooterTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                                <div><strong>@aggregate.Sum</strong></div>
-                                            }
-                                        </GroupFooterTemplate>
-                                        <GroupCaptionTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                                <div><strong>@aggregate.Sum</strong></div>
-                                            }
-                                        </GroupCaptionTemplate>
-                                    </GridAggregateColumn>
-                                    <GridAggregateColumn Field="@nameof(BillItemOverviewModel.SGSTAmount)"
-                                                         Type="AggregateType.Sum" Format="N2">
-                                        <FooterTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                                <div><strong>@aggregate.Sum</strong></div>
-                                            }
-                                        </FooterTemplate>
-                                        <GroupFooterTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                                <div><strong>@aggregate.Sum</strong></div>
-                                            }
-                                        </GroupFooterTemplate>
-                                        <GroupCaptionTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                                <div><strong>@aggregate.Sum</strong></div>
-                                            }
-                                        </GroupCaptionTemplate>
-                                    </GridAggregateColumn>
-                                    <GridAggregateColumn Field="@nameof(BillItemOverviewModel.CGSTAmount)"
-                                                         Type="AggregateType.Sum" Format="N2">
-                                        <FooterTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                                <div><strong>@aggregate.Sum</strong></div>
-                                            }
-                                        </FooterTemplate>
-                                        <GroupFooterTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                                <div><strong>@aggregate.Sum</strong></div>
-                                            }
-                                        </GroupFooterTemplate>
-                                        <GroupCaptionTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                                <div><strong>@aggregate.Sum</strong></div>
-                                            }
-                                        </GroupCaptionTemplate>
-                                    </GridAggregateColumn>
-                                    <GridAggregateColumn Field="@nameof(BillItemOverviewModel.IGSTAmount)"
-                                                         Type="AggregateType.Sum" Format="N2">
-                                        <FooterTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                                <div><strong>@aggregate.Sum</strong></div>
-                                            }
-                                        </FooterTemplate>
-                                        <GroupFooterTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                                <div><strong>@aggregate.Sum</strong></div>
-                                            }
-                                        </GroupFooterTemplate>
-                                        <GroupCaptionTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                                <div><strong>@aggregate.Sum</strong></div>
-                                            }
-                                        </GroupCaptionTemplate>
-                                    </GridAggregateColumn>
-                                    <GridAggregateColumn Field="@nameof(BillItemOverviewModel.TotalTaxAmount)"
-                                                         Type="AggregateType.Sum" Format="N2">
-                                        <FooterTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                                <div><strong>@aggregate.Sum</strong></div>
-                                            }
-                                        </FooterTemplate>
-                                        <GroupFooterTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                                <div><strong>@aggregate.Sum</strong></div>
-                                            }
-                                        </GroupFooterTemplate>
-                                        <GroupCaptionTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                                <div><strong>@aggregate.Sum</strong></div>
-                                            }
-                                        </GroupCaptionTemplate>
-                                    </GridAggregateColumn>
-                                    <GridAggregateColumn Field="@nameof(BillItemOverviewModel.Total)"
-                                                         Type="AggregateType.Sum" Format="N2">
-                                        <FooterTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                                <div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong>
-                                                </div>
-                                            }
-                                        </FooterTemplate>
-                                        <GroupFooterTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                                <div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong>
-                                                </div>
-                                            }
-                                        </GroupFooterTemplate>
-                                        <GroupCaptionTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                                <div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong>
-                                                </div>
-                                            }
-                                        </GroupCaptionTemplate>
-                                    </GridAggregateColumn>
-                                    <GridAggregateColumn Field="@nameof(BillItemOverviewModel.NetTotal)"
-                                                         Type="AggregateType.Sum" Format="N2">
-                                        <FooterTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                                <div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong>
-                                                </div>
-                                            }
-                                        </FooterTemplate>
-                                        <GroupFooterTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                                <div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong>
-                                                </div>
-                                            }
-                                        </GroupFooterTemplate>
-                                        <GroupCaptionTemplate>
-                                            @{
-                                                var aggregate = (context as AggregateTemplateContext);
-                                                <div class="aggregate-value aggregate-total"><strong>@aggregate.Sum</strong>
-                                                </div>
-                                            }
-                                        </GroupCaptionTemplate>
-                                    </GridAggregateColumn>
-                                </GridAggregateColumns>
-                            </GridAggregate>
-                        </GridAggregates>
+						@if (_user.LocationId == 1)
+						{
+							<!-- Company -->
+							<div class="form-field">
+								<CustomAutoComplete T="CompanyModel"
+													Value="_selectedCompany"
+													DataSource="@_companies"
+													Placeholder="All Companies"
+													Label="Company" Required="false"
+													ValueChanged="OnCompanyChanged"
+													FieldValue="@nameof(CompanyModel.Name)"
+													AddNewRoute="@AccountsRouteNames.CompanyMaster" />
+							</div>
 
-                        <GridColumns>
-                            <GridColumn Field="@nameof(BillItemOverviewModel.ItemName)" HeaderText="Item" Width="200" />
-                            <GridColumn Field="@nameof(BillItemOverviewModel.ItemCode)" HeaderText="Code" Width="130"
-                                        Visible="_showAllColumns" />
-                            <GridColumn Field="@nameof(BillItemOverviewModel.ItemCategoryName)" HeaderText="Category"
-                                        Width="150" Visible="_showAllColumns" />
-                            <GridColumn Field="@nameof(BillItemOverviewModel.TransactionNo)" HeaderText="Transaction No"
-                                        Width="170" Visible="@(!_showSummary)" />
-                            <GridColumn Field="@nameof(BillItemOverviewModel.TransactionDateTime)" HeaderText="Date"
-                                        Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime"
-                                        Visible="@(!_showSummary)" />
-                            <GridColumn Field="@nameof(BillItemOverviewModel.CompanyName)" HeaderText="Company" Width="200"
-                                        Visible="@(_showAllColumns && !_showSummary && (_selectedCompany is null || _selectedCompany.Id <= 0))" />
-                            <GridColumn Field="@nameof(BillItemOverviewModel.LocationName)" HeaderText="Location"
-                                        Width="180"
-                                        Visible="@(!_showSummary && (_selectedLocation is null || _selectedLocation.Id <= 0))" />
-                            <GridColumn Field="@nameof(BillItemOverviewModel.DiningTableName)" HeaderText="Table"
-                                        Width="130" Visible="@(!_showSummary)" />
-                            <GridColumn Field="@nameof(BillItemOverviewModel.DiningAreaName)" HeaderText="Area" Width="130"
-                                        Visible="@(_showAllColumns && !_showSummary)" />
-                            <GridColumn Field="@nameof(BillItemOverviewModel.CustomerName)" HeaderText="Customer"
-                                        Width="180" Visible="@(_user.LocationId == 1 && !_showSummary)" />
-                            <GridColumn Field="@nameof(BillItemOverviewModel.Quantity)" HeaderText="Qty" Width="120"
-                                        Format="N2" TextAlign="TextAlign.Right" />
-                            <GridColumn Field="@nameof(BillItemOverviewModel.Rate)" HeaderText="Rate" Width="120"
-                                        Format="N2" TextAlign="TextAlign.Right" Visible="@(!_showSummary)" />
-                            <GridColumn Field="@nameof(BillItemOverviewModel.BaseTotal)" HeaderText="Base Total" Width="130"
-                                        Format="N2" TextAlign="TextAlign.Right" Visible="@_showAllColumns" />
-                            <GridColumn Field="@nameof(BillItemOverviewModel.DiscountPercent)" HeaderText="Disc %"
-                                        Width="120" Format="N2" TextAlign="TextAlign.Center"
-                                        Visible="@(_showAllColumns && !_showSummary)" />
-                            <GridColumn Field="@nameof(BillItemOverviewModel.DiscountAmount)" HeaderText="Disc" Width="130"
-                                        TextAlign="TextAlign.Right" Visible="@_showAllColumns">
-                                <Template>
-                                    @{
-                                        var detailItem = (context as BillItemOverviewModel);
-                                        <span class="grid-debit">@detailItem.DiscountAmount.ToString("N2")</span>
-                                    }
-                                </Template>
-                            </GridColumn>
-                            <GridColumn Field="@nameof(BillItemOverviewModel.AfterDiscount)" HeaderText="After Disc"
-                                        Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="@_showAllColumns" />
-                            <GridColumn Field="@nameof(BillItemOverviewModel.SGSTPercent)" HeaderText="SGST %" Width="120"
-                                        Format="N2" TextAlign="TextAlign.Center" Visible="@(_showAllColumns && !_showSummary)" />
-                            <GridColumn Field="@nameof(BillItemOverviewModel.SGSTAmount)" HeaderText="SGST" Width="120"
-                                        Format="N2" TextAlign="TextAlign.Right" Visible="@_showAllColumns" />
-                            <GridColumn Field="@nameof(BillItemOverviewModel.CGSTPercent)" HeaderText="CGST %" Width="120"
-                                        Format="N2" TextAlign="TextAlign.Center" Visible="@(_showAllColumns && !_showSummary)" />
-                            <GridColumn Field="@nameof(BillItemOverviewModel.CGSTAmount)" HeaderText="CGST" Width="120"
-                                        Format="N2" TextAlign="TextAlign.Right" Visible="@_showAllColumns" />
-                            <GridColumn Field="@nameof(BillItemOverviewModel.IGSTPercent)" HeaderText="IGST %" Width="120"
-                                        Format="N2" TextAlign="TextAlign.Center" Visible="@(_showAllColumns && !_showSummary)" />
-                            <GridColumn Field="@nameof(BillItemOverviewModel.IGSTAmount)" HeaderText="IGST" Width="120"
-                                        Format="N2" TextAlign="TextAlign.Right" Visible="@_showAllColumns" />
-                            <GridColumn Field="@nameof(BillItemOverviewModel.TotalTaxAmount)" HeaderText="Tax Amt"
-                                        Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="@_showAllColumns" />
-                            <GridColumn Field="@nameof(BillItemOverviewModel.Total)" HeaderText="Total" Width="150"
-                                        TextAlign="TextAlign.Right" Visible="@_showAllColumns" />
-                            <GridColumn Field="@nameof(BillItemOverviewModel.NetRate)" HeaderText="Net Rate" Width="130"
-                                        Format="N2" TextAlign="TextAlign.Right" Visible="@(!_showSummary)" />
-                            <GridColumn Field="@nameof(BillItemOverviewModel.NetTotal)" HeaderText="Net Total" Width="150"
-                                        TextAlign="TextAlign.Right">
-                                <Template>
-                                    @{
-                                        var detailItem = (context as BillItemOverviewModel);
-                                        <span class="grid-total">@detailItem.NetTotal.ToString("N2")</span>
-                                    }
-                                </Template>
-                            </GridColumn>
-                            <GridColumn Field="@nameof(BillItemOverviewModel.Remarks)" HeaderText="Bill Remarks"
-                                        Width="200" Visible="@(_showAllColumns && !_showSummary)" />
-                            <GridColumn Field="@nameof(BillItemOverviewModel.ItemRemarks)" HeaderText="Item Remarks" Width="200"
-                                        Visible="@(_showAllColumns && !_showSummary)" />
-                        </GridColumns>
-                    </SfGrid>
-                </div>
-            </div>
-        </div>
+							<!-- Location -->
+							<div class="form-field">
+								<CustomAutoComplete T="LocationModel"
+													Value="_selectedLocation"
+													DataSource="@_locations"
+													Placeholder="All Locations"
+													Label="Location" Required="false"
+													ValueChanged="OnLocationChanged"
+													FieldValue="@nameof(LocationModel.Name)"
+													AddNewRoute="@OperationRouteNames.Location" />
+							</div>
 
-        <Footer />
-    </div>
+							<!-- Customer -->
+							<div class="form-field">
+								<CustomAutoComplete T="CustomerModel"
+													Value="_selectedCustomer"
+													DataSource="@_customers"
+													Placeholder="All Customers"
+													Label="Customer" Required="false"
+													ValueChanged="OnCustomerChanged"
+													FieldValue="@nameof(CustomerModel.Name)"
+													AddNewRoute="@null" />
+							</div>
+						}
+
+						<!-- Running -->
+						<div class="form-field">
+							<CustomAutoComplete T="YesNoFilterOption"
+												Value="_selectedRunning"
+												DataSource="@YesNoFilterOptions.YesNo"
+												Placeholder="All"
+												Label="Running" Required="false"
+												ValueChanged="OnRunningChanged"
+												FieldValue="@nameof(YesNoFilterOption.Name)" />
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Report Grid Section -->
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+							 stroke-linejoin="round">
+							<line x1="8" y1="6" x2="21" y2="6" />
+							<line x1="8" y1="12" x2="21" y2="12" />
+							<line x1="8" y1="18" x2="21" y2="18" />
+							<line x1="3" y1="6" x2="3.01" y2="6" />
+							<line x1="3" y1="12" x2="3.01" y2="12" />
+							<line x1="3" y1="18" x2="3.01" y2="18" />
+						</svg>
+						<h2 class="section-title">Bill Item Transactions</h2>
+					</div>
+				</div>
+				<div class="section-body grid-body">
+					<SfGrid @ref="_sfGrid" TValue="BillItemOverviewModel" DataSource="_transactionOverviews"
+							AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+							AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+							GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems" CssClass="professional-grid"
+							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+						<GridEvents TValue="BillItemOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
+						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+						<GridAggregates>
+							<GridAggregate>
+								<GridAggregateColumns>
+									<GridAggregateColumn Field="@nameof(BillItemOverviewModel.ItemName)" Type="AggregateType.Count">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+											}
+											<div class="aggregate-label">
+												<strong>Total Items: @aggregate.Count</strong>
+											</div>
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+											}
+											<div class="aggregate-label">
+												<strong>Total Items: @aggregate.Count</strong>
+											</div>
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+											}
+											<div class="aggregate-label">
+												<strong>Total Items: @aggregate.Count</strong>
+											</div>
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(BillItemOverviewModel.Quantity)" Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(BillItemOverviewModel.ItemBaseTotal)" Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(BillItemOverviewModel.DiscountAmount)" Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-debit">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-debit">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-debit">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(BillItemOverviewModel.AfterDiscount)" Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(BillItemOverviewModel.SGSTAmount)" Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(BillItemOverviewModel.CGSTAmount)" Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(BillItemOverviewModel.IGSTAmount)" Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(BillItemOverviewModel.TotalTaxAmount)" Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div><strong>@aggregate.Sum</strong></div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(BillItemOverviewModel.Total)" Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(BillItemOverviewModel.NetTotal)" Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+								</GridAggregateColumns>
+							</GridAggregate>
+						</GridAggregates>
+
+						<GridColumns>
+							<GridColumn Field="@nameof(BillItemOverviewModel.ItemName)" HeaderText="Item" Width="200" Visible="@(_showAllColumns || _selectedProduct is null || _selectedProduct.Id <= 0)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.ItemCode)" HeaderText="Code" Width="130" Visible="@_showAllColumns" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.ItemCategoryName)" HeaderText="Category" Width="200" Visible="@(_selectedProductCategory is null || _selectedProductCategory.Id <= 0)" />
+
+							<GridColumn Field="@nameof(BillItemOverviewModel.Quantity)" HeaderText="Qty" Width="120" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.Rate)" HeaderText="Rate" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="@(!_showSummary)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.ItemBaseTotal)" HeaderText="Base Total" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="@_showAllColumns" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.DiscountPercent)" HeaderText="Disc %" Width="120" Format="N2" TextAlign="TextAlign.Center" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.DiscountAmount)" HeaderText="Disc" Width="130" TextAlign="TextAlign.Right" Visible="@_showAllColumns">
+								<Template>
+									@{
+										var detailItem = (context as BillItemOverviewModel);
+										<span class="grid-debit">@detailItem.DiscountAmount.ToString("N2")</span>
+									}
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(BillItemOverviewModel.AfterDiscount)" HeaderText="After Disc" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="@_showAllColumns" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.SGSTPercent)" HeaderText="SGST %" Width="120" Format="N2" TextAlign="TextAlign.Center" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.SGSTAmount)" HeaderText="SGST" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="@_showAllColumns" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.CGSTPercent)" HeaderText="CGST %" Width="120" Format="N2" TextAlign="TextAlign.Center" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.CGSTAmount)" HeaderText="CGST" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="@_showAllColumns" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.IGSTPercent)" HeaderText="IGST %" Width="120" Format="N2" TextAlign="TextAlign.Center" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.IGSTAmount)" HeaderText="IGST" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="@_showAllColumns" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.TotalTaxAmount)" HeaderText="Tax Amt" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="@_showAllColumns" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.InclusiveTax)" HeaderText="Tax Incl." Width="150" TextAlign="TextAlign.Center" Visible="@(_showAllColumns && !_showSummary)" DisplayAsCheckBox="true" />
+
+							<GridColumn Field="@nameof(BillItemOverviewModel.Total)" HeaderText="Total" Width="150" TextAlign="TextAlign.Right" Visible="@_showAllColumns" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.NetRate)" HeaderText="Net Rate" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.NetTotal)" HeaderText="Net Total" Width="150" TextAlign="TextAlign.Right">
+								<Template>
+									@{
+										var detailItem = (context as BillItemOverviewModel);
+										<span class="grid-total">@detailItem.NetTotal.ToString("N2")</span>
+									}
+								</Template>
+							</GridColumn>
+
+							<GridColumn Field="@nameof(BillItemOverviewModel.ItemRemarks)" HeaderText="Item Remarks" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
+
+							<GridColumn Field="@nameof(BillItemOverviewModel.TransactionNo)" HeaderText="Transaction No" Width="200" Visible="@(!_showSummary)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.TransactionDateTime)" HeaderText="Date" Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(!_showSummary)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.LocationName)" HeaderText="Location" Width="200" Visible="@(_selectedLocation is null || _selectedLocation.Id <= 0)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.CompanyName)" HeaderText="Company" Width="200" Visible="@(_showAllColumns && !_showSummary && (_selectedCompany is null || _selectedCompany.Id <= 0))" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.DiningTableName)" HeaderText="Table" Width="130" Visible="@(!_showSummary)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.DiningAreaName)" HeaderText="Area" Width="130" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.CustomerName)" HeaderText="Customer" Width="180" Visible="@(_showAllColumns && !_showSummary && (_selectedCustomer is null || _selectedCustomer.Id <= 0))" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.FinancialYear)" HeaderText="Financial Year" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.TotalPeople)" HeaderText="People" Width="100" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.TotalItems)" HeaderText="Items" Width="100" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.TotalQuantity)" HeaderText="Qty" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.BaseTotal)" HeaderText="Base Total" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.ItemDiscountAmount)" HeaderText="Item Disc" Width="130" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)">
+								<Template>
+									@{
+										var item = (context as dynamic);
+										<span class="grid-debit">@item.ItemDiscountAmount.ToString("N2")</span>
+									}
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(BillItemOverviewModel.TotalAfterItemDiscount)" HeaderText="After Disc" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.TotalInclusiveTaxAmount)" HeaderText="Incl Tax" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.TotalExtraTaxAmount)" HeaderText="Extra Tax" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.TotalAfterTax)" HeaderText="Sub Total" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.ServiceChargePercent)" HeaderText="Service Charge %" Width="200" Format="N2" TextAlign="TextAlign.Center" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.ServiceChargeAmount)" HeaderText="Service Charge" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.BillDiscountPercent)" HeaderText="Bill Disc %" Width="130" Format="N2" TextAlign="TextAlign.Center" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.BillDiscountAmount)" HeaderText="Bill Disc" Width="130" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)">
+								<Template>
+									@{
+										var item = (context as dynamic);
+										<span class="grid-debit">@item.BillDiscountAmount.ToString("N2")</span>
+									}
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(BillItemOverviewModel.RoundOffAmount)" HeaderText="Round Off" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.TotalAmount)" HeaderText="Total" Width="150" TextAlign="TextAlign.Right" Visible="@(!_showSummary)">
+								<Template>
+									@{
+										var item = (context as dynamic);
+										<span class="grid-total">@item.TotalAmount.ToString("N2")</span>
+									}
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(BillItemOverviewModel.Cash)" HeaderText="Cash" Width="150" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)">
+								<Template>
+									@{
+										var item = (context as dynamic);
+										<span class="grid-total">@item.Cash.ToString("N2")</span>
+									}
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(BillItemOverviewModel.UPI)" HeaderText="UPI" Width="150" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)">
+								<Template>
+									@{
+										var item = (context as dynamic);
+										<span class="grid-total">@item.UPI.ToString("N2")</span>
+									}
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(BillItemOverviewModel.Card)" HeaderText="Card" Width="150" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)">
+								<Template>
+									@{
+										var item = (context as dynamic);
+										<span class="grid-total">@item.Card.ToString("N2")</span>
+									}
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(BillItemOverviewModel.Credit)" HeaderText="Credit" Width="150" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)">
+								<Template>
+									@{
+										var item = (context as dynamic);
+										<span class="grid-total">@item.Credit.ToString("N2")</span>
+									}
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(BillItemOverviewModel.Running)" HeaderText="Running" Width="110" Visible="@(!_showSummary)" TextAlign="TextAlign.Center">
+								<Template>
+									@{
+										var item = (context as dynamic);
+										<span>@(item.Running ? "Running" : "Billed")</span>
+									}
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(BillItemOverviewModel.MasterStatus)" HeaderText="Status" Width="110" Visible="@(_showDeleted && !_showSummary)" TextAlign="TextAlign.Center">
+								<Template>
+									@{
+										var item = (context as dynamic);
+										<span class="@(item.MasterStatus ? string.Empty : "grid-debit")">@(item.MasterStatus ? "Active" : "Deleted")</span>
+									}
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(BillItemOverviewModel.PaymentModes)" HeaderText="Payment Modes" Width="180" Visible="@(!_showSummary)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.Remarks)" HeaderText="Remarks" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Transaction No" Width="250" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.CreatedByName)" HeaderText="Created By" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.CreatedAt)" HeaderText="Created At" Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.CreatedFromPlatform)" HeaderText="Created Platform" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.LastModifiedAt)" HeaderText="Modified At" Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
+							<GridColumn Field="@nameof(BillItemOverviewModel.LastModifiedFromPlatform)" HeaderText="Modified Platform" Width="300" Visible="@(_showAllColumns && !_showSummary)" />
+						</GridColumns>
+					</SfGrid>
+				</div>
+			</div>
+		</div>
+
+		<Footer />
+	</div>
 }
 
+<ConfirmationDialog @ref="_confirmationDialog" Title="@_confirmTitle" Message="@_confirmMessage"
+					OnConfirm="OnConfirmed" OnCancel="OnCancelled" />
+
 <ToastNotification @ref="_toastNotification" />
+
+<CloseGuard Block="_isProcessing" />
