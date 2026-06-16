@@ -403,11 +403,19 @@ public partial class SaleReport : IAsyncDisposable
 			await _toastNotification.ShowAsync("Processing", "Closing day and posting sale accounting...", ToastType.Info);
 
 			for (var date = _fromDate; date <= _toDate; date = date.AddDays(1))
+			{
 				await SaleData.PostDaySales(
 					date,
 					_selectedLocation.Id,
 					_user.Id,
 					FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+
+				await BillData.PostDayBills(
+					date,
+					_selectedLocation.Id,
+					_user.Id,
+					FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+			}
 
 			await _toastNotification.ShowAsync("Success", "Day closing completed successfully.", ToastType.Success);
 		}

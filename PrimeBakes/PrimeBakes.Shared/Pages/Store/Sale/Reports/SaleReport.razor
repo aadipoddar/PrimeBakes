@@ -47,6 +47,8 @@ else
 					<MudBlazor.MudDivider />
 					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportReport()" />
 					<MudBlazor.MudMenuItem Label="Export Excel (Ctrl + E)" OnClick="() => ExportReport(true)" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Post Daywise Sales" OnClick="PostDaywiseSales" Disabled="!_user.Accounts" />
 				</MudBlazor.MudMenu>
 
 				<MudBlazor.MudMenu Label="Open" Dense="true" Disabled="_isProcessing">
@@ -83,7 +85,6 @@ else
 					<MudBlazor.MudMenuItem Label="Export Excel (Alt + E)" OnClick="() => ExportSelectedTransaction(true)" />
 					<MudBlazor.MudMenuItem Label="Export Order PDF" OnClick="() => ExportSelectedOrderTransaction()" />
 					<MudBlazor.MudMenuItem Label="Export Order Excel" OnClick="() => ExportSelectedOrderTransaction(true)" />
-					<MudBlazor.MudMenuItem Label="Post Daywise Sales" OnClick="PostDaywiseSales" Disabled="!_user.Accounts" />
 					<MudBlazor.MudDivider />
 					<MudBlazor.MudMenuItem Label="Delete / Recover (Del)" OnClick="DeleteRecoverSelectedTransaction" />
 				</MudBlazor.MudMenu>

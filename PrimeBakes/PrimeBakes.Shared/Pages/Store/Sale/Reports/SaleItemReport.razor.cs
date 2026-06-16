@@ -6,6 +6,7 @@ using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Operations.Settings;
 using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Restaurant.Bill.Data;
 using PrimeBakesLibrary.Restaurant.Bill.Models;
 using PrimeBakesLibrary.Store.Product.Models;
 using PrimeBakesLibrary.Store.Sale.Data;
@@ -475,6 +476,52 @@ public partial class SaleItemReport : IAsyncDisposable
 	#endregion
 
 	#region Actions
+	private async Task PostDaywiseSales()
+	{
+		if (_isProcessing)
+			return;
+
+		if (_user.LocationId != 1 || _selectedLocation is null || _selectedLocation.Id <= 1)
+		{
+			await _toastNotification.ShowAsync("Validation", "Please select a specific location before day closing.", ToastType.Warning);
+			return;
+		}
+
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+			await _toastNotification.ShowAsync("Processing", "Closing day and posting sale accounting...", ToastType.Info);
+
+			for (var date = _fromDate; date <= _toDate; date = date.AddDays(1))
+			{
+				await SaleData.PostDaySales(
+					date,
+					_selectedLocation.Id,
+					_user.Id,
+					FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+
+				await BillData.PostDayBills(
+					date,
+					_selectedLocation.Id,
+					_user.Id,
+					FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+			}
+
+			await _toastNotification.ShowAsync("Success", "Day closing completed successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"Day closing failed: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+			await LoadTransactionOverviews();
+		}
+	}
+
 	private async Task ViewSelectedTransaction()
 	{
 		if (_isProcessing || _showSummary || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
