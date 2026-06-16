@@ -8,9 +8,9 @@
 <PageTitle>Purchase - Prime Bakes</PageTitle>
 
 <MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus.FocusAsync()" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyG KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _itemAutoComplete.FocusAsync()" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers="[JsKeyModifier.ControlLeft, JsKeyModifier.ShiftLeft]" OnHotkeyPressed="() => _otherChargesPercent.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyG KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _itemAutoComplete?.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers="[JsKeyModifier.ControlLeft, JsKeyModifier.ShiftLeft]" OnHotkeyPressed="() => _otherChargesPercentField?.FocusAsync()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyU KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="UploadDocument" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.Enter KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="AddItemToCart" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction()" Disabled="@_isProcessing" />
@@ -170,7 +170,7 @@ else
 							<!-- Other Charges -->
 							<div class="form-field">
 								<div class="date-year-wrapper">
-									<CustomNumericField @ref="_otherChargesPercent"
+									<CustomNumericField @ref="_otherChargesPercentField"
 														T="decimal"
 														Value="_purchase.OtherChargesPercent"
 														ValueChanged="OnOtherChargesPercentChanged"
@@ -445,10 +445,11 @@ else
 					</div>
 				</div>
 				<div class="section-body grid-body">
-					<SfGrid ID="_sfCartGrid" @ref="_sfCartGrid" DataSource="_cart" AllowTextWrap="true"
-							AllowPaging="false" AllowSorting="true" AllowResizing="true" AllowFiltering="true"
-							GridLines="GridLine.Horizontal" CssClass="professional-grid"
-							ContextMenuItems="@_cartGridContextMenuItems" Toolbar="@(new List<string>() { "Search" })">
+					<SfGrid ID="_sfCartGrid" @ref="_sfCartGrid" DataSource="_cart"
+							AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+							AllowFiltering="true" AllowReordering="true" ShowColumnChooser="true"
+							GridLines="GridLine.Horizontal" ContextMenuItems="@_cartGridContextMenuItems" CssClass="professional-grid"
+							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
 						<GridEvents TValue="PurchaseItemCartModel" ContextMenuItemClicked="OnCartGridContextMenuItemClicked" />
 						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
@@ -580,7 +581,7 @@ else
 								<Template>
 									@{
 										var item = (context as dynamic);
-										<span class="grid-discount">@item.DiscountAmount.ToString("N2")</span>
+										<span class="grid-debit">@item.DiscountAmount.ToString("N2")</span>
 									}
 								</Template>
 							</GridColumn>

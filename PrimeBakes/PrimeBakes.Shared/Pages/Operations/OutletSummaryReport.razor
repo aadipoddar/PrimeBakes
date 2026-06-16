@@ -5,7 +5,7 @@
 
 <PageTitle>Outlet Summary Report - Prime Bakes</PageTitle>
 
-<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="RefreshReport" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="RefreshReport" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport()" Disabled="@_isProcessing" />
@@ -99,31 +99,24 @@ else
 					<SfMediaQuery @bind-ActiveBreakpoint="activeBreakpoint" />
 					<SfGrid ID="_sfGrid" @ref="_sfGrid" TValue="OutletSummaryModel" DataSource="_outletSummaries"
 							AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
-							AllowFiltering="true" AllowGrouping="true" AllowExcelExport="true" AllowPdfExport="true"
-							GridLines="GridLine.Horizontal" EnableAdaptiveUI="true" AdaptiveUIMode="AdaptiveMode.Mobile"
+							AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+							EnableAdaptiveUI="true" AdaptiveUIMode="AdaptiveMode.Mobile"
 							RowRenderingMode="@(activeBreakpoint == "Small" ? RowDirection.Vertical : RowDirection.Horizontal)"
-							CssClass="professional-grid" ContextMenuItems="@_gridContextMenuItems"
-							Toolbar="@(new List<string>() { "Search" })">
+							GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems" CssClass="professional-grid"
+							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
 						<GridEvents TValue="OutletSummaryModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
-						<GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
 						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
 						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
 						<GridColumns>
 							<GridColumn Field="@nameof(OutletSummaryModel.LocationName)" HeaderText="Outlet" Width="200" />
-							<GridColumn Field="@nameof(OutletSummaryModel.Purchase)" HeaderText="Purchase" Width="140"
-										Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(OutletSummaryModel.PurchaseReturn)" HeaderText="Purchase Return"
-										Width="160" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(OutletSummaryModel.KitchenIssue)" HeaderText="Kitchen Issue"
-										Width="120" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(OutletSummaryModel.KitchenProduction)"
-										HeaderText="Kitchen Production" Width="140" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(OutletSummaryModel.Sale)" HeaderText="Sale" Width="140" Format="N2"
-										TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(OutletSummaryModel.SaleReturn)" HeaderText="Sale Return" Width="140"
-										Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(OutletSummaryModel.Purchase)" HeaderText="Purchase" Width="140" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(OutletSummaryModel.PurchaseReturn)" HeaderText="Purchase Return" Width="160" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(OutletSummaryModel.KitchenIssue)" HeaderText="Kitchen Issue" Width="120" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(OutletSummaryModel.KitchenProduction)" HeaderText="Kitchen Production" Width="140" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(OutletSummaryModel.Sale)" HeaderText="Sale" Width="140" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(OutletSummaryModel.SaleReturn)" HeaderText="Sale Return" Width="140" Format="N2" TextAlign="TextAlign.Right" />
 						</GridColumns>
 					</SfGrid>
 				</div>

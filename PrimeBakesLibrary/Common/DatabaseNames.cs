@@ -262,7 +262,6 @@ public static class RestaurantNames
 	public static string BillItemOverview => "Bill_Item_Overview";
 
 	public static string LoadRunningBillByLocationId => "Load_RunningBill_By_LocationId";
-	public static string LoadBillByFinancialAccountingId => "Load_Bill_By_FinancialAccountingId";
 
 	public static string DeleteBillDetailById => "Delete_BillDetail_By_Id";
 	#endregion

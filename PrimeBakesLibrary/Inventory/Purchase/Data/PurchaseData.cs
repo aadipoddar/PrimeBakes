@@ -96,10 +96,10 @@ public static class PurchaseData
 
 	private static async Task DeleteAccounting(PurchaseModel purchase, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
-		if (purchase.FinancialAccountingId is null)
+		if (purchase.FinancialAccountingId is null || purchase.FinancialAccountingId <= 0)
 			return;
 
-		var existingAccounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(AccountNames.FinancialAccounting, purchase.FinancialAccountingId ?? 0, sqlDataAccessTransaction)
+		var existingAccounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(AccountNames.FinancialAccounting, purchase.FinancialAccountingId.Value, sqlDataAccessTransaction)
 			?? throw new InvalidOperationException("The associated financial accounting transaction for the transaction does not exist.");
 
 		existingAccounting.Status = false;
@@ -150,13 +150,13 @@ public static class PurchaseData
 		if (update)
 		{
 			var existingPurchase = await CommonData.LoadTableDataById<PurchaseModel>(InventoryNames.Purchase, purchase.Id, sqlDataAccessTransaction)
-				?? throw new InvalidOperationException("The purchase transaction does not exist.");
+				?? throw new InvalidOperationException("The transaction to be updated does not exist.");
 
 			await FinancialYearData.ValidateFinancialYear(existingPurchase.TransactionDateTime, sqlDataAccessTransaction);
 
 			var user = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, purchase.LastModifiedBy.Value, sqlDataAccessTransaction);
-			if (!user.Admin)
-				throw new InvalidOperationException("Only admin users can update a purchase transaction.");
+			if (!user.Admin || user.LocationId != 1)
+				throw new InvalidOperationException("Only admin users are allowed to modify transactions.");
 
 			purchase.TransactionNo = existingPurchase.TransactionNo;
 		}
@@ -211,7 +211,7 @@ public static class PurchaseData
 		purchase.Id = await InsertPurchase(purchase, sqlDataAccessTransaction);
 		await SaveTransactionDetail(purchase, purchaseDetails, update, sqlDataAccessTransaction);
 		await SaveRawMaterialStock(purchase, purchaseDetails, sqlDataAccessTransaction);
-		await SaveAccounting(purchase, update, sqlDataAccessTransaction);
+		await SaveAccounting(purchase, sqlDataAccessTransaction);
 		await UpdateRawMaterialRateAndUOMOnPurchase(purchaseDetails, sqlDataAccessTransaction);
 		await SaveAuditTrail(purchase, update, recover, previousPurchase, previousPurchaseDetails, sqlDataAccessTransaction);
 
@@ -255,22 +255,9 @@ public static class PurchaseData
 			}, sqlDataAccessTransaction);
 	}
 
-	private static async Task SaveAccounting(PurchaseModel purchase, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
+	private static async Task SaveAccounting(PurchaseModel purchase, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
-		if (update)
-		{
-			var purchaseVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.PurchaseVoucherId, sqlDataAccessTransaction);
-			var existingAccounting = await FinancialAccountingData.LoadFinancialAccountingByVoucherReference(int.Parse(purchaseVoucher.Value), purchase.Id, purchase.TransactionNo, sqlDataAccessTransaction);
-			if (existingAccounting is not null && existingAccounting.Id > 0)
-			{
-				existingAccounting.Status = false;
-				existingAccounting.LastModifiedBy = purchase.LastModifiedBy;
-				existingAccounting.LastModifiedAt = purchase.LastModifiedAt;
-				existingAccounting.LastModifiedFromPlatform = purchase.LastModifiedFromPlatform;
-
-				await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
-			}
-		}
+		await DeleteAccounting(purchase, sqlDataAccessTransaction);
 
 		var purchaseOverview = await CommonData.LoadTableDataById<PurchaseOverviewModel>(InventoryNames.PurchaseOverview, purchase.Id, sqlDataAccessTransaction);
 		if (purchaseOverview is null || purchaseOverview.TotalAmount == 0)

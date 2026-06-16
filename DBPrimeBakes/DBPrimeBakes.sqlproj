@@ -254,7 +254,6 @@
     <Build Include="Restaurant\Dining\Insert\Insert_DiningArea.sql" />
     <Build Include="Restaurant\Dining\Insert\Insert_DiningTable.sql" />
     <Build Include="Restaurant\Bill\Delete\Delete_BillDetail_By_Id.sql" />
-    <Build Include="Restaurant\Bill\Load\Load_Bill_By_FinancialAccountingId.sql" />
     <Build Include="Restaurant\Bill\Load\Load_RunningBill_By_LocationId.sql" />
     <Build Include="Restaurant\Bill\Table\Bill.sql" />
     <Build Include="Restaurant\Bill\Table\BillDetail.sql" />

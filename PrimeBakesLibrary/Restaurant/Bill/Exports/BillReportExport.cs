@@ -365,8 +365,8 @@ public static class BillReportExport
 			[nameof(BillItemOverviewModel.DiningTableName)] = new() { DisplayName = "Table", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(BillItemOverviewModel.DiningAreaName)] = new() { DisplayName = "Area", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(BillItemOverviewModel.CustomerName)] = new() { DisplayName = "Customer", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(BillItemOverviewModel.BillRemarks)] = new() { DisplayName = "Bill Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(BillItemOverviewModel.Remarks)] = new() { DisplayName = "Item Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(BillItemOverviewModel.Remarks)] = new() { DisplayName = "Bill Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(BillItemOverviewModel.ItemRemarks)] = new() { DisplayName = "Item Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(BillItemOverviewModel.InclusiveTax)] = new() { DisplayName = "Incl Tax", Alignment = CellAlignment.Center, IncludeInTotal = false },
 
 			[nameof(BillItemOverviewModel.Quantity)] = new()
@@ -564,8 +564,8 @@ public static class BillReportExport
 				nameof(BillItemOverviewModel.Total),
 				nameof(BillItemOverviewModel.NetRate),
 				nameof(BillItemOverviewModel.NetTotal),
-				nameof(BillItemOverviewModel.BillRemarks),
-				nameof(BillItemOverviewModel.Remarks)
+				nameof(BillItemOverviewModel.Remarks),
+				nameof(BillItemOverviewModel.ItemRemarks)
 			]);
 
 			columnOrder = columns;

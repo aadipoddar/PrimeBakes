@@ -5,6 +5,7 @@ using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Inventory.Purchase.Data;
 using PrimeBakesLibrary.Operations.AuditTrail;
 using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Restaurant.Bill.Data;
 using PrimeBakesLibrary.Store.Sale.Data;
 using PrimeBakesLibrary.Store.StockTransfer.Data;
 using PrimeBakesLibrary.Utils.Exports;
@@ -78,6 +79,7 @@ public static class FinancialAccountingData
 		await SaleData.UpdateFinancialAccountingId(id, null, sqlDataAccessTransaction);
 		await SaleReturnData.UpdateFinancialAccountingId(id, null, sqlDataAccessTransaction);
 		await StockTransferData.UpdateFinancialAccountingId(id, null, sqlDataAccessTransaction);
+		await BillData.UpdateFinancialAccountingId(id, null, sqlDataAccessTransaction);
 	}
 
 	public static async Task RecoverTransaction(FinancialAccountingModel accounting)
@@ -128,7 +130,7 @@ public static class FinancialAccountingData
 			await ValidateBRS(accounting.Id, sqlDataAccessTransaction);
 
 			var user = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, accounting.LastModifiedBy.Value, sqlDataAccessTransaction);
-			if (!user.Admin)
+			if (!user.Admin || user.LocationId != 1)
 				throw new InvalidOperationException("Only admin users are allowed to modify transactions.");
 
 			accounting.TransactionNo = existingAccounting.TransactionNo;

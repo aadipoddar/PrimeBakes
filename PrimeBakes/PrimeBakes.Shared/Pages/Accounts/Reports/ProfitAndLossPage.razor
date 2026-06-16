@@ -7,7 +7,7 @@
 <PageTitle>Profit & Loss - Prime Bakes</PageTitle>
 
 <MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(AccountsRouteNames.FinancialAccounting, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadProfitAndLoss" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadProfitAndLoss" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyQ KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDetailsView" Disabled="@_isProcessing" />
@@ -126,9 +126,9 @@ else
 							</div>
 							<SfGrid @ref="_incomeGrid" TValue="TrialBalanceModel" DataSource="_incomeTrialBalance"
 									AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
-									AllowFiltering="true" AllowExcelExport="true" AllowPdfExport="true"
-									GridLines="GridLine.Horizontal" AllowGrouping="true" CssClass="professional-grid"
-									Toolbar="@(new List<string>() { "Search" })">
+									AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+									GridLines="GridLine.Horizontal" CssClass="professional-grid"
+									Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
 								<GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
 								<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
@@ -227,9 +227,9 @@ else
 							</div>
 							<SfGrid @ref="_expenseGrid" TValue="TrialBalanceModel" DataSource="_expenseTrialBalance"
 									AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
-									AllowFiltering="true" AllowExcelExport="true" AllowPdfExport="true"
-									GridLines="GridLine.Horizontal" AllowGrouping="true" CssClass="professional-grid"
-									Toolbar="@(new List<string>() { "Search" })">
+									AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+									GridLines="GridLine.Horizontal" CssClass="professional-grid"
+									Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
 								<GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
 								<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />

@@ -91,10 +91,10 @@ public static class PurchaseReturnData
 
 	private static async Task DeleteAccounting(PurchaseReturnModel purchaseReturn, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
-		if (purchaseReturn.FinancialAccountingId is null)
+		if (purchaseReturn.FinancialAccountingId is null || purchaseReturn.FinancialAccountingId <= 0)
 			return;
 
-		var existingAccounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(AccountNames.FinancialAccounting, purchaseReturn.FinancialAccountingId ?? 0, sqlDataAccessTransaction)
+		var existingAccounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(AccountNames.FinancialAccounting, purchaseReturn.FinancialAccountingId.Value, sqlDataAccessTransaction)
 			?? throw new InvalidOperationException("The associated financial accounting transaction for the transaction does not exist.");
 
 		existingAccounting.Status = false;
@@ -145,13 +145,13 @@ public static class PurchaseReturnData
 		if (update)
 		{
 			var existingPurchaseReturn = await CommonData.LoadTableDataById<PurchaseReturnModel>(InventoryNames.PurchaseReturn, purchaseReturn.Id, sqlDataAccessTransaction)
-				?? throw new InvalidOperationException("The purchase return transaction does not exist.");
+				?? throw new InvalidOperationException("The transaction to be updated does not exist.");
 
 			await FinancialYearData.ValidateFinancialYear(existingPurchaseReturn.TransactionDateTime, sqlDataAccessTransaction);
 
 			var user = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, purchaseReturn.LastModifiedBy.Value, sqlDataAccessTransaction);
-			if (!user.Admin)
-				throw new InvalidOperationException("Only admin users can update a purchase return transaction.");
+			if (!user.Admin || user.LocationId != 1)
+				throw new InvalidOperationException("Only admin users are allowed to modify transactions.");
 
 			purchaseReturn.TransactionNo = existingPurchaseReturn.TransactionNo;
 		}
@@ -206,7 +206,7 @@ public static class PurchaseReturnData
 		purchaseReturn.Id = await InsertPurchaseReturn(purchaseReturn, sqlDataAccessTransaction);
 		await SaveTransactionDetail(purchaseReturn, purchaseReturnDetails, update, sqlDataAccessTransaction);
 		await SaveRawMaterialStock(purchaseReturn, purchaseReturnDetails, sqlDataAccessTransaction);
-		await SaveAccounting(purchaseReturn, update, sqlDataAccessTransaction);
+		await SaveAccounting(purchaseReturn, sqlDataAccessTransaction);
 		await SaveAuditTrail(purchaseReturn, update, recover, previousPurchaseReturn, previousPurchaseReturnDetails, sqlDataAccessTransaction);
 
 		return purchaseReturn.Id;
@@ -249,22 +249,9 @@ public static class PurchaseReturnData
 			}, sqlDataAccessTransaction);
 	}
 
-	private static async Task SaveAccounting(PurchaseReturnModel purchaseReturn, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
+	private static async Task SaveAccounting(PurchaseReturnModel purchaseReturn, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
-		if (update)
-		{
-			var purchaseReturnVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.PurchaseReturnVoucherId, sqlDataAccessTransaction);
-			var existingAccounting = await FinancialAccountingData.LoadFinancialAccountingByVoucherReference(int.Parse(purchaseReturnVoucher.Value), purchaseReturn.Id, purchaseReturn.TransactionNo, sqlDataAccessTransaction);
-			if (existingAccounting is not null && existingAccounting.Id > 0)
-			{
-				existingAccounting.Status = false;
-				existingAccounting.LastModifiedBy = purchaseReturn.LastModifiedBy;
-				existingAccounting.LastModifiedAt = purchaseReturn.LastModifiedAt;
-				existingAccounting.LastModifiedFromPlatform = purchaseReturn.LastModifiedFromPlatform;
-
-				await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
-			}
-		}
+		await DeleteAccounting(purchaseReturn, sqlDataAccessTransaction);
 
 		var purchaseReturnOverview = await CommonData.LoadTableDataById<PurchaseReturnOverviewModel>(InventoryNames.PurchaseReturnOverview, purchaseReturn.Id, sqlDataAccessTransaction);
 		if (purchaseReturnOverview is null || purchaseReturnOverview.TotalAmount == 0)

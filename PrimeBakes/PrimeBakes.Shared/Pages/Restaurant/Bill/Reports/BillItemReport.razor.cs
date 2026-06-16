@@ -160,7 +160,7 @@ public partial class BillItemReport : IAsyncDisposable
 	}
 	#endregion
 
-	#region Change Events
+	#region Changed Events
 	private async Task OnDateRangeChanged(Syncfusion.Blazor.Calendars.RangePickerEventArgs<DateTime> args)
 	{
 		_fromDate = args.StartDate;

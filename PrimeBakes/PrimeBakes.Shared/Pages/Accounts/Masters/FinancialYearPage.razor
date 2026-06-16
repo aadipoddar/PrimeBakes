@@ -5,7 +5,7 @@
 <PageTitle>Financial Year Management - Prime Bakes</PageTitle>
 
 <MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="SaveTransaction" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportMaster(true)" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportMaster()" Disabled="@_isProcessing" />
@@ -43,9 +43,7 @@ else
 			<div class="section-card">
 				<div class="section-header">
 					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-							 stroke-linejoin="round">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 							<path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
 						</svg>
 						<h2 class="section-title">Financial Year Details</h2>
@@ -54,43 +52,25 @@ else
 				<div class="section-body">
 					<div class="form-grid">
 						<div class="form-field">
-							<CustomDatePicker @ref="_firstFocus"
-											  Value="StartDateTime"
-											  ValueChanged="OnStartDateChanged"
-											  Label="Start Date (Ctrl + F)"
-											  ShowFinancialYear="false" />
+							<CustomDatePicker @ref="_firstFocus" Value="StartDateTime" ValueChanged="OnStartDateChanged" Label="Start Date (Ctrl + F)" ShowFinancialYear="false" />
 						</div>
 
 						<div class="form-field">
-							<CustomDatePicker Value="EndDateTime"
-											  ValueChanged="OnEndDateChanged"
-											  Label="End Date"
-											  ShowFinancialYear="false" />
+							<CustomDatePicker Value="EndDateTime" ValueChanged="OnEndDateChanged" Label="End Date" ShowFinancialYear="false" />
 						</div>
 
 						<div class="form-field">
-							<CustomNumericField T="int"
-												@bind-Value="_financialYear.YearNo"
-												Label="Year No"
-												Placeholder="Enter year number"
-												Format="N0"
-												Min="1" />
+							<CustomNumericField T="int" @bind-Value="_financialYear.YearNo" Label="Year No" Placeholder="Enter year number" Format="N0" Min="1" />
 						</div>
 
 						<div class="form-field">
 							<div class="checkbox-wrapper">
-								<CustomCheckBox @bind-Value="_financialYear.Locked"
-												Label="Is Locked"
-												AriaLabel="Lock this financial year" />
+								<CustomCheckBox @bind-Value="_financialYear.Locked" Label="Is Locked" AriaLabel="Lock this financial year" />
 							</div>
 						</div>
 
 						<div class="form-field">
-							<CustomTextField @bind-Value="_financialYear.Remarks"
-											 Label="Remarks"
-											 Placeholder="Enter remarks (optional)"
-											 Required="false"
-											 Lines="2" />
+							<CustomTextField @bind-Value="_financialYear.Remarks" Label="Remarks" Placeholder="Enter remarks (optional)" Required="false" Lines="2" />
 						</div>
 					</div>
 				</div>
@@ -99,9 +79,7 @@ else
 			<div class="section-card">
 				<div class="section-header">
 					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-							 stroke-linejoin="round">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 							<path d="M9 11l3 3L22 4" />
 							<path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
 						</svg>
@@ -109,12 +87,13 @@ else
 					</div>
 				</div>
 				<div class="section-body grid-body">
-					<SfGrid @ref="_sfGrid" DataSource="@_financialYears" AllowPaging="true" AllowSorting="true"
-							AllowFiltering="true" AllowResizing="true" CssClass="professional-grid"
-							Toolbar="@(new List<string>() { "Search" })" ContextMenuItems="@_gridContextMenuItems">
-						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+					<SfGrid @ref="_sfGrid" DataSource="@_financialYears" AllowPaging="true" AllowSorting="true" AllowResizing="true" AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+							GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems" CssClass="professional-grid" Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
 						<GridEvents TValue="FinancialYearModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
 						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
 						<GridColumns>
 							<GridColumn Field="@nameof(FinancialYearModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" />
 							<GridColumn Field="@nameof(FinancialYearModel.StartDate)" HeaderText="Start Date" Width="150" TextAlign="TextAlign.Center" Format="dd-MMM-yyyy" />
@@ -140,8 +119,7 @@ else
 	</div>
 }
 
-<ConfirmationDialog @ref="_confirmationDialog" Title="@_confirmTitle" Message="@_confirmMessage"
-					OnConfirm="OnConfirmed" OnCancel="OnCancelled" />
+<ConfirmationDialog @ref="_confirmationDialog" Title="@_confirmTitle" Message="@_confirmMessage" OnConfirm="OnConfirmed" OnCancel="OnCancelled" />
 
 <ToastNotification @ref="_toastNotification" />
 

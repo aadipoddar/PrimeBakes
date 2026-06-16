@@ -96,7 +96,7 @@ public static class SaleReturnData
 
 	private static async Task DeleteAccounting(SaleReturnModel saleReturn, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
-		if (saleReturn.FinancialAccountingId is null)
+		if (saleReturn.FinancialAccountingId is null || saleReturn.FinancialAccountingId <= 0)
 			return;
 
 		var existingAccounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(AccountNames.FinancialAccounting, saleReturn.FinancialAccountingId.Value, sqlDataAccessTransaction)
@@ -208,13 +208,13 @@ public static class SaleReturnData
 		if (update)
 		{
 			var existingSaleReturn = await CommonData.LoadTableDataById<SaleReturnModel>(StoreNames.SaleReturn, saleReturn.Id, sqlDataAccessTransaction)
-				?? throw new InvalidOperationException("The sale return transaction does not exist.");
+				?? throw new InvalidOperationException("The transaction to be updated does not exist.");
 
 			await FinancialYearData.ValidateFinancialYear(existingSaleReturn.TransactionDateTime, sqlDataAccessTransaction);
 
 			var user = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, saleReturn.LastModifiedBy.Value, sqlDataAccessTransaction);
-			if (!user.Admin)
-				throw new InvalidOperationException("Only admin users can update a sale return transaction.");
+			if (!user.Admin || user.LocationId != 1)
+				throw new InvalidOperationException("Only admin users are allowed to modify transactions.");
 
 			saleReturn.TransactionNo = existingSaleReturn.TransactionNo;
 		}
@@ -331,7 +331,7 @@ public static class SaleReturnData
 		await SaveTransactionDetail(saleReturn, saleReturnDetails, update, sqlDataAccessTransaction);
 		await SaveProductStock(saleReturn, saleReturnDetails, sqlDataAccessTransaction);
 		await SaveRawMaterialStockByRecipe(saleReturn, saleReturnDetails, sqlDataAccessTransaction);
-		await SaveAccounting(saleReturn, update, sqlDataAccessTransaction);
+		await SaveAccounting(saleReturn, sqlDataAccessTransaction);
 		await SaveAuditTrail(saleReturn, update, recover, previousSaleReturn, previousSaleReturnDetails, sqlDataAccessTransaction);
 
 		return saleReturn.Id;
@@ -427,22 +427,9 @@ public static class SaleReturnData
 		}
 	}
 
-	private static async Task SaveAccounting(SaleReturnModel saleReturn, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
+	private static async Task SaveAccounting(SaleReturnModel saleReturn, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
-		if (update)
-		{
-			var saleReturnVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.SaleReturnVoucherId, sqlDataAccessTransaction);
-			var existingAccounting = await FinancialAccountingData.LoadFinancialAccountingByVoucherReference(int.Parse(saleReturnVoucher.Value), saleReturn.Id, saleReturn.TransactionNo, sqlDataAccessTransaction);
-			if (existingAccounting is not null && existingAccounting.Id > 0)
-			{
-				existingAccounting.Status = false;
-				existingAccounting.LastModifiedBy = saleReturn.LastModifiedBy;
-				existingAccounting.LastModifiedAt = saleReturn.LastModifiedAt;
-				existingAccounting.LastModifiedFromPlatform = saleReturn.LastModifiedFromPlatform;
-
-				await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
-			}
-		}
+		await DeleteAccounting(saleReturn, sqlDataAccessTransaction);
 
 		var saleReturnOverview = await CommonData.LoadTableDataById<SaleReturnOverviewModel>(StoreNames.SaleReturnOverview, saleReturn.Id, sqlDataAccessTransaction);
 		if (saleReturnOverview is null || saleReturnOverview.TotalAmount == 0)

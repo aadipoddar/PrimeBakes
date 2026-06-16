@@ -41,57 +41,6 @@ public class BillModel
 	public string? LastModifiedFromPlatform { get; set; }
 }
 
-public class BillDetailModel
-{
-	public int Id { get; set; }
-	public int MasterId { get; set; }
-	public int ProductId { get; set; }
-	public decimal Quantity { get; set; }
-	public decimal Rate { get; set; }
-	public decimal BaseTotal { get; set; }
-	public decimal DiscountPercent { get; set; }
-	public decimal DiscountAmount { get; set; }
-	public decimal AfterDiscount { get; set; }
-	public decimal CGSTPercent { get; set; }
-	public decimal CGSTAmount { get; set; }
-	public decimal SGSTPercent { get; set; }
-	public decimal SGSTAmount { get; set; }
-	public decimal IGSTPercent { get; set; }
-	public decimal IGSTAmount { get; set; }
-	public decimal TotalTaxAmount { get; set; }
-	public bool InclusiveTax { get; set; }
-	public decimal Total { get; set; }
-	public decimal NetRate { get; set; }
-	public string? Remarks { get; set; }
-	public bool KOTPrint { get; set; }
-	public bool Status { get; set; }
-}
-
-public class BillItemCartModel
-{
-	public int ItemCategoryId { get; set; }
-	public int ItemId { get; set; }
-	public string ItemName { get; set; }
-	public decimal Quantity { get; set; }
-	public decimal Rate { get; set; }
-	public decimal BaseTotal { get; set; }
-	public decimal DiscountPercent { get; set; }
-	public decimal DiscountAmount { get; set; }
-	public decimal AfterDiscount { get; set; }
-	public decimal CGSTPercent { get; set; }
-	public decimal CGSTAmount { get; set; }
-	public decimal SGSTPercent { get; set; }
-	public decimal SGSTAmount { get; set; }
-	public decimal IGSTPercent { get; set; }
-	public decimal IGSTAmount { get; set; }
-	public decimal TotalTaxAmount { get; set; }
-	public bool InclusiveTax { get; set; }
-	public decimal Total { get; set; }
-	public decimal NetRate { get; set; }
-	public string? Remarks { get; set; }
-	public bool KOTPrint { get; set; }
-}
-
 public class BillOverviewModel
 {
 	public int Id { get; set; }
@@ -152,52 +101,4 @@ public class BillOverviewModel
 
 	public int? FinancialAccountingId { get; set; }
 	public string? FinancialAccountingTransactionNo { get; set; }
-}
-
-public class BillItemOverviewModel
-{
-	public int Id { get; set; }
-	public string ItemName { get; set; }
-	public string ItemCode { get; set; }
-	public int ItemCategoryId { get; set; }
-	public string ItemCategoryName { get; set; }
-
-	public int MasterId { get; set; }
-	public string TransactionNo { get; set; }
-	public DateTime TransactionDateTime { get; set; }
-	public int CompanyId { get; set; }
-	public string CompanyName { get; set; }
-	public int LocationId { get; set; }
-	public string LocationName { get; set; }
-
-	public int DiningTableId { get; set; }
-	public string DiningTableName { get; set; }
-	public string DiningAreaName { get; set; }
-
-	public int? CustomerId { get; set; }
-	public string? CustomerName { get; set; }
-	public string? BillRemarks { get; set; }
-
-	public decimal Quantity { get; set; }
-	public decimal Rate { get; set; }
-	public decimal BaseTotal { get; set; }
-
-	public decimal DiscountPercent { get; set; }
-	public decimal DiscountAmount { get; set; }
-	public decimal AfterDiscount { get; set; }
-
-	public decimal CGSTPercent { get; set; }
-	public decimal CGSTAmount { get; set; }
-	public decimal SGSTPercent { get; set; }
-	public decimal SGSTAmount { get; set; }
-	public decimal IGSTPercent { get; set; }
-	public decimal IGSTAmount { get; set; }
-	public decimal TotalTaxAmount { get; set; }
-	public bool InclusiveTax { get; set; }
-
-	public decimal Total { get; set; }
-	public decimal NetRate { get; set; }
-	public decimal NetTotal { get; set; }
-
-	public string? Remarks { get; set; }
 }

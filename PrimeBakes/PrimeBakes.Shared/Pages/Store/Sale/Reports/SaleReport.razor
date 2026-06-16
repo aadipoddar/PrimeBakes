@@ -7,7 +7,7 @@
 <PageTitle>Sale Report - Prime Bakes</PageTitle>
 
 <MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(StoreRouteNames.Sale, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" Disabled="@_isProcessing" />
@@ -178,12 +178,11 @@ else
 				<div class="section-body grid-body">
 					<SfGrid @ref="_sfGrid" TValue="SaleOverviewModel" DataSource="_transactionOverviews"
 							AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
-							AllowFiltering="true" AllowExcelExport="true" AllowPdfExport="true" AllowGrouping="true"
-							GridLines="GridLine.Horizontal" CssClass="professional-grid"
-							ContextMenuItems="@_gridContextMenuItems" Toolbar="@(new List<string>() { "Search" })">
+							AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+							GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems" CssClass="professional-grid"
+							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
 						<GridEvents TValue="SaleOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
-						<GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
 						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
 						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
@@ -560,7 +559,7 @@ else
 								<Template>
 									@{
 										var item = (context as dynamic);
-										<span class="grid-discount">@item.ItemDiscountAmount.ToString("N2")</span>
+										<span class="grid-debit">@item.ItemDiscountAmount.ToString("N2")</span>
 									}
 								</Template>
 							</GridColumn>
@@ -575,7 +574,7 @@ else
 								<Template>
 									@{
 										var item = (context as dynamic);
-										<span class="grid-discount">@item.DiscountAmount.ToString("N2")</span>
+										<span class="grid-debit">@item.DiscountAmount.ToString("N2")</span>
 									}
 								</Template>
 							</GridColumn>

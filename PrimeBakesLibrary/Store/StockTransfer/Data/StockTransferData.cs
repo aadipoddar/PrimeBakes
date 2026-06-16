@@ -95,7 +95,7 @@ public static class StockTransferData
 
 	private static async Task DeleteAccounting(StockTransferModel stockTransfer, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
-		if (stockTransfer.FinancialAccountingId is null)
+		if (stockTransfer.FinancialAccountingId is null || stockTransfer.FinancialAccountingId <= 0)
 			return;
 
 		var existingAccounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(AccountNames.FinancialAccounting, stockTransfer.FinancialAccountingId.Value, sqlDataAccessTransaction)
@@ -166,13 +166,13 @@ public static class StockTransferData
 		if (update)
 		{
 			var existingStockTransfer = await CommonData.LoadTableDataById<StockTransferModel>(StoreNames.StockTransfer, stockTransfer.Id, sqlDataAccessTransaction)
-				?? throw new InvalidOperationException("The stock transfer transaction does not exist.");
+				?? throw new InvalidOperationException("The transaction to be updated does not exist.");
 
 			await FinancialYearData.ValidateFinancialYear(existingStockTransfer.TransactionDateTime, sqlDataAccessTransaction);
 
 			var user = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, stockTransfer.LastModifiedBy.Value, sqlDataAccessTransaction);
-			if (!user.Admin)
-				throw new InvalidOperationException("Only admin users can update a stock transfer transaction.");
+			if (!user.Admin || user.LocationId != 1)
+				throw new InvalidOperationException("Only admin users are allowed to modify transactions.");
 
 			stockTransfer.TransactionNo = existingStockTransfer.TransactionNo;
 		}
@@ -279,7 +279,7 @@ public static class StockTransferData
 		await SaveTransactionDetail(stockTransfer, stockTransferDetails, update, sqlDataAccessTransaction);
 		await SaveProductStock(stockTransfer, stockTransferDetails, sqlDataAccessTransaction);
 		await SaveRawMaterialStockByRecipe(stockTransfer, stockTransferDetails, sqlDataAccessTransaction);
-		await SaveAccounting(stockTransfer, update, sqlDataAccessTransaction);
+		await SaveAccounting(stockTransfer, sqlDataAccessTransaction);
 		await SaveAuditTrail(stockTransfer, update, recover, previousStockTransfer, previousStockTransferDetails, sqlDataAccessTransaction);
 
 		return stockTransfer.Id;
@@ -370,22 +370,9 @@ public static class StockTransferData
 		}
 	}
 
-	private static async Task SaveAccounting(StockTransferModel stockTransfer, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
+	private static async Task SaveAccounting(StockTransferModel stockTransfer, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
-		if (update)
-		{
-			var stockTransferVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.StockTransferVoucherId, sqlDataAccessTransaction);
-			var existingAccounting = await FinancialAccountingData.LoadFinancialAccountingByVoucherReference(int.Parse(stockTransferVoucher.Value), stockTransfer.Id, stockTransfer.TransactionNo, sqlDataAccessTransaction);
-			if (existingAccounting is not null && existingAccounting.Id > 0)
-			{
-				existingAccounting.Status = false;
-				existingAccounting.LastModifiedBy = stockTransfer.LastModifiedBy;
-				existingAccounting.LastModifiedAt = stockTransfer.LastModifiedAt;
-				existingAccounting.LastModifiedFromPlatform = stockTransfer.LastModifiedFromPlatform;
-
-				await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
-			}
-		}
+		await DeleteAccounting(stockTransfer, sqlDataAccessTransaction);
 
 		if (stockTransfer.LocationId != 1 && stockTransfer.ToLocationId != 1)
 			return;

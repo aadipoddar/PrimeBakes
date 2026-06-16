@@ -72,7 +72,6 @@ BEGIN
 			[Running],
 			[FinancialAccountingId],
 			[CreatedBy],
-			[CreatedAt],
 			[CreatedFromPlatform],
 			[Status]
 		)
@@ -108,7 +107,6 @@ BEGIN
 			@Running,
 			@FinancialAccountingId,
 			@CreatedBy,
-			@CreatedAt,
 			@CreatedFromPlatform,
 			@Status
 		)

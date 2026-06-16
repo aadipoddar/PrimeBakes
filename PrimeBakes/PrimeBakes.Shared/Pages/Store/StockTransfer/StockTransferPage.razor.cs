@@ -63,7 +63,7 @@ public partial class StockTransferPage
 
 	private CustomAutoComplete<CompanyModel> _firstFocus;
 	private CustomAutoComplete<ProductLocationOverviewModel> _itemAutoComplete;
-	private CustomNumericField<decimal> _otherChargesPercent;
+	private CustomNumericField<decimal> _otherChargesPercentField;
 	private CustomAutoComplete<PaymentModeModel> _paymentModeAutoComplete;
 	private SfGrid<StockTransferItemCartModel> _sfCartGrid;
 	private SfGrid<PaymentItem> _sfPaymentsCartGrid;

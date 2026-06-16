@@ -11,10 +11,10 @@
 <PageTitle>Sale - Prime Bakes</PageTitle>
 
 <MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus.FocusAsync()" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyG KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _itemAutoComplete.FocusAsync()" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers="[JsKeyModifier.ControlLeft, JsKeyModifier.ShiftLeft]" OnHotkeyPressed="() => _otherChargesPercent.FocusAsync()" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyG KeyModifiers="[JsKeyModifier.ControlLeft, JsKeyModifier.ShiftLeft]" OnHotkeyPressed="() => _paymentModeAutoComplete.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyG KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _itemAutoComplete?.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers="[JsKeyModifier.ControlLeft, JsKeyModifier.ShiftLeft]" OnHotkeyPressed="() => _otherChargesPercentField?.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyG KeyModifiers="[JsKeyModifier.ControlLeft, JsKeyModifier.ShiftLeft]" OnHotkeyPressed="() => _paymentModeAutoComplete?.FocusAsync()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.Enter KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="AddItemToCart" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyT KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction(saveThermal: true)" Disabled="@_isProcessing" />
@@ -122,6 +122,15 @@ else
 								</div>
 							}
 
+							<!-- Transaction No -->
+							<div class="form-field">
+								<CustomTextField @bind-Value="_sale.TransactionNo"
+												 Label="Transaction No"
+												 Placeholder="Transaction No"
+												 ReadOnly="true"
+												 TabIndex="-1" />
+							</div>
+
 							@if (_selectedLocation.Id == 1)
 							{
 								<!-- Party -->
@@ -159,15 +168,6 @@ else
 									</div>
 								</div>
 							}
-
-							<!-- Transaction No -->
-							<div class="form-field">
-								<CustomTextField @bind-Value="_sale.TransactionNo"
-												 Label="Transaction No"
-												 Placeholder="Transaction No"
-												 ReadOnly="true"
-												 TabIndex="-1" />
-							</div>
 
 							<!-- Customer Number -->
 							<div class="form-field">
@@ -231,7 +231,7 @@ else
 								<!-- Other Charges -->
 								<div class="form-field">
 									<div class="date-year-wrapper">
-										<CustomNumericField @ref="_otherChargesPercent" T="decimal"
+										<CustomNumericField @ref="_otherChargesPercentField" T="decimal"
 															Value="_sale.OtherChargesPercent"
 															ValueChanged="OnOtherChargesPercentChanged"
 															Label="Other Charges % (Ctrl + Shift + F)"
@@ -345,9 +345,9 @@ else
 						</div>
 
 						<SfGrid @ref="_sfPaymentsCartGrid" DataSource="_paymentsCart"
-								AllowTextWrap="true" AllowPaging="false" AllowSorting="true" AllowResizing="true"
-								AllowFiltering="true" GridLines="GridLine.Horizontal" CssClass="professional-grid"
-								ContextMenuItems="@_paymentsCartGridContextMenuItems">
+								AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_paymentsCartGridContextMenuItems" CssClass="professional-grid">
 
 							<GridEvents TValue="PaymentItem" ContextMenuItemClicked="OnPaymentsCartGridContextMenuItemClicked" />
 							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
@@ -594,10 +594,11 @@ else
 					</div>
 				</div>
 				<div class="section-body grid-body">
-					<SfGrid @ref="_sfCartGrid" DataSource="_cart" AllowTextWrap="true" AllowPaging="false"
-							AllowSorting="true" AllowResizing="true" AllowFiltering="true" GridLines="GridLine.Horizontal"
-							CssClass="professional-grid" ContextMenuItems="@_cartGridContextMenuItems"
-							Toolbar="@(new List<string>() { "Search" })">
+					<SfGrid @ref="_sfCartGrid" DataSource="_cart"
+							AllowPaging="true" AllowSorting="true" AllowResizing="true"
+							AllowFiltering="true" AllowReordering="true" ShowColumnChooser="true"
+							GridLines="GridLine.Horizontal" ContextMenuItems="@_cartGridContextMenuItems" CssClass="professional-grid"
+							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
 						<GridEvents TValue="SaleItemCartModel" ContextMenuItemClicked="OnCartGridContextMenuItemClicked" />
 						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
@@ -728,7 +729,7 @@ else
 								<Template>
 									@{
 										var item = (context as dynamic);
-										<span class="grid-discount">@item.DiscountAmount.ToString("N2")</span>
+										<span class="grid-debit">@item.DiscountAmount.ToString("N2")</span>
 									}
 								</Template>
 							</GridColumn>

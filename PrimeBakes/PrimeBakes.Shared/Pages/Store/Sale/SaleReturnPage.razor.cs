@@ -65,7 +65,7 @@ public partial class SaleReturnPage
 
 	private CustomAutoComplete<CompanyModel> _firstFocus;
 	private CustomAutoComplete<ProductLocationOverviewModel> _itemAutoComplete;
-	private CustomNumericField<decimal> _otherChargesPercent;
+	private CustomNumericField<decimal> _otherChargesPercentField;
 	private CustomAutoComplete<PaymentModeModel> _paymentModeAutoComplete;
 	private SfGrid<SaleReturnItemCartModel> _sfCartGrid;
 	private SfGrid<PaymentItem> _sfPaymentsCartGrid;

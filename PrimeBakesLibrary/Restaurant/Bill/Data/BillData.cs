@@ -5,10 +5,15 @@ using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Inventory.Recipe.Models;
 using PrimeBakesLibrary.Inventory.Stock.Data;
 using PrimeBakesLibrary.Inventory.Stock.Models;
+using PrimeBakesLibrary.Operations.AuditTrail;
 using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Operations.Settings;
+using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Restaurant.Bill.Exports;
 using PrimeBakesLibrary.Restaurant.Bill.Models;
+using PrimeBakesLibrary.Restaurant.Dining.Models;
+using PrimeBakesLibrary.Store.Customer;
+using PrimeBakesLibrary.Store.Product.Data;
 using PrimeBakesLibrary.Store.Product.Models;
 using PrimeBakesLibrary.Utils.Exports;
 using PrimeBakesLibrary.Utils.Mail;
@@ -18,70 +23,31 @@ namespace PrimeBakesLibrary.Restaurant.Bill.Data;
 public static class BillData
 {
 	private static async Task<int> InsertBill(BillModel bill, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(RestaurantNames.InsertBill, bill, sqlDataAccessTransaction)).FirstOrDefault();
+		(await SqlDataAccess.LoadData<int, dynamic>(RestaurantNames.InsertBill, bill, sqlDataAccessTransaction)).FirstOrDefault()
+			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Bill.");
 
 	private static async Task<int> InsertBillDetail(BillDetailModel billDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(RestaurantNames.InsertBillDetail, billDetail, sqlDataAccessTransaction)).FirstOrDefault();
+		(await SqlDataAccess.LoadData<int, dynamic>(RestaurantNames.InsertBillDetail, billDetail, sqlDataAccessTransaction)).FirstOrDefault()
+			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Bill Detail.");
 
-	private static async Task DeleteBillDetailById(int Id, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		await SqlDataAccess.SaveData(RestaurantNames.DeleteBillDetailById, new { Id }, sqlDataAccessTransaction);
+	private static async Task<int> DeleteBillDetailById(int Id, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+		(await SqlDataAccess.LoadData<int, dynamic>(RestaurantNames.DeleteBillDetailById, new { Id }, sqlDataAccessTransaction)).FirstOrDefault()
+			is var result and > 0 ? result : throw new InvalidOperationException("Failed to Delete Bill Detail.");
 
 	public static async Task<List<BillModel>> LoadRunningBillByLocationId(int LocationId, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		await SqlDataAccess.LoadData<BillModel, dynamic>(RestaurantNames.LoadRunningBillByLocationId, new { LocationId }, sqlDataAccessTransaction);
 
-	private static async Task<List<BillModel>> LoadBillByFinancialAccountingId(int FinancialAccountingId, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		await SqlDataAccess.LoadData<BillModel, dynamic>(RestaurantNames.LoadBillByFinancialAccountingId, new { FinancialAccountingId }, sqlDataAccessTransaction);
-
-	public static async Task<Dictionary<int, List<BillItemCartModel>>> KOTCategoryItemsFromBill(int billId)
+	internal static async Task UpdateFinancialAccountingId(int financialAccountingId, int? newFinancialAccountingId, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
-		var billDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, billId);
-		var kotItems = billDetails.Where(item => item.KOTPrint).ToList();
-
-		if (kotItems.Count == 0)
-			return [];
-
-		var allProducts = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
-		var kotProducts = allProducts.Where(p => kotItems.Any(ki => ki.ProductId == p.Id)).ToList();
-		var kotCategoryIds = kotProducts.Select(p => p.KOTCategoryId).Distinct().ToList();
-
-		var result = new Dictionary<int, List<BillItemCartModel>>();
-
-		foreach (var kotCategoryId in kotCategoryIds)
+		var bills = await CommonData.LoadTableDataByFinancialAccountingId<BillModel>(RestaurantNames.Bill, financialAccountingId, sqlDataAccessTransaction);
+		foreach (var bill in bills)
 		{
-			var categoryProducts = kotProducts.Where(p => p.KOTCategoryId == kotCategoryId).ToList();
-			result[kotCategoryId] = [];
-
-			foreach (var product in categoryProducts)
-			{
-				var items = kotItems.Where(ki => ki.ProductId == product.Id).ToList();
-				foreach (var item in items)
-					result[kotCategoryId].Add(new BillItemCartModel
-					{
-						ItemCategoryId = product.KOTCategoryId,
-						ItemId = product.Id,
-						ItemName = product.Name,
-						Quantity = item.Quantity,
-						Remarks = item.Remarks,
-						KOTPrint = item.KOTPrint
-					});
-			}
-		}
-
-		return result;
-	}
-
-	public static async Task MarkKOTAsPrinted(int billId)
-	{
-		var billDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, billId);
-
-		foreach (var detail in billDetails.Where(d => d.KOTPrint))
-		{
-			detail.KOTPrint = false;
-			await InsertBillDetail(detail);
+			bill.FinancialAccountingId = newFinancialAccountingId;
+			await InsertBill(bill, sqlDataAccessTransaction);
 		}
 	}
 
-	public static List<BillDetailModel> ConvertCartToDetails(List<BillItemCartModel> cart, int masterId) =>
+	public static List<BillDetailModel> ConvertCartToDetails(List<BillItemCartModel> cart, int masterId = 0) =>
 		[.. cart.Select(item => new BillDetailModel
 		{
 			Id = 0,
@@ -108,117 +74,338 @@ public static class BillData
 			Status = true
 		})];
 
-	public static async Task DeleteTransaction(BillModel bill)
+	#region KOT
+	public static async Task<Dictionary<int, List<BillItemCartModel>>> KOTCategoryItemsFromBill(int billId)
 	{
-		if (bill.FinancialAccountingId is not null)
-			throw new InvalidOperationException("Cannot delete a bill with financial accounting.");
+		var billDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, billId);
+		var kotItems = billDetails.Where(item => item.KOTPrint).ToList();
 
-		await FinancialYearData.ValidateFinancialYear(bill.TransactionDateTime);
+		if (kotItems.Count == 0)
+			return [];
 
-		using SqlDataAccessTransaction sqlDataAccessTransaction = new();
+		var allProducts = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
+		var kotProducts = allProducts.Where(p => kotItems.Any(ki => ki.ProductId == p.Id)).ToList();
+		var kotCategoryIds = kotProducts.Select(p => p.KOTCategoryId).Distinct().ToList();
 
-		try
+		var result = new Dictionary<int, List<BillItemCartModel>>();
+
+		foreach (var kotCategoryId in kotCategoryIds)
 		{
-			sqlDataAccessTransaction.StartTransaction();
+			var categoryProducts = kotProducts.Where(p => p.KOTCategoryId == kotCategoryId).ToList();
+			result[kotCategoryId] = [];
 
-			bill.Status = false;
-			await InsertBill(bill, sqlDataAccessTransaction);
-
-			await ProductStockData.DeleteProductStockByTransactionNo(bill.TransactionNo, sqlDataAccessTransaction);
-			await RawMaterialStockData.DeleteRawMaterialStockByTransactionNo(bill.TransactionNo, sqlDataAccessTransaction);
-
-			var billVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.BillVoucherId, sqlDataAccessTransaction);
-			var existingAccounting = await FinancialAccountingData.LoadFinancialAccountingByVoucherReference(int.Parse(billVoucher.Value), bill.Id, bill.TransactionNo, sqlDataAccessTransaction);
-			if (existingAccounting is not null && existingAccounting.Id > 0)
+			foreach (var product in categoryProducts)
 			{
-				existingAccounting.Status = false;
-				existingAccounting.LastModifiedBy = bill.LastModifiedBy;
-				existingAccounting.LastModifiedAt = bill.LastModifiedAt;
-				existingAccounting.LastModifiedFromPlatform = bill.LastModifiedFromPlatform;
-
-				await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
+				var items = kotItems.Where(ki => ki.ProductId == product.Id).ToList();
+				foreach (var item in items)
+					result[kotCategoryId].Add(new()
+					{
+						ItemCategoryId = product.KOTCategoryId,
+						ItemId = product.Id,
+						ItemName = product.Name,
+						Quantity = item.Quantity,
+						Remarks = item.Remarks,
+						KOTPrint = item.KOTPrint
+					});
 			}
-
-			sqlDataAccessTransaction.CommitTransaction();
-
-			await BillNotify.Notify(bill.Id, NotifyType.Deleted);
 		}
-		catch
+
+		return result;
+	}
+
+	public static async Task MarkKOTAsPrinted(int billId)
+	{
+		var billDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, billId);
+
+		foreach (var detail in billDetails.Where(d => d.KOTPrint))
 		{
-			sqlDataAccessTransaction.RollbackTransaction();
-			throw;
+			detail.KOTPrint = false;
+			await InsertBillDetail(detail);
 		}
+	}
+	#endregion
+
+	#region Delete
+	public static async Task DeleteTransaction(BillModel bill, SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	{
+		if (sqlDataAccessTransaction is null)
+		{
+			await SqlDataAccessTransaction.Run(transaction => DeleteTransaction(bill, transaction));
+			await BillNotify.Notify(bill.Id, NotifyType.Deleted);
+			return;
+		}
+
+		await ValidateDayBillsAccountPosting(bill.TransactionDateTime, bill.LocationId, sqlDataAccessTransaction);
+		await FinancialYearData.ValidateFinancialYear(bill.TransactionDateTime, sqlDataAccessTransaction);
+
+		bill.Status = false;
+		await InsertBill(bill, sqlDataAccessTransaction);
+
+		await ProductStockData.DeleteProductStockByTransactionNo(bill.TransactionNo, sqlDataAccessTransaction);
+		await RawMaterialStockData.DeleteRawMaterialStockByTransactionNo(bill.TransactionNo, sqlDataAccessTransaction);
+		await DeleteAccounting(bill, sqlDataAccessTransaction);
+
+		await AuditTrailData.SaveAuditTrail(new()
+		{
+			Action = AuditTrailActionTypes.Delete.ToString(),
+			TableName = RestaurantNames.Bill,
+			RecordNo = bill.TransactionNo,
+			CreatedBy = bill.LastModifiedBy.Value,
+			CreatedFromPlatform = bill.LastModifiedFromPlatform
+		}, sqlDataAccessTransaction);
+	}
+
+	private static async Task DeleteAccounting(BillModel bill, SqlDataAccessTransaction sqlDataAccessTransaction)
+	{
+		if (bill.FinancialAccountingId is null || bill.FinancialAccountingId <= 0)
+			return;
+
+		var existingAccounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(AccountNames.FinancialAccounting, bill.FinancialAccountingId.Value, sqlDataAccessTransaction)
+			?? throw new InvalidOperationException("The associated financial accounting transaction for the transaction does not exist.");
+
+		existingAccounting.Status = false;
+		existingAccounting.LastModifiedBy = bill.LastModifiedBy;
+		existingAccounting.LastModifiedAt = bill.LastModifiedAt;
+		existingAccounting.LastModifiedFromPlatform = bill.LastModifiedFromPlatform;
+
+		await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
 	}
 
 	public static async Task RecoverTransaction(BillModel bill)
 	{
 		bill.Status = true;
-		var transactionDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, bill.Id);
+		var billDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, bill.Id);
+		await SaveTransaction(bill, billDetails, recover: true);
 
-		await SaveTransaction(bill, null, transactionDetails, false);
 		await BillNotify.Notify(bill.Id, NotifyType.Recovered);
 	}
+	#endregion
 
-	public static async Task<int> SaveTransaction(BillModel bill, List<BillItemCartModel> cart = null, List<BillDetailModel> billDetails = null, bool showNotification = true, SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	#region Save
+	private static async Task<int?> ResolveCustomer(CustomerModel customer, SqlDataAccessTransaction sqlDataAccessTransaction)
+	{
+		if (customer is null || customer.Id > 0)
+			return customer?.Id is > 0 ? customer.Id : null;
+
+		customer.Number = string.IsNullOrWhiteSpace(customer.Number) ? null : customer.Number.Trim();
+		customer.Name = string.IsNullOrWhiteSpace(customer.Name) ? null : customer.Name.Trim();
+
+		if (customer.Number is null)
+			return null;
+
+		if (customer.Name is null)
+			throw new InvalidOperationException("Please enter a name for the new customer or clear the customer field.");
+
+		if (!Helper.ValidatePhoneNumber(customer.Number))
+			throw new InvalidOperationException("Please enter a valid phone number for the new customer.");
+
+		return await CustomerData.InsertCustomer(customer, sqlDataAccessTransaction);
+	}
+
+	private static async Task<BillModel> ValidateTransaction(BillModel bill, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
+	{
+		bill.Remarks = string.IsNullOrWhiteSpace(bill.Remarks) ? null : bill.Remarks.Trim();
+
+		if (bill.CompanyId <= 0)
+			throw new InvalidOperationException("Please select a company for the transaction.");
+
+		if (bill.LocationId <= 0)
+			throw new InvalidOperationException("Please select a location for the transaction.");
+
+		if (bill.DiningTableId <= 0)
+			throw new InvalidOperationException("Please select a dining table for the transaction.");
+
+		if (bill.TotalItems <= 0)
+			throw new InvalidOperationException("The total number of items in the transaction must be greater than zero.");
+
+		if (bill.TotalQuantity <= 0)
+			throw new InvalidOperationException("The total quantity of items in the transaction must be greater than zero.");
+
+		if (bill.TotalAmount < 0)
+			throw new InvalidOperationException("The total amount of the transaction cannot be negative.");
+
+		if (bill.Cash < 0 || bill.Card < 0 || bill.Credit < 0 || bill.UPI < 0)
+			throw new InvalidOperationException("Payment amounts cannot be negative.");
+
+		if (!bill.Running && bill.Cash + bill.Card + bill.UPI + bill.Credit != bill.TotalAmount)
+			throw new InvalidOperationException("For settled bills, the total payment must equal the total amount.");
+
+		var diningTable = await CommonData.LoadTableDataById<DiningTableModel>(RestaurantNames.DiningTable, bill.DiningTableId, sqlDataAccessTransaction)
+			?? throw new InvalidOperationException("The selected dining table does not exist.");
+
+		var diningArea = await CommonData.LoadTableDataById<DiningAreaModel>(RestaurantNames.DiningArea, diningTable.DiningAreaId, sqlDataAccessTransaction);
+		if (diningArea.LocationId != bill.LocationId)
+			throw new InvalidOperationException("The selected dining table does not belong to the selected location.");
+
+		var userId = update ? bill.LastModifiedBy : bill.CreatedBy;
+		var billUser = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, userId.Value, sqlDataAccessTransaction);
+
+		if (billUser.LocationId != 1)
+		{
+			var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
+			if (bill.CompanyId != int.Parse(mainCompanyId.Value))
+				throw new InvalidOperationException("You can only create transactions for the primary company.");
+
+			if (bill.LocationId != billUser.LocationId)
+				throw new InvalidOperationException("You can only create transactions for your assigned location.");
+
+			bill.TransactionDateTime = await CommonData.LoadCurrentDateTime();
+		}
+
+		if (!billUser.ChangeProductFinancial)
+		{
+			if (bill.ItemDiscountAmount != 0)
+				throw new InvalidOperationException("You are not allowed to apply item discount.");
+
+			if (bill.ServiceChargePercent != 0 || bill.ServiceChargeAmount != 0)
+				throw new InvalidOperationException("You are not allowed to apply service charge.");
+
+			if (bill.DiscountPercent != 0 || bill.DiscountAmount != 0)
+				throw new InvalidOperationException("You are not allowed to apply discount.");
+		}
+
+		if (update)
+		{
+			var existingBill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, bill.Id, sqlDataAccessTransaction)
+				?? throw new InvalidOperationException("The transaction to be updated does not exist.");
+
+			if (existingBill.FinancialAccountingId is not null)
+				throw new InvalidOperationException("Cannot update a bill with financial accounting.");
+
+			var user = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, bill.LastModifiedBy.Value, sqlDataAccessTransaction);
+			if (!existingBill.Running && !(user.Admin && user.LocationId == 1))
+				throw new InvalidOperationException("Only admin users are allowed to modify transactions.");
+
+			await ValidateDayBillsAccountPosting(existingBill.TransactionDateTime, existingBill.LocationId, sqlDataAccessTransaction);
+			await FinancialYearData.ValidateFinancialYear(existingBill.TransactionDateTime, sqlDataAccessTransaction);
+
+			bill.TransactionNo = existingBill.TransactionNo;
+		}
+		else
+			bill.TransactionNo = await GenerateCodes.GenerateBillTransactionNo(bill, sqlDataAccessTransaction);
+
+		await ValidateDayBillsAccountPosting(bill.TransactionDateTime, bill.LocationId, sqlDataAccessTransaction);
+		await FinancialYearData.ValidateFinancialYear(bill.TransactionDateTime, sqlDataAccessTransaction);
+
+		return bill;
+	}
+
+	private static async Task ValidateItemDetails(BillModel bill, List<BillDetailModel> billDetails, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
+	{
+		// On settlement (fully paid) the KOT has already been printed, so clear the flags.
+		if (!bill.Running)
+			foreach (var item in billDetails)
+				item.KOTPrint = false;
+
+		foreach (var item in billDetails)
+			item.Remarks = string.IsNullOrWhiteSpace(item.Remarks) ? null : item.Remarks.Trim();
+
+		if (billDetails is null || billDetails.Count == 0)
+			throw new InvalidOperationException("Please add at least one item detail for the transaction.");
+
+		if (billDetails.Any(ed => ed.Quantity <= 0))
+			throw new InvalidOperationException("Item quantity must be greater than zero.");
+
+		if (billDetails.Any(ed => !ed.Status))
+			throw new InvalidOperationException("Bill detail items must be active.");
+
+		if (billDetails.Count != bill.TotalItems)
+			throw new InvalidOperationException("Total items must be equal to the number of item details.");
+
+		if (billDetails.Sum(ed => ed.Quantity) != bill.TotalQuantity)
+			throw new InvalidOperationException("Total quantity must be equal to the sum of item quantities.");
+
+		if (billDetails.Sum(ed => ed.BaseTotal) != bill.BaseTotal)
+			throw new InvalidOperationException("Base total must be equal to the sum of item base totals.");
+
+		if (billDetails.Sum(ed => ed.DiscountAmount) != bill.ItemDiscountAmount)
+			throw new InvalidOperationException("Item discount amount must be equal to the sum of item discount amounts.");
+
+		if (billDetails.Sum(ed => ed.AfterDiscount) != bill.TotalAfterItemDiscount)
+			throw new InvalidOperationException("Total after item discount must be equal to the sum of item totals after discount.");
+
+		if (billDetails.Sum(ed => ed.TotalTaxAmount) != bill.TotalInclusiveTaxAmount + bill.TotalExtraTaxAmount)
+			throw new InvalidOperationException("Total tax amount must be equal to the sum of inclusive and extra tax amounts.");
+
+		if (billDetails.Sum(ed => ed.Total) != bill.TotalAfterTax)
+			throw new InvalidOperationException("Total after tax must be equal to the sum of item totals.");
+
+		if (bill.LocationId != 1 && billDetails.Any(ed => ed.IGSTAmount != 0 || ed.IGSTPercent != 0))
+			throw new InvalidOperationException("IGST cannot be applied for non-primary location transactions.");
+
+		var userId = update ? bill.LastModifiedBy : bill.CreatedBy;
+		var billUser = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, userId.Value, sqlDataAccessTransaction);
+		if (!billUser.ChangeProductFinancial)
+		{
+			if (billDetails.Any(ed => ed.DiscountAmount != 0 || ed.DiscountPercent != 0))
+				throw new InvalidOperationException("You are not allowed to apply item discount.");
+
+			var productLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: bill.LocationId, sqlDataAccessTransaction: sqlDataAccessTransaction);
+			var taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax, sqlDataAccessTransaction);
+
+			foreach (var item in billDetails)
+			{
+				var product = productLocations.FirstOrDefault(pl => pl.ProductId == item.ProductId)
+					?? throw new InvalidOperationException($"Product with ID '{item.ProductId}' is not available in the selected location.");
+
+				var tax = taxes.FirstOrDefault(t => t.Id == product.TaxId)
+					?? throw new InvalidOperationException($"Tax information for product '{product.Name}' is not available.");
+
+				if (item.Rate != product.Rate)
+					throw new InvalidOperationException($"You are not allowed to change the rate for product '{product.Name}'.");
+
+				if (item.CGSTPercent != tax.CGST || item.SGSTPercent != tax.SGST)
+					throw new InvalidOperationException($"You are not allowed to change the tax for product '{product.Name}'.");
+
+				if (item.InclusiveTax != tax.Inclusive)
+					throw new InvalidOperationException($"You are not allowed to change the tax inclusion for product '{product.Name}'.");
+			}
+		}
+	}
+
+	public static async Task<int> SaveTransaction(
+		BillModel bill,
+		List<BillDetailModel> billDetails,
+		CustomerModel customer = null,
+		bool recover = false,
+		SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		bool update = bill.Id > 0;
 
 		if (sqlDataAccessTransaction is null)
 		{
-			(MemoryStream, string)? previousInvoice = null;
-			if (update && !bill.Running)
-				previousInvoice = await BillInvoiceExport.ExportInvoice(bill.Id, InvoiceExportType.PDF);
+			(MemoryStream, string)? previousInvoice = update && !recover && !bill.Running
+				? await BillInvoiceExport.ExportInvoice(bill.Id, InvoiceExportType.PDF) : null;
 
-			using SqlDataAccessTransaction newSqlDataAccessTransaction = new();
+			bill.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(bill, billDetails, customer, recover, transaction));
 
-			try
-			{
-				newSqlDataAccessTransaction.StartTransaction();
-				bill.Id = await SaveTransaction(bill, cart, billDetails, showNotification, newSqlDataAccessTransaction);
-				newSqlDataAccessTransaction.CommitTransaction();
-			}
-			catch
-			{
-				newSqlDataAccessTransaction.RollbackTransaction();
-				throw;
-			}
-
-			if (showNotification && !bill.Running)
+			if (!recover && !bill.Running)
 				await BillNotify.Notify(bill.Id, update ? NotifyType.Updated : NotifyType.Created, previousInvoice);
 
 			return bill.Id;
 		}
 
-		var existingBill = bill;
-		var previousRunning = true;
+		if (!recover && customer is not null)
+			bill.CustomerId = await ResolveCustomer(customer, sqlDataAccessTransaction);
 
-		if (update)
-		{
-			existingBill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, bill.Id, sqlDataAccessTransaction);
+		bill = await ValidateTransaction(bill, update, sqlDataAccessTransaction);
+		await ValidateItemDetails(bill, billDetails, update, sqlDataAccessTransaction);
 
-			if (existingBill.FinancialAccountingId is not null)
-				throw new InvalidOperationException("Cannot update a bill with financial accounting.");
-
-			await ValidateDayBillsAccountPosting(existingBill.TransactionDateTime, existingBill.LocationId, sqlDataAccessTransaction);
-			await FinancialYearData.ValidateFinancialYear(existingBill.TransactionDateTime, sqlDataAccessTransaction);
-			bill.TransactionNo = existingBill.TransactionNo;
-			previousRunning = existingBill.Running;
-		}
-		else
-			bill.TransactionNo = await GenerateCodes.GenerateBillTransactionNo(bill, sqlDataAccessTransaction);
-
-		await ValidateDayBillsAccountPosting(existingBill.TransactionDateTime, bill.LocationId, sqlDataAccessTransaction);
-		await FinancialYearData.ValidateFinancialYear(bill.TransactionDateTime, sqlDataAccessTransaction);
+		var previousBill = update ? await CommonData.LoadTableDataById<BillOverviewModel>(RestaurantNames.BillOverview, bill.Id, sqlDataAccessTransaction) : new();
+		bool previousRunning = !update || previousBill is null || previousBill.Running;
+		// Audit edits only of already-settled bills; the first settlement of a running draft is recorded as an Insert.
+		bool auditUpdate = update && !previousRunning;
+		var previousBillDetails = auditUpdate && !recover && !bill.Running ? await CommonData.LoadTableDataByMasterId<BillItemOverviewModel>(RestaurantNames.BillItemOverview, bill.Id, sqlDataAccessTransaction) : [];
 
 		bill.Id = await InsertBill(bill, sqlDataAccessTransaction);
-		billDetails ??= ConvertCartToDetails(cart, bill.Id);
 		await SaveTransactionDetail(bill, billDetails, update, previousRunning, sqlDataAccessTransaction);
 
 		if (!bill.Running)
 		{
-			await SaveProductStock(bill, billDetails, existingBill, update, sqlDataAccessTransaction);
-			await SaveRawMaterialStockByRecipe(bill, billDetails, existingBill, update, sqlDataAccessTransaction);
-			await SaveAccounting(bill, update, sqlDataAccessTransaction);
+			await SaveProductStock(bill, billDetails, sqlDataAccessTransaction);
+			await SaveRawMaterialStockByRecipe(bill, billDetails, sqlDataAccessTransaction);
+			await SaveAccounting(bill, sqlDataAccessTransaction);
+			await SaveAuditTrail(bill, auditUpdate, recover, previousBill, previousBillDetails, sqlDataAccessTransaction);
 		}
 
 		return bill.Id;
@@ -226,12 +413,6 @@ public static class BillData
 
 	private static async Task SaveTransactionDetail(BillModel bill, List<BillDetailModel> billDetails, bool update, bool previousRunning, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
-		if (billDetails is null || billDetails.Count != bill.TotalItems || billDetails.Sum(d => d.Quantity) != bill.TotalQuantity)
-			throw new InvalidOperationException("Bill details do not match the transaction summary.");
-
-		if (billDetails.Any(d => !d.Status))
-			throw new InvalidOperationException("Bill detail items must be active.");
-
 		if (update)
 		{
 			var existingBillDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, bill.Id, sqlDataAccessTransaction);
@@ -251,21 +432,16 @@ public static class BillData
 		foreach (var item in billDetails)
 		{
 			item.MasterId = bill.Id;
-			var id = await InsertBillDetail(item, sqlDataAccessTransaction);
-
-			if (id <= 0)
-				throw new InvalidOperationException("Failed to save bill detail item.");
+			await InsertBillDetail(item, sqlDataAccessTransaction);
 		}
 	}
 
-	private static async Task SaveProductStock(BillModel bill, List<BillDetailModel> billDetails, BillModel existingBill, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
+	private static async Task SaveProductStock(BillModel bill, List<BillDetailModel> billDetails, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
-		if (update)
-			await ProductStockData.DeleteProductStockByTransactionNo(existingBill.TransactionNo, sqlDataAccessTransaction);
+		await ProductStockData.DeleteProductStockByTransactionNo(bill.TransactionNo, sqlDataAccessTransaction);
 
 		foreach (var item in billDetails)
-		{
-			var id = await ProductStockData.InsertProductStock(new()
+			await ProductStockData.InsertProductStock(new()
 			{
 				Id = 0,
 				ProductId = item.ProductId,
@@ -277,16 +453,11 @@ public static class BillData
 				TransactionDateTime = bill.TransactionDateTime,
 				LocationId = bill.LocationId
 			}, sqlDataAccessTransaction);
-
-			if (id <= 0)
-				throw new InvalidOperationException("Failed to save product stock for bill.");
-		}
 	}
 
-	private static async Task SaveRawMaterialStockByRecipe(BillModel bill, List<BillDetailModel> billDetails, BillModel existingBill, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
+	private static async Task SaveRawMaterialStockByRecipe(BillModel bill, List<BillDetailModel> billDetails, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
-		if (update)
-			await RawMaterialStockData.DeleteRawMaterialStockByTransactionNo(existingBill.TransactionNo, sqlDataAccessTransaction);
+		await RawMaterialStockData.DeleteRawMaterialStockByTransactionNo(bill.TransactionNo, sqlDataAccessTransaction);
 
 		if (bill.LocationId != 1)
 			return;
@@ -301,8 +472,7 @@ public static class BillData
 			var recipeItems = recipe is null ? [] : recipeDetails.Where(_ => _.MasterId == recipe.Id).ToList();
 
 			foreach (var recipeItem in recipeItems)
-			{
-				var id = await RawMaterialStockData.InsertRawMaterialStock(new()
+				await RawMaterialStockData.InsertRawMaterialStock(new()
 				{
 					Id = 0,
 					RawMaterialId = recipeItem.RawMaterialId,
@@ -313,45 +483,26 @@ public static class BillData
 					Type = nameof(StockType.Bill),
 					TransactionDateTime = bill.TransactionDateTime
 				}, sqlDataAccessTransaction);
-
-				if (id <= 0)
-					throw new InvalidOperationException("Failed to save raw material stock for bill.");
-			}
 		}
 	}
 
-	private static async Task SaveAccounting(BillModel bill, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
+	private static async Task SaveAccounting(BillModel bill, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
-		if (update)
-		{
-			var billVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.BillVoucherId, sqlDataAccessTransaction);
-			var existingAccounting = await FinancialAccountingData.LoadFinancialAccountingByVoucherReference(int.Parse(billVoucher.Value), bill.Id, bill.TransactionNo, sqlDataAccessTransaction);
-			if (existingAccounting is not null && existingAccounting.Id > 0)
-			{
-				existingAccounting.Status = false;
-				existingAccounting.LastModifiedBy = bill.LastModifiedBy;
-				existingAccounting.LastModifiedAt = bill.LastModifiedAt;
-				existingAccounting.LastModifiedFromPlatform = bill.LastModifiedFromPlatform;
-
-				await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
-			}
-		}
+		await DeleteAccounting(bill, sqlDataAccessTransaction);
 
 		if (bill.LocationId != 1)
 			return;
 
 		var billOverview = await CommonData.LoadTableDataById<BillOverviewModel>(RestaurantNames.BillOverview, bill.Id, sqlDataAccessTransaction);
-		if (billOverview is null)
+		if (billOverview is null || billOverview.TotalAmount == 0)
 			return;
 
-		if (billOverview.TotalAmount == 0)
-			return;
-
+		var cashLedger = await SettingsData.LoadSettingsByKey(SettingsKeys.CashSalesLedgerId, sqlDataAccessTransaction);
+		var billLedger = await SettingsData.LoadSettingsByKey(SettingsKeys.BillLedgerId, sqlDataAccessTransaction);
+		var gstLedger = await SettingsData.LoadSettingsByKey(SettingsKeys.GSTLedgerId, sqlDataAccessTransaction);
 		var accountingCart = new List<FinancialAccountingLedgerCartModel>();
 
 		if (billOverview.Cash + billOverview.UPI + billOverview.Card + billOverview.Credit > 0)
-		{
-			var cashLedger = await SettingsData.LoadSettingsByKey(SettingsKeys.CashSalesLedgerId, sqlDataAccessTransaction);
 			accountingCart.Add(new()
 			{
 				ReferenceId = billOverview.Id,
@@ -362,11 +513,8 @@ public static class BillData
 				Credit = null,
 				Remarks = $"Cash Account Posting For Bill {billOverview.TransactionNo}",
 			});
-		}
 
 		if (billOverview.TotalAmount - billOverview.TotalExtraTaxAmount > 0)
-		{
-			var billLedger = await SettingsData.LoadSettingsByKey(SettingsKeys.BillLedgerId, sqlDataAccessTransaction);
 			accountingCart.Add(new()
 			{
 				ReferenceId = billOverview.Id,
@@ -377,11 +525,8 @@ public static class BillData
 				Credit = billOverview.TotalAmount - billOverview.TotalExtraTaxAmount,
 				Remarks = $"Bill Account Posting For Bill {billOverview.TransactionNo}",
 			});
-		}
 
 		if (billOverview.TotalExtraTaxAmount > 0)
-		{
-			var gstLedger = await SettingsData.LoadSettingsByKey(SettingsKeys.GSTLedgerId, sqlDataAccessTransaction);
 			accountingCart.Add(new()
 			{
 				ReferenceId = billOverview.Id,
@@ -392,7 +537,6 @@ public static class BillData
 				Credit = billOverview.TotalExtraTaxAmount,
 				Remarks = $"GST Account Posting For Bill {billOverview.TransactionNo}",
 			});
-		}
 
 		var voucher = await SettingsData.LoadSettingsByKey(SettingsKeys.BillVoucherId, sqlDataAccessTransaction);
 		var accounting = new FinancialAccountingModel
@@ -418,6 +562,57 @@ public static class BillData
 
 		var ledgers = FinancialAccountingData.ConvertCartToDetails(accountingCart, accounting.Id);
 		await FinancialAccountingData.SaveTransaction(accounting, ledgers, false, sqlDataAccessTransaction);
+
+		bill.FinancialAccountingId = accounting.Id;
+		await InsertBill(bill, sqlDataAccessTransaction);
+	}
+
+	private static async Task SaveAuditTrail(
+		BillModel bill,
+		bool update,
+		bool recover,
+		BillOverviewModel previousBill = null,
+		List<BillItemOverviewModel> previousBillDetails = null,
+		SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	{
+		string difference = null;
+
+		if (update && !recover)
+		{
+			var currentBill = await CommonData.LoadTableDataById<BillOverviewModel>(RestaurantNames.BillOverview, bill.Id, sqlDataAccessTransaction);
+			var currentBillDetails = await CommonData.LoadTableDataByMasterId<BillItemOverviewModel>(RestaurantNames.BillItemOverview, bill.Id, sqlDataAccessTransaction);
+
+			var headerDiff = AuditTrailData.GetDifference(previousBill, currentBill);
+			var detailsDiff = AuditTrailData.GetDifference(previousBillDetails, currentBillDetails, typeof(BillOverviewModel));
+
+			difference = AuditTrailData.CombineDifferences(
+				(null, headerDiff),
+				("Items", detailsDiff));
+		}
+
+		await AuditTrailData.SaveAuditTrail(new()
+		{
+			Action = recover ? AuditTrailActionTypes.Recover.ToString() : update ? AuditTrailActionTypes.Update.ToString() : AuditTrailActionTypes.Insert.ToString(),
+			TableName = RestaurantNames.Bill,
+			RecordNo = bill.TransactionNo,
+			RecordValue = difference,
+			CreatedBy = update ? bill.LastModifiedBy.Value : bill.CreatedBy,
+			CreatedFromPlatform = update ? bill.LastModifiedFromPlatform : bill.CreatedFromPlatform
+		}, sqlDataAccessTransaction);
+	}
+	#endregion
+
+	#region Posting
+	private static async Task ValidateDayBillsAccountPosting(DateTime postDate, int locationId, SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	{
+		var bills = await CommonData.LoadTableDataByDate<BillModel>(
+			RestaurantNames.Bill,
+			DateOnly.FromDateTime(postDate).ToDateTime(TimeOnly.MinValue),
+			DateOnly.FromDateTime(postDate).ToDateTime(TimeOnly.MinValue),
+			sqlDataAccessTransaction);
+
+		if (bills.Any(b => b.LocationId == locationId && b.FinancialAccountingId is not null && b.Status))
+			throw new InvalidOperationException("Cannot post day bills account entry as there are already posted bills for the day. Please contact administrator.");
 	}
 
 	public static async Task PostDayBills(DateTime postingDate, int locationId, int userId, string userPlatform)
@@ -425,40 +620,41 @@ public static class BillData
 		await ValidateDayBillsAccountPosting(postingDate, locationId);
 		await FinancialYearData.ValidateFinancialYear(postingDate);
 
-		var bills = await CommonData.LoadTableDataByDate<BillOverviewModel>(
-				RestaurantNames.BillOverview,
+		var bills = await CommonData.LoadTableDataByDate<BillModel>(
+				RestaurantNames.Bill,
 				DateOnly.FromDateTime(postingDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(postingDate).ToDateTime(TimeOnly.MinValue));
 
 		bills = [.. bills.Where(b =>
 									b.LocationId == locationId &&
-									b.FinancialAccountingTransactionNo is null &&
+									b.FinancialAccountingId is null &&
 									b.Status &&
 									!b.Running)];
 
 		if (bills.Count == 0)
 			return;
 
-		var accountingCart = new List<FinancialAccountingLedgerCartModel>();
+		if (bills.Any(s => s.LocationId == 1))
+			throw new InvalidOperationException("Cannot post day bills account entry for the primary location. Please contact administrator.");
 
 		var totalAmount = bills.Sum(b => b.Cash + b.UPI + b.Card + b.Credit);
 		var totalExtraTaxAmount = bills.Sum(b => b.TotalExtraTaxAmount);
 
-		if (totalAmount <= 0)
-			return;
-
 		var ledger = await LocationData.LoadLedgerByLocationId(locationId);
-		accountingCart.Add(new()
-		{
-			LedgerId = ledger.Id,
-			Debit = totalAmount,
-			Credit = null,
-			Remarks = "Location Account Posting For Bill Day Closing",
-		});
+		var billLedger = await SettingsData.LoadSettingsByKey(SettingsKeys.BillLedgerId);
+		var gstLedger = await SettingsData.LoadSettingsByKey(SettingsKeys.GSTLedgerId);
+		var accountingCart = new List<FinancialAccountingLedgerCartModel>();
+
+		if (totalAmount > 0)
+			accountingCart.Add(new()
+			{
+				LedgerId = ledger.Id,
+				Debit = totalAmount,
+				Credit = null,
+				Remarks = "Location Account Posting For Bill Day Closing",
+			});
 
 		if (totalAmount - totalExtraTaxAmount > 0)
-		{
-			var billLedger = await SettingsData.LoadSettingsByKey(SettingsKeys.BillLedgerId);
 			accountingCart.Add(new()
 			{
 				LedgerId = int.Parse(billLedger.Value),
@@ -466,11 +662,8 @@ public static class BillData
 				Credit = totalAmount - totalExtraTaxAmount,
 				Remarks = "Bill Account Posting For Bill Day Closing",
 			});
-		}
 
 		if (totalExtraTaxAmount > 0)
-		{
-			var gstLedger = await SettingsData.LoadSettingsByKey(SettingsKeys.GSTLedgerId);
 			accountingCart.Add(new()
 			{
 				LedgerId = int.Parse(gstLedger.Value),
@@ -478,7 +671,6 @@ public static class BillData
 				Credit = totalExtraTaxAmount,
 				Remarks = "GST Account Posting For Bill Day Closing",
 			});
-		}
 
 		var voucher = await SettingsData.LoadSettingsByKey(SettingsKeys.BillDayCloseVoucherId);
 		var currentDateTime = await CommonData.LoadCurrentDateTime();
@@ -505,12 +697,8 @@ public static class BillData
 			Status = true
 		};
 
-		using SqlDataAccessTransaction sqlDataAccessTransaction = new();
-
-		try
+		await SqlDataAccessTransaction.Run(async sqlDataAccessTransaction =>
 		{
-			sqlDataAccessTransaction.StartTransaction();
-
 			var ledgers = FinancialAccountingData.ConvertCartToDetails(accountingCart, accounting.Id);
 			accounting.Id = await FinancialAccountingData.SaveTransaction(accounting, ledgers, false, sqlDataAccessTransaction);
 
@@ -520,15 +708,7 @@ public static class BillData
 				bill.FinancialAccountingId = accounting.Id;
 				await InsertBill(bill, sqlDataAccessTransaction);
 			}
-
-			sqlDataAccessTransaction.CommitTransaction();
-		}
-		catch
-		{
-			sqlDataAccessTransaction.RollbackTransaction();
-			throw;
-		}
-
+		});
 
 		await BillNotify.NotifyDayClosing(
 			postingDate,
@@ -539,27 +719,5 @@ public static class BillData
 			userId,
 			accounting.TransactionNo);
 	}
-
-	internal static async Task UpdateBillsFinancialAccountingId(int financialAccountingId, SqlDataAccessTransaction sqlDataAccessTransaction = null)
-	{
-		var bills = await LoadBillByFinancialAccountingId(financialAccountingId, sqlDataAccessTransaction);
-		foreach (var bill in bills)
-		{
-			bill.FinancialAccountingId = null;
-			await InsertBill(bill, sqlDataAccessTransaction);
-		}
-	}
-
-	private static async Task ValidateDayBillsAccountPosting(DateTime postDate, int locationId, SqlDataAccessTransaction sqlDataAccessTransaction = null)
-	{
-		var bills = await CommonData.LoadTableDataByDate<BillModel>(
-			RestaurantNames.Bill,
-			DateOnly.FromDateTime(postDate).ToDateTime(TimeOnly.MinValue),
-			DateOnly.FromDateTime(postDate).ToDateTime(TimeOnly.MinValue),
-			sqlDataAccessTransaction);
-
-		bills = [.. bills.Where(b => b.LocationId == locationId && b.FinancialAccountingId is not null && b.Status)];
-		if (bills.Count > 0)
-			throw new InvalidOperationException("Cannot post day bills account entry as there are already posted bills for the day. Please contact administrator.");
-	}
+	#endregion
 }

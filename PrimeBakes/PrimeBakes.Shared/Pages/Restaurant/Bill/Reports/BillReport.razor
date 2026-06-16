@@ -193,13 +193,11 @@ else
                 <div class="section-body grid-body">
                     <SfGrid ID="_sfGrid" @ref="_sfGrid" TValue="BillOverviewModel" DataSource="_transactionOverviews"
                             AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
-                            AllowFiltering="true" AllowExcelExport="true" AllowPdfExport="true" AllowGrouping="true"
-                            GridLines="GridLine.Horizontal" CssClass="professional-grid"
-                            ContextMenuItems="@_gridContextMenuItems" Toolbar="@(new List<string>() { "Search" })">
+                            AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+                            GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems" CssClass="professional-grid"
+                            Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
                         <GridEvents TValue="BillOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
-
-                        <GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
                         <GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
                         <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
@@ -628,7 +626,7 @@ else
                                 <Template>
                                     @{
                                         var item = (context as BillOverviewModel);
-                                        <span class="grid-discount">@item.ItemDiscountAmount.ToString("N2")</span>
+                                        <span class="grid-debit">@item.ItemDiscountAmount.ToString("N2")</span>
                                     }
                                 </Template>
                             </GridColumn>
@@ -647,7 +645,7 @@ else
                                 <Template>
                                     @{
                                         var item = (context as BillOverviewModel);
-                                        <span class="grid-discount">@item.DiscountAmount.ToString("N2")</span>
+                                        <span class="grid-debit">@item.DiscountAmount.ToString("N2")</span>
                                     }
                                 </Template>
                             </GridColumn>

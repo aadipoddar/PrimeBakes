@@ -29,7 +29,7 @@ else
                     <div class="section-title">New Cart</div>
 
                     <SfGrid @ref="_sfCartGrid" EnableAdaptiveUI="true" DataSource="_cart" AllowPaging="true"
-                            AllowSorting="false" AllowTextWrap="true" Toolbar="@(new List<string>() { "Search" })">
+                            AllowSorting="false" ShowColumnChooser="true" Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
                         <GridPageSettings PageSize="10" />
 
@@ -95,7 +95,7 @@ else
                     <div class="section-title">Previous Cart (Read-only)</div>
 
                     <SfGrid EnableAdaptiveUI="true" DataSource="_previousCart" AllowPaging="true" AllowSorting="false"
-                            AllowTextWrap="true" Toolbar="@(new List<string>() { "Search" })">
+                            ShowColumnChooser="true" Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
                         <GridPageSettings PageSize="5" />
 

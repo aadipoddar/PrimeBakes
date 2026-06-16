@@ -50,7 +50,7 @@ public partial class PurchaseReturnPage
 
 	private CustomAutoComplete<CompanyModel> _firstFocus;
 	private CustomAutoComplete<RawMaterialModel> _itemAutoComplete;
-	private CustomNumericField<decimal> _otherChargesPercent;
+	private CustomNumericField<decimal> _otherChargesPercentField;
 	private SfGrid<PurchaseReturnItemCartModel> _sfCartGrid;
 	private SfUploader _sfDocumentUploader;
 

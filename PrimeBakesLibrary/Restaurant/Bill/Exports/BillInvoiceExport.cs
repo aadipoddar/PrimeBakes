@@ -1,10 +1,8 @@
-﻿using PrimeBakesLibrary.Accounts.Masters.Models;
+using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Restaurant.Bill.Models;
-using PrimeBakesLibrary.Restaurant.Dining.Models;
 using PrimeBakesLibrary.Store.Customer;
-using PrimeBakesLibrary.Store.Product.Models;
 using PrimeBakesLibrary.Utils.Exports;
 
 namespace PrimeBakesLibrary.Restaurant.Bill.Exports;
@@ -13,20 +11,17 @@ public static class BillInvoiceExport
 {
 	public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId, InvoiceExportType exportType)
 	{
-		var transaction = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, transactionId)
-			?? throw new InvalidOperationException("Transaction not found.");
+		var transaction = await CommonData.LoadTableDataById<BillOverviewModel>(RestaurantNames.BillOverview, transactionId) ??
+			throw new InvalidOperationException("Transaction not found.");
 
-		var transactionDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, transaction.Id);
+		var transactionDetails = await CommonData.LoadTableDataByMasterId<BillItemOverviewModel>(RestaurantNames.BillItemOverview, transaction.Id);
 		if (transactionDetails is null || transactionDetails.Count == 0)
 			throw new InvalidOperationException("No transaction details found for the transaction.");
 
-		var company = await CommonData.LoadTableDataById<CompanyModel>(AccountNames.Company, transaction.CompanyId)
-			?? throw new InvalidOperationException("Company information is missing.");
-
+		var company = await CommonData.LoadTableDataById<CompanyModel>(AccountNames.Company, transaction.CompanyId);
 		var location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, transaction.LocationId);
-		var table = await CommonData.LoadTableDataById<DiningTableModel>(RestaurantNames.DiningTable, transaction.DiningTableId);
 
-		LedgerModel customerLedger = null;
+		LedgerModel? customerLedger = null;
 		if (transaction.CustomerId.HasValue && transaction.CustomerId.Value > 0)
 		{
 			var customer = await CommonData.LoadTableDataById<CustomerModel>(StoreNames.Customer, transaction.CustomerId.Value);
@@ -38,35 +33,19 @@ public static class BillInvoiceExport
 				};
 		}
 
-		var allProducts = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
-
-		var lineItems = transactionDetails.Select(detail =>
+		var lineItems = transactionDetails.Select(detail => new
 		{
-			var product = allProducts.FirstOrDefault(p => p.Id == detail.ProductId);
-			return new
-			{
-				ItemCategoryId = 0,
-				ItemId = detail.ProductId,
-				ItemName = product?.Name ?? $"Product #{detail.ProductId}",
-				detail.Quantity,
-				detail.Rate,
-				detail.BaseTotal,
-				detail.DiscountPercent,
-				detail.DiscountAmount,
-				AfterDiscount = detail.DiscountPercent == 0 ? 0 : detail.AfterDiscount,
-				CGSTPercent = detail.InclusiveTax ? 0 : detail.CGSTPercent,
-				CGSTAmount = detail.InclusiveTax ? 0 : detail.CGSTAmount,
-				SGSTPercent = detail.InclusiveTax ? 0 : detail.SGSTPercent,
-				SGSTAmount = detail.InclusiveTax ? 0 : detail.SGSTAmount,
-				IGSTPercent = detail.InclusiveTax ? 0 : detail.IGSTPercent,
-				IGSTAmount = detail.InclusiveTax ? 0 : detail.IGSTAmount,
-				TaxPercent = detail.InclusiveTax ? 0 : detail.CGSTPercent + detail.SGSTPercent + detail.IGSTPercent,
-				TotalTaxAmount = detail.InclusiveTax ? 0 : detail.TotalTaxAmount,
-				detail.InclusiveTax,
-				detail.Total,
-				detail.NetRate,
-				detail.Remarks
-			};
+			detail.ItemName,
+			detail.Quantity,
+			detail.Rate,
+			detail.DiscountPercent,
+			AfterDiscount = detail.DiscountPercent == 0 ? 0 : detail.AfterDiscount,
+			CGSTPercent = detail.InclusiveTax ? 0 : detail.CGSTPercent,
+			SGSTPercent = detail.InclusiveTax ? 0 : detail.SGSTPercent,
+			IGSTPercent = detail.InclusiveTax ? 0 : detail.IGSTPercent,
+			TaxPercent = detail.InclusiveTax ? 0 : detail.CGSTPercent + detail.SGSTPercent + detail.IGSTPercent,
+			TotalTaxAmount = detail.InclusiveTax ? 0 : detail.TotalTaxAmount,
+			detail.Total
 		}).ToList();
 
 		var paymentModes = new Dictionary<string, decimal>();
@@ -83,7 +62,7 @@ public static class BillInvoiceExport
 			Outlet = location?.Name ?? string.Empty,
 			TransactionNo = transaction.TransactionNo,
 			TransactionDateTime = transaction.TransactionDateTime,
-			ReferenceTransactionNo = table?.Name ?? string.Empty,
+			ReferenceTransactionNo = transaction.DiningTableName ?? string.Empty,
 			ReferenceDateTime = null,
 			TotalAmount = transaction.TotalAmount,
 			Remarks = transaction.Remarks ?? string.Empty,
@@ -95,7 +74,7 @@ public static class BillInvoiceExport
 		{
 			["Sub Total"] = transaction.TotalAfterTax.FormatIndianCurrency(),
 			[$"Discount ({transaction.DiscountPercent:0.00}%)"] = transaction.DiscountAmount.FormatIndianCurrency(),
-			[$"Service Charge ({transaction.ServiceChargePercent:0.00}% )"] = transaction.ServiceChargeAmount.FormatIndianCurrency(),
+			[$"Service Charge ({transaction.ServiceChargePercent:0.00}%)"] = transaction.ServiceChargeAmount.FormatIndianCurrency(),
 			["Round Off"] = transaction.RoundOffAmount.FormatIndianCurrency(),
 			["Grand Total"] = transaction.TotalAmount.FormatIndianCurrency()
 		};
@@ -103,14 +82,14 @@ public static class BillInvoiceExport
 		var columnSettings = new List<InvoiceColumnSetting>
 		{
 			new("#", "#", exportType, CellAlignment.Center, 25, 5),
-			new(nameof(BillItemCartModel.ItemName), "Item", exportType, CellAlignment.Left, 0, 30),
-			new(nameof(BillItemCartModel.Quantity), "Qty", exportType, CellAlignment.Right, 40, 10, "#,##0.00"),
-			new(nameof(BillItemCartModel.Rate), "Rate", exportType, CellAlignment.Right, 50, 12, "#,##0.00"),
-			new(nameof(BillItemCartModel.DiscountPercent), "Disc %", exportType, CellAlignment.Right, 45, 8, "#,##0.00"),
-			new(nameof(BillItemCartModel.AfterDiscount), "Taxable", exportType, CellAlignment.Right, 55, 12, "#,##0.00"),
+			new(nameof(BillItemOverviewModel.ItemName), "Item", exportType, CellAlignment.Left, 0, 30),
+			new(nameof(BillItemOverviewModel.Quantity), "Qty", exportType, CellAlignment.Right, 40, 10, "#,##0.00"),
+			new(nameof(BillItemOverviewModel.Rate), "Rate", exportType, CellAlignment.Right, 50, 12, "#,##0.00"),
+			new(nameof(BillItemOverviewModel.DiscountPercent), "Disc %", exportType, CellAlignment.Right, 45, 8, "#,##0.00"),
+			new(nameof(BillItemOverviewModel.AfterDiscount), "Taxable", exportType, CellAlignment.Right, 55, 12, "#,##0.00"),
 			new("TaxPercent", "Tax %", exportType, CellAlignment.Right, 45, 8, "#,##0.00"),
-			new(nameof(BillItemCartModel.TotalTaxAmount), "Tax", exportType, CellAlignment.Right, 50, 12, "#,##0.00"),
-			new(nameof(BillItemCartModel.Total), "Total", exportType, CellAlignment.Right, 55, 15, "#,##0.00")
+			new(nameof(BillItemOverviewModel.TotalTaxAmount), "Tax", exportType, CellAlignment.Right, 50, 12, "#,##0.00"),
+			new(nameof(BillItemOverviewModel.Total), "Total", exportType, CellAlignment.Right, 55, 15, "#,##0.00")
 		};
 
 		var currentDateTime = await CommonData.LoadCurrentDateTime();
@@ -129,16 +108,18 @@ public static class BillInvoiceExport
 			fileName += ".pdf";
 			return (stream, fileName);
 		}
+		else
+		{
+			var stream = await ExcelInvoiceExportUtil.ExportInvoiceToExcel(
+				invoiceData,
+				lineItems,
+				columnSettings,
+				null,
+				summaryFields
+			);
 
-		var excelStream = await ExcelInvoiceExportUtil.ExportInvoiceToExcel(
-			invoiceData,
-			lineItems,
-			columnSettings,
-			null,
-			summaryFields
-		);
-
-		fileName += ".xlsx";
-		return (excelStream, fileName);
+			fileName += ".xlsx";
+			return (stream, fileName);
+		}
 	}
 }

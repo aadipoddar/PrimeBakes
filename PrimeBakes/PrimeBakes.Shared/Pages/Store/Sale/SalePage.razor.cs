@@ -70,7 +70,7 @@ public partial class SalePage
 
 	private CustomAutoComplete<CompanyModel> _firstFocus;
 	private CustomAutoComplete<ProductLocationOverviewModel> _itemAutoComplete;
-	private CustomNumericField<decimal> _otherChargesPercent;
+	private CustomNumericField<decimal> _otherChargesPercentField;
 	private CustomAutoComplete<PaymentModeModel> _paymentModeAutoComplete;
 	private SfGrid<SaleItemCartModel> _sfCartGrid;
 	private SfGrid<PaymentItem> _sfPaymentsCartGrid;
@@ -336,7 +336,7 @@ public partial class SalePage
 			if (product is null)
 			{
 				var missing = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, item.ProductId);
-				await _toastNotification.ShowAsync("Item Not Found", $"The item {missing?.Name} (ID: {item.ProductId}) in the existing transaction cart was not found in the available items list. It may have been deleted or is inaccessible.", ToastType.Error);
+				await _toastNotification.ShowAsync("Item Not Found", $"The item {missing?.Name} (ID: {item.ProductId}) was not found in available items. It may have been deleted.", ToastType.Error);
 				continue;
 			}
 
@@ -1052,8 +1052,7 @@ public partial class SalePage
 
 			await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			var saleDetails = SaleData.ConvertCartToDetails(_cart);
-			_sale.Id = await SaleData.SaveTransaction(_sale, saleDetails, _selectedCustomer);
+			_sale.Id = await SaleData.SaveTransaction(_sale, SaleData.ConvertCartToDetails(_cart), _selectedCustomer);
 			_sale = await CommonData.LoadTableDataById<SaleModel>(StoreNames.Sale, _sale.Id);
 
 			if (saveThermal) await PrintThermalInvoice(true);

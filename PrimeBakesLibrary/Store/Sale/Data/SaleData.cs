@@ -143,10 +143,10 @@ public static class SaleData
 
 	private static async Task DeleteAccounting(SaleModel sale, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
-		if (sale.FinancialAccountingId is null)
+		if (sale.FinancialAccountingId is null || sale.FinancialAccountingId <= 0)
 			return;
 
-		var existingAccounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(AccountNames.FinancialAccounting, sale.FinancialAccountingId ?? 0, sqlDataAccessTransaction)
+		var existingAccounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(AccountNames.FinancialAccounting, sale.FinancialAccountingId.Value, sqlDataAccessTransaction)
 			?? throw new InvalidOperationException("The associated financial accounting transaction for the transaction does not exist.");
 
 		existingAccounting.Status = false;
@@ -272,14 +272,14 @@ public static class SaleData
 		if (update)
 		{
 			var existingSale = await CommonData.LoadTableDataById<SaleModel>(StoreNames.Sale, sale.Id, sqlDataAccessTransaction)
-				?? throw new InvalidOperationException("The sale transaction does not exist.");
+				?? throw new InvalidOperationException("The transaction to be updated does not exist.");
 
 			await ValidateDaySalesAccountPosting(existingSale.TransactionDateTime, existingSale.LocationId, sqlDataAccessTransaction);
 			await FinancialYearData.ValidateFinancialYear(existingSale.TransactionDateTime, sqlDataAccessTransaction);
 
 			var user = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, sale.LastModifiedBy.Value, sqlDataAccessTransaction);
-			if (!user.Admin)
-				throw new InvalidOperationException("Only admin users can update a sale transaction.");
+			if (!user.Admin || user.LocationId != 1)
+				throw new InvalidOperationException("Only admin users are allowed to modify transactions.");
 
 			sale.TransactionNo = existingSale.TransactionNo;
 		}
@@ -327,11 +327,8 @@ public static class SaleData
 		if (saleDetails.Sum(ed => ed.Total) != sale.TotalAfterTax)
 			throw new InvalidOperationException("Total after tax must be equal to the sum of item totals.");
 
-		if (sale.LocationId != 1)
-		{
-			if (saleDetails.Any(ed => ed.IGSTAmount != 0 || ed.IGSTPercent != 0))
-				throw new InvalidOperationException("IGST cannot be applied for non-primary location transactions.");
-		}
+		if (sale.LocationId != 1 && saleDetails.Any(ed => ed.IGSTAmount != 0 || ed.IGSTPercent != 0))
+			throw new InvalidOperationException("IGST cannot be applied for non-primary location transactions.");
 
 		var userId = update ? sale.LastModifiedBy : sale.CreatedBy;
 		var saleUser = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, userId.Value, sqlDataAccessTransaction);
@@ -398,7 +395,7 @@ public static class SaleData
 		await SaveProductStock(sale, saleDetails, sqlDataAccessTransaction);
 		await SaveRawMaterialStockByRecipe(sale, saleDetails, sqlDataAccessTransaction);
 		await UpdateOrder(sale, previousSale, update, sqlDataAccessTransaction);
-		await SaveAccounting(sale, update, sqlDataAccessTransaction);
+		await SaveAccounting(sale, sqlDataAccessTransaction);
 		await SaveAuditTrail(sale, update, recover, previousSale, previousSaleDetails, sqlDataAccessTransaction);
 
 		return sale.Id;
@@ -501,22 +498,9 @@ public static class SaleData
 			await OrderData.LinkOrderToSale(sale.OrderId, sale.Id, false, sqlDataAccessTransaction);
 	}
 
-	private static async Task SaveAccounting(SaleModel sale, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
+	private static async Task SaveAccounting(SaleModel sale, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
-		if (update)
-		{
-			var saleVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.SaleVoucherId, sqlDataAccessTransaction);
-			var existingAccounting = await FinancialAccountingData.LoadFinancialAccountingByVoucherReference(int.Parse(saleVoucher.Value), sale.Id, sale.TransactionNo, sqlDataAccessTransaction);
-			if (existingAccounting is not null && existingAccounting.Id > 0)
-			{
-				existingAccounting.Status = false;
-				existingAccounting.LastModifiedBy = sale.LastModifiedBy;
-				existingAccounting.LastModifiedAt = sale.LastModifiedAt;
-				existingAccounting.LastModifiedFromPlatform = sale.LastModifiedFromPlatform;
-
-				await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
-			}
-		}
+		await DeleteAccounting(sale, sqlDataAccessTransaction);
 
 		if (sale.LocationId != 1)
 			return;

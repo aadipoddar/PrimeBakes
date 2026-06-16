@@ -98,13 +98,13 @@ public static class KitchenProductionData
 		if (update)
 		{
 			var existingKitchenProduction = await CommonData.LoadTableDataById<KitchenProductionModel>(InventoryNames.KitchenProduction, kitchenProduction.Id, sqlDataAccessTransaction)
-				?? throw new InvalidOperationException("The kitchen production transaction does not exist.");
+				?? throw new InvalidOperationException("The transaction to be updated does not exist.");
 
 			await FinancialYearData.ValidateFinancialYear(existingKitchenProduction.TransactionDateTime, sqlDataAccessTransaction);
 
 			var user = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, kitchenProduction.LastModifiedBy.Value, sqlDataAccessTransaction);
-			if (!user.Admin)
-				throw new InvalidOperationException("Only admin users can update a kitchen production transaction.");
+			if (!user.Admin || user.LocationId != 1)
+				throw new InvalidOperationException("Only admin users are allowed to modify transactions.");
 
 			kitchenProduction.TransactionNo = existingKitchenProduction.TransactionNo;
 		}

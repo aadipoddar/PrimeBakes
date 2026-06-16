@@ -184,13 +184,11 @@ else
                 <div class="section-body grid-body">
                     <SfGrid ID="_sfGrid" @ref="_sfGrid" TValue="BillItemOverviewModel" DataSource="_transactionOverviews"
                             AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
-                            AllowFiltering="true" AllowExcelExport="true" AllowPdfExport="true" AllowGrouping="true"
-                            GridLines="GridLine.Horizontal" CssClass="professional-grid"
-                            ContextMenuItems="@_gridContextMenuItems" Toolbar="@(new List<string>() { "Search" })">
+                            AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+                            GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems" CssClass="professional-grid"
+                            Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
                         <GridEvents TValue="BillItemOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
-
-                        <GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
                         <GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
                         <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
@@ -486,7 +484,7 @@ else
                                 <Template>
                                     @{
                                         var detailItem = (context as BillItemOverviewModel);
-                                        <span class="grid-discount">@detailItem.DiscountAmount.ToString("N2")</span>
+                                        <span class="grid-debit">@detailItem.DiscountAmount.ToString("N2")</span>
                                     }
                                 </Template>
                             </GridColumn>
@@ -519,9 +517,9 @@ else
                                     }
                                 </Template>
                             </GridColumn>
-                            <GridColumn Field="@nameof(BillItemOverviewModel.BillRemarks)" HeaderText="Bill Remarks"
+                            <GridColumn Field="@nameof(BillItemOverviewModel.Remarks)" HeaderText="Bill Remarks"
                                         Width="200" Visible="@(_showAllColumns && !_showSummary)" />
-                            <GridColumn Field="@nameof(BillItemOverviewModel.Remarks)" HeaderText="Item Remarks" Width="200"
+                            <GridColumn Field="@nameof(BillItemOverviewModel.ItemRemarks)" HeaderText="Item Remarks" Width="200"
                                         Visible="@(_showAllColumns && !_showSummary)" />
                         </GridColumns>
                     </SfGrid>

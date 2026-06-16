@@ -29,7 +29,7 @@ else
                 <SfGrid @ref="_sfCartGrid" EnableAdaptiveUI="true"
                         DataSource="@(_selectedCategory.Id == 0 ? _cart : _cart.Where(x => x.ItemCategoryId == _selectedCategory.Id))"
                         AllowPaging="true" AllowSorting="false" AllowTextWrap="true"
-                        Toolbar="@(new List<string>() { "Search" })">
+                        ShowColumnChooser="true" Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
                     <GridPageSettings PageSize="10" />
 

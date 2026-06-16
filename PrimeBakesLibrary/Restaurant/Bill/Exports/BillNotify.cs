@@ -1,9 +1,8 @@
-﻿using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Operations.AuditTrail;
 using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Restaurant.Bill.Models;
-using PrimeBakesLibrary.Restaurant.Dining.Models;
-using PrimeBakesLibrary.Store.Customer;
 using PrimeBakesLibrary.Utils.Exports;
 using PrimeBakesLibrary.Utils.Mail;
 using PrimeBakesLibrary.Utils.Notification;
@@ -58,47 +57,32 @@ internal static class BillNotify
 
 	private static async Task BillNotification(int billId, NotifyType type)
 	{
-		var bill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, billId);
+		var bill = await CommonData.LoadTableDataById<BillOverviewModel>(RestaurantNames.BillOverview, billId);
 		var users = await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User);
-		var location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, bill.LocationId);
-		var table = await CommonData.LoadTableDataById<DiningTableModel>(RestaurantNames.DiningTable, bill.DiningTableId);
-
-		CustomerModel customer = null;
-		if (bill.CustomerId.HasValue && bill.CustomerId.Value > 0)
-			customer = await CommonData.LoadTableDataById<CustomerModel>(StoreNames.Customer, bill.CustomerId.Value);
-
-		var createdBy = users.FirstOrDefault(u => u.Id == bill.CreatedBy)?.Name ?? "Unknown";
-		var modifiedBy = bill.LastModifiedBy.HasValue
-			? users.FirstOrDefault(u => u.Id == bill.LastModifiedBy.Value)?.Name
-			: null;
 
 		List<UserModel> targetUsers;
 
 		if (type == NotifyType.Created)
-		{
 			// On create, notify restaurant/admin users in the same outlet.
 			targetUsers = [.. users.Where(u => (u.Admin || u.Restaurant) && u.LocationId == bill.LocationId)];
-		}
 		else
-		{
 			// On update/delete/recover, also include main outlet (Location 1).
 			targetUsers = [.. users.Where(u => (u.Admin || u.Restaurant) && (u.LocationId == bill.LocationId || u.LocationId == 1))];
-		}
 
 		var notificationData = new NotificationUtil.TransactionNotificationData
 		{
 			TransactionType = "Bill",
 			TransactionNo = bill.TransactionNo,
 			Action = type,
-			LocationName = location?.Name ?? "Unknown Outlet",
+			LocationName = bill.LocationName,
 			Details = new Dictionary<string, string>
 			{
-				["📍 Outlet"] = location?.Name ?? "Unknown",
-				["🍽️ Table"] = table?.Name ?? "N/A",
-				["👤 Customer"] = customer?.Name ?? "Walk-in Customer",
+				["📍 Outlet"] = bill.LocationName,
+				["🍽️ Table"] = bill.DiningTableName ?? "N/A",
+				["👤 Customer"] = bill.CustomerName ?? "Walk-in Customer",
 				["📦 Items"] = $"{bill.TotalItems} | Qty: {bill.TotalQuantity.FormatSmartDecimal()}",
 				["💰 Amount"] = bill.TotalAmount.FormatIndianCurrency(),
-				["👤 " + (type == NotifyType.Deleted ? "Deleted By" : "By")] = modifiedBy ?? createdBy,
+				["👤 " + (type == NotifyType.Deleted ? "Deleted By" : "By")] = bill.LastModifiedByUserName ?? bill.CreatedByName,
 				["📅 Date"] = bill.TransactionDateTime.ToString("dd MMM yyyy, hh:mm tt")
 			},
 			Remarks = bill.Remarks
@@ -109,40 +93,29 @@ internal static class BillNotify
 
 	private static async Task BillMail(int billId, NotifyType type, (MemoryStream, string)? previousInvoice = null)
 	{
-		var bill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, billId);
-		var users = await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User);
-		var location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, bill.LocationId);
-		var table = await CommonData.LoadTableDataById<DiningTableModel>(RestaurantNames.DiningTable, bill.DiningTableId);
-
-		CustomerModel customer = null;
-		if (bill.CustomerId.HasValue && bill.CustomerId.Value > 0)
-			customer = await CommonData.LoadTableDataById<CustomerModel>(StoreNames.Customer, bill.CustomerId.Value);
-
-		var createdBy = users.FirstOrDefault(u => u.Id == bill.CreatedBy)?.Name ?? "Unknown";
-		var modifiedBy = bill.LastModifiedBy.HasValue
-			? users.FirstOrDefault(u => u.Id == bill.LastModifiedBy.Value)?.Name
-			: null;
+		var bill = await CommonData.LoadTableDataById<BillOverviewModel>(RestaurantNames.BillOverview, billId);
 
 		var emailData = new TransactionMailing.TransactionEmailData
 		{
 			TransactionType = "Bill",
 			TransactionNo = bill.TransactionNo,
 			Action = type,
-			LocationName = location?.Name ?? "Unknown Outlet",
+			LocationName = bill.LocationName,
 			Details = new Dictionary<string, string>
 			{
 				["Bill Number"] = bill.TransactionNo,
-				["Outlet"] = location?.Name ?? "Unknown",
-				["Dining Table"] = table?.Name ?? "N/A",
-				["Customer"] = customer?.Name ?? "Walk-in Customer",
+				["Outlet"] = bill.LocationName,
+				["Dining Table"] = bill.DiningTableName ?? "N/A",
+				["Customer"] = bill.CustomerName ?? "Walk-in Customer",
 				["Transaction Date"] = bill.TransactionDateTime.ToString("dd MMM yyyy, hh:mm tt"),
 				["Total Items"] = bill.TotalItems.ToString(),
 				["Total Quantity"] = bill.TotalQuantity.FormatSmartDecimal(),
 				["Base Total"] = bill.BaseTotal.FormatIndianCurrency(),
 				["Total Amount"] = bill.TotalAmount.FormatIndianCurrency(),
-				[type == NotifyType.Deleted ? "Deleted By" : type == NotifyType.Updated ? "Updated By" : "Modified By"] = modifiedBy ?? createdBy
+				[type == NotifyType.Deleted ? "Deleted By" : type == NotifyType.Updated ? "Updated By" : "Modified By"] = bill.LastModifiedByUserName ?? bill.CreatedByName
 			},
-			Remarks = bill.Remarks
+			Remarks = bill.Remarks,
+			Differences = type == NotifyType.Updated ? (await AuditTrailData.LoadLastAuditTrailByTableRecord(RestaurantNames.Bill, bill.TransactionNo)).RecordValue : null
 		};
 
 		if (type == NotifyType.Updated && previousInvoice.HasValue)

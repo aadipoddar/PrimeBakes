@@ -70,12 +70,11 @@ else
 				<div class="section-body grid-body">
 					<SfGrid @ref="_sfGrid" TValue="RecipeOverviewModel" DataSource="_recipeOverviews"
 							AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
-							AllowFiltering="true" AllowExcelExport="true" AllowPdfExport="true" GridLines="GridLine.Horizontal"
-							CssClass="professional-grid" AllowGrouping="true" ContextMenuItems="@_gridContextMenuItems"
-							Toolbar="@(new List<string>() { "Search" })">
+							AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+							GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems" CssClass="professional-grid"
+							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
 						<GridEvents TValue="RecipeOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
-						<GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
 						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
 						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 

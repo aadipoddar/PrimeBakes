@@ -6,7 +6,7 @@
 <PageTitle>Product Management - Prime Bakes</PageTitle>
 
 <MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="SaveTransaction" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportMaster(true)" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportMaster()" Disabled="@_isProcessing" />
@@ -105,10 +105,15 @@ else
 						</div>
 					</div>
 					<div class="section-body grid-body">
-						<SfGrid @ref="_sfLocationGrid" DataSource="@_locations" AllowPaging="true" AllowSorting="true" AllowFiltering="true" AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })"
-								ContextMenuItems="@_locationGridContextMenuItems">
+						<SfGrid @ref="_sfLocationGrid" DataSource="@_locations"
+								AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_locationGridContextMenuItems" CssClass="professional-grid"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
 							<GridPageSettings PageSize="10" PageSizes="@(new string[] { "10", "20", "50", "All" })" />
 							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+							
 							<GridColumns>
 
 								<GridColumn HeaderText="Actions" Width="80" TextAlign="TextAlign.Center" AllowFiltering="false">
@@ -142,11 +147,16 @@ else
 					</div>
 				</div>
 				<div class="section-body grid-body">
-					<SfGrid @ref="_sfGrid" DataSource="@_products" AllowPaging="true" AllowSorting="true" AllowFiltering="true" AllowResizing="true" CssClass="professional-grid" Toolbar="@(new List<string>() { "Search" })"
-							ContextMenuItems="@_gridContextMenuItems">
-						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+					<SfGrid @ref="_sfGrid" DataSource="@_products"
+							AllowPaging="true" AllowSorting="true" AllowResizing="true"
+							AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+							GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems" CssClass="professional-grid"
+							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
 						<GridEvents TValue="ProductModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
 						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
 						<GridColumns>
 							<GridColumn Field="@nameof(ProductModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" />
 							<GridColumn Field="@nameof(ProductModel.Name)" HeaderText="Name" Width="200" />

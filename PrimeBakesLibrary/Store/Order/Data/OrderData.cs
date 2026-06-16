@@ -112,7 +112,7 @@ public static class OrderData
 		if (update)
 		{
 			var existingOrder = await CommonData.LoadTableDataById<OrderModel>(StoreNames.Order, order.Id, sqlDataAccessTransaction)
-				?? throw new InvalidOperationException("The order transaction does not exist.");
+				?? throw new InvalidOperationException("The transaction to be updated does not exist.");
 
 			await FinancialYearData.ValidateFinancialYear(existingOrder.TransactionDateTime, sqlDataAccessTransaction);
 
@@ -120,8 +120,8 @@ public static class OrderData
 				throw new InvalidOperationException("Cannot update order as it is already converted to a sale.");
 
 			var user = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, order.LastModifiedBy.Value, sqlDataAccessTransaction);
-			if (!user.Admin)
-				throw new InvalidOperationException("Only admin users can update an order transaction.");
+			if (!user.Admin || user.LocationId != 1)
+				throw new InvalidOperationException("Only admin users are allowed to modify transactions.");
 
 			order.TransactionNo = existingOrder.TransactionNo;
 		}
