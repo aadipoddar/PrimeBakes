@@ -55,21 +55,13 @@ else
 			</LeftContent>
 		</Header>
 
-		<!-- Main Content Container -->
 		<div class="page-container">
 
-			<!-- Filters Section -->
 			<div class="section-card">
 				<div class="section-header">
-					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-							 stroke-linejoin="round">
-							<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-						</svg>
-						<h2 class="section-title">Filters</h2>
-					</div>
+					<h2 class="section-title">Filters</h2>
 				</div>
+
 				<div class="section-body">
 					<div class="filters-grid">
 						<!-- Date Range -->
@@ -96,32 +88,16 @@ else
 				</div>
 			</div>
 
-			<!-- Report Grid Section -->
 			<div class="section-card">
 				<div class="section-header">
-					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-							 stroke-linejoin="round">
-							<rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-							<line x1="8" y1="21" x2="16" y2="21" />
-							<line x1="12" y1="17" x2="12" y2="21" />
-						</svg>
-						<h2 class="section-title">Balance Sheet Statement</h2>
-					</div>
+					<h2 class="section-title">Records</h2>
 				</div>
+
 				<div class="section-body grid-body">
 					<div class="dual-grid-container">
 						<!-- Assets Grid -->
 						<div class="grid-section assets-section">
 							<div class="grid-section-header">
-								<svg class="grid-section-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-									 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-									 stroke-linecap="round" stroke-linejoin="round">
-									<rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-									<line x1="3" y1="9" x2="21" y2="9" />
-									<line x1="9" y1="21" x2="9" y2="9" />
-								</svg>
 								<h3 class="grid-section-title">Assets</h3>
 								<span class="grid-section-count">(@_assetsTrialBalance.Count ledgers)</span>
 							</div>
@@ -215,16 +191,6 @@ else
 						<!-- Liabilities Grid -->
 						<div class="grid-section liabilities-section">
 							<div class="grid-section-header">
-								<svg class="grid-section-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-									 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-									 stroke-linecap="round" stroke-linejoin="round">
-									<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-									<polyline points="7.5 4.21 12 6.81 16.5 4.21" />
-									<polyline points="7.5 19.79 7.5 14.6 3 12" />
-									<polyline points="21 12 16.5 14.6 16.5 19.79" />
-									<polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-									<line x1="12" y1="22.08" x2="12" y2="12" />
-								</svg>
 								<h3 class="grid-section-title">Liabilities</h3>
 								<span class="grid-section-count">(@_liabilitiesTrialBalance.Count ledgers)</span>
 							</div>
@@ -321,19 +287,7 @@ else
 			<!-- Summary Section -->
 			<div class="section-card balance-sheet-summary">
 				<div class="section-header">
-					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-							 stroke-linejoin="round">
-							<rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-							<line x1="8" y1="21" x2="16" y2="21" />
-							<line x1="12" y1="17" x2="12" y2="21" />
-							<line x1="7" y1="7" x2="7" y2="11" />
-							<line x1="12" y1="7" x2="12" y2="11" />
-							<line x1="17" y1="7" x2="17" y2="11" />
-						</svg>
-						<h2 class="section-title">Balance Sheet Summary</h2>
-					</div>
+					<h2 class="section-title">Balance Sheet Summary</h2>
 				</div>
 				<div class="section-body">
 					<div class="balance-sheet-grid">
@@ -418,15 +372,6 @@ else
 		grid-template-columns: 1fr 1fr;
 		gap: 24px;
 		padding: 24px;
-	}
-
-	/* Balance Sheet Section Colors */
-	.assets-section .grid-section-icon {
-		color: #0891b2;
-	}
-
-	.liabilities-section .grid-section-icon {
-		color: #6366f1;
 	}
 
 	/* Balance Sheet Summary Section */

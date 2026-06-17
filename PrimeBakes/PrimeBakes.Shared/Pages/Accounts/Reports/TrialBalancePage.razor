@@ -54,21 +54,13 @@ else
 			</LeftContent>
 		</Header>
 
-		<!-- Main Content Container -->
 		<div class="page-container">
 
-			<!-- Filters Section -->
 			<div class="section-card">
 				<div class="section-header">
-					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-							 stroke-linejoin="round">
-							<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-						</svg>
-						<h2 class="section-title">Filters</h2>
-					</div>
+					<h2 class="section-title">Filters</h2>
 				</div>
+
 				<div class="section-body">
 					<div class="filters-grid">
 						<!-- Date Range -->
@@ -119,20 +111,11 @@ else
 				</div>
 			</div>
 
-			<!-- Report Grid Section -->
 			<div class="section-card">
 				<div class="section-header">
-					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-							 stroke-linejoin="round">
-							<rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-							<line x1="8" y1="21" x2="16" y2="21" />
-							<line x1="12" y1="17" x2="12" y2="21" />
-						</svg>
-						<h2 class="section-title">Trial Balance</h2>
-					</div>
+					<h2 class="section-title">Records</h2>
 				</div>
+
 				<div class="section-body grid-body">
 					<SfGrid @ref="_sfGrid" TValue="TrialBalanceModel" DataSource="_trialBalance"
 							AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
@@ -414,4 +397,5 @@ else
 }
 
 <ToastNotification @ref="_toastNotification" />
+
 <CloseGuard Block="_isProcessing" />

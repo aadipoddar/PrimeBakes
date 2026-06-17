@@ -28,7 +28,6 @@ public partial class LocalSettingsPage : IAsyncDisposable
 	#endregion
 
 	#region Lifecycle
-
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (!firstRender)

@@ -53,20 +53,9 @@ else
 
 			<div class="section-card">
 				<div class="section-header">
-					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-							 stroke-linejoin="round">
-							<line x1="8" y1="6" x2="21" y2="6" />
-							<line x1="8" y1="12" x2="21" y2="12" />
-							<line x1="8" y1="18" x2="21" y2="18" />
-							<line x1="3" y1="6" x2="3.01" y2="6" />
-							<line x1="3" y1="12" x2="3.01" y2="12" />
-							<line x1="3" y1="18" x2="3.01" y2="18" />
-						</svg>
-						<h2 class="section-title">All Product Recipes</h2>
-					</div>
+					<h2 class="section-title">Records</h2>
 				</div>
+
 				<div class="section-body grid-body">
 					<SfGrid @ref="_sfGrid" TValue="RecipeOverviewModel" DataSource="_recipeOverviews"
 							AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
@@ -75,7 +64,7 @@ else
 							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
 						<GridEvents TValue="RecipeOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
-						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
+						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
 						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
 						<GridAggregates>

@@ -142,12 +142,12 @@ public partial class AccountingLedgerReport : IAsyncDisposable
 		if (_selectedLedger?.Id > 0)
 		{
 			List<FinancialAccountingLedgerOverviewModel> ledgerOverviews = [];
-			var partyLedgers = filtered.Where(l => l.Id == _selectedLedger.Id).ToList();
+			var partyLedgers = filtered.Where(l => l.LedgerId == _selectedLedger.Id).ToList();
 
 			foreach (var item in partyLedgers)
 			{
 				var referenceLedgers = filtered
-					.Where(l => l.MasterId == item.MasterId && l.Id != _selectedLedger.Id)
+					.Where(l => l.MasterId == item.MasterId && l.LedgerId != _selectedLedger.Id)
 					.ToList();
 
 				var referenceLedgerNamesWithAmount = string.Join("\n",

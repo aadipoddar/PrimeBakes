@@ -39,29 +39,34 @@ else
 		</Header>
 
 		<div class="page-container">
+
 			<div class="section-card">
 				<div class="section-header">
-					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-							<path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
-						</svg>
-						<h2 class="section-title">State/UT Details</h2>
-					</div>
+					<h2 class="section-title">Master Details</h2>
 				</div>
+
 				<div class="section-body">
 					<div class="form-grid">
 						<div class="form-field">
-							<CustomTextField @ref="_firstFocus" @bind-Value="_stateUT.Name" Label="Name (Ctrl + F)" Placeholder="Enter State/UT Name" />
+							<CustomTextField @ref="_firstFocus"
+											 @bind-Value="_stateUT.Name"
+											 Label="Name (Ctrl + F)"
+											 Placeholder="Enter State/UT Name" />
 						</div>
 
 						<div class="form-field">
 							<div class="checkbox-wrapper">
-								<CustomCheckBox @bind-Value="_stateUT.UnionTerritory" Label="Is Union Territory" AriaLabel="Mark this state as a Union Territory" />
+								<CustomCheckBox @bind-Value="_stateUT.UnionTerritory"
+												Label="Is Union Territory" />
 							</div>
 						</div>
 
 						<div class="form-field">
-							<CustomTextField @bind-Value="_stateUT.Remarks" Label="Remarks" Placeholder="Enter remarks (optional)" Required="false" Lines="2" />
+							<CustomTextField @bind-Value="_stateUT.Remarks"
+											 Label="Remarks"
+											 Placeholder="Enter remarks (optional)"
+											 Required="false"
+											 Lines="2" />
 						</div>
 					</div>
 				</div>
@@ -69,14 +74,9 @@ else
 
 			<div class="section-card">
 				<div class="section-header">
-					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-							<path d="M9 11l3 3L22 4" />
-							<path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-						</svg>
-						<h2 class="section-title">States/UTs List</h2>
-					</div>
+					<h2 class="section-title">Master List</h2>
 				</div>
+
 				<div class="section-body grid-body">
 					<SfGrid @ref="_sfGrid" DataSource="@_stateUTs"
 							AllowPaging="true" AllowSorting="true" AllowResizing="true"
@@ -85,7 +85,7 @@ else
 							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
 						<GridEvents TValue="StateUTModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
-						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
+						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
 						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
 						<GridColumns>
@@ -93,6 +93,7 @@ else
 							<GridColumn Field="@nameof(StateUTModel.Name)" HeaderText="State/UT Name" Width="250" />
 							<GridColumn Field="@nameof(StateUTModel.Remarks)" HeaderText="Remarks" Width="300" />
 							<GridColumn Field="@nameof(StateUTModel.UnionTerritory)" HeaderText="Union Territory" Width="150" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
+
 							<GridColumn Field="@nameof(StateUTModel.Status)" HeaderText="Status" Width="110" TextAlign="TextAlign.Center" Visible="_showDeleted">
 								<Template>
 									@{

@@ -48,16 +48,12 @@ else
 
 			<div class="two-column-layout">
 
-				<!-- Product Details -->
+				<!-- Products -->
 				<div class="section-card">
 					<div class="section-header">
-						<div class="section-title-wrapper">
-							<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-								<path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
-							</svg>
-							<h2 class="section-title">Product Details</h2>
-						</div>
+						<h2 class="section-title">Master Details</h2>
 					</div>
+
 					<div class="section-body">
 						<div class="form-grid">
 							<div class="form-field">
@@ -93,17 +89,12 @@ else
 					</div>
 				</div>
 
-				<!-- Location Details -->
+				<!-- Locations -->
 				<div class="section-card">
 					<div class="section-header">
-						<div class="section-title-wrapper">
-							<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-								<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z" />
-								<circle cx="12" cy="10" r="3" />
-							</svg>
-							<h2 class="section-title">Location List</h2>
-						</div>
+						<h2 class="section-title">Location List</h2>
 					</div>
+
 					<div class="section-body grid-body">
 						<SfGrid @ref="_sfLocationGrid" DataSource="@_locations"
 								AllowPaging="true" AllowSorting="true" AllowResizing="true"
@@ -113,9 +104,8 @@ else
 
 							<GridPageSettings PageSize="10" PageSizes="@(new string[] { "10", "20", "50", "All" })" />
 							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
-							
-							<GridColumns>
 
+							<GridColumns>
 								<GridColumn HeaderText="Actions" Width="80" TextAlign="TextAlign.Center" AllowFiltering="false">
 									<Template>
 										@{
@@ -127,7 +117,6 @@ else
 										}
 									</Template>
 								</GridColumn>
-
 								<GridColumn Field="@nameof(LocationModel.Name)" HeaderText="Location Name" />
 							</GridColumns>
 						</SfGrid>
@@ -138,14 +127,9 @@ else
 
 			<div class="section-card">
 				<div class="section-header">
-					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-							<path d="M9 11l3 3L22 4" />
-							<path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-						</svg>
-						<h2 class="section-title">Product List</h2>
-					</div>
+					<h2 class="section-title">Master List</h2>
 				</div>
+
 				<div class="section-body grid-body">
 					<SfGrid @ref="_sfGrid" DataSource="@_products"
 							AllowPaging="true" AllowSorting="true" AllowResizing="true"
@@ -154,7 +138,7 @@ else
 							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
 						<GridEvents TValue="ProductModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
-						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
+						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
 						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
 						<GridColumns>

@@ -40,18 +40,12 @@ else
 		</Header>
 
 		<div class="page-container">
+
 			<div class="section-card">
 				<div class="section-header">
-					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-							 stroke-linejoin="round">
-							<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-							<circle cx="12" cy="10" r="3" />
-						</svg>
-						<h2 class="section-title">Location Details</h2>
-					</div>
+					<h2 class="section-title">Master Details</h2>
 				</div>
+
 				<div class="section-body">
 					<div class="form-grid">
 						<div class="form-field">
@@ -113,16 +107,9 @@ else
 
 			<div class="section-card">
 				<div class="section-header">
-					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-							 stroke-linejoin="round">
-							<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-							<polyline points="9 22 9 12 15 12 15 22" />
-						</svg>
-						<h2 class="section-title">Locations List</h2>
-					</div>
+					<h2 class="section-title">Master List</h2>
 				</div>
+
 				<div class="section-body grid-body">
 					<SfGrid @ref="_sfGrid" DataSource="@_locations"
 							AllowPaging="true" AllowSorting="true" AllowResizing="true"
@@ -131,7 +118,7 @@ else
 							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
 						<GridEvents TValue="LocationModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
-						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
+						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
 						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
 						<GridColumns>

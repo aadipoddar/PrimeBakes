@@ -28,11 +28,8 @@
 	--bg-blue-light: #eff6ff;
 	--bg-summary: #deecf9;
 	/* Shared application background — used by .page-container and the
-	   authentication pages. Change here to restyle the whole app.
-	   Brand-rose gradient (matches the PrimeBakes magenta logo); deep
-	   enough that white .section-card / tile surfaces read as distinct
-	   cards instead of blending into the page. */
-	--app-bg: linear-gradient(135deg, #fbd9e8 0%, #f6c7dd 45%, #f3b9d4 100%);
+	   authentication pages. Change here to restyle the whole app. */
+	--app-bg: linear-gradient(135deg, #f5dce7 0%, #fae6f0 100%);
 	/* Spacing */
 	--border-radius: 6px;
 	--border-radius-lg: 12px;
@@ -118,31 +115,12 @@ h1:focus {
 	background: linear-gradient(to bottom, var(--bg-white) 0%, var(--gray-50) 100%);
 }
 
-.section-title-wrapper {
-	display: flex;
-	align-items: center;
-	gap: 12px;
-}
-
-.section-icon {
-	color: var(--primary-blue);
-	flex-shrink: 0;
-}
-
 .section-title {
 	font-size: 16px;
 	font-weight: 600;
 	color: var(--gray-900);
 	margin: 0;
 	letter-spacing: -0.2px;
-}
-
-.section-subtitle {
-	font-size: 13px;
-	color: var(--gray-500);
-	margin: 0;
-	padding-left: 34px;
-	font-weight: 400;
 }
 
 .section-body {
@@ -349,10 +327,6 @@ h1:focus {
 	padding: 12px 16px;
 	background: linear-gradient(to bottom, var(--gray-50) 0%, var(--gray-100) 100%);
 	border-bottom: 2px solid var(--gray-200);
-}
-
-.grid-section-icon {
-	flex-shrink: 0;
 }
 
 .grid-section-title {

@@ -39,17 +39,12 @@ else
 		</Header>
 
 		<div class="page-container">
+
 			<div class="section-card">
 				<div class="section-header">
-					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-							 stroke-linejoin="round">
-							<path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5" />
-						</svg>
-						<h2 class="section-title">Company Details</h2>
-					</div>
+					<h2 class="section-title">Master Details</h2>
 				</div>
+
 				<div class="section-body">
 					<div class="form-grid">
 						<div class="form-field">
@@ -138,16 +133,9 @@ else
 
 			<div class="section-card">
 				<div class="section-header">
-					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-							 stroke-linejoin="round">
-							<path d="M9 11l3 3L22 4" />
-							<path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-						</svg>
-						<h2 class="section-title">Companies List</h2>
-					</div>
+					<h2 class="section-title">Master List</h2>
 				</div>
+
 				<div class="section-body grid-body">
 					<SfGrid @ref="_sfGrid" DataSource="@_companies"
 							AllowPaging="true" AllowSorting="true" AllowResizing="true"
@@ -156,7 +144,7 @@ else
 							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
 						<GridEvents TValue="CompanyModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
-						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
+						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
 						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
 						<GridColumns>

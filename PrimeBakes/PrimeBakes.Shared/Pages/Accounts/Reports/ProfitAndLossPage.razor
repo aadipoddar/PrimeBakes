@@ -55,21 +55,13 @@ else
 			</LeftContent>
 		</Header>
 
-		<!-- Main Content Container -->
 		<div class="page-container">
 
-			<!-- Filters Section -->
 			<div class="section-card">
 				<div class="section-header">
-					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-							 stroke-linejoin="round">
-							<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-						</svg>
-						<h2 class="section-title">Filters</h2>
-					</div>
+					<h2 class="section-title">Filters</h2>
 				</div>
+
 				<div class="section-body">
 					<div class="filters-grid">
 						<!-- Date Range -->
@@ -96,31 +88,16 @@ else
 				</div>
 			</div>
 
-			<!-- Report Grid Section -->
 			<div class="section-card">
 				<div class="section-header">
-					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-							 stroke-linejoin="round">
-							<rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-							<line x1="8" y1="21" x2="16" y2="21" />
-							<line x1="12" y1="17" x2="12" y2="21" />
-						</svg>
-						<h2 class="section-title">Profit & Loss Statement</h2>
-					</div>
+					<h2 class="section-title">Records</h2>
 				</div>
+
 				<div class="section-body grid-body">
 					<div class="dual-grid-container">
 						<!-- Income Grid -->
 						<div class="grid-section income-section">
 							<div class="grid-section-header">
-								<svg class="grid-section-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-									 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-									 stroke-linecap="round" stroke-linejoin="round">
-									<polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-									<polyline points="17 6 23 6 23 12" />
-								</svg>
 								<h3 class="grid-section-title">Income</h3>
 								<span class="grid-section-count">(@_incomeTrialBalance.Count ledgers)</span>
 							</div>
@@ -130,7 +107,6 @@ else
 									GridLines="GridLine.Horizontal" CssClass="professional-grid"
 									Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
-								<GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
 								<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
 								<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
@@ -184,8 +160,7 @@ else
 								<GridColumns>
 									<GridColumn Field="@nameof(TrialBalanceModel.LedgerName)" HeaderText="Ledger Name" Width="250" />
 									<GridColumn Field="@nameof(TrialBalanceModel.GroupName)" HeaderText="Group" Width="150" Visible="_showAllColumns" />
-									<GridColumn Field="@nameof(TrialBalanceModel.OpeningBalance)" HeaderText="Opening Balance" Width="200" TextAlign="TextAlign.Right"
-												Visible="_showAllColumns">
+									<GridColumn Field="@nameof(TrialBalanceModel.OpeningBalance)" HeaderText="Opening Balance" Width="200" TextAlign="TextAlign.Right" Visible="_showAllColumns">
 										<Template>
 											@{
 												var item = (context as TrialBalanceModel);
@@ -216,12 +191,6 @@ else
 						<!-- Expense Grid -->
 						<div class="grid-section expense-section">
 							<div class="grid-section-header">
-								<svg class="grid-section-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-									 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-									 stroke-linecap="round" stroke-linejoin="round">
-									<polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
-									<polyline points="17 18 23 18 23 12" />
-								</svg>
 								<h3 class="grid-section-title">Expenses</h3>
 								<span class="grid-section-count">(@_expenseTrialBalance.Count ledgers)</span>
 							</div>
@@ -231,7 +200,6 @@ else
 									GridLines="GridLine.Horizontal" CssClass="professional-grid"
 									Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
-								<GridGroupSettings ShowDropArea="true" ShowGroupedColumn="true" ShowUngroupButton="true" />
 								<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
 								<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
@@ -319,19 +287,7 @@ else
 			<!-- Summary Section -->
 			<div class="section-card profit-loss-summary">
 				<div class="section-header">
-					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-							 stroke-linejoin="round">
-							<rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-							<line x1="8" y1="21" x2="16" y2="21" />
-							<line x1="12" y1="17" x2="12" y2="21" />
-							<line x1="7" y1="7" x2="7" y2="11" />
-							<line x1="12" y1="7" x2="12" y2="11" />
-							<line x1="17" y1="7" x2="17" y2="11" />
-						</svg>
-						<h2 class="section-title">Profit & Loss Summary</h2>
-					</div>
+					<h2 class="section-title">Profit & Loss Summary</h2>
 				</div>
 				<div class="section-body">
 					<div class="profit-loss-grid">
@@ -414,15 +370,6 @@ else
 		grid-template-columns: 1fr 1fr;
 		gap: 24px;
 		padding: 24px;
-	}
-
-	/* P&L Section Colors */
-	.income-section .grid-section-icon {
-		color: #059669;
-	}
-
-	.expense-section .grid-section-icon {
-		color: #dc2626;
 	}
 
 	/* Profit & Loss Summary Section */

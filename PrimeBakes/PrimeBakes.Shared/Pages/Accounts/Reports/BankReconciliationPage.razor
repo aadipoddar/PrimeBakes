@@ -70,60 +70,76 @@ else
 
 		<div class="page-container">
 
-			<!-- Filters Section -->
 			<div class="section-card">
 				<div class="section-header">
-					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-							<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-						</svg>
-						<h2 class="section-title">Filters</h2>
-					</div>
+					<h2 class="section-title">Filters</h2>
 				</div>
+
 				<div class="section-body">
 					<div class="filters-grid">
 						<div class="form-field">
-							<CustomDateRangePicker @ref="_firstFocus" Value="@(new MudBlazor.DateRange(_fromDate, _toDate))" ValueChanged="OnDateRangeChanged" Label="Date Range (Ctrl + F)" Required="false" />
+							<CustomDateRangePicker @ref="_firstFocus"
+												   Value="@(new MudBlazor.DateRange(_fromDate, _toDate))"
+												   ValueChanged="OnDateRangeChanged"
+												   Label="Date Range (Ctrl + F)"
+												   Required="false" />
 						</div>
 
 						<div class="form-field">
-							<CustomAutoComplete T="CompanyModel" Value="_selectedCompany" DataSource="@_companies" Placeholder="All Companies" Label="Company" Required="false" FieldValue="@nameof(CompanyModel.Name)" ValueChanged="OnCompanyChanged"
+							<CustomAutoComplete T="CompanyModel"
+												Value="_selectedCompany"
+												DataSource="@_companies"
+												Placeholder="All Companies"
+												Label="Company"
+												Required="false"
+												FieldValue="@nameof(CompanyModel.Name)"
+												ValueChanged="OnCompanyChanged"
 												AddNewRoute="@AccountsRouteNames.CompanyMaster" />
 						</div>
 
 						<div class="form-field">
-							<CustomAutoComplete T="AccountTypeModel" Value="_selectedAccountType" DataSource="@_accountTypes" Placeholder="All Types" Label="Type" Required="false" FieldValue="@nameof(AccountTypeModel.Name)"
-												ValueChanged="OnAccountTypeChanged" AddNewRoute="@AccountsRouteNames.AccountTypeMaster" />
+							<CustomAutoComplete T="AccountTypeModel"
+												Value="_selectedAccountType"
+												DataSource="@_accountTypes"
+												Placeholder="All Types"
+												Label="Type"
+												Required="false"
+												FieldValue="@nameof(AccountTypeModel.Name)"
+												ValueChanged="OnAccountTypeChanged"
+												AddNewRoute="@AccountsRouteNames.AccountTypeMaster" />
 						</div>
 
 						<div class="form-field">
-							<CustomAutoComplete T="LedgerModel" Value="_selectedLedger" DataSource="@_ledgers" Placeholder="All Ledgers" Label="Ledger" Required="false" FieldValue="@nameof(LedgerModel.Name)" ValueChanged="OnLedgerChanged"
+							<CustomAutoComplete T="LedgerModel"
+												Value="_selectedLedger"
+												DataSource="@_ledgers"
+												Placeholder="All Ledgers"
+												Label="Ledger"
+												Required="false"
+												FieldValue="@nameof(LedgerModel.Name)"
+												ValueChanged="OnLedgerChanged"
 												AddNewRoute="@AccountsRouteNames.LedgerMaster" />
 						</div>
 
 						<div class="form-field">
-							<CustomAutoComplete T="YesNoFilterOption" Value="_selectedReconciledFilter" DataSource="@YesNoFilterOptions.YesNo" Placeholder="All" Label="Reconciled" Required="false" ValueChanged="OnReconciledFilterChanged"
+							<CustomAutoComplete T="YesNoFilterOption"
+												Value="_selectedReconciledFilter"
+												DataSource="@YesNoFilterOptions.YesNo"
+												Placeholder="All"
+												Label="Reconciled"
+												Required="false"
+												ValueChanged="OnReconciledFilterChanged"
 												FieldValue="@nameof(YesNoFilterOption.Name)" />
 						</div>
 					</div>
 				</div>
 			</div>
 
-			<!-- Reconcile Grid Section -->
 			<div class="section-card">
 				<div class="section-header">
-					<div class="section-title-wrapper">
-						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-							<line x1="8" y1="6" x2="21" y2="6" />
-							<line x1="8" y1="12" x2="21" y2="12" />
-							<line x1="8" y1="18" x2="21" y2="18" />
-							<line x1="3" y1="6" x2="3.01" y2="6" />
-							<line x1="3" y1="12" x2="3.01" y2="12" />
-							<line x1="3" y1="18" x2="3.01" y2="18" />
-						</svg>
-						<h2 class="section-title">Ledger Lines</h2>
-					</div>
+					<h2 class="section-title">Records</h2>
 				</div>
+
 				<div class="section-body grid-body">
 					<SfGrid @ref="_sfGrid" TValue="FinancialAccountingLedgerOverviewModel" DataSource="_transactionOverviews"
 							AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
