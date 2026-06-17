@@ -11,10 +11,10 @@
 <MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadStockDetails" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport(true)" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyO KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ViewSelectedCartItem" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="DownloadSelectedCartItemPdfInvoice" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="DownloadSelectedCartItemExcelInvoice" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="DeleteSelectedCartItem" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyO KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="ViewSelectedTransaction" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="DeleteSelectedTransaction" Disabled="@_isProcessing" />
 
 @if (_isLoading || _user is null)
 {
@@ -53,11 +53,11 @@ else
 				</MudBlazor.MudMenu>
 
 				<MudBlazor.MudMenu Label="Transaction" Dense="true" Disabled="_isProcessing">
-					<MudBlazor.MudMenuItem Label="View (Ctrl + O)" OnClick="ViewSelectedCartItem" />
-					<MudBlazor.MudMenuItem Label="Export PDF (Alt + P)" OnClick="DownloadSelectedCartItemPdfInvoice" />
-					<MudBlazor.MudMenuItem Label="Export Excel (Alt + E)" OnClick="DownloadSelectedCartItemExcelInvoice" />
+					<MudBlazor.MudMenuItem Label="View (Alt + O)" OnClick="ViewSelectedTransaction" />
+					<MudBlazor.MudMenuItem Label="Export PDF (Alt + P)" OnClick="() => ExportSelectedTransaction()" />
+					<MudBlazor.MudMenuItem Label="Export Excel (Alt + E)" OnClick="() => ExportSelectedTransaction(true)" />
 					<MudBlazor.MudDivider />
-					<MudBlazor.MudMenuItem Label="Delete (Del)" OnClick="DeleteSelectedCartItem" />
+					<MudBlazor.MudMenuItem Label="Delete (Del)" OnClick="DeleteSelectedTransaction" />
 				</MudBlazor.MudMenu>
 			</LeftContent>
 		</Header>
@@ -103,13 +103,13 @@ else
 					</div>
 				</div>
 				<div class="section-body grid-body">
-					<SfGrid ID="_sfGrid" @ref="_sfGrid" TValue="RawMaterialStockDetailsModel" DataSource="_stockDetails"
+					<SfGrid @ref="_sfGrid" TValue="RawMaterialStockDetailsModel" DataSource="_stockDetails"
 							AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
 							AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
-							GridLines="GridLine.Horizontal" ContextMenuItems="@_detailsGridContextMenuItems" CssClass="professional-grid"
+							GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems" CssClass="professional-grid"
 							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
-						<GridEvents TValue="RawMaterialStockDetailsModel" ContextMenuItemClicked="OnDetailsGridContextMenuItemClicked" />
+						<GridEvents TValue="RawMaterialStockDetailsModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
 						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
 						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
@@ -232,9 +232,8 @@ else
 	</div>
 }
 
-<DeleteConfirmationDialog @ref="_deleteConfirmationDialog" EntityName="Stock Adjustment"
-						  IdentifierLabel="Transaction No" IdentifierValue="@_deleteTransactionNo" IsPermanentDelete="true"
-						  Disabled="@_isProcessing" OnConfirm="ConfirmDelete" OnCancel="CancelDelete" />
+<ConfirmationDialog @ref="_confirmationDialog" Title="@_confirmTitle" Message="@_confirmMessage"
+					OnConfirm="OnConfirmed" OnCancel="OnCancelled" />
 
 <ToastNotification @ref="_toastNotification" />
 

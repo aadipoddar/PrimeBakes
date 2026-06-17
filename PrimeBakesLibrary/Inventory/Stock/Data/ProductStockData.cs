@@ -166,7 +166,7 @@ public static class ProductStockData
 		}
 		return summary;
 	}
-	#endregion
+#
 
 	#region Save
 	private static void ValidateTransaction(DateTime transactionDateTime, int locationId, string transactionNo, List<ProductStockAdjustmentCartModel> cart)

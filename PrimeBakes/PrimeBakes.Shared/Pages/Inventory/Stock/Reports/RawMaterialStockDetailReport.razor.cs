@@ -28,22 +28,22 @@ public partial class RawMaterialStockDetailReport : IAsyncDisposable
 	private DateTime _toDate = DateTime.Now.Date;
 
 	private List<RawMaterialStockDetailsModel> _stockDetails = [];
-	private readonly List<ContextMenuItemModel> _detailsGridContextMenuItems =
+	private readonly List<ContextMenuItemModel> _gridContextMenuItems =
 	[
-		new() { Text = "View (Ctrl + O)", Id = "ViewSelected", IconCss = "e-icons e-eye", Target = ".e-content" },
-		new() { Text = "Export PDF (Alt + P)", Id = "DownloadSelectedPdf", IconCss = "e-icons e-export-pdf", Target = ".e-content" },
-		new() { Text = "Export Excel (Alt + E)", Id = "DownloadSelectedExcel", IconCss = "e-icons e-export-excel", Target = ".e-content" },
-		new() { Text = "Delete (Del)", Id = "DeleteSelected", IconCss = "e-icons e-trash", Target = ".e-content" }
+		new() { Text = "View (Alt + O)", Id = "View", IconCss = "e-icons e-eye", Target = ".e-content" },
+		new() { Text = "Export PDF (Alt + P)", Id = "ExportPDF", IconCss = "e-icons e-export-pdf", Target = ".e-content" },
+		new() { Text = "Export Excel (Alt + E)", Id = "ExportExcel", IconCss = "e-icons e-export-excel", Target = ".e-content" },
+		new() { Text = "Delete (Del)", Id = "Delete", IconCss = "e-icons e-trash", Target = ".e-content" }
 	];
 
 	private SfGrid<RawMaterialStockDetailsModel> _sfGrid;
 	private CustomDateRangePicker _firstFocus;
-
-	private int _deleteAdjustmentId = 0;
-	private string _deleteTransactionNo = string.Empty;
-	private DeleteConfirmationDialog _deleteConfirmationDialog;
-
 	private ToastNotification _toastNotification;
+	private ConfirmationDialog _confirmationDialog;
+
+	private string _confirmTitle = string.Empty;
+	private string _confirmMessage = string.Empty;
+	private Func<Task> _confirmAction;
 
 	#region Load Data
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -83,7 +83,7 @@ public partial class RawMaterialStockDetailReport : IAsyncDisposable
 		{
 			_isProcessing = true;
 			StateHasChanged();
-			await _toastNotification.ShowAsync("Loading", "Fetching stock details...", ToastType.Info, 0);
+			await _toastNotification.ShowAsync("Loading", "Fetching stock details...", ToastType.Info);
 
 			_stockDetails = await CommonData.LoadTableDataByDate<RawMaterialStockDetailsModel>(
 				InventoryNames.RawMaterialStockDetails,
@@ -122,6 +122,97 @@ public partial class RawMaterialStockDetailReport : IAsyncDisposable
 	}
 	#endregion
 
+	#region Actions
+	private async Task ViewSelectedTransaction()
+	{
+		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+			return;
+
+		var record = _sfGrid.SelectedRecords.First();
+
+		if (!record.TransactionId.HasValue)
+		{
+			await _toastNotification.ShowAsync("Cannot View", "The selected row does not have an associated transaction.", ToastType.Warning);
+			return;
+		}
+
+		var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(record.TransactionNo, false, false);
+		await AuthenticationService.NavigateToRoute(decodedTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
+	}
+
+	private async Task DeleteTransaction(int id, string transactionNo)
+	{
+		if (_isProcessing || id == 0)
+			return;
+
+		try
+		{
+			if (!_user.Admin)
+				throw new UnauthorizedAccessException("You do not have permission for the action.");
+
+			_isProcessing = true;
+			StateHasChanged();
+
+			await _toastNotification.ShowAsync("Processing", "Deleting transaction...", ToastType.Info);
+
+			await RawMaterialStockData.DeleteRawMaterialStockById(id, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+
+			await _toastNotification.ShowAsync("Success", $"Transaction {transactionNo} has been deleted successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"An error occurred while deleting transaction: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+			await LoadStockDetails();
+		}
+	}
+
+	private async Task DeleteSelectedTransaction()
+	{
+		if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+			return;
+
+		var record = _sfGrid.SelectedRecords.First();
+
+		if (!record.Type.Equals("adjustment", StringComparison.CurrentCultureIgnoreCase))
+		{
+			await _toastNotification.ShowAsync("Cannot Delete", "Only stock adjustments can be deleted from this report.", ToastType.Warning);
+			return;
+		}
+
+		await ShowConfirmation("Delete",
+			$"Are you sure you want to delete transaction {record.TransactionNo}",
+			() => DeleteTransaction(record.Id, record.TransactionNo));
+	}
+
+	private async Task ShowConfirmation(string title, string message, Func<Task> action)
+	{
+		_confirmTitle = title;
+		_confirmMessage = message;
+		_confirmAction = action;
+		StateHasChanged();
+		await _confirmationDialog.ShowAsync();
+	}
+
+	private async Task OnConfirmed()
+	{
+		await _confirmationDialog.HideAsync();
+		if (_confirmAction is not null)
+			await _confirmAction();
+		_confirmAction = null;
+	}
+
+	private async Task OnCancelled()
+	{
+		_confirmAction = null;
+		await _confirmationDialog.HideAsync();
+	}
+	#endregion
+
 	#region Exporting
 	private async Task ExportReport(bool isExcel = false)
 	{
@@ -132,7 +223,7 @@ public partial class RawMaterialStockDetailReport : IAsyncDisposable
 		{
 			_isProcessing = true;
 			StateHasChanged();
-			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info, 0);
+			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
 			var (stream, fileName) = await RawMaterialStockReportExport.ExportDetailsReport(
 				_stockDetails,
@@ -153,156 +244,54 @@ public partial class RawMaterialStockDetailReport : IAsyncDisposable
 			StateHasChanged();
 		}
 	}
-	#endregion
 
-	#region Actions
-	private async Task ViewSelectedCartItem()
+	private async Task ExportSelectedTransaction(bool isExcel = false)
 	{
-		if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
 			return;
 
-		var selectedCartItem = _sfGrid.SelectedRecords.First();
+		var record = _sfGrid.SelectedRecords.First();
 
-		if (!selectedCartItem.TransactionId.HasValue)
+		if (!record.TransactionId.HasValue)
 		{
-			await _toastNotification.ShowAsync("Transaction Not Available", "The selected row does not have an associated transaction.", ToastType.Warning);
+			await _toastNotification.ShowAsync("Cannot Export", "The selected row does not have an associated transaction invoice.", ToastType.Warning);
 			return;
 		}
-
-		var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(selectedCartItem.TransactionNo, false, false);
-		await AuthenticationService.NavigateToRoute(decodedTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
-	}
-
-	private async Task DownloadSelectedCartItemPdfInvoice()
-	{
-		if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-			return;
-
-		var selectedCartItem = _sfGrid.SelectedRecords.First();
-
-		if (!selectedCartItem.TransactionId.HasValue)
-		{
-			await _toastNotification.ShowAsync("Invoice Not Available", "The selected row does not have an associated transaction invoice.", ToastType.Warning);
-			return;
-		}
-
-		var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(selectedCartItem.TransactionNo, true, false);
-		await SaveAndViewService.SaveAndView(decodedTransactionNo.PDFStream.fileName, decodedTransactionNo.PDFStream.stream);
-	}
-
-	private async Task DownloadSelectedCartItemExcelInvoice()
-	{
-		if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-			return;
-
-		var selectedCartItem = _sfGrid.SelectedRecords.First();
-
-		if (!selectedCartItem.TransactionId.HasValue)
-		{
-			await _toastNotification.ShowAsync("Invoice Not Available", "The selected row does not have an associated transaction invoice.", ToastType.Warning);
-			return;
-		}
-
-		var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(selectedCartItem.TransactionNo, false, true);
-		await SaveAndViewService.SaveAndView(decodedTransactionNo.ExcelStream.fileName, decodedTransactionNo.ExcelStream.stream);
-	}
-
-	private async Task DeleteSelectedCartItem()
-	{
-		if (_sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
-			return;
-
-		var selectedCartItem = _sfGrid.SelectedRecords.First();
-
-		if (selectedCartItem.Type.Equals("adjustment", StringComparison.CurrentCultureIgnoreCase))
-			await ShowDeleteConfirmation(selectedCartItem.Id, selectedCartItem.TransactionNo);
-	}
-
-	private async Task ConfirmDelete()
-	{
-		if (_isProcessing || _deleteAdjustmentId == 0)
-			return;
 
 		try
 		{
 			_isProcessing = true;
-			await _deleteConfirmationDialog.HideAsync();
 			StateHasChanged();
+			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			if (_deleteAdjustmentId == 0)
-			{
-				await _toastNotification.ShowAsync("Error", "No transaction selected to delete.", ToastType.Error);
-				return;
-			}
+			var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(record.TransactionNo, !isExcel, isExcel);
+			await SaveAndViewService.SaveAndView(isExcel ? decodeTransactionNo.ExcelStream.fileName : decodeTransactionNo.PDFStream.fileName,
+				isExcel ? decodeTransactionNo.ExcelStream.stream : decodeTransactionNo.PDFStream.stream);
 
-			if (!_user.Admin)
-				throw new UnauthorizedAccessException("You do not have permission to delete this transaction.");
-
-			await DeleteAdjustment();
-
-			_deleteAdjustmentId = 0;
-			_deleteTransactionNo = string.Empty;
+			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("Error", $"An error occurred while deleting transaction: {ex.Message}", ToastType.Error);
+			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
 		}
 		finally
 		{
 			_isProcessing = false;
 			StateHasChanged();
-			await LoadStockDetails();
 		}
-	}
-
-	private async Task DeleteAdjustment()
-	{
-		await _toastNotification.ShowAsync("Processing", "Deleting transaction...", ToastType.Info, 0);
-
-		var adjustment = _stockDetails.FirstOrDefault(x => x.Id == _deleteAdjustmentId);
-		if (adjustment is null || !adjustment.Type.Equals("adjustment", StringComparison.CurrentCultureIgnoreCase))
-		{
-			await _toastNotification.ShowAsync("Error", "Transaction not found or is not an adjustment.", ToastType.Error);
-			return;
-		}
-
-		await RawMaterialStockData.DeleteRawMaterialStockById(_deleteAdjustmentId, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
-		await _toastNotification.ShowAsync("Success", $"Transaction {_deleteTransactionNo} has been deleted successfully.", ToastType.Success);
 	}
 	#endregion
 
 	#region Utilities
-	private async Task OnDetailsGridContextMenuItemClicked(ContextMenuClickEventArgs<RawMaterialStockDetailsModel> args)
+	private async Task OnGridContextMenuItemClicked(ContextMenuClickEventArgs<RawMaterialStockDetailsModel> args)
 	{
 		switch (args.Item.Id)
 		{
-			case "ViewSelected":
-				await ViewSelectedCartItem();
-				break;
-			case "DownloadSelectedPdf":
-				await DownloadSelectedCartItemPdfInvoice();
-				break;
-			case "DownloadSelectedExcel":
-				await DownloadSelectedCartItemExcelInvoice();
-				break;
-			case "DeleteSelected":
-				await DeleteSelectedCartItem();
-				break;
+			case "View": await ViewSelectedTransaction(); break;
+			case "ExportPDF": await ExportSelectedTransaction(); break;
+			case "ExportExcel": await ExportSelectedTransaction(true); break;
+			case "Delete": await DeleteSelectedTransaction(); break;
 		}
-	}
-
-	private async Task ShowDeleteConfirmation(int id, string transactionNo)
-	{
-		_deleteAdjustmentId = id;
-		_deleteTransactionNo = transactionNo ?? "N/A";
-		await _deleteConfirmationDialog.ShowAsync();
-	}
-
-	private async Task CancelDelete()
-	{
-		_deleteAdjustmentId = 0;
-		_deleteTransactionNo = string.Empty;
-		await _deleteConfirmationDialog.HideAsync();
 	}
 
 	private async Task StartAutoRefresh()

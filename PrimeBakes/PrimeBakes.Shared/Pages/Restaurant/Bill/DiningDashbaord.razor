@@ -16,7 +16,7 @@ else
 	<div class="page-shell">
 		<Header Title="Dining Dashboard">
 			<RightContent>
-				<IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="NavigateBack" />
+				@* <IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="NavigateBack" /> *@
 			</RightContent>
 		</Header>
 
@@ -43,13 +43,13 @@ else
 
 								<!-- Location -->
 								<div class="form-field">
-									<AutoCompleteWithAdd TItem="LocationModel" TValue="LocationModel"
+									@* <AutoCompleteWithAdd TItem="LocationModel" TValue="LocationModel"
 														 Value="_selectedLocation"
 														 DataSource="@_locations"
 														 Placeholder="All Locations"
 														 Label="Location" ValueChange="OnLocationChanged"
 														 FieldValue="@nameof(LocationModel.Name)"
-														 AddNewRoute="@OperationRouteNames.Location" />
+														 AddNewRoute="@OperationRouteNames.Location" /> *@
 								</div>
 
 							</div>
