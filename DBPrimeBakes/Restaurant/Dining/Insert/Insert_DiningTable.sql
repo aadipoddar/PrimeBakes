@@ -3,21 +3,22 @@ CREATE PROCEDURE [dbo].[Insert_DiningTable]
 	@Name VARCHAR(500),
 	@DiningAreaId INT,
 	@Remarks VARCHAR(MAX) = NULL,
-	@Status BIT
+	@Status BIT,
+	@LayoutJson VARCHAR(MAX) = NULL
 AS
 BEGIN
 	IF @Id = 0
 	BEGIN
-		INSERT INTO [dbo].[DiningTable] (Name, DiningAreaId, Remarks, Status)
-		VALUES (@Name, @DiningAreaId, @Remarks, @Status);
-		
+		INSERT INTO [dbo].[DiningTable] (Name, DiningAreaId, Remarks, Status, LayoutJson)
+		VALUES (@Name, @DiningAreaId, @Remarks, @Status, @LayoutJson);
+
 		SET @Id = SCOPE_IDENTITY();
 	END
 
 	ELSE
 	BEGIN
 		UPDATE [dbo].[DiningTable]
-		SET Name = @Name, DiningAreaId = @DiningAreaId, Remarks = @Remarks, Status = @Status
+		SET Name = @Name, DiningAreaId = @DiningAreaId, Remarks = @Remarks, Status = @Status, LayoutJson = @LayoutJson
 		WHERE Id = @Id;
 	END
 

@@ -10,6 +10,13 @@ public static class DiningTableData
 		(await SqlDataAccess.LoadData<int, dynamic>(RestaurantNames.InsertDiningTable, diningTable, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Dining Table.");
 
+	public static async Task UpdateLayouts(List<DiningTableModel> diningTables) =>
+		await SqlDataAccessTransaction.Run(async transaction =>
+		{
+			foreach (var diningTable in diningTables)
+				await InsertDiningTable(diningTable, transaction);
+		});
+
 	public static async Task DeleteTransaction(DiningTableModel diningTable, int userId, string platform) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{

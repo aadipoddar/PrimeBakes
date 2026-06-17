@@ -1,11 +1,15 @@
-﻿@attribute [Route(RestaurantRouteNames.DiningDashboard)]
+@attribute [Route(RestaurantRouteNames.DiningDashboard)]
 
 @using PrimeBakesLibrary.Common
 @using PrimeBakesLibrary.Operations.Location
+@using PrimeBakesLibrary.Restaurant.Dining.Models
+@using Syncfusion.Blazor.Diagram
 
 <PageTitle>Dining Dashboard - Prime Bakes</PageTitle>
 
-<MudBlazor.MudHotkey Key=JsKey.KeyB KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateBack" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" />
+<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="SaveDesign" Disabled="@(!_designMode)" />
+<MudBlazor.MudHotkey Key=JsKey.Escape OnHotkeyPressed="CancelDesign" Disabled="@(!_designMode)" />
 
 @if (_isLoading || _user is null)
 {
@@ -15,125 +19,104 @@ else
 {
 	<div class="page-shell">
 		<Header Title="Dining Dashboard">
-			<RightContent>
-				@* <IconButton Icon="IconType.Back" Title="Back (Ctrl + B)" OnClick="NavigateBack" /> *@
-			</RightContent>
+			<LeftContent>
+				<MudBlazor.MudMenu Label="Layout" Dense="true" Disabled="_user?.LocationId != 1">
+					<MudBlazor.MudMenuItem Label="Design Layout" OnClick="EnterDesignMode" Disabled="@(_designMode || _selectedArea is null)" />
+					<MudBlazor.MudMenuItem Label="Save Layout (Ctrl + S)" OnClick="SaveDesign" Disabled="@(!_designMode)" />
+					<MudBlazor.MudMenuItem Label="Cancel (Esc)" OnClick="CancelDesign" Disabled="@(!_designMode)" />
+				</MudBlazor.MudMenu>
+			</LeftContent>
 		</Header>
 
 		<div class="page-container">
 
-			<!-- Location (if admin) -->
-			@if (_user.LocationId == 1)
-			{
-				<!-- Filters Section -->
-				<div class="section-card">
-					<div class="section-header">
-						<div class="section-title-wrapper">
-							<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-								 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-								 stroke-linejoin="round">
-								<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-							</svg>
-							<h2 class="section-title">Filters</h2>
-						</div>
+			<!-- Filters Section -->
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+							 stroke-linejoin="round">
+							<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+						</svg>
+						<h2 class="section-title">Filters</h2>
 					</div>
-					<div class="section-body">
-						<div class="filters-container">
-							<div class="filters-grid">
+				</div>
+				<div class="section-body">
+					<div class="filters-container">
+						<div class="filters-grid">
 
+							@if (_user.LocationId == 1)
+							{
 								<!-- Location -->
 								<div class="form-field">
-									@* <AutoCompleteWithAdd TItem="LocationModel" TValue="LocationModel"
-														 Value="_selectedLocation"
-														 DataSource="@_locations"
-														 Placeholder="All Locations"
-														 Label="Location" ValueChange="OnLocationChanged"
-														 FieldValue="@nameof(LocationModel.Name)"
-														 AddNewRoute="@OperationRouteNames.Location" /> *@
+									<CustomAutoComplete @ref="_firstFocus" T="LocationModel"
+														Value="_selectedLocation"
+														DataSource="@_locations"
+														Placeholder="Select a Location"
+														Label="Location (Ctrl + F)"
+														ValueChanged="OnLocationChanged"
+														FieldValue="@nameof(LocationModel.Name)" />
 								</div>
+							}
 
+							<!-- Dining Area -->
+							<div class="form-field">
+								<CustomAutoComplete T="DiningAreaModel"
+													Value="_selectedArea"
+													DataSource="@_diningAreas"
+													Placeholder="Select a Dining Area"
+													Label="Dining Area"
+													ValueChanged="OnAreaChanged"
+													FieldValue="@nameof(DiningAreaModel.Name)" />
 							</div>
+
 						</div>
 					</div>
 				</div>
-			}
+			</div>
 
-			@if (_diningAreas.Count == 0)
-			{
-				<div class="section-card">
-					<div class="section-header">
-						<div class="section-title-wrapper">
-							<h2 class="section-title">Dining Areas</h2>
-						</div>
-						<p class="section-subtitle">No active dining areas found for your location</p>
+			<!-- Floor Plan -->
+			<div class="section-card">
+				<div class="section-header">
+					<div class="section-title-wrapper">
+						<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+							 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+							 stroke-linejoin="round">
+							<rect x="3" y="3" width="8" height="8" rx="1" />
+							<rect x="13" y="3" width="8" height="8" rx="1" />
+							<rect x="3" y="13" width="8" height="8" rx="1" />
+							<rect x="13" y="13" width="8" height="8" rx="1" />
+						</svg>
+						<h2 class="section-title">@(_selectedArea?.Name ?? "Floor Plan")</h2>
 					</div>
+					<p class="section-subtitle">
+						@if (_selectedArea is null)
+						{
+							@:No active dining areas found for your location
+						}
+						else if (_designMode)
+						{
+							@:Drag tables to arrange, then save
+						}
+						else
+						{
+							<text>@_nodes.Count tables</text>
+						}
+					</p>
 				</div>
-			}
-			else
-			{
-				@foreach (var area in _diningAreas)
-				{
-					var areaTables = _diningTables.Where(t => t.DiningAreaId == area.Id).OrderBy(t => t.Name).ToList();
-					var runningTablesCount = areaTables.Count(t => _runningBills.Any(bill => bill.DiningTableId == t.Id));
-
-					<div class="section-card">
-						<div class="section-header">
-							<div class="section-title-wrapper">
-								<svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-									 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-									 stroke-linejoin="round">
-									<rect x="3" y="3" width="8" height="8" rx="1" />
-									<rect x="13" y="3" width="8" height="8" rx="1" />
-									<rect x="3" y="13" width="8" height="8" rx="1" />
-									<rect x="13" y="13" width="8" height="8" rx="1" />
-								</svg>
-								<h2 class="section-title">@area.Name</h2>
-							</div>
-							<p class="section-subtitle">@runningTablesCount running / @areaTables.Count tables</p>
-						</div>
-						<div class="section-body">
-							@if (areaTables.Count == 0)
-							{
-								<p class="section-subtitle">No active tables in this area</p>
-							}
-							else
-							{
-								<div class="dashboard-grid">
-									@foreach (var table in areaTables)
-									{
-										var runningBill = _runningBills.Where(b => b.DiningTableId == table.Id &&
-					b.Running).FirstOrDefault();
-										var hasRunningBill = runningBill is not null;
-										var cardColor = hasRunningBill ? "running" : "available";
-										var description = hasRunningBill
-										? $"Bill No: {runningBill.TransactionNo}\nItems: {runningBill.TotalItems}\nQty: {runningBill.TotalQuantity.FormatSmartDecimal()}\nAmt: {runningBill.TotalAmount.FormatIndianCurrency()}"
-										: $"Area: {area.Name} • Available";
-
-										<ButtonCard Title="@table.Name" Description="@description"
-													PreserveDescriptionLineBreaks="@hasRunningBill" Color="@cardColor"
-													OnClick="() => OpenBillPage(table.Id)">
-											<IconContent>
-												<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-													 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-													 stroke-linejoin="round">
-													<rect x="3" y="4" width="18" height="5" rx="1" />
-													<path d="M5 9v10" />
-													<path d="M19 9v10" />
-													<path d="M9 14h6" />
-												</svg>
-											</IconContent>
-										</ButtonCard>
-									}
-								</div>
-							}
-						</div>
-					</div>
-				}
-			}
+				<div class="section-body">
+					@if (_selectedArea is not null)
+					{
+						<SfDiagramComponent Height="600px" Width="100%" Nodes="_nodes" Click="OnDiagramClick"
+											PositionChanging="OnPositionChanging" SizeChanging="OnSizeChanging">
+							<SnapSettings Constraints="@(_designMode ? SnapConstraints.ShowLines | SnapConstraints.SnapToLines : SnapConstraints.None)" />
+						</SfDiagramComponent>
+					}
+				</div>
+			</div>
 		</div>
 
 		<Footer />
 	</div>
 }
-
-

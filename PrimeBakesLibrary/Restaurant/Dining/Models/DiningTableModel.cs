@@ -7,4 +7,5 @@ public class DiningTableModel
 	public int DiningAreaId { get; set; }
 	public string? Remarks { get; set; }
 	public bool Status { get; set; }
+	public string? LayoutJson { get; set; }
 }

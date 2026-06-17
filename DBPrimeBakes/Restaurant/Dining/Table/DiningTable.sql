@@ -4,6 +4,7 @@
     [Name] VARCHAR(500) NOT NULL UNIQUE, 
     [DiningAreaId] INT NOT NULL,
     [Remarks] VARCHAR(MAX) NULL,
-    [Status] BIT NOT NULL DEFAULT 1, 
+    [Status] BIT NOT NULL DEFAULT 1,
+    [LayoutJson] VARCHAR(MAX) NULL,
     CONSTRAINT [FK_DiningTable_ToDiningArea] FOREIGN KEY ([DiningAreaId]) REFERENCES [DiningArea]([Id])
 )
