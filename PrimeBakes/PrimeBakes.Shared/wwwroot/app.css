@@ -28,8 +28,11 @@
 	--bg-blue-light: #eff6ff;
 	--bg-summary: #deecf9;
 	/* Shared application background — used by .page-container and the
-	   authentication pages. Change here to restyle the whole app. */
-	--app-bg: linear-gradient(135deg, #ffeef5 0%, #fff5f9 100%);
+	   authentication pages. Change here to restyle the whole app.
+	   Brand-rose gradient (matches the PrimeBakes magenta logo); deep
+	   enough that white .section-card / tile surfaces read as distinct
+	   cards instead of blending into the page. */
+	--app-bg: linear-gradient(135deg, #fbd9e8 0%, #f6c7dd 45%, #f3b9d4 100%);
 	/* Spacing */
 	--border-radius: 6px;
 	--border-radius-lg: 12px;

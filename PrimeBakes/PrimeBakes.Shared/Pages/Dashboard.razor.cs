@@ -1,20 +1,17 @@
+using PrimeBakesLibrary.DataAccess;
 using PrimeBakesLibrary.Operations.User;
 
 using System.Reflection;
 
 namespace PrimeBakes.Shared.Pages;
 
-public partial class Dashboard : IDisposable
+public partial class Dashboard
 {
 	#region Device Info
-	private string Factor =>
-		FormFactor.GetFormFactor();
-
-	private string Platform =>
-		FormFactor.GetPlatform();
-
-	private static string AppVersion =>
-		Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "1.0.0.0";
+	private string Factor => FormFactor.GetFormFactor();
+	private string Platform => FormFactor.GetPlatform();
+	private bool IsMobile => Factor == "Phone" || Factor == "Tablet";
+	private static string AppVersion => Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "1.0.0.0";
 	#endregion
 
 	#region Updating
@@ -57,7 +54,7 @@ public partial class Dashboard : IDisposable
 			InvokeAsync(StateHasChanged);
 		});
 
-		await UpdateService.UpdateAppAsync("aadipoddar", "PrimeBakes", "PrimeBakes", progress, forceUpdate);
+		await UpdateService.UpdateAppAsync("aadipoddar", Secrets.DatabaseName, Secrets.DatabaseName, progress, forceUpdate);
 
 		_isUpdating = false;
 		StateHasChanged();
@@ -69,12 +66,10 @@ public partial class Dashboard : IDisposable
 			return;
 
 		if (Factor.Contains("Web"))
-		{
 			NavigationManager.NavigateTo(OperationRouteNames.Dashboard, true);
-			return;
-		}
 
-		await StartUpdateProcess(true);
+		else
+			await StartUpdateProcess(true);
 	}
 	#endregion
 
@@ -94,7 +89,7 @@ public partial class Dashboard : IDisposable
 
 			if (shouldCheckUpdate)
 			{
-				var hasUpdate = await UpdateService.CheckForUpdatesAsync("aadipoddar", "PrimeBakes", "PrimeBakes", AppVersion);
+				var hasUpdate = await UpdateService.CheckForUpdatesAsync("aadipoddar", Secrets.DatabaseName, Secrets.DatabaseName, AppVersion);
 				if (hasUpdate)
 					await StartUpdateProcess();
 			}
@@ -103,7 +98,7 @@ public partial class Dashboard : IDisposable
 		}
 		catch (Exception)
 		{
-			await Logout();
+			await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 		}
 		finally
 		{
@@ -119,11 +114,5 @@ public partial class Dashboard : IDisposable
 		if (Platform.Contains("Android"))
 			await NotificationService.RegisterDevicePushNotification(_user.Id.ToString());
 	}
-
-	private async Task Logout() =>
-		await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
-
-	public void Dispose() =>
-		GC.SuppressFinalize(this);
 	#endregion
 }

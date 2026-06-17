@@ -2,16 +2,8 @@
 
 public static class OperationRouteNames
 {
-	// TODO - Remove
-	public const string OperationsDashboard = "/operations";
-	public const string AccountsDashboard = "/accounts";
-	public const string InventoryDashboard = "/inventory";
-	public const string StoreDashboard = "/store";
-	public const string RestaurantDashboard = "/restaurants";
-
 	public const string Dashboard = "/";
 	public const string Login = "/login";
-	public const string ReportDashboard = "/report";
 
 	public const string OutletSummaryReport = "/reports/outlet-summary";
 	public const string Location = "/operations/location";

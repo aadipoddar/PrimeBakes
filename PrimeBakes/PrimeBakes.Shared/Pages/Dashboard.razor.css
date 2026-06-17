@@ -1,0 +1,235 @@
+/* ================================================================
+   LAUNCHPAD (SAP Fiori-style tabbed dashboard)
+   ================================================================ */
+
+/* Tab header strip — transparent, floats on the page background (Fiori "spaces" ribbon) */
+.launchpad ::deep .launchpad-tab-header {
+	background: transparent;
+	border-bottom: 1px solid rgba(15, 23, 42, 0.12);
+	padding: 0;
+}
+
+/* Individual tab labels */
+.launchpad ::deep .mud-tab {
+	text-transform: none;
+	font-size: 14px;
+	font-weight: 500;
+	letter-spacing: -0.1px;
+	color: var(--gray-500, #64748b);
+	min-height: 48px;
+}
+
+	.launchpad ::deep .mud-tab.mud-tab-active {
+		color: var(--gray-900, #0f172a);
+		font-weight: 600;
+	}
+
+.launchpad ::deep .mud-tabs-tabbar {
+	background: transparent !important;
+	border-radius: 0;
+}
+
+/* Panels area below the tabs */
+.launchpad ::deep .launchpad-tab-panels {
+	padding: 20px 0 4px 0;
+}
+
+
+
+
+/* Update Progress Overlay */
+.update-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: linear-gradient(135deg, rgba(59, 130, 246, 0.95) 0%, rgba(99, 102, 241, 0.95) 100%);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 10000;
+	animation: fadeIn 0.3s ease;
+}
+
+.update-container {
+	background: #ffffff;
+	border-radius: 20px;
+	padding: 40px;
+	max-width: 500px;
+	width: 90%;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+	animation: slideUp 0.4s ease;
+}
+
+.update-header {
+	text-align: center;
+	margin-bottom: 32px;
+}
+
+.update-icon {
+	color: #3b82f6;
+	margin-bottom: 16px;
+	animation: rotate 2s linear infinite;
+}
+
+.update-title {
+	font-size: 24px;
+	font-weight: 600;
+	color: #0f172a;
+	margin: 0 0 8px 0;
+	letter-spacing: -0.5px;
+}
+
+.update-subtitle {
+	font-size: 14px;
+	color: #64748b;
+	margin: 0;
+	font-weight: 400;
+}
+
+.update-progress-section {
+	margin-bottom: 24px;
+}
+
+.progress-info {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 12px;
+}
+
+.progress-label {
+	font-size: 14px;
+	color: #475569;
+	font-weight: 500;
+}
+
+.progress-percentage {
+	font-size: 20px;
+	font-weight: 700;
+	color: #3b82f6;
+	letter-spacing: -0.5px;
+}
+
+.progress-bar-container {
+	height: 12px;
+	background: #e2e8f0;
+	border-radius: 12px;
+	overflow: hidden;
+	margin-bottom: 12px;
+	box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.progress-bar-fill {
+	height: 100%;
+	background: linear-gradient(90deg, #3b82f6 0%, #6366f1 100%);
+	border-radius: 12px;
+	transition: width 0.3s ease;
+	position: relative;
+	overflow: hidden;
+}
+
+	.progress-bar-fill::after {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		bottom: 0;
+		right: 0;
+		background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+		animation: shimmer 1.5s infinite;
+	}
+
+.time-remaining {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 13px;
+	color: #64748b;
+	justify-content: center;
+}
+
+	.time-remaining svg {
+		color: #94a3b8;
+	}
+
+.update-status {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	justify-content: center;
+	padding: 16px;
+	background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+	border-radius: 12px;
+	border: 1px solid #bae6fd;
+}
+
+.status-dot {
+	width: 8px;
+	height: 8px;
+	background: #3b82f6;
+	border-radius: 50%;
+	animation: pulse 1.5s ease-in-out infinite;
+}
+
+.update-status span {
+	font-size: 14px;
+	color: #0c4a6e;
+	font-weight: 500;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes slideUp {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes rotate {
+	from {
+		transform: rotate(0deg);
+	}
+
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes shimmer {
+	0% {
+		transform: translateX(-100%);
+	}
+
+	100% {
+		transform: translateX(100%);
+	}
+}
+
+@keyframes pulse {
+
+	0%, 100% {
+		opacity: 1;
+		transform: scale(1);
+	}
+
+	50% {
+		opacity: 0.5;
+		transform: scale(1.3);
+	}
+}
