@@ -3,6 +3,8 @@ using PrimeBakesLibrary.Store.Product.Models;
 using PrimeBakesLibrary.Store.Sale.Data;
 using PrimeBakesLibrary.Store.Sale.Models;
 
+using System.Text.Json;
+
 namespace PrimeBakes.Shared.Pages.Store.Sale.Mobile;
 
 public partial class SaleMobileCartPage
@@ -34,14 +36,8 @@ public partial class SaleMobileCartPage
 		_products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
 		_taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
 
-		_cart.Clear();
-
 		if (await DataStorageService.LocalExists(StorageFileNames.SaleMobileCartDataFileName))
-		{
-			var items = System.Text.Json.JsonSerializer.Deserialize<List<SaleItemCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.SaleMobileCartDataFileName)) ?? [];
-			foreach (var item in items)
-				_cart.Add(item);
-		}
+			_cart = JsonSerializer.Deserialize<List<SaleItemCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.SaleMobileCartDataFileName)) ?? [];
 
 		_cart = [.. _cart.OrderBy(x => x.ItemName)];
 
@@ -122,7 +118,7 @@ public partial class SaleMobileCartPage
 			if (!_cart.Any(x => x.Quantity > 0) && await DataStorageService.LocalExists(StorageFileNames.SaleMobileCartDataFileName))
 				await DataStorageService.LocalRemove(StorageFileNames.SaleMobileCartDataFileName);
 			else
-				await DataStorageService.LocalSaveAsync(StorageFileNames.SaleMobileCartDataFileName, System.Text.Json.JsonSerializer.Serialize(_cart.Where(_ => _.Quantity > 0)));
+				await DataStorageService.LocalSaveAsync(StorageFileNames.SaleMobileCartDataFileName, JsonSerializer.Serialize(_cart.Where(_ => _.Quantity > 0)));
 
 			VibrationService.VibrateHapticClick();
 		}

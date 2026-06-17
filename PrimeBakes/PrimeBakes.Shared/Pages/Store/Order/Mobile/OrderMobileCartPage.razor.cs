@@ -4,6 +4,8 @@ using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Store.Order.Data;
 using PrimeBakesLibrary.Store.Order.Models;
 
+using System.Text.Json;
+
 namespace PrimeBakes.Shared.Pages.Store.Order.Mobile;
 
 public partial class OrderMobileCartPage
@@ -33,14 +35,8 @@ public partial class OrderMobileCartPage
 
 	private async Task LoadData()
 	{
-		_cart.Clear();
-
 		if (await DataStorageService.LocalExists(StorageFileNames.OrderMobileCartDataFileName))
-		{
-			var items = System.Text.Json.JsonSerializer.Deserialize<List<OrderItemCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.OrderMobileCartDataFileName)) ?? [];
-			foreach (var item in items)
-				_cart.Add(item);
-		}
+			_cart = JsonSerializer.Deserialize<List<OrderItemCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.OrderMobileCartDataFileName)) ?? [];
 
 		_cart = [.. _cart.OrderBy(x => x.ItemName)];
 
@@ -118,7 +114,7 @@ public partial class OrderMobileCartPage
 			if (!_cart.Any(x => x.Quantity > 0) && await DataStorageService.LocalExists(StorageFileNames.OrderMobileCartDataFileName))
 				await DataStorageService.LocalRemove(StorageFileNames.OrderMobileCartDataFileName);
 			else
-				await DataStorageService.LocalSaveAsync(StorageFileNames.OrderMobileCartDataFileName, System.Text.Json.JsonSerializer.Serialize(_cart.Where(_ => _.Quantity > 0)));
+				await DataStorageService.LocalSaveAsync(StorageFileNames.OrderMobileCartDataFileName, JsonSerializer.Serialize(_cart.Where(_ => _.Quantity > 0)));
 
 			VibrationService.VibrateHapticClick();
 		}
@@ -180,8 +176,8 @@ public partial class OrderMobileCartPage
 	{
 		var overview = await CommonData.LoadTableDataById<OrderOverviewModel>(StoreNames.OrderOverview, orderId);
 
-		await DataStorageService.LocalSaveAsync(StorageFileNames.OrderMobileCartDataFileName, System.Text.Json.JsonSerializer.Serialize(_cart.Where(_ => _.Quantity > 0)));
-		await DataStorageService.LocalSaveAsync(StorageFileNames.OrderMobileDataFileName, System.Text.Json.JsonSerializer.Serialize(overview));
+		await DataStorageService.LocalSaveAsync(StorageFileNames.OrderMobileCartDataFileName, JsonSerializer.Serialize(_cart.Where(_ => _.Quantity > 0)));
+		await DataStorageService.LocalSaveAsync(StorageFileNames.OrderMobileDataFileName, JsonSerializer.Serialize(overview));
 
 		await SendLocalNotification(overview);
 		VibrationService.VibrateWithTime(500);

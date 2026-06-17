@@ -7,8 +7,6 @@ using PrimeBakesLibrary.Restaurant.Dining.Models;
 using PrimeBakesLibrary.Store.Product.Data;
 using PrimeBakesLibrary.Store.Product.Models;
 
-using Syncfusion.Blazor.Grids;
-
 namespace PrimeBakes.Shared.Pages.Restaurant.Bill.Mobile;
 
 public partial class BillMobilePage
@@ -22,12 +20,16 @@ public partial class BillMobilePage
 
 	private DiningTableModel _diningTable;
 	private ProductCategoryModel _selectedCategory;
+	private DiningAreaModel _diningArea;
+	private BillModel _runningBill;
+	private DateTime _now = DateTime.Now;
+
+	private string _query = string.Empty;
+	private int _page = 0;
 
 	private List<ProductCategoryModel> _productCategories = [];
 	private List<BillDetailModel> _previousCart = [];
 	private List<BillItemCartModel> _cart = [];
-
-	private SfGrid<BillItemCartModel> _sfCartGrid;
 
 	#region Load Data
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -45,15 +47,14 @@ public partial class BillMobilePage
 
 	private async Task LoadData()
 	{
+		_now = await CommonData.LoadCurrentDateTime();
+
 		if (!await ResolveBillContext())
 			return;
 
 		await LoadDiningTable();
 		await LoadItems();
 		await LoadCart();
-
-		if (_sfCartGrid is not null)
-			await _sfCartGrid?.Refresh();
 	}
 
 	private async Task<bool> ResolveBillContext()
@@ -86,6 +87,7 @@ public partial class BillMobilePage
 				return false;
 			}
 
+			_diningArea = diningArea;
 			return true;
 		}
 		catch (Exception)
@@ -162,10 +164,10 @@ public partial class BillMobilePage
 			}
 
 			var runningBills = await BillData.LoadRunningBillByLocationId(_user.LocationId);
-			var runningBill = runningBills.FirstOrDefault(b => b.DiningTableId == DiningTableId);
+			_runningBill = runningBills.FirstOrDefault(b => b.DiningTableId == DiningTableId);
 
-			if (runningBill is not null)
-				_previousCart = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, runningBill.Id);
+			if (_runningBill is not null)
+				_previousCart = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, _runningBill.Id);
 		}
 		catch (Exception)
 		{
@@ -176,6 +178,44 @@ public partial class BillMobilePage
 		{
 			await SaveTransactionFile();
 		}
+	}
+	#endregion
+
+	private string Elapsed(DateTime since)
+	{
+		var span = _now - since;
+		if (span < TimeSpan.Zero)
+			span = TimeSpan.Zero;
+
+		return span.TotalHours >= 1 ? $"{(int)span.TotalHours}h {span.Minutes}m" : $"{(int)span.TotalMinutes}m";
+	}
+
+	#region Filter / Page
+	private List<BillItemCartModel> GetFilteredProducts()
+	{
+		IEnumerable<BillItemCartModel> query = _cart;
+
+		if (_selectedCategory is not null && _selectedCategory.Id != 0)
+			query = query.Where(x => x.ItemCategoryId == _selectedCategory.Id);
+
+		if (!string.IsNullOrWhiteSpace(_query))
+			query = query.Where(x =>
+			x.ItemName is not null &&
+			x.ItemName.Contains(_query.Trim(), StringComparison.OrdinalIgnoreCase));
+
+		return [.. query];
+	}
+
+	private void OnQueryChange(string value)
+	{
+		_query = value ?? string.Empty;
+		_page = 0;
+	}
+
+	private void SelectCategory(ProductCategoryModel category)
+	{
+		_selectedCategory = category;
+		_page = 0;
 	}
 	#endregion
 
@@ -195,6 +235,23 @@ public partial class BillMobilePage
 			return;
 
 		item.Quantity = Math.Max(0, newQuantity);
+		await SaveTransactionFile();
+	}
+
+	private async Task OnQuantityInput(BillItemCartModel item, string raw)
+	{
+		if (item is null)
+			return;
+
+		var digits = string.IsNullOrWhiteSpace(raw)
+			? string.Empty
+			: new string([.. raw.Where(char.IsDigit)]);
+
+		decimal value = 0;
+		if (!string.IsNullOrWhiteSpace(digits) && decimal.TryParse(digits, out var parsed))
+			value = Math.Min(9999, parsed);
+
+		item.Quantity = value;
 		await SaveTransactionFile();
 	}
 
@@ -277,9 +334,6 @@ public partial class BillMobilePage
 		}
 		finally
 		{
-			if (_sfCartGrid is not null)
-				await _sfCartGrid?.Refresh();
-
 			_isProcessing = false;
 			StateHasChanged();
 		}

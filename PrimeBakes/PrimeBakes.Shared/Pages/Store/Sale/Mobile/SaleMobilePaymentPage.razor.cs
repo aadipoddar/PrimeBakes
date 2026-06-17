@@ -48,14 +48,8 @@ public partial class SaleMobilePaymentPage
 		_products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
 		_taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
 
-		_cart.Clear();
-
 		if (await DataStorageService.LocalExists(StorageFileNames.SaleMobileCartDataFileName))
-		{
-			var items = JsonSerializer.Deserialize<List<SaleItemCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.SaleMobileCartDataFileName)) ?? [];
-			foreach (var item in items)
-				_cart.Add(item);
-		}
+			_cart = JsonSerializer.Deserialize<List<SaleItemCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.SaleMobileCartDataFileName)) ?? [];
 
 		if (_cart.Count == 0)
 		{
@@ -113,6 +107,18 @@ public partial class SaleMobilePaymentPage
 	private async Task AdjustDiscountPercent(decimal delta)
 	{
 		_sale.DiscountPercent = Math.Clamp(_sale.DiscountPercent + delta, 0, 100);
+		await SaveTransactionFile();
+	}
+
+	private async Task OnOtherChargesPercentChanged(string raw)
+	{
+		_sale.OtherChargesPercent = Math.Clamp(ParseDecimal(raw, allowNegative: false), 0, 100);
+		await SaveTransactionFile();
+	}
+
+	private async Task AdjustOtherChargesPercent(decimal delta)
+	{
+		_sale.OtherChargesPercent = Math.Clamp(_sale.OtherChargesPercent + delta, 0, 100);
 		await SaveTransactionFile();
 	}
 
@@ -213,6 +219,13 @@ public partial class SaleMobilePaymentPage
 	{
 		await SaleData.ApplyItemFinancialDetails(_cart, _products, _taxes);
 
+		foreach (var item in _cart.Where(i => i.Quantity > 0))
+		{
+			var perUnitCost = item.Total / item.Quantity;
+			var withOtherCharges = perUnitCost * (1 + _sale.OtherChargesPercent / 100);
+			item.NetRate = withOtherCharges * (1 - _sale.DiscountPercent / 100);
+		}
+
 		_sale.TotalItems = _cart.Count;
 		_sale.TotalQuantity = _cart.Sum(x => x.Quantity);
 		_sale.BaseTotal = _cart.Sum(x => x.BaseTotal);
@@ -222,7 +235,6 @@ public partial class SaleMobilePaymentPage
 		_sale.TotalExtraTaxAmount = _cart.Where(x => !x.InclusiveTax).Sum(x => x.TotalTaxAmount);
 		_sale.TotalAfterTax = _cart.Sum(x => x.Total);
 
-		_sale.OtherChargesPercent = 0;
 		_sale.OtherChargesAmount = _sale.TotalAfterTax * _sale.OtherChargesPercent / 100;
 		var totalAfterOtherCharges = _sale.TotalAfterTax + _sale.OtherChargesAmount;
 

@@ -10,9 +10,8 @@ using PrimeBakesLibrary.Restaurant.Dining.Models;
 using PrimeBakesLibrary.Store.Customer;
 using PrimeBakesLibrary.Store.PaymentMode;
 using PrimeBakesLibrary.Store.Product.Models;
-using PrimeBakesLibrary.Utils.Exports;
 
-using Syncfusion.Blazor.Inputs;
+using System.Text.Json;
 
 namespace PrimeBakes.Shared.Pages.Restaurant.Bill.Mobile;
 
@@ -35,7 +34,7 @@ public partial class BillMobilePaymentPage
 	private List<BillDetailModel> _previousCart = [];
 	private readonly List<(string Field, string Message)> _validationErrors = [];
 	private readonly List<PaymentItem> _payments = [];
-	private readonly List<PaymentModeModel> _paymentMethods = PaymentModeData.GetPaymentModes();
+	private readonly List<PaymentModeModel> _paymentMethods = [.. PaymentModeData.GetPaymentModes().Where(m => m.Name != "Credit")];
 
 	private PaymentModeModel _selectedPaymentMethod = new();
 	private decimal _paymentAmount = 0;
@@ -133,14 +132,8 @@ public partial class BillMobilePaymentPage
 
 	private async Task LoadCart()
 	{
-		_cart.Clear();
-
 		if (await DataStorageService.LocalExists(StorageFileNames.BillMobileCartDataFileName))
-		{
-			var items = System.Text.Json.JsonSerializer.Deserialize<List<BillItemCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.BillMobileCartDataFileName)) ?? [];
-			foreach (var item in items)
-				_cart.Add(item);
-		}
+			_cart = JsonSerializer.Deserialize<List<BillItemCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.BillMobileCartDataFileName)) ?? [];
 
 		_cart = [.. _cart.OrderBy(x => x.ItemName)];
 
@@ -175,26 +168,78 @@ public partial class BillMobilePaymentPage
 		await UpdateFinancialDetails();
 	}
 
-	private async Task OnDiscountPercentChanged(ChangeEventArgs<decimal> args)
+	private async Task OnDiscountPercentChanged(string raw)
 	{
-		_bill.DiscountPercent = args.Value;
+		_bill.DiscountPercent = Math.Clamp(ParseDecimal(raw, allowNegative: false), 0, 100);
 		await UpdateFinancialDetails();
 	}
 
-	private async Task OnServiceChargePercentChanged(ChangeEventArgs<decimal> args)
+	private async Task AdjustDiscountPercent(decimal delta)
 	{
-		_bill.ServiceChargePercent = args.Value;
+		_bill.DiscountPercent = Math.Clamp(_bill.DiscountPercent + delta, 0, 100);
 		await UpdateFinancialDetails();
 	}
 
-	private async Task OnRoundOffAmountChanged(ChangeEventArgs<decimal> args)
+	private async Task OnServiceChargePercentChanged(string raw)
 	{
-		_bill.RoundOffAmount = args.Value;
+		_bill.ServiceChargePercent = Math.Clamp(ParseDecimal(raw, allowNegative: false), 0, 100);
+		await UpdateFinancialDetails();
+	}
+
+	private async Task AdjustServiceChargePercent(decimal delta)
+	{
+		_bill.ServiceChargePercent = Math.Clamp(_bill.ServiceChargePercent + delta, 0, 100);
+		await UpdateFinancialDetails();
+	}
+
+	private async Task OnRoundOffAmountChanged(string raw)
+	{
+		_bill.RoundOffAmount = ParseDecimal(raw, allowNegative: true);
 		await UpdateFinancialDetails(true);
+	}
+
+	private async Task AdjustRoundOff(decimal delta)
+	{
+		_bill.RoundOffAmount += delta;
+		await UpdateFinancialDetails(true);
+	}
+
+	private static decimal ParseDecimal(string raw, bool allowNegative)
+	{
+		if (string.IsNullOrWhiteSpace(raw))
+			return 0;
+
+		var allowed = allowNegative ? "0123456789.-" : "0123456789.";
+		var cleaned = new string([.. raw.Where(c => allowed.Contains(c))]);
+		var negative = allowNegative && cleaned.StartsWith('-');
+		cleaned = cleaned.Replace("-", "");
+
+		if (!decimal.TryParse(cleaned, out var value))
+			return 0;
+
+		return negative ? -value : value;
 	}
 	#endregion
 
 	#region Payment
+	private void SelectPaymentMethod(PaymentModeModel method)
+	{
+		if (method is null || _isProcessing)
+			return;
+
+		_selectedPaymentMethod = method;
+	}
+
+	private void FillRemaining()
+	{
+		if (_remainingAmount <= 0)
+			return;
+
+		_paymentAmount = _remainingAmount;
+	}
+
+	private void OnPaymentAmountChanged(string raw) => _paymentAmount = ParseDecimal(raw, allowNegative: false);
+
 	private void AddPayment()
 	{
 		if (_paymentAmount <= 0 || _selectedPaymentMethod == null || _selectedPaymentMethod.Id <= 0)
@@ -249,7 +294,7 @@ public partial class BillMobilePaymentPage
 		{
 			_isProcessing = true;
 
-			if (_user.LocationId != 1)
+			if (!_user.ChangeProductFinancial)
 				_bill.DiscountPercent = 0;
 
 			_finalCart.Clear();
@@ -331,84 +376,8 @@ public partial class BillMobilePaymentPage
 		}
 	}
 
-	private async Task<bool> ValidateForm()
+	private async Task PrepareBillForSave()
 	{
-		_validationErrors.Clear();
-
-		if (_finalCart.Count == 0)
-		{
-			ShowError("Cart", "The cart is empty. Please add items to the cart before saving the order.");
-			return false;
-		}
-
-		if (_finalCart.Any(item => item.Quantity <= 0))
-		{
-			ShowError("Quantity", "All items in the cart must have a quantity greater than zero.");
-			return false;
-		}
-
-		if (_bill.TotalItems <= 0)
-		{
-			ShowError("Total Items", "The total number of items in the cart must be greater than zero.");
-			return false;
-		}
-
-		if (_bill.TotalQuantity <= 0)
-		{
-			ShowError("Total Quantity", "The total quantity of items in the cart must be greater than zero.");
-			return false;
-		}
-
-		if (_bill.TotalAmount < 0)
-		{
-			ShowError("Total Amount", "The total amount of the transaction cannot be negative.");
-			return false;
-		}
-
-		if (_user.LocationId <= 0)
-		{
-			ShowError("Location", "Please select a valid location for the bill.");
-			return false;
-		}
-
-		if (_bill.DiningTableId <= 0)
-		{
-			ShowError("Dining Table", "Please select a valid dining table for this bill.");
-			return false;
-		}
-
-		if (string.IsNullOrWhiteSpace(_selectedCustomer.Name) && !string.IsNullOrWhiteSpace(_selectedCustomer.Number))
-		{
-			ShowError("Customer Name Missing", "Please enter a name for the new customer or clear the customer field.");
-			return false;
-		}
-
-		if (_selectedCustomer.Id > 0)
-		{
-			_selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(StoreNames.Customer, _selectedCustomer.Id);
-			_bill.CustomerId = _selectedCustomer.Id;
-		}
-		else if (!string.IsNullOrWhiteSpace(_selectedCustomer.Number) && _selectedCustomer.Id == 0)
-		{
-			_selectedCustomer.Id = await CustomerData.InsertCustomer(_selectedCustomer);
-			_bill.CustomerId = _selectedCustomer.Id;
-		}
-		else
-		{
-			_selectedCustomer = new();
-			_bill.CustomerId = null;
-		}
-
-		if (_bill.Cash < 0 || _bill.Card < 0 || _bill.Credit < 0 || _bill.UPI < 0)
-		{
-			ShowError("Payment Amounts", "Payment amounts (Cash, Card, Credit, UPI) cannot be negative. Please correct the amounts before saving.");
-			return false;
-		}
-
-		_bill.Remarks = _bill.Remarks?.Trim();
-		if (string.IsNullOrWhiteSpace(_bill.Remarks))
-			_bill.Remarks = null;
-
 		_bill.Status = true;
 		_bill.LocationId = _user.LocationId;
 		_bill.CreatedBy = _user.Id;
@@ -422,8 +391,6 @@ public partial class BillMobilePaymentPage
 		_bill.LastModifiedFromPlatform = _bill.CreatedFromPlatform;
 		if (_bill.Id == 0)
 			_bill.TransactionNo = await GenerateCodes.GenerateBillTransactionNo(_bill);
-
-		return true;
 	}
 
 	private void HandleBillSettlement()
@@ -460,7 +427,7 @@ public partial class BillMobilePaymentPage
 		await BillData.MarkKOTAsPrinted(_bill.Id);
 	}
 
-	private async Task SaveTransaction(bool thermal = false, bool kotOnly = false)
+	private async Task SaveTransaction(bool kotOnly = false)
 	{
 		if (_isProcessing || _isLoading)
 			return;
@@ -473,19 +440,13 @@ public partial class BillMobilePaymentPage
 			await UpdateFinancialDetails(true);
 			ConfirmPayment();
 
-			if (!await ValidateForm())
-			{
-				_isProcessing = false;
-				return;
-			}
+			await PrepareBillForSave();
 
 			HandleBillSettlement();
 
-			_bill.Id = await BillData.SaveTransaction(_bill, billDetails: _finalCart);
+			_bill.Id = await BillData.SaveTransaction(_bill, _finalCart, _selectedCustomer);
 			if (_bill.Id <= 0)
 				throw new Exception("Failed to save the bill. Please try again.");
-
-			await DataStorageService.LocalRemove(StorageFileNames.BillMobileCartDataFileName);
 
 			if (kotOnly)
 			{
@@ -494,23 +455,13 @@ public partial class BillMobilePaymentPage
 				return;
 			}
 
-			await SendLocalNotification(_bill.Id);
-
-			if (thermal)
-				await ThermalPrintDispatcher.PrintAsync(
-					() => BillThermalPrint.GenerateThermalBill(_bill.Id),
-					() => BillThermalPrint.GenerateThermalBillPng(_bill.Id));
-
-			if (!_bill.Running)
+			if (_bill.Running)
 			{
-				var (pdfStream, fileName) = await BillInvoiceExport.ExportInvoice(_bill.Id, InvoiceExportType.PDF);
-				await SaveAndViewService.SaveAndView(fileName, pdfStream);
+				NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
+				return;
 			}
 
-			if (_bill.Running)
-				NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
-			else
-				NavigationManager.NavigateTo(RestaurantRouteNames.BillMobileConfirmation, true);
+			await NotificationNavigate(_bill.Id);
 		}
 		catch (Exception ex)
 		{
@@ -521,18 +472,26 @@ public partial class BillMobilePaymentPage
 			_isProcessing = false;
 		}
 	}
+
+	private async Task NotificationNavigate(int billId)
+	{
+		var overview = await CommonData.LoadTableDataById<BillOverviewModel>(RestaurantNames.BillOverview, billId);
+		await DataStorageService.LocalSaveAsync(StorageFileNames.BillMobileDataFileName, JsonSerializer.Serialize(overview));
+		await DataStorageService.LocalRemove(StorageFileNames.BillMobileCartDataFileName);
+
+		await SendLocalNotification(overview);
+		VibrationService.VibrateWithTime(500);
+		NavigationManager.NavigateTo(RestaurantRouteNames.BillMobileConfirmation, true);
+	}
 	#endregion
 
 	#region Utilities
-	private async Task SendLocalNotification(int billId)
-	{
-		var bill = await CommonData.LoadTableDataById<BillOverviewModel>(RestaurantNames.BillOverview, billId);
+	private async Task SendLocalNotification(BillOverviewModel bill) =>
 		await NotificationService.ShowLocalNotification(
 			bill.Id,
 			"Bill Placed",
 			$"{bill.TransactionNo}",
 			$"Your bill #{bill.TransactionNo} has been successfully placed | Total Items: {bill.TotalItems} | Total Qty: {bill.TotalQuantity} | Date: {bill.TransactionDateTime:dd/MM/yy hh:mm tt} | Remarks: {bill.Remarks}");
-	}
 
 	private void ShowError(string title, string message)
 	{

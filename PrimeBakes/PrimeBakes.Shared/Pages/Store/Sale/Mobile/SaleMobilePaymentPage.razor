@@ -15,6 +15,7 @@
 else
 {
 	var subtotal = _sale.TotalAfterTax;
+	var otherCharges = _sale.OtherChargesAmount;
 	var discAmt = _sale.DiscountAmount;
 	var roundOff = _sale.RoundOffAmount;
 	var total = _sale.TotalAmount;
@@ -76,30 +77,45 @@ else
 
 					@if (_user.ChangeProductFinancial)
 					{
-						<div class="pb-field-row">
-							<div class="pb-pay-field" style="flex: 1;">
-								<label>Discount %</label>
-								<div class="pb-qty pb-qty--full">
+						<div class="pb-charges">
+							<div class="pb-charge">
+								<label class="pb-charge__label">Other charges %</label>
+								<div class="pb-qty pb-qty--charge">
+									<button type="button" class="pb-qty__btn" @onclick="@(() => AdjustOtherChargesPercent(-1))" disabled="@_isProcessing" aria-label="Decrease">
+										<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /></svg>
+									</button>
+									<input type="tel" inputmode="decimal" class="pb-qty__input" value="@_sale.OtherChargesPercent.ToString("0.##")" disabled="@_isProcessing"
+										   @onchange="@(e => OnOtherChargesPercentChanged(e.Value?.ToString()))" />
+									<button type="button" class="pb-qty__btn" @onclick="@(() => AdjustOtherChargesPercent(1))" disabled="@_isProcessing" aria-label="Increase">
+										<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg>
+									</button>
+								</div>
+							</div>
+
+							<div class="pb-charge">
+								<label class="pb-charge__label">Discount %</label>
+								<div class="pb-qty pb-qty--charge">
 									<button type="button" class="pb-qty__btn" @onclick="@(() => AdjustDiscountPercent(-1))" disabled="@_isProcessing" aria-label="Decrease">
-										<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /></svg>
+										<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /></svg>
 									</button>
 									<input type="tel" inputmode="decimal" class="pb-qty__input" value="@_sale.DiscountPercent.ToString("0.##")" disabled="@_isProcessing"
 										   @onchange="@(e => OnDiscountPercentChanged(e.Value?.ToString()))" />
 									<button type="button" class="pb-qty__btn" @onclick="@(() => AdjustDiscountPercent(1))" disabled="@_isProcessing" aria-label="Increase">
-										<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg>
+										<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg>
 									</button>
 								</div>
 							</div>
-							<div class="pb-pay-field" style="flex: 1;">
-								<label>Round off</label>
-								<div class="pb-qty pb-qty--full">
+
+							<div class="pb-charge">
+								<label class="pb-charge__label">Round off</label>
+								<div class="pb-qty pb-qty--charge">
 									<button type="button" class="pb-qty__btn" @onclick="@(() => AdjustRoundOff(-1))" disabled="@_isProcessing" aria-label="Decrease">
-										<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /></svg>
+										<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /></svg>
 									</button>
 									<input type="tel" inputmode="decimal" class="pb-qty__input" value="@_sale.RoundOffAmount.ToString("0.##")" disabled="@_isProcessing"
 										   @onchange="@(e => OnRoundOffAmountChanged(e.Value?.ToString()))" />
 									<button type="button" class="pb-qty__btn" @onclick="@(() => AdjustRoundOff(1))" disabled="@_isProcessing" aria-label="Increase">
-										<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg>
+										<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg>
 									</button>
 								</div>
 							</div>
@@ -110,6 +126,10 @@ else
 						<div class="pb-summary__row">
 							<span>Subtotal</span>
 							<span class="pb-summary__val">₹@subtotal.ToString("N2")</span>
+						</div>
+						<div class="pb-summary__row">
+							<span>Other charges · @_sale.OtherChargesPercent.ToString("0.##")%</span>
+							<span class="pb-summary__val pb-summary__val--muted">+₹@otherCharges.ToString("N2")</span>
 						</div>
 						<div class="pb-summary__row">
 							<span>Discount · @_sale.DiscountPercent.ToString("0.##")%</span>
@@ -382,6 +402,39 @@ else
 		display: flex;
 		gap: 10px;
 	}
+
+	/* Charges (stacked label + stepper) */
+	.pb-charges {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	.pb-charge {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 12px;
+	}
+
+	.pb-charge__label {
+		font-size: 11px;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: var(--ink-3);
+	}
+
+	.pb-qty--charge {
+		display: flex;
+		width: 140px;
+		height: 44px;
+		flex: none;
+	}
+
+		.pb-qty--charge .pb-qty__btn {
+			width: 40px;
+		}
 
 	.pb-pay-field {
 		display: flex;

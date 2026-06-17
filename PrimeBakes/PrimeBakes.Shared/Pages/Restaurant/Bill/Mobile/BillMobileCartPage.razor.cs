@@ -7,7 +7,7 @@ using PrimeBakesLibrary.Restaurant.Dining.Models;
 using PrimeBakesLibrary.Store.Product.Data;
 using PrimeBakesLibrary.Store.Product.Models;
 
-using Syncfusion.Blazor.Grids;
+using System.Text.Json;
 
 namespace PrimeBakes.Shared.Pages.Restaurant.Bill.Mobile;
 
@@ -21,10 +21,12 @@ public partial class BillMobileCartPage
 	private bool _isProcessing = false;
 
 	private DiningTableModel _diningTable;
+	private DiningAreaModel _diningArea;
+	private BillModel _runningBill;
+	private DateTime _now = DateTime.Now;
 
 	private List<BillItemCartModel> _cart = [];
 	private List<BillItemCartModel> _previousCart = [];
-	private SfGrid<BillItemCartModel> _sfCartGrid;
 
 	#region Load Data
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -42,6 +44,8 @@ public partial class BillMobileCartPage
 
 	private async Task LoadData()
 	{
+		_now = await CommonData.LoadCurrentDateTime();
+
 		if (!await ResolveBillContext())
 			return;
 
@@ -49,6 +53,15 @@ public partial class BillMobileCartPage
 		await LoadCart();
 
 		StateHasChanged();
+	}
+
+	private string Elapsed(DateTime since)
+	{
+		var span = _now - since;
+		if (span < TimeSpan.Zero)
+			span = TimeSpan.Zero;
+
+		return span.TotalHours >= 1 ? $"{(int)span.TotalHours}h {span.Minutes}m" : $"{(int)span.TotalMinutes}m";
 	}
 
 	private async Task<bool> ResolveBillContext()
@@ -81,6 +94,7 @@ public partial class BillMobileCartPage
 				return false;
 			}
 
+			_diningArea = diningArea;
 			return true;
 		}
 		catch (Exception)
@@ -106,25 +120,20 @@ public partial class BillMobileCartPage
 
 	private async Task LoadCart()
 	{
-		_cart.Clear();
 		_previousCart.Clear();
 
 		if (await DataStorageService.LocalExists(StorageFileNames.BillMobileCartDataFileName))
-		{
-			var items = System.Text.Json.JsonSerializer.Deserialize<List<BillItemCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.BillMobileCartDataFileName)) ?? [];
-			foreach (var item in items)
-				_cart.Add(item);
-		}
+			_cart = JsonSerializer.Deserialize<List<BillItemCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.BillMobileCartDataFileName)) ?? [];
 
 		_cart = [.. _cart.OrderBy(x => x.ItemName)];
 
 		var products = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _user.LocationId);
 		var runningBills = await BillData.LoadRunningBillByLocationId(_user.LocationId);
-		var runningBill = runningBills.FirstOrDefault(b => b.DiningTableId == DiningTableId);
+		_runningBill = runningBills.FirstOrDefault(b => b.DiningTableId == DiningTableId);
 
-		if (runningBill is not null)
+		if (_runningBill is not null)
 		{
-			var billDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, runningBill.Id);
+			var billDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, _runningBill.Id);
 			foreach (var detail in billDetails)
 			{
 				var cartItem = products.FirstOrDefault(p => p.ProductId == detail.ProductId);
@@ -145,9 +154,6 @@ public partial class BillMobileCartPage
 
 			_previousCart = [.. _previousCart.OrderBy(x => x.ItemName)];
 		}
-
-		if (_sfCartGrid is not null)
-			await _sfCartGrid.Refresh();
 	}
 	#endregion
 
@@ -158,6 +164,27 @@ public partial class BillMobileCartPage
 			return;
 
 		item.Quantity = Math.Max(0, newQuantity);
+
+		if (item.Quantity == 0)
+			_cart.Remove(item);
+
+		await SaveTransactionFile();
+	}
+
+	private async Task OnQuantityInput(BillItemCartModel item, string raw)
+	{
+		if (item is null || _isProcessing)
+			return;
+
+		var digits = string.IsNullOrWhiteSpace(raw)
+			? string.Empty
+			: new string([.. raw.Where(char.IsDigit)]);
+
+		decimal value = 0;
+		if (!string.IsNullOrWhiteSpace(digits) && decimal.TryParse(digits, out var parsed))
+			value = Math.Min(9999, parsed);
+
+		item.Quantity = value;
 
 		if (item.Quantity == 0)
 			_cart.Remove(item);
@@ -233,7 +260,7 @@ public partial class BillMobileCartPage
 			if (!_cart.Any(x => x.Quantity > 0) && await DataStorageService.LocalExists(StorageFileNames.BillMobileCartDataFileName))
 				await DataStorageService.LocalRemove(StorageFileNames.BillMobileCartDataFileName);
 			else
-				await DataStorageService.LocalSaveAsync(StorageFileNames.BillMobileCartDataFileName, System.Text.Json.JsonSerializer.Serialize(_cart.Where(_ => _.Quantity > 0)));
+				await DataStorageService.LocalSaveAsync(StorageFileNames.BillMobileCartDataFileName, JsonSerializer.Serialize(_cart.Where(_ => _.Quantity > 0)));
 
 			VibrationService.VibrateHapticClick();
 		}
@@ -243,9 +270,6 @@ public partial class BillMobileCartPage
 		}
 		finally
 		{
-			if (_sfCartGrid is not null)
-				await _sfCartGrid?.Refresh();
-
 			_isProcessing = false;
 			StateHasChanged();
 		}

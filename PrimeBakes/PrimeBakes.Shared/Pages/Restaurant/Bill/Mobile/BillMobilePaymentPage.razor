@@ -1,10 +1,15 @@
-﻿@attribute [Route(RestaurantRouteNames.BillMobilePayment)]
+@attribute [Route(RestaurantRouteNames.BillMobilePayment)]
 @attribute [Route($"{RestaurantRouteNames.BillMobilePayment}/table/{{DiningTableId:int}}")]
 
-@using PrimeBakesLibrary.Common
 @using PrimeBakesLibrary.Store.PaymentMode
 
 <PageTitle>Bill Payment - Prime Bakes</PageTitle>
+
+<HeadContent>
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@@400;500;600;700;800&family=JetBrains+Mono:wght@@400;500&display=swap" rel="stylesheet" />
+</HeadContent>
 
 @if (_isLoading || _user is null)
 {
@@ -12,448 +17,809 @@
 }
 else
 {
-	<div class="page-shell">
-		<Header Title="@($"{_diningTable.Name} Settle")">
-			<RightContent>
-				<IconButton Icon="IconType.Back" Title="Back"
-							OnClick='() => NavigationManager.NavigateTo($"{RestaurantRouteNames.BillMobileCart}/table/{_diningTable.Id}")' />
-			</RightContent>
-		</Header>
+	var total = _bill.TotalAmount;
+	var remaining = _remainingAmount;
+	var canSettle = remaining == 0;
 
-		<div class="sale-payment-container">
-			<div class="payment-section-card">
-				<div class="section-title">Customer</div>
+	<div class="pb-screen">
+		<div class="pb-header">
+			<div class="pb-header__main">
+				<div class="pb-header__sub">To pay · ₹@total.ToString("N2")</div>
+				<h1 class="pb-header__title">Settle</h1>
+			</div>
+			<div class="pb-header__actions">
+				<button type="button" class="pb-icon-btn"
+						@onclick='() => NavigationManager.NavigateTo($"{RestaurantRouteNames.BillMobileCart}/table/{_diningTable.Id}")'
+						aria-label="Back to cart">
+					<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6" /></svg>
+				</button>
+			</div>
+		</div>
 
-				<div class="form-section">
-					<div class="form-row">
-						<div class="form-field form-field-half">
-							<label class="field-label">Customer Mobile</label>
-							<SfTextBox Value="@_selectedCustomer?.Number" ValueChanged="OnCustomerNumberChanged"
-									   Type="InputType.Tel" Placeholder="Enter Mobile Number..." ShowClearButton="true"
-									   CssClass="dialog-input" Enabled="@(!_isProcessing)" />
+		<div class="pb-scroll">
+			<!-- Customer -->
+			<div class="pb-section">
+				<div class="pb-section__head">
+					<p class="pb-section__title">Customer</p>
+					<span class="pb-section__count">Optional</span>
+				</div>
+				<div class="pb-section__body">
+					<div class="pb-field-row">
+						<div class="pb-pay-field" style="flex: 1.2;">
+							<label>Mobile</label>
+							<input type="tel" inputmode="numeric" maxlength="10" placeholder="Enter mobile"
+								   value="@_selectedCustomer?.Number" disabled="@_isProcessing"
+								   @onchange="@(e => OnCustomerNumberChanged(e.Value?.ToString()))" />
 						</div>
-
-						<div class="form-field form-field-half">
-							<label class="field-label">Customer Name</label>
-							<SfTextBox @bind-Value="_selectedCustomer.Name" Placeholder="Enter name..."
-									   ShowClearButton="true" CssClass="dialog-input" Enabled="@(!_isProcessing)" />
+						<div class="pb-pay-field" style="flex: 1;">
+							<label>Name</label>
+							<input placeholder="Walk-in" value="@_selectedCustomer.Name" disabled="@_isProcessing"
+								   @onchange="@(e => _selectedCustomer.Name = e.Value?.ToString() ?? string.Empty)" />
 						</div>
-
-						<div class="remarks-section">
-							<label class="remarks-label">Remarks (Optional)</label>
-							<SfTextBox @bind-Value="_bill.Remarks"
-									   Placeholder="Add any special instructions or notes for this bill..." Multiline="true"
-									   CssClass="remarks-input" Enabled="@(!_isProcessing)" />
-						</div>
+					</div>
+					<div class="pb-pay-field" style="margin-top: 10px;">
+						<label>Remarks</label>
+						<input placeholder="Notes for this bill…" value="@_bill.Remarks" disabled="@_isProcessing"
+							   @onchange="@(e => _bill.Remarks = e.Value?.ToString())" />
 					</div>
 				</div>
 			</div>
 
-			<div class="payment-section-card">
-				<div class="section-title">Bill Details & Payment</div>
-
-				<div class="form-row disc-roundoff-row">
-
-					@if (_user.LocationId == 1)
-					{
-						<div class="form-field form-field-half">
-							<label class="field-label">Disc %</label>
-							<SfNumericTextBox TValue="decimal" Value="@_bill.DiscountPercent" Min="0" Max="100" Step="1"
-											  type="tel" Format="N2" Placeholder="0.00" CssClass="dialog-input" Enabled="@(!_isProcessing)">
-								<NumericTextBoxEvents TValue="decimal" ValueChange="OnDiscountPercentChanged" />
-							</SfNumericTextBox>
-						</div>
-					}
-
-					<div class="form-field form-field-half">
-						<label class="field-label">Service %</label>
-						<SfNumericTextBox TValue="decimal" Value="@_bill.ServiceChargePercent" Min="0" Max="100" Step="1"
-										  type="tel" Format="N2" Placeholder="0.00" CssClass="dialog-input" Enabled="@(!_isProcessing)">
-							<NumericTextBoxEvents TValue="decimal" ValueChange="OnServiceChargePercentChanged" />
-						</SfNumericTextBox>
-					</div>
-
-					<div class="form-field form-field-half">
-						<label class="field-label">Round Off</label>
-						<SfNumericTextBox TValue="decimal" Value="@_bill.RoundOffAmount" Step="1" Format="N2" type="tel"
-										  Placeholder="0.00" CssClass="dialog-input" Enabled="@(!_isProcessing)">
-							<NumericTextBoxEvents TValue="decimal" ValueChange="OnRoundOffAmountChanged" />
-						</SfNumericTextBox>
-					</div>
+			<!-- Bill / charges -->
+			<div class="pb-section">
+				<div class="pb-section__head">
+					<p class="pb-section__title">Bill details</p>
+					<span class="pb-section__count">@_bill.TotalItems items · @(((int)_bill.TotalQuantity)) qty</span>
 				</div>
-
-				<div class="sale-summary">
-					<div class="summary-item">
-						<span class="summary-label">Base:</span>
-						<span class="summary-value">@_bill.TotalAfterTax.FormatIndianCurrency()</span>
-					</div>
-					<div class="summary-item">
-						<span class="summary-label">Disc:</span>
-						<span class="summary-value">@_bill.DiscountAmount.FormatIndianCurrency()</span>
-					</div>
-					<div class="summary-item">
-						<span class="summary-label">Service:</span>
-						<span class="summary-value">@_bill.ServiceChargeAmount.FormatIndianCurrency()</span>
-					</div>
-					<div class="summary-item">
-						<span class="summary-label">Total:</span>
-						<span class="summary-value">@_bill.TotalAmount.FormatIndianCurrency()</span>
-					</div>
-				</div>
-
-				<div class="payment-form">
-					<div class="form-row payment-entry-row">
-						<div class="form-field form-field-half">
-							<label class="field-label">Pay Amt</label>
-							<SfNumericTextBox TValue="decimal" @bind-Value="_paymentAmount" Min="0" Max="@_remainingAmount"
-											  Step="1" type="tel" Format="N2" Placeholder="0.00" CssClass="dialog-input"
-											  Enabled="@(!_isProcessing)" />
-						</div>
-
-						<div class="form-field form-field-half">
-							<label class="field-label">Method</label>
-							<SfDropDownList TValue="PaymentModeModel" TItem="PaymentModeModel"
-											@bind-Value="@_selectedPaymentMethod" DataSource="@_paymentMethods"
-											Placeholder="Select payment method" CssClass="payment-dropdown" Enabled="@(!_isProcessing)">
-								<DropDownListFieldSettings Text="Name" />
-							</SfDropDownList>
-						</div>
-					</div>
-
-					<div class="payment-actions">
-						<SfButton Content="Add Payment" CssClass="add-payment-btn" OnClick="AddPayment"
-								  Disabled="@(_isProcessing || _paymentAmount <= 0 || _selectedPaymentMethod is null || _selectedPaymentMethod.Id <= 0)" />
-					</div>
-				</div>
-
-				@if (_payments.Any())
-				{
-					<div class="payments-list">
-						<div class="payments-list-header">
-							<span>Payments</span>
-						</div>
-
-						@foreach (var payment in _payments)
+				<div class="pb-section__body">
+					<div class="pb-charges">
+						@if (_user.ChangeProductFinancial)
 						{
-							<div class="payment-item">
-								<div class="payment-item-details">
-									<span class="payment-method">@payment.Method</span>
-									<span class="payment-amount">₹@payment.Amount.ToString("N2")</span>
+							<div class="pb-charge">
+								<label class="pb-charge__label">Discount %</label>
+								<div class="pb-qty pb-qty--charge">
+									<button type="button" class="pb-qty__btn" @onclick="@(() => AdjustDiscountPercent(-1))" disabled="@_isProcessing" aria-label="Decrease">
+										<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /></svg>
+									</button>
+									<input type="tel" inputmode="decimal" class="pb-qty__input" value="@_bill.DiscountPercent.ToString("0.##")" disabled="@_isProcessing"
+										   @onchange="@(e => OnDiscountPercentChanged(e.Value?.ToString()))" />
+									<button type="button" class="pb-qty__btn" @onclick="@(() => AdjustDiscountPercent(1))" disabled="@_isProcessing" aria-label="Increase">
+										<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg>
+									</button>
 								</div>
-								<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid"
-											Title="Remove Payment" Disabled="@_isProcessing" OnClick="() => RemovePayment(payment)" />
+							</div>
+
+							<div class="pb-charge">
+								<label class="pb-charge__label">Service %</label>
+								<div class="pb-qty pb-qty--charge">
+									<button type="button" class="pb-qty__btn" @onclick="@(() => AdjustServiceChargePercent(-1))" disabled="@_isProcessing" aria-label="Decrease">
+										<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /></svg>
+									</button>
+									<input type="tel" inputmode="decimal" class="pb-qty__input" value="@_bill.ServiceChargePercent.ToString("0.##")" disabled="@_isProcessing"
+										   @onchange="@(e => OnServiceChargePercentChanged(e.Value?.ToString()))" />
+									<button type="button" class="pb-qty__btn" @onclick="@(() => AdjustServiceChargePercent(1))" disabled="@_isProcessing" aria-label="Increase">
+										<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg>
+									</button>
+								</div>
+							</div>
+
+							<div class="pb-charge">
+								<label class="pb-charge__label">Round off</label>
+								<div class="pb-qty pb-qty--charge">
+									<button type="button" class="pb-qty__btn" @onclick="@(() => AdjustRoundOff(-1))" disabled="@_isProcessing" aria-label="Decrease">
+										<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /></svg>
+									</button>
+									<input type="tel" inputmode="decimal" class="pb-qty__input" value="@_bill.RoundOffAmount.ToString("0.##")" disabled="@_isProcessing"
+										   @onchange="@(e => OnRoundOffAmountChanged(e.Value?.ToString()))" />
+									<button type="button" class="pb-qty__btn" @onclick="@(() => AdjustRoundOff(1))" disabled="@_isProcessing" aria-label="Increase">
+										<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg>
+									</button>
+								</div>
 							</div>
 						}
 					</div>
-				}
+
+					<div class="pb-summary">
+						<div class="pb-summary__row">
+							<span>Base</span>
+							<span class="pb-summary__val">₹@_bill.TotalAfterTax.ToString("N2")</span>
+						</div>
+						<div class="pb-summary__row">
+							<span>Discount · @_bill.DiscountPercent.ToString("0.##")%</span>
+							<span class="pb-summary__val pb-summary__val--moss">−₹@_bill.DiscountAmount.ToString("N2")</span>
+						</div>
+						<div class="pb-summary__row">
+							<span>Service · @_bill.ServiceChargePercent.ToString("0.##")%</span>
+							<span class="pb-summary__val pb-summary__val--muted">+₹@_bill.ServiceChargeAmount.ToString("N2")</span>
+						</div>
+						@if (_bill.RoundOffAmount != 0)
+						{
+							<div class="pb-summary__row">
+								<span>Round off</span>
+								<span class="pb-summary__val pb-summary__val--muted">@(_bill.RoundOffAmount >= 0 ? "+" : "−")₹@Math.Abs(_bill.RoundOffAmount).ToString("N2")</span>
+							</div>
+						}
+						<div class="pb-summary__row is-total">
+							<span>Total</span>
+							<span class="pb-summary__val">₹@total.ToString("N2")</span>
+						</div>
+					</div>
+				</div>
 			</div>
+
+			<!-- Payment -->
+			<div class="pb-section">
+				<div class="pb-section__head">
+					<p class="pb-section__title">Payment</p>
+					<span class="pb-section__count @(remaining > 0 ? "is-due" : "is-paid")">
+						@(remaining > 0 ? $"₹{remaining:N2} due" : "Fully paid")
+					</span>
+				</div>
+				<div class="pb-section__body">
+					<div class="pb-methods">
+						@foreach (var method in _paymentMethods.Where(m => m.Id > 0))
+						{
+							<button type="button" class="pb-method @(_selectedPaymentMethod?.Id == method.Id ? "is-active" : "")"
+									@onclick="@(() => SelectPaymentMethod(method))" disabled="@_isProcessing">
+								@method.Name
+							</button>
+						}
+					</div>
+
+					<div class="pb-pay-entry">
+						<div class="pb-pay-amount">
+							<span class="pb-pay-amount__symbol">₹</span>
+							<input type="tel" inputmode="decimal" placeholder="0.00"
+								   value="@(_paymentAmount > 0 ? _paymentAmount.ToString("0.##") : "")" disabled="@_isProcessing"
+								   @onchange="@(e => OnPaymentAmountChanged(e.Value?.ToString()))" />
+							<button type="button" class="pb-pay-amount__full" @onclick="FillRemaining"
+									disabled="@(_isProcessing || remaining <= 0)">
+								Full
+							</button>
+						</div>
+						<button type="button" class="pb-pay-add"
+								@onclick="AddPayment"
+								disabled="@(_isProcessing || _paymentAmount <= 0 || remaining <= 0 || _selectedPaymentMethod is null || _selectedPaymentMethod.Id <= 0)">
+							<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg>
+							Add
+						</button>
+					</div>
+
+					@if (_payments.Any())
+					{
+						<div class="pb-pay-list">
+							@foreach (var payment in _payments)
+							{
+								<div class="pb-pay-item" @key="payment.Method">
+									<div class="pb-pay-item__icon">
+										<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+											<rect x="2" y="6" width="20" height="12" rx="2" />
+											<circle cx="12" cy="12" r="3" />
+										</svg>
+									</div>
+									<div class="pb-pay-item__method">@payment.Method</div>
+									<div class="pb-pay-item__amount">₹@payment.Amount.ToString("N2")</div>
+									<button type="button" class="pb-pay-item__remove" @onclick="@(() => RemovePayment(payment))"
+											disabled="@_isProcessing" aria-label="Remove payment">
+										<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+									</button>
+								</div>
+							}
+						</div>
+					}
+				</div>
+			</div>
+
+			<div class="pb-scroll__bottom-pad"></div>
 		</div>
 
-		<div class="cart-footer payment-page-footer">
-			<div class="payment-footer-row payment-footer-row-single">
-				<MobileCartButton Text="@(_isProcessing ? "Saving..." : "KOT")" Disabled="@_isProcessing"
-								  OnClick="async () => await SaveTransaction(kotOnly: true)" />
-			</div>
-			<div class="payment-footer-row">
-				<MobileCartButton Text="@(_isProcessing ? "Saving..." : "Save")" Disabled="@_isProcessing"
-								  OnClick="async () => await SaveTransaction()" />
-				<MobileCartButton Text="@(_isProcessing ? "Saving..." : "Thermal")" Disabled="@_isProcessing"
-								  OnClick="async () => await SaveTransaction(thermal: true)" />
+		<div class="pb-cta-bar">
+			<div class="pb-cta-row">
+				<button type="button" class="pb-cta pb-cta--outline" @onclick="async () => await SaveTransaction(kotOnly: true)" disabled="@_isProcessing">
+					<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3z" />
+						<path d="M9 8h6M9 12h6M9 16h4" />
+					</svg>
+					@(_isProcessing ? "Working…" : "KOT")
+				</button>
+				<button type="button" class="pb-cta pb-cta--primary" @onclick="async () => await SaveTransaction()" disabled="@_isProcessing">
+					@(_isProcessing ? "Saving…" : canSettle ? "Settle" : "Save")
+					<span class="pb-cta__side">
+						<span class="pb-cta__price">₹@total.ToString("N0")</span>
+					</span>
+				</button>
 			</div>
 		</div>
-
-		<Footer ShowVersion="false" />
 	</div>
 }
 
 <MobileValidationErrorDialog @bind-Visible="_showValidationDialog" Errors="_validationErrors" ContextLabel="bill" />
 
 <style>
-	:root {
-		--primary-color: #e2137b;
-		--primary-dark: #c71068;
-		--text-dark: #2c3e50;
-		--text-light: #7f8c8d;
-		--bg-light: #f8f9fa;
-		--border-color: #e9ecef;
-		--shadow-light: 0 2px 8px rgba(0, 0, 0, 0.1);
-		--shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.15);
-		--error-color: #dc3545;
-	}
-
-	.sale-payment-container {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-		gap: 12px;
-		padding: 12px;
-		background: linear-gradient(135deg, #ffeef5 0%, #fff5f9 100%);
-		overflow-y: auto;
-	}
-
-	.payment-section-card {
-		background: white;
-		border-radius: 12px;
-		padding: 14px;
-		box-shadow: var(--shadow-light);
-		border: 1px solid var(--border-color);
-	}
-
-	.section-title {
-		font-weight: 700;
-		color: var(--text-dark);
-		margin-bottom: 12px;
-		font-size: 16px;
-	}
-
-	.form-section,
-	.payment-form {
-		display: flex;
-		flex-direction: column;
-		gap: 12px;
-	}
-
-	.payment-form {
-		margin-top: 8px;
-	}
-
-	.form-row {
-		display: flex;
-		gap: 10px;
-	}
-
-	.form-field {
-		flex: 1;
-		min-width: 0;
-	}
-
-	.form-field-half {
-		flex: 1;
-		min-width: 0;
-	}
-
-	.field-label {
-		display: block;
-		margin-bottom: 6px;
-		font-weight: 600;
-		color: var(--text-dark);
-		font-size: 13px;
-	}
-
-	.dialog-input,
-	.payment-dropdown,
-	.remarks-input {
+	.pb-screen {
+		--bg-app: #f7f2ea;
+		--surface: #ffffff;
+		--surface-2: #faf5ec;
+		--surface-3: #f1ebdf;
+		--ink-1: #1d1813;
+		--ink-2: #5a5147;
+		--ink-3: #9a8f7f;
+		--line-1: #ece4d3;
+		--line-2: #ddd2bd;
+		--rouge: #b13a5e;
+		--rouge-dark: #8a2748;
+		--rouge-tint: #fdf6f8;
+		--moss: #4f7a5a;
+		--moss-soft: #e3ecdd;
+		--terra: #b85a3c;
+		--r-sm: 12px;
+		--r-md: 16px;
+		--r-lg: 22px;
+		--r-pill: 999px;
+		--ff-sans: "Plus Jakarta Sans", -apple-system, system-ui, sans-serif;
+		--ff-mono: "JetBrains Mono", ui-monospace, monospace;
+		position: fixed;
+		inset: 0;
 		width: 100%;
-	}
-
-		.dialog-input input,
-		.dialog-input textarea,
-		.remarks-input textarea {
-			width: 100% !important;
-			border: 2px solid var(--border-color);
-			border-radius: 8px;
-			padding: 10px;
-			font-size: 14px;
-			color: var(--text-dark);
-			transition: all 0.2s ease;
-		}
-
-			.dialog-input input:focus,
-			.dialog-input textarea:focus,
-			.remarks-input textarea:focus {
-				border-color: var(--primary-color);
-				box-shadow: 0 0 0 3px rgba(226, 19, 123, 0.1);
-				outline: none;
-			}
-
-	.sale-summary,
-	.payment-info,
-	.payments-list {
-		background: var(--bg-light);
-		border-radius: 8px;
-		padding: 12px;
-		margin-top: 12px;
-	}
-
-	.sale-summary {
-		border-left: 4px solid var(--primary-color);
-	}
-
-	.summary-item,
-	.info-row {
+		height: 100%;
+		background: var(--bg-app);
+		color: var(--ink-1);
+		font-family: var(--ff-sans);
+		font-size: 15px;
+		line-height: 1.4;
+		letter-spacing: -0.005em;
+		overflow: hidden;
 		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 6px;
+		flex-direction: column;
+		-webkit-font-smoothing: antialiased;
+		text-rendering: optimizeLegibility;
+		z-index: 1;
 	}
 
-		.summary-item:last-child,
-		.info-row:last-child {
-			margin-bottom: 0;
+		.pb-screen *,
+		.pb-screen *::before,
+		.pb-screen *::after {
+			box-sizing: border-box;
 		}
 
-	.summary-label,
-	.info-label {
-		color: var(--text-dark);
+	/* Header */
+	.pb-header {
+		padding: 14px 22px 14px;
+		padding-top: max(14px, env(safe-area-inset-top));
+		display: flex;
+		align-items: flex-end;
+		justify-content: space-between;
+		gap: 12px;
+		flex-shrink: 0;
+	}
+
+	.pb-header__main {
+		min-width: 0;
+	}
+
+	.pb-header__sub {
+		font-size: 12.5px;
+		color: var(--ink-3);
+		margin-bottom: 6px;
+		letter-spacing: 0.02em;
+		text-transform: uppercase;
 		font-weight: 500;
+		font-variant-numeric: tabular-nums;
 	}
 
-	.summary-value,
-	.info-value,
-	.payment-amount {
-		color: var(--primary-color);
+	.pb-header__title {
+		font-family: var(--ff-sans);
 		font-weight: 700;
+		font-size: 26px;
+		letter-spacing: -0.025em;
+		line-height: 1.15;
+		margin: 0;
+		color: var(--ink-1);
 	}
 
-	.remarks-section {
-		margin-top: 12px;
-	}
-
-	.remarks-label {
-		display: block;
-		margin-bottom: 6px;
-		font-weight: 600;
-		color: var(--text-dark);
-		font-size: 13px;
-	}
-
-	.remarks-input textarea {
-		min-height: 78px;
-		resize: vertical;
-	}
-
-	.payment-actions {
+	.pb-header__actions {
 		display: flex;
-		justify-content: flex-end;
-	}
-
-	.add-payment-btn {
-		background: var(--primary-color);
-		color: white;
-		border-radius: 8px;
-		min-height: 42px;
-	}
-
-	.payments-list-header {
-		display: flex;
-		justify-content: flex-start;
-		align-items: center;
-		margin-bottom: 8px;
-		padding-bottom: 6px;
-		border-bottom: 1px solid var(--border-color);
-		font-weight: 600;
-		color: var(--text-dark);
-		font-size: 14px;
-	}
-
-	.payment-item {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
 		gap: 8px;
-		padding: 8px 0;
-		border-bottom: 1px solid var(--border-color);
-		margin-bottom: 0;
+		align-items: center;
 	}
 
-		.payment-item:last-child {
-			border-bottom: none;
+	.pb-icon-btn {
+		width: 38px;
+		height: 38px;
+		border-radius: var(--r-pill);
+		background: var(--surface);
+		border: 1px solid var(--line-1);
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--ink-2);
+		cursor: pointer;
+		flex-shrink: 0;
+		padding: 0;
+	}
+
+		.pb-icon-btn:active {
+			transform: scale(0.96);
 		}
 
-	.payment-item-details {
+	/* Scroll */
+	.pb-scroll {
 		flex: 1;
+		overflow-y: auto;
+		overflow-x: hidden;
+		scrollbar-width: none;
+		-webkit-overflow-scrolling: touch;
+	}
+
+		.pb-scroll::-webkit-scrollbar {
+			display: none;
+		}
+
+	.pb-scroll__bottom-pad {
+		height: 12px;
+	}
+
+	/* Section card */
+	.pb-section {
+		margin: 0 18px 16px;
+		background: var(--surface);
+		border: 1px solid var(--line-1);
+		border-radius: var(--r-lg);
+		overflow: hidden;
+	}
+
+	.pb-section__head {
+		padding: 14px 18px 8px;
 		display: flex;
-		flex-direction: row;
-		align-items: center;
+		align-items: baseline;
+		justify-content: space-between;
+	}
+
+	.pb-section__title {
+		font-size: 11.5px;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		color: var(--ink-3);
+		margin: 0;
+	}
+
+	.pb-section__count {
+		font-size: 11.5px;
+		color: var(--ink-3);
+		letter-spacing: 0.04em;
+		font-variant-numeric: tabular-nums;
+	}
+
+		.pb-section__count.is-due {
+			color: var(--terra);
+			font-weight: 600;
+		}
+
+		.pb-section__count.is-paid {
+			color: var(--moss);
+			font-weight: 600;
+		}
+
+	.pb-section__body {
+		padding: 4px 14px 14px;
+	}
+
+	/* Form fields */
+	.pb-field-row {
+		display: flex;
 		gap: 10px;
 	}
 
-	.payment-method {
-		color: var(--text-dark);
-		font-weight: 600;
-		font-size: 14px;
-	}
-
-	.payment-amount {
-		white-space: nowrap;
-	}
-
-	.cart-footer {
-		position: sticky;
-		bottom: 0;
-		background: white;
-		padding: 15px 20px;
-		box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-		z-index: 100;
-		animation: slideUp 0.3s ease-out;
+	.pb-pay-field {
 		display: flex;
-		justify-content: center;
-		align-items: center;
+		flex-direction: column;
+		gap: 6px;
+		min-width: 0;
 	}
 
-	.payment-page-footer {
+		.pb-pay-field label {
+			font-size: 11px;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.08em;
+			color: var(--ink-3);
+		}
+
+		.pb-pay-field input {
+			width: 100%;
+			background: var(--surface);
+			border: 1px solid var(--line-1);
+			border-radius: 12px;
+			padding: 11px 12px;
+			font-family: var(--ff-sans);
+			font-size: 14.5px;
+			font-weight: 500;
+			color: var(--ink-1);
+			outline: none;
+			transition: border-color 0.12s ease, box-shadow 0.12s ease;
+			height: 44px;
+		}
+
+			.pb-pay-field input::placeholder {
+				color: var(--ink-3);
+				font-weight: 400;
+			}
+
+			.pb-pay-field input:focus {
+				border-color: var(--ink-1);
+				box-shadow: 0 0 0 3px rgba(29, 24, 19, 0.06);
+			}
+
+	/* Charges (stacked label + stepper) */
+	.pb-charges {
 		display: flex;
 		flex-direction: column;
 		gap: 8px;
-		width: 100%;
-		align-items: stretch;
 	}
 
-	.payment-footer-row {
+	.pb-charge {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 12px;
+	}
+
+	.pb-charge__label {
+		font-size: 11px;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: var(--ink-3);
+	}
+
+	/* Stepper */
+	.pb-qty {
+		display: inline-flex;
+		align-items: stretch;
+		background: var(--surface);
+		border: 1px solid var(--line-2);
+		border-radius: 12px;
+		overflow: hidden;
+		height: 44px;
+	}
+
+	.pb-qty--charge {
+		width: 140px;
+		flex: none;
+	}
+
+	.pb-qty__btn {
+		width: 40px;
+		background: var(--surface-2);
+		border: 0;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--ink-1);
+		cursor: pointer;
+		font-size: 16px;
+		padding: 0;
+		flex-shrink: 0;
+	}
+
+		.pb-qty__btn:active {
+			background: var(--surface-3);
+		}
+
+		.pb-qty__btn:disabled {
+			color: var(--ink-3);
+			cursor: not-allowed;
+			opacity: 0.5;
+		}
+
+	.pb-qty__input {
+		flex: 1;
+		width: auto;
+		border: 0;
+		border-left: 1px solid var(--line-1);
+		border-right: 1px solid var(--line-1);
+		background: var(--surface);
+		font-family: var(--ff-sans);
+		font-size: 15px;
+		font-weight: 700;
+		color: var(--ink-1);
+		text-align: center;
+		font-variant-numeric: tabular-nums;
+		padding: 0 4px;
+		outline: none;
+		min-width: 0;
+		-moz-appearance: textfield;
+		appearance: textfield;
+	}
+
+		.pb-qty__input::-webkit-outer-spin-button,
+		.pb-qty__input::-webkit-inner-spin-button {
+			-webkit-appearance: none;
+			margin: 0;
+		}
+
+		.pb-qty__input:focus {
+			background: var(--rouge-tint);
+			color: var(--rouge-dark);
+		}
+
+	/* Summary */
+	.pb-summary {
+		padding: 12px 0 0;
+	}
+
+	.pb-summary__row {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		padding: 7px 0;
+		font-size: 14px;
+		color: var(--ink-2);
+	}
+
+		.pb-summary__row.is-total {
+			border-top: 1px dashed var(--line-2);
+			margin-top: 6px;
+			padding-top: 14px;
+			color: var(--ink-1);
+			font-weight: 600;
+		}
+
+			.pb-summary__row.is-total .pb-summary__val {
+				font-size: 20px;
+				font-weight: 700;
+				letter-spacing: -0.02em;
+				color: var(--ink-1);
+			}
+
+	.pb-summary__val {
+		font-variant-numeric: tabular-nums;
+	}
+
+	.pb-summary__val--muted {
+		color: var(--ink-3);
+	}
+
+	.pb-summary__val--moss {
+		color: var(--moss);
+	}
+
+	/* Payment methods */
+	.pb-methods {
+		display: flex;
+		gap: 6px;
+		margin-bottom: 10px;
+	}
+
+	.pb-method {
+		flex: 1;
+		background: var(--surface);
+		border: 1px solid var(--line-1);
+		border-radius: 12px;
+		padding: 10px 4px;
+		font-family: var(--ff-sans);
+		font-size: 12.5px;
+		font-weight: 600;
+		color: var(--ink-2);
+		letter-spacing: -0.005em;
+		cursor: pointer;
+		transition: all 0.12s ease;
+	}
+
+		.pb-method.is-active {
+			background: var(--ink-1);
+			color: #fff;
+			border-color: var(--ink-1);
+		}
+
+		.pb-method:disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
+		}
+
+	.pb-pay-entry {
 		display: flex;
 		gap: 8px;
-		width: 100%;
 	}
 
-		.payment-footer-row .animated-cart-btn {
-			flex: 1;
-			max-width: none;
-		}
-
-	.payment-footer-row-single .animated-cart-btn {
-		max-width: none;
+	.pb-pay-amount {
+		flex: 1;
+		position: relative;
+		display: flex;
+		align-items: center;
 	}
 
-	@@keyframes slideUp {
-		from {
-			transform: translateY(100%);
-			opacity: 0;
+		.pb-pay-amount input {
+			width: 100%;
+			background: var(--surface);
+			border: 1px solid var(--line-1);
+			border-radius: 12px;
+			padding: 11px 64px 11px 26px;
+			font-family: var(--ff-sans);
+			font-size: 14.5px;
+			font-weight: 600;
+			color: var(--ink-1);
+			outline: none;
+			height: 44px;
+			font-variant-numeric: tabular-nums;
 		}
 
-		to {
-			transform: translateY(0);
-			opacity: 1;
-		}
-	}
-
-	@@media (max-width: 576px) {
-		.form-row {
-			flex-direction: column;
-			gap: 8px;
-		}
-
-		.cart-footer {
-			padding: 12px 15px;
-		}
-
-		.disc-roundoff-row {
-			flex-direction: row;
-			gap: 10px;
-		}
-
-			.disc-roundoff-row .form-field-half {
-				flex: 1;
-				min-width: 0;
+			.pb-pay-amount input:focus {
+				border-color: var(--ink-1);
+				box-shadow: 0 0 0 3px rgba(29, 24, 19, 0.06);
 			}
 
-		.payment-entry-row {
-			flex-direction: row;
-			gap: 10px;
+	.pb-pay-amount__symbol {
+		position: absolute;
+		left: 12px;
+		color: var(--ink-3);
+		font-size: 14px;
+		font-weight: 600;
+		pointer-events: none;
+	}
+
+	.pb-pay-amount__full {
+		position: absolute;
+		right: 6px;
+		background: var(--surface-3);
+		border: 1px solid var(--line-1);
+		border-radius: 8px;
+		padding: 5px 9px;
+		font-size: 11px;
+		font-weight: 700;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		color: var(--ink-2);
+		cursor: pointer;
+	}
+
+		.pb-pay-amount__full:disabled {
+			opacity: 0.4;
+			cursor: not-allowed;
 		}
 
-			.payment-entry-row .form-field-half {
-				flex: 1;
-				min-width: 0;
-			}
+	.pb-pay-add {
+		background: var(--ink-1);
+		color: #fff;
+		border: 0;
+		border-radius: 12px;
+		padding: 0 18px;
+		height: 44px;
+		font-size: 14px;
+		font-weight: 600;
+		cursor: pointer;
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		flex-shrink: 0;
+	}
+
+		.pb-pay-add:disabled {
+			opacity: 0.4;
+			cursor: not-allowed;
+		}
+
+	.pb-pay-list {
+		margin-top: 12px;
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+	}
+
+	.pb-pay-item {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		background: var(--surface-2);
+		border: 1px solid var(--line-1);
+		border-radius: 12px;
+		padding: 10px 12px;
+	}
+
+	.pb-pay-item__icon {
+		width: 30px;
+		height: 30px;
+		border-radius: 8px;
+		background: var(--surface);
+		border: 1px solid var(--line-1);
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--ink-2);
+		flex-shrink: 0;
+	}
+
+	.pb-pay-item__method {
+		flex: 1;
+		font-size: 14px;
+		font-weight: 600;
+		color: var(--ink-1);
+	}
+
+	.pb-pay-item__amount {
+		font-variant-numeric: tabular-nums;
+		font-weight: 700;
+		color: var(--ink-1);
+	}
+
+	.pb-pay-item__remove {
+		background: transparent;
+		border: 0;
+		color: var(--ink-3);
+		cursor: pointer;
+		padding: 4px;
+		display: inline-flex;
+		align-items: center;
+	}
+
+		.pb-pay-item__remove:disabled {
+			opacity: 0.4;
+			cursor: not-allowed;
+		}
+
+	/* CTA */
+	.pb-cta-bar {
+		flex-shrink: 0;
+		padding: 12px 18px 14px;
+		padding-bottom: max(14px, env(safe-area-inset-bottom));
+		background: linear-gradient(to top, var(--bg-app) 60%, rgba(247, 242, 234, 0));
+	}
+
+	.pb-cta-row {
+		display: flex;
+		gap: 10px;
+	}
+
+	.pb-cta {
+		border: 0;
+		border-radius: 18px;
+		padding: 16px;
+		font-size: 14.5px;
+		font-weight: 600;
+		font-family: var(--ff-sans);
+		cursor: pointer;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 8px;
+		letter-spacing: -0.005em;
+	}
+
+	.pb-cta--outline {
+		flex: 1;
+		background: var(--surface);
+		color: var(--ink-1);
+		border: 1px solid var(--line-1);
+	}
+
+	.pb-cta--primary {
+		flex: 2;
+		background: var(--ink-1);
+		color: #fff;
+		justify-content: space-between;
+	}
+
+	.pb-cta:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	.pb-cta:active:not(:disabled) {
+		transform: scale(0.99);
+	}
+
+	.pb-cta__side {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+
+	.pb-cta__price {
+		font-family: var(--ff-sans);
+		font-weight: 700;
+		font-size: 17px;
+		letter-spacing: -0.015em;
+		font-variant-numeric: tabular-nums;
 	}
 </style>

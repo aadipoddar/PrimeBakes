@@ -9,6 +9,7 @@ public partial class DiningMobileDashbaord
 {
 	private UserModel _user;
 	private bool _isLoading = true;
+	private DateTime _now = DateTime.Now;
 
 	private List<DiningAreaModel> _diningAreas = [];
 	private List<DiningTableModel> _diningTables = [];
@@ -29,6 +30,8 @@ public partial class DiningMobileDashbaord
 
 	private async Task LoadData()
 	{
+		_now = await CommonData.LoadCurrentDateTime();
+
 		_diningAreas = await CommonData.LoadTableDataByStatus<DiningAreaModel>(RestaurantNames.DiningArea);
 		_diningAreas = [.. _diningAreas.Where(area => area.LocationId == _user.LocationId).OrderBy(area => area.Name)];
 
@@ -36,6 +39,18 @@ public partial class DiningMobileDashbaord
 		_diningTables = [.. _diningTables.Where(dt => _diningAreas.Any(area => area.Id == dt.DiningAreaId)).OrderBy(dt => dt.Name)];
 
 		_runningBills = await BillData.LoadRunningBillByLocationId(_user.LocationId);
+	}
+
+	private string Elapsed(DateTime since)
+	{
+		var span = _now - since;
+		if (span < TimeSpan.Zero)
+			span = TimeSpan.Zero;
+
+		if (span.TotalHours >= 1)
+			return $"{(int)span.TotalHours}h {span.Minutes}m";
+
+		return $"{(int)span.TotalMinutes}m";
 	}
 
 	private void NavigateBack() =>
