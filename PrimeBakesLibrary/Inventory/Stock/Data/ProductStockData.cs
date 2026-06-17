@@ -1,10 +1,14 @@
 ﻿using PrimeBakesLibrary.Accounts.Masters.Data;
 using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Inventory.Kitchen.Models;
 using PrimeBakesLibrary.Inventory.Stock.Exports;
 using PrimeBakesLibrary.Inventory.Stock.Models;
 using PrimeBakesLibrary.Operations.AuditTrail;
 using PrimeBakesLibrary.Operations.Location;
+using PrimeBakesLibrary.Restaurant.Bill.Models;
 using PrimeBakesLibrary.Store.Product.Models;
+using PrimeBakesLibrary.Store.Sale.Models;
+using PrimeBakesLibrary.Store.StockTransfer.Models;
 using PrimeBakesLibrary.Utils.Mail;
 
 namespace PrimeBakesLibrary.Inventory.Stock.Data;
@@ -19,34 +23,12 @@ public static class ProductStockData
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.DeleteProductStockByTransactionNo, new { TransactionNo }, sqlDataAccessTransaction)).FirstOrDefault()
 			is var result and > 0 ? result : throw new InvalidOperationException("Failed to Delete Product Stock.");
 
+	public static async Task<int> DeleteProductStockById(int Id, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.DeleteProductStockById, new { Id }, sqlDataAccessTransaction)).FirstOrDefault()
+			is var result and > 0 ? result : throw new InvalidOperationException("Failed to Delete Product Stock.");
+
 	public static async Task<List<ProductStockModel>> LoadProductOpeningStockByDateLocationId(DateTime FromDate, int LocationId) =>
 		await SqlDataAccess.LoadData<ProductStockModel, dynamic>(InventoryNames.LoadProductOpeningStockByDateLocationId, new { FromDate, LocationId });
-
-	public static async Task DeleteProductStockById(int Id, int userId, string platform)
-	{
-		var stock = await CommonData.LoadTableDataById<ProductStockModel>(InventoryNames.ProductStock, Id);
-		if (stock is null)
-			return;
-
-		await FinancialYearData.ValidateFinancialYear(stock.TransactionDateTime);
-
-		await SqlDataAccessTransaction.Run(async transaction =>
-		{
-			if ((await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.DeleteProductStockById, new { Id }, transaction)).FirstOrDefault() is not > 0)
-				throw new InvalidOperationException("Failed to Delete Product Stock.");
-
-			await AuditTrailData.SaveAuditTrail(new()
-			{
-				Action = AuditTrailActionTypes.Delete.ToString(),
-				TableName = InventoryNames.ProductStock,
-				RecordNo = stock.TransactionNo,
-				CreatedBy = userId,
-				CreatedFromPlatform = platform
-			}, transaction);
-		});
-
-		await ProductStockAdjustmentNotify.NotifyDeleted(stock, userId, NotifyType.Deleted);
-	}
 
 	#region Summary
 	private static decimal AverageNetRate(IEnumerable<ProductStockModel> stock) =>
@@ -166,7 +148,195 @@ public static class ProductStockData
 		}
 		return summary;
 	}
-#
+	#endregion
+
+	#region Delete
+	public static async Task DeleteProductStockAdjustment(int id, int userId, string platform)
+	{
+		var stock = await CommonData.LoadTableDataById<ProductStockModel>(InventoryNames.ProductStock, id);
+		if (stock is null)
+			return;
+
+		await FinancialYearData.ValidateFinancialYear(stock.TransactionDateTime);
+
+		await SqlDataAccessTransaction.Run(async transaction =>
+		{
+			await DeleteProductStockById(id, transaction);
+
+			await AuditTrailData.SaveAuditTrail(new()
+			{
+				Action = AuditTrailActionTypes.Delete.ToString(),
+				TableName = InventoryNames.ProductStock,
+				RecordNo = stock.TransactionNo,
+				CreatedBy = userId,
+				CreatedFromPlatform = platform
+			}, transaction);
+		});
+
+		await ProductStockAdjustmentNotify.NotifyDeleted(stock, userId, NotifyType.Deleted);
+	}
+	#endregion
+
+	#region Recalculate
+	public static async Task RecalculateStockByDateLocation(DateTime fromDate, DateTime toDate, int locationId, bool deleteAdjustments, int userId, string platform)
+	{
+		await FinancialYearData.ValidateFinancialYear(fromDate);
+		await FinancialYearData.ValidateFinancialYear(toDate);
+
+		var stock = (await CommonData.LoadTableDataByDate<ProductStockModel>(InventoryNames.ProductStock, fromDate, toDate))
+			.Where(s => s.LocationId == locationId).ToList();
+
+		var ledger = await LocationData.LoadLedgerByLocationId(locationId);
+		var kitchenProductions = await CommonData.LoadTableDataByDate<KitchenProductionItemOverviewModel>(InventoryNames.KitchenProductionItemOverview, fromDate, toDate);
+		var sales = await CommonData.LoadTableDataByDate<SaleItemOverviewModel>(StoreNames.SaleItemOverview, fromDate, toDate);
+		var saleReturns = await CommonData.LoadTableDataByDate<SaleReturnItemOverviewModel>(StoreNames.SaleReturnItemOverview, fromDate, toDate);
+		var stockTransfers = await CommonData.LoadTableDataByDate<StockTransferItemOverviewModel>(StoreNames.StockTransferItemOverview, fromDate, toDate);
+		var bills = await CommonData.LoadTableDataByDate<BillItemOverviewModel>(RestaurantNames.BillItemOverview, fromDate, toDate);
+
+		kitchenProductions = locationId == 1 ? [.. kitchenProductions.Where(s => s.MasterStatus)] : [];
+		sales = [.. sales.Where(s => (s.LocationId == locationId || s.PartyId == ledger.Id) && s.MasterStatus)];
+		saleReturns = [.. saleReturns.Where(s => (s.LocationId == locationId || s.PartyId == ledger.Id) && s.MasterStatus)];
+		stockTransfers = [.. stockTransfers.Where(s => (s.LocationId == locationId || s.ToLocationId == locationId) && s.MasterStatus)];
+		bills = [.. bills.Where(s => s.LocationId == locationId && s.MasterStatus)];
+
+		await SqlDataAccessTransaction.Run(async transaction =>
+		{
+			foreach (var item in stock)
+				if (item.Type == nameof(StockType.Adjustment) && deleteAdjustments || item.Type != nameof(StockType.Adjustment))
+					await DeleteProductStockById(item.Id, transaction);
+
+			foreach (var item in kitchenProductions)
+				await InsertProductStock(new()
+				{
+					Id = 0,
+					ProductId = item.ItemId,
+					Quantity = item.Quantity,
+					NetRate = item.Rate,
+					Type = nameof(StockType.KitchenProduction),
+					TransactionId = item.MasterId,
+					TransactionNo = item.TransactionNo,
+					TransactionDateTime = item.TransactionDateTime,
+					LocationId = 1, // Main Location
+				}, transaction);
+
+			foreach (var item in sales)
+			{
+				if (item.LocationId == locationId)
+					await InsertProductStock(new()
+					{
+						Id = 0,
+						ProductId = item.ItemId,
+						Quantity = -item.Quantity,
+						NetRate = item.NetRate,
+						Type = nameof(StockType.Sale),
+						TransactionId = item.MasterId,
+						TransactionNo = item.TransactionNo,
+						TransactionDateTime = item.TransactionDateTime,
+						LocationId = locationId
+					}, transaction);
+
+				if (item.PartyId is not null && item.PartyId == ledger.Id)
+					await InsertProductStock(new()
+					{
+						Id = 0,
+						ProductId = item.ItemId,
+						Quantity = item.Quantity,
+						NetRate = item.NetRate,
+						Type = nameof(StockType.Purchase),
+						TransactionId = item.MasterId,
+						TransactionNo = item.TransactionNo,
+						TransactionDateTime = item.TransactionDateTime,
+						LocationId = locationId
+					}, transaction);
+			}
+
+			foreach (var item in saleReturns)
+			{
+				if (item.LocationId == locationId)
+					await InsertProductStock(new()
+					{
+						Id = 0,
+						ProductId = item.ItemId,
+						Quantity = item.Quantity,
+						NetRate = item.NetRate,
+						Type = nameof(StockType.SaleReturn),
+						TransactionId = item.MasterId,
+						TransactionNo = item.TransactionNo,
+						TransactionDateTime = item.TransactionDateTime,
+						LocationId = locationId
+					}, transaction);
+
+				if (item.PartyId is not null && item.PartyId == ledger.Id)
+					await InsertProductStock(new()
+					{
+						Id = 0,
+						ProductId = item.ItemId,
+						Quantity = -item.Quantity,
+						NetRate = item.NetRate,
+						Type = nameof(StockType.PurchaseReturn),
+						TransactionId = item.MasterId,
+						TransactionNo = item.TransactionNo,
+						TransactionDateTime = item.TransactionDateTime,
+						LocationId = locationId
+					}, transaction);
+			}
+
+			foreach (var item in stockTransfers)
+			{
+				if (item.LocationId == locationId)
+					await InsertProductStock(new()
+					{
+						Id = 0,
+						ProductId = item.ItemId,
+						Quantity = -item.Quantity,
+						NetRate = item.NetRate,
+						Type = nameof(StockType.StockTransfer),
+						TransactionId = item.MasterId,
+						TransactionNo = item.TransactionNo,
+						TransactionDateTime = item.TransactionDateTime,
+						LocationId = locationId
+					}, transaction);
+
+				if (item.ToLocationId == locationId)
+					await InsertProductStock(new()
+					{
+						Id = 0,
+						ProductId = item.ItemId,
+						Quantity = item.Quantity,
+						NetRate = item.NetRate,
+						Type = nameof(StockType.StockTransfer),
+						TransactionId = item.MasterId,
+						TransactionNo = item.TransactionNo,
+						TransactionDateTime = item.TransactionDateTime,
+						LocationId = locationId
+					}, transaction);
+			}
+
+			foreach (var item in bills)
+				await ProductStockData.InsertProductStock(new()
+				{
+					Id = 0,
+					ProductId = item.ItemId,
+					Quantity = -item.Quantity,
+					NetRate = item.NetRate,
+					Type = nameof(StockType.Bill),
+					TransactionId = item.MasterId,
+					TransactionNo = item.TransactionNo,
+					TransactionDateTime = item.TransactionDateTime,
+					LocationId = item.LocationId
+				}, transaction);
+
+			await AuditTrailData.SaveAuditTrail(new()
+			{
+				Action = AuditTrailActionTypes.Update.ToString(),
+				TableName = InventoryNames.ProductStock,
+				RecordNo = $"Recalculate {fromDate:yyyy-MM-dd} to {toDate:yyyy-MM-dd} for LocationId {locationId}",
+				CreatedBy = userId,
+				CreatedFromPlatform = platform
+			}, transaction);
+		});
+	}
+	#endregion
 
 	#region Save
 	private static void ValidateTransaction(DateTime transactionDateTime, int locationId, string transactionNo, List<ProductStockAdjustmentCartModel> cart)

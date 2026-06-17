@@ -59,7 +59,6 @@ public static class KitchenProductionData
 			CreatedFromPlatform = kitchenProduction.LastModifiedFromPlatform
 		}, sqlDataAccessTransaction);
 	}
-	#endregion
 
 	public static async Task RecoverTransaction(KitchenProductionModel kitchenProduction)
 	{
@@ -69,6 +68,7 @@ public static class KitchenProductionData
 
 		await KitchenProductionNotify.Notify(kitchenProduction.Id, NotifyType.Recovered);
 	}
+	#endregion
 
 	#region Save
 	private static async Task<KitchenProductionModel> ValidateTransaction(KitchenProductionModel kitchenProduction, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
