@@ -5,7 +5,6 @@ public static class OperationRouteNames
 	public const string Dashboard = "/";
 	public const string Login = "/login";
 
-	public const string OutletSummaryReport = "/reports/outlet-summary";
 	public const string Location = "/operations/location";
 	public const string User = "/operations/user";
 	public const string Settings = "/operations/settings";
@@ -85,6 +84,7 @@ public static class StoreRouteNames
 	public const string SaleItemReport = "/store/sale-item-report";
 	public const string SaleReturnReport = "/store/sale-return-report";
 	public const string SaleReturnItemReport = "/store/sale-return-item-report";
+	public const string OutletSummaryReport = "/store/outlet-summary-report";
 
 	public const string StockTransfer = "/store/stock-transfer";
 	public const string StockTransferReport = "/store/stock-transfer-report";

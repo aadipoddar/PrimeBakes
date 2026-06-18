@@ -16,7 +16,7 @@ using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.Grids;
 
-namespace PrimeBakes.Shared.Pages.Operations;
+namespace PrimeBakes.Shared.Pages.Store.Sale.Reports;
 
 public partial class OutletSummaryReport : IAsyncDisposable
 {
@@ -27,6 +27,7 @@ public partial class OutletSummaryReport : IAsyncDisposable
 
 	private bool _isLoading = true;
 	private bool _isProcessing = false;
+	private bool _showAllColumns = false;
 
 	private DateTime _fromDate = DateTime.Now.Date;
 	private DateTime _toDate = DateTime.Now.Date;
@@ -239,8 +240,29 @@ public partial class OutletSummaryReport : IAsyncDisposable
 				outlet.SaleReturn = _salereturns.Where(_ => _.LocationId == outlet.LocationId).Sum(_ => _.TotalAmount);
 			}
 
+			ApplySaleSideStats(outlet);
 			_outletSummaries.Add(outlet);
 		}
+
+		var totalNetSale = _outletSummaries.Sum(_ => _.NetSale);
+		foreach (var outlet in _outletSummaries)
+			outlet.ContributionPercent = totalNetSale == 0 ? 0 : Math.Round(outlet.NetSale / totalNetSale * 100, 2);
+	}
+
+	// Populates the volume and payment-mix fields from the sale-side transactions
+	// (sales + stock transfers + bills) raised at the outlet's own location.
+	private void ApplySaleSideStats(OutletSummaryModel outlet)
+	{
+		var sales = _sales.Where(_ => _.LocationId == outlet.LocationId).ToList();
+		var transfers = _stockTransfers.Where(_ => _.LocationId == outlet.LocationId).ToList();
+		var bills = _bills.Where(_ => _.LocationId == outlet.LocationId).ToList();
+
+		outlet.TransactionCount = sales.Count + transfers.Count + bills.Count;
+		outlet.UnitsSold = sales.Sum(_ => _.TotalQuantity) + transfers.Sum(_ => _.TotalQuantity) + bills.Sum(_ => _.TotalQuantity);
+		outlet.Cash = sales.Sum(_ => _.Cash) + transfers.Sum(_ => _.Cash) + bills.Sum(_ => _.Cash);
+		outlet.Card = sales.Sum(_ => _.Card) + transfers.Sum(_ => _.Card) + bills.Sum(_ => _.Card);
+		outlet.UPI = sales.Sum(_ => _.UPI) + transfers.Sum(_ => _.UPI) + bills.Sum(_ => _.UPI);
+		outlet.Credit = sales.Sum(_ => _.Credit) + transfers.Sum(_ => _.Credit) + bills.Sum(_ => _.Credit);
 	}
 	#endregion
 
@@ -282,6 +304,7 @@ public partial class OutletSummaryReport : IAsyncDisposable
 				isExcel ? ReportExportType.Excel : ReportExportType.PDF,
 				DateOnly.FromDateTime(_fromDate),
 				DateOnly.FromDateTime(_toDate),
+				_showAllColumns,
 				_selectedCompany?.Id > 0 ? _selectedCompany : null);
 
 			await SaveAndViewService.SaveAndView(fileName, stream);
@@ -300,6 +323,44 @@ public partial class OutletSummaryReport : IAsyncDisposable
 	#endregion
 
 	#region Utilities
+	private async Task ToggleDetailsView()
+	{
+		_showAllColumns = !_showAllColumns;
+		StateHasChanged();
+
+		if (_sfGrid is not null)
+			await _sfGrid.Refresh();
+	}
+
+	// Weighted grand-totals for the percentage / average columns (a plain sum of
+	// per-outlet percentages would be meaningless), used by the custom footer aggregates.
+	private decimal TotalMarginPercent
+	{
+		get
+		{
+			var netSale = _outletSummaries.Sum(_ => _.NetSale);
+			return netSale == 0 ? 0 : Math.Round(_outletSummaries.Sum(_ => _.GrossProfit) / netSale * 100, 2);
+		}
+	}
+
+	private decimal TotalSaleReturnPercent
+	{
+		get
+		{
+			var sale = _outletSummaries.Sum(_ => _.Sale);
+			return sale == 0 ? 0 : Math.Round(_outletSummaries.Sum(_ => _.SaleReturn) / sale * 100, 2);
+		}
+	}
+
+	private decimal TotalAverageSaleValue
+	{
+		get
+		{
+			var count = _outletSummaries.Sum(_ => _.TransactionCount);
+			return count == 0 ? 0 : Math.Round(_outletSummaries.Sum(_ => _.NetSale) / count, 2);
+		}
+	}
+
 	private async Task OnGridContextMenuItemClicked(ContextMenuClickEventArgs<OutletSummaryModel> args)
 	{
 		switch (args.Item.Id)
