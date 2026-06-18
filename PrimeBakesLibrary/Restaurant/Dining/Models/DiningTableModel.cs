@@ -9,3 +9,12 @@ public class DiningTableModel
 	public bool Status { get; set; }
 	public string? LayoutJson { get; set; }
 }
+
+public class DiningTableLayout
+{
+	public double X { get; set; }
+	public double Y { get; set; }
+	public double W { get; set; }
+	public double H { get; set; }
+	public string Shape { get; set; }
+}

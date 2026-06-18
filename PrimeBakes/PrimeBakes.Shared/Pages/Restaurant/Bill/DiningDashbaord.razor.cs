@@ -204,8 +204,8 @@ public partial class DiningDashbaord
 			updated.Add(table);
 		}
 
-		if (updated.Count > 0)
-			await DiningTableData.UpdateLayouts(updated);
+		foreach (var item in updated)
+			await DiningTableData.InsertDiningTable(item);
 
 		_designMode = false;
 		BuildNodes();

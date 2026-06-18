@@ -132,46 +132,17 @@ public partial class OutletSummaryReport : IAsyncDisposable
 	{
 		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
 
-		_purchases = await CommonData.LoadTableDataByDate<PurchaseOverviewModel>(
-			InventoryNames.PurchaseOverview,
-			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
+		var fromDate = DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue);
+		var toDate = DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue);
 
-		_purchasesReturns = await CommonData.LoadTableDataByDate<PurchaseReturnOverviewModel>(
-			InventoryNames.PurchaseReturnOverview,
-			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
-
-		_kitchenIssue = await CommonData.LoadTableDataByDate<KitchenIssueOverviewModel>(
-			InventoryNames.KitchenIssueOverview,
-			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
-
-		_kitchenProduction = await CommonData.LoadTableDataByDate<KitchenProductionOverviewModel>(
-			InventoryNames.KitchenProductionOverview,
-			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
-
-		_sales = await CommonData.LoadTableDataByDate<SaleOverviewModel>(
-			StoreNames.SaleOverview,
-			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
-
-		_salereturns = await CommonData.LoadTableDataByDate<SaleReturnOverviewModel>(
-			StoreNames.SaleReturnOverview,
-			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
-
-		_stockTransfers = await CommonData.LoadTableDataByDate<StockTransferOverviewModel>(
-			StoreNames.StockTransferOverview,
-			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
-
-		_bills = await CommonData.LoadTableDataByDate<BillOverviewModel>(
-			RestaurantNames.BillOverview,
-			DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-			DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
-
+		_purchases = await CommonData.LoadTableDataByDate<PurchaseOverviewModel>(InventoryNames.PurchaseOverview, fromDate, toDate);
+		_purchasesReturns = await CommonData.LoadTableDataByDate<PurchaseReturnOverviewModel>(InventoryNames.PurchaseReturnOverview, fromDate, toDate);
+		_kitchenIssue = await CommonData.LoadTableDataByDate<KitchenIssueOverviewModel>(InventoryNames.KitchenIssueOverview, fromDate, toDate);
+		_kitchenProduction = await CommonData.LoadTableDataByDate<KitchenProductionOverviewModel>(InventoryNames.KitchenProductionOverview, fromDate, toDate);
+		_sales = await CommonData.LoadTableDataByDate<SaleOverviewModel>(StoreNames.SaleOverview, fromDate, toDate);
+		_salereturns = await CommonData.LoadTableDataByDate<SaleReturnOverviewModel>(StoreNames.SaleReturnOverview, fromDate, toDate);
+		_stockTransfers = await CommonData.LoadTableDataByDate<StockTransferOverviewModel>(StoreNames.StockTransferOverview, fromDate, toDate);
+		_bills = await CommonData.LoadTableDataByDate<BillOverviewModel>(RestaurantNames.BillOverview, fromDate, toDate);
 	}
 
 	private async Task ApplyFilters()
@@ -240,29 +211,22 @@ public partial class OutletSummaryReport : IAsyncDisposable
 				outlet.SaleReturn = _salereturns.Where(_ => _.LocationId == outlet.LocationId).Sum(_ => _.TotalAmount);
 			}
 
-			ApplySaleSideStats(outlet);
+			var sales = _sales.Where(_ => _.LocationId == outlet.LocationId).ToList();
+			var transfers = _stockTransfers.Where(_ => _.LocationId == outlet.LocationId).ToList();
+			var bills = _bills.Where(_ => _.LocationId == outlet.LocationId).ToList();
+
+			outlet.UnitsSold = sales.Sum(_ => _.TotalQuantity) + transfers.Sum(_ => _.TotalQuantity) + bills.Sum(_ => _.TotalQuantity);
+			outlet.Cash = sales.Sum(_ => _.Cash) + transfers.Sum(_ => _.Cash) + bills.Sum(_ => _.Cash);
+			outlet.Card = sales.Sum(_ => _.Card) + transfers.Sum(_ => _.Card) + bills.Sum(_ => _.Card);
+			outlet.UPI = sales.Sum(_ => _.UPI) + transfers.Sum(_ => _.UPI) + bills.Sum(_ => _.UPI);
+			outlet.Credit = sales.Sum(_ => _.Credit) + transfers.Sum(_ => _.Credit) + bills.Sum(_ => _.Credit);
+
 			_outletSummaries.Add(outlet);
 		}
 
 		var totalNetSale = _outletSummaries.Sum(_ => _.NetSale);
 		foreach (var outlet in _outletSummaries)
 			outlet.ContributionPercent = totalNetSale == 0 ? 0 : Math.Round(outlet.NetSale / totalNetSale * 100, 2);
-	}
-
-	// Populates the volume and payment-mix fields from the sale-side transactions
-	// (sales + stock transfers + bills) raised at the outlet's own location.
-	private void ApplySaleSideStats(OutletSummaryModel outlet)
-	{
-		var sales = _sales.Where(_ => _.LocationId == outlet.LocationId).ToList();
-		var transfers = _stockTransfers.Where(_ => _.LocationId == outlet.LocationId).ToList();
-		var bills = _bills.Where(_ => _.LocationId == outlet.LocationId).ToList();
-
-		outlet.TransactionCount = sales.Count + transfers.Count + bills.Count;
-		outlet.UnitsSold = sales.Sum(_ => _.TotalQuantity) + transfers.Sum(_ => _.TotalQuantity) + bills.Sum(_ => _.TotalQuantity);
-		outlet.Cash = sales.Sum(_ => _.Cash) + transfers.Sum(_ => _.Cash) + bills.Sum(_ => _.Cash);
-		outlet.Card = sales.Sum(_ => _.Card) + transfers.Sum(_ => _.Card) + bills.Sum(_ => _.Card);
-		outlet.UPI = sales.Sum(_ => _.UPI) + transfers.Sum(_ => _.UPI) + bills.Sum(_ => _.UPI);
-		outlet.Credit = sales.Sum(_ => _.Credit) + transfers.Sum(_ => _.Credit) + bills.Sum(_ => _.Credit);
 	}
 	#endregion
 

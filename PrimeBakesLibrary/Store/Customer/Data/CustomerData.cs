@@ -1,7 +1,8 @@
 ﻿using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Operations.AuditTrail;
+using PrimeBakesLibrary.Store.Customer.Models;
 
-namespace PrimeBakesLibrary.Store.Customer;
+namespace PrimeBakesLibrary.Store.Customer.Data;
 
 public static class CustomerData
 {
@@ -22,11 +23,15 @@ public static class CustomerData
 		if (!Helper.ValidatePhoneNumber(item.Number))
 			throw new Exception($"Customer number '{item.Number}' is invalid. Please enter a valid phone number.");
 
-		var allCustomers = await CommonData.LoadTableData<CustomerModel>(StoreNames.KOTCategory);
+		var allCustomers = await CommonData.LoadTableData<CustomerModel>(StoreNames.Customer);
 
 		var existingByName = allCustomers.FirstOrDefault(x => x.Id != item.Id && x.Name.Equals(item.Name, StringComparison.OrdinalIgnoreCase));
 		if (existingByName is not null)
-			throw new Exception($"KOT Category name '{item.Name}' already exists. Please choose a different name.");
+			throw new Exception($"Customer name '{item.Name}' already exists. Please choose a different name.");
+
+		var existingByNumber = allCustomers.FirstOrDefault(x => x.Id != item.Id && x.Number.Equals(item.Number, StringComparison.OrdinalIgnoreCase));
+		if (existingByNumber is not null)
+			throw new Exception($"Customer number '{item.Number}' already exists. Please choose a different number.");
 	}
 
 	public static async Task<int> SaveTransaction(CustomerModel customer, int userId, string platform)

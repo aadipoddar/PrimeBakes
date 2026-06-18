@@ -2,7 +2,7 @@ using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Restaurant.Bill.Models;
-using PrimeBakesLibrary.Store.Customer;
+using PrimeBakesLibrary.Store.Customer.Models;
 using PrimeBakesLibrary.Utils.Exports;
 
 namespace PrimeBakesLibrary.Restaurant.Bill.Exports;

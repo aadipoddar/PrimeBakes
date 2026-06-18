@@ -9,7 +9,7 @@ using PrimeBakesLibrary.Operations.User;
 using PrimeBakesLibrary.Restaurant.Bill.Data;
 using PrimeBakesLibrary.Restaurant.Bill.Exports;
 using PrimeBakesLibrary.Restaurant.Bill.Models;
-using PrimeBakesLibrary.Store.Customer;
+using PrimeBakesLibrary.Store.Customer.Models;
 using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.Grids;

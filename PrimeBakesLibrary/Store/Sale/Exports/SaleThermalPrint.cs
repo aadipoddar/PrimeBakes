@@ -3,7 +3,7 @@
 using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Common;
 using PrimeBakesLibrary.Operations.Settings;
-using PrimeBakesLibrary.Store.Customer;
+using PrimeBakesLibrary.Store.Customer.Models;
 using PrimeBakesLibrary.Store.Product.Models;
 using PrimeBakesLibrary.Store.Sale.Models;
 using PrimeBakesLibrary.Utils.Exports;

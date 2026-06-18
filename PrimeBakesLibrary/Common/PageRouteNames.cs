@@ -85,6 +85,7 @@ public static class StoreRouteNames
 	public const string SaleReturnReport = "/store/sale-return-report";
 	public const string SaleReturnItemReport = "/store/sale-return-item-report";
 	public const string OutletSummaryReport = "/store/outlet-summary-report";
+	public const string CustomerSummaryReport = "/store/customer-summary-report";
 
 	public const string StockTransfer = "/store/stock-transfer";
 	public const string StockTransferReport = "/store/stock-transfer-report";

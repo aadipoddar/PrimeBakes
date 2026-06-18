@@ -7,7 +7,8 @@ using PrimeBakesLibrary.Restaurant.Bill.Data;
 using PrimeBakesLibrary.Restaurant.Bill.Exports;
 using PrimeBakesLibrary.Restaurant.Bill.Models;
 using PrimeBakesLibrary.Restaurant.Dining.Models;
-using PrimeBakesLibrary.Store.Customer;
+using PrimeBakesLibrary.Store.Customer.Data;
+using PrimeBakesLibrary.Store.Customer.Models;
 using PrimeBakesLibrary.Store.PaymentMode;
 using PrimeBakesLibrary.Store.Product.Models;
 

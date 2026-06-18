@@ -1,7 +1,8 @@
 using PrimeBakesLibrary.Accounts.Masters.Data;
 using PrimeBakesLibrary.Operations.Settings;
 using PrimeBakesLibrary.Operations.User;
-using PrimeBakesLibrary.Store.Customer;
+using PrimeBakesLibrary.Store.Customer.Data;
+using PrimeBakesLibrary.Store.Customer.Models;
 using PrimeBakesLibrary.Store.PaymentMode;
 using PrimeBakesLibrary.Store.Product.Models;
 using PrimeBakesLibrary.Store.Sale.Data;

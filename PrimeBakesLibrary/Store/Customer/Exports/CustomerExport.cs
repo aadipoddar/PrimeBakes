@@ -1,8 +1,8 @@
 using PrimeBakesLibrary.Common;
-using PrimeBakesLibrary.Store.Customer;
+using PrimeBakesLibrary.Store.Customer.Models;
 using PrimeBakesLibrary.Utils.Exports;
 
-namespace PrimeBakesLibrary.Store.Product.Exports;
+namespace PrimeBakesLibrary.Store.Customer.Exports;
 
 public static class CustomerExport
 {

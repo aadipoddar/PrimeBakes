@@ -2,8 +2,9 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
 using PrimeBakesLibrary.Operations.User;
-using PrimeBakesLibrary.Store.Customer;
-using PrimeBakesLibrary.Store.Product.Exports;
+using PrimeBakesLibrary.Store.Customer.Data;
+using PrimeBakesLibrary.Store.Customer.Exports;
+using PrimeBakesLibrary.Store.Customer.Models;
 using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.Grids;
