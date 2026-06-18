@@ -19,6 +19,7 @@ public partial class CustomTextField
 	[Parameter] public string Placeholder { get; set; }
 	[Parameter] public bool Required { get; set; } = true;
 	[Parameter] public bool ReadOnly { get; set; } = false;
+	[Parameter] public string AddNewRoute { get; set; }
 
 	[Parameter] public InputType InputType { get; set; } = InputType.Text;
 
@@ -27,9 +28,7 @@ public partial class CustomTextField
 	[Parameter] public int MaxLength { get; set; } = 524288;
 	[Parameter] public int TabIndex { get; set; } = 0;
 
-	[Parameter] public string AdornmentIcon { get; set; }
-	[Parameter] public string AdornmentAriaLabel { get; set; }
-	[Parameter] public EventCallback OnAdornmentClick { get; set; }
+	private bool ShowAddNew => AddNewRoute is not null;
 
 	public ValueTask FocusAsync() =>
 		_textField is null ? ValueTask.CompletedTask : _textField.FocusAsync();
@@ -38,5 +37,11 @@ public partial class CustomTextField
 	{
 		Value = value;
 		await ValueChanged.InvokeAsync(value);
+	}
+
+	private async Task NavigateToAddNew()
+	{
+		if (AddNewRoute is not null)
+			await AuthenticationService.NavigateToRoute(AddNewRoute, FormFactor, JSRuntime, NavigationManager);
 	}
 }

@@ -1,5 +1,10 @@
 @using MudBlazor
 
+@if (_isFocused && AddNewRoute is not null)
+{
+	<MudHotkey Key="JsKey.F12" OnHotkeyPressed="NavigateToAddNew" />
+}
+
 <div class="ctf-root" @onfocusin="OnFocusIn" @onfocusout="OnFocusOut">
 	<MudTextField T="string"
 				  @ref="_textField"
@@ -20,12 +25,11 @@
 				  Tabindex="@TabIndex"
 				  Immediate="true"
 				  Clearable="!Required && !ReadOnly"
-				  Adornment="@(string.IsNullOrWhiteSpace(AdornmentIcon) ? Adornment.None : Adornment.End)"
-				  AdornmentIcon="@AdornmentIcon"
-				  AdornmentColor="Color.Primary"
-				  OnAdornmentClick="OnAdornmentClick"
-				  AdornmentAriaLabel="@AdornmentAriaLabel"
 				  Margin="MudBlazor.Margin.Dense"
 				  Variant="MudBlazor.Variant.Outlined"
-				  IconSize="Size.Small" />
+				  Adornment="@(ShowAddNew ? Adornment.End : Adornment.None)"
+				  AdornmentIcon="@(ShowAddNew ? Icons.Material.Filled.Add : null)"
+				  AdornmentColor="Color.Primary"
+				  IconSize="Size.Small"
+				  OnAdornmentClick="NavigateToAddNew" />
 </div>

@@ -21,6 +21,7 @@ public partial class CustomNumericField<T>
 	[Parameter] public string Placeholder { get; set; }
 	[Parameter] public bool Required { get; set; } = true;
 	[Parameter] public bool ReadOnly { get; set; } = false;
+	[Parameter] public string AddNewRoute { get; set; }
 
 	// Min/Max/Step are forwarded only when the caller actually set them (see
 	// SetParametersAsync). This project has no nullable context and T has no
@@ -47,6 +48,8 @@ public partial class CustomNumericField<T>
 	[Parameter] public string AdornmentAriaLabel { get; set; }
 	[Parameter] public EventCallback OnAdornmentClick { get; set; }
 
+	private bool ShowAddNew => AddNewRoute is not null;
+
 	public override Task SetParametersAsync(ParameterView parameters)
 	{
 		foreach (var parameter in parameters)
@@ -65,5 +68,11 @@ public partial class CustomNumericField<T>
 	{
 		Value = value;
 		await ValueChanged.InvokeAsync(value);
+	}
+
+	private async Task NavigateToAddNew()
+	{
+		if (AddNewRoute is not null)
+			await AuthenticationService.NavigateToRoute(AddNewRoute, FormFactor, JSRuntime, NavigationManager);
 	}
 }

@@ -28,7 +28,6 @@ public partial class CustomAutoComplete<T>
 	[Parameter] public string Label { get; set; }
 	[Parameter] public bool Required { get; set; } = true;
 	[Parameter] public string AddNewRoute { get; set; }
-	[Parameter] public string AddNewLabel { get; set; } = "New";
 
 	[Parameter] public bool OpenOnFocus { get; set; } = true;
 

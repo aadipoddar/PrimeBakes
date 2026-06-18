@@ -95,6 +95,8 @@ public static class StoreRouteNames
 	public const string KOTCategory = "/store/kot-category";
 	public const string ProductLocation = "/store/product-location";
 	public const string Tax = "/store/tax";
+
+	public const string Customer = "/store/customer";
 }
 
 public static class RestaurantRouteNames

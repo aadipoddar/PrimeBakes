@@ -779,11 +779,11 @@ else
 						</div>
 					}
 
-					<!-- Master Data -->
+					<!-- Product -->
 					@if (_user.LocationId == 1)
 					{
 						<div class="launchpad-section">
-							<h2 class="launchpad-section-title">Master Data</h2>
+							<h2 class="launchpad-section-title">Product</h2>
 							<div class="dashboard-grid">
 								<FioriTile Title="Finished Product" Subtitle="Manage finished products and pricing" OnClick="() => NavigationManager.NavigateTo(StoreRouteNames.Product)">
 									<IconContent>
@@ -835,6 +835,21 @@ else
 											<line x1="19" y1="5" x2="5" y2="19" />
 											<circle cx="6.5" cy="6.5" r="2.5" />
 											<circle cx="17.5" cy="17.5" r="2.5" />
+										</svg>
+									</IconContent>
+								</FioriTile>
+							</div>
+						</div>
+
+						<!-- Customer -->
+						<div class="launchpad-section">
+							<h2 class="launchpad-section-title">Customer</h2>
+							<div class="dashboard-grid">
+								<FioriTile Title="Customer" Subtitle="Manage customers and their details" OnClick="() => NavigationManager.NavigateTo(StoreRouteNames.Customer)">
+									<IconContent>
+										<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+											<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+											<circle cx="12" cy="7" r="4" />
 										</svg>
 									</IconContent>
 								</FioriTile>

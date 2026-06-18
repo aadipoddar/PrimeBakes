@@ -138,6 +138,7 @@ else
 												 Label="Customer Number"
 												 Placeholder="Customer Mobile No"
 												 Required="false"
+												 AddNewRoute="@StoreRouteNames.Customer"
 												 InputType="MudBlazor.InputType.Telephone" />
 							</div>
 
@@ -146,6 +147,7 @@ else
 								<CustomTextField @bind-Value="_selectedCustomer.Name"
 												 Label="Customer Name"
 												 Placeholder="Customer Name"
+												 AddNewRoute="@StoreRouteNames.Customer"
 												 Required="false" />
 							</div>
 
