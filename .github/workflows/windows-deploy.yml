@@ -45,7 +45,6 @@ jobs:
                 SyncfusionLicense = "${{ secrets.SyncfusionLicense }}";
 
                 EmailPassword = "${{ secrets.EmailPassword }}";
-                ToEmail = "${{ secrets.ToEmail }}";
             }
         }
         "@
