@@ -17,6 +17,11 @@
 }
 else
 {
+	var pageSize = 6;
+	var allItems = GetFilteredCart();
+	var pageCount = Math.Max(1, (int)Math.Ceiling(allItems.Count / (double)pageSize));
+	var safePage = Math.Max(0, Math.Min(_page, pageCount - 1));
+	var paged = allItems.Skip(safePage * pageSize).Take(pageSize).ToList();
 	var newUnits = (int)_cart.Sum(c => c.Quantity);
 	var newTotal = _cart.Sum(c => c.Rate * c.Quantity);
 
@@ -51,12 +56,12 @@ else
 							<path d="M9 7V5a3 3 0 116 0v2" />
 						</svg>
 					</div>
-					<h2 class="pb-empty__title">Bill is empty</h2>
-					<p class="pb-empty__sub">Add items from the menu to get started.</p>
+					<h2 class="pb-empty__title">Cart is empty</h2>
+					<p class="pb-empty__sub">Add products from the catalog to get started.</p>
 					<button type="button" class="pb-add-btn pb-empty__cta"
 							@onclick='() => NavigationManager.NavigateTo($"{RestaurantRouteNames.BillMobile}/table/{_diningTable.Id}")'
 							disabled="@_isProcessing">
-						Back to menu
+						Back to catalog
 					</button>
 				</div>
 			}
@@ -69,35 +74,77 @@ else
 							<p class="pb-section__title">New items</p>
 							<span class="pb-section__count">@_cart.Count lines · @newUnits qty</span>
 						</div>
-						@foreach (var item in _cart)
-						{
-							<div class="pb-cart-row" @key="item.ItemId">
-								<div class="pb-cart-row__top">
-									<p class="pb-product__name">@item.ItemName</p>
-									<div class="pb-cart-row__total">₹@((item.Rate * item.Quantity).ToString("N0"))</div>
-								</div>
-								<div class="pb-product__meta">₹@item.Rate.ToString("N0") each</div>
 
-								<div class="pb-cart-row__controls">
-									<div class="pb-qty">
-										<button type="button" class="pb-qty__btn" disabled="@(_isProcessing || item.Quantity <= 0)"
-												@onclick="@(() => UpdateQuantity(item, item.Quantity - 1))" aria-label="Decrease">
-											<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /></svg>
-										</button>
-										<input type="tel" inputmode="numeric" pattern="[0-9]*" class="pb-qty__input"
-											   value="@((int)item.Quantity)" disabled="@_isProcessing"
-											   @onchange="@(e => OnQuantityInput(item, e.Value?.ToString()))" />
-										<button type="button" class="pb-qty__btn" disabled="@_isProcessing"
-												@onclick="@(() => UpdateQuantity(item, item.Quantity + 1))" aria-label="Increase">
-											<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg>
-										</button>
-									</div>
-									<input class="pb-remarks-input" placeholder="Kitchen instructions…"
-										   value="@item.Remarks" disabled="@_isProcessing"
-										   @onchange="@(e => UpdateRemarks(item, e.Value?.ToString()))" />
-								</div>
+						<div class="pb-grid__toolbar">
+							<div class="pb-grid__search">
+								<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+									<circle cx="11" cy="11" r="7" />
+									<path d="M20 20l-3.5-3.5" />
+								</svg>
+								<input placeholder="Search items…" value="@_query"
+									   @oninput="@(e => OnQueryChange(e.Value?.ToString()))" />
+								@if (!string.IsNullOrWhiteSpace(_query))
+								{
+									<button type="button" class="pb-grid__search-clear" @onclick="() => OnQueryChange(null)" aria-label="Clear search">
+										<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+									</button>
+								}
+							</div>
+						</div>
+
+						@if (paged.Count == 0)
+						{
+							<div class="pb-grid__empty">
+								No items match &ldquo;@_query&rdquo;.
 							</div>
 						}
+						else
+						{
+							@foreach (var item in paged)
+							{
+								<div class="pb-cart-row" @key="item.ItemId">
+									<div class="pb-cart-row__top">
+										<p class="pb-product__name">@item.ItemName</p>
+										<div class="pb-cart-row__total">₹@((item.Rate * item.Quantity).ToString("N0"))</div>
+									</div>
+									<div class="pb-product__meta">₹@item.Rate.ToString("N0") each</div>
+
+									<div class="pb-cart-row__controls">
+										<div class="pb-qty">
+											<button type="button" class="pb-qty__btn" disabled="@(_isProcessing || item.Quantity <= 0)"
+													@onclick="@(() => UpdateQuantity(item, item.Quantity - 1))" aria-label="Decrease">
+												<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /></svg>
+											</button>
+											<input type="tel" inputmode="numeric" pattern="[0-9]*" class="pb-qty__input"
+												   value="@((int)item.Quantity)" disabled="@_isProcessing"
+												   @onchange="@(e => OnQuantityInput(item, e.Value?.ToString()))" />
+											<button type="button" class="pb-qty__btn" disabled="@_isProcessing"
+													@onclick="@(() => UpdateQuantity(item, item.Quantity + 1))" aria-label="Increase">
+												<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg>
+											</button>
+										</div>
+										<input class="pb-remarks-input" placeholder="Kitchen instructions…"
+											   value="@item.Remarks" disabled="@_isProcessing"
+											   @onchange="@(e => UpdateRemarks(item, e.Value?.ToString()))" />
+									</div>
+								</div>
+							}
+						}
+
+						<div class="pb-grid__pager">
+							<div class="pb-grid__pager-nav">
+								<button type="button" class="pb-pgbtn" disabled="@(safePage == 0)" @onclick="() => _page = Math.Max(0, _page - 1)" aria-label="Previous">
+									<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6" /></svg>
+								</button>
+								<span class="pb-grid__pager-count">
+									@(safePage + 1) <span class="pb-grid__pager-of">of @pageCount</span>
+								</span>
+								<button type="button" class="pb-pgbtn" disabled="@(safePage >= pageCount - 1)" @onclick="() => _page++" aria-label="Next">
+									<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6" /></svg>
+								</button>
+							</div>
+							<div class="pb-grid__pager-total">@allItems.Count @(allItems.Count == 1 ? "item" : "items")</div>
+						</div>
 					</div>
 				}
 
@@ -330,6 +377,114 @@ else
 	.pb-dot--terra {
 		background: var(--terra);
 	}
+
+	/* Toolbar / search */
+	.pb-grid__toolbar {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		padding: 10px 14px;
+		background: var(--surface);
+		border-top: 1px solid var(--line-1);
+	}
+
+	.pb-grid__search {
+		flex: 1;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		background: var(--surface-2);
+		border: 1px solid var(--line-1);
+		border-radius: 10px;
+		padding: 9px 12px;
+		color: var(--ink-3);
+	}
+
+		.pb-grid__search input {
+			flex: 1;
+			border: 0;
+			background: transparent;
+			outline: none;
+			font: 500 14px var(--ff-sans);
+			color: var(--ink-1);
+			padding: 0;
+			min-width: 0;
+		}
+
+			.pb-grid__search input::placeholder {
+				color: var(--ink-3);
+				font-weight: 400;
+			}
+
+	.pb-grid__search-clear {
+		background: transparent;
+		border: 0;
+		color: var(--ink-3);
+		cursor: pointer;
+		padding: 2px;
+		display: inline-flex;
+	}
+
+	.pb-grid__empty {
+		padding: 36px 18px;
+		text-align: center;
+		color: var(--ink-3);
+		font-size: 13.5px;
+	}
+
+	/* Pager */
+	.pb-grid__pager {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 10px 14px;
+		background: var(--surface-2);
+		border-top: 1px solid var(--line-1);
+		font-size: 12.5px;
+		color: var(--ink-3);
+	}
+
+	.pb-grid__pager-nav {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+	}
+
+	.pb-grid__pager-count {
+		padding: 0 8px;
+		color: var(--ink-2);
+		font-weight: 600;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.pb-grid__pager-of {
+		color: var(--ink-3);
+		font-weight: 400;
+	}
+
+	.pb-grid__pager-total {
+		font-variant-numeric: tabular-nums;
+	}
+
+	.pb-pgbtn {
+		width: 32px;
+		height: 32px;
+		border-radius: 10px;
+		background: var(--surface);
+		border: 1px solid var(--line-1);
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--ink-1);
+		cursor: pointer;
+		padding: 0;
+	}
+
+		.pb-pgbtn:disabled {
+			color: var(--ink-3);
+			opacity: 0.4;
+			cursor: not-allowed;
+		}
 
 	/* New item rows */
 	.pb-cart-row {

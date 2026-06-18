@@ -20,10 +20,14 @@ public partial class SaleMobileConfirmationPage
 		{
 			_sale = JsonSerializer.Deserialize<SaleOverviewModel>(await DataStorageService.LocalGetAsync(StorageFileNames.SaleMobileDataFileName));
 			_cart = JsonSerializer.Deserialize<List<SaleItemCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.SaleMobileCartDataFileName)) ?? [];
+			_cart = [.. _cart.OrderBy(i => i.ItemName)];
 		}
 
 		await SoundService.PlaySound("checkout.mp3");
 		VibrationService.VibrateWithTime(500);
+
+		await DataStorageService.LocalRemove(StorageFileNames.SaleMobileDataFileName);
+		await DataStorageService.LocalRemove(StorageFileNames.SaleMobileCartDataFileName);
 
 		StateHasChanged();
 	}
@@ -37,6 +41,7 @@ public partial class SaleMobileConfirmationPage
 		if (_sale.Cash > 0) parts.Add($"Cash ₹{_sale.Cash:N0}");
 		if (_sale.UPI > 0) parts.Add($"UPI ₹{_sale.UPI:N0}");
 		if (_sale.Card > 0) parts.Add($"Card ₹{_sale.Card:N0}");
+		if (_sale.Credit > 0) parts.Add($"Credit ₹{_sale.Credit:N0}");
 
 		return parts.Count > 0 ? $"Paid in full · {string.Join(" · ", parts)}" : "Sale recorded.";
 	}
@@ -60,21 +65,5 @@ public partial class SaleMobileConfirmationPage
 			_isPrinting = false;
 			StateHasChanged();
 		}
-	}
-
-	private async Task StartNewSale()
-	{
-		await DataStorageService.LocalRemove(StorageFileNames.SaleMobileDataFileName);
-		await DataStorageService.LocalRemove(StorageFileNames.SaleMobileCartDataFileName);
-
-		NavigationManager.NavigateTo(StoreRouteNames.SaleMobile);
-	}
-
-	private async Task GoHome()
-	{
-		await DataStorageService.LocalRemove(StorageFileNames.SaleMobileDataFileName);
-		await DataStorageService.LocalRemove(StorageFileNames.SaleMobileCartDataFileName);
-
-		NavigationManager.NavigateTo(OperationRouteNames.Dashboard);
 	}
 }

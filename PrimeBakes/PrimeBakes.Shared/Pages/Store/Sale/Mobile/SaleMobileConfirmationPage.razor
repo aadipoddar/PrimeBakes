@@ -10,7 +10,7 @@
 
 <div class="pb-screen">
 	<div class="pb-topbar">
-		<button type="button" class="pb-icon-btn" @onclick="GoHome" aria-label="Home">
+		<button type="button" class="pb-icon-btn" @onclick="() => NavigationManager.NavigateTo(OperationRouteNames.Dashboard, true)" aria-label="Home">
 			<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
 				<path d="M3 11l9-8 9 8" />
 				<path d="M5 10v10h5v-6h4v6h5V10" />
@@ -96,7 +96,7 @@
 				</svg>
 				@(_isPrinting ? "Preparing…" : "Thermal")
 			</button>
-			<button type="button" class="pb-cta pb-cta--primary" @onclick="StartNewSale">
+			<button type="button" class="pb-cta pb-cta--primary" @onclick="() => NavigationManager.NavigateTo(StoreRouteNames.SaleMobile, true)">
 				New sale
 				<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
 					<path d="M5 12h14" />

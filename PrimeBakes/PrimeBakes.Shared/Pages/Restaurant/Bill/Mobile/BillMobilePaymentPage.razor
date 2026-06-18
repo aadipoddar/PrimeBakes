@@ -17,14 +17,10 @@
 }
 else
 {
-	var total = _bill.TotalAmount;
-	var remaining = _remainingAmount;
-	var canSettle = remaining == 0;
-
 	<div class="pb-screen">
 		<div class="pb-header">
 			<div class="pb-header__main">
-				<div class="pb-header__sub">To pay · ₹@total.ToString("N2")</div>
+				<div class="pb-header__sub">To pay · ₹@_bill.TotalAmount.ToString("N2")</div>
 				<h1 class="pb-header__title">Settle</h1>
 			</div>
 			<div class="pb-header__actions">
@@ -72,9 +68,10 @@ else
 					<span class="pb-section__count">@_bill.TotalItems items · @(((int)_bill.TotalQuantity)) qty</span>
 				</div>
 				<div class="pb-section__body">
-					<div class="pb-charges">
-						@if (_user.ChangeProductFinancial)
-						{
+					
+					@if (_user.ChangeProductFinancial)
+					{
+						<div class="pb-charges">
 							<div class="pb-charge">
 								<label class="pb-charge__label">Discount %</label>
 								<div class="pb-qty pb-qty--charge">
@@ -116,8 +113,8 @@ else
 									</button>
 								</div>
 							</div>
-						}
-					</div>
+						</div>
+					}
 
 					<div class="pb-summary">
 						<div class="pb-summary__row">
@@ -141,7 +138,7 @@ else
 						}
 						<div class="pb-summary__row is-total">
 							<span>Total</span>
-							<span class="pb-summary__val">₹@total.ToString("N2")</span>
+							<span class="pb-summary__val">₹@_bill.TotalAmount.ToString("N2")</span>
 						</div>
 					</div>
 				</div>
@@ -151,8 +148,8 @@ else
 			<div class="pb-section">
 				<div class="pb-section__head">
 					<p class="pb-section__title">Payment</p>
-					<span class="pb-section__count @(remaining > 0 ? "is-due" : "is-paid")">
-						@(remaining > 0 ? $"₹{remaining:N2} due" : "Fully paid")
+					<span class="pb-section__count @(_remainingAmount > 0 ? "is-due" : "is-paid")">
+						@(_remainingAmount > 0 ? $"₹{_remainingAmount:N2} due" : "Fully paid")
 					</span>
 				</div>
 				<div class="pb-section__body">
@@ -173,13 +170,13 @@ else
 								   value="@(_paymentAmount > 0 ? _paymentAmount.ToString("0.##") : "")" disabled="@_isProcessing"
 								   @onchange="@(e => OnPaymentAmountChanged(e.Value?.ToString()))" />
 							<button type="button" class="pb-pay-amount__full" @onclick="FillRemaining"
-									disabled="@(_isProcessing || remaining <= 0)">
+									disabled="@(_isProcessing || _remainingAmount <= 0)">
 								Full
 							</button>
 						</div>
 						<button type="button" class="pb-pay-add"
 								@onclick="AddPayment"
-								disabled="@(_isProcessing || _paymentAmount <= 0 || remaining <= 0 || _selectedPaymentMethod is null || _selectedPaymentMethod.Id <= 0)">
+								disabled="@(_isProcessing || _paymentAmount <= 0 || _remainingAmount <= 0 || _selectedPaymentMethod is null || _selectedPaymentMethod.Id <= 0)">
 							<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg>
 							Add
 						</button>
@@ -223,9 +220,9 @@ else
 					@(_isProcessing ? "Working…" : "KOT")
 				</button>
 				<button type="button" class="pb-cta pb-cta--primary" @onclick="async () => await SaveTransaction()" disabled="@_isProcessing">
-					@(_isProcessing ? "Saving…" : canSettle ? "Settle" : "Save")
+					@(_isProcessing ? "Saving…" : _remainingAmount == 0 ? "Settle" : "Save")
 					<span class="pb-cta__side">
-						<span class="pb-cta__price">₹@total.ToString("N0")</span>
+						<span class="pb-cta__price">₹@_bill.TotalAmount.ToString("N0")</span>
 					</span>
 				</button>
 			</div>

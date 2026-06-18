@@ -49,7 +49,8 @@ else
 														Placeholder="Select a Location"
 														Label="Location (Ctrl + F)"
 														ValueChanged="OnLocationChanged"
-														FieldValue="@nameof(LocationModel.Name)" />
+														FieldValue="@nameof(LocationModel.Name)"
+														AddNewRoute="@OperationRouteNames.Location" />
 								</div>
 							}
 
@@ -61,7 +62,8 @@ else
 													Placeholder="Select a Dining Area"
 													Label="Dining Area"
 													ValueChanged="OnAreaChanged"
-													FieldValue="@nameof(DiningAreaModel.Name)" />
+													FieldValue="@nameof(DiningAreaModel.Name)"
+													AddNewRoute="@RestaurantRouteNames.DiningArea" />
 							</div>
 
 						</div>

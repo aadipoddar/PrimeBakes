@@ -111,7 +111,7 @@ public partial class OrderMobileCartPage
 		{
 			_isProcessing = true;
 
-			if (!_cart.Any(x => x.Quantity > 0) && await DataStorageService.LocalExists(StorageFileNames.OrderMobileCartDataFileName))
+			if (!_cart.Any(x => x.Quantity > 0))
 				await DataStorageService.LocalRemove(StorageFileNames.OrderMobileCartDataFileName);
 			else
 				await DataStorageService.LocalSaveAsync(StorageFileNames.OrderMobileCartDataFileName, JsonSerializer.Serialize(_cart.Where(_ => _.Quantity > 0)));
@@ -171,7 +171,9 @@ public partial class OrderMobileCartPage
 			StateHasChanged();
 		}
 	}
+	#endregion
 
+	#region Utilities
 	private async Task NotificationNavigate(int orderId)
 	{
 		var overview = await CommonData.LoadTableDataById<OrderOverviewModel>(StoreNames.OrderOverview, orderId);
@@ -183,9 +185,7 @@ public partial class OrderMobileCartPage
 		VibrationService.VibrateWithTime(500);
 		NavigationManager.NavigateTo(StoreRouteNames.OrderMobileConfirmation, true);
 	}
-	#endregion
 
-	#region Utilities
 	private async Task SendLocalNotification(OrderOverviewModel order) =>
 		await NotificationService.ShowLocalNotification(
 			order.Id,

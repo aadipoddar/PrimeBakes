@@ -115,15 +115,17 @@ public partial class SaleMobileCartPage
 
 			await SaleData.ApplyItemFinancialDetails(_cart, _products, _taxes);
 
-			if (!_cart.Any(x => x.Quantity > 0) && await DataStorageService.LocalExists(StorageFileNames.SaleMobileCartDataFileName))
+			if (!_cart.Any(x => x.Quantity > 0))
 				await DataStorageService.LocalRemove(StorageFileNames.SaleMobileCartDataFileName);
 			else
 				await DataStorageService.LocalSaveAsync(StorageFileNames.SaleMobileCartDataFileName, JsonSerializer.Serialize(_cart.Where(_ => _.Quantity > 0)));
 
 			VibrationService.VibrateHapticClick();
 		}
-		catch (Exception)
+		catch
 		{
+			await DataStorageService.LocalRemove(StorageFileNames.SaleMobileCartDataFileName);
+			await DataStorageService.LocalRemove(StorageFileNames.SaleMobileDataFileName);
 			NavigationManager.NavigateTo(StoreRouteNames.SaleMobile, true);
 		}
 		finally

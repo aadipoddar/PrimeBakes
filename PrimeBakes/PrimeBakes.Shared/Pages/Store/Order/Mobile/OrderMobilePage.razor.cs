@@ -70,9 +70,9 @@ public partial class OrderMobilePage
 				});
 			_cart = [.. _cart.OrderBy(s => s.ItemName)];
 		}
-		catch (Exception)
+		catch
 		{
-			NavigationManager.NavigateTo(OperationRouteNames.Dashboard);
+			NavigationManager.NavigateTo(OperationRouteNames.Dashboard, true);
 		}
 	}
 
@@ -87,10 +87,11 @@ public partial class OrderMobilePage
 					_cart.FirstOrDefault(p => p.ItemId == item.ItemId)?.Quantity = item.Quantity;
 			}
 		}
-		catch (Exception)
+		catch
 		{
+			await DataStorageService.LocalRemove(StorageFileNames.OrderMobileDataFileName);
 			await DataStorageService.LocalRemove(StorageFileNames.OrderMobileCartDataFileName);
-			NavigationManager.NavigateTo(StoreRouteNames.OrderMobile);
+			NavigationManager.NavigateTo(StoreRouteNames.OrderMobile, true);
 		}
 		finally
 		{
@@ -173,17 +174,18 @@ public partial class OrderMobilePage
 		{
 			_isProcessing = true;
 
-			if (!_cart.Any(x => x.Quantity > 0) && await DataStorageService.LocalExists(StorageFileNames.OrderMobileCartDataFileName))
+			if (!_cart.Any(x => x.Quantity > 0))
 				await DataStorageService.LocalRemove(StorageFileNames.OrderMobileCartDataFileName);
 			else
 				await DataStorageService.LocalSaveAsync(StorageFileNames.OrderMobileCartDataFileName, System.Text.Json.JsonSerializer.Serialize(_cart.Where(_ => _.Quantity > 0)));
 
 			VibrationService.VibrateHapticClick();
 		}
-		catch (Exception)
+		catch
 		{
+			await DataStorageService.LocalRemove(StorageFileNames.OrderMobileDataFileName);
 			await DataStorageService.LocalRemove(StorageFileNames.OrderMobileCartDataFileName);
-			NavigationManager.NavigateTo(StoreRouteNames.OrderMobile);
+			NavigationManager.NavigateTo(StoreRouteNames.OrderMobile, true);
 		}
 		finally
 		{

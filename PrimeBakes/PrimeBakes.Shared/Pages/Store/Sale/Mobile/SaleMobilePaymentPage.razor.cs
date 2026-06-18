@@ -52,10 +52,7 @@ public partial class SaleMobilePaymentPage
 			_cart = JsonSerializer.Deserialize<List<SaleItemCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.SaleMobileCartDataFileName)) ?? [];
 
 		if (_cart.Count == 0)
-		{
 			NavigationManager.NavigateTo(StoreRouteNames.SaleMobile, true);
-			return;
-		}
 
 		_cart = [.. _cart.OrderBy(x => x.ItemName)];
 
@@ -99,8 +96,7 @@ public partial class SaleMobilePaymentPage
 
 	private async Task OnDiscountPercentChanged(string raw)
 	{
-		var value = ParseDecimal(raw, allowNegative: false);
-		_sale.DiscountPercent = Math.Clamp(value, 0, 100);
+		_sale.DiscountPercent = Math.Clamp(ParseDecimal(raw, allowNegative: false), 0, 100);
 		await SaveTransactionFile();
 	}
 
@@ -316,7 +312,9 @@ public partial class SaleMobilePaymentPage
 			StateHasChanged();
 		}
 	}
+	#endregion
 
+	#region Utilities
 	private async Task NotificationNavigate(int saleId)
 	{
 		var overview = await CommonData.LoadTableDataById<SaleOverviewModel>(StoreNames.SaleOverview, saleId);
@@ -327,9 +325,7 @@ public partial class SaleMobilePaymentPage
 		VibrationService.VibrateWithTime(500);
 		NavigationManager.NavigateTo(StoreRouteNames.SaleMobileConfirmation, true);
 	}
-	#endregion
 
-	#region Utilities
 	private async Task SendLocalNotification(SaleOverviewModel sale) =>
 		await NotificationService.ShowLocalNotification(
 			sale.Id,

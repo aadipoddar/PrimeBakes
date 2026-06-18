@@ -19,10 +19,14 @@ public partial class OrderMobileConfirmationPage
 		{
 			_order = System.Text.Json.JsonSerializer.Deserialize<OrderOverviewModel>(await DataStorageService.LocalGetAsync(StorageFileNames.OrderMobileDataFileName));
 			_cart = System.Text.Json.JsonSerializer.Deserialize<List<OrderItemCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.OrderMobileCartDataFileName)) ?? [];
+			_cart = [.. _cart.OrderBy(i => i.ItemName)];
 		}
 
 		await SoundService.PlaySound("checkout.mp3");
 		VibrationService.VibrateWithTime(500);
+
+		await DataStorageService.LocalRemove(StorageFileNames.OrderMobileDataFileName);
+		await DataStorageService.LocalRemove(StorageFileNames.OrderMobileCartDataFileName);
 
 		StateHasChanged();
 	}
@@ -45,21 +49,5 @@ public partial class OrderMobileConfirmationPage
 			_isPrinting = false;
 			StateHasChanged();
 		}
-	}
-
-	private async Task StartNewOrder()
-	{
-		await DataStorageService.LocalRemove(StorageFileNames.OrderMobileDataFileName);
-		await DataStorageService.LocalRemove(StorageFileNames.OrderMobileCartDataFileName);
-
-		NavigationManager.NavigateTo(StoreRouteNames.OrderMobile);
-	}
-
-	private async Task GoHome()
-	{
-		await DataStorageService.LocalRemove(StorageFileNames.OrderMobileDataFileName);
-		await DataStorageService.LocalRemove(StorageFileNames.OrderMobileCartDataFileName);
-
-		NavigationManager.NavigateTo(OperationRouteNames.Dashboard);
 	}
 }

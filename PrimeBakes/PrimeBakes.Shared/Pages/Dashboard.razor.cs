@@ -96,7 +96,7 @@ public partial class Dashboard
 
 			await LoadData();
 		}
-		catch (Exception)
+		catch
 		{
 			await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 		}

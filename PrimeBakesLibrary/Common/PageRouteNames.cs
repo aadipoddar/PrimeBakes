@@ -16,7 +16,6 @@ public static class OperationRouteNames
 
 public static class AccountsRouteNames
 {
-	public const string AccountsDashboard = "/accounts";
 	public const string FinancialAccounting = "/accounts/financial-accounting";
 
 	public const string FinancialAccountingReport = "/accounts/reports/financial-accounting";
@@ -37,7 +36,6 @@ public static class AccountsRouteNames
 
 public static class InventoryRouteNames
 {
-	public const string InventoryDashboard = "/inventory";
 	public const string Purchase = "/inventory/purchase";
 	public const string PurchaseReturn = "/inventory/purchase-return";
 	public const string PurchaseReport = "/inventory/purchase-report";
@@ -70,8 +68,6 @@ public static class InventoryRouteNames
 
 public static class StoreRouteNames
 {
-	public const string StoreDashboard = "/store";
-
 	public const string Order = "/store/order";
 	public const string OrderMobile = "/store/order-mobile";
 	public const string OrderMobileCart = "/store/order-cart-mobile";
@@ -103,7 +99,6 @@ public static class StoreRouteNames
 
 public static class RestaurantRouteNames
 {
-	public const string RestaurantDashboard = "/restaurant";
 	public const string DiningDashboard = "/restaurant/dining-dashboard";
 	public const string DiningMobileDashboard = "/restaurant/dining-dashboard-mobile";
 

@@ -38,10 +38,11 @@ public partial class SaleMobilePage
 	{
 		await LoadData();
 		await LoadExistingCart();
-		await SaveTransactionFile();
 
 		_isLoading = false;
 		StateHasChanged();
+
+		await SaveTransactionFile();
 	}
 
 	private async Task LoadData()
@@ -75,9 +76,9 @@ public partial class SaleMobilePage
 				});
 			_cart = [.. _cart.OrderBy(s => s.ItemName)];
 		}
-		catch (Exception)
+		catch
 		{
-			NavigationManager.NavigateTo(OperationRouteNames.Dashboard);
+			NavigationManager.NavigateTo(OperationRouteNames.Dashboard, true);
 		}
 	}
 
@@ -92,10 +93,11 @@ public partial class SaleMobilePage
 					_cart.FirstOrDefault(p => p.ItemId == item.ItemId)?.Quantity = item.Quantity;
 			}
 		}
-		catch (Exception)
+		catch
 		{
+			await DataStorageService.LocalRemove(StorageFileNames.SaleMobileDataFileName);
 			await DataStorageService.LocalRemove(StorageFileNames.SaleMobileCartDataFileName);
-			NavigationManager.NavigateTo(StoreRouteNames.SaleMobile);
+			NavigationManager.NavigateTo(OperationRouteNames.Dashboard, true);
 		}
 		finally
 		{
@@ -182,17 +184,18 @@ public partial class SaleMobilePage
 
 			await SaleData.ApplyItemFinancialDetails(_cart, _products, _taxes);
 
-			if (!_cart.Any(x => x.Quantity > 0) && await DataStorageService.LocalExists(StorageFileNames.SaleMobileCartDataFileName))
+			if (!_cart.Any(x => x.Quantity > 0))
 				await DataStorageService.LocalRemove(StorageFileNames.SaleMobileCartDataFileName);
 			else
 				await DataStorageService.LocalSaveAsync(StorageFileNames.SaleMobileCartDataFileName, System.Text.Json.JsonSerializer.Serialize(_cart.Where(_ => _.Quantity > 0)));
 
 			VibrationService.VibrateHapticClick();
 		}
-		catch (Exception)
+		catch
 		{
+			await DataStorageService.LocalRemove(StorageFileNames.SaleMobileDataFileName);
 			await DataStorageService.LocalRemove(StorageFileNames.SaleMobileCartDataFileName);
-			NavigationManager.NavigateTo(StoreRouteNames.SaleMobile);
+			NavigationManager.NavigateTo(OperationRouteNames.Dashboard, true);
 		}
 		finally
 		{

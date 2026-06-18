@@ -29,6 +29,8 @@ public partial class BillMobilePaymentPage
 	private CustomerModel _selectedCustomer = new();
 	private BillModel _bill = new();
 
+	private List<ProductModel> _products = [];
+	private List<TaxModel> _taxes = [];
 	private List<BillItemCartModel> _cart = [];
 	private List<BillDetailModel> _finalCart = [];
 	private List<BillDetailModel> _previousCart = [];
@@ -48,69 +50,55 @@ public partial class BillMobilePaymentPage
 
 		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Restaurant]);
 		await LoadData();
-		_isLoading = false;
-		await UpdateFinancialDetails();
-		StateHasChanged();
 	}
 
 	private async Task LoadData()
 	{
-		if (!await ResolveBillContext())
-			return;
-
+		await ResolveBillContext();
 		await LoadDiningTable();
 		await LoadRunningBill();
 		await LoadCart();
 
+		_isLoading = false;
+		await SaveTransactionFile();
 		StateHasChanged();
 	}
 
-	private async Task<bool> ResolveBillContext()
+	private async Task ResolveBillContext()
 	{
 		if (!DiningTableId.HasValue)
-		{
 			NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
-			return false;
-		}
 
 		try
 		{
 			var diningTable = await CommonData.LoadTableDataById<DiningTableModel>(RestaurantNames.DiningTable, DiningTableId.Value);
 			if (diningTable is null)
-			{
 				NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
-				return false;
-			}
 
 			var diningArea = await CommonData.LoadTableDataById<DiningAreaModel>(RestaurantNames.DiningArea, diningTable.DiningAreaId);
 			if (diningArea is null)
-			{
 				NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
-				return false;
-			}
 
 			if (_user.LocationId != 1 && diningArea.LocationId != _user.LocationId)
-			{
 				NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
-				return false;
-			}
-
-			return true;
 		}
-		catch (Exception)
+		catch
 		{
 			NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
-			return false;
 		}
 	}
 
 	private async Task LoadDiningTable()
 	{
-		if (!DiningTableId.HasValue)
-			return;
-
-		_diningTable = await CommonData.LoadTableDataById<DiningTableModel>(RestaurantNames.DiningTable, DiningTableId.Value);
-		_bill.DiningTableId = _diningTable?.Id ?? 0;
+		try
+		{
+			if (DiningTableId.HasValue)
+				_diningTable = await CommonData.LoadTableDataById<DiningTableModel>(RestaurantNames.DiningTable, DiningTableId.Value);
+		}
+		catch
+		{
+			NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
+		}
 	}
 
 	private async Task LoadRunningBill()
@@ -132,8 +120,14 @@ public partial class BillMobilePaymentPage
 
 	private async Task LoadCart()
 	{
+		_products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
+		_taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
+
 		if (await DataStorageService.LocalExists(StorageFileNames.BillMobileCartDataFileName))
 			_cart = JsonSerializer.Deserialize<List<BillItemCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.BillMobileCartDataFileName)) ?? [];
+
+		if (_cart.Count == 0)
+			NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
 
 		_cart = [.. _cart.OrderBy(x => x.ItemName)];
 
@@ -148,7 +142,7 @@ public partial class BillMobilePaymentPage
 		{
 			_selectedCustomer = new();
 			_bill.CustomerId = null;
-			await UpdateFinancialDetails();
+			await SaveTransactionFile();
 			return;
 		}
 
@@ -165,43 +159,43 @@ public partial class BillMobilePaymentPage
 		};
 
 		_bill.CustomerId = _selectedCustomer.Id;
-		await UpdateFinancialDetails();
+		await SaveTransactionFile();
 	}
 
 	private async Task OnDiscountPercentChanged(string raw)
 	{
 		_bill.DiscountPercent = Math.Clamp(ParseDecimal(raw, allowNegative: false), 0, 100);
-		await UpdateFinancialDetails();
+		await SaveTransactionFile();
 	}
 
 	private async Task AdjustDiscountPercent(decimal delta)
 	{
 		_bill.DiscountPercent = Math.Clamp(_bill.DiscountPercent + delta, 0, 100);
-		await UpdateFinancialDetails();
+		await SaveTransactionFile();
 	}
 
 	private async Task OnServiceChargePercentChanged(string raw)
 	{
 		_bill.ServiceChargePercent = Math.Clamp(ParseDecimal(raw, allowNegative: false), 0, 100);
-		await UpdateFinancialDetails();
+		await SaveTransactionFile();
 	}
 
 	private async Task AdjustServiceChargePercent(decimal delta)
 	{
 		_bill.ServiceChargePercent = Math.Clamp(_bill.ServiceChargePercent + delta, 0, 100);
-		await UpdateFinancialDetails();
+		await SaveTransactionFile();
 	}
 
 	private async Task OnRoundOffAmountChanged(string raw)
 	{
 		_bill.RoundOffAmount = ParseDecimal(raw, allowNegative: true);
-		await UpdateFinancialDetails(true);
+		await SaveTransactionFile(true);
 	}
 
 	private async Task AdjustRoundOff(decimal delta)
 	{
 		_bill.RoundOffAmount += delta;
-		await UpdateFinancialDetails(true);
+		await SaveTransactionFile(true);
 	}
 
 	private static decimal ParseDecimal(string raw, bool allowNegative)
@@ -287,6 +281,44 @@ public partial class BillMobilePaymentPage
 	#region Saving
 	private async Task UpdateFinancialDetails(bool customRoundOff = false)
 	{
+		if (!_user.ChangeProductFinancial)
+			_bill.DiscountPercent = 0;
+
+		await BillData.ApplyItemFinancialDetails(_cart, _products, _taxes);
+
+		_finalCart.Clear();
+		_finalCart = BillData.ConvertCartToDetails(_cart, _bill.Id);
+		_finalCart.AddRange(_previousCart);
+
+		foreach (var item in _finalCart.Where(_ => _.Quantity > 0))
+		{
+			item.Id = 0;
+			item.NetRate = item.Total / item.Quantity * (1 - _bill.DiscountPercent / 100);
+		}
+
+		_bill.TotalItems = _finalCart.Count(x => x.Quantity > 0);
+		_bill.TotalQuantity = _finalCart.Sum(x => x.Quantity);
+		_bill.BaseTotal = _finalCart.Sum(x => x.BaseTotal);
+		_bill.ItemDiscountAmount = _finalCart.Sum(x => x.DiscountAmount);
+		_bill.TotalAfterItemDiscount = _finalCart.Sum(x => x.AfterDiscount);
+		_bill.TotalInclusiveTaxAmount = _finalCart.Where(x => x.InclusiveTax).Sum(x => x.TotalTaxAmount);
+		_bill.TotalExtraTaxAmount = _finalCart.Where(x => !x.InclusiveTax).Sum(x => x.TotalTaxAmount);
+		_bill.TotalAfterTax = _finalCart.Sum(x => x.Total);
+
+		_bill.DiscountAmount = _bill.TotalAfterTax * _bill.DiscountPercent / 100;
+		var totalAfterDiscount = _bill.TotalAfterTax - _bill.DiscountAmount;
+
+		_bill.ServiceChargeAmount = totalAfterDiscount * _bill.ServiceChargePercent / 100;
+		var totalAfterServiceCharge = totalAfterDiscount + _bill.ServiceChargeAmount;
+
+		if (!customRoundOff)
+			_bill.RoundOffAmount = Math.Round(totalAfterServiceCharge) - totalAfterServiceCharge;
+
+		_bill.TotalAmount = totalAfterServiceCharge + _bill.RoundOffAmount;
+	}
+
+	private async Task SaveTransactionFile(bool customRoundOff = false)
+	{
 		if (_isProcessing || _isLoading)
 			return;
 
@@ -294,73 +326,12 @@ public partial class BillMobilePaymentPage
 		{
 			_isProcessing = true;
 
-			if (!_user.ChangeProductFinancial)
-				_bill.DiscountPercent = 0;
+			await UpdateFinancialDetails(customRoundOff);
 
-			_finalCart.Clear();
-			_finalCart = BillData.ConvertCartToDetails(_cart, _bill.Id);
-			_finalCart.AddRange(_previousCart);
-
-			var taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
-			var items = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
-
-			foreach (var item in _finalCart.Where(_ => _.Quantity > 0))
-			{
-				item.Id = 0;
-				item.DiscountPercent = 0;
-				item.DiscountAmount = 0;
-
-				item.BaseTotal = item.Rate * item.Quantity;
-				item.AfterDiscount = item.BaseTotal - item.DiscountAmount;
-
-				var selectedItem = items.FirstOrDefault(s => s.Id == item.ProductId);
-				var tax = taxes.FirstOrDefault(s => s.Id == selectedItem.TaxId);
-
-				item.CGSTPercent = tax?.CGST ?? 0;
-				item.SGSTPercent = tax?.SGST ?? 0;
-				item.IGSTPercent = 0;
-				item.InclusiveTax = tax?.Inclusive ?? false;
-
-				if (item.InclusiveTax)
-				{
-					item.CGSTAmount = item.AfterDiscount * (item.CGSTPercent / (100 + item.CGSTPercent));
-					item.SGSTAmount = item.AfterDiscount * (item.SGSTPercent / (100 + item.SGSTPercent));
-					item.IGSTAmount = item.AfterDiscount * (item.IGSTPercent / (100 + item.IGSTPercent));
-					item.TotalTaxAmount = item.CGSTAmount + item.SGSTAmount + item.IGSTAmount;
-					item.Total = item.AfterDiscount;
-				}
-				else
-				{
-					item.CGSTAmount = item.AfterDiscount * (item.CGSTPercent / 100);
-					item.SGSTAmount = item.AfterDiscount * (item.SGSTPercent / 100);
-					item.IGSTAmount = item.AfterDiscount * (item.IGSTPercent / 100);
-					item.TotalTaxAmount = item.CGSTAmount + item.SGSTAmount + item.IGSTAmount;
-					item.Total = item.AfterDiscount + item.TotalTaxAmount;
-				}
-
-				item.NetRate = item.Total / item.Quantity * (1 - _bill.DiscountPercent / 100);
-				item.Remarks = string.IsNullOrWhiteSpace(item.Remarks) ? null : item.Remarks.Trim();
-			}
-
-			_bill.TotalItems = _finalCart.Count(x => x.Quantity > 0);
-			_bill.TotalQuantity = _finalCart.Sum(x => x.Quantity);
-			_bill.BaseTotal = _finalCart.Sum(x => x.BaseTotal);
-			_bill.ItemDiscountAmount = _finalCart.Sum(x => x.DiscountAmount);
-			_bill.TotalAfterItemDiscount = _finalCart.Sum(x => x.AfterDiscount);
-			_bill.TotalInclusiveTaxAmount = _finalCart.Where(x => x.InclusiveTax).Sum(x => x.TotalTaxAmount);
-			_bill.TotalExtraTaxAmount = _finalCart.Where(x => !x.InclusiveTax).Sum(x => x.TotalTaxAmount);
-			_bill.TotalAfterTax = _finalCart.Sum(x => x.Total);
-
-			_bill.DiscountAmount = _bill.TotalAfterTax * _bill.DiscountPercent / 100;
-			var totalAfterDiscount = _bill.TotalAfterTax - _bill.DiscountAmount;
-
-			_bill.ServiceChargeAmount = totalAfterDiscount * _bill.ServiceChargePercent / 100;
-			var totalAfterServiceCharge = totalAfterDiscount + _bill.ServiceChargeAmount;
-
-			if (!customRoundOff)
-				_bill.RoundOffAmount = Math.Round(totalAfterServiceCharge) - totalAfterServiceCharge;
-
-			_bill.TotalAmount = totalAfterServiceCharge + _bill.RoundOffAmount;
+			if (!_cart.Any(x => x.Quantity > 0) && await DataStorageService.LocalExists(StorageFileNames.BillMobileCartDataFileName))
+				await DataStorageService.LocalRemove(StorageFileNames.BillMobileCartDataFileName);
+			else
+				await DataStorageService.LocalSaveAsync(StorageFileNames.BillMobileCartDataFileName, JsonSerializer.Serialize(_cart.Where(_ => _.Quantity > 0)));
 
 			VibrationService.VibrateHapticClick();
 		}
@@ -370,7 +341,9 @@ public partial class BillMobilePaymentPage
 		}
 		finally
 		{
-			_paymentAmount = Math.Max(0, _remainingAmount);
+			if (_paymentAmount <= 0)
+				_paymentAmount = Math.Max(0, _remainingAmount);
+
 			_isProcessing = false;
 			StateHasChanged();
 		}
@@ -437,7 +410,7 @@ public partial class BillMobilePaymentPage
 			_isProcessing = true;
 			StateHasChanged();
 
-			await UpdateFinancialDetails(true);
+			await SaveTransactionFile(true);
 			ConfirmPayment();
 
 			await PrepareBillForSave();
@@ -472,7 +445,9 @@ public partial class BillMobilePaymentPage
 			_isProcessing = false;
 		}
 	}
+	#endregion
 
+	#region Utilities
 	private async Task NotificationNavigate(int billId)
 	{
 		var overview = await CommonData.LoadTableDataById<BillOverviewModel>(RestaurantNames.BillOverview, billId);
@@ -483,9 +458,7 @@ public partial class BillMobilePaymentPage
 		VibrationService.VibrateWithTime(500);
 		NavigationManager.NavigateTo(RestaurantRouteNames.BillMobileConfirmation, true);
 	}
-	#endregion
 
-	#region Utilities
 	private async Task SendLocalNotification(BillOverviewModel bill) =>
 		await NotificationService.ShowLocalNotification(
 			bill.Id,
@@ -495,6 +468,7 @@ public partial class BillMobilePaymentPage
 
 	private void ShowError(string title, string message)
 	{
+		_validationErrors.Clear();
 		_validationErrors.Add((title, message));
 		_showValidationDialog = true;
 		StateHasChanged();

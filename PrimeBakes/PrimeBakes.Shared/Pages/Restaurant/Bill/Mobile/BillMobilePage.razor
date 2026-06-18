@@ -39,14 +39,6 @@ else
 			</div>
 			<div class="pb-header__actions">
 				<button type="button" class="pb-icon-btn"
-						@onclick='() => NavigationManager.NavigateTo($"{RestaurantRouteNames.BillMobileCart}/table/{_diningTable.Id}")'
-						aria-label="Cart">
-					<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-						<path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3z" />
-						<path d="M9 8h6M9 12h6M9 16h4" />
-					</svg>
-				</button>
-				<button type="button" class="pb-icon-btn"
 						@onclick="@(() => NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard))"
 						aria-label="Back">
 					<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6" /></svg>

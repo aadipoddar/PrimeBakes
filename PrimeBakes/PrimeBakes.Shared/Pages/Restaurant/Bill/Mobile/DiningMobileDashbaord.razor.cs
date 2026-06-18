@@ -23,9 +23,6 @@ public partial class DiningMobileDashbaord
 		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Restaurant]);
 
 		await LoadData();
-
-		_isLoading = false;
-		StateHasChanged();
 	}
 
 	private async Task LoadData()
@@ -39,6 +36,9 @@ public partial class DiningMobileDashbaord
 		_diningTables = [.. _diningTables.Where(dt => _diningAreas.Any(area => area.Id == dt.DiningAreaId)).OrderBy(dt => dt.Name)];
 
 		_runningBills = await BillData.LoadRunningBillByLocationId(_user.LocationId);
+
+		_isLoading = false;
+		StateHasChanged();
 	}
 
 	private string Elapsed(DateTime since)
@@ -52,10 +52,4 @@ public partial class DiningMobileDashbaord
 
 		return $"{(int)span.TotalMinutes}m";
 	}
-
-	private void NavigateBack() =>
-		NavigationManager.NavigateTo(RestaurantRouteNames.RestaurantDashboard);
-
-	private void OpenBillPage(int diningTableId) =>
-		NavigationManager.NavigateTo($"{RestaurantRouteNames.BillMobile}/table/{diningTableId}");
 }

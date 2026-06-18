@@ -8,7 +8,7 @@ namespace PrimeBakes.Shared.Pages.Restaurant.Bill.Mobile;
 public partial class BillMobileConfirmationPage
 {
 	private BillOverviewModel _bill = null;
-	private List<BillItemOverviewModel> _items = [];
+	private List<BillItemOverviewModel> _cart = [];
 	private bool _isPrinting;
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -19,16 +19,15 @@ public partial class BillMobileConfirmationPage
 		if (await DataStorageService.LocalExists(StorageFileNames.BillMobileDataFileName))
 		{
 			_bill = JsonSerializer.Deserialize<BillOverviewModel>(await DataStorageService.LocalGetAsync(StorageFileNames.BillMobileDataFileName));
-
-			if (_bill is not null)
-			{
-				_items = await CommonData.LoadTableDataByMasterId<BillItemOverviewModel>(RestaurantNames.BillItemOverview, _bill.Id);
-				_items = [.. _items.OrderBy(i => i.ItemName)];
-			}
+			_cart = await CommonData.LoadTableDataByMasterId<BillItemOverviewModel>(RestaurantNames.BillItemOverview, _bill.Id);
+			_cart = [.. _cart.OrderBy(i => i.ItemName)];
 		}
 
 		await SoundService.PlaySound("checkout.mp3");
 		VibrationService.VibrateWithTime(500);
+
+		await DataStorageService.LocalRemove(StorageFileNames.BillMobileDataFileName);
+		await DataStorageService.LocalRemove(StorageFileNames.BillMobileCartDataFileName);
 
 		StateHasChanged();
 	}
@@ -68,13 +67,5 @@ public partial class BillMobileConfirmationPage
 			_isPrinting = false;
 			StateHasChanged();
 		}
-	}
-
-	private async Task BackToTables()
-	{
-		await DataStorageService.LocalRemove(StorageFileNames.BillMobileDataFileName);
-		await DataStorageService.LocalRemove(StorageFileNames.BillMobileCartDataFileName);
-
-		NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
 	}
 }

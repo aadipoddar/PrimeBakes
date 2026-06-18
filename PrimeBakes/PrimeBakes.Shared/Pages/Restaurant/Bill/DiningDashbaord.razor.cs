@@ -17,6 +17,7 @@ public partial class DiningDashbaord
 {
 	private UserModel _user;
 	private bool _isLoading = true;
+	private DateTime _now = DateTime.Now;
 
 	private LocationModel _selectedLocation = new();
 	private DiningAreaModel _selectedArea;
@@ -33,9 +34,6 @@ public partial class DiningDashbaord
 
 	private static readonly JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
 
-	// Nodes are always wired for interaction (drag/resize/select); actual moves and resizes are
-	// gated by _designMode through the PositionChanging / SizeChanging cancel events. Rotation and
-	// connector drawing between tables are never wanted.
 	private const NodeConstraints _nodeConstraints =
 		NodeConstraints.Default & ~(NodeConstraints.Rotate | NodeConstraints.InConnect | NodeConstraints.OutConnect);
 
@@ -54,23 +52,23 @@ public partial class DiningDashbaord
 			return;
 
 		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Restaurant]);
-
 		await LoadData();
-
-		_isLoading = false;
-		StateHasChanged();
-
-		await Task.Yield();
-		if (_firstFocus is not null)
-			await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadData()
 	{
+		_now = await CommonData.LoadCurrentDateTime();
+
 		_locations = [.. (await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location)).OrderBy(l => l.Name)];
 		_selectedLocation = _locations.FirstOrDefault(l => l.Id == _user.LocationId);
 
 		await LoadDining();
+
+		_isLoading = false;
+		StateHasChanged();
+
+		if (_firstFocus is not null)
+			await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadDining()
@@ -113,18 +111,18 @@ public partial class DiningDashbaord
 					StrokeColor = running ? "#fda4af" : "#86efac",
 					StrokeWidth = 1.5
 				},
-				Annotations = BuildAnnotations(table.Name, bill, running),
+				Annotations = BuildAnnotations(table.Name, bill, running, running ? Elapsed(bill.TransactionDateTime) : null),
 				Constraints = _nodeConstraints
 			});
 		}
 	}
 
-	private static DiagramObjectCollection<ShapeAnnotation> BuildAnnotations(string name, BillModel bill, bool running)
+	private static DiagramObjectCollection<ShapeAnnotation> BuildAnnotations(string name, BillModel bill, bool running, string elapsed)
 	{
 		var color = running ? "#9f1239" : "#166534";
 
 		var detail = running
-			? $"{bill.TotalAmount.FormatIndianCurrency()}\n{bill.TotalItems} items • {bill.TotalQuantity.FormatSmartDecimal()} qty"
+			? $"{bill.TotalAmount.FormatIndianCurrency()}\n{bill.TotalItems} items • {bill.TotalQuantity.FormatSmartDecimal()} qty\n {elapsed}"
 			: "Available";
 
 		return
@@ -147,6 +145,18 @@ public partial class DiningDashbaord
 	private static DiningTableLayout ParseLayout(string json) =>
 		string.IsNullOrWhiteSpace(json) ? null : JsonSerializer.Deserialize<DiningTableLayout>(json, _jsonOptions);
 
+	private string Elapsed(DateTime since)
+	{
+		var span = _now - since;
+		if (span < TimeSpan.Zero)
+			span = TimeSpan.Zero;
+
+		if (span.TotalHours >= 1)
+			return $"{(int)span.TotalHours}h {span.Minutes}m";
+
+		return $"{(int)span.TotalMinutes}m";
+	}
+
 	private async Task OnLocationChanged(LocationModel location)
 	{
 		if (_user.LocationId > 1 || location is null)
@@ -162,8 +172,6 @@ public partial class DiningDashbaord
 		BuildNodes();
 	}
 
-	// Moves and resizes are only committed in design mode; otherwise they are cancelled, so the
-	// nodes stay fully interactive (consistent drag wiring) without changing layout in operate mode.
 	private void OnPositionChanging(PositionChangingEventArgs args) => args.Cancel = !_designMode;
 	private void OnSizeChanging(SizeChangingEventArgs args) => args.Cancel = !_designMode;
 
@@ -171,7 +179,6 @@ public partial class DiningDashbaord
 
 	private void CancelDesign()
 	{
-		// Discard unsaved drags by rebuilding from the saved layout still held in _diningTables.
 		_designMode = false;
 		BuildNodes();
 	}
@@ -203,9 +210,6 @@ public partial class DiningDashbaord
 		_designMode = false;
 		BuildNodes();
 	}
-
-	private void NavigateBack() =>
-		NavigationManager.NavigateTo(RestaurantRouteNames.RestaurantDashboard);
 
 	private void OnDiagramClick(ClickEventArgs args)
 	{

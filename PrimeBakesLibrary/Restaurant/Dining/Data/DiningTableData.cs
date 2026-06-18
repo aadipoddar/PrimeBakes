@@ -6,7 +6,7 @@ namespace PrimeBakesLibrary.Restaurant.Dining.Data;
 
 public static class DiningTableData
 {
-	public static async Task<int> InsertDiningTable(DiningTableModel diningTable, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+	private static async Task<int> InsertDiningTable(DiningTableModel diningTable, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(RestaurantNames.InsertDiningTable, diningTable, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Dining Table.");
 

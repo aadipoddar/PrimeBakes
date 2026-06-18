@@ -27,6 +27,8 @@ public partial class BillMobilePage
 	private string _query = string.Empty;
 	private int _page = 0;
 
+	private List<ProductModel> _products = [];
+	private List<TaxModel> _taxes = [];
 	private List<ProductCategoryModel> _productCategories = [];
 	private List<BillDetailModel> _previousCart = [];
 	private List<BillItemCartModel> _cart = [];
@@ -38,62 +40,47 @@ public partial class BillMobilePage
 			return;
 
 		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Restaurant]);
-
-		await LoadData();
-		_isLoading = false;
-		await SaveTransactionFile();
-		StateHasChanged();
+		await InitializePage();
 	}
 
-	private async Task LoadData()
+	private async Task InitializePage()
 	{
 		_now = await CommonData.LoadCurrentDateTime();
 
-		if (!await ResolveBillContext())
-			return;
-
+		await ResolveBillContext();
 		await LoadDiningTable();
 		await LoadItems();
 		await LoadCart();
+
+		_isLoading = false;
+		StateHasChanged();
+
+		await SaveTransactionFile();
 	}
 
-	private async Task<bool> ResolveBillContext()
+	private async Task ResolveBillContext()
 	{
 		if (!DiningTableId.HasValue)
-		{
 			NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
-			return false;
-		}
 
 		try
 		{
 			var diningTable = await CommonData.LoadTableDataById<DiningTableModel>(RestaurantNames.DiningTable, DiningTableId.Value);
 			if (diningTable is null)
-			{
 				NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
-				return false;
-			}
 
 			var diningArea = await CommonData.LoadTableDataById<DiningAreaModel>(RestaurantNames.DiningArea, diningTable.DiningAreaId);
 			if (diningArea is null)
-			{
 				NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
-				return false;
-			}
 
 			if (_user.LocationId != 1 && diningArea.LocationId != _user.LocationId)
-			{
 				NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
-				return false;
-			}
 
 			_diningArea = diningArea;
-			return true;
 		}
-		catch (Exception)
+		catch
 		{
 			NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
-			return false;
 		}
 	}
 
@@ -104,10 +91,9 @@ public partial class BillMobilePage
 			if (DiningTableId.HasValue)
 				_diningTable = await CommonData.LoadTableDataById<DiningTableModel>(RestaurantNames.DiningTable, DiningTableId.Value);
 		}
-		catch (Exception)
+		catch
 		{
 			NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
-			return;
 		}
 	}
 
@@ -115,17 +101,19 @@ public partial class BillMobilePage
 	{
 		try
 		{
+			_products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
+			_taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
+
 			_productCategories = await CommonData.LoadTableDataByStatus<ProductCategoryModel>(StoreNames.ProductCategory);
 			_productCategories.Add(new()
 			{
 				Id = 0,
-				Name = "All Categories"
+				Name = "All"
 			});
 			_productCategories = [.. _productCategories.OrderBy(s => s.Name)];
 			_selectedCategory = _productCategories.FirstOrDefault(s => s.Id == 0);
 
 			var allProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _user.LocationId);
-
 			foreach (var product in allProducts)
 				_cart.Add(new()
 				{
@@ -138,9 +126,9 @@ public partial class BillMobilePage
 				});
 			_cart = [.. _cart.OrderBy(s => s.ItemName)];
 		}
-		catch (Exception)
+		catch
 		{
-			NavigationManager.NavigateTo(OperationRouteNames.Dashboard);
+			NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
 		}
 	}
 
@@ -151,15 +139,10 @@ public partial class BillMobilePage
 			if (await DataStorageService.LocalExists(StorageFileNames.BillMobileCartDataFileName))
 			{
 				var existingCart = System.Text.Json.JsonSerializer.Deserialize<List<BillItemCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.BillMobileCartDataFileName));
-				foreach (var item in existingCart ?? [])
+				foreach (var item in existingCart)
 				{
-					var cartItem = _cart.FirstOrDefault(p => p.ItemId == item.ItemId);
-					if (cartItem is null)
-						continue;
-
-					cartItem.Quantity = item.Quantity;
-					cartItem.Rate = item.Rate;
-					cartItem.Remarks = item.Remarks;
+					_cart.FirstOrDefault(p => p.ItemId == item.ItemId)?.Quantity = item.Quantity;
+					_cart.FirstOrDefault(p => p.ItemId == item.ItemId)?.Remarks = item.Remarks;
 				}
 			}
 
@@ -169,17 +152,17 @@ public partial class BillMobilePage
 			if (_runningBill is not null)
 				_previousCart = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, _runningBill.Id);
 		}
-		catch (Exception)
+		catch
 		{
-			NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
+			await DataStorageService.LocalRemove(StorageFileNames.BillMobileDataFileName);
 			await DataStorageService.LocalRemove(StorageFileNames.BillMobileCartDataFileName);
+			NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
 		}
 		finally
 		{
 			await SaveTransactionFile();
 		}
 	}
-	#endregion
 
 	private string Elapsed(DateTime since)
 	{
@@ -189,6 +172,7 @@ public partial class BillMobilePage
 
 		return span.TotalHours >= 1 ? $"{(int)span.TotalHours}h {span.Minutes}m" : $"{(int)span.TotalMinutes}m";
 	}
+	#endregion
 
 	#region Filter / Page
 	private List<BillItemCartModel> GetFilteredProducts()
@@ -254,62 +238,9 @@ public partial class BillMobilePage
 		item.Quantity = value;
 		await SaveTransactionFile();
 	}
-
-	private async Task UpdateRemarks(BillItemCartModel item, string newRemarks)
-	{
-		if (item is null)
-			return;
-
-		item.Remarks = string.IsNullOrWhiteSpace(newRemarks) ? null : newRemarks.Trim();
-		await SaveTransactionFile();
-	}
 	#endregion
 
 	#region Saving
-	private async Task UpdateFinancialDetails()
-	{
-		var taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
-		var items = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
-
-		foreach (var item in _cart.Where(_ => _.Quantity > 0))
-		{
-			item.DiscountPercent = 0;
-			item.DiscountAmount = 0;
-
-			item.BaseTotal = item.Rate * item.Quantity;
-			item.AfterDiscount = item.BaseTotal - item.DiscountAmount;
-
-			var selectedItem = items.FirstOrDefault(s => s.Id == item.ItemId);
-			var tax = taxes.FirstOrDefault(s => s.Id == selectedItem.TaxId);
-
-			item.CGSTPercent = tax?.CGST ?? 0;
-			item.SGSTPercent = tax?.SGST ?? 0;
-			item.IGSTPercent = 0;
-			item.InclusiveTax = tax?.Inclusive ?? false;
-
-			if (item.InclusiveTax)
-			{
-				item.CGSTAmount = item.AfterDiscount * (item.CGSTPercent / (100 + item.CGSTPercent));
-				item.SGSTAmount = item.AfterDiscount * (item.SGSTPercent / (100 + item.SGSTPercent));
-				item.IGSTAmount = item.AfterDiscount * (item.IGSTPercent / (100 + item.IGSTPercent));
-				item.TotalTaxAmount = item.CGSTAmount + item.SGSTAmount + item.IGSTAmount;
-				item.Total = item.AfterDiscount;
-			}
-			else
-			{
-				item.CGSTAmount = item.AfterDiscount * (item.CGSTPercent / 100);
-				item.SGSTAmount = item.AfterDiscount * (item.SGSTPercent / 100);
-				item.IGSTAmount = item.AfterDiscount * (item.IGSTPercent / 100);
-				item.TotalTaxAmount = item.CGSTAmount + item.SGSTAmount + item.IGSTAmount;
-				item.Total = item.AfterDiscount + item.TotalTaxAmount;
-			}
-
-			item.NetRate = item.Total / item.Quantity;
-			item.Remarks = string.IsNullOrWhiteSpace(item.Remarks) ? null : item.Remarks.Trim();
-			item.KOTPrint = true;
-		}
-	}
-
 	private async Task SaveTransactionFile()
 	{
 		if (_isProcessing || _isLoading)
@@ -319,17 +250,19 @@ public partial class BillMobilePage
 		{
 			_isProcessing = true;
 
-			await UpdateFinancialDetails();
+			await BillData.ApplyItemFinancialDetails(_cart, _products, _taxes);
 
-			if (!_cart.Any(x => x.Quantity > 0) && await DataStorageService.LocalExists(StorageFileNames.BillMobileCartDataFileName))
+			if (!_cart.Any(x => x.Quantity > 0))
 				await DataStorageService.LocalRemove(StorageFileNames.BillMobileCartDataFileName);
 			else
 				await DataStorageService.LocalSaveAsync(StorageFileNames.BillMobileCartDataFileName, System.Text.Json.JsonSerializer.Serialize(_cart.Where(_ => _.Quantity > 0)));
 
 			VibrationService.VibrateHapticClick();
 		}
-		catch (Exception)
+		catch
 		{
+			await DataStorageService.LocalRemove(StorageFileNames.BillMobileDataFileName);
+			await DataStorageService.LocalRemove(StorageFileNames.BillMobileCartDataFileName);
 			NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
 		}
 		finally
