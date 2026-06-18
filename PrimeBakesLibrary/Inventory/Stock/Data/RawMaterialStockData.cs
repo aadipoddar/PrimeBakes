@@ -1,9 +1,15 @@
 ﻿using PrimeBakesLibrary.Accounts.Masters.Data;
 using PrimeBakesLibrary.Common;
+using PrimeBakesLibrary.Inventory.Kitchen.Models;
+using PrimeBakesLibrary.Inventory.Purchase.Models;
 using PrimeBakesLibrary.Inventory.RawMaterial.Models;
+using PrimeBakesLibrary.Inventory.Recipe.Models;
 using PrimeBakesLibrary.Inventory.Stock.Exports;
 using PrimeBakesLibrary.Inventory.Stock.Models;
 using PrimeBakesLibrary.Operations.AuditTrail;
+using PrimeBakesLibrary.Restaurant.Bill.Models;
+using PrimeBakesLibrary.Store.Sale.Models;
+using PrimeBakesLibrary.Store.StockTransfer.Models;
 using PrimeBakesLibrary.Utils.Mail;
 
 namespace PrimeBakesLibrary.Inventory.Stock.Data;
@@ -13,6 +19,10 @@ public static class RawMaterialStockData
 	public static async Task<int> InsertRawMaterialStock(RawMaterialStockModel stock, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertRawMaterialStock, stock, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Raw Material Stock.");
+
+	private static async Task<int> DeleteRawMaterialStockById(int Id, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.DeleteRawMaterialStockById, new { Id }, sqlDataAccessTransaction)).FirstOrDefault()
+			is var result and > 0 ? result : throw new InvalidOperationException("Failed to Delete Raw Material Stock.");
 
 	public static async Task<int> DeleteRawMaterialStockByTransactionNo(string TransactionNo, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.DeleteRawMaterialStockByTransactionNo, new { TransactionNo }, sqlDataAccessTransaction)).FirstOrDefault()
@@ -135,9 +145,10 @@ public static class RawMaterialStockData
 	}
 	#endregion
 
-	public static async Task DeleteRawMaterialStockById(int Id, int userId, string platform)
+	#region Delete
+	public static async Task DeleteRawMaterialStockAdjustment(int id, int userId, string platform)
 	{
-		var stock = await CommonData.LoadTableDataById<RawMaterialStockModel>(InventoryNames.RawMaterialStock, Id);
+		var stock = await CommonData.LoadTableDataById<RawMaterialStockModel>(InventoryNames.RawMaterialStock, id);
 		if (stock is null)
 			return;
 
@@ -145,8 +156,7 @@ public static class RawMaterialStockData
 
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
-			if ((await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.DeleteRawMaterialStockById, new { Id }, transaction)).FirstOrDefault() is not > 0)
-				throw new InvalidOperationException("Failed to Delete Raw Material Stock.");
+			await DeleteRawMaterialStockById(id, transaction);
 
 			await AuditTrailData.SaveAuditTrail(new()
 			{
@@ -160,6 +170,168 @@ public static class RawMaterialStockData
 
 		await RawMaterialStockAdjustmentNotify.NotifyDeleted(stock, userId, NotifyType.Deleted);
 	}
+	#endregion
+
+	#region Recalculate
+	public static async Task RecalculateStockByDate(DateTime fromDate, DateTime toDate, bool deleteAdjustments, int userId, string platform)
+	{
+		await FinancialYearData.ValidateFinancialYear(fromDate);
+		await FinancialYearData.ValidateFinancialYear(toDate);
+
+		var stock = (await CommonData.LoadTableDataByDate<RawMaterialStockModel>(InventoryNames.RawMaterialStock, fromDate, toDate));
+
+		var purchases = await CommonData.LoadTableDataByDate<PurchaseItemOverviewModel>(InventoryNames.PurchaseItemOverview, fromDate, toDate);
+		var purchaseReturns = await CommonData.LoadTableDataByDate<PurchaseReturnItemOverviewModel>(InventoryNames.PurchaseReturnItemOverview, fromDate, toDate);
+		var kitchenIssues = await CommonData.LoadTableDataByDate<KitchenIssueItemOverviewModel>(InventoryNames.KitchenIssueItemOverview, fromDate, toDate);
+		var sales = await CommonData.LoadTableDataByDate<SaleItemOverviewModel>(StoreNames.SaleItemOverview, fromDate, toDate);
+		var saleReturns = await CommonData.LoadTableDataByDate<SaleReturnItemOverviewModel>(StoreNames.SaleReturnItemOverview, fromDate, toDate);
+		var stockTransfers = await CommonData.LoadTableDataByDate<StockTransferItemOverviewModel>(StoreNames.StockTransferItemOverview, fromDate, toDate);
+		var bills = await CommonData.LoadTableDataByDate<BillItemOverviewModel>(RestaurantNames.BillItemOverview, fromDate, toDate);
+
+		purchases = [.. purchases.Where(s => s.MasterStatus)];
+		purchaseReturns = [.. purchaseReturns.Where(s => s.MasterStatus)];
+		kitchenIssues = [.. kitchenIssues.Where(s => s.MasterStatus)];
+		sales = [.. sales.Where(s => s.LocationId == 1 && s.MasterStatus)];
+		saleReturns = [.. saleReturns.Where(s => s.LocationId == 1 && s.MasterStatus)];
+		stockTransfers = [.. stockTransfers.Where(s => (s.LocationId == 1 || s.ToLocationId == 1) && s.MasterStatus)];
+		bills = [.. bills.Where(s => s.LocationId == 1 && s.MasterStatus)];
+
+		var recipes = await CommonData.LoadTableDataByStatus<RecipeModel>(InventoryNames.Recipe);
+		var recipeDetails = await CommonData.LoadTableDataByStatus<RecipeDetailModel>(InventoryNames.RecipeDetail);
+		recipes = [.. recipes.Where(r => r.Deduct)];
+
+		await SqlDataAccessTransaction.Run(async transaction =>
+		{
+			foreach (var item in stock)
+				if (item.Type == nameof(StockType.Adjustment) && deleteAdjustments || item.Type != nameof(StockType.Adjustment))
+					await DeleteRawMaterialStockById(item.Id, transaction);
+
+			foreach (var item in purchases)
+				await InsertRawMaterialStock(new()
+				{
+					Id = 0,
+					RawMaterialId = item.ItemId,
+					Quantity = item.Quantity,
+					NetRate = item.NetRate,
+					Type = nameof(StockType.Purchase),
+					TransactionId = item.MasterId,
+					TransactionNo = item.TransactionNo,
+					TransactionDateTime = item.TransactionDateTime
+				}, transaction);
+
+			foreach (var item in purchaseReturns)
+				await InsertRawMaterialStock(new()
+				{
+					Id = 0,
+					RawMaterialId = item.ItemId,
+					Quantity = -item.Quantity,
+					NetRate = item.NetRate,
+					Type = nameof(StockType.PurchaseReturn),
+					TransactionId = item.MasterId,
+					TransactionNo = item.TransactionNo,
+					TransactionDateTime = item.TransactionDateTime
+				}, transaction);
+
+			foreach (var item in kitchenIssues)
+				await InsertRawMaterialStock(new()
+				{
+					Id = 0,
+					RawMaterialId = item.ItemId,
+					Quantity = -item.Quantity,
+					NetRate = item.Rate,
+					Type = nameof(StockType.KitchenIssue),
+					TransactionId = item.MasterId,
+					TransactionNo = item.TransactionNo,
+					TransactionDateTime = item.TransactionDateTime
+				}, transaction);
+
+			foreach (var item in sales)
+			{
+				var recipe = recipes.FirstOrDefault(_ => _.ProductId == item.ItemId);
+				var recipeItems = recipe is null ? [] : recipeDetails.Where(_ => _.MasterId == recipe.Id).ToList();
+
+				foreach (var recipeItem in recipeItems)
+					await InsertRawMaterialStock(new()
+					{
+						Id = 0,
+						RawMaterialId = recipeItem.RawMaterialId,
+						Quantity = -recipeItem.Quantity * (item.Quantity / recipe.Quantity),
+						NetRate = item.NetRate / recipeItem.Quantity,
+						Type = nameof(StockType.Sale),
+						TransactionId = item.MasterId,
+						TransactionNo = item.TransactionNo,
+						TransactionDateTime = item.TransactionDateTime
+					}, transaction);
+			}
+
+			foreach (var item in saleReturns)
+			{
+				var recipe = recipes.FirstOrDefault(_ => _.ProductId == item.ItemId);
+				var recipeItems = recipe is null ? [] : recipeDetails.Where(_ => _.MasterId == recipe.Id).ToList();
+
+				foreach (var recipeItem in recipeItems)
+					await InsertRawMaterialStock(new()
+					{
+						Id = 0,
+						RawMaterialId = recipeItem.RawMaterialId,
+						Quantity = recipeItem.Quantity * (item.Quantity / recipe.Quantity),
+						NetRate = item.NetRate / recipeItem.Quantity,
+						Type = nameof(StockType.SaleReturn),
+						TransactionId = item.MasterId,
+						TransactionNo = item.TransactionNo,
+						TransactionDateTime = item.TransactionDateTime
+					}, transaction);
+			}
+
+			foreach (var item in stockTransfers)
+			{
+				var recipe = recipes.FirstOrDefault(_ => _.ProductId == item.ItemId);
+				var recipeItems = recipe is null ? [] : recipeDetails.Where(_ => _.MasterId == recipe.Id).ToList();
+
+				foreach (var recipeItem in recipeItems)
+					await InsertRawMaterialStock(new()
+					{
+						Id = 0,
+						RawMaterialId = recipeItem.RawMaterialId,
+						Quantity = item.LocationId == 1 ? -recipeItem.Quantity * (item.Quantity / recipe.Quantity) : recipeItem.Quantity * (item.Quantity / recipe.Quantity),
+						NetRate = item.NetRate / recipeItem.Quantity,
+						Type = nameof(StockType.StockTransfer),
+						TransactionId = item.MasterId,
+						TransactionNo = item.TransactionNo,
+						TransactionDateTime = item.TransactionDateTime
+					}, transaction);
+			}
+
+			foreach (var item in bills)
+			{
+				var recipe = recipes.FirstOrDefault(_ => _.ProductId == item.ItemId);
+				var recipeItems = recipe is null ? [] : recipeDetails.Where(_ => _.MasterId == recipe.Id).ToList();
+
+				foreach (var recipeItem in recipeItems)
+					await InsertRawMaterialStock(new()
+					{
+						Id = 0,
+						RawMaterialId = recipeItem.RawMaterialId,
+						Quantity = -recipeItem.Quantity * (item.Quantity / recipe.Quantity),
+						NetRate = item.NetRate / recipeItem.Quantity,
+						Type = nameof(StockType.Bill),
+						TransactionId = item.MasterId,
+						TransactionNo = item.TransactionNo,
+						TransactionDateTime = item.TransactionDateTime
+					}, transaction);
+			}
+
+			await AuditTrailData.SaveAuditTrail(new()
+			{
+				Action = AuditTrailActionTypes.Update.ToString(),
+				TableName = InventoryNames.RawMaterialStock,
+				RecordNo = $"Recalculate {fromDate:yyyy-MM-dd} to {toDate:yyyy-MM-dd}",
+				CreatedBy = userId,
+				CreatedFromPlatform = platform
+			}, transaction);
+		});
+	}
+	#endregion
 
 	#region Save
 	private static void ValidateTransaction(DateTime transactionDateTime, string transactionNo, List<RawMaterialStockAdjustmentCartModel> cart)

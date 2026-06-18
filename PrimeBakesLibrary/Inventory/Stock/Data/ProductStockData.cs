@@ -19,12 +19,12 @@ public static class ProductStockData
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertProductStock, stock, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Product Stock.");
 
-	public static async Task<int> DeleteProductStockByTransactionNo(string TransactionNo, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.DeleteProductStockByTransactionNo, new { TransactionNo }, sqlDataAccessTransaction)).FirstOrDefault()
+	private static async Task<int> DeleteProductStockById(int Id, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.DeleteProductStockById, new { Id }, sqlDataAccessTransaction)).FirstOrDefault()
 			is var result and > 0 ? result : throw new InvalidOperationException("Failed to Delete Product Stock.");
 
-	public static async Task<int> DeleteProductStockById(int Id, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.DeleteProductStockById, new { Id }, sqlDataAccessTransaction)).FirstOrDefault()
+	public static async Task<int> DeleteProductStockByTransactionNo(string TransactionNo, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.DeleteProductStockByTransactionNo, new { TransactionNo }, sqlDataAccessTransaction)).FirstOrDefault()
 			is var result and > 0 ? result : throw new InvalidOperationException("Failed to Delete Product Stock.");
 
 	public static async Task<List<ProductStockModel>> LoadProductOpeningStockByDateLocationId(DateTime FromDate, int LocationId) =>
@@ -313,7 +313,7 @@ public static class ProductStockData
 			}
 
 			foreach (var item in bills)
-				await ProductStockData.InsertProductStock(new()
+				await InsertProductStock(new()
 				{
 					Id = 0,
 					ProductId = item.ItemId,

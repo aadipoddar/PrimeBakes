@@ -155,13 +155,49 @@ public partial class RawMaterialStockDetailReport : IAsyncDisposable
 
 			await _toastNotification.ShowAsync("Processing", "Deleting transaction...", ToastType.Info);
 
-			await RawMaterialStockData.DeleteRawMaterialStockById(id, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+			await RawMaterialStockData.DeleteRawMaterialStockAdjustment(id, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
 
 			await _toastNotification.ShowAsync("Success", $"Transaction {transactionNo} has been deleted successfully.", ToastType.Success);
 		}
 		catch (Exception ex)
 		{
 			await _toastNotification.ShowAsync("Error", $"An error occurred while deleting transaction: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+			await LoadStockDetails();
+		}
+	}
+
+	private async Task RecalculateStock(bool deleteAdjustments)
+	{
+		if (_isProcessing)
+			return;
+
+		try
+		{
+			if (!_user.Admin)
+				throw new UnauthorizedAccessException("You do not have permission for the action.");
+
+			_isProcessing = true;
+			StateHasChanged();
+
+			await _toastNotification.ShowAsync("Processing", "Recalculating stock...", ToastType.Info);
+
+			await RawMaterialStockData.RecalculateStockByDate(
+				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
+				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue),
+				deleteAdjustments,
+				_user.Id,
+				FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+
+			await _toastNotification.ShowAsync("Success", "Stock has been recalculated successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"An error occurred while recalculating stock: {ex.Message}", ToastType.Error);
 		}
 		finally
 		{
@@ -187,6 +223,18 @@ public partial class RawMaterialStockDetailReport : IAsyncDisposable
 		await ShowConfirmation("Delete",
 			$"Are you sure you want to delete transaction {record.TransactionNo}",
 			() => DeleteTransaction(record.Id, record.TransactionNo));
+	}
+
+	private async Task ConfirmRecalculateStock(bool deleteAdjustments)
+	{
+		if (_isProcessing)
+			return;
+
+		await ShowConfirmation("Recalculate Stock",
+			deleteAdjustments
+			? $"This will delete and rebuild all stock between {_fromDate:dd/MM/yyyy} and {_toDate:dd/MM/yyyy}, including stock adjustments. Continue?"
+			: $"This will delete and rebuild all stock (except adjustments) between {_fromDate:dd/MM/yyyy} and {_toDate:dd/MM/yyyy}. Continue?",
+			() => RecalculateStock(deleteAdjustments));
 	}
 
 	private async Task ShowConfirmation(string title, string message, Func<Task> action)

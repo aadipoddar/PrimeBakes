@@ -109,7 +109,6 @@ public static class PurchaseData
 
 		await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
 	}
-	#endregion
 
 	public static async Task RecoverTransaction(PurchaseModel purchase)
 	{
@@ -119,6 +118,7 @@ public static class PurchaseData
 
 		await PurchaseNotify.Notify(purchase.Id, NotifyType.Recovered);
 	}
+	#endregion
 
 	#region Save
 	private static async Task<PurchaseModel> ValidateTransaction(PurchaseModel purchase, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)

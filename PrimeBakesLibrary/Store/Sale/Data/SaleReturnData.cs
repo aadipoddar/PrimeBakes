@@ -417,7 +417,7 @@ public static class SaleReturnData
 				{
 					Id = 0,
 					RawMaterialId = recipeItem.RawMaterialId,
-					Quantity = -recipeItem.Quantity * (product.Quantity / recipe.Quantity),
+					Quantity = recipeItem.Quantity * (product.Quantity / recipe.Quantity),
 					NetRate = product.NetRate / recipeItem.Quantity,
 					TransactionId = saleReturn.Id,
 					TransactionNo = saleReturn.TransactionNo,
