@@ -1,21 +1,18 @@
 ﻿using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using Microsoft.JSInterop;
 
 using PrimeBakes.Shared.Services;
 
-using PrimeBakesLibrary.Common;
-
 namespace PrimeBakes.Web.Services;
 
-public class DataStorageService(ProtectedLocalStorage protectedLocalStorage) : IDataStorageService
+public class DataStorageService(ProtectedLocalStorage protectedLocalStorage, IJSRuntime jsRuntime) : IDataStorageService
 {
 	private readonly ProtectedLocalStorage _protectedLocalStorage = protectedLocalStorage;
+	private readonly IJSRuntime _jsRuntime = jsRuntime;
 
 	public async Task SecureSaveAsync(string key, string value)
 	{
-		try
-		{
-			await _protectedLocalStorage.SetAsync(key, value);
-		}
+		try { await _protectedLocalStorage.SetAsync(key, value); }
 		catch { }
 	}
 
@@ -24,41 +21,14 @@ public class DataStorageService(ProtectedLocalStorage protectedLocalStorage) : I
 
 	public async Task SecureRemove(string key)
 	{
-		try
-		{
-			await _protectedLocalStorage.DeleteAsync(key);
-		}
+		try { await _protectedLocalStorage.DeleteAsync(key); }
 		catch { }
 	}
 
 	public async Task SecureRemoveAll()
 	{
-		await LocalRemove(StorageFileNames.UserDataFileName);
-		await LocalRemove(StorageFileNames.FinancialAccountingDataFileName);
-		await LocalRemove(StorageFileNames.FinancialAccountingCartDataFileName);
-		await LocalRemove(StorageFileNames.PurchaseDataFileName);
-		await LocalRemove(StorageFileNames.PurchaseCartDataFileName);
-		await LocalRemove(StorageFileNames.PurchaseReturnDataFileName);
-		await LocalRemove(StorageFileNames.PurchaseReturnCartDataFileName);
-		await LocalRemove(StorageFileNames.KitchenIssueDataFileName);
-		await LocalRemove(StorageFileNames.KitchenIssueCartDataFileName);
-		await LocalRemove(StorageFileNames.KitchenProductionDataFileName);
-		await LocalRemove(StorageFileNames.KitchenProductionCartDataFileName);
-		await LocalRemove(StorageFileNames.RawMaterialStockAdjustmentCartDataFileName);
-		await LocalRemove(StorageFileNames.ProductStockAdjustmentCartDataFileName);
-		await LocalRemove(StorageFileNames.OrderDataFileName);
-		await LocalRemove(StorageFileNames.OrderCartDataFileName);
-		await LocalRemove(StorageFileNames.OrderMobileDataFileName);
-		await LocalRemove(StorageFileNames.OrderMobileCartDataFileName);
-		await LocalRemove(StorageFileNames.SaleDataFileName);
-		await LocalRemove(StorageFileNames.SaleCartDataFileName);
-		await LocalRemove(StorageFileNames.SaleReturnDataFileName);
-		await LocalRemove(StorageFileNames.SaleReturnCartDataFileName);
-		await LocalRemove(StorageFileNames.StockTransferDataFileName);
-		await LocalRemove(StorageFileNames.StockTransferCartDataFileName);
-		await LocalRemove(StorageFileNames.BillDataFileName);
-		await LocalRemove(StorageFileNames.BillCartDataFileName);
-		await LocalRemove(StorageFileNames.BluetoothPrinterDataFileName);
+		try { await _jsRuntime.InvokeVoidAsync("localStorage.clear"); }
+		catch { }
 	}
 
 

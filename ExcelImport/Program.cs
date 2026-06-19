@@ -1,18 +1,16 @@
-﻿using OfficeOpenXml;
-
-using PrimeBakesLibrary.DataAccess;
+﻿using PrimeBakesLibrary.DataAccess;
 
 SqlDataAccess.SetupConfiguration();
 
-FileInfo fileInfo = new(@"C:\Others\product.xlsx");
+//FileInfo fileInfo = new(@"C:\Others\product.xlsx");
 
-ExcelPackage.License.SetNonCommercialPersonal("AadiSoft");
+//ExcelPackage.License.SetNonCommercialPersonal("AadiSoft");
 
-using var package = new ExcelPackage(fileInfo);
+//using var package = new ExcelPackage(fileInfo);
 
-await package.LoadAsync(fileInfo);
+//await package.LoadAsync(fileInfo);
 
-var worksheet1 = package.Workbook.Worksheets[0];
+//var worksheet1 = package.Workbook.Worksheets[0];
 //var worksheet2 = package.Workbook.Worksheets[1];
 
 Console.WriteLine("Finished importing Items.");
@@ -78,6 +76,8 @@ Console.ReadLine();
 // await InsertProductLocations(worksheet1);
 
 // await DeleteProductLocations(worksheet1);
+
+// await LinkAccounts();
 
 //static async Task UpdateProducts()
 //{
@@ -1889,4 +1889,28 @@ Console.ReadLine();
 //		row++;
 //	}
 //}
+
+//static async Task LinkAccounts()
+//{
+//	var sales = await CommonData.LoadTableDataByStatus<SaleModel>(StoreNames.Sale);
+//	sales = [.. sales.Where(s => s.FinancialAccountingId is null && s.LocationId == 1)];
+
+//	foreach (var sale in sales)
+//	{
+//		var saleVoucher = await SettingsData.LoadSettingsByKey(SettingsKeys.SaleVoucherId);
+//		var accounting = await FinancialAccountingData.LoadFinancialAccountingByVoucherReference(int.Parse(saleVoucher.Value), sale.Id, sale.TransactionNo);
+
+//		if (accounting is not null)
+//		{
+//			sale.FinancialAccountingId = accounting.Id;
+//			await SaleData.InsertSale(sale);
+//			Console.WriteLine("Linked Financial Accounting Id: " + accounting.Id + " with Sale Id: " + sale.Id);
+//		}
+//		else
+//		{
+//			Console.WriteLine("No Financial Accounting Found for Sale Id: " + sale.Id);
+//		}
+//	}
+//}
+
 #endregion

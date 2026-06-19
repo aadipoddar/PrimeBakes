@@ -1,7 +1,5 @@
 ﻿using PrimeBakes.Shared.Services;
 
-using PrimeBakesLibrary.Common;
-
 namespace PrimeBakes.Services;
 
 public class DataStorageService : IDataStorageService
@@ -15,36 +13,17 @@ public class DataStorageService : IDataStorageService
 	public async Task SecureRemove(string key) =>
 		SecureStorage.Default.Remove(key);
 
-	public async Task SecureRemoveAll()
+	public Task SecureRemoveAll()
 	{
 		SecureStorage.Default.RemoveAll();
 
-		await LocalRemove(StorageFileNames.UserDataFileName);
-		await LocalRemove(StorageFileNames.FinancialAccountingDataFileName);
-		await LocalRemove(StorageFileNames.FinancialAccountingCartDataFileName);
-		await LocalRemove(StorageFileNames.PurchaseDataFileName);
-		await LocalRemove(StorageFileNames.PurchaseCartDataFileName);
-		await LocalRemove(StorageFileNames.PurchaseReturnDataFileName);
-		await LocalRemove(StorageFileNames.PurchaseReturnCartDataFileName);
-		await LocalRemove(StorageFileNames.KitchenIssueDataFileName);
-		await LocalRemove(StorageFileNames.KitchenIssueCartDataFileName);
-		await LocalRemove(StorageFileNames.KitchenProductionDataFileName);
-		await LocalRemove(StorageFileNames.KitchenProductionCartDataFileName);
-		await LocalRemove(StorageFileNames.RawMaterialStockAdjustmentCartDataFileName);
-		await LocalRemove(StorageFileNames.ProductStockAdjustmentCartDataFileName);
-		await LocalRemove(StorageFileNames.OrderDataFileName);
-		await LocalRemove(StorageFileNames.OrderCartDataFileName);
-		await LocalRemove(StorageFileNames.OrderMobileDataFileName);
-		await LocalRemove(StorageFileNames.OrderMobileCartDataFileName);
-		await LocalRemove(StorageFileNames.SaleDataFileName);
-		await LocalRemove(StorageFileNames.SaleCartDataFileName);
-		await LocalRemove(StorageFileNames.SaleReturnDataFileName);
-		await LocalRemove(StorageFileNames.SaleReturnCartDataFileName);
-		await LocalRemove(StorageFileNames.StockTransferDataFileName);
-		await LocalRemove(StorageFileNames.StockTransferCartDataFileName);
-		await LocalRemove(StorageFileNames.BillDataFileName);
-		await LocalRemove(StorageFileNames.BillCartDataFileName);
-		await LocalRemove(StorageFileNames.BluetoothPrinterDataFileName);
+		foreach (var file in Directory.GetFiles(FileSystem.Current.AppDataDirectory, "*.json"))
+		{
+			try { File.Delete(file); }
+			catch { }
+		}
+
+		return Task.CompletedTask;
 	}
 
 

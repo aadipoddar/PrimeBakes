@@ -127,7 +127,7 @@ public partial class BillMobilePaymentPage
 		if (await DataStorageService.LocalExists(StorageFileNames.BillMobileCartDataFileName))
 			_cart = JsonSerializer.Deserialize<List<BillItemCartModel>>(await DataStorageService.LocalGetAsync(StorageFileNames.BillMobileCartDataFileName)) ?? [];
 
-		if (_cart.Count == 0)
+		if (_cart.Count == 0 && _previousCart.Count == 0)
 			NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
 
 		_cart = [.. _cart.OrderBy(x => x.ItemName)];
