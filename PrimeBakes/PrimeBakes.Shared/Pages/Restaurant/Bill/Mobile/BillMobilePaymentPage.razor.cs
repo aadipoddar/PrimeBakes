@@ -356,6 +356,7 @@ public partial class BillMobilePaymentPage
 		_bill.LocationId = _user.LocationId;
 		_bill.CreatedBy = _user.Id;
 		_bill.LastModifiedBy = _user.Id;
+		_bill.DiningTableId = _diningTable.Id;
 		_bill.CompanyId = int.Parse((await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId)).Value);
 		_bill.TransactionDateTime = await CommonData.LoadCurrentDateTime();
 		_bill.FinancialYearId = (await FinancialYearData.LoadFinancialYearByDateTime(_bill.TransactionDateTime)).Id;

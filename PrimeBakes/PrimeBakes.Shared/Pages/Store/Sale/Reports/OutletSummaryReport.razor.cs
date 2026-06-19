@@ -125,6 +125,7 @@ public partial class OutletSummaryReport : IAsyncDisposable
 
 			_isProcessing = false;
 			StateHasChanged();
+			await _toastNotification.HideAllInfoAsync();
 		}
 	}
 

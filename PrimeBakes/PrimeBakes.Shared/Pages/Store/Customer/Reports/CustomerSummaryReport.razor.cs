@@ -126,6 +126,9 @@ public partial class CustomerSummaryReport : IAsyncDisposable
 		}
 		finally
 		{
+			if (_sfGrid is not null)
+				await _sfGrid.Refresh();
+
 			_isProcessing = false;
 			StateHasChanged();
 			await _toastNotification.HideAllInfoAsync();
