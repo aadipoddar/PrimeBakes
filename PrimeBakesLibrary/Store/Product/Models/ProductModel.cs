@@ -10,6 +10,7 @@ public class ProductModel
 	public decimal Rate { get; set; }
 	public int TaxId { get; set; }
 	public string FoodType { get; set; }
+	public bool ShowInMenu { get; set; }
 	public string? Remarks { get; set; }
 	public bool Status { get; set; }
 }

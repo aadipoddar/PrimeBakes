@@ -115,4 +115,6 @@ public static class RestaurantRouteNames
 
 	public const string DiningArea = "/restaurant/dining-area";
 	public const string DiningTable = "/restaurant/dining-table";
+
+	public const string Menu = "/menu";
 }

@@ -7,6 +7,7 @@
 	@Rate MONEY,
 	@TaxId INT,
 	@FoodType VARCHAR(100),
+	@ShowInMenu BIT,
 	@Remarks VARCHAR(MAX),
 	@Status BIT
 AS
@@ -22,6 +23,7 @@ BEGIN
 			[Rate],
 			[TaxId],
 			[FoodType],
+			[ShowInMenu],
 			[Remarks],
 			[Status]
 		)
@@ -34,6 +36,7 @@ BEGIN
 			@Rate, 
 			@TaxId, 
 			@FoodType,
+			@ShowInMenu,
 			@Remarks,
 			@Status
 		);
@@ -51,6 +54,7 @@ BEGIN
 			[Rate] = @Rate, 
 			[TaxId] = @TaxId, 
 			[FoodType] = @FoodType,
+			[ShowInMenu] = @ShowInMenu,
 			[Remarks] = @Remarks,
 			[Status] = @Status
 		WHERE [Id] = @Id;

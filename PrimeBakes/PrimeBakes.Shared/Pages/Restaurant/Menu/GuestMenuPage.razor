@@ -1,0 +1,644 @@
+@using PrimeBakesLibrary.Store.Product.Models
+@implements IAsyncDisposable
+
+@attribute [Route(RestaurantRouteNames.Menu + "/{LocationId:int}")]
+
+<PageTitle>Menu - Prime Bakes</PageTitle>
+
+<HeadContent>
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@@400;500;600;700;800&family=Instrument+Serif:ital@@0;1&display=swap" rel="stylesheet" />
+</HeadContent>
+
+@if (_isLoading)
+{
+	<LoadingScreen />
+}
+else
+{
+	var q = _query.Trim();
+	var filtering = IsFiltering;
+	var sections = _categories.Select(c => (Category: c, Items: ItemsFor(c))).Where(s => s.Items.Count > 0).ToList();
+	var resultCount = sections.Sum(s => s.Items.Count);
+
+	<div class="pb-screen">
+		<div class="pb-scroll" id="pbMenuScroll">
+
+			@* ── Masthead (scrolls away) ── *@
+			<div class="pb-menu-masthead">
+				<div class="pb-menu-eyebrow">@(_location?.Name ?? "Our Menu")</div>
+				<div class="pb-menu-brand">Prime Bakes</div>
+				<div class="pb-menu-tagline">All-day bakery &amp; café</div>
+
+				@if (_categories.Count > 0)
+				{
+					<div class="pb-menu-diets">
+						@foreach (var ft in FoodTypeOptions.FoodTypes)
+						{
+							var code = DietCode(ft);
+							var on = _diets.Contains(code);
+							<button type="button" class="pb-dietchip pb-dietchip--@(code) @(on ? "is-on" : "")"
+									@onclick="@(() => ToggleDiet(code))" aria-pressed="@on">
+								<span class="pb-diet pb-diet--@(code)"><i></i></span>@ft
+							</button>
+						}
+						@if (_diets.Count > 0)
+						{
+							<button type="button" class="pb-dietclear" @onclick="ClearDiets">
+								<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+								Clear
+							</button>
+						}
+					</div>
+				}
+			</div>
+
+			@* ── Sticky search + category nav ── *@
+			<div class="pb-menu-sticky">
+				<div class="pb-menu-searchwrap">
+					<div class="pb-menu-search">
+						<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+							<circle cx="11" cy="11" r="7" />
+							<path d="M20 20l-3.5-3.5" />
+						</svg>
+						<input placeholder="Search the menu…" value="@_query" @oninput="OnQueryChange" />
+						@if (!string.IsNullOrWhiteSpace(_query))
+						{
+							<button type="button" class="pb-menu-search__clear" @onclick="ClearQuery" aria-label="Clear search">
+								<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+							</button>
+						}
+					</div>
+				</div>
+
+				<div class="pb-chips @(filtering ? "is-hidden" : "")" id="pbMenuChips">
+					@foreach (var cat in _categories)
+					{
+						<button type="button" class="pb-chip" data-target="pb-cat-@cat.Id"
+								@onclick="@(() => JumpToCategory(cat.Id))">
+							@cat.Name
+						</button>
+					}
+				</div>
+			</div>
+
+			@* ── Sections ── *@
+			<div class="pb-menu-body">
+				@if (filtering)
+				{
+					<div class="pb-menu-count">@resultCount @(resultCount == 1 ? "item" : "items")@(string.IsNullOrEmpty(q) ? "" : $" for “{q}”")</div>
+				}
+
+				@foreach (var section in sections)
+				{
+					<section id="pb-cat-@section.Category.Id" class="pb-menu-section">
+						<div class="pb-menu-section__head">
+							<h2 class="pb-menu-section__title">@section.Category.Name</h2>
+							<span class="pb-menu-section__count">@section.Items.Count</span>
+						</div>
+						@if (!filtering && !string.IsNullOrWhiteSpace(section.Category.Remarks))
+						{
+							<div class="pb-menu-section__note">@section.Category.Remarks</div>
+						}
+						<div class="pb-menu-items">
+							@foreach (var item in section.Items)
+							{
+								<div class="pb-menu-item">
+									<span class="pb-diet pb-diet--@DietCode(item.FoodType)"><i></i></span>
+									<div class="pb-menu-item__main">
+										<span class="pb-menu-item__name">@item.Name</span>
+										@if (!string.IsNullOrWhiteSpace(item.Remarks))
+										{
+											<div class="pb-menu-item__desc">@item.Remarks</div>
+										}
+									</div>
+									<div class="pb-menu-item__price">@Money(item.Rate)</div>
+								</div>
+							}
+						</div>
+					</section>
+				}
+
+				@if (_categories.Count == 0)
+				{
+					<div class="pb-menu-empty">
+						<div class="pb-menu-empty__title">Menu coming soon</div>
+						<div class="pb-menu-empty__sub">There are no items on this outlet's menu yet.</div>
+					</div>
+				}
+				else if (filtering && resultCount == 0)
+				{
+					<div class="pb-menu-empty">
+						<div class="pb-menu-empty__title">Nothing found</div>
+						<div class="pb-menu-empty__sub">No items match your filters. Try clearing them.</div>
+					</div>
+				}
+			</div>
+
+			@* ── Footer ── *@
+			<div class="pb-menu-footer">
+				<div class="pb-menu-footer__note">
+					<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3z" /><path d="M9 8h6M9 12h6M9 16h4" /></svg>
+					View-only menu — please order with our team
+				</div>
+				<div class="pb-menu-footer__rule"></div>
+				<div class="pb-menu-footer__fine">
+					All prices in ₹ and inclusive of taxes.<br />
+					@(_location?.Name)
+				</div>
+				<div class="pb-menu-footer__brand">Prime Bakes</div>
+			</div>
+		</div>
+
+		@* ── Back to top ── *@
+		<button type="button" id="pbMenuTop" class="pb-menu-totop" @onclick="ScrollToTop" aria-label="Back to top">
+			<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6" /></svg>
+		</button>
+	</div>
+}
+
+<style>
+	.pb-screen {
+		--bg-app: #f7f2ea;
+		--surface: #ffffff;
+		--surface-2: #faf5ec;
+		--surface-3: #f1ebdf;
+		--ink-1: #1d1813;
+		--ink-2: #5a5147;
+		--ink-3: #9a8f7f;
+		--line-1: #ece4d3;
+		--line-2: #ddd2bd;
+		--rouge: #b13a5e;
+		--rouge-dark: #8a2748;
+		--butter: #c89343;
+		--butter-soft: #f6e9cd;
+		--moss: #4f7a5a;
+		--moss-soft: #e3ecdd;
+		--terra: #b85a3c;
+		--terra-soft: #f5dccf;
+		--r-pill: 999px;
+		--ff-sans: "Plus Jakarta Sans", -apple-system, system-ui, sans-serif;
+		--ff-serif: "Instrument Serif", Georgia, serif;
+		position: fixed;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		background: var(--bg-app);
+		color: var(--ink-1);
+		font-family: var(--ff-sans);
+		font-size: 15px;
+		line-height: 1.4;
+		letter-spacing: -0.005em;
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+		-webkit-font-smoothing: antialiased;
+		text-rendering: optimizeLegibility;
+		z-index: 1;
+	}
+
+		.pb-screen *,
+		.pb-screen *::before,
+		.pb-screen *::after {
+			box-sizing: border-box;
+		}
+
+	.pb-scroll {
+		flex: 1;
+		overflow-y: auto;
+		overflow-x: hidden;
+		scrollbar-width: none;
+		-webkit-overflow-scrolling: touch;
+	}
+
+		.pb-scroll::-webkit-scrollbar {
+			display: none;
+		}
+
+	/* ── Masthead ── */
+	.pb-menu-masthead {
+		padding: calc(20px + env(safe-area-inset-top)) 24px 24px;
+		text-align: center;
+		background: linear-gradient(180deg, var(--surface-2) 0%, var(--bg-app) 100%);
+		border-bottom: 1px solid var(--line-1);
+	}
+
+	.pb-menu-eyebrow {
+		font-size: 10.5px;
+		font-weight: 700;
+		letter-spacing: 0.22em;
+		text-transform: uppercase;
+		color: var(--rouge);
+	}
+
+	.pb-menu-brand {
+		font-family: var(--ff-serif);
+		font-size: 46px;
+		line-height: 1;
+		color: var(--ink-1);
+		margin-top: 10px;
+		letter-spacing: -0.01em;
+	}
+
+	.pb-menu-tagline {
+		font-size: 13px;
+		color: var(--ink-2);
+		margin-top: 8px;
+		letter-spacing: 0.01em;
+	}
+
+	.pb-menu-diets {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 8px;
+		margin-top: 16px;
+		flex-wrap: wrap;
+	}
+
+	/* ── Diet filter chips ── */
+	.pb-dietchip {
+		display: inline-flex;
+		align-items: center;
+		gap: 7px;
+		cursor: pointer;
+		font-size: 12px;
+		font-weight: 600;
+		letter-spacing: -0.005em;
+		padding: 7px 13px;
+		border-radius: var(--r-pill);
+		border: 1px solid var(--line-1);
+		background: var(--surface);
+		color: var(--ink-2);
+		font-family: var(--ff-sans);
+		transition: background 0.12s ease, border-color 0.12s ease;
+	}
+
+		.pb-dietchip.is-on {
+			color: var(--ink-1);
+		}
+
+		.pb-dietchip--v.is-on {
+			border-color: var(--moss);
+			background: var(--moss-soft);
+		}
+
+		.pb-dietchip--e.is-on {
+			border-color: var(--butter);
+			background: var(--butter-soft);
+		}
+
+		.pb-dietchip--n.is-on {
+			border-color: var(--terra);
+			background: var(--terra-soft);
+		}
+
+	.pb-dietclear {
+		display: inline-flex;
+		align-items: center;
+		gap: 5px;
+		cursor: pointer;
+		font-size: 12px;
+		font-weight: 600;
+		padding: 7px 11px;
+		border-radius: var(--r-pill);
+		border: 1px solid var(--line-1);
+		background: transparent;
+		color: var(--ink-3);
+		font-family: var(--ff-sans);
+	}
+
+	/* ── Diet mark (FSSAI-style) ── */
+	.pb-diet {
+		width: 14px;
+		height: 14px;
+		border: 1.5px solid var(--line-2);
+		border-radius: 3px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+	}
+
+		.pb-diet i {
+			width: 7px;
+			height: 7px;
+			display: block;
+			background: var(--ink-3);
+			border-radius: 50%;
+		}
+
+	.pb-diet--v {
+		border-color: var(--moss);
+	}
+
+		.pb-diet--v i {
+			background: var(--moss);
+		}
+
+	.pb-diet--e {
+		border-color: var(--butter);
+	}
+
+		.pb-diet--e i {
+			background: var(--butter);
+		}
+
+	.pb-diet--n {
+		border-color: var(--terra);
+	}
+
+		.pb-diet--n i {
+			background: var(--terra);
+			border-radius: 0;
+			clip-path: polygon(50% 0, 100% 100%, 0 100%);
+		}
+
+	/* ── Sticky search + nav ── */
+	.pb-menu-sticky {
+		position: sticky;
+		top: 0;
+		z-index: 20;
+		background: var(--bg-app);
+		border-bottom: 1px solid var(--line-1);
+	}
+
+	.pb-menu-searchwrap {
+		padding: 10px 18px;
+	}
+
+	.pb-menu-search {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		background: var(--surface);
+		border: 1px solid var(--line-1);
+		border-radius: var(--r-pill);
+		padding: 10px 15px;
+		color: var(--ink-3);
+	}
+
+		.pb-menu-search input {
+			flex: 1;
+			border: 0;
+			background: transparent;
+			outline: none;
+			font: 500 14.5px var(--ff-sans);
+			color: var(--ink-1);
+			padding: 0;
+			letter-spacing: -0.005em;
+			min-width: 0;
+		}
+
+			.pb-menu-search input::placeholder {
+				color: var(--ink-3);
+				font-weight: 400;
+			}
+
+	.pb-menu-search__clear {
+		background: transparent;
+		border: 0;
+		color: var(--ink-3);
+		cursor: pointer;
+		padding: 2px;
+		display: inline-flex;
+	}
+
+	/* ── Category chips ── */
+	.pb-chips {
+		display: flex;
+		gap: 8px;
+		overflow-x: auto;
+		overflow-y: hidden;
+		padding: 0 18px 11px;
+		scrollbar-width: none;
+	}
+
+		.pb-chips::-webkit-scrollbar {
+			display: none;
+		}
+
+		.pb-chips.is-hidden {
+			display: none;
+		}
+
+	.pb-chip {
+		flex-shrink: 0;
+		padding: 8px 14px;
+		border-radius: var(--r-pill);
+		font-size: 13.5px;
+		font-weight: 500;
+		letter-spacing: -0.005em;
+		background: var(--surface);
+		color: var(--ink-2);
+		border: 1px solid var(--line-1);
+		white-space: nowrap;
+		cursor: pointer;
+		font-family: var(--ff-sans);
+		line-height: 1.2;
+	}
+
+		.pb-chip.is-active {
+			background: var(--ink-1);
+			color: #fff;
+			border-color: var(--ink-1);
+		}
+
+	/* ── Body / sections ── */
+	.pb-menu-body {
+		padding: 0 24px;
+	}
+
+	.pb-menu-count {
+		font-size: 11.5px;
+		color: var(--ink-3);
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		font-weight: 700;
+		padding-top: 20px;
+	}
+
+	.pb-menu-section {
+		padding-top: 24px;
+		padding-bottom: 4px;
+	}
+
+	.pb-menu-section__head {
+		display: flex;
+		align-items: flex-end;
+		justify-content: space-between;
+		gap: 12px;
+		border-bottom: 1px solid var(--line-2);
+		padding-bottom: 8px;
+	}
+
+	.pb-menu-section__title {
+		font-family: var(--ff-serif);
+		font-size: 27px;
+		font-style: italic;
+		color: var(--ink-1);
+		margin: 0;
+		letter-spacing: -0.01em;
+		line-height: 1.05;
+		word-break: break-word;
+		overflow-wrap: anywhere;
+	}
+
+	.pb-menu-section__count {
+		font-size: 11px;
+		color: var(--ink-3);
+		font-variant-numeric: tabular-nums;
+		letter-spacing: 0.04em;
+		flex-shrink: 0;
+		padding-bottom: 2px;
+	}
+
+	.pb-menu-section__note {
+		font-size: 11.5px;
+		color: var(--ink-3);
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		font-weight: 600;
+		margin-top: 8px;
+	}
+
+	.pb-menu-items {
+		margin-top: 4px;
+	}
+
+	.pb-menu-item {
+		display: flex;
+		gap: 12px;
+		align-items: flex-start;
+		padding: 13px 0;
+		border-top: 1px solid var(--line-1);
+	}
+
+		.pb-menu-item .pb-diet {
+			margin-top: 2px;
+		}
+
+	.pb-menu-item__main {
+		flex: 1;
+		min-width: 0;
+	}
+
+	.pb-menu-item__name {
+		font-size: 15.5px;
+		font-weight: 600;
+		letter-spacing: -0.01em;
+		color: var(--ink-1);
+		word-break: break-word;
+		overflow-wrap: anywhere;
+		line-height: 1.35;
+	}
+
+	.pb-menu-item__desc {
+		font-size: 13px;
+		color: var(--ink-3);
+		margin-top: 3px;
+		letter-spacing: 0.005em;
+		line-height: 1.4;
+		word-break: break-word;
+		overflow-wrap: anywhere;
+	}
+
+	.pb-menu-item__price {
+		font-size: 15.5px;
+		font-weight: 700;
+		color: var(--ink-1);
+		font-variant-numeric: tabular-nums;
+		letter-spacing: -0.01em;
+		flex-shrink: 0;
+	}
+
+	/* ── Empty state ── */
+	.pb-menu-empty {
+		text-align: center;
+		padding: 56px 24px;
+	}
+
+	.pb-menu-empty__title {
+		font-family: var(--ff-serif);
+		font-size: 26px;
+		font-style: italic;
+		color: var(--ink-2);
+	}
+
+	.pb-menu-empty__sub {
+		font-size: 13px;
+		color: var(--ink-3);
+		margin-top: 8px;
+	}
+
+	/* ── Footer ── */
+	.pb-menu-footer {
+		margin-top: 20px;
+		padding: 22px 24px calc(30px + env(safe-area-inset-bottom));
+		background: var(--surface-2);
+		border-top: 1px solid var(--line-1);
+		text-align: center;
+	}
+
+	.pb-menu-footer__note {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		font-size: 12.5px;
+		color: var(--ink-2);
+		font-weight: 600;
+		letter-spacing: -0.005em;
+	}
+
+	.pb-menu-footer__rule {
+		width: 40px;
+		height: 1px;
+		background: var(--line-2);
+		margin: 16px auto;
+	}
+
+	.pb-menu-footer__fine {
+		font-size: 11.5px;
+		color: var(--ink-3);
+		line-height: 1.7;
+		letter-spacing: 0.01em;
+	}
+
+	.pb-menu-footer__brand {
+		font-family: var(--ff-serif);
+		font-size: 18px;
+		color: var(--ink-2);
+		margin-top: 16px;
+		letter-spacing: 0.02em;
+	}
+
+	/* ── Back to top ── */
+	.pb-menu-totop {
+		position: absolute;
+		right: 18px;
+		bottom: calc(26px + env(safe-area-inset-bottom));
+		z-index: 40;
+		width: 46px;
+		height: 46px;
+		border-radius: var(--r-pill);
+		background: var(--ink-1);
+		color: #fff;
+		border: 0;
+		cursor: pointer;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		box-shadow: 0 6px 20px rgba(29, 24, 19, 0.28);
+		opacity: 0;
+		transform: translateY(10px) scale(0.9);
+		pointer-events: none;
+		transition: opacity 0.2s ease, transform 0.2s ease;
+	}
+
+		.pb-menu-totop.is-visible {
+			opacity: 1;
+			transform: translateY(0) scale(1);
+			pointer-events: auto;
+		}
+</style>

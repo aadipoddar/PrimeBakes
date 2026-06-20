@@ -19,7 +19,7 @@ public partial class ProductPage
 	private bool _isProcessing = false;
 	private bool _showDeleted = false;
 
-	private ProductModel _product = new();
+	private ProductModel _product = new() { ShowInMenu = true };
 	private ProductCategoryModel _selectedCategory;
 	private KOTCategoryModel _selectedKOTCategory;
 	private TaxModel _selectedTax;

@@ -57,37 +57,80 @@ else
 					<div class="section-body">
 						<div class="form-grid">
 							<div class="form-field">
-								<CustomTextField @ref="_firstFocus" @bind-Value="_product.Name" Label="Name (Ctrl + F)" Placeholder="Enter product name" />
+								<CustomTextField @ref="_firstFocus"
+												 @bind-Value="_product.Name"
+												 Label="Name (Ctrl + F)"
+												 Placeholder="Enter product name" />
 							</div>
 
 							<div class="form-field">
-								<CustomTextField @bind-Value="_product.Code" Label="Code" Placeholder="Auto-generated" Required="false" ReadOnly="true" TabIndex="-1" />
+								<CustomTextField @bind-Value="_product.Code"
+												 Label="Code" Placeholder="Auto-generated"
+												 Required="false"
+												 ReadOnly="true"
+												 TabIndex="-1" />
 							</div>
 
 							<div class="form-field">
-								<CustomAutoComplete T="ProductCategoryModel" @bind-Value="_selectedCategory" DataSource="@_categories" Placeholder="Select category" Label="Category" FieldValue="@nameof(ProductCategoryModel.Name)"
+								<CustomAutoComplete T="ProductCategoryModel"
+													@bind-Value="_selectedCategory"
+													DataSource="@_categories"
+													Placeholder="Select category"
+													Label="Category"
+													FieldValue="@nameof(ProductCategoryModel.Name)"
 													AddNewRoute="@StoreRouteNames.ProductCategory" />
 							</div>
 
 							<div class="form-field">
-								<CustomAutoComplete T="KOTCategoryModel" @bind-Value="_selectedKOTCategory" DataSource="@_kotCategories" Placeholder="Select KOT category" Label="KOT Category" FieldValue="@nameof(KOTCategoryModel.Name)"
+								<CustomAutoComplete T="KOTCategoryModel"
+													@bind-Value="_selectedKOTCategory"
+													DataSource="@_kotCategories"
+													Placeholder="Select KOT category"
+													Label="KOT Category"
+													FieldValue="@nameof(KOTCategoryModel.Name)"
 													AddNewRoute="@StoreRouteNames.KOTCategory" />
 							</div>
 
 							<div class="form-field">
-								<CustomNumericField T="decimal" @bind-Value="_product.Rate" Label="Rate" Placeholder="Enter rate" Format="N2" Min="0" />
+								<CustomNumericField T="decimal"
+													@bind-Value="_product.Rate"
+													Label="Rate"
+													Placeholder="Enter rate"
+													Format="N2"
+													Min="0" />
 							</div>
 
 							<div class="form-field">
-								<CustomAutoComplete T="TaxModel" @bind-Value="_selectedTax" DataSource="@_taxes" Placeholder="Select tax" Label="Tax" FieldValue="@nameof(TaxModel.Code)" AddNewRoute="@StoreRouteNames.Tax" />
+								<CustomAutoComplete T="TaxModel"
+													@bind-Value="_selectedTax"
+													DataSource="@_taxes"
+													Placeholder="Select tax"
+													Label="Tax"
+													FieldValue="@nameof(TaxModel.Code)"
+													AddNewRoute="@StoreRouteNames.Tax" />
 							</div>
 
 							<div class="form-field">
-								<CustomAutoComplete T="string" @bind-Value="_product.FoodType" DataSource="@FoodTypeOptions.FoodTypes" Placeholder="Select food type" Label="Food Type" />
+								<CustomAutoComplete T="string"
+													@bind-Value="_product.FoodType"
+													DataSource="@FoodTypeOptions.FoodTypes"
+													Placeholder="Select food type"
+													Label="Food Type" />
 							</div>
 
 							<div class="form-field">
-								<CustomTextField @bind-Value="_product.Remarks" Label="Remarks" Placeholder="Enter remarks (optional)" Required="false" Lines="2" />
+								<div class="checkbox-wrapper">
+									<CustomCheckBox @bind-Value="_product.ShowInMenu"
+													Label="Show in Customer Menu" />
+								</div>
+							</div>
+
+							<div class="form-field">
+								<CustomTextField @bind-Value="_product.Remarks"
+												 Label="Remarks"
+												 Placeholder="Enter remarks (optional)"
+												 Required="false"
+												 Lines="2" />
 							</div>
 						</div>
 					</div>
@@ -178,6 +221,7 @@ else
 								</Template>
 							</GridColumn>
 							<GridColumn Field="@nameof(ProductModel.FoodType)" HeaderText="Food Type" Width="120" />
+							<GridColumn Field="@nameof(ProductModel.ShowInMenu)" HeaderText="Show inap Menu" Width="100" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
 							<GridColumn Field="@nameof(ProductModel.Remarks)" HeaderText="Remarks" Width="250" />
 							<GridColumn Field="@nameof(ProductModel.Status)" HeaderText="Status" Width="110" TextAlign="TextAlign.Center" Visible="_showDeleted">
 								<Template>

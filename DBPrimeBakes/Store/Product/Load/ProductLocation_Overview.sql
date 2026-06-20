@@ -8,6 +8,9 @@ SELECT
 	p.ProductCategoryId,
 	pl.Rate,
 	p.TaxId,
+	p.FoodType,
+	p.ShowInMenu,
+	p.Remarks,
 	pl.LocationId
 
 FROM ProductLocation pl
