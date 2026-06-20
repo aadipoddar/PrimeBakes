@@ -83,6 +83,10 @@ else
 							</div>
 
 							<div class="form-field">
+								<CustomAutoComplete T="string" @bind-Value="_product.FoodType" DataSource="@FoodTypeOptions.FoodTypes" Placeholder="Select food type" Label="Food Type" />
+							</div>
+
+							<div class="form-field">
 								<CustomTextField @bind-Value="_product.Remarks" Label="Remarks" Placeholder="Enter remarks (optional)" Required="false" Lines="2" />
 							</div>
 						</div>
@@ -173,6 +177,7 @@ else
 									}
 								</Template>
 							</GridColumn>
+							<GridColumn Field="@nameof(ProductModel.FoodType)" HeaderText="Food Type" Width="120" />
 							<GridColumn Field="@nameof(ProductModel.Remarks)" HeaderText="Remarks" Width="250" />
 							<GridColumn Field="@nameof(ProductModel.Status)" HeaderText="Status" Width="110" TextAlign="TextAlign.Center" Visible="_showDeleted">
 								<Template>

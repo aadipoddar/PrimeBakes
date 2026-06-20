@@ -68,6 +68,7 @@ public static class ProductData
 	{
 		item.Name = item.Name?.Trim().ToUpper() ?? string.Empty;
 		item.Code = item.Code?.Trim().ToUpper() ?? string.Empty;
+		item.FoodType = item.FoodType?.Trim() ?? string.Empty;
 		item.Remarks = string.IsNullOrWhiteSpace(item.Remarks) ? null : item.Remarks.Trim();
 		item.Status = true;
 
@@ -85,6 +86,9 @@ public static class ProductData
 
 		if (item.TaxId <= 0)
 			throw new Exception("Tax is required. Please select a tax.");
+
+		if (!FoodTypeOptions.FoodTypes.Contains(item.FoodType))
+			throw new Exception("Food type is required. Please select a valid food type.");
 
 		var allProducts = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
 

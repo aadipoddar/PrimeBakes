@@ -9,6 +9,7 @@ public class ProductModel
 	public int KOTCategoryId { get; set; }
 	public decimal Rate { get; set; }
 	public int TaxId { get; set; }
+	public string FoodType { get; set; }
 	public string? Remarks { get; set; }
 	public bool Status { get; set; }
 }
