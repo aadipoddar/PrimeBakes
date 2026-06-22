@@ -21,6 +21,7 @@ public partial class FinancialAccountingPage
 	private UserModel _user;
 	private bool _isLoading = true;
 	private bool _isProcessing = false;
+	private bool _showReferenceInstrument = false;
 
 	private CompanyModel _selectedCompany = new();
 	private VoucherModel _selectedVoucher = new();

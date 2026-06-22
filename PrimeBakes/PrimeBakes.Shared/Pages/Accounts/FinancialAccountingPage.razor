@@ -201,28 +201,34 @@ else
 													FieldValue="@nameof(LedgerModel.Name)"
 													AddNewRoute="@AccountsRouteNames.LedgerMaster" />
 
-								<div class="reference-actions">
-									<IconButton Icon="IconType.Get" Variant="ButtonVariant.Get" Size="ButtonSize.Small"
-												Title="Get References" OnClick="GetReferences" />
-								</div>
+								@if (_showReferenceInstrument)
+								{
+									<div class="reference-actions">
+										<IconButton Icon="IconType.Get" Variant="ButtonVariant.Get" Size="ButtonSize.Small"
+													Title="Get References" OnClick="GetReferences" />
+									</div>
+								}
 							</div>
 						</div>
 
-						<div class="cart-field cart-field-wide">
-							<div class="reference-wrapper">
-								<CustomAutoComplete T="FinancialAccountingLedgerOverviewModel"
-													Value="_selectedAccountingLedger"
-													DataSource="@_accountingLedgers"
-													Placeholder="Select Reference"
-													Label="Reference No" Required="false"
-													ValueChanged="OnReferenceChanged"
-													FieldValue="@nameof(FinancialAccountingLedgerOverviewModel.LedgerReferenceNo)" />
-								<div class="reference-actions">
-									<IconButton Icon="IconType.View" Variant="ButtonVariant.View" Size="ButtonSize.Small"
-												Title="View Transaction" OnClick="ViewCartReferenceTransaction" />
+						@if (_showReferenceInstrument)
+						{
+							<div class="cart-field cart-field-wide">
+								<div class="reference-wrapper">
+									<CustomAutoComplete T="FinancialAccountingLedgerOverviewModel"
+														Value="_selectedAccountingLedger"
+														DataSource="@_accountingLedgers"
+														Placeholder="Select Reference"
+														Label="Reference No" Required="false"
+														ValueChanged="OnReferenceChanged"
+														FieldValue="@nameof(FinancialAccountingLedgerOverviewModel.LedgerReferenceNo)" />
+									<div class="reference-actions">
+										<IconButton Icon="IconType.View" Variant="ButtonVariant.View" Size="ButtonSize.Small"
+													Title="View Transaction" OnClick="ViewCartReferenceTransaction" />
+									</div>
 								</div>
 							</div>
-						</div>
+						}
 
 						<div class="cart-field">
 							<CustomNumericField T="decimal?"
@@ -242,20 +248,22 @@ else
 												Required="false" />
 						</div>
 
-						<div class="cart-field">
-							<CustomTextField @bind-Value="_selectedCart.InstrumentNo"
-											 Label="Instrument No"
-											 Placeholder="Cheque / UTR no..."
-											 Required="false" />
-						</div>
+						@if (_showReferenceInstrument)
+						{
+							<div class="cart-field">
+								<CustomTextField @bind-Value="_selectedCart.InstrumentNo"
+												 Label="Instrument No"
+												 Placeholder="Cheque / UTR no..."
+												 Required="false" />
+							</div>
 
-						<div class="cart-field">
-							<CustomDatePicker @bind-NullableValue="_selectedCart.InstrumentDate"
-											  Label="Instrument Date"
-											  Required="false"
-											  ShowFinancialYear="false" />
-						</div>
-
+							<div class="cart-field">
+								<CustomDatePicker @bind-NullableValue="_selectedCart.InstrumentDate"
+												  Label="Instrument Date"
+												  Required="false"
+												  ShowFinancialYear="false" />
+							</div>
+						}
 
 						<div class="cart-field cart-field-wide">
 							<CustomTextField @bind-Value="_selectedCart.Remarks"
@@ -349,10 +357,10 @@ else
 									}
 								</Template>
 							</GridColumn>
-							<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.ReferenceType)" HeaderText="Ref Type" Width="120" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.ReferenceNo)" HeaderText="Ref No" Width="120" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.InstrumentNo)" HeaderText="Instrument No" Width="140" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.InstrumentDate)" HeaderText="Instrument Date" Width="150" Format="dd/MM/yy" Type="ColumnType.DateTime" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.ReferenceType)" HeaderText="Ref Type" Width="120" Visible="_showReferenceInstrument" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.ReferenceNo)" HeaderText="Ref No" Width="120" Visible="_showReferenceInstrument" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.InstrumentNo)" HeaderText="Instrument No" Width="140" Visible="_showReferenceInstrument" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.InstrumentDate)" HeaderText="Instrument Date" Width="150" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="_showReferenceInstrument" />
 							<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.Remarks)" HeaderText="Remarks" Width="500" />
 						</GridColumns>
 					</SfGrid>
