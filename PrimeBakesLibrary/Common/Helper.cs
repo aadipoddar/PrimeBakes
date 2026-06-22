@@ -4,6 +4,7 @@ namespace PrimeBakesLibrary.Common;
 
 public static class Helper
 {
+	#region Formats
 	public static string RemoveSpace(this string str) =>
 		str.Replace(" ", "");
 
@@ -22,24 +23,35 @@ public static class Helper
 	public static string FormatDecimalWithTwoDigits(this decimal value) =>
 		value.ToString("0.00", CultureInfo.InvariantCulture);
 
-	/// <summary>
-	/// Formats decimal smartly: shows integer if no decimal part (2.0 -> "2"), 
-	/// otherwise shows 2 decimal places (2.05 -> "2.05", 2.5666 -> "2.57")
-	/// </summary>
+	// shows integer if no decimal part otherwise shows 2 decimal places (2.0 -> "2", 2.05 -> "2.05", 2.5666 -> "2.57")
 	public static string FormatSmartDecimal(this decimal value)
 	{
-		// Round to 2 decimal places
 		decimal rounded = Math.Round(value, 2);
 
-		// Check if the decimal part is zero
 		if (rounded == Math.Floor(rounded))
-			// No decimal part, show as integer
 			return rounded.ToString("0", CultureInfo.InvariantCulture);
 		else
-			// Has decimal part, show 2 decimal places
 			return rounded.ToString("0.##", CultureInfo.InvariantCulture);
 	}
 
+	public static string FormatMonthlyTrend(decimal current, decimal previous)
+	{
+		if (previous == 0)
+			return "vs last month";
+
+		// Divide by the magnitude of the previous value so the ▲/▼ direction stays
+		// correct even when the previous value is negative (e.g. a prior-month loss).
+		var change = (double)((current - previous) / Math.Abs(previous)) * 100;
+		return change switch
+		{
+			> 0 => $"▲ {change:0}% vs last month",
+			< 0 => $"▼ {Math.Abs(change):0}% vs last month",
+			_ => "same as last month"
+		};
+	}
+	#endregion
+
+	#region Validation
 	public static bool ValidatePhoneNumber(this string phoneNumber)
 	{
 		if (string.IsNullOrWhiteSpace(phoneNumber))
@@ -60,20 +72,5 @@ public static class Helper
 		}
 		catch { return false; }
 	}
-
-	public static string FormatMonthlyTrend(decimal current, decimal previous)
-	{
-		if (previous == 0)
-			return "vs last month";
-
-		// Divide by the magnitude of the previous value so the ▲/▼ direction stays
-		// correct even when the previous value is negative (e.g. a prior-month loss).
-		var change = (double)((current - previous) / Math.Abs(previous)) * 100;
-		return change switch
-		{
-			> 0 => $"▲ {change:0}% vs last month",
-			< 0 => $"▼ {Math.Abs(change):0}% vs last month",
-			_ => "same as last month"
-		};
-	}
+	#endregion
 }

@@ -23,6 +23,7 @@ public static class ProductExport
 			KOTCategory = kotCategories.FirstOrDefault(k => k.Id == p.KOTCategoryId)?.Name ?? "N/A",
 			p.Rate,
 			Tax = taxes.FirstOrDefault(t => t.Id == p.TaxId)?.Code ?? "N/A",
+			ShowInMenu = p.ShowInMenu ? "Yes" : "No",
 			p.Remarks,
 			p.Status
 		}).ToList();
@@ -36,6 +37,7 @@ public static class ProductExport
             ["KOTCategory"] = new() { DisplayName = "KOT Category", Alignment = CellAlignment.Left },
             [nameof(ProductModel.Rate)] = new() { DisplayName = "Rate", Alignment = CellAlignment.Right, Format = "0.00" },
             ["Tax"] = new() { DisplayName = "Tax Code", Alignment = CellAlignment.Center },
+            [nameof(ProductModel.ShowInMenu)] = new() { DisplayName = "Show in Menu", Alignment = CellAlignment.Center, IncludeInTotal = false },
             [nameof(ProductModel.Remarks)] = new() { DisplayName = "Remarks", Alignment = CellAlignment.Left },
             [nameof(ProductModel.Status)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false }
         };
@@ -49,6 +51,7 @@ public static class ProductExport
             "KOTCategory",
 			nameof(ProductModel.Rate),
             "Tax",
+            nameof(ProductModel.ShowInMenu),
             nameof(ProductModel.Remarks),
             nameof(ProductModel.Status)
         ];

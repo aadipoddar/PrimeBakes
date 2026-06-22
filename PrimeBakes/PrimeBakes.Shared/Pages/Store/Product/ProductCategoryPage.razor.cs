@@ -18,7 +18,7 @@ public partial class ProductCategoryPage
 	private bool _isProcessing = false;
 	private bool _showDeleted = false;
 
-	private ProductCategoryModel _productCategory = new();
+	private ProductCategoryModel _productCategory = new() { ShowInMenu = true };
 
 	private List<ProductCategoryModel> _productCategories = [];
 	private readonly List<ContextMenuItemModel> _gridContextMenuItems =

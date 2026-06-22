@@ -55,6 +55,13 @@ else
 						</div>
 
 						<div class="form-field">
+							<div class="checkbox-wrapper">
+								<CustomCheckBox @bind-Value="_productCategory.ShowInMenu"
+												Label="Show in Customer Menu" />
+							</div>
+						</div>
+
+						<div class="form-field">
 							<CustomTextField @bind-Value="_productCategory.Remarks"
 											 Label="Remarks"
 											 Placeholder="Enter remarks (optional)"
@@ -81,6 +88,7 @@ else
 						<GridColumns>
 							<GridColumn Field="@nameof(ProductCategoryModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" />
 							<GridColumn Field="@nameof(ProductCategoryModel.Name)" HeaderText="Category Name" Width="300" />
+							<GridColumn Field="@nameof(ProductCategoryModel.ShowInMenu)" HeaderText="Show in Menu" Width="120" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
 							<GridColumn Field="@nameof(ProductCategoryModel.Remarks)" HeaderText="Remarks" Width="400" />
 							<GridColumn Field="@nameof(ProductCategoryModel.Status)" HeaderText="Status" Width="110" TextAlign="TextAlign.Center" Visible="_showDeleted">
 								<Template>

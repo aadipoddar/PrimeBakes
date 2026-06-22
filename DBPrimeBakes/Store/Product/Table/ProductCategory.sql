@@ -1,7 +1,8 @@
 ﻿CREATE TABLE [dbo].[ProductCategory]
 (
 	[Id] INT NOT NULL PRIMARY KEY IDENTITY, 
-    [Name] VARCHAR(500) NOT NULL UNIQUE, 
+    [Name] VARCHAR(500) NOT NULL UNIQUE,
+    [ShowInMenu] BIT NOT NULL DEFAULT 1,
     [Remarks] VARCHAR(MAX) NULL,
-    [Status] BIT NOT NULL DEFAULT 1, 
+    [Status] BIT NOT NULL DEFAULT 1,
 )

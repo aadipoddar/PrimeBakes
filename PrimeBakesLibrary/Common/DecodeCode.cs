@@ -131,6 +131,7 @@ public static class DecodeCode
 				if (excel) decodeTransactionNoModel.ExcelStream = await BillInvoiceExport.ExportInvoice((decodeTransactionNoModel.TransactionModel as BillModel).Id, InvoiceExportType.Excel);
 				break;
 			#endregion
+
 			default:
 				break;
 		}

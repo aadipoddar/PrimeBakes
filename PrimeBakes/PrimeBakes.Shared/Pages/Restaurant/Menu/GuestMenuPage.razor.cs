@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 
 using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Store.Product.Data;
@@ -9,7 +8,7 @@ using System.Globalization;
 
 namespace PrimeBakes.Shared.Pages.Restaurant.Menu;
 
-public partial class GuestMenuPage : IAsyncDisposable
+public partial class GuestMenuPage
 {
 	[Parameter] public int LocationId { get; set; }
 
@@ -19,26 +18,20 @@ public partial class GuestMenuPage : IAsyncDisposable
 	private List<ProductCategoryModel> _categories = [];
 	private List<ProductLocationOverviewModel> _items = [];
 
+	private ProductCategoryModel _selectedCategory;
 	private string _query = string.Empty;
 	private readonly HashSet<string> _diets = [];
-
-	private IJSObjectReference _module;
 
 	private bool IsFiltering => !string.IsNullOrWhiteSpace(_query) || _diets.Count > 0;
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (firstRender)
-		{
-			await LoadData();
-			_isLoading = false;
-			StateHasChanged();
-		}
-		else if (_module is null && _categories.Count > 0)
-		{
-			_module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/PrimeBakes.Shared/js/guestMenu.js");
-			await _module.InvokeVoidAsync("init");
-		}
+		if (!firstRender)
+			return;
+
+		await LoadData();
+		_isLoading = false;
+		StateHasChanged();
 	}
 
 	private async Task LoadData()
@@ -48,28 +41,37 @@ public partial class GuestMenuPage : IAsyncDisposable
 			_location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, LocationId);
 
 			var categories = await CommonData.LoadTableDataByStatus<ProductCategoryModel>(StoreNames.ProductCategory);
-			_items = [.. (await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: LocationId)).Where(p => p.ShowInMenu).OrderBy(p => p.Name)];
+			_items = [.. (await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: LocationId))
+				.Where(p => p.ShowInMenu)
+				.DistinctBy(p => p.ProductId)
+				.OrderBy(p => p.Name)];
 
-			// Keep only categories that have items at this outlet, in name order.
+			// Keep only categories that have items at this outlet, in name order, with an "All" tab first.
 			var categoryIds = _items.Select(p => p.ProductCategoryId).ToHashSet();
-			_categories = [.. categories.Where(c => categoryIds.Contains(c.Id)).OrderBy(c => c.Name)];
+			_categories = [.. categories.Where(c => c.ShowInMenu && categoryIds.Contains(c.Id)).OrderBy(c => c.Name)];
+			if (_categories.Count > 0)
+				_categories.Insert(0, new() { Id = 0, Name = "All" });
+			_selectedCategory = _categories.FirstOrDefault();
 		}
 		catch
 		{
 			_location = null;
 			_categories = [];
 			_items = [];
+			_selectedCategory = null;
 		}
 	}
 
-	// Items for a category that match the current search + diet filters.
-	private List<ProductLocationOverviewModel> ItemsFor(ProductCategoryModel category)
+	// Items for the selected category that match the current search + diet filters.
+	private List<ProductLocationOverviewModel> GetItems()
 	{
 		var q = _query.Trim();
-		return [.. _items.Where(p => p.ProductCategoryId == category.Id
+		return [.. _items.Where(p => (_selectedCategory is null || _selectedCategory.Id == 0 || p.ProductCategoryId == _selectedCategory.Id)
 			&& (q.Length == 0 || (p.Name?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false))
 			&& (_diets.Count == 0 || _diets.Contains(DietCode(p.FoodType))))];
 	}
+
+	private void SelectCategory(ProductCategoryModel category) => _selectedCategory = category;
 
 	private void OnQueryChange(ChangeEventArgs e) => _query = e.Value?.ToString() ?? string.Empty;
 
@@ -83,18 +85,6 @@ public partial class GuestMenuPage : IAsyncDisposable
 			_diets.Add(code);
 	}
 
-	private async Task JumpToCategory(int categoryId)
-	{
-		if (_module is not null)
-			await _module.InvokeVoidAsync("jumpTo", $"pb-cat-{categoryId}");
-	}
-
-	private async Task ScrollToTop()
-	{
-		if (_module is not null)
-			await _module.InvokeVoidAsync("scrollToTop");
-	}
-
 	// FoodType -> diet mark code (v/e/n, or x when not set).
 	private static string DietCode(string foodType) => foodType switch
 	{
@@ -105,12 +95,4 @@ public partial class GuestMenuPage : IAsyncDisposable
 	};
 
 	private static string Money(decimal value) => "₹" + value.ToString("N0", CultureInfo.GetCultureInfo("en-IN"));
-
-	public async ValueTask DisposeAsync()
-	{
-		if (_module is not null)
-			try { await _module.DisposeAsync(); } catch { }
-
-		GC.SuppressFinalize(this);
-	}
 }

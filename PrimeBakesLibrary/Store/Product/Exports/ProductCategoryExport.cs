@@ -14,6 +14,7 @@ public static class ProductCategoryExport
         {
             productCategory.Id,
             productCategory.Name,
+            ShowInMenu = productCategory.ShowInMenu ? "Yes" : "No",
             productCategory.Remarks,
             Status = productCategory.Status ? "Active" : "Deleted"
         });
@@ -22,6 +23,7 @@ public static class ProductCategoryExport
         {
             [nameof(ProductCategoryModel.Id)] = new() { DisplayName = "ID", Alignment = CellAlignment.Center, IncludeInTotal = false },
             [nameof(ProductCategoryModel.Name)] = new() { DisplayName = "Product Category Name", Alignment = CellAlignment.Left, IsRequired = true },
+            [nameof(ProductCategoryModel.ShowInMenu)] = new() { DisplayName = "Show in Menu", Alignment = CellAlignment.Center, IncludeInTotal = false },
             [nameof(ProductCategoryModel.Remarks)] = new() { DisplayName = "Remarks", Alignment = CellAlignment.Left },
             [nameof(ProductCategoryModel.Status)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false }
         };
@@ -30,6 +32,7 @@ public static class ProductCategoryExport
         [
             nameof(ProductCategoryModel.Id),
             nameof(ProductCategoryModel.Name),
+            nameof(ProductCategoryModel.ShowInMenu),
             nameof(ProductCategoryModel.Remarks),
             nameof(ProductCategoryModel.Status)
         ];

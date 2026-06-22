@@ -32,18 +32,6 @@ public static class SqlDataAccess
 		await connection.ExecuteAsync(storedProcedure, parameters, commandType: CommandType.StoredProcedure);
 	}
 
-	public static async Task ExecuteProcedure(string storedProcedure, SqlDataAccessTransaction sqlDataAccessTransaction = null)
-	{
-		if (sqlDataAccessTransaction is not null)
-		{
-			await sqlDataAccessTransaction.ExecuteProcedureTransaction(storedProcedure);
-			return;
-		}
-
-		using IDbConnection connection = new SqlConnection(_databaseConnection);
-		await connection.ExecuteAsync(storedProcedure, commandType: CommandType.StoredProcedure);
-	}
-
 	public static void SetupConfiguration()
 	{
 		SqlMapper.Settings.CommandTimeout = 600;
@@ -70,9 +58,6 @@ public class SqlDataAccessTransaction : IDisposable
 
 	public async Task SaveDataTransaction<T>(string storedProcedure, T parameters) =>
 		await _connection.ExecuteAsync(storedProcedure, parameters, commandType: CommandType.StoredProcedure, transaction: _transaction);
-
-	public async Task ExecuteProcedureTransaction(string storedProcedure) =>
-		await _connection.ExecuteAsync(storedProcedure, commandType: CommandType.StoredProcedure, transaction: _transaction);
 
 	public void CommitTransaction()
 	{
@@ -111,8 +96,8 @@ public class SqlDataAccessTransaction : IDisposable
 		}
 	}
 
-	public static Task Run(Func<SqlDataAccessTransaction, Task> body) =>
-		Run<object>(async transaction => { await body(transaction); return null; });
+	public static async Task Run(Func<SqlDataAccessTransaction, Task> body) =>
+		await Run<object>(async transaction => { await body(transaction); return null; });
 }
 
 public class DateOnlyTypeHandler : SqlMapper.TypeHandler<DateOnly>

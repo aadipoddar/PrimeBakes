@@ -1,14 +1,15 @@
 ﻿CREATE PROCEDURE [dbo].[Insert_ProductCategory]
 	@Id INT OUTPUT,
 	@Name VARCHAR(500),
+	@ShowInMenu BIT,
 	@Remarks VARCHAR(MAX) = NULL,
 	@Status BIT
 AS
 BEGIN
 	IF @Id = 0
 	BEGIN
-		INSERT INTO [dbo].[ProductCategory] ([Name], [Remarks], [Status])
-		VALUES (@Name, @Remarks, @Status);
+		INSERT INTO [dbo].[ProductCategory] ([Name], [ShowInMenu], [Remarks], [Status])
+		VALUES (@Name, @ShowInMenu, @Remarks, @Status);
 
 		SET @Id = SCOPE_IDENTITY();
 	END
@@ -16,7 +17,7 @@ BEGIN
 	ELSE
 	BEGIN
 		UPDATE [dbo].[ProductCategory]
-		SET [Name] = @Name, [Remarks] = @Remarks, [Status] = @Status
+		SET [Name] = @Name, [ShowInMenu] = @ShowInMenu, [Remarks] = @Remarks, [Status] = @Status
 		WHERE [Id] = @Id;
 	END
 

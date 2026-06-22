@@ -9,4 +9,6 @@ BEGIN
 	SET [Value] = @Value
 	WHERE [Key] = @Key
 
+	SELECT @@ROWCOUNT AS RowsAffected;
+
 END
