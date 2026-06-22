@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace PrimeBakesLibrary.Utils.Exports;
 
-public static class ExcelReportExportUtil
+internal static class ExcelReportExportUtil
 {
 	#region Private Helper Methods
 
@@ -28,7 +28,7 @@ public static class ExcelReportExportUtil
 
 	#endregion
 
-	#region Public Methods
+	#region Internal Methods
 
 	/// <summary>
 	/// Exports any data collection to an Excel file with professional formatting
@@ -44,7 +44,7 @@ public static class ExcelReportExportUtil
 	/// <param name="headerMetadata">Optional metadata to display in header (e.g., {"Location": "Main Store", "Party": "ABC Corp"})</param>
 	/// <param name="customSummaryFields">Optional: Custom fields to display in summary section (key=label, value=formatted value)</param>
 	/// <returns>MemoryStream containing the Excel file</returns>
-	public static async Task<MemoryStream> ExportToExcel<T>(
+	internal static async Task<MemoryStream> ExportToExcel<T>(
 		IEnumerable<T> data,
 		string reportTitle,
 		string worksheetName,

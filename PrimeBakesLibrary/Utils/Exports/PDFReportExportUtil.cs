@@ -12,11 +12,11 @@ using System.Text.RegularExpressions;
 
 namespace PrimeBakesLibrary.Utils.Exports;
 
-public static class PDFReportExportUtil
+internal static class PDFReportExportUtil
 {
 	private static PdfLayoutFormat _layoutFormat;
 
-	#region Public Methods
+	#region Internal Methods
 	/// <summary>
 	/// Export data to PDF with automatic column detection and formatting
 	/// </summary>
@@ -33,7 +33,7 @@ public static class PDFReportExportUtil
 	/// <param name="headerMetadata">Optional metadata to display in header (e.g., {"Location": "Main Store", "Party": "ABC Corp"})</param>
 	/// <param name="customSummaryFields">Optional: Custom fields to display in summary section (key=label, value=formatted value)</param>
 	/// <returns>MemoryStream containing the PDF file</returns>
-	public static async Task<MemoryStream> ExportToPdf<T>(
+	internal static async Task<MemoryStream> ExportToPdf<T>(
 		IEnumerable<T> data,
 		string reportTitle,
 		DateOnly? dateRangeStart = null,

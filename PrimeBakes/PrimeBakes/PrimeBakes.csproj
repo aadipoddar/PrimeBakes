@@ -62,10 +62,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Remove="PrimeBakes.csproj.lscache" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<GoogleServicesJson Include="Platforms\Android\google-services.json" />
 	</ItemGroup>
 

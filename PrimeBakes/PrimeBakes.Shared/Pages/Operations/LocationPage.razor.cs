@@ -4,6 +4,7 @@ using PrimeBakes.Shared.Components.Input;
 using PrimeBakesLibrary.Accounts.Masters.Models;
 using PrimeBakesLibrary.Operations.Location;
 using PrimeBakesLibrary.Operations.User;
+using PrimeBakesLibrary.Restaurant.Menu.Exports;
 using PrimeBakesLibrary.Utils.Exports;
 
 using Syncfusion.Blazor.Grids;
@@ -26,7 +27,8 @@ public partial class LocationPage
 	private readonly List<ContextMenuItemModel> _gridContextMenuItems =
 	[
 		new() { Text = "Edit (Insert)", Id = "EditSelectedItem", IconCss = "e-icons e-edit", Target = ".e-content" },
-		new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverSelectedItem", IconCss = "e-icons e-trash", Target = ".e-content" }
+		new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverSelectedItem", IconCss = "e-icons e-trash", Target = ".e-content" },
+		new() { Text = "Menu QR Code", Id = "MenuQRCode", IconCss = "e-icons e-image", Target = ".e-content" }
 	];
 
 	private SfGrid<LocationModel> _sfGrid;
@@ -220,6 +222,38 @@ public partial class LocationPage
 			StateHasChanged();
 		}
 	}
+
+	private async Task ExportMenuQRCode()
+	{
+		if (_isProcessing)
+			return;
+
+		try
+		{
+			var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
+			if (selectedRecords.Count == 0)
+				throw new Exception("No location selected.");
+
+			_isProcessing = true;
+			StateHasChanged();
+			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
+
+			var location = selectedRecords[0];
+			var (stream, fileName) = await MenuQRExport.ExportMenuQRCode(location.Id, location.Name);
+			await SaveAndViewService.SaveAndView(fileName, stream);
+
+			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
 	#endregion
 
 	#region Utilities
@@ -229,6 +263,7 @@ public partial class LocationPage
 		{
 			case "EditSelectedItem": await EditSelectedItem(); break;
 			case "DeleteRecoverSelectedItem": await DeleteRecoverSelectedItem(); break;
+			case "MenuQRCode": await ExportMenuQRCode(); break;
 		}
 	}
 
