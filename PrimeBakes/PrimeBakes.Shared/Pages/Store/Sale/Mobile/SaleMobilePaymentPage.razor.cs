@@ -214,7 +214,7 @@ public partial class SaleMobilePaymentPage
 	#region Saving
 	private async Task UpdateFinancialDetails(bool customRoundOff = false)
 	{
-		await SaleData.ApplyItemFinancialDetails(_cart, _products, _taxes);
+		SaleData.ApplyItemFinancialDetails(_cart, _products, _taxes);
 
 		foreach (var item in _cart.Where(i => i.Quantity > 0))
 		{

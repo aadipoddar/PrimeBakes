@@ -285,7 +285,7 @@ public partial class BillMobilePaymentPage
 		if (!_user.ChangeProductFinancial)
 			_bill.DiscountPercent = 0;
 
-		await BillData.ApplyItemFinancialDetails(_cart, _products, _taxes);
+		BillData.ApplyItemFinancialDetails(_cart, _products, _taxes);
 
 		_finalCart.Clear();
 		_finalCart = BillData.ConvertCartToDetails(_cart, _bill.Id);

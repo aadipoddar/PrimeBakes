@@ -57,9 +57,7 @@ public partial class KitchenPage
 		if (!_showDeleted)
 			_kitchens = [.. _kitchens.Where(k => k.Status)];
 
-		if (_sfGrid is not null)
-			await _sfGrid.Refresh();
-
+		if (_sfGrid is not null) await _sfGrid.Refresh();
 		_isLoading = false;
 		StateHasChanged();
 

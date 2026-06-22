@@ -79,10 +79,9 @@ public partial class OrderPage
 		_isLoading = false;
 		StateHasChanged();
 
-		await SaveTransactionFile();
+		await SaveTransactionFile(true);
 
-		if (_firstFocus is not null)
-			await _firstFocus.FocusAsync();
+		if (_firstFocus is not null) await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadData()
@@ -278,13 +277,6 @@ public partial class OrderPage
 		_order.CompanyId = value.Id;
 		await SaveTransactionFile();
 	}
-
-	private async Task OnTransactionDateChanged(DateTime value)
-	{
-		_order.TransactionDateTime = value;
-		await SaveTransactionFile();
-		await LoadItems();
-	}
 	#endregion
 
 	#region Cart
@@ -400,8 +392,11 @@ public partial class OrderPage
 	#endregion
 
 	#region Saving
-	private async Task UpdateFinancialDetails()
+	private void UpdateFinancialDetails()
 	{
+		if (_user.LocationId > 1)
+			_selectedLocation = _locations.FirstOrDefault(s => s.Id == _user.LocationId);
+
 		foreach (var item in _cart.ToList())
 		{
 			if (item.Quantity <= 0)
@@ -416,23 +411,24 @@ public partial class OrderPage
 		_order.TotalItems = _cart.Count;
 		_order.TotalQuantity = _cart.Sum(x => x.Quantity);
 
-		if (_user.LocationId > 1)
+		_order.CompanyId = _selectedCompany?.Id ?? 0;
+		_order.LocationId = _selectedLocation?.Id ?? 0;
+	}
+
+	private async Task PrepareSave()
+	{
+		if (_user.LocationId != 1)
 		{
-			_selectedLocation = _locations.FirstOrDefault(s => s.Id == _user.LocationId);
-			_selectedCompany = _mainCompany;
+			var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
+			_selectedCompany = _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value);
 			_order.TransactionDateTime = await CommonData.LoadCurrentDateTime();
 		}
 
-		_order.CompanyId = _selectedCompany?.Id ?? 0;
-		_order.LocationId = _selectedLocation?.Id ?? 0;
-
-		#region Financial Year
 		_selectedFinancialYear = await FinancialYearData.LoadFinancialYearByDateTime(_order.TransactionDateTime);
 		if (_selectedFinancialYear is not null && !_selectedFinancialYear.Locked)
 			_order.FinancialYearId = _selectedFinancialYear.Id;
 		else
 			await _toastNotification.ShowAsync("Invalid Transaction Date", "The selected transaction date does not fall within an active financial year.", ToastType.Error);
-		#endregion
 
 		if (Id is null)
 			_order.TransactionNo = await GenerateCodes.GenerateOrderTransactionNo(_order);
@@ -450,7 +446,7 @@ public partial class OrderPage
 		_order.LastModifiedBy = _user.Id;
 	}
 
-	private async Task SaveTransactionFile()
+	private async Task SaveTransactionFile(bool prepareSave = false)
 	{
 		if (_isProcessing || _isLoading)
 			return;
@@ -459,7 +455,8 @@ public partial class OrderPage
 		{
 			_isProcessing = true;
 
-			await UpdateFinancialDetails();
+			UpdateFinancialDetails();
+			if (prepareSave) await PrepareSave();
 
 			if (_cart.Count == 0 || _order.Id > 0)
 			{
@@ -476,8 +473,7 @@ public partial class OrderPage
 		}
 		finally
 		{
-			if (_sfCartGrid is not null)
-				await _sfCartGrid.Refresh();
+			if (_sfCartGrid is not null) await _sfCartGrid.Refresh();
 
 			_isProcessing = false;
 			StateHasChanged();
@@ -491,7 +487,7 @@ public partial class OrderPage
 
 		try
 		{
-			await SaveTransactionFile();
+			await SaveTransactionFile(true);
 			_isProcessing = true;
 			StateHasChanged();
 

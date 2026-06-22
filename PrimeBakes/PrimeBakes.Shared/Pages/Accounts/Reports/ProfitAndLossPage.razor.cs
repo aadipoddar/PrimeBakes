@@ -61,8 +61,7 @@ public partial class ProfitAndLossPage : IAsyncDisposable
 		_isLoading = false;
 		StateHasChanged();
 
-		if (_firstFocus is not null)
-			await _firstFocus.FocusAsync();
+		if (_firstFocus is not null) await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadData()

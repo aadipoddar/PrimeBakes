@@ -57,9 +57,7 @@ public partial class RawMaterialCategoryPage
 		if (!_showDeleted)
 			_rawMaterialCategories = [.. _rawMaterialCategories.Where(rmc => rmc.Status)];
 
-		if (_sfGrid is not null)
-			await _sfGrid.Refresh();
-
+		if (_sfGrid is not null) await _sfGrid.Refresh();
 		_isLoading = false;
 		StateHasChanged();
 

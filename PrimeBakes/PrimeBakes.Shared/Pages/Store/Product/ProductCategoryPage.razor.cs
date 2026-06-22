@@ -57,14 +57,11 @@ public partial class ProductCategoryPage
 		if (!_showDeleted)
 			_productCategories = [.. _productCategories.Where(pc => pc.Status)];
 
-		if (_sfGrid is not null)
-			await _sfGrid.Refresh();
-
+		if (_sfGrid is not null) await _sfGrid.Refresh();
 		_isLoading = false;
 		StateHasChanged();
 
-		if (_firstFocus is not null)
-			await _firstFocus.FocusAsync();
+		if (_firstFocus is not null) await _firstFocus.FocusAsync();
 	}
 	#endregion
 

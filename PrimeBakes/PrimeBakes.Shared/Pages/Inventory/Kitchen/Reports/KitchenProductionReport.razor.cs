@@ -146,8 +146,7 @@ public partial class KitchenProductionReport : IAsyncDisposable
 				})
 				.OrderBy(t => t.KitchenName)];
 
-		if (_sfGrid is not null)
-			await _sfGrid.Refresh();
+		if (_sfGrid is not null) await _sfGrid.Refresh();
 		StateHasChanged();
 	}
 	#endregion
@@ -361,8 +360,7 @@ public partial class KitchenProductionReport : IAsyncDisposable
 		_showAllColumns = !_showAllColumns;
 		StateHasChanged();
 
-		if (_sfGrid is not null)
-			await _sfGrid.Refresh();
+		if (_sfGrid is not null) await _sfGrid.Refresh();
 	}
 
 	private async Task ToggleDeleted()

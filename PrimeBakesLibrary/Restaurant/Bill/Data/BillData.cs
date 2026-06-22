@@ -48,7 +48,7 @@ public static class BillData
 		}
 	}
 
-	public static async Task ApplyItemFinancialDetails(List<BillItemCartModel> cart, List<ProductModel> products, List<TaxModel> taxes)
+	public static void ApplyItemFinancialDetails(List<BillItemCartModel> cart, List<ProductModel> products, List<TaxModel> taxes)
 	{
 		foreach (var item in cart.Where(i => i.Quantity > 0))
 		{

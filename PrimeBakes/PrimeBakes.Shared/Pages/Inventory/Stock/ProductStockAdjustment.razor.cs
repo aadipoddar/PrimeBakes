@@ -72,8 +72,7 @@ public partial class ProductStockAdjustment
 
 		await SaveTransactionFile();
 
-		if (_firstFocus is not null)
-			await _firstFocus.FocusAsync();
+		if (_firstFocus is not null) await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadLocations()
@@ -117,7 +116,6 @@ public partial class ProductStockAdjustment
 		_transactionDateTime = value;
 		await LoadStock();
 		await LoadItems();
-		await SaveTransactionFile();
 	}
 
 	private async Task OnLocationChanged(LocationModel value)
@@ -283,8 +281,7 @@ public partial class ProductStockAdjustment
 		}
 		finally
 		{
-			if (_sfCartGrid is not null)
-				await _sfCartGrid.Refresh();
+			if (_sfCartGrid is not null) await _sfCartGrid.Refresh();
 
 			_isProcessing = false;
 			StateHasChanged();

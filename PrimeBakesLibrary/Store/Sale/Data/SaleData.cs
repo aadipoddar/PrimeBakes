@@ -42,7 +42,7 @@ public static class SaleData
 		}
 	}
 
-	public static async Task ApplyItemFinancialDetails(List<SaleItemCartModel> cart, List<ProductModel> products, List<TaxModel> taxes)
+	public static void ApplyItemFinancialDetails(List<SaleItemCartModel> cart, List<ProductModel> products, List<TaxModel> taxes)
 	{
 		foreach (var item in cart.Where(i => i.Quantity > 0))
 		{

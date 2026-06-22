@@ -111,8 +111,7 @@ public partial class RawMaterialStockReport : IAsyncDisposable
 				(_selectedCategory is null || _selectedCategory.Id == 0 || s.RawMaterialCategoryId == _selectedCategory.Id))
 			.OrderBy(s => s.RawMaterialName)];
 
-		if (_sfGrid is not null)
-			await _sfGrid.Refresh();
+		if (_sfGrid is not null) await _sfGrid.Refresh();
 		StateHasChanged();
 	}
 	#endregion
@@ -178,8 +177,7 @@ public partial class RawMaterialStockReport : IAsyncDisposable
 		_showAllColumns = !_showAllColumns;
 		StateHasChanged();
 
-		if (_sfGrid is not null)
-			await _sfGrid.Refresh();
+		if (_sfGrid is not null) await _sfGrid.Refresh();
 	}
 
 	private async Task StartAutoRefresh()

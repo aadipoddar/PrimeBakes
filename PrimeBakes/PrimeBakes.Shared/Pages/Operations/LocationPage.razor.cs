@@ -63,14 +63,11 @@ public partial class LocationPage
 		if (!_showDeleted)
 			_locations = [.. _locations.Where(l => l.Status)];
 
-		if (_sfGrid is not null)
-			await _sfGrid.Refresh();
-
+		if (_sfGrid is not null) await _sfGrid.Refresh();
 		_isLoading = false;
 		StateHasChanged();
 
-		if (_firstFocus is not null)
-			await _firstFocus.FocusAsync();
+		if (_firstFocus is not null) await _firstFocus.FocusAsync();
 	}
 	#endregion
 

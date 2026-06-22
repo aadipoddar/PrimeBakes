@@ -57,14 +57,11 @@ public partial class GroupPage
 		if (!_showDeleted)
 			_groups = [.. _groups.Where(g => g.Status)];
 
-		if (_sfGrid is not null)
-			await _sfGrid.Refresh();
-
+		if (_sfGrid is not null) await _sfGrid.Refresh();
 		_isLoading = false;
 		StateHasChanged();
 
-		if (_firstFocus is not null)
-			await _firstFocus.FocusAsync();
+		if (_firstFocus is not null) await _firstFocus.FocusAsync();
 	}
 	#endregion
 

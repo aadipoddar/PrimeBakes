@@ -69,8 +69,7 @@ public partial class ProductLocationPage
 		_isLoading = false;
 		StateHasChanged();
 
-		if (_firstFocus is not null)
-			await _firstFocus.FocusAsync();
+		if (_firstFocus is not null) await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadOverviews()
@@ -80,8 +79,7 @@ public partial class ProductLocationPage
 		else
 			_productLocationOverviews = await CommonData.LoadTableData<ProductLocationOverviewModel>(StoreNames.ProductLocationOverview);
 
-		if (_sfGrid is not null)
-			await _sfGrid.Refresh();
+		if (_sfGrid is not null) await _sfGrid.Refresh();
 	}
 	#endregion
 

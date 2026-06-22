@@ -206,7 +206,7 @@ public partial class BillMobileCartPage
 		{
 			_isProcessing = true;
 
-			await BillData.ApplyItemFinancialDetails(_cart, _products, _taxes);
+			BillData.ApplyItemFinancialDetails(_cart, _products, _taxes);
 
 			if (!_cart.Any(x => x.Quantity > 0))
 				await DataStorageService.LocalRemove(StorageFileNames.BillMobileCartDataFileName);

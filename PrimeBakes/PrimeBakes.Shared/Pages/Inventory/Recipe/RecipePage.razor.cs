@@ -112,8 +112,7 @@ public partial class RecipePage
 		}
 		finally
 		{
-			if (_sfCartGrid is not null)
-				await _sfCartGrid.Refresh();
+			if (_sfCartGrid is not null) await _sfCartGrid.Refresh();
 
 			_isProcessing = false;
 			StateHasChanged();

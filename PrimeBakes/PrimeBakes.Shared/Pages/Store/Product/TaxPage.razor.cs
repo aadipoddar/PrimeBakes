@@ -57,14 +57,11 @@ public partial class TaxPage
 		if (!_showDeleted)
 			_taxes = [.. _taxes.Where(t => t.Status)];
 
-		if (_sfGrid is not null)
-			await _sfGrid.Refresh();
-
+		if (_sfGrid is not null) await _sfGrid.Refresh();
 		_isLoading = false;
 		StateHasChanged();
 
-		if (_firstFocus is not null)
-			await _firstFocus.FocusAsync();
+		if (_firstFocus is not null) await _firstFocus.FocusAsync();
 	}
 	#endregion
 

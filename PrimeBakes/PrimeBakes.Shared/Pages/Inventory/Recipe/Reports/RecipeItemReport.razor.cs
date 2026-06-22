@@ -137,9 +137,7 @@ public partial class RecipeItemReport : IAsyncDisposable
 				(_selectedProduct is null || _selectedProduct.Id == 0 || i.ProductId == _selectedProduct.Id))
 			.OrderBy(i => i.ItemName).ThenBy(i => i.ProductName)];
 
-		if (_sfGrid is not null)
-			await _sfGrid.Refresh();
-		StateHasChanged();
+		if (_sfGrid is not null) await _sfGrid.Refresh(); StateHasChanged();
 	}
 	#endregion
 

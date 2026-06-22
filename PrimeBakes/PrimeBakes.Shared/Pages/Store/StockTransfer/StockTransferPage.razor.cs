@@ -95,10 +95,9 @@ public partial class StockTransferPage
 		_isLoading = false;
 		StateHasChanged();
 
-		await SaveTransactionFile();
+		await SaveTransactionFile(true);
 
-		if (_firstFocus is not null)
-			await _firstFocus.FocusAsync();
+		if (_firstFocus is not null) await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadData()
@@ -399,9 +398,8 @@ public partial class StockTransferPage
 		_selectedPaymentMethod = new();
 		_selectedPaymentCart = new();
 
-		if (_paymentModeAutoComplete is not null)
-			await _paymentModeAutoComplete.FocusAsync();
-		await SaveTransactionFile(true);
+		if (_paymentModeAutoComplete is not null) await _paymentModeAutoComplete.FocusAsync();
+		await SaveTransactionFile(false, true);
 	}
 
 	private async Task EditSelectedPaymentCartItem()
@@ -435,7 +433,7 @@ public partial class StockTransferPage
 		var selectedCartItem = _sfPaymentsCartGrid.SelectedRecords.First();
 		_paymentsCart.Remove(selectedCartItem);
 		ApplyPaymentsToStockTransfer();
-		await SaveTransactionFile(true);
+		await SaveTransactionFile(false, true);
 	}
 	#endregion
 
@@ -476,13 +474,6 @@ public partial class StockTransferPage
 		await SaveTransactionFile();
 	}
 
-	private async Task OnTransactionDateChanged(DateTime value)
-	{
-		_stockTransfer.TransactionDateTime = value;
-		await LoadItems();
-		await SaveTransactionFile();
-	}
-
 	private async Task OnDiscountPercentChanged(decimal value)
 	{
 		_stockTransfer.DiscountPercent = value;
@@ -498,7 +489,7 @@ public partial class StockTransferPage
 	private async Task OnRoundOffAmountChanged(decimal value)
 	{
 		_stockTransfer.RoundOffAmount = value;
-		await SaveTransactionFile(true);
+		await SaveTransactionFile(false, true);
 	}
 	#endregion
 
@@ -706,7 +697,7 @@ public partial class StockTransferPage
 	#endregion
 
 	#region Saving
-	private async Task UpdateFinancialDetails(bool customRoundOff = false)
+	private void UpdateFinancialDetails(bool customRoundOff = false)
 	{
 		if (!_user.ChangeProductFinancial)
 		{
@@ -786,19 +777,20 @@ public partial class StockTransferPage
 		_stockTransfer.ToLocationId = _selectedToLocation.Id;
 		_stockTransfer.CreatedBy = _user.Id;
 
-		#region Financial Year
+		SyncPaymentsFromStockTransfer();
+		ApplyPaymentsToStockTransfer();
+	}
+
+	private async Task PrepareSave()
+	{
 		_selectedFinancialYear = await FinancialYearData.LoadFinancialYearByDateTime(_stockTransfer.TransactionDateTime);
 		if (_selectedFinancialYear is not null && !_selectedFinancialYear.Locked)
 			_stockTransfer.FinancialYearId = _selectedFinancialYear.Id;
 		else
 			await _toastNotification.ShowAsync("Invalid Transaction Date", "The selected transaction date does not fall within an active financial year.", ToastType.Error);
-		#endregion
 
 		if (Id is null)
 			_stockTransfer.TransactionNo = await GenerateCodes.GenerateStockTransferTransactionNo(_stockTransfer);
-
-		SyncPaymentsFromStockTransfer();
-		ApplyPaymentsToStockTransfer();
 
 		var currentDateTime = await CommonData.LoadCurrentDateTime();
 		_stockTransfer.Status = true;
@@ -810,7 +802,7 @@ public partial class StockTransferPage
 		_stockTransfer.LastModifiedBy = _user.Id;
 	}
 
-	private async Task SaveTransactionFile(bool customRoundOff = false)
+	private async Task SaveTransactionFile(bool prepareSave = false, bool customRoundOff = false)
 	{
 		if (_isProcessing || _isLoading)
 			return;
@@ -819,7 +811,8 @@ public partial class StockTransferPage
 		{
 			_isProcessing = true;
 
-			await UpdateFinancialDetails(customRoundOff);
+			UpdateFinancialDetails(customRoundOff);
+			if (prepareSave) await PrepareSave();
 
 			if (_cart.Count == 0 || _stockTransfer.Id > 0)
 			{
@@ -836,8 +829,7 @@ public partial class StockTransferPage
 		}
 		finally
 		{
-			if (_sfCartGrid is not null)
-				await _sfCartGrid.Refresh();
+			if (_sfCartGrid is not null) await _sfCartGrid.Refresh();
 
 			if (_sfPaymentsCartGrid is not null)
 				await _sfPaymentsCartGrid.Refresh();
@@ -854,7 +846,7 @@ public partial class StockTransferPage
 
 		try
 		{
-			await SaveTransactionFile(true);
+			await SaveTransactionFile(true, true);
 			_isProcessing = true;
 			StateHasChanged();
 

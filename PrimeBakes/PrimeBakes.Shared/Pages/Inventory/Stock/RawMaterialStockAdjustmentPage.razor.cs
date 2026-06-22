@@ -68,8 +68,7 @@ public partial class RawMaterialStockAdjustmentPage
 
 		await SaveTransactionFile();
 
-		if (_firstFocus is not null)
-			await _firstFocus.FocusAsync();
+		if (_firstFocus is not null) await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadStock()
@@ -102,7 +101,6 @@ public partial class RawMaterialStockAdjustmentPage
 	{
 		_transactionDateTime = value;
 		await LoadStock();
-		await SaveTransactionFile();
 	}
 	#endregion
 
@@ -256,8 +254,7 @@ public partial class RawMaterialStockAdjustmentPage
 		}
 		finally
 		{
-			if (_sfCartGrid is not null)
-				await _sfCartGrid.Refresh();
+			if (_sfCartGrid is not null) await _sfCartGrid.Refresh();
 
 			_isProcessing = false;
 			StateHasChanged();

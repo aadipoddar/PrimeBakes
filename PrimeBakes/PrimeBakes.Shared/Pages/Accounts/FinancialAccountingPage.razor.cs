@@ -74,10 +74,9 @@ public partial class FinancialAccountingPage
 		_isLoading = false;
 		StateHasChanged();
 
-		await SaveTransactionFile();
+		await SaveTransactionFile(true);
 
-		if (_firstFocus is not null)
-			await _firstFocus.FocusAsync();
+		if (_firstFocus is not null) await _firstFocus.FocusAsync();
 	}
 
 	private async Task ResolveTransaction()
@@ -173,28 +172,19 @@ public partial class FinancialAccountingPage
 	private async Task LoadSelections()
 	{
 		if (_accounting.CompanyId > 0)
-			_selectedCompany = _companies.FirstOrDefault(s => s.Id == _accounting.CompanyId) ?? _companies.FirstOrDefault() ?? new();
+			_selectedCompany = _companies.FirstOrDefault(s => s.Id == _accounting.CompanyId) ?? _companies.FirstOrDefault();
 		else
-		{
-			var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
-			_selectedCompany = _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value) ?? _companies.FirstOrDefault() ?? new();
-		}
-		_accounting.CompanyId = _selectedCompany.Id;
+			_selectedCompany = _companies.FirstOrDefault();
 
 		if (_accounting.VoucherId > 0)
 			_selectedVoucher = _vouchers.FirstOrDefault(s => s.Id == _accounting.VoucherId) ?? _vouchers.FirstOrDefault() ?? new();
 		else
 			_selectedVoucher = _vouchers.FirstOrDefault() ?? new();
+
+		_accounting.CompanyId = _selectedCompany.Id;
 		_accounting.VoucherId = _selectedVoucher.Id;
 
-		if (_accounting.FinancialYearId > 0)
-			_selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, _accounting.FinancialYearId);
-
-		if (_selectedFinancialYear is null || _selectedFinancialYear.Id <= 0)
-			_selectedFinancialYear = await FinancialYearData.LoadFinancialYearByDateTime(_accounting.TransactionDateTime);
-
-		if (_selectedFinancialYear is not null)
-			_accounting.FinancialYearId = _selectedFinancialYear.Id;
+		_selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, _accounting.FinancialYearId);
 	}
 
 	private async Task LoadCart()
@@ -505,7 +495,7 @@ public partial class FinancialAccountingPage
 	#endregion
 
 	#region Saving
-	private async Task UpdateFinancialDetails()
+	private void UpdateFinancialDetails()
 	{
 		foreach (var item in _cart.ToList())
 		{
@@ -543,14 +533,15 @@ public partial class FinancialAccountingPage
 		_accounting.CompanyId = _selectedCompany.Id;
 		_accounting.VoucherId = _selectedVoucher.Id;
 		_accounting.CreatedBy = _user.Id;
+	}
 
-		#region Financial Year
+	private async Task PrepareSave()
+	{
 		_selectedFinancialYear = await FinancialYearData.LoadFinancialYearByDateTime(_accounting.TransactionDateTime);
 		if (_selectedFinancialYear is not null && !_selectedFinancialYear.Locked)
 			_accounting.FinancialYearId = _selectedFinancialYear.Id;
 		else
 			await _toastNotification.ShowAsync("Invalid Transaction Date", "The selected transaction date does not fall within an active financial year.", ToastType.Error);
-		#endregion
 
 		if (Id is null)
 			_accounting.TransactionNo = await GenerateCodes.GenerateAccountingTransactionNo(_accounting);
@@ -566,7 +557,7 @@ public partial class FinancialAccountingPage
 		_accounting.LastModifiedBy = _user.Id;
 	}
 
-	private async Task SaveTransactionFile()
+	private async Task SaveTransactionFile(bool prepareSave = false)
 	{
 		if (_isProcessing || _isLoading)
 			return;
@@ -575,7 +566,8 @@ public partial class FinancialAccountingPage
 		{
 			_isProcessing = true;
 
-			await UpdateFinancialDetails();
+			UpdateFinancialDetails();
+			if (prepareSave) await PrepareSave();
 
 			if (_cart.Count == 0 || _accounting.Id > 0)
 			{
@@ -607,7 +599,7 @@ public partial class FinancialAccountingPage
 
 		try
 		{
-			await SaveTransactionFile();
+			await SaveTransactionFile(true);
 			_isProcessing = true;
 			StateHasChanged();
 

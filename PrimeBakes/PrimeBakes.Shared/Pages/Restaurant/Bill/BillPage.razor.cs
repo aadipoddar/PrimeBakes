@@ -104,10 +104,9 @@ public partial class BillPage
 		_isLoading = false;
 		StateHasChanged();
 
-		await SaveTransactionFile();
+		await SaveTransactionFile(true);
 
-		if (_firstFocus is not null)
-			await _firstFocus.FocusAsync();
+		if (_firstFocus is not null) await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadData()
@@ -466,9 +465,8 @@ public partial class BillPage
 		_selectedPaymentMethod = new();
 		_selectedPaymentCart = new();
 
-		if (_paymentModeAutoComplete is not null)
-			await _paymentModeAutoComplete.FocusAsync();
-		await SaveTransactionFile(true);
+		if (_paymentModeAutoComplete is not null) await _paymentModeAutoComplete.FocusAsync();
+		await SaveTransactionFile(false, true);
 	}
 
 	private async Task EditSelectedPaymentCartItem()
@@ -502,7 +500,7 @@ public partial class BillPage
 		var selectedCartItem = _sfPaymentsCartGrid.SelectedRecords.First();
 		_paymentsCart.Remove(selectedCartItem);
 		ApplyPaymentsToBill();
-		await SaveTransactionFile(true);
+		await SaveTransactionFile(false, true);
 	}
 	#endregion
 
@@ -554,13 +552,6 @@ public partial class BillPage
 		_selectedDiningTable = value;
 		_bill.DiningTableId = value.Id;
 
-		await LoadItems();
-		await SaveTransactionFile();
-	}
-
-	private async Task OnTransactionDateChanged(DateTime value)
-	{
-		_bill.TransactionDateTime = value;
 		await LoadItems();
 		await SaveTransactionFile();
 	}
@@ -823,7 +814,7 @@ public partial class BillPage
 	#endregion
 
 	#region Saving
-	private async Task UpdateFinancialDetails(bool customRoundOff = false)
+	private void UpdateFinancialDetails(bool customRoundOff = false)
 	{
 		if (!_user.ChangeProductFinancial)
 		{
@@ -833,12 +824,7 @@ public partial class BillPage
 		}
 
 		if (_user.LocationId != 1)
-		{
-			var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
-			_selectedCompany = _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value);
 			_selectedLocation = _locations.FirstOrDefault(s => s.Id == _user.LocationId);
-			_bill.TransactionDateTime = await CommonData.LoadCurrentDateTime();
-		}
 
 		foreach (var item in _cart.ToList())
 		{
@@ -913,19 +899,31 @@ public partial class BillPage
 		_bill.DiningTableId = _selectedDiningTable?.Id ?? 0;
 		_bill.CustomerId = _selectedCustomer is { Id: > 0 } ? _selectedCustomer.Id : null;
 
-		#region Financial Year
+		SyncPaymentsFromBill();
+		ApplyPaymentsToBill();
+
+		// A bill is "running" until it is fully paid.
+		_bill.Running = _bill.Cash + _bill.Card + _bill.UPI + _bill.Credit != _bill.TotalAmount;
+	}
+
+	private async Task PrepareSave()
+	{
+		if (_user.LocationId != 1)
+		{
+			var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
+			_selectedCompany = _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value);
+			_bill.CompanyId = _selectedCompany.Id;
+			_bill.TransactionDateTime = await CommonData.LoadCurrentDateTime();
+		}
+
 		_selectedFinancialYear = await FinancialYearData.LoadFinancialYearByDateTime(_bill.TransactionDateTime);
 		if (_selectedFinancialYear is not null && !_selectedFinancialYear.Locked)
 			_bill.FinancialYearId = _selectedFinancialYear.Id;
 		else
 			await _toastNotification.ShowAsync("Invalid Transaction Date", "The selected transaction date does not fall within an active financial year.", ToastType.Error);
-		#endregion
 
 		if (Id is null)
 			_bill.TransactionNo = await GenerateCodes.GenerateBillTransactionNo(_bill);
-
-		SyncPaymentsFromBill();
-		ApplyPaymentsToBill();
 
 		var currentDateTime = await CommonData.LoadCurrentDateTime();
 		_bill.Status = true;
@@ -935,12 +933,9 @@ public partial class BillPage
 		_bill.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
 		_bill.CreatedBy = _user.Id;
 		_bill.LastModifiedBy = _user.Id;
-
-		// A bill is "running" until it is fully paid.
-		_bill.Running = _bill.Cash + _bill.Card + _bill.UPI + _bill.Credit != _bill.TotalAmount;
 	}
 
-	private async Task SaveTransactionFile(bool customRoundOff = false)
+	private async Task SaveTransactionFile(bool prepareSave = false, bool customRoundOff = false)
 	{
 		if (_isProcessing || _isLoading)
 			return;
@@ -949,7 +944,8 @@ public partial class BillPage
 		{
 			_isProcessing = true;
 
-			await UpdateFinancialDetails(customRoundOff);
+			UpdateFinancialDetails(customRoundOff);
+			if (prepareSave) await PrepareSave();
 
 			if (_cart.Count == 0 || _bill.Id > 0)
 			{
@@ -966,11 +962,8 @@ public partial class BillPage
 		}
 		finally
 		{
-			if (_sfCartGrid is not null)
-				await _sfCartGrid.Refresh();
-
-			if (_sfPaymentsCartGrid is not null)
-				await _sfPaymentsCartGrid.Refresh();
+			if (_sfCartGrid is not null) await _sfCartGrid.Refresh();
+			if (_sfPaymentsCartGrid is not null) await _sfPaymentsCartGrid.Refresh();
 
 			_isProcessing = false;
 			StateHasChanged();
@@ -984,7 +977,7 @@ public partial class BillPage
 
 		try
 		{
-			await SaveTransactionFile(true);
+			await SaveTransactionFile(true, true);
 			_isProcessing = true;
 			StateHasChanged();
 
@@ -1028,7 +1021,7 @@ public partial class BillPage
 
 		try
 		{
-			await SaveTransactionFile(true);
+			await SaveTransactionFile(true, true);
 			_isProcessing = true;
 			StateHasChanged();
 

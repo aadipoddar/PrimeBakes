@@ -96,8 +96,7 @@ public partial class SaleReport : IAsyncDisposable
 		_isLoading = false;
 		StateHasChanged();
 
-		if (_firstFocus is not null)
-			await _firstFocus.FocusAsync();
+		if (_firstFocus is not null) await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadData()
@@ -189,8 +188,7 @@ public partial class SaleReport : IAsyncDisposable
 				})
 				.OrderBy(t => t.LocationName)];
 
-		if (_sfGrid is not null)
-			await _sfGrid.Refresh();
+		if (_sfGrid is not null) await _sfGrid.Refresh();
 		StateHasChanged();
 	}
 
@@ -766,8 +764,7 @@ public partial class SaleReport : IAsyncDisposable
 		_showAllColumns = !_showAllColumns;
 		StateHasChanged();
 
-		if (_sfGrid is not null)
-			await _sfGrid.Refresh();
+		if (_sfGrid is not null) await _sfGrid.Refresh();
 	}
 
 	private async Task ToggleSaleReturns()

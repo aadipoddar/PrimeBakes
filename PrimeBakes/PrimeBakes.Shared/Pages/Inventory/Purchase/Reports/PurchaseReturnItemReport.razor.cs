@@ -169,8 +169,7 @@ public partial class PurchaseReturnItemReport : IAsyncDisposable
 				})
 				.OrderBy(t => t.ItemName)];
 
-		if (_sfGrid is not null)
-			await _sfGrid.Refresh();
+		if (_sfGrid is not null) await _sfGrid.Refresh();
 		StateHasChanged();
 	}
 	#endregion
@@ -449,8 +448,7 @@ public partial class PurchaseReturnItemReport : IAsyncDisposable
 		_showAllColumns = !_showAllColumns;
 		StateHasChanged();
 
-		if (_sfGrid is not null)
-			await _sfGrid.Refresh();
+		if (_sfGrid is not null) await _sfGrid.Refresh();
 	}
 
 	private async Task ToggleDeleted()

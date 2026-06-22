@@ -98,10 +98,9 @@ public partial class SaleReturnPage
 		_isLoading = false;
 		StateHasChanged();
 
-		await SaveTransactionFile();
+		await SaveTransactionFile(true);
 
-		if (_firstFocus is not null)
-			await _firstFocus.FocusAsync();
+		if (_firstFocus is not null) await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadData()
@@ -419,9 +418,8 @@ public partial class SaleReturnPage
 		_selectedPaymentMethod = new();
 		_selectedPaymentCart = new();
 
-		if (_paymentModeAutoComplete is not null)
-			await _paymentModeAutoComplete.FocusAsync();
-		await SaveTransactionFile(true);
+		if (_paymentModeAutoComplete is not null) await _paymentModeAutoComplete.FocusAsync();
+		await SaveTransactionFile(false, true);
 	}
 
 	private async Task EditSelectedPaymentCartItem()
@@ -455,7 +453,7 @@ public partial class SaleReturnPage
 		var selectedCartItem = _sfPaymentsCartGrid.SelectedRecords.First();
 		_paymentsCart.Remove(selectedCartItem);
 		ApplyPaymentsToSaleReturn();
-		await SaveTransactionFile(true);
+		await SaveTransactionFile(false, true);
 	}
 	#endregion
 
@@ -515,13 +513,6 @@ public partial class SaleReturnPage
 		await SaveTransactionFile();
 	}
 
-	private async Task OnTransactionDateChanged(DateTime value)
-	{
-		_saleReturn.TransactionDateTime = value;
-		await LoadItems();
-		await SaveTransactionFile();
-	}
-
 	private async Task OnCustomerNumberChanged(string value)
 	{
 		value ??= string.Empty;
@@ -564,7 +555,7 @@ public partial class SaleReturnPage
 	private async Task OnRoundOffAmountChanged(decimal value)
 	{
 		_saleReturn.RoundOffAmount = value;
-		await SaveTransactionFile(true);
+		await SaveTransactionFile(false, true);
 	}
 	#endregion
 
@@ -773,7 +764,7 @@ public partial class SaleReturnPage
 	#endregion
 
 	#region Saving
-	private async Task UpdateFinancialDetails(bool customRoundOff = false)
+	private void UpdateFinancialDetails(bool customRoundOff = false)
 	{
 		if (!_user.ChangeProductFinancial)
 		{
@@ -783,12 +774,7 @@ public partial class SaleReturnPage
 		}
 
 		if (_user.LocationId != 1)
-		{
-			var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
-			_selectedCompany = _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value);
 			_selectedLocation = _locations.FirstOrDefault(s => s.Id == _user.LocationId);
-			_saleReturn.TransactionDateTime = await CommonData.LoadCurrentDateTime();
-		}
 
 		if (_saleReturn.LocationId != 1)
 			_selectedParty = null;
@@ -868,19 +854,28 @@ public partial class SaleReturnPage
 		_saleReturn.CustomerId = _selectedCustomer is { Id: > 0 } ? _selectedCustomer.Id : null;
 		_saleReturn.CreatedBy = _user.Id;
 
-		#region Financial Year
+		SyncPaymentsFromSaleReturn();
+		ApplyPaymentsToSaleReturn();
+	}
+
+	private async Task PrepareSave()
+	{
+		if (_user.LocationId != 1)
+		{
+			var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
+			_selectedCompany = _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value);
+			_saleReturn.CompanyId = _selectedCompany.Id;
+			_saleReturn.TransactionDateTime = await CommonData.LoadCurrentDateTime();
+		}
+
 		_selectedFinancialYear = await FinancialYearData.LoadFinancialYearByDateTime(_saleReturn.TransactionDateTime);
 		if (_selectedFinancialYear is not null && !_selectedFinancialYear.Locked)
 			_saleReturn.FinancialYearId = _selectedFinancialYear.Id;
 		else
 			await _toastNotification.ShowAsync("Invalid Transaction Date", "The selected transaction date does not fall within an active financial year.", ToastType.Error);
-		#endregion
 
 		if (Id is null)
 			_saleReturn.TransactionNo = await GenerateCodes.GenerateSaleReturnTransactionNo(_saleReturn);
-
-		SyncPaymentsFromSaleReturn();
-		ApplyPaymentsToSaleReturn();
 
 		var currentDateTime = await CommonData.LoadCurrentDateTime();
 		_saleReturn.Status = true;
@@ -892,7 +887,7 @@ public partial class SaleReturnPage
 		_saleReturn.LastModifiedBy = _user.Id;
 	}
 
-	private async Task SaveTransactionFile(bool customRoundOff = false)
+	private async Task SaveTransactionFile(bool prepareSave = false, bool customRoundOff = false)
 	{
 		if (_isProcessing || _isLoading)
 			return;
@@ -901,7 +896,8 @@ public partial class SaleReturnPage
 		{
 			_isProcessing = true;
 
-			await UpdateFinancialDetails(customRoundOff);
+			UpdateFinancialDetails(customRoundOff);
+			if (prepareSave) await PrepareSave();
 
 			if (_cart.Count == 0 || _saleReturn.Id > 0)
 			{
@@ -918,11 +914,8 @@ public partial class SaleReturnPage
 		}
 		finally
 		{
-			if (_sfCartGrid is not null)
-				await _sfCartGrid.Refresh();
-
-			if (_sfPaymentsCartGrid is not null)
-				await _sfPaymentsCartGrid.Refresh();
+			if (_sfCartGrid is not null) await _sfCartGrid.Refresh();
+			if (_sfPaymentsCartGrid is not null) await _sfPaymentsCartGrid.Refresh();
 
 			_isProcessing = false;
 			StateHasChanged();
@@ -936,7 +929,7 @@ public partial class SaleReturnPage
 
 		try
 		{
-			await SaveTransactionFile(true);
+			await SaveTransactionFile(true, true);
 			_isProcessing = true;
 			StateHasChanged();
 

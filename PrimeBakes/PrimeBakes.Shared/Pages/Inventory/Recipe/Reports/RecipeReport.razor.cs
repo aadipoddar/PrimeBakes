@@ -97,8 +97,7 @@ public partial class RecipeReport : IAsyncDisposable
 			.Where(r => _showDeleted || r.Status)
 			.OrderBy(r => r.ProductName)];
 
-		if (_sfGrid is not null)
-			await _sfGrid.Refresh();
+		if (_sfGrid is not null) await _sfGrid.Refresh();
 		StateHasChanged();
 	}
 	#endregion

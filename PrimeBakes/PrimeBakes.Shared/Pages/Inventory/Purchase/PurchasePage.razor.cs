@@ -81,10 +81,9 @@ public partial class PurchasePage
 		_isLoading = false;
 		StateHasChanged();
 
-		await SaveTransactionFile();
+		await SaveTransactionFile(true);
 
-		if (_firstFocus is not null)
-			await _firstFocus.FocusAsync();
+		if (_firstFocus is not null) await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadData()
@@ -306,7 +305,6 @@ public partial class PurchasePage
 	private async Task OnTransactionDateChanged(DateTime value)
 	{
 		_purchase.TransactionDateTime = value;
-		await SaveTransactionFile();
 		await LoadItems();
 	}
 
@@ -325,7 +323,7 @@ public partial class PurchasePage
 	private async Task OnRoundOffAmountChanged(decimal value)
 	{
 		_purchase.RoundOffAmount = value;
-		await SaveTransactionFile(true);
+		await SaveTransactionFile(false, true);
 	}
 	#endregion
 
@@ -541,7 +539,7 @@ public partial class PurchasePage
 	#endregion
 
 	#region Saving
-	private async Task UpdateFinancialDetails(bool customRoundOff = false)
+	private void UpdateFinancialDetails(bool customRoundOff = false)
 	{
 		foreach (var item in _cart.ToList())
 		{
@@ -598,14 +596,15 @@ public partial class PurchasePage
 
 		if (!customRoundOff) _purchase.RoundOffAmount = Math.Round(totalAfterCashDiscount) - totalAfterCashDiscount;
 		_purchase.TotalAmount = totalAfterCashDiscount + _purchase.RoundOffAmount;
+	}
 
-		#region Financial Year
+	private async Task PrepareSave()
+	{
 		_selectedFinancialYear = await FinancialYearData.LoadFinancialYearByDateTime(_purchase.TransactionDateTime);
 		if (_selectedFinancialYear is not null && !_selectedFinancialYear.Locked)
 			_purchase.FinancialYearId = _selectedFinancialYear.Id;
 		else
 			await _toastNotification.ShowAsync("Invalid Transaction Date", "The selected transaction date does not fall within an active financial year.", ToastType.Error);
-		#endregion
 
 		if (Id is null)
 			_purchase.TransactionNo = await GenerateCodes.GeneratePurchaseTransactionNo(_purchase);
@@ -620,7 +619,7 @@ public partial class PurchasePage
 		_purchase.LastModifiedBy = _user.Id;
 	}
 
-	private async Task SaveTransactionFile(bool customRoundOff = false)
+	private async Task SaveTransactionFile(bool prepareSave = false, bool customRoundOff = false)
 	{
 		if (_isProcessing || _isLoading)
 			return;
@@ -629,7 +628,8 @@ public partial class PurchasePage
 		{
 			_isProcessing = true;
 
-			await UpdateFinancialDetails(customRoundOff);
+			UpdateFinancialDetails(customRoundOff);
+			if (prepareSave) await PrepareSave();
 
 			if (_cart.Count == 0 || _purchase.Id > 0)
 			{
@@ -646,8 +646,7 @@ public partial class PurchasePage
 		}
 		finally
 		{
-			if (_sfCartGrid is not null)
-				await _sfCartGrid.Refresh();
+			if (_sfCartGrid is not null) await _sfCartGrid.Refresh();
 
 			_isProcessing = false;
 			StateHasChanged();
@@ -661,7 +660,7 @@ public partial class PurchasePage
 
 		try
 		{
-			await SaveTransactionFile(true);
+			await SaveTransactionFile(true, true);
 			_isProcessing = true;
 			StateHasChanged();
 

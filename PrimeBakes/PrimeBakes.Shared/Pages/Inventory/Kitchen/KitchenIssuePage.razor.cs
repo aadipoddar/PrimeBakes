@@ -78,10 +78,9 @@ public partial class KitchenIssuePage
 		_isLoading = false;
 		StateHasChanged();
 
-		await SaveTransactionFile();
+		await SaveTransactionFile(true);
 
-		if (_firstFocus is not null)
-			await _firstFocus.FocusAsync();
+		if (_firstFocus is not null) await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadData()
@@ -277,7 +276,6 @@ public partial class KitchenIssuePage
 	private async Task OnTransactionDateChanged(DateTime value)
 	{
 		_kitchenIssue.TransactionDateTime = value;
-		await SaveTransactionFile();
 		await LoadItems();
 	}
 	#endregion
@@ -411,7 +409,7 @@ public partial class KitchenIssuePage
 	#endregion
 
 	#region Saving
-	private async Task UpdateFinancialDetails()
+	private void UpdateFinancialDetails()
 	{
 		foreach (var item in _cart.ToList())
 		{
@@ -430,14 +428,15 @@ public partial class KitchenIssuePage
 		_kitchenIssue.TotalItems = _cart.Count;
 		_kitchenIssue.TotalQuantity = _cart.Sum(x => x.Quantity);
 		_kitchenIssue.TotalAmount = _cart.Sum(x => x.Total);
+	}
 
-		#region Financial Year
+	private async Task PrepareSave()
+	{
 		_selectedFinancialYear = await FinancialYearData.LoadFinancialYearByDateTime(_kitchenIssue.TransactionDateTime);
 		if (_selectedFinancialYear is not null && !_selectedFinancialYear.Locked)
 			_kitchenIssue.FinancialYearId = _selectedFinancialYear.Id;
 		else
 			await _toastNotification.ShowAsync("Invalid Transaction Date", "The selected transaction date does not fall within an active financial year.", ToastType.Error);
-		#endregion
 
 		if (Id is null)
 			_kitchenIssue.TransactionNo = await GenerateCodes.GenerateKitchenIssueTransactionNo(_kitchenIssue);
@@ -452,7 +451,7 @@ public partial class KitchenIssuePage
 		_kitchenIssue.LastModifiedBy = _user.Id;
 	}
 
-	private async Task SaveTransactionFile()
+	private async Task SaveTransactionFile(bool prepareSave = false)
 	{
 		if (_isProcessing || _isLoading)
 			return;
@@ -461,7 +460,8 @@ public partial class KitchenIssuePage
 		{
 			_isProcessing = true;
 
-			await UpdateFinancialDetails();
+			UpdateFinancialDetails();
+			if (prepareSave) await PrepareSave();
 
 			if (_cart.Count == 0 || _kitchenIssue.Id > 0)
 			{
@@ -478,8 +478,7 @@ public partial class KitchenIssuePage
 		}
 		finally
 		{
-			if (_sfCartGrid is not null)
-				await _sfCartGrid.Refresh();
+			if (_sfCartGrid is not null) await _sfCartGrid.Refresh();
 
 			_isProcessing = false;
 			StateHasChanged();
@@ -493,7 +492,7 @@ public partial class KitchenIssuePage
 
 		try
 		{
-			await SaveTransactionFile();
+			await SaveTransactionFile(true);
 			_isProcessing = true;
 			StateHasChanged();
 

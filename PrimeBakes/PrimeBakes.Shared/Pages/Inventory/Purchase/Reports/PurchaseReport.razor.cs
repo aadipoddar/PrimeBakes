@@ -168,8 +168,7 @@ public partial class PurchaseReport : IAsyncDisposable
 				})
 				.OrderBy(t => t.PartyName)];
 
-		if (_sfGrid is not null)
-			await _sfGrid.Refresh();
+		if (_sfGrid is not null) await _sfGrid.Refresh();
 		StateHasChanged();
 	}
 
@@ -491,8 +490,7 @@ public partial class PurchaseReport : IAsyncDisposable
 		_showAllColumns = !_showAllColumns;
 		StateHasChanged();
 
-		if (_sfGrid is not null)
-			await _sfGrid.Refresh();
+		if (_sfGrid is not null) await _sfGrid.Refresh();
 	}
 
 	private async Task ToggleTransactionReturns()

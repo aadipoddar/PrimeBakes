@@ -113,7 +113,7 @@ public partial class SaleMobileCartPage
 		{
 			_isProcessing = true;
 
-			await SaleData.ApplyItemFinancialDetails(_cart, _products, _taxes);
+			SaleData.ApplyItemFinancialDetails(_cart, _products, _taxes);
 
 			if (!_cart.Any(x => x.Quantity > 0))
 				await DataStorageService.LocalRemove(StorageFileNames.SaleMobileCartDataFileName);

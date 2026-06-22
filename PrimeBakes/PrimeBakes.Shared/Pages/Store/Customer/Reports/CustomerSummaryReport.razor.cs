@@ -80,8 +80,7 @@ public partial class CustomerSummaryReport : IAsyncDisposable
 		_isLoading = false;
 		StateHasChanged();
 
-		if (_firstFocus is not null)
-			await _firstFocus.FocusAsync();
+		if (_firstFocus is not null) await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadData()
@@ -151,8 +150,7 @@ public partial class CustomerSummaryReport : IAsyncDisposable
 
 		CalculateTotals(sales, bills, returns);
 
-		if (_sfGrid is not null)
-			await _sfGrid.Refresh();
+		if (_sfGrid is not null) await _sfGrid.Refresh();
 		StateHasChanged();
 	}
 
@@ -289,8 +287,7 @@ public partial class CustomerSummaryReport : IAsyncDisposable
 		_showAllColumns = !_showAllColumns;
 		StateHasChanged();
 
-		if (_sfGrid is not null)
-			await _sfGrid.Refresh();
+		if (_sfGrid is not null) await _sfGrid.Refresh();
 	}
 
 	// Weighted grand-totals for the percentage / average columns (a plain sum of
