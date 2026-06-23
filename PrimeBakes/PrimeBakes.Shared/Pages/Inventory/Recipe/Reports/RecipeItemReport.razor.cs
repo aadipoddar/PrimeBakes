@@ -25,7 +25,10 @@ public partial class RecipeItemReport : IAsyncDisposable
 	private bool _isProcessing = false;
 	private bool _showDeleted = false;
 
-	private DateTime _recipeDateTime = DateTime.Now.Date;
+	private DateTime _costAsOnDateTime = DateTime.Now.Date;
+	private DateTime _effectiveDateTime = DateTime.Now.Date;
+	private int _deductFilter = YesNoFilterOptions.All;
+	private YesNoFilterOption _selectedDeduct;
 
 	private RawMaterialModel? _selectedRawMaterial = null;
 	private RawMaterialCategoryModel? _selectedRawMaterialCategory = null;
@@ -39,10 +42,10 @@ public partial class RecipeItemReport : IAsyncDisposable
 
 	private readonly List<ContextMenuItemModel> _gridContextMenuItems =
 	[
-		new() { Text = "Open Recipe (Alt + O)", Id = "Open", IconCss = "e-icons e-edit", Target = ".e-content" },
+		new() { Text = "View Recipe (Alt + O)", Id = "View", IconCss = "e-icons e-edit", Target = ".e-content" },
 		new() { Text = "Export PDF (Alt + P)", Id = "ExportPDF", IconCss = "e-icons e-export-pdf", Target = ".e-content" },
 		new() { Text = "Export Excel (Alt + E)", Id = "ExportExcel", IconCss = "e-icons e-export-excel", Target = ".e-content" },
-		new() { Text = "Delete (Del)", Id = "Delete", IconCss = "e-icons e-trash", Target = ".e-content" }
+		new() { Text = "Delete (Del)", Id = "DeleteTransaction", IconCss = "e-icons e-trash", Target = ".e-content" }
 	];
 
 	private SfGrid<RecipeItemOverviewModel> _sfGrid;
@@ -83,9 +86,10 @@ public partial class RecipeItemReport : IAsyncDisposable
 
 	private async Task LoadData()
 	{
-		_recipeDateTime = await CommonData.LoadCurrentDateTime();
+		_costAsOnDateTime = await CommonData.LoadCurrentDateTime();
+		_effectiveDateTime = _costAsOnDateTime;
 
-		_rawMaterials = await PurchaseData.LoadRawMaterialByPartyPurchaseDateTime(0, _recipeDateTime);
+		_rawMaterials = await PurchaseData.LoadRawMaterialByPartyPurchaseDateTime(0, _costAsOnDateTime);
 		_rawMaterialCategories = await CommonData.LoadTableDataByStatus<RawMaterialCategoryModel>(InventoryNames.RawMaterialCategory);
 		_products = await CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product);
 
@@ -122,31 +126,54 @@ public partial class RecipeItemReport : IAsyncDisposable
 	}
 	private async Task ApplyFilters()
 	{
-		foreach (var item in _allItemOverviews)
+		var asOn = DateOnly.FromDateTime(_effectiveDateTime);
+		var statusFiltered = _allItemOverviews.Where(i => (_showDeleted || i.MasterStatus) && i.FromDate <= asOn &&
+			(_deductFilter == YesNoFilterOptions.All ||
+				(_deductFilter == YesNoFilterOptions.Yes && i.Deduct) ||
+				(_deductFilter == YesNoFilterOptions.No && !i.Deduct))).ToList();
+		var effectiveFromDate = statusFiltered
+			.GroupBy(i => new { i.ProductId, i.Deduct })
+			.ToDictionary(g => g.Key, g => g.Max(i => i.FromDate));
+
+		_itemOverviews = [.. statusFiltered.Where(i =>
+				i.FromDate == effectiveFromDate[new { i.ProductId, i.Deduct }] &&
+				(_selectedRawMaterial is null || _selectedRawMaterial.Id == 0 || i.ItemId == _selectedRawMaterial.Id) &&
+				(_selectedRawMaterialCategory is null || _selectedRawMaterialCategory.Id == 0 || i.ItemCategoryId == _selectedRawMaterialCategory.Id) &&
+				(_selectedProduct is null || _selectedProduct.Id == 0 || i.ProductId == _selectedProduct.Id))
+			.OrderBy(i => i.ItemName).ThenBy(i => i.ProductName).ThenByDescending(i => i.Deduct)];
+
+		_rawMaterials = await PurchaseData.LoadRawMaterialByPartyPurchaseDateTime(0, _costAsOnDateTime);
+		_rawMaterials = [.. _rawMaterials.OrderBy(r => r.Name)];
+
+		foreach (var item in _itemOverviews)
 		{
 			item.Rate = _rawMaterials.FirstOrDefault(r => r.Id == item.ItemId)?.Rate ?? item.Rate;
 			item.Amount = item.Quantity * item.Rate;
 			item.PerUnit = item.RecipeQuantity > 0 ? item.Amount / item.RecipeQuantity : 0m;
 		}
 
-		_itemOverviews = [.. _allItemOverviews.Where(i =>
-				(_showDeleted || i.MasterStatus) &&
-				(_selectedRawMaterial is null || _selectedRawMaterial.Id == 0 || i.ItemId == _selectedRawMaterial.Id) &&
-				(_selectedRawMaterialCategory is null || _selectedRawMaterialCategory.Id == 0 || i.ItemCategoryId == _selectedRawMaterialCategory.Id) &&
-				(_selectedProduct is null || _selectedProduct.Id == 0 || i.ProductId == _selectedProduct.Id))
-			.OrderBy(i => i.ItemName).ThenBy(i => i.ProductName)];
-
-		if (_sfGrid is not null) await _sfGrid.Refresh(); StateHasChanged();
+		if (_sfGrid is not null) await _sfGrid.Refresh();
+		StateHasChanged();
 	}
 	#endregion
 
 	#region Changed Events
-	private async Task OnRecipeDateChanged(DateTime value)
+	private async Task OnCostAsOnDateChanged(DateTime value)
 	{
-		_recipeDateTime = value;
-		_rawMaterials = await PurchaseData.LoadRawMaterialByPartyPurchaseDateTime(0, _recipeDateTime);
-		_rawMaterials = [.. _rawMaterials.OrderBy(r => r.Name)];
+		_costAsOnDateTime = value;
+		await ApplyFilters();
+	}
 
+	private async Task OnEffectiveDateChanged(DateTime value)
+	{
+		_effectiveDateTime = value;
+		await ApplyFilters();
+	}
+
+	private async Task OnDeductFilterChanged(YesNoFilterOption value)
+	{
+		_selectedDeduct = value;
+		_deductFilter = value?.Id ?? YesNoFilterOptions.All;
 		await ApplyFilters();
 	}
 
@@ -170,6 +197,21 @@ public partial class RecipeItemReport : IAsyncDisposable
 	#endregion
 
 	#region Actions
+	private async Task ViewSelectedRecipe()
+	{
+		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+			return;
+
+		var record = _sfGrid.SelectedRecords.First();
+		if (!record.MasterStatus)
+		{
+			await _toastNotification.ShowAsync("Cannot Open", "The selected recipe is deleted. Please recover it first.", ToastType.Warning);
+			return;
+		}
+
+		await AuthenticationService.NavigateToRoute($"{InventoryRouteNames.Recipe}/{record.MasterId}", FormFactor, JSRuntime, NavigationManager);
+	}
+
 	private async Task DeleteTransaction(int masterId, string productName)
 	{
 		if (_isProcessing || masterId == 0)
@@ -261,7 +303,13 @@ public partial class RecipeItemReport : IAsyncDisposable
 
 			var (stream, fileName) = await RecipeReportExport.ExportItemReport(
 				_itemOverviews,
-				isExcel ? ReportExportType.Excel : ReportExportType.PDF);
+				isExcel ? ReportExportType.Excel : ReportExportType.PDF,
+				DateOnly.FromDateTime(_effectiveDateTime),
+				DateOnly.FromDateTime(_costAsOnDateTime),
+				_selectedDeduct?.Name,
+				_selectedRawMaterial?.Name,
+				_selectedRawMaterialCategory?.Name,
+				_selectedProduct?.Name);
 			await SaveAndViewService.SaveAndView(fileName, stream);
 
 			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
@@ -291,7 +339,7 @@ public partial class RecipeItemReport : IAsyncDisposable
 			var (stream, fileName) = await RecipeInvoiceExport.ExportInvoice(
 				_sfGrid.SelectedRecords.First().MasterId,
 				isExcel ? InvoiceExportType.Excel : InvoiceExportType.PDF,
-				_recipeDateTime);
+				_costAsOnDateTime);
 			await SaveAndViewService.SaveAndView(fileName, stream);
 
 			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
@@ -313,10 +361,10 @@ public partial class RecipeItemReport : IAsyncDisposable
 	{
 		switch (args.Item.Id)
 		{
-			case "Open": await AuthenticationService.NavigateToRoute(InventoryRouteNames.Recipe, FormFactor, JSRuntime, NavigationManager); break;
+			case "View": await ViewSelectedRecipe(); break;
 			case "ExportPDF": await ExportSelectedTransaction(); break;
 			case "ExportExcel": await ExportSelectedTransaction(true); break;
-			case "Delete": await DeleteSelectedTransaction(); break;
+			case "DeleteTransaction": await DeleteSelectedTransaction(); break;
 		}
 	}
 

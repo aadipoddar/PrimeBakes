@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Components;
+
 using PrimeBakes.Library.Inventory.Purchase.Data;
 using PrimeBakes.Library.Inventory.RawMaterial.Models;
 using PrimeBakes.Library.Inventory.Recipe.Data;
@@ -16,6 +18,8 @@ namespace PrimeBakes.Shared.Pages.Inventory.Recipe;
 
 public partial class RecipePage
 {
+	[Parameter] public int? Id { get; set; }
+
 	private UserModel _user;
 
 	private bool _isLoading = true;
@@ -24,8 +28,9 @@ public partial class RecipePage
 	private ProductLocationOverviewModel _selectedProduct;
 	private RawMaterialModel _selectedRawMaterial;
 	private RecipeItemCartModel _selectedCart = new();
-	private RecipeModel _recipe = new();
-	private DateTime _recipeDateTime = DateTime.Now;
+	private RecipeModel _recipe = new() { Deduct = true, Quantity = 1, Status = true };
+	private DateTime _costAsOnDateTime = DateTime.Now;
+	private DateTime _effectiveDateTime = DateTime.Now;
 
 	private List<ProductLocationOverviewModel> _products = [];
 	private List<RawMaterialModel> _rawMaterials = [];
@@ -58,12 +63,30 @@ public partial class RecipePage
 
 	private async Task LoadData()
 	{
-		_recipeDateTime = await CommonData.LoadCurrentDateTime();
-		_products = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, 1, DateOnly.FromDateTime(_recipeDateTime));
-		_rawMaterials = await PurchaseData.LoadRawMaterialByPartyPurchaseDateTime(0, _recipeDateTime);
+		_costAsOnDateTime = await CommonData.LoadCurrentDateTime();
+		_effectiveDateTime = _costAsOnDateTime;
+
+		if (Id.HasValue && Id.Value > 0)
+		{
+			_recipe = await CommonData.LoadTableDataById<RecipeModel>(InventoryNames.Recipe, Id.Value);
+			if (_recipe is null || _recipe.Id == 0)
+			{
+				await _toastNotification.ShowAsync("Recipe Not Found", "The requested recipe could not be found.", ToastType.Error);
+				ResetPage();
+				return;
+			}
+
+			_effectiveDateTime = _recipe.FromDate.ToDateTime(TimeOnly.MinValue);
+		}
+
+		_products = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, 1, DateOnly.FromDateTime(_effectiveDateTime));
+		_rawMaterials = await PurchaseData.LoadRawMaterialByPartyPurchaseDateTime(0, _costAsOnDateTime);
 
 		_products = [.. _products.OrderBy(s => s.Name)];
 		_rawMaterials = [.. _rawMaterials.OrderBy(s => s.Name)];
+
+		if (_recipe.Id > 0)
+			await LoadExistingRecipe();
 
 		_isLoading = false;
 		StateHasChanged();
@@ -72,65 +95,45 @@ public partial class RecipePage
 			await _firstFocus.FocusAsync();
 	}
 
-	private async Task LoadRecipe()
+	private async Task LoadExistingRecipe()
 	{
-		if (_isProcessing || _isLoading || _selectedProduct is null || _selectedProduct.ProductId == 0)
-			return;
+		_selectedProduct = _products.FirstOrDefault(p => p.ProductId == _recipe.ProductId);
 
-		try
+		_recipeItems.Clear();
+		var recipeDetails = await CommonData.LoadTableDataByMasterId<RecipeDetailModel>(InventoryNames.RecipeDetail, _recipe.Id);
+
+		foreach (var detail in recipeDetails)
 		{
-			_isProcessing = true;
-			StateHasChanged();
+			var rawMaterial = _rawMaterials.FirstOrDefault(r => r.Id == detail.RawMaterialId);
+			var amount = detail.Quantity * (rawMaterial?.Rate ?? 0);
 
-			_recipeItems.Clear();
-
-			_recipe = await RecipeData.LoadRecipeByProduct(_selectedProduct.ProductId)
-				?? new() { ProductId = _selectedProduct.ProductId, Deduct = true, Quantity = 1, Status = true };
-
-			var recipeDetails = await CommonData.LoadTableDataByMasterId<RecipeDetailModel>(InventoryNames.RecipeDetail, _recipe.Id);
-
-			foreach (var detail in recipeDetails)
+			_recipeItems.Add(new()
 			{
-				var rawMaterial = _rawMaterials.FirstOrDefault(r => r.Id == detail.RawMaterialId);
-				var amount = detail.Quantity * (rawMaterial?.Rate ?? 0);
+				ItemId = detail.RawMaterialId,
+				ItemName = rawMaterial?.Name ?? "Unknown",
+				Quantity = detail.Quantity,
+				Rate = rawMaterial?.Rate ?? 0,
+				Amount = amount,
+				PerUnit = _recipe.Quantity > 0 ? amount / _recipe.Quantity : 0m
+			});
+		}
 
-				_recipeItems.Add(new()
-				{
-					ItemId = detail.RawMaterialId,
-					ItemName = rawMaterial?.Name ?? "Unknown",
-					Quantity = detail.Quantity,
-					Rate = rawMaterial?.Rate ?? 0,
-					Amount = amount,
-					PerUnit = _recipe.Quantity > 0 ? amount / _recipe.Quantity : 0m
-				});
-			}
-		}
-		catch (Exception ex)
-		{
-			await _toastNotification.ShowAsync("Error While Loading Recipe", ex.Message, ToastType.Error);
-		}
-		finally
-		{
-			if (_sfCartGrid is not null) await _sfCartGrid.Refresh();
-
-			_isProcessing = false;
-			StateHasChanged();
-		}
+		if (_sfCartGrid is not null) await _sfCartGrid.Refresh();
 	}
 	#endregion
 
 	#region Changed Events
-	private async Task OnProductChanged(ProductLocationOverviewModel value)
+	private void OnProductChanged(ProductLocationOverviewModel value)
 	{
 		_selectedProduct = value ?? _products.FirstOrDefault();
-		await LoadRecipe();
+		StateHasChanged();
 	}
 
-	private async Task OnRecipeDateChanged(DateTime value)
+	private async Task OnCostAsOnDateChanged(DateTime value)
 	{
-		_recipeDateTime = value;
-		_rawMaterials = await PurchaseData.LoadRawMaterialByPartyPurchaseDateTime(0, _recipeDateTime);
-		_rawMaterials = [.. _rawMaterials.OrderBy(s => s.Name)];
+		_costAsOnDateTime = value;
+		_rawMaterials = await PurchaseData.LoadRawMaterialByPartyPurchaseDateTime(0, _costAsOnDateTime);
+		_rawMaterials = [.. _rawMaterials.OrderBy(r => r.Name)];
 
 		foreach (var item in _recipeItems)
 		{
@@ -139,8 +142,13 @@ public partial class RecipePage
 			item.PerUnit = _recipe.Quantity > 0 ? item.Amount / _recipe.Quantity : 0m;
 		}
 
-		if (_sfCartGrid is not null)
-			await _sfCartGrid.Refresh();
+		if (_sfCartGrid is not null) await _sfCartGrid.Refresh();
+		StateHasChanged();
+	}
+
+	private void OnEffectiveDateChanged(DateTime value)
+	{
+		_effectiveDateTime = value;
 		StateHasChanged();
 	}
 
@@ -257,6 +265,7 @@ public partial class RecipePage
 			await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the recipe is being saved...", ToastType.Info);
 
 			_recipe.ProductId = _selectedProduct.ProductId;
+			_recipe.FromDate = DateOnly.FromDateTime(_effectiveDateTime);
 			_recipe.Status = true;
 
 			var platform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
@@ -294,7 +303,7 @@ public partial class RecipePage
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var (stream, fileName) = await RecipeInvoiceExport.ExportInvoice(_recipe.Id, isExcel ? InvoiceExportType.Excel : InvoiceExportType.PDF, _recipeDateTime);
+			var (stream, fileName) = await RecipeInvoiceExport.ExportInvoice(_recipe.Id, isExcel ? InvoiceExportType.Excel : InvoiceExportType.PDF, _costAsOnDateTime);
 			await SaveAndViewService.SaveAndView(fileName, stream);
 
 			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);

@@ -114,14 +114,7 @@ else
 							<GridColumn Field="@nameof(ProductLocationOverviewModel.Code)" HeaderText="Product Code" Width="150" />
 							<GridColumn Field="@nameof(ProductLocationOverviewModel.Name)" HeaderText="Product Name" Width="200" />
 							<GridColumn Field="@nameof(ProductLocationOverviewModel.Rate)" HeaderText="Rate" Width="120" TextAlign="TextAlign.Right" Format="N2" />
-							<GridColumn HeaderText="Effective Date" Width="140" TextAlign="TextAlign.Center">
-								<Template>
-									@{
-										var productLocation = (context as ProductLocationOverviewModel);
-										<span>@productLocation.FromDate.ToString("dd-MMM-yyyy")</span>
-									}
-								</Template>
-							</GridColumn>
+							<GridColumn Field="@nameof(ProductLocationOverviewModel.FromDate)" HeaderText="Effective Date" Width="150" Format="dd/MM/yy" Type="ColumnType.DateOnly" TextAlign="TextAlign.Center" />
 						</GridColumns>
 					</SfGrid>
 				</div>

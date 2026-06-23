@@ -156,8 +156,6 @@ public static class InventoryNames
 
 	public static string RecipeOverview => "Recipe_Overview";
 	public static string RecipeItemOverview => "Recipe_Item_Overview";
-
-	public static string LoadRecipeByProduct => "Load_Recipe_By_Product";
 	#endregion
 
 	#region Raw Material

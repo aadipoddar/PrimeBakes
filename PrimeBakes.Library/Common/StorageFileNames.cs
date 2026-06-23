@@ -21,6 +21,9 @@ public static class StorageFileNames
 	public static string RawMaterialStockAdjustmentCartDataFileName => "raw_material_stock_adjustment_cart_data.json";
 	public static string ProductStockAdjustmentCartDataFileName => "product_stock_adjustment_cart_data.json";
 
+	public static string RecipeDataFileName => "recipe_data.json";
+	public static string RecipeCartDataFileName => "recipe_cart_data.json";
+
 	public static string OrderDataFileName => "order_data.json";
 	public static string OrderCartDataFileName => "order_cart_data.json";
 	public static string OrderMobileDataFileName => "order_mobile_data.json";

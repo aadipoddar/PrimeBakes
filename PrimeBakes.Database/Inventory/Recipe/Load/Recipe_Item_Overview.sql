@@ -22,6 +22,7 @@ SELECT
 	[p].[Name] AS ProductName,
 	[r].[Quantity] AS RecipeQuantity,
 	[r].[Deduct],
+	[r].[FromDate],
 
 	[r].[Status] AS MasterStatus
 

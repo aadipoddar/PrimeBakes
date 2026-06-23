@@ -8,7 +8,7 @@ namespace PrimeBakes.Library.Inventory.Recipe.Exports;
 
 public static class RecipeInvoiceExport
 {
-	public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId, InvoiceExportType exportType, DateTime? recipeDateTime = null)
+	public static async Task<(MemoryStream stream, string fileName)> ExportInvoice(int transactionId, InvoiceExportType exportType, DateTime? costAsOnDateTime = null)
 	{
 		var transaction = await CommonData.LoadTableDataById<RecipeModel>(InventoryNames.Recipe, transactionId) ??
 			throw new InvalidOperationException("Transaction not found.");
@@ -17,10 +17,10 @@ public static class RecipeInvoiceExport
 		if (transactionDetails is null || transactionDetails.Count == 0)
 			throw new InvalidOperationException("No transaction details found for the transaction.");
 
-		recipeDateTime ??= await CommonData.LoadCurrentDateTime();
+		costAsOnDateTime ??= await CommonData.LoadCurrentDateTime();
 
 		var product = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, transaction.ProductId);
-		var rawMaterials = await PurchaseData.LoadRawMaterialByPartyPurchaseDateTime(0, recipeDateTime.Value);
+		var rawMaterials = await PurchaseData.LoadRawMaterialByPartyPurchaseDateTime(0, costAsOnDateTime.Value);
 
 		var lineItems = transactionDetails.Select(detail =>
 		{
@@ -39,9 +39,9 @@ public static class RecipeInvoiceExport
 
 		var invoiceData = new InvoiceData
 		{
-			Company = new() { Name = product.Name, Address = $"Quantity: {transaction.Quantity}" },
+			Company = new() { Name = product.Name, Address = $"Quantity: {transaction.Quantity} | Effective: {transaction.FromDate:dd-MMM-yyyy}" },
 			InvoiceType = "Recipe",
-			TransactionDateTime = recipeDateTime.Value,
+			TransactionDateTime = costAsOnDateTime.Value,
 			TotalAmount = lineItems.Sum(i => i.Amount),
 			Status = transaction.Status
 		};

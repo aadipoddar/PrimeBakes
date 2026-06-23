@@ -1,3 +1,5 @@
+using PrimeBakes.Library.Inventory.Purchase.Data;
+using PrimeBakes.Library.Inventory.RawMaterial.Models;
 using PrimeBakes.Library.Inventory.Recipe.Data;
 using PrimeBakes.Library.Inventory.Recipe.Exports;
 using PrimeBakes.Library.Inventory.Recipe.Models;
@@ -21,15 +23,22 @@ public partial class RecipeReport : IAsyncDisposable
 	private bool _isProcessing = false;
 	private bool _showDeleted = false;
 
+	private DateTime _effectiveDateTime = DateTime.Now.Date;
+	private DateTime _costAsOnDateTime = DateTime.Now.Date;
+	private int _deductFilter = YesNoFilterOptions.All;
+	private YesNoFilterOption _selectedDeduct;
+
 	private List<RecipeOverviewModel> _recipeOverviews = [];
 	private List<RecipeOverviewModel> _allRecipeOverviews = [];
+	private List<RecipeDetailModel> _recipeDetails = [];
+	private List<RawMaterialModel> _rawMaterials = [];
 
 	private readonly List<ContextMenuItemModel> _gridContextMenuItems =
 	[
-		new() { Text = "Open Recipe (Alt + O)", Id = "Open", IconCss = "e-icons e-edit", Target = ".e-content" },
+		new() { Text = "View Recipe (Alt + O)", Id = "View", IconCss = "e-icons e-edit", Target = ".e-content" },
 		new() { Text = "Export PDF (Alt + P)", Id = "ExportPDF", IconCss = "e-icons e-export-pdf", Target = ".e-content" },
 		new() { Text = "Export Excel (Alt + E)", Id = "ExportExcel", IconCss = "e-icons e-export-excel", Target = ".e-content" },
-		new() { Text = "Delete (Del)", Id = "Delete", IconCss = "e-icons e-trash", Target = ".e-content" }
+		new() { Text = "Delete (Del)", Id = "DeleteTransaction", IconCss = "e-icons e-trash", Target = ".e-content" }
 	];
 
 	private SfGrid<RecipeOverviewModel> _sfGrid;
@@ -56,6 +65,9 @@ public partial class RecipeReport : IAsyncDisposable
 
 	private async Task InitializePage()
 	{
+		_effectiveDateTime = await CommonData.LoadCurrentDateTime();
+		_costAsOnDateTime = _effectiveDateTime;
+
 		await LoadTransactionOverviews();
 		await StartAutoRefresh();
 
@@ -75,6 +87,8 @@ public partial class RecipeReport : IAsyncDisposable
 			await _toastNotification.ShowAsync("Loading", "Fetching recipes...", ToastType.Info);
 
 			_allRecipeOverviews = await CommonData.LoadTableData<RecipeOverviewModel>(InventoryNames.RecipeOverview);
+			_recipeDetails = await CommonData.LoadTableDataByStatus<RecipeDetailModel>(InventoryNames.RecipeDetail);
+			_rawMaterials = await PurchaseData.LoadRawMaterialByPartyPurchaseDateTime(0, _costAsOnDateTime);
 
 			await ApplyFilters();
 		}
@@ -92,16 +106,75 @@ public partial class RecipeReport : IAsyncDisposable
 
 	private async Task ApplyFilters()
 	{
+		var asOn = DateOnly.FromDateTime(_effectiveDateTime);
+
 		_recipeOverviews = [.. _allRecipeOverviews
-			.Where(r => _showDeleted || r.Status)
-			.OrderBy(r => r.ProductName)];
+			.Where(r => (_showDeleted || r.Status) && r.FromDate <= asOn &&
+				(_deductFilter == YesNoFilterOptions.All ||
+					(_deductFilter == YesNoFilterOptions.Yes && r.Deduct) ||
+					(_deductFilter == YesNoFilterOptions.No && !r.Deduct)))
+			.GroupBy(r => new { r.ProductId, r.Deduct })
+			.Select(g => g.OrderByDescending(r => r.FromDate).First())
+			.OrderBy(r => r.ProductName).ThenByDescending(r => r.Deduct)];
+
+		RepriceRecipes();
 
 		if (_sfGrid is not null) await _sfGrid.Refresh();
 		StateHasChanged();
 	}
+
+	private void RepriceRecipes()
+	{
+		var rateLookup = _rawMaterials.ToDictionary(r => r.Id, r => r.Rate);
+
+		foreach (var recipe in _recipeOverviews)
+		{
+			var totalCost = _recipeDetails
+				.Where(d => d.MasterId == recipe.Id)
+				.Sum(d => d.Quantity * (rateLookup.TryGetValue(d.RawMaterialId, out var rate) ? rate : 0m));
+
+			recipe.TotalCost = totalCost;
+			recipe.PerUnitCost = recipe.Quantity > 0 ? totalCost / recipe.Quantity : 0m;
+		}
+	}
+
+	private async Task OnEffectiveDateChanged(DateTime value)
+	{
+		_effectiveDateTime = value;
+		await ApplyFilters();
+	}
+
+	private async Task OnCostAsOnDateChanged(DateTime value)
+	{
+		_costAsOnDateTime = value;
+		_rawMaterials = await PurchaseData.LoadRawMaterialByPartyPurchaseDateTime(0, _costAsOnDateTime);
+		await ApplyFilters();
+	}
+
+	private async Task OnDeductFilterChanged(YesNoFilterOption value)
+	{
+		_selectedDeduct = value;
+		_deductFilter = value?.Id ?? YesNoFilterOptions.All;
+		await ApplyFilters();
+	}
 	#endregion
 
 	#region Actions
+	private async Task ViewSelectedRecipe()
+	{
+		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+			return;
+
+		var record = _sfGrid.SelectedRecords.First();
+		if (!record.Status)
+		{
+			await _toastNotification.ShowAsync("Cannot Open", "The selected recipe is deleted. Please recover it first.", ToastType.Warning);
+			return;
+		}
+
+		await AuthenticationService.NavigateToRoute($"{InventoryRouteNames.Recipe}/{record.Id}", FormFactor, JSRuntime, NavigationManager);
+	}
+
 	private async Task DeleteTransaction(int id, string productName)
 	{
 		if (_isProcessing || id == 0)
@@ -193,7 +266,10 @@ public partial class RecipeReport : IAsyncDisposable
 
 			var (stream, fileName) = await RecipeReportExport.ExportReport(
 				_recipeOverviews,
-				isExcel ? ReportExportType.Excel : ReportExportType.PDF);
+				isExcel ? ReportExportType.Excel : ReportExportType.PDF,
+				DateOnly.FromDateTime(_effectiveDateTime),
+				DateOnly.FromDateTime(_costAsOnDateTime),
+				_selectedDeduct?.Name);
 			await SaveAndViewService.SaveAndView(fileName, stream);
 
 			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
@@ -246,10 +322,10 @@ public partial class RecipeReport : IAsyncDisposable
 	{
 		switch (args.Item.Id)
 		{
-			case "Open": await AuthenticationService.NavigateToRoute(InventoryRouteNames.Recipe, FormFactor, JSRuntime, NavigationManager); break;
+			case "View": await ViewSelectedRecipe(); break;
 			case "ExportPDF": await ExportSelectedTransaction(); break;
 			case "ExportExcel": await ExportSelectedTransaction(true); break;
-			case "Delete": await DeleteSelectedTransaction(); break;
+			case "DeleteTransaction": await DeleteSelectedTransaction(); break;
 		}
 	}
 

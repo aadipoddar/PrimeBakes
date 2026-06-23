@@ -3,6 +3,7 @@ using PrimeBakes.Library.Common;
 using PrimeBakes.Library.Inventory.Kitchen.Models;
 using PrimeBakes.Library.Inventory.Purchase.Models;
 using PrimeBakes.Library.Inventory.RawMaterial.Models;
+using PrimeBakes.Library.Inventory.Recipe.Data;
 using PrimeBakes.Library.Inventory.Recipe.Models;
 using PrimeBakes.Library.Inventory.Stock.Exports;
 using PrimeBakes.Library.Inventory.Stock.Models;
@@ -196,9 +197,8 @@ public static class RawMaterialStockData
 		stockTransfers = [.. stockTransfers.Where(s => (s.LocationId == 1 || s.ToLocationId == 1) && s.MasterStatus)];
 		bills = [.. bills.Where(s => s.LocationId == 1 && s.MasterStatus)];
 
-		var recipes = await CommonData.LoadTableDataByStatus<RecipeModel>(InventoryNames.Recipe);
+		var recipes = await RecipeData.LoadAllRecipes(DateOnly.FromDateTime(toDate), true);
 		var recipeDetails = await CommonData.LoadTableDataByStatus<RecipeDetailModel>(InventoryNames.RecipeDetail);
-		recipes = [.. recipes.Where(r => r.Deduct)];
 
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{

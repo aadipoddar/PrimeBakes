@@ -13,7 +13,7 @@
 <MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport(true)" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyO KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.Recipe, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyO KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="ViewSelectedRecipe" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction(true)" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="DeleteSelectedTransaction" Disabled="@_isProcessing" />
@@ -43,7 +43,7 @@ else
 				</MudBlazor.MudMenu>
 
 				<MudBlazor.MudMenu Label="Transaction" Dense="true" Disabled="_isProcessing">
-					<MudBlazor.MudMenuItem Label="Open Recipe (Alt + O)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.Recipe, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="View Recipe (Alt + O)" OnClick="ViewSelectedRecipe" />
 					<MudBlazor.MudMenuItem Label="Export PDF (Alt + P)" OnClick="() => ExportSelectedTransaction()" />
 					<MudBlazor.MudMenuItem Label="Export Excel (Alt + E)" OnClick="() => ExportSelectedTransaction(true)" />
 					<MudBlazor.MudDivider />
@@ -63,11 +63,30 @@ else
 					<div class="filters-grid">
 						<div class="form-field">
 							<CustomDatePicker @ref="_firstFocus"
-											  Value="_recipeDateTime"
+											  Value="_effectiveDateTime"
+											  Label="Effective Date"
+											  ShowFinancialYear="false"
+											  AddNewRoute="@null"
+											  ValueChanged="OnEffectiveDateChanged" />
+						</div>
+
+						<div class="form-field">
+							<CustomDatePicker Value="_costAsOnDateTime"
 											  Label="Cost As On Date (Ctrl + F)"
 											  ShowFinancialYear="false"
 											  AddNewRoute="@null"
-											  ValueChanged="OnRecipeDateChanged" />
+											  ValueChanged="OnCostAsOnDateChanged" />
+						</div>
+
+						<!-- Deduct -->
+						<div class="form-field">
+							<CustomAutoComplete T="YesNoFilterOption"
+												Value="_selectedDeduct"
+												DataSource="@YesNoFilterOptions.YesNo"
+												Placeholder="All"
+												Label="Deduct on Sale" Required="false"
+												ValueChanged="OnDeductFilterChanged"
+												FieldValue="@nameof(YesNoFilterOption.Name)" />
 						</div>
 
 						<div class="form-field">
@@ -185,8 +204,8 @@ else
 							<GridColumn Field="@nameof(RecipeItemOverviewModel.ItemName)" HeaderText="Raw Material" Width="220" />
 							<GridColumn Field="@nameof(RecipeItemOverviewModel.ItemCode)" HeaderText="Code" Width="120" />
 							<GridColumn Field="@nameof(RecipeItemOverviewModel.ItemCategoryName)" HeaderText="Category" Width="170" />
-							<GridColumn Field="@nameof(RecipeItemOverviewModel.ProductName)" HeaderText="Recipe (Product)" Width="220" />
 							<GridColumn Field="@nameof(RecipeItemOverviewModel.UnitOfMeasurement)" HeaderText="UOM" Width="90" TextAlign="TextAlign.Center" />
+
 							<GridColumn Field="@nameof(RecipeItemOverviewModel.Quantity)" HeaderText="Quantity" Width="130" Format="N2" TextAlign="TextAlign.Right" />
 							<GridColumn Field="@nameof(RecipeItemOverviewModel.Rate)" HeaderText="Rate" Width="120" Format="N2" TextAlign="TextAlign.Right" />
 							<GridColumn Field="@nameof(RecipeItemOverviewModel.Amount)" HeaderText="Amount" Width="140" TextAlign="TextAlign.Right">
@@ -198,7 +217,12 @@ else
 								</Template>
 							</GridColumn>
 							<GridColumn Field="@nameof(RecipeItemOverviewModel.PerUnit)" HeaderText="Per Unit" Width="130" Format="N2" TextAlign="TextAlign.Right" />
+
+							<GridColumn Field="@nameof(RecipeItemOverviewModel.ProductName)" HeaderText="Recipe (Product)" Width="220" />
 							<GridColumn Field="@nameof(RecipeItemOverviewModel.RecipeQuantity)" HeaderText="Recipe Qty" Width="130" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(RecipeItemOverviewModel.Deduct)" HeaderText="Deduct on Sale" Width="160" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
+							<GridColumn Field="@nameof(RecipeItemOverviewModel.FromDate)" HeaderText="Effective Date" Width="150" Format="dd/MM/yy" Type="ColumnType.DateOnly" TextAlign="TextAlign.Center" />
+
 							<GridColumn Field="@nameof(RecipeItemOverviewModel.MasterStatus)" HeaderText="Status" Width="110" Visible="@_showDeleted" TextAlign="TextAlign.Center">
 								<Template>
 									@{

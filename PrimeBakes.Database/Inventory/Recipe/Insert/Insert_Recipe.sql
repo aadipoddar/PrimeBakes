@@ -3,13 +3,14 @@
 	@ProductId INT,
 	@Quantity MONEY,
 	@Deduct BIT,
+	@FromDate DATE,
 	@Status BIT
 AS
 BEGIN
 	IF @Id = 0
 	BEGIN
-		INSERT INTO [dbo].[Recipe] ([ProductId], [Quantity], [Deduct], [Status])
-		VALUES (@ProductId, @Quantity, @Deduct, @Status);
+		INSERT INTO [dbo].[Recipe] ([ProductId], [Quantity], [Deduct], [FromDate], [Status])
+		VALUES (@ProductId, @Quantity, @Deduct, @FromDate, @Status);
 
 		SET @Id = SCOPE_IDENTITY();
 	END
@@ -19,6 +20,7 @@ BEGIN
 		SET [ProductId] = @ProductId,
 			[Quantity] = @Quantity,
 			[Deduct] = @Deduct,
+			[FromDate] = @FromDate,
 			[Status] = @Status
 		WHERE [Id] = @Id;
 	END

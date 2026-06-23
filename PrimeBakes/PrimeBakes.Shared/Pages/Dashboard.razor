@@ -550,8 +550,17 @@ else
 
 						<!-- Recipe Reports -->
 						<div class="launchpad-section">
-							<h2 class="launchpad-section-title">Recipe Reports</h2>
+							<h2 class="launchpad-section-title">Recipe</h2>
 							<div class="dashboard-grid">
+								<FioriTile Title="Recipe" Subtitle="Define raw materials needed per product" OnClick="() => NavigationManager.NavigateTo(InventoryRouteNames.Recipe)">
+									<IconContent>
+										<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+											<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+											<path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+										</svg>
+									</IconContent>
+								</FioriTile>
+
 								<FioriTile Title="Recipe Report" Subtitle="All product recipes with costing" OnClick="() => NavigationManager.NavigateTo(InventoryRouteNames.RecipeReport)">
 									<IconContent>
 										<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -608,15 +617,6 @@ else
 										<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
 										<path d="M7 2v20" />
 										<path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
-									</svg>
-								</IconContent>
-							</FioriTile>
-
-							<FioriTile Title="Recipe" Subtitle="Define raw materials needed per product" OnClick="() => NavigationManager.NavigateTo(InventoryRouteNames.Recipe)">
-								<IconContent>
-									<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-										<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-										<path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
 									</svg>
 								</IconContent>
 							</FioriTile>

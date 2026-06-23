@@ -10,7 +10,7 @@
 <MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport(true)" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyO KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.Recipe, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyO KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="ViewSelectedRecipe" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction(true)" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="DeleteSelectedTransaction" Disabled="@_isProcessing" />
@@ -40,7 +40,7 @@ else
 				</MudBlazor.MudMenu>
 
 				<MudBlazor.MudMenu Label="Transaction" Dense="true" Disabled="_isProcessing">
-					<MudBlazor.MudMenuItem Label="Open Recipe (Alt + O)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.Recipe, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="View Recipe (Alt + O)" OnClick="ViewSelectedRecipe" />
 					<MudBlazor.MudMenuItem Label="Export PDF (Alt + P)" OnClick="() => ExportSelectedTransaction()" />
 					<MudBlazor.MudMenuItem Label="Export Excel (Alt + E)" OnClick="() => ExportSelectedTransaction(true)" />
 					<MudBlazor.MudDivider />
@@ -50,6 +50,44 @@ else
 		</Header>
 
 		<div class="page-container">
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Filters</h2>
+				</div>
+
+				<div class="section-body">
+					<div class="filters-grid">
+						<div class="form-field">
+							<CustomDatePicker Value="_effectiveDateTime"
+											  Label="Effective Date"
+											  ShowFinancialYear="false"
+											  AddNewRoute="@null"
+											  ValueChanged="OnEffectiveDateChanged" />
+						</div>
+
+						<!-- Cost As On Date -->
+						<div class="form-field">
+							<CustomDatePicker Value="_costAsOnDateTime"
+											  Label="Cost As On Date"
+											  ShowFinancialYear="false"
+											  AddNewRoute="@null"
+											  ValueChanged="OnCostAsOnDateChanged" />
+						</div>
+
+						<!-- Deduct -->
+						<div class="form-field">
+							<CustomAutoComplete T="YesNoFilterOption"
+												Value="_selectedDeduct"
+												DataSource="@YesNoFilterOptions.YesNo"
+												Placeholder="All"
+												Label="Deduct on Sale" Required="false"
+												ValueChanged="OnDeductFilterChanged"
+												FieldValue="@nameof(YesNoFilterOption.Name)" />
+						</div>
+					</div>
+				</div>
+			</div>
 
 			<div class="section-card">
 				<div class="section-header">
@@ -128,15 +166,10 @@ else
 
 						<GridColumns>
 							<GridColumn Field="@nameof(RecipeOverviewModel.ProductName)" HeaderText="Product" Width="250" />
+							<GridColumn Field="@nameof(RecipeOverviewModel.FromDate)" HeaderText="Effective Date" Width="150" Format="dd/MM/yy" Type="ColumnType.DateOnly" TextAlign="TextAlign.Center" />
 							<GridColumn Field="@nameof(RecipeOverviewModel.Quantity)" HeaderText="Recipe Qty" Width="140" TextAlign="TextAlign.Right" Format="N2" />
-							<GridColumn Field="@nameof(RecipeOverviewModel.Deduct)" HeaderText="Deduct on Sale" Width="160" TextAlign="TextAlign.Center">
-								<Template>
-									@{
-										var item = (context as RecipeOverviewModel);
-										<span>@(item.Deduct ? "Yes" : "No")</span>
-									}
-								</Template>
-							</GridColumn>
+							<GridColumn Field="@nameof(RecipeOverviewModel.Deduct)" HeaderText="Deduct on Sale" Width="160" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
+
 							<GridColumn Field="@nameof(RecipeOverviewModel.ItemCount)" HeaderText="Ingredients" Width="130" TextAlign="TextAlign.Right" />
 							<GridColumn Field="@nameof(RecipeOverviewModel.TotalCost)" HeaderText="Total Cost" Width="150" TextAlign="TextAlign.Right">
 								<Template>

@@ -2,6 +2,7 @@ using PrimeBakes.Library.Accounts.FinancialAccounting.Data;
 using PrimeBakes.Library.Accounts.FinancialAccounting.Models;
 using PrimeBakes.Library.Accounts.Masters.Data;
 using PrimeBakes.Library.Common;
+using PrimeBakes.Library.Inventory.Recipe.Data;
 using PrimeBakes.Library.Inventory.Recipe.Models;
 using PrimeBakes.Library.Inventory.Stock.Data;
 using PrimeBakes.Library.Inventory.Stock.Models;
@@ -504,8 +505,7 @@ public static class BillData
 		if (bill.LocationId != 1)
 			return;
 
-		var recipes = await CommonData.LoadTableDataByStatus<RecipeModel>(InventoryNames.Recipe, true, sqlDataAccessTransaction);
-		recipes = [.. recipes.Where(r => r.Deduct)];
+		var recipes = await RecipeData.LoadAllRecipes(DateOnly.FromDateTime(bill.TransactionDateTime), true, sqlDataAccessTransaction);
 		var recipeDetails = await CommonData.LoadTableDataByStatus<RecipeDetailModel>(InventoryNames.RecipeDetail, true, sqlDataAccessTransaction);
 
 		foreach (var product in billDetails)

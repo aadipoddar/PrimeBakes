@@ -12,6 +12,7 @@ SELECT
 		WHEN [r].[Quantity] > 0 THEN ISNULL(SUM([rd].[Quantity] * [rm].[Rate]), 0) / [r].[Quantity]
 		ELSE 0
 	END AS PerUnitCost,
+	[r].[FromDate],
 	[r].[Status]
 
 FROM
@@ -29,4 +30,5 @@ GROUP BY
 	[p].[Name],
 	[r].[Quantity],
 	[r].[Deduct],
+	[r].[FromDate],
 	[r].[Status]

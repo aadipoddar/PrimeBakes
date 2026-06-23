@@ -186,7 +186,6 @@
     <Build Include="Inventory\Purchase\Table\PurchaseReturn.sql" />
     <Build Include="Inventory\RawMaterial\Table\RawMaterial.sql" />
     <Build Include="Inventory\RawMaterial\Table\RawMaterialCategory.sql" />
-    <Build Include="Inventory\Recipe\Load\Load_Recipe_By_Product.sql" />
     <Build Include="Inventory\Recipe\Table\Recipe.sql" />
     <Build Include="Inventory\Recipe\Table\RecipeDetail.sql" />
     <Build Include="Inventory\Stock\Delete\Delete_ProductStock_By_Id.sql" />

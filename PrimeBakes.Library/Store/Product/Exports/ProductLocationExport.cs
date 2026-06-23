@@ -19,7 +19,8 @@ public static class ProductLocationExport
 			Location = locations.FirstOrDefault(l => l.Id == pl.LocationId)?.Name ?? "",
 			ProductCode = pl.Code,
 			ProductName = pl.Name,
-			pl.Rate
+			pl.Rate,
+			pl.FromDate
 		}).ToList();
 
 		var columnSettings = new Dictionary<string, ReportColumnSetting>
@@ -28,6 +29,7 @@ public static class ProductLocationExport
 			["ProductCode"] = new() { DisplayName = "Product Code", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			["ProductName"] = new() { DisplayName = "Product Name", Alignment = CellAlignment.Left, IsRequired = true },
 			[nameof(ProductLocationModel.Rate)] = new() { DisplayName = "Rate", Alignment = CellAlignment.Right, Format = "0.00", IncludeInTotal = false },
+			[nameof(ProductLocationOverviewModel.FromDate)] = new() { DisplayName = "Effective Date", Alignment = CellAlignment.Center, Format = "dd-MMM-yyyy", IncludeInTotal = false },
 		};
 
 		List<string> columnOrder =
@@ -35,7 +37,8 @@ public static class ProductLocationExport
 			"Location",
 			"ProductCode",
 			"ProductName",
-			nameof(ProductLocationModel.Rate)
+			nameof(ProductLocationModel.Rate),
+			nameof(ProductLocationOverviewModel.FromDate)
 		];
 
 		var currentDateTime = await CommonData.LoadCurrentDateTime();

@@ -17,8 +17,14 @@ public static class RecipeData
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertRecipeDetail, recipeDetail, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Recipe Detail.");
 
-	public static async Task<RecipeModel> LoadRecipeByProduct(int ProductId, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<RecipeModel, dynamic>(InventoryNames.LoadRecipeByProduct, new { ProductId }, sqlDataAccessTransaction)).FirstOrDefault();
+	public static async Task<List<RecipeModel>> LoadAllRecipes(DateOnly date, bool deduct, SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	{
+		var recipes = await CommonData.LoadTableDataByStatus<RecipeModel>(InventoryNames.Recipe, true, sqlDataAccessTransaction);
+		return [.. recipes
+			.Where(r => r.FromDate <= date && r.Deduct == deduct)
+			.GroupBy(r => r.ProductId)
+			.Select(g => g.OrderByDescending(r => r.FromDate).First())];
+	}
 
 	public static List<RecipeDetailModel> ConvertCartToDetails(List<RecipeItemCartModel> cart, int masterId = 0) =>
 		[.. cart.Select(item => new RecipeDetailModel
@@ -56,7 +62,7 @@ public static class RecipeData
 	#endregion
 
 	#region Save
-	private static void ValidateTransaction(RecipeModel recipe, List<RecipeDetailModel> recipeDetails)
+	private static async Task ValidateTransaction(RecipeModel recipe, List<RecipeDetailModel> recipeDetails, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
 		if (recipe.ProductId <= 0)
 			throw new InvalidOperationException("Please select a product for the recipe.");
@@ -69,6 +75,10 @@ public static class RecipeData
 
 		if (recipeDetails.Any(item => item.Quantity <= 0))
 			throw new InvalidOperationException("Raw material quantity must be greater than zero.");
+
+		var existingRecipes = await CommonData.LoadTableDataByStatus<RecipeModel>(InventoryNames.Recipe, true, sqlDataAccessTransaction);
+		if (existingRecipes.Any(r => r.ProductId == recipe.ProductId && r.FromDate == recipe.FromDate && r.Deduct == recipe.Deduct && r.Id != recipe.Id))
+			throw new Exception($"A {(recipe.Deduct ? "deduct-on-sale" : "non-deduct")} recipe for this product effective {recipe.FromDate:dd-MMM-yyyy} already exists. Edit that entry instead.");
 	}
 
 	public static async Task<int> SaveTransaction(
@@ -87,7 +97,7 @@ public static class RecipeData
 			return recipe.Id;
 		}
 
-		ValidateTransaction(recipe, recipeDetails);
+		await ValidateTransaction(recipe, recipeDetails, sqlDataAccessTransaction);
 
 		var previousRecipe = update ? await CommonData.LoadTableDataById<RecipeOverviewModel>(InventoryNames.RecipeOverview, recipe.Id, sqlDataAccessTransaction) : null;
 		var previousRecipeDetails = update ? await CommonData.LoadTableDataByMasterId<RecipeDetailModel>(InventoryNames.RecipeDetail, recipe.Id, sqlDataAccessTransaction) : null;
