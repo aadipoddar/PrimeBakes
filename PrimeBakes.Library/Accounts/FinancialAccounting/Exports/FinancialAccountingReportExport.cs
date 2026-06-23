@@ -224,13 +224,7 @@ public static class FinancialAccountingReportExport
 			columnOrder =
 			[
 				nameof(FinancialAccountingLedgerOverviewModel.LedgerName),
-				nameof(FinancialAccountingLedgerOverviewModel.TransactionNo),
 				nameof(FinancialAccountingLedgerOverviewModel.TransactionDateTime),
-				nameof(FinancialAccountingLedgerOverviewModel.LedgerReferenceNo),
-				nameof(FinancialAccountingLedgerOverviewModel.InstrumentNo),
-				nameof(FinancialAccountingLedgerOverviewModel.InstrumentDate),
-				nameof(FinancialAccountingLedgerOverviewModel.ClearingDate),
-				nameof(FinancialAccountingLedgerOverviewModel.ReconciledStatus),
 				nameof(FinancialAccountingLedgerOverviewModel.Debit),
 				nameof(FinancialAccountingLedgerOverviewModel.Credit),
 				nameof(FinancialAccountingLedgerOverviewModel.LedgerRemarks),
@@ -239,9 +233,6 @@ public static class FinancialAccountingReportExport
 
 			if (!showDeleted)
 				columnOrder.Remove(nameof(FinancialAccountingLedgerOverviewModel.MasterStatus));
-
-			if (ledger is not null)
-				columnOrder.Remove(nameof(FinancialAccountingLedgerOverviewModel.LedgerName));
 		}
 
 		Dictionary<string, string> customSummaryFields = null;

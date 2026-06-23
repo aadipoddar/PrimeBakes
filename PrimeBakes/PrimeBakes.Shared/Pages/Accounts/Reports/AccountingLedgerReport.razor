@@ -233,8 +233,8 @@ else
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.AccountTypeName)" HeaderText="Account Type" Width="150" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.GroupName)" HeaderText="Group" Width="200" Visible="_showAllColumns" />
 
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerReferenceType)" HeaderText="Ref Type" Width="130" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerReferenceNo)" HeaderText="Ref No" Width="200" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerReferenceType)" HeaderText="Ref Type" Width="130" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerReferenceNo)" HeaderText="Ref No" Width="200" Visible="_showAllColumns" />
 
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.InstrumentNo)" HeaderText="Instrument No" Width="150" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.InstrumentDate)" HeaderText="Instrument Date" Width="200" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="_showAllColumns" />
@@ -270,9 +270,9 @@ else
 								</Template>
 							</GridColumn>
 
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerRemarks)" HeaderText="Ledger Remarks" Width="200" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerRemarks)" HeaderText="Ledger Remarks" Width="500" />
 
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TransactionNo)" HeaderText="Transaction No" Width="200" />
+							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TransactionNo)" HeaderText="Transaction No" Width="200" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TransactionDateTime)" HeaderText="Date" Width="150" Format="dd/MM/yy" Type="ColumnType.DateTime" />
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CompanyName)" HeaderText="Company" Width="200" Visible="@(_showAllColumns && (_selectedCompany is null || _selectedCompany.Id <= 0))" />
 							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.VoucherName)" HeaderText="Voucher Type" Width="200" Visible="@(_showAllColumns && (_selectedVoucher is null || _selectedVoucher.Id <= 0))" />
