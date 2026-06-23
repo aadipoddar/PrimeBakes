@@ -201,8 +201,11 @@ public partial class OrderPage
 
 	private async Task LoadItems()
 	{
-		_products = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _order.LocationId);
-		_products = [.. _products.OrderBy(s => s.Name)];
+		var orderDate = DateOnly.FromDateTime(_order.TransactionDateTime);
+		var mainLocationProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, 1, orderDate);
+		var orderLocationProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, _order.LocationId, orderDate);
+
+		_products = [.. mainLocationProducts.Where(x => orderLocationProducts.Any(y => y.ProductId == x.ProductId)).OrderBy(s => s.Name)];
 	}
 
 	private async Task ResolveCart()

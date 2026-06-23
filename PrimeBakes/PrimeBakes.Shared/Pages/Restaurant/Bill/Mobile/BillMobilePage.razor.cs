@@ -113,7 +113,7 @@ public partial class BillMobilePage
 			_productCategories = [.. _productCategories.OrderBy(s => s.Name)];
 			_selectedCategory = _productCategories.FirstOrDefault(s => s.Id == 0);
 
-			var allProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _user.LocationId);
+			var allProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, _user.LocationId, DateOnly.FromDateTime(_now));
 			foreach (var product in allProducts)
 				_cart.Add(new()
 				{

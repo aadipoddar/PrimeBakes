@@ -275,7 +275,7 @@ public static class SaleReturnData
 			if (saleReturnDetails.Any(ed => ed.DiscountAmount != 0 || ed.DiscountPercent != 0))
 				throw new InvalidOperationException("You are not allowed to apply item discount.");
 
-			var productLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: saleReturn.LocationId, sqlDataAccessTransaction: sqlDataAccessTransaction);
+			var productLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, saleReturn.LocationId, DateOnly.FromDateTime(saleReturn.TransactionDateTime), sqlDataAccessTransaction);
 			var taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax, sqlDataAccessTransaction);
 
 			foreach (var item in saleReturnDetails)

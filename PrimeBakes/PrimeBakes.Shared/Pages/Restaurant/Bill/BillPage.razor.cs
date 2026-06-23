@@ -308,7 +308,7 @@ public partial class BillPage
 
 	private async Task LoadItems()
 	{
-		_products = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _bill.LocationId);
+		_products = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, _bill.LocationId, DateOnly.FromDateTime(_bill.TransactionDateTime));
 		_taxes = await CommonData.LoadTableDataByStatus<TaxModel>(StoreNames.Tax);
 
 		_products = [.. _products.OrderBy(s => s.Name)];
@@ -525,6 +525,12 @@ public partial class BillPage
 		await LoadDiningTables();
 		await LoadItems();
 		await SaveTransactionFile();
+	}
+
+	private async Task OnTransactionDateChanged(DateTime value)
+	{
+		_bill.TransactionDateTime = value;
+		await LoadItems();
 	}
 
 	private async Task OnDiningTableChanged(DiningTableModel value)

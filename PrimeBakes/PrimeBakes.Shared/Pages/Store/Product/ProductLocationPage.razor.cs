@@ -18,6 +18,7 @@ public partial class ProductLocationPage
 	private bool _isProcessing = false;
 
 	private ProductLocationModel _productLocation = new();
+	private DateTime _effectiveDate = DateTime.Now;
 	private LocationModel _selectedLocation;
 	private ProductModel _selectedProduct;
 
@@ -28,7 +29,7 @@ public partial class ProductLocationPage
 	private readonly List<ContextMenuItemModel> _gridContextMenuItems =
 	[
 		new() { Text = "Edit (Insert)", Id = "EditSelectedItem", IconCss = "e-icons e-edit", Target = ".e-content" },
-		new() { Text = "Delete (Del)", Id = "DeleteSelectedItem", IconCss = "e-icons e-trash", Target = ".e-content" }
+		new() { Text = "Delete Rate (Del)", Id = "DeleteSelectedItem", IconCss = "e-icons e-trash", Target = ".e-content" }
 	];
 
 	private SfGrid<ProductLocationOverviewModel> _sfGrid;
@@ -56,6 +57,8 @@ public partial class ProductLocationPage
 
 	private async Task LoadData()
 	{
+		_effectiveDate = await CommonData.LoadCurrentDateTime();
+
 		_productLocations = await CommonData.LoadTableData<ProductLocationModel>(StoreNames.ProductLocation);
 		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
 		_products = await CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product);
@@ -74,7 +77,7 @@ public partial class ProductLocationPage
 	private async Task LoadOverviews()
 	{
 		if (_productLocation.LocationId > 0)
-			_productLocationOverviews = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _productLocation.LocationId);
+			_productLocationOverviews = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(LocationId: _productLocation.LocationId);
 		else
 			_productLocationOverviews = await CommonData.LoadTableData<ProductLocationOverviewModel>(StoreNames.ProductLocationOverview);
 
@@ -93,20 +96,19 @@ public partial class ProductLocationPage
 	private void OnProductChanged()
 	{
 		_productLocation.ProductId = _selectedProduct?.Id ?? 0;
-		if (_selectedProduct is null)
+		if (_selectedProduct is null || _productLocation.LocationId <= 0)
 			return;
 
-		if (_productLocation.LocationId <= 0)
-			return;
+		// New dated entry; default the rate to the rate currently in effect, else the product's base rate.
+		_productLocation.Id = 0;
 
-		var existing = _productLocations.FirstOrDefault(pl => pl.LocationId == _productLocation.LocationId && pl.ProductId == _productLocation.ProductId);
-		if (existing is not null)
-		{
-			_productLocation.Id = existing.Id;
-			_productLocation.Rate = existing.Rate;
-		}
-		else if (_productLocation.Rate == 0)
-			_productLocation.Rate = _selectedProduct.Rate;
+		var asOn = DateOnly.FromDateTime(_effectiveDate);
+		var current = _productLocationOverviews
+			.Where(pl => pl.ProductId == _productLocation.ProductId && pl.FromDate <= asOn)
+			.OrderByDescending(pl => pl.FromDate)
+			.FirstOrDefault();
+
+		_productLocation.Rate = current?.Rate ?? _selectedProduct.Rate;
 	}
 	#endregion
 
@@ -128,6 +130,7 @@ public partial class ProductLocationPage
 
 			_productLocation.LocationId = _selectedLocation?.Id ?? 0;
 			_productLocation.ProductId = _selectedProduct?.Id ?? 0;
+			_productLocation.FromDate = DateOnly.FromDateTime(_effectiveDate);
 			await ProductLocationData.SaveTransaction(_productLocation, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
@@ -163,8 +166,10 @@ public partial class ProductLocationPage
 			Id = productLocation.Id,
 			ProductId = productLocation.ProductId,
 			Rate = productLocation.Rate,
-			LocationId = productLocation.LocationId
+			LocationId = productLocation.LocationId,
+			FromDate = productLocation.FromDate
 		};
+		_effectiveDate = productLocation.FromDate.ToDateTime(TimeOnly.MinValue);
 
 		_selectedLocation = _locations.FirstOrDefault(l => l.Id == productLocation.LocationId);
 		_selectedProduct = _products.FirstOrDefault(p => p.Id == productLocation.ProductId);
@@ -209,8 +214,8 @@ public partial class ProductLocationPage
 
 		var record = selectedRecords[0];
 
-		await ShowConfirmation("Delete",
-			$"Are you sure you want to delete product location {record.Name}",
+		await ShowConfirmation("Delete Rate",
+			$"Are you sure you want to delete the {record.Name} rate effective {record.FromDate:dd-MMM-yyyy}?",
 			() => DeleteTransaction(record));
 	}
 

@@ -6,6 +6,7 @@ public class ProductLocationModel
 	public int ProductId { get; set; }
 	public decimal Rate { get; set; }
 	public int LocationId { get; set; }
+	public DateOnly FromDate { get; set; }
 }
 
 public class ProductLocationOverviewModel
@@ -21,4 +22,5 @@ public class ProductLocationOverviewModel
 	public bool ShowInMenu { get; set; }
 	public string? Remarks { get; set; }
 	public int LocationId { get; set; }
+	public DateOnly FromDate { get; set; }
 }

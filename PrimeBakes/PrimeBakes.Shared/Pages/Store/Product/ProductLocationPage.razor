@@ -32,7 +32,7 @@ else
 
 				<MudBlazor.MudMenu Label="Transaction" Dense="true" Disabled="_isProcessing">
 					<MudBlazor.MudMenuItem Label="Edit (Insert)" OnClick="EditSelectedItem" />
-					<MudBlazor.MudMenuItem Label="Delete (Del)" OnClick="DeleteSelectedItem" />
+					<MudBlazor.MudMenuItem Label="Delete Rate (Del)" OnClick="DeleteSelectedItem" />
 				</MudBlazor.MudMenu>
 			</LeftContent>
 		</Header>
@@ -76,6 +76,13 @@ else
 												Format="N2"
 												Min="0" />
 						</div>
+
+						<div class="form-field">
+							<CustomDatePicker @bind-Value="_effectiveDate"
+											  Label="Effective Date"
+											  ShowFinancialYear="false"
+											  AddNewRoute="@null" />
+						</div>
 					</div>
 				</div>
 			</div>
@@ -107,6 +114,14 @@ else
 							<GridColumn Field="@nameof(ProductLocationOverviewModel.Code)" HeaderText="Product Code" Width="150" />
 							<GridColumn Field="@nameof(ProductLocationOverviewModel.Name)" HeaderText="Product Name" Width="200" />
 							<GridColumn Field="@nameof(ProductLocationOverviewModel.Rate)" HeaderText="Rate" Width="120" TextAlign="TextAlign.Right" Format="N2" />
+							<GridColumn HeaderText="Effective Date" Width="140" TextAlign="TextAlign.Center">
+								<Template>
+									@{
+										var productLocation = (context as ProductLocationOverviewModel);
+										<span>@productLocation.FromDate.ToString("dd-MMM-yyyy")</span>
+									}
+								</Template>
+							</GridColumn>
 						</GridColumns>
 					</SfGrid>
 				</div>

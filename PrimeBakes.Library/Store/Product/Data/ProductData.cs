@@ -11,31 +11,13 @@ public static class ProductData
 		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertProduct, product, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Product.");
 
-	private static async Task SyncProductLocations(ProductModel product, List<LocationModel> locations, SqlDataAccessTransaction transaction)
-	{
-		var productLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(product.Id, null, transaction);
-		productLocations = [.. productLocations.Where(pl => locations.Any(l => l.Id == pl.LocationId))];
-
-		foreach (var location in productLocations)
-			await ProductLocationData.DeleteProductLocationById(location.Id, transaction);
-
-		foreach (var location in locations)
-			await ProductLocationData.InsertProductLocation(new()
-			{
-				Id = 0,
-				Rate = product.Rate,
-				ProductId = product.Id,
-				LocationId = location.Id
-			}, transaction);
-	}
-
 	public static async Task DeleteTransaction(ProductModel product, int userId, string platform) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			product.Status = false;
 			await InsertProduct(product, transaction);
 
-			var productLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(product.Id, null, transaction);
+			var productLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(product.Id, null, null, transaction);
 			foreach (var pl in productLocations)
 				await ProductLocationData.DeleteProductLocationById(pl.Id, transaction);
 
@@ -97,7 +79,7 @@ public static class ProductData
 			throw new Exception($"Product name '{item.Name}' already exists. Please choose a different name.");
 	}
 
-	public static async Task<int> SaveTransaction(ProductModel product, List<LocationModel> locations, int userId, string platform)
+	public static async Task<int> SaveTransaction(ProductModel product, List<LocationModel> locations, DateOnly effectiveDate, int userId, string platform)
 	{
 		await ValidateTransaction(product);
 
@@ -112,7 +94,7 @@ public static class ProductData
 				product.Code = await GenerateCodes.GenerateProductCode(transaction);
 
 			product.Id = await InsertProduct(product, transaction);
-			await SyncProductLocations(product, locations, transaction);
+			await SaveProductLocations(product, locations, effectiveDate, transaction);
 
 			var diff = AuditTrailData.GetDifference(previous, product);
 			await AuditTrailData.SaveAuditTrail(new()
@@ -126,5 +108,23 @@ public static class ProductData
 			}, transaction);
 			return product.Id;
 		});
+	}
+
+	private static async Task SaveProductLocations(ProductModel product, List<LocationModel> locations, DateOnly effectiveDate, SqlDataAccessTransaction transaction)
+	{
+		var productLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(product.Id, sqlDataAccessTransaction: transaction);
+
+		foreach (var location in locations)
+		{
+			var existing = productLocations.FirstOrDefault(pl => pl.LocationId == location.Id && pl.FromDate == effectiveDate);
+			await ProductLocationData.InsertProductLocation(new()
+			{
+				Id = existing?.Id ?? 0,
+				Rate = product.Rate,
+				ProductId = product.Id,
+				LocationId = location.Id,
+				FromDate = effectiveDate
+			}, transaction);
+		}
 	}
 }

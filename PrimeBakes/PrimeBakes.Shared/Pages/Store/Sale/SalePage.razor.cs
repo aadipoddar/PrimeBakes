@@ -297,10 +297,18 @@ public partial class SalePage
 
 	private async Task LoadItems()
 	{
-		_products = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _sale.LocationId);
-		_taxes = await CommonData.LoadTableDataByStatus<TaxModel>(StoreNames.Tax);
+		var saleDate = DateOnly.FromDateTime(_sale.TransactionDateTime);
+		var products = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, _sale.LocationId, saleDate);
 
-		_products = [.. _products.OrderBy(s => s.Name)];
+		var toLocation = _locations.FirstOrDefault(s => s.LedgerId == _selectedParty?.Id);
+		if (toLocation is not null)
+		{
+			var toLocationProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, toLocation.Id, saleDate);
+			products = [.. products.Where(x => toLocationProducts.Any(y => y.ProductId == x.ProductId))];
+		}
+
+		_products = [.. products.OrderBy(s => s.Name)];
+		_taxes = await CommonData.LoadTableDataByStatus<TaxModel>(StoreNames.Tax);
 	}
 
 	private async Task ResolveCart()
@@ -536,6 +544,12 @@ public partial class SalePage
 
 		await LoadItems();
 		await SaveTransactionFile();
+	}
+
+	private async Task OnTransactionDateChanged(DateTime value)
+	{
+		_sale.TransactionDateTime = value;
+		await LoadItems();
 	}
 
 	private async Task OnPartyChanged(LedgerModel value)

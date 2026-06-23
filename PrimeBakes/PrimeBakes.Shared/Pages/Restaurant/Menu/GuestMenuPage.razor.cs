@@ -41,7 +41,7 @@ public partial class GuestMenuPage
 			_location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, LocationId);
 
 			var categories = await CommonData.LoadTableDataByStatus<ProductCategoryModel>(StoreNames.ProductCategory);
-			_items = [.. (await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: LocationId))
+			_items = [.. (await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, LocationId, DateOnly.FromDateTime(await CommonData.LoadCurrentDateTime())))
 				.Where(p => p.ShowInMenu)
 				.DistinctBy(p => p.ProductId)
 				.OrderBy(p => p.Name)];

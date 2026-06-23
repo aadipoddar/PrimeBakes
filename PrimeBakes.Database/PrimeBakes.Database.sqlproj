@@ -225,7 +225,7 @@
     <Build Include="Store\Product\Delete\Delete_ProductLocation_By_Id.sql" />
     <Build Include="Store\Customer\Load_Customer_By_Number.sql" />
     <Build Include="Store\Order\Load\Load_Order_By_Location_Pending.sql" />
-    <Build Include="Store\Product\Load\Load_ProductLocation_Overview_By_Product_Location.sql" />
+    <Build Include="Store\Product\Load\Load_ProductLocation_Overview_By_Product_Location_Date.sql" />
     <Build Include="Store\Customer\Customer.sql" />
     <Build Include="Store\Order\Table\Order.sql" />
     <Build Include="Store\Order\Table\OrderDetail.sql" />

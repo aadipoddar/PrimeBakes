@@ -231,7 +231,7 @@ public static class StoreNames
 
 	public static string DeleteProductLocationById => "Delete_ProductLocation_By_Id";
 
-	public static string LoadProductLocationOverviewByProductLocation => "Load_ProductLocation_Overview_By_Product_Location";
+	public static string LoadProductLocationOverviewByProductLocationDate => "Load_ProductLocation_Overview_By_Product_Location_Date";
 	#endregion
 
 	#region Customer

@@ -56,9 +56,10 @@ public partial class OrderMobilePage
 
 			_location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, _user.LocationId);
 
-			var mainLocationProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: 1);
-			var orderLocationProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _user.LocationId);
-			var allProducts = mainLocationProducts.Where(x => orderLocationProducts.Any(y => y.ProductId == x.ProductId)).DistinctBy(x => x.ProductId).ToList();
+			var orderDate = DateOnly.FromDateTime(await CommonData.LoadCurrentDateTime());
+			var mainLocationProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, 1, orderDate);
+			var orderLocationProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, _user.LocationId, orderDate);
+			var allProducts = mainLocationProducts.Where(x => orderLocationProducts.Any(y => y.ProductId == x.ProductId)).ToList();
 			foreach (var product in allProducts)
 				_cart.Add(new()
 				{

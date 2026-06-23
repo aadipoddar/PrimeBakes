@@ -59,7 +59,7 @@ public partial class RecipePage
 	private async Task LoadData()
 	{
 		_recipeDateTime = await CommonData.LoadCurrentDateTime();
-		_products = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: 1);
+		_products = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, 1, DateOnly.FromDateTime(_recipeDateTime));
 		_rawMaterials = await PurchaseData.LoadRawMaterialByPartyPurchaseDateTime(0, _recipeDateTime);
 
 		_products = [.. _products.OrderBy(s => s.Name)];

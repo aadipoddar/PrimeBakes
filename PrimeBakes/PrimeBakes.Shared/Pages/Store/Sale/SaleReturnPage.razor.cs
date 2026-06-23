@@ -254,10 +254,18 @@ public partial class SaleReturnPage
 
 	private async Task LoadItems()
 	{
-		_products = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _saleReturn.LocationId);
-		_taxes = await CommonData.LoadTableDataByStatus<TaxModel>(StoreNames.Tax);
+		var saleReturnDate = DateOnly.FromDateTime(_saleReturn.TransactionDateTime);
+		var products = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, _saleReturn.LocationId, saleReturnDate);
 
-		_products = [.. _products.OrderBy(s => s.Name)];
+		var toLocation = _locations.FirstOrDefault(s => s.LedgerId == _selectedParty?.Id);
+		if (toLocation is not null)
+		{
+			var toLocationProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, toLocation.Id, saleReturnDate);
+			products = [.. products.Where(x => toLocationProducts.Any(y => y.ProductId == x.ProductId))];
+		}
+
+		_products = [.. products.OrderBy(s => s.Name)];
+		_taxes = await CommonData.LoadTableDataByStatus<TaxModel>(StoreNames.Tax);
 	}
 
 	private async Task ResolveCart()
@@ -490,6 +498,12 @@ public partial class SaleReturnPage
 
 		await LoadItems();
 		await SaveTransactionFile();
+	}
+
+	private async Task OnTransactionDateChanged(DateTime value)
+	{
+		_saleReturn.TransactionDateTime = value;
+		await LoadItems();
 	}
 
 	private async Task OnPartyChanged(LedgerModel value)

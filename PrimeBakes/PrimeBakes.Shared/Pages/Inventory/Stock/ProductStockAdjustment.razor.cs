@@ -88,7 +88,7 @@ public partial class ProductStockAdjustment
 
 	private async Task LoadItems()
 	{
-		_products = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _selectedLocation.Id);
+		_products = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, _selectedLocation.Id, DateOnly.FromDateTime(_transactionDateTime));
 		_products = [.. _products.OrderBy(s => s.Name)];
 	}
 

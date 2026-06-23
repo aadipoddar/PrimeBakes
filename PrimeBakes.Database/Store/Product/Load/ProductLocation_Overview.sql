@@ -1,17 +1,18 @@
 ﻿CREATE VIEW [dbo].[ProductLocation_Overview]
-	AS
+AS
 SELECT
-	pl.Id,
-	pl.ProductId,
-	p.Code,
-	p.Name,
-	p.ProductCategoryId,
-	pl.Rate,
-	p.TaxId,
-	p.FoodType,
-	p.ShowInMenu,
-	p.Remarks,
-	pl.LocationId
+	[pl].[Id],
+	[pl].[ProductId],
+	[p].[Code],
+	[p].[Name],
+	[p].[ProductCategoryId],
+	[pl].[Rate],
+	[p].[TaxId],
+	[p].[FoodType],
+	[p].[ShowInMenu],
+	[p].[Remarks],
+	[pl].[LocationId],
+	[pl].[FromDate]
 
 FROM ProductLocation pl
 

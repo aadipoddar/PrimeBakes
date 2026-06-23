@@ -14,8 +14,8 @@ public static class ProductLocationData
 		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.DeleteProductLocationById, new { Id = id }, transaction)).FirstOrDefault()
 			is var result and > 0 ? result : throw new InvalidOperationException("Failed to Delete Product Location.");
 
-	public static async Task<List<ProductLocationOverviewModel>> LoadProductLocationOverviewByProductLocation(int? ProductId = null, int? LocationId = null, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		await SqlDataAccess.LoadData<ProductLocationOverviewModel, dynamic>(StoreNames.LoadProductLocationOverviewByProductLocation, new { ProductId, LocationId }, sqlDataAccessTransaction);
+	public static async Task<List<ProductLocationOverviewModel>> LoadProductLocationOverviewByProductLocationDate(int? ProductId = null, int? LocationId = null, DateOnly? Date = null, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+		await SqlDataAccess.LoadData<ProductLocationOverviewModel, dynamic>(StoreNames.LoadProductLocationOverviewByProductLocationDate, new { ProductId, LocationId, Date }, sqlDataAccessTransaction);
 
 	private static async Task ValidateTransaction(ProductLocationModel item)
 	{
@@ -28,10 +28,10 @@ public static class ProductLocationData
 		if (item.Rate < 0)
 			throw new Exception("Rate must be greater than or equal to 0.");
 
-		var existing = await LoadProductLocationOverviewByProductLocation(item.ProductId, item.LocationId);
-		var match = existing.FirstOrDefault();
-		if (match is not null)
-			item.Id = match.Id;
+		var existing = await LoadProductLocationOverviewByProductLocationDate(item.ProductId, item.LocationId);
+		var duplicate = existing.FirstOrDefault(x => x.Id != item.Id && x.FromDate == item.FromDate);
+		if (duplicate is not null)
+			throw new Exception($"A rate for this product at this location effective {item.FromDate:dd-MMM-yyyy} already exists. Edit that entry instead.");
 	}
 
 	public static async Task<int> SaveTransaction(ProductLocationModel productLocation, int userId, string platform)

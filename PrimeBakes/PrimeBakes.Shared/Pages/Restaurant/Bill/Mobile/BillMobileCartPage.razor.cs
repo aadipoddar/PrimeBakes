@@ -105,7 +105,7 @@ public partial class BillMobileCartPage
 
 		_cart = [.. _cart.OrderBy(x => x.ItemName)];
 
-		var products = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _user.LocationId);
+		var products = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, _user.LocationId, DateOnly.FromDateTime(await CommonData.LoadCurrentDateTime()));
 		var runningBills = await BillData.LoadRunningBillByLocationId(_user.LocationId);
 		_runningBill = runningBills.FirstOrDefault(b => b.DiningTableId == DiningTableId);
 

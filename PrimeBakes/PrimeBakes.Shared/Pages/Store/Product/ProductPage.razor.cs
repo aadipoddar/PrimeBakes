@@ -19,6 +19,7 @@ public partial class ProductPage
 	private bool _showDeleted = false;
 
 	private ProductModel _product = new() { ShowInMenu = true };
+	private DateTime _effectiveDate = DateTime.Now;
 	private ProductCategoryModel _selectedCategory;
 	private KOTCategoryModel _selectedKOTCategory;
 	private TaxModel _selectedTax;
@@ -64,6 +65,8 @@ public partial class ProductPage
 
 	private async Task LoadData()
 	{
+		_effectiveDate = await CommonData.LoadCurrentDateTime();
+
 		await LoadLocations();
 
 		_products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
@@ -118,7 +121,7 @@ public partial class ProductPage
 			_product.ProductCategoryId = _selectedCategory?.Id ?? 0;
 			_product.KOTCategoryId = _selectedKOTCategory?.Id ?? 0;
 			_product.TaxId = _selectedTax?.Id ?? 0;
-			await ProductData.SaveTransaction(_product, _locations, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+			await ProductData.SaveTransaction(_product, _locations, DateOnly.FromDateTime(_effectiveDate), _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
 			ResetPage();
@@ -153,7 +156,7 @@ public partial class ProductPage
 		_selectedTax = _taxes.FirstOrDefault(t => t.Id == _product.TaxId);
 
 		await LoadLocations();
-		var productLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(_product.Id);
+		var productLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(_product.Id, Date: DateOnly.FromDateTime(_effectiveDate));
 		_locations = [.. _locations.Where(l => productLocations.Any(pl => pl.LocationId == l.Id))];
 
 		if (_sfLocationGrid is not null)

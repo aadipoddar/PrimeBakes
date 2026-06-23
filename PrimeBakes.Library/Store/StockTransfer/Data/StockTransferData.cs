@@ -226,7 +226,7 @@ public static class StockTransferData
 			if (stockTransferDetails.Any(ed => ed.DiscountAmount != 0 || ed.DiscountPercent != 0))
 				throw new InvalidOperationException("You are not allowed to apply item discount.");
 
-			var productLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: stockTransfer.LocationId, sqlDataAccessTransaction: sqlDataAccessTransaction);
+			var productLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, stockTransfer.LocationId, DateOnly.FromDateTime(stockTransfer.TransactionDateTime), sqlDataAccessTransaction);
 			var taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax, sqlDataAccessTransaction);
 
 			foreach (var item in stockTransferDetails)

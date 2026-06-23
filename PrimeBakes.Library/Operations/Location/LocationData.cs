@@ -34,7 +34,7 @@ public static class LocationData
 			location.Status = false;
 			await InsertLocation(location, transaction);
 
-			var productLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(null, location.Id, transaction);
+			var productLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(LocationId: location.Id, sqlDataAccessTransaction: transaction);
 			foreach (var productLocation in productLocations)
 				await ProductLocationData.DeleteProductLocationById(productLocation.Id, transaction);
 
@@ -132,35 +132,38 @@ public static class LocationData
 			if (copyLocation.Id == location.Id)
 				return;
 
-			var existingProductLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(null, location.Id, sqlDataAccessTransaction);
+			var existingProductLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(LocationId: location.Id, sqlDataAccessTransaction: sqlDataAccessTransaction);
 			foreach (var existingProductLocation in existingProductLocations)
 				await ProductLocationData.DeleteProductLocationById(existingProductLocation.Id, sqlDataAccessTransaction);
 
-			var copyProductLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(null, copyLocation.Id, sqlDataAccessTransaction);
+			var copyProductLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(LocationId: copyLocation.Id, sqlDataAccessTransaction: sqlDataAccessTransaction);
 			foreach (var copyProductLocation in copyProductLocations)
 				await ProductLocationData.InsertProductLocation(new()
 				{
 					Id = 0,
 					ProductId = copyProductLocation.ProductId,
 					LocationId = location.Id,
-					Rate = copyProductLocation.Rate
+					Rate = copyProductLocation.Rate,
+					FromDate = copyProductLocation.FromDate
 				}, sqlDataAccessTransaction);
 		}
 
 		else if (isNewLocation)
 		{
-			var existingProductLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocation(null, location.Id, sqlDataAccessTransaction);
+			var existingProductLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(LocationId: location.Id, sqlDataAccessTransaction: sqlDataAccessTransaction);
 			foreach (var existingProductLocation in existingProductLocations)
 				await ProductLocationData.DeleteProductLocationById(existingProductLocation.Id, sqlDataAccessTransaction);
 
 			var products = await CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product, true, sqlDataAccessTransaction);
+			var currentDateTime = await CommonData.LoadCurrentDateTime(sqlDataAccessTransaction);
 			foreach (var product in products)
 				await ProductLocationData.InsertProductLocation(new()
 				{
 					Id = 0,
 					ProductId = product.Id,
 					LocationId = location.Id,
-					Rate = product.Rate
+					Rate = product.Rate,
+					FromDate = DateOnly.FromDateTime(currentDateTime)
 				}, sqlDataAccessTransaction);
 		}
 	}

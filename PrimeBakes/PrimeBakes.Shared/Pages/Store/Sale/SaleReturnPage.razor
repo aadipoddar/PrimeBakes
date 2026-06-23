@@ -100,7 +100,8 @@ else
 
 								<!-- Transaction Date -->
 								<div class="form-field">
-									<CustomDatePicker @bind-Value="_saleReturn.TransactionDateTime"
+									<CustomDatePicker Value="_saleReturn.TransactionDateTime"
+													  ValueChanged="OnTransactionDateChanged"
 													  FinancialYear="@_selectedFinancialYear" />
 								</div>
 							}

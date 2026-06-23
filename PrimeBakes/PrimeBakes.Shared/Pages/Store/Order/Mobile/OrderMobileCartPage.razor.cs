@@ -86,7 +86,7 @@ public partial class OrderMobileCartPage
 
 		var digits = string.IsNullOrWhiteSpace(raw)
 			? string.Empty
-			: new string(raw.Where(char.IsDigit).ToArray());
+			: new string([.. raw.Where(char.IsDigit)]);
 
 		decimal value = 0;
 		if (!string.IsNullOrWhiteSpace(digits) && decimal.TryParse(digits, out var parsed))

@@ -233,10 +233,17 @@ public partial class StockTransferPage
 
 	private async Task LoadItems()
 	{
-		_products = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _stockTransfer.LocationId);
-		_taxes = await CommonData.LoadTableDataByStatus<TaxModel>(StoreNames.Tax);
+		var transferDate = DateOnly.FromDateTime(_stockTransfer.TransactionDateTime);
+		var products = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, _stockTransfer.LocationId, transferDate);
 
-		_products = [.. _products.OrderBy(s => s.Name)];
+		if (_stockTransfer.ToLocationId > 0)
+		{
+			var toLocationProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, _stockTransfer.ToLocationId, transferDate);
+			products = [.. products.Where(x => toLocationProducts.Any(y => y.ProductId == x.ProductId))];
+		}
+
+		_products = [.. products.OrderBy(s => s.Name)];
+		_taxes = await CommonData.LoadTableDataByStatus<TaxModel>(StoreNames.Tax);
 
 		await LoadTaxState();
 	}
@@ -469,8 +476,14 @@ public partial class StockTransferPage
 		_stockTransfer.ToLocationId = value.Id;
 		_stockTransfer.DiscountPercent = value.Discount;
 
-		await LoadTaxState();
+		await LoadItems();
 		await SaveTransactionFile();
+	}
+
+	private async Task OnTransactionDateChanged(DateTime value)
+	{
+		_stockTransfer.TransactionDateTime = value;
+		await LoadItems();
 	}
 
 	private async Task OnDiscountPercentChanged(decimal value)

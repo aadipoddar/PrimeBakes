@@ -63,7 +63,7 @@ public partial class SaleMobilePage
 
 			_location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, _user.LocationId);
 
-			var allProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocation(LocationId: _user.LocationId);
+			var allProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, _user.LocationId, DateOnly.FromDateTime(await CommonData.LoadCurrentDateTime()));
 			foreach (var product in allProducts)
 				_cart.Add(new()
 				{
