@@ -1,14 +1,20 @@
 <Solution>
-  <Project Path="DBPrimeBakes/DBPrimeBakes.sqlproj" Id="4d32fffa-477f-468f-9585-68d093b452b9">
-    <Build />
-    <Deploy />
-  </Project>
-  <Project Path="ExcelImport/ExcelImport.csproj" />
-  <Project Path="PrimeBakes/PrimeBakes.Shared/PrimeBakes.Shared.csproj" />
-  <Project Path="PrimeBakes/PrimeBakes.Web/PrimeBakes.Web.csproj" />
-  <Project Path="PrimeBakes/PrimeBakes/PrimeBakes.csproj">
-    <Deploy Solution="Debug|*" />
-  </Project>
-  <Project Path="PrimeBakesLibrary/PrimeBakesLibrary.csproj" />
-  <Project Path="PushNotificationsAPI/PushNotificationsAPI.csproj" />
+  <Folder Name="/App/">
+    <Project Path="PrimeBakes/PrimeBakes.Shared/PrimeBakes.Shared.csproj" />
+    <Project Path="PrimeBakes/PrimeBakes.Web/PrimeBakes.Web.csproj" />
+    <Project Path="PrimeBakes/PrimeBakes/PrimeBakes.csproj">
+      <Deploy Solution="Debug|*" />
+    </Project>
+  </Folder>
+  <Folder Name="/Data/">
+    <Project Path="PrimeBakes.Database/PrimeBakes.Database.sqlproj" Id="4d32fffa-477f-468f-9585-68d093b452b9">
+      <Build />
+      <Deploy />
+    </Project>
+    <Project Path="PrimeBakes.Library/PrimeBakes.Library.csproj" />
+  </Folder>
+  <Folder Name="/Tools/">
+    <Project Path="PrimeBakes.Tools/PrimeBakes.Tools.csproj" />
+    <Project Path="PushNotificationsAPI/PushNotificationsAPI.csproj" />
+  </Folder>
 </Solution>

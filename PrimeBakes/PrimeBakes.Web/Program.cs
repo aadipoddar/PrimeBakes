@@ -6,7 +6,7 @@ using PrimeBakes.Shared.Services;
 using PrimeBakes.Web.Components;
 using PrimeBakes.Web.Services;
 
-using PrimeBakesLibrary.DataAccess;
+using PrimeBakes.Library.DataAccess;
 
 using Syncfusion.Blazor;
 

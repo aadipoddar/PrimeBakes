@@ -1,11 +1,10 @@
+using PrimeBakes.Library.Operations.Location;
+using PrimeBakes.Library.Operations.User;
+using PrimeBakes.Library.Restaurant.Bill.Data;
+using PrimeBakes.Library.Restaurant.Bill.Models;
+using PrimeBakes.Library.Restaurant.Dining.Data;
+using PrimeBakes.Library.Restaurant.Dining.Models;
 using PrimeBakes.Shared.Components.Input;
-
-using PrimeBakesLibrary.Operations.Location;
-using PrimeBakesLibrary.Operations.User;
-using PrimeBakesLibrary.Restaurant.Bill.Data;
-using PrimeBakesLibrary.Restaurant.Bill.Models;
-using PrimeBakesLibrary.Restaurant.Dining.Data;
-using PrimeBakesLibrary.Restaurant.Dining.Models;
 
 using Syncfusion.Blazor.Diagram;
 

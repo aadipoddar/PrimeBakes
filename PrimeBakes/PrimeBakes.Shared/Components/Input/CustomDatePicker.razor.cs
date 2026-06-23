@@ -2,7 +2,7 @@
 
 using MudBlazor;
 
-using PrimeBakesLibrary.Accounts.Masters.Models;
+using PrimeBakes.Library.Accounts.Masters.Models;
 
 namespace PrimeBakes.Shared.Components.Input;
 

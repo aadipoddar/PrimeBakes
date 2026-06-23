@@ -1,7 +1,7 @@
-using PrimeBakesLibrary.Operations.User;
-using PrimeBakesLibrary.Store.Product.Models;
-using PrimeBakesLibrary.Store.Sale.Data;
-using PrimeBakesLibrary.Store.Sale.Models;
+using PrimeBakes.Library.Operations.User;
+using PrimeBakes.Library.Store.Product.Models;
+using PrimeBakes.Library.Store.Sale.Data;
+using PrimeBakes.Library.Store.Sale.Models;
 
 using System.Text.Json;
 

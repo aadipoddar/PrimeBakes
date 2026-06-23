@@ -1,12 +1,12 @@
-using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.Operations.Settings;
-using PrimeBakesLibrary.Operations.User;
-using PrimeBakesLibrary.Store.Customer.Data;
-using PrimeBakesLibrary.Store.Customer.Models;
-using PrimeBakesLibrary.Store.PaymentMode;
-using PrimeBakesLibrary.Store.Product.Models;
-using PrimeBakesLibrary.Store.Sale.Data;
-using PrimeBakesLibrary.Store.Sale.Models;
+using PrimeBakes.Library.Accounts.Masters.Data;
+using PrimeBakes.Library.Operations.Settings;
+using PrimeBakes.Library.Operations.User;
+using PrimeBakes.Library.Store.Customer.Data;
+using PrimeBakes.Library.Store.Customer.Models;
+using PrimeBakes.Library.Store.PaymentMode;
+using PrimeBakes.Library.Store.Product.Models;
+using PrimeBakes.Library.Store.Sale.Data;
+using PrimeBakes.Library.Store.Sale.Models;
 
 using System.Text.Json;
 

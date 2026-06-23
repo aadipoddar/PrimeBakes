@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Components;
 
-using PrimeBakesLibrary.Operations.Location;
-using PrimeBakesLibrary.Store.Product.Data;
-using PrimeBakesLibrary.Store.Product.Models;
+using PrimeBakes.Library.Operations.Location;
+using PrimeBakes.Library.Store.Product.Data;
+using PrimeBakes.Library.Store.Product.Models;
 
 using System.Globalization;
 

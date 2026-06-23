@@ -56,7 +56,7 @@ jobs:
       - name: Verify Azure Connection String
         id: connection-check
         run: |
-          $CONNECTION_LINE = Get-Content PrimeBakesLibrary/DataAccess/SqlDataAccess.cs | Select-String "_databaseConnection = Secrets"
+          $CONNECTION_LINE = Get-Content PrimeBakes.Library/DataAccess/SqlDataAccess.cs | Select-String "_databaseConnection = Secrets"
           
           if ($CONNECTION_LINE -match "Secrets.AzureConnectionString") {
             echo "connection-valid=true" >> $env:GITHUB_OUTPUT

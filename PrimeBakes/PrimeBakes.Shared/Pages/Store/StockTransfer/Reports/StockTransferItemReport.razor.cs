@@ -1,16 +1,16 @@
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
-using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.Accounts.Masters.Models;
-using PrimeBakesLibrary.Operations.Location;
-using PrimeBakesLibrary.Operations.Settings;
-using PrimeBakesLibrary.Operations.User;
-using PrimeBakesLibrary.Store.Product.Models;
-using PrimeBakesLibrary.Store.StockTransfer.Data;
-using PrimeBakesLibrary.Store.StockTransfer.Exports;
-using PrimeBakesLibrary.Store.StockTransfer.Models;
-using PrimeBakesLibrary.Utils.Exports;
+using PrimeBakes.Library.Accounts.Masters.Data;
+using PrimeBakes.Library.Accounts.Masters.Models;
+using PrimeBakes.Library.Operations.Location;
+using PrimeBakes.Library.Operations.Settings;
+using PrimeBakes.Library.Operations.User;
+using PrimeBakes.Library.Store.Product.Models;
+using PrimeBakes.Library.Store.StockTransfer.Data;
+using PrimeBakes.Library.Store.StockTransfer.Exports;
+using PrimeBakes.Library.Store.StockTransfer.Models;
+using PrimeBakes.Library.Utils.Exports;
 
 using Syncfusion.Blazor.Grids;
 

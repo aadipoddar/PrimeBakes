@@ -1,5 +1,5 @@
-using PrimeBakesLibrary.Store.Sale.Exports;
-using PrimeBakesLibrary.Store.Sale.Models;
+using PrimeBakes.Library.Store.Sale.Exports;
+using PrimeBakes.Library.Store.Sale.Models;
 
 using System.Text.Json;
 

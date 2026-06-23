@@ -1,5 +1,5 @@
-using PrimeBakesLibrary.Restaurant.Bill.Exports;
-using PrimeBakesLibrary.Restaurant.Bill.Models;
+using PrimeBakes.Library.Restaurant.Bill.Exports;
+using PrimeBakes.Library.Restaurant.Bill.Models;
 
 using System.Text.Json;
 

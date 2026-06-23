@@ -28,7 +28,7 @@ jobs:
     - name: Create Secrets.local_secrets.cs
       run: |
         $secretsContent = @"
-        namespace PrimeBakesLibrary.DataAccess;
+        namespace PrimeBakes.Library.DataAccess;
 
         public static partial class Secrets
         {
@@ -48,7 +48,7 @@ jobs:
             }
         }
         "@
-        Set-Content -Path "PrimeBakesLibrary/DataAccess/Secrets.local_secrets.cs" -Value $secretsContent
+        Set-Content -Path "PrimeBakes.Library/DataAccess/Secrets.local_secrets.cs" -Value $secretsContent
     
     - name: Restore dependencies
       run: dotnet restore PrimeBakes/PrimeBakes/PrimeBakes.csproj

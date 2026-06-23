@@ -1,18 +1,17 @@
 using Microsoft.AspNetCore.Components;
 
+using PrimeBakes.Library.Accounts.Masters.Data;
+using PrimeBakes.Library.Accounts.Masters.Models;
+using PrimeBakes.Library.Operations.Location;
+using PrimeBakes.Library.Operations.Settings;
+using PrimeBakes.Library.Operations.User;
+using PrimeBakes.Library.Store.Order.Data;
+using PrimeBakes.Library.Store.Order.Models;
+using PrimeBakes.Library.Store.Product.Data;
+using PrimeBakes.Library.Store.Product.Models;
+using PrimeBakes.Library.Store.Sale.Models;
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
-
-using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.Accounts.Masters.Models;
-using PrimeBakesLibrary.Operations.Location;
-using PrimeBakesLibrary.Operations.Settings;
-using PrimeBakesLibrary.Operations.User;
-using PrimeBakesLibrary.Store.Order.Data;
-using PrimeBakesLibrary.Store.Order.Models;
-using PrimeBakesLibrary.Store.Product.Data;
-using PrimeBakesLibrary.Store.Product.Models;
-using PrimeBakesLibrary.Store.Sale.Models;
 
 using Syncfusion.Blazor.Grids;
 

@@ -25,8 +25,8 @@ jobs:
         with:
           dotnet-version: '10.x'
 
-      - name: Restore PrimeBakesLibrary
-        run: dotnet restore PrimeBakesLibrary/PrimeBakesLibrary.csproj
+      - name: Restore PrimeBakes.Library
+        run: dotnet restore PrimeBakes.Library/PrimeBakes.Library.csproj
 
       - name: Restore PrimeBakes.Shared
         run: dotnet restore PrimeBakes/PrimeBakes.Shared/PrimeBakes.Shared.csproj
@@ -37,7 +37,7 @@ jobs:
       - name: Create Secrets.local_secrets.cs
         run: |
           $secretsContent = @"
-          namespace PrimeBakesLibrary.DataAccess;
+          namespace PrimeBakes.Library.DataAccess;
 
           public static partial class Secrets
           {
@@ -57,11 +57,11 @@ jobs:
               }
           }
           "@
-          Set-Content -Path "PrimeBakesLibrary/DataAccess/Secrets.local_secrets.cs" -Value $secretsContent
+          Set-Content -Path "PrimeBakes.Library/DataAccess/Secrets.local_secrets.cs" -Value $secretsContent
         shell: pwsh
 
-      - name: Build PrimeBakesLibrary
-        run: dotnet build PrimeBakesLibrary/PrimeBakesLibrary.csproj --configuration Release --no-restore
+      - name: Build PrimeBakes.Library
+        run: dotnet build PrimeBakes.Library/PrimeBakes.Library.csproj --configuration Release --no-restore
 
       - name: Build PrimeBakes.Shared
         run: dotnet build PrimeBakes/PrimeBakes.Shared/PrimeBakes.Shared.csproj --configuration Release --no-restore

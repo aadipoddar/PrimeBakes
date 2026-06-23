@@ -1,5 +1,5 @@
-using PrimeBakesLibrary.DataAccess;
-using PrimeBakesLibrary.Operations.User;
+using PrimeBakes.Library.DataAccess;
+using PrimeBakes.Library.Operations.User;
 
 using System.Reflection;
 

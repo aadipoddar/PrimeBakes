@@ -25,11 +25,11 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore PrimeBakes.slnx
 
-    - name: Build ExcelImport
-      run: dotnet build ExcelImport/ExcelImport.csproj --no-restore --configuration Release    
+    - name: Build PrimeBakes.Tools
+      run: dotnet build PrimeBakes.Tools/PrimeBakes.Tools.csproj --no-restore --configuration Release    
 
-    - name: Build PrimeBakesLibrary
-      run: dotnet build PrimeBakesLibrary/PrimeBakesLibrary.csproj --no-restore --configuration Release
+    - name: Build PrimeBakes.Library
+      run: dotnet build PrimeBakes.Library/PrimeBakes.Library.csproj --no-restore --configuration Release
     
     - name: Build PrimeBakes.Shared
       run: dotnet build PrimeBakes/PrimeBakes.Shared/PrimeBakes.Shared.csproj --no-restore --configuration Release
@@ -50,4 +50,4 @@ jobs:
       uses: microsoft/setup-msbuild@v2
     
     - name: Build SQL Server Database Project
-      run: msbuild DBPrimeBakes/DBPrimeBakes.sqlproj /p:Configuration=Release /p:Platform="Any CPU"
+      run: msbuild PrimeBakes.Database/PrimeBakes.Database.sqlproj /p:Configuration=Release /p:Platform="Any CPU"

@@ -1,6 +1,6 @@
-using PrimeBakesLibrary.Store.Order.Exports;
-using PrimeBakesLibrary.Store.Order.Models;
-using PrimeBakesLibrary.Utils.Exports;
+using PrimeBakes.Library.Store.Order.Exports;
+using PrimeBakes.Library.Store.Order.Models;
+using PrimeBakes.Library.Utils.Exports;
 
 namespace PrimeBakes.Shared.Pages.Store.Order.Mobile;
 

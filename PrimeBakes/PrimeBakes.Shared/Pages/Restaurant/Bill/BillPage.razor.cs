@@ -1,22 +1,21 @@
 using Microsoft.AspNetCore.Components;
 
+using PrimeBakes.Library.Accounts.Masters.Data;
+using PrimeBakes.Library.Accounts.Masters.Models;
+using PrimeBakes.Library.Operations.Location;
+using PrimeBakes.Library.Operations.Settings;
+using PrimeBakes.Library.Operations.User;
+using PrimeBakes.Library.Restaurant.Bill.Data;
+using PrimeBakes.Library.Restaurant.Bill.Exports;
+using PrimeBakes.Library.Restaurant.Bill.Models;
+using PrimeBakes.Library.Restaurant.Dining.Models;
+using PrimeBakes.Library.Store.Customer.Data;
+using PrimeBakes.Library.Store.Customer.Models;
+using PrimeBakes.Library.Store.PaymentMode;
+using PrimeBakes.Library.Store.Product.Data;
+using PrimeBakes.Library.Store.Product.Models;
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
-
-using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.Accounts.Masters.Models;
-using PrimeBakesLibrary.Operations.Location;
-using PrimeBakesLibrary.Operations.Settings;
-using PrimeBakesLibrary.Operations.User;
-using PrimeBakesLibrary.Restaurant.Bill.Data;
-using PrimeBakesLibrary.Restaurant.Bill.Exports;
-using PrimeBakesLibrary.Restaurant.Bill.Models;
-using PrimeBakesLibrary.Restaurant.Dining.Models;
-using PrimeBakesLibrary.Store.Customer.Data;
-using PrimeBakesLibrary.Store.Customer.Models;
-using PrimeBakesLibrary.Store.PaymentMode;
-using PrimeBakesLibrary.Store.Product.Data;
-using PrimeBakesLibrary.Store.Product.Models;
 
 using Syncfusion.Blazor.Grids;
 

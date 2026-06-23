@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Components;
 
-using PrimeBakesLibrary.Operations.User;
-using PrimeBakesLibrary.Restaurant.Bill.Data;
-using PrimeBakesLibrary.Restaurant.Bill.Models;
-using PrimeBakesLibrary.Restaurant.Dining.Models;
-using PrimeBakesLibrary.Store.Product.Data;
-using PrimeBakesLibrary.Store.Product.Models;
+using PrimeBakes.Library.Operations.User;
+using PrimeBakes.Library.Restaurant.Bill.Data;
+using PrimeBakes.Library.Restaurant.Bill.Models;
+using PrimeBakes.Library.Restaurant.Dining.Models;
+using PrimeBakes.Library.Store.Product.Data;
+using PrimeBakes.Library.Store.Product.Models;
 
 namespace PrimeBakes.Shared.Pages.Restaurant.Bill.Mobile;
 

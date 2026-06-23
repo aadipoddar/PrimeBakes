@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Shared.Components.Input;
 
-using PrimeBakesLibrary.Operations.User;
+using PrimeBakes.Library.Operations.User;
 
 using System.Reflection;
 

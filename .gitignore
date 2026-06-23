@@ -399,7 +399,7 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
-/PrimeBakesLibrary/DataAccess/primebakes-7aad6-firebase-adminsdk-fbsvc-468eb53249.json
+/PrimeBakes.Library/DataAccess/primebakes-7aad6-firebase-adminsdk-fbsvc-468eb53249.json
 
 *.csproj.lscache
 *.lscache

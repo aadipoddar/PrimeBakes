@@ -1,12 +1,11 @@
+using PrimeBakes.Library.Inventory.Stock.Data;
+using PrimeBakes.Library.Inventory.Stock.Models;
+using PrimeBakes.Library.Operations.Location;
+using PrimeBakes.Library.Operations.User;
+using PrimeBakes.Library.Store.Product.Data;
+using PrimeBakes.Library.Store.Product.Models;
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
-
-using PrimeBakesLibrary.Inventory.Stock.Data;
-using PrimeBakesLibrary.Inventory.Stock.Models;
-using PrimeBakesLibrary.Operations.Location;
-using PrimeBakesLibrary.Operations.User;
-using PrimeBakesLibrary.Store.Product.Data;
-using PrimeBakesLibrary.Store.Product.Models;
 
 using Syncfusion.Blazor.Grids;
 

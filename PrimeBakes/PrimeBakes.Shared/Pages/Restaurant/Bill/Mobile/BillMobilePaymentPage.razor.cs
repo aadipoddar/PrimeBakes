@@ -1,16 +1,16 @@
 ﻿using Microsoft.AspNetCore.Components;
 
-using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.Operations.Settings;
-using PrimeBakesLibrary.Operations.User;
-using PrimeBakesLibrary.Restaurant.Bill.Data;
-using PrimeBakesLibrary.Restaurant.Bill.Exports;
-using PrimeBakesLibrary.Restaurant.Bill.Models;
-using PrimeBakesLibrary.Restaurant.Dining.Models;
-using PrimeBakesLibrary.Store.Customer.Data;
-using PrimeBakesLibrary.Store.Customer.Models;
-using PrimeBakesLibrary.Store.PaymentMode;
-using PrimeBakesLibrary.Store.Product.Models;
+using PrimeBakes.Library.Accounts.Masters.Data;
+using PrimeBakes.Library.Operations.Settings;
+using PrimeBakes.Library.Operations.User;
+using PrimeBakes.Library.Restaurant.Bill.Data;
+using PrimeBakes.Library.Restaurant.Bill.Exports;
+using PrimeBakes.Library.Restaurant.Bill.Models;
+using PrimeBakes.Library.Restaurant.Dining.Models;
+using PrimeBakes.Library.Store.Customer.Data;
+using PrimeBakes.Library.Store.Customer.Models;
+using PrimeBakes.Library.Store.PaymentMode;
+using PrimeBakes.Library.Store.Product.Models;
 
 using System.Text.Json;
 

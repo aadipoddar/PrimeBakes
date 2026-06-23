@@ -161,7 +161,7 @@ The system handles the complete business lifecycle from raw material procurement
                      └──────────────┬──────────────┘
                                     │
                      ┌──────────────┴──────────────┐
-                     │   PrimeBakesLibrary         │
+                     │   PrimeBakes.Library         │
                      │   (Business Logic)          │
                      │   • Data Access Layer       │
                      │   • Models & Entities       │
@@ -218,7 +218,7 @@ PrimeBakes/
 │       ├── Services/                 # Web-specific implementations
 │       └── wwwroot/                  # Static assets (images, JS, CSS)
 │
-├── 📚 PrimeBakesLibrary/             # Core Business Library
+├── 📚 PrimeBakes.Library/             # Core Business Library
 │   ├── Data/                         # Data access classes
 │   │   ├── Store/                    # Sale, order, stock transfer, product, masters
 │   │   ├── Restaurant/               # Bill, dining data operations
@@ -231,7 +231,7 @@ PrimeBakes/
 │   └── Exporting/                    # PDF, Excel, thermal print & email services (70+ classes)
 │       └── Utils/                    # Export utilities (PDF, Excel, thermal, mailing)
 │
-├── 🗄️ DBPrimeBakes/                  # SQL Server Database Project (SSDT)
+├── 🗄️ PrimeBakes.Database/                  # SQL Server Database Project (SSDT)
 │   ├── Tables/                       # 40+ database table definitions
 │   │   ├── Store/                    # Product, sale, order, stock transfer tables
 │   │   ├── Restaurant/               # Bill, dining area/table tables
@@ -250,7 +250,7 @@ PrimeBakes/
 │   ├── Models/                       # API models
 │   └── Authentication/               # API key authentication handler
 │
-└── 📊 ExcelImport/                   # Data Import Utility
+└── 📊 PrimeBakes.Tools/                   # Data Import Utility
     └── Program.cs                    # Bulk data import tool
 ```
 
@@ -499,7 +499,7 @@ PrimeBakes/
 
 2. **Configure Secrets**
    
-   Update `PrimeBakesLibrary/DataAccess/Secrets.cs` with your connection strings:
+   Update `PrimeBakes.Library/DataAccess/Secrets.cs` with your connection strings:
    ```csharp
    public static class Secrets
    {
@@ -510,7 +510,7 @@ PrimeBakes/
    ```
 
 3. **Publish Database**
-   - Open `DBPrimeBakes/DBPrimeBakes.sqlproj`
+   - Open `PrimeBakes.Database/PrimeBakes.Database.sqlproj`
    - Right-click → Publish
    - Select target database profile
 
@@ -549,7 +549,7 @@ PrimeBakes/
 
 ### Publishing Profiles
 
-- **LocalDBPrimeBakes.publish.xml** - Local development database
+- **LocalPrimeBakes.Database.publish.xml** - Local development database
 - **AzurePrimeBakesTesting.publish.xml** - Azure testing database
 - **AzurePrimeBakes.publish.xml** - Azure production database
 

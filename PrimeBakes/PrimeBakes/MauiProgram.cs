@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using PrimeBakes.Services;
 using PrimeBakes.Shared.Services;
 
-using PrimeBakesLibrary.DataAccess;
+using PrimeBakes.Library.DataAccess;
 
 using Syncfusion.Blazor;
 

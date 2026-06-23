@@ -1,8 +1,8 @@
-using PrimeBakesLibrary.Accounts.Masters.Data;
-using PrimeBakesLibrary.Operations.Settings;
-using PrimeBakesLibrary.Operations.User;
-using PrimeBakesLibrary.Store.Order.Data;
-using PrimeBakesLibrary.Store.Order.Models;
+using PrimeBakes.Library.Accounts.Masters.Data;
+using PrimeBakes.Library.Operations.Settings;
+using PrimeBakes.Library.Operations.User;
+using PrimeBakes.Library.Store.Order.Data;
+using PrimeBakes.Library.Store.Order.Models;
 
 using System.Text.Json;
 

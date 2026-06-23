@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
-using PrimeBakesLibrary.Operations.User;
+using PrimeBakes.Library.Operations.User;
 
 using Syncfusion.Blazor.Inputs;
 

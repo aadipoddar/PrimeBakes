@@ -21,11 +21,11 @@ jobs:
       uses: microsoft/setup-msbuild@v2
     
     - name: Build SQL Server Database Project
-      run: msbuild DBPrimeBakes/DBPrimeBakes.sqlproj /p:Configuration=Release /p:Platform="Any CPU"
+      run: msbuild PrimeBakes.Database/PrimeBakes.Database.sqlproj /p:Configuration=Release /p:Platform="Any CPU"
     
     - name: Find DACPAC file
       run: |
-        Get-ChildItem -Path "DBPrimeBakes" -Filter "*.dacpac" -Recurse | Select-Object FullName
+        Get-ChildItem -Path "PrimeBakes.Database" -Filter "*.dacpac" -Recurse | Select-Object FullName
     
     - name: Install SqlPackage
       run: |
@@ -34,7 +34,7 @@ jobs:
     
     - name: Deploy Database to Azure SQL
       run: |
-        $dacpacPath = (Get-ChildItem -Path "DBPrimeBakes" -Filter "DBPrimeBakes.dacpac" -Recurse).FullName
+        $dacpacPath = (Get-ChildItem -Path "PrimeBakes.Database" -Filter "PrimeBakes.Database.dacpac" -Recurse).FullName
         echo "Using DACPAC: $dacpacPath"
         ./SqlPackage/SqlPackage.exe /Action:Publish `
           /SourceFile:"$dacpacPath" `
