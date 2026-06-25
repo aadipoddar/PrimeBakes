@@ -1,0 +1,133 @@
+Plan: an "Analysis" tab for PrimeBakes
+
+  1. What Strada's Analysis actually is (the reference)
+
+  In Strada, the Dashboard (Dashboard.razor) is a MudTabs launchpad, and the first panel is <DashboardAnalysis /> — a self-contained insights screen with three bands:
+
+  ┌───────────────────┬────────────────────────────────────────────────────────────────────────────────────────────────────┬─────────────────────────────────────────────────────────────────────────────────┐
+  │       Band        │                                                What                                                │                                 How it's built                                  │
+  ├───────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
+  │ Key Figures       │ 7 FioriTile KPI cards (this-month value + "▲/▼ x% vs last month")                                  │ Generic CommonData loads of last-2-months data, summed in C#; trend via         │
+  │                   │                                                                                                    │ Helper.FormatMonthlyTrend                                                       │
+  ├───────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
+  │ <DashboardChart   │ 4 MudCharts — Revenue (line), Expense (bar), Top Vehicles (bar), Expense-type (pie) over 12 months │ 3 dedicated aggregation stored procs (Load_Dashboard_*) → tiny result sets read │
+  │ />                │                                                                                                    │  into ChartSeries                                                               │
+  ├───────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
+  │ Attention         │ 5 SfGrids — docs due, loss trips, pending trips, idle vehicles, low card balances — each with a    │ Generic overview loads + in-memory Where/OrderBy                                │
+  │                   │ right-click "go fix it" action                                                                     │                                                                                 │
+  └───────────────────┴────────────────────────────────────────────────────────────────────────────────────────────────────┴─────────────────────────────────────────────────────────────────────────────────┘
+
+  Key architectural choices worth copying: charts aggregate in SQL (cheap over a year of data), KPIs/attention compute in C# from generic loads, and everything is read-only with navigation shortcuts to the
+  page where you act.
+
+  Good news — PrimeBakes already has the exact ingredients: FioriTile, Header, LoadingScreen, Helper.FormatIndianCurrency, Helper.FormatMonthlyTrend, the CommonData.LoadTableDataByDate pattern, and a working
+  analytics precedent in CustomerSummaryReport (loads Sale/Bill/Return overviews, computes a rich summary in C#). MudChart isn't used anywhere yet — this would be its first use, but MudBlazor is already
+  referenced.
+
+  2. Architecture (mirror Strada, adapted)
+
+  - New tab in PrimeBakes\PrimeBakes.Shared\Pages\Dashboard.razor: <MudTabPanel Text="Analysis"><DashboardAnalysis /></MudTabPanel>.
+  - New components (PrimeBakes has no Components/Dashboard folder yet — create it):
+    - PrimeBakes.Shared\Components\Dashboard\DashboardAnalysis.razor(.cs/.css) — KPI tiles + attention grids.
+    - PrimeBakes.Shared\Components\Dashboard\DashboardChart.razor(.cs/.css) — the MudCharts.
+    - Port the two .razor.css files from Strada (they define chart-card/section-card/attention-col; launchpad-section* and dashboard-grid are already global in PrimeBakes).
+  - New library feature PrimeBakes.Library\Operations\Analysis\ (cross-cutting → Operations module): AnalysisData.cs (static, LoadData wrappers) + Models\Analysis*Model.cs. Mirrors Strada's
+  Fleet\Analysis\AnalysisData.cs.
+  - New name constants: add an AnalysisNames class to PrimeBakes.Library\Common\DatabaseNames.cs for the new procs (existing classes are
+  CommonNames/OperationNames/AccountNames/InventoryNames/StoreNames/RestaurantNames).
+
+  3. Placement & gating (deliberately simple, per your note)
+
+  Gate the whole panel: Visible="_user.Admin && _user.LocationId == 1 && !IsMobile" — same gate the dashboard already uses for the "Outlet" and "Administration" sections. Because it's HQ-admin-only, the
+  analysis is company-wide / all-outlets (no per-user location scoping needed → no complex blocking). I recommend making it the first tab so admins land on insights by default.
+
+  4. What goes in it (the substance — bakery owner's lens)
+
+  Everything below is tied to data I confirmed exists. Revenue = Store Sales + Restaurant Bills, net of Sale Returns (all carry TotalAmount, TransactionDateTime, LocationId, CustomerId, Cash/Card/UPI/Credit,
+  Status).
+
+  Band A — Headline KPIs (FioriTile, value + vs-last trend)
+
+  ┌───────────────────────────────────┬─────────────────────────────────────────┬────────────────────────────────────────┐
+  │               Tile                │                 Source                  │           Why an owner cares           │
+  ├───────────────────────────────────┼─────────────────────────────────────────┼────────────────────────────────────────┤
+  │ Today's Revenue (vs yesterday)    │ Sale+Bill today                         │ Daily pulse — bakeries live day-to-day │
+  ├───────────────────────────────────┼─────────────────────────────────────────┼────────────────────────────────────────┤
+  │ Revenue This Month (vs last)      │ Sale+Bill                               │ Growth                                 │
+  ├───────────────────────────────────┼─────────────────────────────────────────┼────────────────────────────────────────┤
+  │ Purchases This Month (vs last)    │ Purchase.TotalAmount                    │ Money out / input-cost creep           │
+  ├───────────────────────────────────┼─────────────────────────────────────────┼────────────────────────────────────────┤
+  │ Gross Profit This Month (vs last) │ Revenue − cost (see §8 profit decision) │ The number they really want            │
+  ├───────────────────────────────────┼─────────────────────────────────────────┼────────────────────────────────────────┤
+  │ Sale Returns (₹ + % of sales)     │ SaleReturn                              │ Wastage / quality / over-supply        │
+  ├───────────────────────────────────┼─────────────────────────────────────────┼────────────────────────────────────────┤
+  │ Avg Order Value (vs last)         │ Revenue ÷ txn count                     │ Basket health                          │
+  ├───────────────────────────────────┼─────────────────────────────────────────┼────────────────────────────────────────┤
+  │ Outstanding Credit                │ unpaid Credit                           │ Cash they're owed                      │
+  ├───────────────────────────────────┼─────────────────────────────────────────┼────────────────────────────────────────┤
+  │ Pending Orders / Running Bills    │ Order (SaleId null), Bill.Running       │ Open obligations on the floor          │
+  └───────────────────────────────────┴─────────────────────────────────────────┴────────────────────────────────────────┘
+
+  Band B — Charts (MudChart, mostly 12-month)
+
+  1. Revenue trend — line, 12 months (Sales+Bills).
+  2. Money In vs Out — grouped/!overlaid bars, Revenue vs Purchases per month → the profit gap made visual.
+  3. Payment-mode mix — donut (Cash/Card/UPI/Credit) → cash-flow & UPI/card reconciliation.
+  4. Revenue by Outlet — bar (HQ sees all locations side by side).
+  5. Top 10 Products by revenue — bar (from Sale_Item_Overview + Bill_Item_Overview).
+  6. Revenue by Product Category — pie (ItemCategoryName is in the item views).
+  (Optional extra: Sales channel mix Store-vs-Restaurant; intra-month daily revenue / day-of-week pattern.)
+
+  Band C — Attention lists (SfGrid + right-click action)
+
+  ┌───────────────────────────────────────────────┬─────────────────────────────────────┬────────────────────┐
+  │                     List                      │                Rule                 │       Action       │
+  ├───────────────────────────────────────────────┼─────────────────────────────────────┼────────────────────┤
+  │ Pending Orders                                │ Order_Overview SaleId null & Status │ → Order/Sale page  │
+  ├───────────────────────────────────────────────┼─────────────────────────────────────┼────────────────────┤
+  │ Running Bills                                 │ Bill_Overview Running=1             │ → Dining Dashboard │
+  ├───────────────────────────────────────────────┼─────────────────────────────────────┼────────────────────┤
+  │ Out-of-stock / negative Products (per outlet) │ Product stock summary ≤ threshold   │ → Product Stock    │
+  ├───────────────────────────────────────────────┼─────────────────────────────────────┼────────────────────┤
+  │ Low / negative Raw Materials                  │ RM stock summary ≤ threshold        │ → RM Stock         │
+  ├───────────────────────────────────────────────┼─────────────────────────────────────┼────────────────────┤
+  │ Top Customers (net business)                  │ reuse CustomerSummaryModel logic    │ → Customer Summary │
+  ├───────────────────────────────────────────────┼─────────────────────────────────────┼────────────────────┤
+  │ Dead stock (stock on hand, no sale in N days) │ stock + sale-item join              │ → Product page     │
+  └───────────────────────────────────────────────┴─────────────────────────────────────┴────────────────────┘
+
+  Note: no reorder-level field exists on ProductModel/RawMaterialModel — "low stock" would default to ≤ 0 (or a Settings threshold). Adding a reorder level is a separate small decision.
+
+  Band D — Profitability (advanced / phase 3)
+
+  Per-product gross margin = sale net rate − recipe cost/unit, flagging negative-margin sellers. The cost basis already exists via RecipeItemReport's "Cost As On Date" logic. Higher effort; depends on the
+  profit decision below.
+
+  5. Backend work
+
+  - New aggregation stored procs (SP-only rule; keeps 12-month pulls cheap) under PrimeBakes.Database\...\Load\, each registered in AnalysisNames and called from AnalysisData:
+  Load_Dashboard_KPISummary (today/this-month/last-month in one round trip), Load_Dashboard_MonthlyTrend, Load_Dashboard_PaymentMix, Load_Dashboard_RevenueByOutlet, Load_Dashboard_TopProducts,
+  Load_Dashboard_RevenueByCategory. Then publish via the SSDT project.
+  - Attention lists need no new procs — reuse existing *_Overview loads via CommonData + in-memory filters (the CustomerSummaryReport approach).
+  - Models: AnalysisMonthlyTrendModel, AnalysisOutletModel, AnalysisProductModel, AnalysisPaymentModeModel, AnalysisCategoryModel, AnalysisKpiModel.
+
+  6. What we reuse (so this is cheap)
+
+  FioriTile, Header, LoadingScreen, ToastNotification, SfGrid+context-menu, Helper.FormatIndianCurrency, Helper.FormatMonthlyTrend, CommonData.LoadTableDataByDate/LoadCurrentDateTime, the CustomerSummaryReport
+  load/compute pattern, and Strada's chart-option + CSS patterns ported over.
+
+  7. Suggested phasing
+
+  - Phase 1 (fast value): Analysis tab + KPI tiles + 3 core charts (revenue trend, money in/out, payment mix) + 2 attention lists (Pending Orders, Low Stock). Mostly reuse + 2 procs.
+  - Phase 2: remaining charts (by outlet, top products, by category) + remaining attention lists.
+  - Phase 3: product margin / profitability band.
+
+  8. Decisions I need before building
+
+  1. How to define "Profit" — (a) simple Revenue − Purchases (cash-basis, easy, slightly inaccurate as it's not matched COGS), (b) recipe-cost COGS per item (accurate gross margin, more work), or (c) pull
+  headline numbers from the Accounts P&L. My default: (a) for KPIs now, (b) for the Phase-3 margin table.
+  2. Time focus — monthly like Strada, or add a today / day-of-week emphasis (bakeries are daily)? Default: both — Today + Month KPIs, 12-month charts.
+  3. Low-stock rule — use ≤ 0, a global Settings threshold, or add a per-item reorder level? Default: global threshold in Settings.
+  4. Tab placement — first (default landing) vs last? Default: first.
+
+  Want me to lock in those defaults and produce the detailed implementation breakdown (exact files, proc signatures, model fields) — or adjust any of the four decisions first?

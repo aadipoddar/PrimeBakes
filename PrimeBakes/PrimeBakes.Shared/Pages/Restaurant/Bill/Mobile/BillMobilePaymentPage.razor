@@ -66,7 +66,7 @@ else
 					<span class="pb-section__count">@_bill.TotalItems items · @(((int)_bill.TotalQuantity)) qty</span>
 				</div>
 				<div class="pb-section__body">
-					
+
 					@if (_user.ChangeProductFinancial)
 					{
 						<div class="pb-charges">
@@ -216,6 +216,14 @@ else
 						<path d="M9 8h6M9 12h6M9 16h4" />
 					</svg>
 					@(_isProcessing ? "Working…" : "KOT")
+				</button>
+				<button type="button" class="pb-cta pb-cta--outline" @onclick="async () => await SaveTransaction(thermalOnly: true)" disabled="@(_bill is null || _isProcessing)">
+					<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M6 9V3h12v6" />
+						<rect x="3" y="9" width="18" height="9" rx="2" />
+						<rect x="7" y="14" width="10" height="6" rx="1" />
+					</svg>
+					@(_isProcessing ? "Working…" : "Thermal")
 				</button>
 				<button type="button" class="pb-cta pb-cta--primary" @onclick="async () => await SaveTransaction()" disabled="@_isProcessing">
 					@(_isProcessing ? "Saving…" : _remainingAmount == 0 ? "Settle" : "Save")

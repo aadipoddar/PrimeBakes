@@ -65,7 +65,6 @@ public partial class BillMobileConfirmationPage
 		finally
 		{
 			_isPrinting = false;
-			StateHasChanged();
 		}
 	}
 }

@@ -270,6 +270,9 @@ public static class BillData
 		if (bill.Cash < 0 || bill.Card < 0 || bill.Credit < 0 || bill.UPI < 0)
 			throw new InvalidOperationException("Payment amounts cannot be negative.");
 
+		if (bill.Running && (bill.Cash > 0 || bill.Card > 0 || bill.UPI > 0 || bill.Credit > 0))
+			throw new InvalidOperationException("For running bills, payment amounts must be zero.");
+
 		if (!bill.Running && bill.Cash + bill.Card + bill.UPI + bill.Credit != bill.TotalAmount)
 			throw new InvalidOperationException("For settled bills, the total payment must equal the total amount.");
 

@@ -402,7 +402,7 @@ public partial class BillMobilePaymentPage
 		await BillData.MarkKOTAsPrinted(_bill.Id);
 	}
 
-	private async Task SaveTransaction(bool kotOnly = false)
+	private async Task SaveTransaction(bool kotOnly = false, bool thermalOnly = false)
 	{
 		if (_isProcessing || _isLoading)
 			return;
@@ -426,17 +426,21 @@ public partial class BillMobilePaymentPage
 			if (kotOnly)
 			{
 				await HandleKOTPrint();
-				NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
+				await DeleteCartNavigateDashboard();
+				return;
+			}
+
+			if (thermalOnly)
+			{
+				await PrintThermal();
+				await DeleteCartNavigateDashboard();
 				return;
 			}
 
 			if (_bill.Running)
-			{
-				NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
-				return;
-			}
-
-			await NotificationNavigate(_bill.Id);
+				await DeleteCartNavigateDashboard();
+			else
+				await NotificationNavigate(_bill.Id);
 		}
 		catch (Exception ex)
 		{
@@ -450,11 +454,25 @@ public partial class BillMobilePaymentPage
 	#endregion
 
 	#region Utilities
+	private async Task PrintThermal() =>
+		await ThermalPrintDispatcher.PrintAsync(
+			() => BillThermalPrint.GenerateThermalBill(_bill.Id),
+			() => BillThermalPrint.GenerateThermalBillPng(_bill.Id));
+
+	private async Task DeleteCartNavigateDashboard()
+	{
+		NavigationManager.NavigateTo(RestaurantRouteNames.DiningMobileDashboard, true);
+
+		await DataStorageService.LocalRemove(StorageFileNames.BillMobileDataFileName);
+		await DataStorageService.LocalRemove(StorageFileNames.BillMobileCartDataFileName);
+
+		VibrationService.VibrateWithTime(500);
+	}
+
 	private async Task NotificationNavigate(int billId)
 	{
 		var overview = await CommonData.LoadTableDataById<BillOverviewModel>(RestaurantNames.BillOverview, billId);
 		await DataStorageService.LocalSaveAsync(StorageFileNames.BillMobileDataFileName, JsonSerializer.Serialize(overview));
-		await DataStorageService.LocalRemove(StorageFileNames.BillMobileCartDataFileName);
 
 		await SendLocalNotification(overview);
 		VibrationService.VibrateWithTime(500);
