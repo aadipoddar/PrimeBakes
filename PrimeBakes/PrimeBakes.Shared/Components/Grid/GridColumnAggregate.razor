@@ -1,3 +1,53 @@
-﻿<h3>GridColumnAggregates</h3>
-
-
+﻿<GridAggregateColumn Field="@Field" Type="@Type" Format="@Format">
+	<FooterTemplate>
+		@{
+			var aggregate = (context as AggregateTemplateContext);
+			@if (Type == AggregateType.Sum)
+			{
+				<div class="aggregate-value aggregate-total">
+					<strong>@aggregate.Sum</strong>
+				</div>
+			}
+			else if (Type == AggregateType.Count)
+			{
+				<div class="aggregate-label">
+					<strong>Total Items: @aggregate.Count</strong>
+				</div>
+			}
+		}
+	</FooterTemplate>
+	<GroupFooterTemplate>
+		@{
+			var aggregate = (context as AggregateTemplateContext);
+			@if (Type == AggregateType.Sum)
+			{
+				<div class="aggregate-value aggregate-total">
+					<strong>@aggregate.Sum</strong>
+				</div>
+			}
+			else if (Type == AggregateType.Count)
+			{
+				<div class="aggregate-label">
+					<strong>Total Items: @aggregate.Count</strong>
+				</div>
+			}
+		}
+	</GroupFooterTemplate>
+	<GroupCaptionTemplate>
+		@{
+			var aggregate = (context as AggregateTemplateContext);
+			@if (Type == AggregateType.Sum)
+			{
+				<div class="aggregate-value aggregate-total">
+					<strong>@aggregate.Sum</strong>
+				</div>
+			}
+			else if (Type == AggregateType.Count)
+			{
+				<div class="aggregate-label">
+					<strong>Total Items: @aggregate.Count</strong>
+				</div>
+			}
+		}
+	</GroupCaptionTemplate>
+</GridAggregateColumn>

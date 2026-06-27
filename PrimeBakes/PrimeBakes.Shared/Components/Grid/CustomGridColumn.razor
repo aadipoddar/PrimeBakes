@@ -1,0 +1,21 @@
+﻿@if (Color)
+{
+	<GridColumn Field="@Field" HeaderText="@HeaderText" Width="@Width" Format="@Format" TextAlign="@TextAlign" Visible="@Visible" Type="@Type">
+		<Template>
+			@{
+				var columnValue = (decimal)context.GetType().GetProperty(Field).GetValue(context, null);
+				<span class="@(columnValue < 0 ? "grid-debit" : "grid-credit")">
+					@columnValue.ToString("N2")
+				</span>
+			}
+		</Template>
+	</GridColumn>
+}
+else if (CustomTemplate is not null)
+{
+	@CustomTemplate
+}
+else
+{
+	<GridColumn Field="@Field" HeaderText="@HeaderText" Width="@Width" Format="@Format" TextAlign="@TextAlign" Visible="@Visible" Type="@Type" DisplayAsCheckBox="@DisplayAsCheckBox" />
+}

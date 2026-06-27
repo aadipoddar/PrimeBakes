@@ -161,14 +161,9 @@ public partial class Header
 	#endregion
 
 	#region Load Data
-	[Parameter]
-	public string Title { get; set; } = string.Empty;
-
-	[Parameter]
-	public RenderFragment? LeftContent { get; set; }
-
-	[Parameter]
-	public RenderFragment? RightContent { get; set; }
+	[Parameter] public string Title { get; set; } = string.Empty;
+	[Parameter] public RenderFragment? LeftContent { get; set; }
+	[Parameter] public RenderFragment? RightContent { get; set; }
 
 	private UserModel _user;
 
