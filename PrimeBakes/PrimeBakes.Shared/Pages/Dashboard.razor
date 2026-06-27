@@ -56,6 +56,12 @@ else
 {
 	<div class="page-shell">
 		<Header Title="Dashboard">
+			<LeftContent>
+				<MudBlazor.MudMenu Label="File" Dense="true">
+					<MudBlazor.MudMenuItem Label="Download Android" OnClick="() => DownloadApp(android: true)" />
+					<MudBlazor.MudMenuItem Label="Download Windows" OnClick="() => DownloadApp()" />
+				</MudBlazor.MudMenu>
+			</LeftContent>
 			<RightContent>
 				<IconButton Icon="IconType.Refresh" Title="Force Update" Disabled="@(_isLoading || _isUpdating)" OnClick="ForceUpdate" />
 			</RightContent>

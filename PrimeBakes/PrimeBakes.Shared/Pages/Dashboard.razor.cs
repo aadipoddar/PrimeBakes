@@ -1,6 +1,7 @@
 using PrimeBakes.Library.DataAccess;
 using PrimeBakes.Library.Operations.User;
 
+using System.Diagnostics;
 using System.Reflection;
 
 namespace PrimeBakes.Shared.Pages;
@@ -113,6 +114,15 @@ public partial class Dashboard
 
 		if (Platform.Contains("Android"))
 			await NotificationService.RegisterDevicePushNotification(_user.Id.ToString());
+	}
+
+	private void DownloadApp(bool android = false)
+	{
+		Process.Start(new ProcessStartInfo(
+			android ?
+			$"https://github.com/aadipoddar/{Secrets.DatabaseName}/releases/download/{AppVersion}/{Secrets.DatabaseName}.apk" :
+			$"https://github.com/aadipoddar/{Secrets.DatabaseName}/releases/download/{AppVersion}/{Secrets.DatabaseName}.zip")
+		{ UseShellExecute = true });
 	}
 	#endregion
 }
