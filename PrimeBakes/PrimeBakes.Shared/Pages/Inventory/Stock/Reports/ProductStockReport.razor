@@ -2,6 +2,7 @@
 @using PrimeBakes.Library.Inventory.Stock.Models
 @using PrimeBakes.Library.Operations.Location
 @using PrimeBakes.Library.Store.Product.Models
+@using PrimeBakes.Shared.Components.Grid
 
 @attribute [Route(InventoryRouteNames.ProductStockReport)]
 
@@ -167,6 +168,162 @@ else
 											}
 										</GroupCaptionTemplate>
 									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(ProductStockSummaryModel.OpeningValue)" Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(ProductStockSummaryModel.ClosingValueByRate)" Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(ProductStockSummaryModel.TotalInValue)" Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(ProductStockSummaryModel.TotalOutValue)" Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(ProductStockSummaryModel.PurchaseValue)" Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
+									<GridAggregateColumn Field="@nameof(ProductStockSummaryModel.PurchaseReturnValue)" Type="AggregateType.Sum" Format="N2">
+										<FooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</FooterTemplate>
+										<GroupFooterTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</GroupFooterTemplate>
+										<GroupCaptionTemplate>
+											@{
+												var aggregate = (context as AggregateTemplateContext);
+												<div class="aggregate-value aggregate-total">
+													<strong>@aggregate.Sum</strong>
+												</div>
+											}
+										</GroupCaptionTemplate>
+									</GridAggregateColumn>
 								</GridAggregateColumns>
 							</GridAggregate>
 						</GridAggregates>
@@ -176,49 +333,176 @@ else
 							<GridColumn Field="@nameof(ProductStockSummaryModel.ProductCode)" HeaderText="Code" Width="120" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(ProductStockSummaryModel.ProductCategoryName)" HeaderText="Category" Width="170" Visible="@(_showAllColumns || _selectedCategory is null || _selectedCategory.Id <= 0)" />
 
-							<GridColumn Field="@nameof(ProductStockSummaryModel.OpeningStock)" HeaderText="Opening" Width="200" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(ProductStockSummaryModel.InStock)" HeaderText="Stock In" Width="200" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(ProductStockSummaryModel.OutStock)" HeaderText="Stock Out" Width="200" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(ProductStockSummaryModel.ClosingStock)" HeaderText="Closing" Width="200" Format="N2" TextAlign="TextAlign.Right" />
+							<GridColumn Field="@nameof(ProductStockSummaryModel.OpeningStock)" HeaderText="Opening" Width="200" Format="N2" TextAlign="TextAlign.Right">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).OpeningStock)" />
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(ProductStockSummaryModel.InStock)" HeaderText="Stock In" Width="200" Format="N2" TextAlign="TextAlign.Right">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).InStock)" />
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(ProductStockSummaryModel.OutStock)" HeaderText="Stock Out" Width="200" Format="N2" TextAlign="TextAlign.Right">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).OutStock)" />
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(ProductStockSummaryModel.ClosingStock)" HeaderText="Closing" Width="200" Format="N2" TextAlign="TextAlign.Right">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).ClosingStock)" />
+								</Template>
+							</GridColumn>
 
-							<GridColumn Field="@nameof(ProductStockSummaryModel.MonthlyStock)" HeaderText="Net Movement" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(ProductStockSummaryModel.PurchaseStock)" HeaderText="Purchase" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(ProductStockSummaryModel.PurchaseReturnStock)" HeaderText="Purchase Return" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(ProductStockSummaryModel.KitchenIssueStock)" HeaderText="Kitchen Issue" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(ProductStockSummaryModel.KitchenProductionStock)" HeaderText="Kitchen Production" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(ProductStockSummaryModel.SaleStock)" HeaderText="Sale" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(ProductStockSummaryModel.SaleReturnStock)" HeaderText="Sale Return" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(ProductStockSummaryModel.StockTransferStock)" HeaderText="Stock Transfer" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(ProductStockSummaryModel.BillStock)" HeaderText="Bill" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(ProductStockSummaryModel.AdjustmentStock)" HeaderText="Adjustment" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(ProductStockSummaryModel.MonthlyStock)" HeaderText="Net Movement" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).MonthlyStock)" />
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(ProductStockSummaryModel.PurchaseStock)" HeaderText="Purchase" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).PurchaseStock)" />
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(ProductStockSummaryModel.PurchaseReturnStock)" HeaderText="Purchase Return" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).PurchaseReturnStock)" />
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(ProductStockSummaryModel.KitchenIssueStock)" HeaderText="Kitchen Issue" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).KitchenIssueStock)" />
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(ProductStockSummaryModel.KitchenProductionStock)" HeaderText="Kitchen Production" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).KitchenProductionStock)" />
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(ProductStockSummaryModel.SaleStock)" HeaderText="Sale" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).SaleStock)" />
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(ProductStockSummaryModel.SaleReturnStock)" HeaderText="Sale Return" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).SaleReturnStock)" />
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(ProductStockSummaryModel.StockTransferStock)" HeaderText="Stock Transfer" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).StockTransferStock)" />
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(ProductStockSummaryModel.BillStock)" HeaderText="Bill" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).BillStock)" />
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(ProductStockSummaryModel.AdjustmentStock)" HeaderText="Adjustment" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).AdjustmentStock)" />
+								</Template>
+							</GridColumn>
 
 							<GridColumn Field="@nameof(ProductStockSummaryModel.Rate)" HeaderText="Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" />
 							<GridColumn Field="@nameof(ProductStockSummaryModel.ClosingValueByRate)" HeaderText="Closing Value" Width="200" TextAlign="TextAlign.Right">
 								<Template>
 									@{
 										var item = (context as dynamic);
-										<span class="grid-total">@item.ClosingValueByRate.ToString("N2")</span>
+										<span class="@(item.ClosingValueByRate < 0 ? "grid-debit" : "grid-total")">
+											@item.ClosingValueByRate.ToString("N2")
+										</span>
 									}
 								</Template>
 							</GridColumn>
-							<GridColumn Field="@nameof(ProductStockSummaryModel.AverageInRate)" HeaderText="Avg In Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(ProductStockSummaryModel.ClosingValueByAverageInRate)" HeaderText="Value at Avg In" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(ProductStockSummaryModel.AverageOutRate)" HeaderText="Avg Out Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(ProductStockSummaryModel.ClosingValueByAverageOutRate)" HeaderText="Value at Avg Out" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(ProductStockSummaryModel.RateVariance)" HeaderText="Rate Variance" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(ProductStockSummaryModel.AverageInRate)" HeaderText="Avg In Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).AverageInRate)" />
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(ProductStockSummaryModel.ClosingValueByAverageInRate)" HeaderText="Value at Avg In" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).ClosingValueByAverageInRate)" />
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(ProductStockSummaryModel.AverageOutRate)" HeaderText="Avg Out Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).AverageOutRate)" />
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(ProductStockSummaryModel.ClosingValueByAverageOutRate)" HeaderText="Value at Avg Out" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).ClosingValueByAverageOutRate)" />
+								</Template>
+							</GridColumn>
 
-							<GridColumn Field="@nameof(ProductStockSummaryModel.OpeningValue)" HeaderText="Opening Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(ProductStockSummaryModel.TotalInValue)" HeaderText="Total In Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(ProductStockSummaryModel.TotalOutValue)" HeaderText="Total Out Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(ProductStockSummaryModel.PurchaseValue)" HeaderText="Purchase Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(ProductStockSummaryModel.PurchaseReturnValue)" HeaderText="Purchase Return Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(ProductStockSummaryModel.KitchenIssueValue)" HeaderText="Kitchen Issue Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(ProductStockSummaryModel.KitchenProductionValue)" HeaderText="Kitchen Production Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(ProductStockSummaryModel.SaleValue)" HeaderText="Sale Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(ProductStockSummaryModel.SaleReturnValue)" HeaderText="Sale Return Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(ProductStockSummaryModel.StockTransferValue)" HeaderText="Stock Transfer Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(ProductStockSummaryModel.BillValue)" HeaderText="Bill Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(ProductStockSummaryModel.AdjustmentValue)" HeaderText="Adjustment Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(ProductStockSummaryModel.RateVariance)" HeaderText="Rate Variance" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).RateVariance)" />
+								</Template>
+							</GridColumn>
+
+							<GridColumn Field="@nameof(ProductStockSummaryModel.OpeningValue)" HeaderText="Opening Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).OpeningValue)" />
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(ProductStockSummaryModel.TotalInValue)" HeaderText="Total In Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).TotalInValue)" />
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(ProductStockSummaryModel.TotalOutValue)" HeaderText="Total Out Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).TotalOutValue)" />
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(ProductStockSummaryModel.PurchaseValue)" HeaderText="Purchase Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).PurchaseValue)" />
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(ProductStockSummaryModel.PurchaseReturnValue)" HeaderText="Purchase Return Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).PurchaseReturnValue)" />
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(ProductStockSummaryModel.KitchenIssueValue)" HeaderText="Kitchen Issue Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).KitchenIssueValue)" />
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(ProductStockSummaryModel.KitchenProductionValue)" HeaderText="Kitchen Production Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).KitchenProductionValue)" />
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(ProductStockSummaryModel.SaleValue)" HeaderText="Sale Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).SaleValue)" />
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(ProductStockSummaryModel.SaleReturnValue)" HeaderText="Sale Return Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).SaleReturnValue)" />
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(ProductStockSummaryModel.StockTransferValue)" HeaderText="Stock Transfer Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).StockTransferValue)" />
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(ProductStockSummaryModel.BillValue)" HeaderText="Bill Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).BillValue)" />
+								</Template>
+							</GridColumn>
+							<GridColumn Field="@nameof(ProductStockSummaryModel.AdjustmentValue)" HeaderText="Adjustment Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).AdjustmentValue)" />
+								</Template>
+							</GridColumn>
 
 							<GridColumn Field="@nameof(ProductStockSummaryModel.LastPurchaseRate)" HeaderText="Last Purchase Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(ProductStockSummaryModel.AveragePurchaseRate)" HeaderText="Avg Purchase Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
@@ -239,9 +523,17 @@ else
 							<GridColumn Field="@nameof(ProductStockSummaryModel.LastAdjustmentRate)" HeaderText="Last Adjustment Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(ProductStockSummaryModel.AverageAdjustmentRate)" HeaderText="Avg Adjustment Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
 
-							<GridColumn Field="@nameof(ProductStockSummaryModel.AverageDailyConsumption)" HeaderText="Avg Daily Use" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(ProductStockSummaryModel.AverageDailyConsumption)" HeaderText="Avg Daily Use" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).AverageDailyConsumption)" />
+								</Template>
+							</GridColumn>
 							<GridColumn Field="@nameof(ProductStockSummaryModel.DaysOnHand)" HeaderText="Days On Hand" Width="200" Format="N1" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(ProductStockSummaryModel.StockTurnoverRatio)" HeaderText="Turnover" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+							<GridColumn Field="@nameof(ProductStockSummaryModel.StockTurnoverRatio)" HeaderText="Turnover" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns">
+								<Template>
+									<GridColumnNegativePositive ColumnValue="@((context as ProductStockSummaryModel).StockTurnoverRatio)" />
+								</Template>
+							</GridColumn>
 							<GridColumn Field="@nameof(ProductStockSummaryModel.TransactionCount)" HeaderText="Txns" Width="200" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(ProductStockSummaryModel.LastSaleDate)" HeaderText="Last Sale" Width="200" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="_showAllColumns" />
 							<GridColumn Field="@nameof(ProductStockSummaryModel.LastTransactionDate)" HeaderText="Last Transaction" Width="200" Format="dd/MM/yy hh:mm tt}" Type="ColumnType.DateTime" Visible="_showAllColumns" />
@@ -249,7 +541,9 @@ else
 								<Template>
 									@{
 										var item = (context as dynamic);
-										<span class="@(item.IsNegativeStock ? "grid-debit" : string.Empty)">@(item.IsNegativeStock ? "Yes" : "No")</span>
+										<span class="@(item.IsNegativeStock ? "grid-debit" : string.Empty)">
+											@(item.IsNegativeStock ? "Yes" : "No")
+										</span>
 									}
 								</Template>
 							</GridColumn>
