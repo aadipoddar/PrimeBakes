@@ -13,6 +13,7 @@ public static class KitchenProductionInvoiceExport
 			throw new InvalidOperationException("Transaction not found.");
 
 		var transactionDetails = await CommonData.LoadTableDataByMasterId<KitchenProductionItemOverviewModel>(InventoryNames.KitchenProductionItemOverview, transaction.Id);
+		transactionDetails = [.. transactionDetails.OrderBy(detail => detail.ItemName)];
 		if (transactionDetails is null || transactionDetails.Count == 0)
 			throw new InvalidOperationException("No transaction details found for the transaction.");
 

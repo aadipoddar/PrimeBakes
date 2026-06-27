@@ -258,6 +258,7 @@ public partial class ProductStockAdjustment
 			item.Total = item.Rate * item.Quantity;
 		}
 
+		_cart = [.. _cart.OrderBy(s => s.ProductName)];
 		_transactionNo = await GenerateCodes.GenerateProductStockAdjustmentTransactionNo(_transactionDateTime, _selectedLocation.Id);
 	}
 

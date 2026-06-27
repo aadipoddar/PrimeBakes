@@ -13,6 +13,7 @@ public static class FinancialAccountingInvoiceExport
 			throw new InvalidOperationException("Transaction not found.");
 
 		var transactionDetails = await CommonData.LoadTableDataByMasterId<FinancialAccountingLedgerOverviewModel>(AccountNames.FinancialAccountingLedgerOverview, transaction.Id);
+		transactionDetails = [.. transactionDetails.OrderBy(td => td.LedgerName)];
 		if (transactionDetails is null || transactionDetails.Count == 0)
 			throw new InvalidOperationException("No transaction details found for the transaction.");
 

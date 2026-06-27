@@ -181,190 +181,195 @@ else
 				</div>
 			</div>
 
-			<!-- Add to Cart -->
-			<div class="section-card">
-				<div class="section-header">
-					<h2 class="section-title">Add Items to Cart</h2>
-				</div>
+			<div class="two-column-layout-equal">
 
-				<div class="section-body">
-					<!-- Single Row: All Components -->
-					<div class="cart-input-row">
-						<div class="cart-field cart-field-wide">
-							<div class="reference-wrapper">
-								<CustomAutoComplete @ref="_sfLedgerAutoComplete" T="LedgerModel"
-													Value="_selectedLedger"
-													DataSource="@_ledgers"
-													Placeholder="Select Ledger"
-													Label="Ledger (Ctrl + G)"
-													ValueChanged="OnItemChanged" OpenOnFocus="false"
-													FieldValue="@nameof(LedgerModel.Name)"
-													AddNewRoute="@AccountsRouteNames.LedgerMaster" />
+				<!-- Add to Cart -->
+				<div class="section-card">
+					<div class="section-header">
+						<h2 class="section-title">Add Items to Cart</h2>
+					</div>
 
-								@if (_showReferenceInstrument)
-								{
-									<div class="reference-actions">
-										<IconButton Icon="IconType.Get" Variant="ButtonVariant.Get" Size="ButtonSize.Small"
-													Title="Get References" OnClick="GetReferences" />
-									</div>
-								}
-							</div>
-						</div>
+					<div class="section-body">
+						<!-- Single Row: All Components -->
+						<div class="cart-input-row">
 
-						@if (_showReferenceInstrument)
-						{
-							<div class="cart-field cart-field-wide">
+							<div class="cart-field cart-field-ultra-wide">
 								<div class="reference-wrapper">
-									<CustomAutoComplete T="FinancialAccountingLedgerOverviewModel"
-														Value="_selectedAccountingLedger"
-														DataSource="@_accountingLedgers"
-														Placeholder="Select Reference"
-														Label="Reference No" Required="false"
-														ValueChanged="OnReferenceChanged"
-														FieldValue="@nameof(FinancialAccountingLedgerOverviewModel.LedgerReferenceNo)" />
-									<div class="reference-actions">
-										<IconButton Icon="IconType.View" Variant="ButtonVariant.View" Size="ButtonSize.Small"
-													Title="View Transaction" OnClick="ViewCartReferenceTransaction" />
-									</div>
+									<CustomAutoComplete @ref="_sfLedgerAutoComplete" T="LedgerModel"
+														Value="_selectedLedger"
+														DataSource="@_ledgers"
+														Placeholder="Select Ledger"
+														Label="Ledger (Ctrl + G)"
+														ValueChanged="OnItemChanged" OpenOnFocus="false"
+														FieldValue="@nameof(LedgerModel.Name)"
+														AddNewRoute="@AccountsRouteNames.LedgerMaster" />
+
+									@if (_showReferenceInstrument)
+									{
+										<div class="reference-actions">
+											<IconButton Icon="IconType.Get" Variant="ButtonVariant.Get" Size="ButtonSize.Small"
+														Title="Get References" OnClick="GetReferences" />
+										</div>
+									}
 								</div>
 							</div>
-						}
 
-						<div class="cart-field">
-							<CustomNumericField T="decimal?"
-												@bind-Value="_selectedCart.Debit"
-												Min="0"
-												Label="Debit"
-												Placeholder="0.00"
-												Required="false" />
-						</div>
+							@if (_showReferenceInstrument)
+							{
+								<div class="cart-field cart-field-wide">
+									<div class="reference-wrapper">
+										<CustomAutoComplete T="FinancialAccountingLedgerOverviewModel"
+															Value="_selectedAccountingLedger"
+															DataSource="@_accountingLedgers"
+															Placeholder="Select Reference"
+															Label="Reference No" Required="false"
+															ValueChanged="OnReferenceChanged"
+															FieldValue="@nameof(FinancialAccountingLedgerOverviewModel.LedgerReferenceNo)" />
+										<div class="reference-actions">
+											<IconButton Icon="IconType.View" Variant="ButtonVariant.View" Size="ButtonSize.Small"
+														Title="View Transaction" OnClick="ViewCartReferenceTransaction" />
+										</div>
+									</div>
+								</div>
+							}
 
-						<div class="cart-field">
-							<CustomNumericField T="decimal?"
-												@bind-Value="_selectedCart.Credit"
-												Min="0"
-												Label="Credit"
-												Placeholder="0.00"
-												Required="false" />
-						</div>
+							<div class="cart-field cart-field-wide">
+								<CustomNumericField T="decimal?"
+													@bind-Value="_selectedCart.Debit"
+													Min="0"
+													Label="Debit"
+													Placeholder="0.00"
+													Required="false" />
+							</div>
 
-						@if (_showReferenceInstrument)
-						{
-							<div class="cart-field">
-								<CustomTextField @bind-Value="_selectedCart.InstrumentNo"
-												 Label="Instrument No"
-												 Placeholder="Cheque / UTR no..."
+							<div class="cart-field cart-field-wide">
+								<CustomNumericField T="decimal?"
+													@bind-Value="_selectedCart.Credit"
+													Min="0"
+													Label="Credit"
+													Placeholder="0.00"
+													Required="false" />
+							</div>
+
+							@if (_showReferenceInstrument)
+							{
+								<div class="cart-field cart-field-wide">
+									<CustomTextField @bind-Value="_selectedCart.InstrumentNo"
+													 Label="Instrument No"
+													 Placeholder="Cheque / UTR no..."
+													 Required="false" />
+								</div>
+
+								<div class="cart-field cart-field-wide">
+									<CustomDatePicker @bind-NullableValue="_selectedCart.InstrumentDate"
+													  Label="Instrument Date"
+													  Required="false"
+													  ShowFinancialYear="false" />
+								</div>
+							}
+
+							<div class="cart-field cart-field-ultra-wide">
+								<CustomTextField @bind-Value="_selectedCart.Remarks"
+												 Label="Remarks"
+												 Placeholder="Entry narration..."
 												 Required="false" />
 							</div>
 
-							<div class="cart-field">
-								<CustomDatePicker @bind-NullableValue="_selectedCart.InstrumentDate"
-												  Label="Instrument Date"
-												  Required="false"
-												  ShowFinancialYear="false" />
+							<div class="cart-field cart-field-wide">
+								<IconButton Icon="IconType.Add" Variant="ButtonVariant.Add" Text="Add" Title="Add to Cart"
+											OnClick="AddItemToCart" />
 							</div>
-						}
-
-						<div class="cart-field cart-field-wide">
-							<CustomTextField @bind-Value="_selectedCart.Remarks"
-											 Label="Remarks"
-											 Placeholder="Entry narration..."
-											 Required="false" />
-						</div>
-
-						<div class="cart-field">
-							<IconButton Icon="IconType.Add" Variant="ButtonVariant.Add" Text="Add" Title="Add to Cart"
-										OnClick="AddItemToCart" />
 						</div>
 					</div>
 				</div>
-			</div>
 
-			<!-- Cart -->
-			<div class="section-card">
-				<div class="section-header">
-					<h2 class="section-title">Cart</h2>
+				<!-- Cart -->
+				<div class="section-card">
+					<div class="section-header">
+						<h2 class="section-title">Cart</h2>
+					</div>
+
+					<div class="section-body grid-body">
+						<SfGrid @ref="_sfCartGrid" DataSource="_cart"
+								AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_cartGridContextMenuItems" CssClass="professional-grid"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="FinancialAccountingLedgerCartModel" ContextMenuItemClicked="OnCartGridContextMenuItemClicked" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridAggregateColumn Field="@nameof(FinancialAccountingLedgerCartModel.LedgerName)" Type="AggregateType.Count">
+											<FooterTemplate>
+												@{
+													var aggregate = (context as AggregateTemplateContext);
+												}
+												<div class="aggregate-label">
+													<strong>Total Entries: @aggregate.Count</strong>
+												</div>
+											</FooterTemplate>
+										</GridAggregateColumn>
+										<GridAggregateColumn Field="@nameof(FinancialAccountingLedgerCartModel.Debit)" Type="AggregateType.Sum">
+											<FooterTemplate>
+												@{
+													var aggregate = (context as AggregateTemplateContext);
+													var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
+												}
+												<div class="aggregate-value aggregate-debit">
+													<strong>@sum.ToString("N2")</strong>
+												</div>
+											</FooterTemplate>
+										</GridAggregateColumn>
+										<GridAggregateColumn Field="@nameof(FinancialAccountingLedgerCartModel.Credit)" Type="AggregateType.Sum">
+											<FooterTemplate>
+												@{
+													var aggregate = (context as AggregateTemplateContext);
+													var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
+												}
+												<div class="aggregate-value aggregate-credit">
+													<strong>@sum.ToString("N2")</strong>
+												</div>
+											</FooterTemplate>
+										</GridAggregateColumn>
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.LedgerName)" HeaderText="Ledger Name" Width="250" />
+								<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.Debit)" HeaderText="Debit" Width="130" TextAlign="TextAlign.Right" Format="N2">
+									<Template>
+										@{
+											var item = (context as FinancialAccountingLedgerCartModel);
+											<span class="@((item.Debit ?? 0) > 0 ? "grid-debit" : "")">
+												@(item.Debit?.ToString("N2") ?? "-")
+											</span>
+										}
+									</Template>
+								</GridColumn>
+								<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.Credit)" HeaderText="Credit" Width="130" TextAlign="TextAlign.Right" Format="N2">
+									<Template>
+										@{
+											var item = (context as FinancialAccountingLedgerCartModel);
+											<span class="@((item.Credit ?? 0) > 0 ? "grid-credit" : "")">
+												@(item.Credit?.ToString("N2") ?? "-")
+											</span>
+										}
+									</Template>
+								</GridColumn>
+								<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.ReferenceType)" HeaderText="Ref Type" Width="120" Visible="_showReferenceInstrument" />
+								<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.ReferenceNo)" HeaderText="Ref No" Width="120" Visible="_showReferenceInstrument" />
+								<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.InstrumentNo)" HeaderText="Instrument No" Width="140" Visible="_showReferenceInstrument" />
+								<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.InstrumentDate)" HeaderText="Instrument Date" Width="150" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="_showReferenceInstrument" />
+								<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.Remarks)" HeaderText="Remarks" Width="500" />
+							</GridColumns>
+						</SfGrid>
+					</div>
 				</div>
 
-				<div class="section-body grid-body">
-					<SfGrid @ref="_sfCartGrid" DataSource="_cart"
-							AllowSorting="true" AllowResizing="true"
-							AllowFiltering="true" AllowReordering="true" ShowColumnChooser="true"
-							GridLines="GridLine.Horizontal" ContextMenuItems="@_cartGridContextMenuItems" CssClass="professional-grid"
-							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
-
-						<GridEvents TValue="FinancialAccountingLedgerCartModel" ContextMenuItemClicked="OnCartGridContextMenuItemClicked" />
-						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
-
-						<GridAggregates>
-							<GridAggregate>
-								<GridAggregateColumns>
-									<GridAggregateColumn Field="@nameof(FinancialAccountingLedgerCartModel.LedgerName)" Type="AggregateType.Count">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-											}
-											<div class="aggregate-label">
-												<strong>Total Entries: @aggregate.Count</strong>
-											</div>
-										</FooterTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(FinancialAccountingLedgerCartModel.Debit)" Type="AggregateType.Sum">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
-											}
-											<div class="aggregate-value aggregate-debit">
-												<strong>@sum.ToString("N2")</strong>
-											</div>
-										</FooterTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(FinancialAccountingLedgerCartModel.Credit)" Type="AggregateType.Sum">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
-											}
-											<div class="aggregate-value aggregate-credit">
-												<strong>@sum.ToString("N2")</strong>
-											</div>
-										</FooterTemplate>
-									</GridAggregateColumn>
-								</GridAggregateColumns>
-							</GridAggregate>
-						</GridAggregates>
-
-						<GridColumns>
-							<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.LedgerName)" HeaderText="Ledger Name" Width="250" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.Debit)" HeaderText="Debit" Width="130" TextAlign="TextAlign.Right" Format="N2">
-								<Template>
-									@{
-										var item = (context as FinancialAccountingLedgerCartModel);
-										<span class="@((item.Debit ?? 0) > 0 ? "grid-debit" : "")">
-											@(item.Debit?.ToString("N2") ?? "-")
-										</span>
-									}
-								</Template>
-							</GridColumn>
-							<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.Credit)" HeaderText="Credit" Width="130" TextAlign="TextAlign.Right" Format="N2">
-								<Template>
-									@{
-										var item = (context as FinancialAccountingLedgerCartModel);
-										<span class="@((item.Credit ?? 0) > 0 ? "grid-credit" : "")">
-											@(item.Credit?.ToString("N2") ?? "-")
-										</span>
-									}
-								</Template>
-							</GridColumn>
-							<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.ReferenceType)" HeaderText="Ref Type" Width="120" Visible="_showReferenceInstrument" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.ReferenceNo)" HeaderText="Ref No" Width="120" Visible="_showReferenceInstrument" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.InstrumentNo)" HeaderText="Instrument No" Width="140" Visible="_showReferenceInstrument" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.InstrumentDate)" HeaderText="Instrument Date" Width="150" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="_showReferenceInstrument" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerCartModel.Remarks)" HeaderText="Remarks" Width="500" />
-						</GridColumns>
-					</SfGrid>
-				</div>
 			</div>
 		</div>
 

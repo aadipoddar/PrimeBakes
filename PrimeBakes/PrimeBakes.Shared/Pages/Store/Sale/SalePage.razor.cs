@@ -951,6 +951,8 @@ public partial class SalePage
 			item.Remarks = string.IsNullOrWhiteSpace(item.Remarks) ? null : item.Remarks.Trim();
 		}
 
+		_cart = [.. _cart.OrderBy(s => s.ItemName)];
+
 		_sale.TotalItems = _cart.Count;
 		_sale.TotalQuantity = _cart.Sum(x => x.Quantity);
 		_sale.BaseTotal = _cart.Sum(x => x.BaseTotal);

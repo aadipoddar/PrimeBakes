@@ -410,6 +410,8 @@ public partial class OrderPage
 			item.Remarks = string.IsNullOrWhiteSpace(item.Remarks) ? null : item.Remarks.Trim();
 		}
 
+		_cart = [.. _cart.OrderBy(s => s.ItemName)];
+
 		_order.TotalItems = _cart.Count;
 		_order.TotalQuantity = _cart.Sum(x => x.Quantity);
 

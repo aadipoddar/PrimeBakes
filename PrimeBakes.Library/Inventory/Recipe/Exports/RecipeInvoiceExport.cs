@@ -1,5 +1,4 @@
 ﻿using PrimeBakes.Library.Common;
-using PrimeBakes.Library.Inventory.Purchase.Data;
 using PrimeBakes.Library.Inventory.Recipe.Models;
 using PrimeBakes.Library.Store.Product.Models;
 using PrimeBakes.Library.Utils.Exports;
@@ -13,28 +12,22 @@ public static class RecipeInvoiceExport
 		var transaction = await CommonData.LoadTableDataById<RecipeModel>(InventoryNames.Recipe, transactionId) ??
 			throw new InvalidOperationException("Transaction not found.");
 
-		var transactionDetails = await CommonData.LoadTableDataByMasterId<RecipeDetailModel>(InventoryNames.RecipeDetail, transaction.Id);
+		var transactionDetails = await CommonData.LoadTableDataByMasterId<RecipeItemOverviewModel>(InventoryNames.RecipeItemOverview, transaction.Id);
+		transactionDetails = [.. transactionDetails.OrderBy(detail => detail.ItemName)];
 		if (transactionDetails is null || transactionDetails.Count == 0)
 			throw new InvalidOperationException("No transaction details found for the transaction.");
 
 		costAsOnDateTime ??= await CommonData.LoadCurrentDateTime();
 
 		var product = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, transaction.ProductId);
-		var rawMaterials = await PurchaseData.LoadRawMaterialByPartyPurchaseDateTime(0, costAsOnDateTime.Value);
 
-		var lineItems = transactionDetails.Select(detail =>
+		var lineItems = transactionDetails.Select(detail => new
 		{
-			var rawMaterial = rawMaterials.FirstOrDefault(r => r.Id == detail.RawMaterialId);
-			var amount = detail.Quantity * (rawMaterial?.Rate ?? 0);
-			return new
-			{
-				ItemId = detail.RawMaterialId,
-				ItemName = rawMaterial?.Name ?? $"Raw Material #{detail.RawMaterialId}",
-				detail.Quantity,
-				Rate = rawMaterial?.Rate ?? 0,
-				Amount = amount,
-				PerUnit = transaction.Quantity > 0 ? amount / transaction.Quantity : 0m
-			};
+			detail.ItemName,
+			detail.Quantity,
+			detail.Rate,
+			detail.Amount,
+			detail.PerUnit
 		}).ToList();
 
 		var invoiceData = new InvoiceData
@@ -56,11 +49,11 @@ public static class RecipeInvoiceExport
 		var columnSettings = new List<InvoiceColumnSetting>
 		{
 			new("#", "#", exportType, CellAlignment.Center, 25, 5),
-			new(nameof(RecipeItemCartModel.ItemName), "Item", exportType, CellAlignment.Left, 0, 30),
-			new(nameof(RecipeItemCartModel.Quantity), "Qty", exportType, CellAlignment.Right, 40, 10, "#,##0.00"),
-			new(nameof(RecipeItemCartModel.Rate), "Rate", exportType, CellAlignment.Right, 50, 12, "#,##0.00"),
-			new(nameof(RecipeItemCartModel.Amount), "Amount", exportType, CellAlignment.Right, 55, 15, "#,##0.00"),
-			new(nameof(RecipeItemCartModel.PerUnit), "Per Unit", exportType, CellAlignment.Right, 55, 15, "#,##0.00")
+			new(nameof(RecipeItemOverviewModel.ItemName), "Item", exportType, CellAlignment.Left, 0, 30),
+			new(nameof(RecipeItemOverviewModel.Quantity), "Qty", exportType, CellAlignment.Right, 40, 10, "#,##0.00"),
+			new(nameof(RecipeItemOverviewModel.Rate), "Rate", exportType, CellAlignment.Right, 50, 12, "#,##0.00"),
+			new(nameof(RecipeItemOverviewModel.Amount), "Amount", exportType, CellAlignment.Right, 55, 15, "#,##0.00"),
+			new(nameof(RecipeItemOverviewModel.PerUnit), "Per Unit", exportType, CellAlignment.Right, 55, 15, "#,##0.00")
 		};
 
 		var currentDateTime = await CommonData.LoadCurrentDateTime();

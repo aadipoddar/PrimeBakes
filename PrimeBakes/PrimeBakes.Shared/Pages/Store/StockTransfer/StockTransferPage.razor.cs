@@ -764,6 +764,8 @@ public partial class StockTransferPage
 			item.Remarks = string.IsNullOrWhiteSpace(item.Remarks) ? null : item.Remarks.Trim();
 		}
 
+		_cart = [.. _cart.OrderBy(s => s.ItemName)];
+
 		_stockTransfer.TotalItems = _cart.Count;
 		_stockTransfer.TotalQuantity = _cart.Sum(x => x.Quantity);
 		_stockTransfer.BaseTotal = _cart.Sum(x => x.BaseTotal);

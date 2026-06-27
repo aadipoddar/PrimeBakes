@@ -576,6 +576,8 @@ public partial class PurchasePage
 			item.Remarks = string.IsNullOrWhiteSpace(item.Remarks) ? null : item.Remarks.Trim();
 		}
 
+		_cart = [.. _cart.OrderBy(s => s.ItemName)];
+
 		_purchase.CompanyId = _selectedCompany.Id;
 		_purchase.PartyId = _selectedParty.Id;
 		_purchase.TotalItems = _cart.Count;

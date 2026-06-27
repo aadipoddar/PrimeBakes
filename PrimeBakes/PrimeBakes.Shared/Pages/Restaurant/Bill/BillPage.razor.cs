@@ -879,6 +879,8 @@ public partial class BillPage
 			item.Remarks = string.IsNullOrWhiteSpace(item.Remarks) ? null : item.Remarks.Trim();
 		}
 
+		_cart = [.. _cart.OrderBy(s => s.ItemName)];
+
 		_bill.TotalItems = _cart.Count;
 		_bill.TotalQuantity = _cart.Sum(x => x.Quantity);
 		_bill.BaseTotal = _cart.Sum(x => x.BaseTotal);

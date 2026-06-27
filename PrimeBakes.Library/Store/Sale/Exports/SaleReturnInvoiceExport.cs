@@ -15,6 +15,7 @@ public static class SaleReturnInvoiceExport
 			throw new InvalidOperationException("Transaction not found.");
 
 		var transactionDetails = await CommonData.LoadTableDataByMasterId<SaleReturnItemOverviewModel>(StoreNames.SaleReturnItemOverview, transaction.Id);
+		transactionDetails = [.. transactionDetails.OrderBy(detail => detail.ItemName)];
 		if (transactionDetails is null || transactionDetails.Count == 0)
 			throw new InvalidOperationException("No transaction details found for the transaction.");
 

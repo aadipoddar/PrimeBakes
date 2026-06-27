@@ -524,6 +524,8 @@ public partial class FinancialAccountingPage
 			}
 		}
 
+		_cart = [.. _cart.OrderBy(s => s.LedgerName)];
+
 		_accounting.TotalCreditAmount = _cart.Sum(x => x.Credit ?? 0);
 		_accounting.TotalDebitAmount = _cart.Sum(x => x.Debit ?? 0);
 		_accounting.TotalCreditLedgers = _cart.Count(x => (x.Credit ?? 0) > 0);

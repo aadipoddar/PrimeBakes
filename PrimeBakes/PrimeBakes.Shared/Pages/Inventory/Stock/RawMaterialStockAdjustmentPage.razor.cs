@@ -231,6 +231,7 @@ public partial class RawMaterialStockAdjustmentPage
 			item.Total = item.Rate * item.Quantity;
 		}
 
+		_cart = [.. _cart.OrderBy(s => s.RawMaterialName)];
 		_transactionNo = await GenerateCodes.GenerateRawMaterialStockAdjustmentTransactionNo(_transactionDateTime);
 	}
 

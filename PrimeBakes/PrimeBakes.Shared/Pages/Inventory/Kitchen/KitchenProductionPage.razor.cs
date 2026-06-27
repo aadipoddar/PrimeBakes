@@ -404,6 +404,8 @@ public partial class KitchenProductionPage
 			item.Remarks = string.IsNullOrWhiteSpace(item.Remarks) ? null : item.Remarks.Trim();
 		}
 
+		_cart = [.. _cart.OrderBy(s => s.ItemName)];
+
 		_kitchenProduction.CompanyId = _selectedCompany.Id;
 		_kitchenProduction.KitchenId = _selectedKitchen.Id;
 		_kitchenProduction.TotalItems = _cart.Count;
