@@ -209,6 +209,27 @@ else
 				</div>
 			</div>
 
+			<!-- Kitchen Production -->
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Kitchen Production</h2>
+				</div>
+				<div class="section-body">
+					<div class="form-grid">
+						<div class="form-field">
+							<CustomNumericField T="decimal"
+												@bind-Value="_kitchenProductionDiscountRate"
+												Label="Kitchen Production Discount Rate (%)"
+												Placeholder="e.g., 25"
+												Format="N2"
+												Min="0"
+												Max="100"
+												Required="false" />
+						</div>
+					</div>
+				</div>
+			</div>
+
 			<!-- Purchase Behavior -->
 			<div class="section-card">
 				<div class="section-header">

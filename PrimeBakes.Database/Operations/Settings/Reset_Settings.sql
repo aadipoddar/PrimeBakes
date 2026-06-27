@@ -3,10 +3,14 @@ AS
 BEGIN
 	DELETE FROM [Settings]
 
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'PrimaryCompanyLinkingId'			, N'1'		, N'Company Id for the Primary Company Account')
+
+	-- Code Prefixes
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'RawMaterialCodePrefix'			, N'RM'		, N'Prefix for Raw Material Codes')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'FinishedProductCodePrefix'		, N'FP'		, N'Prefix for Finished Product Codes')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'LedgerCodePrefix'				, N'LD'		, N'Prefix for Ledger Codes')
 	
+	-- Transaction Prefixes
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'AccountingTransactionPrefix'	, N'ACCT'	, N'Prefix for Accounting Transaction Numbers')
 
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'PurchaseTransactionPrefix'		, N'PUR'	, N'Prefix for Purchase Transaction Numbers')
@@ -23,11 +27,7 @@ BEGIN
 
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'BillTransactionPrefix' 		, N'BL'	, N'Prefix for Bill Transaction Numbers')
 
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'UpdateRawMaterialMasterRateOnPurchase'	, N'true'	, N'Update Raw Material Master Rate on Purchase Transactions')
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'UpdateRawMaterialMasterUOMOnPurchase'	, N'true'	, N'Update Raw Material Master Unit of Measurement on Purchase Transactions')
-
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'PrimaryCompanyLinkingId'			, N'1'		, N'Company Id for the Primary Company Account')
-
+	-- Vouchers
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'PurchaseVoucherId', N'4', N'Voucher type for Purchase transactions')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'PurchaseReturnVoucherId', N'6', N'Voucher type for Purchase Return transactions')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'SaleVoucherId', N'3', N'Voucher type for Sales transactions')
@@ -36,7 +36,10 @@ BEGIN
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'BillVoucherId', N'9', N'Voucher type for Bill transactions')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'BillDayCloseVoucherId', N'10', N'Voucher type for Bill Day Close transactions')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'SaleDayCloseVoucherId', N'11', N'Voucher type for Sale Day Close transactions')
+
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'DefaultSelectedVoucherId', N'8', N'Default selected voucher type in transactions')
 	
+	-- Ledgers
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'PurchaseLedgerId', N'155', N'Ledger account for Purchase entries')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'SaleLedgerId', N'144', N'Ledger account for Sales entries')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'StockTransferLedgerId', N'156', N'Ledger account for Stock Transfer entries')
@@ -44,11 +47,16 @@ BEGIN
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'CashLedgerId', N'1', N'Cash ledger account for Cash Entries')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'CashSalesLedgerId', N'170', N'Cash ledger account for Cash Sales Entries')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'GSTLedgerId', N'1751', N'GST ledger account for GST Tax Entries')
-	
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'DefaultSelectedVoucherId', N'8', N'Default selected voucher type in transactions')
 
 	-- Bank Reconciliation
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'BankAccountTypeId', N'2', N'Account Type that identifies Bank ledgers for reconciliation')
+
+	-- Purchase Behavior
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'UpdateRawMaterialMasterRateOnPurchase'	, N'true'	, N'Update Raw Material Master Rate on Purchase Transactions')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'UpdateRawMaterialMasterUOMOnPurchase'	, N'true'	, N'Update Raw Material Master Unit of Measurement on Purchase Transactions')
+
+	-- Kitchen Production
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'KitchenProductionDiscountRate', N'25', N'Discount rate for kitchen production')
 
 	-- Report Settings
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'AutoRefreshReportTimer', N'5', N'Auto refresh interval for reports in minutes')

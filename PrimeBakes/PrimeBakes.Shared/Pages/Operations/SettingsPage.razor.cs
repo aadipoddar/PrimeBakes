@@ -90,6 +90,9 @@ public partial class SettingsPage
 	private bool _updateItemMasterRateOnPurchase = false;
 	private bool _updateItemMasterUOMOnPurchase = false;
 
+	// Kitchen Production
+	private decimal _kitchenProductionDiscountRate = 25;
+
 	// Report Settings
 	private int _autoRefreshReportTimer = 5;
 	private int _reportWarningDays = 30;
@@ -140,6 +143,7 @@ public partial class SettingsPage
 
 		string Str(string key) => map.TryGetValue(key, out var v) ? v : null;
 		int Int(string key, int fallback) => int.TryParse(Str(key), out var v) ? v : fallback;
+		decimal Decimal(string key, decimal fallback) => decimal.TryParse(Str(key), out var v) ? v : fallback;
 		bool Bool(string key, bool fallback) => bool.TryParse(Str(key), out var v) ? v : fallback;
 
 		// Primary Configuration
@@ -190,6 +194,9 @@ public partial class SettingsPage
 		// Purchase Behavior
 		_updateItemMasterRateOnPurchase = Bool(SettingsKeys.UpdateItemMasterRateOnPurchase, false);
 		_updateItemMasterUOMOnPurchase = Bool(SettingsKeys.UpdateItemMasterUOMOnPurchase, false);
+
+		// Kitchen Production
+		_kitchenProductionDiscountRate = Decimal(SettingsKeys.KitchenProductionDiscountRate, 25);
 
 		// Report Settings
 		_autoRefreshReportTimer = Int(SettingsKeys.AutoRefreshReportTimer, 5);
@@ -468,6 +475,9 @@ public partial class SettingsPage
 			// Purchase Behavior
 			await UpdateSetting(SettingsKeys.UpdateItemMasterRateOnPurchase, _updateItemMasterRateOnPurchase.ToString(), Desc(SettingsKeys.UpdateItemMasterRateOnPurchase));
 			await UpdateSetting(SettingsKeys.UpdateItemMasterUOMOnPurchase, _updateItemMasterUOMOnPurchase.ToString(), Desc(SettingsKeys.UpdateItemMasterUOMOnPurchase));
+
+			// Kitchen Production
+			await UpdateSetting(SettingsKeys.KitchenProductionDiscountRate, _kitchenProductionDiscountRate.ToString(), Desc(SettingsKeys.KitchenProductionDiscountRate));
 
 			// Report Settings
 			await UpdateSetting(SettingsKeys.AutoRefreshReportTimer, _autoRefreshReportTimer.ToString(), Desc(SettingsKeys.AutoRefreshReportTimer));

@@ -4,7 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <AssemblyVersion>1.1.5.7</AssemblyVersion>
+    <AssemblyVersion>1.1.5.8</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,7 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.9" />
-    <PackageReference Include="MudBlazor" Version="9.5.0" />
+    <PackageReference Include="MudBlazor" Version="9.6.0" />
     <PackageReference Include="Syncfusion.Blazor.Buttons" Version="33.2.15" />
     <PackageReference Include="Syncfusion.Blazor.Diagram" Version="33.2.15" />
     <PackageReference Include="Syncfusion.Blazor.Grid" Version="33.2.15" />

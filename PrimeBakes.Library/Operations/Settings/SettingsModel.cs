@@ -9,10 +9,14 @@ public class SettingsModel
 
 public static class SettingsKeys
 {
+	public static string PrimaryCompanyLinkingId => "PrimaryCompanyLinkingId";
+
+	// Code Prefixes
 	public static string RawMaterialCodePrefix => "RawMaterialCodePrefix";
 	public static string FinishedProductCodePrefix => "FinishedProductCodePrefix";
 	public static string LedgerCodePrefix => "LedgerCodePrefix";
 
+	// Transaction Prefixes
 	public static string AccountingTransactionPrefix => "AccountingTransactionPrefix";
 
 	public static string PurchaseTransactionPrefix => "PurchaseTransactionPrefix";
@@ -29,11 +33,7 @@ public static class SettingsKeys
 
 	public static string BillTransactionPrefix => "BillTransactionPrefix";
 
-	public static string UpdateItemMasterRateOnPurchase => "UpdateRawMaterialMasterRateOnPurchase";
-	public static string UpdateItemMasterUOMOnPurchase => "UpdateRawMaterialMasterUOMOnPurchase";
-
-	public static string PrimaryCompanyLinkingId => "PrimaryCompanyLinkingId";
-
+	// Vouchers
 	public static string PurchaseVoucherId => "PurchaseVoucherId";
 	public static string PurchaseReturnVoucherId => "PurchaseReturnVoucherId";
 	public static string SaleVoucherId => "SaleVoucherId";
@@ -43,6 +43,9 @@ public static class SettingsKeys
 	public static string BillDayCloseVoucherId => "BillDayCloseVoucherId";
 	public static string SaleDayCloseVoucherId => "SaleDayCloseVoucherId";
 
+	public static string DefaultSelectedVoucherId => "DefaultSelectedVoucherId";
+
+	// Ledgers
 	public static string PurchaseLedgerId => "PurchaseLedgerId";
 	public static string SaleLedgerId => "SaleLedgerId";
 	public static string StockTransferLedgerId => "StockTransferLedgerId";
@@ -51,10 +54,15 @@ public static class SettingsKeys
 	public static string CashSalesLedgerId => "CashSalesLedgerId";
 	public static string GSTLedgerId => "GSTLedgerId";
 
-	public static string DefaultSelectedVoucherId => "DefaultSelectedVoucherId";
-
 	// Bank Reconciliation
 	public static string BankAccountTypeId => "BankAccountTypeId";
+
+	// Purcahse Behaviour
+	public static string UpdateItemMasterRateOnPurchase => "UpdateRawMaterialMasterRateOnPurchase";
+	public static string UpdateItemMasterUOMOnPurchase => "UpdateRawMaterialMasterUOMOnPurchase";
+
+	// Kitchen Production
+	public static string KitchenProductionDiscountRate => "KitchenProductionDiscountRate";
 
 	// Report Settings
 	public static string AutoRefreshReportTimer => "AutoRefreshReportTimer";

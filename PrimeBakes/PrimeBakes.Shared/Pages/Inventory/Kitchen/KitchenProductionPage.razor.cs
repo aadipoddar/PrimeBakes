@@ -24,6 +24,7 @@ public partial class KitchenProductionPage
 
 	private bool _isLoading = true;
 	private bool _isProcessing = false;
+	private decimal _kitchenProductionDiscountPercentage = 0;
 
 	private CompanyModel _selectedCompany = new();
 	private KitchenModel _selectedKitchen = new();
@@ -90,6 +91,9 @@ public partial class KitchenProductionPage
 		var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
 		_selectedCompany = _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value) ?? _companies.FirstOrDefault();
 		_selectedKitchen = _kitchens.FirstOrDefault();
+
+		var discountSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.KitchenProductionDiscountRate);
+		_kitchenProductionDiscountPercentage = decimal.Parse(discountSetting.Value);
 	}
 
 	private async Task ResolveTransaction()
@@ -278,7 +282,7 @@ public partial class KitchenProductionPage
 		_selectedCart.ProductId = _selectedProduct.Id;
 		_selectedCart.ProductName = _selectedProduct.Name;
 		_selectedCart.Quantity = 0;
-		_selectedCart.Rate = _selectedProduct.Rate;
+		_selectedCart.Rate = _selectedProduct.Rate * (1 - (_kitchenProductionDiscountPercentage / 100));
 
 		UpdateSelectedItemFinancialDetails();
 	}

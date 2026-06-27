@@ -102,6 +102,17 @@ else
 											 TabIndex="-1" />
 						</div>
 
+						<!-- Discount -->
+						<div class="form-field">
+								<CustomNumericField T="decimal"
+													@bind-Value="_kitchenProductionDiscountPercentage"
+													Label="Discount %"
+													Placeholder="0.00"
+													Required="false"
+													Min="0"
+													Max="100" />
+						</div>
+
 						<!-- Remarks -->
 						<div class="form-field form-field-full">
 							<CustomTextField @bind-Value="_kitchenProduction.Remarks"
