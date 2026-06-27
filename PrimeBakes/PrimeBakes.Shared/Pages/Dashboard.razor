@@ -1,3 +1,5 @@
+@using PrimeBakes.Library.DataAccess
+
 @attribute [Route(OperationRouteNames.Dashboard)]
 
 <PageTitle>Dashboard - Prime Bakes</PageTitle>
@@ -58,8 +60,8 @@ else
 		<Header Title="Dashboard">
 			<LeftContent>
 				<MudBlazor.MudMenu Label="File" Dense="true">
-					<MudBlazor.MudMenuItem Label="Download Android" OnClick="() => DownloadApp(android: true)" />
-					<MudBlazor.MudMenuItem Label="Download Windows" OnClick="() => DownloadApp()" />
+					<MudBlazor.MudMenuItem Label="Download Android" Href=@($"https://github.com/aadipoddar/{Secrets.DatabaseName}/releases/download/{AppVersion}/{Secrets.DatabaseName}.apk") />
+					<MudBlazor.MudMenuItem Label="Download Windows" Href=@($"https://github.com/aadipoddar/{Secrets.DatabaseName}/releases/download/{AppVersion}/{Secrets.DatabaseName}.zip") />
 				</MudBlazor.MudMenu>
 			</LeftContent>
 			<RightContent>
