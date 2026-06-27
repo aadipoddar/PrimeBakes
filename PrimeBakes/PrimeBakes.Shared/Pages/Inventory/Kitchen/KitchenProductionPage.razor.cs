@@ -282,7 +282,7 @@ public partial class KitchenProductionPage
 		_selectedCart.ProductId = _selectedProduct.Id;
 		_selectedCart.ProductName = _selectedProduct.Name;
 		_selectedCart.Quantity = 0;
-		_selectedCart.Rate = _selectedProduct.Rate * (1 - (_kitchenProductionDiscountPercentage / 100));
+		_selectedCart.Rate = _selectedProduct.Rate * (100 / (100 + _kitchenProductionDiscountPercentage));
 
 		UpdateSelectedItemFinancialDetails();
 	}
