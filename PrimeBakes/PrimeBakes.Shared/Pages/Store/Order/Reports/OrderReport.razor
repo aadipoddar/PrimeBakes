@@ -128,6 +128,20 @@ else
 												ValueChanged="OnCompletedChanged"
 												FieldValue="@nameof(YesNoFilterOption.Name)" />
 						</div>
+
+						@if (_user.LocationId == 1)
+						{
+							<!-- Pending Location -->
+							<div class="form-field">
+								<CustomAutoComplete T="LocationModel"
+													DataSource="@_pendingLocations"
+													Placeholder="Pending Locations"
+													MaxItems="_pendingLocations.Count()"
+													Label="Pending Location" Required="false"
+													FieldValue="@nameof(LocationModel.Name)"
+													AddNewRoute="@OperationRouteNames.Location" />
+							</div>
+						}
 					</div>
 				</div>
 			</div>

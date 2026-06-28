@@ -30,6 +30,7 @@ public partial class CustomAutoComplete<T>
 	[Parameter] public string AddNewRoute { get; set; }
 
 	[Parameter] public bool OpenOnFocus { get; set; } = true;
+	[Parameter] public int MaxItems { get; set; } = 20;
 
 	private bool ShowAddNew => AddNewRoute is not null && !Disabled;
 

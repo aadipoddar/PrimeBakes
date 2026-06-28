@@ -36,6 +36,7 @@ public partial class OrderReport : IAsyncDisposable
 	private YesNoFilterOption _selectedCompleted;
 
 	private List<LocationModel> _locations = [];
+	private List<LocationModel> _pendingLocations = [];
 	private List<CompanyModel> _companies = [];
 	private List<OrderOverviewModel> _transactionOverviews = [];
 	private List<OrderOverviewModel> _allTransactionOverviews = [];
@@ -151,6 +152,8 @@ public partial class OrderReport : IAsyncDisposable
 					TotalQuantity = g.Sum(t => t.TotalQuantity)
 				})
 				.OrderBy(t => t.LocationName)];
+
+		_pendingLocations = [.. _locations.Where(l => !_transactionOverviews.Any(t => t.LocationId == l.Id))];
 
 		if (_sfGrid is not null) await _sfGrid.Refresh();
 		StateHasChanged();
