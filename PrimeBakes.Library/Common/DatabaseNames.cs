@@ -63,7 +63,6 @@ public static class AccountNames
 	public static string InsertFinancialAccounting => "Insert_FinancialAccounting";
 	public static string InsertFinancialAccountingLedger => "Insert_FinancialAccountingLedger";
 
-	public static string LoadFinancialAccountingByVoucherReference => "Load_FinancialAccounting_By_Voucher_Reference";
 	public static string LoadTrialBalanceByCompanyDate => "Load_TrialBalance_By_Company_Date";
 
 	public static string FinancialAccountingOverview => "FinancialAccounting_Overview";

@@ -2,8 +2,6 @@ using PrimeBakes.Library.Accounts.FinancialAccounting.Data;
 using PrimeBakes.Library.Accounts.FinancialAccounting.Models;
 using PrimeBakes.Library.Accounts.Masters.Data;
 using PrimeBakes.Library.Common;
-using PrimeBakes.Library.Inventory.Recipe.Data;
-using PrimeBakes.Library.Inventory.Recipe.Models;
 using PrimeBakes.Library.Inventory.Stock.Data;
 using PrimeBakes.Library.Inventory.Stock.Models;
 using PrimeBakes.Library.Operations.AuditTrail;
@@ -332,7 +330,6 @@ public static class SaleReturnData
 		saleReturn.Id = await InsertSaleReturn(saleReturn, sqlDataAccessTransaction);
 		await SaveTransactionDetail(saleReturn, saleReturnDetails, update, sqlDataAccessTransaction);
 		await SaveProductStock(saleReturn, saleReturnDetails, sqlDataAccessTransaction);
-		await SaveRawMaterialStockByRecipe(saleReturn, saleReturnDetails, sqlDataAccessTransaction);
 		await SaveAccounting(saleReturn, sqlDataAccessTransaction);
 		await SaveAuditTrail(saleReturn, update, recover, previousSaleReturn, previousSaleReturnDetails, sqlDataAccessTransaction);
 
@@ -362,21 +359,6 @@ public static class SaleReturnData
 	{
 		await ProductStockData.DeleteProductStockByTransactionNo(saleReturn.TransactionNo, sqlDataAccessTransaction);
 
-		// Location Stock Update (positive quantity - product returns to location)
-		foreach (var item in saleReturnDetails)
-			await ProductStockData.InsertProductStock(new()
-			{
-				Id = 0,
-				ProductId = item.ProductId,
-				Quantity = item.Quantity,
-				NetRate = item.NetRate,
-				TransactionId = saleReturn.Id,
-				Type = nameof(StockType.SaleReturn),
-				TransactionNo = saleReturn.TransactionNo,
-				TransactionDateTime = saleReturn.TransactionDateTime,
-				LocationId = saleReturn.LocationId
-			}, sqlDataAccessTransaction);
-
 		// Party Location Stock Update (negative quantity - product leaves party's location)
 		if (saleReturn.PartyId is not null and > 0)
 		{
@@ -395,36 +377,6 @@ public static class SaleReturnData
 						TransactionDateTime = saleReturn.TransactionDateTime,
 						LocationId = location.Id
 					}, sqlDataAccessTransaction);
-		}
-	}
-
-	private static async Task SaveRawMaterialStockByRecipe(SaleReturnModel saleReturn, List<SaleReturnDetailModel> saleReturnDetails, SqlDataAccessTransaction sqlDataAccessTransaction)
-	{
-		await RawMaterialStockData.DeleteRawMaterialStockByTransactionNo(saleReturn.TransactionNo, sqlDataAccessTransaction);
-
-		if (saleReturn.LocationId != 1)
-			return;
-
-		var recipes = await RecipeData.LoadAllRecipes(DateOnly.FromDateTime(saleReturn.TransactionDateTime), true, sqlDataAccessTransaction);
-		var recipeDetails = await CommonData.LoadTableDataByStatus<RecipeDetailModel>(InventoryNames.RecipeDetail, true, sqlDataAccessTransaction);
-
-		foreach (var product in saleReturnDetails)
-		{
-			var recipe = recipes.FirstOrDefault(_ => _.ProductId == product.ProductId);
-			var recipeItems = recipe is null ? [] : recipeDetails.Where(_ => _.MasterId == recipe.Id).ToList();
-
-			foreach (var recipeItem in recipeItems)
-				await RawMaterialStockData.InsertRawMaterialStock(new()
-				{
-					Id = 0,
-					RawMaterialId = recipeItem.RawMaterialId,
-					Quantity = recipeItem.Quantity * (product.Quantity / recipe.Quantity),
-					NetRate = product.NetRate / recipeItem.Quantity,
-					TransactionId = saleReturn.Id,
-					TransactionNo = saleReturn.TransactionNo,
-					Type = nameof(StockType.SaleReturn),
-					TransactionDateTime = saleReturn.TransactionDateTime
-				}, sqlDataAccessTransaction);
 		}
 	}
 

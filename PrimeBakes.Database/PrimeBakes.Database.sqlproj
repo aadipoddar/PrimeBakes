@@ -128,7 +128,6 @@
     <Build Include="Accounts\FinancialAccounting\Insert\Insert_FinancialAccountingLedger.sql" />
     <Build Include="Accounts\FinancialAccounting\Load\FinancialAccounting_Ledger_Overview.sql" />
     <Build Include="Accounts\FinancialAccounting\Load\FinancialAccounting_Overview.sql" />
-    <Build Include="Accounts\FinancialAccounting\Load\Load_FinancialAccounting_By_Voucher_Reference.sql" />
     <Build Include="Accounts\FinancialAccounting\Load\Load_TrialBalance_By_Company_Date.sql" />
     <Build Include="Accounts\FinancialAccounting\Table\FinancialAccounting.sql" />
     <Build Include="Accounts\FinancialAccounting\Table\FinancialAccountingLedger.sql" />
