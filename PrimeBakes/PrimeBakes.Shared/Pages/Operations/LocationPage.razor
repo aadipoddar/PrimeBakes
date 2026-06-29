@@ -112,44 +112,40 @@ else
 					<h2 class="section-title">Master List</h2>
 				</div>
 
-				<div class="section-body grid-body">
-					<SfGrid @ref="_sfGrid" DataSource="@_locations"
-							AllowPaging="true" AllowSorting="true" AllowResizing="true"
-							AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
-							GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems" CssClass="professional-grid"
-							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+				<SfGrid @ref="_sfGrid" DataSource="@_locations"
+						AllowPaging="true" AllowSorting="true" AllowResizing="true"
+						AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+						Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
-						<GridEvents TValue="LocationModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
-						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
-						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+					<GridEvents TValue="LocationModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
-						<GridColumns>
-							<GridColumn Field="@nameof(LocationModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" />
-							<GridColumn Field="@nameof(LocationModel.Name)" HeaderText="Location Name" Width="200" />
-							<GridColumn Field="@nameof(LocationModel.Code)" HeaderText="Code" Width="150" TextAlign="TextAlign.Center" />
-							<GridColumn Field="@nameof(LocationModel.Discount)" HeaderText="Discount (%)" Width="120" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(LocationModel.LedgerId)" HeaderText="Ledger" Width="200">
-								<Template>
-									@{
-										var location = (context as LocationModel);
-										var ledger = _ledgers.FirstOrDefault(l => l.Id == location.LedgerId);
-										<span>@(ledger?.Name ?? "N/A")</span>
-									}
-								</Template>
-							</GridColumn>
-							<GridColumn Field="@nameof(LocationModel.Remarks)" HeaderText="Remarks" Width="250" />
-							<GridColumn Field="@nameof(LocationModel.Status)" HeaderText="Status" Width="110"
-										TextAlign="TextAlign.Center" Visible="_showDeleted">
-								<Template>
-									@{
-										var location = (context as LocationModel);
-										<span class="@(location.Status ? string.Empty : "grid-debit")">@(location.Status ? "Active" : "Deleted")</span>
-									}
-								</Template>
-							</GridColumn>
-						</GridColumns>
-					</SfGrid>
-				</div>
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(LocationModel.Id)" HeaderText="ID" Width="100" TextAlign="TextAlign.Center" />
+						<CustomGridColumn Field="@nameof(LocationModel.Name)" HeaderText="Location Name" />
+						<CustomGridColumn Field="@nameof(LocationModel.Code)" HeaderText="Code" />
+						<CustomGridColumn Field="@nameof(LocationModel.Discount)" HeaderText="Dis" CustomColor="grid-debit" />
+
+						<CustomGridColumn>
+							<CustomTemplate>
+								<GridColumn Field="@nameof(LocationModel.LedgerId)" HeaderText="Ledger" Width="200">
+									<Template>
+										@{
+											var location = (context as LocationModel);
+											var ledger = _ledgers.FirstOrDefault(l => l.Id == location.LedgerId);
+											<span>@(ledger?.Name ?? "-")</span>
+										}
+									</Template>
+								</GridColumn>
+							</CustomTemplate>
+						</CustomGridColumn>
+
+						<CustomGridColumn Field="@nameof(LocationModel.Remarks)" HeaderText="Remarks" />
+						<CustomGridColumn Field="@nameof(LocationModel.Status)" Visible="_showDeleted" StatusColumn="true" />
+					</GridColumns>
+				</SfGrid>
 			</div>
 		</div>
 

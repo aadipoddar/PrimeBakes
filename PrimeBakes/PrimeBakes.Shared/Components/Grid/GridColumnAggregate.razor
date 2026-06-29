@@ -4,14 +4,28 @@
 			var aggregate = (context as AggregateTemplateContext);
 			@if (Type == AggregateType.Sum)
 			{
-				<div class="aggregate-value aggregate-total">
-					<strong>@aggregate.Sum</strong>
+				<div>
+					@if (CustomColor is not null)
+					{
+						<strong class="@CustomColor">@aggregate.Sum</strong>
+					}
+					else
+					{
+						<strong class="@(Convert.ToDecimal(aggregate.Sum) < 0 ? "grid-debit" : Convert.ToDecimal(aggregate.Sum) > 0 ? "grid-credit" : "")">@aggregate.Sum</strong>
+					}
 				</div>
 			}
 			else if (Type == AggregateType.Count)
 			{
-				<div class="aggregate-label">
-					<strong>Total Items: @aggregate.Count</strong>
+				<div>
+					@if (CustomColor is not null)
+					{
+						<strong class="@CustomColor">Total Items: @aggregate.Count</strong>
+					}
+					else
+					{
+						<strong>Total Items: @aggregate.Count</strong>
+					}
 				</div>
 			}
 		}
@@ -21,14 +35,28 @@
 			var aggregate = (context as AggregateTemplateContext);
 			@if (Type == AggregateType.Sum)
 			{
-				<div class="aggregate-value aggregate-total">
-					<strong>@aggregate.Sum</strong>
+				<div>
+					@if (CustomColor is not null)
+					{
+						<strong class="@CustomColor">@aggregate.Sum</strong>
+					}
+					else
+					{
+						<strong class="@(Convert.ToDecimal(aggregate.Sum) < 0 ? "grid-debit" : Convert.ToDecimal(aggregate.Sum) > 0 ? "grid-credit" : "")">@aggregate.Sum</strong>
+					}
 				</div>
 			}
 			else if (Type == AggregateType.Count)
 			{
-				<div class="aggregate-label">
-					<strong>Total Items: @aggregate.Count</strong>
+				<div>
+					@if (CustomColor is not null)
+					{
+						<strong class="@CustomColor">Total Items: @aggregate.Count</strong>
+					}
+					else
+					{
+						<strong>Total Items: @aggregate.Count</strong>
+					}
 				</div>
 			}
 		}
@@ -38,14 +66,28 @@
 			var aggregate = (context as AggregateTemplateContext);
 			@if (Type == AggregateType.Sum)
 			{
-				<div class="aggregate-value aggregate-total">
-					<strong>@aggregate.Sum</strong>
+				<div>
+					@if (CustomColor is not null)
+					{
+						<strong class="@CustomColor">@aggregate.Sum</strong>
+					}
+					else
+					{
+						<strong class="@(Convert.ToDecimal(aggregate.Sum) < 0 ? "grid-debit" : Convert.ToDecimal(aggregate.Sum) > 0 ? "grid-credit" : "")">@aggregate.Sum</strong>
+					}
 				</div>
 			}
 			else if (Type == AggregateType.Count)
 			{
-				<div class="aggregate-label">
-					<strong>Total Items: @aggregate.Count</strong>
+				<div>
+					@if (CustomColor is not null)
+					{
+						<strong class="@CustomColor">Total Items: @aggregate.Count</strong>
+					}
+					else
+					{
+						<strong>Total Items: @aggregate.Count</strong>
+					}
 				</div>
 			}
 		}

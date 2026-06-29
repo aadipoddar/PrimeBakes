@@ -2,7 +2,6 @@
 @using PrimeBakes.Library.Inventory.Stock.Models
 @using PrimeBakes.Library.Operations.Location
 @using PrimeBakes.Library.Store.Product.Models
-@using PrimeBakes.Shared.Components.Grid
 
 @attribute [Route(InventoryRouteNames.ProductStockReport)]
 
@@ -103,125 +102,110 @@ else
 					<h2 class="section-title">Records</h2>
 				</div>
 
-				<div class="section-body grid-body">
-					<SfGrid @ref="_sfGrid" TValue="ProductStockSummaryModel" DataSource="_stockSummary"
-							AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
-							AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
-							GridLines="GridLine.Horizontal" CssClass="professional-grid"
-							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+				<SfGrid @ref="_sfGrid" TValue="ProductStockSummaryModel" DataSource="_stockSummary"
+						AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+						AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal"
+						Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
-						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
-						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
-						<GridAggregates>
-							<GridAggregate>
-								<GridAggregateColumns>
-									<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.ProductName)" Type="AggregateType.Count" Format="N0" />
-									<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.ClosingValueByRate)" />
-									<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.OpeningValue)" />
-									<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.ClosingValueByRate)" />
-									<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.TotalInValue)" />
-									<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.TotalOutValue)" />
-									<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.PurchaseValue)" />
-									<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.PurchaseReturnValue)" />
-									<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.KitchenIssueValue)" />
-									<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.KitchenProductionValue)" />
-									<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.SaleValue)" />
-									<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.SaleReturnValue)" />
-									<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.StockTransferValue)" />
-									<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.BillValue)" />
-									<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.AdjustmentValue)" />
-								</GridAggregateColumns>
-							</GridAggregate>
-						</GridAggregates>
+					<GridAggregates>
+						<GridAggregate>
+							<GridAggregateColumns>
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.ProductName)" Type="AggregateType.Count" Format="N0" />
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.ClosingValueByRate)" CustomColor="grid-total" />
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.ClosingValueByAverageInRate)" />
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.ClosingValueByAverageOutRate)" />
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.OpeningValue)" />
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.TotalInValue)" />
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.TotalOutValue)" />
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.PurchaseValue)" />
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.PurchaseReturnValue)" />
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.KitchenIssueValue)" />
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.KitchenProductionValue)" />
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.SaleValue)" />
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.SaleReturnValue)" />
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.StockTransferValue)" />
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.BillValue)" />
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.AdjustmentValue)" />
+							</GridAggregateColumns>
+						</GridAggregate>
+					</GridAggregates>
 
-						<GridColumns>
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.ProductName)" HeaderText="Product" Width="220" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.ProductCode)" HeaderText="Code" Width="120" Visible="_showAllColumns" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.ProductCategoryName)" HeaderText="Category" Width="170" Visible="@(_showAllColumns || _selectedCategory is null || _selectedCategory.Id <= 0)" />
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.ProductName)" HeaderText="Product" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.ProductCode)" HeaderText="Code" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.ProductCategoryName)" HeaderText="Category" Visible="@(_showAllColumns || _selectedCategory is null || _selectedCategory.Id <= 0)" />
 
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.OpeningStock)" HeaderText="Opening" Width="200" Format="N2" TextAlign="TextAlign.Right" Color="true" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.InStock)" HeaderText="Stock In" Width="200" Format="N2" TextAlign="TextAlign.Right" Color="true" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.OutStock)" HeaderText="Stock Out" Width="200" Format="N2" TextAlign="TextAlign.Right" Color="true" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.ClosingStock)" HeaderText="Closing" Width="200" Format="N2" TextAlign="TextAlign.Right" Color="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.OpeningStock)" HeaderText="Opening" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.InStock)" HeaderText="Stock In" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.OutStock)" HeaderText="Stock Out" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.ClosingStock)" HeaderText="Closing" NegativePositiveColumn="true" />
 
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.MonthlyStock)" HeaderText="Net Movement" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" Color="true" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.PurchaseStock)" HeaderText="Purchase" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" Color="true" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.PurchaseReturnStock)" HeaderText="Purchase Return" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" Color="true" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.KitchenIssueStock)" HeaderText="Kitchen Issue" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" Color="true" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.KitchenProductionStock)" HeaderText="Kitchen Production" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" Color="true" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.SaleStock)" HeaderText="Sale" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" Color="true" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.SaleReturnStock)" HeaderText="Sale Return" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" Color="true" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.StockTransferStock)" HeaderText="Stock Transfer" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" Color="true" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.BillStock)" HeaderText="Bill" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" Color="true" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AdjustmentStock)" HeaderText="Adjustment" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" Color="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.MonthlyStock)" HeaderText="Net Movement" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.PurchaseStock)" HeaderText="Purchase" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.PurchaseReturnStock)" HeaderText="Purchase Return" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.KitchenIssueStock)" HeaderText="Kitchen Issue" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.KitchenProductionStock)" HeaderText="Kitchen Production" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.SaleStock)" HeaderText="Sale" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.SaleReturnStock)" HeaderText="Sale Return" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.StockTransferStock)" HeaderText="Stock Transfer" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.BillStock)" HeaderText="Bill" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AdjustmentStock)" HeaderText="Adjustment" Visible="_showAllColumns" NegativePositiveColumn="true" />
 
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.Rate)" HeaderText="Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.ClosingValueByRate)" HeaderText="Closing Value" Width="200" TextAlign="TextAlign.Right" Color="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.Rate)" HeaderText="Rate" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.ClosingValueByRate)" HeaderText="Closing Value" TotalColumn="true" />
 
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageInRate)" HeaderText="Avg In Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.ClosingValueByAverageInRate)" HeaderText="Value at Avg In" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" Color="true" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageOutRate)" HeaderText="Avg Out Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.ClosingValueByAverageOutRate)" HeaderText="Value at Avg Out" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" Color="true" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.RateVariance)" HeaderText="Rate Variance" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" Color="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageInRate)" HeaderText="Avg In Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.ClosingValueByAverageInRate)" HeaderText="Value at Avg In" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageOutRate)" HeaderText="Avg Out Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.ClosingValueByAverageOutRate)" HeaderText="Value at Avg Out" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.RateVariance)" HeaderText="Rate Variance" Visible="_showAllColumns" NegativePositiveColumn="true" />
 
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.OpeningValue)" HeaderText="Opening Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" Color="true" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.TotalInValue)" HeaderText="Total In Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" Color="true" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.TotalOutValue)" HeaderText="Total Out Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" Color="true" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.PurchaseValue)" HeaderText="Purchase Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" Color="true" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.PurchaseReturnValue)" HeaderText="Purchase Return Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" Color="true" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.KitchenIssueValue)" HeaderText="Kitchen Issue Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" Color="true" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.KitchenProductionValue)" HeaderText="Kitchen Production Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" Color="true" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.SaleValue)" HeaderText="Sale Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" Color="true" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.SaleReturnValue)" HeaderText="Sale Return Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" Color="true" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.StockTransferValue)" HeaderText="Stock Transfer Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" Color="true" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.BillValue)" HeaderText="Bill Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" Color="true" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AdjustmentValue)" HeaderText="Adjustment Value" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" Color="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.OpeningValue)" HeaderText="Opening Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.TotalInValue)" HeaderText="Total In Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.TotalOutValue)" HeaderText="Total Out Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.PurchaseValue)" HeaderText="Purchase Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.PurchaseReturnValue)" HeaderText="Purchase Return Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.KitchenIssueValue)" HeaderText="Kitchen Issue Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.KitchenProductionValue)" HeaderText="Kitchen Production Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.SaleValue)" HeaderText="Sale Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.SaleReturnValue)" HeaderText="Sale Return Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.StockTransferValue)" HeaderText="Stock Transfer Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.BillValue)" HeaderText="Bill Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AdjustmentValue)" HeaderText="Adjustment Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
 
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastPurchaseRate)" HeaderText="Last Purchase Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AveragePurchaseRate)" HeaderText="Avg Purchase Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastPurchaseReturnRate)" HeaderText="Last Purchase Return Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AveragePurchaseReturnRate)" HeaderText="Avg Purchase Return Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastKitchenIssueRate)" HeaderText="Last Kitchen Issue Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageKitchenIssueRate)" HeaderText="Avg Kitchen Issue Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastKitchenProductionRate)" HeaderText="Last Kitchen Production Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageKitchenProductionRate)" HeaderText="Avg Kitchen Production Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastSaleRate)" HeaderText="Last Sale Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageSaleRate)" HeaderText="Avg Sale Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastSaleReturnRate)" HeaderText="Last Sale Return Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageSaleReturnRate)" HeaderText="Avg Sale Return Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastStockTransferRate)" HeaderText="Last Stock Transfer Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageStockTransferRate)" HeaderText="Avg Stock Transfer Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastBillRate)" HeaderText="Last Bill Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageBillRate)" HeaderText="Avg Bill Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastAdjustmentRate)" HeaderText="Last Adjustment Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageAdjustmentRate)" HeaderText="Avg Adjustment Rate" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastPurchaseRate)" HeaderText="Last Purchase Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AveragePurchaseRate)" HeaderText="Avg Purchase Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastPurchaseReturnRate)" HeaderText="Last Purchase Return Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AveragePurchaseReturnRate)" HeaderText="Avg Purchase Return Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastKitchenIssueRate)" HeaderText="Last Kitchen Issue Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageKitchenIssueRate)" HeaderText="Avg Kitchen Issue Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastKitchenProductionRate)" HeaderText="Last Kitchen Production Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageKitchenProductionRate)" HeaderText="Avg Kitchen Production Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastSaleRate)" HeaderText="Last Sale Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageSaleRate)" HeaderText="Avg Sale Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastSaleReturnRate)" HeaderText="Last Sale Return Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageSaleReturnRate)" HeaderText="Avg Sale Return Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastStockTransferRate)" HeaderText="Last Stock Transfer Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageStockTransferRate)" HeaderText="Avg Stock Transfer Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastBillRate)" HeaderText="Last Bill Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageBillRate)" HeaderText="Avg Bill Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastAdjustmentRate)" HeaderText="Last Adjustment Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageAdjustmentRate)" HeaderText="Avg Adjustment Rate" Visible="_showAllColumns" NumericColumn="true" />
 
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageDailyConsumption)" HeaderText="Avg Daily Use" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.DaysOnHand)" HeaderText="Days On Hand" Width="200" Format="N1" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.StockTurnoverRatio)" HeaderText="Turnover" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" Color="true" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.TransactionCount)" HeaderText="Txns" Width="200" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastSaleDate)" HeaderText="Last Sale" Width="200" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="_showAllColumns" />
-							<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastTransactionDate)" HeaderText="Last Transaction" Width="200" Format="dd/MM/yy hh:mm tt}" Type="ColumnType.DateTime" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageDailyConsumption)" HeaderText="Avg Daily Use" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.DaysOnHand)" HeaderText="Days On Hand" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.StockTurnoverRatio)" HeaderText="Turnover" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.TransactionCount)" HeaderText="Txns"  Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastSaleDate)" HeaderText="Last Sale" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastTransactionDate)" HeaderText="Last Transaction" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="_showAllColumns" />
 
-							<CustomGridColumn>
-								<CustomTemplate>
-									<GridColumn Field="@nameof(ProductStockSummaryModel.IsNegativeStock)" HeaderText="Negative?" Width="200" TextAlign="TextAlign.Center" Visible="_showAllColumns">
-										<Template>
-											@{
-												var item = (context as dynamic);
-												<span class="@(item.IsNegativeStock ? "grid-debit" : string.Empty)">
-													@(item.IsNegativeStock ? "Yes" : "No")
-												</span>
-											}
-										</Template>
-									</GridColumn>
-								</CustomTemplate>
-							</CustomGridColumn>
-
-						</GridColumns>
-					</SfGrid>
-				</div>
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.IsNegativeStock)" HeaderText="Negative?" TextAlign="TextAlign.Center" Visible="_showAllColumns" DisplayAsCheckBox="true" />
+					</GridColumns>
+				</SfGrid>
 			</div>
 		</div>
 

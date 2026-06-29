@@ -305,7 +305,7 @@ else
 						<SfGrid @ref="_sfPaymentsCartGrid" DataSource="_paymentsCart"
 								AllowSorting="true" AllowResizing="true"
 								AllowFiltering="true" AllowReordering="true" ShowColumnChooser="true"
-								GridLines="GridLine.Horizontal" ContextMenuItems="@_paymentsCartGridContextMenuItems" CssClass="professional-grid">
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_paymentsCartGridContextMenuItems">
 
 							<GridEvents TValue="PaymentItem" ContextMenuItemClicked="OnPaymentsCartGridContextMenuItemClicked" />
 							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
@@ -313,43 +313,16 @@ else
 							<GridAggregates>
 								<GridAggregate>
 									<GridAggregateColumns>
-										<GridAggregateColumn Field="@nameof(PaymentItem.Method)" Type="AggregateType.Count">
-											<FooterTemplate>
-												@{
-													var aggregate = (context as AggregateTemplateContext);
-												}
-												<div class="aggregate-label">
-													<strong>Total Payment Modes: @aggregate.Count</strong>
-												</div>
-											</FooterTemplate>
-										</GridAggregateColumn>
-										<GridAggregateColumn Field="@nameof(PaymentItem.Amount)" Type="AggregateType.Sum">
-											<FooterTemplate>
-												@{
-													var aggregate = (context as AggregateTemplateContext);
-													var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
-												}
-												<div class="aggregate-value aggregate-total">
-													<strong>@sum.ToString("N2")</strong>
-												</div>
-											</FooterTemplate>
-										</GridAggregateColumn>
+										<GridColumnAggregate Field="@nameof(PaymentItem.Method)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(PaymentItem.Amount)" CustomColor="grid-total" />
 									</GridAggregateColumns>
 								</GridAggregate>
 							</GridAggregates>
 
 							<GridColumns>
-								<GridColumn Field="@nameof(PaymentItem.Method)" HeaderText="Payment Mode" Width="200" />
-								<GridColumn Field="@nameof(PaymentItem.Amount)" HeaderText="Amount" Width="130" TextAlign="TextAlign.Right" Format="N2">
-									<Template>
-										@{
-											var item = (context as dynamic);
-											<span class="grid-total">@item.Amount.ToString("N2")</span>
-										}
-									</Template>
-								</GridColumn>
+								<CustomGridColumn Field="@nameof(PaymentItem.Method)" HeaderText="Payment Mode" />
+								<CustomGridColumn Field="@nameof(PaymentItem.Amount)" HeaderText="Amount" TotalColumn="true" />
 							</GridColumns>
-
 						</SfGrid>
 					</div>
 				</div>
@@ -536,168 +509,53 @@ else
 					<h2 class="section-title">Cart</h2>
 				</div>
 
-				<div class="section-body grid-body">
-					<SfGrid @ref="_sfCartGrid" DataSource="_cart"
-							AllowSorting="true" AllowResizing="true"
-							AllowFiltering="true" AllowReordering="true" ShowColumnChooser="true"
-							GridLines="GridLine.Horizontal" ContextMenuItems="@_cartGridContextMenuItems" CssClass="professional-grid"
-							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+				<SfGrid @ref="_sfCartGrid" DataSource="_cart"
+						AllowSorting="true" AllowResizing="true"
+						AllowFiltering="true" AllowReordering="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal" ContextMenuItems="@_cartGridContextMenuItems"
+						Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
-						<GridEvents TValue="BillItemCartModel" ContextMenuItemClicked="OnCartGridContextMenuItemClicked" />
-						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+					<GridEvents TValue="BillItemCartModel" ContextMenuItemClicked="OnCartGridContextMenuItemClicked" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
-						<GridAggregates>
-							<GridAggregate>
-								<GridAggregateColumns>
-									<GridAggregateColumn Field="@nameof(BillItemCartModel.ItemName)" Type="AggregateType.Count">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-											}
-											<div class="aggregate-label">
-												<strong>Total Items: @aggregate.Count</strong>
-											</div>
-										</FooterTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(BillItemCartModel.Quantity)" Type="AggregateType.Sum">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
-											}
-											<div class="aggregate-value">
-												<strong>@sum.ToString("N2")</strong>
-											</div>
-										</FooterTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(BillItemCartModel.BaseTotal)" Type="AggregateType.Sum">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
-											}
-											<div class="aggregate-value">
-												<strong>@sum.ToString("N2")</strong>
-											</div>
-										</FooterTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(BillItemCartModel.DiscountAmount)" Type="AggregateType.Sum">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
-											}
-											<div class="aggregate-value aggregate-debit">
-												<strong>@sum.ToString("N2")</strong>
-											</div>
-										</FooterTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(BillItemCartModel.AfterDiscount)" Type="AggregateType.Sum">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
-											}
-											<div class="aggregate-value">
-												<strong>@sum.ToString("N2")</strong>
-											</div>
-										</FooterTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(BillItemCartModel.CGSTAmount)" Type="AggregateType.Sum">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
-											}
-											<div class="aggregate-value">
-												<strong>@sum.ToString("N2")</strong>
-											</div>
-										</FooterTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(BillItemCartModel.SGSTAmount)" Type="AggregateType.Sum">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
-											}
-											<div class="aggregate-value">
-												<strong>@sum.ToString("N2")</strong>
-											</div>
-										</FooterTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(BillItemCartModel.IGSTAmount)" Type="AggregateType.Sum">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
-											}
-											<div class="aggregate-value">
-												<strong>@sum.ToString("N2")</strong>
-											</div>
-										</FooterTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(BillItemCartModel.TotalTaxAmount)" Type="AggregateType.Sum">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
-											}
-											<div class="aggregate-value">
-												<strong>@sum.ToString("N2")</strong>
-											</div>
-										</FooterTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(BillItemCartModel.Total)" Type="AggregateType.Sum">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
-											}
-											<div class="aggregate-value aggregate-total">
-												<strong>@sum.ToString("N2")</strong>
-											</div>
-										</FooterTemplate>
-									</GridAggregateColumn>
-								</GridAggregateColumns>
-							</GridAggregate>
-						</GridAggregates>
+					<GridAggregates>
+						<GridAggregate>
+							<GridAggregateColumns>
+								<GridColumnAggregate Field="@nameof(BillItemCartModel.ItemName)" Type="AggregateType.Count" Format="N0" />
+								<GridColumnAggregate Field="@nameof(BillItemCartModel.Quantity)" />
+								<GridColumnAggregate Field="@nameof(BillItemCartModel.BaseTotal)" />
+								<GridColumnAggregate Field="@nameof(BillItemCartModel.DiscountAmount)" CustomColor="grid-debit" />
+								<GridColumnAggregate Field="@nameof(BillItemCartModel.AfterDiscount)" />
+								<GridColumnAggregate Field="@nameof(BillItemCartModel.CGSTAmount)" />
+								<GridColumnAggregate Field="@nameof(BillItemCartModel.SGSTAmount)" />
+								<GridColumnAggregate Field="@nameof(BillItemCartModel.IGSTAmount)" />
+								<GridColumnAggregate Field="@nameof(BillItemCartModel.TotalTaxAmount)" />
+								<GridColumnAggregate Field="@nameof(BillItemCartModel.Total)" CustomColor="grid-total" />
+							</GridAggregateColumns>
+						</GridAggregate>
+					</GridAggregates>
 
-						<GridColumns>
-							<GridColumn Field="@nameof(BillItemCartModel.ItemName)" HeaderText="Item Name" Width="200" />
-							<GridColumn Field="@nameof(BillItemCartModel.Quantity)" HeaderText="Qty" Width="100" TextAlign="TextAlign.Right" Format="N2" />
-							<GridColumn Field="@nameof(BillItemCartModel.Rate)" HeaderText="Rate" Width="110" TextAlign="TextAlign.Right" Format="N2" />
-							<GridColumn Field="@nameof(BillItemCartModel.BaseTotal)" HeaderText="Base Total" Width="150" TextAlign="TextAlign.Right" Format="N2" />
-							<GridColumn Field="@nameof(BillItemCartModel.DiscountPercent)" HeaderText="Disc %" Width="120" TextAlign="TextAlign.Right" Format="N2" />
-							<GridColumn Field="@nameof(BillItemCartModel.DiscountAmount)" HeaderText="Disc Amt" Width="140" TextAlign="TextAlign.Right" Format="N2">
-								<Template>
-									@{
-										var item = (context as dynamic);
-										<span class="grid-debit">@item.DiscountAmount.ToString("N2")</span>
-									}
-								</Template>
-							</GridColumn>
-							<GridColumn Field="@nameof(BillItemCartModel.AfterDiscount)" HeaderText="After Disc" Width="140" TextAlign="TextAlign.Right" Format="N2" />
-							<GridColumn Field="@nameof(BillItemCartModel.CGSTPercent)" HeaderText="CGST %" Width="140" TextAlign="TextAlign.Right" Format="N2" />
-							<GridColumn Field="@nameof(BillItemCartModel.CGSTAmount)" HeaderText="CGST Amt" Width="150" TextAlign="TextAlign.Right" Format="N2" />
-							<GridColumn Field="@nameof(BillItemCartModel.SGSTPercent)" HeaderText="SGST %" Width="140" TextAlign="TextAlign.Right" Format="N2" />
-							<GridColumn Field="@nameof(BillItemCartModel.SGSTAmount)" HeaderText="SGST Amt" Width="150" TextAlign="TextAlign.Right" Format="N2" />
-							<GridColumn Field="@nameof(BillItemCartModel.IGSTPercent)" HeaderText="IGST %" Width="140" TextAlign="TextAlign.Right" Format="N2" />
-							<GridColumn Field="@nameof(BillItemCartModel.IGSTAmount)" HeaderText="IGST Amt" Width="150" TextAlign="TextAlign.Right" Format="N2" />
-							<GridColumn Field="@nameof(BillItemCartModel.TotalTaxAmount)" HeaderText="Tax Total" Width="150" TextAlign="TextAlign.Right" Format="N2" />
-							<GridColumn Field="@nameof(BillItemCartModel.InclusiveTax)" HeaderText="Tax Incl." Width="100" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
-							<GridColumn Field="@nameof(BillItemCartModel.KOTPrint)" HeaderText="KOT" Width="90" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
-							<GridColumn Field="@nameof(BillItemCartModel.Total)" HeaderText="Total" Width="130" TextAlign="TextAlign.Right" Format="N2">
-								<Template>
-									@{
-										var item = (context as dynamic);
-										<span class="grid-total">@item.Total.ToString("N2")</span>
-									}
-								</Template>
-							</GridColumn>
-							<GridColumn Field="@nameof(BillItemCartModel.Remarks)" HeaderText="Remarks" Width="150" />
-						</GridColumns>
-					</SfGrid>
-				</div>
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(BillItemCartModel.ItemName)" HeaderText="Item Name" />
+						<CustomGridColumn Field="@nameof(BillItemCartModel.Quantity)" HeaderText="Qty" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(BillItemCartModel.Rate)" HeaderText="Rate" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(BillItemCartModel.BaseTotal)" HeaderText="Base Total" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(BillItemCartModel.DiscountPercent)" HeaderText="Disc %" CustomColor="grid-debit" />
+						<CustomGridColumn Field="@nameof(BillItemCartModel.DiscountAmount)" HeaderText="Disc Amt" CustomColor="grid-debit" />
+						<CustomGridColumn Field="@nameof(BillItemCartModel.AfterDiscount)" HeaderText="After Disc" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(BillItemCartModel.CGSTPercent)" HeaderText="CGST %" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(BillItemCartModel.CGSTAmount)" HeaderText="CGST Amt" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(BillItemCartModel.SGSTPercent)" HeaderText="SGST %" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(BillItemCartModel.SGSTAmount)" HeaderText="SGST Amt" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(BillItemCartModel.IGSTPercent)" HeaderText="IGST %" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(BillItemCartModel.IGSTAmount)" HeaderText="IGST Amt" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(BillItemCartModel.TotalTaxAmount)" HeaderText="Tax Total" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(BillItemCartModel.InclusiveTax)" HeaderText="Tax Incl." TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
+						<CustomGridColumn Field="@nameof(BillItemCartModel.KOTPrint)" HeaderText="KOT" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
+						<CustomGridColumn Field="@nameof(BillItemCartModel.Total)" HeaderText="Total" TotalColumn="true" />
+						<CustomGridColumn Field="@nameof(BillItemCartModel.Remarks)" HeaderText="Remarks" />
+					</GridColumns>
+				</SfGrid>
 			</div>
 		</div>
 

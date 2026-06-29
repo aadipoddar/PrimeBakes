@@ -140,80 +140,60 @@ else
 					<h2 class="section-title">Records</h2>
 				</div>
 
-				<div class="section-body grid-body">
-					<SfGrid @ref="_sfGrid" TValue="FinancialAccountingLedgerOverviewModel" DataSource="_transactionOverviews"
-							AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
-							AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
-							GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems" CssClass="professional-grid"
-							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+				<SfGrid @ref="_sfGrid" TValue="FinancialAccountingLedgerOverviewModel" DataSource="_transactionOverviews"
+						AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+						AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+						Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
-						<GridEvents TValue="FinancialAccountingLedgerOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
-						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
-						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+					<GridEvents TValue="FinancialAccountingLedgerOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
-						<GridColumns>
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.Id)" IsPrimaryKey="true" Visible="false" />
+					<GridColumns>
 
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TransactionDateTime)" HeaderText="Date" Width="120" Format="dd/MM/yy" Type="ColumnType.DateTime" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TransactionNo)" HeaderText="Transaction No" Width="200" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerName)" HeaderText="Ledger" Width="220" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerCode)" HeaderText="Code" Width="120" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.AccountTypeName)" HeaderText="Account Type" Width="150" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.GroupName)" HeaderText="Group" Width="200" Visible="_showAllColumns" />
+						<CustomGridColumn Visible="false">
+							<CustomTemplate>
+								<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.Id)" IsPrimaryKey="true" Visible="false" />
+							</CustomTemplate>
+						</CustomGridColumn>
 
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.InstrumentNo)" HeaderText="Instrument No" Width="150" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.InstrumentDate)" HeaderText="Instrument Date" Width="200" Format="dd/MM/yy" Type="ColumnType.DateTime" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy" Type="ColumnType.DateTime" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerName)" HeaderText="Ledger" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerCode)" HeaderText="Code" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.AccountTypeName)" HeaderText="Account Type" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.GroupName)" HeaderText="Group" Visible="_showAllColumns" />
 
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.Debit)" HeaderText="Debit" Width="130" TextAlign="TextAlign.Right">
-								<Template>
-									@{
-										var line = (context as FinancialAccountingLedgerOverviewModel);
-										<span class="grid-debit">@(line.Debit?.ToString("N2") ?? "-")</span>
-									}
-								</Template>
-							</GridColumn>
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.Credit)" HeaderText="Credit" Width="130" TextAlign="TextAlign.Right">
-								<Template>
-									@{
-										var line = (context as FinancialAccountingLedgerOverviewModel);
-										<span class="grid-credit">@(line.Credit?.ToString("N2") ?? "-")</span>
-									}
-								</Template>
-							</GridColumn>
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.InstrumentNo)" HeaderText="Instrument No" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.InstrumentDate)" HeaderText="Instrument Date" Format="dd/MM/yy" Type="ColumnType.DateTime" />
 
-							<GridColumn HeaderText="Clearing Date" Width="200" AllowFiltering="false" AllowSorting="false">
-								<Template>
-									@{
-										var line = (context as FinancialAccountingLedgerOverviewModel);
-									}
-									<CustomDatePicker NullableValue="line.ClearingDate" NullableValueChanged="(d) => OnClearingDateChanged(line, d)" Required="false" ShowFinancialYear="false" Label="" />
-								</Template>
-							</GridColumn>
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.Debit)" HeaderText="Debit" CustomColor="grid-debit" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.Credit)" HeaderText="Credit" CustomColor="grid-credit" />
 
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.Reconciled)" HeaderText="Reconciled" Width="150" TextAlign="TextAlign.Center">
-								<Template>
-									@{
-										var line = (context as FinancialAccountingLedgerOverviewModel);
-										if (line.Reconciled is not null)
-										{
-											<span class="@(line.Reconciled.Value ? "grid-credit" : "grid-debit")">
-												@(line.Reconciled.Value ? "Reconciled" : "Unreconciled")
-											</span>
+						<CustomGridColumn>
+							<CustomTemplate>
+								<GridColumn HeaderText="Clearing Date" Width="200" AllowFiltering="false" AllowSorting="false">
+									<Template>
+										@{
+											var line = (context as FinancialAccountingLedgerOverviewModel);
 										}
-									}
-								</Template>
-							</GridColumn>
+										<CustomDatePicker NullableValue="line.ClearingDate" NullableValueChanged="(d) => OnClearingDateChanged(line, d)" Required="false" ShowFinancialYear="false" Label="" />
+									</Template>
+								</GridColumn>
+							</CustomTemplate>
+						</CustomGridColumn>
 
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerRemarks)" HeaderText="Remarks" Width="200" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.Reconciled)" HeaderText="Reconciled" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
 
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CompanyName)" HeaderText="Company" Width="200" Visible="@(_showAllColumns && (_selectedCompany is null || _selectedCompany.Id <= 0))" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.VoucherName)" HeaderText="Voucher Type" Width="200" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.FinancialYear)" HeaderText="Financial Year" Width="200" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CreatedByName)" HeaderText="Created By" Width="150" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CreatedAt)" HeaderText="Created At" Width="160" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="_showAllColumns" />
-						</GridColumns>
-					</SfGrid>
-				</div>
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerRemarks)" HeaderText="Remarks" Width="500" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CompanyName)" HeaderText="Company" Visible="@(_showAllColumns && (_selectedCompany is null || _selectedCompany.Id <= 0))" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.VoucherName)" HeaderText="Voucher Type" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.FinancialYear)" HeaderText="Financial Year" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CreatedByName)" HeaderText="Created By" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CreatedAt)" HeaderText="Created At" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="_showAllColumns" />
+					</GridColumns>
+				</SfGrid>
 			</div>
 
 		</div>

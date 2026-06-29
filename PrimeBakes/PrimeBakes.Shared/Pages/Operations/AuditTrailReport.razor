@@ -73,75 +73,54 @@ else
 					<h2 class="section-title">Records</h2>
 				</div>
 
-				<div class="section-body grid-body">
-					<SfGrid @ref="_sfGrid" TValue="AuditTrailModel" DataSource="_auditTrails"
-							AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
-							AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
-							GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems" CssClass="professional-grid"
-							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+				<SfGrid @ref="_sfGrid" TValue="AuditTrailModel" DataSource="_auditTrails"
+						AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+						AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+						Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
-						<GridEvents TValue="AuditTrailModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
-						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
-						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+					<GridEvents TValue="AuditTrailModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
-						<GridAggregates>
-							<GridAggregate>
-								<GridAggregateColumns>
-									<GridAggregateColumn Field="@nameof(AuditTrailModel.Id)" Type="AggregateType.Count">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-											}
-											<div class="aggregate-label">
-												<strong>Total Records: @aggregate.Count</strong>
-											</div>
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-											}
-											<div class="aggregate-label">
-												<strong>Total Records: @aggregate.Count</strong>
-											</div>
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-											}
-											<div class="aggregate-label">
-												<strong>Total Records: @aggregate.Count</strong>
-											</div>
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-								</GridAggregateColumns>
-							</GridAggregate>
-						</GridAggregates>
+					<GridAggregates>
+						<GridAggregate>
+							<GridAggregateColumns>
+								<GridColumnAggregate Field="@nameof(AuditTrailModel.Id)" Type="AggregateType.Count" Format="N0" />
+							</GridAggregateColumns>
+						</GridAggregate>
+					</GridAggregates>
 
-						<GridColumns>
-							<GridColumn Field="@nameof(AuditTrailModel.TransactionDateTime)" HeaderText="Date" Width="100" Format="dd/MM/yy HH:mm" Type="ColumnType.DateTime" />
-							<GridColumn Field="@nameof(AuditTrailModel.Action)" HeaderText="Action" Width="100" TextAlign="TextAlign.Center">
-								<Template>
-									@{
-										var item = (context as AuditTrailModel);
-										var css = item.Action switch
-										{
-											"Insert" => "grid-credit",
-											"Delete" => "grid-debit",
-											"Recover" => "grid-total",
-											_ => string.Empty
-										};
-										<span class="@css">@item.Action</span>
-									}
-								</Template>
-							</GridColumn>
-							<GridColumn Field="@nameof(AuditTrailModel.TableName)" HeaderText="Module" Width="130" />
-							<GridColumn Field="@nameof(AuditTrailModel.RecordNo)" HeaderText="Record No" Width="130" />
-							<GridColumn Field="@nameof(AuditTrailModel.RecordValue)" HeaderText="Changes" Width="400" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(AuditTrailModel.CreatedByName)" HeaderText="User" Width="100" />
-							<GridColumn Field="@nameof(AuditTrailModel.CreatedFromPlatform)" HeaderText="Platform" Width="100" Visible="_showAllColumns" />
-						</GridColumns>
-					</SfGrid>
-				</div>
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(AuditTrailModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy HH:mm" Type="ColumnType.DateTime" />
+
+						<CustomGridColumn>
+							<CustomTemplate>
+								<GridColumn Field="@nameof(AuditTrailModel.Action)" HeaderText="Action" TextAlign="TextAlign.Center" Width="200">
+									<Template>
+										@{
+											var item = (context as AuditTrailModel);
+											var css = item.Action switch
+											{
+												"Update" => "grid-credit",
+												"Delete" => "grid-debit",
+												"Recover" => "grid-total",
+												_ => string.Empty
+											};
+											<span class="@css">@item.Action</span>
+										}
+									</Template>
+								</GridColumn>
+							</CustomTemplate>
+						</CustomGridColumn>
+
+						<CustomGridColumn Field="@nameof(AuditTrailModel.TableName)" HeaderText="Module" />
+						<CustomGridColumn Field="@nameof(AuditTrailModel.RecordNo)" HeaderText="Record No" />
+						<CustomGridColumn Field="@nameof(AuditTrailModel.RecordValue)" HeaderText="Changes" Visible="_showAllColumns" Width="1000" />
+						<CustomGridColumn Field="@nameof(AuditTrailModel.CreatedByName)" HeaderText="User" />
+						<CustomGridColumn Field="@nameof(AuditTrailModel.CreatedFromPlatform)" HeaderText="Platform" Visible="_showAllColumns" />
+					</GridColumns>
+				</SfGrid>
 			</div>
 		</div>
 

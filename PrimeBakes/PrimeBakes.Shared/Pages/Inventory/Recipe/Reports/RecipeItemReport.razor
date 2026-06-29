@@ -130,110 +130,44 @@ else
 					<h2 class="section-title">Records</h2>
 				</div>
 
-				<div class="section-body grid-body">
-					<SfGrid @ref="_sfGrid" TValue="RecipeItemOverviewModel" DataSource="_itemOverviews"
-							AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
-							AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
-							GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems" CssClass="professional-grid"
-							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+				<SfGrid @ref="_sfGrid" TValue="RecipeItemOverviewModel" DataSource="_itemOverviews"
+						AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+						AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+						Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
-						<GridEvents TValue="RecipeItemOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
-						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
-						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+					<GridEvents TValue="RecipeItemOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
-						<GridAggregates>
-							<GridAggregate>
-								<GridAggregateColumns>
-									<GridAggregateColumn Field="@nameof(RecipeItemOverviewModel.ItemName)" Type="AggregateType.Count">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-											}
-											<div class="aggregate-label">
-												<strong>Total Lines: @aggregate.Count</strong>
-											</div>
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-											}
-											<div class="aggregate-label">
-												<strong>Total Lines: @aggregate.Count</strong>
-											</div>
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-											}
-											<div class="aggregate-label">
-												<strong>Total Lines: @aggregate.Count</strong>
-											</div>
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(RecipeItemOverviewModel.Amount)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-total">
-													<strong>@aggregate.Sum</strong>
-												</div>
-											}
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-total">
-													<strong>@aggregate.Sum</strong>
-												</div>
-											}
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-total">
-													<strong>@aggregate.Sum</strong>
-												</div>
-											}
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-								</GridAggregateColumns>
-							</GridAggregate>
-						</GridAggregates>
+					<GridAggregates>
+						<GridAggregate>
+							<GridAggregateColumns>
+								<GridColumnAggregate Field="@nameof(RecipeItemOverviewModel.ItemName)" Type="AggregateType.Count" Format="N0" />
+								<GridColumnAggregate Field="@nameof(RecipeItemOverviewModel.Amount)" CustomColor="grid-total" />
+							</GridAggregateColumns>
+						</GridAggregate>
+					</GridAggregates>
 
-						<GridColumns>
-							<GridColumn Field="@nameof(RecipeItemOverviewModel.ItemName)" HeaderText="Raw Material" Width="220" />
-							<GridColumn Field="@nameof(RecipeItemOverviewModel.ItemCode)" HeaderText="Code" Width="120" />
-							<GridColumn Field="@nameof(RecipeItemOverviewModel.ItemCategoryName)" HeaderText="Category" Width="170" />
-							<GridColumn Field="@nameof(RecipeItemOverviewModel.UnitOfMeasurement)" HeaderText="UOM" Width="90" TextAlign="TextAlign.Center" />
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(RecipeItemOverviewModel.ItemName)" HeaderText="Raw Material" />
+						<CustomGridColumn Field="@nameof(RecipeItemOverviewModel.ItemCode)" HeaderText="Code" />
+						<CustomGridColumn Field="@nameof(RecipeItemOverviewModel.ItemCategoryName)" HeaderText="Category" />
+						<CustomGridColumn Field="@nameof(RecipeItemOverviewModel.UnitOfMeasurement)" HeaderText="UOM" TextAlign="TextAlign.Center" />
 
-							<GridColumn Field="@nameof(RecipeItemOverviewModel.Quantity)" HeaderText="Quantity" Width="130" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(RecipeItemOverviewModel.Rate)" HeaderText="Rate" Width="120" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(RecipeItemOverviewModel.Amount)" HeaderText="Amount" Width="140" TextAlign="TextAlign.Right">
-								<Template>
-									@{
-										var item = (context as dynamic);
-										<span class="grid-total">@item.Amount.ToString("N2")</span>
-									}
-								</Template>
-							</GridColumn>
-							<GridColumn Field="@nameof(RecipeItemOverviewModel.PerUnit)" HeaderText="Per Unit" Width="130" Format="N2" TextAlign="TextAlign.Right" />
+						<CustomGridColumn Field="@nameof(RecipeItemOverviewModel.Quantity)" HeaderText="Quantity" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(RecipeItemOverviewModel.Rate)" HeaderText="Rate" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(RecipeItemOverviewModel.Amount)" HeaderText="Amount" TotalColumn="true" />
+						<CustomGridColumn Field="@nameof(RecipeItemOverviewModel.PerUnit)" HeaderText="Per Unit" NumericColumn="true" />
 
-							<GridColumn Field="@nameof(RecipeItemOverviewModel.ProductName)" HeaderText="Recipe (Product)" Width="220" />
-							<GridColumn Field="@nameof(RecipeItemOverviewModel.RecipeQuantity)" HeaderText="Recipe Qty" Width="130" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(RecipeItemOverviewModel.Deduct)" HeaderText="Deduct on Sale" Width="160" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
-							<GridColumn Field="@nameof(RecipeItemOverviewModel.FromDate)" HeaderText="Effective Date" Width="150" Format="dd/MM/yy" Type="ColumnType.DateOnly" TextAlign="TextAlign.Center" />
+						<CustomGridColumn Field="@nameof(RecipeItemOverviewModel.ProductName)" HeaderText="Recipe (Product)" />
+						<CustomGridColumn Field="@nameof(RecipeItemOverviewModel.RecipeQuantity)" HeaderText="Recipe Qty" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(RecipeItemOverviewModel.Deduct)" HeaderText="Deduct on Sale" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
+						<CustomGridColumn Field="@nameof(RecipeItemOverviewModel.FromDate)" HeaderText="Effective Date" Format="dd/MM/yy" Type="ColumnType.DateOnly" TextAlign="TextAlign.Center" />
 
-							<GridColumn Field="@nameof(RecipeItemOverviewModel.MasterStatus)" HeaderText="Status" Width="110" Visible="@_showDeleted" TextAlign="TextAlign.Center">
-								<Template>
-									@{
-										var item = (context as dynamic);
-										<span class="@(item.MasterStatus ? string.Empty : "grid-debit")">@(item.MasterStatus ? "Active" : "Deleted")</span>
-									}
-								</Template>
-							</GridColumn>
-						</GridColumns>
-					</SfGrid>
-				</div>
+						<CustomGridColumn Field="@nameof(RecipeItemOverviewModel.MasterStatus)" Visible="@_showDeleted" StatusColumn="true" />
+					</GridColumns>
+				</SfGrid>
 			</div>
 		</div>
 

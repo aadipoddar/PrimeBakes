@@ -134,49 +134,46 @@ else
 					<h2 class="section-title">Master List</h2>
 				</div>
 
-				<div class="section-body grid-body">
-					<SfGrid @ref="_sfGrid" DataSource="@_users"
-							AllowPaging="true" AllowSorting="true" AllowResizing="true"
-							AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
-							GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems" CssClass="professional-grid"
-							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+				<SfGrid @ref="_sfGrid" DataSource="@_users"
+						AllowPaging="true" AllowSorting="true" AllowResizing="true"
+						AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+						Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
-						<GridEvents TValue="UserModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
-						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
-						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+					<GridEvents TValue="UserModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
-						<GridColumns>
-							<GridColumn Field="@nameof(UserModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" />
-							<GridColumn Field="@nameof(UserModel.Name)" HeaderText="User Name" Width="200" />
-							<GridColumn Field="@nameof(UserModel.Passcode)" HeaderText="Passcode" Width="120" Format="0000" TextAlign="TextAlign.Center" />
-							<GridColumn Field="@nameof(UserModel.LocationId)" HeaderText="Location" Width="200">
-								<Template>
-									@{
-										var user = (context as UserModel);
-										var location = _locations.FirstOrDefault(l => l.Id == user.LocationId);
-										<span>@(location?.Name ?? "N/A")</span>
-									}
-								</Template>
-							</GridColumn>
-							<GridColumn Field="@nameof(UserModel.ChangeProductFinancial)" HeaderText="Change Product Financials" Width="150" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
-							<GridColumn Field="@nameof(UserModel.Accounts)" HeaderText="Accounts" Width="100" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
-							<GridColumn Field="@nameof(UserModel.Inventory)" HeaderText="Inventory" Width="100" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
-							<GridColumn Field="@nameof(UserModel.Store)" HeaderText="Store" Width="100" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
-							<GridColumn Field="@nameof(UserModel.Restaurant)" HeaderText="Restaurant" Width="100" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
-							<GridColumn Field="@nameof(UserModel.Reports)" HeaderText="Reports" Width="100" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
-							<GridColumn Field="@nameof(UserModel.Admin)" HeaderText="Admin" Width="100" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
-							<GridColumn Field="@nameof(UserModel.Remarks)" HeaderText="Remarks" Width="250" />
-							<GridColumn Field="@nameof(UserModel.Status)" HeaderText="Status" Width="110" TextAlign="TextAlign.Center" Visible="_showDeleted">
-								<Template>
-									@{
-										var user = (context as UserModel);
-										<span class="@(user.Status ? string.Empty : "grid-debit")">@(user.Status ? "Active" : "Deleted")</span>
-									}
-								</Template>
-							</GridColumn>
-						</GridColumns>
-					</SfGrid>
-				</div>
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(UserModel.Id)" HeaderText="ID" Width="100" TextAlign="TextAlign.Center" />
+						<CustomGridColumn Field="@nameof(UserModel.Name)" HeaderText="User Name" />
+						<CustomGridColumn Field="@nameof(UserModel.Passcode)" HeaderText="Passcode" Format="0000" TextAlign="TextAlign.Center" />
+
+						<CustomGridColumn>
+							<CustomTemplate>
+								<GridColumn Field="@nameof(UserModel.LocationId)" HeaderText="Location" Width="200">
+									<Template>
+										@{
+											var user = (context as UserModel);
+											var location = _locations.FirstOrDefault(l => l.Id == user.LocationId);
+											<span>@(location?.Name ?? "-")</span>
+										}
+									</Template>
+								</GridColumn>
+							</CustomTemplate>
+						</CustomGridColumn>
+
+						<CustomGridColumn Field="@nameof(UserModel.ChangeProductFinancial)" HeaderText="Change Product Financials" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
+						<CustomGridColumn Field="@nameof(UserModel.Accounts)" HeaderText="Accounts" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
+						<CustomGridColumn Field="@nameof(UserModel.Inventory)" HeaderText="Inventory" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
+						<CustomGridColumn Field="@nameof(UserModel.Store)" HeaderText="Store" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
+						<CustomGridColumn Field="@nameof(UserModel.Restaurant)" HeaderText="Restaurant" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
+						<CustomGridColumn Field="@nameof(UserModel.Reports)" HeaderText="Reports" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
+						<CustomGridColumn Field="@nameof(UserModel.Admin)" HeaderText="Admin" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
+						<CustomGridColumn Field="@nameof(UserModel.Remarks)" HeaderText="Remarks" />
+						<CustomGridColumn Field="@nameof(UserModel.Status)" Visible="_showDeleted" StatusColumn="true" />
+					</GridColumns>
+				</SfGrid>
 			</div>
 		</div>
 

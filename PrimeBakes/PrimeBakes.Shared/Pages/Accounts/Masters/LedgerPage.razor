@@ -159,59 +159,60 @@ else
 					<h2 class="section-title">Master List</h2>
 				</div>
 
-				<div class="section-body grid-body">
-					<SfGrid @ref="_sfGrid" DataSource="@_ledgers"
-							AllowPaging="true" AllowSorting="true" AllowResizing="true"
-							AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
-							GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems" CssClass="professional-grid"
-							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+				<SfGrid @ref="_sfGrid" DataSource="@_ledgers"
+						AllowPaging="true" AllowSorting="true" AllowResizing="true"
+						AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+						Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
-						<GridEvents TValue="LedgerModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
-						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
-						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+					<GridEvents TValue="LedgerModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
-						<GridColumns>
-							<GridColumn Field="@nameof(LedgerModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" />
-							<GridColumn Field="@nameof(LedgerModel.Name)" HeaderText="Ledger Name" Width="250" />
-							<GridColumn Field="@nameof(LedgerModel.Code)" HeaderText="Code" Width="120" />
-							<GridColumn Field="@nameof(LedgerModel.GroupId)" HeaderText="Group" Width="120">
-								<Template>
-									@{
-										var item = (context as LedgerModel);
-										var group = _groups.FirstOrDefault(g => g.Id == item.GroupId);
-										<span>@(group != null ? group.Name : "N/A")</span>
-									}
-								</Template>
-							</GridColumn>
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(LedgerModel.Id)" HeaderText="ID" Width="100" TextAlign="TextAlign.Center" />
+						<CustomGridColumn Field="@nameof(LedgerModel.Name)" HeaderText="Ledger Name" />
+						<CustomGridColumn Field="@nameof(LedgerModel.Code)" HeaderText="Code" />
 
-							<GridColumn Field="@nameof(LedgerModel.AccountTypeId)" HeaderText="Account Type" Width="150">
-								<Template>
-									@{
-										var item = (context as LedgerModel);
-										var accountType = _accountTypes.FirstOrDefault(a => a.Id == item.AccountTypeId);
-										<span>@(accountType != null ? accountType.Name : "N/A")</span>
-									}
-								</Template>
-							</GridColumn>
-							<GridColumn Field="@nameof(LedgerModel.Phone)" HeaderText="Phone" Width="150" />
-							<GridColumn Field="@nameof(LedgerModel.Email)" HeaderText="Email" Width="150" />
-							<GridColumn Field="@nameof(LedgerModel.Alias)" HeaderText="Alias" Width="150" />
-							<GridColumn Field="@nameof(LedgerModel.GSTNo)" HeaderText="GST No" Width="150" />
-							<GridColumn Field="@nameof(LedgerModel.CINNo)" HeaderText="CIN No" Width="150" />
-							<GridColumn Field="@nameof(LedgerModel.PANNo)" HeaderText="PAN No" Width="150" />
-							<GridColumn Field="@nameof(LedgerModel.Address)" HeaderText="Address" Width="150" />
-							<GridColumn Field="@nameof(LedgerModel.Remarks)" HeaderText="Remarks" Width="150" />
-							<GridColumn Field="@nameof(LedgerModel.Status)" HeaderText="Status" Width="110" TextAlign="TextAlign.Center" Visible="_showDeleted">
-								<Template>
-									@{
-										var item = (context as LedgerModel);
-										<span class="@(item.Status ? string.Empty : "grid-debit")">@(item.Status ? "Active" : "Deleted")</span>
-									}
-								</Template>
-							</GridColumn>
-						</GridColumns>
-					</SfGrid>
-				</div>
+						<CustomGridColumn>
+							<CustomTemplate>
+								<GridColumn Field="@nameof(LedgerModel.GroupId)" HeaderText="Group" Width="200">
+									<Template>
+										@{
+											var item = (context as LedgerModel);
+											var group = _groups.FirstOrDefault(g => g.Id == item.GroupId);
+											<span>@(group?.Name ?? "-")</span>
+										}
+									</Template>
+								</GridColumn>
+							</CustomTemplate>
+						</CustomGridColumn>
+
+						<CustomGridColumn>
+							<CustomTemplate>
+								<GridColumn Field="@nameof(LedgerModel.AccountTypeId)" HeaderText="Account Type" Width="200">
+									<Template>
+										@{
+											var item = (context as LedgerModel);
+											var accountType = _accountTypes.FirstOrDefault(a => a.Id == item.AccountTypeId);
+											<span>@(accountType?.Name ?? "-")</span>
+										}
+									</Template>
+								</GridColumn>
+							</CustomTemplate>
+						</CustomGridColumn>
+
+						<CustomGridColumn Field="@nameof(LedgerModel.Phone)" HeaderText="Phone" />
+						<CustomGridColumn Field="@nameof(LedgerModel.Email)" HeaderText="Email" />
+						<CustomGridColumn Field="@nameof(LedgerModel.Alias)" HeaderText="Alias" />
+						<CustomGridColumn Field="@nameof(LedgerModel.GSTNo)" HeaderText="GST No" />
+						<CustomGridColumn Field="@nameof(LedgerModel.CINNo)" HeaderText="CIN No" />
+						<CustomGridColumn Field="@nameof(LedgerModel.PANNo)" HeaderText="PAN No" />
+						<CustomGridColumn Field="@nameof(LedgerModel.Address)" HeaderText="Address" />
+						<CustomGridColumn Field="@nameof(LedgerModel.Remarks)" HeaderText="Remarks" />
+						<CustomGridColumn Field="@nameof(LedgerModel.Status)" Visible="_showDeleted" StatusColumn="true" />
+					</GridColumns>
+				</SfGrid>
 			</div>
 		</div>
 

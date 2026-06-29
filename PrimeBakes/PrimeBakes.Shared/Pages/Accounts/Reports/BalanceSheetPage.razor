@@ -93,193 +93,77 @@ else
 					<h2 class="section-title">Records</h2>
 				</div>
 
-				<div class="section-body grid-body">
-					<div class="dual-grid-container">
-						<!-- Assets Grid -->
-						<div class="grid-section assets-section">
-							<div class="grid-section-header">
-								<h3 class="grid-section-title">Assets</h3>
-								<span class="grid-section-count">(@_assetsTrialBalance.Count ledgers)</span>
-							</div>
-							<SfGrid @ref="_assetsGrid" TValue="TrialBalanceModel" DataSource="_assetsTrialBalance"
-									AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
-									AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
-									GridLines="GridLine.Horizontal" CssClass="professional-grid"
-									Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
-
-								<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
-								<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
-
-								<GridAggregates>
-									<GridAggregate>
-										<GridAggregateColumns>
-											<GridAggregateColumn Field="@nameof(TrialBalanceModel.LedgerName)" Type="AggregateType.Count">
-												<FooterTemplate>
-													@{
-														var aggregate = (context as AggregateTemplateContext);
-													}
-													<div class="aggregate-label">
-														<strong>Total: @aggregate.Count</strong>
-													</div>
-												</FooterTemplate>
-											</GridAggregateColumn>
-											<GridAggregateColumn Field="@nameof(TrialBalanceModel.OpeningBalance)" Type="AggregateType.Sum" Format="N2">
-												<FooterTemplate>
-													@{
-														var aggregate = (context as AggregateTemplateContext);
-														<div class="aggregate-value aggregate-debit">
-															<strong>@aggregate.Sum</strong>
-														</div>
-													}
-												</FooterTemplate>
-											</GridAggregateColumn>
-											<GridAggregateColumn Field="@nameof(TrialBalanceModel.Debit)" Type="AggregateType.Sum" Format="N2">
-												<FooterTemplate>
-													@{
-														var aggregate = (context as AggregateTemplateContext);
-														<div class="aggregate-value aggregate-debit">
-															<strong>@aggregate.Sum</strong>
-														</div>
-													}
-												</FooterTemplate>
-											</GridAggregateColumn>
-											<GridAggregateColumn Field="@nameof(TrialBalanceModel.ClosingBalance)" Type="AggregateType.Sum" Format="N2">
-												<FooterTemplate>
-													@{
-														var aggregate = (context as AggregateTemplateContext);
-														<div class="aggregate-value aggregate-debit">
-															<strong>@aggregate.Sum</strong>
-														</div>
-													}
-												</FooterTemplate>
-											</GridAggregateColumn>
-										</GridAggregateColumns>
-									</GridAggregate>
-								</GridAggregates>
-
-								<GridColumns>
-									<GridColumn Field="@nameof(TrialBalanceModel.LedgerName)" HeaderText="Ledger Name" Width="250" />
-									<GridColumn Field="@nameof(TrialBalanceModel.GroupName)" HeaderText="Group" Width="150" Visible="_showAllColumns" />
-									<GridColumn Field="@nameof(TrialBalanceModel.OpeningBalance)" HeaderText="Opening Balance" Width="200" TextAlign="TextAlign.Right" Visible="_showAllColumns">
-										<Template>
-											@{
-												var item = (context as TrialBalanceModel);
-												<span class="grid-debit">@item.OpeningBalance.ToString("N2")</span>
-											}
-										</Template>
-									</GridColumn>
-									<GridColumn Field="@nameof(TrialBalanceModel.Debit)" HeaderText="Period Debit" Width="140" TextAlign="TextAlign.Right" Visible="_showAllColumns">
-										<Template>
-											@{
-												var item = (context as TrialBalanceModel);
-												<span class="grid-debit">@item.Debit.ToString("N2")</span>
-											}
-										</Template>
-									</GridColumn>
-									<GridColumn Field="@nameof(TrialBalanceModel.ClosingBalance)" HeaderText="Closing Balance" Width="200" TextAlign="TextAlign.Right">
-										<Template>
-											@{
-												var item = (context as TrialBalanceModel);
-												<span class="grid-debit">@item.ClosingBalance.ToString("N2")</span>
-											}
-										</Template>
-									</GridColumn>
-								</GridColumns>
-							</SfGrid>
+				<div class="dual-grid-container">
+					<!-- Assets Grid -->
+					<div class="grid-section assets-section">
+						<div class="grid-section-header">
+							<h3 class="grid-section-title">Assets</h3>
+							<span class="grid-section-count">(@_assetsTrialBalance.Count ledgers)</span>
 						</div>
+						<SfGrid @ref="_assetsGrid" TValue="TrialBalanceModel" DataSource="_assetsTrialBalance"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
-						<!-- Liabilities Grid -->
-						<div class="grid-section liabilities-section">
-							<div class="grid-section-header">
-								<h3 class="grid-section-title">Liabilities</h3>
-								<span class="grid-section-count">(@_liabilitiesTrialBalance.Count ledgers)</span>
-							</div>
-							<SfGrid @ref="_liabilitiesGrid" TValue="TrialBalanceModel" DataSource="_liabilitiesTrialBalance"
-									AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
-									AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
-									GridLines="GridLine.Horizontal" CssClass="professional-grid"
-									Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
-								<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
-								<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(TrialBalanceModel.LedgerName)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(TrialBalanceModel.OpeningBalance)" CustomColor="grid-debit" />
+										<GridColumnAggregate Field="@nameof(TrialBalanceModel.Debit)" CustomColor="grid-debit" />
+										<GridColumnAggregate Field="@nameof(TrialBalanceModel.ClosingBalance)" CustomColor="grid-debit" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
 
-								<GridAggregates>
-									<GridAggregate>
-										<GridAggregateColumns>
-											<GridAggregateColumn Field="@nameof(TrialBalanceModel.LedgerName)" Type="AggregateType.Count">
-												<FooterTemplate>
-													@{
-														var aggregate = (context as AggregateTemplateContext);
-													}
-													<div class="aggregate-label">
-														<strong>Total: @aggregate.Count</strong>
-													</div>
-												</FooterTemplate>
-											</GridAggregateColumn>
-											<GridAggregateColumn Field="@nameof(TrialBalanceModel.OpeningBalance)" Type="AggregateType.Sum" Format="N2">
-												<FooterTemplate>
-													@{
-														var aggregate = (context as AggregateTemplateContext);
-														<div class="aggregate-value aggregate-credit">
-															<strong>@aggregate.Sum</strong>
-														</div>
-													}
-												</FooterTemplate>
-											</GridAggregateColumn>
-											<GridAggregateColumn Field="@nameof(TrialBalanceModel.Credit)" Type="AggregateType.Sum" Format="N2">
-												<FooterTemplate>
-													@{
-														var aggregate = (context as AggregateTemplateContext);
-														<div class="aggregate-value aggregate-credit">
-															<strong>@aggregate.Sum</strong>
-														</div>
-													}
-												</FooterTemplate>
-											</GridAggregateColumn>
-											<GridAggregateColumn Field="@nameof(TrialBalanceModel.ClosingBalance)" Type="AggregateType.Sum" Format="N2">
-												<FooterTemplate>
-													@{
-														var aggregate = (context as AggregateTemplateContext);
-														<div class="aggregate-value aggregate-credit">
-															<strong>@aggregate.Sum</strong>
-														</div>
-													}
-												</FooterTemplate>
-											</GridAggregateColumn>
-										</GridAggregateColumns>
-									</GridAggregate>
-								</GridAggregates>
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(TrialBalanceModel.LedgerName)" HeaderText="Ledger Name" />
+								<CustomGridColumn Field="@nameof(TrialBalanceModel.GroupName)" HeaderText="Group" Visible="_showAllColumns" />
+								<CustomGridColumn Field="@nameof(TrialBalanceModel.OpeningBalance)" HeaderText="Opening Balance" Visible="_showAllColumns" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(TrialBalanceModel.Debit)" HeaderText="Period Debit" Visible="_showAllColumns" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(TrialBalanceModel.ClosingBalance)" HeaderText="Closing Balance" CustomColor="grid-debit" />
+							</GridColumns>
+						</SfGrid>
+					</div>
 
-								<GridColumns>
-									<GridColumn Field="@nameof(TrialBalanceModel.LedgerName)" HeaderText="Ledger Name" Width="250" />
-									<GridColumn Field="@nameof(TrialBalanceModel.GroupName)" HeaderText="Group" Width="150" Visible="_showAllColumns" />
-									<GridColumn Field="@nameof(TrialBalanceModel.OpeningBalance)" HeaderText="Opening Balance" Width="200" TextAlign="TextAlign.Right" Visible="_showAllColumns">
-										<Template>
-											@{
-												var item = (context as TrialBalanceModel);
-												<span class="grid-credit">@item.OpeningBalance.ToString("N2")</span>
-											}
-										</Template>
-									</GridColumn>
-									<GridColumn Field="@nameof(TrialBalanceModel.Credit)" HeaderText="Period Credit" Width="140" TextAlign="TextAlign.Right" Visible="_showAllColumns">
-										<Template>
-											@{
-												var item = (context as TrialBalanceModel);
-												<span class="grid-credit">@item.Credit.ToString("N2")</span>
-											}
-										</Template>
-									</GridColumn>
-									<GridColumn Field="@nameof(TrialBalanceModel.ClosingBalance)" HeaderText="Closing Balance" Width="200" TextAlign="TextAlign.Right">
-										<Template>
-											@{
-												var item = (context as TrialBalanceModel);
-												<span class="grid-credit">@item.ClosingBalance.ToString("N2")</span>
-											}
-										</Template>
-									</GridColumn>
-								</GridColumns>
-							</SfGrid>
+					<!-- Liabilities Grid -->
+					<div class="grid-section liabilities-section">
+						<div class="grid-section-header">
+							<h3 class="grid-section-title">Liabilities</h3>
+							<span class="grid-section-count">(@_liabilitiesTrialBalance.Count ledgers)</span>
 						</div>
+						<SfGrid @ref="_liabilitiesGrid" TValue="TrialBalanceModel" DataSource="_liabilitiesTrialBalance"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(TrialBalanceModel.LedgerName)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(TrialBalanceModel.OpeningBalance)" CustomColor="grid-credit" />
+										<GridColumnAggregate Field="@nameof(TrialBalanceModel.Credit)" CustomColor="grid-credit" />
+										<GridColumnAggregate Field="@nameof(TrialBalanceModel.ClosingBalance)" CustomColor="grid-credit" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(TrialBalanceModel.LedgerName)" HeaderText="Ledger Name" />
+								<CustomGridColumn Field="@nameof(TrialBalanceModel.GroupName)" HeaderText="Group" Visible="_showAllColumns" />
+								<CustomGridColumn Field="@nameof(TrialBalanceModel.OpeningBalance)" HeaderText="Opening Balance" Visible="_showAllColumns" CustomColor="grid-credit" />
+								<CustomGridColumn Field="@nameof(TrialBalanceModel.Credit)" HeaderText="Period Credit" Visible="_showAllColumns" CustomColor="grid-credit" />
+								<CustomGridColumn Field="@nameof(TrialBalanceModel.ClosingBalance)" HeaderText="Closing Balance" CustomColor="grid-credit" />
+							</GridColumns>
+						</SfGrid>
 					</div>
 				</div>
 			</div>

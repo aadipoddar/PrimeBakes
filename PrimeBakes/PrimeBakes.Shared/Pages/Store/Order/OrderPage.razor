@@ -186,51 +186,30 @@ else
 					<h2 class="section-title">Cart</h2>
 				</div>
 
-				<div class="section-body grid-body">
-					<SfGrid @ref="_sfCartGrid" DataSource="_cart"
-							AllowSorting="true" AllowResizing="true"
-							AllowFiltering="true" AllowReordering="true" ShowColumnChooser="true"
-							GridLines="GridLine.Horizontal" ContextMenuItems="@_cartGridContextMenuItems" CssClass="professional-grid"
-							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+				<SfGrid @ref="_sfCartGrid" DataSource="_cart"
+						AllowSorting="true" AllowResizing="true"
+						AllowFiltering="true" AllowReordering="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal" ContextMenuItems="@_cartGridContextMenuItems"
+						Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
-						<GridEvents TValue="OrderItemCartModel" ContextMenuItemClicked="OnCartGridContextMenuItemClicked" />
-						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+					<GridEvents TValue="OrderItemCartModel" ContextMenuItemClicked="OnCartGridContextMenuItemClicked" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
-						<GridAggregates>
-							<GridAggregate>
-								<GridAggregateColumns>
-									<GridAggregateColumn Field="@nameof(OrderItemCartModel.ItemName)" Type="AggregateType.Count">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-											}
-											<div class="aggregate-label">
-												<strong>Total Items: @aggregate.Count</strong>
-											</div>
-										</FooterTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(OrderItemCartModel.Quantity)" Type="AggregateType.Sum">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
-											}
-											<div class="aggregate-value">
-												<strong>@sum.ToString("N2")</strong>
-											</div>
-										</FooterTemplate>
-									</GridAggregateColumn>
-								</GridAggregateColumns>
-							</GridAggregate>
-						</GridAggregates>
+					<GridAggregates>
+						<GridAggregate>
+							<GridAggregateColumns>
+								<GridColumnAggregate Field="@nameof(OrderItemCartModel.ItemName)" Type="AggregateType.Count" Format="N0" />
+								<GridColumnAggregate Field="@nameof(OrderItemCartModel.Quantity)" CustomColor="grid-total" />
+							</GridAggregateColumns>
+						</GridAggregate>
+					</GridAggregates>
 
-						<GridColumns>
-							<GridColumn Field="@nameof(OrderItemCartModel.ItemName)" HeaderText="Item Name" Width="300" />
-							<GridColumn Field="@nameof(OrderItemCartModel.Quantity)" HeaderText="Qty" Width="150" TextAlign="TextAlign.Right" Format="N2" />
-							<GridColumn Field="@nameof(OrderItemCartModel.Remarks)" HeaderText="Remarks" Width="200" />
-						</GridColumns>
-					</SfGrid>
-				</div>
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(OrderItemCartModel.ItemName)" HeaderText="Item Name" />
+						<CustomGridColumn Field="@nameof(OrderItemCartModel.Quantity)" HeaderText="Qty" TotalColumn="true" />
+						<CustomGridColumn Field="@nameof(OrderItemCartModel.Remarks)" HeaderText="Remarks" />
+					</GridColumns>
+				</SfGrid>
 			</div>
 		</div>
 

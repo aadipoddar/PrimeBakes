@@ -1,11 +1,11 @@
-﻿@if (Color)
+﻿@if (StatusColumn)
 {
-	<GridColumn Field="@Field" HeaderText="@HeaderText" Width="@Width" Format="@Format" TextAlign="@TextAlign" Visible="@Visible" Type="@Type">
+	<GridColumn Field="@Field" HeaderText="@(HeaderText is null ? "Status" : HeaderText)" Width="@Width" Format="@Format" TextAlign="TextAlign.Center" Visible="@Visible" Type="@Type">
 		<Template>
 			@{
-				var columnValue = (decimal)context.GetType().GetProperty(Field).GetValue(context, null);
-				<span class="@(columnValue < 0 ? "grid-debit" : "grid-credit")">
-					@columnValue.ToString("N2")
+				var columnValue = Boolean.Parse(context.GetType().GetProperty(Field).GetValue(context, null)?.ToString());
+				<span class="@(columnValue ? "grid-credit" : "grid-debit")">
+					@(columnValue ? "Active" : "Deleted")
 				</span>
 			}
 		</Template>
@@ -14,6 +14,40 @@
 else if (CustomTemplate is not null)
 {
 	@CustomTemplate
+}
+else if (NumericColumn || NegativePositiveColumn || TotalColumn || CustomColor is not null)
+{
+	<GridColumn Field="@Field" HeaderText="@HeaderText" Width="@Width" Format="@(Format is null ? "N2" : Format)" TextAlign="TextAlign.Right" Visible="@Visible" Type="@Type">
+		<Template>
+			@{
+				Decimal? columnValue = Decimal.TryParse(context.GetType().GetProperty(Field).GetValue(context, null)?.ToString(), out var value) ? value : null;
+				@if (NegativePositiveColumn)
+				{
+					<span class="@(columnValue < 0 ? "grid-debit" : columnValue > 0 ? "grid-credit" : "")">
+						@(columnValue?.ToString(Format is null ? "N2" : Format) ?? "-")
+					</span>
+				}
+				else if (TotalColumn)
+				{
+					<span class="@(columnValue < 0 ? "grid-debit" : columnValue > 0 ? "grid-total" : "")">
+						@(columnValue?.ToString(Format is null ? "N2" : Format) ?? "-")
+					</span>
+				}
+				else if (CustomColor is not null)
+				{
+					<span class="@CustomColor">
+						@(columnValue?.ToString(Format is null ? "N2" : Format) ?? "-")
+					</span>
+				}
+				else
+				{
+					<span class="@(columnValue < 0 ? "grid-debit" : "")">
+						@(columnValue?.ToString(Format is null ? "N2" : Format) ?? "-")
+					</span>
+				}
+			}
+		</Template>
+	</GridColumn>
 }
 else
 {

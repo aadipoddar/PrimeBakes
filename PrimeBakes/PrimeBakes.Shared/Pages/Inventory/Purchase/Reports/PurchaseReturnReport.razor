@@ -124,377 +124,73 @@ else
 					<h2 class="section-title">Records</h2>
 				</div>
 
-				<div class="section-body grid-body">
-					<SfGrid @ref="_sfGrid" TValue="PurchaseReturnOverviewModel" DataSource="_transactionOverviews"
-							AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
-							AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
-							GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems" CssClass="professional-grid"
-							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+				<SfGrid @ref="_sfGrid" TValue="PurchaseReturnOverviewModel" DataSource="_transactionOverviews"
+						AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+						AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+						Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
-						<GridEvents TValue="PurchaseReturnOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
-						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
-						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+					<GridEvents TValue="PurchaseReturnOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
-						<GridAggregates>
-							<GridAggregate>
-								<GridAggregateColumns>
-									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TransactionNo)" Type="AggregateType.Count">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-											}
-											<div class="aggregate-label">
-												<strong>Total Items: @aggregate.Count</strong>
-											</div>
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-											}
-											<div class="aggregate-label">
-												<strong>Total Items: @aggregate.Count</strong>
-											</div>
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-											}
-											<div class="aggregate-label">
-												<strong>Total Items: @aggregate.Count</strong>
-											</div>
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalItems)" Type="AggregateType.Sum" Format="N0">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalQuantity)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.BaseTotal)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.ItemDiscountAmount)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-debit">
-													<strong>@aggregate.Sum</strong>
-												</div>
-											}
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-debit">
-													<strong>@aggregate.Sum</strong>
-												</div>
-											}
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-debit">
-													<strong>@aggregate.Sum</strong>
-												</div>
-											}
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAfterItemDiscount)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalInclusiveTaxAmount)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalExtraTaxAmount)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAfterTax)"
-														 Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.OtherChargesAmount)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.CashDiscountAmount)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-debit">
-													<strong>@aggregate.Sum</strong>
-												</div>
-											}
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-debit">
-													<strong>@aggregate.Sum</strong>
-												</div>
-											}
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-debit">
-													<strong>@aggregate.Sum</strong>
-												</div>
-											}
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.RoundOffAmount)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAmount)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-total">
-													<strong>@aggregate.Sum</strong>
-												</div>
-											}
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-total">
-													<strong>@aggregate.Sum</strong>
-												</div>
-											}
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-total">
-													<strong>@aggregate.Sum</strong>
-												</div>
-											}
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-								</GridAggregateColumns>
-							</GridAggregate>
-						</GridAggregates>
+					<GridAggregates>
+						<GridAggregate>
+							<GridAggregateColumns>
+								<GridColumnAggregate Field="@nameof(PurchaseReturnOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+								<GridColumnAggregate Field="@nameof(PurchaseReturnOverviewModel.TotalItems)" />
+								<GridColumnAggregate Field="@nameof(PurchaseReturnOverviewModel.TotalQuantity)" />
+								<GridColumnAggregate Field="@nameof(PurchaseReturnOverviewModel.BaseTotal)" />
+								<GridColumnAggregate Field="@nameof(PurchaseReturnOverviewModel.ItemDiscountAmount)" CustomColor="grid-debit" />
+								<GridColumnAggregate Field="@nameof(PurchaseReturnOverviewModel.TotalAfterItemDiscount)" />
+								<GridColumnAggregate Field="@nameof(PurchaseReturnOverviewModel.TotalInclusiveTaxAmount)" />
+								<GridColumnAggregate Field="@nameof(PurchaseReturnOverviewModel.TotalExtraTaxAmount)" />
+								<GridColumnAggregate Field="@nameof(PurchaseReturnOverviewModel.TotalAfterTax)" />
+								<GridColumnAggregate Field="@nameof(PurchaseReturnOverviewModel.OtherChargesAmount)" />
+								<GridColumnAggregate Field="@nameof(PurchaseReturnOverviewModel.CashDiscountAmount)" CustomColor="grid-debit" />
+								<GridColumnAggregate Field="@nameof(PurchaseReturnOverviewModel.RoundOffAmount)" />
+								<GridColumnAggregate Field="@nameof(PurchaseReturnOverviewModel.TotalAmount)" CustomColor="grid-total" />
+							</GridAggregateColumns>
+						</GridAggregate>
+					</GridAggregates>
 
-						<GridColumns>
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TransactionNo)" HeaderText="Transaction No" Width="200" Visible="@(!_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CompanyName)" HeaderText="Company" Width="200" Visible="@(!_showSummary && (_showAllColumns || _selectedCompany is null || _selectedCompany.Id <= 0))" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TransactionDateTime)" HeaderText="Date" Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(!_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.FinancialYear)" HeaderText="Financial Year" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.ChallanNo)" HeaderText="Challan No" Width="170" Visible="@(!_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.PartyName)" HeaderText="Party" Width="200" Visible="@(_showAllColumns || _selectedParty is null || _selectedParty.Id <= 0)" />
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(PurchaseReturnOverviewModel.TransactionNo)" HeaderText="Transaction No" Visible="@(!_showSummary)" />
+						<CustomGridColumn Field="@nameof(PurchaseReturnOverviewModel.CompanyName)" HeaderText="Company" Visible="@(!_showSummary && (_showAllColumns || _selectedCompany is null || _selectedCompany.Id <= 0))" />
+						<CustomGridColumn Field="@nameof(PurchaseReturnOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(!_showSummary)" />
+						<CustomGridColumn Field="@nameof(PurchaseReturnOverviewModel.FinancialYear)" HeaderText="Financial Year" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(PurchaseReturnOverviewModel.ChallanNo)" HeaderText="Challan No" Visible="@(!_showSummary)" />
+						<CustomGridColumn Field="@nameof(PurchaseReturnOverviewModel.PartyName)" HeaderText="Party" Visible="@(!_showSummary && (_showAllColumns || _selectedParty is null || _selectedParty.Id <= 0))" />
 
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalItems)" HeaderText="Items" Width="100" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalQuantity)" HeaderText="Quantity" Width="120" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.BaseTotal)" HeaderText="Base Total" Width="130" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.ItemDiscountAmount)" HeaderText="Disc" Width="130" TextAlign="TextAlign.Right" Visible="_showAllColumns">
-								<Template>
-									@{
-										var item = (context as dynamic);
-										<span class="grid-debit">@item.ItemDiscountAmount.ToString("N2")</span>
-									}
-								</Template>
-							</GridColumn>
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAfterItemDiscount)" HeaderText="After Disc" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalInclusiveTaxAmount)" HeaderText="Incl. Tax" Width="120" Format="N2" TextAlign="TextAlign.Center" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalExtraTaxAmount)" HeaderText="Extra Tax" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAfterTax)" HeaderText="Sub Total" Width="150" Format="N2" TextAlign="TextAlign.Right" />
+						<CustomGridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalItems)" HeaderText="Items" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalQuantity)" HeaderText="Quantity" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(PurchaseReturnOverviewModel.BaseTotal)" HeaderText="Base Total" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(PurchaseReturnOverviewModel.ItemDiscountAmount)" HeaderText="Disc" Visible="_showAllColumns" CustomColor="grid-debit" />
 
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.OtherChargesPercent)" HeaderText="Other Charges %" Width="200" Format="N2" TextAlign="TextAlign.Center" Visible="@(!_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.OtherChargesAmount)" HeaderText="Other Charges" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CashDiscountPercent)" HeaderText="Cash Disc %" Width="150" Format="N2" TextAlign="TextAlign.Center" Visible="@(!_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CashDiscountAmount)" HeaderText="Cash Disc" Width="140" TextAlign="TextAlign.Right" Visible="_showAllColumns">
-								<Template>
-									@{
-										var item = (context as dynamic);
-										<span class="grid-debit">@item.CashDiscountAmount.ToString("N2")</span>
-									}
-								</Template>
-							</GridColumn>
+						<CustomGridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAfterItemDiscount)" HeaderText="After Disc" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalInclusiveTaxAmount)" HeaderText="Incl. Tax" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalExtraTaxAmount)" HeaderText="Extra Tax" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAfterTax)" HeaderText="Sub Total" NumericColumn="true" />
 
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.RoundOffAmount)" HeaderText="Round Off" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAmount)" HeaderText="Total" Width="150" TextAlign="TextAlign.Right">
-								<Template>
-									@{
-										var item = (context as dynamic);
-										<span class="grid-total">@item.TotalAmount.ToString("N2")</span>
-									}
-								</Template>
-							</GridColumn>
+						<CustomGridColumn Field="@nameof(PurchaseReturnOverviewModel.OtherChargesPercent)" HeaderText="Other Charges %" Visible="@(!_showSummary)" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(PurchaseReturnOverviewModel.OtherChargesAmount)" HeaderText="Other Charges" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(PurchaseReturnOverviewModel.CashDiscountPercent)" HeaderText="Cash Disc %" Visible="@(!_showSummary)" CustomColor="grid-debit" />
+						<CustomGridColumn Field="@nameof(PurchaseReturnOverviewModel.CashDiscountAmount)" HeaderText="Cash Disc" CustomColor="grid-debit" />
 
+						<CustomGridColumn Field="@nameof(PurchaseReturnOverviewModel.RoundOffAmount)" HeaderText="Round Off" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(PurchaseReturnOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
 
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.Remarks)" HeaderText="Remarks" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.Status)" HeaderText="Status" Width="110" Visible="@(_showDeleted && !_showSummary)" TextAlign="TextAlign.Center">
-								<Template>
-									@{
-										var item = (context as dynamic);
-										<span class="@(item.Status ? string.Empty : "grid-debit")">@(item.Status ? "Active" : "Deleted")</span>
-									}
-								</Template>
-							</GridColumn>
-
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Transaction No" Width="250" Visible="@(_showAllColumns && !_showSummary)" />
-
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CreatedByName)" HeaderText="Created By" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CreatedAt)" HeaderText="Created At" Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.CreatedFromPlatform)" HeaderText="Created Platform" Width="300" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.LastModifiedAt)" HeaderText="Modified At" Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(PurchaseReturnOverviewModel.LastModifiedFromPlatform)" HeaderText="Modified Platform" Width="300" Visible="@(_showAllColumns && !_showSummary)" />
-						</GridColumns>
-					</SfGrid>
-				</div>
+						<CustomGridColumn Field="@nameof(PurchaseReturnOverviewModel.Remarks)" HeaderText="Remarks" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(PurchaseReturnOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Transaction No" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(PurchaseReturnOverviewModel.CreatedByName)" HeaderText="Created By" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(PurchaseReturnOverviewModel.CreatedAt)" HeaderText="Created At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(PurchaseReturnOverviewModel.CreatedFromPlatform)" HeaderText="Created Platform" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(PurchaseReturnOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(PurchaseReturnOverviewModel.LastModifiedAt)" HeaderText="Modified At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(PurchaseReturnOverviewModel.LastModifiedFromPlatform)" HeaderText="Modified Platform" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(PurchaseReturnOverviewModel.Status)" Visible="@(_showDeleted && !_showSummary)" StatusColumn="true" />
+					</GridColumns>
+				</SfGrid>
 			</div>
 		</div>
 

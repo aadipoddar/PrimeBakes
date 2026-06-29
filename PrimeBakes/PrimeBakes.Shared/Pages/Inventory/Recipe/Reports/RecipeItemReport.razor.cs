@@ -42,7 +42,7 @@ public partial class RecipeItemReport : IAsyncDisposable
 
 	private readonly List<ContextMenuItemModel> _gridContextMenuItems =
 	[
-		new() { Text = "View Recipe (Alt + O)", Id = "View", IconCss = "e-icons e-edit", Target = ".e-content" },
+		new() { Text = "View Recipe (Alt + O)", Id = "View", IconCss = "e-icons e-eye", Target = ".e-content" },
 		new() { Text = "Export PDF (Alt + P)", Id = "ExportPDF", IconCss = "e-icons e-export-pdf", Target = ".e-content" },
 		new() { Text = "Export Excel (Alt + E)", Id = "ExportExcel", IconCss = "e-icons e-export-excel", Target = ".e-content" },
 		new() { Text = "Delete (Del)", Id = "DeleteTransaction", IconCss = "e-icons e-trash", Target = ".e-content" }

@@ -104,13 +104,13 @@ else
 
 						<!-- Discount -->
 						<div class="form-field">
-								<CustomNumericField T="decimal"
-													@bind-Value="_kitchenProductionDiscountPercentage"
-													Label="Discount %"
-													Placeholder="0.00"
-													Required="false"
-													Min="0"
-													Max="100" />
+							<CustomNumericField T="decimal"
+												@bind-Value="_kitchenProductionDiscountPercentage"
+												Label="Discount %"
+												Placeholder="0.00"
+												Required="false"
+												Min="0"
+												Max="100" />
 						</div>
 
 						<!-- Remarks -->
@@ -194,71 +194,33 @@ else
 					<h2 class="section-title">Cart</h2>
 				</div>
 
-				<div class="section-body grid-body">
-					<SfGrid ID="_sfCartGrid" @ref="_sfCartGrid" DataSource="_cart"
-							AllowSorting="true" AllowResizing="true"
-							AllowFiltering="true" AllowReordering="true" ShowColumnChooser="true"
-							GridLines="GridLine.Horizontal" ContextMenuItems="@_cartGridContextMenuItems" CssClass="professional-grid"
-							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+				<SfGrid ID="_sfCartGrid" @ref="_sfCartGrid" DataSource="_cart"
+						AllowSorting="true" AllowResizing="true"
+						AllowFiltering="true" AllowReordering="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal" ContextMenuItems="@_cartGridContextMenuItems"
+						Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
-						<GridEvents TValue="KitchenProductionProductCartModel" ContextMenuItemClicked="OnCartGridContextMenuItemClicked" />
-						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+					<GridEvents TValue="KitchenProductionProductCartModel" ContextMenuItemClicked="OnCartGridContextMenuItemClicked" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
-						<GridAggregates>
-							<GridAggregate>
-								<GridAggregateColumns>
-									<GridAggregateColumn Field="@nameof(KitchenProductionProductCartModel.ProductName)" Type="AggregateType.Count">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-											}
-											<div class="aggregate-label">
-												<strong>Total Items: @aggregate.Count</strong>
-											</div>
-										</FooterTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(KitchenProductionProductCartModel.Quantity)" Type="AggregateType.Sum">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
-											}
-											<div class="aggregate-value">
-												<strong>@sum.ToString("N2")</strong>
-											</div>
-										</FooterTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(KitchenProductionProductCartModel.Total)" Type="AggregateType.Sum">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
-											}
-											<div class="aggregate-value aggregate-total">
-												<strong>@sum.ToString("N2")</strong>
-											</div>
-										</FooterTemplate>
-									</GridAggregateColumn>
-								</GridAggregateColumns>
-							</GridAggregate>
-						</GridAggregates>
+					<GridAggregates>
+						<GridAggregate>
+							<GridAggregateColumns>
+								<GridColumnAggregate Field="@nameof(KitchenProductionProductCartModel.ProductName)" Type="AggregateType.Count" Format="N0" />
+								<GridColumnAggregate Field="@nameof(KitchenProductionProductCartModel.Quantity)" />
+								<GridColumnAggregate Field="@nameof(KitchenProductionProductCartModel.Total)" CustomColor="grid-total" />
+							</GridAggregateColumns>
+						</GridAggregate>
+					</GridAggregates>
 
-						<GridColumns>
-							<GridColumn Field="@nameof(KitchenProductionProductCartModel.ProductName)" HeaderText="Product Name" Width="200" />
-							<GridColumn Field="@nameof(KitchenProductionProductCartModel.Quantity)" HeaderText="Qty" Width="100" TextAlign="TextAlign.Right" Format="N2" />
-							<GridColumn Field="@nameof(KitchenProductionProductCartModel.Rate)" HeaderText="Rate" Width="110" TextAlign="TextAlign.Right" Format="N2" />
-							<GridColumn Field="@nameof(KitchenProductionProductCartModel.Total)" HeaderText="Total" Width="130" TextAlign="TextAlign.Right" Format="N2">
-								<Template>
-									@{
-										var item = (context as dynamic);
-										<span class="grid-total">@item.Total.ToString("N2")</span>
-									}
-								</Template>
-							</GridColumn>
-							<GridColumn Field="@nameof(KitchenProductionProductCartModel.Remarks)" HeaderText="Remarks" Width="150" />
-						</GridColumns>
-					</SfGrid>
-				</div>
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(KitchenProductionProductCartModel.ProductName)" HeaderText="Product Name" />
+						<CustomGridColumn Field="@nameof(KitchenProductionProductCartModel.Quantity)" HeaderText="Qty" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenProductionProductCartModel.Rate)" HeaderText="Rate" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenProductionProductCartModel.Total)" HeaderText="Total" TotalColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenProductionProductCartModel.Remarks)" HeaderText="Remarks" />
+					</GridColumns>
+				</SfGrid>
 			</div>
 		</div>
 

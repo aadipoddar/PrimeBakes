@@ -149,32 +149,32 @@ else
 						<h2 class="section-title">Location List</h2>
 					</div>
 
-					<div class="section-body grid-body">
-						<SfGrid @ref="_sfLocationGrid" DataSource="@_locations"
-								AllowPaging="true" AllowSorting="true" AllowResizing="true"
-								AllowFiltering="true" AllowReordering="true" ShowColumnChooser="true"
-								GridLines="GridLine.Horizontal" ContextMenuItems="@_locationGridContextMenuItems" CssClass="professional-grid"
-								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+					<SfGrid @ref="_sfLocationGrid" DataSource="@_locations"
+							AllowPaging="true" AllowSorting="true" AllowResizing="true"
+							AllowFiltering="true" AllowReordering="true" ShowColumnChooser="true"
+							GridLines="GridLine.Horizontal" ContextMenuItems="@_locationGridContextMenuItems"
+							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
-							<GridPageSettings PageSize="10" PageSizes="@(new string[] { "10", "20", "50", "All" })" />
-							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+						<GridPageSettings PageSize="10" PageSizes="@(new string[] { "10", "20", "50", "All" })" />
+						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
-							<GridColumns>
-								<GridColumn HeaderText="Actions" Width="80" TextAlign="TextAlign.Center" AllowFiltering="false">
-									<Template>
-										@{
-											var location = (context as dynamic);
-
-											<div class="grid-actions">
+						<GridColumns>
+							<CustomGridColumn>
+								<CustomTemplate>
+									<GridColumn HeaderText="Actions" TextAlign="TextAlign.Center" AllowFiltering="false" Width="50">
+										<Template>
+											@{
+												var location = (context as dynamic);
 												<IconButton Icon="IconType.Delete" Variant="ButtonVariant.Delete" Size="ButtonSize.Grid" Title="Remove Location" Disabled="_isProcessing" OnClick="@(() => RemoveLocation(location))" />
-											</div>
-										}
-									</Template>
-								</GridColumn>
-								<GridColumn Field="@nameof(LocationModel.Name)" HeaderText="Location Name" />
-							</GridColumns>
-						</SfGrid>
-					</div>
+											}
+										</Template>
+									</GridColumn>
+								</CustomTemplate>
+							</CustomGridColumn>
+
+							<CustomGridColumn Field="@nameof(LocationModel.Name)" HeaderText="Location Name" />
+						</GridColumns>
+					</SfGrid>
 				</div>
 
 			</div>
@@ -184,63 +184,71 @@ else
 					<h2 class="section-title">Master List</h2>
 				</div>
 
-				<div class="section-body grid-body">
-					<SfGrid @ref="_sfGrid" DataSource="@_products"
-							AllowPaging="true" AllowSorting="true" AllowResizing="true"
-							AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
-							GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems" CssClass="professional-grid"
-							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+				<SfGrid @ref="_sfGrid" DataSource="@_products"
+						AllowPaging="true" AllowSorting="true" AllowResizing="true"
+						AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+						Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
-						<GridEvents TValue="ProductModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
-						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
-						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+					<GridEvents TValue="ProductModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
-						<GridColumns>
-							<GridColumn Field="@nameof(ProductModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" />
-							<GridColumn Field="@nameof(ProductModel.Name)" HeaderText="Name" Width="200" />
-							<GridColumn Field="@nameof(ProductModel.Code)" HeaderText="Code" Width="120" />
-							<GridColumn HeaderText="Category" Width="200">
-								<Template>
-									@{
-										var product = (context as ProductModel);
-										var category = _categories.FirstOrDefault(c => c.Id == product.ProductCategoryId);
-										<span>@(category?.Name ?? "N/A")</span>
-									}
-								</Template>
-							</GridColumn>
-							<GridColumn HeaderText="KOT Category" Width="150">
-								<Template>
-									@{
-										var product = (context as ProductModel);
-										var kotCategory = _kotCategories.FirstOrDefault(c => c.Id == product.KOTCategoryId);
-										<span>@(kotCategory?.Name ?? "N/A")</span>
-									}
-								</Template>
-							</GridColumn>
-							<GridColumn Field="@nameof(ProductModel.Rate)" HeaderText="Rate" Width="120" TextAlign="TextAlign.Right" Format="N2" />
-							<GridColumn HeaderText="Tax" Width="120">
-								<Template>
-									@{
-										var product = (context as ProductModel);
-										var tax = _taxes.FirstOrDefault(t => t.Id == product.TaxId);
-										<span>@(tax?.Code ?? "N/A")</span>
-									}
-								</Template>
-							</GridColumn>
-							<GridColumn Field="@nameof(ProductModel.FoodType)" HeaderText="Food Type" Width="120" />
-							<GridColumn Field="@nameof(ProductModel.ShowInMenu)" HeaderText="Show inap Menu" Width="100" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
-							<GridColumn Field="@nameof(ProductModel.Remarks)" HeaderText="Remarks" Width="250" />
-							<GridColumn Field="@nameof(ProductModel.Status)" HeaderText="Status" Width="110" TextAlign="TextAlign.Center" Visible="_showDeleted">
-								<Template>
-									@{
-										var product = (context as ProductModel);
-										<span class="@(product.Status ? string.Empty : "grid-debit")">@(product.Status ? "Active" : "Deleted")</span>
-									}
-								</Template>
-							</GridColumn>
-						</GridColumns>
-					</SfGrid>
-				</div>
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(ProductModel.Id)" HeaderText="ID" Width="100" TextAlign="TextAlign.Center" />
+						<CustomGridColumn Field="@nameof(ProductModel.Name)" HeaderText="Name" />
+						<CustomGridColumn Field="@nameof(ProductModel.Code)" HeaderText="Code" />
+
+						<CustomGridColumn>
+							<CustomTemplate>
+								<GridColumn Field="@nameof(ProductModel.ProductCategoryId)" HeaderText="Category" Width="200">
+									<Template>
+										@{
+											var product = (context as ProductModel);
+											var category = _categories.FirstOrDefault(c => c.Id == product.ProductCategoryId);
+											<span>@(category?.Name ?? "-")</span>
+										}
+									</Template>
+								</GridColumn>
+							</CustomTemplate>
+						</CustomGridColumn>
+
+						<CustomGridColumn>
+							<CustomTemplate>
+								<GridColumn Field="@nameof(ProductModel.KOTCategoryId)" HeaderText="KOT Category" Width="200">
+									<Template>
+										@{
+											var product = (context as ProductModel);
+											var kotCategory = _kotCategories.FirstOrDefault(c => c.Id == product.KOTCategoryId);
+											<span>@(kotCategory?.Name ?? "-")</span>
+										}
+									</Template>
+								</GridColumn>
+							</CustomTemplate>
+						</CustomGridColumn>
+
+						<CustomGridColumn Field="@nameof(ProductModel.Rate)" HeaderText="Rate" NumericColumn="true" />
+
+						<CustomGridColumn>
+							<CustomTemplate>
+								<GridColumn Field="@nameof(ProductModel.TaxId)" HeaderText="Tax" Width="200">
+									<Template>
+										@{
+											var product = (context as ProductModel);
+											var tax = _taxes.FirstOrDefault(t => t.Id == product.TaxId);
+											<span>@(tax?.Code ?? "-")</span>
+										}
+									</Template>
+								</GridColumn>
+							</CustomTemplate>
+						</CustomGridColumn>
+
+						<CustomGridColumn Field="@nameof(ProductModel.FoodType)" HeaderText="Food Type" />
+						<CustomGridColumn Field="@nameof(ProductModel.ShowInMenu)" HeaderText="Show in Menu" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
+						<CustomGridColumn Field="@nameof(ProductModel.Remarks)" HeaderText="Remarks" />
+						<CustomGridColumn Field="@nameof(ProductModel.Status)" Visible="_showDeleted" StatusColumn="true" />
+					</GridColumns>
+				</SfGrid>
 			</div>
 		</div>
 

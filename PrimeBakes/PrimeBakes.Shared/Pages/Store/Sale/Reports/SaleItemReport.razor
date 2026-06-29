@@ -178,403 +178,105 @@ else
 					<h2 class="section-title">Records</h2>
 				</div>
 
-				<div class="section-body grid-body">
-					<SfGrid @ref="_sfGrid" TValue="SaleItemOverviewModel" DataSource="_transactionOverviews"
-							AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
-							AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
-							GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems" CssClass="professional-grid"
-							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+				<SfGrid @ref="_sfGrid" TValue="SaleItemOverviewModel" DataSource="_transactionOverviews"
+						AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+						AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+						Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
-						<GridEvents TValue="SaleItemOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
-						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
-						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+					<GridEvents TValue="SaleItemOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
-						<GridAggregates>
-							<GridAggregate>
-								<GridAggregateColumns>
-									<GridAggregateColumn Field="@nameof(SaleItemOverviewModel.ItemName)" Type="AggregateType.Count">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-											}
-											<div class="aggregate-label">
-												<strong>Total Items: @aggregate.Count</strong>
-											</div>
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-											}
-											<div class="aggregate-label">
-												<strong>Total Items: @aggregate.Count</strong>
-											</div>
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-											}
-											<div class="aggregate-label">
-												<strong>Total Items: @aggregate.Count</strong>
-											</div>
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(SaleItemOverviewModel.Quantity)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(SaleItemOverviewModel.ItemBaseTotal)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(SaleItemOverviewModel.DiscountAmount)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-debit">
-													<strong>@aggregate.Sum</strong>
-												</div>
-											}
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-debit">
-													<strong>@aggregate.Sum</strong>
-												</div>
-											}
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-debit">
-													<strong>@aggregate.Sum</strong>
-												</div>
-											}
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(SaleItemOverviewModel.AfterDiscount)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(SaleItemOverviewModel.SGSTAmount)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(SaleItemOverviewModel.CGSTAmount)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(SaleItemOverviewModel.IGSTAmount)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(SaleItemOverviewModel.TotalTaxAmount)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div><strong>@aggregate.Sum</strong></div>
-											}
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(SaleItemOverviewModel.Total)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-total">
-													<strong>@aggregate.Sum</strong>
-												</div>
-											}
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-total">
-													<strong>@aggregate.Sum</strong>
-												</div>
-											}
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-total">
-													<strong>@aggregate.Sum</strong>
-												</div>
-											}
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(SaleItemOverviewModel.NetTotal)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-total">
-													<strong>@aggregate.Sum</strong>
-												</div>
-											}
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-total">
-													<strong>@aggregate.Sum</strong>
-												</div>
-											}
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												<div class="aggregate-value aggregate-total">
-													<strong>@aggregate.Sum</strong>
-												</div>
-											}
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-								</GridAggregateColumns>
-							</GridAggregate>
-						</GridAggregates>
+					<GridAggregates>
+						<GridAggregate>
+							<GridAggregateColumns>
+								<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.ItemName)" Type="AggregateType.Count" Format="N0" />
+								<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.Quantity)" />
+								<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.ItemBaseTotal)" />
+								<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.DiscountAmount)" CustomColor="grid-debit" />
+								<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.AfterDiscount)" />
+								<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.SGSTAmount)" />
+								<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.CGSTAmount)" />
+								<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.IGSTAmount)" />
+								<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.TotalTaxAmount)" />
+								<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.Total)" CustomColor="grid-total" />
+								<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.NetTotal)" />
+							</GridAggregateColumns>
+						</GridAggregate>
+					</GridAggregates>
 
-						<GridColumns>
-							<GridColumn Field="@nameof(SaleItemOverviewModel.ItemName)" HeaderText="Item" Width="200" Visible="@(_showAllColumns || _selectedProduct is null || _selectedProduct.Id <= 0)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.ItemCode)" HeaderText="Code" Width="130" Visible="@_showAllColumns" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.ItemCategoryName)" HeaderText="Category" Width="200" Visible="@(_selectedProductCategory is null || _selectedProductCategory.Id <= 0)" />
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.ItemName)" HeaderText="Item" Visible="@(_showAllColumns || _selectedProduct is null || _selectedProduct.Id <= 0)" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.ItemCode)" HeaderText="Code" Visible="@_showAllColumns" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.ItemCategoryName)" HeaderText="Category" Visible="@(_selectedProductCategory is null || _selectedProductCategory.Id <= 0)" />
 
-							<GridColumn Field="@nameof(SaleItemOverviewModel.Quantity)" HeaderText="Qty" Width="120" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.Rate)" HeaderText="Rate" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="@(!_showSummary)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.ItemBaseTotal)" HeaderText="Base Total" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="@_showAllColumns" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.DiscountPercent)" HeaderText="Disc %" Width="120" Format="N2" TextAlign="TextAlign.Center" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.DiscountAmount)" HeaderText="Disc" Width="130" TextAlign="TextAlign.Right" Visible="@_showAllColumns">
-								<Template>
-									@{
-										var detailItem = (context as SaleItemOverviewModel);
-										<span class="grid-debit">@detailItem.DiscountAmount.ToString("N2")</span>
-									}
-								</Template>
-							</GridColumn>
-							<GridColumn Field="@nameof(SaleItemOverviewModel.AfterDiscount)" HeaderText="After Disc" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="@_showAllColumns" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.SGSTPercent)" HeaderText="SGST %" Width="120" Format="N2" TextAlign="TextAlign.Center" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.SGSTAmount)" HeaderText="SGST" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="@_showAllColumns" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.CGSTPercent)" HeaderText="CGST %" Width="120" Format="N2" TextAlign="TextAlign.Center" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.CGSTAmount)" HeaderText="CGST" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="@_showAllColumns" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.IGSTPercent)" HeaderText="IGST %" Width="120" Format="N2" TextAlign="TextAlign.Center" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.IGSTAmount)" HeaderText="IGST" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="@_showAllColumns" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.TotalTaxAmount)" HeaderText="Tax Amt" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="@_showAllColumns" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.InclusiveTax)" HeaderText="Tax Incl." Width="150" TextAlign="TextAlign.Center" Visible="@(_showAllColumns && !_showSummary)" DisplayAsCheckBox="true" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.Quantity)" HeaderText="Qty" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.Rate)" HeaderText="Rate" Visible="@(!_showSummary)" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.ItemBaseTotal)" HeaderText="Base Total" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.DiscountPercent)" HeaderText="Disc %" Visible="@(_showAllColumns && !_showSummary)" CustomColor="grid-debit" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.DiscountAmount)" HeaderText="Disc" Visible="@_showAllColumns" CustomColor="grid-debit" />
 
-							<GridColumn Field="@nameof(SaleItemOverviewModel.Total)" HeaderText="Total" Width="150" TextAlign="TextAlign.Right" Visible="@_showAllColumns" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.NetRate)" HeaderText="Net Rate" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.NetTotal)" HeaderText="Net Total" Width="150" TextAlign="TextAlign.Right">
-								<Template>
-									@{
-										var detailItem = (context as SaleItemOverviewModel);
-										<span class="grid-total">@detailItem.NetTotal.ToString("N2")</span>
-									}
-								</Template>
-							</GridColumn>
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.AfterDiscount)" HeaderText="After Disc" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.SGSTPercent)" HeaderText="SGST %" Visible="@(_showAllColumns && !_showSummary)" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.SGSTAmount)" HeaderText="SGST" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.CGSTPercent)" HeaderText="CGST %" Visible="@(_showAllColumns && !_showSummary)" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.CGSTAmount)" HeaderText="CGST" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.IGSTPercent)" HeaderText="IGST %" Visible="@(_showAllColumns && !_showSummary)" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.IGSTAmount)" HeaderText="IGST" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.TotalTaxAmount)" HeaderText="Tax Amt" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.InclusiveTax)" HeaderText="Tax Incl." TextAlign="TextAlign.Center" Visible="@(_showAllColumns && !_showSummary)" DisplayAsCheckBox="true" />
 
-							<GridColumn Field="@nameof(SaleItemOverviewModel.ItemRemarks)" HeaderText="Item Remarks" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.Total)" HeaderText="Total" Visible="@_showAllColumns" TotalColumn="true" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.NetRate)" HeaderText="Net Rate" Visible="@(_showAllColumns && !_showSummary)" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.NetTotal)" HeaderText="Net Total" TotalColumn="true" />
 
-							<GridColumn Field="@nameof(SaleItemOverviewModel.TransactionNo)" HeaderText="Transaction No" Width="200" Visible="@(!_showSummary)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.TransactionDateTime)" HeaderText="Date" Width="150" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(!_showSummary)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.LocationName)" HeaderText="Location" Width="200" Visible="@(_selectedLocation is null || _selectedLocation.Id <= 0)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.CompanyName)" HeaderText="Company" Width="200" Visible="@(_showAllColumns && !_showSummary && (_selectedCompany is null || _selectedCompany.Id <= 0))" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.PartyName)" HeaderText="Party" Width="200" Visible="@(_user.LocationId == 1 && !_showSummary && (_selectedParty is null || _selectedParty.Id <= 0))" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.CustomerName)" HeaderText="Customer" Width="180" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.OrderTransactionNo)" HeaderText="Order No" Width="200" Visible="@(!_showSummary)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.FinancialYear)" HeaderText="Financial Year" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.TotalItems)" HeaderText="Items" Width="100" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.TotalQuantity)" HeaderText="Qty" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.BaseTotal)" HeaderText="Base Total" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.ItemDiscountAmount)" HeaderText="Item Disc" Width="130" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)">
-								<Template>
-									@{
-										var item = (context as dynamic);
-										<span class="grid-debit">@item.ItemDiscountAmount.ToString("N2")</span>
-									}
-								</Template>
-							</GridColumn>
-							<GridColumn Field="@nameof(SaleItemOverviewModel.TotalAfterItemDiscount)" HeaderText="After Disc" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.TotalInclusiveTaxAmount)" HeaderText="Incl Tax" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.TotalExtraTaxAmount)" HeaderText="Extra Tax" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.TotalAfterTax)" HeaderText="Sub Total" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.OtherChargesPercent)" HeaderText="Other Charges %" Width="200" Format="N2" TextAlign="TextAlign.Center" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.OtherChargesAmount)" HeaderText="Other Charges" Width="200" Format="N2" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.SaleDiscountPercent)" HeaderText="Sale Disc %" Width="130" Format="N2" TextAlign="TextAlign.Center" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.SaleDiscountAmount)" HeaderText="Sale Disc" Width="130" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)">
-								<Template>
-									@{
-										var item = (context as dynamic);
-										<span class="grid-debit">@item.SaleDiscountAmount.ToString("N2")</span>
-									}
-								</Template>
-							</GridColumn>
-							<GridColumn Field="@nameof(SaleItemOverviewModel.RoundOffAmount)" HeaderText="Round Off" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.TotalAmount)" HeaderText="Total" Width="150" TextAlign="TextAlign.Right" Visible="@(!_showSummary)">
-								<Template>
-									@{
-										var item = (context as dynamic);
-										<span class="grid-total">@item.TotalAmount.ToString("N2")</span>
-									}
-								</Template>
-							</GridColumn>
-							<GridColumn Field="@nameof(SaleItemOverviewModel.Cash)" HeaderText="Cash" Width="150" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)">
-								<Template>
-									@{
-										var item = (context as dynamic);
-										<span class="grid-total">@item.Cash.ToString("N2")</span>
-									}
-								</Template>
-							</GridColumn>
-							<GridColumn Field="@nameof(SaleItemOverviewModel.UPI)" HeaderText="UPI" Width="150" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)">
-								<Template>
-									@{
-										var item = (context as dynamic);
-										<span class="grid-total">@item.UPI.ToString("N2")</span>
-									}
-								</Template>
-							</GridColumn>
-							<GridColumn Field="@nameof(SaleItemOverviewModel.Card)" HeaderText="Card" Width="150" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)">
-								<Template>
-									@{
-										var item = (context as dynamic);
-										<span class="grid-total">@item.Card.ToString("N2")</span>
-									}
-								</Template>
-							</GridColumn>
-							<GridColumn Field="@nameof(SaleItemOverviewModel.Credit)" HeaderText="Credit" Width="150" TextAlign="TextAlign.Right" Visible="@(_showAllColumns && !_showSummary)">
-								<Template>
-									@{
-										var item = (context as dynamic);
-										<span class="grid-total">@item.Credit.ToString("N2")</span>
-									}
-								</Template>
-							</GridColumn>
-							<GridColumn Field="@nameof(SaleItemOverviewModel.MasterStatus)" HeaderText="Status" Width="110" Visible="@(_showDeleted && !_showSummary)" TextAlign="TextAlign.Center">
-								<Template>
-									@{
-										var item = (context as dynamic);
-										<span class="@(item.MasterStatus ? string.Empty : "grid-debit")">@(item.MasterStatus ? "Active" : "Deleted")</span>
-									}
-								</Template>
-							</GridColumn>
-							<GridColumn Field="@nameof(SaleItemOverviewModel.PaymentModes)" HeaderText="Payment Modes" Width="180" Visible="@(!_showSummary)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.Remarks)" HeaderText="Remarks" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Transaction No" Width="250" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.CreatedByName)" HeaderText="Created By" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.CreatedAt)" HeaderText="Created At" Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.CreatedFromPlatform)" HeaderText="Created Platform" Width="200" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Width="150" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.LastModifiedAt)" HeaderText="Modified At" Width="160" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
-							<GridColumn Field="@nameof(SaleItemOverviewModel.LastModifiedFromPlatform)" HeaderText="Modified Platform" Width="300" Visible="@(_showAllColumns && !_showSummary)" />
-						</GridColumns>
-					</SfGrid>
-				</div>
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.ItemRemarks)" HeaderText="Item Remarks" Visible="@(_showAllColumns && !_showSummary)" />
+
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.TransactionNo)" HeaderText="Transaction No" Visible="@(!_showSummary)" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(!_showSummary)" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.LocationName)" HeaderText="Location" Visible="@(_selectedLocation is null || _selectedLocation.Id <= 0)" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.CompanyName)" HeaderText="Company" Visible="@(_showAllColumns && !_showSummary && (_selectedCompany is null || _selectedCompany.Id <= 0))" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.PartyName)" HeaderText="Party" Visible="@(_user.LocationId == 1 && !_showSummary && (_selectedParty is null || _selectedParty.Id <= 0))" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.CustomerName)" HeaderText="Customer" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.OrderTransactionNo)" HeaderText="Order No" Visible="@(!_showSummary)" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.FinancialYear)" HeaderText="Financial Year" Visible="@(_showAllColumns && !_showSummary)" />
+
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.TotalItems)" HeaderText="Items" Visible="@(_showAllColumns && !_showSummary)" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.TotalQuantity)" HeaderText="Qty" Visible="@(_showAllColumns && !_showSummary)" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.BaseTotal)" HeaderText="Base Total" Visible="@(_showAllColumns && !_showSummary)" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.ItemDiscountAmount)" HeaderText="Item Disc" Visible="@(_showAllColumns && !_showSummary)" CustomColor="grid-debit" />
+
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.TotalAfterItemDiscount)" HeaderText="After Disc" Visible="@(_showAllColumns && !_showSummary)" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.TotalInclusiveTaxAmount)" HeaderText="Incl Tax" Visible="@(_showAllColumns && !_showSummary)" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.TotalExtraTaxAmount)" HeaderText="Extra Tax" Visible="@(_showAllColumns && !_showSummary)" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.TotalAfterTax)" HeaderText="Sub Total" Visible="@(_showAllColumns && !_showSummary)" NumericColumn="true" />
+
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.OtherChargesPercent)" HeaderText="Other Charge %" Visible="@(_showAllColumns && !_showSummary)" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.OtherChargesAmount)" HeaderText="Other Charge" Visible="@(_showAllColumns && !_showSummary)" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.SaleDiscountPercent)" HeaderText="Sale Disc %" Visible="@(_showAllColumns && !_showSummary)" CustomColor="grid-debit" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.SaleDiscountAmount)" HeaderText="Sale Disc" Visible="@(_showAllColumns && !_showSummary)" CustomColor="grid-debit" />
+
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.RoundOffAmount)" HeaderText="Round Off" Visible="@(_showAllColumns && !_showSummary)" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.TotalAmount)" HeaderText="Total" Visible="@(!_showSummary)" TotalColumn="true" />
+
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.PaymentModes)" HeaderText="Payment Modes" Visible="@(!_showSummary)" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.Cash)" HeaderText="Cash" Visible="@(_showAllColumns && !_showSummary)" TotalColumn="true" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.UPI)" HeaderText="UPI" Visible="@(_showAllColumns && !_showSummary)" TotalColumn="true" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.Card)" HeaderText="Card" Visible="@(_showAllColumns && !_showSummary)" TotalColumn="true" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.Credit)" HeaderText="Credit" Visible="@(_showAllColumns && !_showSummary)" TotalColumn="true" />
+
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.Remarks)" HeaderText="Remarks" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Transaction No" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.CreatedByName)" HeaderText="Created By" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.CreatedAt)" HeaderText="Created At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.CreatedFromPlatform)" HeaderText="Created Platform" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.LastModifiedAt)" HeaderText="Modified At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.LastModifiedFromPlatform)" HeaderText="Modified Platform" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.MasterStatus)" Visible="@(_showDeleted && !_showSummary)" StatusColumn="true" />
+					</GridColumns>
+				</SfGrid>
 			</div>
 		</div>
 

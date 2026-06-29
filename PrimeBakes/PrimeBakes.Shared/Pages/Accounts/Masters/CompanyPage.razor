@@ -136,40 +136,31 @@ else
 					<h2 class="section-title">Master List</h2>
 				</div>
 
-				<div class="section-body grid-body">
-					<SfGrid @ref="_sfGrid" DataSource="@_companies"
-							AllowPaging="true" AllowSorting="true" AllowResizing="true"
-							AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
-							GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems" CssClass="professional-grid"
-							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+				<SfGrid @ref="_sfGrid" DataSource="@_companies"
+						AllowPaging="true" AllowSorting="true" AllowResizing="true"
+						AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+						Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
-						<GridEvents TValue="CompanyModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
-						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
-						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+					<GridEvents TValue="CompanyModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
-						<GridColumns>
-							<GridColumn Field="@nameof(CompanyModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" />
-							<GridColumn Field="@nameof(CompanyModel.Name)" HeaderText="Company Name" Width="250" />
-							<GridColumn Field="@nameof(CompanyModel.Alias)" HeaderText="Alias" Width="150" />
-							<GridColumn Field="@nameof(CompanyModel.Code)" HeaderText="Code" Width="120" />
-							<GridColumn Field="@nameof(CompanyModel.Phone)" HeaderText="Phone" Width="150" />
-							<GridColumn Field="@nameof(CompanyModel.Email)" HeaderText="Email" Width="150" />
-							<GridColumn Field="@nameof(CompanyModel.GSTNo)" HeaderText="GST No" Width="150" />
-							<GridColumn Field="@nameof(CompanyModel.CINNo)" HeaderText="CIN No" Width="150" />
-							<GridColumn Field="@nameof(CompanyModel.PANNo)" HeaderText="PAN No" Width="150" />
-							<GridColumn Field="@nameof(CompanyModel.Address)" HeaderText="Address" Width="200" />
-							<GridColumn Field="@nameof(CompanyModel.Remarks)" HeaderText="Remarks" Width="200" />
-							<GridColumn Field="@nameof(CompanyModel.Status)" HeaderText="Status" Width="110" TextAlign="TextAlign.Center" Visible="_showDeleted">
-								<Template>
-									@{
-										var item = (context as CompanyModel);
-										<span class="@(item.Status ? string.Empty : "grid-debit")">@(item.Status ? "Active" : "Deleted")</span>
-									}
-								</Template>
-							</GridColumn>
-						</GridColumns>
-					</SfGrid>
-				</div>
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(CompanyModel.Id)" HeaderText="ID" Width="100" TextAlign="TextAlign.Center" />
+						<CustomGridColumn Field="@nameof(CompanyModel.Name)" HeaderText="Company Name" />
+						<CustomGridColumn Field="@nameof(CompanyModel.Alias)" HeaderText="Alias" />
+						<CustomGridColumn Field="@nameof(CompanyModel.Code)" HeaderText="Code" />
+						<CustomGridColumn Field="@nameof(CompanyModel.Phone)" HeaderText="Phone" />
+						<CustomGridColumn Field="@nameof(CompanyModel.Email)" HeaderText="Email" />
+						<CustomGridColumn Field="@nameof(CompanyModel.GSTNo)" HeaderText="GST No" />
+						<CustomGridColumn Field="@nameof(CompanyModel.CINNo)" HeaderText="CIN No" />
+						<CustomGridColumn Field="@nameof(CompanyModel.PANNo)" HeaderText="PAN No" />
+						<CustomGridColumn Field="@nameof(CompanyModel.Address)" HeaderText="Address" />
+						<CustomGridColumn Field="@nameof(CompanyModel.Remarks)" HeaderText="Remarks" />
+						<CustomGridColumn Field="@nameof(CompanyModel.Status)" Visible="_showDeleted" StatusColumn="true" />
+					</GridColumns>
+				</SfGrid>
 			</div>
 		</div>
 

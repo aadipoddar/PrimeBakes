@@ -153,82 +153,34 @@ else
 					<h2 class="section-title">Cart</h2>
 				</div>
 
-				<div class="section-body grid-body">
-					<SfGrid @ref="_sfCartGrid" DataSource="_cart"
-							AllowSorting="true" AllowResizing="true"
-							AllowFiltering="true" AllowReordering="true" ShowColumnChooser="true"
-							GridLines="GridLine.Horizontal" ContextMenuItems="@_cartGridContextMenuItems" CssClass="professional-grid"
-							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+				<SfGrid @ref="_sfCartGrid" DataSource="_cart"
+						AllowSorting="true" AllowResizing="true"
+						AllowFiltering="true" AllowReordering="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal" ContextMenuItems="@_cartGridContextMenuItems"
+						Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
-						<GridEvents TValue="ProductStockAdjustmentCartModel" ContextMenuItemClicked="OnCartGridContextMenuItemClicked" />
-						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+					<GridEvents TValue="ProductStockAdjustmentCartModel" ContextMenuItemClicked="OnCartGridContextMenuItemClicked" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
-						<GridAggregates>
-							<GridAggregate>
-								<GridAggregateColumns>
-									<GridAggregateColumn Field="@nameof(ProductStockAdjustmentCartModel.ProductName)" Type="AggregateType.Count">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-											}
-											<div class="aggregate-label">
-												<strong>Total Items: @aggregate.Count</strong>
-											</div>
-										</FooterTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(ProductStockAdjustmentCartModel.Stock)" Type="AggregateType.Sum">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
-											}
-											<div class="aggregate-value">
-												<strong>@sum.ToString("N2")</strong>
-											</div>
-										</FooterTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(ProductStockAdjustmentCartModel.Quantity)" Type="AggregateType.Sum">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
-											}
-											<div class="aggregate-value">
-												<strong>@sum.ToString("N2")</strong>
-											</div>
-										</FooterTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(ProductStockAdjustmentCartModel.Total)" Type="AggregateType.Sum">
-										<FooterTemplate>
-											@{
-												var aggregate = (context as AggregateTemplateContext);
-												var sum = aggregate.Sum != null ? Convert.ToDecimal(aggregate.Sum) : 0m;
-											}
-											<div class="aggregate-value aggregate-total">
-												<strong>@sum.ToString("N2")</strong>
-											</div>
-										</FooterTemplate>
-									</GridAggregateColumn>
-								</GridAggregateColumns>
-							</GridAggregate>
-						</GridAggregates>
+					<GridAggregates>
+						<GridAggregate>
+							<GridAggregateColumns>
+								<GridColumnAggregate Field="@nameof(ProductStockAdjustmentCartModel.ProductName)" Type="AggregateType.Count" Format="N0" />
+								<GridColumnAggregate Field="@nameof(ProductStockAdjustmentCartModel.Stock)" />
+								<GridColumnAggregate Field="@nameof(ProductStockAdjustmentCartModel.Quantity)" />
+								<GridColumnAggregate Field="@nameof(ProductStockAdjustmentCartModel.Total)" CustomColor="grid-total" />
+							</GridAggregateColumns>
+						</GridAggregate>
+					</GridAggregates>
 
-						<GridColumns>
-							<GridColumn Field="@nameof(ProductStockAdjustmentCartModel.ProductName)" HeaderText="Item Name" Width="250" />
-							<GridColumn Field="@nameof(ProductStockAdjustmentCartModel.Stock)" HeaderText="Current Stock" Width="130" TextAlign="TextAlign.Right" Format="N2" />
-							<GridColumn Field="@nameof(ProductStockAdjustmentCartModel.Quantity)" HeaderText="New Qty" Width="120" TextAlign="TextAlign.Right" Format="N2" />
-							<GridColumn Field="@nameof(ProductStockAdjustmentCartModel.Rate)" HeaderText="Rate" Width="110" TextAlign="TextAlign.Right" Format="N2" />
-							<GridColumn Field="@nameof(ProductStockAdjustmentCartModel.Total)" HeaderText="Total" Width="150" TextAlign="TextAlign.Right" Format="N2">
-								<Template>
-									@{
-										var item = (context as dynamic);
-										<span class="grid-total">@item.Total.ToString("N2")</span>
-									}
-								</Template>
-							</GridColumn>
-						</GridColumns>
-					</SfGrid>
-				</div>
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(ProductStockAdjustmentCartModel.ProductName)" HeaderText="Item Name" />
+						<CustomGridColumn Field="@nameof(ProductStockAdjustmentCartModel.Stock)" HeaderText="Current Stock" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockAdjustmentCartModel.Quantity)" HeaderText="New Qty" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockAdjustmentCartModel.Rate)" HeaderText="Rate" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockAdjustmentCartModel.Total)" HeaderText="Total" TotalColumn="true" />
+					</GridColumns>
+				</SfGrid>
 			</div>
 		</div>
 

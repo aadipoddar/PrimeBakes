@@ -81,403 +81,69 @@ else
 					<h2 class="section-title">Records</h2>
 				</div>
 
-				<div class="section-body grid-body">
-					<SfMediaQuery @bind-ActiveBreakpoint="activeBreakpoint" />
-					<SfGrid ID="_sfGrid" @ref="_sfGrid" TValue="OutletSummaryModel" DataSource="_outletSummaries"
-							AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
-							AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
-							EnableAdaptiveUI="true" AdaptiveUIMode="AdaptiveMode.Mobile"
-							RowRenderingMode="@(activeBreakpoint == "Small" ? RowDirection.Vertical : RowDirection.Horizontal)"
-							GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems" CssClass="professional-grid"
-							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+				<SfMediaQuery @bind-ActiveBreakpoint="activeBreakpoint" />
+				<SfGrid ID="_sfGrid" @ref="_sfGrid" TValue="OutletSummaryModel" DataSource="_outletSummaries"
+						AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+						AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+						EnableAdaptiveUI="true" AdaptiveUIMode="AdaptiveMode.Mobile"
+						RowRenderingMode="@(activeBreakpoint == "Small" ? RowDirection.Vertical : RowDirection.Horizontal)"
+						GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+						Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
-						<GridEvents TValue="OutletSummaryModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
-						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
-						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+					<GridEvents TValue="OutletSummaryModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
-						<GridAggregates>
-							<GridAggregate>
-								<GridAggregateColumns>
-									<GridAggregateColumn Field="@nameof(OutletSummaryModel.LocationName)" Type="AggregateType.Count">
-										<FooterTemplate>
-											<div class="aggregate-label"><strong>Total</strong></div>
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div class="aggregate-label"><strong>Total: @a.Count</strong></div>
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div class="aggregate-label"><strong>Outlets: @a.Count</strong></div>
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(OutletSummaryModel.Purchase)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(OutletSummaryModel.PurchaseReturn)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(OutletSummaryModel.NetPurchase)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(OutletSummaryModel.KitchenIssue)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(OutletSummaryModel.KitchenProduction)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(OutletSummaryModel.Sale)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div class="aggregate-value aggregate-total"><strong>@a.Sum</strong></div>
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div class="aggregate-value aggregate-total"><strong>@a.Sum</strong></div>
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div class="aggregate-value aggregate-total"><strong>@a.Sum</strong></div>
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(OutletSummaryModel.SaleReturn)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(OutletSummaryModel.NetSale)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div class="aggregate-value aggregate-total"><strong>@a.Sum</strong></div>
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div class="aggregate-value aggregate-total"><strong>@a.Sum</strong></div>
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div class="aggregate-value aggregate-total"><strong>@a.Sum</strong></div>
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(OutletSummaryModel.SaleReturnPercent)" Type="AggregateType.Custom">
-										<FooterTemplate>
-											<div><strong>@TotalSaleReturnPercent.ToString("N2")</strong></div>
-										</FooterTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(OutletSummaryModel.GrossProfit)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div class="aggregate-value aggregate-total"><strong>@a.Sum</strong></div>
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div class="aggregate-value aggregate-total"><strong>@a.Sum</strong></div>
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div class="aggregate-value aggregate-total"><strong>@a.Sum</strong></div>
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(OutletSummaryModel.MarginPercent)" Type="AggregateType.Custom">
-										<FooterTemplate>
-											<div><strong>@TotalMarginPercent.ToString("N2")</strong></div>
-										</FooterTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(OutletSummaryModel.ContributionPercent)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(OutletSummaryModel.TransactionCount)" Type="AggregateType.Sum" Format="N0">
-										<FooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(OutletSummaryModel.UnitsSold)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(OutletSummaryModel.AverageSaleValue)" Type="AggregateType.Custom">
-										<FooterTemplate>
-											<div><strong>@TotalAverageSaleValue.ToString("N2")</strong></div>
-										</FooterTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(OutletSummaryModel.Cash)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(OutletSummaryModel.Card)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(OutletSummaryModel.UPI)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-									<GridAggregateColumn Field="@nameof(OutletSummaryModel.Credit)" Type="AggregateType.Sum" Format="N2">
-										<FooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</FooterTemplate>
-										<GroupFooterTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</GroupFooterTemplate>
-										<GroupCaptionTemplate>
-											@{
-												var a = context as AggregateTemplateContext;
-											}
-											<div><strong>@a.Sum</strong></div>
-										</GroupCaptionTemplate>
-									</GridAggregateColumn>
-								</GridAggregateColumns>
-							</GridAggregate>
-						</GridAggregates>
+					<GridAggregates>
+						<GridAggregate>
+							<GridAggregateColumns>
+								<GridColumnAggregate Field="@nameof(OutletSummaryModel.LocationName)" Type="AggregateType.Count" Format="N0" />
+								<GridColumnAggregate Field="@nameof(OutletSummaryModel.LocationName)" />
+								<GridColumnAggregate Field="@nameof(OutletSummaryModel.Purchase)" />
+								<GridColumnAggregate Field="@nameof(OutletSummaryModel.PurchaseReturn)" CustomColor="grid-debit" />
+								<GridColumnAggregate Field="@nameof(OutletSummaryModel.NetPurchase)" />
+								<GridColumnAggregate Field="@nameof(OutletSummaryModel.KitchenIssue)" />
+								<GridColumnAggregate Field="@nameof(OutletSummaryModel.KitchenProduction)" />
+								<GridColumnAggregate Field="@nameof(OutletSummaryModel.Sale)" />
+								<GridColumnAggregate Field="@nameof(OutletSummaryModel.SaleReturn)" CustomColor="grid-debit" />
+								<GridColumnAggregate Field="@nameof(OutletSummaryModel.NetSale)" />
+								<GridColumnAggregate Field="@nameof(OutletSummaryModel.GrossProfit)" />
+								<GridColumnAggregate Field="@nameof(OutletSummaryModel.MarginPercent)" />
+								<GridColumnAggregate Field="@nameof(OutletSummaryModel.ContributionPercent)" />
+								<GridColumnAggregate Field="@nameof(OutletSummaryModel.TransactionCount)" />
+								<GridColumnAggregate Field="@nameof(OutletSummaryModel.UnitsSold)" />
+								<GridColumnAggregate Field="@nameof(OutletSummaryModel.AverageSaleValue)" />
+								<GridColumnAggregate Field="@nameof(OutletSummaryModel.Cash)" />
+								<GridColumnAggregate Field="@nameof(OutletSummaryModel.Card)" />
+								<GridColumnAggregate Field="@nameof(OutletSummaryModel.UPI)" />
+								<GridColumnAggregate Field="@nameof(OutletSummaryModel.Credit)" />
+							</GridAggregateColumns>
+						</GridAggregate>
+					</GridAggregates>
 
-						<GridColumns>
-							<GridColumn Field="@nameof(OutletSummaryModel.LocationName)" HeaderText="Outlet" Width="200" />
-							<GridColumn Field="@nameof(OutletSummaryModel.Purchase)" HeaderText="Purchase" Width="140" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(OutletSummaryModel.PurchaseReturn)" HeaderText="Purchase Return" Width="160" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(OutletSummaryModel.NetPurchase)" HeaderText="Net Purchase" Width="150" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(OutletSummaryModel.KitchenIssue)" HeaderText="Kitchen Issue" Width="120" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(OutletSummaryModel.KitchenProduction)" HeaderText="Kitchen Production" Width="140" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(OutletSummaryModel.Sale)" HeaderText="Sale" Width="140" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(OutletSummaryModel.SaleReturn)" HeaderText="Sale Return" Width="140" Format="N2" TextAlign="TextAlign.Right" />
-							<GridColumn Field="@nameof(OutletSummaryModel.NetSale)" HeaderText="Net Sale" Width="150" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(OutletSummaryModel.SaleReturnPercent)" HeaderText="Return %" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(OutletSummaryModel.GrossProfit)" HeaderText="Gross Profit" Width="150" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(OutletSummaryModel.MarginPercent)" HeaderText="Margin %" Width="120" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(OutletSummaryModel.ContributionPercent)" HeaderText="Contribution %" Width="140" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(OutletSummaryModel.TransactionCount)" HeaderText="Transactions" Width="130" Format="N0" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(OutletSummaryModel.UnitsSold)" HeaderText="Units Sold" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(OutletSummaryModel.AverageSaleValue)" HeaderText="Avg Sale Value" Width="150" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(OutletSummaryModel.Cash)" HeaderText="Cash" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(OutletSummaryModel.Card)" HeaderText="Card" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(OutletSummaryModel.UPI)" HeaderText="UPI" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-							<GridColumn Field="@nameof(OutletSummaryModel.Credit)" HeaderText="Credit" Width="130" Format="N2" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
-						</GridColumns>
-					</SfGrid>
-				</div>
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.LocationName)" HeaderText="Outlet" />
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.Purchase)" HeaderText="Purchase" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.PurchaseReturn)" HeaderText="Purchase Return" CustomColor="grid-debit" />
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.NetPurchase)" HeaderText="Net Purchase" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.KitchenIssue)" HeaderText="Kitchen Issue" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.KitchenProduction)" HeaderText="Kitchen Production" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.Sale)" HeaderText="Sale" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.SaleReturn)" HeaderText="Sale Return" CustomColor="grid-debit" />
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.NetSale)" HeaderText="Net Sale" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.SaleReturnPercent)" HeaderText="Return %" Visible="_showAllColumns" CustomColor="grid-debit" />
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.GrossProfit)" HeaderText="Gross Profit" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.MarginPercent)" HeaderText="Margin %" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.ContributionPercent)" HeaderText="Contribution %" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.TransactionCount)" HeaderText="Transactions" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.UnitsSold)" HeaderText="Units Sold" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.AverageSaleValue)" HeaderText="Avg Sale Value" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.Cash)" HeaderText="Cash" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.Card)" HeaderText="Card" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.UPI)" HeaderText="UPI" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.Credit)" HeaderText="Credit" Visible="_showAllColumns" NumericColumn="true" />
+					</GridColumns>
+				</SfGrid>
 			</div>
 		</div>
 

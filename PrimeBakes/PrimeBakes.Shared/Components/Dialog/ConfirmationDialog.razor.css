@@ -1,22 +1,3 @@
-/* SfDialog renders its own chrome (.e-dlg-*) which is outside this
-   component's scope, so reach it through the .cd-scope wrapper with ::deep. */
-::deep .confirm-dialog .e-dlg-header-content {
-	padding: 14px 18px;
-	border-bottom: 1px solid #e2e8f0;
-}
-
-::deep .confirm-dialog .e-dlg-content {
-	padding: 18px;
-}
-
-::deep .confirm-dialog .e-footer-content {
-	padding: 12px 18px;
-	border-top: 1px solid #e2e8f0;
-	display: flex;
-	justify-content: flex-end;
-	gap: 8px;
-}
-
 .cd-header {
 	display: flex;
 	align-items: center;
@@ -24,35 +5,5 @@
 }
 
 .cd-header-icon {
-	font-size: 18px;
 	color: var(--primary-blue, #2563eb);
 }
-
-.cd-header-title {
-	font-size: 15px;
-	font-weight: 600;
-	color: #0f172a;
-}
-
-.cd-message {
-	margin: 0;
-	font-size: 13.5px;
-	line-height: 1.55;
-	color: #475569;
-}
-
-/* Buttons live in the dialog footer (outside scope) — reach via ::deep. */
-::deep .confirm-dialog .cd-btn {
-	min-width: 84px;
-	font-weight: 500;
-	margin: 0;
-}
-
-::deep .confirm-dialog .cd-btn-confirm.e-primary {
-	background: var(--primary-blue, #2563eb);
-	border-color: var(--primary-blue, #2563eb);
-}
-
-	::deep .confirm-dialog .cd-btn-confirm.e-primary:hover {
-		filter: brightness(0.93);
-	}

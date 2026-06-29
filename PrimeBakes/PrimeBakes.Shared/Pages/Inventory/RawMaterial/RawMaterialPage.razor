@@ -115,53 +115,55 @@ else
 					<h2 class="section-title">Master List</h2>
 				</div>
 
-				<div class="section-body grid-body">
-					<SfGrid @ref="_sfGrid" DataSource="@_rawMaterials"
-							AllowPaging="true" AllowSorting="true" AllowResizing="true"
-							AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
-							GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems" CssClass="professional-grid"
-							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+				<SfGrid @ref="_sfGrid" DataSource="@_rawMaterials"
+						AllowPaging="true" AllowSorting="true" AllowResizing="true"
+						AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+						Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
-						<GridEvents TValue="RawMaterialModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
-						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
-						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+					<GridEvents TValue="RawMaterialModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
-						<GridColumns>
-							<GridColumn Field="@nameof(RawMaterialModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" />
-							<GridColumn Field="@nameof(RawMaterialModel.Name)" HeaderText="Name" Width="200" />
-							<GridColumn Field="@nameof(RawMaterialModel.Code)" HeaderText="Code" Width="120" />
-							<GridColumn HeaderText="Category" Width="200">
-								<Template>
-									@{
-										var rawMaterial = (context as RawMaterialModel);
-										var category = _categories.FirstOrDefault(c => c.Id == rawMaterial.RawMaterialCategoryId);
-										<span>@(category?.Name ?? "N/A")</span>
-									}
-								</Template>
-							</GridColumn>
-							<GridColumn Field="@nameof(RawMaterialModel.Rate)" HeaderText="Rate" Width="120" TextAlign="TextAlign.Right" Format="N2" />
-							<GridColumn Field="@nameof(RawMaterialModel.UnitOfMeasurement)" HeaderText="Unit" Width="100" TextAlign="TextAlign.Center" />
-							<GridColumn HeaderText="Tax" Width="120">
-								<Template>
-									@{
-										var rawMaterial = (context as RawMaterialModel);
-										var tax = _taxes.FirstOrDefault(t => t.Id == rawMaterial.TaxId);
-										<span>@(tax?.Code ?? "N/A")</span>
-									}
-								</Template>
-							</GridColumn>
-							<GridColumn Field="@nameof(RawMaterialModel.Remarks)" HeaderText="Remarks" Width="250" />
-							<GridColumn Field="@nameof(RawMaterialModel.Status)" HeaderText="Status" Width="110" TextAlign="TextAlign.Center" Visible="_showDeleted">
-								<Template>
-									@{
-										var rawMaterial = (context as RawMaterialModel);
-										<span class="@(rawMaterial.Status ? string.Empty : "grid-debit")">@(rawMaterial.Status ? "Active" : "Deleted")</span>
-									}
-								</Template>
-							</GridColumn>
-						</GridColumns>
-					</SfGrid>
-				</div>
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(RawMaterialModel.Id)" HeaderText="ID" Width="100" TextAlign="TextAlign.Center" />
+						<CustomGridColumn Field="@nameof(RawMaterialModel.Name)" HeaderText="Name" />
+						<CustomGridColumn Field="@nameof(RawMaterialModel.Code)" HeaderText="Code" />
+						<CustomGridColumn Field="@nameof(RawMaterialModel.Rate)" HeaderText="Rate" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(RawMaterialModel.UnitOfMeasurement)" HeaderText="Unit" TextAlign="TextAlign.Center" />
+
+						<CustomGridColumn>
+							<CustomTemplate>
+								<GridColumn HeaderText="Category" Width="200">
+									<Template>
+										@{
+											var rawMaterial = (context as RawMaterialModel);
+											var category = _categories.FirstOrDefault(c => c.Id == rawMaterial.RawMaterialCategoryId);
+											<span>@(category?.Name ?? "-")</span>
+										}
+									</Template>
+								</GridColumn>
+							</CustomTemplate>
+						</CustomGridColumn>
+
+						<CustomGridColumn>
+							<CustomTemplate>
+								<GridColumn HeaderText="Tax" Width="200">
+									<Template>
+										@{
+											var rawMaterial = (context as RawMaterialModel);
+											var tax = _taxes.FirstOrDefault(t => t.Id == rawMaterial.TaxId);
+											<span>@(tax?.Code ?? "-")</span>
+										}
+									</Template>
+								</GridColumn>
+							</CustomTemplate>
+						</CustomGridColumn>
+
+						<CustomGridColumn Field="@nameof(RawMaterialModel.Remarks)" HeaderText="Remarks" />
+						<CustomGridColumn Field="@nameof(RawMaterialModel.Status)" Visible="_showDeleted" StatusColumn="true" />
+					</GridColumns>
+				</SfGrid>
 			</div>
 		</div>
 

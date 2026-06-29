@@ -95,35 +95,26 @@ else
 					<h2 class="section-title">Master List</h2>
 				</div>
 
-				<div class="section-body grid-body">
-					<SfGrid @ref="_sfGrid" DataSource="@_financialYears"
-							AllowPaging="true" AllowSorting="true" AllowResizing="true"
-							AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
-							GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems" CssClass="professional-grid"
-							Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+				<SfGrid @ref="_sfGrid" DataSource="@_financialYears"
+						AllowPaging="true" AllowSorting="true" AllowResizing="true"
+						AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+						Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
-						<GridEvents TValue="FinancialYearModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
-						<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
-						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+					<GridEvents TValue="FinancialYearModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
-						<GridColumns>
-							<GridColumn Field="@nameof(FinancialYearModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" />
-							<GridColumn Field="@nameof(FinancialYearModel.StartDate)" HeaderText="Start Date" Width="150" TextAlign="TextAlign.Center" Format="dd-MMM-yyyy" />
-							<GridColumn Field="@nameof(FinancialYearModel.EndDate)" HeaderText="End Date" Width="150" TextAlign="TextAlign.Center" Format="dd-MMM-yyyy" />
-							<GridColumn Field="@nameof(FinancialYearModel.YearNo)" HeaderText="Year No" Width="100" TextAlign="TextAlign.Center" />
-							<GridColumn Field="@nameof(FinancialYearModel.Remarks)" HeaderText="Remarks" Width="250" />
-							<GridColumn Field="@nameof(FinancialYearModel.Locked)" HeaderText="Locked" Width="100" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
-							<GridColumn Field="@nameof(FinancialYearModel.Status)" HeaderText="Status" Width="110" TextAlign="TextAlign.Center" Visible="_showDeleted">
-								<Template>
-									@{
-										var item = (context as FinancialYearModel);
-										<span class="@(item.Status ? string.Empty : "grid-debit")">@(item.Status ? "Active" : "Deleted")</span>
-									}
-								</Template>
-							</GridColumn>
-						</GridColumns>
-					</SfGrid>
-				</div>
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(FinancialYearModel.Id)" HeaderText="ID" Width="100" TextAlign="TextAlign.Center" />
+						<CustomGridColumn Field="@nameof(FinancialYearModel.StartDate)" HeaderText="Start Date" TextAlign="TextAlign.Center" Format="dd-MMM-yyyy" />
+						<CustomGridColumn Field="@nameof(FinancialYearModel.EndDate)" HeaderText="End Date" TextAlign="TextAlign.Center" Format="dd-MMM-yyyy" />
+						<CustomGridColumn Field="@nameof(FinancialYearModel.YearNo)" HeaderText="Year No" TextAlign="TextAlign.Center" />
+						<CustomGridColumn Field="@nameof(FinancialYearModel.Remarks)" HeaderText="Remarks" />
+						<CustomGridColumn Field="@nameof(FinancialYearModel.Locked)" HeaderText="Locked" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
+						<CustomGridColumn Field="@nameof(FinancialYearModel.Status)" Visible="_showDeleted" StatusColumn="true" />
+					</GridColumns>
+				</SfGrid>
 			</div>
 		</div>
 
