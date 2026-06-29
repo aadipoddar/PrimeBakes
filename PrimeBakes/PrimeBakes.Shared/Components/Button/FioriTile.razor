@@ -4,10 +4,10 @@
 	<SfButton CssClass="fiori-tile" OnClick="OnClick">
 		<div class="ft-inner">
 			<div class="ft-head">
-				<p class="ft-title">@Title</p>
+				<p class="ft-title" style="@(CustomColor is not null ? $"color:{CustomColor}" : null)">@Title</p>
 				@if (!string.IsNullOrWhiteSpace(Subtitle))
 				{
-					<p class="ft-subtitle">@Subtitle</p>
+					<p class="ft-subtitle" style="@(CustomColor is not null ? $"color:{CustomColor}" : null)">@Subtitle</p>
 				}
 			</div>
 

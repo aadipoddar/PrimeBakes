@@ -7,6 +7,7 @@ public partial class FioriTile
 {
 	[Parameter] public string Title { get; set; } = string.Empty;
 	[Parameter] public string Subtitle { get; set; } = string.Empty;
+	[Parameter] public string? CustomColor { get; set; }
 	[Parameter] public RenderFragment? IconContent { get; set; }
 	[Parameter] public string KPI { get; set; } = string.Empty;
 	[Parameter] public EventCallback<MouseEventArgs> OnClick { get; set; }
