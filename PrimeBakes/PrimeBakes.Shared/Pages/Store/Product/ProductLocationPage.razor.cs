@@ -29,7 +29,8 @@ public partial class ProductLocationPage
 	private readonly List<ContextMenuItemModel> _gridContextMenuItems =
 	[
 		new() { Text = "Edit (Insert)", Id = "EditSelectedItem", IconCss = "e-icons e-edit", Target = ".e-content" },
-		new() { Text = "Delete Rate (Del)", Id = "DeleteSelectedItem", IconCss = "e-icons e-trash", Target = ".e-content" }
+		new() { Text = "Delete (Del)", Id = "DeleteSelectedItem", IconCss = "e-icons e-trash", Target = ".e-content" },
+		new() { Text = "Discontinue", Id = "DiscontinueSelectedItem", IconCss = "e-icons e-trash", Target = ".e-content" }
 	];
 
 	private SfGrid<ProductLocationOverviewModel> _sfGrid;
@@ -206,6 +207,34 @@ public partial class ProductLocationPage
 		}
 	}
 
+	private async Task DiscontinueTransaction(ProductLocationOverviewModel productLocation)
+	{
+		try
+		{
+			if (!_user.Admin)
+				throw new Exception("You do not have permission to perform this action.");
+
+			_isProcessing = true;
+			StateHasChanged();
+
+			await _toastNotification.ShowAsync("Processing", "Discontinuing transaction...", ToastType.Info);
+
+			await ProductLocationData.DiscontinueTransaction(productLocation, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+
+			await _toastNotification.ShowAsync("Success", $"Transaction {productLocation.Name} has been discontinued successfully.", ToastType.Success);
+			ResetPage();
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"An error occurred while discontinuing transaction: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
+
 	private async Task DeleteSelectedItem()
 	{
 		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
@@ -217,6 +246,20 @@ public partial class ProductLocationPage
 		await ShowConfirmation("Delete Rate",
 			$"Are you sure you want to delete the {record.Name} rate effective {record.FromDate:dd-MMM-yyyy}?",
 			() => DeleteTransaction(record));
+	}
+
+	private async Task DiscontinueSelectedItem()
+	{
+		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
+		if (selectedRecords.Count == 0)
+			return;
+
+		var record = selectedRecords[0];
+		var location = _locations.FirstOrDefault(l => l.Id == record.LocationId);
+
+		await ShowConfirmation("Discontinue Product",
+			$"Are you sure you want to discontinue {record.Name} from {location?.Name}?",
+			() => DiscontinueTransaction(record));
 	}
 
 	private async Task ShowConfirmation(string title, string message, Func<Task> action)
@@ -279,6 +322,7 @@ public partial class ProductLocationPage
 		{
 			case "EditSelectedItem": await EditSelectedItem(); break;
 			case "DeleteSelectedItem": await DeleteSelectedItem(); break;
+			case "DiscontinueSelectedItem": await DiscontinueSelectedItem(); break;
 		}
 	}
 

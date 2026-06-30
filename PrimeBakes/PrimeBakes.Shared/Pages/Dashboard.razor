@@ -460,6 +460,16 @@ else
 						<div class="launchpad-section">
 							<h2 class="launchpad-section-title">Kitchen Reports</h2>
 							<div class="dashboard-grid">
+								<FioriTile Title="Kitchen Summary" Subtitle="Kitchen-wise issue and production summary" OnClick="() => NavigationManager.NavigateTo(InventoryRouteNames.KitchenSummaryReport)">
+									<IconContent>
+										<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+											<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
+											<path d="M7 2v20" />
+											<path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
+										</svg>
+									</IconContent>
+								</FioriTile>
+
 								<FioriTile Title="Kitchen Issue Report" Subtitle="Materials issued to the kitchen by date" OnClick="() => NavigationManager.NavigateTo(InventoryRouteNames.KitchenIssueReport)">
 									<IconContent>
 										<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1046,7 +1056,7 @@ else
 				<MudBlazor.MudTabPanel Text="Reports" Visible="_user.Reports && !IsMobile">
 
 					<!-- Outlet -->
-					@if (_user.Admin && _user.LocationId == 1)
+					@if (_user.LocationId == 1)
 					{
 						<div class="launchpad-section">
 							<h2 class="launchpad-section-title">Outlet</h2>
@@ -1258,6 +1268,16 @@ else
 												<line x1="3" y1="6" x2="3.01" y2="6" />
 												<line x1="3" y1="12" x2="3.01" y2="12" />
 												<line x1="3" y1="18" x2="3.01" y2="18" />
+											</svg>
+										</IconContent>
+									</FioriTile>
+
+									<FioriTile Title="Kitchen Summary" Subtitle="Kitchen-wise issue and production summary" OnClick="() => NavigationManager.NavigateTo(InventoryRouteNames.KitchenSummaryReport)">
+										<IconContent>
+											<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+												<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
+												<path d="M7 2v20" />
+												<path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
 											</svg>
 										</IconContent>
 									</FioriTile>

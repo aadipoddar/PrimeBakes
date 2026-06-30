@@ -98,50 +98,57 @@ else
 						<GridAggregate>
 							<GridAggregateColumns>
 								<GridColumnAggregate Field="@nameof(OutletSummaryModel.LocationName)" Type="AggregateType.Count" Format="N0" />
-								<GridColumnAggregate Field="@nameof(OutletSummaryModel.LocationName)" />
 								<GridColumnAggregate Field="@nameof(OutletSummaryModel.Purchase)" />
 								<GridColumnAggregate Field="@nameof(OutletSummaryModel.PurchaseReturn)" CustomColor="grid-debit" />
-								<GridColumnAggregate Field="@nameof(OutletSummaryModel.NetPurchase)" />
 								<GridColumnAggregate Field="@nameof(OutletSummaryModel.KitchenIssue)" />
 								<GridColumnAggregate Field="@nameof(OutletSummaryModel.KitchenProduction)" />
 								<GridColumnAggregate Field="@nameof(OutletSummaryModel.Sale)" />
 								<GridColumnAggregate Field="@nameof(OutletSummaryModel.SaleReturn)" CustomColor="grid-debit" />
-								<GridColumnAggregate Field="@nameof(OutletSummaryModel.NetSale)" />
-								<GridColumnAggregate Field="@nameof(OutletSummaryModel.GrossProfit)" />
-								<GridColumnAggregate Field="@nameof(OutletSummaryModel.MarginPercent)" />
-								<GridColumnAggregate Field="@nameof(OutletSummaryModel.ContributionPercent)" />
-								<GridColumnAggregate Field="@nameof(OutletSummaryModel.TransactionCount)" />
-								<GridColumnAggregate Field="@nameof(OutletSummaryModel.UnitsSold)" />
-								<GridColumnAggregate Field="@nameof(OutletSummaryModel.AverageSaleValue)" />
 								<GridColumnAggregate Field="@nameof(OutletSummaryModel.Cash)" />
 								<GridColumnAggregate Field="@nameof(OutletSummaryModel.Card)" />
 								<GridColumnAggregate Field="@nameof(OutletSummaryModel.UPI)" />
 								<GridColumnAggregate Field="@nameof(OutletSummaryModel.Credit)" />
+								<GridColumnAggregate Field="@nameof(OutletSummaryModel.TransactionCount)" />
+								<GridColumnAggregate Field="@nameof(OutletSummaryModel.UnitsSold)" />
+								<GridColumnAggregate Field="@nameof(OutletSummaryModel.NetPurchase)" />
+								<GridColumnAggregate Field="@nameof(OutletSummaryModel.NetProduction)" />
+								<GridColumnAggregate Field="@nameof(OutletSummaryModel.NetSale)" />
+								
 							</GridAggregateColumns>
 						</GridAggregate>
 					</GridAggregates>
 
 					<GridColumns>
 						<CustomGridColumn Field="@nameof(OutletSummaryModel.LocationName)" HeaderText="Outlet" />
+
 						<CustomGridColumn Field="@nameof(OutletSummaryModel.Purchase)" HeaderText="Purchase" NumericColumn="true" />
 						<CustomGridColumn Field="@nameof(OutletSummaryModel.PurchaseReturn)" HeaderText="Purchase Return" CustomColor="grid-debit" />
-						<CustomGridColumn Field="@nameof(OutletSummaryModel.NetPurchase)" HeaderText="Net Purchase" Visible="_showAllColumns" NumericColumn="true" />
 						<CustomGridColumn Field="@nameof(OutletSummaryModel.KitchenIssue)" HeaderText="Kitchen Issue" NumericColumn="true" />
 						<CustomGridColumn Field="@nameof(OutletSummaryModel.KitchenProduction)" HeaderText="Kitchen Production" NumericColumn="true" />
-						<CustomGridColumn Field="@nameof(OutletSummaryModel.Sale)" HeaderText="Sale" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.Sale)" HeaderText="Sale" TotalColumn="true" />
 						<CustomGridColumn Field="@nameof(OutletSummaryModel.SaleReturn)" HeaderText="Sale Return" CustomColor="grid-debit" />
-						<CustomGridColumn Field="@nameof(OutletSummaryModel.NetSale)" HeaderText="Net Sale" Visible="_showAllColumns" NumericColumn="true" />
-						<CustomGridColumn Field="@nameof(OutletSummaryModel.SaleReturnPercent)" HeaderText="Return %" Visible="_showAllColumns" CustomColor="grid-debit" />
-						<CustomGridColumn Field="@nameof(OutletSummaryModel.GrossProfit)" HeaderText="Gross Profit" Visible="_showAllColumns" NegativePositiveColumn="true" />
-						<CustomGridColumn Field="@nameof(OutletSummaryModel.MarginPercent)" HeaderText="Margin %" Visible="_showAllColumns" NegativePositiveColumn="true" />
-						<CustomGridColumn Field="@nameof(OutletSummaryModel.ContributionPercent)" HeaderText="Contribution %" Visible="_showAllColumns" NumericColumn="true" />
-						<CustomGridColumn Field="@nameof(OutletSummaryModel.TransactionCount)" HeaderText="Transactions" Visible="_showAllColumns" NumericColumn="true" />
-						<CustomGridColumn Field="@nameof(OutletSummaryModel.UnitsSold)" HeaderText="Units Sold" Visible="_showAllColumns" NumericColumn="true" />
-						<CustomGridColumn Field="@nameof(OutletSummaryModel.AverageSaleValue)" HeaderText="Avg Sale Value" Visible="_showAllColumns" NumericColumn="true" />
+
 						<CustomGridColumn Field="@nameof(OutletSummaryModel.Cash)" HeaderText="Cash" Visible="_showAllColumns" NumericColumn="true" />
 						<CustomGridColumn Field="@nameof(OutletSummaryModel.Card)" HeaderText="Card" Visible="_showAllColumns" NumericColumn="true" />
 						<CustomGridColumn Field="@nameof(OutletSummaryModel.UPI)" HeaderText="UPI" Visible="_showAllColumns" NumericColumn="true" />
 						<CustomGridColumn Field="@nameof(OutletSummaryModel.Credit)" HeaderText="Credit" Visible="_showAllColumns" NumericColumn="true" />
+
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.TransactionCount)" HeaderText="Transactions" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.UnitsSold)" HeaderText="Units Sold" Visible="_showAllColumns" NumericColumn="true" />
+						
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.ContributionPercent)" HeaderText="Contribution %" Visible="_showAllColumns" NumericColumn="true" />
+
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.NetPurchase)" HeaderText="Net Purchase" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.NetProduction)" HeaderText="Net Production" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.NetSale)" HeaderText="Net Sale" Visible="_showAllColumns" NumericColumn="true" />
+
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.GrossProfit)" HeaderText="Gross Profit" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.MarginPercent)" HeaderText="Margin %" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.AverageSaleValue)" HeaderText="Avg Sale Value" Visible="_showAllColumns" NumericColumn="true" />
+
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.PurchaseReturnPercent)" HeaderText="Purchase Return %" Visible="_showAllColumns" CustomColor="grid-debit" />
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.KitchenProductionPercent)" HeaderText="Kitchen Production %" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.SaleReturnPercent)" HeaderText="Sale Return %" Visible="_showAllColumns" CustomColor="grid-debit" />
 					</GridColumns>
 				</SfGrid>
 			</div>

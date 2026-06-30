@@ -1,0 +1,135 @@
+﻿@using PrimeBakes.Library.Accounts.Masters.Models
+@using PrimeBakes.Library.Inventory.Kitchen.Models
+
+@attribute [Route(InventoryRouteNames.KitchenSummaryReport)]
+
+<PageTitle>Kitchen Summary Report - Prime Bakes</PageTitle>
+
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="RefreshReport" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="RefreshReport" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyQ KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDetailsView" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport(true)" Disabled="@_isProcessing" />
+
+@if (_isLoading || _user is null)
+{
+	<LoadingScreen />
+}
+else
+{
+	<div class="page-shell">
+		<Header Title="Kitchen Summary Report">
+			<LeftContent>
+				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Refresh Data (Ctrl + R / F5)" OnClick="RefreshReport" />
+					<MudBlazor.MudMenuItem Label="@(_showAllColumns ? "Hide Details (Ctrl + Q)" : "Show Details (Ctrl + Q)")" OnClick="ToggleDetailsView" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportReport()" />
+					<MudBlazor.MudMenuItem Label="Export Excel (Ctrl + E)" OnClick="() => ExportReport(true)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Periods" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Today" OnClick="() => HandleDatesChanged(DateRangeType.Today)" />
+					<MudBlazor.MudMenuItem Label="Previous Day" OnClick="() => HandleDatesChanged(DateRangeType.Yesterday)" />
+					<MudBlazor.MudMenuItem Label="Next Day" OnClick="() => HandleDatesChanged(DateRangeType.NextDay)" />
+					<MudBlazor.MudMenuItem Label="Current Month" OnClick="() => HandleDatesChanged(DateRangeType.CurrentMonth)" />
+					<MudBlazor.MudMenuItem Label="Previous Month" OnClick="() => HandleDatesChanged(DateRangeType.PreviousMonth)" />
+					<MudBlazor.MudMenuItem Label="Next Month" OnClick="() => HandleDatesChanged(DateRangeType.NextMonth)" />
+					<MudBlazor.MudMenuItem Label="Current FY" OnClick="() => HandleDatesChanged(DateRangeType.CurrentFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="Previous FY" OnClick="() => HandleDatesChanged(DateRangeType.PreviousFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="Next FY" OnClick="() => HandleDatesChanged(DateRangeType.NextFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="All Time" OnClick="() => HandleDatesChanged(DateRangeType.AllTime)" />
+				</MudBlazor.MudMenu>
+			</LeftContent>
+		</Header>
+
+		<div class="page-container">
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Filters</h2>
+				</div>
+
+				<div class="section-body">
+					<div class="filters-grid">
+						<!-- Date Range -->
+						<div class="form-field">
+							<CustomDateRangePicker @ref="_firstFocus" Value="@(new MudBlazor.DateRange(_fromDate, _toDate))"
+												   ValueChanged="OnDateRangeChanged"
+												   Label="Date Range (Ctrl + F)"
+												   Required="false" />
+						</div>
+
+						<!-- Company -->
+						<div class="form-field">
+							<CustomAutoComplete T="CompanyModel"
+												Value="_selectedCompany"
+												DataSource="@_companies"
+												Placeholder="All Companies"
+												Label="Company" Required="false"
+												ValueChanged="OnCompanyChanged"
+												FieldValue="@nameof(CompanyModel.Name)"
+												AddNewRoute="@AccountsRouteNames.CompanyMaster" />
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Records</h2>
+				</div>
+
+				<SfMediaQuery @bind-ActiveBreakpoint="activeBreakpoint" />
+				<SfGrid ID="_sfGrid" @ref="_sfGrid" TValue="KitchenSummaryModel" DataSource="_kitchenSummaries"
+						AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+						AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+						EnableAdaptiveUI="true" AdaptiveUIMode="AdaptiveMode.Mobile"
+						RowRenderingMode="@(activeBreakpoint == "Small" ? RowDirection.Vertical : RowDirection.Horizontal)"
+						GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+						Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+					<GridEvents TValue="KitchenSummaryModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+					<GridAggregates>
+						<GridAggregate>
+							<GridAggregateColumns>
+								<GridColumnAggregate Field="@nameof(KitchenSummaryModel.KitchenName)" Type="AggregateType.Count" Format="N0" />
+								<GridColumnAggregate Field="@nameof(KitchenSummaryModel.KitchenIssue)" />
+								<GridColumnAggregate Field="@nameof(KitchenSummaryModel.KitchenProduction)" />
+								<GridColumnAggregate Field="@nameof(KitchenSummaryModel.TransactionCount)" />
+								<GridColumnAggregate Field="@nameof(KitchenSummaryModel.UnitsProduced)" />
+								<GridColumnAggregate Field="@nameof(KitchenSummaryModel.NetProduction)" />
+							</GridAggregateColumns>
+						</GridAggregate>
+					</GridAggregates>
+
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(KitchenSummaryModel.KitchenName)" HeaderText="Kitchen" />
+
+						<CustomGridColumn Field="@nameof(KitchenSummaryModel.KitchenIssue)" HeaderText="Kitchen Issue" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenSummaryModel.KitchenProduction)" HeaderText="Kitchen Production" NumericColumn="true" />
+
+						<CustomGridColumn Field="@nameof(KitchenSummaryModel.TransactionCount)" HeaderText="Transactions" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenSummaryModel.UnitsProduced)" HeaderText="Units Produced" Visible="_showAllColumns" NumericColumn="true" />
+
+						<CustomGridColumn Field="@nameof(KitchenSummaryModel.ContributionPercent)" HeaderText="Contribution %" Visible="_showAllColumns" NumericColumn="true" />
+
+						<CustomGridColumn Field="@nameof(KitchenSummaryModel.NetProduction)" HeaderText="Net Production" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenSummaryModel.AverageProductionValue)" HeaderText="Avg Production Value" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenSummaryModel.KitchenProductionPercent)" HeaderText="Kitchen Production %" NumericColumn="true" />
+					</GridColumns>
+				</SfGrid>
+			</div>
+		</div>
+
+		<Footer />
+	</div>
+}
+
+<ToastNotification @ref="_toastNotification" />
+
+<CloseGuard Block="_isProcessing" />

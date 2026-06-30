@@ -1,5 +1,6 @@
 ﻿using PrimeBakes.Library.Common;
 using PrimeBakes.Library.Operations.AuditTrail;
+using PrimeBakes.Library.Operations.Location;
 using PrimeBakes.Library.Store.Product.Models;
 
 namespace PrimeBakes.Library.Store.Product.Data;
@@ -16,6 +17,41 @@ public static class ProductLocationData
 
 	public static async Task<List<ProductLocationOverviewModel>> LoadProductLocationOverviewByProductLocationDate(int? ProductId = null, int? LocationId = null, DateOnly? Date = null, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		await SqlDataAccess.LoadData<ProductLocationOverviewModel, dynamic>(StoreNames.LoadProductLocationOverviewByProductLocationDate, new { ProductId, LocationId, Date }, sqlDataAccessTransaction);
+
+	public static async Task DeleteTransaction(ProductLocationOverviewModel productLocation, int userId, string platform) =>
+		await SqlDataAccessTransaction.Run(async transaction =>
+		{
+			await DeleteProductLocationById(productLocation.Id, transaction);
+			await AuditTrailData.SaveAuditTrail(new()
+			{
+				Action = AuditTrailActionTypes.Delete.ToString(),
+				TableName = StoreNames.ProductLocation,
+				RecordNo = productLocation.Code,
+				CreatedBy = userId,
+				CreatedFromPlatform = platform
+			}, transaction);
+		});
+
+	public static async Task DiscontinueTransaction(ProductLocationOverviewModel productLocation, int userId, string platform)
+	{
+		var existing = await LoadProductLocationOverviewByProductLocationDate(productLocation.ProductId, productLocation.LocationId);
+		var location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, productLocation.LocationId);
+
+		await SqlDataAccessTransaction.Run(async transaction =>
+		{
+			foreach (var item in existing)
+				await DeleteProductLocationById(item.Id, transaction);
+
+			await AuditTrailData.SaveAuditTrail(new()
+			{
+				Action = AuditTrailActionTypes.Delete.ToString(),
+				TableName = StoreNames.ProductLocation,
+				RecordNo = $"Discontinue {productLocation.Code} {location?.Name}",
+				CreatedBy = userId,
+				CreatedFromPlatform = platform
+			}, transaction);
+		});
+	}
 
 	private static async Task ValidateTransaction(ProductLocationModel item)
 	{
@@ -55,18 +91,4 @@ public static class ProductLocationData
 			return id;
 		});
 	}
-
-	public static async Task DeleteTransaction(ProductLocationOverviewModel productLocation, int userId, string platform) =>
-		await SqlDataAccessTransaction.Run(async transaction =>
-		{
-			await DeleteProductLocationById(productLocation.Id, transaction);
-			await AuditTrailData.SaveAuditTrail(new()
-			{
-				Action = AuditTrailActionTypes.Delete.ToString(),
-				TableName = StoreNames.ProductLocation,
-				RecordNo = productLocation.Code,
-				CreatedBy = userId,
-				CreatedFromPlatform = platform
-			}, transaction);
-		});
 }

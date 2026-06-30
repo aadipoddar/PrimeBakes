@@ -49,6 +49,7 @@ public static class InventoryRouteNames
 	public const string KitchenIssueItemReport = "/inventory/kitchen-item-report";
 	public const string KitchenProductionReport = "/inventory/kitchen-production-report";
 	public const string KitchenProductionItemReport = "/inventory/kitchen-production-item-report";
+	public const string KitchenSummaryReport = "/inventory/kitchen-summary-report";
 
 	public const string ProductStockAdjustment = "/inventory/product-stock-adjustment";
 	public const string RawMaterialStockAdjustment = "/inventory/raw-material-stock-adjustment";
