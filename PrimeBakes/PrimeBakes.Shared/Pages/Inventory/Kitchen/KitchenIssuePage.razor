@@ -155,12 +155,6 @@ else
 						</div>
 
 						<div class="cart-field">
-							<CustomTextField @bind-Value="_selectedCart.UnitOfMeasurement"
-											 Label="UOM"
-											 Placeholder="UOM..." />
-						</div>
-
-						<div class="cart-field">
 							<CustomNumericField T="decimal"
 												Value="_selectedCart.Rate"
 												ValueChanged="OnItemRateChanged"
@@ -170,20 +164,27 @@ else
 												Min="0" />
 						</div>
 
+						<div class="cart-field">
+							<CustomNumericField T="decimal"
+												Value="_selectedCart.Total"
+												ValueChanged="OnItemTotalChanged"
+												Label="Total"
+												Placeholder="0.00"
+												Required="false"
+												Min="0" />
+						</div>
+
+						<div class="cart-field">
+							<CustomTextField @bind-Value="_selectedCart.UnitOfMeasurement"
+											 Label="UOM"
+											 Placeholder="UOM..." />
+						</div>
+
 						<div class="cart-field cart-field-wide">
 							<CustomTextField @bind-Value="_selectedCart.Remarks"
 											 Label="Remarks"
 											 Placeholder="Item Narration..."
 											 Required="false" />
-						</div>
-
-						<div class="cart-field">
-							<CustomNumericField T="decimal"
-												Value="_selectedCart.Total"
-												Label="Total"
-												ReadOnly="true"
-												Required="false"
-												TabIndex="-1" />
 						</div>
 
 						<div class="cart-field cart-field-action">

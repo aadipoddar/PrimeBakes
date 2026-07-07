@@ -313,9 +313,22 @@ public partial class PurchaseReturnPage
 		await SaveTransactionFile();
 	}
 
+	private async Task OnOtherChargesAmountChanged(decimal value)
+	{
+		_purchaseReturn.OtherChargesPercent = _purchaseReturn.TotalAfterTax > 0 ? value / _purchaseReturn.TotalAfterTax * 100 : 0;
+		await SaveTransactionFile();
+	}
+
 	private async Task OnCashDiscountPercentChanged(decimal value)
 	{
 		_purchaseReturn.CashDiscountPercent = value;
+		await SaveTransactionFile();
+	}
+
+	private async Task OnCashDiscountAmountChanged(decimal value)
+	{
+		var totalAfterOtherCharges = _purchaseReturn.TotalAfterTax + _purchaseReturn.OtherChargesAmount;
+		_purchaseReturn.CashDiscountPercent = totalAfterOtherCharges > 0 ? value / totalAfterOtherCharges * 100 : 0;
 		await SaveTransactionFile();
 	}
 
@@ -363,9 +376,23 @@ public partial class PurchaseReturnPage
 		UpdateSelectedItemFinancialDetails();
 	}
 
+	private void OnItemBaseTotalChanged(decimal value)
+	{
+		if (_selectedCart.Quantity > 0)
+			_selectedCart.Rate = value / _selectedCart.Quantity;
+		UpdateSelectedItemFinancialDetails();
+	}
+
 	private void OnItemDiscountPercentChanged(decimal value)
 	{
 		_selectedCart.DiscountPercent = value;
+		UpdateSelectedItemFinancialDetails();
+	}
+
+	private void OnItemDiscountAmountChanged(decimal value)
+	{
+		_selectedCart.DiscountPercent = _selectedCart.BaseTotal > 0
+			? value / _selectedCart.BaseTotal * 100 : 0;
 		UpdateSelectedItemFinancialDetails();
 	}
 
@@ -375,15 +402,39 @@ public partial class PurchaseReturnPage
 		UpdateSelectedItemFinancialDetails();
 	}
 
+	private void OnItemCGSTAmountChanged(decimal value)
+	{
+		_selectedCart.CGSTPercent = _selectedCart.InclusiveTax ?
+			(_selectedCart.AfterDiscount - value) > 0 ? 100 * value / (_selectedCart.AfterDiscount - value) : 0 :
+			_selectedCart.AfterDiscount > 0 ? value / _selectedCart.AfterDiscount * 100 : 0;
+		UpdateSelectedItemFinancialDetails();
+	}
+
 	private void OnItemSGSTPercentChanged(decimal value)
 	{
 		_selectedCart.SGSTPercent = value;
 		UpdateSelectedItemFinancialDetails();
 	}
 
+	private void OnItemSGSTAmountChanged(decimal value)
+	{
+		_selectedCart.SGSTPercent = _selectedCart.InclusiveTax ?
+			(_selectedCart.AfterDiscount - value) > 0 ? 100 * value / (_selectedCart.AfterDiscount - value) : 0 :
+			_selectedCart.AfterDiscount > 0 ? value / _selectedCart.AfterDiscount * 100 : 0;
+		UpdateSelectedItemFinancialDetails();
+	}
+
 	private void OnItemIGSTPercentChanged(decimal value)
 	{
 		_selectedCart.IGSTPercent = value;
+		UpdateSelectedItemFinancialDetails();
+	}
+
+	private void OnItemIGSTAmountChanged(decimal value)
+	{
+		_selectedCart.IGSTPercent = _selectedCart.InclusiveTax ?
+			(_selectedCart.AfterDiscount - value) > 0 ? 100 * value / (_selectedCart.AfterDiscount - value) : 0 :
+			_selectedCart.AfterDiscount > 0 ? value / _selectedCart.AfterDiscount * 100 : 0;
 		UpdateSelectedItemFinancialDetails();
 	}
 
@@ -461,6 +512,7 @@ public partial class PurchaseReturnPage
 			existingItem.CGSTPercent = _selectedCart.CGSTPercent;
 			existingItem.SGSTPercent = _selectedCart.SGSTPercent;
 			existingItem.IGSTPercent = _selectedCart.IGSTPercent;
+			existingItem.InclusiveTax = _selectedCart.InclusiveTax;
 		}
 		else
 			_cart.Add(new()

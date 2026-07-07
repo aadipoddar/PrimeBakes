@@ -308,6 +308,12 @@ public partial class KitchenIssuePage
 		UpdateSelectedItemFinancialDetails();
 	}
 
+	private void OnItemTotalChanged(decimal value)
+	{
+		_selectedCart.Rate = value / (_selectedCart.Quantity > 0 ? _selectedCart.Quantity : 1);
+		UpdateSelectedItemFinancialDetails();
+	}
+
 	private void UpdateSelectedItemFinancialDetails()
 	{
 		if (_selectedRawMaterial is null)

@@ -32,7 +32,7 @@ public partial class RawMaterialStockDetailReport : IAsyncDisposable
 		new() { Text = "View (Alt + O)", Id = "View", IconCss = "e-icons e-eye", Target = ".e-content" },
 		new() { Text = "Export PDF (Alt + P)", Id = "ExportPDF", IconCss = "e-icons e-export-pdf", Target = ".e-content" },
 		new() { Text = "Export Excel (Alt + E)", Id = "ExportExcel", IconCss = "e-icons e-export-excel", Target = ".e-content" },
-		new() { Text = "Delete (Del)", Id = "Delete", IconCss = "e-icons e-trash", Target = ".e-content" }
+		new() { Text = "Delete (Del)", Id = "DeleteSelected", IconCss = "e-icons e-trash", Target = ".e-content" }
 	];
 
 	private SfGrid<RawMaterialStockDetailsModel> _sfGrid;
@@ -337,7 +337,7 @@ public partial class RawMaterialStockDetailReport : IAsyncDisposable
 			case "View": await ViewSelectedTransaction(); break;
 			case "ExportPDF": await ExportSelectedTransaction(); break;
 			case "ExportExcel": await ExportSelectedTransaction(true); break;
-			case "Delete": await DeleteSelectedTransaction(); break;
+			case "DeleteSelected": await DeleteSelectedTransaction(); break;
 		}
 	}
 

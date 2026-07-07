@@ -659,15 +659,28 @@ public partial class SalePage
 		await SaveTransactionFile();
 	}
 
+	private async Task OnOtherChargesPercentChanged(decimal value)
+	{
+		_sale.OtherChargesPercent = value;
+		await SaveTransactionFile();
+	}
+
+	private async Task OnOtherChargesAmountChanged(decimal value)
+	{
+		_sale.OtherChargesPercent = _sale.TotalAfterTax > 0 ? value / _sale.TotalAfterTax * 100 : 0;
+		await SaveTransactionFile();
+	}
+
 	private async Task OnDiscountPercentChanged(decimal value)
 	{
 		_sale.DiscountPercent = value;
 		await SaveTransactionFile();
 	}
 
-	private async Task OnOtherChargesPercentChanged(decimal value)
+	private async Task OnDiscountAmountChanged(decimal value)
 	{
-		_sale.OtherChargesPercent = value;
+		var totalAfterOtherCharges = _sale.TotalAfterTax + _sale.OtherChargesAmount;
+		_sale.DiscountPercent = totalAfterOtherCharges > 0 ? value / totalAfterOtherCharges * 100 : 0;
 		await SaveTransactionFile();
 	}
 
@@ -714,9 +727,23 @@ public partial class SalePage
 		UpdateSelectedItemFinancialDetails();
 	}
 
+	private void OnItemBaseTotalChanged(decimal value)
+	{
+		if (_selectedCart.Quantity > 0)
+			_selectedCart.Rate = value / _selectedCart.Quantity;
+		UpdateSelectedItemFinancialDetails();
+	}
+
 	private void OnItemDiscountPercentChanged(decimal value)
 	{
 		_selectedCart.DiscountPercent = value;
+		UpdateSelectedItemFinancialDetails();
+	}
+
+	private void OnItemDiscountAmountChanged(decimal value)
+	{
+		_selectedCart.DiscountPercent = _selectedCart.BaseTotal > 0
+			? value / _selectedCart.BaseTotal * 100 : 0;
 		UpdateSelectedItemFinancialDetails();
 	}
 
@@ -726,15 +753,39 @@ public partial class SalePage
 		UpdateSelectedItemFinancialDetails();
 	}
 
+	private void OnItemCGSTAmountChanged(decimal value)
+	{
+		_selectedCart.CGSTPercent = _selectedCart.InclusiveTax ?
+			(_selectedCart.AfterDiscount - value) > 0 ? 100 * value / (_selectedCart.AfterDiscount - value) : 0 :
+			_selectedCart.AfterDiscount > 0 ? value / _selectedCart.AfterDiscount * 100 : 0;
+		UpdateSelectedItemFinancialDetails();
+	}
+
 	private void OnItemSGSTPercentChanged(decimal value)
 	{
 		_selectedCart.SGSTPercent = value;
 		UpdateSelectedItemFinancialDetails();
 	}
 
+	private void OnItemSGSTAmountChanged(decimal value)
+	{
+		_selectedCart.SGSTPercent = _selectedCart.InclusiveTax ?
+			(_selectedCart.AfterDiscount - value) > 0 ? 100 * value / (_selectedCart.AfterDiscount - value) : 0 :
+			_selectedCart.AfterDiscount > 0 ? value / _selectedCart.AfterDiscount * 100 : 0;
+		UpdateSelectedItemFinancialDetails();
+	}
+
 	private void OnItemIGSTPercentChanged(decimal value)
 	{
 		_selectedCart.IGSTPercent = value;
+		UpdateSelectedItemFinancialDetails();
+	}
+
+	private void OnItemIGSTAmountChanged(decimal value)
+	{
+		_selectedCart.IGSTPercent = _selectedCart.InclusiveTax ?
+			(_selectedCart.AfterDiscount - value) > 0 ? 100 * value / (_selectedCart.AfterDiscount - value) : 0 :
+			_selectedCart.AfterDiscount > 0 ? value / _selectedCart.AfterDiscount * 100 : 0;
 		UpdateSelectedItemFinancialDetails();
 	}
 
@@ -808,6 +859,7 @@ public partial class SalePage
 			existingItem.CGSTPercent = _selectedCart.CGSTPercent;
 			existingItem.SGSTPercent = _selectedCart.SGSTPercent;
 			existingItem.IGSTPercent = _selectedCart.IGSTPercent;
+			existingItem.InclusiveTax = _selectedCart.InclusiveTax;
 		}
 		else
 			_cart.Add(new()
@@ -915,12 +967,16 @@ public partial class SalePage
 
 			if (!_user.ChangeProductFinancial)
 			{
-				item.Rate = _products.FirstOrDefault(p => p.ProductId == item.ItemId)?.Rate ?? item.Rate;
+				var isSameState = _selectedParty is null || _selectedParty.StateUTId == _selectedCompany.StateUTId;
+				var product = _products.FirstOrDefault(p => p.ProductId == item.ItemId);
+				var tax = _taxes.FirstOrDefault(t => t.Id == product?.TaxId);
+
+				item.Rate = product?.Rate ?? item.Rate;
 				item.DiscountPercent = 0;
-				item.CGSTPercent = _taxes.FirstOrDefault(t => t.Id == _products.FirstOrDefault(p => p.ProductId == item.ItemId)?.TaxId)?.CGST ?? 0;
-				item.SGSTPercent = _taxes.FirstOrDefault(t => t.Id == _products.FirstOrDefault(p => p.ProductId == item.ItemId)?.TaxId)?.SGST ?? 0;
-				item.IGSTPercent = 0;
-				item.InclusiveTax = _taxes.FirstOrDefault(t => t.Id == _products.FirstOrDefault(p => p.ProductId == item.ItemId)?.TaxId)?.Inclusive ?? false;
+				item.CGSTPercent = tax?.CGST ?? 0;
+				item.SGSTPercent = isSameState ? (tax?.SGST ?? 0) : 0;
+				item.IGSTPercent = isSameState ? 0 : (tax?.IGST ?? 0);
+				item.InclusiveTax = tax?.Inclusive ?? false;
 			}
 
 			item.BaseTotal = item.Rate * item.Quantity;

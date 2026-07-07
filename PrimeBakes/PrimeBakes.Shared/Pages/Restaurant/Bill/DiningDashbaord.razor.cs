@@ -98,8 +98,8 @@ public partial class DiningDashbaord
 			_nodes.Add(new Node
 			{
 				ID = table.Id.ToString(),
-				OffsetX = layout?.X ?? _gridStartX + (i % _gridColumns) * (_nodeWidth + _gridGapX),
-				OffsetY = layout?.Y ?? _gridStartY + (i / _gridColumns) * (_nodeHeight + _gridGapY),
+				OffsetX = layout?.X ?? _gridStartX + i % _gridColumns * (_nodeWidth + _gridGapX),
+				OffsetY = layout?.Y ?? _gridStartY + i / _gridColumns * (_nodeHeight + _gridGapY),
 				Width = layout?.W ?? _nodeWidth,
 				Height = layout?.H ?? _nodeHeight,
 				Shape = new BasicShape { Type = NodeShapes.Basic, Shape = NodeBasicShapes.Rectangle, CornerRadius = 10 },

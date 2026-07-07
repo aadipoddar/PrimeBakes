@@ -62,7 +62,6 @@ public partial class ProductStockAdjustment
 		_transactionDateTime = await CommonData.LoadCurrentDateTime();
 
 		await LoadLocations();
-		await LoadStock();
 		await LoadItems();
 		await LoadExistingCart();
 
@@ -83,13 +82,12 @@ public partial class ProductStockAdjustment
 		_transactionNo = await GenerateCodes.GenerateProductStockAdjustmentTransactionNo(_transactionDateTime, _selectedLocation.Id);
 	}
 
-	private async Task LoadStock() =>
-		_stockSummary = await ProductStockData.LoadProductStockSummaryByDateLocationId(_transactionDateTime, _transactionDateTime, _selectedLocation.Id);
-
 	private async Task LoadItems()
 	{
 		_products = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, _selectedLocation.Id, DateOnly.FromDateTime(_transactionDateTime));
 		_products = [.. _products.OrderBy(s => s.Name)];
+
+		_stockSummary = await ProductStockData.LoadProductStockSummaryByDateLocationId(_transactionDateTime, _transactionDateTime, _selectedLocation.Id);
 	}
 
 	private async Task LoadExistingCart()
@@ -113,7 +111,6 @@ public partial class ProductStockAdjustment
 	private async Task OnTransactionDateChanged(DateTime value)
 	{
 		_transactionDateTime = value;
-		await LoadStock();
 		await LoadItems();
 	}
 
@@ -124,7 +121,6 @@ public partial class ProductStockAdjustment
 		if (_selectedLocation is null || _selectedLocation.Id == 0)
 			return;
 
-		await LoadStock();
 		await LoadItems();
 		await SaveTransactionFile();
 	}

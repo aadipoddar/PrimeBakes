@@ -4,8 +4,11 @@ using PrimeBakes.Library.Accounts.Masters.Data;
 using PrimeBakes.Library.Accounts.Masters.Models;
 using PrimeBakes.Library.Inventory.Kitchen.Data;
 using PrimeBakes.Library.Inventory.Kitchen.Models;
+using PrimeBakes.Library.Inventory.Stock.Data;
+using PrimeBakes.Library.Inventory.Stock.Models;
 using PrimeBakes.Library.Operations.Settings;
 using PrimeBakes.Library.Operations.User;
+using PrimeBakes.Library.Store.Product.Data;
 using PrimeBakes.Library.Store.Product.Models;
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
@@ -29,13 +32,14 @@ public partial class KitchenProductionPage
 	private CompanyModel _selectedCompany = new();
 	private KitchenModel _selectedKitchen = new();
 	private FinancialYearModel _selectedFinancialYear = new();
-	private ProductModel _selectedProduct = null;
+	private ProductLocationOverviewModel _selectedProduct = null;
 	private KitchenProductionProductCartModel _selectedCart = new();
 	private KitchenProductionModel _kitchenProduction = new();
 
+	private List<ProductStockSummaryModel> _stockSummary = [];
 	private List<CompanyModel> _companies = [];
 	private List<KitchenModel> _kitchens = [];
-	private List<ProductModel> _products = [];
+	private List<ProductLocationOverviewModel> _products = [];
 	private List<KitchenProductionProductCartModel> _cart = [];
 	private readonly List<ContextMenuItemModel> _cartGridContextMenuItems =
 	[
@@ -44,7 +48,7 @@ public partial class KitchenProductionPage
 	];
 
 	private CustomAutoComplete<CompanyModel> _firstFocus;
-	private CustomAutoComplete<ProductModel> _itemAutoComplete;
+	private CustomAutoComplete<ProductLocationOverviewModel> _itemAutoComplete;
 	private SfGrid<KitchenProductionProductCartModel> _sfCartGrid;
 
 	private ToastNotification _toastNotification;
@@ -196,8 +200,10 @@ public partial class KitchenProductionPage
 
 	private async Task LoadItems()
 	{
-		_products = await CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product);
+		_products = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, 1, DateOnly.FromDateTime(_kitchenProduction.TransactionDateTime));
 		_products = [.. _products.OrderBy(s => s.Name)];
+
+		_stockSummary = await ProductStockData.LoadProductStockSummaryByDateLocationId(_kitchenProduction.TransactionDateTime, _kitchenProduction.TransactionDateTime, 1);
 	}
 
 	private async Task ResolveCart()
@@ -228,7 +234,7 @@ public partial class KitchenProductionPage
 
 		foreach (var item in existingCart)
 		{
-			if (_products.FirstOrDefault(s => s.Id == item.ProductId) is null)
+			if (_products.FirstOrDefault(s => s.ProductId == item.ProductId) is null)
 			{
 				var product = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, item.ProductId);
 				await _toastNotification.ShowAsync("Product Not Found", $"The product {product?.Name} (ID: {item.ProductId}) in the existing transaction cart was not found in the available products list. It may have been deleted or is inaccessible.", ToastType.Error);
@@ -238,7 +244,7 @@ public partial class KitchenProductionPage
 			_cart.Add(new()
 			{
 				ProductId = item.ProductId,
-				ProductName = _products.FirstOrDefault(s => s.Id == item.ProductId)?.Name ?? "",
+				ProductName = _products.FirstOrDefault(s => s.ProductId == item.ProductId)?.Name ?? "",
 				Quantity = item.Quantity,
 				Rate = item.Rate,
 				Total = item.Total,
@@ -269,17 +275,23 @@ public partial class KitchenProductionPage
 		await SaveTransactionFile();
 		await LoadItems();
 	}
+
+	private async Task OnTransactionDateChanged(DateTime value)
+	{
+		_kitchenProduction.TransactionDateTime = value;
+		await LoadItems();
+	}
 	#endregion
 
 	#region Cart
-	private void OnItemChanged(ProductModel value)
+	private void OnItemChanged(ProductLocationOverviewModel value)
 	{
-		if (value is null || value.Id == 0)
+		if (value is null || value.ProductId == 0)
 			return;
 
 		_selectedProduct = value;
 
-		_selectedCart.ProductId = _selectedProduct.Id;
+		_selectedCart.ProductId = _selectedProduct.ProductId;
 		_selectedCart.ProductName = _selectedProduct.Name;
 		_selectedCart.Quantity = 0;
 		_selectedCart.Rate = _selectedProduct.Rate * (100 / (100 + _kitchenProductionDiscountPercentage));
@@ -299,6 +311,12 @@ public partial class KitchenProductionPage
 		UpdateSelectedItemFinancialDetails();
 	}
 
+	private void OnItemTotalChanged(decimal value)
+	{
+		_selectedCart.Rate = value / (_selectedCart.Quantity > 0 ? _selectedCart.Quantity : 1);
+		UpdateSelectedItemFinancialDetails();
+	}
+
 	private void UpdateSelectedItemFinancialDetails()
 	{
 		if (_selectedProduct is null)
@@ -307,7 +325,7 @@ public partial class KitchenProductionPage
 		if (_selectedCart.Quantity < 0)
 			_selectedCart.Quantity = 1;
 
-		_selectedCart.ProductId = _selectedProduct.Id;
+		_selectedCart.ProductId = _selectedProduct.ProductId;
 		_selectedCart.ProductName = _selectedProduct.Name;
 		_selectedCart.Total = _selectedCart.Rate * _selectedCart.Quantity;
 
@@ -316,7 +334,7 @@ public partial class KitchenProductionPage
 
 	private async Task AddItemToCart()
 	{
-		if (_selectedProduct is null || _selectedProduct.Id <= 0 || _selectedCart.Quantity <= 0 || _selectedCart.Rate < 0 || _selectedCart.Total < 0)
+		if (_selectedProduct is null || _selectedProduct.ProductId <= 0 || _selectedCart.Quantity <= 0 || _selectedCart.Rate < 0 || _selectedCart.Total < 0)
 		{
 			await _toastNotification.ShowAsync("Invalid Product Details", "Please ensure all product details are correctly filled before adding to the cart.", ToastType.Error);
 			return;
@@ -358,7 +376,7 @@ public partial class KitchenProductionPage
 
 	private async Task EditCartItem(KitchenProductionProductCartModel cartItem)
 	{
-		_selectedProduct = _products.FirstOrDefault(s => s.Id == cartItem.ProductId);
+		_selectedProduct = _products.FirstOrDefault(s => s.ProductId == cartItem.ProductId);
 
 		if (_selectedProduct is null)
 			return;

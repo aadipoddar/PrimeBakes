@@ -164,11 +164,13 @@ else
 
 									<CustomNumericField T="decimal"
 														Value="_purchaseReturn.OtherChargesAmount"
+														ValueChanged="OnOtherChargesAmountChanged"
 														Label="Other Charges Amt"
 														Placeholder="0.00"
-														ReadOnly="true"
 														Required="false"
-														TabIndex="-1" />
+														ReadOnly="@(!_user.ChangeProductFinancial)"
+														Min="0"
+														Max="100" />
 								</div>
 							</div>
 
@@ -186,11 +188,12 @@ else
 
 									<CustomNumericField T="decimal"
 														Value="_purchaseReturn.CashDiscountAmount"
+														ValueChanged="OnCashDiscountAmountChanged"
 														Label="Cash Dis Amt"
 														Placeholder="0.00"
-														ReadOnly="true"
 														Required="false"
-														TabIndex="-1" />
+														ReadOnly="@(!_user.ChangeProductFinancial)"
+														Min="0" />
 								</div>
 							</div>
 
@@ -337,57 +340,56 @@ else
 											 Placeholder="UOM..." />
 						</div>
 
-						<!-- Base Total (below Rate) -->
 						<div class="cart-field">
 							<CustomNumericField T="decimal"
 												Value="_selectedCart.BaseTotal"
+												ValueChanged="OnItemBaseTotalChanged"
 												Label="Base"
-												ReadOnly="true"
-												Required="false"
-												TabIndex="-1" />
+												Placeholder="0.00"
+												ReadOnly="@(!_user.ChangeProductFinancial)"
+												Required="false" />
 						</div>
 
-						<!-- Discount Amount (below Disc %) -->
 						<div class="cart-field">
 							<CustomNumericField T="decimal"
 												Value="_selectedCart.DiscountAmount"
+												ValueChanged="OnItemDiscountAmountChanged"
 												Label="Disc Amt"
-												ReadOnly="true"
-												Required="false"
-												TabIndex="-1" />
+												Placeholder="0.00"
+												ReadOnly="@(!_user.ChangeProductFinancial)"
+												Required="false" />
 						</div>
 
-						<!-- CGST Amount (below CGST %) -->
 						<div class="cart-field">
 							<CustomNumericField T="decimal"
 												Value="_selectedCart.CGSTAmount"
+												ValueChanged="OnItemCGSTAmountChanged"
 												Label="CGST Amt"
-												ReadOnly="true"
-												Required="false"
-												TabIndex="-1" />
+												Placeholder="0.00"
+												ReadOnly="@(!_user.ChangeProductFinancial)"
+												Required="false" />
 						</div>
 
-						<!-- SGST Amount (below SGST %) -->
 						<div class="cart-field">
 							<CustomNumericField T="decimal"
 												Value="_selectedCart.SGSTAmount"
+												ValueChanged="OnItemSGSTAmountChanged"
 												Label="SGST Amt"
-												ReadOnly="true"
-												Required="false"
-												TabIndex="-1" />
+												Placeholder="0.00"
+												ReadOnly="@(!_user.ChangeProductFinancial)"
+												Required="false" />
 						</div>
 
-						<!-- IGST Amount (below IGST %) -->
 						<div class="cart-field">
 							<CustomNumericField T="decimal"
 												Value="_selectedCart.IGSTAmount"
+												ValueChanged="OnItemIGSTAmountChanged"
 												Label="IGST Amt"
-												ReadOnly="true"
-												Required="false"
-												TabIndex="-1" />
+												Placeholder="0.00"
+												ReadOnly="@(!_user.ChangeProductFinancial)"
+												Required="false" />
 						</div>
 
-						<!-- Total (below Tax Incl.) -->
 						<div class="cart-field">
 							<CustomNumericField T="decimal"
 												Value="_selectedCart.Total"

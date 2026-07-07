@@ -179,7 +179,7 @@ public static class RawMaterialStockData
 		await FinancialYearData.ValidateFinancialYear(fromDate);
 		await FinancialYearData.ValidateFinancialYear(toDate);
 
-		var stock = (await CommonData.LoadTableDataByDate<RawMaterialStockModel>(InventoryNames.RawMaterialStock, fromDate, toDate));
+		var stock = await CommonData.LoadTableDataByDate<RawMaterialStockModel>(InventoryNames.RawMaterialStock, fromDate, toDate);
 
 		var purchases = await CommonData.LoadTableDataByDate<PurchaseItemOverviewModel>(InventoryNames.PurchaseItemOverview, fromDate, toDate);
 		var purchaseReturns = await CommonData.LoadTableDataByDate<PurchaseReturnItemOverviewModel>(InventoryNames.PurchaseReturnItemOverview, fromDate, toDate);

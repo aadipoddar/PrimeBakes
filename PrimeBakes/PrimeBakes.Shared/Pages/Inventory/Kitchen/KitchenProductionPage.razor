@@ -89,8 +89,9 @@ else
 
 						<!-- Transaction Date -->
 						<div class="form-field">
-							<CustomDatePicker @bind-Value="_kitchenProduction.TransactionDateTime"
-											  FinancialYear="@_selectedFinancialYear" />
+							<CustomDatePicker Value="_kitchenProduction.TransactionDateTime"
+											  FinancialYear="@_selectedFinancialYear"
+											  ValueChanged="OnTransactionDateChanged" />
 						</div>
 
 						<!-- Transaction No -->
@@ -134,16 +135,25 @@ else
 				<div class="section-body">
 					<div class="cart-input-row">
 						<div class="cart-field cart-field-wide">
-							<CustomAutoComplete T="ProductModel"
+							<CustomAutoComplete T="ProductLocationOverviewModel"
 												@ref="_itemAutoComplete"
 												Value="_selectedProduct"
 												DataSource="@_products"
 												Placeholder="Select Product"
 												Label="Product (Ctrl + G)"
 												ValueChanged="OnItemChanged"
-												FieldValue="@nameof(ProductModel.Name)"
+												FieldValue="@nameof(ProductLocationOverviewModel.Name)"
 												AddNewRoute="@StoreRouteNames.Product"
 												OpenOnFocus="false" />
+						</div>
+
+						<div class="cart-field">
+							<CustomNumericField T="decimal"
+												Value="@(_stockSummary.FirstOrDefault(s => s.ProductId == _selectedProduct?.ProductId)?.ClosingStock ?? 0)"
+												Label="Current Stock"
+												ReadOnly="true"
+												Required="false"
+												TabIndex="-1" />
 						</div>
 
 						<div class="cart-field">
@@ -165,20 +175,21 @@ else
 												Min="0" />
 						</div>
 
+						<div class="cart-field">
+							<CustomNumericField T="decimal"
+												Value="_selectedCart.Total"
+												ValueChanged="OnItemTotalChanged"
+												Label="Total"
+												Placeholder="0.00"
+												Required="false"
+												Min="0" />
+						</div>
+
 						<div class="cart-field cart-field-wide">
 							<CustomTextField @bind-Value="_selectedCart.Remarks"
 											 Label="Remarks"
 											 Placeholder="Item Narration..."
 											 Required="false" />
-						</div>
-
-						<div class="cart-field">
-							<CustomNumericField T="decimal"
-												Value="_selectedCart.Total"
-												Label="Total"
-												ReadOnly="true"
-												Required="false"
-												TabIndex="-1" />
 						</div>
 
 						<div class="cart-field cart-field-action">
