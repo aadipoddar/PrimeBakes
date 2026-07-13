@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Components;
 
-using PrimeBakes.Shared.Components.Input;
-
 using PrimeBakes.Library.Operations.User;
+using PrimeBakes.Shared.Components.Input;
 
 using System.Reflection;
 
@@ -166,12 +165,14 @@ public partial class Header
 	[Parameter] public RenderFragment? RightContent { get; set; }
 
 	private UserModel _user;
+	private DateTime _currentDateTime = DateTime.Now;
 
 	protected override async Task OnInitializedAsync()
 	{
-		_user = new UserModel { Name = "aa", Id = 1 };
+		_user = new UserModel { Name = "Loading...", Id = 1 };
 		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService);
 		LoadRoutes();
+		_currentDateTime = await CommonData.LoadCurrentDateTime();
 	}
 
 	private string GetMobileUserName()
@@ -182,12 +183,6 @@ public partial class Header
 		var userName = _user.Name.Trim();
 		return userName.Length > 5 ? $"{userName[..5]}..." : userName;
 	}
-
-	private void NavigateToHome() =>
-		NavigationManager.NavigateTo(OperationNames.Dashboard);
-
-	private async Task Logout() =>
-		await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
 	#endregion
 }
 

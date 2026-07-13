@@ -1,10 +1,10 @@
-<MudBlazor.MudHotkey Key=JsKey.KeyD KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="NavigateToHome" />
-<MudBlazor.MudHotkey Key=JsKey.KeyL KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="Logout" />
+<MudBlazor.MudHotkey Key=JsKey.KeyD KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => NavigationManager.NavigateTo(OperationNames.Dashboard)" />
+<MudBlazor.MudHotkey Key=JsKey.KeyL KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="async () => await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService)" />
 <MudBlazor.MudHotkey Key=JsKey.F2 OnHotkeyPressed="FocusSearchBox" />
 
 <div class="page-header">
 	<div class="header-left">
-		<button type="button" class="header-logo-button" title="Go to Home (Ctrl+D)" @onclick="NavigateToHome">
+		<button type="button" class="header-logo-button" title="Go to Home (Ctrl+D)" @onclick="() => NavigationManager.NavigateTo(OperationNames.Dashboard)">
 			<img src="images/logo.png" alt="Strada" class="header-logo" />
 		</button>
 		@if (LeftContent != null)
@@ -13,7 +13,14 @@
 		}
 	</div>
 	<div class="header-center">
-		<h1 class="page-title">@Title</h1>
+		@if (Title == "Dashboard" && _user.Admin && _currentDateTime.Month == 7 && _currentDateTime.Day == 13)
+		{
+			<h1 class="page-title">Happy Birthday, Sir!</h1>
+		}
+		else
+		{
+			<h1 class="page-title">@Title</h1>
+		}
 	</div>
 	<div class="header-right">
 		<div class="global-search-container">
@@ -36,7 +43,7 @@
 			{
 				@RightContent
 			}
-			<button type="button" class="user-badge" title="Logout (Ctrl+L)" @onclick="Logout">
+			<button type="button" class="user-badge" title="Logout (Ctrl+L)" @onclick="async () => await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService)">
 				<span class="user-name-text">@_user?.Name</span>
 				<span class="user-name-mobile">@GetMobileUserName()</span>
 				<span class="logout-power-button">
