@@ -14,3 +14,8 @@
 ::deep .ccb-readonly .mud-icon-root {
 	color: #cbd5e1;
 }
+
+::deep .ccb-normal {
+	background-color: var(--yellow);
+	border-radius: var(--border-radius-sm);
+}

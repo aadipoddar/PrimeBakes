@@ -13,5 +13,5 @@
 				 ReadOnly="@ReadOnly"
 				 Required="@Required"
 				 RequiredError=""
-				 Class="@(ReadOnly ? "ccb-readonly" : null)" />
+				 Class="@(ReadOnly ? "ccb-readonly" : _isFocused ? "ccb-normal" : null)" />
 </div>

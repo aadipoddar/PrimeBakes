@@ -1,18 +1,18 @@
 /* The wrapper must not introduce its own box, otherwise it (not the inner
    field) becomes the flex item in layouts. `display: contents` lets the
    MudDateRangePicker participate directly in the parent layout. */
-.cdrp-root {
+.cdp-root {
 	display: contents;
 }
 
 /* Read-only state: mirror the muted, dashed-border treatment used by the
    other Custom* inputs so a locked range clearly reads as non-editable. */
-::deep .cdrp-readonly {
+::deep .cdp-readonly {
 	background-color: var(--gray-200);
 	border-radius: var(--border-radius-sm);
 }
 
-::deep .cdrp-normal {
+::deep .cdp-normal {
 	background-color: var(--yellow);
 	border-radius: var(--border-radius-sm);
 }

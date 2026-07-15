@@ -16,21 +16,11 @@
    The `cnf-readonly` class is applied to the .mud-input root when ReadOnly. */
 
 ::deep .cnf-readonly {
-	background-color: #f1f5f9;
-	border-radius: 4px;
+	background-color: var(--gray-200);
+	border-radius: var(--border-radius-sm);
 }
 
-	::deep .cnf-readonly input {
-		color: #64748b;
-	}
-
-	/* Outlined variant border + label muted so it clearly reads as locked. */
-	::deep .cnf-readonly .mud-input-outlined-border {
-		border-style: dashed !important;
-		border-color: #cbd5e1 !important;
-	}
-
-::deep .cnf-readonly + .mud-input-label,
-::deep .cnf-readonly ~ .mud-input-label {
-	color: #94a3b8;
+::deep .cnf-normal {
+	background-color: var(--yellow);
+	border-radius: var(--border-radius-sm);
 }

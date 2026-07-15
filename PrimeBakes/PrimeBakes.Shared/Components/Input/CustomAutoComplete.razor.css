@@ -1,21 +1,21 @@
 /* The component wrapper must not introduce its own box, otherwise it (not the
-   inner field) becomes the flex item in layouts like .date-year-wrapper and
-   the field collapses to content width. `display: contents` lets the
-   MudTextField participate directly in the parent layout. */
-.ctf-root {
+   inner field) becomes the flex item in layouts and the field collapses to
+   content width. `display: contents` lets the MudNumericField participate
+   directly in the parent layout. */
+.caf-root {
 	display: contents;
 }
 
 /* Read-only state: MudBlazor only sets the native `readonly` attribute and
    does not grey the field out (that is reserved for `mud-disabled`).
-   The `ctf-readonly` class is applied to the .mud-input root when ReadOnly. */
+   The `caf-readonly` class is applied to the .mud-input root when ReadOnly. */
 
-::deep .ctf-readonly {
+::deep .caf-readonly {
 	background-color: var(--gray-200);
 	border-radius: var(--border-radius-sm);
 }
 
-::deep .ctf-normal {
+::deep .caf-normal {
 	background-color: var(--yellow);
 	border-radius: var(--border-radius-sm);
 }

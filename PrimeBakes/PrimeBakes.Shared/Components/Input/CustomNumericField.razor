@@ -17,7 +17,7 @@
 					 RequiredError=""
 					 ErrorText=""
 					 ReadOnly="@ReadOnly"
-					 Class="@(ReadOnly ? "cnf-readonly" : null)"
+					 Class="@(ReadOnly ? "cnf-readonly" : _isFocused ? "cnf-normal" : null)"
 					 @attributes="_rangeAttributes"
 					 Format="@Format"
 					 Culture="@Culture"

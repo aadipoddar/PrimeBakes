@@ -12,7 +12,7 @@
 						RequiredError=""
 						ErrorText=""
 						ReadOnly="@ReadOnly"
-						Class="@(ReadOnly ? "cdrp-readonly" : null)"
+						Class="@(ReadOnly ? "cdrp-readonly" : _isFocused ? "cdrp-normal" : null)"
 						AutoClose="true"
 						Editable="true"
 						Margin="MudBlazor.Margin.Dense"

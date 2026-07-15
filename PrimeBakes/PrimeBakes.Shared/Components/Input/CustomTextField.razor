@@ -17,7 +17,7 @@
 				  ErrorText=""
 				  ReadOnly="@ReadOnly"
 				  InputType="@InputType"
-				  Class="@(ReadOnly ? "ctf-readonly" : null)"
+				  Class="@(ReadOnly ? "ctf-readonly" : _isFocused ? "ctf-normal" : null)"
 				  Lines="@Lines"
 				  Sizing="@(Lines > 1 ? InputSizing.Auto : InputSizing.Fixed)"
 				  MaxLines="@(Lines > 1 ? MaxLines : 0)"

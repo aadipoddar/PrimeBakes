@@ -5,7 +5,7 @@
 :root {
 	/* Colors */
 	--primary-blue: #3b82f6;
-
+	--yellow: #f6e7d8;
 	/* Grays */
 	--gray-50: #f8fafc;
 	--gray-100: #f1f5f9;
@@ -17,12 +17,11 @@
 	--gray-700: #334155;
 	--gray-800: #1e293b;
 	--gray-900: #0f172a;
-	
 	/* App Background */
 	--app-bg: linear-gradient(135deg, #f5dce7 0%, #fae6f0 100%);
-
 	/* Spacing */
 	--border-radius: 12px;
+	--border-radius-sm: 6px;
 }
 
 /* ================================================================

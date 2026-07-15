@@ -5,7 +5,7 @@
 	<MudHotkey Key="JsKey.F12" OnHotkeyPressed="NavigateToAddNew" />
 }
 
-<div @onfocusin="OnFocusIn" @onfocusout="OnFocusOut">
+<div class="cdp-root" @onfocusin="OnFocusIn" @onfocusout="OnFocusOut">
 
 	<div class="date-year-wrapper">
 		<MudDatePicker @ref="_datePicker"
@@ -17,6 +17,7 @@
 					   Label="@Label"
 					   Required="@Required"
 					   RequiredError=""
+					   Class="@(_isFocused ? "cdp-normal" : null)"
 					   ErrorText=""
 					   AutoClose="true"
 					   Editable="true"

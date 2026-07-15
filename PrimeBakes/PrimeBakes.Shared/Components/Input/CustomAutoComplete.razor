@@ -6,7 +6,7 @@
 	<MudHotkey Key="JsKey.F12" OnHotkeyPressed="NavigateToAddNew" />
 }
 
-<div @onfocusin="OnFocusIn" @onfocusout="OnFocusOut">
+<div class="caf-root" @onfocusin="OnFocusIn" @onfocusout="OnFocusOut">
 	<MudAutocomplete T="T"
 					 @ref="_autocomplete"
 					 Value="Value"
@@ -17,6 +17,7 @@
 					 Placeholder="@Placeholder"
 					 Required="@Required"
 					 RequiredError=""
+					 Class="@(_isFocused ? "caf-normal" : null)"
 					 ErrorText=""
 					 Disabled="@Disabled"
 					 Margin="MudBlazor.Margin.Dense"
