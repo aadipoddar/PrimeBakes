@@ -77,6 +77,13 @@ else
 						</div>
 
 						<div class="form-field">
+							<div class="checkbox-wrapper">
+								<CustomCheckBox @bind-Value="_location.UseLocationRateOnSale"
+												Label="Use Location Rate On Sale" />
+							</div>
+						</div>
+
+						<div class="form-field">
 							<CustomAutoComplete T="LedgerModel"
 												@bind-Value="_selectedLedger"
 												DataSource="@_ledgers"
@@ -127,6 +134,7 @@ else
 						<CustomGridColumn Field="@nameof(LocationModel.Name)" HeaderText="Location Name" />
 						<CustomGridColumn Field="@nameof(LocationModel.Code)" HeaderText="Code" />
 						<CustomGridColumn Field="@nameof(LocationModel.Discount)" HeaderText="Dis" CustomColor="grid-debit" />
+						<CustomGridColumn Field="@nameof(LocationModel.UseLocationRateOnSale)" HeaderText="Use Location Rate On Sale" DisplayAsCheckBox="true" />
 
 						<CustomGridColumn>
 							<CustomTemplate>

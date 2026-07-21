@@ -255,16 +255,20 @@ public partial class SaleReturnPage
 	private async Task LoadItems()
 	{
 		var saleReturnDate = DateOnly.FromDateTime(_saleReturn.TransactionDateTime);
-		var products = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, _saleReturn.LocationId, saleReturnDate);
+		var fromLocationProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, _saleReturn.LocationId, saleReturnDate);
 
 		var toLocation = _locations.FirstOrDefault(s => s.LedgerId == _selectedParty?.Id);
 		if (toLocation is not null)
 		{
 			var toLocationProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, toLocation.Id, saleReturnDate);
-			products = [.. products.Where(x => toLocationProducts.Any(y => y.ProductId == x.ProductId))];
+			fromLocationProducts = [.. fromLocationProducts.Where(x => toLocationProducts.Any(y => y.ProductId == x.ProductId))];
+
+			if (toLocation.UseLocationRateOnSale)
+				foreach (var product in fromLocationProducts)
+					product.Rate = toLocationProducts.FirstOrDefault(x => x.ProductId == product.ProductId).Rate;
 		}
 
-		_products = [.. products.OrderBy(s => s.Name)];
+		_products = [.. fromLocationProducts.OrderBy(s => s.Name)];
 		_taxes = await CommonData.LoadTableDataByStatus<TaxModel>(StoreNames.Tax);
 	}
 

@@ -6,6 +6,7 @@ public class LocationModel
     public string Name { get; set; }
     public string Code { get; set; }
     public decimal Discount { get; set; }
+    public bool UseLocationRateOnSale { get; set; }
     public int LedgerId { get; set; }
     public string? Remarks { get; set; }
     public bool Status { get; set; }

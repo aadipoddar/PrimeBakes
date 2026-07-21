@@ -3,6 +3,7 @@
 	@Name VARCHAR(500),
 	@Code VARCHAR(10),
 	@Discount DECIMAL(5, 2),
+	@UseLocationRateOnSale BIT,
 	@LedgerId INT,
 	@Remarks VARCHAR(MAX),
 	@Status BIT
@@ -15,6 +16,7 @@ BEGIN
 			[Name],
 			[Code],
 			[Discount],
+			[UseLocationRateOnSale],
 			[LedgerId],
 			[Remarks],
 			[Status]
@@ -24,6 +26,7 @@ BEGIN
 			@Name,
 			@Code,
 			@Discount,
+			@UseLocationRateOnSale,
 			@LedgerId,
 			@Remarks,
 			@Status
@@ -39,6 +42,7 @@ BEGIN
 			[Name] = @Name,
 			[Code] = @Code,
 			[Discount] = @Discount,
+			[UseLocationRateOnSale] = @UseLocationRateOnSale,
 			[LedgerId] = @LedgerId,
 			[Remarks] = @Remarks,
 			[Status] = @Status

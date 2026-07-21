@@ -234,15 +234,19 @@ public partial class StockTransferPage
 	private async Task LoadItems()
 	{
 		var transferDate = DateOnly.FromDateTime(_stockTransfer.TransactionDateTime);
-		var products = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, _stockTransfer.LocationId, transferDate);
+		var fromLocationProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, _stockTransfer.LocationId, transferDate);
 
 		if (_stockTransfer.ToLocationId > 0)
 		{
 			var toLocationProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, _stockTransfer.ToLocationId, transferDate);
-			products = [.. products.Where(x => toLocationProducts.Any(y => y.ProductId == x.ProductId))];
+			fromLocationProducts = [.. fromLocationProducts.Where(x => toLocationProducts.Any(y => y.ProductId == x.ProductId))];
+
+			if (_selectedToLocation.UseLocationRateOnSale)
+				foreach (var product in fromLocationProducts)
+					product.Rate = toLocationProducts.FirstOrDefault(x => x.ProductId == product.ProductId).Rate;
 		}
 
-		_products = [.. products.OrderBy(s => s.Name)];
+		_products = [.. fromLocationProducts.OrderBy(s => s.Name)];
 		_taxes = await CommonData.LoadTableDataByStatus<TaxModel>(StoreNames.Tax);
 
 		await LoadTaxState();

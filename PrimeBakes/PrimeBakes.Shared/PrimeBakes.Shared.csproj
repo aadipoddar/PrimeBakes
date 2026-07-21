@@ -4,7 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <AssemblyVersion>1.1.6.8</AssemblyVersion>
+    <AssemblyVersion>1.1.6.9</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,15 +12,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.10" />
     <PackageReference Include="MudBlazor" Version="9.7.0" />
-    <PackageReference Include="Syncfusion.Blazor.Buttons" Version="34.1.30" />
-    <PackageReference Include="Syncfusion.Blazor.Diagram" Version="34.1.30" />
-    <PackageReference Include="Syncfusion.Blazor.Grid" Version="34.1.30" />
-    <PackageReference Include="Syncfusion.Blazor.Inputs" Version="34.1.30" />
-    <PackageReference Include="Syncfusion.Blazor.Notifications" Version="34.1.30" />
-    <PackageReference Include="Syncfusion.Blazor.Popups" Version="34.1.30" />
-    <PackageReference Include="Syncfusion.Blazor.Themes" Version="34.1.30" />
+    <PackageReference Include="Syncfusion.Blazor.Buttons" Version="34.1.32" />
+    <PackageReference Include="Syncfusion.Blazor.Diagram" Version="34.1.32" />
+    <PackageReference Include="Syncfusion.Blazor.Grid" Version="34.1.32" />
+    <PackageReference Include="Syncfusion.Blazor.Inputs" Version="34.1.32" />
+    <PackageReference Include="Syncfusion.Blazor.Notifications" Version="34.1.32" />
+    <PackageReference Include="Syncfusion.Blazor.Popups" Version="34.1.32" />
+    <PackageReference Include="Syncfusion.Blazor.Themes" Version="34.1.32" />
   </ItemGroup>
 
   <ItemGroup>

@@ -18,6 +18,7 @@ public static class LocationExport
 			location.Name,
 			location.Code,
 			location.Discount,
+			location.UseLocationRateOnSale,
 			LedgerName = ledgers.FirstOrDefault(l => l.Id == location.LedgerId)?.Name ?? "N/A",
 			location.Remarks,
 			Status = location.Status ? "Active" : "Deleted"
@@ -29,6 +30,7 @@ public static class LocationExport
 			[nameof(LocationModel.Name)] = new() { DisplayName = "Location Name", Alignment = CellAlignment.Left, IsRequired = true },
 			[nameof(LocationModel.Code)] = new() { DisplayName = "Code", Alignment = CellAlignment.Center, IsRequired = true },
 			[nameof(LocationModel.Discount)] = new() { DisplayName = "Discount %", Alignment = CellAlignment.Right, Format = "#,##0.00", IncludeInTotal = false },
+			[nameof(LocationModel.UseLocationRateOnSale)] = new() { DisplayName = "Use Location Rate On Sale", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			["LedgerName"] = new() { DisplayName = "Ledger", Alignment = CellAlignment.Left, IsRequired = true },
 			[nameof(LocationModel.Remarks)] = new() { DisplayName = "Remarks", Alignment = CellAlignment.Left },
 			[nameof(LocationModel.Status)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false }
@@ -40,6 +42,7 @@ public static class LocationExport
 			nameof(LocationModel.Name),
 			nameof(LocationModel.Code),
 			nameof(LocationModel.Discount),
+			nameof(LocationModel.UseLocationRateOnSale),
 			"LedgerName",
 			nameof(LocationModel.Remarks),
 			nameof(LocationModel.Status)
