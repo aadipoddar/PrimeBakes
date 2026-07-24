@@ -74,6 +74,7 @@ else
 												ValueChanged="OnRecipeQuantityChanged"
 												Label="Quantity"
 												Placeholder="Enter Quantity"
+												Format="N3"
 												Min="0" />
 						</div>
 
@@ -131,6 +132,7 @@ else
 												@bind-Value="_selectedCart.Quantity"
 												Label="Quantity"
 												Placeholder="0.00"
+												Format="N3"
 												Min="0" />
 						</div>
 
@@ -189,7 +191,7 @@ else
 						<GridAggregate>
 							<GridAggregateColumns>
 								<GridColumnAggregate Field="@nameof(RecipeItemCartModel.ItemName)" Type="AggregateType.Count" Format="N0" />
-								<GridColumnAggregate Field="@nameof(RecipeItemCartModel.Quantity)" />
+								<GridColumnAggregate Field="@nameof(RecipeItemCartModel.Quantity)" Format="N3" />
 								<GridColumnAggregate Field="@nameof(RecipeItemCartModel.Amount)" CustomColor="grid-total" />
 								<GridColumnAggregate Field="@nameof(RecipeItemCartModel.PerUnit)" />
 							</GridAggregateColumns>
@@ -198,7 +200,7 @@ else
 
 					<GridColumns>
 						<CustomGridColumn Field="@nameof(RecipeItemCartModel.ItemName)" HeaderText="Raw Material Name" />
-						<CustomGridColumn Field="@nameof(RecipeItemCartModel.Quantity)" HeaderText="Quantity" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(RecipeItemCartModel.Quantity)" HeaderText="Quantity" NumericColumn="true" Format="N3" />
 						<CustomGridColumn Field="@nameof(RecipeItemCartModel.Rate)" HeaderText="Rate" NumericColumn="true" />
 						<CustomGridColumn Field="@nameof(RecipeItemCartModel.Amount)" HeaderText="Amount" NumericColumn="true" />
 						<CustomGridColumn Field="@nameof(RecipeItemCartModel.PerUnit)" HeaderText="Per Unit" NumericColumn="true" />

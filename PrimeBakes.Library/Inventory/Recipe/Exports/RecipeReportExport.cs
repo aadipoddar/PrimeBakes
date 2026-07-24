@@ -23,7 +23,7 @@ public static class RecipeReportExport
 		{
 			[nameof(RecipeOverviewModel.ProductName)] = new() { DisplayName = "Product", Alignment = CellAlignment.Left, IncludeInTotal = false, ExcelWidth = 30 },
 			[nameof(RecipeOverviewModel.FromDate)] = new() { DisplayName = "Effective Date", Format = "dd-MMM-yyyy", Alignment = CellAlignment.Center, IncludeInTotal = false },
-			[nameof(RecipeOverviewModel.Quantity)] = new() { DisplayName = "Recipe Qty", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(RecipeOverviewModel.Quantity)] = new() { DisplayName = "Recipe Qty", Format = "#,##0.000", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(RecipeOverviewModel.Deduct)] = new() { DisplayName = "Deduct on Sale", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(RecipeOverviewModel.ItemCount)] = new() { DisplayName = "Ingredients", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(RecipeOverviewModel.TotalCost)] = new() { DisplayName = "Total Cost", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, IsGrandTotal = true },
@@ -93,12 +93,12 @@ public static class RecipeReportExport
 			[nameof(RecipeItemOverviewModel.ItemCode)] = new() { DisplayName = "Code", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(RecipeItemOverviewModel.ItemCategoryName)] = new() { DisplayName = "Category", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(RecipeItemOverviewModel.UnitOfMeasurement)] = new() { DisplayName = "UOM", Alignment = CellAlignment.Center, IncludeInTotal = false },
-			[nameof(RecipeItemOverviewModel.Quantity)] = new() { DisplayName = "Quantity", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
+			[nameof(RecipeItemOverviewModel.Quantity)] = new() { DisplayName = "Quantity", Format = "#,##0.000", Alignment = CellAlignment.Right, IncludeInTotal = true },
 			[nameof(RecipeItemOverviewModel.Rate)] = new() { DisplayName = "Rate", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(RecipeItemOverviewModel.Amount)] = new() { DisplayName = "Amount", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, IsGrandTotal = true },
 			[nameof(RecipeItemOverviewModel.PerUnit)] = new() { DisplayName = "Per Unit", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(RecipeItemOverviewModel.ProductName)] = new() { DisplayName = "Recipe (Product)", Alignment = CellAlignment.Left, IncludeInTotal = false, ExcelWidth = 30 },
-			[nameof(RecipeItemOverviewModel.RecipeQuantity)] = new() { DisplayName = "Recipe Qty", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(RecipeItemOverviewModel.RecipeQuantity)] = new() { DisplayName = "Recipe Qty", Format = "#,##0.000", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(RecipeItemOverviewModel.Deduct)] = new() { DisplayName = "Deduct on Sale", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(RecipeItemOverviewModel.FromDate)] = new() { DisplayName = "Effective Date", Format = "dd-MMM-yyyy", Alignment = CellAlignment.Center, IncludeInTotal = false },
 		};

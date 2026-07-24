@@ -155,13 +155,13 @@ else
 						<CustomGridColumn Field="@nameof(RecipeItemOverviewModel.ItemCategoryName)" HeaderText="Category" />
 						<CustomGridColumn Field="@nameof(RecipeItemOverviewModel.UnitOfMeasurement)" HeaderText="UOM" TextAlign="TextAlign.Center" />
 
-						<CustomGridColumn Field="@nameof(RecipeItemOverviewModel.Quantity)" HeaderText="Quantity" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(RecipeItemOverviewModel.Quantity)" HeaderText="Quantity" NumericColumn="true" Format="N3" />
 						<CustomGridColumn Field="@nameof(RecipeItemOverviewModel.Rate)" HeaderText="Rate" NumericColumn="true" />
 						<CustomGridColumn Field="@nameof(RecipeItemOverviewModel.Amount)" HeaderText="Amount" TotalColumn="true" />
 						<CustomGridColumn Field="@nameof(RecipeItemOverviewModel.PerUnit)" HeaderText="Per Unit" NumericColumn="true" />
 
 						<CustomGridColumn Field="@nameof(RecipeItemOverviewModel.ProductName)" HeaderText="Recipe (Product)" />
-						<CustomGridColumn Field="@nameof(RecipeItemOverviewModel.RecipeQuantity)" HeaderText="Recipe Qty" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(RecipeItemOverviewModel.RecipeQuantity)" HeaderText="Recipe Qty" NumericColumn="true" Format="N3" />
 						<CustomGridColumn Field="@nameof(RecipeItemOverviewModel.Deduct)" HeaderText="Deduct on Sale" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
 						<CustomGridColumn Field="@nameof(RecipeItemOverviewModel.FromDate)" HeaderText="Effective Date" Format="dd/MM/yy" Type="ColumnType.DateOnly" TextAlign="TextAlign.Center" />
 
