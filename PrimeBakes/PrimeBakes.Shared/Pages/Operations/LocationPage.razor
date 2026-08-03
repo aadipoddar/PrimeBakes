@@ -77,13 +77,6 @@ else
 						</div>
 
 						<div class="form-field">
-							<div class="checkbox-wrapper">
-								<CustomCheckBox @bind-Value="_location.UseLocationRateOnSale"
-												Label="Use Location Rate On Sale" />
-							</div>
-						</div>
-
-						<div class="form-field">
 							<CustomAutoComplete T="LedgerModel"
 												@bind-Value="_selectedLedger"
 												DataSource="@_ledgers"
@@ -91,6 +84,27 @@ else
 												Label="Ledger"
 												FieldValue="@nameof(LedgerModel.Name)"
 												AddNewRoute="@AccountsRouteNames.LedgerMaster" />
+						</div>
+
+						<div class="form-field">
+							<div class="checkbox-wrapper">
+								<CustomCheckBox @bind-Value="_location.COCO"
+												Label="Is a COCO model" />
+							</div>
+						</div>
+
+						<div class="form-field">
+							<div class="checkbox-wrapper">
+								<CustomCheckBox @bind-Value="_location.FOFO"
+												Label="Is a FOFO model" />
+							</div>
+						</div>
+
+						<div class="form-field">
+							<div class="checkbox-wrapper">
+								<CustomCheckBox @bind-Value="_location.UseLocationRateOnSale"
+												Label="Use Location Rate On Sale" />
+							</div>
 						</div>
 
 						<div class="form-field">
@@ -134,7 +148,6 @@ else
 						<CustomGridColumn Field="@nameof(LocationModel.Name)" HeaderText="Location Name" />
 						<CustomGridColumn Field="@nameof(LocationModel.Code)" HeaderText="Code" />
 						<CustomGridColumn Field="@nameof(LocationModel.Discount)" HeaderText="Dis" CustomColor="grid-debit" />
-						<CustomGridColumn Field="@nameof(LocationModel.UseLocationRateOnSale)" HeaderText="Use Location Rate On Sale" DisplayAsCheckBox="true" />
 
 						<CustomGridColumn>
 							<CustomTemplate>
@@ -149,6 +162,10 @@ else
 								</GridColumn>
 							</CustomTemplate>
 						</CustomGridColumn>
+
+						<CustomGridColumn Field="@nameof(LocationModel.COCO)" HeaderText="Is a COCO model" DisplayAsCheckBox="true" />
+						<CustomGridColumn Field="@nameof(LocationModel.FOFO)" HeaderText="Is a FOFO model" DisplayAsCheckBox="true" />
+						<CustomGridColumn Field="@nameof(LocationModel.UseLocationRateOnSale)" HeaderText="Use Location Rate On Sale" DisplayAsCheckBox="true" />
 
 						<CustomGridColumn Field="@nameof(LocationModel.Remarks)" HeaderText="Remarks" />
 						<CustomGridColumn Field="@nameof(LocationModel.Status)" Visible="_showDeleted" StatusColumn="true" />

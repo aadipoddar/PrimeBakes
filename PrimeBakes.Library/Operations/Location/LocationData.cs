@@ -83,6 +83,9 @@ public static class LocationData
 		if (item.Discount is < 0 or > 100)
 			throw new Exception("Discount must be between 0% and 100%. Please enter a valid discount.");
 
+		if (item.COCO == item.FOFO)
+			throw new Exception("Location type must be either COCO or FOFO. Please select a valid location type.");
+
 		var allLocations = await CommonData.LoadTableData<LocationModel>(OperationNames.Location);
 
 		var existingByName = allLocations.FirstOrDefault(x => x.Id != item.Id && x.Name.Equals(item.Name, StringComparison.OrdinalIgnoreCase));

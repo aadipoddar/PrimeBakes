@@ -3,8 +3,10 @@
 	@Name VARCHAR(500),
 	@Code VARCHAR(10),
 	@Discount DECIMAL(5, 2),
-	@UseLocationRateOnSale BIT,
 	@LedgerId INT,
+	@COCO BIT,
+	@FOFO BIT,
+	@UseLocationRateOnSale BIT,
 	@Remarks VARCHAR(MAX),
 	@Status BIT
 AS
@@ -16,8 +18,10 @@ BEGIN
 			[Name],
 			[Code],
 			[Discount],
-			[UseLocationRateOnSale],
 			[LedgerId],
+			[COCO],
+			[FOFO],
+			[UseLocationRateOnSale],
 			[Remarks],
 			[Status]
 		)
@@ -26,8 +30,10 @@ BEGIN
 			@Name,
 			@Code,
 			@Discount,
-			@UseLocationRateOnSale,
 			@LedgerId,
+			@COCO,
+			@FOFO,
+			@UseLocationRateOnSale,
 			@Remarks,
 			@Status
 		);
@@ -42,8 +48,10 @@ BEGIN
 			[Name] = @Name,
 			[Code] = @Code,
 			[Discount] = @Discount,
-			[UseLocationRateOnSale] = @UseLocationRateOnSale,
 			[LedgerId] = @LedgerId,
+			[COCO] = @COCO,
+			[FOFO] = @FOFO,
+			[UseLocationRateOnSale] = @UseLocationRateOnSale,
 			[Remarks] = @Remarks,
 			[Status] = @Status
 		WHERE Id = @Id;
