@@ -13,9 +13,6 @@
 <MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyW KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleSummary" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyY KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleBills" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyT KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleSaleReturns" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyU KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleStockTransfers" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyQ KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDetailsView" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport(true)" Disabled="@_isProcessing" />
@@ -40,9 +37,11 @@ else
 					<MudBlazor.MudMenuItem Label="Refresh Data (Ctrl + R / F5)" OnClick="LoadTransactionOverviews" />
 					<MudBlazor.MudMenuItem Label="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" OnClick="ToggleDeleted" />
 					<MudBlazor.MudMenuItem Label="@(_showSummary ? "Hide Summary (Ctrl + W)" : "Show Summary (Ctrl + W)")" OnClick="ToggleSummary" />
-					<MudBlazor.MudMenuItem Label="@(_showBills ? "Hide Bills (Ctrl + Y)" : "Show Bills (Ctrl + Y)")" OnClick="ToggleBills" />
-					<MudBlazor.MudMenuItem Label="@(_showSaleReturns ? "Hide Returns (Ctrl + T)" : "Show Returns (Ctrl + T)")" OnClick="ToggleSaleReturns" />
-					<MudBlazor.MudMenuItem Label="@(_showStockTransfers ? "Hide Transfers (Ctrl + U)" : "Show Transfers (Ctrl + U)")" OnClick="ToggleStockTransfers" />
+					<MudBlazor.MudMenuItem Label="@(_showBills ? "Hide Bills" : "Show Bills")" OnClick="ToggleBills" />
+					<MudBlazor.MudMenuItem Label="@(_showSaleReturns ? "Hide Returns" : "Show Returns")" OnClick="ToggleSaleReturns" />
+					<MudBlazor.MudMenuItem Label="@(_showStockTransfers ? "Hide Transfers" : "Show Transfers")" OnClick="ToggleStockTransfers" />
+					<MudBlazor.MudMenuItem Label="@(_showCoco ? "Hide COCO" : "Show COCO")" OnClick="ToggleCoco" />
+					<MudBlazor.MudMenuItem Label="@(_showFofo ? "Hide FOFO" : "Show FOFO")" OnClick="ToggleFofo" />
 					<MudBlazor.MudMenuItem Label="@(_showAllColumns ? "Hide Details (Ctrl + Q)" : "Show Details (Ctrl + Q)")" OnClick="ToggleDetailsView" />
 					<MudBlazor.MudDivider />
 					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportReport()" />

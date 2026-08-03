@@ -29,9 +29,11 @@ public partial class SaleItemReport : IAsyncDisposable
 	private bool _isLoading = true;
 	private bool _isProcessing = false;
 	private bool _showAllColumns = false;
+	private bool _showBills = false;
 	private bool _showSaleReturns = false;
 	private bool _showStockTransfers = false;
-	private bool _showBills = false;
+	private bool _showCoco = true;
+	private bool _showFofo = true;
 	private bool _showSummary = false;
 	private bool _showDeleted = false;
 
@@ -47,6 +49,8 @@ public partial class SaleItemReport : IAsyncDisposable
 	private List<ProductModel> _products = [];
 	private List<ProductCategoryModel> _productCategories = [];
 	private List<LocationModel> _locations = [];
+	private List<LocationModel> _cocoLocations = [];
+	private List<LocationModel> _fofoLocations = [];
 	private List<CompanyModel> _companies = [];
 	private List<LedgerModel> _parties = [];
 	private List<SaleItemOverviewModel> _transactionOverviews = [];
@@ -120,6 +124,8 @@ public partial class SaleItemReport : IAsyncDisposable
 		_parties = [.. _parties.OrderBy(s => s.Name)];
 
 		_selectedLocation = _user.LocationId != 1 ? _locations.FirstOrDefault(s => s.Id == _user.LocationId) : null;
+		_cocoLocations = [.. _locations.Where(l => l.COCO)];
+		_fofoLocations = [.. _locations.Where(l => l.FOFO)];
 	}
 
 	private async Task LoadTransactionOverviews()
@@ -169,7 +175,9 @@ public partial class SaleItemReport : IAsyncDisposable
 				(_selectedProductCategory is null || _selectedProductCategory.Id == 0 || t.ItemCategoryId == _selectedProductCategory.Id) &&
 				(_selectedLocation is null || _selectedLocation.Id == 0 || t.LocationId == _selectedLocation.Id) &&
 				(_selectedCompany is null || _selectedCompany.Id == 0 || t.CompanyId == _selectedCompany.Id) &&
-				(_selectedParty is null || _selectedParty.Id == 0 || t.PartyId == _selectedParty.Id))
+				(_selectedParty is null || _selectedParty.Id == 0 || t.PartyId == _selectedParty.Id) &&
+				(_showCoco || !_cocoLocations.Any(l => l.Id == t.LocationId)) &&
+				(_showFofo || !_fofoLocations.Any(l => l.Id == t.LocationId)))
 			.OrderBy(t => t.TransactionDateTime)];
 
 		if (_showSummary)
@@ -833,6 +841,18 @@ public partial class SaleItemReport : IAsyncDisposable
 	private async Task ToggleBills()
 	{
 		_showBills = !_showBills;
+		await ApplyFilters();
+	}
+
+	private async Task ToggleCoco()
+	{
+		_showCoco = !_showCoco;
+		await ApplyFilters();
+	}
+
+	private async Task ToggleFofo()
+	{
+		_showFofo = !_showFofo;
 		await ApplyFilters();
 	}
 
