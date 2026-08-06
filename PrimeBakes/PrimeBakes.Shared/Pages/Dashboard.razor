@@ -889,7 +889,7 @@ else
 				</MudBlazor.MudTabPanel>
 
 				<!-- RESTAURANT -->
-				<MudBlazor.MudTabPanel Text="Restaurant" Visible="_user.Restaurant && !IsMobile">
+				<MudBlazor.MudTabPanel Text="Restaurant" Visible="_user.Restaurant && !IsMobile && _user.LocationId == 1">
 
 					<!-- Dining & Billing -->
 					<div class="launchpad-section">
