@@ -100,7 +100,7 @@ else
 						{
 							@foreach (var item in paged)
 							{
-								<div class="pb-cart-row" @key="item.ItemId">
+								<div class="pb-cart-row" @key="@($"{item.ItemId}-{Guid.NewGuid()}")">
 									<div class="pb-cart-row__top">
 										<p class="pb-product__name">@item.ItemName</p>
 										<div class="pb-cart-row__total">₹@((item.Rate * item.Quantity).ToString("N0"))</div>
@@ -158,7 +158,7 @@ else
 						<div class="pb-sent">
 							@foreach (var item in _previousCart)
 							{
-								<div class="pb-sent__row" @key="item.ItemId">
+								<div class="pb-sent__row" @key="@($"{item.ItemId}-{Guid.NewGuid()}")">
 									<div class="pb-sent__head">
 										<p class="pb-product__name">@item.ItemName</p>
 										<span class="pb-sent__amt">₹@item.Total.ToString("N0")</span>
