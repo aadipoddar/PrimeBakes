@@ -96,7 +96,7 @@ else
 				{
 					@foreach (var item in paged)
 					{
-						<div class="pb-grid__row" @key="item.ItemId">
+						<div class="pb-grid__row" @key="@($"{item.ItemId}-{Guid.NewGuid()}")">
 							<div class="pb-grid__row-info">
 								<p class="pb-product__name">@item.ItemName</p>
 								@{
