@@ -21,6 +21,9 @@ public static class StorageFileNames
 	public static string KitchenProductionDataFileName => "kitchen_production_data.json";
 	public static string KitchenProductionCartDataFileName => "kitchen_production_cart_data.json";
 
+	public static string KitchenProductionReturnDataFileName => "kitchen_production_return_data.json";
+	public static string KitchenProductionReturnCartDataFileName => "kitchen_production_return_cart_data.json";
+
 	public static string RawMaterialStockAdjustmentCartDataFileName => "raw_material_stock_adjustment_cart_data.json";
 	public static string ProductStockAdjustmentCartDataFileName => "product_stock_adjustment_cart_data.json";
 

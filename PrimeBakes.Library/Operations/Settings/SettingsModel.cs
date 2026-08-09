@@ -23,6 +23,7 @@ public static class SettingsKeys
 	public static string PurchaseReturnTransactionPrefix => "PurchaseReturnTransactionPrefix";
 	public static string KitchenIssueTransactionPrefix => "KitchenIssueTransactionPrefix";
 	public static string KitchenIssueReturnTransactionPrefix => "KitchenIssueReturnTransactionPrefix";
+	public static string KitchenProductionReturnTransactionPrefix => "KitchenProductionReturnTransactionPrefix";
 	public static string KitchenProductionTransactionPrefix => "KitchenProductionTransactionPrefix";
 	public static string RawMaterialStockAdjustmentTransactionPrefix => "RawMaterialStockAdjustmentTransactionPrefix";
 	public static string ProductStockAdjustmentTransactionPrefix => "ProductStockAdjustmentTransactionPrefix";
@@ -64,6 +65,7 @@ public static class SettingsKeys
 
 	// Kitchen Production
 	public static string KitchenProductionDiscountRate => "KitchenProductionDiscountRate";
+	public static string KitchenProductionReturnDiscountRate => "KitchenProductionReturnDiscountRate";
 
 	// Report Settings
 	public static string AutoRefreshReportTimer => "AutoRefreshReportTimer";

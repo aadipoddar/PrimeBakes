@@ -34,7 +34,9 @@ public partial class SettingsPage
 	private string _purchaseTransactionPrefix = string.Empty;
 	private string _purchaseReturnTransactionPrefix = string.Empty;
 	private string _kitchenIssueTransactionPrefix = string.Empty;
+	private string _kitchenIssueReturnTransactionPrefix = string.Empty;
 	private string _kitchenProductionTransactionPrefix = string.Empty;
+	private string _kitchenProductionReturnTransactionPrefix = string.Empty;
 	private string _rawMaterialStockAdjustmentTransactionPrefix = string.Empty;
 	private string _productStockAdjustmentTransactionPrefix = string.Empty;
 	private string _saleTransactionPrefix = string.Empty;
@@ -92,6 +94,7 @@ public partial class SettingsPage
 
 	// Kitchen Production
 	private decimal _kitchenProductionDiscountRate = 25;
+	private decimal _kitchenProductionReturnDiscountRate = 25;
 
 	// Report Settings
 	private int _autoRefreshReportTimer = 5;
@@ -159,7 +162,9 @@ public partial class SettingsPage
 		_purchaseTransactionPrefix = Str(SettingsKeys.PurchaseTransactionPrefix) ?? string.Empty;
 		_purchaseReturnTransactionPrefix = Str(SettingsKeys.PurchaseReturnTransactionPrefix) ?? string.Empty;
 		_kitchenIssueTransactionPrefix = Str(SettingsKeys.KitchenIssueTransactionPrefix) ?? string.Empty;
+		_kitchenIssueReturnTransactionPrefix = Str(SettingsKeys.KitchenIssueReturnTransactionPrefix) ?? string.Empty;
 		_kitchenProductionTransactionPrefix = Str(SettingsKeys.KitchenProductionTransactionPrefix) ?? string.Empty;
+		_kitchenProductionReturnTransactionPrefix = Str(SettingsKeys.KitchenProductionReturnTransactionPrefix) ?? string.Empty;
 		_rawMaterialStockAdjustmentTransactionPrefix = Str(SettingsKeys.RawMaterialStockAdjustmentTransactionPrefix) ?? string.Empty;
 		_productStockAdjustmentTransactionPrefix = Str(SettingsKeys.ProductStockAdjustmentTransactionPrefix) ?? string.Empty;
 		_saleTransactionPrefix = Str(SettingsKeys.SaleTransactionPrefix) ?? string.Empty;
@@ -197,6 +202,7 @@ public partial class SettingsPage
 
 		// Kitchen Production
 		_kitchenProductionDiscountRate = Decimal(SettingsKeys.KitchenProductionDiscountRate, 25);
+		_kitchenProductionReturnDiscountRate = Decimal(SettingsKeys.KitchenProductionReturnDiscountRate, 25);
 
 		// Report Settings
 		_autoRefreshReportTimer = Int(SettingsKeys.AutoRefreshReportTimer, 5);
@@ -440,7 +446,9 @@ public partial class SettingsPage
 			await UpdateSetting(SettingsKeys.PurchaseTransactionPrefix, _purchaseTransactionPrefix, Desc(SettingsKeys.PurchaseTransactionPrefix));
 			await UpdateSetting(SettingsKeys.PurchaseReturnTransactionPrefix, _purchaseReturnTransactionPrefix, Desc(SettingsKeys.PurchaseReturnTransactionPrefix));
 			await UpdateSetting(SettingsKeys.KitchenIssueTransactionPrefix, _kitchenIssueTransactionPrefix, Desc(SettingsKeys.KitchenIssueTransactionPrefix));
+			await UpdateSetting(SettingsKeys.KitchenIssueReturnTransactionPrefix, _kitchenIssueReturnTransactionPrefix, Desc(SettingsKeys.KitchenIssueReturnTransactionPrefix));
 			await UpdateSetting(SettingsKeys.KitchenProductionTransactionPrefix, _kitchenProductionTransactionPrefix, Desc(SettingsKeys.KitchenProductionTransactionPrefix));
+			await UpdateSetting(SettingsKeys.KitchenProductionReturnTransactionPrefix, _kitchenProductionReturnTransactionPrefix, Desc(SettingsKeys.KitchenProductionReturnTransactionPrefix));
 			await UpdateSetting(SettingsKeys.RawMaterialStockAdjustmentTransactionPrefix, _rawMaterialStockAdjustmentTransactionPrefix, Desc(SettingsKeys.RawMaterialStockAdjustmentTransactionPrefix));
 			await UpdateSetting(SettingsKeys.ProductStockAdjustmentTransactionPrefix, _productStockAdjustmentTransactionPrefix, Desc(SettingsKeys.ProductStockAdjustmentTransactionPrefix));
 			await UpdateSetting(SettingsKeys.SaleTransactionPrefix, _saleTransactionPrefix, Desc(SettingsKeys.SaleTransactionPrefix));
@@ -478,6 +486,7 @@ public partial class SettingsPage
 
 			// Kitchen Production
 			await UpdateSetting(SettingsKeys.KitchenProductionDiscountRate, _kitchenProductionDiscountRate.ToString(), Desc(SettingsKeys.KitchenProductionDiscountRate));
+		await UpdateSetting(SettingsKeys.KitchenProductionReturnDiscountRate, _kitchenProductionReturnDiscountRate.ToString(), Desc(SettingsKeys.KitchenProductionReturnDiscountRate));
 
 			// Report Settings
 			await UpdateSetting(SettingsKeys.AutoRefreshReportTimer, _autoRefreshReportTimer.ToString(), Desc(SettingsKeys.AutoRefreshReportTimer));

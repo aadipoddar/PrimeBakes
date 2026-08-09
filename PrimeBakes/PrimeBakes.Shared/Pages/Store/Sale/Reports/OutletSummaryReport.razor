@@ -103,6 +103,7 @@ else
 								<GridColumnAggregate Field="@nameof(OutletSummaryModel.KitchenIssue)" />
 								<GridColumnAggregate Field="@nameof(OutletSummaryModel.KitchenIssueReturn)" CustomColor="grid-debit" />
 								<GridColumnAggregate Field="@nameof(OutletSummaryModel.KitchenProduction)" />
+								<GridColumnAggregate Field="@nameof(OutletSummaryModel.KitchenProductionReturn)" CustomColor="grid-debit" />
 								<GridColumnAggregate Field="@nameof(OutletSummaryModel.Sale)" />
 								<GridColumnAggregate Field="@nameof(OutletSummaryModel.SaleReturn)" CustomColor="grid-debit" />
 								<GridColumnAggregate Field="@nameof(OutletSummaryModel.Cash)" />
@@ -127,6 +128,7 @@ else
 						<CustomGridColumn Field="@nameof(OutletSummaryModel.KitchenIssue)" HeaderText="Kitchen Issue" NumericColumn="true" />
 						<CustomGridColumn Field="@nameof(OutletSummaryModel.KitchenIssueReturn)" HeaderText="Kitchen Issue Return" CustomColor="grid-debit" />
 						<CustomGridColumn Field="@nameof(OutletSummaryModel.KitchenProduction)" HeaderText="Kitchen Production" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.KitchenProductionReturn)" HeaderText="Kitchen Production Return" CustomColor="grid-debit" />
 						<CustomGridColumn Field="@nameof(OutletSummaryModel.Sale)" HeaderText="Sale" TotalColumn="true" />
 						<CustomGridColumn Field="@nameof(OutletSummaryModel.SaleReturn)" HeaderText="Sale Return" CustomColor="grid-debit" />
 
@@ -150,6 +152,7 @@ else
 
 						<CustomGridColumn Field="@nameof(OutletSummaryModel.PurchaseReturnPercent)" HeaderText="Purchase Return %" Visible="_showAllColumns" CustomColor="grid-debit" />
 						<CustomGridColumn Field="@nameof(OutletSummaryModel.KitchenIssueReturnPercent)" HeaderText="Kitchen Issue Return %" Visible="_showAllColumns" CustomColor="grid-debit" />
+						<CustomGridColumn Field="@nameof(OutletSummaryModel.KitchenProductionReturnPercent)" HeaderText="Kitchen Production Return %" Visible="_showAllColumns" CustomColor="grid-debit" />
 						<CustomGridColumn Field="@nameof(OutletSummaryModel.KitchenProductionPercent)" HeaderText="Kitchen Production %" Visible="_showAllColumns" NumericColumn="true" />
 						<CustomGridColumn Field="@nameof(OutletSummaryModel.SaleReturnPercent)" HeaderText="Sale Return %" Visible="_showAllColumns" CustomColor="grid-debit" />
 					</GridColumns>

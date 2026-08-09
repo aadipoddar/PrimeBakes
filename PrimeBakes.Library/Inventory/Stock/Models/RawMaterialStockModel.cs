@@ -29,6 +29,7 @@ public enum StockType
 	KitchenIssue,
 	KitchenIssueReturn,
 	KitchenProduction,
+	KitchenProductionReturn,
 
 	Sale,
 	SaleReturn,

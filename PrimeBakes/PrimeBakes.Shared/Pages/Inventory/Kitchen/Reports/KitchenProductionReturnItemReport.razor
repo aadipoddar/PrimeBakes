@@ -2,21 +2,20 @@
 @using PrimeBakes.Library.Inventory.Kitchen.Models
 @using PrimeBakes.Library.Store.Product.Models
 
-@attribute [Route(InventoryRouteNames.KitchenProductionItemReport)]
+@attribute [Route(InventoryRouteNames.KitchenProductionReturnItemReport)]
 
-<PageTitle>Kitchen Production Item Report - Prime Bakes</PageTitle>
+<PageTitle>Kitchen Production Return Item Report - Prime Bakes</PageTitle>
 
-<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenProduction, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenProductionReturn, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyQ KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDetailsView" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyW KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleSummary" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyT KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleTransactionReturns" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport(true)" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyH KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenProductionReport, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyH KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenProductionReturnReport, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyO KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="ViewSelectedTransaction" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction(true)" Disabled="@_isProcessing" />
@@ -29,12 +28,11 @@
 else
 {
 	<div class="page-shell">
-		<Header Title="Kitchen Production Item Report">
+		<Header Title="Kitchen Production Return Item Report">
 			<LeftContent>
 				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
-					<MudBlazor.MudMenuItem Label="New Transaction (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenProduction, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="New Transaction (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenProductionReturn, FormFactor, JSRuntime, NavigationManager)" />
 					<MudBlazor.MudMenuItem Label="Refresh Data (Ctrl + R / F5)" OnClick="LoadTransactionOverviews" />
-					<MudBlazor.MudMenuItem Label="@(_showTransactionReturns ? "Hide Returns (Ctrl + T)" : "Show Returns (Ctrl + T)")" OnClick="ToggleTransactionReturns" />
 					<MudBlazor.MudMenuItem Label="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" OnClick="ToggleDeleted" />
 					<MudBlazor.MudMenuItem Label="@(_showSummary ? "Hide Summary (Ctrl + W)" : "Show Summary (Ctrl + W)")" OnClick="ToggleSummary" />
 					<MudBlazor.MudMenuItem Label="@(_showAllColumns ? "Hide Details (Ctrl + Q)" : "Show Details (Ctrl + Q)")" OnClick="ToggleDetailsView" />
@@ -44,12 +42,12 @@ else
 				</MudBlazor.MudMenu>
 
 				<MudBlazor.MudMenu Label="Open" Dense="true" Disabled="_isProcessing">
-					<MudBlazor.MudMenuItem Label="Kitchen Production (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenProduction, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Kitchen Production Report (Ctrl + H)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenProductionReport, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Kitchen Production Item Report" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenProductionItemReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Production Return (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenProductionReturn, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Production Return Report (Ctrl + H)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenProductionReturnReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Production Return Item Report" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenProductionReturnItemReport, FormFactor, JSRuntime, NavigationManager)" />
 					<MudBlazor.MudMenuItem Label="Kitchen Issue" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssue, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Kitchen Issue Report" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssueReport, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Kitchen Issue Item Report" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssueItemReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Production" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenProduction, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Production Report" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenProductionReport, FormFactor, JSRuntime, NavigationManager)" />
 					<MudBlazor.MudMenuItem Label="Kitchen" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.Kitchen, FormFactor, JSRuntime, NavigationManager)" />
 				</MudBlazor.MudMenu>
 
@@ -144,52 +142,52 @@ else
 					<h2 class="section-title">Records</h2>
 				</div>
 
-				<SfGrid @ref="_sfGrid" TValue="KitchenProductionItemOverviewModel" DataSource="_transactionOverviews"
+				<SfGrid @ref="_sfGrid" TValue="KitchenProductionReturnItemOverviewModel" DataSource="_transactionOverviews"
 						AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
 						AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
 						GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
 						Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
-					<GridEvents TValue="KitchenProductionItemOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+					<GridEvents TValue="KitchenProductionReturnItemOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
 					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
 					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
 					<GridAggregates>
 						<GridAggregate>
 							<GridAggregateColumns>
-								<GridColumnAggregate Field="@nameof(KitchenProductionItemOverviewModel.ItemName)" Type="AggregateType.Count" Format="N0" />
-								<GridColumnAggregate Field="@nameof(KitchenProductionItemOverviewModel.Quantity)" />
-								<GridColumnAggregate Field="@nameof(KitchenProductionItemOverviewModel.Total)" CustomColor="grid-total" />
+								<GridColumnAggregate Field="@nameof(KitchenProductionReturnItemOverviewModel.ItemName)" Type="AggregateType.Count" Format="N0" />
+								<GridColumnAggregate Field="@nameof(KitchenProductionReturnItemOverviewModel.Quantity)" />
+								<GridColumnAggregate Field="@nameof(KitchenProductionReturnItemOverviewModel.Total)" CustomColor="grid-total" />
 							</GridAggregateColumns>
 						</GridAggregate>
 					</GridAggregates>
 
 					<GridColumns>
-						<CustomGridColumn Field="@nameof(KitchenProductionItemOverviewModel.ItemName)" HeaderText="Product" Visible="@(_showAllColumns || _selectedProduct is null || _selectedProduct.Id <= 0)" />
-						<CustomGridColumn Field="@nameof(KitchenProductionItemOverviewModel.ItemCode)" HeaderText="Code" Visible="@_showAllColumns" />
-						<CustomGridColumn Field="@nameof(KitchenProductionItemOverviewModel.ItemCategoryName)" HeaderText="Category" Visible="@(_showAllColumns || _selectedProductCategory is null || _selectedProductCategory.Id <= 0)" />
-						<CustomGridColumn Field="@nameof(KitchenProductionItemOverviewModel.Quantity)" HeaderText="Quantity" NumericColumn="true" />
-						<CustomGridColumn Field="@nameof(KitchenProductionItemOverviewModel.Rate)" HeaderText="Rate" Visible="@(!_showSummary)" NumericColumn="true" />
-						<CustomGridColumn Field="@nameof(KitchenProductionItemOverviewModel.Total)" HeaderText="Total" TotalColumn="true" />
-						<CustomGridColumn Field="@nameof(KitchenProductionItemOverviewModel.ItemRemarks)" HeaderText="Item Remarks" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(KitchenProductionReturnItemOverviewModel.ItemName)" HeaderText="Product" Visible="@(_showAllColumns || _selectedProduct is null || _selectedProduct.Id <= 0)" />
+						<CustomGridColumn Field="@nameof(KitchenProductionReturnItemOverviewModel.ItemCode)" HeaderText="Code" Visible="@_showAllColumns" />
+						<CustomGridColumn Field="@nameof(KitchenProductionReturnItemOverviewModel.ItemCategoryName)" HeaderText="Category" Visible="@(_showAllColumns || _selectedProductCategory is null || _selectedProductCategory.Id <= 0)" />
+						<CustomGridColumn Field="@nameof(KitchenProductionReturnItemOverviewModel.Quantity)" HeaderText="Quantity" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenProductionReturnItemOverviewModel.Rate)" HeaderText="Rate" Visible="@(!_showSummary)" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenProductionReturnItemOverviewModel.Total)" HeaderText="Total" TotalColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenProductionReturnItemOverviewModel.ItemRemarks)" HeaderText="Item Remarks" Visible="@(_showAllColumns && !_showSummary)" />
 
-						<CustomGridColumn Field="@nameof(KitchenProductionItemOverviewModel.TransactionNo)" HeaderText="Transaction No" Visible="@(!_showSummary)" />
-						<CustomGridColumn Field="@nameof(KitchenProductionItemOverviewModel.CompanyName)" HeaderText="Company" Visible="@(!_showSummary && (_showAllColumns || _selectedCompany is null || _selectedCompany.Id <= 0))" />
-						<CustomGridColumn Field="@nameof(KitchenProductionItemOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(!_showSummary)" />
-						<CustomGridColumn Field="@nameof(KitchenProductionItemOverviewModel.FinancialYear)" HeaderText="Financial Year" Visible="@(_showAllColumns && !_showSummary)" />
-						<CustomGridColumn Field="@nameof(KitchenProductionItemOverviewModel.KitchenName)" HeaderText="Kitchen" Visible="@(!_showSummary && (_showAllColumns || _selectedKitchen is null || _selectedKitchen.Id <= 0))" />
-						<CustomGridColumn Field="@nameof(KitchenProductionItemOverviewModel.TotalItems)" HeaderText="Total Items" Visible="@(_showAllColumns && !_showSummary)" NumericColumn="true" />
-						<CustomGridColumn Field="@nameof(KitchenProductionItemOverviewModel.TotalQuantity)" HeaderText="Total Qty" Visible="@(_showAllColumns && !_showSummary)" NumericColumn="true" />
-						<CustomGridColumn Field="@nameof(KitchenProductionItemOverviewModel.TotalAmount)" HeaderText="Total Amount" Visible="@(_showAllColumns && !_showSummary)" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenProductionReturnItemOverviewModel.TransactionNo)" HeaderText="Transaction No" Visible="@(!_showSummary)" />
+						<CustomGridColumn Field="@nameof(KitchenProductionReturnItemOverviewModel.CompanyName)" HeaderText="Company" Visible="@(!_showSummary && (_showAllColumns || _selectedCompany is null || _selectedCompany.Id <= 0))" />
+						<CustomGridColumn Field="@nameof(KitchenProductionReturnItemOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(!_showSummary)" />
+						<CustomGridColumn Field="@nameof(KitchenProductionReturnItemOverviewModel.FinancialYear)" HeaderText="Financial Year" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(KitchenProductionReturnItemOverviewModel.KitchenName)" HeaderText="Kitchen" Visible="@(!_showSummary && (_showAllColumns || _selectedKitchen is null || _selectedKitchen.Id <= 0))" />
+						<CustomGridColumn Field="@nameof(KitchenProductionReturnItemOverviewModel.TotalItems)" HeaderText="Total Items" Visible="@(_showAllColumns && !_showSummary)" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenProductionReturnItemOverviewModel.TotalQuantity)" HeaderText="Total Qty" Visible="@(_showAllColumns && !_showSummary)" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenProductionReturnItemOverviewModel.TotalAmount)" HeaderText="Total Amount" Visible="@(_showAllColumns && !_showSummary)" NumericColumn="true" />
 
-						<CustomGridColumn Field="@nameof(KitchenProductionItemOverviewModel.KitchenProductionRemarks)" HeaderText="Production Remarks" Visible="@(_showAllColumns && !_showSummary)" />
-						<CustomGridColumn Field="@nameof(KitchenProductionItemOverviewModel.CreatedByName)" HeaderText="Created By" Visible="@(_showAllColumns && !_showSummary)" />
-						<CustomGridColumn Field="@nameof(KitchenProductionItemOverviewModel.CreatedAt)" HeaderText="Created At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
-						<CustomGridColumn Field="@nameof(KitchenProductionItemOverviewModel.CreatedFromPlatform)" HeaderText="Created Platform" Visible="@(_showAllColumns && !_showSummary)" />
-						<CustomGridColumn Field="@nameof(KitchenProductionItemOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Visible="@(_showAllColumns && !_showSummary)" />
-						<CustomGridColumn Field="@nameof(KitchenProductionItemOverviewModel.LastModifiedAt)" HeaderText="Modified At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
-						<CustomGridColumn Field="@nameof(KitchenProductionItemOverviewModel.LastModifiedFromPlatform)" HeaderText="Modified Platform" Visible="@(_showAllColumns && !_showSummary)" />
-						<CustomGridColumn Field="@nameof(KitchenProductionItemOverviewModel.MasterStatus)" Visible="@(_showDeleted && !_showSummary)" StatusColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenProductionReturnItemOverviewModel.KitchenProductionReturnRemarks)" HeaderText="Production Remarks" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(KitchenProductionReturnItemOverviewModel.CreatedByName)" HeaderText="Created By" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(KitchenProductionReturnItemOverviewModel.CreatedAt)" HeaderText="Created At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(KitchenProductionReturnItemOverviewModel.CreatedFromPlatform)" HeaderText="Created Platform" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(KitchenProductionReturnItemOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(KitchenProductionReturnItemOverviewModel.LastModifiedAt)" HeaderText="Modified At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(KitchenProductionReturnItemOverviewModel.LastModifiedFromPlatform)" HeaderText="Modified Platform" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(KitchenProductionReturnItemOverviewModel.MasterStatus)" Visible="@(_showDeleted && !_showSummary)" StatusColumn="true" />
 					</GridColumns>
 				</SfGrid>
 			</div>

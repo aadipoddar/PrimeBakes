@@ -86,7 +86,13 @@ else
 							<CustomTextField @bind-Value="_kitchenIssueTransactionPrefix" Label="Kitchen Issue Transaction Prefix" Placeholder="e.g., KI" Required="false" />
 						</div>
 						<div class="form-field">
+							<CustomTextField @bind-Value="_kitchenIssueReturnTransactionPrefix" Label="Kitchen Issue Return Transaction Prefix" Placeholder="e.g., KIRET" Required="false" />
+						</div>
+						<div class="form-field">
 							<CustomTextField @bind-Value="_kitchenProductionTransactionPrefix" Label="Kitchen Production Transaction Prefix" Placeholder="e.g., KP" Required="false" />
+						</div>
+						<div class="form-field">
+							<CustomTextField @bind-Value="_kitchenProductionReturnTransactionPrefix" Label="Kitchen Production Return Transaction Prefix" Placeholder="e.g., KPRET" Required="false" />
 						</div>
 						<div class="form-field">
 							<CustomTextField @bind-Value="_rawMaterialStockAdjustmentTransactionPrefix" Label="Raw Material Stock Adjustment Prefix" Placeholder="e.g., RMSA" Required="false" />
@@ -220,6 +226,16 @@ else
 							<CustomNumericField T="decimal"
 												@bind-Value="_kitchenProductionDiscountRate"
 												Label="Kitchen Production Discount Rate (%)"
+												Placeholder="e.g., 25"
+												Format="N2"
+												Min="0"
+												Max="100"
+												Required="false" />
+						</div>
+						<div class="form-field">
+							<CustomNumericField T="decimal"
+												@bind-Value="_kitchenProductionReturnDiscountRate"
+												Label="Kitchen Production Return Discount Rate (%)"
 												Placeholder="e.g., 25"
 												Format="N2"
 												Min="0"

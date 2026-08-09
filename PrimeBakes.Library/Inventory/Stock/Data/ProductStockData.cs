@@ -74,6 +74,7 @@ public static class ProductStockData
 				PurchaseReturnStock = itemStock.Where(s => s.Type == nameof(StockType.PurchaseReturn)).Sum(s => s.Quantity),
 				KitchenIssueStock = itemStock.Where(s => s.Type == nameof(StockType.KitchenIssue)).Sum(s => s.Quantity),
 				KitchenProductionStock = itemStock.Where(s => s.Type == nameof(StockType.KitchenProduction)).Sum(s => s.Quantity),
+				KitchenProductionReturnStock = itemStock.Where(s => s.Type == nameof(StockType.KitchenProductionReturn)).Sum(s => s.Quantity),
 				SaleStock = itemStock.Where(s => s.Type == nameof(StockType.Sale)).Sum(s => s.Quantity),
 				SaleReturnStock = itemStock.Where(s => s.Type == nameof(StockType.SaleReturn)).Sum(s => s.Quantity),
 				StockTransferStock = itemStock.Where(s => s.Type == nameof(StockType.StockTransfer)).Sum(s => s.Quantity),
@@ -86,6 +87,7 @@ public static class ProductStockData
 				PurchaseReturnValue = itemStock.Where(s => s.Type == nameof(StockType.PurchaseReturn)).Sum(s => s.Quantity * s.NetRate),
 				KitchenIssueValue = itemStock.Where(s => s.Type == nameof(StockType.KitchenIssue)).Sum(s => s.Quantity * s.NetRate),
 				KitchenProductionValue = itemStock.Where(s => s.Type == nameof(StockType.KitchenProduction)).Sum(s => s.Quantity * s.NetRate),
+				KitchenProductionReturnValue = itemStock.Where(s => s.Type == nameof(StockType.KitchenProductionReturn)).Sum(s => s.Quantity * s.NetRate),
 				SaleValue = itemStock.Where(s => s.Type == nameof(StockType.Sale)).Sum(s => s.Quantity * s.NetRate),
 				SaleReturnValue = itemStock.Where(s => s.Type == nameof(StockType.SaleReturn)).Sum(s => s.Quantity * s.NetRate),
 				StockTransferValue = itemStock.Where(s => s.Type == nameof(StockType.StockTransfer)).Sum(s => s.Quantity * s.NetRate),
@@ -112,6 +114,9 @@ public static class ProductStockData
 
 				LastKitchenProductionRate = itemStock.LastOrDefault(s => s.Type == nameof(StockType.KitchenProduction))?.NetRate ?? 0,
 				AverageKitchenProductionRate = AverageNetRate(itemStock.Where(s => s.Type == nameof(StockType.KitchenProduction))),
+
+				LastKitchenProductionReturnRate = itemStock.LastOrDefault(s => s.Type == nameof(StockType.KitchenProductionReturn))?.NetRate ?? 0,
+				AverageKitchenProductionReturnRate = AverageNetRate(itemStock.Where(s => s.Type == nameof(StockType.KitchenProductionReturn))),
 
 				LastSaleRate = itemStock.LastOrDefault(s => s.Type == nameof(StockType.Sale))?.NetRate ?? 0,
 				AverageSaleRate = AverageNetRate(itemStock.Where(s => s.Type == nameof(StockType.Sale))),
@@ -188,12 +193,14 @@ public static class ProductStockData
 
 		var ledger = await LocationData.LoadLedgerByLocationId(locationId);
 		var kitchenProductions = await CommonData.LoadTableDataByDate<KitchenProductionItemOverviewModel>(InventoryNames.KitchenProductionItemOverview, fromDate, toDate);
+		var kitchenProductionReturns = await CommonData.LoadTableDataByDate<KitchenProductionReturnItemOverviewModel>(InventoryNames.KitchenProductionReturnItemOverview, fromDate, toDate);
 		var sales = await CommonData.LoadTableDataByDate<SaleItemOverviewModel>(StoreNames.SaleItemOverview, fromDate, toDate);
 		var saleReturns = await CommonData.LoadTableDataByDate<SaleReturnItemOverviewModel>(StoreNames.SaleReturnItemOverview, fromDate, toDate);
 		var stockTransfers = await CommonData.LoadTableDataByDate<StockTransferItemOverviewModel>(StoreNames.StockTransferItemOverview, fromDate, toDate);
 		var bills = await CommonData.LoadTableDataByDate<BillItemOverviewModel>(RestaurantNames.BillItemOverview, fromDate, toDate);
 
 		kitchenProductions = locationId == 1 ? [.. kitchenProductions.Where(s => s.MasterStatus)] : [];
+		kitchenProductionReturns = locationId == 1 ? [.. kitchenProductionReturns.Where(s => s.MasterStatus)] : [];
 		sales = [.. sales.Where(s => (s.LocationId == locationId || s.PartyId == ledger.Id) && s.MasterStatus)];
 		saleReturns = [.. saleReturns.Where(s => (s.LocationId == locationId || s.PartyId == ledger.Id) && s.MasterStatus)];
 		stockTransfers = [.. stockTransfers.Where(s => (s.LocationId == locationId || s.ToLocationId == locationId) && s.MasterStatus)];
@@ -213,6 +220,20 @@ public static class ProductStockData
 					Quantity = item.Quantity,
 					NetRate = item.Rate,
 					Type = nameof(StockType.KitchenProduction),
+					TransactionId = item.MasterId,
+					TransactionNo = item.TransactionNo,
+					TransactionDateTime = item.TransactionDateTime,
+					LocationId = 1, // Main Location
+				}, transaction);
+
+			foreach (var item in kitchenProductionReturns)
+				await InsertProductStock(new()
+				{
+					Id = 0,
+					ProductId = item.ItemId,
+					Quantity = -item.Quantity,
+					NetRate = item.Rate,
+					Type = nameof(StockType.KitchenProductionReturn),
 					TransactionId = item.MasterId,
 					TransactionNo = item.TransactionNo,
 					TransactionDateTime = item.TransactionDateTime,

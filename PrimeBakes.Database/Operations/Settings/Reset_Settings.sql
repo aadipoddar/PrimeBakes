@@ -18,6 +18,7 @@ BEGIN
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'KitchenIssueTransactionPrefix'		, N'KITIS'	, N'Prefix for Kitchen Issue Transaction Numbers')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'KitchenIssueReturnTransactionPrefix'	, N'KITISRET'	, N'Prefix for Kitchen Issue Return Transaction Numbers')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'KitchenProductionTransactionPrefix'		, N'KITPRD'	, N'Prefix for Kitchen Production Transaction Numbers')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'KitchenProductionReturnTransactionPrefix'	, N'KITPRDRET'	, N'Prefix for Kitchen Production Return Transaction Numbers')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'RawMaterialStockAdjustmentTransactionPrefix'	, N'RMADJ'	, N'Prefix for Raw Material Stock Adjustment Transaction Numbers')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'ProductStockAdjustmentTransactionPrefix' 	, N'PRDADJ'	, N'Prefix for Product Stock Adjustment Transaction Numbers')
 	
@@ -58,6 +59,7 @@ BEGIN
 
 	-- Kitchen Production
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'KitchenProductionDiscountRate', N'25', N'Discount rate for kitchen production')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'KitchenProductionReturnDiscountRate', N'25', N'Discount rate for kitchen production returns')
 
 	-- Report Settings
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'AutoRefreshReportTimer', N'5', N'Auto refresh interval for reports in minutes')

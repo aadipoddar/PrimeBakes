@@ -60,6 +60,7 @@ public class ProductStockSummaryModel
 	public decimal PurchaseReturnStock { get; set; }
 	public decimal KitchenIssueStock { get; set; }
 	public decimal KitchenProductionStock { get; set; }
+	public decimal KitchenProductionReturnStock { get; set; }
 	public decimal SaleStock { get; set; }
 	public decimal SaleReturnStock { get; set; }
 	public decimal StockTransferStock { get; set; }
@@ -73,6 +74,7 @@ public class ProductStockSummaryModel
 	public decimal PurchaseReturnValue { get; set; }
 	public decimal KitchenIssueValue { get; set; }
 	public decimal KitchenProductionValue { get; set; }
+	public decimal KitchenProductionReturnValue { get; set; }
 	public decimal SaleValue { get; set; }
 	public decimal SaleReturnValue { get; set; }
 	public decimal StockTransferValue { get; set; }
@@ -109,6 +111,9 @@ public class ProductStockSummaryModel
 
 	public decimal LastKitchenProductionRate { get; set; }
 	public decimal AverageKitchenProductionRate { get; set; }
+
+	public decimal LastKitchenProductionReturnRate { get; set; }
+	public decimal AverageKitchenProductionReturnRate { get; set; }
 
 	public decimal LastSaleRate { get; set; }
 	public decimal AverageSaleRate { get; set; }

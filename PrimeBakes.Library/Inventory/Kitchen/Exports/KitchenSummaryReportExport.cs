@@ -22,6 +22,8 @@ public static class KitchenSummaryReportExport
 			[nameof(KitchenSummaryModel.KitchenIssueReturn)] = new() { DisplayName = "Kitchen Issue Return", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
 			[nameof(KitchenSummaryModel.NetKitchenIssue)] = new() { DisplayName = "Net Issue", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
 			[nameof(KitchenSummaryModel.KitchenProduction)] = new() { DisplayName = "Kitchen Production", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
+			[nameof(KitchenSummaryModel.KitchenProductionReturn)] = new() { DisplayName = "Kitchen Production Return", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
+			[nameof(KitchenSummaryModel.NetKitchenProduction)] = new() { DisplayName = "Net Production Value", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
 
 			[nameof(KitchenSummaryModel.TransactionCount)] = new() { DisplayName = "Transactions", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = true },
 			[nameof(KitchenSummaryModel.UnitsProduced)] = new() { DisplayName = "Units Produced", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
@@ -42,6 +44,8 @@ public static class KitchenSummaryReportExport
 				nameof(KitchenSummaryModel.KitchenIssueReturn),
 				nameof(KitchenSummaryModel.NetKitchenIssue),
 				nameof(KitchenSummaryModel.KitchenProduction),
+				nameof(KitchenSummaryModel.KitchenProductionReturn),
+				nameof(KitchenSummaryModel.NetKitchenProduction),
 				nameof(KitchenSummaryModel.TransactionCount),
 				nameof(KitchenSummaryModel.UnitsProduced),
 				nameof(KitchenSummaryModel.ContributionPercent),
@@ -55,6 +59,7 @@ public static class KitchenSummaryReportExport
 				nameof(KitchenSummaryModel.KitchenIssue),
 				nameof(KitchenSummaryModel.KitchenIssueReturn),
 				nameof(KitchenSummaryModel.KitchenProduction),
+				nameof(KitchenSummaryModel.KitchenProductionReturn),
 				nameof(KitchenSummaryModel.KitchenProductionPercent)
 			];
 

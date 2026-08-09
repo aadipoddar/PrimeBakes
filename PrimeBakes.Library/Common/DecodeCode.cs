@@ -86,6 +86,12 @@ public static class DecodeCode
 				if (pdf) decodeTransactionNoModel.PDFStream = await KitchenProductionInvoiceExport.ExportInvoice((decodeTransactionNoModel.TransactionModel as KitchenProductionModel).Id, InvoiceExportType.PDF);
 				if (excel) decodeTransactionNoModel.ExcelStream = await KitchenProductionInvoiceExport.ExportInvoice((decodeTransactionNoModel.TransactionModel as KitchenProductionModel).Id, InvoiceExportType.Excel);
 				break;
+			case CodeType.KitchenProductionReturn:
+				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByTransactionNo<KitchenProductionReturnModel>(InventoryNames.KitchenProductionReturn, transactionNo);
+				decodeTransactionNoModel.PageRouteName = $"{InventoryRouteNames.KitchenProductionReturn}/{(decodeTransactionNoModel.TransactionModel as KitchenProductionReturnModel).Id}";
+				if (pdf) decodeTransactionNoModel.PDFStream = await KitchenProductionReturnInvoiceExport.ExportInvoice((decodeTransactionNoModel.TransactionModel as KitchenProductionReturnModel).Id, InvoiceExportType.PDF);
+				if (excel) decodeTransactionNoModel.ExcelStream = await KitchenProductionReturnInvoiceExport.ExportInvoice((decodeTransactionNoModel.TransactionModel as KitchenProductionReturnModel).Id, InvoiceExportType.Excel);
+				break;
 			case CodeType.RawMaterial:
 				var rawMaterials = await CommonData.LoadTableData<RawMaterialModel>(InventoryNames.RawMaterial);
 				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByCode<RawMaterialModel>(InventoryNames.RawMaterial, transactionNo);

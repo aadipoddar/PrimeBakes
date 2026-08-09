@@ -8,6 +8,7 @@ public class KitchenSummaryModel
 	public decimal KitchenIssue { get; set; }
 	public decimal KitchenIssueReturn { get; set; }
 	public decimal KitchenProduction { get; set; }
+	public decimal KitchenProductionReturn { get; set; }
 
 	public int TransactionCount { get; set; }
 	public decimal UnitsProduced { get; set; }
@@ -18,7 +19,9 @@ public class KitchenSummaryModel
 	// Derived analytics (computed from the values above)
 	// Material actually consumed by the kitchen: what was issued, less what came back
 	public decimal NetKitchenIssue => KitchenIssue - KitchenIssueReturn;
-	public decimal NetProduction => KitchenProduction - NetKitchenIssue;
+	// Goods the kitchen actually produced: what was recorded, less what was reversed
+	public decimal NetKitchenProduction => KitchenProduction - KitchenProductionReturn;
+	public decimal NetProduction => NetKitchenProduction - NetKitchenIssue;
 	public decimal AverageProductionValue => TransactionCount == 0 ? 0 : Math.Round(NetProduction / TransactionCount, 2);
-	public decimal KitchenProductionPercent => KitchenProduction == 0 ? 0 : Math.Round(NetKitchenIssue / KitchenProduction * 100, 2);
+	public decimal KitchenProductionPercent => NetKitchenProduction == 0 ? 0 : Math.Round(NetKitchenIssue / NetKitchenProduction * 100, 2);
 }

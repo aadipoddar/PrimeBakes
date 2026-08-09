@@ -23,6 +23,7 @@ public static class OutletSummaryReportExport
 			[nameof(OutletSummaryModel.KitchenIssue)] = new() { DisplayName = "Kitchen Issue", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
 			[nameof(OutletSummaryModel.KitchenIssueReturn)] = new() { DisplayName = "Kitchen Issue Return", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
 			[nameof(OutletSummaryModel.KitchenProduction)] = new() { DisplayName = "Kitchen Production", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
+			[nameof(OutletSummaryModel.KitchenProductionReturn)] = new() { DisplayName = "Kitchen Production Return", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
 			[nameof(OutletSummaryModel.Sale)] = new() { DisplayName = "Sale", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
 			[nameof(OutletSummaryModel.SaleReturn)] = new() { DisplayName = "Sale Return", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
 
@@ -46,6 +47,7 @@ public static class OutletSummaryReportExport
 
 			[nameof(OutletSummaryModel.PurchaseReturnPercent)] = new() { DisplayName = "Purchase Return %", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(OutletSummaryModel.KitchenIssueReturnPercent)] = new() { DisplayName = "Kitchen Issue Return %", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(OutletSummaryModel.KitchenProductionReturnPercent)] = new() { DisplayName = "Kitchen Production Return %", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(OutletSummaryModel.KitchenProductionPercent)] = new() { DisplayName = "Kitchen Production %", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(OutletSummaryModel.SaleReturnPercent)] = new() { DisplayName = "Sale Return %", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false },
 
@@ -60,6 +62,7 @@ public static class OutletSummaryReportExport
 				nameof(OutletSummaryModel.KitchenIssue),
 				nameof(OutletSummaryModel.KitchenIssueReturn),
 				nameof(OutletSummaryModel.KitchenProduction),
+				nameof(OutletSummaryModel.KitchenProductionReturn),
 				nameof(OutletSummaryModel.Sale),
 				nameof(OutletSummaryModel.SaleReturn),
 				nameof(OutletSummaryModel.Cash),
@@ -77,6 +80,7 @@ public static class OutletSummaryReportExport
 				nameof(OutletSummaryModel.AverageSaleValue),
 				nameof(OutletSummaryModel.PurchaseReturnPercent),
 				nameof(OutletSummaryModel.KitchenIssueReturnPercent),
+				nameof(OutletSummaryModel.KitchenProductionReturnPercent),
 				nameof(OutletSummaryModel.KitchenProductionPercent),
 				nameof(OutletSummaryModel.SaleReturnPercent)
 			]
@@ -88,6 +92,7 @@ public static class OutletSummaryReportExport
 				nameof(OutletSummaryModel.KitchenIssue),
 				nameof(OutletSummaryModel.KitchenIssueReturn),
 				nameof(OutletSummaryModel.KitchenProduction),
+				nameof(OutletSummaryModel.KitchenProductionReturn),
 				nameof(OutletSummaryModel.Sale),
 				nameof(OutletSummaryModel.SaleReturn)
 			];

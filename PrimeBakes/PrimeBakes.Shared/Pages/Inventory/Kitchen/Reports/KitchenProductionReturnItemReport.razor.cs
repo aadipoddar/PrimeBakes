@@ -14,7 +14,7 @@ using Syncfusion.Blazor.Grids;
 
 namespace PrimeBakes.Shared.Pages.Inventory.Kitchen.Reports;
 
-public partial class KitchenProductionItemReport : IAsyncDisposable
+public partial class KitchenProductionReturnItemReport : IAsyncDisposable
 {
 	private PeriodicTimer _autoRefreshTimer;
 	private CancellationTokenSource _autoRefreshCts;
@@ -26,7 +26,6 @@ public partial class KitchenProductionItemReport : IAsyncDisposable
 	private bool _showAllColumns = false;
 	private bool _showSummary = false;
 	private bool _showDeleted = false;
-	private bool _showTransactionReturns = false;
 
 	private DateTime _fromDate = DateTime.Now.Date;
 	private DateTime _toDate = DateTime.Now.Date;
@@ -40,9 +39,8 @@ public partial class KitchenProductionItemReport : IAsyncDisposable
 	private List<ProductCategoryModel> _productCategories = [];
 	private List<CompanyModel> _companies = [];
 	private List<KitchenModel> _kitchens = [];
-	private List<KitchenProductionItemOverviewModel> _transactionOverviews = [];
-	private List<KitchenProductionItemOverviewModel> _allTransactionOverviews = [];
-	private List<KitchenProductionReturnItemOverviewModel> _allTransactionReturnOverviews = [];
+	private List<KitchenProductionReturnItemOverviewModel> _transactionOverviews = [];
+	private List<KitchenProductionReturnItemOverviewModel> _allTransactionOverviews = [];
 
 	private readonly List<ContextMenuItemModel> _gridContextMenuItems =
 	[
@@ -52,7 +50,7 @@ public partial class KitchenProductionItemReport : IAsyncDisposable
 		new() { Text = "Delete / Recover (Del)", Id = "DeleteRecover", IconCss = "e-icons e-trash", Target = ".e-content" }
 	];
 
-	private SfGrid<KitchenProductionItemOverviewModel> _sfGrid;
+	private SfGrid<KitchenProductionReturnItemOverviewModel> _sfGrid;
 	private CustomDateRangePicker _firstFocus;
 	private ToastNotification _toastNotification;
 	private ConfirmationDialog _confirmationDialog;
@@ -113,12 +111,7 @@ public partial class KitchenProductionItemReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
-			_allTransactionOverviews = await CommonData.LoadTableDataByDate<KitchenProductionItemOverviewModel>(
-				InventoryNames.KitchenProductionItemOverview,
-				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
-
-			_allTransactionReturnOverviews = await CommonData.LoadTableDataByDate<KitchenProductionReturnItemOverviewModel>(
+			_allTransactionOverviews = await CommonData.LoadTableDataByDate<KitchenProductionReturnItemOverviewModel>(
 				InventoryNames.KitchenProductionReturnItemOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
@@ -141,9 +134,6 @@ public partial class KitchenProductionItemReport : IAsyncDisposable
 	{
 		_transactionOverviews = [.. _allTransactionOverviews];
 
-		if (_showTransactionReturns)
-			MergeTransactionAndReturns();
-
 		_transactionOverviews = [.. _transactionOverviews.Where(t =>
 				(_showDeleted || t.MasterStatus) &&
 				(_selectedProduct is null || _selectedProduct.Id == 0 || t.ItemId == _selectedProduct.Id) &&
@@ -155,7 +145,7 @@ public partial class KitchenProductionItemReport : IAsyncDisposable
 		if (_showSummary)
 			_transactionOverviews = [.. _transactionOverviews
 				.GroupBy(t => t.ItemName)
-				.Select(g => new KitchenProductionItemOverviewModel
+				.Select(g => new KitchenProductionReturnItemOverviewModel
 				{
 					ItemName = g.Key,
 					ItemCode = g.First().ItemCode,
@@ -168,51 +158,6 @@ public partial class KitchenProductionItemReport : IAsyncDisposable
 		if (_sfGrid is not null) await _sfGrid.Refresh();
 		StateHasChanged();
 	}
-
-	private void MergeTransactionAndReturns() =>
-		_transactionOverviews.AddRange(_allTransactionReturnOverviews.Select(kpr => new KitchenProductionItemOverviewModel
-		{
-			Id = kpr.Id,
-			ItemId = kpr.ItemId,
-			ItemName = kpr.ItemName,
-			ItemCode = kpr.ItemCode,
-			ItemCategoryId = kpr.ItemCategoryId,
-			ItemCategoryName = kpr.ItemCategoryName,
-
-			Quantity = -kpr.Quantity,
-			Rate = kpr.Rate,
-			Total = -kpr.Total,
-
-			ItemRemarks = kpr.ItemRemarks,
-
-			MasterId = kpr.MasterId,
-			TransactionNo = kpr.TransactionNo,
-			CompanyId = kpr.CompanyId,
-			CompanyName = kpr.CompanyName,
-
-			TransactionDateTime = kpr.TransactionDateTime,
-			FinancialYearId = kpr.FinancialYearId,
-			FinancialYear = kpr.FinancialYear,
-
-			KitchenId = kpr.KitchenId,
-			KitchenName = kpr.KitchenName,
-			KitchenProductionRemarks = kpr.KitchenProductionReturnRemarks,
-
-			TotalItems = kpr.TotalItems,
-			TotalQuantity = -kpr.TotalQuantity,
-			TotalAmount = -kpr.TotalAmount,
-
-			CreatedBy = kpr.CreatedBy,
-			CreatedByName = kpr.CreatedByName,
-			CreatedAt = kpr.CreatedAt,
-			CreatedFromPlatform = kpr.CreatedFromPlatform,
-			LastModifiedBy = kpr.LastModifiedBy,
-			LastModifiedByUserName = kpr.LastModifiedByUserName,
-			LastModifiedAt = kpr.LastModifiedAt,
-			LastModifiedFromPlatform = kpr.LastModifiedFromPlatform,
-
-			MasterStatus = kpr.MasterStatus
-		}));
 	#endregion
 
 	#region Changed Events
@@ -288,32 +233,15 @@ public partial class KitchenProductionItemReport : IAsyncDisposable
 			var platform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
 			var currentDateTime = await CommonData.LoadCurrentDateTime();
 
-			var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(transactionNo, false, false);
+			var kitchenProductionReturn = await CommonData.LoadTableDataById<KitchenProductionReturnModel>(InventoryNames.KitchenProductionReturn, masterId)
+				?? throw new Exception("Transaction not found.");
+			kitchenProductionReturn.Status = isRecover;
+			kitchenProductionReturn.LastModifiedBy = _user.Id;
+			kitchenProductionReturn.LastModifiedAt = currentDateTime;
+			kitchenProductionReturn.LastModifiedFromPlatform = platform;
 
-			if (decodedTransactionNo.CodeType == CodeType.KitchenProductionReturn)
-			{
-				var kitchenProductionReturn = await CommonData.LoadTableDataById<KitchenProductionReturnModel>(InventoryNames.KitchenProductionReturn, masterId)
-					?? throw new Exception("Transaction not found.");
-				kitchenProductionReturn.Status = isRecover;
-				kitchenProductionReturn.LastModifiedBy = _user.Id;
-				kitchenProductionReturn.LastModifiedAt = currentDateTime;
-				kitchenProductionReturn.LastModifiedFromPlatform = platform;
-
-				if (isRecover) await KitchenProductionReturnData.RecoverTransaction(kitchenProductionReturn);
-				else await KitchenProductionReturnData.DeleteTransaction(kitchenProductionReturn);
-			}
-			else
-			{
-				var kitchenProduction = await CommonData.LoadTableDataById<KitchenProductionModel>(InventoryNames.KitchenProduction, masterId)
-					?? throw new Exception("Transaction not found.");
-				kitchenProduction.Status = isRecover;
-				kitchenProduction.LastModifiedBy = _user.Id;
-				kitchenProduction.LastModifiedAt = currentDateTime;
-				kitchenProduction.LastModifiedFromPlatform = platform;
-
-				if (isRecover) await KitchenProductionData.RecoverTransaction(kitchenProduction);
-				else await KitchenProductionData.DeleteTransaction(kitchenProduction);
-			}
+			if (isRecover) await KitchenProductionReturnData.RecoverTransaction(kitchenProductionReturn);
+			else await KitchenProductionReturnData.DeleteTransaction(kitchenProductionReturn);
 
 			await _toastNotification.ShowAsync("Success", $"Transaction {transactionNo} has been {(isRecover ? "recovered" : "deleted")} successfully.", ToastType.Success);
 		}
@@ -377,7 +305,7 @@ public partial class KitchenProductionItemReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var (stream, fileName) = await KitchenProductionReportExport.ExportItemReport(
+			var (stream, fileName) = await KitchenProductionReturnReportExport.ExportItemReport(
 				_transactionOverviews,
 				isExcel ? ReportExportType.Excel : ReportExportType.PDF,
 				DateOnly.FromDateTime(_fromDate),
@@ -436,7 +364,7 @@ public partial class KitchenProductionItemReport : IAsyncDisposable
 	#endregion
 
 	#region Utilities
-	private async Task OnGridContextMenuItemClicked(ContextMenuClickEventArgs<KitchenProductionItemOverviewModel> args)
+	private async Task OnGridContextMenuItemClicked(ContextMenuClickEventArgs<KitchenProductionReturnItemOverviewModel> args)
 	{
 		if (_showSummary)
 			return;
@@ -456,12 +384,6 @@ public partial class KitchenProductionItemReport : IAsyncDisposable
 		StateHasChanged();
 
 		if (_sfGrid is not null) await _sfGrid.Refresh();
-	}
-
-	private async Task ToggleTransactionReturns()
-	{
-		_showTransactionReturns = !_showTransactionReturns;
-		await ApplyFilters();
 	}
 
 	private async Task ToggleDeleted()

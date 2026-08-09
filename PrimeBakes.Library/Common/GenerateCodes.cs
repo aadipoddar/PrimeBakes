@@ -55,6 +55,10 @@ public static class GenerateCodes
 					var kitchenProduction = await CommonData.LoadTableDataByTransactionNo<KitchenProductionModel>(InventoryNames.KitchenProduction, code, sqlDataAccessTransaction);
 					isDuplicate = kitchenProduction is not null;
 					break;
+				case CodeType.KitchenProductionReturn:
+					var kitchenProductionReturn = await CommonData.LoadTableDataByTransactionNo<KitchenProductionReturnModel>(InventoryNames.KitchenProductionReturn, code, sqlDataAccessTransaction);
+					isDuplicate = kitchenProductionReturn is not null;
+					break;
 				case CodeType.RawMaterial:
 					var rawMaterial = await CommonData.LoadTableDataByCode<RawMaterialModel>(InventoryNames.RawMaterial, code, sqlDataAccessTransaction);
 					isDuplicate = rawMaterial is not null;
@@ -276,6 +280,30 @@ public static class GenerateCodes
 		}
 
 		return await CheckDuplicateCode($"{locationPrefix}{financialYear.YearNo}{transactionPrefix}000001", 6, CodeType.KitchenProduction, sqlDataAccessTransaction);
+	}
+
+	public static async Task<string> GenerateKitchenProductionReturnTransactionNo(KitchenProductionReturnModel transaction, SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	{
+		var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, transaction.FinancialYearId, sqlDataAccessTransaction);
+		var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, 1, sqlDataAccessTransaction)).Code;
+		var transactionPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.KitchenProductionReturnTransactionPrefix, sqlDataAccessTransaction)).Value;
+
+		var lastTransaction = await CommonData.LoadLastTableDataByFinancialYear<KitchenProductionReturnModel>(InventoryNames.KitchenProductionReturn, transaction.FinancialYearId, sqlDataAccessTransaction);
+		if (lastTransaction is not null)
+		{
+			var lastTransactionNo = lastTransaction.TransactionNo;
+			if (lastTransactionNo.StartsWith($"{locationPrefix}{financialYear.YearNo}{transactionPrefix}"))
+			{
+				var lastNumberPart = lastTransactionNo[(locationPrefix.Length + financialYear.YearNo.ToString().Length + transactionPrefix.Length)..];
+				if (int.TryParse(lastNumberPart, out int lastNumber))
+				{
+					int nextNumber = lastNumber + 1;
+					return await CheckDuplicateCode($"{locationPrefix}{financialYear.YearNo}{transactionPrefix}{nextNumber:D6}", 6, CodeType.KitchenProductionReturn, sqlDataAccessTransaction);
+				}
+			}
+		}
+
+		return await CheckDuplicateCode($"{locationPrefix}{financialYear.YearNo}{transactionPrefix}000001", 6, CodeType.KitchenProductionReturn, sqlDataAccessTransaction);
 	}
 
 	public static async Task<string> GenerateProductStockAdjustmentTransactionNo(DateTime transactionDateTime, int locationId, SqlDataAccessTransaction sqlDataAccessTransaction = null)
