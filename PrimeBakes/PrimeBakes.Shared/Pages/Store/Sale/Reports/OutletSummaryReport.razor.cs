@@ -40,6 +40,7 @@ public partial class OutletSummaryReport : IAsyncDisposable
 	private List<PurchaseOverviewModel> _purchases = [];
 	private List<PurchaseReturnOverviewModel> _purchasesReturns = [];
 	private List<KitchenIssueOverviewModel> _kitchenIssue = [];
+	private List<KitchenIssueReturnOverviewModel> _kitchenIssueReturn = [];
 	private List<KitchenProductionOverviewModel> _kitchenProduction = [];
 	private List<SaleOverviewModel> _sales = [];
 	private List<SaleReturnOverviewModel> _salereturns = [];
@@ -137,6 +138,7 @@ public partial class OutletSummaryReport : IAsyncDisposable
 		_purchases = await CommonData.LoadTableDataByDate<PurchaseOverviewModel>(InventoryNames.PurchaseOverview, fromDate, toDate);
 		_purchasesReturns = await CommonData.LoadTableDataByDate<PurchaseReturnOverviewModel>(InventoryNames.PurchaseReturnOverview, fromDate, toDate);
 		_kitchenIssue = await CommonData.LoadTableDataByDate<KitchenIssueOverviewModel>(InventoryNames.KitchenIssueOverview, fromDate, toDate);
+		_kitchenIssueReturn = await CommonData.LoadTableDataByDate<KitchenIssueReturnOverviewModel>(InventoryNames.KitchenIssueReturnOverview, fromDate, toDate);
 		_kitchenProduction = await CommonData.LoadTableDataByDate<KitchenProductionOverviewModel>(InventoryNames.KitchenProductionOverview, fromDate, toDate);
 		_sales = await CommonData.LoadTableDataByDate<SaleOverviewModel>(StoreNames.SaleOverview, fromDate, toDate);
 		_salereturns = await CommonData.LoadTableDataByDate<SaleReturnOverviewModel>(StoreNames.SaleReturnOverview, fromDate, toDate);
@@ -149,6 +151,7 @@ public partial class OutletSummaryReport : IAsyncDisposable
 		_purchases = [.. _purchases.Where(_ => _.Status)];
 		_purchasesReturns = [.. _purchasesReturns.Where(_ => _.Status)];
 		_kitchenIssue = [.. _kitchenIssue.Where(_ => _.Status)];
+		_kitchenIssueReturn = [.. _kitchenIssueReturn.Where(_ => _.Status)];
 		_kitchenProduction = [.. _kitchenProduction.Where(_ => _.Status)];
 		_sales = [.. _sales.Where(_ => _.Status)];
 		_salereturns = [.. _salereturns.Where(_ => _.Status)];
@@ -160,6 +163,7 @@ public partial class OutletSummaryReport : IAsyncDisposable
 			_purchases = [.. _purchases.Where(_ => _.CompanyId == _selectedCompany.Id)];
 			_purchasesReturns = [.. _purchasesReturns.Where(_ => _.CompanyId == _selectedCompany.Id)];
 			_kitchenIssue = [.. _kitchenIssue.Where(_ => _.CompanyId == _selectedCompany.Id)];
+			_kitchenIssueReturn = [.. _kitchenIssueReturn.Where(_ => _.CompanyId == _selectedCompany.Id)];
 			_kitchenProduction = [.. _kitchenProduction.Where(_ => _.CompanyId == _selectedCompany.Id)];
 			_sales = [.. _sales.Where(_ => _.CompanyId == _selectedCompany.Id)];
 			_salereturns = [.. _salereturns.Where(_ => _.CompanyId == _selectedCompany.Id)];
@@ -185,6 +189,7 @@ public partial class OutletSummaryReport : IAsyncDisposable
 				outlet.Purchase = _purchases.Sum(_ => _.TotalAmount);
 				outlet.PurchaseReturn = _purchasesReturns.Sum(_ => _.TotalAmount);
 				outlet.KitchenIssue = _kitchenIssue.Sum(_ => _.TotalAmount);
+				outlet.KitchenIssueReturn = _kitchenIssueReturn.Sum(_ => _.TotalAmount);
 				outlet.KitchenProduction = _kitchenProduction.Sum(_ => _.TotalAmount);
 				outlet.Sale =
 					_sales.Where(_ => _.LocationId == 1).Sum(_ => _.TotalAmount) +
@@ -202,6 +207,7 @@ public partial class OutletSummaryReport : IAsyncDisposable
 					_stockTransfers.Where(_ => _.ToLocationId == outlet.LocationId).Sum(_ => _.TotalAmount);
 				outlet.PurchaseReturn = _salereturns.Where(_ => _.PartyId == ledgerLocation.Id).Sum(_ => _.TotalAmount);
 				outlet.KitchenIssue = 0;
+				outlet.KitchenIssueReturn = 0;
 				outlet.KitchenProduction = 0;
 				outlet.Sale =
 					_sales.Where(_ => _.LocationId == outlet.LocationId).Sum(_ => _.TotalAmount) +

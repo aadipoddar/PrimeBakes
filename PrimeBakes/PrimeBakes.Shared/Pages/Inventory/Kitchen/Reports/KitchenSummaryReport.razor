@@ -99,6 +99,7 @@ else
 							<GridAggregateColumns>
 								<GridColumnAggregate Field="@nameof(KitchenSummaryModel.KitchenName)" Type="AggregateType.Count" Format="N0" />
 								<GridColumnAggregate Field="@nameof(KitchenSummaryModel.KitchenIssue)" />
+								<GridColumnAggregate Field="@nameof(KitchenSummaryModel.KitchenIssueReturn)" />
 								<GridColumnAggregate Field="@nameof(KitchenSummaryModel.KitchenProduction)" />
 								<GridColumnAggregate Field="@nameof(KitchenSummaryModel.TransactionCount)" />
 								<GridColumnAggregate Field="@nameof(KitchenSummaryModel.UnitsProduced)" />
@@ -111,6 +112,8 @@ else
 						<CustomGridColumn Field="@nameof(KitchenSummaryModel.KitchenName)" HeaderText="Kitchen" />
 
 						<CustomGridColumn Field="@nameof(KitchenSummaryModel.KitchenIssue)" HeaderText="Kitchen Issue" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenSummaryModel.KitchenIssueReturn)" HeaderText="Kitchen Issue Return" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenSummaryModel.NetKitchenIssue)" HeaderText="Net Issue" Visible="_showAllColumns" NumericColumn="true" />
 						<CustomGridColumn Field="@nameof(KitchenSummaryModel.KitchenProduction)" HeaderText="Kitchen Production" NumericColumn="true" />
 
 						<CustomGridColumn Field="@nameof(KitchenSummaryModel.TransactionCount)" HeaderText="Transactions" Visible="_showAllColumns" NumericColumn="true" />

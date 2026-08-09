@@ -44,9 +44,12 @@ public static class InventoryRouteNames
 
 	public const string Kitchen = "/inventory/kitchen";
 	public const string KitchenIssue = "/inventory/kitchen-issue";
+	public const string KitchenIssueReturn = "/inventory/kitchen-issue-return";
 	public const string KitchenProduction = "/inventory/kitchen-production";
 	public const string KitchenIssueReport = "/inventory/kitchen-issue-report";
 	public const string KitchenIssueItemReport = "/inventory/kitchen-item-report";
+	public const string KitchenIssueReturnReport = "/inventory/kitchen-issue-return-report";
+	public const string KitchenIssueReturnItemReport = "/inventory/kitchen-issue-return-item-report";
 	public const string KitchenProductionReport = "/inventory/kitchen-production-report";
 	public const string KitchenProductionItemReport = "/inventory/kitchen-production-item-report";
 	public const string KitchenSummaryReport = "/inventory/kitchen-summary-report";

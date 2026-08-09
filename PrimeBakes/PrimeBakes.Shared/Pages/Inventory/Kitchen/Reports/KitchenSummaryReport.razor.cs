@@ -33,6 +33,7 @@ public partial class KitchenSummaryReport : IAsyncDisposable
 	private List<KitchenSummaryModel> _kitchenSummaries = [];
 	private List<KitchenModel> _kitchens = [];
 	private List<KitchenIssueOverviewModel> _kitchenIssue = [];
+	private List<KitchenIssueReturnOverviewModel> _kitchenIssueReturn = [];
 	private List<KitchenProductionOverviewModel> _kitchenProduction = [];
 	private readonly List<ContextMenuItemModel> _gridContextMenuItems =
 	[
@@ -124,17 +125,20 @@ public partial class KitchenSummaryReport : IAsyncDisposable
 		var toDate = DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue);
 
 		_kitchenIssue = await CommonData.LoadTableDataByDate<KitchenIssueOverviewModel>(InventoryNames.KitchenIssueOverview, fromDate, toDate);
+		_kitchenIssueReturn = await CommonData.LoadTableDataByDate<KitchenIssueReturnOverviewModel>(InventoryNames.KitchenIssueReturnOverview, fromDate, toDate);
 		_kitchenProduction = await CommonData.LoadTableDataByDate<KitchenProductionOverviewModel>(InventoryNames.KitchenProductionOverview, fromDate, toDate);
 	}
 
 	private async Task ApplyFilters()
 	{
 		_kitchenIssue = [.. _kitchenIssue.Where(_ => _.Status)];
+		_kitchenIssueReturn = [.. _kitchenIssueReturn.Where(_ => _.Status)];
 		_kitchenProduction = [.. _kitchenProduction.Where(_ => _.Status)];
 
 		if (_selectedCompany?.Id > 0)
 		{
 			_kitchenIssue = [.. _kitchenIssue.Where(_ => _.CompanyId == _selectedCompany.Id)];
+			_kitchenIssueReturn = [.. _kitchenIssueReturn.Where(_ => _.CompanyId == _selectedCompany.Id)];
 			_kitchenProduction = [.. _kitchenProduction.Where(_ => _.CompanyId == _selectedCompany.Id)];
 		}
 	}
@@ -152,12 +156,14 @@ public partial class KitchenSummaryReport : IAsyncDisposable
 			};
 
 			var kitchenIssues = _kitchenIssue.Where(_ => _.KitchenId == kitchen.Id).ToList();
+			var kitchenIssueReturns = _kitchenIssueReturn.Where(_ => _.KitchenId == kitchen.Id).ToList();
 			var kitchenProductions = _kitchenProduction.Where(_ => _.KitchenId == kitchen.Id).ToList();
 
 			outlet.KitchenIssue = kitchenIssues.Sum(_ => _.TotalAmount);
+			outlet.KitchenIssueReturn = kitchenIssueReturns.Sum(_ => _.TotalAmount);
 			outlet.KitchenProduction = kitchenProductions.Sum(_ => _.TotalAmount);
 
-			outlet.TransactionCount = kitchenIssues.Count + kitchenProductions.Count;
+			outlet.TransactionCount = kitchenIssues.Count + kitchenIssueReturns.Count + kitchenProductions.Count;
 			outlet.UnitsProduced = kitchenProductions.Sum(_ => _.TotalQuantity);
 
 			_kitchenSummaries.Add(outlet);

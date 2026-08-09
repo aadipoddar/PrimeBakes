@@ -112,18 +112,24 @@ public static class InventoryNames
 	public static string Kitchen => "Kitchen";
 	public static string KitchenIssue => "KitchenIssue";
 	public static string KitchenIssueDetail => "KitchenIssueDetail";
+	public static string KitchenIssueReturn => "KitchenIssueReturn";
+	public static string KitchenIssueReturnDetail => "KitchenIssueReturnDetail";
 	public static string KitchenProduction => "KitchenProduction";
 	public static string KitchenProductionDetail => "KitchenProductionDetail";
 
 	public static string InsertKitchen => "Insert_Kitchen";
 	public static string InsertKitchenIssue => "Insert_KitchenIssue";
 	public static string InsertKitchenIssueDetail => "Insert_KitchenIssueDetail";
+	public static string InsertKitchenIssueReturn => "Insert_KitchenIssueReturn";
+	public static string InsertKitchenIssueReturnDetail => "Insert_KitchenIssueReturnDetail";
 	public static string InsertKitchenProduction => "Insert_KitchenProduction";
 	public static string InsertKitchenProductionDetail => "Insert_KitchenProductionDetail";
 
 	public static string KitchenIssueOverview => "KitchenIssue_Overview";
+	public static string KitchenIssueReturnOverview => "KitchenIssueReturn_Overview";
 	public static string KitchenProductionOverview => "KitchenProduction_Overview";
 	public static string KitchenIssueItemOverview => "KitchenIssue_Item_Overview";
+	public static string KitchenIssueReturnItemOverview => "KitchenIssueReturn_Item_Overview";
 	public static string KitchenProductionItemOverview => "KitchenProduction_Item_Overview";
 	#endregion
 

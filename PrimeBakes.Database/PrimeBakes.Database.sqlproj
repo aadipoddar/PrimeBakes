@@ -172,10 +172,14 @@
     <Build Include="Inventory\Kitchen\Insert\Insert_Kitchen.sql" />
     <Build Include="Inventory\Kitchen\Insert\Insert_KitchenIssue.sql" />
     <Build Include="Inventory\Kitchen\Insert\Insert_KitchenIssueDetail.sql" />
+    <Build Include="Inventory\Kitchen\Insert\Insert_KitchenIssueReturn.sql" />
+    <Build Include="Inventory\Kitchen\Insert\Insert_KitchenIssueReturnDetail.sql" />
     <Build Include="Inventory\Kitchen\Insert\Insert_KitchenProduction.sql" />
     <Build Include="Inventory\Kitchen\Table\Kitchen.sql" />
     <Build Include="Inventory\Kitchen\Table\KitchenIssue.sql" />
     <Build Include="Inventory\Kitchen\Table\KitchenIssueDetail.sql" />
+    <Build Include="Inventory\Kitchen\Table\KitchenIssueReturn.sql" />
+    <Build Include="Inventory\Kitchen\Table\KitchenIssueReturnDetail.sql" />
     <Build Include="Inventory\Kitchen\Table\KitchenProduction.sql" />
     <Build Include="Inventory\Kitchen\Table\KitchenProductionDetail.sql" />
     <Build Include="Inventory\Purchase\Load\Load_RawMaterial_By_Party_PurchaseDateTime.sql" />
@@ -197,6 +201,8 @@
     <Build Include="Inventory\Kitchen\Load\KitchenProduction_Overview.sql" />
     <Build Include="Inventory\Kitchen\Load\KitchenIssue_Item_Overview.sql" />
     <Build Include="Inventory\Kitchen\Load\KitchenIssue_Overview.sql" />
+    <Build Include="Inventory\Kitchen\Load\KitchenIssueReturn_Item_Overview.sql" />
+    <Build Include="Inventory\Kitchen\Load\KitchenIssueReturn_Overview.sql" />
     <Build Include="Inventory\Kitchen\Load\KitchenProduction_Item_Overview.sql" />
     <Build Include="Inventory\Purchase\Load\Purchase_Item_Overview.sql" />
     <Build Include="Inventory\Purchase\Load\Purchase_Overview.sql" />

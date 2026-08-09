@@ -8,6 +8,7 @@ public enum CodeType
 	Purchase,
 	PurchaseReturn,
 	KitchenIssue,
+	KitchenIssueReturn,
 	KitchenProduction,
 	RawMaterial,
 

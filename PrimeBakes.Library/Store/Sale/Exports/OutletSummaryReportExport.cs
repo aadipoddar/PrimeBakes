@@ -21,6 +21,7 @@ public static class OutletSummaryReportExport
 			[nameof(OutletSummaryModel.Purchase)] = new() { DisplayName = "Purchase", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
 			[nameof(OutletSummaryModel.PurchaseReturn)] = new() { DisplayName = "Purchase Return", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
 			[nameof(OutletSummaryModel.KitchenIssue)] = new() { DisplayName = "Kitchen Issue", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
+			[nameof(OutletSummaryModel.KitchenIssueReturn)] = new() { DisplayName = "Kitchen Issue Return", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
 			[nameof(OutletSummaryModel.KitchenProduction)] = new() { DisplayName = "Kitchen Production", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
 			[nameof(OutletSummaryModel.Sale)] = new() { DisplayName = "Sale", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
 			[nameof(OutletSummaryModel.SaleReturn)] = new() { DisplayName = "Sale Return", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
@@ -44,6 +45,7 @@ public static class OutletSummaryReportExport
 			[nameof(OutletSummaryModel.AverageSaleValue)] = new() { DisplayName = "Avg Sale Value", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false },
 
 			[nameof(OutletSummaryModel.PurchaseReturnPercent)] = new() { DisplayName = "Purchase Return %", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(OutletSummaryModel.KitchenIssueReturnPercent)] = new() { DisplayName = "Kitchen Issue Return %", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(OutletSummaryModel.KitchenProductionPercent)] = new() { DisplayName = "Kitchen Production %", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(OutletSummaryModel.SaleReturnPercent)] = new() { DisplayName = "Sale Return %", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false },
 
@@ -56,6 +58,7 @@ public static class OutletSummaryReportExport
 				nameof(OutletSummaryModel.Purchase),
 				nameof(OutletSummaryModel.PurchaseReturn),
 				nameof(OutletSummaryModel.KitchenIssue),
+				nameof(OutletSummaryModel.KitchenIssueReturn),
 				nameof(OutletSummaryModel.KitchenProduction),
 				nameof(OutletSummaryModel.Sale),
 				nameof(OutletSummaryModel.SaleReturn),
@@ -73,6 +76,7 @@ public static class OutletSummaryReportExport
 				nameof(OutletSummaryModel.MarginPercent),
 				nameof(OutletSummaryModel.AverageSaleValue),
 				nameof(OutletSummaryModel.PurchaseReturnPercent),
+				nameof(OutletSummaryModel.KitchenIssueReturnPercent),
 				nameof(OutletSummaryModel.KitchenProductionPercent),
 				nameof(OutletSummaryModel.SaleReturnPercent)
 			]
@@ -82,6 +86,7 @@ public static class OutletSummaryReportExport
 				nameof(OutletSummaryModel.Purchase),
 				nameof(OutletSummaryModel.PurchaseReturn),
 				nameof(OutletSummaryModel.KitchenIssue),
+				nameof(OutletSummaryModel.KitchenIssueReturn),
 				nameof(OutletSummaryModel.KitchenProduction),
 				nameof(OutletSummaryModel.Sale),
 				nameof(OutletSummaryModel.SaleReturn)

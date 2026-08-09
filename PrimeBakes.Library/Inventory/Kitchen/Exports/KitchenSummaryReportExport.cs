@@ -19,6 +19,8 @@ public static class KitchenSummaryReportExport
 			[nameof(KitchenSummaryModel.KitchenName)] = new() { DisplayName = "Kitchen", Alignment = CellAlignment.Left, IncludeInTotal = false },
 
 			[nameof(KitchenSummaryModel.KitchenIssue)] = new() { DisplayName = "Kitchen Issue", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
+			[nameof(KitchenSummaryModel.KitchenIssueReturn)] = new() { DisplayName = "Kitchen Issue Return", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
+			[nameof(KitchenSummaryModel.NetKitchenIssue)] = new() { DisplayName = "Net Issue", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
 			[nameof(KitchenSummaryModel.KitchenProduction)] = new() { DisplayName = "Kitchen Production", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
 
 			[nameof(KitchenSummaryModel.TransactionCount)] = new() { DisplayName = "Transactions", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = true },
@@ -37,6 +39,8 @@ public static class KitchenSummaryReportExport
 			[
 				nameof(KitchenSummaryModel.KitchenName),
 				nameof(KitchenSummaryModel.KitchenIssue),
+				nameof(KitchenSummaryModel.KitchenIssueReturn),
+				nameof(KitchenSummaryModel.NetKitchenIssue),
 				nameof(KitchenSummaryModel.KitchenProduction),
 				nameof(KitchenSummaryModel.TransactionCount),
 				nameof(KitchenSummaryModel.UnitsProduced),
@@ -49,6 +53,7 @@ public static class KitchenSummaryReportExport
 			[
 				nameof(KitchenSummaryModel.KitchenName),
 				nameof(KitchenSummaryModel.KitchenIssue),
+				nameof(KitchenSummaryModel.KitchenIssueReturn),
 				nameof(KitchenSummaryModel.KitchenProduction),
 				nameof(KitchenSummaryModel.KitchenProductionPercent)
 			];

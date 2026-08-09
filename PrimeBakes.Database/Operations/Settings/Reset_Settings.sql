@@ -16,6 +16,7 @@ BEGIN
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'PurchaseTransactionPrefix'		, N'PUR'	, N'Prefix for Purchase Transaction Numbers')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'PurchaseReturnTransactionPrefix'	, N'PURRET'	, N'Prefix for Purchase Return Transaction Numbers')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'KitchenIssueTransactionPrefix'		, N'KITIS'	, N'Prefix for Kitchen Issue Transaction Numbers')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'KitchenIssueReturnTransactionPrefix'	, N'KITISRET'	, N'Prefix for Kitchen Issue Return Transaction Numbers')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'KitchenProductionTransactionPrefix'		, N'KITPRD'	, N'Prefix for Kitchen Production Transaction Numbers')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'RawMaterialStockAdjustmentTransactionPrefix'	, N'RMADJ'	, N'Prefix for Raw Material Stock Adjustment Transaction Numbers')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'ProductStockAdjustmentTransactionPrefix' 	, N'PRDADJ'	, N'Prefix for Product Stock Adjustment Transaction Numbers')

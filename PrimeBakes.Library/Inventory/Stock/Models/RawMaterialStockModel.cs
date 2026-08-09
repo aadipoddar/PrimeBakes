@@ -27,6 +27,7 @@ public enum StockType
 	Purchase,
 	PurchaseReturn,
 	KitchenIssue,
+	KitchenIssueReturn,
 	KitchenProduction,
 
 	Sale,
@@ -71,6 +72,7 @@ public class RawMaterialStockSummaryModel
 	public decimal PurchaseStock { get; set; }
 	public decimal PurchaseReturnStock { get; set; }
 	public decimal KitchenIssueStock { get; set; }
+	public decimal KitchenIssueReturnStock { get; set; }
 	public decimal KitchenProductionStock { get; set; }
 	public decimal SaleStock { get; set; }
 	public decimal SaleReturnStock { get; set; }
@@ -84,6 +86,7 @@ public class RawMaterialStockSummaryModel
 	public decimal PurchaseValue { get; set; }
 	public decimal PurchaseReturnValue { get; set; }
 	public decimal KitchenIssueValue { get; set; }
+	public decimal KitchenIssueReturnValue { get; set; }
 	public decimal KitchenProductionValue { get; set; }
 	public decimal SaleValue { get; set; }
 	public decimal SaleReturnValue { get; set; }
@@ -118,6 +121,9 @@ public class RawMaterialStockSummaryModel
 
 	public decimal LastKitchenIssueRate { get; set; }
 	public decimal AverageKitchenIssueRate { get; set; }
+
+	public decimal LastKitchenIssueReturnRate { get; set; }
+	public decimal AverageKitchenIssueReturnRate { get; set; }
 
 	public decimal LastKitchenProductionRate { get; set; }
 	public decimal AverageKitchenProductionRate { get; set; }

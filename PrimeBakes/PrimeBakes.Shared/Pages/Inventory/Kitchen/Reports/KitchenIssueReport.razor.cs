@@ -25,6 +25,7 @@ public partial class KitchenIssueReport : IAsyncDisposable
 	private bool _showAllColumns = false;
 	private bool _showSummary = false;
 	private bool _showDeleted = false;
+	private bool _showTransactionReturns = false;
 
 	private DateTime _fromDate = DateTime.Now.Date;
 	private DateTime _toDate = DateTime.Now.Date;
@@ -36,6 +37,7 @@ public partial class KitchenIssueReport : IAsyncDisposable
 	private List<KitchenModel> _kitchens = [];
 	private List<KitchenIssueOverviewModel> _transactionOverviews = [];
 	private List<KitchenIssueOverviewModel> _allTransactionOverviews = [];
+	private List<KitchenIssueReturnOverviewModel> _allTransactionReturnOverviews = [];
 
 	private readonly List<ContextMenuItemModel> _gridContextMenuItems =
 	[
@@ -109,6 +111,11 @@ public partial class KitchenIssueReport : IAsyncDisposable
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
+			_allTransactionReturnOverviews = await CommonData.LoadTableDataByDate<KitchenIssueReturnOverviewModel>(
+				InventoryNames.KitchenIssueReturnOverview,
+				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
+				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
+
 			await ApplyFilters();
 		}
 		catch (Exception ex)
@@ -126,6 +133,9 @@ public partial class KitchenIssueReport : IAsyncDisposable
 	private async Task ApplyFilters()
 	{
 		_transactionOverviews = [.. _allTransactionOverviews];
+
+		if (_showTransactionReturns)
+			MergeTransactionAndReturns();
 
 		_transactionOverviews = [.. _transactionOverviews.Where(t =>
 				(_showDeleted || t.Status) &&
@@ -148,6 +158,33 @@ public partial class KitchenIssueReport : IAsyncDisposable
 		if (_sfGrid is not null) await _sfGrid.Refresh();
 		StateHasChanged();
 	}
+
+	private void MergeTransactionAndReturns() =>
+		_transactionOverviews.AddRange(_allTransactionReturnOverviews.Select(kir => new KitchenIssueOverviewModel
+		{
+			Id = kir.Id,
+			TransactionNo = kir.TransactionNo,
+			CompanyId = kir.CompanyId,
+			CompanyName = kir.CompanyName,
+			TransactionDateTime = kir.TransactionDateTime,
+			FinancialYearId = kir.FinancialYearId,
+			FinancialYear = kir.FinancialYear,
+			KitchenId = kir.KitchenId,
+			KitchenName = kir.KitchenName,
+			TotalItems = kir.TotalItems,
+			TotalQuantity = -kir.TotalQuantity,
+			TotalAmount = -kir.TotalAmount,
+			Remarks = kir.Remarks,
+			CreatedBy = kir.CreatedBy,
+			CreatedByName = kir.CreatedByName,
+			CreatedAt = kir.CreatedAt,
+			CreatedFromPlatform = kir.CreatedFromPlatform,
+			LastModifiedBy = kir.LastModifiedBy,
+			LastModifiedByUserName = kir.LastModifiedByUserName,
+			LastModifiedAt = kir.LastModifiedAt,
+			LastModifiedFromPlatform = kir.LastModifiedFromPlatform,
+			Status = kir.Status
+		}));
 	#endregion
 
 	#region Changed Events
@@ -208,18 +245,34 @@ public partial class KitchenIssueReport : IAsyncDisposable
 
 			await _toastNotification.ShowAsync("Processing", $"{(isRecover ? "Recovering" : "Deleting")} transaction...", ToastType.Info);
 
+			var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(transactionNo, false, false);
 			var platform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
 			var currentDateTime = await CommonData.LoadCurrentDateTime();
 
-			var kitchenIssue = await CommonData.LoadTableDataById<KitchenIssueModel>(InventoryNames.KitchenIssue, id)
-				?? throw new Exception("Transaction not found.");
-			kitchenIssue.Status = isRecover;
-			kitchenIssue.LastModifiedBy = _user.Id;
-			kitchenIssue.LastModifiedAt = currentDateTime;
-			kitchenIssue.LastModifiedFromPlatform = platform;
+			if (decodedTransactionNo.CodeType == CodeType.KitchenIssueReturn)
+			{
+				var kitchenIssueReturn = await CommonData.LoadTableDataById<KitchenIssueReturnModel>(InventoryNames.KitchenIssueReturn, id)
+					?? throw new Exception("Transaction not found.");
+				kitchenIssueReturn.Status = isRecover;
+				kitchenIssueReturn.LastModifiedBy = _user.Id;
+				kitchenIssueReturn.LastModifiedAt = currentDateTime;
+				kitchenIssueReturn.LastModifiedFromPlatform = platform;
 
-			if (isRecover) await KitchenIssueData.RecoverTransaction(kitchenIssue);
-			else await KitchenIssueData.DeleteTransaction(kitchenIssue);
+				if (isRecover) await KitchenIssueReturnData.RecoverTransaction(kitchenIssueReturn);
+				else await KitchenIssueReturnData.DeleteTransaction(kitchenIssueReturn);
+			}
+			else
+			{
+				var kitchenIssue = await CommonData.LoadTableDataById<KitchenIssueModel>(InventoryNames.KitchenIssue, id)
+					?? throw new Exception("Transaction not found.");
+				kitchenIssue.Status = isRecover;
+				kitchenIssue.LastModifiedBy = _user.Id;
+				kitchenIssue.LastModifiedAt = currentDateTime;
+				kitchenIssue.LastModifiedFromPlatform = platform;
+
+				if (isRecover) await KitchenIssueData.RecoverTransaction(kitchenIssue);
+				else await KitchenIssueData.DeleteTransaction(kitchenIssue);
+			}
 
 			await _toastNotification.ShowAsync("Success", $"Transaction {transactionNo} has been {(isRecover ? "recovered" : "deleted")} successfully.", ToastType.Success);
 		}
@@ -360,6 +413,12 @@ public partial class KitchenIssueReport : IAsyncDisposable
 		StateHasChanged();
 
 		if (_sfGrid is not null) await _sfGrid.Refresh();
+	}
+
+	private async Task ToggleTransactionReturns()
+	{
+		_showTransactionReturns = !_showTransactionReturns;
+		await ApplyFilters();
 	}
 
 	private async Task ToggleDeleted()

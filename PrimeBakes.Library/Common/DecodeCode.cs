@@ -74,6 +74,12 @@ public static class DecodeCode
 				if (pdf) decodeTransactionNoModel.PDFStream = await KitchenIssueInvoiceExport.ExportInvoice((decodeTransactionNoModel.TransactionModel as KitchenIssueModel).Id, InvoiceExportType.PDF);
 				if (excel) decodeTransactionNoModel.ExcelStream = await KitchenIssueInvoiceExport.ExportInvoice((decodeTransactionNoModel.TransactionModel as KitchenIssueModel).Id, InvoiceExportType.Excel);
 				break;
+			case CodeType.KitchenIssueReturn:
+				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByTransactionNo<KitchenIssueReturnModel>(InventoryNames.KitchenIssueReturn, transactionNo);
+				decodeTransactionNoModel.PageRouteName = $"{InventoryRouteNames.KitchenIssueReturn}/{(decodeTransactionNoModel.TransactionModel as KitchenIssueReturnModel).Id}";
+				if (pdf) decodeTransactionNoModel.PDFStream = await KitchenIssueReturnInvoiceExport.ExportInvoice((decodeTransactionNoModel.TransactionModel as KitchenIssueReturnModel).Id, InvoiceExportType.PDF);
+				if (excel) decodeTransactionNoModel.ExcelStream = await KitchenIssueReturnInvoiceExport.ExportInvoice((decodeTransactionNoModel.TransactionModel as KitchenIssueReturnModel).Id, InvoiceExportType.Excel);
+				break;
 			case CodeType.KitchenProduction:
 				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByTransactionNo<KitchenProductionModel>(InventoryNames.KitchenProduction, transactionNo);
 				decodeTransactionNoModel.PageRouteName = $"{InventoryRouteNames.KitchenProduction}/{(decodeTransactionNoModel.TransactionModel as KitchenProductionModel).Id}";

@@ -8,6 +8,7 @@ public class OutletSummaryModel
 	public decimal Purchase { get; set; }
 	public decimal PurchaseReturn { get; set; }
 	public decimal KitchenIssue { get; set; }
+	public decimal KitchenIssueReturn { get; set; }
 	public decimal KitchenProduction { get; set; }
 	public decimal Sale { get; set; }
 	public decimal SaleReturn { get; set; }
@@ -27,7 +28,8 @@ public class OutletSummaryModel
 
 	// Derived analytics (computed from the values above)
 	public decimal NetPurchase => Purchase - PurchaseReturn;
-	public decimal NetProduction => KitchenProduction - KitchenIssue;
+	public decimal NetKitchenIssue => KitchenIssue - KitchenIssueReturn;
+	public decimal NetProduction => KitchenProduction - NetKitchenIssue;
 	public decimal NetSale => Sale - SaleReturn;
 
 	public decimal GrossProfit => NetSale - NetPurchase;
@@ -35,6 +37,7 @@ public class OutletSummaryModel
 	public decimal AverageSaleValue => TransactionCount == 0 ? 0 : Math.Round(NetSale / TransactionCount, 2);
 
 	public decimal PurchaseReturnPercent => Purchase == 0 ? 0 : Math.Round(PurchaseReturn / Purchase * 100, 2);
-	public decimal KitchenProductionPercent => KitchenProduction == 0 ? 0 : Math.Round(KitchenIssue / KitchenProduction * 100, 2);
+	public decimal KitchenIssueReturnPercent => KitchenIssue == 0 ? 0 : Math.Round(KitchenIssueReturn / KitchenIssue * 100, 2);
+	public decimal KitchenProductionPercent => KitchenProduction == 0 ? 0 : Math.Round(NetKitchenIssue / KitchenProduction * 100, 2);
 	public decimal SaleReturnPercent => Sale == 0 ? 0 : Math.Round(SaleReturn / Sale * 100, 2);
 }
