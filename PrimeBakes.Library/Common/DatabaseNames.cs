@@ -54,6 +54,15 @@ public static class OperationNames
 	#endregion
 }
 
+public static class AnalysisNames
+{
+	#region Dashboard
+	public static string LoadDashboardMonthlyTrend => "Load_Dashboard_MonthlyTrend";
+	public static string LoadDashboardRevenueByOutlet => "Load_Dashboard_RevenueByOutlet";
+	public static string LoadDashboardPaymentMix => "Load_Dashboard_PaymentMix";
+	#endregion
+}
+
 public static class AccountNames
 {
 	#region Financial Accounting

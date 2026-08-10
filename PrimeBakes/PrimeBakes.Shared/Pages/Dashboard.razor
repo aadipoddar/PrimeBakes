@@ -80,6 +80,11 @@ else
 							   TabHeaderClass="launchpad-tab-header"
 							   TabPanelsClass="launchpad-tab-panels">
 
+				<!-- ANALYSIS -->
+				<MudBlazor.MudTabPanel Text="Analysis" Visible="_user.Admin && _user.LocationId == 1">
+					<DashboardAnalysis />
+				</MudBlazor.MudTabPanel>
+
 				<!-- Mobile -->
 				<MudBlazor.MudTabPanel Text="Mobile" Visible="@(Factor != "Desktop")">
 

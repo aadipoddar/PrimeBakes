@@ -1,0 +1,65 @@
+/* Side-by-side chart row */
+.chart-row {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 16px;
+}
+
+@media (max-width: 900px) {
+	.chart-row {
+		grid-template-columns: 1fr;
+	}
+}
+
+.chart-card {
+	background: #ffffff;
+	border: 1px solid rgba(15, 23, 42, 0.08);
+	border-radius: 12px;
+	padding: 16px;
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.chart-card-title {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--gray-900, #0f172a);
+	margin-bottom: 8px;
+}
+
+.chart-dot {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+}
+
+.dot-revenue {
+	background: #16a34a;
+}
+
+.dot-purchase {
+	background: #dc2626;
+}
+
+.dot-outlet {
+	background: #2563eb;
+}
+
+.dot-mix {
+	background: linear-gradient(135deg, #16a34a, #2563eb, #f59e0b);
+}
+
+.chart-row + .chart-row {
+	margin-top: 16px;
+}
+
+.chart-empty {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 280px;
+	color: var(--gray-500, #64748b);
+	font-size: 14px;
+}

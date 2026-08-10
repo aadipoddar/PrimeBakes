@@ -1,0 +1,94 @@
+<div class="launchpad-section">
+
+	<!-- Row 1: Revenue (line) + Purchases (bar) trend -->
+	<div class="chart-row">
+
+		<div class="chart-card">
+			<div class="chart-card-title">
+				<span class="chart-dot dot-revenue"></span>
+				<span>Revenue</span>
+			</div>
+			@if (_revenueSeries.Count == 0)
+			{
+				<div class="chart-empty">Loading…</div>
+			}
+			else
+			{
+				<MudBlazor.MudChart ChartType="MudBlazor.ChartType.Line"
+									ChartSeries="@_revenueSeries"
+									ChartLabels="@_labels"
+									Width="100%"
+									Height="100%"
+									ChartOptions="@_revenueOptions" />
+			}
+		</div>
+
+		<div class="chart-card">
+			<div class="chart-card-title">
+				<span class="chart-dot dot-purchase"></span>
+				<span>Purchases</span>
+			</div>
+			@if (_purchaseSeries.Count == 0)
+			{
+				<div class="chart-empty">Loading…</div>
+			}
+			else
+			{
+				<MudBlazor.MudChart ChartType="MudBlazor.ChartType.Bar"
+									ChartSeries="@_purchaseSeries"
+									ChartLabels="@_labels"
+									Width="100%"
+									Height="100%"
+									ChartOptions="@_purchaseOptions" />
+			}
+		</div>
+
+	</div>
+
+	<!-- Row 2: Revenue by Outlet + Payment Mode Mix -->
+	<div class="chart-row">
+
+		<div class="chart-card">
+			<div class="chart-card-title">
+				<span class="chart-dot dot-outlet"></span>
+				<span>Top Outlets by Revenue</span>
+			</div>
+			@if (_outletSeries.Count == 0)
+			{
+				<div class="chart-empty">Loading…</div>
+			}
+			else
+			{
+				<MudBlazor.MudChart ChartType="MudBlazor.ChartType.Bar"
+									ChartSeries="@_outletSeries"
+									ChartLabels="@_outletLabels"
+									Width="100%"
+									Height="100%"
+									MatchBoundsToSize="true"
+									ChartOptions="@_outletOptions" />
+			}
+		</div>
+
+		<div class="chart-card">
+			<div class="chart-card-title">
+				<span class="chart-dot dot-mix"></span>
+				<span>Payment Mode Mix</span>
+			</div>
+			@if (_paymentSeries.Count == 0)
+			{
+				<div class="chart-empty">Loading…</div>
+			}
+			else
+			{
+				<MudBlazor.MudChart ChartType="MudBlazor.ChartType.Pie"
+									ChartSeries="@_paymentSeries"
+									ChartLabels="@_paymentLabels"
+									Width="100%"
+									Height="380px"
+									ChartOptions="@_paymentOptions" />
+			}
+		</div>
+
+	</div>
+
+</div>

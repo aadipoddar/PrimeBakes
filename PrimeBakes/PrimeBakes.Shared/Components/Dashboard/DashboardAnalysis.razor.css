@@ -1,0 +1,17 @@
+/* Two-column summary layout */
+.attention-row {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 16px;
+	align-items: start;
+}
+
+@media (max-width: 1100px) {
+	.attention-row {
+		grid-template-columns: 1fr;
+	}
+}
+
+.attention-col {
+	min-width: 0; /* lets grid-tracked tables shrink instead of overflowing */
+}

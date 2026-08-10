@@ -20,6 +20,16 @@ public static class Helper
 	public static string FormatIndianCurrency(this int rate) =>
 		string.Format(new CultureInfo("hi-IN"), "{0:C}", rate);
 
+	// Whole rupees only — for headline figures where the paise are noise.
+	public static string FormatIndianCurrencyShort(this decimal rate) =>
+		string.Format(new CultureInfo("hi-IN"), "{0:C0}", rate);
+
+	public static string FormatIndianCurrencyShort(this decimal? rate) =>
+		string.Format(new CultureInfo("hi-IN"), "{0:C0}", rate ?? 0);
+
+	public static string FormatIndianCurrencyShort(this int rate) =>
+		string.Format(new CultureInfo("hi-IN"), "{0:C0}", rate);
+
 	public static string FormatDecimalWithTwoDigits(this decimal value) =>
 		value.ToString("0.00", CultureInfo.InvariantCulture);
 
@@ -34,19 +44,22 @@ public static class Helper
 			return rounded.ToString("0.##", CultureInfo.InvariantCulture);
 	}
 
-	public static string FormatMonthlyTrend(decimal current, decimal previous)
+	public static string FormatMonthlyTrend(decimal current, decimal previous) =>
+		FormatTrend(current, previous, "last month");
+
+	public static string FormatTrend(decimal current, decimal previous, string comparedTo)
 	{
 		if (previous == 0)
-			return "vs last month";
+			return $"vs {comparedTo}";
 
 		// Divide by the magnitude of the previous value so the ▲/▼ direction stays
 		// correct even when the previous value is negative (e.g. a prior-month loss).
 		var change = (double)((current - previous) / Math.Abs(previous)) * 100;
 		return change switch
 		{
-			> 0 => $"▲ {change:0}% vs last month",
-			< 0 => $"▼ {Math.Abs(change):0}% vs last month",
-			_ => "same as last month"
+			> 0 => $"▲ {change:0}% vs {comparedTo}",
+			< 0 => $"▼ {Math.Abs(change):0}% vs {comparedTo}",
+			_ => $"same as {comparedTo}"
 		};
 	}
 	#endregion
