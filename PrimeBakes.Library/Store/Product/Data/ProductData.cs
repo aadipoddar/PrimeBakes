@@ -14,12 +14,12 @@ public static class ProductData
 	public static async Task DeleteTransaction(ProductModel product, int userId, string platform) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
-			product.Status = false;
-			await InsertProduct(product, transaction);
-
 			var productLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(product.Id, null, null, transaction);
 			foreach (var pl in productLocations)
 				await ProductLocationData.DeleteProductLocationById(pl.Id, transaction);
+
+			product.Status = false;
+			await InsertProduct(product, transaction);
 
 			await AuditTrailData.SaveAuditTrail(new()
 			{
