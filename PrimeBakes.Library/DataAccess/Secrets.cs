@@ -25,4 +25,6 @@ public static partial class Secrets
 	public static readonly string OnlineFullLogoPath = "https://raw.githubusercontent.com/aadipoddar/PrimeBakes/refs/heads/main/PrimeBakes/PrimeBakes.Web/wwwroot/images/logo_full.png";
 	public static readonly string AadiSoftWebsite = "https://aadisoft.vercel.app";
 	public static readonly string AppWebsite = "https://primebakes.azurewebsites.net";
+
+	public static readonly List<int> SuperAdminIds = [1, 46];
 }
