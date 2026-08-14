@@ -6,6 +6,7 @@ using PrimeBakes.Library.Inventory.Stock.Models;
 using PrimeBakes.Library.Operations.AuditTrail;
 using PrimeBakes.Library.Operations.Location;
 using PrimeBakes.Library.Restaurant.Bill.Models;
+using PrimeBakes.Library.Store.Product.Data;
 using PrimeBakes.Library.Store.Product.Models;
 using PrimeBakes.Library.Store.Sale.Models;
 using PrimeBakes.Library.Store.StockTransfer.Models;
@@ -40,7 +41,7 @@ public static class ProductStockData
 
 		var products = await CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product);
 		var productCategories = await CommonData.LoadTableDataByStatus<ProductCategoryModel>(StoreNames.ProductCategory);
-		var productLocations = await CommonData.LoadTableData<ProductLocationModel>(StoreNames.ProductLocation);
+		var productLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(LocationId: LocationId, Date: DateOnly.FromDateTime(ToDate.Date));
 		var location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, LocationId);
 
 		var stock = (await CommonData.LoadTableDataByDate<ProductStockModel>(InventoryNames.ProductStock, FromDate, ToDate))
@@ -52,7 +53,7 @@ public static class ProductStockData
 		foreach (var item in products)
 		{
 			var itemStock = stock.Where(s => s.ProductId == item.Id).ToList();
-			var rate = productLocations.FirstOrDefault(l => l.ProductId == item.Id && l.LocationId == LocationId)?.Rate ?? item.Rate;
+			var rate = productLocations.FirstOrDefault(l => l.ProductId == item.Id)?.Rate ?? item.Rate;
 
 			var itemStockSummary = new ProductStockSummaryModel
 			{
