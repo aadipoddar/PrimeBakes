@@ -1,6 +1,6 @@
 <div class="launchpad-section">
 
-	<!-- Row 1: Revenue (line) + Purchases (bar) trend -->
+	<!-- Revenue (line) + Purchases (bar) trend -->
 	<div class="chart-row">
 
 		<div class="chart-card">
@@ -45,47 +45,48 @@
 
 	</div>
 
-	<!-- Row 2: Revenue by Outlet + Payment Mode Mix -->
+	<!-- Row 2: what sold + what it took to make it, this month -->
 	<div class="chart-row">
 
 		<div class="chart-card">
 			<div class="chart-card-title">
-				<span class="chart-dot dot-outlet"></span>
-				<span>Top Outlets by Revenue</span>
+				<span class="chart-dot dot-product"></span>
+				<span>Top Products by Units — This Month</span>
 			</div>
-			@if (_outletSeries.Count == 0)
+			@if (_productSeries.Count == 0)
 			{
 				<div class="chart-empty">Loading…</div>
 			}
 			else
 			{
 				<MudBlazor.MudChart ChartType="MudBlazor.ChartType.Bar"
-									ChartSeries="@_outletSeries"
-									ChartLabels="@_outletLabels"
+									ChartSeries="@_productSeries"
+									ChartLabels="@_productLabels"
 									Width="100%"
 									Height="100%"
 									MatchBoundsToSize="true"
-									ChartOptions="@_outletOptions" />
+									ChartOptions="@_productOptions" />
 			}
 		</div>
 
 		<div class="chart-card">
 			<div class="chart-card-title">
-				<span class="chart-dot dot-mix"></span>
-				<span>Payment Mode Mix</span>
+				<span class="chart-dot dot-material"></span>
+				<span>Top Raw Materials by Value — This Month</span>
 			</div>
-			@if (_paymentSeries.Count == 0)
+			@if (_materialSeries.Count == 0)
 			{
 				<div class="chart-empty">Loading…</div>
 			}
 			else
 			{
-				<MudBlazor.MudChart ChartType="MudBlazor.ChartType.Pie"
-									ChartSeries="@_paymentSeries"
-									ChartLabels="@_paymentLabels"
+				<MudBlazor.MudChart ChartType="MudBlazor.ChartType.Bar"
+									ChartSeries="@_materialSeries"
+									ChartLabels="@_materialLabels"
 									Width="100%"
-									Height="380px"
-									ChartOptions="@_paymentOptions" />
+									Height="100%"
+									MatchBoundsToSize="true"
+									ChartOptions="@_materialOptions" />
 			}
 		</div>
 

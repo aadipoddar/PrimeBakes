@@ -1,12 +1,20 @@
 using PrimeBakes.Library.Inventory.Purchase.Models;
+using PrimeBakes.Library.Operations.Settings;
 using PrimeBakes.Library.Restaurant.Bill.Models;
 using PrimeBakes.Library.Store.Order.Models;
 using PrimeBakes.Library.Store.Sale.Models;
 
 namespace PrimeBakes.Shared.Components.Dashboard;
 
-public partial class DashboardAnalysis
+public partial class DashboardAnalysis : IAsyncDisposable
 {
+	private PeriodicTimer _autoRefreshTimer;
+	private CancellationTokenSource _autoRefreshCts;
+
+	// One timer for the whole tab — every child reloads on the same tick.
+	private DashboardChart _chart;
+	private DashboardSummaries _summaries;
+
 	// Read from the base tables, not the *_Overview views: those join nine tables per
 	// row to resolve names no KPI tile ever shows.
 	private List<SaleModel> _sales = [];
@@ -48,6 +56,8 @@ public partial class DashboardAnalysis
 
 		await LoadData();
 		LoadKPI();
+
+		await StartAutoRefresh();
 	}
 
 	private async Task LoadData()
@@ -165,5 +175,45 @@ public partial class DashboardAnalysis
 	private int TransactionCount(DateTime from, DateTime to) =>
 		_sales.Count(_ => _.TransactionDateTime >= from && _.TransactionDateTime < to) +
 		_bills.Count(_ => !_.Running && _.TransactionDateTime >= from && _.TransactionDateTime < to);
+	#endregion
+
+	#region Auto Refresh
+	private async Task StartAutoRefresh()
+	{
+		var timerSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.AutoRefreshReportTimer);
+		var refreshMinutes = int.TryParse(timerSetting?.Value, out var minutes) ? minutes : 5;
+
+		_autoRefreshCts = new CancellationTokenSource();
+		_autoRefreshTimer = new PeriodicTimer(TimeSpan.FromMinutes(refreshMinutes));
+		_ = AutoRefreshLoop(_autoRefreshCts.Token);
+	}
+
+	private async Task AutoRefreshLoop(CancellationToken cancellationToken)
+	{
+		try
+		{
+			while (await _autoRefreshTimer.WaitForNextTickAsync(cancellationToken))
+			{
+				await LoadData();
+				LoadKPI();
+
+				await _chart.LoadData();
+				await _summaries.LoadData();
+			}
+		}
+		catch (OperationCanceledException) { }
+	}
+
+	async ValueTask IAsyncDisposable.DisposeAsync()
+	{
+		if (_autoRefreshCts is not null)
+		{
+			await _autoRefreshCts.CancelAsync();
+			_autoRefreshCts.Dispose();
+		}
+
+		_autoRefreshTimer?.Dispose();
+		GC.SuppressFinalize(this);
+	}
 	#endregion
 }

@@ -84,21 +84,6 @@
 	</div>
 </div>
 
-<DashboardChart />
+<DashboardChart @ref="_chart" />
 
-<DashboardOutletSummary />
-
-<!-- Summaries -->
-<div class="launchpad-section attention-row">
-
-	<div class="attention-col">
-		<h2 class="launchpad-section-title">Kitchen Summary — Today</h2>
-		<DashboardKitchenSummary />
-	</div>
-
-	<div class="attention-col">
-		<h2 class="launchpad-section-title">Customer Summary — Today</h2>
-		<DashboardCustomerSummary />
-	</div>
-
-</div>
+<DashboardSummaries @ref="_summaries" />

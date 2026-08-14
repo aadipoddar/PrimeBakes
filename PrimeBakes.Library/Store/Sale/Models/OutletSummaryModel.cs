@@ -23,6 +23,7 @@ public class OutletSummaryModel
 	// Volume (populated during calculation from the sale-side transactions)
 	public int TransactionCount { get; set; }
 	public decimal UnitsSold { get; set; }
+	public DateTime LastSaleDateTime { get; set; }
 
 	// Share of the total net sale across all outlets (needs the grand total, so set during calculation)
 	public decimal ContributionPercent { get; set; }

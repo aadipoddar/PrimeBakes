@@ -58,8 +58,8 @@ public static class AnalysisNames
 {
 	#region Dashboard
 	public static string LoadDashboardMonthlyTrend => "Load_Dashboard_MonthlyTrend";
-	public static string LoadDashboardRevenueByOutlet => "Load_Dashboard_RevenueByOutlet";
-	public static string LoadDashboardPaymentMix => "Load_Dashboard_PaymentMix";
+	public static string LoadDashboardTopProducts => "Load_Dashboard_TopProducts";
+	public static string LoadDashboardTopRawMaterials => "Load_Dashboard_TopRawMaterials";
 	#endregion
 }
 

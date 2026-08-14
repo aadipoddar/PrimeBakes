@@ -274,8 +274,8 @@
     <Build Include="Restaurant\Bill\Load\Bill_Item_Overview.sql" />
     <Build Include="Restaurant\Bill\Load\Bill_Overview.sql" />
     <Build Include="Operations\Analysis\Load\Load_Dashboard_MonthlyTrend.sql" />
-    <Build Include="Operations\Analysis\Load\Load_Dashboard_RevenueByOutlet.sql" />
-    <Build Include="Operations\Analysis\Load\Load_Dashboard_PaymentMix.sql" />
+    <Build Include="Operations\Analysis\Load\Load_Dashboard_TopProducts.sql" />
+    <Build Include="Operations\Analysis\Load\Load_Dashboard_TopRawMaterials.sql" />
     <Build Include="Operations\AuditTrail\AuditTrail.sql" />
     <Build Include="Operations\AuditTrail\Insert_AuditTrail.sql" />
     <Build Include="Operations\AuditTrail\Load_Last_AuditTrail_By_Table_Record.sql" />

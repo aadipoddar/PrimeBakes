@@ -6,17 +6,18 @@ namespace PrimeBakes.Shared.Components.Dashboard;
 
 public partial class DashboardChart
 {
-	// Row 1 - Revenue line / Purchase bar
+	// Revenue line / Purchase bar
 	private List<ChartSeries<double>> _revenueSeries = [];
 	private List<ChartSeries<double>> _purchaseSeries = [];
 	private string[] _labels = [];
 
-	// Row 2 - Outlet bar / Payment mode pie
-	private List<ChartSeries<double>> _outletSeries = [];
-	private string[] _outletLabels = [];
+	// Top products bar
+	private List<ChartSeries<double>> _productSeries = [];
+	private string[] _productLabels = [];
 
-	private List<ChartSeries<double>> _paymentSeries = [];
-	private string[] _paymentLabels = [];
+	// Top raw materials bar
+	private List<ChartSeries<double>> _materialSeries = [];
+	private string[] _materialLabels = [];
 
 	private readonly LineChartOptions _revenueOptions = new()
 	{
@@ -39,21 +40,26 @@ public partial class DashboardChart
 		XAxisLines = false,
 	};
 
-	private readonly BarChartOptions _outletOptions = new()
+	private readonly BarChartOptions _productOptions = new()
 	{
-		ChartPalette = ["#2563eb"],
+		ChartPalette = ["#7c3aed"],
 		YAxisFormat = "N0",
 		MaxNumYAxisTicks = 10,
 		ShowLegend = false,
 		YAxisLines = true,
 		XAxisLines = false,
-		XAxisLabelRotation = 45
+		XAxisLabelRotation = 45,
 	};
 
-	private readonly PieChartOptions _paymentOptions = new()
+	private readonly BarChartOptions _materialOptions = new()
 	{
-		ChartPalette = ["#16a34a", "#2563eb", "#8b5cf6", "#f59e0b"],
-		ShowValues = true,
+		ChartPalette = ["#ea580c"],
+		YAxisFormat = "N0",
+		MaxNumYAxisTicks = 10,
+		ShowLegend = false,
+		YAxisLines = true,
+		XAxisLines = false,
+		XAxisLabelRotation = 45,
 	};
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -64,7 +70,7 @@ public partial class DashboardChart
 		await LoadData();
 	}
 
-	private async Task LoadData()
+	public async Task LoadData()
 	{
 		try
 		{
@@ -75,8 +81,8 @@ public partial class DashboardChart
 
 			// SQL does all the grouping and summing; we just read the finished numbers.
 			BuildMonthlyTrend(await AnalysisData.LoadDashboardMonthlyTrend(windowStart, windowEnd), thisMonthStart);
-			BuildRevenueByOutlet(await AnalysisData.LoadDashboardRevenueByOutlet(windowStart, windowEnd));
-			BuildPaymentMix(await AnalysisData.LoadDashboardPaymentMix(windowStart, windowEnd));
+			BuildTopProducts(await AnalysisData.LoadDashboardTopProducts(thisMonthStart, DateTime.Now));
+			BuildTopRawMaterials(await AnalysisData.LoadDashboardTopRawMaterials(thisMonthStart, DateTime.Now));
 		}
 		catch { }
 		finally { StateHasChanged(); }
@@ -107,29 +113,30 @@ public partial class DashboardChart
 		_purchaseSeries = [new ChartSeries<double> { Name = "Purchases", Data = purchase }];
 	}
 
-	private void BuildRevenueByOutlet(List<AnalysisOutletModel> rows)
+	private void BuildTopProducts(List<AnalysisTopProductModel> rows)
 	{
-		// Keep the top 7 — SQL already sorted them. The long tail of small outlets only
-		// squeezes the bars too thin to read.
-		const int topN = 7;
-		var top = rows.Take(topN).ToList();
+		// SQL already trimmed this to the top ten by units and sorted it.
+		_productLabels = [.. rows.Select(_ => _.ItemName)];
+		var quantities = rows.Select(_ => (double)_.Quantity).ToArray();
 
-		_outletLabels = [.. top.Select(_ => _.LocationCode)];
-		var revenueData = top.Select(_ => (double)_.Revenue).ToArray();
+		_productOptions.YAxisTicks = RoundAxisStep(quantities);
 
-		_outletOptions.YAxisTicks = RoundAxisStep(revenueData);
-
-		_outletSeries = top.Count == 0
+		_productSeries = rows.Count == 0
 			? []
-			: [new ChartSeries<double> { Name = "Revenue", Data = revenueData }];
+			: [new ChartSeries<double> { Name = "Units", Data = quantities }];
 	}
 
-	private void BuildPaymentMix(List<AnalysisPaymentModeModel> rows)
+	private void BuildTopRawMaterials(List<AnalysisTopRawMaterialModel> rows)
 	{
-		_paymentLabels = [.. rows.Select(_ => _.PaymentMode)];
-		var values = rows.Select(_ => (double)_.Amount).ToArray();
+		// SQL already trimmed this to the top ten by value and sorted it.
+		_materialLabels = [.. rows.Select(_ => _.ItemName)];
+		var amounts = rows.Select(_ => (double)_.Amount).ToArray();
 
-		_paymentSeries = values.Sum() == 0 ? [] : values.AsChartDataSet();
+		_materialOptions.YAxisTicks = RoundAxisStep(amounts);
+
+		_materialSeries = rows.Count == 0
+			? []
+			: [new ChartSeries<double> { Name = "Consumed", Data = amounts }];
 	}
 
 	// Left alone, MudChart starts at a step of 20 and keeps doubling it until the ticks

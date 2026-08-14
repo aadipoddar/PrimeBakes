@@ -43,12 +43,12 @@
 	background: #dc2626;
 }
 
-.dot-outlet {
-	background: #2563eb;
+.dot-product {
+	background: #7c3aed;
 }
 
-.dot-mix {
-	background: linear-gradient(135deg, #16a34a, #2563eb, #f59e0b);
+.dot-material {
+	background: #ea580c;
 }
 
 .chart-row + .chart-row {

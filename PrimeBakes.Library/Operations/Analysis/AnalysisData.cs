@@ -7,11 +7,11 @@ public static class AnalysisData
 	public static async Task<List<AnalysisMonthlyTrendModel>> LoadDashboardMonthlyTrend(DateTime StartDate, DateTime EndDate) =>
 		await SqlDataAccess.LoadData<AnalysisMonthlyTrendModel, dynamic>(AnalysisNames.LoadDashboardMonthlyTrend, new { StartDate, EndDate });
 
-	public static async Task<List<AnalysisOutletModel>> LoadDashboardRevenueByOutlet(DateTime StartDate, DateTime EndDate) =>
-		await SqlDataAccess.LoadData<AnalysisOutletModel, dynamic>(AnalysisNames.LoadDashboardRevenueByOutlet, new { StartDate, EndDate });
+	public static async Task<List<AnalysisTopProductModel>> LoadDashboardTopProducts(DateTime StartDate, DateTime EndDate) =>
+		await SqlDataAccess.LoadData<AnalysisTopProductModel, dynamic>(AnalysisNames.LoadDashboardTopProducts, new { StartDate, EndDate });
 
-	public static async Task<List<AnalysisPaymentModeModel>> LoadDashboardPaymentMix(DateTime StartDate, DateTime EndDate) =>
-		await SqlDataAccess.LoadData<AnalysisPaymentModeModel, dynamic>(AnalysisNames.LoadDashboardPaymentMix, new { StartDate, EndDate });
+	public static async Task<List<AnalysisTopRawMaterialModel>> LoadDashboardTopRawMaterials(DateTime StartDate, DateTime EndDate) =>
+		await SqlDataAccess.LoadData<AnalysisTopRawMaterialModel, dynamic>(AnalysisNames.LoadDashboardTopRawMaterials, new { StartDate, EndDate });
 }
 
 public class AnalysisMonthlyTrendModel
@@ -22,14 +22,17 @@ public class AnalysisMonthlyTrendModel
 	public decimal Purchase { get; set; }
 }
 
-public class AnalysisOutletModel
+public class AnalysisTopProductModel
 {
-	public string LocationCode { get; set; }
-	public decimal Revenue { get; set; }
+	public string ItemName { get; set; }
+	public decimal Quantity { get; set; }
+	public decimal Amount { get; set; }
 }
 
-public class AnalysisPaymentModeModel
+public class AnalysisTopRawMaterialModel
 {
-	public string PaymentMode { get; set; }
+	public string ItemName { get; set; }
+	public string UnitOfMeasurement { get; set; }
+	public decimal Quantity { get; set; }
 	public decimal Amount { get; set; }
 }
