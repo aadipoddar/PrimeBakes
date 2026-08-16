@@ -1,20 +1,24 @@
 <Solution>
+  <Folder Name="/Api/">
+    <Project Path="Api/PrimeBakes.Api.Client/PrimeBakes.Api.Client.csproj" Id="01949e71-ffb0-429b-a4f1-4a2f7f1c585d" />
+    <Project Path="Api/PrimeBakes.Api/PrimeBakes.Api.csproj" Id="aec1d357-fbd2-42b6-81fb-335d77276004" />
+  </Folder>
   <Folder Name="/App/">
-    <Project Path="PrimeBakes/PrimeBakes.Shared/PrimeBakes.Shared.csproj" />
-    <Project Path="PrimeBakes/PrimeBakes.Web/PrimeBakes.Web.csproj" />
-    <Project Path="PrimeBakes/PrimeBakes/PrimeBakes.csproj">
-      <Deploy Solution="Debug|*" />
-    </Project>
+    <Project Path="App/PrimeBakes.Shared/PrimeBakes.Shared.csproj" />
+    <Project Path="App/PrimeBakes.Wasm/PrimeBakes.Wasm.csproj" Id="056acdf2-a4b0-492b-8393-e88d8113d503" />
+    <Project Path="App/PrimeBakes.Web/PrimeBakes.Web.csproj" />
+    <Project Path="App/PrimeBakes/PrimeBakes.csproj" />
   </Folder>
   <Folder Name="/Data/">
-    <Project Path="PrimeBakes.Database/PrimeBakes.Database.sqlproj" Id="4d32fffa-477f-468f-9585-68d093b452b9">
+    <Project Path="Data/PrimeBakes.Database/PrimeBakes.Database.sqlproj" Id="4d32fffa-477f-468f-9585-68d093b452b9">
       <Build />
       <Deploy />
     </Project>
-    <Project Path="PrimeBakes.Library/PrimeBakes.Library.csproj" />
+    <Project Path="Data/PrimeBakes.Library/PrimeBakes.Library.csproj" />
+    <Project Path="Data/PrimeBakes.Models/PrimeBakes.Models.csproj" Id="e5b08d30-5838-46d0-8a76-4ecb939b6736" />
   </Folder>
   <Folder Name="/Tools/">
-    <Project Path="PrimeBakes.Tools/PrimeBakes.Tools.csproj" />
-    <Project Path="PushNotificationsAPI/PushNotificationsAPI.csproj" />
+    <Project Path="Tools/PrimeBakes.Tools/PrimeBakes.Tools.csproj" />
+    <Project Path="Tools/PushNotificationsAPI/PushNotificationsAPI.csproj" />
   </Folder>
 </Solution>

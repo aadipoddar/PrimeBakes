@@ -1,0 +1,324 @@
+@using PrimeBakes.Shared.Components.Card
+@using PrimeBakes.Models.Accounts.FinancialAccounting
+@using PrimeBakes.Models.Accounts.Masters
+
+@attribute [Route(AccountsRouteNames.AccountingLedgerReport)]
+
+<PageTitle>Financial Ledger Report - Prime Bakes</PageTitle>
+
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(AccountsRouteNames.FinancialAccounting, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyQ KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDetailsView" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyO KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="ViewSelectedTransaction" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="DeleteRecoverSelectedTransaction" Disabled="@_isProcessing" />
+
+@if (_isLoading || _user is null)
+{
+	<LoadingScreen />
+}
+else
+{
+	<div class="page-shell">
+		<Header Title="Financial Ledger Report">
+			<LeftContent>
+				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="New Transaction (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(AccountsRouteNames.FinancialAccounting, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Refresh Data (Ctrl + R / F5)" OnClick="LoadTransactionOverviews" />
+					<MudBlazor.MudMenuItem Label="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" OnClick="() => ToggleDeleted()" />
+					<MudBlazor.MudMenuItem Label="@(_showAllColumns ? "Hide Details (Ctrl + Q)" : "Show Details (Ctrl + Q)")" OnClick="() => ToggleDetailsView()" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportReport()" />
+					<MudBlazor.MudMenuItem Label="Export Excel (Ctrl + E)" OnClick="() => ExportReport(true)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Open" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Accounting Report (Ctrl + H)" OnClick="() => AuthenticationService.NavigateToRoute(AccountsRouteNames.FinancialAccountingReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Bank Reconciliation" OnClick="() => AuthenticationService.NavigateToRoute(AccountsRouteNames.BankReconciliation, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Trial Balance" OnClick="() => AuthenticationService.NavigateToRoute(AccountsRouteNames.TrialBalanceReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Profit & Loss" OnClick="() => AuthenticationService.NavigateToRoute(AccountsRouteNames.ProfitAndLossReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Balance Sheet" OnClick="() => AuthenticationService.NavigateToRoute(AccountsRouteNames.BalanceSheetReport, FormFactor, JSRuntime, NavigationManager)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Periods" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Today" OnClick="() => HandleDatesChanged(DateRangeType.Today)" />
+					<MudBlazor.MudMenuItem Label="Previous Day" OnClick="() => HandleDatesChanged(DateRangeType.Yesterday)" />
+					<MudBlazor.MudMenuItem Label="Next Day" OnClick="() => HandleDatesChanged(DateRangeType.NextDay)" />
+					<MudBlazor.MudMenuItem Label="Current Month" OnClick="() => HandleDatesChanged(DateRangeType.CurrentMonth)" />
+					<MudBlazor.MudMenuItem Label="Previous Month" OnClick="() => HandleDatesChanged(DateRangeType.PreviousMonth)" />
+					<MudBlazor.MudMenuItem Label="Next Month" OnClick="() => HandleDatesChanged(DateRangeType.NextMonth)" />
+					<MudBlazor.MudMenuItem Label="Current FY" OnClick="() => HandleDatesChanged(DateRangeType.CurrentFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="Previous FY" OnClick="() => HandleDatesChanged(DateRangeType.PreviousFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="Next FY" OnClick="() => HandleDatesChanged(DateRangeType.NextFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="All Time" OnClick="() => HandleDatesChanged(DateRangeType.AllTime)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Transaction" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="View (Alt + O)" OnClick="ViewSelectedTransaction" />
+					<MudBlazor.MudMenuItem Label="Export PDF (Alt + P)" OnClick="() => ExportSelectedTransaction()" />
+					<MudBlazor.MudMenuItem Label="Export Excel (Alt + E)" OnClick="() => ExportSelectedTransaction(true)" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Delete / Recover (Del)" OnClick="DeleteRecoverSelectedTransaction" />
+				</MudBlazor.MudMenu>
+			</LeftContent>
+		</Header>
+
+		<div class="page-container">
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Filters</h2>
+				</div>
+
+				<div class="section-body">
+					<div class="filters-grid">
+						<!-- Date Range -->
+						<div class="form-field">
+							<CustomDateRangePicker @ref="_firstFocus" Value="@(new MudBlazor.DateRange(_fromDate, _toDate))"
+												   ValueChanged="OnDateRangeChanged"
+												   Label="Date Range (Ctrl + F)"
+												   Required="false" />
+						</div>
+
+						<!-- Company -->
+						<div class="form-field">
+							<CustomAutoComplete T="CompanyModel"
+												Value="_selectedCompany"
+												DataSource="@_companies"
+												Placeholder="All Companies"
+												Label="Company" Required="false"
+												FieldValue="@nameof(CompanyModel.Name)"
+												ValueChanged="OnCompanyChanged"
+												AddNewRoute="@AccountsRouteNames.CompanyMaster" />
+						</div>
+
+						<!-- Voucher -->
+						<div class="form-field">
+							<CustomAutoComplete T="VoucherModel"
+												Value="_selectedVoucher"
+												DataSource="@_vouchers"
+												Placeholder="All Vouchers"
+												Label="Voucher" Required="false"
+												ValueChanged="OnVoucherChanged"
+												FieldValue="@nameof(VoucherModel.Name)"
+												AddNewRoute="@AccountsRouteNames.VoucherMaster" />
+						</div>
+
+						<!-- Ledger -->
+						<div class="form-field">
+							<CustomAutoComplete T="LedgerModel"
+												Value="_selectedLedger"
+												DataSource="@_ledgers"
+												Placeholder="All Ledgers"
+												Label="Ledger" Required="false"
+												FieldValue="@nameof(LedgerModel.Name)"
+												ValueChanged="OnLedgerChanged"
+												AddNewRoute="@AccountsRouteNames.LedgerMaster" />
+						</div>
+					</div>
+
+				</div>
+			</div>
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Records</h2>
+				</div>
+
+				<SfGrid @ref="_sfGrid" TValue="FinancialAccountingLedgerOverviewModel" DataSource="_transactionOverviews"
+						AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+						AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+						Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+					<GridEvents TValue="FinancialAccountingLedgerOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "10", "20", "50", "100", "All" })" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+					<GridAggregates>
+						<GridAggregate>
+							<GridAggregateColumns>
+								<GridColumnAggregate Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerName)" Type="AggregateType.Count" Format="N0" />
+								<GridColumnAggregate Field="@nameof(FinancialAccountingLedgerOverviewModel.Debit)" CustomColor="grid-debit" />
+								<GridColumnAggregate Field="@nameof(FinancialAccountingLedgerOverviewModel.Credit)" CustomColor="grid-credit" />
+							</GridAggregateColumns>
+						</GridAggregate>
+					</GridAggregates>
+
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerName)" HeaderText="Ledger" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerCode)" HeaderText="Code" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.AccountTypeName)" HeaderText="Account Type" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.GroupName)" HeaderText="Group" Visible="_showAllColumns" />
+
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerReferenceType)" HeaderText="Ref Type" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerReferenceNo)" HeaderText="Ref No" Visible="_showAllColumns" />
+
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.InstrumentNo)" HeaderText="Instrument No" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.InstrumentDate)" HeaderText="Instrument Date" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.ClearingDate)" HeaderText="Clearing Date" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.Reconciled)" HeaderText="Reconciled" TextAlign="TextAlign.Center" Visible="_showAllColumns" DisplayAsCheckBox="true" />
+
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.Debit)" HeaderText="Debit" CustomColor="grid-debit" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.Credit)" HeaderText="Credit" CustomColor="grid-credit" />
+
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerRemarks)" HeaderText="Ledger Remarks" Width="500" />
+
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TransactionNo)" HeaderText="Transaction No" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy" Type="ColumnType.DateTime" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CompanyName)" HeaderText="Company" Visible="@(_showAllColumns && (_selectedCompany is null || _selectedCompany.Id <= 0))" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.VoucherName)" HeaderText="Voucher Type" Visible="@(_showAllColumns && (_selectedVoucher is null || _selectedVoucher.Id <= 0))" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.ReferenceNo)" HeaderText="Ref No" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.FinancialYear)" HeaderText="Financial Year" Visible="_showAllColumns" />
+						
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TotalLedgers)" HeaderText="Ledgers" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TotalDebitLedgers)" HeaderText="Debit Ledgers" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TotalCreditLedgers)" HeaderText="Credit Ledgers" TextAlign="TextAlign.Right" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TotalDebitAmount)" HeaderText="Total Debit" Visible="_showAllColumns" CustomColor="grid-debit" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TotalCreditAmount)" HeaderText="Total Credit" Visible="_showAllColumns" CustomColor="grid-credit" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TotalAmount)" HeaderText="Amount" Visible="_showAllColumns" TotalColumn="true" />
+
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.Remarks)" HeaderText="Remarks" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CreatedByName)" HeaderText="Created By" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CreatedAt)" HeaderText="Created At" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CreatedFromPlatform)" HeaderText="Created Platform" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LastModifiedAt)" HeaderText="Modified At" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LastModifiedFromPlatform)" HeaderText="Modified Platform" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.MasterStatus)" Visible="_showDeleted" StatusColumn="true" />
+					</GridColumns>
+				</SfGrid>
+			</div>
+
+			<!-- Trial Balance Summary Section (Shown when Ledger is selected) -->
+			@if (_selectedLedger?.Id > 0 && _selectedTrialBalance != null)
+			{
+				<div class="section-card trial-balance-summary">
+					<div class="section-header">
+						<div class="section-title-with-details">
+							<h2 class="section-title">@_selectedTrialBalance.LedgerName</h2>
+							<div class="ledger-badges">
+								<span class="badge badge-group">@_selectedTrialBalance.GroupName</span>
+								<span class="badge badge-account">@_selectedTrialBalance.AccountTypeName</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="section-body">
+						<div class="trial-balance-grid">
+							<BalanceInfoCard Label="Opening Balance" Value="@($"₹{_selectedTrialBalance.OpeningBalance:N2}")"
+											 Breakdown="@($"Dr: ₹{_selectedTrialBalance.OpeningDebit:N2} • Cr: ₹{_selectedTrialBalance.OpeningCredit:N2}")"
+											 Variant="BalanceInfoCard.CardVariant.Opening">
+								<Icon>
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+										 stroke-linejoin="round">
+										<circle cx="12" cy="12" r="10" />
+										<polyline points="12 6 12 12 16 14" />
+									</svg>
+								</Icon>
+							</BalanceInfoCard>
+
+							<BalanceInfoCard Label="Period Debit" Value="@($"₹{_selectedTrialBalance.Debit:N2}")" Variant="BalanceInfoCard.CardVariant.Debit">
+								<Icon>
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+										 stroke-linejoin="round">
+										<line x1="12" y1="5" x2="12" y2="19" />
+										<polyline points="19 12 12 19 5 12" />
+									</svg>
+								</Icon>
+							</BalanceInfoCard>
+
+							<BalanceInfoCard Label="Period Credit" Value="@($"₹{_selectedTrialBalance.Credit:N2}")" Variant="BalanceInfoCard.CardVariant.Credit">
+								<Icon>
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+										 stroke-linejoin="round">
+										<line x1="12" y1="19" x2="12" y2="5" />
+										<polyline points="5 12 12 5 19 12" />
+									</svg>
+								</Icon>
+							</BalanceInfoCard>
+
+							<BalanceInfoCard Label="Closing Balance" Value="@($"₹{_selectedTrialBalance.ClosingBalance:N2}")"
+											 Breakdown="@($"Dr: ₹{_selectedTrialBalance.ClosingDebit:N2} • Cr: ₹{_selectedTrialBalance.ClosingCredit:N2}")"
+											 Variant="BalanceInfoCard.CardVariant.Closing">
+								<Icon>
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+										 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+										 stroke-linejoin="round">
+										<rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+										<line x1="1" y1="10" x2="23" y2="10" />
+									</svg>
+								</Icon>
+							</BalanceInfoCard>
+						</div>
+					</div>
+				</div>
+			}
+		</div>
+
+		<Footer />
+	</div>
+}
+
+<ConfirmationDialog @ref="_confirmationDialog" Title="@_confirmTitle" Message="@_confirmMessage"
+					OnConfirm="OnConfirmed" OnCancel="OnCancelled" />
+
+<ToastNotification @ref="_toastNotification" />
+
+<CloseGuard Block="_isProcessing" />
+
+<style>
+	/* Trial Balance Summary Section */
+	.trial-balance-summary {
+		background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+	}
+
+	.section-title-with-details {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		flex-wrap: wrap;
+	}
+
+	.ledger-badges {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+	}
+
+	.trial-balance-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+		gap: 14px;
+	}
+
+	.badge {
+		display: inline-block;
+		padding: 3px 8px;
+		border-radius: 4px;
+		font-size: 10px;
+		font-weight: 600;
+		letter-spacing: 0.2px;
+	}
+
+	.badge-group {
+		background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+		color: #1e40af;
+		border: 1px solid #bfdbfe;
+	}
+
+	.badge-account {
+		background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+		color: #166534;
+		border: 1px solid #bbf7d0;
+	}
+</style>

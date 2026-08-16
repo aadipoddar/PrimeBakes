@@ -1,0 +1,50 @@
+@using System.Net.Http
+@using System.Net.Http.Json
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@using static Microsoft.AspNetCore.Components.Web.RenderMode
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Microsoft.JSInterop
+@using PrimeBakes
+@using PrimeBakes.Shared
+@using PrimeBakes.Shared.Layout
+
+@using PrimeBakes.Shared.Components
+@using PrimeBakes.Shared.Components.Page
+@using PrimeBakes.Shared.Services
+@using PrimeBakes.Shared.Components.Dialog
+@using PrimeBakes.Shared.Components.Button
+@using PrimeBakes.Shared.Components.Card
+@using PrimeBakes.Shared.Components.Input
+@using PrimeBakes.Shared.Components.Grid
+@using PrimeBakes.Shared.Components.Dashboard
+@using static PrimeBakes.Shared.Components.Button.ButtonSize
+@using static PrimeBakes.Shared.Components.Button.ButtonVariant
+@using static PrimeBakes.Shared.Components.Button.IconType
+
+@using Syncfusion.Blazor
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.Notifications
+@using Syncfusion.Blazor.Navigations
+@using Syncfusion.Blazor.Popups
+
+@using MudBlazor.Utilities
+
+@using PrimeBakes.Models.Common
+
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
+@inject IFormFactor FormFactor
+@inject ISaveAndViewService SaveAndViewService
+@inject IDataStorageService DataStorageService
+@inject IVibrationService VibrationService
+@inject ISoundService SoundService
+@inject IUpdateService UpdateService
+@inject INotificationService NotificationService
+@inject IBluetoothPrinterService BluetoothPrinterService
+@inject IThermalPrintDispatcher ThermalPrintDispatcher
+@inject PageRefreshState PageRefresh

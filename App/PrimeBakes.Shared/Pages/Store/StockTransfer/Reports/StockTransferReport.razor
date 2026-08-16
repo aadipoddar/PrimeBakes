@@ -1,0 +1,232 @@
+@using PrimeBakes.Models.Accounts.Masters
+@using PrimeBakes.Models.Operations.Location
+@using PrimeBakes.Models.Store.StockTransfer
+
+@attribute [Route(StoreRouteNames.StockTransferReport)]
+
+<PageTitle>Stock Transfer Report - Prime Bakes</PageTitle>
+
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(StoreRouteNames.StockTransfer, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyQ KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDetailsView" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyW KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleSummary" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyI KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(StoreRouteNames.StockTransferItemReport, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyO KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="ViewSelectedTransaction" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="DeleteRecoverSelectedTransaction" Disabled="@_isProcessing" />
+
+@if (_isLoading || _user is null)
+{
+	<LoadingScreen />
+}
+else
+{
+	<div class="page-shell">
+		<Header Title="Stock Transfer Report">
+			<LeftContent>
+				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="New Transaction (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.StockTransfer, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Refresh Data (Ctrl + R / F5)" OnClick="LoadTransactionOverviews" />
+					<MudBlazor.MudMenuItem Label="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" OnClick="ToggleDeleted" />
+					<MudBlazor.MudMenuItem Label="@(_showSummary ? "Hide Summary (Ctrl + W)" : "Show Summary (Ctrl + W)")" OnClick="ToggleSummary" />
+					<MudBlazor.MudMenuItem Label="@(_showAllColumns ? "Hide Details (Ctrl + Q)" : "Show Details (Ctrl + Q)")" OnClick="ToggleDetailsView" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportReport()" />
+					<MudBlazor.MudMenuItem Label="Export Excel (Ctrl + E)" OnClick="() => ExportReport(true)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Open" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Stock Transfer (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.StockTransfer, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Stock Transfer Report" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.StockTransferReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Stock Transfer Item Report (Ctrl + I)" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.StockTransferItemReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Sale" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.Sale, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Sale Report" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.SaleReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Sale Item Report" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.SaleItemReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Sale Return" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.SaleReturn, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Sale Return Report" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.SaleReturnReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Sale Return Item Report" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.SaleReturnItemReport, FormFactor, JSRuntime, NavigationManager)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Periods" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Today" OnClick="() => HandleDatesChanged(DateRangeType.Today)" />
+					<MudBlazor.MudMenuItem Label="Previous Day" OnClick="() => HandleDatesChanged(DateRangeType.Yesterday)" />
+					<MudBlazor.MudMenuItem Label="Next Day" OnClick="() => HandleDatesChanged(DateRangeType.NextDay)" />
+					<MudBlazor.MudMenuItem Label="Current Month" OnClick="() => HandleDatesChanged(DateRangeType.CurrentMonth)" />
+					<MudBlazor.MudMenuItem Label="Previous Month" OnClick="() => HandleDatesChanged(DateRangeType.PreviousMonth)" />
+					<MudBlazor.MudMenuItem Label="Next Month" OnClick="() => HandleDatesChanged(DateRangeType.NextMonth)" />
+					<MudBlazor.MudMenuItem Label="Current FY" OnClick="() => HandleDatesChanged(DateRangeType.CurrentFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="Previous FY" OnClick="() => HandleDatesChanged(DateRangeType.PreviousFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="Next FY" OnClick="() => HandleDatesChanged(DateRangeType.NextFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="All Time" OnClick="() => HandleDatesChanged(DateRangeType.AllTime)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Transaction" Dense="true" Disabled="_isProcessing || _showSummary">
+					<MudBlazor.MudMenuItem Label="View (Alt + O)" OnClick="ViewSelectedTransaction" />
+					<MudBlazor.MudMenuItem Label="View Accounting Posting" OnClick="ViewFinancialAccountingPosting" />
+					<MudBlazor.MudMenuItem Label="Export PDF (Alt + P)" OnClick="() => ExportSelectedTransaction()" />
+					<MudBlazor.MudMenuItem Label="Export Excel (Alt + E)" OnClick="() => ExportSelectedTransaction(true)" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Delete / Recover (Del)" OnClick="DeleteRecoverSelectedTransaction" />
+				</MudBlazor.MudMenu>
+			</LeftContent>
+		</Header>
+
+		<div class="page-container">
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Filters</h2>
+				</div>
+
+				<div class="section-body">
+					<div class="filters-grid">
+						<!-- Date Range -->
+						<div class="form-field">
+							<CustomDateRangePicker @ref="_firstFocus" Value="@(new MudBlazor.DateRange(_fromDate, _toDate))"
+												   ValueChanged="OnDateRangeChanged"
+												   Label="Date Range (Ctrl + F)"
+												   Required="false" />
+						</div>
+
+						@if (_user.LocationId == 1)
+						{
+							<!-- Company -->
+							<div class="form-field">
+								<CustomAutoComplete T="CompanyModel"
+													Value="_selectedCompany"
+													DataSource="@_companies"
+													Placeholder="All Companies"
+													Label="Company" Required="false"
+													ValueChanged="OnCompanyChanged"
+													FieldValue="@nameof(CompanyModel.Name)"
+													AddNewRoute="@AccountsRouteNames.CompanyMaster" />
+							</div>
+
+							<!-- From Location -->
+							<div class="form-field">
+								<CustomAutoComplete T="LocationModel"
+													Value="_selectedLocation"
+													DataSource="@_locations"
+													Placeholder="All Locations"
+													Label="From Location" Required="false"
+													ValueChanged="OnLocationChanged"
+													FieldValue="@nameof(LocationModel.Name)"
+													AddNewRoute="@OperationRouteNames.Location" />
+							</div>
+
+							<!-- To Location -->
+							<div class="form-field">
+								<CustomAutoComplete T="LocationModel"
+													Value="_selectedToLocation"
+													DataSource="@_locations"
+													Placeholder="All Locations"
+													Label="To Location" Required="false"
+													ValueChanged="OnToLocationChanged"
+													FieldValue="@nameof(LocationModel.Name)"
+													AddNewRoute="@OperationRouteNames.Location" />
+							</div>
+						}
+					</div>
+				</div>
+			</div>
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Records</h2>
+				</div>
+
+				<SfGrid @ref="_sfGrid" TValue="StockTransferOverviewModel" DataSource="_transactionOverviews"
+						AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+						AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+						Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+					<GridEvents TValue="StockTransferOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+					<GridAggregates>
+						<GridAggregate>
+							<GridAggregateColumns>
+								<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+								<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.TotalItems)" />
+								<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.TotalQuantity)" />
+								<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.BaseTotal)" />
+								<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.ItemDiscountAmount)" CustomColor="grid-debit" />
+								<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.TotalAfterItemDiscount)" />
+								<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.TotalInclusiveTaxAmount)" />
+								<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.TotalExtraTaxAmount)" />
+								<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.TotalAfterTax)" />
+								<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.OtherChargesAmount)" />
+								<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.DiscountAmount)" CustomColor="grid-debit" />
+								<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.RoundOffAmount)" />
+								<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.TotalAmount)" CustomColor="grid-total" />
+								<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.Cash)" />
+								<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.Card)" />
+								<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.UPI)" />
+								<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.Credit)" />
+							</GridAggregateColumns>
+						</GridAggregate>
+					</GridAggregates>
+
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TransactionNo)" HeaderText="Transaction No" Visible="@(!_showSummary)" />
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(!_showSummary)" />
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.LocationName)" HeaderText="From Location" Visible="@(!_showSummary && (_selectedLocation is null || _selectedLocation.Id <= 0))" />
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.ToLocationName)" HeaderText="To Location" Visible="@(_selectedToLocation is null || _selectedToLocation.Id <= 0)" />
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.CompanyName)" HeaderText="Company" Visible="@(_showAllColumns && !_showSummary && (_selectedCompany is null || _selectedCompany.Id <= 0))" />
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.FinancialYear)" HeaderText="Financial Year" Visible="@(_showAllColumns && !_showSummary)" />
+
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TotalItems)" HeaderText="Items" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TotalQuantity)" HeaderText="Qty" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.BaseTotal)" HeaderText="Base Total" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.ItemDiscountAmount)" HeaderText="Item Disc" Visible="_showAllColumns" CustomColor="grid-debit" />
+
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TotalAfterItemDiscount)" HeaderText="After Disc" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TotalInclusiveTaxAmount)" HeaderText="Incl Tax" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TotalExtraTaxAmount)" HeaderText="Extra Tax" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TotalAfterTax)" HeaderText="Sub Total" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.OtherChargesPercent)" HeaderText="Other Charge %" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.OtherChargesAmount)" HeaderText="Other Charge" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.DiscountPercent)" HeaderText="Disc %" Visible="@(!_showSummary)" CustomColor="grid-debit" />
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.DiscountAmount)" HeaderText="Disc" CustomColor="grid-debit" />
+
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.RoundOffAmount)" HeaderText="Round Off" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.PaymentModes)" HeaderText="Payment Modes" Visible="@(!_showSummary)" />
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.Cash)" HeaderText="Cash" Visible="_showAllColumns" TotalColumn="true" />
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.UPI)" HeaderText="UPI" Visible="_showAllColumns" TotalColumn="true" />
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.Card)" HeaderText="Card" Visible="_showAllColumns" TotalColumn="true" />
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.Credit)" HeaderText="Credit" Visible="_showAllColumns" TotalColumn="true" />
+
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.Remarks)" HeaderText="Remarks" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Transaction No" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.CreatedByName)" HeaderText="Created By" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.CreatedAt)" HeaderText="Created At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.CreatedFromPlatform)" HeaderText="Created Platform" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.LastModifiedAt)" HeaderText="Modified At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.LastModifiedFromPlatform)" HeaderText="Modified Platform" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(StockTransferOverviewModel.Status)" Visible="@(_showDeleted && !_showSummary)" StatusColumn="true" />
+					</GridColumns>
+				</SfGrid>
+			</div>
+		</div>
+
+		<Footer />
+	</div>
+}
+
+<ConfirmationDialog @ref="_confirmationDialog" Title="@_confirmTitle" Message="@_confirmMessage"
+					OnConfirm="OnConfirmed" OnCancel="OnCancelled" />
+
+<ToastNotification @ref="_toastNotification" />
+
+<CloseGuard Block="_isProcessing" />

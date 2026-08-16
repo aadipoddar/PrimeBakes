@@ -1,0 +1,137 @@
+@using PrimeBakes.Models.Operations.Location
+@using PrimeBakes.Models.Store.Product
+
+@attribute [Route(StoreRouteNames.ProductLocation)]
+
+<PageTitle>Product Location Management - Prime Bakes</PageTitle>
+
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="SaveTransaction" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportMaster(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportMaster()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="EditSelectedItem" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="DeleteSelectedItem" Disabled="@_isProcessing" />
+
+@if (_isLoading || _user is null)
+{
+	<LoadingScreen />
+}
+else
+{
+	<div class="page-shell">
+		<Header Title="Product Location Management">
+			<LeftContent>
+				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="New (Ctrl + N)" OnClick="ResetPage" />
+					<MudBlazor.MudMenuItem Label="Save (Ctrl + S)" OnClick="SaveTransaction" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Export Excel (Ctrl + E)" OnClick="() => ExportMaster(true)" />
+					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportMaster()" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Transaction" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Edit (Insert)" OnClick="EditSelectedItem" />
+					<MudBlazor.MudMenuItem Label="Delete (Del)" OnClick="DeleteSelectedItem" />
+					<MudBlazor.MudMenuItem Label="Discontinue" OnClick="DiscontinueSelectedItem" />
+				</MudBlazor.MudMenu>
+			</LeftContent>
+		</Header>
+
+		<div class="page-container">
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Master Details</h2>
+				</div>
+
+				<div class="section-body">
+					<div class="form-grid">
+						<div class="form-field">
+							<CustomAutoComplete @ref="_firstFocus"
+												T="LocationModel"
+												@bind-Value="_selectedLocation"
+												@bind-Value:after="OnLocationChanged"
+												DataSource="@_locations"
+												Placeholder="Select location"
+												Label="Location (Ctrl + F)"
+												FieldValue="@nameof(LocationModel.Name)" />
+						</div>
+
+						<div class="form-field">
+							<CustomAutoComplete T="ProductModel"
+												@bind-Value="_selectedProduct"
+												@bind-Value:after="OnProductChanged"
+												DataSource="@_products"
+												Placeholder="Select product"
+												Label="Product"
+												FieldValue="@nameof(ProductModel.Name)"
+												AddNewRoute="@StoreRouteNames.Product" />
+						</div>
+
+						<div class="form-field">
+							<CustomNumericField T="decimal"
+												@bind-Value="_productLocation.Rate"
+												Label="Rate"
+												Placeholder="Enter rate"
+												Format="N2"
+												Min="0" />
+						</div>
+
+						<div class="form-field">
+							<CustomDatePicker @bind-Value="_effectiveDate"
+											  Label="Effective Date"
+											  ShowFinancialYear="false"
+											  AddNewRoute="@null" />
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Master List</h2>
+				</div>
+
+				<SfGrid @ref="_sfGrid" DataSource="@_productLocationOverviews" AllowPaging="true" AllowSorting="true" AllowResizing="true" AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems" Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+					<GridEvents TValue="ProductLocationOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(ProductLocationOverviewModel.Id)" HeaderText="ID" Width="100" TextAlign="TextAlign.Center" />
+
+						<CustomGridColumn>
+							<CustomTemplate>
+								<GridColumn Field="@nameof(ProductLocationOverviewModel.LocationId)" HeaderText="Location" Width="200">
+									<Template>
+										@{
+											var productLocation = (context as ProductLocationOverviewModel);
+											var location = _locations.FirstOrDefault(l => l.Id == productLocation.LocationId);
+											<span>@(location?.Name ?? "-")</span>
+										}
+									</Template>
+								</GridColumn>
+							</CustomTemplate>
+						</CustomGridColumn>
+
+						<CustomGridColumn Field="@nameof(ProductLocationOverviewModel.Code)" HeaderText="Product Code" />
+						<CustomGridColumn Field="@nameof(ProductLocationOverviewModel.Name)" HeaderText="Product Name" />
+						<CustomGridColumn Field="@nameof(ProductLocationOverviewModel.Rate)" HeaderText="Rate" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductLocationOverviewModel.FromDate)" HeaderText="Effective Date" Format="dd/MM/yy" Type="ColumnType.DateOnly" TextAlign="TextAlign.Center" />
+					</GridColumns>
+				</SfGrid>
+			</div>
+		</div>
+
+		<Footer />
+	</div>
+}
+
+<ConfirmationDialog @ref="_confirmationDialog" Title="@_confirmTitle" Message="@_confirmMessage" OnConfirm="OnConfirmed" OnCancel="OnCancelled" />
+
+<ToastNotification @ref="_toastNotification" />
+
+<CloseGuard Block="_isProcessing" />

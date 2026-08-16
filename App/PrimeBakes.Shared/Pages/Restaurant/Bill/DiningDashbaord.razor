@@ -1,0 +1,92 @@
+@using PrimeBakes.Library.Common
+@using PrimeBakes.Models.Operations.Location
+@using PrimeBakes.Models.Restaurant.Dining
+@using Syncfusion.Blazor.Diagram
+
+@attribute [Route(RestaurantRouteNames.DiningDashboard)]
+
+<PageTitle>Dining Dashboard - Prime Bakes</PageTitle>
+
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" />
+<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="SaveDesign" Disabled="@(!_designMode)" />
+<MudBlazor.MudHotkey Key=JsKey.Escape OnHotkeyPressed="CancelDesign" Disabled="@(!_designMode)" />
+
+@if (_isLoading || _user is null)
+{
+	<LoadingScreen />
+}
+else
+{
+	<div class="page-shell">
+		<Header Title="Dining Dashboard">
+			<LeftContent>
+				<MudBlazor.MudMenu Label="Layout" Dense="true" Disabled="_user?.LocationId != 1">
+					<MudBlazor.MudMenuItem Label="Design Layout" OnClick="EnterDesignMode" Disabled="@(_designMode || _selectedArea is null)" />
+					<MudBlazor.MudMenuItem Label="Save Layout (Ctrl + S)" OnClick="SaveDesign" Disabled="@(!_designMode)" />
+					<MudBlazor.MudMenuItem Label="Cancel (Esc)" OnClick="CancelDesign" Disabled="@(!_designMode)" />
+				</MudBlazor.MudMenu>
+			</LeftContent>
+		</Header>
+
+		<div class="page-container">
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Filters</h2>
+				</div>
+
+				<div class="section-body">
+					<div class="filters-container">
+						<div class="filters-grid">
+
+							@if (_user.LocationId == 1)
+							{
+								<!-- Location -->
+								<div class="form-field">
+									<CustomAutoComplete @ref="_firstFocus" T="LocationModel"
+														Value="_selectedLocation"
+														DataSource="@_locations"
+														Placeholder="Select a Location"
+														Label="Location (Ctrl + F)"
+														ValueChanged="OnLocationChanged"
+														FieldValue="@nameof(LocationModel.Name)"
+														AddNewRoute="@OperationRouteNames.Location" />
+								</div>
+							}
+
+							<!-- Dining Area -->
+							<div class="form-field">
+								<CustomAutoComplete T="DiningAreaModel"
+													Value="_selectedArea"
+													DataSource="@_diningAreas"
+													Placeholder="Select a Dining Area"
+													Label="Dining Area"
+													ValueChanged="OnAreaChanged"
+													FieldValue="@nameof(DiningAreaModel.Name)"
+													AddNewRoute="@RestaurantRouteNames.DiningArea" />
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">@(_selectedArea?.Name ?? "Floor Plan")</h2>
+				</div>
+				<div class="section-body">
+					@if (_selectedArea is not null)
+					{
+						<SfDiagramComponent Height="600px" Width="100%" Nodes="_nodes" Click="OnDiagramClick"
+											PositionChanging="OnPositionChanging" SizeChanging="OnSizeChanging">
+							<SnapSettings Constraints="@(_designMode ? SnapConstraints.ShowLines | SnapConstraints.SnapToLines : SnapConstraints.None)" />
+						</SfDiagramComponent>
+					}
+				</div>
+			</div>
+		</div>
+
+		<Footer />
+	</div>
+}

@@ -1,0 +1,248 @@
+@using PrimeBakes.Models.Accounts.Masters
+@using PrimeBakes.Models.Operations.Location
+@using PrimeBakes.Models.Restaurant.Bill
+@using PrimeBakes.Models.Store.Customer
+
+@attribute [Route(RestaurantRouteNames.BillReport)]
+
+<PageTitle>Bill Report - Prime Bakes</PageTitle>
+
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(RestaurantRouteNames.Bill, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyW KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleSummary" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyQ KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDetailsView" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyI KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(RestaurantRouteNames.BillItemReport, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyO KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="ViewSelectedTransaction" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyT KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="ExportSelectedThermal" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="DeleteRecoverSelectedTransaction" Disabled="@_isProcessing" />
+
+@if (_isLoading || _user is null)
+{
+	<LoadingScreen />
+}
+else
+{
+	<div class="page-shell">
+		<Header Title="Bill Report">
+			<LeftContent>
+				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="New Transaction (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(RestaurantRouteNames.Bill, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Refresh Data (Ctrl + R / F5)" OnClick="LoadTransactionOverviews" />
+					<MudBlazor.MudMenuItem Label="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" OnClick="ToggleDeleted" />
+					<MudBlazor.MudMenuItem Label="@(_showSummary ? "Hide Summary (Ctrl + W)" : "Show Summary (Ctrl + W)")" OnClick="ToggleSummary" />
+					<MudBlazor.MudMenuItem Label="@(_showAllColumns ? "Hide Details (Ctrl + Q)" : "Show Details (Ctrl + Q)")" OnClick="ToggleDetailsView" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportReport()" />
+					<MudBlazor.MudMenuItem Label="Export Excel (Ctrl + E)" OnClick="() => ExportReport(true)" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Post Daywise Bills" OnClick="PostDaywiseBills" Disabled="!_user.Accounts" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Open" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Bill (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(RestaurantRouteNames.Bill, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Bill Report" OnClick="() => AuthenticationService.NavigateToRoute(RestaurantRouteNames.BillReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Bill Item Report (Ctrl + I)" OnClick="() => AuthenticationService.NavigateToRoute(RestaurantRouteNames.BillItemReport, FormFactor, JSRuntime, NavigationManager)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Periods" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Today" OnClick="() => HandleDatesChanged(DateRangeType.Today)" />
+					<MudBlazor.MudMenuItem Label="Previous Day" OnClick="() => HandleDatesChanged(DateRangeType.Yesterday)" />
+					<MudBlazor.MudMenuItem Label="Next Day" OnClick="() => HandleDatesChanged(DateRangeType.NextDay)" />
+					<MudBlazor.MudMenuItem Label="Current Month" OnClick="() => HandleDatesChanged(DateRangeType.CurrentMonth)" />
+					<MudBlazor.MudMenuItem Label="Previous Month" OnClick="() => HandleDatesChanged(DateRangeType.PreviousMonth)" />
+					<MudBlazor.MudMenuItem Label="Next Month" OnClick="() => HandleDatesChanged(DateRangeType.NextMonth)" />
+					<MudBlazor.MudMenuItem Label="Current FY" OnClick="() => HandleDatesChanged(DateRangeType.CurrentFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="Previous FY" OnClick="() => HandleDatesChanged(DateRangeType.PreviousFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="Next FY" OnClick="() => HandleDatesChanged(DateRangeType.NextFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="All Time" OnClick="() => HandleDatesChanged(DateRangeType.AllTime)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Transaction" Dense="true" Disabled="_isProcessing || _showSummary">
+					<MudBlazor.MudMenuItem Label="View (Alt + O)" OnClick="ViewSelectedTransaction" />
+					<MudBlazor.MudMenuItem Label="View Accounting Posting" OnClick="ViewFinancialAccountingPosting" />
+					<MudBlazor.MudMenuItem Label="Export Thermal (Alt + T)" OnClick="ExportSelectedThermal" />
+					<MudBlazor.MudMenuItem Label="Export PDF (Alt + P)" OnClick="() => ExportSelectedTransaction()" />
+					<MudBlazor.MudMenuItem Label="Export Excel (Alt + E)" OnClick="() => ExportSelectedTransaction(true)" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Delete / Recover (Del)" OnClick="DeleteRecoverSelectedTransaction" />
+				</MudBlazor.MudMenu>
+			</LeftContent>
+		</Header>
+
+		<div class="page-container">
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Filters</h2>
+				</div>
+
+				<div class="section-body">
+					<div class="filters-grid">
+						<!-- Date Range -->
+						<div class="form-field">
+							<CustomDateRangePicker @ref="_firstFocus" Value="@(new MudBlazor.DateRange(_fromDate, _toDate))"
+												   ValueChanged="OnDateRangeChanged"
+												   Label="Date Range (Ctrl + F)"
+												   Required="false" />
+						</div>
+
+						@if (_user.LocationId == 1)
+						{
+							<!-- Company -->
+							<div class="form-field">
+								<CustomAutoComplete T="CompanyModel"
+													Value="_selectedCompany"
+													DataSource="@_companies"
+													Placeholder="All Companies"
+													Label="Company" Required="false"
+													ValueChanged="OnCompanyChanged"
+													FieldValue="@nameof(CompanyModel.Name)"
+													AddNewRoute="@AccountsRouteNames.CompanyMaster" />
+							</div>
+
+							<!-- Location -->
+							<div class="form-field">
+								<CustomAutoComplete T="LocationModel"
+													Value="_selectedLocation"
+													DataSource="@_locations"
+													Placeholder="All Locations"
+													Label="Location" Required="false"
+													ValueChanged="OnLocationChanged"
+													FieldValue="@nameof(LocationModel.Name)"
+													AddNewRoute="@OperationRouteNames.Location" />
+							</div>
+
+							<!-- Customer -->
+							<div class="form-field">
+								<CustomAutoComplete T="CustomerModel"
+													Value="_selectedCustomer"
+													DataSource="@_customers"
+													Placeholder="All Customers"
+													Label="Customer" Required="false"
+													ValueChanged="OnCustomerChanged"
+													FieldValue="@nameof(CustomerModel.Name)"
+													AddNewRoute="@null" />
+							</div>
+						}
+
+						<!-- Running -->
+						<div class="form-field">
+							<CustomAutoComplete T="YesNoFilterOption"
+												Value="_selectedRunning"
+												DataSource="@YesNoFilterOptions.YesNo"
+												Placeholder="All"
+												Label="Running" Required="false"
+												ValueChanged="OnRunningChanged"
+												FieldValue="@nameof(YesNoFilterOption.Name)" />
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Records</h2>
+				</div>
+
+				<SfGrid @ref="_sfGrid" TValue="BillOverviewModel" DataSource="_transactionOverviews"
+						AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+						AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+						Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+					<GridEvents TValue="BillOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+					<GridAggregates>
+						<GridAggregate>
+							<GridAggregateColumns>
+								<GridColumnAggregate Field="@nameof(BillOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+								<GridColumnAggregate Field="@nameof(BillOverviewModel.TotalPeople)" />
+								<GridColumnAggregate Field="@nameof(BillOverviewModel.TotalItems)" />
+								<GridColumnAggregate Field="@nameof(BillOverviewModel.TotalQuantity)" />
+								<GridColumnAggregate Field="@nameof(BillOverviewModel.BaseTotal)" />
+								<GridColumnAggregate Field="@nameof(BillOverviewModel.ItemDiscountAmount)" CustomColor="grid-debit" />
+								<GridColumnAggregate Field="@nameof(BillOverviewModel.TotalAfterItemDiscount)" />
+								<GridColumnAggregate Field="@nameof(BillOverviewModel.TotalInclusiveTaxAmount)" />
+								<GridColumnAggregate Field="@nameof(BillOverviewModel.TotalExtraTaxAmount)" />
+								<GridColumnAggregate Field="@nameof(BillOverviewModel.TotalAfterTax)" />
+								<GridColumnAggregate Field="@nameof(BillOverviewModel.ServiceChargeAmount)" />
+								<GridColumnAggregate Field="@nameof(BillOverviewModel.DiscountAmount)" CustomColor="grid-debit" />
+								<GridColumnAggregate Field="@nameof(BillOverviewModel.RoundOffAmount)" />
+								<GridColumnAggregate Field="@nameof(BillOverviewModel.TotalAmount)" CustomColor="grid-total" />
+								<GridColumnAggregate Field="@nameof(BillOverviewModel.Cash)" />
+								<GridColumnAggregate Field="@nameof(BillOverviewModel.Card)" />
+								<GridColumnAggregate Field="@nameof(BillOverviewModel.UPI)" />
+								<GridColumnAggregate Field="@nameof(BillOverviewModel.Credit)" />
+							</GridAggregateColumns>
+						</GridAggregate>
+					</GridAggregates>
+
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(BillOverviewModel.TransactionNo)" HeaderText="Transaction No" Visible="@(!_showSummary)" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(!_showSummary)" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.LocationName)" HeaderText="Location" Visible="@(_selectedLocation is null || _selectedLocation.Id <= 0)" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.CompanyName)" HeaderText="Company" Visible="@(_showAllColumns && !_showSummary && (_selectedCompany is null || _selectedCompany.Id <= 0))" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.DiningTableName)" HeaderText="Table" Visible="@(!_showSummary)" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.DiningAreaName)" HeaderText="Area" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.CustomerName)" HeaderText="Customer" Visible="@(_showAllColumns && !_showSummary && (_selectedCustomer is null || _selectedCustomer.Id <= 0))" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.FinancialYear)" HeaderText="Financial Year" Visible="@(_showAllColumns && !_showSummary)" />
+
+						<CustomGridColumn Field="@nameof(BillOverviewModel.TotalPeople)" HeaderText="PAX" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.TotalItems)" HeaderText="Items" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.TotalQuantity)" HeaderText="Qty" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.BaseTotal)" HeaderText="Base Total" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.ItemDiscountAmount)" HeaderText="Item Disc" Visible="_showAllColumns" CustomColor="grid-debit" />
+
+						<CustomGridColumn Field="@nameof(BillOverviewModel.TotalAfterItemDiscount)" HeaderText="After Disc" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.TotalInclusiveTaxAmount)" HeaderText="Incl Tax" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.TotalExtraTaxAmount)" HeaderText="Extra Tax" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.TotalAfterTax)" HeaderText="Sub Total" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.ServiceChargePercent)" HeaderText="Service Charge %" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.ServiceChargeAmount)" HeaderText="Service Charge" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.DiscountPercent)" HeaderText="Disc %" Visible="@(!_showSummary)" CustomColor="grid-debit" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.DiscountAmount)" HeaderText="Disc" CustomColor="grid-debit" />
+
+						<CustomGridColumn Field="@nameof(BillOverviewModel.RoundOffAmount)" HeaderText="Round Off" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+
+						<CustomGridColumn Field="@nameof(BillOverviewModel.PaymentModes)" HeaderText="Payment Modes" Visible="@(!_showSummary)" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.Cash)" HeaderText="Cash" Visible="_showAllColumns" TotalColumn="true" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.UPI)" HeaderText="UPI" Visible="_showAllColumns" TotalColumn="true" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.Card)" HeaderText="Card" Visible="_showAllColumns" TotalColumn="true" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.Credit)" HeaderText="Credit" Visible="_showAllColumns" TotalColumn="true" />
+
+						<CustomGridColumn Field="@nameof(BillOverviewModel.Running)" HeaderText="Running" Visible="@(!_showSummary)" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
+
+						<CustomGridColumn Field="@nameof(BillOverviewModel.Remarks)" HeaderText="Remarks" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Transaction No" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.CreatedByName)" HeaderText="Created By" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.CreatedAt)" HeaderText="Created At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.CreatedFromPlatform)" HeaderText="Created Platform" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.LastModifiedAt)" HeaderText="Modified At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.LastModifiedFromPlatform)" HeaderText="Modified Platform" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.Status)" Visible="@(_showDeleted && !_showSummary)" StatusColumn="true" />
+					</GridColumns>
+				</SfGrid>
+			</div>
+		</div>
+
+		<Footer />
+	</div>
+}
+
+<ConfirmationDialog @ref="_confirmationDialog" Title="@_confirmTitle" Message="@_confirmMessage"
+					OnConfirm="OnConfirmed" OnCancel="OnCancelled" />
+
+<ToastNotification @ref="_toastNotification" />
+
+<CloseGuard Block="_isProcessing" />

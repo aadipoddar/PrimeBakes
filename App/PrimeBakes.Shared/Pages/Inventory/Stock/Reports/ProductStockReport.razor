@@ -1,0 +1,219 @@
+@using PrimeBakes.Models.Operations.Location
+@using PrimeBakes.Models.Accounts.Masters
+@using PrimeBakes.Models.Inventory.Stock
+@using PrimeBakes.Models.Store.Product
+
+@attribute [Route(InventoryRouteNames.ProductStockReport)]
+
+<PageTitle>Product Stock Report - Prime Bakes</PageTitle>
+
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.ProductStockAdjustment, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadStockSummary" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadStockSummary" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyQ KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDetailsView" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport(true)" Disabled="@_isProcessing" />
+
+@if (_isLoading || _user is null)
+{
+	<LoadingScreen />
+}
+else
+{
+	<div class="page-shell">
+		<Header Title="Product Stock Report">
+			<LeftContent>
+				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Stock Adjustment (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.ProductStockAdjustment, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Refresh Data (Ctrl + R / F5)" OnClick="LoadStockSummary" />
+					<MudBlazor.MudMenuItem Label="@(_showAllColumns ? "Hide Details (Ctrl + Q)" : "Show Details (Ctrl + Q)")" OnClick="ToggleDetailsView" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportReport()" />
+					<MudBlazor.MudMenuItem Label="Export Excel (Ctrl + E)" OnClick="() => ExportReport(true)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Open" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Product Stock Adjustment (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.ProductStockAdjustment, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Product Stock Report" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.ProductStockReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Product Stock Detail Report" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.ProductStockDetailReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Product" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.Product, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Product Category" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.ProductCategory, FormFactor, JSRuntime, NavigationManager)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Periods" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Today" OnClick="() => HandleDatesChanged(DateRangeType.Today)" />
+					<MudBlazor.MudMenuItem Label="Previous Day" OnClick="() => HandleDatesChanged(DateRangeType.Yesterday)" />
+					<MudBlazor.MudMenuItem Label="Next Day" OnClick="() => HandleDatesChanged(DateRangeType.NextDay)" />
+					<MudBlazor.MudMenuItem Label="Current Month" OnClick="() => HandleDatesChanged(DateRangeType.CurrentMonth)" />
+					<MudBlazor.MudMenuItem Label="Previous Month" OnClick="() => HandleDatesChanged(DateRangeType.PreviousMonth)" />
+					<MudBlazor.MudMenuItem Label="Next Month" OnClick="() => HandleDatesChanged(DateRangeType.NextMonth)" />
+					<MudBlazor.MudMenuItem Label="Current FY" OnClick="() => HandleDatesChanged(DateRangeType.CurrentFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="Previous FY" OnClick="() => HandleDatesChanged(DateRangeType.PreviousFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="Next FY" OnClick="() => HandleDatesChanged(DateRangeType.NextFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="All Time" OnClick="() => HandleDatesChanged(DateRangeType.AllTime)" />
+				</MudBlazor.MudMenu>
+			</LeftContent>
+		</Header>
+
+		<div class="page-container">
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Filters</h2>
+				</div>
+
+				<div class="section-body">
+					<div class="filters-grid">
+						<div class="form-field">
+							<CustomDateRangePicker @ref="_firstFocus" Value="@(new MudBlazor.DateRange(_fromDate, _toDate))"
+												   ValueChanged="OnDateRangeChanged"
+												   Label="Date Range (Ctrl + F)"
+												   Required="false" />
+						</div>
+
+						<div class="form-field">
+							<CustomAutoComplete T="LocationModel"
+												Value="_selectedLocation"
+												DataSource="@_locations"
+												Placeholder="Select an Outlet"
+												Label="Outlet" Required="false"
+												ValueChanged="OnLocationChanged"
+												FieldValue="@nameof(LocationModel.Name)"
+												AddNewRoute="@OperationRouteNames.Location" />
+						</div>
+
+						<div class="form-field">
+							<CustomAutoComplete T="ProductCategoryModel"
+												Value="_selectedCategory"
+												DataSource="@_categories"
+												Placeholder="All Categories"
+												Label="Category" Required="false"
+												ValueChanged="OnCategoryChanged"
+												FieldValue="@nameof(ProductCategoryModel.Name)"
+												AddNewRoute="@StoreRouteNames.ProductCategory" />
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Records</h2>
+				</div>
+
+				<SfGrid @ref="_sfGrid" TValue="ProductStockSummaryModel" DataSource="_stockSummary"
+						AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+						AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal"
+						Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+					<GridAggregates>
+						<GridAggregate>
+							<GridAggregateColumns>
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.ProductName)" Type="AggregateType.Count" Format="N0" />
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.ClosingValueByRate)" CustomColor="grid-total" />
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.ClosingValueByAverageInRate)" />
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.ClosingValueByAverageOutRate)" />
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.OpeningValue)" />
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.TotalInValue)" />
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.TotalOutValue)" />
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.PurchaseValue)" />
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.PurchaseReturnValue)" />
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.KitchenIssueValue)" />
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.KitchenProductionValue)" />
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.SaleValue)" />
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.SaleReturnValue)" />
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.StockTransferValue)" />
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.BillValue)" />
+								<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.AdjustmentValue)" />
+							</GridAggregateColumns>
+						</GridAggregate>
+					</GridAggregates>
+
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.ProductName)" HeaderText="Product" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.ProductCode)" HeaderText="Code" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.ProductCategoryName)" HeaderText="Category" Visible="@(_showAllColumns || _selectedCategory is null || _selectedCategory.Id <= 0)" />
+
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.OpeningStock)" HeaderText="Opening" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.InStock)" HeaderText="Stock In" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.OutStock)" HeaderText="Stock Out" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.ClosingStock)" HeaderText="Closing" NegativePositiveColumn="true" />
+
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.MonthlyStock)" HeaderText="Net Movement" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.PurchaseStock)" HeaderText="Purchase" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.PurchaseReturnStock)" HeaderText="Purchase Return" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.KitchenIssueStock)" HeaderText="Kitchen Issue" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.KitchenProductionReturnStock)" HeaderText="Kitchen Production Return" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.KitchenProductionStock)" HeaderText="Kitchen Production" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.SaleStock)" HeaderText="Sale" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.SaleReturnStock)" HeaderText="Sale Return" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.StockTransferStock)" HeaderText="Stock Transfer" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.BillStock)" HeaderText="Bill" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AdjustmentStock)" HeaderText="Adjustment" Visible="_showAllColumns" NegativePositiveColumn="true" />
+
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.Rate)" HeaderText="Rate" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.ClosingValueByRate)" HeaderText="Closing Value" TotalColumn="true" />
+
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageInRate)" HeaderText="Avg In Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.ClosingValueByAverageInRate)" HeaderText="Value at Avg In" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageOutRate)" HeaderText="Avg Out Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.ClosingValueByAverageOutRate)" HeaderText="Value at Avg Out" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.RateVariance)" HeaderText="Rate Variance" Visible="_showAllColumns" NegativePositiveColumn="true" />
+
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.OpeningValue)" HeaderText="Opening Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.TotalInValue)" HeaderText="Total In Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.TotalOutValue)" HeaderText="Total Out Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.PurchaseValue)" HeaderText="Purchase Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.PurchaseReturnValue)" HeaderText="Purchase Return Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.KitchenIssueValue)" HeaderText="Kitchen Issue Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.KitchenProductionValue)" HeaderText="Kitchen Production Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.SaleValue)" HeaderText="Sale Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.SaleReturnValue)" HeaderText="Sale Return Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.StockTransferValue)" HeaderText="Stock Transfer Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.BillValue)" HeaderText="Bill Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AdjustmentValue)" HeaderText="Adjustment Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastPurchaseRate)" HeaderText="Last Purchase Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AveragePurchaseRate)" HeaderText="Avg Purchase Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastPurchaseReturnRate)" HeaderText="Last Purchase Return Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AveragePurchaseReturnRate)" HeaderText="Avg Purchase Return Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastKitchenIssueRate)" HeaderText="Last Kitchen Issue Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageKitchenIssueRate)" HeaderText="Avg Kitchen Issue Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastKitchenProductionRate)" HeaderText="Last Kitchen Production Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageKitchenProductionRate)" HeaderText="Avg Kitchen Production Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastSaleRate)" HeaderText="Last Sale Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageSaleRate)" HeaderText="Avg Sale Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastSaleReturnRate)" HeaderText="Last Sale Return Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageSaleReturnRate)" HeaderText="Avg Sale Return Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastStockTransferRate)" HeaderText="Last Stock Transfer Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageStockTransferRate)" HeaderText="Avg Stock Transfer Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastBillRate)" HeaderText="Last Bill Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageBillRate)" HeaderText="Avg Bill Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastAdjustmentRate)" HeaderText="Last Adjustment Rate" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageAdjustmentRate)" HeaderText="Avg Adjustment Rate" Visible="_showAllColumns" NumericColumn="true" />
+
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageDailyConsumption)" HeaderText="Avg Daily Use" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.DaysOnHand)" HeaderText="Days On Hand" Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.StockTurnoverRatio)" HeaderText="Turnover" Visible="_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.TransactionCount)" HeaderText="Txns"  Visible="_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastSaleDate)" HeaderText="Last Sale" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastTransactionDate)" HeaderText="Last Transaction" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="_showAllColumns" />
+
+						<CustomGridColumn Field="@nameof(ProductStockSummaryModel.IsNegativeStock)" HeaderText="Negative?" TextAlign="TextAlign.Center" Visible="_showAllColumns" DisplayAsCheckBox="true" />
+					</GridColumns>
+				</SfGrid>
+			</div>
+		</div>
+
+		<Footer />
+	</div>
+}
+
+<ToastNotification @ref="_toastNotification" />
+
+<CloseGuard Block="_isProcessing" />

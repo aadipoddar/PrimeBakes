@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyVersion>1.1.8.3</AssemblyVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.11" />
+    <PackageReference Include="MudBlazor" Version="9.8.0" />
+    <PackageReference Include="Syncfusion.Blazor.Buttons" Version="34.2.3" />
+    <PackageReference Include="Syncfusion.Blazor.Diagram" Version="34.2.3" />
+    <PackageReference Include="Syncfusion.Blazor.Grid" Version="34.2.3" />
+    <PackageReference Include="Syncfusion.Blazor.Inputs" Version="34.2.3" />
+    <PackageReference Include="Syncfusion.Blazor.Notifications" Version="34.2.3" />
+    <PackageReference Include="Syncfusion.Blazor.Popups" Version="34.2.3" />
+    <PackageReference Include="Syncfusion.Blazor.Themes" Version="34.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Data\PrimeBakes.Library\PrimeBakes.Library.csproj" />
+    <ProjectReference Include="..\..\Data\PrimeBakes.Models\PrimeBakes.Models.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="PrimeBakes.Shared.Components" />
+    <Using Include="PrimeBakes.Shared.Services" />
+    <Using Include="PrimeBakes.Library.Common" />
+    <Using Include="PrimeBakes.Models.Common" />
+  </ItemGroup>
+
+</Project>

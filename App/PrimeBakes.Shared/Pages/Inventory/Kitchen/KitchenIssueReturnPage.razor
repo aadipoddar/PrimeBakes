@@ -1,0 +1,240 @@
+@using PrimeBakes.Models.Accounts.Masters
+@using PrimeBakes.Models.Inventory.Kitchen
+@using PrimeBakes.Models.Inventory.RawMaterial
+
+@attribute [Route(InventoryRouteNames.KitchenIssueReturn)]
+@attribute [Route(InventoryRouteNames.KitchenIssueReturn + "/{Id:int}")]
+
+<PageTitle>Kitchen Issue Return - Prime Bakes</PageTitle>
+
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyG KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _itemAutoComplete?.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Enter KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="AddItemToCart" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction(savePDF: true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction(saveExcel: true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyH KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssueReturnReport, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyI KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssueReturnItemReport, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="RemoveSelectedCartItem" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="EditSelectedCartItem" Disabled="@_isProcessing" />
+
+@if (_isLoading || _user is null)
+{
+	<LoadingScreen />
+}
+else
+{
+	<div class="page-shell">
+		<Header Title="@(_kitchenIssueReturn.Id > 0 ? $"Edit Kitchen Issue Return {_kitchenIssueReturn.TransactionNo}" : "Create Kitchen Issue Return")">
+			<LeftContent>
+				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="New Transaction (Ctrl + N)" OnClick="ResetPage" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Save (Ctrl + S)" OnClick="() => SaveTransaction()" />
+					<MudBlazor.MudMenuItem Label="Save & PDF (Ctrl + P)" OnClick="() => SaveTransaction(savePDF: true)" />
+					<MudBlazor.MudMenuItem Label="Save & Excel (Ctrl + E)" OnClick="() => SaveTransaction(saveExcel: true)" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Export PDF (Alt + P)" OnClick="() => ExportSelectedTransaction()" Disabled="@(_isProcessing || !Id.HasValue || Id.Value <= 0)" />
+					<MudBlazor.MudMenuItem Label="Export Excel (Alt + E)" OnClick="() => ExportSelectedTransaction(true)" Disabled="@(_isProcessing || !Id.HasValue || Id.Value <= 0)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Open" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Kitchen Issue Return (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssueReturn, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Issue Return Report (Ctrl + H)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssueReturnReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Issue Return Item Report (Ctrl + I)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssueReturnItemReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Issue" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssue, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Issue Report" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssueReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Production" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenProduction, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Kitchen" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.Kitchen, FormFactor, JSRuntime, NavigationManager)" />
+				</MudBlazor.MudMenu>
+			</LeftContent>
+		</Header>
+
+		<div class="page-container">
+
+			<!-- Transaction -->
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Transaction</h2>
+				</div>
+
+				<div class="section-body">
+					<div class="form-grid">
+						<!-- Company -->
+						<div class="form-field">
+							<CustomAutoComplete @ref="_firstFocus" T="CompanyModel"
+												Value="_selectedCompany"
+												DataSource="@_companies"
+												Placeholder="Select a Company"
+												Label="Company (Ctrl + F)"
+												ValueChanged="OnCompanyChanged"
+												FieldValue="@nameof(CompanyModel.Name)"
+												AddNewRoute="@AccountsRouteNames.CompanyMaster" />
+						</div>
+
+						<!-- Kitchen -->
+						<div class="form-field">
+							<CustomAutoComplete T="KitchenModel"
+												Value="_selectedKitchen"
+												DataSource="@_kitchens"
+												Placeholder="Select a Kitchen"
+												Label="Kitchen"
+												ValueChanged="OnKitchenChanged"
+												FieldValue="@nameof(KitchenModel.Name)"
+												AddNewRoute="@InventoryRouteNames.Kitchen" />
+						</div>
+
+						<!-- Transaction Date -->
+						<div class="form-field">
+							<CustomDatePicker Value="_kitchenIssueReturn.TransactionDateTime"
+											  FinancialYear="@_selectedFinancialYear"
+											  ValueChanged="OnTransactionDateChanged" />
+						</div>
+
+						<!-- Transaction No -->
+						<div class="form-field">
+							<CustomTextField @bind-Value="_kitchenIssueReturn.TransactionNo"
+											 Label="Transaction No"
+											 Placeholder="Transaction No"
+											 ReadOnly="true"
+											 TabIndex="-1" />
+						</div>
+
+						<!-- Remarks -->
+						<div class="form-field form-field-full">
+							<CustomTextField @bind-Value="_kitchenIssueReturn.Remarks"
+											 Label="Remarks / Narration"
+											 Placeholder="Enter remarks..."
+											 Required="false"
+											 Lines="2" />
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Add to Cart -->
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Add Items to Cart</h2>
+				</div>
+
+				<div class="section-body">
+					<div class="cart-input-row">
+						<div class="cart-field cart-field-wide">
+							<CustomAutoComplete T="RawMaterialModel"
+												@ref="_itemAutoComplete"
+												Value="_selectedRawMaterial"
+												DataSource="@_rawMaterials"
+												Placeholder="Select Item"
+												Label="Item (Ctrl + G)"
+												ValueChanged="OnItemChanged"
+												FieldValue="@nameof(RawMaterialModel.Name)"
+												AddNewRoute="@InventoryRouteNames.RawMaterial"
+												OpenOnFocus="false" />
+						</div>
+
+						<div class="cart-field">
+							<CustomNumericField T="decimal"
+												Value="@(_stockSummary.FirstOrDefault(s => s.RawMaterialId == _selectedRawMaterial?.Id)?.ClosingStock ?? 0)"
+												Label="Current Stock"
+												ReadOnly="true"
+												Required="false"
+												TabIndex="-1" />
+						</div>
+
+						<div class="cart-field">
+							<CustomNumericField T="decimal"
+												Value="_selectedCart.Quantity"
+												ValueChanged="OnItemQuantityChanged"
+												Label="Qty"
+												Placeholder="0.00"
+												Min="0" />
+						</div>
+
+						<div class="cart-field">
+							<CustomNumericField T="decimal"
+												Value="_selectedCart.Rate"
+												ValueChanged="OnItemRateChanged"
+												Label="Rate"
+												Placeholder="0.00"
+												Required="false"
+												Min="0" />
+						</div>
+
+						<div class="cart-field">
+							<CustomNumericField T="decimal"
+												Value="_selectedCart.Total"
+												ValueChanged="OnItemTotalChanged"
+												Label="Total"
+												Placeholder="0.00"
+												Required="false"
+												Min="0" />
+						</div>
+
+						<div class="cart-field">
+							<CustomTextField @bind-Value="_selectedCart.UnitOfMeasurement"
+											 Label="UOM"
+											 Placeholder="UOM..." />
+						</div>
+
+						<div class="cart-field cart-field-wide">
+							<CustomTextField @bind-Value="_selectedCart.Remarks"
+											 Label="Remarks"
+											 Placeholder="Item Narration..."
+											 Required="false" />
+						</div>
+
+						<div class="cart-field cart-field-action">
+							<IconButton Icon="IconType.Add" Variant="ButtonVariant.Add" Text="Add" Title="Add to Cart" OnClick="AddItemToCart" />
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Cart -->
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Cart</h2>
+				</div>
+
+				<SfGrid ID="_sfCartGrid" @ref="_sfCartGrid" DataSource="_cart"
+						AllowSorting="true" AllowResizing="true"
+						AllowFiltering="true" AllowReordering="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal" ContextMenuItems="@_cartGridContextMenuItems"
+						Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+					<GridEvents TValue="KitchenIssueReturnItemCartModel" ContextMenuItemClicked="OnCartGridContextMenuItemClicked" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+					<GridAggregates>
+						<GridAggregate>
+							<GridAggregateColumns>
+								<GridColumnAggregate Field="@nameof(KitchenIssueReturnItemCartModel.ItemName)" Type="AggregateType.Count" Format="N0" />
+								<GridColumnAggregate Field="@nameof(KitchenIssueReturnItemCartModel.Quantity)" />
+								<GridColumnAggregate Field="@nameof(KitchenIssueReturnItemCartModel.Total)" CustomColor="grid-total" />
+							</GridAggregateColumns>
+						</GridAggregate>
+					</GridAggregates>
+
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(KitchenIssueReturnItemCartModel.ItemName)" HeaderText="Item Name" />
+						<CustomGridColumn Field="@nameof(KitchenIssueReturnItemCartModel.UnitOfMeasurement)" HeaderText="UOM" TextAlign="TextAlign.Center" />
+						<CustomGridColumn Field="@nameof(KitchenIssueReturnItemCartModel.Quantity)" HeaderText="Qty" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenIssueReturnItemCartModel.Rate)" HeaderText="Rate" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenIssueReturnItemCartModel.Total)" HeaderText="Total" TotalColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenIssueReturnItemCartModel.Remarks)" HeaderText="Remarks" />
+					</GridColumns>
+				</SfGrid>
+			</div>
+		</div>
+
+		<Footer />
+	</div>
+}
+
+<ToastNotification @ref="_toastNotification" />
+
+<CloseGuard Block="_isProcessing" />

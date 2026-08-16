@@ -1,0 +1,32 @@
+namespace PrimeBakes.Models.Common;
+
+public enum CodeType
+{
+	Accounting,
+	Ledger,
+
+	Purchase,
+	PurchaseReturn,
+	KitchenIssue,
+	KitchenIssueReturn,
+	KitchenProductionReturn,
+	KitchenProduction,
+	RawMaterial,
+
+	Order,
+	Sale,
+	SaleReturn,
+	StockTransfer,
+	FinishedProduct,
+
+	Bill,
+}
+
+public class DecodeTransactionNoModel
+{
+	public object TransactionModel { get; set; }
+	public CodeType CodeType { get; set; }
+	public string PageRouteName { get; set; }
+	public (MemoryStream stream, string fileName) PDFStream { get; set; }
+	public (MemoryStream stream, string fileName) ExcelStream { get; set; }
+}

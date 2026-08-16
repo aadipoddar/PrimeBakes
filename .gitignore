@@ -399,12 +399,11 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
-/PrimeBakes.Library/DataAccess/primebakes-7aad6-firebase-adminsdk-fbsvc-468eb53249.json
+/Tools/PushNotificationsAPI/primebakes-7aad6-firebase-adminsdk-fbsvc-468eb53249.json
 
 *.csproj.lscache
 *.lscache
 
 *.local_secrets.cs
 .claude
-AGENTS.md
 CLAUDE.md
