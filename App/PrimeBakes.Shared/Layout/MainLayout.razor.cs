@@ -8,12 +8,10 @@ namespace PrimeBakes.Shared.Layout;
 /// </summary>
 public partial class MainLayout
 {
-	private BluetoothReconnectDialog _bluetoothReconnectDialog;
 	private ToastNotification _toastNotification;
 
 	private string _savedPrinterName = string.Empty;
 	private string _savedPrinterAddress = string.Empty;
-	private bool _isReconnecting;
 
 	/// <summary>
 	/// Persists the saved printer record with <c>IsConnected = true</c> after a successful reconnect.
@@ -54,9 +52,6 @@ public partial class MainLayout
 		await DataStorageService.LocalSaveAsync(StorageFileNames.BluetoothPrinterDataFileName, json);
 	}
 
-	private string Factor =>
-		FormFactor.GetFormFactor();
-
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (!firstRender)
@@ -69,7 +64,7 @@ public partial class MainLayout
 	{
 		try
 		{
-			if (BluetoothPrinterService.IsConnected)
+			if (!BluetoothPrinterService.IsSupported || BluetoothPrinterService.IsConnected)
 				return;
 
 			var json = await DataStorageService.LocalGetAsync(StorageFileNames.BluetoothPrinterDataFileName);
@@ -87,14 +82,6 @@ public partial class MainLayout
 			_savedPrinterName = saved.Name ?? "Unknown";
 			_savedPrinterAddress = saved.Address;
 
-			// On web, requestDevice requires a user gesture — show a reconnect dialog.
-			if (Factor == "Web")
-			{
-				await _bluetoothReconnectDialog.ShowAsync();
-				return;
-			}
-
-			// On native platforms (Android/Windows), silently reconnect
 			var connected = await BluetoothPrinterService.ConnectAsync(saved.Address);
 
 			if (connected)
@@ -119,55 +106,4 @@ public partial class MainLayout
 			await MarkSavedPrinterDisconnectedAsync();
 		}
 	}
-
-	/// <summary>
-	/// Called when the user clicks the reconnect button in the dialog.
-	/// This provides the user gesture required by the Web Bluetooth API.
-	/// </summary>
-	private async Task ReconnectPrinterFromDialog()
-	{
-		try
-		{
-			_isReconnecting = true;
-			StateHasChanged();
-
-			var connected = await BluetoothPrinterService.ConnectAsync(_savedPrinterAddress);
-
-			if (connected)
-			{
-				await MarkSavedPrinterConnectedAsync();
-				await _bluetoothReconnectDialog.HideAsync();
-				await _toastNotification.ShowAsync(
-					"Printer Connected",
-					$"Reconnected to {BluetoothPrinterService.ConnectedPrinterName}.",
-					ToastType.Success);
-			}
-			else
-			{
-				await MarkSavedPrinterDisconnectedAsync();
-				await _bluetoothReconnectDialog.HideAsync();
-				await _toastNotification.ShowAsync(
-					"Printer Unavailable",
-					$"Could not reconnect to {_savedPrinterName}. Please reconnect from Local Settings.",
-					ToastType.Warning);
-			}
-		}
-		catch
-		{
-			await MarkSavedPrinterDisconnectedAsync();
-			await _bluetoothReconnectDialog.HideAsync();
-		}
-		finally
-		{
-			_isReconnecting = false;
-			StateHasChanged();
-		}
-	}
-
-	/// <summary>
-	/// Dismisses the reconnect dialog without reconnecting.
-	/// Marks the printer as disconnected so it is remembered for future reconnect attempts.
-	/// </summary>
-	private async Task DismissReconnectDialog() =>
-		await MarkSavedPrinterDisconnectedAsync();
 }

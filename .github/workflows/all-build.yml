@@ -13,41 +13,56 @@ jobs:
 
     steps:
     - uses: actions/checkout@v5
-    
+
     - name: Setup .NET 10.0
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: 10.0.x
-    
+
     - name: Install .NET MAUI Workload
       run: dotnet workload install maui --skip-sign-check
-    
+
+    - name: Install WebAssembly Tools Workload
+      run: dotnet workload install wasm-tools --skip-sign-check
+
     - name: Restore dependencies
       run: dotnet restore PrimeBakes.slnx
 
     - name: Build PrimeBakes.Tools
-      run: dotnet build PrimeBakes.Tools/PrimeBakes.Tools.csproj --no-restore --configuration Release    
+      run: dotnet build Tools/PrimeBakes.Tools/PrimeBakes.Tools.csproj --no-restore --configuration Release
+
+    - name: Build PushNotificationsAPI
+      run: dotnet build Tools/PushNotificationsAPI/PushNotificationsAPI.csproj --no-restore --configuration Release
+
+    - name: Build PrimeBakes.Models
+      run: dotnet build Data/PrimeBakes.Models/PrimeBakes.Models.csproj --no-restore --configuration Release
 
     - name: Build PrimeBakes.Library
-      run: dotnet build PrimeBakes.Library/PrimeBakes.Library.csproj --no-restore --configuration Release
-    
+      run: dotnet build Data/PrimeBakes.Library/PrimeBakes.Library.csproj --no-restore --configuration Release
+
+    - name: Build PrimeBakes.Api.Client
+      run: dotnet build Api/PrimeBakes.Api.Client/PrimeBakes.Api.Client.csproj --no-restore --configuration Release
+
+    - name: Build PrimeBakes.Api
+      run: dotnet build Api/PrimeBakes.Api/PrimeBakes.Api.csproj --no-restore --configuration Release
+
     - name: Build PrimeBakes.Shared
-      run: dotnet build PrimeBakes/PrimeBakes.Shared/PrimeBakes.Shared.csproj --no-restore --configuration Release
-    
+      run: dotnet build App/PrimeBakes.Shared/PrimeBakes.Shared.csproj --no-restore --configuration Release
+
     - name: Build PrimeBakes.Web
-      run: dotnet build PrimeBakes/PrimeBakes.Web/PrimeBakes.Web.csproj --no-restore --configuration Release
-    
-    - name: Build PushNotificationsAPI
-      run: dotnet build PushNotificationsAPI/PushNotificationsAPI.csproj --no-restore --configuration Release
-    
+      run: dotnet build App/PrimeBakes.Web/PrimeBakes.Web.csproj --no-restore --configuration Release
+
+    - name: Build PrimeBakes.Wasm
+      run: dotnet build App/PrimeBakes.Wasm/PrimeBakes.Wasm.csproj --no-restore --configuration Release
+
     - name: Build PrimeBakes MAUI (Android)
-      run: dotnet build PrimeBakes/PrimeBakes/PrimeBakes.csproj --configuration Release --framework net10.0-android
-    
+      run: dotnet build App/PrimeBakes/PrimeBakes.csproj --configuration Release --framework net10.0-android
+
     - name: Build PrimeBakes MAUI (Windows)
-      run: dotnet build PrimeBakes/PrimeBakes/PrimeBakes.csproj --configuration Release --framework net10.0-windows10.0.19041.0
-    
+      run: dotnet build App/PrimeBakes/PrimeBakes.csproj --configuration Release --framework net10.0-windows10.0.19041.0
+
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
-    
+
     - name: Build SQL Server Database Project
-      run: msbuild PrimeBakes.Database/PrimeBakes.Database.sqlproj /p:Configuration=Release /p:Platform="Any CPU"
+      run: msbuild Data/PrimeBakes.Database/PrimeBakes.Database.sqlproj /p:Configuration=Release /p:Platform="Any CPU"

@@ -1,0 +1,33 @@
+{
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": [
+      "/_framework/*",
+      "/_content/*",
+      "/css/*",
+      "/images/*",
+      "/*.{png,jpg,jpeg,gif,svg,ico,css,js,json,webmanifest}"
+    ]
+  },
+  "mimeTypes": {
+    ".wasm": "application/wasm",
+    ".dat": "application/octet-stream",
+    ".blat": "application/octet-stream",
+    ".pdb": "application/octet-stream",
+    ".webmanifest": "application/manifest+json"
+  },
+  "routes": [
+    {
+      "route": "/service-worker.js",
+      "headers": {
+        "cache-control": "no-cache"
+      }
+    },
+    {
+      "route": "/_framework/*",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable"
+      }
+    }
+  ]
+}

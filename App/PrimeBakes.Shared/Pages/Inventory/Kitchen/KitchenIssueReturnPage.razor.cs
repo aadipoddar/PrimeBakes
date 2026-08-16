@@ -506,7 +506,7 @@ public partial class KitchenIssueReturnPage
 
 			await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			var items = KitchenIssueReturnData.ConvertCartToDetails(_cart);
+			var items = _cart.ConvertCartToDetails();
 			_kitchenIssueReturn.Id = await KitchenIssueReturnData.SaveTransaction(_kitchenIssueReturn, items);
 			_kitchenIssueReturn = await CommonData.LoadTableDataById<KitchenIssueReturnModel>(InventoryNames.KitchenIssueReturn, _kitchenIssueReturn.Id);
 

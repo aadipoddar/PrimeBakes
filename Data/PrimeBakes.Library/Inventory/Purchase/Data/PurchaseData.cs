@@ -1,4 +1,4 @@
-﻿using PrimeBakes.Library.Accounts.FinancialAccounting.Data;
+using PrimeBakes.Library.Accounts.FinancialAccounting.Data;
 using PrimeBakes.Library.Accounts.Masters.Data;
 using PrimeBakes.Library.Common;
 using PrimeBakes.Library.Inventory.Purchase.Exports;
@@ -41,33 +41,6 @@ public static class PurchaseData
 			await InsertPurchase(purchase, sqlDataAccessTransaction);
 		}
 	}
-
-	public static List<PurchaseDetailModel> ConvertCartToDetails(List<PurchaseItemCartModel> cart, int masterId = 0) =>
-		[.. cart.Select(item => new PurchaseDetailModel
-		{
-			Id = 0,
-			MasterId = masterId,
-			RawMaterialId = item.ItemId,
-			Quantity = item.Quantity,
-			UnitOfMeasurement = item.UnitOfMeasurement,
-			Rate = item.Rate,
-			BaseTotal = item.BaseTotal,
-			DiscountPercent = item.DiscountPercent,
-			DiscountAmount = item.DiscountAmount,
-			AfterDiscount = item.AfterDiscount,
-			CGSTPercent = item.CGSTPercent,
-			CGSTAmount = item.CGSTAmount,
-			SGSTPercent = item.SGSTPercent,
-			SGSTAmount = item.SGSTAmount,
-			IGSTPercent = item.IGSTPercent,
-			IGSTAmount = item.IGSTAmount,
-			TotalTaxAmount = item.TotalTaxAmount,
-			InclusiveTax = item.InclusiveTax,
-			NetRate = item.NetRate,
-			Total = item.Total,
-			Remarks = item.Remarks,
-			Status = true
-		})];
 
 	#region Delete
 	public static async Task DeleteTransaction(PurchaseModel purchase, SqlDataAccessTransaction sqlDataAccessTransaction = null)
@@ -332,7 +305,7 @@ public static class PurchaseData
 			Status = true
 		};
 
-		var ledgers = FinancialAccountingData.ConvertCartToDetails(accountingCart, accounting.Id);
+		var ledgers = accountingCart.ConvertCartToDetails(accounting.Id);
 		accounting.Id = await FinancialAccountingData.SaveTransaction(accounting, ledgers, false, sqlDataAccessTransaction);
 
 		purchase.FinancialAccountingId = accounting.Id;

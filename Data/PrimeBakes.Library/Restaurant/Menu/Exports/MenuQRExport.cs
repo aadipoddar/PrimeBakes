@@ -1,6 +1,7 @@
 using PrimeBakes.Library.Common;
 using PrimeBakes.Library.Utils.Exports;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 
 namespace PrimeBakes.Library.Restaurant.Menu.Exports;
 

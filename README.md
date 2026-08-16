@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="PrimeBakes/PrimeBakes.Web/wwwroot/images/logo_full.png" alt="Prime Bakes Logo" width="400"/>
+  <img src="App/PrimeBakes.Web/wwwroot/images/logo_full.png" alt="Prime Bakes Logo" width="400"/>
 </p>
 
 <h1 align="center">🧁 Prime Bakes</h1>
@@ -603,4 +603,4 @@ This project is proprietary software developed for **Salasar Foods Guwahati**.
 
 ---
 
-Latest Version = 1.1.8.3
+Latest Version = 1.1.8.4

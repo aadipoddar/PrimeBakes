@@ -1,14 +1,13 @@
+using PrimeBakes.Api;
+using PrimeBakes.Library.DataAccess;
+
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddOpenApi();
+SqlDataAccess.SetupConfiguration();
+
+builder.Services.AddServices();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-	app.MapOpenApi();
-}
-
-app.UseHttpsRedirection();
-
+app.UseServices();
 app.Run();

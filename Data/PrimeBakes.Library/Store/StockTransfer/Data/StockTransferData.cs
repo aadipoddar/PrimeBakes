@@ -42,32 +42,6 @@ public static class StockTransferData
 		}
 	}
 
-	public static List<StockTransferDetailModel> ConvertCartToDetails(List<StockTransferItemCartModel> cart, int masterId = 0) =>
-		[.. cart.Select(item => new StockTransferDetailModel
-		{
-			Id = 0,
-			MasterId = masterId,
-			ProductId = item.ItemId,
-			Quantity = item.Quantity,
-			Rate = item.Rate,
-			BaseTotal = item.BaseTotal,
-			DiscountPercent = item.DiscountPercent,
-			DiscountAmount = item.DiscountAmount,
-			AfterDiscount = item.AfterDiscount,
-			CGSTPercent = item.CGSTPercent,
-			CGSTAmount = item.CGSTAmount,
-			SGSTPercent = item.SGSTPercent,
-			SGSTAmount = item.SGSTAmount,
-			IGSTPercent = item.IGSTPercent,
-			IGSTAmount = item.IGSTAmount,
-			TotalTaxAmount = item.TotalTaxAmount,
-			InclusiveTax = item.InclusiveTax,
-			NetRate = item.NetRate,
-			Total = item.Total,
-			Remarks = item.Remarks,
-			Status = true
-		})];
-
 	#region Delete
 	public static async Task DeleteTransaction(StockTransferModel stockTransfer, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
@@ -460,7 +434,7 @@ public static class StockTransferData
 			Status = true
 		};
 
-		var ledgers = FinancialAccountingData.ConvertCartToDetails(accountingCart, accounting.Id);
+		var ledgers = accountingCart.ConvertCartToDetails(accounting.Id);
 		accounting.Id = await FinancialAccountingData.SaveTransaction(accounting, ledgers, false, sqlDataAccessTransaction);
 
 		stockTransfer.FinancialAccountingId = accounting.Id;

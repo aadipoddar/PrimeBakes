@@ -2,15 +2,22 @@
 
 using Microsoft.Data.SqlClient;
 
+using PrimeBakes.Models.DataAccess;
+
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
-using PrimeBakes.Models.Common;
 
 namespace PrimeBakes.Library.DataAccess;
 
 public static class SqlDataAccess
 {
-	public static readonly string _databaseConnection = Secrets.AzureConnectionString;
+	public static readonly string _databaseConnection = CommonSecrets.DatabaseConnection switch
+	{
+		ConnectionType.Local => Secrets.LocalConnectionString,
+		ConnectionType.Azure => Secrets.AzureConnectionString,
+		ConnectionType.AzureTesting => Secrets.AzureTestingConnectionString,
+		_ => throw new NotImplementedException("The specified database connection type is not implemented.")
+	};
 
 	public static async Task<List<T>> LoadData<T, U>(string storedProcedure, U parameters, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
@@ -19,18 +26,6 @@ public static class SqlDataAccess
 
 		using IDbConnection connection = new SqlConnection(_databaseConnection);
 		return [.. await connection.QueryAsync<T>(storedProcedure, parameters, commandType: CommandType.StoredProcedure)];
-	}
-
-	public static async Task SaveData<T>(string storedProcedure, T parameters, SqlDataAccessTransaction sqlDataAccessTransaction = null)
-	{
-		if (sqlDataAccessTransaction is not null)
-		{
-			await sqlDataAccessTransaction.SaveDataTransaction(storedProcedure, parameters);
-			return;
-		}
-
-		using IDbConnection connection = new SqlConnection(_databaseConnection);
-		await connection.ExecuteAsync(storedProcedure, parameters, commandType: CommandType.StoredProcedure);
 	}
 
 	public static void SetupConfiguration()
@@ -56,9 +51,6 @@ public class SqlDataAccessTransaction : IDisposable
 
 	public async Task<List<T>> LoadDataTransaction<T, U>(string storedProcedure, U parameters) =>
 		[.. await _connection.QueryAsync<T>(storedProcedure, parameters, commandType: CommandType.StoredProcedure, transaction: _transaction)];
-
-	public async Task SaveDataTransaction<T>(string storedProcedure, T parameters) =>
-		await _connection.ExecuteAsync(storedProcedure, parameters, commandType: CommandType.StoredProcedure, transaction: _transaction);
 
 	public void CommitTransaction()
 	{

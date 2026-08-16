@@ -1,28 +1,29 @@
-using Blazor.Bluetooth;
-
 using MudBlazor.Services;
 
+using PrimeBakes.Library;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Shared.Services;
 using PrimeBakes.Web.Components;
 using PrimeBakes.Web.Services;
 
-using PrimeBakes.Library.DataAccess;
-
 using Syncfusion.Blazor;
+using Syncfusion.Licensing;
 
 var builder = WebApplication.CreateBuilder(args);
 
-SqlDataAccess.SetupConfiguration();
+SyncfusionLicenseProvider.RegisterLicense(CommonSecrets.SyncfusionLicense);
+ApiClient.Init(new HttpClient
+{
+	BaseAddress = new Uri(CommonSecrets.ApiBaseUrl),
+	Timeout = TimeSpan.FromMinutes(10)
+});
 
-// Add services to the container.
 builder.Services
 	.AddSyncfusionBlazor()
 	.AddMudServices()
-	.AddBluetoothNavigator()
 	.AddRazorComponents()
 	.AddInteractiveServerComponents();
 
-// Add device-specific services used by the PrimeBakes.Shared project
 builder.Services.AddSingleton<IFormFactor, FormFactor>();
 builder.Services.AddSingleton<IUpdateService, UpdateService>();
 builder.Services.AddSingleton<IVibrationService, VibrationService>();
@@ -31,18 +32,16 @@ builder.Services.AddSingleton<INotificationService, NotificationService>();
 builder.Services.AddScoped<ISaveAndViewService, SaveAndViewService>();
 builder.Services.AddScoped<ISoundService, SoundService>();
 builder.Services.AddScoped<IDataStorageService, DataStorageService>();
-builder.Services.AddScoped<IBluetoothPrinterService, BluetoothPrinterService>();
 builder.Services.AddScoped<IThermalPrintDispatcher, ThermalPrintDispatcher>();
+builder.Services.AddSingleton<IBluetoothPrinterService, NullBluetoothPrinterService>();
 builder.Services.AddSingleton<IDirectPrintService, NullDirectPrintService>();
 builder.Services.AddScoped<PageRefreshState>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
 	app.UseExceptionHandler("/Error", createScopeForErrors: true);
-	// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 	app.UseHsts();
 }
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);

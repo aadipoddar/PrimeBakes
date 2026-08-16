@@ -1,5 +1,7 @@
 @attribute [Route(OperationRouteNames.LocalSettings)]
 
+@inject IDirectPrintService DirectPrintService
+
 <PageTitle>Local Device Settings - Prime Bakes</PageTitle>
 
 @if (_isLoading)
@@ -72,25 +74,6 @@ else
 								</span>
 							</div>
 							<div class="bt-action-buttons">
-								<SfButton CssClass="e-outline e-info bt-action-btn" Disabled="_isProcessing || _isTestPrinting"
-										  @onclick="TestPrint">
-									@if (_isTestPrinting)
-									{
-										<span class="bt-spinner"></span>
-										<span>Printing...</span>
-									}
-									else
-									{
-										<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-											 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-											 stroke-linejoin="round">
-											<polyline points="6 9 6 2 18 2 18 9" />
-											<path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
-											<rect x="6" y="14" width="12" height="8" />
-										</svg>
-										<span>Test Print</span>
-									}
-								</SfButton>
 								@if (BluetoothPrinterService.IsConnected)
 								{
 									<SfButton CssClass="e-outline e-danger bt-action-btn" Content="Disconnect"
@@ -208,6 +191,52 @@ else
 				</div>
 			</div>
 
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Receipt Printing</h2>
+				</div>
+				<div class="section-body">
+					<div class="tp-row">
+						<div class="tp-info">
+							<p class="tp-title">Test Print</p>
+							<p class="tp-hint">
+								@if (BluetoothPrinterService.IsConnected)
+								{
+									<span>Sends a sample receipt to @BluetoothPrinterService.ConnectedPrinterName over Bluetooth.</span>
+								}
+								else if (DirectPrintService.IsSupported)
+								{
+									<span>Sends a sample receipt straight to the default printer.</span>
+								}
+								else
+								{
+									<span>Opens the browser print dialog with a sample receipt.</span>
+								}
+							</p>
+						</div>
+						<SfButton CssClass="e-outline e-info bt-action-btn" Disabled="_isProcessing || _isTestPrinting"
+								  @onclick="TestPrint">
+							@if (_isTestPrinting)
+							{
+								<span class="bt-spinner"></span>
+								<span>Printing...</span>
+							}
+							else
+							{
+								<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+									 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									 stroke-linejoin="round">
+									<polyline points="6 9 6 2 18 2 18 9" />
+									<path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+									<rect x="6" y="14" width="12" height="8" />
+								</svg>
+								<span>Test Print</span>
+							}
+						</SfButton>
+					</div>
+				</div>
+			</div>
+
 		</div>
 
 		<Footer />
@@ -278,6 +307,31 @@ else
 		display: flex;
 		align-items: center;
 		gap: 6px;
+	}
+
+	/* Test Print */
+	.tp-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 16px;
+	}
+
+	.tp-info {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+	}
+
+	.tp-title {
+		font-size: 14px;
+		font-weight: 600;
+		color: #1e293b;
+	}
+
+	.tp-hint {
+		font-size: 13px;
+		color: #64748b;
 	}
 
 	/* Scan Controls */
@@ -490,6 +544,16 @@ else
 			gap: 10px;
 			align-items: flex-start;
 		}
+
+		.tp-row {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 10px;
+		}
+
+			.tp-row .e-btn {
+				width: 100%;
+			}
 
 		.bt-device-card {
 			flex-direction: column;

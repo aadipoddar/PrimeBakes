@@ -1,6 +1,8 @@
 ﻿using Azure.Storage;
 using Azure.Storage.Blobs;
 
+using PrimeBakes.Models.DataAccess;
+
 namespace PrimeBakes.Library.DataAccess;
 
 public static class BlobStorageAccess
@@ -57,18 +59,12 @@ public static class BlobStorageAccess
 
 		BlobClient blobClient = new(blobUri, credentials);
 
-		var downloadResponse = await blobClient.DownloadStreamingAsync();
+		using var downloadResult = (await blobClient.DownloadStreamingAsync()).Value;
 
-		await using var memoryStream = new MemoryStream();
-		await downloadResponse.Value.Content.CopyToAsync(memoryStream);
+		MemoryStream memoryStream = new();
+		await downloadResult.Content.CopyToAsync(memoryStream);
 		memoryStream.Position = 0;
 
-		return (memoryStream, downloadResponse.Value.Details.ContentType);
+		return (memoryStream, downloadResult.Details.ContentType);
 	}
-}
-
-public enum BlobStorageContainers
-{
-	purchase,
-	purchasereturn
 }

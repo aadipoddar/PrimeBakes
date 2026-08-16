@@ -23,20 +23,6 @@ public static class KitchenIssueData
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertKitchenIssueDetail, kitchenIssueDetail, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Kitchen Issue Detail.");
 
-	public static List<KitchenIssueDetailModel> ConvertCartToDetails(List<KitchenIssueItemCartModel> cart, int masterId = 0) =>
-		[.. cart.Select(item => new KitchenIssueDetailModel
-		{
-			Id = 0,
-			MasterId = masterId,
-			RawMaterialId = item.ItemId,
-			Quantity = item.Quantity,
-			UnitOfMeasurement = item.UnitOfMeasurement,
-			Rate = item.Rate,
-			Total = item.Total,
-			Remarks = item.Remarks,
-			Status = true
-		})];
-
 	#region Delete
 	public static async Task DeleteTransaction(KitchenIssueModel kitchenIssue, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{

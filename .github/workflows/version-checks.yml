@@ -16,35 +16,35 @@ jobs:
     outputs:
       should-deploy: ${{ steps.final-decision.outputs.should-deploy }}
       current-version: ${{ steps.extract-version.outputs.version }}
-    
+
     steps:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 2
-      
+
       - name: Extract current version from README
         id: extract-version
         run: |
           $VERSION = (Get-Content README.md | Select-String -Pattern 'Latest Version = ([0-9.]+)').Matches.Groups[1].Value
           echo "version=$VERSION" >> $env:GITHUB_OUTPUT
           echo "Current version: $VERSION"
-      
+
       - name: Get previous version
         id: get-previous
         run: |
           git checkout HEAD~1 2>$null
-          $PREV_VERSION = (Get-Content README.md -ErrorAction SilentlyContinue | Select-String -Pattern 'Latest Version = ([0-9.]+)').Matches.Groups[1].Value
-          if (-not $PREV_VERSION) { $PREV_VERSION = "none" }
+          $PREV_MATCH = Get-Content README.md -ErrorAction SilentlyContinue | Select-String -Pattern 'Latest Version = ([0-9.]+)'
+          $PREV_VERSION = if ($PREV_MATCH) { $PREV_MATCH.Matches.Groups[1].Value } else { "none" }
           echo "previous=$PREV_VERSION" >> $env:GITHUB_OUTPUT
           echo "Previous version: $PREV_VERSION"
           git checkout -
-      
+
       - name: Compare versions
         id: version-compare
         run: |
           $CURRENT = "${{ steps.extract-version.outputs.version }}"
           $PREVIOUS = "${{ steps.get-previous.outputs.previous }}"
-          
+
           if ($CURRENT -ne $PREVIOUS) {
             echo "version-changed=true" >> $env:GITHUB_OUTPUT
             echo "✅ Version changed: $PREVIOUS → $CURRENT"
@@ -52,29 +52,35 @@ jobs:
             echo "version-changed=false" >> $env:GITHUB_OUTPUT
             echo "⏭️ Version unchanged ($CURRENT)"
           }
-      
-      - name: Verify Azure Connection String
+
+      - name: Verify Connection Type
         id: connection-check
         run: |
-          $CONNECTION_LINE = Get-Content PrimeBakes.Library/DataAccess/SqlDataAccess.cs | Select-String "_databaseConnection = Secrets"
-          
-          if ($CONNECTION_LINE -match "Secrets.AzureConnectionString") {
-            echo "connection-valid=true" >> $env:GITHUB_OUTPUT
-            echo "✅ Using Azure connection string - Safe for deployment"
-          } elseif ($CONNECTION_LINE -match "Secrets.LocalConnectionString") {
+          $CONNECTION_LINE = Get-Content Data/PrimeBakes.Models/DataAccess/CommonSecrets.cs | Select-String "DatabaseConnection = ConnectionType\."
+
+          if (-not $CONNECTION_LINE) {
             echo "connection-valid=false" >> $env:GITHUB_OUTPUT
-            echo "⏭️ Local connection string detected - Skipping deployment"
+            echo "⛔ DatabaseConnection assignment not found in CommonSecrets.cs - Skipping deployment"
+          } elseif ($CONNECTION_LINE -match "ConnectionType\.AzureTesting") {
+            echo "connection-valid=false" >> $env:GITHUB_OUTPUT
+            echo "⏭️ AzureTesting connection detected - Skipping production deployment"
+          } elseif ($CONNECTION_LINE -match "ConnectionType\.Azure") {
+            echo "connection-valid=true" >> $env:GITHUB_OUTPUT
+            echo "✅ Using Azure connection - Safe for deployment"
+          } elseif ($CONNECTION_LINE -match "ConnectionType\.Local") {
+            echo "connection-valid=false" >> $env:GITHUB_OUTPUT
+            echo "⏭️ Local connection detected - Skipping deployment"
           } else {
             echo "connection-valid=false" >> $env:GITHUB_OUTPUT
-            echo "⏭️ Unknown connection string configuration - Skipping deployment"
+            echo "⏭️ Unknown connection configuration - Skipping deployment"
           }
-      
+
       - name: Verify Assembly Version matches README
         id: assembly-check
         run: |
           $README_VERSION = "${{ steps.extract-version.outputs.version }}"
-          $ASSEMBLY_VERSION = (Get-Content PrimeBakes/PrimeBakes.Shared/PrimeBakes.Shared.csproj | Select-String -Pattern '<AssemblyVersion>([^<]+)</AssemblyVersion>').Matches.Groups[1].Value
-          
+          $ASSEMBLY_VERSION = (Get-Content App/PrimeBakes.Shared/PrimeBakes.Shared.csproj | Select-String -Pattern '<AssemblyVersion>([^<]+)</AssemblyVersion>').Matches.Groups[1].Value
+
           if ($README_VERSION -eq $ASSEMBLY_VERSION) {
             echo "assembly-valid=true" >> $env:GITHUB_OUTPUT
             echo "✅ Assembly version matches README: $ASSEMBLY_VERSION"
@@ -82,37 +88,37 @@ jobs:
             echo "assembly-valid=false" >> $env:GITHUB_OUTPUT
             echo "⏭️ Version mismatch - README: $README_VERSION, Assembly: $ASSEMBLY_VERSION - Skipping deployment"
           }
-      
+
       - name: Verify Android Manifest Version
         id: android-check
         run: |
           $README_VERSION = "${{ steps.extract-version.outputs.version }}"
-          $ANDROID_VERSION = (Get-Content PrimeBakes/PrimeBakes/Platforms/Android/AndroidManifest.xml | Select-String -Pattern 'android:versionName="([^"]+)"').Matches.Groups[1].Value
-          $ANDROID_CODE = (Get-Content PrimeBakes/PrimeBakes/Platforms/Android/AndroidManifest.xml | Select-String -Pattern 'android:versionCode="([^"]+)"').Matches.Groups[1].Value
-          
+          $ANDROID_VERSION = (Get-Content App/PrimeBakes/Platforms/Android/AndroidManifest.xml | Select-String -Pattern 'android:versionName="([^"]+)"').Matches.Groups[1].Value
+          $ANDROID_CODE = (Get-Content App/PrimeBakes/Platforms/Android/AndroidManifest.xml | Select-String -Pattern 'android:versionCode="([^"]+)"').Matches.Groups[1].Value
+
           # Get previous versionCode
           git checkout HEAD~1 2>$null
-          $PREV_ANDROID_CODE = (Get-Content PrimeBakes/PrimeBakes/Platforms/Android/AndroidManifest.xml -ErrorAction SilentlyContinue | Select-String -Pattern 'android:versionCode="([^"]+)"').Matches.Groups[1].Value
-          if (-not $PREV_ANDROID_CODE) { $PREV_ANDROID_CODE = "0" }
+          $PREV_MATCH = Get-Content App/PrimeBakes/Platforms/Android/AndroidManifest.xml -ErrorAction SilentlyContinue | Select-String -Pattern 'android:versionCode="([^"]+)"'
+          $PREV_ANDROID_CODE = if ($PREV_MATCH) { $PREV_MATCH.Matches.Groups[1].Value } else { "0" }
           git checkout -
-          
+
           # Check version name matches
           if ($README_VERSION -ne $ANDROID_VERSION) {
             echo "android-valid=false" >> $env:GITHUB_OUTPUT
             echo "⏭️ Version mismatch - README: $README_VERSION, Android: $ANDROID_VERSION - Skipping deployment"
             return
           }
-          
+
           # Check version code is greater
           if ([int]$ANDROID_CODE -le [int]$PREV_ANDROID_CODE) {
             echo "android-valid=false" >> $env:GITHUB_OUTPUT
             echo "⏭️ Android versionCode not incremented - Current: $ANDROID_CODE, Previous: $PREV_ANDROID_CODE - Skipping deployment"
             return
           }
-          
+
           echo "android-valid=true" >> $env:GITHUB_OUTPUT
           echo "✅ Android version valid - Name: $ANDROID_VERSION, Code: $PREV_ANDROID_CODE → $ANDROID_CODE"
-      
+
       - name: Final deployment decision
         id: final-decision
         run: |
@@ -120,7 +126,7 @@ jobs:
           $CONNECTION_VALID = "${{ steps.connection-check.outputs.connection-valid }}"
           $ASSEMBLY_VALID = "${{ steps.assembly-check.outputs.assembly-valid }}"
           $ANDROID_VALID = "${{ steps.android-check.outputs.android-valid }}"
-          
+
           if (($VERSION_CHANGED -eq "true") -and ($CONNECTION_VALID -eq "true") -and ($ASSEMBLY_VALID -eq "true") -and ($ANDROID_VALID -eq "true")) {
             echo "should-deploy=true" >> $env:GITHUB_OUTPUT
             echo "🚀 All checks passed - Deployment will proceed"

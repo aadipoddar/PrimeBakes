@@ -1,5 +1,4 @@
 using PrimeBakes.Library.Store.Product.Data;
-using PrimeBakes.Library.Store.Sale.Data;
 using PrimeBakes.Models.Operations.Location;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Models.Store.Product;
@@ -182,7 +181,7 @@ public partial class SaleMobilePage
 		{
 			_isProcessing = true;
 
-			SaleData.ApplyItemFinancialDetails(_cart, _products, _taxes);
+			_cart.ApplyItemFinancialDetails(_products, _taxes);
 
 			if (!_cart.Any(x => x.Quantity > 0))
 				await DataStorageService.LocalRemove(StorageFileNames.SaleMobileCartDataFileName);

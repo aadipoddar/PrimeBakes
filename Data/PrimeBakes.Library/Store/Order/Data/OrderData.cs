@@ -24,17 +24,6 @@ public static class OrderData
 	public static async Task<List<OrderModel>> LoadOrderByLocationPending(int LocationId, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		await SqlDataAccess.LoadData<OrderModel, dynamic>(StoreNames.LoadOrderByLocationPending, new { LocationId }, sqlDataAccessTransaction);
 
-	public static List<OrderDetailModel> ConvertCartToDetails(List<OrderItemCartModel> cart, int masterId = 0) =>
-		[.. cart.Select(item => new OrderDetailModel
-		{
-			Id = 0,
-			MasterId = masterId,
-			ProductId = item.ItemId,
-			Quantity = item.Quantity,
-			Remarks = item.Remarks,
-			Status = true
-		})];
-
 	public static async Task LinkOrderToSale(int? orderId = null, int? saleId = null, bool unlink = false, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		if (orderId is null or <= 0)
@@ -174,7 +163,7 @@ public static class OrderData
 
 		order = await ValidateTransaction(order, update, sqlDataAccessTransaction);
 
-		orderDetails ??= ConvertCartToDetails([], order.Id);
+		orderDetails ??= [];
 		ValidateItemDetails(order, orderDetails);
 
 		var previousOrder = update && !recover ? await CommonData.LoadTableDataById<OrderOverviewModel>(StoreNames.OrderOverview, order.Id, sqlDataAccessTransaction) : new();

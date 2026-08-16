@@ -607,7 +607,7 @@ public partial class FinancialAccountingPage
 
 			await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			var ledgers = FinancialAccountingData.ConvertCartToDetails(_cart, _accounting.Id);
+			var ledgers = _cart.ConvertCartToDetails(_accounting.Id);
 			_accounting.Id = await FinancialAccountingData.SaveTransaction(_accounting, ledgers);
 			_accounting = await CommonData.LoadTableDataById<FinancialAccountingModel>(AccountNames.FinancialAccounting, _accounting.Id);
 

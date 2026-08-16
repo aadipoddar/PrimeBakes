@@ -1,4 +1,4 @@
-name: Deploy for Android
+name: Deploy Android
 
 on:
   push:
@@ -16,55 +16,48 @@ jobs:
 
     steps:
     - uses: actions/checkout@v5
-    
+
     - name: Setup .NET 10.0
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: 10.0.x
-    
+
     - name: Install .NET MAUI Workload
       run: dotnet workload install maui --skip-sign-check
-    
-    - name: Create Secrets.local_secrets.cs
+
+    - name: Create CommonSecrets.local_secrets.cs
       run: |
-        $secretsContent = @"
-        namespace PrimeBakes.Library.DataAccess;
+        $commonSecretsContent = @'
+        namespace PrimeBakes.Models.DataAccess;
 
-        public static partial class Secrets
+        public static partial class CommonSecrets
         {
-            static Secrets()
+            static CommonSecrets()
             {
-                AzureConnectionString = "${{ secrets.AzureConnectionString }}";
-
-                AzureBlobStorageConnectionString = "${{ secrets.AzureBlobStorageConnectionString }}";
-                AzureBlobStorageAccountKey = "${{ secrets.AzureBlobStorageAccountKey }}";
+                SyncfusionLicense = "${{ secrets.SyncfusionLicense }}";
 
                 NotificationAPIKey = "${{ secrets.NotificationAPIKey }}";
                 NotificationBackendServiceEndpoint = "${{ secrets.NotificationBackendServiceEndpoint }}";
-
-                SyncfusionLicense = "${{ secrets.SyncfusionLicense }}";
-
-                EmailPassword = "${{ secrets.EmailPassword }}";
             }
         }
-        "@
-        Set-Content -Path "PrimeBakes.Library/DataAccess/Secrets.local_secrets.cs" -Value $secretsContent
-    
+        '@
+        Set-Content -Path "Data/PrimeBakes.Models/DataAccess/CommonSecrets.local_secrets.cs" -Value $commonSecretsContent
+
     - name: Setup Keystore
       run: |
         # Decode base64 keystore and save it
         $keystoreBase64 = "${{ secrets.ANDROID_KEYSTORE_BASE64 }}"
         $keystoreBytes = [System.Convert]::FromBase64String($keystoreBase64)
-        $keystorePath = "PrimeBakes/PrimeBakes/primebakes.keystore"
+        $keystorePath = "App/PrimeBakes/primebakes.keystore"
         [System.IO.File]::WriteAllBytes($keystorePath, $keystoreBytes)
         echo "Keystore created at: $keystorePath"
-    
+
     - name: Restore dependencies
-      run: dotnet restore PrimeBakes/PrimeBakes/PrimeBakes.csproj
-    
+      run: dotnet restore App/PrimeBakes/PrimeBakes.csproj
+
     - name: Build Signed Android APK
       run: |
-        dotnet publish PrimeBakes/PrimeBakes/PrimeBakes.csproj `
+        dotnet publish App/PrimeBakes/PrimeBakes.csproj `
           -f net10.0-android `
           -c Release `
           -p:AndroidPackageFormat=apk `
@@ -73,20 +66,20 @@ jobs:
           -p:AndroidSigningKeyAlias=PrimeBakes `
           -p:AndroidSigningKeyPass="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" `
           -p:AndroidSigningStorePass="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" `
-          -o PrimeBakes/PrimeBakes/publish/android
-    
+          -o App/PrimeBakes/publish/android
+
     - name: Find and Rename APK
       id: find-apk
       run: |
-        $apkPath = Get-ChildItem -Path "PrimeBakes/PrimeBakes/publish/android" -Filter "*.apk" -Recurse | Select-Object -First 1 -ExpandProperty FullName
+        $apkPath = Get-ChildItem -Path "App/PrimeBakes/publish/android" -Filter "*.apk" -Recurse | Select-Object -First 1 -ExpandProperty FullName
         echo "APK found at: $apkPath"
-        
+
         # Rename to match UpdateManager expectations: PrimeBakes.apk
         Copy-Item $apkPath -Destination "PrimeBakes.apk"
         echo "APK renamed to: PrimeBakes.apk"
-    
+
     - name: Upload Android Build Artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: android-release
         path: PrimeBakes.apk
@@ -100,12 +93,12 @@ jobs:
 
     steps:
     - name: Download artifact from build job
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         name: android-release
-    
+
     - name: Upload APK to Existing Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         tag_name: ${{ needs.version-check.outputs.current-version }}
         files: PrimeBakes.apk
@@ -113,7 +106,7 @@ jobs:
         prerelease: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    
+
     - name: Deployment Summary
       run: |
         echo "🚀 Successfully deployed PrimeBakes Android APK to release ${{ needs.version-check.outputs.current-version }}"

@@ -159,7 +159,7 @@ public partial class OrderMobileCartPage
 				Status = true,
 			};
 
-			order.Id = await OrderData.SaveTransaction(order, OrderData.ConvertCartToDetails(_cart));
+			order.Id = await OrderData.SaveTransaction(order, _cart.ConvertCartToDetails());
 			await NotificationNavigate(order.Id);
 		}
 		catch (Exception ex)

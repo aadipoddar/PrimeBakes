@@ -10,9 +10,6 @@ public static partial class Secrets
 	public static readonly string AzureBlobStorageConnectionString;
 	public static readonly string AzureBlobStorageAccountKey;
 
-	public static readonly string NotificationAPIKey;
-	public static readonly string NotificationBackendServiceEndpoint;
-
 	public static readonly string Email = "softaadi@gmail.com";
 	public static readonly string EmailPassword;
 

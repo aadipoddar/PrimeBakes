@@ -1,11 +1,11 @@
 {
-  "name": "PrimeBakes.Wasm",
-  "short_name": "PrimeBakes.Wasm",
+  "name": "Prime Bakes",
+  "short_name": "Prime Bakes",
   "id": "./",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#03173d",
+  "theme_color": "#e6007e",
   "prefer_related_applications": false,
   "icons": [
     {

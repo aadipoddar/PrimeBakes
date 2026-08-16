@@ -1,4 +1,5 @@
 ﻿using PrimeBakes.Library.Utils.Mail;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.User;
 
 using System.Text.Json;
@@ -12,9 +13,9 @@ internal static class NotificationUtil
 		if (SqlDataAccess._databaseConnection != Secrets.AzureConnectionString)
 			return; // Do not send notifications in local/dev environment
 
-		string endpoint = $"{Secrets.NotificationBackendServiceEndpoint}api/notifications/requests";
+		string endpoint = $"{CommonSecrets.NotificationBackendServiceEndpoint}api/notifications/requests";
 		using var httpClient = new HttpClient();
-		httpClient.DefaultRequestHeaders.Add("apikey", Secrets.NotificationAPIKey);
+		httpClient.DefaultRequestHeaders.Add("apikey", CommonSecrets.NotificationAPIKey);
 
 		var notificationPayload = new
 		{

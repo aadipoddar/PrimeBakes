@@ -1,7 +1,6 @@
 using PrimeBakes.Library.Accounts.Masters.Data;
 using PrimeBakes.Library.Operations.Settings;
 using PrimeBakes.Library.Store.Customer.Data;
-using PrimeBakes.Library.Store.PaymentMode;
 using PrimeBakes.Library.Store.Sale.Data;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
@@ -30,7 +29,7 @@ public partial class SaleMobilePaymentPage
 	private List<SaleItemCartModel> _cart = [];
 	private readonly List<(string Field, string Message)> _validationErrors = [];
 	private readonly List<PaymentItem> _payments = [];
-	private readonly List<PaymentModeModel> _paymentMethods = [.. PaymentModeData.GetPaymentModes().Where(m => m.Name != "Credit")];
+	private readonly List<PaymentModeModel> _paymentMethods = [.. PaymentModes.GetPaymentModes().Where(m => m.Name != "Credit")];
 
 	private PaymentModeModel _selectedPaymentMethod = new();
 	private decimal _paymentAmount = 0;
@@ -206,17 +205,17 @@ public partial class SaleMobilePaymentPage
 
 	private void ConfirmPayment()
 	{
-		_sale.Cash = _payments.FirstOrDefault(p => p.Id == PaymentModeData.GetPaymentModes().FirstOrDefault(pm => pm.Name == "Cash")?.Id)?.Amount ?? 0;
-		_sale.Card = _payments.FirstOrDefault(p => p.Id == PaymentModeData.GetPaymentModes().FirstOrDefault(pm => pm.Name == "Card")?.Id)?.Amount ?? 0;
-		_sale.UPI = _payments.FirstOrDefault(p => p.Id == PaymentModeData.GetPaymentModes().FirstOrDefault(pm => pm.Name == "UPI")?.Id)?.Amount ?? 0;
-		_sale.Credit = _payments.FirstOrDefault(p => p.Id == PaymentModeData.GetPaymentModes().FirstOrDefault(pm => pm.Name == "Credit")?.Id)?.Amount ?? 0;
+		_sale.Cash = _payments.FirstOrDefault(p => p.Id == PaymentModes.GetPaymentModes().FirstOrDefault(pm => pm.Name == "Cash")?.Id)?.Amount ?? 0;
+		_sale.Card = _payments.FirstOrDefault(p => p.Id == PaymentModes.GetPaymentModes().FirstOrDefault(pm => pm.Name == "Card")?.Id)?.Amount ?? 0;
+		_sale.UPI = _payments.FirstOrDefault(p => p.Id == PaymentModes.GetPaymentModes().FirstOrDefault(pm => pm.Name == "UPI")?.Id)?.Amount ?? 0;
+		_sale.Credit = _payments.FirstOrDefault(p => p.Id == PaymentModes.GetPaymentModes().FirstOrDefault(pm => pm.Name == "Credit")?.Id)?.Amount ?? 0;
 	}
 	#endregion
 
 	#region Saving
 	private async Task UpdateFinancialDetails(bool customRoundOff = false)
 	{
-		SaleData.ApplyItemFinancialDetails(_cart, _products, _taxes);
+		_cart.ApplyItemFinancialDetails(_products, _taxes);
 
 		foreach (var item in _cart.Where(i => i.Quantity > 0))
 		{
@@ -302,7 +301,7 @@ public partial class SaleMobilePaymentPage
 			_sale.CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
 			_sale.TransactionNo = await GenerateCodes.GenerateSaleTransactionNo(_sale);
 
-			_sale.Id = await SaleData.SaveTransaction(_sale, SaleData.ConvertCartToDetails(_cart), _selectedCustomer);
+			_sale.Id = await SaleData.SaveTransaction(_sale, _cart.ConvertCartToDetails(), _selectedCustomer);
 			await NotificationNavigate(_sale.Id);
 		}
 		catch (Exception ex)

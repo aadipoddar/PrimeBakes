@@ -3,7 +3,7 @@
 using MimeKit;
 
 using PrimeBakes.Library.Operations.Settings;
-using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.Settings;
 
 namespace PrimeBakes.Library.Utils.Mail;

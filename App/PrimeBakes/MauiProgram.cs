@@ -5,9 +5,11 @@ using Microsoft.Extensions.Logging;
 using PrimeBakes.Services;
 using PrimeBakes.Shared.Services;
 
-using PrimeBakes.Library.DataAccess;
+using PrimeBakes.Library;
+using PrimeBakes.Models.DataAccess;
 
 using Syncfusion.Blazor;
+using Syncfusion.Licensing;
 
 using MudBlazor.Services;
 
@@ -17,7 +19,12 @@ public static class MauiProgram
 {
 	public static MauiApp CreateMauiApp()
 	{
-		SqlDataAccess.SetupConfiguration();
+		SyncfusionLicenseProvider.RegisterLicense(CommonSecrets.SyncfusionLicense);
+		ApiClient.Init(new HttpClient
+		{
+			BaseAddress = new Uri(CommonSecrets.ApiBaseUrl),
+			Timeout = TimeSpan.FromMinutes(10)
+		});
 
 		var builder = MauiApp.CreateBuilder();
 		builder
@@ -71,7 +78,7 @@ public static class MauiProgram
 #endif
 
 		builder.Services.AddSingleton<IPushDemoNotificationActionService, PushDemoNotificationActionService>();
-		builder.Services.AddSingleton<INotificationRegistrationService>(new NotificationRegistrationService(Secrets.NotificationBackendServiceEndpoint, Secrets.NotificationAPIKey));
+		builder.Services.AddSingleton<INotificationRegistrationService>(new NotificationRegistrationService(CommonSecrets.NotificationBackendServiceEndpoint, CommonSecrets.NotificationAPIKey));
 
 		return builder;
 	}

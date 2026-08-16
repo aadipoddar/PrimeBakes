@@ -37,33 +37,6 @@ public static class PurchaseReturnData
 		}
 	}
 
-	public static List<PurchaseReturnDetailModel> ConvertCartToDetails(List<PurchaseReturnItemCartModel> cart, int masterId = 0) =>
-		[.. cart.Select(item => new PurchaseReturnDetailModel
-		{
-			Id = 0,
-			MasterId = masterId,
-			RawMaterialId = item.ItemId,
-			Quantity = item.Quantity,
-			UnitOfMeasurement = item.UnitOfMeasurement,
-			Rate = item.Rate,
-			BaseTotal = item.BaseTotal,
-			DiscountPercent = item.DiscountPercent,
-			DiscountAmount = item.DiscountAmount,
-			AfterDiscount = item.AfterDiscount,
-			CGSTPercent = item.CGSTPercent,
-			CGSTAmount = item.CGSTAmount,
-			SGSTPercent = item.SGSTPercent,
-			SGSTAmount = item.SGSTAmount,
-			IGSTPercent = item.IGSTPercent,
-			IGSTAmount = item.IGSTAmount,
-			TotalTaxAmount = item.TotalTaxAmount,
-			InclusiveTax = item.InclusiveTax,
-			NetRate = item.NetRate,
-			Total = item.Total,
-			Remarks = item.Remarks,
-			Status = true
-		})];
-
 	#region Delete
 	public static async Task DeleteTransaction(PurchaseReturnModel purchaseReturn, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
@@ -326,7 +299,7 @@ public static class PurchaseReturnData
 			Status = true
 		};
 
-		var ledgers = FinancialAccountingData.ConvertCartToDetails(accountingCart, accounting.Id);
+		var ledgers = accountingCart.ConvertCartToDetails(accounting.Id);
 		accounting.Id = await FinancialAccountingData.SaveTransaction(accounting, ledgers, false, sqlDataAccessTransaction);
 
 		purchaseReturn.FinancialAccountingId = accounting.Id;

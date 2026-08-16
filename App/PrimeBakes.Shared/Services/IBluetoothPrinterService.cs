@@ -74,6 +74,28 @@ public interface IBluetoothPrinterService
 }
 
 /// <summary>
+/// No-op implementation for platforms without Bluetooth printing.
+/// The browser hosts register this so thermal printing falls through to the print dialog.
+/// </summary>
+public class NullBluetoothPrinterService : IBluetoothPrinterService
+{
+    public bool IsSupported => false;
+    public bool IsEnabled => false;
+    public bool IsConnected => false;
+    public string ConnectedPrinterName => string.Empty;
+    public string ConnectedPrinterAddress => string.Empty;
+
+    public Task<List<BluetoothDeviceInfo>> DiscoverDevicesAsync(CancellationToken cancellationToken = default) =>
+        Task.FromResult(new List<BluetoothDeviceInfo>());
+
+    public Task<bool> ConnectAsync(string address) => Task.FromResult(false);
+    public Task DisconnectAsync() => Task.CompletedTask;
+    public Task<bool> SendDataAsync(byte[] data) => Task.FromResult(false);
+    public Task<bool> PrintTextAsync(string text) => Task.FromResult(false);
+    public Task<bool> RequestPermissionsAsync() => Task.FromResult(false);
+}
+
+/// <summary>
 /// Represents a discovered Bluetooth device with its name and hardware address.
 /// </summary>
 public class BluetoothDeviceInfo

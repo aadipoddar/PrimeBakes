@@ -1,0 +1,65 @@
+name: Deploy Wasm App
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  version-check:
+    uses: ./.github/workflows/version-checks.yml
+
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    needs: version-check
+    if: needs.version-check.outputs.should-deploy == 'true'
+    permissions:
+      contents: read #This is required for actions/checkout
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.x'
+
+      - name: Install WebAssembly Tools Workload
+        run: dotnet workload install wasm-tools --skip-sign-check
+
+      - name: Create CommonSecrets.local_secrets.cs
+        run: |
+          $commonSecretsContent = @'
+          namespace PrimeBakes.Models.DataAccess;
+
+          public static partial class CommonSecrets
+          {
+              static CommonSecrets()
+              {
+                  SyncfusionLicense = "${{ secrets.SyncfusionLicense }}";
+
+                  NotificationAPIKey = "${{ secrets.NotificationAPIKey }}";
+                  NotificationBackendServiceEndpoint = "${{ secrets.NotificationBackendServiceEndpoint }}";
+              }
+          }
+          '@
+          Set-Content -Path "Data/PrimeBakes.Models/DataAccess/CommonSecrets.local_secrets.cs" -Value $commonSecretsContent
+        shell: pwsh
+
+      - name: Publish PrimeBakes.Wasm
+        run: dotnet publish App/PrimeBakes.Wasm/PrimeBakes.Wasm.csproj -c Release -o ${{ github.workspace }}/wasmapp
+
+      - name: Deploy to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_WASM_PUBLISH_PROFILE }}
+          action: upload
+          app_location: wasmapp/wwwroot
+          output_location: ''
+          skip_app_build: true
+          skip_api_build: true
+
+      - name: Deployment Summary
+        run: |
+          echo "🚀 Successfully deployed PrimeBakes Wasm version ${{ needs.version-check.outputs.current-version }} to Azure Static Web Apps"

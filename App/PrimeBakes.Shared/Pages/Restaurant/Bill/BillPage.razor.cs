@@ -5,7 +5,6 @@ using PrimeBakes.Library.Operations.Settings;
 using PrimeBakes.Library.Restaurant.Bill.Data;
 using PrimeBakes.Library.Restaurant.Bill.Exports;
 using PrimeBakes.Library.Store.Customer.Data;
-using PrimeBakes.Library.Store.PaymentMode;
 using PrimeBakes.Library.Store.Product.Data;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Operations.Location;
@@ -57,7 +56,7 @@ public partial class BillPage
 	];
 
 	private readonly List<PaymentItem> _paymentsCart = [];
-	private readonly List<PaymentModeModel> _paymentMethods = PaymentModeData.GetPaymentModes();
+	private readonly List<PaymentModeModel> _paymentMethods = PaymentModes.GetPaymentModes();
 	private PaymentModeModel _selectedPaymentMethod = new();
 	private PaymentItem _selectedPaymentCart = new();
 	private decimal _remainingAmount => _bill.TotalAmount - _paymentsCart.Sum(p => p.Amount);
@@ -1047,7 +1046,7 @@ public partial class BillPage
 
 			await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			_bill.Id = await BillData.SaveTransaction(_bill, BillData.ConvertCartToDetails(_cart), _selectedCustomer);
+			_bill.Id = await BillData.SaveTransaction(_bill, _cart.ConvertCartToDetails(), _selectedCustomer);
 			_bill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, _bill.Id);
 
 			if (saveThermal) await PrintThermalInvoice(true);
@@ -1095,7 +1094,7 @@ public partial class BillPage
 				foreach (var item in _cart)
 					item.KOTPrint = false;
 
-			_bill.Id = await BillData.SaveTransaction(_bill, BillData.ConvertCartToDetails(_cart), _selectedCustomer);
+			_bill.Id = await BillData.SaveTransaction(_bill, _cart.ConvertCartToDetails(), _selectedCustomer);
 			_bill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, _bill.Id);
 
 			await HandleKOTPrint();

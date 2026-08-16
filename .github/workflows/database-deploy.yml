@@ -1,4 +1,4 @@
-name: Deploy Database to Azure
+name: Deploy Database
 
 on:
   push:
@@ -16,31 +16,31 @@ jobs:
 
     steps:
     - uses: actions/checkout@v5
-    
+
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
-    
+
     - name: Build SQL Server Database Project
-      run: msbuild PrimeBakes.Database/PrimeBakes.Database.sqlproj /p:Configuration=Release /p:Platform="Any CPU"
-    
+      run: msbuild Data/PrimeBakes.Database/PrimeBakes.Database.sqlproj /p:Configuration=Release /p:Platform="Any CPU"
+
     - name: Find DACPAC file
       run: |
-        Get-ChildItem -Path "PrimeBakes.Database" -Filter "*.dacpac" -Recurse | Select-Object FullName
-    
+        Get-ChildItem -Path "Data/PrimeBakes.Database" -Filter "*.dacpac" -Recurse | Select-Object FullName
+
     - name: Install SqlPackage
       run: |
         Invoke-WebRequest -Uri "https://aka.ms/sqlpackage-windows" -OutFile "SqlPackage.zip"
         Expand-Archive -Path "SqlPackage.zip" -DestinationPath "SqlPackage"
-    
+
     - name: Deploy Database to Azure SQL
       run: |
-        $dacpacPath = (Get-ChildItem -Path "PrimeBakes.Database" -Filter "PrimeBakes.Database.dacpac" -Recurse).FullName
+        $dacpacPath = (Get-ChildItem -Path "Data/PrimeBakes.Database" -Filter "PrimeBakes.Database.dacpac" -Recurse).FullName
         echo "Using DACPAC: $dacpacPath"
         ./SqlPackage/SqlPackage.exe /Action:Publish `
           /SourceFile:"$dacpacPath" `
           /TargetConnectionString:"${{ secrets.AzureConnectionString }}" `
           /p:IncludeCompositeObjects=True
-    
+
     - name: Deployment Summary
       run: |
-        echo "🚀 Successfully deployed database version ${{ needs.version-check.outputs.current-version }} to Azure SQL"
+        echo "🚀 Successfully deployed PrimeBakes database version ${{ needs.version-check.outputs.current-version }} to Azure SQL"

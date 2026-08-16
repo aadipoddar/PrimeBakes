@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Library.Restaurant.Bill.Data;
 using PrimeBakes.Library.Store.Product.Data;
@@ -206,7 +206,7 @@ public partial class BillMobileCartPage
 		{
 			_isProcessing = true;
 
-			BillData.ApplyItemFinancialDetails(_cart, _products, _taxes);
+			_cart.ApplyItemFinancialDetails(_products, _taxes);
 
 			if (!_cart.Any(x => x.Quantity > 0))
 				await DataStorageService.LocalRemove(StorageFileNames.BillMobileCartDataFileName);

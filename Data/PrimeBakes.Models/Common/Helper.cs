@@ -88,6 +88,8 @@ public static class Helper
 	#endregion
 
 	#region Routes
+	public static readonly string ExportContentType = "application/octet-stream";
+
 	public static string SanitizeClassName(this string str) =>
 		str.Replace("Endpoint", "").Replace("Controller", "").Replace("Data", "");
 

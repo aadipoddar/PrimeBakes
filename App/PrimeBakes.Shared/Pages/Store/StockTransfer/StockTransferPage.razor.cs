@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Components;
 using PrimeBakes.Library.Accounts.Masters.Data;
 using PrimeBakes.Library.Operations.Location;
 using PrimeBakes.Library.Operations.Settings;
-using PrimeBakes.Library.Store.PaymentMode;
 using PrimeBakes.Library.Store.Product.Data;
 using PrimeBakes.Library.Store.StockTransfer.Data;
 using PrimeBakes.Models.Accounts.Masters;
@@ -52,7 +51,7 @@ public partial class StockTransferPage
 	];
 
 	private readonly List<PaymentItem> _paymentsCart = [];
-	private readonly List<PaymentModeModel> _paymentMethods = PaymentModeData.GetPaymentModes();
+	private readonly List<PaymentModeModel> _paymentMethods = PaymentModes.GetPaymentModes();
 	private PaymentModeModel _selectedPaymentMethod = new();
 	private PaymentItem _selectedPaymentCart = new();
 	private decimal _remainingAmount => _stockTransfer.TotalAmount - _paymentsCart.Sum(p => p.Amount);
@@ -928,7 +927,7 @@ public partial class StockTransferPage
 
 			await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			var stockTransferDetails = StockTransferData.ConvertCartToDetails(_cart);
+			var stockTransferDetails = _cart.ConvertCartToDetails();
 			_stockTransfer.Id = await StockTransferData.SaveTransaction(_stockTransfer, stockTransferDetails);
 			_stockTransfer = await CommonData.LoadTableDataById<StockTransferModel>(StoreNames.StockTransfer, _stockTransfer.Id);
 

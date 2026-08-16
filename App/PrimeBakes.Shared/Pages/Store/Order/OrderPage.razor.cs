@@ -498,7 +498,7 @@ public partial class OrderPage
 
 			await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			var orderDetails = OrderData.ConvertCartToDetails(_cart);
+			var orderDetails = _cart.ConvertCartToDetails();
 			_order.Id = await OrderData.SaveTransaction(_order, orderDetails);
 			_order = await CommonData.LoadTableDataById<OrderModel>(StoreNames.Order, _order.Id);
 

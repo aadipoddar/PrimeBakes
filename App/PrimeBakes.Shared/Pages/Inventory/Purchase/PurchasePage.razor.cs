@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Library.Accounts.Masters.Data;
+using PrimeBakes.Library.DataAccess;
 using PrimeBakes.Library.Inventory.Purchase.Data;
 using PrimeBakes.Library.Operations.Settings;
 using PrimeBakes.Models.Accounts.Masters;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Inventory.Purchase;
 using PrimeBakes.Models.Inventory.RawMaterial;
 using PrimeBakes.Models.Operations.Settings;
@@ -16,7 +18,6 @@ using Syncfusion.Blazor.Grids;
 using Syncfusion.Blazor.Inputs;
 
 using System.Text.Json;
-using PrimeBakes.Library.DataAccess;
 
 namespace PrimeBakes.Shared.Pages.Inventory.Purchase;
 
@@ -720,7 +721,7 @@ public partial class PurchasePage
 
 			await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			var items = PurchaseData.ConvertCartToDetails(_cart);
+			var items = _cart.ConvertCartToDetails();
 			_purchase.Id = await PurchaseData.SaveTransaction(_purchase, items);
 			_purchase = await CommonData.LoadTableDataById<PurchaseModel>(InventoryNames.Purchase, _purchase.Id);
 

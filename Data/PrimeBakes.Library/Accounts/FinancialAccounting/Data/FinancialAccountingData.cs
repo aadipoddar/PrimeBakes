@@ -28,23 +28,6 @@ public static class FinancialAccountingData
 	public static async Task<List<TrialBalanceModel>> LoadTrialBalanceByCompanyDate(int CompanyId, DateTime StartDate, DateTime EndDate) =>
 		await SqlDataAccess.LoadData<TrialBalanceModel, dynamic>(AccountNames.LoadTrialBalanceByCompanyDate, new { CompanyId, StartDate, EndDate });
 
-	public static List<FinancialAccountingLedgerModel> ConvertCartToDetails(List<FinancialAccountingLedgerCartModel> cart, int masterId = 0) =>
-		[.. cart.Select(item => new FinancialAccountingLedgerModel
-		{
-			Id = 0,
-			MasterId = masterId,
-			LedgerId = item.LedgerId,
-			Credit = item.Credit,
-			Debit = item.Debit,
-			ReferenceType = item.ReferenceType,
-			ReferenceId = item.ReferenceId,
-			ReferenceNo = item.ReferenceNo,
-			InstrumentNo = item.InstrumentNo,
-			InstrumentDate = item.InstrumentDate,
-			Remarks = item.Remarks,
-			Status = true
-		})];
-
 	public static async Task DeleteTransaction(FinancialAccountingModel accounting, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		if (sqlDataAccessTransaction is null)

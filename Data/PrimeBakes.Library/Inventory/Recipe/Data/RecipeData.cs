@@ -28,16 +28,6 @@ public static class RecipeData
 			.Select(g => g.OrderByDescending(r => r.FromDate).First())];
 	}
 
-	public static List<RecipeDetailModel> ConvertCartToDetails(List<RecipeItemCartModel> cart, int masterId = 0) =>
-		[.. cart.Select(item => new RecipeDetailModel
-		{
-			Id = 0,
-			MasterId = masterId,
-			RawMaterialId = item.ItemId,
-			Quantity = item.Quantity,
-			Status = true
-		})];
-
 	#region Delete
 	public static async Task DeleteTransaction(RecipeModel recipe, int userId, string platform, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{

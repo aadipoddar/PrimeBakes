@@ -269,7 +269,7 @@ public partial class RecipePage
 			_recipe.Status = true;
 
 			var platform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
-			var items = RecipeData.ConvertCartToDetails(_recipeItems, _recipe.Id);
+			var items = _recipeItems.ConvertCartToDetails(_recipe.Id);
 			_recipe.Id = await RecipeData.SaveTransaction(_recipe, items, _user.Id, platform);
 
 			if (savePDF) await ExportSelectedTransaction(false, true);

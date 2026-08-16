@@ -1,11 +1,10 @@
-﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Library.Accounts.Masters.Data;
 using PrimeBakes.Library.Operations.Settings;
 using PrimeBakes.Library.Restaurant.Bill.Data;
 using PrimeBakes.Library.Restaurant.Bill.Exports;
 using PrimeBakes.Library.Store.Customer.Data;
-using PrimeBakes.Library.Store.PaymentMode;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Models.Restaurant.Bill;
@@ -39,7 +38,7 @@ public partial class BillMobilePaymentPage
 	private List<BillDetailModel> _previousCart = [];
 	private readonly List<(string Field, string Message)> _validationErrors = [];
 	private readonly List<PaymentItem> _payments = [];
-	private readonly List<PaymentModeModel> _paymentMethods = [.. PaymentModeData.GetPaymentModes().Where(m => m.Name != "Credit")];
+	private readonly List<PaymentModeModel> _paymentMethods = [.. PaymentModes.GetPaymentModes().Where(m => m.Name != "Credit")];
 
 	private PaymentModeModel _selectedPaymentMethod = new();
 	private decimal _paymentAmount = 0;
@@ -274,10 +273,10 @@ public partial class BillMobilePaymentPage
 
 	private void ConfirmPayment()
 	{
-		_bill.Cash = _payments.FirstOrDefault(p => p.Id == PaymentModeData.GetPaymentModes().FirstOrDefault(pm => pm.Name == "Cash")?.Id)?.Amount ?? 0;
-		_bill.Card = _payments.FirstOrDefault(p => p.Id == PaymentModeData.GetPaymentModes().FirstOrDefault(pm => pm.Name == "Card")?.Id)?.Amount ?? 0;
-		_bill.UPI = _payments.FirstOrDefault(p => p.Id == PaymentModeData.GetPaymentModes().FirstOrDefault(pm => pm.Name == "UPI")?.Id)?.Amount ?? 0;
-		_bill.Credit = _payments.FirstOrDefault(p => p.Id == PaymentModeData.GetPaymentModes().FirstOrDefault(pm => pm.Name == "Credit")?.Id)?.Amount ?? 0;
+		_bill.Cash = _payments.FirstOrDefault(p => p.Id == PaymentModes.GetPaymentModes().FirstOrDefault(pm => pm.Name == "Cash")?.Id)?.Amount ?? 0;
+		_bill.Card = _payments.FirstOrDefault(p => p.Id == PaymentModes.GetPaymentModes().FirstOrDefault(pm => pm.Name == "Card")?.Id)?.Amount ?? 0;
+		_bill.UPI = _payments.FirstOrDefault(p => p.Id == PaymentModes.GetPaymentModes().FirstOrDefault(pm => pm.Name == "UPI")?.Id)?.Amount ?? 0;
+		_bill.Credit = _payments.FirstOrDefault(p => p.Id == PaymentModes.GetPaymentModes().FirstOrDefault(pm => pm.Name == "Credit")?.Id)?.Amount ?? 0;
 	}
 	#endregion
 
@@ -287,10 +286,10 @@ public partial class BillMobilePaymentPage
 		if (!_user.ChangeProductFinancial)
 			_bill.DiscountPercent = 0;
 
-		BillData.ApplyItemFinancialDetails(_cart, _products, _taxes);
+		_cart.ApplyItemFinancialDetails(_products, _taxes);
 
 		_finalCart.Clear();
-		_finalCart = BillData.ConvertCartToDetails(_cart, _bill.Id);
+		_finalCart = _cart.ConvertCartToDetails(_bill.Id);
 		_finalCart.AddRange(_previousCart);
 
 		foreach (var item in _finalCart.Where(_ => _.Quantity > 0))
