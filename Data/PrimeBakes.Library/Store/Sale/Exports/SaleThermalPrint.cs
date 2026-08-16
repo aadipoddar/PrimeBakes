@@ -161,7 +161,7 @@ public static class SaleThermalPrint
 		var detailRows = new List<(string Label, string Value)>();
 
 		if (sale.DiscountPercent > 0)
-			detailRows.Add(($"Discount ({sale.DiscountPercent}%)", $"- {sale.DiscountAmount.FormatDecimalWithTwoDigits()}"));
+			detailRows.Add(($"Dis ({sale.DiscountPercent}%)", $"- {sale.DiscountAmount.FormatDecimalWithTwoDigits()}"));
 
 		decimal cgst = saleDetails.Where(s => !s.InclusiveTax).Sum(s => s.CGSTAmount);
 		if (cgst > 0)
@@ -180,10 +180,10 @@ public static class SaleThermalPrint
 
 		y = ThermalPrintUtil.DrawTableTotals(
 			canvas, columnPercents, alignments, width, y,
-			leftLabel: "Total Qty:",
+			leftLabel: "Qty:",
 			columnValue: sale.TotalQuantity.FormatSmartDecimal(),
 			columnIndex: 1,  // Qty column
-			rightPair: ("Sub Total", sale.TotalAfterTax.FormatDecimalWithTwoDigits()),
+			rightPair: ("Sub", sale.TotalAfterTax.FormatDecimalWithTwoDigits()),
 			additionalRightRows: detailRows);
 
 		// Separator before grand total
@@ -242,7 +242,8 @@ public static class SaleThermalPrint
 	private static async Task<float> DrawFooter(SKCanvas canvas, SaleOverviewModel sale, int width, float y)
 	{
 		var currentDateTime = await CommonData.LoadCurrentDateTime();
-		y = ThermalPrintUtil.DrawCenteredText(canvas, $"Printed By: {sale.CreatedByName} | On: {currentDateTime:dd/MMM/yy hh:mm tt}", width, y, ThermalPrintUtil.FontSizeSmall, bold: false);
+		y = ThermalPrintUtil.DrawCenteredText(canvas, $"Printed By: {sale.CreatedByName}", width, y, ThermalPrintUtil.FontSizeSmall, bold: false);
+		y = ThermalPrintUtil.DrawCenteredText(canvas, $"Printed On: {currentDateTime:dd/MMM/yy hh:mm tt}", width, y, ThermalPrintUtil.FontSizeSmall, bold: false);
 		y = ThermalPrintUtil.DrawCenteredText(canvas, "Thanks. Visit Again", width, y, ThermalPrintUtil.FontSizeNormal, bold: false);
 		y = ThermalPrintUtil.DrawCenteredText(canvas, "A Product of aadisoft.vercel.app", width, y, ThermalPrintUtil.FontSizeSmall, bold: true);
 

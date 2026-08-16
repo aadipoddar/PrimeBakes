@@ -27,6 +27,8 @@
   <ItemGroup>
     <EmbeddedResource Include="Utils\Resources\logo.png" />
     <EmbeddedResource Include="Utils\Resources\logo_full.png" />
+    <EmbeddedResource Include="Utils\Resources\Roboto-Bold.ttf" />
+    <EmbeddedResource Include="Utils\Resources\Roboto-SemiBold.ttf" />
   </ItemGroup>
 
   <ItemGroup>

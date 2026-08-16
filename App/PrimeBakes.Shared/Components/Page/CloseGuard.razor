@@ -7,7 +7,7 @@
 	private bool _isWeb;
 	private bool? _appliedWebBlock;
 
-	protected override void OnInitialized() => _isWeb = FormFactor.GetFormFactor() == "Web";
+	protected override void OnInitialized() => _isWeb = FormFactor.GetFormFactor() is "Web" or "Wasm";
 
 	protected override void OnParametersSet()
 	{

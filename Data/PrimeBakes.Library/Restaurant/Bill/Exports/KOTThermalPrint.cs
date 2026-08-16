@@ -111,7 +111,8 @@ public static class KOTThermalPrint
 	private static async Task<float> DrawFooter(SKCanvas canvas, BillOverviewModel bill, int width, float y)
 	{
 		var currentDateTime = await CommonData.LoadCurrentDateTime();
-		y = ThermalPrintUtil.DrawCenteredText(canvas, $"Printed By: {bill.CreatedByName} | On: {currentDateTime:dd/MMM/yy hh:mm tt}", width, y, ThermalPrintUtil.FontSizeSmall, bold: false);
+		y = ThermalPrintUtil.DrawCenteredText(canvas, $"Printed By: {bill.CreatedByName}", width, y, ThermalPrintUtil.FontSizeSmall, bold: false);
+		y = ThermalPrintUtil.DrawCenteredText(canvas, $"Printed On: {currentDateTime:dd/MMM/yy hh:mm tt}", width, y, ThermalPrintUtil.FontSizeSmall, bold: false);
 		y = ThermalPrintUtil.DrawCenteredText(canvas, "A Product of aadisoft.vercel.app", width, y, ThermalPrintUtil.FontSizeSmall, bold: true);
 		return y;
 	}

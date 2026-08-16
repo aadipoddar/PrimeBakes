@@ -61,7 +61,7 @@ public static class AuthenticationService
 	public static Func<string, bool> OpenRouteInNewWindow { get; set; }
 	public static async Task NavigateToRoute(string route, IFormFactor FormFactor, IJSRuntime JSRuntime, NavigationManager NavigationManager)
 	{
-		if (FormFactor.GetFormFactor() == "Web")
+		if (FormFactor.GetFormFactor() is "Web" or "Wasm")
 			await JSRuntime.InvokeVoidAsync("open", route, "_blank");
 		else if (OpenRouteInNewWindow is not null && OpenRouteInNewWindow(route))
 			return;
@@ -72,7 +72,7 @@ public static class AuthenticationService
 	public static Func<bool> CloseCurrentWindow { get; set; }
 	public static async Task CloseWindowOrTab(IFormFactor FormFactor, IJSRuntime JSRuntime)
 	{
-		if (FormFactor.GetFormFactor() == "Web")
+		if (FormFactor.GetFormFactor() is "Web" or "Wasm")
 			await JSRuntime.InvokeVoidAsync("pageCloseGuard.close");
 		else
 			CloseCurrentWindow?.Invoke();

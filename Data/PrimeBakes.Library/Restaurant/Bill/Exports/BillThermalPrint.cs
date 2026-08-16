@@ -135,7 +135,7 @@ public static class BillThermalPrint
 		var detailRows = new List<(string Label, string Value)>();
 
 		if (bill.DiscountPercent > 0)
-			detailRows.Add(($"Discount ({bill.DiscountPercent}%)", $"- {bill.DiscountAmount.FormatDecimalWithTwoDigits()}"));
+			detailRows.Add(($"Dis ({bill.DiscountPercent}%)", $"- {bill.DiscountAmount.FormatDecimalWithTwoDigits()}"));
 
 		if (bill.ServiceChargePercent > 0)
 			detailRows.Add(($"Service ({bill.ServiceChargePercent}%)", bill.ServiceChargeAmount.FormatDecimalWithTwoDigits()));
@@ -157,10 +157,10 @@ public static class BillThermalPrint
 
 		y = ThermalPrintUtil.DrawTableTotals(
 			canvas, columnPercents, alignments, width, y,
-			leftLabel: "Total Qty:",
+			leftLabel: "Qty:",
 			columnValue: bill.TotalQuantity.FormatSmartDecimal(),
 			columnIndex: 1,
-			rightPair: ("Sub Total", bill.TotalAfterTax.FormatDecimalWithTwoDigits()),
+			rightPair: ("Sub", bill.TotalAfterTax.FormatDecimalWithTwoDigits()),
 			additionalRightRows: detailRows);
 
 		y = ThermalPrintUtil.DrawSeparator(canvas, width, y);
@@ -211,7 +211,8 @@ public static class BillThermalPrint
 	private static async Task<float> DrawFooter(SKCanvas canvas, BillOverviewModel bill, int width, float y)
 	{
 		var currentDateTime = await CommonData.LoadCurrentDateTime();
-		y = ThermalPrintUtil.DrawCenteredText(canvas, $"Printed By: {bill.CreatedByName} | On: {currentDateTime:dd/MMM/yy hh:mm tt}", width, y, ThermalPrintUtil.FontSizeSmall, bold: false);
+		y = ThermalPrintUtil.DrawCenteredText(canvas, $"Printed By: {bill.CreatedByName}", width, y, ThermalPrintUtil.FontSizeSmall, bold: false);
+		y = ThermalPrintUtil.DrawCenteredText(canvas, $"Printed On: {currentDateTime:dd/MMM/yy hh:mm tt}", width, y, ThermalPrintUtil.FontSizeSmall, bold: false);
 		y = ThermalPrintUtil.DrawCenteredText(canvas, "Thanks. Visit Again", width, y, ThermalPrintUtil.FontSizeNormal, bold: false);
 		y = ThermalPrintUtil.DrawCenteredText(canvas, "A Product of aadisoft.vercel.app", width, y, ThermalPrintUtil.FontSizeSmall, bold: true);
 		return y;

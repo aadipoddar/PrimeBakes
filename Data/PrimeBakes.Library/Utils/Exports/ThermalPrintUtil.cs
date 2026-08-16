@@ -15,6 +15,8 @@ public static class ThermalPrintUtil
 	public const int LineGap = 1;
 	public const int SectionGap = 12;
 	public const string LogoResourceName = "PrimeBakes.Library.Utils.Resources.logo_full.png";
+	public const string BoldFontResourceName = "PrimeBakes.Library.Utils.Resources.Roboto-Bold.ttf";
+	public const string SemiBoldFontResourceName = "PrimeBakes.Library.Utils.Resources.Roboto-SemiBold.ttf";
 
 	public const float FontSizeTitle = 40f;
 	public const float FontSizeHeader = 30f;
@@ -26,12 +28,18 @@ public static class ThermalPrintUtil
 
 	// ── Font helpers ─────────────────────────────────────────────────────────
 
-	private static SKTypeface BoldTypeface() =>
-		SKTypeface.FromFamilyName("sans-serif", SKFontStyle.Bold);
+	private static readonly Lazy<SKTypeface> _boldTypeface = new(() => LoadTypeface(BoldFontResourceName));
+	private static readonly Lazy<SKTypeface> _semiBoldTypeface = new(() => LoadTypeface(SemiBoldFontResourceName));
 
-	private static SKTypeface SemiBoldTypeface() =>
-		SKTypeface.FromFamilyName("sans-serif",
-			new SKFontStyle(SKFontStyleWeight.SemiBold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright));
+	private static SKTypeface LoadTypeface(string resourceName)
+	{
+		using var stream = typeof(ThermalPrintUtil).Assembly.GetManifestResourceStream(resourceName);
+		return (stream is null ? null : SKTypeface.FromStream(stream)) ?? SKTypeface.Default;
+	}
+
+	private static SKTypeface BoldTypeface() => _boldTypeface.Value;
+
+	private static SKTypeface SemiBoldTypeface() => _semiBoldTypeface.Value;
 
 	// ── Drawing primitives ───────────────────────────────────────────────────
 
@@ -86,8 +94,8 @@ public static class ThermalPrintUtil
 	public static float DrawSplitRow(SKCanvas canvas, string leftLabel, string leftValue,
 		string rightLabel, string rightValue, int paperWidth, float y, float fontSize = FontSizeNormal)
 	{
-		using var boldTf = BoldTypeface();
-		using var semiTf = SemiBoldTypeface();
+		var boldTf = BoldTypeface();
+		var semiTf = SemiBoldTypeface();
 		using var labelFont = new SKFont(boldTf, fontSize);
 		using var valueFont = new SKFont(semiTf, fontSize);
 		using var paint = new SKPaint { Color = SKColors.Black, IsAntialias = true };
@@ -112,7 +120,7 @@ public static class ThermalPrintUtil
 	/// <summary>Draws word-wrapped centred text; returns updated Y.</summary>
 	public static float DrawCenteredText(SKCanvas canvas, string text, int paperWidth, float y, float fontSize, bool bold)
 	{
-		using var typeface = bold ? BoldTypeface() : SemiBoldTypeface();
+		var typeface = bold ? BoldTypeface() : SemiBoldTypeface();
 		using var font = new SKFont(typeface, fontSize);
 		using var paint = new SKPaint { Color = SKColors.Black, IsAntialias = true };
 		var metrics = font.Metrics;
@@ -135,8 +143,8 @@ public static class ThermalPrintUtil
 	{
 		if (pairs is null || pairs.Count == 0) return y;
 
-		using var boldTf = BoldTypeface();
-		using var semiTf = SemiBoldTypeface();
+		var boldTf = BoldTypeface();
+		var semiTf = SemiBoldTypeface();
 		using var labelFont = new SKFont(boldTf, fontSize);
 		using var valueFont = new SKFont(semiTf, fontSize);
 		using var paint = new SKPaint { Color = SKColors.Black, IsAntialias = true };
@@ -185,8 +193,8 @@ public static class ThermalPrintUtil
 	{
 		(var colX, var colW) = BuildColumns(columnPercents, paperWidth);
 
-		using var boldTf = BoldTypeface();
-		using var semiTf = SemiBoldTypeface();
+		var boldTf = BoldTypeface();
+		var semiTf = SemiBoldTypeface();
 		using var headerFont = new SKFont(boldTf, headerFontSize);
 		using var rowFont = new SKFont(semiTf, rowFontSize);
 		using var paint = new SKPaint { Color = SKColors.Black, IsAntialias = true };
@@ -247,8 +255,8 @@ public static class ThermalPrintUtil
 		List<(string Label, string Value)>? additionalRightRows = null,
 		float fontSize = FontSizeNormal)
 	{
-		using var boldTf = BoldTypeface();
-		using var semiTf = SemiBoldTypeface();
+		var boldTf = BoldTypeface();
+		var semiTf = SemiBoldTypeface();
 		using var labelFont = new SKFont(semiTf, fontSize);
 		using var boldFont = new SKFont(boldTf, fontSize);
 		using var paint = new SKPaint { Color = SKColors.Black, IsAntialias = true };
@@ -257,19 +265,22 @@ public static class ThermalPrintUtil
 
 		(var colX, var colW) = BuildColumns(columnPercents, paperWidth);
 
-		// Left: label sits just before the column value
-		float vw = boldFont.MeasureText(columnValue);
-		float colValueX = AlignX(alignments[columnIndex], colX[columnIndex], colW[columnIndex], vw);
-		canvas.DrawText(columnValue, colValueX, y - metrics.Ascent, boldFont, paint);
-		float leftLabelW = labelFont.MeasureText(leftLabel);
-		canvas.DrawText(leftLabel, Math.Max(colValueX - leftLabelW - 4, (float)Margin), y - metrics.Ascent, labelFont, paint);
-
 		// Right: all rows aligned
 		var allRows = new List<(string Label, string Value)> { rightPair };
 		if (additionalRightRows is not null) allRows.AddRange(additionalRightRows);
 
 		float rightEdge = paperWidth - Margin;
 		float labelColRight = rightEdge - MaxWidth(boldFont, allRows.Select(r => r.Value)) - ColGap;
+		float rightBlockLeft = labelColRight - MaxWidth(labelFont, allRows.Select(r => $"{r.Label}:"));
+
+		// Left: label sits just before the column value, pulled in if it would run into the right block
+		float vw = boldFont.MeasureText(columnValue);
+		float leftLabelW = labelFont.MeasureText(leftLabel);
+		float colValueX = AlignX(alignments[columnIndex], colX[columnIndex], colW[columnIndex], vw);
+		colValueX = Math.Min(colValueX, rightBlockLeft - ColGap - vw);
+		colValueX = Math.Max(colValueX, Margin + leftLabelW + 4);
+		canvas.DrawText(columnValue, colValueX, y - metrics.Ascent, boldFont, paint);
+		canvas.DrawText(leftLabel, Math.Max(colValueX - leftLabelW - 4, (float)Margin), y - metrics.Ascent, labelFont, paint);
 
 		foreach (var (lbl, val) in allRows)
 		{
@@ -288,8 +299,8 @@ public static class ThermalPrintUtil
 	{
 		if (pairs is null || pairs.Count == 0) return y;
 
-		using var boldTf = BoldTypeface();
-		using var semiTf = SemiBoldTypeface();
+		var boldTf = BoldTypeface();
+		var semiTf = SemiBoldTypeface();
 		using var labelFont = new SKFont(semiTf, fontSize);
 		using var boldFont = new SKFont(boldTf, fontSize);
 		using var paint = new SKPaint { Color = SKColors.Black, IsAntialias = true };
