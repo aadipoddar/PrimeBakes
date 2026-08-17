@@ -50,6 +50,11 @@ jobs:
       - name: Publish PrimeBakes.Wasm
         run: dotnet publish App/PrimeBakes.Wasm/PrimeBakes.Wasm.csproj -c Release -o ${{ github.workspace }}/wasmapp
 
+      - name: Strip pre-compressed assets
+        run: |
+          find ${{ github.workspace }}/wasmapp/wwwroot \( -name "*.br" -o -name "*.gz" \) -delete
+          du -sh ${{ github.workspace }}/wasmapp/wwwroot
+
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
         with:
