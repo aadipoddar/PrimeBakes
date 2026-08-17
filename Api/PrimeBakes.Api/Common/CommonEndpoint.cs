@@ -8,7 +8,7 @@ public class CommonEndpoint : ICarterModule
 	public void AddRoutes(IEndpointRouteBuilder app)
 	{
 		var endpoint = Helper.SanitizeClassName(nameof(CommonEndpoint));
-		var group = app.MapGroup(endpoint).WithTags(endpoint);
+		var group = app.MapGroup(endpoint).WithTags(endpoint).CacheOutput(ApiCachePolicy.Instance);
 
 		group.MapGet(nameof(CommonData.LoadTableData),
 			(string TableName) => CommonData.LoadTableData<object>(TableName));

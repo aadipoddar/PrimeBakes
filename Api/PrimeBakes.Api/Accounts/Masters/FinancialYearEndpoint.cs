@@ -1,3 +1,4 @@
+using PrimeBakes.Api.Common;
 using PrimeBakes.Data.Accounts.Masters;
 using PrimeBakes.Models.Common;
 
@@ -8,7 +9,7 @@ public class FinancialYearEndpoint : ICarterModule
 	public void AddRoutes(IEndpointRouteBuilder app)
 	{
 		var endpoint = Helper.SanitizeClassName(nameof(FinancialYearEndpoint));
-		var group = app.MapGroup(endpoint).WithTags(endpoint);
+		var group = app.MapGroup(endpoint).WithTags(endpoint).CacheOutput(ApiCachePolicy.Instance);
 
 		group.MapGet(nameof(FinancialYearData.LoadFinancialYearByDateTime),
 			(DateTime TransactionDateTime) => FinancialYearData.LoadFinancialYearByDateTime(TransactionDateTime));

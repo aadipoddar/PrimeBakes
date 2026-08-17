@@ -1,4 +1,5 @@
-﻿using PrimeBakes.Data.Operations.Settings;
+﻿using PrimeBakes.Api.Common;
+using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Operations.Settings;
 
@@ -9,7 +10,7 @@ public class SettingsEndpoint : ICarterModule
 	public void AddRoutes(IEndpointRouteBuilder app)
 	{
 		var endpoint = Helper.SanitizeClassName(nameof(SettingsEndpoint));
-		var group = app.MapGroup(endpoint).WithTags(endpoint);
+		var group = app.MapGroup(endpoint).WithTags(endpoint).CacheOutput(ApiCachePolicy.Instance);
 
 		group.MapGet(nameof(SettingsData.LoadSettingsByKey),
 			(string Key) => SettingsData.LoadSettingsByKey(Key));

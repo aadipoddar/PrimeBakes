@@ -68,6 +68,9 @@ BEGIN
 	-- Notification Settings
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'NotificationEmail', N'primebakesght@gmail.com', N'Recipient email for transaction notifications; leave blank to disable emails')
 
+	-- Cache Settings
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'CacheTimeoutMinutes', N'60', N'How long the API keeps master data cached, in minutes')
+
 	SELECT 1 AS Success;
 
 END

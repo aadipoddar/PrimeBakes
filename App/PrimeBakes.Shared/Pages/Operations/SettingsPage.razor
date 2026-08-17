@@ -19,6 +19,7 @@ else
 				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
 					<MudBlazor.MudMenuItem Label="Save (Ctrl + S)" OnClick="SaveSettings" />
 					<MudBlazor.MudMenuItem Label="Reset to Defaults (Ctrl + R)" OnClick="ShowResetConfirmation" />
+					<MudBlazor.MudMenuItem Label="Clear Cache" OnClick="ShowClearCacheConfirmation" />
 				</MudBlazor.MudMenu>
 			</LeftContent>
 		</Header>
@@ -307,6 +308,35 @@ else
 					<div class="form-grid">
 						<div class="form-field">
 							<CustomTextField @bind-Value="_notificationEmail" Label="Notification Email" Placeholder="Leave blank to disable email notifications" Required="false" />
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Cache Settings -->
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Cache Settings</h2>
+				</div>
+				<div class="section-body">
+					<div class="form-grid">
+						<div class="form-field">
+							<CustomNumericField T="int"
+												@bind-Value="_cacheTimeoutMinutes"
+												Label="Cache Timeout (Minutes)"
+												Placeholder="e.g., 60"
+												Format="N0"
+												Min="1"
+												Max="1440"
+												Required="false" />
+						</div>
+						<div class="form-field">
+							<MudBlazor.MudButton Variant="MudBlazor.Variant.Filled"
+												 Color="MudBlazor.Color.Warning"
+												 OnClick="ShowClearCacheConfirmation"
+												 Disabled="_isProcessing">
+								Clear Cache Now
+							</MudBlazor.MudButton>
 						</div>
 					</div>
 				</div>

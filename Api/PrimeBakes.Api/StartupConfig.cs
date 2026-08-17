@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 
+using PrimeBakes.Api.Common;
 using PrimeBakes.Data.Operations.User;
 
 using Scalar.AspNetCore;
@@ -37,6 +38,7 @@ public static class StartupConfig
 		services.AddOpenApi();
 		services.AddCors();
 		services.AddCarter();
+		services.AddOutputCache();
 
 		services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 			.AddJwtBearer(options => options.TokenValidationParameters = new()
@@ -92,6 +94,9 @@ public static class StartupConfig
 
 		app.UseAuthentication();
 		app.UseAuthorization();
+
+		app.UseOutputCache();
+		app.UseApiCacheEviction();
 
 		app.MapCarter();
 		app.MapGet("/", () => Results.Content(_landing, "text/html")).AllowAnonymous();

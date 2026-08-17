@@ -1,3 +1,4 @@
+using PrimeBakes.Api.Common;
 using PrimeBakes.Data.Operations.Location;
 using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Operations.Location;
@@ -9,7 +10,7 @@ public class LocationEndpoint : ICarterModule
 	public void AddRoutes(IEndpointRouteBuilder app)
 	{
 		var endpoint = Helper.SanitizeClassName(nameof(LocationEndpoint));
-		var group = app.MapGroup(endpoint).WithTags(endpoint);
+		var group = app.MapGroup(endpoint).WithTags(endpoint).CacheOutput(ApiCachePolicy.Instance);
 
 		group.MapGet(nameof(LocationData.LoadLedgerByLocationId),
 			(int locationId) => LocationData.LoadLedgerByLocationId(locationId));

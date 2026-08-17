@@ -104,6 +104,9 @@ public partial class SettingsPage
 	// Notification Settings
 	private string _notificationEmail = string.Empty;
 
+	// Cache Settings
+	private int _cacheTimeoutMinutes = 60;
+
 	#endregion
 
 	#region Load Data
@@ -211,6 +214,9 @@ public partial class SettingsPage
 
 		// Notification Settings
 		_notificationEmail = Str(SettingsKeys.NotificationEmail) ?? string.Empty;
+
+		// Cache Settings
+		_cacheTimeoutMinutes = Int(SettingsKeys.CacheTimeoutMinutes, 60);
 	}
 
 	private async Task LoadCompanies()
@@ -496,6 +502,9 @@ public partial class SettingsPage
 			// Notification Settings
 			await UpdateSetting(SettingsKeys.NotificationEmail, _notificationEmail, Desc(SettingsKeys.NotificationEmail));
 
+			// Cache Settings
+			await UpdateSetting(SettingsKeys.CacheTimeoutMinutes, _cacheTimeoutMinutes.ToString(), Desc(SettingsKeys.CacheTimeoutMinutes));
+
 			await _toastNotification.ShowAsync("Saved", "Settings saved successfully.", ToastType.Success);
 		}
 		catch (Exception ex)
@@ -515,6 +524,34 @@ public partial class SettingsPage
 		Value = value ?? string.Empty,
 		Description = description
 	});
+
+	#endregion
+
+	#region Clear Cache
+
+	private async Task ShowClearCacheConfirmation() =>
+		await ShowConfirmation("Clear Cache", "Are you sure you want to clear the cached data on the server?", ClearCache);
+
+	private async Task ClearCache()
+	{
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+
+			await CacheData.Clear();
+			await _toastNotification.ShowAsync("Cleared", "Server cache cleared successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"Failed to clear cache: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
 
 	#endregion
 

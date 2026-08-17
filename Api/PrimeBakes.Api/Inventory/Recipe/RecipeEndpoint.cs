@@ -1,4 +1,5 @@
-﻿using PrimeBakes.Data.Inventory.Recipe;
+﻿using PrimeBakes.Api.Common;
+using PrimeBakes.Data.Inventory.Recipe;
 using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Inventory.Recipe;
 
@@ -9,7 +10,7 @@ public class RecipeEndpoint : ICarterModule
 	public void AddRoutes(IEndpointRouteBuilder app)
 	{
 		var endpoint = Helper.SanitizeClassName(nameof(RecipeEndpoint));
-		var group = app.MapGroup(endpoint).WithTags(endpoint);
+		var group = app.MapGroup(endpoint).WithTags(endpoint).CacheOutput(ApiCachePolicy.Instance);
 
 		group.MapGet(nameof(RecipeData.LoadAllRecipes),
 			(DateOnly date, bool deduct) => RecipeData.LoadAllRecipes(date, deduct));

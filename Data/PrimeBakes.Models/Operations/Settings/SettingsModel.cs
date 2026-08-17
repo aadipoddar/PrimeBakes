@@ -73,4 +73,7 @@ public static class SettingsKeys
 
 	// Notification Settings
 	public static string NotificationEmail => "NotificationEmail";
+
+	// Cache Settings
+	public static string CacheTimeoutMinutes => "CacheTimeoutMinutes";
 }
