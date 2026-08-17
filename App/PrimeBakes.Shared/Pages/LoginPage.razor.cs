@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
+using PrimeBakes.Data;
 using PrimeBakes.Data.Operations.User;
 
 using Syncfusion.Blazor.Inputs;
@@ -18,6 +19,7 @@ public partial class LoginPage
 		if (!firstRender)
 			return;
 
+		ApiClient.Token = null;
 		await DataStorageService.SecureRemoveAll();
 	}
 
@@ -30,16 +32,18 @@ public partial class LoginPage
 		_isVerifying = true;
 		StateHasChanged();
 
-		var user = await UserData.LoadUserByPasscode(int.Parse(_passcode));
+		var login = await AuthData.Login(int.Parse(_passcode));
 
-		if (user is null || !user.Status)
+		if (login is null)
 		{
 			_isVerifying = false;
 			StateHasChanged();
 			return;
 		}
 
-		await DataStorageService.SecureSaveAsync(StorageFileNames.UserDataFileName, System.Text.Json.JsonSerializer.Serialize(user));
+		ApiClient.Token = login.Token;
+		await DataStorageService.SecureSaveAsync(StorageFileNames.TokenFileName, login.Token);
+		await DataStorageService.SecureSaveAsync(StorageFileNames.UserDataFileName, System.Text.Json.JsonSerializer.Serialize(login.User));
 		VibrationService.VibrateWithTime(500);
 		NavManager.NavigateTo(OperationRouteNames.Dashboard);
 	}

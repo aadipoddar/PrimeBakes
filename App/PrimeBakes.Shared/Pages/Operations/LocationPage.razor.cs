@@ -1,5 +1,4 @@
-﻿using PrimeBakes.Data.Common;
-using PrimeBakes.Data.Operations.Location;
+﻿using PrimeBakes.Data.Operations.Location;
 using PrimeBakes.Exports.Operations.Location;
 using PrimeBakes.Exports.Restaurant.Menu;
 using PrimeBakes.Models.Accounts.Masters;

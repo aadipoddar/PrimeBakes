@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
-using PrimeBakes.Data.Common;
+using PrimeBakes.Data;
 using PrimeBakes.Models.Operations.User;
 
 namespace PrimeBakes.Shared.Services;
@@ -10,6 +10,10 @@ public static class AuthenticationService
 {
 	public static async Task<UserModel> ValidateUser(IDataStorageService dataStorageService, NavigationManager navigationManager, INotificationService notificationService, IVibrationService vibrationService, List<UserRoles> userRoles = null, bool primaryLocationRequirement = false)
 	{
+		ApiClient.Token = await dataStorageService.SecureGetAsync(StorageFileNames.TokenFileName);
+		if (string.IsNullOrWhiteSpace(ApiClient.Token))
+			await Logout(dataStorageService, navigationManager, notificationService, vibrationService);
+
 		var userData = await dataStorageService.SecureGetAsync(StorageFileNames.UserDataFileName);
 		if (string.IsNullOrWhiteSpace(userData))
 			await Logout(dataStorageService, navigationManager, notificationService, vibrationService);
@@ -53,6 +57,7 @@ public static class AuthenticationService
 
 	public static async Task Logout(IDataStorageService dataStorageService, NavigationManager navigationManager, INotificationService notificationService, IVibrationService vibrationService)
 	{
+		ApiClient.Token = null;
 		await dataStorageService.SecureRemoveAll();
 		await notificationService.DeregisterDevicePushNotification();
 		vibrationService.VibrateWithTime(500);

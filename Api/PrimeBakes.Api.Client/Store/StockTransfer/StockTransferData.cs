@@ -1,5 +1,4 @@
-﻿using PrimeBakes.Data;
-using PrimeBakes.Models.Common;
+﻿using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Store.StockTransfer;
 
 namespace PrimeBakes.Data.Store.StockTransfer;

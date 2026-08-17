@@ -1,4 +1,6 @@
 using System.Globalization;
+using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -20,6 +22,8 @@ public static class ApiClient
 		?? throw new InvalidOperationException("ApiClient.Init(HttpClient) must be called during startup before any request.");
 
 	public static void Init(HttpClient http) => _http = http;
+
+	public static string Token { get; set; }
 	#endregion
 
 	#region Requests
@@ -61,6 +65,9 @@ public static class ApiClient
 	{
 		using var request = new HttpRequestMessage(method, route + ToQuery(query)) { Content = content };
 
+		if (!string.IsNullOrWhiteSpace(Token))
+			request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", Token);
+
 		var response = await Http.SendAsync(request);
 		await EnsureSuccess(response);
 
@@ -86,6 +93,9 @@ public static class ApiClient
 	{
 		if (response.IsSuccessStatusCode)
 			return;
+
+		if (response.StatusCode is HttpStatusCode.Unauthorized)
+			throw new UnauthorizedAccessException("Your session has expired. Please log in again.");
 
 		string message = null;
 		try { message = (await response.Content.ReadFromJsonAsync<ApiError>(_json))?.Message; }

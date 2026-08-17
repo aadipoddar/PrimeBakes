@@ -39,6 +39,8 @@ jobs:
                   AzureBlobStorageConnectionString = "${{ secrets.AzureBlobStorageConnectionString }}";
                   AzureBlobStorageAccountKey = "${{ secrets.AzureBlobStorageAccountKey }}";
 
+                  JwtKey = "${{ secrets.JwtKey }}";
+
                   EmailPassword = "${{ secrets.EmailPassword }}";
               }
           }

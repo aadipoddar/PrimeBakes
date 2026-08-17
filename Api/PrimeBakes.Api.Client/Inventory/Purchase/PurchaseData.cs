@@ -1,5 +1,4 @@
-﻿using PrimeBakes.Data;
-using PrimeBakes.Models.Common;
+﻿using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Inventory.Purchase;
 using PrimeBakes.Models.Inventory.RawMaterial;
 

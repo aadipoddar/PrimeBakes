@@ -11,6 +11,7 @@
 	  <PackageReference Include="Dapper" Version="2.1.79" />
 	  <PackageReference Include="MailKit" Version="4.17.0" />
 	  <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.2" />
+	  <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.22.0" />
 	  <PackageReference Include="MimeKit" Version="4.17.0" />
 	  <PackageReference Include="Syncfusion.Licensing" Version="34.2.3" />
   </ItemGroup>

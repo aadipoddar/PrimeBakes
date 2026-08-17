@@ -29,7 +29,7 @@
   <Target Name="TrimUnusedSyncfusionThemes" AfterTargets="ResolveStaticWebAssetsInputs">
     <ItemGroup>
       <StaticWebAsset Remove="@(StaticWebAsset)"
-                      Condition="'%(StaticWebAsset.SourceId)' == 'Syncfusion.Blazor.Themes' AND '$([System.IO.Path]::GetFileName(%(StaticWebAsset.Identity)))' != 'tailwind3.css'" />
+                      Condition="'%(StaticWebAsset.SourceId)' == 'Syncfusion.Blazor.Themes' AND ('$([System.IO.Path]::GetFileName(%(StaticWebAsset.Identity)))' != 'tailwind3.css' OR $([System.String]::Copy('%(StaticWebAsset.Identity)').Contains('customized')))" />
     </ItemGroup>
   </Target>
 

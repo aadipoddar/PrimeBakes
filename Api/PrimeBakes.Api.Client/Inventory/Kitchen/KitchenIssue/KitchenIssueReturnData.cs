@@ -1,5 +1,4 @@
-﻿using PrimeBakes.Data;
-using PrimeBakes.Models.Common;
+﻿using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Inventory.Kitchen.KitchenIssue;
 
 namespace PrimeBakes.Data.Inventory.Kitchen.KitchenIssue;

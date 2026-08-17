@@ -1,5 +1,4 @@
-﻿using PrimeBakes.Data.Common;
-using PrimeBakes.Data.Restaurant.Bill;
+﻿using PrimeBakes.Data.Restaurant.Bill;
 using PrimeBakes.Exports.Restaurant.Bill;
 using PrimeBakes.Models.Restaurant.Bill;
 

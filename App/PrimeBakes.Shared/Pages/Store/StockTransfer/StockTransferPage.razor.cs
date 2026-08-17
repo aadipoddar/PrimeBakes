@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Data.Accounts.Masters;
-using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Operations.Location;
 using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Data.Store.Product;

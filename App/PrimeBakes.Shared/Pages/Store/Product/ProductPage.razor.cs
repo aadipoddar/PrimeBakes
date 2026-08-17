@@ -6,7 +6,6 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
 using Syncfusion.Blazor.Grids;
-using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Store.Product;
 
 namespace PrimeBakes.Shared.Pages.Store.Product;

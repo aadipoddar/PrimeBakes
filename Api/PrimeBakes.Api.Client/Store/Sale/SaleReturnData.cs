@@ -1,5 +1,4 @@
-﻿using PrimeBakes.Data;
-using PrimeBakes.Models.Common;
+﻿using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Store.Customer;
 using PrimeBakes.Models.Store.Sale;
 

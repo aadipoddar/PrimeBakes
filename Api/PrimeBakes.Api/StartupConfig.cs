@@ -1,7 +1,11 @@
-﻿using Microsoft.AspNetCore.Diagnostics;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+
+using PrimeBakes.Data.Operations.User;
 
 using Scalar.AspNetCore;
 
@@ -33,6 +37,20 @@ public static class StartupConfig
 		services.AddOpenApi();
 		services.AddCors();
 		services.AddCarter();
+
+		services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+			.AddJwtBearer(options => options.TokenValidationParameters = new()
+			{
+				IssuerSigningKey = AuthData.SigningKey,
+				ValidateIssuerSigningKey = true,
+				ValidateIssuer = false,
+				ValidateAudience = false,
+				ClockSkew = TimeSpan.Zero
+			});
+
+		services.AddAuthorization(options => options.FallbackPolicy =
+			new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
+
 		services.AddExceptionHandler<GlobalExceptionHandler>();
 		services.AddProblemDetails();
 		services.ConfigureHttpJsonOptions(options => options.SerializerOptions.IncludeFields = true);
@@ -55,12 +73,12 @@ public static class StartupConfig
 
 		if (app.Environment.IsDevelopment())
 		{
-			app.MapOpenApi();
+			app.MapOpenApi().AllowAnonymous();
 			app.MapScalarApiReference(options =>
 			{
 				options.Title = "Prime Bakes API";
 				options.Favicon = "/favicon.png";
-			});
+			}).AllowAnonymous();
 		}
 
 		app.UseHttpsRedirection();
@@ -72,8 +90,11 @@ public static class StartupConfig
 			.AllowAnyHeader()
 			.WithExposedHeaders("Content-Disposition"));
 
+		app.UseAuthentication();
+		app.UseAuthorization();
+
 		app.MapCarter();
-		app.MapGet("/", () => Results.Content(_landing, "text/html"));
+		app.MapGet("/", () => Results.Content(_landing, "text/html")).AllowAnonymous();
 	}
 }
 
