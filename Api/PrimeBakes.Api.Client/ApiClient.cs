@@ -3,7 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace PrimeBakes.Library;
+namespace PrimeBakes.Data;
 
 public static class ApiClient
 {

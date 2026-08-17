@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Components;
 
-using PrimeBakes.Library.Restaurant.Bill.Data;
-using PrimeBakes.Library.Store.Product.Data;
+using PrimeBakes.Data.Common;
+using PrimeBakes.Data.Restaurant.Bill;
+using PrimeBakes.Data.Store.Product;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Models.Restaurant.Bill;
 using PrimeBakes.Models.Restaurant.Dining;

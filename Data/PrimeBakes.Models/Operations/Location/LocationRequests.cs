@@ -1,4 +1,4 @@
-namespace PrimeBakes.Models.Operations.Location;
+﻿namespace PrimeBakes.Models.Operations.Location;
 
 public sealed record LocationSaveRequest(
 	LocationModel Location,

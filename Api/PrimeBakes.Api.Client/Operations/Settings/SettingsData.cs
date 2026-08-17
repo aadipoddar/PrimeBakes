@@ -1,7 +1,8 @@
+﻿using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Operations.Settings;
 
-namespace PrimeBakes.Library.Operations.Settings;
+namespace PrimeBakes.Data.Operations.Settings;
 
 public static class SettingsData
 {
@@ -15,4 +16,7 @@ public static class SettingsData
 
 	public static async Task<int> ResetSettings() =>
 		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(ResetSettings)), new { });
+
+	public static async Task<CompanyModel> LoadPrimaryCompany() =>
+		await ApiClient.Get<CompanyModel>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadPrimaryCompany)));
 }

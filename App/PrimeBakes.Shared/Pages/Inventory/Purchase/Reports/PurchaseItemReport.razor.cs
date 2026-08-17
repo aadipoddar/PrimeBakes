@@ -1,11 +1,6 @@
-using PrimeBakes.Library.Accounts.Masters.Data;
-using PrimeBakes.Library.DataAccess;
-using PrimeBakes.Library.Inventory.Purchase.Data;
-using PrimeBakes.Library.Inventory.Purchase.Exports;
-using PrimeBakes.Library.Operations.Settings;
+﻿using PrimeBakes.Exports.Inventory.Purchase;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.DataAccess;
-using PrimeBakes.Models.Exports;
 using PrimeBakes.Models.Inventory.Purchase;
 using PrimeBakes.Models.Inventory.RawMaterial;
 using PrimeBakes.Models.Operations.Settings;
@@ -14,6 +9,11 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
 using Syncfusion.Blazor.Grids;
+using PrimeBakes.Data.Operations.Settings;
+using PrimeBakes.Data.Common;
+using PrimeBakes.Data.DataAccess;
+using PrimeBakes.Data.Inventory.Purchase;
+using PrimeBakes.Data.Accounts.Masters;
 
 namespace PrimeBakes.Shared.Pages.Inventory.Purchase.Reports;
 
@@ -432,8 +432,9 @@ public partial class PurchaseItemReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var (stream, fileName) = await PurchaseReportExport.ExportItemReport(
+			var (stream, fileName) = PurchaseReportExport.ExportItemReport(
 				_transactionOverviews,
+				await CommonData.LoadCurrentDateTime(),
 				isExcel ? ReportExportType.Excel : ReportExportType.PDF,
 				DateOnly.FromDateTime(_fromDate),
 				DateOnly.FromDateTime(_toDate),

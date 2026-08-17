@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Components;
 
-using PrimeBakes.Library.Accounts.Masters.Data;
-using PrimeBakes.Library.DataAccess;
-using PrimeBakes.Library.Inventory.Purchase.Data;
-using PrimeBakes.Library.Operations.Settings;
+using PrimeBakes.Data.Accounts.Masters;
+using PrimeBakes.Data.Common;
+using PrimeBakes.Data.DataAccess;
+using PrimeBakes.Data.Inventory.Purchase;
+using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Inventory.Purchase;

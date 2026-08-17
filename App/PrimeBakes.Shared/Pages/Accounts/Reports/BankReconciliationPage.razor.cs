@@ -1,16 +1,16 @@
-using PrimeBakes.Library.Accounts.FinancialAccounting.Data;
-using PrimeBakes.Library.Accounts.FinancialAccounting.Exports;
-using PrimeBakes.Library.Accounts.Masters.Data;
-using PrimeBakes.Library.Operations.Settings;
+﻿using PrimeBakes.Exports.Accounts.FinancialAccounting;
 using PrimeBakes.Models.Accounts.FinancialAccounting;
 using PrimeBakes.Models.Accounts.Masters;
-using PrimeBakes.Models.Exports;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
 using Syncfusion.Blazor.Grids;
+using PrimeBakes.Data.Operations.Settings;
+using PrimeBakes.Data.Common;
+using PrimeBakes.Data.Accounts.FinancialAccounting;
+using PrimeBakes.Data.Accounts.Masters;
 
 namespace PrimeBakes.Shared.Pages.Accounts.Reports;
 
@@ -344,8 +344,9 @@ public partial class BankReconciliationPage : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var (stream, fileName) = await FinancialAccountingReportExport.ExportLedgerReport(
+			var (stream, fileName) = FinancialAccountingReportExport.ExportLedgerReport(
 				_transactionOverviews,
+				await CommonData.LoadCurrentDateTime(),
 				isExcel ? ReportExportType.Excel : ReportExportType.PDF,
 				DateOnly.FromDateTime(_fromDate),
 				DateOnly.FromDateTime(_toDate),

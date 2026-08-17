@@ -1,12 +1,12 @@
-using PrimeBakes.Library.Inventory.RawMaterial.Data;
-using PrimeBakes.Library.Inventory.RawMaterial.Exports;
-using PrimeBakes.Models.Exports;
+﻿using PrimeBakes.Exports.Inventory.RawMaterial;
 using PrimeBakes.Models.Inventory.RawMaterial;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
 using Syncfusion.Blazor.Grids;
+using PrimeBakes.Data.Common;
+using PrimeBakes.Data.Inventory.RawMaterial;
 
 namespace PrimeBakes.Shared.Pages.Inventory.RawMaterial;
 
@@ -196,7 +196,7 @@ public partial class RawMaterialCategoryPage
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var (stream, fileName) = await RawMaterialCategoryExport.ExportMaster(_rawMaterialCategories, isExcel ? ReportExportType.Excel : ReportExportType.PDF);
+			var (stream, fileName) = RawMaterialCategoryExport.ExportMaster(_rawMaterialCategories, await CommonData.LoadCurrentDateTime(), isExcel ? ReportExportType.Excel : ReportExportType.PDF);
 			await SaveAndViewService.SaveAndView(fileName, stream);
 
 			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);

@@ -1,6 +1,7 @@
-using PrimeBakes.Library.Accounts.Masters.Data;
-using PrimeBakes.Library.Operations.Settings;
-using PrimeBakes.Library.Store.Order.Data;
+using PrimeBakes.Data.Accounts.Masters;
+using PrimeBakes.Data.Common;
+using PrimeBakes.Data.Operations.Settings;
+using PrimeBakes.Data.Store.Order;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Models.Store.Order;

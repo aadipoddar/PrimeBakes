@@ -1,12 +1,12 @@
-using PrimeBakes.Library.Inventory.Kitchen.Data;
-using PrimeBakes.Library.Inventory.Kitchen.Exports;
-using PrimeBakes.Models.Exports;
+﻿using PrimeBakes.Exports.Inventory.Kitchen;
 using PrimeBakes.Models.Inventory.Kitchen;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
 using Syncfusion.Blazor.Grids;
+using PrimeBakes.Data.Common;
+using PrimeBakes.Data.Inventory.Kitchen;
 
 namespace PrimeBakes.Shared.Pages.Inventory.Kitchen;
 
@@ -196,7 +196,7 @@ public partial class KitchenPage
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var (stream, fileName) = await KitchenExport.ExportMaster(_kitchens, isExcel ? ReportExportType.Excel : ReportExportType.PDF);
+			var (stream, fileName) = KitchenExport.ExportMaster(_kitchens, await CommonData.LoadCurrentDateTime(), isExcel ? ReportExportType.Excel : ReportExportType.PDF);
 			await SaveAndViewService.SaveAndView(fileName, stream);
 
 			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);

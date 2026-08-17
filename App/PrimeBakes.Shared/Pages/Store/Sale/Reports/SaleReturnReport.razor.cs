@@ -1,9 +1,5 @@
-using PrimeBakes.Library.Accounts.Masters.Data;
-using PrimeBakes.Library.Operations.Settings;
-using PrimeBakes.Library.Store.Sale.Data;
-using PrimeBakes.Library.Store.Sale.Exports;
+﻿using PrimeBakes.Exports.Store.Sale;
 using PrimeBakes.Models.Accounts.Masters;
-using PrimeBakes.Models.Exports;
 using PrimeBakes.Models.Operations.Location;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
@@ -12,6 +8,10 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
 using Syncfusion.Blazor.Grids;
+using PrimeBakes.Data.Operations.Settings;
+using PrimeBakes.Data.Common;
+using PrimeBakes.Data.Store.Sale;
+using PrimeBakes.Data.Accounts.Masters;
 
 namespace PrimeBakes.Shared.Pages.Store.Sale.Reports;
 
@@ -322,8 +322,9 @@ public partial class SaleReturnReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var (stream, fileName) = await SaleReturnReportExport.ExportReport(
+			var (stream, fileName) = SaleReturnReportExport.ExportReport(
 				_transactionOverviews,
+				await CommonData.LoadCurrentDateTime(),
 				isExcel ? ReportExportType.Excel : ReportExportType.PDF,
 				DateOnly.FromDateTime(_fromDate),
 				DateOnly.FromDateTime(_toDate),

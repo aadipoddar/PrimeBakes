@@ -1,4 +1,4 @@
-using PrimeBakes.Models.Operations.Location;
+﻿using PrimeBakes.Models.Operations.Location;
 
 namespace PrimeBakes.Models.Store.Product;
 

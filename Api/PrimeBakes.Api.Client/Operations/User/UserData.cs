@@ -1,7 +1,7 @@
 using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Operations.User;
 
-namespace PrimeBakes.Library.Operations.User;
+namespace PrimeBakes.Data.Operations.User;
 
 public static class UserData
 {

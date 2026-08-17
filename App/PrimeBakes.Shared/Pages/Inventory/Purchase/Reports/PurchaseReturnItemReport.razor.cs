@@ -1,11 +1,6 @@
-using PrimeBakes.Library.Accounts.Masters.Data;
-using PrimeBakes.Library.DataAccess;
-using PrimeBakes.Library.Inventory.Purchase.Data;
-using PrimeBakes.Library.Inventory.Purchase.Exports;
-using PrimeBakes.Library.Operations.Settings;
+﻿using PrimeBakes.Exports.Inventory.Purchase;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.DataAccess;
-using PrimeBakes.Models.Exports;
 using PrimeBakes.Models.Inventory.Purchase;
 using PrimeBakes.Models.Inventory.RawMaterial;
 using PrimeBakes.Models.Operations.Settings;
@@ -14,6 +9,11 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
 using Syncfusion.Blazor.Grids;
+using PrimeBakes.Data.Operations.Settings;
+using PrimeBakes.Data.Common;
+using PrimeBakes.Data.DataAccess;
+using PrimeBakes.Data.Inventory.Purchase;
+using PrimeBakes.Data.Accounts.Masters;
 
 namespace PrimeBakes.Shared.Pages.Inventory.Purchase.Reports;
 
@@ -263,13 +263,12 @@ public partial class PurchaseReturnItemReport : IAsyncDisposable
 
 			var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(transactionNo, false, false);
 			var platform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
-			var currentDateTime = await CommonData.LoadCurrentDateTime();
 
 			var purchaseReturn = await CommonData.LoadTableDataById<PurchaseReturnModel>(InventoryNames.PurchaseReturn, id)
 				?? throw new Exception("Transaction not found.");
 			purchaseReturn.Status = isRecover;
 			purchaseReturn.LastModifiedBy = _user.Id;
-			purchaseReturn.LastModifiedAt = currentDateTime;
+			purchaseReturn.LastModifiedAt = await CommonData.LoadCurrentDateTime();
 			purchaseReturn.LastModifiedFromPlatform = platform;
 
 			if (isRecover) await PurchaseReturnData.RecoverTransaction(purchaseReturn);
@@ -337,8 +336,9 @@ public partial class PurchaseReturnItemReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var (stream, fileName) = await PurchaseReturnReportExport.ExportItemReport(
+			var (stream, fileName) = PurchaseReturnReportExport.ExportItemReport(
 				_transactionOverviews,
+				await CommonData.LoadCurrentDateTime(),
 				isExcel ? ReportExportType.Excel : ReportExportType.PDF,
 				DateOnly.FromDateTime(_fromDate),
 				DateOnly.FromDateTime(_toDate),

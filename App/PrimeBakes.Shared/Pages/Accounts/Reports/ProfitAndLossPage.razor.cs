@@ -1,16 +1,16 @@
-using PrimeBakes.Library.Accounts.FinancialAccounting.Data;
-using PrimeBakes.Library.Accounts.FinancialAccounting.Exports;
-using PrimeBakes.Library.Accounts.Masters.Data;
-using PrimeBakes.Library.Operations.Settings;
+﻿using PrimeBakes.Exports.Accounts.FinancialAccounting;
 using PrimeBakes.Models.Accounts.FinancialAccounting;
 using PrimeBakes.Models.Accounts.Masters;
-using PrimeBakes.Models.Exports;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
 using Syncfusion.Blazor.Grids;
+using PrimeBakes.Data.Operations.Settings;
+using PrimeBakes.Data.Common;
+using PrimeBakes.Data.Accounts.FinancialAccounting;
+using PrimeBakes.Data.Accounts.Masters;
 
 namespace PrimeBakes.Shared.Pages.Accounts.Reports;
 
@@ -142,9 +142,11 @@ public partial class ProfitAndLossPage : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
+			var currentDateTime = await CommonData.LoadCurrentDateTime();
 			// Export Income Statement
-			var (incomeStream, incomeFileName) = await ProfitAndLossReportExport.ExportIncomeReport(
+			var (incomeStream, incomeFileName) = ProfitAndLossReportExport.ExportIncomeReport(
 					_incomeTrialBalance,
+					currentDateTime,
 					isExcel ? ReportExportType.Excel : ReportExportType.PDF,
 					DateOnly.FromDateTime(_fromDate),
 					DateOnly.FromDateTime(_toDate),
@@ -154,8 +156,9 @@ public partial class ProfitAndLossPage : IAsyncDisposable
 			await SaveAndViewService.SaveAndView(incomeFileName, incomeStream);
 
 			// Export Expense Statement
-			var (expenseStream, expenseFileName) = await ProfitAndLossReportExport.ExportExpenseReport(
+			var (expenseStream, expenseFileName) = ProfitAndLossReportExport.ExportExpenseReport(
 					_expenseTrialBalance,
+					currentDateTime,
 					isExcel ? ReportExportType.Excel : ReportExportType.PDF,
 					DateOnly.FromDateTime(_fromDate),
 					DateOnly.FromDateTime(_toDate),

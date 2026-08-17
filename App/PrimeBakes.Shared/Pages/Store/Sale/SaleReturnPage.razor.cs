@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Components;
 
-using PrimeBakes.Library.Accounts.Masters.Data;
-using PrimeBakes.Library.Operations.Settings;
-using PrimeBakes.Library.Store.Customer.Data;
-using PrimeBakes.Library.Store.Product.Data;
-using PrimeBakes.Library.Store.Sale.Data;
+using PrimeBakes.Data.Accounts.Masters;
+using PrimeBakes.Data.Common;
+using PrimeBakes.Data.Operations.Settings;
+using PrimeBakes.Data.Store.Customer;
+using PrimeBakes.Data.Store.Product;
+using PrimeBakes.Data.Store.Sale;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Operations.Location;
 using PrimeBakes.Models.Operations.Settings;

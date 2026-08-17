@@ -1,8 +1,5 @@
-using PrimeBakes.Library.Accounts.Masters.Data;
-using PrimeBakes.Library.Operations.Settings;
-using PrimeBakes.Library.Store.Customer.Exports;
+﻿using PrimeBakes.Exports.Store.Customer;
 using PrimeBakes.Models.Accounts.Masters;
-using PrimeBakes.Models.Exports;
 using PrimeBakes.Models.Operations.Location;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
@@ -13,6 +10,9 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
 using Syncfusion.Blazor.Grids;
+using PrimeBakes.Data.Operations.Settings;
+using PrimeBakes.Data.Common;
+using PrimeBakes.Data.Accounts.Masters;
 
 namespace PrimeBakes.Shared.Pages.Store.Customer.Reports;
 
@@ -247,8 +247,9 @@ public partial class CustomerSummaryReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var (stream, fileName) = await CustomerSummaryReportExport.ExportReport(
+			var (stream, fileName) = CustomerSummaryReportExport.ExportReport(
 				_customerSummaries,
+				await CommonData.LoadCurrentDateTime(),
 				isExcel ? ReportExportType.Excel : ReportExportType.PDF,
 				DateOnly.FromDateTime(_fromDate),
 				DateOnly.FromDateTime(_toDate),

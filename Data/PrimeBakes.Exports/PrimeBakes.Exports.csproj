@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Utils\Resources\logo.png" />
+    <EmbeddedResource Include="Utils\Resources\logo_full.png" />
+    <EmbeddedResource Include="Utils\Resources\Roboto-Bold.ttf" />
+    <EmbeddedResource Include="Utils\Resources\Roboto-SemiBold.ttf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NumericWordsConversion" Version="2.1.1" />
+    <PackageReference Include="QRCoder" Version="1.8.0" />
+    <PackageReference Include="SkiaSharp" Version="3.119.4" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.4" />
+    <PackageReference Include="Syncfusion.Pdf.Net.Core" Version="34.2.3" />
+    <PackageReference Include="Syncfusion.XlsIO.Net.Core" Version="34.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PrimeBakes.Models\PrimeBakes.Models.csproj" />
+  </ItemGroup>
+
+</Project>

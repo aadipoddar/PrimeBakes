@@ -1,10 +1,6 @@
-using Microsoft.AspNetCore.Components;
-
-using PrimeBakes.Library.Accounts.Masters.Data;
-using PrimeBakes.Library.Operations.AuditTrail;
-using PrimeBakes.Library.Operations.Settings;
+﻿using Microsoft.AspNetCore.Components;
+using PrimeBakes.Exports.Operations.AuditTrail;
 using PrimeBakes.Models.Accounts.Masters;
-using PrimeBakes.Models.Exports;
 using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
@@ -14,6 +10,9 @@ using PrimeBakes.Shared.Components.Input;
 using Syncfusion.Blazor.Grids;
 
 using System.Text;
+using PrimeBakes.Data.Operations.Settings;
+using PrimeBakes.Data.Common;
+using PrimeBakes.Data.Accounts.Masters;
 
 namespace PrimeBakes.Shared.Pages.Operations;
 
@@ -169,8 +168,9 @@ public partial class AuditTrailReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var (stream, fileName) = await AuditTrailExport.ExportReport(
+			var (stream, fileName) = AuditTrailExport.ExportReport(
 				_auditTrails,
+				await CommonData.LoadCurrentDateTime(),
 				isExcel ? ReportExportType.Excel : ReportExportType.PDF,
 				DateOnly.FromDateTime(_fromDate),
 				DateOnly.FromDateTime(_toDate),

@@ -1,9 +1,5 @@
-using PrimeBakes.Library.Accounts.Masters.Data;
-using PrimeBakes.Library.Inventory.Stock.Data;
-using PrimeBakes.Library.Inventory.Stock.Exports;
-using PrimeBakes.Library.Operations.Settings;
+﻿using PrimeBakes.Exports.Inventory.Stock;
 using PrimeBakes.Models.Accounts.Masters;
-using PrimeBakes.Models.Exports;
 using PrimeBakes.Models.Inventory.Stock;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
@@ -11,6 +7,10 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
 using Syncfusion.Blazor.Grids;
+using PrimeBakes.Data.Operations.Settings;
+using PrimeBakes.Data.Common;
+using PrimeBakes.Data.Inventory.Stock;
+using PrimeBakes.Data.Accounts.Masters;
 
 namespace PrimeBakes.Shared.Pages.Inventory.Stock.Reports;
 
@@ -273,8 +273,9 @@ public partial class RawMaterialStockDetailReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var (stream, fileName) = await RawMaterialStockReportExport.ExportDetailsReport(
+			var (stream, fileName) = RawMaterialStockReportExport.ExportDetailsReport(
 				_stockDetails,
+				await CommonData.LoadCurrentDateTime(),
 				isExcel ? ReportExportType.Excel : ReportExportType.PDF,
 				DateOnly.FromDateTime(_fromDate),
 				DateOnly.FromDateTime(_toDate));

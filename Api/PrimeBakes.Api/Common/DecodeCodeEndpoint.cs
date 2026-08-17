@@ -1,4 +1,4 @@
-using PrimeBakes.Library.Common;
+using PrimeBakes.Data.Common;
 using PrimeBakes.Models.Common;
 
 namespace PrimeBakes.Api.Common;

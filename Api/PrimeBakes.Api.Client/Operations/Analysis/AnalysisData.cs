@@ -1,7 +1,7 @@
 using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Operations.Analysis;
 
-namespace PrimeBakes.Library.Operations.Analysis;
+namespace PrimeBakes.Data.Operations.Analysis;
 
 public static class AnalysisData
 {

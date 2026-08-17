@@ -1,12 +1,5 @@
-using Microsoft.AspNetCore.Components;
-
-using PrimeBakes.Library.Accounts.Masters.Data;
-using PrimeBakes.Library.Operations.Settings;
-using PrimeBakes.Library.Store.Customer.Data;
-using PrimeBakes.Library.Store.Order.Data;
-using PrimeBakes.Library.Store.Product.Data;
-using PrimeBakes.Library.Store.Sale.Data;
-using PrimeBakes.Library.Store.Sale.Exports;
+﻿using Microsoft.AspNetCore.Components;
+using PrimeBakes.Exports.Store.Sale;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Operations.Location;
 using PrimeBakes.Models.Operations.Settings;
@@ -22,6 +15,13 @@ using PrimeBakes.Shared.Components.Input;
 using Syncfusion.Blazor.Grids;
 
 using System.Text.Json;
+using PrimeBakes.Data.Operations.Settings;
+using PrimeBakes.Data.Common;
+using PrimeBakes.Data.Store.Sale;
+using PrimeBakes.Data.Store.Product;
+using PrimeBakes.Data.Store.Order;
+using PrimeBakes.Data.Store.Customer;
+using PrimeBakes.Data.Accounts.Masters;
 
 namespace PrimeBakes.Shared.Pages.Store.Sale;
 
@@ -1186,9 +1186,11 @@ public partial class SalePage
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating Thermal invoice...", ToastType.Info);
 
+			var thermalBundle = await SaleData.LoadThermalBundle(_sale.Id);
+
 			await ThermalPrintDispatcher.PrintAsync(
-				() => SaleThermalPrint.GenerateThermalBill(_sale.Id),
-				() => SaleThermalPrint.GenerateThermalBillPng(_sale.Id));
+				() => Task.FromResult(SaleThermalPrint.GenerateThermalBill(thermalBundle)),
+				() => Task.FromResult(SaleThermalPrint.GenerateThermalBillPng(thermalBundle)));
 
 			await _toastNotification.ShowAsync("Print Sent", "Thermal invoice sent to printer.", ToastType.Success);
 		}

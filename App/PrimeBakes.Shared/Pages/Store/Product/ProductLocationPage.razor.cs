@@ -1,6 +1,4 @@
-using PrimeBakes.Library.Store.Product.Data;
-using PrimeBakes.Library.Store.Product.Exports;
-using PrimeBakes.Models.Exports;
+﻿using PrimeBakes.Exports.Store.Product;
 using PrimeBakes.Models.Operations.Location;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Models.Store.Product;
@@ -8,6 +6,8 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
 using Syncfusion.Blazor.Grids;
+using PrimeBakes.Data.Common;
+using PrimeBakes.Data.Store.Product;
 
 namespace PrimeBakes.Shared.Pages.Store.Product;
 
@@ -298,7 +298,7 @@ public partial class ProductLocationPage
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var (stream, fileName) = await ProductLocationExport.ExportMaster(_productLocationOverviews, isExcel ? ReportExportType.Excel : ReportExportType.PDF);
+			var (stream, fileName) = ProductLocationExport.ExportMaster(_productLocationOverviews, _locations, await CommonData.LoadCurrentDateTime(), isExcel ? ReportExportType.Excel : ReportExportType.PDF);
 			await SaveAndViewService.SaveAndView(fileName, stream);
 
 			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);

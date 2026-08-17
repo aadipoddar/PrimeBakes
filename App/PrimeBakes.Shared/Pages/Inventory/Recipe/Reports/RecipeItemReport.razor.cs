@@ -1,8 +1,4 @@
-using PrimeBakes.Library.Inventory.Purchase.Data;
-using PrimeBakes.Library.Inventory.Recipe.Data;
-using PrimeBakes.Library.Inventory.Recipe.Exports;
-using PrimeBakes.Library.Operations.Settings;
-using PrimeBakes.Models.Exports;
+﻿using PrimeBakes.Exports.Inventory.Recipe;
 using PrimeBakes.Models.Inventory.RawMaterial;
 using PrimeBakes.Models.Inventory.Recipe;
 using PrimeBakes.Models.Operations.Settings;
@@ -12,6 +8,10 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
 using Syncfusion.Blazor.Grids;
+using PrimeBakes.Data.Operations.Settings;
+using PrimeBakes.Data.Common;
+using PrimeBakes.Data.Inventory.Recipe;
+using PrimeBakes.Data.Inventory.Purchase;
 
 namespace PrimeBakes.Shared.Pages.Inventory.Recipe.Reports;
 
@@ -302,8 +302,9 @@ public partial class RecipeItemReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var (stream, fileName) = await RecipeReportExport.ExportItemReport(
+			var (stream, fileName) = RecipeReportExport.ExportItemReport(
 				_itemOverviews,
+				await CommonData.LoadCurrentDateTime(),
 				isExcel ? ReportExportType.Excel : ReportExportType.PDF,
 				DateOnly.FromDateTime(_effectiveDateTime),
 				DateOnly.FromDateTime(_costAsOnDateTime),
@@ -337,8 +338,8 @@ public partial class RecipeItemReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var (stream, fileName) = await RecipeInvoiceExport.ExportInvoice(
-				_sfGrid.SelectedRecords.First().MasterId,
+			var (stream, fileName) = RecipeInvoiceExport.ExportInvoice(
+				await RecipeData.LoadInvoiceBundle(_sfGrid.SelectedRecords.First().MasterId),
 				isExcel ? InvoiceExportType.Excel : InvoiceExportType.PDF,
 				_costAsOnDateTime);
 			await SaveAndViewService.SaveAndView(fileName, stream);

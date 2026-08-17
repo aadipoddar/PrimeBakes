@@ -1,7 +1,7 @@
-using PrimeBakes.Library.Accounts.Masters.Data;
-using PrimeBakes.Library.Accounts.Masters.Exports;
+﻿using PrimeBakes.Data.Accounts.Masters;
+using PrimeBakes.Data.Common;
+using PrimeBakes.Exports.Accounts.Masters;
 using PrimeBakes.Models.Accounts.Masters;
-using PrimeBakes.Models.Exports;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
@@ -195,7 +195,7 @@ public partial class AccountTypePage
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var (stream, fileName) = await AccountTypeExport.ExportMaster(_accountTypes, isExcel ? ReportExportType.Excel : ReportExportType.PDF);
+			var (stream, fileName) = AccountTypeExport.ExportMaster(_accountTypes, await CommonData.LoadCurrentDateTime(), isExcel ? ReportExportType.Excel : ReportExportType.PDF);
 			await SaveAndViewService.SaveAndView(fileName, stream);
 
 			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);

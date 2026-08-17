@@ -1,6 +1,6 @@
 using MudBlazor;
 
-using PrimeBakes.Library.Operations.Analysis;
+using PrimeBakes.Data.Operations.Analysis;
 using PrimeBakes.Models.Operations.Analysis;
 
 namespace PrimeBakes.Shared.Components.Dashboard;

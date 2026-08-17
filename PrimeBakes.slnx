@@ -10,11 +10,12 @@
     <Project Path="App/PrimeBakes/PrimeBakes.csproj" />
   </Folder>
   <Folder Name="/Data/">
+    <Project Path="Data/PrimeBakes.Data/PrimeBakes.Data.csproj" Id="1c353f41-9818-4cbd-a848-3db781c4f8ca" />
     <Project Path="Data/PrimeBakes.Database/PrimeBakes.Database.sqlproj" Id="4d32fffa-477f-468f-9585-68d093b452b9">
       <Build />
       <Deploy />
     </Project>
-    <Project Path="Data/PrimeBakes.Library/PrimeBakes.Library.csproj" />
+    <Project Path="Data/PrimeBakes.Exports/PrimeBakes.Exports.csproj" Id="5a79ef3b-15ce-4002-9d06-f70dea775e2e" />
     <Project Path="Data/PrimeBakes.Models/PrimeBakes.Models.csproj" Id="e5b08d30-5838-46d0-8a76-4ecb939b6736" />
   </Folder>
   <Folder Name="/Tools/">

@@ -1,11 +1,11 @@
-using PrimeBakes.Library.Accounts.Masters.Data;
-using PrimeBakes.Library.Operations.Settings;
-using PrimeBakes.Library.Restaurant.Bill.Data;
-using PrimeBakes.Library.Store.Sale.Data;
-using PrimeBakes.Library.Store.Sale.Exports;
-using PrimeBakes.Library.Store.StockTransfer.Data;
+﻿using PrimeBakes.Data.Accounts.Masters;
+using PrimeBakes.Data.Common;
+using PrimeBakes.Data.Operations.Settings;
+using PrimeBakes.Data.Restaurant.Bill;
+using PrimeBakes.Data.Store.Sale;
+using PrimeBakes.Data.Store.StockTransfer;
+using PrimeBakes.Exports.Store.Sale;
 using PrimeBakes.Models.Accounts.Masters;
-using PrimeBakes.Models.Exports;
 using PrimeBakes.Models.Operations.Location;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
@@ -621,8 +621,9 @@ public partial class SaleReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var (stream, fileName) = await SaleReportExport.ExportReport(
+			var (stream, fileName) = SaleReportExport.ExportReport(
 				_transactionOverviews,
+				await CommonData.LoadCurrentDateTime(),
 				isExcel ? ReportExportType.Excel : ReportExportType.PDF,
 				DateOnly.FromDateTime(_fromDate),
 				DateOnly.FromDateTime(_toDate),
@@ -729,9 +730,11 @@ public partial class SaleReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating thermal invoice...", ToastType.Info);
 
+			var thermalBundle = await SaleData.LoadThermalBundle(_sfGrid.SelectedRecords.First().Id);
+
 			await ThermalPrintDispatcher.PrintAsync(
-				() => SaleThermalPrint.GenerateThermalBill(_sfGrid.SelectedRecords.First().Id),
-				() => SaleThermalPrint.GenerateThermalBillPng(_sfGrid.SelectedRecords.First().Id));
+				() => Task.FromResult(SaleThermalPrint.GenerateThermalBill(thermalBundle)),
+				() => Task.FromResult(SaleThermalPrint.GenerateThermalBillPng(thermalBundle)));
 
 			await _toastNotification.ShowAsync("Success", "Thermal invoice generated successfully.", ToastType.Success);
 		}

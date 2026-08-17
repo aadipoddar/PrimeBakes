@@ -65,7 +65,7 @@ public partial class Dashboard
 		if (_isLoading || _isUpdating)
 			return;
 
-		if (Factor.Contains("Web"))
+		if (Factor.Contains("Web") || Factor.Contains("Wasm"))
 			NavigationManager.NavigateTo(OperationRouteNames.Dashboard, true);
 
 		else

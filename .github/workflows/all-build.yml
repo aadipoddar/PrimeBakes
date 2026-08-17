@@ -37,8 +37,11 @@ jobs:
     - name: Build PrimeBakes.Models
       run: dotnet build Data/PrimeBakes.Models/PrimeBakes.Models.csproj --no-restore --configuration Release
 
-    - name: Build PrimeBakes.Library
-      run: dotnet build Data/PrimeBakes.Library/PrimeBakes.Library.csproj --no-restore --configuration Release
+    - name: Build PrimeBakes.Exports
+      run: dotnet build Data/PrimeBakes.Exports/PrimeBakes.Exports.csproj --no-restore --configuration Release
+
+    - name: Build PrimeBakes.Data
+      run: dotnet build Data/PrimeBakes.Data/PrimeBakes.Data.csproj --no-restore --configuration Release
 
     - name: Build PrimeBakes.Api.Client
       run: dotnet build Api/PrimeBakes.Api.Client/PrimeBakes.Api.Client.csproj --no-restore --configuration Release

@@ -1,6 +1,6 @@
-using MudBlazor.Services;
+﻿using MudBlazor.Services;
 
-using PrimeBakes.Library;
+using PrimeBakes.Data;
 using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Shared.Services;
 using PrimeBakes.Web.Components;
@@ -9,10 +9,12 @@ using PrimeBakes.Web.Services;
 using Syncfusion.Blazor;
 using Syncfusion.Licensing;
 
+using System.Net;
+
 var builder = WebApplication.CreateBuilder(args);
 
 SyncfusionLicenseProvider.RegisterLicense(CommonSecrets.SyncfusionLicense);
-ApiClient.Init(new HttpClient
+ApiClient.Init(new HttpClient(new SocketsHttpHandler { AutomaticDecompression = DecompressionMethods.All })
 {
 	BaseAddress = new Uri(CommonSecrets.ApiBaseUrl),
 	Timeout = TimeSpan.FromMinutes(10)

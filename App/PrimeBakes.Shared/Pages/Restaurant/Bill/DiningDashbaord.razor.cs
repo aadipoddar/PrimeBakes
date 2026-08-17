@@ -1,5 +1,6 @@
-using PrimeBakes.Library.Restaurant.Bill.Data;
-using PrimeBakes.Library.Restaurant.Dining.Data;
+using PrimeBakes.Data.Common;
+using PrimeBakes.Data.Restaurant.Bill;
+using PrimeBakes.Data.Restaurant.Dining;
 using PrimeBakes.Models.Operations.Location;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Models.Restaurant.Bill;

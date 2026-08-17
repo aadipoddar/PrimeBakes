@@ -1,7 +1,8 @@
+using PrimeBakes.Data;
 using PrimeBakes.Models.Common;
 using PrimeBakes.Models.DataAccess;
 
-namespace PrimeBakes.Library.DataAccess;
+namespace PrimeBakes.Data.DataAccess;
 
 public static class BlobStorageAccess
 {

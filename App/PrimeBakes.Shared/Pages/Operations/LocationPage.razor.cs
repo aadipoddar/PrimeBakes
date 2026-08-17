@@ -1,7 +1,8 @@
-using PrimeBakes.Library.Operations.Location;
-using PrimeBakes.Library.Restaurant.Menu.Exports;
+﻿using PrimeBakes.Data.Common;
+using PrimeBakes.Data.Operations.Location;
+using PrimeBakes.Exports.Operations.Location;
+using PrimeBakes.Exports.Restaurant.Menu;
 using PrimeBakes.Models.Accounts.Masters;
-using PrimeBakes.Models.Exports;
 using PrimeBakes.Models.Operations.Location;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Shared.Components.Dialog;
@@ -207,7 +208,7 @@ public partial class LocationPage
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var (stream, fileName) = await LocationExport.ExportMaster(_locations, isExcel ? ReportExportType.Excel : ReportExportType.PDF);
+			var (stream, fileName) = LocationExport.ExportMaster(_locations, _ledgers, await CommonData.LoadCurrentDateTime(), isExcel ? ReportExportType.Excel : ReportExportType.PDF);
 			await SaveAndViewService.SaveAndView(fileName, stream);
 
 			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);
@@ -239,7 +240,7 @@ public partial class LocationPage
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
 			var location = selectedRecords[0];
-			var (stream, fileName) = await MenuQRExport.ExportMenuQRCode(location.Id, location.Name);
+			var (stream, fileName) = MenuQRExport.ExportMenuQRCode(location.Id, location.Name, await CommonData.LoadCurrentDateTime());
 			await SaveAndViewService.SaveAndView(fileName, stream);
 
 			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);

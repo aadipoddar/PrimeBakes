@@ -1,4 +1,4 @@
-﻿using PrimeBakes.Library.DataAccess;
+﻿using PrimeBakes.Data.DataAccess;
 
 SqlDataAccess.SetupConfiguration();
 

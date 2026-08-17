@@ -1,4 +1,6 @@
-using PrimeBakes.Library.Restaurant.Bill.Exports;
+﻿using PrimeBakes.Data.Common;
+using PrimeBakes.Data.Restaurant.Bill;
+using PrimeBakes.Exports.Restaurant.Bill;
 using PrimeBakes.Models.Restaurant.Bill;
 
 using System.Text.Json;
@@ -58,9 +60,11 @@ public partial class BillMobileConfirmationPage
 			_isPrinting = true;
 			StateHasChanged();
 
+			var thermalBundle = await BillData.LoadThermalBundle(_bill.Id);
+
 			await ThermalPrintDispatcher.PrintAsync(
-				() => BillThermalPrint.GenerateThermalBill(_bill.Id),
-				() => BillThermalPrint.GenerateThermalBillPng(_bill.Id));
+				() => Task.FromResult(BillThermalPrint.GenerateThermalBill(thermalBundle)),
+				() => Task.FromResult(BillThermalPrint.GenerateThermalBillPng(thermalBundle)));
 		}
 		finally
 		{

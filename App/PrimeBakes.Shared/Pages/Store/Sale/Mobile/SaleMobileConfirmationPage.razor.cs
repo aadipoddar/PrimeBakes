@@ -1,4 +1,5 @@
-using PrimeBakes.Library.Store.Sale.Exports;
+﻿using PrimeBakes.Data.Store.Sale;
+using PrimeBakes.Exports.Store.Sale;
 using PrimeBakes.Models.Store.Sale;
 
 using System.Text.Json;
@@ -56,9 +57,11 @@ public partial class SaleMobileConfirmationPage
 			_isPrinting = true;
 			StateHasChanged();
 
+			var thermalBundle = await SaleData.LoadThermalBundle(_sale.Id);
+
 			await ThermalPrintDispatcher.PrintAsync(
-				() => SaleThermalPrint.GenerateThermalBill(_sale.Id),
-				() => SaleThermalPrint.GenerateThermalBillPng(_sale.Id));
+				() => Task.FromResult(SaleThermalPrint.GenerateThermalBill(thermalBundle)),
+				() => Task.FromResult(SaleThermalPrint.GenerateThermalBillPng(thermalBundle)));
 		}
 		finally
 		{

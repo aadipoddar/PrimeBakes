@@ -1,5 +1,6 @@
-using Microsoft.AspNetCore.Diagnostics;
+﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 using Scalar.AspNetCore;
@@ -36,6 +37,12 @@ public static class StartupConfig
 		services.AddProblemDetails();
 		services.ConfigureHttpJsonOptions(options => options.SerializerOptions.IncludeFields = true);
 
+		services.AddResponseCompression(options =>
+		{
+			options.EnableForHttps = true;
+			options.MimeTypes = [.. ResponseCompressionDefaults.MimeTypes, "application/json"];
+		});
+
 		services.Configure<KestrelServerOptions>(options => options.Limits.MaxRequestBodySize = _maxRequestBytes);
 		services.Configure<IISServerOptions>(options => options.MaxRequestBodySize = _maxRequestBytes);
 		services.Configure<FormOptions>(options => options.MultipartBodyLengthLimit = _maxRequestBytes);
@@ -44,6 +51,7 @@ public static class StartupConfig
 	public static void UseServices(this WebApplication app)
 	{
 		app.UseExceptionHandler();
+		app.UseResponseCompression();
 
 		if (app.Environment.IsDevelopment())
 		{

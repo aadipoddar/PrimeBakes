@@ -1,5 +1,6 @@
-using PrimeBakes.Library.Operations.User;
-using PrimeBakes.Models.Exports;
+﻿using PrimeBakes.Data.Common;
+using PrimeBakes.Data.Operations.User;
+using PrimeBakes.Exports.Operations.User;
 using PrimeBakes.Models.Operations.Location;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Shared.Components.Dialog;
@@ -202,7 +203,7 @@ public partial class UserPage
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var (stream, fileName) = await UserExport.ExportMaster(_users, isExcel ? ReportExportType.Excel : ReportExportType.PDF);
+			var (stream, fileName) = UserExport.ExportMaster(_users, _locations, await CommonData.LoadCurrentDateTime(), isExcel ? ReportExportType.Excel : ReportExportType.PDF);
 			await SaveAndViewService.SaveAndView(fileName, stream);
 
 			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);

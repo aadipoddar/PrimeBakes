@@ -28,7 +28,7 @@ jobs:
       - name: Create Secrets.local_secrets.cs
         run: |
           $secretsContent = @'
-          namespace PrimeBakes.Library.DataAccess;
+          namespace PrimeBakes.Data.DataAccess;
 
           public static partial class Secrets
           {
@@ -43,7 +43,7 @@ jobs:
               }
           }
           '@
-          Set-Content -Path "Data/PrimeBakes.Library/DataAccess/Secrets.local_secrets.cs" -Value $secretsContent
+          Set-Content -Path "Data/PrimeBakes.Data/DataAccess/Secrets.local_secrets.cs" -Value $secretsContent
         shell: pwsh
 
       - name: Create CommonSecrets.local_secrets.cs

@@ -1,5 +1,5 @@
-using PrimeBakes.Library.Store.Order.Exports;
-using PrimeBakes.Models.Exports;
+﻿using PrimeBakes.Data.Store.Order;
+using PrimeBakes.Exports.Store.Order;
 using PrimeBakes.Models.Store.Order;
 
 namespace PrimeBakes.Shared.Pages.Store.Order.Mobile;
@@ -41,7 +41,7 @@ public partial class OrderMobileConfirmationPage
 			_isPrinting = true;
 			StateHasChanged();
 
-			var (pdfStream, fileName) = await OrderInvoiceExport.ExportInvoice(_order.Id, InvoiceExportType.PDF);
+			var (pdfStream, fileName) = OrderInvoiceExport.ExportInvoice(await OrderData.LoadInvoiceBundle(_order.Id), InvoiceExportType.PDF);
 			await SaveAndViewService.SaveAndView(fileName, pdfStream);
 		}
 		finally

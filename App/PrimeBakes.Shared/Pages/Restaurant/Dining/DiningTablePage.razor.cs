@@ -1,12 +1,12 @@
-using PrimeBakes.Library.Restaurant.Dining.Data;
-using PrimeBakes.Library.Restaurant.Dining.Exports;
-using PrimeBakes.Models.Exports;
+﻿using PrimeBakes.Exports.Restaurant.Dining;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Models.Restaurant.Dining;
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
 using Syncfusion.Blazor.Grids;
+using PrimeBakes.Data.Common;
+using PrimeBakes.Data.Restaurant.Dining;
 
 namespace PrimeBakes.Shared.Pages.Restaurant.Dining;
 
@@ -204,7 +204,7 @@ public partial class DiningTablePage
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var (stream, fileName) = await DiningTableExport.ExportMaster(_diningTables, isExcel ? ReportExportType.Excel : ReportExportType.PDF);
+			var (stream, fileName) = DiningTableExport.ExportMaster(_diningTables, _diningAreas, await CommonData.LoadCurrentDateTime(), isExcel ? ReportExportType.Excel : ReportExportType.PDF);
 			await SaveAndViewService.SaveAndView(fileName, stream);
 
 			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);

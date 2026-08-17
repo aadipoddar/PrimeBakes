@@ -1,5 +1,6 @@
-using PrimeBakes.Library.Inventory.Stock.Data;
-using PrimeBakes.Library.Store.Product.Data;
+using PrimeBakes.Data.Common;
+using PrimeBakes.Data.Inventory.Stock;
+using PrimeBakes.Data.Store.Product;
 using PrimeBakes.Models.Inventory.Stock;
 using PrimeBakes.Models.Operations.Location;
 using PrimeBakes.Models.Operations.User;

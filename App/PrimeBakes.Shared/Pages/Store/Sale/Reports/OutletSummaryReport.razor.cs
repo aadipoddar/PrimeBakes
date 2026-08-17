@@ -1,10 +1,5 @@
-using PrimeBakes.Library.Accounts.Masters.Data;
-using PrimeBakes.Library.Operations.Location;
-using PrimeBakes.Library.Operations.Settings;
-using PrimeBakes.Library.Store.Sale.Exports;
+﻿using PrimeBakes.Exports.Store.Sale;
 using PrimeBakes.Models.Accounts.Masters;
-using PrimeBakes.Models.Exports;
-using PrimeBakes.Models.Inventory.Kitchen;
 using PrimeBakes.Models.Inventory.Purchase;
 using PrimeBakes.Models.Operations.Location;
 using PrimeBakes.Models.Operations.Settings;
@@ -16,6 +11,12 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
 using Syncfusion.Blazor.Grids;
+using PrimeBakes.Models.Inventory.Kitchen.KitchenIssue;
+using PrimeBakes.Models.Inventory.Kitchen.KitchenProduction;
+using PrimeBakes.Data.Operations.Settings;
+using PrimeBakes.Data.Operations.Location;
+using PrimeBakes.Data.Common;
+using PrimeBakes.Data.Accounts.Masters;
 
 namespace PrimeBakes.Shared.Pages.Store.Sale.Reports;
 
@@ -278,8 +279,9 @@ public partial class OutletSummaryReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var (stream, fileName) = await OutletSummaryReportExport.ExportReport(
+			var (stream, fileName) = OutletSummaryReportExport.ExportReport(
 				_outletSummaries,
+				await CommonData.LoadCurrentDateTime(),
 				isExcel ? ReportExportType.Excel : ReportExportType.PDF,
 				DateOnly.FromDateTime(_fromDate),
 				DateOnly.FromDateTime(_toDate),

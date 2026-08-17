@@ -1,12 +1,12 @@
-using PrimeBakes.Library.Store.Customer.Data;
-using PrimeBakes.Library.Store.Customer.Exports;
-using PrimeBakes.Models.Exports;
+﻿using PrimeBakes.Exports.Store.Customer;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Models.Store.Customer;
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
 using Syncfusion.Blazor.Grids;
+using PrimeBakes.Data.Common;
+using PrimeBakes.Data.Store.Customer;
 
 namespace PrimeBakes.Shared.Pages.Store.Customer;
 
@@ -118,7 +118,7 @@ public partial class CustomerPage
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var (stream, fileName) = await CustomerExport.ExportMaster(_customers, isExcel ? ReportExportType.Excel : ReportExportType.PDF);
+			var (stream, fileName) = CustomerExport.ExportMaster(_customers, await CommonData.LoadCurrentDateTime(), isExcel ? ReportExportType.Excel : ReportExportType.PDF);
 			await SaveAndViewService.SaveAndView(fileName, stream);
 
 			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);

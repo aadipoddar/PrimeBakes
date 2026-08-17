@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
 using MudBlazor.Services;
 
-using PrimeBakes.Library;
+using PrimeBakes.Data;
 using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Shared.Services;
 using PrimeBakes.Wasm;

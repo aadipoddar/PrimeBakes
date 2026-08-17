@@ -1,6 +1,7 @@
+using PrimeBakes.Data;
 using PrimeBakes.Models.Common;
 
-namespace PrimeBakes.Library.Common;
+namespace PrimeBakes.Data.Common;
 
 public static class CommonData
 {

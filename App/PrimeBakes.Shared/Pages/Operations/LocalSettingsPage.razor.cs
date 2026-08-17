@@ -1,4 +1,6 @@
-using PrimeBakes.Library.Operations.Settings.Exports;
+﻿using PrimeBakes.Data.Common;
+using PrimeBakes.Data.Operations.Settings;
+using PrimeBakes.Exports.Operations.Settings;
 using PrimeBakes.Shared.Components.Dialog;
 
 namespace PrimeBakes.Shared.Pages.Operations;
@@ -189,9 +191,12 @@ public partial class LocalSettingsPage : IAsyncDisposable
 			var printerAddress = BluetoothPrinterService.ConnectedPrinterAddress;
 			var platform = $"{FormFactor.GetFormFactor()} / {FormFactor.GetPlatform()}";
 
+			var testPrintCompany = await SettingsData.LoadPrimaryCompany();
+			var testPrintDateTime = await CommonData.LoadCurrentDateTime();
+
 			await ThermalPrintDispatcher.PrintAsync(
-				() => TestPrintExport.GenerateTestReceipt(printerName, printerAddress, platform),
-				() => TestPrintExport.GenerateTestReceiptPng(printerName, printerAddress, platform));
+				() => Task.FromResult(TestPrintExport.GenerateTestReceipt(printerName, printerAddress, platform, testPrintCompany, testPrintDateTime)),
+				() => Task.FromResult(TestPrintExport.GenerateTestReceiptPng(printerName, printerAddress, platform, testPrintCompany, testPrintDateTime)));
 
 			VibrationService.VibrateHapticClick();
 			await _toastNotification.ShowAsync("Test Print", "Test page sent to printer successfully.", ToastType.Success);

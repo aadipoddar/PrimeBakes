@@ -1,13 +1,14 @@
 using PrimeBakes.Models.Accounts.FinancialAccounting;
 using PrimeBakes.Models.Common;
-using PrimeBakes.Models.Inventory.Kitchen;
+using PrimeBakes.Models.Inventory.Kitchen.KitchenIssue;
+using PrimeBakes.Models.Inventory.Kitchen.KitchenProduction;
 using PrimeBakes.Models.Inventory.Purchase;
 using PrimeBakes.Models.Restaurant.Bill;
 using PrimeBakes.Models.Store.Order;
 using PrimeBakes.Models.Store.Sale;
 using PrimeBakes.Models.Store.StockTransfer;
 
-namespace PrimeBakes.Library.Common;
+namespace PrimeBakes.Data.Common;
 
 public static class GenerateCodes
 {

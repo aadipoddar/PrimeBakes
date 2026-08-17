@@ -1,5 +1,5 @@
 using PrimeBakes.Api;
-using PrimeBakes.Library.DataAccess;
+using PrimeBakes.Data.DataAccess;
 
 var builder = WebApplication.CreateBuilder(args);
 

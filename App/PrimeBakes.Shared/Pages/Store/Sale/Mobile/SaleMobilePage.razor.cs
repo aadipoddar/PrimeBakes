@@ -1,4 +1,5 @@
-using PrimeBakes.Library.Store.Product.Data;
+using PrimeBakes.Data.Common;
+using PrimeBakes.Data.Store.Product;
 using PrimeBakes.Models.Operations.Location;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Models.Store.Product;

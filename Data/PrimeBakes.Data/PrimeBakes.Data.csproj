@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+	<Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+	  <PackageReference Include="Azure.Storage.Blobs" Version="12.29.1" />
+	  <PackageReference Include="Dapper" Version="2.1.79" />
+	  <PackageReference Include="MailKit" Version="4.17.0" />
+	  <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.2" />
+	  <PackageReference Include="MimeKit" Version="4.17.0" />
+	  <PackageReference Include="Syncfusion.Licensing" Version="34.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PrimeBakes.Exports\PrimeBakes.Exports.csproj" />
+    <ProjectReference Include="..\PrimeBakes.Models\PrimeBakes.Models.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="PrimeBakes.Data.DataAccess" />
+  </ItemGroup>
+
+</Project>

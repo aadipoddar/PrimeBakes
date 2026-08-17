@@ -2,7 +2,7 @@ using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Operations.Location;
 
-namespace PrimeBakes.Library.Operations.Location;
+namespace PrimeBakes.Data.Operations.Location;
 
 public static class LocationData
 {

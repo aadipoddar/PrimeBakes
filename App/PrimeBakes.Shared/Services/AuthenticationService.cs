@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
+using PrimeBakes.Data.Common;
 using PrimeBakes.Models.Operations.User;
 
 namespace PrimeBakes.Shared.Services;

@@ -1,10 +1,5 @@
-using Microsoft.AspNetCore.Components;
-
-using PrimeBakes.Library.Accounts.Masters.Data;
-using PrimeBakes.Library.Operations.Settings;
-using PrimeBakes.Library.Restaurant.Bill.Data;
-using PrimeBakes.Library.Restaurant.Bill.Exports;
-using PrimeBakes.Library.Store.Customer.Data;
+﻿using Microsoft.AspNetCore.Components;
+using PrimeBakes.Exports.Restaurant.Bill;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Models.Restaurant.Bill;
@@ -14,6 +9,11 @@ using PrimeBakes.Models.Store.PaymentMode;
 using PrimeBakes.Models.Store.Product;
 
 using System.Text.Json;
+using PrimeBakes.Data.Operations.Settings;
+using PrimeBakes.Data.Common;
+using PrimeBakes.Data.Restaurant.Bill;
+using PrimeBakes.Data.Store.Customer;
+using PrimeBakes.Data.Accounts.Masters;
 
 namespace PrimeBakes.Shared.Pages.Restaurant.Bill.Mobile;
 
@@ -396,9 +396,14 @@ public partial class BillMobilePaymentPage
 		}
 
 		foreach (var kotCategoryId in kotCategoryItems.Keys)
+		{
+			var kotBundle = await BillData.LoadKOTThermalBundle(_bill.Id, kotCategoryId);
+			var kotItems = kotCategoryItems[kotCategoryId];
+
 			await ThermalPrintDispatcher.PrintAsync(
-				async () => await KOTThermalPrint.GenerateThermalBill(_bill.Id, kotCategoryId, kotCategoryItems[kotCategoryId]),
-				async () => await KOTThermalPrint.GenerateThermalBillPng(_bill.Id, kotCategoryId, kotCategoryItems[kotCategoryId]));
+				() => Task.FromResult(KOTThermalPrint.GenerateThermalBill(kotBundle, kotItems)),
+				() => Task.FromResult(KOTThermalPrint.GenerateThermalBillPng(kotBundle, kotItems)));
+		}
 
 		await BillData.MarkKOTAsPrinted(_bill.Id);
 	}
@@ -455,10 +460,14 @@ public partial class BillMobilePaymentPage
 	#endregion
 
 	#region Utilities
-	private async Task PrintThermal() =>
+	private async Task PrintThermal()
+	{
+		var thermalBundle = await BillData.LoadThermalBundle(_bill.Id);
+
 		await ThermalPrintDispatcher.PrintAsync(
-			() => BillThermalPrint.GenerateThermalBill(_bill.Id),
-			() => BillThermalPrint.GenerateThermalBillPng(_bill.Id));
+			() => Task.FromResult(BillThermalPrint.GenerateThermalBill(thermalBundle)),
+			() => Task.FromResult(BillThermalPrint.GenerateThermalBillPng(thermalBundle)));
+	}
 
 	private async Task DeleteCartNavigateDashboard()
 	{

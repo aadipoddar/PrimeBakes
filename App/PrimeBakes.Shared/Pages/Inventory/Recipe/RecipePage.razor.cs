@@ -1,10 +1,5 @@
-using Microsoft.AspNetCore.Components;
-
-using PrimeBakes.Library.Inventory.Purchase.Data;
-using PrimeBakes.Library.Inventory.Recipe.Data;
-using PrimeBakes.Library.Inventory.Recipe.Exports;
-using PrimeBakes.Library.Store.Product.Data;
-using PrimeBakes.Models.Exports;
+﻿using Microsoft.AspNetCore.Components;
+using PrimeBakes.Exports.Inventory.Recipe;
 using PrimeBakes.Models.Inventory.RawMaterial;
 using PrimeBakes.Models.Inventory.Recipe;
 using PrimeBakes.Models.Operations.User;
@@ -13,6 +8,10 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
 using Syncfusion.Blazor.Grids;
+using PrimeBakes.Data.Common;
+using PrimeBakes.Data.Inventory.Recipe;
+using PrimeBakes.Data.Store.Product;
+using PrimeBakes.Data.Inventory.Purchase;
 
 namespace PrimeBakes.Shared.Pages.Inventory.Recipe;
 
@@ -303,7 +302,7 @@ public partial class RecipePage
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var (stream, fileName) = await RecipeInvoiceExport.ExportInvoice(_recipe.Id, isExcel ? InvoiceExportType.Excel : InvoiceExportType.PDF, _costAsOnDateTime);
+			var (stream, fileName) = RecipeInvoiceExport.ExportInvoice(await RecipeData.LoadInvoiceBundle(_recipe.Id), isExcel ? InvoiceExportType.Excel : InvoiceExportType.PDF, _costAsOnDateTime);
 			await SaveAndViewService.SaveAndView(fileName, stream);
 
 			await _toastNotification.ShowAsync("Exported", "The export has been downloaded successfully.", ToastType.Success);

@@ -2,16 +2,17 @@
 using Microsoft.Extensions.Logging;
 #endif
 
+using MudBlazor.Services;
+
+using PrimeBakes.Data;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Services;
 using PrimeBakes.Shared.Services;
-
-using PrimeBakes.Library;
-using PrimeBakes.Models.DataAccess;
 
 using Syncfusion.Blazor;
 using Syncfusion.Licensing;
 
-using MudBlazor.Services;
+using System.Net;
 
 namespace PrimeBakes;
 
@@ -20,7 +21,7 @@ public static class MauiProgram
 	public static MauiApp CreateMauiApp()
 	{
 		SyncfusionLicenseProvider.RegisterLicense(CommonSecrets.SyncfusionLicense);
-		ApiClient.Init(new HttpClient
+		ApiClient.Init(new HttpClient(new SocketsHttpHandler { AutomaticDecompression = DecompressionMethods.All })
 		{
 			BaseAddress = new Uri(CommonSecrets.ApiBaseUrl),
 			Timeout = TimeSpan.FromMinutes(10)
@@ -36,7 +37,6 @@ public static class MauiProgram
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
 			});
 
-		// Add device-specific services used by the PrimeBakes.Shared project
 		builder.Services.AddSingleton<IFormFactor, FormFactor>();
 		builder.Services.AddSingleton<ISaveAndViewService, SaveAndViewService>();
 		builder.Services.AddSingleton<IUpdateService, UpdateService>();

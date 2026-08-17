@@ -1,0 +1,210 @@
+﻿using NumericWordsConversion;
+
+using PrimeBakes.Exports.Utils.Exports;
+using PrimeBakes.Models.Accounts.Masters;
+using PrimeBakes.Models.Common;
+using PrimeBakes.Models.Restaurant.Bill;
+using PrimeBakes.Models.Store.Product;
+
+using SkiaSharp;
+
+namespace PrimeBakes.Exports.Restaurant.Bill;
+
+public static class BillThermalPrint
+{
+	public static byte[] GenerateThermalBill(BillThermalBundle bundle)
+	{
+		using var bitmap = RenderReceipt(bundle);
+		return ThermalPrintUtil.BitmapToEscPosBytes(bitmap);
+	}
+
+	public static byte[] GenerateThermalBillPng(BillThermalBundle bundle)
+	{
+		using var bitmap = RenderReceipt(bundle);
+		return ThermalPrintUtil.BitmapToPngBytes(bitmap);
+	}
+
+	private static SKBitmap RenderReceipt(BillThermalBundle bundle)
+	{
+		var (bill, billDetails, products, company, currentDateTime) = bundle;
+
+		int width = ThermalPrintUtil.PaperDots80mm;
+		int maxHeight = 3000;
+		using var tempBitmap = new SKBitmap(width, maxHeight);
+		using var canvas = new SKCanvas(tempBitmap);
+		canvas.Clear(SKColors.White);
+
+		float y = ThermalPrintUtil.Margin;
+
+		y = DrawCompanyHeader(canvas, company, width, y);
+		y = DrawBillDetails(canvas, bill, width, y);
+		y = DrawItemDetails(canvas, bill, billDetails, products, width, y);
+		y = DrawTotalDetails(canvas, bill, billDetails, width, y);
+		y = DrawPaymentModes(canvas, bill, width, y);
+		y = DrawFooter(canvas, bill, currentDateTime, width, y);
+
+		y += ThermalPrintUtil.Margin;
+
+		return ThermalPrintUtil.CropBitmap(tempBitmap, width, (int)Math.Ceiling(y));
+	}
+
+	private static float DrawCompanyHeader(SKCanvas canvas, CompanyModel company, int width, float y)
+	{
+		y = ThermalPrintUtil.DrawLogo(canvas, width, y);
+
+		if (company is not null)
+			y = ThermalPrintUtil.DrawCompanyHeader(canvas, company, width, y);
+		else
+		{
+			y = ThermalPrintUtil.DrawCenteredText(canvas, "PRIME BAKES", width, y, ThermalPrintUtil.FontSizeTitle, bold: true);
+			y += ThermalPrintUtil.SectionGap;
+		}
+
+		y = ThermalPrintUtil.DrawSeparator(canvas, width, y);
+		return y;
+	}
+
+	private static float DrawBillDetails(SKCanvas canvas, BillOverviewModel bill, int width, float y)
+	{
+		var pairs = new List<(string Label, string Value)>
+		{
+			("Outlet",  bill.LocationName),
+			("Bill No", bill.TransactionNo),
+			("Date",    bill.TransactionDateTime.ToString("dd/MMM/yy hh:mm tt"))
+		};
+
+		if (bill.CustomerId.HasValue && bill.CustomerId.Value > 0 && !string.IsNullOrWhiteSpace(bill.CustomerName))
+			pairs.Add(("Customer", bill.CustomerName));
+
+		y = ThermalPrintUtil.DrawLabelValueBlock(canvas, pairs, width, y);
+
+		// Table and Pax on the same line
+		y = ThermalPrintUtil.DrawSplitRow(canvas,
+			"Table", bill.DiningTableName,
+			"Pax", bill.TotalPeople.ToString(),
+			width, y);
+
+		y = ThermalPrintUtil.DrawSeparator(canvas, width, y);
+		return y;
+	}
+
+	private static float DrawItemDetails(SKCanvas canvas, BillOverviewModel bill, List<BillDetailModel> billDetails, List<ProductModel> products, int width, float y)
+	{
+
+		string[] headers = ["Item", "Qty", "Rate", "Amt"];
+		SKTextAlign[] alignments = [SKTextAlign.Left, SKTextAlign.Center, SKTextAlign.Right, SKTextAlign.Right];
+		float[] columnPercents = [0.44f, 0.14f, 0.20f, 0.22f];
+
+		var rows = new List<string[]>();
+		foreach (var item in billDetails)
+		{
+			string productName = products.FirstOrDefault(p => p.Id == item.ProductId)?.Name ?? "Unknown";
+			var hasExtraTax = !item.InclusiveTax && item.TotalTaxAmount > 0;
+			if (hasExtraTax)
+				productName += " *";
+
+			rows.Add(
+			[
+				productName,
+				item.Quantity.FormatSmartDecimal(),
+				item.Rate.FormatSmartDecimal(),
+				item.BaseTotal.FormatSmartDecimal()
+			]);
+		}
+
+		y = ThermalPrintUtil.DrawTable(canvas, headers, alignments, columnPercents, rows, width, y);
+		y = ThermalPrintUtil.DrawSeparator(canvas, width, y);
+		return y;
+	}
+
+	private static float DrawTotalDetails(SKCanvas canvas, BillOverviewModel bill, List<BillDetailModel> billDetails, int width, float y)
+	{
+
+		float[] columnPercents = [0.44f, 0.14f, 0.20f, 0.22f];
+		SKTextAlign[] alignments = [SKTextAlign.Left, SKTextAlign.Center, SKTextAlign.Right, SKTextAlign.Right];
+
+		var detailRows = new List<(string Label, string Value)>();
+
+		if (bill.DiscountPercent > 0)
+			detailRows.Add(($"Dis ({bill.DiscountPercent}%)", $"- {bill.DiscountAmount.FormatDecimalWithTwoDigits()}"));
+
+		if (bill.ServiceChargePercent > 0)
+			detailRows.Add(($"Service ({bill.ServiceChargePercent}%)", bill.ServiceChargeAmount.FormatDecimalWithTwoDigits()));
+
+		decimal cgst = billDetails.Where(s => !s.InclusiveTax).Sum(s => s.CGSTAmount);
+		if (cgst > 0)
+			detailRows.Add(("CGST", cgst.FormatDecimalWithTwoDigits()));
+
+		decimal sgst = billDetails.Where(s => !s.InclusiveTax).Sum(s => s.SGSTAmount);
+		if (sgst > 0)
+			detailRows.Add(("SGST", sgst.FormatDecimalWithTwoDigits()));
+
+		decimal igst = billDetails.Where(s => !s.InclusiveTax).Sum(s => s.IGSTAmount);
+		if (igst > 0)
+			detailRows.Add(("IGST", igst.FormatDecimalWithTwoDigits()));
+
+		if (bill.RoundOffAmount != 0)
+			detailRows.Add(("Round Off", bill.RoundOffAmount.FormatDecimalWithTwoDigits()));
+
+		y = ThermalPrintUtil.DrawTableTotals(
+			canvas, columnPercents, alignments, width, y,
+			leftLabel: "Qty:",
+			columnValue: bill.TotalQuantity.FormatSmartDecimal(),
+			columnIndex: 1,
+			rightPair: ("Sub", bill.TotalAfterTax.FormatDecimalWithTwoDigits()),
+			additionalRightRows: detailRows);
+
+		y = ThermalPrintUtil.DrawSeparator(canvas, width, y);
+
+		y = ThermalPrintUtil.DrawRightLabelValue(canvas,
+			"Grand Total", bill.TotalAmount.FormatIndianCurrency(),
+			width, y, ThermalPrintUtil.FontSizeHeader);
+
+		CurrencyWordsConverter numericWords = new(new()
+		{
+			Culture = Culture.Hindi,
+			OutputFormat = OutputFormat.English
+		});
+
+		string amountInWords = numericWords.ToWords(Math.Round(bill.TotalAmount));
+		if (string.IsNullOrWhiteSpace(amountInWords))
+			amountInWords = "Zero";
+		amountInWords += " Rupees Only";
+
+		y += ThermalPrintUtil.LineGap;
+		y = ThermalPrintUtil.DrawCenteredText(canvas, amountInWords, width, y, ThermalPrintUtil.FontSizeSmall, bold: false);
+
+		y = ThermalPrintUtil.DrawSeparator(canvas, width, y);
+		return y;
+	}
+
+	private static float DrawPaymentModes(SKCanvas canvas, BillOverviewModel bill, int width, float y)
+	{
+		var paymentPairs = new List<(string Label, string Value)>();
+
+		if (bill.Cash > 0)
+			paymentPairs.Add(("Cash", bill.Cash.FormatIndianCurrency()));
+		if (bill.Card > 0)
+			paymentPairs.Add(("Card", bill.Card.FormatIndianCurrency()));
+		if (bill.UPI > 0)
+			paymentPairs.Add(("UPI", bill.UPI.FormatIndianCurrency()));
+		if (bill.Credit > 0)
+			paymentPairs.Add(("Credit", bill.Credit.FormatIndianCurrency()));
+
+		if (paymentPairs.Count == 0)
+			return y;
+
+		y = ThermalPrintUtil.DrawAlignedBlock(canvas, paymentPairs, width, y);
+		y = ThermalPrintUtil.DrawSeparator(canvas, width, y);
+		return y;
+	}
+
+	private static float DrawFooter(SKCanvas canvas, BillOverviewModel bill, DateTime currentDateTime, int width, float y)
+	{
+		y = ThermalPrintUtil.DrawCenteredText(canvas, $"Printed By: {bill.CreatedByName}", width, y, ThermalPrintUtil.FontSizeSmall, bold: false);
+		y = ThermalPrintUtil.DrawCenteredText(canvas, $"Printed On: {currentDateTime:dd/MMM/yy hh:mm tt}", width, y, ThermalPrintUtil.FontSizeSmall, bold: false);
+		y = ThermalPrintUtil.DrawCenteredText(canvas, "Thanks. Visit Again", width, y, ThermalPrintUtil.FontSizeNormal, bold: false);
+		y = ThermalPrintUtil.DrawCenteredText(canvas, "A Product of aadisoft.vercel.app", width, y, ThermalPrintUtil.FontSizeSmall, bold: true);
+		return y;
+	}
+}
