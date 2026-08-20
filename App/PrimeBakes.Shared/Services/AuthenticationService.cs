@@ -44,6 +44,7 @@ public static class AuthenticationService
 			UserRoles.Inventory => user.Inventory,
 			UserRoles.Store => user.Store,
 			UserRoles.Restaurant => user.Restaurant,
+			UserRoles.Payroll => user.Payroll,
 			UserRoles.Reports => user.Reports,
 			UserRoles.Admin => user.Admin,
 			_ => false

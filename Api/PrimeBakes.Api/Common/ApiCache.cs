@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.OutputCaching;
+﻿using Microsoft.AspNetCore.OutputCaching;
 
 using PrimeBakes.Api.Accounts.Masters;
 using PrimeBakes.Api.Inventory.Kitchen;
@@ -8,6 +8,7 @@ using PrimeBakes.Api.Operations.Analysis;
 using PrimeBakes.Api.Operations.Location;
 using PrimeBakes.Api.Operations.Settings;
 using PrimeBakes.Api.Operations.User;
+using PrimeBakes.Api.Payroll.Masters;
 using PrimeBakes.Api.Restaurant.Dining;
 using PrimeBakes.Api.Store.Customer;
 using PrimeBakes.Api.Store.Product;
@@ -52,7 +53,12 @@ public sealed class ApiCachePolicy : IOutputCachePolicy
 		StoreNames.Tax,
 		StoreNames.Customer,
 		RestaurantNames.DiningArea,
-		RestaurantNames.DiningTable
+		RestaurantNames.DiningTable,
+		PayrollNames.Department,
+		PayrollNames.Designation,
+		PayrollNames.Employee,
+		PayrollNames.SalaryComponent,
+		PayrollNames.EmployeeSalaryComponentOverview
 	};
 
 	private static readonly HashSet<string> _routes = new(StringComparer.OrdinalIgnoreCase)
@@ -90,7 +96,12 @@ public sealed class ApiCachePolicy : IOutputCachePolicy
 		Helper.SanitizeClassName(nameof(TaxEndpoint)),
 		Helper.SanitizeClassName(nameof(CustomerEndpoint)),
 		Helper.SanitizeClassName(nameof(DiningAreaEndpoint)),
-		Helper.SanitizeClassName(nameof(DiningTableEndpoint))
+		Helper.SanitizeClassName(nameof(DiningTableEndpoint)),
+		Helper.SanitizeClassName(nameof(DepartmentEndpoint)),
+		Helper.SanitizeClassName(nameof(DesignationEndpoint)),
+		Helper.SanitizeClassName(nameof(EmployeeEndpoint)),
+		Helper.SanitizeClassName(nameof(SalaryComponentEndpoint)),
+		Helper.SanitizeClassName(nameof(EmployeeSalaryComponentEndpoint))
 	};
 
 	private static string Route(string endpointClass, string function) =>

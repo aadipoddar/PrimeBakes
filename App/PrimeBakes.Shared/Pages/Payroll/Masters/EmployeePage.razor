@@ -1,0 +1,316 @@
+﻿@using PrimeBakes.Models.Operations.Location
+@using PrimeBakes.Models.Operations.User
+@using PrimeBakes.Models.Payroll.Masters
+
+@attribute [Route(PayrollRouteNames.Employee)]
+
+<PageTitle>Employee Management - Prime Bakes</PageTitle>
+
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="SaveTransaction" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportMaster(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportMaster()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="EditSelectedItem" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="DeleteRecoverSelectedItem" Disabled="@_isProcessing" />
+
+@if (_isLoading || _user is null)
+{
+	<LoadingScreen />
+}
+else
+{
+	<div class="page-shell">
+		<Header Title="Employee Management">
+			<LeftContent>
+				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="New (Ctrl + N)" OnClick="ResetPage" />
+					<MudBlazor.MudMenuItem Label="Save (Ctrl + S)" OnClick="SaveTransaction" />
+					<MudBlazor.MudMenuItem Label="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" OnClick="ToggleDeleted" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Export Excel (Ctrl + E)" OnClick="() => ExportMaster(true)" />
+					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportMaster()" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Transaction" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Edit (Insert)" OnClick="EditSelectedItem" />
+					<MudBlazor.MudMenuItem Label="Delete / Recover (Del)" OnClick="DeleteRecoverSelectedItem" />
+				</MudBlazor.MudMenu>
+			</LeftContent>
+		</Header>
+
+		<div class="page-container">
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Employee Details</h2>
+				</div>
+
+				<div class="section-body">
+					<div class="form-grid">
+						<div class="form-field">
+							<CustomTextField @ref="_firstFocus" @bind-Value="_employee.Name" Label="Employee Name (Ctrl + F)" Placeholder="Enter employee name" />
+						</div>
+
+						<div class="form-field">
+							<CustomTextField @bind-Value="_employee.Code"
+											 Label="Code"
+											 Placeholder="Auto-generated"
+											 Required="false"
+											 ReadOnly="true"
+											 TabIndex="-1" />
+						</div>
+
+						<div class="form-field">
+							<CustomAutoComplete T="LocationModel"
+												@bind-Value="_selectedLocation"
+												DataSource="@_locations"
+												Placeholder="Select location"
+												Label="Location"
+												FieldValue="@nameof(LocationModel.Name)"
+												AddNewRoute="@OperationRouteNames.Location" />
+						</div>
+
+						<div class="form-field">
+							<CustomAutoComplete T="DepartmentModel"
+												@bind-Value="_selectedDepartment"
+												DataSource="@_departments"
+												Placeholder="Select department"
+												Label="Department"
+												FieldValue="@nameof(DepartmentModel.Name)"
+												AddNewRoute="@PayrollRouteNames.Department" />
+						</div>
+
+						<div class="form-field">
+							<CustomAutoComplete T="DesignationModel"
+												@bind-Value="_selectedDesignation"
+												DataSource="@_designations"
+												Placeholder="Select designation"
+												Label="Designation"
+												FieldValue="@nameof(DesignationModel.Name)"
+												AddNewRoute="@PayrollRouteNames.Designation" />
+						</div>
+
+						<div class="form-field">
+							<CustomAutoComplete T="UserModel"
+												@bind-Value="_selectedUser"
+												DataSource="@_users"
+												Placeholder="Select login user (optional)"
+												Label="Login User"
+												Required="false"
+												FieldValue="@nameof(UserModel.Name)"
+												AddNewRoute="@OperationRouteNames.User" />
+						</div>
+
+						<div class="form-field">
+							<CustomDatePicker Value="DateOfJoiningDateTime"
+											  ValueChanged="OnDateOfJoiningChanged"
+											  Label="Date Of Joining"
+											  ShowFinancialYear="false" />
+						</div>
+
+						<div class="form-field">
+							<CustomDatePicker @bind-NullableValue="DateOfLeavingDateTime"
+											  Label="Date Of Leaving"
+											  Required="false"
+											  ShowFinancialYear="false" />
+						</div>
+
+						<div class="form-field">
+							<CustomDatePicker @bind-NullableValue="DateOfBirthDateTime"
+											  Label="Date Of Birth"
+											  Required="false"
+											  ShowFinancialYear="false" />
+						</div>
+
+						<div class="form-field">
+							<CustomAutoComplete T="string"
+												@bind-Value="_employee.Gender"
+												DataSource="@_genders"
+												Placeholder="Select gender"
+												Label="Gender"
+												Required="false" />
+						</div>
+
+						<div class="form-field">
+							<CustomTextField @bind-Value="_employee.FatherOrHusbandName" Label="Father / Husband Name" Placeholder="Enter father or husband name" Required="false" />
+						</div>
+
+						<div class="form-field">
+							<CustomTextField @bind-Value="_employee.Phone" Label="Phone" Placeholder="Enter 10 digit phone number" Required="false" />
+						</div>
+
+						<div class="form-field">
+							<CustomTextField @bind-Value="_employee.Email" Label="Email" Placeholder="Enter email address" Required="false" />
+						</div>
+
+						<div class="form-field">
+							<CustomTextField @bind-Value="_employee.Address" Label="Address" Placeholder="Enter address" Required="false" Lines="2" />
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Statutory Details</h2>
+				</div>
+
+				<div class="section-body">
+					<div class="form-grid">
+						<div class="form-field">
+							<CustomTextField @bind-Value="_employee.PAN" Label="PAN" Placeholder="Enter 10 character PAN" Required="false" />
+						</div>
+
+						<div class="form-field">
+							<CustomTextField @bind-Value="_employee.Aadhaar" Label="Aadhaar" Placeholder="Enter 12 digit Aadhaar" Required="false" />
+						</div>
+
+						<div class="form-field">
+							<CustomTextField @bind-Value="_employee.PFNumber" Label="PF Number" Placeholder="Enter PF number" Required="false" />
+						</div>
+
+						<div class="form-field">
+							<CustomTextField @bind-Value="_employee.UANNumber" Label="UAN Number" Placeholder="Enter UAN number" Required="false" />
+						</div>
+
+						<div class="form-field">
+							<CustomTextField @bind-Value="_employee.ESINumber" Label="ESI Number" Placeholder="Enter ESI number" Required="false" />
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Payment Details</h2>
+				</div>
+
+				<div class="section-body">
+					<div class="form-grid">
+						<div class="form-field">
+							<CustomAutoComplete T="string"
+												@bind-Value="_employee.PaymentMode"
+												DataSource="@_paymentModes"
+												Placeholder="Select payment mode"
+												Label="Payment Mode"
+												Required="false" />
+						</div>
+
+						<div class="form-field">
+							<CustomTextField @bind-Value="_employee.BankName" Label="Bank Name" Placeholder="Enter bank name" Required="false" />
+						</div>
+
+						<div class="form-field">
+							<CustomTextField @bind-Value="_employee.BankAccountNumber" Label="Account Number" Placeholder="Enter bank account number" Required="false" />
+						</div>
+
+						<div class="form-field">
+							<CustomTextField @bind-Value="_employee.IFSC" Label="IFSC" Placeholder="Enter 11 character IFSC" Required="false" />
+						</div>
+
+						<div class="form-field">
+							<CustomTextField @bind-Value="_employee.Remarks" Label="Remarks" Placeholder="Enter remarks (optional)" Required="false" Lines="2" />
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Employee List</h2>
+				</div>
+
+				<SfGrid @ref="_sfGrid" DataSource="@_employees" AllowPaging="true" AllowSorting="true" AllowResizing="true" AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems" Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+					<GridEvents TValue="EmployeeModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(EmployeeModel.Id)" HeaderText="ID" Width="100" TextAlign="TextAlign.Center" />
+						<CustomGridColumn Field="@nameof(EmployeeModel.Name)" HeaderText="Employee Name" />
+						<CustomGridColumn Field="@nameof(EmployeeModel.Code)" HeaderText="Code" Width="120" />
+						<CustomGridColumn>
+							<CustomTemplate>
+								<GridColumn Field="@nameof(EmployeeModel.DepartmentId)" HeaderText="Department" Width="180">
+									<Template>
+										@{
+											var employee = context as EmployeeModel;
+											<span>@(_departments.FirstOrDefault(x => x.Id == employee.DepartmentId)?.Name ?? "N/A")</span>
+										}
+									</Template>
+								</GridColumn>
+							</CustomTemplate>
+						</CustomGridColumn>
+						<CustomGridColumn>
+							<CustomTemplate>
+								<GridColumn Field="@nameof(EmployeeModel.DesignationId)" HeaderText="Designation" Width="180">
+									<Template>
+										@{
+											var employee = context as EmployeeModel;
+											<span>@(_designations.FirstOrDefault(x => x.Id == employee.DesignationId)?.Name ?? "N/A")</span>
+										}
+									</Template>
+								</GridColumn>
+							</CustomTemplate>
+						</CustomGridColumn>
+						<CustomGridColumn>
+							<CustomTemplate>
+								<GridColumn Field="@nameof(EmployeeModel.LocationId)" HeaderText="Location" Width="180">
+									<Template>
+										@{
+											var employee = context as EmployeeModel;
+											<span>@(_locations.FirstOrDefault(x => x.Id == employee.LocationId)?.Name ?? "N/A")</span>
+										}
+									</Template>
+								</GridColumn>
+							</CustomTemplate>
+						</CustomGridColumn>
+						<CustomGridColumn>
+							<CustomTemplate>
+								<GridColumn Field="@nameof(EmployeeModel.UserId)" HeaderText="Login User" Width="180">
+									<Template>
+										@{
+											var employee = context as EmployeeModel;
+											<span>@(_users.FirstOrDefault(x => x.Id == employee.UserId)?.Name ?? "N/A")</span>
+										}
+									</Template>
+								</GridColumn>
+							</CustomTemplate>
+						</CustomGridColumn>
+						<CustomGridColumn Field="@nameof(EmployeeModel.DateOfJoining)" HeaderText="Date Of Joining" Format="dd/MM/yyyy" TextAlign="TextAlign.Center" />
+						<CustomGridColumn Field="@nameof(EmployeeModel.DateOfLeaving)" HeaderText="Date Of Leaving" Format="dd/MM/yyyy" TextAlign="TextAlign.Center" />
+						<CustomGridColumn Field="@nameof(EmployeeModel.DateOfBirth)" HeaderText="Date Of Birth" Format="dd/MM/yyyy" TextAlign="TextAlign.Center" />
+						<CustomGridColumn Field="@nameof(EmployeeModel.Gender)" HeaderText="Gender" TextAlign="TextAlign.Center" />
+						<CustomGridColumn Field="@nameof(EmployeeModel.FatherOrHusbandName)" HeaderText="Father / Husband Name" />
+						<CustomGridColumn Field="@nameof(EmployeeModel.Phone)" HeaderText="Phone" />
+						<CustomGridColumn Field="@nameof(EmployeeModel.Email)" HeaderText="Email" />
+						<CustomGridColumn Field="@nameof(EmployeeModel.Address)" HeaderText="Address" />
+						<CustomGridColumn Field="@nameof(EmployeeModel.PAN)" HeaderText="PAN" />
+						<CustomGridColumn Field="@nameof(EmployeeModel.Aadhaar)" HeaderText="Aadhaar" />
+						<CustomGridColumn Field="@nameof(EmployeeModel.PFNumber)" HeaderText="PF Number" />
+						<CustomGridColumn Field="@nameof(EmployeeModel.UANNumber)" HeaderText="UAN Number" />
+						<CustomGridColumn Field="@nameof(EmployeeModel.ESINumber)" HeaderText="ESI Number" />
+						<CustomGridColumn Field="@nameof(EmployeeModel.PaymentMode)" HeaderText="Payment Mode" TextAlign="TextAlign.Center" />
+						<CustomGridColumn Field="@nameof(EmployeeModel.BankName)" HeaderText="Bank Name" />
+						<CustomGridColumn Field="@nameof(EmployeeModel.BankAccountNumber)" HeaderText="Account Number" />
+						<CustomGridColumn Field="@nameof(EmployeeModel.IFSC)" HeaderText="IFSC" />
+						<CustomGridColumn Field="@nameof(EmployeeModel.Remarks)" HeaderText="Remarks" />
+						<CustomGridColumn Field="@nameof(EmployeeModel.Status)" Visible="_showDeleted" StatusColumn="true" />
+					</GridColumns>
+				</SfGrid>
+			</div>
+		</div>
+
+		<Footer />
+	</div>
+}
+
+<ConfirmationDialog @ref="_confirmationDialog" Title="@_confirmTitle" Message="@_confirmMessage" OnConfirm="OnConfirmed" OnCancel="OnCancelled" />
+
+<ToastNotification @ref="_toastNotification" />
+
+<CloseGuard Block="_isProcessing" />

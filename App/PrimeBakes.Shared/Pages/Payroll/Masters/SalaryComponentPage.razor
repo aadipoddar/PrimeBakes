@@ -1,0 +1,157 @@
+@using PrimeBakes.Models.Payroll.Masters
+
+@attribute [Route(PayrollRouteNames.SalaryComponent)]
+
+<PageTitle>Salary Component Management - Prime Bakes</PageTitle>
+
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="SaveTransaction" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportMaster(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportMaster()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="EditSelectedItem" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="DeleteRecoverSelectedItem" Disabled="@_isProcessing" />
+
+@if (_isLoading || _user is null)
+{
+	<LoadingScreen />
+}
+else
+{
+	<div class="page-shell">
+		<Header Title="Salary Component Management">
+			<LeftContent>
+				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="New (Ctrl + N)" OnClick="ResetPage" />
+					<MudBlazor.MudMenuItem Label="Save (Ctrl + S)" OnClick="SaveTransaction" />
+					<MudBlazor.MudMenuItem Label="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" OnClick="ToggleDeleted" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Export Excel (Ctrl + E)" OnClick="() => ExportMaster(true)" />
+					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportMaster()" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Transaction" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Edit (Insert)" OnClick="EditSelectedItem" />
+					<MudBlazor.MudMenuItem Label="Delete / Recover (Del)" OnClick="DeleteRecoverSelectedItem" />
+				</MudBlazor.MudMenu>
+			</LeftContent>
+		</Header>
+
+		<div class="page-container">
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Component Details</h2>
+				</div>
+
+				<div class="section-body">
+					<div class="form-grid">
+						<div class="form-field">
+							<CustomTextField @ref="_firstFocus" @bind-Value="_salaryComponent.Name" Label="Component Name (Ctrl + F)" Placeholder="e.g. Dearness Allowance" />
+						</div>
+
+						<div class="form-field">
+							<CustomTextField @bind-Value="_salaryComponent.Code" Label="Code" Placeholder="e.g. DA - used in formulas" />
+						</div>
+
+						<div class="form-field">
+							<CustomAutoComplete T="string"
+												@bind-Value="_salaryComponent.ComponentType"
+												DataSource="@_componentTypes"
+												Placeholder="Select type"
+												Label="Component Type" />
+						</div>
+
+						<div class="form-field">
+							<CustomNumericField T="int"
+												@bind-Value="_salaryComponent.Sequence"
+												Label="Sequence"
+												Placeholder="Calculation order"
+												Min="1" />
+						</div>
+
+						<div class="form-field">
+							<div class="checkbox-wrapper">
+								<CustomCheckBox @bind-Value="_salaryComponent.Prorate" Label="Prorate by paid days" />
+							</div>
+						</div>
+
+						<div class="form-field">
+							<div class="checkbox-wrapper">
+								<CustomCheckBox @bind-Value="_salaryComponent.Rounding" Label="Round to whole rupees" />
+							</div>
+						</div>
+
+						<div class="form-field">
+							<div class="checkbox-wrapper">
+								<CustomCheckBox @bind-Value="_salaryComponent.ShowOnPayslip" Label="Show on payslip" />
+							</div>
+						</div>
+
+						<div class="form-field">
+							<CustomTextField @bind-Value="_salaryComponent.Formula"
+											 Label="Formula"
+											 Placeholder="Leave empty to enter the amount per employee"
+											 Required="false"
+											 Lines="3" />
+						</div>
+
+						<div class="form-field">
+							<CustomTextField @bind-Value="_salaryComponent.Remarks" Label="Remarks" Placeholder="Enter remarks (optional)" Required="false" Lines="2" />
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Component List</h2>
+				</div>
+
+				<SfGrid @ref="_sfGrid" DataSource="@_salaryComponents" AllowPaging="true" AllowSorting="true" AllowResizing="true" AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems" Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+					<GridEvents TValue="SalaryComponentModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(SalaryComponentModel.Id)" HeaderText="ID" Width="100" TextAlign="TextAlign.Center" />
+						<CustomGridColumn Field="@nameof(SalaryComponentModel.Sequence)" HeaderText="Seq" Width="100" TextAlign="TextAlign.Center" />
+						<CustomGridColumn Field="@nameof(SalaryComponentModel.Name)" HeaderText="Component Name" />
+						<CustomGridColumn Field="@nameof(SalaryComponentModel.Code)" HeaderText="Code" Width="140" />
+						<CustomGridColumn Field="@nameof(SalaryComponentModel.ComponentType)" HeaderText="Type" Width="200" />
+
+						<CustomGridColumn>
+							<CustomTemplate>
+								<GridColumn Field="@nameof(SalaryComponentModel.Formula)" HeaderText="Formula" Width="280">
+									<Template>
+										@{
+											var component = context as SalaryComponentModel;
+											<span>@(string.IsNullOrWhiteSpace(component.Formula) ? "Input" : component.Formula)</span>
+										}
+									</Template>
+								</GridColumn>
+							</CustomTemplate>
+						</CustomGridColumn>
+
+						<CustomGridColumn Field="@nameof(SalaryComponentModel.Prorate)" HeaderText="Prorate" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
+						<CustomGridColumn Field="@nameof(SalaryComponentModel.Rounding)" HeaderText="Rounding" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
+						<CustomGridColumn Field="@nameof(SalaryComponentModel.ShowOnPayslip)" HeaderText="On Payslip" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
+						<CustomGridColumn Field="@nameof(SalaryComponentModel.Remarks)" HeaderText="Remarks" />
+						<CustomGridColumn Field="@nameof(SalaryComponentModel.Status)" Visible="_showDeleted" StatusColumn="true" />
+					</GridColumns>
+				</SfGrid>
+			</div>
+		</div>
+
+		<Footer />
+	</div>
+}
+
+<ConfirmationDialog @ref="_confirmationDialog" Title="@_confirmTitle" Message="@_confirmMessage" OnConfirm="OnConfirmed" OnCancel="OnCancelled" />
+
+<ToastNotification @ref="_toastNotification" />
+
+<CloseGuard Block="_isProcessing" />

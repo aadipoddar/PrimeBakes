@@ -1,4 +1,4 @@
-using PrimeBakes.Data.Common;
+﻿using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Operations.AuditTrail;
 using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Operations.AuditTrail;
@@ -60,7 +60,7 @@ public static class UserData
 		if (item.LocationId <= 0)
 			throw new Exception("Location is required. Please select a valid location.");
 
-		if (!item.Accounts && !item.Inventory && !item.Store && !item.Restaurant && !item.Reports && !item.Admin)
+		if (!item.Accounts && !item.Inventory && !item.Store && !item.Restaurant && !item.Payroll && !item.Reports && !item.Admin)
 			throw new Exception("At least one role must be assigned. Please select at least one role.");
 
 		var allUsers = await CommonData.LoadTableData<UserModel>(OperationNames.User);

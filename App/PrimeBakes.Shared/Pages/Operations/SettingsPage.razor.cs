@@ -1,4 +1,4 @@
-using PrimeBakes.Data.Operations.Settings;
+﻿using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
@@ -29,6 +29,9 @@ public partial class SettingsPage
 	private string _rawMaterialCodePrefix = string.Empty;
 	private string _finishedProductCodePrefix = string.Empty;
 	private string _ledgerCodePrefix = string.Empty;
+	private string _employeeCodePrefix = string.Empty;
+	private string _departmentCodePrefix = string.Empty;
+	private string _designationCodePrefix = string.Empty;
 
 	// Transaction Prefixes
 	private string _accountingTransactionPrefix = string.Empty;
@@ -160,6 +163,9 @@ public partial class SettingsPage
 		_rawMaterialCodePrefix = Str(SettingsKeys.RawMaterialCodePrefix) ?? string.Empty;
 		_finishedProductCodePrefix = Str(SettingsKeys.FinishedProductCodePrefix) ?? string.Empty;
 		_ledgerCodePrefix = Str(SettingsKeys.LedgerCodePrefix) ?? string.Empty;
+		_employeeCodePrefix = Str(SettingsKeys.EmployeeCodePrefix) ?? string.Empty;
+		_departmentCodePrefix = Str(SettingsKeys.DepartmentCodePrefix) ?? string.Empty;
+		_designationCodePrefix = Str(SettingsKeys.DesignationCodePrefix) ?? string.Empty;
 
 		// Transaction Prefixes
 		_accountingTransactionPrefix = Str(SettingsKeys.AccountingTransactionPrefix) ?? string.Empty;
@@ -447,6 +453,9 @@ public partial class SettingsPage
 			await UpdateSetting(SettingsKeys.RawMaterialCodePrefix, _rawMaterialCodePrefix, Desc(SettingsKeys.RawMaterialCodePrefix));
 			await UpdateSetting(SettingsKeys.FinishedProductCodePrefix, _finishedProductCodePrefix, Desc(SettingsKeys.FinishedProductCodePrefix));
 			await UpdateSetting(SettingsKeys.LedgerCodePrefix, _ledgerCodePrefix, Desc(SettingsKeys.LedgerCodePrefix));
+			await UpdateSetting(SettingsKeys.EmployeeCodePrefix, _employeeCodePrefix, Desc(SettingsKeys.EmployeeCodePrefix));
+			await UpdateSetting(SettingsKeys.DepartmentCodePrefix, _departmentCodePrefix, Desc(SettingsKeys.DepartmentCodePrefix));
+			await UpdateSetting(SettingsKeys.DesignationCodePrefix, _designationCodePrefix, Desc(SettingsKeys.DesignationCodePrefix));
 
 			// Transaction Prefixes
 			await UpdateSetting(SettingsKeys.AccountingTransactionPrefix, _accountingTransactionPrefix, Desc(SettingsKeys.AccountingTransactionPrefix));

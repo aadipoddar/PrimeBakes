@@ -1,4 +1,4 @@
-namespace PrimeBakes.Models.Common;
+﻿namespace PrimeBakes.Models.Common;
 
 public static class CommonNames
 {
@@ -282,5 +282,41 @@ public static class RestaurantNames
 	public static string LoadRunningBillByLocationId => "Load_RunningBill_By_LocationId";
 
 	public static string DeleteBillDetailById => "Delete_BillDetail_By_Id";
+	#endregion
+}
+
+public static class PayrollNames
+{
+	#region Masters
+	public static string Department => "Department";
+	public static string Designation => "Designation";
+	public static string Employee => "Employee";
+	public static string SalaryComponent => "SalaryComponent";
+	public static string EmployeeSalaryComponent => "EmployeeSalaryComponent";
+	public static string EmployeeSalaryComponentOverview => "EmployeeSalaryComponent_Overview";
+	public static string InsertDepartment => "Insert_Department";
+	public static string InsertDesignation => "Insert_Designation";
+	public static string InsertEmployee => "Insert_Employee";
+	public static string InsertSalaryComponent => "Insert_SalaryComponent";
+	public static string InsertEmployeeSalaryComponent => "Insert_EmployeeSalaryComponent";
+	public static string DeleteEmployeeSalaryComponentById => "Delete_EmployeeSalaryComponent_By_Id";
+	public static string LoadEmployeeSalaryComponentOverviewByEmployeeSalaryComponentDate => "Load_EmployeeSalaryComponent_Overview_By_Employee_SalaryComponent_Date";
+	#endregion
+
+	#region Attendance
+	public static string Attendance => "Attendance";
+	public static string AttendanceOverview => "Attendance_Overview";
+	public static string InsertAttendance => "Insert_Attendance";
+	public static string LoadAttendanceOverviewByEmployeeMonthYear => "Load_Attendance_Overview_By_Employee_Month_Year";
+	#endregion
+
+	#region Payroll
+	public static string Payroll => "Payroll";
+	public static string PayrollDetail => "PayrollDetail";
+	public static string PayrollOverview => "Payroll_Overview";
+	public static string PayrollItemOverview => "Payroll_Item_Overview";
+	public static string InsertPayroll => "Insert_Payroll";
+	public static string InsertPayrollDetail => "Insert_PayrollDetail";
+	public static string LoadPayrollOverviewByEmployeeMonthYear => "Load_Payroll_Overview_By_Employee_Month_Year";
 	#endregion
 }

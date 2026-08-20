@@ -9,6 +9,8 @@ using PrimeBakes.Models.Inventory.Purchase;
 using PrimeBakes.Models.Inventory.RawMaterial;
 using PrimeBakes.Models.Operations.Location;
 using PrimeBakes.Models.Operations.Settings;
+using PrimeBakes.Models.Payroll.Masters;
+using PrimeBakes.Models.Payroll.PayrollRun;
 using PrimeBakes.Models.Restaurant.Bill;
 using PrimeBakes.Models.Store.Order;
 using PrimeBakes.Models.Store.Product;
@@ -95,6 +97,25 @@ public static class GenerateCodes
 				case CodeType.Bill:
 					var bill = await CommonData.LoadTableDataByTransactionNo<BillModel>(RestaurantNames.Bill, code, sqlDataAccessTransaction);
 					isDuplicate = bill is not null;
+					break;
+				#endregion
+
+				#region Payroll
+				case CodeType.Department:
+					var department = await CommonData.LoadTableDataByCode<DepartmentModel>(PayrollNames.Department, code, sqlDataAccessTransaction);
+					isDuplicate = department is not null;
+					break;
+				case CodeType.Designation:
+					var designation = await CommonData.LoadTableDataByCode<DesignationModel>(PayrollNames.Designation, code, sqlDataAccessTransaction);
+					isDuplicate = designation is not null;
+					break;
+				case CodeType.Employee:
+					var employee = await CommonData.LoadTableDataByCode<EmployeeModel>(PayrollNames.Employee, code, sqlDataAccessTransaction);
+					isDuplicate = employee is not null;
+					break;
+				case CodeType.Payroll:
+					var payroll = await CommonData.LoadTableDataByTransactionNo<PayrollModel>(PayrollNames.Payroll, code, sqlDataAccessTransaction);
+					isDuplicate = payroll is not null;
 					break;
 				#endregion
 			}
@@ -496,6 +517,101 @@ public static class GenerateCodes
 			}
 		}
 		return await CheckDuplicateCode($"{locationPrefix}{financialYear.YearNo}{transactionPrefix}000001", 6, CodeType.Bill, sqlDataAccessTransaction);
+	}
+	#endregion
+
+	#region Payroll
+	public static async Task<string> GenerateDepartmentCode(SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	{
+		var departments = await CommonData.LoadTableData<DepartmentModel>(PayrollNames.Department, sqlDataAccessTransaction);
+		var departmentsPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.DepartmentCodePrefix)).Value;
+
+		var lastDepartment = departments.OrderByDescending(x => x.Id).FirstOrDefault();
+		if (lastDepartment is not null)
+		{
+			var lastCode = lastDepartment.Code;
+			if (lastCode.StartsWith(departmentsPrefix))
+			{
+				var lastNumberPart = lastCode[departmentsPrefix.Length..];
+				if (int.TryParse(lastNumberPart, out int lastNumber))
+				{
+					int nextNumber = lastNumber + 1;
+					return await CheckDuplicateCode($"{departmentsPrefix}{nextNumber:D4}", 4, CodeType.Department, sqlDataAccessTransaction);
+				}
+			}
+		}
+
+		return await CheckDuplicateCode($"{departmentsPrefix}0001", 4, CodeType.Department, sqlDataAccessTransaction);
+	}
+
+	public static async Task<string> GenerateDesignationCode(SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	{
+		var designations = await CommonData.LoadTableData<DesignationModel>(PayrollNames.Designation, sqlDataAccessTransaction);
+		var designationsPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.DesignationCodePrefix)).Value;
+
+		var lastDesignation = designations.OrderByDescending(x => x.Id).FirstOrDefault();
+		if (lastDesignation is not null)
+		{
+			var lastCode = lastDesignation.Code;
+			if (lastCode.StartsWith(designationsPrefix))
+			{
+				var lastNumberPart = lastCode[designationsPrefix.Length..];
+				if (int.TryParse(lastNumberPart, out int lastNumber))
+				{
+					int nextNumber = lastNumber + 1;
+					return await CheckDuplicateCode($"{designationsPrefix}{nextNumber:D4}", 4, CodeType.Designation, sqlDataAccessTransaction);
+				}
+			}
+		}
+
+		return await CheckDuplicateCode($"{designationsPrefix}0001", 4, CodeType.Designation, sqlDataAccessTransaction);
+	}
+
+	public static async Task<string> GenerateEmployeeCode(SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	{
+		var employees = await CommonData.LoadTableData<EmployeeModel>(PayrollNames.Employee, sqlDataAccessTransaction);
+		var employeesPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.EmployeeCodePrefix)).Value;
+
+		var lastEmployee = employees.OrderByDescending(e => e.Id).FirstOrDefault();
+		if (lastEmployee is not null)
+		{
+			var lastCode = lastEmployee.Code;
+			if (lastCode.StartsWith(employeesPrefix))
+			{
+				var lastNumberPart = lastCode[employeesPrefix.Length..];
+				if (int.TryParse(lastNumberPart, out int lastNumber))
+				{
+					int nextNumber = lastNumber + 1;
+					return await CheckDuplicateCode($"{employeesPrefix}{nextNumber:D4}", 4, CodeType.Employee, sqlDataAccessTransaction);
+				}
+			}
+		}
+
+		return await CheckDuplicateCode($"{employeesPrefix}0001", 4, CodeType.Employee, sqlDataAccessTransaction);
+	}
+
+	public static async Task<string> GeneratePayrollTransactionNo(PayrollModel transaction, SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	{
+		var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, transaction.FinancialYearId, sqlDataAccessTransaction);
+		var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, 1, sqlDataAccessTransaction)).Code;
+		var transactionPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.PayrollTransactionPrefix, sqlDataAccessTransaction)).Value;
+
+		var lastTransaction = await CommonData.LoadLastTableDataByFinancialYear<PayrollModel>(PayrollNames.Payroll, transaction.FinancialYearId, sqlDataAccessTransaction);
+		if (lastTransaction is not null)
+		{
+			var lastTransactionNo = lastTransaction.TransactionNo;
+			if (lastTransactionNo.StartsWith($"{locationPrefix}{financialYear.YearNo}{transactionPrefix}"))
+			{
+				var lastNumberPart = lastTransactionNo[(locationPrefix.Length + financialYear.YearNo.ToString().Length + transactionPrefix.Length)..];
+				if (int.TryParse(lastNumberPart, out int lastNumber))
+				{
+					int nextNumber = lastNumber + 1;
+					return await CheckDuplicateCode($"{locationPrefix}{financialYear.YearNo}{transactionPrefix}{nextNumber:D6}", 6, CodeType.Payroll, sqlDataAccessTransaction);
+				}
+			}
+		}
+
+		return await CheckDuplicateCode($"{locationPrefix}{financialYear.YearNo}{transactionPrefix}000001", 6, CodeType.Payroll, sqlDataAccessTransaction);
 	}
 	#endregion
 }

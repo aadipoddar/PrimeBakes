@@ -11,6 +11,7 @@ public class UserModel
 	public bool Inventory { get; set; }
 	public bool Store { get; set; }
 	public bool Restaurant { get; set; }
+	public bool Payroll { get; set; }
 	public bool Reports { get; set; }
 	public bool Admin { get; set; }
 	public string? Remarks { get; set; }
@@ -23,6 +24,7 @@ public enum UserRoles
 	Inventory,
 	Store,
 	Restaurant,
+	Payroll,
 	Reports,
 	Admin,
 }

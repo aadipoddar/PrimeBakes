@@ -1,0 +1,175 @@
+@using PrimeBakes.Models.Payroll.Attendance
+@using PrimeBakes.Models.Payroll.Masters
+
+@attribute [Route(PayrollRouteNames.Attendance)]
+
+<PageTitle>Attendance Management - Prime Bakes</PageTitle>
+
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="SaveTransaction" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportMaster(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportMaster()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="EditSelectedItem" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="DeleteRecoverSelectedItem" Disabled="@_isProcessing" />
+
+@if (_isLoading || _user is null)
+{
+	<LoadingScreen />
+}
+else
+{
+	<div class="page-shell">
+		<Header Title="Attendance Management">
+			<LeftContent>
+				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="New (Ctrl + N)" OnClick="ResetPage" />
+					<MudBlazor.MudMenuItem Label="Save (Ctrl + S)" OnClick="SaveTransaction" />
+					<MudBlazor.MudMenuItem Label="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" OnClick="ToggleDeleted" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Export Excel (Ctrl + E)" OnClick="() => ExportMaster(true)" />
+					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportMaster()" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Transaction" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Edit (Insert)" OnClick="EditSelectedItem" />
+					<MudBlazor.MudMenuItem Label="Delete / Recover (Del)" OnClick="DeleteRecoverSelectedItem" />
+				</MudBlazor.MudMenu>
+			</LeftContent>
+		</Header>
+
+		<div class="page-container">
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Attendance Details</h2>
+				</div>
+
+				<div class="section-body">
+					<div class="form-grid">
+						<div class="form-field">
+							<CustomAutoComplete @ref="_firstFocus"
+												T="EmployeeModel"
+												@bind-Value="_selectedEmployee"
+												@bind-Value:after="OnPeriodChanged"
+												DataSource="@_employees"
+												Placeholder="Select employee"
+												Label="Employee (Ctrl + F)"
+												FieldValue="@nameof(EmployeeModel.Name)"
+												AddNewRoute="@PayrollRouteNames.Employee" />
+						</div>
+
+						<div class="form-field">
+							<CustomAutoComplete T="string"
+												@bind-Value="_selectedMonthName"
+												@bind-Value:after="OnPeriodChanged"
+												DataSource="@_monthNames"
+												Placeholder="Select month"
+												Label="Month" />
+						</div>
+
+						<div class="form-field">
+							<CustomNumericField T="int"
+												@bind-Value="_attendance.AttendanceYear"
+												@bind-Value:after="OnPeriodChanged"
+												Label="Year"
+												Placeholder="Enter year"
+												Format="F0"
+												Min="2000"
+												Max="2100" />
+						</div>
+
+						<div class="form-field">
+							<CustomNumericField T="decimal" Value="@_attendance.DaysInMonth" Label="Days In Month" Format="N2" ReadOnly="true" Required="false" />
+						</div>
+
+						<div class="form-field">
+							<CustomNumericField T="decimal" @bind-Value="_attendance.PresentDays" Label="Present Days" Placeholder="Days worked" Format="N2" Min="0m" />
+						</div>
+
+						<div class="form-field">
+							<CustomNumericField T="decimal" @bind-Value="_attendance.WeeklyOffDays" Label="Weekly Off Days" Placeholder="Paid weekly offs" Format="N2" Min="0m" />
+						</div>
+
+						<div class="form-field">
+							<CustomNumericField T="decimal" @bind-Value="_attendance.HolidayDays" Label="Holiday Days" Placeholder="Paid holidays" Format="N2" Min="0m" />
+						</div>
+
+						<div class="form-field">
+							<CustomNumericField T="decimal" @bind-Value="_attendance.PaidLeaveDays" Label="Paid Leave Days" Placeholder="Approved paid leave" Format="N2" Min="0m" />
+						</div>
+
+						<div class="form-field">
+							<CustomNumericField T="decimal" @bind-Value="_attendance.UnpaidLeaveDays" Label="Unpaid Leave Days" Placeholder="Loss of pay" Format="N2" Min="0m" />
+						</div>
+
+						<div class="form-field">
+							<CustomNumericField T="decimal" Value="@PaidDays" Label="Paid Days" Format="N2" ReadOnly="true" Required="false" />
+						</div>
+
+						<div class="form-field">
+							<CustomNumericField T="decimal" @bind-Value="_attendance.OvertimeHours" Label="Overtime Hours" Placeholder="Hours worked beyond shift" Format="N2" Min="0m" Required="false" />
+						</div>
+
+						<div class="form-field">
+							<CustomTextField @bind-Value="_attendance.Remarks" Label="Remarks" Placeholder="Enter remarks (optional)" Required="false" Lines="2" />
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Attendance List</h2>
+				</div>
+
+				<SfGrid @ref="_sfGrid" DataSource="@_attendanceOverviews" AllowPaging="true" AllowSorting="true" AllowResizing="true" AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems" Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+					<GridEvents TValue="AttendanceOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(AttendanceOverviewModel.Id)" HeaderText="ID" Width="100" TextAlign="TextAlign.Center" />
+						<CustomGridColumn Field="@nameof(AttendanceOverviewModel.EmployeeCode)" HeaderText="Employee Code" Width="150" />
+						<CustomGridColumn Field="@nameof(AttendanceOverviewModel.EmployeeName)" HeaderText="Employee Name" />
+
+						<CustomGridColumn>
+							<CustomTemplate>
+								<GridColumn Field="@nameof(AttendanceOverviewModel.AttendanceMonth)" HeaderText="Period" Width="160" TextAlign="TextAlign.Center">
+									<Template>
+										@{
+											var attendance = context as AttendanceOverviewModel;
+											<span>@PeriodText(attendance.AttendanceMonth, attendance.AttendanceYear)</span>
+										}
+									</Template>
+								</GridColumn>
+							</CustomTemplate>
+						</CustomGridColumn>
+
+						<CustomGridColumn Field="@nameof(AttendanceOverviewModel.DaysInMonth)" HeaderText="Days In Month" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(AttendanceOverviewModel.PresentDays)" HeaderText="Present" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(AttendanceOverviewModel.WeeklyOffDays)" HeaderText="Weekly Off" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(AttendanceOverviewModel.HolidayDays)" HeaderText="Holiday" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(AttendanceOverviewModel.PaidLeaveDays)" HeaderText="Paid Leave" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(AttendanceOverviewModel.UnpaidLeaveDays)" HeaderText="Unpaid Leave" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(AttendanceOverviewModel.PaidDays)" HeaderText="Paid Days" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(AttendanceOverviewModel.OvertimeHours)" HeaderText="OT Hours" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(AttendanceOverviewModel.Remarks)" HeaderText="Remarks" />
+						<CustomGridColumn Field="@nameof(AttendanceOverviewModel.Status)" Visible="_showDeleted" StatusColumn="true" />
+					</GridColumns>
+				</SfGrid>
+			</div>
+		</div>
+
+		<Footer />
+	</div>
+}
+
+<ConfirmationDialog @ref="_confirmationDialog" Title="@_confirmTitle" Message="@_confirmMessage" OnConfirm="OnConfirmed" OnCancel="OnCancelled" />
+
+<ToastNotification @ref="_toastNotification" />
+
+<CloseGuard Block="_isProcessing" />

@@ -9,6 +9,7 @@
     [Inventory] BIT NOT NULL DEFAULT 0, 
     [Store] BIT NOT NULL DEFAULT 0, 
     [Restaurant] BIT NOT NULL DEFAULT 0, 
+    [Payroll] BIT NOT NULL DEFAULT 0, 
     [Reports] BIT NOT NULL DEFAULT 0, 
     [Admin] BIT NOT NULL DEFAULT 0, 
     [Remarks] VARCHAR(MAX) NULL,

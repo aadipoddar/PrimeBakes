@@ -1,4 +1,4 @@
-@using PrimeBakes.Models.Operations.User
+﻿@using PrimeBakes.Models.Operations.User
 @using PrimeBakes.Models.Operations.Location
 
 @attribute [Route(OperationRouteNames.User)]
@@ -108,6 +108,12 @@ else
 
 						<div class="form-field">
 							<div class="checkbox-wrapper">
+								<CustomCheckBox @bind-Value="_userModel.Payroll" Label="Payroll" />
+							</div>
+						</div>
+
+						<div class="form-field">
+							<div class="checkbox-wrapper">
 								<CustomCheckBox @bind-Value="_userModel.Reports" Label="Reports" />
 							</div>
 						</div>
@@ -168,6 +174,7 @@ else
 						<CustomGridColumn Field="@nameof(UserModel.Inventory)" HeaderText="Inventory" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
 						<CustomGridColumn Field="@nameof(UserModel.Store)" HeaderText="Store" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
 						<CustomGridColumn Field="@nameof(UserModel.Restaurant)" HeaderText="Restaurant" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
+						<CustomGridColumn Field="@nameof(UserModel.Payroll)" HeaderText="Payroll" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
 						<CustomGridColumn Field="@nameof(UserModel.Reports)" HeaderText="Reports" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
 						<CustomGridColumn Field="@nameof(UserModel.Admin)" HeaderText="Admin" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
 						<CustomGridColumn Field="@nameof(UserModel.Remarks)" HeaderText="Remarks" />

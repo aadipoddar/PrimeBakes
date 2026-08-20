@@ -1,0 +1,158 @@
+@using PrimeBakes.Models.Payroll.Masters
+@using PrimeBakes.Models.Payroll.PayrollRun
+
+@attribute [Route(PayrollRouteNames.Payroll)]
+
+<PageTitle>Payroll - Prime Bakes</PageTitle>
+
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ConfirmRunPayroll" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportMaster(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportMaster()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="DeleteRecoverSelectedItem" Disabled="@_isProcessing" />
+
+@if (_isLoading || _user is null)
+{
+	<LoadingScreen />
+}
+else
+{
+	<div class="page-shell">
+		<Header Title="Payroll">
+			<LeftContent>
+				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="New (Ctrl + N)" OnClick="ResetPage" />
+					<MudBlazor.MudMenuItem Label="Run Payroll (Ctrl + S)" OnClick="ConfirmRunPayroll" />
+					<MudBlazor.MudMenuItem Label="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" OnClick="ToggleDeleted" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Export Excel (Ctrl + E)" OnClick="() => ExportMaster(true)" />
+					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportMaster()" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Transaction" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Delete / Recover (Del)" OnClick="DeleteRecoverSelectedItem" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Export Components Excel" OnClick="() => ExportItems(true)" />
+					<MudBlazor.MudMenuItem Label="Export Components PDF" OnClick="() => ExportItems()" />
+				</MudBlazor.MudMenu>
+			</LeftContent>
+		</Header>
+
+		<div class="page-container">
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Payroll Period</h2>
+				</div>
+
+				<div class="section-body">
+					<div class="filters-grid">
+						<div class="form-field">
+							<CustomAutoComplete @ref="_firstFocus"
+												T="string"
+												@bind-Value="_selectedMonthName"
+												@bind-Value:after="OnPeriodChanged"
+												DataSource="@_monthNames"
+												Placeholder="Select month"
+												Label="Month (Ctrl + F)" />
+						</div>
+
+						<div class="form-field">
+							<CustomNumericField T="int"
+												@bind-Value="_payrollYear"
+												@bind-Value:after="OnPeriodChanged"
+												Label="Year"
+												Placeholder="Enter year"
+												Format="F0"
+												Min="2000"
+												Max="2100" />
+						</div>
+
+						<div class="form-field">
+							<CustomNumericField T="decimal" Value="@_totalNetPay" Label="Total Net Pay" Format="N2" ReadOnly="true" Required="false" />
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Payroll List</h2>
+				</div>
+
+				<SfGrid @ref="_sfGrid" DataSource="@_payrollOverviews" AllowPaging="true" AllowSorting="true" AllowResizing="true" AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems" Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+					<GridEvents TValue="PayrollOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" RowSelected="OnRowSelected" />
+					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.Id)" HeaderText="ID" Width="100" TextAlign="TextAlign.Center" />
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.TransactionNo)" HeaderText="Transaction No" Width="180" />
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.EmployeeCode)" HeaderText="Employee Code" Width="150" />
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.EmployeeName)" HeaderText="Employee Name" />
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.DepartmentName)" HeaderText="Department" />
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.DesignationName)" HeaderText="Designation" />
+
+						<CustomGridColumn>
+							<CustomTemplate>
+								<GridColumn Field="@nameof(PayrollOverviewModel.PayrollMonth)" HeaderText="Period" Width="160" TextAlign="TextAlign.Center">
+									<Template>
+										@{
+											var payroll = context as PayrollOverviewModel;
+											<span>@PeriodText(payroll.PayrollMonth, payroll.PayrollYear)</span>
+										}
+									</Template>
+								</GridColumn>
+							</CustomTemplate>
+						</CustomGridColumn>
+
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.DaysInMonth)" HeaderText="Days In Month" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.PaidDays)" HeaderText="Paid Days" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.GrossEarnings)" HeaderText="Gross Earnings" TotalColumn="true" />
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.TotalDeductions)" HeaderText="Deductions" TotalColumn="true" />
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.NetPay)" HeaderText="Net Pay" TotalColumn="true" />
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.EmployerContribution)" HeaderText="Employer Contribution" TotalColumn="true" />
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.Remarks)" HeaderText="Remarks" />
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.Status)" Visible="_showDeleted" StatusColumn="true" />
+					</GridColumns>
+				</SfGrid>
+			</div>
+
+			@if (_selectedPayroll is not null)
+			{
+				<div class="section-card">
+					<div class="section-header">
+						<h2 class="section-title">@_selectedPayroll.EmployeeName - @PeriodText(_selectedPayroll.PayrollMonth, _selectedPayroll.PayrollYear)</h2>
+					</div>
+
+					<SfGrid @ref="_sfItemGrid" DataSource="@_payrollItems" AllowSorting="true" AllowResizing="true" AllowFiltering="true" AllowReordering="true" ShowColumnChooser="true"
+							GridLines="GridLine.Horizontal" Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+						<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+						<GridColumns>
+							<CustomGridColumn Field="@nameof(PayrollItemOverviewModel.SalaryComponentCode)" HeaderText="Code" Width="150" />
+							<CustomGridColumn Field="@nameof(PayrollItemOverviewModel.SalaryComponentName)" HeaderText="Component" />
+							<CustomGridColumn Field="@nameof(PayrollItemOverviewModel.SalaryComponentType)" HeaderText="Type" Width="180" />
+							<CustomGridColumn Field="@nameof(PayrollItemOverviewModel.Amount)" HeaderText="Amount" TotalColumn="true" />
+							<CustomGridColumn Field="@nameof(PayrollItemOverviewModel.Formula)" HeaderText="Formula" />
+							<CustomGridColumn Field="@nameof(PayrollItemOverviewModel.Prorate)" HeaderText="Prorate" Width="120" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" Type="ColumnType.Boolean" />
+						</GridColumns>
+					</SfGrid>
+				</div>
+			}
+		</div>
+
+		<Footer />
+	</div>
+}
+
+<ConfirmationDialog @ref="_confirmationDialog" Title="@_confirmTitle" Message="@_confirmMessage" OnConfirm="OnConfirmed" OnCancel="OnCancelled" />
+
+<ToastNotification @ref="_toastNotification" />
+
+<CloseGuard Block="_isProcessing" />

@@ -1,4 +1,4 @@
-namespace PrimeBakes.Models.Common;
+﻿namespace PrimeBakes.Models.Common;
 
 public enum CodeType
 {
@@ -20,6 +20,11 @@ public enum CodeType
 	FinishedProduct,
 
 	Bill,
+
+	Employee,
+	Department,
+	Designation,
+	Payroll,
 }
 
 public class DecodeTransactionNoModel

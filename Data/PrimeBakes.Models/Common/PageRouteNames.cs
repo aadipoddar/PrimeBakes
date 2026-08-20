@@ -1,4 +1,4 @@
-namespace PrimeBakes.Models.Common;
+﻿namespace PrimeBakes.Models.Common;
 
 public static class OperationRouteNames
 {
@@ -124,4 +124,15 @@ public static class RestaurantRouteNames
 	public const string DiningTable = "/restaurant/dining-table";
 
 	public const string Menu = "/menu";
+}
+
+public static class PayrollRouteNames
+{
+	public const string Department = "/payroll/department";
+	public const string Designation = "/payroll/designation";
+	public const string Employee = "/payroll/employee";
+	public const string SalaryComponent = "/payroll/salary-component";
+	public const string EmployeeSalaryComponent = "/payroll/employee-salary-component";
+	public const string Attendance = "/payroll/attendance";
+	public const string Payroll = "/payroll/payroll";
 }

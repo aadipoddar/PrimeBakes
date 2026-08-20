@@ -15,6 +15,9 @@ public static class SettingsKeys
 	public static string RawMaterialCodePrefix => "RawMaterialCodePrefix";
 	public static string FinishedProductCodePrefix => "FinishedProductCodePrefix";
 	public static string LedgerCodePrefix => "LedgerCodePrefix";
+	public static string EmployeeCodePrefix => "EmployeeCodePrefix";
+	public static string DepartmentCodePrefix => "DepartmentCodePrefix";
+	public static string DesignationCodePrefix => "DesignationCodePrefix";
 
 	// Transaction Prefixes
 	public static string AccountingTransactionPrefix => "AccountingTransactionPrefix";
@@ -34,6 +37,8 @@ public static class SettingsKeys
 	public static string OrderTransactionPrefix => "OrderTransactionPrefix";
 
 	public static string BillTransactionPrefix => "BillTransactionPrefix";
+
+	public static string PayrollTransactionPrefix => "PayrollTransactionPrefix";
 
 	// Vouchers
 	public static string PurchaseVoucherId => "PurchaseVoucherId";

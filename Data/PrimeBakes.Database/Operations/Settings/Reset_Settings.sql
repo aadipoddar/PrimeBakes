@@ -9,6 +9,9 @@ BEGIN
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'RawMaterialCodePrefix'			, N'RM'		, N'Prefix for Raw Material Codes')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'FinishedProductCodePrefix'		, N'FP'		, N'Prefix for Finished Product Codes')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'LedgerCodePrefix'				, N'LD'		, N'Prefix for Ledger Codes')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'EmployeeCodePrefix'			, N'EMP'	, N'Prefix for Employee Codes')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'DepartmentCodePrefix'			, N'DEPT'	, N'Prefix for Department Codes')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'DesignationCodePrefix'		, N'DESG'	, N'Prefix for Designation Codes')
 	
 	-- Transaction Prefixes
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'AccountingTransactionPrefix'	, N'ACCT'	, N'Prefix for Accounting Transaction Numbers')
@@ -28,6 +31,8 @@ BEGIN
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'OrderTransactionPrefix'		, N'ORD'	, N'Prefix for Order Transaction Numbers')
 
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'BillTransactionPrefix' 		, N'BL'	, N'Prefix for Bill Transaction Numbers')
+
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'PayrollTransactionPrefix' 		, N'PAY'	, N'Prefix for Payroll Transaction Numbers')
 
 	-- Vouchers
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'PurchaseVoucherId', N'4', N'Voucher type for Purchase transactions')
