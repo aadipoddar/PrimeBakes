@@ -48,6 +48,7 @@ public partial class SettingsPage
 	private string _stockTransferTransactionPrefix = string.Empty;
 	private string _orderTransactionPrefix = string.Empty;
 	private string _billTransactionPrefix = string.Empty;
+	private string _payrollTransactionPrefix = string.Empty;
 
 	// Vouchers
 	private string _purchaseVoucherId = string.Empty;
@@ -182,6 +183,7 @@ public partial class SettingsPage
 		_stockTransferTransactionPrefix = Str(SettingsKeys.StockTransferTransactionPrefix) ?? string.Empty;
 		_orderTransactionPrefix = Str(SettingsKeys.OrderTransactionPrefix) ?? string.Empty;
 		_billTransactionPrefix = Str(SettingsKeys.BillTransactionPrefix) ?? string.Empty;
+		_payrollTransactionPrefix = Str(SettingsKeys.PayrollTransactionPrefix) ?? string.Empty;
 
 		// Vouchers
 		_purchaseVoucherId = Str(SettingsKeys.PurchaseVoucherId) ?? string.Empty;
@@ -472,6 +474,7 @@ public partial class SettingsPage
 			await UpdateSetting(SettingsKeys.StockTransferTransactionPrefix, _stockTransferTransactionPrefix, Desc(SettingsKeys.StockTransferTransactionPrefix));
 			await UpdateSetting(SettingsKeys.OrderTransactionPrefix, _orderTransactionPrefix, Desc(SettingsKeys.OrderTransactionPrefix));
 			await UpdateSetting(SettingsKeys.BillTransactionPrefix, _billTransactionPrefix, Desc(SettingsKeys.BillTransactionPrefix));
+			await UpdateSetting(SettingsKeys.PayrollTransactionPrefix, _payrollTransactionPrefix, Desc(SettingsKeys.PayrollTransactionPrefix));
 
 			// Vouchers
 			await UpdateSetting(SettingsKeys.PurchaseVoucherId, _purchaseVoucherId, Desc(SettingsKeys.PurchaseVoucherId));

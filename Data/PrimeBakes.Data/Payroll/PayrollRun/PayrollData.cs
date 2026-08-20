@@ -3,6 +3,7 @@ using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Operations.AuditTrail;
 using PrimeBakes.Data.Payroll.Attendance;
 using PrimeBakes.Data.Payroll.Masters;
+using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Operations.User;
@@ -23,6 +24,24 @@ public static class PayrollData
 
 	public static async Task<List<PayrollOverviewModel>> LoadPayrollOverviewByEmployeeMonthYear(int? EmployeeId = null, int? PayrollMonth = null, int? PayrollYear = null, SqlDataAccessTransaction transaction = null) =>
 		await SqlDataAccess.LoadData<PayrollOverviewModel, dynamic>(PayrollNames.LoadPayrollOverviewByEmployeeMonthYear, new { EmployeeId, PayrollMonth, PayrollYear }, transaction);
+
+	public static async Task<PayslipBundle> LoadPayslipBundle(int payrollId)
+	{
+		var payroll = await CommonData.LoadTableDataById<PayrollOverviewModel>(PayrollNames.PayrollOverview, payrollId)
+			?? throw new InvalidOperationException("Payroll not found.");
+
+		var components = await CommonData.LoadTableDataByMasterId<PayrollItemOverviewModel>(PayrollNames.PayrollItemOverview, payroll.Id);
+		if (components is null || components.Count == 0)
+			throw new InvalidOperationException("No salary components found for the payroll.");
+
+		var employee = await CommonData.LoadTableDataById<EmployeeModel>(PayrollNames.Employee, payroll.EmployeeId)
+			?? throw new InvalidOperationException("Employee information is missing.");
+
+		var company = await SettingsData.LoadPrimaryCompany()
+			?? throw new InvalidOperationException("Company information is missing.");
+
+		return new(payroll, components, company, employee, await CommonData.LoadCurrentDateTime());
+	}
 
 	public static async Task<PayrollSaveRequest> CalculatePayroll(int employeeId, int payrollMonth, int payrollYear, SqlDataAccessTransaction transaction = null)
 	{
@@ -49,7 +68,9 @@ public static class PayrollData
 		var employeeSalaryComponents = await EmployeeSalaryComponentData.LoadEmployeeSalaryComponentOverviewByEmployeeSalaryComponentDate(employeeId, null, monthEnd, transaction);
 		var inputAmounts = employeeSalaryComponents.ToDictionary(x => x.SalaryComponentId, x => x.Amount);
 
-		var amounts = SalaryFormulaEvaluator.EvaluateAll(salaryComponents, inputAmounts, attendance.PaidDays, attendance.DaysInMonth);
+		var extraVariables = new Dictionary<string, decimal> { ["OTHOURS"] = attendance.OvertimeHours };
+
+		var amounts = SalaryFormulaEvaluator.EvaluateAll(salaryComponents, inputAmounts, attendance.PaidDays, attendance.DaysInMonth, extraVariables);
 
 		var transactionDateTime = monthEnd.ToDateTime(TimeOnly.MinValue);
 		var financialYear = await FinancialYearData.LoadFinancialYearByDateTime(transactionDateTime, transaction)

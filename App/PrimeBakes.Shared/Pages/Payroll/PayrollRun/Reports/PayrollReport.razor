@@ -1,0 +1,194 @@
+@using PrimeBakes.Models.Accounts.Masters
+@using PrimeBakes.Models.Payroll.Masters
+@using PrimeBakes.Models.Payroll.PayrollRun
+
+@attribute [Route(PayrollRouteNames.PayrollReport)]
+
+<PageTitle>Payroll Report - Prime Bakes</PageTitle>
+
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(PayrollRouteNames.Payroll, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyQ KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDetailsView" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyW KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleSummary" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyI KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(PayrollRouteNames.PayrollItemReport, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyO KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="ViewSelectedTransaction" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedPayslip()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedPayslip(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="DeleteRecoverSelectedTransaction" Disabled="@_isProcessing" />
+
+@if (_isLoading || _user is null)
+{
+	<LoadingScreen />
+}
+else
+{
+	<div class="page-shell">
+		<Header Title="Payroll Report">
+			<LeftContent>
+				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="New Transaction (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(PayrollRouteNames.Payroll, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Refresh Data (Ctrl + R / F5)" OnClick="LoadTransactionOverviews" />
+					<MudBlazor.MudMenuItem Label="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" OnClick="ToggleDeleted" />
+					<MudBlazor.MudMenuItem Label="@(_showSummary ? "Hide Summary (Ctrl + W)" : "Show Summary (Ctrl + W)")" OnClick="ToggleSummary" />
+					<MudBlazor.MudMenuItem Label="@(_showAllColumns ? "Hide Details (Ctrl + Q)" : "Show Details (Ctrl + Q)")" OnClick="ToggleDetailsView" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportReport()" />
+					<MudBlazor.MudMenuItem Label="Export Excel (Ctrl + E)" OnClick="() => ExportReport(true)" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Export Components PDF" OnClick="() => ExportComponentReport()" />
+					<MudBlazor.MudMenuItem Label="Export Components Excel" OnClick="() => ExportComponentReport(true)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Open" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Payroll (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(PayrollRouteNames.Payroll, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Payroll Report" OnClick="() => AuthenticationService.NavigateToRoute(PayrollRouteNames.PayrollReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Payroll Component Report (Ctrl + I)" OnClick="() => AuthenticationService.NavigateToRoute(PayrollRouteNames.PayrollItemReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Attendance" OnClick="() => AuthenticationService.NavigateToRoute(PayrollRouteNames.Attendance, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Employee" OnClick="() => AuthenticationService.NavigateToRoute(PayrollRouteNames.Employee, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Employee Salary Component" OnClick="() => AuthenticationService.NavigateToRoute(PayrollRouteNames.EmployeeSalaryComponent, FormFactor, JSRuntime, NavigationManager)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Periods" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Current Month" OnClick="() => HandleDatesChanged(DateRangeType.CurrentMonth)" />
+					<MudBlazor.MudMenuItem Label="Previous Month" OnClick="() => HandleDatesChanged(DateRangeType.PreviousMonth)" />
+					<MudBlazor.MudMenuItem Label="Next Month" OnClick="() => HandleDatesChanged(DateRangeType.NextMonth)" />
+					<MudBlazor.MudMenuItem Label="Current FY" OnClick="() => HandleDatesChanged(DateRangeType.CurrentFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="Previous FY" OnClick="() => HandleDatesChanged(DateRangeType.PreviousFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="Next FY" OnClick="() => HandleDatesChanged(DateRangeType.NextFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="All Time" OnClick="() => HandleDatesChanged(DateRangeType.AllTime)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Transaction" Dense="true" Disabled="_isProcessing || _showSummary">
+					<MudBlazor.MudMenuItem Label="View (Alt + O)" OnClick="ViewSelectedTransaction" />
+					<MudBlazor.MudMenuItem Label="Export Payslip PDF (Alt + P)" OnClick="() => ExportSelectedPayslip()" />
+					<MudBlazor.MudMenuItem Label="Export Payslip Excel (Alt + E)" OnClick="() => ExportSelectedPayslip(true)" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Delete / Recover (Del)" OnClick="DeleteRecoverSelectedTransaction" />
+				</MudBlazor.MudMenu>
+			</LeftContent>
+		</Header>
+
+		<div class="page-container">
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Filters</h2>
+				</div>
+
+				<div class="section-body">
+					<div class="filters-grid">
+						<div class="form-field">
+							<CustomDateRangePicker @ref="_firstFocus" Value="@(new MudBlazor.DateRange(_fromDate, _toDate))"
+												   ValueChanged="OnDateRangeChanged"
+												   Label="Date Range (Ctrl + F)"
+												   Required="false" />
+						</div>
+
+						<div class="form-field">
+							<CustomAutoComplete T="EmployeeModel"
+												Value="_selectedEmployee"
+												DataSource="@_employees"
+												Placeholder="All Employees"
+												Label="Employee" Required="false"
+												ValueChanged="OnEmployeeChanged"
+												FieldValue="@nameof(EmployeeModel.Name)"
+												AddNewRoute="@PayrollRouteNames.Employee" />
+						</div>
+
+						<div class="form-field">
+							<CustomAutoComplete T="DepartmentModel"
+												Value="_selectedDepartment"
+												DataSource="@_departments"
+												Placeholder="All Departments"
+												Label="Department" Required="false"
+												ValueChanged="OnDepartmentChanged"
+												FieldValue="@nameof(DepartmentModel.Name)"
+												AddNewRoute="@PayrollRouteNames.Department" />
+						</div>
+
+						<div class="form-field">
+							<CustomAutoComplete T="DesignationModel"
+												Value="_selectedDesignation"
+												DataSource="@_designations"
+												Placeholder="All Designations"
+												Label="Designation" Required="false"
+												ValueChanged="OnDesignationChanged"
+												FieldValue="@nameof(DesignationModel.Name)"
+												AddNewRoute="@PayrollRouteNames.Designation" />
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Records</h2>
+				</div>
+
+				<SfGrid @ref="_sfGrid" TValue="PayrollOverviewModel" DataSource="_transactionOverviews"
+						AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+						AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+						Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+					<GridEvents TValue="PayrollOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+					<GridAggregates>
+						<GridAggregate>
+							<GridAggregateColumns>
+								<GridColumnAggregate Field="@nameof(PayrollOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+								<GridColumnAggregate Field="@nameof(PayrollOverviewModel.PaidDays)" />
+								<GridColumnAggregate Field="@nameof(PayrollOverviewModel.GrossEarnings)" />
+								<GridColumnAggregate Field="@nameof(PayrollOverviewModel.TotalDeductions)" />
+								<GridColumnAggregate Field="@nameof(PayrollOverviewModel.NetPay)" CustomColor="grid-total" />
+								<GridColumnAggregate Field="@nameof(PayrollOverviewModel.EmployerContribution)" />
+							</GridAggregateColumns>
+						</GridAggregate>
+					</GridAggregates>
+
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.TransactionNo)" HeaderText="Transaction No" Visible="@(!_showSummary)" />
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.EmployeeCode)" HeaderText="Employee Code" Visible="@(!_showSummary && (_showAllColumns || _selectedEmployee is null || _selectedEmployee.Id <= 0))" />
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.EmployeeName)" HeaderText="Employee" Visible="@(!_showSummary && (_showAllColumns || _selectedEmployee is null || _selectedEmployee.Id <= 0))" />
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.DepartmentName)" HeaderText="Department" Visible="@(_showAllColumns || _showSummary || _selectedDepartment is null || _selectedDepartment.Id <= 0)" />
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.DesignationName)" HeaderText="Designation" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.TransactionDateTime)" HeaderText="Period" Format="MMM yyyy" Type="ColumnType.DateTime" Visible="@(!_showSummary)" />
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.FinancialYear)" HeaderText="Financial Year" Visible="@(_showAllColumns && !_showSummary)" />
+
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.DaysInMonth)" HeaderText="Days" Visible="@(_showAllColumns && !_showSummary)" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.PaidDays)" HeaderText="Paid Days" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.GrossEarnings)" HeaderText="Gross" TotalColumn="true" />
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.TotalDeductions)" HeaderText="Deductions" TotalColumn="true" />
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.NetPay)" HeaderText="Net Pay" TotalColumn="true" />
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.EmployerContribution)" HeaderText="Employer Contribution" Visible="@(_showAllColumns || _showSummary)" TotalColumn="true" />
+
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.Remarks)" HeaderText="Remarks" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.CreatedByName)" HeaderText="Created By" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.CreatedAt)" HeaderText="Created At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.CreatedFromPlatform)" HeaderText="Created Platform" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.LastModifiedAt)" HeaderText="Modified At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.LastModifiedFromPlatform)" HeaderText="Modified Platform" Visible="@(_showAllColumns && !_showSummary)" />
+
+						<CustomGridColumn Field="@nameof(PayrollOverviewModel.Status)" Visible="@(_showDeleted && !_showSummary)" StatusColumn="true" />
+					</GridColumns>
+				</SfGrid>
+			</div>
+		</div>
+
+		<Footer />
+	</div>
+}
+
+<ConfirmationDialog @ref="_confirmationDialog" Title="@_confirmTitle" Message="@_confirmMessage" OnConfirm="OnConfirmed" OnCancel="OnCancelled" />
+
+<ToastNotification @ref="_toastNotification" />
+
+<CloseGuard Block="_isProcessing" />

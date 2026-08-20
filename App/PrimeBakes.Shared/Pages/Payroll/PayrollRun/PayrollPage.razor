@@ -11,6 +11,8 @@
 <MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportMaster()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="DeleteRecoverSelectedItem" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedPayslip()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedPayslip(true)" Disabled="@_isProcessing" />
 
 @if (_isLoading || _user is null)
 {
@@ -31,6 +33,9 @@ else
 				</MudBlazor.MudMenu>
 
 				<MudBlazor.MudMenu Label="Transaction" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Export Payslip PDF (Alt + P)" OnClick="() => ExportSelectedPayslip()" />
+					<MudBlazor.MudMenuItem Label="Export Payslip Excel (Alt + E)" OnClick="() => ExportSelectedPayslip(true)" />
+					<MudBlazor.MudDivider />
 					<MudBlazor.MudMenuItem Label="Delete / Recover (Del)" OnClick="DeleteRecoverSelectedItem" />
 					<MudBlazor.MudDivider />
 					<MudBlazor.MudMenuItem Label="Export Components Excel" OnClick="() => ExportItems(true)" />

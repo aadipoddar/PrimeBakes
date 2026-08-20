@@ -1,6 +1,9 @@
 ﻿using PrimeBakes.Data.Accounts.FinancialAccounting;
 using PrimeBakes.Data.Inventory.Kitchen.KitchenIssue;
 using PrimeBakes.Data.Inventory.Kitchen.KitchenProduction;
+using PrimeBakes.Data.Payroll.PayrollRun;
+using PrimeBakes.Exports.Payroll.PayrollRun;
+using PrimeBakes.Models.Payroll.PayrollRun;
 using PrimeBakes.Data.Inventory.Purchase;
 using PrimeBakes.Data.Restaurant.Bill;
 using PrimeBakes.Data.Store.Order;
@@ -134,6 +137,16 @@ public static class DecodeCode
 					var kitchenProductionReturnBundle = await KitchenProductionReturnData.LoadInvoiceBundle((decodeTransactionNoModel.TransactionModel as KitchenProductionReturnModel).Id);
 					if (pdf) decodeTransactionNoModel.PDFStream = KitchenProductionReturnInvoiceExport.ExportInvoice(kitchenProductionReturnBundle, InvoiceExportType.PDF);
 					if (excel) decodeTransactionNoModel.ExcelStream = KitchenProductionReturnInvoiceExport.ExportInvoice(kitchenProductionReturnBundle, InvoiceExportType.Excel);
+				}
+				break;
+			case CodeType.Payroll:
+				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByTransactionNo<PayrollModel>(PayrollNames.Payroll, transactionNo);
+				decodeTransactionNoModel.PageRouteName = PayrollRouteNames.Payroll;
+				if (pdf || excel)
+				{
+					var payslipBundle = await PayrollData.LoadPayslipBundle((decodeTransactionNoModel.TransactionModel as PayrollModel).Id);
+					if (pdf) decodeTransactionNoModel.PDFStream = PayslipExport.ExportPayslip(payslipBundle, InvoiceExportType.PDF);
+					if (excel) decodeTransactionNoModel.ExcelStream = PayslipExport.ExportPayslip(payslipBundle, InvoiceExportType.Excel);
 				}
 				break;
 			case CodeType.RawMaterial:

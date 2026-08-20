@@ -135,4 +135,6 @@ public static class PayrollRouteNames
 	public const string EmployeeSalaryComponent = "/payroll/employee-salary-component";
 	public const string Attendance = "/payroll/attendance";
 	public const string Payroll = "/payroll/payroll";
+	public const string PayrollReport = "/payroll/payroll-report";
+	public const string PayrollItemReport = "/payroll/payroll-item-report";
 }

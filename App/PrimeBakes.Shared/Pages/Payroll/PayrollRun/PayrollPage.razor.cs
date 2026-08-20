@@ -31,6 +31,8 @@ public partial class PayrollPage
 
 	private readonly List<ContextMenuItemModel> _gridContextMenuItems =
 	[
+		new() { Text = "Payslip PDF (Alt + P)", Id = "PayslipPDF", IconCss = "e-icons e-export-pdf", Target = ".e-content" },
+		new() { Text = "Payslip Excel (Alt + E)", Id = "PayslipExcel", IconCss = "e-icons e-export-excel", Target = ".e-content" },
 		new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverSelectedItem", IconCss = "e-icons e-trash", Target = ".e-content" }
 	];
 
@@ -248,6 +250,35 @@ public partial class PayrollPage
 	#endregion
 
 	#region Exporting
+	private async Task ExportSelectedPayslip(bool isExcel = false)
+	{
+		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+			return;
+
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+			await _toastNotification.ShowAsync("Processing", "Generating the Payslip...", ToastType.Info);
+
+			var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo, !isExcel, isExcel);
+			await SaveAndViewService.SaveAndView(
+				isExcel ? decodedTransactionNo.ExcelStream.fileName : decodedTransactionNo.PDFStream.fileName,
+				isExcel ? decodedTransactionNo.ExcelStream.stream : decodedTransactionNo.PDFStream.stream);
+
+			await _toastNotification.ShowAsync("Exported", "The payslip has been downloaded successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error While Exporting", ex.Message, ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
+
 	private async Task ExportMaster(bool isExcel = false)
 	{
 		if (_isProcessing)
@@ -323,6 +354,8 @@ public partial class PayrollPage
 	{
 		switch (args.Item.Id)
 		{
+			case "PayslipPDF": await ExportSelectedPayslip(); break;
+			case "PayslipExcel": await ExportSelectedPayslip(true); break;
 			case "DeleteRecoverSelectedItem": await DeleteRecoverSelectedItem(); break;
 		}
 	}

@@ -1087,6 +1087,34 @@ else
 						</div>
 					</div>
 
+					<!-- Reports -->
+					<div class="launchpad-section">
+						<h2 class="launchpad-section-title">Reports</h2>
+						<div class="dashboard-grid">
+							<FioriTile Title="Payroll Report" Subtitle="Salary totals by employee and period" OnClick="() => NavigationManager.NavigateTo(PayrollRouteNames.PayrollReport)">
+								<IconContent>
+									<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+										<path d="M14 2v6h6" />
+										<path d="M8 13h8" />
+										<path d="M8 17h5" />
+									</svg>
+								</IconContent>
+							</FioriTile>
+
+							<FioriTile Title="Payroll Component Report" Subtitle="Component-wise breakup across payslips" OnClick="() => NavigationManager.NavigateTo(PayrollRouteNames.PayrollItemReport)">
+								<IconContent>
+									<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<path d="M3 3v18h18" />
+										<rect x="7" y="12" width="3" height="6" />
+										<rect x="12" y="8" width="3" height="10" />
+										<rect x="17" y="4" width="3" height="14" />
+									</svg>
+								</IconContent>
+							</FioriTile>
+						</div>
+					</div>
+
 					<!-- Master Data -->
 					<div class="launchpad-section">
 						<h2 class="launchpad-section-title">Master Data</h2>

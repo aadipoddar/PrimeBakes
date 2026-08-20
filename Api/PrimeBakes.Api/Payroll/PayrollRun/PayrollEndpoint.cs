@@ -14,6 +14,9 @@ public class PayrollEndpoint : ICarterModule
 		group.MapGet(nameof(PayrollData.LoadPayrollOverviewByEmployeeMonthYear),
 			(int? EmployeeId, int? PayrollMonth, int? PayrollYear) => PayrollData.LoadPayrollOverviewByEmployeeMonthYear(EmployeeId, PayrollMonth, PayrollYear));
 
+		group.MapGet(nameof(PayrollData.LoadPayslipBundle),
+			(int payrollId) => PayrollData.LoadPayslipBundle(payrollId));
+
 		group.MapGet(nameof(PayrollData.CalculatePayroll),
 			(int employeeId, int payrollMonth, int payrollYear) => PayrollData.CalculatePayroll(employeeId, payrollMonth, payrollYear));
 

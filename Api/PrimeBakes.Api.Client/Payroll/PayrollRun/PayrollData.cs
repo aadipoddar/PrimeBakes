@@ -10,6 +10,9 @@ public static class PayrollData
 	public static async Task<List<PayrollOverviewModel>> LoadPayrollOverviewByEmployeeMonthYear(int? EmployeeId = null, int? PayrollMonth = null, int? PayrollYear = null) =>
 		await ApiClient.Get<List<PayrollOverviewModel>>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadPayrollOverviewByEmployeeMonthYear)), new { EmployeeId, PayrollMonth, PayrollYear });
 
+	public static async Task<PayslipBundle> LoadPayslipBundle(int payrollId) =>
+		await ApiClient.Get<PayslipBundle>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadPayslipBundle)), new { payrollId });
+
 	public static async Task<PayrollSaveRequest> CalculatePayroll(int employeeId, int payrollMonth, int payrollYear) =>
 		await ApiClient.Get<PayrollSaveRequest>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(CalculatePayroll)), new { employeeId, payrollMonth, payrollYear });
 
