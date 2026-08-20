@@ -7,7 +7,7 @@ using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Inventory.Kitchen.KitchenProduction;
 using PrimeBakes.Models.Operations.User;
 
-namespace PrimeBakes.Data.Inventory.Kitchen;
+namespace PrimeBakes.Data.Inventory.Kitchen.KitchenProduction;
 
 internal static class KitchenProductionNotify
 {

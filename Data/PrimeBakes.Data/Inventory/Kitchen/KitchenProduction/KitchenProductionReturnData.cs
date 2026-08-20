@@ -12,7 +12,7 @@ using PrimeBakes.Models.Inventory.Stock;
 using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Operations.User;
 
-namespace PrimeBakes.Data.Inventory.Kitchen;
+namespace PrimeBakes.Data.Inventory.Kitchen.KitchenProduction;
 
 public static class KitchenProductionReturnData
 {

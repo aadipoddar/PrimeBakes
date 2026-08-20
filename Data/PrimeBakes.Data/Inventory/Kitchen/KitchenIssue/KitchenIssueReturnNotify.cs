@@ -7,7 +7,7 @@ using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Inventory.Kitchen.KitchenIssue;
 using PrimeBakes.Models.Operations.User;
 
-namespace PrimeBakes.Data.Inventory.Kitchen;
+namespace PrimeBakes.Data.Inventory.Kitchen.KitchenIssue;
 
 internal static class KitchenIssueReturnNotify
 {

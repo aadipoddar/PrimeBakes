@@ -25,6 +25,28 @@ jobs:
     - name: Install .NET MAUI Workload
       run: dotnet workload install maui --skip-sign-check
 
+    - name: Create Secrets.local_secrets.cs
+      run: |
+        $secretsContent = @'
+        namespace PrimeBakes.Data.DataAccess;
+
+        public static partial class Secrets
+        {
+            static Secrets()
+            {
+                AzureConnectionString = "${{ secrets.AzureConnectionString }}";
+
+                AzureBlobStorageConnectionString = "${{ secrets.AzureBlobStorageConnectionString }}";
+                AzureBlobStorageAccountKey = "${{ secrets.AzureBlobStorageAccountKey }}";
+
+                JwtKey = "${{ secrets.JwtKey }}";
+
+                EmailPassword = "${{ secrets.EmailPassword }}";
+            }
+        }
+        '@
+        Set-Content -Path "Data/PrimeBakes.Data/DataAccess/Secrets.local_secrets.cs" -Value $secretsContent
+
     - name: Create CommonSecrets.local_secrets.cs
       run: |
         $commonSecretsContent = @'
@@ -42,6 +64,15 @@ jobs:
         }
         '@
         Set-Content -Path "Data/PrimeBakes.Models/DataAccess/CommonSecrets.local_secrets.cs" -Value $commonSecretsContent
+
+    - name: Point PrimeBakes.Shared at PrimeBakes.Data
+      run: |
+        $path = "App/PrimeBakes.Shared/PrimeBakes.Shared.csproj"
+        $old = '<ProjectReference Include="..\..\Api\PrimeBakes.Api.Client\PrimeBakes.Api.Client.csproj" />'
+        $new = '<ProjectReference Include="..\..\Data\PrimeBakes.Data\PrimeBakes.Data.csproj" />'
+        $content = Get-Content -Path $path -Raw
+        if (-not $content.Contains($old)) { throw "Api.Client project reference not found in $path" }
+        Set-Content -Path $path -Value $content.Replace($old, $new) -NoNewline
 
     - name: Restore dependencies
       run: dotnet restore App/PrimeBakes/PrimeBakes.csproj

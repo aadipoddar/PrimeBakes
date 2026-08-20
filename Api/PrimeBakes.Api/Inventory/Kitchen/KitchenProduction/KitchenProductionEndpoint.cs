@@ -1,8 +1,8 @@
-﻿using PrimeBakes.Data.Inventory.Kitchen;
+﻿using PrimeBakes.Data.Inventory.Kitchen.KitchenProduction;
 using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Inventory.Kitchen.KitchenProduction;
 
-namespace PrimeBakes.Api.Inventory.Kitchen;
+namespace PrimeBakes.Api.Inventory.Kitchen.KitchenProduction;
 
 public class KitchenProductionEndpoint : ICarterModule
 {

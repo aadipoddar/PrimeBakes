@@ -1,5 +1,6 @@
 ﻿using PrimeBakes.Data.Accounts.FinancialAccounting;
-using PrimeBakes.Data.Inventory.Kitchen;
+using PrimeBakes.Data.Inventory.Kitchen.KitchenIssue;
+using PrimeBakes.Data.Inventory.Kitchen.KitchenProduction;
 using PrimeBakes.Data.Inventory.Purchase;
 using PrimeBakes.Data.Restaurant.Bill;
 using PrimeBakes.Data.Store.Order;
