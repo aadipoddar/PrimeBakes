@@ -29,7 +29,6 @@ namespace PrimeBakes.Data.Store.Sale;
 
 public static class SaleData
 {
-
 	private static async Task<int> InsertSale(SaleModel sale, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertSale, sale, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Sale.");
