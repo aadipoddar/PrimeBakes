@@ -1,5 +1,6 @@
 @using PrimeBakes.Models.Accounts.Masters
 @using PrimeBakes.Models.Inventory.Purchase
+@using PrimeBakes.Models.Inventory.PurchaseOrder
 @using PrimeBakes.Models.Inventory.RawMaterial
 
 @attribute [Route(InventoryRouteNames.Purchase)]
@@ -90,6 +91,28 @@ else
 													ValueChanged="OnPartyChanged"
 													FieldValue="@nameof(LedgerModel.Name)"
 													AddNewRoute="@AccountsRouteNames.LedgerMaster" />
+							</div>
+
+							<!-- Purchase Order -->
+							<div class="form-field">
+								<div class="reference-wrapper">
+									<CustomAutoComplete T="PurchaseOrderModel"
+														Value="_selectedPurchaseOrder"
+														DataSource="@_purchaseOrders"
+														Placeholder="Select a Purchase Order"
+														Label="Purchase Order"
+														Required="false"
+														ValueChanged="OnPurchaseOrderChanged"
+														FieldValue="@nameof(PurchaseOrderModel.TransactionNo)"
+														AddNewRoute="@InventoryRouteNames.PurchaseOrder" />
+									@if (_purchase.PurchaseOrderId is not null && _purchase.PurchaseOrderId > 0 && _selectedPurchaseOrder is not null && _selectedPurchaseOrder.Id > 0)
+									{
+										<div class="reference-actions">
+											<IconButton Icon="IconType.View" Variant="ButtonVariant.View" Size="ButtonSize.Small"
+														Title="View Purchase Order" OnClick="ViewSelectedPurchaseOrder" />
+										</div>
+									}
+								</div>
 							</div>
 
 							<!-- Transaction Date -->

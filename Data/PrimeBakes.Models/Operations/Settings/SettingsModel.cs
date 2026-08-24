@@ -24,6 +24,7 @@ public static class SettingsKeys
 
 	public static string PurchaseTransactionPrefix => "PurchaseTransactionPrefix";
 	public static string PurchaseReturnTransactionPrefix => "PurchaseReturnTransactionPrefix";
+	public static string PurchaseOrderTransactionPrefix => "PurchaseOrderTransactionPrefix";
 	public static string KitchenIssueTransactionPrefix => "KitchenIssueTransactionPrefix";
 	public static string KitchenIssueReturnTransactionPrefix => "KitchenIssueReturnTransactionPrefix";
 	public static string KitchenProductionReturnTransactionPrefix => "KitchenProductionReturnTransactionPrefix";

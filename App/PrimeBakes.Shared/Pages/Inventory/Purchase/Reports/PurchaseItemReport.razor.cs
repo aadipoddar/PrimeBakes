@@ -50,6 +50,7 @@ public partial class PurchaseItemReport : IAsyncDisposable
 	[
 		new() { Text = "View (Alt + O)", Id = "View", IconCss = "e-icons e-eye", Target = ".e-content" },
 		new() { Text = "View Accounting Posting", Id = "ViewAccountingPosting", IconCss = "e-icons e-link", Target = ".e-content" },
+		new() { Text = "View Purchase Order", Id = "ViewPurchaseOrder", IconCss = "e-icons e-link", Target = ".e-content" },
 		new() { Text = "Export PDF (Alt + P)", Id = "ExportPDF", IconCss = "e-icons e-export-pdf", Target = ".e-content" },
 		new() { Text = "Export Excel (Alt + E)", Id = "ExportExcel", IconCss = "e-icons e-export-excel", Target = ".e-content" },
 		new() { Text = "Export Original (Alt + L)", Id = "ExportOriginal", IconCss = "e-icons e-download", Target = ".e-content" },
@@ -309,6 +310,22 @@ public partial class PurchaseItemReport : IAsyncDisposable
 		await AuthenticationService.NavigateToRoute(decodedTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
 	}
 
+	private async Task ViewPurchaseOrder()
+	{
+		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
+			return;
+
+		var record = _sfGrid.SelectedRecords.First();
+		if (string.IsNullOrWhiteSpace(record.PurchaseOrderTransactionNo))
+		{
+			await _toastNotification.ShowAsync("No Purchase Order", "This transaction has no linked purchase order.", ToastType.Warning);
+			return;
+		}
+
+		var decoded = await DecodeCode.DecodeTransactionNo(record.PurchaseOrderTransactionNo, false, false, CodeType.PurchaseOrder);
+		await AuthenticationService.NavigateToRoute(decoded.PageRouteName, FormFactor, JSRuntime, NavigationManager);
+	}
+
 	private async Task ViewFinancialAccountingPosting()
 	{
 		if (_isProcessing || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
@@ -532,6 +549,7 @@ public partial class PurchaseItemReport : IAsyncDisposable
 		{
 			case "View": await ViewSelectedTransaction(); break;
 			case "ViewAccountingPosting": await ViewFinancialAccountingPosting(); break;
+			case "ViewPurchaseOrder": await ViewPurchaseOrder(); break;
 			case "ExportPDF": await ExportSelectedTransaction(); break;
 			case "ExportExcel": await ExportSelectedTransaction(true); break;
 			case "ExportOriginal": await DownloadSelectedOriginalInvoice(); break;

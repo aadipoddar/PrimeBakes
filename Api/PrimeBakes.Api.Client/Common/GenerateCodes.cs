@@ -3,6 +3,7 @@ using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Inventory.Kitchen.KitchenIssue;
 using PrimeBakes.Models.Inventory.Kitchen.KitchenProduction;
 using PrimeBakes.Models.Inventory.Purchase;
+using PrimeBakes.Models.Inventory.PurchaseOrder;
 using PrimeBakes.Models.Restaurant.Bill;
 using PrimeBakes.Models.Store.Order;
 using PrimeBakes.Models.Store.Sale;
@@ -22,6 +23,9 @@ public static class GenerateCodes
 
 	public static async Task<string> GeneratePurchaseReturnTransactionNo(PurchaseReturnModel purchaseReturn) =>
 		await ApiClient.Post<string>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(GeneratePurchaseReturnTransactionNo)), purchaseReturn);
+
+	public static async Task<string> GeneratePurchaseOrderTransactionNo(PurchaseOrderModel purchaseOrder) =>
+		await ApiClient.Post<string>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(GeneratePurchaseOrderTransactionNo)), purchaseOrder);
 
 	public static async Task<string> GenerateKitchenIssueTransactionNo(KitchenIssueModel kitchenIssue) =>
 		await ApiClient.Post<string>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(GenerateKitchenIssueTransactionNo)), kitchenIssue);

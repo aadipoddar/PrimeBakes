@@ -84,6 +84,7 @@
     <Folder Include="Inventory" />
     <Folder Include="Inventory\Kitchen" />
     <Folder Include="Inventory\Purchase" />
+    <Folder Include="Inventory\PurchaseOrder" />
     <Folder Include="Inventory\RawMaterial" />
     <Folder Include="Inventory\Recipe" />
     <Folder Include="Inventory\Stock" />
@@ -93,6 +94,9 @@
     <Folder Include="Inventory\Purchase\Table" />
     <Folder Include="Inventory\Purchase\Load" />
     <Folder Include="Inventory\Purchase\Insert" />
+    <Folder Include="Inventory\PurchaseOrder\Table" />
+    <Folder Include="Inventory\PurchaseOrder\Load" />
+    <Folder Include="Inventory\PurchaseOrder\Insert" />
     <Folder Include="Inventory\RawMaterial\Table" />
     <Folder Include="Inventory\RawMaterial\Insert" />
     <Folder Include="Inventory\RawMaterial\Load" />
@@ -208,6 +212,8 @@
     <Build Include="Inventory\Purchase\Insert\Insert_Purchase.sql" />
     <Build Include="Inventory\Purchase\Insert\Insert_PurchaseDetail.sql" />
     <Build Include="Inventory\Purchase\Insert\Insert_PurchaseReturn.sql" />
+    <Build Include="Inventory\PurchaseOrder\Insert\Insert_PurchaseOrder.sql" />
+    <Build Include="Inventory\PurchaseOrder\Insert\Insert_PurchaseOrderDetail.sql" />
     <Build Include="Inventory\Kitchen\Insert\Insert_KitchenProductionDetail.sql" />
     <Build Include="Inventory\Kitchen\Insert\Insert_Kitchen.sql" />
     <Build Include="Inventory\Kitchen\Insert\Insert_KitchenIssue.sql" />
@@ -231,6 +237,8 @@
     <Build Include="Inventory\Purchase\Table\Purchase.sql" />
     <Build Include="Inventory\Purchase\Table\PurchaseDetail.sql" />
     <Build Include="Inventory\Purchase\Table\PurchaseReturn.sql" />
+    <Build Include="Inventory\PurchaseOrder\Table\PurchaseOrder.sql" />
+    <Build Include="Inventory\PurchaseOrder\Table\PurchaseOrderDetail.sql" />
     <Build Include="Inventory\RawMaterial\Table\RawMaterial.sql" />
     <Build Include="Inventory\RawMaterial\Table\RawMaterialCategory.sql" />
     <Build Include="Inventory\Recipe\Table\Recipe.sql" />
@@ -254,6 +262,9 @@
     <Build Include="Inventory\Purchase\Load\Purchase_Overview.sql" />
     <Build Include="Inventory\Purchase\Load\PurchaseReturn_Item_Overview.sql" />
     <Build Include="Inventory\Purchase\Load\PurchaseReturn_Overview.sql" />
+    <Build Include="Inventory\PurchaseOrder\Load\PurchaseOrder_Item_Overview.sql" />
+    <Build Include="Inventory\PurchaseOrder\Load\PurchaseOrder_Overview.sql" />
+    <Build Include="Inventory\PurchaseOrder\Load\Load_PurchaseOrder_By_Party_Pending.sql" />
     <Build Include="Inventory\Stock\Load\ProductStockDetails.sql" />
     <Build Include="Inventory\Stock\Load\RawMaterialStockDetails.sql" />
     <Build Include="Inventory\Recipe\Load\Recipe_Overview.sql" />

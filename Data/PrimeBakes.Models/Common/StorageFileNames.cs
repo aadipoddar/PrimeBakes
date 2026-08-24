@@ -13,6 +13,9 @@ public static class StorageFileNames
 	public static string PurchaseCartDataFileName => "purchase_cart_data.json";
 	public static string PurchaseReturnCartDataFileName => "purchase_return_cart_data.json";
 
+	public static string PurchaseOrderDataFileName => "purchase_order_data.json";
+	public static string PurchaseOrderCartDataFileName => "purchase_order_cart_data.json";
+
 	public static string KitchenIssueDataFileName => "kitchen_issue_data.json";
 	public static string KitchenIssueCartDataFileName => "kitchen_issue_cart_data.json";
 

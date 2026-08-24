@@ -1,0 +1,240 @@
+@using PrimeBakes.Models.Accounts.Masters
+@using PrimeBakes.Models.Inventory.PurchaseOrder
+@using PrimeBakes.Models.Inventory.RawMaterial
+
+@attribute [Route(InventoryRouteNames.PurchaseOrder)]
+@attribute [Route(InventoryRouteNames.PurchaseOrder + "/{Id:int}")]
+
+<PageTitle>Purchase Order - Prime Bakes</PageTitle>
+
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ResetPage" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyG KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _itemAutoComplete?.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Enter KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="AddItemToCart" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction(savePDF: true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction(saveExcel: true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyH KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseOrderReport, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyI KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseOrderItemReport, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="RemoveSelectedCartItem" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="EditSelectedCartItem" Disabled="@_isProcessing" />
+
+@if (_isLoading || _user is null)
+{
+	<LoadingScreen />
+}
+else
+{
+	<div class="page-shell">
+		<Header Title="@(_purchaseOrder.Id > 0 ? $"Edit Purchase Order {_purchaseOrder.TransactionNo}" : "Create Purchase Order")">
+			<LeftContent>
+				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="New Transaction (Ctrl + N)" OnClick="ResetPage" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Save (Ctrl + S)" OnClick="() => SaveTransaction()" />
+					<MudBlazor.MudMenuItem Label="Save &amp; PDF (Ctrl + P)" OnClick="() => SaveTransaction(savePDF: true)" />
+					<MudBlazor.MudMenuItem Label="Save &amp; Excel (Ctrl + E)" OnClick="() => SaveTransaction(saveExcel: true)" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Export PDF (Alt + P)" OnClick="() => ExportSelectedTransaction()" Disabled="@(_isProcessing || !Id.HasValue || Id.Value <= 0)" />
+					<MudBlazor.MudMenuItem Label="Export Excel (Alt + E)" OnClick="() => ExportSelectedTransaction(true)" Disabled="@(_isProcessing || !Id.HasValue || Id.Value <= 0)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Open" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Purchase Order (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseOrder, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Purchase Order Report (Ctrl + H)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseOrderReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Purchase Order Item Report (Ctrl + I)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseOrderItemReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Purchase" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.Purchase, FormFactor, JSRuntime, NavigationManager)" />
+				</MudBlazor.MudMenu>
+			</LeftContent>
+		</Header>
+
+		<div class="page-container">
+
+			<!-- Transaction -->
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Transaction</h2>
+				</div>
+
+				<div class="section-body">
+					<div class="form-grid">
+
+						<!-- Company -->
+						<div class="form-field">
+							<CustomAutoComplete @ref="_firstFocus" T="CompanyModel"
+												Value="_selectedCompany"
+												DataSource="@_companies"
+												Placeholder="Select a Company"
+												Label="Company (Ctrl + F)"
+												ValueChanged="OnCompanyChanged"
+												FieldValue="@nameof(CompanyModel.Name)"
+												AddNewRoute="@AccountsRouteNames.CompanyMaster" />
+						</div>
+
+						<!-- Party -->
+						<div class="form-field">
+							<CustomAutoComplete T="LedgerModel"
+												Value="_selectedParty"
+												DataSource="@_parties"
+												Placeholder="Select a Party"
+												Label="Party"
+												ValueChanged="OnPartyChanged"
+												FieldValue="@nameof(LedgerModel.Name)"
+												AddNewRoute="@AccountsRouteNames.LedgerMaster" />
+						</div>
+
+						<!-- Transaction Date -->
+						<div class="form-field">
+							<CustomDatePicker Value="_purchaseOrder.TransactionDateTime"
+											  ValueChanged="OnTransactionDateChanged"
+											  FinancialYear="@_selectedFinancialYear" />
+						</div>
+
+						<!-- Expected Delivery Date -->
+						<div class="form-field">
+							<CustomDatePicker NullableValue="_expectedDeliveryDate"
+											  NullableValueChanged="OnExpectedDeliveryDateChanged"
+											  Label="Expected Delivery"
+											  Required="false"
+											  ShowFinancialYear="false" />
+						</div>
+
+						<!-- Transaction No -->
+						<div class="form-field">
+							<CustomTextField @bind-Value="_purchaseOrder.TransactionNo"
+											 Label="Transaction No"
+											 Placeholder="Transaction No"
+											 ReadOnly="true"
+											 TabIndex="-1" />
+						</div>
+
+						@if (_purchase?.Id > 0)
+						{
+							<!-- Linked Purchase -->
+							<div class="form-field">
+								<div class="reference-wrapper">
+									<CustomTextField Value="@_purchase.TransactionNo"
+													 Label="Linked Purchase"
+													 Placeholder="No Purchase Linked"
+													 ReadOnly="true"
+													 TabIndex="-1" />
+									<div class="reference-actions">
+										<IconButton Icon="IconType.View" Variant="ButtonVariant.View" Size="ButtonSize.Small"
+													Title="View Purchase" OnClick="ViewSelectedPurchase" />
+									</div>
+								</div>
+							</div>
+						}
+
+						<!-- Remarks -->
+						<div class="form-field form-field-full">
+							<CustomTextField @bind-Value="_purchaseOrder.Remarks"
+											 Label="Remarks / Narration"
+											 Placeholder="Enter remarks..."
+											 Required="false"
+											 Lines="2" />
+						</div>
+
+					</div>
+				</div>
+			</div>
+
+			<!-- Add to Cart -->
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Add Items to Cart</h2>
+				</div>
+
+				<div class="section-body">
+					<div class="cart-input-row">
+
+						<!-- Item -->
+						<div class="cart-field cart-field-wide">
+							<CustomAutoComplete T="RawMaterialModel"
+												@ref="_itemAutoComplete"
+												Value="_selectedRawMaterial"
+												DataSource="@_rawMaterials"
+												Placeholder="Select a Raw Material"
+												Label="Raw Material (Ctrl + G)"
+												ValueChanged="OnItemChanged"
+												FieldValue="@nameof(RawMaterialModel.Name)"
+												AddNewRoute="@InventoryRouteNames.RawMaterial"
+												OpenOnFocus="false" />
+						</div>
+
+						<div class="cart-field">
+							<CustomNumericField T="decimal"
+												Value="_selectedCart.Quantity"
+												ValueChanged="OnItemQuantityChanged"
+												Label="Qty"
+												Placeholder="0.00"
+												Min="0" />
+						</div>
+
+						<div class="cart-field">
+							<CustomTextField @bind-Value="_selectedCart.UnitOfMeasurement"
+											 Label="Unit"
+											 Placeholder="Unit"
+											 ReadOnly="true"
+											 TabIndex="-1" />
+						</div>
+
+						<div class="cart-field cart-field-wide">
+							<CustomTextField @bind-Value="_selectedCart.Remarks"
+											 Label="Remarks"
+											 Placeholder="Item Narration..."
+											 Required="false" />
+						</div>
+
+						<!-- Add Button -->
+						<div class="cart-field cart-field-action">
+							<IconButton Icon="IconType.Add" Variant="ButtonVariant.Add" Text="Add" Title="Add to Cart" OnClick="AddItemToCart" />
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Cart -->
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Cart</h2>
+				</div>
+
+				<SfGrid @ref="_sfCartGrid" DataSource="_cart"
+						AllowSorting="true" AllowResizing="true"
+						AllowFiltering="true" AllowReordering="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal" ContextMenuItems="@_cartGridContextMenuItems"
+						Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+					<GridEvents TValue="PurchaseOrderItemCartModel" ContextMenuItemClicked="OnCartGridContextMenuItemClicked" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+					<GridAggregates>
+						<GridAggregate>
+							<GridAggregateColumns>
+								<GridColumnAggregate Field="@nameof(PurchaseOrderItemCartModel.ItemName)" Type="AggregateType.Count" Format="N0" />
+								<GridColumnAggregate Field="@nameof(PurchaseOrderItemCartModel.Quantity)" CustomColor="grid-total" />
+							</GridAggregateColumns>
+						</GridAggregate>
+					</GridAggregates>
+
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemCartModel.ItemName)" HeaderText="Item Name" />
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemCartModel.Quantity)" HeaderText="Qty" TotalColumn="true" />
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemCartModel.UnitOfMeasurement)" HeaderText="Unit" />
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemCartModel.Remarks)" HeaderText="Remarks" />
+					</GridColumns>
+				</SfGrid>
+			</div>
+		</div>
+
+		<Footer />
+	</div>
+}
+
+<ToastNotification @ref="_toastNotification" />
+
+<CloseGuard Block="_isProcessing" />

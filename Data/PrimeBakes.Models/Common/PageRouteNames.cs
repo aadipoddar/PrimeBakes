@@ -37,6 +37,9 @@ public static class InventoryRouteNames
 {
 	public const string Purchase = "/inventory/purchase";
 	public const string PurchaseReturn = "/inventory/purchase-return";
+	public const string PurchaseOrder = "/inventory/purchase-order";
+	public const string PurchaseOrderReport = "/inventory/purchase-order-report";
+	public const string PurchaseOrderItemReport = "/inventory/purchase-order-item-report";
 	public const string PurchaseReport = "/inventory/purchase-report";
 	public const string PurchaseItemReport = "/inventory/purchase-item-report";
 	public const string PurchaseReturnReport = "/inventory/purchase-return-report";

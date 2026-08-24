@@ -3,10 +3,12 @@ using Microsoft.AspNetCore.Components;
 using PrimeBakes.Data.Accounts.Masters;
 using PrimeBakes.Data.DataAccess;
 using PrimeBakes.Data.Inventory.Purchase;
+using PrimeBakes.Data.Inventory.PurchaseOrder;
 using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Inventory.Purchase;
+using PrimeBakes.Models.Inventory.PurchaseOrder;
 using PrimeBakes.Models.Inventory.RawMaterial;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
@@ -34,12 +36,14 @@ public partial class PurchasePage
 	private CompanyModel _selectedCompany = new();
 	private LedgerModel _selectedParty = new();
 	private FinancialYearModel _selectedFinancialYear = new();
+	private PurchaseOrderModel _selectedPurchaseOrder = null;
 	private RawMaterialModel _selectedRawMaterial = null;
 	private PurchaseItemCartModel _selectedCart = new();
 	private PurchaseModel _purchase = new();
 
 	private List<CompanyModel> _companies = [];
 	private List<LedgerModel> _parties = [];
+	private List<PurchaseOrderModel> _purchaseOrders = [];
 	private List<RawMaterialModel> _rawMaterials = [];
 	private List<TaxModel> _taxes = [];
 	private List<PurchaseItemCartModel> _cart = [];
@@ -76,6 +80,7 @@ public partial class PurchasePage
 		await LoadData();
 		await ResolveTransaction();
 		await LoadSelections();
+		await LoadPurchaseOrdersForParty();
 		await LoadItems();
 		await ResolveCart();
 
@@ -163,6 +168,7 @@ public partial class PurchasePage
 			ChallanNo = null,
 			CompanyId = _selectedCompany.Id,
 			PartyId = _selectedParty.Id,
+			PurchaseOrderId = null,
 			TransactionDateTime = currentDateTime,
 			FinancialYearId = financialYear is null ? 0 : financialYear.Id,
 			CreatedBy = _user.Id,
@@ -209,6 +215,37 @@ public partial class PurchasePage
 		_purchase.PartyId = _selectedParty.Id;
 
 		_selectedFinancialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, _purchase.FinancialYearId);
+	}
+
+	private async Task LoadPurchaseOrdersForParty()
+	{
+		_purchaseOrders.Clear();
+		_selectedPurchaseOrder = null;
+
+		if (_selectedParty is null || _selectedParty.Id <= 0)
+		{
+			_purchase.PurchaseOrderId = null;
+			return;
+		}
+
+		_purchaseOrders = await PurchaseOrderData.LoadPurchaseOrderByPartyPending(_selectedParty.Id);
+		_purchaseOrders = [.. _purchaseOrders.OrderByDescending(s => s.TransactionDateTime)];
+
+		if (_purchase.PurchaseOrderId is null || _purchase.PurchaseOrderId <= 0)
+		{
+			_purchase.PurchaseOrderId = null;
+			return;
+		}
+
+		if (_purchase.Id > 0)
+		{
+			var purchaseOrder = await CommonData.LoadTableDataById<PurchaseOrderModel>(InventoryNames.PurchaseOrder, _purchase.PurchaseOrderId.Value);
+			if (purchaseOrder is not null && purchaseOrder.PartyId == _selectedParty.Id && _purchaseOrders.FirstOrDefault(s => s.Id == purchaseOrder.Id) is null)
+				_purchaseOrders.Insert(0, purchaseOrder);
+		}
+
+		_selectedPurchaseOrder = _purchaseOrders.FirstOrDefault(s => s.Id == _purchase.PurchaseOrderId);
+		_purchase.PurchaseOrderId = _selectedPurchaseOrder?.Id;
 	}
 
 	private async Task LoadItems()
@@ -299,8 +336,58 @@ public partial class PurchasePage
 			return;
 
 		_selectedParty = value;
+		_purchase.PurchaseOrderId = null;
+
+		await LoadPurchaseOrdersForParty();
 		await SaveTransactionFile();
 		await LoadItems();
+	}
+
+	private async Task OnPurchaseOrderChanged(PurchaseOrderModel value)
+	{
+		if (value is null || value.Id == 0)
+		{
+			_selectedPurchaseOrder = null;
+			_purchase.PurchaseOrderId = null;
+			await SaveTransactionFile();
+			return;
+		}
+
+		_selectedPurchaseOrder = value;
+		_purchase.PurchaseOrderId = value.Id;
+		_cart.Clear();
+
+		var purchaseOrderItems = await CommonData.LoadTableDataByMasterId<PurchaseOrderDetailModel>(InventoryNames.PurchaseOrderDetail, _selectedPurchaseOrder.Id);
+		foreach (var item in purchaseOrderItems)
+		{
+			var rawMaterial = _rawMaterials.FirstOrDefault(s => s.Id == item.RawMaterialId);
+			if (rawMaterial is null)
+			{
+				var missing = await CommonData.LoadTableDataById<RawMaterialModel>(InventoryNames.RawMaterial, item.RawMaterialId);
+				await _toastNotification.ShowAsync("Item Not Found", $"The item {missing?.Name} (ID: {item.RawMaterialId}) in the selected purchase order was not found in the available items list. It may have been deleted or is inaccessible.", ToastType.Error);
+				continue;
+			}
+
+			var isSameState = _selectedParty.StateUTId == _selectedCompany.StateUTId;
+			var tax = _taxes.FirstOrDefault(s => s.Id == rawMaterial.TaxId);
+
+			_cart.Add(new()
+			{
+				ItemId = item.RawMaterialId,
+				ItemName = rawMaterial.Name,
+				Quantity = item.Quantity,
+				UnitOfMeasurement = item.UnitOfMeasurement,
+				Rate = rawMaterial.Rate,
+				DiscountPercent = 0,
+				CGSTPercent = tax.CGST,
+				SGSTPercent = isSameState ? tax.SGST : 0,
+				IGSTPercent = isSameState ? 0 : tax.IGST,
+				InclusiveTax = tax.Inclusive,
+				Remarks = item.Remarks
+			});
+		}
+
+		await SaveTransactionFile();
 	}
 
 	private async Task OnTransactionDateChanged(DateTime value)
@@ -634,6 +721,7 @@ public partial class PurchasePage
 
 		_purchase.CompanyId = _selectedCompany.Id;
 		_purchase.PartyId = _selectedParty.Id;
+		_purchase.PurchaseOrderId = _selectedPurchaseOrder?.Id;
 		_purchase.TotalItems = _cart.Count;
 		_purchase.TotalQuantity = _cart.Sum(x => x.Quantity);
 		_purchase.BaseTotal = _cart.Sum(x => x.BaseTotal);
@@ -772,6 +860,18 @@ public partial class PurchasePage
 			_isProcessing = false;
 			StateHasChanged();
 		}
+	}
+
+	private async Task ViewSelectedPurchaseOrder()
+	{
+		if (_selectedPurchaseOrder is null)
+		{
+			await _toastNotification.ShowAsync("No Purchase Order Selected", "Please select a purchase order to view its details.", ToastType.Error);
+			return;
+		}
+
+		var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_selectedPurchaseOrder.TransactionNo, false, false, CodeType.PurchaseOrder);
+		await AuthenticationService.NavigateToRoute(decodeTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
 	}
 	#endregion
 

@@ -4,6 +4,7 @@ using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Inventory.Kitchen.KitchenIssue;
 using PrimeBakes.Models.Inventory.Kitchen.KitchenProduction;
 using PrimeBakes.Models.Inventory.Purchase;
+using PrimeBakes.Models.Inventory.PurchaseOrder;
 using PrimeBakes.Models.Restaurant.Bill;
 using PrimeBakes.Models.Store.Order;
 using PrimeBakes.Models.Store.Sale;
@@ -26,6 +27,9 @@ public class GenerateCodesEndpoint : ICarterModule
 
 		group.MapPost(nameof(GenerateCodes.GeneratePurchaseReturnTransactionNo),
 			(PurchaseReturnModel purchaseReturn) => GenerateCodes.GeneratePurchaseReturnTransactionNo(purchaseReturn));
+
+		group.MapPost(nameof(GenerateCodes.GeneratePurchaseOrderTransactionNo),
+			(PurchaseOrderModel purchaseOrder) => GenerateCodes.GeneratePurchaseOrderTransactionNo(purchaseOrder));
 
 		group.MapPost(nameof(GenerateCodes.GenerateKitchenIssueTransactionNo),
 			(KitchenIssueModel kitchenIssue) => GenerateCodes.GenerateKitchenIssueTransactionNo(kitchenIssue));

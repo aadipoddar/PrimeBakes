@@ -1,6 +1,7 @@
 ﻿using PrimeBakes.Data.Accounts.FinancialAccounting;
 using PrimeBakes.Data.Accounts.Masters;
 using PrimeBakes.Data.Common;
+using PrimeBakes.Data.Inventory.PurchaseOrder;
 using PrimeBakes.Data.Inventory.RawMaterial;
 using PrimeBakes.Data.Inventory.Stock;
 using PrimeBakes.Data.Operations.AuditTrail;
@@ -11,6 +12,7 @@ using PrimeBakes.Models.Accounts.FinancialAccounting;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Inventory.Purchase;
+using PrimeBakes.Models.Inventory.PurchaseOrder;
 using PrimeBakes.Models.Inventory.RawMaterial;
 using PrimeBakes.Models.Inventory.Stock;
 using PrimeBakes.Models.Operations.AuditTrail;
@@ -73,6 +75,10 @@ public static class PurchaseData
 
 		await FinancialYearData.ValidateFinancialYear(purchase.TransactionDateTime, sqlDataAccessTransaction);
 
+		if (purchase.PurchaseOrderId is not null && purchase.PurchaseOrderId > 0)
+			await PurchaseOrderData.LinkPurchaseOrderToPurchase(purchase.PurchaseOrderId, purchase.Id, true, sqlDataAccessTransaction);
+
+		purchase.PurchaseOrderId = null;
 		purchase.Status = false;
 		await InsertPurchase(purchase, sqlDataAccessTransaction);
 
@@ -136,6 +142,19 @@ public static class PurchaseData
 
 		if (purchase.TotalAmount < 0)
 			throw new InvalidOperationException("The total amount of the transaction cannot be negative.");
+
+		if (purchase.PurchaseOrderId is not null && purchase.PurchaseOrderId > 0)
+		{
+			var purchaseOrder = await CommonData.LoadTableDataById<PurchaseOrderModel>(InventoryNames.PurchaseOrder, purchase.PurchaseOrderId.Value, sqlDataAccessTransaction);
+			if (purchaseOrder is null || !purchaseOrder.Status)
+				throw new InvalidOperationException("The selected purchase order is invalid or does not exist.");
+
+			if (purchaseOrder.PartyId != purchase.PartyId)
+				throw new InvalidOperationException("The selected purchase order does not belong to the selected party.");
+
+			if (purchaseOrder.PurchaseId is not null && purchaseOrder.PurchaseId != purchase.Id)
+				throw new InvalidOperationException("The selected purchase order is already linked to another purchase.");
+		}
 
 		if (!update)
 			purchase.TransactionNo = await GenerateCodes.GeneratePurchaseTransactionNo(purchase, sqlDataAccessTransaction);
@@ -206,6 +225,7 @@ public static class PurchaseData
 		purchase.Id = await InsertPurchase(purchase, sqlDataAccessTransaction);
 		await SaveTransactionDetail(purchase, purchaseDetails, update, sqlDataAccessTransaction);
 		await SaveRawMaterialStock(purchase, purchaseDetails, sqlDataAccessTransaction);
+		await UpdatePurchaseOrder(purchase, previousPurchase, update, sqlDataAccessTransaction);
 		await SaveAccounting(purchase, sqlDataAccessTransaction);
 		await UpdateRawMaterialRateAndUOMOnPurchase(purchaseDetails, sqlDataAccessTransaction);
 		await SaveAuditTrail(purchase, update, recover, previousPurchase, previousPurchaseDetails, sqlDataAccessTransaction);
@@ -248,6 +268,15 @@ public static class PurchaseData
 				TransactionNo = purchase.TransactionNo,
 				TransactionDateTime = purchase.TransactionDateTime
 			}, sqlDataAccessTransaction);
+	}
+
+	private static async Task UpdatePurchaseOrder(PurchaseModel purchase, PurchaseOverviewModel previousPurchase, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
+	{
+		if (update)
+			await PurchaseOrderData.LinkPurchaseOrderToPurchase(previousPurchase.PurchaseOrderId, previousPurchase.Id, true, sqlDataAccessTransaction);
+
+		if (purchase.PurchaseOrderId is not null)
+			await PurchaseOrderData.LinkPurchaseOrderToPurchase(purchase.PurchaseOrderId, purchase.Id, false, sqlDataAccessTransaction);
 	}
 
 	private static async Task SaveAccounting(PurchaseModel purchase, SqlDataAccessTransaction sqlDataAccessTransaction)

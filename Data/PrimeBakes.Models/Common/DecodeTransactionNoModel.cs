@@ -6,6 +6,7 @@ public enum CodeType
 	Ledger,
 
 	Purchase,
+	PurchaseOrder,
 	PurchaseReturn,
 	KitchenIssue,
 	KitchenIssueReturn,

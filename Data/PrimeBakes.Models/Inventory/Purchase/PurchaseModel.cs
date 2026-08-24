@@ -8,6 +8,7 @@ public class PurchaseModel
 	public int CompanyId { get; set; }
 	public int PartyId { get; set; }
 	public DateTime TransactionDateTime { get; set; }
+	public int? PurchaseOrderId { get; set; }
 	public int FinancialYearId { get; set; }
 
 	public int TotalItems { get; set; }
@@ -47,6 +48,9 @@ public class PurchaseOverviewModel
 	public int PartyId { get; set; }
 	public string PartyName { get; set; }
 	public DateTime TransactionDateTime { get; set; }
+	public int? PurchaseOrderId { get; set; }
+	public string? PurchaseOrderTransactionNo { get; set; }
+	public DateTime? PurchaseOrderDateTime { get; set; }
 	public int FinancialYearId { get; set; }
 	public string FinancialYear { get; set; }
 

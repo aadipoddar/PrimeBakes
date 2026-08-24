@@ -48,6 +48,7 @@ public static class PurchaseReportExport
 			[nameof(PurchaseOverviewModel.TotalAmount)] = new() { DisplayName = "Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true, HighlightNegative = true },
 
 			[nameof(PurchaseOverviewModel.Remarks)] = new() { DisplayName = "Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(PurchaseOverviewModel.PurchaseOrderTransactionNo)] = new() { DisplayName = "Purchase Order No", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseOverviewModel.FinancialAccountingTransactionNo)] = new() { DisplayName = "Accounting Transaction No", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseOverviewModel.CreatedAt)] = new() { DisplayName = "Created At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(PurchaseOverviewModel.CreatedByName)] = new() { DisplayName = "Created By", Alignment = CellAlignment.Left, IncludeInTotal = false },
@@ -104,6 +105,7 @@ public static class PurchaseReportExport
 				nameof(PurchaseOverviewModel.RoundOffAmount),
 				nameof(PurchaseOverviewModel.TotalAmount),
 				nameof(PurchaseOverviewModel.Remarks),
+				nameof(PurchaseOverviewModel.PurchaseOrderTransactionNo),
 				nameof(PurchaseOverviewModel.FinancialAccountingTransactionNo),
 				nameof(PurchaseOverviewModel.CreatedByName),
 				nameof(PurchaseOverviewModel.CreatedAt),
@@ -255,6 +257,7 @@ public static class PurchaseReportExport
 			[nameof(PurchaseItemOverviewModel.TotalAmount)] = new() { DisplayName = "Total", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = false, HighlightNegative = true },
 
 			[nameof(PurchaseItemOverviewModel.Remarks)] = new() { DisplayName = "Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(PurchaseItemOverviewModel.PurchaseOrderTransactionNo)] = new() { DisplayName = "Purchase Order No", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseItemOverviewModel.FinancialAccountingTransactionNo)] = new() { DisplayName = "Accounting Transaction No", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseItemOverviewModel.CreatedAt)] = new() { DisplayName = "Created At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(PurchaseItemOverviewModel.CreatedByName)] = new() { DisplayName = "Created By", Alignment = CellAlignment.Left, IncludeInTotal = false },
@@ -341,6 +344,7 @@ public static class PurchaseReportExport
 				nameof(PurchaseItemOverviewModel.TotalAmount),
 
 				nameof(PurchaseItemOverviewModel.Remarks),
+				nameof(PurchaseItemOverviewModel.PurchaseOrderTransactionNo),
 				nameof(PurchaseItemOverviewModel.FinancialAccountingTransactionNo),
 				nameof(PurchaseItemOverviewModel.CreatedAt),
 				nameof(PurchaseItemOverviewModel.CreatedByName),

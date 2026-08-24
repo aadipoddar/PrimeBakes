@@ -36,6 +36,8 @@ public static class PurchaseInvoiceExport
 			InvoiceType = "PURCHASE INVOICE",
 			TransactionNo = transaction.TransactionNo,
 			TransactionDateTime = transaction.TransactionDateTime,
+			ReferenceTransactionNo = transaction.PurchaseOrderTransactionNo ?? string.Empty,
+			ReferenceDateTime = transaction.PurchaseOrderDateTime,
 			TotalAmount = transaction.TotalAmount,
 			Remarks = transaction.Remarks ?? string.Empty,
 			Status = transaction.Status,

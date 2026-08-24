@@ -14,6 +14,10 @@ SELECT
 	[p].[PartyId],
 	[l].[Name] AS PartyName,
 
+	[p].[PurchaseOrderId],
+	[po].[TransactionNo] AS PurchaseOrderTransactionNo,
+	[po].[TransactionDateTime] AS PurchaseOrderDateTime,
+
 	[p].[TotalItems],
 	[p].[TotalQuantity],
 	[p].[BaseTotal],
@@ -54,6 +58,8 @@ INNER JOIN
     [dbo].[FinancialYear] fy ON p.FinancialYearId = fy.Id
 INNER JOIN
 	[dbo].[Ledger] l ON p.PartyId = l.Id
+LEFT JOIN
+	[dbo].[PurchaseOrder] po ON p.PurchaseOrderId = po.Id
 LEFT JOIN
 	[dbo].[FinancialAccounting] fa ON p.FinancialAccountingId = fa.Id
 INNER JOIN

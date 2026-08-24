@@ -5,6 +5,7 @@ using PrimeBakes.Data.Payroll.PayrollRun;
 using PrimeBakes.Exports.Payroll.PayrollRun;
 using PrimeBakes.Models.Payroll.PayrollRun;
 using PrimeBakes.Data.Inventory.Purchase;
+using PrimeBakes.Data.Inventory.PurchaseOrder;
 using PrimeBakes.Data.Restaurant.Bill;
 using PrimeBakes.Data.Store.Order;
 using PrimeBakes.Data.Store.Sale;
@@ -13,6 +14,7 @@ using PrimeBakes.Exports.Accounts.FinancialAccounting;
 using PrimeBakes.Exports.Accounts.Masters;
 using PrimeBakes.Exports.Inventory.Kitchen;
 using PrimeBakes.Exports.Inventory.Purchase;
+using PrimeBakes.Exports.Inventory.PurchaseOrder;
 using PrimeBakes.Exports.Inventory.RawMaterial;
 using PrimeBakes.Exports.Restaurant.Bill;
 using PrimeBakes.Exports.Store.Order;
@@ -25,6 +27,7 @@ using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Inventory.Kitchen.KitchenIssue;
 using PrimeBakes.Models.Inventory.Kitchen.KitchenProduction;
 using PrimeBakes.Models.Inventory.Purchase;
+using PrimeBakes.Models.Inventory.PurchaseOrder;
 using PrimeBakes.Models.Inventory.RawMaterial;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Restaurant.Bill;
@@ -87,6 +90,16 @@ public static class DecodeCode
 					var purchaseBundle = await PurchaseData.LoadInvoiceBundle((decodeTransactionNoModel.TransactionModel as PurchaseModel).Id);
 					if (pdf) decodeTransactionNoModel.PDFStream = PurchaseInvoiceExport.ExportInvoice(purchaseBundle, InvoiceExportType.PDF);
 					if (excel) decodeTransactionNoModel.ExcelStream = PurchaseInvoiceExport.ExportInvoice(purchaseBundle, InvoiceExportType.Excel);
+				}
+				break;
+			case CodeType.PurchaseOrder:
+				decodeTransactionNoModel.TransactionModel = await CommonData.LoadTableDataByTransactionNo<PurchaseOrderModel>(InventoryNames.PurchaseOrder, transactionNo);
+				decodeTransactionNoModel.PageRouteName = $"{InventoryRouteNames.PurchaseOrder}/{(decodeTransactionNoModel.TransactionModel as PurchaseOrderModel).Id}";
+				if (pdf || excel)
+				{
+					var purchaseOrderBundle = await PurchaseOrderData.LoadInvoiceBundle((decodeTransactionNoModel.TransactionModel as PurchaseOrderModel).Id);
+					if (pdf) decodeTransactionNoModel.PDFStream = PurchaseOrderInvoiceExport.ExportInvoice(purchaseOrderBundle, InvoiceExportType.PDF);
+					if (excel) decodeTransactionNoModel.ExcelStream = PurchaseOrderInvoiceExport.ExportInvoice(purchaseOrderBundle, InvoiceExportType.Excel);
 				}
 				break;
 			case CodeType.PurchaseReturn:

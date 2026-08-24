@@ -117,6 +117,18 @@ public static class InventoryNames
 	public static string PurchaseReturnItemOverview => "PurchaseReturn_Item_Overview";
 	#endregion
 
+	#region Purchase Order
+	public static string PurchaseOrder => "PurchaseOrder";
+	public static string PurchaseOrderDetail => "PurchaseOrderDetail";
+	public static string InsertPurchaseOrder => "Insert_PurchaseOrder";
+	public static string InsertPurchaseOrderDetail => "Insert_PurchaseOrderDetail";
+
+	public static string PurchaseOrderOverview => "PurchaseOrder_Overview";
+	public static string PurchaseOrderItemOverview => "PurchaseOrder_Item_Overview";
+
+	public static string LoadPurchaseOrderByPartyPending => "Load_PurchaseOrder_By_Party_Pending";
+	#endregion
+
 	#region Kitchen
 	public static string Kitchen => "Kitchen";
 	public static string KitchenIssue => "KitchenIssue";

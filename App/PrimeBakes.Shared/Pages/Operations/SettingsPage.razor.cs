@@ -37,6 +37,7 @@ public partial class SettingsPage
 	private string _accountingTransactionPrefix = string.Empty;
 	private string _purchaseTransactionPrefix = string.Empty;
 	private string _purchaseReturnTransactionPrefix = string.Empty;
+	private string _purchaseOrderTransactionPrefix = string.Empty;
 	private string _kitchenIssueTransactionPrefix = string.Empty;
 	private string _kitchenIssueReturnTransactionPrefix = string.Empty;
 	private string _kitchenProductionTransactionPrefix = string.Empty;
@@ -172,6 +173,7 @@ public partial class SettingsPage
 		_accountingTransactionPrefix = Str(SettingsKeys.AccountingTransactionPrefix) ?? string.Empty;
 		_purchaseTransactionPrefix = Str(SettingsKeys.PurchaseTransactionPrefix) ?? string.Empty;
 		_purchaseReturnTransactionPrefix = Str(SettingsKeys.PurchaseReturnTransactionPrefix) ?? string.Empty;
+		_purchaseOrderTransactionPrefix = Str(SettingsKeys.PurchaseOrderTransactionPrefix) ?? string.Empty;
 		_kitchenIssueTransactionPrefix = Str(SettingsKeys.KitchenIssueTransactionPrefix) ?? string.Empty;
 		_kitchenIssueReturnTransactionPrefix = Str(SettingsKeys.KitchenIssueReturnTransactionPrefix) ?? string.Empty;
 		_kitchenProductionTransactionPrefix = Str(SettingsKeys.KitchenProductionTransactionPrefix) ?? string.Empty;
@@ -463,6 +465,7 @@ public partial class SettingsPage
 			await UpdateSetting(SettingsKeys.AccountingTransactionPrefix, _accountingTransactionPrefix, Desc(SettingsKeys.AccountingTransactionPrefix));
 			await UpdateSetting(SettingsKeys.PurchaseTransactionPrefix, _purchaseTransactionPrefix, Desc(SettingsKeys.PurchaseTransactionPrefix));
 			await UpdateSetting(SettingsKeys.PurchaseReturnTransactionPrefix, _purchaseReturnTransactionPrefix, Desc(SettingsKeys.PurchaseReturnTransactionPrefix));
+			await UpdateSetting(SettingsKeys.PurchaseOrderTransactionPrefix, _purchaseOrderTransactionPrefix, Desc(SettingsKeys.PurchaseOrderTransactionPrefix));
 			await UpdateSetting(SettingsKeys.KitchenIssueTransactionPrefix, _kitchenIssueTransactionPrefix, Desc(SettingsKeys.KitchenIssueTransactionPrefix));
 			await UpdateSetting(SettingsKeys.KitchenIssueReturnTransactionPrefix, _kitchenIssueReturnTransactionPrefix, Desc(SettingsKeys.KitchenIssueReturnTransactionPrefix));
 			await UpdateSetting(SettingsKeys.KitchenProductionTransactionPrefix, _kitchenProductionTransactionPrefix, Desc(SettingsKeys.KitchenProductionTransactionPrefix));

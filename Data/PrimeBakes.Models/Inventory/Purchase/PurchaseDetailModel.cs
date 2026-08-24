@@ -102,6 +102,10 @@ public class PurchaseItemOverviewModel
 	public int PartyId { get; set; }
 	public string PartyName { get; set; }
 
+	public int? PurchaseOrderId { get; set; }
+	public string? PurchaseOrderTransactionNo { get; set; }
+	public DateTime? PurchaseOrderDateTime { get; set; }
+
 	public int TotalItems { get; set; }
 	public decimal TotalQuantity { get; set; }
 	public decimal BaseTotal { get; set; }
