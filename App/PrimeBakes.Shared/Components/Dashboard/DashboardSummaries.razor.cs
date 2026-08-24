@@ -1,10 +1,12 @@
 using PrimeBakes.Models.Operations.Location;
 using PrimeBakes.Models.Inventory.Kitchen;
+using PrimeBakes.Models.Inventory.Summary;
 using PrimeBakes.Models.Inventory.Purchase;
 using PrimeBakes.Models.Restaurant.Bill;
 using PrimeBakes.Models.Store.Customer;
 using PrimeBakes.Models.Store.Sale;
 using PrimeBakes.Models.Store.StockTransfer;
+using PrimeBakes.Models.Store.Summary;
 
 using Syncfusion.Blazor.Grids;
 using PrimeBakes.Models.Inventory.Kitchen.KitchenIssue;

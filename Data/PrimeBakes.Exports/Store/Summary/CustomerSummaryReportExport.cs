@@ -2,9 +2,9 @@
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Operations.Location;
-using PrimeBakes.Models.Store.Customer;
+using PrimeBakes.Models.Store.Summary;
 
-namespace PrimeBakes.Exports.Store.Customer;
+namespace PrimeBakes.Exports.Store.Summary;
 
 public static class CustomerSummaryReportExport
 {

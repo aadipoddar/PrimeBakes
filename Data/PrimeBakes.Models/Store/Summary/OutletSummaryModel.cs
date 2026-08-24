@@ -1,4 +1,4 @@
-﻿namespace PrimeBakes.Models.Store.Sale;
+﻿namespace PrimeBakes.Models.Store.Summary;
 
 public class OutletSummaryModel
 {

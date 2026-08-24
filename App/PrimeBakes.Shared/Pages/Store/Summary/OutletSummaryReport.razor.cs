@@ -1,4 +1,4 @@
-﻿using PrimeBakes.Exports.Store.Sale;
+﻿using PrimeBakes.Exports.Store.Summary;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Inventory.Purchase;
 using PrimeBakes.Models.Operations.Location;
@@ -7,6 +7,7 @@ using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Models.Restaurant.Bill;
 using PrimeBakes.Models.Store.Sale;
 using PrimeBakes.Models.Store.StockTransfer;
+using PrimeBakes.Models.Store.Summary;
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
@@ -17,7 +18,7 @@ using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Data.Operations.Location;
 using PrimeBakes.Data.Accounts.Masters;
 
-namespace PrimeBakes.Shared.Pages.Store.Sale.Reports;
+namespace PrimeBakes.Shared.Pages.Store.Summary;
 
 public partial class OutletSummaryReport : IAsyncDisposable
 {

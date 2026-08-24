@@ -1,4 +1,4 @@
-﻿using PrimeBakes.Exports.Store.Customer;
+﻿using PrimeBakes.Exports.Store.Summary;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Operations.Location;
 using PrimeBakes.Models.Operations.Settings;
@@ -6,6 +6,7 @@ using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Models.Restaurant.Bill;
 using PrimeBakes.Models.Store.Customer;
 using PrimeBakes.Models.Store.Sale;
+using PrimeBakes.Models.Store.Summary;
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
@@ -13,7 +14,7 @@ using Syncfusion.Blazor.Grids;
 using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Data.Accounts.Masters;
 
-namespace PrimeBakes.Shared.Pages.Store.Customer.Reports;
+namespace PrimeBakes.Shared.Pages.Store.Summary;
 
 public partial class CustomerSummaryReport : IAsyncDisposable
 {

@@ -1,9 +1,9 @@
 ﻿using PrimeBakes.Exports.Utils.Exports;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Common;
-using PrimeBakes.Models.Store.Sale;
+using PrimeBakes.Models.Store.Summary;
 
-namespace PrimeBakes.Exports.Store.Sale;
+namespace PrimeBakes.Exports.Store.Summary;
 
 public static class OutletSummaryReportExport
 {

@@ -1,0 +1,208 @@
+@using PrimeBakes.Models.Accounts.Masters
+@using PrimeBakes.Models.Inventory.PurchaseOrder
+@using PrimeBakes.Models.Inventory.RawMaterial
+@using PrimeBakes.Models.Inventory.Summary
+
+@attribute [Route(InventoryRouteNames.PurchaseOrderItemMonthlyReport)]
+
+<PageTitle>Purchase Order Item Monthly Report - Prime Bakes</PageTitle>
+
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseOrder, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyT KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="TogglePendingOnly" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyQ KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDetailsView" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyH KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseOrderItemReport, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+
+@if (_isLoading || _user is null)
+{
+	<LoadingScreen />
+}
+else
+{
+	<div class="page-shell">
+		<Header Title="Purchase Order Item Monthly Report">
+			<LeftContent>
+				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="New Transaction (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseOrder, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Refresh Data (Ctrl + R / F5)" OnClick="LoadTransactionOverviews" />
+					<MudBlazor.MudMenuItem Label="@(_showPendingOnly ? "Show All (Ctrl + T)" : "Show Pending Only (Ctrl + T)")" OnClick="TogglePendingOnly" />
+					<MudBlazor.MudMenuItem Label="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" OnClick="ToggleDeleted" />
+					<MudBlazor.MudMenuItem Label="@(_showAllColumns ? "Hide Details (Ctrl + Q)" : "Show Details (Ctrl + Q)")" OnClick="ToggleDetailsView" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportReport()" />
+					<MudBlazor.MudMenuItem Label="Export Excel (Ctrl + E)" OnClick="() => ExportReport(true)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Open" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Purchase Order (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseOrder, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Purchase Order Report" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseOrderReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Purchase Order Item Report (Ctrl + H)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseOrderItemReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Purchase Item Report" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseItemReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Purchase Item Monthly Report" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseItemMonthlyReport, FormFactor, JSRuntime, NavigationManager)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Periods" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Current FY" OnClick="() => HandleDatesChanged(DateRangeType.CurrentFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="Previous FY" OnClick="() => HandleDatesChanged(DateRangeType.PreviousFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="Next FY" OnClick="() => HandleDatesChanged(DateRangeType.NextFinancialYear)" />
+				</MudBlazor.MudMenu>
+			</LeftContent>
+		</Header>
+
+		<div class="page-container">
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Filters</h2>
+				</div>
+
+				<div class="section-body">
+					<div class="filters-grid">
+						<!-- Raw Material -->
+						<div class="form-field">
+							<CustomAutoComplete @ref="_firstFocus" T="RawMaterialModel"
+												Value="_selectedRawMaterial"
+												DataSource="@_rawMaterials"
+												Placeholder="All Items"
+												Label="Item (Ctrl + F)" Required="false"
+												ValueChanged="OnRawMaterialChanged"
+												FieldValue="@nameof(RawMaterialModel.Name)"
+												AddNewRoute="@InventoryRouteNames.RawMaterial" />
+						</div>
+
+						<!-- Raw Material Category -->
+						<div class="form-field">
+							<CustomAutoComplete T="RawMaterialCategoryModel"
+												Value="_selectedRawMaterialCategory"
+												DataSource="@_rawMaterialCategories"
+												Placeholder="All Categories"
+												Label="Item Category" Required="false"
+												ValueChanged="OnRawMaterialCategoryChanged"
+												FieldValue="@nameof(RawMaterialCategoryModel.Name)"
+												AddNewRoute="@InventoryRouteNames.RawMaterialCategory" />
+						</div>
+
+						<!-- Company -->
+						<div class="form-field">
+							<CustomAutoComplete T="CompanyModel"
+												Value="_selectedCompany"
+												DataSource="@_companies"
+												Placeholder="All Companies"
+												Label="Company" Required="false"
+												ValueChanged="OnCompanyChanged"
+												FieldValue="@nameof(CompanyModel.Name)"
+												AddNewRoute="@AccountsRouteNames.CompanyMaster" />
+						</div>
+
+						<!-- Party -->
+						<div class="form-field">
+							<CustomAutoComplete T="LedgerModel"
+												Value="_selectedParty"
+												DataSource="@_parties"
+												Placeholder="All Parties"
+												Label="Party" Required="false"
+												ValueChanged="OnPartyChanged"
+												FieldValue="@nameof(LedgerModel.Name)"
+												AddNewRoute="@AccountsRouteNames.LedgerMaster" />
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">@_reportTitle</h2>
+				</div>
+
+				<SfGrid @ref="_sfGrid" TValue="PurchaseOrderItemMonthlySummaryModel" DataSource="_monthlySummaries"
+						AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+						AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal"
+						Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+					<GridAggregates>
+						<GridAggregate>
+							<GridAggregateColumns>
+								<GridColumnAggregate Field="@nameof(PurchaseOrderItemMonthlySummaryModel.ItemName)" Type="AggregateType.Count" Format="N0" />
+								@for (var index = 0; index < 12; index++)
+								{
+									var monthField = _monthFields[index];
+									<GridColumnAggregate Field="@monthField" />
+								}
+								<GridColumnAggregate Field="@nameof(PurchaseOrderItemMonthlySummaryModel.Total)" CustomColor="grid-total" />
+								<GridColumnAggregate Field="@nameof(PurchaseOrderItemMonthlySummaryModel.FulfilledQuantity)" />
+								<GridColumnAggregate Field="@nameof(PurchaseOrderItemMonthlySummaryModel.PendingQuantity)" CustomColor="grid-debit" />
+								<GridColumnAggregate Field="@nameof(PurchaseOrderItemMonthlySummaryModel.OrderCount)" Format="N0" />
+							</GridAggregateColumns>
+						</GridAggregate>
+					</GridAggregates>
+
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.ItemName)" HeaderText="Item" />
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.ItemCode)" HeaderText="Code" Visible="@_showAllColumns" />
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.ItemCategoryName)" HeaderText="Category" Visible="@(_selectedRawMaterialCategory is null || _selectedRawMaterialCategory.Id <= 0)" />
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.UnitOfMeasurement)" HeaderText="UOM" TextAlign="TextAlign.Center" Visible="@_showAllColumns" />
+
+						@for (var index = 0; index < 12; index++)
+						{
+							var monthField = _monthFields[index];
+							var monthHeader = _monthHeaders[index];
+							<CustomGridColumn Field="@monthField" HeaderText="@monthHeader" Width="110" NumericColumn="true" />
+						}
+
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.Total)" HeaderText="Total" TotalColumn="true" />
+
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.FulfilledQuantity)" HeaderText="Received" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.PendingQuantity)" HeaderText="Pending" Visible="@_showAllColumns" CustomColor="grid-debit" />
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.FulfilmentPercent)" HeaderText="Received %" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.PendingPercent)" HeaderText="Pending %" Visible="@_showAllColumns" NumericColumn="true" />
+
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.OrderCount)" HeaderText="Orders" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.FulfilledOrderCount)" HeaderText="Received Orders" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.PartyCount)" HeaderText="Suppliers" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.Rank)" HeaderText="Rank" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.ContributionPercent)" HeaderText="Share %" Visible="@_showAllColumns" NumericColumn="true" />
+
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.ActiveMonths)" HeaderText="Active Months" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.AveragePerMonth)" HeaderText="Avg / Month" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.AveragePerActiveMonth)" HeaderText="Avg / Active Month" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.AveragePerOrder)" HeaderText="Avg / Order" Visible="@_showAllColumns" NumericColumn="true" />
+
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.PeakMonthName)" HeaderText="Peak Month" Visible="@_showAllColumns" />
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.PeakMonthValue)" HeaderText="Peak Value" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.LowestMonthName)" HeaderText="Lowest Month" Visible="@_showAllColumns" />
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.LowestMonthValue)" HeaderText="Lowest Value" Visible="@_showAllColumns" NumericColumn="true" />
+
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.Quarter1)" HeaderText="Q1" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.Quarter2)" HeaderText="Q2" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.Quarter3)" HeaderText="Q3" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.Quarter4)" HeaderText="Q4" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.FirstHalf)" HeaderText="H1" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.SecondHalf)" HeaderText="H2" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.GrowthPercent)" HeaderText="H2 vs H1 %" Visible="@_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.RecentTrendPercent)" HeaderText="Q4 vs Q3 %" Visible="@_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.ConsistencyPercent)" HeaderText="Consistency %" Visible="@_showAllColumns" NumericColumn="true" />
+
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.FirstOrderDateTime)" HeaderText="First Order" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="@_showAllColumns" />
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.LastOrderDateTime)" HeaderText="Last Order" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="@_showAllColumns" />
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemMonthlySummaryModel.MonthsSinceLastOrder)" HeaderText="Months Idle" Visible="@_showAllColumns" NumericColumn="true" />
+					</GridColumns>
+				</SfGrid>
+			</div>
+		</div>
+
+		<Footer />
+	</div>
+}
+
+<ToastNotification @ref="_toastNotification" />
+
+<CloseGuard Block="_isProcessing" />

@@ -1,4 +1,4 @@
-namespace PrimeBakes.Models.Store.Customer;
+namespace PrimeBakes.Models.Store.Summary;
 
 public class CustomerSummaryModel
 {

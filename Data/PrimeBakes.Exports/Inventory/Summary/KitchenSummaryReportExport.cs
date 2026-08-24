@@ -1,9 +1,9 @@
 ﻿using PrimeBakes.Exports.Utils.Exports;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Common;
-using PrimeBakes.Models.Inventory.Kitchen;
+using PrimeBakes.Models.Inventory.Summary;
 
-namespace PrimeBakes.Exports.Inventory.Kitchen;
+namespace PrimeBakes.Exports.Inventory.Summary;
 
 public static class KitchenSummaryReportExport
 {

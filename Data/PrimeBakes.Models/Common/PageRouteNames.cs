@@ -40,8 +40,10 @@ public static class InventoryRouteNames
 	public const string PurchaseOrder = "/inventory/purchase-order";
 	public const string PurchaseOrderReport = "/inventory/purchase-order-report";
 	public const string PurchaseOrderItemReport = "/inventory/purchase-order-item-report";
+	public const string PurchaseOrderItemMonthlyReport = "/inventory/purchase-order-item-monthly-report";
 	public const string PurchaseReport = "/inventory/purchase-report";
 	public const string PurchaseItemReport = "/inventory/purchase-item-report";
+	public const string PurchaseItemMonthlyReport = "/inventory/purchase-item-monthly-report";
 	public const string PurchaseReturnReport = "/inventory/purchase-return-report";
 	public const string PurchaseReturnItemReport = "/inventory/purchase-return-item-report";
 
@@ -83,6 +85,7 @@ public static class StoreRouteNames
 	public const string OrderMobileConfirmation = "/store/order-confirmation-mobile";
 	public const string OrderReport = "/store/order-report";
 	public const string OrderItemReport = "/store/order-item-report";
+	public const string OrderItemMonthlyReport = "/store/order-item-monthly-report";
 
 	public const string Sale = "/store/sale";
 	public const string SaleReturn = "/store/sale-return";
@@ -92,6 +95,7 @@ public static class StoreRouteNames
 	public const string SaleMobileConfirmation = "/store/sale-confirmation-mobile";
 	public const string SaleReport = "/store/sale-report";
 	public const string SaleItemReport = "/store/sale-item-report";
+	public const string SaleItemMonthlyReport = "/store/sale-item-monthly-report";
 	public const string SaleReturnReport = "/store/sale-return-report";
 	public const string SaleReturnItemReport = "/store/sale-return-item-report";
 	public const string OutletSummaryReport = "/store/outlet-summary-report";

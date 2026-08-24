@@ -1,6 +1,7 @@
-﻿using PrimeBakes.Exports.Inventory.Kitchen;
+﻿using PrimeBakes.Exports.Inventory.Summary;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Inventory.Kitchen;
+using PrimeBakes.Models.Inventory.Summary;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Shared.Components.Dialog;
@@ -12,7 +13,7 @@ using PrimeBakes.Models.Inventory.Kitchen.KitchenProduction;
 using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Data.Accounts.Masters;
 
-namespace PrimeBakes.Shared.Pages.Inventory.Kitchen;
+namespace PrimeBakes.Shared.Pages.Inventory.Summary;
 
 public partial class KitchenSummaryReport : IAsyncDisposable
 {
