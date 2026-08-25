@@ -99,7 +99,6 @@
     <Folder Include="Inventory\PurchaseOrder\Insert" />
     <Folder Include="Inventory\RawMaterial\Table" />
     <Folder Include="Inventory\RawMaterial\Insert" />
-    <Folder Include="Inventory\RawMaterial\Load" />
     <Folder Include="Inventory\Recipe\Table" />
     <Folder Include="Inventory\Recipe\Insert" />
     <Folder Include="Inventory\Recipe\Load" />

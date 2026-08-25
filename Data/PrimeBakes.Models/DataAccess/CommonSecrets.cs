@@ -9,7 +9,7 @@ public static partial class CommonSecrets
 		ConnectionType.Local => "https://localhost:7273/",
 		ConnectionType.Azure => "https://primebakes-api-hke5evcebnbsdzgj.indiasouthcentral-01.azurewebsites.net/",
 		ConnectionType.AzureTesting => "https://primebakes-api-hke5evcebnbsdzgj.indiasouthcentral-01.azurewebsites.net/",
-		_ => throw new NotImplementedException("The specified API connection type is not implemented.")
+		_ => throw new NotImplementedException()
 	};
 
 	public static readonly string SyncfusionLicense;

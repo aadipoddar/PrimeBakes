@@ -16,7 +16,7 @@ public static class SqlDataAccess
 		ConnectionType.Local => Secrets.LocalConnectionString,
 		ConnectionType.Azure => Secrets.AzureConnectionString,
 		ConnectionType.AzureTesting => Secrets.AzureTestingConnectionString,
-		_ => throw new NotImplementedException("The specified database connection type is not implemented.")
+		_ => throw new NotImplementedException()
 	};
 
 	public static async Task<List<T>> LoadData<T, U>(string storedProcedure, U parameters, SqlDataAccessTransaction sqlDataAccessTransaction = null)

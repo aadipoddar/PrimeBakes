@@ -17,6 +17,9 @@ using PrimeBakes.Data.Inventory.Recipe;
 using PrimeBakes.Data.Operations.Analysis;
 using PrimeBakes.Data.Operations.Location;
 using PrimeBakes.Data.Operations.Settings;
+using PrimeBakes.Data.Payroll.Masters;
+using PrimeBakes.Data.Store.Customer;
+using PrimeBakes.Data.Store.Product;
 using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Operations.Settings;
 
@@ -70,7 +73,11 @@ public sealed class ApiCachePolicy : IOutputCachePolicy
 		Route(nameof(SettingsEndpoint), nameof(SettingsData.LoadSettingsByKey)),
 		Route(nameof(SettingsEndpoint), nameof(SettingsData.LoadPrimaryCompany)),
 		Route(nameof(FinancialYearEndpoint), nameof(FinancialYearData.LoadFinancialYearByDateTime)),
-		Route(nameof(LocationEndpoint), nameof(LocationData.LoadLedgerByLocationId))
+		Route(nameof(LocationEndpoint), nameof(LocationData.LoadLedgerByLocationId)),
+		Route(nameof(ProductLocationEndpoint), nameof(ProductLocationData.LoadProductLocationOverviewByProductLocationDate)),
+		Route(nameof(CustomerEndpoint), nameof(CustomerData.LoadCustomerByNumber)),
+		Route(nameof(EmployeeSalaryComponentEndpoint), nameof(EmployeeSalaryComponentData.LoadEmployeeSalaryComponentOverviewByEmployeeSalaryComponentDate)),
+		Route(nameof(EmployeeSalaryComponentEndpoint), nameof(EmployeeSalaryComponentData.LoadEffectiveSalaryComponents))
 	};
 
 	private static readonly HashSet<string> _endpoints = new(StringComparer.OrdinalIgnoreCase)

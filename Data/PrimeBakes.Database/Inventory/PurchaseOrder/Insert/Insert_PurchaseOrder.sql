@@ -1,6 +1,6 @@
 ﻿CREATE PROCEDURE [dbo].[Insert_PurchaseOrder]
 	@Id INT OUTPUT,
-	@TransactionNo VARCHAR(MAX),
+	@TransactionNo VARCHAR(100),
 	@CompanyId INT,
 	@PartyId INT,
 	@PurchaseId INT = NULL,

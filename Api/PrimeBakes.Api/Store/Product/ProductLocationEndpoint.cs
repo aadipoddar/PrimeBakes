@@ -1,3 +1,4 @@
+using PrimeBakes.Api.Common;
 using PrimeBakes.Data.Store.Product;
 using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Store.Product;
@@ -9,7 +10,7 @@ public class ProductLocationEndpoint : ICarterModule
 	public void AddRoutes(IEndpointRouteBuilder app)
 	{
 		var endpoint = Helper.SanitizeClassName(nameof(ProductLocationEndpoint));
-		var group = app.MapGroup(endpoint).WithTags(endpoint);
+		var group = app.MapGroup(endpoint).WithTags(endpoint).CacheOutput(ApiCachePolicy.Instance);
 
 		group.MapPost(nameof(ProductLocationData.InsertProductLocation),
 			(ProductLocationModel productLocation) => ProductLocationData.InsertProductLocation(productLocation));

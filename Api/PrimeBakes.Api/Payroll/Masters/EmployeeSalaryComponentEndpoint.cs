@@ -1,3 +1,4 @@
+using PrimeBakes.Api.Common;
 using PrimeBakes.Data.Payroll.Masters;
 using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Payroll.Masters;
@@ -9,7 +10,7 @@ public class EmployeeSalaryComponentEndpoint : ICarterModule
 	public void AddRoutes(IEndpointRouteBuilder app)
 	{
 		var endpoint = Helper.SanitizeClassName(nameof(EmployeeSalaryComponentEndpoint));
-		var group = app.MapGroup(endpoint).WithTags(endpoint);
+		var group = app.MapGroup(endpoint).WithTags(endpoint).CacheOutput(ApiCachePolicy.Instance);
 
 		group.MapPost(nameof(EmployeeSalaryComponentData.InsertEmployeeSalaryComponent),
 			(EmployeeSalaryComponentModel employeeSalaryComponent) => EmployeeSalaryComponentData.InsertEmployeeSalaryComponent(employeeSalaryComponent));

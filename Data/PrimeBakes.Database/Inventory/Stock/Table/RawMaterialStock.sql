@@ -6,7 +6,9 @@
     [NetRate] MONEY NOT NULL, 
     [Type] VARCHAR(20) NOT NULL, 
     [TransactionId] INT NULL, 
-    [TransactionNo] VARCHAR(MAX) NOT NULL, 
+    [TransactionNo] VARCHAR(100) NOT NULL, 
     [TransactionDateTime] DATETIME NOT NULL, 
-    CONSTRAINT [FK_RawMaterialStock_ToRawMaterial] FOREIGN KEY (RawMaterialId) REFERENCES [RawMaterial](Id)
+    CONSTRAINT [FK_RawMaterialStock_ToRawMaterial] FOREIGN KEY (RawMaterialId) REFERENCES [RawMaterial](Id),
+    INDEX [IX_RawMaterialStock_TransactionNo] NONCLUSTERED ([TransactionNo]),
+    INDEX [IX_RawMaterialStock_TransactionDateTime] NONCLUSTERED ([TransactionDateTime], [RawMaterialId], [Quantity])
 )

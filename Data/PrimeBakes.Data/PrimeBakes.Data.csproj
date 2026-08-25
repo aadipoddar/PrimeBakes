@@ -7,14 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-	  <PackageReference Include="Azure.Storage.Blobs" Version="12.29.1" />
+	  <PackageReference Include="Azure.Storage.Blobs" Version="12.29.2" />
 	  <PackageReference Include="Dapper" Version="2.1.79" />
 	  <PackageReference Include="MailKit" Version="4.17.0" />
 	  <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.2" />
 	  <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.22.0" />
 	  <PackageReference Include="MimeKit" Version="4.17.0" />
 	  <PackageReference Include="NCalcSync" Version="7.1.0" />
-	  <PackageReference Include="Syncfusion.Licensing" Version="34.2.4" />
+	  <PackageReference Include="Syncfusion.Licensing" Version="34.2.5" />
   </ItemGroup>
 
   <ItemGroup>
