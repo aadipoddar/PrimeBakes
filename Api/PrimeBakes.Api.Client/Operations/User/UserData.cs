@@ -10,6 +10,9 @@ public static class UserData
 	public static async Task<UserModel> LoadUserByPasscode(int Passcode) =>
 		await ApiClient.Get<UserModel>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadUserByPasscode)), new { Passcode });
 
+	public static async Task UpdateLastLoginTime(UserModel user, DateTime? lastLoginTime) =>
+		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(UpdateLastLoginTime)), user, new { lastLoginTime });
+
 	public static async Task DeleteTransaction(UserModel user, int userId, string platform) =>
 		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteTransaction)), user, new { userId, platform });
 

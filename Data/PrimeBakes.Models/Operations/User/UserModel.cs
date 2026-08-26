@@ -15,6 +15,7 @@ public class UserModel
 	public bool Reports { get; set; }
 	public bool Admin { get; set; }
 	public string? Remarks { get; set; }
+	public DateTime? LastLoginTime { get; set; }
 	public bool Status { get; set; }
 }
 

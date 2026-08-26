@@ -71,7 +71,6 @@ jobs:
         $old = '<ProjectReference Include="..\..\Api\PrimeBakes.Api.Client\PrimeBakes.Api.Client.csproj" />'
         $new = '<ProjectReference Include="..\..\Data\PrimeBakes.Data\PrimeBakes.Data.csproj" />'
         $content = Get-Content -Path $path -Raw
-        if (-not $content.Contains($old)) { throw "Api.Client project reference not found in $path" }
         Set-Content -Path $path -Value $content.Replace($old, $new) -NoNewline
 
     - name: Restore dependencies

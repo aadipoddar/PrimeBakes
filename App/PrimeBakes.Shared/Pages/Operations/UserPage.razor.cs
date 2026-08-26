@@ -24,7 +24,8 @@ public partial class UserPage
 	private readonly List<ContextMenuItemModel> _gridContextMenuItems =
 	[
 		new() { Text = "Edit (Insert)", Id = "EditSelectedItem", IconCss = "e-icons e-edit", Target = ".e-content" },
-		new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverSelectedItem", IconCss = "e-icons e-trash", Target = ".e-content" }
+		new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverSelectedItem", IconCss = "e-icons e-trash", Target = ".e-content" },
+		new() { Text = "Logout (Ctrl + L)", Id = "LogoutSelectedItem", IconCss = "e-icons e-lock", Target = ".e-content" }
 	];
 
 	private SfGrid<UserModel> _sfGrid;
@@ -166,6 +167,48 @@ public partial class UserPage
 			() => DeleteRecoverTransaction(record.Id, !record.Status));
 	}
 
+	private async Task LogoutUser(UserModel user)
+	{
+		try
+		{
+			if (!_user.Admin)
+				throw new Exception("You do not have permission to perform this action.");
+
+			_isProcessing = true;
+			StateHasChanged();
+
+			await _toastNotification.ShowAsync("Processing", "Logging out...", ToastType.Info);
+
+			await UserData.UpdateLastLoginTime(user, null);
+
+			await _toastNotification.ShowAsync("Success", user is null ? "All users have been logged out successfully." : $"{user.Name} has been logged out successfully.", ToastType.Success);
+			ResetPage();
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"An error occurred while logging out: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
+
+	private async Task LogoutSelectedItem()
+	{
+		var selectedRecords = await _sfGrid.GetSelectedRecordsAsync();
+		if (selectedRecords.Count == 0)
+			return;
+
+		var record = selectedRecords[0];
+
+		await ShowConfirmation("Logout", $"Are you sure you want to log out {record.Name} from all devices", () => LogoutUser(record));
+	}
+
+	private async Task LogoutAllUsers() =>
+		await ShowConfirmation("Logout All Users", "Are you sure you want to log out every user from all devices", () => LogoutUser(null));
+
 	private async Task ShowConfirmation(string title, string message, Func<Task> action)
 	{
 		_confirmTitle = title;
@@ -226,6 +269,7 @@ public partial class UserPage
 		{
 			case "EditSelectedItem": await EditSelectedItem(); break;
 			case "DeleteRecoverSelectedItem": await DeleteRecoverSelectedItem(); break;
+			case "LogoutSelectedItem": await LogoutSelectedItem(); break;
 		}
 	}
 

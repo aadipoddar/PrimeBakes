@@ -1,6 +1,8 @@
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
+using PrimeBakes.Data.Common;
+
 using PrimeBakes.Models.Operations.User;
 
 using System.Security.Claims;
@@ -21,7 +23,12 @@ public static class AuthData
 	{
 		var user = await UserData.LoadUserByPasscode(Passcode);
 
-		return user is null || !user.Status ? null : new LoginResult(user, CreateToken(user));
+		if (user is null || !user.Status)
+			return null;
+
+		await UserData.UpdateLastLoginTime(user, await CommonData.LoadCurrentDateTime());
+
+		return new LoginResult(user, CreateToken(user));
 	}
 
 	private static string CreateToken(UserModel user) =>

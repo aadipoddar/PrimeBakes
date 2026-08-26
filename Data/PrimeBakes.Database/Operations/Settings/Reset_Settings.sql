@@ -68,10 +68,13 @@ BEGIN
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'KitchenProductionReturnDiscountRate', N'25', N'Discount rate for kitchen production returns')
 
 	-- Report Settings
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'AutoRefreshReportTimer', N'5', N'Auto refresh interval for reports in minutes')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'AutoRefreshReportTimer', N'30', N'Auto refresh interval for reports in minutes')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'ReportWarningDays', N'30', N'Days threshold used to highlight due items in reports')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'HeavyQuerySpanDays', N'30', N'Date range in days beyond which a report counts as a heavy query')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'HeavyQueryMaxLoadPercent', N'50', N'Database load percentage above which heavy reports are refused')
+
+	-- Login Settings
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'MaxLoginTimeHours', N'12', N'Hours after login before a user is signed out automatically')
 
 	-- Notification Settings
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'NotificationEmail', N'primebakesght@gmail.com', N'Recipient email for transaction notifications; leave blank to disable emails')

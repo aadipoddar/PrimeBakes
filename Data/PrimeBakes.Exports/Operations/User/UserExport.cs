@@ -27,6 +27,7 @@ public static class UserExport
 			Reports = user.Reports ? "Yes" : "No",
 			Admin = user.Admin ? "Yes" : "No",
 			user.Remarks,
+			LastLoginTime = user.LastLoginTime?.ToString("dd-MMM-yyyy HH:mm") ?? "Not Logged In",
 			Status = user.Status ? "Active" : "Deleted"
 		});
 
@@ -44,6 +45,7 @@ public static class UserExport
 			[nameof(UserModel.Reports)] = new() { DisplayName = "Reports", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(UserModel.Admin)] = new() { DisplayName = "Admin", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(UserModel.Remarks)] = new() { DisplayName = "Remarks", Alignment = CellAlignment.Left },
+			[nameof(UserModel.LastLoginTime)] = new() { DisplayName = "Last Login", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(UserModel.Status)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false }
 		};
 
@@ -61,6 +63,7 @@ public static class UserExport
 			nameof(UserModel.Reports),
 			nameof(UserModel.Admin),
 			nameof(UserModel.Remarks),
+			nameof(UserModel.LastLoginTime),
 			nameof(UserModel.Status)
 		];
 

@@ -2,6 +2,9 @@
 using Microsoft.JSInterop;
 
 using PrimeBakes.Data;
+using PrimeBakes.Data.Operations.Settings;
+using PrimeBakes.Data.Operations.User;
+using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
 
 namespace PrimeBakes.Shared.Services;
@@ -32,6 +35,13 @@ public static class AuthenticationService
 		if (!user.Status)
 			await Logout(dataStorageService, navigationManager, notificationService, vibrationService);
 
+		var currentDateTime = await CommonData.LoadCurrentDateTime();
+		var maxLoginTimeSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.MaxLoginTimeHours);
+		var maxLoginTimeHours = int.TryParse(maxLoginTimeSetting?.Value, out var hours) && hours > 0 ? hours : 12;
+
+		if (user.LastLoginTime is null || (currentDateTime - user.LastLoginTime.Value).TotalHours > maxLoginTimeHours)
+			await Logout(dataStorageService, navigationManager, notificationService, vibrationService);
+
 		if (primaryLocationRequirement && user.LocationId != 1)
 			await Logout(dataStorageService, navigationManager, notificationService, vibrationService);
 
@@ -58,6 +68,12 @@ public static class AuthenticationService
 
 	public static async Task Logout(IDataStorageService dataStorageService, NavigationManager navigationManager, INotificationService notificationService, IVibrationService vibrationService)
 	{
+		var userData = await dataStorageService.SecureGetAsync(StorageFileNames.UserDataFileName);
+		var user = string.IsNullOrWhiteSpace(userData) ? null : System.Text.Json.JsonSerializer.Deserialize<UserModel>(userData);
+
+		if (user is not null && !string.IsNullOrWhiteSpace(ApiClient.Token))
+			await UserData.UpdateLastLoginTime(user, null);
+
 		ApiClient.Token = null;
 		await dataStorageService.SecureRemoveAll();
 		await notificationService.DeregisterDevicePushNotification();

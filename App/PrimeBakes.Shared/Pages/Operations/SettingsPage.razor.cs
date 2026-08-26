@@ -103,10 +103,13 @@ public partial class SettingsPage
 	private decimal _kitchenProductionReturnDiscountRate = 25;
 
 	// Report Settings
-	private int _autoRefreshReportTimer = 5;
+	private int _autoRefreshReportTimer = 30;
 	private int _reportWarningDays = 30;
 	private int _heavyQuerySpanDays = 30;
 	private int _heavyQueryMaxLoadPercent = 50;
+
+	// Login Settings
+	private int _maxLoginTimeHours = 12;
 
 	// Notification Settings
 	private string _notificationEmail = string.Empty;
@@ -221,10 +224,13 @@ public partial class SettingsPage
 		_kitchenProductionReturnDiscountRate = Decimal(SettingsKeys.KitchenProductionReturnDiscountRate, 25);
 
 		// Report Settings
-		_autoRefreshReportTimer = Int(SettingsKeys.AutoRefreshReportTimer, 5);
+		_autoRefreshReportTimer = Int(SettingsKeys.AutoRefreshReportTimer, 30);
 		_reportWarningDays = Int(SettingsKeys.ReportWarningDays, 30);
 		_heavyQuerySpanDays = Int(SettingsKeys.HeavyQuerySpanDays, 30);
 		_heavyQueryMaxLoadPercent = Int(SettingsKeys.HeavyQueryMaxLoadPercent, 50);
+
+		// Login Settings
+		_maxLoginTimeHours = Int(SettingsKeys.MaxLoginTimeHours, 12);
 
 		// Notification Settings
 		_notificationEmail = Str(SettingsKeys.NotificationEmail) ?? string.Empty;
@@ -520,6 +526,9 @@ public partial class SettingsPage
 			await UpdateSetting(SettingsKeys.ReportWarningDays, _reportWarningDays.ToString(), Desc(SettingsKeys.ReportWarningDays));
 			await UpdateSetting(SettingsKeys.HeavyQuerySpanDays, _heavyQuerySpanDays.ToString(), Desc(SettingsKeys.HeavyQuerySpanDays));
 			await UpdateSetting(SettingsKeys.HeavyQueryMaxLoadPercent, _heavyQueryMaxLoadPercent.ToString(), Desc(SettingsKeys.HeavyQueryMaxLoadPercent));
+
+			// Login Settings
+			await UpdateSetting(SettingsKeys.MaxLoginTimeHours, _maxLoginTimeHours.ToString(), Desc(SettingsKeys.MaxLoginTimeHours));
 
 			// Notification Settings
 			await UpdateSetting(SettingsKeys.NotificationEmail, _notificationEmail, Desc(SettingsKeys.NotificationEmail));

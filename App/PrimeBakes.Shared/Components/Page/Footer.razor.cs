@@ -10,7 +10,7 @@ public partial class Footer : IAsyncDisposable
 {
 	[Parameter] public bool ShowVersion { get; set; } = true;
 
-	private const int _defaultRefreshMinutes = 5;
+	private const int _defaultRefreshMinutes = 30;
 	private decimal _databaseLoad = -1;
 
 	private PeriodicTimer _refreshTimer;

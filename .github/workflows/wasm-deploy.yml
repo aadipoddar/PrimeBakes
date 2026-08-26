@@ -47,6 +47,15 @@ jobs:
           Set-Content -Path "Data/PrimeBakes.Models/DataAccess/CommonSecrets.local_secrets.cs" -Value $commonSecretsContent
         shell: pwsh
 
+      - name: Point PrimeBakes.Shared at PrimeBakes.Api.Client
+        run: |
+          $path = "App/PrimeBakes.Shared/PrimeBakes.Shared.csproj"
+          $old = '<ProjectReference Include="..\..\Data\PrimeBakes.Data\PrimeBakes.Data.csproj" />'
+          $new = '<ProjectReference Include="..\..\Api\PrimeBakes.Api.Client\PrimeBakes.Api.Client.csproj" />'
+          $content = Get-Content -Path $path -Raw
+          Set-Content -Path $path -Value $content.Replace($old, $new) -NoNewline
+        shell: pwsh
+
       - name: Publish PrimeBakes.Wasm
         run: dotnet publish App/PrimeBakes.Wasm/PrimeBakes.Wasm.csproj -c Release -o ${{ github.workspace }}/wasmapp
 

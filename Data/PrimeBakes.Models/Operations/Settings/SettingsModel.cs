@@ -79,6 +79,9 @@ public static class SettingsKeys
 	public static string HeavyQuerySpanDays => "HeavyQuerySpanDays";
 	public static string HeavyQueryMaxLoadPercent => "HeavyQueryMaxLoadPercent";
 
+	// Login Settings
+	public static string MaxLoginTimeHours => "MaxLoginTimeHours";
+
 	// Notification Settings
 	public static string NotificationEmail => "NotificationEmail";
 

@@ -15,6 +15,17 @@ public static class UserData
 	public static async Task<UserModel> LoadUserByPasscode(int Passcode) =>
 		(await SqlDataAccess.LoadData<UserModel, dynamic>(OperationNames.LoadUserByPasscode, new { Passcode })).FirstOrDefault();
 
+	public static async Task UpdateLastLoginTime(UserModel user, DateTime? lastLoginTime)
+	{
+		var users = user is null ? await CommonData.LoadTableData<UserModel>(OperationNames.User) : [user];
+
+		foreach (var item in users)
+		{
+			item.LastLoginTime = lastLoginTime;
+			await InsertUser(item);
+		}
+	}
+
 	public static async Task DeleteTransaction(UserModel user, int userId, string platform) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{

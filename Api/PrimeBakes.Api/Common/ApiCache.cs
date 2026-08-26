@@ -7,7 +7,6 @@ using PrimeBakes.Api.Inventory.Recipe;
 using PrimeBakes.Api.Operations.Analysis;
 using PrimeBakes.Api.Operations.Location;
 using PrimeBakes.Api.Operations.Settings;
-using PrimeBakes.Api.Operations.User;
 using PrimeBakes.Api.Payroll.Masters;
 using PrimeBakes.Api.Restaurant.Dining;
 using PrimeBakes.Api.Store.Customer;
@@ -45,7 +44,6 @@ public sealed class ApiCachePolicy : IOutputCachePolicy
 		AccountNames.FinancialYear,
 		OperationNames.Location,
 		OperationNames.Settings,
-		OperationNames.User,
 		InventoryNames.Kitchen,
 		InventoryNames.RawMaterial,
 		InventoryNames.RawMaterialCategory,
@@ -91,7 +89,6 @@ public sealed class ApiCachePolicy : IOutputCachePolicy
 		Helper.SanitizeClassName(nameof(FinancialYearEndpoint)),
 		Helper.SanitizeClassName(nameof(LocationEndpoint)),
 		Helper.SanitizeClassName(nameof(SettingsEndpoint)),
-		Helper.SanitizeClassName(nameof(UserEndpoint)),
 		Helper.SanitizeClassName(nameof(KitchenEndpoint)),
 		Helper.SanitizeClassName(nameof(RawMaterialEndpoint)),
 		Helper.SanitizeClassName(nameof(RawMaterialCategoryEndpoint)),

@@ -294,7 +294,7 @@ else
 							<CustomNumericField T="int"
 												@bind-Value="_autoRefreshReportTimer"
 												Label="Auto Refresh Timer (Minutes)"
-												Placeholder="e.g., 5"
+												Placeholder="e.g., 30"
 												Format="N0"
 												Min="1"
 												Max="60"
@@ -328,6 +328,27 @@ else
 												Format="N0"
 												Min="1"
 												Max="100"
+												Required="false" />
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Login Settings -->
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Login Settings</h2>
+				</div>
+				<div class="section-body">
+					<div class="form-grid">
+						<div class="form-field">
+							<CustomNumericField T="int"
+												@bind-Value="_maxLoginTimeHours"
+												Label="Maximum Login Time (Hours)"
+												Placeholder="e.g., 12"
+												Format="N0"
+												Min="1"
+												Max="720"
 												Required="false" />
 						</div>
 					</div>

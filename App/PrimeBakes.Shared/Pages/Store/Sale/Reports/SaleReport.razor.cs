@@ -833,7 +833,7 @@ public partial class SaleReport : IAsyncDisposable
 	private async Task StartAutoRefresh()
 	{
 		var timerSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.AutoRefreshReportTimer);
-		var refreshMinutes = int.TryParse(timerSetting?.Value, out var minutes) ? minutes : 5;
+		var refreshMinutes = int.TryParse(timerSetting?.Value, out var minutes) ? minutes : 30;
 
 		_autoRefreshCts = new CancellationTokenSource();
 		_autoRefreshTimer = new PeriodicTimer(TimeSpan.FromMinutes(refreshMinutes));
