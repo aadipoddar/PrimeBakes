@@ -375,6 +375,7 @@
     <Build Include="Operations\Settings\Settings.sql" />
     <Build Include="Operations\Settings\Update_Settings.sql" />
     <Build Include="Operations\Settings\Reset_Settings.sql" />
+    <Build Include="Operations\Settings\Rebuild_Indexes.sql" />
     <Build Include="Operations\Location\Insert_Location.sql" />
     <Build Include="Operations\User\Insert_User.sql" />
     <Build Include="Operations\User\Load_User_By_Passcode.sql" />

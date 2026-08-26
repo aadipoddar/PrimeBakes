@@ -20,6 +20,7 @@ else
 					<MudBlazor.MudMenuItem Label="Save (Ctrl + S)" OnClick="SaveSettings" />
 					<MudBlazor.MudMenuItem Label="Reset to Defaults (Ctrl + R)" OnClick="ShowResetConfirmation" />
 					<MudBlazor.MudMenuItem Label="Clear Cache" OnClick="ShowClearCacheConfirmation" />
+					<MudBlazor.MudMenuItem Label="Rebuild Indexes" OnClick="ShowRebuildIndexesConfirmation" />
 				</MudBlazor.MudMenu>
 			</LeftContent>
 		</Header>
@@ -174,7 +175,6 @@ else
 			<div class="section-card">
 				<div class="section-header">
 					<h2 class="section-title">Ledger Linking</h2>
-					/div>
 				</div>
 				<div class="section-body">
 					<div class="form-grid">
@@ -392,6 +392,25 @@ else
 												 OnClick="ShowClearCacheConfirmation"
 												 Disabled="_isProcessing">
 								Clear Cache Now
+							</MudBlazor.MudButton>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Database Maintenance -->
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Database Maintenance</h2>
+				</div>
+				<div class="section-body">
+					<div class="form-grid">
+						<div class="form-field">
+							<MudBlazor.MudButton Variant="MudBlazor.Variant.Filled"
+												 Color="MudBlazor.Color.Warning"
+												 OnClick="ShowRebuildIndexesConfirmation"
+												 Disabled="_isProcessing">
+								Rebuild Indexes Now
 							</MudBlazor.MudButton>
 						</div>
 					</div>

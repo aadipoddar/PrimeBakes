@@ -25,6 +25,7 @@ public static class OperationNames
 	public static string UpdateSettings => "Update_Settings";
 	public static string LoadSettingsByKey => "Load_Settings_By_Key";
 	public static string ResetSettings => "Reset_Settings";
+	public static string RebuildIndexes => "Rebuild_Indexes";
 	public const string LocalSettings = "/operations/local-settings";
 	#endregion
 

@@ -586,6 +586,35 @@ public partial class SettingsPage
 
 	#endregion
 
+	#region Rebuild Indexes
+
+	private async Task ShowRebuildIndexesConfirmation() =>
+		await ShowConfirmation("Rebuild Indexes", "Are you sure you want to rebuild the database indexes? The app may be slower while this runs.", RebuildIndexes);
+
+	private async Task RebuildIndexes()
+	{
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+
+			await _toastNotification.ShowAsync("Rebuilding", "Rebuilding database indexes...", ToastType.Info);
+			await MaintenanceData.RebuildIndexes();
+			await _toastNotification.ShowAsync("Rebuilt", "Database indexes rebuilt successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"Failed to rebuild indexes: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
+
+	#endregion
+
 	#region Reset Settings
 
 	private async Task ShowResetConfirmation() =>
