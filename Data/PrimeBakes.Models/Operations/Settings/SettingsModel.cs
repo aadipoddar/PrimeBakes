@@ -76,14 +76,12 @@ public static class SettingsKeys
 	// Report Settings
 	public static string AutoRefreshReportTimer => "AutoRefreshReportTimer";
 	public static string ReportWarningDays => "ReportWarningDays";
+	public static string HeavyQuerySpanDays => "HeavyQuerySpanDays";
+	public static string HeavyQueryMaxLoadPercent => "HeavyQueryMaxLoadPercent";
 
 	// Notification Settings
 	public static string NotificationEmail => "NotificationEmail";
 
 	// Cache Settings
 	public static string CacheTimeoutMinutes => "CacheTimeoutMinutes";
-
-	// Query Gate Settings
-	public static string HeavyQuerySpanDays => "HeavyQuerySpanDays";
-	public static string HeavyQueryMaxLoadPercent => "HeavyQueryMaxLoadPercent";
 }

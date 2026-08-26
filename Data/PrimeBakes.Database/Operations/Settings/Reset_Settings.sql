@@ -70,16 +70,14 @@ BEGIN
 	-- Report Settings
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'AutoRefreshReportTimer', N'5', N'Auto refresh interval for reports in minutes')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'ReportWarningDays', N'30', N'Days threshold used to highlight due items in reports')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'HeavyQuerySpanDays', N'30', N'Date range in days beyond which a report counts as a heavy query')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'HeavyQueryMaxLoadPercent', N'50', N'Database load percentage above which heavy reports are refused')
 
 	-- Notification Settings
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'NotificationEmail', N'primebakesght@gmail.com', N'Recipient email for transaction notifications; leave blank to disable emails')
 
 	-- Cache Settings
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'CacheTimeoutMinutes', N'60', N'How long the API keeps master data cached, in minutes')
-
-	-- Query Gate Settings
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'HeavyQuerySpanDays', N'30', N'Date range in days beyond which a report counts as a heavy query')
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'HeavyQueryMaxLoadPercent', N'50', N'Database load percentage above which heavy reports are refused')
 
 	SELECT 1 AS Success;
 

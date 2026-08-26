@@ -105,14 +105,14 @@ public partial class SettingsPage
 	// Report Settings
 	private int _autoRefreshReportTimer = 5;
 	private int _reportWarningDays = 30;
+	private int _heavyQuerySpanDays = 30;
+	private int _heavyQueryMaxLoadPercent = 50;
 
 	// Notification Settings
 	private string _notificationEmail = string.Empty;
 
 	// Cache Settings
 	private int _cacheTimeoutMinutes = 60;
-	private int _heavyQuerySpanDays = 30;
-	private int _heavyQueryMaxLoadPercent = 50;
 
 	#endregion
 
@@ -223,6 +223,8 @@ public partial class SettingsPage
 		// Report Settings
 		_autoRefreshReportTimer = Int(SettingsKeys.AutoRefreshReportTimer, 5);
 		_reportWarningDays = Int(SettingsKeys.ReportWarningDays, 30);
+		_heavyQuerySpanDays = Int(SettingsKeys.HeavyQuerySpanDays, 30);
+		_heavyQueryMaxLoadPercent = Int(SettingsKeys.HeavyQueryMaxLoadPercent, 50);
 
 		// Notification Settings
 		_notificationEmail = Str(SettingsKeys.NotificationEmail) ?? string.Empty;
@@ -230,9 +232,6 @@ public partial class SettingsPage
 		// Cache Settings
 		_cacheTimeoutMinutes = Int(SettingsKeys.CacheTimeoutMinutes, 60);
 
-		// Query Gate Settings
-		_heavyQuerySpanDays = Int(SettingsKeys.HeavyQuerySpanDays, 30);
-		_heavyQueryMaxLoadPercent = Int(SettingsKeys.HeavyQueryMaxLoadPercent, 50);
 	}
 
 	private async Task LoadCompanies()
@@ -519,16 +518,14 @@ public partial class SettingsPage
 			// Report Settings
 			await UpdateSetting(SettingsKeys.AutoRefreshReportTimer, _autoRefreshReportTimer.ToString(), Desc(SettingsKeys.AutoRefreshReportTimer));
 			await UpdateSetting(SettingsKeys.ReportWarningDays, _reportWarningDays.ToString(), Desc(SettingsKeys.ReportWarningDays));
+			await UpdateSetting(SettingsKeys.HeavyQuerySpanDays, _heavyQuerySpanDays.ToString(), Desc(SettingsKeys.HeavyQuerySpanDays));
+			await UpdateSetting(SettingsKeys.HeavyQueryMaxLoadPercent, _heavyQueryMaxLoadPercent.ToString(), Desc(SettingsKeys.HeavyQueryMaxLoadPercent));
 
 			// Notification Settings
 			await UpdateSetting(SettingsKeys.NotificationEmail, _notificationEmail, Desc(SettingsKeys.NotificationEmail));
 
 			// Cache Settings
 			await UpdateSetting(SettingsKeys.CacheTimeoutMinutes, _cacheTimeoutMinutes.ToString(), Desc(SettingsKeys.CacheTimeoutMinutes));
-
-			// Query Gate Settings
-			await UpdateSetting(SettingsKeys.HeavyQuerySpanDays, _heavyQuerySpanDays.ToString(), Desc(SettingsKeys.HeavyQuerySpanDays));
-			await UpdateSetting(SettingsKeys.HeavyQueryMaxLoadPercent, _heavyQueryMaxLoadPercent.ToString(), Desc(SettingsKeys.HeavyQueryMaxLoadPercent));
 
 			await _toastNotification.ShowAsync("Saved", "Settings saved successfully.", ToastType.Success);
 		}
