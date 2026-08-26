@@ -1,0 +1,25 @@
+﻿CREATE TYPE [dbo].[PurchaseDetailType] AS TABLE
+(
+	[Id] INT NOT NULL,
+	[MasterId] INT NOT NULL,
+	[RawMaterialId] INT NOT NULL,
+	[Quantity] MONEY NOT NULL,
+	[UnitOfMeasurement] VARCHAR(20) NOT NULL,
+	[Rate] MONEY NOT NULL,
+	[BaseTotal] MONEY NOT NULL,
+	[DiscountPercent] DECIMAL(5, 2) NOT NULL,
+	[DiscountAmount] MONEY NOT NULL,
+	[AfterDiscount] MONEY NOT NULL,
+	[CGSTPercent] DECIMAL(5, 2) NOT NULL,
+	[CGSTAmount] MONEY NOT NULL,
+	[SGSTPercent] DECIMAL(5, 2) NOT NULL,
+	[SGSTAmount] MONEY NOT NULL,
+	[IGSTPercent] DECIMAL(5, 2) NOT NULL,
+	[IGSTAmount] MONEY NOT NULL,
+	[TotalTaxAmount] MONEY NOT NULL,
+	[InclusiveTax] BIT NOT NULL,
+	[Total] MONEY NOT NULL,
+	[NetRate] MONEY NOT NULL,
+	[Remarks] VARCHAR(MAX) NULL,
+	[Status] BIT NOT NULL
+)

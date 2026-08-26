@@ -1,3 +1,5 @@
+﻿using Dapper;
+
 using PrimeBakes.Data.Accounts.Masters;
 using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Operations.AuditTrail;
@@ -10,6 +12,8 @@ using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Models.Payroll.Masters;
 using PrimeBakes.Models.Payroll.PayrollRun;
 
+using System.Data;
+
 namespace PrimeBakes.Data.Payroll.PayrollRun;
 
 public static class PayrollData
@@ -21,6 +25,9 @@ public static class PayrollData
 	private static async Task<int> InsertPayrollDetail(PayrollDetailModel payrollDetail, SqlDataAccessTransaction transaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(PayrollNames.InsertPayrollDetail, payrollDetail, transaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Payroll Detail.");
+
+	private static async Task InsertPayrollDetailList(DataTable payrollDetails, SqlDataAccessTransaction transaction = null) =>
+		await SqlDataAccess.LoadData<int, dynamic>(PayrollNames.InsertPayrollDetailList, new { PayrollDetails = payrollDetails.AsTableValuedParameter(PayrollNames.PayrollDetailType) }, transaction);
 
 	public static async Task<List<PayrollOverviewModel>> LoadPayrollOverviewByEmployeeMonthYear(int? EmployeeId = null, int? PayrollMonth = null, int? PayrollYear = null, SqlDataAccessTransaction transaction = null) =>
 		await SqlDataAccess.LoadData<PayrollOverviewModel, dynamic>(PayrollNames.LoadPayrollOverviewByEmployeeMonthYear, new { EmployeeId, PayrollMonth, PayrollYear }, transaction);
@@ -195,13 +202,15 @@ public static class PayrollData
 
 		payroll.Id = await InsertPayroll(payroll, sqlDataAccessTransaction);
 
+		List<PayrollDetailModel> details = [];
+
 		if (update)
 		{
 			var existingDetails = await CommonData.LoadTableDataByMasterId<PayrollDetailModel>(PayrollNames.PayrollDetail, payroll.Id, sqlDataAccessTransaction);
 			foreach (var existingDetail in existingDetails)
 			{
 				existingDetail.Status = false;
-				await InsertPayrollDetail(existingDetail, sqlDataAccessTransaction);
+				details.Add(existingDetail);
 			}
 		}
 
@@ -210,8 +219,10 @@ public static class PayrollData
 			payrollDetail.Id = 0;
 			payrollDetail.MasterId = payroll.Id;
 			payrollDetail.Status = true;
-			await InsertPayrollDetail(payrollDetail, sqlDataAccessTransaction);
+			details.Add(payrollDetail);
 		}
+
+		await InsertPayrollDetailList(SqlDataAccess.ToDataTable(details), sqlDataAccessTransaction);
 
 		var current = await CommonData.LoadTableDataById<PayrollOverviewModel>(PayrollNames.PayrollOverview, payroll.Id, sqlDataAccessTransaction);
 

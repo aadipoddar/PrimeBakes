@@ -1,4 +1,6 @@
-﻿using PrimeBakes.Data.Accounts.FinancialAccounting;
+﻿using Dapper;
+
+using PrimeBakes.Data.Accounts.FinancialAccounting;
 using PrimeBakes.Data.Accounts.Masters;
 using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Inventory.Recipe;
@@ -24,6 +26,8 @@ using PrimeBakes.Models.Restaurant.Dining;
 using PrimeBakes.Models.Store.Customer;
 using PrimeBakes.Models.Store.Product;
 
+using System.Data;
+
 namespace PrimeBakes.Data.Restaurant.Bill;
 
 public static class BillData
@@ -36,6 +40,9 @@ public static class BillData
 	private static async Task<int> InsertBillDetail(BillDetailModel billDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(RestaurantNames.InsertBillDetail, billDetail, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Bill Detail.");
+
+	private static async Task InsertBillDetailList(DataTable billDetails, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+		await SqlDataAccess.LoadData<int, dynamic>(RestaurantNames.InsertBillDetailList, new { BillDetails = billDetails.AsTableValuedParameter(RestaurantNames.BillDetailType) }, sqlDataAccessTransaction);
 
 	private static async Task<int> DeleteBillDetailById(int Id, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(RestaurantNames.DeleteBillDetailById, new { Id }, sqlDataAccessTransaction)).FirstOrDefault()
@@ -97,11 +104,15 @@ public static class BillData
 	{
 		var billDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, billId);
 
+		List<BillDetailModel> details = [];
+
 		foreach (var detail in billDetails.Where(d => d.KOTPrint))
 		{
 			detail.KOTPrint = false;
-			await InsertBillDetail(detail);
+			details.Add(detail);
 		}
+
+		await InsertBillDetailList(SqlDataAccess.ToDataTable(details));
 	}
 	#endregion
 
@@ -429,7 +440,7 @@ public static class BillData
 		var previousBillDetails = auditUpdate && !recover && !bill.Running ? await CommonData.LoadTableDataByMasterId<BillItemOverviewModel>(RestaurantNames.BillItemOverview, bill.Id, sqlDataAccessTransaction) : [];
 
 		bill.Id = await InsertBill(bill, sqlDataAccessTransaction);
-		await SaveTransactionDetail(bill, billDetails, update, previousRunning, sqlDataAccessTransaction);
+		if (!recover) await SaveTransactionDetail(bill, billDetails, update, previousRunning, sqlDataAccessTransaction);
 
 		if (!bill.Running)
 		{
@@ -444,6 +455,8 @@ public static class BillData
 
 	private static async Task SaveTransactionDetail(BillModel bill, List<BillDetailModel> billDetails, bool update, bool previousRunning, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
+		List<BillDetailModel> details = [];
+
 		if (update)
 		{
 			var existingBillDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, bill.Id, sqlDataAccessTransaction);
@@ -455,7 +468,7 @@ public static class BillData
 				else
 				{
 					item.Status = false;
-					await InsertBillDetail(item, sqlDataAccessTransaction);
+					details.Add(item);
 				}
 			}
 		}
@@ -463,16 +476,20 @@ public static class BillData
 		foreach (var item in billDetails)
 		{
 			item.MasterId = bill.Id;
-			await InsertBillDetail(item, sqlDataAccessTransaction);
+			details.Add(item);
 		}
+
+		await InsertBillDetailList(SqlDataAccess.ToDataTable(details), sqlDataAccessTransaction);
 	}
 
 	private static async Task SaveProductStock(BillModel bill, List<BillDetailModel> billDetails, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
 		await ProductStockData.DeleteProductStockByTransactionNo(bill.TransactionNo, sqlDataAccessTransaction);
 
+		List<ProductStockModel> stocks = [];
+
 		foreach (var item in billDetails)
-			await ProductStockData.InsertProductStock(new()
+			stocks.Add(new()
 			{
 				Id = 0,
 				ProductId = item.ProductId,
@@ -483,7 +500,9 @@ public static class BillData
 				TransactionNo = bill.TransactionNo,
 				TransactionDateTime = bill.TransactionDateTime,
 				LocationId = bill.LocationId
-			}, sqlDataAccessTransaction);
+			});
+
+		await ProductStockData.InsertProductStockList(SqlDataAccess.ToDataTable(stocks), sqlDataAccessTransaction);
 	}
 
 	private static async Task SaveRawMaterialStockByRecipe(BillModel bill, List<BillDetailModel> billDetails, SqlDataAccessTransaction sqlDataAccessTransaction)
@@ -496,13 +515,15 @@ public static class BillData
 		var recipes = await RecipeData.LoadAllRecipes(DateOnly.FromDateTime(bill.TransactionDateTime), true, sqlDataAccessTransaction);
 		var recipeDetails = await CommonData.LoadTableDataByStatus<RecipeDetailModel>(InventoryNames.RecipeDetail, true, sqlDataAccessTransaction);
 
+		List<RawMaterialStockModel> stocks = [];
+
 		foreach (var product in billDetails)
 		{
 			var recipe = recipes.FirstOrDefault(_ => _.ProductId == product.ProductId);
 			var recipeItems = recipe is null ? [] : recipeDetails.Where(_ => _.MasterId == recipe.Id).ToList();
 
 			foreach (var recipeItem in recipeItems)
-				await RawMaterialStockData.InsertRawMaterialStock(new()
+				stocks.Add(new()
 				{
 					Id = 0,
 					RawMaterialId = recipeItem.RawMaterialId,
@@ -512,8 +533,10 @@ public static class BillData
 					TransactionNo = bill.TransactionNo,
 					Type = nameof(StockType.Bill),
 					TransactionDateTime = bill.TransactionDateTime
-				}, sqlDataAccessTransaction);
+				});
 		}
+
+		await RawMaterialStockData.InsertRawMaterialStockList(SqlDataAccess.ToDataTable(stocks), sqlDataAccessTransaction);
 	}
 
 	private static async Task SaveAccounting(BillModel bill, SqlDataAccessTransaction sqlDataAccessTransaction)

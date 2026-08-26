@@ -1,4 +1,8 @@
-﻿using PrimeBakes.Data.Accounts.Masters;
+﻿using Dapper;
+
+using System.Data;
+
+using PrimeBakes.Data.Accounts.Masters;
 using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Inventory.Stock;
 using PrimeBakes.Data.Operations.AuditTrail;
@@ -24,6 +28,9 @@ public static class KitchenProductionData
 	private static async Task<int> InsertKitchenProductionDetail(KitchenProductionDetailModel kitchenProductionDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertKitchenProductionDetail, kitchenProductionDetail, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Kitchen Production Detail.");
+
+	private static async Task InsertKitchenProductionDetailList(DataTable kitchenProductionDetails, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+		await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertKitchenProductionDetailList, new { KitchenProductionDetails = kitchenProductionDetails.AsTableValuedParameter(InventoryNames.KitchenProductionDetailType) }, sqlDataAccessTransaction);
 
 	public static async Task<KitchenProductionInvoiceBundle> LoadInvoiceBundle(int transactionId)
 	{
@@ -163,7 +170,7 @@ public static class KitchenProductionData
 		var previousKitchenProductionDetails = update && !recover ? await CommonData.LoadTableDataByMasterId<KitchenProductionItemOverviewModel>(InventoryNames.KitchenProductionItemOverview, kitchenProduction.Id, sqlDataAccessTransaction) : [];
 
 		kitchenProduction.Id = await InsertKitchenProduction(kitchenProduction, sqlDataAccessTransaction);
-		await SaveTransactionDetail(kitchenProduction, kitchenProductionDetails, update, sqlDataAccessTransaction);
+		if (!recover) await SaveTransactionDetail(kitchenProduction, kitchenProductionDetails, update, sqlDataAccessTransaction);
 		await SaveProductStock(kitchenProduction, kitchenProductionDetails, sqlDataAccessTransaction);
 		await SaveAuditTrail(kitchenProduction, update, recover, previousKitchenProduction, previousKitchenProductionDetails, sqlDataAccessTransaction);
 
@@ -172,29 +179,35 @@ public static class KitchenProductionData
 
 	private static async Task SaveTransactionDetail(KitchenProductionModel kitchenProduction, List<KitchenProductionDetailModel> kitchenProductionDetails, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
+		List<KitchenProductionDetailModel> details = [];
+
 		if (update)
 		{
 			var existingKitchenProductionDetails = await CommonData.LoadTableDataByMasterId<KitchenProductionDetailModel>(InventoryNames.KitchenProductionDetail, kitchenProduction.Id, sqlDataAccessTransaction);
 			foreach (var item in existingKitchenProductionDetails)
 			{
 				item.Status = false;
-				await InsertKitchenProductionDetail(item, sqlDataAccessTransaction);
+				details.Add(item);
 			}
 		}
 
 		foreach (var item in kitchenProductionDetails)
 		{
 			item.MasterId = kitchenProduction.Id;
-			await InsertKitchenProductionDetail(item, sqlDataAccessTransaction);
+			details.Add(item);
 		}
+
+		await InsertKitchenProductionDetailList(SqlDataAccess.ToDataTable(details), sqlDataAccessTransaction);
 	}
 
 	private static async Task SaveProductStock(KitchenProductionModel kitchenProduction, List<KitchenProductionDetailModel> kitchenProductionDetails, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
 		await ProductStockData.DeleteProductStockByTransactionNo(kitchenProduction.TransactionNo, sqlDataAccessTransaction);
 
+		List<ProductStockModel> stocks = [];
+
 		foreach (var item in kitchenProductionDetails)
-			await ProductStockData.InsertProductStock(new()
+			stocks.Add(new()
 			{
 				Id = 0,
 				ProductId = item.ProductId,
@@ -205,7 +218,9 @@ public static class KitchenProductionData
 				TransactionNo = kitchenProduction.TransactionNo,
 				TransactionDateTime = kitchenProduction.TransactionDateTime,
 				LocationId = 1, // Main Location
-			}, sqlDataAccessTransaction);
+			});
+
+		await ProductStockData.InsertProductStockList(SqlDataAccess.ToDataTable(stocks), sqlDataAccessTransaction);
 	}
 
 	private static async Task SaveAuditTrail(

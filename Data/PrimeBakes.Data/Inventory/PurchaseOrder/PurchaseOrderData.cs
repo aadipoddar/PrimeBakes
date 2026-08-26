@@ -1,4 +1,8 @@
-﻿using PrimeBakes.Data.Accounts.Masters;
+﻿using Dapper;
+
+using System.Data;
+
+using PrimeBakes.Data.Accounts.Masters;
 using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Operations.AuditTrail;
 using PrimeBakes.Data.Utils.Mail;
@@ -20,6 +24,9 @@ public static class PurchaseOrderData
 	private static async Task<int> InsertPurchaseOrderDetail(PurchaseOrderDetailModel purchaseOrderDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertPurchaseOrderDetail, purchaseOrderDetail, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Purchase Order Detail.");
+
+	private static async Task InsertPurchaseOrderDetailList(DataTable purchaseOrderDetails, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+		await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertPurchaseOrderDetailList, new { PurchaseOrderDetails = purchaseOrderDetails.AsTableValuedParameter(InventoryNames.PurchaseOrderDetailType) }, sqlDataAccessTransaction);
 
 	public static async Task<List<PurchaseOrderModel>> LoadPurchaseOrderByPartyPending(int PartyId, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		await SqlDataAccess.LoadData<PurchaseOrderModel, dynamic>(InventoryNames.LoadPurchaseOrderByPartyPending, new { PartyId }, sqlDataAccessTransaction);
@@ -197,7 +204,8 @@ public static class PurchaseOrderData
 		var previousPurchaseOrderDetails = update && !recover ? await CommonData.LoadTableDataByMasterId<PurchaseOrderItemOverviewModel>(InventoryNames.PurchaseOrderItemOverview, purchaseOrder.Id, sqlDataAccessTransaction) : [];
 
 		purchaseOrder.Id = await InsertPurchaseOrder(purchaseOrder, sqlDataAccessTransaction);
-		await SaveTransactionDetail(purchaseOrder, purchaseOrderDetails, update, sqlDataAccessTransaction);
+
+		if (!recover) await SaveTransactionDetail(purchaseOrder, purchaseOrderDetails, update, sqlDataAccessTransaction);
 		await SaveAuditTrail(purchaseOrder, update, recover, previousPurchaseOrder, previousPurchaseOrderDetails, sqlDataAccessTransaction);
 
 		return purchaseOrder.Id;
@@ -205,21 +213,25 @@ public static class PurchaseOrderData
 
 	private static async Task SaveTransactionDetail(PurchaseOrderModel purchaseOrder, List<PurchaseOrderDetailModel> purchaseOrderDetails, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
+		List<PurchaseOrderDetailModel> details = [];
+
 		if (update)
 		{
 			var existingPurchaseOrderDetails = await CommonData.LoadTableDataByMasterId<PurchaseOrderDetailModel>(InventoryNames.PurchaseOrderDetail, purchaseOrder.Id, sqlDataAccessTransaction);
 			foreach (var item in existingPurchaseOrderDetails)
 			{
 				item.Status = false;
-				await InsertPurchaseOrderDetail(item, sqlDataAccessTransaction);
+				details.Add(item);
 			}
 		}
 
 		foreach (var item in purchaseOrderDetails)
 		{
 			item.MasterId = purchaseOrder.Id;
-			await InsertPurchaseOrderDetail(item, sqlDataAccessTransaction);
+			details.Add(item);
 		}
+
+		await InsertPurchaseOrderDetailList(SqlDataAccess.ToDataTable(details), sqlDataAccessTransaction);
 	}
 
 	private static async Task SaveAuditTrail(

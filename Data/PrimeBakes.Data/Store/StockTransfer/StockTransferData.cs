@@ -1,4 +1,6 @@
-﻿using PrimeBakes.Data.Accounts.FinancialAccounting;
+﻿using Dapper;
+
+using PrimeBakes.Data.Accounts.FinancialAccounting;
 using PrimeBakes.Data.Accounts.Masters;
 using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Inventory.Recipe;
@@ -20,6 +22,8 @@ using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Models.Store.Product;
 using PrimeBakes.Models.Store.StockTransfer;
 
+using System.Data;
+
 namespace PrimeBakes.Data.Store.StockTransfer;
 
 public static class StockTransferData
@@ -32,6 +36,9 @@ public static class StockTransferData
 	private static async Task<int> InsertStockTransferDetail(StockTransferDetailModel stockTransferDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertStockTransferDetail, stockTransferDetail, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Stock Transfer Detail.");
+
+	private static async Task InsertStockTransferDetailList(DataTable stockTransferDetails, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+		await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertStockTransferDetailList, new { StockTransferDetails = stockTransferDetails.AsTableValuedParameter(StoreNames.StockTransferDetailType) }, sqlDataAccessTransaction);
 
 	internal static async Task UpdateFinancialAccountingId(int financialAccountingId, int? newFinancialAccountingId, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
@@ -271,7 +278,7 @@ public static class StockTransferData
 		var previousStockTransferDetails = update && !recover ? await CommonData.LoadTableDataByMasterId<StockTransferItemOverviewModel>(StoreNames.StockTransferItemOverview, stockTransfer.Id, sqlDataAccessTransaction) : [];
 
 		stockTransfer.Id = await InsertStockTransfer(stockTransfer, sqlDataAccessTransaction);
-		await SaveTransactionDetail(stockTransfer, stockTransferDetails, update, sqlDataAccessTransaction);
+		if (!recover) await SaveTransactionDetail(stockTransfer, stockTransferDetails, update, sqlDataAccessTransaction);
 		await SaveProductStock(stockTransfer, stockTransferDetails, sqlDataAccessTransaction);
 		await SaveRawMaterialStockByRecipe(stockTransfer, stockTransferDetails, sqlDataAccessTransaction);
 		await SaveAccounting(stockTransfer, sqlDataAccessTransaction);
@@ -282,30 +289,36 @@ public static class StockTransferData
 
 	private static async Task SaveTransactionDetail(StockTransferModel stockTransfer, List<StockTransferDetailModel> stockTransferDetails, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
+		List<StockTransferDetailModel> details = [];
+
 		if (update)
 		{
 			var existingStockTransferDetails = await CommonData.LoadTableDataByMasterId<StockTransferDetailModel>(StoreNames.StockTransferDetail, stockTransfer.Id, sqlDataAccessTransaction);
 			foreach (var item in existingStockTransferDetails)
 			{
 				item.Status = false;
-				await InsertStockTransferDetail(item, sqlDataAccessTransaction);
+				details.Add(item);
 			}
 		}
 
 		foreach (var item in stockTransferDetails)
 		{
 			item.MasterId = stockTransfer.Id;
-			await InsertStockTransferDetail(item, sqlDataAccessTransaction);
+			details.Add(item);
 		}
+
+		await InsertStockTransferDetailList(SqlDataAccess.ToDataTable(details), sqlDataAccessTransaction);
 	}
 
 	private static async Task SaveProductStock(StockTransferModel stockTransfer, List<StockTransferDetailModel> stockTransferDetails, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
 		await ProductStockData.DeleteProductStockByTransactionNo(stockTransfer.TransactionNo, sqlDataAccessTransaction);
 
+		List<ProductStockModel> stocks = [];
+
 		// From Location Stock Update (negative quantity - stock leaves)
 		foreach (var item in stockTransferDetails)
-			await ProductStockData.InsertProductStock(new()
+			stocks.Add(new()
 			{
 				Id = 0,
 				ProductId = item.ProductId,
@@ -316,11 +329,11 @@ public static class StockTransferData
 				TransactionNo = stockTransfer.TransactionNo,
 				TransactionDateTime = stockTransfer.TransactionDateTime,
 				LocationId = stockTransfer.LocationId
-			}, sqlDataAccessTransaction);
+			});
 
 		// To Location Stock Update (positive quantity - stock arrives)
 		foreach (var item in stockTransferDetails)
-			await ProductStockData.InsertProductStock(new()
+			stocks.Add(new()
 			{
 				Id = 0,
 				ProductId = item.ProductId,
@@ -331,7 +344,9 @@ public static class StockTransferData
 				TransactionNo = stockTransfer.TransactionNo,
 				TransactionDateTime = stockTransfer.TransactionDateTime,
 				LocationId = stockTransfer.ToLocationId
-			}, sqlDataAccessTransaction);
+			});
+
+		await ProductStockData.InsertProductStockList(SqlDataAccess.ToDataTable(stocks), sqlDataAccessTransaction);
 	}
 
 	private static async Task SaveRawMaterialStockByRecipe(StockTransferModel stockTransfer, List<StockTransferDetailModel> stockTransferDetails, SqlDataAccessTransaction sqlDataAccessTransaction)
@@ -344,13 +359,15 @@ public static class StockTransferData
 		var recipes = await RecipeData.LoadAllRecipes(DateOnly.FromDateTime(stockTransfer.TransactionDateTime), true, sqlDataAccessTransaction);
 		var recipeDetails = await CommonData.LoadTableDataByStatus<RecipeDetailModel>(InventoryNames.RecipeDetail, true, sqlDataAccessTransaction);
 
+		List<RawMaterialStockModel> stocks = [];
+
 		foreach (var product in stockTransferDetails)
 		{
 			var recipe = recipes.FirstOrDefault(_ => _.ProductId == product.ProductId);
 			var recipeItems = recipe is null ? [] : recipeDetails.Where(_ => _.MasterId == recipe.Id).ToList();
 
 			foreach (var recipeItem in recipeItems)
-				await RawMaterialStockData.InsertRawMaterialStock(new()
+				stocks.Add(new()
 				{
 					Id = 0,
 					RawMaterialId = recipeItem.RawMaterialId,
@@ -360,8 +377,10 @@ public static class StockTransferData
 					TransactionNo = stockTransfer.TransactionNo,
 					Type = nameof(StockType.StockTransfer),
 					TransactionDateTime = stockTransfer.TransactionDateTime
-				}, sqlDataAccessTransaction);
+				});
 		}
+
+		await RawMaterialStockData.InsertRawMaterialStockList(SqlDataAccess.ToDataTable(stocks), sqlDataAccessTransaction);
 	}
 
 	private static async Task SaveAccounting(StockTransferModel stockTransfer, SqlDataAccessTransaction sqlDataAccessTransaction)

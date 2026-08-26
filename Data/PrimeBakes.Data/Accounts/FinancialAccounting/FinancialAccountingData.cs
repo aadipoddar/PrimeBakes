@@ -1,4 +1,6 @@
-﻿using PrimeBakes.Data.Accounts.Masters;
+﻿using Dapper;
+
+using PrimeBakes.Data.Accounts.Masters;
 using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Inventory.Purchase;
 using PrimeBakes.Data.Operations.AuditTrail;
@@ -13,6 +15,8 @@ using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Operations.User;
 
+using System.Data;
+
 namespace PrimeBakes.Data.Accounts.FinancialAccounting;
 
 public static class FinancialAccountingData
@@ -24,6 +28,9 @@ public static class FinancialAccountingData
 	private static async Task<int> InsertFinancialAccountingLedger(FinancialAccountingLedgerModel ledger, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(AccountNames.InsertFinancialAccountingLedger, ledger, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Financial Accounting Ledger.");
+
+	private static async Task InsertFinancialAccountingLedgerList(DataTable ledgers, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+		await SqlDataAccess.LoadData<int, dynamic>(AccountNames.InsertFinancialAccountingLedgerList, new { FinancialAccountingLedgers = ledgers.AsTableValuedParameter(AccountNames.FinancialAccountingLedgerType) }, sqlDataAccessTransaction);
 
 	public static async Task<List<TrialBalanceModel>> LoadTrialBalanceByCompanyDate(int CompanyId, DateTime StartDate, DateTime EndDate) =>
 		await SqlDataAccess.LoadData<TrialBalanceModel, dynamic>(AccountNames.LoadTrialBalanceByCompanyDate, new { CompanyId, StartDate, EndDate });
@@ -182,7 +189,7 @@ public static class FinancialAccountingData
 		var previousLedgers = update && !recover ? await CommonData.LoadTableDataByMasterId<FinancialAccountingLedgerOverviewModel>(AccountNames.FinancialAccountingLedgerOverview, accounting.Id, sqlDataAccessTransaction) : [];
 
 		accounting.Id = await InsertFinancialAccounting(accounting, sqlDataAccessTransaction);
-		await SaveTransactionLedgerDetails(accounting, ledgers, update, sqlDataAccessTransaction);
+		if (!recover) await SaveTransactionLedgerDetails(accounting, ledgers, update, sqlDataAccessTransaction);
 		await SaveAuditTrail(accounting, update, recover, previousAccounting, previousLedgers, sqlDataAccessTransaction);
 
 		return accounting.Id;
@@ -190,21 +197,25 @@ public static class FinancialAccountingData
 
 	private static async Task SaveTransactionLedgerDetails(FinancialAccountingModel accounting, List<FinancialAccountingLedgerModel> ledgers, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
+		List<FinancialAccountingLedgerModel> details = [];
+
 		if (update)
 		{
 			var existingLedgers = await CommonData.LoadTableDataByMasterId<FinancialAccountingLedgerModel>(AccountNames.FinancialAccountingLedger, accounting.Id, sqlDataAccessTransaction);
 			foreach (var item in existingLedgers)
 			{
 				item.Status = false;
-				await InsertFinancialAccountingLedger(item, sqlDataAccessTransaction);
+				details.Add(item);
 			}
 		}
 
 		foreach (var item in ledgers)
 		{
 			item.MasterId = accounting.Id;
-			await InsertFinancialAccountingLedger(item, sqlDataAccessTransaction);
+			details.Add(item);
 		}
+
+		await InsertFinancialAccountingLedgerList(SqlDataAccess.ToDataTable(details), sqlDataAccessTransaction);
 	}
 
 	private static async Task SaveAuditTrail(

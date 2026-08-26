@@ -1,4 +1,6 @@
-﻿using PrimeBakes.Data.Accounts.FinancialAccounting;
+﻿using Dapper;
+
+using PrimeBakes.Data.Accounts.FinancialAccounting;
 using PrimeBakes.Data.Accounts.Masters;
 using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Inventory.PurchaseOrder;
@@ -19,11 +21,12 @@ using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
 
+using System.Data;
+
 namespace PrimeBakes.Data.Inventory.Purchase;
 
 public static class PurchaseData
 {
-
 	private static async Task<int> InsertPurchase(PurchaseModel purchase, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertPurchase, purchase, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Purchase.");
@@ -31,6 +34,9 @@ public static class PurchaseData
 	private static async Task<int> InsertPurchaseDetail(PurchaseDetailModel purchaseDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertPurchaseDetail, purchaseDetail, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Purchase Detail.");
+
+	private static async Task InsertPurchaseDetailList(DataTable purchaseDetails, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+		await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertPurchaseDetailList, new { PurchaseDetails = purchaseDetails.AsTableValuedParameter(InventoryNames.PurchaseDetailType) }, sqlDataAccessTransaction);
 
 	public static async Task<List<RawMaterialModel>> LoadRawMaterialByPartyPurchaseDateTime(int PartyId, DateTime PurchaseDateTime, bool OnlyActive = true) =>
 		await SqlDataAccess.LoadData<RawMaterialModel, dynamic>(InventoryNames.LoadRawMaterialByPartyPurchaseDateTime, new { PartyId, PurchaseDateTime, OnlyActive });
@@ -223,7 +229,7 @@ public static class PurchaseData
 		var previousPurchaseDetails = update && !recover ? await CommonData.LoadTableDataByMasterId<PurchaseItemOverviewModel>(InventoryNames.PurchaseItemOverview, purchase.Id, sqlDataAccessTransaction) : [];
 
 		purchase.Id = await InsertPurchase(purchase, sqlDataAccessTransaction);
-		await SaveTransactionDetail(purchase, purchaseDetails, update, sqlDataAccessTransaction);
+		if (!recover) await SaveTransactionDetail(purchase, purchaseDetails, update, sqlDataAccessTransaction);
 		await SaveRawMaterialStock(purchase, purchaseDetails, sqlDataAccessTransaction);
 		await UpdatePurchaseOrder(purchase, previousPurchase, update, sqlDataAccessTransaction);
 		await SaveAccounting(purchase, sqlDataAccessTransaction);
@@ -235,29 +241,35 @@ public static class PurchaseData
 
 	private static async Task SaveTransactionDetail(PurchaseModel purchase, List<PurchaseDetailModel> purchaseDetails, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
+		List<PurchaseDetailModel> details = [];
+
 		if (update)
 		{
 			var existingPurchaseDetails = await CommonData.LoadTableDataByMasterId<PurchaseDetailModel>(InventoryNames.PurchaseDetail, purchase.Id, sqlDataAccessTransaction);
 			foreach (var item in existingPurchaseDetails)
 			{
 				item.Status = false;
-				await InsertPurchaseDetail(item, sqlDataAccessTransaction);
+				details.Add(item);
 			}
 		}
 
 		foreach (var item in purchaseDetails)
 		{
 			item.MasterId = purchase.Id;
-			await InsertPurchaseDetail(item, sqlDataAccessTransaction);
+			details.Add(item);
 		}
+
+		await InsertPurchaseDetailList(SqlDataAccess.ToDataTable(details), sqlDataAccessTransaction);
 	}
 
 	private static async Task SaveRawMaterialStock(PurchaseModel purchase, List<PurchaseDetailModel> purchaseDetails, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
 		await RawMaterialStockData.DeleteRawMaterialStockByTransactionNo(purchase.TransactionNo, sqlDataAccessTransaction);
 
+		List<RawMaterialStockModel> stocks = [];
+
 		foreach (var item in purchaseDetails)
-			await RawMaterialStockData.InsertRawMaterialStock(new()
+			stocks.Add(new()
 			{
 				Id = 0,
 				RawMaterialId = item.RawMaterialId,
@@ -267,7 +279,9 @@ public static class PurchaseData
 				TransactionId = purchase.Id,
 				TransactionNo = purchase.TransactionNo,
 				TransactionDateTime = purchase.TransactionDateTime
-			}, sqlDataAccessTransaction);
+			});
+
+		await RawMaterialStockData.InsertRawMaterialStockList(SqlDataAccess.ToDataTable(stocks), sqlDataAccessTransaction);
 	}
 
 	private static async Task UpdatePurchaseOrder(PurchaseModel purchase, PurchaseOverviewModel previousPurchase, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)

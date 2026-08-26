@@ -1,4 +1,8 @@
-﻿using PrimeBakes.Data.Accounts.FinancialAccounting;
+﻿using Dapper;
+
+using System.Data;
+
+using PrimeBakes.Data.Accounts.FinancialAccounting;
 using PrimeBakes.Data.Accounts.Masters;
 using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Inventory.Stock;
@@ -27,6 +31,9 @@ public static class PurchaseReturnData
 	private static async Task<int> InsertPurchaseReturnDetail(PurchaseReturnDetailModel purchaseReturnDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertPurchaseReturnDetail, purchaseReturnDetail, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Purchase Return Detail.");
+
+	private static async Task InsertPurchaseReturnDetailList(DataTable purchaseReturnDetails, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+		await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertPurchaseReturnDetailList, new { PurchaseReturnDetails = purchaseReturnDetails.AsTableValuedParameter(InventoryNames.PurchaseReturnDetailType) }, sqlDataAccessTransaction);
 
 	internal static async Task UpdateFinancialAccountingId(int financialAccountingId, int? newFinancialAccountingId, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
@@ -199,7 +206,7 @@ public static class PurchaseReturnData
 		var previousPurchaseReturnDetails = update && !recover ? await CommonData.LoadTableDataByMasterId<PurchaseReturnItemOverviewModel>(InventoryNames.PurchaseReturnItemOverview, purchaseReturn.Id, sqlDataAccessTransaction) : [];
 
 		purchaseReturn.Id = await InsertPurchaseReturn(purchaseReturn, sqlDataAccessTransaction);
-		await SaveTransactionDetail(purchaseReturn, purchaseReturnDetails, update, sqlDataAccessTransaction);
+		if (!recover) await SaveTransactionDetail(purchaseReturn, purchaseReturnDetails, update, sqlDataAccessTransaction);
 		await SaveRawMaterialStock(purchaseReturn, purchaseReturnDetails, sqlDataAccessTransaction);
 		await SaveAccounting(purchaseReturn, sqlDataAccessTransaction);
 		await SaveAuditTrail(purchaseReturn, update, recover, previousPurchaseReturn, previousPurchaseReturnDetails, sqlDataAccessTransaction);
@@ -209,29 +216,35 @@ public static class PurchaseReturnData
 
 	private static async Task SaveTransactionDetail(PurchaseReturnModel purchaseReturn, List<PurchaseReturnDetailModel> purchaseReturnDetails, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
+		List<PurchaseReturnDetailModel> details = [];
+
 		if (update)
 		{
 			var existingPurchaseReturnDetails = await CommonData.LoadTableDataByMasterId<PurchaseReturnDetailModel>(InventoryNames.PurchaseReturnDetail, purchaseReturn.Id, sqlDataAccessTransaction);
 			foreach (var item in existingPurchaseReturnDetails)
 			{
 				item.Status = false;
-				await InsertPurchaseReturnDetail(item, sqlDataAccessTransaction);
+				details.Add(item);
 			}
 		}
 
 		foreach (var item in purchaseReturnDetails)
 		{
 			item.MasterId = purchaseReturn.Id;
-			await InsertPurchaseReturnDetail(item, sqlDataAccessTransaction);
+			details.Add(item);
 		}
+
+		await InsertPurchaseReturnDetailList(SqlDataAccess.ToDataTable(details), sqlDataAccessTransaction);
 	}
 
 	private static async Task SaveRawMaterialStock(PurchaseReturnModel purchaseReturn, List<PurchaseReturnDetailModel> purchaseReturnDetails, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
 		await RawMaterialStockData.DeleteRawMaterialStockByTransactionNo(purchaseReturn.TransactionNo, sqlDataAccessTransaction);
 
+		List<RawMaterialStockModel> stocks = [];
+
 		foreach (var item in purchaseReturnDetails)
-			await RawMaterialStockData.InsertRawMaterialStock(new()
+			stocks.Add(new()
 			{
 				Id = 0,
 				RawMaterialId = item.RawMaterialId,
@@ -241,7 +254,9 @@ public static class PurchaseReturnData
 				TransactionId = purchaseReturn.Id,
 				TransactionNo = purchaseReturn.TransactionNo,
 				TransactionDateTime = purchaseReturn.TransactionDateTime
-			}, sqlDataAccessTransaction);
+			});
+
+		await RawMaterialStockData.InsertRawMaterialStockList(SqlDataAccess.ToDataTable(stocks), sqlDataAccessTransaction);
 	}
 
 	private static async Task SaveAccounting(PurchaseReturnModel purchaseReturn, SqlDataAccessTransaction sqlDataAccessTransaction)

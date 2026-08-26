@@ -1,4 +1,8 @@
-﻿using PrimeBakes.Data.Accounts.Masters;
+﻿using Dapper;
+
+using System.Data;
+
+using PrimeBakes.Data.Accounts.Masters;
 using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Inventory.Recipe;
 using PrimeBakes.Data.Operations.AuditTrail;
@@ -21,6 +25,9 @@ public static class RawMaterialStockData
 	public static async Task<int> InsertRawMaterialStock(RawMaterialStockModel stock, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertRawMaterialStock, stock, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Raw Material Stock.");
+
+	public static async Task InsertRawMaterialStockList(DataTable rawMaterialStocks, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+		await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertRawMaterialStockList, new { RawMaterialStocks = rawMaterialStocks.AsTableValuedParameter(InventoryNames.RawMaterialStockType) }, sqlDataAccessTransaction);
 
 	private static async Task<int> DeleteRawMaterialStockById(int Id, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.DeleteRawMaterialStockById, new { Id }, sqlDataAccessTransaction)).FirstOrDefault()
@@ -214,8 +221,10 @@ public static class RawMaterialStockData
 				if (item.Type == nameof(StockType.Adjustment) && deleteAdjustments || item.Type != nameof(StockType.Adjustment))
 					await DeleteRawMaterialStockById(item.Id, transaction);
 
+			List<RawMaterialStockModel> stocks = [];
+
 			foreach (var item in purchases)
-				await InsertRawMaterialStock(new()
+				stocks.Add(new()
 				{
 					Id = 0,
 					RawMaterialId = item.ItemId,
@@ -225,10 +234,10 @@ public static class RawMaterialStockData
 					TransactionId = item.MasterId,
 					TransactionNo = item.TransactionNo,
 					TransactionDateTime = item.TransactionDateTime
-				}, transaction);
+				});
 
 			foreach (var item in purchaseReturns)
-				await InsertRawMaterialStock(new()
+				stocks.Add(new()
 				{
 					Id = 0,
 					RawMaterialId = item.ItemId,
@@ -238,10 +247,10 @@ public static class RawMaterialStockData
 					TransactionId = item.MasterId,
 					TransactionNo = item.TransactionNo,
 					TransactionDateTime = item.TransactionDateTime
-				}, transaction);
+				});
 
 			foreach (var item in kitchenIssues)
-				await InsertRawMaterialStock(new()
+				stocks.Add(new()
 				{
 					Id = 0,
 					RawMaterialId = item.ItemId,
@@ -251,10 +260,10 @@ public static class RawMaterialStockData
 					TransactionId = item.MasterId,
 					TransactionNo = item.TransactionNo,
 					TransactionDateTime = item.TransactionDateTime
-				}, transaction);
+				});
 
 			foreach (var item in kitchenIssueReturns)
-				await InsertRawMaterialStock(new()
+				stocks.Add(new()
 				{
 					Id = 0,
 					RawMaterialId = item.ItemId,
@@ -264,7 +273,7 @@ public static class RawMaterialStockData
 					TransactionId = item.MasterId,
 					TransactionNo = item.TransactionNo,
 					TransactionDateTime = item.TransactionDateTime
-				}, transaction);
+				});
 
 			foreach (var item in sales)
 			{
@@ -272,7 +281,7 @@ public static class RawMaterialStockData
 				var recipeItems = recipe is null ? [] : recipeDetails.Where(_ => _.MasterId == recipe.Id).ToList();
 
 				foreach (var recipeItem in recipeItems)
-					await InsertRawMaterialStock(new()
+					stocks.Add(new()
 					{
 						Id = 0,
 						RawMaterialId = recipeItem.RawMaterialId,
@@ -282,7 +291,7 @@ public static class RawMaterialStockData
 						TransactionId = item.MasterId,
 						TransactionNo = item.TransactionNo,
 						TransactionDateTime = item.TransactionDateTime
-					}, transaction);
+					});
 			}
 
 			foreach (var item in saleReturns)
@@ -291,7 +300,7 @@ public static class RawMaterialStockData
 				var recipeItems = recipe is null ? [] : recipeDetails.Where(_ => _.MasterId == recipe.Id).ToList();
 
 				foreach (var recipeItem in recipeItems)
-					await InsertRawMaterialStock(new()
+					stocks.Add(new()
 					{
 						Id = 0,
 						RawMaterialId = recipeItem.RawMaterialId,
@@ -301,7 +310,7 @@ public static class RawMaterialStockData
 						TransactionId = item.MasterId,
 						TransactionNo = item.TransactionNo,
 						TransactionDateTime = item.TransactionDateTime
-					}, transaction);
+					});
 			}
 
 			foreach (var item in stockTransfers)
@@ -310,7 +319,7 @@ public static class RawMaterialStockData
 				var recipeItems = recipe is null ? [] : recipeDetails.Where(_ => _.MasterId == recipe.Id).ToList();
 
 				foreach (var recipeItem in recipeItems)
-					await InsertRawMaterialStock(new()
+					stocks.Add(new()
 					{
 						Id = 0,
 						RawMaterialId = recipeItem.RawMaterialId,
@@ -320,7 +329,7 @@ public static class RawMaterialStockData
 						TransactionId = item.MasterId,
 						TransactionNo = item.TransactionNo,
 						TransactionDateTime = item.TransactionDateTime
-					}, transaction);
+					});
 			}
 
 			foreach (var item in bills)
@@ -329,7 +338,7 @@ public static class RawMaterialStockData
 				var recipeItems = recipe is null ? [] : recipeDetails.Where(_ => _.MasterId == recipe.Id).ToList();
 
 				foreach (var recipeItem in recipeItems)
-					await InsertRawMaterialStock(new()
+					stocks.Add(new()
 					{
 						Id = 0,
 						RawMaterialId = recipeItem.RawMaterialId,
@@ -339,8 +348,10 @@ public static class RawMaterialStockData
 						TransactionId = item.MasterId,
 						TransactionNo = item.TransactionNo,
 						TransactionDateTime = item.TransactionDateTime
-					}, transaction);
+					});
 			}
+
+			await InsertRawMaterialStockList(SqlDataAccess.ToDataTable(stocks), transaction);
 
 			await AuditTrailData.SaveAuditTrail(new()
 			{
@@ -381,6 +392,8 @@ public static class RawMaterialStockData
 
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
+			List<RawMaterialStockModel> stocks = [];
+
 			foreach (var item in cart)
 			{
 				var existingStock = stockSummary.FirstOrDefault(s => s.RawMaterialId == item.RawMaterialId);
@@ -389,7 +402,7 @@ public static class RawMaterialStockData
 				if (adjustmentQuantity == 0)
 					continue;
 
-				await InsertRawMaterialStock(new()
+				stocks.Add(new()
 				{
 					Id = 0,
 					RawMaterialId = item.RawMaterialId,
@@ -399,8 +412,10 @@ public static class RawMaterialStockData
 					Type = nameof(StockType.Adjustment),
 					TransactionNo = transactionNo,
 					TransactionDateTime = transactionDateTime
-				}, transaction);
+				});
 			}
+
+			await InsertRawMaterialStockList(SqlDataAccess.ToDataTable(stocks), transaction);
 
 			await AuditTrailData.SaveAuditTrail(new()
 			{

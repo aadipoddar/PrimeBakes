@@ -28,6 +28,20 @@ public static class SqlDataAccess
 		return [.. await connection.QueryAsync<T>(storedProcedure, parameters, commandType: CommandType.StoredProcedure)];
 	}
 
+	public static DataTable ToDataTable<T>(List<T> items)
+	{
+		var properties = typeof(T).GetProperties();
+		DataTable dataTable = new();
+
+		foreach (var property in properties)
+			dataTable.Columns.Add(property.Name, Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType);
+
+		foreach (var item in items)
+			dataTable.Rows.Add([.. properties.Select(property => property.GetValue(item) ?? DBNull.Value)]);
+
+		return dataTable;
+	}
+
 	public static void SetupConfiguration()
 	{
 		SqlMapper.Settings.CommandTimeout = 200;

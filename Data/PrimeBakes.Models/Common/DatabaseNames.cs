@@ -70,9 +70,11 @@ public static class AccountNames
 	#region Financial Accounting
 	public static string FinancialAccounting => "FinancialAccounting";
 	public static string FinancialAccountingLedger => "FinancialAccountingLedger";
+	public static string FinancialAccountingLedgerType => "FinancialAccountingLedgerType";
 
 	public static string InsertFinancialAccounting => "Insert_FinancialAccounting";
 	public static string InsertFinancialAccountingLedger => "Insert_FinancialAccountingLedger";
+	public static string InsertFinancialAccountingLedgerList => "Insert_FinancialAccountingLedger_List";
 
 	public static string LoadTrialBalanceByCompanyDate => "Load_TrialBalance_By_Company_Date";
 
@@ -106,12 +108,16 @@ public static class InventoryNames
 	#region Purchase
 	public static string Purchase => "Purchase";
 	public static string PurchaseDetail => "PurchaseDetail";
+	public static string PurchaseDetailType => "PurchaseDetailType";
 	public static string PurchaseReturn => "PurchaseReturn";
 	public static string PurchaseReturnDetail => "PurchaseReturnDetail";
+	public static string PurchaseReturnDetailType => "PurchaseReturnDetailType";
 	public static string InsertPurchase => "Insert_Purchase";
 	public static string InsertPurchaseDetail => "Insert_PurchaseDetail";
+	public static string InsertPurchaseDetailList => "Insert_PurchaseDetail_List";
 	public static string InsertPurchaseReturn => "Insert_PurchaseReturn";
 	public static string InsertPurchaseReturnDetail => "Insert_PurchaseReturnDetail";
+	public static string InsertPurchaseReturnDetailList => "Insert_PurchaseReturnDetail_List";
 
 	public static string PurchaseOverview => "Purchase_Overview";
 	public static string PurchaseReturnOverview => "PurchaseReturn_Overview";
@@ -122,8 +128,10 @@ public static class InventoryNames
 	#region Purchase Order
 	public static string PurchaseOrder => "PurchaseOrder";
 	public static string PurchaseOrderDetail => "PurchaseOrderDetail";
+	public static string PurchaseOrderDetailType => "PurchaseOrderDetailType";
 	public static string InsertPurchaseOrder => "Insert_PurchaseOrder";
 	public static string InsertPurchaseOrderDetail => "Insert_PurchaseOrderDetail";
+	public static string InsertPurchaseOrderDetailList => "Insert_PurchaseOrderDetail_List";
 
 	public static string PurchaseOrderOverview => "PurchaseOrder_Overview";
 	public static string PurchaseOrderItemOverview => "PurchaseOrder_Item_Overview";
@@ -135,22 +143,30 @@ public static class InventoryNames
 	public static string Kitchen => "Kitchen";
 	public static string KitchenIssue => "KitchenIssue";
 	public static string KitchenIssueDetail => "KitchenIssueDetail";
+	public static string KitchenIssueDetailType => "KitchenIssueDetailType";
 	public static string KitchenIssueReturn => "KitchenIssueReturn";
 	public static string KitchenIssueReturnDetail => "KitchenIssueReturnDetail";
+	public static string KitchenIssueReturnDetailType => "KitchenIssueReturnDetailType";
 	public static string KitchenProduction => "KitchenProduction";
 	public static string KitchenProductionDetail => "KitchenProductionDetail";
+	public static string KitchenProductionDetailType => "KitchenProductionDetailType";
 	public static string KitchenProductionReturn => "KitchenProductionReturn";
 	public static string KitchenProductionReturnDetail => "KitchenProductionReturnDetail";
+	public static string KitchenProductionReturnDetailType => "KitchenProductionReturnDetailType";
 
 	public static string InsertKitchen => "Insert_Kitchen";
 	public static string InsertKitchenIssue => "Insert_KitchenIssue";
 	public static string InsertKitchenIssueDetail => "Insert_KitchenIssueDetail";
+	public static string InsertKitchenIssueDetailList => "Insert_KitchenIssueDetail_List";
 	public static string InsertKitchenIssueReturn => "Insert_KitchenIssueReturn";
 	public static string InsertKitchenIssueReturnDetail => "Insert_KitchenIssueReturnDetail";
+	public static string InsertKitchenIssueReturnDetailList => "Insert_KitchenIssueReturnDetail_List";
 	public static string InsertKitchenProduction => "Insert_KitchenProduction";
 	public static string InsertKitchenProductionDetail => "Insert_KitchenProductionDetail";
+	public static string InsertKitchenProductionDetailList => "Insert_KitchenProductionDetail_List";
 	public static string InsertKitchenProductionReturn => "Insert_KitchenProductionReturn";
 	public static string InsertKitchenProductionReturnDetail => "Insert_KitchenProductionReturnDetail";
+	public static string InsertKitchenProductionReturnDetailList => "Insert_KitchenProductionReturnDetail_List";
 
 	public static string KitchenIssueOverview => "KitchenIssue_Overview";
 	public static string KitchenIssueReturnOverview => "KitchenIssueReturn_Overview";
@@ -164,10 +180,14 @@ public static class InventoryNames
 
 	#region Stock
 	public static string ProductStock => "ProductStock";
+	public static string ProductStockType => "ProductStockType";
 	public static string RawMaterialStock => "RawMaterialStock";
+	public static string RawMaterialStockType => "RawMaterialStockType";
 
 	public static string InsertProductStock => "Insert_ProductStock";
+	public static string InsertProductStockList => "Insert_ProductStock_List";
 	public static string InsertRawMaterialStock => "Insert_RawMaterialStock";
+	public static string InsertRawMaterialStockList => "Insert_RawMaterialStock_List";
 
 	public static string RawMaterialStockDetails => "RawMaterialStockDetails";
 	public static string ProductStockDetails => "ProductStockDetails";
@@ -208,9 +228,11 @@ public static class StoreNames
 	#region Order
 	public static string Order => "Order";
 	public static string OrderDetail => "OrderDetail";
+	public static string OrderDetailType => "OrderDetailType";
 
 	public static string InsertOrder => "Insert_Order";
 	public static string InsertOrderDetail => "Insert_OrderDetail";
+	public static string InsertOrderDetailList => "Insert_OrderDetail_List";
 
 	public static string OrderOverview => "Order_Overview";
 	public static string OrderItemOverview => "Order_Item_Overview";
@@ -221,13 +243,17 @@ public static class StoreNames
 	#region Sale
 	public static string Sale => "Sale";
 	public static string SaleDetail => "SaleDetail";
+	public static string SaleDetailType => "SaleDetailType";
 	public static string SaleReturn => "SaleReturn";
 	public static string SaleReturnDetail => "SaleReturnDetail";
+	public static string SaleReturnDetailType => "SaleReturnDetailType";
 
 	public static string InsertSale => "Insert_Sale";
 	public static string InsertSaleDetail => "Insert_SaleDetail";
+	public static string InsertSaleDetailList => "Insert_SaleDetail_List";
 	public static string InsertSaleReturn => "Insert_SaleReturn";
 	public static string InsertSaleReturnDetail => "Insert_SaleReturnDetail";
+	public static string InsertSaleReturnDetailList => "Insert_SaleReturnDetail_List";
 
 	public static string SaleOverview => "Sale_Overview";
 	public static string SaleItemOverview => "Sale_Item_Overview";
@@ -238,9 +264,11 @@ public static class StoreNames
 	#region Stock Transfer
 	public static string StockTransfer => "StockTransfer";
 	public static string StockTransferDetail => "StockTransferDetail";
+	public static string StockTransferDetailType => "StockTransferDetailType";
 
 	public static string InsertStockTransfer => "Insert_StockTransfer";
 	public static string InsertStockTransferDetail => "Insert_StockTransferDetail";
+	public static string InsertStockTransferDetailList => "Insert_StockTransferDetail_List";
 
 	public static string StockTransferOverview => "StockTransfer_Overview";
 	public static string StockTransferItemOverview => "StockTransfer_Item_Overview";
@@ -286,9 +314,11 @@ public static class RestaurantNames
 	#region Bill
 	public static string Bill => "Bill";
 	public static string BillDetail => "BillDetail";
+	public static string BillDetailType => "BillDetailType";
 
 	public static string InsertBill => "Insert_Bill";
 	public static string InsertBillDetail => "Insert_BillDetail";
+	public static string InsertBillDetailList => "Insert_BillDetail_List";
 
 	public static string BillOverview => "Bill_Overview";
 	public static string BillItemOverview => "Bill_Item_Overview";
@@ -327,10 +357,12 @@ public static class PayrollNames
 	#region Payroll
 	public static string Payroll => "Payroll";
 	public static string PayrollDetail => "PayrollDetail";
+	public static string PayrollDetailType => "PayrollDetailType";
 	public static string PayrollOverview => "Payroll_Overview";
 	public static string PayrollItemOverview => "Payroll_Item_Overview";
 	public static string InsertPayroll => "Insert_Payroll";
 	public static string InsertPayrollDetail => "Insert_PayrollDetail";
+	public static string InsertPayrollDetailList => "Insert_PayrollDetail_List";
 	public static string LoadPayrollOverviewByEmployeeMonthYear => "Load_Payroll_Overview_By_Employee_Month_Year";
 	#endregion
 }

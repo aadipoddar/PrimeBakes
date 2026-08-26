@@ -1,4 +1,8 @@
-﻿using PrimeBakes.Data.Accounts.Masters;
+﻿using Dapper;
+
+using System.Data;
+
+using PrimeBakes.Data.Accounts.Masters;
 using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Operations.AuditTrail;
 using PrimeBakes.Data.Operations.Location;
@@ -21,6 +25,9 @@ public static class ProductStockData
 	public static async Task<int> InsertProductStock(ProductStockModel stock, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertProductStock, stock, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Product Stock.");
+
+	public static async Task InsertProductStockList(DataTable productStocks, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+		await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertProductStockList, new { ProductStocks = productStocks.AsTableValuedParameter(InventoryNames.ProductStockType) }, sqlDataAccessTransaction);
 
 	private static async Task<int> DeleteProductStockById(int Id, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.DeleteProductStockById, new { Id }, sqlDataAccessTransaction)).FirstOrDefault()
@@ -215,8 +222,10 @@ public static class ProductStockData
 				if (item.Type == nameof(StockType.Adjustment) && deleteAdjustments || item.Type != nameof(StockType.Adjustment))
 					await DeleteProductStockById(item.Id, transaction);
 
+			List<ProductStockModel> stocks = [];
+
 			foreach (var item in kitchenProductions)
-				await InsertProductStock(new()
+				stocks.Add(new()
 				{
 					Id = 0,
 					ProductId = item.ItemId,
@@ -227,10 +236,10 @@ public static class ProductStockData
 					TransactionNo = item.TransactionNo,
 					TransactionDateTime = item.TransactionDateTime,
 					LocationId = 1, // Main Location
-				}, transaction);
+				});
 
 			foreach (var item in kitchenProductionReturns)
-				await InsertProductStock(new()
+				stocks.Add(new()
 				{
 					Id = 0,
 					ProductId = item.ItemId,
@@ -241,12 +250,12 @@ public static class ProductStockData
 					TransactionNo = item.TransactionNo,
 					TransactionDateTime = item.TransactionDateTime,
 					LocationId = 1, // Main Location
-				}, transaction);
+				});
 
 			foreach (var item in sales)
 			{
 				if (item.LocationId == locationId)
-					await InsertProductStock(new()
+					stocks.Add(new()
 					{
 						Id = 0,
 						ProductId = item.ItemId,
@@ -257,10 +266,10 @@ public static class ProductStockData
 						TransactionNo = item.TransactionNo,
 						TransactionDateTime = item.TransactionDateTime,
 						LocationId = locationId
-					}, transaction);
+					});
 
 				if (item.PartyId is not null && item.PartyId == ledger.Id)
-					await InsertProductStock(new()
+					stocks.Add(new()
 					{
 						Id = 0,
 						ProductId = item.ItemId,
@@ -271,13 +280,13 @@ public static class ProductStockData
 						TransactionNo = item.TransactionNo,
 						TransactionDateTime = item.TransactionDateTime,
 						LocationId = locationId
-					}, transaction);
+					});
 			}
 
 			foreach (var item in saleReturns)
 			{
 				if (item.LocationId == locationId)
-					await InsertProductStock(new()
+					stocks.Add(new()
 					{
 						Id = 0,
 						ProductId = item.ItemId,
@@ -288,10 +297,10 @@ public static class ProductStockData
 						TransactionNo = item.TransactionNo,
 						TransactionDateTime = item.TransactionDateTime,
 						LocationId = locationId
-					}, transaction);
+					});
 
 				if (item.PartyId is not null && item.PartyId == ledger.Id)
-					await InsertProductStock(new()
+					stocks.Add(new()
 					{
 						Id = 0,
 						ProductId = item.ItemId,
@@ -302,13 +311,13 @@ public static class ProductStockData
 						TransactionNo = item.TransactionNo,
 						TransactionDateTime = item.TransactionDateTime,
 						LocationId = locationId
-					}, transaction);
+					});
 			}
 
 			foreach (var item in stockTransfers)
 			{
 				if (item.LocationId == locationId)
-					await InsertProductStock(new()
+					stocks.Add(new()
 					{
 						Id = 0,
 						ProductId = item.ItemId,
@@ -319,10 +328,10 @@ public static class ProductStockData
 						TransactionNo = item.TransactionNo,
 						TransactionDateTime = item.TransactionDateTime,
 						LocationId = locationId
-					}, transaction);
+					});
 
 				if (item.ToLocationId == locationId)
-					await InsertProductStock(new()
+					stocks.Add(new()
 					{
 						Id = 0,
 						ProductId = item.ItemId,
@@ -333,11 +342,11 @@ public static class ProductStockData
 						TransactionNo = item.TransactionNo,
 						TransactionDateTime = item.TransactionDateTime,
 						LocationId = locationId
-					}, transaction);
+					});
 			}
 
 			foreach (var item in bills)
-				await InsertProductStock(new()
+				stocks.Add(new()
 				{
 					Id = 0,
 					ProductId = item.ItemId,
@@ -348,7 +357,9 @@ public static class ProductStockData
 					TransactionNo = item.TransactionNo,
 					TransactionDateTime = item.TransactionDateTime,
 					LocationId = item.LocationId
-				}, transaction);
+				});
+
+			await InsertProductStockList(SqlDataAccess.ToDataTable(stocks), transaction);
 
 			await AuditTrailData.SaveAuditTrail(new()
 			{
@@ -392,6 +403,8 @@ public static class ProductStockData
 
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
+			List<ProductStockModel> stocks = [];
+
 			foreach (var item in cart)
 			{
 				var existingStock = stockSummary.FirstOrDefault(s => s.ProductId == item.ProductId);
@@ -400,7 +413,7 @@ public static class ProductStockData
 				if (adjustmentQuantity == 0)
 					continue;
 
-				await InsertProductStock(new()
+				stocks.Add(new()
 				{
 					Id = 0,
 					ProductId = item.ProductId,
@@ -411,8 +424,10 @@ public static class ProductStockData
 					TransactionNo = transactionNo,
 					TransactionDateTime = transactionDateTime,
 					LocationId = locationId
-				}, transaction);
+				});
 			}
+
+			await InsertProductStockList(SqlDataAccess.ToDataTable(stocks), transaction);
 
 			await AuditTrailData.SaveAuditTrail(new()
 			{

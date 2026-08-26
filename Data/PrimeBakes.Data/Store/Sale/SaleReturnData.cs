@@ -1,4 +1,6 @@
-﻿using PrimeBakes.Data.Accounts.FinancialAccounting;
+﻿using Dapper;
+
+using PrimeBakes.Data.Accounts.FinancialAccounting;
 using PrimeBakes.Data.Accounts.Masters;
 using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Inventory.Stock;
@@ -21,6 +23,8 @@ using PrimeBakes.Models.Store.Customer;
 using PrimeBakes.Models.Store.Product;
 using PrimeBakes.Models.Store.Sale;
 
+using System.Data;
+
 namespace PrimeBakes.Data.Store.Sale;
 
 public static class SaleReturnData
@@ -33,6 +37,9 @@ public static class SaleReturnData
 	private static async Task<int> InsertSaleReturnDetail(SaleReturnDetailModel saleReturnDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertSaleReturnDetail, saleReturnDetail, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Sale Return Detail.");
+
+	private static async Task InsertSaleReturnDetailList(DataTable saleReturnDetails, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+		await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertSaleReturnDetailList, new { SaleReturnDetails = saleReturnDetails.AsTableValuedParameter(StoreNames.SaleReturnDetailType) }, sqlDataAccessTransaction);
 
 	internal static async Task UpdateFinancialAccountingId(int financialAccountingId, int? newFinancialAccountingId, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
@@ -338,7 +345,7 @@ public static class SaleReturnData
 		var previousSaleReturnDetails = update && !recover ? await CommonData.LoadTableDataByMasterId<SaleReturnItemOverviewModel>(StoreNames.SaleReturnItemOverview, saleReturn.Id, sqlDataAccessTransaction) : [];
 
 		saleReturn.Id = await InsertSaleReturn(saleReturn, sqlDataAccessTransaction);
-		await SaveTransactionDetail(saleReturn, saleReturnDetails, update, sqlDataAccessTransaction);
+		if (!recover) await SaveTransactionDetail(saleReturn, saleReturnDetails, update, sqlDataAccessTransaction);
 		await SaveProductStock(saleReturn, saleReturnDetails, sqlDataAccessTransaction);
 		await SaveAccounting(saleReturn, sqlDataAccessTransaction);
 		await SaveAuditTrail(saleReturn, update, recover, previousSaleReturn, previousSaleReturnDetails, sqlDataAccessTransaction);
@@ -348,26 +355,32 @@ public static class SaleReturnData
 
 	private static async Task SaveTransactionDetail(SaleReturnModel saleReturn, List<SaleReturnDetailModel> saleReturnDetails, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
+		List<SaleReturnDetailModel> details = [];
+
 		if (update)
 		{
 			var existingSaleReturnDetails = await CommonData.LoadTableDataByMasterId<SaleReturnDetailModel>(StoreNames.SaleReturnDetail, saleReturn.Id, sqlDataAccessTransaction);
 			foreach (var item in existingSaleReturnDetails)
 			{
 				item.Status = false;
-				await InsertSaleReturnDetail(item, sqlDataAccessTransaction);
+				details.Add(item);
 			}
 		}
 
 		foreach (var item in saleReturnDetails)
 		{
 			item.MasterId = saleReturn.Id;
-			await InsertSaleReturnDetail(item, sqlDataAccessTransaction);
+			details.Add(item);
 		}
+
+		await InsertSaleReturnDetailList(SqlDataAccess.ToDataTable(details), sqlDataAccessTransaction);
 	}
 
 	private static async Task SaveProductStock(SaleReturnModel saleReturn, List<SaleReturnDetailModel> saleReturnDetails, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
 		await ProductStockData.DeleteProductStockByTransactionNo(saleReturn.TransactionNo, sqlDataAccessTransaction);
+
+		List<ProductStockModel> stocks = [];
 
 		// Party Location Stock Update (negative quantity - product leaves party's location)
 		if (saleReturn.PartyId is not null and > 0)
@@ -375,7 +388,7 @@ public static class SaleReturnData
 			var location = await LocationData.LoadLocationByLedgerId(saleReturn.PartyId.Value, sqlDataAccessTransaction);
 			if (location is not null)
 				foreach (var item in saleReturnDetails)
-					await ProductStockData.InsertProductStock(new()
+					stocks.Add(new()
 					{
 						Id = 0,
 						ProductId = item.ProductId,
@@ -386,8 +399,10 @@ public static class SaleReturnData
 						TransactionNo = saleReturn.TransactionNo,
 						TransactionDateTime = saleReturn.TransactionDateTime,
 						LocationId = location.Id
-					}, sqlDataAccessTransaction);
+					});
 		}
+
+		await ProductStockData.InsertProductStockList(SqlDataAccess.ToDataTable(stocks), sqlDataAccessTransaction);
 	}
 
 	private static async Task SaveAccounting(SaleReturnModel saleReturn, SqlDataAccessTransaction sqlDataAccessTransaction)

@@ -1,4 +1,6 @@
-﻿using PrimeBakes.Data.Accounts.Masters;
+﻿using Dapper;
+
+using PrimeBakes.Data.Accounts.Masters;
 using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Operations.AuditTrail;
 using PrimeBakes.Data.Operations.Location;
@@ -10,11 +12,12 @@ using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Models.Store.Order;
 
+using System.Data;
+
 namespace PrimeBakes.Data.Store.Order;
 
 public static class OrderData
 {
-
 	private static async Task<int> InsertOrder(OrderModel order, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertOrder, order, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Order.");
@@ -22,6 +25,9 @@ public static class OrderData
 	private static async Task<int> InsertOrderDetail(OrderDetailModel orderDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertOrderDetail, orderDetail, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Order Detail.");
+
+	private static async Task InsertOrderDetailList(DataTable orderDetails, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+		await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertOrderDetailList, new { OrderDetails = orderDetails.AsTableValuedParameter(StoreNames.OrderDetailType) }, sqlDataAccessTransaction);
 
 	public static async Task<List<OrderModel>> LoadOrderByLocationPending(int LocationId, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		await SqlDataAccess.LoadData<OrderModel, dynamic>(StoreNames.LoadOrderByLocationPending, new { LocationId }, sqlDataAccessTransaction);
@@ -89,6 +95,7 @@ public static class OrderData
 	}
 	#endregion
 
+	#region Recover
 	public static async Task RecoverTransaction(OrderModel order)
 	{
 		order.Status = true;
@@ -97,6 +104,7 @@ public static class OrderData
 
 		await OrderNotify.Notify(order.Id, NotifyType.Recovered);
 	}
+	#endregion
 
 	#region Save
 	private static async Task<OrderModel> ValidateTransaction(OrderModel order, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
@@ -190,7 +198,8 @@ public static class OrderData
 		var previousOrderDetails = update && !recover ? await CommonData.LoadTableDataByMasterId<OrderItemOverviewModel>(StoreNames.OrderItemOverview, order.Id, sqlDataAccessTransaction) : [];
 
 		order.Id = await InsertOrder(order, sqlDataAccessTransaction);
-		await SaveTransactionDetail(order, orderDetails, update, sqlDataAccessTransaction);
+
+		if (!recover) await SaveTransactionDetail(order, orderDetails, update, sqlDataAccessTransaction);
 		await SaveAuditTrail(order, update, recover, previousOrder, previousOrderDetails, sqlDataAccessTransaction);
 
 		return order.Id;
@@ -198,21 +207,25 @@ public static class OrderData
 
 	private static async Task SaveTransactionDetail(OrderModel order, List<OrderDetailModel> orderDetails, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
+		List<OrderDetailModel> details = [];
+
 		if (update)
 		{
 			var existingOrderDetails = await CommonData.LoadTableDataByMasterId<OrderDetailModel>(StoreNames.OrderDetail, order.Id, sqlDataAccessTransaction);
 			foreach (var item in existingOrderDetails)
 			{
 				item.Status = false;
-				await InsertOrderDetail(item, sqlDataAccessTransaction);
+				details.Add(item);
 			}
 		}
 
 		foreach (var item in orderDetails)
 		{
 			item.MasterId = order.Id;
-			await InsertOrderDetail(item, sqlDataAccessTransaction);
+			details.Add(item);
 		}
+
+		await InsertOrderDetailList(SqlDataAccess.ToDataTable(details), sqlDataAccessTransaction);
 	}
 
 	private static async Task SaveAuditTrail(

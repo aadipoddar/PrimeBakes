@@ -1,4 +1,8 @@
-﻿using PrimeBakes.Data.Accounts.Masters;
+﻿using Dapper;
+
+using System.Data;
+
+using PrimeBakes.Data.Accounts.Masters;
 using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Inventory.Stock;
 using PrimeBakes.Data.Operations.AuditTrail;
@@ -24,6 +28,9 @@ public static class KitchenIssueData
 	private static async Task<int> InsertKitchenIssueDetail(KitchenIssueDetailModel kitchenIssueDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertKitchenIssueDetail, kitchenIssueDetail, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Kitchen Issue Detail.");
+
+	private static async Task InsertKitchenIssueDetailList(DataTable kitchenIssueDetails, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+		await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertKitchenIssueDetailList, new { KitchenIssueDetails = kitchenIssueDetails.AsTableValuedParameter(InventoryNames.KitchenIssueDetailType) }, sqlDataAccessTransaction);
 
 	public static async Task<KitchenIssueInvoiceBundle> LoadInvoiceBundle(int transactionId)
 	{
@@ -163,7 +170,7 @@ public static class KitchenIssueData
 		var previousKitchenIssueDetails = update && !recover ? await CommonData.LoadTableDataByMasterId<KitchenIssueItemOverviewModel>(InventoryNames.KitchenIssueItemOverview, kitchenIssue.Id, sqlDataAccessTransaction) : [];
 
 		kitchenIssue.Id = await InsertKitchenIssue(kitchenIssue, sqlDataAccessTransaction);
-		await SaveTransactionDetail(kitchenIssue, kitchenIssueDetails, update, sqlDataAccessTransaction);
+		if (!recover) await SaveTransactionDetail(kitchenIssue, kitchenIssueDetails, update, sqlDataAccessTransaction);
 		await SaveRawMaterialStock(kitchenIssue, kitchenIssueDetails, sqlDataAccessTransaction);
 		await SaveAuditTrail(kitchenIssue, update, recover, previousKitchenIssue, previousKitchenIssueDetails, sqlDataAccessTransaction);
 
@@ -172,29 +179,35 @@ public static class KitchenIssueData
 
 	private static async Task SaveTransactionDetail(KitchenIssueModel kitchenIssue, List<KitchenIssueDetailModel> kitchenIssueDetails, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
+		List<KitchenIssueDetailModel> details = [];
+
 		if (update)
 		{
 			var existingKitchenIssueDetails = await CommonData.LoadTableDataByMasterId<KitchenIssueDetailModel>(InventoryNames.KitchenIssueDetail, kitchenIssue.Id, sqlDataAccessTransaction);
 			foreach (var item in existingKitchenIssueDetails)
 			{
 				item.Status = false;
-				await InsertKitchenIssueDetail(item, sqlDataAccessTransaction);
+				details.Add(item);
 			}
 		}
 
 		foreach (var item in kitchenIssueDetails)
 		{
 			item.MasterId = kitchenIssue.Id;
-			await InsertKitchenIssueDetail(item, sqlDataAccessTransaction);
+			details.Add(item);
 		}
+
+		await InsertKitchenIssueDetailList(SqlDataAccess.ToDataTable(details), sqlDataAccessTransaction);
 	}
 
 	private static async Task SaveRawMaterialStock(KitchenIssueModel kitchenIssue, List<KitchenIssueDetailModel> kitchenIssueDetails, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
 		await RawMaterialStockData.DeleteRawMaterialStockByTransactionNo(kitchenIssue.TransactionNo, sqlDataAccessTransaction);
 
+		List<RawMaterialStockModel> stocks = [];
+
 		foreach (var item in kitchenIssueDetails)
-			await RawMaterialStockData.InsertRawMaterialStock(new()
+			stocks.Add(new()
 			{
 				Id = 0,
 				RawMaterialId = item.RawMaterialId,
@@ -204,7 +217,9 @@ public static class KitchenIssueData
 				TransactionId = kitchenIssue.Id,
 				TransactionNo = kitchenIssue.TransactionNo,
 				TransactionDateTime = kitchenIssue.TransactionDateTime
-			}, sqlDataAccessTransaction);
+			});
+
+		await RawMaterialStockData.InsertRawMaterialStockList(SqlDataAccess.ToDataTable(stocks), sqlDataAccessTransaction);
 	}
 
 	private static async Task SaveAuditTrail(

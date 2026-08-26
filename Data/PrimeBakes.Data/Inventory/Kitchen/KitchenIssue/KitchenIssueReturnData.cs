@@ -1,4 +1,8 @@
-﻿using PrimeBakes.Data.Accounts.Masters;
+﻿using Dapper;
+
+using System.Data;
+
+using PrimeBakes.Data.Accounts.Masters;
 using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Inventory.Stock;
 using PrimeBakes.Data.Operations.AuditTrail;
@@ -24,6 +28,9 @@ public static class KitchenIssueReturnData
 	private static async Task<int> InsertKitchenIssueReturnDetail(KitchenIssueReturnDetailModel kitchenIssueReturnDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertKitchenIssueReturnDetail, kitchenIssueReturnDetail, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Kitchen Issue Return Detail.");
+
+	private static async Task InsertKitchenIssueReturnDetailList(DataTable kitchenIssueReturnDetails, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+		await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertKitchenIssueReturnDetailList, new { KitchenIssueReturnDetails = kitchenIssueReturnDetails.AsTableValuedParameter(InventoryNames.KitchenIssueReturnDetailType) }, sqlDataAccessTransaction);
 
 	public static async Task<KitchenIssueReturnInvoiceBundle> LoadInvoiceBundle(int transactionId)
 	{
@@ -163,7 +170,7 @@ public static class KitchenIssueReturnData
 		var previousKitchenIssueReturnDetails = update && !recover ? await CommonData.LoadTableDataByMasterId<KitchenIssueReturnItemOverviewModel>(InventoryNames.KitchenIssueReturnItemOverview, kitchenIssueReturn.Id, sqlDataAccessTransaction) : [];
 
 		kitchenIssueReturn.Id = await InsertKitchenIssueReturn(kitchenIssueReturn, sqlDataAccessTransaction);
-		await SaveTransactionDetail(kitchenIssueReturn, kitchenIssueReturnDetails, update, sqlDataAccessTransaction);
+		if (!recover) await SaveTransactionDetail(kitchenIssueReturn, kitchenIssueReturnDetails, update, sqlDataAccessTransaction);
 		await SaveRawMaterialStock(kitchenIssueReturn, kitchenIssueReturnDetails, sqlDataAccessTransaction);
 		await SaveAuditTrail(kitchenIssueReturn, update, recover, previousKitchenIssueReturn, previousKitchenIssueReturnDetails, sqlDataAccessTransaction);
 
@@ -172,29 +179,35 @@ public static class KitchenIssueReturnData
 
 	private static async Task SaveTransactionDetail(KitchenIssueReturnModel kitchenIssueReturn, List<KitchenIssueReturnDetailModel> kitchenIssueReturnDetails, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
+		List<KitchenIssueReturnDetailModel> details = [];
+
 		if (update)
 		{
 			var existingKitchenIssueReturnDetails = await CommonData.LoadTableDataByMasterId<KitchenIssueReturnDetailModel>(InventoryNames.KitchenIssueReturnDetail, kitchenIssueReturn.Id, sqlDataAccessTransaction);
 			foreach (var item in existingKitchenIssueReturnDetails)
 			{
 				item.Status = false;
-				await InsertKitchenIssueReturnDetail(item, sqlDataAccessTransaction);
+				details.Add(item);
 			}
 		}
 
 		foreach (var item in kitchenIssueReturnDetails)
 		{
 			item.MasterId = kitchenIssueReturn.Id;
-			await InsertKitchenIssueReturnDetail(item, sqlDataAccessTransaction);
+			details.Add(item);
 		}
+
+		await InsertKitchenIssueReturnDetailList(SqlDataAccess.ToDataTable(details), sqlDataAccessTransaction);
 	}
 
 	private static async Task SaveRawMaterialStock(KitchenIssueReturnModel kitchenIssueReturn, List<KitchenIssueReturnDetailModel> kitchenIssueReturnDetails, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
 		await RawMaterialStockData.DeleteRawMaterialStockByTransactionNo(kitchenIssueReturn.TransactionNo, sqlDataAccessTransaction);
 
+		List<RawMaterialStockModel> stocks = [];
+
 		foreach (var item in kitchenIssueReturnDetails)
-			await RawMaterialStockData.InsertRawMaterialStock(new()
+			stocks.Add(new()
 			{
 				Id = 0,
 				RawMaterialId = item.RawMaterialId,
@@ -204,7 +217,9 @@ public static class KitchenIssueReturnData
 				TransactionId = kitchenIssueReturn.Id,
 				TransactionNo = kitchenIssueReturn.TransactionNo,
 				TransactionDateTime = kitchenIssueReturn.TransactionDateTime
-			}, sqlDataAccessTransaction);
+			});
+
+		await RawMaterialStockData.InsertRawMaterialStockList(SqlDataAccess.ToDataTable(stocks), sqlDataAccessTransaction);
 	}
 
 	private static async Task SaveAuditTrail(

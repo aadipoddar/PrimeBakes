@@ -1,4 +1,8 @@
-﻿using PrimeBakes.Data.Accounts.Masters;
+﻿using Dapper;
+
+using System.Data;
+
+using PrimeBakes.Data.Accounts.Masters;
 using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Inventory.Stock;
 using PrimeBakes.Data.Operations.AuditTrail;
@@ -24,6 +28,9 @@ public static class KitchenProductionReturnData
 	private static async Task<int> InsertKitchenProductionReturnDetail(KitchenProductionReturnDetailModel kitchenProductionReturnDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertKitchenProductionReturnDetail, kitchenProductionReturnDetail, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Kitchen Production Return Detail.");
+
+	private static async Task InsertKitchenProductionReturnDetailList(DataTable kitchenProductionReturnDetails, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+		await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertKitchenProductionReturnDetailList, new { KitchenProductionReturnDetails = kitchenProductionReturnDetails.AsTableValuedParameter(InventoryNames.KitchenProductionReturnDetailType) }, sqlDataAccessTransaction);
 
 	public static async Task<KitchenProductionReturnInvoiceBundle> LoadInvoiceBundle(int transactionId)
 	{
@@ -163,7 +170,7 @@ public static class KitchenProductionReturnData
 		var previousKitchenProductionReturnDetails = update && !recover ? await CommonData.LoadTableDataByMasterId<KitchenProductionReturnItemOverviewModel>(InventoryNames.KitchenProductionReturnItemOverview, kitchenProductionReturn.Id, sqlDataAccessTransaction) : [];
 
 		kitchenProductionReturn.Id = await InsertKitchenProductionReturn(kitchenProductionReturn, sqlDataAccessTransaction);
-		await SaveTransactionDetail(kitchenProductionReturn, kitchenProductionReturnDetails, update, sqlDataAccessTransaction);
+		if (!recover) await SaveTransactionDetail(kitchenProductionReturn, kitchenProductionReturnDetails, update, sqlDataAccessTransaction);
 		await SaveProductStock(kitchenProductionReturn, kitchenProductionReturnDetails, sqlDataAccessTransaction);
 		await SaveAuditTrail(kitchenProductionReturn, update, recover, previousKitchenProductionReturn, previousKitchenProductionReturnDetails, sqlDataAccessTransaction);
 
@@ -172,29 +179,35 @@ public static class KitchenProductionReturnData
 
 	private static async Task SaveTransactionDetail(KitchenProductionReturnModel kitchenProductionReturn, List<KitchenProductionReturnDetailModel> kitchenProductionReturnDetails, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
+		List<KitchenProductionReturnDetailModel> details = [];
+
 		if (update)
 		{
 			var existingKitchenProductionReturnDetails = await CommonData.LoadTableDataByMasterId<KitchenProductionReturnDetailModel>(InventoryNames.KitchenProductionReturnDetail, kitchenProductionReturn.Id, sqlDataAccessTransaction);
 			foreach (var item in existingKitchenProductionReturnDetails)
 			{
 				item.Status = false;
-				await InsertKitchenProductionReturnDetail(item, sqlDataAccessTransaction);
+				details.Add(item);
 			}
 		}
 
 		foreach (var item in kitchenProductionReturnDetails)
 		{
 			item.MasterId = kitchenProductionReturn.Id;
-			await InsertKitchenProductionReturnDetail(item, sqlDataAccessTransaction);
+			details.Add(item);
 		}
+
+		await InsertKitchenProductionReturnDetailList(SqlDataAccess.ToDataTable(details), sqlDataAccessTransaction);
 	}
 
 	private static async Task SaveProductStock(KitchenProductionReturnModel kitchenProductionReturn, List<KitchenProductionReturnDetailModel> kitchenProductionReturnDetails, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
 		await ProductStockData.DeleteProductStockByTransactionNo(kitchenProductionReturn.TransactionNo, sqlDataAccessTransaction);
 
+		List<ProductStockModel> stocks = [];
+
 		foreach (var item in kitchenProductionReturnDetails)
-			await ProductStockData.InsertProductStock(new()
+			stocks.Add(new()
 			{
 				Id = 0,
 				ProductId = item.ProductId,
@@ -205,7 +218,9 @@ public static class KitchenProductionReturnData
 				TransactionNo = kitchenProductionReturn.TransactionNo,
 				TransactionDateTime = kitchenProductionReturn.TransactionDateTime,
 				LocationId = 1, // Main Location
-			}, sqlDataAccessTransaction);
+			});
+
+		await ProductStockData.InsertProductStockList(SqlDataAccess.ToDataTable(stocks), sqlDataAccessTransaction);
 	}
 
 	private static async Task SaveAuditTrail(

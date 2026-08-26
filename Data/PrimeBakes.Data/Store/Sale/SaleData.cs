@@ -1,4 +1,6 @@
-﻿using PrimeBakes.Data.Accounts.FinancialAccounting;
+﻿using Dapper;
+
+using PrimeBakes.Data.Accounts.FinancialAccounting;
 using PrimeBakes.Data.Accounts.Masters;
 using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Inventory.Recipe;
@@ -25,6 +27,8 @@ using PrimeBakes.Models.Store.Order;
 using PrimeBakes.Models.Store.Product;
 using PrimeBakes.Models.Store.Sale;
 
+using System.Data;
+
 namespace PrimeBakes.Data.Store.Sale;
 
 public static class SaleData
@@ -36,6 +40,9 @@ public static class SaleData
 	private static async Task<int> InsertSaleDetail(SaleDetailModel saleDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertSaleDetail, saleDetail, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Sale Detail.");
+
+	private static async Task InsertSaleDetailList(DataTable saleDetails, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+		await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertSaleDetailList, new { SaleDetails = saleDetails.AsTableValuedParameter(StoreNames.SaleDetailType) }, sqlDataAccessTransaction);
 
 	internal static async Task UpdateFinancialAccountingId(int financialAccountingId, int? newFinancialAccountingId, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
@@ -386,7 +393,7 @@ public static class SaleData
 		var previousSaleDetails = update && !recover ? await CommonData.LoadTableDataByMasterId<SaleItemOverviewModel>(StoreNames.SaleItemOverview, sale.Id, sqlDataAccessTransaction) : [];
 
 		sale.Id = await InsertSale(sale, sqlDataAccessTransaction);
-		await SaveTransactionDetail(sale, saleDetails, update, sqlDataAccessTransaction);
+		if (!recover) await SaveTransactionDetail(sale, saleDetails, update, sqlDataAccessTransaction);
 		await SaveProductStock(sale, saleDetails, sqlDataAccessTransaction);
 		await SaveRawMaterialStockByRecipe(sale, saleDetails, sqlDataAccessTransaction);
 		await UpdateOrder(sale, previousSale, update, sqlDataAccessTransaction);
@@ -398,29 +405,35 @@ public static class SaleData
 
 	private static async Task SaveTransactionDetail(SaleModel sale, List<SaleDetailModel> saleDetails, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
+		List<SaleDetailModel> details = [];
+
 		if (update)
 		{
 			var existingSaleDetails = await CommonData.LoadTableDataByMasterId<SaleDetailModel>(StoreNames.SaleDetail, sale.Id, sqlDataAccessTransaction);
 			foreach (var item in existingSaleDetails)
 			{
 				item.Status = false;
-				await InsertSaleDetail(item, sqlDataAccessTransaction);
+				details.Add(item);
 			}
 		}
 
 		foreach (var item in saleDetails)
 		{
 			item.MasterId = sale.Id;
-			await InsertSaleDetail(item, sqlDataAccessTransaction);
+			details.Add(item);
 		}
+
+		await InsertSaleDetailList(SqlDataAccess.ToDataTable(details), sqlDataAccessTransaction);
 	}
 
 	private static async Task SaveProductStock(SaleModel sale, List<SaleDetailModel> saleDetails, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
 		await ProductStockData.DeleteProductStockByTransactionNo(sale.TransactionNo, sqlDataAccessTransaction);
 
+		List<ProductStockModel> stocks = [];
+
 		foreach (var item in saleDetails)
-			await ProductStockData.InsertProductStock(new()
+			stocks.Add(new()
 			{
 				Id = 0,
 				ProductId = item.ProductId,
@@ -431,14 +444,14 @@ public static class SaleData
 				TransactionNo = sale.TransactionNo,
 				TransactionDateTime = sale.TransactionDateTime,
 				LocationId = sale.LocationId
-			}, sqlDataAccessTransaction);
+			});
 
 		if (sale.PartyId is not null and > 0)
 		{
 			var location = await LocationData.LoadLocationByLedgerId(sale.PartyId.Value, sqlDataAccessTransaction);
 			if (location is not null)
 				foreach (var item in saleDetails)
-					await ProductStockData.InsertProductStock(new()
+					stocks.Add(new()
 					{
 						Id = 0,
 						ProductId = item.ProductId,
@@ -449,8 +462,10 @@ public static class SaleData
 						TransactionNo = sale.TransactionNo,
 						TransactionDateTime = sale.TransactionDateTime,
 						LocationId = location.Id
-					}, sqlDataAccessTransaction);
+					});
 		}
+
+		await ProductStockData.InsertProductStockList(SqlDataAccess.ToDataTable(stocks), sqlDataAccessTransaction);
 	}
 
 	private static async Task SaveRawMaterialStockByRecipe(SaleModel sale, List<SaleDetailModel> saleDetails, SqlDataAccessTransaction sqlDataAccessTransaction)
@@ -463,13 +478,15 @@ public static class SaleData
 		var recipes = await RecipeData.LoadAllRecipes(DateOnly.FromDateTime(sale.TransactionDateTime), true, sqlDataAccessTransaction);
 		var recipeDetails = await CommonData.LoadTableDataByStatus<RecipeDetailModel>(InventoryNames.RecipeDetail, true, sqlDataAccessTransaction);
 
+		List<RawMaterialStockModel> stocks = [];
+
 		foreach (var product in saleDetails)
 		{
 			var recipe = recipes.FirstOrDefault(_ => _.ProductId == product.ProductId);
 			var recipeItems = recipe is null ? [] : recipeDetails.Where(_ => _.MasterId == recipe.Id).ToList();
 
 			foreach (var recipeItem in recipeItems)
-				await RawMaterialStockData.InsertRawMaterialStock(new()
+				stocks.Add(new()
 				{
 					Id = 0,
 					RawMaterialId = recipeItem.RawMaterialId,
@@ -479,8 +496,10 @@ public static class SaleData
 					TransactionNo = sale.TransactionNo,
 					Type = nameof(StockType.Sale),
 					TransactionDateTime = sale.TransactionDateTime
-				}, sqlDataAccessTransaction);
+				});
 		}
+
+		await RawMaterialStockData.InsertRawMaterialStockList(SqlDataAccess.ToDataTable(stocks), sqlDataAccessTransaction);
 	}
 
 	private static async Task UpdateOrder(SaleModel sale, SaleOverviewModel previousSale, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
