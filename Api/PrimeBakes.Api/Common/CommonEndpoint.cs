@@ -48,5 +48,8 @@ public class CommonEndpoint : ICarterModule
 
 		group.MapGet(nameof(CommonData.LoadCurrentDateTime),
 			() => CommonData.LoadCurrentDateTime());
+
+		group.MapGet(nameof(CommonData.LoadDatabaseLoad),
+			() => CommonData.LoadDatabaseLoad());
 	}
 }

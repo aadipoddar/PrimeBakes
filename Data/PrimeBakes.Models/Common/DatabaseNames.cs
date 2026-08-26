@@ -15,6 +15,7 @@ public static class CommonNames
 	public static string LoadLastTableDataByCompanyFinancialYear => "Load_LastTableData_By_Company_FinancialYear";
 	public static string LoadLastTableDataByLocationFinancialYear => "Load_LastTableData_By_Location_FinancialYear";
 	public static string LoadCurrentDateTime => "Load_CurrentDateTime";
+	public static string LoadDatabaseLoad => "Load_DatabaseLoad";
 }
 
 public static class OperationNames

@@ -357,6 +357,37 @@ else
 				</div>
 			</div>
 
+			<!-- Query Gate Settings -->
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Query Gate Settings</h2>
+				</div>
+				<div class="section-body">
+					<div class="form-grid">
+						<div class="form-field">
+							<CustomNumericField T="int"
+												@bind-Value="_heavyQuerySpanDays"
+												Label="Heavy Report Threshold (Days)"
+												Placeholder="e.g., 30"
+												Format="N0"
+												Min="1"
+												Max="3650"
+												Required="false" />
+						</div>
+						<div class="form-field">
+							<CustomNumericField T="int"
+												@bind-Value="_heavyQueryMaxLoadPercent"
+												Label="Heavy Report Max Database Load (%)"
+												Placeholder="e.g., 50"
+												Format="N0"
+												Min="1"
+												Max="100"
+												Required="false" />
+						</div>
+					</div>
+				</div>
+			</div>
+
 		</div>
 
 		<Footer />

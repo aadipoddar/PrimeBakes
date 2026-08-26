@@ -111,6 +111,8 @@ public partial class SettingsPage
 
 	// Cache Settings
 	private int _cacheTimeoutMinutes = 60;
+	private int _heavyQuerySpanDays = 30;
+	private int _heavyQueryMaxLoadPercent = 50;
 
 	#endregion
 
@@ -227,6 +229,10 @@ public partial class SettingsPage
 
 		// Cache Settings
 		_cacheTimeoutMinutes = Int(SettingsKeys.CacheTimeoutMinutes, 60);
+
+		// Query Gate Settings
+		_heavyQuerySpanDays = Int(SettingsKeys.HeavyQuerySpanDays, 30);
+		_heavyQueryMaxLoadPercent = Int(SettingsKeys.HeavyQueryMaxLoadPercent, 50);
 	}
 
 	private async Task LoadCompanies()
@@ -519,6 +525,10 @@ public partial class SettingsPage
 
 			// Cache Settings
 			await UpdateSetting(SettingsKeys.CacheTimeoutMinutes, _cacheTimeoutMinutes.ToString(), Desc(SettingsKeys.CacheTimeoutMinutes));
+
+			// Query Gate Settings
+			await UpdateSetting(SettingsKeys.HeavyQuerySpanDays, _heavyQuerySpanDays.ToString(), Desc(SettingsKeys.HeavyQuerySpanDays));
+			await UpdateSetting(SettingsKeys.HeavyQueryMaxLoadPercent, _heavyQueryMaxLoadPercent.ToString(), Desc(SettingsKeys.HeavyQueryMaxLoadPercent));
 
 			await _toastNotification.ShowAsync("Saved", "Settings saved successfully.", ToastType.Success);
 		}

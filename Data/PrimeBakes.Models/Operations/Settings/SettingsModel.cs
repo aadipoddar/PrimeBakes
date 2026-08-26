@@ -82,4 +82,8 @@ public static class SettingsKeys
 
 	// Cache Settings
 	public static string CacheTimeoutMinutes => "CacheTimeoutMinutes";
+
+	// Query Gate Settings
+	public static string HeavyQuerySpanDays => "HeavyQuerySpanDays";
+	public static string HeavyQueryMaxLoadPercent => "HeavyQueryMaxLoadPercent";
 }

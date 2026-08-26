@@ -30,7 +30,7 @@ public static class SqlDataAccess
 
 	public static void SetupConfiguration()
 	{
-		SqlMapper.Settings.CommandTimeout = 600;
+		SqlMapper.Settings.CommandTimeout = 200;
 		SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
 		SqlMapper.AddTypeHandler(new TimeOnlyTypeHandler());
 		Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(CommonSecrets.SyncfusionLicense);

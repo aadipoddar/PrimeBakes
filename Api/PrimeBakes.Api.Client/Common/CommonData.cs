@@ -44,4 +44,7 @@ public static class CommonData
 
 	public static async Task<DateTime> LoadCurrentDateTime() =>
 		await ApiClient.Get<DateTime>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadCurrentDateTime)));
+
+	public static async Task<decimal> LoadDatabaseLoad() =>
+		await ApiClient.Get<decimal>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadDatabaseLoad)));
 }
