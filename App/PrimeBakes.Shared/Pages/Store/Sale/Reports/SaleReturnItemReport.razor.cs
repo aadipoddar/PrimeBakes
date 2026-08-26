@@ -12,6 +12,8 @@ using Syncfusion.Blazor.Grids;
 using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Data.Store.Sale;
 using PrimeBakes.Data.Accounts.Masters;
+using PrimeBakes.Data.Operations.AuditTrail;
+using PrimeBakes.Models.Operations.AuditTrail;
 
 namespace PrimeBakes.Shared.Pages.Store.Sale.Reports;
 
@@ -124,6 +126,15 @@ public partial class SaleReturnItemReport : IAsyncDisposable
 				StoreNames.SaleReturnItemOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
+
+			await AuditTrailData.SaveAuditTrail(new()
+			{
+				Action = AuditTrailActionTypes.Report.ToString(),
+				TableName = StoreRouteNames.SaleReturnItemReport,
+				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
+				CreatedBy = _user.Id,
+				CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform()
+			});
 
 			await ApplyFilters();
 		}

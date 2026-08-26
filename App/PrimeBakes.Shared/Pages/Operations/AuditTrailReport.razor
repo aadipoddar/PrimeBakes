@@ -28,6 +28,8 @@ else
 					<MudBlazor.MudDivider />
 					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportReport()" />
 					<MudBlazor.MudMenuItem Label="Export Excel (Ctrl + E)" OnClick="() => ExportReport(true)" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Delete Records" OnClick="DeleteRecordsSelectedRange" />
 				</MudBlazor.MudMenu>
 
 				<MudBlazor.MudMenu Label="Record" Dense="true" Disabled="_isProcessing">
@@ -127,6 +129,9 @@ else
 		<Footer />
 	</div>
 }
+
+<ConfirmationDialog @ref="_confirmationDialog" Title="@_confirmTitle" Message="@_confirmMessage"
+					OnConfirm="OnConfirmed" OnCancel="OnCancelled" />
 
 <ToastNotification @ref="_toastNotification" />
 

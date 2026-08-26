@@ -327,6 +327,7 @@
     <Build Include="Operations\Analysis\Load\Load_Dashboard_TopRawMaterials.sql" />
     <Build Include="Operations\AuditTrail\AuditTrail.sql" />
     <Build Include="Operations\AuditTrail\Insert_AuditTrail.sql" />
+    <Build Include="Operations\AuditTrail\Delete_AuditTrail_By_Date.sql" />
     <Build Include="Operations\AuditTrail\Load_Last_AuditTrail_By_Table_Record.sql" />
     <Build Include="Operations\Settings\Load_Settings_By_Key.sql" />
     <Build Include="Operations\Settings\Settings.sql" />

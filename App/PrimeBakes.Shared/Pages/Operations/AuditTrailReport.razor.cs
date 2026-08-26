@@ -12,6 +12,7 @@ using Syncfusion.Blazor.Grids;
 using System.Text;
 using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Data.Accounts.Masters;
+using PrimeBakes.Data.Operations.AuditTrail;
 
 namespace PrimeBakes.Shared.Pages.Operations;
 
@@ -39,6 +40,11 @@ public partial class AuditTrailReport : IAsyncDisposable
 	private SfGrid<AuditTrailModel> _sfGrid;
 	private CustomDateRangePicker _firstFocus;
 	private ToastNotification _toastNotification;
+
+	private ConfirmationDialog _confirmationDialog;
+	private string _confirmTitle = string.Empty;
+	private string _confirmMessage = string.Empty;
+	private Func<Task> _confirmAction;
 
 	#region Load Data
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -83,6 +89,15 @@ public partial class AuditTrailReport : IAsyncDisposable
 				OperationNames.AuditTrail,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
+
+			await AuditTrailData.SaveAuditTrail(new()
+			{
+				Action = AuditTrailActionTypes.Report.ToString(),
+				TableName = OperationRouteNames.AuditTrailReport,
+				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
+				CreatedBy = _user.Id,
+				CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform()
+			});
 
 			_auditTrails = [.. _auditTrails.OrderByDescending(_ => _.TransactionDateTime)];
 		}
@@ -152,6 +167,63 @@ public partial class AuditTrailReport : IAsyncDisposable
 		var bytes = Encoding.UTF8.GetBytes(sb.ToString());
 		var stream = new MemoryStream(bytes);
 		await SaveAndViewService.SaveAndView($"AuditTrail_{record.TableName}_{record.RecordNo}.txt", stream);
+	}
+
+	private async Task DeleteRecords()
+	{
+		if (_isProcessing)
+			return;
+
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+			await _toastNotification.ShowAsync("Processing", "Deleting audit trail records...", ToastType.Info);
+
+			var deleted = await AuditTrailData.DeleteAuditTrailByDate(_fromDate, _toDate, _user.Id,
+				FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+
+			await _toastNotification.ShowAsync("Deleted", $"{deleted} audit trail records have been deleted successfully.", ToastType.Success);
+			await LoadAuditTrails();
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"Failed to delete audit trail records: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+			await _toastNotification.HideAllInfoAsync();
+		}
+	}
+
+	private async Task DeleteRecordsSelectedRange() =>
+		await ShowConfirmation("Delete Records",
+			$"Are you sure you want to permanently delete every audit trail record from {_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
+			DeleteRecords);
+
+	private async Task ShowConfirmation(string title, string message, Func<Task> action)
+	{
+		_confirmTitle = title;
+		_confirmMessage = message;
+		_confirmAction = action;
+		StateHasChanged();
+		await _confirmationDialog.ShowAsync();
+	}
+
+	private async Task OnConfirmed()
+	{
+		await _confirmationDialog.HideAsync();
+		if (_confirmAction is not null)
+			await _confirmAction();
+		_confirmAction = null;
+	}
+
+	private async Task OnCancelled()
+	{
+		_confirmAction = null;
+		await _confirmationDialog.HideAsync();
 	}
 	#endregion
 

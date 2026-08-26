@@ -16,6 +16,8 @@ using PrimeBakes.Data.Store.Sale;
 using PrimeBakes.Data.Restaurant.Bill;
 using PrimeBakes.Data.Store.StockTransfer;
 using PrimeBakes.Data.Accounts.Masters;
+using PrimeBakes.Data.Operations.AuditTrail;
+using PrimeBakes.Models.Operations.AuditTrail;
 
 namespace PrimeBakes.Shared.Pages.Store.Sale.Reports;
 
@@ -146,6 +148,15 @@ public partial class SaleItemReport : IAsyncDisposable
 			_allReturnOverviews = await CommonData.LoadTableDataByDate<SaleReturnItemOverviewModel>(StoreNames.SaleReturnItemOverview, fromDate, toDate);
 			_allTransferOverviews = await CommonData.LoadTableDataByDate<StockTransferItemOverviewModel>(StoreNames.StockTransferItemOverview, fromDate, toDate);
 			_allBillOverviews = await CommonData.LoadTableDataByDate<BillItemOverviewModel>(RestaurantNames.BillItemOverview, fromDate, toDate);
+
+			await AuditTrailData.SaveAuditTrail(new()
+			{
+				Action = AuditTrailActionTypes.Report.ToString(),
+				TableName = StoreRouteNames.SaleItemReport,
+				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
+				CreatedBy = _user.Id,
+				CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform()
+			});
 
 			await ApplyFilters();
 		}

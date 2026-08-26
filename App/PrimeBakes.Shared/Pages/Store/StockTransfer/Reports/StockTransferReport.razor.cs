@@ -11,6 +11,8 @@ using Syncfusion.Blazor.Grids;
 using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Data.Store.StockTransfer;
 using PrimeBakes.Data.Accounts.Masters;
+using PrimeBakes.Data.Operations.AuditTrail;
+using PrimeBakes.Models.Operations.AuditTrail;
 
 namespace PrimeBakes.Shared.Pages.Store.StockTransfer.Reports;
 
@@ -112,6 +114,15 @@ public partial class StockTransferReport : IAsyncDisposable
 				StoreNames.StockTransferOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
+
+			await AuditTrailData.SaveAuditTrail(new()
+			{
+				Action = AuditTrailActionTypes.Report.ToString(),
+				TableName = StoreRouteNames.StockTransferReport,
+				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
+				CreatedBy = _user.Id,
+				CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform()
+			});
 
 			await ApplyFilters();
 		}

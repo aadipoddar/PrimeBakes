@@ -11,6 +11,8 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
 using Syncfusion.Blazor.Grids;
+using PrimeBakes.Data.Operations.AuditTrail;
+using PrimeBakes.Models.Operations.AuditTrail;
 
 namespace PrimeBakes.Shared.Pages.Payroll.PayrollRun.Reports;
 
@@ -303,6 +305,15 @@ public partial class PayrollReport : IAsyncDisposable
 				PayrollNames.PayrollItemOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
+
+			await AuditTrailData.SaveAuditTrail(new()
+			{
+				Action = AuditTrailActionTypes.Report.ToString(),
+				TableName = PayrollRouteNames.PayrollReport,
+				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
+				CreatedBy = _user.Id,
+				CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform()
+			});
 
 			var shown = _transactionOverviews.Select(t => t.Id).ToHashSet();
 			components = [.. components

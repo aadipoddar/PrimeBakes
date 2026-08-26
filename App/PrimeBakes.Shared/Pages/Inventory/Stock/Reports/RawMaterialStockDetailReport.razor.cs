@@ -10,6 +10,8 @@ using Syncfusion.Blazor.Grids;
 using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Data.Inventory.Stock;
 using PrimeBakes.Data.Accounts.Masters;
+using PrimeBakes.Data.Operations.AuditTrail;
+using PrimeBakes.Models.Operations.AuditTrail;
 
 namespace PrimeBakes.Shared.Pages.Inventory.Stock.Reports;
 
@@ -88,6 +90,15 @@ public partial class RawMaterialStockDetailReport : IAsyncDisposable
 				InventoryNames.RawMaterialStockDetails,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
+
+			await AuditTrailData.SaveAuditTrail(new()
+			{
+				Action = AuditTrailActionTypes.Report.ToString(),
+				TableName = InventoryRouteNames.RawMaterialStockDetailReport,
+				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
+				CreatedBy = _user.Id,
+				CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform()
+			});
 
 			_stockDetails = [.. _stockDetails.OrderBy(d => d.TransactionDateTime).ThenBy(d => d.RawMaterialName)];
 		}

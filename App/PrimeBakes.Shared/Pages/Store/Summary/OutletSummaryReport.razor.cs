@@ -17,6 +17,8 @@ using PrimeBakes.Models.Inventory.Kitchen.KitchenProduction;
 using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Data.Operations.Location;
 using PrimeBakes.Data.Accounts.Masters;
+using PrimeBakes.Data.Operations.AuditTrail;
+using PrimeBakes.Models.Operations.AuditTrail;
 
 namespace PrimeBakes.Shared.Pages.Store.Summary;
 
@@ -149,6 +151,15 @@ public partial class OutletSummaryReport : IAsyncDisposable
 		_salereturns = await CommonData.LoadTableDataByDate<SaleReturnOverviewModel>(StoreNames.SaleReturnOverview, fromDate, toDate);
 		_stockTransfers = await CommonData.LoadTableDataByDate<StockTransferOverviewModel>(StoreNames.StockTransferOverview, fromDate, toDate);
 		_bills = await CommonData.LoadTableDataByDate<BillOverviewModel>(RestaurantNames.BillOverview, fromDate, toDate);
+
+		await AuditTrailData.SaveAuditTrail(new()
+		{
+			Action = AuditTrailActionTypes.Report.ToString(),
+			TableName = StoreRouteNames.OutletSummaryReport,
+			RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
+			CreatedBy = _user.Id,
+			CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform()
+		});
 	}
 
 	private async Task ApplyFilters()

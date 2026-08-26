@@ -12,6 +12,8 @@ using PrimeBakes.Models.Inventory.Kitchen.KitchenProduction;
 using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Data.Accounts.Masters;
 using PrimeBakes.Data.Inventory.Kitchen.KitchenProduction;
+using PrimeBakes.Data.Operations.AuditTrail;
+using PrimeBakes.Models.Operations.AuditTrail;
 
 namespace PrimeBakes.Shared.Pages.Inventory.Kitchen.KitchenProduction.Reports;
 
@@ -116,6 +118,15 @@ public partial class KitchenProductionReturnItemReport : IAsyncDisposable
 				InventoryNames.KitchenProductionReturnItemOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
+
+			await AuditTrailData.SaveAuditTrail(new()
+			{
+				Action = AuditTrailActionTypes.Report.ToString(),
+				TableName = InventoryRouteNames.KitchenProductionReturnItemReport,
+				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
+				CreatedBy = _user.Id,
+				CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform()
+			});
 
 			await ApplyFilters();
 		}

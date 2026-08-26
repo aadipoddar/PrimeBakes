@@ -24,6 +24,22 @@ public static class AuditTrailData
 		await InsertAuditTrail(auditTrail, sqlDataAccessTransaction);
 	}
 
+	public static async Task<int> DeleteAuditTrailByDate(DateTime StartDate, DateTime EndDate, int userId, string platform)
+	{
+		var deleted = (await SqlDataAccess.LoadData<int, dynamic>(OperationNames.DeleteAuditTrailByDate, new { StartDate, EndDate })).FirstOrDefault();
+
+		await SaveAuditTrail(new()
+		{
+			Action = AuditTrailActionTypes.Delete.ToString(),
+			TableName = OperationNames.AuditTrail,
+			RecordNo = $"{StartDate:dd-MMM-yyyy} to {EndDate:dd-MMM-yyyy}",
+			CreatedBy = userId,
+			CreatedFromPlatform = platform
+		});
+
+		return deleted;
+	}
+
 	private static readonly HashSet<string> _ignoredProperties = new(StringComparer.OrdinalIgnoreCase)
 	{
 		"Id", "MasterId", "Status", "MasterStatus",
