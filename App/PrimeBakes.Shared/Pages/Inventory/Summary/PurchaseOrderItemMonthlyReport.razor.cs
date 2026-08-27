@@ -2,7 +2,6 @@ using PrimeBakes.Data.Accounts.Masters;
 using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Exports.Inventory.Summary;
 using PrimeBakes.Models.Accounts.Masters;
-using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Inventory.PurchaseOrder;
 using PrimeBakes.Models.Inventory.RawMaterial;
 using PrimeBakes.Models.Inventory.Summary;
@@ -122,7 +121,7 @@ public partial class PurchaseOrderItemMonthlyReport : IAsyncDisposable
 				TableName = InventoryRouteNames.PurchaseOrderItemMonthlyReport,
 				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 				CreatedBy = _user.Id,
-				CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform()
+				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
 			});
 
 			await ApplyFilters();

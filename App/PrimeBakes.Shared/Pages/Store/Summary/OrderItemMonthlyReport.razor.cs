@@ -126,7 +126,7 @@ public partial class OrderItemMonthlyReport : IAsyncDisposable
 				TableName = StoreRouteNames.OrderItemMonthlyReport,
 				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 				CreatedBy = _user.Id,
-				CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform()
+				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
 			});
 
 			await ApplyFilters();

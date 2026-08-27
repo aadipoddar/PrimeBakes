@@ -12,13 +12,19 @@ public partial class Footer : IAsyncDisposable
 
 	private const int _defaultRefreshMinutes = 30;
 	private decimal _databaseLoad = -1;
+	private string _platformInfo;
 
 	private PeriodicTimer _refreshTimer;
 	private CancellationTokenSource _refreshCts;
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (!firstRender || FormFactor.GetFormFactor() is not ("Desktop" or "Web" or "Wasm"))
+		if (!firstRender)
+			return;
+
+		_ = LoadPlatformInfo();
+
+		if (FormFactor.GetFormFactor() is not ("Desktop" or "Web" or "Wasm"))
 			return;
 
 		await LoadDatabaseLoad();
@@ -29,6 +35,12 @@ public partial class Footer : IAsyncDisposable
 		_refreshCts = new CancellationTokenSource();
 		_refreshTimer = new PeriodicTimer(TimeSpan.FromMinutes(refreshMinutes));
 		_ = RefreshLoop(_refreshCts.Token);
+	}
+
+	private async Task LoadPlatformInfo()
+	{
+		_platformInfo = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
+		await InvokeAsync(StateHasChanged);
 	}
 
 	private async Task LoadDatabaseLoad()
@@ -46,7 +58,10 @@ public partial class Footer : IAsyncDisposable
 		try
 		{
 			while (await _refreshTimer.WaitForNextTickAsync(cancellationToken))
+			{
+				_ = LoadPlatformInfo();
 				await LoadDatabaseLoad();
+			}
 		}
 		catch (OperationCanceledException) { }
 	}

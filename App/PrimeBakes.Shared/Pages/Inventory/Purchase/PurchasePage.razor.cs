@@ -189,7 +189,7 @@ public partial class PurchasePage
 			TotalAmount = 0,
 			Remarks = null,
 			CreatedAt = DateTime.Now,
-			CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform(),
+			CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService),
 			Status = true,
 			LastModifiedAt = null,
 			LastModifiedBy = null,
@@ -756,8 +756,8 @@ public partial class PurchasePage
 		_purchase.Status = true;
 		_purchase.TransactionDateTime = DateOnly.FromDateTime(_purchase.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
 		_purchase.LastModifiedAt = currentDateTime;
-		_purchase.CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
-		_purchase.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
+		_purchase.CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
+		_purchase.LastModifiedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
 		_purchase.CreatedBy = _user.Id;
 		_purchase.LastModifiedBy = _user.Id;
 	}

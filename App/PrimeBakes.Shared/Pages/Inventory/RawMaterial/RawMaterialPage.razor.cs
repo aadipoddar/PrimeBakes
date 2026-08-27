@@ -95,7 +95,7 @@ public partial class RawMaterialPage
 
 			_rawMaterial.RawMaterialCategoryId = _selectedCategory?.Id ?? 0;
 			_rawMaterial.TaxId = _selectedTax?.Id ?? 0;
-			await RawMaterialData.SaveTransaction(_rawMaterial, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+			await RawMaterialData.SaveTransaction(_rawMaterial, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
 			ResetPage();
@@ -146,8 +146,8 @@ public partial class RawMaterialPage
 			var rawMaterial = await CommonData.LoadTableDataById<RawMaterialModel>(InventoryNames.RawMaterial, id)
 				?? throw new Exception("Transaction not found.");
 
-			if (isRecover) await RawMaterialData.RecoverTransaction(rawMaterial, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
-			else await RawMaterialData.DeleteTransaction(rawMaterial, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+			if (isRecover) await RawMaterialData.RecoverTransaction(rawMaterial, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+			else await RawMaterialData.DeleteTransaction(rawMaterial, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
 
 			await _toastNotification.ShowAsync("Success", $"Transaction {rawMaterial.Name} has been {(isRecover ? "recovered" : "deleted")} successfully.", ToastType.Success);
 			ResetPage();

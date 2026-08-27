@@ -159,7 +159,7 @@ public partial class SaleItemReport : IAsyncDisposable
 				TableName = StoreRouteNames.SaleItemReport,
 				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 				CreatedBy = _user.Id,
-				CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform()
+				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
 			});
 
 			await ApplyFilters();
@@ -519,13 +519,13 @@ public partial class SaleItemReport : IAsyncDisposable
 					date,
 					_selectedLocation.Id,
 					_user.Id,
-					FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+					await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
 
 				await BillData.PostDayBills(
 					date,
 					_selectedLocation.Id,
 					_user.Id,
-					FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+					await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
 			}
 
 			await _toastNotification.ShowAsync("Success", "Day closing completed successfully.", ToastType.Success);
@@ -631,7 +631,7 @@ public partial class SaleItemReport : IAsyncDisposable
 			await _toastNotification.ShowAsync("Processing", $"{(isRecover ? "Recovering" : "Deleting")} transaction...", ToastType.Info);
 
 			var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(record.TransactionNo, false, false);
-			var platform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
+			var platform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
 			var currentDateTime = await CommonData.LoadCurrentDateTime();
 
 			if (decodedTransactionNo.CodeType == CodeType.Sale)

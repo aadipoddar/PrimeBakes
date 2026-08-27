@@ -124,7 +124,7 @@ public partial class OrderReport : IAsyncDisposable
 				TableName = StoreRouteNames.OrderReport,
 				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 				CreatedBy = _user.Id,
-				CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform()
+				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
 			});
 
 			await ApplyFilters();
@@ -256,7 +256,7 @@ public partial class OrderReport : IAsyncDisposable
 			order.Status = isRecover;
 			order.LastModifiedBy = _user.Id;
 			order.LastModifiedAt = await CommonData.LoadCurrentDateTime();
-			order.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
+			order.LastModifiedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
 
 			if (isRecover) await OrderData.RecoverTransaction(order);
 			else await OrderData.DeleteTransaction(order);

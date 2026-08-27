@@ -298,7 +298,7 @@ public partial class SaleMobilePaymentPage
 			_sale.TransactionDateTime = await CommonData.LoadCurrentDateTime();
 			_sale.FinancialYearId = (await FinancialYearData.LoadFinancialYearByDateTime(_sale.TransactionDateTime)).Id;
 			_sale.CreatedAt = await CommonData.LoadCurrentDateTime();
-			_sale.CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
+			_sale.CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
 			_sale.TransactionNo = await GenerateCodes.GenerateSaleTransactionNo(_sale);
 
 			_sale.Id = await SaleData.SaveTransaction(_sale, _cart.ConvertCartToDetails(), _selectedCustomer);

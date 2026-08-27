@@ -80,7 +80,7 @@ public partial class RawMaterialCategoryPage
 
 			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			await RawMaterialCategoryData.SaveTransaction(_rawMaterialCategory, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+			await RawMaterialCategoryData.SaveTransaction(_rawMaterialCategory, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
 			ResetPage();
@@ -129,8 +129,8 @@ public partial class RawMaterialCategoryPage
 			var category = await CommonData.LoadTableDataById<RawMaterialCategoryModel>(InventoryNames.RawMaterialCategory, id)
 				?? throw new Exception("Transaction not found.");
 
-			if (isRecover) await RawMaterialCategoryData.RecoverTransaction(category, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
-			else await RawMaterialCategoryData.DeleteTransaction(category, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+			if (isRecover) await RawMaterialCategoryData.RecoverTransaction(category, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+			else await RawMaterialCategoryData.DeleteTransaction(category, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
 
 			await _toastNotification.ShowAsync("Success", $"Transaction {category.Name} has been {(isRecover ? "recovered" : "deleted")} successfully.", ToastType.Success);
 			ResetPage();

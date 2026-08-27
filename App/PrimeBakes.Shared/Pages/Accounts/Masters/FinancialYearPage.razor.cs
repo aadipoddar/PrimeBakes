@@ -87,7 +87,7 @@ public partial class FinancialYearPage
 
 			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			await FinancialYearData.SaveTransaction(_financialYear, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+			await FinancialYearData.SaveTransaction(_financialYear, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
 			ResetPage();
@@ -175,8 +175,8 @@ public partial class FinancialYearPage
 
 			var label = $"{financialYear.StartDate:dd-MMM-yyyy} to {financialYear.EndDate:dd-MMM-yyyy}";
 
-			if (isRecover) await FinancialYearData.RecoverTransaction(financialYear, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
-			else await FinancialYearData.DeleteTransaction(financialYear, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+			if (isRecover) await FinancialYearData.RecoverTransaction(financialYear, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+			else await FinancialYearData.DeleteTransaction(financialYear, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
 
 			await _toastNotification.ShowAsync("Success", $"Transaction {label} has been {(isRecover ? "recovered" : "deleted")} successfully.", ToastType.Success);
 			ResetPage();

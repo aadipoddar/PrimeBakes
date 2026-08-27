@@ -153,7 +153,7 @@ public partial class OrderMobileCartPage
 				CreatedBy = _user.Id,
 				TotalItems = _cart.Count,
 				TotalQuantity = _cart.Sum(x => x.Quantity),
-				CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform(),
+				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService),
 				Remarks = string.IsNullOrWhiteSpace(_orderRemarks?.Trim()) ? null : _orderRemarks.Trim(),
 				SaleId = null,
 				Status = true,

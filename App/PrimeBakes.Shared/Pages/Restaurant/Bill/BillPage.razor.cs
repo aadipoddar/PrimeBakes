@@ -252,7 +252,7 @@ public partial class BillPage
 			UPI = 0,
 			Remarks = null,
 			CreatedAt = DateTime.Now,
-			CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform(),
+			CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService),
 			Running = true,
 			Status = true,
 			LastModifiedAt = null,
@@ -991,8 +991,8 @@ public partial class BillPage
 		_bill.Status = true;
 		_bill.TransactionDateTime = DateOnly.FromDateTime(_bill.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
 		_bill.LastModifiedAt = currentDateTime;
-		_bill.CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
-		_bill.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
+		_bill.CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
+		_bill.LastModifiedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
 		_bill.CreatedBy = _user.Id;
 		_bill.LastModifiedBy = _user.Id;
 	}

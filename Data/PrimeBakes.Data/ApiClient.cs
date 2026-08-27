@@ -1,7 +1,3 @@
-using System.Net.Http;
-
-using PrimeBakes.Data.DataAccess;
-
 namespace PrimeBakes.Data;
 
 public static class ApiClient

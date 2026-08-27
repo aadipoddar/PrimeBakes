@@ -120,7 +120,7 @@ public partial class ProductPage
 			_product.ProductCategoryId = _selectedCategory?.Id ?? 0;
 			_product.KOTCategoryId = _selectedKOTCategory?.Id ?? 0;
 			_product.TaxId = _selectedTax?.Id ?? 0;
-			await ProductData.SaveTransaction(_product, _locations, DateOnly.FromDateTime(_effectiveDate), _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+			await ProductData.SaveTransaction(_product, _locations, DateOnly.FromDateTime(_effectiveDate), _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
 			ResetPage();
@@ -180,8 +180,8 @@ public partial class ProductPage
 			var product = await CommonData.LoadTableDataById<ProductModel>(StoreNames.Product, id)
 				?? throw new Exception("Transaction not found.");
 
-			if (isRecover) await ProductData.RecoverTransaction(product, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
-			else await ProductData.DeleteTransaction(product, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+			if (isRecover) await ProductData.RecoverTransaction(product, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+			else await ProductData.DeleteTransaction(product, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
 
 			await _toastNotification.ShowAsync("Success", $"Transaction {product.Name} has been {(isRecover ? "recovered" : "deleted")} successfully.", ToastType.Success);
 			ResetPage();

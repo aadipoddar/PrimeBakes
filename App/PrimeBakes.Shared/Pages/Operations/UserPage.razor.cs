@@ -87,7 +87,7 @@ public partial class UserPage
 			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
 
 			_userModel.LocationId = _selectedLocation?.Id ?? 0;
-			await UserData.SaveTransaction(_userModel, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+			await UserData.SaveTransaction(_userModel, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
 			ResetPage();
@@ -137,8 +137,8 @@ public partial class UserPage
 			var user = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, id)
 				?? throw new Exception("Transaction not found.");
 
-			if (isRecover) await UserData.RecoverTransaction(user, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
-			else await UserData.DeleteTransaction(user, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+			if (isRecover) await UserData.RecoverTransaction(user, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+			else await UserData.DeleteTransaction(user, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
 
 			await _toastNotification.ShowAsync("Success", $"Transaction {user.Name} has been {(isRecover ? "recovered" : "deleted")} successfully.", ToastType.Success);
 			ResetPage();

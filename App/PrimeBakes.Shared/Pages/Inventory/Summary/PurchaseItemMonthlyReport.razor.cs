@@ -127,7 +127,7 @@ public partial class PurchaseItemMonthlyReport : IAsyncDisposable
 				TableName = InventoryRouteNames.PurchaseItemMonthlyReport,
 				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 				CreatedBy = _user.Id,
-				CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform()
+				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
 			});
 
 			await ApplyFilters();

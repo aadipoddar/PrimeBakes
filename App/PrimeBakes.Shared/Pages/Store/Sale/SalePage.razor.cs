@@ -208,7 +208,7 @@ public partial class SalePage
 			UPI = 0,
 			Remarks = null,
 			CreatedAt = DateTime.Now,
-			CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform(),
+			CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService),
 			Status = true,
 			LastModifiedAt = null,
 			LastModifiedBy = null,
@@ -1067,8 +1067,8 @@ public partial class SalePage
 		_sale.Status = true;
 		_sale.TransactionDateTime = DateOnly.FromDateTime(_sale.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
 		_sale.LastModifiedAt = currentDateTime;
-		_sale.CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
-		_sale.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
+		_sale.CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
+		_sale.LastModifiedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
 		_sale.CreatedBy = _user.Id;
 		_sale.LastModifiedBy = _user.Id;
 	}

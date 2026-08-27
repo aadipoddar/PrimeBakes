@@ -227,7 +227,7 @@ public partial class PayrollReport : IAsyncDisposable
 			var payroll = await CommonData.LoadTableDataById<PayrollModel>(PayrollNames.Payroll, id)
 				?? throw new Exception("Transaction not found.");
 
-			var platform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
+			var platform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
 
 			if (isRecover) await PayrollData.RecoverTransaction(payroll, _user.Id, platform);
 			else await PayrollData.DeleteTransaction(payroll, _user.Id, platform);
@@ -312,7 +312,7 @@ public partial class PayrollReport : IAsyncDisposable
 				TableName = PayrollRouteNames.PayrollReport,
 				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 				CreatedBy = _user.Id,
-				CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform()
+				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
 			});
 
 			var shown = _transactionOverviews.Select(t => t.Id).ToHashSet();

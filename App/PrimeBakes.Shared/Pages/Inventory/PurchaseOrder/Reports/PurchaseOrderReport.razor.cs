@@ -3,7 +3,6 @@ using PrimeBakes.Data.Inventory.PurchaseOrder;
 using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Exports.Inventory.PurchaseOrder;
 using PrimeBakes.Models.Accounts.Masters;
-using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Inventory.PurchaseOrder;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
@@ -119,7 +118,7 @@ public partial class PurchaseOrderReport : IAsyncDisposable
 				TableName = InventoryRouteNames.PurchaseOrderReport,
 				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 				CreatedBy = _user.Id,
-				CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform()
+				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
 			});
 
 			await ApplyFilters();
@@ -241,7 +240,7 @@ public partial class PurchaseOrderReport : IAsyncDisposable
 			purchaseOrder.Status = isRecover;
 			purchaseOrder.LastModifiedBy = _user.Id;
 			purchaseOrder.LastModifiedAt = await CommonData.LoadCurrentDateTime();
-			purchaseOrder.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
+			purchaseOrder.LastModifiedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
 
 			if (isRecover) await PurchaseOrderData.RecoverTransaction(purchaseOrder);
 			else await PurchaseOrderData.DeleteTransaction(purchaseOrder);

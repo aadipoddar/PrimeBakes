@@ -80,7 +80,7 @@ public partial class DepartmentPage
 
 			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			await DepartmentData.SaveTransaction(_department, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+			await DepartmentData.SaveTransaction(_department, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
 			ResetPage();
@@ -129,8 +129,8 @@ public partial class DepartmentPage
 			var department = await CommonData.LoadTableDataById<DepartmentModel>(PayrollNames.Department, id)
 				?? throw new Exception("Transaction not found.");
 
-			if (isRecover) await DepartmentData.RecoverTransaction(department, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
-			else await DepartmentData.DeleteTransaction(department, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+			if (isRecover) await DepartmentData.RecoverTransaction(department, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+			else await DepartmentData.DeleteTransaction(department, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
 
 			await _toastNotification.ShowAsync("Success", $"Transaction {department.Name} has been {(isRecover ? "recovered" : "deleted")} successfully.", ToastType.Success);
 			ResetPage();

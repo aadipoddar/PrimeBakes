@@ -155,7 +155,7 @@ public partial class FinancialAccountingPage
 			Remarks = string.Empty,
 			CreatedBy = _user.Id,
 			CreatedAt = DateTime.Now,
-			CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform(),
+			CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService),
 			Status = true,
 			LastModifiedAt = null,
 			LastModifiedBy = null,
@@ -553,8 +553,8 @@ public partial class FinancialAccountingPage
 		_accounting.TransactionDateTime = DateOnly.FromDateTime(_accounting.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
 		_accounting.CreatedAt = currentDateTime;
 		_accounting.LastModifiedAt = currentDateTime;
-		_accounting.CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
-		_accounting.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
+		_accounting.CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
+		_accounting.LastModifiedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
 		_accounting.CreatedBy = _user.Id;
 		_accounting.LastModifiedBy = _user.Id;
 	}

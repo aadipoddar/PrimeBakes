@@ -96,7 +96,7 @@ public partial class RawMaterialStockDetailReport : IAsyncDisposable
 				TableName = InventoryRouteNames.RawMaterialStockDetailReport,
 				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 				CreatedBy = _user.Id,
-				CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform()
+				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
 			});
 
 			_stockDetails = [.. _stockDetails.OrderBy(d => d.TransactionDateTime).ThenBy(d => d.RawMaterialName)];
@@ -164,7 +164,7 @@ public partial class RawMaterialStockDetailReport : IAsyncDisposable
 
 			await _toastNotification.ShowAsync("Processing", "Deleting transaction...", ToastType.Info);
 
-			await RawMaterialStockData.DeleteRawMaterialStockAdjustment(id, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+			await RawMaterialStockData.DeleteRawMaterialStockAdjustment(id, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
 
 			await _toastNotification.ShowAsync("Success", $"Transaction {transactionNo} has been deleted successfully.", ToastType.Success);
 		}
@@ -200,7 +200,7 @@ public partial class RawMaterialStockDetailReport : IAsyncDisposable
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue),
 				deleteAdjustments,
 				_user.Id,
-				FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+				await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
 
 			await _toastNotification.ShowAsync("Success", "Stock has been recalculated successfully.", ToastType.Success);
 		}

@@ -202,7 +202,7 @@ public partial class StockTransferPage
 			Remarks = null,
 			FinancialAccountingId = null,
 			CreatedAt = DateTime.Now,
-			CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform(),
+			CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService),
 			Status = true,
 			LastModifiedAt = null,
 			LastModifiedBy = null,
@@ -871,8 +871,8 @@ public partial class StockTransferPage
 		_stockTransfer.Status = true;
 		_stockTransfer.TransactionDateTime = DateOnly.FromDateTime(_stockTransfer.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
 		_stockTransfer.LastModifiedAt = currentDateTime;
-		_stockTransfer.CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
-		_stockTransfer.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
+		_stockTransfer.CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
+		_stockTransfer.LastModifiedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
 		_stockTransfer.CreatedBy = _user.Id;
 		_stockTransfer.LastModifiedBy = _user.Id;
 	}

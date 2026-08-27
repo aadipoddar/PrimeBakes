@@ -204,7 +204,7 @@ public partial class SaleReturnPage
 			Remarks = null,
 			FinancialAccountingId = null,
 			CreatedAt = DateTime.Now,
-			CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform(),
+			CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService),
 			Status = true,
 			LastModifiedAt = null,
 			LastModifiedBy = null,
@@ -957,8 +957,8 @@ public partial class SaleReturnPage
 		_saleReturn.Status = true;
 		_saleReturn.TransactionDateTime = DateOnly.FromDateTime(_saleReturn.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
 		_saleReturn.LastModifiedAt = currentDateTime;
-		_saleReturn.CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
-		_saleReturn.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
+		_saleReturn.CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
+		_saleReturn.LastModifiedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
 		_saleReturn.CreatedBy = _user.Id;
 		_saleReturn.LastModifiedBy = _user.Id;
 	}

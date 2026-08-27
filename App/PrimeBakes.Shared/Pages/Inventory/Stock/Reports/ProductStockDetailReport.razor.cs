@@ -108,7 +108,7 @@ public partial class ProductStockDetailReport : IAsyncDisposable
 				TableName = InventoryRouteNames.ProductStockDetailReport,
 				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 				CreatedBy = _user.Id,
-				CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform()
+				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
 			});
 
 			_stockDetails = [.. _stockDetails
@@ -184,7 +184,7 @@ public partial class ProductStockDetailReport : IAsyncDisposable
 
 			await _toastNotification.ShowAsync("Processing", "Deleting transaction...", ToastType.Info);
 
-			await ProductStockData.DeleteProductStockAdjustment(id, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+			await ProductStockData.DeleteProductStockAdjustment(id, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
 
 			await _toastNotification.ShowAsync("Success", $"Transaction {transactionNo} has been deleted successfully.", ToastType.Success);
 		}
@@ -221,7 +221,7 @@ public partial class ProductStockDetailReport : IAsyncDisposable
 				_selectedLocation.Id,
 				deleteAdjustments,
 				_user.Id,
-				FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+				await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
 
 			await _toastNotification.ShowAsync("Success", "Stock has been recalculated successfully.", ToastType.Success);
 		}

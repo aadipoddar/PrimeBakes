@@ -123,7 +123,7 @@ public partial class SaleReturnReport : IAsyncDisposable
 				TableName = StoreRouteNames.SaleReturnReport,
 				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 				CreatedBy = _user.Id,
-				CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform()
+				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
 			});
 
 			await ApplyFilters();
@@ -264,7 +264,7 @@ public partial class SaleReturnReport : IAsyncDisposable
 			saleReturn.Status = isRecover;
 			saleReturn.LastModifiedBy = _user.Id;
 			saleReturn.LastModifiedAt = await CommonData.LoadCurrentDateTime();
-			saleReturn.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
+			saleReturn.LastModifiedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
 
 			if (isRecover) await SaleReturnData.RecoverTransaction(saleReturn);
 			else await SaleReturnData.DeleteTransaction(saleReturn);

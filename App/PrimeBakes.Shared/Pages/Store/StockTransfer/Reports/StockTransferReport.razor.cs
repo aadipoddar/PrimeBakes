@@ -120,7 +120,7 @@ public partial class StockTransferReport : IAsyncDisposable
 				TableName = StoreRouteNames.StockTransferReport,
 				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 				CreatedBy = _user.Id,
-				CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform()
+				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
 			});
 
 			await ApplyFilters();
@@ -261,7 +261,7 @@ public partial class StockTransferReport : IAsyncDisposable
 			stockTransfer.Status = isRecover;
 			stockTransfer.LastModifiedBy = _user.Id;
 			stockTransfer.LastModifiedAt = await CommonData.LoadCurrentDateTime();
-			stockTransfer.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
+			stockTransfer.LastModifiedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
 
 			if (isRecover)
 				await StockTransferData.RecoverTransaction(stockTransfer);

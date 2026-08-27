@@ -168,7 +168,7 @@ public partial class OutletSummaryReport : IAsyncDisposable
 			TableName = StoreRouteNames.OutletSummaryReport,
 			RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 			CreatedBy = _user.Id,
-			CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform()
+			CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
 		});
 	}
 

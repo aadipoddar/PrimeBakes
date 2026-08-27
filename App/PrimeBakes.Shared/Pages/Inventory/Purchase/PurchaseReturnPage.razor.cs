@@ -183,7 +183,7 @@ public partial class PurchaseReturnPage
 			TotalAmount = 0,
 			Remarks = null,
 			CreatedAt = DateTime.Now,
-			CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform(),
+			CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService),
 			Status = true,
 			LastModifiedAt = null,
 			LastModifiedBy = null,
@@ -668,8 +668,8 @@ public partial class PurchaseReturnPage
 		_purchaseReturn.Status = true;
 		_purchaseReturn.TransactionDateTime = DateOnly.FromDateTime(_purchaseReturn.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
 		_purchaseReturn.LastModifiedAt = currentDateTime;
-		_purchaseReturn.CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
-		_purchaseReturn.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
+		_purchaseReturn.CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
+		_purchaseReturn.LastModifiedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
 		_purchaseReturn.CreatedBy = _user.Id;
 		_purchaseReturn.LastModifiedBy = _user.Id;
 	}

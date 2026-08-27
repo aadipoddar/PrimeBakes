@@ -33,6 +33,7 @@ builder.Services.AddSingleton<INotificationService, NotificationService>();
 
 builder.Services.AddScoped<ISaveAndViewService, SaveAndViewService>();
 builder.Services.AddScoped<ISoundService, SoundService>();
+builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IDataStorageService, DataStorageService>();
 builder.Services.AddScoped<IThermalPrintDispatcher, ThermalPrintDispatcher>();
 builder.Services.AddSingleton<IBluetoothPrinterService, NullBluetoothPrinterService>();

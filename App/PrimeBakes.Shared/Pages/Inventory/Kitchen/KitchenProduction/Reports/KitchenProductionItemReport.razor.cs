@@ -135,7 +135,7 @@ public partial class KitchenProductionItemReport : IAsyncDisposable
 				TableName = InventoryRouteNames.KitchenProductionItemReport,
 				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 				CreatedBy = _user.Id,
-				CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform()
+				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
 			});
 
 			await ApplyFilters();
@@ -300,7 +300,7 @@ public partial class KitchenProductionItemReport : IAsyncDisposable
 
 			await _toastNotification.ShowAsync("Processing", $"{(isRecover ? "Recovering" : "Deleting")} transaction...", ToastType.Info);
 
-			var platform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
+			var platform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
 			var currentDateTime = await CommonData.LoadCurrentDateTime();
 
 			var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(transactionNo, false, false);

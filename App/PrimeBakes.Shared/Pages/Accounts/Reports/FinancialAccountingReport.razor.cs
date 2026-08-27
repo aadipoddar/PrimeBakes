@@ -114,7 +114,7 @@ public partial class FinancialAccountingReport : IAsyncDisposable
 				TableName = AccountsRouteNames.FinancialAccountingReport,
 				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 				CreatedBy = _user.Id,
-				CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform()
+				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
 			});
 
 			await ApplyFilters();
@@ -206,7 +206,7 @@ public partial class FinancialAccountingReport : IAsyncDisposable
 				?? throw new Exception("Transaction not found.");
 			accounting.LastModifiedBy = _user.Id;
 			accounting.LastModifiedAt = await CommonData.LoadCurrentDateTime();
-			accounting.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
+			accounting.LastModifiedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
 
 			if (isRecover) await FinancialAccountingData.RecoverTransaction(accounting);
 			else await FinancialAccountingData.DeleteTransaction(accounting);

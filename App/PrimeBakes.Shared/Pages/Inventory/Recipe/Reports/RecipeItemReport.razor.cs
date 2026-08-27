@@ -226,7 +226,7 @@ public partial class RecipeItemReport : IAsyncDisposable
 
 			await _toastNotification.ShowAsync("Processing", "Deleting recipe...", ToastType.Info);
 
-			var platform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
+			var platform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
 
 			var recipe = await CommonData.LoadTableDataById<RecipeModel>(InventoryNames.Recipe, masterId)
 				?? throw new Exception("Recipe not found.");

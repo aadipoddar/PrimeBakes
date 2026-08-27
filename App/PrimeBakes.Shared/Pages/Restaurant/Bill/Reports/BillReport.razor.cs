@@ -128,7 +128,7 @@ public partial class BillReport : IAsyncDisposable
 				TableName = RestaurantRouteNames.BillReport,
 				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 				CreatedBy = _user.Id,
-				CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform()
+				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
 			});
 
 			await ApplyFilters();
@@ -251,7 +251,7 @@ public partial class BillReport : IAsyncDisposable
 					date,
 					_selectedLocation.Id,
 					_user.Id,
-					FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+					await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
 
 			await _toastNotification.ShowAsync("Success", "Day closing completed successfully.", ToastType.Success);
 		}
@@ -320,7 +320,7 @@ public partial class BillReport : IAsyncDisposable
 
 			await _toastNotification.ShowAsync("Processing", $"{(isRecover ? "Recovering" : "Deleting")} transaction...", ToastType.Info);
 
-			var platform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
+			var platform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
 
 			var bill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, record.Id)
 				?? throw new Exception("Transaction not found.");

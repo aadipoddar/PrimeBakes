@@ -90,7 +90,7 @@ public partial class LocationPage
 			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
 
 			_location.LedgerId = _selectedLedger?.Id ?? 0;
-			await LocationData.SaveTransaction(_location, _copyLocation, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+			await LocationData.SaveTransaction(_location, _copyLocation, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
 			ResetPage();
@@ -141,8 +141,8 @@ public partial class LocationPage
 			var location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, id)
 				?? throw new Exception("Transaction not found.");
 
-			if (isRecover) await LocationData.RecoverTransaction(location, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
-			else await LocationData.DeleteTransaction(location, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+			if (isRecover) await LocationData.RecoverTransaction(location, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+			else await LocationData.DeleteTransaction(location, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
 
 			await _toastNotification.ShowAsync("Success", $"Transaction {location.Name} has been {(isRecover ? "recovered" : "deleted")} successfully.", ToastType.Success);
 			ResetPage();

@@ -70,7 +70,7 @@ public partial class CustomerPage
 
 			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			await CustomerData.SaveTransaction(_customer, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+			await CustomerData.SaveTransaction(_customer, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
 			ResetPage();

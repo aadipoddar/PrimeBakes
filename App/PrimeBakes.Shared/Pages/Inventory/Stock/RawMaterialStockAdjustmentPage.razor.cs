@@ -274,7 +274,7 @@ public partial class RawMaterialStockAdjustmentPage
 
 			await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			await RawMaterialStockData.SaveRawMaterialStockAdjustment(_transactionDateTime, _cart, _user.Id, FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+			await RawMaterialStockData.SaveRawMaterialStockAdjustment(_transactionDateTime, _cart, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
 
 			await _toastNotification.ShowAsync("Save Transaction", "Transaction saved successfully.", ToastType.Success);
 			await ResetPage();

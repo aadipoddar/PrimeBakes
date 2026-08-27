@@ -167,7 +167,7 @@ public partial class KitchenIssueReturnPage
 			TotalAmount = 0,
 			Remarks = null,
 			CreatedAt = DateTime.Now,
-			CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform(),
+			CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService),
 			Status = true,
 			LastModifiedAt = null,
 			LastModifiedBy = null,
@@ -454,8 +454,8 @@ public partial class KitchenIssueReturnPage
 		_kitchenIssueReturn.Status = true;
 		_kitchenIssueReturn.TransactionDateTime = DateOnly.FromDateTime(_kitchenIssueReturn.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
 		_kitchenIssueReturn.LastModifiedAt = currentDateTime;
-		_kitchenIssueReturn.CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
-		_kitchenIssueReturn.LastModifiedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform();
+		_kitchenIssueReturn.CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
+		_kitchenIssueReturn.LastModifiedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
 		_kitchenIssueReturn.CreatedBy = _user.Id;
 		_kitchenIssueReturn.LastModifiedBy = _user.Id;
 	}

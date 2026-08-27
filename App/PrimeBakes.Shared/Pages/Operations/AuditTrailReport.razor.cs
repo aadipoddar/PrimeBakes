@@ -96,7 +96,7 @@ public partial class AuditTrailReport : IAsyncDisposable
 				TableName = OperationRouteNames.AuditTrailReport,
 				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 				CreatedBy = _user.Id,
-				CreatedFromPlatform = FormFactor.GetFormFactor() + FormFactor.GetPlatform()
+				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
 			});
 
 			_auditTrails = [.. _auditTrails.OrderByDescending(_ => _.TransactionDateTime)];
@@ -181,7 +181,7 @@ public partial class AuditTrailReport : IAsyncDisposable
 			await _toastNotification.ShowAsync("Processing", "Deleting audit trail records...", ToastType.Info);
 
 			var deleted = await AuditTrailData.DeleteAuditTrailByDate(_fromDate, _toDate, _user.Id,
-				FormFactor.GetFormFactor() + FormFactor.GetPlatform());
+				await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
 
 			await _toastNotification.ShowAsync("Deleted", $"{deleted} audit trail records have been deleted successfully.", ToastType.Success);
 			await LoadAuditTrails();
