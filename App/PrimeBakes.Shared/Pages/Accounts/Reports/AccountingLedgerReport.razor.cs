@@ -86,16 +86,15 @@ public partial class AccountingLedgerReport : IAsyncDisposable
 
 	private async Task LoadData()
 	{
-		_fromDate = await CommonData.LoadCurrentDateTime();
-		_toDate = _fromDate;
+		var currentDateTime = CommonData.LoadCurrentDateTime();
+		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+		var vouchers = CommonData.LoadTableDataByStatus<VoucherModel>(AccountNames.Voucher);
+		var ledgers = CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
 
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-		_vouchers = await CommonData.LoadTableDataByStatus<VoucherModel>(AccountNames.Voucher);
-		_ledgers = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
-
-		_companies = [.. _companies.OrderBy(s => s.Name)];
-		_vouchers = [.. _vouchers.OrderBy(s => s.Name)];
-		_ledgers = [.. _ledgers.OrderBy(s => s.Name)];
+		_fromDate = _toDate = await currentDateTime;
+		_companies = [.. (await companies).OrderBy(s => s.Name)];
+		_vouchers = [.. (await vouchers).OrderBy(s => s.Name)];
+		_ledgers = [.. (await ledgers).OrderBy(s => s.Name)];
 	}
 
 	private async Task LoadTransactionOverviews()

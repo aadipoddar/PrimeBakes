@@ -106,16 +106,15 @@ public partial class SaleReport : IAsyncDisposable
 
 	private async Task LoadData()
 	{
-		_fromDate = await CommonData.LoadCurrentDateTime();
-		_toDate = _fromDate;
+		var currentDateTime = CommonData.LoadCurrentDateTime();
+		var locations = CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
+		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+		var parties = CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
 
-		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-		_parties = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
-
-		_locations = [.. _locations.OrderBy(s => s.Name)];
-		_companies = [.. _companies.OrderBy(s => s.Name)];
-		_parties = [.. _parties.OrderBy(s => s.Name)];
+		_fromDate = _toDate = await currentDateTime;
+		_locations = [.. (await locations).OrderBy(s => s.Name)];
+		_companies = [.. (await companies).OrderBy(s => s.Name)];
+		_parties = [.. (await parties).OrderBy(s => s.Name)];
 
 		_selectedLocation = _user.LocationId != 1 ? _locations.FirstOrDefault(s => s.Id == _user.LocationId) : null;
 		_cocoLocations = [.. _locations.Where(l => l.COCO)];
@@ -136,10 +135,15 @@ public partial class SaleReport : IAsyncDisposable
 			var fromDate = DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue);
 			var toDate = DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue);
 
-			_allTransactionOverviews = await CommonData.LoadTableDataByDate<SaleOverviewModel>(StoreNames.SaleOverview, fromDate, toDate);
-			_allReturnOverviews = await CommonData.LoadTableDataByDate<SaleReturnOverviewModel>(StoreNames.SaleReturnOverview, fromDate, toDate);
-			_allTransferOverviews = await CommonData.LoadTableDataByDate<StockTransferOverviewModel>(StoreNames.StockTransferOverview, fromDate, toDate);
-			_allBillOverviews = await CommonData.LoadTableDataByDate<BillOverviewModel>(RestaurantNames.BillOverview, fromDate, toDate);
+			var allTransactionOverviews = CommonData.LoadTableDataByDate<SaleOverviewModel>(StoreNames.SaleOverview, fromDate, toDate);
+			var allReturnOverviews = CommonData.LoadTableDataByDate<SaleReturnOverviewModel>(StoreNames.SaleReturnOverview, fromDate, toDate);
+			var allTransferOverviews = CommonData.LoadTableDataByDate<StockTransferOverviewModel>(StoreNames.StockTransferOverview, fromDate, toDate);
+			var allBillOverviews = CommonData.LoadTableDataByDate<BillOverviewModel>(RestaurantNames.BillOverview, fromDate, toDate);
+
+			_allTransactionOverviews = await allTransactionOverviews;
+			_allReturnOverviews = await allReturnOverviews;
+			_allTransferOverviews = await allTransferOverviews;
+			_allBillOverviews = await allBillOverviews;
 
 			await AuditTrailData.SaveAuditTrail(new()
 			{

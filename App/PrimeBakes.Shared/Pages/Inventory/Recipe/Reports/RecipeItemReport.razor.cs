@@ -86,16 +86,15 @@ public partial class RecipeItemReport : IAsyncDisposable
 
 	private async Task LoadData()
 	{
-		_costAsOnDateTime = await CommonData.LoadCurrentDateTime();
-		_effectiveDateTime = _costAsOnDateTime;
+		var currentDateTime = CommonData.LoadCurrentDateTime();
+		var rawMaterials = PurchaseData.LoadRawMaterialByPartyPurchaseDateTime(0, _costAsOnDateTime);
+		var rawMaterialCategories = CommonData.LoadTableDataByStatus<RawMaterialCategoryModel>(InventoryNames.RawMaterialCategory);
+		var products = CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product);
 
-		_rawMaterials = await PurchaseData.LoadRawMaterialByPartyPurchaseDateTime(0, _costAsOnDateTime);
-		_rawMaterialCategories = await CommonData.LoadTableDataByStatus<RawMaterialCategoryModel>(InventoryNames.RawMaterialCategory);
-		_products = await CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product);
-
-		_rawMaterials = [.. _rawMaterials.OrderBy(r => r.Name)];
-		_rawMaterialCategories = [.. _rawMaterialCategories.OrderBy(c => c.Name)];
-		_products = [.. _products.OrderBy(p => p.Name)];
+		_costAsOnDateTime = _effectiveDateTime = await currentDateTime;
+		_rawMaterials = [.. (await rawMaterials).OrderBy(r => r.Name)];
+		_rawMaterialCategories = [.. (await rawMaterialCategories).OrderBy(c => c.Name)];
+		_products = [.. (await products).OrderBy(p => p.Name)];
 	}
 
 	private async Task LoadItemOverviews()

@@ -93,18 +93,17 @@ public partial class PurchaseOrderItemReport : IAsyncDisposable
 
 	private async Task LoadData()
 	{
-		_fromDate = await CommonData.LoadCurrentDateTime();
-		_toDate = _fromDate;
+		var currentDateTime = CommonData.LoadCurrentDateTime();
+		var rawMaterials = CommonData.LoadTableDataByStatus<RawMaterialModel>(InventoryNames.RawMaterial);
+		var rawMaterialCategories = CommonData.LoadTableDataByStatus<RawMaterialCategoryModel>(InventoryNames.RawMaterialCategory);
+		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+		var parties = CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
 
-		_rawMaterials = await CommonData.LoadTableDataByStatus<RawMaterialModel>(InventoryNames.RawMaterial);
-		_rawMaterialCategories = await CommonData.LoadTableDataByStatus<RawMaterialCategoryModel>(InventoryNames.RawMaterialCategory);
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-		_parties = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
-
-		_rawMaterials = [.. _rawMaterials.OrderBy(s => s.Name)];
-		_rawMaterialCategories = [.. _rawMaterialCategories.OrderBy(s => s.Name)];
-		_companies = [.. _companies.OrderBy(s => s.Name)];
-		_parties = [.. _parties.OrderBy(s => s.Name)];
+		_fromDate = _toDate = await currentDateTime;
+		_rawMaterials = [.. (await rawMaterials).OrderBy(s => s.Name)];
+		_rawMaterialCategories = [.. (await rawMaterialCategories).OrderBy(s => s.Name)];
+		_companies = [.. (await companies).OrderBy(s => s.Name)];
+		_parties = [.. (await parties).OrderBy(s => s.Name)];
 	}
 
 	private async Task LoadTransactionOverviews()

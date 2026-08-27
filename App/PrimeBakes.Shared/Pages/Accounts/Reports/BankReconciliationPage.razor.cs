@@ -88,16 +88,15 @@ public partial class BankReconciliationPage : IAsyncDisposable
 
 	private async Task LoadData()
 	{
-		_fromDate = await CommonData.LoadCurrentDateTime();
-		_toDate = _fromDate;
+		var currentDateTime = CommonData.LoadCurrentDateTime();
+		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+		var accountTypes = CommonData.LoadTableDataByStatus<AccountTypeModel>(AccountNames.AccountType);
+		var ledgers = CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
 
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-		_accountTypes = await CommonData.LoadTableDataByStatus<AccountTypeModel>(AccountNames.AccountType);
-		_ledgers = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
-
-		_companies = [.. _companies.OrderBy(s => s.Name)];
-		_accountTypes = [.. _accountTypes.OrderBy(s => s.Name)];
-		_ledgers = [.. _ledgers.OrderBy(s => s.Name)];
+		_fromDate = _toDate = await currentDateTime;
+		_companies = [.. (await companies).OrderBy(s => s.Name)];
+		_accountTypes = [.. (await accountTypes).OrderBy(s => s.Name)];
+		_ledgers = [.. (await ledgers).OrderBy(s => s.Name)];
 
 		// Default the Type filter to the configured bank account type (soft).
 		var bankTypeSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.BankAccountTypeId);

@@ -65,8 +65,7 @@ public partial class RecipeReport : IAsyncDisposable
 
 	private async Task InitializePage()
 	{
-		_effectiveDateTime = await CommonData.LoadCurrentDateTime();
-		_costAsOnDateTime = _effectiveDateTime;
+		_effectiveDateTime = _costAsOnDateTime = await CommonData.LoadCurrentDateTime();
 
 		await LoadTransactionOverviews();
 		await StartAutoRefresh();
@@ -86,9 +85,13 @@ public partial class RecipeReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Loading", "Fetching recipes...", ToastType.Info);
 
-			_allRecipeOverviews = await CommonData.LoadTableData<RecipeOverviewModel>(InventoryNames.RecipeOverview);
-			_recipeDetails = await CommonData.LoadTableDataByStatus<RecipeDetailModel>(InventoryNames.RecipeDetail);
-			_rawMaterials = await PurchaseData.LoadRawMaterialByPartyPurchaseDateTime(0, _costAsOnDateTime);
+			var allRecipeOverviews = CommonData.LoadTableData<RecipeOverviewModel>(InventoryNames.RecipeOverview);
+			var recipeDetails = CommonData.LoadTableDataByStatus<RecipeDetailModel>(InventoryNames.RecipeDetail);
+			var rawMaterials = PurchaseData.LoadRawMaterialByPartyPurchaseDateTime(0, _costAsOnDateTime);
+
+			_allRecipeOverviews = await allRecipeOverviews;
+			_recipeDetails = await recipeDetails;
+			_rawMaterials = await rawMaterials;
 
 			await ApplyFilters();
 		}

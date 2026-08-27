@@ -62,8 +62,7 @@ public partial class RawMaterialStockDetailReport : IAsyncDisposable
 
 	private async Task InitializePage()
 	{
-		_fromDate = await CommonData.LoadCurrentDateTime();
-		_toDate = _fromDate;
+		_fromDate = _toDate = await CommonData.LoadCurrentDateTime();
 
 		await LoadStockDetails();
 		await StartAutoRefresh();

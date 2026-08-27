@@ -91,16 +91,17 @@ public partial class KitchenIssueReturnItemReport : IAsyncDisposable
 
 	private async Task LoadData()
 	{
-		_fromDate = await CommonData.LoadCurrentDateTime();
-		_toDate = _fromDate;
+		var currentDateTime = CommonData.LoadCurrentDateTime();
+		var rawMaterials = CommonData.LoadTableDataByStatus<RawMaterialModel>(InventoryNames.RawMaterial);
+		var rawMaterialCategories = CommonData.LoadTableDataByStatus<RawMaterialCategoryModel>(InventoryNames.RawMaterialCategory);
+		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+		var kitchens = CommonData.LoadTableDataByStatus<KitchenModel>(InventoryNames.Kitchen);
 
-		_rawMaterials = await CommonData.LoadTableDataByStatus<RawMaterialModel>(InventoryNames.RawMaterial);
-		_rawMaterialCategories = await CommonData.LoadTableDataByStatus<RawMaterialCategoryModel>(InventoryNames.RawMaterialCategory);
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-		_kitchens = await CommonData.LoadTableDataByStatus<KitchenModel>(InventoryNames.Kitchen);
-
-		_companies = [.. _companies.OrderBy(s => s.Name)];
-		_kitchens = [.. _kitchens.OrderBy(s => s.Name)];
+		_fromDate = _toDate = await currentDateTime;
+		_rawMaterials = await rawMaterials;
+		_rawMaterialCategories = await rawMaterialCategories;
+		_companies = [.. (await companies).OrderBy(s => s.Name)];
+		_kitchens = [.. (await kitchens).OrderBy(s => s.Name)];
 	}
 
 	private async Task LoadTransactionOverviews()

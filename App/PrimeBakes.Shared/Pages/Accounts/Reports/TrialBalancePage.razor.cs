@@ -67,16 +67,15 @@ public partial class TrialBalancePage : IAsyncDisposable
 
 	private async Task LoadData()
 	{
-		_fromDate = await CommonData.LoadCurrentDateTime();
-		_toDate = _fromDate;
+		var currentDateTime = CommonData.LoadCurrentDateTime();
+		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+		var groups = CommonData.LoadTableDataByStatus<GroupModel>(AccountNames.Group);
+		var accountTypes = CommonData.LoadTableDataByStatus<AccountTypeModel>(AccountNames.AccountType);
 
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-		_groups = await CommonData.LoadTableDataByStatus<GroupModel>(AccountNames.Group);
-		_accountTypes = await CommonData.LoadTableDataByStatus<AccountTypeModel>(AccountNames.AccountType);
-
-		_companies = [.. _companies.OrderBy(s => s.Name)];
-		_groups = [.. _groups.OrderBy(s => s.Name)];
-		_accountTypes = [.. _accountTypes.OrderBy(s => s.Name)];
+		_fromDate = _toDate = await currentDateTime;
+		_companies = [.. (await companies).OrderBy(s => s.Name)];
+		_groups = [.. (await groups).OrderBy(s => s.Name)];
+		_accountTypes = [.. (await accountTypes).OrderBy(s => s.Name)];
 	}
 
 	private async Task LoadTrialBalance()

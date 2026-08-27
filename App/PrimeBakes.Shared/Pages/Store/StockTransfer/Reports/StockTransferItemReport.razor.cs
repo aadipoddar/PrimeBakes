@@ -92,18 +92,17 @@ public partial class StockTransferItemReport : IAsyncDisposable
 
 	private async Task LoadData()
 	{
-		_fromDate = await CommonData.LoadCurrentDateTime();
-		_toDate = _fromDate;
+		var currentDateTime = CommonData.LoadCurrentDateTime();
+		var products = CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product);
+		var productCategories = CommonData.LoadTableDataByStatus<ProductCategoryModel>(StoreNames.ProductCategory);
+		var locations = CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
+		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
 
-		_products = await CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product);
-		_productCategories = await CommonData.LoadTableDataByStatus<ProductCategoryModel>(StoreNames.ProductCategory);
-		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-
-		_products = [.. _products.OrderBy(s => s.Name)];
-		_productCategories = [.. _productCategories.OrderBy(s => s.Name)];
-		_locations = [.. _locations.OrderBy(s => s.Name)];
-		_companies = [.. _companies.OrderBy(s => s.Name)];
+		_fromDate = _toDate = await currentDateTime;
+		_products = [.. (await products).OrderBy(s => s.Name)];
+		_productCategories = [.. (await productCategories).OrderBy(s => s.Name)];
+		_locations = [.. (await locations).OrderBy(s => s.Name)];
+		_companies = [.. (await companies).OrderBy(s => s.Name)];
 
 		_selectedLocation = _user.LocationId != 1 ? _locations.FirstOrDefault(s => s.Id == _user.LocationId) : null;
 	}

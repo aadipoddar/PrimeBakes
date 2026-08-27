@@ -83,8 +83,7 @@ public partial class KitchenSummaryReport : IAsyncDisposable
 
 	private async Task LoadDates()
 	{
-		_fromDate = await CommonData.LoadCurrentDateTime();
-		_toDate = _fromDate;
+		_fromDate = _toDate = await CommonData.LoadCurrentDateTime();
 	}
 
 	private async Task LoadCompanies()
@@ -130,10 +129,15 @@ public partial class KitchenSummaryReport : IAsyncDisposable
 		var fromDate = DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue);
 		var toDate = DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue);
 
-		_kitchenIssue = await CommonData.LoadTableDataByDate<KitchenIssueOverviewModel>(InventoryNames.KitchenIssueOverview, fromDate, toDate);
-		_kitchenIssueReturn = await CommonData.LoadTableDataByDate<KitchenIssueReturnOverviewModel>(InventoryNames.KitchenIssueReturnOverview, fromDate, toDate);
-		_kitchenProduction = await CommonData.LoadTableDataByDate<KitchenProductionOverviewModel>(InventoryNames.KitchenProductionOverview, fromDate, toDate);
-		_kitchenProductionReturn = await CommonData.LoadTableDataByDate<KitchenProductionReturnOverviewModel>(InventoryNames.KitchenProductionReturnOverview, fromDate, toDate);
+		var kitchenIssue = CommonData.LoadTableDataByDate<KitchenIssueOverviewModel>(InventoryNames.KitchenIssueOverview, fromDate, toDate);
+		var kitchenIssueReturn = CommonData.LoadTableDataByDate<KitchenIssueReturnOverviewModel>(InventoryNames.KitchenIssueReturnOverview, fromDate, toDate);
+		var kitchenProduction = CommonData.LoadTableDataByDate<KitchenProductionOverviewModel>(InventoryNames.KitchenProductionOverview, fromDate, toDate);
+		var kitchenProductionReturn = CommonData.LoadTableDataByDate<KitchenProductionReturnOverviewModel>(InventoryNames.KitchenProductionReturnOverview, fromDate, toDate);
+
+		_kitchenIssue = await kitchenIssue;
+		_kitchenIssueReturn = await kitchenIssueReturn;
+		_kitchenProduction = await kitchenProduction;
+		_kitchenProductionReturn = await kitchenProductionReturn;
 
 		await AuditTrailData.SaveAuditTrail(new()
 		{

@@ -92,14 +92,13 @@ public partial class PurchaseReport : IAsyncDisposable
 
 	private async Task LoadData()
 	{
-		_fromDate = await CommonData.LoadCurrentDateTime();
-		_toDate = _fromDate;
+		var currentDateTime = CommonData.LoadCurrentDateTime();
+		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+		var parties = CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
 
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-		_parties = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
-
-		_companies = [.. _companies.OrderBy(s => s.Name)];
-		_parties = [.. _parties.OrderBy(s => s.Name)];
+		_fromDate = _toDate = await currentDateTime;
+		_companies = [.. (await companies).OrderBy(s => s.Name)];
+		_parties = [.. (await parties).OrderBy(s => s.Name)];
 	}
 
 	private async Task LoadTransactionOverviews()
@@ -113,15 +112,17 @@ public partial class PurchaseReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
-			_allTransactionOverviews = await CommonData.LoadTableDataByDate<PurchaseOverviewModel>(
+			var allTransactionOverviews = CommonData.LoadTableDataByDate<PurchaseOverviewModel>(
 				InventoryNames.PurchaseOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
-
-			_allTransactionReturnOverviews = await CommonData.LoadTableDataByDate<PurchaseReturnOverviewModel>(
+			var allTransactionReturnOverviews = CommonData.LoadTableDataByDate<PurchaseReturnOverviewModel>(
 				InventoryNames.PurchaseReturnOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
+
+			_allTransactionOverviews = await allTransactionOverviews;
+			_allTransactionReturnOverviews = await allTransactionReturnOverviews;
 
 			await AuditTrailData.SaveAuditTrail(new()
 			{

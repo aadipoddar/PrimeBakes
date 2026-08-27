@@ -79,8 +79,7 @@ public partial class ProductStockDetailReport : IAsyncDisposable
 
 	private async Task LoadData()
 	{
-		_fromDate = await CommonData.LoadCurrentDateTime();
-		_toDate = _fromDate;
+		_fromDate = _toDate = await CommonData.LoadCurrentDateTime();
 
 		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
 		_locations = [.. _locations.OrderBy(l => l.Name)];

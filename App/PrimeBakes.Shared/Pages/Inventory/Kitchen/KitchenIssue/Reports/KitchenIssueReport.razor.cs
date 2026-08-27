@@ -88,14 +88,13 @@ public partial class KitchenIssueReport : IAsyncDisposable
 
 	private async Task LoadData()
 	{
-		_fromDate = await CommonData.LoadCurrentDateTime();
-		_toDate = _fromDate;
+		var currentDateTime = CommonData.LoadCurrentDateTime();
+		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+		var kitchens = CommonData.LoadTableDataByStatus<KitchenModel>(InventoryNames.Kitchen);
 
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-		_kitchens = await CommonData.LoadTableDataByStatus<KitchenModel>(InventoryNames.Kitchen);
-
-		_companies = [.. _companies.OrderBy(s => s.Name)];
-		_kitchens = [.. _kitchens.OrderBy(s => s.Name)];
+		_fromDate = _toDate = await currentDateTime;
+		_companies = [.. (await companies).OrderBy(s => s.Name)];
+		_kitchens = [.. (await kitchens).OrderBy(s => s.Name)];
 	}
 
 	private async Task LoadTransactionOverviews()
@@ -109,15 +108,17 @@ public partial class KitchenIssueReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
-			_allTransactionOverviews = await CommonData.LoadTableDataByDate<KitchenIssueOverviewModel>(
+			var allTransactionOverviews = CommonData.LoadTableDataByDate<KitchenIssueOverviewModel>(
 				InventoryNames.KitchenIssueOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
-
-			_allTransactionReturnOverviews = await CommonData.LoadTableDataByDate<KitchenIssueReturnOverviewModel>(
+			var allTransactionReturnOverviews = CommonData.LoadTableDataByDate<KitchenIssueReturnOverviewModel>(
 				InventoryNames.KitchenIssueReturnOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
+
+			_allTransactionOverviews = await allTransactionOverviews;
+			_allTransactionReturnOverviews = await allTransactionReturnOverviews;
 
 			await AuditTrailData.SaveAuditTrail(new()
 			{

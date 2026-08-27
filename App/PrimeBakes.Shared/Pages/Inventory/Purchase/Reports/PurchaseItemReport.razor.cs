@@ -97,18 +97,17 @@ public partial class PurchaseItemReport : IAsyncDisposable
 
 	private async Task LoadData()
 	{
-		_fromDate = await CommonData.LoadCurrentDateTime();
-		_toDate = _fromDate;
+		var currentDateTime = CommonData.LoadCurrentDateTime();
+		var rawMaterials = CommonData.LoadTableDataByStatus<RawMaterialModel>(InventoryNames.RawMaterial);
+		var rawMaterialCategories = CommonData.LoadTableDataByStatus<RawMaterialCategoryModel>(InventoryNames.RawMaterialCategory);
+		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+		var parties = CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
 
-		_rawMaterials = await CommonData.LoadTableDataByStatus<RawMaterialModel>(InventoryNames.RawMaterial);
-		_rawMaterialCategories = await CommonData.LoadTableDataByStatus<RawMaterialCategoryModel>(InventoryNames.RawMaterialCategory);
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-		_parties = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
-
-		_rawMaterials = [.. _rawMaterials.OrderBy(s => s.Name)];
-		_rawMaterialCategories = [.. _rawMaterialCategories.OrderBy(s => s.Name)];
-		_companies = [.. _companies.OrderBy(s => s.Name)];
-		_parties = [.. _parties.OrderBy(s => s.Name)];
+		_fromDate = _toDate = await currentDateTime;
+		_rawMaterials = [.. (await rawMaterials).OrderBy(s => s.Name)];
+		_rawMaterialCategories = [.. (await rawMaterialCategories).OrderBy(s => s.Name)];
+		_companies = [.. (await companies).OrderBy(s => s.Name)];
+		_parties = [.. (await parties).OrderBy(s => s.Name)];
 	}
 
 	private async Task LoadTransactionOverviews()
@@ -122,15 +121,17 @@ public partial class PurchaseItemReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
-			_allTransactionOverviews = await CommonData.LoadTableDataByDate<PurchaseItemOverviewModel>(
+			var allTransactionOverviews = CommonData.LoadTableDataByDate<PurchaseItemOverviewModel>(
 				InventoryNames.PurchaseItemOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
-
-			_allTransactionReturnOverviews = await CommonData.LoadTableDataByDate<PurchaseReturnItemOverviewModel>(
+			var allTransactionReturnOverviews = CommonData.LoadTableDataByDate<PurchaseReturnItemOverviewModel>(
 				InventoryNames.PurchaseReturnItemOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
+
+			_allTransactionOverviews = await allTransactionOverviews;
+			_allTransactionReturnOverviews = await allTransactionReturnOverviews;
 
 			await AuditTrailData.SaveAuditTrail(new()
 			{

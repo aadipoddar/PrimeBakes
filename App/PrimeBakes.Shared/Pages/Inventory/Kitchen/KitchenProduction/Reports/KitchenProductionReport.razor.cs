@@ -88,14 +88,13 @@ public partial class KitchenProductionReport : IAsyncDisposable
 
 	private async Task LoadData()
 	{
-		_fromDate = await CommonData.LoadCurrentDateTime();
-		_toDate = _fromDate;
+		var currentDateTime = CommonData.LoadCurrentDateTime();
+		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+		var kitchens = CommonData.LoadTableDataByStatus<KitchenModel>(InventoryNames.Kitchen);
 
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-		_kitchens = await CommonData.LoadTableDataByStatus<KitchenModel>(InventoryNames.Kitchen);
-
-		_companies = [.. _companies.OrderBy(s => s.Name)];
-		_kitchens = [.. _kitchens.OrderBy(s => s.Name)];
+		_fromDate = _toDate = await currentDateTime;
+		_companies = [.. (await companies).OrderBy(s => s.Name)];
+		_kitchens = [.. (await kitchens).OrderBy(s => s.Name)];
 	}
 
 	private async Task LoadTransactionOverviews()
@@ -109,15 +108,17 @@ public partial class KitchenProductionReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
-			_allTransactionOverviews = await CommonData.LoadTableDataByDate<KitchenProductionOverviewModel>(
+			var allTransactionOverviews = CommonData.LoadTableDataByDate<KitchenProductionOverviewModel>(
 				InventoryNames.KitchenProductionOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
-
-			_allTransactionReturnOverviews = await CommonData.LoadTableDataByDate<KitchenProductionReturnOverviewModel>(
+			var allTransactionReturnOverviews = CommonData.LoadTableDataByDate<KitchenProductionReturnOverviewModel>(
 				InventoryNames.KitchenProductionReturnOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
+
+			_allTransactionOverviews = await allTransactionOverviews;
+			_allTransactionReturnOverviews = await allTransactionReturnOverviews;
 
 			await AuditTrailData.SaveAuditTrail(new()
 			{

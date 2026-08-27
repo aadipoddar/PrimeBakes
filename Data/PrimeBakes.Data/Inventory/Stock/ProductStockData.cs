@@ -48,21 +48,33 @@ public static class ProductStockData
 	{
 		var daysInPeriod = Math.Max(1, (ToDate.Date - FromDate.Date).Days + 1);
 
-		var products = await CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product);
-		var productCategories = await CommonData.LoadTableDataByStatus<ProductCategoryModel>(StoreNames.ProductCategory);
-		var productLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(LocationId: LocationId, Date: DateOnly.FromDateTime(ToDate.Date));
-		var location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, LocationId);
+		var productsTask = CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product);
+		var productCategoriesTask = CommonData.LoadTableDataByStatus<ProductCategoryModel>(StoreNames.ProductCategory);
+		var productLocationsTask = ProductLocationData.LoadProductLocationOverviewByProductLocationDate(LocationId: LocationId, Date: DateOnly.FromDateTime(ToDate.Date));
+		var locationTask = CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, LocationId);
+		var stockTask = CommonData.LoadTableDataByDate<ProductStockModel>(InventoryNames.ProductStock, FromDate, ToDate);
+		var openingStockTask = LoadProductOpeningStockByDateLocationId(FromDate.Date, LocationId);
+		var closingStockTask = LoadProductOpeningStockByDateLocationId(ToDate.Date.AddDays(1), LocationId);
 
-		var stock = (await CommonData.LoadTableDataByDate<ProductStockModel>(InventoryNames.ProductStock, FromDate, ToDate))
-			.Where(s => s.LocationId == LocationId).ToList();
-		var openingStock = await LoadProductOpeningStockByDateLocationId(FromDate.Date, LocationId);
-		var closingStock = await LoadProductOpeningStockByDateLocationId(ToDate.Date.AddDays(1), LocationId);
+		var products = await productsTask;
+		var productCategories = await productCategoriesTask;
+		var productLocations = await productLocationsTask;
+		var location = await locationTask;
+		var stock = (await stockTask).Where(s => s.LocationId == LocationId).ToList();
+		var openingStock = await openingStockTask;
+		var closingStock = await closingStockTask;
+
+		var stockByProduct = stock.ToLookup(s => s.ProductId);
+		var openingByProduct = openingStock.ToLookup(s => s.ProductId);
+		var closingByProduct = closingStock.ToLookup(s => s.ProductId);
+		var productLocationByProduct = productLocations.ToLookup(l => l.ProductId);
+		var categoryById = productCategories.ToLookup(c => c.Id);
 
 		List<ProductStockSummaryModel> summary = [];
 		foreach (var item in products)
 		{
-			var itemStock = stock.Where(s => s.ProductId == item.Id).ToList();
-			var rate = productLocations.FirstOrDefault(l => l.ProductId == item.Id)?.Rate ?? item.Rate;
+			var itemStock = stockByProduct[item.Id].ToList();
+			var rate = productLocationByProduct[item.Id].FirstOrDefault()?.Rate ?? item.Rate;
 
 			var itemStockSummary = new ProductStockSummaryModel
 			{
@@ -70,14 +82,14 @@ public static class ProductStockData
 				ProductName = item.Name,
 				ProductCode = item.Code,
 				ProductCategoryId = item.ProductCategoryId,
-				ProductCategoryName = productCategories.FirstOrDefault(c => c.Id == item.ProductCategoryId)?.Name ?? string.Empty,
+				ProductCategoryName = categoryById[item.ProductCategoryId].FirstOrDefault()?.Name ?? string.Empty,
 				LocationId = LocationId,
 				LocationName = location?.Name ?? string.Empty,
 
-				OpeningStock = openingStock.FirstOrDefault(s => s.ProductId == item.Id)?.Quantity ?? 0,
+				OpeningStock = openingByProduct[item.Id].FirstOrDefault()?.Quantity ?? 0,
 				InStock = itemStock.Where(s => s.Quantity > 0).Sum(s => s.Quantity),
 				OutStock = itemStock.Where(s => s.Quantity < 0).Sum(s => Math.Abs(s.Quantity)),
-				ClosingStock = closingStock.FirstOrDefault(s => s.ProductId == item.Id)?.Quantity ?? 0,
+				ClosingStock = closingByProduct[item.Id].FirstOrDefault()?.Quantity ?? 0,
 
 				MonthlyStock = itemStock.Sum(s => s.Quantity),
 				PurchaseStock = itemStock.Where(s => s.Type == nameof(StockType.Purchase)).Sum(s => s.Quantity),

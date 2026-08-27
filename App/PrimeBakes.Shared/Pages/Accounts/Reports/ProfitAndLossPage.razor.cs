@@ -65,8 +65,7 @@ public partial class ProfitAndLossPage : IAsyncDisposable
 
 	private async Task LoadData()
 	{
-		_fromDate = await CommonData.LoadCurrentDateTime();
-		_toDate = _fromDate;
+		_fromDate = _toDate = await CommonData.LoadCurrentDateTime();
 
 		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
 		_companies = [.. _companies.OrderBy(s => s.Name)];

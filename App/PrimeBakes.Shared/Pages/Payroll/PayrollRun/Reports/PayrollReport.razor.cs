@@ -88,16 +88,16 @@ public partial class PayrollReport : IAsyncDisposable
 
 	private async Task LoadData()
 	{
-		var currentDateTime = await CommonData.LoadCurrentDateTime();
+		var currentDateTimeTask = CommonData.LoadCurrentDateTime();
+		var employees = CommonData.LoadTableDataByStatus<EmployeeModel>(PayrollNames.Employee);
+		var departments = CommonData.LoadTableDataByStatus<DepartmentModel>(PayrollNames.Department);
+		var designations = CommonData.LoadTableDataByStatus<DesignationModel>(PayrollNames.Designation);
+
+		var currentDateTime = await currentDateTimeTask;
 		(_fromDate, _toDate) = await FinancialYearData.GetDateRange(DateRangeType.CurrentMonth, currentDateTime, currentDateTime);
-
-		_employees = await CommonData.LoadTableDataByStatus<EmployeeModel>(PayrollNames.Employee);
-		_departments = await CommonData.LoadTableDataByStatus<DepartmentModel>(PayrollNames.Department);
-		_designations = await CommonData.LoadTableDataByStatus<DesignationModel>(PayrollNames.Designation);
-
-		_employees = [.. _employees.OrderBy(e => e.Name)];
-		_departments = [.. _departments.OrderBy(d => d.Name)];
-		_designations = [.. _designations.OrderBy(d => d.Name)];
+		_employees = [.. (await employees).OrderBy(e => e.Name)];
+		_departments = [.. (await departments).OrderBy(d => d.Name)];
+		_designations = [.. (await designations).OrderBy(d => d.Name)];
 	}
 
 	private async Task LoadTransactionOverviews()

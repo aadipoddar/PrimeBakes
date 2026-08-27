@@ -83,14 +83,13 @@ public partial class FinancialAccountingReport : IAsyncDisposable
 
 	private async Task LoadData()
 	{
-		_fromDate = await CommonData.LoadCurrentDateTime();
-		_toDate = _fromDate;
+		var currentDateTime = CommonData.LoadCurrentDateTime();
+		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+		var vouchers = CommonData.LoadTableDataByStatus<VoucherModel>(AccountNames.Voucher);
 
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-		_vouchers = await CommonData.LoadTableDataByStatus<VoucherModel>(AccountNames.Voucher);
-
-		_companies = [.. _companies.OrderBy(s => s.Name)];
-		_vouchers = [.. _vouchers.OrderBy(s => s.Name)];
+		_fromDate = _toDate = await currentDateTime;
+		_companies = [.. (await companies).OrderBy(s => s.Name)];
+		_vouchers = [.. (await vouchers).OrderBy(s => s.Name)];
 	}
 
 	private async Task LoadTransactionOverviews()

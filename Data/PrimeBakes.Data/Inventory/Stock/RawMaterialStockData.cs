@@ -48,16 +48,27 @@ public static class RawMaterialStockData
 	{
 		var daysInPeriod = Math.Max(1, (ToDate.Date - FromDate.Date).Days + 1);
 
-		var rawMaterials = await CommonData.LoadTableDataByStatus<RawMaterialModel>(InventoryNames.RawMaterial);
-		var rawMaterialCategories = await CommonData.LoadTableDataByStatus<RawMaterialCategoryModel>(InventoryNames.RawMaterialCategory);
-		var stock = await CommonData.LoadTableDataByDate<RawMaterialStockModel>(InventoryNames.RawMaterialStock, FromDate, ToDate);
-		var openingStock = await LoadRawMaterialOpeningStockByDate(FromDate.Date);
-		var closingStock = await LoadRawMaterialOpeningStockByDate(ToDate.Date.AddDays(1));
+		var rawMaterialsTask = CommonData.LoadTableDataByStatus<RawMaterialModel>(InventoryNames.RawMaterial);
+		var rawMaterialCategoriesTask = CommonData.LoadTableDataByStatus<RawMaterialCategoryModel>(InventoryNames.RawMaterialCategory);
+		var stockTask = CommonData.LoadTableDataByDate<RawMaterialStockModel>(InventoryNames.RawMaterialStock, FromDate, ToDate);
+		var openingStockTask = LoadRawMaterialOpeningStockByDate(FromDate.Date);
+		var closingStockTask = LoadRawMaterialOpeningStockByDate(ToDate.Date.AddDays(1));
+
+		var rawMaterials = await rawMaterialsTask;
+		var rawMaterialCategories = await rawMaterialCategoriesTask;
+		var stock = await stockTask;
+		var openingStock = await openingStockTask;
+		var closingStock = await closingStockTask;
+
+		var stockByRawMaterial = stock.ToLookup(s => s.RawMaterialId);
+		var openingByRawMaterial = openingStock.ToLookup(s => s.RawMaterialId);
+		var closingByRawMaterial = closingStock.ToLookup(s => s.RawMaterialId);
+		var categoryById = rawMaterialCategories.ToLookup(c => c.Id);
 
 		List<RawMaterialStockSummaryModel> summary = [];
 		foreach (var item in rawMaterials)
 		{
-			var itemStock = stock.Where(s => s.RawMaterialId == item.Id).ToList();
+			var itemStock = stockByRawMaterial[item.Id].ToList();
 
 			var itemStockSummary = new RawMaterialStockSummaryModel
 			{
@@ -65,13 +76,13 @@ public static class RawMaterialStockData
 				RawMaterialName = item.Name,
 				RawMaterialCode = item.Code,
 				RawMaterialCategoryId = item.RawMaterialCategoryId,
-				RawMaterialCategoryName = rawMaterialCategories.FirstOrDefault(c => c.Id == item.RawMaterialCategoryId)?.Name ?? string.Empty,
+				RawMaterialCategoryName = categoryById[item.RawMaterialCategoryId].FirstOrDefault()?.Name ?? string.Empty,
 				UnitOfMeasurement = item.UnitOfMeasurement,
 
-				OpeningStock = openingStock.FirstOrDefault(s => s.RawMaterialId == item.Id)?.Quantity ?? 0,
+				OpeningStock = openingByRawMaterial[item.Id].FirstOrDefault()?.Quantity ?? 0,
 				InStock = itemStock.Where(s => s.Quantity > 0).Sum(s => s.Quantity),
 				OutStock = itemStock.Where(s => s.Quantity < 0).Sum(s => Math.Abs(s.Quantity)),
-				ClosingStock = closingStock.FirstOrDefault(s => s.RawMaterialId == item.Id)?.Quantity ?? 0,
+				ClosingStock = closingByRawMaterial[item.Id].FirstOrDefault()?.Quantity ?? 0,
 
 				MonthlyStock = itemStock.Sum(s => s.Quantity),
 				PurchaseStock = itemStock.Where(s => s.Type == nameof(StockType.Purchase)).Sum(s => s.Quantity),

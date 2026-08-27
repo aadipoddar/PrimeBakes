@@ -110,20 +110,19 @@ public partial class SaleItemReport : IAsyncDisposable
 
 	private async Task LoadData()
 	{
-		_fromDate = await CommonData.LoadCurrentDateTime();
-		_toDate = _fromDate;
+		var currentDateTime = CommonData.LoadCurrentDateTime();
+		var products = CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product);
+		var productCategories = CommonData.LoadTableDataByStatus<ProductCategoryModel>(StoreNames.ProductCategory);
+		var locations = CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
+		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+		var parties = CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
 
-		_products = await CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product);
-		_productCategories = await CommonData.LoadTableDataByStatus<ProductCategoryModel>(StoreNames.ProductCategory);
-		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-		_parties = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
-
-		_products = [.. _products.OrderBy(s => s.Name)];
-		_productCategories = [.. _productCategories.OrderBy(s => s.Name)];
-		_locations = [.. _locations.OrderBy(s => s.Name)];
-		_companies = [.. _companies.OrderBy(s => s.Name)];
-		_parties = [.. _parties.OrderBy(s => s.Name)];
+		_fromDate = _toDate = await currentDateTime;
+		_products = [.. (await products).OrderBy(s => s.Name)];
+		_productCategories = [.. (await productCategories).OrderBy(s => s.Name)];
+		_locations = [.. (await locations).OrderBy(s => s.Name)];
+		_companies = [.. (await companies).OrderBy(s => s.Name)];
+		_parties = [.. (await parties).OrderBy(s => s.Name)];
 
 		_selectedLocation = _user.LocationId != 1 ? _locations.FirstOrDefault(s => s.Id == _user.LocationId) : null;
 		_cocoLocations = [.. _locations.Where(l => l.COCO)];
@@ -144,10 +143,15 @@ public partial class SaleItemReport : IAsyncDisposable
 			var fromDate = DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue);
 			var toDate = DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue);
 
-			_allTransactionOverviews = await CommonData.LoadTableDataByDate<SaleItemOverviewModel>(StoreNames.SaleItemOverview, fromDate, toDate);
-			_allReturnOverviews = await CommonData.LoadTableDataByDate<SaleReturnItemOverviewModel>(StoreNames.SaleReturnItemOverview, fromDate, toDate);
-			_allTransferOverviews = await CommonData.LoadTableDataByDate<StockTransferItemOverviewModel>(StoreNames.StockTransferItemOverview, fromDate, toDate);
-			_allBillOverviews = await CommonData.LoadTableDataByDate<BillItemOverviewModel>(RestaurantNames.BillItemOverview, fromDate, toDate);
+			var allTransactionOverviews = CommonData.LoadTableDataByDate<SaleItemOverviewModel>(StoreNames.SaleItemOverview, fromDate, toDate);
+			var allReturnOverviews = CommonData.LoadTableDataByDate<SaleReturnItemOverviewModel>(StoreNames.SaleReturnItemOverview, fromDate, toDate);
+			var allTransferOverviews = CommonData.LoadTableDataByDate<StockTransferItemOverviewModel>(StoreNames.StockTransferItemOverview, fromDate, toDate);
+			var allBillOverviews = CommonData.LoadTableDataByDate<BillItemOverviewModel>(RestaurantNames.BillItemOverview, fromDate, toDate);
+
+			_allTransactionOverviews = await allTransactionOverviews;
+			_allReturnOverviews = await allReturnOverviews;
+			_allTransferOverviews = await allTransferOverviews;
+			_allBillOverviews = await allBillOverviews;
 
 			await AuditTrailData.SaveAuditTrail(new()
 			{

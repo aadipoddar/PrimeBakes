@@ -80,16 +80,16 @@ public partial class PayrollItemReport : IAsyncDisposable
 
 	private async Task LoadData()
 	{
-		var currentDateTime = await CommonData.LoadCurrentDateTime();
+		var currentDateTimeTask = CommonData.LoadCurrentDateTime();
+		var employees = CommonData.LoadTableDataByStatus<EmployeeModel>(PayrollNames.Employee);
+		var departments = CommonData.LoadTableDataByStatus<DepartmentModel>(PayrollNames.Department);
+		var salaryComponents = CommonData.LoadTableDataByStatus<SalaryComponentModel>(PayrollNames.SalaryComponent);
+
+		var currentDateTime = await currentDateTimeTask;
 		(_fromDate, _toDate) = await FinancialYearData.GetDateRange(DateRangeType.CurrentMonth, currentDateTime, currentDateTime);
-
-		_employees = await CommonData.LoadTableDataByStatus<EmployeeModel>(PayrollNames.Employee);
-		_departments = await CommonData.LoadTableDataByStatus<DepartmentModel>(PayrollNames.Department);
-		_salaryComponents = await CommonData.LoadTableDataByStatus<SalaryComponentModel>(PayrollNames.SalaryComponent);
-
-		_employees = [.. _employees.OrderBy(e => e.Name)];
-		_departments = [.. _departments.OrderBy(d => d.Name)];
-		_salaryComponents = [.. _salaryComponents.OrderBy(s => s.Sequence)];
+		_employees = [.. (await employees).OrderBy(e => e.Name)];
+		_departments = [.. (await departments).OrderBy(d => d.Name)];
+		_salaryComponents = [.. (await salaryComponents).OrderBy(s => s.Sequence)];
 	}
 
 	private async Task LoadTransactionOverviews()
