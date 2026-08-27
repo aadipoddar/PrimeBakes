@@ -1,4 +1,4 @@
-using Microsoft.JSInterop;
+﻿using Microsoft.JSInterop;
 
 namespace PrimeBakes.Shared.Services;
 
@@ -48,7 +48,7 @@ public class ThermalPrintDispatcher(
 		{
 			var png = await generatePng();
 			if (png.Length > 0)
-				await jsRuntime.InvokeVoidAsync("printThermalImage", Convert.ToBase64String(png));
+				await jsRuntime.InvokeAsync<bool>("printThermalImage", CancellationToken.None, Convert.ToBase64String(png));
 		}
 	}
 }

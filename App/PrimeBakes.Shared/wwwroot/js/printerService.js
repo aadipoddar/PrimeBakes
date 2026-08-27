@@ -1,17 +1,29 @@
 // Browser print fallback - opens the native print dialog with the receipt rendered as a PNG image.
 // Used when Bluetooth is disconnected so the user can print to PDF or a serial printer.
+// Resolves only after the print dialog has been dismissed, so callers can safely navigate afterwards.
 window.printThermalImage = function (base64Png) {
-    try {
-        const iframe = document.createElement('iframe');
-        iframe.style.position = 'fixed';
-        iframe.style.right = '0';
-        iframe.style.bottom = '0';
-        iframe.style.width = '0';
-        iframe.style.height = '0';
-        iframe.style.border = 'none';
-        document.body.appendChild(iframe);
+    return new Promise((resolve) => {
+        try {
+            const iframe = document.createElement('iframe');
+            iframe.style.position = 'fixed';
+            iframe.style.right = '0';
+            iframe.style.bottom = '0';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            iframe.style.border = 'none';
+            document.body.appendChild(iframe);
 
-        iframe.contentDocument.write(`
+            let settled = false;
+            const finish = (ok) => {
+                if (settled)
+                    return;
+                settled = true;
+                if (iframe.parentNode)
+                    iframe.parentNode.removeChild(iframe);
+                resolve(ok);
+            };
+
+            iframe.contentDocument.write(`
             <html>
             <head>
                 <style>
@@ -25,25 +37,32 @@ window.printThermalImage = function (base64Png) {
             </body>
             </html>
         `);
-        iframe.contentDocument.close();
+            iframe.contentDocument.close();
 
-        // Print the iframe content with delay to ensure the image loads
-        const img = iframe.contentDocument.querySelector('img');
-        const doPrint = () => {
-            iframe.contentWindow.focus();
-            iframe.contentWindow.print();
-            setTimeout(() => document.body.removeChild(iframe), 1000);
-        };
+            const img = iframe.contentDocument.querySelector('img');
+            const doPrint = () => {
+                try {
+                    iframe.contentWindow.addEventListener('afterprint', () => setTimeout(() => finish(true), 500));
+                    iframe.contentWindow.focus();
+                    iframe.contentWindow.print();
+                    setTimeout(() => finish(true), 1000);
+                }
+                catch (error) {
+                    console.error('Browser print failed:', error);
+                    finish(false);
+                }
+            };
 
-        if (img.complete) {
-            doPrint();
-        } else {
-            img.onload = doPrint;
+            if (img.complete)
+                doPrint();
+            else {
+                img.onload = doPrint;
+                img.onerror = () => finish(false);
+            }
         }
-
-        return true;
-    } catch (error) {
-        console.error('Browser print failed:', error);
-        return false;
-    }
+        catch (error) {
+            console.error('Browser print failed:', error);
+            resolve(false);
+        }
+    });
 };
