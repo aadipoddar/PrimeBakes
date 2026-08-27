@@ -625,7 +625,7 @@ Data/PrimeBakes.Database/<Module>/<Feature>/{Table,Insert,Load}/
 
 Pushing to `main` triggers all six deploys, but each runs `version-checks.yml` first and proceeds **only if all four hold**:
 
-1. `Latest Version = X.Y.Z` at the bottom of this README **changed** versus the previous commit;
+1. the `Latest Version` line at the bottom of this README **changed** versus the previous commit;
 2. `CommonSecrets.DatabaseConnection` is `ConnectionType.Azure` (`Local` or `AzureTesting` silently blocks all deploys — a deliberate safety valve);
 3. `<AssemblyVersion>` in `PrimeBakes.Shared.csproj` **exactly equals** the README version;
 4. `android:versionName` in `Platforms/Android/AndroidManifest.xml` equals the README version **and** `android:versionCode` was incremented.
@@ -694,4 +694,4 @@ This project is proprietary software developed for **Salasar Foods Guwahati**.
 
 ---
 
-Latest Version = 1.2.0.8
+Latest Version = 1.2.0.9
