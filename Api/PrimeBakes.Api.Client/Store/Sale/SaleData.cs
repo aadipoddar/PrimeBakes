@@ -15,8 +15,8 @@ public static class SaleData
 		await ApiClient.Get<SaleThermalBundle>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadThermalBundle)), new { saleId });
 
 
-	public static async Task PostDaySales(DateTime postingDate, int locationId, int userId, string userPlatform) =>
-		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(PostDaySales)), new { }, new { postingDate, locationId, userId, userPlatform });
+	public static async Task PostDaySales(DateTime postingDate, int locationId, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(PostDaySales)), new { }, new { postingDate, locationId, userId, formFactor, platform, latitude, longitude });
 
 	public static async Task DeleteTransaction(SaleModel sale) =>
 		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteTransaction)), sale);

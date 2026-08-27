@@ -21,11 +21,17 @@ SELECT
     [kir].[CreatedBy],
     [u].[Name] AS CreatedByName,
     [kir].[CreatedAt],
-    [kir].[CreatedFromPlatform],
+    [kir].[CreatedFormFactor],
+	[kir].[CreatedPlatform],
+	[kir].[CreatedLatitude],
+	[kir].[CreatedLongitude],
     [kir].[LastModifiedBy],
     [lm].[Name] AS LastModifiedByUserName,
     [kir].[LastModifiedAt],
-    [kir].[LastModifiedFromPlatform],
+    [kir].[LastModifiedFormFactor],
+	[kir].[LastModifiedPlatform],
+	[kir].[LastModifiedLatitude],
+	[kir].[LastModifiedLongitude],
 
     [kir].[Status]
 

@@ -226,11 +226,11 @@ public partial class RecipeItemReport : IAsyncDisposable
 
 			await _toastNotification.ShowAsync("Processing", "Deleting recipe...", ToastType.Info);
 
-			var platform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
 
 			var recipe = await CommonData.LoadTableDataById<RecipeModel>(InventoryNames.Recipe, masterId)
 				?? throw new Exception("Recipe not found.");
-			await RecipeData.DeleteTransaction(recipe, _user.Id, platform);
+			await RecipeData.DeleteTransaction(recipe, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Success", $"Recipe {productName} has been deleted successfully.", ToastType.Success);
 		}

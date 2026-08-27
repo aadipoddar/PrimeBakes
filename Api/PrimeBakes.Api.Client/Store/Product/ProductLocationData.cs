@@ -16,12 +16,12 @@ public static class ProductLocationData
 	public static async Task<List<ProductLocationOverviewModel>> LoadProductLocationOverviewByProductLocationDate(int? ProductId = null, int? LocationId = null, DateOnly? Date = null) =>
 		await ApiClient.Get<List<ProductLocationOverviewModel>>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadProductLocationOverviewByProductLocationDate)), new { ProductId, LocationId, Date });
 
-	public static async Task DeleteTransaction(ProductLocationOverviewModel productLocation, int userId, string platform) =>
-		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteTransaction)), productLocation, new { userId, platform });
+	public static async Task DeleteTransaction(ProductLocationOverviewModel productLocation, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteTransaction)), productLocation, new { userId, formFactor, platform, latitude, longitude });
 
-	public static async Task DiscontinueTransaction(ProductLocationOverviewModel productLocation, int userId, string platform) =>
-		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DiscontinueTransaction)), productLocation, new { userId, platform });
+	public static async Task DiscontinueTransaction(ProductLocationOverviewModel productLocation, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DiscontinueTransaction)), productLocation, new { userId, formFactor, platform, latitude, longitude });
 
-	public static async Task<int> SaveTransaction(ProductLocationModel productLocation, int userId, string platform) =>
-		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(SaveTransaction)), productLocation, new { userId, platform });
+	public static async Task<int> SaveTransaction(ProductLocationModel productLocation, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(SaveTransaction)), productLocation, new { userId, formFactor, platform, latitude, longitude });
 }

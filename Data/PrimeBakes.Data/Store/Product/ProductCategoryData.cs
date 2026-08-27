@@ -12,7 +12,7 @@ public static class ProductCategoryData
 		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertProductCategory, productCategory, transaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Product Category.");
 
-	public static async Task DeleteTransaction(ProductCategoryModel category, int userId, string platform) =>
+	public static async Task DeleteTransaction(ProductCategoryModel category, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			category.Status = false;
@@ -23,11 +23,14 @@ public static class ProductCategoryData
 				TableName = StoreNames.ProductCategory,
 				RecordNo = category.Name,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
-	public static async Task RecoverTransaction(ProductCategoryModel category, int userId, string platform) =>
+	public static async Task RecoverTransaction(ProductCategoryModel category, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			category.Status = true;
@@ -38,7 +41,10 @@ public static class ProductCategoryData
 				TableName = StoreNames.ProductCategory,
 				RecordNo = category.Name,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
@@ -58,7 +64,7 @@ public static class ProductCategoryData
 			throw new Exception($"Product Category name '{item.Name}' already exists. Please choose a different name.");
 	}
 
-	public static async Task<int> SaveTransaction(ProductCategoryModel category, int userId, string platform)
+	public static async Task<int> SaveTransaction(ProductCategoryModel category, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		await ValidateTransaction(category);
 
@@ -78,7 +84,10 @@ public static class ProductCategoryData
 				RecordNo = category.Name,
 				RecordValue = isUpdate ? diff : null,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 			return id;
 		});

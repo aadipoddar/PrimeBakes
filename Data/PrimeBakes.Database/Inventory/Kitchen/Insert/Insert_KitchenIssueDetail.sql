@@ -40,15 +40,15 @@ BEGIN
 	ELSE
 	BEGIN
 		UPDATE [dbo].[KitchenIssueDetail]
-		SET MasterId = @MasterId,
-			RawMaterialId = @RawMaterialId,
-			Quantity = @Quantity,
-			UnitOfMeasurement = @UnitOfMeasurement,
-			Rate = @Rate,
-			Total = @Total,
-			Remarks = @Remarks,
-			Status = @Status
-		WHERE Id = @Id;
+		SET [MasterId] = @MasterId,
+			[RawMaterialId] = @RawMaterialId,
+			[Quantity] = @Quantity,
+			[UnitOfMeasurement] = @UnitOfMeasurement,
+			[Rate] = @Rate,
+			[Total] = @Total,
+			[Remarks] = @Remarks,
+			[Status] = @Status
+		WHERE [Id] = @Id;
 	END
 
 	SELECT @Id AS Id;

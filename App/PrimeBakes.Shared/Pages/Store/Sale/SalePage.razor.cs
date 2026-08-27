@@ -207,12 +207,9 @@ public partial class SalePage
 			Credit = 0,
 			UPI = 0,
 			Remarks = null,
-			CreatedAt = DateTime.Now,
-			CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService),
 			Status = true,
 			LastModifiedAt = null,
-			LastModifiedBy = null,
-			LastModifiedFromPlatform = null
+			LastModifiedBy = null
 		};
 
 		await DeleteLocalFiles();
@@ -1066,9 +1063,17 @@ public partial class SalePage
 		var currentDateTime = await CommonData.LoadCurrentDateTime();
 		_sale.Status = true;
 		_sale.TransactionDateTime = DateOnly.FromDateTime(_sale.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
+		_sale.CreatedAt = currentDateTime;
 		_sale.LastModifiedAt = currentDateTime;
-		_sale.CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
-		_sale.LastModifiedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
+		var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+		_sale.CreatedFormFactor = platform.FormFactor;
+		_sale.CreatedPlatform = platform.Platform;
+		_sale.CreatedLatitude = platform.Latitude;
+		_sale.CreatedLongitude = platform.Longitude;
+		_sale.LastModifiedFormFactor = platform.FormFactor;
+		_sale.LastModifiedPlatform = platform.Platform;
+		_sale.LastModifiedLatitude = platform.Latitude;
+		_sale.LastModifiedLongitude = platform.Longitude;
 		_sale.CreatedBy = _user.Id;
 		_sale.LastModifiedBy = _user.Id;
 	}

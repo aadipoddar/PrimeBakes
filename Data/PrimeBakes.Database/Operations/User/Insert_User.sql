@@ -73,7 +73,7 @@ BEGIN
 			[Remarks] = @Remarks,
 			[LastLoginTime] = @LastLoginTime,
 			[Status] = @Status
-		WHERE Id = @Id;
+		WHERE [Id] = @Id;
 	END
 
 	SELECT @Id AS Id;

@@ -38,10 +38,16 @@ public static class PayrollReportExport
 			[nameof(PayrollOverviewModel.Remarks)] = new() { DisplayName = "Remarks", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PayrollOverviewModel.CreatedByName)] = new() { DisplayName = "Created By", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PayrollOverviewModel.CreatedAt)] = new() { DisplayName = "Created At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
-			[nameof(PayrollOverviewModel.CreatedFromPlatform)] = new() { DisplayName = "Created Platform", Alignment = CellAlignment.Center, IncludeInTotal = false },
+			[nameof(PayrollOverviewModel.CreatedFormFactor)] = new() { DisplayName = "Created Form", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(PayrollOverviewModel.CreatedPlatform)] = new() { DisplayName = "Created Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(PayrollOverviewModel.CreatedLatitude)] = new() { DisplayName = "Created Lat", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(PayrollOverviewModel.CreatedLongitude)] = new() { DisplayName = "Created Long", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(PayrollOverviewModel.LastModifiedByUserName)] = new() { DisplayName = "Modified By", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PayrollOverviewModel.LastModifiedAt)] = new() { DisplayName = "Modified At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
-			[nameof(PayrollOverviewModel.LastModifiedFromPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Center, IncludeInTotal = false },
+			[nameof(PayrollOverviewModel.LastModifiedFormFactor)] = new() { DisplayName = "Modified Form", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(PayrollOverviewModel.LastModifiedPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(PayrollOverviewModel.LastModifiedLatitude)] = new() { DisplayName = "Modified Lat", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(PayrollOverviewModel.LastModifiedLongitude)] = new() { DisplayName = "Modified Long", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(PayrollOverviewModel.Status)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false },
 		};
 
@@ -83,10 +89,16 @@ public static class PayrollReportExport
 				nameof(PayrollOverviewModel.Remarks),
 				nameof(PayrollOverviewModel.CreatedByName),
 				nameof(PayrollOverviewModel.CreatedAt),
-				nameof(PayrollOverviewModel.CreatedFromPlatform),
+				nameof(PayrollOverviewModel.CreatedFormFactor),
+				nameof(PayrollOverviewModel.CreatedPlatform),
+				nameof(PayrollOverviewModel.CreatedLatitude),
+				nameof(PayrollOverviewModel.CreatedLongitude),
 				nameof(PayrollOverviewModel.LastModifiedByUserName),
 				nameof(PayrollOverviewModel.LastModifiedAt),
-				nameof(PayrollOverviewModel.LastModifiedFromPlatform),
+				nameof(PayrollOverviewModel.LastModifiedFormFactor),
+				nameof(PayrollOverviewModel.LastModifiedPlatform),
+				nameof(PayrollOverviewModel.LastModifiedLatitude),
+				nameof(PayrollOverviewModel.LastModifiedLongitude),
 				nameof(PayrollOverviewModel.Status)
 			];
 

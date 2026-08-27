@@ -89,7 +89,10 @@ public static class PurchaseOrderData
 			TableName = InventoryNames.PurchaseOrder,
 			RecordNo = purchaseOrder.TransactionNo,
 			CreatedBy = purchaseOrder.LastModifiedBy.Value,
-			CreatedFromPlatform = purchaseOrder.LastModifiedFromPlatform
+			CreatedFormFactor = purchaseOrder.LastModifiedFormFactor,
+			CreatedPlatform = purchaseOrder.LastModifiedPlatform,
+			CreatedLatitude = purchaseOrder.LastModifiedLatitude,
+			CreatedLongitude = purchaseOrder.LastModifiedLongitude
 		}, sqlDataAccessTransaction);
 	}
 	#endregion
@@ -264,7 +267,10 @@ public static class PurchaseOrderData
 			RecordNo = purchaseOrder.TransactionNo,
 			RecordValue = difference,
 			CreatedBy = update ? purchaseOrder.LastModifiedBy.Value : purchaseOrder.CreatedBy,
-			CreatedFromPlatform = update ? purchaseOrder.LastModifiedFromPlatform : purchaseOrder.CreatedFromPlatform
+			CreatedFormFactor = update ? purchaseOrder.LastModifiedFormFactor : purchaseOrder.CreatedFormFactor,
+			CreatedPlatform = update ? purchaseOrder.LastModifiedPlatform : purchaseOrder.CreatedPlatform,
+			CreatedLatitude = update ? purchaseOrder.LastModifiedLatitude : purchaseOrder.CreatedLatitude,
+			CreatedLongitude = update ? purchaseOrder.LastModifiedLongitude : purchaseOrder.CreatedLongitude
 		}, sqlDataAccessTransaction);
 	}
 	#endregion

@@ -1,0 +1,206 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Operations Version="1.0" xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
+  <Operation Name="Rename Refactor" Key="04b03059-b739-4930-ae13-3c1919c7d61b" ChangeDateTime="08/27/2026 17:22:15">
+    <Property Name="ElementName" Value="[dbo].[Order].[CreatedFromPlatform]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Order]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="CreatedPlatform" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="15a7e709-a6fd-4473-989c-959cb376a4db" ChangeDateTime="08/27/2026 17:22:15">
+    <Property Name="ElementName" Value="[dbo].[Order].[LastModifiedFromPlatform]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Order]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="LastModifiedPlatform" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="973d6a95-bbc7-444f-ad71-3f5aa6dc4297" ChangeDateTime="08/27/2026 17:44:32">
+    <Property Name="ElementName" Value="[dbo].[AuditTrail].[CreatedFromPlatform]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[AuditTrail]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="CreatedPlatform" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="b364e5b7-7341-470d-84fc-40559e120e5e" ChangeDateTime="08/27/2026 18:47:05">
+    <Property Name="ElementName" Value="[dbo].[Sale].[CreatedFromPlatform]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Sale]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="CreatedPlatform" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="e61f17fc-fcd9-4cb6-88c8-03be217a3f0a" ChangeDateTime="08/27/2026 18:47:05">
+    <Property Name="ElementName" Value="[dbo].[Sale].[LastModifiedFromPlatform]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Sale]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="LastModifiedPlatform" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="e80dd7dc-749d-4be1-a149-247d7012bd46" ChangeDateTime="08/27/2026 19:18:59">
+    <Property Name="ElementName" Value="[dbo].[Bill].[CreatedFromPlatform]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Bill]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="CreatedPlatform" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="b5a9d98f-5765-4c86-af30-b186b21e6301" ChangeDateTime="08/27/2026 19:18:59">
+    <Property Name="ElementName" Value="[dbo].[Bill].[LastModifiedFromPlatform]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Bill]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="LastModifiedPlatform" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="feb7fc05-c1de-4ab9-a362-a74b6f904984" ChangeDateTime="08/27/2026 19:25:53">
+    <Property Name="ElementName" Value="[dbo].[FinancialAccounting].[CreatedFromPlatform]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[FinancialAccounting]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="CreatedPlatform" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="6a6db4dc-9a5d-458c-a51f-4a2b710c8822" ChangeDateTime="08/27/2026 19:25:53">
+    <Property Name="ElementName" Value="[dbo].[FinancialAccounting].[LastModifiedFromPlatform]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[FinancialAccounting]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="LastModifiedPlatform" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="eaa4b527-d0e8-44e6-b886-cb0962caf1ce" ChangeDateTime="08/27/2026 19:34:16">
+    <Property Name="ElementName" Value="[dbo].[Payroll].[CreatedFromPlatform]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Payroll]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="CreatedPlatform" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="7eb90dd7-f6bb-4d83-892c-cdae64b2a0d1" ChangeDateTime="08/27/2026 19:34:16">
+    <Property Name="ElementName" Value="[dbo].[Payroll].[LastModifiedFromPlatform]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Payroll]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="LastModifiedPlatform" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="ca95eb08-f2f5-42b5-8cfc-e7382c545cd4" ChangeDateTime="08/27/2026 19:45:09">
+    <Property Name="ElementName" Value="[dbo].[Purchase].[CreatedFromPlatform]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Purchase]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="CreatedPlatform" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="c682ac26-3cc0-4b18-90c4-7eb659bffd2e" ChangeDateTime="08/27/2026 19:45:09">
+    <Property Name="ElementName" Value="[dbo].[Purchase].[LastModifiedFromPlatform]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Purchase]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="LastModifiedPlatform" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="bec4bdd0-b49d-44ae-91fc-0d84a9f6fbdf" ChangeDateTime="08/27/2026 19:45:09">
+    <Property Name="ElementName" Value="[dbo].[PurchaseReturn].[CreatedFromPlatform]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[PurchaseReturn]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="CreatedPlatform" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="54f2655c-18c9-4464-87ed-2b92a334a8c0" ChangeDateTime="08/27/2026 19:45:09">
+    <Property Name="ElementName" Value="[dbo].[PurchaseReturn].[LastModifiedFromPlatform]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[PurchaseReturn]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="LastModifiedPlatform" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="73e09ba1-c61f-47f0-ae75-8fd15761285e" ChangeDateTime="08/27/2026 19:51:20">
+    <Property Name="ElementName" Value="[dbo].[KitchenIssue].[CreatedFromPlatform]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[KitchenIssue]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="CreatedPlatform" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="a922dcf1-b89a-4e50-81b2-4cc4fe315707" ChangeDateTime="08/27/2026 19:51:20">
+    <Property Name="ElementName" Value="[dbo].[KitchenIssue].[LastModifiedFromPlatform]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[KitchenIssue]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="LastModifiedPlatform" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="383c9c03-e420-41a1-aca9-2702ec6c7370" ChangeDateTime="08/27/2026 19:51:20">
+    <Property Name="ElementName" Value="[dbo].[KitchenIssueReturn].[CreatedFromPlatform]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[KitchenIssueReturn]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="CreatedPlatform" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="8de8d927-41e2-41dd-9664-5ffcf3846dc9" ChangeDateTime="08/27/2026 19:51:20">
+    <Property Name="ElementName" Value="[dbo].[KitchenIssueReturn].[LastModifiedFromPlatform]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[KitchenIssueReturn]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="LastModifiedPlatform" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="8d269427-4368-4f51-b9dc-47bf4d7f2b60" ChangeDateTime="08/27/2026 19:51:20">
+    <Property Name="ElementName" Value="[dbo].[KitchenProduction].[CreatedFromPlatform]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[KitchenProduction]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="CreatedPlatform" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="5c1df08a-c61e-4886-969e-1a58db6d77b4" ChangeDateTime="08/27/2026 19:51:20">
+    <Property Name="ElementName" Value="[dbo].[KitchenProduction].[LastModifiedFromPlatform]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[KitchenProduction]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="LastModifiedPlatform" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="45b80983-874c-423e-8b25-18f1a5498763" ChangeDateTime="08/27/2026 19:51:20">
+    <Property Name="ElementName" Value="[dbo].[KitchenProductionReturn].[CreatedFromPlatform]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[KitchenProductionReturn]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="CreatedPlatform" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="92b1f066-2fb2-4453-abf4-b065bacf34aa" ChangeDateTime="08/27/2026 19:51:20">
+    <Property Name="ElementName" Value="[dbo].[KitchenProductionReturn].[LastModifiedFromPlatform]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[KitchenProductionReturn]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="LastModifiedPlatform" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="cc9bd21f-e447-40ec-ad26-c81d1f3cd1a2" ChangeDateTime="08/27/2026 19:51:20">
+    <Property Name="ElementName" Value="[dbo].[PurchaseOrder].[CreatedFromPlatform]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[PurchaseOrder]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="CreatedPlatform" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="5e5ba376-3dc7-4958-985f-5ce53c3c721a" ChangeDateTime="08/27/2026 19:51:20">
+    <Property Name="ElementName" Value="[dbo].[PurchaseOrder].[LastModifiedFromPlatform]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[PurchaseOrder]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="LastModifiedPlatform" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="f47f96ee-6fd9-4758-a7d5-ac1feed6236f" ChangeDateTime="08/27/2026 19:53:57">
+    <Property Name="ElementName" Value="[dbo].[SaleReturn].[CreatedFromPlatform]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[SaleReturn]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="CreatedPlatform" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="d5deb68e-2b1d-4348-8e6c-d92d0f756dd4" ChangeDateTime="08/27/2026 19:53:57">
+    <Property Name="ElementName" Value="[dbo].[SaleReturn].[LastModifiedFromPlatform]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[SaleReturn]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="LastModifiedPlatform" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="edf91149-3f8d-49b5-9e4d-05ad2efe5595" ChangeDateTime="08/27/2026 19:53:57">
+    <Property Name="ElementName" Value="[dbo].[StockTransfer].[CreatedFromPlatform]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[StockTransfer]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="CreatedPlatform" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="bad9d6be-baa2-45b1-b1fc-91e1648a9cf9" ChangeDateTime="08/27/2026 19:53:57">
+    <Property Name="ElementName" Value="[dbo].[StockTransfer].[LastModifiedFromPlatform]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[StockTransfer]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="LastModifiedPlatform" />
+  </Operation>
+</Operations>

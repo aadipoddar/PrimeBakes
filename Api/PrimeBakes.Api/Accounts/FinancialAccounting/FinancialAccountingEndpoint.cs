@@ -27,7 +27,8 @@ public class FinancialAccountingEndpoint : ICarterModule
 			(FinancialAccountingSaveRequest request) => FinancialAccountingData.SaveTransaction(request.Accounting, request.Ledgers, request.Recover));
 
 		group.MapPost(nameof(FinancialAccountingData.SaveBRSDates),
-			(List<FinancialAccountingLedgerModel> changedLines, int userId, string platform) => FinancialAccountingData.SaveBRSDates(changedLines, userId, platform));
+			(List<FinancialAccountingLedgerModel> changedLines, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+				FinancialAccountingData.SaveBRSDates(changedLines, userId, formFactor, platform, latitude, longitude));
 
 	}
 }

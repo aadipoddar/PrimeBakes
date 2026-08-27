@@ -12,7 +12,7 @@ public static class DiningAreaData
 		(await SqlDataAccess.LoadData<int, dynamic>(RestaurantNames.InsertDiningArea, diningArea, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Dining Area.");
 
-	public static async Task DeleteTransaction(DiningAreaModel diningArea, int userId, string platform) =>
+	public static async Task DeleteTransaction(DiningAreaModel diningArea, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			diningArea.Status = false;
@@ -23,11 +23,14 @@ public static class DiningAreaData
 				TableName = RestaurantNames.DiningArea,
 				RecordNo = diningArea.Name,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
-	public static async Task RecoverTransaction(DiningAreaModel diningArea, int userId, string platform) =>
+	public static async Task RecoverTransaction(DiningAreaModel diningArea, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			diningArea.Status = true;
@@ -38,7 +41,10 @@ public static class DiningAreaData
 				TableName = RestaurantNames.DiningArea,
 				RecordNo = diningArea.Name,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
@@ -61,7 +67,7 @@ public static class DiningAreaData
 			throw new Exception($"Dining area name '{item.Name}' already exists. Please choose a different name.");
 	}
 
-	public static async Task<int> SaveTransaction(DiningAreaModel diningArea, int userId, string platform)
+	public static async Task<int> SaveTransaction(DiningAreaModel diningArea, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		await ValidateTransaction(diningArea);
 
@@ -82,7 +88,10 @@ public static class DiningAreaData
 				RecordNo = diningArea.Name,
 				RecordValue = isUpdate ? diff : null,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 			return id;
 		});

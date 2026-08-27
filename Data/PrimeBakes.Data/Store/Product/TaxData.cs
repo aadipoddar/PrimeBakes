@@ -12,7 +12,7 @@ public static class TaxData
 		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertTax, tax, transaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Tax.");
 
-	public static async Task DeleteTransaction(TaxModel tax, int userId, string platform) =>
+	public static async Task DeleteTransaction(TaxModel tax, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			tax.Status = false;
@@ -23,11 +23,14 @@ public static class TaxData
 				TableName = StoreNames.Tax,
 				RecordNo = tax.Code,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
-	public static async Task RecoverTransaction(TaxModel tax, int userId, string platform) =>
+	public static async Task RecoverTransaction(TaxModel tax, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			tax.Status = true;
@@ -38,7 +41,10 @@ public static class TaxData
 				TableName = StoreNames.Tax,
 				RecordNo = tax.Code,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
@@ -61,7 +67,7 @@ public static class TaxData
 			throw new Exception($"Tax code '{item.Code}' already exists. Please choose a different code.");
 	}
 
-	public static async Task<int> SaveTransaction(TaxModel tax, int userId, string platform)
+	public static async Task<int> SaveTransaction(TaxModel tax, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		await ValidateTransaction(tax);
 
@@ -81,7 +87,10 @@ public static class TaxData
 				RecordNo = tax.Code,
 				RecordValue = isUpdate ? diff : null,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 			return id;
 		});

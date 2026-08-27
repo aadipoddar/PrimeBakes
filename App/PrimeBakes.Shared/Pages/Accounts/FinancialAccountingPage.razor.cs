@@ -154,12 +154,9 @@ public partial class FinancialAccountingPage
 			TotalCreditLedgers = 0,
 			Remarks = string.Empty,
 			CreatedBy = _user.Id,
-			CreatedAt = DateTime.Now,
-			CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService),
 			Status = true,
 			LastModifiedAt = null,
 			LastModifiedBy = null,
-			LastModifiedFromPlatform = null
 		};
 
 		var lastTransaction = await CommonData.LoadLastTableData<FinancialAccountingModel>(AccountNames.FinancialAccounting);
@@ -553,8 +550,15 @@ public partial class FinancialAccountingPage
 		_accounting.TransactionDateTime = DateOnly.FromDateTime(_accounting.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
 		_accounting.CreatedAt = currentDateTime;
 		_accounting.LastModifiedAt = currentDateTime;
-		_accounting.CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
-		_accounting.LastModifiedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
+		var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+		_accounting.CreatedFormFactor = platform.FormFactor;
+		_accounting.CreatedPlatform = platform.Platform;
+		_accounting.CreatedLatitude = platform.Latitude;
+		_accounting.CreatedLongitude = platform.Longitude;
+		_accounting.LastModifiedFormFactor = platform.FormFactor;
+		_accounting.LastModifiedPlatform = platform.Platform;
+		_accounting.LastModifiedLatitude = platform.Latitude;
+		_accounting.LastModifiedLongitude = platform.Longitude;
 		_accounting.CreatedBy = _user.Id;
 		_accounting.LastModifiedBy = _user.Id;
 	}

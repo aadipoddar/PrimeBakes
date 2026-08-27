@@ -79,7 +79,8 @@ public partial class TaxPage
 
 			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			await TaxData.SaveTransaction(_tax, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			await TaxData.SaveTransaction(_tax, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
 			ResetPage();
@@ -128,8 +129,9 @@ public partial class TaxPage
 			var tax = await CommonData.LoadTableDataById<TaxModel>(StoreNames.Tax, id)
 				?? throw new Exception("Transaction not found.");
 
-			if (isRecover) await TaxData.RecoverTransaction(tax, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
-			else await TaxData.DeleteTransaction(tax, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			if (isRecover) await TaxData.RecoverTransaction(tax, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
+			else await TaxData.DeleteTransaction(tax, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Success", $"Transaction {tax.Code} has been {(isRecover ? "recovered" : "deleted")} successfully.", ToastType.Success);
 			ResetPage();

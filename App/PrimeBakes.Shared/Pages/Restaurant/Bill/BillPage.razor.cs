@@ -251,13 +251,10 @@ public partial class BillPage
 			Credit = 0,
 			UPI = 0,
 			Remarks = null,
-			CreatedAt = DateTime.Now,
-			CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService),
 			Running = true,
 			Status = true,
 			LastModifiedAt = null,
-			LastModifiedBy = null,
-			LastModifiedFromPlatform = null
+			LastModifiedBy = null
 		};
 
 		await DeleteLocalFiles();
@@ -990,9 +987,17 @@ public partial class BillPage
 		var currentDateTime = await CommonData.LoadCurrentDateTime();
 		_bill.Status = true;
 		_bill.TransactionDateTime = DateOnly.FromDateTime(_bill.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
+		_bill.CreatedAt = currentDateTime;
 		_bill.LastModifiedAt = currentDateTime;
-		_bill.CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
-		_bill.LastModifiedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
+		var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+		_bill.CreatedFormFactor = platform.FormFactor;
+		_bill.CreatedPlatform = platform.Platform;
+		_bill.CreatedLatitude = platform.Latitude;
+		_bill.CreatedLongitude = platform.Longitude;
+		_bill.LastModifiedFormFactor = platform.FormFactor;
+		_bill.LastModifiedPlatform = platform.Platform;
+		_bill.LastModifiedLatitude = platform.Latitude;
+		_bill.LastModifiedLongitude = platform.Longitude;
 		_bill.CreatedBy = _user.Id;
 		_bill.LastModifiedBy = _user.Id;
 	}

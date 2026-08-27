@@ -19,7 +19,8 @@ public class SaleEndpoint : ICarterModule
 
 
 		group.MapPost(nameof(SaleData.PostDaySales),
-			(DateTime postingDate, int locationId, int userId, string userPlatform) => SaleData.PostDaySales(postingDate, locationId, userId, userPlatform));
+			(DateTime postingDate, int locationId, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+				SaleData.PostDaySales(postingDate, locationId, userId, formFactor, platform, latitude, longitude));
 
 		group.MapPost(nameof(SaleData.DeleteTransaction), (SaleModel sale) => SaleData.DeleteTransaction(sale));
 		group.MapPost(nameof(SaleData.RecoverTransaction), (SaleModel sale) => SaleData.RecoverTransaction(sale));

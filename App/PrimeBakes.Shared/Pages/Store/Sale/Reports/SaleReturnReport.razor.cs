@@ -117,13 +117,17 @@ public partial class SaleReturnReport : IAsyncDisposable
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),
 				TableName = StoreRouteNames.SaleReturnReport,
 				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 				CreatedBy = _user.Id,
-				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
+				CreatedFormFactor = platform.FormFactor,
+				CreatedPlatform = platform.Platform,
+				CreatedLatitude = platform.Latitude,
+				CreatedLongitude = platform.Longitude
 			});
 
 			await ApplyFilters();
@@ -264,7 +268,11 @@ public partial class SaleReturnReport : IAsyncDisposable
 			saleReturn.Status = isRecover;
 			saleReturn.LastModifiedBy = _user.Id;
 			saleReturn.LastModifiedAt = await CommonData.LoadCurrentDateTime();
-			saleReturn.LastModifiedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			saleReturn.LastModifiedFormFactor = platform.FormFactor;
+			saleReturn.LastModifiedPlatform = platform.Platform;
+			saleReturn.LastModifiedLatitude = platform.Latitude;
+			saleReturn.LastModifiedLongitude = platform.Longitude;
 
 			if (isRecover) await SaleReturnData.RecoverTransaction(saleReturn);
 			else await SaleReturnData.DeleteTransaction(saleReturn);

@@ -142,7 +142,8 @@ public partial class EmployeeSalaryComponentPage
 			_employeeSalaryComponent.EmployeeId = _selectedEmployee?.Id ?? 0;
 			_employeeSalaryComponent.SalaryComponentId = _selectedSalaryComponent?.Id ?? 0;
 			_employeeSalaryComponent.FromDate = DateOnly.FromDateTime(_effectiveDate);
-			await EmployeeSalaryComponentData.SaveTransaction(_employeeSalaryComponent, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			await EmployeeSalaryComponentData.SaveTransaction(_employeeSalaryComponent, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
 			ResetPage();
@@ -204,7 +205,8 @@ public partial class EmployeeSalaryComponentPage
 
 			await _toastNotification.ShowAsync("Processing", "Deleting transaction...", ToastType.Info);
 
-			await EmployeeSalaryComponentData.DeleteTransaction(employeeSalaryComponent, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			await EmployeeSalaryComponentData.DeleteTransaction(employeeSalaryComponent, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Success", $"Transaction {employeeSalaryComponent.SalaryComponentName} has been deleted successfully.", ToastType.Success);
 			ResetPage();
@@ -232,7 +234,8 @@ public partial class EmployeeSalaryComponentPage
 
 			await _toastNotification.ShowAsync("Processing", "Discontinuing transaction...", ToastType.Info);
 
-			await EmployeeSalaryComponentData.DiscontinueTransaction(employeeSalaryComponent, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			await EmployeeSalaryComponentData.DiscontinueTransaction(employeeSalaryComponent, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Success", $"Transaction {employeeSalaryComponent.SalaryComponentName} has been discontinued successfully.", ToastType.Success);
 			ResetPage();

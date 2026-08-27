@@ -188,12 +188,9 @@ public partial class PurchasePage
 			RoundOffAmount = 0,
 			TotalAmount = 0,
 			Remarks = null,
-			CreatedAt = DateTime.Now,
-			CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService),
 			Status = true,
 			LastModifiedAt = null,
 			LastModifiedBy = null,
-			LastModifiedFromPlatform = null
 		};
 
 		await DeleteLocalFiles();
@@ -755,9 +752,17 @@ public partial class PurchasePage
 		var currentDateTime = await CommonData.LoadCurrentDateTime();
 		_purchase.Status = true;
 		_purchase.TransactionDateTime = DateOnly.FromDateTime(_purchase.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
+		_purchase.CreatedAt = currentDateTime;
 		_purchase.LastModifiedAt = currentDateTime;
-		_purchase.CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
-		_purchase.LastModifiedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
+		var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+		_purchase.CreatedFormFactor = platform.FormFactor;
+		_purchase.CreatedPlatform = platform.Platform;
+		_purchase.CreatedLatitude = platform.Latitude;
+		_purchase.CreatedLongitude = platform.Longitude;
+		_purchase.LastModifiedFormFactor = platform.FormFactor;
+		_purchase.LastModifiedPlatform = platform.Platform;
+		_purchase.LastModifiedLatitude = platform.Latitude;
+		_purchase.LastModifiedLongitude = platform.Longitude;
 		_purchase.CreatedBy = _user.Id;
 		_purchase.LastModifiedBy = _user.Id;
 	}

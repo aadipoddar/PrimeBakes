@@ -120,7 +120,10 @@ else
 						<CustomGridColumn Field="@nameof(AuditTrailModel.RecordNo)" HeaderText="Record No" />
 						<CustomGridColumn Field="@nameof(AuditTrailModel.RecordValue)" HeaderText="Changes" Visible="_showAllColumns" Width="1000" />
 						<CustomGridColumn Field="@nameof(AuditTrailModel.CreatedByName)" HeaderText="User" />
-						<CustomGridColumn Field="@nameof(AuditTrailModel.CreatedFromPlatform)" HeaderText="Platform" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(AuditTrailModel.CreatedFormFactor)" HeaderText="Form" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(AuditTrailModel.CreatedPlatform)" HeaderText="Platform" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(AuditTrailModel.CreatedLatitude)" HeaderText="Lat" Format="N6" NumericColumn="true" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(AuditTrailModel.CreatedLongitude)" HeaderText="Long" Format="N6" NumericColumn="true" Visible="_showAllColumns" />
 					</GridColumns>
 				</SfGrid>
 			</div>

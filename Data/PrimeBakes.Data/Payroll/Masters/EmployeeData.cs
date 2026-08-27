@@ -15,7 +15,7 @@ public static class EmployeeData
 		(await SqlDataAccess.LoadData<int, dynamic>(PayrollNames.InsertEmployee, employee, transaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Employee.");
 
-	public static async Task DeleteTransaction(EmployeeModel employee, int userId, string platform) =>
+	public static async Task DeleteTransaction(EmployeeModel employee, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			employee.Status = false;
@@ -26,11 +26,14 @@ public static class EmployeeData
 				TableName = PayrollNames.Employee,
 				RecordNo = employee.Code,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
-	public static async Task RecoverTransaction(EmployeeModel employee, int userId, string platform) =>
+	public static async Task RecoverTransaction(EmployeeModel employee, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			employee.Status = true;
@@ -41,7 +44,10 @@ public static class EmployeeData
 				TableName = PayrollNames.Employee,
 				RecordNo = employee.Code,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
@@ -115,7 +121,7 @@ public static class EmployeeData
 			throw new Exception($"Employee name '{item.Name}' already exists. Please choose a different name.");
 	}
 
-	public static async Task<int> SaveTransaction(EmployeeModel employee, int userId, string platform)
+	public static async Task<int> SaveTransaction(EmployeeModel employee, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		await ValidateTransaction(employee);
 
@@ -135,7 +141,10 @@ public static class EmployeeData
 				RecordNo = employee.Code,
 				RecordValue = isUpdate ? diff : null,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 			return id;
 		});

@@ -13,7 +13,7 @@ public static class ProductData
 		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertProduct, product, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Product.");
 
-	public static async Task DeleteTransaction(ProductModel product, int userId, string platform) =>
+	public static async Task DeleteTransaction(ProductModel product, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			var productLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(product.Id, null, null, transaction);
@@ -29,11 +29,14 @@ public static class ProductData
 				TableName = StoreNames.Product,
 				RecordNo = product.Name,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
-	public static async Task RecoverTransaction(ProductModel product, int userId, string platform) =>
+	public static async Task RecoverTransaction(ProductModel product, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			product.Status = true;
@@ -44,7 +47,10 @@ public static class ProductData
 				TableName = StoreNames.Product,
 				RecordNo = product.Name,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
@@ -81,7 +87,7 @@ public static class ProductData
 			throw new Exception($"Product name '{item.Name}' already exists. Please choose a different name.");
 	}
 
-	public static async Task<int> SaveTransaction(ProductModel product, List<LocationModel> locations, DateOnly effectiveDate, int userId, string platform)
+	public static async Task<int> SaveTransaction(ProductModel product, List<LocationModel> locations, DateOnly effectiveDate, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		await ValidateTransaction(product);
 
@@ -106,7 +112,10 @@ public static class ProductData
 				RecordNo = product.Name,
 				RecordValue = isUpdate ? diff : null,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 			return product.Id;
 		});

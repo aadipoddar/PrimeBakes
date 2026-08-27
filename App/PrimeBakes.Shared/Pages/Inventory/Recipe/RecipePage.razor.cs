@@ -266,9 +266,9 @@ public partial class RecipePage
 			_recipe.FromDate = DateOnly.FromDateTime(_effectiveDateTime);
 			_recipe.Status = true;
 
-			var platform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
 			var items = _recipeItems.ConvertCartToDetails(_recipe.Id);
-			_recipe.Id = await RecipeData.SaveTransaction(_recipe, items, _user.Id, platform);
+			_recipe.Id = await RecipeData.SaveTransaction(_recipe, items, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			if (savePDF) await ExportSelectedTransaction(false, true);
 			if (saveExcel) await ExportSelectedTransaction(true, true);

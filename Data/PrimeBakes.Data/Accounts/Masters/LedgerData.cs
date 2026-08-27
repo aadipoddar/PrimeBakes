@@ -12,7 +12,7 @@ public static class LedgerData
 		(await SqlDataAccess.LoadData<int, dynamic>(AccountNames.InsertLedger, ledger, transaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Ledger.");
 
-	public static async Task DeleteTransaction(LedgerModel ledger, int userId, string platform) =>
+	public static async Task DeleteTransaction(LedgerModel ledger, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			ledger.Status = false;
@@ -23,11 +23,14 @@ public static class LedgerData
 				TableName = AccountNames.Ledger,
 				RecordNo = ledger.Name,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
-	public static async Task RecoverTransaction(LedgerModel ledger, int userId, string platform) =>
+	public static async Task RecoverTransaction(LedgerModel ledger, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			ledger.Status = true;
@@ -38,7 +41,10 @@ public static class LedgerData
 				TableName = AccountNames.Ledger,
 				RecordNo = ledger.Name,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
@@ -98,7 +104,7 @@ public static class LedgerData
 		}
 	}
 
-	public static async Task<int> SaveTransaction(LedgerModel ledger, int userId, string platform)
+	public static async Task<int> SaveTransaction(LedgerModel ledger, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		await ValidateTransaction(ledger);
 
@@ -118,7 +124,10 @@ public static class LedgerData
 				RecordNo = ledger.Name,
 				RecordValue = isUpdate ? diff : null,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 			return id;
 		});

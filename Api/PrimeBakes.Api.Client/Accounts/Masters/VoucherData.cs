@@ -7,12 +7,12 @@ public static class VoucherData
 {
 	private static readonly string _endpoint = Helper.SanitizeClassName(nameof(VoucherData));
 
-	public static async Task DeleteTransaction(VoucherModel voucher, int userId, string platform) =>
-		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteTransaction)), voucher, new { userId, platform });
+	public static async Task DeleteTransaction(VoucherModel voucher, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteTransaction)), voucher, new { userId, formFactor, platform, latitude, longitude });
 
-	public static async Task RecoverTransaction(VoucherModel voucher, int userId, string platform) =>
-		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(RecoverTransaction)), voucher, new { userId, platform });
+	public static async Task RecoverTransaction(VoucherModel voucher, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(RecoverTransaction)), voucher, new { userId, formFactor, platform, latitude, longitude });
 
-	public static async Task<int> SaveTransaction(VoucherModel voucher, int userId, string platform) =>
-		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(SaveTransaction)), voucher, new { userId, platform });
+	public static async Task<int> SaveTransaction(VoucherModel voucher, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(SaveTransaction)), voucher, new { userId, formFactor, platform, latitude, longitude });
 }

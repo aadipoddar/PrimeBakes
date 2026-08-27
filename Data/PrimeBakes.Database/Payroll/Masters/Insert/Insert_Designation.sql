@@ -17,8 +17,8 @@ BEGIN
 	ELSE
 	BEGIN
 		UPDATE [dbo].[Designation]
-		SET Name = @Name, Code = @Code, Remarks = @Remarks, Status = @Status
-		WHERE Id = @Id;
+		SET [Name] = @Name, Code = @Code, Remarks = @Remarks, Status = @Status
+		WHERE [Id] = @Id;
 	END
 
 	SELECT @Id AS Id;

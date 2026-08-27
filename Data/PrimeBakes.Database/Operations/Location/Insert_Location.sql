@@ -54,7 +54,7 @@ BEGIN
 			[UseLocationRateOnSale] = @UseLocationRateOnSale,
 			[Remarks] = @Remarks,
 			[Status] = @Status
-		WHERE Id = @Id;
+		WHERE [Id] = @Id;
 	END
 
 	SELECT @Id AS Id;

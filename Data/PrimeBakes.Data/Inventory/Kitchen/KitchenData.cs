@@ -12,7 +12,7 @@ public static class KitchenData
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertKitchen, kitchen, transaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Kitchen.");
 
-	public static async Task DeleteTransaction(KitchenModel kitchen, int userId, string platform) =>
+	public static async Task DeleteTransaction(KitchenModel kitchen, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			kitchen.Status = false;
@@ -23,11 +23,14 @@ public static class KitchenData
 				TableName = InventoryNames.Kitchen,
 				RecordNo = kitchen.Name,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
-	public static async Task RecoverTransaction(KitchenModel kitchen, int userId, string platform) =>
+	public static async Task RecoverTransaction(KitchenModel kitchen, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			kitchen.Status = true;
@@ -38,7 +41,10 @@ public static class KitchenData
 				TableName = InventoryNames.Kitchen,
 				RecordNo = kitchen.Name,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
@@ -58,7 +64,7 @@ public static class KitchenData
 			throw new Exception($"Kitchen name '{item.Name}' already exists. Please choose a different name.");
 	}
 
-	public static async Task<int> SaveTransaction(KitchenModel kitchen, int userId, string platform)
+	public static async Task<int> SaveTransaction(KitchenModel kitchen, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		await ValidateTransaction(kitchen);
 
@@ -78,7 +84,10 @@ public static class KitchenData
 				RecordNo = kitchen.Name,
 				RecordValue = isUpdate ? diff : null,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 			return id;
 		});

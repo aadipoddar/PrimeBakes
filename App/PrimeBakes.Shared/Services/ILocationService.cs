@@ -7,19 +7,6 @@ public interface ILocationService
 
 public sealed class LocationResult
 {
-	public double Latitude { get; set; }
-	public double Longitude { get; set; }
-}
-
-public static class PlatformInfo
-{
-	public static async Task<string> GetCreatedFromPlatform(IFormFactor formFactor, ILocationService locationService)
-	{
-		var platform = $"Form = {formFactor.GetFormFactor()}, Platform = {formFactor.GetPlatform()}";
-		var location = await locationService.GetLocationAsync();
-
-		return location is null
-			? platform
-			: $"{platform}, Lat = {location.Latitude:F6}, Long = {location.Longitude:F6}";
-	}
+	public decimal Latitude { get; set; }
+	public decimal Longitude { get; set; }
 }

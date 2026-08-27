@@ -97,7 +97,10 @@ public static class PurchaseData
 			TableName = InventoryNames.Purchase,
 			RecordNo = purchase.TransactionNo,
 			CreatedBy = purchase.LastModifiedBy.Value,
-			CreatedFromPlatform = purchase.LastModifiedFromPlatform
+			CreatedFormFactor = purchase.LastModifiedFormFactor,
+			CreatedPlatform = purchase.LastModifiedPlatform,
+			CreatedLatitude = purchase.LastModifiedLatitude,
+			CreatedLongitude = purchase.LastModifiedLongitude
 		}, sqlDataAccessTransaction);
 	}
 
@@ -112,7 +115,10 @@ public static class PurchaseData
 		existingAccounting.Status = false;
 		existingAccounting.LastModifiedBy = purchase.LastModifiedBy;
 		existingAccounting.LastModifiedAt = purchase.LastModifiedAt;
-		existingAccounting.LastModifiedFromPlatform = purchase.LastModifiedFromPlatform;
+		existingAccounting.LastModifiedFormFactor = purchase.LastModifiedFormFactor;
+		existingAccounting.LastModifiedPlatform = purchase.LastModifiedPlatform;
+		existingAccounting.LastModifiedLatitude = purchase.LastModifiedLatitude;
+		existingAccounting.LastModifiedLongitude = purchase.LastModifiedLongitude;
 
 		await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
 	}
@@ -363,7 +369,10 @@ public static class PurchaseData
 			Remarks = purchaseOverview.Remarks,
 			CreatedBy = purchaseOverview.CreatedBy,
 			CreatedAt = purchaseOverview.CreatedAt,
-			CreatedFromPlatform = purchaseOverview.CreatedFromPlatform,
+			CreatedFormFactor = purchaseOverview.CreatedFormFactor,
+			CreatedPlatform = purchaseOverview.CreatedPlatform,
+			CreatedLatitude = purchaseOverview.CreatedLatitude,
+			CreatedLongitude = purchaseOverview.CreatedLongitude,
 			Status = true
 		};
 
@@ -429,7 +438,10 @@ public static class PurchaseData
 			RecordNo = purchase.TransactionNo,
 			RecordValue = difference,
 			CreatedBy = update ? purchase.LastModifiedBy.Value : purchase.CreatedBy,
-			CreatedFromPlatform = update ? purchase.LastModifiedFromPlatform : purchase.CreatedFromPlatform
+			CreatedFormFactor = update ? purchase.LastModifiedFormFactor : purchase.CreatedFormFactor,
+			CreatedPlatform = update ? purchase.LastModifiedPlatform : purchase.CreatedPlatform,
+			CreatedLatitude = update ? purchase.LastModifiedLatitude : purchase.CreatedLatitude,
+			CreatedLongitude = update ? purchase.LastModifiedLongitude : purchase.CreatedLongitude
 		}, sqlDataAccessTransaction);
 	}
 	#endregion

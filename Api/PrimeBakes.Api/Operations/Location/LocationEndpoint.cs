@@ -19,6 +19,7 @@ public class LocationEndpoint : ICarterModule
 		group.MapPost(nameof(LocationData.RecoverTransaction), LocationData.RecoverTransaction);
 
 		group.MapPost(nameof(LocationData.SaveTransaction),
-			(LocationSaveRequest request, int userId, string platform) => LocationData.SaveTransaction(request.Location, request.CopyLocation, userId, platform));
+			(LocationSaveRequest request, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+				LocationData.SaveTransaction(request.Location, request.CopyLocation, userId, formFactor, platform, latitude, longitude));
 	}
 }

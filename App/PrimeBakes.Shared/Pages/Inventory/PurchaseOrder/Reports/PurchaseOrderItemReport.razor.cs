@@ -121,13 +121,17 @@ public partial class PurchaseOrderItemReport : IAsyncDisposable
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),
 				TableName = InventoryRouteNames.PurchaseOrderItemReport,
 				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 				CreatedBy = _user.Id,
-				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
+				CreatedFormFactor = platform.FormFactor,
+				CreatedPlatform = platform.Platform,
+				CreatedLatitude = platform.Latitude,
+				CreatedLongitude = platform.Longitude
 			});
 
 			await ApplyFilters();
@@ -265,7 +269,11 @@ public partial class PurchaseOrderItemReport : IAsyncDisposable
 			purchaseOrder.Status = isRecover;
 			purchaseOrder.LastModifiedBy = _user.Id;
 			purchaseOrder.LastModifiedAt = await CommonData.LoadCurrentDateTime();
-			purchaseOrder.LastModifiedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			purchaseOrder.LastModifiedFormFactor = platform.FormFactor;
+			purchaseOrder.LastModifiedPlatform = platform.Platform;
+			purchaseOrder.LastModifiedLatitude = platform.Latitude;
+			purchaseOrder.LastModifiedLongitude = platform.Longitude;
 
 			if (isRecover) await PurchaseOrderData.RecoverTransaction(purchaseOrder);
 			else await PurchaseOrderData.DeleteTransaction(purchaseOrder);

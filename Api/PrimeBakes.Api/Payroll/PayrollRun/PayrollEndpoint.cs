@@ -21,11 +21,12 @@ public class PayrollEndpoint : ICarterModule
 			(int employeeId, int payrollMonth, int payrollYear) => PayrollData.CalculatePayroll(employeeId, payrollMonth, payrollYear));
 
 		group.MapPost(nameof(PayrollData.SaveTransaction),
-			(PayrollSaveRequest request, int userId, string platform) =>
-				PayrollData.SaveTransaction(request.Payroll, request.PayrollDetails, userId, platform));
+			(PayrollSaveRequest request, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+				PayrollData.SaveTransaction(request.Payroll, request.PayrollDetails, userId, formFactor, platform, latitude, longitude));
 
 		group.MapPost(nameof(PayrollData.RunPayroll),
-			(int payrollMonth, int payrollYear, int userId, string platform) => PayrollData.RunPayroll(payrollMonth, payrollYear, userId, platform));
+			(int payrollMonth, int payrollYear, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+				PayrollData.RunPayroll(payrollMonth, payrollYear, userId, formFactor, platform, latitude, longitude));
 
 		group.MapPost(nameof(PayrollData.DeleteTransaction), PayrollData.DeleteTransaction);
 		group.MapPost(nameof(PayrollData.RecoverTransaction), PayrollData.RecoverTransaction);

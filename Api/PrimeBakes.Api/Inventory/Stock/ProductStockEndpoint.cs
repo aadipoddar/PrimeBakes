@@ -24,14 +24,15 @@ public class ProductStockEndpoint : ICarterModule
 			(DateTime FromDate, DateTime ToDate, int LocationId) => ProductStockData.LoadProductStockSummaryByDateLocationId(FromDate, ToDate, LocationId));
 
 		group.MapPost(nameof(ProductStockData.DeleteProductStockAdjustment),
-			(int id, int userId, string platform) => ProductStockData.DeleteProductStockAdjustment(id, userId, platform));
+			(int id, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+				ProductStockData.DeleteProductStockAdjustment(id, userId, formFactor, platform, latitude, longitude));
 
 		group.MapPost(nameof(ProductStockData.RecalculateStockByDateLocation),
-			(DateTime fromDate, DateTime toDate, int locationId, bool deleteAdjustments, int userId, string platform) =>
-				ProductStockData.RecalculateStockByDateLocation(fromDate, toDate, locationId, deleteAdjustments, userId, platform));
+			(DateTime fromDate, DateTime toDate, int locationId, bool deleteAdjustments, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+				ProductStockData.RecalculateStockByDateLocation(fromDate, toDate, locationId, deleteAdjustments, userId, formFactor, platform, latitude, longitude));
 
 		group.MapPost(nameof(ProductStockData.SaveProductStockAdjustment),
-			(ProductStockAdjustmentRequest request, int userId, string platform) =>
-				ProductStockData.SaveProductStockAdjustment(request.TransactionDateTime, request.LocationId, request.Cart, userId, platform));
+			(ProductStockAdjustmentRequest request, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+				ProductStockData.SaveProductStockAdjustment(request.TransactionDateTime, request.LocationId, request.Cart, userId, formFactor, platform, latitude, longitude));
 	}
 }

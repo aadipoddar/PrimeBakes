@@ -201,12 +201,9 @@ public partial class StockTransferPage
 			UPI = 0,
 			Remarks = null,
 			FinancialAccountingId = null,
-			CreatedAt = DateTime.Now,
-			CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService),
 			Status = true,
 			LastModifiedAt = null,
 			LastModifiedBy = null,
-			LastModifiedFromPlatform = null
 		};
 
 		await DeleteLocalFiles();
@@ -870,9 +867,17 @@ public partial class StockTransferPage
 		var currentDateTime = await CommonData.LoadCurrentDateTime();
 		_stockTransfer.Status = true;
 		_stockTransfer.TransactionDateTime = DateOnly.FromDateTime(_stockTransfer.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
+		_stockTransfer.CreatedAt = currentDateTime;
 		_stockTransfer.LastModifiedAt = currentDateTime;
-		_stockTransfer.CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
-		_stockTransfer.LastModifiedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
+		var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+		_stockTransfer.CreatedFormFactor = platform.FormFactor;
+		_stockTransfer.CreatedPlatform = platform.Platform;
+		_stockTransfer.CreatedLatitude = platform.Latitude;
+		_stockTransfer.CreatedLongitude = platform.Longitude;
+		_stockTransfer.LastModifiedFormFactor = platform.FormFactor;
+		_stockTransfer.LastModifiedPlatform = platform.Platform;
+		_stockTransfer.LastModifiedLatitude = platform.Latitude;
+		_stockTransfer.LastModifiedLongitude = platform.Longitude;
 		_stockTransfer.CreatedBy = _user.Id;
 		_stockTransfer.LastModifiedBy = _user.Id;
 	}

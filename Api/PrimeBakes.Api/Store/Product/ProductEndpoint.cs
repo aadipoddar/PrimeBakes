@@ -16,7 +16,7 @@ public class ProductEndpoint : ICarterModule
 		group.MapPost(nameof(ProductData.RecoverTransaction), ProductData.RecoverTransaction);
 
 		group.MapPost(nameof(ProductData.SaveTransaction),
-			(ProductSaveRequest request, int userId, string platform) =>
-				ProductData.SaveTransaction(request.Product, request.Locations, request.EffectiveDate, userId, platform));
+			(ProductSaveRequest request, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+				ProductData.SaveTransaction(request.Product, request.Locations, request.EffectiveDate, userId, formFactor, platform, latitude, longitude));
 	}
 }

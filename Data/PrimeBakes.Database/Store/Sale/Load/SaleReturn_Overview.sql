@@ -53,11 +53,17 @@ SELECT
 	[sr].[CreatedBy],
 	[u].[Name] AS CreatedByName,
 	[sr].[CreatedAt],
-	[sr].[CreatedFromPlatform],
+	[sr].[CreatedFormFactor],
+	[sr].[CreatedPlatform],
+	[sr].[CreatedLatitude],
+	[sr].[CreatedLongitude],
 	[sr].[LastModifiedBy],
 	[lm].[Name] AS LastModifiedByUserName,
 	[sr].[LastModifiedAt],
-	[sr].[LastModifiedFromPlatform],
+	[sr].[LastModifiedFormFactor],
+	[sr].[LastModifiedPlatform],
+	[sr].[LastModifiedLatitude],
+	[sr].[LastModifiedLongitude],
 
 	[sr].[Status]
 

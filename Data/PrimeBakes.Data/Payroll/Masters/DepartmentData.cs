@@ -12,7 +12,7 @@ public static class DepartmentData
 		(await SqlDataAccess.LoadData<int, dynamic>(PayrollNames.InsertDepartment, department, transaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Department.");
 
-	public static async Task DeleteTransaction(DepartmentModel department, int userId, string platform) =>
+	public static async Task DeleteTransaction(DepartmentModel department, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			department.Status = false;
@@ -23,11 +23,14 @@ public static class DepartmentData
 				TableName = PayrollNames.Department,
 				RecordNo = department.Code,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
-	public static async Task RecoverTransaction(DepartmentModel department, int userId, string platform) =>
+	public static async Task RecoverTransaction(DepartmentModel department, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			department.Status = true;
@@ -38,7 +41,10 @@ public static class DepartmentData
 				TableName = PayrollNames.Department,
 				RecordNo = department.Code,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
@@ -62,7 +68,7 @@ public static class DepartmentData
 			throw new Exception($"Department name '{item.Name}' already exists. Please choose a different name.");
 	}
 
-	public static async Task<int> SaveTransaction(DepartmentModel department, int userId, string platform)
+	public static async Task<int> SaveTransaction(DepartmentModel department, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		await ValidateTransaction(department);
 
@@ -82,7 +88,10 @@ public static class DepartmentData
 				RecordNo = department.Code,
 				RecordValue = isUpdate ? diff : null,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 			return id;
 		});

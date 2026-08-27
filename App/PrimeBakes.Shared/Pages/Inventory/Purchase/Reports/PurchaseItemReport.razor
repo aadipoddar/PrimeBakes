@@ -236,10 +236,16 @@ else
 						<CustomGridColumn Field="@nameof(PurchaseItemOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Transaction No" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(PurchaseItemOverviewModel.CreatedByName)" HeaderText="Created By" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(PurchaseItemOverviewModel.CreatedAt)" HeaderText="Created At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
-						<CustomGridColumn Field="@nameof(PurchaseItemOverviewModel.CreatedFromPlatform)" HeaderText="Created Platform" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(PurchaseItemOverviewModel.CreatedFormFactor)" HeaderText="Created Form" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(PurchaseItemOverviewModel.CreatedPlatform)" HeaderText="Created Platform" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(PurchaseItemOverviewModel.CreatedLatitude)" HeaderText="Created Lat" Format="N6" NumericColumn="true" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(PurchaseItemOverviewModel.CreatedLongitude)" HeaderText="Created Long" Format="N6" NumericColumn="true" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(PurchaseItemOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(PurchaseItemOverviewModel.LastModifiedAt)" HeaderText="Modified At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
-						<CustomGridColumn Field="@nameof(PurchaseItemOverviewModel.LastModifiedFromPlatform)" HeaderText="Modified Platform" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(PurchaseItemOverviewModel.LastModifiedFormFactor)" HeaderText="Modified Form" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(PurchaseItemOverviewModel.LastModifiedPlatform)" HeaderText="Modified Platform" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(PurchaseItemOverviewModel.LastModifiedLatitude)" HeaderText="Modified Lat" Format="N6" NumericColumn="true" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(PurchaseItemOverviewModel.LastModifiedLongitude)" HeaderText="Modified Long" Format="N6" NumericColumn="true" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(PurchaseItemOverviewModel.MasterStatus)" Visible="@(_showDeleted && !_showSummary)" StatusColumn="true" />
 					</GridColumns>
 				</SfGrid>

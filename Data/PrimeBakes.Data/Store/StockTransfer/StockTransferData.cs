@@ -91,7 +91,10 @@ public static class StockTransferData
 			TableName = StoreNames.StockTransfer,
 			RecordNo = stockTransfer.TransactionNo,
 			CreatedBy = stockTransfer.LastModifiedBy.Value,
-			CreatedFromPlatform = stockTransfer.LastModifiedFromPlatform
+			CreatedFormFactor = stockTransfer.LastModifiedFormFactor,
+			CreatedPlatform = stockTransfer.LastModifiedPlatform,
+			CreatedLatitude = stockTransfer.LastModifiedLatitude,
+			CreatedLongitude = stockTransfer.LastModifiedLongitude
 		}, sqlDataAccessTransaction);
 	}
 
@@ -106,7 +109,10 @@ public static class StockTransferData
 		existingAccounting.Status = false;
 		existingAccounting.LastModifiedBy = stockTransfer.LastModifiedBy;
 		existingAccounting.LastModifiedAt = stockTransfer.LastModifiedAt;
-		existingAccounting.LastModifiedFromPlatform = stockTransfer.LastModifiedFromPlatform;
+		existingAccounting.LastModifiedFormFactor = stockTransfer.LastModifiedFormFactor;
+		existingAccounting.LastModifiedPlatform = stockTransfer.LastModifiedPlatform;
+		existingAccounting.LastModifiedLatitude = stockTransfer.LastModifiedLatitude;
+		existingAccounting.LastModifiedLongitude = stockTransfer.LastModifiedLongitude;
 
 		await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
 	}
@@ -466,7 +472,10 @@ public static class StockTransferData
 			Remarks = stockTransferOverview.Remarks,
 			CreatedBy = stockTransferOverview.CreatedBy,
 			CreatedAt = stockTransferOverview.CreatedAt,
-			CreatedFromPlatform = stockTransferOverview.CreatedFromPlatform,
+			CreatedFormFactor = stockTransferOverview.CreatedFormFactor,
+			CreatedPlatform = stockTransferOverview.CreatedPlatform,
+			CreatedLatitude = stockTransferOverview.CreatedLatitude,
+			CreatedLongitude = stockTransferOverview.CreatedLongitude,
 			Status = true
 		};
 
@@ -507,7 +516,10 @@ public static class StockTransferData
 			RecordNo = stockTransfer.TransactionNo,
 			RecordValue = difference,
 			CreatedBy = update ? stockTransfer.LastModifiedBy.Value : stockTransfer.CreatedBy,
-			CreatedFromPlatform = update ? stockTransfer.LastModifiedFromPlatform : stockTransfer.CreatedFromPlatform
+			CreatedFormFactor = update ? stockTransfer.LastModifiedFormFactor : stockTransfer.CreatedFormFactor,
+			CreatedPlatform = update ? stockTransfer.LastModifiedPlatform : stockTransfer.CreatedPlatform,
+			CreatedLatitude = update ? stockTransfer.LastModifiedLatitude : stockTransfer.CreatedLatitude,
+			CreatedLongitude = update ? stockTransfer.LastModifiedLongitude : stockTransfer.CreatedLongitude
 		}, sqlDataAccessTransaction);
 	}
 	#endregion

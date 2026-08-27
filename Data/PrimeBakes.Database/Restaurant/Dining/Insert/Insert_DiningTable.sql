@@ -18,8 +18,8 @@ BEGIN
 	ELSE
 	BEGIN
 		UPDATE [dbo].[DiningTable]
-		SET Name = @Name, DiningAreaId = @DiningAreaId, Remarks = @Remarks, Status = @Status, LayoutJson = @LayoutJson
-		WHERE Id = @Id;
+		SET [Name] = @Name, DiningAreaId = @DiningAreaId, Remarks = @Remarks, Status = @Status, LayoutJson = @LayoutJson
+		WHERE [Id] = @Id;
 	END
 
 	SELECT @Id AS Id;

@@ -139,7 +139,10 @@ public static class SaleData
 			TableName = StoreNames.Sale,
 			RecordNo = sale.TransactionNo,
 			CreatedBy = sale.LastModifiedBy.Value,
-			CreatedFromPlatform = sale.LastModifiedFromPlatform
+			CreatedFormFactor = sale.LastModifiedFormFactor,
+			CreatedPlatform = sale.LastModifiedPlatform,
+			CreatedLatitude = sale.LastModifiedLatitude,
+			CreatedLongitude = sale.LastModifiedLongitude
 		}, sqlDataAccessTransaction);
 	}
 
@@ -154,7 +157,10 @@ public static class SaleData
 		existingAccounting.Status = false;
 		existingAccounting.LastModifiedBy = sale.LastModifiedBy;
 		existingAccounting.LastModifiedAt = sale.LastModifiedAt;
-		existingAccounting.LastModifiedFromPlatform = sale.LastModifiedFromPlatform;
+		existingAccounting.LastModifiedFormFactor = sale.LastModifiedFormFactor;
+		existingAccounting.LastModifiedPlatform = sale.LastModifiedPlatform;
+		existingAccounting.LastModifiedLatitude = sale.LastModifiedLatitude;
+		existingAccounting.LastModifiedLongitude = sale.LastModifiedLongitude;
 
 		await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
 	}
@@ -593,7 +599,10 @@ public static class SaleData
 			Remarks = saleOverview.Remarks,
 			CreatedBy = saleOverview.CreatedBy,
 			CreatedAt = saleOverview.CreatedAt,
-			CreatedFromPlatform = saleOverview.CreatedFromPlatform,
+			CreatedFormFactor = saleOverview.CreatedFormFactor,
+			CreatedPlatform = saleOverview.CreatedPlatform,
+			CreatedLatitude = saleOverview.CreatedLatitude,
+			CreatedLongitude = saleOverview.CreatedLongitude,
 			Status = true
 		};
 
@@ -634,7 +643,10 @@ public static class SaleData
 			RecordNo = sale.TransactionNo,
 			RecordValue = difference,
 			CreatedBy = update ? sale.LastModifiedBy.Value : sale.CreatedBy,
-			CreatedFromPlatform = update ? sale.LastModifiedFromPlatform : sale.CreatedFromPlatform
+			CreatedFormFactor = update ? sale.LastModifiedFormFactor : sale.CreatedFormFactor,
+			CreatedPlatform = update ? sale.LastModifiedPlatform : sale.CreatedPlatform,
+			CreatedLatitude = update ? sale.LastModifiedLatitude : sale.CreatedLatitude,
+			CreatedLongitude = update ? sale.LastModifiedLongitude : sale.CreatedLongitude
 		}, sqlDataAccessTransaction);
 	}
 	#endregion
@@ -655,7 +667,7 @@ public static class SaleData
 			throw new InvalidOperationException("Cannot post day sales account entry as there are already posted sales for the day. Please contact administrator.");
 	}
 
-	public static async Task PostDaySales(DateTime postingDate, int locationId, int userId, string userPlatform)
+	public static async Task PostDaySales(DateTime postingDate, int locationId, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		await ValidateDaySalesAccountPosting(postingDate, locationId);
 		await FinancialYearData.ValidateFinancialYear(postingDate);
@@ -732,7 +744,10 @@ public static class SaleData
 			Remarks = $"Sale Day Closing for {postingDate:dd-MMM-yyyy}",
 			CreatedBy = userId,
 			CreatedAt = currentDateTime,
-			CreatedFromPlatform = userPlatform,
+			CreatedFormFactor = formFactor,
+			CreatedPlatform = platform,
+			CreatedLatitude = latitude,
+			CreatedLongitude = longitude,
 			Status = true
 		};
 

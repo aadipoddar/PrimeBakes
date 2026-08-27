@@ -122,13 +122,17 @@ public partial class CustomerSummaryReport : IAsyncDisposable
 			_allReturns = await allReturns;
 			_allBills = await allBills;
 
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),
 				TableName = StoreRouteNames.CustomerSummaryReport,
 				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 				CreatedBy = _user.Id,
-				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
+				CreatedFormFactor = platform.FormFactor,
+				CreatedPlatform = platform.Platform,
+				CreatedLatitude = platform.Latitude,
+				CreatedLongitude = platform.Longitude
 			});
 
 			await ApplyFilters();

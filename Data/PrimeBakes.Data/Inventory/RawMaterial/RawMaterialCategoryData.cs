@@ -12,7 +12,7 @@ public static class RawMaterialCategoryData
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertRawMaterialCategory, rawMaterialCategory, transaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Raw Material Category.");
 
-	public static async Task DeleteTransaction(RawMaterialCategoryModel category, int userId, string platform) =>
+	public static async Task DeleteTransaction(RawMaterialCategoryModel category, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			category.Status = false;
@@ -23,11 +23,14 @@ public static class RawMaterialCategoryData
 				TableName = InventoryNames.RawMaterialCategory,
 				RecordNo = category.Name,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
-	public static async Task RecoverTransaction(RawMaterialCategoryModel category, int userId, string platform) =>
+	public static async Task RecoverTransaction(RawMaterialCategoryModel category, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			category.Status = true;
@@ -38,7 +41,10 @@ public static class RawMaterialCategoryData
 				TableName = InventoryNames.RawMaterialCategory,
 				RecordNo = category.Name,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
@@ -58,7 +64,7 @@ public static class RawMaterialCategoryData
 			throw new Exception($"Raw Material Category name '{item.Name}' already exists. Please choose a different name.");
 	}
 
-	public static async Task<int> SaveTransaction(RawMaterialCategoryModel category, int userId, string platform)
+	public static async Task<int> SaveTransaction(RawMaterialCategoryModel category, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		await ValidateTransaction(category);
 
@@ -78,7 +84,10 @@ public static class RawMaterialCategoryData
 				RecordNo = category.Name,
 				RecordValue = isUpdate ? diff : null,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 			return id;
 		});

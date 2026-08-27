@@ -44,11 +44,11 @@ public static class RecipeData
 	}
 
 	#region Delete
-	public static async Task DeleteTransaction(RecipeModel recipe, int userId, string platform, SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	public static async Task DeleteTransaction(RecipeModel recipe, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		if (sqlDataAccessTransaction is null)
 		{
-			await SqlDataAccessTransaction.Run(transaction => DeleteTransaction(recipe, userId, platform, transaction));
+			await SqlDataAccessTransaction.Run(transaction => DeleteTransaction(recipe, userId, formFactor, platform, latitude, longitude, transaction));
 			await RecipeNotify.Notify(recipe.Id, NotifyType.Deleted);
 			return;
 		}
@@ -63,7 +63,10 @@ public static class RecipeData
 			TableName = InventoryNames.Recipe,
 			RecordNo = product.Name,
 			CreatedBy = userId,
-			CreatedFromPlatform = platform
+			CreatedFormFactor = formFactor,
+			CreatedPlatform = platform,
+			CreatedLatitude = latitude,
+			CreatedLongitude = longitude
 		}, sqlDataAccessTransaction);
 	}
 	#endregion
@@ -92,14 +95,17 @@ public static class RecipeData
 		RecipeModel recipe,
 		List<RecipeDetailModel> recipeDetails,
 		int userId,
+		string formFactor,
 		string platform,
+		decimal? latitude,
+		decimal? longitude,
 		SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		bool update = recipe.Id > 0;
 
 		if (sqlDataAccessTransaction is null)
 		{
-			recipe.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(recipe, recipeDetails, userId, platform, transaction));
+			recipe.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(recipe, recipeDetails, userId, formFactor, platform, latitude, longitude, transaction));
 			await RecipeNotify.Notify(recipe.Id, update ? NotifyType.Updated : NotifyType.Created);
 			return recipe.Id;
 		}
@@ -111,7 +117,7 @@ public static class RecipeData
 
 		recipe.Id = await InsertRecipe(recipe, sqlDataAccessTransaction);
 		await SaveTransactionDetail(recipe, recipeDetails, update, sqlDataAccessTransaction);
-		await SaveAuditTrail(recipe, update, userId, platform, previousRecipe, previousRecipeDetails, sqlDataAccessTransaction);
+		await SaveAuditTrail(recipe, update, userId, formFactor, platform, latitude, longitude, previousRecipe, previousRecipeDetails, sqlDataAccessTransaction);
 
 		return recipe.Id;
 	}
@@ -139,7 +145,10 @@ public static class RecipeData
 		RecipeModel recipe,
 		bool update,
 		int userId,
+		string formFactor,
 		string platform,
+		decimal? latitude,
+		decimal? longitude,
 		RecipeOverviewModel previousRecipe = null,
 		List<RecipeDetailModel> previousRecipeDetails = null,
 		SqlDataAccessTransaction sqlDataAccessTransaction = null)
@@ -166,7 +175,10 @@ public static class RecipeData
 			RecordNo = currentRecipe?.ProductName ?? recipe.ProductId.ToString(),
 			RecordValue = difference,
 			CreatedBy = userId,
-			CreatedFromPlatform = platform
+			CreatedFormFactor = formFactor,
+			CreatedPlatform = platform,
+			CreatedLatitude = latitude,
+			CreatedLongitude = longitude
 		}, sqlDataAccessTransaction);
 	}
 	#endregion

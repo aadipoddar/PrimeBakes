@@ -73,7 +73,10 @@ public static class FinancialAccountingData
 			TableName = AccountNames.FinancialAccounting,
 			RecordNo = accounting.TransactionNo,
 			CreatedBy = accounting.LastModifiedBy.Value,
-			CreatedFromPlatform = accounting.LastModifiedFromPlatform
+			CreatedFormFactor = accounting.LastModifiedFormFactor,
+			CreatedPlatform = accounting.LastModifiedPlatform,
+			CreatedLatitude = accounting.LastModifiedLatitude,
+			CreatedLongitude = accounting.LastModifiedLongitude
 		}, sqlDataAccessTransaction);
 	}
 
@@ -248,7 +251,10 @@ public static class FinancialAccountingData
 			RecordNo = accounting.TransactionNo,
 			RecordValue = difference,
 			CreatedBy = update ? accounting.LastModifiedBy.Value : accounting.CreatedBy,
-			CreatedFromPlatform = update ? accounting.LastModifiedFromPlatform : accounting.CreatedFromPlatform
+			CreatedFormFactor = update ? accounting.LastModifiedFormFactor : accounting.CreatedFormFactor,
+			CreatedPlatform = update ? accounting.LastModifiedPlatform : accounting.CreatedPlatform,
+			CreatedLatitude = update ? accounting.LastModifiedLatitude : accounting.CreatedLatitude,
+			CreatedLongitude = update ? accounting.LastModifiedLongitude : accounting.CreatedLongitude
 		}, sqlDataAccessTransaction);
 	}
 	#endregion
@@ -261,7 +267,7 @@ public static class FinancialAccountingData
 			throw new InvalidOperationException("This transaction cannot be modified or deleted because one or more of its lines have been bank reconciled. Remove the clearing date in Bank Reconciliation first.");
 	}
 
-	public static async Task SaveBRSDates(List<FinancialAccountingLedgerModel> changedLines, int userId, string platform) =>
+	public static async Task SaveBRSDates(List<FinancialAccountingLedgerModel> changedLines, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			foreach (var line in changedLines)
@@ -285,7 +291,10 @@ public static class FinancialAccountingData
 					RecordNo = accounting.TransactionNo,
 					RecordValue = existingLine.ClearingDate.HasValue ? $"Clearing Date: {existingLine.ClearingDate:yyyy-MM-dd}" : "Clearing Date Removed",
 					CreatedBy = userId,
-					CreatedFromPlatform = platform
+					CreatedFormFactor = formFactor,
+					CreatedPlatform = platform,
+					CreatedLatitude = latitude,
+					CreatedLongitude = longitude
 				}, transaction);
 			}
 		});

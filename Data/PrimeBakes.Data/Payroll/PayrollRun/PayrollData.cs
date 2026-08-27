@@ -166,7 +166,10 @@ public static class PayrollData
 			payroll.TransactionNo = existingPayroll.TransactionNo;
 			payroll.CreatedBy = existingPayroll.CreatedBy;
 			payroll.CreatedAt = existingPayroll.CreatedAt;
-			payroll.CreatedFromPlatform = existingPayroll.CreatedFromPlatform;
+			payroll.CreatedFormFactor = existingPayroll.CreatedFormFactor;
+			payroll.CreatedPlatform = existingPayroll.CreatedPlatform;
+			payroll.CreatedLatitude = existingPayroll.CreatedLatitude;
+			payroll.CreatedLongitude = existingPayroll.CreatedLongitude;
 		}
 		else
 			payroll.TransactionNo = await GenerateCodes.GeneratePayrollTransactionNo(payroll, transaction);
@@ -174,25 +177,31 @@ public static class PayrollData
 		return employee;
 	}
 
-	public static async Task<int> SaveTransaction(PayrollModel payroll, List<PayrollDetailModel> payrollDetails, int userId, string platform, SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	public static async Task<int> SaveTransaction(PayrollModel payroll, List<PayrollDetailModel> payrollDetails, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		var update = payroll.Id > 0;
 
 		if (update)
 		{
 			payroll.LastModifiedBy = userId;
-			payroll.LastModifiedAt = DateTime.Now;
-			payroll.LastModifiedFromPlatform = platform;
+			payroll.LastModifiedAt = await CommonData.LoadCurrentDateTime(sqlDataAccessTransaction);
+			payroll.LastModifiedFormFactor = formFactor;
+			payroll.LastModifiedPlatform = platform;
+			payroll.LastModifiedLatitude = latitude;
+			payroll.LastModifiedLongitude = longitude;
 		}
 		else
 		{
 			payroll.CreatedBy = userId;
-			payroll.CreatedAt = DateTime.Now;
-			payroll.CreatedFromPlatform = platform;
+			payroll.CreatedAt = await CommonData.LoadCurrentDateTime(sqlDataAccessTransaction);
+			payroll.CreatedFormFactor = formFactor;
+			payroll.CreatedPlatform = platform;
+			payroll.CreatedLatitude = latitude;
+			payroll.CreatedLongitude = longitude;
 		}
 
 		if (sqlDataAccessTransaction is null)
-			return await SqlDataAccessTransaction.Run(transaction => SaveTransaction(payroll, payrollDetails, userId, platform, transaction));
+			return await SqlDataAccessTransaction.Run(transaction => SaveTransaction(payroll, payrollDetails, userId, formFactor, platform, latitude, longitude, transaction));
 
 		var employee = await ValidateTransaction(payroll, payrollDetails, update, sqlDataAccessTransaction);
 
@@ -233,13 +242,16 @@ public static class PayrollData
 			RecordNo = payroll.TransactionNo,
 			RecordValue = update ? AuditTrailData.GetDifference(previous, current) : null,
 			CreatedBy = userId,
-			CreatedFromPlatform = platform
+			CreatedFormFactor = formFactor,
+			CreatedPlatform = platform,
+			CreatedLatitude = latitude,
+			CreatedLongitude = longitude
 		}, sqlDataAccessTransaction);
 
 		return payroll.Id;
 	}
 
-	public static async Task<int> RunPayroll(int payrollMonth, int payrollYear, int userId, string platform)
+	public static async Task<int> RunPayroll(int payrollMonth, int payrollYear, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		if (payrollMonth is < 1 or > 12)
 			throw new InvalidOperationException("Please select a valid month.");
@@ -264,22 +276,25 @@ public static class PayrollData
 			if (existingPayroll is not null)
 				request.Payroll.Id = existingPayroll.Id;
 
-			await SaveTransaction(request.Payroll, request.PayrollDetails, userId, platform);
+			await SaveTransaction(request.Payroll, request.PayrollDetails, userId, formFactor, platform, latitude, longitude);
 			processed++;
 		}
 
 		return processed;
 	}
 
-	public static async Task DeleteTransaction(PayrollModel payroll, int userId, string platform) =>
+	public static async Task DeleteTransaction(PayrollModel payroll, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			await FinancialYearData.ValidateFinancialYear(payroll.TransactionDateTime, transaction);
 
 			payroll.Status = false;
 			payroll.LastModifiedBy = userId;
-			payroll.LastModifiedAt = DateTime.Now;
-			payroll.LastModifiedFromPlatform = platform;
+			payroll.LastModifiedAt = await CommonData.LoadCurrentDateTime(transaction);
+			payroll.LastModifiedFormFactor = formFactor;
+			payroll.LastModifiedPlatform = platform;
+			payroll.LastModifiedLatitude = latitude;
+			payroll.LastModifiedLongitude = longitude;
 			await InsertPayroll(payroll, transaction);
 
 			await AuditTrailData.SaveAuditTrail(new()
@@ -288,11 +303,14 @@ public static class PayrollData
 				TableName = PayrollNames.Payroll,
 				RecordNo = payroll.TransactionNo,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
-	public static async Task RecoverTransaction(PayrollModel payroll, int userId, string platform) =>
+	public static async Task RecoverTransaction(PayrollModel payroll, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			await FinancialYearData.ValidateFinancialYear(payroll.TransactionDateTime, transaction);
@@ -303,8 +321,11 @@ public static class PayrollData
 
 			payroll.Status = true;
 			payroll.LastModifiedBy = userId;
-			payroll.LastModifiedAt = DateTime.Now;
-			payroll.LastModifiedFromPlatform = platform;
+			payroll.LastModifiedAt = await CommonData.LoadCurrentDateTime(transaction);
+			payroll.LastModifiedFormFactor = formFactor;
+			payroll.LastModifiedPlatform = platform;
+			payroll.LastModifiedLatitude = latitude;
+			payroll.LastModifiedLongitude = longitude;
 			await InsertPayroll(payroll, transaction);
 
 			await AuditTrailData.SaveAuditTrail(new()
@@ -313,7 +334,10 @@ public static class PayrollData
 				TableName = PayrollNames.Payroll,
 				RecordNo = payroll.TransactionNo,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 }

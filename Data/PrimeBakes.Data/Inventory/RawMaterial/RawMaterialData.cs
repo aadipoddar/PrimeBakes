@@ -12,7 +12,7 @@ public static class RawMaterialData
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertRawMaterial, rawMaterial, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Raw Material.");
 
-	public static async Task DeleteTransaction(RawMaterialModel rawMaterial, int userId, string platform) =>
+	public static async Task DeleteTransaction(RawMaterialModel rawMaterial, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			rawMaterial.Status = false;
@@ -23,11 +23,14 @@ public static class RawMaterialData
 				TableName = InventoryNames.RawMaterial,
 				RecordNo = rawMaterial.Name,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
-	public static async Task RecoverTransaction(RawMaterialModel rawMaterial, int userId, string platform) =>
+	public static async Task RecoverTransaction(RawMaterialModel rawMaterial, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			rawMaterial.Status = true;
@@ -38,7 +41,10 @@ public static class RawMaterialData
 				TableName = InventoryNames.RawMaterial,
 				RecordNo = rawMaterial.Name,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
@@ -72,7 +78,7 @@ public static class RawMaterialData
 			throw new Exception($"Raw material name '{item.Name}' already exists. Please choose a different name.");
 	}
 
-	public static async Task<int> SaveTransaction(RawMaterialModel rawMaterial, int userId, string platform)
+	public static async Task<int> SaveTransaction(RawMaterialModel rawMaterial, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		await ValidateTransaction(rawMaterial);
 
@@ -95,7 +101,10 @@ public static class RawMaterialData
 				RecordNo = rawMaterial.Name,
 				RecordValue = isUpdate ? diff : null,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 			return id;
 		});

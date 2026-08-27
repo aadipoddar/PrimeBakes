@@ -123,13 +123,17 @@ public partial class StockTransferItemReport : IAsyncDisposable
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),
 				TableName = StoreRouteNames.StockTransferItemReport,
 				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 				CreatedBy = _user.Id,
-				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
+				CreatedFormFactor = platform.FormFactor,
+				CreatedPlatform = platform.Platform,
+				CreatedLatitude = platform.Latitude,
+				CreatedLongitude = platform.Longitude
 			});
 
 			await ApplyFilters();
@@ -280,7 +284,11 @@ public partial class StockTransferItemReport : IAsyncDisposable
 			stockTransfer.Status = isRecover;
 			stockTransfer.LastModifiedBy = _user.Id;
 			stockTransfer.LastModifiedAt = await CommonData.LoadCurrentDateTime();
-			stockTransfer.LastModifiedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			stockTransfer.LastModifiedFormFactor = platform.FormFactor;
+			stockTransfer.LastModifiedPlatform = platform.Platform;
+			stockTransfer.LastModifiedLatitude = platform.Latitude;
+			stockTransfer.LastModifiedLongitude = platform.Longitude;
 
 			if (isRecover)
 				await StockTransferData.RecoverTransaction(stockTransfer);

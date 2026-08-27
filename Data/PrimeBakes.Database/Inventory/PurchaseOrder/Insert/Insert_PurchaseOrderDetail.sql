@@ -35,12 +35,12 @@ BEGIN
 		UPDATE [dbo].[PurchaseOrderDetail]
 		SET
 			[MasterId] = @MasterId,
-			RawMaterialId = @RawMaterialId,
-			Quantity = @Quantity,
-			UnitOfMeasurement = @UnitOfMeasurement,
-			Remarks = @Remarks,
-			Status = @Status
-		WHERE Id = @Id;
+			[RawMaterialId] = @RawMaterialId,
+			[Quantity] = @Quantity,
+			[UnitOfMeasurement] = @UnitOfMeasurement,
+			[Remarks] = @Remarks,
+			[Status] = @Status
+		WHERE [Id] = @Id;
 	END
 
 	SELECT @Id AS Id;

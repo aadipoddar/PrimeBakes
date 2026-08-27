@@ -19,12 +19,12 @@ public static class EmployeeSalaryComponentData
 	public static async Task<List<SalaryComponentModel>> LoadEffectiveSalaryComponents(int employeeId, DateOnly asOn) =>
 		await ApiClient.Get<List<SalaryComponentModel>>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadEffectiveSalaryComponents)), new { employeeId, asOn });
 
-	public static async Task DeleteTransaction(EmployeeSalaryComponentOverviewModel employeeSalaryComponent, int userId, string platform) =>
-		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteTransaction)), employeeSalaryComponent, new { userId, platform });
+	public static async Task DeleteTransaction(EmployeeSalaryComponentOverviewModel employeeSalaryComponent, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteTransaction)), employeeSalaryComponent, new { userId, formFactor, platform, latitude, longitude });
 
-	public static async Task DiscontinueTransaction(EmployeeSalaryComponentOverviewModel employeeSalaryComponent, int userId, string platform) =>
-		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DiscontinueTransaction)), employeeSalaryComponent, new { userId, platform });
+	public static async Task DiscontinueTransaction(EmployeeSalaryComponentOverviewModel employeeSalaryComponent, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DiscontinueTransaction)), employeeSalaryComponent, new { userId, formFactor, platform, latitude, longitude });
 
-	public static async Task<int> SaveTransaction(EmployeeSalaryComponentModel employeeSalaryComponent, int userId, string platform) =>
-		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(SaveTransaction)), employeeSalaryComponent, new { userId, platform });
+	public static async Task<int> SaveTransaction(EmployeeSalaryComponentModel employeeSalaryComponent, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(SaveTransaction)), employeeSalaryComponent, new { userId, formFactor, platform, latitude, longitude });
 }

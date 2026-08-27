@@ -12,7 +12,7 @@ public static class FinancialYearData
 		(await SqlDataAccess.LoadData<int, dynamic>(AccountNames.InsertFinancialYear, financialYear, transaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Financial Year.");
 
-	public static async Task DeleteTransaction(FinancialYearModel financialYear, int userId, string platform) =>
+	public static async Task DeleteTransaction(FinancialYearModel financialYear, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			financialYear.Status = false;
@@ -23,11 +23,14 @@ public static class FinancialYearData
 				TableName = AccountNames.FinancialYear,
 				RecordNo = $"FY{financialYear.YearNo}",
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
-	public static async Task RecoverTransaction(FinancialYearModel financialYear, int userId, string platform) =>
+	public static async Task RecoverTransaction(FinancialYearModel financialYear, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			financialYear.Status = true;
@@ -38,7 +41,10 @@ public static class FinancialYearData
 				TableName = AccountNames.FinancialYear,
 				RecordNo = $"FY{financialYear.YearNo}",
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
@@ -86,7 +92,7 @@ public static class FinancialYearData
 			throw new Exception($"Date range overlaps with existing financial year ({overlapping.StartDate:dd-MMM-yyyy} to {overlapping.EndDate:dd-MMM-yyyy}).");
 	}
 
-	public static async Task<int> SaveTransaction(FinancialYearModel financialYear, int userId, string platform)
+	public static async Task<int> SaveTransaction(FinancialYearModel financialYear, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		await ValidateTransaction(financialYear);
 
@@ -106,7 +112,10 @@ public static class FinancialYearData
 				RecordNo = $"FY{financialYear.YearNo}",
 				RecordValue = isUpdate ? diff : null,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 			return id;
 		});

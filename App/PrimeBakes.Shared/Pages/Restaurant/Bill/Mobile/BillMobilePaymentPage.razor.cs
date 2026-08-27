@@ -362,8 +362,15 @@ public partial class BillMobilePaymentPage
 		_bill.FinancialYearId = (await FinancialYearData.LoadFinancialYearByDateTime(_bill.TransactionDateTime)).Id;
 		_bill.CreatedAt = await CommonData.LoadCurrentDateTime();
 		_bill.LastModifiedAt = _bill.CreatedAt;
-		_bill.CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
-		_bill.LastModifiedFromPlatform = _bill.CreatedFromPlatform;
+		var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+		_bill.CreatedFormFactor = platform.FormFactor;
+		_bill.CreatedPlatform = platform.Platform;
+		_bill.CreatedLatitude = platform.Latitude;
+		_bill.CreatedLongitude = platform.Longitude;
+		_bill.LastModifiedFormFactor = platform.FormFactor;
+		_bill.LastModifiedPlatform = platform.Platform;
+		_bill.LastModifiedLatitude = platform.Latitude;
+		_bill.LastModifiedLongitude = platform.Longitude;
 		if (_bill.Id == 0)
 			_bill.TransactionNo = await GenerateCodes.GenerateBillTransactionNo(_bill);
 	}

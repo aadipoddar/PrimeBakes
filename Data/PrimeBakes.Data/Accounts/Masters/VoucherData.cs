@@ -12,7 +12,7 @@ public static class VoucherData
 		(await SqlDataAccess.LoadData<int, dynamic>(AccountNames.InsertVoucher, voucher, transaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Voucher.");
 
-	public static async Task DeleteTransaction(VoucherModel voucher, int userId, string platform) =>
+	public static async Task DeleteTransaction(VoucherModel voucher, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			voucher.Status = false;
@@ -23,11 +23,14 @@ public static class VoucherData
 				TableName = AccountNames.Voucher,
 				RecordNo = voucher.Name,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
-	public static async Task RecoverTransaction(VoucherModel voucher, int userId, string platform) =>
+	public static async Task RecoverTransaction(VoucherModel voucher, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			voucher.Status = true;
@@ -38,7 +41,10 @@ public static class VoucherData
 				TableName = AccountNames.Voucher,
 				RecordNo = voucher.Name,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
@@ -58,7 +64,7 @@ public static class VoucherData
 			throw new Exception($"Voucher name '{item.Name}' already exists. Please choose a different name.");
 	}
 
-	public static async Task<int> SaveTransaction(VoucherModel voucher, int userId, string platform)
+	public static async Task<int> SaveTransaction(VoucherModel voucher, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		await ValidateTransaction(voucher);
 
@@ -78,7 +84,10 @@ public static class VoucherData
 				RecordNo = voucher.Name,
 				RecordValue = isUpdate ? diff : null,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 			return id;
 		});

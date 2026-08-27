@@ -36,7 +36,7 @@ public static class CustomerData
 			throw new Exception($"Customer number '{item.Number}' already exists. Please choose a different number.");
 	}
 
-	public static async Task<int> SaveTransaction(CustomerModel customer, int userId, string platform)
+	public static async Task<int> SaveTransaction(CustomerModel customer, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		await ValidateTransaction(customer);
 
@@ -56,7 +56,10 @@ public static class CustomerData
 				RecordNo = customer.Name,
 				RecordValue = isUpdate ? diff : null,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 			return id;
 		});

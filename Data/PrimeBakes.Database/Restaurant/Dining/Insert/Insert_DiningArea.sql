@@ -17,8 +17,8 @@ BEGIN
 	ELSE
 	BEGIN
 		UPDATE [dbo].[DiningArea]
-		SET Name = @Name, LocationId = @LocationId, Remarks = @Remarks, Status = @Status
-		WHERE Id = @Id;
+		SET [Name] = @Name, LocationId = @LocationId, Remarks = @Remarks, Status = @Status
+		WHERE [Id] = @Id;
 	END
 
 	SELECT @Id AS Id;

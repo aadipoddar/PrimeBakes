@@ -11,13 +11,13 @@ public static class LocationData
 	public static async Task<LedgerModel> LoadLedgerByLocationId(int locationId) =>
 		await ApiClient.Get<LedgerModel>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadLedgerByLocationId)), new { locationId });
 
-	public static async Task DeleteTransaction(LocationModel location, int userId, string platform) =>
-		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteTransaction)), location, new { userId, platform });
+	public static async Task DeleteTransaction(LocationModel location, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteTransaction)), location, new { userId, formFactor, platform, latitude, longitude });
 
-	public static async Task RecoverTransaction(LocationModel location, int userId, string platform) =>
-		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(RecoverTransaction)), location, new { userId, platform });
+	public static async Task RecoverTransaction(LocationModel location, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(RecoverTransaction)), location, new { userId, formFactor, platform, latitude, longitude });
 
-	public static async Task<int> SaveTransaction(LocationModel location, LocationModel copyLocation, int userId, string platform) =>
+	public static async Task<int> SaveTransaction(LocationModel location, LocationModel copyLocation, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(SaveTransaction)),
-			new LocationSaveRequest(location, copyLocation), new { userId, platform });
+			new LocationSaveRequest(location, copyLocation), new { userId, formFactor, platform, latitude, longitude });
 }

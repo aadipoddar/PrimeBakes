@@ -24,7 +24,7 @@ public static class AuditTrailData
 		await InsertAuditTrail(auditTrail, sqlDataAccessTransaction);
 	}
 
-	public static async Task<int> DeleteAuditTrailByDate(DateTime StartDate, DateTime EndDate, int userId, string platform)
+	public static async Task<int> DeleteAuditTrailByDate(DateTime StartDate, DateTime EndDate, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		var deleted = (await SqlDataAccess.LoadData<int, dynamic>(OperationNames.DeleteAuditTrailByDate, new { StartDate, EndDate })).FirstOrDefault();
 
@@ -34,7 +34,10 @@ public static class AuditTrailData
 			TableName = OperationNames.AuditTrail,
 			RecordNo = $"{StartDate:dd-MMM-yyyy} to {EndDate:dd-MMM-yyyy}",
 			CreatedBy = userId,
-			CreatedFromPlatform = platform
+			CreatedFormFactor = formFactor,
+			CreatedPlatform = platform,
+			CreatedLatitude = latitude,
+			CreatedLongitude = longitude
 		});
 
 		return deleted;
@@ -43,8 +46,10 @@ public static class AuditTrailData
 	private static readonly HashSet<string> _ignoredProperties = new(StringComparer.OrdinalIgnoreCase)
 	{
 		"Id", "MasterId", "Status", "MasterStatus",
-		"CreatedBy", "CreatedByName", "CreatedAt", "CreatedFromPlatform",
-		"LastModifiedBy", "LastModifiedByUserName", "LastModifiedAt", "LastModifiedFromPlatform"
+		"CreatedBy", "CreatedByName", "CreatedAt",
+		"CreatedFormFactor", "CreatedPlatform", "CreatedLatitude", "CreatedLongitude",
+		"LastModifiedBy", "LastModifiedByUserName", "LastModifiedAt",
+		"LastModifiedFormFactor", "LastModifiedPlatform", "LastModifiedLatitude", "LastModifiedLongitude"
 	};
 
 	public static string GetDifference<T>(T previous, T current)

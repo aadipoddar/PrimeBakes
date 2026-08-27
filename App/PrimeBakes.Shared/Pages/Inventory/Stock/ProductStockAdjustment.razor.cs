@@ -297,7 +297,8 @@ public partial class ProductStockAdjustment
 
 			await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			await ProductStockData.SaveProductStockAdjustment(_transactionDateTime, _selectedLocation.Id, _cart, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			await ProductStockData.SaveProductStockAdjustment(_transactionDateTime, _selectedLocation.Id, _cart, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Save Transaction", "Transaction saved successfully.", ToastType.Success);
 			await ResetPage();

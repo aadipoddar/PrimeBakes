@@ -134,7 +134,8 @@ public partial class EmployeePage
 			_employee.DesignationId = _selectedDesignation?.Id ?? 0;
 			_employee.UserId = _selectedUser?.Id;
 
-			await EmployeeData.SaveTransaction(_employee, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			await EmployeeData.SaveTransaction(_employee, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
 			ResetPage();
@@ -184,8 +185,9 @@ public partial class EmployeePage
 			var employee = await CommonData.LoadTableDataById<EmployeeModel>(PayrollNames.Employee, id)
 				?? throw new Exception("Transaction not found.");
 
-			if (isRecover) await EmployeeData.RecoverTransaction(employee, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
-			else await EmployeeData.DeleteTransaction(employee, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			if (isRecover) await EmployeeData.RecoverTransaction(employee, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
+			else await EmployeeData.DeleteTransaction(employee, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Success", $"Transaction {employee.Code} has been {(isRecover ? "recovered" : "deleted")} successfully.", ToastType.Success);
 			ResetPage();

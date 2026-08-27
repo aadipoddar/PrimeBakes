@@ -7,7 +7,10 @@ CREATE PROCEDURE [dbo].[Insert_AuditTrail]
 	@CreatedBy INT,
 	@CreatedByName VARCHAR(MAX),
 	@TransactionDateTime DATETIME,
-	@CreatedFromPlatform VARCHAR(MAX)
+	@CreatedFormFactor VARCHAR(MAX),
+	@CreatedPlatform VARCHAR(MAX),
+	@CreatedLatitude DECIMAL(9,6),
+	@CreatedLongitude DECIMAL(9,6)
 AS
 BEGIN
 	INSERT INTO [dbo].[AuditTrail]
@@ -18,7 +21,10 @@ BEGIN
 		[RecordValue],
 		[CreatedBy],
 		[CreatedByName],
-		[CreatedFromPlatform]
+		[CreatedFormFactor],
+		[CreatedPlatform],
+		[CreatedLatitude],
+		[CreatedLongitude]
 	)
 	VALUES
 	(
@@ -28,7 +34,10 @@ BEGIN
 		@RecordValue,
 		@CreatedBy,
 		@CreatedByName,
-		@CreatedFromPlatform
+		@CreatedFormFactor,
+		@CreatedPlatform,
+		@CreatedLatitude,
+		@CreatedLongitude
 	);
 
 	SET @Id = SCOPE_IDENTITY();

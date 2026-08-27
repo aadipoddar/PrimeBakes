@@ -20,9 +20,11 @@ public class RecipeEndpoint : ICarterModule
 
 
 		group.MapPost(nameof(RecipeData.DeleteTransaction),
-			(RecipeModel recipe, int userId, string platform) => RecipeData.DeleteTransaction(recipe, userId, platform));
+			(RecipeModel recipe, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+				RecipeData.DeleteTransaction(recipe, userId, formFactor, platform, latitude, longitude));
 
 		group.MapPost(nameof(RecipeData.SaveTransaction),
-			(RecipeSaveRequest request, int userId, string platform) => RecipeData.SaveTransaction(request.Recipe, request.Details, userId, platform));
+			(RecipeSaveRequest request, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+				RecipeData.SaveTransaction(request.Recipe, request.Details, userId, formFactor, platform, latitude, longitude));
 	}
 }

@@ -391,4 +391,7 @@
   <ItemGroup>
     <Build Include="Operations\User\User.sql" />
   </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="PrimeBakes.Database.refactorlog" />
+  </ItemGroup>
 </Project>

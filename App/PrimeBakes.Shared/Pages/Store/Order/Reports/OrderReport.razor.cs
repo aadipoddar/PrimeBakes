@@ -118,13 +118,17 @@ public partial class OrderReport : IAsyncDisposable
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),
 				TableName = StoreRouteNames.OrderReport,
 				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 				CreatedBy = _user.Id,
-				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
+				CreatedFormFactor = platform.FormFactor,
+				CreatedPlatform = platform.Platform,
+				CreatedLatitude = platform.Latitude,
+				CreatedLongitude = platform.Longitude
 			});
 
 			await ApplyFilters();
@@ -256,7 +260,12 @@ public partial class OrderReport : IAsyncDisposable
 			order.Status = isRecover;
 			order.LastModifiedBy = _user.Id;
 			order.LastModifiedAt = await CommonData.LoadCurrentDateTime();
-			order.LastModifiedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
+
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			order.LastModifiedFormFactor = platform.FormFactor;
+			order.LastModifiedPlatform = platform.Platform;
+			order.LastModifiedLatitude = platform.Latitude;
+			order.LastModifiedLongitude = platform.Longitude;
 
 			if (isRecover) await OrderData.RecoverTransaction(order);
 			else await OrderData.DeleteTransaction(order);

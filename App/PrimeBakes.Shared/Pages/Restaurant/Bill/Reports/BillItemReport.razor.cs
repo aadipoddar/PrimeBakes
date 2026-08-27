@@ -130,13 +130,17 @@ public partial class BillItemReport : IAsyncDisposable
 
 			_allTransactionOverviews = await CommonData.LoadTableDataByDate<BillItemOverviewModel>(RestaurantNames.BillItemOverview, fromDate, toDate);
 
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),
 				TableName = RestaurantRouteNames.BillItemReport,
 				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 				CreatedBy = _user.Id,
-				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
+				CreatedFormFactor = platform.FormFactor,
+				CreatedPlatform = platform.Platform,
+				CreatedLatitude = platform.Latitude,
+				CreatedLongitude = platform.Longitude
 			});
 
 			await ApplyFilters();
@@ -263,12 +267,17 @@ public partial class BillItemReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Closing day and posting bill accounting...", ToastType.Info);
 
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+
 			for (var date = _fromDate; date <= _toDate; date = date.AddDays(1))
 				await BillData.PostDayBills(
 					date,
 					_selectedLocation.Id,
 					_user.Id,
-					await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+					platform.FormFactor,
+					platform.Platform,
+					platform.Latitude,
+					platform.Longitude);
 
 			await _toastNotification.ShowAsync("Success", "Day closing completed successfully.", ToastType.Success);
 		}
@@ -349,14 +358,17 @@ public partial class BillItemReport : IAsyncDisposable
 
 			await _toastNotification.ShowAsync("Processing", $"{(isRecover ? "Recovering" : "Deleting")} transaction...", ToastType.Info);
 
-			var platform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
 
 			var bill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, record.MasterId)
 				?? throw new Exception("Transaction not found.");
 			bill.Status = isRecover;
 			bill.LastModifiedBy = _user.Id;
 			bill.LastModifiedAt = await CommonData.LoadCurrentDateTime();
-			bill.LastModifiedFromPlatform = platform;
+			bill.LastModifiedFormFactor = platform.FormFactor;
+			bill.LastModifiedPlatform = platform.Platform;
+			bill.LastModifiedLatitude = platform.Latitude;
+			bill.LastModifiedLongitude = platform.Longitude;
 
 			if (isRecover) await BillData.RecoverTransaction(bill);
 			else await BillData.DeleteTransaction(bill);

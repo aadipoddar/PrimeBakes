@@ -12,7 +12,7 @@ public static class CompanyData
 		(await SqlDataAccess.LoadData<int, dynamic>(AccountNames.InsertCompany, company, transaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Company.");
 
-	public static async Task DeleteTransaction(CompanyModel company, int userId, string platform) =>
+	public static async Task DeleteTransaction(CompanyModel company, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			company.Status = false;
@@ -23,11 +23,14 @@ public static class CompanyData
 				TableName = AccountNames.Company,
 				RecordNo = company.Name,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
-	public static async Task RecoverTransaction(CompanyModel company, int userId, string platform) =>
+	public static async Task RecoverTransaction(CompanyModel company, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			company.Status = true;
@@ -38,7 +41,10 @@ public static class CompanyData
 				TableName = AccountNames.Company,
 				RecordNo = company.Name,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
@@ -96,7 +102,7 @@ public static class CompanyData
 		}
 	}
 
-	public static async Task<int> SaveTransaction(CompanyModel company, int userId, string platform)
+	public static async Task<int> SaveTransaction(CompanyModel company, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		await ValidateTransaction(company);
 
@@ -116,7 +122,10 @@ public static class CompanyData
 				RecordNo = company.Name,
 				RecordValue = isUpdate ? diff : null,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 			return id;
 		});

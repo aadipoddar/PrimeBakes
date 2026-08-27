@@ -38,6 +38,6 @@ public static class BillData
 		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(SaveTransaction)),
 			new BillSaveRequest(bill, billDetails, customer, recover));
 
-	public static async Task PostDayBills(DateTime postingDate, int locationId, int userId, string userPlatform) =>
-		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(PostDayBills)), new { }, new { postingDate, locationId, userId, userPlatform });
+	public static async Task PostDayBills(DateTime postingDate, int locationId, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(PostDayBills)), new { }, new { postingDate, locationId, userId, formFactor, platform, latitude, longitude });
 }

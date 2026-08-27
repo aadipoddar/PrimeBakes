@@ -83,7 +83,8 @@ public partial class SalaryComponentPage
 
 			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			await SalaryComponentData.SaveTransaction(_salaryComponent, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			await SalaryComponentData.SaveTransaction(_salaryComponent, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
 			ResetPage();
@@ -132,8 +133,9 @@ public partial class SalaryComponentPage
 			var salaryComponent = await CommonData.LoadTableDataById<SalaryComponentModel>(PayrollNames.SalaryComponent, id)
 				?? throw new Exception("Transaction not found.");
 
-			if (isRecover) await SalaryComponentData.RecoverTransaction(salaryComponent, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
-			else await SalaryComponentData.DeleteTransaction(salaryComponent, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			if (isRecover) await SalaryComponentData.RecoverTransaction(salaryComponent, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
+			else await SalaryComponentData.DeleteTransaction(salaryComponent, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Success", $"Transaction {salaryComponent.Code} has been {(isRecover ? "recovered" : "deleted")} successfully.", ToastType.Success);
 			ResetPage();

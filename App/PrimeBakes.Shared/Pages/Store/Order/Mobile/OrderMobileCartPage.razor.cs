@@ -142,21 +142,31 @@ public partial class OrderMobileCartPage
 			_isProcessing = true;
 			StateHasChanged();
 
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var currentDateTime = await CommonData.LoadCurrentDateTime();
+
 			var order = new OrderModel
 			{
 				Id = 0,
-				LocationId = _user.LocationId,
+
 				CompanyId = int.Parse((await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId)).Value),
-				TransactionDateTime = await CommonData.LoadCurrentDateTime(),
-				FinancialYearId = (await FinancialYearData.LoadFinancialYearByDateTime(await CommonData.LoadCurrentDateTime())).Id,
-				CreatedAt = await CommonData.LoadCurrentDateTime(),
-				CreatedBy = _user.Id,
+				LocationId = _user.LocationId,
+				SaleId = null,
+				FinancialYearId = (await FinancialYearData.LoadFinancialYearByDateTime(currentDateTime)).Id,
+
+				TransactionDateTime = currentDateTime,
 				TotalItems = _cart.Count,
 				TotalQuantity = _cart.Sum(x => x.Quantity),
-				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService),
 				Remarks = string.IsNullOrWhiteSpace(_orderRemarks?.Trim()) ? null : _orderRemarks.Trim(),
-				SaleId = null,
+
 				Status = true,
+
+				CreatedBy = _user.Id,
+				CreatedAt = currentDateTime,
+				CreatedFormFactor = platform.FormFactor,
+				CreatedPlatform = platform.Platform,
+				CreatedLatitude = platform.Latitude,
+				CreatedLongitude = platform.Longitude
 			};
 
 			order.Id = await OrderData.SaveTransaction(order, _cart.ConvertCartToDetails());

@@ -17,7 +17,7 @@ public static class AttendanceData
 	public static async Task<List<AttendanceOverviewModel>> LoadAttendanceOverviewByEmployeeMonthYear(int? EmployeeId = null, int? AttendanceMonth = null, int? AttendanceYear = null, SqlDataAccessTransaction transaction = null) =>
 		await SqlDataAccess.LoadData<AttendanceOverviewModel, dynamic>(PayrollNames.LoadAttendanceOverviewByEmployeeMonthYear, new { EmployeeId, AttendanceMonth, AttendanceYear }, transaction);
 
-	public static async Task DeleteTransaction(AttendanceModel attendance, int userId, string platform)
+	public static async Task DeleteTransaction(AttendanceModel attendance, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		var recordNo = await GetRecordNo(attendance);
 		await EnsureNotProcessed(attendance);
@@ -32,12 +32,15 @@ public static class AttendanceData
 				TableName = PayrollNames.Attendance,
 				RecordNo = recordNo,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 	}
 
-	public static async Task RecoverTransaction(AttendanceModel attendance, int userId, string platform)
+	public static async Task RecoverTransaction(AttendanceModel attendance, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		var recordNo = await GetRecordNo(attendance);
 		await EnsureNotProcessed(attendance);
@@ -52,7 +55,10 @@ public static class AttendanceData
 				TableName = PayrollNames.Attendance,
 				RecordNo = recordNo,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 	}
@@ -123,7 +129,7 @@ public static class AttendanceData
 		return employee;
 	}
 
-	public static async Task<int> SaveTransaction(AttendanceModel attendance, int userId, string platform)
+	public static async Task<int> SaveTransaction(AttendanceModel attendance, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		var employee = await ValidateTransaction(attendance);
 
@@ -143,7 +149,10 @@ public static class AttendanceData
 				RecordNo = $"{employee.Code} {attendance.AttendanceMonth:00}-{attendance.AttendanceYear}",
 				RecordValue = isUpdate ? diff : null,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 			return id;
 		});

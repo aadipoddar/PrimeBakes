@@ -203,12 +203,9 @@ public partial class SaleReturnPage
 			UPI = 0,
 			Remarks = null,
 			FinancialAccountingId = null,
-			CreatedAt = DateTime.Now,
-			CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService),
 			Status = true,
 			LastModifiedAt = null,
 			LastModifiedBy = null,
-			LastModifiedFromPlatform = null
 		};
 
 		await DeleteLocalFiles();
@@ -956,9 +953,17 @@ public partial class SaleReturnPage
 		var currentDateTime = await CommonData.LoadCurrentDateTime();
 		_saleReturn.Status = true;
 		_saleReturn.TransactionDateTime = DateOnly.FromDateTime(_saleReturn.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
+		_saleReturn.CreatedAt = currentDateTime;
 		_saleReturn.LastModifiedAt = currentDateTime;
-		_saleReturn.CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
-		_saleReturn.LastModifiedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
+		var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+		_saleReturn.CreatedFormFactor = platform.FormFactor;
+		_saleReturn.CreatedPlatform = platform.Platform;
+		_saleReturn.CreatedLatitude = platform.Latitude;
+		_saleReturn.CreatedLongitude = platform.Longitude;
+		_saleReturn.LastModifiedFormFactor = platform.FormFactor;
+		_saleReturn.LastModifiedPlatform = platform.Platform;
+		_saleReturn.LastModifiedLatitude = platform.Latitude;
+		_saleReturn.LastModifiedLongitude = platform.Longitude;
 		_saleReturn.CreatedBy = _user.Id;
 		_saleReturn.LastModifiedBy = _user.Id;
 	}

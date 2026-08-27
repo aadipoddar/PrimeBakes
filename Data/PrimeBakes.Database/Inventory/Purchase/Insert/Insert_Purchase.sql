@@ -26,11 +26,17 @@
 	@FinancialAccountingId INT = NULL,
 	@CreatedBy INT,
 	@CreatedAt DATETIME,
-	@CreatedFromPlatform VARCHAR(MAX),
+	@CreatedFormFactor VARCHAR(MAX),
+	@CreatedPlatform VARCHAR(MAX),
+	@CreatedLatitude DECIMAL(9,6),
+	@CreatedLongitude DECIMAL(9,6),
 	@Status BIT,
 	@LastModifiedBy INT,
 	@LastModifiedAt DATETIME,
-	@LastModifiedFromPlatform VARCHAR(MAX)
+	@LastModifiedFormFactor VARCHAR(MAX),
+	@LastModifiedPlatform VARCHAR(MAX),
+	@LastModifiedLatitude DECIMAL(9,6),
+	@LastModifiedLongitude DECIMAL(9,6)
 AS
 BEGIN
 	IF @Id = 0
@@ -62,7 +68,11 @@ BEGIN
 			[DocumentUrl],
 			[FinancialAccountingId],
 			[CreatedBy],
-			[CreatedFromPlatform],
+			[CreatedAt],
+			[CreatedFormFactor],
+			[CreatedPlatform],
+			[CreatedLatitude],
+			[CreatedLongitude],
 			[Status]
 		)
 		VALUES
@@ -92,7 +102,11 @@ BEGIN
 			@DocumentUrl,
 			@FinancialAccountingId,
 			@CreatedBy,
-			@CreatedFromPlatform,
+			@CreatedAt,
+			@CreatedFormFactor,
+			@CreatedPlatform,
+			@CreatedLatitude,
+			@CreatedLongitude,
 			@Status
 		)
 		SET @Id = SCOPE_IDENTITY()
@@ -129,7 +143,10 @@ BEGIN
 			[Status] = @Status,
 			[LastModifiedBy] = @LastModifiedBy,
 			[LastModifiedAt] = @LastModifiedAt,
-			[LastModifiedFromPlatform] = @LastModifiedFromPlatform
+			[LastModifiedFormFactor] = @LastModifiedFormFactor,
+			[LastModifiedPlatform] = @LastModifiedPlatform,
+			[LastModifiedLatitude] = @LastModifiedLatitude,
+			[LastModifiedLongitude] = @LastModifiedLongitude
 		WHERE [Id] = @Id
 	END
 

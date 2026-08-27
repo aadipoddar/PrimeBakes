@@ -166,12 +166,9 @@ public partial class KitchenIssuePage
 			TotalQuantity = 0,
 			TotalAmount = 0,
 			Remarks = null,
-			CreatedAt = DateTime.Now,
-			CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService),
 			Status = true,
 			LastModifiedAt = null,
 			LastModifiedBy = null,
-			LastModifiedFromPlatform = null
 		};
 
 		await DeleteLocalFiles();
@@ -453,9 +450,17 @@ public partial class KitchenIssuePage
 		var currentDateTime = await CommonData.LoadCurrentDateTime();
 		_kitchenIssue.Status = true;
 		_kitchenIssue.TransactionDateTime = DateOnly.FromDateTime(_kitchenIssue.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
+		_kitchenIssue.CreatedAt = currentDateTime;
 		_kitchenIssue.LastModifiedAt = currentDateTime;
-		_kitchenIssue.CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
-		_kitchenIssue.LastModifiedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
+		var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+		_kitchenIssue.CreatedFormFactor = platform.FormFactor;
+		_kitchenIssue.CreatedPlatform = platform.Platform;
+		_kitchenIssue.CreatedLatitude = platform.Latitude;
+		_kitchenIssue.CreatedLongitude = platform.Longitude;
+		_kitchenIssue.LastModifiedFormFactor = platform.FormFactor;
+		_kitchenIssue.LastModifiedPlatform = platform.Platform;
+		_kitchenIssue.LastModifiedLatitude = platform.Latitude;
+		_kitchenIssue.LastModifiedLongitude = platform.Longitude;
 		_kitchenIssue.CreatedBy = _user.Id;
 		_kitchenIssue.LastModifiedBy = _user.Id;
 	}

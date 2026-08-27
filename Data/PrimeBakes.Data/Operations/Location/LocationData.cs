@@ -27,7 +27,7 @@ public static class LocationData
 		return await CommonData.LoadTableDataById<LedgerModel>(AccountNames.Ledger, location.LedgerId, sqlDataAccessTransaction);
 	}
 
-	public static async Task DeleteTransaction(LocationModel location, int userId, string platform)
+	public static async Task DeleteTransaction(LocationModel location, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		if (location.Id == 1)
 			throw new Exception("Cannot delete the main location.");
@@ -47,12 +47,15 @@ public static class LocationData
 				TableName = OperationNames.Location,
 				RecordNo = location.Name,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 	}
 
-	public static async Task RecoverTransaction(LocationModel location, int userId, string platform) =>
+	public static async Task RecoverTransaction(LocationModel location, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			location.Status = true;
@@ -63,7 +66,10 @@ public static class LocationData
 				TableName = OperationNames.Location,
 				RecordNo = location.Name,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
@@ -100,7 +106,7 @@ public static class LocationData
 			throw new Exception($"Location code '{item.Code}' already exists. Please choose a different code.");
 	}
 
-	public static async Task<int> SaveTransaction(LocationModel location, LocationModel copyLocation, int userId, string platform)
+	public static async Task<int> SaveTransaction(LocationModel location, LocationModel copyLocation, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		await ValidateTransaction(location);
 
@@ -124,7 +130,10 @@ public static class LocationData
 				RecordNo = location.Name,
 				RecordValue = isUpdate ? diff : null,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 
 			return location.Id;

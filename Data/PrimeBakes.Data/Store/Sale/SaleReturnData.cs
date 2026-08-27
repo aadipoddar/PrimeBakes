@@ -29,7 +29,6 @@ namespace PrimeBakes.Data.Store.Sale;
 
 public static class SaleReturnData
 {
-
 	private static async Task<int> InsertSaleReturn(SaleReturnModel saleReturn, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertSaleReturn, saleReturn, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Sale Return.");
@@ -98,7 +97,6 @@ public static class SaleReturnData
 		await InsertSaleReturn(saleReturn, sqlDataAccessTransaction);
 
 		await ProductStockData.DeleteProductStockByTransactionNo(saleReturn.TransactionNo, sqlDataAccessTransaction);
-		await RawMaterialStockData.DeleteRawMaterialStockByTransactionNo(saleReturn.TransactionNo, sqlDataAccessTransaction);
 		await DeleteAccounting(saleReturn, sqlDataAccessTransaction);
 
 		await AuditTrailData.SaveAuditTrail(new()
@@ -107,7 +105,10 @@ public static class SaleReturnData
 			TableName = StoreNames.SaleReturn,
 			RecordNo = saleReturn.TransactionNo,
 			CreatedBy = saleReturn.LastModifiedBy.Value,
-			CreatedFromPlatform = saleReturn.LastModifiedFromPlatform
+			CreatedFormFactor = saleReturn.LastModifiedFormFactor,
+			CreatedPlatform = saleReturn.LastModifiedPlatform,
+			CreatedLatitude = saleReturn.LastModifiedLatitude,
+			CreatedLongitude = saleReturn.LastModifiedLongitude
 		}, sqlDataAccessTransaction);
 	}
 
@@ -122,7 +123,10 @@ public static class SaleReturnData
 		existingAccounting.Status = false;
 		existingAccounting.LastModifiedBy = saleReturn.LastModifiedBy;
 		existingAccounting.LastModifiedAt = saleReturn.LastModifiedAt;
-		existingAccounting.LastModifiedFromPlatform = saleReturn.LastModifiedFromPlatform;
+		existingAccounting.LastModifiedFormFactor = saleReturn.LastModifiedFormFactor;
+		existingAccounting.LastModifiedPlatform = saleReturn.LastModifiedPlatform;
+		existingAccounting.LastModifiedLatitude = saleReturn.LastModifiedLatitude;
+		existingAccounting.LastModifiedLongitude = saleReturn.LastModifiedLongitude;
 
 		await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
 	}
@@ -500,7 +504,10 @@ public static class SaleReturnData
 			Remarks = saleReturnOverview.Remarks,
 			CreatedBy = saleReturnOverview.CreatedBy,
 			CreatedAt = saleReturnOverview.CreatedAt,
-			CreatedFromPlatform = saleReturnOverview.CreatedFromPlatform,
+			CreatedFormFactor = saleReturnOverview.CreatedFormFactor,
+			CreatedPlatform = saleReturnOverview.CreatedPlatform,
+			CreatedLatitude = saleReturnOverview.CreatedLatitude,
+			CreatedLongitude = saleReturnOverview.CreatedLongitude,
 			Status = true
 		};
 
@@ -541,7 +548,10 @@ public static class SaleReturnData
 			RecordNo = saleReturn.TransactionNo,
 			RecordValue = difference,
 			CreatedBy = update ? saleReturn.LastModifiedBy.Value : saleReturn.CreatedBy,
-			CreatedFromPlatform = update ? saleReturn.LastModifiedFromPlatform : saleReturn.CreatedFromPlatform
+			CreatedFormFactor = update ? saleReturn.LastModifiedFormFactor : saleReturn.CreatedFormFactor,
+			CreatedPlatform = update ? saleReturn.LastModifiedPlatform : saleReturn.CreatedPlatform,
+			CreatedLatitude = update ? saleReturn.LastModifiedLatitude : saleReturn.CreatedLatitude,
+			CreatedLongitude = update ? saleReturn.LastModifiedLongitude : saleReturn.CreatedLongitude
 		}, sqlDataAccessTransaction);
 	}
 	#endregion

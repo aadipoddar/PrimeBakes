@@ -129,13 +129,17 @@ public partial class KitchenProductionItemReport : IAsyncDisposable
 			_allTransactionOverviews = await allTransactionOverviews;
 			_allTransactionReturnOverviews = await allTransactionReturnOverviews;
 
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),
 				TableName = InventoryRouteNames.KitchenProductionItemReport,
 				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 				CreatedBy = _user.Id,
-				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
+				CreatedFormFactor = platform.FormFactor,
+				CreatedPlatform = platform.Platform,
+				CreatedLatitude = platform.Latitude,
+				CreatedLongitude = platform.Longitude
 			});
 
 			await ApplyFilters();
@@ -220,11 +224,17 @@ public partial class KitchenProductionItemReport : IAsyncDisposable
 			CreatedBy = kpr.CreatedBy,
 			CreatedByName = kpr.CreatedByName,
 			CreatedAt = kpr.CreatedAt,
-			CreatedFromPlatform = kpr.CreatedFromPlatform,
+			CreatedFormFactor = kpr.CreatedFormFactor,
+			CreatedPlatform = kpr.CreatedPlatform,
+			CreatedLatitude = kpr.CreatedLatitude,
+			CreatedLongitude = kpr.CreatedLongitude,
 			LastModifiedBy = kpr.LastModifiedBy,
 			LastModifiedByUserName = kpr.LastModifiedByUserName,
 			LastModifiedAt = kpr.LastModifiedAt,
-			LastModifiedFromPlatform = kpr.LastModifiedFromPlatform,
+			LastModifiedFormFactor = kpr.LastModifiedFormFactor,
+			LastModifiedPlatform = kpr.LastModifiedPlatform,
+			LastModifiedLatitude = kpr.LastModifiedLatitude,
+			LastModifiedLongitude = kpr.LastModifiedLongitude,
 
 			MasterStatus = kpr.MasterStatus
 		}));
@@ -300,7 +310,7 @@ public partial class KitchenProductionItemReport : IAsyncDisposable
 
 			await _toastNotification.ShowAsync("Processing", $"{(isRecover ? "Recovering" : "Deleting")} transaction...", ToastType.Info);
 
-			var platform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
 			var currentDateTime = await CommonData.LoadCurrentDateTime();
 
 			var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(transactionNo, false, false);
@@ -312,7 +322,10 @@ public partial class KitchenProductionItemReport : IAsyncDisposable
 				kitchenProductionReturn.Status = isRecover;
 				kitchenProductionReturn.LastModifiedBy = _user.Id;
 				kitchenProductionReturn.LastModifiedAt = currentDateTime;
-				kitchenProductionReturn.LastModifiedFromPlatform = platform;
+				kitchenProductionReturn.LastModifiedFormFactor = platform.FormFactor;
+				kitchenProductionReturn.LastModifiedPlatform = platform.Platform;
+				kitchenProductionReturn.LastModifiedLatitude = platform.Latitude;
+				kitchenProductionReturn.LastModifiedLongitude = platform.Longitude;
 
 				if (isRecover) await KitchenProductionReturnData.RecoverTransaction(kitchenProductionReturn);
 				else await KitchenProductionReturnData.DeleteTransaction(kitchenProductionReturn);
@@ -324,7 +337,10 @@ public partial class KitchenProductionItemReport : IAsyncDisposable
 				kitchenProduction.Status = isRecover;
 				kitchenProduction.LastModifiedBy = _user.Id;
 				kitchenProduction.LastModifiedAt = currentDateTime;
-				kitchenProduction.LastModifiedFromPlatform = platform;
+				kitchenProduction.LastModifiedFormFactor = platform.FormFactor;
+				kitchenProduction.LastModifiedPlatform = platform.Platform;
+				kitchenProduction.LastModifiedLatitude = platform.Latitude;
+				kitchenProduction.LastModifiedLongitude = platform.Longitude;
 
 				if (isRecover) await KitchenProductionData.RecoverTransaction(kitchenProduction);
 				else await KitchenProductionData.DeleteTransaction(kitchenProduction);

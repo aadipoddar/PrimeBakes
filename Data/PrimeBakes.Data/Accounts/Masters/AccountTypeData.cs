@@ -12,7 +12,7 @@ public static class AccountTypeData
 		(await SqlDataAccess.LoadData<int, dynamic>(AccountNames.InsertAccountType, accountType, transaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Account Type.");
 
-	public static async Task DeleteTransaction(AccountTypeModel accountType, int userId, string platform) =>
+	public static async Task DeleteTransaction(AccountTypeModel accountType, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			accountType.Status = false;
@@ -23,11 +23,14 @@ public static class AccountTypeData
 				TableName = AccountNames.AccountType,
 				RecordNo = accountType.Name,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
-	public static async Task RecoverTransaction(AccountTypeModel accountType, int userId, string platform) =>
+	public static async Task RecoverTransaction(AccountTypeModel accountType, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			accountType.Status = true;
@@ -38,7 +41,10 @@ public static class AccountTypeData
 				TableName = AccountNames.AccountType,
 				RecordNo = accountType.Name,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
@@ -58,7 +64,7 @@ public static class AccountTypeData
 			throw new Exception($"Account Type name '{item.Name}' already exists. Please choose a different name.");
 	}
 
-	public static async Task<int> SaveTransaction(AccountTypeModel accountType, int userId, string platform)
+	public static async Task<int> SaveTransaction(AccountTypeModel accountType, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		await ValidateTransaction(accountType);
 
@@ -78,7 +84,10 @@ public static class AccountTypeData
 				RecordNo = accountType.Name,
 				RecordValue = isUpdate ? diff : null,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 			return id;
 		});

@@ -12,7 +12,7 @@ public static class SalaryComponentData
 		(await SqlDataAccess.LoadData<int, dynamic>(PayrollNames.InsertSalaryComponent, salaryComponent, transaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Salary Component.");
 
-	public static async Task DeleteTransaction(SalaryComponentModel salaryComponent, int userId, string platform) =>
+	public static async Task DeleteTransaction(SalaryComponentModel salaryComponent, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			salaryComponent.Status = false;
@@ -23,11 +23,14 @@ public static class SalaryComponentData
 				TableName = PayrollNames.SalaryComponent,
 				RecordNo = salaryComponent.Code,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
-	public static async Task RecoverTransaction(SalaryComponentModel salaryComponent, int userId, string platform) =>
+	public static async Task RecoverTransaction(SalaryComponentModel salaryComponent, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			salaryComponent.Status = true;
@@ -38,7 +41,10 @@ public static class SalaryComponentData
 				TableName = PayrollNames.SalaryComponent,
 				RecordNo = salaryComponent.Code,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
@@ -104,7 +110,7 @@ public static class SalaryComponentData
 		SalaryFormulaEvaluator.ValidateFormula(item.Formula, earlierCodes);
 	}
 
-	public static async Task<int> SaveTransaction(SalaryComponentModel salaryComponent, int userId, string platform)
+	public static async Task<int> SaveTransaction(SalaryComponentModel salaryComponent, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		await ValidateTransaction(salaryComponent);
 
@@ -124,7 +130,10 @@ public static class SalaryComponentData
 				RecordNo = salaryComponent.Code,
 				RecordValue = isUpdate ? diff : null,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 			return id;
 		});

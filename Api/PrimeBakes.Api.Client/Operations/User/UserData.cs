@@ -13,12 +13,12 @@ public static class UserData
 	public static async Task UpdateLastLoginTime(UserModel user, DateTime? lastLoginTime) =>
 		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(UpdateLastLoginTime)), user, new { lastLoginTime });
 
-	public static async Task DeleteTransaction(UserModel user, int userId, string platform) =>
-		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteTransaction)), user, new { userId, platform });
+	public static async Task DeleteTransaction(UserModel user, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteTransaction)), user, new { userId, formFactor, platform, latitude, longitude });
 
-	public static async Task RecoverTransaction(UserModel user, int userId, string platform) =>
-		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(RecoverTransaction)), user, new { userId, platform });
+	public static async Task RecoverTransaction(UserModel user, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(RecoverTransaction)), user, new { userId, formFactor, platform, latitude, longitude });
 
-	public static async Task<int> SaveTransaction(UserModel user, int userId, string platform) =>
-		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(SaveTransaction)), user, new { userId, platform });
+	public static async Task<int> SaveTransaction(UserModel user, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(SaveTransaction)), user, new { userId, formFactor, platform, latitude, longitude });
 }

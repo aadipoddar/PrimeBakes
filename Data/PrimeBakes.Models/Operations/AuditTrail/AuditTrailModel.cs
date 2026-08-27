@@ -10,7 +10,10 @@ public class AuditTrailModel
 	public int CreatedBy { get; set; }
 	public string CreatedByName { get; set; }
 	public DateTime TransactionDateTime { get; set; } = DateTime.Now;
-	public string CreatedFromPlatform { get; set; }
+	public string? CreatedFormFactor { get; set; }
+	public string? CreatedPlatform { get; set; }
+	public decimal? CreatedLatitude { get; set; }
+	public decimal? CreatedLongitude { get; set; }
 }
 
 public enum AuditTrailActionTypes

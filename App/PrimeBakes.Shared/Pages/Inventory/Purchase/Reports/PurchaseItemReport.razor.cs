@@ -133,13 +133,17 @@ public partial class PurchaseItemReport : IAsyncDisposable
 			_allTransactionOverviews = await allTransactionOverviews;
 			_allTransactionReturnOverviews = await allTransactionReturnOverviews;
 
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),
 				TableName = InventoryRouteNames.PurchaseItemReport,
 				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 				CreatedBy = _user.Id,
-				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
+				CreatedFormFactor = platform.FormFactor,
+				CreatedPlatform = platform.Platform,
+				CreatedLatitude = platform.Latitude,
+				CreatedLongitude = platform.Longitude
 			});
 
 			await ApplyFilters();
@@ -240,7 +244,10 @@ public partial class PurchaseItemReport : IAsyncDisposable
 			CreatedAt = pr.CreatedAt,
 			CreatedBy = pr.CreatedBy,
 			CreatedByName = pr.CreatedByName,
-			CreatedFromPlatform = pr.CreatedFromPlatform,
+			CreatedFormFactor = pr.CreatedFormFactor,
+			CreatedPlatform = pr.CreatedPlatform,
+			CreatedLatitude = pr.CreatedLatitude,
+			CreatedLongitude = pr.CreatedLongitude,
 			DocumentUrl = pr.DocumentUrl,
 			FinancialYear = pr.FinancialYear,
 			FinancialYearId = pr.FinancialYearId,
@@ -248,7 +255,10 @@ public partial class PurchaseItemReport : IAsyncDisposable
 			LastModifiedAt = pr.LastModifiedAt,
 			LastModifiedBy = pr.LastModifiedBy,
 			LastModifiedByUserName = pr.LastModifiedByUserName,
-			LastModifiedFromPlatform = pr.LastModifiedFromPlatform,
+			LastModifiedFormFactor = pr.LastModifiedFormFactor,
+			LastModifiedPlatform = pr.LastModifiedPlatform,
+			LastModifiedLatitude = pr.LastModifiedLatitude,
+			LastModifiedLongitude = pr.LastModifiedLongitude,
 			ItemDiscountAmount = -pr.ItemDiscountAmount,
 			TotalAfterItemDiscount = -pr.TotalAfterItemDiscount,
 			TotalExtraTaxAmount = -pr.TotalExtraTaxAmount,
@@ -370,7 +380,7 @@ public partial class PurchaseItemReport : IAsyncDisposable
 			await _toastNotification.ShowAsync("Processing", $"{(isRecover ? "Recovering" : "Deleting")} transaction...", ToastType.Info);
 
 			var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(transactionNo, false, false);
-			var platform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
 			var currentDateTime = await CommonData.LoadCurrentDateTime();
 
 			if (decodedTransactionNo.CodeType == CodeType.PurchaseReturn)
@@ -380,7 +390,10 @@ public partial class PurchaseItemReport : IAsyncDisposable
 				purchaseReturn.Status = isRecover;
 				purchaseReturn.LastModifiedBy = _user.Id;
 				purchaseReturn.LastModifiedAt = currentDateTime;
-				purchaseReturn.LastModifiedFromPlatform = platform;
+				purchaseReturn.LastModifiedFormFactor = platform.FormFactor;
+				purchaseReturn.LastModifiedPlatform = platform.Platform;
+				purchaseReturn.LastModifiedLatitude = platform.Latitude;
+				purchaseReturn.LastModifiedLongitude = platform.Longitude;
 
 				if (isRecover) await PurchaseReturnData.RecoverTransaction(purchaseReturn);
 				else await PurchaseReturnData.DeleteTransaction(purchaseReturn);
@@ -392,7 +405,10 @@ public partial class PurchaseItemReport : IAsyncDisposable
 				purchase.Status = isRecover;
 				purchase.LastModifiedBy = _user.Id;
 				purchase.LastModifiedAt = currentDateTime;
-				purchase.LastModifiedFromPlatform = platform;
+				purchase.LastModifiedFormFactor = platform.FormFactor;
+				purchase.LastModifiedPlatform = platform.Platform;
+				purchase.LastModifiedLatitude = platform.Latitude;
+				purchase.LastModifiedLongitude = platform.Longitude;
 
 				if (isRecover) await PurchaseData.RecoverTransaction(purchase);
 				else await PurchaseData.DeleteTransaction(purchase);

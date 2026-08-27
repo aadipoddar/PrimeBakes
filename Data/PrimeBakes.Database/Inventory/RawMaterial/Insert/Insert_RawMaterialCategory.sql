@@ -16,8 +16,8 @@ BEGIN
 	ELSE
 	BEGIN
 		UPDATE [dbo].[RawMaterialCategory]
-		SET Name = @Name, Remarks = @Remarks, Status = @Status
-		WHERE Id = @Id;
+		SET [Name] = @Name, Remarks = @Remarks, Status = @Status
+		WHERE [Id] = @Id;
 	END
 
 	SELECT @Id AS Id;

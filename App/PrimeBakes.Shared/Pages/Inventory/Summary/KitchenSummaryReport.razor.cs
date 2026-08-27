@@ -139,13 +139,17 @@ public partial class KitchenSummaryReport : IAsyncDisposable
 		_kitchenProduction = await kitchenProduction;
 		_kitchenProductionReturn = await kitchenProductionReturn;
 
+		var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
 		await AuditTrailData.SaveAuditTrail(new()
 		{
 			Action = AuditTrailActionTypes.Report.ToString(),
 			TableName = InventoryRouteNames.KitchenSummaryReport,
 			RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 			CreatedBy = _user.Id,
-			CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
+			CreatedFormFactor = platform.FormFactor,
+			CreatedPlatform = platform.Platform,
+			CreatedLatitude = platform.Latitude,
+			CreatedLongitude = platform.Longitude
 		});
 	}
 

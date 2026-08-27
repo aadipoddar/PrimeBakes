@@ -19,13 +19,13 @@ public static class RawMaterialStockData
 	public static async Task<List<RawMaterialStockSummaryModel>> LoadRawMaterialStockSummaryByDate(DateTime FromDate, DateTime ToDate) =>
 		await ApiClient.Get<List<RawMaterialStockSummaryModel>>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadRawMaterialStockSummaryByDate)), new { FromDate, ToDate });
 
-	public static async Task DeleteRawMaterialStockAdjustment(int id, int userId, string platform) =>
-		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteRawMaterialStockAdjustment)), new { }, new { id, userId, platform });
+	public static async Task DeleteRawMaterialStockAdjustment(int id, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteRawMaterialStockAdjustment)), new { }, new { id, userId, formFactor, platform, latitude, longitude });
 
-	public static async Task RecalculateStockByDate(DateTime fromDate, DateTime toDate, bool deleteAdjustments, int userId, string platform) =>
-		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(RecalculateStockByDate)), new { }, new { fromDate, toDate, deleteAdjustments, userId, platform });
+	public static async Task RecalculateStockByDate(DateTime fromDate, DateTime toDate, bool deleteAdjustments, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(RecalculateStockByDate)), new { }, new { fromDate, toDate, deleteAdjustments, userId, formFactor, platform, latitude, longitude });
 
-	public static async Task SaveRawMaterialStockAdjustment(DateTime transactionDateTime, List<RawMaterialStockAdjustmentCartModel> cart, int userId, string platform) =>
+	public static async Task SaveRawMaterialStockAdjustment(DateTime transactionDateTime, List<RawMaterialStockAdjustmentCartModel> cart, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(SaveRawMaterialStockAdjustment)),
-			new RawMaterialStockAdjustmentRequest(transactionDateTime, cart), new { userId, platform });
+			new RawMaterialStockAdjustmentRequest(transactionDateTime, cart), new { userId, formFactor, platform, latitude, longitude });
 }

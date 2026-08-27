@@ -160,7 +160,8 @@ public partial class PayrollPage
 
 			await _toastNotification.ShowAsync("Processing", "Please wait while payroll is being calculated...", ToastType.Info);
 
-			var processed = await PayrollData.RunPayroll(_payrollMonth, _payrollYear, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var processed = await PayrollData.RunPayroll(_payrollMonth, _payrollYear, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await LoadOverviews();
 
@@ -194,8 +195,9 @@ public partial class PayrollPage
 			var payroll = await CommonData.LoadTableDataById<PayrollModel>(PayrollNames.Payroll, id)
 				?? throw new Exception("Transaction not found.");
 
-			if (isRecover) await PayrollData.RecoverTransaction(payroll, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
-			else await PayrollData.DeleteTransaction(payroll, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			if (isRecover) await PayrollData.RecoverTransaction(payroll, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
+			else await PayrollData.DeleteTransaction(payroll, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await LoadOverviews();
 

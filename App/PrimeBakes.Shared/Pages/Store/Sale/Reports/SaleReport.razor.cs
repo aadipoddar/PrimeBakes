@@ -145,13 +145,17 @@ public partial class SaleReport : IAsyncDisposable
 			_allTransferOverviews = await allTransferOverviews;
 			_allBillOverviews = await allBillOverviews;
 
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),
 				TableName = StoreRouteNames.SaleReport,
 				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 				CreatedBy = _user.Id,
-				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
+				CreatedFormFactor = platform.FormFactor,
+				CreatedPlatform = platform.Platform,
+				CreatedLatitude = platform.Latitude,
+				CreatedLongitude = platform.Longitude
 			});
 
 			await ApplyFilters();
@@ -235,7 +239,10 @@ public partial class SaleReport : IAsyncDisposable
 			CreatedAt = pr.CreatedAt,
 			CreatedBy = pr.CreatedBy,
 			CreatedByName = pr.CreatedByName,
-			CreatedFromPlatform = pr.CreatedFromPlatform,
+			CreatedFormFactor = pr.CreatedFormFactor,
+			CreatedPlatform = pr.CreatedPlatform,
+			CreatedLatitude = pr.CreatedLatitude,
+			CreatedLongitude = pr.CreatedLongitude,
 			DiscountAmount = -pr.DiscountAmount,
 			DiscountPercent = pr.DiscountPercent,
 			FinancialYear = pr.FinancialYear,
@@ -244,7 +251,10 @@ public partial class SaleReport : IAsyncDisposable
 			LastModifiedAt = pr.LastModifiedAt,
 			LastModifiedBy = pr.LastModifiedBy,
 			LastModifiedByUserName = pr.LastModifiedByUserName,
-			LastModifiedFromPlatform = pr.LastModifiedFromPlatform,
+			LastModifiedFormFactor = pr.LastModifiedFormFactor,
+			LastModifiedPlatform = pr.LastModifiedPlatform,
+			LastModifiedLatitude = pr.LastModifiedLatitude,
+			LastModifiedLongitude = pr.LastModifiedLongitude,
 			Card = -pr.Card,
 			Credit = -pr.Credit,
 			Cash = -pr.Cash,
@@ -287,7 +297,10 @@ public partial class SaleReport : IAsyncDisposable
 			CreatedAt = pr.CreatedAt,
 			CreatedBy = pr.CreatedBy,
 			CreatedByName = pr.CreatedByName,
-			CreatedFromPlatform = pr.CreatedFromPlatform,
+			CreatedFormFactor = pr.CreatedFormFactor,
+			CreatedPlatform = pr.CreatedPlatform,
+			CreatedLatitude = pr.CreatedLatitude,
+			CreatedLongitude = pr.CreatedLongitude,
 			DiscountAmount = pr.DiscountAmount,
 			DiscountPercent = pr.DiscountPercent,
 			FinancialYear = pr.FinancialYear,
@@ -296,7 +309,10 @@ public partial class SaleReport : IAsyncDisposable
 			LastModifiedAt = pr.LastModifiedAt,
 			LastModifiedBy = pr.LastModifiedBy,
 			LastModifiedByUserName = pr.LastModifiedByUserName,
-			LastModifiedFromPlatform = pr.LastModifiedFromPlatform,
+			LastModifiedFormFactor = pr.LastModifiedFormFactor,
+			LastModifiedPlatform = pr.LastModifiedPlatform,
+			LastModifiedLatitude = pr.LastModifiedLatitude,
+			LastModifiedLongitude = pr.LastModifiedLongitude,
 			Card = pr.Card,
 			Credit = pr.Credit,
 			Cash = pr.Cash,
@@ -339,7 +355,10 @@ public partial class SaleReport : IAsyncDisposable
 			CreatedAt = pr.CreatedAt,
 			CreatedBy = pr.CreatedBy,
 			CreatedByName = pr.CreatedByName,
-			CreatedFromPlatform = pr.CreatedFromPlatform,
+			CreatedFormFactor = pr.CreatedFormFactor,
+			CreatedPlatform = pr.CreatedPlatform,
+			CreatedLatitude = pr.CreatedLatitude,
+			CreatedLongitude = pr.CreatedLongitude,
 			DiscountAmount = pr.DiscountAmount,
 			DiscountPercent = pr.DiscountPercent,
 			FinancialYear = pr.FinancialYear,
@@ -348,7 +367,10 @@ public partial class SaleReport : IAsyncDisposable
 			LastModifiedAt = pr.LastModifiedAt,
 			LastModifiedBy = pr.LastModifiedBy,
 			LastModifiedByUserName = pr.LastModifiedByUserName,
-			LastModifiedFromPlatform = pr.LastModifiedFromPlatform,
+			LastModifiedFormFactor = pr.LastModifiedFormFactor,
+			LastModifiedPlatform = pr.LastModifiedPlatform,
+			LastModifiedLatitude = pr.LastModifiedLatitude,
+			LastModifiedLongitude = pr.LastModifiedLongitude,
 			Card = pr.Card,
 			Credit = pr.Credit,
 			Cash = pr.Cash,
@@ -422,19 +444,27 @@ public partial class SaleReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Closing day and posting sale accounting...", ToastType.Info);
 
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+
 			for (var date = _fromDate; date <= _toDate; date = date.AddDays(1))
 			{
 				await SaleData.PostDaySales(
 					date,
 					_selectedLocation.Id,
 					_user.Id,
-					await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+					platform.FormFactor,
+					platform.Platform,
+					platform.Latitude,
+					platform.Longitude);
 
 				await BillData.PostDayBills(
 					date,
 					_selectedLocation.Id,
 					_user.Id,
-					await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+					platform.FormFactor,
+					platform.Platform,
+					platform.Latitude,
+					platform.Longitude);
 			}
 
 			await _toastNotification.ShowAsync("Success", "Day closing completed successfully.", ToastType.Success);
@@ -521,7 +551,7 @@ public partial class SaleReport : IAsyncDisposable
 			await _toastNotification.ShowAsync("Processing", $"{(isRecover ? "Recovering" : "Deleting")} transaction...", ToastType.Info);
 
 			var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(record.TransactionNo, false, false);
-			var platform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
 			var currentDateTime = await CommonData.LoadCurrentDateTime();
 
 			if (decodedTransactionNo.CodeType == CodeType.Sale)
@@ -531,7 +561,10 @@ public partial class SaleReport : IAsyncDisposable
 				sale.Status = isRecover;
 				sale.LastModifiedBy = _user.Id;
 				sale.LastModifiedAt = currentDateTime;
-				sale.LastModifiedFromPlatform = platform;
+				sale.LastModifiedFormFactor = platform.FormFactor;
+				sale.LastModifiedPlatform = platform.Platform;
+				sale.LastModifiedLatitude = platform.Latitude;
+				sale.LastModifiedLongitude = platform.Longitude;
 
 				if (isRecover) await SaleData.RecoverTransaction(sale);
 				else await SaleData.DeleteTransaction(sale);
@@ -543,7 +576,10 @@ public partial class SaleReport : IAsyncDisposable
 				saleReturn.Status = isRecover;
 				saleReturn.LastModifiedBy = _user.Id;
 				saleReturn.LastModifiedAt = currentDateTime;
-				saleReturn.LastModifiedFromPlatform = platform;
+				saleReturn.LastModifiedFormFactor = platform.FormFactor;
+				saleReturn.LastModifiedPlatform = platform.Platform;
+				saleReturn.LastModifiedLatitude = platform.Latitude;
+				saleReturn.LastModifiedLongitude = platform.Longitude;
 
 				if (isRecover) await SaleReturnData.RecoverTransaction(saleReturn);
 				else await SaleReturnData.DeleteTransaction(saleReturn);
@@ -555,7 +591,10 @@ public partial class SaleReport : IAsyncDisposable
 				stockTransfer.Status = isRecover;
 				stockTransfer.LastModifiedBy = _user.Id;
 				stockTransfer.LastModifiedAt = currentDateTime;
-				stockTransfer.LastModifiedFromPlatform = platform;
+				stockTransfer.LastModifiedFormFactor = platform.FormFactor;
+				stockTransfer.LastModifiedPlatform = platform.Platform;
+				stockTransfer.LastModifiedLatitude = platform.Latitude;
+				stockTransfer.LastModifiedLongitude = platform.Longitude;
 
 				if (isRecover) await StockTransferData.RecoverTransaction(stockTransfer);
 				else await StockTransferData.DeleteTransaction(stockTransfer);
@@ -567,7 +606,10 @@ public partial class SaleReport : IAsyncDisposable
 				bill.Status = isRecover;
 				bill.LastModifiedBy = _user.Id;
 				bill.LastModifiedAt = currentDateTime;
-				bill.LastModifiedFromPlatform = platform;
+				bill.LastModifiedFormFactor = platform.FormFactor;
+				bill.LastModifiedPlatform = platform.Platform;
+				bill.LastModifiedLatitude = platform.Latitude;
+				bill.LastModifiedLongitude = platform.Longitude;
 
 				if (isRecover) await BillData.RecoverTransaction(bill);
 				else await BillData.DeleteTransaction(bill);

@@ -79,7 +79,8 @@ public partial class AccountTypePage
 
 			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			await AccountTypeData.SaveTransaction(_accountType, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			await AccountTypeData.SaveTransaction(_accountType, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
 			ResetPage();
@@ -128,8 +129,9 @@ public partial class AccountTypePage
 			var accountType = await CommonData.LoadTableDataById<AccountTypeModel>(AccountNames.AccountType, id)
 				?? throw new Exception("Transaction not found.");
 
-			if (isRecover) await AccountTypeData.RecoverTransaction(accountType, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
-			else await AccountTypeData.DeleteTransaction(accountType, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			if (isRecover) await AccountTypeData.RecoverTransaction(accountType, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
+			else await AccountTypeData.DeleteTransaction(accountType, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Success", $"Transaction {accountType.Name} has been {(isRecover ? "recovered" : "deleted")} successfully.", ToastType.Success);
 			ResetPage();

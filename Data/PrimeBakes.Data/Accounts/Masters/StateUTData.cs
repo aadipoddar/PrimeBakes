@@ -12,7 +12,7 @@ public static class StateUTData
 		(await SqlDataAccess.LoadData<int, dynamic>(AccountNames.InsertStateUT, state, transaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert State/UT.");
 
-	public static async Task DeleteTransaction(StateUTModel state, int userId, string platform) =>
+	public static async Task DeleteTransaction(StateUTModel state, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			state.Status = false;
@@ -23,11 +23,14 @@ public static class StateUTData
 				TableName = AccountNames.StateUT,
 				RecordNo = state.Name,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
-	public static async Task RecoverTransaction(StateUTModel state, int userId, string platform) =>
+	public static async Task RecoverTransaction(StateUTModel state, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			state.Status = true;
@@ -38,7 +41,10 @@ public static class StateUTData
 				TableName = AccountNames.StateUT,
 				RecordNo = state.Name,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
@@ -58,7 +64,7 @@ public static class StateUTData
 			throw new Exception($"State/UT name '{item.Name}' already exists. Please choose a different name.");
 	}
 
-	public static async Task<int> SaveTransaction(StateUTModel state, int userId, string platform)
+	public static async Task<int> SaveTransaction(StateUTModel state, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		await ValidateTransaction(state);
 
@@ -78,7 +84,10 @@ public static class StateUTData
 				RecordNo = state.Name,
 				RecordValue = isUpdate ? diff : null,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 			return id;
 		});

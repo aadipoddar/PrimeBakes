@@ -57,11 +57,17 @@ SELECT
 	[a].[CreatedBy],
 	[u].[Name] AS CreatedByName,
 	[a].[CreatedAt],
-	[a].[CreatedFromPlatform],
+	[a].[CreatedFormFactor],
+	[a].[CreatedPlatform],
+	[a].[CreatedLatitude],
+	[a].[CreatedLongitude],
 	[a].[LastModifiedBy],
 	[lm].[Name] AS LastModifiedByUserName,
 	[a].[LastModifiedAt],
-	[a].[LastModifiedFromPlatform],
+	[a].[LastModifiedFormFactor],
+	[a].[LastModifiedPlatform],
+	[a].[LastModifiedLatitude],
+	[a].[LastModifiedLongitude],
 
 	[a].[Status] AS MasterStatus
 

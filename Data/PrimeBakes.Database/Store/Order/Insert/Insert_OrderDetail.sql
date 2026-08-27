@@ -32,11 +32,11 @@ BEGIN
 		UPDATE [dbo].[OrderDetail]
 		SET 
 			[MasterId] = @MasterId, 
-			ProductId = @ProductId, 
-			Quantity = @Quantity, 
-			Remarks = @Remarks,
-			Status = @Status
-		WHERE Id = @Id;
+			[ProductId] = @ProductId, 
+			[Quantity] = @Quantity, 
+			[Remarks] = @Remarks,
+			[Status] = @Status
+		WHERE [Id] = @Id;
 	END
 
 	SELECT @Id AS Id;

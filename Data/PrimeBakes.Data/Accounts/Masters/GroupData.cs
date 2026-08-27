@@ -12,7 +12,7 @@ public static class GroupData
 		(await SqlDataAccess.LoadData<int, dynamic>(AccountNames.InsertGroup, group, transaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Group.");
 
-	public static async Task DeleteTransaction(GroupModel group, int userId, string platform) =>
+	public static async Task DeleteTransaction(GroupModel group, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			group.Status = false;
@@ -23,11 +23,14 @@ public static class GroupData
 				TableName = AccountNames.Group,
 				RecordNo = group.Name,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
-	public static async Task RecoverTransaction(GroupModel group, int userId, string platform) =>
+	public static async Task RecoverTransaction(GroupModel group, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			group.Status = true;
@@ -38,7 +41,10 @@ public static class GroupData
 				TableName = AccountNames.Group,
 				RecordNo = group.Name,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
@@ -62,7 +68,7 @@ public static class GroupData
 			throw new Exception($"Group name '{item.Name}' already exists. Please choose a different name.");
 	}
 
-	public static async Task<int> SaveTransaction(GroupModel group, int userId, string platform)
+	public static async Task<int> SaveTransaction(GroupModel group, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		await ValidateTransaction(group);
 
@@ -82,7 +88,10 @@ public static class GroupData
 				RecordNo = group.Name,
 				RecordValue = isUpdate ? diff : null,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 			return id;
 		});

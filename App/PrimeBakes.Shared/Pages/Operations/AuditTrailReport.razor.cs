@@ -90,13 +90,17 @@ public partial class AuditTrailReport : IAsyncDisposable
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),
 				TableName = OperationRouteNames.AuditTrailReport,
 				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 				CreatedBy = _user.Id,
-				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
+				CreatedFormFactor = platform.FormFactor,
+				CreatedPlatform = platform.Platform,
+				CreatedLatitude = platform.Latitude,
+				CreatedLongitude = platform.Longitude
 			});
 
 			_auditTrails = [.. _auditTrails.OrderByDescending(_ => _.TransactionDateTime)];
@@ -147,7 +151,11 @@ public partial class AuditTrailReport : IAsyncDisposable
 		sb.AppendLine($"Action   : {record.Action}");
 		sb.AppendLine($"Date     : {record.TransactionDateTime:dd-MMM-yyyy HH:mm}");
 		sb.AppendLine($"User     : {record.CreatedByName}");
-		sb.AppendLine($"Platform : {record.CreatedFromPlatform}");
+		sb.AppendLine($"Form     : {record.CreatedFormFactor}");
+		sb.AppendLine($"Platform : {record.CreatedPlatform}");
+
+		if (record.CreatedLatitude is not null && record.CreatedLongitude is not null)
+			sb.AppendLine($"Location : {record.CreatedLatitude:F6}, {record.CreatedLongitude:F6}");
 
 		if (!string.IsNullOrWhiteSpace(record.RecordValue))
 		{
@@ -180,8 +188,9 @@ public partial class AuditTrailReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Deleting audit trail records...", ToastType.Info);
 
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
 			var deleted = await AuditTrailData.DeleteAuditTrailByDate(_fromDate, _toDate, _user.Id,
-				await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+				platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Deleted", $"{deleted} audit trail records have been deleted successfully.", ToastType.Success);
 			await LoadAuditTrails();

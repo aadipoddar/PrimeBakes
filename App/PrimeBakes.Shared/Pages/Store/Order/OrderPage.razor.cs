@@ -170,13 +170,7 @@ public partial class OrderPage
 			TotalItems = 0,
 			TotalQuantity = 0,
 			Remarks = null,
-			CreatedBy = _user.Id,
-			CreatedAt = DateTime.Now,
-			CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService),
-			Status = true,
-			LastModifiedAt = null,
-			LastModifiedBy = null,
-			LastModifiedFromPlatform = null
+			Status = true
 		};
 
 		await DeleteLocalFiles();
@@ -444,9 +438,17 @@ public partial class OrderPage
 		var currentDateTime = await CommonData.LoadCurrentDateTime();
 		_order.Status = true;
 		_order.TransactionDateTime = DateOnly.FromDateTime(_order.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
+		_order.CreatedAt = currentDateTime;
 		_order.LastModifiedAt = currentDateTime;
-		_order.CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
-		_order.LastModifiedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
+		var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+		_order.CreatedFormFactor = platform.FormFactor;
+		_order.CreatedPlatform = platform.Platform;
+		_order.CreatedLatitude = platform.Latitude;
+		_order.CreatedLongitude = platform.Longitude;
+		_order.LastModifiedFormFactor = platform.FormFactor;
+		_order.LastModifiedPlatform = platform.Platform;
+		_order.LastModifiedLatitude = platform.Latitude;
+		_order.LastModifiedLongitude = platform.Longitude;
 		_order.CreatedBy = _user.Id;
 		_order.LastModifiedBy = _user.Id;
 	}

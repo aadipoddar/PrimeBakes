@@ -113,13 +113,17 @@ public partial class AccountingLedgerReport : IAsyncDisposable
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),
 				TableName = AccountsRouteNames.AccountingLedgerReport,
 				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 				CreatedBy = _user.Id,
-				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
+				CreatedFormFactor = platform.FormFactor,
+				CreatedPlatform = platform.Platform,
+				CreatedLatitude = platform.Latitude,
+				CreatedLongitude = platform.Longitude
 			});
 
 			await ApplyFilters();
@@ -253,7 +257,11 @@ public partial class AccountingLedgerReport : IAsyncDisposable
 				?? throw new Exception("Transaction not found.");
 			accounting.LastModifiedBy = _user.Id;
 			accounting.LastModifiedAt = await CommonData.LoadCurrentDateTime();
-			accounting.LastModifiedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			accounting.LastModifiedFormFactor = platform.FormFactor;
+			accounting.LastModifiedPlatform = platform.Platform;
+			accounting.LastModifiedLatitude = platform.Latitude;
+			accounting.LastModifiedLongitude = platform.Longitude;
 
 			if (recover) await FinancialAccountingData.RecoverTransaction(accounting);
 			else await FinancialAccountingData.DeleteTransaction(accounting);

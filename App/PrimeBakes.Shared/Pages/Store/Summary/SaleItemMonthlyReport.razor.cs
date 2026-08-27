@@ -143,13 +143,17 @@ public partial class SaleItemMonthlyReport : IAsyncDisposable
 			_allTransferOverviews = await allTransferOverviews;
 			_allBillOverviews = await allBillOverviews;
 
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),
 				TableName = StoreRouteNames.SaleItemMonthlyReport,
 				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 				CreatedBy = _user.Id,
-				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
+				CreatedFormFactor = platform.FormFactor,
+				CreatedPlatform = platform.Platform,
+				CreatedLatitude = platform.Latitude,
+				CreatedLongitude = platform.Longitude
 			});
 
 			await ApplyFilters();
@@ -327,11 +331,17 @@ public partial class SaleItemMonthlyReport : IAsyncDisposable
 			CreatedBy = pr.CreatedBy,
 			CreatedByName = pr.CreatedByName,
 			CreatedAt = pr.CreatedAt,
-			CreatedFromPlatform = pr.CreatedFromPlatform,
+			CreatedFormFactor = pr.CreatedFormFactor,
+			CreatedPlatform = pr.CreatedPlatform,
+			CreatedLatitude = pr.CreatedLatitude,
+			CreatedLongitude = pr.CreatedLongitude,
 			LastModifiedBy = pr.LastModifiedBy,
 			LastModifiedByUserName = pr.LastModifiedByUserName,
 			LastModifiedAt = pr.LastModifiedAt,
-			LastModifiedFromPlatform = pr.LastModifiedFromPlatform,
+			LastModifiedFormFactor = pr.LastModifiedFormFactor,
+			LastModifiedPlatform = pr.LastModifiedPlatform,
+			LastModifiedLatitude = pr.LastModifiedLatitude,
+			LastModifiedLongitude = pr.LastModifiedLongitude,
 		}));
 
 	private void MergeTransfers() =>
@@ -403,11 +413,17 @@ public partial class SaleItemMonthlyReport : IAsyncDisposable
 			CreatedBy = pr.CreatedBy,
 			CreatedByName = pr.CreatedByName,
 			CreatedAt = pr.CreatedAt,
-			CreatedFromPlatform = pr.CreatedFromPlatform,
+			CreatedFormFactor = pr.CreatedFormFactor,
+			CreatedPlatform = pr.CreatedPlatform,
+			CreatedLatitude = pr.CreatedLatitude,
+			CreatedLongitude = pr.CreatedLongitude,
 			LastModifiedBy = pr.LastModifiedBy,
 			LastModifiedByUserName = pr.LastModifiedByUserName,
 			LastModifiedAt = pr.LastModifiedAt,
-			LastModifiedFromPlatform = pr.LastModifiedFromPlatform
+			LastModifiedFormFactor = pr.LastModifiedFormFactor,
+			LastModifiedPlatform = pr.LastModifiedPlatform,
+			LastModifiedLatitude = pr.LastModifiedLatitude,
+			LastModifiedLongitude = pr.LastModifiedLongitude
 		}));
 
 	private void MergeBills() =>
@@ -480,11 +496,17 @@ public partial class SaleItemMonthlyReport : IAsyncDisposable
 			CreatedBy = pr.CreatedBy,
 			CreatedByName = pr.CreatedByName,
 			CreatedAt = pr.CreatedAt,
-			CreatedFromPlatform = pr.CreatedFromPlatform,
+			CreatedFormFactor = pr.CreatedFormFactor,
+			CreatedPlatform = pr.CreatedPlatform,
+			CreatedLatitude = pr.CreatedLatitude,
+			CreatedLongitude = pr.CreatedLongitude,
 			LastModifiedBy = pr.LastModifiedBy,
 			LastModifiedByUserName = pr.LastModifiedByUserName,
 			LastModifiedAt = pr.LastModifiedAt,
-			LastModifiedFromPlatform = pr.LastModifiedFromPlatform
+			LastModifiedFormFactor = pr.LastModifiedFormFactor,
+			LastModifiedPlatform = pr.LastModifiedPlatform,
+			LastModifiedLatitude = pr.LastModifiedLatitude,
+			LastModifiedLongitude = pr.LastModifiedLongitude
 		}));
 	#endregion
 

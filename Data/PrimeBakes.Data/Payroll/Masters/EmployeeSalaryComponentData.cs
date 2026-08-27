@@ -39,7 +39,7 @@ public static class EmployeeSalaryComponentData
 		return [.. salaryComponents.OrderBy(x => x.Sequence)];
 	}
 
-	public static async Task DeleteTransaction(EmployeeSalaryComponentOverviewModel employeeSalaryComponent, int userId, string platform) =>
+	public static async Task DeleteTransaction(EmployeeSalaryComponentOverviewModel employeeSalaryComponent, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			await DeleteEmployeeSalaryComponentById(employeeSalaryComponent.Id, transaction);
@@ -49,11 +49,14 @@ public static class EmployeeSalaryComponentData
 				TableName = PayrollNames.EmployeeSalaryComponent,
 				RecordNo = $"{employeeSalaryComponent.EmployeeCode} {employeeSalaryComponent.SalaryComponentCode}",
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
-	public static async Task DiscontinueTransaction(EmployeeSalaryComponentOverviewModel employeeSalaryComponent, int userId, string platform)
+	public static async Task DiscontinueTransaction(EmployeeSalaryComponentOverviewModel employeeSalaryComponent, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		var existing = await LoadEmployeeSalaryComponentOverviewByEmployeeSalaryComponentDate(employeeSalaryComponent.EmployeeId, employeeSalaryComponent.SalaryComponentId);
 
@@ -68,7 +71,10 @@ public static class EmployeeSalaryComponentData
 				TableName = PayrollNames.EmployeeSalaryComponent,
 				RecordNo = $"Discontinue {employeeSalaryComponent.EmployeeCode} {employeeSalaryComponent.SalaryComponentCode}",
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 	}
@@ -121,7 +127,7 @@ public static class EmployeeSalaryComponentData
 		return salaryComponent;
 	}
 
-	public static async Task<int> SaveTransaction(EmployeeSalaryComponentModel employeeSalaryComponent, int userId, string platform)
+	public static async Task<int> SaveTransaction(EmployeeSalaryComponentModel employeeSalaryComponent, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		var salaryComponent = await ValidateTransaction(employeeSalaryComponent);
 		var employee = await CommonData.LoadTableDataById<EmployeeModel>(PayrollNames.Employee, employeeSalaryComponent.EmployeeId);
@@ -136,7 +142,10 @@ public static class EmployeeSalaryComponentData
 				TableName = PayrollNames.EmployeeSalaryComponent,
 				RecordNo = $"{employee?.Code ?? employeeSalaryComponent.EmployeeId.ToString()} {salaryComponent.Code}",
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 			return id;
 		});

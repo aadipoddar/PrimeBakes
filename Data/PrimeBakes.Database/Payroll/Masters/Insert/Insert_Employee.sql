@@ -117,7 +117,7 @@ BEGIN
 			[PaymentMode] = @PaymentMode,
 			[Remarks] = @Remarks,
 			[Status] = @Status
-		WHERE Id = @Id;
+		WHERE [Id] = @Id;
 	END
 
 	SELECT @Id AS Id;

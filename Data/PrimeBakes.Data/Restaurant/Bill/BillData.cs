@@ -32,7 +32,6 @@ namespace PrimeBakes.Data.Restaurant.Bill;
 
 public static class BillData
 {
-
 	private static async Task<int> InsertBill(BillModel bill, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(RestaurantNames.InsertBill, bill, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Bill.");
@@ -190,7 +189,10 @@ public static class BillData
 			TableName = RestaurantNames.Bill,
 			RecordNo = bill.TransactionNo,
 			CreatedBy = bill.LastModifiedBy.Value,
-			CreatedFromPlatform = bill.LastModifiedFromPlatform
+			CreatedFormFactor = bill.LastModifiedFormFactor,
+			CreatedPlatform = bill.LastModifiedPlatform,
+			CreatedLatitude = bill.LastModifiedLatitude,
+			CreatedLongitude = bill.LastModifiedLongitude
 		}, sqlDataAccessTransaction);
 	}
 
@@ -205,7 +207,10 @@ public static class BillData
 		existingAccounting.Status = false;
 		existingAccounting.LastModifiedBy = bill.LastModifiedBy;
 		existingAccounting.LastModifiedAt = bill.LastModifiedAt;
-		existingAccounting.LastModifiedFromPlatform = bill.LastModifiedFromPlatform;
+		existingAccounting.LastModifiedFormFactor = bill.LastModifiedFormFactor;
+		existingAccounting.LastModifiedPlatform = bill.LastModifiedPlatform;
+		existingAccounting.LastModifiedLatitude = bill.LastModifiedLatitude;
+		existingAccounting.LastModifiedLongitude = bill.LastModifiedLongitude;
 
 		await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
 	}
@@ -609,7 +614,10 @@ public static class BillData
 			Remarks = billOverview.Remarks,
 			CreatedBy = billOverview.CreatedBy,
 			CreatedAt = billOverview.CreatedAt,
-			CreatedFromPlatform = billOverview.CreatedFromPlatform,
+			CreatedFormFactor = billOverview.CreatedFormFactor,
+			CreatedPlatform = billOverview.CreatedPlatform,
+			CreatedLatitude = billOverview.CreatedLatitude,
+			CreatedLongitude = billOverview.CreatedLongitude,
 			Status = true
 		};
 
@@ -650,7 +658,10 @@ public static class BillData
 			RecordNo = bill.TransactionNo,
 			RecordValue = difference,
 			CreatedBy = update ? bill.LastModifiedBy.Value : bill.CreatedBy,
-			CreatedFromPlatform = update ? bill.LastModifiedFromPlatform : bill.CreatedFromPlatform
+			CreatedFormFactor = update ? bill.LastModifiedFormFactor : bill.CreatedFormFactor,
+			CreatedPlatform = update ? bill.LastModifiedPlatform : bill.CreatedPlatform,
+			CreatedLatitude = update ? bill.LastModifiedLatitude : bill.CreatedLatitude,
+			CreatedLongitude = update ? bill.LastModifiedLongitude : bill.CreatedLongitude
 		}, sqlDataAccessTransaction);
 	}
 	#endregion
@@ -668,7 +679,7 @@ public static class BillData
 			throw new InvalidOperationException("Cannot post day bills account entry as there are already posted bills for the day. Please contact administrator.");
 	}
 
-	public static async Task PostDayBills(DateTime postingDate, int locationId, int userId, string userPlatform)
+	public static async Task PostDayBills(DateTime postingDate, int locationId, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		await ValidateDayBillsAccountPosting(postingDate, locationId);
 		await FinancialYearData.ValidateFinancialYear(postingDate);
@@ -746,7 +757,10 @@ public static class BillData
 			Remarks = $"Bill Day Closing for {postingDate:dd-MMM-yyyy}",
 			CreatedBy = userId,
 			CreatedAt = currentDateTime,
-			CreatedFromPlatform = userPlatform,
+			CreatedFormFactor = formFactor,
+			CreatedPlatform = platform,
+			CreatedLatitude = latitude,
+			CreatedLongitude = longitude,
 			Status = true
 		};
 

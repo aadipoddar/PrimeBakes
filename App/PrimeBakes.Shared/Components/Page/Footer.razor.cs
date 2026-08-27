@@ -39,7 +39,13 @@ public partial class Footer : IAsyncDisposable
 
 	private async Task LoadPlatformInfo()
 	{
-		_platformInfo = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
+		var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+
+		_platformInfo = $"Form Factor: {platform.FormFactor}" +
+						$" Platform: {platform.Platform}" +
+						$" Latitude: {platform.Latitude?.ToString("F6") ?? "N/A"}" +
+						$" Longitude: {platform.Longitude?.ToString("F6") ?? "N/A"}";
+
 		await InvokeAsync(StateHasChanged);
 	}
 

@@ -23,6 +23,6 @@ public static class FinancialAccountingData
 		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(SaveTransaction)),
 			new FinancialAccountingSaveRequest(accounting, ledgers, recover));
 
-	public static async Task SaveBRSDates(List<FinancialAccountingLedgerModel> changedLines, int userId, string platform) =>
-		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(SaveBRSDates)), changedLines, new { userId, platform });
+	public static async Task SaveBRSDates(List<FinancialAccountingLedgerModel> changedLines, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(SaveBRSDates)), changedLines, new { userId, formFactor, platform, latitude, longitude });
 }

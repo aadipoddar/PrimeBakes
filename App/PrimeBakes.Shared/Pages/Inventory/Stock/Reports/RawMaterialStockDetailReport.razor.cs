@@ -90,13 +90,17 @@ public partial class RawMaterialStockDetailReport : IAsyncDisposable
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),
 				TableName = InventoryRouteNames.RawMaterialStockDetailReport,
 				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 				CreatedBy = _user.Id,
-				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
+				CreatedFormFactor = platform.FormFactor,
+				CreatedPlatform = platform.Platform,
+				CreatedLatitude = platform.Latitude,
+				CreatedLongitude = platform.Longitude
 			});
 
 			_stockDetails = [.. _stockDetails.OrderBy(d => d.TransactionDateTime).ThenBy(d => d.RawMaterialName)];
@@ -164,7 +168,8 @@ public partial class RawMaterialStockDetailReport : IAsyncDisposable
 
 			await _toastNotification.ShowAsync("Processing", "Deleting transaction...", ToastType.Info);
 
-			await RawMaterialStockData.DeleteRawMaterialStockAdjustment(id, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			await RawMaterialStockData.DeleteRawMaterialStockAdjustment(id, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Success", $"Transaction {transactionNo} has been deleted successfully.", ToastType.Success);
 		}
@@ -195,12 +200,16 @@ public partial class RawMaterialStockDetailReport : IAsyncDisposable
 
 			await _toastNotification.ShowAsync("Processing", "Recalculating stock...", ToastType.Info);
 
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
 			await RawMaterialStockData.RecalculateStockByDate(
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue),
 				deleteAdjustments,
 				_user.Id,
-				await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+				platform.FormFactor,
+				platform.Platform,
+				platform.Latitude,
+				platform.Longitude);
 
 			await _toastNotification.ShowAsync("Success", "Stock has been recalculated successfully.", ToastType.Success);
 		}

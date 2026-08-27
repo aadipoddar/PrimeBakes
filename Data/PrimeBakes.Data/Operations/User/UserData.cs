@@ -26,7 +26,7 @@ public static class UserData
 		}
 	}
 
-	public static async Task DeleteTransaction(UserModel user, int userId, string platform) =>
+	public static async Task DeleteTransaction(UserModel user, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			user.Status = false;
@@ -37,11 +37,14 @@ public static class UserData
 				TableName = OperationNames.User,
 				RecordNo = user.Name,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
-	public static async Task RecoverTransaction(UserModel user, int userId, string platform) =>
+	public static async Task RecoverTransaction(UserModel user, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			user.Status = true;
@@ -52,7 +55,10 @@ public static class UserData
 				TableName = OperationNames.User,
 				RecordNo = user.Name,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
@@ -85,7 +91,7 @@ public static class UserData
 			throw new Exception($"User name '{item.Name}' already exists. Please choose a different name.");
 	}
 
-	public static async Task<int> SaveTransaction(UserModel user, int userId, string platform)
+	public static async Task<int> SaveTransaction(UserModel user, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		await ValidateTransaction(user);
 
@@ -105,7 +111,10 @@ public static class UserData
 				RecordNo = user.Name,
 				RecordValue = isUpdate ? diff : null,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 			return id;
 		});

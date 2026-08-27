@@ -20,7 +20,7 @@ public static class ProductLocationData
 	public static async Task<List<ProductLocationOverviewModel>> LoadProductLocationOverviewByProductLocationDate(int? ProductId = null, int? LocationId = null, DateOnly? Date = null, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		await SqlDataAccess.LoadData<ProductLocationOverviewModel, dynamic>(StoreNames.LoadProductLocationOverviewByProductLocationDate, new { ProductId, LocationId, Date }, sqlDataAccessTransaction);
 
-	public static async Task DeleteTransaction(ProductLocationOverviewModel productLocation, int userId, string platform) =>
+	public static async Task DeleteTransaction(ProductLocationOverviewModel productLocation, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			await DeleteProductLocationById(productLocation.Id, transaction);
@@ -30,11 +30,14 @@ public static class ProductLocationData
 				TableName = StoreNames.ProductLocation,
 				RecordNo = productLocation.Code,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
-	public static async Task DiscontinueTransaction(ProductLocationOverviewModel productLocation, int userId, string platform)
+	public static async Task DiscontinueTransaction(ProductLocationOverviewModel productLocation, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		var existing = await LoadProductLocationOverviewByProductLocationDate(productLocation.ProductId, productLocation.LocationId);
 		var location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, productLocation.LocationId);
@@ -50,7 +53,10 @@ public static class ProductLocationData
 				TableName = StoreNames.ProductLocation,
 				RecordNo = $"Discontinue {productLocation.Code} {location?.Name}",
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 	}
@@ -72,7 +78,7 @@ public static class ProductLocationData
 			throw new Exception($"A rate for this product at this location effective {item.FromDate:dd-MMM-yyyy} already exists. Edit that entry instead.");
 	}
 
-	public static async Task<int> SaveTransaction(ProductLocationModel productLocation, int userId, string platform)
+	public static async Task<int> SaveTransaction(ProductLocationModel productLocation, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		await ValidateTransaction(productLocation);
 
@@ -88,7 +94,10 @@ public static class ProductLocationData
 				TableName = StoreNames.ProductLocation,
 				RecordNo = product?.Code ?? productLocation.ProductId.ToString(),
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 			return id;
 		});

@@ -72,7 +72,10 @@ public static class KitchenProductionReturnData
 			TableName = InventoryNames.KitchenProductionReturn,
 			RecordNo = kitchenProductionReturn.TransactionNo,
 			CreatedBy = kitchenProductionReturn.LastModifiedBy.Value,
-			CreatedFromPlatform = kitchenProductionReturn.LastModifiedFromPlatform
+			CreatedFormFactor = kitchenProductionReturn.LastModifiedFormFactor,
+			CreatedPlatform = kitchenProductionReturn.LastModifiedPlatform,
+			CreatedLatitude = kitchenProductionReturn.LastModifiedLatitude,
+			CreatedLongitude = kitchenProductionReturn.LastModifiedLongitude
 		}, sqlDataAccessTransaction);
 	}
 
@@ -253,7 +256,10 @@ public static class KitchenProductionReturnData
 			RecordNo = kitchenProductionReturn.TransactionNo,
 			RecordValue = difference,
 			CreatedBy = update ? kitchenProductionReturn.LastModifiedBy.Value : kitchenProductionReturn.CreatedBy,
-			CreatedFromPlatform = update ? kitchenProductionReturn.LastModifiedFromPlatform : kitchenProductionReturn.CreatedFromPlatform
+			CreatedFormFactor = update ? kitchenProductionReturn.LastModifiedFormFactor : kitchenProductionReturn.CreatedFormFactor,
+			CreatedPlatform = update ? kitchenProductionReturn.LastModifiedPlatform : kitchenProductionReturn.CreatedPlatform,
+			CreatedLatitude = update ? kitchenProductionReturn.LastModifiedLatitude : kitchenProductionReturn.CreatedLatitude,
+			CreatedLongitude = update ? kitchenProductionReturn.LastModifiedLongitude : kitchenProductionReturn.CreatedLongitude
 		}, sqlDataAccessTransaction);
 	}
 	#endregion

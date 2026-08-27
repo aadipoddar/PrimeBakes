@@ -12,7 +12,7 @@ public static class DesignationData
 		(await SqlDataAccess.LoadData<int, dynamic>(PayrollNames.InsertDesignation, designation, transaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Designation.");
 
-	public static async Task DeleteTransaction(DesignationModel designation, int userId, string platform) =>
+	public static async Task DeleteTransaction(DesignationModel designation, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			designation.Status = false;
@@ -23,11 +23,14 @@ public static class DesignationData
 				TableName = PayrollNames.Designation,
 				RecordNo = designation.Code,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
-	public static async Task RecoverTransaction(DesignationModel designation, int userId, string platform) =>
+	public static async Task RecoverTransaction(DesignationModel designation, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			designation.Status = true;
@@ -38,7 +41,10 @@ public static class DesignationData
 				TableName = PayrollNames.Designation,
 				RecordNo = designation.Code,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
@@ -62,7 +68,7 @@ public static class DesignationData
 			throw new Exception($"Designation name '{item.Name}' already exists. Please choose a different name.");
 	}
 
-	public static async Task<int> SaveTransaction(DesignationModel designation, int userId, string platform)
+	public static async Task<int> SaveTransaction(DesignationModel designation, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		await ValidateTransaction(designation);
 
@@ -82,7 +88,10 @@ public static class DesignationData
 				RecordNo = designation.Code,
 				RecordValue = isUpdate ? diff : null,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 			return id;
 		});

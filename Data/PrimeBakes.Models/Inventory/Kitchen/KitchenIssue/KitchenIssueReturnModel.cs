@@ -14,11 +14,17 @@ public class KitchenIssueReturnModel
 	public string? Remarks { get; set; }
 	public int CreatedBy { get; set; }
 	public DateTime CreatedAt { get; set; }
-	public string CreatedFromPlatform { get; set; }
+	public string? CreatedFormFactor { get; set; }
+	public string? CreatedPlatform { get; set; }
+	public decimal? CreatedLatitude { get; set; }
+	public decimal? CreatedLongitude { get; set; }
 	public bool Status { get; set; }
 	public int? LastModifiedBy { get; set; }
 	public DateTime? LastModifiedAt { get; set; }
-	public string? LastModifiedFromPlatform { get; set; }
+	public string? LastModifiedFormFactor { get; set; }
+	public string? LastModifiedPlatform { get; set; }
+	public decimal? LastModifiedLatitude { get; set; }
+	public decimal? LastModifiedLongitude { get; set; }
 }
 
 public class KitchenIssueReturnOverviewModel
@@ -43,10 +49,16 @@ public class KitchenIssueReturnOverviewModel
 	public int CreatedBy { get; set; }
 	public string CreatedByName { get; set; }
 	public DateTime CreatedAt { get; set; }
-	public string CreatedFromPlatform { get; set; }
+	public string? CreatedFormFactor { get; set; }
+	public string? CreatedPlatform { get; set; }
+	public decimal? CreatedLatitude { get; set; }
+	public decimal? CreatedLongitude { get; set; }
 	public int? LastModifiedBy { get; set; }
 	public string LastModifiedByUserName { get; set; }
 	public DateTime? LastModifiedAt { get; set; }
-	public string LastModifiedFromPlatform { get; set; }
+	public string? LastModifiedFormFactor { get; set; }
+	public string? LastModifiedPlatform { get; set; }
+	public decimal? LastModifiedLatitude { get; set; }
+	public decimal? LastModifiedLongitude { get; set; }
 	public bool Status { get; set; }
 }

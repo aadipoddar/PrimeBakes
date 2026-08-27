@@ -120,13 +120,17 @@ public partial class KitchenIssueReturnItemReport : IAsyncDisposable
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),
 				TableName = InventoryRouteNames.KitchenIssueReturnItemReport,
 				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 				CreatedBy = _user.Id,
-				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
+				CreatedFormFactor = platform.FormFactor,
+				CreatedPlatform = platform.Platform,
+				CreatedLatitude = platform.Latitude,
+				CreatedLongitude = platform.Longitude
 			});
 
 			await ApplyFilters();
@@ -243,14 +247,17 @@ public partial class KitchenIssueReturnItemReport : IAsyncDisposable
 
 			await _toastNotification.ShowAsync("Processing", $"{(isRecover ? "Recovering" : "Deleting")} transaction...", ToastType.Info);
 
-			var platform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
 
 			var kitchenIssueReturn = await CommonData.LoadTableDataById<KitchenIssueReturnModel>(InventoryNames.KitchenIssueReturn, masterId)
 				?? throw new Exception("Transaction not found.");
 			kitchenIssueReturn.Status = isRecover;
 			kitchenIssueReturn.LastModifiedBy = _user.Id;
 			kitchenIssueReturn.LastModifiedAt = await CommonData.LoadCurrentDateTime();
-			kitchenIssueReturn.LastModifiedFromPlatform = platform;
+			kitchenIssueReturn.LastModifiedFormFactor = platform.FormFactor;
+			kitchenIssueReturn.LastModifiedPlatform = platform.Platform;
+			kitchenIssueReturn.LastModifiedLatitude = platform.Latitude;
+			kitchenIssueReturn.LastModifiedLongitude = platform.Longitude;
 
 			if (isRecover) await KitchenIssueReturnData.RecoverTransaction(kitchenIssueReturn);
 			else await KitchenIssueReturnData.DeleteTransaction(kitchenIssueReturn);

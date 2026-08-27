@@ -12,7 +12,7 @@ public static class DiningTableData
 		(await SqlDataAccess.LoadData<int, dynamic>(RestaurantNames.InsertDiningTable, diningTable, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Dining Table.");
 
-	public static async Task DeleteTransaction(DiningTableModel diningTable, int userId, string platform) =>
+	public static async Task DeleteTransaction(DiningTableModel diningTable, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			diningTable.Status = false;
@@ -23,11 +23,14 @@ public static class DiningTableData
 				TableName = RestaurantNames.DiningTable,
 				RecordNo = diningTable.Name,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
-	public static async Task RecoverTransaction(DiningTableModel diningTable, int userId, string platform) =>
+	public static async Task RecoverTransaction(DiningTableModel diningTable, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			diningTable.Status = true;
@@ -38,7 +41,10 @@ public static class DiningTableData
 				TableName = RestaurantNames.DiningTable,
 				RecordNo = diningTable.Name,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
@@ -61,7 +67,7 @@ public static class DiningTableData
 			throw new Exception($"Dining table name '{item.Name}' already exists. Please choose a different name.");
 	}
 
-	public static async Task<int> SaveTransaction(DiningTableModel diningTable, int userId, string platform)
+	public static async Task<int> SaveTransaction(DiningTableModel diningTable, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		await ValidateTransaction(diningTable);
 
@@ -82,7 +88,10 @@ public static class DiningTableData
 				RecordNo = diningTable.Name,
 				RecordValue = isUpdate ? diff : null,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 			return id;
 		});

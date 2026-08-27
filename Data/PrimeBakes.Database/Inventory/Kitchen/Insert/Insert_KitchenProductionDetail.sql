@@ -38,13 +38,13 @@ BEGIN
 	BEGIN
 		UPDATE [dbo].[KitchenProductionDetail]
 		SET [MasterId] = @MasterId,
-			ProductId = @ProductId,
-			Quantity = @Quantity,
-			Rate = @Rate,
-			Total = @Total,
-			Remarks = @Remarks,
-			Status = @Status
-		WHERE Id = @Id;
+			[ProductId] = @ProductId,
+			[Quantity] = @Quantity,
+			[Rate] = @Rate,
+			[Total] = @Total,
+			[Remarks] = @Remarks,
+			[Status] = @Status
+		WHERE [Id] = @Id;
 	END
 
 	SELECT @Id AS Id;

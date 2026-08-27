@@ -86,7 +86,8 @@ public partial class CompanyPage
 			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
 
 			_company.StateUTId = _selectedStateUT?.Id ?? 0;
-			await CompanyData.SaveTransaction(_company, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			await CompanyData.SaveTransaction(_company, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
 			ResetPage();
@@ -136,8 +137,9 @@ public partial class CompanyPage
 			var company = await CommonData.LoadTableDataById<CompanyModel>(AccountNames.Company, id)
 				?? throw new Exception("Transaction not found.");
 
-			if (isRecover) await CompanyData.RecoverTransaction(company, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
-			else await CompanyData.DeleteTransaction(company, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			if (isRecover) await CompanyData.RecoverTransaction(company, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
+			else await CompanyData.DeleteTransaction(company, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Success", $"Transaction {company.Name} has been {(isRecover ? "recovered" : "deleted")} successfully.", ToastType.Success);
 			ResetPage();

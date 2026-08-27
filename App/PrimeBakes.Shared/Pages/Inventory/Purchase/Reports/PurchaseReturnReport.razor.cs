@@ -114,13 +114,17 @@ public partial class PurchaseReturnReport : IAsyncDisposable
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),
 				TableName = InventoryRouteNames.PurchaseReturnReport,
 				RecordNo = $"{_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 				CreatedBy = _user.Id,
-				CreatedFromPlatform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService)
+				CreatedFormFactor = platform.FormFactor,
+				CreatedPlatform = platform.Platform,
+				CreatedLatitude = platform.Latitude,
+				CreatedLongitude = platform.Longitude
 			});
 
 			await ApplyFilters();
@@ -248,14 +252,17 @@ public partial class PurchaseReturnReport : IAsyncDisposable
 			await _toastNotification.ShowAsync("Processing", $"{(isRecover ? "Recovering" : "Deleting")} transaction...", ToastType.Info);
 
 			var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(transactionNo, false, false);
-			var platform = await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService);
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
 
 			var purchaseReturn = await CommonData.LoadTableDataById<PurchaseReturnModel>(InventoryNames.PurchaseReturn, id)
 				?? throw new Exception("Transaction not found.");
 			purchaseReturn.Status = isRecover;
 			purchaseReturn.LastModifiedBy = _user.Id;
 			purchaseReturn.LastModifiedAt = await CommonData.LoadCurrentDateTime();
-			purchaseReturn.LastModifiedFromPlatform = platform;
+			purchaseReturn.LastModifiedFormFactor = platform.FormFactor;
+			purchaseReturn.LastModifiedPlatform = platform.Platform;
+			purchaseReturn.LastModifiedLatitude = platform.Latitude;
+			purchaseReturn.LastModifiedLongitude = platform.Longitude;
 
 			if (isRecover) await PurchaseReturnData.RecoverTransaction(purchaseReturn);
 			else await PurchaseReturnData.DeleteTransaction(purchaseReturn);

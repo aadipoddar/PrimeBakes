@@ -16,12 +16,12 @@ public static class FinancialYearData
 	public static async Task<(DateTime FromDate, DateTime ToDate)> GetDateRange(DateRangeType rangeType, DateTime referenceFromDate, DateTime referenceToDate) =>
 		await ApiClient.Get<(DateTime FromDate, DateTime ToDate)>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(GetDateRange)), new { rangeType, referenceFromDate, referenceToDate });
 
-	public static async Task DeleteTransaction(FinancialYearModel financialYear, int userId, string platform) =>
-		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteTransaction)), financialYear, new { userId, platform });
+	public static async Task DeleteTransaction(FinancialYearModel financialYear, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteTransaction)), financialYear, new { userId, formFactor, platform, latitude, longitude });
 
-	public static async Task RecoverTransaction(FinancialYearModel financialYear, int userId, string platform) =>
-		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(RecoverTransaction)), financialYear, new { userId, platform });
+	public static async Task RecoverTransaction(FinancialYearModel financialYear, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(RecoverTransaction)), financialYear, new { userId, formFactor, platform, latitude, longitude });
 
-	public static async Task<int> SaveTransaction(FinancialYearModel financialYear, int userId, string platform) =>
-		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(SaveTransaction)), financialYear, new { userId, platform });
+	public static async Task<int> SaveTransaction(FinancialYearModel financialYear, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(SaveTransaction)), financialYear, new { userId, formFactor, platform, latitude, longitude });
 }

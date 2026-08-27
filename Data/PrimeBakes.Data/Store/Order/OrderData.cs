@@ -90,7 +90,10 @@ public static class OrderData
 			TableName = StoreNames.Order,
 			RecordNo = order.TransactionNo,
 			CreatedBy = order.LastModifiedBy.Value,
-			CreatedFromPlatform = order.LastModifiedFromPlatform
+			CreatedFormFactor = order.LastModifiedFormFactor,
+			CreatedPlatform = order.LastModifiedPlatform,
+			CreatedLatitude = order.LastModifiedLatitude,
+			CreatedLongitude = order.LastModifiedLongitude
 		}, sqlDataAccessTransaction);
 	}
 	#endregion
@@ -258,7 +261,10 @@ public static class OrderData
 			RecordNo = order.TransactionNo,
 			RecordValue = difference,
 			CreatedBy = update ? order.LastModifiedBy.Value : order.CreatedBy,
-			CreatedFromPlatform = update ? order.LastModifiedFromPlatform : order.CreatedFromPlatform
+			CreatedFormFactor = update ? order.LastModifiedFormFactor : order.CreatedFormFactor,
+			CreatedPlatform = update ? order.LastModifiedPlatform : order.CreatedPlatform,
+			CreatedLatitude = update ? order.LastModifiedLatitude : order.CreatedLatitude,
+			CreatedLongitude = update ? order.LastModifiedLongitude : order.CreatedLongitude
 		}, sqlDataAccessTransaction);
 	}
 	#endregion

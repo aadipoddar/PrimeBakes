@@ -24,14 +24,15 @@ public class RawMaterialStockEndpoint : ICarterModule
 			(DateTime FromDate, DateTime ToDate) => RawMaterialStockData.LoadRawMaterialStockSummaryByDate(FromDate, ToDate));
 
 		group.MapPost(nameof(RawMaterialStockData.DeleteRawMaterialStockAdjustment),
-			(int id, int userId, string platform) => RawMaterialStockData.DeleteRawMaterialStockAdjustment(id, userId, platform));
+			(int id, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+				RawMaterialStockData.DeleteRawMaterialStockAdjustment(id, userId, formFactor, platform, latitude, longitude));
 
 		group.MapPost(nameof(RawMaterialStockData.RecalculateStockByDate),
-			(DateTime fromDate, DateTime toDate, bool deleteAdjustments, int userId, string platform) =>
-				RawMaterialStockData.RecalculateStockByDate(fromDate, toDate, deleteAdjustments, userId, platform));
+			(DateTime fromDate, DateTime toDate, bool deleteAdjustments, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+				RawMaterialStockData.RecalculateStockByDate(fromDate, toDate, deleteAdjustments, userId, formFactor, platform, latitude, longitude));
 
 		group.MapPost(nameof(RawMaterialStockData.SaveRawMaterialStockAdjustment),
-			(RawMaterialStockAdjustmentRequest request, int userId, string platform) =>
-				RawMaterialStockData.SaveRawMaterialStockAdjustment(request.TransactionDateTime, request.Cart, userId, platform));
+			(RawMaterialStockAdjustmentRequest request, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+				RawMaterialStockData.SaveRawMaterialStockAdjustment(request.TransactionDateTime, request.Cart, userId, formFactor, platform, latitude, longitude));
 	}
 }

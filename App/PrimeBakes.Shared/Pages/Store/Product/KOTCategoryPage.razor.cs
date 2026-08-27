@@ -79,7 +79,8 @@ public partial class KOTCategoryPage
 
 			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			await KOTCategoryData.SaveTransaction(_kotCategory, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			await KOTCategoryData.SaveTransaction(_kotCategory, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
 			ResetPage();
@@ -128,8 +129,9 @@ public partial class KOTCategoryPage
 			var category = await CommonData.LoadTableDataById<KOTCategoryModel>(StoreNames.KOTCategory, id)
 				?? throw new Exception("Transaction not found.");
 
-			if (isRecover) await KOTCategoryData.RecoverTransaction(category, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
-			else await KOTCategoryData.DeleteTransaction(category, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			if (isRecover) await KOTCategoryData.RecoverTransaction(category, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
+			else await KOTCategoryData.DeleteTransaction(category, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Success", $"Transaction {category.Name} has been {(isRecover ? "recovered" : "deleted")} successfully.", ToastType.Success);
 			ResetPage();

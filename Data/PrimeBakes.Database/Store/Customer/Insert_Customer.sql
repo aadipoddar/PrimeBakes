@@ -25,7 +25,7 @@ BEGIN
 		UPDATE [dbo].[Customer]
 		SET [Name] = @Name,
 			[Number] = @Number
-		WHERE Id = @Id;
+		WHERE [Id] = @Id;
 	END
 
 	SELECT @Id AS Id;

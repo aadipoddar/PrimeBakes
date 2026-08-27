@@ -22,7 +22,10 @@ public static class AuditTrailExport
 			[nameof(AuditTrailModel.RecordNo)] = new() { DisplayName = "Record No", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(AuditTrailModel.RecordValue)] = new() { DisplayName = "Changes", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(AuditTrailModel.CreatedByName)] = new() { DisplayName = "User", Alignment = CellAlignment.Left, IncludeInTotal = false },
-			[nameof(AuditTrailModel.CreatedFromPlatform)] = new() { DisplayName = "Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(AuditTrailModel.CreatedFormFactor)] = new() { DisplayName = "Form", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(AuditTrailModel.CreatedPlatform)] = new() { DisplayName = "Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(AuditTrailModel.CreatedLatitude)] = new() { DisplayName = "Lat", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(AuditTrailModel.CreatedLongitude)] = new() { DisplayName = "Long", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
 		};
 
 		List<string> columnOrder;
@@ -37,7 +40,10 @@ public static class AuditTrailExport
 				nameof(AuditTrailModel.RecordNo),
 				nameof(AuditTrailModel.RecordValue),
 				nameof(AuditTrailModel.CreatedByName),
-				nameof(AuditTrailModel.CreatedFromPlatform),
+				nameof(AuditTrailModel.CreatedFormFactor),
+				nameof(AuditTrailModel.CreatedPlatform),
+				nameof(AuditTrailModel.CreatedLatitude),
+				nameof(AuditTrailModel.CreatedLongitude),
 			];
 		}
 		else
@@ -49,7 +55,10 @@ public static class AuditTrailExport
 				nameof(AuditTrailModel.TableName),
 				nameof(AuditTrailModel.RecordNo),
 				nameof(AuditTrailModel.CreatedByName),
-				nameof(AuditTrailModel.CreatedFromPlatform),
+				nameof(AuditTrailModel.CreatedFormFactor),
+				nameof(AuditTrailModel.CreatedPlatform),
+				nameof(AuditTrailModel.CreatedLatitude),
+				nameof(AuditTrailModel.CreatedLongitude),
 			];
 		}
 

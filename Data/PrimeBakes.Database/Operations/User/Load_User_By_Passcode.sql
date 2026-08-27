@@ -4,7 +4,7 @@ AS
 BEGIN
 
 	SELECT * FROM [User]
-	WHERE Passcode = @Passcode
+	WHERE [Passcode] = @Passcode
 		AND Status = 1
 
 END

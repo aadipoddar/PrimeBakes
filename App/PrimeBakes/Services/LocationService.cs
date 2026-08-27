@@ -14,8 +14,8 @@ public class LocationService : ILocationService
 
 			return location is null ? null : new()
 			{
-				Latitude = location.Latitude,
-				Longitude = location.Longitude
+				Latitude = (decimal)location.Latitude,
+				Longitude = (decimal)location.Longitude
 			};
 		}
 		catch { return null; }

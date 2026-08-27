@@ -171,7 +171,7 @@ public static class RawMaterialStockData
 	#endregion
 
 	#region Delete
-	public static async Task DeleteRawMaterialStockAdjustment(int id, int userId, string platform)
+	public static async Task DeleteRawMaterialStockAdjustment(int id, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		var stock = await CommonData.LoadTableDataById<RawMaterialStockModel>(InventoryNames.RawMaterialStock, id);
 		if (stock is null)
@@ -189,7 +189,10 @@ public static class RawMaterialStockData
 				TableName = InventoryNames.RawMaterialStock,
 				RecordNo = stock.TransactionNo,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
@@ -198,7 +201,7 @@ public static class RawMaterialStockData
 	#endregion
 
 	#region Recalculate
-	public static async Task RecalculateStockByDate(DateTime fromDate, DateTime toDate, bool deleteAdjustments, int userId, string platform)
+	public static async Task RecalculateStockByDate(DateTime fromDate, DateTime toDate, bool deleteAdjustments, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		await FinancialYearData.ValidateFinancialYear(fromDate);
 		await FinancialYearData.ValidateFinancialYear(toDate);
@@ -370,7 +373,10 @@ public static class RawMaterialStockData
 				TableName = InventoryNames.RawMaterialStock,
 				RecordNo = $"Recalculate {fromDate:yyyy-MM-dd} to {toDate:yyyy-MM-dd}",
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 	}
@@ -392,7 +398,7 @@ public static class RawMaterialStockData
 			throw new InvalidOperationException("Each adjustment item must reference a valid raw material.");
 	}
 
-	public static async Task SaveRawMaterialStockAdjustment(DateTime transactionDateTime, List<RawMaterialStockAdjustmentCartModel> cart, int userId, string platform)
+	public static async Task SaveRawMaterialStockAdjustment(DateTime transactionDateTime, List<RawMaterialStockAdjustmentCartModel> cart, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		await FinancialYearData.ValidateFinancialYear(transactionDateTime);
 
@@ -434,7 +440,10 @@ public static class RawMaterialStockData
 				TableName = InventoryNames.RawMaterialStock,
 				RecordNo = transactionNo,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 

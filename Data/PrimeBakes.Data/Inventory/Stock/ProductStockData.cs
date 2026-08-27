@@ -178,7 +178,7 @@ public static class ProductStockData
 	#endregion
 
 	#region Delete
-	public static async Task DeleteProductStockAdjustment(int id, int userId, string platform)
+	public static async Task DeleteProductStockAdjustment(int id, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		var stock = await CommonData.LoadTableDataById<ProductStockModel>(InventoryNames.ProductStock, id);
 		if (stock is null)
@@ -196,7 +196,10 @@ public static class ProductStockData
 				TableName = InventoryNames.ProductStock,
 				RecordNo = stock.TransactionNo,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 
@@ -205,7 +208,7 @@ public static class ProductStockData
 	#endregion
 
 	#region Recalculate
-	public static async Task RecalculateStockByDateLocation(DateTime fromDate, DateTime toDate, int locationId, bool deleteAdjustments, int userId, string platform)
+	public static async Task RecalculateStockByDateLocation(DateTime fromDate, DateTime toDate, int locationId, bool deleteAdjustments, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		await FinancialYearData.ValidateFinancialYear(fromDate);
 		await FinancialYearData.ValidateFinancialYear(toDate);
@@ -379,7 +382,10 @@ public static class ProductStockData
 				TableName = InventoryNames.ProductStock,
 				RecordNo = $"Recalculate {fromDate:yyyy-MM-dd} to {toDate:yyyy-MM-dd} for LocationId {locationId}",
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 	}
@@ -404,7 +410,7 @@ public static class ProductStockData
 			throw new InvalidOperationException("Each adjustment item must reference a valid product.");
 	}
 
-	public static async Task SaveProductStockAdjustment(DateTime transactionDateTime, int locationId, List<ProductStockAdjustmentCartModel> cart, int userId, string platform)
+	public static async Task SaveProductStockAdjustment(DateTime transactionDateTime, int locationId, List<ProductStockAdjustmentCartModel> cart, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		await FinancialYearData.ValidateFinancialYear(transactionDateTime);
 
@@ -447,7 +453,10 @@ public static class ProductStockData
 				TableName = InventoryNames.ProductStock,
 				RecordNo = transactionNo,
 				CreatedBy = userId,
-				CreatedFromPlatform = platform
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
 			}, transaction);
 		});
 

@@ -16,15 +16,15 @@ public static class PayrollData
 	public static async Task<PayrollSaveRequest> CalculatePayroll(int employeeId, int payrollMonth, int payrollYear) =>
 		await ApiClient.Get<PayrollSaveRequest>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(CalculatePayroll)), new { employeeId, payrollMonth, payrollYear });
 
-	public static async Task<int> SaveTransaction(PayrollModel payroll, List<PayrollDetailModel> payrollDetails, int userId, string platform) =>
-		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(SaveTransaction)), new PayrollSaveRequest(payroll, payrollDetails), new { userId, platform });
+	public static async Task<int> SaveTransaction(PayrollModel payroll, List<PayrollDetailModel> payrollDetails, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(SaveTransaction)), new PayrollSaveRequest(payroll, payrollDetails), new { userId, formFactor, platform, latitude, longitude });
 
-	public static async Task<int> RunPayroll(int payrollMonth, int payrollYear, int userId, string platform) =>
-		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(RunPayroll)), null, new { payrollMonth, payrollYear, userId, platform });
+	public static async Task<int> RunPayroll(int payrollMonth, int payrollYear, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(RunPayroll)), null, new { payrollMonth, payrollYear, userId, formFactor, platform, latitude, longitude });
 
-	public static async Task DeleteTransaction(PayrollModel payroll, int userId, string platform) =>
-		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteTransaction)), payroll, new { userId, platform });
+	public static async Task DeleteTransaction(PayrollModel payroll, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteTransaction)), payroll, new { userId, formFactor, platform, latitude, longitude });
 
-	public static async Task RecoverTransaction(PayrollModel payroll, int userId, string platform) =>
-		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(RecoverTransaction)), payroll, new { userId, platform });
+	public static async Task RecoverTransaction(PayrollModel payroll, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(RecoverTransaction)), payroll, new { userId, formFactor, platform, latitude, longitude });
 }

@@ -172,7 +172,8 @@ public partial class AttendancePage
 
 			_attendance.EmployeeId = _selectedEmployee?.Id ?? 0;
 			_attendance.AttendanceMonth = _monthNames.IndexOf(_selectedMonthName ?? string.Empty) + 1;
-			await AttendanceData.SaveTransaction(_attendance, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			await AttendanceData.SaveTransaction(_attendance, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
 			ResetPage();
@@ -224,8 +225,9 @@ public partial class AttendancePage
 			var attendance = await CommonData.LoadTableDataById<AttendanceModel>(PayrollNames.Attendance, id)
 				?? throw new Exception("Transaction not found.");
 
-			if (isRecover) await AttendanceData.RecoverTransaction(attendance, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
-			else await AttendanceData.DeleteTransaction(attendance, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			if (isRecover) await AttendanceData.RecoverTransaction(attendance, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
+			else await AttendanceData.DeleteTransaction(attendance, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Success", $"Transaction has been {(isRecover ? "recovered" : "deleted")} successfully.", ToastType.Success);
 			ResetPage();

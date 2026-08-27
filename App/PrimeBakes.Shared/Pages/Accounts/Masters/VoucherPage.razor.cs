@@ -79,7 +79,8 @@ public partial class VoucherPage
 
 			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			await VoucherData.SaveTransaction(_voucher, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			await VoucherData.SaveTransaction(_voucher, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
 			ResetPage();
@@ -128,8 +129,9 @@ public partial class VoucherPage
 			var voucher = await CommonData.LoadTableDataById<VoucherModel>(AccountNames.Voucher, id)
 				?? throw new Exception("Transaction not found.");
 
-			if (isRecover) await VoucherData.RecoverTransaction(voucher, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
-			else await VoucherData.DeleteTransaction(voucher, _user.Id, await PlatformInfo.GetCreatedFromPlatform(FormFactor, LocationService));
+			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			if (isRecover) await VoucherData.RecoverTransaction(voucher, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
+			else await VoucherData.DeleteTransaction(voucher, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Success", $"Transaction {voucher.Name} has been {(isRecover ? "recovered" : "deleted")} successfully.", ToastType.Success);
 			ResetPage();

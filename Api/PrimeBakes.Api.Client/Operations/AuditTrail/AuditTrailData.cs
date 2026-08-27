@@ -10,7 +10,7 @@ public static class AuditTrailData
 	public static async Task SaveAuditTrail(AuditTrailModel auditTrail) =>
 		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(SaveAuditTrail)), auditTrail);
 
-	public static async Task<int> DeleteAuditTrailByDate(DateTime StartDate, DateTime EndDate, int userId, string platform) =>
+	public static async Task<int> DeleteAuditTrailByDate(DateTime StartDate, DateTime EndDate, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteAuditTrailByDate)), new { },
-			new { StartDate, EndDate, userId, platform });
+			new { StartDate, EndDate, userId, formFactor, platform, latitude, longitude });
 }
