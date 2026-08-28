@@ -53,3 +53,5 @@ async function onFetch(event) {
 
     return cachedResponse || fetch(event.request);
 }
+
+self.importScripts('_content/PrimeBakes.Shared/js/pushServiceWorker.js');

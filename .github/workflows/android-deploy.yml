@@ -41,6 +41,7 @@ jobs:
 
                 JwtKey = "${{ secrets.JwtKey }}";
                 GoogleMapsApiKey = "${{ secrets.GoogleMapsApiKey }}";
+                WebPushPrivateKey = "${{ secrets.WebPushPrivateKey }}";
 
                 EmailPassword = "${{ secrets.EmailPassword }}";
             }
@@ -63,6 +64,8 @@ jobs:
                 NotificationBackendServiceEndpoint = "${{ secrets.NotificationBackendServiceEndpoint }}";
 
                 GoogleMapsBrowserKey = "${{ secrets.GoogleMapsBrowserKey }}";
+
+                WebPushPublicKey = "${{ secrets.WebPushPublicKey }}";
             }
         }
         '@

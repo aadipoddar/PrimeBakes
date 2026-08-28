@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Data.Operations.Settings;
 
@@ -23,10 +23,6 @@ public partial class Footer : IAsyncDisposable
 			return;
 
 		_ = LoadPlatformInfo();
-
-		if (FormFactor.GetFormFactor() is not ("Desktop" or "Web" or "Wasm"))
-			return;
-
 		await LoadDatabaseLoad();
 
 		var setting = await SettingsData.LoadSettingsByKey(SettingsKeys.AutoRefreshReportTimer);
@@ -51,6 +47,9 @@ public partial class Footer : IAsyncDisposable
 
 	private async Task LoadDatabaseLoad()
 	{
+		if (FormFactor.GetFormFactor() is not ("Desktop" or "Web" or "Wasm"))
+			return;
+
 		try
 		{
 			_databaseLoad = await CommonData.LoadDatabaseLoad();
@@ -67,9 +66,10 @@ public partial class Footer : IAsyncDisposable
 			{
 				_ = LoadPlatformInfo();
 				await LoadDatabaseLoad();
+				await AuthService.ValidateUser();
 			}
 		}
-		catch (OperationCanceledException) { }
+		catch { }
 	}
 
 	private string DatabaseLoadClass => _databaseLoad switch

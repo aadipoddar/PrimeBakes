@@ -111,7 +111,7 @@ public partial class Dashboard
 	{
 		_user = await AuthService.ValidateUser();
 
-		if (Platform.Contains("Android"))
+		if (Platform.Contains("Android") || Factor is "Web" or "Wasm")
 			await NotificationService.RegisterDevicePushNotification(_user.Id.ToString());
 	}
 	#endregion

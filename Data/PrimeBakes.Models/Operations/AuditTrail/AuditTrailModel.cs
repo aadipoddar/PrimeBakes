@@ -28,6 +28,7 @@ public enum AuditTrailActionTypes
 	Delete,
 	Recover,
 	Report,
+	Notification,
 	Login,
 	Logout
 }

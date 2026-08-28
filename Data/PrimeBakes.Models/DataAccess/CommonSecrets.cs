@@ -16,6 +16,7 @@ public static partial class CommonSecrets
 
 	public static readonly string NotificationAPIKey;
 	public static readonly string NotificationBackendServiceEndpoint;
+	public static readonly string WebPushPublicKey;
 
 	public static readonly string GoogleMapsBrowserKey;
 

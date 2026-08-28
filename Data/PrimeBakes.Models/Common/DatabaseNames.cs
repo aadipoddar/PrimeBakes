@@ -48,6 +48,13 @@ public static class OperationNames
 	public static string InsertLocation => "Insert_Location";
 	#endregion
 
+	#region Web Push
+	public static string WebPushSubscription => "WebPushSubscription";
+	public static string InsertWebPushSubscription => "Insert_WebPushSubscription";
+	public static string LoadWebPushSubscriptionByUserId => "Load_WebPushSubscription_By_UserId";
+	public static string DeleteWebPushSubscriptionByEndpoint => "Delete_WebPushSubscription_By_Endpoint";
+	#endregion
+
 	#region Auth
 	public const string Dashboard = "/";
 	public const string Login = "/login";

@@ -1,17 +1,21 @@
-﻿using PrimeBakes.Data.Utils.Mail;
+﻿using PrimeBakes.Data.Operations.WebPush;
+using PrimeBakes.Data.Utils.Mail;
 using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.User;
 
+using System.Net;
 using System.Text.Json;
+
+using WebPush;
 
 namespace PrimeBakes.Data.Utils.Notification;
 
 internal static class NotificationUtil
 {
-	private static async Task SendNotificationToAPI(List<UserModel> users, string title, string text)
+	internal static async Task SendNotificationToAPI(List<UserModel> users, string title, string text)
 	{
 		if (SqlDataAccess._databaseConnection != Secrets.AzureConnectionString)
-			return; // Do not send notifications in local/dev environment
+			return;
 
 		string endpoint = $"{CommonSecrets.NotificationBackendServiceEndpoint}api/notifications/requests";
 		using var httpClient = new HttpClient();
@@ -33,6 +37,30 @@ internal static class NotificationUtil
 
 		var content = new StringContent(jsonPayload, System.Text.Encoding.UTF8, "application/json");
 		var response = await httpClient.PostAsync(endpoint, content);
+
+		await SendWebPushNotification(users, title, text);
+	}
+
+	private static async Task SendWebPushNotification(List<UserModel> users, string title, string text)
+	{
+		if (string.IsNullOrWhiteSpace(CommonSecrets.WebPushPublicKey) || string.IsNullOrWhiteSpace(Secrets.WebPushPrivateKey))
+			return;
+
+		var vapidDetails = new VapidDetails($"mailto:{Secrets.Email}", CommonSecrets.WebPushPublicKey, Secrets.WebPushPrivateKey);
+		var webPushClient = new WebPushClient();
+		var payload = JsonSerializer.Serialize(new { title, body = text, url = "/" });
+
+		foreach (var user in users)
+			foreach (var subscription in await WebPushData.LoadWebPushSubscriptionByUserId(user.Id))
+				try
+				{
+					await webPushClient.SendNotificationAsync(new PushSubscription(subscription.Endpoint, subscription.P256dh, subscription.Auth), payload, vapidDetails);
+				}
+				catch (WebPushException ex) when (ex.StatusCode is HttpStatusCode.NotFound or HttpStatusCode.Gone)
+				{
+					await WebPushData.DeleteWebPushSubscriptionByEndpoint(subscription.Endpoint);
+				}
+				catch { }
 	}
 
 	internal class TransactionNotificationData

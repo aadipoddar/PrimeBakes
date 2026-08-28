@@ -12,6 +12,7 @@ public static class OperationRouteNames
 	public const string LocalSettings = "/operations/local-settings";
 
 	public const string AuditTrailReport = "/operations/audit-trail-report";
+	public const string SendNotification = "/operations/send-notification";
 }
 
 public static class AccountsRouteNames

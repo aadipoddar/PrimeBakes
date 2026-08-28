@@ -12,6 +12,7 @@ public static partial class Secrets
 
 	public static readonly string JwtKey;
 	public static readonly string GoogleMapsApiKey;
+	public static readonly string WebPushPrivateKey;
 
 	public static readonly string Email = "softaadi@gmail.com";
 	public static readonly string EmailPassword;

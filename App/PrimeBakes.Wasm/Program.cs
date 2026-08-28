@@ -31,7 +31,7 @@ builder.Services
 builder.Services.AddSingleton<IFormFactor, FormFactor>();
 builder.Services.AddSingleton<IUpdateService, UpdateService>();
 builder.Services.AddSingleton<IVibrationService, VibrationService>();
-builder.Services.AddSingleton<INotificationService, NotificationService>();
+builder.Services.AddSingleton<INotificationService, BrowserNotificationService>();
 builder.Services.AddSingleton<IBluetoothPrinterService, NullBluetoothPrinterService>();
 builder.Services.AddSingleton<IDirectPrintService, NullDirectPrintService>();
 

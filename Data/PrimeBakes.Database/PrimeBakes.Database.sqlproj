@@ -148,6 +148,7 @@
     <Folder Include="Operations\Analysis" />
     <Folder Include="Operations\Analysis\Load" />
     <Folder Include="Operations\AuditTrail" />
+    <Folder Include="Operations\WebPush" />
     <Folder Include="Operations\Settings" />
     <Folder Include="Operations\Location" />
     <Folder Include="Operations\User" />
@@ -371,6 +372,10 @@
     <Build Include="Operations\AuditTrail\Insert_AuditTrail.sql" />
     <Build Include="Operations\AuditTrail\AuditTrail_Overview.sql" />
     <Build Include="Operations\AuditTrail\Delete_AuditTrail_By_Date.sql" />
+    <Build Include="Operations\WebPush\WebPushSubscription.sql" />
+    <Build Include="Operations\WebPush\Insert_WebPushSubscription.sql" />
+    <Build Include="Operations\WebPush\Load_WebPushSubscription_By_UserId.sql" />
+    <Build Include="Operations\WebPush\Delete_WebPushSubscription_By_Endpoint.sql" />
     <Build Include="Operations\AuditTrail\Load_Last_AuditTrail_By_Table_Record.sql" />
     <Build Include="Operations\Settings\Load_Settings_By_Key.sql" />
     <Build Include="Operations\Settings\Settings.sql" />

@@ -1,0 +1,82 @@
+﻿@using PrimeBakes.Models.Operations.User
+@using PrimeBakes.Models.Operations.Location
+
+@attribute [Route(OperationRouteNames.SendNotification)]
+
+<PageTitle>Send Notification - Prime Bakes</PageTitle>
+
+<MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ConfirmSend" Disabled="@_isProcessing" />
+
+@if (_isLoading || _user is null)
+{
+	<LoadingScreen />
+}
+else
+{
+	<div class="page-shell">
+		<Header Title="Send Notification">
+			<LeftContent>
+				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Send (Ctrl + S)" OnClick="ConfirmSend" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Close (Ctrl + W)" OnClick="() => AuthenticationService.CloseWindowOrTab(FormFactor, JSRuntime)" />
+				</MudBlazor.MudMenu>
+			</LeftContent>
+		</Header>
+
+		<div class="page-container">
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Message</h2>
+				</div>
+
+				<div class="section-body">
+					<CustomTextField @ref="_firstFocus" Label="Title" @bind-Value="_notificationTitle" Required="true" MaxLength="100" />
+					<CustomTextField Label="Message" @bind-Value="_notificationText" Required="true" Lines="4" MaxLines="8" MaxLength="500" />
+				</div>
+			</div>
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Recipients</h2>
+				</div>
+
+				<SfGrid @ref="_sfGrid" DataSource="@_users"
+						AllowPaging="true" AllowSorting="true" AllowFiltering="true"
+						GridLines="GridLine.Horizontal"
+						Toolbar="@(new List<string>() { "Search" })">
+
+					<GridSelectionSettings CheckboxOnly="true" Type="Syncfusion.Blazor.Grids.SelectionType.Multiple" PersistSelection="true" />
+					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "All" })" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+					<GridColumns>
+						<GridColumn Type="ColumnType.CheckBox" Width="60" />
+						<GridColumn Field="@nameof(UserModel.Id)" HeaderText="ID" Width="80" TextAlign="TextAlign.Center" IsPrimaryKey="true" />
+						<CustomGridColumn Field="@nameof(UserModel.Name)" HeaderText="User Name" />
+
+						<CustomGridColumn>
+							<CustomTemplate>
+								<GridColumn Field="@nameof(UserModel.LocationId)" HeaderText="Location" Width="200">
+									<Template>
+										@{
+											var user = (context as UserModel);
+											<span>@(_locations.FirstOrDefault(l => l.Id == user.LocationId)?.Name ?? "-")</span>
+										}
+									</Template>
+								</GridColumn>
+							</CustomTemplate>
+						</CustomGridColumn>
+					</GridColumns>
+				</SfGrid>
+			</div>
+		</div>
+
+		<Footer />
+	</div>
+}
+
+<ConfirmationDialog @ref="_confirmationDialog" Title="Send Notification" Message="@_confirmMessage"
+					OnConfirm="SendNotification" OnCancel="OnCancelled" />
+<ToastNotification @ref="_toastNotification" />
+<CloseGuard Block="_isProcessing" />
