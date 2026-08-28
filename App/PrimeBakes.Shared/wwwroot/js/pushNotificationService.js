@@ -14,6 +14,13 @@ function toBase64(buffer) {
     return window.btoa(String.fromCharCode.apply(null, new Uint8Array(buffer)));
 }
 
+async function serviceWorkerReady() {
+    return await Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise(resolve => setTimeout(() => resolve(null), 10000))
+    ]);
+}
+
 window.pushNotificationsSupported = function () {
     return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
 };
@@ -23,7 +30,11 @@ window.requestPushSubscription = async function (publicKey) {
         return null;
 
     try {
-        const registration = await navigator.serviceWorker.ready;
+        const registration = await serviceWorkerReady();
+
+        if (!registration)
+            return null;
+
         let subscription = await registration.pushManager.getSubscription();
 
         if (!subscription) {
@@ -55,7 +66,11 @@ window.removePushSubscription = async function () {
         return null;
 
     try {
-        const registration = await navigator.serviceWorker.ready;
+        const registration = await serviceWorkerReady();
+
+        if (!registration)
+            return null;
+
         const subscription = await registration.pushManager.getSubscription();
 
         if (!subscription)
@@ -79,7 +94,10 @@ window.showLocalNotification = async function (title, body) {
         if (Notification.permission !== 'granted' && await Notification.requestPermission() !== 'granted')
             return;
 
-        const registration = await navigator.serviceWorker.ready;
+        const registration = await serviceWorkerReady();
+
+        if (!registration)
+            return;
 
         await registration.showNotification(title, {
             body: body,
