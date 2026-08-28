@@ -13,6 +13,9 @@ public static class UserData
 	public static async Task UpdateLastLoginTime(UserModel user, DateTime? lastLoginTime) =>
 		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(UpdateLastLoginTime)), user, new { lastLoginTime });
 
+	public static async Task UpdateLastSeen(UserModel user, DateTime lastSeen) =>
+		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(UpdateLastSeen)), user, new { lastSeen });
+
 	public static async Task DeleteTransaction(UserModel user, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteTransaction)), user, new { userId, formFactor, platform, latitude, longitude });
 

@@ -41,6 +41,15 @@ jobs:
           /TargetConnectionString:"${{ secrets.AzureConnectionString }}" `
           /p:IncludeCompositeObjects=True
 
+    - name: Deploy Database to Azure SQL Testing
+      run: |
+        $dacpacPath = (Get-ChildItem -Path "Data/PrimeBakes.Database" -Filter "PrimeBakes.Database.dacpac" -Recurse).FullName
+        echo "Using DACPAC: $dacpacPath"
+        ./SqlPackage/SqlPackage.exe /Action:Publish `
+          /SourceFile:"$dacpacPath" `
+          /TargetConnectionString:"${{ secrets.AzureTestingConnectionString }}" `
+          /p:IncludeCompositeObjects=True
+
     - name: Deployment Summary
       run: |
-        echo "🚀 Successfully deployed PrimeBakes database version ${{ needs.version-check.outputs.current-version }} to Azure SQL"
+        echo "🚀 Successfully deployed PrimeBakes database version ${{ needs.version-check.outputs.current-version }} to Azure SQL and Azure SQL Testing"

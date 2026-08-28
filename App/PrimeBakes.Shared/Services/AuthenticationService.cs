@@ -35,6 +35,9 @@ public static class AuthenticationService
 		if (!user.Status)
 			await Logout(dataStorageService, navigationManager, notificationService, vibrationService);
 
+		if (primaryLocationRequirement && user.LocationId != 1)
+			await Logout(dataStorageService, navigationManager, notificationService, vibrationService);
+
 		var currentDateTime = await CommonData.LoadCurrentDateTime();
 		var maxLoginTimeSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.MaxLoginTimeHours);
 		var maxLoginTimeHours = int.TryParse(maxLoginTimeSetting?.Value, out var hours) && hours > 0 ? hours : 12;
@@ -42,8 +45,7 @@ public static class AuthenticationService
 		if (user.LastLoginTime is null || (currentDateTime - user.LastLoginTime.Value).TotalHours > maxLoginTimeHours)
 			await Logout(dataStorageService, navigationManager, notificationService, vibrationService);
 
-		if (primaryLocationRequirement && user.LocationId != 1)
-			await Logout(dataStorageService, navigationManager, notificationService, vibrationService);
+		await UserData.UpdateLastSeen(user, currentDateTime);
 
 		if (userRoles is null)
 			return user;

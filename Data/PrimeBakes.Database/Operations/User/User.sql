@@ -14,6 +14,7 @@
     [Admin] BIT NOT NULL DEFAULT 0, 
     [Remarks] VARCHAR(MAX) NULL,
     [LastLoginTime] DATETIME NULL,
+    [LastSeen] DATETIME NULL,
     [Status] BIT NOT NULL DEFAULT 1, 
     CONSTRAINT [FK_Users_ToLocation] FOREIGN KEY (LocationId) REFERENCES [Location](Id)
 )

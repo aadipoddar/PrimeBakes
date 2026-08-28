@@ -26,6 +26,12 @@ public static class UserData
 		}
 	}
 
+	public static async Task UpdateLastSeen(UserModel user, DateTime lastSeen)
+	{
+		user.LastSeen = lastSeen;
+		await InsertUser(user);
+	}
+
 	public static async Task DeleteTransaction(UserModel user, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{

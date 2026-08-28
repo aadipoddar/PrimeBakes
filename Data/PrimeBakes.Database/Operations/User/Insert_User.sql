@@ -13,6 +13,7 @@
 	@Admin BIT,
 	@Remarks VARCHAR(MAX),
 	@LastLoginTime DATETIME,
+	@LastSeen DATETIME,
 	@Status BIT
 AS
 BEGIN
@@ -33,6 +34,7 @@ BEGIN
 			[Admin],
 			[Remarks],
 			[LastLoginTime],
+			[LastSeen],
 			[Status]
 		)
 		VALUES
@@ -50,6 +52,7 @@ BEGIN
 			@Admin, 
 			@Remarks, 
 			@LastLoginTime, 
+			@LastSeen, 
 			@Status
 		);
 
@@ -72,6 +75,7 @@ BEGIN
 			[Admin] = @Admin,
 			[Remarks] = @Remarks,
 			[LastLoginTime] = @LastLoginTime,
+			[LastSeen] = @LastSeen,
 			[Status] = @Status
 		WHERE [Id] = @Id;
 	END
