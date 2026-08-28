@@ -32,7 +32,8 @@ public partial class AuditTrailReport : IAsyncDisposable
 
 	private readonly List<ContextMenuItemModel> _gridContextMenuItems =
 	[
-		new() { Text = "Open Changes (Alt + O)", Id = "OpenChanges", IconCss = "e-icons e-eye", Target = ".e-content" }
+		new() { Text = "Open Changes (Alt + O)", Id = "OpenChanges", IconCss = "e-icons e-eye", Target = ".e-content" },
+		new() { Text = "Open Location", Id = "OpenLocation", IconCss = "e-icons e-location", Target = ".e-content" }
 	];
 
 	private List<AuditTrailModel> _auditTrails = [];
@@ -212,6 +213,12 @@ public partial class AuditTrailReport : IAsyncDisposable
 			$"Are you sure you want to permanently delete every audit trail record from {_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
 			DeleteRecords);
 
+	private async Task OpenSelectedRecordLocation()
+	{
+		var record = _sfGrid?.SelectedRecords?.FirstOrDefault();
+		await LocationService.OpenMapAsync(record?.CreatedLatitude, record?.CreatedLongitude);
+	}
+
 	private async Task ShowConfirmation(string title, string message, Func<Task> action)
 	{
 		_confirmTitle = title;
@@ -276,6 +283,7 @@ public partial class AuditTrailReport : IAsyncDisposable
 	private async Task OnGridContextMenuItemClicked(ContextMenuClickEventArgs<AuditTrailModel> args)
 	{
 		if (args.Item.Id == "OpenChanges") await OpenChanges();
+		if (args.Item.Id == "OpenLocation") await OpenSelectedRecordLocation();
 	}
 
 	private async Task ToggleDetailsView()

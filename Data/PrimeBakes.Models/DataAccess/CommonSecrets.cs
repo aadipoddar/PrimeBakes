@@ -2,7 +2,7 @@ namespace PrimeBakes.Models.DataAccess;
 
 public static partial class CommonSecrets
 {
-	public static readonly ConnectionType DatabaseConnection = ConnectionType.Azure;
+	public static readonly ConnectionType DatabaseConnection = ConnectionType.Local;
 
 	public static readonly string ApiBaseUrl = DatabaseConnection switch
 	{

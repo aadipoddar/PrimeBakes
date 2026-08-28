@@ -74,6 +74,9 @@ else
 					<MudBlazor.MudMenuItem Label="Export Excel (Alt + E)" OnClick="() => ExportSelectedTransaction(true)" />
 					<MudBlazor.MudDivider />
 					<MudBlazor.MudMenuItem Label="Delete / Recover (Del)" OnClick="DeleteRecoverSelectedTransaction" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Open Created Location" OnClick="() => OpenSelectedTransactionLocation()" />
+					<MudBlazor.MudMenuItem Label="Open Modified Location" OnClick="() => OpenSelectedTransactionLocation(true)" />
 				</MudBlazor.MudMenu>
 			</LeftContent>
 		</Header>

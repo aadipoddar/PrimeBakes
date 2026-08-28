@@ -57,7 +57,9 @@ public partial class BillItemReport : IAsyncDisposable
 		new() { Text = "View Accounting Posting", Id = "ViewAccountingPosting", IconCss = "e-icons e-link", Target = ".e-content" },
 		new() { Text = "Export PDF (Alt + P)", Id = "ExportPDF", IconCss = "e-icons e-export-pdf", Target = ".e-content" },
 		new() { Text = "Export Excel (Alt + E)", Id = "ExportExcel", IconCss = "e-icons e-export-excel", Target = ".e-content" },
-		new() { Text = "Delete / Recover (Del)", Id = "DeleteRecover", IconCss = "e-icons e-trash", Target = ".e-content" }
+		new() { Text = "Delete / Recover (Del)", Id = "DeleteRecover", IconCss = "e-icons e-trash", Target = ".e-content" },
+		new() { Text = "Open Created Location", Id = "OpenCreatedLocation", IconCss = "e-icons e-location", Target = ".e-content" },
+		new() { Text = "Open Modified Location", Id = "OpenModifiedLocation", IconCss = "e-icons e-location", Target = ".e-content" }
 	];
 
 	private SfGrid<BillItemOverviewModel> _sfGrid;
@@ -387,6 +389,14 @@ public partial class BillItemReport : IAsyncDisposable
 		}
 	}
 
+	private async Task OpenSelectedTransactionLocation(bool lastModified = false)
+	{
+		var record = _sfGrid?.SelectedRecords?.FirstOrDefault();
+		await LocationService.OpenMapAsync(
+			lastModified ? record?.LastModifiedLatitude : record?.CreatedLatitude,
+			lastModified ? record?.LastModifiedLongitude : record?.CreatedLongitude);
+	}
+
 	private async Task ShowConfirmation(string title, string message, Func<Task> action)
 	{
 		_confirmTitle = title;
@@ -494,6 +504,8 @@ public partial class BillItemReport : IAsyncDisposable
 			case "ExportPDF": await ExportSelectedTransaction(); break;
 			case "ExportExcel": await ExportSelectedTransaction(true); break;
 			case "DeleteRecover": await DeleteRecoverSelectedTransaction(); break;
+			case "OpenCreatedLocation": await OpenSelectedTransactionLocation(); break;
+			case "OpenModifiedLocation": await OpenSelectedTransactionLocation(true); break;
 		}
 	}
 

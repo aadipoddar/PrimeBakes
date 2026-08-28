@@ -28,7 +28,8 @@ public partial class UserPage
 	[
 		new() { Text = "Edit (Insert)", Id = "EditSelectedItem", IconCss = "e-icons e-edit", Target = ".e-content" },
 		new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverSelectedItem", IconCss = "e-icons e-trash", Target = ".e-content" },
-		new() { Text = "Logout (Ctrl + L)", Id = "LogoutSelectedItem", IconCss = "e-icons e-lock", Target = ".e-content" }
+		new() { Text = "Logout (Ctrl + L)", Id = "LogoutSelectedItem", IconCss = "e-icons e-lock", Target = ".e-content" },
+		new() { Text = "Open Last Seen Location", Id = "OpenLastSeenLocation", IconCss = "e-icons e-location", Target = ".e-content" }
 	];
 
 	private SfGrid<UserModel> _sfGrid;
@@ -226,6 +227,12 @@ public partial class UserPage
 	private async Task LogoutAllUsers() =>
 		await ShowConfirmation("Logout All Users", "Are you sure you want to log out every user from all devices", () => LogoutUser(null));
 
+	private async Task OpenSelectedUserLocation()
+	{
+		var user = _sfGrid?.SelectedRecords?.FirstOrDefault();
+		await LocationService.OpenMapAsync(user?.LastSeenLatitude, user?.LastSeenLongitude);
+	}
+
 	private async Task ShowConfirmation(string title, string message, Func<Task> action)
 	{
 		_confirmTitle = title;
@@ -287,6 +294,7 @@ public partial class UserPage
 			case "EditSelectedItem": await EditSelectedItem(); break;
 			case "DeleteRecoverSelectedItem": await DeleteRecoverSelectedItem(); break;
 			case "LogoutSelectedItem": await LogoutSelectedItem(); break;
+			case "OpenLastSeenLocation": await OpenSelectedUserLocation(); break;
 		}
 	}
 
