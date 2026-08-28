@@ -48,7 +48,7 @@ public partial class LedgerPage
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Accounts], true);
+			_user = await AuthService.ValidateUser([UserRoles.Accounts], true);
 			await LoadData();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -99,7 +99,7 @@ public partial class LedgerPage
 			_ledger.GroupId = _selectedGroup?.Id ?? 0;
 			_ledger.AccountTypeId = _selectedAccountType?.Id ?? 0;
 			_ledger.StateUTId = _selectedStateUT?.Id ?? 0;
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			await LedgerData.SaveTransaction(_ledger, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
@@ -152,7 +152,7 @@ public partial class LedgerPage
 			var ledger = await CommonData.LoadTableDataById<LedgerModel>(AccountNames.Ledger, id)
 				?? throw new Exception("Transaction not found.");
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			if (isRecover) await LedgerData.RecoverTransaction(ledger, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 			else await LedgerData.DeleteTransaction(ledger, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 

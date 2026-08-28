@@ -22,20 +22,36 @@ public static class UserData
 		foreach (var item in users)
 		{
 			item.LastLoginTime = lastLoginTime;
+			item.LastSeen = null;
+			item.LastSeenFormFactor = null;
+			item.LastSeenPlatform = null;
+			item.LastSeenLatitude = null;
+			item.LastSeenLongitude = null;
 			await InsertUser(item);
 		}
 	}
 
-	public static async Task UpdateLastSeen(UserModel user, DateTime lastSeen)
+	public static async Task<DateTime> UpdateLastSeen(UserModel user, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
-		user.LastSeen = lastSeen;
+		user.LastSeen = await CommonData.LoadCurrentDateTime();
+		user.LastSeenFormFactor = formFactor;
+		user.LastSeenPlatform = platform;
+		user.LastSeenLatitude = latitude;
+		user.LastSeenLongitude = longitude;
 		await InsertUser(user);
+		return user.LastSeen.Value;
 	}
 
 	public static async Task DeleteTransaction(UserModel user, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			user.Status = false;
+			user.LastLoginTime = null;
+			user.LastSeen = null;
+			user.LastSeenFormFactor = null;
+			user.LastSeenPlatform = null;
+			user.LastSeenLatitude = null;
+			user.LastSeenLongitude = null;
 			await InsertUser(user, transaction);
 			await AuditTrailData.SaveAuditTrail(new()
 			{
@@ -54,6 +70,12 @@ public static class UserData
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
 			user.Status = true;
+			user.LastLoginTime = null;
+			user.LastSeen = null;
+			user.LastSeenFormFactor = null;
+			user.LastSeenPlatform = null;
+			user.LastSeenLatitude = null;
+			user.LastSeenLongitude = null;
 			await InsertUser(user, transaction);
 			await AuditTrailData.SaveAuditTrail(new()
 			{
@@ -73,6 +95,12 @@ public static class UserData
 		item.Name = item.Name?.Trim().ToUpper() ?? string.Empty;
 		item.Remarks = string.IsNullOrWhiteSpace(item.Remarks) ? null : item.Remarks.Trim();
 		item.Status = true;
+		item.LastLoginTime = null;
+		item.LastSeen = null;
+		item.LastSeenFormFactor = null;
+		item.LastSeenPlatform = null;
+		item.LastSeenLatitude = null;
+		item.LastSeenLongitude = null;
 
 		if (string.IsNullOrWhiteSpace(item.Name))
 			throw new Exception("User name is required. Please enter a valid user name.");

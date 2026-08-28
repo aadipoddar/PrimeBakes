@@ -41,7 +41,7 @@ public partial class SaleMobilePaymentPage
 		if (!firstRender)
 			return;
 
-		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Store]);
+		_user = await AuthService.ValidateUser([UserRoles.Store]);
 		await LoadData();
 	}
 
@@ -298,7 +298,7 @@ public partial class SaleMobilePaymentPage
 			_sale.TransactionDateTime = await CommonData.LoadCurrentDateTime();
 			_sale.FinancialYearId = (await FinancialYearData.LoadFinancialYearByDateTime(_sale.TransactionDateTime)).Id;
 			_sale.CreatedAt = await CommonData.LoadCurrentDateTime();
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			_sale.CreatedFormFactor = platform.FormFactor;
 			_sale.CreatedPlatform = platform.Platform;
 			_sale.CreatedLatitude = platform.Latitude;

@@ -86,7 +86,7 @@ public partial class SaleReport : IAsyncDisposable
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Store, UserRoles.Reports], true);
+			_user = await AuthService.ValidateUser([UserRoles.Store, UserRoles.Reports], true);
 			await InitializePage();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -145,7 +145,7 @@ public partial class SaleReport : IAsyncDisposable
 			_allTransferOverviews = await allTransferOverviews;
 			_allBillOverviews = await allBillOverviews;
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),
@@ -444,7 +444,7 @@ public partial class SaleReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Closing day and posting sale accounting...", ToastType.Info);
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 
 			for (var date = _fromDate; date <= _toDate; date = date.AddDays(1))
 			{
@@ -551,7 +551,7 @@ public partial class SaleReport : IAsyncDisposable
 			await _toastNotification.ShowAsync("Processing", $"{(isRecover ? "Recovering" : "Deleting")} transaction...", ToastType.Info);
 
 			var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(record.TransactionNo, false, false);
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			var currentDateTime = await CommonData.LoadCurrentDateTime();
 
 			if (decodedTransactionNo.CodeType == CodeType.Sale)

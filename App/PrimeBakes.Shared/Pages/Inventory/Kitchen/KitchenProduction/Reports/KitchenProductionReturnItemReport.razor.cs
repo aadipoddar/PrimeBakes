@@ -70,7 +70,7 @@ public partial class KitchenProductionReturnItemReport : IAsyncDisposable
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Inventory, UserRoles.Reports], true);
+			_user = await AuthService.ValidateUser([UserRoles.Inventory, UserRoles.Reports], true);
 			await InitializePage();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -120,7 +120,7 @@ public partial class KitchenProductionReturnItemReport : IAsyncDisposable
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),
@@ -247,7 +247,7 @@ public partial class KitchenProductionReturnItemReport : IAsyncDisposable
 
 			await _toastNotification.ShowAsync("Processing", $"{(isRecover ? "Recovering" : "Deleting")} transaction...", ToastType.Info);
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 
 			var kitchenProductionReturn = await CommonData.LoadTableDataById<KitchenProductionReturnModel>(InventoryNames.KitchenProductionReturn, masterId)
 				?? throw new Exception("Transaction not found.");

@@ -45,7 +45,8 @@ public static class AuditTrailData
 
 	private static readonly HashSet<string> _ignoredProperties = new(StringComparer.OrdinalIgnoreCase)
 	{
-		"Id", "MasterId", "Status", "MasterStatus", "LastSeen",
+		"Id", "MasterId", "Status", "MasterStatus", "LastSeen", "LastLoginTime",
+		"LastSeenFormFactor", "LastSeenPlatform", "LastSeenLatitude", "LastSeenLongitude",
 		"CreatedBy", "CreatedByName", "CreatedAt",
 		"CreatedFormFactor", "CreatedPlatform", "CreatedLatitude", "CreatedLongitude",
 		"LastModifiedBy", "LastModifiedByUserName", "LastModifiedAt",

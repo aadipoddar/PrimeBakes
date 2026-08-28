@@ -53,7 +53,7 @@ public partial class EmployeePage
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Payroll], true);
+			_user = await AuthService.ValidateUser([UserRoles.Payroll], true);
 			await LoadData();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -134,7 +134,7 @@ public partial class EmployeePage
 			_employee.DesignationId = _selectedDesignation?.Id ?? 0;
 			_employee.UserId = _selectedUser?.Id;
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			await EmployeeData.SaveTransaction(_employee, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
@@ -185,7 +185,7 @@ public partial class EmployeePage
 			var employee = await CommonData.LoadTableDataById<EmployeeModel>(PayrollNames.Employee, id)
 				?? throw new Exception("Transaction not found.");
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			if (isRecover) await EmployeeData.RecoverTransaction(employee, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 			else await EmployeeData.DeleteTransaction(employee, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 

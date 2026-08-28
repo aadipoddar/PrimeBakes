@@ -48,7 +48,7 @@ public partial class RawMaterialStockAdjustmentPage
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Inventory], true);
+			_user = await AuthService.ValidateUser([UserRoles.Inventory], true);
 			await LoadData();
 		}
 		catch { await ResetPage(); }
@@ -274,7 +274,7 @@ public partial class RawMaterialStockAdjustmentPage
 
 			await _toastNotification.ShowAsync("Processing Transaction", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			await RawMaterialStockData.SaveRawMaterialStockAdjustment(_transactionDateTime, _cart, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Save Transaction", "Transaction saved successfully.", ToastType.Success);

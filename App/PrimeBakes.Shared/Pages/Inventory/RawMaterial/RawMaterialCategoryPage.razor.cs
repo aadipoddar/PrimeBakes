@@ -42,7 +42,7 @@ public partial class RawMaterialCategoryPage
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Inventory], true);
+			_user = await AuthService.ValidateUser([UserRoles.Inventory], true);
 			await LoadData();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -80,7 +80,7 @@ public partial class RawMaterialCategoryPage
 
 			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			await RawMaterialCategoryData.SaveTransaction(_rawMaterialCategory, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
@@ -130,7 +130,7 @@ public partial class RawMaterialCategoryPage
 			var category = await CommonData.LoadTableDataById<RawMaterialCategoryModel>(InventoryNames.RawMaterialCategory, id)
 				?? throw new Exception("Transaction not found.");
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			if (isRecover) await RawMaterialCategoryData.RecoverTransaction(category, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 			else await RawMaterialCategoryData.DeleteTransaction(category, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 

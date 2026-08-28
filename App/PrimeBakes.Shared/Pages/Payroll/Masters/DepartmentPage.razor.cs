@@ -42,7 +42,7 @@ public partial class DepartmentPage
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Payroll], true);
+			_user = await AuthService.ValidateUser([UserRoles.Payroll], true);
 			await LoadData();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -80,7 +80,7 @@ public partial class DepartmentPage
 
 			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			await DepartmentData.SaveTransaction(_department, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
@@ -130,7 +130,7 @@ public partial class DepartmentPage
 			var department = await CommonData.LoadTableDataById<DepartmentModel>(PayrollNames.Department, id)
 				?? throw new Exception("Transaction not found.");
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			if (isRecover) await DepartmentData.RecoverTransaction(department, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 			else await DepartmentData.DeleteTransaction(department, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 

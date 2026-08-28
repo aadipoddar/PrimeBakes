@@ -77,7 +77,7 @@ public partial class SaleItemMonthlyReport : IAsyncDisposable
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Store, UserRoles.Reports], true);
+			_user = await AuthService.ValidateUser([UserRoles.Store, UserRoles.Reports], true);
 			await InitializePage();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -143,7 +143,7 @@ public partial class SaleItemMonthlyReport : IAsyncDisposable
 			_allTransferOverviews = await allTransferOverviews;
 			_allBillOverviews = await allBillOverviews;
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),

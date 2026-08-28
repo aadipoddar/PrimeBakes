@@ -42,7 +42,7 @@ public partial class AccountTypePage
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Accounts], true);
+			_user = await AuthService.ValidateUser([UserRoles.Accounts], true);
 			await LoadData();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -79,7 +79,7 @@ public partial class AccountTypePage
 
 			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			await AccountTypeData.SaveTransaction(_accountType, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
@@ -129,7 +129,7 @@ public partial class AccountTypePage
 			var accountType = await CommonData.LoadTableDataById<AccountTypeModel>(AccountNames.AccountType, id)
 				?? throw new Exception("Transaction not found.");
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			if (isRecover) await AccountTypeData.RecoverTransaction(accountType, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 			else await AccountTypeData.DeleteTransaction(accountType, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 

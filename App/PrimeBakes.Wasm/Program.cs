@@ -41,5 +41,6 @@ builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IDataStorageService, DataStorageService>();
 builder.Services.AddScoped<IThermalPrintDispatcher, ThermalPrintDispatcher>();
 builder.Services.AddScoped<PageRefreshState>();
+builder.Services.AddScoped<AuthenticationService>();
 
 await builder.Build().RunAsync();

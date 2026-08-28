@@ -68,7 +68,7 @@ public partial class BankReconciliationPage : IAsyncDisposable
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Accounts, UserRoles.Reports], true);
+			_user = await AuthService.ValidateUser([UserRoles.Accounts, UserRoles.Reports], true);
 			await InitializePage();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -120,7 +120,7 @@ public partial class BankReconciliationPage : IAsyncDisposable
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),
@@ -238,7 +238,7 @@ public partial class BankReconciliationPage : IAsyncDisposable
 				.Select(l => new FinancialAccountingLedgerModel { Id = l.Id, ClearingDate = l.ClearingDate })
 				.ToList();
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			await FinancialAccountingData.SaveBRSDates(changed, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Saved", $"{changed.Count} line(s) updated successfully.", ToastType.Success);
@@ -291,7 +291,7 @@ public partial class BankReconciliationPage : IAsyncDisposable
 				?? throw new Exception("Transaction not found.");
 			accounting.LastModifiedBy = _user.Id;
 			accounting.LastModifiedAt = await CommonData.LoadCurrentDateTime();
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			accounting.LastModifiedFormFactor = platform.FormFactor;
 			accounting.LastModifiedPlatform = platform.Platform;
 			accounting.LastModifiedLatitude = platform.Latitude;

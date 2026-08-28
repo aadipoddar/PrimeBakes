@@ -69,7 +69,7 @@ public partial class PurchasePage
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Inventory], true);
+			_user = await AuthService.ValidateUser([UserRoles.Inventory], true);
 			await InitializePage();
 		}
 		catch { await ResetPage(); }
@@ -754,7 +754,7 @@ public partial class PurchasePage
 		_purchase.TransactionDateTime = DateOnly.FromDateTime(_purchase.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
 		_purchase.CreatedAt = currentDateTime;
 		_purchase.LastModifiedAt = currentDateTime;
-		var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+		var platform = await AuthService.GetPlatformInfo();
 		_purchase.CreatedFormFactor = platform.FormFactor;
 		_purchase.CreatedPlatform = platform.Platform;
 		_purchase.CreatedLatitude = platform.Latitude;

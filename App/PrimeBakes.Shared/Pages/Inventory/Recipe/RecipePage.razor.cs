@@ -53,7 +53,7 @@ public partial class RecipePage
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Inventory], true);
+			_user = await AuthService.ValidateUser([UserRoles.Inventory], true);
 			await LoadData();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -266,7 +266,7 @@ public partial class RecipePage
 			_recipe.FromDate = DateOnly.FromDateTime(_effectiveDateTime);
 			_recipe.Status = true;
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			var items = _recipeItems.ConvertCartToDetails(_recipe.Id);
 			_recipe.Id = await RecipeData.SaveTransaction(_recipe, items, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 

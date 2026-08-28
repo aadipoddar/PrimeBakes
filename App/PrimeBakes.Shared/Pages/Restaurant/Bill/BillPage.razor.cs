@@ -85,7 +85,7 @@ public partial class BillPage
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Restaurant], true);
+			_user = await AuthService.ValidateUser([UserRoles.Restaurant], true);
 			await InitializePage();
 		}
 		catch { await ResetPage(); }
@@ -989,7 +989,7 @@ public partial class BillPage
 		_bill.TransactionDateTime = DateOnly.FromDateTime(_bill.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
 		_bill.CreatedAt = currentDateTime;
 		_bill.LastModifiedAt = currentDateTime;
-		var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+		var platform = await AuthService.GetPlatformInfo();
 		_bill.CreatedFormFactor = platform.FormFactor;
 		_bill.CreatedPlatform = platform.Platform;
 		_bill.CreatedLatitude = platform.Latitude;

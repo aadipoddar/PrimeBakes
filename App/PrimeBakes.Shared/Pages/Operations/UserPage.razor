@@ -184,6 +184,10 @@ else
 						<CustomGridColumn Field="@nameof(UserModel.Remarks)" HeaderText="Remarks" />
 						<CustomGridColumn Field="@nameof(UserModel.LastLoginTime)" HeaderText="Last Login" Format="dd-MMM-yyyy HH:mm" Type="ColumnType.DateTime" TextAlign="TextAlign.Center" />
 						<CustomGridColumn Field="@nameof(UserModel.LastSeen)" HeaderText="Last Seen" Format="dd-MMM-yyyy HH:mm" Type="ColumnType.DateTime" TextAlign="TextAlign.Center" />
+						<CustomGridColumn Field="@nameof(UserModel.LastSeenFormFactor)" HeaderText="Form" />
+						<CustomGridColumn Field="@nameof(UserModel.LastSeenPlatform)" HeaderText="Platform" />
+						<CustomGridColumn Field="@nameof(UserModel.LastSeenLatitude)" HeaderText="Lat" Format="N6" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(UserModel.LastSeenLongitude)" HeaderText="Long" Format="N6" NumericColumn="true" />
 						<CustomGridColumn Field="@nameof(UserModel.Status)" Visible="_showDeleted" StatusColumn="true" />
 					</GridColumns>
 				</SfGrid>

@@ -77,7 +77,7 @@ public partial class BillItemReport : IAsyncDisposable
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Restaurant, UserRoles.Reports], true);
+			_user = await AuthService.ValidateUser([UserRoles.Restaurant, UserRoles.Reports], true);
 			await InitializePage();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -130,7 +130,7 @@ public partial class BillItemReport : IAsyncDisposable
 
 			_allTransactionOverviews = await CommonData.LoadTableDataByDate<BillItemOverviewModel>(RestaurantNames.BillItemOverview, fromDate, toDate);
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),
@@ -267,7 +267,7 @@ public partial class BillItemReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Closing day and posting bill accounting...", ToastType.Info);
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 
 			for (var date = _fromDate; date <= _toDate; date = date.AddDays(1))
 				await BillData.PostDayBills(
@@ -358,7 +358,7 @@ public partial class BillItemReport : IAsyncDisposable
 
 			await _toastNotification.ShowAsync("Processing", $"{(isRecover ? "Recovering" : "Deleting")} transaction...", ToastType.Info);
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 
 			var bill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, record.MasterId)
 				?? throw new Exception("Transaction not found.");

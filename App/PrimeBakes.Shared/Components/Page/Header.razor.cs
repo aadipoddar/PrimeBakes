@@ -170,7 +170,7 @@ public partial class Header
 	protected override async Task OnInitializedAsync()
 	{
 		_user = new UserModel { Name = "Loading...", Id = 1 };
-		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService);
+		_user = await AuthService.ValidateUser();
 		LoadRoutes();
 		_currentDateTime = await CommonData.LoadCurrentDateTime();
 	}

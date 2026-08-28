@@ -1,5 +1,5 @@
 <MudBlazor.MudHotkey Key=JsKey.KeyD KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => NavigationManager.NavigateTo(OperationNames.Dashboard)" />
-<MudBlazor.MudHotkey Key=JsKey.KeyL KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="async () => await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService)" />
+<MudBlazor.MudHotkey Key=JsKey.KeyL KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="async () => await AuthService.Logout()" />
 <MudBlazor.MudHotkey Key=JsKey.F2 OnHotkeyPressed="FocusSearchBox" />
 
 <div class="page-header">
@@ -43,7 +43,7 @@
 			{
 				@RightContent
 			}
-			<button type="button" class="user-badge" title="Logout (Ctrl+L)" @onclick="async () => await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService)">
+			<button type="button" class="user-badge" title="Logout (Ctrl+L)" @onclick="async () => await AuthService.Logout()">
 				<span class="user-name-text">@_user?.Name</span>
 				<span class="user-name-mobile">@GetMobileUserName()</span>
 				<span class="logout-power-button">

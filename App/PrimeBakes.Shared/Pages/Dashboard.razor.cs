@@ -98,7 +98,7 @@ public partial class Dashboard
 		}
 		catch
 		{
-			await AuthenticationService.Logout(DataStorageService, NavigationManager, NotificationService, VibrationService);
+			await AuthService.Logout();
 		}
 		finally
 		{
@@ -109,7 +109,7 @@ public partial class Dashboard
 
 	private async Task LoadData()
 	{
-		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService);
+		_user = await AuthService.ValidateUser();
 
 		if (Platform.Contains("Android"))
 			await NotificationService.RegisterDevicePushNotification(_user.Id.ToString());

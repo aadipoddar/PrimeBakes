@@ -67,7 +67,7 @@ public partial class PayrollReport : IAsyncDisposable
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Payroll, UserRoles.Reports], true);
+			_user = await AuthService.ValidateUser([UserRoles.Payroll, UserRoles.Reports], true);
 			await InitializePage();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -227,7 +227,7 @@ public partial class PayrollReport : IAsyncDisposable
 			var payroll = await CommonData.LoadTableDataById<PayrollModel>(PayrollNames.Payroll, id)
 				?? throw new Exception("Transaction not found.");
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 
 			if (isRecover) await PayrollData.RecoverTransaction(payroll, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 			else await PayrollData.DeleteTransaction(payroll, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
@@ -306,7 +306,7 @@ public partial class PayrollReport : IAsyncDisposable
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),

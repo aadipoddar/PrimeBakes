@@ -79,7 +79,7 @@ public partial class StockTransferPage
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Store], true);
+			_user = await AuthService.ValidateUser([UserRoles.Store], true);
 			await InitializePage();
 		}
 		catch { await ResetPage(); }
@@ -869,7 +869,7 @@ public partial class StockTransferPage
 		_stockTransfer.TransactionDateTime = DateOnly.FromDateTime(_stockTransfer.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
 		_stockTransfer.CreatedAt = currentDateTime;
 		_stockTransfer.LastModifiedAt = currentDateTime;
-		var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+		var platform = await AuthService.GetPlatformInfo();
 		_stockTransfer.CreatedFormFactor = platform.FormFactor;
 		_stockTransfer.CreatedPlatform = platform.Platform;
 		_stockTransfer.CreatedLatitude = platform.Latitude;

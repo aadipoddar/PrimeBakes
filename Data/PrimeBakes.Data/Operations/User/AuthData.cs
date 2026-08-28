@@ -2,7 +2,10 @@ using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
 using PrimeBakes.Data.Common;
+using PrimeBakes.Data.Operations.AuditTrail;
 
+using PrimeBakes.Models.Common;
+using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Operations.User;
 
 using System.Security.Claims;
@@ -19,7 +22,7 @@ public static class AuthData
 			? throw new InvalidOperationException("Secrets.JwtKey is not set.")
 			: Secrets.JwtKey));
 
-	public static async Task<LoginResult> Login(int Passcode)
+	public static async Task<LoginResult> Login(int Passcode, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
 		var user = await UserData.LoadUserByPasscode(Passcode);
 
@@ -27,6 +30,18 @@ public static class AuthData
 			return null;
 
 		await UserData.UpdateLastLoginTime(user, await CommonData.LoadCurrentDateTime());
+
+		await AuditTrailData.SaveAuditTrail(new()
+		{
+			Action = AuditTrailActionTypes.Login.ToString(),
+			TableName = OperationNames.User,
+			RecordNo = user.Name,
+			CreatedBy = user.Id,
+			CreatedFormFactor = formFactor,
+			CreatedPlatform = platform,
+			CreatedLatitude = latitude,
+			CreatedLongitude = longitude
+		});
 
 		return new LoginResult(user, CreateToken(user));
 	}

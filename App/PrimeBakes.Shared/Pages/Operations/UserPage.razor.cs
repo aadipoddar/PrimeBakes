@@ -1,5 +1,8 @@
-﻿using PrimeBakes.Data.Operations.User;
+﻿using PrimeBakes.Data.Operations.AuditTrail;
+using PrimeBakes.Data.Operations.User;
 using PrimeBakes.Exports.Operations.User;
+using PrimeBakes.Models.Common;
+using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Operations.Location;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Shared.Components.Dialog;
@@ -45,7 +48,7 @@ public partial class UserPage
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Admin], true);
+			_user = await AuthService.ValidateUser([UserRoles.Admin], true);
 			await LoadData();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -87,7 +90,7 @@ public partial class UserPage
 			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
 
 			_userModel.LocationId = _selectedLocation?.Id ?? 0;
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			await UserData.SaveTransaction(_userModel, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
@@ -138,7 +141,7 @@ public partial class UserPage
 			var user = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, id)
 				?? throw new Exception("Transaction not found.");
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			if (isRecover) await UserData.RecoverTransaction(user, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 			else await UserData.DeleteTransaction(user, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
@@ -181,7 +184,19 @@ public partial class UserPage
 
 			await _toastNotification.ShowAsync("Processing", "Logging out...", ToastType.Info);
 
+			var platformInfo = await AuthService.GetPlatformInfo();
 			await UserData.UpdateLastLoginTime(user, null);
+			await AuditTrailData.SaveAuditTrail(new()
+			{
+				Action = AuditTrailActionTypes.Logout.ToString(),
+				TableName = OperationNames.User,
+				RecordNo = user?.Name ?? "ALL USERS",
+				CreatedBy = _user.Id,
+				CreatedFormFactor = platformInfo.FormFactor,
+				CreatedPlatform = platformInfo.Platform,
+				CreatedLatitude = platformInfo.Latitude,
+				CreatedLongitude = platformInfo.Longitude
+			});
 
 			await _toastNotification.ShowAsync("Success", user is null ? "All users have been logged out successfully." : $"{user.Name} has been logged out successfully.", ToastType.Success);
 			ResetPage();

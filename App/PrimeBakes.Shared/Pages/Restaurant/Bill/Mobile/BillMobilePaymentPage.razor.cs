@@ -49,7 +49,7 @@ public partial class BillMobilePaymentPage
 		if (!firstRender)
 			return;
 
-		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Restaurant]);
+		_user = await AuthService.ValidateUser([UserRoles.Restaurant]);
 		await LoadData();
 	}
 
@@ -362,7 +362,7 @@ public partial class BillMobilePaymentPage
 		_bill.FinancialYearId = (await FinancialYearData.LoadFinancialYearByDateTime(_bill.TransactionDateTime)).Id;
 		_bill.CreatedAt = await CommonData.LoadCurrentDateTime();
 		_bill.LastModifiedAt = _bill.CreatedAt;
-		var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+		var platform = await AuthService.GetPlatformInfo();
 		_bill.CreatedFormFactor = platform.FormFactor;
 		_bill.CreatedPlatform = platform.Platform;
 		_bill.CreatedLatitude = platform.Latitude;

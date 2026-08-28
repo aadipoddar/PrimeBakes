@@ -63,7 +63,7 @@ public partial class KitchenProductionPage
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Inventory], true);
+			_user = await AuthService.ValidateUser([UserRoles.Inventory], true);
 			await InitializePage();
 		}
 		catch { await ResetPage(); }
@@ -450,7 +450,7 @@ public partial class KitchenProductionPage
 		_kitchenProduction.TransactionDateTime = DateOnly.FromDateTime(_kitchenProduction.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
 		_kitchenProduction.CreatedAt = currentDateTime;
 		_kitchenProduction.LastModifiedAt = currentDateTime;
-		var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+		var platform = await AuthService.GetPlatformInfo();
 		_kitchenProduction.CreatedFormFactor = platform.FormFactor;
 		_kitchenProduction.CreatedPlatform = platform.Platform;
 		_kitchenProduction.CreatedLatitude = platform.Latitude;

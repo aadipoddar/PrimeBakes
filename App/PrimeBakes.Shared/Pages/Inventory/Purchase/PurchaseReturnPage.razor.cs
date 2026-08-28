@@ -65,7 +65,7 @@ public partial class PurchaseReturnPage
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Inventory], true);
+			_user = await AuthService.ValidateUser([UserRoles.Inventory], true);
 			await InitializePage();
 		}
 		catch { await ResetPage(); }
@@ -666,7 +666,7 @@ public partial class PurchaseReturnPage
 		_purchaseReturn.TransactionDateTime = DateOnly.FromDateTime(_purchaseReturn.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
 		_purchaseReturn.CreatedAt = currentDateTime;
 		_purchaseReturn.LastModifiedAt = currentDateTime;
-		var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+		var platform = await AuthService.GetPlatformInfo();
 		_purchaseReturn.CreatedFormFactor = platform.FormFactor;
 		_purchaseReturn.CreatedPlatform = platform.Platform;
 		_purchaseReturn.CreatedLatitude = platform.Latitude;

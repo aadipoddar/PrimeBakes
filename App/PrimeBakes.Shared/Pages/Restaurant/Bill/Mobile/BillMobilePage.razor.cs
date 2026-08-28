@@ -39,7 +39,7 @@ public partial class BillMobilePage
 		if (!firstRender)
 			return;
 
-		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Restaurant]);
+		_user = await AuthService.ValidateUser([UserRoles.Restaurant]);
 		await InitializePage();
 	}
 

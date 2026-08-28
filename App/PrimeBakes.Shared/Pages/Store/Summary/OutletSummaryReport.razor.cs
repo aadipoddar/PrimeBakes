@@ -73,7 +73,7 @@ public partial class OutletSummaryReport : IAsyncDisposable
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Reports], true);
+			_user = await AuthService.ValidateUser([UserRoles.Reports], true);
 			await LoadData();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -162,7 +162,7 @@ public partial class OutletSummaryReport : IAsyncDisposable
 		_stockTransfers = await stockTransfers;
 		_bills = await bills;
 
-		var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+		var platform = await AuthService.GetPlatformInfo();
 		await AuditTrailData.SaveAuditTrail(new()
 		{
 			Action = AuditTrailActionTypes.Report.ToString(),

@@ -48,6 +48,7 @@ public static class MauiProgram
 		builder.Services.AddScoped<INotificationService, NotificationService>();
 		builder.Services.AddScoped<IThermalPrintDispatcher, ThermalPrintDispatcher>();
 		builder.Services.AddScoped<PageRefreshState>();
+		builder.Services.AddScoped<AuthenticationService>();
 
 #if WINDOWS
         builder.Services.AddSingleton<IDirectPrintService, Platforms.Windows.WindowsDirectPrintService>();

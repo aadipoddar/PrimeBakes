@@ -44,7 +44,7 @@ public partial class CompanyPage
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Accounts], true);
+			_user = await AuthService.ValidateUser([UserRoles.Accounts], true);
 			await LoadData();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -86,7 +86,7 @@ public partial class CompanyPage
 			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
 
 			_company.StateUTId = _selectedStateUT?.Id ?? 0;
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			await CompanyData.SaveTransaction(_company, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
@@ -137,7 +137,7 @@ public partial class CompanyPage
 			var company = await CommonData.LoadTableDataById<CompanyModel>(AccountNames.Company, id)
 				?? throw new Exception("Transaction not found.");
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			if (isRecover) await CompanyData.RecoverTransaction(company, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 			else await CompanyData.DeleteTransaction(company, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 

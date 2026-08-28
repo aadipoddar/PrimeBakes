@@ -49,7 +49,7 @@ public partial class ProductLocationPage
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Store], true);
+			_user = await AuthService.ValidateUser([UserRoles.Store], true);
 			await LoadData();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -131,7 +131,7 @@ public partial class ProductLocationPage
 			_productLocation.LocationId = _selectedLocation?.Id ?? 0;
 			_productLocation.ProductId = _selectedProduct?.Id ?? 0;
 			_productLocation.FromDate = DateOnly.FromDateTime(_effectiveDate);
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			await ProductLocationData.SaveTransaction(_productLocation, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
@@ -191,7 +191,7 @@ public partial class ProductLocationPage
 
 			await _toastNotification.ShowAsync("Processing", "Deleting transaction...", ToastType.Info);
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			await ProductLocationData.DeleteTransaction(productLocation, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Success", $"Transaction {productLocation.Name} has been deleted successfully.", ToastType.Success);
@@ -220,7 +220,7 @@ public partial class ProductLocationPage
 
 			await _toastNotification.ShowAsync("Processing", "Discontinuing transaction...", ToastType.Info);
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			await ProductLocationData.DiscontinueTransaction(productLocation, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Success", $"Transaction {productLocation.Name} has been discontinued successfully.", ToastType.Success);

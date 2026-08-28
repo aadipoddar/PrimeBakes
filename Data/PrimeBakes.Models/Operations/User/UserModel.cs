@@ -17,6 +17,10 @@ public class UserModel
 	public string? Remarks { get; set; }
 	public DateTime? LastLoginTime { get; set; }
 	public DateTime? LastSeen { get; set; }
+	public string? LastSeenFormFactor { get; set; }
+	public string? LastSeenPlatform { get; set; }
+	public decimal? LastSeenLatitude { get; set; }
+	public decimal? LastSeenLongitude { get; set; }
 	public bool Status { get; set; }
 }
 

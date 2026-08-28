@@ -66,7 +66,7 @@ public partial class AccountingLedgerReport : IAsyncDisposable
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Accounts, UserRoles.Reports], true);
+			_user = await AuthService.ValidateUser([UserRoles.Accounts, UserRoles.Reports], true);
 			await InitializePage();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -113,7 +113,7 @@ public partial class AccountingLedgerReport : IAsyncDisposable
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),
@@ -257,7 +257,7 @@ public partial class AccountingLedgerReport : IAsyncDisposable
 				?? throw new Exception("Transaction not found.");
 			accounting.LastModifiedBy = _user.Id;
 			accounting.LastModifiedAt = await CommonData.LoadCurrentDateTime();
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			accounting.LastModifiedFormFactor = platform.FormFactor;
 			accounting.LastModifiedPlatform = platform.Platform;
 			accounting.LastModifiedLatitude = platform.Latitude;

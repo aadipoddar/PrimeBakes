@@ -42,7 +42,7 @@ public partial class StateUTPage
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Accounts], true);
+			_user = await AuthService.ValidateUser([UserRoles.Accounts], true);
 			await LoadData();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -79,7 +79,7 @@ public partial class StateUTPage
 
 			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			await StateUTData.SaveTransaction(_stateUT, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
@@ -129,7 +129,7 @@ public partial class StateUTPage
 			var stateUT = await CommonData.LoadTableDataById<StateUTModel>(AccountNames.StateUT, id)
 				?? throw new Exception("Transaction not found.");
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			if (isRecover) await StateUTData.RecoverTransaction(stateUT, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 			else await StateUTData.DeleteTransaction(stateUT, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 

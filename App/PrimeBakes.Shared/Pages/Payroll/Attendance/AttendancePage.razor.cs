@@ -58,7 +58,7 @@ public partial class AttendancePage
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Payroll], true);
+			_user = await AuthService.ValidateUser([UserRoles.Payroll], true);
 			await LoadData();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -172,7 +172,7 @@ public partial class AttendancePage
 
 			_attendance.EmployeeId = _selectedEmployee?.Id ?? 0;
 			_attendance.AttendanceMonth = _monthNames.IndexOf(_selectedMonthName ?? string.Empty) + 1;
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			await AttendanceData.SaveTransaction(_attendance, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
@@ -225,7 +225,7 @@ public partial class AttendancePage
 			var attendance = await CommonData.LoadTableDataById<AttendanceModel>(PayrollNames.Attendance, id)
 				?? throw new Exception("Transaction not found.");
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			if (isRecover) await AttendanceData.RecoverTransaction(attendance, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 			else await AttendanceData.DeleteTransaction(attendance, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 

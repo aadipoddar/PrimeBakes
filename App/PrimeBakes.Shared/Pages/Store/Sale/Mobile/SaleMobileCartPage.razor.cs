@@ -26,7 +26,7 @@ public partial class SaleMobileCartPage
 		if (!firstRender)
 			return;
 
-		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Store]);
+		_user = await AuthService.ValidateUser([UserRoles.Store]);
 		await LoadData();
 	}
 

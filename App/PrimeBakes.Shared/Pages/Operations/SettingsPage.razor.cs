@@ -128,7 +128,7 @@ public partial class SettingsPage
 
 		try
 		{
-			await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Admin], true);
+			await AuthService.ValidateUser([UserRoles.Admin], true);
 			await LoadData();
 			_isLoading = false;
 			StateHasChanged();

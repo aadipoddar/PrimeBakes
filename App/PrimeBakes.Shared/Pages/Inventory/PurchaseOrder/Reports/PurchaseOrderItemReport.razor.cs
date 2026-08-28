@@ -71,7 +71,7 @@ public partial class PurchaseOrderItemReport : IAsyncDisposable
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Inventory, UserRoles.Reports], true);
+			_user = await AuthService.ValidateUser([UserRoles.Inventory, UserRoles.Reports], true);
 			await InitializePage();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -121,7 +121,7 @@ public partial class PurchaseOrderItemReport : IAsyncDisposable
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),
@@ -269,7 +269,7 @@ public partial class PurchaseOrderItemReport : IAsyncDisposable
 			purchaseOrder.Status = isRecover;
 			purchaseOrder.LastModifiedBy = _user.Id;
 			purchaseOrder.LastModifiedAt = await CommonData.LoadCurrentDateTime();
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			purchaseOrder.LastModifiedFormFactor = platform.FormFactor;
 			purchaseOrder.LastModifiedPlatform = platform.Platform;
 			purchaseOrder.LastModifiedLatitude = platform.Latitude;

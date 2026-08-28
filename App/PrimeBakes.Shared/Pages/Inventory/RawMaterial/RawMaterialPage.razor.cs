@@ -47,7 +47,7 @@ public partial class RawMaterialPage
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Inventory], true);
+			_user = await AuthService.ValidateUser([UserRoles.Inventory], true);
 			await LoadData();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -95,7 +95,7 @@ public partial class RawMaterialPage
 
 			_rawMaterial.RawMaterialCategoryId = _selectedCategory?.Id ?? 0;
 			_rawMaterial.TaxId = _selectedTax?.Id ?? 0;
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			await RawMaterialData.SaveTransaction(_rawMaterial, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
@@ -147,7 +147,7 @@ public partial class RawMaterialPage
 			var rawMaterial = await CommonData.LoadTableDataById<RawMaterialModel>(InventoryNames.RawMaterial, id)
 				?? throw new Exception("Transaction not found.");
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			if (isRecover) await RawMaterialData.RecoverTransaction(rawMaterial, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 			else await RawMaterialData.DeleteTransaction(rawMaterial, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 

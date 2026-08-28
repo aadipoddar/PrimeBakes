@@ -68,7 +68,7 @@ public partial class SaleReturnReport : IAsyncDisposable
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Store, UserRoles.Reports], true);
+			_user = await AuthService.ValidateUser([UserRoles.Store, UserRoles.Reports], true);
 			await InitializePage();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -117,7 +117,7 @@ public partial class SaleReturnReport : IAsyncDisposable
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),
@@ -268,7 +268,7 @@ public partial class SaleReturnReport : IAsyncDisposable
 			saleReturn.Status = isRecover;
 			saleReturn.LastModifiedBy = _user.Id;
 			saleReturn.LastModifiedAt = await CommonData.LoadCurrentDateTime();
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			saleReturn.LastModifiedFormFactor = platform.FormFactor;
 			saleReturn.LastModifiedPlatform = platform.Platform;
 			saleReturn.LastModifiedLatitude = platform.Latitude;

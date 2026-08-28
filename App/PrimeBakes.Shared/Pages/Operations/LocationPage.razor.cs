@@ -48,7 +48,7 @@ public partial class LocationPage
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Admin], true);
+			_user = await AuthService.ValidateUser([UserRoles.Admin], true);
 			await LoadData();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -90,7 +90,7 @@ public partial class LocationPage
 			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
 
 			_location.LedgerId = _selectedLedger?.Id ?? 0;
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			await LocationData.SaveTransaction(_location, _copyLocation, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
@@ -142,7 +142,7 @@ public partial class LocationPage
 			var location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, id)
 				?? throw new Exception("Transaction not found.");
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			if (isRecover) await LocationData.RecoverTransaction(location, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 			else await LocationData.DeleteTransaction(location, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 

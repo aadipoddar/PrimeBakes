@@ -42,7 +42,7 @@ public partial class TaxPage
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Store], true);
+			_user = await AuthService.ValidateUser([UserRoles.Store], true);
 			await LoadData();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -79,7 +79,7 @@ public partial class TaxPage
 
 			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			await TaxData.SaveTransaction(_tax, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
@@ -129,7 +129,7 @@ public partial class TaxPage
 			var tax = await CommonData.LoadTableDataById<TaxModel>(StoreNames.Tax, id)
 				?? throw new Exception("Transaction not found.");
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			if (isRecover) await TaxData.RecoverTransaction(tax, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 			else await TaxData.DeleteTransaction(tax, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 

@@ -11,6 +11,7 @@ public class AuthEndpoint : ICarterModule
 		var group = app.MapGroup(endpoint).WithTags(endpoint).AllowAnonymous();
 
 		group.MapGet(nameof(AuthData.Login),
-			(int Passcode) => AuthData.Login(Passcode));
+			(int Passcode, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
+				AuthData.Login(Passcode, formFactor, platform, latitude, longitude));
 	}
 }

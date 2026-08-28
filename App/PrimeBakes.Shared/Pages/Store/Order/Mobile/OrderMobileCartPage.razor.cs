@@ -30,7 +30,7 @@ public partial class OrderMobileCartPage
 		if (!firstRender)
 			return;
 
-		_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Store]);
+		_user = await AuthService.ValidateUser([UserRoles.Store]);
 		await LoadData();
 	}
 
@@ -142,7 +142,7 @@ public partial class OrderMobileCartPage
 			_isProcessing = true;
 			StateHasChanged();
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 			var currentDateTime = await CommonData.LoadCurrentDateTime();
 
 			var order = new OrderModel

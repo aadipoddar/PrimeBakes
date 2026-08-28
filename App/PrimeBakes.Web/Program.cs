@@ -39,6 +39,7 @@ builder.Services.AddScoped<IThermalPrintDispatcher, ThermalPrintDispatcher>();
 builder.Services.AddSingleton<IBluetoothPrinterService, NullBluetoothPrinterService>();
 builder.Services.AddSingleton<IDirectPrintService, NullDirectPrintService>();
 builder.Services.AddScoped<PageRefreshState>();
+builder.Services.AddScoped<AuthenticationService>();
 
 var app = builder.Build();
 

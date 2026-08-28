@@ -85,7 +85,7 @@ public partial class SalePage
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Store]);
+			_user = await AuthService.ValidateUser([UserRoles.Store]);
 			await InitializePage();
 		}
 		catch { await ResetPage(); }
@@ -1065,7 +1065,7 @@ public partial class SalePage
 		_sale.TransactionDateTime = DateOnly.FromDateTime(_sale.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
 		_sale.CreatedAt = currentDateTime;
 		_sale.LastModifiedAt = currentDateTime;
-		var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+		var platform = await AuthService.GetPlatformInfo();
 		_sale.CreatedFormFactor = platform.FormFactor;
 		_sale.CreatedPlatform = platform.Platform;
 		_sale.CreatedLatitude = platform.Latitude;

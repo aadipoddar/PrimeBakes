@@ -24,10 +24,16 @@ public static class UserExport
 			Inventory = user.Inventory ? "Yes" : "No",
 			Store = user.Store ? "Yes" : "No",
 			Restaurant = user.Restaurant ? "Yes" : "No",
+			Payroll = user.Payroll ? "Yes" : "No",
 			Reports = user.Reports ? "Yes" : "No",
 			Admin = user.Admin ? "Yes" : "No",
 			user.Remarks,
 			LastLoginTime = user.LastLoginTime?.ToString("dd-MMM-yyyy HH:mm") ?? "Not Logged In",
+			LastSeen = user.LastSeen?.ToString("dd-MMM-yyyy HH:mm") ?? "Never",
+			user.LastSeenFormFactor,
+			user.LastSeenPlatform,
+			user.LastSeenLatitude,
+			user.LastSeenLongitude,
 			Status = user.Status ? "Active" : "Deleted"
 		});
 
@@ -42,10 +48,16 @@ public static class UserExport
 			[nameof(UserModel.Inventory)] = new() { DisplayName = "Inventory", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(UserModel.Store)] = new() { DisplayName = "Store", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(UserModel.Restaurant)] = new() { DisplayName = "Restaurant", Alignment = CellAlignment.Center, IncludeInTotal = false },
+			[nameof(UserModel.Payroll)] = new() { DisplayName = "Payroll", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(UserModel.Reports)] = new() { DisplayName = "Reports", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(UserModel.Admin)] = new() { DisplayName = "Admin", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(UserModel.Remarks)] = new() { DisplayName = "Remarks", Alignment = CellAlignment.Left },
 			[nameof(UserModel.LastLoginTime)] = new() { DisplayName = "Last Login", Alignment = CellAlignment.Center, IncludeInTotal = false },
+			[nameof(UserModel.LastSeen)] = new() { DisplayName = "Last Seen", Alignment = CellAlignment.Center, IncludeInTotal = false },
+			[nameof(UserModel.LastSeenFormFactor)] = new() { DisplayName = "Form", Alignment = CellAlignment.Left },
+			[nameof(UserModel.LastSeenPlatform)] = new() { DisplayName = "Platform", Alignment = CellAlignment.Left },
+			[nameof(UserModel.LastSeenLatitude)] = new() { DisplayName = "Lat", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(UserModel.LastSeenLongitude)] = new() { DisplayName = "Long", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(UserModel.Status)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false }
 		};
 
@@ -60,10 +72,16 @@ public static class UserExport
 			nameof(UserModel.Inventory),
 			nameof(UserModel.Store),
 			nameof(UserModel.Restaurant),
+			nameof(UserModel.Payroll),
 			nameof(UserModel.Reports),
 			nameof(UserModel.Admin),
 			nameof(UserModel.Remarks),
 			nameof(UserModel.LastLoginTime),
+			nameof(UserModel.LastSeen),
+			nameof(UserModel.LastSeenFormFactor),
+			nameof(UserModel.LastSeenPlatform),
+			nameof(UserModel.LastSeenLatitude),
+			nameof(UserModel.LastSeenLongitude),
 			nameof(UserModel.Status)
 		];
 

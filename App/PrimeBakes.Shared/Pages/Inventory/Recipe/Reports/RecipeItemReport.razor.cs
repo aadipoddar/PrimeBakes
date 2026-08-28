@@ -65,7 +65,7 @@ public partial class RecipeItemReport : IAsyncDisposable
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Inventory, UserRoles.Reports], true);
+			_user = await AuthService.ValidateUser([UserRoles.Inventory, UserRoles.Reports], true);
 			await InitializePage();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -226,7 +226,7 @@ public partial class RecipeItemReport : IAsyncDisposable
 
 			await _toastNotification.ShowAsync("Processing", "Deleting recipe...", ToastType.Info);
 
-			var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+			var platform = await AuthService.GetPlatformInfo();
 
 			var recipe = await CommonData.LoadTableDataById<RecipeModel>(InventoryNames.Recipe, masterId)
 				?? throw new Exception("Recipe not found.");

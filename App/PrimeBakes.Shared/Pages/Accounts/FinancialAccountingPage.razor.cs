@@ -56,7 +56,7 @@ public partial class FinancialAccountingPage
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Accounts], true);
+			_user = await AuthService.ValidateUser([UserRoles.Accounts], true);
 			await InitializePage();
 		}
 		catch { await ResetPage(); }
@@ -550,7 +550,7 @@ public partial class FinancialAccountingPage
 		_accounting.TransactionDateTime = DateOnly.FromDateTime(_accounting.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
 		_accounting.CreatedAt = currentDateTime;
 		_accounting.LastModifiedAt = currentDateTime;
-		var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+		var platform = await AuthService.GetPlatformInfo();
 		_accounting.CreatedFormFactor = platform.FormFactor;
 		_accounting.CreatedPlatform = platform.Platform;
 		_accounting.CreatedLatitude = platform.Latitude;

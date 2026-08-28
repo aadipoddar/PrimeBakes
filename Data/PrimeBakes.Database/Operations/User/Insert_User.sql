@@ -14,6 +14,10 @@
 	@Remarks VARCHAR(MAX),
 	@LastLoginTime DATETIME,
 	@LastSeen DATETIME,
+	@LastSeenFormFactor VARCHAR(MAX),
+	@LastSeenPlatform VARCHAR(MAX),
+	@LastSeenLatitude DECIMAL(9,6),
+	@LastSeenLongitude DECIMAL(9,6),
 	@Status BIT
 AS
 BEGIN
@@ -35,6 +39,10 @@ BEGIN
 			[Remarks],
 			[LastLoginTime],
 			[LastSeen],
+			[LastSeenFormFactor],
+			[LastSeenPlatform],
+			[LastSeenLatitude],
+			[LastSeenLongitude],
 			[Status]
 		)
 		VALUES
@@ -53,6 +61,10 @@ BEGIN
 			@Remarks, 
 			@LastLoginTime, 
 			@LastSeen, 
+			@LastSeenFormFactor, 
+			@LastSeenPlatform, 
+			@LastSeenLatitude, 
+			@LastSeenLongitude, 
 			@Status
 		);
 
@@ -76,6 +88,10 @@ BEGIN
 			[Remarks] = @Remarks,
 			[LastLoginTime] = @LastLoginTime,
 			[LastSeen] = @LastSeen,
+			[LastSeenFormFactor] = @LastSeenFormFactor,
+			[LastSeenPlatform] = @LastSeenPlatform,
+			[LastSeenLatitude] = @LastSeenLatitude,
+			[LastSeenLongitude] = @LastSeenLongitude,
 			[Status] = @Status
 		WHERE [Id] = @Id;
 	END

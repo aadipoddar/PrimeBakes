@@ -33,7 +33,7 @@ public partial class LocalSettingsPage : IAsyncDisposable
 
 		try
 		{
-			await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService);
+			await AuthService.ValidateUser();
 			_isLoading = false;
 			StateHasChanged();
 		}

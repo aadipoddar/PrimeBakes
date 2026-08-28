@@ -62,7 +62,7 @@ public partial class OrderPage
 
 		try
 		{
-			_user = await AuthenticationService.ValidateUser(DataStorageService, NavigationManager, NotificationService, VibrationService, [UserRoles.Store]);
+			_user = await AuthService.ValidateUser([UserRoles.Store]);
 			await InitializePage();
 		}
 		catch { await ResetPage(); }
@@ -440,7 +440,7 @@ public partial class OrderPage
 		_order.TransactionDateTime = DateOnly.FromDateTime(_order.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
 		_order.CreatedAt = currentDateTime;
 		_order.LastModifiedAt = currentDateTime;
-		var platform = await PlatformInfo.GetPlatformInfo(FormFactor, LocationService);
+		var platform = await AuthService.GetPlatformInfo();
 		_order.CreatedFormFactor = platform.FormFactor;
 		_order.CreatedPlatform = platform.Platform;
 		_order.CreatedLatitude = platform.Latitude;
