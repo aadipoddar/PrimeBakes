@@ -37,9 +37,9 @@ public partial class AuditTrailReport : IAsyncDisposable
 		new() { Text = "Open Location", Id = "OpenLocation", IconCss = "e-icons e-location", Target = ".e-content" }
 	];
 
-	private List<AuditTrailModel> _auditTrails = [];
+	private List<AuditTrailOverviewModel> _auditTrails = [];
 
-	private SfGrid<AuditTrailModel> _sfGrid;
+	private SfGrid<AuditTrailOverviewModel> _sfGrid;
 	private CustomDateRangePicker _firstFocus;
 	private ToastNotification _toastNotification;
 
@@ -87,7 +87,7 @@ public partial class AuditTrailReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Loading", "Fetching audit trail records...", ToastType.Info);
 
-			_auditTrails = await CommonData.LoadTableDataByDate<AuditTrailModel>(
+			_auditTrails = await CommonData.LoadTableDataByDate<AuditTrailOverviewModel>(
 				OperationNames.AuditTrailOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
@@ -281,7 +281,7 @@ public partial class AuditTrailReport : IAsyncDisposable
 	#endregion
 
 	#region Utilities
-	private async Task OnGridContextMenuItemClicked(ContextMenuClickEventArgs<AuditTrailModel> args)
+	private async Task OnGridContextMenuItemClicked(ContextMenuClickEventArgs<AuditTrailOverviewModel> args)
 	{
 		if (args.Item.Id == "OpenChanges") await OpenChanges();
 		if (args.Item.Id == "OpenLocation") await OpenSelectedRecordLocation();

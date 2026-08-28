@@ -7,7 +7,7 @@ namespace PrimeBakes.Exports.Operations.AuditTrail;
 public static class AuditTrailExport
 {
 	public static (MemoryStream stream, string fileName) ExportReport(
-		IEnumerable<AuditTrailModel> data,
+		IEnumerable<AuditTrailOverviewModel> data,
 		DateTime currentDateTime,
 		ReportExportType exportType,
 		DateOnly? dateRangeStart = null,
@@ -26,7 +26,7 @@ public static class AuditTrailExport
 			[nameof(AuditTrailModel.CreatedPlatform)] = new() { DisplayName = "Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(AuditTrailModel.CreatedLatitude)] = new() { DisplayName = "Lat", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(AuditTrailModel.CreatedLongitude)] = new() { DisplayName = "Long", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
-			[nameof(AuditTrailModel.CreatedUserOffset)] = new() { DisplayName = "Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(AuditTrailOverviewModel.CreatedUserOffset)] = new() { DisplayName = "Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
 		};
 
 		List<string> columnOrder;
@@ -45,7 +45,7 @@ public static class AuditTrailExport
 				nameof(AuditTrailModel.CreatedPlatform),
 				nameof(AuditTrailModel.CreatedLatitude),
 				nameof(AuditTrailModel.CreatedLongitude),
-				nameof(AuditTrailModel.CreatedUserOffset),
+				nameof(AuditTrailOverviewModel.CreatedUserOffset),
 			];
 		}
 		else
@@ -61,7 +61,7 @@ public static class AuditTrailExport
 				nameof(AuditTrailModel.CreatedPlatform),
 				nameof(AuditTrailModel.CreatedLatitude),
 				nameof(AuditTrailModel.CreatedLongitude),
-				nameof(AuditTrailModel.CreatedUserOffset),
+				nameof(AuditTrailOverviewModel.CreatedUserOffset),
 			];
 		}
 

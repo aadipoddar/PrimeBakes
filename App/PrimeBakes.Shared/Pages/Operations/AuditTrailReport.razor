@@ -76,13 +76,13 @@ else
 					<h2 class="section-title">Records</h2>
 				</div>
 
-				<SfGrid @ref="_sfGrid" TValue="AuditTrailModel" DataSource="_auditTrails"
+				<SfGrid @ref="_sfGrid" TValue="AuditTrailOverviewModel" DataSource="_auditTrails"
 						AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
 						AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
 						GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
 						Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
 
-					<GridEvents TValue="AuditTrailModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
+					<GridEvents TValue="AuditTrailOverviewModel" ContextMenuItemClicked="OnGridContextMenuItemClicked" />
 					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
 					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
 
@@ -102,7 +102,7 @@ else
 								<GridColumn Field="@nameof(AuditTrailModel.Action)" HeaderText="Action" TextAlign="TextAlign.Center" Width="200">
 									<Template>
 										@{
-											var item = (context as AuditTrailModel);
+											var item = (context as AuditTrailOverviewModel);
 											var css = item.Action switch
 											{
 												"Update" => "grid-credit",
@@ -126,7 +126,7 @@ else
 						<CustomGridColumn Field="@nameof(AuditTrailModel.CreatedPlatform)" HeaderText="Platform" Visible="_showAllColumns" />
 						<CustomGridColumn Field="@nameof(AuditTrailModel.CreatedLatitude)" HeaderText="Lat" Format="N6" NumericColumn="true" Visible="_showAllColumns" />
 						<CustomGridColumn Field="@nameof(AuditTrailModel.CreatedLongitude)" HeaderText="Long" Format="N6" NumericColumn="true" Visible="_showAllColumns" />
-						<CustomGridColumn Field="@nameof(AuditTrailModel.CreatedUserOffset)" HeaderText="Offset (User)" Format="N0" NumericColumn="true" RedAbove="_locationRadius" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(AuditTrailOverviewModel.CreatedUserOffset)" HeaderText="Offset (User)" Format="N0" NumericColumn="true" RedAbove="_locationRadius" Visible="_showAllColumns" />
 					</GridColumns>
 				</SfGrid>
 			</div>

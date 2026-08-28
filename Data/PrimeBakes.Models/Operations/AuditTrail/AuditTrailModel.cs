@@ -14,6 +14,10 @@ public class AuditTrailModel
 	public string? CreatedPlatform { get; set; }
 	public decimal? CreatedLatitude { get; set; }
 	public decimal? CreatedLongitude { get; set; }
+}
+
+public class AuditTrailOverviewModel : AuditTrailModel
+{
 	public double? CreatedUserOffset { get; set; }
 }
 
