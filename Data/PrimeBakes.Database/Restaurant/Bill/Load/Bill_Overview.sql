@@ -69,6 +69,11 @@ SELECT
 	[b].[LastModifiedLatitude],
 	[b].[LastModifiedLongitude],
 
+	CASE WHEN [b].[CreatedLatitude] IS NOT NULL AND [l].[Latitude] IS NOT NULL THEN geography::Point([b].[CreatedLatitude], [b].[CreatedLongitude], 4326).STDistance(geography::Point([l].[Latitude], [l].[Longitude], 4326)) END AS CreatedLocationOffset,
+	CASE WHEN [b].[CreatedLatitude] IS NOT NULL AND [ul].[Latitude] IS NOT NULL THEN geography::Point([b].[CreatedLatitude], [b].[CreatedLongitude], 4326).STDistance(geography::Point([ul].[Latitude], [ul].[Longitude], 4326)) END AS CreatedUserOffset,
+	CASE WHEN [b].[LastModifiedLatitude] IS NOT NULL AND [l].[Latitude] IS NOT NULL THEN geography::Point([b].[LastModifiedLatitude], [b].[LastModifiedLongitude], 4326).STDistance(geography::Point([l].[Latitude], [l].[Longitude], 4326)) END AS LastModifiedLocationOffset,
+	CASE WHEN [b].[LastModifiedLatitude] IS NOT NULL AND [lml].[Latitude] IS NOT NULL THEN geography::Point([b].[LastModifiedLatitude], [b].[LastModifiedLongitude], 4326).STDistance(geography::Point([lml].[Latitude], [lml].[Longitude], 4326)) END AS LastModifiedUserOffset,
+
 	[b].[Running],
 	[b].[Status]
 
@@ -90,5 +95,9 @@ INNER JOIN
 	[dbo].[User] AS u ON b.CreatedBy = u.Id
 LEFT JOIN
 	[dbo].[User] AS lm ON b.LastModifiedBy = lm.Id
+LEFT JOIN
+	[dbo].[Location] AS ul ON u.LocationId = ul.Id
+LEFT JOIN
+	[dbo].[Location] AS lml ON lm.LocationId = lml.Id
 LEFT JOIN
 	[dbo].[FinancialAccounting] AS fa ON b.FinancialAccountingId = fa.Id

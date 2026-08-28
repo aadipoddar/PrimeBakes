@@ -70,6 +70,10 @@ public static class BillReportExport
 			[nameof(BillOverviewModel.LastModifiedPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(BillOverviewModel.LastModifiedLatitude)] = new() { DisplayName = "Modified Lat", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(BillOverviewModel.LastModifiedLongitude)] = new() { DisplayName = "Modified Long", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(BillOverviewModel.CreatedLocationOffset)] = new() { DisplayName = "Created Offset (Location)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(BillOverviewModel.CreatedUserOffset)] = new() { DisplayName = "Created Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(BillOverviewModel.LastModifiedLocationOffset)] = new() { DisplayName = "Modified Offset (Location)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(BillOverviewModel.LastModifiedUserOffset)] = new() { DisplayName = "Modified Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
 
 			[nameof(BillOverviewModel.Running)] = new() { DisplayName = "Running", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(BillOverviewModel.Status)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false },
@@ -146,6 +150,10 @@ public static class BillReportExport
 				nameof(BillOverviewModel.LastModifiedPlatform),
 				nameof(BillOverviewModel.LastModifiedLatitude),
 				nameof(BillOverviewModel.LastModifiedLongitude),
+				nameof(BillOverviewModel.CreatedLocationOffset),
+				nameof(BillOverviewModel.CreatedUserOffset),
+				nameof(BillOverviewModel.LastModifiedLocationOffset),
+				nameof(BillOverviewModel.LastModifiedUserOffset),
 				nameof(BillOverviewModel.Running),
 				nameof(BillOverviewModel.Status)
 			];
@@ -315,6 +323,10 @@ public static class BillReportExport
 			[nameof(BillItemOverviewModel.LastModifiedPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(BillItemOverviewModel.LastModifiedLatitude)] = new() { DisplayName = "Modified Lat", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(BillItemOverviewModel.LastModifiedLongitude)] = new() { DisplayName = "Modified Long", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(BillItemOverviewModel.CreatedLocationOffset)] = new() { DisplayName = "Created Offset (Location)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(BillItemOverviewModel.CreatedUserOffset)] = new() { DisplayName = "Created Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(BillItemOverviewModel.LastModifiedLocationOffset)] = new() { DisplayName = "Modified Offset (Location)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(BillItemOverviewModel.LastModifiedUserOffset)] = new() { DisplayName = "Modified Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
 
 			[nameof(BillItemOverviewModel.Running)] = new() { DisplayName = "Running", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(BillItemOverviewModel.MasterStatus)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false },
@@ -417,6 +429,10 @@ public static class BillReportExport
 				nameof(BillItemOverviewModel.LastModifiedPlatform),
 				nameof(BillItemOverviewModel.LastModifiedLatitude),
 				nameof(BillItemOverviewModel.LastModifiedLongitude),
+				nameof(BillItemOverviewModel.CreatedLocationOffset),
+				nameof(BillItemOverviewModel.CreatedUserOffset),
+				nameof(BillItemOverviewModel.LastModifiedLocationOffset),
+				nameof(BillItemOverviewModel.LastModifiedUserOffset),
 
 				nameof(BillItemOverviewModel.Running),
 				nameof(BillItemOverviewModel.MasterStatus)

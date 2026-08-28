@@ -14,6 +14,7 @@ public class AuditTrailModel
 	public string? CreatedPlatform { get; set; }
 	public decimal? CreatedLatitude { get; set; }
 	public decimal? CreatedLongitude { get; set; }
+	public double? CreatedUserOffset { get; set; }
 }
 
 public enum AuditTrailActionTypes

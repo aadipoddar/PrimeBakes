@@ -8,6 +8,8 @@
     [COCO] BIT NOT NULL DEFAULT 0,
     [FOFO] BIT NOT NULL DEFAULT 0,
     [UseLocationRateOnSale] BIT NOT NULL DEFAULT 0,
+    [Latitude] DECIMAL(9,6) NULL,
+    [Longitude] DECIMAL(9,6) NULL,
     [Remarks] VARCHAR(MAX) NULL, 
     [Status] BIT NOT NULL DEFAULT 1, 
     CONSTRAINT [FK_Location_ToLedger] FOREIGN KEY ([LedgerId]) REFERENCES [Ledger]([Id])

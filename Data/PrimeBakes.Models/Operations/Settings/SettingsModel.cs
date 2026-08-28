@@ -78,6 +78,7 @@ public static class SettingsKeys
 	public static string ReportWarningDays => "ReportWarningDays";
 	public static string HeavyQuerySpanDays => "HeavyQuerySpanDays";
 	public static string HeavyQueryMaxLoadPercent => "HeavyQueryMaxLoadPercent";
+	public static string LocationRadiusMeters => "LocationRadiusMeters";
 
 	// Login Settings
 	public static string MaxLoginTimeHours => "MaxLoginTimeHours";

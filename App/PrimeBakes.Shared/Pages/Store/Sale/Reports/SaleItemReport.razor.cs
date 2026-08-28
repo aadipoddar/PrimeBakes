@@ -38,6 +38,7 @@ public partial class SaleItemReport : IAsyncDisposable
 	private bool _showFofo = true;
 	private bool _showSummary = false;
 	private bool _showDeleted = false;
+	private double _locationRadius = 1000;
 
 	private DateTime _fromDate = DateTime.Now.Date;
 	private DateTime _toDate = DateTime.Now.Date;
@@ -939,6 +940,9 @@ public partial class SaleItemReport : IAsyncDisposable
 	{
 		var timerSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.AutoRefreshReportTimer);
 		var refreshMinutes = int.TryParse(timerSetting?.Value, out var minutes) ? minutes : 30;
+
+		var radiusSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.LocationRadiusMeters);
+		_locationRadius = double.TryParse(radiusSetting?.Value, out var radius) ? radius : 1000;
 
 		_autoRefreshCts = new CancellationTokenSource();
 		_autoRefreshTimer = new PeriodicTimer(TimeSpan.FromMinutes(refreshMinutes));

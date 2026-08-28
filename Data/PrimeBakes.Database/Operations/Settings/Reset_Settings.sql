@@ -72,6 +72,7 @@ BEGIN
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'ReportWarningDays', N'30', N'Days threshold used to highlight due items in reports')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'HeavyQuerySpanDays', N'30', N'Date range in days beyond which a report counts as a heavy query')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'HeavyQueryMaxLoadPercent', N'50', N'Database load percentage above which heavy reports are refused')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'LocationRadiusMeters', N'1000', N'Distance in metres within which a transaction counts as done on site')
 
 	-- Login Settings
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'MaxLoginTimeHours', N'12', N'Hours after login before a user is signed out automatically')

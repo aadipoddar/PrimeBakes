@@ -199,12 +199,16 @@ else
 						<CustomGridColumn Field="@nameof(PurchaseOrderItemOverviewModel.CreatedPlatform)" HeaderText="Created Platform" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(PurchaseOrderItemOverviewModel.CreatedLatitude)" HeaderText="Created Lat" Format="N6" NumericColumn="true" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(PurchaseOrderItemOverviewModel.CreatedLongitude)" HeaderText="Created Long" Format="N6" NumericColumn="true" Visible="@(_showAllColumns && !_showSummary)" />
+
 						<CustomGridColumn Field="@nameof(PurchaseOrderItemOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(PurchaseOrderItemOverviewModel.LastModifiedAt)" HeaderText="Modified At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(PurchaseOrderItemOverviewModel.LastModifiedFormFactor)" HeaderText="Modified Form" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(PurchaseOrderItemOverviewModel.LastModifiedPlatform)" HeaderText="Modified Platform" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(PurchaseOrderItemOverviewModel.LastModifiedLatitude)" HeaderText="Modified Lat" Format="N6" NumericColumn="true" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(PurchaseOrderItemOverviewModel.LastModifiedLongitude)" HeaderText="Modified Long" Format="N6" NumericColumn="true" Visible="@(_showAllColumns && !_showSummary)" />
+
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemOverviewModel.CreatedUserOffset)" HeaderText="Created Offset (User)" Format="N0" RedAbove="_locationRadius" NumericColumn="true" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(PurchaseOrderItemOverviewModel.LastModifiedUserOffset)" HeaderText="Modified Offset (User)" Format="N0" RedAbove="_locationRadius" NumericColumn="true" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(PurchaseOrderItemOverviewModel.MasterStatus)" HeaderText="Status" Visible="@(_showDeleted && !_showSummary)" StatusColumn="true" />
 					</GridColumns>
 				</SfGrid>

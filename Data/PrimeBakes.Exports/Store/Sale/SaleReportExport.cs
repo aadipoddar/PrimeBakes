@@ -71,6 +71,10 @@ public static class SaleReportExport
 			[nameof(SaleOverviewModel.LastModifiedPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleOverviewModel.LastModifiedLatitude)] = new() { DisplayName = "Modified Lat", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(SaleOverviewModel.LastModifiedLongitude)] = new() { DisplayName = "Modified Long", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(SaleOverviewModel.CreatedLocationOffset)] = new() { DisplayName = "Created Offset (Location)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(SaleOverviewModel.CreatedUserOffset)] = new() { DisplayName = "Created Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(SaleOverviewModel.LastModifiedLocationOffset)] = new() { DisplayName = "Modified Offset (Location)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(SaleOverviewModel.LastModifiedUserOffset)] = new() { DisplayName = "Modified Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
 
 			[nameof(SaleOverviewModel.Status)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false },
 		};
@@ -145,6 +149,10 @@ public static class SaleReportExport
 				nameof(SaleOverviewModel.LastModifiedPlatform),
 				nameof(SaleOverviewModel.LastModifiedLatitude),
 				nameof(SaleOverviewModel.LastModifiedLongitude),
+				nameof(SaleOverviewModel.CreatedLocationOffset),
+				nameof(SaleOverviewModel.CreatedUserOffset),
+				nameof(SaleOverviewModel.LastModifiedLocationOffset),
+				nameof(SaleOverviewModel.LastModifiedUserOffset),
 				nameof(SaleOverviewModel.Status)
 			];
 
@@ -319,6 +327,10 @@ public static class SaleReportExport
 			[nameof(SaleItemOverviewModel.LastModifiedPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleItemOverviewModel.LastModifiedLatitude)] = new() { DisplayName = "Modified Lat", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(SaleItemOverviewModel.LastModifiedLongitude)] = new() { DisplayName = "Modified Long", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(SaleItemOverviewModel.CreatedLocationOffset)] = new() { DisplayName = "Created Offset (Location)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(SaleItemOverviewModel.CreatedUserOffset)] = new() { DisplayName = "Created Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(SaleItemOverviewModel.LastModifiedLocationOffset)] = new() { DisplayName = "Modified Offset (Location)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(SaleItemOverviewModel.LastModifiedUserOffset)] = new() { DisplayName = "Modified Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
 
 			[nameof(SaleItemOverviewModel.MasterStatus)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false },
 		};
@@ -420,6 +432,10 @@ public static class SaleReportExport
 				nameof(SaleItemOverviewModel.LastModifiedPlatform),
 				nameof(SaleItemOverviewModel.LastModifiedLatitude),
 				nameof(SaleItemOverviewModel.LastModifiedLongitude),
+				nameof(SaleItemOverviewModel.CreatedLocationOffset),
+				nameof(SaleItemOverviewModel.CreatedUserOffset),
+				nameof(SaleItemOverviewModel.LastModifiedLocationOffset),
+				nameof(SaleItemOverviewModel.LastModifiedUserOffset),
 
 				nameof(SaleItemOverviewModel.MasterStatus)
 			];

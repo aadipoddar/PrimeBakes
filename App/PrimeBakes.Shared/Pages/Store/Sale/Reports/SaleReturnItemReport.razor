@@ -258,18 +258,25 @@ else
 
 						<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.Remarks)" HeaderText="Remarks" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Transaction No" Visible="@(_showAllColumns && !_showSummary)" />
+
 						<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.CreatedByName)" HeaderText="Created By" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.CreatedAt)" HeaderText="Created At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.CreatedFormFactor)" HeaderText="Created Form" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.CreatedPlatform)" HeaderText="Created Platform" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.CreatedLatitude)" HeaderText="Created Lat" Format="N6" NumericColumn="true" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.CreatedLongitude)" HeaderText="Created Long" Format="N6" NumericColumn="true" Visible="@(_showAllColumns && !_showSummary)" />
+
 						<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.LastModifiedAt)" HeaderText="Modified At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.LastModifiedFormFactor)" HeaderText="Modified Form" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.LastModifiedPlatform)" HeaderText="Modified Platform" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.LastModifiedLatitude)" HeaderText="Modified Lat" Format="N6" NumericColumn="true" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.LastModifiedLongitude)" HeaderText="Modified Long" Format="N6" NumericColumn="true" Visible="@(_showAllColumns && !_showSummary)" />
+
+						<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.CreatedLocationOffset)" HeaderText="Created Offset (Location)" Format="N0" RedAbove="_locationRadius" NumericColumn="true" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.CreatedUserOffset)" HeaderText="Created Offset (User)" Format="N0" RedAbove="_locationRadius" NumericColumn="true" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.LastModifiedLocationOffset)" HeaderText="Modified Offset (Location)" Format="N0" RedAbove="_locationRadius" NumericColumn="true" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.LastModifiedUserOffset)" HeaderText="Modified Offset (User)" Format="N0" RedAbove="_locationRadius" NumericColumn="true" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.MasterStatus)" Visible="@(_showDeleted && !_showSummary)" StatusColumn="true" />
 					</GridColumns>
 				</SfGrid>

@@ -156,18 +156,24 @@ else
 						<CustomGridColumn Field="@nameof(KitchenProductionReturnOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
 
 						<CustomGridColumn Field="@nameof(KitchenProductionReturnOverviewModel.Remarks)" HeaderText="Remarks" Visible="@(_showAllColumns && !_showSummary)" />
+
 						<CustomGridColumn Field="@nameof(KitchenProductionReturnOverviewModel.CreatedByName)" HeaderText="Created By" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(KitchenProductionReturnOverviewModel.CreatedAt)" HeaderText="Created At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(KitchenProductionReturnOverviewModel.CreatedFormFactor)" HeaderText="Created Form" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(KitchenProductionReturnOverviewModel.CreatedPlatform)" HeaderText="Created Platform" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(KitchenProductionReturnOverviewModel.CreatedLatitude)" HeaderText="Created Lat" Format="N6" NumericColumn="true" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(KitchenProductionReturnOverviewModel.CreatedLongitude)" HeaderText="Created Long" Format="N6" NumericColumn="true" Visible="@(_showAllColumns && !_showSummary)" />
+
 						<CustomGridColumn Field="@nameof(KitchenProductionReturnOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(KitchenProductionReturnOverviewModel.LastModifiedAt)" HeaderText="Modified At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(KitchenProductionReturnOverviewModel.LastModifiedFormFactor)" HeaderText="Modified Form" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(KitchenProductionReturnOverviewModel.LastModifiedPlatform)" HeaderText="Modified Platform" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(KitchenProductionReturnOverviewModel.LastModifiedLatitude)" HeaderText="Modified Lat" Format="N6" NumericColumn="true" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(KitchenProductionReturnOverviewModel.LastModifiedLongitude)" HeaderText="Modified Long" Format="N6" NumericColumn="true" Visible="@(_showAllColumns && !_showSummary)" />
+
+						<CustomGridColumn Field="@nameof(KitchenProductionReturnOverviewModel.CreatedUserOffset)" HeaderText="Created Offset (User)" Format="N0" RedAbove="_locationRadius" NumericColumn="true" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(KitchenProductionReturnOverviewModel.LastModifiedUserOffset)" HeaderText="Modified Offset (User)" Format="N0" RedAbove="_locationRadius" NumericColumn="true" Visible="@(_showAllColumns && !_showSummary)" />
+
 						<CustomGridColumn Field="@nameof(KitchenProductionReturnOverviewModel.Status)" Visible="@(_showDeleted && !_showSummary)" StatusColumn="true" />
 					</GridColumns>
 				</SfGrid>

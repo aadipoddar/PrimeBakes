@@ -330,6 +330,16 @@ else
 												Max="100"
 												Required="false" />
 						</div>
+						<div class="form-field">
+							<CustomNumericField T="int"
+												@bind-Value="_locationRadiusMeters"
+												Label="On Site Radius (Metres)"
+												Placeholder="e.g., 1000"
+												Format="N0"
+												Min="1"
+												Max="100000"
+												Required="false" />
+						</div>
 					</div>
 				</div>
 			</div>

@@ -10,6 +10,8 @@ public class LocationModel
 	public bool COCO { get; set; }
 	public bool FOFO { get; set; }
 	public bool UseLocationRateOnSale { get; set; }
+	public decimal? Latitude { get; set; }
+	public decimal? Longitude { get; set; }
 	public string? Remarks { get; set; }
 	public bool Status { get; set; }
 }

@@ -109,6 +109,10 @@ public class BillOverviewModel
 	public string? LastModifiedPlatform { get; set; }
 	public decimal? LastModifiedLatitude { get; set; }
 	public decimal? LastModifiedLongitude { get; set; }
+	public double? CreatedLocationOffset { get; set; }
+	public double? CreatedUserOffset { get; set; }
+	public double? LastModifiedLocationOffset { get; set; }
+	public double? LastModifiedUserOffset { get; set; }
 
 	public bool Running { get; set; }
 	public bool Status { get; set; }

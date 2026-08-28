@@ -62,6 +62,8 @@ public static class PurchaseReportExport
 			[nameof(PurchaseOverviewModel.LastModifiedPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseOverviewModel.LastModifiedLatitude)] = new() { DisplayName = "Modified Lat", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(PurchaseOverviewModel.LastModifiedLongitude)] = new() { DisplayName = "Modified Long", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(PurchaseOverviewModel.CreatedUserOffset)] = new() { DisplayName = "Created Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(PurchaseOverviewModel.LastModifiedUserOffset)] = new() { DisplayName = "Modified Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
 
 			[nameof(PurchaseOverviewModel.Status)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false },
 		};
@@ -125,6 +127,8 @@ public static class PurchaseReportExport
 				nameof(PurchaseOverviewModel.LastModifiedPlatform),
 				nameof(PurchaseOverviewModel.LastModifiedLatitude),
 				nameof(PurchaseOverviewModel.LastModifiedLongitude),
+				nameof(PurchaseOverviewModel.CreatedUserOffset),
+				nameof(PurchaseOverviewModel.LastModifiedUserOffset),
 				nameof(PurchaseOverviewModel.Status)
 			];
 
@@ -283,6 +287,8 @@ public static class PurchaseReportExport
 			[nameof(PurchaseItemOverviewModel.LastModifiedPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseItemOverviewModel.LastModifiedLatitude)] = new() { DisplayName = "Modified Lat", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(PurchaseItemOverviewModel.LastModifiedLongitude)] = new() { DisplayName = "Modified Long", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(PurchaseItemOverviewModel.CreatedUserOffset)] = new() { DisplayName = "Created Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(PurchaseItemOverviewModel.LastModifiedUserOffset)] = new() { DisplayName = "Modified Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
 
 			[nameof(PurchaseItemOverviewModel.MasterStatus)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false },
 		};
@@ -376,6 +382,8 @@ public static class PurchaseReportExport
 				nameof(PurchaseItemOverviewModel.LastModifiedPlatform),
 				nameof(PurchaseItemOverviewModel.LastModifiedLatitude),
 				nameof(PurchaseItemOverviewModel.LastModifiedLongitude),
+				nameof(PurchaseItemOverviewModel.CreatedUserOffset),
+				nameof(PurchaseItemOverviewModel.LastModifiedUserOffset),
 
 				nameof(PurchaseItemOverviewModel.MasterStatus)
 			];

@@ -48,6 +48,8 @@ public static class PayrollReportExport
 			[nameof(PayrollOverviewModel.LastModifiedPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PayrollOverviewModel.LastModifiedLatitude)] = new() { DisplayName = "Modified Lat", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(PayrollOverviewModel.LastModifiedLongitude)] = new() { DisplayName = "Modified Long", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(PayrollOverviewModel.CreatedUserOffset)] = new() { DisplayName = "Created Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(PayrollOverviewModel.LastModifiedUserOffset)] = new() { DisplayName = "Modified Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(PayrollOverviewModel.Status)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false },
 		};
 
@@ -99,6 +101,8 @@ public static class PayrollReportExport
 				nameof(PayrollOverviewModel.LastModifiedPlatform),
 				nameof(PayrollOverviewModel.LastModifiedLatitude),
 				nameof(PayrollOverviewModel.LastModifiedLongitude),
+				nameof(PayrollOverviewModel.CreatedUserOffset),
+				nameof(PayrollOverviewModel.LastModifiedUserOffset),
 				nameof(PayrollOverviewModel.Status)
 			];
 

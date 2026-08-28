@@ -26,6 +26,7 @@ public partial class AuditTrailReport : IAsyncDisposable
 	private bool _isLoading = true;
 	private bool _isProcessing = false;
 	private bool _showAllColumns = false;
+	private double _locationRadius = 1000;
 
 	private DateTime _fromDate = DateTime.Now.Date;
 	private DateTime _toDate = DateTime.Now.Date;
@@ -87,7 +88,7 @@ public partial class AuditTrailReport : IAsyncDisposable
 			await _toastNotification.ShowAsync("Loading", "Fetching audit trail records...", ToastType.Info);
 
 			_auditTrails = await CommonData.LoadTableDataByDate<AuditTrailModel>(
-				OperationNames.AuditTrail,
+				OperationNames.AuditTrailOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
@@ -298,6 +299,9 @@ public partial class AuditTrailReport : IAsyncDisposable
 	{
 		var timerSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.AutoRefreshReportTimer);
 		var refreshMinutes = int.TryParse(timerSetting?.Value, out var minutes) ? minutes : 30;
+
+		var radiusSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.LocationRadiusMeters);
+		_locationRadius = double.TryParse(radiusSetting?.Value, out var radius) ? radius : 1000;
 
 		_autoRefreshCts = new CancellationTokenSource();
 		_autoRefreshTimer = new PeriodicTimer(TimeSpan.FromMinutes(refreshMinutes));

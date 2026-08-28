@@ -61,6 +61,8 @@ public static class PurchaseReturnReportExport
 			[nameof(PurchaseReturnOverviewModel.LastModifiedPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseReturnOverviewModel.LastModifiedLatitude)] = new() { DisplayName = "Modified Lat", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(PurchaseReturnOverviewModel.LastModifiedLongitude)] = new() { DisplayName = "Modified Long", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(PurchaseReturnOverviewModel.CreatedUserOffset)] = new() { DisplayName = "Created Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(PurchaseReturnOverviewModel.LastModifiedUserOffset)] = new() { DisplayName = "Modified Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
 
 			[nameof(PurchaseReturnOverviewModel.Status)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false },
 		};
@@ -123,6 +125,8 @@ public static class PurchaseReturnReportExport
 				nameof(PurchaseReturnOverviewModel.LastModifiedPlatform),
 				nameof(PurchaseReturnOverviewModel.LastModifiedLatitude),
 				nameof(PurchaseReturnOverviewModel.LastModifiedLongitude),
+				nameof(PurchaseReturnOverviewModel.CreatedUserOffset),
+				nameof(PurchaseReturnOverviewModel.LastModifiedUserOffset),
 				nameof(PurchaseReturnOverviewModel.Status)
 			];
 
@@ -280,6 +284,8 @@ public static class PurchaseReturnReportExport
 			[nameof(PurchaseReturnItemOverviewModel.LastModifiedPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(PurchaseReturnItemOverviewModel.LastModifiedLatitude)] = new() { DisplayName = "Modified Lat", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(PurchaseReturnItemOverviewModel.LastModifiedLongitude)] = new() { DisplayName = "Modified Long", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(PurchaseReturnItemOverviewModel.CreatedUserOffset)] = new() { DisplayName = "Created Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(PurchaseReturnItemOverviewModel.LastModifiedUserOffset)] = new() { DisplayName = "Modified Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
 
 			[nameof(PurchaseReturnItemOverviewModel.MasterStatus)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false },
 		};
@@ -372,6 +378,8 @@ public static class PurchaseReturnReportExport
 				nameof(PurchaseReturnItemOverviewModel.LastModifiedPlatform),
 				nameof(PurchaseReturnItemOverviewModel.LastModifiedLatitude),
 				nameof(PurchaseReturnItemOverviewModel.LastModifiedLongitude),
+				nameof(PurchaseReturnItemOverviewModel.CreatedUserOffset),
+				nameof(PurchaseReturnItemOverviewModel.LastModifiedUserOffset),
 
 				nameof(PurchaseReturnItemOverviewModel.MasterStatus)
 			];

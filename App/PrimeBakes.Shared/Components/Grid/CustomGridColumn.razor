@@ -33,6 +33,12 @@ else if (NumericColumn || NegativePositiveColumn || TotalColumn || CustomColor i
 						@(columnValue?.ToString(Format is null ? "N2" : Format) ?? "-")
 					</span>
 				}
+				else if (RedAbove is not null)
+				{
+					<span class="@(columnValue is null ? "" : columnValue > (Decimal)RedAbove ? "grid-debit" : "grid-credit")">
+						@(columnValue?.ToString(Format is null ? "N2" : Format) ?? "-")
+					</span>
+				}
 				else if (CustomColor is not null)
 				{
 					<span class="@CustomColor">

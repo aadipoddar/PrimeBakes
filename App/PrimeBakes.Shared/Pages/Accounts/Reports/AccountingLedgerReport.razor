@@ -188,18 +188,23 @@ else
 						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TotalAmount)" HeaderText="Amount" Visible="_showAllColumns" TotalColumn="true" />
 
 						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.Remarks)" HeaderText="Remarks" Visible="_showAllColumns" />
+
 						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CreatedByName)" HeaderText="Created By" Visible="_showAllColumns" />
 						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CreatedAt)" HeaderText="Created At" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="_showAllColumns" />
 						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CreatedFormFactor)" HeaderText="Created Form" Visible="_showAllColumns" />
 						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CreatedPlatform)" HeaderText="Created Platform" Visible="_showAllColumns" />
 						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CreatedLatitude)" HeaderText="Created Lat" Format="N6" NumericColumn="true" Visible="_showAllColumns" />
 						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CreatedLongitude)" HeaderText="Created Long" Format="N6" NumericColumn="true" Visible="_showAllColumns" />
+
 						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Visible="_showAllColumns" />
 						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LastModifiedAt)" HeaderText="Modified At" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="_showAllColumns" />
 						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LastModifiedFormFactor)" HeaderText="Modified Form" Visible="_showAllColumns" />
 						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LastModifiedPlatform)" HeaderText="Modified Platform" Visible="_showAllColumns" />
 						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LastModifiedLatitude)" HeaderText="Modified Lat" Format="N6" NumericColumn="true" Visible="_showAllColumns" />
 						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LastModifiedLongitude)" HeaderText="Modified Long" Format="N6" NumericColumn="true" Visible="_showAllColumns" />
+
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CreatedUserOffset)" HeaderText="Created Offset (User)" Format="N0" RedAbove="_locationRadius" NumericColumn="true" Visible="_showAllColumns" />
+						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LastModifiedUserOffset)" HeaderText="Modified Offset (User)" Format="N0" RedAbove="_locationRadius" NumericColumn="true" Visible="_showAllColumns" />
 						<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.MasterStatus)" Visible="_showDeleted" StatusColumn="true" />
 					</GridColumns>
 				</SfGrid>

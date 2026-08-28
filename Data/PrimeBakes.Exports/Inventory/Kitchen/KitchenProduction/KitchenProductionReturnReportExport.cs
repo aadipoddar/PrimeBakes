@@ -44,6 +44,8 @@ public static class KitchenProductionReturnReportExport
 			[nameof(KitchenProductionReturnOverviewModel.LastModifiedPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(KitchenProductionReturnOverviewModel.LastModifiedLatitude)] = new() { DisplayName = "Modified Lat", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(KitchenProductionReturnOverviewModel.LastModifiedLongitude)] = new() { DisplayName = "Modified Long", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(KitchenProductionReturnOverviewModel.CreatedUserOffset)] = new() { DisplayName = "Created Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(KitchenProductionReturnOverviewModel.LastModifiedUserOffset)] = new() { DisplayName = "Modified Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(KitchenProductionReturnOverviewModel.Status)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false },
 		};
 
@@ -88,6 +90,8 @@ public static class KitchenProductionReturnReportExport
 				nameof(KitchenProductionReturnOverviewModel.LastModifiedPlatform),
 				nameof(KitchenProductionReturnOverviewModel.LastModifiedLatitude),
 				nameof(KitchenProductionReturnOverviewModel.LastModifiedLongitude),
+				nameof(KitchenProductionReturnOverviewModel.CreatedUserOffset),
+				nameof(KitchenProductionReturnOverviewModel.LastModifiedUserOffset),
 				nameof(KitchenProductionReturnOverviewModel.Status)
 			];
 
@@ -197,6 +201,8 @@ public static class KitchenProductionReturnReportExport
 			[nameof(KitchenProductionReturnItemOverviewModel.LastModifiedPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(KitchenProductionReturnItemOverviewModel.LastModifiedLatitude)] = new() { DisplayName = "Modified Lat", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(KitchenProductionReturnItemOverviewModel.LastModifiedLongitude)] = new() { DisplayName = "Modified Long", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(KitchenProductionReturnItemOverviewModel.CreatedUserOffset)] = new() { DisplayName = "Created Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(KitchenProductionReturnItemOverviewModel.LastModifiedUserOffset)] = new() { DisplayName = "Modified Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(KitchenProductionReturnItemOverviewModel.MasterStatus)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false },
 		};
 
@@ -244,6 +250,8 @@ public static class KitchenProductionReturnReportExport
 				nameof(KitchenProductionReturnItemOverviewModel.LastModifiedPlatform),
 				nameof(KitchenProductionReturnItemOverviewModel.LastModifiedLatitude),
 				nameof(KitchenProductionReturnItemOverviewModel.LastModifiedLongitude),
+				nameof(KitchenProductionReturnItemOverviewModel.CreatedUserOffset),
+				nameof(KitchenProductionReturnItemOverviewModel.LastModifiedUserOffset),
 				nameof(KitchenProductionReturnItemOverviewModel.MasterStatus)
 			];
 

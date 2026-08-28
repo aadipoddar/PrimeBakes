@@ -107,6 +107,7 @@ public partial class SettingsPage
 	private int _reportWarningDays = 30;
 	private int _heavyQuerySpanDays = 30;
 	private int _heavyQueryMaxLoadPercent = 50;
+	private int _locationRadiusMeters = 1000;
 
 	// Login Settings
 	private int _maxLoginTimeHours = 12;
@@ -228,6 +229,7 @@ public partial class SettingsPage
 		_reportWarningDays = Int(SettingsKeys.ReportWarningDays, 30);
 		_heavyQuerySpanDays = Int(SettingsKeys.HeavyQuerySpanDays, 30);
 		_heavyQueryMaxLoadPercent = Int(SettingsKeys.HeavyQueryMaxLoadPercent, 50);
+		_locationRadiusMeters = Int(SettingsKeys.LocationRadiusMeters, 1000);
 
 		// Login Settings
 		_maxLoginTimeHours = Int(SettingsKeys.MaxLoginTimeHours, 12);
@@ -526,6 +528,7 @@ public partial class SettingsPage
 			await UpdateSetting(SettingsKeys.ReportWarningDays, _reportWarningDays.ToString(), Desc(SettingsKeys.ReportWarningDays));
 			await UpdateSetting(SettingsKeys.HeavyQuerySpanDays, _heavyQuerySpanDays.ToString(), Desc(SettingsKeys.HeavyQuerySpanDays));
 			await UpdateSetting(SettingsKeys.HeavyQueryMaxLoadPercent, _heavyQueryMaxLoadPercent.ToString(), Desc(SettingsKeys.HeavyQueryMaxLoadPercent));
+			await UpdateSetting(SettingsKeys.LocationRadiusMeters, _locationRadiusMeters.ToString(), Desc(SettingsKeys.LocationRadiusMeters));
 
 			// Login Settings
 			await UpdateSetting(SettingsKeys.MaxLoginTimeHours, _maxLoginTimeHours.ToString(), Desc(SettingsKeys.MaxLoginTimeHours));

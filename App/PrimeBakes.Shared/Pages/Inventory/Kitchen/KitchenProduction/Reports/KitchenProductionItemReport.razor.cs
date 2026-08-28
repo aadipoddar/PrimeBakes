@@ -29,6 +29,7 @@ public partial class KitchenProductionItemReport : IAsyncDisposable
 	private bool _showAllColumns = false;
 	private bool _showSummary = false;
 	private bool _showDeleted = false;
+	private double _locationRadius = 1000;
 	private bool _showTransactionReturns = false;
 
 	private DateTime _fromDate = DateTime.Now.Date;
@@ -524,6 +525,9 @@ public partial class KitchenProductionItemReport : IAsyncDisposable
 	{
 		var timerSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.AutoRefreshReportTimer);
 		var refreshMinutes = int.TryParse(timerSetting?.Value, out var minutes) ? minutes : 30;
+
+		var radiusSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.LocationRadiusMeters);
+		_locationRadius = double.TryParse(radiusSetting?.Value, out var radius) ? radius : 1000;
 
 		_autoRefreshCts = new CancellationTokenSource();
 		_autoRefreshTimer = new PeriodicTimer(TimeSpan.FromMinutes(refreshMinutes));

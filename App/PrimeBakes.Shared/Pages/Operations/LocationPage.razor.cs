@@ -21,6 +21,7 @@ public partial class LocationPage
 	private LocationModel _location = new();
 	private LocationModel _copyLocation;
 	private LedgerModel _selectedLedger;
+	private PlaceModel _selectedPlace;
 
 	private List<LocationModel> _locations = [];
 	private List<LedgerModel> _ledgers = [];
@@ -28,7 +29,8 @@ public partial class LocationPage
 	[
 		new() { Text = "Edit (Insert)", Id = "EditSelectedItem", IconCss = "e-icons e-edit", Target = ".e-content" },
 		new() { Text = "Delete / Recover (Del)", Id = "DeleteRecoverSelectedItem", IconCss = "e-icons e-trash", Target = ".e-content" },
-		new() { Text = "Menu QR Code", Id = "MenuQRCode", IconCss = "e-icons e-image", Target = ".e-content" }
+		new() { Text = "Menu QR Code", Id = "MenuQRCode", IconCss = "e-icons e-image", Target = ".e-content" },
+		new() { Text = "Open in Maps", Id = "OpenInMaps", IconCss = "e-icons e-location", Target = ".e-content" }
 	];
 
 	private SfGrid<LocationModel> _sfGrid;
@@ -70,6 +72,18 @@ public partial class LocationPage
 		StateHasChanged();
 
 		if (_firstFocus is not null) await _firstFocus.FocusAsync();
+	}
+	#endregion
+
+	#region Changed Events
+	private static async Task<IEnumerable<PlaceModel>> SearchPlacesAsync(string searchText) =>
+		await GoogleMapsData.SearchPlaces(searchText);
+
+	private void OnPlaceSelected(PlaceModel place)
+	{
+		_selectedPlace = place;
+		_location.Latitude = place?.Latitude;
+		_location.Longitude = place?.Longitude;
 	}
 	#endregion
 
@@ -173,6 +187,12 @@ public partial class LocationPage
 			() => DeleteRecoverTransaction(record.Id, !record.Status));
 	}
 
+	private async Task OpenSelectedLocationInMaps()
+	{
+		var location = _sfGrid?.SelectedRecords?.FirstOrDefault();
+		await LocationService.OpenMapAsync(location?.Latitude, location?.Longitude);
+	}
+
 	private async Task ShowConfirmation(string title, string message, Func<Task> action)
 	{
 		_confirmTitle = title;
@@ -266,6 +286,7 @@ public partial class LocationPage
 			case "EditSelectedItem": await EditSelectedItem(); break;
 			case "DeleteRecoverSelectedItem": await DeleteRecoverSelectedItem(); break;
 			case "MenuQRCode": await ExportMenuQRCode(); break;
+			case "OpenInMaps": await OpenSelectedLocationInMaps(); break;
 		}
 	}
 

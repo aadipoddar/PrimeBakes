@@ -43,6 +43,10 @@ public static class OrderReportExport
 			[nameof(OrderOverviewModel.LastModifiedPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(OrderOverviewModel.LastModifiedLatitude)] = new() { DisplayName = "Modified Lat", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(OrderOverviewModel.LastModifiedLongitude)] = new() { DisplayName = "Modified Long", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(OrderOverviewModel.CreatedLocationOffset)] = new() { DisplayName = "Created Offset (Location)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(OrderOverviewModel.CreatedUserOffset)] = new() { DisplayName = "Created Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(OrderOverviewModel.LastModifiedLocationOffset)] = new() { DisplayName = "Modified Offset (Location)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(OrderOverviewModel.LastModifiedUserOffset)] = new() { DisplayName = "Modified Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(OrderOverviewModel.TotalItems)] = new() { DisplayName = "Items", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = true },
 			[nameof(OrderOverviewModel.TotalQuantity)] = new() { DisplayName = "Qty", Format = "#,##0.00", Alignment = CellAlignment.Right, IncludeInTotal = true },
 			[nameof(OrderOverviewModel.Status)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false }
@@ -83,6 +87,10 @@ public static class OrderReportExport
 				nameof(OrderOverviewModel.LastModifiedPlatform),
 				nameof(OrderOverviewModel.LastModifiedLatitude),
 				nameof(OrderOverviewModel.LastModifiedLongitude),
+				nameof(OrderOverviewModel.CreatedLocationOffset),
+				nameof(OrderOverviewModel.CreatedUserOffset),
+				nameof(OrderOverviewModel.LastModifiedLocationOffset),
+				nameof(OrderOverviewModel.LastModifiedUserOffset),
 				nameof(OrderOverviewModel.Status)
 			];
 
@@ -201,6 +209,10 @@ public static class OrderReportExport
 			[nameof(OrderItemOverviewModel.LastModifiedPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(OrderItemOverviewModel.LastModifiedLatitude)] = new() { DisplayName = "Modified Lat", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(OrderItemOverviewModel.LastModifiedLongitude)] = new() { DisplayName = "Modified Long", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(OrderItemOverviewModel.CreatedLocationOffset)] = new() { DisplayName = "Created Offset (Location)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(OrderItemOverviewModel.CreatedUserOffset)] = new() { DisplayName = "Created Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(OrderItemOverviewModel.LastModifiedLocationOffset)] = new() { DisplayName = "Modified Offset (Location)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(OrderItemOverviewModel.LastModifiedUserOffset)] = new() { DisplayName = "Modified Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
 
 			[nameof(OrderItemOverviewModel.MasterStatus)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false }
 		};
@@ -247,6 +259,10 @@ public static class OrderReportExport
 				nameof(OrderItemOverviewModel.LastModifiedPlatform),
 				nameof(OrderItemOverviewModel.LastModifiedLatitude),
 				nameof(OrderItemOverviewModel.LastModifiedLongitude),
+				nameof(OrderItemOverviewModel.CreatedLocationOffset),
+				nameof(OrderItemOverviewModel.CreatedUserOffset),
+				nameof(OrderItemOverviewModel.LastModifiedLocationOffset),
+				nameof(OrderItemOverviewModel.LastModifiedUserOffset),
 				nameof(OrderItemOverviewModel.MasterStatus)
 			];
 

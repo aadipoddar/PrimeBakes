@@ -36,6 +36,8 @@ public static class FinancialAccountingReportExport
 			[nameof(FinancialAccountingOverviewModel.LastModifiedPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(FinancialAccountingOverviewModel.LastModifiedLatitude)] = new() { DisplayName = "Modified Lat", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(FinancialAccountingOverviewModel.LastModifiedLongitude)] = new() { DisplayName = "Modified Long", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(FinancialAccountingOverviewModel.CreatedUserOffset)] = new() { DisplayName = "Created Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(FinancialAccountingOverviewModel.LastModifiedUserOffset)] = new() { DisplayName = "Modified Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(FinancialAccountingOverviewModel.Status)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(FinancialAccountingOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(FinancialAccountingOverviewModel.CreatedAt)] = new() { DisplayName = "Created At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
@@ -77,6 +79,8 @@ public static class FinancialAccountingReportExport
 				nameof(FinancialAccountingOverviewModel.LastModifiedPlatform),
 				nameof(FinancialAccountingOverviewModel.LastModifiedLatitude),
 				nameof(FinancialAccountingOverviewModel.LastModifiedLongitude),
+				nameof(FinancialAccountingOverviewModel.CreatedUserOffset),
+				nameof(FinancialAccountingOverviewModel.LastModifiedUserOffset),
 				nameof(FinancialAccountingOverviewModel.Status)
 			];
 
@@ -189,6 +193,8 @@ public static class FinancialAccountingReportExport
 			[nameof(FinancialAccountingLedgerOverviewModel.LastModifiedPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(FinancialAccountingLedgerOverviewModel.LastModifiedLatitude)] = new() { DisplayName = "Modified Lat", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(FinancialAccountingLedgerOverviewModel.LastModifiedLongitude)] = new() { DisplayName = "Modified Long", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(FinancialAccountingLedgerOverviewModel.CreatedUserOffset)] = new() { DisplayName = "Created Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(FinancialAccountingLedgerOverviewModel.LastModifiedUserOffset)] = new() { DisplayName = "Modified Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(FinancialAccountingLedgerOverviewModel.MasterStatus)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(FinancialAccountingLedgerOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(FinancialAccountingLedgerOverviewModel.CreatedAt)] = new() { DisplayName = "Created At", Format = "dd-MMM-yyyy hh:mm", Alignment = CellAlignment.Center, IncludeInTotal = false },
@@ -242,6 +248,8 @@ public static class FinancialAccountingReportExport
 				nameof(FinancialAccountingLedgerOverviewModel.LastModifiedPlatform),
 				nameof(FinancialAccountingLedgerOverviewModel.LastModifiedLatitude),
 				nameof(FinancialAccountingLedgerOverviewModel.LastModifiedLongitude),
+				nameof(FinancialAccountingLedgerOverviewModel.CreatedUserOffset),
+				nameof(FinancialAccountingLedgerOverviewModel.LastModifiedUserOffset),
 				nameof(FinancialAccountingLedgerOverviewModel.MasterStatus)
 			];
 

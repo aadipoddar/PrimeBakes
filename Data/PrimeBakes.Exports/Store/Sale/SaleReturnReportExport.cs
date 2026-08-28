@@ -69,6 +69,10 @@ public static class SaleReturnReportExport
 			[nameof(SaleReturnOverviewModel.LastModifiedPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnOverviewModel.LastModifiedLatitude)] = new() { DisplayName = "Modified Lat", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(SaleReturnOverviewModel.LastModifiedLongitude)] = new() { DisplayName = "Modified Long", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(SaleReturnOverviewModel.CreatedLocationOffset)] = new() { DisplayName = "Created Offset (Location)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(SaleReturnOverviewModel.CreatedUserOffset)] = new() { DisplayName = "Created Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(SaleReturnOverviewModel.LastModifiedLocationOffset)] = new() { DisplayName = "Modified Offset (Location)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(SaleReturnOverviewModel.LastModifiedUserOffset)] = new() { DisplayName = "Modified Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
 
 			[nameof(SaleReturnOverviewModel.Status)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false },
 		};
@@ -141,6 +145,10 @@ public static class SaleReturnReportExport
 				nameof(SaleReturnOverviewModel.LastModifiedPlatform),
 				nameof(SaleReturnOverviewModel.LastModifiedLatitude),
 				nameof(SaleReturnOverviewModel.LastModifiedLongitude),
+				nameof(SaleReturnOverviewModel.CreatedLocationOffset),
+				nameof(SaleReturnOverviewModel.CreatedUserOffset),
+				nameof(SaleReturnOverviewModel.LastModifiedLocationOffset),
+				nameof(SaleReturnOverviewModel.LastModifiedUserOffset),
 				nameof(SaleReturnOverviewModel.Status)
 			];
 
@@ -309,6 +317,10 @@ public static class SaleReturnReportExport
 			[nameof(SaleReturnItemOverviewModel.LastModifiedPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnItemOverviewModel.LastModifiedLatitude)] = new() { DisplayName = "Modified Lat", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(SaleReturnItemOverviewModel.LastModifiedLongitude)] = new() { DisplayName = "Modified Long", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(SaleReturnItemOverviewModel.CreatedLocationOffset)] = new() { DisplayName = "Created Offset (Location)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(SaleReturnItemOverviewModel.CreatedUserOffset)] = new() { DisplayName = "Created Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(SaleReturnItemOverviewModel.LastModifiedLocationOffset)] = new() { DisplayName = "Modified Offset (Location)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(SaleReturnItemOverviewModel.LastModifiedUserOffset)] = new() { DisplayName = "Modified Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
 
 			[nameof(SaleReturnItemOverviewModel.MasterStatus)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false },
 		};
@@ -405,6 +417,10 @@ public static class SaleReturnReportExport
 				nameof(SaleReturnItemOverviewModel.LastModifiedPlatform),
 				nameof(SaleReturnItemOverviewModel.LastModifiedLatitude),
 				nameof(SaleReturnItemOverviewModel.LastModifiedLongitude),
+				nameof(SaleReturnItemOverviewModel.CreatedLocationOffset),
+				nameof(SaleReturnItemOverviewModel.CreatedUserOffset),
+				nameof(SaleReturnItemOverviewModel.LastModifiedLocationOffset),
+				nameof(SaleReturnItemOverviewModel.LastModifiedUserOffset),
 
 				nameof(SaleReturnItemOverviewModel.MasterStatus)
 			];

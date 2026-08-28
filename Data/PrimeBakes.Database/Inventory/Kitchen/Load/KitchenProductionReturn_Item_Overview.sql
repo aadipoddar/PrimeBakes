@@ -46,6 +46,9 @@ SELECT
 	[kpr].[LastModifiedLatitude],
 	[kpr].[LastModifiedLongitude],
 
+	CASE WHEN [kpr].[CreatedLatitude] IS NOT NULL AND [ul].[Latitude] IS NOT NULL THEN geography::Point([kpr].[CreatedLatitude], [kpr].[CreatedLongitude], 4326).STDistance(geography::Point([ul].[Latitude], [ul].[Longitude], 4326)) END AS CreatedUserOffset,
+	CASE WHEN [kpr].[LastModifiedLatitude] IS NOT NULL AND [lml].[Latitude] IS NOT NULL THEN geography::Point([kpr].[LastModifiedLatitude], [kpr].[LastModifiedLongitude], 4326).STDistance(geography::Point([lml].[Latitude], [lml].[Longitude], 4326)) END AS LastModifiedUserOffset,
+
     [kpr].[Status] AS MasterStatus
 
 FROM
@@ -66,6 +69,10 @@ INNER JOIN
     [dbo].[User] u ON kpr.CreatedBy = u.Id
 LEFT JOIN
     [dbo].[User] lm ON kpr.LastModifiedBy = lm.Id
+LEFT JOIN
+    [dbo].[Location] ul ON u.LocationId = ul.Id
+LEFT JOIN
+    [dbo].[Location] lml ON lm.LocationId = lml.Id
 
 WHERE
     [kprd].[Status] = 1;

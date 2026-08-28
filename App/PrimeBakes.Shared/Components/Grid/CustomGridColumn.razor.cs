@@ -21,4 +21,5 @@ public partial class CustomGridColumn
 	[Parameter] public bool NumericColumn { get; set; } = false;
 	[Parameter] public bool NegativePositiveColumn { get; set; } = false;
 	[Parameter] public bool TotalColumn { get; set; } = false;
+	[Parameter] public double? RedAbove { get; set; }
 }

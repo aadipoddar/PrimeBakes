@@ -68,6 +68,10 @@ public static class StockTransferReportExport
 			[nameof(StockTransferOverviewModel.LastModifiedPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(StockTransferOverviewModel.LastModifiedLatitude)] = new() { DisplayName = "Modified Lat", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(StockTransferOverviewModel.LastModifiedLongitude)] = new() { DisplayName = "Modified Long", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(StockTransferOverviewModel.CreatedLocationOffset)] = new() { DisplayName = "Created Offset (Location)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(StockTransferOverviewModel.CreatedUserOffset)] = new() { DisplayName = "Created Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(StockTransferOverviewModel.LastModifiedLocationOffset)] = new() { DisplayName = "Modified Offset (Location)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(StockTransferOverviewModel.LastModifiedUserOffset)] = new() { DisplayName = "Modified Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
 
 			[nameof(StockTransferOverviewModel.Status)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false },
 		};
@@ -139,6 +143,10 @@ public static class StockTransferReportExport
 				nameof(StockTransferOverviewModel.LastModifiedPlatform),
 				nameof(StockTransferOverviewModel.LastModifiedLatitude),
 				nameof(StockTransferOverviewModel.LastModifiedLongitude),
+				nameof(StockTransferOverviewModel.CreatedLocationOffset),
+				nameof(StockTransferOverviewModel.CreatedUserOffset),
+				nameof(StockTransferOverviewModel.LastModifiedLocationOffset),
+				nameof(StockTransferOverviewModel.LastModifiedUserOffset),
 				nameof(StockTransferOverviewModel.Status)
 			];
 
@@ -296,6 +304,10 @@ public static class StockTransferReportExport
 			[nameof(StockTransferItemOverviewModel.LastModifiedPlatform)] = new() { DisplayName = "Modified Platform", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(StockTransferItemOverviewModel.LastModifiedLatitude)] = new() { DisplayName = "Modified Lat", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
 			[nameof(StockTransferItemOverviewModel.LastModifiedLongitude)] = new() { DisplayName = "Modified Long", Format = "0.000000", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(StockTransferItemOverviewModel.CreatedLocationOffset)] = new() { DisplayName = "Created Offset (Location)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(StockTransferItemOverviewModel.CreatedUserOffset)] = new() { DisplayName = "Created Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(StockTransferItemOverviewModel.LastModifiedLocationOffset)] = new() { DisplayName = "Modified Offset (Location)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
+			[nameof(StockTransferItemOverviewModel.LastModifiedUserOffset)] = new() { DisplayName = "Modified Offset (User)", Format = "#,##0", Alignment = CellAlignment.Right, IncludeInTotal = false },
 
 			[nameof(StockTransferItemOverviewModel.MasterStatus)] = new() { DisplayName = "Status", Alignment = CellAlignment.Center, IncludeInTotal = false },
 		};
@@ -391,6 +403,10 @@ public static class StockTransferReportExport
 				nameof(StockTransferItemOverviewModel.LastModifiedPlatform),
 				nameof(StockTransferItemOverviewModel.LastModifiedLatitude),
 				nameof(StockTransferItemOverviewModel.LastModifiedLongitude),
+				nameof(StockTransferItemOverviewModel.CreatedLocationOffset),
+				nameof(StockTransferItemOverviewModel.CreatedUserOffset),
+				nameof(StockTransferItemOverviewModel.LastModifiedLocationOffset),
+				nameof(StockTransferItemOverviewModel.LastModifiedUserOffset),
 
 				nameof(StockTransferItemOverviewModel.MasterStatus)
 			];

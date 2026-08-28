@@ -37,6 +37,7 @@ else
 					<MudBlazor.MudMenuItem Label="Delete / Recover (Del)" OnClick="DeleteRecoverSelectedItem" />
 					<MudBlazor.MudDivider />
 					<MudBlazor.MudMenuItem Label="Menu QR Code" OnClick="ExportMenuQRCode" />
+					<MudBlazor.MudMenuItem Label="Open in Maps" OnClick="OpenSelectedLocationInMaps" />
 				</MudBlazor.MudMenu>
 			</LeftContent>
 		</Header>
@@ -118,6 +119,35 @@ else
 						</div>
 
 						<div class="form-field">
+							<CustomAutoComplete T="PlaceModel"
+												Value="_selectedPlace"
+												ValueChanged="OnPlaceSelected"
+												SearchFunction="SearchPlacesAsync"
+												Placeholder="Type a place to search"
+												Label="Search Place"
+												FieldValue="@nameof(PlaceModel.Description)"
+												Required="false" />
+						</div>
+
+						<div class="form-field">
+							<CustomNumericField T="decimal?"
+												@bind-Value="_location.Latitude"
+												Label="Latitude"
+												Placeholder="e.g. 22.572600"
+												Format="N6"
+												Required="false" />
+						</div>
+
+						<div class="form-field">
+							<CustomNumericField T="decimal?"
+												@bind-Value="_location.Longitude"
+												Label="Longitude"
+												Placeholder="e.g. 88.363900"
+												Format="N6"
+												Required="false" />
+						</div>
+
+						<div class="form-field">
 							<CustomTextField @bind-Value="_location.Remarks"
 											 Label="Remarks"
 											 Placeholder="Enter remarks (optional)"
@@ -167,6 +197,8 @@ else
 						<CustomGridColumn Field="@nameof(LocationModel.FOFO)" HeaderText="Is a FOFO model" DisplayAsCheckBox="true" />
 						<CustomGridColumn Field="@nameof(LocationModel.UseLocationRateOnSale)" HeaderText="Use Location Rate On Sale" DisplayAsCheckBox="true" />
 
+						<CustomGridColumn Field="@nameof(LocationModel.Latitude)" HeaderText="Latitude" Format="N6" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(LocationModel.Longitude)" HeaderText="Longitude" Format="N6" NumericColumn="true" />
 						<CustomGridColumn Field="@nameof(LocationModel.Remarks)" HeaderText="Remarks" />
 						<CustomGridColumn Field="@nameof(LocationModel.Status)" Visible="_showDeleted" StatusColumn="true" />
 					</GridColumns>

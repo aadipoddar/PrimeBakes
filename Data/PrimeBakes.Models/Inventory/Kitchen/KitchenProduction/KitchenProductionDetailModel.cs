@@ -68,6 +68,8 @@ public class KitchenProductionItemOverviewModel
 	public string? LastModifiedPlatform { get; set; }
 	public decimal? LastModifiedLatitude { get; set; }
 	public decimal? LastModifiedLongitude { get; set; }
+	public double? CreatedUserOffset { get; set; }
+	public double? LastModifiedUserOffset { get; set; }
 
 	public bool MasterStatus { get; set; }
 }

@@ -7,6 +7,8 @@
 	@COCO BIT,
 	@FOFO BIT,
 	@UseLocationRateOnSale BIT,
+	@Latitude DECIMAL(9,6),
+	@Longitude DECIMAL(9,6),
 	@Remarks VARCHAR(MAX),
 	@Status BIT
 AS
@@ -22,6 +24,8 @@ BEGIN
 			[COCO],
 			[FOFO],
 			[UseLocationRateOnSale],
+			[Latitude],
+			[Longitude],
 			[Remarks],
 			[Status]
 		)
@@ -34,6 +38,8 @@ BEGIN
 			@COCO,
 			@FOFO,
 			@UseLocationRateOnSale,
+			@Latitude,
+			@Longitude,
 			@Remarks,
 			@Status
 		);
@@ -52,6 +58,8 @@ BEGIN
 			[COCO] = @COCO,
 			[FOFO] = @FOFO,
 			[UseLocationRateOnSale] = @UseLocationRateOnSale,
+			[Latitude] = @Latitude,
+			[Longitude] = @Longitude,
 			[Remarks] = @Remarks,
 			[Status] = @Status
 		WHERE [Id] = @Id;
