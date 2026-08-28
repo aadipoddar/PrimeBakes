@@ -30,6 +30,8 @@ else
 					<MudBlazor.MudDivider />
 					<MudBlazor.MudMenuItem Label="Export Excel (Ctrl + E)" OnClick="() => ExportMaster(true)" />
 					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportMaster()" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Plot on Map" OnClick="PlotOnMap" />
 				</MudBlazor.MudMenu>
 
 				<MudBlazor.MudMenu Label="Transaction" Dense="true" Disabled="_isProcessing">

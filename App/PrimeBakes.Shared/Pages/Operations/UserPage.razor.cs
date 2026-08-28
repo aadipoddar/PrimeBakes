@@ -232,6 +232,12 @@ public partial class UserPage
 		await LocationService.OpenMapAsync(user?.LastSeenLatitude, user?.LastSeenLongitude);
 	}
 
+	private async Task PlotOnMap() =>
+		await MapPage.Open("User Map", [.. _users
+			.Where(u => u.LastSeenLatitude is not null && u.LastSeenLongitude is not null)
+			.Select(u => new MapPointModel { Name = u.Name, Latitude = u.LastSeenLatitude.Value, Longitude = u.LastSeenLongitude.Value })],
+			DataStorageService, FormFactor, JSRuntime, NavigationManager);
+
 	private async Task ShowConfirmation(string title, string message, Func<Task> action)
 	{
 		_confirmTitle = title;

@@ -4,6 +4,7 @@ public static class StorageFileNames
 {
 	public static string UserDataFileName => "user_data.json";
 	public static string TokenFileName => "token.txt";
+	public static string MapPointsFileName => "map_points.json";
 
 	public static string FinancialAccountingDataFileName => "financial_accounting_data.json";
 	public static string FinancialAccountingCartDataFileName => "financial_accounting_cart_data.json";

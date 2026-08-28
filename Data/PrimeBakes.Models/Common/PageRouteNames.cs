@@ -6,6 +6,7 @@ public static class OperationRouteNames
 	public const string Login = "/login";
 
 	public const string Location = "/operations/location";
+	public const string Map = "/operations/map";
 	public const string User = "/operations/user";
 	public const string Settings = "/operations/settings";
 	public const string LocalSettings = "/operations/local-settings";

@@ -1,0 +1,32 @@
+﻿@attribute [Route(OperationRouteNames.Map)]
+
+<PageTitle>Map - Prime Bakes</PageTitle>
+
+@if (_isLoading || _user is null)
+{
+	<LoadingScreen />
+}
+else
+{
+	<div class="page-shell">
+		<Header Title="@_title">
+			<LeftContent>
+				<MudBlazor.MudMenu Label="File" Dense="true">
+					<MudBlazor.MudMenuItem Label="Close (Ctrl + W)" OnClick="() => AuthenticationService.CloseWindowOrTab(FormFactor, JSRuntime)" />
+				</MudBlazor.MudMenu>
+			</LeftContent>
+		</Header>
+
+		<div class="page-container">
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">@_points.Count Plotted</h2>
+				</div>
+
+				<div id="locationMap" style="width: 100%; height: 70vh;"></div>
+			</div>
+		</div>
+
+		<Footer />
+	</div>
+}

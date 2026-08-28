@@ -17,6 +17,8 @@ public static partial class CommonSecrets
 	public static readonly string NotificationAPIKey;
 	public static readonly string NotificationBackendServiceEndpoint;
 
+	public static readonly string GoogleMapsBrowserKey;
+
 	public static readonly string DatabaseName = "PrimeBakes";
 
 	public static readonly string OnlineFullLogoPath = "https://raw.githubusercontent.com/aadipoddar/PrimeBakes/refs/heads/main/App/PrimeBakes.Web/wwwroot/images/logo_full.png";

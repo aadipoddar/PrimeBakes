@@ -61,6 +61,8 @@ jobs:
 
                 NotificationAPIKey = "${{ secrets.NotificationAPIKey }}";
                 NotificationBackendServiceEndpoint = "${{ secrets.NotificationBackendServiceEndpoint }}";
+
+                GoogleMapsBrowserKey = "${{ secrets.GoogleMapsBrowserKey }}";
             }
         }
         '@

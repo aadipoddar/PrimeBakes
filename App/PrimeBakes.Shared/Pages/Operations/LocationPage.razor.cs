@@ -193,6 +193,12 @@ public partial class LocationPage
 		await LocationService.OpenMapAsync(location?.Latitude, location?.Longitude);
 	}
 
+	private async Task PlotOnMap() =>
+		await MapPage.Open("Location Map", [.. _locations
+			.Where(l => l.Latitude is not null && l.Longitude is not null)
+			.Select(l => new MapPointModel { Name = l.Name, Latitude = l.Latitude.Value, Longitude = l.Longitude.Value })],
+			DataStorageService, FormFactor, JSRuntime, NavigationManager);
+
 	private async Task ShowConfirmation(string title, string message, Func<Task> action)
 	{
 		_confirmTitle = title;
