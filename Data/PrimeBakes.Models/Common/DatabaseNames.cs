@@ -25,8 +25,18 @@ public static class OperationNames
 	public static string UpdateSettings => "Update_Settings";
 	public static string LoadSettingsByKey => "Load_Settings_By_Key";
 	public static string ResetSettings => "Reset_Settings";
-	public static string RebuildIndexes => "Rebuild_Indexes";
 	public const string LocalSettings = "/operations/local-settings";
+	#endregion
+
+	#region Maintenance
+	public static string RebuildIndexes => "Rebuild_Indexes";
+	public static string LoadTableNames => "Load_TableNames";
+	public static string ToggleForeignKeys => "Toggle_ForeignKeys";
+	public static string LoadTableHashes => "Load_TableHashes";
+	public static string LoadTableDataByKeys => "Load_TableData_By_Keys";
+	public static string DeleteTableDataByKeys => "Delete_TableData_By_Keys";
+	public static string DeleteTableData => "Delete_TableData";
+	public static string LoadDatabaseSize => "Load_DatabaseSize";
 	#endregion
 
 	#region Audit Trail

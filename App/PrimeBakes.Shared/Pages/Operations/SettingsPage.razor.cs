@@ -1,5 +1,7 @@
-﻿using PrimeBakes.Data.Operations.Settings;
+﻿using PrimeBakes.Data.Operations.Maintenance;
+using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Models.Accounts.Masters;
+using PrimeBakes.Models.Operations.Maintenance;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Shared.Components.Dialog;
@@ -15,6 +17,9 @@ public partial class SettingsPage
 
 	private ToastNotification _toastNotification;
 	private ConfirmationDialog _confirmationDialog;
+
+	private DatabaseSizeModel _databaseSize;
+	private decimal _databaseLoad;
 
 	private string _confirmTitle = string.Empty;
 	private string _confirmMessage = string.Empty;
@@ -146,6 +151,7 @@ public partial class SettingsPage
 			await LoadVouchers();
 			await LoadLedgers();
 			await LoadAccountTypes();
+			await LoadDatabaseSize();
 			MapSelections();
 		}
 		catch (Exception ex)
@@ -608,6 +614,53 @@ public partial class SettingsPage
 		catch (Exception ex)
 		{
 			await _toastNotification.ShowAsync("Error", $"Failed to rebuild indexes: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
+
+	#endregion
+
+	#region Database Size
+
+	private async Task LoadDatabaseSize()
+	{
+		_databaseSize = await MaintenanceData.LoadDatabaseSize();
+		_databaseLoad = await CommonData.LoadDatabaseLoad();
+	}
+
+	private string DatabaseUsedSize =>
+		_databaseSize is null ? string.Empty : FormatSize(_databaseSize.UsedMB);
+
+	private string DatabaseLoad => $"{_databaseLoad:N0}%";
+
+	private static string FormatSize(decimal megabytes) =>
+		megabytes >= 1024 ? $"{megabytes / 1024:N2} GB" : $"{megabytes:N2} MB";
+
+	#endregion
+
+	#region Backup
+
+	private async Task ShowBackupConfirmation() =>
+		await ShowConfirmation("Backup To Server", "Are you sure you want to copy the production data to the backup server? Any data on the backup server that is not on production will be removed.", Backup);
+
+	private async Task Backup()
+	{
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+
+			await _toastNotification.ShowAsync("Backing Up", "Copying data to the backup server...", ToastType.Info);
+			var summary = await BackupData.Backup();
+			await _toastNotification.ShowAsync("Backed Up", summary, ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"Failed to backup: {ex.Message}", ToastType.Error);
 		}
 		finally
 		{

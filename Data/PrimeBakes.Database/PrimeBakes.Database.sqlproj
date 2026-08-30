@@ -150,6 +150,7 @@
     <Folder Include="Operations\AuditTrail" />
     <Folder Include="Operations\WebPush" />
     <Folder Include="Operations\Settings" />
+    <Folder Include="Operations\Maintenance" />
     <Folder Include="Operations\Location" />
     <Folder Include="Operations\User" />
   </ItemGroup>
@@ -381,7 +382,14 @@
     <Build Include="Operations\Settings\Settings.sql" />
     <Build Include="Operations\Settings\Update_Settings.sql" />
     <Build Include="Operations\Settings\Reset_Settings.sql" />
-    <Build Include="Operations\Settings\Rebuild_Indexes.sql" />
+    <Build Include="Operations\Maintenance\Rebuild_Indexes.sql" />
+    <Build Include="Operations\Maintenance\Load_TableNames.sql" />
+    <Build Include="Operations\Maintenance\Toggle_ForeignKeys.sql" />
+    <Build Include="Operations\Maintenance\Load_TableHashes.sql" />
+    <Build Include="Operations\Maintenance\Load_TableData_By_Keys.sql" />
+    <Build Include="Operations\Maintenance\Delete_TableData_By_Keys.sql" />
+    <Build Include="Operations\Maintenance\Delete_TableData.sql" />
+    <Build Include="Operations\Maintenance\Load_DatabaseSize.sql" />
     <Build Include="Operations\Location\Insert_Location.sql" />
     <Build Include="Operations\User\Insert_User.sql" />
     <Build Include="Operations\User\Load_User_By_Passcode.sql" />

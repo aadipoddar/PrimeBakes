@@ -19,8 +19,6 @@ else
 				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
 					<MudBlazor.MudMenuItem Label="Save (Ctrl + S)" OnClick="SaveSettings" />
 					<MudBlazor.MudMenuItem Label="Reset to Defaults (Ctrl + R)" OnClick="ShowResetConfirmation" />
-					<MudBlazor.MudMenuItem Label="Clear Cache" OnClick="ShowClearCacheConfirmation" />
-					<MudBlazor.MudMenuItem Label="Rebuild Indexes" OnClick="ShowRebuildIndexesConfirmation" />
 				</MudBlazor.MudMenu>
 			</LeftContent>
 		</Header>
@@ -401,7 +399,7 @@ else
 												 Color="MudBlazor.Color.Warning"
 												 OnClick="ShowClearCacheConfirmation"
 												 Disabled="_isProcessing">
-								Clear Cache Now
+								Clear API Cache
 							</MudBlazor.MudButton>
 						</div>
 					</div>
@@ -416,11 +414,25 @@ else
 				<div class="section-body">
 					<div class="form-grid">
 						<div class="form-field">
+							<CustomTextField Value="@DatabaseUsedSize" Label="Space Used" ReadOnly="true" Required="false" TabIndex="-1" />
+						</div>
+						<div class="form-field">
+							<CustomTextField Value="@DatabaseLoad" Label="Database Load" ReadOnly="true" Required="false" TabIndex="-1" />
+						</div>
+						<div class="form-field">
 							<MudBlazor.MudButton Variant="MudBlazor.Variant.Filled"
 												 Color="MudBlazor.Color.Warning"
 												 OnClick="ShowRebuildIndexesConfirmation"
 												 Disabled="_isProcessing">
-								Rebuild Indexes Now
+								Rebuild Database Indexes
+							</MudBlazor.MudButton>
+						</div>
+						<div class="form-field">
+							<MudBlazor.MudButton Variant="MudBlazor.Variant.Filled"
+												 Color="MudBlazor.Color.Warning"
+												 OnClick="ShowBackupConfirmation"
+												 Disabled="_isProcessing">
+								Backup Data To Server
 							</MudBlazor.MudButton>
 						</div>
 					</div>

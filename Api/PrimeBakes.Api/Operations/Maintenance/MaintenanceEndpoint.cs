@@ -1,7 +1,7 @@
-﻿using PrimeBakes.Data.Operations.Settings;
+﻿using PrimeBakes.Data.Operations.Maintenance;
 using PrimeBakes.Models.Common;
 
-namespace PrimeBakes.Api.Operations.Settings;
+namespace PrimeBakes.Api.Operations.Maintenance;
 
 public class MaintenanceEndpoint : ICarterModule
 {
@@ -11,5 +11,6 @@ public class MaintenanceEndpoint : ICarterModule
 		var group = app.MapGroup(endpoint).WithTags(endpoint);
 
 		group.MapPost(nameof(MaintenanceData.RebuildIndexes), MaintenanceData.RebuildIndexes);
+		group.MapGet(nameof(MaintenanceData.LoadDatabaseSize), MaintenanceData.LoadDatabaseSize);
 	}
 }

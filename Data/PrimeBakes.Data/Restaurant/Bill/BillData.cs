@@ -421,13 +421,16 @@ public static class BillData
 
 		if (sqlDataAccessTransaction is null)
 		{
-			(MemoryStream, string)? previousInvoice = update && !recover && !bill.Running
+			var settledBill = update ? await CommonData.LoadTableDataById<BillOverviewModel>(RestaurantNames.BillOverview, bill.Id) : null;
+			bool settledUpdate = settledBill is not null && !settledBill.Running;
+
+			(MemoryStream, string)? previousInvoice = settledUpdate && !recover && !bill.Running
 				? BillInvoiceExport.ExportInvoice(await LoadInvoiceBundle(bill.Id), InvoiceExportType.PDF) : null;
 
 			bill.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(bill, billDetails, customer, recover, transaction));
 
 			if (!recover && !bill.Running)
-				await BillNotify.Notify(bill.Id, update ? NotifyType.Updated : NotifyType.Created, previousInvoice);
+				await BillNotify.Notify(bill.Id, settledUpdate ? NotifyType.Updated : NotifyType.Created, previousInvoice);
 
 			return bill.Id;
 		}
