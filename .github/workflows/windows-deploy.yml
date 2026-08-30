@@ -35,6 +35,7 @@ jobs:
             static Secrets()
             {
                 AzureConnectionString = "${{ secrets.AzureConnectionString }}";
+                AzureTestingConnectionString = "${{ secrets.AzureTestingConnectionString }}";
 
                 AzureBlobStorageConnectionString = "${{ secrets.AzureBlobStorageConnectionString }}";
                 AzureBlobStorageAccountKey = "${{ secrets.AzureBlobStorageAccountKey }}";
