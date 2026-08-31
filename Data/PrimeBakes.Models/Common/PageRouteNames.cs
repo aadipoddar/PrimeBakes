@@ -56,10 +56,12 @@ public static class InventoryRouteNames
 	public const string KitchenProductionReturn = "/inventory/kitchen-production-return";
 	public const string KitchenIssueReport = "/inventory/kitchen-issue-report";
 	public const string KitchenIssueItemReport = "/inventory/kitchen-item-report";
+	public const string KitchenIssueItemMonthlyReport = "/inventory/kitchen-issue-item-monthly-report";
 	public const string KitchenIssueReturnReport = "/inventory/kitchen-issue-return-report";
 	public const string KitchenIssueReturnItemReport = "/inventory/kitchen-issue-return-item-report";
 	public const string KitchenProductionReport = "/inventory/kitchen-production-report";
 	public const string KitchenProductionItemReport = "/inventory/kitchen-production-item-report";
+	public const string KitchenProductionItemMonthlyReport = "/inventory/kitchen-production-item-monthly-report";
 	public const string KitchenProductionReturnReport = "/inventory/kitchen-production-return-report";
 	public const string KitchenProductionReturnItemReport = "/inventory/kitchen-production-return-item-report";
 	public const string KitchenSummaryReport = "/inventory/kitchen-summary-report";

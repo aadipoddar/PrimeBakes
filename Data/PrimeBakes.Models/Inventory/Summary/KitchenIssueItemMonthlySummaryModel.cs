@@ -1,6 +1,6 @@
 ﻿namespace PrimeBakes.Models.Inventory.Summary;
 
-public class PurchaseItemMonthlySummaryModel
+public class KitchenIssueItemMonthlySummaryModel
 {
 	private readonly decimal[] _months = new decimal[12];
 
@@ -32,8 +32,6 @@ public class PurchaseItemMonthlySummaryModel
 
 	public decimal TotalQuantity { get; set; }
 	public decimal TotalAmount { get; set; }
-	public decimal DiscountAmount { get; set; }
-	public decimal TaxAmount { get; set; }
 	public decimal ReturnQuantity { get; set; }
 	public decimal ReturnAmount { get; set; }
 
@@ -42,14 +40,14 @@ public class PurchaseItemMonthlySummaryModel
 	public decimal LastRate { get; set; }
 
 	public int TransactionCount { get; set; }
-	public int PartyCount { get; set; }
+	public int KitchenCount { get; set; }
 	public int Rank { get; set; }
 	public decimal ContributionPercent { get; set; }
 	public string PeakMonthName { get; set; }
 	public string LowestMonthName { get; set; }
-	public DateTime? FirstPurchaseDateTime { get; set; }
-	public DateTime? LastPurchaseDateTime { get; set; }
-	public int MonthsSinceLastPurchase { get; set; }
+	public DateTime? FirstIssueDateTime { get; set; }
+	public DateTime? LastIssueDateTime { get; set; }
+	public int MonthsSinceLastIssue { get; set; }
 
 	public decimal Total => _months.Sum();
 	public int ActiveMonths => _months.Count(month => month != 0);

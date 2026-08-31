@@ -1,0 +1,219 @@
+﻿@using PrimeBakes.Models.Accounts.Masters
+@using PrimeBakes.Models.Inventory.Kitchen
+@using PrimeBakes.Models.Inventory.Kitchen.KitchenIssue
+@using PrimeBakes.Models.Inventory.RawMaterial
+@using PrimeBakes.Models.Inventory.Summary
+
+@attribute [Route(InventoryRouteNames.KitchenIssueItemMonthlyReport)]
+
+<PageTitle>Kitchen Issue Item Monthly Report - Prime Bakes</PageTitle>
+
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssue, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyM KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleMeasure" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyT KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleTransactionReturns" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyQ KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDetailsView" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyH KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssueItemReport, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+
+@if (_isLoading || _user is null)
+{
+	<LoadingScreen />
+}
+else
+{
+	<div class="page-shell">
+		<Header Title="Kitchen Issue Item Monthly Report">
+			<LeftContent>
+				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="New Transaction (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssue, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Refresh Data (Ctrl + R / F5)" OnClick="LoadTransactionOverviews" />
+					<MudBlazor.MudMenuItem Label="@(_showAmount ? "Show Quantity (Ctrl + M)" : "Show Amount (Ctrl + M)")" OnClick="ToggleMeasure" />
+					<MudBlazor.MudMenuItem Label="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" OnClick="ToggleDeleted" />
+					<MudBlazor.MudMenuItem Label="@(_showTransactionReturns ? "Hide Returns (Ctrl + T)" : "Show Returns (Ctrl + T)")" OnClick="ToggleTransactionReturns" />
+					<MudBlazor.MudMenuItem Label="@(_showAllColumns ? "Hide Details (Ctrl + Q)" : "Show Details (Ctrl + Q)")" OnClick="ToggleDetailsView" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportReport()" />
+					<MudBlazor.MudMenuItem Label="Export Excel (Ctrl + E)" OnClick="() => ExportReport(true)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Open" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Kitchen Issue (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssue, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Issue Report" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssueReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Issue Item Report (Ctrl + H)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssueItemReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Issue Return Report" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssueReturnReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Issue Return Item Report" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssueReturnItemReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Summary Report" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenSummaryReport, FormFactor, JSRuntime, NavigationManager)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Periods" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Current FY" OnClick="() => HandleDatesChanged(DateRangeType.CurrentFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="Previous FY" OnClick="() => HandleDatesChanged(DateRangeType.PreviousFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="Next FY" OnClick="() => HandleDatesChanged(DateRangeType.NextFinancialYear)" />
+				</MudBlazor.MudMenu>
+			</LeftContent>
+		</Header>
+
+		<div class="page-container">
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Filters</h2>
+				</div>
+
+				<div class="section-body">
+					<div class="filters-grid">
+						<!-- Raw Material -->
+						<div class="form-field">
+							<CustomAutoComplete @ref="_firstFocus" T="RawMaterialModel"
+												Value="_selectedRawMaterial"
+												DataSource="@_rawMaterials"
+												Placeholder="All Items"
+												Label="Item (Ctrl + F)" Required="false"
+												ValueChanged="OnRawMaterialChanged"
+												FieldValue="@nameof(RawMaterialModel.Name)"
+												AddNewRoute="@InventoryRouteNames.RawMaterial" />
+						</div>
+
+						<!-- Raw Material Category -->
+						<div class="form-field">
+							<CustomAutoComplete T="RawMaterialCategoryModel"
+												Value="_selectedRawMaterialCategory"
+												DataSource="@_rawMaterialCategories"
+												Placeholder="All Categories"
+												Label="Item Category" Required="false"
+												ValueChanged="OnRawMaterialCategoryChanged"
+												FieldValue="@nameof(RawMaterialCategoryModel.Name)"
+												AddNewRoute="@InventoryRouteNames.RawMaterialCategory" />
+						</div>
+
+						<!-- Company -->
+						<div class="form-field">
+							<CustomAutoComplete T="CompanyModel"
+												Value="_selectedCompany"
+												DataSource="@_companies"
+												Placeholder="All Companies"
+												Label="Company" Required="false"
+												ValueChanged="OnCompanyChanged"
+												FieldValue="@nameof(CompanyModel.Name)"
+												AddNewRoute="@AccountsRouteNames.CompanyMaster" />
+						</div>
+
+						<!-- Kitchen -->
+						<div class="form-field">
+							<CustomAutoComplete T="KitchenModel"
+												Value="_selectedKitchen"
+												DataSource="@_kitchens"
+												Placeholder="All Kitchens"
+												Label="Kitchen" Required="false"
+												ValueChanged="OnKitchenChanged"
+												FieldValue="@nameof(KitchenModel.Name)"
+												AddNewRoute="@InventoryRouteNames.Kitchen" />
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">@_reportTitle</h2>
+				</div>
+
+				<SfGrid @ref="_sfGrid" TValue="KitchenIssueItemMonthlySummaryModel" DataSource="_monthlySummaries"
+						AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+						AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal"
+						Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+					<GridAggregates>
+						<GridAggregate>
+							<GridAggregateColumns>
+								<GridColumnAggregate Field="@nameof(KitchenIssueItemMonthlySummaryModel.ItemName)" Type="AggregateType.Count" Format="N0" />
+								@for (var index = 0; index < 12; index++)
+								{
+									var monthField = _monthFields[index];
+									<GridColumnAggregate Field="@monthField" />
+								}
+								<GridColumnAggregate Field="@nameof(KitchenIssueItemMonthlySummaryModel.Total)" CustomColor="grid-total" />
+								<GridColumnAggregate Field="@nameof(KitchenIssueItemMonthlySummaryModel.TotalQuantity)" />
+								<GridColumnAggregate Field="@nameof(KitchenIssueItemMonthlySummaryModel.TotalAmount)" />
+								<GridColumnAggregate Field="@nameof(KitchenIssueItemMonthlySummaryModel.ReturnQuantity)" CustomColor="grid-debit" />
+								<GridColumnAggregate Field="@nameof(KitchenIssueItemMonthlySummaryModel.ReturnAmount)" CustomColor="grid-debit" />
+								<GridColumnAggregate Field="@nameof(KitchenIssueItemMonthlySummaryModel.TransactionCount)" Format="N0" />
+							</GridAggregateColumns>
+						</GridAggregate>
+					</GridAggregates>
+
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.ItemName)" HeaderText="Item" />
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.ItemCode)" HeaderText="Code" Visible="@_showAllColumns" />
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.ItemCategoryName)" HeaderText="Category" Visible="@(_selectedRawMaterialCategory is null || _selectedRawMaterialCategory.Id <= 0)" />
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.UnitOfMeasurement)" HeaderText="UOM" TextAlign="TextAlign.Center" Visible="@_showAllColumns" />
+
+						@for (var index = 0; index < 12; index++)
+						{
+							var monthField = _monthFields[index];
+							var monthHeader = _monthHeaders[index];
+							<CustomGridColumn Field="@monthField" HeaderText="@monthHeader" Width="110" NumericColumn="true" />
+						}
+
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.Total)" HeaderText="Total" TotalColumn="true" />
+
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.TotalQuantity)" HeaderText="Total Qty" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.TotalAmount)" HeaderText="Total Amount" Visible="@_showAllColumns" TotalColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.AverageRate)" HeaderText="Avg Rate" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.MinimumRate)" HeaderText="Min Rate" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.MaximumRate)" HeaderText="Max Rate" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.LastRate)" HeaderText="Last Rate" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.RateVariancePercent)" HeaderText="Rate Swing %" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.ReturnQuantity)" HeaderText="Return Qty" Visible="@_showAllColumns" CustomColor="grid-debit" />
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.ReturnAmount)" HeaderText="Return Amount" Visible="@_showAllColumns" CustomColor="grid-debit" />
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.ReturnPercent)" HeaderText="Return %" Visible="@_showAllColumns" NumericColumn="true" />
+
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.TransactionCount)" HeaderText="Issues" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.KitchenCount)" HeaderText="Kitchens" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.Rank)" HeaderText="Rank" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.ContributionPercent)" HeaderText="Share %" Visible="@_showAllColumns" NumericColumn="true" />
+
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.ActiveMonths)" HeaderText="Active Months" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.AveragePerMonth)" HeaderText="Avg / Month" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.AveragePerActiveMonth)" HeaderText="Avg / Active Month" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.AveragePerTransaction)" HeaderText="Avg / Issue" Visible="@_showAllColumns" NumericColumn="true" />
+
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.PeakMonthName)" HeaderText="Peak Month" Visible="@_showAllColumns" />
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.PeakMonthValue)" HeaderText="Peak Value" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.LowestMonthName)" HeaderText="Lowest Month" Visible="@_showAllColumns" />
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.LowestMonthValue)" HeaderText="Lowest Value" Visible="@_showAllColumns" NumericColumn="true" />
+
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.Quarter1)" HeaderText="Q1" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.Quarter2)" HeaderText="Q2" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.Quarter3)" HeaderText="Q3" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.Quarter4)" HeaderText="Q4" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.FirstHalf)" HeaderText="H1" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.SecondHalf)" HeaderText="H2" Visible="@_showAllColumns" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.GrowthPercent)" HeaderText="H2 vs H1 %" Visible="@_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.RecentTrendPercent)" HeaderText="Q4 vs Q3 %" Visible="@_showAllColumns" NegativePositiveColumn="true" />
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.ConsistencyPercent)" HeaderText="Consistency %" Visible="@_showAllColumns" NumericColumn="true" />
+
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.FirstIssueDateTime)" HeaderText="First Issue" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="@_showAllColumns" />
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.LastIssueDateTime)" HeaderText="Last Issue" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="@_showAllColumns" />
+						<CustomGridColumn Field="@nameof(KitchenIssueItemMonthlySummaryModel.MonthsSinceLastIssue)" HeaderText="Months Idle" Visible="@_showAllColumns" NumericColumn="true" />
+					</GridColumns>
+				</SfGrid>
+			</div>
+		</div>
+
+		<Footer />
+	</div>
+}
+
+<ToastNotification @ref="_toastNotification" />
+
+<CloseGuard Block="_isProcessing" />

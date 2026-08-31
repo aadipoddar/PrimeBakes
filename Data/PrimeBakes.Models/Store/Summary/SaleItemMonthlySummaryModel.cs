@@ -85,9 +85,3 @@ public class SaleItemMonthlySummaryModel
 	public static List<string> BuildMonthHeaders(DateOnly financialYearStart) =>
 		[.. Enumerable.Range(0, 12).Select(offset => financialYearStart.AddMonths(offset).ToString("MMM yy"))];
 }
-
-public enum SaleItemMonthlyMeasure
-{
-	Quantity,
-	Amount
-}
