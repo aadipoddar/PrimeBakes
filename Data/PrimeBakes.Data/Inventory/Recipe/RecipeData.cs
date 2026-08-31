@@ -1,6 +1,5 @@
 ﻿using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Operations.AuditTrail;
-using PrimeBakes.Data.Utils.Mail;
 using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Inventory.Recipe;
 using PrimeBakes.Models.Operations.AuditTrail;
@@ -49,7 +48,6 @@ public static class RecipeData
 		if (sqlDataAccessTransaction is null)
 		{
 			await SqlDataAccessTransaction.Run(transaction => DeleteTransaction(recipe, userId, formFactor, platform, latitude, longitude, transaction));
-			await RecipeNotify.Notify(recipe.Id, NotifyType.Deleted);
 			return;
 		}
 
@@ -106,7 +104,6 @@ public static class RecipeData
 		if (sqlDataAccessTransaction is null)
 		{
 			recipe.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(recipe, recipeDetails, userId, formFactor, platform, latitude, longitude, transaction));
-			await RecipeNotify.Notify(recipe.Id, update ? NotifyType.Updated : NotifyType.Created);
 			return recipe.Id;
 		}
 

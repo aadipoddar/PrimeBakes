@@ -31,10 +31,6 @@ public static class PurchaseData
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertPurchase, purchase, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Purchase.");
 
-	private static async Task<int> InsertPurchaseDetail(PurchaseDetailModel purchaseDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertPurchaseDetail, purchaseDetail, sqlDataAccessTransaction)).FirstOrDefault()
-			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Purchase Detail.");
-
 	private static async Task InsertPurchaseDetailList(DataTable purchaseDetails, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertPurchaseDetailList, new { PurchaseDetails = purchaseDetails.AsTableValuedParameter(InventoryNames.PurchaseDetailType) }, sqlDataAccessTransaction);
 
@@ -222,8 +218,8 @@ public static class PurchaseData
 
 			purchase.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(purchase, purchaseDetails, recover, transaction));
 
-			if (!recover)
-				await PurchaseNotify.Notify(purchase.Id, update ? NotifyType.Updated : NotifyType.Created, previousInvoice);
+			if (update && !recover)
+				await PurchaseNotify.Notify(purchase.Id, NotifyType.Updated, previousInvoice);
 
 			return purchase.Id;
 		}

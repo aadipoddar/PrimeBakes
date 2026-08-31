@@ -166,7 +166,7 @@ public static class GenerateCodes
 		return await CheckDuplicateCode($"{locationPrefix}{financialYear.YearNo}{transactionPrefix}000001", 6, CodeType.Accounting, sqlDataAccessTransaction);
 	}
 
-	public static async Task<string> GenerateLedgerCode(SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	internal static async Task<string> GenerateLedgerCode(SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		var transactions = await CommonData.LoadTableData<LedgerModel>(AccountNames.Ledger, sqlDataAccessTransaction);
 		var transactionPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.LedgerCodePrefix, sqlDataAccessTransaction)).Value;
@@ -379,7 +379,7 @@ public static class GenerateCodes
 		return $"{locationPrefix}{financialYear.YearNo}{adjustmentPrefix}{currentDateTime:ddMMyy}{currentDateTime:HHmmss}";
 	}
 
-	public static async Task<string> GenerateRawMaterialCode()
+	internal static async Task<string> GenerateRawMaterialCode()
 	{
 		var transactions = await CommonData.LoadTableData<RawMaterialModel>(InventoryNames.RawMaterial);
 		var transactionsPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.RawMaterialCodePrefix)).Value;
@@ -500,7 +500,7 @@ public static class GenerateCodes
 		return await CheckDuplicateCode($"{locationPrefix}{financialYear.YearNo}{transactionPrefix}000001", 6, CodeType.StockTransfer, sqlDataAccessTransaction);
 	}
 
-	public static async Task<string> GenerateProductCode(SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	internal static async Task<string> GenerateProductCode(SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		var transactions = await CommonData.LoadTableData<ProductModel>(StoreNames.Product, sqlDataAccessTransaction);
 		var transactionPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.FinishedProductCodePrefix, sqlDataAccessTransaction)).Value;
@@ -550,7 +550,7 @@ public static class GenerateCodes
 	#endregion
 
 	#region Payroll
-	public static async Task<string> GenerateDepartmentCode(SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	internal static async Task<string> GenerateDepartmentCode(SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		var departments = await CommonData.LoadTableData<DepartmentModel>(PayrollNames.Department, sqlDataAccessTransaction);
 		var departmentsPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.DepartmentCodePrefix)).Value;
@@ -573,7 +573,7 @@ public static class GenerateCodes
 		return await CheckDuplicateCode($"{departmentsPrefix}0001", 4, CodeType.Department, sqlDataAccessTransaction);
 	}
 
-	public static async Task<string> GenerateDesignationCode(SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	internal static async Task<string> GenerateDesignationCode(SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		var designations = await CommonData.LoadTableData<DesignationModel>(PayrollNames.Designation, sqlDataAccessTransaction);
 		var designationsPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.DesignationCodePrefix)).Value;
@@ -596,7 +596,7 @@ public static class GenerateCodes
 		return await CheckDuplicateCode($"{designationsPrefix}0001", 4, CodeType.Designation, sqlDataAccessTransaction);
 	}
 
-	public static async Task<string> GenerateEmployeeCode(SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	internal static async Task<string> GenerateEmployeeCode(SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		var employees = await CommonData.LoadTableData<EmployeeModel>(PayrollNames.Employee, sqlDataAccessTransaction);
 		var employeesPrefix = (await SettingsData.LoadSettingsByKey(SettingsKeys.EmployeeCodePrefix)).Value;
@@ -619,7 +619,7 @@ public static class GenerateCodes
 		return await CheckDuplicateCode($"{employeesPrefix}0001", 4, CodeType.Employee, sqlDataAccessTransaction);
 	}
 
-	public static async Task<string> GeneratePayrollTransactionNo(PayrollModel transaction, SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	internal static async Task<string> GeneratePayrollTransactionNo(PayrollModel transaction, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		var financialYear = await CommonData.LoadTableDataById<FinancialYearModel>(AccountNames.FinancialYear, transaction.FinancialYearId, sqlDataAccessTransaction);
 		var locationPrefix = (await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, 1, sqlDataAccessTransaction)).Code;

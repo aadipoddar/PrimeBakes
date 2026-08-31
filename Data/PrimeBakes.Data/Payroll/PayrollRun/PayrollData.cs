@@ -22,10 +22,6 @@ public static class PayrollData
 		(await SqlDataAccess.LoadData<int, dynamic>(PayrollNames.InsertPayroll, payroll, transaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Payroll.");
 
-	private static async Task<int> InsertPayrollDetail(PayrollDetailModel payrollDetail, SqlDataAccessTransaction transaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(PayrollNames.InsertPayrollDetail, payrollDetail, transaction)).FirstOrDefault()
-			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Payroll Detail.");
-
 	private static async Task InsertPayrollDetailList(DataTable payrollDetails, SqlDataAccessTransaction transaction = null) =>
 		await SqlDataAccess.LoadData<int, dynamic>(PayrollNames.InsertPayrollDetailList, new { PayrollDetails = payrollDetails.AsTableValuedParameter(PayrollNames.PayrollDetailType) }, transaction);
 

@@ -156,7 +156,6 @@
   </ItemGroup>
   <ItemGroup>
     <Build Include="Accounts\FinancialAccounting\Insert\Insert_FinancialAccounting.sql" />
-    <Build Include="Accounts\FinancialAccounting\Insert\Insert_FinancialAccountingLedger.sql" />
     <Build Include="Accounts\FinancialAccounting\Insert\Insert_FinancialAccountingLedger_List.sql" />
     <Build Include="Accounts\FinancialAccounting\Load\FinancialAccounting_Ledger_Overview.sql" />
     <Build Include="Accounts\FinancialAccounting\Load\FinancialAccounting_Overview.sql" />
@@ -192,9 +191,7 @@
     <Build Include="Common\Load_TableData_By_MasterId.sql" />
     <Build Include="Common\Load_TableData_By_Status.sql" />
     <Build Include="Common\Load_TableData_By_TransactionNo.sql" />
-    <Build Include="Inventory\Stock\Insert\Insert_ProductStock.sql" />
     <Build Include="Inventory\Stock\Insert\Insert_ProductStock_List.sql" />
-    <Build Include="Inventory\Stock\Insert\Insert_RawMaterialStock.sql" />
     <Build Include="Inventory\Stock\Insert\Insert_RawMaterialStock_List.sql" />
     <Build Include="Inventory\Recipe\Insert\Insert_Recipe.sql" />
     <Build Include="Inventory\Recipe\Insert\Insert_RecipeDetail.sql" />
@@ -219,7 +216,6 @@
     <Build Include="Payroll\PayrollRun\Table\Payroll.sql" />
     <Build Include="Payroll\PayrollRun\Table\PayrollDetail.sql" />
     <Build Include="Payroll\PayrollRun\Insert\Insert_Payroll.sql" />
-    <Build Include="Payroll\PayrollRun\Insert\Insert_PayrollDetail.sql" />
     <Build Include="Payroll\PayrollRun\Insert\Insert_PayrollDetail_List.sql" />
     <Build Include="Payroll\PayrollRun\Load\Payroll_Overview.sql" />
     <Build Include="Payroll\PayrollRun\Load\Payroll_Item_Overview.sql" />
@@ -227,25 +223,18 @@
     <Build Include="Inventory\RawMaterial\Insert\Insert_RawMaterial.sql" />
     <Build Include="Inventory\Purchase\Insert\Insert_PurchaseReturnDetail_List.sql" />
     <Build Include="Inventory\Purchase\Insert\Insert_Purchase.sql" />
-    <Build Include="Inventory\Purchase\Insert\Insert_PurchaseDetail.sql" />
     <Build Include="Inventory\Purchase\Insert\Insert_PurchaseDetail_List.sql" />
     <Build Include="Inventory\Purchase\Insert\Insert_PurchaseReturn.sql" />
-    <Build Include="Inventory\Purchase\Insert\Insert_PurchaseReturnDetail.sql" />
     <Build Include="Inventory\PurchaseOrder\Insert\Insert_PurchaseOrder.sql" />
-    <Build Include="Inventory\PurchaseOrder\Insert\Insert_PurchaseOrderDetail.sql" />
     <Build Include="Inventory\PurchaseOrder\Insert\Insert_PurchaseOrderDetail_List.sql" />
     <Build Include="Inventory\Kitchen\Insert\Insert_KitchenProductionDetail_List.sql" />
     <Build Include="Inventory\Kitchen\Insert\Insert_Kitchen.sql" />
     <Build Include="Inventory\Kitchen\Insert\Insert_KitchenIssue.sql" />
-    <Build Include="Inventory\Kitchen\Insert\Insert_KitchenIssueDetail.sql" />
     <Build Include="Inventory\Kitchen\Insert\Insert_KitchenIssueDetail_List.sql" />
     <Build Include="Inventory\Kitchen\Insert\Insert_KitchenIssueReturn.sql" />
-    <Build Include="Inventory\Kitchen\Insert\Insert_KitchenIssueReturnDetail.sql" />
     <Build Include="Inventory\Kitchen\Insert\Insert_KitchenIssueReturnDetail_List.sql" />
     <Build Include="Inventory\Kitchen\Insert\Insert_KitchenProduction.sql" />
-    <Build Include="Inventory\Kitchen\Insert\Insert_KitchenProductionDetail.sql" />
     <Build Include="Inventory\Kitchen\Insert\Insert_KitchenProductionReturn.sql" />
-    <Build Include="Inventory\Kitchen\Insert\Insert_KitchenProductionReturnDetail.sql" />
     <Build Include="Inventory\Kitchen\Insert\Insert_KitchenProductionReturnDetail_List.sql" />
     <Build Include="Inventory\Kitchen\Table\Kitchen.sql" />
     <Build Include="Inventory\Kitchen\Table\KitchenIssue.sql" />
@@ -304,16 +293,12 @@
     <Build Include="Inventory\Recipe\Load\Recipe_Item_Overview.sql" />
     <Build Include="Store\Customer\Insert_Customer.sql" />
     <Build Include="Store\Order\Insert\Insert_Order.sql" />
-    <Build Include="Store\Order\Insert\Insert_OrderDetail.sql" />
     <Build Include="Store\Order\Insert\Insert_OrderDetail_List.sql" />
     <Build Include="Store\StockTransfer\Insert\Insert_StockTransfer.sql" />
-    <Build Include="Store\StockTransfer\Insert\Insert_StockTransferDetail.sql" />
     <Build Include="Store\StockTransfer\Insert\Insert_StockTransferDetail_List.sql" />
     <Build Include="Store\Sale\Insert\Insert_SaleReturn.sql" />
-    <Build Include="Store\Sale\Insert\Insert_SaleReturnDetail.sql" />
     <Build Include="Store\Sale\Insert\Insert_SaleReturnDetail_List.sql" />
     <Build Include="Store\Sale\Insert\Insert_Sale.sql" />
-    <Build Include="Store\Sale\Insert\Insert_SaleDetail.sql" />
     <Build Include="Store\Sale\Insert\Insert_SaleDetail_List.sql" />
     <Build Include="Store\Product\Insert\Insert_Tax.sql" />
     <Build Include="Store\Product\Insert\Insert_KOTCategory.sql" />
@@ -353,7 +338,6 @@
     <Build Include="Store\Sale\Load\SaleReturn_Overview.sql" />
     <Build Include="Store\StockTransfer\Load\StockTransfer_Item_Overview.sql" />
     <Build Include="Store\StockTransfer\Load\StockTransfer_Overview.sql" />
-    <Build Include="Restaurant\Bill\Insert\Insert_BillDetail.sql" />
     <Build Include="Restaurant\Bill\Insert\Insert_BillDetail_List.sql" />
     <Build Include="Restaurant\Bill\Insert\Insert_Bill.sql" />
     <Build Include="Restaurant\Dining\Insert\Insert_DiningArea.sql" />

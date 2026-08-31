@@ -1,4 +1,4 @@
-using PrimeBakes.Data.Operations.Settings;
+﻿using PrimeBakes.Data.Operations.Settings;
 
 using PrimeBakes.Models.Operations.Settings;
 
@@ -17,7 +17,7 @@ public static class QueryGate
 		return (endDate - startDate).TotalDays > spanDays;
 	}
 
-	public static async Task EnsureCapacity(DateTime startDate, DateTime endDate)
+	internal static async Task EnsureCapacity(DateTime startDate, DateTime endDate)
 	{
 		if (!await IsHeavy(startDate, endDate))
 			return;

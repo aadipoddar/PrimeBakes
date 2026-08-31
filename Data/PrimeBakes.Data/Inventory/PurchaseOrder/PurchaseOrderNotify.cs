@@ -14,9 +14,7 @@ internal static class PurchaseOrderNotify
 	internal static async Task Notify(int purchaseOrderId, NotifyType type, (MemoryStream, string)? previousInvoice = null)
 	{
 		await PurchaseOrderNotification(purchaseOrderId, type);
-
-		if (type != NotifyType.Created)
-			await PurchaseOrderMail(purchaseOrderId, type, previousInvoice);
+		await PurchaseOrderMail(purchaseOrderId, type, previousInvoice);
 	}
 
 	private static async Task PurchaseOrderNotification(int purchaseOrderId, NotifyType type)

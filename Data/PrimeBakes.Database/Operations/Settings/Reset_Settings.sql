@@ -58,6 +58,7 @@ BEGIN
 
 	-- Bank Reconciliation
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'BankAccountTypeId', N'2', N'Account Type that identifies Bank ledgers for reconciliation')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'ShowBRSFields', N'false', N'Show reference and instrument fields on the Accounting Entry page for bank reconciliation')
 
 	-- Purchase Behavior
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'UpdateRawMaterialMasterRateOnPurchase'	, N'true'	, N'Update Raw Material Master Rate on Purchase Transactions')

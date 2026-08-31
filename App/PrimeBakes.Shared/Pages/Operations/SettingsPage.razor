@@ -211,6 +211,11 @@ else
 						<div class="form-field">
 							<CustomAutoComplete T="AccountTypeModel" Value="_selectedBankAccountType" DataSource="@_accountTypes" Placeholder="Select bank account type" Label="Bank Account Type" ValueChanged="OnBankAccountTypeChange" FieldValue="@nameof(AccountTypeModel.Name)" AddNewRoute="@AccountsRouteNames.AccountTypeMaster" Required="false" />
 						</div>
+						<div class="form-field">
+							<div class="checkbox-wrapper">
+								<CustomCheckBox @bind-Value="_showBRSFields" Label="Show BRS Fields in Accounting Entry" />
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>

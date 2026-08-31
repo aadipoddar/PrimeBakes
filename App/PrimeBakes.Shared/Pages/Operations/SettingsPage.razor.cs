@@ -96,6 +96,7 @@ public partial class SettingsPage
 
 	// Bank Reconciliation
 	private string _bankAccountTypeId = string.Empty;
+	private bool _showBRSFields = false;
 	private AccountTypeModel _selectedBankAccountType;
 	private List<AccountTypeModel> _accountTypes = [];
 
@@ -221,6 +222,7 @@ public partial class SettingsPage
 
 		// Bank Reconciliation
 		_bankAccountTypeId = Str(SettingsKeys.BankAccountTypeId) ?? string.Empty;
+		_showBRSFields = Bool(SettingsKeys.ShowBRSFields, false);
 
 		// Purchase Behavior
 		_updateItemMasterRateOnPurchase = Bool(SettingsKeys.UpdateItemMasterRateOnPurchase, false);
@@ -520,6 +522,7 @@ public partial class SettingsPage
 
 			// Bank Reconciliation
 			await UpdateSetting(SettingsKeys.BankAccountTypeId, _bankAccountTypeId, Desc(SettingsKeys.BankAccountTypeId));
+			await UpdateSetting(SettingsKeys.ShowBRSFields, _showBRSFields.ToString(), Desc(SettingsKeys.ShowBRSFields));
 
 			// Purchase Behavior
 			await UpdateSetting(SettingsKeys.UpdateItemMasterRateOnPurchase, _updateItemMasterRateOnPurchase.ToString(), Desc(SettingsKeys.UpdateItemMasterRateOnPurchase));

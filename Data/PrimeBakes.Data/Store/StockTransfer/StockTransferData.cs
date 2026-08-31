@@ -33,10 +33,6 @@ public static class StockTransferData
 		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertStockTransfer, stockTransfer, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Stock Transfer.");
 
-	private static async Task<int> InsertStockTransferDetail(StockTransferDetailModel stockTransferDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertStockTransferDetail, stockTransferDetail, sqlDataAccessTransaction)).FirstOrDefault()
-			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Stock Transfer Detail.");
-
 	private static async Task InsertStockTransferDetailList(DataTable stockTransferDetails, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertStockTransferDetailList, new { StockTransferDetails = stockTransferDetails.AsTableValuedParameter(StoreNames.StockTransferDetailType) }, sqlDataAccessTransaction);
 
@@ -271,8 +267,8 @@ public static class StockTransferData
 
 			stockTransfer.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(stockTransfer, stockTransferDetails, recover, transaction));
 
-			if (!recover)
-				await StockTransferNotify.Notify(stockTransfer.Id, update ? NotifyType.Updated : NotifyType.Created, previousInvoice);
+			if (update && !recover)
+				await StockTransferNotify.Notify(stockTransfer.Id, NotifyType.Updated, previousInvoice);
 
 			return stockTransfer.Id;
 		}

@@ -28,10 +28,6 @@ public static class PurchaseReturnData
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertPurchaseReturn, purchaseReturn, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Purchase Return.");
 
-	private static async Task<int> InsertPurchaseReturnDetail(PurchaseReturnDetailModel purchaseReturnDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertPurchaseReturnDetail, purchaseReturnDetail, sqlDataAccessTransaction)).FirstOrDefault()
-			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Purchase Return Detail.");
-
 	private static async Task InsertPurchaseReturnDetailList(DataTable purchaseReturnDetails, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertPurchaseReturnDetailList, new { PurchaseReturnDetails = purchaseReturnDetails.AsTableValuedParameter(InventoryNames.PurchaseReturnDetailType) }, sqlDataAccessTransaction);
 
@@ -199,8 +195,8 @@ public static class PurchaseReturnData
 
 			purchaseReturn.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(purchaseReturn, purchaseReturnDetails, recover, transaction));
 
-			if (!recover)
-				await PurchaseReturnNotify.Notify(purchaseReturn.Id, update ? NotifyType.Updated : NotifyType.Created, previousInvoice);
+			if (update && !recover)
+				await PurchaseReturnNotify.Notify(purchaseReturn.Id, NotifyType.Updated, previousInvoice);
 
 			return purchaseReturn.Id;
 		}

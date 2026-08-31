@@ -1,4 +1,4 @@
-using PrimeBakes.Data.Common;
+﻿using PrimeBakes.Data.Common;
 using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Operations.User;
@@ -14,7 +14,7 @@ public static class AuditTrailData
 		(await SqlDataAccess.LoadData<int, dynamic>(OperationNames.InsertAuditTrail, auditTrail, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Audit Trail.");
 
-	public static async Task<AuditTrailModel> LoadLastAuditTrailByTableRecord(string TableName, string RecordNo) =>
+	internal static async Task<AuditTrailModel> LoadLastAuditTrailByTableRecord(string TableName, string RecordNo) =>
 		(await SqlDataAccess.LoadData<AuditTrailModel, dynamic>(OperationNames.LoadLastAuditTrailByTableRecord, new { TableName, RecordNo })).FirstOrDefault();
 
 	public static async Task SaveAuditTrail(AuditTrailModel auditTrail, SqlDataAccessTransaction sqlDataAccessTransaction = null)
@@ -53,7 +53,7 @@ public static class AuditTrailData
 		"LastModifiedFormFactor", "LastModifiedPlatform", "LastModifiedLatitude", "LastModifiedLongitude"
 	};
 
-	public static string GetDifference<T>(T previous, T current)
+	internal static string GetDifference<T>(T previous, T current)
 	{
 		var lines = new List<string>();
 
@@ -71,7 +71,7 @@ public static class AuditTrailData
 		return lines.Count == 0 ? null : string.Join(Environment.NewLine, lines);
 	}
 
-	public static string GetDifference<T>(List<T> previous, List<T> current, Type masterType = null)
+	internal static string GetDifference<T>(List<T> previous, List<T> current, Type masterType = null)
 	{
 		previous ??= [];
 		current ??= [];
@@ -106,7 +106,7 @@ public static class AuditTrailData
 		return sections.Count == 0 ? null : string.Join(Environment.NewLine, sections);
 	}
 
-	public static string CombineDifferences(params (string Label, string Diff)[] sections)
+	internal static string CombineDifferences(params (string Label, string Diff)[] sections)
 	{
 		var blocks = sections
 			.Where(s => !string.IsNullOrWhiteSpace(s.Diff))

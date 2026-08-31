@@ -1,9 +1,11 @@
 ﻿using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Operations.AuditTrail;
 using PrimeBakes.Data.Utils.Mail;
+using PrimeBakes.Data.Utils.Notification;
 using PrimeBakes.Exports.Accounts.FinancialAccounting;
 using PrimeBakes.Models.Accounts.FinancialAccounting;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.Operations.User;
 
 namespace PrimeBakes.Data.Accounts.FinancialAccounting;
 
@@ -11,8 +13,36 @@ internal static class FinancialAccountingNotify
 {
 	internal static async Task Notify(int transactionId, NotifyType type, (MemoryStream, string)? previousInvoice = null)
 	{
-		if (type != NotifyType.Created)
-			await NotifyByMail(transactionId, type, previousInvoice);
+		await FinancialAccountingNotification(transactionId, type);
+		await NotifyByMail(transactionId, type, previousInvoice);
+	}
+
+	private static async Task FinancialAccountingNotification(int transactionId, NotifyType type)
+	{
+		var transaction = await CommonData.LoadTableDataById<FinancialAccountingOverviewModel>(AccountNames.FinancialAccountingOverview, transactionId);
+		var users = await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User);
+
+		List<UserModel> targetUsers = [.. users.Where(u => (u.Admin || u.Accounts) && u.LocationId == 1)];
+
+		var notificationData = new NotificationUtil.TransactionNotificationData
+		{
+			TransactionType = "Accounting",
+			TransactionNo = transaction.TransactionNo,
+			Action = type,
+			LocationName = transaction.VoucherName,
+			Details = new Dictionary<string, string>
+			{
+				["🏢 Company"] = transaction.CompanyName,
+				["🧾 Voucher"] = transaction.VoucherName,
+				["📒 Ledgers"] = $"{transaction.TotalLedgers} | Dr: {transaction.TotalDebitLedgers} | Cr: {transaction.TotalCreditLedgers}",
+				["💰 Amount"] = transaction.TotalAmount.FormatIndianCurrency(),
+				["👤 " + (type == NotifyType.Deleted ? "Deleted By" : "By")] = transaction.LastModifiedByUserName ?? transaction.CreatedByName,
+				["📅 Date"] = transaction.TransactionDateTime.ToString("dd MMM yyyy, hh:mm tt")
+			},
+			Remarks = transaction.Remarks
+		};
+
+		await NotificationUtil.SendTransactionNotification(targetUsers, notificationData);
 	}
 
 	private static async Task NotifyByMail(int transactionId, NotifyType type, (MemoryStream, string)? previousInvoice = null)

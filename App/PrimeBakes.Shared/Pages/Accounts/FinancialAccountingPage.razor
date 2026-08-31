@@ -204,7 +204,7 @@ else
 														FieldValue="@nameof(LedgerModel.Name)"
 														AddNewRoute="@AccountsRouteNames.LedgerMaster" />
 
-									@if (_showReferenceInstrument)
+									@if (_showBRSFields)
 									{
 										<div class="reference-actions">
 											<IconButton Icon="IconType.Get" Variant="ButtonVariant.Get" Size="ButtonSize.Small"
@@ -214,7 +214,7 @@ else
 								</div>
 							</div>
 
-							@if (_showReferenceInstrument)
+							@if (_showBRSFields)
 							{
 								<div class="cart-field cart-field-wide">
 									<div class="reference-wrapper">
@@ -251,7 +251,7 @@ else
 													Required="false" />
 							</div>
 
-							@if (_showReferenceInstrument)
+							@if (_showBRSFields)
 							{
 								<div class="cart-field cart-field-wide">
 									<CustomTextField @bind-Value="_selectedCart.InstrumentNo"
@@ -313,10 +313,10 @@ else
 							<CustomGridColumn Field="@nameof(FinancialAccountingLedgerCartModel.LedgerName)" HeaderText="Ledger Name" />
 							<CustomGridColumn Field="@nameof(FinancialAccountingLedgerCartModel.Debit)" HeaderText="Debit" CustomColor="grid-debit" />
 							<CustomGridColumn Field="@nameof(FinancialAccountingLedgerCartModel.Credit)" HeaderText="Credit" CustomColor="grid-credit" />
-							<CustomGridColumn Field="@nameof(FinancialAccountingLedgerCartModel.ReferenceType)" HeaderText="Ref Type" Visible="_showReferenceInstrument" />
-							<CustomGridColumn Field="@nameof(FinancialAccountingLedgerCartModel.ReferenceNo)" HeaderText="Ref No" Visible="_showReferenceInstrument" />
-							<CustomGridColumn Field="@nameof(FinancialAccountingLedgerCartModel.InstrumentNo)" HeaderText="Instrument No" Visible="_showReferenceInstrument" />
-							<CustomGridColumn Field="@nameof(FinancialAccountingLedgerCartModel.InstrumentDate)" HeaderText="Instrument Date" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="_showReferenceInstrument" />
+							<CustomGridColumn Field="@nameof(FinancialAccountingLedgerCartModel.ReferenceType)" HeaderText="Ref Type" Visible="_showBRSFields" />
+							<CustomGridColumn Field="@nameof(FinancialAccountingLedgerCartModel.ReferenceNo)" HeaderText="Ref No" Visible="_showBRSFields" />
+							<CustomGridColumn Field="@nameof(FinancialAccountingLedgerCartModel.InstrumentNo)" HeaderText="Instrument No" Visible="_showBRSFields" />
+							<CustomGridColumn Field="@nameof(FinancialAccountingLedgerCartModel.InstrumentDate)" HeaderText="Instrument Date" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="_showBRSFields" />
 							<CustomGridColumn Field="@nameof(FinancialAccountingLedgerCartModel.Remarks)" HeaderText="Remarks" Width="500" />
 						</GridColumns>
 					</SfGrid>

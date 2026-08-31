@@ -4,7 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <AssemblyVersion>1.2.2.5</AssemblyVersion>
+    <AssemblyVersion>1.2.2.6</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Api\PrimeBakes.Api.Client\PrimeBakes.Api.Client.csproj" />
+    <ProjectReference Include="..\..\Data\PrimeBakes.Data\PrimeBakes.Data.csproj" />
     <ProjectReference Include="..\..\Data\PrimeBakes.Exports\PrimeBakes.Exports.csproj" />
     <ProjectReference Include="..\..\Data\PrimeBakes.Models\PrimeBakes.Models.csproj" />
   </ItemGroup>

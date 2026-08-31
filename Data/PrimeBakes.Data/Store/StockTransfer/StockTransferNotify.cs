@@ -14,9 +14,7 @@ internal static class StockTransferNotify
 	internal static async Task Notify(int stockTransferId, NotifyType type, (MemoryStream, string)? previousInvoice = null)
 	{
 		await StockTransferNotification(stockTransferId, type);
-
-		if (type != NotifyType.Created)
-			await StockTransferMail(stockTransferId, type, previousInvoice);
+		await StockTransferMail(stockTransferId, type, previousInvoice);
 	}
 
 	private static async Task StockTransferNotification(int stockTransferId, NotifyType type)
@@ -24,12 +22,7 @@ internal static class StockTransferNotify
 		var stockTransfer = await CommonData.LoadTableDataById<StockTransferOverviewModel>(StoreNames.StockTransferOverview, stockTransferId);
 		var users = await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User);
 
-		List<UserModel> targetUsers = [];
-
-		if (type == NotifyType.Created)
-			targetUsers = [.. users.Where(u => (u.Admin || u.Store) && (u.LocationId == stockTransfer.LocationId || u.LocationId == stockTransfer.ToLocationId))];
-		else
-			targetUsers = [.. users.Where(u => (u.Admin || u.Store) && (u.LocationId == 1 || u.LocationId == stockTransfer.LocationId || u.LocationId == stockTransfer.ToLocationId))];
+		List<UserModel> targetUsers = [.. users.Where(u => (u.Admin || u.Store) && (u.LocationId == 1 || u.LocationId == stockTransfer.LocationId || u.LocationId == stockTransfer.ToLocationId))];
 
 		var notificationData = new NotificationUtil.TransactionNotificationData
 		{

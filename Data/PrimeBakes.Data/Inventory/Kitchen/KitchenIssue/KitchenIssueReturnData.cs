@@ -25,10 +25,6 @@ public static class KitchenIssueReturnData
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertKitchenIssueReturn, kitchenIssueReturn, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Kitchen Issue Return.");
 
-	private static async Task<int> InsertKitchenIssueReturnDetail(KitchenIssueReturnDetailModel kitchenIssueReturnDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertKitchenIssueReturnDetail, kitchenIssueReturnDetail, sqlDataAccessTransaction)).FirstOrDefault()
-			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Kitchen Issue Return Detail.");
-
 	private static async Task InsertKitchenIssueReturnDetailList(DataTable kitchenIssueReturnDetails, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertKitchenIssueReturnDetailList, new { KitchenIssueReturnDetails = kitchenIssueReturnDetails.AsTableValuedParameter(InventoryNames.KitchenIssueReturnDetailType) }, sqlDataAccessTransaction);
 
@@ -160,8 +156,8 @@ public static class KitchenIssueReturnData
 
 			kitchenIssueReturn.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(kitchenIssueReturn, kitchenIssueReturnDetails, recover, transaction));
 
-			if (!recover)
-				await KitchenIssueReturnNotify.Notify(kitchenIssueReturn.Id, update ? NotifyType.Updated : NotifyType.Created, previousInvoice);
+			if (update && !recover)
+				await KitchenIssueReturnNotify.Notify(kitchenIssueReturn.Id, NotifyType.Updated, previousInvoice);
 
 			return kitchenIssueReturn.Id;
 		}

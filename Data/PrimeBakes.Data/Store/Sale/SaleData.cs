@@ -37,10 +37,6 @@ public static class SaleData
 		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertSale, sale, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Sale.");
 
-	private static async Task<int> InsertSaleDetail(SaleDetailModel saleDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertSaleDetail, saleDetail, sqlDataAccessTransaction)).FirstOrDefault()
-			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Sale Detail.");
-
 	private static async Task InsertSaleDetailList(DataTable saleDetails, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertSaleDetailList, new { SaleDetails = saleDetails.AsTableValuedParameter(StoreNames.SaleDetailType) }, sqlDataAccessTransaction);
 
@@ -383,8 +379,8 @@ public static class SaleData
 
 			sale.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(sale, saleDetails, customer, recover, transaction));
 
-			if (!recover)
-				await SaleNotify.Notify(sale.Id, update ? NotifyType.Updated : NotifyType.Created, previousInvoice);
+			if (update && !recover)
+				await SaleNotify.Notify(sale.Id, NotifyType.Updated, previousInvoice);
 
 			return sale.Id;
 		}

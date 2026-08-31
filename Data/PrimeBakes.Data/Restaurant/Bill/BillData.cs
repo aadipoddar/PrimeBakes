@@ -36,10 +36,6 @@ public static class BillData
 		(await SqlDataAccess.LoadData<int, dynamic>(RestaurantNames.InsertBill, bill, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Bill.");
 
-	private static async Task<int> InsertBillDetail(BillDetailModel billDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(RestaurantNames.InsertBillDetail, billDetail, sqlDataAccessTransaction)).FirstOrDefault()
-			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Bill Detail.");
-
 	private static async Task InsertBillDetailList(DataTable billDetails, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		await SqlDataAccess.LoadData<int, dynamic>(RestaurantNames.InsertBillDetailList, new { BillDetails = billDetails.AsTableValuedParameter(RestaurantNames.BillDetailType) }, sqlDataAccessTransaction);
 
@@ -429,8 +425,8 @@ public static class BillData
 
 			bill.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(bill, billDetails, customer, recover, transaction));
 
-			if (!recover && !bill.Running)
-				await BillNotify.Notify(bill.Id, settledUpdate ? NotifyType.Updated : NotifyType.Created, previousInvoice);
+			if (settledUpdate && !recover && !bill.Running)
+				await BillNotify.Notify(bill.Id, NotifyType.Updated, previousInvoice);
 
 			return bill.Id;
 		}

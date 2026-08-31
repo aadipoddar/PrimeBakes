@@ -117,6 +117,7 @@ One shared Blazor UI is hosted **three** ways — Blazor Server, Blazor WebAssem
 - **Nature & Account Types** - Hierarchical account classification
 - **Auto-Posting** - Automatic accounting entries from sales and bills
 - **Bank Reconciliation** - Reconcile bank ledger entries against statements
+- **BRS Field Toggle** - Reference and instrument (cheque / UTR) fields on accounting entry are hidden unless `ShowBRSFields` is enabled in Settings
 
 ### 📊 **Reporting & Analytics**
 Every transaction type has both a **transaction-level** and an **item-level** report, and every report exports to **both PDF and Excel**.
@@ -161,6 +162,8 @@ Monthly reports include hidden analysis columns (rank, contribution %, peak/lowe
 
 ### 🔔 **Push Notifications**
 - Real-time order and transaction notifications
+- Notifications and e-mail fire on **update, delete and recover** — creating a transaction is silent, so routine entry does not spam the team
+- Exceptions: stock adjustments notify on create, and the sale/bill **day-closing** summaries are sent in their own right
 - Firebase Cloud Messaging integration (Android)
 - Azure Notification Hubs backend, fronted by a separate API-key-authenticated API
 - Local notification, sound and vibration support on device
@@ -225,9 +228,9 @@ Monthly reports include hidden analysis columns (rank, contribution %, peak/lowe
         ▼                         ▼                         ▼
 ┌─────────────────┐   ┌─────────────────┐   ┌──────────────────────┐
 │  Azure SQL      │   │  Azure Blob     │   │  Push Notifications  │
-│  • 55 Tables    │   │  Storage        │   │  API                 │
-│  • 148 Procs    │   │  • Documents    │   │  • Notification Hubs │
-│  • 57 Views     │   │  • Attachments  │   │  • Firebase FCM      │
+│  • 61 Tables    │   │  Storage        │   │  API                 │
+│  • 113 Procs    │   │  • Documents    │   │  • Notification Hubs │
+│  • 36 Views     │   │  • Attachments  │   │  • Firebase FCM      │
 └─────────────────┘   └─────────────────┘   └──────────────────────┘
 ```
 
@@ -492,7 +495,7 @@ PrimeBakes/                                   # PrimeBakes.slnx
 
 ## 🗃️ Database
 
-The schema lives in `Data/PrimeBakes.Database` as an **SSDT SQL Server project** — the source of truth. It currently holds **55 tables**, **148 stored procedures** and **57 views** across **348 `.sql` files**, organised by module then feature:
+The schema lives in `Data/PrimeBakes.Database` as an **SSDT SQL Server project** — the source of truth. It currently holds **61 tables**, **113 stored procedures**, **36 views** and **16 table types** across **226 `.sql` files**, organised by module then feature:
 
 ```
 Data/PrimeBakes.Database/<Module>/<Feature>/{Table,Insert,Load}/
@@ -694,4 +697,4 @@ This project is proprietary software developed for **Salasar Foods Guwahati**.
 
 ---
 
-Latest Version = 1.2.2.5
+Latest Version = 1.2.2.6

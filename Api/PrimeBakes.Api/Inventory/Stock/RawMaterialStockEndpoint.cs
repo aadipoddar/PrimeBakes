@@ -11,9 +11,6 @@ public class RawMaterialStockEndpoint : ICarterModule
 		var endpoint = Helper.SanitizeClassName(nameof(RawMaterialStockEndpoint));
 		var group = app.MapGroup(endpoint).WithTags(endpoint);
 
-		group.MapPost(nameof(RawMaterialStockData.InsertRawMaterialStock),
-			(RawMaterialStockModel stock) => RawMaterialStockData.InsertRawMaterialStock(stock));
-
 		group.MapPost(nameof(RawMaterialStockData.DeleteRawMaterialStockByTransactionNo),
 			(string TransactionNo) => RawMaterialStockData.DeleteRawMaterialStockByTransactionNo(TransactionNo));
 

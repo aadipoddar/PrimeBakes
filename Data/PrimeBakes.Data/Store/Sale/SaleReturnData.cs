@@ -33,10 +33,6 @@ public static class SaleReturnData
 		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertSaleReturn, saleReturn, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Sale Return.");
 
-	private static async Task<int> InsertSaleReturnDetail(SaleReturnDetailModel saleReturnDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertSaleReturnDetail, saleReturnDetail, sqlDataAccessTransaction)).FirstOrDefault()
-			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Sale Return Detail.");
-
 	private static async Task InsertSaleReturnDetailList(DataTable saleReturnDetails, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertSaleReturnDetailList, new { SaleReturnDetails = saleReturnDetails.AsTableValuedParameter(StoreNames.SaleReturnDetailType) }, sqlDataAccessTransaction);
 
@@ -333,8 +329,8 @@ public static class SaleReturnData
 
 			saleReturn.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(saleReturn, saleReturnDetails, customer, recover, transaction));
 
-			if (!recover)
-				await SaleReturnNotify.Notify(saleReturn.Id, update ? NotifyType.Updated : NotifyType.Created, previousInvoice);
+			if (update && !recover)
+				await SaleReturnNotify.Notify(saleReturn.Id, NotifyType.Updated, previousInvoice);
 
 			return saleReturn.Id;
 		}

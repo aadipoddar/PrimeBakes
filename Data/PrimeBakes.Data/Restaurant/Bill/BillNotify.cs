@@ -15,9 +15,7 @@ internal static class BillNotify
 	internal static async Task Notify(int billId, NotifyType type, (MemoryStream, string)? previousInvoice = null)
 	{
 		await BillNotification(billId, type);
-
-		if (type != NotifyType.Created)
-			await BillMail(billId, type, previousInvoice);
+		await BillMail(billId, type, previousInvoice);
 	}
 
 	internal static async Task NotifyDayClosing(
@@ -61,14 +59,7 @@ internal static class BillNotify
 		var bill = await CommonData.LoadTableDataById<BillOverviewModel>(RestaurantNames.BillOverview, billId);
 		var users = await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User);
 
-		List<UserModel> targetUsers;
-
-		if (type == NotifyType.Created)
-			// On create, notify restaurant/admin users in the same outlet.
-			targetUsers = [.. users.Where(u => (u.Admin || u.Restaurant) && u.LocationId == bill.LocationId)];
-		else
-			// On update/delete/recover, also include main outlet (Location 1).
-			targetUsers = [.. users.Where(u => (u.Admin || u.Restaurant) && (u.LocationId == bill.LocationId || u.LocationId == 1))];
+		List<UserModel> targetUsers = [.. users.Where(u => (u.Admin || u.Restaurant) && (u.LocationId == bill.LocationId || u.LocationId == 1))];
 
 		var notificationData = new NotificationUtil.TransactionNotificationData
 		{

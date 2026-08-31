@@ -11,7 +11,7 @@ namespace PrimeBakes.Data.DataAccess;
 
 public static class SqlDataAccess
 {
-	public static readonly string _databaseConnection = CommonSecrets.DatabaseConnection switch
+	internal static readonly string _databaseConnection = CommonSecrets.DatabaseConnection switch
 	{
 		ConnectionType.Local => Secrets.LocalConnectionString,
 		ConnectionType.Azure => Secrets.AzureConnectionString,
@@ -19,7 +19,7 @@ public static class SqlDataAccess
 		_ => throw new NotImplementedException()
 	};
 
-	public static async Task<List<T>> LoadData<T, U>(string storedProcedure, U parameters, SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	internal static async Task<List<T>> LoadData<T, U>(string storedProcedure, U parameters, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		if (sqlDataAccessTransaction is not null)
 			return [.. await sqlDataAccessTransaction.LoadDataTransaction<T, U>(storedProcedure, parameters)];
@@ -28,7 +28,7 @@ public static class SqlDataAccess
 		return [.. await connection.QueryAsync<T>(storedProcedure, parameters, commandType: CommandType.StoredProcedure)];
 	}
 
-	public static DataTable ToDataTable<T>(List<T> items)
+	internal static DataTable ToDataTable<T>(List<T> items)
 	{
 		var properties = typeof(T).GetProperties();
 		DataTable dataTable = new();

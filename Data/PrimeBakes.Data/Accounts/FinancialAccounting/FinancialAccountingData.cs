@@ -25,10 +25,6 @@ public static class FinancialAccountingData
 		(await SqlDataAccess.LoadData<int, dynamic>(AccountNames.InsertFinancialAccounting, accounting, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Financial Accounting.");
 
-	private static async Task<int> InsertFinancialAccountingLedger(FinancialAccountingLedgerModel ledger, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(AccountNames.InsertFinancialAccountingLedger, ledger, sqlDataAccessTransaction)).FirstOrDefault()
-			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Financial Accounting Ledger.");
-
 	private static async Task InsertFinancialAccountingLedgerList(DataTable ledgers, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		await SqlDataAccess.LoadData<int, dynamic>(AccountNames.InsertFinancialAccountingLedgerList, new { FinancialAccountingLedgers = ledgers.AsTableValuedParameter(AccountNames.FinancialAccountingLedgerType) }, sqlDataAccessTransaction);
 
@@ -51,6 +47,7 @@ public static class FinancialAccountingData
 		return new(transaction, transactionDetails, company, await CommonData.LoadCurrentDateTime());
 	}
 
+	#region Delete
 	public static async Task DeleteTransaction(FinancialAccountingModel accounting, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		if (sqlDataAccessTransaction is null)
@@ -89,6 +86,7 @@ public static class FinancialAccountingData
 		await StockTransferData.UpdateFinancialAccountingId(id, null, sqlDataAccessTransaction);
 		await BillData.UpdateFinancialAccountingId(id, null, sqlDataAccessTransaction);
 	}
+	#endregion
 
 	public static async Task RecoverTransaction(FinancialAccountingModel accounting)
 	{
@@ -179,8 +177,8 @@ public static class FinancialAccountingData
 
 			accounting.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(accounting, ledgers, recover, transaction));
 
-			if (!recover)
-				await FinancialAccountingNotify.Notify(accounting.Id, update ? NotifyType.Updated : NotifyType.Created, previousInvoice);
+			if (update && !recover)
+				await FinancialAccountingNotify.Notify(accounting.Id, NotifyType.Updated, previousInvoice);
 
 			return accounting.Id;
 		}
@@ -270,6 +268,8 @@ public static class FinancialAccountingData
 	public static async Task SaveBRSDates(List<FinancialAccountingLedgerModel> changedLines, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
+			List<FinancialAccountingLedgerModel> updatedLines = [];
+
 			foreach (var line in changedLines)
 			{
 				var existingLine = await CommonData.LoadTableDataById<FinancialAccountingLedgerModel>(AccountNames.FinancialAccountingLedger, line.Id, transaction)
@@ -282,7 +282,7 @@ public static class FinancialAccountingData
 				if (existingLine.ClearingDate.HasValue && existingLine.ClearingDate.Value.Date < (existingLine.InstrumentDate ?? accounting.TransactionDateTime).Date)
 					throw new InvalidOperationException("The clearing date cannot be earlier than the transaction or instrument date.");
 
-				await InsertFinancialAccountingLedger(existingLine, transaction);
+				updatedLines.Add(existingLine);
 
 				await AuditTrailData.SaveAuditTrail(new()
 				{
@@ -297,6 +297,8 @@ public static class FinancialAccountingData
 					CreatedLongitude = longitude
 				}, transaction);
 			}
+
+			await InsertFinancialAccountingLedgerList(SqlDataAccess.ToDataTable(updatedLines), transaction);
 		});
 	#endregion
 }

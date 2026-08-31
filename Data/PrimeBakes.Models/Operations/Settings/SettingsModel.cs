@@ -64,6 +64,7 @@ public static class SettingsKeys
 
 	// Bank Reconciliation
 	public static string BankAccountTypeId => "BankAccountTypeId";
+	public static string ShowBRSFields => "ShowBRSFields";
 
 	// Purcahse Behaviour
 	public static string UpdateItemMasterRateOnPurchase => "UpdateRawMaterialMasterRateOnPurchase";

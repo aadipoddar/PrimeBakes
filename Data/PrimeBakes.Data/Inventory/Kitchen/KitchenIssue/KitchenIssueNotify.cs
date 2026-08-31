@@ -14,9 +14,7 @@ internal static class KitchenIssueNotify
 	internal static async Task Notify(int kitchenIssueId, NotifyType type, (MemoryStream, string)? previousInvoice = null)
 	{
 		await KitchenIssueNotification(kitchenIssueId, type);
-
-		if (type != NotifyType.Created)
-			await KitchenIssueMail(kitchenIssueId, type, previousInvoice);
+		await KitchenIssueMail(kitchenIssueId, type, previousInvoice);
 	}
 
 	private static async Task KitchenIssueNotification(int kitchenIssueId, NotifyType type)

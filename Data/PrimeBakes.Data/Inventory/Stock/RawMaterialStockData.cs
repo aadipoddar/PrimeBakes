@@ -22,11 +22,7 @@ namespace PrimeBakes.Data.Inventory.Stock;
 
 public static class RawMaterialStockData
 {
-	public static async Task<int> InsertRawMaterialStock(RawMaterialStockModel stock, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertRawMaterialStock, stock, sqlDataAccessTransaction)).FirstOrDefault()
-			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Raw Material Stock.");
-
-	public static async Task InsertRawMaterialStockList(DataTable rawMaterialStocks, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+	internal static async Task InsertRawMaterialStockList(DataTable rawMaterialStocks, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertRawMaterialStockList, new { RawMaterialStocks = rawMaterialStocks.AsTableValuedParameter(InventoryNames.RawMaterialStockType) }, sqlDataAccessTransaction);
 
 	private static async Task<int> DeleteRawMaterialStockById(int Id, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>

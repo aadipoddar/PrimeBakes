@@ -7,9 +7,6 @@ public static class RawMaterialStockData
 {
 	private static readonly string _endpoint = Helper.SanitizeClassName(nameof(RawMaterialStockData));
 
-	public static async Task<int> InsertRawMaterialStock(RawMaterialStockModel stock) =>
-		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(InsertRawMaterialStock)), stock);
-
 	public static async Task<int> DeleteRawMaterialStockByTransactionNo(string TransactionNo) =>
 		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteRawMaterialStockByTransactionNo)), new { }, new { TransactionNo });
 

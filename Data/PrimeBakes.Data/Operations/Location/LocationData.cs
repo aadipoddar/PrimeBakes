@@ -1,4 +1,4 @@
-using PrimeBakes.Data.Common;
+﻿using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Operations.AuditTrail;
 using PrimeBakes.Data.Store.Product;
 using PrimeBakes.Models.Accounts.Masters;
@@ -15,7 +15,7 @@ public static class LocationData
 		(await SqlDataAccess.LoadData<int, dynamic>(OperationNames.InsertLocation, location, transaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Location.");
 
-	public static async Task<LocationModel?> LoadLocationByLedgerId(int ledgerId, SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	internal static async Task<LocationModel?> LoadLocationByLedgerId(int ledgerId, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		var locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location, true, sqlDataAccessTransaction);
 		return locations.FirstOrDefault(l => l.LedgerId == ledgerId);

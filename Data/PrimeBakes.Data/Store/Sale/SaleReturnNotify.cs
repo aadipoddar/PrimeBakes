@@ -15,9 +15,7 @@ internal static class SaleReturnNotify
 	internal static async Task Notify(int saleReturnId, NotifyType type, (MemoryStream, string)? previousInvoice = null)
 	{
 		await SaleReturnNotification(saleReturnId, type);
-
-		if (type != NotifyType.Created)
-			await SaleReturnMail(saleReturnId, type, previousInvoice);
+		await SaleReturnMail(saleReturnId, type, previousInvoice);
 	}
 
 	private static async Task SaleReturnNotification(int saleReturnId, NotifyType type)
@@ -25,28 +23,23 @@ internal static class SaleReturnNotify
 		var saleReturn = await CommonData.LoadTableDataById<SaleReturnOverviewModel>(StoreNames.SaleReturnOverview, saleReturnId);
 		var users = await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User);
 
-		List<UserModel> targetUsers = [];
+		List<UserModel> targetUsers;
 
-		if (type == NotifyType.Created)
-			targetUsers = [.. users.Where(u => (u.Admin || u.Store) && u.LocationId == saleReturn.LocationId)];
-		else
+		if (saleReturn.PartyId != null && saleReturn.PartyId > 0)
 		{
-			if (saleReturn.PartyId != null && saleReturn.PartyId > 0)
-			{
-				var location = await LocationData.LoadLocationByLedgerId(saleReturn.PartyId.Value);
+			var location = await LocationData.LoadLocationByLedgerId(saleReturn.PartyId.Value);
 
-				if (location is not null)
-					targetUsers = [.. users.Where(u =>
-						(u.Admin || u.Store) && (
-							u.LocationId == location.Id ||
-							u.LocationId == 1 ||
-							u.LocationId == saleReturn.LocationId))];
-				else
-					targetUsers = [.. users.Where(u => (u.Admin || u.Store) && (u.LocationId == 1 || u.LocationId == saleReturn.LocationId))];
-			}
+			if (location is not null)
+				targetUsers = [.. users.Where(u =>
+					(u.Admin || u.Store) && (
+						u.LocationId == location.Id ||
+						u.LocationId == 1 ||
+						u.LocationId == saleReturn.LocationId))];
 			else
 				targetUsers = [.. users.Where(u => (u.Admin || u.Store) && (u.LocationId == 1 || u.LocationId == saleReturn.LocationId))];
 		}
+		else
+			targetUsers = [.. users.Where(u => (u.Admin || u.Store) && (u.LocationId == 1 || u.LocationId == saleReturn.LocationId))];
 
 		var notificationData = new NotificationUtil.TransactionNotificationData
 		{

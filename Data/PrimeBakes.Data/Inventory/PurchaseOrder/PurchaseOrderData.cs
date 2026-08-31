@@ -21,10 +21,6 @@ public static class PurchaseOrderData
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertPurchaseOrder, purchaseOrder, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Purchase Order.");
 
-	private static async Task<int> InsertPurchaseOrderDetail(PurchaseOrderDetailModel purchaseOrderDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertPurchaseOrderDetail, purchaseOrderDetail, sqlDataAccessTransaction)).FirstOrDefault()
-			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Purchase Order Detail.");
-
 	private static async Task InsertPurchaseOrderDetailList(DataTable purchaseOrderDetails, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertPurchaseOrderDetailList, new { PurchaseOrderDetails = purchaseOrderDetails.AsTableValuedParameter(InventoryNames.PurchaseOrderDetailType) }, sqlDataAccessTransaction);
 
@@ -192,8 +188,8 @@ public static class PurchaseOrderData
 
 			purchaseOrder.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(purchaseOrder, purchaseOrderDetails, recover, transaction));
 
-			if (!recover)
-				await PurchaseOrderNotify.Notify(purchaseOrder.Id, update ? NotifyType.Updated : NotifyType.Created, previousInvoice);
+			if (update && !recover)
+				await PurchaseOrderNotify.Notify(purchaseOrder.Id, NotifyType.Updated, previousInvoice);
 
 			return purchaseOrder.Id;
 		}

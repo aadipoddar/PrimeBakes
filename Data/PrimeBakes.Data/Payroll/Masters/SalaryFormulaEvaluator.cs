@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 using NCalc;
 
@@ -6,16 +6,16 @@ using PrimeBakes.Models.Payroll.Masters;
 
 namespace PrimeBakes.Data.Payroll.Masters;
 
-public static class SalaryFormulaEvaluator
+internal static class SalaryFormulaEvaluator
 {
 	public const string FullMonthPrefix = "FULL_";
 
-	public static readonly string[] ReservedVariables = ["OTHOURS", "PAIDDAYS", "DAYSINMONTH"];
+	private static readonly string[] ReservedVariables = ["OTHOURS", "PAIDDAYS", "DAYSINMONTH"];
 
-	public static bool FormulaReferences(string formula, string code) =>
+	internal static bool FormulaReferences(string formula, string code) =>
 		Regex.IsMatch(formula, $@"\b{Regex.Escape(code)}\b", RegexOptions.IgnoreCase);
 
-	public static decimal Evaluate(string formula, Dictionary<string, decimal> variables)
+	private static decimal Evaluate(string formula, Dictionary<string, decimal> variables)
 	{
 		var expression = new Expression(formula, ExpressionOptions.IgnoreCaseAtBuiltInFunctions);
 
@@ -28,7 +28,7 @@ public static class SalaryFormulaEvaluator
 		return Convert.ToDecimal(result);
 	}
 
-	public static void ValidateFormula(string formula, IEnumerable<string> availableCodes)
+	internal static void ValidateFormula(string formula, IEnumerable<string> availableCodes)
 	{
 		var expression = new Expression(formula, ExpressionOptions.IgnoreCaseAtBuiltInFunctions);
 
@@ -55,7 +55,7 @@ public static class SalaryFormulaEvaluator
 		}
 	}
 
-	public static Dictionary<int, decimal> EvaluateAll(
+	internal static Dictionary<int, decimal> EvaluateAll(
 		List<SalaryComponentModel> components,
 		Dictionary<int, decimal> inputAmounts,
 		decimal paidDays,

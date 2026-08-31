@@ -7,9 +7,6 @@ public static class ProductStockData
 {
 	private static readonly string _endpoint = Helper.SanitizeClassName(nameof(ProductStockData));
 
-	public static async Task<int> InsertProductStock(ProductStockModel stock) =>
-		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(InsertProductStock)), stock);
-
 	public static async Task<int> DeleteProductStockByTransactionNo(string TransactionNo) =>
 		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteProductStockByTransactionNo)), new { }, new { TransactionNo });
 

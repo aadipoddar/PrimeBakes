@@ -22,10 +22,6 @@ public static class OrderData
 		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertOrder, order, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Order.");
 
-	private static async Task<int> InsertOrderDetail(OrderDetailModel orderDetail, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertOrderDetail, orderDetail, sqlDataAccessTransaction)).FirstOrDefault()
-			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Order Detail.");
-
 	private static async Task InsertOrderDetailList(DataTable orderDetails, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertOrderDetailList, new { OrderDetails = orderDetails.AsTableValuedParameter(StoreNames.OrderDetailType) }, sqlDataAccessTransaction);
 
@@ -186,8 +182,8 @@ public static class OrderData
 
 			order.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(order, orderDetails, recover, transaction));
 
-			if (!recover)
-				await OrderNotify.Notify(order.Id, update ? NotifyType.Updated : NotifyType.Created, previousInvoice);
+			if (update && !recover)
+				await OrderNotify.Notify(order.Id, NotifyType.Updated, previousInvoice);
 
 			return order.Id;
 		}

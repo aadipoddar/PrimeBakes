@@ -16,9 +16,7 @@ internal static class SaleNotify
 	internal static async Task Notify(int saleId, NotifyType type, (MemoryStream, string)? previousInvoice = null)
 	{
 		await SaleNotification(saleId, type);
-
-		if (type != NotifyType.Created)
-			await SaleMail(saleId, type, previousInvoice);
+		await SaleMail(saleId, type, previousInvoice);
 	}
 
 	internal static async Task NotifyDayClosing(
@@ -62,48 +60,39 @@ internal static class SaleNotify
 		var sale = await CommonData.LoadTableDataById<SaleOverviewModel>(StoreNames.SaleOverview, saleId);
 		var users = await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User);
 
-		List<UserModel> targetUsers = [];
+		List<UserModel> targetUsers;
 
-		// For Save (new sale creation)
-		if (type == NotifyType.Created)
-			// Only notify stores and admins of the outlet where the sale was made
-			targetUsers = [.. users.Where(u => (u.Admin || u.Store) && u.LocationId == sale.LocationId)];
-
-		// For Delete, Recover, or Update operations
-		else
+		if (sale.PartyId != null && sale.PartyId > 0)
 		{
-			if (sale.PartyId != null && sale.PartyId > 0)
-			{
-				var location = await LocationData.LoadLocationByLedgerId(sale.PartyId.Value);
+			var location = await LocationData.LoadLocationByLedgerId(sale.PartyId.Value);
 
-				// If party has a valid location
-				if (location is not null)
-					// Notify stores and admins of:
-					// 1. The party outlet (where sale was made to)
-					// 2. The main outlet (LocationId = 1)
-					// 3. The outlet where the sale originated from (sale.LocationId)
-					targetUsers = [.. users.Where(u =>
-						(u.Admin || u.Store) && (
-							u.LocationId == location.Id ||          // Party outlet
-                            u.LocationId == 1 ||                    // Main outlet
-                            u.LocationId == sale.LocationId         // Originating outlet
-                        ))];
-				else
-					// If party doesn't have a location, notify sales and admins of the originating outlet and main outlet
-					targetUsers = [.. users.Where(u =>
-						(u.Admin || u.Store) && (
-							u.LocationId == sale.LocationId ||      // Originating outlet
-                            u.LocationId == 1                       // Main outlet
-                        ))];
-			}
-			else
-				// If no party, notify stores and admins of the originating outlet and main outlet
+			// If party has a valid location
+			if (location is not null)
+				// Notify stores and admins of:
+				// 1. The party outlet (where sale was made to)
+				// 2. The main outlet (LocationId = 1)
+				// 3. The outlet where the sale originated from (sale.LocationId)
 				targetUsers = [.. users.Where(u =>
 					(u.Admin || u.Store) && (
-						u.LocationId == sale.LocationId ||          // Originating outlet
-                        u.LocationId == 1                           // Main outlet
+						u.LocationId == location.Id ||          // Party outlet
+                        u.LocationId == 1 ||                    // Main outlet
+                        u.LocationId == sale.LocationId         // Originating outlet
+                    ))];
+			else
+				// If party doesn't have a location, notify sales and admins of the originating outlet and main outlet
+				targetUsers = [.. users.Where(u =>
+					(u.Admin || u.Store) && (
+						u.LocationId == sale.LocationId ||      // Originating outlet
+                        u.LocationId == 1                       // Main outlet
                     ))];
 		}
+		else
+			// If no party, notify stores and admins of the originating outlet and main outlet
+			targetUsers = [.. users.Where(u =>
+				(u.Admin || u.Store) && (
+					u.LocationId == sale.LocationId ||          // Originating outlet
+                    u.LocationId == 1                           // Main outlet
+                ))];
 
 		var notificationData = new NotificationUtil.TransactionNotificationData
 		{

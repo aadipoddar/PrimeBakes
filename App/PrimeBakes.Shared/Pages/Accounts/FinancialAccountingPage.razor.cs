@@ -21,7 +21,7 @@ public partial class FinancialAccountingPage
 	private UserModel _user;
 	private bool _isLoading = true;
 	private bool _isProcessing = false;
-	private bool _showReferenceInstrument = false;
+	private bool _showBRSFields = false;
 
 	private CompanyModel _selectedCompany = new();
 	private VoucherModel _selectedVoucher = new();
@@ -64,6 +64,9 @@ public partial class FinancialAccountingPage
 
 	private async Task InitializePage()
 	{
+		var showBRSFields = await SettingsData.LoadSettingsByKey(SettingsKeys.ShowBRSFields);
+		_showBRSFields = bool.TryParse(showBRSFields?.Value, out var show) && show;
+
 		await LoadCompanies();
 		await LoadVouchers();
 		await ResolveTransaction();
