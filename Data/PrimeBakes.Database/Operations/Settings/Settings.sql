@@ -1,6 +1,7 @@
 ﻿CREATE TABLE [dbo].[Settings]
 (
-    [Key] VARCHAR(50) NOT NULL UNIQUE, 
+    [Id] INT NOT NULL PRIMARY KEY IDENTITY,
+    [Key] VARCHAR(50) NOT NULL UNIQUE,
     [Value] VARCHAR(MAX) NOT NULL, 
     [Description] VARCHAR(MAX) NOT NULL, 
 )

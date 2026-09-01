@@ -1,4 +1,5 @@
 ﻿CREATE PROCEDURE [dbo].[Update_Settings]
+	@Id INT,
 	@Key VARCHAR(50),
 	@Value VARCHAR(MAX),
 	@Description VARCHAR(MAX)
