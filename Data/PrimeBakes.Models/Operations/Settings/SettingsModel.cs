@@ -90,4 +90,7 @@ public static class SettingsKeys
 
 	// Cache Settings
 	public static string CacheTimeoutMinutes => "CacheTimeoutMinutes";
+
+	// Backup Settings
+	public static string BackupReminderDays => "BackupReminderDays";
 }

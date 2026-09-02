@@ -11,5 +11,6 @@ public class BackupEndpoint : ICarterModule
 		var group = app.MapGroup(endpoint).WithTags(endpoint);
 
 		group.MapPost(nameof(BackupData.Backup), BackupData.Backup);
+		group.MapGet(nameof(BackupData.LoadLastBackupDate), BackupData.LoadLastBackupDate);
 	}
 }

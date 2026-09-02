@@ -1,5 +1,9 @@
+using PrimeBakes.Data.Operations.Maintenance;
+using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Models.DataAccess;
+using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
+using PrimeBakes.Shared.Components.Dialog;
 
 using System.Reflection;
 
@@ -74,8 +78,11 @@ public partial class Dashboard
 	#endregion
 
 	#region Load Data
+	private const int _defaultBackupReminderDays = 7;
+
 	private UserModel _user;
 	private bool _isLoading = true;
+	private ToastNotification _toastNotification;
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
@@ -113,6 +120,30 @@ public partial class Dashboard
 
 		if (Platform.Contains("Android") || Factor is "Web" or "Wasm")
 			_ = NotificationService.RegisterDevicePushNotification(_user.Id.ToString());
+
+		await LoadBackupReminder();
+	}
+
+	private async Task LoadBackupReminder()
+	{
+		if (!_user.Admin || _user.LocationId != 1)
+			return;
+
+		try
+		{
+			var setting = await SettingsData.LoadSettingsByKey(SettingsKeys.BackupReminderDays);
+			var reminderDays = int.TryParse(setting?.Value, out var days) ? days : _defaultBackupReminderDays;
+			var lastBackup = await BackupData.LoadLastBackupDate();
+			var elapsed = lastBackup is null ? int.MaxValue : (int)(DateTime.Now - lastBackup.Value).TotalDays;
+
+			if (elapsed >= reminderDays)
+				await _toastNotification.ShowAsync("Backup Due",
+					lastBackup is null
+						? "The backup server has never been updated. Please run a backup from Settings."
+						: $"Last backup was {elapsed} days ago. Please run a backup from Settings.",
+					ToastType.Warning);
+		}
+		catch { }
 	}
 	#endregion
 }

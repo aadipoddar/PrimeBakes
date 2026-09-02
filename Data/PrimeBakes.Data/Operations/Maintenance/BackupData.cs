@@ -17,6 +17,7 @@ public static class BackupData
 	private const char _keySeparator = (char)31;
 	private const int _connectRetryCount = 10;
 	private const int _connectRetryInterval = 10;
+	private const string _backupMarker = "LastBackup";
 
 	private sealed record TableInfo(string TableName, string KeyColumn);
 	private sealed record VersionInfo(string TableName, long CurrentVersion, long MinValidVersion);
@@ -79,11 +80,25 @@ public static class BackupData
 			await ToggleForeignKeys(backup, true);
 		}
 
+		await SaveVersion(source, _backupMarker, versions.Values.Max(version => version.CurrentVersion));
+
 		stopwatch.Stop();
 
 		return $"{tables.Count} tables in {stopwatch.Elapsed.TotalSeconds:N1}s. {copied:N0} rows copied, {removed:N0} removed."
 			+ (seeded > 0 ? $" {seeded} fully copied." : string.Empty)
 			+ (skipped > 0 ? $" {skipped} unchanged." : string.Empty);
+	}
+
+	public static async Task<DateTime?> LoadLastBackupDate()
+	{
+		var (sourceConnectionString, _) = GetConnectionStrings();
+
+		using SqlConnection source = new(sourceConnectionString);
+		await source.OpenAsync();
+
+		return (await source.QueryAsync<SyncVersionModel>(CommonNames.LoadTableData,
+			new { TableName = OperationNames.SyncVersion }, commandType: CommandType.StoredProcedure))
+			.FirstOrDefault(sync => sync.TableName == _backupMarker)?.LastSyncedAt;
 	}
 
 	private static (string Source, string Backup) GetConnectionStrings()

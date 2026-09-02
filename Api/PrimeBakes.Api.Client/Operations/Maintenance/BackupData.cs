@@ -8,4 +8,7 @@ public static class BackupData
 
 	public static async Task<string> Backup() =>
 		await ApiClient.Post<string>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(Backup)), null);
+
+	public static async Task<DateTime?> LoadLastBackupDate() =>
+		await ApiClient.Get<DateTime?>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadLastBackupDate)));
 }

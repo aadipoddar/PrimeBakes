@@ -1,11 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
-using PrimeBakes.Models.Common;
 using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.User;
-
-using PrimeBakes.Shared.Services;
 
 using System.Text.Json;
 

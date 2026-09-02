@@ -84,6 +84,9 @@ BEGIN
 	-- Cache Settings
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'CacheTimeoutMinutes', N'60', N'How long the API keeps master data cached, in minutes')
 
+	-- Backup Settings
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'BackupReminderDays', N'7', N'Days after the last backup before the dashboard reminds an admin to run one')
+
 	SELECT 1 AS Success;
 
 END
