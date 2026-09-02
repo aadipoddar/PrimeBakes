@@ -32,7 +32,10 @@ public static class OperationNames
 	public static string RebuildIndexes => "Rebuild_Indexes";
 	public static string LoadTableNames => "Load_TableNames";
 	public static string ToggleForeignKeys => "Toggle_ForeignKeys";
-	public static string LoadTableHashes => "Load_TableHashes";
+	public static string SyncVersion => "SyncVersion";
+	public static string LoadTableChangeVersions => "Load_TableChangeVersions";
+	public static string LoadTableChanges => "Load_TableChanges";
+	public static string InsertSyncVersion => "Insert_SyncVersion";
 	public static string LoadTableDataByKeys => "Load_TableData_By_Keys";
 	public static string DeleteTableDataByKeys => "Delete_TableData_By_Keys";
 	public static string DeleteTableData => "Delete_TableData";

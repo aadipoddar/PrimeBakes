@@ -22,6 +22,9 @@
     <SqlServerVerification>False</SqlServerVerification>
     <IncludeCompositeObjects>True</IncludeCompositeObjects>
     <TargetDatabaseSet>True</TargetDatabaseSet>
+    <AllowSnapshotIsolation>True</AllowSnapshotIsolation>
+    <IsChangeTrackingOn>True</IsChangeTrackingOn>
+    <ChangeTrackingRetentionPeriod>30</ChangeTrackingRetentionPeriod>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\Release\</OutputPath>
@@ -369,11 +372,14 @@
     <Build Include="Operations\Maintenance\Rebuild_Indexes.sql" />
     <Build Include="Operations\Maintenance\Load_TableNames.sql" />
     <Build Include="Operations\Maintenance\Toggle_ForeignKeys.sql" />
-    <Build Include="Operations\Maintenance\Load_TableHashes.sql" />
     <Build Include="Operations\Maintenance\Load_TableData_By_Keys.sql" />
     <Build Include="Operations\Maintenance\Delete_TableData_By_Keys.sql" />
     <Build Include="Operations\Maintenance\Delete_TableData.sql" />
     <Build Include="Operations\Maintenance\Load_DatabaseSize.sql" />
+    <Build Include="Operations\Maintenance\SyncVersion.sql" />
+    <Build Include="Operations\Maintenance\Load_TableChangeVersions.sql" />
+    <Build Include="Operations\Maintenance\Load_TableChanges.sql" />
+    <Build Include="Operations\Maintenance\Insert_SyncVersion.sql" />
     <Build Include="Operations\Location\Insert_Location.sql" />
     <Build Include="Operations\User\Insert_User.sql" />
     <Build Include="Operations\User\Load_User_By_Passcode.sql" />
@@ -383,8 +389,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="PublishLocation\LocalDB.publish.xml" />
+    <None Include="PublishLocation\LocalDBTesting.publish.xml" />
     <None Include="PublishLocation\AzureDBTesting.publish.xml" />
     <None Include="PublishLocation\AzureDB.publish.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="Operations\Maintenance\Script.PostDeployment.sql" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Operations\User\User.sql" />

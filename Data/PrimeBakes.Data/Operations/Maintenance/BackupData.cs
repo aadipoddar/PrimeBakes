@@ -4,6 +4,7 @@ using Microsoft.Data.SqlClient;
 
 using PrimeBakes.Models.Common;
 using PrimeBakes.Models.DataAccess;
+using PrimeBakes.Models.Operations.Maintenance;
 
 using System.Data;
 using System.Diagnostics;
@@ -14,30 +15,31 @@ public static class BackupData
 {
 	private const int _batchSize = 2000;
 	private const char _keySeparator = (char)31;
+	private const int _connectRetryCount = 10;
+	private const int _connectRetryInterval = 10;
 
 	private sealed record TableInfo(string TableName, string KeyColumn);
-	private sealed record HashRow(string KeyValue, byte[] Hash);
+	private sealed record VersionInfo(string TableName, long CurrentVersion, long MinValidVersion);
+	private sealed record ChangeRow(string KeyValue, string Operation);
 
 	public static async Task<string> Backup()
 	{
-		if (CommonSecrets.DatabaseConnection != ConnectionType.Azure)
-			throw new InvalidOperationException("Backup can only be run against the production server.");
+		var (sourceConnectionString, backupConnectionString) = GetConnectionStrings();
 
-		if (Secrets.AzureConnectionString == Secrets.AzureTestingConnectionString)
-			throw new InvalidOperationException("The source and backup servers cannot be the same.");
-
-		using SqlConnection source = new(Secrets.AzureConnectionString);
-		using SqlConnection backup = new(Secrets.AzureTestingConnectionString);
+		using SqlConnection source = new(sourceConnectionString);
+		using SqlConnection backup = new(backupConnectionString);
 
 		await source.OpenAsync();
 		await backup.OpenAsync();
 
-		var sourceTables = await LoadTableNames(source);
-		var backupTableNames = (await LoadTableNames(backup)).Select(table => table.TableName).ToHashSet();
-		var tables = sourceTables.Where(table => backupTableNames.Contains(table.TableName)).ToList();
+		var tables = await LoadSyncableTables(source, backup);
+		var versions = await LoadVersions(source);
+		var syncedVersions = await LoadSyncedVersions(backup);
 
 		int copied = 0;
 		int removed = 0;
+		int seeded = 0;
+		int skipped = 0;
 		var stopwatch = Stopwatch.StartNew();
 
 		await ToggleForeignKeys(backup, false);
@@ -46,9 +48,30 @@ public static class BackupData
 		{
 			foreach (var table in tables)
 			{
-				var (tableCopied, tableRemoved) = await BackupTable(source, backup, table);
-				copied += tableCopied;
-				removed += tableRemoved;
+				if (!versions.TryGetValue(table.TableName, out var version))
+					continue;
+
+				bool synced = syncedVersions.TryGetValue(table.TableName, out var lastVersion);
+
+				if (synced && lastVersion == version.CurrentVersion)
+				{
+					skipped++;
+					continue;
+				}
+
+				if (!synced || lastVersion < version.MinValidVersion)
+				{
+					copied += await SeedTable(source, backup, table);
+					seeded++;
+				}
+				else
+				{
+					var (tableCopied, tableRemoved) = await SyncTable(source, backup, table, lastVersion);
+					copied += tableCopied;
+					removed += tableRemoved;
+				}
+
+				await SaveVersion(backup, table.TableName, version.CurrentVersion);
 			}
 		}
 		finally
@@ -58,67 +81,90 @@ public static class BackupData
 
 		stopwatch.Stop();
 
-		int skipped = sourceTables.Count - tables.Count;
-
 		return $"{tables.Count} tables in {stopwatch.Elapsed.TotalSeconds:N1}s. {copied:N0} rows copied, {removed:N0} removed."
-			+ (skipped > 0 ? $" {skipped} not on the backup server, skipped." : string.Empty);
+			+ (seeded > 0 ? $" {seeded} fully copied." : string.Empty)
+			+ (skipped > 0 ? $" {skipped} unchanged." : string.Empty);
+	}
+
+	private static (string Source, string Backup) GetConnectionStrings()
+	{
+		var (source, backup) = CommonSecrets.DatabaseConnection switch
+		{
+			ConnectionType.Azure => (Secrets.AzureConnectionString, Secrets.AzureTestingConnectionString),
+			ConnectionType.Local => (Secrets.AzureTestingConnectionString, Secrets.LocalConnectionString),
+			_ => throw new InvalidOperationException("Backup can only be run against the production or local server.")
+		};
+
+		return (WithConnectionResiliency(source), WithConnectionResiliency(backup));
+	}
+
+	private static string WithConnectionResiliency(string connectionString) =>
+		new SqlConnectionStringBuilder(connectionString)
+		{
+			ConnectRetryCount = _connectRetryCount,
+			ConnectRetryInterval = _connectRetryInterval
+		}.ConnectionString;
+
+	private static async Task<List<TableInfo>> LoadSyncableTables(SqlConnection source, SqlConnection backup)
+	{
+		var sourceTables = await LoadTableNames(source);
+		var backupTableNames = (await LoadTableNames(backup)).Select(table => table.TableName).ToHashSet();
+
+		return sourceTables
+			.Where(table => table.TableName != OperationNames.SyncVersion && backupTableNames.Contains(table.TableName))
+			.ToList();
 	}
 
 	private static async Task<List<TableInfo>> LoadTableNames(SqlConnection connection) =>
 		(await connection.QueryAsync<TableInfo>(OperationNames.LoadTableNames, commandType: CommandType.StoredProcedure)).ToList();
 
+	private static async Task<Dictionary<string, VersionInfo>> LoadVersions(SqlConnection source) =>
+		(await source.QueryAsync<VersionInfo>(OperationNames.LoadTableChangeVersions, commandType: CommandType.StoredProcedure))
+			.ToDictionary(version => version.TableName);
+
+	private static async Task<Dictionary<string, long>> LoadSyncedVersions(SqlConnection backup) =>
+		(await backup.QueryAsync<SyncVersionModel>(CommonNames.LoadTableData,
+			new { TableName = OperationNames.SyncVersion }, commandType: CommandType.StoredProcedure))
+			.ToDictionary(sync => sync.TableName, sync => sync.Version);
+
+	private static async Task SaveVersion(SqlConnection backup, string tableName, long version) =>
+		await backup.ExecuteAsync(OperationNames.InsertSyncVersion, new { TableName = tableName, Version = version },
+			commandType: CommandType.StoredProcedure, commandTimeout: 0);
+
 	private static async Task ToggleForeignKeys(SqlConnection connection, bool enable) =>
 		await connection.ExecuteAsync(OperationNames.ToggleForeignKeys, new { Enable = enable },
 			commandType: CommandType.StoredProcedure, commandTimeout: 0);
 
-	private static async Task<(int Copied, int Removed)> BackupTable(SqlConnection source, SqlConnection backup, TableInfo table)
+	private static async Task<int> SeedTable(SqlConnection source, SqlConnection backup, TableInfo table)
 	{
-		if (string.IsNullOrWhiteSpace(table.KeyColumn))
-		{
-			await backup.ExecuteAsync(OperationNames.DeleteTableData, new { table.TableName },
-				commandType: CommandType.StoredProcedure, commandTimeout: 0);
+		await backup.ExecuteAsync(OperationNames.DeleteTableData, new { table.TableName },
+			commandType: CommandType.StoredProcedure, commandTimeout: 0);
 
-			return (await CopyRows(source, backup, table, null), 0);
-		}
+		return await CopyRows(source, backup, table, null);
+	}
 
-		var sourceHashes = await LoadHashes(source, table);
-		var backupHashes = await LoadHashes(backup, table);
+	private static async Task<(int Copied, int Removed)> SyncTable(SqlConnection source, SqlConnection backup, TableInfo table, long lastVersion)
+	{
+		var changes = (await source.QueryAsync<ChangeRow>(OperationNames.LoadTableChanges,
+			new { table.TableName, table.KeyColumn, LastVersion = lastVersion },
+			commandType: CommandType.StoredProcedure, commandTimeout: 0)).ToList();
 
-		List<string> toDelete = [];
-		List<string> toCopy = [];
+		if (changes.Count == 0)
+			return (0, 0);
 
-		foreach (var (key, hash) in sourceHashes)
-			if (!backupHashes.TryGetValue(key, out var backupHash))
-				toCopy.Add(key);
-			else if (!backupHash.SequenceEqual(hash))
-			{
-				toDelete.Add(key);
-				toCopy.Add(key);
-			}
-
-		foreach (var key in backupHashes.Keys)
-			if (!sourceHashes.ContainsKey(key))
-				toDelete.Add(key);
-
-		foreach (var batch in toDelete.Chunk(_batchSize))
+		foreach (var batch in changes.Select(change => change.KeyValue).Chunk(_batchSize))
 			await backup.ExecuteAsync(OperationNames.DeleteTableDataByKeys,
 				new { table.TableName, table.KeyColumn, Keys = string.Join(_keySeparator, batch) },
 				commandType: CommandType.StoredProcedure, commandTimeout: 0);
+
+		var toCopy = changes.Where(change => change.Operation != "D").Select(change => change.KeyValue).ToArray();
 
 		int copied = 0;
 
 		foreach (var batch in toCopy.Chunk(_batchSize))
 			copied += await CopyRows(source, backup, table, batch);
 
-		return (copied, toDelete.Count);
-	}
-
-	private static async Task<Dictionary<string, byte[]>> LoadHashes(SqlConnection connection, TableInfo table)
-	{
-		var rows = await connection.QueryAsync<HashRow>(OperationNames.LoadTableHashes,
-			new { table.TableName, table.KeyColumn }, commandType: CommandType.StoredProcedure, commandTimeout: 0);
-
-		return rows.ToDictionary(row => row.KeyValue, row => row.Hash);
+		return (copied, changes.Count - toCopy.Length);
 	}
 
 	private static async Task<int> CopyRows(SqlConnection source, SqlConnection backup, TableInfo table, string[] keys)

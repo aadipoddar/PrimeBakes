@@ -648,7 +648,7 @@ public partial class SettingsPage
 	#region Backup
 
 	private async Task ShowBackupConfirmation() =>
-		await ShowConfirmation("Backup To Server", "Are you sure you want to copy the production data to the backup server? Any data on the backup server that is not on production will be removed.", Backup);
+		await ShowConfirmation("Backup To Server", "Are you sure you want to copy the changes since the last backup to the backup server? Tables that have never been backed up will be copied in full.", Backup);
 
 	private async Task Backup()
 	{
