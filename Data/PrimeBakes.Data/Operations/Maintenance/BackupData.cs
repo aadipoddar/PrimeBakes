@@ -17,6 +17,8 @@ public static class BackupData
 	private const char _keySeparator = (char)31;
 	private const int _connectRetryCount = 10;
 	private const int _connectRetryInterval = 10;
+	private const int _connectTimeout = 90;
+	private const int _bulkCopyBatchSize = 10000;
 	private const string _backupMarker = "LastBackup";
 
 	private sealed record TableInfo(string TableName, string KeyColumn);
@@ -117,7 +119,8 @@ public static class BackupData
 		new SqlConnectionStringBuilder(connectionString)
 		{
 			ConnectRetryCount = _connectRetryCount,
-			ConnectRetryInterval = _connectRetryInterval
+			ConnectRetryInterval = _connectRetryInterval,
+			ConnectTimeout = _connectTimeout
 		}.ConnectionString;
 
 	private static async Task<List<TableInfo>> LoadSyncableTables(SqlConnection source, SqlConnection backup)
@@ -200,10 +203,12 @@ public static class BackupData
 
 		using var reader = await command.ExecuteReaderAsync();
 
-		using SqlBulkCopy bulkCopy = new(backup, SqlBulkCopyOptions.KeepIdentity, null)
+		using SqlBulkCopy bulkCopy = new(backup, SqlBulkCopyOptions.KeepIdentity | SqlBulkCopyOptions.TableLock, null)
 		{
 			DestinationTableName = $"[dbo].[{table.TableName}]",
-			BulkCopyTimeout = 0
+			BulkCopyTimeout = 0,
+			BatchSize = _bulkCopyBatchSize,
+			EnableStreaming = true
 		};
 
 		for (int i = 0; i < reader.FieldCount; i++)
