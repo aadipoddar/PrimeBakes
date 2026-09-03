@@ -29,13 +29,10 @@ public partial class IconButton
             // Add variant class
             Variant switch
 			{
-				ButtonVariant.Pdf => "icon-btn-pdf",
 				ButtonVariant.View => "icon-btn-view",
 				ButtonVariant.Delete => "icon-btn-delete",
 				ButtonVariant.Add => "icon-btn-add",
 				ButtonVariant.Get => "icon-btn-get",
-				ButtonVariant.BluetoothConnected => "icon-btn-bt-connected",
-				ButtonVariant.BluetoothDisconnected => "icon-btn-bt-disconnected",
 				_ => string.Empty
 			},
 
@@ -62,24 +59,18 @@ public partial class IconButton
 
 public enum IconType
 {
-	Pdf,
 	View,
-	Refresh,
 	Delete,
 	Add,
-	Bluetooth,
 	Get
 }
 
 public enum ButtonVariant
 {
 	Default,
-	Pdf,
 	View,
 	Delete,
 	Add,
-	BluetoothConnected,
-	BluetoothDisconnected,
 	Get
 }
 

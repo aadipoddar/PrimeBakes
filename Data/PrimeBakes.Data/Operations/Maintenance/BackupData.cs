@@ -3,7 +3,6 @@
 using Microsoft.Data.SqlClient;
 
 using PrimeBakes.Models.Common;
-using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.Maintenance;
 
 using System.Data;
@@ -25,12 +24,16 @@ public static class BackupData
 	private sealed record VersionInfo(string TableName, long CurrentVersion, long MinValidVersion);
 	private sealed record ChangeRow(string KeyValue, string Operation);
 
-	public static async Task<string> Backup()
-	{
-		var (sourceConnectionString, backupConnectionString) = GetConnectionStrings();
+	public static async Task<string> Backup() =>
+		await RunSync(Secrets.AzureTestingConnectionString, _backupMarker);
 
-		using SqlConnection source = new(sourceConnectionString);
-		using SqlConnection backup = new(backupConnectionString);
+	public static async Task<string> SyncToLocalClient() =>
+		await RunSync(Secrets.LocalClientConnectionString, null);
+
+	private static async Task<string> RunSync(string backupConnectionString, string markerTable)
+	{
+		using SqlConnection source = new(WithConnectionResiliency(Secrets.AzureConnectionString));
+		using SqlConnection backup = new(WithConnectionResiliency(backupConnectionString));
 
 		await source.OpenAsync();
 		await backup.OpenAsync();
@@ -82,7 +85,8 @@ public static class BackupData
 			await ToggleForeignKeys(backup, true);
 		}
 
-		await SaveVersion(source, _backupMarker, versions.Values.Max(version => version.CurrentVersion));
+		if (markerTable is not null)
+			await SaveVersion(source, markerTable, versions.Values.Max(version => version.CurrentVersion));
 
 		stopwatch.Stop();
 
@@ -93,26 +97,12 @@ public static class BackupData
 
 	public static async Task<DateTime?> LoadLastBackupDate()
 	{
-		var (sourceConnectionString, _) = GetConnectionStrings();
-
-		using SqlConnection source = new(sourceConnectionString);
+		using SqlConnection source = new(WithConnectionResiliency(Secrets.AzureConnectionString));
 		await source.OpenAsync();
 
 		return (await source.QueryAsync<SyncVersionModel>(CommonNames.LoadTableData,
 			new { TableName = OperationNames.SyncVersion }, commandType: CommandType.StoredProcedure))
 			.FirstOrDefault(sync => sync.TableName == _backupMarker)?.LastSyncedAt;
-	}
-
-	private static (string Source, string Backup) GetConnectionStrings()
-	{
-		var (source, backup) = CommonSecrets.DatabaseConnection switch
-		{
-			ConnectionType.Azure => (Secrets.AzureConnectionString, Secrets.AzureTestingConnectionString),
-			ConnectionType.Local => (Secrets.AzureTestingConnectionString, Secrets.LocalConnectionString),
-			_ => throw new InvalidOperationException("Backup can only be run against the production or local server.")
-		};
-
-		return (WithConnectionResiliency(source), WithConnectionResiliency(backup));
 	}
 
 	private static string WithConnectionResiliency(string connectionString) =>
@@ -128,13 +118,11 @@ public static class BackupData
 		var sourceTables = await LoadTableNames(source);
 		var backupTableNames = (await LoadTableNames(backup)).Select(table => table.TableName).ToHashSet();
 
-		return sourceTables
-			.Where(table => table.TableName != OperationNames.SyncVersion && backupTableNames.Contains(table.TableName))
-			.ToList();
+		return [.. sourceTables.Where(table => table.TableName != OperationNames.SyncVersion && backupTableNames.Contains(table.TableName))];
 	}
 
 	private static async Task<List<TableInfo>> LoadTableNames(SqlConnection connection) =>
-		(await connection.QueryAsync<TableInfo>(OperationNames.LoadTableNames, commandType: CommandType.StoredProcedure)).ToList();
+		[.. (await connection.QueryAsync<TableInfo>(OperationNames.LoadTableNames, commandType: CommandType.StoredProcedure))];
 
 	private static async Task<Dictionary<string, VersionInfo>> LoadVersions(SqlConnection source) =>
 		(await source.QueryAsync<VersionInfo>(OperationNames.LoadTableChangeVersions, commandType: CommandType.StoredProcedure))

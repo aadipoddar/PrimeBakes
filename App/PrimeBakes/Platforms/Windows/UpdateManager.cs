@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Text.Json;
 
 namespace PrimeBakes.Services;
 
@@ -19,31 +18,12 @@ public static class UpdaterManager
 	private static async Task<bool> ReleaseTagHasAssets(string githubRepoOwner, string githubRepoName, string tag, string setupFileName)
 	{
 		var cacheBuster = DateTime.UtcNow.Ticks.ToString();
-		var releaseApiUrl = $"https://api.github.com/repos/{githubRepoOwner}/{githubRepoName}/releases/tags/{tag}?cb={cacheBuster}";
-		var expectedAssetName = $"{setupFileName}.zip";
+		var assetUrl = $"https://github.com/{githubRepoOwner}/{githubRepoName}/releases/download/{tag}/{setupFileName}.zip?cb={cacheBuster}";
 
 		using var client = CreateHttpClient(withUserAgent: true);
-		using var response = await client.GetAsync(releaseApiUrl);
-		if (!response.IsSuccessStatusCode)
-			return false;
+		using var response = await client.GetAsync(assetUrl, HttpCompletionOption.ResponseHeadersRead);
 
-		var content = await response.Content.ReadAsStringAsync();
-		using var document = JsonDocument.Parse(content);
-
-		if (!document.RootElement.TryGetProperty("assets", out var assets) || assets.ValueKind != JsonValueKind.Array)
-			return false;
-
-		foreach (var asset in assets.EnumerateArray())
-		{
-			if (!asset.TryGetProperty("name", out var nameElement))
-				continue;
-
-			var assetName = nameElement.GetString();
-			if (string.Equals(assetName, expectedAssetName, StringComparison.OrdinalIgnoreCase))
-				return true;
-		}
-
-		return false;
+		return response.IsSuccessStatusCode;
 	}
 
 	private static async Task<string> GetLatestVersionFromGithubReadme(string githubRepoOwner, string githubRepoName)

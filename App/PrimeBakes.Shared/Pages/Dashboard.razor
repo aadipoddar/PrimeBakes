@@ -60,13 +60,11 @@ else
 		<Header Title="Dashboard">
 			<LeftContent>
 				<MudBlazor.MudMenu Label="File" Dense="true">
+					<MudBlazor.MudMenuItem Label="Force Update" Disabled="@(_isLoading || _isUpdating)" OnClick="ForceUpdate" />
 					<MudBlazor.MudMenuItem Label="Download Android" Href=@($"https://github.com/aadipoddar/{CommonSecrets.DatabaseName}/releases/download/{AppVersion}/{CommonSecrets.DatabaseName}.apk") />
 					<MudBlazor.MudMenuItem Label="Download Windows" Href=@($"https://github.com/aadipoddar/{CommonSecrets.DatabaseName}/releases/download/{AppVersion}/{CommonSecrets.DatabaseName}.zip") />
 				</MudBlazor.MudMenu>
 			</LeftContent>
-			<RightContent>
-				<IconButton Icon="IconType.Refresh" Title="Force Update" Disabled="@(_isLoading || _isUpdating)" OnClick="ForceUpdate" />
-			</RightContent>
 		</Header>
 
 		<!-- Main Content Container -->

@@ -389,7 +389,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="PublishLocation\LocalDB.publish.xml" />
-    <None Include="PublishLocation\LocalDBTesting.publish.xml" />
     <None Include="PublishLocation\AzureDBTesting.publish.xml" />
     <None Include="PublishLocation\AzureDB.publish.xml" />
   </ItemGroup>

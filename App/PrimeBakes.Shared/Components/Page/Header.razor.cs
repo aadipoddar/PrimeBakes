@@ -99,7 +99,7 @@ public partial class Header
 	{
 		try
 		{
-			var decodedTransaction = await DecodeSearchTransactionAsync(searchText, false);
+			var decodedTransaction = await DecodeSearchTransactionAsync(searchText);
 			if (!string.IsNullOrWhiteSpace(decodedTransaction.PageRouteName))
 			{
 				NavigationManager.NavigateTo(decodedTransaction.PageRouteName);
@@ -114,36 +114,17 @@ public partial class Header
 		return false;
 	}
 
-	private async Task DownloadPdfFromSearch()
-	{
-		if (string.IsNullOrWhiteSpace(_searchText))
-			return;
-
-		var searchText = _searchText.Trim();
-
-		try
-		{
-			var decodedTransaction = await DecodeSearchTransactionAsync(searchText, true);
-			if (decodedTransaction.PDFStream.stream is not null && !string.IsNullOrWhiteSpace(decodedTransaction.PDFStream.fileName))
-				await SaveAndViewService.SaveAndView(decodedTransaction.PDFStream.fileName, decodedTransaction.PDFStream.stream);
-		}
-		catch
-		{
-			// Ignore decode/download failures from header action.
-		}
-	}
-
-	private static async Task<DecodeTransactionNoModel> DecodeSearchTransactionAsync(string searchText, bool pdf)
+	private static async Task<DecodeTransactionNoModel> DecodeSearchTransactionAsync(string searchText)
 	{
 		var decodedTransaction = await DecodeCode.DecodeTransactionNo(searchText);
-		if (!string.IsNullOrWhiteSpace(decodedTransaction.PageRouteName) || (pdf && decodedTransaction.PDFStream.stream is not null))
+		if (!string.IsNullOrWhiteSpace(decodedTransaction.PageRouteName))
 			return decodedTransaction;
 
 		var upperSearchText = searchText.ToUpperInvariant();
 		if (!searchText.Equals(upperSearchText, StringComparison.Ordinal))
 		{
 			var upperDecodedTransaction = await DecodeCode.DecodeTransactionNo(upperSearchText);
-			if (!string.IsNullOrWhiteSpace(upperDecodedTransaction.PageRouteName) || (pdf && upperDecodedTransaction.PDFStream.stream is not null))
+			if (!string.IsNullOrWhiteSpace(upperDecodedTransaction.PageRouteName))
 				return upperDecodedTransaction;
 		}
 
