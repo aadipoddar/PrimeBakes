@@ -4,6 +4,14 @@ namespace PrimeBakes.Services;
 
 public class UpdateService : IUpdateService
 {
+	public async Task UninstallAsync()
+	{
+#if WINDOWS
+		UpdaterManager.Uninstall();
+#endif
+		await Task.CompletedTask;
+	}
+
 	public async Task<bool> CheckForUpdatesAsync(string githubRepoOwner, string githubRepoName, string setupFileName, string currentVersion)
 	{
 #if ANDROID || WINDOWS

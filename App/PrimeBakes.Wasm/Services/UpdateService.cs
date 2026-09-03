@@ -4,6 +4,9 @@ namespace PrimeBakes.Wasm.Services;
 
 public class UpdateService : IUpdateService
 {
+	public Task UninstallAsync() =>
+		Task.CompletedTask;
+
 	public Task<bool> CheckForUpdatesAsync(string githubRepoOwner, string githubRepoName, string setupAPKName, string currentVersion) =>
 		Task.FromResult(false);
 

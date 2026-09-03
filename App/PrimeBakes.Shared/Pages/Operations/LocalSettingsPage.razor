@@ -237,11 +237,31 @@ else
 				</div>
 			</div>
 
+			@if (FormFactor.GetFormFactor() == "Desktop")
+			{
+				<div class="section-card">
+					<div class="section-header">
+						<h2 class="section-title">Application</h2>
+					</div>
+					<div class="section-body">
+						<p class="uninstall-text">
+							Removes Prime Bakes from this computer. You will be logged out and the app will close immediately.
+						</p>
+						<SfButton CssClass="e-outline e-danger bt-action-btn" Content="Uninstall App"
+								  Disabled="_isProcessing" @onclick="ShowUninstallConfirmation">
+						</SfButton>
+					</div>
+				</div>
+			}
+
 		</div>
 
 		<Footer />
 	</div>
 }
+
+<ConfirmationDialog @ref="_confirmationDialog" Title="@_confirmTitle" Message="@_confirmMessage"
+					OnConfirm="OnConfirmed" OnCancel="OnCancelled" />
 
 <ToastNotification @ref="_toastNotification" />
 
@@ -522,6 +542,12 @@ else
 		font-size: 13px;
 		color: #94a3b8;
 		margin-top: 4px;
+	}
+
+	.uninstall-text {
+		font-size: 13px;
+		color: #94a3b8;
+		margin: 0 0 12px;
 	}
 
 	.bt-empty-state {

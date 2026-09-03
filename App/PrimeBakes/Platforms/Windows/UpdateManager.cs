@@ -132,6 +132,37 @@ del ""%~f0""
 		Environment.Exit(0);
 	}
 
+	public static void Uninstall()
+	{
+		var appPath = AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar);
+		var batchFilePath = Path.Combine(Path.GetTempPath(), "primebakes_uninstall.bat");
+
+		var batchScript = $@"
+@echo off
+echo Uninstalling Prime Bakes...
+cd /d ""%TEMP%""
+timeout /t 2 /nobreak >nul
+rmdir /s /q ""{appPath}""
+echo.
+echo Prime Bakes has been removed.
+timeout /t 3 /nobreak >nul
+del ""%~f0""
+";
+
+		File.WriteAllText(batchFilePath, batchScript);
+
+		var startInfo = new ProcessStartInfo
+		{
+			FileName = batchFilePath,
+			UseShellExecute = true,
+			CreateNoWindow = false
+		};
+
+		Process.Start(startInfo);
+
+		Environment.Exit(0);
+	}
+
 	private static HttpClient CreateHttpClient(bool withUserAgent = false)
 	{
 		var client = new HttpClient();

@@ -19,6 +19,12 @@ public partial class LocalSettingsPage : IAsyncDisposable
 	// Toast Reference
 	private ToastNotification _toastNotification;
 
+	// Confirmation Dialog
+	private ConfirmationDialog _confirmationDialog;
+	private string _confirmTitle = string.Empty;
+	private string _confirmMessage = string.Empty;
+	private Func<Task> _confirmAction;
+
 	// Bluetooth Devices
 	private List<BluetoothDeviceInfo> _discoveredDevices = [];
 	private CancellationTokenSource _scanCancellationTokenSource;
@@ -234,6 +240,46 @@ public partial class LocalSettingsPage : IAsyncDisposable
 
 	private async Task ClearSavedPrinterAsync() =>
 		await DataStorageService.LocalRemove(StorageFileNames.BluetoothPrinterDataFileName);
+
+	#endregion
+
+	#region Uninstall
+
+	private async Task ShowUninstallConfirmation() =>
+		await ShowConfirmation("Uninstall",
+			"This will log you out and permanently remove Prime Bakes from this computer. The app will close immediately. Continue?",
+			UninstallApp);
+
+	private async Task UninstallApp()
+	{
+		_isProcessing = true;
+		await _toastNotification.ShowAsync("Uninstalling", "Prime Bakes will close and be removed from this computer.", ToastType.Warning);
+		await AuthService.Logout();
+		await UpdateService.UninstallAsync();
+	}
+
+	private async Task ShowConfirmation(string title, string message, Func<Task> action)
+	{
+		_confirmTitle = title;
+		_confirmMessage = message;
+		_confirmAction = action;
+		StateHasChanged();
+		await _confirmationDialog.ShowAsync();
+	}
+
+	private async Task OnConfirmed()
+	{
+		await _confirmationDialog.HideAsync();
+		if (_confirmAction is not null)
+			await _confirmAction();
+		_confirmAction = null;
+	}
+
+	private async Task OnCancelled()
+	{
+		_confirmAction = null;
+		await _confirmationDialog.HideAsync();
+	}
 
 	#endregion
 
