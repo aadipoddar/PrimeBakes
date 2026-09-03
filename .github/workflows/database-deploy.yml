@@ -39,7 +39,8 @@ jobs:
         ./SqlPackage/SqlPackage.exe /Action:Publish `
           /SourceFile:"$dacpacPath" `
           /TargetConnectionString:"${{ secrets.AzureConnectionString }}" `
-          /p:IncludeCompositeObjects=True
+          /p:IncludeCompositeObjects=True `
+          /p:IgnoreTableOptions=True
 
     - name: Deploy Database to Azure SQL Testing
       run: |
@@ -48,7 +49,8 @@ jobs:
         ./SqlPackage/SqlPackage.exe /Action:Publish `
           /SourceFile:"$dacpacPath" `
           /TargetConnectionString:"${{ secrets.AzureTestingConnectionString }}" `
-          /p:IncludeCompositeObjects=True
+          /p:IncludeCompositeObjects=True `
+          /p:IgnoreTableOptions=True
 
     - name: Deployment Summary
       run: |
