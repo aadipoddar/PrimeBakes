@@ -1,6 +1,6 @@
 ﻿using UIKit;
 
-namespace PrimeBakes;
+namespace PrimeBakes.Platforms.MacCatalyst;
 
 public class Program
 {

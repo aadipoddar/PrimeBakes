@@ -94,7 +94,7 @@ public partial class SendNotificationPage
 			await _toastNotification.ShowAsync("Processing", "Sending notification...", ToastType.Info);
 
 			var selected = await _sfGrid.GetSelectedRecordsAsync();
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 
 			await NotificationData.SendCustomNotification(
 				[.. selected.Select(u => u.Id)],

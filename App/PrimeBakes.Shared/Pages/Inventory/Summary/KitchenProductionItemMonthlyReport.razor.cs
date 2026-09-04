@@ -122,7 +122,7 @@ public partial class KitchenProductionItemMonthlyReport : IAsyncDisposable
 			_allTransactionOverviews = await allTransactionOverviews;
 			_allTransactionReturnOverviews = await allTransactionReturnOverviews;
 
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),

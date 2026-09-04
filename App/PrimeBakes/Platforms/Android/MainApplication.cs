@@ -1,7 +1,7 @@
 ﻿using Android.App;
 using Android.Runtime;
 
-namespace PrimeBakes;
+namespace PrimeBakes.Platforms.Android;
 
 [Application]
 public class MainApplication : MauiApplication

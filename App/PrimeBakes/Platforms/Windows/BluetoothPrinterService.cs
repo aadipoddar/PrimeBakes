@@ -1,6 +1,6 @@
 using System.Text;
 
-using PrimeBakes.Shared.Services;
+using PrimeBakes.Shared.Services.Printing;
 
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Rfcomm;
@@ -8,7 +8,7 @@ using Windows.Devices.Enumeration;
 using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
 
-namespace PrimeBakes.Services;
+namespace PrimeBakes.Platforms.Windows;
 
 /// <summary>
 /// Windows implementation of Bluetooth Classic printer service.

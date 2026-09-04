@@ -16,8 +16,8 @@
 <MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction(saveExcel: true)" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction(true)" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyH KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseOrderReport, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyI KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseOrderItemReport, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyH KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.PurchaseOrderReport)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyI KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.PurchaseOrderItemReport)" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="RemoveSelectedCartItem" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="EditSelectedCartItem" Disabled="@_isProcessing" />
 
@@ -42,11 +42,11 @@ else
 				</MudBlazor.MudMenu>
 
 				<MudBlazor.MudMenu Label="Open" Dense="true" Disabled="_isProcessing">
-					<MudBlazor.MudMenuItem Label="Purchase Order (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseOrder, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Purchase Order Report (Ctrl + H)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseOrderReport, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Purchase Order Item Report (Ctrl + I)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.PurchaseOrderItemReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Purchase Order (Ctrl + N)" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.PurchaseOrder)" />
+					<MudBlazor.MudMenuItem Label="Purchase Order Report (Ctrl + H)" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.PurchaseOrderReport)" />
+					<MudBlazor.MudMenuItem Label="Purchase Order Item Report (Ctrl + I)" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.PurchaseOrderItemReport)" />
 					<MudBlazor.MudDivider />
-					<MudBlazor.MudMenuItem Label="Purchase" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.Purchase, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Purchase" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.Purchase)" />
 				</MudBlazor.MudMenu>
 			</LeftContent>
 		</Header>

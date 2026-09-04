@@ -32,7 +32,7 @@ public partial class LoginPage
 		_isVerifying = true;
 		StateHasChanged();
 
-		var platformInfo = await AuthService.GetPlatformInfo();
+		var platformInfo = await PlatformInfo.GetPlatformInfo();
 		var login = await AuthData.Login(int.Parse(_passcode), platformInfo.FormFactor, platformInfo.Platform, platformInfo.Latitude, platformInfo.Longitude);
 
 		if (login is null)

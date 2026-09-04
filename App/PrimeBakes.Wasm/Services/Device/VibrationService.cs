@@ -1,8 +1,8 @@
 using Microsoft.JSInterop;
 
-using PrimeBakes.Shared.Services;
+using PrimeBakes.Shared.Services.Device;
 
-namespace PrimeBakes.Wasm.Services;
+namespace PrimeBakes.Wasm.Services.Device;
 
 public class VibrationService(IJSRuntime jsRuntime) : IVibrationService
 {

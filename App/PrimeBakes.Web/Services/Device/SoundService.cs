@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
-using PrimeBakes.Shared.Services;
+using PrimeBakes.Shared.Services.Device;
 
-namespace PrimeBakes.Web.Services;
+namespace PrimeBakes.Web.Services.Device;
 
 public class SoundService(IJSRuntime jsRuntime) : ISoundService
 {

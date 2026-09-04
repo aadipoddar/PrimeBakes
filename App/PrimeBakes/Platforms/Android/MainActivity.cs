@@ -5,17 +5,16 @@ using Android.OS;
 
 using Firebase.Messaging;
 
-using PrimeBakes.Platforms.Android;
-using PrimeBakes.Services;
+using PrimeBakes.Services.Notification;
 
-namespace PrimeBakes;
+namespace PrimeBakes.Platforms.Android;
 
 [Activity(
 Theme = "@style/Maui.SplashTheme",
 MainLauncher = true,
 LaunchMode = LaunchMode.SingleTop,
 ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize | ConfigChanges.Density)]
-public class MainActivity : MauiAppCompatActivity, Android.Gms.Tasks.IOnSuccessListener
+public class MainActivity : MauiAppCompatActivity, global::Android.Gms.Tasks.IOnSuccessListener
 {
     IPushDemoNotificationActionService _notificationActionService;
     IDeviceInstallationService _deviceInstallationService;

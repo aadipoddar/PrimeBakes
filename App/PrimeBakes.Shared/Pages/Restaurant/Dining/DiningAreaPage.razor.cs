@@ -88,7 +88,7 @@ public partial class DiningAreaPage
 			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
 
 			_diningArea.LocationId = _selectedLocation?.Id ?? 0;
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 			await DiningAreaData.SaveTransaction(_diningArea, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
@@ -139,7 +139,7 @@ public partial class DiningAreaPage
 			var diningArea = await CommonData.LoadTableDataById<DiningAreaModel>(RestaurantNames.DiningArea, id)
 				?? throw new Exception("Transaction not found.");
 
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 			if (isRecover) await DiningAreaData.RecoverTransaction(diningArea, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 			else await DiningAreaData.DeleteTransaction(diningArea, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 

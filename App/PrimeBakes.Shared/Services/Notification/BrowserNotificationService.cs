@@ -4,7 +4,7 @@ using PrimeBakes.Data.Operations.WebPush;
 using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.WebPush;
 
-namespace PrimeBakes.Shared.Services;
+namespace PrimeBakes.Shared.Services.Notification;
 
 public class BrowserNotificationService(IJSRuntime jsRuntime) : INotificationService
 {

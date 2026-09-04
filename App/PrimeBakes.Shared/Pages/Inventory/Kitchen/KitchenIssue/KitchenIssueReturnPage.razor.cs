@@ -452,7 +452,7 @@ public partial class KitchenIssueReturnPage
 		_kitchenIssueReturn.TransactionDateTime = DateOnly.FromDateTime(_kitchenIssueReturn.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
 		_kitchenIssueReturn.CreatedAt = currentDateTime;
 		_kitchenIssueReturn.LastModifiedAt = currentDateTime;
-		var platform = await AuthService.GetPlatformInfo();
+		var platform = await PlatformInfo.GetPlatformInfo();
 		_kitchenIssueReturn.CreatedFormFactor = platform.FormFactor;
 		_kitchenIssueReturn.CreatedPlatform = platform.Platform;
 		_kitchenIssueReturn.CreatedLatitude = platform.Latitude;
@@ -522,7 +522,7 @@ public partial class KitchenIssueReturnPage
 			await _toastNotification.ShowAsync("Save Transaction", "Transaction saved successfully.", ToastType.Success);
 
 			if (Id.HasValue && Id.Value > 0)
-				await AuthenticationService.CloseWindowOrTab(FormFactor, JSRuntime);
+				await WindowNavigation.CloseWindowOrTab();
 			await ResetPage();
 		}
 		catch (Exception ex)

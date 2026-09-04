@@ -3,8 +3,15 @@
 using PrimeBakes.Data;
 using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Shared.Services;
+using PrimeBakes.Shared.Services.Host;
+using PrimeBakes.Shared.Services.Device;
+using PrimeBakes.Shared.Services.Notification;
+using PrimeBakes.Shared.Services.Printing;
+using PrimeBakes.Shared.Services.Storage;
 using PrimeBakes.Web.Components;
-using PrimeBakes.Web.Services;
+using PrimeBakes.Web.Services.Host;
+using PrimeBakes.Web.Services.Device;
+using PrimeBakes.Web.Services.Storage;
 
 using Syncfusion.Blazor;
 using Syncfusion.Licensing;
@@ -28,6 +35,7 @@ builder.Services
 
 builder.Services.AddSingleton<IFormFactor, FormFactor>();
 builder.Services.AddSingleton<IUpdateService, UpdateService>();
+builder.Services.AddSingleton<ILocalDbService, LocalDbService>();
 builder.Services.AddSingleton<IVibrationService, VibrationService>();
 builder.Services.AddScoped<INotificationService, BrowserNotificationService>();
 
@@ -39,6 +47,8 @@ builder.Services.AddScoped<IThermalPrintDispatcher, ThermalPrintDispatcher>();
 builder.Services.AddSingleton<IBluetoothPrinterService, NullBluetoothPrinterService>();
 builder.Services.AddSingleton<IDirectPrintService, NullDirectPrintService>();
 builder.Services.AddScoped<PageRefreshState>();
+builder.Services.AddScoped<WindowNavigation>();
+builder.Services.AddScoped<PlatformInfoService>();
 builder.Services.AddScoped<AuthenticationService>();
 
 var app = builder.Build();

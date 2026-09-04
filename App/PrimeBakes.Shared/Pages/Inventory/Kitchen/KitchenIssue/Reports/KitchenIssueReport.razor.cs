@@ -1,5 +1,4 @@
-﻿using PrimeBakes.Exports.Inventory.Kitchen;
-using PrimeBakes.Models.Accounts.Masters;
+﻿using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Inventory.Kitchen;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
@@ -13,6 +12,7 @@ using PrimeBakes.Data.Accounts.Masters;
 using PrimeBakes.Data.Inventory.Kitchen.KitchenIssue;
 using PrimeBakes.Data.Operations.AuditTrail;
 using PrimeBakes.Models.Operations.AuditTrail;
+using PrimeBakes.Exports.Inventory.Kitchen.KitchenIssue;
 
 namespace PrimeBakes.Shared.Pages.Inventory.Kitchen.KitchenIssue.Reports;
 
@@ -123,7 +123,7 @@ public partial class KitchenIssueReport : IAsyncDisposable
 			_allTransactionOverviews = await allTransactionOverviews;
 			_allTransactionReturnOverviews = await allTransactionReturnOverviews;
 
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),
@@ -253,7 +253,7 @@ public partial class KitchenIssueReport : IAsyncDisposable
 		}
 
 		var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo, false, false);
-		await AuthenticationService.NavigateToRoute(decodedTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
+		await WindowNavigation.NavigateToRoute(decodedTransactionNo.PageRouteName);
 	}
 
 	private async Task DeleteRecoverTransaction(int id, string transactionNo, bool isRecover)
@@ -272,7 +272,7 @@ public partial class KitchenIssueReport : IAsyncDisposable
 			await _toastNotification.ShowAsync("Processing", $"{(isRecover ? "Recovering" : "Deleting")} transaction...", ToastType.Info);
 
 			var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(transactionNo, false, false);
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 			var currentDateTime = await CommonData.LoadCurrentDateTime();
 
 			if (decodedTransactionNo.CodeType == CodeType.KitchenIssueReturn)

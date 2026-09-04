@@ -142,7 +142,7 @@ public partial class OrderMobileCartPage
 			_isProcessing = true;
 			StateHasChanged();
 
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 			var currentDateTime = await CommonData.LoadCurrentDateTime();
 
 			var order = new OrderModel

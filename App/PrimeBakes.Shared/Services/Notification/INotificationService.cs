@@ -1,4 +1,4 @@
-﻿namespace PrimeBakes.Shared.Services;
+﻿namespace PrimeBakes.Shared.Services.Notification;
 
 public interface INotificationService
 {

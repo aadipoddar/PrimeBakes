@@ -104,7 +104,7 @@ public partial class LocationPage
 			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
 
 			_location.LedgerId = _selectedLedger?.Id ?? 0;
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 			await LocationData.SaveTransaction(_location, _copyLocation, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
@@ -156,7 +156,7 @@ public partial class LocationPage
 			var location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, id)
 				?? throw new Exception("Transaction not found.");
 
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 			if (isRecover) await LocationData.RecoverTransaction(location, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 			else await LocationData.DeleteTransaction(location, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
@@ -197,7 +197,7 @@ public partial class LocationPage
 		await MapPage.Open("Location Map", [.. _locations
 			.Where(l => l.Latitude is not null && l.Longitude is not null)
 			.Select(l => new MapPointModel { Name = l.Name, Latitude = l.Latitude.Value, Longitude = l.Longitude.Value })],
-			DataStorageService, FormFactor, JSRuntime, NavigationManager);
+			DataStorageService, WindowNavigation);
 
 	private async Task ShowConfirmation(string title, string message, Func<Task> action)
 	{

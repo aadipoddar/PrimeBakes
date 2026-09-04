@@ -1,6 +1,6 @@
-﻿using PrimeBakes.Shared.Services;
+﻿using PrimeBakes.Shared.Services.Device;
 
-namespace PrimeBakes.Services;
+namespace PrimeBakes.Services.Device;
 
 public class VibrationService : IVibrationService
 {

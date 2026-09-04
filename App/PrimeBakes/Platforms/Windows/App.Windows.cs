@@ -1,4 +1,4 @@
-using PrimeBakes.Shared.Services;
+using PrimeBakes.Shared.Services.Host;
 
 namespace PrimeBakes;
 
@@ -6,7 +6,7 @@ public partial class App
 {
 	partial void ConfigurePlatform()
 	{
-		AuthenticationService.OpenRouteInNewWindow = route =>
+		WindowNavigation.OpenRouteInNewWindow = route =>
 		{
 			MainThread.BeginInvokeOnMainThread(() =>
 			{
@@ -17,7 +17,7 @@ public partial class App
 			return true;
 		};
 
-		AuthenticationService.CloseCurrentWindow = () =>
+		WindowNavigation.CloseCurrentWindow = () =>
 		{
 			MainThread.BeginInvokeOnMainThread(CloseForegroundWindow);
 			return true;

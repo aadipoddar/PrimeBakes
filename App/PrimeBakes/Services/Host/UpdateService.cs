@@ -1,6 +1,12 @@
-﻿using PrimeBakes.Shared.Services;
+﻿#if ANDROID
+using PrimeBakes.Platforms.Android;
+#elif WINDOWS
+using PrimeBakes.Platforms.Windows;
+#endif
 
-namespace PrimeBakes.Services;
+using PrimeBakes.Shared.Services.Host;
+
+namespace PrimeBakes.Services.Host;
 
 public class UpdateService : IUpdateService
 {

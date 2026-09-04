@@ -1,4 +1,5 @@
 using PrimeBakes.Shared.Components.Dialog;
+using PrimeBakes.Shared.Services.Printing;
 
 namespace PrimeBakes.Shared.Layout;
 

@@ -7,7 +7,7 @@
 
 <PageTitle>Sale Return Item Report - Prime Bakes</PageTitle>
 
-<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(StoreRouteNames.SaleReturn, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => WindowNavigation.NavigateToRoute(StoreRouteNames.SaleReturn)" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
@@ -16,7 +16,7 @@
 <MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport(true)" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport()" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyH KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(StoreRouteNames.SaleReturnReport, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyH KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => WindowNavigation.NavigateToRoute(StoreRouteNames.SaleReturnReport)" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyO KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="ViewSelectedTransaction" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction(true)" Disabled="@_isProcessing" />
@@ -32,7 +32,7 @@ else
 		<Header Title="Sale Return Item Report">
 			<LeftContent>
 				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
-					<MudBlazor.MudMenuItem Label="New Transaction (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.SaleReturn, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="New Transaction (Ctrl + N)" OnClick="() => WindowNavigation.NavigateToRoute(StoreRouteNames.SaleReturn)" />
 					<MudBlazor.MudMenuItem Label="Refresh Data (Ctrl + R / F5)" OnClick="LoadTransactionOverviews" />
 					<MudBlazor.MudMenuItem Label="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" OnClick="ToggleDeleted" />
 					<MudBlazor.MudMenuItem Label="@(_showSummary ? "Hide Summary (Ctrl + W)" : "Show Summary (Ctrl + W)")" OnClick="ToggleSummary" />
@@ -43,15 +43,15 @@ else
 				</MudBlazor.MudMenu>
 
 				<MudBlazor.MudMenu Label="Open" Dense="true" Disabled="_isProcessing">
-					<MudBlazor.MudMenuItem Label="Sale Return (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.SaleReturn, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Sale Return Report (Ctrl + H)" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.SaleReturnReport, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Sale Return Item Report" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.SaleReturnItemReport, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Sale" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.Sale, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Sale Report" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.SaleReport, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Sale Item Report" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.SaleItemReport, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Stock Transfer" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.StockTransfer, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Stock Transfer Report" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.StockTransferReport, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Stock Transfer Item Report" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.StockTransferItemReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Sale Return (Ctrl + N)" OnClick="() => WindowNavigation.NavigateToRoute(StoreRouteNames.SaleReturn)" />
+					<MudBlazor.MudMenuItem Label="Sale Return Report (Ctrl + H)" OnClick="() => WindowNavigation.NavigateToRoute(StoreRouteNames.SaleReturnReport)" />
+					<MudBlazor.MudMenuItem Label="Sale Return Item Report" OnClick="() => WindowNavigation.NavigateToRoute(StoreRouteNames.SaleReturnItemReport)" />
+					<MudBlazor.MudMenuItem Label="Sale" OnClick="() => WindowNavigation.NavigateToRoute(StoreRouteNames.Sale)" />
+					<MudBlazor.MudMenuItem Label="Sale Report" OnClick="() => WindowNavigation.NavigateToRoute(StoreRouteNames.SaleReport)" />
+					<MudBlazor.MudMenuItem Label="Sale Item Report" OnClick="() => WindowNavigation.NavigateToRoute(StoreRouteNames.SaleItemReport)" />
+					<MudBlazor.MudMenuItem Label="Stock Transfer" OnClick="() => WindowNavigation.NavigateToRoute(StoreRouteNames.StockTransfer)" />
+					<MudBlazor.MudMenuItem Label="Stock Transfer Report" OnClick="() => WindowNavigation.NavigateToRoute(StoreRouteNames.StockTransferReport)" />
+					<MudBlazor.MudMenuItem Label="Stock Transfer Item Report" OnClick="() => WindowNavigation.NavigateToRoute(StoreRouteNames.StockTransferItemReport)" />
 				</MudBlazor.MudMenu>
 
 				<MudBlazor.MudMenu Label="Periods" Dense="true" Disabled="_isProcessing">

@@ -989,7 +989,7 @@ public partial class BillPage
 		_bill.TransactionDateTime = DateOnly.FromDateTime(_bill.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
 		_bill.CreatedAt = currentDateTime;
 		_bill.LastModifiedAt = currentDateTime;
-		var platform = await AuthService.GetPlatformInfo();
+		var platform = await PlatformInfo.GetPlatformInfo();
 		_bill.CreatedFormFactor = platform.FormFactor;
 		_bill.CreatedPlatform = platform.Platform;
 		_bill.CreatedLatitude = platform.Latitude;
@@ -1060,7 +1060,7 @@ public partial class BillPage
 			await _toastNotification.ShowAsync("Save Transaction", "Transaction saved successfully.", ToastType.Success);
 
 			if (Id.HasValue && Id.Value > 0)
-				await AuthenticationService.CloseWindowOrTab(FormFactor, JSRuntime);
+				await WindowNavigation.CloseWindowOrTab();
 			await ResetPage();
 		}
 		catch (Exception ex)

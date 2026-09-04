@@ -133,7 +133,7 @@ public partial class BillItemReport : IAsyncDisposable
 
 			_allTransactionOverviews = await CommonData.LoadTableDataByDate<BillItemOverviewModel>(RestaurantNames.BillItemOverview, fromDate, toDate);
 
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),
@@ -270,7 +270,7 @@ public partial class BillItemReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Closing day and posting bill accounting...", ToastType.Info);
 
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 
 			for (var date = _fromDate; date <= _toDate; date = date.AddDays(1))
 				await BillData.PostDayBills(
@@ -310,7 +310,7 @@ public partial class BillItemReport : IAsyncDisposable
 		try
 		{
 			var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo, false, false, CodeType.Bill);
-			await AuthenticationService.NavigateToRoute(decodedTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
+			await WindowNavigation.NavigateToRoute(decodedTransactionNo.PageRouteName);
 		}
 		catch (Exception ex)
 		{
@@ -331,7 +331,7 @@ public partial class BillItemReport : IAsyncDisposable
 		}
 
 		var decoded = await DecodeCode.DecodeTransactionNo(record.FinancialAccountingTransactionNo, false, false, CodeType.Accounting);
-		await AuthenticationService.NavigateToRoute(decoded.PageRouteName, FormFactor, JSRuntime, NavigationManager);
+		await WindowNavigation.NavigateToRoute(decoded.PageRouteName);
 	}
 
 	private async Task DeleteRecoverSelectedTransaction()
@@ -361,7 +361,7 @@ public partial class BillItemReport : IAsyncDisposable
 
 			await _toastNotification.ShowAsync("Processing", $"{(isRecover ? "Recovering" : "Deleting")} transaction...", ToastType.Info);
 
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 
 			var bill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, record.MasterId)
 				?? throw new Exception("Transaction not found.");

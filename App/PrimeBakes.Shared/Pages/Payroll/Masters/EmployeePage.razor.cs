@@ -134,7 +134,7 @@ public partial class EmployeePage
 			_employee.DesignationId = _selectedDesignation?.Id ?? 0;
 			_employee.UserId = _selectedUser?.Id;
 
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 			await EmployeeData.SaveTransaction(_employee, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
@@ -185,7 +185,7 @@ public partial class EmployeePage
 			var employee = await CommonData.LoadTableDataById<EmployeeModel>(PayrollNames.Employee, id)
 				?? throw new Exception("Transaction not found.");
 
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 			if (isRecover) await EmployeeData.RecoverTransaction(employee, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 			else await EmployeeData.DeleteTransaction(employee, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 

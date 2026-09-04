@@ -1,4 +1,4 @@
-﻿using PrimeBakes.Shared.Services;
+﻿using PrimeBakes.Shared.Services.Storage;
 
 namespace PrimeBakes.Services;
 

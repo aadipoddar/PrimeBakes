@@ -3,7 +3,7 @@ using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Inventory.Kitchen.KitchenProduction;
 
-namespace PrimeBakes.Exports.Inventory.Kitchen;
+namespace PrimeBakes.Exports.Inventory.Kitchen.KitchenProduction;
 
 public static class KitchenProductionReturnInvoiceExport
 {

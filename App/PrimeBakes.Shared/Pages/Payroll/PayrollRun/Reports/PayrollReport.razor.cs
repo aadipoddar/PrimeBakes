@@ -209,7 +209,7 @@ public partial class PayrollReport : IAsyncDisposable
 		if (_isProcessing || _showSummary || _sfGrid is null || _sfGrid.SelectedRecords is null || _sfGrid.SelectedRecords.Count == 0)
 			return;
 
-		await AuthenticationService.NavigateToRoute(PayrollRouteNames.Payroll, FormFactor, JSRuntime, NavigationManager);
+		await WindowNavigation.NavigateToRoute(PayrollRouteNames.Payroll);
 	}
 
 	private async Task DeleteRecoverTransaction(int id, bool isRecover)
@@ -230,7 +230,7 @@ public partial class PayrollReport : IAsyncDisposable
 			var payroll = await CommonData.LoadTableDataById<PayrollModel>(PayrollNames.Payroll, id)
 				?? throw new Exception("Transaction not found.");
 
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 
 			if (isRecover) await PayrollData.RecoverTransaction(payroll, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 			else await PayrollData.DeleteTransaction(payroll, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
@@ -317,7 +317,7 @@ public partial class PayrollReport : IAsyncDisposable
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),

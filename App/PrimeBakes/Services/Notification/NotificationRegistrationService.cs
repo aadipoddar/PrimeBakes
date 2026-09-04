@@ -3,7 +3,7 @@ using System.Text.Json;
 
 using PrimeBakes.Models.Operations.Notification;
 
-namespace PrimeBakes.Services;
+namespace PrimeBakes.Services.Notification;
 
 public class NotificationRegistrationService : INotificationRegistrationService
 {

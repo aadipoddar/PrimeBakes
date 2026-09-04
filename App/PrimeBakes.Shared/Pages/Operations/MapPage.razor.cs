@@ -3,6 +3,8 @@ using Microsoft.JSInterop;
 
 using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.User;
+using PrimeBakes.Shared.Services.Host;
+using PrimeBakes.Shared.Services.Storage;
 
 using System.Text.Json;
 
@@ -18,12 +20,12 @@ public partial class MapPage
 	private List<MapPointModel> _points = [];
 
 	public static async Task Open(string title, List<MapPointModel> points, IDataStorageService dataStorageService,
-		IFormFactor formFactor, IJSRuntime jsRuntime, NavigationManager navigationManager)
+		WindowNavigation windowNavigation)
 	{
 		await dataStorageService.LocalSaveAsync(StorageFileNames.MapPointsFileName,
 			JsonSerializer.Serialize(new MapRequest(title, points)));
 
-		await AuthenticationService.NavigateToRoute(OperationRouteNames.Map, formFactor, jsRuntime, navigationManager);
+		await windowNavigation.NavigateToRoute(OperationRouteNames.Map);
 	}
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)

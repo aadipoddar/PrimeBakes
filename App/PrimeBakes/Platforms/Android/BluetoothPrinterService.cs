@@ -2,9 +2,9 @@ using Android.Bluetooth;
 using Android.Content;
 using Android.OS;
 
-using PrimeBakes.Shared.Services;
+using PrimeBakes.Shared.Services.Printing;
 
-namespace PrimeBakes.Services;
+namespace PrimeBakes.Platforms.Android;
 
 /// <summary>
 /// Android implementation of Bluetooth Classic printer service.

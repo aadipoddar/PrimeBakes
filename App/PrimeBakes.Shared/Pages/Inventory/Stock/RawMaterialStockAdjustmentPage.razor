@@ -10,7 +10,7 @@
 <MudBlazor.MudHotkey Key=JsKey.KeyG KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _itemAutoComplete?.FocusAsync()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.Enter KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="AddItemToCart" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyS KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="SaveTransaction" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyH KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.RawMaterialStockReport, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyH KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.RawMaterialStockReport)" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="RemoveSelectedCartItem" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="EditSelectedCartItem" Disabled="@_isProcessing" />
 
@@ -30,8 +30,8 @@ else
 				</MudBlazor.MudMenu>
 
 				<MudBlazor.MudMenu Label="Open" Dense="true" Disabled="_isProcessing">
-					<MudBlazor.MudMenuItem Label="Raw Material Stock Adjustment (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.RawMaterialStockAdjustment, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Raw Material Stock Report (Ctrl + H)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.RawMaterialStockReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Raw Material Stock Adjustment (Ctrl + N)" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.RawMaterialStockAdjustment)" />
+					<MudBlazor.MudMenuItem Label="Raw Material Stock Report (Ctrl + H)" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.RawMaterialStockReport)" />
 				</MudBlazor.MudMenu>
 			</LeftContent>
 		</Header>

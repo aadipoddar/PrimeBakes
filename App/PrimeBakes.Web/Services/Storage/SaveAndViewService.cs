@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
-using PrimeBakes.Shared.Services;
+using PrimeBakes.Shared.Services.Storage;
 
-namespace PrimeBakes.Web.Services;
+namespace PrimeBakes.Web.Services.Storage;
 
 public class SaveAndViewService(IJSRuntime jsRuntime) : ISaveAndViewService
 {

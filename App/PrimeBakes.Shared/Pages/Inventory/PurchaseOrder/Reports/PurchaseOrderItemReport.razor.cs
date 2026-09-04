@@ -124,7 +124,7 @@ public partial class PurchaseOrderItemReport : IAsyncDisposable
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),
@@ -232,7 +232,7 @@ public partial class PurchaseOrderItemReport : IAsyncDisposable
 		}
 
 		var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo, false, false, CodeType.PurchaseOrder);
-		await AuthenticationService.NavigateToRoute(decodedTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
+		await WindowNavigation.NavigateToRoute(decodedTransactionNo.PageRouteName);
 	}
 
 	private async Task ViewLinkedPurchase()
@@ -248,7 +248,7 @@ public partial class PurchaseOrderItemReport : IAsyncDisposable
 		}
 
 		var decoded = await DecodeCode.DecodeTransactionNo(record.PurchaseTransactionNo, false, false, CodeType.Purchase);
-		await AuthenticationService.NavigateToRoute(decoded.PageRouteName, FormFactor, JSRuntime, NavigationManager);
+		await WindowNavigation.NavigateToRoute(decoded.PageRouteName);
 	}
 
 	private async Task DeleteRecoverTransaction(int masterId, string transactionNo, bool isRecover)
@@ -272,7 +272,7 @@ public partial class PurchaseOrderItemReport : IAsyncDisposable
 			purchaseOrder.Status = isRecover;
 			purchaseOrder.LastModifiedBy = _user.Id;
 			purchaseOrder.LastModifiedAt = await CommonData.LoadCurrentDateTime();
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 			purchaseOrder.LastModifiedFormFactor = platform.FormFactor;
 			purchaseOrder.LastModifiedPlatform = platform.Platform;
 			purchaseOrder.LastModifiedLatitude = platform.Latitude;

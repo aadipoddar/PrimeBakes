@@ -80,7 +80,7 @@ public partial class DesignationPage
 
 			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 			await DesignationData.SaveTransaction(_designation, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
@@ -130,7 +130,7 @@ public partial class DesignationPage
 			var designation = await CommonData.LoadTableDataById<DesignationModel>(PayrollNames.Designation, id)
 				?? throw new Exception("Transaction not found.");
 
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 			if (isRecover) await DesignationData.RecoverTransaction(designation, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 			else await DesignationData.DeleteTransaction(designation, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 

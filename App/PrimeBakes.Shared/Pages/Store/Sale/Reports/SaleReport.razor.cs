@@ -148,7 +148,7 @@ public partial class SaleReport : IAsyncDisposable
 			_allTransferOverviews = await allTransferOverviews;
 			_allBillOverviews = await allBillOverviews;
 
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),
@@ -447,7 +447,7 @@ public partial class SaleReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Closing day and posting sale accounting...", ToastType.Info);
 
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 
 			for (var date = _fromDate; date <= _toDate; date = date.AddDays(1))
 			{
@@ -498,7 +498,7 @@ public partial class SaleReport : IAsyncDisposable
 		try
 		{
 			var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo, false, false);
-			await AuthenticationService.NavigateToRoute(decodedTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
+			await WindowNavigation.NavigateToRoute(decodedTransactionNo.PageRouteName);
 		}
 		catch (Exception ex)
 		{
@@ -519,7 +519,7 @@ public partial class SaleReport : IAsyncDisposable
 		}
 
 		var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(record.OrderTransactionNo, false, false, CodeType.Order);
-		await AuthenticationService.NavigateToRoute(decodedTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
+		await WindowNavigation.NavigateToRoute(decodedTransactionNo.PageRouteName);
 	}
 
 	private async Task ViewFinancialAccountingPosting()
@@ -535,7 +535,7 @@ public partial class SaleReport : IAsyncDisposable
 		}
 
 		var decoded = await DecodeCode.DecodeTransactionNo(record.FinancialAccountingTransactionNo, false, false, CodeType.Accounting);
-		await AuthenticationService.NavigateToRoute(decoded.PageRouteName, FormFactor, JSRuntime, NavigationManager);
+		await WindowNavigation.NavigateToRoute(decoded.PageRouteName);
 	}
 
 	private async Task DeleteRecoverTransaction(SaleOverviewModel record, bool isRecover)
@@ -554,7 +554,7 @@ public partial class SaleReport : IAsyncDisposable
 			await _toastNotification.ShowAsync("Processing", $"{(isRecover ? "Recovering" : "Deleting")} transaction...", ToastType.Info);
 
 			var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(record.TransactionNo, false, false);
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 			var currentDateTime = await CommonData.LoadCurrentDateTime();
 
 			if (decodedTransactionNo.CodeType == CodeType.Sale)

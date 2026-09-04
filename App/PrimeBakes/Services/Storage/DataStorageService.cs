@@ -1,6 +1,6 @@
-﻿using PrimeBakes.Shared.Services;
+﻿using PrimeBakes.Shared.Services.Storage;
 
-namespace PrimeBakes.Services;
+namespace PrimeBakes.Services.Storage;
 
 public class DataStorageService : IDataStorageService
 {

@@ -1,10 +1,11 @@
 ﻿using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Exports.Operations.Settings;
 using PrimeBakes.Shared.Components.Dialog;
+using PrimeBakes.Shared.Services.Printing;
 
 namespace PrimeBakes.Shared.Pages.Operations;
 
-public partial class LocalSettingsPage : IAsyncDisposable
+public partial class LocalSettingsPage
 {
 	#region Fields
 
@@ -27,7 +28,6 @@ public partial class LocalSettingsPage : IAsyncDisposable
 
 	// Bluetooth Devices
 	private List<BluetoothDeviceInfo> _discoveredDevices = [];
-	private CancellationTokenSource _scanCancellationTokenSource;
 
 	#endregion
 
@@ -75,19 +75,12 @@ public partial class LocalSettingsPage : IAsyncDisposable
 
 			await _toastNotification.ShowAsync("Scanning", "Searching for nearby Bluetooth devices...", ToastType.Info);
 
-			_scanCancellationTokenSource?.Dispose();
-			_scanCancellationTokenSource = new CancellationTokenSource();
-
-			_discoveredDevices = await BluetoothPrinterService.DiscoverDevicesAsync(_scanCancellationTokenSource.Token);
+			_discoveredDevices = await BluetoothPrinterService.DiscoverDevicesAsync();
 
 			if (_discoveredDevices.Count > 0)
 				await _toastNotification.ShowAsync("Scan Complete", $"Found {_discoveredDevices.Count} device(s).", ToastType.Success);
 			else
 				await _toastNotification.ShowAsync("Scan Complete", "No Bluetooth devices found nearby.", ToastType.Info);
-		}
-		catch (OperationCanceledException)
-		{
-			await _toastNotification.ShowAsync("Scan Cancelled", "Bluetooth scan was cancelled.", ToastType.Info);
 		}
 		catch (Exception ex)
 		{
@@ -100,12 +93,6 @@ public partial class LocalSettingsPage : IAsyncDisposable
 			StateHasChanged();
 		}
 	}
-
-	/// <summary>
-	/// Cancels an ongoing Bluetooth device scan.
-	/// </summary>
-	private void CancelScan() =>
-		_scanCancellationTokenSource?.Cancel();
 
 	/// <summary>
 	/// Connects to a Bluetooth device by its MAC address.
@@ -243,19 +230,58 @@ public partial class LocalSettingsPage : IAsyncDisposable
 
 	#endregion
 
+	#region Local Database
+
+	private async Task ShowLocalDbConfirmation() =>
+		await ShowConfirmation("Setup Local Database",
+			"This will install SQL Server Express on this computer if it is not already installed, then create the PrimeBakesClient database. The download is about 1 GB and takes several minutes. A setup window will open. Continue?",
+			SetupLocalDatabase);
+
+	private async Task SetupLocalDatabase()
+	{
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+
+			await LocalDbService.SetupLocalDatabaseAsync();
+			await _toastNotification.ShowAsync("Setup Started", "A setup window has opened. Leave it running until it says setup is complete, then restart Prime Bakes.", ToastType.Info);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Setup Error", $"Could not start setup: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
+
+	#endregion
+
 	#region Uninstall
 
 	private async Task ShowUninstallConfirmation() =>
 		await ShowConfirmation("Uninstall",
-			"This will log you out and permanently remove Prime Bakes from this computer. The app will close immediately. Continue?",
+			"This will log you out and permanently remove Prime Bakes from this computer, including the local database and the SQL Server instance. The app will close immediately. Continue?",
 			UninstallApp);
 
 	private async Task UninstallApp()
 	{
-		_isProcessing = true;
-		await _toastNotification.ShowAsync("Uninstalling", "Prime Bakes will close and be removed from this computer.", ToastType.Warning);
-		await AuthService.Logout();
-		await UpdateService.UninstallAsync();
+		try
+		{
+			_isProcessing = true;
+			await _toastNotification.ShowAsync("Uninstalling", "Prime Bakes will close and be removed from this computer.", ToastType.Warning);
+			await AuthService.Logout();
+			await LocalDbService.UninstallLocalDatabaseAsync();
+			await UpdateService.UninstallAsync();
+		}
+		catch (Exception ex)
+		{
+			_isProcessing = false;
+			await _toastNotification.ShowAsync("Uninstall Error", $"Could not start uninstall: {ex.Message}", ToastType.Error);
+		}
 	}
 
 	private async Task ShowConfirmation(string title, string message, Func<Task> action)
@@ -281,16 +307,5 @@ public partial class LocalSettingsPage : IAsyncDisposable
 		await _confirmationDialog.HideAsync();
 	}
 
-	#endregion
-
-	#region Utilities
-
-	async ValueTask IAsyncDisposable.DisposeAsync()
-	{
-		_scanCancellationTokenSource?.CancelAsync();
-		_scanCancellationTokenSource?.Dispose();
-
-		GC.SuppressFinalize(this);
-	}
 	#endregion
 }

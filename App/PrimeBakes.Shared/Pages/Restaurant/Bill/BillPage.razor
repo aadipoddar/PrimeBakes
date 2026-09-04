@@ -25,8 +25,8 @@
 <MudBlazor.MudHotkey Key=JsKey.KeyT KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => PrintThermalInvoice()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction(true)" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyH KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(RestaurantRouteNames.BillReport, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyI KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(RestaurantRouteNames.BillItemReport, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyH KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => WindowNavigation.NavigateToRoute(RestaurantRouteNames.BillReport)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyI KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => WindowNavigation.NavigateToRoute(RestaurantRouteNames.BillItemReport)" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="RemoveSelectedCartItem" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="EditSelectedCartItem" Disabled="@_isProcessing" />
 
@@ -54,9 +54,9 @@ else
 				</MudBlazor.MudMenu>
 
 				<MudBlazor.MudMenu Label="Open" Dense="true" Disabled="_isProcessing">
-					<MudBlazor.MudMenuItem Label="Dining Dashboard" OnClick="() => AuthenticationService.NavigateToRoute(RestaurantRouteNames.DiningDashboard, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Bill Report (Ctrl + H)" OnClick="() => AuthenticationService.NavigateToRoute(RestaurantRouteNames.BillReport, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Bill Item Report (Ctrl + I)" OnClick="() => AuthenticationService.NavigateToRoute(RestaurantRouteNames.BillItemReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Dining Dashboard" OnClick="() => WindowNavigation.NavigateToRoute(RestaurantRouteNames.DiningDashboard)" />
+					<MudBlazor.MudMenuItem Label="Bill Report (Ctrl + H)" OnClick="() => WindowNavigation.NavigateToRoute(RestaurantRouteNames.BillReport)" />
+					<MudBlazor.MudMenuItem Label="Bill Item Report (Ctrl + I)" OnClick="() => WindowNavigation.NavigateToRoute(RestaurantRouteNames.BillItemReport)" />
 				</MudBlazor.MudMenu>
 			</LeftContent>
 		</Header>

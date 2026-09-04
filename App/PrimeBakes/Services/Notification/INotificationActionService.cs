@@ -1,4 +1,4 @@
-﻿namespace PrimeBakes.Services;
+﻿namespace PrimeBakes.Services.Notification;
 
 public interface INotificationActionService
 {

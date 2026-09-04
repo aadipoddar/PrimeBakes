@@ -13,6 +13,11 @@
 @using PrimeBakes.Shared.Components
 @using PrimeBakes.Shared.Components.Page
 @using PrimeBakes.Shared.Services
+@using PrimeBakes.Shared.Services.Host
+@using PrimeBakes.Shared.Services.Device
+@using PrimeBakes.Shared.Services.Notification
+@using PrimeBakes.Shared.Services.Printing
+@using PrimeBakes.Shared.Services.Storage
 @using PrimeBakes.Shared.Components.Dialog
 @using PrimeBakes.Shared.Components.Button
 @using PrimeBakes.Shared.Components.Card
@@ -44,9 +49,12 @@
 @inject IVibrationService VibrationService
 @inject ISoundService SoundService
 @inject IUpdateService UpdateService
+@inject ILocalDbService LocalDbService
 @inject INotificationService NotificationService
 @inject IBluetoothPrinterService BluetoothPrinterService
 @inject IThermalPrintDispatcher ThermalPrintDispatcher
 @inject ILocationService LocationService
 @inject PageRefreshState PageRefresh
+@inject WindowNavigation WindowNavigation
+@inject PlatformInfoService PlatformInfo
 @inject AuthenticationService AuthService

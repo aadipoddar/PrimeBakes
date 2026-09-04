@@ -17,8 +17,8 @@
 <MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => SaveTransaction(saveExcel: true)" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction(true)" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyH KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssueReturnReport, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyI KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssueReturnItemReport, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyH KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.KitchenIssueReturnReport)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyI KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.KitchenIssueReturnItemReport)" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.Delete OnHotkeyPressed="RemoveSelectedCartItem" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.Insert OnHotkeyPressed="EditSelectedCartItem" Disabled="@_isProcessing" />
 
@@ -43,13 +43,13 @@ else
 				</MudBlazor.MudMenu>
 
 				<MudBlazor.MudMenu Label="Open" Dense="true" Disabled="_isProcessing">
-					<MudBlazor.MudMenuItem Label="Kitchen Issue Return (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssueReturn, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Kitchen Issue Return Report (Ctrl + H)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssueReturnReport, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Kitchen Issue Return Item Report (Ctrl + I)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssueReturnItemReport, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Kitchen Issue" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssue, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Kitchen Issue Report" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssueReport, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Kitchen Production" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenProduction, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Kitchen" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.Kitchen, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Issue Return (Ctrl + N)" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.KitchenIssueReturn)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Issue Return Report (Ctrl + H)" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.KitchenIssueReturnReport)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Issue Return Item Report (Ctrl + I)" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.KitchenIssueReturnItemReport)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Issue" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.KitchenIssue)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Issue Report" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.KitchenIssueReport)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Production" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.KitchenProduction)" />
+					<MudBlazor.MudMenuItem Label="Kitchen" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.Kitchen)" />
 				</MudBlazor.MudMenu>
 			</LeftContent>
 		</Header>

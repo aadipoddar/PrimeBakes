@@ -1,6 +1,6 @@
 ﻿using Foundation;
 
-namespace PrimeBakes;
+namespace PrimeBakes.Platforms.MacCatalyst;
 
 [Register("AppDelegate")]
 public class AppDelegate : MauiUIApplicationDelegate

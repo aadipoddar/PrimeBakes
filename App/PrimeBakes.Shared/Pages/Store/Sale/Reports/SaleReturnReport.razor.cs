@@ -120,7 +120,7 @@ public partial class SaleReturnReport : IAsyncDisposable
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),
@@ -232,7 +232,7 @@ public partial class SaleReturnReport : IAsyncDisposable
 		}
 
 		var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo, false, false, CodeType.SaleReturn);
-		await AuthenticationService.NavigateToRoute(decodedTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
+		await WindowNavigation.NavigateToRoute(decodedTransactionNo.PageRouteName);
 	}
 
 	private async Task ViewFinancialAccountingPosting()
@@ -248,7 +248,7 @@ public partial class SaleReturnReport : IAsyncDisposable
 		}
 
 		var decoded = await DecodeCode.DecodeTransactionNo(record.FinancialAccountingTransactionNo, false, false, CodeType.Accounting);
-		await AuthenticationService.NavigateToRoute(decoded.PageRouteName, FormFactor, JSRuntime, NavigationManager);
+		await WindowNavigation.NavigateToRoute(decoded.PageRouteName);
 	}
 
 	private async Task DeleteRecoverTransaction(int id, string transactionNo, bool isRecover)
@@ -271,7 +271,7 @@ public partial class SaleReturnReport : IAsyncDisposable
 			saleReturn.Status = isRecover;
 			saleReturn.LastModifiedBy = _user.Id;
 			saleReturn.LastModifiedAt = await CommonData.LoadCurrentDateTime();
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 			saleReturn.LastModifiedFormFactor = platform.FormFactor;
 			saleReturn.LastModifiedPlatform = platform.Platform;
 			saleReturn.LastModifiedLatitude = platform.Latitude;

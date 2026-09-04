@@ -130,7 +130,7 @@ public partial class OrderItemReport : IAsyncDisposable
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
 
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),
@@ -248,7 +248,7 @@ public partial class OrderItemReport : IAsyncDisposable
 		}
 
 		var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo, false, false, CodeType.Order);
-		await AuthenticationService.NavigateToRoute(decodedTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
+		await WindowNavigation.NavigateToRoute(decodedTransactionNo.PageRouteName);
 	}
 
 	private async Task ViewSelectedSaleTransaction()
@@ -264,7 +264,7 @@ public partial class OrderItemReport : IAsyncDisposable
 		}
 
 		var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(record.SaleTransactionNo, false, false, CodeType.Sale);
-		await AuthenticationService.NavigateToRoute(decodedTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
+		await WindowNavigation.NavigateToRoute(decodedTransactionNo.PageRouteName);
 	}
 
 	private async Task DeleteRecoverTransaction(int id, string transactionNo, bool isRecover)
@@ -288,7 +288,7 @@ public partial class OrderItemReport : IAsyncDisposable
 			order.LastModifiedBy = _user.Id;
 			order.LastModifiedAt = await CommonData.LoadCurrentDateTime();
 
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 			order.LastModifiedFormFactor = platform.FormFactor;
 			order.LastModifiedPlatform = platform.Platform;
 			order.LastModifiedLatitude = platform.Latitude;

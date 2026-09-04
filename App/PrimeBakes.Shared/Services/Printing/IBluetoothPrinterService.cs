@@ -1,4 +1,4 @@
-namespace PrimeBakes.Shared.Services;
+namespace PrimeBakes.Shared.Services.Printing;
 
 /// <summary>
 /// Service interface for discovering and connecting to Bluetooth thermal printers.

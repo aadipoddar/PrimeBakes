@@ -5,7 +5,7 @@ using PrimeBakes.Models.Inventory.Kitchen;
 using PrimeBakes.Models.Inventory.Kitchen.KitchenIssue;
 using PrimeBakes.Models.Inventory.RawMaterial;
 
-namespace PrimeBakes.Exports.Inventory.Kitchen;
+namespace PrimeBakes.Exports.Inventory.Kitchen.KitchenIssue;
 
 public static class KitchenIssueReturnReportExport
 {

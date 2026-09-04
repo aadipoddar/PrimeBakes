@@ -7,7 +7,7 @@
 
 <PageTitle>Product Stock Report - Prime Bakes</PageTitle>
 
-<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.ProductStockAdjustment, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.ProductStockAdjustment)" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadStockSummary" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadStockSummary" Disabled="@_isProcessing" />
@@ -25,7 +25,7 @@ else
 		<Header Title="Product Stock Report">
 			<LeftContent>
 				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
-					<MudBlazor.MudMenuItem Label="Stock Adjustment (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.ProductStockAdjustment, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Stock Adjustment (Ctrl + N)" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.ProductStockAdjustment)" />
 					<MudBlazor.MudMenuItem Label="Refresh Data (Ctrl + R / F5)" OnClick="LoadStockSummary" />
 					<MudBlazor.MudMenuItem Label="@(_showAllColumns ? "Hide Details (Ctrl + Q)" : "Show Details (Ctrl + Q)")" OnClick="ToggleDetailsView" />
 					<MudBlazor.MudDivider />
@@ -34,11 +34,11 @@ else
 				</MudBlazor.MudMenu>
 
 				<MudBlazor.MudMenu Label="Open" Dense="true" Disabled="_isProcessing">
-					<MudBlazor.MudMenuItem Label="Product Stock Adjustment (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.ProductStockAdjustment, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Product Stock Report" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.ProductStockReport, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Product Stock Detail Report" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.ProductStockDetailReport, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Product" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.Product, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Product Category" OnClick="() => AuthenticationService.NavigateToRoute(StoreRouteNames.ProductCategory, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Product Stock Adjustment (Ctrl + N)" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.ProductStockAdjustment)" />
+					<MudBlazor.MudMenuItem Label="Product Stock Report" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.ProductStockReport)" />
+					<MudBlazor.MudMenuItem Label="Product Stock Detail Report" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.ProductStockDetailReport)" />
+					<MudBlazor.MudMenuItem Label="Product" OnClick="() => WindowNavigation.NavigateToRoute(StoreRouteNames.Product)" />
+					<MudBlazor.MudMenuItem Label="Product Category" OnClick="() => WindowNavigation.NavigateToRoute(StoreRouteNames.ProductCategory)" />
 				</MudBlazor.MudMenu>
 
 				<MudBlazor.MudMenu Label="Periods" Dense="true" Disabled="_isProcessing">

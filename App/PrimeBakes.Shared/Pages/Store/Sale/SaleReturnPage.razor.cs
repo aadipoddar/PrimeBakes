@@ -955,7 +955,7 @@ public partial class SaleReturnPage
 		_saleReturn.TransactionDateTime = DateOnly.FromDateTime(_saleReturn.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
 		_saleReturn.CreatedAt = currentDateTime;
 		_saleReturn.LastModifiedAt = currentDateTime;
-		var platform = await AuthService.GetPlatformInfo();
+		var platform = await PlatformInfo.GetPlatformInfo();
 		_saleReturn.CreatedFormFactor = platform.FormFactor;
 		_saleReturn.CreatedPlatform = platform.Platform;
 		_saleReturn.CreatedLatitude = platform.Latitude;
@@ -1026,7 +1026,7 @@ public partial class SaleReturnPage
 			await _toastNotification.ShowAsync("Save Transaction", "Transaction saved successfully.", ToastType.Success);
 
 			if (Id.HasValue && Id.Value > 0)
-				await AuthenticationService.CloseWindowOrTab(FormFactor, JSRuntime);
+				await WindowNavigation.CloseWindowOrTab();
 			await ResetPage();
 		}
 		catch (Exception ex)

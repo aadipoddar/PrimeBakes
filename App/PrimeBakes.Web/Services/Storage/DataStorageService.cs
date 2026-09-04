@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.JSInterop;
 
-using PrimeBakes.Shared.Services;
+using PrimeBakes.Shared.Services.Storage;
 
-namespace PrimeBakes.Web.Services;
+namespace PrimeBakes.Web.Services.Storage;
 
 public class DataStorageService(ProtectedLocalStorage protectedLocalStorage, IJSRuntime jsRuntime) : IDataStorageService
 {

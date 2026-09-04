@@ -35,7 +35,7 @@ public partial class Footer : IAsyncDisposable
 
 	private async Task LoadPlatformInfo()
 	{
-		var platform = await AuthService.GetPlatformInfo();
+		var platform = await PlatformInfo.GetPlatformInfo();
 
 		_platformInfo = $"Form Factor: {platform.FormFactor}" +
 						$" Platform: {platform.Platform}" +

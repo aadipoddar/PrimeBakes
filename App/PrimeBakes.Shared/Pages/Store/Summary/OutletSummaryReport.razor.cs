@@ -162,7 +162,7 @@ public partial class OutletSummaryReport : IAsyncDisposable
 		_stockTransfers = await stockTransfers;
 		_bills = await bills;
 
-		var platform = await AuthService.GetPlatformInfo();
+		var platform = await PlatformInfo.GetPlatformInfo();
 		await AuditTrailData.SaveAuditTrail(new()
 		{
 			Action = AuditTrailActionTypes.Report.ToString(),

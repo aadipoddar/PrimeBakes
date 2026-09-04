@@ -6,7 +6,7 @@
 
 <PageTitle>Recipe Item Report - Prime Bakes</PageTitle>
 
-<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.Recipe, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.Recipe)" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadItemOverviews" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadItemOverviews" Disabled="@_isProcessing" />
@@ -28,7 +28,7 @@ else
 		<Header Title="Recipe Item Report">
 			<LeftContent>
 				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
-					<MudBlazor.MudMenuItem Label="New Recipe (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.Recipe, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="New Recipe (Ctrl + N)" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.Recipe)" />
 					<MudBlazor.MudMenuItem Label="Refresh Data (Ctrl + R / F5)" OnClick="LoadItemOverviews" />
 					<MudBlazor.MudMenuItem Label="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" OnClick="ToggleDeleted" />
 					<MudBlazor.MudDivider />
@@ -37,9 +37,9 @@ else
 				</MudBlazor.MudMenu>
 
 				<MudBlazor.MudMenu Label="Open" Dense="true" Disabled="_isProcessing">
-					<MudBlazor.MudMenuItem Label="Recipe (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.Recipe, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Recipe Report" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.RecipeReport, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Recipe Item Report" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.RecipeItemReport, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Recipe (Ctrl + N)" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.Recipe)" />
+					<MudBlazor.MudMenuItem Label="Recipe Report" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.RecipeReport)" />
+					<MudBlazor.MudMenuItem Label="Recipe Item Report" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.RecipeItemReport)" />
 				</MudBlazor.MudMenu>
 
 				<MudBlazor.MudMenu Label="Transaction" Dense="true" Disabled="_isProcessing">

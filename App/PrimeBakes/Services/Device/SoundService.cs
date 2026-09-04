@@ -1,8 +1,8 @@
 ﻿using Plugin.Maui.Audio;
 
-using PrimeBakes.Shared.Services;
+using PrimeBakes.Shared.Services.Device;
 
-namespace PrimeBakes.Services;
+namespace PrimeBakes.Services.Device;
 
 public class SoundService : ISoundService
 {

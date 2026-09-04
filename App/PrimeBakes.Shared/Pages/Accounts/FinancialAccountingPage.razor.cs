@@ -553,7 +553,7 @@ public partial class FinancialAccountingPage
 		_accounting.TransactionDateTime = DateOnly.FromDateTime(_accounting.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
 		_accounting.CreatedAt = currentDateTime;
 		_accounting.LastModifiedAt = currentDateTime;
-		var platform = await AuthService.GetPlatformInfo();
+		var platform = await PlatformInfo.GetPlatformInfo();
 		_accounting.CreatedFormFactor = platform.FormFactor;
 		_accounting.CreatedPlatform = platform.Platform;
 		_accounting.CreatedLatitude = platform.Latitude;
@@ -624,7 +624,7 @@ public partial class FinancialAccountingPage
 			await _toastNotification.ShowAsync("Save Transaction", "Transaction saved successfully.", ToastType.Success);
 
 			if (Id.HasValue && Id.Value > 0)
-				await AuthenticationService.CloseWindowOrTab(FormFactor, JSRuntime);
+				await WindowNavigation.CloseWindowOrTab();
 			await ResetPage();
 		}
 		catch (Exception ex)
@@ -674,7 +674,7 @@ public partial class FinancialAccountingPage
 		}
 
 		var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_accounting.ReferenceNo, false, false);
-		await AuthenticationService.NavigateToRoute(decodeTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
+		await WindowNavigation.NavigateToRoute(decodeTransactionNo.PageRouteName);
 	}
 
 	private async Task ViewCartReferenceTransaction()
@@ -686,7 +686,7 @@ public partial class FinancialAccountingPage
 		}
 
 		var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_selectedAccountingLedger.LedgerReferenceNo, false, false);
-		await AuthenticationService.NavigateToRoute(decodeTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
+		await WindowNavigation.NavigateToRoute(decodeTransactionNo.PageRouteName);
 	}
 	#endregion
 

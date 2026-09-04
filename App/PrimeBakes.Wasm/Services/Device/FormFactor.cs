@@ -1,6 +1,6 @@
-using PrimeBakes.Shared.Services;
+using PrimeBakes.Shared.Services.Device;
 
-namespace PrimeBakes.Wasm.Services;
+namespace PrimeBakes.Wasm.Services.Device;
 
 public class FormFactor : IFormFactor
 {

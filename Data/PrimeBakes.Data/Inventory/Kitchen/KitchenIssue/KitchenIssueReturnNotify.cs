@@ -2,7 +2,7 @@
 using PrimeBakes.Data.Operations.AuditTrail;
 using PrimeBakes.Data.Utils.Mail;
 using PrimeBakes.Data.Utils.Notification;
-using PrimeBakes.Exports.Inventory.Kitchen;
+using PrimeBakes.Exports.Inventory.Kitchen.KitchenIssue;
 using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Inventory.Kitchen.KitchenIssue;
 using PrimeBakes.Models.Operations.User;

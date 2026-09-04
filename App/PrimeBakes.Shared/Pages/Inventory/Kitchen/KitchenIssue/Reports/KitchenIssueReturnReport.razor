@@ -6,7 +6,7 @@
 
 <PageTitle>Kitchen Issue Return Report - Prime Bakes</PageTitle>
 
-<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssueReturn, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.KitchenIssueReturn)" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
@@ -15,7 +15,7 @@
 <MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport(true)" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyI KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssueReturnItemReport, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyI KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.KitchenIssueReturnItemReport)" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyO KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="ViewSelectedTransaction" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction(true)" Disabled="@_isProcessing" />
@@ -31,7 +31,7 @@ else
 		<Header Title="Kitchen Issue Return Report">
 			<LeftContent>
 				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
-					<MudBlazor.MudMenuItem Label="New Transaction (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssueReturn, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="New Transaction (Ctrl + N)" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.KitchenIssueReturn)" />
 					<MudBlazor.MudMenuItem Label="Refresh Data (Ctrl + R / F5)" OnClick="LoadTransactionOverviews" />
 					<MudBlazor.MudMenuItem Label="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" OnClick="ToggleDeleted" />
 					<MudBlazor.MudMenuItem Label="@(_showSummary ? "Hide Summary (Ctrl + W)" : "Show Summary (Ctrl + W)")" OnClick="ToggleSummary" />
@@ -42,13 +42,13 @@ else
 				</MudBlazor.MudMenu>
 
 				<MudBlazor.MudMenu Label="Open" Dense="true" Disabled="_isProcessing">
-					<MudBlazor.MudMenuItem Label="Kitchen Issue Return (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssueReturn, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Kitchen Issue Return Report" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssueReturnReport, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Kitchen Issue Return Item Report (Ctrl + I)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssueReturnItemReport, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Kitchen Issue" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssue, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Kitchen Issue Report" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenIssueReport, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Kitchen Production" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.KitchenProduction, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Kitchen" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.Kitchen, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Issue Return (Ctrl + N)" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.KitchenIssueReturn)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Issue Return Report" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.KitchenIssueReturnReport)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Issue Return Item Report (Ctrl + I)" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.KitchenIssueReturnItemReport)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Issue" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.KitchenIssue)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Issue Report" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.KitchenIssueReport)" />
+					<MudBlazor.MudMenuItem Label="Kitchen Production" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.KitchenProduction)" />
+					<MudBlazor.MudMenuItem Label="Kitchen" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.Kitchen)" />
 				</MudBlazor.MudMenu>
 
 				<MudBlazor.MudMenu Label="Periods" Dense="true" Disabled="_isProcessing">

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 
 using PrimeBakes.Data;
 using PrimeBakes.Data.Operations.AuditTrail;
@@ -8,10 +7,13 @@ using PrimeBakes.Data.Operations.User;
 using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
+using PrimeBakes.Shared.Services.Device;
+using PrimeBakes.Shared.Services.Notification;
+using PrimeBakes.Shared.Services.Storage;
 
 namespace PrimeBakes.Shared.Services;
 
-public class AuthenticationService(IDataStorageService dataStorageService, NavigationManager navigationManager, INotificationService notificationService, IVibrationService vibrationService, IFormFactor formFactor, ILocationService locationService)
+public class AuthenticationService(IDataStorageService dataStorageService, NavigationManager navigationManager, INotificationService notificationService, IVibrationService vibrationService, PlatformInfoService platformInfoService)
 {
 	public async Task<UserModel> ValidateUser(List<UserRoles> userRoles = null, bool primaryLocationRequirement = false)
 	{
@@ -46,7 +48,7 @@ public class AuthenticationService(IDataStorageService dataStorageService, Navig
 		if (user.LastLoginTime is null || (currentDateTime - user.LastLoginTime.Value).TotalHours > maxLoginTimeHours)
 			await Logout();
 
-		var platformInfo = await GetPlatformInfo();
+		var platformInfo = await platformInfoService.GetPlatformInfo();
 		user.LastSeen = await UserData.UpdateLastSeen(user, platformInfo.FormFactor, platformInfo.Platform, platformInfo.Latitude, platformInfo.Longitude);
 		user.LastSeenFormFactor = platformInfo.FormFactor;
 		user.LastSeenPlatform = platformInfo.Platform;
@@ -83,7 +85,7 @@ public class AuthenticationService(IDataStorageService dataStorageService, Navig
 
 		if (user is not null && !string.IsNullOrWhiteSpace(ApiClient.Token))
 		{
-			var platformInfo = await GetPlatformInfo();
+			var platformInfo = await platformInfoService.GetPlatformInfo();
 			await UserData.UpdateLastLoginTime(user, null);
 			await AuditTrailData.SaveAuditTrail(new()
 			{
@@ -104,44 +106,4 @@ public class AuthenticationService(IDataStorageService dataStorageService, Navig
 		vibrationService.VibrateWithTime(500);
 		navigationManager.NavigateTo(OperationNames.Login);
 	}
-
-	public async Task<PlatformInfoModel> GetPlatformInfo()
-	{
-		var location = await locationService.GetLocationAsync();
-		return new()
-		{
-			FormFactor = formFactor.GetFormFactor(),
-			Platform = formFactor.GetPlatform(),
-			Latitude = location?.Latitude,
-			Longitude = location?.Longitude
-		};
-	}
-
-	public static Func<string, bool> OpenRouteInNewWindow { get; set; }
-	public static async Task NavigateToRoute(string route, IFormFactor FormFactor, IJSRuntime JSRuntime, NavigationManager NavigationManager)
-	{
-		if (FormFactor.GetFormFactor() is "Web" or "Wasm")
-			await JSRuntime.InvokeVoidAsync("open", route, "_blank");
-		else if (OpenRouteInNewWindow is not null && OpenRouteInNewWindow(route))
-			return;
-		else
-			NavigationManager.NavigateTo(route);
-	}
-
-	public static Func<bool> CloseCurrentWindow { get; set; }
-	public static async Task CloseWindowOrTab(IFormFactor FormFactor, IJSRuntime JSRuntime)
-	{
-		if (FormFactor.GetFormFactor() is "Web" or "Wasm")
-			await JSRuntime.InvokeVoidAsync("pageCloseGuard.close");
-		else
-			CloseCurrentWindow?.Invoke();
-	}
-}
-
-public sealed class PlatformInfoModel
-{
-	public string FormFactor { get; set; }
-	public string Platform { get; set; }
-	public decimal? Latitude { get; set; }
-	public decimal? Longitude { get; set; }
 }

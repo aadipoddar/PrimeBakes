@@ -90,7 +90,7 @@ public partial class UserPage
 			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
 
 			_userModel.LocationId = _selectedLocation?.Id ?? 0;
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 			await UserData.SaveTransaction(_userModel, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
@@ -141,7 +141,7 @@ public partial class UserPage
 			var user = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, id)
 				?? throw new Exception("Transaction not found.");
 
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 			if (isRecover) await UserData.RecoverTransaction(user, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 			else await UserData.DeleteTransaction(user, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
@@ -184,7 +184,7 @@ public partial class UserPage
 
 			await _toastNotification.ShowAsync("Processing", "Logging out...", ToastType.Info);
 
-			var platformInfo = await AuthService.GetPlatformInfo();
+			var platformInfo = await PlatformInfo.GetPlatformInfo();
 			await UserData.UpdateLastLoginTime(user, null);
 			await AuditTrailData.SaveAuditTrail(new()
 			{
@@ -236,7 +236,7 @@ public partial class UserPage
 		await MapPage.Open("User Map", [.. _users
 			.Where(u => u.LastSeenLatitude is not null && u.LastSeenLongitude is not null)
 			.Select(u => new MapPointModel { Name = u.Name, Latitude = u.LastSeenLatitude.Value, Longitude = u.LastSeenLongitude.Value })],
-			DataStorageService, FormFactor, JSRuntime, NavigationManager);
+			DataStorageService, WindowNavigation);
 
 	private async Task ShowConfirmation(string title, string message, Func<Task> action)
 	{

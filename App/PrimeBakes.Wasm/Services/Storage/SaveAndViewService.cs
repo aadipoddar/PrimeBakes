@@ -1,8 +1,8 @@
 using Microsoft.JSInterop;
 
-using PrimeBakes.Shared.Services;
+using PrimeBakes.Shared.Services.Storage;
 
-namespace PrimeBakes.Wasm.Services;
+namespace PrimeBakes.Wasm.Services.Storage;
 
 public class SaveAndViewService(IJSRuntime jsRuntime) : ISaveAndViewService
 {

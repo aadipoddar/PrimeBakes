@@ -2,12 +2,28 @@
 using Microsoft.Extensions.Logging;
 #endif
 
+#if ANDROID
+using PrimeBakes.Platforms.Android;
+#elif WINDOWS
+using PrimeBakes.Platforms.Windows;
+#endif
+
 using MudBlazor.Services;
 
 using PrimeBakes.Data;
 using PrimeBakes.Models.DataAccess;
+
 using PrimeBakes.Services;
+using PrimeBakes.Services.Host;
+using PrimeBakes.Services.Device;
+using PrimeBakes.Services.Notification;
+using PrimeBakes.Services.Storage;
 using PrimeBakes.Shared.Services;
+using PrimeBakes.Shared.Services.Host;
+using PrimeBakes.Shared.Services.Device;
+using PrimeBakes.Shared.Services.Notification;
+using PrimeBakes.Shared.Services.Printing;
+using PrimeBakes.Shared.Services.Storage;
 
 using Syncfusion.Blazor;
 using Syncfusion.Licensing;
@@ -40,14 +56,21 @@ public static class MauiProgram
 		builder.Services.AddSingleton<IFormFactor, FormFactor>();
 		builder.Services.AddSingleton<ISaveAndViewService, SaveAndViewService>();
 		builder.Services.AddSingleton<IUpdateService, UpdateService>();
+		builder.Services.AddSingleton<ILocalDbService, LocalDbService>();
 		builder.Services.AddSingleton<IDataStorageService, DataStorageService>();
 		builder.Services.AddSingleton<IVibrationService, VibrationService>();
 		builder.Services.AddSingleton<ISoundService, SoundService>();
 		builder.Services.AddSingleton<ILocationService, LocationService>();
+#if ANDROID || WINDOWS
 		builder.Services.AddSingleton<IBluetoothPrinterService, BluetoothPrinterService>();
+#else
+		builder.Services.AddSingleton<IBluetoothPrinterService, NullBluetoothPrinterService>();
+#endif
 		builder.Services.AddScoped<INotificationService, NotificationService>();
 		builder.Services.AddScoped<IThermalPrintDispatcher, ThermalPrintDispatcher>();
 		builder.Services.AddScoped<PageRefreshState>();
+		builder.Services.AddScoped<WindowNavigation>();
+		builder.Services.AddScoped<PlatformInfoService>();
 		builder.Services.AddScoped<AuthenticationService>();
 
 #if WINDOWS

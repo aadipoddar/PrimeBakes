@@ -6,7 +6,7 @@
 
 <PageTitle>Raw Material Stock Report - Prime Bakes</PageTitle>
 
-<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.RawMaterialStockAdjustment, FormFactor, JSRuntime, NavigationManager)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.RawMaterialStockAdjustment)" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadStockSummary" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadStockSummary" Disabled="@_isProcessing" />
@@ -24,7 +24,7 @@ else
 		<Header Title="Raw Material Stock Report">
 			<LeftContent>
 				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
-					<MudBlazor.MudMenuItem Label="Stock Adjustment (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.RawMaterialStockAdjustment, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Stock Adjustment (Ctrl + N)" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.RawMaterialStockAdjustment)" />
 					<MudBlazor.MudMenuItem Label="Refresh Data (Ctrl + R / F5)" OnClick="LoadStockSummary" />
 					<MudBlazor.MudMenuItem Label="@(_showAllColumns ? "Hide Details (Ctrl + Q)" : "Show Details (Ctrl + Q)")" OnClick="ToggleDetailsView" />
 					<MudBlazor.MudDivider />
@@ -33,11 +33,11 @@ else
 				</MudBlazor.MudMenu>
 
 				<MudBlazor.MudMenu Label="Open" Dense="true" Disabled="_isProcessing">
-					<MudBlazor.MudMenuItem Label="Raw Material Stock Adjustment (Ctrl + N)" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.RawMaterialStockAdjustment, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Raw Material Stock Report" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.RawMaterialStockReport, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Raw Material Stock Detail Report" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.RawMaterialStockDetailReport, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Raw Material" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.RawMaterial, FormFactor, JSRuntime, NavigationManager)" />
-					<MudBlazor.MudMenuItem Label="Raw Material Category" OnClick="() => AuthenticationService.NavigateToRoute(InventoryRouteNames.RawMaterialCategory, FormFactor, JSRuntime, NavigationManager)" />
+					<MudBlazor.MudMenuItem Label="Raw Material Stock Adjustment (Ctrl + N)" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.RawMaterialStockAdjustment)" />
+					<MudBlazor.MudMenuItem Label="Raw Material Stock Report" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.RawMaterialStockReport)" />
+					<MudBlazor.MudMenuItem Label="Raw Material Stock Detail Report" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.RawMaterialStockDetailReport)" />
+					<MudBlazor.MudMenuItem Label="Raw Material" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.RawMaterial)" />
+					<MudBlazor.MudMenuItem Label="Raw Material Category" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.RawMaterialCategory)" />
 				</MudBlazor.MudMenu>
 
 				<MudBlazor.MudMenu Label="Periods" Dense="true" Disabled="_isProcessing">

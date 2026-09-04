@@ -175,7 +175,7 @@ public partial class RecipeReport : IAsyncDisposable
 			return;
 		}
 
-		await AuthenticationService.NavigateToRoute($"{InventoryRouteNames.Recipe}/{record.Id}", FormFactor, JSRuntime, NavigationManager);
+		await WindowNavigation.NavigateToRoute($"{InventoryRouteNames.Recipe}/{record.Id}");
 	}
 
 	private async Task DeleteTransaction(int id, string productName)
@@ -193,7 +193,7 @@ public partial class RecipeReport : IAsyncDisposable
 
 			await _toastNotification.ShowAsync("Processing", "Deleting transaction...", ToastType.Info);
 
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 
 			var recipe = await CommonData.LoadTableDataById<RecipeModel>(InventoryNames.Recipe, id)
 				?? throw new Exception("Transaction not found.");

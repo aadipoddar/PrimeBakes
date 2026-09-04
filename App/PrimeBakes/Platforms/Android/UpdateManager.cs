@@ -2,7 +2,7 @@
 
 using Application = Android.App.Application;
 
-namespace PrimeBakes.Services;
+namespace PrimeBakes.Platforms.Android;
 
 public static class UpdaterManager
 {

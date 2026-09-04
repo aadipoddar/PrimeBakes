@@ -362,7 +362,7 @@ public partial class BillMobilePaymentPage
 		_bill.FinancialYearId = (await FinancialYearData.LoadFinancialYearByDateTime(_bill.TransactionDateTime)).Id;
 		_bill.CreatedAt = await CommonData.LoadCurrentDateTime();
 		_bill.LastModifiedAt = _bill.CreatedAt;
-		var platform = await AuthService.GetPlatformInfo();
+		var platform = await PlatformInfo.GetPlatformInfo();
 		_bill.CreatedFormFactor = platform.FormFactor;
 		_bill.CreatedPlatform = platform.Platform;
 		_bill.CreatedLatitude = platform.Latitude;

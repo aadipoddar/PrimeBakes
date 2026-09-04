@@ -1,6 +1,6 @@
-using PrimeBakes.Shared.Services;
+using PrimeBakes.Shared.Services.Host;
 
-namespace PrimeBakes.Wasm.Services;
+namespace PrimeBakes.Wasm.Services.Host;
 
 public class UpdateService : IUpdateService
 {

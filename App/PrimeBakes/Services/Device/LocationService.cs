@@ -1,8 +1,8 @@
 using System.Globalization;
 
-using PrimeBakes.Shared.Services;
+using PrimeBakes.Shared.Services.Device;
 
-namespace PrimeBakes.Services;
+namespace PrimeBakes.Services.Device;
 
 public class LocationService : ILocationService
 {

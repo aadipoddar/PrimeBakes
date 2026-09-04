@@ -440,7 +440,7 @@ public partial class PurchaseOrderPage
 		_purchaseOrder.TransactionDateTime = DateOnly.FromDateTime(_purchaseOrder.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
 		_purchaseOrder.CreatedAt = currentDateTime;
 		_purchaseOrder.LastModifiedAt = currentDateTime;
-		var platform = await AuthService.GetPlatformInfo();
+		var platform = await PlatformInfo.GetPlatformInfo();
 		_purchaseOrder.CreatedFormFactor = platform.FormFactor;
 		_purchaseOrder.CreatedPlatform = platform.Platform;
 		_purchaseOrder.CreatedLatitude = platform.Latitude;
@@ -510,7 +510,7 @@ public partial class PurchaseOrderPage
 			await _toastNotification.ShowAsync("Save Transaction", "Transaction saved successfully.", ToastType.Success);
 
 			if (Id.HasValue && Id.Value > 0)
-				await AuthenticationService.CloseWindowOrTab(FormFactor, JSRuntime);
+				await WindowNavigation.CloseWindowOrTab();
 			await ResetPage();
 		}
 		catch (Exception ex)
@@ -562,7 +562,7 @@ public partial class PurchaseOrderPage
 		}
 
 		var decodeTransactionNo = await DecodeCode.DecodeTransactionNo(_purchase.TransactionNo, false, false, CodeType.Purchase);
-		await AuthenticationService.NavigateToRoute(decodeTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
+		await WindowNavigation.NavigateToRoute(decodeTransactionNo.PageRouteName);
 	}
 	#endregion
 

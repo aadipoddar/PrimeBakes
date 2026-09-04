@@ -2,7 +2,7 @@
 
 using Firebase.Messaging;
 
-using PrimeBakes.Services;
+using PrimeBakes.Services.Notification;
 
 namespace PrimeBakes.Platforms.Android;
 

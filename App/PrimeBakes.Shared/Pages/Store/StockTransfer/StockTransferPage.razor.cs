@@ -869,7 +869,7 @@ public partial class StockTransferPage
 		_stockTransfer.TransactionDateTime = DateOnly.FromDateTime(_stockTransfer.TransactionDateTime).ToDateTime(new TimeOnly(currentDateTime.Hour, currentDateTime.Minute, currentDateTime.Second));
 		_stockTransfer.CreatedAt = currentDateTime;
 		_stockTransfer.LastModifiedAt = currentDateTime;
-		var platform = await AuthService.GetPlatformInfo();
+		var platform = await PlatformInfo.GetPlatformInfo();
 		_stockTransfer.CreatedFormFactor = platform.FormFactor;
 		_stockTransfer.CreatedPlatform = platform.Platform;
 		_stockTransfer.CreatedLatitude = platform.Latitude;
@@ -942,7 +942,7 @@ public partial class StockTransferPage
 			await _toastNotification.ShowAsync("Save Transaction", "Transaction saved successfully.", ToastType.Success);
 
 			if (Id.HasValue && Id.Value > 0)
-				await AuthenticationService.CloseWindowOrTab(FormFactor, JSRuntime);
+				await WindowNavigation.CloseWindowOrTab();
 			await ResetPage();
 		}
 		catch (Exception ex)

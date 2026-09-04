@@ -139,7 +139,7 @@ public partial class KitchenSummaryReport : IAsyncDisposable
 		_kitchenProduction = await kitchenProduction;
 		_kitchenProductionReturn = await kitchenProductionReturn;
 
-		var platform = await AuthService.GetPlatformInfo();
+		var platform = await PlatformInfo.GetPlatformInfo();
 		await AuditTrailData.SaveAuditTrail(new()
 		{
 			Action = AuditTrailActionTypes.Report.ToString(),

@@ -19,7 +19,7 @@ else
 				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
 					<MudBlazor.MudMenuItem Label="Send (Ctrl + S)" OnClick="ConfirmSend" />
 					<MudBlazor.MudDivider />
-					<MudBlazor.MudMenuItem Label="Close (Ctrl + W)" OnClick="() => AuthenticationService.CloseWindowOrTab(FormFactor, JSRuntime)" />
+					<MudBlazor.MudMenuItem Label="Close (Ctrl + W)" OnClick="() => WindowNavigation.CloseWindowOrTab()" />
 				</MudBlazor.MudMenu>
 			</LeftContent>
 		</Header>

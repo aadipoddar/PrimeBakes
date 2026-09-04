@@ -1,6 +1,6 @@
 ﻿using Microsoft.JSInterop;
 
-namespace PrimeBakes.Shared.Services;
+namespace PrimeBakes.Shared.Services.Printing;
 
 /// <summary>
 /// Dispatches a thermal print job to the correct output:

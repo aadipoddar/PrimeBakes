@@ -42,6 +42,6 @@ public partial class CustomTextField
 	private async Task NavigateToAddNew()
 	{
 		if (AddNewRoute is not null)
-			await AuthenticationService.NavigateToRoute(AddNewRoute, FormFactor, JSRuntime, NavigationManager);
+			await WindowNavigation.NavigateToRoute(AddNewRoute);
 	}
 }

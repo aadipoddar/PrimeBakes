@@ -1,4 +1,4 @@
-namespace PrimeBakes.Shared.Services;
+namespace PrimeBakes.Shared.Services.Device;
 
 public interface IFormFactor
 {

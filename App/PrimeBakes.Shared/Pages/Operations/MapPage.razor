@@ -9,13 +9,7 @@
 else
 {
 	<div class="page-shell">
-		<Header Title="@_title">
-			<LeftContent>
-				<MudBlazor.MudMenu Label="File" Dense="true">
-					<MudBlazor.MudMenuItem Label="Close (Ctrl + W)" OnClick="() => AuthenticationService.CloseWindowOrTab(FormFactor, JSRuntime)" />
-				</MudBlazor.MudMenu>
-			</LeftContent>
-		</Header>
+		<Header Title="@_title" />
 
 		<div class="page-container">
 			<div class="section-card">

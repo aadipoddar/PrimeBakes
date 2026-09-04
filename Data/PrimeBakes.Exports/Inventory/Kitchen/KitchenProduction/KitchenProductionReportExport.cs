@@ -5,7 +5,7 @@ using PrimeBakes.Models.Inventory.Kitchen;
 using PrimeBakes.Models.Inventory.Kitchen.KitchenProduction;
 using PrimeBakes.Models.Store.Product;
 
-namespace PrimeBakes.Exports.Inventory.Kitchen;
+namespace PrimeBakes.Exports.Inventory.Kitchen.KitchenProduction;
 
 public static class KitchenProductionReportExport
 {

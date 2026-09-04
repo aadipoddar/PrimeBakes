@@ -122,7 +122,7 @@ public partial class CustomerSummaryReport : IAsyncDisposable
 			_allReturns = await allReturns;
 			_allBills = await allBills;
 
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),

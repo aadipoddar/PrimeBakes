@@ -1,5 +1,4 @@
-﻿using PrimeBakes.Exports.Inventory.Kitchen;
-using PrimeBakes.Models.Accounts.Masters;
+﻿using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Inventory.Kitchen;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
@@ -14,6 +13,7 @@ using PrimeBakes.Data.Accounts.Masters;
 using PrimeBakes.Data.Inventory.Kitchen.KitchenProduction;
 using PrimeBakes.Data.Operations.AuditTrail;
 using PrimeBakes.Models.Operations.AuditTrail;
+using PrimeBakes.Exports.Inventory.Kitchen.KitchenProduction;
 
 namespace PrimeBakes.Shared.Pages.Inventory.Kitchen.KitchenProduction.Reports;
 
@@ -132,7 +132,7 @@ public partial class KitchenProductionItemReport : IAsyncDisposable
 			_allTransactionOverviews = await allTransactionOverviews;
 			_allTransactionReturnOverviews = await allTransactionReturnOverviews;
 
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 			await AuditTrailData.SaveAuditTrail(new()
 			{
 				Action = AuditTrailActionTypes.Report.ToString(),
@@ -295,7 +295,7 @@ public partial class KitchenProductionItemReport : IAsyncDisposable
 		}
 
 		var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(_sfGrid.SelectedRecords.First().TransactionNo, false, false);
-		await AuthenticationService.NavigateToRoute(decodedTransactionNo.PageRouteName, FormFactor, JSRuntime, NavigationManager);
+		await WindowNavigation.NavigateToRoute(decodedTransactionNo.PageRouteName);
 	}
 
 	private async Task DeleteRecoverTransaction(int masterId, string transactionNo, bool isRecover)
@@ -313,7 +313,7 @@ public partial class KitchenProductionItemReport : IAsyncDisposable
 
 			await _toastNotification.ShowAsync("Processing", $"{(isRecover ? "Recovering" : "Deleting")} transaction...", ToastType.Info);
 
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 			var currentDateTime = await CommonData.LoadCurrentDateTime();
 
 			var decodedTransactionNo = await DecodeCode.DecodeTransactionNo(transactionNo, false, false);

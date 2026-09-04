@@ -1,6 +1,6 @@
 using PrimeBakes.Models.Operations.Notification;
 
-namespace PrimeBakes.Services;
+namespace PrimeBakes.Services.Notification;
 
 public interface IPushDemoNotificationActionService : INotificationActionService
 {

@@ -1,8 +1,8 @@
 using Microsoft.Maui.LifecycleEvents;
 
-using PrimeBakes.Shared.Services;
+using PrimeBakes.Shared.Services.Host;
 
-namespace PrimeBakes.Services;
+namespace PrimeBakes.Platforms.Windows;
 
 internal static class WindowCloseGuardSetup
 {

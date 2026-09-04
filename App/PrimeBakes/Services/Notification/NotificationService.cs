@@ -1,9 +1,9 @@
 ﻿using Plugin.LocalNotification;
 using Plugin.LocalNotification.Core.Models;
 
-namespace PrimeBakes.Services;
+namespace PrimeBakes.Services.Notification;
 
-public class NotificationService(INotificationRegistrationService notificationRegistrationService) : Shared.Services.INotificationService
+public class NotificationService(INotificationRegistrationService notificationRegistrationService) : Shared.Services.Notification.INotificationService
 {
     readonly INotificationRegistrationService _notificationRegistrationService = notificationRegistrationService;
 

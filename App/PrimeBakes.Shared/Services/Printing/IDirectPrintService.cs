@@ -1,4 +1,4 @@
-namespace PrimeBakes.Shared.Services;
+namespace PrimeBakes.Shared.Services.Printing;
 
 /// <summary>
 /// Abstraction for silent raw-byte printing (no dialog).

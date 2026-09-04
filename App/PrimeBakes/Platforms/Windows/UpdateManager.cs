@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace PrimeBakes.Services;
+namespace PrimeBakes.Platforms.Windows;
 
 public static class UpdaterManager
 {

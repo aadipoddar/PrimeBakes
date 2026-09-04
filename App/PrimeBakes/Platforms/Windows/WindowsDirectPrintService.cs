@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-using PrimeBakes.Shared.Services;
+using PrimeBakes.Shared.Services.Printing;
 
 namespace PrimeBakes.Platforms.Windows;
 

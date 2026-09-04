@@ -87,7 +87,7 @@ public partial class FinancialYearPage
 
 			await _toastNotification.ShowAsync("Processing", "Please wait while the transaction is being saved...", ToastType.Info);
 
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 			await FinancialYearData.SaveTransaction(_financialYear, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Saved", "Transaction has been saved successfully.", ToastType.Success);
@@ -176,7 +176,7 @@ public partial class FinancialYearPage
 
 			var label = $"{financialYear.StartDate:dd-MMM-yyyy} to {financialYear.EndDate:dd-MMM-yyyy}";
 
-			var platform = await AuthService.GetPlatformInfo();
+			var platform = await PlatformInfo.GetPlatformInfo();
 			if (isRecover) await FinancialYearData.RecoverTransaction(financialYear, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 			else await FinancialYearData.DeleteTransaction(financialYear, _user.Id, platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
