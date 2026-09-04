@@ -16,10 +16,10 @@ public class LocalDbService : ILocalDbService
 		await Task.CompletedTask;
 	}
 
-	public async Task CreateDatabaseAsync()
+	public async Task SetupDatabaseAsync()
 	{
 #if WINDOWS
-		await LocalDbManager.CreateDatabase();
+		await Task.Run(LocalDbManager.SetupDatabase);
 #endif
 		await Task.CompletedTask;
 	}

@@ -1,4 +1,5 @@
-﻿using PrimeBakes.Data.Operations.Settings;
+﻿using PrimeBakes.Data.Operations.Maintenance;
+using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Exports.Operations.Settings;
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Services.Printing;
@@ -259,19 +260,42 @@ public partial class LocalSettingsPage
 		}
 	}
 
-	private async Task CreateDatabase()
+	private async Task SetupDatabase()
 	{
 		try
 		{
 			_isProcessing = true;
 			StateHasChanged();
 
-			await LocalDbService.CreateDatabaseAsync();
-			await _toastNotification.ShowAsync("Database Ready", "PrimeBakesClient is available on this computer.", ToastType.Success);
+			await _toastNotification.ShowAsync("Setting Up", "Creating and updating the local database. This can take a minute...", ToastType.Info);
+			await LocalDbService.SetupDatabaseAsync();
+			await _toastNotification.ShowAsync("Database Ready", "PrimeBakesClient matches this version of Prime Bakes.", ToastType.Success);
 		}
 		catch (Exception ex)
 		{
 			await _toastNotification.ShowAsync("Database Error", ex.Message, ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
+
+	private async Task SyncLocalData()
+	{
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+
+			await _toastNotification.ShowAsync("Syncing", "Copying data to this computer...", ToastType.Info);
+			var summary = await SyncData.SyncToLocalClient();
+			await _toastNotification.ShowAsync("Synced", summary, ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Sync Error", ex.Message, ToastType.Error);
 		}
 		finally
 		{

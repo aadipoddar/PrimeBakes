@@ -133,7 +133,7 @@ public partial class Dashboard
 		{
 			var setting = await SettingsData.LoadSettingsByKey(SettingsKeys.BackupReminderDays);
 			var reminderDays = int.TryParse(setting?.Value, out var days) ? days : _defaultBackupReminderDays;
-			var lastBackup = await BackupData.LoadLastBackupDate();
+			var lastBackup = await SyncData.LoadLastBackupDate();
 			var elapsed = lastBackup is null ? int.MaxValue : (int)(DateTime.Now - lastBackup.Value).TotalDays;
 
 			if (elapsed >= reminderDays)

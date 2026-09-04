@@ -659,7 +659,7 @@ public partial class SettingsPage
 			StateHasChanged();
 
 			await _toastNotification.ShowAsync("Backing Up", "Copying data to the backup server...", ToastType.Info);
-			var summary = await BackupData.Backup(_user.Id);
+			var summary = await SyncData.Backup(_user.Id);
 			await _toastNotification.ShowAsync("Backed Up", summary, ToastType.Success);
 		}
 		catch (Exception ex)

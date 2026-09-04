@@ -6,9 +6,9 @@ using PrimeBakes.Models.Operations.User;
 
 namespace PrimeBakes.Data.Operations.Maintenance;
 
-internal static class BackupNotify
+internal static class SyncNotify
 {
-	internal static async Task Notify(BackupData.SyncResult result, DateTime? previousBackup, DateTime backupDateTime, int userId)
+	internal static async Task Notify(SyncData.SyncResult result, DateTime? previousBackup, DateTime backupDateTime, int userId)
 	{
 		var users = await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User);
 		users = [.. users.Where(u => u.Admin && u.LocationId == 1)];
@@ -21,7 +21,7 @@ internal static class BackupNotify
 		await BackupMail(result, previousBackup, backupDateTime, transactionNo, userName);
 	}
 
-	private static async Task BackupNotification(List<UserModel> users, BackupData.SyncResult result,
+	private static async Task BackupNotification(List<UserModel> users, SyncData.SyncResult result,
 		DateTime backupDateTime, string transactionNo, string userName)
 	{
 		var notificationData = new NotificationUtil.TransactionNotificationData
@@ -44,7 +44,7 @@ internal static class BackupNotify
 		await NotificationUtil.SendTransactionNotification(users, notificationData);
 	}
 
-	private static async Task BackupMail(BackupData.SyncResult result, DateTime? previousBackup,
+	private static async Task BackupMail(SyncData.SyncResult result, DateTime? previousBackup,
 		DateTime backupDateTime, string transactionNo, string userName)
 	{
 		var emailData = new TransactionMailing.TransactionEmailData

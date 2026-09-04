@@ -1,4 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using Microsoft.SqlServer.Dac;
 
 using System.Diagnostics;
 
@@ -15,14 +15,21 @@ public static class LocalDbManager
 	public static async Task UninstallSqlServer() =>
 		await RunScript("primebakes_localdb_uninstall.ps1", _uninstallScript);
 
-	public static async Task CreateDatabase()
+	public static void SetupDatabase()
 	{
-		using SqlConnection connection = new($@"Server=.\{_instance};Integrated Security=True;TrustServerCertificate=True");
-		await connection.OpenAsync();
+		var dacpacPath = Path.Combine(AppContext.BaseDirectory, "PrimeBakes.Database.dacpac");
 
-		using var command = connection.CreateCommand();
-		command.CommandText = $"IF DB_ID('{_database}') IS NULL CREATE DATABASE [{_database}];";
-		await command.ExecuteNonQueryAsync();
+		if (!File.Exists(dacpacPath))
+			throw new FileNotFoundException("PrimeBakes.Database.dacpac was not found next to the app.");
+
+		using var package = DacPackage.Load(dacpacPath);
+
+		DacServices services = new($@"Server=.\{_instance};Integrated Security=True;TrustServerCertificate=True");
+		services.Deploy(package, _database, true, new()
+		{
+			AllowIncompatiblePlatform = true,
+			BlockOnPossibleDataLoss = false
+		});
 	}
 
 	private static async Task RunScript(string fileName, string script)

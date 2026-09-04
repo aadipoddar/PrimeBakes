@@ -177,11 +177,21 @@ else
 
 						<div class="tp-row">
 							<div class="tp-info">
-								<p class="tp-title">Create Database</p>
-								<p class="tp-hint">Creates the PrimeBakesClient database on this computer if it does not already exist. Run this after SQL Server is installed.</p>
+								<p class="tp-title">Setup Database</p>
+								<p class="tp-hint">Creates the PrimeBakesClient database if it does not exist, then updates its tables and views to match this version of Prime Bakes. Run this after installing SQL Server and after every app update.</p>
 							</div>
-							<SfButton CssClass="e-outline e-info bt-action-btn" Content="Create Database"
-									  Disabled="_isProcessing" @onclick="CreateDatabase">
+							<SfButton CssClass="e-outline e-info bt-action-btn" Content="Setup Database"
+									  Disabled="_isProcessing" @onclick="SetupDatabase">
+							</SfButton>
+						</div>
+
+						<div class="tp-row">
+							<div class="tp-info">
+								<p class="tp-title">Sync Data</p>
+								<p class="tp-hint">Copies the changes since the last sync from the live database to this computer. The first sync copies every table in full and takes several minutes.</p>
+							</div>
+							<SfButton CssClass="e-outline e-info bt-action-btn" Content="Sync Data"
+									  Disabled="_isProcessing" @onclick="SyncLocalData">
 							</SfButton>
 						</div>
 					</div>

@@ -10,7 +10,7 @@ using System.Diagnostics;
 
 namespace PrimeBakes.Data.Operations.Maintenance;
 
-public static class BackupData
+public static class SyncData
 {
 	private const int _batchSize = 2000;
 	private const char _keySeparator = (char)31;
@@ -37,7 +37,7 @@ public static class BackupData
 		var previousBackup = await LoadLastBackupDate();
 		var result = await RunSync(Secrets.AzureTestingConnectionString, _backupMarker);
 
-		await BackupNotify.Notify(result, previousBackup, DateTime.Now, userId);
+		await SyncNotify.Notify(result, previousBackup, DateTime.Now, userId);
 
 		return result.Summary;
 	}

@@ -7,7 +7,7 @@ public class LocalDbService : ILocalDbService
 	public async Task InstallSqlServerAsync() =>
 		await Task.CompletedTask;
 
-	public async Task CreateDatabaseAsync() =>
+	public async Task SetupDatabaseAsync() =>
 		await Task.CompletedTask;
 
 	public async Task UninstallSqlServerAsync() =>

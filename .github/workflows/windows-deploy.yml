@@ -86,6 +86,17 @@ jobs:
     - name: Publish Windows MAUI App
       run: dotnet publish App/PrimeBakes/PrimeBakes.csproj -f net10.0-windows10.0.19041.0 -c Release -p:WindowsPackageType=None -o App/PrimeBakes/publish/windows
 
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Build Database Project
+      run: msbuild Data/PrimeBakes.Database/PrimeBakes.Database.sqlproj /p:Configuration=Release /p:Platform="Any CPU"
+
+    - name: Copy DACPAC into publish output
+      run: |
+        $dacpac = (Get-ChildItem -Path "Data/PrimeBakes.Database" -Filter "PrimeBakes.Database.dacpac" -Recurse).FullName
+        Copy-Item $dacpac "App/PrimeBakes/publish/windows/PrimeBakes.Database.dacpac"
+
     - name: Create Zip Archive
       run: Compress-Archive -Path "App/PrimeBakes/publish/windows/*" -DestinationPath "PrimeBakes.zip" -Force
 

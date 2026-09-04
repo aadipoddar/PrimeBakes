@@ -88,6 +88,10 @@
 		<PackageReference Include="Xamarin.AndroidX.Fragment" Version="1.8.8.1" />
 	</ItemGroup>
 
+	<ItemGroup Condition="'$(TargetFramework)' == 'net10.0-windows10.0.19041.0'">
+		<PackageReference Include="Microsoft.SqlServer.DacFx" Version="170.4.83" />
+	</ItemGroup>
+
 	<ItemGroup>
 		<ProjectReference Include="..\PrimeBakes.Shared\PrimeBakes.Shared.csproj" />
 	</ItemGroup>
