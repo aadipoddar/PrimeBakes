@@ -119,7 +119,7 @@ public partial class PurchaseOrderItemReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
-			_allTransactionOverviews = await CommonData.LoadTableDataByDate<PurchaseOrderItemOverviewModel>(
+			_allTransactionOverviews = await CommonData.LoadReportDataByDate<PurchaseOrderItemOverviewModel>(
 				InventoryNames.PurchaseOrderItemOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
@@ -148,6 +148,7 @@ public partial class PurchaseOrderItemReport : IAsyncDisposable
 			_isProcessing = false;
 			StateHasChanged();
 			await _toastNotification.HideAllInfoAsync();
+			_ = LocalDbService.SyncDataBackground();
 		}
 	}
 

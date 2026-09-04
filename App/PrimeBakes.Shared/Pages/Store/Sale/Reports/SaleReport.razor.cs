@@ -138,10 +138,10 @@ public partial class SaleReport : IAsyncDisposable
 			var fromDate = DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue);
 			var toDate = DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue);
 
-			var allTransactionOverviews = CommonData.LoadTableDataByDate<SaleOverviewModel>(StoreNames.SaleOverview, fromDate, toDate);
-			var allReturnOverviews = CommonData.LoadTableDataByDate<SaleReturnOverviewModel>(StoreNames.SaleReturnOverview, fromDate, toDate);
-			var allTransferOverviews = CommonData.LoadTableDataByDate<StockTransferOverviewModel>(StoreNames.StockTransferOverview, fromDate, toDate);
-			var allBillOverviews = CommonData.LoadTableDataByDate<BillOverviewModel>(RestaurantNames.BillOverview, fromDate, toDate);
+			var allTransactionOverviews = CommonData.LoadReportDataByDate<SaleOverviewModel>(StoreNames.SaleOverview, fromDate, toDate);
+			var allReturnOverviews = CommonData.LoadReportDataByDate<SaleReturnOverviewModel>(StoreNames.SaleReturnOverview, fromDate, toDate);
+			var allTransferOverviews = CommonData.LoadReportDataByDate<StockTransferOverviewModel>(StoreNames.StockTransferOverview, fromDate, toDate);
+			var allBillOverviews = CommonData.LoadReportDataByDate<BillOverviewModel>(RestaurantNames.BillOverview, fromDate, toDate);
 
 			_allTransactionOverviews = await allTransactionOverviews;
 			_allReturnOverviews = await allReturnOverviews;
@@ -172,6 +172,7 @@ public partial class SaleReport : IAsyncDisposable
 			_isProcessing = false;
 			StateHasChanged();
 			await _toastNotification.HideAllInfoAsync();
+			_ = LocalDbService.SyncDataBackground();
 		}
 	}
 

@@ -111,7 +111,7 @@ public partial class AccountingLedgerReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
-			_allTransactionOverviews = await CommonData.LoadTableDataByDate<FinancialAccountingLedgerOverviewModel>(
+			_allTransactionOverviews = await CommonData.LoadReportDataByDate<FinancialAccountingLedgerOverviewModel>(
 				AccountNames.FinancialAccountingLedgerOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
@@ -140,6 +140,7 @@ public partial class AccountingLedgerReport : IAsyncDisposable
 			_isProcessing = false;
 			StateHasChanged();
 			await _toastNotification.HideAllInfoAsync();
+			_ = LocalDbService.SyncDataBackground();
 		}
 	}
 

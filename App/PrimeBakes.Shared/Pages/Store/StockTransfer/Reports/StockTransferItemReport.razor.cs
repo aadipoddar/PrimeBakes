@@ -121,7 +121,7 @@ public partial class StockTransferItemReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
-			_allTransactionOverviews = await CommonData.LoadTableDataByDate<StockTransferItemOverviewModel>(
+			_allTransactionOverviews = await CommonData.LoadReportDataByDate<StockTransferItemOverviewModel>(
 				StoreNames.StockTransferItemOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
@@ -150,6 +150,7 @@ public partial class StockTransferItemReport : IAsyncDisposable
 			_isProcessing = false;
 			StateHasChanged();
 			await _toastNotification.HideAllInfoAsync();
+			_ = LocalDbService.SyncDataBackground();
 		}
 	}
 

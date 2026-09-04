@@ -116,8 +116,8 @@ public partial class KitchenIssueItemMonthlyReport : IAsyncDisposable
 			var fromDate = DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue);
 			var toDate = DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue);
 
-			var allTransactionOverviews = CommonData.LoadTableDataByDate<KitchenIssueItemOverviewModel>(InventoryNames.KitchenIssueItemOverview, fromDate, toDate);
-			var allTransactionReturnOverviews = CommonData.LoadTableDataByDate<KitchenIssueReturnItemOverviewModel>(InventoryNames.KitchenIssueReturnItemOverview, fromDate, toDate);
+			var allTransactionOverviews = CommonData.LoadReportDataByDate<KitchenIssueItemOverviewModel>(InventoryNames.KitchenIssueItemOverview, fromDate, toDate);
+			var allTransactionReturnOverviews = CommonData.LoadReportDataByDate<KitchenIssueReturnItemOverviewModel>(InventoryNames.KitchenIssueReturnItemOverview, fromDate, toDate);
 
 			_allTransactionOverviews = await allTransactionOverviews;
 			_allTransactionReturnOverviews = await allTransactionReturnOverviews;
@@ -146,6 +146,7 @@ public partial class KitchenIssueItemMonthlyReport : IAsyncDisposable
 			_isProcessing = false;
 			StateHasChanged();
 			await _toastNotification.HideAllInfoAsync();
+			_ = LocalDbService.SyncDataBackground();
 		}
 	}
 

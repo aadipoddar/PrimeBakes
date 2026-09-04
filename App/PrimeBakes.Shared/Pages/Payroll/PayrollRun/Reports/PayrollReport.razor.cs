@@ -114,7 +114,7 @@ public partial class PayrollReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Loading", "Fetching payroll...", ToastType.Info);
 
-			_allTransactionOverviews = await CommonData.LoadTableDataByDate<PayrollOverviewModel>(
+			_allTransactionOverviews = await CommonData.LoadReportDataByDate<PayrollOverviewModel>(
 				PayrollNames.PayrollOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
@@ -130,6 +130,7 @@ public partial class PayrollReport : IAsyncDisposable
 			_isProcessing = false;
 			StateHasChanged();
 			await _toastNotification.HideAllInfoAsync();
+			_ = LocalDbService.SyncDataBackground();
 		}
 	}
 
@@ -312,7 +313,7 @@ public partial class PayrollReport : IAsyncDisposable
 
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var components = await CommonData.LoadTableDataByDate<PayrollItemOverviewModel>(
+			var components = await CommonData.LoadReportDataByDate<PayrollItemOverviewModel>(
 				PayrollNames.PayrollItemOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));

@@ -85,7 +85,7 @@ public partial class RawMaterialStockDetailReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Loading", "Fetching stock details...", ToastType.Info);
 
-			_stockDetails = await CommonData.LoadTableDataByDate<RawMaterialStockDetailsModel>(
+			_stockDetails = await CommonData.LoadReportDataByDate<RawMaterialStockDetailsModel>(
 				InventoryNames.RawMaterialStockDetails,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
@@ -116,6 +116,7 @@ public partial class RawMaterialStockDetailReport : IAsyncDisposable
 			_isProcessing = false;
 			StateHasChanged();
 			await _toastNotification.HideAllInfoAsync();
+			_ = LocalDbService.SyncDataBackground();
 		}
 	}
 	#endregion

@@ -109,7 +109,7 @@ public partial class KitchenProductionReturnReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
-			_allTransactionOverviews = await CommonData.LoadTableDataByDate<KitchenProductionReturnOverviewModel>(
+			_allTransactionOverviews = await CommonData.LoadReportDataByDate<KitchenProductionReturnOverviewModel>(
 				InventoryNames.KitchenProductionReturnOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
@@ -138,6 +138,7 @@ public partial class KitchenProductionReturnReport : IAsyncDisposable
 			_isProcessing = false;
 			StateHasChanged();
 			await _toastNotification.HideAllInfoAsync();
+			_ = LocalDbService.SyncDataBackground();
 		}
 	}
 

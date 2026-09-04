@@ -119,6 +119,7 @@ public partial class KitchenSummaryReport : IAsyncDisposable
 			_isProcessing = false;
 			StateHasChanged();
 			await _toastNotification.HideAllInfoAsync();
+			_ = LocalDbService.SyncDataBackground();
 		}
 	}
 
@@ -129,10 +130,10 @@ public partial class KitchenSummaryReport : IAsyncDisposable
 		var fromDate = DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue);
 		var toDate = DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue);
 
-		var kitchenIssue = CommonData.LoadTableDataByDate<KitchenIssueOverviewModel>(InventoryNames.KitchenIssueOverview, fromDate, toDate);
-		var kitchenIssueReturn = CommonData.LoadTableDataByDate<KitchenIssueReturnOverviewModel>(InventoryNames.KitchenIssueReturnOverview, fromDate, toDate);
-		var kitchenProduction = CommonData.LoadTableDataByDate<KitchenProductionOverviewModel>(InventoryNames.KitchenProductionOverview, fromDate, toDate);
-		var kitchenProductionReturn = CommonData.LoadTableDataByDate<KitchenProductionReturnOverviewModel>(InventoryNames.KitchenProductionReturnOverview, fromDate, toDate);
+		var kitchenIssue = CommonData.LoadReportDataByDate<KitchenIssueOverviewModel>(InventoryNames.KitchenIssueOverview, fromDate, toDate);
+		var kitchenIssueReturn = CommonData.LoadReportDataByDate<KitchenIssueReturnOverviewModel>(InventoryNames.KitchenIssueReturnOverview, fromDate, toDate);
+		var kitchenProduction = CommonData.LoadReportDataByDate<KitchenProductionOverviewModel>(InventoryNames.KitchenProductionOverview, fromDate, toDate);
+		var kitchenProductionReturn = CommonData.LoadReportDataByDate<KitchenProductionReturnOverviewModel>(InventoryNames.KitchenProductionReturnOverview, fromDate, toDate);
 
 		_kitchenIssue = await kitchenIssue;
 		_kitchenIssueReturn = await kitchenIssueReturn;

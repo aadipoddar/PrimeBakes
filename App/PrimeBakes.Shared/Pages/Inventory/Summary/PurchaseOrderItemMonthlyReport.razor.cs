@@ -110,7 +110,7 @@ public partial class PurchaseOrderItemMonthlyReport : IAsyncDisposable
 
 			_currentDateTime = await CommonData.LoadCurrentDateTime();
 
-			_allTransactionOverviews = await CommonData.LoadTableDataByDate<PurchaseOrderItemOverviewModel>(
+			_allTransactionOverviews = await CommonData.LoadReportDataByDate<PurchaseOrderItemOverviewModel>(
 				InventoryNames.PurchaseOrderItemOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
@@ -139,6 +139,7 @@ public partial class PurchaseOrderItemMonthlyReport : IAsyncDisposable
 			_isProcessing = false;
 			StateHasChanged();
 			await _toastNotification.HideAllInfoAsync();
+			_ = LocalDbService.SyncDataBackground();
 		}
 	}
 

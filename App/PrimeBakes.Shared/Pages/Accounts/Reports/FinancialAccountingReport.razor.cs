@@ -106,7 +106,7 @@ public partial class FinancialAccountingReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
-			_allTransactionOverviews = await CommonData.LoadTableDataByDate<FinancialAccountingOverviewModel>(
+			_allTransactionOverviews = await CommonData.LoadReportDataByDate<FinancialAccountingOverviewModel>(
 				AccountNames.FinancialAccountingOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
@@ -135,6 +135,7 @@ public partial class FinancialAccountingReport : IAsyncDisposable
 			_isProcessing = false;
 			StateHasChanged();
 			await _toastNotification.HideAllInfoAsync();
+			_ = LocalDbService.SyncDataBackground();
 		}
 	}
 
