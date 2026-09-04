@@ -30,6 +30,9 @@ public static class CommonData
 	public static async Task<List<T>> LoadTableDataByDate<T>(string TableName, DateTime StartDate, DateTime EndDate) where T : new() =>
 		await ApiClient.Get<List<T>>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadTableDataByDate)), new { TableName, StartDate, EndDate });
 
+	public static async Task<List<T>> LoadReportDataByDate<T>(string TableName, DateTime StartDate, DateTime EndDate) where T : new() =>
+		await ApiClient.Get<List<T>>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadReportDataByDate)), new { TableName, StartDate, EndDate });
+
 	public static async Task<T> LoadLastTableData<T>(string TableName) where T : new() =>
 		await ApiClient.Get<T>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadLastTableData)), new { TableName });
 

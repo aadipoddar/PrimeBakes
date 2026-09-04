@@ -34,6 +34,9 @@ public class CommonEndpoint : ICarterModule
 		group.MapGet(nameof(CommonData.LoadTableDataByDate),
 			(string TableName, DateTime StartDate, DateTime EndDate) => CommonData.LoadTableDataByDate<object>(TableName, StartDate, EndDate));
 
+		group.MapGet(nameof(CommonData.LoadReportDataByDate),
+			(string TableName, DateTime StartDate, DateTime EndDate) => CommonData.LoadReportDataByDate<object>(TableName, StartDate, EndDate));
+
 		group.MapGet(nameof(CommonData.LoadLastTableData),
 			(string TableName) => CommonData.LoadLastTableData<object>(TableName));
 

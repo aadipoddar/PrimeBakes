@@ -11,6 +11,7 @@ using PrimeBakes.Platforms.Windows;
 using MudBlazor.Services;
 
 using PrimeBakes.Data;
+using PrimeBakes.Data.DataAccess;
 using PrimeBakes.Models.DataAccess;
 
 using PrimeBakes.Services;
@@ -86,6 +87,7 @@ public static class MauiProgram
 
 #if WINDOWS
 		builder.UseWindowCloseGuard();
+		SqlDataAccess.LocalDBAvailable = LocalDbManager.IsDatabaseReady;
 #endif
 
 #if DEBUG

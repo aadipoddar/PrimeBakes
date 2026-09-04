@@ -2,6 +2,8 @@
 
 public interface ILocalDbService
 {
+	Task<bool> LocalDBAvailable();
+
 	Task SyncDataBackground();
 
 	Task InstallSqlServer();

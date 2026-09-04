@@ -1,5 +1,6 @@
 ﻿using Microsoft.SqlServer.Dac;
 
+using PrimeBakes.Data.DataAccess;
 using PrimeBakes.Data.Operations.Maintenance;
 using PrimeBakes.Shared.Services.Host;
 
@@ -12,11 +13,17 @@ public static class LocalDbManager
 	private const string _instance = "AadiSoft";
 	private const string _database = "PrimeBakesClient";
 	private const string _schemaVersionKey = "LocalSchemaVersion";
+	private const string _databaseReadyKey = "LocalDatabaseReady";
 
 	private static readonly SemaphoreSlim _gate = new(1, 1);
+	public static bool IsDatabaseReady => Preferences.Get(_databaseReadyKey, false);
 
 	public static async Task SyncDataBackground()
 	{
+		SqlDataAccess.LocalDBAvailable = IsDatabaseReady;
+		if (!IsDatabaseReady)
+			return;
+
 		if (!await _gate.WaitAsync(0))
 			return;
 
@@ -42,8 +49,11 @@ public static class LocalDbManager
 	public static async Task InstallSqlServer() =>
 		await RunScript("primebakes_localdb_install.ps1", _installScript);
 
-	public static async Task UninstallSqlServer() =>
+	public static async Task UninstallSqlServer()
+	{
 		await RunScript("primebakes_localdb_uninstall.ps1", _uninstallScript);
+		Preferences.Set(_databaseReadyKey, false);
+	}
 
 	public static void SetupDatabase()
 	{
@@ -60,6 +70,8 @@ public static class LocalDbManager
 			AllowIncompatiblePlatform = true,
 			BlockOnPossibleDataLoss = false
 		});
+
+		Preferences.Set(_databaseReadyKey, true);
 	}
 
 	private static async Task RunScript(string fileName, string script)

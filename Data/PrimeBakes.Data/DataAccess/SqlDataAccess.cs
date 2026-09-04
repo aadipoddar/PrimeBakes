@@ -11,20 +11,21 @@ namespace PrimeBakes.Data.DataAccess;
 
 public static class SqlDataAccess
 {
+	public static bool LocalDBAvailable { get; set; }
+
 	internal static readonly string _databaseConnection = CommonSecrets.DatabaseConnection switch
 	{
 		ConnectionType.Local => Secrets.LocalConnectionString,
 		ConnectionType.Azure => Secrets.AzureConnectionString,
-		ConnectionType.AzureTesting => Secrets.AzureTestingConnectionString,
 		_ => throw new NotImplementedException()
 	};
 
-	internal static async Task<List<T>> LoadData<T, U>(string storedProcedure, U parameters, SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	internal static async Task<List<T>> LoadData<T, U>(string storedProcedure, U parameters, SqlDataAccessTransaction sqlDataAccessTransaction = null, bool useLocalDB = false)
 	{
 		if (sqlDataAccessTransaction is not null)
 			return [.. await sqlDataAccessTransaction.LoadDataTransaction<T, U>(storedProcedure, parameters)];
 
-		using IDbConnection connection = new SqlConnection(_databaseConnection);
+		using IDbConnection connection = new SqlConnection((LocalDBAvailable && useLocalDB) ? Secrets.LocalClientConnectionString : _databaseConnection);
 		return [.. await connection.QueryAsync<T>(storedProcedure, parameters, commandType: CommandType.StoredProcedure)];
 	}
 

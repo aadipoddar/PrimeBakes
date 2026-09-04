@@ -8,7 +8,6 @@ public static partial class CommonSecrets
 	{
 		ConnectionType.Local => "https://localhost:7273/",
 		ConnectionType.Azure => "https://primebakes-api-hke5evcebnbsdzgj.indiasouthcentral-01.azurewebsites.net/",
-		ConnectionType.AzureTesting => "https://primebakes-api-hke5evcebnbsdzgj.indiasouthcentral-01.azurewebsites.net/",
 		_ => throw new NotImplementedException()
 	};
 
@@ -32,6 +31,5 @@ public static partial class CommonSecrets
 public enum ConnectionType
 {
 	Local,
-	Azure,
-	AzureTesting
+	Azure
 }

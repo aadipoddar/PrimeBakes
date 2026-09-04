@@ -1,4 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
+
+using PrimeBakes.Data.Accounts.Masters;
+using PrimeBakes.Data.Operations.AuditTrail;
+using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Exports.Operations.AuditTrail;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Operations.AuditTrail;
@@ -10,9 +14,6 @@ using PrimeBakes.Shared.Components.Input;
 using Syncfusion.Blazor.Grids;
 
 using System.Text;
-using PrimeBakes.Data.Operations.Settings;
-using PrimeBakes.Data.Accounts.Masters;
-using PrimeBakes.Data.Operations.AuditTrail;
 
 namespace PrimeBakes.Shared.Pages.Operations;
 
@@ -87,7 +88,7 @@ public partial class AuditTrailReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Loading", "Fetching audit trail records...", ToastType.Info);
 
-			_auditTrails = await CommonData.LoadTableDataByDate<AuditTrailOverviewModel>(
+			_auditTrails = await CommonData.LoadReportDataByDate<AuditTrailOverviewModel>(
 				OperationNames.AuditTrailOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
@@ -118,6 +119,7 @@ public partial class AuditTrailReport : IAsyncDisposable
 			_isProcessing = false;
 			StateHasChanged();
 			await _toastNotification.HideAllInfoAsync();
+			_ = LocalDbService.SyncDataBackground();
 		}
 	}
 	#endregion

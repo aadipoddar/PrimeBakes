@@ -12,6 +12,7 @@ public partial class Footer : IAsyncDisposable
 
 	private const int _defaultRefreshMinutes = 30;
 	private decimal _databaseLoad = -1;
+	private bool _localDatabaseAvailable;
 	private string _platformInfo;
 
 	private PeriodicTimer _refreshTimer;
@@ -24,6 +25,7 @@ public partial class Footer : IAsyncDisposable
 
 		_ = LoadPlatformInfo();
 		_ = LoadDatabaseLoad();
+		_ = LoadLocalDatabase();
 		_ = LocalDbService.SyncDataBackground();
 
 		var setting = await SettingsData.LoadSettingsByKey(SettingsKeys.AutoRefreshReportTimer);
@@ -43,6 +45,15 @@ public partial class Footer : IAsyncDisposable
 						$" Latitude: {platform.Latitude?.ToString("F6") ?? "N/A"}" +
 						$" Longitude: {platform.Longitude?.ToString("F6") ?? "N/A"}";
 
+		await InvokeAsync(StateHasChanged);
+	}
+
+	private async Task LoadLocalDatabase()
+	{
+		if (FormFactor.GetFormFactor() is not "Desktop")
+			return;
+
+		_localDatabaseAvailable = await LocalDbService.LocalDBAvailable();
 		await InvokeAsync(StateHasChanged);
 	}
 
@@ -67,6 +78,7 @@ public partial class Footer : IAsyncDisposable
 			{
 				await LoadPlatformInfo();
 				await LoadDatabaseLoad();
+				await LoadLocalDatabase();
 				await AuthService.ValidateUser();
 				_ = LocalDbService.SyncDataBackground();
 			}

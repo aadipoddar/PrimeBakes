@@ -24,11 +24,8 @@ public static class CommonData
 	public static async Task<T> LoadTableDataByTransactionNo<T>(string TableName, string TransactionNo, SqlDataAccessTransaction sqlDataAccessTransaction = null) where T : new() =>
 		(await SqlDataAccess.LoadData<T, dynamic>(CommonNames.LoadTableDataByTransactionNo, new { TableName, TransactionNo }, sqlDataAccessTransaction)).FirstOrDefault();
 
-	public static async Task<List<T>> LoadTableDataByDate<T>(string TableName, DateTime StartDate, DateTime EndDate, SqlDataAccessTransaction sqlDataAccessTransaction = null) where T : new()
-	{
-		await QueryGate.EnsureCapacity(StartDate, EndDate);
-		return await SqlDataAccess.LoadData<T, dynamic>(CommonNames.LoadTableDataByDate, new { TableName, StartDate, EndDate }, sqlDataAccessTransaction);
-	}
+	public static async Task<List<T>> LoadTableDataByDate<T>(string TableName, DateTime StartDate, DateTime EndDate, SqlDataAccessTransaction sqlDataAccessTransaction = null) where T : new() =>
+		await SqlDataAccess.LoadData<T, dynamic>(CommonNames.LoadTableDataByDate, new { TableName, StartDate, EndDate }, sqlDataAccessTransaction);
 
 	public static async Task<T> LoadLastTableData<T>(string TableName, SqlDataAccessTransaction sqlDataAccessTransaction = null) where T : new() =>
 		(await SqlDataAccess.LoadData<T, dynamic>(CommonNames.LoadLastTableData, new { TableName }, sqlDataAccessTransaction)).FirstOrDefault();
@@ -47,4 +44,13 @@ public static class CommonData
 
 	public static async Task<decimal> LoadDatabaseLoad(SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<decimal, dynamic>(CommonNames.LoadDatabaseLoad, new { }, sqlDataAccessTransaction)).FirstOrDefault();
+
+	public static async Task<List<T>> LoadReportDataByDate<T>(string TableName, DateTime StartDate, DateTime EndDate, SqlDataAccessTransaction sqlDataAccessTransaction = null) where T : new()
+	{
+		if (SqlDataAccess.LocalDBAvailable)
+			return await SqlDataAccess.LoadData<T, dynamic>(CommonNames.LoadTableDataByDate, new { TableName, StartDate, EndDate }, sqlDataAccessTransaction, true);
+
+		await QueryGate.EnsureCapacity(StartDate, EndDate);
+		return await SqlDataAccess.LoadData<T, dynamic>(CommonNames.LoadTableDataByDate, new { TableName, StartDate, EndDate }, sqlDataAccessTransaction);
+	}
 }

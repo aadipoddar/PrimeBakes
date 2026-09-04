@@ -12,6 +12,7 @@ namespace PrimeBakes.Data.Operations.Maintenance;
 
 public static class SyncData
 {
+	#region Fields
 	private const int _batchSize = 2000;
 	private const char _keySeparator = (char)31;
 	private const int _connectRetryCount = 10;
@@ -31,7 +32,9 @@ public static class SyncData
 				+ (Seeded > 0 ? $" {Seeded} fully copied." : string.Empty)
 				+ (Skipped > 0 ? $" {Skipped} unchanged." : string.Empty);
 	}
+	#endregion
 
+	#region Entry Points
 	public static async Task<string> Backup(int userId)
 	{
 		var previousBackup = await LoadLastBackupDate();
@@ -45,6 +48,18 @@ public static class SyncData
 	public static async Task<string> SyncToLocalClient() =>
 		(await RunSync(Secrets.LocalClientConnectionString, null)).Summary;
 
+	public static async Task<DateTime?> LoadLastBackupDate()
+	{
+		using SqlConnection source = new(WithConnectionResiliency(Secrets.AzureConnectionString));
+		await source.OpenAsync();
+
+		return (await source.QueryAsync<SyncVersionModel>(CommonNames.LoadTableData,
+			new { TableName = OperationNames.SyncVersion }, commandType: CommandType.StoredProcedure))
+			.FirstOrDefault(sync => sync.TableName == _backupMarker)?.LastSyncedAt;
+	}
+	#endregion
+
+	#region Sync
 	private static async Task<SyncResult> RunSync(string backupConnectionString, string markerTable)
 	{
 		using SqlConnection source = new(WithConnectionResiliency(Secrets.AzureConnectionString));
@@ -107,25 +122,9 @@ public static class SyncData
 
 		return new(tables.Count, copied, removed, seeded, skipped, stopwatch.Elapsed);
 	}
+	#endregion
 
-	public static async Task<DateTime?> LoadLastBackupDate()
-	{
-		using SqlConnection source = new(WithConnectionResiliency(Secrets.AzureConnectionString));
-		await source.OpenAsync();
-
-		return (await source.QueryAsync<SyncVersionModel>(CommonNames.LoadTableData,
-			new { TableName = OperationNames.SyncVersion }, commandType: CommandType.StoredProcedure))
-			.FirstOrDefault(sync => sync.TableName == _backupMarker)?.LastSyncedAt;
-	}
-
-	private static string WithConnectionResiliency(string connectionString) =>
-		new SqlConnectionStringBuilder(connectionString)
-		{
-			ConnectRetryCount = _connectRetryCount,
-			ConnectRetryInterval = _connectRetryInterval,
-			ConnectTimeout = _connectTimeout
-		}.ConnectionString;
-
+	#region Tables
 	private static async Task<List<TableInfo>> LoadSyncableTables(SqlConnection source, SqlConnection backup)
 	{
 		var sourceTables = await LoadTableNames(source);
@@ -136,7 +135,9 @@ public static class SyncData
 
 	private static async Task<List<TableInfo>> LoadTableNames(SqlConnection connection) =>
 		[.. (await connection.QueryAsync<TableInfo>(OperationNames.LoadTableNames, commandType: CommandType.StoredProcedure))];
+	#endregion
 
+	#region Versions
 	private static async Task<Dictionary<string, VersionInfo>> LoadVersions(SqlConnection source) =>
 		(await source.QueryAsync<VersionInfo>(OperationNames.LoadTableChangeVersions, commandType: CommandType.StoredProcedure))
 			.ToDictionary(version => version.TableName);
@@ -149,11 +150,9 @@ public static class SyncData
 	private static async Task SaveVersion(SqlConnection backup, string tableName, long version) =>
 		await backup.ExecuteAsync(OperationNames.InsertSyncVersion, new { TableName = tableName, Version = version },
 			commandType: CommandType.StoredProcedure, commandTimeout: 0);
+	#endregion
 
-	private static async Task ToggleForeignKeys(SqlConnection connection, bool enable) =>
-		await connection.ExecuteAsync(OperationNames.ToggleForeignKeys, new { Enable = enable },
-			commandType: CommandType.StoredProcedure, commandTimeout: 0);
-
+	#region Copying
 	private static async Task<int> SeedTable(SqlConnection source, SqlConnection backup, TableInfo table)
 	{
 		await backup.ExecuteAsync(OperationNames.DeleteTableData, new { table.TableName },
@@ -219,4 +218,19 @@ public static class SyncData
 
 		return bulkCopy.RowsCopied;
 	}
+	#endregion
+
+	#region Utilities
+	private static string WithConnectionResiliency(string connectionString) =>
+		new SqlConnectionStringBuilder(connectionString)
+		{
+			ConnectRetryCount = _connectRetryCount,
+			ConnectRetryInterval = _connectRetryInterval,
+			ConnectTimeout = _connectTimeout
+		}.ConnectionString;
+
+	private static async Task ToggleForeignKeys(SqlConnection connection, bool enable) =>
+		await connection.ExecuteAsync(OperationNames.ToggleForeignKeys, new { Enable = enable },
+			commandType: CommandType.StoredProcedure, commandTimeout: 0);
+	#endregion
 }

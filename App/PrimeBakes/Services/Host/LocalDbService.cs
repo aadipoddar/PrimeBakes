@@ -8,6 +8,13 @@ namespace PrimeBakes.Services.Host;
 
 public class LocalDbService : ILocalDbService
 {
+	public async Task<bool> LocalDBAvailable() =>
+#if WINDOWS
+		await Task.FromResult(LocalDbManager.IsDatabaseReady);
+#else
+		await Task.FromResult(false);
+#endif
+
 	public async Task SyncDataBackground()
 	{
 #if WINDOWS

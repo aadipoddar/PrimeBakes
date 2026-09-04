@@ -4,6 +4,9 @@ namespace PrimeBakes.Wasm.Services.Host;
 
 public class LocalDbService : ILocalDbService
 {
+	public async Task<bool> LocalDBAvailable() =>
+		await Task.FromResult(false);
+
 	public async Task SyncDataBackground() =>
 		await Task.CompletedTask;
 
