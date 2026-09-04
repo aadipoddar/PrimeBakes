@@ -1,7 +1,10 @@
-using PrimeBakes.Models.Operations.Location;
+using PrimeBakes.Data.Operations.Location;
 using PrimeBakes.Models.Inventory.Kitchen;
-using PrimeBakes.Models.Inventory.Summary;
+using PrimeBakes.Models.Inventory.Kitchen.KitchenIssue;
+using PrimeBakes.Models.Inventory.Kitchen.KitchenProduction;
 using PrimeBakes.Models.Inventory.Purchase;
+using PrimeBakes.Models.Inventory.Summary;
+using PrimeBakes.Models.Operations.Location;
 using PrimeBakes.Models.Restaurant.Bill;
 using PrimeBakes.Models.Store.Customer;
 using PrimeBakes.Models.Store.Sale;
@@ -9,9 +12,6 @@ using PrimeBakes.Models.Store.StockTransfer;
 using PrimeBakes.Models.Store.Summary;
 
 using Syncfusion.Blazor.Grids;
-using PrimeBakes.Models.Inventory.Kitchen.KitchenIssue;
-using PrimeBakes.Models.Inventory.Kitchen.KitchenProduction;
-using PrimeBakes.Data.Operations.Location;
 
 namespace PrimeBakes.Shared.Components.Dashboard;
 
@@ -82,17 +82,17 @@ public partial class DashboardSummaries
 			// Customer has no Status column — customers are never soft-deleted.
 			_customers = await CommonData.LoadTableData<CustomerModel>(StoreNames.Customer);
 
-			_purchases = await CommonData.LoadTableDataByDate<PurchaseOverviewModel>(InventoryNames.PurchaseOverview, today, today);
-			_purchaseReturns = await CommonData.LoadTableDataByDate<PurchaseReturnOverviewModel>(InventoryNames.PurchaseReturnOverview, today, today);
-			_stockTransfers = await CommonData.LoadTableDataByDate<StockTransferOverviewModel>(StoreNames.StockTransferOverview, today, today);
+			_purchases = await CommonData.LoadReportDataByDate<PurchaseOverviewModel>(InventoryNames.PurchaseOverview, today, today);
+			_purchaseReturns = await CommonData.LoadReportDataByDate<PurchaseReturnOverviewModel>(InventoryNames.PurchaseReturnOverview, today, today);
+			_stockTransfers = await CommonData.LoadReportDataByDate<StockTransferOverviewModel>(StoreNames.StockTransferOverview, today, today);
 
-			_monthSales = await CommonData.LoadTableDataByDate<SaleOverviewModel>(StoreNames.SaleOverview, monthStart, today);
-			_monthSaleReturns = await CommonData.LoadTableDataByDate<SaleReturnOverviewModel>(StoreNames.SaleReturnOverview, monthStart, today);
-			_monthBills = await CommonData.LoadTableDataByDate<BillOverviewModel>(RestaurantNames.BillOverview, monthStart, today);
-			_monthKitchenIssue = await CommonData.LoadTableDataByDate<KitchenIssueOverviewModel>(InventoryNames.KitchenIssueOverview, monthStart, today);
-			_monthKitchenIssueReturn = await CommonData.LoadTableDataByDate<KitchenIssueReturnOverviewModel>(InventoryNames.KitchenIssueReturnOverview, monthStart, today);
-			_monthKitchenProduction = await CommonData.LoadTableDataByDate<KitchenProductionOverviewModel>(InventoryNames.KitchenProductionOverview, monthStart, today);
-			_monthKitchenProductionReturn = await CommonData.LoadTableDataByDate<KitchenProductionReturnOverviewModel>(InventoryNames.KitchenProductionReturnOverview, monthStart, today);
+			_monthSales = await CommonData.LoadReportDataByDate<SaleOverviewModel>(StoreNames.SaleOverview, monthStart, today);
+			_monthSaleReturns = await CommonData.LoadReportDataByDate<SaleReturnOverviewModel>(StoreNames.SaleReturnOverview, monthStart, today);
+			_monthBills = await CommonData.LoadReportDataByDate<BillOverviewModel>(RestaurantNames.BillOverview, monthStart, today);
+			_monthKitchenIssue = await CommonData.LoadReportDataByDate<KitchenIssueOverviewModel>(InventoryNames.KitchenIssueOverview, monthStart, today);
+			_monthKitchenIssueReturn = await CommonData.LoadReportDataByDate<KitchenIssueReturnOverviewModel>(InventoryNames.KitchenIssueReturnOverview, monthStart, today);
+			_monthKitchenProduction = await CommonData.LoadReportDataByDate<KitchenProductionOverviewModel>(InventoryNames.KitchenProductionOverview, monthStart, today);
+			_monthKitchenProductionReturn = await CommonData.LoadReportDataByDate<KitchenProductionReturnOverviewModel>(InventoryNames.KitchenProductionReturnOverview, monthStart, today);
 
 			// Soft-deleted rows still come back from the views.
 			_purchases = [.. _purchases.Where(_ => _.Status)];
