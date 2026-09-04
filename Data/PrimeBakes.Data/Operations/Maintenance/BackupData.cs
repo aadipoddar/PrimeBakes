@@ -24,13 +24,28 @@ public static class BackupData
 	private sealed record VersionInfo(string TableName, long CurrentVersion, long MinValidVersion);
 	private sealed record ChangeRow(string KeyValue, string Operation);
 
-	public static async Task<string> Backup() =>
-		await RunSync(Secrets.AzureTestingConnectionString, _backupMarker);
+	internal sealed record SyncResult(int Tables, int Copied, int Removed, int Seeded, int Skipped, TimeSpan Elapsed)
+	{
+		internal string Summary =>
+			$"{Tables} tables in {Elapsed.TotalSeconds:N1}s. {Copied:N0} rows copied, {Removed:N0} removed."
+				+ (Seeded > 0 ? $" {Seeded} fully copied." : string.Empty)
+				+ (Skipped > 0 ? $" {Skipped} unchanged." : string.Empty);
+	}
+
+	public static async Task<string> Backup(int userId)
+	{
+		var previousBackup = await LoadLastBackupDate();
+		var result = await RunSync(Secrets.AzureTestingConnectionString, _backupMarker);
+
+		await BackupNotify.Notify(result, previousBackup, DateTime.Now, userId);
+
+		return result.Summary;
+	}
 
 	public static async Task<string> SyncToLocalClient() =>
-		await RunSync(Secrets.LocalClientConnectionString, null);
+		(await RunSync(Secrets.LocalClientConnectionString, null)).Summary;
 
-	private static async Task<string> RunSync(string backupConnectionString, string markerTable)
+	private static async Task<SyncResult> RunSync(string backupConnectionString, string markerTable)
 	{
 		using SqlConnection source = new(WithConnectionResiliency(Secrets.AzureConnectionString));
 		using SqlConnection backup = new(WithConnectionResiliency(backupConnectionString));
@@ -90,9 +105,7 @@ public static class BackupData
 
 		stopwatch.Stop();
 
-		return $"{tables.Count} tables in {stopwatch.Elapsed.TotalSeconds:N1}s. {copied:N0} rows copied, {removed:N0} removed."
-			+ (seeded > 0 ? $" {seeded} fully copied." : string.Empty)
-			+ (skipped > 0 ? $" {skipped} unchanged." : string.Empty);
+		return new(tables.Count, copied, removed, seeded, skipped, stopwatch.Elapsed);
 	}
 
 	public static async Task<DateTime?> LoadLastBackupDate()

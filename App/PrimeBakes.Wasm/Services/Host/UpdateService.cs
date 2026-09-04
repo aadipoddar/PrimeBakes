@@ -1,8 +1,10 @@
+using Microsoft.JSInterop;
+
 using PrimeBakes.Shared.Services.Host;
 
 namespace PrimeBakes.Wasm.Services.Host;
 
-public class UpdateService : IUpdateService
+public class UpdateService(IJSRuntime jsRuntime) : IUpdateService
 {
 	public Task UninstallAsync() =>
 		Task.CompletedTask;
@@ -10,6 +12,6 @@ public class UpdateService : IUpdateService
 	public Task<bool> CheckForUpdatesAsync(string githubRepoOwner, string githubRepoName, string setupAPKName, string currentVersion) =>
 		Task.FromResult(false);
 
-	public Task UpdateAppAsync(string githubRepoOwner, string githubRepoName, string setupAPKName, IProgress<int>? progress = null, bool forceUpdate = false) =>
-		Task.CompletedTask;
+	public async Task UpdateAppAsync(string githubRepoOwner, string githubRepoName, string setupAPKName, IProgress<int>? progress = null, bool forceUpdate = false) =>
+		await jsRuntime.InvokeVoidAsync("appUpdate.forceReload");
 }

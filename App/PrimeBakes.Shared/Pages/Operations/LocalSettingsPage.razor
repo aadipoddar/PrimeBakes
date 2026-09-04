@@ -167,11 +167,21 @@ else
 					<div class="section-body">
 						<div class="tp-row">
 							<div class="tp-info">
-								<p class="tp-title">Setup Local Database</p>
-								<p class="tp-hint">Installs SQL Server Express on this computer if it is not already installed, then creates the PrimeBakesClient database. The download is about 1 GB and takes several minutes.</p>
+								<p class="tp-title">Install SQL Server</p>
+								<p class="tp-hint">Installs SQL Server Express on this computer if it is not already installed. The download is about 1 GB and takes several minutes.</p>
 							</div>
-							<SfButton CssClass="e-outline e-info bt-action-btn" Content="Setup Local Database"
-									  Disabled="_isProcessing" @onclick="ShowLocalDbConfirmation">
+							<SfButton CssClass="e-outline e-info bt-action-btn" Content="Install SQL Server"
+									  Disabled="_isProcessing" @onclick="ShowInstallConfirmation">
+							</SfButton>
+						</div>
+
+						<div class="tp-row">
+							<div class="tp-info">
+								<p class="tp-title">Create Database</p>
+								<p class="tp-hint">Creates the PrimeBakesClient database on this computer if it does not already exist. Run this after SQL Server is installed.</p>
+							</div>
+							<SfButton CssClass="e-outline e-info bt-action-btn" Content="Create Database"
+									  Disabled="_isProcessing" @onclick="CreateDatabase">
 							</SfButton>
 						</div>
 					</div>
@@ -264,6 +274,12 @@ else
 	.tp-hint {
 		font-size: 13px;
 		color: #64748b;
+	}
+
+	.tp-row + .tp-row {
+		margin-top: 16px;
+		padding-top: 16px;
+		border-top: 1px solid #e2e8f0;
 	}
 
 	/* Scan Controls */

@@ -232,24 +232,46 @@ public partial class LocalSettingsPage
 
 	#region Local Database
 
-	private async Task ShowLocalDbConfirmation() =>
-		await ShowConfirmation("Setup Local Database",
-			"This will install SQL Server Express on this computer if it is not already installed, then create the PrimeBakesClient database. The download is about 1 GB and takes several minutes. A setup window will open. Continue?",
-			SetupLocalDatabase);
+	private async Task ShowInstallConfirmation() =>
+		await ShowConfirmation("Install SQL Server",
+			"This will install SQL Server Express on this computer if it is not already installed. The download is about 1 GB and takes several minutes. A setup window will open. Continue?",
+			InstallSqlServer);
 
-	private async Task SetupLocalDatabase()
+	private async Task InstallSqlServer()
 	{
 		try
 		{
 			_isProcessing = true;
 			StateHasChanged();
 
-			await LocalDbService.SetupLocalDatabaseAsync();
-			await _toastNotification.ShowAsync("Setup Started", "A setup window has opened. Leave it running until it says setup is complete, then restart Prime Bakes.", ToastType.Info);
+			await _toastNotification.ShowAsync("Installing", "A setup window has opened. Leave it running until it reports that SQL Server is installed. Restart your computer after the installation is complete.", ToastType.Info);
+			await LocalDbService.InstallSqlServerAsync();
+			await _toastNotification.ShowAsync("Install Finished", "The setup window has closed. Please restart this computer before continuing.", ToastType.Info);
 		}
 		catch (Exception ex)
 		{
-			await _toastNotification.ShowAsync("Setup Error", $"Could not start setup: {ex.Message}", ToastType.Error);
+			await _toastNotification.ShowAsync("Install Error", $"Could not start the installer: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
+
+	private async Task CreateDatabase()
+	{
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+
+			await LocalDbService.CreateDatabaseAsync();
+			await _toastNotification.ShowAsync("Database Ready", "PrimeBakesClient is available on this computer.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Database Error", ex.Message, ToastType.Error);
 		}
 		finally
 		{
@@ -274,7 +296,7 @@ public partial class LocalSettingsPage
 			_isProcessing = true;
 			await _toastNotification.ShowAsync("Uninstalling", "Prime Bakes will close and be removed from this computer.", ToastType.Warning);
 			await AuthService.Logout();
-			await LocalDbService.UninstallLocalDatabaseAsync();
+			await LocalDbService.UninstallSqlServerAsync();
 			await UpdateService.UninstallAsync();
 		}
 		catch (Exception ex)

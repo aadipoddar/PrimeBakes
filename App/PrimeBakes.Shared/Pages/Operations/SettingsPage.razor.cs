@@ -12,6 +12,7 @@ public partial class SettingsPage
 {
 	#region Fields
 
+	private UserModel _user;
 	private bool _isLoading = true;
 	private bool _isProcessing = false;
 
@@ -135,7 +136,7 @@ public partial class SettingsPage
 
 		try
 		{
-			await AuthService.ValidateUser([UserRoles.Admin], true);
+			_user = await AuthService.ValidateUser([UserRoles.Admin], true);
 			await LoadData();
 			_isLoading = false;
 			StateHasChanged();
@@ -658,7 +659,7 @@ public partial class SettingsPage
 			StateHasChanged();
 
 			await _toastNotification.ShowAsync("Backing Up", "Copying data to the backup server...", ToastType.Info);
-			var summary = await BackupData.Backup();
+			var summary = await BackupData.Backup(_user.Id);
 			await _toastNotification.ShowAsync("Backed Up", summary, ToastType.Success);
 		}
 		catch (Exception ex)
