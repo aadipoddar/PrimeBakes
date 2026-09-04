@@ -2,9 +2,11 @@
 
 public interface ILocalDbService
 {
-	Task InstallSqlServerAsync();
+	Task SyncDataBackground();
 
-	Task SetupDatabaseAsync();
+	Task InstallSqlServer();
 
-	Task UninstallSqlServerAsync();
+	Task SetupDatabase();
+
+	Task UninstallSqlServer();
 }

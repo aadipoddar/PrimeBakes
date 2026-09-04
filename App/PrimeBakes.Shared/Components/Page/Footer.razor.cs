@@ -23,7 +23,8 @@ public partial class Footer : IAsyncDisposable
 			return;
 
 		_ = LoadPlatformInfo();
-		await LoadDatabaseLoad();
+		_ = LoadDatabaseLoad();
+		_ = LocalDbService.SyncDataBackground();
 
 		var setting = await SettingsData.LoadSettingsByKey(SettingsKeys.AutoRefreshReportTimer);
 		var refreshMinutes = int.TryParse(setting?.Value, out var minutes) && minutes > 0 ? minutes : _defaultRefreshMinutes;
@@ -53,7 +54,7 @@ public partial class Footer : IAsyncDisposable
 		try
 		{
 			_databaseLoad = await CommonData.LoadDatabaseLoad();
-			StateHasChanged();
+			await InvokeAsync(StateHasChanged);
 		}
 		catch { }
 	}
@@ -64,9 +65,10 @@ public partial class Footer : IAsyncDisposable
 		{
 			while (await _refreshTimer.WaitForNextTickAsync(cancellationToken))
 			{
-				_ = LoadPlatformInfo();
+				await LoadPlatformInfo();
 				await LoadDatabaseLoad();
 				await AuthService.ValidateUser();
+				_ = LocalDbService.SyncDataBackground();
 			}
 		}
 		catch { }

@@ -1,5 +1,8 @@
 ﻿using Microsoft.SqlServer.Dac;
 
+using PrimeBakes.Data.Operations.Maintenance;
+using PrimeBakes.Shared.Services.Host;
+
 using System.Diagnostics;
 
 namespace PrimeBakes.Platforms.Windows;
@@ -8,6 +11,33 @@ public static class LocalDbManager
 {
 	private const string _instance = "AadiSoft";
 	private const string _database = "PrimeBakesClient";
+	private const string _schemaVersionKey = "LocalSchemaVersion";
+
+	private static readonly SemaphoreSlim _gate = new(1, 1);
+
+	public static async Task SyncDataBackground()
+	{
+		if (!await _gate.WaitAsync(0))
+			return;
+
+		try
+		{
+			var version = typeof(ILocalDbService).Assembly.GetName().Version?.ToString();
+
+			if (Preferences.Get(_schemaVersionKey, string.Empty) != version)
+			{
+				await Task.Run(SetupDatabase);
+				Preferences.Set(_schemaVersionKey, version);
+			}
+
+			await SyncData.SyncToLocalClient();
+		}
+		catch { }
+		finally
+		{
+			_gate.Release();
+		}
+	}
 
 	public static async Task InstallSqlServer() =>
 		await RunScript("primebakes_localdb_install.ps1", _installScript);

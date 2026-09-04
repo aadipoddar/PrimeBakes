@@ -246,7 +246,7 @@ public partial class LocalSettingsPage
 			StateHasChanged();
 
 			await _toastNotification.ShowAsync("Installing", "A setup window has opened. Leave it running until it reports that SQL Server is installed. Restart your computer after the installation is complete.", ToastType.Info);
-			await LocalDbService.InstallSqlServerAsync();
+			await LocalDbService.InstallSqlServer();
 			await _toastNotification.ShowAsync("Install Finished", "The setup window has closed. Please restart this computer before continuing.", ToastType.Info);
 		}
 		catch (Exception ex)
@@ -268,7 +268,7 @@ public partial class LocalSettingsPage
 			StateHasChanged();
 
 			await _toastNotification.ShowAsync("Setting Up", "Creating and updating the local database. This can take a minute...", ToastType.Info);
-			await LocalDbService.SetupDatabaseAsync();
+			await LocalDbService.SetupDatabase();
 			await _toastNotification.ShowAsync("Database Ready", "PrimeBakesClient matches this version of Prime Bakes.", ToastType.Success);
 		}
 		catch (Exception ex)
@@ -320,7 +320,7 @@ public partial class LocalSettingsPage
 			_isProcessing = true;
 			await _toastNotification.ShowAsync("Uninstalling", "Prime Bakes will close and be removed from this computer.", ToastType.Warning);
 			await AuthService.Logout();
-			await LocalDbService.UninstallSqlServerAsync();
+			await LocalDbService.UninstallSqlServer();
 			await UpdateService.UninstallAsync();
 		}
 		catch (Exception ex)

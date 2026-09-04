@@ -8,7 +8,15 @@ namespace PrimeBakes.Services.Host;
 
 public class LocalDbService : ILocalDbService
 {
-	public async Task InstallSqlServerAsync()
+	public async Task SyncDataBackground()
+	{
+#if WINDOWS
+		await LocalDbManager.SyncDataBackground();
+#endif
+		await Task.CompletedTask;
+	}
+
+	public async Task InstallSqlServer()
 	{
 #if WINDOWS
 		await LocalDbManager.InstallSqlServer();
@@ -16,7 +24,7 @@ public class LocalDbService : ILocalDbService
 		await Task.CompletedTask;
 	}
 
-	public async Task SetupDatabaseAsync()
+	public async Task SetupDatabase()
 	{
 #if WINDOWS
 		await Task.Run(LocalDbManager.SetupDatabase);
@@ -24,7 +32,7 @@ public class LocalDbService : ILocalDbService
 		await Task.CompletedTask;
 	}
 
-	public async Task UninstallSqlServerAsync()
+	public async Task UninstallSqlServer()
 	{
 #if WINDOWS
 		await LocalDbManager.UninstallSqlServer();
