@@ -94,13 +94,14 @@ public partial class PurchasePage
 
 	private async Task LoadData()
 	{
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
-		_parties = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger, useLocalDB: true);
+		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
+		var parties = CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger, useLocalDB: true);
+		var mainCompanySetting = SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
 
-		_companies = [.. _companies.OrderBy(s => s.Name)];
-		_parties = [.. _parties.OrderBy(s => s.Name)];
+		_companies = [.. (await companies).OrderBy(s => s.Name)];
+		_parties = [.. (await parties).OrderBy(s => s.Name)];
 
-		var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
+		var mainCompanyId = await mainCompanySetting;
 		_selectedCompany = _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value) ?? _companies.FirstOrDefault();
 		_selectedParty = _parties.FirstOrDefault();
 	}

@@ -109,15 +109,16 @@ public partial class SalePage
 
 	private async Task LoadData()
 	{
-		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location, useLocalDB: true);
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
-		_parties = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger, useLocalDB: true);
+		var locations = CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location, useLocalDB: true);
+		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
+		var parties = CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger, useLocalDB: true);
+		var mainCompanySetting = SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
 
-		_locations = [.. _locations.OrderBy(s => s.Name)];
-		_companies = [.. _companies.OrderBy(s => s.Name)];
-		_parties = [.. _parties.OrderBy(s => s.Name)];
+		_locations = [.. (await locations).OrderBy(s => s.Name)];
+		_companies = [.. (await companies).OrderBy(s => s.Name)];
+		_parties = [.. (await parties).OrderBy(s => s.Name)];
 
-		var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
+		var mainCompanyId = await mainCompanySetting;
 		_selectedCompany = _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value) ?? _companies.FirstOrDefault();
 		_selectedLocation = _locations.FirstOrDefault(s => s.Id == _user.LocationId);
 	}
