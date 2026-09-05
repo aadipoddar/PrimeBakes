@@ -116,8 +116,8 @@ public partial class KitchenIssueItemMonthlyReport : IAsyncDisposable
 			var fromDate = DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue);
 			var toDate = DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue);
 
-			var allTransactionOverviews = CommonData.LoadReportDataByDate<KitchenIssueItemOverviewModel>(InventoryNames.KitchenIssueItemOverview, fromDate, toDate);
-			var allTransactionReturnOverviews = CommonData.LoadReportDataByDate<KitchenIssueReturnItemOverviewModel>(InventoryNames.KitchenIssueReturnItemOverview, fromDate, toDate);
+			var allTransactionOverviews = CommonData.LoadTableDataByDate<KitchenIssueItemOverviewModel>(InventoryNames.KitchenIssueItemOverview, fromDate, toDate, useLocalDB: true);
+			var allTransactionReturnOverviews = CommonData.LoadTableDataByDate<KitchenIssueReturnItemOverviewModel>(InventoryNames.KitchenIssueReturnItemOverview, fromDate, toDate, useLocalDB: true);
 
 			_allTransactionOverviews = await allTransactionOverviews;
 			_allTransactionReturnOverviews = await allTransactionReturnOverviews;

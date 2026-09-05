@@ -115,10 +115,10 @@ public partial class SaleReturnReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
-			_allTransactionOverviews = await CommonData.LoadReportDataByDate<SaleReturnOverviewModel>(
+			_allTransactionOverviews = await CommonData.LoadTableDataByDate<SaleReturnOverviewModel>(
 				StoreNames.SaleReturnOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
+				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue), useLocalDB: true);
 
 			var platform = await PlatformInfo.GetPlatformInfo();
 			await AuditTrailData.SaveAuditTrail(new()

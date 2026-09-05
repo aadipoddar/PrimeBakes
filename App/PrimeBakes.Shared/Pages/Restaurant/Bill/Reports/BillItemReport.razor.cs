@@ -131,7 +131,7 @@ public partial class BillItemReport : IAsyncDisposable
 			var fromDate = DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue);
 			var toDate = DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue);
 
-			_allTransactionOverviews = await CommonData.LoadReportDataByDate<BillItemOverviewModel>(RestaurantNames.BillItemOverview, fromDate, toDate);
+			_allTransactionOverviews = await CommonData.LoadTableDataByDate<BillItemOverviewModel>(RestaurantNames.BillItemOverview, fromDate, toDate, useLocalDB: true);
 
 			var platform = await PlatformInfo.GetPlatformInfo();
 			await AuditTrailData.SaveAuditTrail(new()

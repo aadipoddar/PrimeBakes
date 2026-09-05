@@ -112,10 +112,10 @@ public partial class PurchaseReturnReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
-			_allTransactionOverviews = await CommonData.LoadReportDataByDate<PurchaseReturnOverviewModel>(
+			_allTransactionOverviews = await CommonData.LoadTableDataByDate<PurchaseReturnOverviewModel>(
 				InventoryNames.PurchaseReturnOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
+				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue), useLocalDB: true);
 
 			var platform = await PlatformInfo.GetPlatformInfo();
 			await AuditTrailData.SaveAuditTrail(new()

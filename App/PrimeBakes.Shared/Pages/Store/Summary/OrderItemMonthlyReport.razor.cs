@@ -89,10 +89,10 @@ public partial class OrderItemMonthlyReport : IAsyncDisposable
 		_currentDateTime = await CommonData.LoadCurrentDateTime();
 		(_fromDate, _toDate) = await FinancialYearData.GetDateRange(DateRangeType.CurrentFinancialYear, _currentDateTime, _currentDateTime);
 
-		var products = CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product);
-		var productCategories = CommonData.LoadTableDataByStatus<ProductCategoryModel>(StoreNames.ProductCategory);
-		var locations = CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
-		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+		var products = CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product, useLocalDB: true);
+		var productCategories = CommonData.LoadTableDataByStatus<ProductCategoryModel>(StoreNames.ProductCategory, useLocalDB: true);
+		var locations = CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location, useLocalDB: true);
+		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
 
 		_products = [.. (await products).OrderBy(s => s.Name)];
 		_productCategories = [.. (await productCategories).OrderBy(s => s.Name)];
@@ -115,10 +115,10 @@ public partial class OrderItemMonthlyReport : IAsyncDisposable
 
 			_currentDateTime = await CommonData.LoadCurrentDateTime();
 
-			_allTransactionOverviews = await CommonData.LoadReportDataByDate<OrderItemOverviewModel>(
+			_allTransactionOverviews = await CommonData.LoadTableDataByDate<OrderItemOverviewModel>(
 				StoreNames.OrderItemOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
+				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue), useLocalDB: true);
 
 			var platform = await PlatformInfo.GetPlatformInfo();
 			await AuditTrailData.SaveAuditTrail(new()

@@ -19,7 +19,7 @@ public class ProductLocationEndpoint : ICarterModule
 			(int id) => ProductLocationData.DeleteProductLocationById(id));
 
 		group.MapGet(nameof(ProductLocationData.LoadProductLocationOverviewByProductLocationDate),
-			(int? ProductId, int? LocationId, DateOnly? Date) => ProductLocationData.LoadProductLocationOverviewByProductLocationDate(ProductId, LocationId, Date));
+			(int? ProductId, int? LocationId, DateOnly? Date, bool useLocalDB) => ProductLocationData.LoadProductLocationOverviewByProductLocationDate(ProductId, LocationId, Date, null, useLocalDB));
 
 		group.MapPost(nameof(ProductLocationData.DeleteTransaction), ProductLocationData.DeleteTransaction);
 		group.MapPost(nameof(ProductLocationData.DiscontinueTransaction), ProductLocationData.DiscontinueTransaction);

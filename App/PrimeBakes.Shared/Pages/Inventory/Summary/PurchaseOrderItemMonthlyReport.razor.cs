@@ -110,10 +110,10 @@ public partial class PurchaseOrderItemMonthlyReport : IAsyncDisposable
 
 			_currentDateTime = await CommonData.LoadCurrentDateTime();
 
-			_allTransactionOverviews = await CommonData.LoadReportDataByDate<PurchaseOrderItemOverviewModel>(
+			_allTransactionOverviews = await CommonData.LoadTableDataByDate<PurchaseOrderItemOverviewModel>(
 				InventoryNames.PurchaseOrderItemOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
+				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue), useLocalDB: true);
 
 			var platform = await PlatformInfo.GetPlatformInfo();
 			await AuditTrailData.SaveAuditTrail(new()

@@ -103,10 +103,10 @@ public partial class PayrollItemReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Loading", "Fetching payroll components...", ToastType.Info);
 
-			_allTransactionOverviews = await CommonData.LoadReportDataByDate<PayrollItemOverviewModel>(
+			_allTransactionOverviews = await CommonData.LoadTableDataByDate<PayrollItemOverviewModel>(
 				PayrollNames.PayrollItemOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
+				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue), useLocalDB: true);
 
 			await ApplyFilters();
 		}
@@ -208,10 +208,10 @@ public partial class PayrollItemReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Processing", "Generating the Export...", ToastType.Info);
 
-			var payrolls = await CommonData.LoadReportDataByDate<PayrollOverviewModel>(
+			var payrolls = await CommonData.LoadTableDataByDate<PayrollOverviewModel>(
 				PayrollNames.PayrollOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
+				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue), useLocalDB: true);
 
 			var platform = await PlatformInfo.GetPlatformInfo();
 			await AuditTrailData.SaveAuditTrail(new()

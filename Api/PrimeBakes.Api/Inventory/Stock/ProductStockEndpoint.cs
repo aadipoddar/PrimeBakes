@@ -15,10 +15,10 @@ public class ProductStockEndpoint : ICarterModule
 			(string TransactionNo) => ProductStockData.DeleteProductStockByTransactionNo(TransactionNo));
 
 		group.MapGet(nameof(ProductStockData.LoadProductOpeningStockByDateLocationId),
-			(DateTime FromDate, int LocationId) => ProductStockData.LoadProductOpeningStockByDateLocationId(FromDate, LocationId));
+			(DateTime FromDate, int LocationId, bool useLocalDB) => ProductStockData.LoadProductOpeningStockByDateLocationId(FromDate, LocationId, useLocalDB));
 
 		group.MapGet(nameof(ProductStockData.LoadProductStockSummaryByDateLocationId),
-			(DateTime FromDate, DateTime ToDate, int LocationId) => ProductStockData.LoadProductStockSummaryByDateLocationId(FromDate, ToDate, LocationId));
+			(DateTime FromDate, DateTime ToDate, int LocationId, bool useLocalDB) => ProductStockData.LoadProductStockSummaryByDateLocationId(FromDate, ToDate, LocationId, useLocalDB));
 
 		group.MapPost(nameof(ProductStockData.DeleteProductStockAdjustment),
 			(int id, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>

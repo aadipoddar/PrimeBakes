@@ -9,19 +9,25 @@ public static class AnalysisData
 {
 	public static async Task<List<AnalysisMonthlyTrendModel>> LoadDashboardMonthlyTrend(DateTime StartDate, DateTime EndDate)
 	{
-		await QueryGate.EnsureCapacity(StartDate, EndDate);
-		return await SqlDataAccess.LoadData<AnalysisMonthlyTrendModel, dynamic>(AnalysisNames.LoadDashboardMonthlyTrend, new { StartDate, EndDate });
+		if (!SqlDataAccess.LocalDBAvailable)
+			await QueryGate.EnsureCapacity(StartDate, EndDate);
+
+		return await SqlDataAccess.LoadData<AnalysisMonthlyTrendModel, dynamic>(AnalysisNames.LoadDashboardMonthlyTrend, new { StartDate, EndDate }, null, true);
 	}
 
 	public static async Task<List<AnalysisTopProductModel>> LoadDashboardTopProducts(DateTime StartDate, DateTime EndDate)
 	{
-		await QueryGate.EnsureCapacity(StartDate, EndDate);
-		return await SqlDataAccess.LoadData<AnalysisTopProductModel, dynamic>(AnalysisNames.LoadDashboardTopProducts, new { StartDate, EndDate });
+		if (!SqlDataAccess.LocalDBAvailable)
+			await QueryGate.EnsureCapacity(StartDate, EndDate);
+
+		return await SqlDataAccess.LoadData<AnalysisTopProductModel, dynamic>(AnalysisNames.LoadDashboardTopProducts, new { StartDate, EndDate }, null, true);
 	}
 
 	public static async Task<List<AnalysisTopRawMaterialModel>> LoadDashboardTopRawMaterials(DateTime StartDate, DateTime EndDate)
 	{
-		await QueryGate.EnsureCapacity(StartDate, EndDate);
-		return await SqlDataAccess.LoadData<AnalysisTopRawMaterialModel, dynamic>(AnalysisNames.LoadDashboardTopRawMaterials, new { StartDate, EndDate });
+		if (!SqlDataAccess.LocalDBAvailable)
+			await QueryGate.EnsureCapacity(StartDate, EndDate);
+
+		return await SqlDataAccess.LoadData<AnalysisTopRawMaterialModel, dynamic>(AnalysisNames.LoadDashboardTopRawMaterials, new { StartDate, EndDate }, null, true);
 	}
 }

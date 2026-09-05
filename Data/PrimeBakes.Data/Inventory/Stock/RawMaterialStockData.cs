@@ -33,22 +33,22 @@ public static class RawMaterialStockData
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.DeleteRawMaterialStockByTransactionNo, new { TransactionNo }, sqlDataAccessTransaction)).FirstOrDefault()
 			is var result and > 0 ? result : throw new InvalidOperationException("Failed to Delete Raw Material Stock.");
 
-	public static async Task<List<RawMaterialStockModel>> LoadRawMaterialOpeningStockByDate(DateTime FromDate) =>
-		await SqlDataAccess.LoadData<RawMaterialStockModel, dynamic>(InventoryNames.LoadRawMaterialOpeningStockByDate, new { FromDate });
+	public static async Task<List<RawMaterialStockModel>> LoadRawMaterialOpeningStockByDate(DateTime FromDate, bool useLocalDB = false) =>
+		await SqlDataAccess.LoadData<RawMaterialStockModel, dynamic>(InventoryNames.LoadRawMaterialOpeningStockByDate, new { FromDate }, null, useLocalDB);
 
 	#region Summary
 	private static decimal AverageNetRate(IEnumerable<RawMaterialStockModel> stock) =>
 		stock.Select(s => s.NetRate).DefaultIfEmpty(0m).Average();
 
-	public static async Task<List<RawMaterialStockSummaryModel>> LoadRawMaterialStockSummaryByDate(DateTime FromDate, DateTime ToDate)
+	public static async Task<List<RawMaterialStockSummaryModel>> LoadRawMaterialStockSummaryByDate(DateTime FromDate, DateTime ToDate, bool useLocalDB = false)
 	{
 		var daysInPeriod = Math.Max(1, (ToDate.Date - FromDate.Date).Days + 1);
 
 		var rawMaterialsTask = CommonData.LoadTableDataByStatus<RawMaterialModel>(InventoryNames.RawMaterial);
 		var rawMaterialCategoriesTask = CommonData.LoadTableDataByStatus<RawMaterialCategoryModel>(InventoryNames.RawMaterialCategory);
-		var stockTask = CommonData.LoadTableDataByDate<RawMaterialStockModel>(InventoryNames.RawMaterialStock, FromDate, ToDate);
-		var openingStockTask = LoadRawMaterialOpeningStockByDate(FromDate.Date);
-		var closingStockTask = LoadRawMaterialOpeningStockByDate(ToDate.Date.AddDays(1));
+		var stockTask = CommonData.LoadTableDataByDate<RawMaterialStockModel>(InventoryNames.RawMaterialStock, FromDate, ToDate, useLocalDB: useLocalDB);
+		var openingStockTask = LoadRawMaterialOpeningStockByDate(FromDate.Date, useLocalDB);
+		var closingStockTask = LoadRawMaterialOpeningStockByDate(ToDate.Date.AddDays(1), useLocalDB);
 
 		var rawMaterials = await rawMaterialsTask;
 		var rawMaterialCategories = await rawMaterialCategoriesTask;

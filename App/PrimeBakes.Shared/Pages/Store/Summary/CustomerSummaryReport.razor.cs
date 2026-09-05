@@ -114,9 +114,9 @@ public partial class CustomerSummaryReport : IAsyncDisposable
 			var fromDate = DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue);
 			var toDate = DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue);
 
-			var allSales = CommonData.LoadReportDataByDate<SaleOverviewModel>(StoreNames.SaleOverview, fromDate, toDate);
-			var allReturns = CommonData.LoadReportDataByDate<SaleReturnOverviewModel>(StoreNames.SaleReturnOverview, fromDate, toDate);
-			var allBills = CommonData.LoadReportDataByDate<BillOverviewModel>(RestaurantNames.BillOverview, fromDate, toDate);
+			var allSales = CommonData.LoadTableDataByDate<SaleOverviewModel>(StoreNames.SaleOverview, fromDate, toDate, useLocalDB: true);
+			var allReturns = CommonData.LoadTableDataByDate<SaleReturnOverviewModel>(StoreNames.SaleReturnOverview, fromDate, toDate, useLocalDB: true);
+			var allBills = CommonData.LoadTableDataByDate<BillOverviewModel>(RestaurantNames.BillOverview, fromDate, toDate, useLocalDB: true);
 
 			_allSales = await allSales;
 			_allReturns = await allReturns;

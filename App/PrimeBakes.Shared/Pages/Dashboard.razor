@@ -79,9 +79,12 @@ else
 							   TabPanelsClass="launchpad-tab-panels">
 
 				<!-- ANALYSIS -->
-				<MudBlazor.MudTabPanel Text="Analysis" Visible="@(CommonSecrets.SuperAdminIds.Contains(_user.Id) && Factor == "Desktop")">
-					<DashboardAnalysis />
-				</MudBlazor.MudTabPanel>
+				@if	(CommonSecrets.SuperAdminIds.Contains(_user.Id) && Factor == "Desktop")
+				{
+					@* <MudBlazor.MudTabPanel Text="Analysis">
+						<DashboardAnalysis />
+					</MudBlazor.MudTabPanel> *@
+				}
 
 				<!-- Mobile -->
 				<MudBlazor.MudTabPanel Text="Mobile" Visible="@(Factor != "Desktop")">

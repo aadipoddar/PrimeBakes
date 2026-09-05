@@ -100,10 +100,10 @@ public partial class OrderItemReport : IAsyncDisposable
 	private async Task LoadData()
 	{
 		var currentDateTime = CommonData.LoadCurrentDateTime();
-		var products = CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product);
-		var productCategories = CommonData.LoadTableDataByStatus<ProductCategoryModel>(StoreNames.ProductCategory);
-		var locations = CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
-		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+		var products = CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product, useLocalDB: true);
+		var productCategories = CommonData.LoadTableDataByStatus<ProductCategoryModel>(StoreNames.ProductCategory, useLocalDB: true);
+		var locations = CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location, useLocalDB: true);
+		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
 
 		_fromDate = _toDate = await currentDateTime;
 		_products = [.. (await products).OrderBy(s => s.Name)];
@@ -125,10 +125,10 @@ public partial class OrderItemReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
-			_allTransactionOverviews = await CommonData.LoadReportDataByDate<OrderItemOverviewModel>(
+			_allTransactionOverviews = await CommonData.LoadTableDataByDate<OrderItemOverviewModel>(
 				StoreNames.OrderItemOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
+				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue), useLocalDB: true);
 
 			var platform = await PlatformInfo.GetPlatformInfo();
 			await AuditTrailData.SaveAuditTrail(new()

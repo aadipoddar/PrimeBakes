@@ -138,10 +138,10 @@ public partial class SaleReport : IAsyncDisposable
 			var fromDate = DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue);
 			var toDate = DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue);
 
-			var allTransactionOverviews = CommonData.LoadReportDataByDate<SaleOverviewModel>(StoreNames.SaleOverview, fromDate, toDate);
-			var allReturnOverviews = CommonData.LoadReportDataByDate<SaleReturnOverviewModel>(StoreNames.SaleReturnOverview, fromDate, toDate);
-			var allTransferOverviews = CommonData.LoadReportDataByDate<StockTransferOverviewModel>(StoreNames.StockTransferOverview, fromDate, toDate);
-			var allBillOverviews = CommonData.LoadReportDataByDate<BillOverviewModel>(RestaurantNames.BillOverview, fromDate, toDate);
+			var allTransactionOverviews = CommonData.LoadTableDataByDate<SaleOverviewModel>(StoreNames.SaleOverview, fromDate, toDate, useLocalDB: true);
+			var allReturnOverviews = CommonData.LoadTableDataByDate<SaleReturnOverviewModel>(StoreNames.SaleReturnOverview, fromDate, toDate, useLocalDB: true);
+			var allTransferOverviews = CommonData.LoadTableDataByDate<StockTransferOverviewModel>(StoreNames.StockTransferOverview, fromDate, toDate, useLocalDB: true);
+			var allBillOverviews = CommonData.LoadTableDataByDate<BillOverviewModel>(RestaurantNames.BillOverview, fromDate, toDate, useLocalDB: true);
 
 			_allTransactionOverviews = await allTransactionOverviews;
 			_allReturnOverviews = await allReturnOverviews;

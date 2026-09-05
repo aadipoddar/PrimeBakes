@@ -10,11 +10,11 @@ public static class RawMaterialStockData
 	public static async Task<int> DeleteRawMaterialStockByTransactionNo(string TransactionNo) =>
 		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteRawMaterialStockByTransactionNo)), new { }, new { TransactionNo });
 
-	public static async Task<List<RawMaterialStockModel>> LoadRawMaterialOpeningStockByDate(DateTime FromDate) =>
-		await ApiClient.Get<List<RawMaterialStockModel>>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadRawMaterialOpeningStockByDate)), new { FromDate });
+	public static async Task<List<RawMaterialStockModel>> LoadRawMaterialOpeningStockByDate(DateTime FromDate, bool useLocalDB = false) =>
+		await ApiClient.Get<List<RawMaterialStockModel>>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadRawMaterialOpeningStockByDate)), new { FromDate, useLocalDB });
 
-	public static async Task<List<RawMaterialStockSummaryModel>> LoadRawMaterialStockSummaryByDate(DateTime FromDate, DateTime ToDate) =>
-		await ApiClient.Get<List<RawMaterialStockSummaryModel>>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadRawMaterialStockSummaryByDate)), new { FromDate, ToDate });
+	public static async Task<List<RawMaterialStockSummaryModel>> LoadRawMaterialStockSummaryByDate(DateTime FromDate, DateTime ToDate, bool useLocalDB = false) =>
+		await ApiClient.Get<List<RawMaterialStockSummaryModel>>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadRawMaterialStockSummaryByDate)), new { FromDate, ToDate, useLocalDB });
 
 	public static async Task DeleteRawMaterialStockAdjustment(int id, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteRawMaterialStockAdjustment)), new { }, new { id, userId, formFactor, platform, latitude, longitude });

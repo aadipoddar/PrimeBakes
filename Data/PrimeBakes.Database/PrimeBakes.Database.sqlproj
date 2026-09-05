@@ -182,8 +182,6 @@
     <Build Include="Accounts\Masters\Table\StateUT.sql" />
     <Build Include="Accounts\Masters\Table\Voucher.sql" />
     <Build Include="Common\Load_CurrentDateTime.sql" />
-    <Build Include="Common\Load_LastTableData.sql" />
-    <Build Include="Common\Load_LastTableData_By_Company_FinancialYear.sql" />
     <Build Include="Common\Load_LastTableData_By_FinancialYear.sql" />
     <Build Include="Common\Load_TableData.sql" />
     <Build Include="Common\Load_TableData_By_Code.sql" />

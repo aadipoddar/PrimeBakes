@@ -15,10 +15,10 @@ public class RawMaterialStockEndpoint : ICarterModule
 			(string TransactionNo) => RawMaterialStockData.DeleteRawMaterialStockByTransactionNo(TransactionNo));
 
 		group.MapGet(nameof(RawMaterialStockData.LoadRawMaterialOpeningStockByDate),
-			(DateTime FromDate) => RawMaterialStockData.LoadRawMaterialOpeningStockByDate(FromDate));
+			(DateTime FromDate, bool useLocalDB) => RawMaterialStockData.LoadRawMaterialOpeningStockByDate(FromDate, useLocalDB));
 
 		group.MapGet(nameof(RawMaterialStockData.LoadRawMaterialStockSummaryByDate),
-			(DateTime FromDate, DateTime ToDate) => RawMaterialStockData.LoadRawMaterialStockSummaryByDate(FromDate, ToDate));
+			(DateTime FromDate, DateTime ToDate, bool useLocalDB) => RawMaterialStockData.LoadRawMaterialStockSummaryByDate(FromDate, ToDate, useLocalDB));
 
 		group.MapPost(nameof(RawMaterialStockData.DeleteRawMaterialStockAdjustment),
 			(int id, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>

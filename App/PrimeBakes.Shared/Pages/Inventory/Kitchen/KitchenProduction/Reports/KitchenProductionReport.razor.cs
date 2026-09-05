@@ -111,14 +111,14 @@ public partial class KitchenProductionReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
-			var allTransactionOverviews = CommonData.LoadReportDataByDate<KitchenProductionOverviewModel>(
+			var allTransactionOverviews = CommonData.LoadTableDataByDate<KitchenProductionOverviewModel>(
 				InventoryNames.KitchenProductionOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
-			var allTransactionReturnOverviews = CommonData.LoadReportDataByDate<KitchenProductionReturnOverviewModel>(
+				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue), useLocalDB: true);
+			var allTransactionReturnOverviews = CommonData.LoadTableDataByDate<KitchenProductionReturnOverviewModel>(
 				InventoryNames.KitchenProductionReturnOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
+				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue), useLocalDB: true);
 
 			_allTransactionOverviews = await allTransactionOverviews;
 			_allTransactionReturnOverviews = await allTransactionReturnOverviews;

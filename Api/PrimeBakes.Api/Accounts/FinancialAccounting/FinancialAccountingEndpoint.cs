@@ -12,7 +12,7 @@ public class FinancialAccountingEndpoint : ICarterModule
 		var group = app.MapGroup(endpoint).WithTags(endpoint);
 
 		group.MapGet(nameof(FinancialAccountingData.LoadTrialBalanceByCompanyDate),
-			(int CompanyId, DateTime StartDate, DateTime EndDate) => FinancialAccountingData.LoadTrialBalanceByCompanyDate(CompanyId, StartDate, EndDate));
+			(int CompanyId, DateTime StartDate, DateTime EndDate, bool useLocalDB) => FinancialAccountingData.LoadTrialBalanceByCompanyDate(CompanyId, StartDate, EndDate, useLocalDB));
 
 		group.MapGet(nameof(FinancialAccountingData.LoadInvoiceBundle),
 			(int transactionId) => FinancialAccountingData.LoadInvoiceBundle(transactionId));

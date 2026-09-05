@@ -86,11 +86,11 @@ public partial class OrderPage
 
 	private async Task LoadData()
 	{
-		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
+		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location, useLocalDB: true);
 		_locations.RemoveAll(s => s.Id == 1);
 		_locations = [.. _locations.OrderBy(s => s.Name)];
 
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
 		_companies = [.. _companies.OrderBy(s => s.Name)];
 
 		var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
@@ -197,8 +197,8 @@ public partial class OrderPage
 	private async Task LoadItems()
 	{
 		var orderDate = DateOnly.FromDateTime(_order.TransactionDateTime);
-		var mainLocationProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, 1, orderDate);
-		var orderLocationProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, _order.LocationId, orderDate);
+		var mainLocationProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, 1, orderDate, useLocalDB: true);
+		var orderLocationProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, _order.LocationId, orderDate, useLocalDB: true);
 
 		_products = [.. mainLocationProducts.Where(x => orderLocationProducts.Any(y => y.ProductId == x.ProductId)).OrderBy(s => s.Name)];
 	}

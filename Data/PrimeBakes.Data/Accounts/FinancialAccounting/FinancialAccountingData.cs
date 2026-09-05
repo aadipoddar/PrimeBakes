@@ -28,8 +28,8 @@ public static class FinancialAccountingData
 	private static async Task InsertFinancialAccountingLedgerList(DataTable ledgers, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		await SqlDataAccess.LoadData<int, dynamic>(AccountNames.InsertFinancialAccountingLedgerList, new { FinancialAccountingLedgers = ledgers.AsTableValuedParameter(AccountNames.FinancialAccountingLedgerType) }, sqlDataAccessTransaction);
 
-	public static async Task<List<TrialBalanceModel>> LoadTrialBalanceByCompanyDate(int CompanyId, DateTime StartDate, DateTime EndDate) =>
-		await SqlDataAccess.LoadData<TrialBalanceModel, dynamic>(AccountNames.LoadTrialBalanceByCompanyDate, new { CompanyId, StartDate, EndDate });
+	public static async Task<List<TrialBalanceModel>> LoadTrialBalanceByCompanyDate(int CompanyId, DateTime StartDate, DateTime EndDate, bool useLocalDB = false) =>
+		await SqlDataAccess.LoadData<TrialBalanceModel, dynamic>(AccountNames.LoadTrialBalanceByCompanyDate, new { CompanyId, StartDate, EndDate }, null, useLocalDB);
 
 	public static async Task<FinancialAccountingInvoiceBundle> LoadInvoiceBundle(int transactionId)
 	{

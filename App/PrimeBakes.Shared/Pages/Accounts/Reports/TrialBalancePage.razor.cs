@@ -92,7 +92,7 @@ public partial class TrialBalancePage : IAsyncDisposable
 			_allTrialBalance = await FinancialAccountingData.LoadTrialBalanceByCompanyDate(
 				_selectedCompany?.Id ?? 0,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
+				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue), useLocalDB: true);
 
 			await ApplyFilters();
 		}

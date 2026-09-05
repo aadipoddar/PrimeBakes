@@ -7,8 +7,8 @@ public static class FinancialAccountingData
 {
 	private static readonly string _endpoint = Helper.SanitizeClassName(nameof(FinancialAccountingData));
 
-	public static async Task<List<TrialBalanceModel>> LoadTrialBalanceByCompanyDate(int CompanyId, DateTime StartDate, DateTime EndDate) =>
-		await ApiClient.Get<List<TrialBalanceModel>>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadTrialBalanceByCompanyDate)), new { CompanyId, StartDate, EndDate });
+	public static async Task<List<TrialBalanceModel>> LoadTrialBalanceByCompanyDate(int CompanyId, DateTime StartDate, DateTime EndDate, bool useLocalDB = false) =>
+		await ApiClient.Get<List<TrialBalanceModel>>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadTrialBalanceByCompanyDate)), new { CompanyId, StartDate, EndDate, useLocalDB });
 
 	public static async Task<FinancialAccountingInvoiceBundle> LoadInvoiceBundle(int transactionId) =>
 		await ApiClient.Get<FinancialAccountingInvoiceBundle>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadInvoiceBundle)), new { transactionId });

@@ -1,17 +1,17 @@
-﻿using PrimeBakes.Exports.Inventory.Stock;
+﻿using PrimeBakes.Data.Accounts.Masters;
+using PrimeBakes.Data.Inventory.Stock;
+using PrimeBakes.Data.Operations.AuditTrail;
+using PrimeBakes.Data.Operations.Settings;
+using PrimeBakes.Exports.Inventory.Stock;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Inventory.Stock;
+using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
 using Syncfusion.Blazor.Grids;
-using PrimeBakes.Data.Operations.Settings;
-using PrimeBakes.Data.Inventory.Stock;
-using PrimeBakes.Data.Accounts.Masters;
-using PrimeBakes.Data.Operations.AuditTrail;
-using PrimeBakes.Models.Operations.AuditTrail;
 
 namespace PrimeBakes.Shared.Pages.Inventory.Stock.Reports;
 
@@ -85,10 +85,10 @@ public partial class RawMaterialStockDetailReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Loading", "Fetching stock details...", ToastType.Info);
 
-			_stockDetails = await CommonData.LoadReportDataByDate<RawMaterialStockDetailsModel>(
+			_stockDetails = await CommonData.LoadTableDataByDate<RawMaterialStockDetailsModel>(
 				InventoryNames.RawMaterialStockDetails,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
+				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue), useLocalDB: true);
 
 			var platform = await PlatformInfo.GetPlatformInfo();
 			await AuditTrailData.SaveAuditTrail(new()

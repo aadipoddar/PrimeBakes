@@ -70,11 +70,11 @@ public partial class DashboardAnalysis : IAsyncDisposable
 			var thisMonthEnd = thisMonthStart.AddMonths(1).AddSeconds(-1);
 			var lastMonthStart = thisMonthStart.AddMonths(-1);
 
-			_sales = await CommonData.LoadReportDataByDate<SaleModel>(StoreNames.Sale, lastMonthStart, thisMonthEnd);
-			_bills = await CommonData.LoadReportDataByDate<BillModel>(RestaurantNames.Bill, lastMonthStart, thisMonthEnd);
-			_saleReturns = await CommonData.LoadReportDataByDate<SaleReturnModel>(StoreNames.SaleReturn, lastMonthStart, thisMonthEnd);
-			_purchases = await CommonData.LoadReportDataByDate<PurchaseModel>(InventoryNames.Purchase, lastMonthStart, thisMonthEnd);
-			_orders = await CommonData.LoadReportDataByDate<OrderModel>(StoreNames.Order, lastMonthStart, thisMonthEnd);
+			_sales = await CommonData.LoadTableDataByDate<SaleModel>(StoreNames.Sale, lastMonthStart, thisMonthEnd, useLocalDB: true);
+			_bills = await CommonData.LoadTableDataByDate<BillModel>(RestaurantNames.Bill, lastMonthStart, thisMonthEnd, useLocalDB: true);
+			_saleReturns = await CommonData.LoadTableDataByDate<SaleReturnModel>(StoreNames.SaleReturn, lastMonthStart, thisMonthEnd, useLocalDB: true);
+			_purchases = await CommonData.LoadTableDataByDate<PurchaseModel>(InventoryNames.Purchase, lastMonthStart, thisMonthEnd, useLocalDB: true);
+			_orders = await CommonData.LoadTableDataByDate<OrderModel>(StoreNames.Order, lastMonthStart, thisMonthEnd, useLocalDB: true);
 
 			_sales = [.. _sales.Where(_ => _.Status)];
 			_bills = [.. _bills.Where(_ => _.Status)];

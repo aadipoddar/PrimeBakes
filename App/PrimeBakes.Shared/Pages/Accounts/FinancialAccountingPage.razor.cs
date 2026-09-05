@@ -162,10 +162,6 @@ public partial class FinancialAccountingPage
 			LastModifiedBy = null,
 		};
 
-		var lastTransaction = await CommonData.LoadLastTableData<FinancialAccountingModel>(AccountNames.FinancialAccounting);
-		if (lastTransaction is not null)
-			_accounting.TransactionDateTime = lastTransaction.TransactionDateTime;
-
 		await DeleteLocalFiles();
 	}
 

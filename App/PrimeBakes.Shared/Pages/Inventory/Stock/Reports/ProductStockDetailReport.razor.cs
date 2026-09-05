@@ -97,10 +97,10 @@ public partial class ProductStockDetailReport : IAsyncDisposable
 			StateHasChanged();
 			await _toastNotification.ShowAsync("Loading", "Fetching stock details...", ToastType.Info);
 
-			_stockDetails = await CommonData.LoadReportDataByDate<ProductStockDetailsModel>(
+			_stockDetails = await CommonData.LoadTableDataByDate<ProductStockDetailsModel>(
 				InventoryNames.ProductStockDetails,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
+				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue), useLocalDB: true);
 
 			var platform = await PlatformInfo.GetPlatformInfo();
 			await AuditTrailData.SaveAuditTrail(new()

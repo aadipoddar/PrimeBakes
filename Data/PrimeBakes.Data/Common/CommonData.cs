@@ -3,14 +3,14 @@ namespace PrimeBakes.Data.Common;
 
 public static class CommonData
 {
-	public static async Task<List<T>> LoadTableData<T>(string TableName, SqlDataAccessTransaction sqlDataAccessTransaction = null) where T : new() =>
-		await SqlDataAccess.LoadData<T, dynamic>(CommonNames.LoadTableData, new { TableName }, sqlDataAccessTransaction);
+	public static async Task<List<T>> LoadTableData<T>(string TableName, SqlDataAccessTransaction sqlDataAccessTransaction = null, bool useLocalDB = false) where T : new() =>
+		await SqlDataAccess.LoadData<T, dynamic>(CommonNames.LoadTableData, new { TableName }, sqlDataAccessTransaction, useLocalDB);
 
 	public static async Task<T> LoadTableDataById<T>(string TableName, int Id, SqlDataAccessTransaction sqlDataAccessTransaction = null) where T : new() =>
 		(await SqlDataAccess.LoadData<T, dynamic>(CommonNames.LoadTableDataById, new { TableName, Id }, sqlDataAccessTransaction)).FirstOrDefault();
 
-	public static async Task<List<T>> LoadTableDataByStatus<T>(string TableName, bool Status = true, SqlDataAccessTransaction sqlDataAccessTransaction = null) where T : new() =>
-		await SqlDataAccess.LoadData<T, dynamic>(CommonNames.LoadTableDataByStatus, new { TableName, Status }, sqlDataAccessTransaction);
+	public static async Task<List<T>> LoadTableDataByStatus<T>(string TableName, bool Status = true, SqlDataAccessTransaction sqlDataAccessTransaction = null, bool useLocalDB = false) where T : new() =>
+		await SqlDataAccess.LoadData<T, dynamic>(CommonNames.LoadTableDataByStatus, new { TableName, Status }, sqlDataAccessTransaction, useLocalDB);
 
 	public static async Task<List<T>> LoadTableDataByMasterId<T>(string TableName, int MasterId, SqlDataAccessTransaction sqlDataAccessTransaction = null) where T : new() =>
 		await SqlDataAccess.LoadData<T, dynamic>(CommonNames.LoadTableDataByMasterId, new { TableName, MasterId }, sqlDataAccessTransaction);
@@ -24,17 +24,16 @@ public static class CommonData
 	public static async Task<T> LoadTableDataByTransactionNo<T>(string TableName, string TransactionNo, SqlDataAccessTransaction sqlDataAccessTransaction = null) where T : new() =>
 		(await SqlDataAccess.LoadData<T, dynamic>(CommonNames.LoadTableDataByTransactionNo, new { TableName, TransactionNo }, sqlDataAccessTransaction)).FirstOrDefault();
 
-	public static async Task<List<T>> LoadTableDataByDate<T>(string TableName, DateTime StartDate, DateTime EndDate, SqlDataAccessTransaction sqlDataAccessTransaction = null) where T : new() =>
-		await SqlDataAccess.LoadData<T, dynamic>(CommonNames.LoadTableDataByDate, new { TableName, StartDate, EndDate }, sqlDataAccessTransaction);
+	public static async Task<List<T>> LoadTableDataByDate<T>(string TableName, DateTime StartDate, DateTime EndDate, SqlDataAccessTransaction sqlDataAccessTransaction = null, bool useLocalDB = false) where T : new()
+	{
+		if (!(useLocalDB && SqlDataAccess.LocalDBAvailable))
+			await QueryGate.EnsureCapacity(StartDate, EndDate);
 
-	public static async Task<T> LoadLastTableData<T>(string TableName, SqlDataAccessTransaction sqlDataAccessTransaction = null) where T : new() =>
-		(await SqlDataAccess.LoadData<T, dynamic>(CommonNames.LoadLastTableData, new { TableName }, sqlDataAccessTransaction)).FirstOrDefault();
+		return await SqlDataAccess.LoadData<T, dynamic>(CommonNames.LoadTableDataByDate, new { TableName, StartDate, EndDate }, sqlDataAccessTransaction, useLocalDB);
+	}
 
 	public static async Task<T> LoadLastTableDataByFinancialYear<T>(string TableName, int FinancialYearId, SqlDataAccessTransaction sqlDataAccessTransaction = null) where T : new() =>
 		(await SqlDataAccess.LoadData<T, dynamic>(CommonNames.LoadLastTableDataByFinancialYear, new { TableName, FinancialYearId }, sqlDataAccessTransaction)).FirstOrDefault();
-
-	public static async Task<T> LoadLastTableDataByCompanyFinancialYear<T>(string TableName, int CompanyId, int FinancialYearId, SqlDataAccessTransaction sqlDataAccessTransaction = null) where T : new() =>
-		(await SqlDataAccess.LoadData<T, dynamic>(CommonNames.LoadLastTableDataByCompanyFinancialYear, new { TableName, CompanyId, FinancialYearId }, sqlDataAccessTransaction)).FirstOrDefault();
 
 	public static async Task<T> LoadLastTableDataByLocationFinancialYear<T>(string TableName, int LocationId, int FinancialYearId, SqlDataAccessTransaction sqlDataAccessTransaction = null) where T : new() =>
 		(await SqlDataAccess.LoadData<T, dynamic>(CommonNames.LoadLastTableDataByLocationFinancialYear, new { TableName, LocationId, FinancialYearId }, sqlDataAccessTransaction)).FirstOrDefault();
@@ -44,13 +43,4 @@ public static class CommonData
 
 	public static async Task<decimal> LoadDatabaseLoad(SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<decimal, dynamic>(CommonNames.LoadDatabaseLoad, new { }, sqlDataAccessTransaction)).FirstOrDefault();
-
-	public static async Task<List<T>> LoadReportDataByDate<T>(string TableName, DateTime StartDate, DateTime EndDate, SqlDataAccessTransaction sqlDataAccessTransaction = null) where T : new()
-	{
-		if (SqlDataAccess.LocalDBAvailable)
-			return await SqlDataAccess.LoadData<T, dynamic>(CommonNames.LoadTableDataByDate, new { TableName, StartDate, EndDate }, sqlDataAccessTransaction, true);
-
-		await QueryGate.EnsureCapacity(StartDate, EndDate);
-		return await SqlDataAccess.LoadData<T, dynamic>(CommonNames.LoadTableDataByDate, new { TableName, StartDate, EndDate }, sqlDataAccessTransaction);
-	}
 }

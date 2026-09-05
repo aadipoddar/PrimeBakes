@@ -10,11 +10,11 @@ public static class ProductStockData
 	public static async Task<int> DeleteProductStockByTransactionNo(string TransactionNo) =>
 		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteProductStockByTransactionNo)), new { }, new { TransactionNo });
 
-	public static async Task<List<ProductStockModel>> LoadProductOpeningStockByDateLocationId(DateTime FromDate, int LocationId) =>
-		await ApiClient.Get<List<ProductStockModel>>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadProductOpeningStockByDateLocationId)), new { FromDate, LocationId });
+	public static async Task<List<ProductStockModel>> LoadProductOpeningStockByDateLocationId(DateTime FromDate, int LocationId, bool useLocalDB = false) =>
+		await ApiClient.Get<List<ProductStockModel>>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadProductOpeningStockByDateLocationId)), new { FromDate, LocationId, useLocalDB });
 
-	public static async Task<List<ProductStockSummaryModel>> LoadProductStockSummaryByDateLocationId(DateTime FromDate, DateTime ToDate, int LocationId) =>
-		await ApiClient.Get<List<ProductStockSummaryModel>>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadProductStockSummaryByDateLocationId)), new { FromDate, ToDate, LocationId });
+	public static async Task<List<ProductStockSummaryModel>> LoadProductStockSummaryByDateLocationId(DateTime FromDate, DateTime ToDate, int LocationId, bool useLocalDB = false) =>
+		await ApiClient.Get<List<ProductStockSummaryModel>>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadProductStockSummaryByDateLocationId)), new { FromDate, ToDate, LocationId, useLocalDB });
 
 	public static async Task DeleteProductStockAdjustment(int id, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteProductStockAdjustment)), new { }, new { id, userId, formFactor, platform, latitude, longitude });

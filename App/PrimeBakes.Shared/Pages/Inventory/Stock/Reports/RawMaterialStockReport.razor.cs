@@ -1,4 +1,7 @@
-﻿using PrimeBakes.Exports.Inventory.Stock;
+﻿using PrimeBakes.Data.Accounts.Masters;
+using PrimeBakes.Data.Inventory.Stock;
+using PrimeBakes.Data.Operations.Settings;
+using PrimeBakes.Exports.Inventory.Stock;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Inventory.RawMaterial;
 using PrimeBakes.Models.Inventory.Stock;
@@ -8,9 +11,6 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
 using Syncfusion.Blazor.Grids;
-using PrimeBakes.Data.Operations.Settings;
-using PrimeBakes.Data.Inventory.Stock;
-using PrimeBakes.Data.Accounts.Masters;
 
 namespace PrimeBakes.Shared.Pages.Inventory.Stock.Reports;
 
@@ -86,7 +86,7 @@ public partial class RawMaterialStockReport : IAsyncDisposable
 
 			_allStockSummary = await RawMaterialStockData.LoadRawMaterialStockSummaryByDate(
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
-				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue));
+				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue), true);
 
 			await ApplyFilters();
 		}

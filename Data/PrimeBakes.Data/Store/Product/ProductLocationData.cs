@@ -17,8 +17,8 @@ public static class ProductLocationData
 		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.DeleteProductLocationById, new { Id = id }, transaction)).FirstOrDefault()
 			is var result and > 0 ? result : throw new InvalidOperationException("Failed to Delete Product Location.");
 
-	public static async Task<List<ProductLocationOverviewModel>> LoadProductLocationOverviewByProductLocationDate(int? ProductId = null, int? LocationId = null, DateOnly? Date = null, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
-		await SqlDataAccess.LoadData<ProductLocationOverviewModel, dynamic>(StoreNames.LoadProductLocationOverviewByProductLocationDate, new { ProductId, LocationId, Date }, sqlDataAccessTransaction);
+	public static async Task<List<ProductLocationOverviewModel>> LoadProductLocationOverviewByProductLocationDate(int? ProductId = null, int? LocationId = null, DateOnly? Date = null, SqlDataAccessTransaction sqlDataAccessTransaction = null, bool useLocalDB = false) =>
+		await SqlDataAccess.LoadData<ProductLocationOverviewModel, dynamic>(StoreNames.LoadProductLocationOverviewByProductLocationDate, new { ProductId, LocationId, Date }, sqlDataAccessTransaction, useLocalDB);
 
 	public static async Task DeleteTransaction(ProductLocationOverviewModel productLocation, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>

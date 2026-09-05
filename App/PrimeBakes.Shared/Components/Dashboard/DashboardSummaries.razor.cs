@@ -77,22 +77,21 @@ public partial class DashboardSummaries
 			var today = DateOnly.FromDateTime(_referenceDate).ToDateTime(TimeOnly.MinValue);
 			var monthStart = new DateTime(today.Year, today.Month, 1);
 
-			_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
-			_kitchens = await CommonData.LoadTableDataByStatus<KitchenModel>(InventoryNames.Kitchen);
-			// Customer has no Status column — customers are never soft-deleted.
-			_customers = await CommonData.LoadTableData<CustomerModel>(StoreNames.Customer);
+			_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location, useLocalDB: true);
+			_kitchens = await CommonData.LoadTableDataByStatus<KitchenModel>(InventoryNames.Kitchen, useLocalDB: true);
+			_customers = await CommonData.LoadTableData<CustomerModel>(StoreNames.Customer, useLocalDB: true);
 
-			_purchases = await CommonData.LoadReportDataByDate<PurchaseOverviewModel>(InventoryNames.PurchaseOverview, today, today);
-			_purchaseReturns = await CommonData.LoadReportDataByDate<PurchaseReturnOverviewModel>(InventoryNames.PurchaseReturnOverview, today, today);
-			_stockTransfers = await CommonData.LoadReportDataByDate<StockTransferOverviewModel>(StoreNames.StockTransferOverview, today, today);
+			_purchases = await CommonData.LoadTableDataByDate<PurchaseOverviewModel>(InventoryNames.PurchaseOverview, today, today, useLocalDB: true);
+			_purchaseReturns = await CommonData.LoadTableDataByDate<PurchaseReturnOverviewModel>(InventoryNames.PurchaseReturnOverview, today, today, useLocalDB: true);
+			_stockTransfers = await CommonData.LoadTableDataByDate<StockTransferOverviewModel>(StoreNames.StockTransferOverview, today, today, useLocalDB: true);
 
-			_monthSales = await CommonData.LoadReportDataByDate<SaleOverviewModel>(StoreNames.SaleOverview, monthStart, today);
-			_monthSaleReturns = await CommonData.LoadReportDataByDate<SaleReturnOverviewModel>(StoreNames.SaleReturnOverview, monthStart, today);
-			_monthBills = await CommonData.LoadReportDataByDate<BillOverviewModel>(RestaurantNames.BillOverview, monthStart, today);
-			_monthKitchenIssue = await CommonData.LoadReportDataByDate<KitchenIssueOverviewModel>(InventoryNames.KitchenIssueOverview, monthStart, today);
-			_monthKitchenIssueReturn = await CommonData.LoadReportDataByDate<KitchenIssueReturnOverviewModel>(InventoryNames.KitchenIssueReturnOverview, monthStart, today);
-			_monthKitchenProduction = await CommonData.LoadReportDataByDate<KitchenProductionOverviewModel>(InventoryNames.KitchenProductionOverview, monthStart, today);
-			_monthKitchenProductionReturn = await CommonData.LoadReportDataByDate<KitchenProductionReturnOverviewModel>(InventoryNames.KitchenProductionReturnOverview, monthStart, today);
+			_monthSales = await CommonData.LoadTableDataByDate<SaleOverviewModel>(StoreNames.SaleOverview, monthStart, today, useLocalDB: true);
+			_monthSaleReturns = await CommonData.LoadTableDataByDate<SaleReturnOverviewModel>(StoreNames.SaleReturnOverview, monthStart, today, useLocalDB: true);
+			_monthBills = await CommonData.LoadTableDataByDate<BillOverviewModel>(RestaurantNames.BillOverview, monthStart, today, useLocalDB: true);
+			_monthKitchenIssue = await CommonData.LoadTableDataByDate<KitchenIssueOverviewModel>(InventoryNames.KitchenIssueOverview, monthStart, today, useLocalDB: true);
+			_monthKitchenIssueReturn = await CommonData.LoadTableDataByDate<KitchenIssueReturnOverviewModel>(InventoryNames.KitchenIssueReturnOverview, monthStart, today, useLocalDB: true);
+			_monthKitchenProduction = await CommonData.LoadTableDataByDate<KitchenProductionOverviewModel>(InventoryNames.KitchenProductionOverview, monthStart, today, useLocalDB: true);
+			_monthKitchenProductionReturn = await CommonData.LoadTableDataByDate<KitchenProductionReturnOverviewModel>(InventoryNames.KitchenProductionReturnOverview, monthStart, today, useLocalDB: true);
 
 			// Soft-deleted rows still come back from the views.
 			_purchases = [.. _purchases.Where(_ => _.Status)];

@@ -33,14 +33,14 @@ public static class ProductStockData
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.DeleteProductStockByTransactionNo, new { TransactionNo }, sqlDataAccessTransaction)).FirstOrDefault()
 			is var result and > 0 ? result : throw new InvalidOperationException("Failed to Delete Product Stock.");
 
-	public static async Task<List<ProductStockModel>> LoadProductOpeningStockByDateLocationId(DateTime FromDate, int LocationId) =>
-		await SqlDataAccess.LoadData<ProductStockModel, dynamic>(InventoryNames.LoadProductOpeningStockByDateLocationId, new { FromDate, LocationId });
+	public static async Task<List<ProductStockModel>> LoadProductOpeningStockByDateLocationId(DateTime FromDate, int LocationId, bool useLocalDB = false) =>
+		await SqlDataAccess.LoadData<ProductStockModel, dynamic>(InventoryNames.LoadProductOpeningStockByDateLocationId, new { FromDate, LocationId }, null, useLocalDB);
 
 	#region Summary
 	private static decimal AverageNetRate(IEnumerable<ProductStockModel> stock) =>
 		stock.Select(s => s.NetRate).DefaultIfEmpty(0m).Average();
 
-	public static async Task<List<ProductStockSummaryModel>> LoadProductStockSummaryByDateLocationId(DateTime FromDate, DateTime ToDate, int LocationId)
+	public static async Task<List<ProductStockSummaryModel>> LoadProductStockSummaryByDateLocationId(DateTime FromDate, DateTime ToDate, int LocationId, bool useLocalDB = false)
 	{
 		var daysInPeriod = Math.Max(1, (ToDate.Date - FromDate.Date).Days + 1);
 
@@ -48,9 +48,9 @@ public static class ProductStockData
 		var productCategoriesTask = CommonData.LoadTableDataByStatus<ProductCategoryModel>(StoreNames.ProductCategory);
 		var productLocationsTask = ProductLocationData.LoadProductLocationOverviewByProductLocationDate(LocationId: LocationId, Date: DateOnly.FromDateTime(ToDate.Date));
 		var locationTask = CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, LocationId);
-		var stockTask = CommonData.LoadTableDataByDate<ProductStockModel>(InventoryNames.ProductStock, FromDate, ToDate);
-		var openingStockTask = LoadProductOpeningStockByDateLocationId(FromDate.Date, LocationId);
-		var closingStockTask = LoadProductOpeningStockByDateLocationId(ToDate.Date.AddDays(1), LocationId);
+		var stockTask = CommonData.LoadTableDataByDate<ProductStockModel>(InventoryNames.ProductStock, FromDate, ToDate, useLocalDB: useLocalDB);
+		var openingStockTask = LoadProductOpeningStockByDateLocationId(FromDate.Date, LocationId, useLocalDB);
+		var closingStockTask = LoadProductOpeningStockByDateLocationId(ToDate.Date.AddDays(1), LocationId, useLocalDB);
 
 		var products = await productsTask;
 		var productCategories = await productCategoriesTask;
