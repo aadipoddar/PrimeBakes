@@ -110,8 +110,8 @@ public partial class BillPage
 
 	private async Task LoadData()
 	{
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
+		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
+		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location, useLocalDB: true);
 
 		_companies = [.. _companies.OrderBy(s => s.Name)];
 		_locations = [.. _locations.OrderBy(s => s.Name)];
@@ -287,10 +287,10 @@ public partial class BillPage
 
 	private async Task LoadDiningTables()
 	{
-		var diningAreas = await CommonData.LoadTableDataByStatus<DiningAreaModel>(RestaurantNames.DiningArea);
+		var diningAreas = await CommonData.LoadTableDataByStatus<DiningAreaModel>(RestaurantNames.DiningArea, useLocalDB: true);
 		diningAreas = [.. diningAreas.Where(d => d.LocationId == _bill.LocationId)];
 
-		_diningTables = await CommonData.LoadTableDataByStatus<DiningTableModel>(RestaurantNames.DiningTable);
+		_diningTables = await CommonData.LoadTableDataByStatus<DiningTableModel>(RestaurantNames.DiningTable, useLocalDB: true);
 		_diningTables = [.. _diningTables.Where(dt => diningAreas.Any(da => da.Id == dt.DiningAreaId)).OrderBy(s => s.Name)];
 
 		if (_diningTables.Count == 0)
@@ -305,8 +305,8 @@ public partial class BillPage
 
 	private async Task LoadItems()
 	{
-		_products = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, _bill.LocationId, DateOnly.FromDateTime(_bill.TransactionDateTime));
-		_taxes = await CommonData.LoadTableDataByStatus<TaxModel>(StoreNames.Tax);
+		_products = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, _bill.LocationId, DateOnly.FromDateTime(_bill.TransactionDateTime), useLocalDB: true);
+		_taxes = await CommonData.LoadTableDataByStatus<TaxModel>(StoreNames.Tax, useLocalDB: true);
 
 		_products = [.. _products.OrderBy(s => s.Name)];
 	}

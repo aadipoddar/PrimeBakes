@@ -88,7 +88,7 @@ public partial class KitchenSummaryReport : IAsyncDisposable
 
 	private async Task LoadCompanies()
 	{
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
 		_companies = [.. _companies.OrderBy(s => s.Name)];
 	}
 
@@ -125,7 +125,7 @@ public partial class KitchenSummaryReport : IAsyncDisposable
 
 	private async Task LoadTransactionOverviews()
 	{
-		_kitchens = await CommonData.LoadTableDataByStatus<KitchenModel>(InventoryNames.Kitchen);
+		_kitchens = await CommonData.LoadTableDataByStatus<KitchenModel>(InventoryNames.Kitchen, useLocalDB: true);
 
 		var fromDate = DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue);
 		var toDate = DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue);

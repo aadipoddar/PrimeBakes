@@ -97,9 +97,9 @@ public partial class BillReport : IAsyncDisposable
 	private async Task LoadData()
 	{
 		var currentDateTime = CommonData.LoadCurrentDateTime();
-		var locations = CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
-		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-		var customers = CommonData.LoadTableData<CustomerModel>(StoreNames.Customer);
+		var locations = CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location, useLocalDB: true);
+		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
+		var customers = CommonData.LoadTableData<CustomerModel>(StoreNames.Customer, useLocalDB: true);
 
 		_fromDate = _toDate = await currentDateTime;
 		_locations = [.. (await locations).OrderBy(s => s.Name)];

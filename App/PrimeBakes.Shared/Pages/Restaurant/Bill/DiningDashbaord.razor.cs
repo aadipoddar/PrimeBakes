@@ -58,7 +58,7 @@ public partial class DiningDashbaord
 	{
 		_now = await CommonData.LoadCurrentDateTime();
 
-		_locations = [.. (await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location)).OrderBy(l => l.Name)];
+		_locations = [.. (await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location, useLocalDB: true)).OrderBy(l => l.Name)];
 		_selectedLocation = _locations.FirstOrDefault(l => l.Id == _user.LocationId);
 
 		await LoadDining();
@@ -71,8 +71,8 @@ public partial class DiningDashbaord
 
 	private async Task LoadDining()
 	{
-		_diningAreas = [.. (await CommonData.LoadTableDataByStatus<DiningAreaModel>(RestaurantNames.DiningArea)).Where(a => a.LocationId == _selectedLocation.Id).OrderBy(a => a.Name)];
-		_diningTables = [.. (await CommonData.LoadTableDataByStatus<DiningTableModel>(RestaurantNames.DiningTable)).Where(t => _diningAreas.Any(a => a.Id == t.DiningAreaId)).OrderBy(t => t.Name)];
+		_diningAreas = [.. (await CommonData.LoadTableDataByStatus<DiningAreaModel>(RestaurantNames.DiningArea, useLocalDB: true)).Where(a => a.LocationId == _selectedLocation.Id).OrderBy(a => a.Name)];
+		_diningTables = [.. (await CommonData.LoadTableDataByStatus<DiningTableModel>(RestaurantNames.DiningTable, useLocalDB: true)).Where(t => _diningAreas.Any(a => a.Id == t.DiningAreaId)).OrderBy(t => t.Name)];
 		_runningBills = await BillData.LoadRunningBillByLocationId(_selectedLocation.Id);
 
 		_selectedArea = _diningAreas.FirstOrDefault();

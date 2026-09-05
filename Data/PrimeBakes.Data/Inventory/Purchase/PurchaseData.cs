@@ -34,8 +34,8 @@ public static class PurchaseData
 	private static async Task InsertPurchaseDetailList(DataTable purchaseDetails, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertPurchaseDetailList, new { PurchaseDetails = purchaseDetails.AsTableValuedParameter(InventoryNames.PurchaseDetailType) }, sqlDataAccessTransaction);
 
-	public static async Task<List<RawMaterialModel>> LoadRawMaterialByPartyPurchaseDateTime(int PartyId, DateTime PurchaseDateTime, bool OnlyActive = true) =>
-		await SqlDataAccess.LoadData<RawMaterialModel, dynamic>(InventoryNames.LoadRawMaterialByPartyPurchaseDateTime, new { PartyId, PurchaseDateTime, OnlyActive });
+	public static async Task<List<RawMaterialModel>> LoadRawMaterialByPartyPurchaseDateTime(int PartyId, DateTime PurchaseDateTime, bool OnlyActive = true, bool useLocalDB = false) =>
+		await SqlDataAccess.LoadData<RawMaterialModel, dynamic>(InventoryNames.LoadRawMaterialByPartyPurchaseDateTime, new { PartyId, PurchaseDateTime, OnlyActive }, null, useLocalDB);
 
 	internal static async Task UpdateFinancialAccountingId(int financialAccountingId, int? newFinancialAccountingId, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{

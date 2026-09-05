@@ -89,10 +89,10 @@ public partial class KitchenProductionItemMonthlyReport : IAsyncDisposable
 		_currentDateTime = await CommonData.LoadCurrentDateTime();
 		(_fromDate, _toDate) = await FinancialYearData.GetDateRange(DateRangeType.CurrentFinancialYear, _currentDateTime, _currentDateTime);
 
-		var products = CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product);
-		var productCategories = CommonData.LoadTableDataByStatus<ProductCategoryModel>(StoreNames.ProductCategory);
-		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-		var kitchens = CommonData.LoadTableDataByStatus<KitchenModel>(InventoryNames.Kitchen);
+		var products = CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product, useLocalDB: true);
+		var productCategories = CommonData.LoadTableDataByStatus<ProductCategoryModel>(StoreNames.ProductCategory, useLocalDB: true);
+		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
+		var kitchens = CommonData.LoadTableDataByStatus<KitchenModel>(InventoryNames.Kitchen, useLocalDB: true);
 
 		_products = [.. (await products).OrderBy(s => s.Name)];
 		_productCategories = [.. (await productCategories).OrderBy(s => s.Name)];

@@ -68,9 +68,9 @@ public partial class TrialBalancePage : IAsyncDisposable
 	private async Task LoadData()
 	{
 		var currentDateTime = CommonData.LoadCurrentDateTime();
-		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-		var groups = CommonData.LoadTableDataByStatus<GroupModel>(AccountNames.Group);
-		var accountTypes = CommonData.LoadTableDataByStatus<AccountTypeModel>(AccountNames.AccountType);
+		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
+		var groups = CommonData.LoadTableDataByStatus<GroupModel>(AccountNames.Group, useLocalDB: true);
+		var accountTypes = CommonData.LoadTableDataByStatus<AccountTypeModel>(AccountNames.AccountType, useLocalDB: true);
 
 		_fromDate = _toDate = await currentDateTime;
 		_companies = [.. (await companies).OrderBy(s => s.Name)];

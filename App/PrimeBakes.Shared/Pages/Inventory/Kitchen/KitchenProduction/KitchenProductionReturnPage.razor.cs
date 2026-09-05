@@ -88,8 +88,8 @@ public partial class KitchenProductionReturnPage
 
 	private async Task LoadData()
 	{
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-		_kitchens = await CommonData.LoadTableDataByStatus<KitchenModel>(InventoryNames.Kitchen);
+		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
+		_kitchens = await CommonData.LoadTableDataByStatus<KitchenModel>(InventoryNames.Kitchen, useLocalDB: true);
 
 		_companies = [.. _companies.OrderBy(s => s.Name)];
 		_kitchens = [.. _kitchens.OrderBy(s => s.Name)];
@@ -199,7 +199,7 @@ public partial class KitchenProductionReturnPage
 
 	private async Task LoadItems()
 	{
-		_products = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, 1, DateOnly.FromDateTime(_kitchenProductionReturn.TransactionDateTime));
+		_products = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, 1, DateOnly.FromDateTime(_kitchenProductionReturn.TransactionDateTime), useLocalDB: true);
 		_products = [.. _products.OrderBy(s => s.Name)];
 
 		_stockSummary = await ProductStockData.LoadProductStockSummaryByDateLocationId(_kitchenProductionReturn.TransactionDateTime, _kitchenProductionReturn.TransactionDateTime, 1);

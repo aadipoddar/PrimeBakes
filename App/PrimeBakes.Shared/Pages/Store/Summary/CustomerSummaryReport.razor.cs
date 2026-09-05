@@ -88,9 +88,9 @@ public partial class CustomerSummaryReport : IAsyncDisposable
 	private async Task LoadData()
 	{
 		var currentDateTime = CommonData.LoadCurrentDateTime();
-		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-		var locations = CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
-		var customers = CommonData.LoadTableData<CustomerModel>(StoreNames.Customer);
+		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
+		var locations = CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location, useLocalDB: true);
+		var customers = CommonData.LoadTableData<CustomerModel>(StoreNames.Customer, useLocalDB: true);
 
 		_fromDate = _toDate = _referenceDate = await currentDateTime;
 		_companies = [.. (await companies).OrderBy(s => s.Name)];

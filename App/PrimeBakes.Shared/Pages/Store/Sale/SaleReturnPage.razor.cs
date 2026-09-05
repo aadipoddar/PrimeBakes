@@ -105,9 +105,9 @@ public partial class SaleReturnPage
 
 	private async Task LoadData()
 	{
-		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-		_parties = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
+		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location, useLocalDB: true);
+		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
+		_parties = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger, useLocalDB: true);
 
 		_locations = [.. _locations.OrderBy(s => s.Name)];
 		_companies = [.. _companies.OrderBy(s => s.Name)];
@@ -253,12 +253,12 @@ public partial class SaleReturnPage
 	private async Task LoadItems()
 	{
 		var saleReturnDate = DateOnly.FromDateTime(_saleReturn.TransactionDateTime);
-		var fromLocationProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, _saleReturn.LocationId, saleReturnDate);
+		var fromLocationProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, _saleReturn.LocationId, saleReturnDate, useLocalDB: true);
 
 		var toLocation = _locations.FirstOrDefault(s => s.LedgerId == _selectedParty?.Id);
 		if (toLocation is not null)
 		{
-			var toLocationProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, toLocation.Id, saleReturnDate);
+			var toLocationProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, toLocation.Id, saleReturnDate, useLocalDB: true);
 			fromLocationProducts = [.. fromLocationProducts.Where(x => toLocationProducts.Any(y => y.ProductId == x.ProductId))];
 
 			if (toLocation.UseLocationRateOnSale)
@@ -267,7 +267,7 @@ public partial class SaleReturnPage
 		}
 
 		_products = [.. fromLocationProducts.OrderBy(s => s.Name)];
-		_taxes = await CommonData.LoadTableDataByStatus<TaxModel>(StoreNames.Tax);
+		_taxes = await CommonData.LoadTableDataByStatus<TaxModel>(StoreNames.Tax, useLocalDB: true);
 	}
 
 	private async Task ResolveCart()

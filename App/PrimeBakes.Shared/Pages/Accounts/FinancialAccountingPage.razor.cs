@@ -231,7 +231,7 @@ public partial class FinancialAccountingPage
 	{
 		try
 		{
-			_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+			_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
 			_companies = [.. _companies.OrderBy(s => s.Name)];
 
 			var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
@@ -247,7 +247,7 @@ public partial class FinancialAccountingPage
 	{
 		try
 		{
-			_vouchers = await CommonData.LoadTableDataByStatus<VoucherModel>(AccountNames.Voucher);
+			_vouchers = await CommonData.LoadTableDataByStatus<VoucherModel>(AccountNames.Voucher, useLocalDB: true);
 			_vouchers = [.. _vouchers.OrderBy(s => s.Name)];
 
 			var defaultSelectedVoucherId = await SettingsData.LoadSettingsByKey(SettingsKeys.DefaultSelectedVoucherId);
@@ -263,7 +263,7 @@ public partial class FinancialAccountingPage
 	{
 		try
 		{
-			_ledgers = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
+			_ledgers = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger, useLocalDB: true);
 			_ledgers = [.. _ledgers.OrderBy(s => s.Name)];
 		}
 		catch (Exception ex)

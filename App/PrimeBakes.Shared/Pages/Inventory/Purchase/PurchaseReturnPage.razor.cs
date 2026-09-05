@@ -89,8 +89,8 @@ public partial class PurchaseReturnPage
 
 	private async Task LoadData()
 	{
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-		_parties = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
+		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
+		_parties = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger, useLocalDB: true);
 
 		_companies = [.. _companies.OrderBy(s => s.Name)];
 		_parties = [.. _parties.OrderBy(s => s.Name)];
@@ -210,8 +210,8 @@ public partial class PurchaseReturnPage
 
 	private async Task LoadItems()
 	{
-		_rawMaterials = await PurchaseData.LoadRawMaterialByPartyPurchaseDateTime(_purchaseReturn.PartyId, _purchaseReturn.TransactionDateTime);
-		_taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
+		_rawMaterials = await PurchaseData.LoadRawMaterialByPartyPurchaseDateTime(_purchaseReturn.PartyId, _purchaseReturn.TransactionDateTime, useLocalDB: true);
+		_taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax, useLocalDB: true);
 
 		_rawMaterials = [.. _rawMaterials.OrderBy(s => s.Name)];
 	}

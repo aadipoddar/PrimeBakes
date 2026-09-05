@@ -85,8 +85,8 @@ public partial class PurchaseOrderPage
 
 	private async Task LoadData()
 	{
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-		_parties = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
+		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
+		_parties = await CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger, useLocalDB: true);
 
 		_companies = [.. _companies.OrderBy(s => s.Name)];
 		_parties = [.. _parties.OrderBy(s => s.Name)];
@@ -192,7 +192,7 @@ public partial class PurchaseOrderPage
 
 	private async Task LoadItems()
 	{
-		_rawMaterials = await CommonData.LoadTableDataByStatus<RawMaterialModel>(InventoryNames.RawMaterial);
+		_rawMaterials = await CommonData.LoadTableDataByStatus<RawMaterialModel>(InventoryNames.RawMaterial, useLocalDB: true);
 		_rawMaterials = [.. _rawMaterials.OrderBy(s => s.Name)];
 	}
 

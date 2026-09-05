@@ -86,10 +86,10 @@ public partial class PurchaseOrderItemMonthlyReport : IAsyncDisposable
 		_currentDateTime = await CommonData.LoadCurrentDateTime();
 		(_fromDate, _toDate) = await FinancialYearData.GetDateRange(DateRangeType.CurrentFinancialYear, _currentDateTime, _currentDateTime);
 
-		var rawMaterials = CommonData.LoadTableDataByStatus<RawMaterialModel>(InventoryNames.RawMaterial);
-		var rawMaterialCategories = CommonData.LoadTableDataByStatus<RawMaterialCategoryModel>(InventoryNames.RawMaterialCategory);
-		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-		var parties = CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
+		var rawMaterials = CommonData.LoadTableDataByStatus<RawMaterialModel>(InventoryNames.RawMaterial, useLocalDB: true);
+		var rawMaterialCategories = CommonData.LoadTableDataByStatus<RawMaterialCategoryModel>(InventoryNames.RawMaterialCategory, useLocalDB: true);
+		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
+		var parties = CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger, useLocalDB: true);
 
 		_rawMaterials = [.. (await rawMaterials).OrderBy(s => s.Name)];
 		_rawMaterialCategories = [.. (await rawMaterialCategories).OrderBy(s => s.Name)];

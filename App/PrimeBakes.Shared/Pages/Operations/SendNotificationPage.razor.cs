@@ -44,8 +44,8 @@ public partial class SendNotificationPage
 
 	private async Task LoadData()
 	{
-		_locations = await CommonData.LoadTableData<LocationModel>(OperationNames.Location);
-		_users = [.. (await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User, true)).OrderBy(u => u.Name)];
+		_locations = await CommonData.LoadTableData<LocationModel>(OperationNames.Location, useLocalDB: true);
+		_users = [.. (await CommonData.LoadTableDataByStatus<UserModel>(OperationNames.User, true, useLocalDB: true)).OrderBy(u => u.Name)];
 
 		_isLoading = false;
 		StateHasChanged();

@@ -90,8 +90,8 @@ public partial class KitchenIssueReturnReport : IAsyncDisposable
 	private async Task LoadData()
 	{
 		var currentDateTime = CommonData.LoadCurrentDateTime();
-		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-		var kitchens = CommonData.LoadTableDataByStatus<KitchenModel>(InventoryNames.Kitchen);
+		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
+		var kitchens = CommonData.LoadTableDataByStatus<KitchenModel>(InventoryNames.Kitchen, useLocalDB: true);
 
 		_fromDate = _toDate = await currentDateTime;
 		_companies = [.. (await companies).OrderBy(s => s.Name)];

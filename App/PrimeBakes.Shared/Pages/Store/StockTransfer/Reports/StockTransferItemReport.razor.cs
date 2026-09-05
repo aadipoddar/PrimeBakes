@@ -96,10 +96,10 @@ public partial class StockTransferItemReport : IAsyncDisposable
 	private async Task LoadData()
 	{
 		var currentDateTime = CommonData.LoadCurrentDateTime();
-		var products = CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product);
-		var productCategories = CommonData.LoadTableDataByStatus<ProductCategoryModel>(StoreNames.ProductCategory);
-		var locations = CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
-		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+		var products = CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product, useLocalDB: true);
+		var productCategories = CommonData.LoadTableDataByStatus<ProductCategoryModel>(StoreNames.ProductCategory, useLocalDB: true);
+		var locations = CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location, useLocalDB: true);
+		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
 
 		_fromDate = _toDate = await currentDateTime;
 		_products = [.. (await products).OrderBy(s => s.Name)];

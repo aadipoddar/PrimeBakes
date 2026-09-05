@@ -9,8 +9,8 @@ public static class PurchaseData
 	private static readonly string _endpoint = Helper.SanitizeClassName(nameof(PurchaseData));
 
 
-	public static async Task<List<RawMaterialModel>> LoadRawMaterialByPartyPurchaseDateTime(int PartyId, DateTime PurchaseDateTime, bool OnlyActive = true) =>
-		await ApiClient.Get<List<RawMaterialModel>>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadRawMaterialByPartyPurchaseDateTime)), new { PartyId, PurchaseDateTime, OnlyActive });
+	public static async Task<List<RawMaterialModel>> LoadRawMaterialByPartyPurchaseDateTime(int PartyId, DateTime PurchaseDateTime, bool OnlyActive = true, bool useLocalDB = false) =>
+		await ApiClient.Get<List<RawMaterialModel>>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadRawMaterialByPartyPurchaseDateTime)), new { PartyId, PurchaseDateTime, OnlyActive, useLocalDB });
 
 	public static async Task<PurchaseInvoiceBundle> LoadInvoiceBundle(int transactionId) =>
 		await ApiClient.Get<PurchaseInvoiceBundle>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadInvoiceBundle)), new { transactionId });

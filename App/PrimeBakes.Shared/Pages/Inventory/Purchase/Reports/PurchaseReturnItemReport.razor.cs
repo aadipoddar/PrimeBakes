@@ -98,10 +98,10 @@ public partial class PurchaseReturnItemReport : IAsyncDisposable
 	private async Task LoadData()
 	{
 		var currentDateTime = CommonData.LoadCurrentDateTime();
-		var rawMaterials = CommonData.LoadTableDataByStatus<RawMaterialModel>(InventoryNames.RawMaterial);
-		var rawMaterialCategories = CommonData.LoadTableDataByStatus<RawMaterialCategoryModel>(InventoryNames.RawMaterialCategory);
-		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-		var parties = CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
+		var rawMaterials = CommonData.LoadTableDataByStatus<RawMaterialModel>(InventoryNames.RawMaterial, useLocalDB: true);
+		var rawMaterialCategories = CommonData.LoadTableDataByStatus<RawMaterialCategoryModel>(InventoryNames.RawMaterialCategory, useLocalDB: true);
+		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
+		var parties = CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger, useLocalDB: true);
 
 		_fromDate = _toDate = await currentDateTime;
 		_rawMaterials = [.. (await rawMaterials).OrderBy(s => s.Name)];

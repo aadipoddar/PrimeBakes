@@ -92,9 +92,9 @@ public partial class PayrollReport : IAsyncDisposable
 	private async Task LoadData()
 	{
 		var currentDateTimeTask = CommonData.LoadCurrentDateTime();
-		var employees = CommonData.LoadTableDataByStatus<EmployeeModel>(PayrollNames.Employee);
-		var departments = CommonData.LoadTableDataByStatus<DepartmentModel>(PayrollNames.Department);
-		var designations = CommonData.LoadTableDataByStatus<DesignationModel>(PayrollNames.Designation);
+		var employees = CommonData.LoadTableDataByStatus<EmployeeModel>(PayrollNames.Employee, useLocalDB: true);
+		var departments = CommonData.LoadTableDataByStatus<DepartmentModel>(PayrollNames.Department, useLocalDB: true);
+		var designations = CommonData.LoadTableDataByStatus<DesignationModel>(PayrollNames.Designation, useLocalDB: true);
 
 		var currentDateTime = await currentDateTimeTask;
 		(_fromDate, _toDate) = await FinancialYearData.GetDateRange(DateRangeType.CurrentMonth, currentDateTime, currentDateTime);

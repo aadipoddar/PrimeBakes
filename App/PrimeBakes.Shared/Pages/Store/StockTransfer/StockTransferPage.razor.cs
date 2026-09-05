@@ -103,8 +103,8 @@ public partial class StockTransferPage
 
 	private async Task LoadData()
 	{
-		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location, useLocalDB: true);
+		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
 
 		_locations = [.. _locations.OrderBy(s => s.Name)];
 		_companies = [.. _companies.OrderBy(s => s.Name)];
@@ -233,11 +233,11 @@ public partial class StockTransferPage
 	private async Task LoadItems()
 	{
 		var transferDate = DateOnly.FromDateTime(_stockTransfer.TransactionDateTime);
-		var fromLocationProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, _stockTransfer.LocationId, transferDate);
+		var fromLocationProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, _stockTransfer.LocationId, transferDate, useLocalDB: true);
 
 		if (_stockTransfer.ToLocationId > 0)
 		{
-			var toLocationProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, _stockTransfer.ToLocationId, transferDate);
+			var toLocationProducts = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, _stockTransfer.ToLocationId, transferDate, useLocalDB: true);
 			fromLocationProducts = [.. fromLocationProducts.Where(x => toLocationProducts.Any(y => y.ProductId == x.ProductId))];
 
 			if (_selectedToLocation.UseLocationRateOnSale)
@@ -246,7 +246,7 @@ public partial class StockTransferPage
 		}
 
 		_products = [.. fromLocationProducts.OrderBy(s => s.Name)];
-		_taxes = await CommonData.LoadTableDataByStatus<TaxModel>(StoreNames.Tax);
+		_taxes = await CommonData.LoadTableDataByStatus<TaxModel>(StoreNames.Tax, useLocalDB: true);
 
 		await LoadTaxState();
 	}

@@ -68,7 +68,7 @@ public partial class AttendancePage
 	{
 		var currentDateTime = await CommonData.LoadCurrentDateTime();
 
-		_employees = await CommonData.LoadTableDataByStatus<EmployeeModel>(PayrollNames.Employee);
+		_employees = await CommonData.LoadTableDataByStatus<EmployeeModel>(PayrollNames.Employee, useLocalDB: true);
 		_employees = [.. _employees.OrderBy(e => e.Name)];
 
 		_attendance.AttendanceMonth = currentDateTime.Month;

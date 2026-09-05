@@ -69,7 +69,7 @@ public partial class RawMaterialStockReport : IAsyncDisposable
 	{
 		_fromDate = _toDate = await CommonData.LoadCurrentDateTime();
 
-		_categories = await CommonData.LoadTableDataByStatus<RawMaterialCategoryModel>(InventoryNames.RawMaterialCategory);
+		_categories = await CommonData.LoadTableDataByStatus<RawMaterialCategoryModel>(InventoryNames.RawMaterialCategory, useLocalDB: true);
 		_categories = [.. _categories.OrderBy(c => c.Name)];
 	}
 

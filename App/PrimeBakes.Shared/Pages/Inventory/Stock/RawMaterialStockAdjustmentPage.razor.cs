@@ -74,7 +74,7 @@ public partial class RawMaterialStockAdjustmentPage
 	{
 		_stockSummary = await RawMaterialStockData.LoadRawMaterialStockSummaryByDate(_transactionDateTime, _transactionDateTime);
 
-		_rawMaterials = await PurchaseData.LoadRawMaterialByPartyPurchaseDateTime(0, _transactionDateTime);
+		_rawMaterials = await PurchaseData.LoadRawMaterialByPartyPurchaseDateTime(0, _transactionDateTime, useLocalDB: true);
 		_rawMaterials = [.. _rawMaterials.OrderBy(s => s.Name)];
 	}
 

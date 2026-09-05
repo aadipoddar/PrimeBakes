@@ -71,8 +71,8 @@ public partial class ProductStockReport : IAsyncDisposable
 	private async Task LoadData()
 	{
 		var currentDateTime = CommonData.LoadCurrentDateTime();
-		var locations = CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
-		var categories = CommonData.LoadTableDataByStatus<ProductCategoryModel>(StoreNames.ProductCategory);
+		var locations = CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location, useLocalDB: true);
+		var categories = CommonData.LoadTableDataByStatus<ProductCategoryModel>(StoreNames.ProductCategory, useLocalDB: true);
 
 		_fromDate = _toDate = await currentDateTime;
 		_locations = [.. (await locations).OrderBy(l => l.Name)];

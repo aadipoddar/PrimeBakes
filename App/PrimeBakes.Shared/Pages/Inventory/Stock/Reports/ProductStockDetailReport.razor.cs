@@ -81,7 +81,7 @@ public partial class ProductStockDetailReport : IAsyncDisposable
 	{
 		_fromDate = _toDate = await CommonData.LoadCurrentDateTime();
 
-		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
+		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location, useLocalDB: true);
 		_locations = [.. _locations.OrderBy(l => l.Name)];
 		_selectedLocation = _locations.FirstOrDefault(l => l.Id == 1) ?? _locations.FirstOrDefault();
 	}

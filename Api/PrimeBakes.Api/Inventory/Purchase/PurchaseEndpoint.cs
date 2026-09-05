@@ -12,7 +12,7 @@ public class PurchaseEndpoint : ICarterModule
 		var group = app.MapGroup(endpoint).WithTags(endpoint);
 
 		group.MapGet(nameof(PurchaseData.LoadRawMaterialByPartyPurchaseDateTime),
-			(int PartyId, DateTime PurchaseDateTime, bool OnlyActive) => PurchaseData.LoadRawMaterialByPartyPurchaseDateTime(PartyId, PurchaseDateTime, OnlyActive));
+			(int PartyId, DateTime PurchaseDateTime, bool OnlyActive, bool useLocalDB) => PurchaseData.LoadRawMaterialByPartyPurchaseDateTime(PartyId, PurchaseDateTime, OnlyActive, useLocalDB));
 
 		group.MapGet(nameof(PurchaseData.LoadInvoiceBundle),
 			(int transactionId) => PurchaseData.LoadInvoiceBundle(transactionId));

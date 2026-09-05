@@ -75,7 +75,7 @@ public partial class ProductStockAdjustment
 
 	private async Task LoadLocations()
 	{
-		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
+		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location, useLocalDB: true);
 		_locations = [.. _locations.OrderBy(s => s.Name)];
 
 		_selectedLocation = _locations.FirstOrDefault(s => s.Id == 1);
@@ -84,7 +84,7 @@ public partial class ProductStockAdjustment
 
 	private async Task LoadItems()
 	{
-		_products = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, _selectedLocation.Id, DateOnly.FromDateTime(_transactionDateTime));
+		_products = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(null, _selectedLocation.Id, DateOnly.FromDateTime(_transactionDateTime), useLocalDB: true);
 		_products = [.. _products.OrderBy(s => s.Name)];
 
 		_stockSummary = await ProductStockData.LoadProductStockSummaryByDateLocationId(_transactionDateTime, _transactionDateTime, _selectedLocation.Id);

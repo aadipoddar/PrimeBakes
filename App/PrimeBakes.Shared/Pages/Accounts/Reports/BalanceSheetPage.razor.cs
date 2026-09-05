@@ -67,7 +67,7 @@ public partial class BalanceSheetPage : IAsyncDisposable
 	{
 		_fromDate = _toDate = await CommonData.LoadCurrentDateTime();
 
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
 		_companies = [.. _companies.OrderBy(s => s.Name)];
 	}
 

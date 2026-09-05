@@ -90,9 +90,9 @@ public partial class AccountingLedgerReport : IAsyncDisposable
 	private async Task LoadData()
 	{
 		var currentDateTime = CommonData.LoadCurrentDateTime();
-		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-		var vouchers = CommonData.LoadTableDataByStatus<VoucherModel>(AccountNames.Voucher);
-		var ledgers = CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
+		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
+		var vouchers = CommonData.LoadTableDataByStatus<VoucherModel>(AccountNames.Voucher, useLocalDB: true);
+		var ledgers = CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger, useLocalDB: true);
 
 		_fromDate = _toDate = await currentDateTime;
 		_companies = [.. (await companies).OrderBy(s => s.Name)];

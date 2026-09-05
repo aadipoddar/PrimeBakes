@@ -97,10 +97,10 @@ public partial class KitchenProductionItemReport : IAsyncDisposable
 	private async Task LoadData()
 	{
 		var currentDateTime = CommonData.LoadCurrentDateTime();
-		var products = CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product);
-		var productCategories = CommonData.LoadTableDataByStatus<ProductCategoryModel>(StoreNames.ProductCategory);
-		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-		var kitchens = CommonData.LoadTableDataByStatus<KitchenModel>(InventoryNames.Kitchen);
+		var products = CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product, useLocalDB: true);
+		var productCategories = CommonData.LoadTableDataByStatus<ProductCategoryModel>(StoreNames.ProductCategory, useLocalDB: true);
+		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
+		var kitchens = CommonData.LoadTableDataByStatus<KitchenModel>(InventoryNames.Kitchen, useLocalDB: true);
 
 		_fromDate = _toDate = await currentDateTime;
 		_products = await products;

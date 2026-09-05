@@ -99,7 +99,7 @@ public partial class OutletSummaryReport : IAsyncDisposable
 
 	private async Task LoadCompanies()
 	{
-		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
+		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
 		_companies = [.. _companies.OrderBy(s => s.Name)];
 	}
 
@@ -136,7 +136,7 @@ public partial class OutletSummaryReport : IAsyncDisposable
 
 	private async Task LoadTransactionOverviews()
 	{
-		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location);
+		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location, useLocalDB: true);
 
 		var fromDate = DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue);
 		var toDate = DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue);

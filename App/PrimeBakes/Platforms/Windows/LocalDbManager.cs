@@ -60,7 +60,8 @@ public static class LocalDbManager
 		var dacpacPath = Path.Combine(AppContext.BaseDirectory, "PrimeBakes.Database.dacpac");
 
 		if (!File.Exists(dacpacPath))
-			throw new FileNotFoundException("PrimeBakes.Database.dacpac was not found next to the app.");
+			return;
+		//throw new FileNotFoundException("PrimeBakes.Database.dacpac was not found next to the app.");
 
 		using var package = DacPackage.Load(dacpacPath);
 

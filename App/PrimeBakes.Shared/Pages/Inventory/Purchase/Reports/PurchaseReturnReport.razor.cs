@@ -93,8 +93,8 @@ public partial class PurchaseReturnReport : IAsyncDisposable
 	private async Task LoadData()
 	{
 		var currentDateTime = CommonData.LoadCurrentDateTime();
-		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company);
-		var parties = CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger);
+		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
+		var parties = CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger, useLocalDB: true);
 
 		_fromDate = _toDate = await currentDateTime;
 		_companies = [.. (await companies).OrderBy(s => s.Name)];
