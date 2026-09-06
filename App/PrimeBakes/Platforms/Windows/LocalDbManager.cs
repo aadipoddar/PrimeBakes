@@ -37,7 +37,7 @@ public static class LocalDbManager
 				Preferences.Set(_schemaVersionKey, version);
 			}
 
-			await SyncData.SyncToLocalClient();
+			await SyncData.SyncToLocalClient(new Services.Device.FormFactor().GetMachineId());
 		}
 		catch { }
 		finally

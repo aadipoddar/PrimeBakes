@@ -2,6 +2,8 @@
 
 using Microsoft.Data.SqlClient;
 
+using PrimeBakes.Data.Operations.Terminal;
+
 using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Operations.Maintenance;
 
@@ -45,8 +47,12 @@ public static class SyncData
 		return result.Summary;
 	}
 
-	public static async Task<string> SyncToLocalClient() =>
-		(await RunSync(Secrets.LocalClientConnectionString, null)).Summary;
+	public static async Task<string> SyncToLocalClient(string machineId)
+	{
+		var result = await RunSync(Secrets.LocalClientConnectionString, null);
+		await TerminalData.UpdateLastSyncedAt(machineId);
+		return result.Summary;
+	}
 
 	public static async Task<DateTime?> LoadLastBackupDate()
 	{

@@ -9,8 +9,8 @@ public static class SyncData
 	public static async Task<string> Backup(int userId) =>
 		await ApiClient.Post<string>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(Backup)), null, new { userId });
 
-	public static async Task<string> SyncToLocalClient() =>
-		await ApiClient.Post<string>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(SyncToLocalClient)), null);
+	public static async Task<string> SyncToLocalClient(string machineId) =>
+		await ApiClient.Post<string>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(SyncToLocalClient)), null, new { machineId });
 
 	public static async Task<DateTime?> LoadLastBackupDate() =>
 		await ApiClient.Get<DateTime?>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadLastBackupDate)));

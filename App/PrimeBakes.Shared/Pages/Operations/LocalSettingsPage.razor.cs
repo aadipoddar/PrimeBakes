@@ -290,7 +290,7 @@ public partial class LocalSettingsPage
 			StateHasChanged();
 
 			await _toastNotification.ShowAsync("Syncing", "Copying data to this computer...", ToastType.Info);
-			var summary = await SyncData.SyncToLocalClient();
+			var summary = await SyncData.SyncToLocalClient(FormFactor.GetMachineId());
 			await _toastNotification.ShowAsync("Synced", summary, ToastType.Success);
 		}
 		catch (Exception ex)

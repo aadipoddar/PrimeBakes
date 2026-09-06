@@ -5,6 +5,5 @@ BEGIN
 
 	SELECT * FROM [Terminal]
 	WHERE [MachineId] = @MachineId
-		AND Status = 1
 
 END

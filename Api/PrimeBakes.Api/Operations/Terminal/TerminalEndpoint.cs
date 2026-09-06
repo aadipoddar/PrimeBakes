@@ -15,7 +15,6 @@ public class TerminalEndpoint : ICarterModule
 			(string machineId) => TerminalData.LoadTerminalByMachineId(machineId));
 
 		group.MapPost(nameof(TerminalData.SaveTransaction),
-			(TerminalModel terminal, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
-				TerminalData.SaveTransaction(terminal, userId, formFactor, platform, latitude, longitude));
+			(TerminalModel terminal) => TerminalData.SaveTransaction(terminal));
 	}
 }

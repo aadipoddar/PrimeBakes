@@ -12,4 +12,7 @@ public class FormFactor : IFormFactor
 
     public string GetMachineId() =>
         null;
+
+    public string GetMachineName() =>
+        null;
 }

@@ -4,8 +4,7 @@
 	@MachineId VARCHAR(100),
 	@MachineName VARCHAR(MAX),
 	@UserId INT,
-	@LastSyncedAt DATETIME,
-	@Status BIT
+	@LastSyncedAt DATETIME
 AS
 BEGIN
 	IF @Id = 0
@@ -16,8 +15,7 @@ BEGIN
 			[MachineId],
 			[MachineName],
 			[UserId],
-			[LastSyncedAt],
-			[Status]
+			[LastSyncedAt]
 		)
 		VALUES
 		(
@@ -25,8 +23,7 @@ BEGIN
 			@MachineId,
 			@MachineName,
 			@UserId,
-			@LastSyncedAt,
-			@Status
+			@LastSyncedAt
 		);
 
 		SET @Id = SCOPE_IDENTITY();
@@ -40,8 +37,7 @@ BEGIN
 			[MachineId] = @MachineId,
 			[MachineName] = @MachineName,
 			[UserId] = @UserId,
-			[LastSyncedAt] = @LastSyncedAt,
-			[Status] = @Status
+			[LastSyncedAt] = @LastSyncedAt
 		WHERE [Id] = @Id;
 	END
 

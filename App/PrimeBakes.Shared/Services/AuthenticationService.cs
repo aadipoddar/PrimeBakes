@@ -3,6 +3,7 @@
 using PrimeBakes.Data;
 using PrimeBakes.Data.Operations.AuditTrail;
 using PrimeBakes.Data.Operations.Settings;
+using PrimeBakes.Data.Operations.Terminal;
 using PrimeBakes.Data.Operations.User;
 using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Operations.Settings;
@@ -13,7 +14,7 @@ using PrimeBakes.Shared.Services.Storage;
 
 namespace PrimeBakes.Shared.Services;
 
-public class AuthenticationService(IDataStorageService dataStorageService, NavigationManager navigationManager, INotificationService notificationService, IVibrationService vibrationService, PlatformInfoService platformInfoService)
+public class AuthenticationService(IDataStorageService dataStorageService, NavigationManager navigationManager, INotificationService notificationService, IVibrationService vibrationService, PlatformInfoService platformInfoService, IFormFactor formFactor)
 {
 	public async Task<UserModel> ValidateUser(List<UserRoles> userRoles = null, bool primaryLocationRequirement = false)
 	{
@@ -57,6 +58,8 @@ public class AuthenticationService(IDataStorageService dataStorageService, Navig
 
 		await dataStorageService.SecureSaveAsync(StorageFileNames.UserDataFileName, System.Text.Json.JsonSerializer.Serialize(user));
 
+		_ = EnrollTerminal(user);
+
 		if (userRoles is null)
 			return user;
 
@@ -76,6 +79,21 @@ public class AuthenticationService(IDataStorageService dataStorageService, Navig
 			await Logout();
 
 		return user;
+	}
+
+	private async Task EnrollTerminal(UserModel user)
+	{
+		var machineId = formFactor.GetMachineId();
+		var machineName = formFactor.GetMachineName();
+
+		if (string.IsNullOrWhiteSpace(machineId) || string.IsNullOrWhiteSpace(machineName))
+			return;
+
+		try
+		{
+			await TerminalData.SaveTransaction(new() { MachineId = machineId, MachineName = machineName, UserId = user.Id });
+		}
+		catch { }
 	}
 
 	public async Task Logout()

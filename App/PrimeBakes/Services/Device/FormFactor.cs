@@ -24,4 +24,11 @@ public class FormFactor : IFormFactor
         return null;
 #endif
     }
+
+    public string GetMachineName() =>
+#if WINDOWS
+        Environment.MachineName;
+#else
+        null;
+#endif
 }
