@@ -59,6 +59,12 @@ public static class OperationNames
 	public static string InsertLocation => "Insert_Location";
 	#endregion
 
+	#region Terminal
+	public static string Terminal => "Terminal";
+	public static string InsertTerminal => "Insert_Terminal";
+	public static string LoadTerminalByMachineId => "Load_Terminal_By_MachineId";
+	#endregion
+
 	#region Web Push
 	public static string WebPushSubscription => "WebPushSubscription";
 	public static string InsertWebPushSubscription => "Insert_WebPushSubscription";

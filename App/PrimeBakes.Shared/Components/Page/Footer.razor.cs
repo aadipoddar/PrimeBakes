@@ -1,22 +1,23 @@
 ﻿using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Data.Operations.Settings;
+using PrimeBakes.Data.Operations.Terminal;
 
+using PrimeBakes.Models.Operations.Maintenance;
 using PrimeBakes.Models.Operations.Settings;
+using PrimeBakes.Models.Operations.Terminal;
 
 namespace PrimeBakes.Shared.Components.Page;
 
 public partial class Footer : IAsyncDisposable
 {
+	#region Load Data
 	[Parameter] public bool ShowVersion { get; set; } = true;
 
-	private const int _defaultRefreshMinutes = 30;
 	private decimal _databaseLoad = -1;
 	private bool _localDatabaseAvailable;
+	private DateTime? _lastSyncedAt;
 	private string _platformInfo;
-
-	private PeriodicTimer _refreshTimer;
-	private CancellationTokenSource _refreshCts;
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
@@ -29,23 +30,42 @@ public partial class Footer : IAsyncDisposable
 		_ = LocalDbService.SyncDataBackground();
 
 		var setting = await SettingsData.LoadSettingsByKey(SettingsKeys.AutoRefreshReportTimer);
-		var refreshMinutes = int.TryParse(setting?.Value, out var minutes) && minutes > 0 ? minutes : _defaultRefreshMinutes;
+		_refreshMinutes = int.TryParse(setting?.Value, out var minutes) && minutes > 0 ? minutes : _defaultRefreshMinutes;
 
 		_refreshCts = new CancellationTokenSource();
-		_refreshTimer = new PeriodicTimer(TimeSpan.FromMinutes(refreshMinutes));
+		_refreshTimer = new PeriodicTimer(TimeSpan.FromMinutes(_refreshMinutes));
 		_ = RefreshLoop(_refreshCts.Token);
 	}
 
 	private async Task LoadPlatformInfo()
 	{
 		var platform = await PlatformInfo.GetPlatformInfo();
+		var terminal = await LoadTerminal();
 
-		_platformInfo = $"Form Factor: {platform.FormFactor}" +
+		_platformInfo = $"Form: {platform.FormFactor}" +
 						$" Platform: {platform.Platform}" +
-						$" Latitude: {platform.Latitude?.ToString("F6") ?? "N/A"}" +
-						$" Longitude: {platform.Longitude?.ToString("F6") ?? "N/A"}";
+						$" Lat: {platform.Latitude?.ToString("F6") ?? "N/A"}" +
+						$" Long: {platform.Longitude?.ToString("F6") ?? "N/A"}" +
+						(terminal is null ? string.Empty : $" Terminal: T{terminal.TerminalNo}");
 
 		await InvokeAsync(StateHasChanged);
+	}
+
+	private async Task<TerminalModel> LoadTerminal()
+	{
+		var machineId = FormFactor.GetMachineId();
+
+		if (string.IsNullOrWhiteSpace(machineId))
+			return null;
+
+		try
+		{
+			return await TerminalData.LoadTerminalByMachineId(machineId);
+		}
+		catch
+		{
+			return null;
+		}
 	}
 
 	private async Task LoadLocalDatabase()
@@ -54,6 +74,11 @@ public partial class Footer : IAsyncDisposable
 			return;
 
 		_localDatabaseAvailable = await LocalDbService.LocalDBAvailable();
+
+		_lastSyncedAt = _localDatabaseAvailable
+			? (await CommonData.LoadTableData<SyncVersionModel>(OperationNames.SyncVersion, useLocalDB: true)).Max(sync => (DateTime?)sync.LastSyncedAt)
+			: null;
+
 		await InvokeAsync(StateHasChanged);
 	}
 
@@ -69,6 +94,14 @@ public partial class Footer : IAsyncDisposable
 		}
 		catch { }
 	}
+	#endregion
+
+	#region Refresh
+	private const int _defaultRefreshMinutes = 30;
+	private int _refreshMinutes = _defaultRefreshMinutes;
+
+	private PeriodicTimer _refreshTimer;
+	private CancellationTokenSource _refreshCts;
 
 	private async Task RefreshLoop(CancellationToken cancellationToken)
 	{
@@ -86,13 +119,6 @@ public partial class Footer : IAsyncDisposable
 		catch { }
 	}
 
-	private string DatabaseLoadClass => _databaseLoad switch
-	{
-		< 50 => "load-low",
-		< 80 => "load-medium",
-		_ => "load-high"
-	};
-
 	async ValueTask IAsyncDisposable.DisposeAsync()
 	{
 		if (_refreshCts is not null)
@@ -104,4 +130,22 @@ public partial class Footer : IAsyncDisposable
 		_refreshTimer?.Dispose();
 		GC.SuppressFinalize(this);
 	}
+	#endregion
+
+	#region Utilities
+	private string LastSyncedText => $"Synced {FormatAge(DateTime.Now - _lastSyncedAt.Value)}";
+
+	private string LastSyncedClass =>
+		DateTime.Now - _lastSyncedAt.Value <= TimeSpan.FromMinutes(_refreshMinutes) ? "load-low" : "load-high";
+
+	private static string FormatAge(TimeSpan age) => age switch
+	{
+		{ TotalMinutes: < 1 } => "Just Now",
+		{ TotalHours: < 1 } => $"{age.TotalMinutes:N0}m Ago",
+		{ TotalDays: < 1 } => $"{age.TotalHours:N0}h Ago",
+		_ => $"{age.TotalDays:N0}d Ago"
+	};
+
+	private string DatabaseLoadClass => _databaseLoad < 70 ? "load-low" : "load-high";
+	#endregion
 }

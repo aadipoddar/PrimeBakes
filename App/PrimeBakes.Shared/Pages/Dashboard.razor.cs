@@ -25,6 +25,19 @@ public partial class Dashboard
 	private string _updateStatus = "Preparing update...";
 	private DateTime _updateStartTime;
 
+	private async Task CheckForUpdates()
+	{
+		if (!Platform.Contains("Android") && !Factor.Contains("Desktop"))
+			return;
+
+		try
+		{
+			if (await UpdateService.CheckForUpdatesAsync("aadipoddar", CommonSecrets.DatabaseName, CommonSecrets.DatabaseName, AppVersion))
+				await StartUpdateProcess();
+		}
+		catch { }
+	}
+
 	private async Task StartUpdateProcess(bool forceUpdate = false)
 	{
 		_isLoading = false;
@@ -89,23 +102,16 @@ public partial class Dashboard
 		if (!firstRender)
 			return;
 
+		_ = CheckForUpdates();
+
 		try
 		{
-			// Check for updates on Android Phone or Windows Desktop
-			var shouldCheckUpdate = Platform.Contains("Android") || Factor.Contains("Desktop");
-
-			if (shouldCheckUpdate)
-			{
-				var hasUpdate = await UpdateService.CheckForUpdatesAsync("aadipoddar", CommonSecrets.DatabaseName, CommonSecrets.DatabaseName, AppVersion);
-				if (hasUpdate)
-					await StartUpdateProcess();
-			}
-
 			await LoadData();
 		}
 		catch
 		{
 			await AuthService.Logout();
+			return;
 		}
 		finally
 		{
