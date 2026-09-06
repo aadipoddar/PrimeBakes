@@ -1,0 +1,71 @@
+@using PrimeBakes.Models.Operations.Terminal
+
+@attribute [Route(OperationRouteNames.Terminal)]
+
+<PageTitle>Terminal - Prime Bakes</PageTitle>
+
+<MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadTerminals" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadTerminals" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport()" Disabled="@_isProcessing" />
+
+@if (_isLoading || _user is null)
+{
+	<LoadingScreen />
+}
+else
+{
+	<div class="page-shell">
+		<Header Title="Terminal">
+			<LeftContent>
+				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Refresh Data (Ctrl + R / F5)" OnClick="LoadTerminals" />
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportReport()" />
+					<MudBlazor.MudMenuItem Label="Export Excel (Ctrl + E)" OnClick="() => ExportReport(true)" />
+				</MudBlazor.MudMenu>
+			</LeftContent>
+		</Header>
+
+		<div class="page-container">
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Terminals</h2>
+				</div>
+
+				<SfGrid @ref="_sfGrid" TValue="TerminalOverviewModel" DataSource="_terminals"
+						AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+						AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+						GridLines="GridLine.Horizontal"
+						Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+					<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+					<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+					<GridAggregates>
+						<GridAggregate>
+							<GridAggregateColumns>
+								<GridColumnAggregate Field="@nameof(TerminalOverviewModel.Id)" Type="AggregateType.Count" Format="N0" />
+							</GridAggregateColumns>
+						</GridAggregate>
+					</GridAggregates>
+
+					<GridColumns>
+						<CustomGridColumn Field="@nameof(TerminalOverviewModel.TerminalNo)" HeaderText="Terminal No" Format="N0" NumericColumn="true" />
+						<CustomGridColumn Field="@nameof(TerminalOverviewModel.MachineName)" HeaderText="Machine Name" />
+						<CustomGridColumn Field="@nameof(TerminalOverviewModel.MachineId)" HeaderText="Machine Id" Width="400" />
+						<CustomGridColumn Field="@nameof(TerminalOverviewModel.UserName)" HeaderText="User" />
+						<CustomGridColumn Field="@nameof(TerminalOverviewModel.LastSyncedAt)" HeaderText="Last Synced" Format="dd/MM/yy HH:mm" Type="ColumnType.DateTime" />
+					</GridColumns>
+				</SfGrid>
+			</div>
+		</div>
+
+		<Footer />
+	</div>
+}
+
+<ToastNotification @ref="_toastNotification" />
+
+<CloseGuard Block="_isProcessing" />

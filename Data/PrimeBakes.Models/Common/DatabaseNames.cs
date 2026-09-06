@@ -63,6 +63,7 @@ public static class OperationNames
 	public static string Terminal => "Terminal";
 	public static string InsertTerminal => "Insert_Terminal";
 	public static string LoadTerminalByMachineId => "Load_Terminal_By_MachineId";
+	public static string TerminalOverview => "Terminal_Overview";
 	#endregion
 
 	#region Web Push

@@ -386,6 +386,7 @@
     <Build Include="Operations\Terminal\Terminal.sql" />
     <Build Include="Operations\Terminal\Insert_Terminal.sql" />
     <Build Include="Operations\Terminal\Load_Terminal_By_MachineId.sql" />
+    <Build Include="Operations\Terminal\Terminal_Overview.sql" />
     <Build Include="Common\Load_LastTableData_By_Location_FinancialYear.sql" />
     <Build Include="Inventory\Stock\Load\Load_RawMaterial_OpeningStock_By_Date.sql" />
   </ItemGroup>
