@@ -5,6 +5,7 @@ using Microsoft.Data.SqlClient;
 using PrimeBakes.Data.Operations.Terminal;
 
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.Maintenance;
 
 using System.Data;
@@ -49,6 +50,9 @@ public static class SyncData
 
 	public static async Task<string> SyncToLocalClient(string machineId)
 	{
+		if (OfflineState.Offline)
+			throw new InvalidOperationException("Cannot sync while offline.");
+
 		var result = await RunSync(Secrets.LocalClientConnectionString, null);
 		await TerminalData.UpdateLastSyncedAt(machineId);
 		return result.Summary;

@@ -6,12 +6,12 @@ using Microsoft.Extensions.Logging;
 using PrimeBakes.Platforms.Android;
 #elif WINDOWS
 using PrimeBakes.Platforms.Windows;
+using NetworkAccess = Microsoft.Maui.Networking.NetworkAccess;
 #endif
 
 using MudBlazor.Services;
 
 using PrimeBakes.Data;
-using PrimeBakes.Data.DataAccess;
 using PrimeBakes.Models.DataAccess;
 
 using PrimeBakes.Services;
@@ -87,7 +87,8 @@ public static class MauiProgram
 
 #if WINDOWS
 		builder.UseWindowCloseGuard();
-		SqlDataAccess.LocalDBAvailable = LocalDbManager.IsDatabaseReady;
+		OfflineState.LocalDBAvailable = LocalDbManager.IsDatabaseReady;
+		OfflineState.Offline = Connectivity.Current.NetworkAccess is not NetworkAccess.Internet;
 #endif
 
 #if DEBUG

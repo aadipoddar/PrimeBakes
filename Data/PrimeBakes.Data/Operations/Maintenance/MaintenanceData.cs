@@ -13,7 +13,7 @@ public static class MaintenanceData
 {
 	public static async Task RebuildIndexes()
 	{
-		using SqlConnection connection = new(SqlDataAccess._databaseConnection);
+		using SqlConnection connection = new(SqlDataAccess.DatabaseConnection);
 		await connection.ExecuteAsync(OperationNames.RebuildIndexes, commandType: CommandType.StoredProcedure, commandTimeout: 0);
 	}
 

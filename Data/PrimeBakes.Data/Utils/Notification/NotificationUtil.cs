@@ -14,7 +14,7 @@ internal static class NotificationUtil
 {
 	internal static async Task SendNotificationToAPI(List<UserModel> users, string title, string text)
 	{
-		if (SqlDataAccess._databaseConnection != Secrets.AzureConnectionString)
+		if (SqlDataAccess.DatabaseConnection != Secrets.AzureConnectionString)
 			return;
 
 		string endpoint = $"{CommonSecrets.NotificationBackendServiceEndpoint}api/notifications/requests";

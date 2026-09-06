@@ -1,7 +1,7 @@
 ﻿using Microsoft.SqlServer.Dac;
 
-using PrimeBakes.Data.DataAccess;
 using PrimeBakes.Data.Operations.Maintenance;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Shared.Services.Host;
 
 using System.Diagnostics;
@@ -20,8 +20,8 @@ public static class LocalDbManager
 
 	public static async Task SyncDataBackground()
 	{
-		SqlDataAccess.LocalDBAvailable = IsDatabaseReady;
-		if (!IsDatabaseReady)
+		OfflineState.LocalDBAvailable = IsDatabaseReady;
+		if (!IsDatabaseReady || OfflineState.Offline)
 			return;
 
 		if (!await _gate.WaitAsync(0))

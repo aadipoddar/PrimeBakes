@@ -11,21 +11,22 @@ namespace PrimeBakes.Data.DataAccess;
 
 public static class SqlDataAccess
 {
-	public static bool LocalDBAvailable { get; set; }
-
-	internal static readonly string _databaseConnection = CommonSecrets.DatabaseConnection switch
+	private static readonly string _serverConnection = CommonSecrets.DatabaseConnection switch
 	{
 		ConnectionType.Local => Secrets.LocalConnectionString,
 		ConnectionType.Azure => Secrets.AzureConnectionString,
 		_ => throw new NotImplementedException()
 	};
 
+	internal static string DatabaseConnection =>
+		(OfflineState.LocalDBAvailable && OfflineState.Offline) ? Secrets.LocalClientConnectionString : _serverConnection;
+
 	internal static async Task<List<T>> LoadData<T, U>(string storedProcedure, U parameters, SqlDataAccessTransaction sqlDataAccessTransaction = null, bool useLocalDB = false)
 	{
 		if (sqlDataAccessTransaction is not null)
 			return [.. await sqlDataAccessTransaction.LoadDataTransaction<T, U>(storedProcedure, parameters)];
 
-		using IDbConnection connection = new SqlConnection((LocalDBAvailable && useLocalDB) ? Secrets.LocalClientConnectionString : _databaseConnection);
+		using IDbConnection connection = new SqlConnection((OfflineState.LocalDBAvailable && useLocalDB) ? Secrets.LocalClientConnectionString : DatabaseConnection);
 		return [.. await connection.QueryAsync<T>(storedProcedure, parameters, commandType: CommandType.StoredProcedure)];
 	}
 
@@ -59,7 +60,7 @@ public class SqlDataAccessTransaction : IDisposable
 
 	public void StartTransaction()
 	{
-		_connection = new SqlConnection(SqlDataAccess._databaseConnection);
+		_connection = new SqlConnection(SqlDataAccess.DatabaseConnection);
 		_connection.Open();
 		_transaction = _connection.BeginTransaction();
 	}

@@ -59,7 +59,7 @@ internal static class TransactionMailing
 
 	private static async Task SendEmail(string subject, string htmlBody, Dictionary<MemoryStream, string> attachments = null)
 	{
-		if (SqlDataAccess._databaseConnection != Secrets.AzureConnectionString)
+		if (SqlDataAccess.DatabaseConnection != Secrets.AzureConnectionString)
 			return; // Do not send emails in local/dev environment
 
 		var notificationEmail = (await SettingsData.LoadSettingsByKey(SettingsKeys.NotificationEmail))?.Value;

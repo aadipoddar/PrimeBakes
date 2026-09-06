@@ -1,4 +1,5 @@
 ﻿using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 namespace PrimeBakes.Data.Common;
 
 public static class CommonData
@@ -26,7 +27,7 @@ public static class CommonData
 
 	public static async Task<List<T>> LoadTableDataByDate<T>(string TableName, DateTime StartDate, DateTime EndDate, SqlDataAccessTransaction sqlDataAccessTransaction = null, bool useLocalDB = false) where T : new()
 	{
-		if (!(useLocalDB && SqlDataAccess.LocalDBAvailable))
+		if (!(useLocalDB && OfflineState.LocalDBAvailable))
 			await QueryGate.EnsureCapacity(StartDate, EndDate);
 
 		return await SqlDataAccess.LoadData<T, dynamic>(CommonNames.LoadTableDataByDate, new { TableName, StartDate, EndDate }, sqlDataAccessTransaction, useLocalDB);

@@ -5,6 +5,13 @@
     <div class="footer-content">
         <div class="device-info">
 
+            @if (OfflineState.Offline)
+            {
+                <span class="info-item load-info load-high">
+                    Offline
+                </span>
+            }
+
             @if (ShowVersion)
             {
                 <span class="info-item version-info">
