@@ -17,6 +17,6 @@ public class PurchaseReturnEndpoint : ICarterModule
 
 		group.MapPost(nameof(PurchaseReturnData.DeleteTransaction), (PurchaseReturnModel purchaseReturn) => PurchaseReturnData.DeleteTransaction(purchaseReturn));
 		group.MapPost(nameof(PurchaseReturnData.RecoverTransaction), (PurchaseReturnModel purchaseReturn) => PurchaseReturnData.RecoverTransaction(purchaseReturn));
-		group.MapPost(nameof(PurchaseReturnData.SaveTransaction), (PurchaseReturnSaveRequest request) => PurchaseReturnData.SaveTransaction(request.PurchaseReturn, request.Details, request.Recover));
+		group.MapPost(nameof(PurchaseReturnData.SaveTransaction), (PurchaseReturnSaveRequest request) => PurchaseReturnData.SaveTransaction(request.PurchaseReturn, request.Details, request.Recover, request.KeepTransactionNo));
 	}
 }

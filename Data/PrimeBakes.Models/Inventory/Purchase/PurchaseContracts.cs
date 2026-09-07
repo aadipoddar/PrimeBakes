@@ -5,12 +5,14 @@ namespace PrimeBakes.Models.Inventory.Purchase;
 public sealed record PurchaseSaveRequest(
 	PurchaseModel Purchase,
 	List<PurchaseDetailModel> Details,
-	bool Recover);
+	bool Recover,
+	bool KeepTransactionNo);
 
 public sealed record PurchaseReturnSaveRequest(
 	PurchaseReturnModel PurchaseReturn,
 	List<PurchaseReturnDetailModel> Details,
-	bool Recover);
+	bool Recover,
+	bool KeepTransactionNo);
 
 public sealed record PurchaseInvoiceBundle(
 	PurchaseOverviewModel Transaction,

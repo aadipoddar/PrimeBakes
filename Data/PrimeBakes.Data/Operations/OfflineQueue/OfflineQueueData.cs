@@ -1,13 +1,16 @@
 ﻿using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Inventory.Kitchen.KitchenIssue;
 using PrimeBakes.Data.Inventory.Kitchen.KitchenProduction;
+using PrimeBakes.Data.Inventory.Purchase;
 using PrimeBakes.Data.Inventory.PurchaseOrder;
 using PrimeBakes.Data.Store.Order;
 
+using PrimeBakes.Models.Accounts.FinancialAccounting;
 using PrimeBakes.Models.Common;
 using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Inventory.Kitchen.KitchenIssue;
 using PrimeBakes.Models.Inventory.Kitchen.KitchenProduction;
+using PrimeBakes.Models.Inventory.Purchase;
 using PrimeBakes.Models.Inventory.PurchaseOrder;
 using PrimeBakes.Models.Inventory.Stock;
 using PrimeBakes.Models.Operations.AuditTrail;
@@ -90,6 +93,61 @@ public static class OfflineQueueData
 			await DeleteOfflineQueueById(offlineQueue.Id);
 			await DeleteLocalTableData(InventoryNames.PurchaseOrderDetail, nameof(PurchaseOrderDetailModel.MasterId), localId.ToString());
 			await DeleteLocalTableData(InventoryNames.PurchaseOrder, nameof(PurchaseOrderModel.TransactionNo), offlineQueue.TransactionNo);
+			await DeleteLocalTableData(OperationNames.AuditTrail, nameof(AuditTrailModel.RecordNo), offlineQueue.TransactionNo);
+			return;
+		}
+
+		if (offlineQueue.TableName == InventoryNames.Purchase)
+		{
+			var request = JsonSerializer.Deserialize<PurchaseSaveRequest>(offlineQueue.Payload);
+
+			var localId = request.Purchase.Id;
+			var localAccountingId = request.Purchase.FinancialAccountingId ?? 0;
+
+			request.Purchase.Id = 0;
+			request.Purchase.FinancialAccountingId = null;
+			request.Purchase.PurchaseOrderId = null;
+
+			foreach (var purchaseDetail in request.Details)
+			{
+				purchaseDetail.Id = 0;
+				purchaseDetail.MasterId = 0;
+			}
+
+			await PurchaseData.SaveTransaction(request.Purchase, request.Details, request.Recover, request.KeepTransactionNo);
+			await DeleteOfflineQueueById(offlineQueue.Id);
+			await DeleteLocalTableData(InventoryNames.PurchaseDetail, nameof(PurchaseDetailModel.MasterId), localId.ToString());
+			await DeleteLocalTableData(InventoryNames.Purchase, nameof(PurchaseModel.TransactionNo), offlineQueue.TransactionNo);
+			await DeleteLocalTableData(InventoryNames.RawMaterialStock, nameof(RawMaterialStockModel.TransactionNo), offlineQueue.TransactionNo);
+			await DeleteLocalTableData(AccountNames.FinancialAccountingLedger, nameof(FinancialAccountingLedgerModel.MasterId), localAccountingId.ToString());
+			await DeleteLocalTableData(AccountNames.FinancialAccounting, nameof(FinancialAccountingModel.Id), localAccountingId.ToString());
+			await DeleteLocalTableData(OperationNames.AuditTrail, nameof(AuditTrailModel.RecordNo), offlineQueue.TransactionNo);
+			return;
+		}
+
+		if (offlineQueue.TableName == InventoryNames.PurchaseReturn)
+		{
+			var request = JsonSerializer.Deserialize<PurchaseReturnSaveRequest>(offlineQueue.Payload);
+
+			var localId = request.PurchaseReturn.Id;
+			var localAccountingId = request.PurchaseReturn.FinancialAccountingId ?? 0;
+
+			request.PurchaseReturn.Id = 0;
+			request.PurchaseReturn.FinancialAccountingId = null;
+
+			foreach (var purchaseReturnDetail in request.Details)
+			{
+				purchaseReturnDetail.Id = 0;
+				purchaseReturnDetail.MasterId = 0;
+			}
+
+			await PurchaseReturnData.SaveTransaction(request.PurchaseReturn, request.Details, request.Recover, request.KeepTransactionNo);
+			await DeleteOfflineQueueById(offlineQueue.Id);
+			await DeleteLocalTableData(InventoryNames.PurchaseReturnDetail, nameof(PurchaseReturnDetailModel.MasterId), localId.ToString());
+			await DeleteLocalTableData(InventoryNames.PurchaseReturn, nameof(PurchaseReturnModel.TransactionNo), offlineQueue.TransactionNo);
+			await DeleteLocalTableData(InventoryNames.RawMaterialStock, nameof(RawMaterialStockModel.TransactionNo), offlineQueue.TransactionNo);
+			await DeleteLocalTableData(AccountNames.FinancialAccountingLedger, nameof(FinancialAccountingLedgerModel.MasterId), localAccountingId.ToString());
+			await DeleteLocalTableData(AccountNames.FinancialAccounting, nameof(FinancialAccountingModel.Id), localAccountingId.ToString());
 			await DeleteLocalTableData(OperationNames.AuditTrail, nameof(AuditTrailModel.RecordNo), offlineQueue.TransactionNo);
 			return;
 		}

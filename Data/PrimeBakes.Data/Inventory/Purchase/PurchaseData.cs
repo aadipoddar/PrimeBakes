@@ -7,21 +7,25 @@ using PrimeBakes.Data.Inventory.PurchaseOrder;
 using PrimeBakes.Data.Inventory.RawMaterial;
 using PrimeBakes.Data.Inventory.Stock;
 using PrimeBakes.Data.Operations.AuditTrail;
+using PrimeBakes.Data.Operations.OfflineQueue;
 using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Data.Utils.Mail;
 using PrimeBakes.Exports.Inventory.Purchase;
 using PrimeBakes.Models.Accounts.FinancialAccounting;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Inventory.Purchase;
 using PrimeBakes.Models.Inventory.PurchaseOrder;
 using PrimeBakes.Models.Inventory.RawMaterial;
 using PrimeBakes.Models.Inventory.Stock;
 using PrimeBakes.Models.Operations.AuditTrail;
+using PrimeBakes.Models.Operations.OfflineQueue;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
 
 using System.Data;
+using System.Text.Json;
 
 namespace PrimeBakes.Data.Inventory.Purchase;
 
@@ -77,6 +81,8 @@ public static class PurchaseData
 
 		await FinancialYearData.ValidateFinancialYear(purchase.TransactionDateTime, sqlDataAccessTransaction);
 
+		await DeleteOfflineQueue(purchase, sqlDataAccessTransaction);
+
 		if (purchase.PurchaseOrderId is not null && purchase.PurchaseOrderId > 0)
 			await PurchaseOrderData.LinkPurchaseOrderToPurchase(purchase.PurchaseOrderId, purchase.Id, true, sqlDataAccessTransaction);
 
@@ -119,8 +125,24 @@ public static class PurchaseData
 		await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
 	}
 
+	private static async Task DeleteOfflineQueue(PurchaseModel purchase, SqlDataAccessTransaction sqlDataAccessTransaction)
+	{
+		if (!OfflineState.Offline)
+			return;
+
+		var offlineQueue = await CommonData.LoadTableDataByTransactionNo<OfflineQueueModel>(OperationNames.OfflineQueue, purchase.TransactionNo, sqlDataAccessTransaction)
+			?? throw new InvalidOperationException("This purchase has already been synced and cannot be deleted while offline.");
+
+		await OfflineQueueData.DeleteOfflineQueueById(offlineQueue.Id, sqlDataAccessTransaction);
+	}
+	#endregion
+
+	#region Recover
 	public static async Task RecoverTransaction(PurchaseModel purchase)
 	{
+		if (OfflineState.Offline)
+			throw new InvalidOperationException("Purchases cannot be recovered while offline.");
+
 		purchase.Status = true;
 		var purchaseDetails = await CommonData.LoadTableDataByMasterId<PurchaseDetailModel>(InventoryNames.PurchaseDetail, purchase.Id);
 		await SaveTransaction(purchase, purchaseDetails, true);
@@ -130,8 +152,14 @@ public static class PurchaseData
 	#endregion
 
 	#region Save
-	private static async Task<PurchaseModel> ValidateTransaction(PurchaseModel purchase, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
+	private static async Task<PurchaseModel> ValidateTransaction(PurchaseModel purchase, bool update, bool keepTransactionNo, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
+		if (update && OfflineState.Offline)
+			throw new InvalidOperationException("Purchases cannot be modified while offline.");
+
+		if (OfflineState.Offline && purchase.PurchaseOrderId is not null && purchase.PurchaseOrderId > 0)
+			throw new InvalidOperationException("A purchase order cannot be tagged while offline.");
+
 		purchase.ChallanNo = string.IsNullOrWhiteSpace(purchase.ChallanNo) ? null : purchase.ChallanNo.Trim();
 		purchase.Remarks = string.IsNullOrWhiteSpace(purchase.Remarks) ? null : purchase.Remarks.Trim();
 		purchase.DocumentUrl = string.IsNullOrWhiteSpace(purchase.DocumentUrl) ? null : purchase.DocumentUrl.Trim();
@@ -164,7 +192,7 @@ public static class PurchaseData
 				throw new InvalidOperationException("The selected purchase order is already linked to another purchase.");
 		}
 
-		if (!update)
+		if (!update && !keepTransactionNo)
 			purchase.TransactionNo = await GenerateCodes.GeneratePurchaseTransactionNo(purchase, sqlDataAccessTransaction);
 
 		await FinancialYearData.ValidateFinancialYear(purchase.TransactionDateTime, sqlDataAccessTransaction);
@@ -208,6 +236,7 @@ public static class PurchaseData
 		PurchaseModel purchase,
 		List<PurchaseDetailModel> purchaseDetails,
 		bool recover = false,
+		bool keepTransactionNo = false,
 		SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		bool update = purchase.Id > 0;
@@ -216,7 +245,7 @@ public static class PurchaseData
 		{
 			(MemoryStream, string)? previousInvoice = update && !recover ? PurchaseInvoiceExport.ExportInvoice(await LoadInvoiceBundle(purchase.Id), InvoiceExportType.PDF) : null;
 
-			purchase.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(purchase, purchaseDetails, recover, transaction));
+			purchase.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(purchase, purchaseDetails, recover, keepTransactionNo, transaction));
 
 			if (update && !recover)
 				await PurchaseNotify.Notify(purchase.Id, NotifyType.Updated, previousInvoice);
@@ -224,7 +253,7 @@ public static class PurchaseData
 			return purchase.Id;
 		}
 
-		purchase = await ValidateTransaction(purchase, update, sqlDataAccessTransaction);
+		purchase = await ValidateTransaction(purchase, update, keepTransactionNo, sqlDataAccessTransaction);
 		ValidateItemDetails(purchase, purchaseDetails);
 
 		var previousPurchase = update && !recover ? await CommonData.LoadTableDataById<PurchaseOverviewModel>(InventoryNames.PurchaseOverview, purchase.Id, sqlDataAccessTransaction) : new();
@@ -237,6 +266,7 @@ public static class PurchaseData
 		await SaveAccounting(purchase, sqlDataAccessTransaction);
 		await UpdateRawMaterialRateAndUOMOnPurchase(purchaseDetails, sqlDataAccessTransaction);
 		await SaveAuditTrail(purchase, update, recover, previousPurchase, previousPurchaseDetails, sqlDataAccessTransaction);
+		await SaveOfflineQueue(purchase, purchaseDetails, recover, sqlDataAccessTransaction);
 
 		return purchase.Id;
 	}
@@ -438,6 +468,18 @@ public static class PurchaseData
 			CreatedPlatform = update ? purchase.LastModifiedPlatform : purchase.CreatedPlatform,
 			CreatedLatitude = update ? purchase.LastModifiedLatitude : purchase.CreatedLatitude,
 			CreatedLongitude = update ? purchase.LastModifiedLongitude : purchase.CreatedLongitude
+		}, sqlDataAccessTransaction);
+	}
+	private static async Task SaveOfflineQueue(PurchaseModel purchase, List<PurchaseDetailModel> purchaseDetails, bool recover, SqlDataAccessTransaction sqlDataAccessTransaction)
+	{
+		if (!OfflineState.Offline)
+			return;
+
+		await OfflineQueueData.SaveTransaction(new()
+		{
+			TableName = InventoryNames.Purchase,
+			TransactionNo = purchase.TransactionNo,
+			Payload = JsonSerializer.Serialize(new PurchaseSaveRequest(purchase, purchaseDetails, recover, true))
 		}, sqlDataAccessTransaction);
 	}
 	#endregion

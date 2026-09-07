@@ -21,7 +21,7 @@ public static class PurchaseData
 	public static async Task RecoverTransaction(PurchaseModel purchase) =>
 		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(RecoverTransaction)), purchase);
 
-	public static async Task<int> SaveTransaction(PurchaseModel purchase, List<PurchaseDetailModel> purchaseDetails, bool recover = false) =>
+	public static async Task<int> SaveTransaction(PurchaseModel purchase, List<PurchaseDetailModel> purchaseDetails, bool recover = false, bool keepTransactionNo = false) =>
 		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(SaveTransaction)),
-			new PurchaseSaveRequest(purchase, purchaseDetails, recover));
+			new PurchaseSaveRequest(purchase, purchaseDetails, recover, keepTransactionNo));
 }

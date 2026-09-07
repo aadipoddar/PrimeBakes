@@ -5,19 +5,23 @@ using PrimeBakes.Data.Accounts.Masters;
 using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Inventory.Stock;
 using PrimeBakes.Data.Operations.AuditTrail;
+using PrimeBakes.Data.Operations.OfflineQueue;
 using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Data.Utils.Mail;
 using PrimeBakes.Exports.Inventory.Purchase;
 using PrimeBakes.Models.Accounts.FinancialAccounting;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Inventory.Purchase;
 using PrimeBakes.Models.Inventory.Stock;
 using PrimeBakes.Models.Operations.AuditTrail;
+using PrimeBakes.Models.Operations.OfflineQueue;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
 
 using System.Data;
+using System.Text.Json;
 
 namespace PrimeBakes.Data.Inventory.Purchase;
 
@@ -71,6 +75,8 @@ public static class PurchaseReturnData
 
 		await FinancialYearData.ValidateFinancialYear(purchaseReturn.TransactionDateTime, sqlDataAccessTransaction);
 
+		await DeleteOfflineQueue(purchaseReturn, sqlDataAccessTransaction);
+
 		purchaseReturn.Status = false;
 		await InsertPurchaseReturn(purchaseReturn, sqlDataAccessTransaction);
 
@@ -109,8 +115,24 @@ public static class PurchaseReturnData
 		await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
 	}
 
+	private static async Task DeleteOfflineQueue(PurchaseReturnModel purchaseReturn, SqlDataAccessTransaction sqlDataAccessTransaction)
+	{
+		if (!OfflineState.Offline)
+			return;
+
+		var offlineQueue = await CommonData.LoadTableDataByTransactionNo<OfflineQueueModel>(OperationNames.OfflineQueue, purchaseReturn.TransactionNo, sqlDataAccessTransaction)
+			?? throw new InvalidOperationException("This purchase return has already been synced and cannot be deleted while offline.");
+
+		await OfflineQueueData.DeleteOfflineQueueById(offlineQueue.Id, sqlDataAccessTransaction);
+	}
+	#endregion
+
+	#region Recover
 	public static async Task RecoverTransaction(PurchaseReturnModel purchaseReturn)
 	{
+		if (OfflineState.Offline)
+			throw new InvalidOperationException("Purchase returns cannot be recovered while offline.");
+
 		purchaseReturn.Status = true;
 		var purchaseReturnDetails = await CommonData.LoadTableDataByMasterId<PurchaseReturnDetailModel>(InventoryNames.PurchaseReturnDetail, purchaseReturn.Id);
 		await SaveTransaction(purchaseReturn, purchaseReturnDetails, true);
@@ -120,8 +142,11 @@ public static class PurchaseReturnData
 	#endregion
 
 	#region Save
-	private static async Task<PurchaseReturnModel> ValidateTransaction(PurchaseReturnModel purchaseReturn, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
+	private static async Task<PurchaseReturnModel> ValidateTransaction(PurchaseReturnModel purchaseReturn, bool update, bool keepTransactionNo, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
+		if (update && OfflineState.Offline)
+			throw new InvalidOperationException("Purchase returns cannot be modified while offline.");
+
 		purchaseReturn.ChallanNo = string.IsNullOrWhiteSpace(purchaseReturn.ChallanNo) ? null : purchaseReturn.ChallanNo.Trim();
 		purchaseReturn.Remarks = string.IsNullOrWhiteSpace(purchaseReturn.Remarks) ? null : purchaseReturn.Remarks.Trim();
 		purchaseReturn.DocumentUrl = string.IsNullOrWhiteSpace(purchaseReturn.DocumentUrl) ? null : purchaseReturn.DocumentUrl.Trim();
@@ -141,7 +166,7 @@ public static class PurchaseReturnData
 		if (purchaseReturn.TotalAmount < 0)
 			throw new InvalidOperationException("The total amount of the transaction cannot be negative.");
 
-		if (!update)
+		if (!update && !keepTransactionNo)
 			purchaseReturn.TransactionNo = await GenerateCodes.GeneratePurchaseReturnTransactionNo(purchaseReturn, sqlDataAccessTransaction);
 
 		await FinancialYearData.ValidateFinancialYear(purchaseReturn.TransactionDateTime, sqlDataAccessTransaction);
@@ -185,6 +210,7 @@ public static class PurchaseReturnData
 		PurchaseReturnModel purchaseReturn,
 		List<PurchaseReturnDetailModel> purchaseReturnDetails,
 		bool recover = false,
+		bool keepTransactionNo = false,
 		SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		bool update = purchaseReturn.Id > 0;
@@ -193,7 +219,7 @@ public static class PurchaseReturnData
 		{
 			(MemoryStream, string)? previousInvoice = update && !recover ? PurchaseReturnInvoiceExport.ExportInvoice(await LoadInvoiceBundle(purchaseReturn.Id), InvoiceExportType.PDF) : null;
 
-			purchaseReturn.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(purchaseReturn, purchaseReturnDetails, recover, transaction));
+			purchaseReturn.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(purchaseReturn, purchaseReturnDetails, recover, keepTransactionNo, transaction));
 
 			if (update && !recover)
 				await PurchaseReturnNotify.Notify(purchaseReturn.Id, NotifyType.Updated, previousInvoice);
@@ -201,7 +227,7 @@ public static class PurchaseReturnData
 			return purchaseReturn.Id;
 		}
 
-		purchaseReturn = await ValidateTransaction(purchaseReturn, update, sqlDataAccessTransaction);
+		purchaseReturn = await ValidateTransaction(purchaseReturn, update, keepTransactionNo, sqlDataAccessTransaction);
 		ValidateItemDetails(purchaseReturn, purchaseReturnDetails);
 
 		var previousPurchaseReturn = update && !recover ? await CommonData.LoadTableDataById<PurchaseReturnOverviewModel>(InventoryNames.PurchaseReturnOverview, purchaseReturn.Id, sqlDataAccessTransaction) : new();
@@ -212,6 +238,7 @@ public static class PurchaseReturnData
 		await SaveRawMaterialStock(purchaseReturn, purchaseReturnDetails, sqlDataAccessTransaction);
 		await SaveAccounting(purchaseReturn, sqlDataAccessTransaction);
 		await SaveAuditTrail(purchaseReturn, update, recover, previousPurchaseReturn, previousPurchaseReturnDetails, sqlDataAccessTransaction);
+		await SaveOfflineQueue(purchaseReturn, purchaseReturnDetails, recover, sqlDataAccessTransaction);
 
 		return purchaseReturn.Id;
 	}
@@ -379,6 +406,18 @@ public static class PurchaseReturnData
 			CreatedPlatform = update ? purchaseReturn.LastModifiedPlatform : purchaseReturn.CreatedPlatform,
 			CreatedLatitude = update ? purchaseReturn.LastModifiedLatitude : purchaseReturn.CreatedLatitude,
 			CreatedLongitude = update ? purchaseReturn.LastModifiedLongitude : purchaseReturn.CreatedLongitude
+		}, sqlDataAccessTransaction);
+	}
+	private static async Task SaveOfflineQueue(PurchaseReturnModel purchaseReturn, List<PurchaseReturnDetailModel> purchaseReturnDetails, bool recover, SqlDataAccessTransaction sqlDataAccessTransaction)
+	{
+		if (!OfflineState.Offline)
+			return;
+
+		await OfflineQueueData.SaveTransaction(new()
+		{
+			TableName = InventoryNames.PurchaseReturn,
+			TransactionNo = purchaseReturn.TransactionNo,
+			Payload = JsonSerializer.Serialize(new PurchaseReturnSaveRequest(purchaseReturn, purchaseReturnDetails, recover, true))
 		}, sqlDataAccessTransaction);
 	}
 	#endregion

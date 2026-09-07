@@ -20,6 +20,6 @@ public class PurchaseEndpoint : ICarterModule
 
 		group.MapPost(nameof(PurchaseData.DeleteTransaction), (PurchaseModel purchase) => PurchaseData.DeleteTransaction(purchase));
 		group.MapPost(nameof(PurchaseData.RecoverTransaction), (PurchaseModel purchase) => PurchaseData.RecoverTransaction(purchase));
-		group.MapPost(nameof(PurchaseData.SaveTransaction), (PurchaseSaveRequest request) => PurchaseData.SaveTransaction(request.Purchase, request.Details, request.Recover));
+		group.MapPost(nameof(PurchaseData.SaveTransaction), (PurchaseSaveRequest request) => PurchaseData.SaveTransaction(request.Purchase, request.Details, request.Recover, request.KeepTransactionNo));
 	}
 }
