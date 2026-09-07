@@ -7,6 +7,7 @@ using PrimeBakes.Data.Payroll.Attendance;
 using PrimeBakes.Data.Payroll.Masters;
 using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Models.Payroll.Masters;
@@ -119,6 +120,9 @@ public static class PayrollData
 
 	private static async Task<EmployeeModel> ValidateTransaction(PayrollModel payroll, List<PayrollDetailModel> payrollDetails, bool update, SqlDataAccessTransaction transaction)
 	{
+		if (OfflineState.Offline)
+			throw new Exception("Payroll cannot be changed while offline.");
+
 		payroll.Remarks = string.IsNullOrWhiteSpace(payroll.Remarks) ? null : payroll.Remarks.Trim();
 
 		if (payroll.EmployeeId <= 0)
@@ -249,6 +253,9 @@ public static class PayrollData
 
 	public static async Task<int> RunPayroll(int payrollMonth, int payrollYear, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
+		if (OfflineState.Offline)
+			throw new Exception("Payroll cannot be changed while offline.");
+
 		if (payrollMonth is < 1 or > 12)
 			throw new InvalidOperationException("Please select a valid month.");
 
@@ -282,6 +289,9 @@ public static class PayrollData
 	public static async Task DeleteTransaction(PayrollModel payroll, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
+			if (OfflineState.Offline)
+				throw new Exception("Payroll cannot be changed while offline.");
+
 			await FinancialYearData.ValidateFinancialYear(payroll.TransactionDateTime, transaction);
 
 			payroll.Status = false;
@@ -309,6 +319,9 @@ public static class PayrollData
 	public static async Task RecoverTransaction(PayrollModel payroll, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
+			if (OfflineState.Offline)
+				throw new Exception("Payroll cannot be changed while offline.");
+
 			await FinancialYearData.ValidateFinancialYear(payroll.TransactionDateTime, transaction);
 
 			var existing = await LoadPayrollOverviewByEmployeeMonthYear(payroll.EmployeeId, payroll.PayrollMonth, payroll.PayrollYear, transaction);

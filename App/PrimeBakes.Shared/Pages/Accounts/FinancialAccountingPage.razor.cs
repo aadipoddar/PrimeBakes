@@ -141,12 +141,16 @@ public partial class FinancialAccountingPage
 		var currentDateTime = await CommonData.LoadCurrentDateTime();
 		var financialYear = await FinancialYearData.LoadFinancialYearByDateTime(currentDateTime);
 
+		var lastAccounting = financialYear is null
+			? null
+			: await CommonData.LoadLastTableDataByFinancialYear<FinancialAccountingModel>(AccountNames.FinancialAccounting, financialYear.Id);
+
 		_accounting = new()
 		{
 			Id = 0,
 			TransactionNo = string.Empty,
 			CompanyId = _selectedCompany.Id,
-			TransactionDateTime = currentDateTime,
+			TransactionDateTime = lastAccounting?.TransactionDateTime ?? currentDateTime,
 			ReferenceId = null,
 			ReferenceNo = null,
 			VoucherId = _selectedVoucher.Id,

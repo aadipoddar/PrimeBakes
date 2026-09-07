@@ -7,12 +7,6 @@ public static class ProductLocationData
 {
 	private static readonly string _endpoint = Helper.SanitizeClassName(nameof(ProductLocationData));
 
-	public static async Task<int> InsertProductLocation(ProductLocationModel productLocation) =>
-		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(InsertProductLocation)), productLocation);
-
-	public static async Task<int> DeleteProductLocationById(int id) =>
-		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteProductLocationById)), new { }, new { id });
-
 	public static async Task<List<ProductLocationOverviewModel>> LoadProductLocationOverviewByProductLocationDate(int? ProductId = null, int? LocationId = null, DateOnly? Date = null, bool useLocalDB = false) =>
 		await ApiClient.Get<List<ProductLocationOverviewModel>>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadProductLocationOverviewByProductLocationDate)), new { ProductId, LocationId, Date, useLocalDB });
 

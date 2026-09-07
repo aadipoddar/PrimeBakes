@@ -7,9 +7,6 @@ public static class ProductStockData
 {
 	private static readonly string _endpoint = Helper.SanitizeClassName(nameof(ProductStockData));
 
-	public static async Task<int> DeleteProductStockByTransactionNo(string TransactionNo) =>
-		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteProductStockByTransactionNo)), new { }, new { TransactionNo });
-
 	public static async Task<List<ProductStockModel>> LoadProductOpeningStockByDateLocationId(DateTime FromDate, int LocationId, bool useLocalDB = false) =>
 		await ApiClient.Get<List<ProductStockModel>>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadProductOpeningStockByDateLocationId)), new { FromDate, LocationId, useLocalDB });
 

@@ -5,8 +5,10 @@ using PrimeBakes.Data.Operations.AuditTrail;
 using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Data.Operations.Terminal;
 using PrimeBakes.Data.Operations.User;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Operations.Settings;
+using PrimeBakes.Models.Operations.Terminal;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Shared.Services.Device;
 using PrimeBakes.Shared.Services.Notification;
@@ -91,7 +93,9 @@ public class AuthenticationService(IDataStorageService dataStorageService, Navig
 
 		try
 		{
-			await TerminalData.SaveTransaction(new() { MachineId = machineId, MachineName = machineName, UserId = user.Id });
+			TerminalModel terminal = new() { MachineId = machineId, MachineName = machineName, UserId = user.Id };
+			await TerminalData.SaveTransaction(terminal);
+			OfflineState.TerminalNo = terminal.TerminalNo;
 		}
 		catch { }
 	}

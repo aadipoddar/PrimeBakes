@@ -12,12 +12,6 @@ public class ProductLocationEndpoint : ICarterModule
 		var endpoint = Helper.SanitizeClassName(nameof(ProductLocationEndpoint));
 		var group = app.MapGroup(endpoint).WithTags(endpoint).CacheOutput(ApiCachePolicy.Instance);
 
-		group.MapPost(nameof(ProductLocationData.InsertProductLocation),
-			(ProductLocationModel productLocation) => ProductLocationData.InsertProductLocation(productLocation));
-
-		group.MapPost(nameof(ProductLocationData.DeleteProductLocationById),
-			(int id) => ProductLocationData.DeleteProductLocationById(id));
-
 		group.MapGet(nameof(ProductLocationData.LoadProductLocationOverviewByProductLocationDate),
 			(int? ProductId, int? LocationId, DateOnly? Date, bool useLocalDB) => ProductLocationData.LoadProductLocationOverviewByProductLocationDate(ProductId, LocationId, Date, null, useLocalDB));
 

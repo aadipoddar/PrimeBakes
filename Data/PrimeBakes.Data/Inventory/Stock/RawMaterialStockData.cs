@@ -8,6 +8,7 @@ using PrimeBakes.Data.Inventory.Recipe;
 using PrimeBakes.Data.Operations.AuditTrail;
 using PrimeBakes.Data.Utils.Mail;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Inventory.Kitchen.KitchenIssue;
 using PrimeBakes.Models.Inventory.Purchase;
 using PrimeBakes.Models.Inventory.RawMaterial;
@@ -29,7 +30,7 @@ public static class RawMaterialStockData
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.DeleteRawMaterialStockById, new { Id }, sqlDataAccessTransaction)).FirstOrDefault()
 			is var result and > 0 ? result : throw new InvalidOperationException("Failed to Delete Raw Material Stock.");
 
-	public static async Task<int> DeleteRawMaterialStockByTransactionNo(string TransactionNo, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+	internal static async Task<int> DeleteRawMaterialStockByTransactionNo(string TransactionNo, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.DeleteRawMaterialStockByTransactionNo, new { TransactionNo }, sqlDataAccessTransaction)).FirstOrDefault()
 			is var result and > 0 ? result : throw new InvalidOperationException("Failed to Delete Raw Material Stock.");
 
@@ -169,6 +170,9 @@ public static class RawMaterialStockData
 	#region Delete
 	public static async Task DeleteRawMaterialStockAdjustment(int id, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
+		if (OfflineState.Offline)
+			throw new Exception("Stock cannot be changed while offline.");
+
 		var stock = await CommonData.LoadTableDataById<RawMaterialStockModel>(InventoryNames.RawMaterialStock, id);
 		if (stock is null)
 			return;
@@ -199,6 +203,9 @@ public static class RawMaterialStockData
 	#region Recalculate
 	public static async Task RecalculateStockByDate(DateTime fromDate, DateTime toDate, bool deleteAdjustments, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
+		if (OfflineState.Offline)
+			throw new Exception("Stock cannot be changed while offline.");
+
 		await FinancialYearData.ValidateFinancialYear(fromDate);
 		await FinancialYearData.ValidateFinancialYear(toDate);
 
@@ -396,6 +403,9 @@ public static class RawMaterialStockData
 
 	public static async Task SaveRawMaterialStockAdjustment(DateTime transactionDateTime, List<RawMaterialStockAdjustmentCartModel> cart, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
+		if (OfflineState.Offline)
+			throw new Exception("Stock cannot be changed while offline.");
+
 		await FinancialYearData.ValidateFinancialYear(transactionDateTime);
 
 		var transactionNo = await GenerateCodes.GenerateRawMaterialStockAdjustmentTransactionNo(transactionDateTime);

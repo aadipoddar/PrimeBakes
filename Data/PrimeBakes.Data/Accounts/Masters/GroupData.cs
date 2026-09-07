@@ -2,6 +2,7 @@ using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Operations.AuditTrail;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.AuditTrail;
 
 namespace PrimeBakes.Data.Accounts.Masters;
@@ -15,6 +16,9 @@ public static class GroupData
 	public static async Task DeleteTransaction(GroupModel group, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
+			if (OfflineState.Offline)
+				throw new Exception("Masters cannot be changed while offline.");
+
 			group.Status = false;
 			await InsertGroup(group, transaction);
 			await AuditTrailData.SaveAuditTrail(new()
@@ -33,6 +37,9 @@ public static class GroupData
 	public static async Task RecoverTransaction(GroupModel group, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
+			if (OfflineState.Offline)
+				throw new Exception("Masters cannot be changed while offline.");
+
 			group.Status = true;
 			await InsertGroup(group, transaction);
 			await AuditTrailData.SaveAuditTrail(new()
@@ -50,6 +57,9 @@ public static class GroupData
 
 	private static async Task ValidateTransaction(GroupModel item)
 	{
+		if (OfflineState.Offline)
+			throw new Exception("Masters cannot be changed while offline.");
+
 		item.Name = item.Name?.Trim().ToUpper() ?? string.Empty;
 		item.Nature = item.Nature?.Trim();
 		item.Remarks = string.IsNullOrWhiteSpace(item.Remarks) ? null : item.Remarks.Trim();

@@ -2,6 +2,7 @@ using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Operations.AuditTrail;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.AuditTrail;
 
 namespace PrimeBakes.Data.Accounts.Masters;
@@ -15,6 +16,9 @@ public static class AccountTypeData
 	public static async Task DeleteTransaction(AccountTypeModel accountType, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
+			if (OfflineState.Offline)
+				throw new Exception("Masters cannot be changed while offline.");
+
 			accountType.Status = false;
 			await InsertAccountType(accountType, transaction);
 			await AuditTrailData.SaveAuditTrail(new()
@@ -33,6 +37,9 @@ public static class AccountTypeData
 	public static async Task RecoverTransaction(AccountTypeModel accountType, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
+			if (OfflineState.Offline)
+				throw new Exception("Masters cannot be changed while offline.");
+
 			accountType.Status = true;
 			await InsertAccountType(accountType, transaction);
 			await AuditTrailData.SaveAuditTrail(new()
@@ -50,6 +57,9 @@ public static class AccountTypeData
 
 	private static async Task ValidateTransaction(AccountTypeModel item)
 	{
+		if (OfflineState.Offline)
+			throw new Exception("Masters cannot be changed while offline.");
+
 		item.Name = item.Name?.Trim().ToUpper() ?? string.Empty;
 		item.Remarks = string.IsNullOrWhiteSpace(item.Remarks) ? null : item.Remarks.Trim();
 		item.Status = true;

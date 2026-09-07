@@ -127,7 +127,8 @@ public partial class Dashboard
 		if (Platform.Contains("Android") || Factor is "Web" or "Wasm")
 			_ = NotificationService.RegisterDevicePushNotification(_user.Id.ToString());
 
-		await LoadBackupReminder();
+		if (!OfflineState.Offline)
+			await LoadBackupReminder();
 	}
 
 	private async Task LoadBackupReminder()

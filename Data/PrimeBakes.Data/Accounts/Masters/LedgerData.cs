@@ -2,6 +2,7 @@ using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Operations.AuditTrail;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.AuditTrail;
 
 namespace PrimeBakes.Data.Accounts.Masters;
@@ -15,6 +16,9 @@ public static class LedgerData
 	public static async Task DeleteTransaction(LedgerModel ledger, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
+			if (OfflineState.Offline)
+				throw new Exception("Masters cannot be changed while offline.");
+
 			ledger.Status = false;
 			await InsertLedger(ledger, transaction);
 			await AuditTrailData.SaveAuditTrail(new()
@@ -33,6 +37,9 @@ public static class LedgerData
 	public static async Task RecoverTransaction(LedgerModel ledger, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
+			if (OfflineState.Offline)
+				throw new Exception("Masters cannot be changed while offline.");
+
 			ledger.Status = true;
 			await InsertLedger(ledger, transaction);
 			await AuditTrailData.SaveAuditTrail(new()
@@ -50,6 +57,9 @@ public static class LedgerData
 
 	private static async Task ValidateTransaction(LedgerModel item)
 	{
+		if (OfflineState.Offline)
+			throw new Exception("Masters cannot be changed while offline.");
+
 		item.Name = item.Name?.Trim().ToUpper() ?? string.Empty;
 		item.Code = item.Code?.Trim().ToUpper() ?? string.Empty;
 		item.GSTNo = string.IsNullOrWhiteSpace(item.GSTNo) ? null : item.GSTNo.Trim();

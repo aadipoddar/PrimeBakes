@@ -11,7 +11,6 @@ public class ProductEndpoint : ICarterModule
 		var endpoint = Helper.SanitizeClassName(nameof(ProductEndpoint));
 		var group = app.MapGroup(endpoint).WithTags(endpoint);
 
-		group.MapPost(nameof(ProductData.InsertProduct), (ProductModel product) => ProductData.InsertProduct(product));
 		group.MapPost(nameof(ProductData.DeleteTransaction), ProductData.DeleteTransaction);
 		group.MapPost(nameof(ProductData.RecoverTransaction), ProductData.RecoverTransaction);
 

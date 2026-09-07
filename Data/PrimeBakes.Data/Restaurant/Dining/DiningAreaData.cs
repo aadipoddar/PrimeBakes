@@ -1,6 +1,7 @@
 using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Operations.AuditTrail;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Restaurant.Dining;
 
@@ -8,13 +9,16 @@ namespace PrimeBakes.Data.Restaurant.Dining;
 
 public static class DiningAreaData
 {
-	public static async Task<int> InsertDiningArea(DiningAreaModel diningArea, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+	private static async Task<int> InsertDiningArea(DiningAreaModel diningArea, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(RestaurantNames.InsertDiningArea, diningArea, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Dining Area.");
 
 	public static async Task DeleteTransaction(DiningAreaModel diningArea, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
+			if (OfflineState.Offline)
+				throw new Exception("Masters cannot be changed while offline.");
+
 			diningArea.Status = false;
 			await InsertDiningArea(diningArea, transaction);
 			await AuditTrailData.SaveAuditTrail(new()
@@ -33,6 +37,9 @@ public static class DiningAreaData
 	public static async Task RecoverTransaction(DiningAreaModel diningArea, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
+			if (OfflineState.Offline)
+				throw new Exception("Masters cannot be changed while offline.");
+
 			diningArea.Status = true;
 			await InsertDiningArea(diningArea, transaction);
 			await AuditTrailData.SaveAuditTrail(new()
@@ -50,6 +57,9 @@ public static class DiningAreaData
 
 	private static async Task ValidateTransaction(DiningAreaModel item)
 	{
+		if (OfflineState.Offline)
+			throw new Exception("Masters cannot be changed while offline.");
+
 		item.Name = item.Name?.Trim().ToUpper() ?? string.Empty;
 		item.Remarks = string.IsNullOrWhiteSpace(item.Remarks) ? null : item.Remarks.Trim();
 		item.Status = true;

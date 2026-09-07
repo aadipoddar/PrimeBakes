@@ -1,6 +1,7 @@
 ﻿using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Operations.AuditTrail;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Payroll.Masters;
 
@@ -15,6 +16,9 @@ public static class DepartmentData
 	public static async Task DeleteTransaction(DepartmentModel department, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
+			if (OfflineState.Offline)
+				throw new Exception("Masters cannot be changed while offline.");
+
 			department.Status = false;
 			await InsertDepartment(department, transaction);
 			await AuditTrailData.SaveAuditTrail(new()
@@ -33,6 +37,9 @@ public static class DepartmentData
 	public static async Task RecoverTransaction(DepartmentModel department, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
+			if (OfflineState.Offline)
+				throw new Exception("Masters cannot be changed while offline.");
+
 			department.Status = true;
 			await InsertDepartment(department, transaction);
 			await AuditTrailData.SaveAuditTrail(new()
@@ -50,6 +57,9 @@ public static class DepartmentData
 
 	private static async Task ValidateTransaction(DepartmentModel item)
 	{
+		if (OfflineState.Offline)
+			throw new Exception("Masters cannot be changed while offline.");
+
 		item.Code = item.Code?.Trim().ToUpper() ?? string.Empty;
 		item.Name = item.Name?.Trim().ToUpper() ?? string.Empty;
 		item.Remarks = string.IsNullOrWhiteSpace(item.Remarks) ? null : item.Remarks.Trim();

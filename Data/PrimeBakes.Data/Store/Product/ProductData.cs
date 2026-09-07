@@ -1,6 +1,7 @@
 using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Operations.AuditTrail;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Operations.Location;
 using PrimeBakes.Models.Store.Product;
@@ -9,13 +10,16 @@ namespace PrimeBakes.Data.Store.Product;
 
 public static class ProductData
 {
-	public static async Task<int> InsertProduct(ProductModel product, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+	private static async Task<int> InsertProduct(ProductModel product, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertProduct, product, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Product.");
 
 	public static async Task DeleteTransaction(ProductModel product, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
+			if (OfflineState.Offline)
+				throw new Exception("Masters cannot be changed while offline.");
+
 			var productLocations = await ProductLocationData.LoadProductLocationOverviewByProductLocationDate(product.Id, null, null, transaction);
 			foreach (var pl in productLocations)
 				await ProductLocationData.DeleteProductLocationById(pl.Id, transaction);
@@ -39,6 +43,9 @@ public static class ProductData
 	public static async Task RecoverTransaction(ProductModel product, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
+			if (OfflineState.Offline)
+				throw new Exception("Masters cannot be changed while offline.");
+
 			product.Status = true;
 			await InsertProduct(product, transaction);
 			await AuditTrailData.SaveAuditTrail(new()
@@ -56,6 +63,9 @@ public static class ProductData
 
 	private static async Task ValidateTransaction(ProductModel item)
 	{
+		if (OfflineState.Offline)
+			throw new Exception("Masters cannot be changed while offline.");
+
 		item.Name = item.Name?.Trim().ToUpper() ?? string.Empty;
 		item.Code = item.Code?.Trim().ToUpper() ?? string.Empty;
 		item.FoodType = item.FoodType?.Trim() ?? string.Empty;

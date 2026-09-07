@@ -7,9 +7,6 @@ public static class RawMaterialStockData
 {
 	private static readonly string _endpoint = Helper.SanitizeClassName(nameof(RawMaterialStockData));
 
-	public static async Task<int> DeleteRawMaterialStockByTransactionNo(string TransactionNo) =>
-		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteRawMaterialStockByTransactionNo)), new { }, new { TransactionNo });
-
 	public static async Task<List<RawMaterialStockModel>> LoadRawMaterialOpeningStockByDate(DateTime FromDate, bool useLocalDB = false) =>
 		await ApiClient.Get<List<RawMaterialStockModel>>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadRawMaterialOpeningStockByDate)), new { FromDate, useLocalDB });
 

@@ -1,6 +1,7 @@
 using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Operations.AuditTrail;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Inventory.RawMaterial;
 using PrimeBakes.Models.Operations.AuditTrail;
 
@@ -8,13 +9,16 @@ namespace PrimeBakes.Data.Inventory.RawMaterial;
 
 public static class RawMaterialData
 {
-	public static async Task<int> InsertRawMaterial(RawMaterialModel rawMaterial, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+	internal static async Task<int> InsertRawMaterial(RawMaterialModel rawMaterial, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertRawMaterial, rawMaterial, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Raw Material.");
 
 	public static async Task DeleteTransaction(RawMaterialModel rawMaterial, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
+			if (OfflineState.Offline)
+				throw new Exception("Masters cannot be changed while offline.");
+
 			rawMaterial.Status = false;
 			await InsertRawMaterial(rawMaterial, transaction);
 			await AuditTrailData.SaveAuditTrail(new()
@@ -33,6 +37,9 @@ public static class RawMaterialData
 	public static async Task RecoverTransaction(RawMaterialModel rawMaterial, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
+			if (OfflineState.Offline)
+				throw new Exception("Masters cannot be changed while offline.");
+
 			rawMaterial.Status = true;
 			await InsertRawMaterial(rawMaterial, transaction);
 			await AuditTrailData.SaveAuditTrail(new()
@@ -50,6 +57,9 @@ public static class RawMaterialData
 
 	private static async Task ValidateTransaction(RawMaterialModel item)
 	{
+		if (OfflineState.Offline)
+			throw new Exception("Masters cannot be changed while offline.");
+
 		item.Name = item.Name?.Trim().ToUpper() ?? string.Empty;
 		item.Code = item.Code?.Trim().ToUpper() ?? string.Empty;
 		item.UnitOfMeasurement = item.UnitOfMeasurement?.Trim().ToUpper() ?? string.Empty;

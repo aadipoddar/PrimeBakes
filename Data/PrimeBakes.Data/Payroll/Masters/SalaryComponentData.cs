@@ -1,6 +1,7 @@
 ﻿using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Operations.AuditTrail;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Payroll.Masters;
 
@@ -15,6 +16,9 @@ public static class SalaryComponentData
 	public static async Task DeleteTransaction(SalaryComponentModel salaryComponent, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
+			if (OfflineState.Offline)
+				throw new Exception("Masters cannot be changed while offline.");
+
 			salaryComponent.Status = false;
 			await InsertSalaryComponent(salaryComponent, transaction);
 			await AuditTrailData.SaveAuditTrail(new()
@@ -33,6 +37,9 @@ public static class SalaryComponentData
 	public static async Task RecoverTransaction(SalaryComponentModel salaryComponent, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
+			if (OfflineState.Offline)
+				throw new Exception("Masters cannot be changed while offline.");
+
 			salaryComponent.Status = true;
 			await InsertSalaryComponent(salaryComponent, transaction);
 			await AuditTrailData.SaveAuditTrail(new()
@@ -50,6 +57,9 @@ public static class SalaryComponentData
 
 	private static async Task ValidateTransaction(SalaryComponentModel item)
 	{
+		if (OfflineState.Offline)
+			throw new Exception("Masters cannot be changed while offline.");
+
 		item.Name = item.Name?.Trim().ToUpper() ?? string.Empty;
 		item.Code = item.Code?.Trim().ToUpper() ?? string.Empty;
 		item.ComponentType = item.ComponentType?.Trim() ?? string.Empty;

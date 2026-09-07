@@ -11,9 +11,6 @@ public class ProductStockEndpoint : ICarterModule
 		var endpoint = Helper.SanitizeClassName(nameof(ProductStockEndpoint));
 		var group = app.MapGroup(endpoint).WithTags(endpoint);
 
-		group.MapPost(nameof(ProductStockData.DeleteProductStockByTransactionNo),
-			(string TransactionNo) => ProductStockData.DeleteProductStockByTransactionNo(TransactionNo));
-
 		group.MapGet(nameof(ProductStockData.LoadProductOpeningStockByDateLocationId),
 			(DateTime FromDate, int LocationId, bool useLocalDB) => ProductStockData.LoadProductOpeningStockByDateLocationId(FromDate, LocationId, useLocalDB));
 

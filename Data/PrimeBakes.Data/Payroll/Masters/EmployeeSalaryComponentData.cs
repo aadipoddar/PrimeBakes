@@ -1,6 +1,7 @@
 using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Operations.AuditTrail;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Payroll.Masters;
 
@@ -8,11 +9,11 @@ namespace PrimeBakes.Data.Payroll.Masters;
 
 public static class EmployeeSalaryComponentData
 {
-	public static async Task<int> InsertEmployeeSalaryComponent(EmployeeSalaryComponentModel employeeSalaryComponent, SqlDataAccessTransaction transaction = null) =>
+	private static async Task<int> InsertEmployeeSalaryComponent(EmployeeSalaryComponentModel employeeSalaryComponent, SqlDataAccessTransaction transaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(PayrollNames.InsertEmployeeSalaryComponent, employeeSalaryComponent, transaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Employee Salary Component.");
 
-	public static async Task<int> DeleteEmployeeSalaryComponentById(int id, SqlDataAccessTransaction transaction = null) =>
+	private static async Task<int> DeleteEmployeeSalaryComponentById(int id, SqlDataAccessTransaction transaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(PayrollNames.DeleteEmployeeSalaryComponentById, new { Id = id }, transaction)).FirstOrDefault()
 			is var result and > 0 ? result : throw new InvalidOperationException("Failed to Delete Employee Salary Component.");
 
@@ -42,6 +43,9 @@ public static class EmployeeSalaryComponentData
 	public static async Task DeleteTransaction(EmployeeSalaryComponentOverviewModel employeeSalaryComponent, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
+			if (OfflineState.Offline)
+				throw new Exception("Masters cannot be changed while offline.");
+
 			await DeleteEmployeeSalaryComponentById(employeeSalaryComponent.Id, transaction);
 			await AuditTrailData.SaveAuditTrail(new()
 			{
@@ -58,6 +62,9 @@ public static class EmployeeSalaryComponentData
 
 	public static async Task DiscontinueTransaction(EmployeeSalaryComponentOverviewModel employeeSalaryComponent, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
+		if (OfflineState.Offline)
+			throw new Exception("Masters cannot be changed while offline.");
+
 		var existing = await LoadEmployeeSalaryComponentOverviewByEmployeeSalaryComponentDate(employeeSalaryComponent.EmployeeId, employeeSalaryComponent.SalaryComponentId);
 
 		await SqlDataAccessTransaction.Run(async transaction =>
@@ -81,6 +88,9 @@ public static class EmployeeSalaryComponentData
 
 	private static async Task<SalaryComponentModel> ValidateTransaction(EmployeeSalaryComponentModel item)
 	{
+		if (OfflineState.Offline)
+			throw new Exception("Masters cannot be changed while offline.");
+
 		item.Formula = string.IsNullOrWhiteSpace(item.Formula) ? null : item.Formula.Trim();
 		item.Remarks = string.IsNullOrWhiteSpace(item.Remarks) ? null : item.Remarks.Trim();
 

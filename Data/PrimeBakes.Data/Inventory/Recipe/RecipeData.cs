@@ -1,6 +1,7 @@
 ﻿using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Operations.AuditTrail;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Inventory.Recipe;
 using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Store.Product;
@@ -9,7 +10,6 @@ namespace PrimeBakes.Data.Inventory.Recipe;
 
 public static class RecipeData
 {
-
 	private static async Task<int> InsertRecipe(RecipeModel recipe, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.InsertRecipe, recipe, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Recipe.");
@@ -45,6 +45,9 @@ public static class RecipeData
 	#region Delete
 	public static async Task DeleteTransaction(RecipeModel recipe, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
+		if (OfflineState.Offline)
+			throw new Exception("Recipes cannot be changed while offline.");
+
 		if (sqlDataAccessTransaction is null)
 		{
 			await SqlDataAccessTransaction.Run(transaction => DeleteTransaction(recipe, userId, formFactor, platform, latitude, longitude, transaction));
@@ -72,6 +75,9 @@ public static class RecipeData
 	#region Save
 	private static async Task ValidateTransaction(RecipeModel recipe, List<RecipeDetailModel> recipeDetails, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
+		if (OfflineState.Offline)
+			throw new Exception("Recipes cannot be changed while offline.");
+
 		if (recipe.ProductId <= 0)
 			throw new InvalidOperationException("Please select a product for the recipe.");
 

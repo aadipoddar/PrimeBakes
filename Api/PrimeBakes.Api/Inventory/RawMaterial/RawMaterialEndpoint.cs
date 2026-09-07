@@ -11,7 +11,6 @@ public class RawMaterialEndpoint : ICarterModule
 		var endpoint = Helper.SanitizeClassName(nameof(RawMaterialEndpoint));
 		var group = app.MapGroup(endpoint).WithTags(endpoint);
 
-		group.MapPost(nameof(RawMaterialData.InsertRawMaterial), (RawMaterialModel rawMaterial) => RawMaterialData.InsertRawMaterial(rawMaterial));
 
 		group.MapPost(nameof(RawMaterialData.DeleteTransaction), RawMaterialData.DeleteTransaction);
 		group.MapPost(nameof(RawMaterialData.RecoverTransaction), RawMaterialData.RecoverTransaction);

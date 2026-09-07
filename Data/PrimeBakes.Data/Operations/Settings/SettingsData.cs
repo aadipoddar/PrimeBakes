@@ -1,6 +1,7 @@
 ﻿using PrimeBakes.Data.Common;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.Settings;
 
 namespace PrimeBakes.Data.Operations.Settings;
@@ -19,11 +20,21 @@ public static class SettingsData
 			: null;
 	}
 
-	public static async Task<int> UpdateSettings(SettingsModel settingsModel) =>
-		(await SqlDataAccess.LoadData<int, dynamic>(OperationNames.UpdateSettings, settingsModel)).FirstOrDefault()
-			is var result and > 0 ? result : throw new InvalidOperationException("Failed to Update Settings.");
+	public static async Task<int> UpdateSettings(SettingsModel settingsModel)
+	{
+		if (OfflineState.Offline)
+			throw new Exception("Masters cannot be changed while offline.");
 
-	public static async Task<int> ResetSettings() =>
-		(await SqlDataAccess.LoadData<int, dynamic>(OperationNames.ResetSettings, new { })).FirstOrDefault()
+		return (await SqlDataAccess.LoadData<int, dynamic>(OperationNames.UpdateSettings, settingsModel)).FirstOrDefault()
+			is var result and > 0 ? result : throw new InvalidOperationException("Failed to Update Settings.");
+	}
+
+	public static async Task<int> ResetSettings()
+	{
+		if (OfflineState.Offline)
+			throw new Exception("Masters cannot be changed while offline.");
+
+		return (await SqlDataAccess.LoadData<int, dynamic>(OperationNames.ResetSettings, new { })).FirstOrDefault()
 			is var result and > 0 ? result : throw new InvalidOperationException("Failed to Reset Settings.");
+	}
 }

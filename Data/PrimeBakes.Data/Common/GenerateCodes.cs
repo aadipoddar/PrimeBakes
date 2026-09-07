@@ -3,6 +3,7 @@ using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Models.Accounts.FinancialAccounting;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Inventory.Kitchen.KitchenIssue;
 using PrimeBakes.Models.Inventory.Kitchen.KitchenProduction;
 using PrimeBakes.Models.Inventory.Purchase;
@@ -22,6 +23,8 @@ namespace PrimeBakes.Data.Common;
 
 public static class GenerateCodes
 {
+	private const int _transactionCodeSuffixLength = 6;
+
 	private sealed class TransactionNoRow
 	{
 		public string TransactionNo { get; set; }
@@ -58,11 +61,16 @@ public static class GenerateCodes
 
 		var lastTransactionNo = lastTransaction?.TransactionNo;
 		var lastNumber = lastTransactionNo is not null
-			&& lastTransactionNo.Length == prefix.Length + 6
+			&& lastTransactionNo.Length >= prefix.Length + _transactionCodeSuffixLength
 			&& lastTransactionNo.StartsWith(prefix)
-			&& int.TryParse(lastTransactionNo[prefix.Length..], out int number) ? number : 0;
+			&& int.TryParse(lastTransactionNo.AsSpan(prefix.Length, _transactionCodeSuffixLength), out int number) ? number : 0;
 
-		return await CheckDuplicateCode(n => $"{prefix}{n:D6}", lastNumber + 1, codeType, sqlDataAccessTransaction);
+		if (OfflineState.Offline && OfflineState.TerminalNo <= 0)
+			throw new Exception("This terminal is not registered. A transaction number cannot be generated while offline.");
+
+		var terminalSuffix = OfflineState.Offline ? $"T{OfflineState.TerminalNo}" : string.Empty;
+
+		return await CheckDuplicateCode(n => $"{prefix}{n.ToString($"D{_transactionCodeSuffixLength}")}{terminalSuffix}", lastNumber + 1, codeType, sqlDataAccessTransaction);
 	}
 
 	private static async Task<string> CheckDuplicateCode(Func<int, string> buildCode, int number, CodeType type, SqlDataAccessTransaction sqlDataAccessTransaction = null)

@@ -9,6 +9,7 @@ using PrimeBakes.Data.Operations.Location;
 using PrimeBakes.Data.Store.Product;
 using PrimeBakes.Data.Utils.Mail;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Inventory.Kitchen.KitchenProduction;
 using PrimeBakes.Models.Inventory.Stock;
 using PrimeBakes.Models.Operations.AuditTrail;
@@ -29,7 +30,7 @@ public static class ProductStockData
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.DeleteProductStockById, new { Id }, sqlDataAccessTransaction)).FirstOrDefault()
 			is var result and > 0 ? result : throw new InvalidOperationException("Failed to Delete Product Stock.");
 
-	public static async Task<int> DeleteProductStockByTransactionNo(string TransactionNo, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+	internal static async Task<int> DeleteProductStockByTransactionNo(string TransactionNo, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(InventoryNames.DeleteProductStockByTransactionNo, new { TransactionNo }, sqlDataAccessTransaction)).FirstOrDefault()
 			is var result and > 0 ? result : throw new InvalidOperationException("Failed to Delete Product Stock.");
 
@@ -176,6 +177,9 @@ public static class ProductStockData
 	#region Delete
 	public static async Task DeleteProductStockAdjustment(int id, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
+		if (OfflineState.Offline)
+			throw new Exception("Stock cannot be changed while offline.");
+
 		var stock = await CommonData.LoadTableDataById<ProductStockModel>(InventoryNames.ProductStock, id);
 		if (stock is null)
 			return;
@@ -206,6 +210,9 @@ public static class ProductStockData
 	#region Recalculate
 	public static async Task RecalculateStockByDateLocation(DateTime fromDate, DateTime toDate, int locationId, bool deleteAdjustments, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
+		if (OfflineState.Offline)
+			throw new Exception("Stock cannot be changed while offline.");
+
 		await FinancialYearData.ValidateFinancialYear(fromDate);
 		await FinancialYearData.ValidateFinancialYear(toDate);
 
@@ -408,6 +415,9 @@ public static class ProductStockData
 
 	public static async Task SaveProductStockAdjustment(DateTime transactionDateTime, int locationId, List<ProductStockAdjustmentCartModel> cart, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
+		if (OfflineState.Offline)
+			throw new Exception("Stock cannot be changed while offline.");
+
 		await FinancialYearData.ValidateFinancialYear(transactionDateTime);
 
 		var transactionNo = await GenerateCodes.GenerateProductStockAdjustmentTransactionNo(transactionDateTime, locationId);

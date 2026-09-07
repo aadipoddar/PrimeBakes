@@ -1,5 +1,6 @@
 ﻿using PrimeBakes.Data.Common;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Operations.User;
 
@@ -26,6 +27,9 @@ public static class AuditTrailData
 
 	public static async Task<int> DeleteAuditTrailByDate(DateTime StartDate, DateTime EndDate, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
+		if (OfflineState.Offline)
+			throw new Exception("Masters cannot be changed while offline.");
+
 		var deleted = (await SqlDataAccess.LoadData<int, dynamic>(OperationNames.DeleteAuditTrailByDate, new { StartDate, EndDate })).FirstOrDefault();
 
 		await SaveAuditTrail(new()

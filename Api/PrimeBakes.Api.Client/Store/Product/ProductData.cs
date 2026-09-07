@@ -8,9 +8,6 @@ public static class ProductData
 {
 	private static readonly string _endpoint = Helper.SanitizeClassName(nameof(ProductData));
 
-	public static async Task<int> InsertProduct(ProductModel product) =>
-		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(InsertProduct)), product);
-
 	public static async Task DeleteTransaction(ProductModel product, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteTransaction)), product, new { userId, formFactor, platform, latitude, longitude });
 

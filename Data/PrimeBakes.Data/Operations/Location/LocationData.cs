@@ -3,6 +3,7 @@ using PrimeBakes.Data.Operations.AuditTrail;
 using PrimeBakes.Data.Store.Product;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Operations.Location;
 using PrimeBakes.Models.Store.Product;
@@ -29,6 +30,9 @@ public static class LocationData
 
 	public static async Task DeleteTransaction(LocationModel location, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
+		if (OfflineState.Offline)
+			throw new Exception("Masters cannot be changed while offline.");
+
 		if (location.Id == 1)
 			throw new Exception("Cannot delete the main location.");
 
@@ -58,6 +62,9 @@ public static class LocationData
 	public static async Task RecoverTransaction(LocationModel location, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
+			if (OfflineState.Offline)
+				throw new Exception("Masters cannot be changed while offline.");
+
 			location.Status = true;
 			await InsertLocation(location, transaction);
 			await AuditTrailData.SaveAuditTrail(new()
@@ -75,6 +82,9 @@ public static class LocationData
 
 	private static async Task ValidateTransaction(LocationModel item)
 	{
+		if (OfflineState.Offline)
+			throw new Exception("Masters cannot be changed while offline.");
+
 		item.Name = item.Name?.Trim().ToUpper() ?? string.Empty;
 		item.Code = item.Code?.Trim().ToUpper().RemoveSpace() ?? string.Empty;
 		item.Remarks = string.IsNullOrWhiteSpace(item.Remarks) ? null : item.Remarks.Trim();

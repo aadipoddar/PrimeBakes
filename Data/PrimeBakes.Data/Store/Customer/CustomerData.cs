@@ -1,6 +1,7 @@
 ﻿using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Operations.AuditTrail;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Store.Customer;
 
@@ -8,7 +9,7 @@ namespace PrimeBakes.Data.Store.Customer;
 
 public static class CustomerData
 {
-	public static async Task<int> InsertCustomer(CustomerModel customer, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+	internal static async Task<int> InsertCustomer(CustomerModel customer, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertCustomer, customer, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Customer.");
 
@@ -17,6 +18,9 @@ public static class CustomerData
 
 	private static async Task ValidateTransaction(CustomerModel item)
 	{
+		if (OfflineState.Offline)
+			throw new Exception("Masters cannot be changed while offline.");
+
 		item.Name = item.Name?.Trim().ToUpper() ?? string.Empty;
 
 		if (string.IsNullOrWhiteSpace(item.Name))

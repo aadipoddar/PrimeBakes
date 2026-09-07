@@ -12,6 +12,7 @@ using PrimeBakes.Exports.Accounts.FinancialAccounting;
 using PrimeBakes.Models.Accounts.FinancialAccounting;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Operations.User;
 
@@ -268,6 +269,9 @@ public static class FinancialAccountingData
 	public static async Task SaveBRSDates(List<FinancialAccountingLedgerModel> changedLines, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
+			if (OfflineState.Offline)
+				throw new Exception("Bank reconciliation cannot be changed while offline.");
+
 			List<FinancialAccountingLedgerModel> updatedLines = [];
 
 			foreach (var line in changedLines)

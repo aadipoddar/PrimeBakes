@@ -2,6 +2,7 @@ using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Operations.AuditTrail;
 using PrimeBakes.Data.Payroll.PayrollRun;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Payroll.Attendance;
 using PrimeBakes.Models.Payroll.Masters;
@@ -19,6 +20,9 @@ public static class AttendanceData
 
 	public static async Task DeleteTransaction(AttendanceModel attendance, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
+		if (OfflineState.Offline)
+			throw new Exception("Attendance cannot be changed while offline.");
+
 		var recordNo = await GetRecordNo(attendance);
 		await EnsureNotProcessed(attendance);
 
@@ -42,6 +46,9 @@ public static class AttendanceData
 
 	public static async Task RecoverTransaction(AttendanceModel attendance, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
+		if (OfflineState.Offline)
+			throw new Exception("Attendance cannot be changed while offline.");
+
 		var recordNo = await GetRecordNo(attendance);
 		await EnsureNotProcessed(attendance);
 
@@ -80,6 +87,9 @@ public static class AttendanceData
 
 	private static async Task<EmployeeModel> ValidateTransaction(AttendanceModel item)
 	{
+		if (OfflineState.Offline)
+			throw new Exception("Attendance cannot be changed while offline.");
+
 		item.Remarks = string.IsNullOrWhiteSpace(item.Remarks) ? null : item.Remarks.Trim();
 		item.Status = true;
 

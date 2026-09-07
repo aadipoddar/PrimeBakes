@@ -7,12 +7,6 @@ public static class EmployeeSalaryComponentData
 {
 	private static readonly string _endpoint = Helper.SanitizeClassName(nameof(EmployeeSalaryComponentData));
 
-	public static async Task<int> InsertEmployeeSalaryComponent(EmployeeSalaryComponentModel employeeSalaryComponent) =>
-		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(InsertEmployeeSalaryComponent)), employeeSalaryComponent);
-
-	public static async Task<int> DeleteEmployeeSalaryComponentById(int id) =>
-		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteEmployeeSalaryComponentById)), new { }, new { id });
-
 	public static async Task<List<EmployeeSalaryComponentOverviewModel>> LoadEmployeeSalaryComponentOverviewByEmployeeSalaryComponentDate(int? EmployeeId = null, int? SalaryComponentId = null, DateOnly? Date = null) =>
 		await ApiClient.Get<List<EmployeeSalaryComponentOverviewModel>>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadEmployeeSalaryComponentOverviewByEmployeeSalaryComponentDate)), new { EmployeeId, SalaryComponentId, Date });
 

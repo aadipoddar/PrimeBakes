@@ -1,6 +1,7 @@
 ﻿using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Operations.AuditTrail;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Operations.Location;
 using PrimeBakes.Models.Store.Product;
@@ -9,11 +10,11 @@ namespace PrimeBakes.Data.Store.Product;
 
 public static class ProductLocationData
 {
-	public static async Task<int> InsertProductLocation(ProductLocationModel productLocation, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+	internal static async Task<int> InsertProductLocation(ProductLocationModel productLocation, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertProductLocation, productLocation, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Product Location.");
 
-	public static async Task<int> DeleteProductLocationById(int id, SqlDataAccessTransaction transaction = null) =>
+	internal static async Task<int> DeleteProductLocationById(int id, SqlDataAccessTransaction transaction = null) =>
 		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.DeleteProductLocationById, new { Id = id }, transaction)).FirstOrDefault()
 			is var result and > 0 ? result : throw new InvalidOperationException("Failed to Delete Product Location.");
 
@@ -23,6 +24,9 @@ public static class ProductLocationData
 	public static async Task DeleteTransaction(ProductLocationOverviewModel productLocation, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await SqlDataAccessTransaction.Run(async transaction =>
 		{
+			if (OfflineState.Offline)
+				throw new Exception("Masters cannot be changed while offline.");
+
 			await DeleteProductLocationById(productLocation.Id, transaction);
 			await AuditTrailData.SaveAuditTrail(new()
 			{
@@ -39,6 +43,9 @@ public static class ProductLocationData
 
 	public static async Task DiscontinueTransaction(ProductLocationOverviewModel productLocation, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
+		if (OfflineState.Offline)
+			throw new Exception("Masters cannot be changed while offline.");
+
 		var existing = await LoadProductLocationOverviewByProductLocationDate(productLocation.ProductId, productLocation.LocationId);
 		var location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, productLocation.LocationId);
 
@@ -63,6 +70,9 @@ public static class ProductLocationData
 
 	private static async Task ValidateTransaction(ProductLocationModel item)
 	{
+		if (OfflineState.Offline)
+			throw new Exception("Masters cannot be changed while offline.");
+
 		if (item.LocationId <= 0)
 			throw new Exception("Location is required. Please select a location.");
 

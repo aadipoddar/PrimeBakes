@@ -40,6 +40,9 @@ public static class SyncData
 	#region Entry Points
 	public static async Task<string> Backup(int userId)
 	{
+		if (OfflineState.Offline)
+			throw new InvalidOperationException("Cannot sync while offline.");
+
 		var previousBackup = await LoadLastBackupDate();
 		var result = await RunSync(Secrets.AzureTestingConnectionString, _backupMarker);
 

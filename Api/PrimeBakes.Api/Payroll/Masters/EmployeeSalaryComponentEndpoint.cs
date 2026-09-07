@@ -12,12 +12,6 @@ public class EmployeeSalaryComponentEndpoint : ICarterModule
 		var endpoint = Helper.SanitizeClassName(nameof(EmployeeSalaryComponentEndpoint));
 		var group = app.MapGroup(endpoint).WithTags(endpoint).CacheOutput(ApiCachePolicy.Instance);
 
-		group.MapPost(nameof(EmployeeSalaryComponentData.InsertEmployeeSalaryComponent),
-			(EmployeeSalaryComponentModel employeeSalaryComponent) => EmployeeSalaryComponentData.InsertEmployeeSalaryComponent(employeeSalaryComponent));
-
-		group.MapPost(nameof(EmployeeSalaryComponentData.DeleteEmployeeSalaryComponentById),
-			(int id) => EmployeeSalaryComponentData.DeleteEmployeeSalaryComponentById(id));
-
 		group.MapGet(nameof(EmployeeSalaryComponentData.LoadEmployeeSalaryComponentOverviewByEmployeeSalaryComponentDate),
 			(int? EmployeeId, int? SalaryComponentId, DateOnly? Date) => EmployeeSalaryComponentData.LoadEmployeeSalaryComponentOverviewByEmployeeSalaryComponentDate(EmployeeId, SalaryComponentId, Date));
 
