@@ -4,6 +4,7 @@ using PrimeBakes.Data.Inventory.Kitchen.KitchenProduction;
 using PrimeBakes.Data.Inventory.Purchase;
 using PrimeBakes.Data.Inventory.PurchaseOrder;
 using PrimeBakes.Data.Store.Order;
+using PrimeBakes.Data.Store.Sale;
 using PrimeBakes.Data.Store.StockTransfer;
 
 using PrimeBakes.Models.Accounts.FinancialAccounting;
@@ -16,7 +17,9 @@ using PrimeBakes.Models.Inventory.PurchaseOrder;
 using PrimeBakes.Models.Inventory.Stock;
 using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Operations.OfflineQueue;
+using PrimeBakes.Models.Store.Customer;
 using PrimeBakes.Models.Store.Order;
+using PrimeBakes.Models.Store.Sale;
 using PrimeBakes.Models.Store.StockTransfer;
 
 using System.Text.Json;
@@ -264,6 +267,80 @@ public static class OfflineQueueData
 			await DeleteLocalTableData(StoreNames.OrderDetail, nameof(OrderDetailModel.MasterId), localId.ToString());
 			await DeleteLocalTableData(StoreNames.Order, nameof(OrderModel.TransactionNo), offlineQueue.TransactionNo);
 			await DeleteLocalTableData(OperationNames.AuditTrail, nameof(AuditTrailModel.RecordNo), offlineQueue.TransactionNo);
+			return;
+		}
+
+		if (offlineQueue.TableName == StoreNames.Sale)
+		{
+			var request = JsonSerializer.Deserialize<SaleSaveRequest>(offlineQueue.Payload);
+
+			var localId = request.Sale.Id;
+			var localAccountingId = request.Sale.FinancialAccountingId ?? 0;
+			var localCustomerId = request.Sale.CustomerId ?? 0;
+
+			request.Sale.Id = 0;
+			request.Sale.FinancialAccountingId = null;
+			request.Sale.CustomerId = null;
+			request.Sale.OrderId = null;
+
+			if (request.Customer is not null)
+				request.Customer.Id = 0;
+
+			foreach (var saleDetail in request.SaleDetails)
+			{
+				saleDetail.Id = 0;
+				saleDetail.MasterId = 0;
+			}
+
+			await SaleData.SaveTransaction(request.Sale, request.SaleDetails, request.Customer, request.Recover, request.KeepTransactionNo);
+			await DeleteOfflineQueueById(offlineQueue.Id);
+			await DeleteLocalTableData(StoreNames.SaleDetail, nameof(SaleDetailModel.MasterId), localId.ToString());
+			await DeleteLocalTableData(StoreNames.Sale, nameof(SaleModel.TransactionNo), offlineQueue.TransactionNo);
+			await DeleteLocalTableData(InventoryNames.ProductStock, nameof(ProductStockModel.TransactionNo), offlineQueue.TransactionNo);
+			await DeleteLocalTableData(InventoryNames.RawMaterialStock, nameof(RawMaterialStockModel.TransactionNo), offlineQueue.TransactionNo);
+			await DeleteLocalTableData(AccountNames.FinancialAccountingLedger, nameof(FinancialAccountingLedgerModel.MasterId), localAccountingId.ToString());
+			await DeleteLocalTableData(AccountNames.FinancialAccounting, nameof(FinancialAccountingModel.Id), localAccountingId.ToString());
+			await DeleteLocalTableData(OperationNames.AuditTrail, nameof(AuditTrailModel.RecordNo), offlineQueue.TransactionNo);
+
+			if (localCustomerId > 0 && request.Sale.CustomerId != localCustomerId)
+				await DeleteLocalTableData(StoreNames.Customer, nameof(CustomerModel.Id), localCustomerId.ToString());
+
+			return;
+		}
+
+		if (offlineQueue.TableName == StoreNames.SaleReturn)
+		{
+			var request = JsonSerializer.Deserialize<SaleReturnSaveRequest>(offlineQueue.Payload);
+
+			var localId = request.SaleReturn.Id;
+			var localAccountingId = request.SaleReturn.FinancialAccountingId ?? 0;
+			var localCustomerId = request.SaleReturn.CustomerId ?? 0;
+
+			request.SaleReturn.Id = 0;
+			request.SaleReturn.FinancialAccountingId = null;
+			request.SaleReturn.CustomerId = null;
+
+			if (request.Customer is not null)
+				request.Customer.Id = 0;
+
+			foreach (var saleReturnDetail in request.SaleReturnDetails)
+			{
+				saleReturnDetail.Id = 0;
+				saleReturnDetail.MasterId = 0;
+			}
+
+			await SaleReturnData.SaveTransaction(request.SaleReturn, request.SaleReturnDetails, request.Customer, request.Recover, request.KeepTransactionNo);
+			await DeleteOfflineQueueById(offlineQueue.Id);
+			await DeleteLocalTableData(StoreNames.SaleReturnDetail, nameof(SaleReturnDetailModel.MasterId), localId.ToString());
+			await DeleteLocalTableData(StoreNames.SaleReturn, nameof(SaleReturnModel.TransactionNo), offlineQueue.TransactionNo);
+			await DeleteLocalTableData(InventoryNames.ProductStock, nameof(ProductStockModel.TransactionNo), offlineQueue.TransactionNo);
+			await DeleteLocalTableData(AccountNames.FinancialAccountingLedger, nameof(FinancialAccountingLedgerModel.MasterId), localAccountingId.ToString());
+			await DeleteLocalTableData(AccountNames.FinancialAccounting, nameof(FinancialAccountingModel.Id), localAccountingId.ToString());
+			await DeleteLocalTableData(OperationNames.AuditTrail, nameof(AuditTrailModel.RecordNo), offlineQueue.TransactionNo);
+
+			if (localCustomerId > 0 && request.SaleReturn.CustomerId != localCustomerId)
+				await DeleteLocalTableData(StoreNames.Customer, nameof(CustomerModel.Id), localCustomerId.ToString());
+
 			return;
 		}
 

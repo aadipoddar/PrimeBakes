@@ -13,8 +13,32 @@ public static class CustomerData
 		(await SqlDataAccess.LoadData<int, dynamic>(StoreNames.InsertCustomer, customer, sqlDataAccessTransaction)).FirstOrDefault()
 			is var id and > 0 ? id : throw new InvalidOperationException("Failed to Insert Customer.");
 
-	public static async Task<CustomerModel> LoadCustomerByNumber(string number) =>
-		(await SqlDataAccess.LoadData<CustomerModel, dynamic>(StoreNames.LoadCustomerByNumber, new { Number = number })).FirstOrDefault();
+	public static async Task<CustomerModel> LoadCustomerByNumber(string number, SqlDataAccessTransaction sqlDataAccessTransaction = null) =>
+		(await SqlDataAccess.LoadData<CustomerModel, dynamic>(StoreNames.LoadCustomerByNumber, new { Number = number }, sqlDataAccessTransaction)).FirstOrDefault();
+
+	internal static async Task<int?> ResolveCustomer(CustomerModel customer, SqlDataAccessTransaction sqlDataAccessTransaction)
+	{
+		if (customer is null || customer.Id > 0)
+			return customer?.Id is > 0 ? customer.Id : null;
+
+		customer.Number = string.IsNullOrWhiteSpace(customer.Number) ? null : customer.Number.Trim();
+		customer.Name = string.IsNullOrWhiteSpace(customer.Name) ? null : customer.Name.Trim();
+
+		if (customer.Number is null)
+			return null;
+
+		var existingCustomer = await LoadCustomerByNumber(customer.Number, sqlDataAccessTransaction);
+		if (existingCustomer is not null && existingCustomer.Id > 0)
+			return existingCustomer.Id;
+
+		if (customer.Name is null)
+			throw new InvalidOperationException("Please enter a name for the new customer or clear the customer field.");
+
+		if (!Helper.ValidatePhoneNumber(customer.Number))
+			throw new InvalidOperationException("Please enter a valid phone number for the new customer.");
+
+		return await InsertCustomer(customer, sqlDataAccessTransaction);
+	}
 
 	private static async Task ValidateTransaction(CustomerModel item)
 	{

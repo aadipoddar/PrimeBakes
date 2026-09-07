@@ -17,6 +17,6 @@ public class SaleReturnEndpoint : ICarterModule
 
 		group.MapPost(nameof(SaleReturnData.DeleteTransaction), (SaleReturnModel saleReturn) => SaleReturnData.DeleteTransaction(saleReturn));
 		group.MapPost(nameof(SaleReturnData.RecoverTransaction), (SaleReturnModel saleReturn) => SaleReturnData.RecoverTransaction(saleReturn));
-		group.MapPost(nameof(SaleReturnData.SaveTransaction), (SaleReturnSaveRequest request) => SaleReturnData.SaveTransaction(request.SaleReturn, request.SaleReturnDetails, request.Customer, request.Recover));
+		group.MapPost(nameof(SaleReturnData.SaveTransaction), (SaleReturnSaveRequest request) => SaleReturnData.SaveTransaction(request.SaleReturn, request.SaleReturnDetails, request.Customer, request.Recover, request.KeepTransactionNo));
 	}
 }

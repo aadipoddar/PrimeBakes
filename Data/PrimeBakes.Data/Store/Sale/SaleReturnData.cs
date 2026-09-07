@@ -5,6 +5,7 @@ using PrimeBakes.Data.Accounts.Masters;
 using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Inventory.Stock;
 using PrimeBakes.Data.Operations.AuditTrail;
+using PrimeBakes.Data.Operations.OfflineQueue;
 using PrimeBakes.Data.Operations.Location;
 using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Data.Store.Customer;
@@ -14,8 +15,10 @@ using PrimeBakes.Exports.Store.Sale;
 using PrimeBakes.Models.Accounts.FinancialAccounting;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Inventory.Stock;
 using PrimeBakes.Models.Operations.AuditTrail;
+using PrimeBakes.Models.Operations.OfflineQueue;
 using PrimeBakes.Models.Operations.Location;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
@@ -24,6 +27,7 @@ using PrimeBakes.Models.Store.Product;
 using PrimeBakes.Models.Store.Sale;
 
 using System.Data;
+using System.Text.Json;
 
 namespace PrimeBakes.Data.Store.Sale;
 
@@ -89,6 +93,8 @@ public static class SaleReturnData
 
 		await FinancialYearData.ValidateFinancialYear(saleReturn.TransactionDateTime, sqlDataAccessTransaction);
 
+		await DeleteOfflineQueue(saleReturn, sqlDataAccessTransaction);
+
 		saleReturn.Status = false;
 		await InsertSaleReturn(saleReturn, sqlDataAccessTransaction);
 
@@ -127,8 +133,24 @@ public static class SaleReturnData
 		await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
 	}
 
+	private static async Task DeleteOfflineQueue(SaleReturnModel saleReturn, SqlDataAccessTransaction sqlDataAccessTransaction)
+	{
+		if (!OfflineState.Offline)
+			return;
+
+		var offlineQueue = await CommonData.LoadTableDataByTransactionNo<OfflineQueueModel>(OperationNames.OfflineQueue, saleReturn.TransactionNo, sqlDataAccessTransaction)
+			?? throw new InvalidOperationException("This sale return has already been synced and cannot be deleted while offline.");
+
+		await OfflineQueueData.DeleteOfflineQueueById(offlineQueue.Id, sqlDataAccessTransaction);
+	}
+	#endregion
+
+	#region Recover
 	public static async Task RecoverTransaction(SaleReturnModel saleReturn)
 	{
+		if (OfflineState.Offline)
+			throw new InvalidOperationException("Sale returns cannot be recovered while offline.");
+
 		saleReturn.Status = true;
 		var saleReturnDetails = await CommonData.LoadTableDataByMasterId<SaleReturnDetailModel>(StoreNames.SaleReturnDetail, saleReturn.Id);
 		await SaveTransaction(saleReturn, saleReturnDetails, null, true);
@@ -138,28 +160,11 @@ public static class SaleReturnData
 	#endregion
 
 	#region Save
-	private static async Task<int?> ResolveCustomer(CustomerModel customer, SqlDataAccessTransaction sqlDataAccessTransaction)
+	private static async Task<SaleReturnModel> ValidateTransaction(SaleReturnModel saleReturn, bool update, bool keepTransactionNo, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
-		if (customer is null || customer.Id > 0)
-			return customer?.Id is > 0 ? customer.Id : null;
+		if (update && OfflineState.Offline)
+			throw new InvalidOperationException("Sale returns cannot be modified while offline.");
 
-		customer.Number = string.IsNullOrWhiteSpace(customer.Number) ? null : customer.Number.Trim();
-		customer.Name = string.IsNullOrWhiteSpace(customer.Name) ? null : customer.Name.Trim();
-
-		if (customer.Number is null)
-			return null;
-
-		if (customer.Name is null)
-			throw new InvalidOperationException("Please enter a name for the new customer or clear the customer field.");
-
-		if (!Helper.ValidatePhoneNumber(customer.Number))
-			throw new InvalidOperationException("Please enter a valid phone number for the new customer.");
-
-		return await CustomerData.InsertCustomer(customer, sqlDataAccessTransaction);
-	}
-
-	private static async Task<SaleReturnModel> ValidateTransaction(SaleReturnModel saleReturn, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
-	{
 		saleReturn.Remarks = string.IsNullOrWhiteSpace(saleReturn.Remarks) ? null : saleReturn.Remarks.Trim();
 
 		if (saleReturn.CompanyId <= 0)
@@ -235,7 +240,7 @@ public static class SaleReturnData
 
 			saleReturn.TransactionNo = existingSaleReturn.TransactionNo;
 		}
-		else
+		else if (!keepTransactionNo)
 			saleReturn.TransactionNo = await GenerateCodes.GenerateSaleReturnTransactionNo(saleReturn, sqlDataAccessTransaction);
 
 		await FinancialYearData.ValidateFinancialYear(saleReturn.TransactionDateTime, sqlDataAccessTransaction);
@@ -319,6 +324,7 @@ public static class SaleReturnData
 		List<SaleReturnDetailModel> saleReturnDetails,
 		CustomerModel customer = null,
 		bool recover = false,
+		bool keepTransactionNo = false,
 		SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		bool update = saleReturn.Id > 0;
@@ -327,7 +333,7 @@ public static class SaleReturnData
 		{
 			(MemoryStream, string)? previousInvoice = update && !recover ? SaleReturnInvoiceExport.ExportInvoice(await LoadInvoiceBundle(saleReturn.Id), InvoiceExportType.PDF) : null;
 
-			saleReturn.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(saleReturn, saleReturnDetails, customer, recover, transaction));
+			saleReturn.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(saleReturn, saleReturnDetails, customer, recover, keepTransactionNo, transaction));
 
 			if (update && !recover)
 				await SaleReturnNotify.Notify(saleReturn.Id, NotifyType.Updated, previousInvoice);
@@ -336,9 +342,9 @@ public static class SaleReturnData
 		}
 
 		if (!recover && customer is not null)
-			saleReturn.CustomerId = await ResolveCustomer(customer, sqlDataAccessTransaction);
+			saleReturn.CustomerId = await CustomerData.ResolveCustomer(customer, sqlDataAccessTransaction);
 
-		saleReturn = await ValidateTransaction(saleReturn, update, sqlDataAccessTransaction);
+		saleReturn = await ValidateTransaction(saleReturn, update, keepTransactionNo, sqlDataAccessTransaction);
 		await ValidateItemDetails(saleReturn, saleReturnDetails, update, sqlDataAccessTransaction);
 
 		var previousSaleReturn = update && !recover ? await CommonData.LoadTableDataById<SaleReturnOverviewModel>(StoreNames.SaleReturnOverview, saleReturn.Id, sqlDataAccessTransaction) : new();
@@ -349,6 +355,7 @@ public static class SaleReturnData
 		await SaveProductStock(saleReturn, saleReturnDetails, sqlDataAccessTransaction);
 		await SaveAccounting(saleReturn, sqlDataAccessTransaction);
 		await SaveAuditTrail(saleReturn, update, recover, previousSaleReturn, previousSaleReturnDetails, sqlDataAccessTransaction);
+		await SaveOfflineQueue(saleReturn, saleReturnDetails, customer, recover, sqlDataAccessTransaction);
 
 		return saleReturn.Id;
 	}
@@ -548,6 +555,18 @@ public static class SaleReturnData
 			CreatedPlatform = update ? saleReturn.LastModifiedPlatform : saleReturn.CreatedPlatform,
 			CreatedLatitude = update ? saleReturn.LastModifiedLatitude : saleReturn.CreatedLatitude,
 			CreatedLongitude = update ? saleReturn.LastModifiedLongitude : saleReturn.CreatedLongitude
+		}, sqlDataAccessTransaction);
+	}
+	private static async Task SaveOfflineQueue(SaleReturnModel saleReturn, List<SaleReturnDetailModel> saleReturnDetails, CustomerModel customer, bool recover, SqlDataAccessTransaction sqlDataAccessTransaction)
+	{
+		if (!OfflineState.Offline)
+			return;
+
+		await OfflineQueueData.SaveTransaction(new()
+		{
+			TableName = StoreNames.SaleReturn,
+			TransactionNo = saleReturn.TransactionNo,
+			Payload = JsonSerializer.Serialize(new SaleReturnSaveRequest(saleReturn, saleReturnDetails, customer, recover, true))
 		}, sqlDataAccessTransaction);
 	}
 	#endregion

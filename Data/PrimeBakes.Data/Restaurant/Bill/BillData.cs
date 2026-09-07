@@ -15,6 +15,7 @@ using PrimeBakes.Exports.Restaurant.Bill;
 using PrimeBakes.Models.Accounts.FinancialAccounting;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Inventory.Recipe;
 using PrimeBakes.Models.Inventory.Stock;
 using PrimeBakes.Models.Operations.AuditTrail;
@@ -222,26 +223,6 @@ public static class BillData
 	#endregion
 
 	#region Save
-	private static async Task<int?> ResolveCustomer(CustomerModel customer, SqlDataAccessTransaction sqlDataAccessTransaction)
-	{
-		if (customer is null || customer.Id > 0)
-			return customer?.Id is > 0 ? customer.Id : null;
-
-		customer.Number = string.IsNullOrWhiteSpace(customer.Number) ? null : customer.Number.Trim();
-		customer.Name = string.IsNullOrWhiteSpace(customer.Name) ? null : customer.Name.Trim();
-
-		if (customer.Number is null)
-			return null;
-
-		if (customer.Name is null)
-			throw new InvalidOperationException("Please enter a name for the new customer or clear the customer field.");
-
-		if (!Helper.ValidatePhoneNumber(customer.Number))
-			throw new InvalidOperationException("Please enter a valid phone number for the new customer.");
-
-		return await CustomerData.InsertCustomer(customer, sqlDataAccessTransaction);
-	}
-
 	private static async Task<BillModel> ValidateTransaction(BillModel bill, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
 		bill.Remarks = string.IsNullOrWhiteSpace(bill.Remarks) ? null : bill.Remarks.Trim();
@@ -432,7 +413,7 @@ public static class BillData
 		}
 
 		if (!recover && customer is not null)
-			bill.CustomerId = await ResolveCustomer(customer, sqlDataAccessTransaction);
+			bill.CustomerId = await CustomerData.ResolveCustomer(customer, sqlDataAccessTransaction);
 
 		bill = await ValidateTransaction(bill, update, sqlDataAccessTransaction);
 		await ValidateItemDetails(bill, billDetails, update, sqlDataAccessTransaction);
@@ -680,6 +661,9 @@ public static class BillData
 
 	public static async Task PostDayBills(DateTime postingDate, int locationId, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
 	{
+		if (OfflineState.Offline)
+			throw new InvalidOperationException("Day bills cannot be posted while offline.");
+
 		await ValidateDayBillsAccountPosting(postingDate, locationId);
 		await FinancialYearData.ValidateFinancialYear(postingDate);
 

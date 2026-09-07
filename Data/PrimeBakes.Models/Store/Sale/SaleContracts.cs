@@ -10,13 +10,15 @@ public sealed record SaleSaveRequest(
 	SaleModel Sale,
 	List<SaleDetailModel> SaleDetails,
 	CustomerModel Customer,
-	bool Recover);
+	bool Recover,
+	bool KeepTransactionNo);
 
 public sealed record SaleReturnSaveRequest(
 	SaleReturnModel SaleReturn,
 	List<SaleReturnDetailModel> SaleReturnDetails,
 	CustomerModel Customer,
-	bool Recover);
+	bool Recover,
+	bool KeepTransactionNo);
 
 public sealed record SaleInvoiceBundle(
 	SaleOverviewModel Transaction,
