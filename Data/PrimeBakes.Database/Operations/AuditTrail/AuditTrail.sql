@@ -7,7 +7,7 @@
 	[RecordValue] VARCHAR(MAX) NULL,
 	[CreatedBy] INT NOT NULL,
 	[CreatedByName] VARCHAR(MAX) NOT NULL,
-	[TransactionDateTime] DATETIME NOT NULL DEFAULT (((getdate() AT TIME ZONE 'UTC') AT TIME ZONE 'India Standard Time')),
+	[TransactionDateTime] DATETIME NOT NULL DEFAULT (((sysutcdatetime() AT TIME ZONE 'UTC') AT TIME ZONE 'India Standard Time')),
 	[CreatedFormFactor] VARCHAR(MAX) NULL,
 	[CreatedPlatform] VARCHAR(MAX) NULL,
 	[CreatedLatitude] DECIMAL(9,6) NULL,

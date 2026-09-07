@@ -3,5 +3,5 @@
 	[Id] INT NOT NULL PRIMARY KEY IDENTITY,
 	[TableName] VARCHAR(50) NOT NULL UNIQUE,
 	[Version] BIGINT NOT NULL,
-	[LastSyncedAt] DATETIME NOT NULL DEFAULT (((getdate() AT TIME ZONE 'UTC') AT TIME ZONE 'India Standard Time'))
+	[LastSyncedAt] DATETIME NOT NULL DEFAULT (((sysutcdatetime() AT TIME ZONE 'UTC') AT TIME ZONE 'India Standard Time'))
 )

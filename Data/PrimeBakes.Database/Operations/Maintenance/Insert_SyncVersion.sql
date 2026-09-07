@@ -7,7 +7,7 @@ BEGIN
 
 	UPDATE [SyncVersion]
 	SET [Version] = @Version,
-		[LastSyncedAt] = (((getdate() AT TIME ZONE 'UTC') AT TIME ZONE 'India Standard Time'))
+		[LastSyncedAt] = (((sysutcdatetime() AT TIME ZONE 'UTC') AT TIME ZONE 'India Standard Time'))
 	WHERE [TableName] = @TableName;
 
 	IF @@ROWCOUNT = 0

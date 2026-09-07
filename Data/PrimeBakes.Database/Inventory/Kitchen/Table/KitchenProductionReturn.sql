@@ -13,7 +13,7 @@ CREATE TABLE [dbo].[KitchenProductionReturn]
 	[Status] BIT NOT NULL DEFAULT 1,
 
 	[CreatedBy] INT NOT NULL,
-	[CreatedAt] DATETIME NOT NULL DEFAULT (((getdate() AT TIME ZONE 'UTC') AT TIME ZONE 'India Standard Time')),
+	[CreatedAt] DATETIME NOT NULL DEFAULT (((sysutcdatetime() AT TIME ZONE 'UTC') AT TIME ZONE 'India Standard Time')),
 	[CreatedFormFactor] VARCHAR(MAX) NULL,
 	[CreatedPlatform] VARCHAR(MAX) NULL,
 	[CreatedLatitude] DECIMAL(9,6) NULL,
