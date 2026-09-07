@@ -1,16 +1,20 @@
 ﻿using Dapper;
 
 using System.Data;
+using System.Text.Json;
 
 using PrimeBakes.Data.Accounts.Masters;
 using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Operations.AuditTrail;
+using PrimeBakes.Data.Operations.OfflineQueue;
 using PrimeBakes.Data.Utils.Mail;
 using PrimeBakes.Exports.Inventory.PurchaseOrder;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Inventory.PurchaseOrder;
 using PrimeBakes.Models.Operations.AuditTrail;
+using PrimeBakes.Models.Operations.OfflineQueue;
 using PrimeBakes.Models.Operations.User;
 
 namespace PrimeBakes.Data.Inventory.PurchaseOrder;
@@ -76,6 +80,8 @@ public static class PurchaseOrderData
 		if (purchaseOrder.PurchaseId is not null && purchaseOrder.PurchaseId > 0)
 			throw new InvalidOperationException("Cannot delete purchase order as it is already converted to a purchase.");
 
+		await DeleteOfflineQueue(purchaseOrder, sqlDataAccessTransaction);
+
 		purchaseOrder.Status = false;
 		await InsertPurchaseOrder(purchaseOrder, sqlDataAccessTransaction);
 
@@ -91,10 +97,24 @@ public static class PurchaseOrderData
 			CreatedLongitude = purchaseOrder.LastModifiedLongitude
 		}, sqlDataAccessTransaction);
 	}
+
+	private static async Task DeleteOfflineQueue(PurchaseOrderModel purchaseOrder, SqlDataAccessTransaction sqlDataAccessTransaction)
+	{
+		if (!OfflineState.Offline)
+			return;
+
+		var offlineQueue = await CommonData.LoadTableDataByTransactionNo<OfflineQueueModel>(OperationNames.OfflineQueue, purchaseOrder.TransactionNo, sqlDataAccessTransaction)
+			?? throw new InvalidOperationException("This purchase order has already been synced and cannot be deleted while offline.");
+
+		await OfflineQueueData.DeleteOfflineQueueById(offlineQueue.Id, sqlDataAccessTransaction);
+	}
 	#endregion
 
 	public static async Task RecoverTransaction(PurchaseOrderModel purchaseOrder)
 	{
+		if (OfflineState.Offline)
+			throw new InvalidOperationException("Purchase orders cannot be recovered while offline.");
+
 		purchaseOrder.Status = true;
 		var purchaseOrderDetails = await CommonData.LoadTableDataByMasterId<PurchaseOrderDetailModel>(InventoryNames.PurchaseOrderDetail, purchaseOrder.Id);
 		await SaveTransaction(purchaseOrder, purchaseOrderDetails, true);
@@ -103,8 +123,11 @@ public static class PurchaseOrderData
 	}
 
 	#region Save
-	private static async Task<PurchaseOrderModel> ValidateTransaction(PurchaseOrderModel purchaseOrder, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
+	private static async Task<PurchaseOrderModel> ValidateTransaction(PurchaseOrderModel purchaseOrder, bool update, bool keepTransactionNo, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
+		if (update && OfflineState.Offline)
+			throw new InvalidOperationException("Purchase orders cannot be modified while offline.");
+
 		purchaseOrder.Remarks = string.IsNullOrWhiteSpace(purchaseOrder.Remarks) ? null : purchaseOrder.Remarks.Trim();
 
 		if (purchaseOrder.CompanyId <= 0)
@@ -123,7 +146,7 @@ public static class PurchaseOrderData
 		if (purchaseOrder.TotalQuantity <= 0)
 			throw new InvalidOperationException("The total quantity of items in the transaction must be greater than zero.");
 
-		if (!update)
+		if (!update && !keepTransactionNo)
 			purchaseOrder.TransactionNo = await GenerateCodes.GeneratePurchaseOrderTransactionNo(purchaseOrder, sqlDataAccessTransaction);
 
 		await FinancialYearData.ValidateFinancialYear(purchaseOrder.TransactionDateTime, sqlDataAccessTransaction);
@@ -176,6 +199,7 @@ public static class PurchaseOrderData
 		PurchaseOrderModel purchaseOrder,
 		List<PurchaseOrderDetailModel> purchaseOrderDetails,
 		bool recover = false,
+		bool keepTransactionNo = false,
 		SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		bool update = purchaseOrder.Id > 0;
@@ -186,7 +210,7 @@ public static class PurchaseOrderData
 				? PurchaseOrderInvoiceExport.ExportInvoice(await LoadInvoiceBundle(purchaseOrder.Id), InvoiceExportType.PDF)
 				: null;
 
-			purchaseOrder.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(purchaseOrder, purchaseOrderDetails, recover, transaction));
+			purchaseOrder.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(purchaseOrder, purchaseOrderDetails, recover, keepTransactionNo, transaction));
 
 			if (update && !recover)
 				await PurchaseOrderNotify.Notify(purchaseOrder.Id, NotifyType.Updated, previousInvoice);
@@ -194,7 +218,7 @@ public static class PurchaseOrderData
 			return purchaseOrder.Id;
 		}
 
-		purchaseOrder = await ValidateTransaction(purchaseOrder, update, sqlDataAccessTransaction);
+		purchaseOrder = await ValidateTransaction(purchaseOrder, update, keepTransactionNo, sqlDataAccessTransaction);
 
 		purchaseOrderDetails ??= [];
 		ValidateItemDetails(purchaseOrder, purchaseOrderDetails);
@@ -206,6 +230,7 @@ public static class PurchaseOrderData
 
 		if (!recover) await SaveTransactionDetail(purchaseOrder, purchaseOrderDetails, update, sqlDataAccessTransaction);
 		await SaveAuditTrail(purchaseOrder, update, recover, previousPurchaseOrder, previousPurchaseOrderDetails, sqlDataAccessTransaction);
+		await SaveOfflineQueue(purchaseOrder, purchaseOrderDetails, recover, sqlDataAccessTransaction);
 
 		return purchaseOrder.Id;
 	}
@@ -267,6 +292,19 @@ public static class PurchaseOrderData
 			CreatedPlatform = update ? purchaseOrder.LastModifiedPlatform : purchaseOrder.CreatedPlatform,
 			CreatedLatitude = update ? purchaseOrder.LastModifiedLatitude : purchaseOrder.CreatedLatitude,
 			CreatedLongitude = update ? purchaseOrder.LastModifiedLongitude : purchaseOrder.CreatedLongitude
+		}, sqlDataAccessTransaction);
+	}
+
+	private static async Task SaveOfflineQueue(PurchaseOrderModel purchaseOrder, List<PurchaseOrderDetailModel> purchaseOrderDetails, bool recover, SqlDataAccessTransaction sqlDataAccessTransaction)
+	{
+		if (!OfflineState.Offline)
+			return;
+
+		await OfflineQueueData.SaveTransaction(new()
+		{
+			TableName = InventoryNames.PurchaseOrder,
+			TransactionNo = purchaseOrder.TransactionNo,
+			Payload = JsonSerializer.Serialize(new PurchaseOrderSaveRequest(purchaseOrder, purchaseOrderDetails, recover, true))
 		}, sqlDataAccessTransaction);
 	}
 	#endregion

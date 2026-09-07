@@ -5,7 +5,8 @@ namespace PrimeBakes.Models.Inventory.PurchaseOrder;
 public sealed record PurchaseOrderSaveRequest(
 	PurchaseOrderModel PurchaseOrder,
 	List<PurchaseOrderDetailModel> Details,
-	bool Recover);
+	bool Recover,
+	bool KeepTransactionNo);
 
 public sealed record PurchaseOrderInvoiceBundle(
 	PurchaseOrderOverviewModel Transaction,

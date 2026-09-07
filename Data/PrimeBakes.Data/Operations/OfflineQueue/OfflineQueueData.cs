@@ -1,8 +1,10 @@
 ﻿using PrimeBakes.Data.Common;
+using PrimeBakes.Data.Inventory.PurchaseOrder;
 using PrimeBakes.Data.Store.Order;
 
 using PrimeBakes.Models.Common;
 using PrimeBakes.Models.DataAccess;
+using PrimeBakes.Models.Inventory.PurchaseOrder;
 using PrimeBakes.Models.Operations.OfflineQueue;
 using PrimeBakes.Models.Store.Order;
 
@@ -54,6 +56,23 @@ public static class OfflineQueueData
 			}
 
 			await OrderData.SaveTransaction(request.Order, request.OrderDetails, request.Recover, request.KeepTransactionNo);
+			return;
+		}
+
+		if (offlineQueue.TableName == InventoryNames.PurchaseOrder)
+		{
+			var request = JsonSerializer.Deserialize<PurchaseOrderSaveRequest>(offlineQueue.Payload);
+
+			request.PurchaseOrder.Id = 0;
+			request.PurchaseOrder.PurchaseId = null;
+
+			foreach (var purchaseOrderDetail in request.Details)
+			{
+				purchaseOrderDetail.Id = 0;
+				purchaseOrderDetail.MasterId = 0;
+			}
+
+			await PurchaseOrderData.SaveTransaction(request.PurchaseOrder, request.Details, request.Recover, request.KeepTransactionNo);
 			return;
 		}
 
