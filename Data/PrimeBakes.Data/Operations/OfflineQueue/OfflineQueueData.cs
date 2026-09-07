@@ -4,6 +4,7 @@ using PrimeBakes.Data.Inventory.Kitchen.KitchenProduction;
 using PrimeBakes.Data.Inventory.Purchase;
 using PrimeBakes.Data.Inventory.PurchaseOrder;
 using PrimeBakes.Data.Store.Order;
+using PrimeBakes.Data.Store.StockTransfer;
 
 using PrimeBakes.Models.Accounts.FinancialAccounting;
 using PrimeBakes.Models.Common;
@@ -16,6 +17,7 @@ using PrimeBakes.Models.Inventory.Stock;
 using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Operations.OfflineQueue;
 using PrimeBakes.Models.Store.Order;
+using PrimeBakes.Models.Store.StockTransfer;
 
 using System.Text.Json;
 
@@ -261,6 +263,34 @@ public static class OfflineQueueData
 			await DeleteOfflineQueueById(offlineQueue.Id);
 			await DeleteLocalTableData(StoreNames.OrderDetail, nameof(OrderDetailModel.MasterId), localId.ToString());
 			await DeleteLocalTableData(StoreNames.Order, nameof(OrderModel.TransactionNo), offlineQueue.TransactionNo);
+			await DeleteLocalTableData(OperationNames.AuditTrail, nameof(AuditTrailModel.RecordNo), offlineQueue.TransactionNo);
+			return;
+		}
+
+		if (offlineQueue.TableName == StoreNames.StockTransfer)
+		{
+			var request = JsonSerializer.Deserialize<StockTransferSaveRequest>(offlineQueue.Payload);
+
+			var localId = request.StockTransfer.Id;
+			var localAccountingId = request.StockTransfer.FinancialAccountingId ?? 0;
+
+			request.StockTransfer.Id = 0;
+			request.StockTransfer.FinancialAccountingId = null;
+
+			foreach (var stockTransferDetail in request.StockTransferDetails)
+			{
+				stockTransferDetail.Id = 0;
+				stockTransferDetail.MasterId = 0;
+			}
+
+			await StockTransferData.SaveTransaction(request.StockTransfer, request.StockTransferDetails, request.Recover, request.KeepTransactionNo);
+			await DeleteOfflineQueueById(offlineQueue.Id);
+			await DeleteLocalTableData(StoreNames.StockTransferDetail, nameof(StockTransferDetailModel.MasterId), localId.ToString());
+			await DeleteLocalTableData(StoreNames.StockTransfer, nameof(StockTransferModel.TransactionNo), offlineQueue.TransactionNo);
+			await DeleteLocalTableData(InventoryNames.ProductStock, nameof(ProductStockModel.TransactionNo), offlineQueue.TransactionNo);
+			await DeleteLocalTableData(InventoryNames.RawMaterialStock, nameof(RawMaterialStockModel.TransactionNo), offlineQueue.TransactionNo);
+			await DeleteLocalTableData(AccountNames.FinancialAccountingLedger, nameof(FinancialAccountingLedgerModel.MasterId), localAccountingId.ToString());
+			await DeleteLocalTableData(AccountNames.FinancialAccounting, nameof(FinancialAccountingModel.Id), localAccountingId.ToString());
 			await DeleteLocalTableData(OperationNames.AuditTrail, nameof(AuditTrailModel.RecordNo), offlineQueue.TransactionNo);
 			return;
 		}

@@ -17,6 +17,6 @@ public class StockTransferEndpoint : ICarterModule
 
 		group.MapPost(nameof(StockTransferData.DeleteTransaction), (StockTransferModel stockTransfer) => StockTransferData.DeleteTransaction(stockTransfer));
 		group.MapPost(nameof(StockTransferData.RecoverTransaction), (StockTransferModel stockTransfer) => StockTransferData.RecoverTransaction(stockTransfer));
-		group.MapPost(nameof(StockTransferData.SaveTransaction), (StockTransferSaveRequest request) => StockTransferData.SaveTransaction(request.StockTransfer, request.StockTransferDetails, request.Recover));
+		group.MapPost(nameof(StockTransferData.SaveTransaction), (StockTransferSaveRequest request) => StockTransferData.SaveTransaction(request.StockTransfer, request.StockTransferDetails, request.Recover, request.KeepTransactionNo));
 	}
 }

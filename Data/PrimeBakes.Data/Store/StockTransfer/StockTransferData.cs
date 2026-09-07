@@ -7,6 +7,7 @@ using PrimeBakes.Data.Inventory.Recipe;
 using PrimeBakes.Data.Inventory.Stock;
 using PrimeBakes.Data.Operations.AuditTrail;
 using PrimeBakes.Data.Operations.Location;
+using PrimeBakes.Data.Operations.OfflineQueue;
 using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Data.Store.Product;
 using PrimeBakes.Data.Utils.Mail;
@@ -14,15 +15,18 @@ using PrimeBakes.Exports.Store.StockTransfer;
 using PrimeBakes.Models.Accounts.FinancialAccounting;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Inventory.Recipe;
 using PrimeBakes.Models.Inventory.Stock;
 using PrimeBakes.Models.Operations.AuditTrail;
+using PrimeBakes.Models.Operations.OfflineQueue;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Models.Store.Product;
 using PrimeBakes.Models.Store.StockTransfer;
 
 using System.Data;
+using System.Text.Json;
 
 namespace PrimeBakes.Data.Store.StockTransfer;
 
@@ -74,6 +78,8 @@ public static class StockTransferData
 
 		await FinancialYearData.ValidateFinancialYear(stockTransfer.TransactionDateTime, sqlDataAccessTransaction);
 
+		await DeleteOfflineQueue(stockTransfer, sqlDataAccessTransaction);
+
 		stockTransfer.Status = false;
 		await InsertStockTransfer(stockTransfer, sqlDataAccessTransaction);
 
@@ -113,8 +119,24 @@ public static class StockTransferData
 		await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
 	}
 
+	private static async Task DeleteOfflineQueue(StockTransferModel stockTransfer, SqlDataAccessTransaction sqlDataAccessTransaction)
+	{
+		if (!OfflineState.Offline)
+			return;
+
+		var offlineQueue = await CommonData.LoadTableDataByTransactionNo<OfflineQueueModel>(OperationNames.OfflineQueue, stockTransfer.TransactionNo, sqlDataAccessTransaction)
+			?? throw new InvalidOperationException("This stock transfer has already been synced and cannot be deleted while offline.");
+
+		await OfflineQueueData.DeleteOfflineQueueById(offlineQueue.Id, sqlDataAccessTransaction);
+	}
+	#endregion
+
+	#region Recover
 	public static async Task RecoverTransaction(StockTransferModel stockTransfer)
 	{
+		if (OfflineState.Offline)
+			throw new InvalidOperationException("Stock transfers cannot be recovered while offline.");
+
 		stockTransfer.Status = true;
 		var stockTransferDetails = await CommonData.LoadTableDataByMasterId<StockTransferDetailModel>(StoreNames.StockTransferDetail, stockTransfer.Id);
 		await SaveTransaction(stockTransfer, stockTransferDetails, true);
@@ -124,8 +146,11 @@ public static class StockTransferData
 	#endregion
 
 	#region Save
-	private static async Task<StockTransferModel> ValidateTransaction(StockTransferModel stockTransfer, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
+	private static async Task<StockTransferModel> ValidateTransaction(StockTransferModel stockTransfer, bool update, bool keepTransactionNo, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
+		if (update && OfflineState.Offline)
+			throw new InvalidOperationException("Stock transfers cannot be modified while offline.");
+
 		stockTransfer.Remarks = string.IsNullOrWhiteSpace(stockTransfer.Remarks) ? null : stockTransfer.Remarks.Trim();
 
 		if (stockTransfer.CompanyId <= 0)
@@ -180,7 +205,7 @@ public static class StockTransferData
 
 			stockTransfer.TransactionNo = existingStockTransfer.TransactionNo;
 		}
-		else
+		else if (!keepTransactionNo)
 			stockTransfer.TransactionNo = await GenerateCodes.GenerateStockTransferTransactionNo(stockTransfer, sqlDataAccessTransaction);
 
 		await FinancialYearData.ValidateFinancialYear(stockTransfer.TransactionDateTime, sqlDataAccessTransaction);
@@ -257,6 +282,7 @@ public static class StockTransferData
 		StockTransferModel stockTransfer,
 		List<StockTransferDetailModel> stockTransferDetails,
 		bool recover = false,
+		bool keepTransactionNo = false,
 		SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		bool update = stockTransfer.Id > 0;
@@ -265,7 +291,7 @@ public static class StockTransferData
 		{
 			(MemoryStream, string)? previousInvoice = update && !recover ? StockTransferInvoiceExport.ExportInvoice(await LoadInvoiceBundle(stockTransfer.Id), InvoiceExportType.PDF) : null;
 
-			stockTransfer.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(stockTransfer, stockTransferDetails, recover, transaction));
+			stockTransfer.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(stockTransfer, stockTransferDetails, recover, keepTransactionNo, transaction));
 
 			if (update && !recover)
 				await StockTransferNotify.Notify(stockTransfer.Id, NotifyType.Updated, previousInvoice);
@@ -273,7 +299,7 @@ public static class StockTransferData
 			return stockTransfer.Id;
 		}
 
-		stockTransfer = await ValidateTransaction(stockTransfer, update, sqlDataAccessTransaction);
+		stockTransfer = await ValidateTransaction(stockTransfer, update, keepTransactionNo, sqlDataAccessTransaction);
 		await ValidateItemDetails(stockTransfer, stockTransferDetails, update, sqlDataAccessTransaction);
 
 		var previousStockTransfer = update && !recover ? await CommonData.LoadTableDataById<StockTransferOverviewModel>(StoreNames.StockTransferOverview, stockTransfer.Id, sqlDataAccessTransaction) : new();
@@ -285,6 +311,7 @@ public static class StockTransferData
 		await SaveRawMaterialStockByRecipe(stockTransfer, stockTransferDetails, sqlDataAccessTransaction);
 		await SaveAccounting(stockTransfer, sqlDataAccessTransaction);
 		await SaveAuditTrail(stockTransfer, update, recover, previousStockTransfer, previousStockTransferDetails, sqlDataAccessTransaction);
+		await SaveOfflineQueue(stockTransfer, stockTransferDetails, recover, sqlDataAccessTransaction);
 
 		return stockTransfer.Id;
 	}
@@ -516,6 +543,18 @@ public static class StockTransferData
 			CreatedPlatform = update ? stockTransfer.LastModifiedPlatform : stockTransfer.CreatedPlatform,
 			CreatedLatitude = update ? stockTransfer.LastModifiedLatitude : stockTransfer.CreatedLatitude,
 			CreatedLongitude = update ? stockTransfer.LastModifiedLongitude : stockTransfer.CreatedLongitude
+		}, sqlDataAccessTransaction);
+	}
+	private static async Task SaveOfflineQueue(StockTransferModel stockTransfer, List<StockTransferDetailModel> stockTransferDetails, bool recover, SqlDataAccessTransaction sqlDataAccessTransaction)
+	{
+		if (!OfflineState.Offline)
+			return;
+
+		await OfflineQueueData.SaveTransaction(new()
+		{
+			TableName = StoreNames.StockTransfer,
+			TransactionNo = stockTransfer.TransactionNo,
+			Payload = JsonSerializer.Serialize(new StockTransferSaveRequest(stockTransfer, stockTransferDetails, recover, true))
 		}, sqlDataAccessTransaction);
 	}
 	#endregion

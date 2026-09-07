@@ -17,7 +17,7 @@ public static class StockTransferData
 	public static async Task RecoverTransaction(StockTransferModel stockTransfer) =>
 		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(RecoverTransaction)), stockTransfer);
 
-	public static async Task<int> SaveTransaction(StockTransferModel stockTransfer, List<StockTransferDetailModel> stockTransferDetails, bool recover = false) =>
+	public static async Task<int> SaveTransaction(StockTransferModel stockTransfer, List<StockTransferDetailModel> stockTransferDetails, bool recover = false, bool keepTransactionNo = false) =>
 		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(SaveTransaction)),
-			new StockTransferSaveRequest(stockTransfer, stockTransferDetails, recover));
+			new StockTransferSaveRequest(stockTransfer, stockTransferDetails, recover, keepTransactionNo));
 }

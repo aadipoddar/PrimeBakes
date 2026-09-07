@@ -5,7 +5,8 @@ namespace PrimeBakes.Models.Store.StockTransfer;
 public sealed record StockTransferSaveRequest(
 	StockTransferModel StockTransfer,
 	List<StockTransferDetailModel> StockTransferDetails,
-	bool Recover);
+	bool Recover,
+	bool KeepTransactionNo);
 
 public sealed record StockTransferInvoiceBundle(
 	StockTransferOverviewModel Transaction,
