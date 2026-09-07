@@ -68,6 +68,8 @@ public partial class TerminalPage
 		{
 			_isProcessing = false;
 			StateHasChanged();
+			await _toastNotification.HideAllInfoAsync();
+			_ = LocalDbService.SyncDataBackground();
 		}
 	}
 	#endregion

@@ -157,6 +157,7 @@
     <Folder Include="Operations\Location" />
     <Folder Include="Operations\User" />
     <Folder Include="Operations\Terminal" />
+    <Folder Include="Operations\OfflineQueue" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Accounts\FinancialAccounting\Insert\Insert_FinancialAccounting.sql" />
@@ -387,6 +388,9 @@
     <Build Include="Operations\Terminal\Insert_Terminal.sql" />
     <Build Include="Operations\Terminal\Load_Terminal_By_MachineId.sql" />
     <Build Include="Operations\Terminal\Terminal_Overview.sql" />
+    <Build Include="Operations\OfflineQueue\OfflineQueue.sql" />
+    <Build Include="Operations\OfflineQueue\Insert_OfflineQueue.sql" />
+    <Build Include="Operations\OfflineQueue\Delete_OfflineQueue_By_Id.sql" />
     <Build Include="Common\Load_LastTableData_By_Location_FinancialYear.sql" />
     <Build Include="Inventory\Stock\Load\Load_RawMaterial_OpeningStock_By_Date.sql" />
   </ItemGroup>

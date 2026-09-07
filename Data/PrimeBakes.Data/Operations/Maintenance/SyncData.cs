@@ -2,6 +2,7 @@
 
 using Microsoft.Data.SqlClient;
 
+using PrimeBakes.Data.Operations.OfflineQueue;
 using PrimeBakes.Data.Operations.Terminal;
 
 using PrimeBakes.Models.Common;
@@ -55,6 +56,8 @@ public static class SyncData
 	{
 		if (OfflineState.Offline)
 			throw new InvalidOperationException("Cannot sync while offline.");
+
+		await OfflineQueueData.PushOfflineQueue();
 
 		var result = await RunSync(Secrets.LocalClientConnectionString, null);
 		await TerminalData.UpdateLastSyncedAt(machineId);
@@ -143,7 +146,7 @@ public static class SyncData
 		var sourceTables = await LoadTableNames(source);
 		var backupTableNames = (await LoadTableNames(backup)).Select(table => table.TableName).ToHashSet();
 
-		return [.. sourceTables.Where(table => table.TableName != OperationNames.SyncVersion && backupTableNames.Contains(table.TableName))];
+		return [.. sourceTables.Where(table => table.TableName != OperationNames.SyncVersion && table.TableName != OperationNames.OfflineQueue && backupTableNames.Contains(table.TableName))];
 	}
 
 	private static async Task<List<TableInfo>> LoadTableNames(SqlConnection connection) =>

@@ -4,15 +4,19 @@ using PrimeBakes.Data.Accounts.Masters;
 using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Operations.AuditTrail;
 using PrimeBakes.Data.Operations.Location;
+using PrimeBakes.Data.Operations.OfflineQueue;
 using PrimeBakes.Data.Utils.Mail;
 using PrimeBakes.Exports.Store.Order;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.AuditTrail;
+using PrimeBakes.Models.Operations.OfflineQueue;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Models.Store.Order;
 
 using System.Data;
+using System.Text.Json;
 
 namespace PrimeBakes.Data.Store.Order;
 
@@ -77,6 +81,8 @@ public static class OrderData
 		if (order.SaleId is not null && order.SaleId > 0)
 			throw new InvalidOperationException("Cannot delete order as it is already converted to a sale.");
 
+		await DeleteOfflineQueue(order, sqlDataAccessTransaction);
+
 		order.Status = false;
 		await InsertOrder(order, sqlDataAccessTransaction);
 
@@ -92,11 +98,25 @@ public static class OrderData
 			CreatedLongitude = order.LastModifiedLongitude
 		}, sqlDataAccessTransaction);
 	}
+
+	private static async Task DeleteOfflineQueue(OrderModel order, SqlDataAccessTransaction sqlDataAccessTransaction)
+	{
+		if (!OfflineState.Offline)
+			return;
+
+		var offlineQueue = await CommonData.LoadTableDataByTransactionNo<OfflineQueueModel>(OperationNames.OfflineQueue, order.TransactionNo, sqlDataAccessTransaction)
+			?? throw new InvalidOperationException("This order has already been synced and cannot be deleted while offline.");
+
+		await OfflineQueueData.DeleteOfflineQueueById(offlineQueue.Id, sqlDataAccessTransaction);
+	}
 	#endregion
 
 	#region Recover
 	public static async Task RecoverTransaction(OrderModel order)
 	{
+		if (OfflineState.Offline)
+			throw new InvalidOperationException("Orders cannot be recovered while offline.");
+
 		order.Status = true;
 		var orderDetails = await CommonData.LoadTableDataByMasterId<OrderDetailModel>(StoreNames.OrderDetail, order.Id);
 		await SaveTransaction(order, orderDetails, true);
@@ -106,8 +126,11 @@ public static class OrderData
 	#endregion
 
 	#region Save
-	private static async Task<OrderModel> ValidateTransaction(OrderModel order, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
+	private static async Task<OrderModel> ValidateTransaction(OrderModel order, bool update, bool keepTransactionNo, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
+		if (update && OfflineState.Offline)
+			throw new InvalidOperationException("Orders cannot be modified while offline.");
+
 		order.Remarks = string.IsNullOrWhiteSpace(order.Remarks) ? null : order.Remarks.Trim();
 
 		if (order.CompanyId <= 0)
@@ -122,7 +145,7 @@ public static class OrderData
 		if (order.TotalQuantity <= 0)
 			throw new InvalidOperationException("The total quantity of items in the transaction must be greater than zero.");
 
-		if (!update)
+		if (!update && !keepTransactionNo)
 			order.TransactionNo = await GenerateCodes.GenerateOrderTransactionNo(order, sqlDataAccessTransaction);
 
 		await FinancialYearData.ValidateFinancialYear(order.TransactionDateTime, sqlDataAccessTransaction);
@@ -172,6 +195,7 @@ public static class OrderData
 		OrderModel order,
 		List<OrderDetailModel> orderDetails,
 		bool recover = false,
+		bool keepTransactionNo = false,
 		SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		bool update = order.Id > 0;
@@ -180,7 +204,7 @@ public static class OrderData
 		{
 			(MemoryStream, string)? previousInvoice = update && !recover ? OrderInvoiceExport.ExportInvoice(await LoadInvoiceBundle(order.Id), InvoiceExportType.PDF) : null;
 
-			order.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(order, orderDetails, recover, transaction));
+			order.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(order, orderDetails, recover, keepTransactionNo, transaction));
 
 			if (update && !recover)
 				await OrderNotify.Notify(order.Id, NotifyType.Updated, previousInvoice);
@@ -188,7 +212,7 @@ public static class OrderData
 			return order.Id;
 		}
 
-		order = await ValidateTransaction(order, update, sqlDataAccessTransaction);
+		order = await ValidateTransaction(order, update, keepTransactionNo, sqlDataAccessTransaction);
 
 		orderDetails ??= [];
 		ValidateItemDetails(order, orderDetails);
@@ -197,9 +221,9 @@ public static class OrderData
 		var previousOrderDetails = update && !recover ? await CommonData.LoadTableDataByMasterId<OrderItemOverviewModel>(StoreNames.OrderItemOverview, order.Id, sqlDataAccessTransaction) : [];
 
 		order.Id = await InsertOrder(order, sqlDataAccessTransaction);
-
 		if (!recover) await SaveTransactionDetail(order, orderDetails, update, sqlDataAccessTransaction);
 		await SaveAuditTrail(order, update, recover, previousOrder, previousOrderDetails, sqlDataAccessTransaction);
+		await SaveOfflineQueue(order, orderDetails, recover, sqlDataAccessTransaction);
 
 		return order.Id;
 	}
@@ -261,6 +285,19 @@ public static class OrderData
 			CreatedPlatform = update ? order.LastModifiedPlatform : order.CreatedPlatform,
 			CreatedLatitude = update ? order.LastModifiedLatitude : order.CreatedLatitude,
 			CreatedLongitude = update ? order.LastModifiedLongitude : order.CreatedLongitude
+		}, sqlDataAccessTransaction);
+	}
+
+	private static async Task SaveOfflineQueue(OrderModel order, List<OrderDetailModel> orderDetails, bool recover, SqlDataAccessTransaction sqlDataAccessTransaction)
+	{
+		if (!OfflineState.Offline)
+			return;
+
+		await OfflineQueueData.SaveTransaction(new()
+		{
+			TableName = StoreNames.Order,
+			TransactionNo = order.TransactionNo,
+			Payload = JsonSerializer.Serialize(new OrderSaveRequest(order, orderDetails, recover, true))
 		}, sqlDataAccessTransaction);
 	}
 	#endregion

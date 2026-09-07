@@ -1,0 +1,7 @@
+﻿CREATE TABLE [dbo].[OfflineQueue]
+(
+	[Id] INT NOT NULL PRIMARY KEY IDENTITY,
+	[TableName] VARCHAR(50) NOT NULL,
+	[TransactionNo] VARCHAR(100) NOT NULL UNIQUE,
+	[Payload] VARCHAR(MAX) NOT NULL
+)

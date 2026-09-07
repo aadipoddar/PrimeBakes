@@ -23,7 +23,7 @@ public static class OrderData
 	public static async Task RecoverTransaction(OrderModel order) =>
 		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(RecoverTransaction)), order);
 
-	public static async Task<int> SaveTransaction(OrderModel order, List<OrderDetailModel> orderDetails, bool recover = false) =>
+	public static async Task<int> SaveTransaction(OrderModel order, List<OrderDetailModel> orderDetails, bool recover = false, bool keepTransactionNo = false) =>
 		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(SaveTransaction)),
-			new OrderSaveRequest(order, orderDetails, recover));
+			new OrderSaveRequest(order, orderDetails, recover, keepTransactionNo));
 }

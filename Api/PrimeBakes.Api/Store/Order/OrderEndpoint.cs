@@ -23,6 +23,6 @@ public class OrderEndpoint : ICarterModule
 
 		group.MapPost(nameof(OrderData.DeleteTransaction), (OrderModel order) => OrderData.DeleteTransaction(order));
 		group.MapPost(nameof(OrderData.RecoverTransaction), (OrderModel order) => OrderData.RecoverTransaction(order));
-		group.MapPost(nameof(OrderData.SaveTransaction), (OrderSaveRequest request) => OrderData.SaveTransaction(request.Order, request.OrderDetails, request.Recover));
+		group.MapPost(nameof(OrderData.SaveTransaction), (OrderSaveRequest request) => OrderData.SaveTransaction(request.Order, request.OrderDetails, request.Recover, request.KeepTransactionNo));
 	}
 }

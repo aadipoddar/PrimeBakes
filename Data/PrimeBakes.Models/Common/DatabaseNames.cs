@@ -40,6 +40,12 @@ public static class OperationNames
 	public static string LoadDatabaseSize => "Load_DatabaseSize";
 	#endregion
 
+	#region Offline Queue
+	public static string OfflineQueue => "OfflineQueue";
+	public static string InsertOfflineQueue => "Insert_OfflineQueue";
+	public static string DeleteOfflineQueueById => "Delete_OfflineQueue_By_Id";
+	#endregion
+
 	#region Audit Trail
 	public static string AuditTrail => "AuditTrail";
 	public static string AuditTrailOverview => "AuditTrail_Overview";

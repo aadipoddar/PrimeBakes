@@ -5,7 +5,8 @@ namespace PrimeBakes.Models.Store.Order;
 public sealed record OrderSaveRequest(
 	OrderModel Order,
 	List<OrderDetailModel> OrderDetails,
-	bool Recover);
+	bool Recover,
+	bool KeepTransactionNo);
 
 public sealed record OrderInvoiceBundle(
 	OrderOverviewModel Transaction,
