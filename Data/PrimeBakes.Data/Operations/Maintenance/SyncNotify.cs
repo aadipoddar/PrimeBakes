@@ -34,6 +34,7 @@ internal static class SyncNotify
 			{
 				["🗄️ Tables"] = $"{result.Tables} synced, {result.Seeded} fully copied, {result.Skipped} unchanged",
 				["🔢 Rows"] = $"{result.Copied:N0} copied, {result.Removed:N0} removed",
+				["🔧 Repaired"] = $"{result.Repaired:N0} rows",
 				["⏱️ Duration"] = $"{result.Elapsed.TotalSeconds:N1}s",
 				["📅 Date"] = backupDateTime.ToString("dd MMM yyyy, hh:mm tt"),
 				["👤 By"] = userName
@@ -62,6 +63,7 @@ internal static class SyncNotify
 				["Tables Unchanged"] = result.Skipped.ToString(),
 				["Rows Copied"] = result.Copied.ToString("N0"),
 				["Rows Removed"] = result.Removed.ToString("N0"),
+				["Rows Repaired"] = result.Repaired.ToString("N0"),
 				["Duration"] = $"{result.Elapsed.TotalSeconds:N1}s",
 				["Backed Up By"] = userName
 			},

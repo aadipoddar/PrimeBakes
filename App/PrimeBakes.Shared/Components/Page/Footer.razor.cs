@@ -3,6 +3,7 @@
 using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Data.Operations.Terminal;
 
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.Maintenance;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.Terminal;
@@ -27,6 +28,8 @@ public partial class Footer : IAsyncDisposable
 		_ = LoadPlatformInfo();
 		_ = LoadDatabaseLoad();
 		_ = LoadLocalDatabase();
+
+		OfflineState.SyncingChanged += OnSyncingChanged;
 		_ = LocalDbService.SyncDataBackground();
 
 		var setting = await SettingsData.LoadSettingsByKey(SettingsKeys.AutoRefreshReportTimer);
@@ -36,6 +39,14 @@ public partial class Footer : IAsyncDisposable
 		_refreshTimer = new PeriodicTimer(TimeSpan.FromMinutes(_refreshMinutes));
 		_ = RefreshLoop(_refreshCts.Token);
 	}
+
+	private void OnSyncingChanged() => _ = InvokeAsync(async () =>
+	{
+		if (!OfflineState.Syncing)
+			await LoadLocalDatabase();
+
+		StateHasChanged();
+	});
 
 	private async Task LoadPlatformInfo()
 	{
@@ -121,6 +132,8 @@ public partial class Footer : IAsyncDisposable
 
 	async ValueTask IAsyncDisposable.DisposeAsync()
 	{
+		OfflineState.SyncingChanged -= OnSyncingChanged;
+
 		if (_refreshCts is not null)
 		{
 			await _refreshCts.CancelAsync();
@@ -133,10 +146,11 @@ public partial class Footer : IAsyncDisposable
 	#endregion
 
 	#region Utilities
-	private string LastSyncedText => $"Synced {FormatAge(DateTime.Now - _lastSyncedAt.Value)}";
+	private string LastSyncedText =>
+		OfflineState.Syncing || _lastSyncedAt is null ? "Syncing" : $"Synced {FormatAge(DateTime.Now - _lastSyncedAt.Value)}";
 
 	private string LastSyncedClass =>
-		DateTime.Now - _lastSyncedAt.Value <= TimeSpan.FromMinutes(_refreshMinutes) ? "load-low" : "load-high";
+		OfflineState.Syncing || _lastSyncedAt is null || DateTime.Now - _lastSyncedAt.Value <= TimeSpan.FromMinutes(_refreshMinutes) ? "load-low" : "load-high";
 
 	private static string FormatAge(TimeSpan age) => age switch
 	{

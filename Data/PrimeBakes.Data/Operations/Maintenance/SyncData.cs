@@ -24,17 +24,19 @@ public static class SyncData
 	private const int _connectTimeout = 90;
 	private const int _bulkCopyBatchSize = 10000;
 	private const string _backupMarker = "LastBackup";
+	private const string _driftMarker = "TargetVersion";
 
 	private sealed record TableInfo(string TableName, string KeyColumn);
 	private sealed record VersionInfo(string TableName, long CurrentVersion, long MinValidVersion);
 	private sealed record ChangeRow(string KeyValue, string Operation);
 
-	internal sealed record SyncResult(int Tables, int Copied, int Removed, int Seeded, int Skipped, TimeSpan Elapsed)
+	internal sealed record SyncResult(int Tables, int Copied, int Removed, int Seeded, int Skipped, int Repaired, TimeSpan Elapsed)
 	{
 		internal string Summary =>
 			$"{Tables} tables in {Elapsed.TotalSeconds:N1}s. {Copied:N0} rows copied, {Removed:N0} removed."
 				+ (Seeded > 0 ? $" {Seeded} fully copied." : string.Empty)
-				+ (Skipped > 0 ? $" {Skipped} unchanged." : string.Empty);
+				+ (Skipped > 0 ? $" {Skipped} unchanged." : string.Empty)
+				+ (Repaired > 0 ? $" {Repaired:N0} rows repaired." : string.Empty);
 	}
 	#endregion
 
@@ -87,17 +89,22 @@ public static class SyncData
 		var tables = await LoadSyncableTables(source, backup);
 		var versions = await LoadVersions(source);
 		var syncedVersions = await LoadSyncedVersions(backup);
+		var targetVersions = await LoadVersions(backup);
 
 		int copied = 0;
 		int removed = 0;
 		int seeded = 0;
 		int skipped = 0;
+		int repaired = 0;
 		var stopwatch = Stopwatch.StartNew();
 
 		await ToggleForeignKeys(backup, false);
 
 		try
 		{
+			if (!await HasPendingQueue(backup))
+				repaired = await RepairDrift(source, backup, tables, targetVersions, syncedVersions);
+
 			foreach (var table in tables)
 			{
 				if (!versions.TryGetValue(table.TableName, out var version))
@@ -131,12 +138,14 @@ public static class SyncData
 			await ToggleForeignKeys(backup, true);
 		}
 
+		await SaveDriftMarker(backup);
+
 		if (markerTable is not null)
 			await SaveVersion(source, markerTable, versions.Values.Max(version => version.CurrentVersion));
 
 		stopwatch.Stop();
 
-		return new(tables.Count, copied, removed, seeded, skipped, stopwatch.Elapsed);
+		return new(tables.Count, copied, removed, seeded, skipped, repaired, stopwatch.Elapsed);
 	}
 	#endregion
 
@@ -233,6 +242,65 @@ public static class SyncData
 		await bulkCopy.WriteToServerAsync(reader);
 
 		return bulkCopy.RowsCopied;
+	}
+	#endregion
+
+	#region Drift
+	private static async Task<bool> HasPendingQueue(SqlConnection backup) =>
+		(await backup.QueryAsync(CommonNames.LoadTableData,
+			new { TableName = OperationNames.OfflineQueue },
+			commandType: CommandType.StoredProcedure)).Any();
+
+	private static async Task<int> RepairDrift(SqlConnection source, SqlConnection backup, List<TableInfo> tables,
+		Dictionary<string, VersionInfo> targetVersions, Dictionary<string, long> syncedVersions)
+	{
+		if (!syncedVersions.TryGetValue(_driftMarker, out var driftVersion))
+			return 0;
+
+		int repaired = 0;
+
+		foreach (var table in tables)
+		{
+			if (!targetVersions.TryGetValue(table.TableName, out var targetVersion))
+				continue;
+
+			if (driftVersion < targetVersion.MinValidVersion || driftVersion > targetVersion.CurrentVersion)
+			{
+				syncedVersions.Remove(table.TableName);
+				continue;
+			}
+
+			repaired += await RepairTable(source, backup, table, driftVersion);
+		}
+
+		return repaired;
+	}
+
+	private static async Task<int> RepairTable(SqlConnection source, SqlConnection backup, TableInfo table, long driftVersion)
+	{
+		var keys = (await backup.QueryAsync<ChangeRow>(OperationNames.LoadTableChanges,
+			new { table.TableName, table.KeyColumn, LastVersion = driftVersion },
+			commandType: CommandType.StoredProcedure, commandTimeout: 0))
+			.Select(change => change.KeyValue).ToArray();
+
+		foreach (var batch in keys.Chunk(_batchSize))
+		{
+			await backup.ExecuteAsync(OperationNames.DeleteTableDataByKeys,
+				new { table.TableName, table.KeyColumn, Keys = string.Join(_keySeparator, batch) },
+				commandType: CommandType.StoredProcedure, commandTimeout: 0);
+
+			await CopyRows(source, backup, table, batch);
+		}
+
+		return keys.Length;
+	}
+
+	private static async Task SaveDriftMarker(SqlConnection backup)
+	{
+		var targetVersion = (await LoadVersions(backup)).Values.FirstOrDefault()?.CurrentVersion;
+
+		if (targetVersion is not null)
+			await SaveVersion(backup, _driftMarker, targetVersion.Value);
 	}
 	#endregion
 

@@ -27,6 +27,8 @@ public static class LocalDbManager
 		if (!await _gate.WaitAsync(0))
 			return;
 
+		OfflineState.Syncing = true;
+
 		try
 		{
 			var version = typeof(ILocalDbService).Assembly.GetName().Version?.ToString();
@@ -42,6 +44,7 @@ public static class LocalDbManager
 		catch { }
 		finally
 		{
+			OfflineState.Syncing = false;
 			_gate.Release();
 		}
 	}

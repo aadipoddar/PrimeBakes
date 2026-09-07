@@ -42,7 +42,7 @@
                     </span>
                 }
 
-                @if (_lastSyncedAt is not null)
+                @if (OfflineState.Syncing || _lastSyncedAt is not null)
                 {
                     <span class="info-item load-info @LastSyncedClass">
                         @LastSyncedText
