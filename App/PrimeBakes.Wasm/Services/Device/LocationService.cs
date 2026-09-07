@@ -1,8 +1,8 @@
-using System.Globalization;
-
 using Microsoft.JSInterop;
 
 using PrimeBakes.Shared.Services.Device;
+
+using System.Globalization;
 
 namespace PrimeBakes.Wasm.Services.Device;
 

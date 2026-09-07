@@ -1,8 +1,8 @@
-﻿using System.Text.RegularExpressions;
-
-using NCalc;
+﻿using NCalc;
 
 using PrimeBakes.Models.Payroll.Masters;
+
+using System.Text.RegularExpressions;
 
 namespace PrimeBakes.Data.Payroll.Masters;
 

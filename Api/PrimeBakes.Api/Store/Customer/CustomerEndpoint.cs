@@ -1,7 +1,6 @@
 using PrimeBakes.Api.Common;
 using PrimeBakes.Data.Store.Customer;
 using PrimeBakes.Models.Common;
-using PrimeBakes.Models.Store.Customer;
 
 namespace PrimeBakes.Api.Store.Customer;
 

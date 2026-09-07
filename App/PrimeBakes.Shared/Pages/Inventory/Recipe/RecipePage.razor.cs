@@ -1,4 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
+
+using PrimeBakes.Data.Inventory.Purchase;
+using PrimeBakes.Data.Inventory.Recipe;
+using PrimeBakes.Data.Store.Product;
 using PrimeBakes.Exports.Inventory.Recipe;
 using PrimeBakes.Models.Inventory.RawMaterial;
 using PrimeBakes.Models.Inventory.Recipe;
@@ -8,9 +12,6 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
 using Syncfusion.Blazor.Grids;
-using PrimeBakes.Data.Inventory.Recipe;
-using PrimeBakes.Data.Store.Product;
-using PrimeBakes.Data.Inventory.Purchase;
 
 namespace PrimeBakes.Shared.Pages.Inventory.Recipe;
 

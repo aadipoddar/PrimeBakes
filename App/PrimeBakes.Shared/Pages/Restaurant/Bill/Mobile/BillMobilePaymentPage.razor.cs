@@ -1,4 +1,9 @@
 ﻿using Microsoft.AspNetCore.Components;
+
+using PrimeBakes.Data.Accounts.Masters;
+using PrimeBakes.Data.Operations.Settings;
+using PrimeBakes.Data.Restaurant.Bill;
+using PrimeBakes.Data.Store.Customer;
 using PrimeBakes.Exports.Restaurant.Bill;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
@@ -9,10 +14,6 @@ using PrimeBakes.Models.Store.PaymentMode;
 using PrimeBakes.Models.Store.Product;
 
 using System.Text.Json;
-using PrimeBakes.Data.Operations.Settings;
-using PrimeBakes.Data.Restaurant.Bill;
-using PrimeBakes.Data.Store.Customer;
-using PrimeBakes.Data.Accounts.Masters;
 
 namespace PrimeBakes.Shared.Pages.Restaurant.Bill.Mobile;
 

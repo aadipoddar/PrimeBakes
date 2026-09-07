@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using PrimeBakes.Platforms.Android;
 #elif WINDOWS
 using PrimeBakes.Platforms.Windows;
+
 using NetworkAccess = Microsoft.Maui.Networking.NetworkAccess;
 #endif
 

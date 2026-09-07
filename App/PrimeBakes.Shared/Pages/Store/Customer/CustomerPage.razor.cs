@@ -1,11 +1,11 @@
-﻿using PrimeBakes.Exports.Store.Customer;
+﻿using PrimeBakes.Data.Store.Customer;
+using PrimeBakes.Exports.Store.Customer;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Models.Store.Customer;
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
 using Syncfusion.Blazor.Grids;
-using PrimeBakes.Data.Store.Customer;
 
 namespace PrimeBakes.Shared.Pages.Store.Customer;
 

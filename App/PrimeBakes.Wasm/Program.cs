@@ -6,14 +6,14 @@ using MudBlazor.Services;
 using PrimeBakes.Data;
 using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Shared.Services;
-using PrimeBakes.Shared.Services.Host;
 using PrimeBakes.Shared.Services.Device;
+using PrimeBakes.Shared.Services.Host;
 using PrimeBakes.Shared.Services.Notification;
 using PrimeBakes.Shared.Services.Printing;
 using PrimeBakes.Shared.Services.Storage;
 using PrimeBakes.Wasm;
-using PrimeBakes.Wasm.Services.Host;
 using PrimeBakes.Wasm.Services.Device;
+using PrimeBakes.Wasm.Services.Host;
 using PrimeBakes.Wasm.Services.Storage;
 
 using Syncfusion.Blazor;

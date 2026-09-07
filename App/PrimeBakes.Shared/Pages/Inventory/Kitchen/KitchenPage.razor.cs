@@ -1,11 +1,11 @@
-﻿using PrimeBakes.Exports.Inventory.Kitchen;
+﻿using PrimeBakes.Data.Inventory.Kitchen;
+using PrimeBakes.Exports.Inventory.Kitchen;
 using PrimeBakes.Models.Inventory.Kitchen;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
 using Syncfusion.Blazor.Grids;
-using PrimeBakes.Data.Inventory.Kitchen;
 
 namespace PrimeBakes.Shared.Pages.Inventory.Kitchen;
 

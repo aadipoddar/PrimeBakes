@@ -17,7 +17,7 @@ public static class KitchenProductionData
 	public static async Task RecoverTransaction(KitchenProductionModel kitchenProduction) =>
 		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(RecoverTransaction)), kitchenProduction);
 
-	public static async Task<int> SaveTransaction(KitchenProductionModel kitchenProduction, List<KitchenProductionDetailModel> kitchenProductionDetails, bool recover = false) =>
+	public static async Task<int> SaveTransaction(KitchenProductionModel kitchenProduction, List<KitchenProductionDetailModel> kitchenProductionDetails, bool recover = false, bool keepTransactionNo = false) =>
 		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(SaveTransaction)),
-			new KitchenProductionSaveRequest(kitchenProduction, kitchenProductionDetails, recover));
+			new KitchenProductionSaveRequest(kitchenProduction, kitchenProductionDetails, recover, keepTransactionNo));
 }

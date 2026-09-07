@@ -5,12 +5,14 @@ namespace PrimeBakes.Models.Inventory.Kitchen.KitchenIssue;
 public sealed record KitchenIssueSaveRequest(
 	KitchenIssueModel KitchenIssue,
 	List<KitchenIssueDetailModel> Details,
-	bool Recover);
+	bool Recover,
+	bool KeepTransactionNo);
 
 public sealed record KitchenIssueReturnSaveRequest(
 	KitchenIssueReturnModel KitchenIssueReturn,
 	List<KitchenIssueReturnDetailModel> Details,
-	bool Recover);
+	bool Recover,
+	bool KeepTransactionNo);
 
 public sealed record KitchenIssueInvoiceBundle(
 	KitchenIssueOverviewModel Transaction,

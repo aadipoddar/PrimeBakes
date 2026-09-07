@@ -17,6 +17,6 @@ public class KitchenProductionEndpoint : ICarterModule
 
 		group.MapPost(nameof(KitchenProductionData.DeleteTransaction), (KitchenProductionModel kitchenProduction) => KitchenProductionData.DeleteTransaction(kitchenProduction));
 		group.MapPost(nameof(KitchenProductionData.RecoverTransaction), (KitchenProductionModel kitchenProduction) => KitchenProductionData.RecoverTransaction(kitchenProduction));
-		group.MapPost(nameof(KitchenProductionData.SaveTransaction), (KitchenProductionSaveRequest request) => KitchenProductionData.SaveTransaction(request.KitchenProduction, request.Details, request.Recover));
+		group.MapPost(nameof(KitchenProductionData.SaveTransaction), (KitchenProductionSaveRequest request) => KitchenProductionData.SaveTransaction(request.KitchenProduction, request.Details, request.Recover, request.KeepTransactionNo));
 	}
 }

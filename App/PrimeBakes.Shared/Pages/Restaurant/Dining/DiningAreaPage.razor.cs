@@ -1,4 +1,5 @@
-﻿using PrimeBakes.Exports.Restaurant.Dining;
+﻿using PrimeBakes.Data.Restaurant.Dining;
+using PrimeBakes.Exports.Restaurant.Dining;
 using PrimeBakes.Models.Operations.Location;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Models.Restaurant.Dining;
@@ -6,7 +7,6 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
 using Syncfusion.Blazor.Grids;
-using PrimeBakes.Data.Restaurant.Dining;
 
 namespace PrimeBakes.Shared.Pages.Restaurant.Dining;
 

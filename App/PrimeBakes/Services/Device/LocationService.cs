@@ -1,6 +1,6 @@
-using System.Globalization;
-
 using PrimeBakes.Shared.Services.Device;
+
+using System.Globalization;
 
 namespace PrimeBakes.Services.Device;
 

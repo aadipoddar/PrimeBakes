@@ -1,7 +1,6 @@
 using PrimeBakes.Api.Common;
 using PrimeBakes.Data.Payroll.Masters;
 using PrimeBakes.Models.Common;
-using PrimeBakes.Models.Payroll.Masters;
 
 namespace PrimeBakes.Api.Payroll.Masters;
 

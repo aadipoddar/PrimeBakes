@@ -1,7 +1,5 @@
 ﻿using Dapper;
 
-using System.Data;
-
 using PrimeBakes.Data.Accounts.FinancialAccounting;
 using PrimeBakes.Data.Accounts.Masters;
 using PrimeBakes.Data.Common;
@@ -18,6 +16,8 @@ using PrimeBakes.Models.Inventory.Stock;
 using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
+
+using System.Data;
 
 namespace PrimeBakes.Data.Inventory.Purchase;
 

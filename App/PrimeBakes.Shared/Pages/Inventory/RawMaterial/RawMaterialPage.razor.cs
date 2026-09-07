@@ -1,4 +1,5 @@
-﻿using PrimeBakes.Exports.Inventory.RawMaterial;
+﻿using PrimeBakes.Data.Inventory.RawMaterial;
+using PrimeBakes.Exports.Inventory.RawMaterial;
 using PrimeBakes.Models.Inventory.RawMaterial;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Models.Store.Product;
@@ -6,7 +7,6 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
 using Syncfusion.Blazor.Grids;
-using PrimeBakes.Data.Inventory.RawMaterial;
 
 namespace PrimeBakes.Shared.Pages.Inventory.RawMaterial;
 

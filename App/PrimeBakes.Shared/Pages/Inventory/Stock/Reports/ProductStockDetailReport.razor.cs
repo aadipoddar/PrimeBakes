@@ -1,6 +1,11 @@
-﻿using PrimeBakes.Exports.Inventory.Stock;
+﻿using PrimeBakes.Data.Accounts.Masters;
+using PrimeBakes.Data.Inventory.Stock;
+using PrimeBakes.Data.Operations.AuditTrail;
+using PrimeBakes.Data.Operations.Settings;
+using PrimeBakes.Exports.Inventory.Stock;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Inventory.Stock;
+using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Operations.Location;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
@@ -8,11 +13,6 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
 using Syncfusion.Blazor.Grids;
-using PrimeBakes.Data.Operations.Settings;
-using PrimeBakes.Data.Inventory.Stock;
-using PrimeBakes.Data.Accounts.Masters;
-using PrimeBakes.Data.Operations.AuditTrail;
-using PrimeBakes.Models.Operations.AuditTrail;
 
 namespace PrimeBakes.Shared.Pages.Inventory.Stock.Reports;
 

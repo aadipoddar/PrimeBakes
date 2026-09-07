@@ -1,6 +1,6 @@
-using System.Text;
-
 using PrimeBakes.Shared.Services.Printing;
+
+using System.Text;
 
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Rfcomm;

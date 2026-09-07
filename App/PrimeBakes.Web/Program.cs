@@ -3,14 +3,14 @@
 using PrimeBakes.Data;
 using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Shared.Services;
-using PrimeBakes.Shared.Services.Host;
 using PrimeBakes.Shared.Services.Device;
+using PrimeBakes.Shared.Services.Host;
 using PrimeBakes.Shared.Services.Notification;
 using PrimeBakes.Shared.Services.Printing;
 using PrimeBakes.Shared.Services.Storage;
 using PrimeBakes.Web.Components;
-using PrimeBakes.Web.Services.Host;
 using PrimeBakes.Web.Services.Device;
+using PrimeBakes.Web.Services.Host;
 using PrimeBakes.Web.Services.Storage;
 
 using Syncfusion.Blazor;

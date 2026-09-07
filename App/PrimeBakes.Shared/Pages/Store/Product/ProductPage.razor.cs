@@ -1,4 +1,5 @@
-﻿using PrimeBakes.Exports.Store.Product;
+﻿using PrimeBakes.Data.Store.Product;
+using PrimeBakes.Exports.Store.Product;
 using PrimeBakes.Models.Operations.Location;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Models.Store.Product;
@@ -6,7 +7,6 @@ using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
 
 using Syncfusion.Blazor.Grids;
-using PrimeBakes.Data.Store.Product;
 
 namespace PrimeBakes.Shared.Pages.Store.Product;
 

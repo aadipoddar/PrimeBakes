@@ -1,20 +1,24 @@
 ﻿using Dapper;
 
-using System.Data;
-
 using PrimeBakes.Data.Accounts.Masters;
 using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Inventory.Stock;
 using PrimeBakes.Data.Operations.AuditTrail;
+using PrimeBakes.Data.Operations.OfflineQueue;
 using PrimeBakes.Data.Utils.Mail;
+using PrimeBakes.Exports.Inventory.Kitchen.KitchenIssue;
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Inventory.Kitchen;
 using PrimeBakes.Models.Inventory.Kitchen.KitchenIssue;
 using PrimeBakes.Models.Inventory.Stock;
 using PrimeBakes.Models.Operations.AuditTrail;
+using PrimeBakes.Models.Operations.OfflineQueue;
 using PrimeBakes.Models.Operations.User;
-using PrimeBakes.Exports.Inventory.Kitchen.KitchenIssue;
+
+using System.Data;
+using System.Text.Json;
 
 namespace PrimeBakes.Data.Inventory.Kitchen.KitchenIssue;
 
@@ -58,6 +62,8 @@ public static class KitchenIssueReturnData
 
 		await FinancialYearData.ValidateFinancialYear(kitchenIssueReturn.TransactionDateTime, sqlDataAccessTransaction);
 
+		await DeleteOfflineQueue(kitchenIssueReturn, sqlDataAccessTransaction);
+
 		kitchenIssueReturn.Status = false;
 		await InsertKitchenIssueReturn(kitchenIssueReturn, sqlDataAccessTransaction);
 		await RawMaterialStockData.DeleteRawMaterialStockByTransactionNo(kitchenIssueReturn.TransactionNo, sqlDataAccessTransaction);
@@ -75,8 +81,24 @@ public static class KitchenIssueReturnData
 		}, sqlDataAccessTransaction);
 	}
 
+	private static async Task DeleteOfflineQueue(KitchenIssueReturnModel kitchenIssueReturn, SqlDataAccessTransaction sqlDataAccessTransaction)
+	{
+		if (!OfflineState.Offline)
+			return;
+
+		var offlineQueue = await CommonData.LoadTableDataByTransactionNo<OfflineQueueModel>(OperationNames.OfflineQueue, kitchenIssueReturn.TransactionNo, sqlDataAccessTransaction)
+			?? throw new InvalidOperationException("This kitchen issue return has already been synced and cannot be deleted while offline.");
+
+		await OfflineQueueData.DeleteOfflineQueueById(offlineQueue.Id, sqlDataAccessTransaction);
+	}
+	#endregion
+
+	#region Recover
 	public static async Task RecoverTransaction(KitchenIssueReturnModel kitchenIssueReturn)
 	{
+		if (OfflineState.Offline)
+			throw new InvalidOperationException("Kitchen issue returns cannot be recovered while offline.");
+
 		kitchenIssueReturn.Status = true;
 		var kitchenIssueReturnDetails = await CommonData.LoadTableDataByMasterId<KitchenIssueReturnDetailModel>(InventoryNames.KitchenIssueReturnDetail, kitchenIssueReturn.Id);
 		await SaveTransaction(kitchenIssueReturn, kitchenIssueReturnDetails, true);
@@ -86,8 +108,11 @@ public static class KitchenIssueReturnData
 	#endregion
 
 	#region Save
-	private static async Task<KitchenIssueReturnModel> ValidateTransaction(KitchenIssueReturnModel kitchenIssueReturn, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
+	private static async Task<KitchenIssueReturnModel> ValidateTransaction(KitchenIssueReturnModel kitchenIssueReturn, bool update, bool keepTransactionNo, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
+		if (update && OfflineState.Offline)
+			throw new InvalidOperationException("Kitchen issue returns cannot be modified while offline.");
+
 		kitchenIssueReturn.Remarks = string.IsNullOrWhiteSpace(kitchenIssueReturn.Remarks) ? null : kitchenIssueReturn.Remarks.Trim();
 
 		if (kitchenIssueReturn.CompanyId <= 0)
@@ -105,7 +130,7 @@ public static class KitchenIssueReturnData
 		if (kitchenIssueReturn.TotalAmount < 0)
 			throw new InvalidOperationException("The total amount of the transaction cannot be negative.");
 
-		if (!update)
+		if (!update && !keepTransactionNo)
 			kitchenIssueReturn.TransactionNo = await GenerateCodes.GenerateKitchenIssueReturnTransactionNo(kitchenIssueReturn, sqlDataAccessTransaction);
 
 		await FinancialYearData.ValidateFinancialYear(kitchenIssueReturn.TransactionDateTime, sqlDataAccessTransaction);
@@ -146,6 +171,7 @@ public static class KitchenIssueReturnData
 		KitchenIssueReturnModel kitchenIssueReturn,
 		List<KitchenIssueReturnDetailModel> kitchenIssueReturnDetails,
 		bool recover = false,
+		bool keepTransactionNo = false,
 		SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		bool update = kitchenIssueReturn.Id > 0;
@@ -154,7 +180,7 @@ public static class KitchenIssueReturnData
 		{
 			(MemoryStream, string)? previousInvoice = update && !recover ? KitchenIssueReturnInvoiceExport.ExportInvoice(await LoadInvoiceBundle(kitchenIssueReturn.Id), InvoiceExportType.PDF) : null;
 
-			kitchenIssueReturn.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(kitchenIssueReturn, kitchenIssueReturnDetails, recover, transaction));
+			kitchenIssueReturn.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(kitchenIssueReturn, kitchenIssueReturnDetails, recover, keepTransactionNo, transaction));
 
 			if (update && !recover)
 				await KitchenIssueReturnNotify.Notify(kitchenIssueReturn.Id, NotifyType.Updated, previousInvoice);
@@ -162,7 +188,7 @@ public static class KitchenIssueReturnData
 			return kitchenIssueReturn.Id;
 		}
 
-		kitchenIssueReturn = await ValidateTransaction(kitchenIssueReturn, update, sqlDataAccessTransaction);
+		kitchenIssueReturn = await ValidateTransaction(kitchenIssueReturn, update, keepTransactionNo, sqlDataAccessTransaction);
 		ValidateItemDetails(kitchenIssueReturn, kitchenIssueReturnDetails);
 
 		var previousKitchenIssueReturn = update && !recover ? await CommonData.LoadTableDataById<KitchenIssueReturnOverviewModel>(InventoryNames.KitchenIssueReturnOverview, kitchenIssueReturn.Id, sqlDataAccessTransaction) : new();
@@ -172,6 +198,7 @@ public static class KitchenIssueReturnData
 		if (!recover) await SaveTransactionDetail(kitchenIssueReturn, kitchenIssueReturnDetails, update, sqlDataAccessTransaction);
 		await SaveRawMaterialStock(kitchenIssueReturn, kitchenIssueReturnDetails, sqlDataAccessTransaction);
 		await SaveAuditTrail(kitchenIssueReturn, update, recover, previousKitchenIssueReturn, previousKitchenIssueReturnDetails, sqlDataAccessTransaction);
+		await SaveOfflineQueue(kitchenIssueReturn, kitchenIssueReturnDetails, recover, sqlDataAccessTransaction);
 
 		return kitchenIssueReturn.Id;
 	}
@@ -255,6 +282,19 @@ public static class KitchenIssueReturnData
 			CreatedPlatform = update ? kitchenIssueReturn.LastModifiedPlatform : kitchenIssueReturn.CreatedPlatform,
 			CreatedLatitude = update ? kitchenIssueReturn.LastModifiedLatitude : kitchenIssueReturn.CreatedLatitude,
 			CreatedLongitude = update ? kitchenIssueReturn.LastModifiedLongitude : kitchenIssueReturn.CreatedLongitude
+		}, sqlDataAccessTransaction);
+	}
+
+	private static async Task SaveOfflineQueue(KitchenIssueReturnModel kitchenIssueReturn, List<KitchenIssueReturnDetailModel> kitchenIssueReturnDetails, bool recover, SqlDataAccessTransaction sqlDataAccessTransaction)
+	{
+		if (!OfflineState.Offline)
+			return;
+
+		await OfflineQueueData.SaveTransaction(new()
+		{
+			TableName = InventoryNames.KitchenIssueReturn,
+			TransactionNo = kitchenIssueReturn.TransactionNo,
+			Payload = JsonSerializer.Serialize(new KitchenIssueReturnSaveRequest(kitchenIssueReturn, kitchenIssueReturnDetails, recover, true))
 		}, sqlDataAccessTransaction);
 	}
 	#endregion

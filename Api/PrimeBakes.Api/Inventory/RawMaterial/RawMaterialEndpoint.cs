@@ -1,6 +1,5 @@
 using PrimeBakes.Data.Inventory.RawMaterial;
 using PrimeBakes.Models.Common;
-using PrimeBakes.Models.Inventory.RawMaterial;
 
 namespace PrimeBakes.Api.Inventory.RawMaterial;
 

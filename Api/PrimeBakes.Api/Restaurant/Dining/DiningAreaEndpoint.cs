@@ -1,6 +1,5 @@
 using PrimeBakes.Data.Restaurant.Dining;
 using PrimeBakes.Models.Common;
-using PrimeBakes.Models.Restaurant.Dining;
 
 namespace PrimeBakes.Api.Restaurant.Dining;
 

@@ -1,9 +1,9 @@
 using Android.Gms.Common;
 
 using PrimeBakes.Models.Operations.Notification;
+using PrimeBakes.Services.Notification;
 
 using static Android.Provider.Settings;
-using PrimeBakes.Services.Notification;
 
 namespace PrimeBakes.Platforms.Android;
 
