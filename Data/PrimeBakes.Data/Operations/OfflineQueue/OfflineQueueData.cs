@@ -31,9 +31,6 @@ public static class OfflineQueueData
 		(await SqlDataAccess.LoadData<int, dynamic>(OperationNames.DeleteOfflineQueueById, new { Id }, sqlDataAccessTransaction, true)).FirstOrDefault()
 			is var result and > 0 ? result : throw new InvalidOperationException("Failed to Delete Offline Queue.");
 
-	private static async Task DeleteLocalTableData(string tableName, string keyColumn, string keys) =>
-		await SqlDataAccess.LoadData<int, dynamic>(OperationNames.DeleteTableDataByKeys, new { TableName = tableName, KeyColumn = keyColumn, Keys = keys }, useLocalDB: true);
-
 	#region Save
 	private static void ValidateTransaction(OfflineQueueModel offlineQueue)
 	{
@@ -79,7 +76,6 @@ public static class OfflineQueueData
 		{
 			var request = JsonSerializer.Deserialize<PurchaseOrderSaveRequest>(offlineQueue.Payload);
 
-			var localId = request.PurchaseOrder.Id;
 			request.PurchaseOrder.Id = 0;
 			request.PurchaseOrder.PurchaseId = null;
 
@@ -91,18 +87,12 @@ public static class OfflineQueueData
 
 			await PurchaseOrderData.SaveTransaction(request.PurchaseOrder, request.Details, request.Recover, request.KeepTransactionNo);
 			await DeleteOfflineQueueById(offlineQueue.Id);
-			//await DeleteLocalTableData(InventoryNames.PurchaseOrderDetail, nameof(PurchaseOrderDetailModel.MasterId), localId.ToString());
-			//await DeleteLocalTableData(InventoryNames.PurchaseOrder, nameof(PurchaseOrderModel.TransactionNo), offlineQueue.TransactionNo);
-			//await DeleteLocalTableData(OperationNames.AuditTrail, nameof(AuditTrailModel.RecordNo), offlineQueue.TransactionNo);
 			return;
 		}
 
 		if (offlineQueue.TableName == InventoryNames.Purchase)
 		{
 			var request = JsonSerializer.Deserialize<PurchaseSaveRequest>(offlineQueue.Payload);
-
-			var localId = request.Purchase.Id;
-			var localAccountingId = request.Purchase.FinancialAccountingId ?? 0;
 
 			request.Purchase.Id = 0;
 			request.Purchase.FinancialAccountingId = null;
@@ -116,21 +106,12 @@ public static class OfflineQueueData
 
 			await PurchaseData.SaveTransaction(request.Purchase, request.Details, request.Recover, request.KeepTransactionNo);
 			await DeleteOfflineQueueById(offlineQueue.Id);
-			//await DeleteLocalTableData(InventoryNames.PurchaseDetail, nameof(PurchaseDetailModel.MasterId), localId.ToString());
-			//await DeleteLocalTableData(InventoryNames.Purchase, nameof(PurchaseModel.TransactionNo), offlineQueue.TransactionNo);
-			//await DeleteLocalTableData(InventoryNames.RawMaterialStock, nameof(RawMaterialStockModel.TransactionNo), offlineQueue.TransactionNo);
-			//await DeleteLocalTableData(AccountNames.FinancialAccountingLedger, nameof(FinancialAccountingLedgerModel.MasterId), localAccountingId.ToString());
-			//await DeleteLocalTableData(AccountNames.FinancialAccounting, nameof(FinancialAccountingModel.Id), localAccountingId.ToString());
-			//await DeleteLocalTableData(OperationNames.AuditTrail, nameof(AuditTrailModel.RecordNo), offlineQueue.TransactionNo);
 			return;
 		}
 
 		if (offlineQueue.TableName == InventoryNames.PurchaseReturn)
 		{
 			var request = JsonSerializer.Deserialize<PurchaseReturnSaveRequest>(offlineQueue.Payload);
-
-			var localId = request.PurchaseReturn.Id;
-			var localAccountingId = request.PurchaseReturn.FinancialAccountingId ?? 0;
 
 			request.PurchaseReturn.Id = 0;
 			request.PurchaseReturn.FinancialAccountingId = null;
@@ -143,12 +124,6 @@ public static class OfflineQueueData
 
 			await PurchaseReturnData.SaveTransaction(request.PurchaseReturn, request.Details, request.Recover, request.KeepTransactionNo);
 			await DeleteOfflineQueueById(offlineQueue.Id);
-			//await DeleteLocalTableData(InventoryNames.PurchaseReturnDetail, nameof(PurchaseReturnDetailModel.MasterId), localId.ToString());
-			//await DeleteLocalTableData(InventoryNames.PurchaseReturn, nameof(PurchaseReturnModel.TransactionNo), offlineQueue.TransactionNo);
-			//await DeleteLocalTableData(InventoryNames.RawMaterialStock, nameof(RawMaterialStockModel.TransactionNo), offlineQueue.TransactionNo);
-			//await DeleteLocalTableData(AccountNames.FinancialAccountingLedger, nameof(FinancialAccountingLedgerModel.MasterId), localAccountingId.ToString());
-			//await DeleteLocalTableData(AccountNames.FinancialAccounting, nameof(FinancialAccountingModel.Id), localAccountingId.ToString());
-			//await DeleteLocalTableData(OperationNames.AuditTrail, nameof(AuditTrailModel.RecordNo), offlineQueue.TransactionNo);
 			return;
 		}
 
@@ -156,7 +131,6 @@ public static class OfflineQueueData
 		{
 			var request = JsonSerializer.Deserialize<KitchenIssueSaveRequest>(offlineQueue.Payload);
 
-			var localId = request.KitchenIssue.Id;
 			request.KitchenIssue.Id = 0;
 
 			foreach (var kitchenIssueDetail in request.Details)
@@ -167,10 +141,6 @@ public static class OfflineQueueData
 
 			await KitchenIssueData.SaveTransaction(request.KitchenIssue, request.Details, request.Recover, request.KeepTransactionNo);
 			await DeleteOfflineQueueById(offlineQueue.Id);
-			//await DeleteLocalTableData(InventoryNames.KitchenIssueDetail, nameof(KitchenIssueDetailModel.MasterId), localId.ToString());
-			//await DeleteLocalTableData(InventoryNames.KitchenIssue, nameof(KitchenIssueModel.TransactionNo), offlineQueue.TransactionNo);
-			//await DeleteLocalTableData(InventoryNames.RawMaterialStock, nameof(RawMaterialStockModel.TransactionNo), offlineQueue.TransactionNo);
-			//await DeleteLocalTableData(OperationNames.AuditTrail, nameof(AuditTrailModel.RecordNo), offlineQueue.TransactionNo);
 			return;
 		}
 
@@ -178,7 +148,6 @@ public static class OfflineQueueData
 		{
 			var request = JsonSerializer.Deserialize<KitchenIssueReturnSaveRequest>(offlineQueue.Payload);
 
-			var localId = request.KitchenIssueReturn.Id;
 			request.KitchenIssueReturn.Id = 0;
 
 			foreach (var kitchenIssueReturnDetail in request.Details)
@@ -189,10 +158,6 @@ public static class OfflineQueueData
 
 			await KitchenIssueReturnData.SaveTransaction(request.KitchenIssueReturn, request.Details, request.Recover, request.KeepTransactionNo);
 			await DeleteOfflineQueueById(offlineQueue.Id);
-			//await DeleteLocalTableData(InventoryNames.KitchenIssueReturnDetail, nameof(KitchenIssueReturnDetailModel.MasterId), localId.ToString());
-			//await DeleteLocalTableData(InventoryNames.KitchenIssueReturn, nameof(KitchenIssueReturnModel.TransactionNo), offlineQueue.TransactionNo);
-			//await DeleteLocalTableData(InventoryNames.RawMaterialStock, nameof(RawMaterialStockModel.TransactionNo), offlineQueue.TransactionNo);
-			//await DeleteLocalTableData(OperationNames.AuditTrail, nameof(AuditTrailModel.RecordNo), offlineQueue.TransactionNo);
 			return;
 		}
 
@@ -200,7 +165,6 @@ public static class OfflineQueueData
 		{
 			var request = JsonSerializer.Deserialize<KitchenProductionSaveRequest>(offlineQueue.Payload);
 
-			var localId = request.KitchenProduction.Id;
 			request.KitchenProduction.Id = 0;
 
 			foreach (var kitchenProductionDetail in request.Details)
@@ -211,10 +175,6 @@ public static class OfflineQueueData
 
 			await KitchenProductionData.SaveTransaction(request.KitchenProduction, request.Details, request.Recover, request.KeepTransactionNo);
 			await DeleteOfflineQueueById(offlineQueue.Id);
-			//await DeleteLocalTableData(InventoryNames.KitchenProductionDetail, nameof(KitchenProductionDetailModel.MasterId), localId.ToString());
-			//await DeleteLocalTableData(InventoryNames.KitchenProduction, nameof(KitchenProductionModel.TransactionNo), offlineQueue.TransactionNo);
-			//await DeleteLocalTableData(InventoryNames.ProductStock, nameof(ProductStockModel.TransactionNo), offlineQueue.TransactionNo);
-			//await DeleteLocalTableData(OperationNames.AuditTrail, nameof(AuditTrailModel.RecordNo), offlineQueue.TransactionNo);
 			return;
 		}
 
@@ -222,7 +182,6 @@ public static class OfflineQueueData
 		{
 			var request = JsonSerializer.Deserialize<KitchenProductionReturnSaveRequest>(offlineQueue.Payload);
 
-			var localId = request.KitchenProductionReturn.Id;
 			request.KitchenProductionReturn.Id = 0;
 
 			foreach (var kitchenProductionReturnDetail in request.Details)
@@ -233,10 +192,6 @@ public static class OfflineQueueData
 
 			await KitchenProductionReturnData.SaveTransaction(request.KitchenProductionReturn, request.Details, request.Recover, request.KeepTransactionNo);
 			await DeleteOfflineQueueById(offlineQueue.Id);
-			//await DeleteLocalTableData(InventoryNames.KitchenProductionReturnDetail, nameof(KitchenProductionReturnDetailModel.MasterId), localId.ToString());
-			//await DeleteLocalTableData(InventoryNames.KitchenProductionReturn, nameof(KitchenProductionReturnModel.TransactionNo), offlineQueue.TransactionNo);
-			//await DeleteLocalTableData(InventoryNames.ProductStock, nameof(ProductStockModel.TransactionNo), offlineQueue.TransactionNo);
-			//await DeleteLocalTableData(OperationNames.AuditTrail, nameof(AuditTrailModel.RecordNo), offlineQueue.TransactionNo);
 			return;
 		}
 
@@ -247,7 +202,6 @@ public static class OfflineQueueData
 		{
 			var request = JsonSerializer.Deserialize<OrderSaveRequest>(offlineQueue.Payload);
 
-			var localId = request.Order.Id;
 			request.Order.Id = 0;
 			request.Order.SaleId = null;
 
@@ -259,19 +213,12 @@ public static class OfflineQueueData
 
 			await OrderData.SaveTransaction(request.Order, request.OrderDetails, request.Recover, request.KeepTransactionNo);
 			await DeleteOfflineQueueById(offlineQueue.Id);
-			//await DeleteLocalTableData(StoreNames.OrderDetail, nameof(OrderDetailModel.MasterId), localId.ToString());
-			//await DeleteLocalTableData(StoreNames.Order, nameof(OrderModel.TransactionNo), offlineQueue.TransactionNo);
-			//await DeleteLocalTableData(OperationNames.AuditTrail, nameof(AuditTrailModel.RecordNo), offlineQueue.TransactionNo);
 			return;
 		}
 
 		if (offlineQueue.TableName == StoreNames.Sale)
 		{
 			var request = JsonSerializer.Deserialize<SaleSaveRequest>(offlineQueue.Payload);
-
-			var localId = request.Sale.Id;
-			var localAccountingId = request.Sale.FinancialAccountingId ?? 0;
-			var localCustomerId = request.Sale.CustomerId ?? 0;
 
 			request.Sale.Id = 0;
 			request.Sale.FinancialAccountingId = null;
@@ -289,16 +236,6 @@ public static class OfflineQueueData
 
 			await SaleData.SaveTransaction(request.Sale, request.SaleDetails, request.Customer, request.Recover, request.KeepTransactionNo);
 			await DeleteOfflineQueueById(offlineQueue.Id);
-			//await DeleteLocalTableData(StoreNames.SaleDetail, nameof(SaleDetailModel.MasterId), localId.ToString());
-			//await DeleteLocalTableData(StoreNames.Sale, nameof(SaleModel.TransactionNo), offlineQueue.TransactionNo);
-			//await DeleteLocalTableData(InventoryNames.ProductStock, nameof(ProductStockModel.TransactionNo), offlineQueue.TransactionNo);
-			//await DeleteLocalTableData(InventoryNames.RawMaterialStock, nameof(RawMaterialStockModel.TransactionNo), offlineQueue.TransactionNo);
-			//await DeleteLocalTableData(AccountNames.FinancialAccountingLedger, nameof(FinancialAccountingLedgerModel.MasterId), localAccountingId.ToString());
-			//await DeleteLocalTableData(AccountNames.FinancialAccounting, nameof(FinancialAccountingModel.Id), localAccountingId.ToString());
-			//await DeleteLocalTableData(OperationNames.AuditTrail, nameof(AuditTrailModel.RecordNo), offlineQueue.TransactionNo);
-
-			//if (localCustomerId > 0 && request.Sale.CustomerId != localCustomerId)
-			//await DeleteLocalTableData(StoreNames.Customer, nameof(CustomerModel.Id), localCustomerId.ToString());
 
 			return;
 		}
@@ -306,10 +243,6 @@ public static class OfflineQueueData
 		if (offlineQueue.TableName == StoreNames.SaleReturn)
 		{
 			var request = JsonSerializer.Deserialize<SaleReturnSaveRequest>(offlineQueue.Payload);
-
-			var localId = request.SaleReturn.Id;
-			var localAccountingId = request.SaleReturn.FinancialAccountingId ?? 0;
-			var localCustomerId = request.SaleReturn.CustomerId ?? 0;
 
 			request.SaleReturn.Id = 0;
 			request.SaleReturn.FinancialAccountingId = null;
@@ -326,15 +259,6 @@ public static class OfflineQueueData
 
 			await SaleReturnData.SaveTransaction(request.SaleReturn, request.SaleReturnDetails, request.Customer, request.Recover, request.KeepTransactionNo);
 			await DeleteOfflineQueueById(offlineQueue.Id);
-			//await DeleteLocalTableData(StoreNames.SaleReturnDetail, nameof(SaleReturnDetailModel.MasterId), localId.ToString());
-			//await DeleteLocalTableData(StoreNames.SaleReturn, nameof(SaleReturnModel.TransactionNo), offlineQueue.TransactionNo);
-			//await DeleteLocalTableData(InventoryNames.ProductStock, nameof(ProductStockModel.TransactionNo), offlineQueue.TransactionNo);
-			//await DeleteLocalTableData(AccountNames.FinancialAccountingLedger, nameof(FinancialAccountingLedgerModel.MasterId), localAccountingId.ToString());
-			//await DeleteLocalTableData(AccountNames.FinancialAccounting, nameof(FinancialAccountingModel.Id), localAccountingId.ToString());
-			//await DeleteLocalTableData(OperationNames.AuditTrail, nameof(AuditTrailModel.RecordNo), offlineQueue.TransactionNo);
-
-			//if (localCustomerId > 0 && request.SaleReturn.CustomerId != localCustomerId)
-			//await DeleteLocalTableData(StoreNames.Customer, nameof(CustomerModel.Id), localCustomerId.ToString());
 
 			return;
 		}
@@ -342,9 +266,6 @@ public static class OfflineQueueData
 		if (offlineQueue.TableName == StoreNames.StockTransfer)
 		{
 			var request = JsonSerializer.Deserialize<StockTransferSaveRequest>(offlineQueue.Payload);
-
-			var localId = request.StockTransfer.Id;
-			var localAccountingId = request.StockTransfer.FinancialAccountingId ?? 0;
 
 			request.StockTransfer.Id = 0;
 			request.StockTransfer.FinancialAccountingId = null;
@@ -357,13 +278,6 @@ public static class OfflineQueueData
 
 			await StockTransferData.SaveTransaction(request.StockTransfer, request.StockTransferDetails, request.Recover, request.KeepTransactionNo);
 			await DeleteOfflineQueueById(offlineQueue.Id);
-			//await DeleteLocalTableData(StoreNames.StockTransferDetail, nameof(StockTransferDetailModel.MasterId), localId.ToString());
-			//await DeleteLocalTableData(StoreNames.StockTransfer, nameof(StockTransferModel.TransactionNo), offlineQueue.TransactionNo);
-			//await DeleteLocalTableData(InventoryNames.ProductStock, nameof(ProductStockModel.TransactionNo), offlineQueue.TransactionNo);
-			//await DeleteLocalTableData(InventoryNames.RawMaterialStock, nameof(RawMaterialStockModel.TransactionNo), offlineQueue.TransactionNo);
-			//await DeleteLocalTableData(AccountNames.FinancialAccountingLedger, nameof(FinancialAccountingLedgerModel.MasterId), localAccountingId.ToString());
-			//await DeleteLocalTableData(AccountNames.FinancialAccounting, nameof(FinancialAccountingModel.Id), localAccountingId.ToString());
-			//await DeleteLocalTableData(OperationNames.AuditTrail, nameof(AuditTrailModel.RecordNo), offlineQueue.TransactionNo);
 			return;
 		}
 

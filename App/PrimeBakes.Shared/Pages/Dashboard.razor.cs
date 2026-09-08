@@ -1,6 +1,7 @@
 using PrimeBakes.Data.Operations.Maintenance;
 using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Models.DataAccess;
+using PrimeBakes.Models.Operations.OfflineQueue;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Shared.Components.Dialog;
@@ -127,8 +128,11 @@ public partial class Dashboard
 		if (Platform.Contains("Android") || Factor is "Web" or "Wasm")
 			_ = NotificationService.RegisterDevicePushNotification(_user.Id.ToString());
 
-		if (!OfflineState.Offline)
-			await LoadBackupReminder();
+		if (OfflineState.Offline)
+			return;
+
+		await LoadOfflineQueueReminder();
+		await LoadBackupReminder();
 	}
 
 	private async Task LoadBackupReminder()
@@ -148,6 +152,23 @@ public partial class Dashboard
 					lastBackup is null
 						? "The backup server has never been updated. Please run a backup from Settings."
 						: $"Last backup was {elapsed} days ago. Please run a backup from Settings.",
+					ToastType.Warning);
+		}
+		catch { }
+	}
+
+	private async Task LoadOfflineQueueReminder()
+	{
+		if (!OfflineState.LocalDBAvailable)
+			return;
+
+		try
+		{
+			var pending = (await CommonData.LoadTableData<OfflineQueueModel>(OperationNames.OfflineQueue, useLocalDB: true)).Count;
+
+			if (pending > 0)
+				await _toastNotification.ShowAsync("Pending Sync",
+					$"{pending} offline transactions are waiting to be synced.",
 					ToastType.Warning);
 		}
 		catch { }

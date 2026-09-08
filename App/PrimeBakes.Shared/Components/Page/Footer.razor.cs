@@ -150,7 +150,7 @@ public partial class Footer : IAsyncDisposable
 		OfflineState.Syncing || _lastSyncedAt is null ? "Syncing" : $"Synced {FormatAge(DateTime.Now - _lastSyncedAt.Value)}";
 
 	private string LastSyncedClass =>
-		OfflineState.Syncing || _lastSyncedAt is null || DateTime.Now - _lastSyncedAt.Value <= TimeSpan.FromMinutes(_refreshMinutes) ? "load-low" : "load-high";
+		!OfflineState.Syncing && (_lastSyncedAt is null || DateTime.Now - _lastSyncedAt.Value <= TimeSpan.FromMinutes(_refreshMinutes)) ? "load-low" : "load-high";
 
 	private static string FormatAge(TimeSpan age) => age switch
 	{
