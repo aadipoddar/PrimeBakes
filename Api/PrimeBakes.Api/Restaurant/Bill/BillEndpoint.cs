@@ -37,7 +37,7 @@ public class BillEndpoint : ICarterModule
 			(BillModel bill) => BillData.RecoverTransaction(bill));
 
 		group.MapPost(nameof(BillData.SaveTransaction),
-			(BillSaveRequest request) => BillData.SaveTransaction(request.Bill, request.BillDetails, request.Customer, request.Recover));
+			(BillSaveRequest request) => BillData.SaveTransaction(request.Bill, request.BillDetails, request.Customer, request.Recover, request.KeepTransactionNo));
 
 		group.MapPost(nameof(BillData.PostDayBills),
 			(DateTime postingDate, int locationId, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>

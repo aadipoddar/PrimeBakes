@@ -7,6 +7,7 @@ using PrimeBakes.Data.Inventory.Recipe;
 using PrimeBakes.Data.Inventory.Stock;
 using PrimeBakes.Data.Operations.AuditTrail;
 using PrimeBakes.Data.Operations.Location;
+using PrimeBakes.Data.Operations.OfflineQueue;
 using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Data.Store.Customer;
 using PrimeBakes.Data.Store.Product;
@@ -20,6 +21,7 @@ using PrimeBakes.Models.Inventory.Recipe;
 using PrimeBakes.Models.Inventory.Stock;
 using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Operations.Location;
+using PrimeBakes.Models.Operations.OfflineQueue;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Models.Restaurant.Bill;
@@ -28,6 +30,7 @@ using PrimeBakes.Models.Store.Customer;
 using PrimeBakes.Models.Store.Product;
 
 using System.Data;
+using System.Text.Json;
 
 namespace PrimeBakes.Data.Restaurant.Bill;
 
@@ -55,6 +58,54 @@ public static class BillData
 			bill.FinancialAccountingId = newFinancialAccountingId;
 			await InsertBill(bill, sqlDataAccessTransaction);
 		}
+	}
+
+	public static async Task<BillInvoiceBundle> LoadInvoiceBundle(int transactionId)
+	{
+		var transaction = await CommonData.LoadTableDataById<BillOverviewModel>(RestaurantNames.BillOverview, transactionId) ??
+			throw new InvalidOperationException("Transaction not found.");
+
+		var transactionDetails = await CommonData.LoadTableDataByMasterId<BillItemOverviewModel>(RestaurantNames.BillItemOverview, transaction.Id);
+		transactionDetails = [.. transactionDetails.OrderBy(detail => detail.ItemName)];
+		if (transactionDetails is null || transactionDetails.Count == 0)
+			throw new InvalidOperationException("No transaction details found for the transaction.");
+
+		var company = await CommonData.LoadTableDataById<CompanyModel>(AccountNames.Company, transaction.CompanyId);
+		var location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, transaction.LocationId);
+
+		LedgerModel customerLedger = null;
+		if (transaction.CustomerId.HasValue && transaction.CustomerId.Value > 0)
+		{
+			var customer = await CommonData.LoadTableDataById<CustomerModel>(StoreNames.Customer, transaction.CustomerId.Value);
+			if (customer is not null)
+				customerLedger = new LedgerModel
+				{
+					Name = customer.Name,
+					Phone = customer.Number,
+				};
+		}
+
+		return new(transaction, transactionDetails, company, location, customerLedger, await CommonData.LoadCurrentDateTime());
+	}
+
+	public static async Task<BillThermalBundle> LoadThermalBundle(int billId)
+	{
+		var bill = await CommonData.LoadTableDataById<BillOverviewModel>(RestaurantNames.BillOverview, billId);
+		var billDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, bill.Id);
+		var products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
+
+		var primaryCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
+		var company = await CommonData.LoadTableDataById<CompanyModel>(AccountNames.Company, int.Parse(primaryCompanyId.Value));
+
+		return new(bill, billDetails, products, company, await CommonData.LoadCurrentDateTime());
+	}
+
+	public static async Task<KOTThermalBundle> LoadKOTThermalBundle(int billId, int kotCategoryId)
+	{
+		var bill = await CommonData.LoadTableDataById<BillOverviewModel>(RestaurantNames.BillOverview, billId);
+		var kotCategory = await CommonData.LoadTableDataById<KOTCategoryModel>(StoreNames.KOTCategory, kotCategoryId);
+
+		return new(bill, kotCategory, await CommonData.LoadCurrentDateTime());
 	}
 
 	#region KOT
@@ -109,56 +160,28 @@ public static class BillData
 		}
 
 		await InsertBillDetailList(SqlDataAccess.ToDataTable(details));
+		await RefreshOfflineQueue(billId);
+	}
+
+	private static async Task RefreshOfflineQueue(int billId)
+	{
+		if (!OfflineState.Offline)
+			return;
+
+		var bill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, billId);
+		if (bill is null)
+			return;
+
+		var offlineQueue = await CommonData.LoadTableDataByTransactionNo<OfflineQueueModel>(OperationNames.OfflineQueue, bill.TransactionNo);
+		if (offlineQueue is null)
+			return;
+
+		var request = JsonSerializer.Deserialize<BillSaveRequest>(offlineQueue.Payload);
+		var billDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, billId);
+
+		await SaveOfflineQueue(bill, billDetails, request.Customer, request.Recover, null);
 	}
 	#endregion
-
-	public static async Task<BillInvoiceBundle> LoadInvoiceBundle(int transactionId)
-	{
-		var transaction = await CommonData.LoadTableDataById<BillOverviewModel>(RestaurantNames.BillOverview, transactionId) ??
-			throw new InvalidOperationException("Transaction not found.");
-
-		var transactionDetails = await CommonData.LoadTableDataByMasterId<BillItemOverviewModel>(RestaurantNames.BillItemOverview, transaction.Id);
-		transactionDetails = [.. transactionDetails.OrderBy(detail => detail.ItemName)];
-		if (transactionDetails is null || transactionDetails.Count == 0)
-			throw new InvalidOperationException("No transaction details found for the transaction.");
-
-		var company = await CommonData.LoadTableDataById<CompanyModel>(AccountNames.Company, transaction.CompanyId);
-		var location = await CommonData.LoadTableDataById<LocationModel>(OperationNames.Location, transaction.LocationId);
-
-		LedgerModel customerLedger = null;
-		if (transaction.CustomerId.HasValue && transaction.CustomerId.Value > 0)
-		{
-			var customer = await CommonData.LoadTableDataById<CustomerModel>(StoreNames.Customer, transaction.CustomerId.Value);
-			if (customer is not null)
-				customerLedger = new LedgerModel
-				{
-					Name = customer.Name,
-					Phone = customer.Number,
-				};
-		}
-
-		return new(transaction, transactionDetails, company, location, customerLedger, await CommonData.LoadCurrentDateTime());
-	}
-
-	public static async Task<BillThermalBundle> LoadThermalBundle(int billId)
-	{
-		var bill = await CommonData.LoadTableDataById<BillOverviewModel>(RestaurantNames.BillOverview, billId);
-		var billDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, bill.Id);
-		var products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
-
-		var primaryCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
-		var company = await CommonData.LoadTableDataById<CompanyModel>(AccountNames.Company, int.Parse(primaryCompanyId.Value));
-
-		return new(bill, billDetails, products, company, await CommonData.LoadCurrentDateTime());
-	}
-
-	public static async Task<KOTThermalBundle> LoadKOTThermalBundle(int billId, int kotCategoryId)
-	{
-		var bill = await CommonData.LoadTableDataById<BillOverviewModel>(RestaurantNames.BillOverview, billId);
-		var kotCategory = await CommonData.LoadTableDataById<KOTCategoryModel>(StoreNames.KOTCategory, kotCategoryId);
-
-		return new(bill, kotCategory, await CommonData.LoadCurrentDateTime());
-	}
 
 	#region Delete
 	public static async Task DeleteTransaction(BillModel bill, SqlDataAccessTransaction sqlDataAccessTransaction = null)
@@ -172,6 +195,8 @@ public static class BillData
 
 		await ValidateDayBillsAccountPosting(bill.TransactionDateTime, bill.LocationId, sqlDataAccessTransaction);
 		await FinancialYearData.ValidateFinancialYear(bill.TransactionDateTime, sqlDataAccessTransaction);
+
+		await DeleteOfflineQueue(bill, sqlDataAccessTransaction);
 
 		bill.Status = false;
 		await InsertBill(bill, sqlDataAccessTransaction);
@@ -212,8 +237,24 @@ public static class BillData
 		await FinancialAccountingData.DeleteTransaction(existingAccounting, fromModule: true, sqlDataAccessTransaction: sqlDataAccessTransaction);
 	}
 
+	private static async Task DeleteOfflineQueue(BillModel bill, SqlDataAccessTransaction sqlDataAccessTransaction)
+	{
+		if (!OfflineState.Offline)
+			return;
+
+		var offlineQueue = await CommonData.LoadTableDataByTransactionNo<OfflineQueueModel>(OperationNames.OfflineQueue, bill.TransactionNo, sqlDataAccessTransaction)
+			?? throw new InvalidOperationException("This bill has already been synced and cannot be deleted while offline.");
+
+		await OfflineQueueData.DeleteOfflineQueueById(offlineQueue.Id, sqlDataAccessTransaction);
+	}
+	#endregion
+
+	#region Recover
 	public static async Task RecoverTransaction(BillModel bill)
 	{
+		if (OfflineState.Offline)
+			throw new InvalidOperationException("Bills cannot be recovered while offline.");
+
 		bill.Status = true;
 		var billDetails = await CommonData.LoadTableDataByMasterId<BillDetailModel>(RestaurantNames.BillDetail, bill.Id);
 		await SaveTransaction(bill, billDetails, recover: true);
@@ -223,7 +264,7 @@ public static class BillData
 	#endregion
 
 	#region Save
-	private static async Task<BillModel> ValidateTransaction(BillModel bill, bool update, SqlDataAccessTransaction sqlDataAccessTransaction)
+	private static async Task<BillModel> ValidateTransaction(BillModel bill, bool update, bool keepTransactionNo, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
 		bill.Remarks = string.IsNullOrWhiteSpace(bill.Remarks) ? null : bill.Remarks.Trim();
 
@@ -293,8 +334,20 @@ public static class BillData
 			var existingBill = await CommonData.LoadTableDataById<BillModel>(RestaurantNames.Bill, bill.Id, sqlDataAccessTransaction)
 				?? throw new InvalidOperationException("The transaction to be updated does not exist.");
 
+			if (!string.IsNullOrWhiteSpace(bill.TransactionNo) && bill.TransactionNo != existingBill.TransactionNo)
+				throw new InvalidOperationException("This bill has moved to the server. Please reopen the bill and try again.");
+
+			if (OfflineState.Offline)
+			{
+				var billQueue = await CommonData.LoadTableDataByTransactionNo<OfflineQueueModel>(OperationNames.OfflineQueue, existingBill.TransactionNo, sqlDataAccessTransaction)
+					?? throw new InvalidOperationException("This bill was created online and cannot be changed while offline.");
+			}
+
 			if (existingBill.FinancialAccountingId is not null)
 				throw new InvalidOperationException("Cannot update a bill with financial accounting.");
+
+			if (!existingBill.Running && OfflineState.Offline)
+				throw new InvalidOperationException("Settled bills cannot be modified while offline.");
 
 			var user = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, bill.LastModifiedBy.Value, sqlDataAccessTransaction);
 			if (!existingBill.Running && !(user.Admin && user.LocationId == 1))
@@ -305,7 +358,7 @@ public static class BillData
 
 			bill.TransactionNo = existingBill.TransactionNo;
 		}
-		else
+		else if (!keepTransactionNo)
 			bill.TransactionNo = await GenerateCodes.GenerateBillTransactionNo(bill, sqlDataAccessTransaction);
 
 		await ValidateDayBillsAccountPosting(bill.TransactionDateTime, bill.LocationId, sqlDataAccessTransaction);
@@ -392,6 +445,7 @@ public static class BillData
 		List<BillDetailModel> billDetails,
 		CustomerModel customer = null,
 		bool recover = false,
+		bool keepTransactionNo = false,
 		SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		bool update = bill.Id > 0;
@@ -404,7 +458,7 @@ public static class BillData
 			(MemoryStream, string)? previousInvoice = settledUpdate && !recover && !bill.Running
 				? BillInvoiceExport.ExportInvoice(await LoadInvoiceBundle(bill.Id), InvoiceExportType.PDF) : null;
 
-			bill.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(bill, billDetails, customer, recover, transaction));
+			bill.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(bill, billDetails, customer, recover, keepTransactionNo, transaction));
 
 			if (settledUpdate && !recover && !bill.Running)
 				await BillNotify.Notify(bill.Id, NotifyType.Updated, previousInvoice);
@@ -415,7 +469,7 @@ public static class BillData
 		if (!recover && customer is not null)
 			bill.CustomerId = await CustomerData.ResolveCustomer(customer, sqlDataAccessTransaction);
 
-		bill = await ValidateTransaction(bill, update, sqlDataAccessTransaction);
+		bill = await ValidateTransaction(bill, update, keepTransactionNo, sqlDataAccessTransaction);
 		await ValidateItemDetails(bill, billDetails, update, sqlDataAccessTransaction);
 
 		var previousBill = update ? await CommonData.LoadTableDataById<BillOverviewModel>(RestaurantNames.BillOverview, bill.Id, sqlDataAccessTransaction) : new();
@@ -434,6 +488,8 @@ public static class BillData
 			await SaveAccounting(bill, sqlDataAccessTransaction);
 			await SaveAuditTrail(bill, auditUpdate, recover, previousBill, previousBillDetails, sqlDataAccessTransaction);
 		}
+
+		await SaveOfflineQueue(bill, billDetails, customer, recover, sqlDataAccessTransaction);
 
 		return bill.Id;
 	}
@@ -642,6 +698,22 @@ public static class BillData
 			CreatedPlatform = update ? bill.LastModifiedPlatform : bill.CreatedPlatform,
 			CreatedLatitude = update ? bill.LastModifiedLatitude : bill.CreatedLatitude,
 			CreatedLongitude = update ? bill.LastModifiedLongitude : bill.CreatedLongitude
+		}, sqlDataAccessTransaction);
+	}
+
+	private static async Task SaveOfflineQueue(BillModel bill, List<BillDetailModel> billDetails, CustomerModel customer, bool recover, SqlDataAccessTransaction sqlDataAccessTransaction)
+	{
+		if (!OfflineState.Offline)
+			return;
+
+		var existingQueue = await CommonData.LoadTableDataByTransactionNo<OfflineQueueModel>(OperationNames.OfflineQueue, bill.TransactionNo, sqlDataAccessTransaction);
+
+		await OfflineQueueData.SaveTransaction(new()
+		{
+			Id = existingQueue?.Id ?? 0,
+			TableName = RestaurantNames.Bill,
+			TransactionNo = bill.TransactionNo,
+			Payload = JsonSerializer.Serialize(new BillSaveRequest(bill, billDetails, customer, recover, true))
 		}, sqlDataAccessTransaction);
 	}
 	#endregion

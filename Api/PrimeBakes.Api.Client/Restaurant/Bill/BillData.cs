@@ -34,9 +34,9 @@ public static class BillData
 	public static async Task RecoverTransaction(BillModel bill) =>
 		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(RecoverTransaction)), bill);
 
-	public static async Task<int> SaveTransaction(BillModel bill, List<BillDetailModel> billDetails, CustomerModel customer = null, bool recover = false) =>
+	public static async Task<int> SaveTransaction(BillModel bill, List<BillDetailModel> billDetails, CustomerModel customer = null, bool recover = false, bool keepTransactionNo = false) =>
 		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(SaveTransaction)),
-			new BillSaveRequest(bill, billDetails, customer, recover));
+			new BillSaveRequest(bill, billDetails, customer, recover, keepTransactionNo));
 
 	public static async Task PostDayBills(DateTime postingDate, int locationId, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(PostDayBills)), new { }, new { postingDate, locationId, userId, formFactor, platform, latitude, longitude });

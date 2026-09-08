@@ -9,7 +9,8 @@ public sealed record BillSaveRequest(
 	BillModel Bill,
 	List<BillDetailModel> BillDetails,
 	CustomerModel Customer,
-	bool Recover);
+	bool Recover,
+	bool KeepTransactionNo);
 
 public sealed record BillInvoiceBundle(
 	BillOverviewModel Transaction,

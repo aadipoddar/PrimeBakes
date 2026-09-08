@@ -171,10 +171,13 @@ public static class FinancialAccountingData
 		return accounting;
 	}
 
-	private static void ValidateTransactionLedgers(FinancialAccountingModel accounting, List<FinancialAccountingLedgerModel> ledgers)
+	private static void ValidateTransactionLedgers(FinancialAccountingModel accounting, List<FinancialAccountingLedgerModel> ledgers, bool fromModule)
 	{
 		if (ledgers is null || ledgers.Count == 0)
 			throw new InvalidOperationException("The transaction must have at least one accounting ledger.");
+
+		if (!fromModule && OfflineState.Offline && ledgers.Any(ledger => ledger.ReferenceId is not null && ledger.ReferenceId > 0))
+			throw new InvalidOperationException("A reference cannot be tagged while offline.");
 
 		if (ledgers.Any(d => !d.Status))
 			throw new InvalidOperationException("Accounting ledgers must be active.");
@@ -212,7 +215,7 @@ public static class FinancialAccountingData
 		}
 
 		accounting = await ValidateTransaction(accounting, update, keepTransactionNo, sqlDataAccessTransaction);
-		ValidateTransactionLedgers(accounting, ledgers);
+		ValidateTransactionLedgers(accounting, ledgers, fromModule);
 
 		var previousAccounting = update && !recover ? await CommonData.LoadTableDataById<FinancialAccountingOverviewModel>(AccountNames.FinancialAccountingOverview, accounting.Id, sqlDataAccessTransaction) : new();
 		var previousLedgers = update && !recover ? await CommonData.LoadTableDataByMasterId<FinancialAccountingLedgerOverviewModel>(AccountNames.FinancialAccountingLedgerOverview, accounting.Id, sqlDataAccessTransaction) : [];

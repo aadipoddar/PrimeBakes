@@ -1,5 +1,6 @@
 ﻿using PrimeBakes.Data.Common;
 using PrimeBakes.Models.Common;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.Terminal;
 
 namespace PrimeBakes.Data.Operations.Terminal;
@@ -50,6 +51,11 @@ public static class TerminalData
 	public static async Task<int> SaveTransaction(TerminalModel terminal)
 	{
 		await ValidateTransaction(terminal);
+
+		if (OfflineState.Offline)
+			return terminal.Id > 0 ? terminal.Id
+				: throw new Exception("This terminal is not registered. Please connect to the internet to register it.");
+
 		return terminal.Id = await InsertTerminal(terminal);
 	}
 }

@@ -4,6 +4,7 @@ using PrimeBakes.Data.Inventory.Kitchen.KitchenIssue;
 using PrimeBakes.Data.Inventory.Kitchen.KitchenProduction;
 using PrimeBakes.Data.Inventory.Purchase;
 using PrimeBakes.Data.Inventory.PurchaseOrder;
+using PrimeBakes.Data.Restaurant.Bill;
 using PrimeBakes.Data.Store.Order;
 using PrimeBakes.Data.Store.Sale;
 using PrimeBakes.Data.Store.StockTransfer;
@@ -15,6 +16,7 @@ using PrimeBakes.Models.Inventory.Kitchen.KitchenProduction;
 using PrimeBakes.Models.Inventory.Purchase;
 using PrimeBakes.Models.Inventory.PurchaseOrder;
 using PrimeBakes.Models.Operations.OfflineQueue;
+using PrimeBakes.Models.Restaurant.Bill;
 using PrimeBakes.Models.Store.Order;
 using PrimeBakes.Models.Store.Sale;
 using PrimeBakes.Models.Store.StockTransfer;
@@ -213,6 +215,35 @@ public static class OfflineQueueData
 			}
 
 			await KitchenProductionReturnData.SaveTransaction(request.KitchenProductionReturn, request.Details, request.Recover, request.KeepTransactionNo);
+			await DeleteOfflineQueueById(offlineQueue.Id);
+			return;
+		}
+
+		#endregion
+
+		#region Restaurant
+		if (offlineQueue.TableName == RestaurantNames.Bill)
+		{
+			var request = JsonSerializer.Deserialize<BillSaveRequest>(offlineQueue.Payload);
+
+			if (request.Bill.Running && (await BillData.LoadRunningBillByLocationId(request.Bill.LocationId))
+				.Any(runningBill => runningBill.DiningTableId == request.Bill.DiningTableId && runningBill.TransactionNo != request.Bill.TransactionNo))
+				return;
+
+			request.Bill.Id = 0;
+			request.Bill.FinancialAccountingId = null;
+			request.Bill.CustomerId = null;
+
+			if (request.Customer is not null)
+				request.Customer.Id = 0;
+
+			foreach (var billDetail in request.BillDetails)
+			{
+				billDetail.Id = 0;
+				billDetail.MasterId = 0;
+			}
+
+			await BillData.SaveTransaction(request.Bill, request.BillDetails, request.Customer, request.Recover, request.KeepTransactionNo);
 			await DeleteOfflineQueueById(offlineQueue.Id);
 			return;
 		}
