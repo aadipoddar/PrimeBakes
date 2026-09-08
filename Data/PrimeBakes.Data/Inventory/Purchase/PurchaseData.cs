@@ -122,7 +122,7 @@ public static class PurchaseData
 		existingAccounting.LastModifiedLatitude = purchase.LastModifiedLatitude;
 		existingAccounting.LastModifiedLongitude = purchase.LastModifiedLongitude;
 
-		await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
+		await FinancialAccountingData.DeleteTransaction(existingAccounting, fromModule: true, sqlDataAccessTransaction: sqlDataAccessTransaction);
 	}
 
 	private static async Task DeleteOfflineQueue(PurchaseModel purchase, SqlDataAccessTransaction sqlDataAccessTransaction)
@@ -403,7 +403,7 @@ public static class PurchaseData
 		};
 
 		var ledgers = accountingCart.ConvertCartToDetails(accounting.Id);
-		accounting.Id = await FinancialAccountingData.SaveTransaction(accounting, ledgers, false, sqlDataAccessTransaction);
+		accounting.Id = await FinancialAccountingData.SaveTransaction(accounting, ledgers, fromModule: true, sqlDataAccessTransaction: sqlDataAccessTransaction);
 
 		purchase.FinancialAccountingId = accounting.Id;
 		await InsertPurchase(purchase, sqlDataAccessTransaction);

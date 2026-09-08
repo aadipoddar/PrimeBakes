@@ -130,7 +130,7 @@ public static class SaleReturnData
 		existingAccounting.LastModifiedLatitude = saleReturn.LastModifiedLatitude;
 		existingAccounting.LastModifiedLongitude = saleReturn.LastModifiedLongitude;
 
-		await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
+		await FinancialAccountingData.DeleteTransaction(existingAccounting, fromModule: true, sqlDataAccessTransaction: sqlDataAccessTransaction);
 	}
 
 	private static async Task DeleteOfflineQueue(SaleReturnModel saleReturn, SqlDataAccessTransaction sqlDataAccessTransaction)
@@ -515,7 +515,7 @@ public static class SaleReturnData
 		};
 
 		var ledgers = accountingCart.ConvertCartToDetails(accounting.Id);
-		accounting.Id = await FinancialAccountingData.SaveTransaction(accounting, ledgers, false, sqlDataAccessTransaction);
+		accounting.Id = await FinancialAccountingData.SaveTransaction(accounting, ledgers, fromModule: true, sqlDataAccessTransaction: sqlDataAccessTransaction);
 
 		saleReturn.FinancialAccountingId = accounting.Id;
 		await InsertSaleReturn(saleReturn, sqlDataAccessTransaction);

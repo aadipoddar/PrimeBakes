@@ -1,4 +1,5 @@
-﻿using PrimeBakes.Data.Common;
+﻿using PrimeBakes.Data.Accounts.FinancialAccounting;
+using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Inventory.Kitchen.KitchenIssue;
 using PrimeBakes.Data.Inventory.Kitchen.KitchenProduction;
 using PrimeBakes.Data.Inventory.Purchase;
@@ -6,6 +7,7 @@ using PrimeBakes.Data.Inventory.PurchaseOrder;
 using PrimeBakes.Data.Store.Order;
 using PrimeBakes.Data.Store.Sale;
 using PrimeBakes.Data.Store.StockTransfer;
+using PrimeBakes.Models.Accounts.FinancialAccounting;
 using PrimeBakes.Models.Common;
 using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Inventory.Kitchen.KitchenIssue;
@@ -71,6 +73,26 @@ public static class OfflineQueueData
 
 	private static async Task PushTransaction(OfflineQueueModel offlineQueue)
 	{
+		#region Accounts
+		if (offlineQueue.TableName == AccountNames.FinancialAccounting)
+		{
+			var request = JsonSerializer.Deserialize<FinancialAccountingSaveRequest>(offlineQueue.Payload);
+
+			request.Accounting.Id = 0;
+
+			foreach (var financialAccountingLedger in request.Ledgers)
+			{
+				financialAccountingLedger.Id = 0;
+				financialAccountingLedger.MasterId = 0;
+			}
+
+			await FinancialAccountingData.SaveTransaction(request.Accounting, request.Ledgers, request.Recover, request.KeepTransactionNo);
+			await DeleteOfflineQueueById(offlineQueue.Id);
+			return;
+		}
+
+		#endregion
+
 		#region Inventory
 		if (offlineQueue.TableName == InventoryNames.PurchaseOrder)
 		{

@@ -5,7 +5,9 @@ namespace PrimeBakes.Models.Accounts.FinancialAccounting;
 public sealed record FinancialAccountingSaveRequest(
 	FinancialAccountingModel Accounting,
 	List<FinancialAccountingLedgerModel> Ledgers,
-	bool Recover);
+	bool Recover,
+	bool KeepTransactionNo,
+	bool FromModule);
 
 public sealed record FinancialAccountingInvoiceBundle(
 	FinancialAccountingOverviewModel Transaction,

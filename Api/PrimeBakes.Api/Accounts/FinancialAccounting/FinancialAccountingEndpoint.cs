@@ -18,13 +18,13 @@ public class FinancialAccountingEndpoint : ICarterModule
 			(int transactionId) => FinancialAccountingData.LoadInvoiceBundle(transactionId));
 
 		group.MapPost(nameof(FinancialAccountingData.DeleteTransaction),
-			(FinancialAccountingModel accounting) => FinancialAccountingData.DeleteTransaction(accounting));
+			(FinancialAccountingModel accounting, bool fromModule) => FinancialAccountingData.DeleteTransaction(accounting, fromModule));
 
 		group.MapPost(nameof(FinancialAccountingData.RecoverTransaction),
 			(FinancialAccountingModel accounting) => FinancialAccountingData.RecoverTransaction(accounting));
 
 		group.MapPost(nameof(FinancialAccountingData.SaveTransaction),
-			(FinancialAccountingSaveRequest request) => FinancialAccountingData.SaveTransaction(request.Accounting, request.Ledgers, request.Recover));
+			(FinancialAccountingSaveRequest request) => FinancialAccountingData.SaveTransaction(request.Accounting, request.Ledgers, request.Recover, request.KeepTransactionNo, request.FromModule));
 
 		group.MapPost(nameof(FinancialAccountingData.SaveBRSDates),
 			(List<FinancialAccountingLedgerModel> changedLines, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>

@@ -164,7 +164,7 @@ public static class SaleData
 		existingAccounting.LastModifiedLatitude = sale.LastModifiedLatitude;
 		existingAccounting.LastModifiedLongitude = sale.LastModifiedLongitude;
 
-		await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
+		await FinancialAccountingData.DeleteTransaction(existingAccounting, fromModule: true, sqlDataAccessTransaction: sqlDataAccessTransaction);
 	}
 
 	private static async Task DeleteOfflineQueue(SaleModel sale, SqlDataAccessTransaction sqlDataAccessTransaction)
@@ -613,7 +613,7 @@ public static class SaleData
 		};
 
 		var ledgers = accountingCart.ConvertCartToDetails(accounting.Id);
-		await FinancialAccountingData.SaveTransaction(accounting, ledgers, false, sqlDataAccessTransaction);
+		await FinancialAccountingData.SaveTransaction(accounting, ledgers, fromModule: true, sqlDataAccessTransaction: sqlDataAccessTransaction);
 
 		sale.FinancialAccountingId = accounting.Id;
 		await InsertSale(sale, sqlDataAccessTransaction);
@@ -776,7 +776,7 @@ public static class SaleData
 		await SqlDataAccessTransaction.Run(async sqlDataAccessTransaction =>
 		{
 			var ledgers = accountingCart.ConvertCartToDetails(accounting.Id);
-			accounting.Id = await FinancialAccountingData.SaveTransaction(accounting, ledgers, false, sqlDataAccessTransaction);
+			accounting.Id = await FinancialAccountingData.SaveTransaction(accounting, ledgers, fromModule: true, sqlDataAccessTransaction: sqlDataAccessTransaction);
 
 			foreach (var sale in sales)
 			{

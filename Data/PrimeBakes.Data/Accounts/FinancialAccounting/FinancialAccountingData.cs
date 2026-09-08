@@ -4,6 +4,7 @@ using PrimeBakes.Data.Accounts.Masters;
 using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Inventory.Purchase;
 using PrimeBakes.Data.Operations.AuditTrail;
+using PrimeBakes.Data.Operations.OfflineQueue;
 using PrimeBakes.Data.Restaurant.Bill;
 using PrimeBakes.Data.Store.Sale;
 using PrimeBakes.Data.Store.StockTransfer;
@@ -14,9 +15,11 @@ using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Common;
 using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.AuditTrail;
+using PrimeBakes.Models.Operations.OfflineQueue;
 using PrimeBakes.Models.Operations.User;
 
 using System.Data;
+using System.Text.Json;
 
 namespace PrimeBakes.Data.Accounts.FinancialAccounting;
 
@@ -49,17 +52,20 @@ public static class FinancialAccountingData
 	}
 
 	#region Delete
-	public static async Task DeleteTransaction(FinancialAccountingModel accounting, SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	public static async Task DeleteTransaction(FinancialAccountingModel accounting, bool fromModule = false, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		if (sqlDataAccessTransaction is null)
 		{
-			await SqlDataAccessTransaction.Run(transaction => DeleteTransaction(accounting, transaction));
+			await SqlDataAccessTransaction.Run(transaction => DeleteTransaction(accounting, fromModule, transaction));
 			await FinancialAccountingNotify.Notify(accounting.Id, NotifyType.Deleted);
 			return;
 		}
 
 		await FinancialYearData.ValidateFinancialYear(accounting.TransactionDateTime, sqlDataAccessTransaction);
 		await ValidateBRS(accounting.Id, sqlDataAccessTransaction);
+
+		await DeleteOfflineQueue(accounting, fromModule, sqlDataAccessTransaction);
+
 		await DeletePostings(accounting.Id, sqlDataAccessTransaction);
 
 		accounting.Status = false;
@@ -87,10 +93,25 @@ public static class FinancialAccountingData
 		await StockTransferData.UpdateFinancialAccountingId(id, null, sqlDataAccessTransaction);
 		await BillData.UpdateFinancialAccountingId(id, null, sqlDataAccessTransaction);
 	}
+
+	private static async Task DeleteOfflineQueue(FinancialAccountingModel accounting, bool fromModule, SqlDataAccessTransaction sqlDataAccessTransaction)
+	{
+		if (!OfflineState.Offline || fromModule)
+			return;
+
+		var offlineQueue = await CommonData.LoadTableDataByTransactionNo<OfflineQueueModel>(OperationNames.OfflineQueue, accounting.TransactionNo, sqlDataAccessTransaction)
+			?? throw new InvalidOperationException("This transaction has already been synced and cannot be deleted while offline.");
+
+		await OfflineQueueData.DeleteOfflineQueueById(offlineQueue.Id, sqlDataAccessTransaction);
+	}
 	#endregion
 
+	#region Recover
 	public static async Task RecoverTransaction(FinancialAccountingModel accounting)
 	{
+		if (OfflineState.Offline)
+			throw new InvalidOperationException("Transactions cannot be recovered while offline.");
+
 		if (accounting.ReferenceId is not null || !string.IsNullOrWhiteSpace(accounting.ReferenceNo))
 			throw new InvalidOperationException("Transactions with reference cannot be recovered. Please create a new transaction instead.");
 
@@ -101,10 +122,14 @@ public static class FinancialAccountingData
 
 		await FinancialAccountingNotify.Notify(accounting.Id, NotifyType.Recovered);
 	}
+	#endregion
 
 	#region Saving
-	private static async Task<FinancialAccountingModel> ValidateTransaction(FinancialAccountingModel accounting, bool update = false, SqlDataAccessTransaction sqlDataAccessTransaction = null)
+	private static async Task<FinancialAccountingModel> ValidateTransaction(FinancialAccountingModel accounting, bool update, bool keepTransactionNo, SqlDataAccessTransaction sqlDataAccessTransaction)
 	{
+		if (update && OfflineState.Offline)
+			throw new InvalidOperationException("Transactions cannot be modified while offline.");
+
 		accounting.Remarks = string.IsNullOrWhiteSpace(accounting.Remarks) ? null : accounting.Remarks.Trim();
 
 		if (accounting.CompanyId <= 0)
@@ -122,7 +147,7 @@ public static class FinancialAccountingData
 		if (accounting.TotalDebitAmount - accounting.TotalCreditAmount != 0)
 			throw new InvalidOperationException("Total debit and credit amounts must be equal.");
 
-		if (!update)
+		if (!update && !keepTransactionNo)
 			accounting.TransactionNo = await GenerateCodes.GenerateAccountingTransactionNo(accounting, sqlDataAccessTransaction);
 
 		await FinancialYearData.ValidateFinancialYear(accounting.TransactionDateTime, sqlDataAccessTransaction);
@@ -168,6 +193,8 @@ public static class FinancialAccountingData
 		FinancialAccountingModel accounting,
 		List<FinancialAccountingLedgerModel> ledgers,
 		bool recover = false,
+		bool keepTransactionNo = false,
+		bool fromModule = false,
 		SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		bool update = accounting.Id > 0;
@@ -176,7 +203,7 @@ public static class FinancialAccountingData
 		{
 			(MemoryStream, string)? previousInvoice = update && !recover ? FinancialAccountingInvoiceExport.ExportInvoice(await LoadInvoiceBundle(accounting.Id), InvoiceExportType.PDF) : null;
 
-			accounting.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(accounting, ledgers, recover, transaction));
+			accounting.Id = await SqlDataAccessTransaction.Run(transaction => SaveTransaction(accounting, ledgers, recover, keepTransactionNo, fromModule, transaction));
 
 			if (update && !recover)
 				await FinancialAccountingNotify.Notify(accounting.Id, NotifyType.Updated, previousInvoice);
@@ -184,7 +211,7 @@ public static class FinancialAccountingData
 			return accounting.Id;
 		}
 
-		accounting = await ValidateTransaction(accounting, update, sqlDataAccessTransaction);
+		accounting = await ValidateTransaction(accounting, update, keepTransactionNo, sqlDataAccessTransaction);
 		ValidateTransactionLedgers(accounting, ledgers);
 
 		var previousAccounting = update && !recover ? await CommonData.LoadTableDataById<FinancialAccountingOverviewModel>(AccountNames.FinancialAccountingOverview, accounting.Id, sqlDataAccessTransaction) : new();
@@ -193,6 +220,7 @@ public static class FinancialAccountingData
 		accounting.Id = await InsertFinancialAccounting(accounting, sqlDataAccessTransaction);
 		if (!recover) await SaveTransactionLedgerDetails(accounting, ledgers, update, sqlDataAccessTransaction);
 		await SaveAuditTrail(accounting, update, recover, previousAccounting, previousLedgers, sqlDataAccessTransaction);
+		await SaveOfflineQueue(accounting, ledgers, recover, fromModule, sqlDataAccessTransaction);
 
 		return accounting.Id;
 	}
@@ -254,6 +282,19 @@ public static class FinancialAccountingData
 			CreatedPlatform = update ? accounting.LastModifiedPlatform : accounting.CreatedPlatform,
 			CreatedLatitude = update ? accounting.LastModifiedLatitude : accounting.CreatedLatitude,
 			CreatedLongitude = update ? accounting.LastModifiedLongitude : accounting.CreatedLongitude
+		}, sqlDataAccessTransaction);
+	}
+
+	private static async Task SaveOfflineQueue(FinancialAccountingModel accounting, List<FinancialAccountingLedgerModel> ledgers, bool recover, bool fromModule, SqlDataAccessTransaction sqlDataAccessTransaction)
+	{
+		if (!OfflineState.Offline || fromModule)
+			return;
+
+		await OfflineQueueData.SaveTransaction(new()
+		{
+			TableName = AccountNames.FinancialAccounting,
+			TransactionNo = accounting.TransactionNo,
+			Payload = JsonSerializer.Serialize(new FinancialAccountingSaveRequest(accounting, ledgers, recover, true, false))
 		}, sqlDataAccessTransaction);
 	}
 	#endregion

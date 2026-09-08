@@ -209,7 +209,7 @@ public static class BillData
 		existingAccounting.LastModifiedLatitude = bill.LastModifiedLatitude;
 		existingAccounting.LastModifiedLongitude = bill.LastModifiedLongitude;
 
-		await FinancialAccountingData.DeleteTransaction(existingAccounting, sqlDataAccessTransaction);
+		await FinancialAccountingData.DeleteTransaction(existingAccounting, fromModule: true, sqlDataAccessTransaction: sqlDataAccessTransaction);
 	}
 
 	public static async Task RecoverTransaction(BillModel bill)
@@ -602,7 +602,7 @@ public static class BillData
 		};
 
 		var ledgers = accountingCart.ConvertCartToDetails(accounting.Id);
-		await FinancialAccountingData.SaveTransaction(accounting, ledgers, false, sqlDataAccessTransaction);
+		await FinancialAccountingData.SaveTransaction(accounting, ledgers, fromModule: true, sqlDataAccessTransaction: sqlDataAccessTransaction);
 
 		bill.FinancialAccountingId = accounting.Id;
 		await InsertBill(bill, sqlDataAccessTransaction);
@@ -750,7 +750,7 @@ public static class BillData
 		await SqlDataAccessTransaction.Run(async sqlDataAccessTransaction =>
 		{
 			var ledgers = accountingCart.ConvertCartToDetails(accounting.Id);
-			accounting.Id = await FinancialAccountingData.SaveTransaction(accounting, ledgers, false, sqlDataAccessTransaction);
+			accounting.Id = await FinancialAccountingData.SaveTransaction(accounting, ledgers, fromModule: true, sqlDataAccessTransaction: sqlDataAccessTransaction);
 
 			foreach (var billOverview in bills)
 			{

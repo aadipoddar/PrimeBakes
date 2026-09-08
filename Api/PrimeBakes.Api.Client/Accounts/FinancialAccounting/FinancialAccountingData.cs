@@ -13,15 +13,15 @@ public static class FinancialAccountingData
 	public static async Task<FinancialAccountingInvoiceBundle> LoadInvoiceBundle(int transactionId) =>
 		await ApiClient.Get<FinancialAccountingInvoiceBundle>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadInvoiceBundle)), new { transactionId });
 
-	public static async Task DeleteTransaction(FinancialAccountingModel accounting) =>
-		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteTransaction)), accounting);
+	public static async Task DeleteTransaction(FinancialAccountingModel accounting, bool fromModule = false) =>
+		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteTransaction)), accounting, new { fromModule });
 
 	public static async Task RecoverTransaction(FinancialAccountingModel accounting) =>
 		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(RecoverTransaction)), accounting);
 
-	public static async Task<int> SaveTransaction(FinancialAccountingModel accounting, List<FinancialAccountingLedgerModel> ledgers, bool recover = false) =>
+	public static async Task<int> SaveTransaction(FinancialAccountingModel accounting, List<FinancialAccountingLedgerModel> ledgers, bool recover = false, bool keepTransactionNo = false, bool fromModule = false) =>
 		await ApiClient.Post<int>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(SaveTransaction)),
-			new FinancialAccountingSaveRequest(accounting, ledgers, recover));
+			new FinancialAccountingSaveRequest(accounting, ledgers, recover, keepTransactionNo, fromModule));
 
 	public static async Task SaveBRSDates(List<FinancialAccountingLedgerModel> changedLines, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude) =>
 		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(SaveBRSDates)), changedLines, new { userId, formFactor, platform, latitude, longitude });
