@@ -44,7 +44,8 @@ public partial class Header
 		typeof(AccountsRouteNames),
 		typeof(InventoryRouteNames),
 		typeof(StoreRouteNames),
-		typeof(RestaurantRouteNames)
+		typeof(RestaurantRouteNames),
+		typeof(PayrollRouteNames)
 	];
 
 	private void LoadRoutes() => _searchItems = [.. _routeNameTypes
