@@ -2,6 +2,7 @@
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Operations.Location;
+using PrimeBakes.Models.Store.Customer;
 using PrimeBakes.Models.Store.Product;
 using PrimeBakes.Models.Store.Sale;
 
@@ -20,7 +21,8 @@ public static class SaleReportExport
 		bool showSummary = false,
 		LedgerModel party = null,
 		CompanyModel company = null,
-		LocationModel location = null)
+		LocationModel location = null,
+		OnlinePartnerModel onlinePartner = null)
 	{
 		var columnSettings = new Dictionary<string, ReportColumnSetting>
 		{
@@ -29,6 +31,7 @@ public static class SaleReportExport
 			[nameof(SaleOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleOverviewModel.LocationName)] = new() { DisplayName = "Location", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleOverviewModel.PartyName)] = new() { DisplayName = "Party", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(SaleOverviewModel.OnlinePartnerName)] = new() { DisplayName = "Online Partner", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleOverviewModel.CustomerName)] = new() { DisplayName = "Customer", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm tt", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(SaleOverviewModel.OrderDateTime)] = new() { DisplayName = "Order Date", Format = "dd-MMM-yyyy hh:mm tt", Alignment = CellAlignment.Center, IncludeInTotal = false },
@@ -112,6 +115,7 @@ public static class SaleReportExport
 				nameof(SaleOverviewModel.CompanyName),
 				nameof(SaleOverviewModel.LocationName),
 				nameof(SaleOverviewModel.PartyName),
+				nameof(SaleOverviewModel.OnlinePartnerName),
 				nameof(SaleOverviewModel.CustomerName),
 				nameof(SaleOverviewModel.TransactionDateTime),
 				nameof(SaleOverviewModel.OrderDateTime),
@@ -184,6 +188,9 @@ public static class SaleReportExport
 			if (party is not null)
 				columnOrder.Remove(nameof(SaleOverviewModel.PartyName));
 
+			if (onlinePartner is not null)
+				columnOrder.Remove(nameof(SaleOverviewModel.OnlinePartnerName));
+
 			if (!showDeleted)
 				columnOrder.Remove(nameof(SaleOverviewModel.Status));
 		}
@@ -208,7 +215,8 @@ public static class SaleReportExport
 				{
 					["Company"] = company?.Name ?? null,
 					["Location"] = location?.Name ?? null,
-					["Party"] = party?.Name ?? null
+					["Party"] = party?.Name ?? null,
+					["Online Partner"] = onlinePartner?.Name ?? null
 				}
 			);
 
@@ -229,7 +237,8 @@ public static class SaleReportExport
 				{
 					["Company"] = company?.Name ?? null,
 					["Location"] = location?.Name ?? null,
-					["Party"] = party?.Name ?? null
+					["Party"] = party?.Name ?? null,
+					["Online Partner"] = onlinePartner?.Name ?? null
 				}
 			);
 
@@ -250,7 +259,8 @@ public static class SaleReportExport
 		ProductCategoryModel productCategory = null,
 		CompanyModel company = null,
 		LocationModel location = null,
-		LedgerModel party = null)
+		LedgerModel party = null,
+		OnlinePartnerModel onlinePartner = null)
 	{
 		var columnSettings = new Dictionary<string, ReportColumnSetting>
 		{
@@ -285,6 +295,7 @@ public static class SaleReportExport
 			[nameof(SaleItemOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleItemOverviewModel.LocationName)] = new() { DisplayName = "Location", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleItemOverviewModel.PartyName)] = new() { DisplayName = "Party", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(SaleItemOverviewModel.OnlinePartnerName)] = new() { DisplayName = "Online Partner", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleItemOverviewModel.CustomerName)] = new() { DisplayName = "Customer", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleItemOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm tt", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(SaleItemOverviewModel.OrderDateTime)] = new() { DisplayName = "Order Date", Format = "dd-MMM-yyyy hh:mm tt", Alignment = CellAlignment.Center, IncludeInTotal = false },
@@ -390,6 +401,7 @@ public static class SaleReportExport
 				nameof(SaleItemOverviewModel.CompanyName),
 				nameof(SaleItemOverviewModel.LocationName),
 				nameof(SaleItemOverviewModel.PartyName),
+				nameof(SaleItemOverviewModel.OnlinePartnerName),
 				nameof(SaleItemOverviewModel.CustomerName),
 				nameof(SaleItemOverviewModel.TransactionDateTime),
 				nameof(SaleItemOverviewModel.OrderDateTime),
@@ -459,7 +471,8 @@ public static class SaleReportExport
 				nameof(SaleItemOverviewModel.PartyName),
 				nameof(SaleItemOverviewModel.OrderTransactionNo),
 				nameof(SaleItemOverviewModel.Total),
-				nameof(SaleItemOverviewModel.PaymentModes)
+				nameof(SaleItemOverviewModel.PaymentModes),
+				nameof(SaleItemOverviewModel.MasterStatus)
 			];
 
 			if (product is not null)
@@ -470,6 +483,12 @@ public static class SaleReportExport
 
 			if (party is not null)
 				columnOrder.Remove(nameof(SaleItemOverviewModel.PartyName));
+
+			if (onlinePartner is not null)
+				columnOrder.Remove(nameof(SaleItemOverviewModel.OnlinePartnerName));
+
+			if (!showDeleted)
+				columnOrder.Remove(nameof(SaleItemOverviewModel.MasterStatus));
 		}
 
 		string fileName = $"SALE_ITEM_REPORT";
@@ -494,7 +513,8 @@ public static class SaleReportExport
 					["Category"] = productCategory?.Name ?? null,
 					["Company"] = company?.Name ?? null,
 					["Location"] = location?.Name ?? null,
-					["Party"] = party?.Name ?? null
+					["Party"] = party?.Name ?? null,
+					["Online Partner"] = onlinePartner?.Name ?? null
 				}
 			);
 
@@ -517,7 +537,8 @@ public static class SaleReportExport
 					["Category"] = productCategory?.Name ?? null,
 					["Company"] = company?.Name ?? null,
 					["Location"] = location?.Name ?? null,
-					["Party"] = party?.Name ?? null
+					["Party"] = party?.Name ?? null,
+					["Online Partner"] = onlinePartner?.Name ?? null
 				}
 			);
 

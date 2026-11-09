@@ -42,6 +42,8 @@ SELECT
 	[dt].[Name] AS DiningTableName,
 	[da].[Name] AS DiningAreaName,
 
+	[b].[OnlinePartnerId],
+	[op].[Name] AS OnlinePartnerName,
 	[b].[CustomerId],
 	[cust].[Name] AS CustomerName,
 
@@ -124,6 +126,8 @@ INNER JOIN
 	[dbo].[DiningTable] dt ON b.DiningTableId = dt.Id
 INNER JOIN
 	[dbo].[DiningArea] da ON dt.DiningAreaId = da.Id
+LEFT JOIN
+	[dbo].[OnlinePartner] op ON b.OnlinePartnerId = op.Id
 LEFT JOIN
 	[dbo].[Customer] cust ON b.CustomerId = cust.Id
 INNER JOIN

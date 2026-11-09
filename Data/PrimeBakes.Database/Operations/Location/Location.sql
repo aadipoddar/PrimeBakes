@@ -1,4 +1,4 @@
-﻿    CREATE TABLE [dbo].[Location]
+﻿CREATE TABLE [dbo].[Location]
 (
 	[Id] INT NOT NULL PRIMARY KEY IDENTITY, 
     [Name] VARCHAR(500) NOT NULL UNIQUE, 

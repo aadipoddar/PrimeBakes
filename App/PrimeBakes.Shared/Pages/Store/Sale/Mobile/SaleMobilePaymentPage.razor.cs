@@ -22,8 +22,10 @@ public partial class SaleMobilePaymentPage
 	private bool _showValidationDialog = false;
 
 	private CustomerModel _selectedCustomer = new();
+	private OnlinePartnerModel _selectedOnlinePartner = null;
 	private readonly SaleModel _sale = new();
 
+	private List<OnlinePartnerModel> _onlinePartners = [];
 	private List<ProductModel> _products = [];
 	private List<TaxModel> _taxes = [];
 	private List<SaleItemCartModel> _cart = [];
@@ -47,6 +49,9 @@ public partial class SaleMobilePaymentPage
 
 	private async Task LoadData()
 	{
+		var onlinePartners = CommonData.LoadTableDataByStatus<OnlinePartnerModel>(StoreNames.OnlinePartner, useLocalDB: true);
+		_onlinePartners = [.. (await onlinePartners).OrderBy(s => s.Name)];
+
 		_products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
 		_taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
 
@@ -224,6 +229,7 @@ public partial class SaleMobilePaymentPage
 			item.NetRate = withOtherCharges * (1 - _sale.DiscountPercent / 100);
 		}
 
+		_sale.OnlinePartnerId = _selectedOnlinePartner?.Id;
 		_sale.TotalItems = _cart.Count;
 		_sale.TotalQuantity = _cart.Sum(x => x.Quantity);
 		_sale.BaseTotal = _cart.Sum(x => x.BaseTotal);
@@ -284,10 +290,11 @@ public partial class SaleMobilePaymentPage
 
 		try
 		{
+			await SaveTransactionFile(true);
+
 			_isProcessing = true;
 			StateHasChanged();
 
-			await SaveTransactionFile(true);
 			ConfirmPayment();
 
 			_sale.Status = true;

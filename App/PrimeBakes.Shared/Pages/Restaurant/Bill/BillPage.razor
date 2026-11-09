@@ -2,6 +2,7 @@
 @using PrimeBakes.Models.Operations.Location
 @using PrimeBakes.Models.Restaurant.Bill
 @using PrimeBakes.Models.Restaurant.Dining
+@using PrimeBakes.Models.Store.Customer
 @using PrimeBakes.Models.Store.PaymentMode
 @using PrimeBakes.Models.Store.Product
 
@@ -127,6 +128,18 @@ else
 													ValueChanged="OnDiningTableChanged"
 													FieldValue="@nameof(DiningTableModel.Name)"
 													AddNewRoute="@RestaurantRouteNames.DiningTable" />
+							</div>
+
+							<!-- Online Partner -->
+							<div class="form-field">
+								<CustomAutoComplete T="OnlinePartnerModel"
+													@bind-Value="_selectedOnlinePartner"
+													DataSource="@_onlinePartners"
+													Placeholder="Select a Online Partner"
+													Label="Online Partner"
+													Required="false"
+													FieldValue="@nameof(OnlinePartnerModel.Name)"
+													AddNewRoute="@StoreRouteNames.OnlinePartner" />
 							</div>
 
 							<!-- Customer Number -->

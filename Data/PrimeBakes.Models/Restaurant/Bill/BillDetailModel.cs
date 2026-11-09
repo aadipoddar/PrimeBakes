@@ -95,6 +95,8 @@ public class BillItemOverviewModel
 	public string DiningTableName { get; set; }
 	public string DiningAreaName { get; set; }
 
+	public int? OnlinePartnerId { get; set; }
+	public string? OnlinePartnerName { get; set; }
 	public int? CustomerId { get; set; }
 	public string? CustomerName { get; set; }
 

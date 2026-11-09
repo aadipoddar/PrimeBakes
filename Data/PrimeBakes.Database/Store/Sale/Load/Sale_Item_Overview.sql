@@ -39,6 +39,8 @@ SELECT
 
 	[s].[PartyId],
 	[p].[Name] AS PartyName,
+	[s].[OnlinePartnerId],
+	[op].[Name] AS OnlinePartnerName,
 	[s].[CustomerId],
 	[cust].[Name] AS CustomerName,
 	[s].[OrderId],
@@ -120,6 +122,8 @@ INNER JOIN
 	[dbo].[Location] l ON s.LocationId = l.Id
 LEFT JOIN
 	[dbo].[Ledger] p ON s.PartyId = p.Id
+LEFT JOIN
+	[dbo].[OnlinePartner] op ON s.OnlinePartnerId = op.Id
 LEFT JOIN
 	[dbo].[Customer] cust ON s.CustomerId = cust.Id
 LEFT JOIN

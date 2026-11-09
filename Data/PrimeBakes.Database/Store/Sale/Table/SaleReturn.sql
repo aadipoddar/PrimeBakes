@@ -5,6 +5,7 @@
     [CompanyId] INT NOT NULL,
     [LocationId] INT NOT NULL,
 	[PartyId] INT NULL,
+	[OnlinePartnerId] INT NULL,
     [CustomerId] INT NULL, 
 	[TransactionDateTime] DATETIME NOT NULL,
 	[FinancialYearId] INT NOT NULL,
@@ -45,8 +46,9 @@
 	[LastModifiedLongitude] DECIMAL(9,6) NULL,
 
     CONSTRAINT [FK_SaleReturn_ToCompany] FOREIGN KEY ([CompanyId]) REFERENCES [Company]([Id]),
-    CONSTRAINT [FK_SaleReturn_ToLedger] FOREIGN KEY ([PartyId]) REFERENCES [Ledger]([Id]), 
 	CONSTRAINT [FK_SaleReturn_ToLocation] FOREIGN KEY (LocationId) REFERENCES [Location](Id), 
+    CONSTRAINT [FK_SaleReturn_ToLedger] FOREIGN KEY ([PartyId]) REFERENCES [Ledger]([Id]), 
+	CONSTRAINT [FK_SaleReturn_ToOnlinePartner] FOREIGN KEY (OnlinePartnerId) REFERENCES [OnlinePartner](Id),
     CONSTRAINT [FK_SaleReturn_ToCustomer] FOREIGN KEY (CustomerId) REFERENCES [Customer](Id), 
     CONSTRAINT [FK_SaleReturn_ToFinancialYear] FOREIGN KEY ([FinancialYearId]) REFERENCES [dbo].[FinancialYear]([Id]),
 	CONSTRAINT [FK_SaleReturn_ToFinancialAccounting] FOREIGN KEY ([FinancialAccountingId]) REFERENCES [FinancialAccounting]([Id]),

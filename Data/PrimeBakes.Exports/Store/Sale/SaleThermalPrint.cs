@@ -97,6 +97,11 @@ public static class SaleThermalPrint
 			}
 		}
 
+		if (sale.OnlinePartnerId.HasValue && sale.OnlinePartnerId.Value > 0)
+		{
+			pairs.Add(("Online Partner", sale.OnlinePartnerName ?? "N/A"));
+		}
+
 		y = ThermalPrintUtil.DrawLabelValueBlock(canvas, pairs, width, y);
 
 		y = ThermalPrintUtil.DrawSeparator(canvas, width, y);

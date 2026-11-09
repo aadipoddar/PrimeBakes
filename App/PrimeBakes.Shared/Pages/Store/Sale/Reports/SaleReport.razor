@@ -1,5 +1,6 @@
 @using PrimeBakes.Models.Accounts.Masters
 @using PrimeBakes.Models.Operations.Location
+@using PrimeBakes.Models.Store.Customer
 @using PrimeBakes.Models.Store.Sale
 
 @attribute [Route(StoreRouteNames.SaleReport)]
@@ -148,6 +149,18 @@ else
 													AddNewRoute="@AccountsRouteNames.LedgerMaster" />
 							</div>
 						}
+
+						<!-- Online Partner -->
+						<div class="form-field">
+							<CustomAutoComplete T="OnlinePartnerModel"
+												Value="_selectedOnlinePartner"
+												DataSource="@_onlinePartners"
+												Placeholder="All Online Partners"
+												Label="Online Partner" Required="false"
+												ValueChanged="OnOnlinePartnerChanged"
+												FieldValue="@nameof(OnlinePartnerModel.Name)"
+												AddNewRoute="@StoreRouteNames.OnlinePartner" />
+						</div>
 					</div>
 				</div>
 			</div>
@@ -197,6 +210,7 @@ else
 						<CustomGridColumn Field="@nameof(SaleOverviewModel.LocationName)" HeaderText="Location" Visible="@(_selectedLocation is null || _selectedLocation.Id <= 0)" />
 						<CustomGridColumn Field="@nameof(SaleOverviewModel.CompanyName)" HeaderText="Company" Visible="@(_showAllColumns && !_showSummary && (_selectedCompany is null || _selectedCompany.Id <= 0))" />
 						<CustomGridColumn Field="@nameof(SaleOverviewModel.PartyName)" HeaderText="Party" Visible="@(_user.LocationId == 1 && !_showSummary && (_selectedParty is null || _selectedParty.Id <= 0))" />
+						<CustomGridColumn Field="@nameof(SaleOverviewModel.OnlinePartnerName)" HeaderText="Online Partner" Visible="@(_user.LocationId == 1 && _showAllColumns && !_showSummary && (_selectedOnlinePartner is null || _selectedOnlinePartner.Id <= 0))" />
 						<CustomGridColumn Field="@nameof(SaleOverviewModel.CustomerName)" HeaderText="Customer" Visible="@(_user.LocationId == 1 && _showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(SaleOverviewModel.OrderTransactionNo)" HeaderText="Order No" Visible="@(!_showSummary)" />
 						<CustomGridColumn Field="@nameof(SaleOverviewModel.FinancialYear)" HeaderText="Financial Year" Visible="@(_showAllColumns && !_showSummary)" />

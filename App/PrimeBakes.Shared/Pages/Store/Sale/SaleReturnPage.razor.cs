@@ -34,6 +34,7 @@ public partial class SaleReturnPage
 	private CompanyModel _selectedCompany = new();
 	private LocationModel _selectedLocation = new();
 	private LedgerModel _selectedParty = null;
+	private OnlinePartnerModel _selectedOnlinePartner = null;
 	private CustomerModel _selectedCustomer = new();
 	private FinancialYearModel _selectedFinancialYear = new();
 	private ProductLocationOverviewModel _selectedProduct = null;
@@ -43,6 +44,7 @@ public partial class SaleReturnPage
 	private List<CompanyModel> _companies = [];
 	private List<LocationModel> _locations = [];
 	private List<LedgerModel> _parties = [];
+	private List<OnlinePartnerModel> _onlinePartners = [];
 	private List<ProductLocationOverviewModel> _products = [];
 	private List<TaxModel> _taxes = [];
 	private List<SaleReturnItemCartModel> _cart = [];
@@ -108,11 +110,13 @@ public partial class SaleReturnPage
 		var locations = CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location, useLocalDB: true);
 		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
 		var parties = CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger, useLocalDB: true);
+		var onlinePartners = CommonData.LoadTableDataByStatus<OnlinePartnerModel>(StoreNames.OnlinePartner, useLocalDB: true);
 		var mainCompanySetting = SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
 
 		_locations = [.. (await locations).OrderBy(s => s.Name)];
 		_companies = [.. (await companies).OrderBy(s => s.Name)];
 		_parties = [.. (await parties).OrderBy(s => s.Name)];
+		_onlinePartners = [.. (await onlinePartners).OrderBy(s => s.Name)];
 
 		var mainCompanyId = await mainCompanySetting;
 		_selectedCompany = _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value) ?? _companies.FirstOrDefault();
@@ -182,6 +186,7 @@ public partial class SaleReturnPage
 			CompanyId = _selectedCompany.Id,
 			LocationId = _user.LocationId,
 			PartyId = null,
+			OnlinePartnerId = null,
 			CustomerId = null,
 			TransactionDateTime = currentDateTime,
 			FinancialYearId = financialYear is null ? 0 : financialYear.Id,
@@ -237,6 +242,14 @@ public partial class SaleReturnPage
 		{
 			_selectedParty = null;
 			_saleReturn.PartyId = null;
+		}
+
+		if (_saleReturn.OnlinePartnerId is not null && _saleReturn.OnlinePartnerId > 0)
+			_selectedOnlinePartner = _onlinePartners.FirstOrDefault(s => s.Id == _saleReturn.OnlinePartnerId);
+		else
+		{
+			_selectedOnlinePartner = null;
+			_saleReturn.OnlinePartnerId = null;
 		}
 
 		if (_saleReturn.CustomerId is not null && _saleReturn.CustomerId > 0)
@@ -925,6 +938,7 @@ public partial class SaleReturnPage
 		_saleReturn.CompanyId = _selectedCompany.Id;
 		_saleReturn.LocationId = _selectedLocation.Id;
 		_saleReturn.PartyId = _selectedParty?.Id;
+		_saleReturn.OnlinePartnerId = _selectedOnlinePartner?.Id;
 		_saleReturn.CustomerId = _selectedCustomer is { Id: > 0 } ? _selectedCustomer.Id : null;
 		_saleReturn.CreatedBy = _user.Id;
 

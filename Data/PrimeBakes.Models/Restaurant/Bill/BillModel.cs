@@ -7,6 +7,7 @@ public class BillModel
 	public int CompanyId { get; set; }
 	public int LocationId { get; set; }
 	public int DiningTableId { get; set; }
+	public int? OnlinePartnerId { get; set; }
 	public int? CustomerId { get; set; }
 	public DateTime TransactionDateTime { get; set; }
 	public int FinancialYearId { get; set; }
@@ -60,6 +61,8 @@ public class BillOverviewModel
 	public string DiningTableName { get; set; }
 	public string DiningAreaName { get; set; }
 
+	public int? OnlinePartnerId { get; set; }
+	public string? OnlinePartnerName { get; set; }
 	public int? CustomerId { get; set; }
 	public string? CustomerName { get; set; }
 

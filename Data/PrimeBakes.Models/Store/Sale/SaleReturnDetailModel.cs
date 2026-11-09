@@ -89,6 +89,8 @@ public class SaleReturnItemOverviewModel
 
 	public int? PartyId { get; set; }
 	public string? PartyName { get; set; }
+	public int? OnlinePartnerId { get; set; }
+	public string? OnlinePartnerName { get; set; }
 	public int? CustomerId { get; set; }
 	public string? CustomerName { get; set; }
 

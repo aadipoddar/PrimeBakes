@@ -36,6 +36,7 @@ public partial class BillReport : IAsyncDisposable
 
 	private LocationModel? _selectedLocation = null;
 	private CompanyModel? _selectedCompany = null;
+	private OnlinePartnerModel? _selectedOnlinePartner = null;
 	private CustomerModel? _selectedCustomer = null;
 
 	private int _runningFilter = YesNoFilterOptions.All;
@@ -44,6 +45,7 @@ public partial class BillReport : IAsyncDisposable
 	private List<LocationModel> _locations = [];
 	private List<CompanyModel> _companies = [];
 	private List<CustomerModel> _customers = [];
+	private List<OnlinePartnerModel> _onlinePartners = [];
 	private List<BillOverviewModel> _transactionOverviews = [];
 	private List<BillOverviewModel> _allTransactionOverviews = [];
 
@@ -100,11 +102,13 @@ public partial class BillReport : IAsyncDisposable
 		var locations = CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location, useLocalDB: true);
 		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
 		var customers = CommonData.LoadTableData<CustomerModel>(StoreNames.Customer, useLocalDB: true);
+		var onlinePartners = CommonData.LoadTableDataByStatus<OnlinePartnerModel>(StoreNames.OnlinePartner, useLocalDB: true);
 
 		_fromDate = _toDate = await currentDateTime;
 		_locations = [.. (await locations).OrderBy(s => s.Name)];
 		_companies = [.. (await companies).OrderBy(s => s.Name)];
 		_customers = [.. (await customers).OrderBy(s => s.Name)];
+		_onlinePartners = [.. (await onlinePartners).OrderBy(s => s.Name)];
 
 		_selectedLocation = _user.LocationId != 1 ? _locations.FirstOrDefault(s => s.Id == _user.LocationId) : null;
 	}
@@ -160,6 +164,7 @@ public partial class BillReport : IAsyncDisposable
 				(_selectedLocation is null || _selectedLocation.Id == 0 || t.LocationId == _selectedLocation.Id) &&
 				(_selectedCompany is null || _selectedCompany.Id == 0 || t.CompanyId == _selectedCompany.Id) &&
 				(_selectedCustomer is null || _selectedCustomer.Id == 0 || t.CustomerId == _selectedCustomer.Id) &&
+				(_selectedOnlinePartner is null || _selectedOnlinePartner.Id == 0 || t.OnlinePartnerId == _selectedOnlinePartner.Id) &&
 				(_runningFilter == YesNoFilterOptions.All ||
 					(_runningFilter == YesNoFilterOptions.Yes && t.Running) ||
 					(_runningFilter == YesNoFilterOptions.No && !t.Running)))
@@ -232,6 +237,12 @@ public partial class BillReport : IAsyncDisposable
 	{
 		_selectedRunning = value;
 		_runningFilter = value?.Id ?? YesNoFilterOptions.All;
+		await ApplyFilters();
+	}
+
+	private async Task OnOnlinePartnerChanged(OnlinePartnerModel value)
+	{
+		_selectedOnlinePartner = value;
 		await ApplyFilters();
 	}
 	#endregion
@@ -428,7 +439,8 @@ public partial class BillReport : IAsyncDisposable
 				_showDeleted,
 				_showSummary,
 				_selectedCompany?.Id > 0 ? _selectedCompany : null,
-				_selectedLocation?.Id > 0 ? _selectedLocation : null
+				_selectedLocation?.Id > 0 ? _selectedLocation : null,
+				_selectedOnlinePartner?.Id > 0 ? _selectedOnlinePartner : null
 			);
 			await SaveAndViewService.SaveAndView(fileName, stream);
 

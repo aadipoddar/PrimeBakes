@@ -2,6 +2,7 @@
 using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Operations.Location;
+using PrimeBakes.Models.Store.Customer;
 using PrimeBakes.Models.Store.Product;
 using PrimeBakes.Models.Store.Sale;
 
@@ -20,7 +21,8 @@ public static class SaleReturnReportExport
 		bool showSummary = false,
 		LedgerModel party = null,
 		CompanyModel company = null,
-		LocationModel location = null)
+		LocationModel location = null,
+		OnlinePartnerModel onlinePartner = null)
 	{
 		var columnSettings = new Dictionary<string, ReportColumnSetting>
 		{
@@ -28,6 +30,7 @@ public static class SaleReturnReportExport
 			[nameof(SaleReturnOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnOverviewModel.LocationName)] = new() { DisplayName = "Location", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnOverviewModel.PartyName)] = new() { DisplayName = "Party", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(SaleReturnOverviewModel.OnlinePartnerName)] = new() { DisplayName = "Online Partner", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnOverviewModel.CustomerName)] = new() { DisplayName = "Customer", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm tt", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(SaleReturnOverviewModel.FinancialYear)] = new() { DisplayName = "Financial Year", Alignment = CellAlignment.Center, IncludeInTotal = false },
@@ -109,6 +112,7 @@ public static class SaleReturnReportExport
 				nameof(SaleReturnOverviewModel.CompanyName),
 				nameof(SaleReturnOverviewModel.LocationName),
 				nameof(SaleReturnOverviewModel.PartyName),
+				nameof(SaleReturnOverviewModel.OnlinePartnerName),
 				nameof(SaleReturnOverviewModel.CustomerName),
 				nameof(SaleReturnOverviewModel.TransactionDateTime),
 				nameof(SaleReturnOverviewModel.FinancialYear),
@@ -163,6 +167,7 @@ public static class SaleReturnReportExport
 				nameof(SaleReturnOverviewModel.TransactionNo),
 				nameof(SaleReturnOverviewModel.LocationName),
 				nameof(SaleReturnOverviewModel.PartyName),
+				nameof(SaleReturnOverviewModel.OnlinePartnerName),
 				nameof(SaleReturnOverviewModel.TransactionDateTime),
 				nameof(SaleReturnOverviewModel.TotalQuantity),
 				nameof(SaleReturnOverviewModel.TotalAfterTax),
@@ -178,6 +183,9 @@ public static class SaleReturnReportExport
 
 			if (party is not null)
 				columnOrder.Remove(nameof(SaleReturnOverviewModel.PartyName));
+
+			if (onlinePartner is not null)
+				columnOrder.Remove(nameof(SaleReturnOverviewModel.OnlinePartnerName));
 
 			if (!showDeleted)
 				columnOrder.Remove(nameof(SaleReturnOverviewModel.Status));
@@ -203,7 +211,8 @@ public static class SaleReturnReportExport
 				{
 					["Company"] = company?.Name ?? null,
 					["Location"] = location?.Name ?? null,
-					["Party"] = party?.Name ?? null
+					["Party"] = party?.Name ?? null,
+					["Online Partner"] = onlinePartner?.Name ?? null
 				}
 			);
 
@@ -224,7 +233,8 @@ public static class SaleReturnReportExport
 				{
 					["Company"] = company?.Name ?? null,
 					["Location"] = location?.Name ?? null,
-					["Party"] = party?.Name ?? null
+					["Party"] = party?.Name ?? null,
+					["Online Partner"] = onlinePartner?.Name ?? null
 				}
 			);
 
@@ -245,7 +255,8 @@ public static class SaleReturnReportExport
 		ProductCategoryModel productCategory = null,
 		CompanyModel company = null,
 		LocationModel location = null,
-		LedgerModel party = null)
+		LedgerModel party = null,
+		OnlinePartnerModel onlinePartner = null)
 	{
 		var columnSettings = new Dictionary<string, ReportColumnSetting>
 		{
@@ -276,6 +287,7 @@ public static class SaleReturnReportExport
 			[nameof(SaleReturnItemOverviewModel.CompanyName)] = new() { DisplayName = "Company", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnItemOverviewModel.LocationName)] = new() { DisplayName = "Location", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnItemOverviewModel.PartyName)] = new() { DisplayName = "Party", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(SaleReturnItemOverviewModel.OnlinePartnerName)] = new() { DisplayName = "Online Partner", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnItemOverviewModel.CustomerName)] = new() { DisplayName = "Customer", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(SaleReturnItemOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm tt", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(SaleReturnItemOverviewModel.FinancialYear)] = new() { DisplayName = "Financial Year", Alignment = CellAlignment.Center, IncludeInTotal = false },
@@ -376,6 +388,7 @@ public static class SaleReturnReportExport
 				nameof(SaleReturnItemOverviewModel.CompanyName),
 				nameof(SaleReturnItemOverviewModel.LocationName),
 				nameof(SaleReturnItemOverviewModel.PartyName),
+				nameof(SaleReturnItemOverviewModel.OnlinePartnerName),
 				nameof(SaleReturnItemOverviewModel.CustomerName),
 				nameof(SaleReturnItemOverviewModel.TransactionDateTime),
 				nameof(SaleReturnItemOverviewModel.FinancialYear),
@@ -441,7 +454,8 @@ public static class SaleReturnReportExport
 				nameof(SaleReturnItemOverviewModel.TransactionNo),
 				nameof(SaleReturnItemOverviewModel.TransactionDateTime),
 				nameof(SaleReturnItemOverviewModel.LocationName),
-				nameof(SaleReturnItemOverviewModel.PartyName)
+				nameof(SaleReturnItemOverviewModel.PartyName),
+				nameof(SaleReturnItemOverviewModel.MasterStatus)
 			];
 
 			if (product is not null)
@@ -452,6 +466,12 @@ public static class SaleReturnReportExport
 
 			if (party is not null)
 				columnOrder.Remove(nameof(SaleReturnItemOverviewModel.PartyName));
+
+			if (onlinePartner is not null)
+				columnOrder.Remove(nameof(SaleReturnItemOverviewModel.OnlinePartnerName));
+
+			if (!showDeleted)
+				columnOrder.Remove(nameof(SaleReturnItemOverviewModel.MasterStatus));
 		}
 
 		string fileName = $"SALE_RETURN_ITEM_REPORT";
@@ -476,7 +496,8 @@ public static class SaleReturnReportExport
 					["Category"] = productCategory?.Name ?? null,
 					["Company"] = company?.Name ?? null,
 					["Location"] = location?.Name ?? null,
-					["Party"] = party?.Name ?? null
+					["Party"] = party?.Name ?? null,
+					["Online Partner"] = onlinePartner?.Name ?? null
 				}
 			);
 
@@ -499,7 +520,8 @@ public static class SaleReturnReportExport
 					["Category"] = productCategory?.Name ?? null,
 					["Company"] = company?.Name ?? null,
 					["Location"] = location?.Name ?? null,
-					["Party"] = party?.Name ?? null
+					["Party"] = party?.Name ?? null,
+					["Online Partner"] = onlinePartner?.Name ?? null
 				}
 			);
 

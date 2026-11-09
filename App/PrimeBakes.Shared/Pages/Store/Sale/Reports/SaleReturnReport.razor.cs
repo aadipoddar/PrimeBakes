@@ -8,6 +8,7 @@ using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Operations.Location;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
+using PrimeBakes.Models.Store.Customer;
 using PrimeBakes.Models.Store.Sale;
 using PrimeBakes.Shared.Components.Dialog;
 using PrimeBakes.Shared.Components.Input;
@@ -36,10 +37,12 @@ public partial class SaleReturnReport : IAsyncDisposable
 	private LocationModel? _selectedLocation = null;
 	private CompanyModel? _selectedCompany = null;
 	private LedgerModel? _selectedParty = null;
+	private OnlinePartnerModel? _selectedOnlinePartner = null;
 
 	private List<LocationModel> _locations = [];
 	private List<CompanyModel> _companies = [];
 	private List<LedgerModel> _parties = [];
+	private List<OnlinePartnerModel> _onlinePartners = [];
 	private List<SaleReturnOverviewModel> _transactionOverviews = [];
 	private List<SaleReturnOverviewModel> _allTransactionOverviews = [];
 
@@ -95,11 +98,13 @@ public partial class SaleReturnReport : IAsyncDisposable
 		var locations = CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location, useLocalDB: true);
 		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
 		var parties = CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger, useLocalDB: true);
+		var onlinePartners = CommonData.LoadTableDataByStatus<OnlinePartnerModel>(StoreNames.OnlinePartner, useLocalDB: true);
 
 		_fromDate = _toDate = await currentDateTime;
 		_locations = [.. (await locations).OrderBy(s => s.Name)];
 		_companies = [.. (await companies).OrderBy(s => s.Name)];
 		_parties = [.. (await parties).OrderBy(s => s.Name)];
+		_onlinePartners = [.. (await onlinePartners).OrderBy(s => s.Name)];
 
 		_selectedLocation = _user.LocationId != 1 ? _locations.FirstOrDefault(s => s.Id == _user.LocationId) : null;
 	}
@@ -154,7 +159,8 @@ public partial class SaleReturnReport : IAsyncDisposable
 				(_showDeleted || t.Status) &&
 				(_selectedLocation is null || _selectedLocation.Id == 0 || t.LocationId == _selectedLocation.Id) &&
 				(_selectedCompany is null || _selectedCompany.Id == 0 || t.CompanyId == _selectedCompany.Id) &&
-				(_selectedParty is null || _selectedParty.Id == 0 || t.PartyId == _selectedParty.Id))
+				(_selectedParty is null || _selectedParty.Id == 0 || t.PartyId == _selectedParty.Id) &&
+				(_selectedOnlinePartner is null || _selectedOnlinePartner.Id == 0 || t.OnlinePartnerId == _selectedOnlinePartner.Id))
 			.OrderBy(t => t.TransactionDateTime)];
 
 		if (_showSummary)
@@ -216,6 +222,12 @@ public partial class SaleReturnReport : IAsyncDisposable
 	private async Task OnPartyChanged(LedgerModel value)
 	{
 		_selectedParty = value;
+		await ApplyFilters();
+	}
+
+	private async Task OnOnlinePartnerChanged(OnlinePartnerModel value)
+	{
+		_selectedOnlinePartner = value;
 		await ApplyFilters();
 	}
 	#endregion
@@ -362,7 +374,8 @@ public partial class SaleReturnReport : IAsyncDisposable
 				_showSummary,
 				_selectedParty?.Id > 0 ? _selectedParty : null,
 				_selectedCompany?.Id > 0 ? _selectedCompany : null,
-				_selectedLocation?.Id > 0 ? _selectedLocation : null
+				_selectedLocation?.Id > 0 ? _selectedLocation : null,
+				_selectedOnlinePartner?.Id > 0 ? _selectedOnlinePartner : null
 			);
 			await SaveAndViewService.SaveAndView(fileName, stream);
 

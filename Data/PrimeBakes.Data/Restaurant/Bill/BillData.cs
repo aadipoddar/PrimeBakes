@@ -84,6 +84,12 @@ public static class BillData
 					Phone = customer.Number,
 				};
 		}
+		else if (transaction.OnlinePartnerName is not null)
+			customerLedger = new LedgerModel
+			{
+				Name = transaction.OnlinePartnerName,
+				Phone = string.Empty,
+			};
 
 		return new(transaction, transactionDetails, company, location, customerLedger, await CommonData.LoadCurrentDateTime());
 	}

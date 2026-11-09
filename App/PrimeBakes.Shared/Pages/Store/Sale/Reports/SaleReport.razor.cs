@@ -11,6 +11,7 @@ using PrimeBakes.Models.Operations.Location;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Models.Restaurant.Bill;
+using PrimeBakes.Models.Store.Customer;
 using PrimeBakes.Models.Store.Sale;
 using PrimeBakes.Models.Store.StockTransfer;
 using PrimeBakes.Shared.Components.Dialog;
@@ -45,12 +46,14 @@ public partial class SaleReport : IAsyncDisposable
 	private LocationModel? _selectedLocation = null;
 	private CompanyModel? _selectedCompany = null;
 	private LedgerModel? _selectedParty = null;
+	private OnlinePartnerModel? _selectedOnlinePartner = null;
 
 	private List<LocationModel> _locations = [];
 	private List<LocationModel> _cocoLocations = [];
 	private List<LocationModel> _fofoLocations = [];
 	private List<CompanyModel> _companies = [];
 	private List<LedgerModel> _parties = [];
+	private List<OnlinePartnerModel> _onlinePartners = [];
 	private List<SaleOverviewModel> _transactionOverviews = [];
 	private List<SaleOverviewModel> _allTransactionOverviews = [];
 	private List<SaleReturnOverviewModel> _allReturnOverviews = [];
@@ -113,11 +116,13 @@ public partial class SaleReport : IAsyncDisposable
 		var locations = CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location, useLocalDB: true);
 		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
 		var parties = CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger, useLocalDB: true);
+		var onlinePartners = CommonData.LoadTableDataByStatus<OnlinePartnerModel>(StoreNames.OnlinePartner, useLocalDB: true);
 
 		_fromDate = _toDate = await currentDateTime;
 		_locations = [.. (await locations).OrderBy(s => s.Name)];
 		_companies = [.. (await companies).OrderBy(s => s.Name)];
 		_parties = [.. (await parties).OrderBy(s => s.Name)];
+		_onlinePartners = [.. (await onlinePartners).OrderBy(s => s.Name)];
 
 		_selectedLocation = _user.LocationId != 1 ? _locations.FirstOrDefault(s => s.Id == _user.LocationId) : null;
 		_cocoLocations = [.. _locations.Where(l => l.COCO)];
@@ -189,6 +194,7 @@ public partial class SaleReport : IAsyncDisposable
 				(_selectedLocation is null || _selectedLocation.Id == 0 || t.LocationId == _selectedLocation.Id) &&
 				(_selectedCompany is null || _selectedCompany.Id == 0 || t.CompanyId == _selectedCompany.Id) &&
 				(_selectedParty is null || _selectedParty.Id == 0 || t.PartyId == _selectedParty.Id) &&
+				(_selectedOnlinePartner is null || _selectedOnlinePartner.Id == 0 || t.OnlinePartnerId == _selectedOnlinePartner.Id) &&
 				(_showCoco || !_cocoLocations.Any(l => l.Id == t.LocationId)) &&
 				(_showFofo || !_fofoLocations.Any(l => l.Id == t.LocationId)))
 			.OrderBy(t => t.TransactionDateTime)];
@@ -230,6 +236,8 @@ public partial class SaleReport : IAsyncDisposable
 			CompanyName = pr.CompanyName,
 			PartyId = pr.PartyId,
 			PartyName = pr.PartyName,
+			OnlinePartnerId = pr.OnlinePartnerId,
+			OnlinePartnerName = pr.OnlinePartnerName,
 			TransactionDateTime = pr.TransactionDateTime,
 			OtherChargesAmount = -pr.OtherChargesAmount,
 			FinancialAccountingId = pr.FinancialAccountingId,
@@ -259,6 +267,10 @@ public partial class SaleReport : IAsyncDisposable
 			LastModifiedPlatform = pr.LastModifiedPlatform,
 			LastModifiedLatitude = pr.LastModifiedLatitude,
 			LastModifiedLongitude = pr.LastModifiedLongitude,
+			CreatedLocationOffset = pr.CreatedLocationOffset,
+			CreatedUserOffset = pr.CreatedUserOffset,
+			LastModifiedLocationOffset = pr.LastModifiedLocationOffset,
+			LastModifiedUserOffset = pr.LastModifiedUserOffset,
 			Card = -pr.Card,
 			Credit = -pr.Credit,
 			Cash = -pr.Cash,
@@ -317,6 +329,10 @@ public partial class SaleReport : IAsyncDisposable
 			LastModifiedPlatform = pr.LastModifiedPlatform,
 			LastModifiedLatitude = pr.LastModifiedLatitude,
 			LastModifiedLongitude = pr.LastModifiedLongitude,
+			CreatedLocationOffset = pr.CreatedLocationOffset,
+			CreatedUserOffset = pr.CreatedUserOffset,
+			LastModifiedLocationOffset = pr.LastModifiedLocationOffset,
+			LastModifiedUserOffset = pr.LastModifiedUserOffset,
 			Card = pr.Card,
 			Credit = pr.Credit,
 			Cash = pr.Cash,
@@ -346,6 +362,8 @@ public partial class SaleReport : IAsyncDisposable
 			CompanyName = pr.CompanyName,
 			PartyId = null,
 			PartyName = null,
+			OnlinePartnerId = pr.OnlinePartnerId,
+			OnlinePartnerName = pr.OnlinePartnerName,
 			TransactionDateTime = pr.TransactionDateTime,
 			OtherChargesAmount = pr.ServiceChargeAmount,
 			FinancialAccountingId = pr.FinancialAccountingId,
@@ -375,6 +393,10 @@ public partial class SaleReport : IAsyncDisposable
 			LastModifiedPlatform = pr.LastModifiedPlatform,
 			LastModifiedLatitude = pr.LastModifiedLatitude,
 			LastModifiedLongitude = pr.LastModifiedLongitude,
+			CreatedLocationOffset = pr.CreatedLocationOffset,
+			CreatedUserOffset = pr.CreatedUserOffset,
+			LastModifiedLocationOffset = pr.LastModifiedLocationOffset,
+			LastModifiedUserOffset = pr.LastModifiedUserOffset,
 			Card = pr.Card,
 			Credit = pr.Credit,
 			Cash = pr.Cash,
@@ -426,6 +448,12 @@ public partial class SaleReport : IAsyncDisposable
 	private async Task OnPartyChanged(LedgerModel value)
 	{
 		_selectedParty = value;
+		await ApplyFilters();
+	}
+
+	private async Task OnOnlinePartnerChanged(OnlinePartnerModel value)
+	{
+		_selectedOnlinePartner = value;
 		await ApplyFilters();
 	}
 	#endregion
@@ -700,7 +728,8 @@ public partial class SaleReport : IAsyncDisposable
 				_showSummary,
 				_selectedParty?.Id > 0 ? _selectedParty : null,
 				_selectedCompany?.Id > 0 ? _selectedCompany : null,
-				_selectedLocation?.Id > 0 ? _selectedLocation : null
+				_selectedLocation?.Id > 0 ? _selectedLocation : null,
+				_selectedOnlinePartner?.Id > 0 ? _selectedOnlinePartner : null
 			);
 			await SaveAndViewService.SaveAndView(fileName, stream);
 

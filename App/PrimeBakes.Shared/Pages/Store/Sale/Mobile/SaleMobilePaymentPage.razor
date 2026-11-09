@@ -1,3 +1,4 @@
+@using PrimeBakes.Models.Store.Customer
 @attribute [Route(StoreRouteNames.SaleMobilePayment)]
 
 <PageTitle>Sale Payment - Prime Bakes</PageTitle>
@@ -54,6 +55,17 @@ else
 						<label>Remarks</label>
 						<input placeholder="Add a note for this sale…" value="@_sale.Remarks" disabled="@_isProcessing"
 							   @onchange="@(e => _sale.Remarks = e.Value?.ToString())" />
+					</div>
+
+					<!-- Online Partner -->
+					<div class="pb-pay-field pb-partner" style="margin-top: 10px;">
+						<label>Online Partner</label>
+						<CustomAutoComplete T="OnlinePartnerModel"
+											@bind-Value="_selectedOnlinePartner"
+											DataSource="@_onlinePartners"
+											Placeholder="Select an online partner"
+											Required="false"
+											FieldValue="@nameof(OnlinePartnerModel.Name)" />
 					</div>
 				</div>
 			</div>
@@ -206,7 +218,7 @@ else
 
 		<div class="pb-cta-bar">
 			<div class="pb-cta-row">
-				
+
 				<button type="button" class="pb-cta pb-cta--primary" @onclick="SaveTransaction" disabled="@(_isProcessing || _remainingAmount != 0)">
 					@(_isProcessing ? "Saving…" : "Save sale")
 					<span class="pb-cta__price">₹@_sale.TotalAmount.ToString("N0")</span>
@@ -816,4 +828,31 @@ else
 		letter-spacing: -0.015em;
 		font-variant-numeric: tabular-nums;
 	}
+
+	.pb-partner .e-input-group,
+	.pb-partner .e-input-group.e-control-wrapper {
+		height: 40px !important;
+		min-height: 40px !important;
+		border-radius: 12px !important;
+		margin: 0 !important;
+		width: 100% !important;
+		box-sizing: border-box;
+	}
+
+		.pb-partner input,
+		.pb-partner .e-input-group input.e-input {
+			height: 38px !important;
+			min-height: 0 !important;
+			padding: 0 12px !important;
+			font-family: var(--ff-sans) !important;
+			font-size: 13.5px !important;
+			font-weight: 500;
+		}
+
+			.pb-partner input::placeholder {
+				font-family: var(--ff-sans);
+				font-size: 13.5px;
+				font-weight: 400;
+				color: var(--ink-3);
+			}
 </style>

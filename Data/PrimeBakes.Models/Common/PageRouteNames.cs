@@ -119,6 +119,7 @@ public static class StoreRouteNames
 	public const string Tax = "/store/tax";
 
 	public const string Customer = "/store/customer";
+	public const string OnlinePartner = "/store/online-partner";
 }
 
 public static class RestaurantRouteNames

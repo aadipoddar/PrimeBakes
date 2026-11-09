@@ -1,5 +1,6 @@
 @using PrimeBakes.Models.Accounts.Masters
 @using PrimeBakes.Models.Operations.Location
+@using PrimeBakes.Models.Store.Customer
 @using PrimeBakes.Models.Store.Product
 @using PrimeBakes.Models.Store.Sale
 
@@ -170,6 +171,18 @@ else
 													FieldValue="@nameof(LedgerModel.Name)"
 													AddNewRoute="@AccountsRouteNames.LedgerMaster" />
 							</div>
+
+							<!-- Online Partner -->
+							<div class="form-field">
+								<CustomAutoComplete T="OnlinePartnerModel"
+													Value="_selectedOnlinePartner"
+													DataSource="@_onlinePartners"
+													Placeholder="All Online Partners"
+													Label="Online Partner" Required="false"
+													ValueChanged="OnOnlinePartnerChanged"
+													FieldValue="@nameof(OnlinePartnerModel.Name)"
+													AddNewRoute="@StoreRouteNames.OnlinePartner" />
+							</div>
 						}
 					</div>
 				</div>
@@ -240,6 +253,7 @@ else
 						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.LocationName)" HeaderText="Location" Visible="@(_selectedLocation is null || _selectedLocation.Id <= 0)" />
 						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.CompanyName)" HeaderText="Company" Visible="@(_showAllColumns && !_showSummary && (_selectedCompany is null || _selectedCompany.Id <= 0))" />
 						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.PartyName)" HeaderText="Party" Visible="@(_user.LocationId == 1 && !_showSummary && (_selectedParty is null || _selectedParty.Id <= 0))" />
+						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.OnlinePartnerName)" HeaderText="Online Partner" Visible="@(_user.LocationId == 1 && _showAllColumns && !_showSummary && (_selectedOnlinePartner is null || _selectedOnlinePartner.Id <= 0))" />
 						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.CustomerName)" HeaderText="Customer" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.OrderTransactionNo)" HeaderText="Order No" Visible="@(!_showSummary)" />
 						<CustomGridColumn Field="@nameof(SaleItemOverviewModel.FinancialYear)" HeaderText="Financial Year" Visible="@(_showAllColumns && !_showSummary)" />

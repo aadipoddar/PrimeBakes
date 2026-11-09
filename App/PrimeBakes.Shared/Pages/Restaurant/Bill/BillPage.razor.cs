@@ -37,6 +37,7 @@ public partial class BillPage
 	private CompanyModel _selectedCompany = new();
 	private LocationModel _selectedLocation = new();
 	private DiningTableModel _selectedDiningTable = new();
+	private OnlinePartnerModel _selectedOnlinePartner = null;
 	private CustomerModel _selectedCustomer = new();
 	private FinancialYearModel _selectedFinancialYear = new();
 	private ProductLocationOverviewModel _selectedProduct;
@@ -46,6 +47,7 @@ public partial class BillPage
 	private List<CompanyModel> _companies = [];
 	private List<LocationModel> _locations = [];
 	private List<DiningTableModel> _diningTables = [];
+	private List<OnlinePartnerModel> _onlinePartners = [];
 	private List<ProductLocationOverviewModel> _products = [];
 	private List<TaxModel> _taxes = [];
 	private List<BillItemCartModel> _cart = [];
@@ -113,9 +115,11 @@ public partial class BillPage
 	{
 		_companies = await CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
 		_locations = await CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location, useLocalDB: true);
+		_onlinePartners = await CommonData.LoadTableDataByStatus<OnlinePartnerModel>(StoreNames.OnlinePartner, useLocalDB: true);
 
 		_companies = [.. _companies.OrderBy(s => s.Name)];
 		_locations = [.. _locations.OrderBy(s => s.Name)];
+		_onlinePartners = [.. _onlinePartners.OrderBy(s => s.Name)];
 
 		var mainCompanyId = await SettingsData.LoadSettingsByKey(SettingsKeys.PrimaryCompanyLinkingId);
 		_selectedCompany = _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value) ?? _companies.FirstOrDefault();
@@ -228,6 +232,7 @@ public partial class BillPage
 			CompanyId = _selectedCompany.Id,
 			LocationId = _user.LocationId,
 			DiningTableId = diningTableId ?? 0,
+			OnlinePartnerId = null,
 			CustomerId = null,
 			TransactionDateTime = currentDateTime,
 			FinancialYearId = financialYear?.Id ?? 0,
@@ -273,6 +278,14 @@ public partial class BillPage
 			? _companies.FirstOrDefault(s => s.Id == _bill.CompanyId) ?? _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value)
 			: _companies.FirstOrDefault(s => s.Id.ToString() == mainCompanyId.Value);
 		_bill.CompanyId = _selectedCompany?.Id ?? 0;
+
+		if (_bill.OnlinePartnerId is not null && _bill.OnlinePartnerId > 0)
+			_selectedOnlinePartner = _onlinePartners.FirstOrDefault(s => s.Id == _bill.OnlinePartnerId);
+		else
+		{
+			_selectedOnlinePartner = null;
+			_bill.OnlinePartnerId = null;
+		}
 
 		if (_bill.CustomerId is not null && _bill.CustomerId > 0)
 			_selectedCustomer = await CommonData.LoadTableDataById<CustomerModel>(StoreNames.Customer, _bill.CustomerId.Value);
@@ -957,6 +970,7 @@ public partial class BillPage
 		_bill.CompanyId = _selectedCompany.Id;
 		_bill.LocationId = _selectedLocation.Id;
 		_bill.DiningTableId = _selectedDiningTable?.Id ?? 0;
+		_bill.OnlinePartnerId = _selectedOnlinePartner?.Id;
 		_bill.CustomerId = _selectedCustomer is { Id: > 0 } ? _selectedCustomer.Id : null;
 
 		SyncPaymentsFromBill();

@@ -29,8 +29,10 @@ public partial class BillMobilePaymentPage
 
 	private DiningTableModel _diningTable;
 	private CustomerModel _selectedCustomer = new();
+	private OnlinePartnerModel _selectedOnlinePartner = null;
 	private BillModel _bill = new();
 
+	private List<OnlinePartnerModel> _onlinePartners = [];
 	private List<ProductModel> _products = [];
 	private List<TaxModel> _taxes = [];
 	private List<BillItemCartModel> _cart = [];
@@ -122,6 +124,9 @@ public partial class BillMobilePaymentPage
 
 	private async Task LoadCart()
 	{
+		var onlinePartners = CommonData.LoadTableDataByStatus<OnlinePartnerModel>(StoreNames.OnlinePartner, useLocalDB: true);
+		_onlinePartners = [.. (await onlinePartners).OrderBy(s => s.Name)];
+
 		_products = await CommonData.LoadTableData<ProductModel>(StoreNames.Product);
 		_taxes = await CommonData.LoadTableData<TaxModel>(StoreNames.Tax);
 
@@ -298,6 +303,7 @@ public partial class BillMobilePaymentPage
 			item.NetRate = item.Total / item.Quantity * (1 - _bill.DiscountPercent / 100);
 		}
 
+		_bill.OnlinePartnerId = _selectedOnlinePartner?.Id;
 		_bill.TotalItems = _finalCart.Count(x => x.Quantity > 0);
 		_bill.TotalQuantity = _finalCart.Sum(x => x.Quantity);
 		_bill.BaseTotal = _finalCart.Sum(x => x.BaseTotal);
@@ -422,14 +428,13 @@ public partial class BillMobilePaymentPage
 
 		try
 		{
+			await SaveTransactionFile(true);
+
 			_isProcessing = true;
 			StateHasChanged();
 
-			await SaveTransactionFile(true);
 			ConfirmPayment();
-
 			await PrepareBillForSave();
-
 			HandleBillSettlement();
 
 			_bill.Id = await BillData.SaveTransaction(_bill, _finalCart, _selectedCustomer);

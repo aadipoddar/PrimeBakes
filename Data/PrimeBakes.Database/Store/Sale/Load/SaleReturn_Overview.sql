@@ -1,4 +1,4 @@
-﻿CREATE VIEW [dbo].[SaleReturn_Overview]
+﻿ CREATE VIEW [dbo].[SaleReturn_Overview]
 	AS
 SELECT
 	[sr].[Id],
@@ -10,6 +10,8 @@ SELECT
 	
 	[sr].[PartyId],
 	[p].[Name] AS PartyName,
+	[sr].[OnlinePartnerId],
+	[op].[Name] AS OnlinePartnerName,
 	[sr].[CustomerId],
 	[cust].[Name] AS CustomerName,
 	[sr].[TransactionDateTime],
@@ -80,6 +82,8 @@ INNER JOIN
 	[dbo].[Location] AS l ON sr.LocationId = l.Id
 LEFT JOIN
 	[dbo].[Ledger] AS p ON sr.PartyId = p.Id
+LEFT JOIN
+	[dbo].[OnlinePartner] AS op ON sr.OnlinePartnerId = op.Id
 LEFT JOIN
 	[dbo].[Customer] AS cust ON sr.CustomerId = cust.Id
 INNER JOIN

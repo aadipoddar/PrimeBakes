@@ -1,3 +1,4 @@
+@using PrimeBakes.Models.Store.Customer
 @attribute [Route(RestaurantRouteNames.BillMobilePayment)]
 @attribute [Route($"{RestaurantRouteNames.BillMobilePayment}/table/{{DiningTableId:int}}")]
 
@@ -55,6 +56,17 @@ else
 						<label>Remarks</label>
 						<input placeholder="Notes for this bill…" value="@_bill.Remarks" disabled="@_isProcessing"
 							   @onchange="@(e => _bill.Remarks = e.Value?.ToString())" />
+					</div>
+
+					<!-- Online Partner -->
+					<div class="pb-pay-field pb-partner" style="margin-top: 10px;">
+						<label>Online Partner</label>
+						<CustomAutoComplete T="OnlinePartnerModel"
+											@bind-Value="_selectedOnlinePartner"
+											DataSource="@_onlinePartners"
+											Placeholder="Select an online partner"
+											Required="false"
+											FieldValue="@nameof(OnlinePartnerModel.Name)" />
 					</div>
 				</div>
 			</div>
@@ -825,4 +837,31 @@ else
 		letter-spacing: -0.015em;
 		font-variant-numeric: tabular-nums;
 	}
+
+	.pb-partner .e-input-group,
+	.pb-partner .e-input-group.e-control-wrapper {
+		height: 40px !important;
+		min-height: 40px !important;
+		border-radius: 12px !important;
+		margin: 0 !important;
+		width: 100% !important;
+		box-sizing: border-box;
+	}
+
+		.pb-partner input,
+		.pb-partner .e-input-group input.e-input {
+			height: 38px !important;
+			min-height: 0 !important;
+			padding: 0 12px !important;
+			font-family: var(--ff-sans) !important;
+			font-size: 13.5px !important;
+			font-weight: 500;
+		}
+
+			.pb-partner input::placeholder {
+				font-family: var(--ff-sans);
+				font-size: 13.5px;
+				font-weight: 400;
+				color: var(--ink-3);
+			}
 </style>

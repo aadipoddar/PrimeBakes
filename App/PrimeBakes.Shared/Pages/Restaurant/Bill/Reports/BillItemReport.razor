@@ -158,6 +158,18 @@ else
 							</div>
 						}
 
+						<!-- Online Partner -->
+						<div class="form-field">
+							<CustomAutoComplete T="OnlinePartnerModel"
+												Value="_selectedOnlinePartner"
+												DataSource="@_onlinePartners"
+												Placeholder="All Online Partners"
+												Label="Online Partner" Required="false"
+												ValueChanged="OnOnlinePartnerChanged"
+												FieldValue="@nameof(OnlinePartnerModel.Name)"
+												AddNewRoute="@StoreRouteNames.OnlinePartner" />
+						</div>
+
 						<!-- Running -->
 						<div class="form-field">
 							<CustomAutoComplete T="YesNoFilterOption"
@@ -239,6 +251,7 @@ else
 						<CustomGridColumn Field="@nameof(BillItemOverviewModel.DiningTableName)" HeaderText="Table" Visible="@(!_showSummary)" />
 						<CustomGridColumn Field="@nameof(BillItemOverviewModel.DiningAreaName)" HeaderText="Area" Visible="@(_showAllColumns && !_showSummary)" />
 						<CustomGridColumn Field="@nameof(BillItemOverviewModel.CustomerName)" HeaderText="Customer" Visible="@(_showAllColumns && !_showSummary && (_selectedCustomer is null || _selectedCustomer.Id <= 0))" />
+						<CustomGridColumn Field="@nameof(BillItemOverviewModel.OnlinePartnerName)" HeaderText="Online Partner" Visible="@(_showAllColumns && !_showSummary && (_selectedOnlinePartner is null || _selectedOnlinePartner.Id <= 0))" />
 						<CustomGridColumn Field="@nameof(BillItemOverviewModel.FinancialYear)" HeaderText="Financial Year" Visible="@(_showAllColumns && !_showSummary)" />
 
 						<CustomGridColumn Field="@nameof(BillItemOverviewModel.TotalPeople)" HeaderText="PAX" Visible="@(_showAllColumns && !_showSummary)" NumericColumn="true" />

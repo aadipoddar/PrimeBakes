@@ -158,6 +158,7 @@
     <Folder Include="Operations\User" />
     <Folder Include="Operations\Terminal" />
     <Folder Include="Operations\OfflineQueue" />
+    <Folder Include="PulpTrace" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Accounts\FinancialAccounting\Insert\Insert_FinancialAccounting.sql" />
@@ -393,6 +394,11 @@
     <Build Include="Operations\OfflineQueue\Delete_OfflineQueue_By_Id.sql" />
     <Build Include="Common\Load_LastTableData_By_Location_FinancialYear.sql" />
     <Build Include="Inventory\Stock\Load\Load_RawMaterial_OpeningStock_By_Date.sql" />
+    <Build Include="PulpTrace\PulpTrace.sql" />
+    <Build Include="PulpTrace\Insert_PulpTrace.sql" />
+    <Build Include="PulpTrace\Delete_PulpTrace_By_Id.sql" />
+    <Build Include="Store\Customer\OnlinePartner.sql" />
+    <Build Include="Store\Customer\Insert_OnlinePartner.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="PublishLocation\LocalDB.publish.xml" />

@@ -5,8 +5,8 @@ using PrimeBakes.Data.Accounts.Masters;
 using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Inventory.Stock;
 using PrimeBakes.Data.Operations.AuditTrail;
-using PrimeBakes.Data.Operations.OfflineQueue;
 using PrimeBakes.Data.Operations.Location;
+using PrimeBakes.Data.Operations.OfflineQueue;
 using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Data.Store.Customer;
 using PrimeBakes.Data.Store.Product;
@@ -18,8 +18,8 @@ using PrimeBakes.Models.Common;
 using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Inventory.Stock;
 using PrimeBakes.Models.Operations.AuditTrail;
-using PrimeBakes.Models.Operations.OfflineQueue;
 using PrimeBakes.Models.Operations.Location;
+using PrimeBakes.Models.Operations.OfflineQueue;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Models.Store.Customer;
@@ -77,6 +77,12 @@ public static class SaleReturnData
 					Phone = customer.Number,
 				};
 		}
+		else if (transaction.OnlinePartnerName is not null)
+			party = new LedgerModel
+			{
+				Name = transaction.OnlinePartnerName,
+				Phone = string.Empty,
+			};
 
 		return new(transaction, transactionDetails, company, location, party, await CommonData.LoadCurrentDateTime());
 	}

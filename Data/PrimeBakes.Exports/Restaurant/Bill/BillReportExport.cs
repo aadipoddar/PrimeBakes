@@ -3,7 +3,9 @@ using PrimeBakes.Models.Accounts.Masters;
 using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Operations.Location;
 using PrimeBakes.Models.Restaurant.Bill;
+using PrimeBakes.Models.Store.Customer;
 using PrimeBakes.Models.Store.Product;
+using PrimeBakes.Models.Store.Sale;
 
 namespace PrimeBakes.Exports.Restaurant.Bill;
 
@@ -19,7 +21,8 @@ public static class BillReportExport
 		bool showDeleted = false,
 		bool showSummary = false,
 		CompanyModel company = null,
-		LocationModel location = null)
+		LocationModel location = null,
+		OnlinePartnerModel onlinePartner = null)
 	{
 		var columnSettings = new Dictionary<string, ReportColumnSetting>
 		{
@@ -28,6 +31,7 @@ public static class BillReportExport
 			[nameof(BillOverviewModel.LocationName)] = new() { DisplayName = "Location", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(BillOverviewModel.DiningTableName)] = new() { DisplayName = "Table", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(BillOverviewModel.DiningAreaName)] = new() { DisplayName = "Area", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(BillOverviewModel.OnlinePartnerName)] = new() { DisplayName = "Online Partner", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(BillOverviewModel.CustomerName)] = new() { DisplayName = "Customer", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(BillOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm tt", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(BillOverviewModel.FinancialYear)] = new() { DisplayName = "Financial Year", Alignment = CellAlignment.Center, IncludeInTotal = false },
@@ -113,6 +117,7 @@ public static class BillReportExport
 				nameof(BillOverviewModel.LocationName),
 				nameof(BillOverviewModel.DiningTableName),
 				nameof(BillOverviewModel.DiningAreaName),
+				nameof(SaleOverviewModel.OnlinePartnerName),
 				nameof(BillOverviewModel.CustomerName),
 				nameof(BillOverviewModel.TransactionDateTime),
 				nameof(BillOverviewModel.FinancialYear),
@@ -183,6 +188,9 @@ public static class BillReportExport
 			if (location is not null)
 				columnOrder.Remove(nameof(BillOverviewModel.LocationName));
 
+			if (onlinePartner is not null)
+				columnOrder.Remove(nameof(SaleOverviewModel.OnlinePartnerName));
+
 			if (!showDeleted)
 				columnOrder.Remove(nameof(BillOverviewModel.Status));
 		}
@@ -206,7 +214,8 @@ public static class BillReportExport
 				new()
 				{
 					["Company"] = company?.Name ?? null,
-					["Location"] = location?.Name ?? null
+					["Location"] = location?.Name ?? null,
+					["Online Partner"] = onlinePartner?.Name ?? null
 				}
 			);
 
@@ -226,7 +235,8 @@ public static class BillReportExport
 				new()
 				{
 					["Company"] = company?.Name ?? null,
-					["Location"] = location?.Name ?? null
+					["Location"] = location?.Name ?? null,
+					["Online Partner"] = onlinePartner?.Name ?? null
 				}
 			);
 
@@ -246,7 +256,8 @@ public static class BillReportExport
 		ProductModel product = null,
 		ProductCategoryModel productCategory = null,
 		CompanyModel company = null,
-		LocationModel location = null)
+		LocationModel location = null,
+		OnlinePartnerModel onlinePartner = null)
 	{
 		var columnSettings = new Dictionary<string, ReportColumnSetting>
 		{
@@ -281,6 +292,7 @@ public static class BillReportExport
 			[nameof(BillItemOverviewModel.LocationName)] = new() { DisplayName = "Location", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(BillItemOverviewModel.DiningTableName)] = new() { DisplayName = "Table", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(BillItemOverviewModel.DiningAreaName)] = new() { DisplayName = "Area", Alignment = CellAlignment.Left, IncludeInTotal = false },
+			[nameof(BillItemOverviewModel.OnlinePartnerName)] = new() { DisplayName = "Online Partner", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(BillItemOverviewModel.CustomerName)] = new() { DisplayName = "Customer", Alignment = CellAlignment.Left, IncludeInTotal = false },
 			[nameof(BillItemOverviewModel.TransactionDateTime)] = new() { DisplayName = "Trans Date", Format = "dd-MMM-yyyy hh:mm tt", Alignment = CellAlignment.Center, IncludeInTotal = false },
 			[nameof(BillItemOverviewModel.FinancialYear)] = new() { DisplayName = "Financial Year", Alignment = CellAlignment.Center, IncludeInTotal = false },
@@ -387,6 +399,7 @@ public static class BillReportExport
 				nameof(BillItemOverviewModel.LocationName),
 				nameof(BillItemOverviewModel.DiningTableName),
 				nameof(BillItemOverviewModel.DiningAreaName),
+				nameof(BillItemOverviewModel.OnlinePartnerName),
 				nameof(BillItemOverviewModel.CustomerName),
 				nameof(BillItemOverviewModel.TransactionDateTime),
 				nameof(BillItemOverviewModel.FinancialYear),
@@ -464,6 +477,9 @@ public static class BillReportExport
 
 			if (location is not null)
 				columnOrder.Remove(nameof(BillItemOverviewModel.LocationName));
+
+			if (onlinePartner is not null)
+				columnOrder.Remove(nameof(SaleOverviewModel.OnlinePartnerName));
 		}
 
 		string fileName = $"BILL_ITEM_REPORT";
@@ -487,7 +503,8 @@ public static class BillReportExport
 					["Item"] = product?.Name ?? null,
 					["Category"] = productCategory?.Name ?? null,
 					["Company"] = company?.Name ?? null,
-					["Location"] = location?.Name ?? null
+					["Location"] = location?.Name ?? null,
+					["Online Partner"] = onlinePartner?.Name ?? null
 				}
 			);
 
@@ -509,7 +526,8 @@ public static class BillReportExport
 					["Item"] = product?.Name ?? null,
 					["Category"] = productCategory?.Name ?? null,
 					["Company"] = company?.Name ?? null,
-					["Location"] = location?.Name ?? null
+					["Location"] = location?.Name ?? null,
+					["Online Partner"] = onlinePartner?.Name ?? null
 				}
 			);
 

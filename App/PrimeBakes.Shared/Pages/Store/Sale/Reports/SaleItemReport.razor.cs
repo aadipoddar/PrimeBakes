@@ -11,6 +11,7 @@ using PrimeBakes.Models.Operations.Location;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Models.Restaurant.Bill;
+using PrimeBakes.Models.Store.Customer;
 using PrimeBakes.Models.Store.Product;
 using PrimeBakes.Models.Store.Sale;
 using PrimeBakes.Models.Store.StockTransfer;
@@ -48,6 +49,7 @@ public partial class SaleItemReport : IAsyncDisposable
 	private LocationModel? _selectedLocation = null;
 	private CompanyModel? _selectedCompany = null;
 	private LedgerModel? _selectedParty = null;
+	private OnlinePartnerModel? _selectedOnlinePartner = null;
 
 	private List<ProductModel> _products = [];
 	private List<ProductCategoryModel> _productCategories = [];
@@ -56,6 +58,7 @@ public partial class SaleItemReport : IAsyncDisposable
 	private List<LocationModel> _fofoLocations = [];
 	private List<CompanyModel> _companies = [];
 	private List<LedgerModel> _parties = [];
+	private List<OnlinePartnerModel> _onlinePartners = [];
 	private List<SaleItemOverviewModel> _transactionOverviews = [];
 	private List<SaleItemOverviewModel> _allTransactionOverviews = [];
 	private List<SaleReturnItemOverviewModel> _allReturnOverviews = [];
@@ -119,6 +122,7 @@ public partial class SaleItemReport : IAsyncDisposable
 		var locations = CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location, useLocalDB: true);
 		var companies = CommonData.LoadTableDataByStatus<CompanyModel>(AccountNames.Company, useLocalDB: true);
 		var parties = CommonData.LoadTableDataByStatus<LedgerModel>(AccountNames.Ledger, useLocalDB: true);
+		var onlinePartners = CommonData.LoadTableDataByStatus<OnlinePartnerModel>(StoreNames.OnlinePartner, useLocalDB: true);
 
 		_fromDate = _toDate = await currentDateTime;
 		_products = [.. (await products).OrderBy(s => s.Name)];
@@ -126,6 +130,7 @@ public partial class SaleItemReport : IAsyncDisposable
 		_locations = [.. (await locations).OrderBy(s => s.Name)];
 		_companies = [.. (await companies).OrderBy(s => s.Name)];
 		_parties = [.. (await parties).OrderBy(s => s.Name)];
+		_onlinePartners = [.. (await onlinePartners).OrderBy(s => s.Name)];
 
 		_selectedLocation = _user.LocationId != 1 ? _locations.FirstOrDefault(s => s.Id == _user.LocationId) : null;
 		_cocoLocations = [.. _locations.Where(l => l.COCO)];
@@ -199,6 +204,7 @@ public partial class SaleItemReport : IAsyncDisposable
 				(_selectedLocation is null || _selectedLocation.Id == 0 || t.LocationId == _selectedLocation.Id) &&
 				(_selectedCompany is null || _selectedCompany.Id == 0 || t.CompanyId == _selectedCompany.Id) &&
 				(_selectedParty is null || _selectedParty.Id == 0 || t.PartyId == _selectedParty.Id) &&
+				(_selectedOnlinePartner is null || _selectedOnlinePartner.Id == 0 || t.OnlinePartnerId == _selectedOnlinePartner.Id) &&
 				(_showCoco || !_cocoLocations.Any(l => l.Id == t.LocationId)) &&
 				(_showFofo || !_fofoLocations.Any(l => l.Id == t.LocationId)))
 			.OrderBy(t => t.TransactionDateTime)];
@@ -249,6 +255,8 @@ public partial class SaleItemReport : IAsyncDisposable
 			CompanyName = pr.CompanyName,
 			PartyId = pr.PartyId,
 			PartyName = pr.PartyName,
+			OnlinePartnerId = pr.OnlinePartnerId,
+			OnlinePartnerName = pr.OnlinePartnerName,
 			TransactionNo = pr.TransactionNo,
 			TransactionDateTime = pr.TransactionDateTime,
 			Quantity = -pr.Quantity,
@@ -308,6 +316,10 @@ public partial class SaleItemReport : IAsyncDisposable
 			LastModifiedPlatform = pr.LastModifiedPlatform,
 			LastModifiedLatitude = pr.LastModifiedLatitude,
 			LastModifiedLongitude = pr.LastModifiedLongitude,
+			CreatedLocationOffset = pr.CreatedLocationOffset,
+			CreatedUserOffset = pr.CreatedUserOffset,
+			LastModifiedLocationOffset = pr.LastModifiedLocationOffset,
+			LastModifiedUserOffset = pr.LastModifiedUserOffset
 		}));
 
 	private void MergeTransfers() =>
@@ -389,7 +401,11 @@ public partial class SaleItemReport : IAsyncDisposable
 			LastModifiedFormFactor = pr.LastModifiedFormFactor,
 			LastModifiedPlatform = pr.LastModifiedPlatform,
 			LastModifiedLatitude = pr.LastModifiedLatitude,
-			LastModifiedLongitude = pr.LastModifiedLongitude
+			LastModifiedLongitude = pr.LastModifiedLongitude,
+			CreatedLocationOffset = pr.CreatedLocationOffset,
+			CreatedUserOffset = pr.CreatedUserOffset,
+			LastModifiedLocationOffset = pr.LastModifiedLocationOffset,
+			LastModifiedUserOffset = pr.LastModifiedUserOffset
 		}));
 
 	private void MergeBills() =>
@@ -440,7 +456,6 @@ public partial class SaleItemReport : IAsyncDisposable
 			TotalInclusiveTaxAmount = pr.TotalInclusiveTaxAmount,
 			TotalExtraTaxAmount = pr.TotalExtraTaxAmount,
 			TotalAfterTax = pr.TotalAfterTax,
-			// Bill has no "other charges"/sale discount; map its Service Charge + bill-level discount onto those columns.
 			OtherChargesPercent = pr.ServiceChargePercent,
 			OtherChargesAmount = pr.ServiceChargeAmount,
 			SaleDiscountPercent = pr.BillDiscountPercent,
@@ -472,7 +487,11 @@ public partial class SaleItemReport : IAsyncDisposable
 			LastModifiedFormFactor = pr.LastModifiedFormFactor,
 			LastModifiedPlatform = pr.LastModifiedPlatform,
 			LastModifiedLatitude = pr.LastModifiedLatitude,
-			LastModifiedLongitude = pr.LastModifiedLongitude
+			LastModifiedLongitude = pr.LastModifiedLongitude,
+			CreatedLocationOffset = pr.CreatedLocationOffset,
+			CreatedUserOffset = pr.CreatedUserOffset,
+			LastModifiedLocationOffset = pr.LastModifiedLocationOffset,
+			LastModifiedUserOffset = pr.LastModifiedUserOffset
 		}));
 	#endregion
 
@@ -517,6 +536,12 @@ public partial class SaleItemReport : IAsyncDisposable
 	private async Task OnPartyChanged(LedgerModel value)
 	{
 		_selectedParty = value;
+		await ApplyFilters();
+	}
+
+	private async Task OnOnlinePartnerChanged(OnlinePartnerModel value)
+	{
+		_selectedOnlinePartner = value;
 		await ApplyFilters();
 	}
 	#endregion
@@ -785,7 +810,8 @@ public partial class SaleItemReport : IAsyncDisposable
 				_selectedProductCategory?.Id > 0 ? _selectedProductCategory : null,
 				_selectedCompany?.Id > 0 ? _selectedCompany : null,
 				_selectedLocation?.Id > 0 ? _selectedLocation : null,
-				_selectedParty?.Id > 0 ? _selectedParty : null
+				_selectedParty?.Id > 0 ? _selectedParty : null,
+				_selectedOnlinePartner?.Id > 0 ? _selectedOnlinePartner : null
 			);
 			await SaveAndViewService.SaveAndView(fileName, stream);
 

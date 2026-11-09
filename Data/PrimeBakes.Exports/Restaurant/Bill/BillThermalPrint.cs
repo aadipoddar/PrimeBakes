@@ -76,6 +76,9 @@ public static class BillThermalPrint
 		if (bill.CustomerId.HasValue && bill.CustomerId.Value > 0 && !string.IsNullOrWhiteSpace(bill.CustomerName))
 			pairs.Add(("Customer", bill.CustomerName));
 
+		if (bill.OnlinePartnerId.HasValue && bill.OnlinePartnerId.Value > 0)
+			pairs.Add(("Online Partner", bill.OnlinePartnerName ?? "N/A"));
+
 		y = ThermalPrintUtil.DrawLabelValueBlock(canvas, pairs, width, y);
 
 		// Table and Pax on the same line

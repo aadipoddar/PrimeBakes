@@ -1,5 +1,6 @@
 @using PrimeBakes.Models.Accounts.Masters
 @using PrimeBakes.Models.Operations.Location
+@using PrimeBakes.Models.Store.Customer
 @using PrimeBakes.Models.Store.Order
 @using PrimeBakes.Models.Store.PaymentMode
 @using PrimeBakes.Models.Store.Product
@@ -157,6 +158,18 @@ else
 									</div>
 								</div>
 							}
+
+							<!-- Online Partner -->
+							<div class="form-field">
+								<CustomAutoComplete T="OnlinePartnerModel"
+													@bind-Value="_selectedOnlinePartner"
+													DataSource="@_onlinePartners"
+													Placeholder="Select a Online Partner"
+													Label="Online Partner"
+													Required="false"
+													FieldValue="@nameof(OnlinePartnerModel.Name)"
+													AddNewRoute="@StoreRouteNames.OnlinePartner" />
+							</div>
 
 							<!-- Customer Number -->
 							<div class="form-field">

@@ -7,6 +7,7 @@ public class SaleModel
 	public int CompanyId { get; set; }
 	public int LocationId { get; set; }
 	public int? PartyId { get; set; }
+	public int? OnlinePartnerId { get; set; }
 	public int? CustomerId { get; set; }
 	public int? OrderId { get; set; }
 	public DateTime TransactionDateTime { get; set; }
@@ -57,6 +58,8 @@ public class SaleOverviewModel
 
 	public int? PartyId { get; set; }
 	public string? PartyName { get; set; }
+	public int? OnlinePartnerId { get; set; }
+	public string? OnlinePartnerName { get; set; }
 	public int? CustomerId { get; set; }
 	public string? CustomerName { get; set; }
 

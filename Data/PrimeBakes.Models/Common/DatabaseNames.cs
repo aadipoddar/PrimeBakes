@@ -317,6 +317,9 @@ public static class StoreNames
 	public static string Customer => "Customer";
 	public static string InsertCustomer => "Insert_Customer";
 	public static string LoadCustomerByNumber => "Load_Customer_By_Number";
+
+	public static string OnlinePartner => "OnlinePartner";
+	public static string InsertOnlinePartner => "Insert_OnlinePartner";
 	#endregion
 }
 

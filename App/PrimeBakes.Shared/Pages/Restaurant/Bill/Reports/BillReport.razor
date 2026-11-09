@@ -135,6 +135,18 @@ else
 							</div>
 						}
 
+						<!-- Online Partner -->
+						<div class="form-field">
+							<CustomAutoComplete T="OnlinePartnerModel"
+												Value="_selectedOnlinePartner"
+												DataSource="@_onlinePartners"
+												Placeholder="All Online Partners"
+												Label="Online Partner" Required="false"
+												ValueChanged="OnOnlinePartnerChanged"
+												FieldValue="@nameof(OnlinePartnerModel.Name)"
+												AddNewRoute="@StoreRouteNames.OnlinePartner" />
+						</div>
+
 						<!-- Running -->
 						<div class="form-field">
 							<CustomAutoComplete T="YesNoFilterOption"
@@ -196,6 +208,7 @@ else
 						<CustomGridColumn Field="@nameof(BillOverviewModel.CompanyName)" HeaderText="Company" Visible="@(_showAllColumns && !_showSummary && (_selectedCompany is null || _selectedCompany.Id <= 0))" />
 						<CustomGridColumn Field="@nameof(BillOverviewModel.DiningTableName)" HeaderText="Table" Visible="@(!_showSummary)" />
 						<CustomGridColumn Field="@nameof(BillOverviewModel.DiningAreaName)" HeaderText="Area" Visible="@(_showAllColumns && !_showSummary)" />
+						<CustomGridColumn Field="@nameof(BillOverviewModel.OnlinePartnerName)" HeaderText="Online Partner" Visible="@(_showAllColumns && !_showSummary && (_selectedOnlinePartner is null || _selectedOnlinePartner.Id <= 0))" />
 						<CustomGridColumn Field="@nameof(BillOverviewModel.CustomerName)" HeaderText="Customer" Visible="@(_showAllColumns && !_showSummary && (_selectedCustomer is null || _selectedCustomer.Id <= 0))" />
 						<CustomGridColumn Field="@nameof(BillOverviewModel.FinancialYear)" HeaderText="Financial Year" Visible="@(_showAllColumns && !_showSummary)" />
 
