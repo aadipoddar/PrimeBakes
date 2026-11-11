@@ -88,7 +88,7 @@ internal static class TransactionMailing
 		using var client = new SmtpClient();
 		await client.ConnectAsync("smtp.gmail.com", 465, true);
 		await client.AuthenticateAsync(Secrets.Email, Secrets.EmailPassword);
-		await client.SendAsync(new SmtpSendRequest(message));
+		await client.SendAsync(message);
 		await client.DisconnectAsync(true);
 	}
 
