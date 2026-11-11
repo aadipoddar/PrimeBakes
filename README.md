@@ -540,7 +540,7 @@ Data/PrimeBakes.Database/<Module>/<Feature>/{Table,Insert,Load}/
 - **Azure Account** (for production deployment)
 - **Android SDK** (for Android development)
 
-> The full solution does not build on non-Windows, because the MAUI project targets `net10.0-android;net10.0-ios;net10.0-maccatalyst` (plus `net10.0-windows10.0.19041.0` on Windows). Build individual projects instead.
+> The full solution does not build on non-Windows, because the MAUI project targets `net11.0-android;net11.0-ios;net11.0-maccatalyst` (plus `net11.0-windows10.0.19041.0` on Windows). Build individual projects instead.
 
 ### Installation
 
@@ -586,12 +586,12 @@ Data/PrimeBakes.Database/<Module>/<Feature>/{Table,Insert,Load}/
 
    **Windows (MAUI):**
    ```bash
-   dotnet build App/PrimeBakes/PrimeBakes.csproj -f net10.0-windows10.0.19041.0
+   dotnet build App/PrimeBakes/PrimeBakes.csproj -f net11.0-windows10.0.19041.0
    ```
 
    **Android (MAUI):**
    ```bash
-   dotnet build App/PrimeBakes/PrimeBakes.csproj -f net10.0-android
+   dotnet build App/PrimeBakes/PrimeBakes.csproj -f net11.0-android
    ```
 
 > For local work set `CommonSecrets.DatabaseConnection = ConnectionType.Local` — that switches both the SQL connection *and* `ApiBaseUrl` to `https://localhost:7273/`. Remember to switch it back; it silently blocks all deploys.
@@ -697,4 +697,4 @@ This project is proprietary software developed for **Salasar Foods Guwahati**.
 
 ---
 
-Latest Version = 1.2.5.3
+Latest Version = 1.2.5.4
