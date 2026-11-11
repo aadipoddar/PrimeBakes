@@ -14,7 +14,7 @@
 	  <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.23.0" />
 	  <PackageReference Include="MimeKit" Version="5.0.0" />
 	  <PackageReference Include="NCalcSync" Version="7.4.0" />
-	  <PackageReference Include="Syncfusion.Licensing" Version="35.1.43" />
+	  <PackageReference Include="Syncfusion.Licensing" Version="35.1.46" />
 	  <PackageReference Include="WebPush" Version="1.0.13" />
   </ItemGroup>
 
