@@ -14,8 +14,8 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/build-passing-brightgreen?style=for-the-badge" alt="Build"/>
-  <img src="https://img.shields.io/badge/.NET-10.0-purple?style=for-the-badge&logo=dotnet" alt=".NET"/>
-  <img src="https://img.shields.io/badge/C%23-14-239120?style=for-the-badge&logo=csharp" alt="C#"/>
+  <img src="https://img.shields.io/badge/.NET-11.0-purple?style=for-the-badge&logo=dotnet" alt=".NET"/>
+  <img src="https://img.shields.io/badge/C%23-15-239120?style=for-the-badge&logo=csharp" alt="C#"/>
   <img src="https://img.shields.io/badge/Blazor-Server_|_WASM_|_Hybrid-blueviolet?style=for-the-badge&logo=blazor" alt="Blazor"/>
   <img src="https://img.shields.io/badge/MAUI-Cross_Platform-green?style=for-the-badge&logo=dotnet" alt="MAUI"/>
   <img src="https://img.shields.io/badge/Azure-SQL_|_App_Service_|_SWA-0089D6?style=for-the-badge&logo=microsoft-azure" alt="Azure"/>
@@ -344,17 +344,17 @@ PrimeBakes/                                   # PrimeBakes.slnx
 ### **Frontend**
 | Technology | Version | Purpose |
 |------------|---------|---------|
-| **.NET MAUI** | 10.0.100 | Cross-platform native apps |
-| **Blazor Hybrid** | 10.0 | UI framework for MAUI |
-| **Blazor Server** | 10.0 | Web application hosting |
-| **Blazor WebAssembly** | 10.0.11 | Static web app hosting |
+| **.NET MAUI** | 11.0.100 | Cross-platform native apps |
+| **Blazor Hybrid** | 11.0 | UI framework for MAUI |
+| **Blazor Server** | 11.0 | Web application hosting |
+| **Blazor WebAssembly** | 11.0.11 | Static web app hosting |
 | **Syncfusion Blazor** | 34.2.4 | Grid, Inputs, Buttons, Popups, Notifications, Diagram, Themes |
 | **MudBlazor** | 9.8.0 | Menus, hotkeys, tabs, dividers |
 
 ### **Backend & API**
 | Technology | Version | Purpose |
 |------------|---------|---------|
-| **.NET 10 / C# 14** | 10.0 | Application framework |
+| **.NET 11 / C# 15** | 11.0 | Application framework |
 | **Carter** | 10.0.0 | Minimal API module organisation |
 | **JWT Bearer** | 10.0.11 | API authentication |
 | **Scalar.AspNetCore** | 2.17.1 | API reference docs (Development only) |
@@ -532,7 +532,7 @@ Data/PrimeBakes.Database/<Module>/<Feature>/{Table,Insert,Load}/
 
 ### Prerequisites
 
-- **.NET 10 SDK** or later
+- **.NET 11 SDK** or later
 - **Visual Studio 2022** (17.14+) with:
   - .NET MAUI workload
   - ASP.NET and web development
@@ -540,7 +540,7 @@ Data/PrimeBakes.Database/<Module>/<Feature>/{Table,Insert,Load}/
 - **Azure Account** (for production deployment)
 - **Android SDK** (for Android development)
 
-> The full solution does not build on non-Windows, because the MAUI project targets `net10.0-android;net10.0-ios;net10.0-maccatalyst` (plus `net10.0-windows10.0.19041.0` on Windows). Build individual projects instead.
+> The full solution does not build on non-Windows, because the MAUI project targets `net11.0-android;net11.0-ios;net11.0-maccatalyst` (plus `net11.0-windows10.0.19041.0` on Windows). Build individual projects instead.
 
 ### Installation
 
@@ -586,12 +586,12 @@ Data/PrimeBakes.Database/<Module>/<Feature>/{Table,Insert,Load}/
 
    **Windows (MAUI):**
    ```bash
-   dotnet build App/PrimeBakes/PrimeBakes.csproj -f net10.0-windows10.0.19041.0
+   dotnet build App/PrimeBakes/PrimeBakes.csproj -f net11.0-windows10.0.19041.0
    ```
 
    **Android (MAUI):**
    ```bash
-   dotnet build App/PrimeBakes/PrimeBakes.csproj -f net10.0-android
+   dotnet build App/PrimeBakes/PrimeBakes.csproj -f net11.0-android
    ```
 
 > For local work set `CommonSecrets.DatabaseConnection = ConnectionType.Local` — that switches both the SQL connection *and* `ApiBaseUrl` to `https://localhost:7273/`. Remember to switch it back; it silently blocks all deploys.
@@ -697,4 +697,4 @@ This project is proprietary software developed for **Salasar Foods Guwahati**.
 
 ---
 
-Latest Version = 1.2.5.6
+Latest Version = 1.2.5.7

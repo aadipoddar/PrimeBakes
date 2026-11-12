@@ -67,7 +67,6 @@ app.MapStaticAssets();
 
 app.MapRazorComponents<App>()
 	.AddInteractiveServerRenderMode()
-	.AddAdditionalAssemblies(
-		typeof(PrimeBakes.Shared._Imports).Assembly);
+	.AddAdditionalAssemblies(typeof(PrimeBakes.Shared._Imports).Assembly);
 
 app.Run();

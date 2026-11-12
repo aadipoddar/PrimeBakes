@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
   </PropertyGroup>
@@ -16,10 +16,10 @@
   <ItemGroup>
     <PackageReference Include="NumericWordsConversion" Version="2.1.1" />
     <PackageReference Include="QRCoder" Version="1.8.1" />
-    <PackageReference Include="SkiaSharp" Version="3.119.4" />
-    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.4" />
-    <PackageReference Include="Syncfusion.Pdf.Net.Core" Version="35.1.43" />
-    <PackageReference Include="Syncfusion.XlsIO.Net.Core" Version="35.1.43" />
+    <PackageReference Include="SkiaSharp" Version="4.156.0" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="4.156.0" />
+    <PackageReference Include="Syncfusion.Pdf.Net.Core" Version="35.1.46" />
+    <PackageReference Include="Syncfusion.XlsIO.Net.Core" Version="35.1.46" />
   </ItemGroup>
 
   <ItemGroup>
