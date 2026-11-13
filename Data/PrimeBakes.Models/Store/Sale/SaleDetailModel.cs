@@ -47,8 +47,14 @@ public class SaleItemCartModel
 	public decimal Total { get; set; }
 	public decimal NetRate { get; set; }
 	public string? Remarks { get; set; }
+	public bool Favourite { get; set; }
 }
 
+public class SaleItemRecommendationModel
+{
+	public int ItemId { get; set; }
+	public DateTime FetchedDateTime { get; set; }
+}
 
 public class SaleItemOverviewModel
 {

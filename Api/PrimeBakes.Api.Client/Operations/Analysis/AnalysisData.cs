@@ -1,5 +1,6 @@
 using PrimeBakes.Models.Common;
 using PrimeBakes.Models.Operations.Analysis;
+using PrimeBakes.Models.Store.Product;
 
 namespace PrimeBakes.Data.Operations.Analysis;
 
@@ -18,4 +19,7 @@ public static class AnalysisData
 
 	public static async Task<List<string>> LoadPageRecommendations(int userId) =>
 		await ApiClient.Get<List<string>>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadPageRecommendations)), new { userId });
+
+	public static async Task<List<ProductModel>> LoadProductRecommendations(int locationId, bool isOrder = false, bool isSale = false, bool isBill = false) =>
+		await ApiClient.Get<List<ProductModel>>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadProductRecommendations)), new { locationId, isOrder, isSale, isBill });
 }

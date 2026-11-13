@@ -1,3 +1,4 @@
+using PrimeBakes.Data.Operations.Analysis;
 using PrimeBakes.Data.Store.Product;
 using PrimeBakes.Models.Operations.Location;
 using PrimeBakes.Models.Operations.User;
@@ -17,6 +18,7 @@ public partial class OrderMobilePage
 	private LocationModel _location;
 	private string _query = string.Empty;
 	private int _page = 0;
+	private const int _favouritesCategoryId = -1;
 
 	private List<ProductCategoryModel> _productCategories = [];
 	private List<OrderItemCartModel> _cart = [];
@@ -36,6 +38,8 @@ public partial class OrderMobilePage
 		await LoadData();
 		await LoadExistingCart();
 		await SaveOrderFile();
+
+		_ = LoadRecommendations();
 
 		_isLoading = false;
 		StateHasChanged();
@@ -66,8 +70,9 @@ public partial class OrderMobilePage
 					ItemCategoryId = product.ProductCategoryId,
 					ItemId = product.ProductId,
 					ItemName = product.Name,
+					Quantity = 0,
 					Remarks = null,
-					Quantity = 0
+					Favourite = false
 				});
 			_cart = [.. _cart.OrderBy(s => s.ItemName)];
 		}
@@ -101,18 +106,69 @@ public partial class OrderMobilePage
 	}
 	#endregion
 
+	#region Recommendations
+	private async Task LoadRecommendations()
+	{
+		var recommendedIds = await GetRecommendedIds();
+
+		foreach (var item in _cart)
+			item.Favourite = recommendedIds.Contains(item.ItemId);
+
+		if (_cart.Any(x => x.Favourite) && !_productCategories.Any(c => c.Id == _favouritesCategoryId))
+			_productCategories.Insert(1, new() { Id = _favouritesCategoryId, Name = "Favourites" });
+
+		await InvokeAsync(StateHasChanged);
+	}
+
+	private async Task<HashSet<int>> GetRecommendedIds()
+	{
+		var fileName = StorageFileNames.OrderMobileRecommendationDataFileName;
+
+		// 1. Use today's cached list if there is one
+		try
+		{
+			if (await DataStorageService.LocalExists(fileName))
+			{
+				var cached = System.Text.Json.JsonSerializer.Deserialize<List<OrderItemRecommendationModel>>(await DataStorageService.LocalGetAsync(fileName));
+				if (cached is { Count: > 0 } && cached[0].FetchedDateTime.Date == DateTime.Today)
+					return [.. cached.Select(item => item.ItemId)];
+			}
+		}
+		catch { }
+
+		// 2. Otherwise fetch fresh and cache it
+		try
+		{
+			await DataStorageService.LocalRemove(fileName);
+
+			var recommendations = (await AnalysisData.LoadProductRecommendations(_user.LocationId, isOrder: true))
+				.Select(product => new OrderItemRecommendationModel { ItemId = product.Id, FetchedDateTime = DateTime.Now })
+				.ToList();
+
+			await DataStorageService.LocalSaveAsync(fileName, System.Text.Json.JsonSerializer.Serialize(recommendations));
+
+			return [.. recommendations.Select(item => item.ItemId)];
+		}
+		catch { }
+
+		return [];
+	}
+	#endregion
+
 	#region Filter / Page
 	private List<OrderItemCartModel> GetFilteredProducts()
 	{
 		IEnumerable<OrderItemCartModel> query = _cart;
 
-		if (_selectedCategory is not null && _selectedCategory.Id != 0)
+		if (_selectedCategory?.Id == _favouritesCategoryId)
+			query = query.Where(x => x.Favourite);
+		else if (_selectedCategory is not null && _selectedCategory.Id != 0)
 			query = query.Where(x => x.ItemCategoryId == _selectedCategory.Id);
 
 		if (!string.IsNullOrWhiteSpace(_query))
 			query = query.Where(x =>
-			x.ItemName is not null &&
-			x.ItemName.Contains(_query.Trim(), StringComparison.OrdinalIgnoreCase));
+				x.ItemName is not null &&
+				x.ItemName.Contains(_query.Trim(), StringComparison.OrdinalIgnoreCase));
 
 		return [.. query];
 	}

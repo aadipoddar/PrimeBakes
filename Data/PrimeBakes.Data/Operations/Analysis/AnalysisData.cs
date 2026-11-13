@@ -6,11 +6,16 @@ using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.Analysis;
 using PrimeBakes.Models.Operations.AuditTrail;
 using PrimeBakes.Models.Operations.Settings;
+using PrimeBakes.Models.Restaurant.Bill;
+using PrimeBakes.Models.Store.Order;
+using PrimeBakes.Models.Store.Product;
+using PrimeBakes.Models.Store.Sale;
 
 namespace PrimeBakes.Data.Operations.Analysis;
 
 public static class AnalysisData
 {
+	#region Trend Analysis
 	public static async Task<List<AnalysisMonthlyTrendModel>> LoadDashboardMonthlyTrend(DateTime StartDate, DateTime EndDate)
 	{
 		if (!OfflineState.LocalDBAvailable)
@@ -35,14 +40,15 @@ public static class AnalysisData
 		return await SqlDataAccess.LoadData<AnalysisTopRawMaterialModel, dynamic>(AnalysisNames.LoadDashboardTopRawMaterials, new { StartDate, EndDate }, null, true);
 
 	}
+	#endregion
 
+	#region Page Recommendation
 	public static async Task<List<string>> LoadPageRecommendations(int userId)
 	{
 		var showRecommendation = bool.Parse((await SettingsData.LoadSettingsByKey(SettingsKeys.ShowPageRecommendations)).Value);
+		var historyDays = int.Parse((await SettingsData.LoadSettingsByKey(SettingsKeys.RecommendationHistoryDays)).Value);
 		if (!showRecommendation)
 			return [];
-
-		var historyDays = int.Parse((await SettingsData.LoadSettingsByKey(SettingsKeys.RecommendationHistoryDays)).Value);
 
 		var allVisits = (await AuditTrailData.LoadAuditTrailByActionUserIdDate(
 				AuditTrailActionTypes.PageVisit, userId, DateTime.Now.AddDays(-historyDays), DateTime.Now))
@@ -93,5 +99,39 @@ public static class AnalysisData
 		RestaurantRouteNames.BillMobilePayment,
 		RestaurantRouteNames.BillMobileConfirmation
 	];
+	#endregion
 
+	#region Product Recommendation
+	public static async Task<List<ProductModel>> LoadProductRecommendations(int locationId, bool isOrder = false, bool isSale = false, bool isBill = false)
+	{
+		var showRecommendation = bool.Parse((await SettingsData.LoadSettingsByKey(SettingsKeys.ShowPageRecommendations)).Value);
+		var historyDays = int.Parse((await SettingsData.LoadSettingsByKey(SettingsKeys.RecommendationHistoryDays)).Value);
+		if (!showRecommendation)
+			return [];
+
+		var fromDate = DateTime.Today.AddDays(-historyDays);
+		var toDate = DateTime.Today;
+
+		var items =
+			 isOrder ? (await CommonData.LoadTableDataByDate<OrderItemOverviewModel>(StoreNames.OrderItemOverview, fromDate, toDate, useLocalDB: true))
+				.Select(item => (item.LocationId, item.MasterStatus, item.MasterId, item.ItemId, item.Quantity))
+			: isSale ? (await CommonData.LoadTableDataByDate<SaleItemOverviewModel>(StoreNames.SaleItemOverview, fromDate, toDate, useLocalDB: true))
+				.Select(item => (item.LocationId, item.MasterStatus, item.MasterId, item.ItemId, item.Quantity))
+			: isBill ? (await CommonData.LoadTableDataByDate<BillItemOverviewModel>(RestaurantNames.BillItemOverview, fromDate, toDate, useLocalDB: true))
+				.Select(item => (item.LocationId, item.MasterStatus, item.MasterId, item.ItemId, item.Quantity))
+			: [];
+
+		var products = await CommonData.LoadTableDataByStatus<ProductModel>(StoreNames.Product, useLocalDB: true);
+		var productsById = products.ToDictionary(product => product.Id);
+
+		return [.. items
+			.Where(item => item.LocationId == locationId && item.MasterStatus && productsById.ContainsKey(item.ItemId))
+			.GroupBy(item => item.ItemId)
+			.OrderByDescending(group => group.Select(item => item.MasterId).Distinct().Count()) // in how many orders / sales / bills
+			.ThenByDescending(group => group.Sum(item => item.Quantity))
+			.ThenBy(group => group.Key)
+			.Take(20)
+			.Select(group => productsById[group.Key])];
+	}
+	#endregion
 }

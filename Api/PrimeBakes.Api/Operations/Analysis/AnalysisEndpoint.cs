@@ -22,5 +22,8 @@ public class AnalysisEndpoint : ICarterModule
 
 		group.MapGet(nameof(AnalysisData.LoadPageRecommendations),
 			(int userId) => AnalysisData.LoadPageRecommendations(userId));
+
+		group.MapGet(nameof(AnalysisData.LoadProductRecommendations),
+			(int locationId, bool isOrder, bool isSale, bool isBill) => AnalysisData.LoadProductRecommendations(locationId, isOrder, isSale, isBill));
 	}
 }

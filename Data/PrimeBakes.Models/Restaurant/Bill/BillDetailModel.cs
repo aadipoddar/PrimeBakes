@@ -49,6 +49,13 @@ public class BillItemCartModel
 	public decimal NetRate { get; set; }
 	public string? Remarks { get; set; }
 	public bool KOTPrint { get; set; }
+	public bool Favourite { get; set; }
+}
+
+public class BillItemRecommendationModel
+{
+	public int ItemId { get; set; }
+	public DateTime FetchedDateTime { get; set; }
 }
 
 public class BillItemOverviewModel

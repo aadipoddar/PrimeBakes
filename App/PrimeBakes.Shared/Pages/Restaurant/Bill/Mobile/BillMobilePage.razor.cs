@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
+using PrimeBakes.Data.Operations.Analysis;
 using PrimeBakes.Data.Restaurant.Bill;
 using PrimeBakes.Data.Store.Product;
 using PrimeBakes.Models.Operations.User;
@@ -26,6 +27,7 @@ public partial class BillMobilePage
 
 	private string _query = string.Empty;
 	private int _page = 0;
+	private const int _favouritesCategoryId = -1;
 
 	private List<ProductModel> _products = [];
 	private List<TaxModel> _taxes = [];
@@ -56,6 +58,7 @@ public partial class BillMobilePage
 		StateHasChanged();
 
 		await SaveTransactionFile();
+		_ = LoadRecommendations();
 	}
 
 	private async Task ResolveBillContext()
@@ -123,6 +126,7 @@ public partial class BillMobilePage
 					Quantity = 0,
 					Rate = product.Rate,
 					Remarks = null,
+					Favourite = false,
 				});
 			_cart = [.. _cart.OrderBy(s => s.ItemName)];
 		}
@@ -174,12 +178,63 @@ public partial class BillMobilePage
 	}
 	#endregion
 
+	#region Recommendations
+	private async Task LoadRecommendations()
+	{
+		var recommendedIds = await GetRecommendedIds();
+
+		foreach (var item in _cart)
+			item.Favourite = recommendedIds.Contains(item.ItemId);
+
+		if (_cart.Any(x => x.Favourite) && !_productCategories.Any(c => c.Id == _favouritesCategoryId))
+			_productCategories.Insert(1, new() { Id = _favouritesCategoryId, Name = "Favourites" });
+
+		await InvokeAsync(StateHasChanged);
+	}
+
+	private async Task<HashSet<int>> GetRecommendedIds()
+	{
+		var fileName = StorageFileNames.BillMobileRecommendationDataFileName;
+
+		// 1. Use today's cached list if there is one
+		try
+		{
+			if (await DataStorageService.LocalExists(fileName))
+			{
+				var cached = System.Text.Json.JsonSerializer.Deserialize<List<BillItemRecommendationModel>>(await DataStorageService.LocalGetAsync(fileName));
+				if (cached is { Count: > 0 } && cached[0].FetchedDateTime.Date == DateTime.Today)
+					return [.. cached.Select(item => item.ItemId)];
+			}
+		}
+		catch { }
+
+		// 2. Otherwise fetch fresh and cache it
+		try
+		{
+			await DataStorageService.LocalRemove(fileName);
+
+			var recommendations = (await AnalysisData.LoadProductRecommendations(_user.LocationId, isBill: true))
+				.Select(product => new BillItemRecommendationModel { ItemId = product.Id, FetchedDateTime = DateTime.Now })
+				.ToList();
+
+			await DataStorageService.LocalSaveAsync(fileName, System.Text.Json.JsonSerializer.Serialize(recommendations));
+
+			return [.. recommendations.Select(item => item.ItemId)];
+		}
+		catch { }
+
+		return [];
+	}
+	#endregion
+
 	#region Filter / Page
 	private List<BillItemCartModel> GetFilteredProducts()
 	{
 		IEnumerable<BillItemCartModel> query = _cart;
 
-		if (_selectedCategory is not null && _selectedCategory.Id != 0)
+		if (_selectedCategory?.Id == _favouritesCategoryId)
+			query = query.Where(x => x.Favourite);
+		else if (_selectedCategory is not null && _selectedCategory.Id != 0)
 			query = query.Where(x => x.ItemCategoryId == _selectedCategory.Id);
 
 		if (!string.IsNullOrWhiteSpace(_query))

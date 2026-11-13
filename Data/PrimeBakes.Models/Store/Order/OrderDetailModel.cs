@@ -17,6 +17,13 @@ public class OrderItemCartModel
 	public string ItemName { get; set; }
 	public decimal Quantity { get; set; }
 	public string? Remarks { get; set; }
+	public bool Favourite { get; set; }
+}
+
+public class OrderItemRecommendationModel
+{
+	public int ItemId { get; set; }
+	public DateTime FetchedDateTime { get; set; }
 }
 
 public class OrderItemOverviewModel
