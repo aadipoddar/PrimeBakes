@@ -93,4 +93,7 @@ public static class SettingsKeys
 
 	// Backup Settings
 	public static string BackupReminderDays => "BackupReminderDays";
+
+	// Dashboard Settings
+	public static string ShowPageRecommendations => "ShowPageRecommendations";
 }

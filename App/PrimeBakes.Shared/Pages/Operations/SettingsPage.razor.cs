@@ -109,6 +109,9 @@ public partial class SettingsPage
 	private decimal _kitchenProductionDiscountRate = 25;
 	private decimal _kitchenProductionReturnDiscountRate = 25;
 
+	// Dashboard Settings
+	private bool _showPageRecommendations = true;
+
 	// Report Settings
 	private int _autoRefreshReportTimer = 30;
 	private int _reportWarningDays = 30;
@@ -232,6 +235,9 @@ public partial class SettingsPage
 		// Kitchen Production
 		_kitchenProductionDiscountRate = Decimal(SettingsKeys.KitchenProductionDiscountRate, 25);
 		_kitchenProductionReturnDiscountRate = Decimal(SettingsKeys.KitchenProductionReturnDiscountRate, 25);
+
+		// Dashboard Settings
+		_showPageRecommendations = Bool(SettingsKeys.ShowPageRecommendations, true);
 
 		// Report Settings
 		_autoRefreshReportTimer = Int(SettingsKeys.AutoRefreshReportTimer, 30);
@@ -531,6 +537,9 @@ public partial class SettingsPage
 			// Kitchen Production
 			await UpdateSetting(SettingsKeys.KitchenProductionDiscountRate, _kitchenProductionDiscountRate.ToString(), Desc(SettingsKeys.KitchenProductionDiscountRate));
 			await UpdateSetting(SettingsKeys.KitchenProductionReturnDiscountRate, _kitchenProductionReturnDiscountRate.ToString(), Desc(SettingsKeys.KitchenProductionReturnDiscountRate));
+
+			// Dashboard Settings
+			await UpdateSetting(SettingsKeys.ShowPageRecommendations, _showPageRecommendations.ToString(), Desc(SettingsKeys.ShowPageRecommendations));
 
 			// Report Settings
 			await UpdateSetting(SettingsKeys.AutoRefreshReportTimer, _autoRefreshReportTimer.ToString(), Desc(SettingsKeys.AutoRefreshReportTimer));

@@ -87,6 +87,9 @@ BEGIN
 	-- Backup Settings
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'BackupReminderDays', N'7', N'Days after the last backup before the dashboard reminds an admin to run one')
 
+	-- Dashboard Settings
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'ShowPageRecommendations', N'true', N'Show page visit recommendations on the dashboard')
+
 	SELECT 1 AS Success;
 
 END

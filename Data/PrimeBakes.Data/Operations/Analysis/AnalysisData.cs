@@ -1,9 +1,11 @@
 using PrimeBakes.Data.Common;
 using PrimeBakes.Data.Operations.AuditTrail;
+using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Models.Common;
 using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.Analysis;
 using PrimeBakes.Models.Operations.AuditTrail;
+using PrimeBakes.Models.Operations.Settings;
 
 namespace PrimeBakes.Data.Operations.Analysis;
 
@@ -36,6 +38,10 @@ public static class AnalysisData
 
 	public static async Task<List<string>> LoadPageRecommendations(int userId)
 	{
+		var showRecommendation = bool.Parse((await SettingsData.LoadSettingsByKey(SettingsKeys.ShowPageRecommendations)).Value);
+		if (!showRecommendation)
+			return [];
+
 		var pageVisits = await AuditTrailData.LoadAuditTrailByActionUserIdDate(
 			AuditTrailActionTypes.PageVisit, userId, DateTime.Now.AddDays(-7), DateTime.Now);
 

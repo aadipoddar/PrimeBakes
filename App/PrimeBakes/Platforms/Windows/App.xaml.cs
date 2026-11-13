@@ -7,7 +7,7 @@ using WinRT.Interop;
 
 using WinUIWindow = Microsoft.UI.Xaml.Window;
 
-namespace PrimeBakes.Platforms.Windows;
+namespace PrimeBakes.WinUI;
 
 /// <summary>
 /// Provides application-specific behavior to supplement the default Application class.
