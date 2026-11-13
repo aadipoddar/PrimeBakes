@@ -96,6 +96,7 @@ public partial class Dashboard
 	private List<string> _pageRecommendations = [];
 
 	private ToastNotification _toastNotification;
+	private PageRecommendationBanner _pageRecommendationBanner;
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
@@ -175,6 +176,7 @@ public partial class Dashboard
 		try
 		{
 			_pageRecommendations = await AnalysisData.LoadPageRecommendations(_user.Id);
+			await _pageRecommendationBanner.ShowAsync(_pageRecommendations);
 		}
 		catch
 		{

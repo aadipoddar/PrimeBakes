@@ -1,0 +1,96 @@
+@using MudBlazor
+@if (!_dismissed && _recommendations.Count > 0)
+{
+	<div class="reco-banner">
+		<MudPaper Elevation="6" Class="reco-paper">
+			<MudIcon Icon="@Icons.Material.Filled.AutoAwesome" Size="MudBlazor.Size.Small" Color="MudBlazor.Color.Primary" />
+			<MudText Typo="Typo.body2" Class="reco-label">Try next</MudText>
+
+			<div class="reco-actions">
+				@foreach (var route in _recommendations)
+				{
+					<MudBlazor.MudButton Size="MudBlazor.Size.Small"
+										 Variant="MudBlazor.Variant.Outlined"
+										 Color="MudBlazor.Color.Primary"
+										 Class="reco-btn"
+										 OnClick="@(() => OpenPage(route))">
+						@GetPageLabel(route)
+					</MudBlazor.MudButton>
+				}
+			</div>
+
+			<MudIconButton Icon="@Icons.Material.Filled.Close"
+						   Size="MudBlazor.Size.Small"
+						   Class="reco-close"
+						   OnClick="Dismiss" />
+		</MudPaper>
+	</div>
+}
+
+<style>
+	.reco-banner {
+		position: fixed;
+		left: 50%;
+		bottom: 16px;
+		transform: translateX(-50%);
+		width: max-content;
+		max-width: calc(100vw - 24px);
+		z-index: 20000;
+		animation: reco-in .25s ease-out;
+	}
+
+	.reco-paper {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		padding: 10px 10px 10px 18px;
+		border-radius: 999px;
+		border: 1px solid #f1e3b8;
+		background: #fff6dc; /* creamy yellow */
+	}
+
+	.reco-label {
+		color: #7a6a45; /* warm grey-brown to match the cream */
+		white-space: nowrap;
+	}
+
+	.reco-actions {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+
+	.reco-btn {
+		border-radius: 999px;
+		text-transform: none;
+		white-space: nowrap;
+		padding: 4px 14px;
+		background: rgba(255, 255, 255, 0.55);
+	}
+
+	.reco-close {
+		margin-left: 2px;
+	}
+
+	@@keyframes reco-in {
+		from {
+			opacity: 0;
+			transform: translate(-50%, 12px);
+		}
+
+		to {
+			opacity: 1;
+			transform: translate(-50%, 0);
+		}
+	}
+
+	@@media (max-width: 480px) {
+		.reco-label {
+			display: none;
+		}
+
+		.reco-paper {
+			padding-left: 12px;
+		}
+	}
+</style>
