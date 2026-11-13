@@ -298,6 +298,15 @@ else
 								<CustomCheckBox @bind-Value="_showPageRecommendations" Label="Show recommendations on dashboard" />
 							</div>
 						</div>
+						<div class="form-field">
+							<CustomNumericField T="int"
+												@bind-Value="_recommendationHistoryDays"
+												Label="Recommendation History (Days)"
+												Format="N0"
+												Min="1"
+												Max="90"
+												Required="false" />
+						</div>
 					</div>
 				</div>
 			</div>

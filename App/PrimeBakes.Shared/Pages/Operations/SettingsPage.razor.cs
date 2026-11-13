@@ -111,6 +111,7 @@ public partial class SettingsPage
 
 	// Dashboard Settings
 	private bool _showPageRecommendations = true;
+	private int _recommendationHistoryDays = 5;
 
 	// Report Settings
 	private int _autoRefreshReportTimer = 30;
@@ -238,6 +239,7 @@ public partial class SettingsPage
 
 		// Dashboard Settings
 		_showPageRecommendations = Bool(SettingsKeys.ShowPageRecommendations, true);
+		_recommendationHistoryDays = Int(SettingsKeys.RecommendationHistoryDays, 5);
 
 		// Report Settings
 		_autoRefreshReportTimer = Int(SettingsKeys.AutoRefreshReportTimer, 30);
@@ -540,6 +542,7 @@ public partial class SettingsPage
 
 			// Dashboard Settings
 			await UpdateSetting(SettingsKeys.ShowPageRecommendations, _showPageRecommendations.ToString(), Desc(SettingsKeys.ShowPageRecommendations));
+			await UpdateSetting(SettingsKeys.RecommendationHistoryDays, _recommendationHistoryDays.ToString(), Desc(SettingsKeys.RecommendationHistoryDays));
 
 			// Report Settings
 			await UpdateSetting(SettingsKeys.AutoRefreshReportTimer, _autoRefreshReportTimer.ToString(), Desc(SettingsKeys.AutoRefreshReportTimer));

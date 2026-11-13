@@ -42,15 +42,56 @@ public static class AnalysisData
 		if (!showRecommendation)
 			return [];
 
-		var pageVisits = await AuditTrailData.LoadAuditTrailByActionUserIdDate(
-			AuditTrailActionTypes.PageVisit, userId, DateTime.Now.AddDays(-7), DateTime.Now);
+		var historyDays = int.Parse((await SettingsData.LoadSettingsByKey(SettingsKeys.RecommendationHistoryDays)).Value);
 
-		return [.. pageVisits
+		var allVisits = (await AuditTrailData.LoadAuditTrailByActionUserIdDate(
+				AuditTrailActionTypes.PageVisit, userId, DateTime.Now.AddDays(-historyDays), DateTime.Now))
 			.Where(visit => !string.IsNullOrWhiteSpace(visit.TableName))
-			.GroupBy(visit => visit.TableName, StringComparer.OrdinalIgnoreCase)
-			.OrderByDescending(group => group.Count())
-			.ThenBy(group => group.Key, StringComparer.OrdinalIgnoreCase)
-			.Take(2)
-			.Select(group => group.Key)];
+			.Where(visit => !_excludedPages.Contains(visit.TableName))
+			.ToList();
+
+		// Visits that happened within 30 minutes of the current time of day (on any day)
+		var nowMinutes = DateTime.Now.TimeOfDay.TotalMinutes;
+		var visitsAroundNow = allVisits.Where(visit => IsWithin30Minutes(visit.TransactionDateTime, nowMinutes));
+
+		// 1st pick: most visited page around this time (empty if nothing found)
+		var timeBasedPick = TopPages(visitsAroundNow, count: 1, exclude: []);
+
+		// Remaining slots: most visited pages overall (2 if no time-based pick, otherwise 1)
+		var frequentPicks = TopPages(allVisits, count: 2 - timeBasedPick.Count, exclude: timeBasedPick);
+
+		return [.. timeBasedPick, .. frequentPicks];
 	}
+
+	private static bool IsWithin30Minutes(DateTime visitTime, double nowMinutes)
+	{
+		var difference = Math.Abs(visitTime.TimeOfDay.TotalMinutes - nowMinutes);
+		return Math.Min(difference, 1440 - difference) <= 30; // 1440 = minutes in a day, handles midnight wrap
+	}
+
+	private static List<string> TopPages(IEnumerable<AuditTrailModel> visits, int count, IEnumerable<string> exclude) =>
+		[.. visits
+		.GroupBy(visit => visit.TableName, StringComparer.OrdinalIgnoreCase)
+		.Where(group => !exclude.Contains(group.Key, StringComparer.OrdinalIgnoreCase))
+		.OrderByDescending(group => group.Count())
+		.ThenBy(group => group.Key, StringComparer.OrdinalIgnoreCase)
+		.Take(count)
+		.Select(group => group.Key)];
+
+	// Pages that make no sense as a recommendation (mid-flow steps, home, login)
+	private static readonly HashSet<string> _excludedPages =
+	[
+		with(StringComparer.OrdinalIgnoreCase),
+		StoreRouteNames.OrderMobileCart,
+		StoreRouteNames.OrderMobileConfirmation,
+
+		StoreRouteNames.SaleMobileCart,
+		StoreRouteNames.SaleMobilePayment,
+		StoreRouteNames.SaleMobileConfirmation,
+
+		RestaurantRouteNames.BillMobileCart,
+		RestaurantRouteNames.BillMobilePayment,
+		RestaurantRouteNames.BillMobileConfirmation
+	];
+
 }

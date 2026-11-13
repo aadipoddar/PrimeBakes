@@ -1,9 +1,7 @@
 using PrimeBakes.Data.Operations.Analysis;
 using PrimeBakes.Data.Operations.Maintenance;
-using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.OfflineQueue;
-using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Shared.Components.Dialog;
 
@@ -177,14 +175,6 @@ public partial class Dashboard
 	{
 		try
 		{
-			var showRecommendationsSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.ShowPageRecommendations);
-			if (bool.TryParse(showRecommendationsSetting?.Value, out var showRecommendations) && !showRecommendations)
-			{
-				_pageRecommendations = [];
-				await _pageRecommendationBanner.ShowAsync(_pageRecommendations);
-				return;
-			}
-
 			_pageRecommendations = await AnalysisData.LoadPageRecommendations(_user.Id);
 			await _pageRecommendationBanner.ShowAsync(_pageRecommendations);
 		}

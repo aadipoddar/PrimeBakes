@@ -96,4 +96,5 @@ public static class SettingsKeys
 
 	// Dashboard Settings
 	public static string ShowPageRecommendations => "ShowPageRecommendations";
+	public static string RecommendationHistoryDays => "RecommendationHistoryDays";
 }

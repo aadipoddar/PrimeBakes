@@ -89,6 +89,7 @@ BEGIN
 
 	-- Dashboard Settings
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'ShowPageRecommendations', N'true', N'Show page visit recommendations on the dashboard')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'RecommendationHistoryDays', N'5', N'Number of days of page visits used for dashboard recommendations')
 
 	SELECT 1 AS Success;
 
