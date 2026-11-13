@@ -38,7 +38,7 @@ public partial class BillMobileCartPage
 		if (!firstRender)
 			return;
 
-		_user = await AuthService.ValidateUser([UserRoles.Restaurant]);
+		_user = await AuthService.ValidateUser([UserRoles.Restaurant], pageRoute: RestaurantRouteNames.BillMobileCart);
 
 		await LoadData();
 	}

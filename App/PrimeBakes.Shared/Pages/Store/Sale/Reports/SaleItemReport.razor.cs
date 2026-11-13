@@ -96,7 +96,7 @@ public partial class SaleItemReport : IAsyncDisposable
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Store, UserRoles.Reports], true);
+			_user = await AuthService.ValidateUser([UserRoles.Store, UserRoles.Reports], true, StoreRouteNames.SaleItemReport);
 			await InitializePage();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -145,7 +145,7 @@ public partial class SaleItemReport : IAsyncDisposable
 		try
 		{
 			_isProcessing = true;
-			StateHasChanged();
+
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
 			var fromDate = DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue);
@@ -916,8 +916,6 @@ public partial class SaleItemReport : IAsyncDisposable
 	private async Task ToggleDetailsView()
 	{
 		_showAllColumns = !_showAllColumns;
-		StateHasChanged();
-
 		if (_sfGrid is not null) await _sfGrid.Refresh();
 	}
 

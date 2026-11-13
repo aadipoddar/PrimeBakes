@@ -51,7 +51,7 @@ public partial class ProductStockAdjustment
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Inventory], true);
+			_user = await AuthService.ValidateUser([UserRoles.Inventory], true, InventoryRouteNames.ProductStockAdjustment);
 			await LoadData();
 		}
 		catch { await ResetPage(); }

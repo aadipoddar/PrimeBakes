@@ -45,7 +45,7 @@ public partial class BalanceSheetPage : IAsyncDisposable
 
 		try
 		{
-			await AuthService.ValidateUser([UserRoles.Accounts, UserRoles.Reports]);
+			await AuthService.ValidateUser([UserRoles.Accounts, UserRoles.Reports], pageRoute: AccountsRouteNames.BalanceSheetReport);
 			await InitializePage();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -79,7 +79,7 @@ public partial class BalanceSheetPage : IAsyncDisposable
 		try
 		{
 			_isProcessing = true;
-			StateHasChanged();
+			
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
 			_trialBalance = await FinancialAccountingData.LoadTrialBalanceByCompanyDate(
@@ -185,7 +185,7 @@ public partial class BalanceSheetPage : IAsyncDisposable
 	private async Task ToggleDetailsView()
 	{
 		_showAllColumns = !_showAllColumns;
-		StateHasChanged();
+		
 
 		if (_assetsGrid is not null) await _assetsGrid.Refresh();
 		if (_liabilitiesGrid is not null) await _liabilitiesGrid.Refresh();

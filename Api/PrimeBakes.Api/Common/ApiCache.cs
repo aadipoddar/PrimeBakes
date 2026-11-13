@@ -33,8 +33,9 @@ public sealed class ApiCachePolicy : IOutputCachePolicy
 	private const int _defaultTimeoutMinutes = 60;
 	private static int _timeoutMinutes = _defaultTimeoutMinutes;
 
-	private static readonly HashSet<string> _tables = new(StringComparer.OrdinalIgnoreCase)
-	{
+	private static readonly HashSet<string> _tables =
+	[
+		with(StringComparer.OrdinalIgnoreCase),
 		AccountNames.Company,
 		AccountNames.Group,
 		AccountNames.AccountType,
@@ -61,10 +62,11 @@ public sealed class ApiCachePolicy : IOutputCachePolicy
 		PayrollNames.Employee,
 		PayrollNames.SalaryComponent,
 		PayrollNames.EmployeeSalaryComponentOverview
-	};
+	];
 
-	private static readonly HashSet<string> _routes = new(StringComparer.OrdinalIgnoreCase)
-	{
+	private static readonly HashSet<string> _routes =
+	[
+		with(StringComparer.OrdinalIgnoreCase),
 		Route(nameof(RecipeEndpoint), nameof(RecipeData.LoadAllRecipes)),
 		Route(nameof(AnalysisEndpoint), nameof(AnalysisData.LoadDashboardMonthlyTrend)),
 		Route(nameof(AnalysisEndpoint), nameof(AnalysisData.LoadDashboardTopProducts)),
@@ -77,10 +79,11 @@ public sealed class ApiCachePolicy : IOutputCachePolicy
 		Route(nameof(CustomerEndpoint), nameof(CustomerData.LoadCustomerByNumber)),
 		Route(nameof(EmployeeSalaryComponentEndpoint), nameof(EmployeeSalaryComponentData.LoadEmployeeSalaryComponentOverviewByEmployeeSalaryComponentDate)),
 		Route(nameof(EmployeeSalaryComponentEndpoint), nameof(EmployeeSalaryComponentData.LoadEffectiveSalaryComponents))
-	};
+	];
 
-	private static readonly HashSet<string> _endpoints = new(StringComparer.OrdinalIgnoreCase)
-	{
+	private static readonly HashSet<string> _endpoints =
+	[
+		with(StringComparer.OrdinalIgnoreCase),
 		Helper.SanitizeClassName(nameof(CompanyEndpoint)),
 		Helper.SanitizeClassName(nameof(GroupEndpoint)),
 		Helper.SanitizeClassName(nameof(AccountTypeEndpoint)),
@@ -108,7 +111,7 @@ public sealed class ApiCachePolicy : IOutputCachePolicy
 		Helper.SanitizeClassName(nameof(EmployeeEndpoint)),
 		Helper.SanitizeClassName(nameof(SalaryComponentEndpoint)),
 		Helper.SanitizeClassName(nameof(EmployeeSalaryComponentEndpoint))
-	};
+	];
 
 	private static string Route(string endpointClass, string function) =>
 		Helper.MakeRouteFromEndpointFunction(Helper.SanitizeClassName(endpointClass), function);

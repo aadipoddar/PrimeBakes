@@ -27,7 +27,7 @@ public partial class OrderMobilePage
 		if (!firstRender)
 			return;
 
-		_user = await AuthService.ValidateUser([UserRoles.Store]);
+		_user = await AuthService.ValidateUser([UserRoles.Store], pageRoute: StoreRouteNames.OrderMobile);
 		await InitializePage();
 	}
 

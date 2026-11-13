@@ -68,7 +68,7 @@ public partial class BankReconciliationPage : IAsyncDisposable
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Accounts, UserRoles.Reports], true);
+			_user = await AuthService.ValidateUser([UserRoles.Accounts, UserRoles.Reports], true, AccountsRouteNames.BankReconciliation);
 			await InitializePage();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -112,7 +112,7 @@ public partial class BankReconciliationPage : IAsyncDisposable
 		try
 		{
 			_isProcessing = true;
-			StateHasChanged();
+
 			await _toastNotification.ShowAsync("Loading", "Fetching ledger lines...", ToastType.Info);
 
 			_allTransactionOverviews = await CommonData.LoadTableDataByDate<FinancialAccountingLedgerOverviewModel>(
@@ -431,8 +431,6 @@ public partial class BankReconciliationPage : IAsyncDisposable
 	private async Task ToggleDetailsView()
 	{
 		_showAllColumns = !_showAllColumns;
-		StateHasChanged();
-
 		if (_sfGrid is not null) await _sfGrid.Refresh();
 	}
 

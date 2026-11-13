@@ -1,8 +1,7 @@
+using PrimeBakes.Data.Operations.Analysis;
 using PrimeBakes.Data.Operations.Maintenance;
-using PrimeBakes.Data.Operations.Settings;
 using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Operations.OfflineQueue;
-using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Operations.User;
 using PrimeBakes.Shared.Components.Dialog;
 
@@ -92,10 +91,10 @@ public partial class Dashboard
 	#endregion
 
 	#region Load Data
-	private const int _defaultBackupReminderDays = 7;
-
 	private UserModel _user;
 	private bool _isLoading = true;
+	private List<string> _pageRecommendations = [];
+
 	private ToastNotification _toastNotification;
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -133,6 +132,7 @@ public partial class Dashboard
 
 		await LoadOfflineQueueReminder();
 		await LoadBackupReminder();
+		await LoadPageRecommendations();
 	}
 
 	private async Task LoadBackupReminder()
@@ -142,14 +142,10 @@ public partial class Dashboard
 
 		try
 		{
-			var setting = await SettingsData.LoadSettingsByKey(SettingsKeys.BackupReminderDays);
-			var reminderDays = int.TryParse(setting?.Value, out var days) ? days : _defaultBackupReminderDays;
-			var lastBackup = await SyncData.LoadLastBackupDate();
-			var elapsed = lastBackup is null ? int.MaxValue : (int)(DateTime.Now - lastBackup.Value).TotalDays;
-
-			if (elapsed >= reminderDays)
+			var elapsed = await MaintenanceData.CheckBackupPending();
+			if (elapsed is not null)
 				await _toastNotification.ShowAsync("Backup Due",
-					lastBackup is null
+					elapsed is int.MaxValue
 						? "The backup server has never been updated. Please run a backup from Settings."
 						: $"Last backup was {elapsed} days ago. Please run a backup from Settings.",
 					ToastType.Warning);
@@ -172,6 +168,18 @@ public partial class Dashboard
 					ToastType.Warning);
 		}
 		catch { }
+	}
+
+	private async Task LoadPageRecommendations()
+	{
+		try
+		{
+			_pageRecommendations = await AnalysisData.LoadPageRecommendations(_user.Id);
+		}
+		catch
+		{
+			_pageRecommendations = [];
+		}
 	}
 	#endregion
 }

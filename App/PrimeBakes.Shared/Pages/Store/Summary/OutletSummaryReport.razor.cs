@@ -73,7 +73,7 @@ public partial class OutletSummaryReport : IAsyncDisposable
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Reports], true);
+			_user = await AuthService.ValidateUser([UserRoles.Reports], true, StoreRouteNames.OutletSummaryReport);
 			await LoadData();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -111,7 +111,7 @@ public partial class OutletSummaryReport : IAsyncDisposable
 		try
 		{
 			_isProcessing = true;
-			StateHasChanged();
+
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
 			await LoadTransactionOverviews();
@@ -343,8 +343,6 @@ public partial class OutletSummaryReport : IAsyncDisposable
 	private async Task ToggleDetailsView()
 	{
 		_showAllColumns = !_showAllColumns;
-		StateHasChanged();
-
 		if (_sfGrid is not null) await _sfGrid.Refresh();
 	}
 

@@ -42,7 +42,7 @@ public partial class StateUTPage
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Accounts], true);
+			_user = await AuthService.ValidateUser([UserRoles.Accounts], true, AccountsRouteNames.StateUTMaster);
 			await LoadData();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -72,7 +72,6 @@ public partial class StateUTPage
 		try
 		{
 			_isProcessing = true;
-			StateHasChanged();
 
 			if (!_user.Admin)
 				throw new Exception("You do not have permission to perform this action.");

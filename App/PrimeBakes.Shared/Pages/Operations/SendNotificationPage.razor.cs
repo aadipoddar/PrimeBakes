@@ -36,7 +36,7 @@ public partial class SendNotificationPage
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Admin], true);
+			_user = await AuthService.ValidateUser([UserRoles.Admin], true, OperationRouteNames.SendNotification);
 			await LoadData();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }

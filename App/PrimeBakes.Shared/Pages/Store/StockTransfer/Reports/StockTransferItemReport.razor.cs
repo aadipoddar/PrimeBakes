@@ -75,7 +75,7 @@ public partial class StockTransferItemReport : IAsyncDisposable
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Store, UserRoles.Reports], true);
+			_user = await AuthService.ValidateUser([UserRoles.Store, UserRoles.Reports], true, StoreRouteNames.StockTransferItemReport);
 			await InitializePage();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -118,7 +118,7 @@ public partial class StockTransferItemReport : IAsyncDisposable
 		try
 		{
 			_isProcessing = true;
-			StateHasChanged();
+
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
 			_allTransactionOverviews = await CommonData.LoadTableDataByDate<StockTransferItemOverviewModel>(
@@ -449,8 +449,6 @@ public partial class StockTransferItemReport : IAsyncDisposable
 	private async Task ToggleDetailsView()
 	{
 		_showAllColumns = !_showAllColumns;
-		StateHasChanged();
-
 		if (_sfGrid is not null) await _sfGrid.Refresh();
 	}
 

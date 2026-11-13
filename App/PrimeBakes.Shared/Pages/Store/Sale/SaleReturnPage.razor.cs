@@ -83,7 +83,7 @@ public partial class SaleReturnPage
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Store]);
+			_user = await AuthService.ValidateUser([UserRoles.Store], pageRoute: StoreRouteNames.SaleReturn);
 			await InitializePage();
 		}
 		catch { await ResetPage(); }

@@ -61,7 +61,7 @@ public partial class PurchaseOrderPage
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Inventory], true);
+			_user = await AuthService.ValidateUser([UserRoles.Inventory], true, InventoryRouteNames.PurchaseOrder);
 			await InitializePage();
 		}
 		catch { await ResetPage(); }

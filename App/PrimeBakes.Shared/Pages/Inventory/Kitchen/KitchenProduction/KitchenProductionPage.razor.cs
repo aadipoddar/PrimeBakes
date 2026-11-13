@@ -63,7 +63,7 @@ public partial class KitchenProductionPage
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Inventory], true);
+			_user = await AuthService.ValidateUser([UserRoles.Inventory], true, InventoryRouteNames.KitchenProduction);
 			await InitializePage();
 		}
 		catch { await ResetPage(); }

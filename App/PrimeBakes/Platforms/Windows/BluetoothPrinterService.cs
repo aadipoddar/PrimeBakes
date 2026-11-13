@@ -270,10 +270,10 @@ public class BluetoothPrinterService : IBluetoothPrinterService
 		var cutCommand = new byte[] { 0x1D, 0x56, 0x00 }; // GS V 0 - Full cut
 
 		var fullData = new byte[initCommand.Length + textBytes.Length + lineFeed.Length + cutCommand.Length];
-		System.Buffer.BlockCopy(initCommand, 0, fullData, 0, initCommand.Length);
-		System.Buffer.BlockCopy(textBytes, 0, fullData, initCommand.Length, textBytes.Length);
-		System.Buffer.BlockCopy(lineFeed, 0, fullData, initCommand.Length + textBytes.Length, lineFeed.Length);
-		System.Buffer.BlockCopy(cutCommand, 0, fullData, initCommand.Length + textBytes.Length + lineFeed.Length, cutCommand.Length);
+		Buffer.BlockCopy(initCommand, 0, fullData, 0, initCommand.Length);
+		Buffer.BlockCopy(textBytes, 0, fullData, initCommand.Length, textBytes.Length);
+		Buffer.BlockCopy(lineFeed, 0, fullData, initCommand.Length + textBytes.Length, lineFeed.Length);
+		Buffer.BlockCopy(cutCommand, 0, fullData, initCommand.Length + textBytes.Length + lineFeed.Length, cutCommand.Length);
 
 		return await SendDataAsync(fullData);
 	}

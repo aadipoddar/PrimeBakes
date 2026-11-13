@@ -19,5 +19,8 @@ public class AnalysisEndpoint : ICarterModule
 
 		group.MapGet(nameof(AnalysisData.LoadDashboardTopRawMaterials),
 			(DateTime StartDate, DateTime EndDate) => AnalysisData.LoadDashboardTopRawMaterials(StartDate, EndDate));
+
+		group.MapGet(nameof(AnalysisData.LoadPageRecommendations),
+			(int userId) => AnalysisData.LoadPageRecommendations(userId));
 	}
 }

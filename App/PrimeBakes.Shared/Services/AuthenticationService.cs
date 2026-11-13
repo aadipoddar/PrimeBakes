@@ -18,7 +18,7 @@ namespace PrimeBakes.Shared.Services;
 
 public class AuthenticationService(IDataStorageService dataStorageService, NavigationManager navigationManager, INotificationService notificationService, IVibrationService vibrationService, PlatformInfoService platformInfoService, IFormFactor formFactor)
 {
-	public async Task<UserModel> ValidateUser(List<UserRoles> userRoles = null, bool primaryLocationRequirement = false)
+	public async Task<UserModel> ValidateUser(List<UserRoles> userRoles = null, bool primaryLocationRequirement = false, string pageRoute = null)
 	{
 		ApiClient.Token = await dataStorageService.SecureGetAsync(StorageFileNames.TokenFileName);
 		if (string.IsNullOrWhiteSpace(ApiClient.Token))
@@ -58,14 +58,10 @@ public class AuthenticationService(IDataStorageService dataStorageService, Navig
 		user.LastSeenLatitude = platformInfo.Latitude;
 		user.LastSeenLongitude = platformInfo.Longitude;
 
-		await dataStorageService.SecureSaveAsync(StorageFileNames.UserDataFileName, System.Text.Json.JsonSerializer.Serialize(user));
-
-		_ = EnrollTerminal(user);
-
-		if (userRoles is null)
-			return user;
-
-		var hasPermission = userRoles.All(role => role switch
+		var hasPermission =
+			userRoles is null ||
+			userRoles.Count == 0 ||
+			userRoles.All(role => role switch
 		{
 			UserRoles.Accounts => user.Accounts,
 			UserRoles.Inventory => user.Inventory,
@@ -77,10 +73,35 @@ public class AuthenticationService(IDataStorageService dataStorageService, Navig
 			_ => false
 		});
 
-		if (!hasPermission)
+		if (hasPermission)
+		{
+			await dataStorageService.SecureSaveAsync(StorageFileNames.UserDataFileName, System.Text.Json.JsonSerializer.Serialize(user));
+			_ = SaveAuditTrailPageVisit(user, pageRoute, platformInfo);
+			_ = EnrollTerminal(user);
+		}
+
+		else
 			await Logout();
 
 		return user;
+	}
+
+	private async Task SaveAuditTrailPageVisit(UserModel user, string pageRoute, PlatformInfoModel platformInfo)
+	{
+		if (!OfflineState.Offline && !string.IsNullOrWhiteSpace(pageRoute))
+			try
+			{
+				await AuditTrailData.SaveAuditTrail(new()
+				{
+					Action = AuditTrailActionTypes.PageVisit.ToString(),
+					TableName = pageRoute,
+					RecordNo = "",
+					CreatedBy = user.Id,
+					CreatedFormFactor = formFactor.GetFormFactor(),
+					CreatedPlatform = platformInfo.Platform
+				});
+			}
+			catch { }
 	}
 
 	private async Task EnrollTerminal(UserModel user)

@@ -18,6 +18,9 @@ public static class AuditTrailData
 	internal static async Task<AuditTrailModel> LoadLastAuditTrailByTableRecord(string TableName, string RecordNo) =>
 		(await SqlDataAccess.LoadData<AuditTrailModel, dynamic>(OperationNames.LoadLastAuditTrailByTableRecord, new { TableName, RecordNo })).FirstOrDefault();
 
+	public static async Task<List<AuditTrailModel>> LoadAuditTrailByActionUserIdDate(AuditTrailActionTypes Action, int UserId, DateTime StartDate, DateTime EndDate) =>
+		await SqlDataAccess.LoadData<AuditTrailModel, dynamic>(OperationNames.LoadAuditTrailByActionUserIdDate, new { Action = Action.ToString(), UserId, StartDate, EndDate });
+
 	public static async Task SaveAuditTrail(AuditTrailModel auditTrail, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		var user = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, auditTrail.CreatedBy, sqlDataAccessTransaction);
@@ -47,15 +50,16 @@ public static class AuditTrailData
 		return deleted;
 	}
 
-	private static readonly HashSet<string> _ignoredProperties = new(StringComparer.OrdinalIgnoreCase)
-	{
+	private static readonly HashSet<string> _ignoredProperties =
+	[
+		with(StringComparer.OrdinalIgnoreCase),
 		"Id", "MasterId", "Status", "MasterStatus", "LastSeen", "LastLoginTime",
 		"LastSeenFormFactor", "LastSeenPlatform", "LastSeenLatitude", "LastSeenLongitude",
 		"CreatedBy", "CreatedByName", "CreatedAt",
 		"CreatedFormFactor", "CreatedPlatform", "CreatedLatitude", "CreatedLongitude",
 		"LastModifiedBy", "LastModifiedByUserName", "LastModifiedAt",
 		"LastModifiedFormFactor", "LastModifiedPlatform", "LastModifiedLatitude", "LastModifiedLongitude"
-	};
+	];
 
 	internal static string GetDifference<T>(T previous, T current)
 	{

@@ -30,7 +30,7 @@ public partial class OfflineQueuePage
 			if (!OfflineState.LocalDBAvailable)
 				throw new InvalidOperationException("The offline queue is only available on a machine with a local database.");
 
-			_user = await AuthService.ValidateUser();
+			_user = await AuthService.ValidateUser(pageRoute: OperationRouteNames.OfflineQueue);
 			await InitializePage();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -52,7 +52,7 @@ public partial class OfflineQueuePage
 		try
 		{
 			_isProcessing = true;
-			StateHasChanged();
+			
 			await _toastNotification.ShowAsync("Loading", "Loading the Offline Queue...", ToastType.Info);
 
 			_offlineQueues = [.. (await CommonData.LoadTableData<OfflineQueueModel>(OperationNames.OfflineQueue, useLocalDB: true))

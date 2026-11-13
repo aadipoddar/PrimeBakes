@@ -74,7 +74,7 @@ public partial class PurchaseOrderItemReport : IAsyncDisposable
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Inventory, UserRoles.Reports], true);
+			_user = await AuthService.ValidateUser([UserRoles.Inventory, UserRoles.Reports], true, InventoryRouteNames.PurchaseOrderItemReport);
 			await InitializePage();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -116,7 +116,7 @@ public partial class PurchaseOrderItemReport : IAsyncDisposable
 		try
 		{
 			_isProcessing = true;
-			StateHasChanged();
+
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
 			_allTransactionOverviews = await CommonData.LoadTableDataByDate<PurchaseOrderItemOverviewModel>(
@@ -431,8 +431,6 @@ public partial class PurchaseOrderItemReport : IAsyncDisposable
 	private async Task ToggleDetailsView()
 	{
 		_showAllColumns = !_showAllColumns;
-		StateHasChanged();
-
 		if (_sfGrid is not null) await _sfGrid.Refresh();
 	}
 

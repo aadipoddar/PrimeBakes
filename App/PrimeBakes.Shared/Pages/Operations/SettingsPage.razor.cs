@@ -136,7 +136,7 @@ public partial class SettingsPage
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Admin], true);
+			_user = await AuthService.ValidateUser([UserRoles.Admin], true, OperationRouteNames.Settings);
 			await LoadData();
 			_isLoading = false;
 			StateHasChanged();
@@ -459,7 +459,6 @@ public partial class SettingsPage
 		try
 		{
 			_isProcessing = true;
-			StateHasChanged();
 
 			if (string.IsNullOrWhiteSpace(_primaryCompanyLinkingId))
 			{
@@ -558,7 +557,6 @@ public partial class SettingsPage
 		finally
 		{
 			_isProcessing = false;
-			StateHasChanged();
 		}
 	}
 

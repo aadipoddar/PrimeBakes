@@ -400,6 +400,7 @@
     <Build Include="PulpTrace\Delete_PulpTrace_By_Id.sql" />
     <Build Include="Store\Customer\OnlinePartner.sql" />
     <Build Include="Store\Customer\Insert_OnlinePartner.sql" />
+    <Build Include="Operations\AuditTrail\Load_AuditTrail_By_Action_UserId_Date.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="PublishLocation\LocalDB.publish.xml" />

@@ -62,7 +62,7 @@ public partial class OrderPage
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Store]);
+			_user = await AuthService.ValidateUser([UserRoles.Store], pageRoute: StoreRouteNames.Order);
 			await InitializePage();
 		}
 		catch { await ResetPage(); }

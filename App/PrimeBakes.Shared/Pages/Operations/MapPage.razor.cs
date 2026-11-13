@@ -34,7 +34,7 @@ public partial class MapPage
 		{
 			try
 			{
-				_user = await AuthService.ValidateUser();
+				_user = await AuthService.ValidateUser(pageRoute: OperationRouteNames.Map);
 				await LoadData();
 			}
 			catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -46,8 +46,13 @@ public partial class MapPage
 			return;
 
 		_mapShown = true;
-		await JSRuntime.InvokeVoidAsync("locationMap.show", CommonSecrets.GoogleMapsBrowserKey,
+
+		try
+		{
+			await JSRuntime.InvokeVoidAsync("locationMap.show", CommonSecrets.GoogleMapsBrowserKey,
 			_points.Select(p => new { name = p.Name, lat = (double)p.Latitude, lng = (double)p.Longitude }));
+		}
+		catch { }
 	}
 
 	private async Task LoadData()

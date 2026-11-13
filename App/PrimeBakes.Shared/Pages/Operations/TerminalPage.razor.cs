@@ -27,7 +27,7 @@ public partial class TerminalPage
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Admin], true);
+			_user = await AuthService.ValidateUser([UserRoles.Admin], true, OperationRouteNames.Terminal);
 			await InitializePage();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -49,7 +49,7 @@ public partial class TerminalPage
 		try
 		{
 			_isProcessing = true;
-			StateHasChanged();
+			
 			await _toastNotification.ShowAsync("Loading", "Loading the Terminals...", ToastType.Info);
 
 			_terminals = [.. (await CommonData.LoadTableData<TerminalOverviewModel>(OperationNames.TerminalOverview))

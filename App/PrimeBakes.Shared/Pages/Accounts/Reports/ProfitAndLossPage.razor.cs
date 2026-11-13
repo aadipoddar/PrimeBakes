@@ -45,7 +45,7 @@ public partial class ProfitAndLossPage : IAsyncDisposable
 
 		try
 		{
-			await AuthService.ValidateUser([UserRoles.Accounts, UserRoles.Reports]);
+			await AuthService.ValidateUser([UserRoles.Accounts, UserRoles.Reports], pageRoute: AccountsRouteNames.ProfitAndLossReport);
 			await InitializePage();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -79,7 +79,7 @@ public partial class ProfitAndLossPage : IAsyncDisposable
 		try
 		{
 			_isProcessing = true;
-			StateHasChanged();
+			
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
 			_trialBalance = await FinancialAccountingData.LoadTrialBalanceByCompanyDate(
@@ -183,7 +183,7 @@ public partial class ProfitAndLossPage : IAsyncDisposable
 	private async Task ToggleDetailsView()
 	{
 		_showAllColumns = !_showAllColumns;
-		StateHasChanged();
+		
 
 		if (_incomeGrid is not null) await _incomeGrid.Refresh();
 		if (_expenseGrid is not null) await _expenseGrid.Refresh();

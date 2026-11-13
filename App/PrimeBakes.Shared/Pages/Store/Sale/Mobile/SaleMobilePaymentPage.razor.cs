@@ -43,7 +43,7 @@ public partial class SaleMobilePaymentPage
 		if (!firstRender)
 			return;
 
-		_user = await AuthService.ValidateUser([UserRoles.Store]);
+		_user = await AuthService.ValidateUser([UserRoles.Store], pageRoute: StoreRouteNames.SaleMobilePayment);
 		await LoadData();
 	}
 
@@ -198,7 +198,6 @@ public partial class SaleMobilePaymentPage
 		// Reset for next payment
 		_paymentAmount = _remainingAmount;
 		_selectedPaymentMethod = _paymentMethods.FirstOrDefault(_ => _.Id != _selectedPaymentMethod.Id) ?? _selectedPaymentMethod;
-		StateHasChanged();
 	}
 
 	private void RemovePayment(PaymentItem payment)
@@ -322,7 +321,6 @@ public partial class SaleMobilePaymentPage
 		finally
 		{
 			_isProcessing = false;
-			StateHasChanged();
 		}
 	}
 	#endregion

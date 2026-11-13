@@ -50,7 +50,7 @@ public partial class LocationPage
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Admin], true);
+			_user = await AuthService.ValidateUser([UserRoles.Admin], true, OperationRouteNames.Location);
 			await LoadData();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -96,7 +96,6 @@ public partial class LocationPage
 		try
 		{
 			_isProcessing = true;
-			StateHasChanged();
 
 			if (!_user.Admin)
 				throw new Exception("You do not have permission to perform this action.");
@@ -279,7 +278,6 @@ public partial class LocationPage
 		finally
 		{
 			_isProcessing = false;
-			StateHasChanged();
 		}
 	}
 	#endregion

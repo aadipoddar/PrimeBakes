@@ -88,7 +88,7 @@ public partial class BillPage
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Restaurant], true);
+			_user = await AuthService.ValidateUser([UserRoles.Restaurant], true, RestaurantRouteNames.Bill);
 			await InitializePage();
 		}
 		catch { await ResetPage(); }

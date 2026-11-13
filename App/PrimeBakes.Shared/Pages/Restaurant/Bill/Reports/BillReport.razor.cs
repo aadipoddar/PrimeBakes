@@ -78,7 +78,7 @@ public partial class BillReport : IAsyncDisposable
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Restaurant, UserRoles.Reports], true);
+			_user = await AuthService.ValidateUser([UserRoles.Restaurant, UserRoles.Reports], true, RestaurantRouteNames.BillReport);
 			await InitializePage();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -121,7 +121,7 @@ public partial class BillReport : IAsyncDisposable
 		try
 		{
 			_isProcessing = true;
-			StateHasChanged();
+
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
 			var fromDate = DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue);
@@ -493,7 +493,7 @@ public partial class BillReport : IAsyncDisposable
 		try
 		{
 			_isProcessing = true;
-			StateHasChanged();
+
 			await _toastNotification.ShowAsync("Processing", "Generating thermal invoice...", ToastType.Info);
 
 			var thermalBundle = await BillData.LoadThermalBundle(_sfGrid.SelectedRecords.First().Id);
@@ -511,7 +511,6 @@ public partial class BillReport : IAsyncDisposable
 		finally
 		{
 			_isProcessing = false;
-			StateHasChanged();
 		}
 	}
 	#endregion
@@ -538,8 +537,6 @@ public partial class BillReport : IAsyncDisposable
 	private async Task ToggleDetailsView()
 	{
 		_showAllColumns = !_showAllColumns;
-		StateHasChanged();
-
 		if (_sfGrid is not null) await _sfGrid.Refresh();
 	}
 

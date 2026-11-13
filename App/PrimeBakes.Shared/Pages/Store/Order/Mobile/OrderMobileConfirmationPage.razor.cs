@@ -39,7 +39,6 @@ public partial class OrderMobileConfirmationPage
 		try
 		{
 			_isPrinting = true;
-			StateHasChanged();
 
 			var (pdfStream, fileName) = OrderInvoiceExport.ExportInvoice(await OrderData.LoadInvoiceBundle(_order.Id), InvoiceExportType.PDF);
 			await SaveAndViewService.SaveAndView(fileName, pdfStream);
@@ -47,7 +46,6 @@ public partial class OrderMobileConfirmationPage
 		finally
 		{
 			_isPrinting = false;
-			StateHasChanged();
 		}
 	}
 }

@@ -52,7 +52,7 @@ public partial class BillMobilePaymentPage
 		if (!firstRender)
 			return;
 
-		_user = await AuthService.ValidateUser([UserRoles.Restaurant]);
+		_user = await AuthService.ValidateUser([UserRoles.Restaurant], pageRoute: RestaurantRouteNames.BillMobilePayment);
 		await LoadData();
 	}
 
@@ -266,7 +266,6 @@ public partial class BillMobilePaymentPage
 		// Reset for next payment
 		_paymentAmount = _remainingAmount;
 		_selectedPaymentMethod = _paymentMethods.FirstOrDefault(_ => _.Id != _selectedPaymentMethod.Id);
-		StateHasChanged();
 	}
 
 	private void RemovePayment(PaymentItem payment)

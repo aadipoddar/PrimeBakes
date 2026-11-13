@@ -54,7 +54,7 @@ public partial class RecipePage
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Inventory], true);
+			_user = await AuthService.ValidateUser([UserRoles.Inventory], true, InventoryRouteNames.Recipe);
 			await LoadData();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -125,7 +125,7 @@ public partial class RecipePage
 	private void OnProductChanged(ProductLocationOverviewModel value)
 	{
 		_selectedProduct = value ?? _products.FirstOrDefault();
-		StateHasChanged();
+		
 	}
 
 	private async Task OnCostAsOnDateChanged(DateTime value)
@@ -142,13 +142,13 @@ public partial class RecipePage
 		}
 
 		if (_sfCartGrid is not null) await _sfCartGrid.Refresh();
-		StateHasChanged();
+		
 	}
 
 	private void OnEffectiveDateChanged(DateTime value)
 	{
 		_effectiveDateTime = value;
-		StateHasChanged();
+		
 	}
 
 	private void OnRecipeQuantityChanged(decimal value)
@@ -158,7 +158,7 @@ public partial class RecipePage
 		foreach (var item in _recipeItems)
 			item.PerUnit = _recipe.Quantity > 0 ? item.Amount / _recipe.Quantity : 0m;
 
-		StateHasChanged();
+		
 	}
 	#endregion
 
@@ -202,7 +202,7 @@ public partial class RecipePage
 		if (_sfCartGrid is not null)
 			await _sfCartGrid.Refresh();
 
-		StateHasChanged();
+		
 	}
 
 	private async Task EditSelectedCartItem()

@@ -29,7 +29,7 @@ public partial class SaleMobilePage
 		if (!firstRender)
 			return;
 
-		_user = await AuthService.ValidateUser([UserRoles.Store]);
+		_user = await AuthService.ValidateUser([UserRoles.Store], pageRoute: StoreRouteNames.SaleMobile);
 		await InitializePage();
 	}
 

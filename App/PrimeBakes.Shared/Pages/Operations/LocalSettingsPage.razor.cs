@@ -40,7 +40,7 @@ public partial class LocalSettingsPage
 
 		try
 		{
-			await AuthService.ValidateUser();
+			await AuthService.ValidateUser(pageRoute: OperationRouteNames.LocalSettings);
 			_isLoading = false;
 			StateHasChanged();
 		}
@@ -64,7 +64,6 @@ public partial class LocalSettingsPage
 			_isProcessing = true;
 			_hasScanned = true;
 			_discoveredDevices.Clear();
-			StateHasChanged();
 
 			// Request permissions (Android requires runtime permissions)
 			var permissionsGranted = await BluetoothPrinterService.RequestPermissionsAsync();
@@ -91,7 +90,6 @@ public partial class LocalSettingsPage
 		{
 			_isScanning = false;
 			_isProcessing = false;
-			StateHasChanged();
 		}
 	}
 
@@ -149,7 +147,6 @@ public partial class LocalSettingsPage
 		try
 		{
 			_isProcessing = true;
-			StateHasChanged();
 
 			await BluetoothPrinterService.DisconnectAsync();
 			await ClearSavedPrinterAsync();
@@ -162,7 +159,6 @@ public partial class LocalSettingsPage
 		finally
 		{
 			_isProcessing = false;
-			StateHasChanged();
 		}
 	}
 
@@ -178,7 +174,6 @@ public partial class LocalSettingsPage
 		try
 		{
 			_isTestPrinting = true;
-			StateHasChanged();
 
 			var printerName = BluetoothPrinterService.ConnectedPrinterName;
 			var printerAddress = BluetoothPrinterService.ConnectedPrinterAddress;
@@ -201,7 +196,6 @@ public partial class LocalSettingsPage
 		finally
 		{
 			_isTestPrinting = false;
-			StateHasChanged();
 		}
 	}
 
@@ -265,7 +259,6 @@ public partial class LocalSettingsPage
 		try
 		{
 			_isProcessing = true;
-			StateHasChanged();
 
 			await _toastNotification.ShowAsync("Setting Up", "Creating and updating the local database. This can take a minute...", ToastType.Info);
 			await LocalDbService.SetupDatabase();
@@ -278,7 +271,6 @@ public partial class LocalSettingsPage
 		finally
 		{
 			_isProcessing = false;
-			StateHasChanged();
 		}
 	}
 
@@ -287,7 +279,6 @@ public partial class LocalSettingsPage
 		try
 		{
 			_isProcessing = true;
-			StateHasChanged();
 
 			await _toastNotification.ShowAsync("Syncing", "Copying data to this computer...", ToastType.Info);
 			var summary = await SyncData.SyncToLocalClient(FormFactor.GetMachineId());
@@ -300,7 +291,6 @@ public partial class LocalSettingsPage
 		finally
 		{
 			_isProcessing = false;
-			StateHasChanged();
 		}
 	}
 

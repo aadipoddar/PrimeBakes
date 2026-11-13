@@ -75,7 +75,7 @@ public partial class KitchenIssueItemReport : IAsyncDisposable
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Inventory, UserRoles.Reports], true);
+			_user = await AuthService.ValidateUser([UserRoles.Inventory, UserRoles.Reports], true, InventoryRouteNames.KitchenIssueItemReport);
 			await InitializePage();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -117,7 +117,7 @@ public partial class KitchenIssueItemReport : IAsyncDisposable
 		try
 		{
 			_isProcessing = true;
-			StateHasChanged();
+
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
 			var allTransactionOverviews = CommonData.LoadTableDataByDate<KitchenIssueItemOverviewModel>(
@@ -499,8 +499,6 @@ public partial class KitchenIssueItemReport : IAsyncDisposable
 	private async Task ToggleDetailsView()
 	{
 		_showAllColumns = !_showAllColumns;
-		StateHasChanged();
-
 		if (_sfGrid is not null) await _sfGrid.Refresh();
 	}
 

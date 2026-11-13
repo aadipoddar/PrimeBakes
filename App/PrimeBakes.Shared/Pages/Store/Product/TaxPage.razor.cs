@@ -42,7 +42,7 @@ public partial class TaxPage
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Store], true);
+			_user = await AuthService.ValidateUser([UserRoles.Store], true, StoreRouteNames.Tax);
 			await LoadData();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -72,7 +72,6 @@ public partial class TaxPage
 		try
 		{
 			_isProcessing = true;
-			StateHasChanged();
 
 			if (!_user.Admin)
 				throw new Exception("You do not have permission to perform this action.");

@@ -70,7 +70,7 @@ public partial class PayrollReport : IAsyncDisposable
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Payroll, UserRoles.Reports], true);
+			_user = await AuthService.ValidateUser([UserRoles.Payroll, UserRoles.Reports], true, PayrollRouteNames.PayrollReport);
 			await InitializePage();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -111,7 +111,7 @@ public partial class PayrollReport : IAsyncDisposable
 		try
 		{
 			_isProcessing = true;
-			StateHasChanged();
+
 			await _toastNotification.ShowAsync("Loading", "Fetching payroll...", ToastType.Info);
 
 			_allTransactionOverviews = await CommonData.LoadTableDataByDate<PayrollOverviewModel>(
@@ -453,8 +453,6 @@ public partial class PayrollReport : IAsyncDisposable
 	private async Task ToggleDetailsView()
 	{
 		_showAllColumns = !_showAllColumns;
-		StateHasChanged();
-
 		if (_sfGrid is not null) await _sfGrid.Refresh();
 	}
 

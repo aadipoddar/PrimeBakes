@@ -47,7 +47,7 @@ public partial class TrialBalancePage : IAsyncDisposable
 
 		try
 		{
-			await AuthService.ValidateUser([UserRoles.Accounts, UserRoles.Reports]);
+			await AuthService.ValidateUser([UserRoles.Accounts, UserRoles.Reports], pageRoute: AccountsRouteNames.TrialBalanceReport);
 			await InitializePage();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -86,7 +86,7 @@ public partial class TrialBalancePage : IAsyncDisposable
 		try
 		{
 			_isProcessing = true;
-			StateHasChanged();
+
 			await _toastNotification.ShowAsync("Loading", "Fetching transactions...", ToastType.Info);
 
 			_allTrialBalance = await FinancialAccountingData.LoadTrialBalanceByCompanyDate(
@@ -198,8 +198,6 @@ public partial class TrialBalancePage : IAsyncDisposable
 	private async Task ToggleDetailsView()
 	{
 		_showAllColumns = !_showAllColumns;
-		StateHasChanged();
-
 		if (_sfGrid is not null) await _sfGrid.Refresh();
 	}
 

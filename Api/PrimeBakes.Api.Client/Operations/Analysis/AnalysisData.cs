@@ -15,4 +15,7 @@ public static class AnalysisData
 
 	public static async Task<List<AnalysisTopRawMaterialModel>> LoadDashboardTopRawMaterials(DateTime StartDate, DateTime EndDate) =>
 		await ApiClient.Get<List<AnalysisTopRawMaterialModel>>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadDashboardTopRawMaterials)), new { StartDate, EndDate });
+
+	public static async Task<List<string>> LoadPageRecommendations(int userId) =>
+		await ApiClient.Get<List<string>>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadPageRecommendations)), new { userId });
 }

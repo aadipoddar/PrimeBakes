@@ -20,7 +20,7 @@ public partial class DiningMobileDashbaord
 		if (!firstRender)
 			return;
 
-		_user = await AuthService.ValidateUser([UserRoles.Restaurant]);
+		_user = await AuthService.ValidateUser([UserRoles.Restaurant], pageRoute: RestaurantRouteNames.DiningMobileDashboard);
 
 		await LoadData();
 	}

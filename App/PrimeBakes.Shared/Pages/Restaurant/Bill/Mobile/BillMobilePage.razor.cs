@@ -39,7 +39,7 @@ public partial class BillMobilePage
 		if (!firstRender)
 			return;
 
-		_user = await AuthService.ValidateUser([UserRoles.Restaurant]);
+		_user = await AuthService.ValidateUser([UserRoles.Restaurant], pageRoute: RestaurantRouteNames.BillMobile);
 		await InitializePage();
 	}
 

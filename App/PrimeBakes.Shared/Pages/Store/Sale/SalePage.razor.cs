@@ -88,7 +88,7 @@ public partial class SalePage
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Store]);
+			_user = await AuthService.ValidateUser([UserRoles.Store], pageRoute: StoreRouteNames.Sale);
 			await InitializePage();
 		}
 		catch { await ResetPage(); }

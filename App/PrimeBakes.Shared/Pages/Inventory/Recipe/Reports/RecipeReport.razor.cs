@@ -57,7 +57,7 @@ public partial class RecipeReport : IAsyncDisposable
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Inventory, UserRoles.Reports], true);
+			_user = await AuthService.ValidateUser([UserRoles.Inventory, UserRoles.Reports], true, InventoryRouteNames.RecipeReport);
 			await InitializePage();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -82,7 +82,7 @@ public partial class RecipeReport : IAsyncDisposable
 		try
 		{
 			_isProcessing = true;
-			StateHasChanged();
+			
 			await _toastNotification.ShowAsync("Loading", "Fetching recipes...", ToastType.Info);
 
 			var allRecipeOverviews = CommonData.LoadTableData<RecipeOverviewModel>(InventoryNames.RecipeOverview);

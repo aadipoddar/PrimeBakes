@@ -30,7 +30,7 @@ public partial class OrderMobileCartPage
 		if (!firstRender)
 			return;
 
-		_user = await AuthService.ValidateUser([UserRoles.Store]);
+		_user = await AuthService.ValidateUser([UserRoles.Store], pageRoute: StoreRouteNames.OrderMobileCart);
 		await LoadData();
 	}
 
@@ -179,7 +179,6 @@ public partial class OrderMobileCartPage
 		finally
 		{
 			_isProcessing = false;
-			StateHasChanged();
 		}
 	}
 	#endregion

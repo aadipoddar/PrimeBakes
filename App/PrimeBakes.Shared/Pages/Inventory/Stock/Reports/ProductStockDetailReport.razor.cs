@@ -58,7 +58,7 @@ public partial class ProductStockDetailReport : IAsyncDisposable
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Inventory, UserRoles.Reports], true);
+			_user = await AuthService.ValidateUser([UserRoles.Inventory, UserRoles.Reports], true, InventoryRouteNames.ProductStockDetailReport);
 			await InitializePage();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -94,7 +94,7 @@ public partial class ProductStockDetailReport : IAsyncDisposable
 		try
 		{
 			_isProcessing = true;
-			StateHasChanged();
+			
 			await _toastNotification.ShowAsync("Loading", "Fetching stock details...", ToastType.Info);
 
 			_stockDetails = await CommonData.LoadTableDataByDate<ProductStockDetailsModel>(

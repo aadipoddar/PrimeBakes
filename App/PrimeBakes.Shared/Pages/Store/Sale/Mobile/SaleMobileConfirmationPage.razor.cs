@@ -55,7 +55,6 @@ public partial class SaleMobileConfirmationPage
 		try
 		{
 			_isPrinting = true;
-			StateHasChanged();
 
 			var thermalBundle = await SaleData.LoadThermalBundle(_sale.Id);
 
@@ -66,7 +65,6 @@ public partial class SaleMobileConfirmationPage
 		finally
 		{
 			_isPrinting = false;
-			StateHasChanged();
 		}
 	}
 }

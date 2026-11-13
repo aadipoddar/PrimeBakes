@@ -30,5 +30,6 @@ public enum AuditTrailActionTypes
 	Report,
 	Notification,
 	Login,
-	Logout
+	Logout,
+	PageVisit
 }

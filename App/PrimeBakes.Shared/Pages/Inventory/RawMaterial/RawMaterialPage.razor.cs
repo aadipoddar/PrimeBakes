@@ -47,7 +47,7 @@ public partial class RawMaterialPage
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Inventory], true);
+			_user = await AuthService.ValidateUser([UserRoles.Inventory], true, InventoryRouteNames.RawMaterial);
 			await LoadData();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -86,7 +86,6 @@ public partial class RawMaterialPage
 		try
 		{
 			_isProcessing = true;
-			StateHasChanged();
 
 			if (!_user.Admin)
 				throw new Exception("You do not have permission to perform this action.");

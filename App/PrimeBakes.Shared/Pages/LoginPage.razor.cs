@@ -30,7 +30,7 @@ public partial class LoginPage
 			return;
 
 		_isVerifying = true;
-		StateHasChanged();
+		
 
 		var platformInfo = await PlatformInfo.GetPlatformInfo();
 		var login = await AuthData.Login(int.Parse(_passcode), platformInfo.FormFactor, platformInfo.Platform, platformInfo.Latitude, platformInfo.Longitude);

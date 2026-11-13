@@ -59,7 +59,7 @@ public partial class PayrollPage
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Payroll], true);
+			_user = await AuthService.ValidateUser([UserRoles.Payroll], true, PayrollRouteNames.Payroll);
 			await LoadData();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -366,7 +366,6 @@ public partial class PayrollPage
 	{
 		_showDeleted = !_showDeleted;
 		await LoadOverviews();
-		StateHasChanged();
 	}
 
 	private void ResetPage() => PageRefresh.Request();

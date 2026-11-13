@@ -44,7 +44,7 @@ public partial class SalaryComponentPage
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Payroll], true);
+			_user = await AuthService.ValidateUser([UserRoles.Payroll], true, PayrollRouteNames.SalaryComponent);
 			await LoadData();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -76,7 +76,6 @@ public partial class SalaryComponentPage
 		try
 		{
 			_isProcessing = true;
-			StateHasChanged();
 
 			if (!_user.Admin)
 				throw new Exception("You do not have permission to perform this action.");

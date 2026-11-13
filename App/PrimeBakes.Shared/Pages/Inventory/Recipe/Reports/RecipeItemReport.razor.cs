@@ -65,7 +65,7 @@ public partial class RecipeItemReport : IAsyncDisposable
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Inventory, UserRoles.Reports], true);
+			_user = await AuthService.ValidateUser([UserRoles.Inventory, UserRoles.Reports], true, InventoryRouteNames.RecipeItemReport);
 			await InitializePage();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -105,7 +105,7 @@ public partial class RecipeItemReport : IAsyncDisposable
 		try
 		{
 			_isProcessing = true;
-			StateHasChanged();
+			
 			await _toastNotification.ShowAsync("Loading", "Fetching recipe items...", ToastType.Info);
 
 			_allItemOverviews = await CommonData.LoadTableData<RecipeItemOverviewModel>(InventoryNames.RecipeItemOverview);

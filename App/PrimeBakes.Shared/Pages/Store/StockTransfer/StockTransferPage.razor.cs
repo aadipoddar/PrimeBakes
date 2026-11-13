@@ -79,7 +79,7 @@ public partial class StockTransferPage
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Store], true);
+			_user = await AuthService.ValidateUser([UserRoles.Store], true, StoreRouteNames.StockTransfer);
 			await InitializePage();
 		}
 		catch { await ResetPage(); }

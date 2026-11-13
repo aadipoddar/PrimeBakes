@@ -69,7 +69,7 @@ public partial class PurchasePage
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Inventory], true);
+			_user = await AuthService.ValidateUser([UserRoles.Inventory], true, InventoryRouteNames.Purchase);
 			await InitializePage();
 		}
 		catch { await ResetPage(); }
@@ -888,13 +888,13 @@ public partial class PurchasePage
 			return;
 
 		_isUploadDialogVisible = true;
-		StateHasChanged();
+		
 	}
 
 	private void CloseUploadDialog()
 	{
 		_isUploadDialogVisible = false;
-		StateHasChanged();
+		
 	}
 
 	private async Task OnUploaderFileChange(UploadChangeEventArgs args)

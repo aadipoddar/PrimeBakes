@@ -57,7 +57,6 @@ public partial class BillMobileConfirmationPage
 		try
 		{
 			_isPrinting = true;
-			StateHasChanged();
 
 			var thermalBundle = await BillData.LoadThermalBundle(_bill.Id);
 

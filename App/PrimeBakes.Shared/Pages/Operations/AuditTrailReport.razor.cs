@@ -57,7 +57,7 @@ public partial class AuditTrailReport : IAsyncDisposable
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Admin], true);
+			_user = await AuthService.ValidateUser([UserRoles.Admin], true, OperationRouteNames.AuditTrailReport);
 			await InitializePage();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }
@@ -85,7 +85,7 @@ public partial class AuditTrailReport : IAsyncDisposable
 		try
 		{
 			_isProcessing = true;
-			StateHasChanged();
+
 			await _toastNotification.ShowAsync("Loading", "Fetching audit trail records...", ToastType.Info);
 
 			_auditTrails = await CommonData.LoadTableDataByDate<AuditTrailOverviewModel>(
@@ -292,8 +292,6 @@ public partial class AuditTrailReport : IAsyncDisposable
 	private async Task ToggleDetailsView()
 	{
 		_showAllColumns = !_showAllColumns;
-		StateHasChanged();
-
 		if (_sfGrid is not null) await _sfGrid.Refresh();
 	}
 

@@ -56,7 +56,7 @@ public partial class FinancialAccountingPage
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Accounts], true);
+			_user = await AuthService.ValidateUser([UserRoles.Accounts], true, AccountsRouteNames.FinancialAccounting);
 			await InitializePage();
 		}
 		catch { await ResetPage(); }
@@ -489,7 +489,6 @@ public partial class FinancialAccountingPage
 		finally
 		{
 			_isProcessing = false;
-			StateHasChanged();
 		}
 	}
 	#endregion

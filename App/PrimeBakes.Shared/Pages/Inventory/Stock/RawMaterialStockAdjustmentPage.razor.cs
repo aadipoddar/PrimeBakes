@@ -48,7 +48,7 @@ public partial class RawMaterialStockAdjustmentPage
 
 		try
 		{
-			_user = await AuthService.ValidateUser([UserRoles.Inventory], true);
+			_user = await AuthService.ValidateUser([UserRoles.Inventory], true, InventoryRouteNames.RawMaterialStockAdjustment);
 			await LoadData();
 		}
 		catch { await ResetPage(); }
