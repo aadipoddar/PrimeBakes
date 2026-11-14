@@ -1,4 +1,5 @@
 ﻿@using PrimeBakes.Models.Accounts.Masters
+@using PrimeBakes.Models.Operations.Settings
 
 @attribute [Route(OperationRouteNames.Settings)]
 
@@ -25,449 +26,421 @@ else
 
 		<div class="page-container">
 
-			<!-- Primary Configuration -->
-			<div class="section-card">
-				<div class="section-header">
-					<h2 class="section-title">Primary Configuration</h2>
-				</div>
-				<div class="section-body">
-					<div class="form-grid">
-						<div class="form-field">
-							<CustomAutoComplete T="CompanyModel"
-												Value="_selectedCompany"
-												DataSource="@_companies"
-												Placeholder="Select primary company"
-												Label="Primary Company"
-												ValueChanged="OnCompanyChange"
-												FieldValue="@nameof(CompanyModel.Name)"
-												AddNewRoute="@AccountsRouteNames.CompanyMaster" />
-						</div>
-					</div>
-				</div>
-			</div>
+			<MudBlazor.MudTabs Position="MudBlazor.Position.Left"
+							   Elevation="0"
+							   Rounded="false"
+							   DisableSliderAnimation="true"
+							   KeepPanelsAlive="true"
+							   Class="settings-tabs">
 
-			<!-- Master Data Code Prefixes -->
-			<div class="section-card">
-				<div class="section-header">
-					<h2 class="section-title">Master Data Code Prefixes</h2>
-				</div>
-				<div class="section-body">
-					<div class="form-grid">
-						<div class="form-field">
-							<CustomTextField @bind-Value="_rawMaterialCodePrefix" Label="Raw Material Code Prefix" Placeholder="e.g., RM" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomTextField @bind-Value="_finishedProductCodePrefix" Label="Finished Product Code Prefix" Placeholder="e.g., FP" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomTextField @bind-Value="_ledgerCodePrefix" Label="Ledger Code Prefix" Placeholder="e.g., LD" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomTextField @bind-Value="_employeeCodePrefix" Label="Employee Code Prefix" Placeholder="e.g., EMP" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomTextField @bind-Value="_departmentCodePrefix" Label="Department Code Prefix" Placeholder="e.g., DEPT" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomTextField @bind-Value="_designationCodePrefix" Label="Designation Code Prefix" Placeholder="e.g., DESG" Required="false" />
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- Transaction Prefixes -->
-			<div class="section-card">
-				<div class="section-header">
-					<h2 class="section-title">Transaction Prefixes</h2>
-				</div>
-				<div class="section-body">
-					<div class="form-grid">
-						<div class="form-field">
-							<CustomTextField @bind-Value="_accountingTransactionPrefix" Label="Accounting Transaction Prefix" Placeholder="e.g., ACC" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomTextField @bind-Value="_purchaseTransactionPrefix" Label="Purchase Transaction Prefix" Placeholder="e.g., PUR" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomTextField @bind-Value="_purchaseReturnTransactionPrefix" Label="Purchase Return Transaction Prefix" Placeholder="e.g., PURR" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomTextField @bind-Value="_purchaseOrderTransactionPrefix" Label="Purchase Order Transaction Prefix" Placeholder="e.g., PURORD" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomTextField @bind-Value="_kitchenIssueTransactionPrefix" Label="Kitchen Issue Transaction Prefix" Placeholder="e.g., KI" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomTextField @bind-Value="_kitchenIssueReturnTransactionPrefix" Label="Kitchen Issue Return Transaction Prefix" Placeholder="e.g., KIRET" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomTextField @bind-Value="_kitchenProductionTransactionPrefix" Label="Kitchen Production Transaction Prefix" Placeholder="e.g., KP" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomTextField @bind-Value="_kitchenProductionReturnTransactionPrefix" Label="Kitchen Production Return Transaction Prefix" Placeholder="e.g., KPRET" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomTextField @bind-Value="_rawMaterialStockAdjustmentTransactionPrefix" Label="Raw Material Stock Adjustment Prefix" Placeholder="e.g., RMSA" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomTextField @bind-Value="_productStockAdjustmentTransactionPrefix" Label="Product Stock Adjustment Prefix" Placeholder="e.g., PSA" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomTextField @bind-Value="_saleTransactionPrefix" Label="Sale Transaction Prefix" Placeholder="e.g., SAL" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomTextField @bind-Value="_saleReturnTransactionPrefix" Label="Sale Return Transaction Prefix" Placeholder="e.g., SALR" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomTextField @bind-Value="_stockTransferTransactionPrefix" Label="Stock Transfer Transaction Prefix" Placeholder="e.g., STK" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomTextField @bind-Value="_orderTransactionPrefix" Label="Order Transaction Prefix" Placeholder="e.g., ORD" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomTextField @bind-Value="_billTransactionPrefix" Label="Bill Transaction Prefix" Placeholder="e.g., BIL" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomTextField @bind-Value="_payrollTransactionPrefix" Label="Payroll Transaction Prefix" Placeholder="e.g., PAY" Required="false" />
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- Voucher Linking -->
-			<div class="section-card">
-				<div class="section-header">
-					<h2 class="section-title">Voucher Linking</h2>
-				</div>
-				<div class="section-body">
-					<div class="form-grid">
-						<div class="form-field">
-							<CustomAutoComplete T="VoucherModel" Value="_selectedPurchaseVoucher" DataSource="@_vouchers" Placeholder="Select purchase voucher" Label="Purchase Voucher" ValueChanged="OnPurchaseVoucherChange" FieldValue="@nameof(VoucherModel.Name)" AddNewRoute="@AccountsRouteNames.VoucherMaster" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomAutoComplete T="VoucherModel" Value="_selectedPurchaseReturnVoucher" DataSource="@_vouchers" Placeholder="Select purchase return voucher" Label="Purchase Return Voucher" ValueChanged="OnPurchaseReturnVoucherChange" FieldValue="@nameof(VoucherModel.Name)" AddNewRoute="@AccountsRouteNames.VoucherMaster" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomAutoComplete T="VoucherModel" Value="_selectedSaleVoucher" DataSource="@_vouchers" Placeholder="Select sale voucher" Label="Sale Voucher" ValueChanged="OnSaleVoucherChange" FieldValue="@nameof(VoucherModel.Name)" AddNewRoute="@AccountsRouteNames.VoucherMaster" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomAutoComplete T="VoucherModel" Value="_selectedSaleReturnVoucher" DataSource="@_vouchers" Placeholder="Select sale return voucher" Label="Sale Return Voucher" ValueChanged="OnSaleReturnVoucherChange" FieldValue="@nameof(VoucherModel.Name)" AddNewRoute="@AccountsRouteNames.VoucherMaster" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomAutoComplete T="VoucherModel" Value="_selectedStockTransferVoucher" DataSource="@_vouchers" Placeholder="Select stock transfer voucher" Label="Stock Transfer Voucher" ValueChanged="OnStockTransferVoucherChange" FieldValue="@nameof(VoucherModel.Name)" AddNewRoute="@AccountsRouteNames.VoucherMaster" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomAutoComplete T="VoucherModel" Value="_selectedBillVoucher" DataSource="@_vouchers" Placeholder="Select bill voucher" Label="Bill Voucher" ValueChanged="OnBillVoucherChange" FieldValue="@nameof(VoucherModel.Name)" AddNewRoute="@AccountsRouteNames.VoucherMaster" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomAutoComplete T="VoucherModel" Value="_selectedBillDayCloseVoucher" DataSource="@_vouchers" Placeholder="Select bill day close voucher" Label="Bill Day Close Voucher" ValueChanged="OnBillDayCloseVoucherChange" FieldValue="@nameof(VoucherModel.Name)" AddNewRoute="@AccountsRouteNames.VoucherMaster" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomAutoComplete T="VoucherModel" Value="_selectedSaleDayCloseVoucher" DataSource="@_vouchers" Placeholder="Select sale day close voucher" Label="Sale Day Close Voucher" ValueChanged="OnSaleDayCloseVoucherChange" FieldValue="@nameof(VoucherModel.Name)" AddNewRoute="@AccountsRouteNames.VoucherMaster" Required="false" />
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- Ledger Linking -->
-			<div class="section-card">
-				<div class="section-header">
-					<h2 class="section-title">Ledger Linking</h2>
-				</div>
-				<div class="section-body">
-					<div class="form-grid">
-						<div class="form-field">
-							<CustomAutoComplete T="LedgerModel" Value="_selectedPurchaseLedger" DataSource="@_ledgers" Placeholder="Select purchase ledger" Label="Purchase Ledger" ValueChanged="OnPurchaseLedgerChange" FieldValue="@nameof(LedgerModel.Name)" AddNewRoute="@AccountsRouteNames.LedgerMaster" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomAutoComplete T="LedgerModel" Value="_selectedSaleLedger" DataSource="@_ledgers" Placeholder="Select sale ledger" Label="Sale Ledger" ValueChanged="OnSaleLedgerChange" FieldValue="@nameof(LedgerModel.Name)" AddNewRoute="@AccountsRouteNames.LedgerMaster" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomAutoComplete T="LedgerModel" Value="_selectedStockTransferLedger" DataSource="@_ledgers" Placeholder="Select stock transfer ledger" Label="Stock Transfer Ledger" ValueChanged="OnStockTransferLedgerChange" FieldValue="@nameof(LedgerModel.Name)" AddNewRoute="@AccountsRouteNames.LedgerMaster" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomAutoComplete T="LedgerModel" Value="_selectedBillLedger" DataSource="@_ledgers" Placeholder="Select bill ledger" Label="Bill Ledger" ValueChanged="OnBillLedgerChange" FieldValue="@nameof(LedgerModel.Name)" AddNewRoute="@AccountsRouteNames.LedgerMaster" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomAutoComplete T="LedgerModel" Value="_selectedCashLedger" DataSource="@_ledgers" Placeholder="Select cash ledger" Label="Cash Ledger" ValueChanged="OnCashLedgerChange" FieldValue="@nameof(LedgerModel.Name)" AddNewRoute="@AccountsRouteNames.LedgerMaster" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomAutoComplete T="LedgerModel" Value="_selectedCashSalesLedger" DataSource="@_ledgers" Placeholder="Select cash sales ledger" Label="Cash Sales Ledger" ValueChanged="OnCashSalesLedgerChange" FieldValue="@nameof(LedgerModel.Name)" AddNewRoute="@AccountsRouteNames.LedgerMaster" Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomAutoComplete T="LedgerModel" Value="_selectedGSTLedger" DataSource="@_ledgers" Placeholder="Select GST ledger" Label="GST Ledger" ValueChanged="OnGSTLedgerChange" FieldValue="@nameof(LedgerModel.Name)" AddNewRoute="@AccountsRouteNames.LedgerMaster" Required="false" />
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- Bank Reconciliation -->
-			<div class="section-card">
-				<div class="section-header">
-					<h2 class="section-title">Bank Reconciliation</h2>
-				</div>
-				<div class="section-body">
-					<div class="form-grid">
-						<div class="form-field">
-							<CustomAutoComplete T="AccountTypeModel" Value="_selectedBankAccountType" DataSource="@_accountTypes" Placeholder="Select bank account type" Label="Bank Account Type" ValueChanged="OnBankAccountTypeChange" FieldValue="@nameof(AccountTypeModel.Name)" AddNewRoute="@AccountsRouteNames.AccountTypeMaster" Required="false" />
-						</div>
-						<div class="form-field">
-							<div class="checkbox-wrapper">
-								<CustomCheckBox @bind-Value="_showBRSFields" Label="Show BRS Fields in Accounting Entry" />
+				<!-- 1. General -->
+				<MudBlazor.MudTabPanel Text="General">
+					<div class="settings-panel">
+						<div class="section-card">
+							<div class="section-header">
+								<h2 class="section-title">General</h2>
+							</div>
+							<div class="section-body">
+								<SettingRow Name="Primary Company" Description="@SettingDescription(SettingsKeys.PrimaryCompanyLinkingId)">
+									<CustomAutoComplete T="CompanyModel"
+														Value="_selectedCompany"
+														DataSource="@_companies"
+														Placeholder="Select primary company"
+														ValueChanged="OnCompanyChange"
+														FieldValue="@nameof(CompanyModel.Name)"
+														AddNewRoute="@AccountsRouteNames.CompanyMaster" />
+								</SettingRow>
+								<SettingRow Name="Maximum Login Time (Hours)" Description="@SettingDescription(SettingsKeys.MaxLoginTimeHours)">
+									<CustomNumericField T="int"
+														@bind-Value="_maxLoginTimeHours"
+														Placeholder="e.g., 12"
+														Format="N0"
+														Min="1"
+														Max="720"
+														Required="false" />
+								</SettingRow>
+								<SettingRow Name="Notification Email" Description="@SettingDescription(SettingsKeys.NotificationEmail)">
+									<CustomTextField @bind-Value="_notificationEmail" Placeholder="name@example.com" Required="false" />
+								</SettingRow>
 							</div>
 						</div>
 					</div>
-				</div>
-			</div>
+				</MudBlazor.MudTabPanel>
 
-			<!-- Default Values -->
-			<div class="section-card">
-				<div class="section-header">
-					<h2 class="section-title">Default Values</h2>
-				</div>
-				<div class="section-body">
-					<div class="form-grid">
-						<div class="form-field">
-							<CustomAutoComplete T="VoucherModel" Value="_selectedDefaultVoucher" DataSource="@_vouchers" Placeholder="Select default accounting voucher" Label="Default Voucher for Accounting Transactions" ValueChanged="OnDefaultVoucherChange" FieldValue="@nameof(VoucherModel.Name)" AddNewRoute="@AccountsRouteNames.VoucherMaster" Required="false" />
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- Kitchen Production -->
-			<div class="section-card">
-				<div class="section-header">
-					<h2 class="section-title">Kitchen Production</h2>
-				</div>
-				<div class="section-body">
-					<div class="form-grid">
-						<div class="form-field">
-							<CustomNumericField T="decimal"
-												@bind-Value="_kitchenProductionDiscountRate"
-												Label="Kitchen Production Discount Rate (%)"
-												Placeholder="e.g., 25"
-												Format="N2"
-												Min="0"
-												Max="100"
-												Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomNumericField T="decimal"
-												@bind-Value="_kitchenProductionReturnDiscountRate"
-												Label="Kitchen Production Return Discount Rate (%)"
-												Placeholder="e.g., 25"
-												Format="N2"
-												Min="0"
-												Max="100"
-												Required="false" />
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- Purchase Behavior -->
-			<div class="section-card">
-				<div class="section-header">
-					<h2 class="section-title">Purchase Behavior</h2>
-				</div>
-				<div class="section-body">
-					<div class="form-grid">
-						<div class="form-field">
-							<div class="checkbox-wrapper">
-								<CustomCheckBox @bind-Value="_updateItemMasterRateOnPurchase" Label="Update Raw Material Rate on Purchase" />
+				<!-- 2. Code Prefixes -->
+				<MudBlazor.MudTabPanel Text="Code Prefixes">
+					<div class="settings-panel">
+						<div class="section-card">
+							<div class="section-header">
+								<h2 class="section-title">Master Data Code Prefixes</h2>
+							</div>
+							<div class="section-body">
+								<SettingRow Name="Raw Material Code Prefix" Description="@SettingDescription(SettingsKeys.RawMaterialCodePrefix)">
+									<CustomTextField @bind-Value="_rawMaterialCodePrefix" Placeholder="e.g., RM" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Finished Product Code Prefix" Description="@SettingDescription(SettingsKeys.FinishedProductCodePrefix)">
+									<CustomTextField @bind-Value="_finishedProductCodePrefix" Placeholder="e.g., FP" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Ledger Code Prefix" Description="@SettingDescription(SettingsKeys.LedgerCodePrefix)">
+									<CustomTextField @bind-Value="_ledgerCodePrefix" Placeholder="e.g., LD" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Employee Code Prefix" Description="@SettingDescription(SettingsKeys.EmployeeCodePrefix)">
+									<CustomTextField @bind-Value="_employeeCodePrefix" Placeholder="e.g., EMP" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Department Code Prefix" Description="@SettingDescription(SettingsKeys.DepartmentCodePrefix)">
+									<CustomTextField @bind-Value="_departmentCodePrefix" Placeholder="e.g., DEPT" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Designation Code Prefix" Description="@SettingDescription(SettingsKeys.DesignationCodePrefix)">
+									<CustomTextField @bind-Value="_designationCodePrefix" Placeholder="e.g., DESG" Required="false" />
+								</SettingRow>
 							</div>
 						</div>
-						<div class="form-field">
-							<div class="checkbox-wrapper">
-								<CustomCheckBox @bind-Value="_updateItemMasterUOMOnPurchase" Label="Update Raw Material UOM on Purchase" />
+
+						<div class="section-card">
+							<div class="section-header">
+								<h2 class="section-title">Transaction Prefixes</h2>
+							</div>
+							<div class="section-body">
+								<SettingRow Name="Accounting Transaction Prefix" Description="@SettingDescription(SettingsKeys.AccountingTransactionPrefix)">
+									<CustomTextField @bind-Value="_accountingTransactionPrefix" Placeholder="e.g., ACCT" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Purchase Transaction Prefix" Description="@SettingDescription(SettingsKeys.PurchaseTransactionPrefix)">
+									<CustomTextField @bind-Value="_purchaseTransactionPrefix" Placeholder="e.g., PUR" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Purchase Return Transaction Prefix" Description="@SettingDescription(SettingsKeys.PurchaseReturnTransactionPrefix)">
+									<CustomTextField @bind-Value="_purchaseReturnTransactionPrefix" Placeholder="e.g., PURRET" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Purchase Order Transaction Prefix" Description="@SettingDescription(SettingsKeys.PurchaseOrderTransactionPrefix)">
+									<CustomTextField @bind-Value="_purchaseOrderTransactionPrefix" Placeholder="e.g., PURORD" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Kitchen Issue Transaction Prefix" Description="@SettingDescription(SettingsKeys.KitchenIssueTransactionPrefix)">
+									<CustomTextField @bind-Value="_kitchenIssueTransactionPrefix" Placeholder="e.g., KITIS" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Kitchen Issue Return Transaction Prefix" Description="@SettingDescription(SettingsKeys.KitchenIssueReturnTransactionPrefix)">
+									<CustomTextField @bind-Value="_kitchenIssueReturnTransactionPrefix" Placeholder="e.g., KITISRET" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Kitchen Production Transaction Prefix" Description="@SettingDescription(SettingsKeys.KitchenProductionTransactionPrefix)">
+									<CustomTextField @bind-Value="_kitchenProductionTransactionPrefix" Placeholder="e.g., KITPRD" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Kitchen Production Return Transaction Prefix" Description="@SettingDescription(SettingsKeys.KitchenProductionReturnTransactionPrefix)">
+									<CustomTextField @bind-Value="_kitchenProductionReturnTransactionPrefix" Placeholder="e.g., KITPRDRET" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Raw Material Stock Adjustment Prefix" Description="@SettingDescription(SettingsKeys.RawMaterialStockAdjustmentTransactionPrefix)">
+									<CustomTextField @bind-Value="_rawMaterialStockAdjustmentTransactionPrefix" Placeholder="e.g., RMADJ" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Product Stock Adjustment Prefix" Description="@SettingDescription(SettingsKeys.ProductStockAdjustmentTransactionPrefix)">
+									<CustomTextField @bind-Value="_productStockAdjustmentTransactionPrefix" Placeholder="e.g., PRDADJ" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Sale Transaction Prefix" Description="@SettingDescription(SettingsKeys.SaleTransactionPrefix)">
+									<CustomTextField @bind-Value="_saleTransactionPrefix" Placeholder="e.g., SAL" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Sale Return Transaction Prefix" Description="@SettingDescription(SettingsKeys.SaleReturnTransactionPrefix)">
+									<CustomTextField @bind-Value="_saleReturnTransactionPrefix" Placeholder="e.g., SALRET" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Stock Transfer Transaction Prefix" Description="@SettingDescription(SettingsKeys.StockTransferTransactionPrefix)">
+									<CustomTextField @bind-Value="_stockTransferTransactionPrefix" Placeholder="e.g., STTRF" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Order Transaction Prefix" Description="@SettingDescription(SettingsKeys.OrderTransactionPrefix)">
+									<CustomTextField @bind-Value="_orderTransactionPrefix" Placeholder="e.g., ORD" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Bill Transaction Prefix" Description="@SettingDescription(SettingsKeys.BillTransactionPrefix)">
+									<CustomTextField @bind-Value="_billTransactionPrefix" Placeholder="e.g., BL" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Payroll Transaction Prefix" Description="@SettingDescription(SettingsKeys.PayrollTransactionPrefix)">
+									<CustomTextField @bind-Value="_payrollTransactionPrefix" Placeholder="e.g., PAY" Required="false" />
+								</SettingRow>
 							</div>
 						</div>
 					</div>
-				</div>
-			</div>
+				</MudBlazor.MudTabPanel>
 
-			<!-- Dashboard Settings -->
-			<div class="section-card">
-				<div class="section-header">
-					<h2 class="section-title">Dashboard Settings</h2>
-				</div>
-				<div class="section-body">
-					<div class="form-grid">
-						<div class="form-field">
-							<div class="checkbox-wrapper">
-								<CustomCheckBox @bind-Value="_showPageRecommendations" Label="Show recommendations on dashboard" />
+				<!-- 3. Vouchers -->
+				<MudBlazor.MudTabPanel Text="Vouchers">
+					<div class="settings-panel">
+						<div class="section-card">
+							<div class="section-header">
+								<h2 class="section-title">Voucher Linking</h2>
+							</div>
+							<div class="section-body">
+								<SettingRow Name="Purchase Voucher" Description="@SettingDescription(SettingsKeys.PurchaseVoucherId)">
+									<CustomAutoComplete T="VoucherModel" Value="_selectedPurchaseVoucher" DataSource="@_vouchers" Placeholder="Select purchase voucher" ValueChanged="OnPurchaseVoucherChange" FieldValue="@nameof(VoucherModel.Name)" AddNewRoute="@AccountsRouteNames.VoucherMaster" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Purchase Return Voucher" Description="@SettingDescription(SettingsKeys.PurchaseReturnVoucherId)">
+									<CustomAutoComplete T="VoucherModel" Value="_selectedPurchaseReturnVoucher" DataSource="@_vouchers" Placeholder="Select purchase return voucher" ValueChanged="OnPurchaseReturnVoucherChange" FieldValue="@nameof(VoucherModel.Name)" AddNewRoute="@AccountsRouteNames.VoucherMaster" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Sale Voucher" Description="@SettingDescription(SettingsKeys.SaleVoucherId)">
+									<CustomAutoComplete T="VoucherModel" Value="_selectedSaleVoucher" DataSource="@_vouchers" Placeholder="Select sale voucher" ValueChanged="OnSaleVoucherChange" FieldValue="@nameof(VoucherModel.Name)" AddNewRoute="@AccountsRouteNames.VoucherMaster" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Sale Return Voucher" Description="@SettingDescription(SettingsKeys.SaleReturnVoucherId)">
+									<CustomAutoComplete T="VoucherModel" Value="_selectedSaleReturnVoucher" DataSource="@_vouchers" Placeholder="Select sale return voucher" ValueChanged="OnSaleReturnVoucherChange" FieldValue="@nameof(VoucherModel.Name)" AddNewRoute="@AccountsRouteNames.VoucherMaster" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Stock Transfer Voucher" Description="@SettingDescription(SettingsKeys.StockTransferVoucherId)">
+									<CustomAutoComplete T="VoucherModel" Value="_selectedStockTransferVoucher" DataSource="@_vouchers" Placeholder="Select stock transfer voucher" ValueChanged="OnStockTransferVoucherChange" FieldValue="@nameof(VoucherModel.Name)" AddNewRoute="@AccountsRouteNames.VoucherMaster" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Bill Voucher" Description="@SettingDescription(SettingsKeys.BillVoucherId)">
+									<CustomAutoComplete T="VoucherModel" Value="_selectedBillVoucher" DataSource="@_vouchers" Placeholder="Select bill voucher" ValueChanged="OnBillVoucherChange" FieldValue="@nameof(VoucherModel.Name)" AddNewRoute="@AccountsRouteNames.VoucherMaster" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Bill Day Close Voucher" Description="@SettingDescription(SettingsKeys.BillDayCloseVoucherId)">
+									<CustomAutoComplete T="VoucherModel" Value="_selectedBillDayCloseVoucher" DataSource="@_vouchers" Placeholder="Select bill day close voucher" ValueChanged="OnBillDayCloseVoucherChange" FieldValue="@nameof(VoucherModel.Name)" AddNewRoute="@AccountsRouteNames.VoucherMaster" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Sale Day Close Voucher" Description="@SettingDescription(SettingsKeys.SaleDayCloseVoucherId)">
+									<CustomAutoComplete T="VoucherModel" Value="_selectedSaleDayCloseVoucher" DataSource="@_vouchers" Placeholder="Select sale day close voucher" ValueChanged="OnSaleDayCloseVoucherChange" FieldValue="@nameof(VoucherModel.Name)" AddNewRoute="@AccountsRouteNames.VoucherMaster" Required="false" />
+								</SettingRow>
 							</div>
 						</div>
-						<div class="form-field">
-							<CustomNumericField T="int"
-												@bind-Value="_recommendationHistoryDays"
-												Label="Recommendation History (Days)"
-												Format="N0"
-												Min="1"
-												Max="90"
-												Required="false" />
-						</div>
-					</div>
-				</div>
-			</div>
 
-			<!-- Report Settings -->
-			<div class="section-card">
-				<div class="section-header">
-					<h2 class="section-title">Report Settings</h2>
-				</div>
-				<div class="section-body">
-					<div class="form-grid">
-						<div class="form-field">
-							<CustomNumericField T="int"
-												@bind-Value="_autoRefreshReportTimer"
-												Label="Auto Refresh Timer (Minutes)"
-												Placeholder="e.g., 30"
-												Format="N0"
-												Min="1"
-												Max="60"
-												Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomNumericField T="int"
-												@bind-Value="_reportWarningDays"
-												Label="Report Warning (Days)"
-												Placeholder="e.g., 30"
-												Format="N0"
-												Min="1"
-												Max="365"
-												Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomNumericField T="int"
-												@bind-Value="_heavyQuerySpanDays"
-												Label="Heavy Report Threshold (Days)"
-												Placeholder="e.g., 30"
-												Format="N0"
-												Min="1"
-												Max="3650"
-												Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomNumericField T="int"
-												@bind-Value="_heavyQueryMaxLoadPercent"
-												Label="Heavy Report Max Database Load (%)"
-												Placeholder="e.g., 50"
-												Format="N0"
-												Min="1"
-												Max="100"
-												Required="false" />
-						</div>
-						<div class="form-field">
-							<CustomNumericField T="int"
-												@bind-Value="_locationRadiusMeters"
-												Label="On Site Radius (Metres)"
-												Placeholder="e.g., 1000"
-												Format="N0"
-												Min="1"
-												Max="100000"
-												Required="false" />
+						<div class="section-card">
+							<div class="section-header">
+								<h2 class="section-title">Default Values</h2>
+							</div>
+							<div class="section-body">
+								<SettingRow Name="Default Voucher for Accounting Transactions" Description="@SettingDescription(SettingsKeys.DefaultSelectedVoucherId)">
+									<CustomAutoComplete T="VoucherModel" Value="_selectedDefaultVoucher" DataSource="@_vouchers" Placeholder="Select default accounting voucher" ValueChanged="OnDefaultVoucherChange" FieldValue="@nameof(VoucherModel.Name)" AddNewRoute="@AccountsRouteNames.VoucherMaster" Required="false" />
+								</SettingRow>
+							</div>
 						</div>
 					</div>
-				</div>
-			</div>
+				</MudBlazor.MudTabPanel>
 
-			<!-- Login Settings -->
-			<div class="section-card">
-				<div class="section-header">
-					<h2 class="section-title">Login Settings</h2>
-				</div>
-				<div class="section-body">
-					<div class="form-grid">
-						<div class="form-field">
-							<CustomNumericField T="int"
-												@bind-Value="_maxLoginTimeHours"
-												Label="Maximum Login Time (Hours)"
-												Placeholder="e.g., 12"
-												Format="N0"
-												Min="1"
-												Max="720"
-												Required="false" />
+				<!-- 4. Ledgers & Bank -->
+				<MudBlazor.MudTabPanel Text="Ledgers & Bank">
+					<div class="settings-panel">
+						<div class="section-card">
+							<div class="section-header">
+								<h2 class="section-title">Ledger Linking</h2>
+							</div>
+							<div class="section-body">
+								<SettingRow Name="Purchase Ledger" Description="@SettingDescription(SettingsKeys.PurchaseLedgerId)">
+									<CustomAutoComplete T="LedgerModel" Value="_selectedPurchaseLedger" DataSource="@_ledgers" Placeholder="Select purchase ledger" ValueChanged="OnPurchaseLedgerChange" FieldValue="@nameof(LedgerModel.Name)" AddNewRoute="@AccountsRouteNames.LedgerMaster" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Sale Ledger" Description="@SettingDescription(SettingsKeys.SaleLedgerId)">
+									<CustomAutoComplete T="LedgerModel" Value="_selectedSaleLedger" DataSource="@_ledgers" Placeholder="Select sale ledger" ValueChanged="OnSaleLedgerChange" FieldValue="@nameof(LedgerModel.Name)" AddNewRoute="@AccountsRouteNames.LedgerMaster" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Stock Transfer Ledger" Description="@SettingDescription(SettingsKeys.StockTransferLedgerId)">
+									<CustomAutoComplete T="LedgerModel" Value="_selectedStockTransferLedger" DataSource="@_ledgers" Placeholder="Select stock transfer ledger" ValueChanged="OnStockTransferLedgerChange" FieldValue="@nameof(LedgerModel.Name)" AddNewRoute="@AccountsRouteNames.LedgerMaster" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Bill Ledger" Description="@SettingDescription(SettingsKeys.BillLedgerId)">
+									<CustomAutoComplete T="LedgerModel" Value="_selectedBillLedger" DataSource="@_ledgers" Placeholder="Select bill ledger" ValueChanged="OnBillLedgerChange" FieldValue="@nameof(LedgerModel.Name)" AddNewRoute="@AccountsRouteNames.LedgerMaster" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Cash Ledger" Description="@SettingDescription(SettingsKeys.CashLedgerId)">
+									<CustomAutoComplete T="LedgerModel" Value="_selectedCashLedger" DataSource="@_ledgers" Placeholder="Select cash ledger" ValueChanged="OnCashLedgerChange" FieldValue="@nameof(LedgerModel.Name)" AddNewRoute="@AccountsRouteNames.LedgerMaster" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Cash Sales Ledger" Description="@SettingDescription(SettingsKeys.CashSalesLedgerId)">
+									<CustomAutoComplete T="LedgerModel" Value="_selectedCashSalesLedger" DataSource="@_ledgers" Placeholder="Select cash sales ledger" ValueChanged="OnCashSalesLedgerChange" FieldValue="@nameof(LedgerModel.Name)" AddNewRoute="@AccountsRouteNames.LedgerMaster" Required="false" />
+								</SettingRow>
+								<SettingRow Name="GST Ledger" Description="@SettingDescription(SettingsKeys.GSTLedgerId)">
+									<CustomAutoComplete T="LedgerModel" Value="_selectedGSTLedger" DataSource="@_ledgers" Placeholder="Select GST ledger" ValueChanged="OnGSTLedgerChange" FieldValue="@nameof(LedgerModel.Name)" AddNewRoute="@AccountsRouteNames.LedgerMaster" Required="false" />
+								</SettingRow>
+							</div>
 						</div>
-					</div>
-				</div>
-			</div>
 
-			<!-- Notification Settings -->
-			<div class="section-card">
-				<div class="section-header">
-					<h2 class="section-title">Notification Settings</h2>
-				</div>
-				<div class="section-body">
-					<div class="form-grid">
-						<div class="form-field">
-							<CustomTextField @bind-Value="_notificationEmail" Label="Notification Email" Placeholder="Leave blank to disable email notifications" Required="false" />
+						<div class="section-card">
+							<div class="section-header">
+								<h2 class="section-title">Bank Reconciliation</h2>
+							</div>
+							<div class="section-body">
+								<SettingRow Name="Bank Account Type" Description="@SettingDescription(SettingsKeys.BankAccountTypeId)">
+									<CustomAutoComplete T="AccountTypeModel" Value="_selectedBankAccountType" DataSource="@_accountTypes" Placeholder="Select bank account type" ValueChanged="OnBankAccountTypeChange" FieldValue="@nameof(AccountTypeModel.Name)" AddNewRoute="@AccountsRouteNames.AccountTypeMaster" Required="false" />
+								</SettingRow>
+								<SettingRow Name="Show BRS Fields" Description="@SettingDescription(SettingsKeys.ShowBRSFields)">
+									<div class="checkbox-wrapper">
+										<CustomCheckBox @bind-Value="_showBRSFields" Label="Enabled" />
+									</div>
+								</SettingRow>
+							</div>
 						</div>
 					</div>
-				</div>
-			</div>
+				</MudBlazor.MudTabPanel>
 
-			<!-- Cache Settings -->
-			<div class="section-card">
-				<div class="section-header">
-					<h2 class="section-title">Cache Settings</h2>
-				</div>
-				<div class="section-body">
-					<div class="form-grid">
-						<div class="form-field">
-							<CustomNumericField T="int"
-												@bind-Value="_cacheTimeoutMinutes"
-												Label="Cache Timeout (Minutes)"
-												Placeholder="e.g., 60"
-												Format="N0"
-												Min="1"
-												Max="1440"
-												Required="false" />
+				<!-- 5. Inventory -->
+				<MudBlazor.MudTabPanel Text="Inventory">
+					<div class="settings-panel">
+						<div class="section-card">
+							<div class="section-header">
+								<h2 class="section-title">Purchase Behavior</h2>
+							</div>
+							<div class="section-body">
+								<SettingRow Name="Update Raw Material Rate on Purchase" Description="@SettingDescription(SettingsKeys.UpdateItemMasterRateOnPurchase)">
+									<div class="checkbox-wrapper">
+										<CustomCheckBox @bind-Value="_updateItemMasterRateOnPurchase" Label="Enabled" />
+									</div>
+								</SettingRow>
+								<SettingRow Name="Update Raw Material UOM on Purchase" Description="@SettingDescription(SettingsKeys.UpdateItemMasterUOMOnPurchase)">
+									<div class="checkbox-wrapper">
+										<CustomCheckBox @bind-Value="_updateItemMasterUOMOnPurchase" Label="Enabled" />
+									</div>
+								</SettingRow>
+							</div>
 						</div>
-						<div class="form-field">
-							<MudBlazor.MudButton Variant="MudBlazor.Variant.Filled"
-												 Color="MudBlazor.Color.Warning"
-												 OnClick="ShowClearCacheConfirmation"
-												 Disabled="_isProcessing">
-								Clear API Cache
-							</MudBlazor.MudButton>
-						</div>
-					</div>
-				</div>
-			</div>
 
-			<!-- Database Maintenance -->
-			<div class="section-card">
-				<div class="section-header">
-					<h2 class="section-title">Database Maintenance</h2>
-				</div>
-				<div class="section-body">
-					<div class="form-grid">
-						<div class="form-field">
-							<CustomTextField Value="@DatabaseUsedSize" Label="Space Used" ReadOnly="true" Required="false" TabIndex="-1" />
-						</div>
-						<div class="form-field">
-							<CustomTextField Value="@DatabaseLoad" Label="Database Load" ReadOnly="true" Required="false" TabIndex="-1" />
-						</div>
-						<div class="form-field">
-							<MudBlazor.MudButton Variant="MudBlazor.Variant.Filled"
-												 Color="MudBlazor.Color.Warning"
-												 OnClick="ShowRebuildIndexesConfirmation"
-												 Disabled="_isProcessing">
-								Rebuild Database Indexes
-							</MudBlazor.MudButton>
-						</div>
-						<div class="form-field">
-							<MudBlazor.MudButton Variant="MudBlazor.Variant.Filled"
-												 Color="MudBlazor.Color.Warning"
-												 OnClick="ShowBackupConfirmation"
-												 Disabled="_isProcessing">
-								Backup Data To Server
-							</MudBlazor.MudButton>
+						<div class="section-card">
+							<div class="section-header">
+								<h2 class="section-title">Kitchen Production</h2>
+							</div>
+							<div class="section-body">
+								<SettingRow Name="Kitchen Production Discount Rate (%)" Description="@SettingDescription(SettingsKeys.KitchenProductionDiscountRate)">
+									<CustomNumericField T="decimal"
+														@bind-Value="_kitchenProductionDiscountRate"
+														Placeholder="e.g., 25"
+														Format="N2"
+														Min="0"
+														Max="100"
+														Required="false" />
+								</SettingRow>
+								<SettingRow Name="Kitchen Production Return Discount Rate (%)" Description="@SettingDescription(SettingsKeys.KitchenProductionReturnDiscountRate)">
+									<CustomNumericField T="decimal"
+														@bind-Value="_kitchenProductionReturnDiscountRate"
+														Placeholder="e.g., 25"
+														Format="N2"
+														Min="0"
+														Max="100"
+														Required="false" />
+								</SettingRow>
+							</div>
 						</div>
 					</div>
-				</div>
-			</div>
+				</MudBlazor.MudTabPanel>
+
+				<!-- 6. Reports & Dashboard -->
+				<MudBlazor.MudTabPanel Text="Reports & Dashboard">
+					<div class="settings-panel">
+						<div class="section-card">
+							<div class="section-header">
+								<h2 class="section-title">Report Settings</h2>
+							</div>
+							<div class="section-body">
+								<SettingRow Name="Auto Refresh Timer (Minutes)" Description="@SettingDescription(SettingsKeys.AutoRefreshReportTimer)">
+									<CustomNumericField T="int"
+														@bind-Value="_autoRefreshReportTimer"
+														Placeholder="e.g., 30"
+														Format="N0"
+														Min="1"
+														Max="60"
+														Required="false" />
+								</SettingRow>
+								<SettingRow Name="Report Warning (Days)" Description="@SettingDescription(SettingsKeys.ReportWarningDays)">
+									<CustomNumericField T="int"
+														@bind-Value="_reportWarningDays"
+														Placeholder="e.g., 30"
+														Format="N0"
+														Min="1"
+														Max="365"
+														Required="false" />
+								</SettingRow>
+								<SettingRow Name="Heavy Report Threshold (Days)" Description="@SettingDescription(SettingsKeys.HeavyQuerySpanDays)">
+									<CustomNumericField T="int"
+														@bind-Value="_heavyQuerySpanDays"
+														Placeholder="e.g., 30"
+														Format="N0"
+														Min="1"
+														Max="3650"
+														Required="false" />
+								</SettingRow>
+								<SettingRow Name="Heavy Report Max Database Load (%)" Description="@SettingDescription(SettingsKeys.HeavyQueryMaxLoadPercent)">
+									<CustomNumericField T="int"
+														@bind-Value="_heavyQueryMaxLoadPercent"
+														Placeholder="e.g., 50"
+														Format="N0"
+														Min="1"
+														Max="100"
+														Required="false" />
+								</SettingRow>
+								<SettingRow Name="On Site Radius (Metres)" Description="@SettingDescription(SettingsKeys.LocationRadiusMeters)">
+									<CustomNumericField T="int"
+														@bind-Value="_locationRadiusMeters"
+														Placeholder="e.g., 1000"
+														Format="N0"
+														Min="1"
+														Max="100000"
+														Required="false" />
+								</SettingRow>
+							</div>
+						</div>
+
+						<div class="section-card">
+							<div class="section-header">
+								<h2 class="section-title">Dashboard Settings</h2>
+							</div>
+							<div class="section-body">
+								<SettingRow Name="Show Recommendations" Description="@SettingDescription(SettingsKeys.ShowPageRecommendations)">
+									<div class="checkbox-wrapper">
+										<CustomCheckBox @bind-Value="_showPageRecommendations" Label="Enabled" />
+									</div>
+								</SettingRow>
+								<SettingRow Name="Recommendation History (Days)" Description="@SettingDescription(SettingsKeys.RecommendationHistoryDays)">
+									<CustomNumericField T="int"
+														@bind-Value="_recommendationHistoryDays"
+														Format="N0"
+														Min="1"
+														Max="90"
+														Required="false" />
+								</SettingRow>
+							</div>
+						</div>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<!-- 7. System -->
+				<MudBlazor.MudTabPanel Text="System">
+					<div class="settings-panel">
+						<div class="section-card">
+							<div class="section-header">
+								<h2 class="section-title">Cache Settings</h2>
+							</div>
+							<div class="section-body">
+								<SettingRow Name="Cache Timeout (Minutes)" Description="@SettingDescription(SettingsKeys.CacheTimeoutMinutes)">
+									<CustomNumericField T="int"
+														@bind-Value="_cacheTimeoutMinutes"
+														Placeholder="e.g., 60"
+														Format="N0"
+														Min="1"
+														Max="1440"
+														Required="false" />
+								</SettingRow>
+								<SettingRow Name="Clear API Cache" Description="Clears the cached master data on the server so the next request loads fresh data.">
+									<MudBlazor.MudButton Variant="MudBlazor.Variant.Filled"
+														 Color="MudBlazor.Color.Warning"
+														 OnClick="ShowClearCacheConfirmation"
+														 Disabled="_isProcessing">
+										Clear API Cache
+									</MudBlazor.MudButton>
+								</SettingRow>
+							</div>
+						</div>
+
+						<div class="section-card">
+							<div class="section-header">
+								<h2 class="section-title">Database Maintenance</h2>
+							</div>
+							<div class="section-body">
+								<SettingRow Name="Space Used" Description="Current size of the database.">
+									<CustomTextField Value="@DatabaseUsedSize" ReadOnly="true" Required="false" TabIndex="-1" />
+								</SettingRow>
+								<SettingRow Name="Database Load" Description="Current load on the database.">
+									<CustomTextField Value="@DatabaseLoad" ReadOnly="true" Required="false" TabIndex="-1" />
+								</SettingRow>
+								<SettingRow Name="Rebuild Database Indexes" Description="Rebuilds the database indexes to keep queries fast. The app may be slower while this runs.">
+									<MudBlazor.MudButton Variant="MudBlazor.Variant.Filled"
+														 Color="MudBlazor.Color.Warning"
+														 OnClick="ShowRebuildIndexesConfirmation"
+														 Disabled="_isProcessing">
+										Rebuild Database Indexes
+									</MudBlazor.MudButton>
+								</SettingRow>
+								<SettingRow Name="Backup Data To Server" Description="Copies the changes since the last backup to the backup server. Tables never backed up are copied in full.">
+									<MudBlazor.MudButton Variant="MudBlazor.Variant.Filled"
+														 Color="MudBlazor.Color.Warning"
+														 OnClick="ShowBackupConfirmation"
+														 Disabled="_isProcessing">
+										Backup Data To Server
+									</MudBlazor.MudButton>
+								</SettingRow>
+							</div>
+						</div>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+			</MudBlazor.MudTabs>
 
 		</div>
 
@@ -481,3 +454,97 @@ else
 <ToastNotification @ref="_toastNotification" />
 
 <CloseGuard Block="_isProcessing" />
+
+<style>
+	.settings-tabs {
+		background: transparent;
+		align-items: flex-start;
+	}
+
+		/* Left navigation column */
+		.settings-tabs .mud-tabs-tabbar {
+			flex: 0 0 240px;
+			min-width: 240px;
+			max-width: 240px;
+			background: transparent;
+			border-right: 1px solid var(--mud-palette-lines-default);
+		}
+
+		.settings-tabs .mud-tab {
+			justify-content: flex-start;
+			text-align: left;
+			text-transform: none;
+			font-size: 0.9rem;
+			font-weight: 500;
+			min-width: 0;
+			max-width: none;
+			min-height: 44px;
+			padding: 0 20px;
+			opacity: 1;
+			color: var(--mud-palette-text-secondary);
+		}
+
+			.settings-tabs .mud-tab:hover {
+				background: var(--mud-palette-action-default-hover);
+				color: var(--mud-palette-text-primary);
+			}
+
+			.settings-tabs .mud-tab.mud-tab-active {
+				background: var(--mud-palette-action-default-hover);
+				color: var(--mud-palette-primary);
+				font-weight: 600;
+			}
+
+		.settings-tabs .mud-tab-slider {
+			width: 3px;
+		}
+
+		/* Content area */
+		.settings-tabs .mud-tabs-panels {
+			flex: 1 1 auto;
+			min-width: 0;
+			padding-left: 32px;
+		}
+
+	.settings-panel {
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+	}
+
+	/* Setting rows: name + description on the left, input on the right */
+	.setting-row {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(260px, 380px);
+		gap: 32px;
+		align-items: center;
+		padding: 18px 0;
+		border-bottom: 1px solid var(--mud-palette-lines-default);
+	}
+
+		.setting-row:first-child {
+			padding-top: 4px;
+		}
+
+		.setting-row:last-child {
+			padding-bottom: 4px;
+			border-bottom: none;
+		}
+
+	.setting-name {
+		font-size: 0.95rem;
+		font-weight: 600;
+		color: var(--mud-palette-text-primary);
+	}
+
+	.setting-desc {
+		margin-top: 2px;
+		font-size: 0.85rem;
+		line-height: 1.4;
+		color: var(--mud-palette-text-secondary);
+	}
+
+	.setting-control {
+		min-width: 0;
+	}
+</style>

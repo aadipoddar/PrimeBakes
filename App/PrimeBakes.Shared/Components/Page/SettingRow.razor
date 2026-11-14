@@ -1,0 +1,18 @@
+<div class="setting-row">
+	<div class="setting-info">
+		<div class="setting-name">@Name</div>
+		@if (!string.IsNullOrWhiteSpace(Description))
+		{
+			<div class="setting-desc">@Description</div>
+		}
+	</div>
+	<div class="setting-control form-field">
+		@ChildContent
+	</div>
+</div>
+
+@code {
+	[Parameter] public string Name { get; set; } = string.Empty;
+	[Parameter] public string Description { get; set; } = string.Empty;
+	[Parameter] public RenderFragment ChildContent { get; set; }
+}

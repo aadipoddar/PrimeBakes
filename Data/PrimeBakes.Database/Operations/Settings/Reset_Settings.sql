@@ -6,34 +6,34 @@ BEGIN
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'PrimaryCompanyLinkingId'			, N'1'		, N'Company Id for the Primary Company Account')
 
 	-- Code Prefixes
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'RawMaterialCodePrefix'			, N'RM'		, N'Prefix for Raw Material Codes')
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'FinishedProductCodePrefix'		, N'FP'		, N'Prefix for Finished Product Codes')
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'LedgerCodePrefix'				, N'LD'		, N'Prefix for Ledger Codes')
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'EmployeeCodePrefix'			, N'EMP'	, N'Prefix for Employee Codes')
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'DepartmentCodePrefix'			, N'DEPT'	, N'Prefix for Department Codes')
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'DesignationCodePrefix'		, N'DESG'	, N'Prefix for Designation Codes')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'RawMaterialCodePrefix'			, N'RM'		, N'Added to the start of every new raw material code')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'FinishedProductCodePrefix'		, N'FP'		, N'Added to the start of every new finished product code')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'LedgerCodePrefix'				, N'LD'		, N'Added to the start of every new ledger code')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'EmployeeCodePrefix'			, N'EMP'	, N'Added to the start of every new employee code')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'DepartmentCodePrefix'			, N'DEPT'	, N'Added to the start of every new department code')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'DesignationCodePrefix'		, N'DESG'	, N'Added to the start of every new designation code')
 	
 	-- Transaction Prefixes
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'AccountingTransactionPrefix'	, N'ACCT'	, N'Prefix for Accounting Transaction Numbers')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'AccountingTransactionPrefix'	, N'ACCT'	, N'Added to the start of every new accounting transaction number')
 
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'PurchaseTransactionPrefix'		, N'PUR'	, N'Prefix for Purchase Transaction Numbers')
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'PurchaseReturnTransactionPrefix'	, N'PURRET'	, N'Prefix for Purchase Return Transaction Numbers')
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'PurchaseOrderTransactionPrefix'	, N'PURORD'	, N'Prefix for Purchase Order Transaction Numbers')
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'KitchenIssueTransactionPrefix'		, N'KITIS'	, N'Prefix for Kitchen Issue Transaction Numbers')
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'KitchenIssueReturnTransactionPrefix'	, N'KITISRET'	, N'Prefix for Kitchen Issue Return Transaction Numbers')
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'KitchenProductionTransactionPrefix'		, N'KITPRD'	, N'Prefix for Kitchen Production Transaction Numbers')
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'KitchenProductionReturnTransactionPrefix'	, N'KITPRDRET'	, N'Prefix for Kitchen Production Return Transaction Numbers')
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'RawMaterialStockAdjustmentTransactionPrefix'	, N'RMADJ'	, N'Prefix for Raw Material Stock Adjustment Transaction Numbers')
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'ProductStockAdjustmentTransactionPrefix' 	, N'PRDADJ'	, N'Prefix for Product Stock Adjustment Transaction Numbers')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'PurchaseTransactionPrefix'		, N'PUR'	, N'Added to the start of every new purchase transaction number')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'PurchaseReturnTransactionPrefix'	, N'PURRET'	, N'Added to the start of every new purchase return transaction number')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'PurchaseOrderTransactionPrefix'	, N'PURORD'	, N'Added to the start of every new purchase order transaction number')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'KitchenIssueTransactionPrefix'		, N'KITIS'	, N'Added to the start of every new kitchen issue transaction number')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'KitchenIssueReturnTransactionPrefix'	, N'KITISRET'	, N'Added to the start of every new kitchen issue return transaction number')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'KitchenProductionTransactionPrefix'		, N'KITPRD'	, N'Added to the start of every new kitchen production transaction number')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'KitchenProductionReturnTransactionPrefix'	, N'KITPRDRET'	, N'Added to the start of every new kitchen production return transaction number')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'RawMaterialStockAdjustmentTransactionPrefix'	, N'RMADJ'	, N'Added to the start of every new raw material stock adjustment transaction number')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'ProductStockAdjustmentTransactionPrefix' 	, N'PRDADJ'	, N'Added to the start of every new product stock adjustment transaction number')
 	
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'SaleTransactionPrefix' 		, N'SAL'	, N'Prefix for Sale Transaction Numbers')
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'SaleReturnTransactionPrefix'		, N'SALRET'	, N'Prefix for Sale Return Transaction Numbers')
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'StockTransferTransactionPrefix'	, N'STTRF'	, N'Prefix for Stock Transfer Transaction Numbers')
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'OrderTransactionPrefix'		, N'ORD'	, N'Prefix for Order Transaction Numbers')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'SaleTransactionPrefix' 		, N'SAL'	, N'Added to the start of every new sale transaction number')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'SaleReturnTransactionPrefix'		, N'SALRET'	, N'Added to the start of every new sale return transaction number')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'StockTransferTransactionPrefix'	, N'STTRF'	, N'Added to the start of every new stock transfer transaction number')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'OrderTransactionPrefix'		, N'ORD'	, N'Added to the start of every new order transaction number')
 
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'BillTransactionPrefix' 		, N'BL'	, N'Prefix for Bill Transaction Numbers')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'BillTransactionPrefix' 		, N'BL'	, N'Added to the start of every new bill transaction number')
 
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'PayrollTransactionPrefix' 		, N'PAY'	, N'Prefix for Payroll Transaction Numbers')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'PayrollTransactionPrefix' 		, N'PAY'	, N'Added to the start of every new payroll transaction number')
 
 	-- Vouchers
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'PurchaseVoucherId', N'4', N'Voucher type for Purchase transactions')
@@ -58,11 +58,11 @@ BEGIN
 
 	-- Bank Reconciliation
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'BankAccountTypeId', N'2', N'Account Type that identifies Bank ledgers for reconciliation')
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'ShowBRSFields', N'false', N'Show reference and instrument fields on the Accounting Entry page for bank reconciliation')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'ShowBRSFields', N'false', N'When on, the Accounting Entry page shows reference and instrument fields for bank reconciliation')
 
 	-- Purchase Behavior
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'UpdateRawMaterialMasterRateOnPurchase'	, N'true'	, N'Update Raw Material Master Rate on Purchase Transactions')
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'UpdateRawMaterialMasterUOMOnPurchase'	, N'true'	, N'Update Raw Material Master Unit of Measurement on Purchase Transactions')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'UpdateRawMaterialMasterRateOnPurchase'	, N'true'	, N'When on, saving a purchase updates the raw material master rate')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'UpdateRawMaterialMasterUOMOnPurchase'	, N'true'	, N'When on, saving a purchase updates the raw material master unit of measurement')
 
 	-- Kitchen Production
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'KitchenProductionDiscountRate', N'25', N'Discount rate for kitchen production')
@@ -71,8 +71,8 @@ BEGIN
 	-- Report Settings
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'AutoRefreshReportTimer', N'30', N'Auto refresh interval for reports in minutes')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'ReportWarningDays', N'30', N'Days threshold used to highlight due items in reports')
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'HeavyQuerySpanDays', N'30', N'Date range in days beyond which a report counts as a heavy query')
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'HeavyQueryMaxLoadPercent', N'50', N'Database load percentage above which heavy reports are refused')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'HeavyQuerySpanDays', N'30', N'Reports covering more than this many days are treated as heavy reports')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'HeavyQueryMaxLoadPercent', N'50', N'Heavy reports are blocked while database load is above this percentage')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'LocationRadiusMeters', N'1000', N'Distance in metres within which a transaction counts as done on site')
 
 	-- Login Settings
@@ -88,7 +88,7 @@ BEGIN
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'BackupReminderDays', N'7', N'Days after the last backup before the dashboard reminds an admin to run one')
 
 	-- Dashboard Settings
-	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'ShowPageRecommendations', N'true', N'Show page visit recommendations on the dashboard')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'ShowPageRecommendations', N'true', N'Show suggested pages on the dashboard, based on recent visits')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'RecommendationHistoryDays', N'5', N'Number of days of page visits used for dashboard recommendations')
 
 	SELECT 1 AS Success;

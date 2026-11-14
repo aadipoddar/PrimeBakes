@@ -22,6 +22,9 @@ public partial class SettingsPage
 	private DatabaseSizeModel _databaseSize;
 	private decimal _databaseLoad;
 
+	// Setting descriptions, read from the Settings table
+	private Dictionary<string, string> _descriptions = [];
+
 	private string _confirmTitle = string.Empty;
 	private string _confirmMessage = string.Empty;
 	private Func<Task> _confirmAction;
@@ -168,8 +171,9 @@ public partial class SettingsPage
 
 	private async Task LoadAllSettings()
 	{
-		var map = (await CommonData.LoadTableData<SettingsModel>(OperationNames.Settings) ?? [])
-			.ToDictionary(s => s.Key, s => s.Value);
+		var settings = await CommonData.LoadTableData<SettingsModel>(OperationNames.Settings) ?? [];
+		var map = settings.ToDictionary(s => s.Key, s => s.Value);
+		_descriptions = settings.ToDictionary(s => s.Key, s => s.Description ?? string.Empty);
 
 		string Str(string key) => map.TryGetValue(key, out var v) ? v : null;
 		int Int(string key, int fallback) => int.TryParse(Str(key), out var v) ? v : fallback;
@@ -258,6 +262,9 @@ public partial class SettingsPage
 		_cacheTimeoutMinutes = Int(SettingsKeys.CacheTimeoutMinutes, 60);
 
 	}
+
+	private string SettingDescription(string key) =>
+		_descriptions.TryGetValue(key, out var description) ? description : string.Empty;
 
 	private async Task LoadCompanies()
 	{
