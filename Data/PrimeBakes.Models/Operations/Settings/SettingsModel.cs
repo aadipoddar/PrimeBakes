@@ -94,6 +94,9 @@ public static class SettingsKeys
 	// Backup Settings
 	public static string BackupReminderDays => "BackupReminderDays";
 
+	// Audit Trail Settings
+	public static string RoutineAuditTrailRetentionDays => "RoutineAuditTrailRetentionDays";
+
 	// Dashboard Settings
 	public static string ShowPageRecommendations => "ShowPageRecommendations";
 	public static string RecommendationHistoryDays => "RecommendationHistoryDays";

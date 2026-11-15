@@ -134,6 +134,9 @@ public partial class Dashboard
 		await LoadOfflineQueueReminder();
 		_ = LoadBackupReminder();
 		_ = LoadPageRecommendations();
+
+		if (_user.Admin && _user.LocationId == 1)
+			_ = MaintenanceData.DeleteExpiredRoutineAuditTrailRecords();
 	}
 
 	private async Task LoadBackupReminder()

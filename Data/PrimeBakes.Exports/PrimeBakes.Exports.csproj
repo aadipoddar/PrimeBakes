@@ -16,8 +16,8 @@
   <ItemGroup>
     <PackageReference Include="NumericWordsConversion" Version="2.1.1" />
     <PackageReference Include="QRCoder" Version="1.8.1" />
-    <PackageReference Include="SkiaSharp" Version="4.156.0" />
-    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="4.156.0" />
+    <PackageReference Include="SkiaSharp" Version="4.156.1" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="4.156.1" />
     <PackageReference Include="Syncfusion.Pdf.Net.Core" Version="35.1.46" />
     <PackageReference Include="Syncfusion.XlsIO.Net.Core" Version="35.1.46" />
   </ItemGroup>

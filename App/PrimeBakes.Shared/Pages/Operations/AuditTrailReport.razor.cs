@@ -32,12 +32,16 @@ public partial class AuditTrailReport : IAsyncDisposable
 	private DateTime _fromDate = DateTime.Now.Date;
 	private DateTime _toDate = DateTime.Now.Date;
 
+	private string _selectedAction;
+	private readonly List<string> _actionFilters = [.. Enum.GetNames<AuditTrailActionTypes>()];
+
 	private readonly List<ContextMenuItemModel> _gridContextMenuItems =
 	[
 		new() { Text = "Open Changes (Alt + O)", Id = "OpenChanges", IconCss = "e-icons e-eye", Target = ".e-content" },
 		new() { Text = "Open Location", Id = "OpenLocation", IconCss = "e-icons e-location", Target = ".e-content" }
 	];
 
+	private List<AuditTrailOverviewModel> _allAuditTrails = [];
 	private List<AuditTrailOverviewModel> _auditTrails = [];
 
 	private SfGrid<AuditTrailOverviewModel> _sfGrid;
@@ -88,7 +92,7 @@ public partial class AuditTrailReport : IAsyncDisposable
 
 			await _toastNotification.ShowAsync("Loading", "Fetching audit trail records...", ToastType.Info);
 
-			_auditTrails = await CommonData.LoadTableDataByDate<AuditTrailOverviewModel>(
+			_allAuditTrails = await CommonData.LoadTableDataByDate<AuditTrailOverviewModel>(
 				OperationNames.AuditTrailOverview,
 				DateOnly.FromDateTime(_fromDate).ToDateTime(TimeOnly.MinValue),
 				DateOnly.FromDateTime(_toDate).ToDateTime(TimeOnly.MinValue), useLocalDB: true);
@@ -106,7 +110,7 @@ public partial class AuditTrailReport : IAsyncDisposable
 				CreatedLongitude = platform.Longitude
 			});
 
-			_auditTrails = [.. _auditTrails.OrderByDescending(_ => _.TransactionDateTime)];
+			await ApplyFilters();
 		}
 		catch (Exception ex)
 		{
@@ -114,13 +118,21 @@ public partial class AuditTrailReport : IAsyncDisposable
 		}
 		finally
 		{
-			if (_sfGrid is not null)
-				await _sfGrid.Refresh();
 			_isProcessing = false;
 			StateHasChanged();
 			await _toastNotification.HideAllInfoAsync();
 			_ = LocalDbService.SyncDataBackground();
 		}
+	}
+
+	private async Task ApplyFilters()
+	{
+		_auditTrails = [.. _allAuditTrails
+			.Where(a => string.IsNullOrWhiteSpace(_selectedAction) || a.Action == _selectedAction)
+			.OrderByDescending(a => a.TransactionDateTime)];
+
+		if (_sfGrid is not null) await _sfGrid.Refresh();
+		StateHasChanged();
 	}
 	#endregion
 
@@ -136,6 +148,12 @@ public partial class AuditTrailReport : IAsyncDisposable
 	{
 		(_fromDate, _toDate) = await FinancialYearData.GetDateRange(dateRangeType, _fromDate, _toDate);
 		await LoadAuditTrails();
+	}
+
+	private async Task OnActionChanged(string value)
+	{
+		_selectedAction = value;
+		await ApplyFilters();
 	}
 	#endregion
 
@@ -193,7 +211,8 @@ public partial class AuditTrailReport : IAsyncDisposable
 			await _toastNotification.ShowAsync("Processing", "Deleting audit trail records...", ToastType.Info);
 
 			var platform = await PlatformInfo.GetPlatformInfo();
-			var deleted = await AuditTrailData.DeleteAuditTrailByDate(_fromDate, _toDate, _user.Id,
+			var action = string.IsNullOrWhiteSpace(_selectedAction) ? null : _selectedAction;
+			var deleted = await AuditTrailData.DeleteAuditTrailByActionDate(action, _fromDate, _toDate, true, _user.Id,
 				platform.FormFactor, platform.Platform, platform.Latitude, platform.Longitude);
 
 			await _toastNotification.ShowAsync("Deleted", $"{deleted} audit trail records have been deleted successfully.", ToastType.Success);
@@ -205,16 +224,23 @@ public partial class AuditTrailReport : IAsyncDisposable
 		}
 		finally
 		{
+			if (_sfGrid is not null) await _sfGrid.Refresh();
 			_isProcessing = false;
 			StateHasChanged();
 			await _toastNotification.HideAllInfoAsync();
 		}
 	}
 
-	private async Task DeleteRecordsSelectedRange() =>
+	private async Task DeleteRecordsSelectedRange()
+	{
+		var action = string.IsNullOrWhiteSpace(_selectedAction)
+			? "all actions"
+			: $"the '{_selectedAction}' action";
+
 		await ShowConfirmation("Delete Records",
-			$"Are you sure you want to permanently delete every audit trail record from {_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}",
+			$"Are you sure you want to permanently delete audit trail records for {action} from {_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}?",
 			DeleteRecords);
+	}
 
 	private async Task OpenSelectedRecordLocation()
 	{
@@ -264,7 +290,8 @@ public partial class AuditTrailReport : IAsyncDisposable
 				isExcel ? ReportExportType.Excel : ReportExportType.PDF,
 				DateOnly.FromDateTime(_fromDate),
 				DateOnly.FromDateTime(_toDate),
-				_showAllColumns
+				_showAllColumns,
+				string.IsNullOrWhiteSpace(_selectedAction) ? null : _selectedAction
 			);
 			await SaveAndViewService.SaveAndView(fileName, stream);
 

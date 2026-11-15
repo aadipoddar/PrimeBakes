@@ -7,12 +7,15 @@ public static class MaintenanceData
 {
 	private static readonly string _endpoint = Helper.SanitizeClassName(nameof(MaintenanceData));
 
+	public static async Task<DatabaseSizeModel> LoadDatabaseSize() =>
+		await ApiClient.Get<DatabaseSizeModel>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadDatabaseSize)));
+
 	public static async Task<int?> CheckBackupPending() =>
 		await ApiClient.Post<int?>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(CheckBackupPending)), null);
 
 	public static async Task RebuildIndexes() =>
 		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(RebuildIndexes)), null);
 
-	public static async Task<DatabaseSizeModel> LoadDatabaseSize() =>
-		await ApiClient.Get<DatabaseSizeModel>(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(LoadDatabaseSize)));
+	public static async Task DeleteExpiredRoutineAuditTrailRecords() =>
+		await ApiClient.Post(Helper.MakeRouteFromEndpointFunction(_endpoint, nameof(DeleteExpiredRoutineAuditTrailRecords)), null);
 }

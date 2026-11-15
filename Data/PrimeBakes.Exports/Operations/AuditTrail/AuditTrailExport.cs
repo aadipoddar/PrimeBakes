@@ -12,7 +12,8 @@ public static class AuditTrailExport
 		ReportExportType exportType,
 		DateOnly? dateRangeStart = null,
 		DateOnly? dateRangeEnd = null,
-		bool showAllColumns = false)
+		bool showAllColumns = false,
+		string? actionFilter = null)
 	{
 		var columnSettings = new Dictionary<string, ReportColumnSetting>
 		{
@@ -63,6 +64,9 @@ public static class AuditTrailExport
 				nameof(AuditTrailModel.CreatedLongitude),
 				nameof(AuditTrailOverviewModel.CreatedUserOffset),
 			];
+
+			if (!string.IsNullOrWhiteSpace(actionFilter))
+				columnOrder.Remove(nameof(AuditTrailModel.Action));
 		}
 
 		string fileName = "AUDIT_TRAIL";
@@ -80,8 +84,13 @@ public static class AuditTrailExport
 				columnSettings,
 				columnOrder,
 				useBuiltInStyle: false,
-				useLandscape: showAllColumns
+				useLandscape: showAllColumns,
+				new()
+				{
+					["Action"] = actionFilter
+				}
 			);
+
 			fileName += ".pdf";
 			return (stream, fileName);
 		}
@@ -89,14 +98,19 @@ public static class AuditTrailExport
 		{
 			var stream = ExcelReportExportUtil.ExportToExcel(
 				data,
-				"AUDIT TRAIL",
+				"Audit Trail",
 				"Audit Trail",
 				currentDateTime,
 				dateRangeStart,
 				dateRangeEnd,
 				columnSettings,
-				columnOrder
+				columnOrder,
+				new()
+				{
+					["Action"] = actionFilter
+				}
 			);
+
 			fileName += ".xlsx";
 			return (stream, fileName);
 		}

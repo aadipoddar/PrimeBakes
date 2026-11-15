@@ -67,6 +67,14 @@ else
 												   Label="Date Range (Ctrl + F)"
 												   Required="false" />
 						</div>
+						<div class="form-field">
+							<CustomAutoComplete T="string"
+												Value="_selectedAction"
+												DataSource="@_actionFilters"
+												Placeholder="All Actions"
+												Label="Action" Required="false"
+												ValueChanged="OnActionChanged" />
+						</div>
 					</div>
 				</div>
 			</div>

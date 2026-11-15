@@ -86,6 +86,7 @@ BEGIN
 
 	-- Backup Settings
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'BackupReminderDays', N'7', N'Days after the last backup before the dashboard reminds an admin to run one')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'RoutineAuditTrailRetentionDays', N'30', N'Number of days to keep routine audit entries, such as page visits, inserts, and report views, before cleanup')
 
 	-- Dashboard Settings
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'ShowPageRecommendations', N'true', N'Show suggested pages on the dashboard, based on recent visits')

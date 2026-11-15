@@ -132,6 +132,9 @@ public partial class SettingsPage
 	// Cache Settings
 	private int _cacheTimeoutMinutes = 60;
 
+	// Audit Trail Settings
+	private int _routineAuditTrailRetentionDays = 30;
+
 	#endregion
 
 	#region Load Data
@@ -260,6 +263,9 @@ public partial class SettingsPage
 
 		// Cache Settings
 		_cacheTimeoutMinutes = Int(SettingsKeys.CacheTimeoutMinutes, 60);
+
+		// Audit Trail Settings
+		_routineAuditTrailRetentionDays = Int(SettingsKeys.RoutineAuditTrailRetentionDays, 30);
 
 	}
 
@@ -567,6 +573,9 @@ public partial class SettingsPage
 			// Cache Settings
 			await UpdateSetting(SettingsKeys.CacheTimeoutMinutes, _cacheTimeoutMinutes.ToString(), Desc(SettingsKeys.CacheTimeoutMinutes));
 
+			// Audit Trail Settings
+			await UpdateSetting(SettingsKeys.RoutineAuditTrailRetentionDays, _routineAuditTrailRetentionDays.ToString(), Desc(SettingsKeys.RoutineAuditTrailRetentionDays));
+
 			await _toastNotification.ShowAsync("Saved", "Settings saved successfully.", ToastType.Success);
 		}
 		catch (Exception ex)
@@ -606,6 +615,38 @@ public partial class SettingsPage
 		catch (Exception ex)
 		{
 			await _toastNotification.ShowAsync("Error", $"Failed to clear cache: {ex.Message}", ToastType.Error);
+		}
+		finally
+		{
+			_isProcessing = false;
+			StateHasChanged();
+		}
+	}
+
+	#endregion
+
+	#region Routine Audit Trail Cleanup
+
+	private async Task ShowRoutineAuditTrailCleanupConfirmation() =>
+		await ShowConfirmation(
+			"Clean Up Routine Audit Trail",
+			"Are you sure you want to delete routine audit entries older than the saved retention period? This cannot be undone.",
+			RunRoutineAuditTrailCleanup);
+
+	private async Task RunRoutineAuditTrailCleanup()
+	{
+		try
+		{
+			_isProcessing = true;
+			StateHasChanged();
+
+			await _toastNotification.ShowAsync("Cleaning", "Deleting expired routine audit entries...", ToastType.Info);
+			await MaintenanceData.DeleteExpiredRoutineAuditTrailRecords();
+			await _toastNotification.ShowAsync("Cleaned", "Expired routine audit entries deleted successfully.", ToastType.Success);
+		}
+		catch (Exception ex)
+		{
+			await _toastNotification.ShowAsync("Error", $"Failed to clean up routine audit trail: {ex.Message}", ToastType.Error);
 		}
 		finally
 		{

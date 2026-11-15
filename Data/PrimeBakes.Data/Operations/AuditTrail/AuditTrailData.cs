@@ -28,24 +28,28 @@ public static class AuditTrailData
 		await InsertAuditTrail(auditTrail, sqlDataAccessTransaction);
 	}
 
-	public static async Task<int> DeleteAuditTrailByDate(DateTime StartDate, DateTime EndDate, int userId, string formFactor, string platform, decimal? latitude, decimal? longitude)
+	public static async Task<int> DeleteAuditTrailByActionDate(string? Action, DateTime StartDate, DateTime EndDate, bool saveAuditTrail, int? userId = null, string? formFactor = null, string? platform = null, decimal? latitude = null, decimal? longitude = null)
 	{
 		if (OfflineState.Offline)
 			throw new Exception("Masters cannot be changed while offline.");
 
-		var deleted = (await SqlDataAccess.LoadData<int, dynamic>(OperationNames.DeleteAuditTrailByDate, new { StartDate, EndDate })).FirstOrDefault();
+		if (saveAuditTrail && userId is null)
+			throw new ArgumentNullException(nameof(userId), "A user ID is required when recording the audit trail cleanup.");
 
-		await SaveAuditTrail(new()
-		{
-			Action = AuditTrailActionTypes.Delete.ToString(),
-			TableName = OperationNames.AuditTrail,
-			RecordNo = $"{StartDate:dd-MMM-yyyy} to {EndDate:dd-MMM-yyyy}",
-			CreatedBy = userId,
-			CreatedFormFactor = formFactor,
-			CreatedPlatform = platform,
-			CreatedLatitude = latitude,
-			CreatedLongitude = longitude
-		});
+		var deleted = (await SqlDataAccess.LoadData<int, dynamic>(OperationNames.DeleteAuditTrailByActionDate, new { Action, StartDate, EndDate })).FirstOrDefault();
+
+		if (saveAuditTrail)
+			await SaveAuditTrail(new()
+			{
+				Action = AuditTrailActionTypes.Delete.ToString(),
+				TableName = OperationNames.AuditTrail,
+				RecordNo = $"{StartDate:dd-MMM-yyyy} to {EndDate:dd-MMM-yyyy} Action: {(string.IsNullOrWhiteSpace(Action) ? "All" : Action)}",
+				CreatedBy = userId!.Value,
+				CreatedFormFactor = formFactor,
+				CreatedPlatform = platform,
+				CreatedLatitude = latitude,
+				CreatedLongitude = longitude
+			});
 
 		return deleted;
 	}

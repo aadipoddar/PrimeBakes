@@ -361,7 +361,7 @@
     <Build Include="Operations\AuditTrail\AuditTrail.sql" />
     <Build Include="Operations\AuditTrail\Insert_AuditTrail.sql" />
     <Build Include="Operations\AuditTrail\AuditTrail_Overview.sql" />
-    <Build Include="Operations\AuditTrail\Delete_AuditTrail_By_Date.sql" />
+    <Build Include="Operations\AuditTrail\Delete_AuditTrail_By_Action_Date.sql" />
     <Build Include="Operations\WebPush\WebPushSubscription.sql" />
     <Build Include="Operations\WebPush\Insert_WebPushSubscription.sql" />
     <Build Include="Operations\WebPush\Load_WebPushSubscription_By_UserId.sql" />

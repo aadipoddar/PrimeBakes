@@ -10,8 +10,9 @@ public class MaintenanceEndpoint : ICarterModule
 		var endpoint = Helper.SanitizeClassName(nameof(MaintenanceEndpoint));
 		var group = app.MapGroup(endpoint).WithTags(endpoint);
 
+		group.MapGet(nameof(MaintenanceData.LoadDatabaseSize), MaintenanceData.LoadDatabaseSize);
 		group.MapGet(nameof(MaintenanceData.CheckBackupPending), MaintenanceData.CheckBackupPending);
 		group.MapPost(nameof(MaintenanceData.RebuildIndexes), MaintenanceData.RebuildIndexes);
-		group.MapGet(nameof(MaintenanceData.LoadDatabaseSize), MaintenanceData.LoadDatabaseSize);
+		group.MapPost(nameof(MaintenanceData.DeleteExpiredRoutineAuditTrailRecords), MaintenanceData.DeleteExpiredRoutineAuditTrailRecords);
 	}
 }

@@ -413,6 +413,23 @@ else
 								<h2 class="section-title">Database Maintenance</h2>
 							</div>
 							<div class="section-body">
+								<SettingRow Name="Routine Audit Trail Retention (Days)" Description="@SettingDescription(SettingsKeys.RoutineAuditTrailRetentionDays)">
+									<CustomNumericField T="int"
+														@bind-Value="_routineAuditTrailRetentionDays"
+														Placeholder="e.g., 30"
+														Format="N0"
+														Min="1"
+														Max="3650"
+														Required="false" />
+								</SettingRow>
+								<SettingRow Name="Clean Up Routine Audit Trail" Description="Deletes expired routine audit entries using the saved retention period. Save settings first if you changed the value above.">
+									<MudBlazor.MudButton Variant="MudBlazor.Variant.Filled"
+														 Color="MudBlazor.Color.Warning"
+														 OnClick="ShowRoutineAuditTrailCleanupConfirmation"
+														 Disabled="_isProcessing">
+										Clean Up Routine Audit Trail
+									</MudBlazor.MudButton>
+								</SettingRow>
 								<SettingRow Name="Space Used" Description="Current size of the database.">
 									<CustomTextField Value="@DatabaseUsedSize" ReadOnly="true" Required="false" TabIndex="-1" />
 								</SettingRow>
