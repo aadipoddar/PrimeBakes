@@ -18,6 +18,9 @@ public class AuditTrailEndpoint : ICarterModule
 			(AuditTrailActionTypes Action, int UserId, DateTime StartDate, DateTime EndDate) =>
 				AuditTrailData.LoadAuditTrailByActionUserIdDate(Action, UserId, StartDate, EndDate));
 
+		group.MapGet(nameof(AuditTrailData.LoadAuditTrailByRecordNo),
+			(string RecordNo) => AuditTrailData.LoadAuditTrailByRecordNo(RecordNo));
+
 		group.MapPost(nameof(AuditTrailData.DeleteAuditTrailByActionDate),
 			(string? Action, DateTime StartDate, DateTime EndDate, bool saveAuditTrail, int? userId = null, string? formFactor = null, string? platform = null, decimal? latitude = null, decimal? longitude = null) =>
 				AuditTrailData.DeleteAuditTrailByActionDate(Action, StartDate, EndDate, saveAuditTrail, userId, formFactor, platform, latitude, longitude));

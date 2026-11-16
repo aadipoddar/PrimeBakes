@@ -21,6 +21,9 @@ public static class AuditTrailData
 	public static async Task<List<AuditTrailModel>> LoadAuditTrailByActionUserIdDate(AuditTrailActionTypes Action, int UserId, DateTime StartDate, DateTime EndDate) =>
 		await SqlDataAccess.LoadData<AuditTrailModel, dynamic>(OperationNames.LoadAuditTrailByActionUserIdDate, new { Action = Action.ToString(), UserId, StartDate, EndDate });
 
+	public static async Task<List<AuditTrailModel>> LoadAuditTrailByRecordNo(string RecordNo) =>
+		await SqlDataAccess.LoadData<AuditTrailModel, dynamic>(OperationNames.LoadAuditTrailByRecordNo, new { RecordNo });
+
 	public static async Task SaveAuditTrail(AuditTrailModel auditTrail, SqlDataAccessTransaction sqlDataAccessTransaction = null)
 	{
 		var user = await CommonData.LoadTableDataById<UserModel>(OperationNames.User, auditTrail.CreatedBy, sqlDataAccessTransaction);
@@ -54,6 +57,7 @@ public static class AuditTrailData
 		return deleted;
 	}
 
+	#region Make Audit Trail
 	private static readonly HashSet<string> _ignoredProperties =
 	[
 		with(StringComparer.OrdinalIgnoreCase),
@@ -188,4 +192,5 @@ public static class AuditTrailData
 		TimeOnly t => t.ToString("HH:mm"),
 		_ => value.ToString()
 	};
+	#endregion
 }

@@ -52,6 +52,7 @@ public static class OperationNames
 	public static string InsertAuditTrail => "Insert_AuditTrail";
 	public static string LoadLastAuditTrailByTableRecord => "Load_Last_AuditTrail_By_Table_Record";
 	public static string LoadAuditTrailByActionUserIdDate => "Load_AuditTrail_By_Action_UserId_Date";
+	public static string LoadAuditTrailByRecordNo => "Load_AuditTrail_By_RecordNo";
 	public static string DeleteAuditTrailByActionDate => "Delete_AuditTrail_By_Action_Date";
 	#endregion
 

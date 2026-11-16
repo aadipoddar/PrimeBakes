@@ -260,7 +260,7 @@ else
 															Placeholder="0.00"
 															Required="false"
 															ReadOnly="@(!_user.ChangeProductFinancial)"
-															Min="0" 
+															Min="0"
 															Max="100" />
 
 										<CustomNumericField T="decimal"
@@ -595,6 +595,12 @@ else
 					</GridColumns>
 				</SfGrid>
 			</div>
+
+			<!-- Audit Trail -->
+			@if (_sale.Id > 0 && _user.Admin)
+			{
+				<AuditTrailGrid RecordNo="@_sale.TransactionNo" />
+			}
 		</div>
 
 		<Footer />

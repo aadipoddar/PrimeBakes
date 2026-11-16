@@ -1,0 +1,42 @@
+@using PrimeBakes.Models.Operations.AuditTrail
+
+@if (!string.IsNullOrWhiteSpace(RecordNo) && !_isLoading && _auditTrails.Count > 0)
+{
+	<div class="section-card">
+		<div class="section-header">
+			<h2 class="section-title">Audit Trail</h2>
+		</div>
+
+		<SfGrid TValue="AuditTrailModel" DataSource="_auditTrails"
+				AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+				GridLines="GridLine.Horizontal">
+			<GridPageSettings PageSize="10" PageSizes="@(new string[] { "10", "20", "50", "All" })" />
+			<GridColumns>
+				<CustomGridColumn Field="@nameof(AuditTrailModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy HH:mm" Type="ColumnType.DateTime" />
+
+				<CustomGridColumn>
+					<CustomTemplate>
+						<GridColumn Field="@nameof(AuditTrailModel.Action)" HeaderText="Action" TextAlign="TextAlign.Center" Width="130">
+							<Template>
+								@{
+									var item = (context as AuditTrailModel);
+									var css = item.Action switch
+									{
+										"Update" => "grid-credit",
+										"Delete" => "grid-debit",
+										"Recover" => "grid-total",
+										_ => string.Empty
+									};
+									<span class="@css">@item.Action</span>
+								}
+							</Template>
+						</GridColumn>
+					</CustomTemplate>
+				</CustomGridColumn>
+
+				<CustomGridColumn Field="@nameof(AuditTrailModel.RecordValue)" HeaderText="Changes" Width="600" />
+				<CustomGridColumn Field="@nameof(AuditTrailModel.CreatedByName)" HeaderText="User" Width="160" />
+			</GridColumns>
+		</SfGrid>
+	</div>
+}

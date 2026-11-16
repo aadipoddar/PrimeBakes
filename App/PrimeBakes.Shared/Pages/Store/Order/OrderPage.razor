@@ -211,6 +211,11 @@ else
 					</GridColumns>
 				</SfGrid>
 			</div>
+
+			@if (_order.Id > 0 && _user.Admin)
+			{
+				<AuditTrailGrid RecordNo="@_order.TransactionNo" />
+			}
 		</div>
 
 		<Footer />

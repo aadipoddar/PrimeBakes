@@ -580,6 +580,11 @@ else
 			</div>
 		</div>
 
+		@if (_bill.Id > 0 && _user.Admin)
+		{
+			<AuditTrailGrid RecordNo="@_bill.TransactionNo" />
+		}
+
 		<Footer />
 	</div>
 }

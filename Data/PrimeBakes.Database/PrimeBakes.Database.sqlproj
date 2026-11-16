@@ -401,6 +401,7 @@
     <Build Include="Store\Customer\OnlinePartner.sql" />
     <Build Include="Store\Customer\Insert_OnlinePartner.sql" />
     <Build Include="Operations\AuditTrail\Load_AuditTrail_By_Action_UserId_Date.sql" />
+    <Build Include="Operations\AuditTrail\Load_AuditTrail_By_RecordNo.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="PublishLocation\LocalDB.publish.xml" />

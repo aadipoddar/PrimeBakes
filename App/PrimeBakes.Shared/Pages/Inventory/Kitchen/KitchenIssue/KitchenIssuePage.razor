@@ -232,6 +232,11 @@ else
 			</div>
 		</div>
 
+		@if (_kitchenIssue.Id > 0 && _user.Admin)
+		{
+			<AuditTrailGrid RecordNo="@_kitchenIssue.TransactionNo" />
+		}
+
 		<Footer />
 	</div>
 }
