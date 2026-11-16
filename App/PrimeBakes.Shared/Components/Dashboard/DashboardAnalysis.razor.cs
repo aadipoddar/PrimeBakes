@@ -5,6 +5,8 @@ using PrimeBakes.Models.Restaurant.Bill;
 using PrimeBakes.Models.Store.Order;
 using PrimeBakes.Models.Store.Sale;
 
+using System.Text;
+
 namespace PrimeBakes.Shared.Components.Dashboard;
 
 public partial class DashboardAnalysis : IAsyncDisposable
@@ -50,6 +52,7 @@ public partial class DashboardAnalysis : IAsyncDisposable
 	private string _openNote = "orders & running bills";
 	#endregion
 
+	#region Load Data
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (!firstRender)
@@ -149,6 +152,7 @@ public partial class DashboardAnalysis : IAsyncDisposable
 
 		StateHasChanged();
 	}
+	#endregion
 
 	#region Calculations
 	// Every window below is [from, to) so month and day boundaries never double count.
@@ -176,6 +180,80 @@ public partial class DashboardAnalysis : IAsyncDisposable
 	private int TransactionCount(DateTime from, DateTime to) =>
 		_sales.Count(_ => _.TransactionDateTime >= from && _.TransactionDateTime < to) +
 		_bills.Count(_ => !_.Running && _.TransactionDateTime >= from && _.TransactionDateTime < to);
+	#endregion
+
+	#region AI Context
+	private string BuildAiContext()
+	{
+		var now = DateTime.Now;
+		var sb = new StringBuilder();
+
+		sb.AppendLine($"Now: {now:dddd, dd MMM yyyy, HH:mm}. Day {now.Day} of {DateTime.DaysInMonth(now.Year, now.Month)} this month.");
+		sb.AppendLine();
+
+		sb.AppendLine("KEY FIGURES (today is today so far; month figures are month to date; the percentages compare with the WHOLE of last month, so they look too low until month end)");
+		sb.AppendLine($"- Today's revenue: {_todayRevenue} ({_todayRevenueTrend})");
+		sb.AppendLine($"- Revenue this month: {_thisMonthRevenue} ({_thisMonthRevenueTrend})");
+		sb.AppendLine($"- Purchases this month: {_thisMonthPurchase} ({_thisMonthPurchaseTrend})");
+		sb.AppendLine($"- Money in minus money out: {_thisMonthNet} ({_thisMonthNetTrend})");
+		sb.AppendLine($"- Sale returns: {_thisMonthReturns} ({_thisMonthReturnsNote})");
+		sb.AppendLine($"- Average bill value: {_thisMonthAverageBill} ({_thisMonthAverageBillTrend})");
+		sb.AppendLine($"- Credit sales: {_thisMonthCredit} ({_thisMonthCreditTrend})");
+		sb.AppendLine($"- Open right now: {_openCount} ({_openNote})");
+		sb.AppendLine();
+
+		AppendLikeForLike(sb, now);
+
+		if (_chart is not null)
+			sb.Append(_chart.ToAiText());
+		if (_summaries is not null)
+			sb.Append(_summaries.ToAiText());
+
+		return sb.ToString();
+	}
+
+	// Equal periods on both sides, so the model never has to compare a half month with a full one.
+	private void AppendLikeForLike(StringBuilder sb, DateTime now)
+	{
+		var today = now.Date;
+		var yesterday = today.AddDays(-1);
+		var thisMonthStart = new DateTime(now.Year, now.Month, 1);
+		var lastMonthStart = thisMonthStart.AddMonths(-1);
+
+		static string Change(decimal current, decimal previous) =>
+			previous == 0 ? "n/a" : $"{(current - previous) / previous * 100:+0;-0;0}%";
+
+		sb.AppendLine("LIKE-FOR-LIKE COMPARISONS (equal periods, use these for trends)");
+
+		// Yesterday only up to this same time of day.
+		var todaySoFar = Revenue(today, today.AddDays(1));
+		var yesterdaySameTime = Revenue(yesterday, yesterday + now.TimeOfDay);
+		sb.AppendLine($"- Revenue today up to {now:HH:mm}: {todaySoFar.FormatIndianCurrencyShort()}; yesterday up to the same time: {yesterdaySameTime.FormatIndianCurrencyShort()} ({Change(todaySoFar, yesterdaySameTime)})");
+
+		// Complete days only: day 1 to yesterday, on both months.
+		var days = Math.Min(now.Day - 1, DateTime.DaysInMonth(lastMonthStart.Year, lastMonthStart.Month));
+		if (days > 0)
+		{
+			var thisTo = thisMonthStart.AddDays(days);
+			var lastTo = lastMonthStart.AddDays(days);
+
+			var thisRevenue = Revenue(thisMonthStart, thisTo);
+			var lastRevenue = Revenue(lastMonthStart, lastTo);
+			var thisPurchase = Purchases(thisMonthStart, thisTo);
+			var lastPurchase = Purchases(lastMonthStart, lastTo);
+
+			sb.AppendLine($"- First {days} complete days of this month vs the same {days} days of last month:");
+			sb.AppendLine($"  - Revenue: {thisRevenue.FormatIndianCurrencyShort()} vs {lastRevenue.FormatIndianCurrencyShort()} ({Change(thisRevenue, lastRevenue)})");
+			sb.AppendLine($"  - Purchases: {thisPurchase.FormatIndianCurrencyShort()} vs {lastPurchase.FormatIndianCurrencyShort()} ({Change(thisPurchase, lastPurchase)})");
+			sb.AppendLine($"  - Average revenue per day: {(thisRevenue / days).FormatIndianCurrencyShort()} vs {(lastRevenue / days).FormatIndianCurrencyShort()}");
+		}
+		else
+		{
+			sb.AppendLine("- It is the first day of the month, so there is no complete day to compare yet.");
+		}
+
+		sb.AppendLine();
+	}
 	#endregion
 
 	#region Auto Refresh

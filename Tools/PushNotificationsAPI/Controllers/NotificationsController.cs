@@ -1,11 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Net;
-
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using PushNotificationsAPI.Models;
 using PushNotificationsAPI.Services;
+
+using System.ComponentModel.DataAnnotations;
+using System.Net;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 

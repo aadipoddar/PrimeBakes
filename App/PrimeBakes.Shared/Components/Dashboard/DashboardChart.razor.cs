@@ -3,6 +3,9 @@ using MudBlazor;
 using PrimeBakes.Data.Operations.Analysis;
 using PrimeBakes.Models.Operations.Analysis;
 
+using System.Globalization;
+using System.Text;
+
 namespace PrimeBakes.Shared.Components.Dashboard;
 
 public partial class DashboardChart
@@ -19,6 +22,12 @@ public partial class DashboardChart
 	// Top raw materials bar
 	private List<ChartSeries<double>> _materialSeries = [];
 	private string[] _materialLabels = [];
+
+	// Plain copies of the chart values, kept for ToAiText (ChartSeries.Data is not an array).
+	private double[] _revenueValues = [];
+	private double[] _purchaseValues = [];
+	private double[] _productValues = [];
+	private double[] _materialValues = [];
 
 	private readonly LineChartOptions _revenueOptions = new()
 	{
@@ -63,6 +72,7 @@ public partial class DashboardChart
 		XAxisLabelRotation = 45,
 	};
 
+	#region Load Data
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (!firstRender)
@@ -88,7 +98,57 @@ public partial class DashboardChart
 		catch { }
 		finally { StateHasChanged(); }
 	}
+	#endregion
 
+	#region AI Context
+	public string ToAiText()
+	{
+		var sb = new StringBuilder();
+		var inv = CultureInfo.InvariantCulture;
+
+		if (_revenueValues.Length > 0)
+		{
+			var count = Math.Min(_labels.Length, Math.Min(_revenueValues.Length, _purchaseValues.Length));
+
+			sb.AppendLine("MONTHLY TREND, last 12 months, oldest first (amounts in full rupees)");
+			var currentMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+			for (var i = 0; i < count; i++)
+			{
+				var month = currentMonth.AddMonths(-11 + i).ToString("MMM yyyy", inv);
+
+				// The newest row is still running; say so on the row itself.
+				var partial = i == count - 1 ? $" (month to date, day {DateTime.Now.Day})" : "";
+
+				sb.AppendLine($"- {month}{partial}: revenue ₹{_revenueValues[i].ToString("0.##", inv)}, purchases ₹{_purchaseValues[i].ToString("0.##", inv)}");
+			}
+			sb.AppendLine();
+		}
+
+		if (_productValues.Length > 0)
+		{
+			var count = Math.Min(_productLabels.Length, _productValues.Length);
+
+			sb.AppendLine("TOP PRODUCTS THIS MONTH (month to date), by units sold");
+			for (var i = 0; i < count; i++)
+				sb.AppendLine($"- {_productLabels[i]}: {_productValues[i].ToString("0.##", inv)} units");
+			sb.AppendLine();
+		}
+
+		if (_materialValues.Length > 0)
+		{
+			var count = Math.Min(_materialLabels.Length, _materialValues.Length);
+
+			sb.AppendLine("TOP RAW MATERIALS THIS MONTH (month to date), by value consumed");
+			for (var i = 0; i < count; i++)
+				sb.AppendLine($"- {_materialLabels[i]}: ₹{_materialValues[i].ToString("0.##", inv)}");
+			sb.AppendLine();
+		}
+
+		return sb.ToString();
+	}
+	#endregion
+
+	#region Build Charts
 	private void BuildMonthlyTrend(List<AnalysisMonthlyTrendModel> rows, DateTime thisMonthStart)
 	{
 		var buckets = Enumerable.Range(0, 12)
@@ -107,6 +167,9 @@ public partial class DashboardChart
 			purchase[i] = (double)(row?.Purchase ?? 0);
 		}
 
+		_revenueValues = revenue;
+		_purchaseValues = purchase;
+
 		_revenueOptions.YAxisTicks = RoundAxisStep(revenue);
 		_purchaseOptions.YAxisTicks = RoundAxisStep(purchase);
 
@@ -119,6 +182,7 @@ public partial class DashboardChart
 		// SQL already trimmed this to the top ten by units and sorted it.
 		_productLabels = [.. rows.Select(_ => _.ItemName)];
 		var quantities = rows.Select(_ => (double)_.Quantity).ToArray();
+		_productValues = quantities;
 
 		_productOptions.YAxisTicks = RoundAxisStep(quantities);
 
@@ -132,6 +196,7 @@ public partial class DashboardChart
 		// SQL already trimmed this to the top ten by value and sorted it.
 		_materialLabels = [.. rows.Select(_ => _.ItemName)];
 		var amounts = rows.Select(_ => (double)_.Amount).ToArray();
+		_materialValues = amounts;
 
 		_materialOptions.YAxisTicks = RoundAxisStep(amounts);
 
@@ -156,4 +221,5 @@ public partial class DashboardChart
 		var step = normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 5 ? 5 : 10;
 		return (int)(step * magnitude);
 	}
+	#endregion
 }

@@ -1,0 +1,72 @@
+/* One row: input grows, button stays small */
+.ai-chat-bar {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.ai-chat-input {
+	flex: 1;
+	min-width: 0;
+}
+
+.ai-chat-send {
+	flex: 0 0 130px;
+}
+
+.ai-chat-answer {
+	margin-top: 16px;
+}
+
+/* Generate button */
+.ai-send-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	width: 100%;
+	height: 40px;
+	border: none;
+	border-radius: 8px;
+	background: linear-gradient(135deg, #4f8df5, #7c7cf0);
+	color: #ffffff;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.ai-send-btn:hover:not(:disabled) {
+	filter: brightness(1.08);
+}
+
+.ai-send-btn:disabled {
+	opacity: 0.7;
+	cursor: not-allowed;
+}
+
+/* Loading spinner */
+.ai-spinner {
+	width: 14px;
+	height: 14px;
+	border: 2px solid rgba(255, 255, 255, 0.4);
+	border-top-color: #ffffff;
+	border-radius: 50%;
+	animation: ai-spin 0.8s linear infinite;
+}
+
+@keyframes ai-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@media (max-width: 600px) {
+	.ai-chat-bar {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.ai-chat-send {
+		flex: none;
+	}
+}

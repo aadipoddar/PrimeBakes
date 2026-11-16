@@ -13,6 +13,9 @@ using PrimeBakes.Models.Store.Summary;
 
 using Syncfusion.Blazor.Grids;
 
+using System.Globalization;
+using System.Text;
+
 namespace PrimeBakes.Shared.Components.Dashboard;
 
 public partial class DashboardSummaries
@@ -60,6 +63,7 @@ public partial class DashboardSummaries
 	];
 	#endregion
 
+	#region Load Data
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (!firstRender)
@@ -130,6 +134,7 @@ public partial class DashboardSummaries
 		if (_kitchenGrid is not null) await _kitchenGrid.Refresh();
 		if (_customerGrid is not null) await _customerGrid.Refresh();
 	}
+	#endregion
 
 	#region Outlet
 	// Mirrors OutletSummaryReport.CalculateTotals so both screens report the same numbers.
@@ -320,5 +325,68 @@ public partial class DashboardSummaries
 		if (args.Item.Id == "OpenReport")
 			NavigationManager.NavigateTo(StoreRouteNames.CustomerSummaryReport);
 	}
+	#endregion
+
+	#region AI Context
+	public string ToAiText()
+	{
+		var sb = new StringBuilder();
+
+		// Most locations are idle on a given day; list only the active ones and count the rest.
+		sb.AppendLine("OUTLETS TODAY SO FAR (sales recorded in the software so far today)");
+		var active = _outletSummaries.Where(_ => _.TransactionCount > 0 || _.NetSale != 0).ToList();
+		foreach (var outlet in active)
+			sb.AppendLine($"- {outlet.LocationName} [{LocationCategory(outlet.LocationId)}]: net sales ₹{FormatAiNumber(outlet.NetSale)}, {outlet.TransactionCount} transactions, {FormatAiNumber(outlet.UnitsSold)} units, cash ₹{FormatAiNumber(outlet.Cash)}, card ₹{FormatAiNumber(outlet.Card)}, UPI ₹{FormatAiNumber(outlet.UPI)}, credit ₹{FormatAiNumber(outlet.Credit)}, returns ₹{FormatAiNumber(outlet.SaleReturn)}, {FormatAiNumber(outlet.ContributionPercent)}% of today's sales");
+
+		if (active.Count == 0)
+			sb.AppendLine("- No sales recorded anywhere yet today.");
+
+		var idle = _outletSummaries.Count - active.Count;
+		if (idle > 0)
+			sb.AppendLine($"- {idle} other locations have no sales recorded yet today.");
+		sb.AppendLine();
+
+		sb.AppendLine("KITCHENS THIS MONTH TO DATE (issue = raw material issued to the kitchen, production = finished products made, the return lines are damages)");
+		foreach (var kitchen in _kitchenSummaries)
+			sb.AppendLine($"- {kitchen.KitchenName}: issue ₹{FormatAiNumber(kitchen.KitchenIssue)}, issue returns (damage) ₹{FormatAiNumber(kitchen.KitchenIssueReturn)}, production ₹{FormatAiNumber(kitchen.KitchenProduction)}, production returns (damage) ₹{FormatAiNumber(kitchen.KitchenProductionReturn)}, net production ₹{FormatAiNumber(kitchen.NetProduction)}, {FormatAiNumber(kitchen.UnitsProduced)} units produced");
+		sb.AppendLine();
+
+		sb.AppendLine("TOP 10 CUSTOMERS THIS MONTH TO DATE by net business");
+		foreach (var customer in _customerSummaries.Take(10))
+		{
+			// A customer with only a return this month has no purchase date, so no visit to report.
+			var lastVisit = customer.LastPurchase.HasValue
+				? $"{customer.DaysSinceLastVisit} days since last visit"
+				: "no purchases this month";
+
+			sb.AppendLine($"- {customer.Name}: {customer.PurchaseCount} purchases, net business ₹{FormatAiNumber(customer.NetBusiness)}, {lastVisit}");
+		}
+
+		if (_customerSummaries.Count == 0)
+			sb.AppendLine("- No sales this month are linked to a named customer, so there is no customer ranking.");
+
+		return sb.ToString();
+	}
+
+	// Location 1 is the main outlet; the rest are Coco (company owned), Fofo (franchise) or Supply.
+	private string LocationCategory(int locationId)
+	{
+		var location = _locations.FirstOrDefault(_ => _.Id == locationId);
+
+		if (location is null)
+			return "unknown";
+
+		if (location.Id == 1)
+			return "main outlet";
+
+		if (location.COCO)
+			return "Coco, company owned";
+
+		if (location.FOFO)
+			return "Fofo, franchise";
+
+		return "Supply";
+	}
+	private static string FormatAiNumber(decimal value) => value.ToString("0.##", CultureInfo.InvariantCulture);
 	#endregion
 }

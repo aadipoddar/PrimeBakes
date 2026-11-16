@@ -44,6 +44,8 @@ jobs:
                   GoogleMapsApiKey = "${{ secrets.GoogleMapsApiKey }}";
                   WebPushPrivateKey = "${{ secrets.WebPushPrivateKey }}";
 
+                  GeminiApiKey = "${{ secrets.GEMINI_API_KEY }}";
+
                   EmailPassword = "${{ secrets.EmailPassword }}";
               }
           }

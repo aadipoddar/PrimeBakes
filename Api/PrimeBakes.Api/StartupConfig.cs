@@ -39,6 +39,7 @@ public static class StartupConfig
 		services.AddCors();
 		services.AddCarter();
 		services.AddOutputCache();
+		services.AddHttpClient("Gemini", client => client.Timeout = TimeSpan.FromMinutes(3));
 
 		services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 			.AddJwtBearer(options => options.TokenValidationParameters = new()
