@@ -79,10 +79,10 @@ else
 							   TabPanelsClass="launchpad-tab-panels">
 
 				<!-- ANALYSIS -->
-				@if (CommonSecrets.SuperAdminIds.Contains(_user.Id) && (Factor == "Desktop" || Factor == "Wasm"))
+				@if (CommonSecrets.SuperAdminIds.Contains(_user.Id))
 				{
 					<MudBlazor.MudTabPanel Text="Analysis">
-						<DashboardAnalysis />
+						<DashboardAnalysis UserId="@_user.Id" />
 					</MudBlazor.MudTabPanel>
 				}
 

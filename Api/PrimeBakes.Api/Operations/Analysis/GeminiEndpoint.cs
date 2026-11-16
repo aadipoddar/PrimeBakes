@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Mvc;
+
 using PrimeBakes.Data.Operations.Analysis;
 using PrimeBakes.Models.Common;
 
@@ -10,7 +12,7 @@ public sealed class GeminiEndpoint : ICarterModule
 		var endpoint = Helper.SanitizeClassName(nameof(GeminiEndpoint));
 		var group = app.MapGroup(endpoint).WithTags(endpoint);
 
-		group.MapGet(nameof(GeminiData.Ask),
-			(string prompt) => GeminiData.Ask(prompt));
+		group.MapPost(nameof(GeminiData.Ask),
+			([FromBody] string prompt) => GeminiData.Ask(prompt));
 	}
 }

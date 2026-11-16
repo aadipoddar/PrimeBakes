@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Components;
+
 using PrimeBakes.Data.Operations.Settings;
+using PrimeBakes.Models.DataAccess;
 using PrimeBakes.Models.Inventory.Purchase;
 using PrimeBakes.Models.Operations.Settings;
 using PrimeBakes.Models.Restaurant.Bill;
@@ -11,6 +14,9 @@ namespace PrimeBakes.Shared.Components.Dashboard;
 
 public partial class DashboardAnalysis : IAsyncDisposable
 {
+	[Parameter] public int UserId { get; set; }
+	private bool IsSuperAdmin => CommonSecrets.SuperAdminIds.Contains(UserId);
+
 	private PeriodicTimer _autoRefreshTimer;
 	private CancellationTokenSource _autoRefreshCts;
 
@@ -56,6 +62,9 @@ public partial class DashboardAnalysis : IAsyncDisposable
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (!firstRender)
+			return;
+
+		if (!IsSuperAdmin)
 			return;
 
 		await LoadData();
