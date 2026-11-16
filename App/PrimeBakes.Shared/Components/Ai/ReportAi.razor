@@ -1,0 +1,57 @@
+@namespace PrimeBakes.Shared.Components.Ai
+
+<div class="section-card">
+	<div class="section-header">
+		<h2 class="section-title">@Title</h2>
+	</div>
+
+	<div class="section-body">
+
+		@if (Suggestions is { Count: > 0 })
+		{
+			<div class="ai-suggestions">
+				@foreach (var suggestion in Suggestions)
+				{
+					<MudBlazor.MudButton Variant="MudBlazor.Variant.Outlined" Size="MudBlazor.Size.Small"
+										 Disabled="_isBusy" OnClick="() => Suggest(suggestion)">@suggestion</MudBlazor.MudButton>
+				}
+			</div>
+		}
+
+		<div class="ai-chat-bar">
+			<div class="ai-chat-input">
+				<CustomTextField @bind-Value="_question"
+								 Label="Ask about this report"
+								 Placeholder="Leave empty for a short briefing, or type a question."
+								 Required="false"
+								 ReadOnly="_isBusy"
+								 Lines="2" />
+			</div>
+
+			<div class="ai-chat-send">
+				<button type="button" class="ai-send-btn" disabled="@_isBusy" @onclick="Generate">
+					@if (_isBusy)
+					{
+						<span class="ai-spinner"></span>
+						<span>Thinking</span>
+					}
+					else
+					{
+						<span>Generate</span>
+					}
+				</button>
+			</div>
+		</div>
+
+		<div class="ai-chat-answer">
+			<CustomTextField Value="@_answer"
+							 Label="Insights"
+							 Placeholder="@(_isBusy ? "AI is thinking..." : "Press Generate to send your prompt to AI.")"
+							 Required="false"
+							 ReadOnly="true"
+							 TabIndex="-1"
+							 Lines="12" />
+		</div>
+
+	</div>
+</div>
