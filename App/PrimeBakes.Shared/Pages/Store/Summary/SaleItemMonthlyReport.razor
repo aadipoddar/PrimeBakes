@@ -3,6 +3,7 @@
 @using PrimeBakes.Models.Store.Product
 @using PrimeBakes.Models.Store.Sale
 @using PrimeBakes.Models.Store.Summary
+@using PrimeBakes.Shared.Components.Ai
 
 @attribute [Route(StoreRouteNames.SaleItemMonthlyReport)]
 
@@ -15,6 +16,7 @@
 <MudBlazor.MudHotkey Key=JsKey.KeyM KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleMeasure" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyQ KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDetailsView" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyJ KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleAi" Disabled="@(_isProcessing || _user?.Admin != true)" />
 <MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport(true)" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyH KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => WindowNavigation.NavigateToRoute(StoreRouteNames.SaleItemReport)" Disabled="@_isProcessing" />
@@ -39,6 +41,10 @@ else
 					<MudBlazor.MudMenuItem Label="@(_showCoco ? "Hide COCO" : "Show COCO")" OnClick="ToggleCoco" />
 					<MudBlazor.MudMenuItem Label="@(_showFofo ? "Hide FOFO" : "Show FOFO")" OnClick="ToggleFofo" />
 					<MudBlazor.MudMenuItem Label="@(_showAllColumns ? "Hide Details (Ctrl + Q)" : "Show Details (Ctrl + Q)")" OnClick="ToggleDetailsView" />
+					@if (_user.Admin)
+					{
+						<MudBlazor.MudMenuItem Label="@(_showAi ? "Hide AI Insights (Ctrl + J)" : "Show AI Insights (Ctrl + J)")" OnClick="ToggleAi" />
+					}
 					<MudBlazor.MudDivider />
 					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportReport()" />
 					<MudBlazor.MudMenuItem Label="Export Excel (Ctrl + E)" OnClick="() => ExportReport(true)" />
@@ -136,6 +142,16 @@ else
 					</div>
 				</div>
 			</div>
+
+			@if (_user.Admin && _showAi)
+			{
+				<ReportAi Instructions="@AiInstructions"
+						  GetContext="BuildAiContext"
+						  ReportName="@StoreRouteNames.SaleItemMonthlyReport"
+						  UserId="@_user.Id"
+						  DefaultQuestion="@AiDefaultQuestion"
+						  Suggestions="@AiSuggestions" />
+			}
 
 			<div class="section-card">
 				<div class="section-header">

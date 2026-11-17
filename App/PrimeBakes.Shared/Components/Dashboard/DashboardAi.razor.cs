@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Components;
 
 using PrimeBakes.Data.Operations.Analysis;
+using PrimeBakes.Data.Operations.AuditTrail;
+using PrimeBakes.Models.Operations.AuditTrail;
 
 namespace PrimeBakes.Shared.Components.Dashboard;
 
@@ -11,6 +13,7 @@ public partial class DashboardAi
 	private bool _isBusy;
 
 	[Parameter] public Func<string> GetContext { get; set; }
+	[Parameter] public int UserId { get; set; }
 
 	// An empty box asks for the same five-point briefing every time, so answers are comparable run to run.
 	private const string DefaultQuestion =
@@ -66,6 +69,15 @@ public partial class DashboardAi
 
 		try
 		{
+			await AuditTrailData.SaveAuditTrail(new()
+			{
+				Action = AuditTrailActionTypes.AI.ToString(),
+				TableName = OperationRouteNames.Dashboard,
+				RecordNo = "",
+				RecordValue = question,
+				CreatedBy = UserId
+			});
+
 			_answer = await GeminiData.Ask(prompt);
 		}
 		catch (Exception ex)

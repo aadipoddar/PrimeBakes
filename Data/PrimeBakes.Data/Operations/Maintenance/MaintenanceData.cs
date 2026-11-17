@@ -48,6 +48,7 @@ public static class MaintenanceData
 		await AuditTrailData.DeleteAuditTrailByActionDate(AuditTrailActionTypes.Insert.ToString(), cutoff.AddYears(-10), cutoff, false);
 		await AuditTrailData.DeleteAuditTrailByActionDate(AuditTrailActionTypes.Report.ToString(), cutoff.AddYears(-10), cutoff, false);
 		await AuditTrailData.DeleteAuditTrailByActionDate(AuditTrailActionTypes.Notification.ToString(), cutoff.AddYears(-10), cutoff, false);
+		await AuditTrailData.DeleteAuditTrailByActionDate(AuditTrailActionTypes.AI.ToString(), cutoff.AddYears(-10), cutoff, false);
 		await AuditTrailData.DeleteAuditTrailByActionDate(AuditTrailActionTypes.Login.ToString(), cutoff.AddYears(-10), cutoff, false);
 		await AuditTrailData.DeleteAuditTrailByActionDate(AuditTrailActionTypes.Logout.ToString(), cutoff.AddYears(-10), cutoff, false);
 		await AuditTrailData.DeleteAuditTrailByActionDate(AuditTrailActionTypes.PageVisit.ToString(), cutoff.AddYears(-10), cutoff, false);
