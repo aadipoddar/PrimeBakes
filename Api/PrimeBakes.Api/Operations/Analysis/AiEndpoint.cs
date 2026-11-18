@@ -5,14 +5,14 @@ using PrimeBakes.Models.Common;
 
 namespace PrimeBakes.Api.Operations.Analysis;
 
-public sealed class GeminiEndpoint : ICarterModule
+public sealed class AiEndpoint : ICarterModule
 {
 	public void AddRoutes(IEndpointRouteBuilder app)
 	{
-		var endpoint = Helper.SanitizeClassName(nameof(GeminiEndpoint));
+		var endpoint = Helper.SanitizeClassName(nameof(AiEndpoint));
 		var group = app.MapGroup(endpoint).WithTags(endpoint);
 
-		group.MapPost(nameof(GeminiData.Ask),
-			([FromBody] string prompt) => GeminiData.Ask(prompt));
+		group.MapPost(nameof(AiData.GeminiAsk),
+			([FromBody] string prompt) => AiData.GeminiAsk(prompt));
 	}
 }

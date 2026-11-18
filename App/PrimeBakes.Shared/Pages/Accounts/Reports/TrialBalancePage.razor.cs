@@ -21,6 +21,7 @@ public partial class TrialBalancePage : IAsyncDisposable
 	private bool _isLoading = true;
 	private bool _isProcessing = false;
 	private bool _showAllColumns = false;
+	private UserModel _user;
 
 	private DateTime _fromDate = DateTime.Now.Date;
 	private DateTime _toDate = DateTime.Now.Date;
@@ -47,7 +48,7 @@ public partial class TrialBalancePage : IAsyncDisposable
 
 		try
 		{
-			await AuthService.ValidateUser([UserRoles.Accounts, UserRoles.Reports], pageRoute: AccountsRouteNames.TrialBalanceReport);
+			_user = await AuthService.ValidateUser([UserRoles.Accounts, UserRoles.Reports], pageRoute: AccountsRouteNames.TrialBalanceReport);
 			await InitializePage();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }

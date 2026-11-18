@@ -194,7 +194,7 @@ else
 				</div>
 			</div>
 
-			@if (_showAi)
+			@if (_user.Admin && _showAi)
 			{
 				<ReportAi Instructions="@AiInstructions"
 						  GetContext="BuildAiContext"

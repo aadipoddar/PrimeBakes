@@ -89,7 +89,7 @@ public partial class ReportAi
 			});
 
 			var prompt = BuildPrompt(Instructions, GetContext?.Invoke(), question);
-			_answer = await GeminiData.Ask(prompt);
+			_answer = await AiData.GeminiAsk(prompt);
 		}
 		catch (Exception ex)
 		{

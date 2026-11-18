@@ -84,6 +84,7 @@ public partial class SaleItemMonthlyReport
 		text.AppendLine($"Company filter: {(_selectedCompany?.Id > 0 ? _selectedCompany.Name : "All")}");
 		text.AppendLine($"Party filter: {(_selectedParty?.Id > 0 ? _selectedParty.Name : "All")}");
 		text.AppendLine($"Stock transfers: {(_showStockTransfers ? "included" : "not included")}. Restaurant bills: {(_showBills ? "included" : "not included")}. Deleted transactions: {(_showDeleted ? "included" : "not included")}.");
+		text.AppendLine($"Coco outlets: {(_showCoco ? "shown" : "hidden")}. Fofo outlets: {(_showFofo ? "shown" : "hidden")}.");
 
 		var returnRows = all.Where(t => t.Quantity < 0).ToList();
 		text.AppendLine(!_showSaleReturns ? "Sale returns: NOT included in this data, so there is no returns figure."

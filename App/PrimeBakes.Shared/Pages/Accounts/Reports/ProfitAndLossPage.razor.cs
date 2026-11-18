@@ -21,6 +21,7 @@ public partial class ProfitAndLossPage : IAsyncDisposable
 	private bool _isLoading = true;
 	private bool _isProcessing = false;
 	private bool _showAllColumns = false;
+	private UserModel _user;
 
 	private DateTime _fromDate = DateTime.Now.Date;
 	private DateTime _toDate = DateTime.Now.Date;
@@ -45,7 +46,7 @@ public partial class ProfitAndLossPage : IAsyncDisposable
 
 		try
 		{
-			await AuthService.ValidateUser([UserRoles.Accounts, UserRoles.Reports], pageRoute: AccountsRouteNames.ProfitAndLossReport);
+			_user = await AuthService.ValidateUser([UserRoles.Accounts, UserRoles.Reports], pageRoute: AccountsRouteNames.ProfitAndLossReport);
 			await InitializePage();
 		}
 		catch { NavigationManager.NavigateTo(OperationRouteNames.Dashboard); }

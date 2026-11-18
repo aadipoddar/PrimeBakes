@@ -4,15 +4,14 @@ using System.Text.Json;
 
 namespace PrimeBakes.Data.Operations.Analysis;
 
-public static class GeminiData
+public static class AiData
 {
-	private static readonly string[] _models = ["gemini-3.8-flash", "gemini-3.5-flash-lite"];
-
-	// One shared client. The per-call timeout is below, so the client's own is switched off.
 	private static readonly HttpClient _httpClient = new() { Timeout = Timeout.InfiniteTimeSpan };
 
-	public static async Task<string> Ask(string prompt, CancellationToken cancellationToken = default)
+	public static async Task<string> GeminiAsk(string prompt, CancellationToken cancellationToken = default)
 	{
+		string[] _models = ["gemini-3.8-flash", "gemini-3.5-flash-lite"];
+
 		if (string.IsNullOrWhiteSpace(prompt))
 			throw new ArgumentException("A prompt is required.", nameof(prompt));
 

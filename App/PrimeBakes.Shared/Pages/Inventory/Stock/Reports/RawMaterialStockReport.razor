@@ -1,6 +1,7 @@
 @using PrimeBakes.Models.Accounts.Masters
 @using PrimeBakes.Models.Inventory.RawMaterial
 @using PrimeBakes.Models.Inventory.Stock
+@using PrimeBakes.Shared.Components.Ai
 
 @attribute [Route(InventoryRouteNames.RawMaterialStockReport)]
 
@@ -11,6 +12,7 @@
 <MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadStockSummary" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadStockSummary" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyQ KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDetailsView" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyJ KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleAi" Disabled="@(_isProcessing || _user?.Admin != true)" />
 <MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport(true)" Disabled="@_isProcessing" />
 
@@ -27,6 +29,10 @@ else
 					<MudBlazor.MudMenuItem Label="Stock Adjustment (Ctrl + N)" OnClick="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.RawMaterialStockAdjustment)" />
 					<MudBlazor.MudMenuItem Label="Refresh Data (Ctrl + R / F5)" OnClick="LoadStockSummary" />
 					<MudBlazor.MudMenuItem Label="@(_showAllColumns ? "Hide Details (Ctrl + Q)" : "Show Details (Ctrl + Q)")" OnClick="ToggleDetailsView" />
+					@if (_user.Admin)
+					{
+						<MudBlazor.MudMenuItem Label="@(_showAi ? "Hide AI Insights (Ctrl + J)" : "Show AI Insights (Ctrl + J)")" OnClick="ToggleAi" />
+					}
 					<MudBlazor.MudDivider />
 					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportReport()" />
 					<MudBlazor.MudMenuItem Label="Export Excel (Ctrl + E)" OnClick="() => ExportReport(true)" />
@@ -84,6 +90,13 @@ else
 					</div>
 				</div>
 			</div>
+
+			@if (_user.Admin && _showAi)
+			{
+				<ReportAi Instructions="@AiInstructions" GetContext="BuildAiContext"
+						  ReportName="@InventoryRouteNames.RawMaterialStockReport" UserId="@_user.Id"
+						  DefaultQuestion="@AiDefaultQuestion" Suggestions="@AiSuggestions" />
+			}
 
 			<div class="section-card">
 				<div class="section-header">

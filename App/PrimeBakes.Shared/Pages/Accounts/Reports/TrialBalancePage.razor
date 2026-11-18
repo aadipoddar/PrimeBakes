@@ -1,5 +1,6 @@
 @using PrimeBakes.Models.Accounts.FinancialAccounting
 @using PrimeBakes.Models.Accounts.Masters
+@using PrimeBakes.Shared.Components.Ai
 
 @attribute [Route(AccountsRouteNames.TrialBalanceReport)]
 
@@ -10,6 +11,7 @@
 <MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadTrialBalance" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadTrialBalance" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyQ KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDetailsView" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyJ KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleAi" Disabled="@(_isProcessing || _user?.Admin != true)" />
 <MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport(true)" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport()" Disabled="@_isProcessing" />
 
@@ -26,6 +28,10 @@ else
 					<MudBlazor.MudMenuItem Label="New Transaction (Ctrl + N)" OnClick="() => WindowNavigation.NavigateToRoute(AccountsRouteNames.FinancialAccounting)" />
 					<MudBlazor.MudMenuItem Label="Refresh Data (Ctrl + R / F5)" OnClick="LoadTrialBalance" />
 					<MudBlazor.MudMenuItem Label="@(_showAllColumns ? "Hide Details (Ctrl + Q)" : "Show Details (Ctrl + Q)")" OnClick="() => ToggleDetailsView()" />
+					@if (_user.Admin)
+					{
+						<MudBlazor.MudMenuItem Label="@(_showAi ? "Hide AI Insights (Ctrl + J)" : "Show AI Insights (Ctrl + J)")" OnClick="ToggleAi" />
+					}
 					<MudBlazor.MudDivider />
 					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportReport()" />
 					<MudBlazor.MudMenuItem Label="Export Excel (Ctrl + E)" OnClick="() => ExportReport(true)" />
@@ -110,6 +116,13 @@ else
 
 				</div>
 			</div>
+
+			@if (_user.Admin && _showAi)
+			{
+				<ReportAi Instructions="@AiInstructions" GetContext="BuildAiContext"
+						  ReportName="@AccountsRouteNames.TrialBalanceReport" UserId="@_user.Id"
+						  DefaultQuestion="@AiDefaultQuestion" Suggestions="@AiSuggestions" />
+			}
 
 			<div class="section-card">
 				<div class="section-header">

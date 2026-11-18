@@ -1,5 +1,6 @@
 @using PrimeBakes.Models.Accounts.Masters
 @using PrimeBakes.Models.Inventory.PurchaseOrder
+@using PrimeBakes.Shared.Components.Ai
 
 @attribute [Route(InventoryRouteNames.PurchaseOrderReport)]
 
@@ -13,6 +14,7 @@
 <MudBlazor.MudHotkey Key=JsKey.KeyW KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleSummary" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyT KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="TogglePendingOnly" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyJ KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleAi" Disabled="@(_isProcessing || _user?.Admin != true)" />
 <MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport(true)" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyI KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => WindowNavigation.NavigateToRoute(InventoryRouteNames.PurchaseOrderItemReport)" Disabled="@_isProcessing" />
@@ -37,6 +39,10 @@ else
 					<MudBlazor.MudMenuItem Label="@(_showSummary ? "Hide Summary (Ctrl + W)" : "Show Summary (Ctrl + W)")" OnClick="ToggleSummary" />
 					<MudBlazor.MudMenuItem Label="@(_showPendingOnly ? "Show All Orders (Ctrl + T)" : "Show Pending Only (Ctrl + T)")" OnClick="TogglePendingOnly" />
 					<MudBlazor.MudMenuItem Label="@(_showAllColumns ? "Hide Details (Ctrl + Q)" : "Show Details (Ctrl + Q)")" OnClick="ToggleDetailsView" />
+					@if (_user.Admin)
+					{
+						<MudBlazor.MudMenuItem Label="@(_showAi ? "Hide AI Insights (Ctrl + J)" : "Show AI Insights (Ctrl + J)")" OnClick="ToggleAi" />
+					}
 					<MudBlazor.MudDivider />
 					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportReport()" />
 					<MudBlazor.MudMenuItem Label="Export Excel (Ctrl + E)" OnClick="() => ExportReport(true)" />
@@ -121,6 +127,13 @@ else
 					</div>
 				</div>
 			</div>
+
+			@if (_user.Admin && _showAi)
+			{
+				<ReportAi Instructions="@AiInstructions" GetContext="BuildAiContext"
+						  ReportName="@InventoryRouteNames.PurchaseOrderReport" UserId="@_user.Id"
+						  DefaultQuestion="@AiDefaultQuestion" Suggestions="@AiSuggestions" />
+			}
 
 			<div class="section-card">
 				<div class="section-header">

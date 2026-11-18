@@ -78,7 +78,7 @@ public partial class DashboardAi
 				CreatedBy = UserId
 			});
 
-			_answer = await GeminiData.Ask(prompt);
+			_answer = await AiData.GeminiAsk(prompt);
 		}
 		catch (Exception ex)
 		{
