@@ -1,0 +1,868 @@
+@using PrimeBakes.Models.Accounts.Masters
+@using PrimeBakes.Models.Restaurant.Bill
+@using PrimeBakes.Models.Store.Sale
+@using PrimeBakes.Models.Store.StockTransfer
+@using PrimeBakes.Shared.Components.Ai
+
+@attribute [Route(OperationRouteNames.FallacyReport)]
+
+<PageTitle>Fallacy Report - Prime Bakes</PageTitle>
+
+<MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyJ KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleAi" Disabled="@(_isProcessing || _user?.Admin != true)" />
+
+@if (_isLoading || _user is null)
+{
+	<LoadingScreen />
+}
+else
+{
+	<div class="page-shell">
+		<Header Title="Fallacy Report">
+			<LeftContent>
+				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Refresh Data (Ctrl + R / F5)" OnClick="LoadTransactionOverviews" />
+					@if (_user.Admin)
+					{
+						<MudBlazor.MudMenuItem Label="@(_showAi ? "Hide AI Insights (Ctrl + J)" : "Show AI Insights (Ctrl + J)")" OnClick="ToggleAi" />
+					}
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportReport()" />
+					<MudBlazor.MudMenuItem Label="Export Excel (Ctrl + E)" OnClick="() => ExportReport(true)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Periods" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Current FY" OnClick="() => HandleDatesChanged(DateRangeType.CurrentFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="Previous FY" OnClick="() => HandleDatesChanged(DateRangeType.PreviousFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="Next FY" OnClick="() => HandleDatesChanged(DateRangeType.NextFinancialYear)" />
+				</MudBlazor.MudMenu>
+			</LeftContent>
+		</Header>
+
+		<div class="page-container fallacy-tabs">
+			@if (_user.Admin && _showAi)
+			{
+				<ReportAi Instructions="@AiInstructions" GetContext="BuildAiContext"
+						  ReportName="@OperationRouteNames.FallacyReport" UserId="@_user.Id"
+						  DefaultQuestion="@AiDefaultQuestion" Suggestions="@AiSuggestions" />
+			}
+
+			<MudBlazor.MudTabs @bind-ActivePanelIndex="_activeTabIndex"
+							   Rounded="true"
+							   Color="MudBlazor.Color.Transparent"
+							   SliderColor="MudBlazor.Color.Primary"
+							   MinimumTabWidth="120px"
+							   ApplyEffectsToContainer="false"
+							   TabHeaderClass="fallacy-tab-header"
+							   TabPanelsClass="fallacy-tab-panels">
+
+				<!-- 1. Sale: main outlet to outlet -->
+				<MudBlazor.MudTabPanel Text="@($"Sale - Main Outlet ({_fallacyDiscountMainOutletSaleOverviews.Count})")">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Main outlet sales where the discount is not equal to the outlet's discount</h2>
+						</div>
+
+						<SfGrid @ref="_sfGridMainOutletSale" TValue="SaleOverviewModel" DataSource="_fallacyDiscountMainOutletSaleOverviews"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="SaleOverviewModel" ContextMenuItemClicked="OnSaleContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.DiscountAmount)" CustomColor="grid-debit" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.TotalAmount)" CustomColor="grid-total" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.LocationName)" HeaderText="Location" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.PartyName)" HeaderText="Party" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.DiscountPercent)" HeaderText="Disc %" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.DiscountAmount)" HeaderText="Disc" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.CreatedByName)" HeaderText="Created By" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<!-- 2. Sale Return: main outlet to outlet -->
+				<MudBlazor.MudTabPanel Text="@($"Sale Return - Main Outlet ({_fallacyDiscountMainOutletSaleReturnOverviews.Count})")">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Main outlet sale returns where the discount is not equal to the outlet's discount</h2>
+						</div>
+
+						<SfGrid @ref="_sfGridMainOutletSaleReturn" TValue="SaleReturnOverviewModel" DataSource="_fallacyDiscountMainOutletSaleReturnOverviews"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="SaleReturnOverviewModel" ContextMenuItemClicked="OnSaleReturnContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.DiscountAmount)" CustomColor="grid-debit" />
+										<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.TotalAmount)" CustomColor="grid-total" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.LocationName)" HeaderText="Location" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.PartyName)" HeaderText="Party" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.DiscountPercent)" HeaderText="Disc %" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.DiscountAmount)" HeaderText="Disc" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.CreatedByName)" HeaderText="Created By" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<!-- 3. Stock Transfer: main outlet to outlet -->
+				<MudBlazor.MudTabPanel Text="@($"Stock Transfer - Main Outlet ({_fallacyDiscountMainOutletStockTransferOverviews.Count})")">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Main outlet stock transfers where the discount is not equal to the outlet's discount</h2>
+						</div>
+
+						<SfGrid @ref="_sfGridMainOutletStockTransfer" TValue="StockTransferOverviewModel" DataSource="_fallacyDiscountMainOutletStockTransferOverviews"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="StockTransferOverviewModel" ContextMenuItemClicked="OnStockTransferContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.DiscountAmount)" CustomColor="grid-debit" />
+										<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.TotalAmount)" CustomColor="grid-total" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.LocationName)" HeaderText="From" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.ToLocationName)" HeaderText="To" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.DiscountPercent)" HeaderText="Disc %" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.DiscountAmount)" HeaderText="Disc" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.CreatedByName)" HeaderText="Created By" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<!-- 4. Sale: outlet to customer -->
+				<MudBlazor.MudTabPanel Text="@($"Sale - Customer ({_fallacyDiscountOutletCustomerSaleOverviews.Count})")">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Outlet sales where the discount is above @_customerMaxDiscountThreshold%</h2>
+						</div>
+
+						<SfGrid @ref="_sfGridOutletCustomerSale" TValue="SaleOverviewModel" DataSource="_fallacyDiscountOutletCustomerSaleOverviews"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="SaleOverviewModel" ContextMenuItemClicked="OnSaleContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.DiscountAmount)" CustomColor="grid-debit" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.TotalAmount)" CustomColor="grid-total" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.LocationName)" HeaderText="Location" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.CustomerName)" HeaderText="Customer" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.DiscountPercent)" HeaderText="Disc %" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.DiscountAmount)" HeaderText="Disc" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.CreatedByName)" HeaderText="Created By" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<!-- 5. Sale Return: outlet to customer -->
+				<MudBlazor.MudTabPanel Text="@($"Sale Return - Customer ({_fallacyDiscountOutletCustomerSaleReturnOverviews.Count})")">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Outlet sale returns where the discount is above @_customerMaxDiscountThreshold%</h2>
+						</div>
+
+						<SfGrid @ref="_sfGridOutletCustomerSaleReturn" TValue="SaleReturnOverviewModel" DataSource="_fallacyDiscountOutletCustomerSaleReturnOverviews"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="SaleReturnOverviewModel" ContextMenuItemClicked="OnSaleReturnContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.DiscountAmount)" CustomColor="grid-debit" />
+										<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.TotalAmount)" CustomColor="grid-total" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.LocationName)" HeaderText="Location" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.CustomerName)" HeaderText="Customer" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.DiscountPercent)" HeaderText="Disc %" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.DiscountAmount)" HeaderText="Disc" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.CreatedByName)" HeaderText="Created By" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<!-- 6. Bill: restaurant to customer -->
+				<MudBlazor.MudTabPanel Text="@($"Bill - Customer ({_fallacyDiscountCustomerBillOverviews.Count})")">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Restaurant bills where the discount is above @_customerMaxDiscountThreshold%</h2>
+						</div>
+
+						<SfGrid @ref="_sfGridCustomerBill" TValue="BillOverviewModel" DataSource="_fallacyDiscountCustomerBillOverviews"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="BillOverviewModel" ContextMenuItemClicked="OnBillContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.DiscountAmount)" CustomColor="grid-debit" />
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.TotalAmount)" CustomColor="grid-total" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(BillOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.LocationName)" HeaderText="Location" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.CustomerName)" HeaderText="Customer" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.DiscountPercent)" HeaderText="Disc %" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.DiscountAmount)" HeaderText="Disc" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.CreatedByName)" HeaderText="Created By" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<!-- 7. Posting - Sale -->
+				<MudBlazor.MudTabPanel Text="@($"Posting - Sale ({_fallacyMissingPostingSaleOverviews.Count})")">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Sales with an amount, from earlier days, with no accounting posting</h2>
+						</div>
+
+						<SfGrid @ref="_sfGridMissingPostingSale" TValue="SaleOverviewModel" DataSource="_fallacyMissingPostingSaleOverviews"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="SaleOverviewModel" ContextMenuItemClicked="OnSaleContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.TotalAmount)" CustomColor="grid-total" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.LocationName)" HeaderText="Location" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.PartyName)" HeaderText="Party" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.CustomerName)" HeaderText="Customer" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.CreatedByName)" HeaderText="Created By" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<!-- 8. Posting - Sale Return -->
+				<MudBlazor.MudTabPanel Text="@($"Posting - Sale Return ({_fallacyMissingPostingSaleReturnOverviews.Count})")">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Sale returns with an amount, from earlier days, with no accounting posting</h2>
+						</div>
+
+						<SfGrid @ref="_sfGridMissingPostingSaleReturn" TValue="SaleReturnOverviewModel" DataSource="_fallacyMissingPostingSaleReturnOverviews"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="SaleReturnOverviewModel" ContextMenuItemClicked="OnSaleReturnContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.TotalAmount)" CustomColor="grid-total" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.LocationName)" HeaderText="Location" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.PartyName)" HeaderText="Party" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.CustomerName)" HeaderText="Customer" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.CreatedByName)" HeaderText="Created By" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<!-- 9. Posting - Stock Transfer -->
+				<MudBlazor.MudTabPanel Text="@($"Posting - Stock Transfer ({_fallacyMissingPostingStockTransferOverviews.Count})")">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Stock transfers with an amount, from earlier days, with no accounting posting</h2>
+						</div>
+
+						<SfGrid @ref="_sfGridMissingPostingStockTransfer" TValue="StockTransferOverviewModel" DataSource="_fallacyMissingPostingStockTransferOverviews"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="StockTransferOverviewModel" ContextMenuItemClicked="OnStockTransferContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.TotalAmount)" CustomColor="grid-total" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.LocationName)" HeaderText="From" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.ToLocationName)" HeaderText="To" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.CreatedByName)" HeaderText="Created By" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<!-- 10. Posting - Bill -->
+				<MudBlazor.MudTabPanel Text="@($"Posting - Bill ({_fallacyMissingPostingBillOverviews.Count})")">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Restaurant bills with an amount, from earlier days, with no accounting posting</h2>
+						</div>
+
+						<SfGrid @ref="_sfGridMissingPostingBill" TValue="BillOverviewModel" DataSource="_fallacyMissingPostingBillOverviews"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="BillOverviewModel" ContextMenuItemClicked="OnBillContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.TotalAmount)" CustomColor="grid-total" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(BillOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.LocationName)" HeaderText="Location" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.CustomerName)" HeaderText="Customer" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.CreatedByName)" HeaderText="Created By" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<!-- 11. Round Off - Sale -->
+				<MudBlazor.MudTabPanel Text="@($"Round Off - Sale ({_fallacyRoundOffSaleOverviews.Count})")">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Sales where the round-off is above @_maxRoundOffAmount</h2>
+						</div>
+
+						<SfGrid @ref="_sfGridRoundOffSale" TValue="SaleOverviewModel" DataSource="_fallacyRoundOffSaleOverviews"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="SaleOverviewModel" ContextMenuItemClicked="OnSaleContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.RoundOffAmount)" CustomColor="grid-debit" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.TotalAmount)" CustomColor="grid-total" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.LocationName)" HeaderText="Location" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.PartyName)" HeaderText="Party" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.CustomerName)" HeaderText="Customer" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.RoundOffAmount)" HeaderText="Round Off" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.CreatedByName)" HeaderText="Created By" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<!-- 12. Round Off - Sale Return -->
+				<MudBlazor.MudTabPanel Text="@($"Round Off - Sale Return ({_fallacyRoundOffSaleReturnOverviews.Count})")">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Sale returns where the round-off is above @_maxRoundOffAmount</h2>
+						</div>
+
+						<SfGrid @ref="_sfGridRoundOffSaleReturn" TValue="SaleReturnOverviewModel" DataSource="_fallacyRoundOffSaleReturnOverviews"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="SaleReturnOverviewModel" ContextMenuItemClicked="OnSaleReturnContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.RoundOffAmount)" CustomColor="grid-debit" />
+										<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.TotalAmount)" CustomColor="grid-total" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.LocationName)" HeaderText="Location" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.PartyName)" HeaderText="Party" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.CustomerName)" HeaderText="Customer" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.RoundOffAmount)" HeaderText="Round Off" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.CreatedByName)" HeaderText="Created By" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<!-- 13. Round Off - Stock Transfer -->
+				<MudBlazor.MudTabPanel Text="@($"Round Off - Stock Transfer ({_fallacyRoundOffStockTransferOverviews.Count})")">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Stock transfers where the round-off is above @_maxRoundOffAmount</h2>
+						</div>
+
+						<SfGrid @ref="_sfGridRoundOffStockTransfer" TValue="StockTransferOverviewModel" DataSource="_fallacyRoundOffStockTransferOverviews"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="StockTransferOverviewModel" ContextMenuItemClicked="OnStockTransferContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.RoundOffAmount)" CustomColor="grid-debit" />
+										<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.TotalAmount)" CustomColor="grid-total" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.LocationName)" HeaderText="From" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.ToLocationName)" HeaderText="To" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.RoundOffAmount)" HeaderText="Round Off" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.CreatedByName)" HeaderText="Created By" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<!-- 14. Round Off - Bill -->
+				<MudBlazor.MudTabPanel Text="@($"Round Off - Bill ({_fallacyRoundOffBillOverviews.Count})")">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Restaurant bills where the round-off is above @_maxRoundOffAmount</h2>
+						</div>
+
+						<SfGrid @ref="_sfGridRoundOffBill" TValue="BillOverviewModel" DataSource="_fallacyRoundOffBillOverviews"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="BillOverviewModel" ContextMenuItemClicked="OnBillContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.RoundOffAmount)" CustomColor="grid-debit" />
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.TotalAmount)" CustomColor="grid-total" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(BillOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.LocationName)" HeaderText="Location" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.CustomerName)" HeaderText="Customer" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.RoundOffAmount)" HeaderText="Round Off" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.CreatedByName)" HeaderText="Created By" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<!-- 15. Duplicate - Sale -->
+				<MudBlazor.MudTabPanel Text="@($"Duplicate - Sale ({_fallacyDuplicateSaleOverviews.Count})")">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Sales with the same location, party, total and minute</h2>
+						</div>
+
+						<SfGrid @ref="_sfGridDuplicateSale" TValue="SaleOverviewModel" DataSource="_fallacyDuplicateSaleOverviews"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="SaleOverviewModel" ContextMenuItemClicked="OnSaleContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.TotalAmount)" CustomColor="grid-total" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.LocationName)" HeaderText="Location" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.PartyName)" HeaderText="Party" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.CustomerName)" HeaderText="Customer" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.CreatedByName)" HeaderText="Created By" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<!-- 16. Duplicate - Sale Return -->
+				<MudBlazor.MudTabPanel Text="@($"Duplicate - Sale Return ({_fallacyDuplicateSaleReturnOverviews.Count})")">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Sale returns with the same location, party, total and minute</h2>
+						</div>
+
+						<SfGrid @ref="_sfGridDuplicateSaleReturn" TValue="SaleReturnOverviewModel" DataSource="_fallacyDuplicateSaleReturnOverviews"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="SaleReturnOverviewModel" ContextMenuItemClicked="OnSaleReturnContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.TotalAmount)" CustomColor="grid-total" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.LocationName)" HeaderText="Location" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.PartyName)" HeaderText="Party" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.CustomerName)" HeaderText="Customer" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.CreatedByName)" HeaderText="Created By" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<!-- 17. Duplicate - Stock Transfer -->
+				<MudBlazor.MudTabPanel Text="@($"Duplicate - Stock Transfer ({_fallacyDuplicateStockTransferOverviews.Count})")">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Stock transfers with the same from, to, total and minute</h2>
+						</div>
+
+						<SfGrid @ref="_sfGridDuplicateStockTransfer" TValue="StockTransferOverviewModel" DataSource="_fallacyDuplicateStockTransferOverviews"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="StockTransferOverviewModel" ContextMenuItemClicked="OnStockTransferContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.TotalAmount)" CustomColor="grid-total" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.LocationName)" HeaderText="From" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.ToLocationName)" HeaderText="To" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.CreatedByName)" HeaderText="Created By" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<!-- 18. Duplicate - Bill -->
+				<MudBlazor.MudTabPanel Text="@($"Duplicate - Bill ({_fallacyDuplicateBillOverviews.Count})")">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Restaurant bills with the same location, total and minute</h2>
+						</div>
+
+						<SfGrid @ref="_sfGridDuplicateBill" TValue="BillOverviewModel" DataSource="_fallacyDuplicateBillOverviews"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="BillOverviewModel" ContextMenuItemClicked="OnBillContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.TotalAmount)" CustomColor="grid-total" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(BillOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.LocationName)" HeaderText="Location" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.CustomerName)" HeaderText="Customer" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.CreatedByName)" HeaderText="Created By" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<!-- 19. Credit - Sale -->
+				<MudBlazor.MudTabPanel Text="@($"Credit - Sale ({_fallacyCreditOutletCustomerSaleOverviews.Count})")">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Outlet sales that have a credit amount</h2>
+						</div>
+
+						<SfGrid @ref="_sfGridCreditOutletCustomerSale" TValue="SaleOverviewModel" DataSource="_fallacyCreditOutletCustomerSaleOverviews"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="SaleOverviewModel" ContextMenuItemClicked="OnSaleContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.Credit)" CustomColor="grid-debit" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.TotalAmount)" CustomColor="grid-total" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.LocationName)" HeaderText="Location" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.PartyName)" HeaderText="Party" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.CustomerName)" HeaderText="Customer" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.Credit)" HeaderText="Credit" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.CreatedByName)" HeaderText="Created By" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<!-- 20. Credit - Bill -->
+				<MudBlazor.MudTabPanel Text="@($"Credit - Bill ({_fallacyCreditCustomerBillOverviews.Count})")">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Restaurant bills that have a credit amount</h2>
+						</div>
+
+						<SfGrid @ref="_sfGridCreditCustomerBill" TValue="BillOverviewModel" DataSource="_fallacyCreditCustomerBillOverviews"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="BillOverviewModel" ContextMenuItemClicked="OnBillContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.Credit)" CustomColor="grid-debit" />
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.TotalAmount)" CustomColor="grid-total" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(BillOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.LocationName)" HeaderText="Location" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.CustomerName)" HeaderText="Customer" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.Credit)" HeaderText="Credit" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.CreatedByName)" HeaderText="Created By" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+			</MudBlazor.MudTabs>
+		</div>
+
+		<Footer />
+	</div>
+}
+
+<ToastNotification @ref="_toastNotification" />
+
+<CloseGuard Block="_isProcessing" />

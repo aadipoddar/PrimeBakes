@@ -354,6 +354,23 @@ else
 														Max="100000"
 														Required="false" />
 								</SettingRow>
+								<SettingRow Name="Maximum Outlet Customer Discount (%)" Description="@SettingDescription(SettingsKeys.CustomerMaxDiscountThreshold)">
+									<CustomNumericField T="int"
+														@bind-Value="_customerMaxDiscountThreshold"
+														Placeholder="e.g., 25"
+														Format="N0"
+														Min="0"
+														Max="100"
+														Required="false" />
+								</SettingRow>
+								<SettingRow Name="Maximum Round-Off Before Flag (₹)" Description="@SettingDescription(SettingsKeys.MaxRoundOffAmount)">
+									<CustomNumericField T="decimal"
+														@bind-Value="_maxRoundOffAmount"
+														Placeholder="e.g., 1.00"
+														Format="N2"
+														Min="0"
+														Required="false" />
+								</SettingRow>
 							</div>
 						</div>
 

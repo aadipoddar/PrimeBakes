@@ -74,6 +74,8 @@ BEGIN
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'HeavyQuerySpanDays', N'30', N'Reports covering more than this many days are treated as heavy reports')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'HeavyQueryMaxLoadPercent', N'50', N'Heavy reports are blocked while database load is above this percentage')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'LocationRadiusMeters', N'1000', N'Distance in metres within which a transaction counts as done on site')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'CustomerMaxDiscountThreshold', N'25', N'Maximum discount percentage an outlet may give a customer on a sale, sale return, or bill before the Fallacy Report flags a transaction')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'MaxRoundOffAmount', N'1', N'Maximum round-off amount allowed before the Fallacy Report flags a transaction')
 
 	-- Login Settings
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'MaxLoginTimeHours', N'12', N'Hours after login before a user is signed out automatically')

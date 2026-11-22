@@ -13,9 +13,11 @@ public static class OperationRouteNames
 
 	public const string Terminal = "/operations/terminal";
 	public const string OfflineQueue = "/operations/offline-queue";
+	public const string SendNotification = "/operations/send-notification";
 
 	public const string AuditTrailReport = "/operations/audit-trail-report";
-	public const string SendNotification = "/operations/send-notification";
+	public const string FallacyReport = "/operations/fallacy-report";
+
 }
 
 public static class AccountsRouteNames

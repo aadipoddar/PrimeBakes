@@ -1,0 +1,33 @@
+/* Tab styling copied from the Dashboard launchpad tabs */
+
+/* Tab header strip: transparent, floats on the page background */
+.fallacy-tabs ::deep .fallacy-tab-header {
+	background: transparent;
+	border-bottom: 1px solid rgba(15, 23, 42, 0.12);
+	padding: 0;
+}
+
+/* Individual tab labels */
+.fallacy-tabs ::deep .mud-tab {
+	text-transform: none;
+	font-size: 14px;
+	font-weight: 500;
+	letter-spacing: -0.1px;
+	color: var(--gray-500, #64748b);
+	min-height: 48px;
+}
+
+	.fallacy-tabs ::deep .mud-tab.mud-tab-active {
+		color: var(--gray-900, #0f172a);
+		font-weight: 600;
+	}
+
+.fallacy-tabs ::deep .mud-tabs-tabbar {
+	background: transparent !important;
+	border-radius: 0;
+}
+
+/* Panels area below the tabs */
+.fallacy-tabs ::deep .fallacy-tab-panels {
+	padding: 20px 0 4px 0;
+}
