@@ -74,8 +74,12 @@ BEGIN
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'HeavyQuerySpanDays', N'30', N'Reports covering more than this many days are treated as heavy reports')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'HeavyQueryMaxLoadPercent', N'50', N'Heavy reports are blocked while database load is above this percentage')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'LocationRadiusMeters', N'1000', N'Distance in metres within which a transaction counts as done on site')
+
+	-- Fallacy Settings
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'CustomerMaxDiscountThreshold', N'25', N'Maximum discount percentage an outlet may give a customer on a sale, sale return, or bill before the Fallacy Report flags a transaction')
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'MaxRoundOffAmount', N'1', N'Maximum round-off amount allowed before the Fallacy Report flags a transaction')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'OddTimingStartHour', N'0', N'Hour (0-23) from which transactions entered are flagged as odd timing in the Fallacy Report')
+	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'OddTimingEndHour', N'5', N'Hour (0-23) before which transactions entered are flagged as odd timing in the Fallacy Report')
 
 	-- Login Settings
 	INSERT INTO [dbo].[Settings] ([Key], [Value], [Description]) VALUES (N'MaxLoginTimeHours', N'12', N'Hours after login before a user is signed out automatically')

@@ -81,8 +81,12 @@ public static class SettingsKeys
 	public static string HeavyQuerySpanDays => "HeavyQuerySpanDays";
 	public static string HeavyQueryMaxLoadPercent => "HeavyQueryMaxLoadPercent";
 	public static string LocationRadiusMeters => "LocationRadiusMeters";
+
+	// Fallacy Settings
 	public static string CustomerMaxDiscountThreshold => "CustomerMaxDiscountThreshold";
 	public static string MaxRoundOffAmount => "MaxRoundOffAmount";
+	public static string OddTimingStartHour => "OddTimingStartHour";
+	public static string OddTimingEndHour => "OddTimingEndHour";
 
 	// Login Settings
 	public static string MaxLoginTimeHours => "MaxLoginTimeHours";

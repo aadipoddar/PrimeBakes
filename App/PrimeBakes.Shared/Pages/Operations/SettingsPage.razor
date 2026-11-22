@@ -354,22 +354,47 @@ else
 														Max="100000"
 														Required="false" />
 								</SettingRow>
+							</div>
+						</div>
+						<div class="section-card">
+							<div class="section-header">
+								<h2 class="section-title">Fallacy Settings</h2>
+							</div>
+							<div class="section-body">
 								<SettingRow Name="Maximum Outlet Customer Discount (%)" Description="@SettingDescription(SettingsKeys.CustomerMaxDiscountThreshold)">
 									<CustomNumericField T="int"
-														@bind-Value="_customerMaxDiscountThreshold"
-														Placeholder="e.g., 25"
-														Format="N0"
-														Min="0"
-														Max="100"
-														Required="false" />
+													@bind-Value="_customerMaxDiscountThreshold"
+													Placeholder="e.g., 25"
+													Format="N0"
+													Min="0"
+													Max="100"
+													Required="false" />
 								</SettingRow>
 								<SettingRow Name="Maximum Round-Off Before Flag (₹)" Description="@SettingDescription(SettingsKeys.MaxRoundOffAmount)">
 									<CustomNumericField T="decimal"
-														@bind-Value="_maxRoundOffAmount"
-														Placeholder="e.g., 1.00"
-														Format="N2"
-														Min="0"
-														Required="false" />
+													@bind-Value="_maxRoundOffAmount"
+													Placeholder="e.g., 1.00"
+													Format="N2"
+													Min="0"
+													Required="false" />
+								</SettingRow>
+								<SettingRow Name="Odd Timing Start Hour (0–23)" Description="@SettingDescription(SettingsKeys.OddTimingStartHour)">
+									<CustomNumericField T="int"
+													@bind-Value="_oddTimingStartHour"
+													Placeholder="e.g., 0"
+													Format="N0"
+													Min="0"
+													Max="23"
+													Required="false" />
+								</SettingRow>
+								<SettingRow Name="Odd Timing End Hour (0–23)" Description="@SettingDescription(SettingsKeys.OddTimingEndHour)">
+									<CustomNumericField T="int"
+													@bind-Value="_oddTimingEndHour"
+													Placeholder="e.g., 5"
+													Format="N0"
+													Min="0"
+													Max="23"
+													Required="false" />
 								</SettingRow>
 							</div>
 						</div>

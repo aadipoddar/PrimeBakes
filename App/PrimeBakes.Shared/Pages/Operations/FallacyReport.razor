@@ -10,9 +10,9 @@
 
 <MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyJ KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleAi" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport()" Disabled="@_isProcessing" />
 <MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport(true)" Disabled="@_isProcessing" />
-<MudBlazor.MudHotkey Key=JsKey.KeyJ KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleAi" Disabled="@(_isProcessing || _user?.Admin != true)" />
 
 @if (_isLoading || _user is null)
 {
@@ -25,10 +25,7 @@ else
 			<LeftContent>
 				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
 					<MudBlazor.MudMenuItem Label="Refresh Data (Ctrl + R / F5)" OnClick="LoadTransactionOverviews" />
-					@if (_user.Admin)
-					{
-						<MudBlazor.MudMenuItem Label="@(_showAi ? "Hide AI Insights (Ctrl + J)" : "Show AI Insights (Ctrl + J)")" OnClick="ToggleAi" />
-					}
+					<MudBlazor.MudMenuItem Label="@(_showAi ? "Hide AI Insights (Ctrl + J)" : "Show AI Insights (Ctrl + J)")" OnClick="ToggleAi" />
 					<MudBlazor.MudDivider />
 					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportReport()" />
 					<MudBlazor.MudMenuItem Label="Export Excel (Ctrl + E)" OnClick="() => ExportReport(true)" />
@@ -43,11 +40,15 @@ else
 		</Header>
 
 		<div class="page-container fallacy-tabs">
-			@if (_user.Admin && _showAi)
+
+			@if (_showAi)
 			{
-				<ReportAi Instructions="@AiInstructions" GetContext="BuildAiContext"
-						  ReportName="@OperationRouteNames.FallacyReport" UserId="@_user.Id"
-						  DefaultQuestion="@AiDefaultQuestion" Suggestions="@AiSuggestions" />
+				<ReportAi Instructions="@AiInstructions"
+						  GetContext="BuildAiContext"
+						  ReportName="@OperationRouteNames.FallacyReport"
+						  UserId="@_user.Id"
+						  DefaultQuestion="@AiDefaultQuestion"
+						  Suggestions="@AiSuggestions" />
 			}
 
 			<MudBlazor.MudTabs @bind-ActivePanelIndex="_activeTabIndex"
@@ -775,7 +776,165 @@ else
 					</div>
 				</MudBlazor.MudTabPanel>
 
-				<!-- 19. Credit - Sale -->
+				<!-- 19. Odd Timing - Sale -->
+				<MudBlazor.MudTabPanel Text="@($"Odd Timing - Sale ({_fallacyOddTimingSaleOverviews.Count})")">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Sales entered between @(_oddTimingStartHour):00 and @(_oddTimingEndHour):00</h2>
+						</div>
+
+						<SfGrid @ref="_sfGridOddTimingSale" TValue="SaleOverviewModel" DataSource="_fallacyOddTimingSaleOverviews"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="SaleOverviewModel" ContextMenuItemClicked="OnSaleContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.TotalAmount)" CustomColor="grid-total" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.CreatedAt)" HeaderText="Entered At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.LocationName)" HeaderText="Location" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.PartyName)" HeaderText="Party" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.CustomerName)" HeaderText="Customer" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.CreatedByName)" HeaderText="Created By" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<!-- 20. Odd Timing - Sale Return -->
+				<MudBlazor.MudTabPanel Text="@($"Odd Timing - Sale Return ({_fallacyOddTimingSaleReturnOverviews.Count})")">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Sale returns entered between @(_oddTimingStartHour):00 and @(_oddTimingEndHour):00</h2>
+						</div>
+
+						<SfGrid @ref="_sfGridOddTimingSaleReturn" TValue="SaleReturnOverviewModel" DataSource="_fallacyOddTimingSaleReturnOverviews"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="SaleReturnOverviewModel" ContextMenuItemClicked="OnSaleReturnContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.TotalAmount)" CustomColor="grid-total" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.CreatedAt)" HeaderText="Entered At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.LocationName)" HeaderText="Location" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.PartyName)" HeaderText="Party" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.CustomerName)" HeaderText="Customer" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.CreatedByName)" HeaderText="Created By" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<!-- 21. Odd Timing - Stock Transfer -->
+				<MudBlazor.MudTabPanel Text="@($"Odd Timing - Stock Transfer ({_fallacyOddTimingStockTransferOverviews.Count})")">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Stock transfers entered between @(_oddTimingStartHour):00 and @(_oddTimingEndHour):00</h2>
+						</div>
+
+						<SfGrid @ref="_sfGridOddTimingStockTransfer" TValue="StockTransferOverviewModel" DataSource="_fallacyOddTimingStockTransferOverviews"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="StockTransferOverviewModel" ContextMenuItemClicked="OnStockTransferContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.TotalAmount)" CustomColor="grid-total" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.CreatedAt)" HeaderText="Entered At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.LocationName)" HeaderText="From" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.ToLocationName)" HeaderText="To" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.CreatedByName)" HeaderText="Created By" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<!-- 22. Odd Timing - Bill -->
+				<MudBlazor.MudTabPanel Text="@($"Odd Timing - Bill ({_fallacyOddTimingBillOverviews.Count})")">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Restaurant bills entered between @(_oddTimingStartHour):00 and @(_oddTimingEndHour):00</h2>
+						</div>
+
+						<SfGrid @ref="_sfGridOddTimingBill" TValue="BillOverviewModel" DataSource="_fallacyOddTimingBillOverviews"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="BillOverviewModel" ContextMenuItemClicked="OnBillContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.TotalAmount)" CustomColor="grid-total" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(BillOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.CreatedAt)" HeaderText="Entered At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.LocationName)" HeaderText="Location" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.CustomerName)" HeaderText="Customer" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.CreatedByName)" HeaderText="Created By" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<!-- 23. Credit - Sale -->
 				<MudBlazor.MudTabPanel Text="@($"Credit - Sale ({_fallacyCreditOutletCustomerSaleOverviews.Count})")">
 					<div class="section-card">
 						<div class="section-header">
@@ -816,7 +975,7 @@ else
 					</div>
 				</MudBlazor.MudTabPanel>
 
-				<!-- 20. Credit - Bill -->
+				<!-- 24. Credit - Bill -->
 				<MudBlazor.MudTabPanel Text="@($"Credit - Bill ({_fallacyCreditCustomerBillOverviews.Count})")">
 					<div class="section-card">
 						<div class="section-header">

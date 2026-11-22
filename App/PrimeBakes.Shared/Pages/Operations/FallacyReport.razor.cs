@@ -33,6 +33,8 @@ public partial class FallacyReport : IAsyncDisposable
 	private int _activeTabIndex;
 	private int _customerMaxDiscountThreshold;
 	private decimal _maxRoundOffAmount;
+	private int _oddTimingStartHour;
+	private int _oddTimingEndHour;
 
 	private DateTime _fromDate = DateTime.Now.Date;
 	private DateTime _toDate = DateTime.Now.Date;
@@ -53,6 +55,10 @@ public partial class FallacyReport : IAsyncDisposable
 	private List<BillOverviewModel> _fallacyDiscountCustomerBillOverviews = [];
 
 	// Credit on outlet customer sales
+	private List<SaleOverviewModel> _fallacyOddTimingSaleOverviews = [];
+	private List<SaleReturnOverviewModel> _fallacyOddTimingSaleReturnOverviews = [];
+	private List<StockTransferOverviewModel> _fallacyOddTimingStockTransferOverviews = [];
+	private List<BillOverviewModel> _fallacyOddTimingBillOverviews = [];
 	private List<SaleOverviewModel> _fallacyCreditOutletCustomerSaleOverviews = [];
 	private List<BillOverviewModel> _fallacyCreditCustomerBillOverviews = [];
 
@@ -93,6 +99,10 @@ public partial class FallacyReport : IAsyncDisposable
 	private SfGrid<SaleReturnOverviewModel> _sfGridDuplicateSaleReturn;
 	private SfGrid<StockTransferOverviewModel> _sfGridDuplicateStockTransfer;
 	private SfGrid<BillOverviewModel> _sfGridDuplicateBill;
+	private SfGrid<SaleOverviewModel> _sfGridOddTimingSale;
+	private SfGrid<SaleReturnOverviewModel> _sfGridOddTimingSaleReturn;
+	private SfGrid<StockTransferOverviewModel> _sfGridOddTimingStockTransfer;
+	private SfGrid<BillOverviewModel> _sfGridOddTimingBill;
 	private SfGrid<SaleOverviewModel> _sfGridCreditOutletCustomerSale;
 	private SfGrid<BillOverviewModel> _sfGridCreditCustomerBill;
 
@@ -133,6 +143,12 @@ public partial class FallacyReport : IAsyncDisposable
 
 		var roundOffSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.MaxRoundOffAmount);
 		_maxRoundOffAmount = decimal.TryParse(roundOffSetting?.Value, out var roundOff) ? roundOff : 1;
+
+		var oddStartSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.OddTimingStartHour);
+		_oddTimingStartHour = int.TryParse(oddStartSetting?.Value, out var oddStart) ? oddStart : 0;
+
+		var oddEndSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.OddTimingEndHour);
+		_oddTimingEndHour = int.TryParse(oddEndSetting?.Value, out var oddEnd) ? oddEnd : 5;
 
 		_locations = [.. (await locations).OrderBy(s => s.Name)];
 	}
@@ -198,6 +214,7 @@ public partial class FallacyReport : IAsyncDisposable
 		BuildMissingPostingConflict();
 		BuildRoundOffConflict();
 		BuildDuplicateConflict();
+		BuildOddTimingConflict();
 		BuildCreditConflict();
 	}
 
@@ -332,6 +349,28 @@ public partial class FallacyReport : IAsyncDisposable
 			t => t.TransactionDateTime);
 	}
 
+	// Entered (created) between the start hour and the end hour, for example 00:00 to 05:00
+	private void BuildOddTimingConflict()
+	{
+		bool IsOdd(DateTime createdAt) => createdAt.Hour >= _oddTimingStartHour && createdAt.Hour < _oddTimingEndHour;
+
+		_fallacyOddTimingSaleOverviews = [.. _saleOverviews
+			.Where(t => t.Status && IsOdd(t.CreatedAt))
+			.OrderBy(t => t.CreatedAt)];
+
+		_fallacyOddTimingSaleReturnOverviews = [.. _saleReturnOverviews
+			.Where(t => t.Status && IsOdd(t.CreatedAt))
+			.OrderBy(t => t.CreatedAt)];
+
+		_fallacyOddTimingStockTransferOverviews = [.. _stockTransferOverviews
+			.Where(t => t.Status && IsOdd(t.CreatedAt))
+			.OrderBy(t => t.CreatedAt)];
+
+		_fallacyOddTimingBillOverviews = [.. _billOverviews
+			.Where(t => t.Status && IsOdd(t.CreatedAt))
+			.OrderBy(t => t.CreatedAt)];
+	}
+
 	private static List<T> GetPossibleDuplicates<T, TKey>(IEnumerable<T> transactions, Func<T, TKey> groupKey, Func<T, DateTime> orderKey) =>
 		[.. transactions
 			.GroupBy(groupKey)
@@ -359,6 +398,10 @@ public partial class FallacyReport : IAsyncDisposable
 		if (_sfGridDuplicateSaleReturn is not null) await _sfGridDuplicateSaleReturn.Refresh();
 		if (_sfGridDuplicateStockTransfer is not null) await _sfGridDuplicateStockTransfer.Refresh();
 		if (_sfGridDuplicateBill is not null) await _sfGridDuplicateBill.Refresh();
+		if (_sfGridOddTimingSale is not null) await _sfGridOddTimingSale.Refresh();
+		if (_sfGridOddTimingSaleReturn is not null) await _sfGridOddTimingSaleReturn.Refresh();
+		if (_sfGridOddTimingStockTransfer is not null) await _sfGridOddTimingStockTransfer.Refresh();
+		if (_sfGridOddTimingBill is not null) await _sfGridOddTimingBill.Refresh();
 		if (_sfGridCreditOutletCustomerSale is not null) await _sfGridCreditOutletCustomerSale.Refresh();
 		if (_sfGridCreditCustomerBill is not null) await _sfGridCreditCustomerBill.Refresh();
 	}
@@ -409,8 +452,12 @@ public partial class FallacyReport : IAsyncDisposable
 			// 15: Duplicate - Sale Return
 			// 16: Duplicate - Stock Transfer
 			// 17: Duplicate - Bill
-			// 18: Credit - Sale
-			// 19: Credit - Bill
+			// 18: Odd Timing - Sale
+			// 19: Odd Timing - Sale Return
+			// 20: Odd Timing - Stock Transfer
+			// 21: Odd Timing - Bill
+			// 22: Credit - Sale
+			// 23: Credit - Bill
 			var (stream, fileName) = _activeTabIndex switch
 			{
 				0 => SaleReportExport.ExportReport(_fallacyDiscountMainOutletSaleOverviews, currentDateTime, exportType, fromDate, toDate, showAllColumns: false),
@@ -431,7 +478,11 @@ public partial class FallacyReport : IAsyncDisposable
 				15 => SaleReturnReportExport.ExportReport(_fallacyDuplicateSaleReturnOverviews, currentDateTime, exportType, fromDate, toDate, showAllColumns: false),
 				16 => StockTransferReportExport.ExportReport(_fallacyDuplicateStockTransferOverviews, currentDateTime, exportType, fromDate, toDate, showAllColumns: false),
 				17 => BillReportExport.ExportReport(_fallacyDuplicateBillOverviews, currentDateTime, exportType, fromDate, toDate, showAllColumns: false),
-				18 => SaleReportExport.ExportReport(_fallacyCreditOutletCustomerSaleOverviews, currentDateTime, exportType, fromDate, toDate, showAllColumns: true),
+				18 => SaleReportExport.ExportReport(_fallacyOddTimingSaleOverviews, currentDateTime, exportType, fromDate, toDate, showAllColumns: false),
+				19 => SaleReturnReportExport.ExportReport(_fallacyOddTimingSaleReturnOverviews, currentDateTime, exportType, fromDate, toDate, showAllColumns: false),
+				20 => StockTransferReportExport.ExportReport(_fallacyOddTimingStockTransferOverviews, currentDateTime, exportType, fromDate, toDate, showAllColumns: false),
+				21 => BillReportExport.ExportReport(_fallacyOddTimingBillOverviews, currentDateTime, exportType, fromDate, toDate, showAllColumns: false),
+				22 => SaleReportExport.ExportReport(_fallacyCreditOutletCustomerSaleOverviews, currentDateTime, exportType, fromDate, toDate, showAllColumns: true),
 				_ => BillReportExport.ExportReport(_fallacyCreditCustomerBillOverviews, currentDateTime, exportType, fromDate, toDate, showAllColumns: true)
 			};
 
