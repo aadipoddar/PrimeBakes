@@ -323,12 +323,12 @@ else
 				</div>
 
 			</div>
-		</div>
 
-		@if (_accounting.Id > 0 && _user.Admin)
-		{
-			<AuditTrailGrid RecordNo="@_accounting.TransactionNo" />
-		}
+			@if (_accounting.Id > 0 && _user.Admin)
+			{
+				<AuditTrailGrid RecordNo="@_accounting.TransactionNo" />
+			}
+		</div>
 
 		<Footer />
 	</div>

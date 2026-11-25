@@ -94,7 +94,6 @@ public static class StoreRouteNames
 	public const string OrderMobileConfirmation = "/store/order-confirmation-mobile";
 	public const string OrderReport = "/store/order-report";
 	public const string OrderItemReport = "/store/order-item-report";
-	public const string OrderItemMonthlyReport = "/store/order-item-monthly-report";
 
 	public const string Sale = "/store/sale";
 	public const string SaleReturn = "/store/sale-return";
@@ -104,11 +103,8 @@ public static class StoreRouteNames
 	public const string SaleMobileConfirmation = "/store/sale-confirmation-mobile";
 	public const string SaleReport = "/store/sale-report";
 	public const string SaleItemReport = "/store/sale-item-report";
-	public const string SaleItemMonthlyReport = "/store/sale-item-monthly-report";
 	public const string SaleReturnReport = "/store/sale-return-report";
 	public const string SaleReturnItemReport = "/store/sale-return-item-report";
-	public const string OutletSummaryReport = "/store/outlet-summary-report";
-	public const string CustomerSummaryReport = "/store/customer-summary-report";
 
 	public const string StockTransfer = "/store/stock-transfer";
 	public const string StockTransferReport = "/store/stock-transfer-report";
@@ -122,6 +118,12 @@ public static class StoreRouteNames
 
 	public const string Customer = "/store/customer";
 	public const string OnlinePartner = "/store/online-partner";
+
+	public const string OutletSummaryReport = "/store/outlet-summary-report";
+	public const string OutletDetailReport = "/store/outlet-detail-report";
+	public const string SaleItemMonthlyReport = "/store/sale-item-monthly-report";
+	public const string OrderItemMonthlyReport = "/store/order-item-monthly-report";
+	public const string CustomerSummaryReport = "/store/customer-summary-report";
 }
 
 public static class RestaurantRouteNames

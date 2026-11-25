@@ -578,12 +578,12 @@ else
 					</GridColumns>
 				</SfGrid>
 			</div>
-		</div>
 
-		@if (_bill.Id > 0 && _user.Admin)
-		{
-			<AuditTrailGrid RecordNo="@_bill.TransactionNo" />
-		}
+			@if (_bill.Id > 0 && _user.Admin)
+			{
+				<AuditTrailGrid RecordNo="@_bill.TransactionNo" />
+			}
+		</div>
 
 		<Footer />
 	</div>

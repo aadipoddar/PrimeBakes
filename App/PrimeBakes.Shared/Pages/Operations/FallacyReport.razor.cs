@@ -13,6 +13,7 @@ using PrimeBakes.Models.Restaurant.Bill;
 using PrimeBakes.Models.Store.Sale;
 using PrimeBakes.Models.Store.StockTransfer;
 using PrimeBakes.Shared.Components.Dialog;
+using PrimeBakes.Shared.Components.Input;
 
 using Syncfusion.Blazor.Grids;
 
@@ -106,6 +107,7 @@ public partial class FallacyReport : IAsyncDisposable
 	private SfGrid<SaleOverviewModel> _sfGridCreditOutletCustomerSale;
 	private SfGrid<BillOverviewModel> _sfGridCreditCustomerBill;
 
+	private CustomDateRangePicker _firstFocus;
 	private ToastNotification _toastNotification;
 
 	#region Load Data
@@ -130,12 +132,14 @@ public partial class FallacyReport : IAsyncDisposable
 
 		_isLoading = false;
 		StateHasChanged();
+
+		if (_firstFocus is not null) await _firstFocus.FocusAsync();
 	}
 
 	private async Task LoadData()
 	{
 		_currentDateTime = await CommonData.LoadCurrentDateTime();
-		(_fromDate, _toDate) = await FinancialYearData.GetDateRange(DateRangeType.CurrentFinancialYear, _currentDateTime, _currentDateTime);
+		_fromDate = _toDate = _currentDateTime;
 
 		var locations = CommonData.LoadTableDataByStatus<LocationModel>(OperationNames.Location, useLocalDB: true);
 		var discountSetting = await SettingsData.LoadSettingsByKey(SettingsKeys.CustomerMaxDiscountThreshold);
@@ -408,6 +412,13 @@ public partial class FallacyReport : IAsyncDisposable
 	#endregion
 
 	#region Changed Events
+	private async Task OnDateRangeChanged(MudBlazor.DateRange range)
+	{
+		_fromDate = range?.Start ?? _fromDate;
+		_toDate = range?.End ?? _toDate;
+		await LoadTransactionOverviews();
+	}
+
 	private async Task HandleDatesChanged(DateRangeType dateRangeType)
 	{
 		(_fromDate, _toDate) = await FinancialYearData.GetDateRange(dateRangeType, _fromDate, _toDate);

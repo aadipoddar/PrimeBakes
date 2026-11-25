@@ -1,0 +1,1595 @@
+@using PrimeBakes.Models.Accounts.FinancialAccounting
+@using PrimeBakes.Models.Accounts.Masters
+@using PrimeBakes.Models.Inventory.Stock
+@using PrimeBakes.Models.Operations.Location
+@using PrimeBakes.Models.Restaurant.Bill
+@using PrimeBakes.Models.Store.Order
+@using PrimeBakes.Models.Store.Product
+@using PrimeBakes.Models.Store.Sale
+@using PrimeBakes.Models.Store.StockTransfer
+@using PrimeBakes.Shared.Components.Ai
+
+@attribute [Route(StoreRouteNames.OutletDetailReport)]
+
+<PageTitle>Outlet Detail Report - Prime Bakes</PageTitle>
+
+<MudBlazor.MudHotkey Key=JsKey.KeyN KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => WindowNavigation.NavigateToRoute(StoreRouteNames.Sale)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyF KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => _firstFocus?.FocusAsync()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.F5 OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyR KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="LoadTransactionOverviews" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.Delete KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDeleted" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyQ KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleDetailsView" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyJ KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="ToggleAi" Disabled="@(_isProcessing || _user?.Admin != true)" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.ControlLeft] OnHotkeyPressed="() => ExportReport(true)" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyO KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="ViewSelectedTransaction" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyP KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction()" Disabled="@_isProcessing" />
+<MudBlazor.MudHotkey Key=JsKey.KeyE KeyModifiers=[JsKeyModifier.AltLeft] OnHotkeyPressed="() => ExportSelectedTransaction(true)" Disabled="@_isProcessing" />
+
+@if (_isLoading || _user is null)
+{
+	<LoadingScreen />
+}
+else
+{
+	<div class="page-shell">
+		<Header Title="Outlet Detail Report">
+			<LeftContent>
+				<MudBlazor.MudMenu Label="File" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="New Transaction (Ctrl + N)" OnClick="() => WindowNavigation.NavigateToRoute(StoreRouteNames.Sale)" />
+					<MudBlazor.MudMenuItem Label="Refresh Data (Ctrl + R / F5)" OnClick="LoadTransactionOverviews" />
+					<MudBlazor.MudMenuItem Label="@(_showDeleted ? "Hide Deleted (Ctrl + Delete)" : "Show Deleted (Ctrl + Delete)")" OnClick="ToggleDeleted" />
+					<MudBlazor.MudMenuItem Label="@(_showAllColumns ? "Hide Details (Ctrl + Q)" : "Show Details (Ctrl + Q)")" OnClick="ToggleDetailsView" />
+					@if (_user.Admin)
+					{
+						<MudBlazor.MudMenuItem Label="@(_showAi ? "Hide AI Insights (Ctrl + J)" : "Show AI Insights (Ctrl + J)")" OnClick="ToggleAi" />
+					}
+					<MudBlazor.MudDivider />
+					<MudBlazor.MudMenuItem Label="Export PDF (Ctrl + P)" OnClick="() => ExportReport()" />
+					<MudBlazor.MudMenuItem Label="Export Excel (Ctrl + E)" OnClick="() => ExportReport(true)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Open" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Accounting Report" OnClick="() => WindowNavigation.NavigateToRoute(AccountsRouteNames.FinancialAccountingReport)" />
+					<MudBlazor.MudMenuItem Label="Ledger Report" OnClick="() => WindowNavigation.NavigateToRoute(AccountsRouteNames.AccountingLedgerReport)" />
+					<MudBlazor.MudMenuItem Label="Order Report" OnClick="() => WindowNavigation.NavigateToRoute(StoreRouteNames.OrderReport)" />
+					<MudBlazor.MudMenuItem Label="Order Item Report" OnClick="() => WindowNavigation.NavigateToRoute(StoreRouteNames.OrderItemReport)" />
+					<MudBlazor.MudMenuItem Label="Sale (Ctrl + N)" OnClick="() => WindowNavigation.NavigateToRoute(StoreRouteNames.Sale)" />
+					<MudBlazor.MudMenuItem Label="Sale Report" OnClick="() => WindowNavigation.NavigateToRoute(StoreRouteNames.SaleReport)" />
+					<MudBlazor.MudMenuItem Label="Sale Item Report" OnClick="() => WindowNavigation.NavigateToRoute(StoreRouteNames.SaleItemReport)" />
+					<MudBlazor.MudMenuItem Label="Sale Return Report" OnClick="() => WindowNavigation.NavigateToRoute(StoreRouteNames.SaleReturnReport)" />
+					<MudBlazor.MudMenuItem Label="Sale Return Item Report" OnClick="() => WindowNavigation.NavigateToRoute(StoreRouteNames.SaleReturnItemReport)" />
+					<MudBlazor.MudMenuItem Label="Stock Transfer Report" OnClick="() => WindowNavigation.NavigateToRoute(StoreRouteNames.StockTransferReport)" />
+					<MudBlazor.MudMenuItem Label="Stock Transfer Item Report" OnClick="() => WindowNavigation.NavigateToRoute(StoreRouteNames.StockTransferItemReport)" />
+					<MudBlazor.MudMenuItem Label="Bill Report" OnClick="() => WindowNavigation.NavigateToRoute(RestaurantRouteNames.BillReport)" />
+					<MudBlazor.MudMenuItem Label="Bill Item Report" OnClick="() => WindowNavigation.NavigateToRoute(RestaurantRouteNames.BillItemReport)" />
+					<MudBlazor.MudMenuItem Label="Product Location" OnClick="() => WindowNavigation.NavigateToRoute(StoreRouteNames.ProductLocation)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Periods" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="Today" OnClick="() => HandleDatesChanged(DateRangeType.Today)" />
+					<MudBlazor.MudMenuItem Label="Previous Day" OnClick="() => HandleDatesChanged(DateRangeType.Yesterday)" />
+					<MudBlazor.MudMenuItem Label="Next Day" OnClick="() => HandleDatesChanged(DateRangeType.NextDay)" />
+					<MudBlazor.MudMenuItem Label="Current Month" OnClick="() => HandleDatesChanged(DateRangeType.CurrentMonth)" />
+					<MudBlazor.MudMenuItem Label="Previous Month" OnClick="() => HandleDatesChanged(DateRangeType.PreviousMonth)" />
+					<MudBlazor.MudMenuItem Label="Next Month" OnClick="() => HandleDatesChanged(DateRangeType.NextMonth)" />
+					<MudBlazor.MudMenuItem Label="Current FY" OnClick="() => HandleDatesChanged(DateRangeType.CurrentFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="Previous FY" OnClick="() => HandleDatesChanged(DateRangeType.PreviousFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="Next FY" OnClick="() => HandleDatesChanged(DateRangeType.NextFinancialYear)" />
+					<MudBlazor.MudMenuItem Label="All Time" OnClick="() => HandleDatesChanged(DateRangeType.AllTime)" />
+				</MudBlazor.MudMenu>
+
+				<MudBlazor.MudMenu Label="Transaction" Dense="true" Disabled="_isProcessing">
+					<MudBlazor.MudMenuItem Label="View (Alt + O)" OnClick="ViewSelectedTransaction" />
+					<MudBlazor.MudMenuItem Label="Export PDF (Alt + P)" OnClick="() => ExportSelectedTransaction()" />
+					<MudBlazor.MudMenuItem Label="Export Excel (Alt + E)" OnClick="() => ExportSelectedTransaction(true)" />
+				</MudBlazor.MudMenu>
+			</LeftContent>
+		</Header>
+
+		<div class="page-container outlet-tabs">
+
+			<div class="section-card">
+				<div class="section-header">
+					<h2 class="section-title">Filters</h2>
+				</div>
+
+				<div class="section-body">
+					<div class="filters-grid">
+						<!-- Date Range -->
+						<div class="form-field">
+							<CustomDateRangePicker @ref="_firstFocus" Value="@(new MudBlazor.DateRange(_fromDate, _toDate))"
+												   ValueChanged="OnDateRangeChanged"
+												   Label="Date Range (Ctrl + F)"
+												   Required="false" />
+						</div>
+
+						<!-- Location -->
+						<div class="form-field">
+							<CustomAutoComplete T="LocationModel"
+												Value="_selectedLocation"
+												DataSource="@_locations"
+												Placeholder="Select Location"
+												Label="Location" Required="true"
+												ValueChanged="OnLocationChanged"
+												FieldValue="@nameof(LocationModel.Name)"
+												AddNewRoute="@OperationRouteNames.Location" />
+						</div>
+					</div>
+				</div>
+			</div>
+
+			@if (_user.Admin && _showAi)
+			{
+				<ReportAi Instructions="@AiInstructions" GetContext="BuildAiContext"
+						  ReportName="@StoreRouteNames.OutletDetailReport" UserId="@_user.Id"
+						  DefaultQuestion="@AiDefaultQuestion" Suggestions="@AiSuggestions" />
+			}
+
+			<MudBlazor.MudTabs @bind-ActivePanelIndex="_activeTabIndex"
+							   Rounded="true"
+							   Color="MudBlazor.Color.Transparent"
+							   SliderColor="MudBlazor.Color.Primary"
+							   MinimumTabWidth="120px"
+							   ApplyEffectsToContainer="false"
+							   TabHeaderClass="outlet-tab-header"
+							   TabPanelsClass="outlet-tab-panels">
+
+				<MudBlazor.MudTabPanel Text="Accounting">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Records</h2>
+						</div>
+
+						<SfGrid @ref="_accountingGrid" TValue="FinancialAccountingOverviewModel" DataSource="_accountings"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="FinancialAccountingOverviewModel" ContextMenuItemClicked="OnAccountingContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(FinancialAccountingOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(FinancialAccountingOverviewModel.TotalLedgers)" />
+										<GridColumnAggregate Field="@nameof(FinancialAccountingOverviewModel.TotalDebitLedgers)" CustomColor="grid-debit" />
+										<GridColumnAggregate Field="@nameof(FinancialAccountingOverviewModel.TotalCreditLedgers)" CustomColor="grid-credit" />
+										<GridColumnAggregate Field="@nameof(FinancialAccountingOverviewModel.TotalDebitAmount)" CustomColor="grid-debit" />
+										<GridColumnAggregate Field="@nameof(FinancialAccountingOverviewModel.TotalCreditAmount)" CustomColor="grid-credit" />
+										<GridColumnAggregate Field="@nameof(FinancialAccountingOverviewModel.TotalAmount)" CustomColor="grid-total" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(FinancialAccountingOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(FinancialAccountingOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(FinancialAccountingOverviewModel.CompanyName)" HeaderText="Company" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(FinancialAccountingOverviewModel.VoucherName)" HeaderText="Voucher Type" />
+								<CustomGridColumn Field="@nameof(FinancialAccountingOverviewModel.ReferenceNo)" HeaderText="Ref No" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(FinancialAccountingOverviewModel.FinancialYear)" HeaderText="Financial Year" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(FinancialAccountingOverviewModel.TotalLedgers)" HeaderText="Ledgers" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(FinancialAccountingOverviewModel.TotalDebitLedgers)" HeaderText="Debit Ledgers" Visible="@_showAllColumns" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(FinancialAccountingOverviewModel.TotalCreditLedgers)" HeaderText="Credit Ledgers" Visible="@_showAllColumns" CustomColor="grid-credit" />
+								<CustomGridColumn Field="@nameof(FinancialAccountingOverviewModel.TotalDebitAmount)" HeaderText="Total Debit" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(FinancialAccountingOverviewModel.TotalCreditAmount)" HeaderText="Total Credit" CustomColor="grid-credit" />
+								<CustomGridColumn Field="@nameof(FinancialAccountingOverviewModel.TotalAmount)" HeaderText="Amount" TotalColumn="true" />
+
+								<CustomGridColumn Field="@nameof(FinancialAccountingOverviewModel.Remarks)" HeaderText="Remarks" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(FinancialAccountingOverviewModel.CreatedByName)" HeaderText="Created By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(FinancialAccountingOverviewModel.CreatedAt)" HeaderText="Created At" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(FinancialAccountingOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(FinancialAccountingOverviewModel.LastModifiedAt)" HeaderText="Modified At" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(FinancialAccountingOverviewModel.Status)" Visible="@_showDeleted" StatusColumn="true" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<MudBlazor.MudTabPanel Text="Ledger">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Records</h2>
+						</div>
+
+						<SfGrid @ref="_ledgerGrid" TValue="FinancialAccountingLedgerOverviewModel" DataSource="_ledgerEntries"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="FinancialAccountingLedgerOverviewModel" ContextMenuItemClicked="OnLedgerContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerName)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(FinancialAccountingLedgerOverviewModel.Debit)" CustomColor="grid-debit" />
+										<GridColumnAggregate Field="@nameof(FinancialAccountingLedgerOverviewModel.Credit)" CustomColor="grid-credit" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerName)" HeaderText="Ledger" />
+								<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerReferenceType)" HeaderText="Ref Type" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerReferenceNo)" HeaderText="Ref No" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.InstrumentNo)" HeaderText="Instrument No" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.InstrumentDate)" HeaderText="Instrument Date" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.ClearingDate)" HeaderText="Clearing Date" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.Reconciled)" HeaderText="Reconciled" TextAlign="TextAlign.Center" Visible="@_showAllColumns" DisplayAsCheckBox="true" />
+
+								<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.Debit)" HeaderText="Debit" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.Credit)" HeaderText="Credit" CustomColor="grid-credit" />
+
+								<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LedgerRemarks)" HeaderText="Ledger Remarks" Width="500" />
+
+								<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TransactionNo)" HeaderText="Transaction No" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CompanyName)" HeaderText="Company" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.VoucherName)" HeaderText="Voucher Type" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.ReferenceNo)" HeaderText="Ref No" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.FinancialYear)" HeaderText="Financial Year" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.Remarks)" HeaderText="Remarks" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CreatedByName)" HeaderText="Created By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.CreatedAt)" HeaderText="Created At" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.LastModifiedAt)" HeaderText="Modified At" Format="dd/MM/yy" Type="ColumnType.DateTime" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(FinancialAccountingLedgerOverviewModel.MasterStatus)" Visible="@_showDeleted" StatusColumn="true" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<MudBlazor.MudTabPanel Text="Products">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Records</h2>
+						</div>
+
+						<SfGrid @ref="_productLocationGrid" TValue="ProductLocationOverviewModel" DataSource="_productLocations"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(ProductLocationOverviewModel.Name)" Type="AggregateType.Count" Format="N0" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(ProductLocationOverviewModel.Code)" HeaderText="Product Code" />
+								<CustomGridColumn Field="@nameof(ProductLocationOverviewModel.Name)" HeaderText="Product Name" />
+								<CustomGridColumn Field="@nameof(ProductLocationOverviewModel.Rate)" HeaderText="Rate" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductLocationOverviewModel.FromDate)" HeaderText="Effective Date" Format="dd/MM/yy" Type="ColumnType.DateOnly" TextAlign="TextAlign.Center" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<MudBlazor.MudTabPanel Text="Order">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Records</h2>
+						</div>
+
+						<SfGrid @ref="_orderGrid" TValue="OrderOverviewModel" DataSource="_orders"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="OrderOverviewModel" ContextMenuItemClicked="OnOrderContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(OrderOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(OrderOverviewModel.TotalItems)" />
+										<GridColumnAggregate Field="@nameof(OrderOverviewModel.TotalQuantity)" CustomColor="grid-total" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(OrderOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(OrderOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(OrderOverviewModel.SaleTransactionNo)" HeaderText="Sale No" />
+								<CustomGridColumn Field="@nameof(OrderOverviewModel.CompanyName)" HeaderText="Company" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(OrderOverviewModel.FinancialYear)" HeaderText="Financial Year" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(OrderOverviewModel.TotalItems)" HeaderText="Items" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(OrderOverviewModel.TotalQuantity)" HeaderText="Quantity" TotalColumn="true" />
+
+								<CustomGridColumn Field="@nameof(OrderOverviewModel.Remarks)" HeaderText="Remarks" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(OrderOverviewModel.CreatedByName)" HeaderText="Created By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(OrderOverviewModel.CreatedAt)" HeaderText="Created At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(OrderOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(OrderOverviewModel.LastModifiedAt)" HeaderText="Modified At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(OrderOverviewModel.Status)" Visible="@_showDeleted" StatusColumn="true" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<MudBlazor.MudTabPanel Text="Order Items">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Records</h2>
+						</div>
+
+						<SfGrid @ref="_orderItemGrid" TValue="OrderItemOverviewModel" DataSource="_orderItems"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="OrderItemOverviewModel" ContextMenuItemClicked="OnOrderItemContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(OrderItemOverviewModel.ItemName)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(OrderItemOverviewModel.Quantity)" CustomColor="grid-total" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(OrderItemOverviewModel.ItemName)" HeaderText="Item" />
+								<CustomGridColumn Field="@nameof(OrderItemOverviewModel.ItemCode)" HeaderText="Code" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(OrderItemOverviewModel.ItemCategoryName)" HeaderText="Category" />
+								<CustomGridColumn Field="@nameof(OrderItemOverviewModel.ItemRemarks)" HeaderText="Item Remarks" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(OrderItemOverviewModel.Quantity)" HeaderText="Quantity" TotalColumn="true" />
+
+								<CustomGridColumn Field="@nameof(OrderItemOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(OrderItemOverviewModel.SaleTransactionNo)" HeaderText="Sale No" />
+								<CustomGridColumn Field="@nameof(OrderItemOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(OrderItemOverviewModel.SaleDateTime)" HeaderText="Sale Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(OrderItemOverviewModel.CompanyName)" HeaderText="Company" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(OrderItemOverviewModel.FinancialYear)" HeaderText="Financial Year" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(OrderItemOverviewModel.TotalItems)" HeaderText="Order Items" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(OrderItemOverviewModel.TotalQuantity)" HeaderText="Order Qty" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(OrderItemOverviewModel.Remarks)" HeaderText="Order Remarks" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(OrderItemOverviewModel.CreatedByName)" HeaderText="Created By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(OrderItemOverviewModel.CreatedAt)" HeaderText="Created At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(OrderItemOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(OrderItemOverviewModel.LastModifiedAt)" HeaderText="Modified At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(OrderItemOverviewModel.MasterStatus)" Visible="@_showDeleted" StatusColumn="true" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<MudBlazor.MudTabPanel Text="Outlet Purchase">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Records</h2>
+						</div>
+
+						<SfGrid @ref="_outletPurchaseGrid" TValue="SaleOverviewModel" DataSource="_outletPurchases"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="SaleOverviewModel" ContextMenuItemClicked="OnOutletPurchaseContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.TotalItems)" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.TotalQuantity)" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.BaseTotal)" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.ItemDiscountAmount)" CustomColor="grid-debit" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.TotalAfterItemDiscount)" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.TotalInclusiveTaxAmount)" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.TotalExtraTaxAmount)" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.TotalAfterTax)" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.OtherChargesAmount)" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.DiscountAmount)" CustomColor="grid-debit" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.RoundOffAmount)" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.TotalAmount)" CustomColor="grid-total" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.Cash)" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.Card)" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.UPI)" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.Credit)" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.CompanyName)" HeaderText="Company" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.PartyName)" HeaderText="Party" Visible="@(_user.LocationId == 1)" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.OnlinePartnerName)" HeaderText="Online Partner" Visible="@(_user.LocationId == 1 && _showAllColumns)" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.CustomerName)" HeaderText="Customer" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.OrderTransactionNo)" HeaderText="Order No" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.FinancialYear)" HeaderText="Financial Year" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TotalItems)" HeaderText="Items" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TotalQuantity)" HeaderText="Qty" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.BaseTotal)" HeaderText="Base Total" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.ItemDiscountAmount)" HeaderText="Item Disc" Visible="@_showAllColumns" CustomColor="grid-debit" />
+
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TotalAfterItemDiscount)" HeaderText="After Disc" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TotalInclusiveTaxAmount)" HeaderText="Incl Tax" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TotalExtraTaxAmount)" HeaderText="Extra Tax" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TotalAfterTax)" HeaderText="Sub Total" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.OtherChargesPercent)" HeaderText="Other Charge %" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.OtherChargesAmount)" HeaderText="Other Charge" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.DiscountPercent)" HeaderText="Disc %" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.DiscountAmount)" HeaderText="Disc" CustomColor="grid-debit" />
+
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.RoundOffAmount)" HeaderText="Round Off" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.PaymentModes)" HeaderText="Payment Modes" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.Cash)" HeaderText="Cash" Visible="@_showAllColumns" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.UPI)" HeaderText="UPI" Visible="@_showAllColumns" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.Card)" HeaderText="Card" Visible="@_showAllColumns" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.Credit)" HeaderText="Credit" Visible="@_showAllColumns" TotalColumn="true" />
+
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.Remarks)" HeaderText="Remarks" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Transaction No" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.CreatedByName)" HeaderText="Created By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.CreatedAt)" HeaderText="Created At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.LastModifiedAt)" HeaderText="Modified At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.Status)" Visible="@_showDeleted" StatusColumn="true" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<MudBlazor.MudTabPanel Text="Outlet Purchase Items">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Records</h2>
+						</div>
+
+						<SfGrid @ref="_outletPurchaseItemGrid" TValue="SaleItemOverviewModel" DataSource="_outletPurchaseItems"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="SaleItemOverviewModel" ContextMenuItemClicked="OnOutletPurchaseItemContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.ItemName)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.Quantity)" />
+										<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.ItemBaseTotal)" />
+										<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.DiscountAmount)" CustomColor="grid-debit" />
+										<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.AfterDiscount)" />
+										<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.SGSTAmount)" />
+										<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.CGSTAmount)" />
+										<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.IGSTAmount)" />
+										<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.TotalTaxAmount)" />
+										<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.Total)" CustomColor="grid-total" />
+										<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.NetTotal)" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.ItemName)" HeaderText="Item" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.ItemCode)" HeaderText="Code" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.ItemCategoryName)" HeaderText="Category" />
+
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.Quantity)" HeaderText="Qty" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.Rate)" HeaderText="Rate" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.ItemBaseTotal)" HeaderText="Base Total" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.DiscountPercent)" HeaderText="Disc %" Visible="@_showAllColumns" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.DiscountAmount)" HeaderText="Disc" Visible="@_showAllColumns" CustomColor="grid-debit" />
+
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.AfterDiscount)" HeaderText="After Disc" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.SGSTPercent)" HeaderText="SGST %" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.SGSTAmount)" HeaderText="SGST" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.CGSTPercent)" HeaderText="CGST %" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.CGSTAmount)" HeaderText="CGST" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.IGSTPercent)" HeaderText="IGST %" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.IGSTAmount)" HeaderText="IGST" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.TotalTaxAmount)" HeaderText="Tax Amt" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.InclusiveTax)" HeaderText="Tax Incl." TextAlign="TextAlign.Center" Visible="@_showAllColumns" DisplayAsCheckBox="true" />
+
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.Total)" HeaderText="Total" Visible="@_showAllColumns" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.NetRate)" HeaderText="Net Rate" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.NetTotal)" HeaderText="Net Total" TotalColumn="true" />
+
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.ItemRemarks)" HeaderText="Item Remarks" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.CompanyName)" HeaderText="Company" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.PartyName)" HeaderText="Party" Visible="@(_user.LocationId == 1)" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.OnlinePartnerName)" HeaderText="Online Partner" Visible="@(_user.LocationId == 1 && _showAllColumns)" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.CustomerName)" HeaderText="Customer" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.OrderTransactionNo)" HeaderText="Order No" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.FinancialYear)" HeaderText="Financial Year" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.TotalAmount)" HeaderText="Bill Total" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.PaymentModes)" HeaderText="Payment Modes" />
+
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.Remarks)" HeaderText="Remarks" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Transaction No" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.CreatedByName)" HeaderText="Created By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.CreatedAt)" HeaderText="Created At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.LastModifiedAt)" HeaderText="Modified At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.MasterStatus)" Visible="@_showDeleted" StatusColumn="true" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<MudBlazor.MudTabPanel Text="Outlet Purchase Return">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Records</h2>
+						</div>
+
+						<SfGrid @ref="_outletPurchaseReturnGrid" TValue="SaleReturnOverviewModel" DataSource="_outletPurchaseReturns"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="SaleReturnOverviewModel" ContextMenuItemClicked="OnOutletPurchaseReturnContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.TotalItems)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.TotalQuantity)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.BaseTotal)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.ItemDiscountAmount)" CustomColor="grid-debit" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.TotalAfterItemDiscount)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.TotalInclusiveTaxAmount)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.TotalExtraTaxAmount)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.TotalAfterTax)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.OtherChargesAmount)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.DiscountAmount)" CustomColor="grid-debit" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.RoundOffAmount)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.TotalAmount)" CustomColor="grid-total" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.Cash)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.Card)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.UPI)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.Credit)" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.CompanyName)" HeaderText="Company" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.PartyName)" HeaderText="Party" Visible="@(_user.LocationId == 1)" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.OnlinePartnerName)" HeaderText="Online Partner" Visible="@(_user.LocationId == 1 && _showAllColumns)" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.CustomerName)" HeaderText="Customer" Visible="@(_user.LocationId == 1 && _showAllColumns)" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.FinancialYear)" HeaderText="Financial Year" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TotalItems)" HeaderText="Items" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TotalQuantity)" HeaderText="Qty" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.BaseTotal)" HeaderText="Base Total" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.ItemDiscountAmount)" HeaderText="Item Disc" Visible="@_showAllColumns" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TotalAfterItemDiscount)" HeaderText="After Disc" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TotalInclusiveTaxAmount)" HeaderText="Incl Tax" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TotalExtraTaxAmount)" HeaderText="Extra Tax" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TotalAfterTax)" HeaderText="Sub Total" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.OtherChargesPercent)" HeaderText="Other Charge %" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.OtherChargesAmount)" HeaderText="Other Charge" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.DiscountPercent)" HeaderText="Disc %" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.DiscountAmount)" HeaderText="Disc" CustomColor="grid-debit" />
+
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.RoundOffAmount)" HeaderText="Round Off" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.PaymentModes)" HeaderText="Payment Modes" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.Cash)" HeaderText="Cash" Visible="@_showAllColumns" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.UPI)" HeaderText="UPI" Visible="@_showAllColumns" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.Card)" HeaderText="Card" Visible="@_showAllColumns" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.Credit)" HeaderText="Credit" Visible="@_showAllColumns" TotalColumn="true" />
+
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.Remarks)" HeaderText="Remarks" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Transaction No" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.CreatedByName)" HeaderText="Created By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.CreatedAt)" HeaderText="Created At" Visible="@_showAllColumns" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.LastModifiedAt)" HeaderText="Modified At" Visible="@_showAllColumns" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.Status)" Visible="@_showDeleted" StatusColumn="true" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<MudBlazor.MudTabPanel Text="Outlet Purchase Return Items">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Records</h2>
+						</div>
+
+						<SfGrid @ref="_outletPurchaseReturnItemGrid" TValue="SaleReturnItemOverviewModel" DataSource="_outletPurchaseReturnItems"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="SaleReturnItemOverviewModel" ContextMenuItemClicked="OnOutletPurchaseReturnItemContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+											<GridColumnAggregate Field="@nameof(SaleReturnItemOverviewModel.ItemName)" Type="AggregateType.Count" Format="N0" />
+											<GridColumnAggregate Field="@nameof(SaleReturnItemOverviewModel.Quantity)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnItemOverviewModel.ItemBaseTotal)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnItemOverviewModel.DiscountAmount)" CustomColor="grid-debit" />
+											<GridColumnAggregate Field="@nameof(SaleReturnItemOverviewModel.AfterDiscount)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnItemOverviewModel.SGSTAmount)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnItemOverviewModel.CGSTAmount)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnItemOverviewModel.IGSTAmount)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnItemOverviewModel.TotalTaxAmount)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnItemOverviewModel.Total)" CustomColor="grid-total" />
+											<GridColumnAggregate Field="@nameof(SaleReturnItemOverviewModel.NetTotal)" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.ItemName)" HeaderText="Item" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.ItemCode)" HeaderText="Code" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.ItemCategoryName)" HeaderText="Category" />
+
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.Quantity)" HeaderText="Qty" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.Rate)" HeaderText="Rate" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.ItemBaseTotal)" HeaderText="Base Total" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.DiscountPercent)" HeaderText="Disc %" Visible="@_showAllColumns" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.DiscountAmount)" HeaderText="Disc" Visible="@_showAllColumns" CustomColor="grid-debit" />
+
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.AfterDiscount)" HeaderText="After Disc" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.SGSTPercent)" HeaderText="SGST %" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.SGSTAmount)" HeaderText="SGST" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.CGSTPercent)" HeaderText="CGST %" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.CGSTAmount)" HeaderText="CGST" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.IGSTPercent)" HeaderText="IGST %" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.IGSTAmount)" HeaderText="IGST" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.TotalTaxAmount)" HeaderText="Tax Amt" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.InclusiveTax)" HeaderText="Tax Incl." TextAlign="TextAlign.Center" Visible="@_showAllColumns" DisplayAsCheckBox="true" />
+
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.Total)" HeaderText="Total" Visible="@_showAllColumns" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.NetRate)" HeaderText="Net Rate" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.NetTotal)" HeaderText="Net Total" TotalColumn="true" />
+
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.ItemRemarks)" HeaderText="Item Remarks" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.CompanyName)" HeaderText="Company" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.PartyName)" HeaderText="Party" Visible="@(_user.LocationId == 1)" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.OnlinePartnerName)" HeaderText="Online Partner" Visible="@(_user.LocationId == 1 && _showAllColumns)" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.CustomerName)" HeaderText="Customer" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.FinancialYear)" HeaderText="Financial Year" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.TotalAmount)" HeaderText="Bill Total" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.PaymentModes)" HeaderText="Payment Modes" />
+
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.Remarks)" HeaderText="Remarks" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Transaction No" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.CreatedByName)" HeaderText="Created By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.CreatedAt)" HeaderText="Created At" Visible="@_showAllColumns" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.LastModifiedAt)" HeaderText="Modified At" Visible="@_showAllColumns" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.MasterStatus)" Visible="@_showDeleted" StatusColumn="true" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<MudBlazor.MudTabPanel Text="Sale">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Records</h2>
+						</div>
+
+						<SfGrid @ref="_saleGrid" TValue="SaleOverviewModel" DataSource="_sales"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="SaleOverviewModel" ContextMenuItemClicked="OnSaleContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.TotalItems)" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.TotalQuantity)" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.BaseTotal)" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.ItemDiscountAmount)" CustomColor="grid-debit" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.TotalAfterItemDiscount)" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.TotalInclusiveTaxAmount)" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.TotalExtraTaxAmount)" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.TotalAfterTax)" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.OtherChargesAmount)" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.DiscountAmount)" CustomColor="grid-debit" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.RoundOffAmount)" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.TotalAmount)" CustomColor="grid-total" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.Cash)" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.Card)" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.UPI)" />
+										<GridColumnAggregate Field="@nameof(SaleOverviewModel.Credit)" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.CompanyName)" HeaderText="Company" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.PartyName)" HeaderText="Party" Visible="@(_user.LocationId == 1)" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.OnlinePartnerName)" HeaderText="Online Partner" Visible="@(_user.LocationId == 1 && _showAllColumns)" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.CustomerName)" HeaderText="Customer" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.OrderTransactionNo)" HeaderText="Order No" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.FinancialYear)" HeaderText="Financial Year" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TotalItems)" HeaderText="Items" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TotalQuantity)" HeaderText="Qty" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.BaseTotal)" HeaderText="Base Total" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.ItemDiscountAmount)" HeaderText="Item Disc" Visible="@_showAllColumns" CustomColor="grid-debit" />
+
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TotalAfterItemDiscount)" HeaderText="After Disc" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TotalInclusiveTaxAmount)" HeaderText="Incl Tax" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TotalExtraTaxAmount)" HeaderText="Extra Tax" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TotalAfterTax)" HeaderText="Sub Total" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.OtherChargesPercent)" HeaderText="Other Charge %" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.OtherChargesAmount)" HeaderText="Other Charge" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.DiscountPercent)" HeaderText="Disc %" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.DiscountAmount)" HeaderText="Disc" CustomColor="grid-debit" />
+
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.RoundOffAmount)" HeaderText="Round Off" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.PaymentModes)" HeaderText="Payment Modes" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.Cash)" HeaderText="Cash" Visible="@_showAllColumns" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.UPI)" HeaderText="UPI" Visible="@_showAllColumns" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.Card)" HeaderText="Card" Visible="@_showAllColumns" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.Credit)" HeaderText="Credit" Visible="@_showAllColumns" TotalColumn="true" />
+
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.Remarks)" HeaderText="Remarks" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Transaction No" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.CreatedByName)" HeaderText="Created By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.CreatedAt)" HeaderText="Created At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.LastModifiedAt)" HeaderText="Modified At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(SaleOverviewModel.Status)" Visible="@_showDeleted" StatusColumn="true" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<MudBlazor.MudTabPanel Text="Sale Items">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Records</h2>
+						</div>
+
+						<SfGrid @ref="_saleItemGrid" TValue="SaleItemOverviewModel" DataSource="_saleItems"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="SaleItemOverviewModel" ContextMenuItemClicked="OnSaleItemContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.ItemName)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.Quantity)" />
+										<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.ItemBaseTotal)" />
+										<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.DiscountAmount)" CustomColor="grid-debit" />
+										<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.AfterDiscount)" />
+										<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.SGSTAmount)" />
+										<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.CGSTAmount)" />
+										<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.IGSTAmount)" />
+										<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.TotalTaxAmount)" />
+										<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.Total)" CustomColor="grid-total" />
+										<GridColumnAggregate Field="@nameof(SaleItemOverviewModel.NetTotal)" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.ItemName)" HeaderText="Item" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.ItemCode)" HeaderText="Code" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.ItemCategoryName)" HeaderText="Category" />
+
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.Quantity)" HeaderText="Qty" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.Rate)" HeaderText="Rate" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.ItemBaseTotal)" HeaderText="Base Total" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.DiscountPercent)" HeaderText="Disc %" Visible="@_showAllColumns" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.DiscountAmount)" HeaderText="Disc" Visible="@_showAllColumns" CustomColor="grid-debit" />
+
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.AfterDiscount)" HeaderText="After Disc" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.SGSTPercent)" HeaderText="SGST %" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.SGSTAmount)" HeaderText="SGST" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.CGSTPercent)" HeaderText="CGST %" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.CGSTAmount)" HeaderText="CGST" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.IGSTPercent)" HeaderText="IGST %" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.IGSTAmount)" HeaderText="IGST" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.TotalTaxAmount)" HeaderText="Tax Amt" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.InclusiveTax)" HeaderText="Tax Incl." TextAlign="TextAlign.Center" Visible="@_showAllColumns" DisplayAsCheckBox="true" />
+
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.Total)" HeaderText="Total" Visible="@_showAllColumns" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.NetRate)" HeaderText="Net Rate" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.NetTotal)" HeaderText="Net Total" TotalColumn="true" />
+
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.ItemRemarks)" HeaderText="Item Remarks" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.CompanyName)" HeaderText="Company" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.PartyName)" HeaderText="Party" Visible="@(_user.LocationId == 1)" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.OnlinePartnerName)" HeaderText="Online Partner" Visible="@(_user.LocationId == 1 && _showAllColumns)" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.CustomerName)" HeaderText="Customer" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.OrderTransactionNo)" HeaderText="Order No" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.FinancialYear)" HeaderText="Financial Year" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.TotalAmount)" HeaderText="Bill Total" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.PaymentModes)" HeaderText="Payment Modes" />
+
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.Remarks)" HeaderText="Remarks" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Transaction No" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.CreatedByName)" HeaderText="Created By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.CreatedAt)" HeaderText="Created At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.LastModifiedAt)" HeaderText="Modified At" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(SaleItemOverviewModel.MasterStatus)" Visible="@_showDeleted" StatusColumn="true" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<MudBlazor.MudTabPanel Text="Sale Return">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Records</h2>
+						</div>
+
+						<SfGrid @ref="_saleReturnGrid" TValue="SaleReturnOverviewModel" DataSource="_saleReturns"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="SaleReturnOverviewModel" ContextMenuItemClicked="OnSaleReturnContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.TotalItems)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.TotalQuantity)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.BaseTotal)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.ItemDiscountAmount)" CustomColor="grid-debit" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.TotalAfterItemDiscount)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.TotalInclusiveTaxAmount)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.TotalExtraTaxAmount)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.TotalAfterTax)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.OtherChargesAmount)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.DiscountAmount)" CustomColor="grid-debit" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.RoundOffAmount)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.TotalAmount)" CustomColor="grid-total" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.Cash)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.Card)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.UPI)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnOverviewModel.Credit)" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.CompanyName)" HeaderText="Company" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.PartyName)" HeaderText="Party" Visible="@(_user.LocationId == 1)" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.OnlinePartnerName)" HeaderText="Online Partner" Visible="@(_user.LocationId == 1 && _showAllColumns)" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.CustomerName)" HeaderText="Customer" Visible="@(_user.LocationId == 1 && _showAllColumns)" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.FinancialYear)" HeaderText="Financial Year" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TotalItems)" HeaderText="Items" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TotalQuantity)" HeaderText="Qty" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.BaseTotal)" HeaderText="Base Total" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.ItemDiscountAmount)" HeaderText="Item Disc" Visible="@_showAllColumns" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TotalAfterItemDiscount)" HeaderText="After Disc" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TotalInclusiveTaxAmount)" HeaderText="Incl Tax" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TotalExtraTaxAmount)" HeaderText="Extra Tax" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TotalAfterTax)" HeaderText="Sub Total" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.OtherChargesPercent)" HeaderText="Other Charge %" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.OtherChargesAmount)" HeaderText="Other Charge" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.DiscountPercent)" HeaderText="Disc %" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.DiscountAmount)" HeaderText="Disc" CustomColor="grid-debit" />
+
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.RoundOffAmount)" HeaderText="Round Off" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.PaymentModes)" HeaderText="Payment Modes" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.Cash)" HeaderText="Cash" Visible="@_showAllColumns" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.UPI)" HeaderText="UPI" Visible="@_showAllColumns" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.Card)" HeaderText="Card" Visible="@_showAllColumns" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.Credit)" HeaderText="Credit" Visible="@_showAllColumns" TotalColumn="true" />
+
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.Remarks)" HeaderText="Remarks" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Transaction No" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.CreatedByName)" HeaderText="Created By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.CreatedAt)" HeaderText="Created At" Visible="@_showAllColumns" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.LastModifiedAt)" HeaderText="Modified At" Visible="@_showAllColumns" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+
+								<CustomGridColumn Field="@nameof(SaleReturnOverviewModel.Status)" Visible="@_showDeleted" StatusColumn="true" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<MudBlazor.MudTabPanel Text="Sale Return Items">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Records</h2>
+						</div>
+
+						<SfGrid @ref="_saleReturnItemGrid" TValue="SaleReturnItemOverviewModel" DataSource="_saleReturnItems"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="SaleReturnItemOverviewModel" ContextMenuItemClicked="OnSaleReturnItemContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+											<GridColumnAggregate Field="@nameof(SaleReturnItemOverviewModel.ItemName)" Type="AggregateType.Count" Format="N0" />
+											<GridColumnAggregate Field="@nameof(SaleReturnItemOverviewModel.Quantity)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnItemOverviewModel.ItemBaseTotal)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnItemOverviewModel.DiscountAmount)" CustomColor="grid-debit" />
+											<GridColumnAggregate Field="@nameof(SaleReturnItemOverviewModel.AfterDiscount)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnItemOverviewModel.SGSTAmount)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnItemOverviewModel.CGSTAmount)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnItemOverviewModel.IGSTAmount)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnItemOverviewModel.TotalTaxAmount)" />
+											<GridColumnAggregate Field="@nameof(SaleReturnItemOverviewModel.Total)" CustomColor="grid-total" />
+											<GridColumnAggregate Field="@nameof(SaleReturnItemOverviewModel.NetTotal)" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.ItemName)" HeaderText="Item" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.ItemCode)" HeaderText="Code" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.ItemCategoryName)" HeaderText="Category" />
+
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.Quantity)" HeaderText="Qty" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.Rate)" HeaderText="Rate" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.ItemBaseTotal)" HeaderText="Base Total" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.DiscountPercent)" HeaderText="Disc %" Visible="@_showAllColumns" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.DiscountAmount)" HeaderText="Disc" Visible="@_showAllColumns" CustomColor="grid-debit" />
+
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.AfterDiscount)" HeaderText="After Disc" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.SGSTPercent)" HeaderText="SGST %" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.SGSTAmount)" HeaderText="SGST" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.CGSTPercent)" HeaderText="CGST %" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.CGSTAmount)" HeaderText="CGST" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.IGSTPercent)" HeaderText="IGST %" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.IGSTAmount)" HeaderText="IGST" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.TotalTaxAmount)" HeaderText="Tax Amt" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.InclusiveTax)" HeaderText="Tax Incl." TextAlign="TextAlign.Center" Visible="@_showAllColumns" DisplayAsCheckBox="true" />
+
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.Total)" HeaderText="Total" Visible="@_showAllColumns" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.NetRate)" HeaderText="Net Rate" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.NetTotal)" HeaderText="Net Total" TotalColumn="true" />
+
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.ItemRemarks)" HeaderText="Item Remarks" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.CompanyName)" HeaderText="Company" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.PartyName)" HeaderText="Party" Visible="@(_user.LocationId == 1)" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.OnlinePartnerName)" HeaderText="Online Partner" Visible="@(_user.LocationId == 1 && _showAllColumns)" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.CustomerName)" HeaderText="Customer" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.FinancialYear)" HeaderText="Financial Year" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.TotalAmount)" HeaderText="Bill Total" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.PaymentModes)" HeaderText="Payment Modes" />
+
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.Remarks)" HeaderText="Remarks" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Transaction No" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.CreatedByName)" HeaderText="Created By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.CreatedAt)" HeaderText="Created At" Visible="@_showAllColumns" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.LastModifiedAt)" HeaderText="Modified At" Visible="@_showAllColumns" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+
+								<CustomGridColumn Field="@nameof(SaleReturnItemOverviewModel.MasterStatus)" Visible="@_showDeleted" StatusColumn="true" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<MudBlazor.MudTabPanel Text="Stock Transfer">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Records</h2>
+						</div>
+
+						<SfGrid @ref="_stockTransferGrid" TValue="StockTransferOverviewModel" DataSource="_stockTransfers"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="StockTransferOverviewModel" ContextMenuItemClicked="OnStockTransferContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.TotalItems)" />
+										<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.TotalQuantity)" />
+										<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.BaseTotal)" />
+										<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.ItemDiscountAmount)" CustomColor="grid-debit" />
+										<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.TotalAfterItemDiscount)" />
+										<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.TotalInclusiveTaxAmount)" />
+										<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.TotalExtraTaxAmount)" />
+										<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.TotalAfterTax)" />
+										<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.OtherChargesAmount)" />
+										<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.DiscountAmount)" CustomColor="grid-debit" />
+										<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.RoundOffAmount)" />
+										<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.TotalAmount)" CustomColor="grid-total" />
+										<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.Cash)" />
+										<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.Card)" />
+										<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.UPI)" />
+										<GridColumnAggregate Field="@nameof(StockTransferOverviewModel.Credit)" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.LocationName)" HeaderText="From Location" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.ToLocationName)" HeaderText="To Location" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.CompanyName)" HeaderText="Company" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.FinancialYear)" HeaderText="Financial Year" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TotalItems)" HeaderText="Items" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TotalQuantity)" HeaderText="Qty" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.BaseTotal)" HeaderText="Base Total" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.ItemDiscountAmount)" HeaderText="Item Disc" Visible="@_showAllColumns" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TotalAfterItemDiscount)" HeaderText="After Disc" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TotalInclusiveTaxAmount)" HeaderText="Incl Tax" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TotalExtraTaxAmount)" HeaderText="Extra Tax" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TotalAfterTax)" HeaderText="Sub Total" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.OtherChargesPercent)" HeaderText="Other Charge %" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.OtherChargesAmount)" HeaderText="Other Charge" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.DiscountPercent)" HeaderText="Disc %" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.DiscountAmount)" HeaderText="Disc" CustomColor="grid-debit" />
+
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.RoundOffAmount)" HeaderText="Round Off" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.PaymentModes)" HeaderText="Payment Modes" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.Cash)" HeaderText="Cash" Visible="@_showAllColumns" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.UPI)" HeaderText="UPI" Visible="@_showAllColumns" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.Card)" HeaderText="Card" Visible="@_showAllColumns" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.Credit)" HeaderText="Credit" Visible="@_showAllColumns" TotalColumn="true" />
+
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.Remarks)" HeaderText="Remarks" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Transaction No" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.CreatedByName)" HeaderText="Created By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.CreatedAt)" HeaderText="Created At" Visible="@_showAllColumns" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.LastModifiedAt)" HeaderText="Modified At" Visible="@_showAllColumns" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+
+								<CustomGridColumn Field="@nameof(StockTransferOverviewModel.Status)" Visible="@_showDeleted" StatusColumn="true" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<MudBlazor.MudTabPanel Text="Stock Transfer Items">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Records</h2>
+						</div>
+
+						<SfGrid @ref="_stockTransferItemGrid" TValue="StockTransferItemOverviewModel" DataSource="_stockTransferItems"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="StockTransferItemOverviewModel" ContextMenuItemClicked="OnStockTransferItemContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(StockTransferItemOverviewModel.ItemName)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(StockTransferItemOverviewModel.Quantity)" />
+										<GridColumnAggregate Field="@nameof(StockTransferItemOverviewModel.ItemBaseTotal)" />
+										<GridColumnAggregate Field="@nameof(StockTransferItemOverviewModel.DiscountAmount)" CustomColor="grid-debit" />
+										<GridColumnAggregate Field="@nameof(StockTransferItemOverviewModel.AfterDiscount)" />
+										<GridColumnAggregate Field="@nameof(StockTransferItemOverviewModel.SGSTAmount)" />
+										<GridColumnAggregate Field="@nameof(StockTransferItemOverviewModel.CGSTAmount)" />
+										<GridColumnAggregate Field="@nameof(StockTransferItemOverviewModel.IGSTAmount)" />
+										<GridColumnAggregate Field="@nameof(StockTransferItemOverviewModel.TotalTaxAmount)" />
+										<GridColumnAggregate Field="@nameof(StockTransferItemOverviewModel.Total)" CustomColor="grid-total" />
+										<GridColumnAggregate Field="@nameof(StockTransferItemOverviewModel.NetTotal)" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.ItemName)" HeaderText="Item" />
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.ItemCode)" HeaderText="Code" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.ItemCategoryName)" HeaderText="Category" />
+
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.Quantity)" HeaderText="Qty" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.Rate)" HeaderText="Rate" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.ItemBaseTotal)" HeaderText="Base Total" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.DiscountPercent)" HeaderText="Disc %" Visible="@_showAllColumns" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.DiscountAmount)" HeaderText="Disc" Visible="@_showAllColumns" CustomColor="grid-debit" />
+
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.AfterDiscount)" HeaderText="After Disc" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.SGSTPercent)" HeaderText="SGST %" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.SGSTAmount)" HeaderText="SGST" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.CGSTPercent)" HeaderText="CGST %" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.CGSTAmount)" HeaderText="CGST" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.IGSTPercent)" HeaderText="IGST %" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.IGSTAmount)" HeaderText="IGST" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.TotalTaxAmount)" HeaderText="Tax Amt" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.InclusiveTax)" HeaderText="Tax Incl." TextAlign="TextAlign.Center" Visible="@_showAllColumns" DisplayAsCheckBox="true" />
+
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.Total)" HeaderText="Total" Visible="@_showAllColumns" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.NetRate)" HeaderText="Net Rate" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.NetTotal)" HeaderText="Net Total" TotalColumn="true" />
+
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.ItemRemarks)" HeaderText="Item Remarks" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.CompanyName)" HeaderText="Company" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.LocationName)" HeaderText="From Location" />
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.ToLocationName)" HeaderText="To Location" />
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.FinancialYear)" HeaderText="Financial Year" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.TotalAmount)" HeaderText="Bill Total" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.PaymentModes)" HeaderText="Payment Modes" />
+
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.Remarks)" HeaderText="Remarks" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Transaction No" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.CreatedByName)" HeaderText="Created By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.CreatedAt)" HeaderText="Created At" Visible="@_showAllColumns" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.LastModifiedAt)" HeaderText="Modified At" Visible="@_showAllColumns" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+
+								<CustomGridColumn Field="@nameof(StockTransferItemOverviewModel.MasterStatus)" Visible="@_showDeleted" StatusColumn="true" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<MudBlazor.MudTabPanel Text="Bill">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Records</h2>
+						</div>
+
+						<SfGrid @ref="_billGrid" TValue="BillOverviewModel" DataSource="_bills"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="BillOverviewModel" ContextMenuItemClicked="OnBillContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.TransactionNo)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.TotalPeople)" />
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.TotalItems)" />
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.TotalQuantity)" />
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.BaseTotal)" />
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.ItemDiscountAmount)" CustomColor="grid-debit" />
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.TotalAfterItemDiscount)" />
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.TotalInclusiveTaxAmount)" />
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.TotalExtraTaxAmount)" />
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.TotalAfterTax)" />
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.ServiceChargeAmount)" />
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.DiscountAmount)" CustomColor="grid-debit" />
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.RoundOffAmount)" />
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.TotalAmount)" CustomColor="grid-total" />
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.Cash)" />
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.Card)" />
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.UPI)" />
+										<GridColumnAggregate Field="@nameof(BillOverviewModel.Credit)" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(BillOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.CompanyName)" HeaderText="Company" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.DiningTableName)" HeaderText="Table" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.DiningAreaName)" HeaderText="Area" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.OnlinePartnerName)" HeaderText="Online Partner" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.CustomerName)" HeaderText="Customer" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.FinancialYear)" HeaderText="Financial Year" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(BillOverviewModel.TotalPeople)" HeaderText="PAX" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.TotalItems)" HeaderText="Items" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.TotalQuantity)" HeaderText="Qty" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.BaseTotal)" HeaderText="Base Total" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.ItemDiscountAmount)" HeaderText="Item Disc" Visible="@_showAllColumns" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.TotalAfterItemDiscount)" HeaderText="After Disc" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.TotalInclusiveTaxAmount)" HeaderText="Incl Tax" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.TotalExtraTaxAmount)" HeaderText="Extra Tax" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.TotalAfterTax)" HeaderText="Sub Total" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.ServiceChargePercent)" HeaderText="Service Charge %" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.ServiceChargeAmount)" HeaderText="Service Charge" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.DiscountPercent)" HeaderText="Disc %" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.DiscountAmount)" HeaderText="Disc" CustomColor="grid-debit" />
+
+								<CustomGridColumn Field="@nameof(BillOverviewModel.RoundOffAmount)" HeaderText="Round Off" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.TotalAmount)" HeaderText="Total" TotalColumn="true" />
+
+								<CustomGridColumn Field="@nameof(BillOverviewModel.PaymentModes)" HeaderText="Payment Modes" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.Cash)" HeaderText="Cash" Visible="@_showAllColumns" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.UPI)" HeaderText="UPI" Visible="@_showAllColumns" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.Card)" HeaderText="Card" Visible="@_showAllColumns" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.Credit)" HeaderText="Credit" Visible="@_showAllColumns" TotalColumn="true" />
+
+								<CustomGridColumn Field="@nameof(BillOverviewModel.Running)" HeaderText="Running" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
+
+								<CustomGridColumn Field="@nameof(BillOverviewModel.Remarks)" HeaderText="Remarks" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Transaction No" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(BillOverviewModel.CreatedByName)" HeaderText="Created By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.CreatedAt)" HeaderText="Created At" Visible="@_showAllColumns" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(BillOverviewModel.LastModifiedAt)" HeaderText="Modified At" Visible="@_showAllColumns" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+
+								<CustomGridColumn Field="@nameof(BillOverviewModel.Status)" Visible="@_showDeleted" StatusColumn="true" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<MudBlazor.MudTabPanel Text="Bill Items">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Records</h2>
+						</div>
+
+						<SfGrid @ref="_billItemGrid" TValue="BillItemOverviewModel" DataSource="_billItems"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="BillItemOverviewModel" ContextMenuItemClicked="OnBillItemContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(BillItemOverviewModel.ItemName)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(BillItemOverviewModel.Quantity)" />
+										<GridColumnAggregate Field="@nameof(BillItemOverviewModel.ItemBaseTotal)" />
+										<GridColumnAggregate Field="@nameof(BillItemOverviewModel.DiscountAmount)" CustomColor="grid-debit" />
+										<GridColumnAggregate Field="@nameof(BillItemOverviewModel.AfterDiscount)" />
+										<GridColumnAggregate Field="@nameof(BillItemOverviewModel.SGSTAmount)" />
+										<GridColumnAggregate Field="@nameof(BillItemOverviewModel.CGSTAmount)" />
+										<GridColumnAggregate Field="@nameof(BillItemOverviewModel.IGSTAmount)" />
+										<GridColumnAggregate Field="@nameof(BillItemOverviewModel.TotalTaxAmount)" />
+										<GridColumnAggregate Field="@nameof(BillItemOverviewModel.Total)" CustomColor="grid-total" />
+										<GridColumnAggregate Field="@nameof(BillItemOverviewModel.NetTotal)" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.ItemName)" HeaderText="Item" />
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.ItemCode)" HeaderText="Code" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.ItemCategoryName)" HeaderText="Category" />
+
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.Quantity)" HeaderText="Qty" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.Rate)" HeaderText="Rate" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.ItemBaseTotal)" HeaderText="Base Total" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.DiscountPercent)" HeaderText="Disc %" Visible="@_showAllColumns" CustomColor="grid-debit" />
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.DiscountAmount)" HeaderText="Disc" Visible="@_showAllColumns" CustomColor="grid-debit" />
+
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.AfterDiscount)" HeaderText="After Disc" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.SGSTPercent)" HeaderText="SGST %" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.SGSTAmount)" HeaderText="SGST" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.CGSTPercent)" HeaderText="CGST %" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.CGSTAmount)" HeaderText="CGST" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.IGSTPercent)" HeaderText="IGST %" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.IGSTAmount)" HeaderText="IGST" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.TotalTaxAmount)" HeaderText="Tax Amt" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.InclusiveTax)" HeaderText="Tax Incl." TextAlign="TextAlign.Center" Visible="@_showAllColumns" DisplayAsCheckBox="true" />
+
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.Total)" HeaderText="Total" Visible="@_showAllColumns" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.NetRate)" HeaderText="Net Rate" Visible="@_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.NetTotal)" HeaderText="Net Total" TotalColumn="true" />
+
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.ItemRemarks)" HeaderText="Item Remarks" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.CompanyName)" HeaderText="Company" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.DiningTableName)" HeaderText="Table" />
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.DiningAreaName)" HeaderText="Area" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.CustomerName)" HeaderText="Customer" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.OnlinePartnerName)" HeaderText="Online Partner" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.FinancialYear)" HeaderText="Financial Year" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.TotalAmount)" HeaderText="Bill Total" TotalColumn="true" />
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.PaymentModes)" HeaderText="Payment Modes" />
+
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.Running)" HeaderText="Running" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" />
+
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.Remarks)" HeaderText="Remarks" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.FinancialAccountingTransactionNo)" HeaderText="Accounting Transaction No" Visible="@_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.CreatedByName)" HeaderText="Created By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.CreatedAt)" HeaderText="Created At" Visible="@_showAllColumns" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.LastModifiedByUserName)" HeaderText="Modified By" Visible="@_showAllColumns" />
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.LastModifiedAt)" HeaderText="Modified At" Visible="@_showAllColumns" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+
+								<CustomGridColumn Field="@nameof(BillItemOverviewModel.MasterStatus)" Visible="@_showDeleted" StatusColumn="true" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<MudBlazor.MudTabPanel Text="Stock Summary">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Records</h2>
+						</div>
+
+						<SfGrid @ref="_stockSummaryGrid" TValue="ProductStockSummaryModel" DataSource="_stockSummary"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.ProductName)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.ClosingValueByRate)" CustomColor="grid-total" />
+										<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.ClosingValueByAverageInRate)" />
+										<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.ClosingValueByAverageOutRate)" />
+										<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.OpeningValue)" />
+										<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.TotalInValue)" />
+										<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.TotalOutValue)" />
+										<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.PurchaseValue)" />
+										<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.PurchaseReturnValue)" />
+										<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.KitchenIssueValue)" />
+										<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.KitchenProductionValue)" />
+										<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.SaleValue)" />
+										<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.SaleReturnValue)" />
+										<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.StockTransferValue)" />
+										<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.BillValue)" />
+										<GridColumnAggregate Field="@nameof(ProductStockSummaryModel.AdjustmentValue)" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.ProductName)" HeaderText="Product" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.ProductCode)" HeaderText="Code" Visible="_showAllColumns" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.ProductCategoryName)" HeaderText="Category" />
+
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.OpeningStock)" HeaderText="Opening" NegativePositiveColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.InStock)" HeaderText="Stock In" NegativePositiveColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.OutStock)" HeaderText="Stock Out" NegativePositiveColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.ClosingStock)" HeaderText="Closing" NegativePositiveColumn="true" />
+
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.MonthlyStock)" HeaderText="Net Movement" Visible="_showAllColumns" NegativePositiveColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.PurchaseStock)" HeaderText="Purchase" Visible="_showAllColumns" NegativePositiveColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.PurchaseReturnStock)" HeaderText="Purchase Return" Visible="_showAllColumns" NegativePositiveColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.KitchenIssueStock)" HeaderText="Kitchen Issue" Visible="_showAllColumns" NegativePositiveColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.KitchenProductionReturnStock)" HeaderText="Kitchen Production Return" Visible="_showAllColumns" NegativePositiveColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.KitchenProductionStock)" HeaderText="Kitchen Production" Visible="_showAllColumns" NegativePositiveColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.SaleStock)" HeaderText="Sale" Visible="_showAllColumns" NegativePositiveColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.SaleReturnStock)" HeaderText="Sale Return" Visible="_showAllColumns" NegativePositiveColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.StockTransferStock)" HeaderText="Stock Transfer" Visible="_showAllColumns" NegativePositiveColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.BillStock)" HeaderText="Bill" Visible="_showAllColumns" NegativePositiveColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AdjustmentStock)" HeaderText="Adjustment" Visible="_showAllColumns" NegativePositiveColumn="true" />
+
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.Rate)" HeaderText="Rate" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.ClosingValueByRate)" HeaderText="Closing Value" TotalColumn="true" />
+
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageInRate)" HeaderText="Avg In Rate" Visible="_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.ClosingValueByAverageInRate)" HeaderText="Value at Avg In" Visible="_showAllColumns" NegativePositiveColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageOutRate)" HeaderText="Avg Out Rate" Visible="_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.ClosingValueByAverageOutRate)" HeaderText="Value at Avg Out" Visible="_showAllColumns" NegativePositiveColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.RateVariance)" HeaderText="Rate Variance" Visible="_showAllColumns" NegativePositiveColumn="true" />
+
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.OpeningValue)" HeaderText="Opening Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.TotalInValue)" HeaderText="Total In Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.TotalOutValue)" HeaderText="Total Out Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.PurchaseValue)" HeaderText="Purchase Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.PurchaseReturnValue)" HeaderText="Purchase Return Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.KitchenIssueValue)" HeaderText="Kitchen Issue Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.KitchenProductionValue)" HeaderText="Kitchen Production Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.SaleValue)" HeaderText="Sale Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.SaleReturnValue)" HeaderText="Sale Return Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.StockTransferValue)" HeaderText="Stock Transfer Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.BillValue)" HeaderText="Bill Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AdjustmentValue)" HeaderText="Adjustment Value" Visible="_showAllColumns" NegativePositiveColumn="true" />
+
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastPurchaseRate)" HeaderText="Last Purchase Rate" Visible="_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AveragePurchaseRate)" HeaderText="Avg Purchase Rate" Visible="_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastPurchaseReturnRate)" HeaderText="Last Purchase Return Rate" Visible="_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AveragePurchaseReturnRate)" HeaderText="Avg Purchase Return Rate" Visible="_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastKitchenIssueRate)" HeaderText="Last Kitchen Issue Rate" Visible="_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageKitchenIssueRate)" HeaderText="Avg Kitchen Issue Rate" Visible="_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastKitchenProductionRate)" HeaderText="Last Kitchen Production Rate" Visible="_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageKitchenProductionRate)" HeaderText="Avg Kitchen Production Rate" Visible="_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastSaleRate)" HeaderText="Last Sale Rate" Visible="_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageSaleRate)" HeaderText="Avg Sale Rate" Visible="_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastSaleReturnRate)" HeaderText="Last Sale Return Rate" Visible="_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageSaleReturnRate)" HeaderText="Avg Sale Return Rate" Visible="_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastStockTransferRate)" HeaderText="Last Stock Transfer Rate" Visible="_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageStockTransferRate)" HeaderText="Avg Stock Transfer Rate" Visible="_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastBillRate)" HeaderText="Last Bill Rate" Visible="_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageBillRate)" HeaderText="Avg Bill Rate" Visible="_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastAdjustmentRate)" HeaderText="Last Adjustment Rate" Visible="_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageAdjustmentRate)" HeaderText="Avg Adjustment Rate" Visible="_showAllColumns" NumericColumn="true" />
+
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.AverageDailyConsumption)" HeaderText="Avg Daily Use" Visible="_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.DaysOnHand)" HeaderText="Days On Hand" Visible="_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.StockTurnoverRatio)" HeaderText="Turnover" Visible="_showAllColumns" NegativePositiveColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.TransactionCount)" HeaderText="Txns"  Visible="_showAllColumns" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastSaleDate)" HeaderText="Last Sale" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="_showAllColumns" />
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.LastTransactionDate)" HeaderText="Last Transaction" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" Visible="_showAllColumns" />
+
+								<CustomGridColumn Field="@nameof(ProductStockSummaryModel.IsNegativeStock)" HeaderText="Negative?" TextAlign="TextAlign.Center" Visible="_showAllColumns" DisplayAsCheckBox="true" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+				<MudBlazor.MudTabPanel Text="Stock Detail">
+					<div class="section-card">
+						<div class="section-header">
+							<h2 class="section-title">Records</h2>
+						</div>
+
+						<SfGrid @ref="_stockDetailGrid" TValue="ProductStockDetailsModel" DataSource="_stockDetails"
+								AllowTextWrap="true" AllowPaging="true" AllowSorting="true" AllowResizing="true"
+								AllowFiltering="true" AllowReordering="true" AllowGrouping="true" ShowColumnChooser="true"
+								GridLines="GridLine.Horizontal" ContextMenuItems="@_gridContextMenuItems"
+								Toolbar="@(new List<string>() { "ColumnChooser", "Search" })">
+
+							<GridEvents TValue="ProductStockDetailsModel" ContextMenuItemClicked="OnStockDetailContextMenuItemClicked" />
+							<GridPageSettings PageSize="20" PageSizes="@(new string[] { "20", "50", "100", "200", "All" })" />
+							<GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+
+							<GridAggregates>
+								<GridAggregate>
+									<GridAggregateColumns>
+										<GridColumnAggregate Field="@nameof(ProductStockDetailsModel.ProductName)" Type="AggregateType.Count" Format="N0" />
+										<GridColumnAggregate Field="@nameof(ProductStockDetailsModel.Quantity)" />
+										<GridColumnAggregate Field="@nameof(ProductStockDetailsModel.Total)" CustomColor="grid-total" />
+									</GridAggregateColumns>
+								</GridAggregate>
+							</GridAggregates>
+
+							<GridColumns>
+								<CustomGridColumn Field="@nameof(ProductStockDetailsModel.TransactionDateTime)" HeaderText="Date" Format="dd/MM/yy hh:mm tt" Type="ColumnType.DateTime" />
+								<CustomGridColumn Field="@nameof(ProductStockDetailsModel.TransactionNo)" HeaderText="Transaction No" />
+								<CustomGridColumn Field="@nameof(ProductStockDetailsModel.Type)" HeaderText="Type" />
+								<CustomGridColumn Field="@nameof(ProductStockDetailsModel.ProductCode)" HeaderText="Code" />
+								<CustomGridColumn Field="@nameof(ProductStockDetailsModel.ProductName)" HeaderText="Finished Product" />
+								<CustomGridColumn Field="@nameof(ProductStockDetailsModel.Quantity)" HeaderText="Qty" NegativePositiveColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockDetailsModel.NetRate)" HeaderText="Rate" NumericColumn="true" />
+								<CustomGridColumn Field="@nameof(ProductStockDetailsModel.Total)" HeaderText="Total" TotalColumn="true" />
+							</GridColumns>
+						</SfGrid>
+					</div>
+				</MudBlazor.MudTabPanel>
+
+			</MudBlazor.MudTabs>
+		</div>
+
+		<Footer />
+	</div>
+}
+
+<ToastNotification @ref="_toastNotification" />
+
+<CloseGuard Block="_isProcessing" />

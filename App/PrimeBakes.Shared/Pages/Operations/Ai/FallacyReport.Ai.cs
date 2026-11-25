@@ -63,7 +63,7 @@ public partial class FallacyReport
 		var counts = new StringBuilder();
 		var csv = new StringBuilder();
 
-		text.AppendLine($"Period: {_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy} (financial year)");
+		text.AppendLine($"Period: {_fromDate:dd-MMM-yyyy} to {_toDate:dd-MMM-yyyy}");
 		text.AppendLine($"Today is {_currentDateTime:dd-MMM-yyyy}. The posting check ignores today's transactions.");
 		text.AppendLine($"Maximum customer discount: {_customerMaxDiscountThreshold}%. Maximum round off: {N(_maxRoundOffAmount, "0.##")}. Odd timing hours: {_oddTimingStartHour}:00 to {_oddTimingEndHour}:00.");
 

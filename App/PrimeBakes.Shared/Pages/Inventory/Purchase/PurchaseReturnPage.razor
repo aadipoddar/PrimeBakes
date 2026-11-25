@@ -461,12 +461,12 @@ else
 					</GridColumns>
 				</SfGrid>
 			</div>
-		</div>
 
-		@if (_purchaseReturn.Id > 0 && _user.Admin)
-		{
-			<AuditTrailGrid RecordNo="@_purchaseReturn.TransactionNo" />
-		}
+			@if (_purchaseReturn.Id > 0 && _user.Admin)
+			{
+				<AuditTrailGrid RecordNo="@_purchaseReturn.TransactionNo" />
+			}
+		</div>
 
 		<Footer />
 	</div>

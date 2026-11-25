@@ -229,12 +229,12 @@ else
 					</GridColumns>
 				</SfGrid>
 			</div>
-		</div>
 
-		@if (_purchaseOrder.Id > 0 && _user.Admin)
-		{
-			<AuditTrailGrid RecordNo="@_purchaseOrder.TransactionNo" />
-		}
+			@if (_purchaseOrder.Id > 0 && _user.Admin)
+			{
+				<AuditTrailGrid RecordNo="@_purchaseOrder.TransactionNo" />
+			}
+		</div>
 
 		<Footer />
 	</div>
